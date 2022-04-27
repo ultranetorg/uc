@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9505D95F-FBB9-4365-9D27-BE5D96F75A9B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>UO</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__$(G_Common)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__$(G_Common)\</OutDir>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ZLIB_WINAPI;UC_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>shlwapi.lib;Version.lib;DbgHelp.lib;zlib.lib;ipfs.lib;libcurl.lib;Keccak.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\Ipfs\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);..\Libs\Keccak\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+    </Link>
+    <ResourceCompile />
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_WINAPI;UC_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\Ipfs\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);..\Libs\Keccak\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shlwapi.lib;Version.lib;DbgHelp.lib;zlib.lib;ipfs.lib;libcurl.lib;Keccak.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+      <ImageHasSafeExceptionHandlers>
+      </ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+    </Link>
+    <ResourceCompile />
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Angle.h" />
+    <ClInclude Include="Animated.h" />
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Base64.h" />
+    <ClInclude Include="Dms.h" />
+    <ClInclude Include="Polygon.h" />
+    <ClInclude Include="SolidityValue.h" />
+    <ClInclude Include="HttpClient.h" />
+    <ClInclude Include="Int64.h" />
+    <ClInclude Include="Fdn.h" />
+    <ClInclude Include="DateTime.h" />
+    <ClInclude Include="Ethereum.h" />
+    <ClInclude Include="Layout.h" />
+    <ClInclude Include="PipeClient.h" />
+    <ClInclude Include="Size.h" />
+    <ClInclude Include="Array.h" />
+    <ClInclude Include="Assembly.h" />
+    <ClInclude Include="AsyncFileStream.h" />
+    <ClInclude Include="Base58.h" />
+    <ClInclude Include="BBox.h" />
+    <ClInclude Include="Bool.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Circle.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="Connection.h" />
+    <ClInclude Include="Directory.h" />
+    <ClInclude Include="FastDelegate.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="Storage.h" />
+    <ClInclude Include="FontDefinition.h" />
+    <ClInclude Include="IExecutorProtocol.h" />
+    <ClInclude Include="IStorageProtocol.h" />
+    <ClInclude Include="Line.h" />
+    <ClInclude Include="HttpRequest.h" />
+    <ClInclude Include="Protocol.h" />
+    <ClInclude Include="Converter.h" />
+    <ClInclude Include="CpuMonitor.h" />
+    <ClInclude Include="DiagGrid.h" />
+    <ClInclude Include="Diagnostic.h" />
+    <ClInclude Include="DiagnosticView.h" />
+    <ClInclude Include="EmptyLicenseService.h" />
+    <ClInclude Include="Level2.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="Exception.h" />
+    <ClInclude Include="Sha256.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Path.h" />
+    <ClInclude Include="UniversalDelegate.h" />
+    <ClInclude Include="FastDelegateBind.h" />
+    <ClInclude Include="FileService.h" />
+    <ClInclude Include="FileStream.h" />
+    <ClInclude Include="Float.h" />
+    <ClInclude Include="Float6.h" />
+    <ClInclude Include="FloatArray.h" />
+    <ClInclude Include="GdiRect.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="Guid.h" />
+    <ClInclude Include="IFileService.h" />
+    <ClInclude Include="ILevel.h" />
+    <ClInclude Include="ILicenseService.h" />
+    <ClInclude Include="NexusObject.h" />
+    <ClInclude Include="INativeMessageHandler.h" />
+    <ClInclude Include="Int32.h" />
+    <ClInclude Include="Int32Array.h" />
+    <ClInclude Include="IOs.h" />
+    <ClInclude Include="IPerformanceCounter.h" />
+    <ClInclude Include="ISerializable.h" />
+    <ClInclude Include="RefList.h" />
+    <ClInclude Include="SerializableBuffer.h" />
+    <ClInclude Include="Shared.h" />
+    <ClInclude Include="Stream.h" />
+    <ClInclude Include="Timings.h" />
+    <ClInclude Include="Url.h" />
+    <ClInclude Include="IType.h" />
+    <ClInclude Include="IWriter.h" />
+    <ClInclude Include="IWriterProgress.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="Nexus.h" />
+    <ClInclude Include="License.h" />
+    <ClInclude Include="LicenseService.h" />
+    <ClInclude Include="List.h" />
+    <ClInclude Include="NativeDirectory.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="LogView.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="MemoryStream.h" />
+    <ClInclude Include="Meta.h" />
+    <ClInclude Include="Mmc.h" />
+    <ClInclude Include="Server.h" />
+    <ClInclude Include="NativeWindow.h" />
+    <ClInclude Include="Os.h" />
+    <ClInclude Include="Uxx.h" />
+    <ClInclude Include="WebInformer.h" />
+    <ClInclude Include="XonReader.h" />
+    <ClInclude Include="XonValue.h" />
+    <ClInclude Include="XonWriter.h" />
+    <ClInclude Include="Xon.h" />
+    <ClInclude Include="NativePath.h" />
+    <ClInclude Include="PerformanceCounter.h" />
+    <ClInclude Include="Plane.h" />
+    <ClInclude Include="Include.h" />
+    <ClInclude Include="Quaternion.h" />
+    <ClInclude Include="Rect.h" />
+    <ClInclude Include="Resources\resource.h" />
+    <ClInclude Include="Security.h" />
+    <ClInclude Include="StaticArray.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="String.h" />
+    <ClInclude Include="Supervisor.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Thread.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="Transformation.h" />
+    <ClInclude Include="Triangle.h" />
+    <ClInclude Include="Float4.h" />
+    <ClInclude Include="Float2.h" />
+    <ClInclude Include="Float2Array.h" />
+    <ClInclude Include="Float3.h" />
+    <ClInclude Include="Float3Array.h" />
+    <ClInclude Include="Version.h" />
+    <ClInclude Include="WritePool.h" />
+    <ClInclude Include="XonDocument.h" />
+    <ClInclude Include="Zip.h" />
+    <ClInclude Include="ZipStream.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Angle.cpp" />
+    <ClCompile Include="Animated.cpp" />
+    <ClCompile Include="Base64.cpp" />
+    <ClCompile Include="Dms.cpp" />
+    <ClCompile Include="Polygon.cpp" />
+    <ClCompile Include="SolidityValue.cpp" />
+    <ClCompile Include="HttpRequest.cpp" />
+    <ClCompile Include="Int64.cpp" />
+    <ClCompile Include="Fdn.cpp" />
+    <ClCompile Include="Ethereum.cpp" />
+    <ClCompile Include="Layout.cpp" />
+    <ClCompile Include="Size.cpp" />
+    <ClCompile Include="Base58.cpp" />
+    <ClCompile Include="BBox.cpp" />
+    <ClCompile Include="Bool.cpp" />
+    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Directory.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="Storage.cpp" />
+    <ClCompile Include="Float6.cpp" />
+    <ClCompile Include="GdiRect.cpp" />
+    <ClCompile Include="Guid.cpp" />
+    <ClCompile Include="Line.cpp" />
+    <ClCompile Include="NexusObject.cpp" />
+    <ClCompile Include="Converter.cpp" />
+    <ClCompile Include="CpuMonitor.cpp" />
+    <ClCompile Include="DiagGrid.cpp" />
+    <ClCompile Include="Diagnostic.cpp" />
+    <ClCompile Include="DiagnosticView.cpp" />
+    <ClCompile Include="EmptyLicenseService.cpp" />
+    <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="FileService.cpp" />
+    <ClCompile Include="FileStream.cpp" />
+    <ClCompile Include="Float.cpp" />
+    <ClCompile Include="FloatArray.cpp" />
+    <ClCompile Include="Int32.cpp" />
+    <ClCompile Include="Int32Array.cpp" />
+    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="Nexus.cpp" />
+    <ClCompile Include="License.cpp" />
+    <ClCompile Include="LicenseService.cpp" />
+    <ClCompile Include="NativeDirectory.cpp" />
+    <ClCompile Include="Log.cpp" />
+    <ClCompile Include="LogView.cpp" />
+    <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="MemoryStream.cpp" />
+    <ClCompile Include="Meta.cpp" />
+    <ClCompile Include="Mmc.cpp" />
+    <ClCompile Include="Sha256.cpp" />
+    <ClCompile Include="Shared.cpp" />
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="NativeWindow.cpp" />
+    <ClCompile Include="Os.cpp" />
+    <ClInclude Include="TextReader.h" />
+    <ClCompile Include="Path.cpp" />
+    <ClCompile Include="Url.cpp" />
+    <ClCompile Include="Uxx.cpp" />
+    <ClCompile Include="WebInformer.cpp" />
+    <ClCompile Include="XonReader.cpp" />
+    <ClCompile Include="XonWriter.cpp" />
+    <ClCompile Include="Xon.cpp" />
+    <ClCompile Include="NativePath.cpp" />
+    <ClCompile Include="PerformanceCounter.cpp" />
+    <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="Quaternion.cpp" />
+    <ClCompile Include="Rect.cpp" />
+    <ClCompile Include="Security.cpp" />
+    <ClCompile Include="SerializableBuffer.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="String.cpp" />
+    <ClCompile Include="Supervisor.cpp" />
+    <ClCompile Include="Thread.cpp" />
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Transformation.cpp" />
+    <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="Float4.cpp" />
+    <ClCompile Include="Float2.cpp" />
+    <ClCompile Include="Float2Array.cpp" />
+    <ClCompile Include="Float3.cpp" />
+    <ClCompile Include="Float3Array.cpp" />
+    <ClCompile Include="Version.cpp" />
+    <ClCompile Include="WritePool.cpp" />
+    <ClCompile Include="XonDocument.cpp" />
+    <ClCompile Include="Zip.cpp" />
+    <ClCompile Include="ZipStream.cpp" />
+    <ClCompile Include="DateTime.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Primary.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\lucon.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Main.natvis" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

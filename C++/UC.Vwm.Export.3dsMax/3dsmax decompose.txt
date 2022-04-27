@@ -1,0 +1,29 @@
+http://www.flipcode.com/forums/thread/3968
+
+{
+Matrix3 tm = GetLocalTM( node, time );
+Point3 s;
+AffineParts ap;
+decomp_affine( tm, &ap );
+s = ScaleValue( ap.k, ap.u ).s;
+if( ap.f < 0.0f ) s = - s;
+
+mPosition.Set( ap.t.x/s.x, ap.t.z/s.z, ap.t.y/s.y );
+mRotation.Set( ap.q.x, ap.q.z, ap.q.y, ap.q.w );
+}
+
+// where...
+
+static Matrix3
+GetLocalTM(INode* node, TimeValue t)
+{
+Matrix3 tm;
+tm = node->GetObjTMAfterWSM(t);
+if (!node->GetParentNode()->IsRootNode()) {
+Matrix3 ip = Inverse(node->GetParentNode()->GetObjTMAfterWSM(t));
+tm = tm * ip;
+}
+return tm;
+} 
+
+

@@ -1,0 +1,302 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{e6a0a6cf-78b3-4501-bb15-7c08fb6544d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Elements">
+      <UniqueIdentifier>{ba30d569-7021-4978-b0e4-99c48072cea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Avatar">
+      <UniqueIdentifier>{223b4d3e-1c73-4ee0-838b-d7e1c5678b23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Menu">
+      <UniqueIdentifier>{055a35be-2237-47d2-a801-27ccc445e03b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Area">
+      <UniqueIdentifier>{0b7084b3-6c9e-442b-ba18-a3ff98cd2ff6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WorldView.cpp" />
+    <ClCompile Include="VwmImporter.cpp" />
+    <ClCompile Include="MaterialPool.cpp" />
+    <ClCompile Include="Rectangle.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEdit.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldServer.cpp" />
+    <ClCompile Include="Avatar.cpp">
+      <Filter>Avatar</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Style.cpp" />
+    <ClCompile Include="CylindricalPositioning.cpp" />
+    <ClCompile Include="Icon.cpp">
+      <Filter>Avatar</Filter>
+    </ClCompile>
+    <ClCompile Include="Layout.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="EnvironmentWindow.cpp">
+      <Filter>Avatar</Filter>
+    </ClCompile>
+    <ClCompile Include="WidgetWindow.cpp">
+      <Filter>Avatar</Filter>
+    </ClCompile>
+    <ClCompile Include="Table.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Stack.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Scrollbar.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="PolygonPositioning.cpp" />
+    <ClCompile Include="RectangleMenu.cpp">
+      <Filter>Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="RectangleMenuSection.cpp">
+      <Filter>Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="RectangleMenuItem.cpp">
+      <Filter>Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="RectangleSectionMenuItem.cpp">
+      <Filter>Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Area.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultIcon.cpp">
+      <Filter>Avatar</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+    <ClCompile Include="Header.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+    <ClCompile Include="HighspaceGroupUnit.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+    <ClCompile Include="LowspaceGroupUnit.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupUnit.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+    <ClCompile Include="AvatarCard.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Card.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="PositioningArea.cpp" />
+    <ClCompile Include="Listbox.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Element.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="DesktopWorld.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Solo.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupIcon.cpp">
+      <Filter>Area</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WorldView.h" />
+    <ClInclude Include="Assembly.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="IDropTarget.h" />
+    <ClInclude Include="VwmImporter.h" />
+    <ClInclude Include="MaterialPool.h" />
+    <ClInclude Include="MeshStore.h" />
+    <ClInclude Include="Rectangle.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialStore.h" />
+    <ClInclude Include="TextEdit.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Style.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Paragraph.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="VwmElement.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldServer.h" />
+    <ClInclude Include="IWorldFriend.h" />
+    <ClInclude Include="Avatar.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="AvatarMetrics.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldLevel.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="Include.h" />
+    <ClInclude Include="Sizer.h" />
+    <ClInclude Include="CylindricalPositioning.h" />
+    <ClInclude Include="Icon.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="IUwmProtocol.h" />
+    <ClInclude Include="Stack.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Layout.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="WidgetWindow.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentWindow.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="Table.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultIcon.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h" />
+    <ClInclude Include="IImageExtractor.h" />
+    <ClInclude Include="Scrollbar.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Logo.h" />
+    <ClInclude Include="MenuItem.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="PolygonPositioning.h" />
+    <ClInclude Include="RectangleMenu.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="IMenu.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangleMenuSection.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangleSectionMenuItem.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangleMenuItem.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="MobileWorld.h" />
+    <ClInclude Include="DesktopWorld.h" />
+    <ClInclude Include="VrWorld.h" />
+    <ClInclude Include="Fieldable.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="Positioning.h" />
+    <ClInclude Include="SpaceCollection.h" />
+    <ClInclude Include="MobileSkinModel.h" />
+    <ClInclude Include="Area.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="Header.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="PositioningArea.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="Group.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupIcon.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="HighspaceGroupUnit.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="LowspaceGroupUnit.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupUnit.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+    <ClInclude Include="AvatarCard.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Card.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Listbox.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Element.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldCapabilities.h" />
+    <ClInclude Include="FieldWorld.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Avatar</Filter>
+    </ClInclude>
+    <ClInclude Include="Solo.h">
+      <Filter>Area</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Uos.png">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Natvis.natvis">
+      <Filter>Resources</Filter>
+    </Natvis>
+  </ItemGroup>
+</Project>

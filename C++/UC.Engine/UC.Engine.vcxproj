@@ -1,0 +1,266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{696E2929-DFBA-4648-97D0-17247F4063AD}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>uc</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__UC.World\</OutDir>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__UC.World\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ENGINE_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include;..\Libs\DevIL\include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>ilu.lib;DXGI.lib;d3d11.lib;d2d1.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Vulkan;..\Libs\DevIL\lib\winx64</AdditionalLibraryDirectories>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalOptions>
+      </AdditionalOptions>
+    </Link>
+    <ResourceCompile />
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;ENGINE_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include;..\Libs\DevIL\include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ilu.lib;DXGI.lib;d3d11.lib;d2d1.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Vulkan;..\Libs\DevIL\lib\winx64</AdditionalLibraryDirectories>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ResourceCompile />
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Active.h" />
+    <ClInclude Include="ActiveEvent.h" />
+    <ClInclude Include="ActiveGraph.h" />
+    <ClInclude Include="Assembly.h" />
+    <ClInclude Include="BitmapFont.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="BoxMesh.h" />
+    <ClInclude Include="Canvas.h" />
+    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="DirectMesh.h" />
+    <ClInclude Include="ActiveLayer.h" />
+    <ClInclude Include="TouchManipulation.h" />
+    <ClInclude Include="Pipeline.h" />
+    <ClInclude Include="ScreenRenderTarget.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="FontFactory.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="Include.h" />
+    <ClInclude Include="PolyText.h" />
+    <ClInclude Include="RenderLayer.h" />
+    <ClInclude Include="ScreenViewport.h" />
+    <ClInclude Include="SphereMesh.h" />
+    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="TouchScreen.h" />
+    <ClInclude Include="Vertexes.h" />
+    <ClInclude Include="VisualSpace.h" />
+    <ClInclude Include="VulkanPipeline.h" />
+    <ClInclude Include="VulkanScreenTarget.h" />
+    <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="DisplaySystem.h" />
+    <ClInclude Include="VulkanDevice.h" />
+    <ClInclude Include="Screen.h" />
+    <ClInclude Include="VulkanEngine.h" />
+    <ClInclude Include="WindowScreen.h" />
+    <ClInclude Include="dxerr.h" />
+    <ClInclude Include="EngineLevel.h" />
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="DirectDevice.h" />
+    <ClInclude Include="DirectSystem.h" />
+    <ClInclude Include="Display.h" />
+    <ClInclude Include="FrameMesh.h" />
+    <ClInclude Include="IMaterialStore.h" />
+    <ClInclude Include="InputDevice.h" />
+    <ClInclude Include="IMeshStore.h" />
+    <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="Interactor.h" />
+    <ClInclude Include="View.h" />
+    <ClInclude Include="IViewStore.h" />
+    <ClInclude Include="KdCursorModificator.h" />
+    <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="MaterialFactory.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Mouse.h" />
+    <ClInclude Include="QuadragonMesh.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Resources\resource.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="PipelineFactory.h" />
+    <ClInclude Include="ActiveSpace.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureFactory.h" />
+    <ClInclude Include="DirectVisualGraph.h" />
+    <ClInclude Include="ScreenEngine.h" />
+    <ClInclude Include="Viewport.h" />
+    <ClInclude Include="Visual.h" />
+    <ClInclude Include="VisualGraph.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Active.cpp" />
+    <ClCompile Include="ActiveGraph.cpp" />
+    <ClCompile Include="BitmapFont.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Canvas.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="DirectMesh.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="TouchManipulation.cpp" />
+    <ClCompile Include="Pipeline.cpp" />
+    <ClCompile Include="ScreenRenderTarget.cpp" />
+    <ClCompile Include="FontFactory.cpp" />
+    <ClCompile Include="DisplaySystem.cpp" />
+    <ClCompile Include="InputDevice.cpp" />
+    <ClCompile Include="PolyText.cpp" />
+    <ClCompile Include="TouchScreen.cpp" />
+    <ClCompile Include="Vertexes.cpp" />
+    <ClCompile Include="VisualSpace.cpp" />
+    <ClCompile Include="VulkanDevice.cpp" />
+    <ClCompile Include="VulkanEngine.cpp" />
+    <ClCompile Include="VulkanPipeline.cpp" />
+    <ClCompile Include="VulkanScreenTarget.cpp" />
+    <ClCompile Include="WindowScreen.cpp" />
+    <ClCompile Include="dxerr.cpp" />
+    <ClCompile Include="EngineLevel.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="DirectDevice.cpp" />
+    <ClCompile Include="DirectSystem.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="Interactor.cpp" />
+    <ClCompile Include="KdCursorModificator.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="MaterialFactory.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="PipelineFactory.cpp" />
+    <ClCompile Include="ActiveSpace.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureFactory.cpp" />
+    <ClCompile Include="DirectVisualGraph.cpp" />
+    <ClCompile Include="ScreenEngine.cpp" />
+    <ClCompile Include="Viewport.cpp" />
+    <ClCompile Include="Visual.cpp" />
+    <ClCompile Include="VisualGraph.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FakeCursor.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\God.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="NatvisFile.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UC\UC.vcxproj">
+      <Project>{9505d95f-fbb9-4365-9d27-be5d96f75a9b}</Project>
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

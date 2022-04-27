@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Assembly.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Browser.h">
+      <Filter>Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="BrowserEnvironment.h">
+      <Filter>Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="BrowserWidget.h">
+      <Filter>Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="BrowserIcon.h">
+      <Filter>Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="CefApp.h">
+      <Filter>Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="CefElement.h">
+      <Filter>Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="CommanderWidget.h">
+      <Filter>Commander</Filter>
+    </ClInclude>
+    <ClInclude Include="CommanderIcon.h">
+      <Filter>Commander</Filter>
+    </ClInclude>
+    <ClInclude Include="CommanderEnvironment.h">
+      <Filter>Commander</Filter>
+    </ClInclude>
+    <ClInclude Include="Commander.h">
+      <Filter>Commander</Filter>
+    </ClInclude>
+    <ClInclude Include="ColumnFileList.h">
+      <Filter>Commander</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardFileList.h">
+      <Filter>Commander</Filter>
+    </ClInclude>
+    <ClInclude Include="FileItemElement.h">
+      <Filter>Commander</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartElement.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartEnvironment.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartIcon.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartWidget.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="TradeHistory.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="TradeProvider.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="TradingviewElement.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="Earth.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="EarthEnvironment.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="EarthIcon.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="EarthWidget.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="GoogleMap.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentalLevel.h" />
+    <ClInclude Include="ExperimentalServer.h" />
+    <ClInclude Include="TradingviewProvider.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="BitfinexProvider.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="Tradingview.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="Globe.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="TradingviewWidget.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="Trade.h">
+      <Filter>Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="Email.h">
+      <Filter>Email</Filter>
+    </ClInclude>
+    <ClInclude Include="EmailAccount.h">
+      <Filter>Email</Filter>
+    </ClInclude>
+    <ClInclude Include="EmailAccountEnvironment.h">
+      <Filter>Email</Filter>
+    </ClInclude>
+    <ClInclude Include="EmailWidget.h">
+      <Filter>Email</Filter>
+    </ClInclude>
+    <ClInclude Include="Vmime.h">
+      <Filter>Email</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoStore.h">
+      <Filter>Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="CefClient.h">
+      <Filter>Browser</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Browser.cpp">
+      <Filter>Browser</Filter>
+    </ClCompile>
+    <ClCompile Include="BrowserEnvironment.cpp">
+      <Filter>Browser</Filter>
+    </ClCompile>
+    <ClCompile Include="BrowserIcon.cpp">
+      <Filter>Browser</Filter>
+    </ClCompile>
+    <ClCompile Include="BrowserWidget.cpp">
+      <Filter>Browser</Filter>
+    </ClCompile>
+    <ClCompile Include="CommanderWidget.cpp">
+      <Filter>Commander</Filter>
+    </ClCompile>
+    <ClCompile Include="CommanderIcon.cpp">
+      <Filter>Commander</Filter>
+    </ClCompile>
+    <ClCompile Include="CommanderEnvironment.cpp">
+      <Filter>Commander</Filter>
+    </ClCompile>
+    <ClCompile Include="Commander.cpp">
+      <Filter>Commander</Filter>
+    </ClCompile>
+    <ClCompile Include="ColumnFileList.cpp">
+      <Filter>Commander</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardFileList.cpp">
+      <Filter>Commander</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartEnvironment.cpp">
+      <Filter>Economy</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartIcon.cpp">
+      <Filter>Economy</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartWidget.cpp">
+      <Filter>Economy</Filter>
+    </ClCompile>
+    <ClCompile Include="TradeHistory.cpp">
+      <Filter>Economy</Filter>
+    </ClCompile>
+    <ClCompile Include="EarthEnvironment.cpp">
+      <Filter>Earth</Filter>
+    </ClCompile>
+    <ClCompile Include="EarthIcon.cpp">
+      <Filter>Earth</Filter>
+    </ClCompile>
+    <ClCompile Include="EarthWidget.cpp">
+      <Filter>Earth</Filter>
+    </ClCompile>
+    <ClCompile Include="GoogleMap.cpp">
+      <Filter>Earth</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentalServer.cpp" />
+    <ClCompile Include="Tradingview.cpp">
+      <Filter>Economy</Filter>
+    </ClCompile>
+    <ClCompile Include="TradingviewWidget.cpp">
+      <Filter>Economy</Filter>
+    </ClCompile>
+    <ClCompile Include="Email.cpp">
+      <Filter>Email</Filter>
+    </ClCompile>
+    <ClCompile Include="EmailAccountEnvironment.cpp">
+      <Filter>Email</Filter>
+    </ClCompile>
+    <ClCompile Include="EmailWidget.cpp">
+      <Filter>Email</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>Earth</Filter>
+    </ClCompile>
+    <ClCompile Include="CefElement.cpp">
+      <Filter>Browser</Filter>
+    </ClCompile>
+    <ClCompile Include="Globe.cpp" />
+    <ClCompile Include="CefClient.cpp">
+      <Filter>Browser</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{ec9ce15f-3881-4f8f-b9e3-33c92f59ebc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Browser">
+      <UniqueIdentifier>{1c21f87e-c41d-4169-91ec-f0c667501f5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Commander">
+      <UniqueIdentifier>{ed7ce4e6-4e8e-4c96-a97f-ac5564559cfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Economy">
+      <UniqueIdentifier>{b158c89a-54a7-4a49-9c77-ec0590d1008f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Earth">
+      <UniqueIdentifier>{96300558-8e5c-4601-a379-b1fe264d1d9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Email">
+      <UniqueIdentifier>{46629516-e912-44fd-bdf2-685381ce37f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

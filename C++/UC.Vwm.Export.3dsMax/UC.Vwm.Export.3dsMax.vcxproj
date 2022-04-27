@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{14BD37B5-7929-428A-916E-447F6E6EF27D}</ProjectGuid>
+    <RootNamespace>uc</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(UOTMP)\Win32.$(PlatformTarget)-$(Configuration)-$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(UOTMP)\Win32.$(PlatformTarget)-$(Configuration)-$(ProjectName)\</IntDir>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dle</TargetExt>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>c:\Program Files\Autodesk\3ds Max 2018\plugins\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>c:\Program Files\Autodesk\3ds Max 2018\plugins\</OutDir>
+    <TargetExt>.dle</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\3dsMax;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;UOS_PROJECT_TARGET_FILENAME=L"$(TargetFileName)";UOS_PROJECT_TARGET_PLATFORM=L"$(PlatformName).$(PlatformTarget)";UOS_PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;UOS_PROJECT_NAME=L\"$(ProjectName)\";UOS_PROJECT_TARGET_FILENAME=L\"$(TargetFileName)\";UOS_PROJECT_CONFIGURATION=L\"$(Configuration)\";UOS_PROJECT_TARGET_PLATFORM=L\"$(PlatformName).$(PlatformTarget)\"</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>core.lib;maxutil.lib;geom.lib;mesh.lib;Paramblk2.lib;Wininet.lib;shlwapi.lib;Version.lib;DbgHelp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\Win32.$(PlatformTarget)-$(Configuration);..\Libs\Ipfs\Win32.$(PlatformTarget)-$(Configuration);..\Libs\curl\Win32.$(PlatformTarget)-$(Configuration);..\Libs\Keccak\Win32.$(PlatformTarget)-$(Configuration);..\Libs\3dsMax\Win32.$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>
+      </ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
+      <ImportLibrary>
+      </ImportLibrary>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/EXPORT:LibNumberClasses
+/EXPORT:LibClassDesc
+/EXPORT:LibDescription
+/EXPORT:LibVersion
+ %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /y "..\..\^Win32.$(PlatformTarget)-$(Configuration)-Framework\UO.dll" "c:\Program Files\Autodesk\3ds Max 2018\UO.dll"
+copy /y "..\..\^Win32.$(PlatformTarget)-$(Configuration)-Framework\zlibd1.dll" "c:\Program Files\Autodesk\3ds Max 2018\zlibd1.dll"
+copy /y "..\..\^Win32.$(PlatformTarget)-$(Configuration)-Framework\libcurl-d.dll" "c:\Program Files\Autodesk\3ds Max 2018\libcurl-d.dll"
+</Command>
+    </PostBuildEvent>
+    <ProjectReference />
+    <ProjectReference />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Libs\Include;..\..\Libs\Include\3dsMax;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_NAME=L"$(ProjectName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/EXPORT:DoExport %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>core.lib;maxutil.lib;geom.lib;mesh.lib;Paramblk2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\Libs\Bin\3dsMax\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TMP)\Build\Pdb\$(Platform).$(Configuration) - $(ProjectName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
+      <ImportLibrary>$(IntDir)$(ProjectName).lib</ImportLibrary>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Assembly.h" />
+    <ClInclude Include="IProcessHandler.h" />
+    <ClInclude Include="MaxPlugin.h" />
+    <ClInclude Include="VwmLight.h" />
+    <ClInclude Include="MainDlg.h" />
+    <ClInclude Include="ProcessDlg.h" />
+    <ClInclude Include="Resources\resource.h" />
+    <ClInclude Include="MaterialFactory.h" />
+    <ClInclude Include="MaxExportHelper.h" />
+    <ClInclude Include="MeshFactory.h" />
+    <ClInclude Include="Source.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="VwmCamera.h" />
+    <ClInclude Include="VwmExporter.h" />
+    <ClInclude Include="VwmMaterial.h" />
+    <ClInclude Include="VwmMesh.h" />
+    <ClInclude Include="VwmNode.h" />
+    <ClInclude Include="VwmSceneExport.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MaxPlugin.cpp" />
+    <ClCompile Include="VwmLight.cpp" />
+    <ClCompile Include="MainDlg.cpp" />
+    <ClCompile Include="ProcessDlg.cpp" />
+    <ClCompile Include="MaterialFactory.cpp" />
+    <ClCompile Include="MaxExportHelper.cpp" />
+    <ClCompile Include="MeshFactory.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="VwmCamera.cpp" />
+    <ClCompile Include="VwmExporter.cpp" />
+    <ClCompile Include="VwmMaterial.cpp" />
+    <ClCompile Include="VwmMesh.cpp" />
+    <ClCompile Include="VwmNode.cpp" />
+    <ClCompile Include="VwmSceneExport.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Version.rc" />
+    <ResourceCompile Include="Resources\VwmExporter.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UC\UC.vcxproj">
+      <Project>{9505d95f-fbb9-4365-9d27-be5d96f75a9b}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

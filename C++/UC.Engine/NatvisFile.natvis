@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="uo::CVisual">
+		<DisplayString>{{FullName={FullName} Refs={Refs}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CActive">
+		<DisplayString>{{FullName={FullName} Refs={Refs}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CActiveEvent">
+		<DisplayString>{{Type={Type} Receiver={Receiver->FullName}}}</DisplayString>
+	</Type>
+</AutoVisualizer>

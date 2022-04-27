@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{C020FC98-2A0E-42DA-A292-E945F31D064A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>uc</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__$(ProjectName)\</OutDir>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <LinkIncremental />
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include;..\Libs\Cef;..\Libs\vmime\</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Cef\_winx64-$(Configuration);..\Libs\Vmime\_winx64-$(Configuration);..\Libs\Vmime\gsasl\_winx64;..\Libs\Vmime\openssl\_winx64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Wininet.lib;libcef.lib;libcef_dll_wrapper.lib;libcrypto.lib;libgsasl.lib;libssl.lib;vmime.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <AdditionalOptions>/EXPORT:StartUosServer /EXPORT:StopUosServer</AdditionalOptions>
+    </Link>
+    <ResourceCompile />
+    <ProjectReference />
+    <ProjectReference />
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include;..\Libs\Cef;..\Libs\vmime\</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Cef\_winx64-$(Configuration);..\Libs\Vmime\_winx64-$(Configuration);..\Libs\Vmime\gsasl\_winx64;..\Libs\Vmime\openssl\_winx64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Wininet.lib;libcef.lib;libcef_dll_wrapper.lib;libcrypto.lib;libgsasl.lib;libssl.lib;vmime.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <AdditionalOptions>/EXPORT:StartUosServer /EXPORT:StopUosServer</AdditionalOptions>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ResourceCompile />
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Assembly.h" />
+    <ClInclude Include="BitfinexProvider.h" />
+    <ClInclude Include="Browser.h" />
+    <ClInclude Include="BrowserEnvironment.h" />
+    <ClInclude Include="BrowserIcon.h" />
+    <ClInclude Include="BrowserWidget.h" />
+    <ClInclude Include="CefApp.h" />
+    <ClInclude Include="CefClient.h" />
+    <ClInclude Include="CefElement.h" />
+    <ClInclude Include="ChartElement.h" />
+    <ClInclude Include="ChartEnvironment.h" />
+    <ClInclude Include="ChartIcon.h" />
+    <ClInclude Include="ChartWidget.h" />
+    <ClInclude Include="ColumnFileList.h" />
+    <ClInclude Include="Commander.h" />
+    <ClInclude Include="CommanderEnvironment.h" />
+    <ClInclude Include="CommanderIcon.h" />
+    <ClInclude Include="CommanderWidget.h" />
+    <ClInclude Include="Email.h" />
+    <ClInclude Include="EmailAccount.h" />
+    <ClInclude Include="EmailAccountEnvironment.h" />
+    <ClInclude Include="EmailWidget.h" />
+    <ClInclude Include="ExperimentalServer.h" />
+    <ClInclude Include="ExperimentalLevel.h" />
+    <ClInclude Include="Earth.h" />
+    <ClInclude Include="EarthEnvironment.h" />
+    <ClInclude Include="EarthIcon.h" />
+    <ClInclude Include="EarthWidget.h" />
+    <ClInclude Include="FileItemElement.h" />
+    <ClInclude Include="GeoStore.h" />
+    <ClInclude Include="Globe.h" />
+    <ClInclude Include="GoogleMap.h" />
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="StandardFileList.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Trade.h" />
+    <ClInclude Include="TradeHistory.h" />
+    <ClInclude Include="TradeProvider.h" />
+    <ClInclude Include="TradingviewProvider.h" />
+    <ClInclude Include="TradingviewElement.h" />
+    <ClInclude Include="Tradingview.h" />
+    <ClInclude Include="TradingviewWidget.h" />
+    <ClInclude Include="Vmime.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Browser.cpp" />
+    <ClCompile Include="BrowserEnvironment.cpp" />
+    <ClCompile Include="BrowserIcon.cpp" />
+    <ClCompile Include="BrowserWidget.cpp" />
+    <ClCompile Include="CefClient.cpp" />
+    <ClCompile Include="CefElement.cpp" />
+    <ClCompile Include="ChartEnvironment.cpp" />
+    <ClCompile Include="ChartIcon.cpp" />
+    <ClCompile Include="ChartWidget.cpp" />
+    <ClCompile Include="ColumnFileList.cpp" />
+    <ClCompile Include="Commander.cpp" />
+    <ClCompile Include="CommanderEnvironment.cpp" />
+    <ClCompile Include="CommanderIcon.cpp" />
+    <ClCompile Include="CommanderWidget.cpp" />
+    <ClCompile Include="Email.cpp" />
+    <ClCompile Include="EmailAccountEnvironment.cpp" />
+    <ClCompile Include="EmailWidget.cpp" />
+    <ClCompile Include="ExperimentalServer.cpp" />
+    <ClCompile Include="EarthEnvironment.cpp" />
+    <ClCompile Include="EarthIcon.cpp" />
+    <ClCompile Include="EarthWidget.cpp" />
+    <ClCompile Include="Globe.cpp" />
+    <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="GoogleMap.cpp" />
+    <ClCompile Include="StandardFileList.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TradeHistory.cpp" />
+    <ClCompile Include="Tradingview.cpp" />
+    <ClCompile Include="TradingviewWidget.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UC.Shell\UC.Shell.vcxproj">
+      <Project>{e6333280-ebc2-4be2-9c83-fd5efffb71c4}</Project>
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\UC.Engine\UC.Engine.vcxproj">
+      <Project>{696e2929-dfba-4648-97d0-17247f4063ad}</Project>
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\UC.World\UC.World.vcxproj">
+      <Project>{1c7a99b2-adc2-4e07-8062-eabc8988050f}</Project>
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\UC\UC.vcxproj">
+      <Project>{9505d95f-fbb9-4365-9d27-be5d96f75a9b}</Project>
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

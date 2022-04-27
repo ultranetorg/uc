@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace UC
+{
+	public interface IXonWriter
+	{
+		void WriteHeader();
+		void Write(Xon s);
+		void Finish();
+		//void Write(IEnumerable<Xon> items);
+	};
+}

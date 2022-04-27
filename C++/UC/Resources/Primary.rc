@@ -1,0 +1,139 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDF_VIEWCONSOLE DIALOGEX 0, 0, 316, 185
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_MAXIMIZEBOX | WS_CAPTION | WS_VSCROLL | WS_SYSMENU | WS_THICKFRAME
+CAPTION "...View name"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+END
+
+IDF_MMC DIALOGEX 0, 0, 362, 213
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_CONTROLPARENT | WS_EX_APPWINDOW
+CAPTION "....."
+MENU IDR_MENU_MAIN
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Custom1",IDC_MMCVIEW,"UosGeneralClass",WS_BORDER | WS_TABSTOP,4,4,352,205
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDF_VIEWCONSOLE, DIALOG
+    BEGIN
+    END
+
+    IDF_MMC, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 356
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 209
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_MAIN MENU
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Suspend",                     ID_MENU_SUSPEND
+        MENUITEM "Resume",                      ID_MENU_RESUME
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+    MENUITEM "Logs",                        ID_LOGS40023
+    MENUITEM "Diagnostics",                 ID_DIAGNOSTICS40022
+    MENUITEM "Objects",                     0
+    POPUP "Help"
+    BEGIN
+        MENUITEM "About",                       ID_HELP_ABOUT
+        MENUITEM "Registration",                ID_HELP_REGISTRATION
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// TTF
+//
+
+IDR_FONT                TTF                     "lucon.ttf"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDF_MMC AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+

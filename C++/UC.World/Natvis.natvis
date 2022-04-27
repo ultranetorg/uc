@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="uo::CElement">
+		<DisplayString>{{Name={Name} Size={Size} Pos={Transformation.Position} Refs={Refs}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CArea">
+		<DisplayString>{{Name={Name} Areas={Areas} Parent={Parent->Name} Position={Transformation.Position}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CUnit">
+		<DisplayString>{{Name={Name} Areas={Areas} Parent={Parent->Name} Position={Transformation.Position}} Model={Avatarization->Model->Url.Object}}</DisplayString>
+	</Type>
+</AutoVisualizer>

@@ -1,0 +1,392 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Input">
+      <UniqueIdentifier>{7e79c7ea-a0fe-42ee-b03a-4ef89738cb82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{0b4c8376-7bf2-4747-b17f-e484e29d7bf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mesh">
+      <UniqueIdentifier>{1aff755c-3a02-445d-878f-b5cae07ee05b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{f7ba4a04-8a8b-446c-a892-d2a8b338a837}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Light">
+      <UniqueIdentifier>{216ce47a-166b-4442-a119-36f72e6401e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Text">
+      <UniqueIdentifier>{4b886da6-ce05-4558-97df-acb6c0af66ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Visual">
+      <UniqueIdentifier>{f67e4f3b-4c29-4cba-afa4-7eb7d0946840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Active">
+      <UniqueIdentifier>{b4b6e629-0c88-4cc3-97bc-fd3db723161e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Display">
+      <UniqueIdentifier>{6ca4e03f-6a56-4ac1-98fc-d08188971b5b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="KdCursorModificator.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Active.cpp">
+      <Filter>Active</Filter>
+    </ClCompile>
+    <ClCompile Include="ActiveGraph.cpp">
+      <Filter>Active</Filter>
+    </ClCompile>
+    <ClCompile Include="Interactor.cpp">
+      <Filter>Active</Filter>
+    </ClCompile>
+    <ClCompile Include="Visual.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="VisualGraph.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="dxerr.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="WindowScreen.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanEngine.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanDevice.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanScreenTarget.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialFactory.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureFactory.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Light</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertexes.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="DirectDevice.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="PipelineFactory.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanPipeline.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineLevel.cpp" />
+    <ClCompile Include="ScreenEngine.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="BitmapFont.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="FontFactory.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="PolyText.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipeline.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="ActiveSpace.cpp">
+      <Filter>Active</Filter>
+    </ClCompile>
+    <ClCompile Include="VisualSpace.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenRenderTarget.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="TouchScreen.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="InputDevice.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="TouchManipulation.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplaySystem.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectSystem.cpp">
+      <Filter>Display</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectVisualGraph.cpp">
+      <Filter>Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="Canvas.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="KdCursorModificator.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Active.h">
+      <Filter>Active</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveGraph.h">
+      <Filter>Active</Filter>
+    </ClInclude>
+    <ClInclude Include="Interactor.h">
+      <Filter>Active</Filter>
+    </ClInclude>
+    <ClInclude Include="Visual.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="VisualGraph.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Display.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="dxerr.h" />
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="WindowScreen.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanEngine.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanDevice.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanScreenTarget.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Assembly.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialFactory.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureFactory.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="IMaterialStore.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Light</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertexes.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="IMeshStore.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanPipeline.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectDevice.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="PipelineFactory.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineLevel.h" />
+    <ClInclude Include="Canvas.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenEngine.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="Include.h" />
+    <ClInclude Include="BitmapFont.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="FontFactory.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="PolyText.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Text</Filter>
+    </ClInclude>
+    <ClInclude Include="VisualSpace.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipeline.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveSpace.h">
+      <Filter>Active</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadragonMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenRenderTarget.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenViewport.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="IViewStore.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="View.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveLayer.h">
+      <Filter>Active</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderLayer.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="TouchScreen.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="InputDevice.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="TouchManipulation.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="DisplaySystem.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectSystem.h">
+      <Filter>Display</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectVisualGraph.h">
+      <Filter>Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveEvent.h">
+      <Filter>Active</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FakeCursor.cur">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\God.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="NatvisFile.natvis" />
+  </ItemGroup>
+</Project>

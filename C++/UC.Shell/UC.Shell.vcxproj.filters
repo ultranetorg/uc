@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{b810b8fe-d0bf-409d-84d4-f6e2add8c9d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Theme">
+      <UniqueIdentifier>{a48c9de0-b96a-4091-ad77-68720a27b157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Menu">
+      <UniqueIdentifier>{52f0dfac-a027-4df8-a019-8db54f65efb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hud">
+      <UniqueIdentifier>{eabdd816-80cc-402b-9b54-f2420aec7c37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Field">
+      <UniqueIdentifier>{1f79de08-18c5-41c1-9bde-855bfee4ec0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Link">
+      <UniqueIdentifier>{bc9bb7e9-447d-48d3-ac46-cacbc5854c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Notepad">
+      <UniqueIdentifier>{1cd09036-0167-4a2e-9a38-161a1726fbf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Picture">
+      <UniqueIdentifier>{5c8be3ad-eefb-4cc7-ba74-7810cc831347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Board">
+      <UniqueIdentifier>{cf54ac93-2aa1-4847-8d3e-070fceb21d94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="History">
+      <UniqueIdentifier>{cf35e102-5910-43ec-a523-d85cb66d7664}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tray">
+      <UniqueIdentifier>{51125bae-72ef-47ca-89f2-a03bb6b357bf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MenuWidget.cpp">
+      <Filter>Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ShellServer.cpp" />
+    <ClCompile Include="HudEnvironment.cpp">
+      <Filter>Hud</Filter>
+    </ClCompile>
+    <ClCompile Include="HudFieldElement.cpp">
+      <Filter>Hud</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ThemeEnvironment.cpp">
+      <Filter>Theme</Filter>
+    </ClCompile>
+    <ClCompile Include="ThemeWidget.cpp">
+      <Filter>Theme</Filter>
+    </ClCompile>
+    <ClCompile Include="Theme.cpp">
+      <Filter>Theme</Filter>
+    </ClCompile>
+    <ClCompile Include="Field.cpp">
+      <Filter>Field</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldElement.cpp">
+      <Filter>Field</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldItemElement.cpp">
+      <Filter>Field</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldIcon.cpp">
+      <Filter>Field</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldWidget.cpp">
+      <Filter>Field</Filter>
+    </ClCompile>
+    <ClCompile Include="LinkIcon.cpp">
+      <Filter>Link</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageExtractor.cpp" />
+    <ClCompile Include="LinkProperties.cpp">
+      <Filter>Link</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldEnvironment.cpp">
+      <Filter>Field</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldAvatar.cpp">
+      <Filter>Field</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectoryMenu.cpp">
+      <Filter>Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="NotepadWidget.cpp">
+      <Filter>Notepad</Filter>
+    </ClCompile>
+    <ClCompile Include="NotepadIcon.cpp">
+      <Filter>Notepad</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureWidget.cpp">
+      <Filter>Picture</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureIcon.cpp">
+      <Filter>Picture</Filter>
+    </ClCompile>
+    <ClCompile Include="ThemeAvatar.cpp">
+      <Filter>Theme</Filter>
+    </ClCompile>
+    <ClCompile Include="BoardAvatar.cpp">
+      <Filter>Board</Filter>
+    </ClCompile>
+    <ClCompile Include="HistoryWidget.cpp">
+      <Filter>History</Filter>
+    </ClCompile>
+    <ClCompile Include="TrayWidget.cpp">
+      <Filter>Tray</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Theme.h">
+      <Filter>Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="ShellLevel.h" />
+    <ClInclude Include="IShellFriend.h" />
+    <ClInclude Include="MenuWidget.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="ShellServer.h" />
+    <ClInclude Include="HudEnvironment.h">
+      <Filter>Hud</Filter>
+    </ClInclude>
+    <ClInclude Include="HudFieldElement.h">
+      <Filter>Hud</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Assembly.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ThemeWidget.h">
+      <Filter>Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="ThemeEnvironment.h">
+      <Filter>Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="Field.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldElement.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldItemElement.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldIcon.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldWidget.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="Link.h">
+      <Filter>Link</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkIcon.h">
+      <Filter>Link</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageExtractor.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="ApplicationsMenu.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkProperties.h">
+      <Filter>Link</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldEnvironment.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldAvatar.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="Include.h" />
+    <ClInclude Include="DirectoryMenu.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="NotepadWidget.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="NotepadIcon.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureWidget.h">
+      <Filter>Picture</Filter>
+    </ClInclude>
+    <ClInclude Include="Picture.h">
+      <Filter>Picture</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureIcon.h">
+      <Filter>Picture</Filter>
+    </ClInclude>
+    <ClInclude Include="Shell.h" />
+    <ClInclude Include="FieldSurface.h">
+      <Filter>Field</Filter>
+    </ClInclude>
+    <ClInclude Include="ThemeAvatar.h">
+      <Filter>Theme</Filter>
+    </ClInclude>
+    <ClInclude Include="Board.h">
+      <Filter>Board</Filter>
+    </ClInclude>
+    <ClInclude Include="BoardAvatar.h">
+      <Filter>Board</Filter>
+    </ClInclude>
+    <ClInclude Include="BoardEnvironment.h">
+      <Filter>Board</Filter>
+    </ClInclude>
+    <ClInclude Include="BoardSurface.h">
+      <Filter>Board</Filter>
+    </ClInclude>
+    <ClInclude Include="BoardWidget.h">
+      <Filter>Board</Filter>
+    </ClInclude>
+    <ClInclude Include="History.h">
+      <Filter>History</Filter>
+    </ClInclude>
+    <ClInclude Include="HistoryItemElement.h">
+      <Filter>History</Filter>
+    </ClInclude>
+    <ClInclude Include="HistoryWidget.h">
+      <Filter>History</Filter>
+    </ClInclude>
+    <ClInclude Include="Tray.h">
+      <Filter>Tray</Filter>
+    </ClInclude>
+    <ClInclude Include="TrayItemElement.h">
+      <Filter>Tray</Filter>
+    </ClInclude>
+    <ClInclude Include="TrayWidget.h">
+      <Filter>Tray</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemMenuWidget.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

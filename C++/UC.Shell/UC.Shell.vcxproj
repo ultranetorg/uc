@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E6333280-EBC2-4BE2-9C83-FD5EFFFB71C4}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>uc</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__$(ProjectName)\</OutDir>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+    <OutDir>$(G_Root)\_$(Configuration)\winx64__$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;SHELL_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalOptions>/EXPORT:StartUosServer /EXPORT:StopUosServer</AdditionalOptions>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\Libs\Boost</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile />
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;SHELL_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
+      <AdditionalOptions>/EXPORT:StartUosServer /EXPORT:StopUosServer</AdditionalOptions>
+      <AdditionalLibraryDirectories>..\Libs\Boost</AdditionalLibraryDirectories>
+      <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalDependencies>Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile />
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="ApplicationsMenu.h" />
+    <ClInclude Include="SystemMenuWidget.h" />
+    <ClInclude Include="Assembly.h" />
+    <ClInclude Include="FieldEnvironment.h" />
+    <ClInclude Include="FieldSurface.h" />
+    <ClInclude Include="Picture.h" />
+    <ClInclude Include="PictureIcon.h" />
+    <ClInclude Include="BoardEnvironment.h" />
+    <ClInclude Include="BoardSurface.h" />
+    <ClInclude Include="NotepadWidget.h" />
+    <ClInclude Include="NotepadIcon.h" />
+    <ClInclude Include="FieldWidget.h" />
+    <ClInclude Include="Link.h" />
+    <ClInclude Include="BoardWidget.h" />
+    <ClInclude Include="Shell.h" />
+    <ClInclude Include="ThemeAvatar.h" />
+    <ClInclude Include="ThemeEnvironment.h" />
+    <ClInclude Include="ThemeWidget.h" />
+    <ClInclude Include="FieldAvatar.h" />
+    <ClInclude Include="Field.h" />
+    <ClInclude Include="FieldItemElement.h" />
+    <ClInclude Include="LinkIcon.h" />
+    <ClInclude Include="ImageExtractor.h" />
+    <ClInclude Include="History.h" />
+    <ClInclude Include="LinkProperties.h" />
+    <ClInclude Include="DirectoryMenu.h" />
+    <ClInclude Include="Board.h" />
+    <ClInclude Include="Include.h" />
+    <ClInclude Include="MenuWidget.h" />
+    <ClInclude Include="HudFieldElement.h" />
+    <ClInclude Include="HistoryWidget.h" />
+    <ClInclude Include="HistoryItemElement.h" />
+    <ClInclude Include="IShellFriend.h" />
+    <ClInclude Include="BoardAvatar.h" />
+    <ClInclude Include="ShellServer.h" />
+    <ClInclude Include="HudEnvironment.h" />
+    <ClInclude Include="Notepad.h" />
+    <ClInclude Include="PictureWidget.h" />
+    <ClInclude Include="FieldElement.h" />
+    <ClInclude Include="FieldIcon.h" />
+    <ClInclude Include="ShellLevel.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Theme.h" />
+    <ClInclude Include="Tray.h" />
+    <ClInclude Include="TrayItemElement.h" />
+    <ClInclude Include="TrayWidget.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FieldEnvironment.cpp" />
+    <ClCompile Include="NotepadWidget.cpp" />
+    <ClCompile Include="NotepadIcon.cpp" />
+    <ClCompile Include="FieldAvatar.cpp" />
+    <ClCompile Include="Field.cpp" />
+    <ClCompile Include="FieldItemElement.cpp" />
+    <ClCompile Include="FieldWidget.cpp" />
+    <ClCompile Include="LinkIcon.cpp" />
+    <ClCompile Include="ImageExtractor.cpp" />
+    <ClCompile Include="LinkProperties.cpp" />
+    <ClCompile Include="DirectoryMenu.cpp" />
+    <ClCompile Include="PictureIcon.cpp" />
+    <ClCompile Include="HudFieldElement.cpp" />
+    <ClCompile Include="HistoryWidget.cpp" />
+    <ClCompile Include="MenuWidget.cpp" />
+    <ClCompile Include="BoardAvatar.cpp" />
+    <ClCompile Include="ShellServer.cpp" />
+    <ClCompile Include="HudEnvironment.cpp" />
+    <ClCompile Include="PictureWidget.cpp" />
+    <ClCompile Include="FieldElement.cpp" />
+    <ClCompile Include="FieldIcon.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Theme.cpp" />
+    <ClCompile Include="ThemeAvatar.cpp" />
+    <ClCompile Include="ThemeEnvironment.cpp" />
+    <ClCompile Include="ThemeWidget.cpp" />
+    <ClCompile Include="TrayWidget.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UC.Engine\UC.Engine.vcxproj">
+      <Project>{696e2929-dfba-4648-97d0-17247f4063ad}</Project>
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\UC\UC.vcxproj">
+      <Project>{9505d95f-fbb9-4365-9d27-be5d96f75a9b}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\UC.World\UC.World.vcxproj">
+      <Project>{1c7a99b2-adc2-4e07-8062-eabc8988050f}</Project>
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

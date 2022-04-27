@@ -1,0 +1,549 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="address.cpp" />
+    <ClCompile Include="addressList.cpp" />
+    <ClCompile Include="attachmentHelper.cpp" />
+    <ClCompile Include="base.cpp" />
+    <ClCompile Include="body.cpp" />
+    <ClCompile Include="bodyPart.cpp" />
+    <ClCompile Include="bodyPartAttachment.cpp" />
+    <ClCompile Include="charset.cpp" />
+    <ClCompile Include="charsetConverter.cpp" />
+    <ClCompile Include="charsetConverterOptions.cpp" />
+    <ClCompile Include="charsetConverter_iconv.cpp" />
+    <ClCompile Include="charsetConverter_icu.cpp" />
+    <ClCompile Include="charsetConverter_idna.cpp" />
+    <ClCompile Include="charsetConverter_win.cpp" />
+    <ClCompile Include="component.cpp" />
+    <ClCompile Include="constants.cpp" />
+    <ClCompile Include="contentDisposition.cpp" />
+    <ClCompile Include="contentDispositionField.cpp" />
+    <ClCompile Include="contentHandler.cpp" />
+    <ClCompile Include="contentTypeField.cpp" />
+    <ClCompile Include="context.cpp" />
+    <ClCompile Include="dateTime.cpp" />
+    <ClCompile Include="defaultAttachment.cpp" />
+    <ClCompile Include="disposition.cpp" />
+    <ClCompile Include="emailAddress.cpp" />
+    <ClCompile Include="emptyContentHandler.cpp" />
+    <ClCompile Include="encoding.cpp" />
+    <ClCompile Include="exception.cpp" />
+    <ClCompile Include="fileAttachment.cpp" />
+    <ClCompile Include="fileContentHandler.cpp" />
+    <ClCompile Include="generatedMessageAttachment.cpp" />
+    <ClCompile Include="generationContext.cpp" />
+    <ClCompile Include="header.cpp" />
+    <ClCompile Include="headerField.cpp" />
+    <ClCompile Include="headerFieldFactory.cpp" />
+    <ClCompile Include="headerFieldValue.cpp" />
+    <ClCompile Include="htmlTextPart.cpp" />
+    <ClCompile Include="mailbox.cpp" />
+    <ClCompile Include="mailboxField.cpp" />
+    <ClCompile Include="mailboxGroup.cpp" />
+    <ClCompile Include="mailboxList.cpp" />
+    <ClCompile Include="mdn\MDNHelper.cpp" />
+    <ClCompile Include="mdn\MDNInfos.cpp" />
+    <ClCompile Include="mdn\receivedMDNInfos.cpp" />
+    <ClCompile Include="mdn\sendableMDNInfos.cpp" />
+    <ClCompile Include="mediaType.cpp" />
+    <ClCompile Include="message.cpp" />
+    <ClCompile Include="messageBuilder.cpp" />
+    <ClCompile Include="messageId.cpp" />
+    <ClCompile Include="messageIdSequence.cpp" />
+    <ClCompile Include="messageParser.cpp" />
+    <ClCompile Include="misc\importanceHelper.cpp" />
+    <ClCompile Include="net\defaultConnectionInfos.cpp" />
+    <ClCompile Include="net\defaultTimeoutHandler.cpp" />
+    <ClCompile Include="net\events.cpp" />
+    <ClCompile Include="net\fetchAttributes.cpp" />
+    <ClCompile Include="net\folder.cpp" />
+    <ClCompile Include="net\folderAttributes.cpp" />
+    <ClCompile Include="net\imap\IMAPCommand.cpp" />
+    <ClCompile Include="net\imap\IMAPConnection.cpp" />
+    <ClCompile Include="net\imap\IMAPFolder.cpp" />
+    <ClCompile Include="net\imap\IMAPFolderStatus.cpp" />
+    <ClCompile Include="net\imap\IMAPMessage.cpp" />
+    <ClCompile Include="net\imap\IMAPMessagePart.cpp" />
+    <ClCompile Include="net\imap\IMAPMessagePartContentHandler.cpp" />
+    <ClCompile Include="net\imap\IMAPMessageStructure.cpp" />
+    <ClCompile Include="net\imap\IMAPServiceInfos.cpp" />
+    <ClCompile Include="net\imap\IMAPSStore.cpp" />
+    <ClCompile Include="net\imap\IMAPStore.cpp" />
+    <ClCompile Include="net\imap\IMAPTag.cpp" />
+    <ClCompile Include="net\imap\IMAPUtils.cpp" />
+    <ClCompile Include="net\maildir\format\courierMaildirFormat.cpp" />
+    <ClCompile Include="net\maildir\format\kmailMaildirFormat.cpp" />
+    <ClCompile Include="net\maildir\maildirFolder.cpp" />
+    <ClCompile Include="net\maildir\maildirFolderStatus.cpp" />
+    <ClCompile Include="net\maildir\maildirFormat.cpp" />
+    <ClCompile Include="net\maildir\maildirMessage.cpp" />
+    <ClCompile Include="net\maildir\maildirMessagePart.cpp" />
+    <ClCompile Include="net\maildir\maildirMessageStructure.cpp" />
+    <ClCompile Include="net\maildir\maildirServiceInfos.cpp" />
+    <ClCompile Include="net\maildir\maildirStore.cpp" />
+    <ClCompile Include="net\maildir\maildirUtils.cpp" />
+    <ClCompile Include="net\messagen.cpp" />
+    <ClCompile Include="net\messageSet.cpp" />
+    <ClCompile Include="net\pop3\POP3Command.cpp" />
+    <ClCompile Include="net\pop3\POP3Connection.cpp" />
+    <ClCompile Include="net\pop3\POP3Folder.cpp" />
+    <ClCompile Include="net\pop3\POP3FolderStatus.cpp" />
+    <ClCompile Include="net\pop3\POP3Message.cpp" />
+    <ClCompile Include="net\pop3\POP3Response.cpp" />
+    <ClCompile Include="net\pop3\POP3ServiceInfos.cpp" />
+    <ClCompile Include="net\pop3\POP3SStore.cpp" />
+    <ClCompile Include="net\pop3\POP3Store.cpp" />
+    <ClCompile Include="net\pop3\POP3Utils.cpp" />
+    <ClCompile Include="net\sendmail\sendmailServiceInfos.cpp" />
+    <ClCompile Include="net\sendmail\sendmailTransport.cpp" />
+    <ClCompile Include="net\service.cpp" />
+    <ClCompile Include="net\serviceFactory.cpp" />
+    <ClCompile Include="net\serviceInfos.cpp" />
+    <ClCompile Include="net\session.cpp" />
+    <ClCompile Include="net\smtp\SMTPChunkingOutputStreamAdapter.cpp" />
+    <ClCompile Include="net\smtp\SMTPCommand.cpp" />
+    <ClCompile Include="net\smtp\SMTPCommandSet.cpp" />
+    <ClCompile Include="net\smtp\SMTPConnection.cpp" />
+    <ClCompile Include="net\smtp\SMTPExceptions.cpp" />
+    <ClCompile Include="net\smtp\SMTPResponse.cpp" />
+    <ClCompile Include="net\smtp\SMTPServiceInfos.cpp" />
+    <ClCompile Include="net\smtp\SMTPSTransport.cpp" />
+    <ClCompile Include="net\smtp\SMTPTransport.cpp" />
+    <ClCompile Include="net\store.cpp" />
+    <ClCompile Include="net\tls\gnutls\TLSProperties_GnuTLS.cpp" />
+    <ClCompile Include="net\tls\gnutls\TLSSession_GnuTLS.cpp" />
+    <ClCompile Include="net\tls\gnutls\TLSSocket_GnuTLS.cpp" />
+    <ClCompile Include="net\tls\openssl\OpenSSLInitializer.cpp" />
+    <ClCompile Include="net\tls\openssl\TLSProperties_OpenSSL.cpp" />
+    <ClCompile Include="net\tls\openssl\TLSSession_OpenSSL.cpp" />
+    <ClCompile Include="net\tls\openssl\TLSSocket_OpenSSL.cpp" />
+    <ClCompile Include="net\tls\TLSProperties.cpp" />
+    <ClCompile Include="net\tls\TLSSecuredConnectionInfos.cpp" />
+    <ClCompile Include="net\tls\TLSSession.cpp" />
+    <ClCompile Include="net\tls\TLSSocket.cpp" />
+    <ClCompile Include="net\tracer.cpp" />
+    <ClCompile Include="net\transport.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="parameter.cpp" />
+    <ClCompile Include="parameterizedHeaderField.cpp" />
+    <ClCompile Include="parsedMessageAttachment.cpp" />
+    <ClCompile Include="parsingContext.cpp" />
+    <ClCompile Include="path.cpp" />
+    <ClCompile Include="plainTextPart.cpp" />
+    <ClCompile Include="platform.cpp" />
+    <ClCompile Include="platforms\posix\posixChildProcess.cpp" />
+    <ClCompile Include="platforms\posix\posixCriticalSection.cpp" />
+    <ClCompile Include="platforms\posix\posixFile.cpp" />
+    <ClCompile Include="platforms\posix\posixHandler.cpp" />
+    <ClCompile Include="platforms\posix\posixSocket.cpp" />
+    <ClCompile Include="platforms\windows\windowsCriticalSection.cpp" />
+    <ClCompile Include="platforms\windows\windowsFile.cpp" />
+    <ClCompile Include="platforms\windows\windowsHandler.cpp" />
+    <ClCompile Include="platforms\windows\windowsSocket.cpp" />
+    <ClCompile Include="propertySet.cpp" />
+    <ClCompile Include="relay.cpp" />
+    <ClCompile Include="security\cert\certificateChain.cpp" />
+    <ClCompile Include="security\cert\certificateException.cpp" />
+    <ClCompile Include="security\cert\certificateExpiredException.cpp" />
+    <ClCompile Include="security\cert\certificateIssuerVerificationException.cpp" />
+    <ClCompile Include="security\cert\certificateNotTrustedException.cpp" />
+    <ClCompile Include="security\cert\certificateNotYetValidException.cpp" />
+    <ClCompile Include="security\cert\defaultCertificateVerifier.cpp" />
+    <ClCompile Include="security\cert\gnutls\X509Certificate_GnuTLS.cpp" />
+    <ClCompile Include="security\cert\openssl\X509Certificate_OpenSSL.cpp" />
+    <ClCompile Include="security\cert\serverIdentityException.cpp" />
+    <ClCompile Include="security\cert\unsupportedCertificateTypeException.cpp" />
+    <ClCompile Include="security\cert\X509Certificate.cpp" />
+    <ClCompile Include="security\defaultAuthenticator.cpp" />
+    <ClCompile Include="security\digest\md5\md5MessageDigest.cpp" />
+    <ClCompile Include="security\digest\messageDigest.cpp" />
+    <ClCompile Include="security\digest\messageDigestFactory.cpp" />
+    <ClCompile Include="security\digest\sha1\sha1MessageDigest.cpp" />
+    <ClCompile Include="security\sasl\builtinSASLMechanism.cpp" />
+    <ClCompile Include="security\sasl\defaultSASLAuthenticator.cpp" />
+    <ClCompile Include="security\sasl\SASLContext.cpp" />
+    <ClCompile Include="security\sasl\SASLMechanismFactory.cpp" />
+    <ClCompile Include="security\sasl\SASLSession.cpp" />
+    <ClCompile Include="security\sasl\SASLSocket.cpp" />
+    <ClCompile Include="security\sasl\XOAuth2SASLAuthenticator.cpp" />
+    <ClCompile Include="security\sasl\XOAuth2SASLMechanism.cpp" />
+    <ClCompile Include="streamContentHandler.cpp" />
+    <ClCompile Include="stringContentHandler.cpp" />
+    <ClCompile Include="text.cpp" />
+    <ClCompile Include="textPartFactory.cpp" />
+    <ClCompile Include="utility\datetimeUtils.cpp" />
+    <ClCompile Include="utility\encoder\b64Encoder.cpp" />
+    <ClCompile Include="utility\encoder\binaryEncoder.cpp" />
+    <ClCompile Include="utility\encoder\eightBitEncoder.cpp" />
+    <ClCompile Include="utility\encoder\encoder.cpp" />
+    <ClCompile Include="utility\encoder\encoderFactory.cpp" />
+    <ClCompile Include="utility\encoder\noopEncoder.cpp" />
+    <ClCompile Include="utility\encoder\qpEncoder.cpp" />
+    <ClCompile Include="utility\encoder\sevenBitEncoder.cpp" />
+    <ClCompile Include="utility\encoder\uuEncoder.cpp" />
+    <ClCompile Include="utility\filteredStream.cpp" />
+    <ClCompile Include="utility\inputStream.cpp" />
+    <ClCompile Include="utility\inputStreamAdapter.cpp" />
+    <ClCompile Include="utility\inputStreamByteBufferAdapter.cpp" />
+    <ClCompile Include="utility\inputStreamPointerAdapter.cpp" />
+    <ClCompile Include="utility\inputStreamSocketAdapter.cpp" />
+    <ClCompile Include="utility\inputStreamStringAdapter.cpp" />
+    <ClCompile Include="utility\outputStream.cpp" />
+    <ClCompile Include="utility\outputStreamAdapter.cpp" />
+    <ClCompile Include="utility\outputStreamByteArrayAdapter.cpp" />
+    <ClCompile Include="utility\outputStreamSocketAdapter.cpp" />
+    <ClCompile Include="utility\outputStreamStringAdapter.cpp" />
+    <ClCompile Include="utility\parserInputStreamAdapter.cpp" />
+    <ClCompile Include="utility\pathu.cpp" />
+    <ClCompile Include="utility\progressListener.cpp" />
+    <ClCompile Include="utility\random.cpp" />
+    <ClCompile Include="utility\seekableInputStreamRegionAdapter.cpp" />
+    <ClCompile Include="utility\stream.cpp" />
+    <ClCompile Include="utility\streamUtils.cpp" />
+    <ClCompile Include="utility\stringUtils.cpp" />
+    <ClCompile Include="utility\sync\criticalSection.cpp" />
+    <ClCompile Include="utility\url.cpp" />
+    <ClCompile Include="utility\urlUtils.cpp" />
+    <ClCompile Include="word.cpp" />
+    <ClCompile Include="wordEncoder.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="address.hpp" />
+    <ClInclude Include="addressList.hpp" />
+    <ClInclude Include="attachment.hpp" />
+    <ClInclude Include="attachmentHelper.hpp" />
+    <ClInclude Include="base.hpp" />
+    <ClInclude Include="body.hpp" />
+    <ClInclude Include="bodyPart.hpp" />
+    <ClInclude Include="bodyPartAttachment.hpp" />
+    <ClInclude Include="charset.hpp" />
+    <ClInclude Include="charsetConverter.hpp" />
+    <ClInclude Include="charsetConverterOptions.hpp" />
+    <ClInclude Include="charsetConverter_iconv.hpp" />
+    <ClInclude Include="charsetConverter_icu.hpp" />
+    <ClInclude Include="charsetConverter_idna.hpp" />
+    <ClInclude Include="charsetConverter_win.hpp" />
+    <ClInclude Include="component.hpp" />
+    <ClInclude Include="config.hpp" />
+    <ClInclude Include="constants.hpp" />
+    <ClInclude Include="contentDisposition.hpp" />
+    <ClInclude Include="contentDispositionField.hpp" />
+    <ClInclude Include="contentHandler.hpp" />
+    <ClInclude Include="contentTypeField.hpp" />
+    <ClInclude Include="context.hpp" />
+    <ClInclude Include="dateTime.hpp" />
+    <ClInclude Include="defaultAttachment.hpp" />
+    <ClInclude Include="disposition.hpp" />
+    <ClInclude Include="emailAddress.hpp" />
+    <ClInclude Include="emptyContentHandler.hpp" />
+    <ClInclude Include="encoding.hpp" />
+    <ClInclude Include="exception.hpp" />
+    <ClInclude Include="export-shared.hpp" />
+    <ClInclude Include="export-static.hpp" />
+    <ClInclude Include="export.hpp" />
+    <ClInclude Include="fileAttachment.hpp" />
+    <ClInclude Include="fileContentHandler.hpp" />
+    <ClInclude Include="generatedMessageAttachment.hpp" />
+    <ClInclude Include="generationContext.hpp" />
+    <ClInclude Include="header.hpp" />
+    <ClInclude Include="headerField.hpp" />
+    <ClInclude Include="headerFieldFactory.hpp" />
+    <ClInclude Include="headerFieldValue.hpp" />
+    <ClInclude Include="htmlTextPart.hpp" />
+    <ClInclude Include="mailbox.hpp" />
+    <ClInclude Include="mailboxField.hpp" />
+    <ClInclude Include="mailboxGroup.hpp" />
+    <ClInclude Include="mailboxList.hpp" />
+    <ClInclude Include="mdn\MDNHelper.hpp" />
+    <ClInclude Include="mdn\MDNInfos.hpp" />
+    <ClInclude Include="mdn\receivedMDNInfos.hpp" />
+    <ClInclude Include="mdn\sendableMDNInfos.hpp" />
+    <ClInclude Include="mediaType.hpp" />
+    <ClInclude Include="message.hpp" />
+    <ClInclude Include="messageAttachment.hpp" />
+    <ClInclude Include="messageBuilder.hpp" />
+    <ClInclude Include="messageId.hpp" />
+    <ClInclude Include="messageIdSequence.hpp" />
+    <ClInclude Include="messageParser.hpp" />
+    <ClInclude Include="misc\importanceHelper.hpp" />
+    <ClInclude Include="net\connectionInfos.hpp" />
+    <ClInclude Include="net\defaultConnectionInfos.hpp" />
+    <ClInclude Include="net\defaultTimeoutHandler.hpp" />
+    <ClInclude Include="net\events.hpp" />
+    <ClInclude Include="net\fetchAttributes.hpp" />
+    <ClInclude Include="net\folder.hpp" />
+    <ClInclude Include="net\folderAttributes.hpp" />
+    <ClInclude Include="net\folderStatus.hpp" />
+    <ClInclude Include="net\imap\imap.hpp" />
+    <ClInclude Include="net\imap\IMAPCommand.hpp" />
+    <ClInclude Include="net\imap\IMAPConnection.hpp" />
+    <ClInclude Include="net\imap\IMAPFolder.hpp" />
+    <ClInclude Include="net\imap\IMAPFolderStatus.hpp" />
+    <ClInclude Include="net\imap\IMAPMessage.hpp" />
+    <ClInclude Include="net\imap\IMAPMessagePart.hpp" />
+    <ClInclude Include="net\imap\IMAPMessagePartContentHandler.hpp" />
+    <ClInclude Include="net\imap\IMAPMessageStructure.hpp" />
+    <ClInclude Include="net\imap\IMAPParser.hpp" />
+    <ClInclude Include="net\imap\IMAPServiceInfos.hpp" />
+    <ClInclude Include="net\imap\IMAPSStore.hpp" />
+    <ClInclude Include="net\imap\IMAPStore.hpp" />
+    <ClInclude Include="net\imap\IMAPTag.hpp" />
+    <ClInclude Include="net\imap\IMAPUtils.hpp" />
+    <ClInclude Include="net\maildir\format\courierMaildirFormat.hpp" />
+    <ClInclude Include="net\maildir\format\kmailMaildirFormat.hpp" />
+    <ClInclude Include="net\maildir\maildir.hpp" />
+    <ClInclude Include="net\maildir\maildirFolder.hpp" />
+    <ClInclude Include="net\maildir\maildirFolderStatus.hpp" />
+    <ClInclude Include="net\maildir\maildirFormat.hpp" />
+    <ClInclude Include="net\maildir\maildirMessage.hpp" />
+    <ClInclude Include="net\maildir\maildirMessagePart.hpp" />
+    <ClInclude Include="net\maildir\maildirMessageStructure.hpp" />
+    <ClInclude Include="net\maildir\maildirServiceInfos.hpp" />
+    <ClInclude Include="net\maildir\maildirStore.hpp" />
+    <ClInclude Include="net\maildir\maildirUtils.hpp" />
+    <ClInclude Include="net\messagen.hpp" />
+    <ClInclude Include="net\messageSet.hpp" />
+    <ClInclude Include="net\pop3\pop3.hpp" />
+    <ClInclude Include="net\pop3\POP3Command.hpp" />
+    <ClInclude Include="net\pop3\POP3Connection.hpp" />
+    <ClInclude Include="net\pop3\POP3Folder.hpp" />
+    <ClInclude Include="net\pop3\POP3FolderStatus.hpp" />
+    <ClInclude Include="net\pop3\POP3Message.hpp" />
+    <ClInclude Include="net\pop3\POP3Response.hpp" />
+    <ClInclude Include="net\pop3\POP3ServiceInfos.hpp" />
+    <ClInclude Include="net\pop3\POP3SStore.hpp" />
+    <ClInclude Include="net\pop3\POP3Store.hpp" />
+    <ClInclude Include="net\pop3\POP3Utils.hpp" />
+    <ClInclude Include="net\securedConnectionInfos.hpp" />
+    <ClInclude Include="net\sendmail\sendmail.hpp" />
+    <ClInclude Include="net\sendmail\sendmailServiceInfos.hpp" />
+    <ClInclude Include="net\sendmail\sendmailTransport.hpp" />
+    <ClInclude Include="net\service.hpp" />
+    <ClInclude Include="net\serviceFactory.hpp" />
+    <ClInclude Include="net\serviceInfos.hpp" />
+    <ClInclude Include="net\session.hpp" />
+    <ClInclude Include="net\smtp\smtp.hpp" />
+    <ClInclude Include="net\smtp\SMTPChunkingOutputStreamAdapter.hpp" />
+    <ClInclude Include="net\smtp\SMTPCommand.hpp" />
+    <ClInclude Include="net\smtp\SMTPCommandSet.hpp" />
+    <ClInclude Include="net\smtp\SMTPConnection.hpp" />
+    <ClInclude Include="net\smtp\SMTPExceptions.hpp" />
+    <ClInclude Include="net\smtp\SMTPResponse.hpp" />
+    <ClInclude Include="net\smtp\SMTPServiceInfos.hpp" />
+    <ClInclude Include="net\smtp\SMTPSTransport.hpp" />
+    <ClInclude Include="net\smtp\SMTPTransport.hpp" />
+    <ClInclude Include="net\socket.hpp" />
+    <ClInclude Include="net\store.hpp" />
+    <ClInclude Include="net\timeoutHandler.hpp" />
+    <ClInclude Include="net\tls\gnutls\TLSProperties_GnuTLS.hpp" />
+    <ClInclude Include="net\tls\gnutls\TLSSession_GnuTLS.hpp" />
+    <ClInclude Include="net\tls\gnutls\TLSSocket_GnuTLS.hpp" />
+    <ClInclude Include="net\tls\openssl\OpenSSLInitializer.hpp" />
+    <ClInclude Include="net\tls\openssl\TLSProperties_OpenSSL.hpp" />
+    <ClInclude Include="net\tls\openssl\TLSSession_OpenSSL.hpp" />
+    <ClInclude Include="net\tls\openssl\TLSSocket_OpenSSL.hpp" />
+    <ClInclude Include="net\tls\TLSProperties.hpp" />
+    <ClInclude Include="net\tls\TLSSecuredConnectionInfos.hpp" />
+    <ClInclude Include="net\tls\TLSSession.hpp" />
+    <ClInclude Include="net\tls\TLSSocket.hpp" />
+    <ClInclude Include="net\tracer.hpp" />
+    <ClInclude Include="net\transport.hpp" />
+    <ClInclude Include="object.hpp" />
+    <ClInclude Include="parameter.hpp" />
+    <ClInclude Include="parameterizedHeaderField.hpp" />
+    <ClInclude Include="parsedMessageAttachment.hpp" />
+    <ClInclude Include="parserHelpers.hpp" />
+    <ClInclude Include="parsingContext.hpp" />
+    <ClInclude Include="path.hpp" />
+    <ClInclude Include="plainTextPart.hpp" />
+    <ClInclude Include="platform.hpp" />
+    <ClInclude Include="platforms\posix\posixChildProcess.hpp" />
+    <ClInclude Include="platforms\posix\posixCriticalSection.hpp" />
+    <ClInclude Include="platforms\posix\posixFile.hpp" />
+    <ClInclude Include="platforms\posix\posixHandler.hpp" />
+    <ClInclude Include="platforms\posix\posixSocket.hpp" />
+    <ClInclude Include="platforms\windows\windowsCodepages.hpp" />
+    <ClInclude Include="platforms\windows\windowsCriticalSection.hpp" />
+    <ClInclude Include="platforms\windows\windowsFile.hpp" />
+    <ClInclude Include="platforms\windows\windowsHandler.hpp" />
+    <ClInclude Include="platforms\windows\windowsSocket.hpp" />
+    <ClInclude Include="propertySet.hpp" />
+    <ClInclude Include="relay.hpp" />
+    <ClInclude Include="security\authenticator.hpp" />
+    <ClInclude Include="security\cert\certificate.hpp" />
+    <ClInclude Include="security\cert\certificateChain.hpp" />
+    <ClInclude Include="security\cert\certificateException.hpp" />
+    <ClInclude Include="security\cert\certificateExpiredException.hpp" />
+    <ClInclude Include="security\cert\certificateIssuerVerificationException.hpp" />
+    <ClInclude Include="security\cert\certificateNotTrustedException.hpp" />
+    <ClInclude Include="security\cert\certificateNotYetValidException.hpp" />
+    <ClInclude Include="security\cert\certificateVerifier.hpp" />
+    <ClInclude Include="security\cert\defaultCertificateVerifier.hpp" />
+    <ClInclude Include="security\cert\gnutls\X509Certificate_GnuTLS.hpp" />
+    <ClInclude Include="security\cert\openssl\X509Certificate_OpenSSL.hpp" />
+    <ClInclude Include="security\cert\serverIdentityException.hpp" />
+    <ClInclude Include="security\cert\unsupportedCertificateTypeException.hpp" />
+    <ClInclude Include="security\cert\X509Certificate.hpp" />
+    <ClInclude Include="security\defaultAuthenticator.hpp" />
+    <ClInclude Include="security\digest\md5\md5MessageDigest.hpp" />
+    <ClInclude Include="security\digest\messageDigest.hpp" />
+    <ClInclude Include="security\digest\messageDigestFactory.hpp" />
+    <ClInclude Include="security\digest\sha1\sha1MessageDigest.hpp" />
+    <ClInclude Include="security\sasl\builtinSASLMechanism.hpp" />
+    <ClInclude Include="security\sasl\defaultSASLAuthenticator.hpp" />
+    <ClInclude Include="security\sasl\SASLAuthenticator.hpp" />
+    <ClInclude Include="security\sasl\SASLContext.hpp" />
+    <ClInclude Include="security\sasl\SASLMechanism.hpp" />
+    <ClInclude Include="security\sasl\SASLMechanismFactory.hpp" />
+    <ClInclude Include="security\sasl\SASLSession.hpp" />
+    <ClInclude Include="security\sasl\SASLSocket.hpp" />
+    <ClInclude Include="security\sasl\XOAuth2SASLAuthenticator.hpp" />
+    <ClInclude Include="security\sasl\XOAuth2SASLMechanism.hpp" />
+    <ClInclude Include="streamContentHandler.hpp" />
+    <ClInclude Include="stringContentHandler.hpp" />
+    <ClInclude Include="text.hpp" />
+    <ClInclude Include="textPart.hpp" />
+    <ClInclude Include="textPartFactory.hpp" />
+    <ClInclude Include="types.hpp" />
+    <ClInclude Include="utility\childProcess.hpp" />
+    <ClInclude Include="utility\datetimeUtils.hpp" />
+    <ClInclude Include="utility\encoder\b64Encoder.hpp" />
+    <ClInclude Include="utility\encoder\binaryEncoder.hpp" />
+    <ClInclude Include="utility\encoder\eightBitEncoder.hpp" />
+    <ClInclude Include="utility\encoder\encoder.hpp" />
+    <ClInclude Include="utility\encoder\encoderFactory.hpp" />
+    <ClInclude Include="utility\encoder\noopEncoder.hpp" />
+    <ClInclude Include="utility\encoder\qpEncoder.hpp" />
+    <ClInclude Include="utility\encoder\sevenBitEncoder.hpp" />
+    <ClInclude Include="utility\encoder\uuEncoder.hpp" />
+    <ClInclude Include="utility\file.hpp" />
+    <ClInclude Include="utility\filteredStream.hpp" />
+    <ClInclude Include="utility\inputStream.hpp" />
+    <ClInclude Include="utility\inputStreamAdapter.hpp" />
+    <ClInclude Include="utility\inputStreamByteBufferAdapter.hpp" />
+    <ClInclude Include="utility\inputStreamPointerAdapter.hpp" />
+    <ClInclude Include="utility\inputStreamSocketAdapter.hpp" />
+    <ClInclude Include="utility\inputStreamStringAdapter.hpp" />
+    <ClInclude Include="utility\outputStream.hpp" />
+    <ClInclude Include="utility\outputStreamAdapter.hpp" />
+    <ClInclude Include="utility\outputStreamByteArrayAdapter.hpp" />
+    <ClInclude Include="utility\outputStreamSocketAdapter.hpp" />
+    <ClInclude Include="utility\outputStreamStringAdapter.hpp" />
+    <ClInclude Include="utility\parserInputStreamAdapter.hpp" />
+    <ClInclude Include="utility\pathu.hpp" />
+    <ClInclude Include="utility\progressListener.hpp" />
+    <ClInclude Include="utility\random.hpp" />
+    <ClInclude Include="utility\seekableInputStream.hpp" />
+    <ClInclude Include="utility\seekableInputStreamRegionAdapter.hpp" />
+    <ClInclude Include="utility\stream.hpp" />
+    <ClInclude Include="utility\streamUtils.hpp" />
+    <ClInclude Include="utility\stringUtils.hpp" />
+    <ClInclude Include="utility\sync\autoLock.hpp" />
+    <ClInclude Include="utility\sync\criticalSection.hpp" />
+    <ClInclude Include="utility\url.hpp" />
+    <ClInclude Include="utility\urlUtils.hpp" />
+    <ClInclude Include="vmime.hpp" />
+    <ClInclude Include="word.hpp" />
+    <ClInclude Include="wordEncoder.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="net\builtinServices.inl" />
+    <None Include="net\serviceRegistration.inl" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>vmime</ProjectName>
+    <ProjectGuid>{637E7474-FCA1-4376-A4DC-A580878DA7FD}</ProjectGuid>
+    <RootNamespace>vmime</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\_winx64-$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(TMP)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\_winx64-$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(TMP)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\;..\gsasl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>..\gsasl\Win32.$(PlatformTarget)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\;..\gsasl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>..\gsasl\Win32.$(PlatformTarget)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,286 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace UC
+{
+    public class XonTextReader
+    {
+		public XonToken									Current;
+
+		string											Text;
+		Queue<bool>										Type = new Queue<bool>();
+
+		private int										c;
+		private char									C { get => Text[c]; }
+
+		public XonTextReader(string s)
+		{
+			Text = s;
+		}
+		
+		public XonToken Read()
+		{
+			if(Text.Length > 0)
+			{
+				Type.Enqueue(false);
+				Current = XonToken.NodeBegin;
+				c = 0;
+			}
+			else
+				Current = XonToken.End;
+			return Current;
+		}
+
+		public XonToken ReadNext()
+		{
+			Next(ref c);
+	
+			if(c < Text.Length)
+			{
+				switch(Current)
+				{
+					case XonToken.NodeEnd:
+					{
+						if(C == '}') // after last child
+						{
+							bool t = Type.Dequeue();
+							
+							Current = t ? XonToken.AttrValueEnd : XonToken.ChildrenEnd;
+							c++;
+						}
+						else // next child
+						{
+							Current = XonToken.NodeBegin;
+						}
+						break;
+					}
+					case XonToken.NodeBegin:
+						Current = XonToken.NameBegin;
+						break;
+
+					case XonToken.NameEnd:
+						if(C == '=')
+						{
+							c++;
+							Current = XonToken.ValueBegin;
+						}
+						else if(C == '{')
+						{
+							c++;
+							Type.Enqueue(false);
+							Current = XonToken.ChildrenBegin;
+						}
+						else
+							Current = XonToken.NodeEnd;
+						break;
+
+					case XonToken.ValueBegin:
+						if(C == '{')
+						{
+							c++;
+							Type.Enqueue(true);
+							Current = XonToken.AttrValueBegin;
+						}
+						else
+							Current = XonToken.SimpleValueBegin;
+						break;
+			
+					case XonToken.AttrValueBegin:
+						if(C == '}')
+						{
+							c++;
+							Current = XonToken.AttrValueEnd;
+						}
+						else
+						{
+							Current = XonToken.NodeBegin;
+						}
+						break;
+			
+					case XonToken.ChildrenBegin:
+						if(C == '}')
+						{
+							Current = XonToken.ChildrenEnd;
+							c++;
+						}
+						else
+						{	
+							Current = XonToken.NodeBegin;
+						}
+						break;
+
+					case XonToken.ChildrenEnd:
+						Current = XonToken.NodeEnd;
+						break;
+
+					case XonToken.AttrValueEnd:
+					case XonToken.SimpleValueEnd:
+						Current = XonToken.ValueEnd;
+						break;
+
+					case XonToken.ValueEnd:
+					{
+						if(C == '{')
+						{
+							c++;
+							Type.Enqueue(false);
+							Current = XonToken.ChildrenBegin;
+						}
+						else
+							Current = XonToken.NodeEnd;
+						break;
+					}
+				}
+			}
+			else
+				Current = XonToken.End;
+
+			return Current;
+		}
+
+		public string ParseValue()
+		{
+			string value = null;
+
+			//bool found = false;
+			bool q = false;
+
+			while(c < Text.Length)
+			{
+				if(!q)
+				{
+					if(C == ' ' || C == '\t' || C == '\r' || C == '\n' || C == '}' || C == '{')
+					{
+						if(value != null)
+							break;
+					}
+					else if(C == '\"') // opening "
+					{	
+						value = "";
+						//if(!foundsemicolon)
+						q = true;
+					}
+					else
+					{
+						if(value == null)
+						{ 
+							//found = true;
+							value = "";
+						}
+						value += C;
+					}
+				} 
+				else
+				{
+					if(C == '\"') // closing " or escaping
+					{
+						c++;
+						if(c == Text.Length)
+							break;
+						else if(C == '\"')
+						{
+							value += C;
+							//c++;
+						}
+						else
+							break;
+					}
+					else
+						value += C;
+
+				}
+				c++;
+			}
+
+
+			Current = XonToken.SimpleValueEnd;
+
+			return value;
+		}
+
+		public void ParseName(ref string name, ref string type)
+		{
+			bool typefound = false;
+			bool q = false;
+
+			while(true)
+			{
+				if(!q)
+				{
+					if(c == Text.Length || C == ' ' || C == '\t' || C == '\r' || C == '\n' || C == '{' || C == '}' || C == '=')
+					{
+						Current = XonToken.NameEnd;
+						return;
+					}
+					else if(C == '\"') // opening '
+					{	
+						//if(!foundsemicolon)
+						q = true;
+					}
+					else if(C == ':')
+					{
+						typefound = true;
+					}
+					else 
+						if(!typefound)
+						{
+							name += C;
+						} 
+						else
+						{
+							type += C;
+						}
+				} 
+				else
+				{
+					if(C == '\"') // closing ' or escaping
+					{
+						c++;
+						if(C == '\"')
+						{
+							name += C;
+							//c++;
+						}
+						else
+						{
+							Current = XonToken.NameEnd;
+							break;
+						}
+					}
+					else
+						name += C;
+				}
+				c++;
+			}
+		}
+
+		private void Next(ref int c)
+		{
+			while(c < Text.Length)
+			{
+				if(C == ' ' || C == '\t' || C == '\r' || C == '\n')
+				{
+					c++;
+				}
+				else if(C == '/')
+				{
+					c++;
+					if(c < Text.Length && C == '/')
+						while(c < Text.Length && C != '\r' && C != '\n')
+							c++;
+					else
+					{	
+						c--;
+						break;
+					}
+				}
+				else
+					break;
+			}
+		}
+    }
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="uo::CFloat6">
+		<DisplayString>{{{LF} {RT} {BM} {TP} {FT} {BK}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CFloat4">
+		<DisplayString>{{{x} {y} {z} {w}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CFloat3">
+		<DisplayString>{{{x} {y} {z}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CFloat2">
+		<DisplayString>{{{x} {y}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CQuaternion">
+		<DisplayString>{{{x} {y} {z} {w}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CSize">
+		<DisplayString>{{{W} {H} {D}}}</DisplayString>
+	</Type>
+
+	<Type Name="uo::CUrl">
+		<DisplayString>{{{Protocol}{Domain}{Path}{Query}}}</DisplayString>
+	</Type>
+	<Type Name="uo::CXon">
+		<DisplayString>{{Name={Name} Id={Id} Value={Value} Children={Children}}}</DisplayString>
+	</Type>
+
+	<Type Name="uo::CMatrix">
+		<Expand>
+			<Synthetic Name="Row 0">
+				<DisplayString>{{ {_11} {_12} {_13} {_14} }}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="Row 1">
+				<DisplayString>{{ {_21} {_22} {_23} {_24} }}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="Row 2">
+				<DisplayString>{{ {_31} {_32} {_33} {_34} }}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="Row 3">
+				<DisplayString>{{ {_41} {_42} {_43} {_44} }}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="uo::CObject&lt;*&gt;">
+		<DisplayString>{Object}</DisplayString>
+	</Type>
+
+	<Type Name="uo::CNexusObject">
+		<DisplayString>{Url.Object}</DisplayString>
+	</Type>
+
+	<Type Name="uo::CProtocolConnection&lt;*&gt;">
+		<DisplayString>{Server}</DisplayString>
+	</Type>
+
+</AutoVisualizer>
