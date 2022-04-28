@@ -45,7 +45,7 @@ namespace UC.Net
 
 		HttpResponseMessage Post(RpcCall request) 
 		{
-			request.Version = Dispatcher.Versions.First().ToString();
+			request.Version = Core.Versions.First().ToString();
 			request.AccessKey = Key;
 
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);

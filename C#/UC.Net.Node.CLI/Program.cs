@@ -19,7 +19,7 @@ namespace UC.Net.Node.CLI
 		static Log				Log = new Log();
 		static ConsoleLogView	LogView = new ConsoleLogView(Log, false, true);
 
-		static Dispatcher Dispatcher;
+		static Core Core;
 
 
 		static void Main(string[] args)
@@ -31,15 +31,15 @@ namespace UC.Net.Node.CLI
 
 			try
 			{
-				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Dispatcher.FailureExt))
+				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
 					File.Delete(i);
 					
 				var b = new XonDocument(new XonTextReader(File.ReadAllText(Path.Combine(exedir, "Boot.xon"))));
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))));
 				var boot = new BootArguments(b, cmd);
 
-				var orig = Path.Combine(exedir, Dispatcher.SettingsFileName);
-				var user = Path.Combine(boot.Main.Profile, Dispatcher.SettingsFileName);
+				var orig = Path.Combine(exedir, Core.SettingsFileName);
+				var user = Path.Combine(boot.Main.Profile, Core.SettingsFileName);
 
 				if(!File.Exists(user))
 				{
@@ -55,7 +55,7 @@ namespace UC.Net.Node.CLI
 				Cryptography.Current = Settings.Cryptography;
 									
 				if(File.Exists(Settings.Profile))
-					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Dispatcher.FailureExt))
+					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
 
 				if(!cmd.Nodes.Any())
@@ -64,12 +64,12 @@ namespace UC.Net.Node.CLI
 
 				string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				Func<Dispatcher> d = () =>
+				Func<Core> d = () =>
 									 {
-									 	if(Dispatcher == null)
-									 		Dispatcher = new Dispatcher(Settings, dir, Log, new RealTimeProvider(), new SilentGasAsker(Log), new SilentFeeAsker());
+									 	if(Core == null)
+									 		Core = new Core(Settings, dir, Log, new RealTimeProvider(), new SilentGasAsker(Log), new SilentFeeAsker());
 									 
-									 	return Dispatcher;
+									 	return Core;
 									 };
 				
 				Command c = null;
@@ -109,13 +109,13 @@ namespace UC.Net.Node.CLI
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Dispatcher.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Core.FailureExt), ex.ToString());
 				Log.ReportError(null, $"{m} failed", ex);
 			}
 	
-			if(Dispatcher != null)
+			if(Core != null)
 			{
-				Dispatcher.Stop("End");
+				Core.Stop("End");
 			}
 		}
 	}

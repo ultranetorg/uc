@@ -41,14 +41,14 @@ namespace UC.Net
 		}
 	}
 
-	public class DispatcherArguments : LaunchArguments
+	public class CoreArguments : LaunchArguments
 	{
 		public int				Port = -1;
 		public IPAddress		IP;
-		public DispatcherArguments(Xon cmd)
+		public CoreArguments(Xon cmd)
 		{
-			if(cmd.Has("dispatcher"))
-				Parse(cmd.One("dispatcher"), (n,v) => { 
+			if(cmd.Has("core"))
+				Parse(cmd.One("core"), (n,v) => { 
 														switch(n)
 														{
 															case "port":	Port	= int.Parse(v); break;
@@ -96,14 +96,14 @@ namespace UC.Net
 	{
 		public MainArguments			Main;
 		public VaultArguments			Vault;
-		public DispatcherArguments		Dispatcher;
+		public CoreArguments		Core;
 		public RpcArguments				Rpc;
 
 		public BootArguments(Xon boot, Xon cmd)
 		{
 			Main		= new(boot, cmd);
 			Vault		= new(cmd);
-			Dispatcher	= new(cmd);
+			Core	= new(cmd);
 			Rpc			= new(cmd);
 		}
 	}

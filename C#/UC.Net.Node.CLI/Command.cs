@@ -14,8 +14,8 @@ namespace UC.Net.Node.CLI
 		protected Settings		Settings; 
 		protected Log			Log; 
 		protected Xon			Args;
-		protected Dispatcher	Dispatcher => DispatcherFunc();
-		protected Func<Dispatcher>	DispatcherFunc;
+		protected Core			Core => CoreFunc();
+		protected Func<Core>	CoreFunc;
 		protected static bool	ConsoleSupported = true;
 		Operation				Operation;
 
@@ -23,16 +23,16 @@ namespace UC.Net.Node.CLI
 
 		public abstract object Execute();
 
-		protected Dispatcher Client
+		protected Core Client
 		{
 			get
 			{
-				if(Dispatcher.IsClient)
-					return Dispatcher;
+				if(Core.IsClient)
+					return Core;
 
-				Dispatcher.RunClient(null, () => ConsoleSupported && Console.KeyAvailable);
+				Core.RunClient(null, () => ConsoleSupported && Console.KeyAvailable);
 
-				return Dispatcher;
+				return Core;
 			}
 		}
 
@@ -48,11 +48,11 @@ namespace UC.Net.Node.CLI
 			}
 		}
 
-		protected Command(Settings settings, Log log, Func<Dispatcher> dispatcher, Xon args)
+		protected Command(Settings settings, Log log, Func<Core> core, Xon args)
 		{
 			Settings = settings;
 			Log = log;
-			DispatcherFunc = dispatcher;
+			CoreFunc = core;
 			Args = args;
 		}
 

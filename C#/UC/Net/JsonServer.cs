@@ -20,18 +20,18 @@ namespace UC.Net
 {
 	public class JsonServer
 	{
-		Dispatcher		Dispatcher;
+		Core		Core;
 		HttpListener	Listener;
 		Thread			Thread;
 
-		Log				Log  => Dispatcher.Log;
-		Settings		Settings => Dispatcher.Settings;
-		Vault			Vault => Dispatcher.Vault;
-		Roundchain		Chain => Dispatcher.Chain;
+		Log				Log  => Core.Log;
+		Settings		Settings => Core.Settings;
+		Vault			Vault => Core.Vault;
+		Roundchain		Chain => Core.Chain;
 
-		public JsonServer(Dispatcher dispatcher)
+		public JsonServer(Core core)
 		{
-			Dispatcher = dispatcher;
+			Core = core;
 
 			Thread = new Thread(() =>
 								{ 
@@ -50,7 +50,7 @@ namespace UC.Net
 				
 										Log?.Report(this, "Listening started", prefixes[0]);
 		
-										while(Dispatcher.Working)
+										while(Core.Working)
 										{
 											ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
 										}
@@ -68,7 +68,7 @@ namespace UC.Net
 										if(!Listener.IsListening)
 											Listener = null;
 
-										Dispatcher.Stop(MethodBase.GetCurrentMethod(), ex);
+										Core.Stop(MethodBase.GetCurrentMethod(), ex);
 									}
 								});
 			Thread.Name = $"{Settings.IP.GetAddressBytes()[3]} Aping";
@@ -158,11 +158,11 @@ namespace UC.Net
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 					switch(call)
 					{
 						case RunCall e:
-							Dispatcher.RunNode();
+							Core.RunNode();
 							break;
 
 						case AddWalletCall e:
@@ -174,28 +174,28 @@ namespace UC.Net
 							break;
 	
 						case SetGeneratorCall e:
-							Dispatcher.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
+							Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
 							Log?.Report(this, "Generator is set", e.Account.ToString());
 							break;
 
 						case TransferUntCall e:
-							respondjson(Dispatcher.Enqueue(new UntTransfer(Vault.GetPrivate(e.From), e.To, e.Amount)));
+							respondjson(Core.Enqueue(new UntTransfer(Vault.GetPrivate(e.From), e.To, e.Amount)));
 							Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 							break;
 	
 						case GetStatusCall s:
 							respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
 																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
-																InfoFields	= Dispatcher.Info[0].Take(s.Limit), 
-																InfoValues	= Dispatcher.Info[1].Take(s.Limit) });
+																InfoFields	= Core.Info[0].Take(s.Limit), 
+																InfoValues	= Core.Info[1].Take(s.Limit) });
 							break;
 							
 						case NextRoundCall e:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var r = Dispatcher.GetNextAvailableRound();
+								var r = Core.GetNextAvailableRound();
 								
 								if(r != null)
 									respondjson(new NextRoundResponse {NextRoundId = r.Id});
@@ -206,11 +206,11 @@ namespace UC.Net
 							break;
 							
 						case LastTransactionIdCall e:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var t = Dispatcher.Chain.Accounts.FindLastTransaction(e.Account, i => i.Successful);
+								var t = Core.Chain.Accounts.FindLastTransaction(e.Account, i => i.Successful);
 							
 								respondjson(new LastTransactionIdResponse {Id = t != null ? t.Id : -1});
 							}
@@ -219,11 +219,11 @@ namespace UC.Net
 							
 						case LastOperationCall e:
 						{
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var l = Dispatcher.Chain.Accounts.FindLastOperation(e.Account, i => i.GetType().Name == e.Type);
+								var l = Core.Chain.Accounts.FindLastOperation(e.Account, i => i.GetType().Name == e.Type);
 							
 								if(l != null)
 								{
@@ -240,22 +240,22 @@ namespace UC.Net
 						}	
 						
 						case DelegateTransactionsCall e:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized || Dispatcher.Generator == null)
+							if(Core.Synchronization != Synchronization.Synchronized || Core.Generator == null)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
 								IEnumerable<Transaction> txs = new Transaction[0];
 
-								var cd = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Dispatcher.Generator);
+								var cd = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Core.Generator);
 		
-								txs = Dispatcher.Read(new MemoryStream(e.Data), r =>{
+								txs = Core.Read(new MemoryStream(e.Data), r =>{
 																						return  new Transaction(Settings)
 																								{
-																									Member = Dispatcher.Generator
+																									Member = Core.Generator
 																								};
 																					});
 		
-								var accep = Dispatcher.ProcessIncoming(txs);
+								var accep = Core.ProcessIncoming(txs);
 
 								respondjson(new DelegateTransactionsResponse {Accepted = accep.Select(i => i.Signature)});
 		
@@ -267,15 +267,15 @@ namespace UC.Net
 						case GetMembersCall e:
 							if(Chain != null)
 							{
-								if(Dispatcher.Synchronization == Synchronization.Synchronized)
+								if(Core.Synchronization == Synchronization.Synchronized)
 									respondjson(new GetMembersResponse {Members = Chain.Members});
 								else
 									rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							}
 							else
 							{
-								if(Dispatcher.Members.Any())
-									respondjson(new GetMembersResponse {Members = Dispatcher.Members});
+								if(Core.Members.Any())
+									respondjson(new GetMembersResponse {Members = Core.Members});
 								else
 									rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							}
@@ -283,13 +283,13 @@ namespace UC.Net
 							break;
 
 						case GetTransactionsStatusCall c:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 								respondjson(new GetTransactionsStatusResponse
 											{
 												LastConfirmedRound = Chain.LastConfirmedRound.Id,
-												Transactions = c.Transactions	.Select(t => Dispatcher.Chain.Accounts.FindLastTransaction(t.Account, i => i.Successful && i.Id == t.Id))
+												Transactions = c.Transactions	.Select(t => Core.Chain.Accounts.FindLastTransaction(t.Account, i => i.Successful && i.Id == t.Id))
 																				.Where(i => i != null)
 																				.Select(i => new GetTransactionsStatusResponse.Item{Account		= i.Signer,
 																																	Id			= i.Id,
@@ -300,7 +300,7 @@ namespace UC.Net
 							break;
 
 						case AccountInfoCall c:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
@@ -314,7 +314,7 @@ namespace UC.Net
 							break;
 
 						case AuthorInfoCall c:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
@@ -328,31 +328,31 @@ namespace UC.Net
 							break;
 
 						case DeclareReleaseCall c:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								Dispatcher.DecalreRelease(c.Declaration);
+								Core.DecalreRelease(c.Declaration);
 							}
 							break;
 
 						case QueryReleaseCall c:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var ai = Dispatcher.QueryRelease(c.Query);
+								var ai = Core.QueryRelease(c.Query);
 								
 								respondjson(ai);
 							}
 							break;
 
 						case DownloadReleaseCall c:
-							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var ai = Dispatcher.DownloadRelease(c.Request);
+								var ai = Core.DownloadRelease(c.Request);
 								
 								respondbinary(ai);
 							}
@@ -360,7 +360,7 @@ namespace UC.Net
 
 						case ExitCall e:
 							rp.Close();
-							Dispatcher.Stop("RPC call");
+							Core.Stop("RPC call");
 							return;
 	
 						default:

@@ -8,7 +8,7 @@ namespace UC.Net.Node.CLI
 	{
 		public const string Keyword = "node";
 
-		public NodeCommand(Settings settings, Log log, Func<Dispatcher> dispatcher, Xon args) : base(settings, log, dispatcher, args)
+		public NodeCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 
@@ -19,20 +19,20 @@ namespace UC.Net.Node.CLI
 
 			if(Args.Has("server"))
 			{
-				Dispatcher.RunServer();
+				Core.RunServer();
 			}
 			else
 			{
-				Dispatcher.RunServer();
-				Dispatcher.RunNode();
+				Core.RunServer();
+				Core.RunNode();
 			}
 
 			if(ConsoleSupported)
 				Console.ReadKey();
 			else
-				Wait(() => Dispatcher.Working);
+				Wait(() => Core.Working);
 			
-			return Dispatcher;
+			return Core;
 		}
 	}
 }

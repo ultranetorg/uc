@@ -19,7 +19,7 @@ using RocksDbSharp;
 namespace UC.Net
 {
 	public delegate void VoidDelegate();
- 	public delegate void DispatcherDelegate(Dispatcher d);
+ 	public delegate void CoreDelegate(Core d);
 
 	public class Statistics
 	{
@@ -44,7 +44,7 @@ namespace UC.Net
 		Null, Downloading, Synchronizing, Synchronized
 	}
  
-	public class Dispatcher
+	public class Core
 	{
 		public static readonly int[]		Versions = {1};
 		public const string					FailureExt = "failure";
@@ -97,7 +97,7 @@ namespace UC.Net
 		Func<bool>							Abort;
 		public Synchronization				_Synchronization = Synchronization.Null;
 		public Synchronization				Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
-		public DispatcherDelegate			SynchronizationChanged;
+		public CoreDelegate					SynchronizationChanged;
 		DateTime							SyncRequested;
 		int									SyncStart = -1;
 		int									SyncEnd = -1;
@@ -205,7 +205,7 @@ namespace UC.Net
 			}
 		}
 
-		public Dispatcher(Settings settings, string exedirectory, Log log, TimeProvider timeprovider, IGasAsker gasasker, IFeeAsker feeasker)
+		public Core(Settings settings, string exedirectory, Log log, TimeProvider timeprovider, IGasAsker gasasker, IFeeAsker feeasker)
 		{
 			Settings = settings;
 			TimeProvider = timeprovider;
@@ -399,7 +399,7 @@ namespace UC.Net
 			lock(Lock)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(methodBase.Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings.Profile, m + "." + Dispatcher.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(Settings.Profile, m + "." + Core.FailureExt), ex.ToString());
 				Log?.ReportError(this, m, ex);
 	
 				Stop("Exception");

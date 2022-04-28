@@ -19,23 +19,23 @@ namespace UC.Net.Node.FUI
 
 	public class BaseControl : UserControl
 	{
-		protected readonly Dispatcher	Dispatcher;
+		protected readonly Core	Core;
 		protected readonly Vault		Vault;
-		protected Roundchain			Chain => Dispatcher.Chain;
+		protected Roundchain			Chain => Core.Chain;
 
 		public BaseControl()
 		{
 		}
 
-		public BaseControl(Dispatcher d, Vault v)
+		public BaseControl(Core d, Vault v)
 		{
-			Dispatcher = d;
+			Core = d;
 			Vault = v;
 		}
 
 		public IEnumerable<AuthorEntry> FindAuthors(Account account)
 		{
-			return Dispatcher.Chain.FindAuthors(account, Chain.LastConfirmedRound);
+			return Core.Chain.FindAuthors(account, Chain.LastConfirmedRound);
 		}
 
 		public IEnumerable<ProductModel> FindProducts(Account account)
@@ -75,7 +75,7 @@ namespace UC.Net.Node.FUI
 			{
 				b.Items.Clear();
 	
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
 					foreach(var a in Vault.Accounts)
 						foreach(var p in FindProducts(a))
@@ -86,7 +86,7 @@ namespace UC.Net.Node.FUI
 					b.SelectedIndex = 0;
 			}
 
-			Dispatcher.Chain.BlockAdded +=	b =>{
+			Core.Chain.BlockAdded +=	b =>{
 													if(b is Payload p && p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is ProductRegistration)))
 													{
 														BeginInvoke((MethodInvoker)delegate{ fill(); });
@@ -101,7 +101,7 @@ namespace UC.Net.Node.FUI
 			{
 				b.Items.Clear();
 	
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
 					foreach(var i in Vault.Accounts)
 						foreach(var p in FindAuthors(i))
@@ -114,7 +114,7 @@ namespace UC.Net.Node.FUI
 				filled?.Invoke();
 			}
 
-			Dispatcher.Chain.BlockAdded += b => {
+			Core.Chain.BlockAdded += b => {
 													if(b is Payload p && (	p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorRegistration || o is AuthorTransfer)) ||
 																			p.Transactions.Any(i => !Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorTransfer at && Vault.Accounts.Contains(at.To))) 
 																			))
@@ -144,13 +144,13 @@ namespace UC.Net.Node.FUI
 				return p;
 			}
 
-			var pa = new PasswordForm(Dispatcher.Settings.Secret?.Password);
+			var pa = new PasswordForm(Core.Settings.Secret?.Password);
 
 			if(pa.Ask($"A password required to access {account} account"))
 			{
 				try
 				{
-					return Dispatcher.Vault.Unlock(account, pa.Password);
+					return Core.Vault.Unlock(account, pa.Password);
 				}
 				catch(Exception ex)
 				{
@@ -174,7 +174,7 @@ namespace UC.Net.Node.FUI
 		{
 		}
 
-		public MainPanel(Dispatcher dispatcher, Vault vault) : base(dispatcher, vault)
+		public MainPanel(Core core, Vault vault) : base(core, vault)
 		{
 		}
 	}

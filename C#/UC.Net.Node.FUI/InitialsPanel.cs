@@ -14,15 +14,15 @@ namespace UC.Net.Node.FUI
 	{
 		bool loading = false;
 
-		public InitialsPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public InitialsPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
 
 		public override void Open(bool first)
 		{
-			manage.Visible = Dispatcher.Nas.IsAdministrator;
-			nodes.ReadOnly = !Dispatcher.Nas.IsAdministrator;
+			manage.Visible = Core.Nas.IsAdministrator;
+			nodes.ReadOnly = !Core.Nas.IsAdministrator;
 
 			zone.Items.Clear();
 
@@ -31,7 +31,7 @@ namespace UC.Net.Node.FUI
 				zone.Items.Add(i);
 			}
 
-			zone.SelectedItem = Zone.NameByValue(Dispatcher.Settings.Zone);
+			zone.SelectedItem = Zone.NameByValue(Core.Settings.Zone);
 
 			//ReloadDefaultNodes();
 		}
@@ -43,7 +43,7 @@ namespace UC.Net.Node.FUI
 				manage.Enabled = false;
 				nodes.Enabled = false;
 
-				await Dispatcher.Nas.SetZone(Zone.ValueByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
+				await Core.Nas.SetZone(Zone.ValueByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
@@ -60,7 +60,7 @@ namespace UC.Net.Node.FUI
 			{
 				manage.Enabled = false;
 
-				await Dispatcher.Nas.RemoveZone(Zone.ValueByName(zone.SelectedItem as string), new EthereumFeeForm());
+				await Core.Nas.RemoveZone(Zone.ValueByName(zone.SelectedItem as string), new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
@@ -83,11 +83,11 @@ namespace UC.Net.Node.FUI
 	
 				Task.Run(	() =>
 							{
-								//Dispatcher.Nas.ReloadInitials();
+								//Core.Nas.ReloadInitials();
 	
 								Invoke( (MethodInvoker)delegate()
 										{
-											nodes.Text = string.Join("\r\n", Dispatcher.Nas.GetZone(Zone.ValueByName(zone.SelectedItem as string)).Split(new char[]{'\r','\n'}, StringSplitOptions.RemoveEmptyEntries));
+											nodes.Text = string.Join("\r\n", Core.Nas.GetZone(Zone.ValueByName(zone.SelectedItem as string)).Split(new char[]{'\r','\n'}, StringSplitOptions.RemoveEmptyEntries));
 						
 											manage.Enabled = true;
 											nodes.Enabled = true;

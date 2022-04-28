@@ -14,7 +14,7 @@ namespace UC.Net.Node.FUI
 	{
 		readonly Timer		Timer = new Timer();
 
-		public PeersPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public PeersPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -28,9 +28,9 @@ namespace UC.Net.Node.FUI
 		{
 			peers.Rows.Clear();
 
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
-				foreach(var i in Dispatcher.Peers)
+				foreach(var i in Core.Peers)
 				{
 					var r = peers.Rows.Add(new object[]{ i.IP, i.StatusDescription, i.Retries, i.LastSeen.ToString(ChainTime.DateFormat) });
 					peers.Rows[r].Tag = i;
@@ -56,9 +56,9 @@ namespace UC.Net.Node.FUI
 			{
 				var rows = peers.Rows.Cast<DataGridViewRow>();
 
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
-					foreach(var i in Dispatcher.Peers)
+					foreach(var i in Core.Peers)
 					{
 						var r = rows.FirstOrDefault(j => j.Tag as Peer == i);
 					

@@ -15,49 +15,49 @@ namespace UC.Net.Node.FUI
 {
 	public partial class MainForm : Form
 	{
-		public readonly Dispatcher		Dispatcher;
+		public readonly Core		Core;
 		readonly Timer					Timer = new Timer();
 
-		public MainForm(Dispatcher dispatcher)
+		public MainForm(Core core)
 		{
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
 
 			InitializeComponent();
 
 			MinimumSize = Size;
-			Dispatcher = dispatcher;
+			Core = core;
 
-			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Dispatcher, dispatcher.Vault)};
+			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Core, core.Vault)};
 			navigator.Nodes.Add(dashboard);
 
-			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Dispatcher, dispatcher.Vault)};
+			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Core, core.Vault)};
 			navigator.Nodes.Add(accs);
 
-			if(dispatcher.Chain != null)
+			if(core.Chain != null)
 			{
-				var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Dispatcher, dispatcher.Vault) };
+				var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
 				navigator.Nodes.Add(txs);
 	
-				var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Dispatcher, dispatcher.Vault) };
+				var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, core.Vault) };
 				navigator.Nodes.Add(memb);
 	
-				var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Dispatcher, dispatcher.Vault) };
+				var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Core, core.Vault) };
 				navigator.Nodes.Add(auth);
 	
-				var prod = new TreeNode("Products"){ Tag = new ProductPanel(Dispatcher, dispatcher.Vault) };
+				var prod = new TreeNode("Products"){ Tag = new ProductPanel(Core, core.Vault) };
 				navigator.Nodes.Add(prod);
 	
-				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Dispatcher, dispatcher.Vault) };				
+				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Core, core.Vault) };				
 				navigator.Nodes.Add(rel);
 	
-				var pub = new TreeNode("Publish"){ Tag = new PublishPanel(Dispatcher, dispatcher.Vault) };				
+				var pub = new TreeNode("Publish"){ Tag = new PublishPanel(Core, core.Vault) };				
 				navigator.Nodes.Add(pub);
 
-				var exp = new TreeNode("Explorer"){ Tag = new ExplorerPanel(Dispatcher, dispatcher.Vault) };
+				var exp = new TreeNode("Explorer"){ Tag = new ExplorerPanel(Core, core.Vault) };
 				navigator.Nodes.Add(exp);
 			}
 
-			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Dispatcher, dispatcher.Vault) };
+			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Core, core.Vault) };
 			navigator.Nodes.Add(transfer);
 
 			var nodes = new TreeNode("Network");
@@ -65,18 +65,18 @@ namespace UC.Net.Node.FUI
 			navigator.Nodes.Add(nodes);
 
 			{
-				var peers = new TreeNode("Peers"){ Tag = new PeersPanel(Dispatcher, dispatcher.Vault) };
+				var peers = new TreeNode("Peers"){ Tag = new PeersPanel(Core, core.Vault) };
 				nodes.Nodes.Add(peers);
 
-				if(dispatcher.Chain != null)
+				if(core.Chain != null)
 				{
-					var members = new TreeNode("Members"){ Tag = new MembersPanel(Dispatcher, dispatcher.Vault)};
+					var members = new TreeNode("Members"){ Tag = new MembersPanel(Core, core.Vault)};
 					nodes.Nodes.Add(members);
 				}
 
-				if(Dispatcher.Settings.Dev.UI)
+				if(Core.Settings.Dev.UI)
 				{
-					var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Dispatcher, dispatcher.Vault)};
+					var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
 					nodes.Nodes.Add(initials);
 				}
 
@@ -84,7 +84,7 @@ namespace UC.Net.Node.FUI
 				nodes.Nodes.Add(ipfs);
 			}
 
-			var apps = new TreeNode("Applications"){ Tag = new ApplicationsPanel(Dispatcher, dispatcher.Vault) };
+			var apps = new TreeNode("Applications"){ Tag = new ApplicationsPanel(Core, core.Vault) };
 			navigator.Nodes.Add(apps);
 		}
 
@@ -111,10 +111,10 @@ namespace UC.Net.Node.FUI
 
 		void RefreshInfo(object myObject, EventArgs myEventArgs)
 		{
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
-				Text = "Ultranet " + (Dispatcher.IsNode ? "Node" : "Client"); //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += $"{(Dispatcher.IsNode && Dispatcher.Connections.Count() < Dispatcher.Settings.PeersMin ? " - Low Peers" : "")}{(Dispatcher.IsNode && Dispatcher.IP != IPAddress.None ? " - " + Dispatcher.IP : "")} - {Dispatcher.Synchronization}{(Dispatcher.Generator != null && Dispatcher.Chain.Members.Any(i => i.Generator == Dispatcher.Generator) ? $" - {Dispatcher.Generator}" : "")}";
+				Text = "Ultranet " + (Core.IsNode ? "Node" : "Client"); //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
+				Text += $"{(Core.IsNode && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.IsNode && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
 			}
 
 			foreach(var i in Controls)

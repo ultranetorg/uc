@@ -14,7 +14,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class ApplicationsPanel : MainPanel
 	{
-		public ApplicationsPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public ApplicationsPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -26,7 +26,7 @@ namespace UC.Net.Node.FUI
 
 			results.Items.Clear();
 /*			
-			foreach(var r in Dispatcher.Database.FindProducts(i => i.Product == name.Text && i. OS.Platform.ToString()))
+			foreach(var r in Core.Database.FindProducts(i => i.Product == name.Text && i. OS.Platform.ToString()))
 			{
 				var i = new ListViewItem(r.Manifest.Product);
 				

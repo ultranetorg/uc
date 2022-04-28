@@ -165,7 +165,7 @@ namespace UC.Net
 			}
 		}
 
-		public void Start(Dispatcher dispatcher, TcpClient client, Hello h, Action<Peer> read, object lockk, string host)
+		public void Start(Core core, TcpClient client, Hello h, Action<Peer> read, object lockk, string host)
 		{
 			Client = client;
 
@@ -185,7 +185,7 @@ namespace UC.Net
 							{
 								try
 								{
-									while(dispatcher.Working && Established)
+									while(core.Working && Established)
 									{
 										Packet p = null;
 	
@@ -228,7 +228,7 @@ namespace UC.Net
 								}
 								catch(Exception ex) when(!Debugger.IsAttached)
 								{
-									dispatcher.Stop(MethodBase.GetCurrentMethod(), ex);
+									core.Stop(MethodBase.GetCurrentMethod(), ex);
 								}
 							});
 	

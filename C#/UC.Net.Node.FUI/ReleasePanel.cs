@@ -6,7 +6,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class ReleasePanel : MainPanel
 	{
-		public ReleasePanel(Dispatcher d, Vault vault) : base(d, vault)
+		public ReleasePanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -45,7 +45,7 @@ namespace UC.Net.Node.FUI
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				//foreach(var r in Dispatcher.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Platform == Platform.Text))
+				//foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Platform == Platform.Text))
 				//{
 				//	var i = new ListViewItem(r.Version.ToString());
 				//	

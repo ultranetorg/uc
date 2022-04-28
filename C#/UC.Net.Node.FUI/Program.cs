@@ -33,8 +33,8 @@ namespace UC.Net.Node.FUI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))));
 				var boot = new BootArguments(b, cmd);
 
-				var orig = Path.Combine(exedir, Dispatcher.SettingsFileName);
-				var user = Path.Combine(boot.Main.Profile, Dispatcher.SettingsFileName);
+				var orig = Path.Combine(exedir, Core.SettingsFileName);
+				var user = Path.Combine(boot.Main.Profile, Core.SettingsFileName);
 
 				if(!File.Exists(user))
 				{
@@ -46,24 +46,24 @@ namespace UC.Net.Node.FUI
 
 				Cryptography.Current = settings.Cryptography;
 
-				var dispatcher = new Dispatcher(settings, exedir, new Log(), new RealTimeProvider(), new EthereumFeeForm(), new FeeForm(settings));
+				var core = new Core(settings, exedir, new Log(), new RealTimeProvider(), new EthereumFeeForm(), new FeeForm(settings));
 
 				//if(isnode)
 				//{
-					dispatcher.RunServer();
-					dispatcher.RunNode();
+					core.RunServer();
+					core.RunNode();
 				//} 
 				//else
 				//{
-				//	dispatcher.RunClient(overridedispatcher);
+				//	core.RunClient(overridedispatcher);
 				//}
 
-				var f = new MainForm(dispatcher);
+				var f = new MainForm(core);
 				f.StartPosition = FormStartPosition.CenterScreen;
 
 				f.Closed  +=	(s, a) =>
 								{
-									(s as MainForm).Dispatcher.Stop("Form closed");
+									(s as MainForm).Core.Stop("Form closed");
 								};
 
 				Application.Run(f);

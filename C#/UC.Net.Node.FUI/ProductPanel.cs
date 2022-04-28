@@ -12,7 +12,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class ProductPanel : MainPanel
 	{
-		public ProductPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public ProductPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -62,9 +62,9 @@ namespace UC.Net.Node.FUI
 				if(Author.SelectedItem == null)
 					throw new ArgumentException("Invalid author name. If you don't own any author yet then you need to register one first.");
 
-				var a = Dispatcher.Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue);
+				var a = Core.Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue);
 
-				Dispatcher.Enqueue(new ProductRegistration(	GetPrivate(a.FindOwner(Chain.LastConfirmedRound)),
+				Core.Enqueue(new ProductRegistration(	GetPrivate(a.FindOwner(Chain.LastConfirmedRound)),
 															new ProductAddress(ProductName.Text, Author.SelectedItem as string),
 															ProductTitle.Text));
 			}

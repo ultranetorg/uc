@@ -37,7 +37,7 @@ namespace UC.Net.Node.CLI
 	{
 		public const string Keyword = "author";
 
-		public AuthorCommand(Settings settings, Log log, Func<Dispatcher> dispatcher, Xon args) : base(settings, log, dispatcher, args)
+		public AuthorCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 

@@ -14,18 +14,18 @@ namespace UC.Net.Node.FUI
 			InitializeComponent();
 		}
 
-		public DashboardPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public DashboardPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
-			monitor.Dispatcher	= d;
+			monitor.Core	= d;
 		}
 
 		public override void Open(bool first)
 		{
 			if(first)
 			{
-				logbox.Log = Dispatcher.Log;
+				logbox.Log = Core.Log;
 
 				BindAccounts(source);
 				BindAccounts(destination);
@@ -39,9 +39,9 @@ namespace UC.Net.Node.FUI
 		{
 			string[][] i;
 
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
-				i = Dispatcher.Info;
+				i = Core.Info;
 			}
 
 			fields.Text = string.Join('\n', i[0]);
@@ -52,13 +52,13 @@ namespace UC.Net.Node.FUI
 		{
 			if(source.SelectedItem is Account a)
 			{
-				amount.Coins = Dispatcher.Chain.Accounts.Find(a, Dispatcher.Chain.LastConfirmedRound.Id).Balance;
+				amount.Coins = Core.Chain.Accounts.Find(a, Core.Chain.LastConfirmedRound.Id).Balance;
 			}
 		}
 
 		private void source_SelectionChangeCommitted(object sender, EventArgs e)
 		{
-			//amount.Coins = Dispatcher.Database.GetConfirmedBalance(source.SelectedItem as Account);
+			//amount.Coins = Core.Database.GetConfirmedBalance(source.SelectedItem as Account);
 		}
 
 		private void send_Click(object sender, EventArgs e)
@@ -69,7 +69,7 @@ namespace UC.Net.Node.FUI
 			{
 				try
 				{
-					Dispatcher.Enqueue(new UntTransfer(	signer,
+					Core.Enqueue(new UntTransfer(	signer,
 														Account.Parse(destination.Text),
 														amount.Coins));
 				}

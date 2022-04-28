@@ -186,8 +186,8 @@ namespace UC.Net
 				LoadSecrets(doc.GetString("Secrets"));
 			}
 
-			if(boot.Dispatcher.Port != -1)	Port = boot.Dispatcher.Port;
-			if(boot.Dispatcher.IP != null)	IP = boot.Dispatcher.IP;
+			if(boot.Core.Port != -1)	Port = boot.Core.Port;
+			if(boot.Core.IP != null)	IP = boot.Core.IP;
 
 			if(boot.Main.Profile != null)	Profile = boot.Main.Profile;
 			if(boot.Main.Secrets != null)	LoadSecrets(boot.Main.Secrets);

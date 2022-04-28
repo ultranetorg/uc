@@ -25,7 +25,7 @@ namespace UC.Net.Node
 		Coin emission = 0;
 		BigInteger spent = 0;
 
-		public Dispatcher Dispatcher;
+		public Core Core;
 
 		public ChainMonitor()
 		{
@@ -51,16 +51,16 @@ namespace UC.Net.Node
 		{
 			base.OnHandleCreated(e);
 
-			if(Dispatcher?.Chain != null)
-				Dispatcher.Chain.BlockAdded += OnBlockAdded;
+			if(Core?.Chain != null)
+				Core.Chain.BlockAdded += OnBlockAdded;
 		}
 
 		protected override void OnHandleDestroyed(EventArgs e)
 		{
 			base.OnHandleDestroyed(e);
 
-			if(Dispatcher?.Chain != null)
-				Dispatcher.Chain.BlockAdded -= OnBlockAdded;
+			if(Core?.Chain != null)
+				Core.Chain.BlockAdded -= OnBlockAdded;
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -71,9 +71,9 @@ namespace UC.Net.Node
 			{
 				e.Graphics.Clear(Color.White);
 
-				if(Dispatcher?.Chain != null)
+				if(Core?.Chain != null)
 				{
-					lock(Dispatcher.Lock)
+					lock(Core.Lock)
 					{
 						var s = 8;
 						var b = 2;
@@ -91,11 +91,11 @@ namespace UC.Net.Node
 						{
 							rounds.Clear();
 	
-							var n = Math.Min(Height/s-1, Dispatcher.Chain.LastNonEmptyRound.Id + 1);
+							var n = Math.Min(Height/s-1, Core.Chain.LastNonEmptyRound.Id + 1);
 							
-							for(int i = Dispatcher.Chain.LastNonEmptyRound.Id - n + 1; i <= Dispatcher.Chain.LastNonEmptyRound.Id; i++)
+							for(int i = Core.Chain.LastNonEmptyRound.Id - n + 1; i <= Core.Chain.LastNonEmptyRound.Id; i++)
 							{
-								var r = Dispatcher.Chain.FindRound(i);
+								var r = Core.Chain.FindRound(i);
 								rounds.Add(r);
 	
 								if(uset)

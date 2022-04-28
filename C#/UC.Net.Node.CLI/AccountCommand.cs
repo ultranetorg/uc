@@ -21,7 +21,7 @@ namespace UC.Net.Node.CLI
 	{
 		public const string Keyword = "account";
 
-		public AccountCommand(Settings settings, Log log, Func<Dispatcher> dispatcher, Xon args) : base(settings, log, dispatcher, args)
+		public AccountCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 
@@ -130,7 +130,7 @@ namespace UC.Net.Node.CLI
 
 			Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Dispatcher.Vault.SaveAccount(acc, p);
+			Core.Vault.SaveAccount(acc, p);
 
 			return acc;
 		}
@@ -144,7 +144,7 @@ namespace UC.Net.Node.CLI
 
 			var acc = PrivateAccount.Parse(GetString("privatekey"));
 
-			if(Dispatcher.Vault.Accounts.Contains(acc))
+			if(Core.Vault.Accounts.Contains(acc))
 			{
 				Log?.ReportError(this, $"Account already exists: " + acc);
 				return null;
@@ -198,7 +198,7 @@ namespace UC.Net.Node.CLI
 
 			Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Dispatcher.Vault.SaveAccount(acc, p);
+			Core.Vault.SaveAccount(acc, p);
 
 			return acc;
 		}

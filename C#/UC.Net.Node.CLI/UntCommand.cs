@@ -36,7 +36,7 @@ namespace UC.Net.Node.CLI
 	{
 		public const string Keyword = "unt";
 
-		public UntCommand(Settings settings, Log log, Func<Dispatcher> dispatcher, Xon args) : base(settings, log, dispatcher, args)
+		public UntCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 

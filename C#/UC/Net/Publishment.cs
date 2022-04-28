@@ -19,7 +19,7 @@ namespace UC.Net
 /*
 	public class Publishment
 	{
-		Dispatcher		Dispatcher;
+		Core		Core;
 		Settings		Settings;
 		Log				Log;
 		IpfsClient		Ipfs;
@@ -28,9 +28,9 @@ namespace UC.Net
 		PrivateAccount	Publisher;
 		Coin			Fee;
 
-		public Publishment(Dispatcher d, Log log, PrivateAccount publisher, Coin fee, string manifestpath)
+		public Publishment(Core d, Log log, PrivateAccount publisher, Coin fee, string manifestpath)
 		{
-			Dispatcher		= d;
+			Core		= d;
 			Settings		= d.Settings;
 			Log				= log;
 			ManifestPath	= manifestpath;
@@ -200,7 +200,7 @@ namespace UC.Net
 			
 			var w = new StringWriter();
 			manifest.Save(new XonTextWriter(w));
-			//Dispatcher.PublishRelease(Publisher, w.ToString());
+			//Core.PublishRelease(Publisher, w.ToString());
 		}
 	}*/
 }

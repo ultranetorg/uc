@@ -17,7 +17,7 @@ namespace UC.Net.Node.FUI
 	{
 		public Account CurrentAccout => accounts.SelectedItems[0]?.Tag as Account;
 
-		public AccountsPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public AccountsPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -50,7 +50,7 @@ namespace UC.Net.Node.FUI
 
 									try
 									{
-										t = Dispatcher.GetAccountInfo(i.Tag as Account, true)?.Balance.ToHumanString(); 
+										t = Core.GetAccountInfo(i.Tag as Account, true)?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{
@@ -78,7 +78,7 @@ namespace UC.Net.Node.FUI
 
 									try
 									{
-										t = Dispatcher.GetAccountInfo(i.Tag as Account, false)?.Balance.ToHumanString(); 
+										t = Core.GetAccountInfo(i.Tag as Account, false)?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{

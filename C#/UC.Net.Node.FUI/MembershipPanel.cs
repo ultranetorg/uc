@@ -15,7 +15,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class MembershipPanel : MainPanel
 	{
-		public MembershipPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public MembershipPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -30,7 +30,7 @@ namespace UC.Net.Node.FUI
 				UpdateCandidateAccounts();
 
 				Bail.Coins = Roundchain.BailMin;
-				IP.Text = Dispatcher.IP.ToString();
+				IP.Text = Core.IP.ToString();
 			}
 		}
 
@@ -42,12 +42,12 @@ namespace UC.Net.Node.FUI
 		{
 			FillAccounts(NewCandidate);
 
-			if(Dispatcher.Settings.Generator != null)
+			if(Core.Settings.Generator != null)
 			{
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
-					CurrentCandidate.Text = Dispatcher.Settings.Generator;
-					NewCandidate.Items.Remove(PrivateAccount.Parse(Dispatcher.Settings.Generator));
+					CurrentCandidate.Text = Core.Settings.Generator;
+					NewCandidate.Items.Remove(PrivateAccount.Parse(Core.Settings.Generator));
 	
 					if(NewCandidate.Items.Count > 0)
 						NewCandidate.SelectedIndex = 0;
@@ -62,11 +62,11 @@ namespace UC.Net.Node.FUI
 			Declarations.Items.Clear();
 			Blocks.Items.Clear();
 
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
 				foreach(var i in Vault.Accounts)
 				{
-					foreach(var o in Dispatcher.Chain.Accounts.FindLastOperations<CandidacyDeclaration>(i))
+					foreach(var o in Core.Chain.Accounts.FindLastOperations<CandidacyDeclaration>(i))
 					{
 						var r = new ListViewItem(o.Signer.ToString());
 						r.SubItems.Add(o.Transaction.Payload.RoundId.ToString()); 
@@ -75,7 +75,7 @@ namespace UC.Net.Node.FUI
 						Declarations.Items.Add(r);
 					}
 	
-					foreach(var b in Dispatcher.Chain.FindLastBlocks(j => j.Member == i).OrderBy(i => i.RoundId))
+					foreach(var b in Core.Chain.FindLastBlocks(j => j.Member == i).OrderBy(i => i.RoundId))
 					{
 						var r = new ListViewItem(b.RoundId.ToString());
 						r.SubItems.Add(b.Type.ToString()); 
@@ -87,15 +87,15 @@ namespace UC.Net.Node.FUI
 				}
 			}
 
-			Activate.Enabled = NewCandidate.Items.Count > 0/* && NewCandidate.SelectedItem as PrivateAccount != Dispatcher.Member*/; 
-			Deactivate.Enabled = Dispatcher.Generator != null;
+			Activate.Enabled = NewCandidate.Items.Count > 0/* && NewCandidate.SelectedItem as PrivateAccount != Core.Member*/; 
+			Deactivate.Enabled = Core.Generator != null;
 		}
 
 		private void Declare_Click(object sender, EventArgs e)
 		{
 			try
 			{
-				Dispatcher.Enqueue(new CandidacyDeclaration(GetPrivate(Candidates.SelectedItem as Account), 
+				Core.Enqueue(new CandidacyDeclaration(GetPrivate(Candidates.SelectedItem as Account), 
 															Bail.Coins,
 															IPAddress.Parse(IP.Text)));
 			}
@@ -109,16 +109,16 @@ namespace UC.Net.Node.FUI
 		{
 			try
 			{
-				//var pf = new PasswordForm(Dispatcher.Settings.Secret?.Password);
+				//var pf = new PasswordForm(Core.Settings.Secret?.Password);
 				var key = GetPrivate(NewCandidate.SelectedItem as Account);
 	
 				if(key != null)
 				{
-					lock(Dispatcher.Lock)
+					lock(Core.Lock)
 					{
-						Dispatcher.Settings.Generator = key.Key.GetPrivateKey();
-						Dispatcher.Settings.Save();
-						Dispatcher.Generator = key;
+						Core.Settings.Generator = key.Key.GetPrivateKey();
+						Core.Settings.Save();
+						Core.Generator = key;
 					}
 	
 					UpdateCandidateAccounts();
@@ -134,11 +134,11 @@ namespace UC.Net.Node.FUI
 		{
 			try
 			{
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
-					Dispatcher.Settings.Generator = null;
-					Dispatcher.Settings.Save();
-					Dispatcher.Generator = null;
+					Core.Settings.Generator = null;
+					Core.Settings.Save();
+					Core.Generator = null;
 				}
 	
 				UpdateCandidateAccounts();

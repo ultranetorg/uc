@@ -13,16 +13,16 @@ namespace UC.Net.Node.FUI
 {
 	public partial class FlowControlForm : Form, IFlowControl
 	{
-		Dispatcher				Dispatcher;
+		Core				Core;
 		Operation				Operation;
 		Log						IFlowControl.Log => Log.Log;
 		CancellationTokenSource CancellationToken;
 
-		public FlowControlForm(Dispatcher dispatcher, Log log, CancellationTokenSource cancellationTokenSource)
+		public FlowControlForm(Core core, Log log, CancellationTokenSource cancellationTokenSource)
 		{
 			InitializeComponent();
 
-			Dispatcher = dispatcher;
+			Core = core;
 			CancellationToken = cancellationTokenSource;
 			Log.Log = log;
 		}

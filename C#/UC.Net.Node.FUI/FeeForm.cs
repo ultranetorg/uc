@@ -33,15 +33,15 @@ namespace UC.Net.Node
 			Close();
 		}
 
-		public bool Ask(Dispatcher dispatcher, PrivateAccount account, Operation operation)
+		public bool Ask(Core core, PrivateAccount account, Operation operation)
 		{
 			from.Text = account.ToString();
 			
-			var t = new Transaction(dispatcher.Settings, account, 0);
+			var t = new Transaction(core.Settings, account, 0);
 			t.Operations.Add(operation);
 			t.Sign(new Account(Nethereum.Signer.EthECKey.GenerateKey()), 0);
 
-			var f = dispatcher.EstimateFee(t);
+			var f = core.EstimateFee(t);
 
 			fee.Text = f > 0 ? f.ToHumanString() : "unavailavle"; 
 

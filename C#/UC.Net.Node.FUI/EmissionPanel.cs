@@ -19,16 +19,16 @@ namespace UC.Net.Node.FUI
 {
 	public partial class EmissionPanel : MainPanel
 	{
-		public EmissionPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public EmissionPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
-			if(Dispatcher.Settings.Secret?.EmissionWallet != null)
-				browse.Text = Dispatcher.Settings.Secret.EmissionWallet;
+			if(Core.Settings.Secret?.EmissionWallet != null)
+				browse.Text = Core.Settings.Secret.EmissionWallet;
 
 			walletChoice.Checked = true;
 
-			DestLabel.Text += $"\n({Dispatcher.Nas.Chain} Network)";
+			DestLabel.Text += $"\n({Core.Nas.Chain} Network)";
 		}
 
 		public override void Open(bool first)
@@ -114,11 +114,11 @@ namespace UC.Net.Node.FUI
 		{
 			UpdateReadiness();
 
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
-				if(Dispatcher.Chain != null)
+				if(Core.Chain != null)
 				{
-					estimated.Text = Emission.Calculate(Dispatcher.Chain.LastConfirmedRound.WeiSpent, Dispatcher.Chain.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
+					estimated.Text = Emission.Calculate(Core.Chain.LastConfirmedRound.WeiSpent, Core.Chain.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
 				}
 			}
 		}
@@ -137,11 +137,11 @@ namespace UC.Net.Node.FUI
 			{
 				if(walletChoice.Checked)
 				{
-					string password = Dispatcher.Settings.Secret?.EmissionPassword;
+					string password = Core.Settings.Secret?.EmissionPassword;
 	
 					if(password == null)
 					{
-						var f = new PasswordForm(Dispatcher.Settings.Secret?.Password);
+						var f = new PasswordForm(Core.Settings.Secret?.Password);
 					
 						if(f.Ask(browse.Text))
 							password = f.Password;
@@ -149,12 +149,12 @@ namespace UC.Net.Node.FUI
 	
 					if(password != null)
 					{
-						a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Dispatcher.Nas.Chain));
+						a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Core.Nas.Chain));
 					}
 				}
 				else if(privatekeyChoice.Checked)
 				{
-					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), Dispatcher.Nas.Chain);
+					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), Core.Nas.Chain);
 				}
 
 				if(a != null)
@@ -165,11 +165,11 @@ namespace UC.Net.Node.FUI
 					{
 						var ct = new CancellationTokenSource();
 
-						var f = new FlowControlForm(Dispatcher, log, ct);
+						var f = new FlowControlForm(Core, log, ct);
 						f.StartPosition = FormStartPosition.CenterParent;
 						f.Show(ParentForm);
 
-						await Dispatcher.Emit(a, eth.Wei, k, f, ct);
+						await Core.Emit(a, eth.Wei, k, f, ct);
 					}
 				}
 			}
@@ -192,7 +192,7 @@ namespace UC.Net.Node.FUI
 
 			try
 			{
-				Dispatcher.FinishTransfer(GetPrivate(Unfinished.SelectedItems[0].Tag as Account));
+				Core.FinishTransfer(GetPrivate(Unfinished.SelectedItems[0].Tag as Account));
 
 				transfergroup.Enabled = true;
 				finishgroup.Enabled = true;

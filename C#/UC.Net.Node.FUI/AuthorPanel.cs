@@ -12,7 +12,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class AuthorPanel : MainPanel
 	{
-		public AuthorPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public AuthorPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -54,9 +54,9 @@ namespace UC.Net.Node.FUI
 				Values.Text += v + "\n";
 			}
 
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
-				var ai = Dispatcher.GetAuthorInfo(AuthorSearch.Text, false);
+				var ai = Core.GetAuthorInfo(AuthorSearch.Text, false);
 
 				if(ai != null)
 					ai.Dump(add, sub);
@@ -88,7 +88,7 @@ namespace UC.Net.Node.FUI
 
 			Authors.Items.Clear();
 			
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
 				foreach(var i in FindAuthors(a))
 				{
@@ -97,7 +97,7 @@ namespace UC.Net.Node.FUI
 					var li = new ListViewItem(ar.Author);
 					li.Tag = ar;
 					li.SubItems.Add(ar.Title);
-					li.SubItems.Add(ar != null ? new AdmsTime(ar.Transaction.Payload.Round.Time.Ticks + ar.Years * AdmsTime.TicksPerYear).ToString(Dispatcher.DateFormat) : null);
+					li.SubItems.Add(ar != null ? new AdmsTime(ar.Transaction.Payload.Round.Time.Ticks + ar.Years * AdmsTime.TicksPerYear).ToString(Core.DateFormat) : null);
 				
 					Authors.Items.Add(li);
 				}
@@ -118,7 +118,7 @@ namespace UC.Net.Node.FUI
 
 			if(AuthorName.Text.Length > AuthorRegistration.LengthMaxForAuction)
 			{
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
 					Cost.Coins = AuthorRegistration.GetCost(Chain.LastConfirmedRound, (byte)Years.Value);
 				}
@@ -139,7 +139,7 @@ namespace UC.Net.Node.FUI
 				if(a == null)
 					return;
 
-				Dispatcher.Enqueue(new AuthorRegistration(	a,
+				Core.Enqueue(new AuthorRegistration(	a,
 															AuthorName.Text,  
 															AuthorTitle.Text,  
 															(byte)Years.Value));
@@ -184,7 +184,7 @@ namespace UC.Net.Node.FUI
 
 				var a = Chain.Authors.Find(TransferingAuthor.Text, int.MaxValue);
 
-				Dispatcher.Enqueue(new AuthorTransfer(GetPrivate(a.FindOwner(Chain.LastConfirmedRound)), TransferingAuthor.Text, Account.Parse(NewOwner.Text)));
+				Core.Enqueue(new AuthorTransfer(GetPrivate(a.FindOwner(Chain.LastConfirmedRound)), TransferingAuthor.Text, Account.Parse(NewOwner.Text)));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{
@@ -201,7 +201,7 @@ namespace UC.Net.Node.FUI
 				if(s == null)
 					return;
 
-				Dispatcher.Enqueue(new AuthorBid(s, AuctionAuthor.Text, Bid.Coins));
+				Core.Enqueue(new AuthorBid(s, AuctionAuthor.Text, Bid.Coins));
 			}
 			catch(Exception ex)
 			{

@@ -5,7 +5,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class PublishPanel : MainPanel
 	{
-		public PublishPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public PublishPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -50,11 +50,11 @@ Incremental
 		private void Publish_Click(object sender, EventArgs e)
 		{
 			//var signer = GetPrivate(Account.SelectedItem as PrivateAccount);
-			//var feeacker = new FeeForm(Dispatcher.Settings);
+			//var feeacker = new FeeForm(Core.Settings);
 			//
-			//if(feeacker.Ask(Account.SelectedItem as PrivateAccount, Dispatcher.fee))
+			//if(feeacker.Ask(Account.SelectedItem as PrivateAccount, Core.fee))
 			//{
-			//	Dispatcher.Enqueue(new Release(Dispatcher.Chain, signer, Manifest.Text, feeacker.Fee));
+			//	Core.Enqueue(new Release(Core.Chain, signer, Manifest.Text, feeacker.Fee));
 			//}
 		}
 	}

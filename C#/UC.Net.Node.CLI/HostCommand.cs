@@ -12,7 +12,7 @@ namespace UC.Net.Node.CLI
 		/// <summary>
 		/// Usage:	host ping ip=IP[:PORT]
 		/// </summary>
-		public HostCommand(Settings settings, Log log, Func<Dispatcher> dispatcher, Xon args) : base(settings, log, dispatcher, args)
+		public HostCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 

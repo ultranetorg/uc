@@ -12,7 +12,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class TransactionsPanel : MainPanel
 	{
-		public TransactionsPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public TransactionsPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -54,7 +54,7 @@ namespace UC.Net.Node.FUI
 
 			if(e.IsSelected)
 			{
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
 					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
 																							{
@@ -74,11 +74,11 @@ namespace UC.Net.Node.FUI
 			{
 				Transactions.Items.Clear();
 	
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
 					var a = Net.Account.Parse(Account.Text);
-					//var txs = Dispatcher.Transactions.Where(i => i.Signer == a);
-					var txs = Dispatcher.Chain.Accounts.SearchTransactions(a).OrderByDescending(i => i.Id);
+					//var txs = Core.Transactions.Where(i => i.Signer == a);
+					var txs = Core.Chain.Accounts.SearchTransactions(a).OrderByDescending(i => i.Id);
 	
 					foreach(var i in txs)
 					{

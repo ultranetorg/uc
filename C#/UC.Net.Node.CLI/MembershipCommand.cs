@@ -24,7 +24,7 @@ namespace UC.Net.Node.CLI
 	{
 		public const string Keyword = "membership";
 
-		public MembershipCommand(Settings settings, Log log, Func<Dispatcher> dispatcher, Xon args) : base(settings, log, dispatcher, args)
+		public MembershipCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 

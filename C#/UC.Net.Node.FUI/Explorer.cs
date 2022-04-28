@@ -13,7 +13,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class ExplorerPanel : MainPanel
 	{
-		public ExplorerPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public ExplorerPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -28,14 +28,14 @@ namespace UC.Net.Node.FUI
 		{
 			if(first)
 			{
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
-					Dispatcher.Chain.BlockAdded += (b) => Round.Maximum = Dispatcher.Chain.LastNonEmptyRound.Id;
+					Core.Chain.BlockAdded += (b) => Round.Maximum = Core.Chain.LastNonEmptyRound.Id;
 
-					//Rounds.Items.AddRange(Enumerable.Range(0, Dispatcher.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
+					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
 					Round.Minimum = 0;
-					Round.Maximum = Dispatcher.Chain.LastNonEmptyRound.Id;
-					Round.Value = Dispatcher.Chain.LastNonEmptyRound.Id;
+					Round.Maximum = Core.Chain.LastNonEmptyRound.Id;
+					Round.Value = Core.Chain.LastNonEmptyRound.Id;
 				}
 			}
 		}
@@ -46,9 +46,9 @@ namespace UC.Net.Node.FUI
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
 
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
-				var r =  Dispatcher.Chain.FindRound((int)Round.Value);
+				var r =  Core.Chain.FindRound((int)Round.Value);
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.Time + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
@@ -57,7 +57,7 @@ namespace UC.Net.Node.FUI
 									string.Join(", ", r.ConfirmedViolators)
 									;
 
-				Blocks.Items.AddRange(Dispatcher.Chain.FindRound((int)Round.Value).Payloads.Select(	(i, j) =>
+				Blocks.Items.AddRange(Core.Chain.FindRound((int)Round.Value).Payloads.Select(	(i, j) =>
 																									{
 																										var li = new ListViewItem(j.ToString());
 																										li.Tag = i;
@@ -82,7 +82,7 @@ namespace UC.Net.Node.FUI
 
 			if(e.IsSelected)
 			{
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
 					Transactions.Items.AddRange((e.Item.Tag as Payload).Transactions.Select((i) =>
 																							{
@@ -102,7 +102,7 @@ namespace UC.Net.Node.FUI
 
 			if(e.IsSelected)
 			{
-				lock(Dispatcher.Lock)
+				lock(Core.Lock)
 				{
 					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
 																							{

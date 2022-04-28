@@ -12,7 +12,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class MembersPanel : MainPanel
 	{
-		public MembersPanel(Dispatcher d, Vault vault) : base(d, vault)
+		public MembersPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -21,14 +21,14 @@ namespace UC.Net.Node.FUI
 		{
 			members.Items.Clear();
 
-			lock(Dispatcher.Lock)
+			lock(Core.Lock)
 			{
-				foreach(var i in Dispatcher.Chain.Members.OrderByDescending(i => i.JoinedAt))
+				foreach(var i in Core.Chain.Members.OrderByDescending(i => i.JoinedAt))
 				{
 					var li = new ListViewItem(i.Generator.ToString());
 
 					li.SubItems.Add(i.JoinedAt.ToString());
-					li.SubItems.Add(Dispatcher.Chain.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString());
+					li.SubItems.Add(Core.Chain.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString());
 					li.SubItems.Add(i.IP.ToString());
 
 					members.Items.Add(li);
