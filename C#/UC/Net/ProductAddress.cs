@@ -4,8 +4,8 @@ namespace UC.Net
 {
 	public class ProductAddress : IEquatable<ProductAddress>
 	{
-		public string Author { get; }
-		public string Product { get; }
+		public string Author { get; set; }
+		public string Product { get; set; }
 
 		public virtual bool Valid => !string.IsNullOrWhiteSpace(Author)  && !string.IsNullOrWhiteSpace(Product);
 
@@ -13,6 +13,10 @@ namespace UC.Net
 		{
 			Author = author;
 			Product = product;
+		}
+
+		public ProductAddress()
+		{
 		}
 
 		public override string ToString()
@@ -35,10 +39,17 @@ namespace UC.Net
 			return HashCode.Combine(Author, Product);
 		}
 
+		public virtual void Parse(string[] s)
+		{
+			Author = s[0];
+			Product = s[1];
+		}
+
 		public static ProductAddress Parse(string v)
 		{
-			var s = v.Split('/');
-			return new ProductAddress(s[0], s[1]);
+			var a = new ProductAddress();
+			a.Parse(v.Split('/'));
+			return a;
 		}
 
 		public static bool operator ==(ProductAddress left, ProductAddress right)

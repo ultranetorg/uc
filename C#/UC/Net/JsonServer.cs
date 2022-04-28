@@ -125,6 +125,18 @@ namespace UC.Net
 											{
 											}
 									}
+
+			void respondbinary(byte[] t){
+											try
+											{
+												rp.ContentType = "application/octet-stream";
+						
+												rp.OutputStream.Write(t, 0, t.Length);
+											}
+											catch(InvalidOperationException)
+											{
+											}
+										}
 	
 			if(rq.ContentType == null || !rq.HasEntityBody)
 				return;
@@ -314,7 +326,38 @@ namespace UC.Net
 									responderror("Author not found");
 							}
 							break;
-	
+
+						case DeclareReleaseCall c:
+							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+							else
+							{
+								Dispatcher.DecalreRelease(c.Declaration);
+							}
+							break;
+
+						case QueryReleaseCall c:
+							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+							else
+							{
+								var ai = Dispatcher.QueryRelease(c.Query);
+								
+								respondjson(ai);
+							}
+							break;
+
+						case DownloadReleaseCall c:
+							if(Dispatcher.Synchronization != Synchronization.Synchronized)
+								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+							else
+							{
+								var ai = Dispatcher.DownloadRelease(c.Request);
+								
+								respondbinary(ai);
+							}
+							break;
+
 						case ExitCall e:
 							rp.Close();
 							Dispatcher.Stop("RPC call");

@@ -204,45 +204,27 @@ namespace UC.Net
 		public string			Name {get; set;}
 	}
 
-	public class ReleaseDeclarationCall : RpcCall, IHashable
+	public class DeclareReleaseCall : RpcCall
 	{
-		public Account			Signer { get;set; }
-		public ReleaseAddress	Address { get;set; }
-		public string			Stage { get;set; } // stable, beta, nightly, debug, ...
-		public List<string>		Localizations { get;set; }
-		public byte[]			Signature { get;set; }
+		public ReleaseDeclaration	Declaration { get;set; }
 
-		public bool				Valid => Address.Valid;
-		public override bool	Private => false;
-
-		public ReleaseDeclarationCall()
-		{
-		}
-
-		public ReleaseDeclarationCall(PrivateAccount signer, ReleaseAddress address, string stage, List<string> locs)
-		{
-			Signer = signer;
-			Address = address;
-			Stage = stage;
-			Localizations = locs;
-
-			Signature = Cryptography.Current.Sign(signer, this);
-		}
-						
-		public void HashWrite(BinaryWriter w)
-		{
-			w.Write(Signer);
-			w.Write(Address);
-			w.WriteUtf8(Stage);
-			w.Write(Localizations, i => w.WriteUtf8(i));
-		}
+		public bool					Valid => true;
+		public override bool		Private => false;
 	}
 
-	public class ReleaseRequestCall :  RpcCall
+	public class QueryReleaseCall :  RpcCall
 	{
-		public ReleaseRequest	Request { get; set; }
+		public ReleaseQuery		Query { get; set; }
 
-		public bool				Valid => Request.Valid;
+		public bool				Valid => Query.Valid;
 		public override bool	Private => false;
+	}
+	
+	public class DownloadReleaseCall :  RpcCall
+	{
+		public  ReleaseDownloadRequest	Request { get; set; }
+
+		public bool						Valid => Request.Valid;
+		public override bool			Private => false;
 	}
 }

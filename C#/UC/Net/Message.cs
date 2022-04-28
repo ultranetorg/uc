@@ -39,11 +39,11 @@ namespace UC.Net
 
 	public class ReleaseDeclaration : Message
 	{
-		public Account			Signer;
-		public ReleaseAddress	Address;
-		public string			Stage;			/// stable, beta, nightly, debug,...
-		public List<string>		Localizations;
-		public byte[]			Signature;
+		public Account			Signer { get;set; }
+		public ReleaseAddress	Address { get;set; }
+		public string			Stage { get;set; }		/// stable, beta, nightly, debug,...
+		public List<string>		Localizations { get;set; }
+		public byte[]			Signature { get;set; }
 
 		public bool				Valid => Address.Valid;
 
@@ -51,7 +51,7 @@ namespace UC.Net
 		{
 		}
 
-		public ReleaseDeclaration(PrivateAccount signer, ReleaseAddress address, string stage, List<string> locs, byte[] signature)
+		public ReleaseDeclaration(Account signer, ReleaseAddress address, string stage, List<string> locs, byte[] signature)
 		{
 			Signer = signer;
 			Address = address;

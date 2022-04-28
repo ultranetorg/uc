@@ -6,15 +6,19 @@ namespace UC.Net
 {
 	public class ReleaseAddress : ProductAddress, IEquatable<ReleaseAddress>
 	{
-		public string			Platform;
-		public Version			Version;
+		public string			Platform { get; set; }
+		public Version			Version { get; set; }
 
 		public override bool	Valid => !string.IsNullOrWhiteSpace(Platform)  && Version.Valid;
 
 		public ReleaseAddress(string author, string product, string platform, Version version) : base(author, product)
 		{
-			Version = version;
 			Platform = platform;
+			Version = version;
+		}
+
+		public ReleaseAddress()
+		{
 		}
 
 		public override string ToString()
@@ -40,7 +44,17 @@ namespace UC.Net
 		public new static ReleaseAddress Parse(string v)
 		{
 			var s = v.Split('/');
-			return new ReleaseAddress(s[0], s[1], s[2], Version.Parse(s[3]));
+			var a = new ReleaseAddress();
+			a.Parse(s);
+			return a;
+		}
+		
+		public override void Parse(string[] s)
+		{
+			base.Parse(s);
+	
+			Platform = s[2];
+			Version = Version.Parse(s[3]);
 		}
 
 		public static bool operator == (ReleaseAddress left, ReleaseAddress right)

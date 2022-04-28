@@ -1854,6 +1854,20 @@ namespace UC.Net
 				return GetRemoteMember().Api.Send(new AuthorInfoCall {Name = author, Confirmed = confirmed}) as AuthorInfo;
 			}
 		}
-
+		
+		public void DecalreRelease(ReleaseDeclaration declaration)
+		{
+			throw new NotImplementedException();
+		}
+		
+		public ReleaseAddress QueryRelease(ReleaseQuery request)
+		{
+			throw new NotImplementedException();
+		}
+				
+		public byte[] DownloadRelease(ReleaseDownloadRequest request)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
