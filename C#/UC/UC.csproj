@@ -26,8 +26,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Ipfs.Http.Client" Version="0.33.0" />
-    <PackageReference Include="Nethereum.Web3" Version="4.2.0" />
-    <PackageReference Include="RocksDB" Version="7.0.1.26543" />
+    <PackageReference Include="Nethereum.Web3" Version="4.4.1" />
+    <PackageReference Include="RocksDB" Version="7.1.2.28620" />
     <PackageReference Include="System.Json" Version="4.7.1" />
   </ItemGroup>
 </Project>

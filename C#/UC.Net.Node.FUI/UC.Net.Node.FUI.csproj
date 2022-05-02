@@ -28,7 +28,7 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Nethereum.Web3" Version="4.2.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UC\UC.csproj" />

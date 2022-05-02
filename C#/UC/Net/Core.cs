@@ -339,13 +339,11 @@ namespace UC.Net
 			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
 			ListeningThread.Start();
 
-			if(Generator == null)
-			{
-				DelegatingThread = new Thread(Delegating);
-				DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
-				DelegatingThread.Start();
-			}
-			else
+			DelegatingThread = new Thread(Delegating);
+			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
+			DelegatingThread.Start();
+
+			if(Generator != null)
 			{
 				VerifingThread = new Thread(Verifing);
 				VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
@@ -1050,11 +1048,11 @@ namespace UC.Net
 
 				Chain.Add(votes);
 
-				foreach(var o in Operations.Where(i => i.Stage == ProcessingStage.Delegated))  /// Mark all previously delegated operations as Placed if a block contaning them has arrived
-				{
-					if(votes.OfType<Payload>().Any(b => b.Member == o.Transaction.Member && b.Transactions.Any(t => t.SignatureEquals(o.Transaction))))
-						o.Stage = ProcessingStage.Placed;
-				}
+				//foreach(var o in Operations.Where(i => i.Stage == ProcessingStage.Delegated))  /// Mark all previously delegated operations as Placed if a block contaning them has arrived
+				//{
+				//	if(votes.OfType<Payload>().Any(b => b.Member == o.Transaction.Member && b.Transactions.Any(t => t.SignatureEquals(o.Transaction))))
+				//		o.Stage = ProcessingStage.Placed;
+				//}
 			}
 
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing || Synchronization == Synchronization.Synchronized) /// Null and Synchronizing needed for Dev purposes
@@ -1153,14 +1151,13 @@ namespace UC.Net
 				}
 				else
 				{
-					var txs = Chain.CollectValidTransactions(BuildTransactions(Generator, nar.Id, a => Chain.Accounts.GetNextTransactionId(a)) /// ToArray IS REQUIRED
-																.Union(Changes	.OfType<Transaction>()
-																				.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
-																				.GroupBy(i => i.Signer)
-																				.Select(i => i.First())), nar);
+					var txs = Chain.CollectValidTransactions(Changes.OfType<Transaction>()
+																	.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
+																	.GroupBy(i => i.Signer)
+																	.Select(i => i.First()), nar);
 
 					var msgs = BuildPropositions(Generator, nar.Id).Union(Changes	.OfType<Proposition>()
-																					.Where(i => i.Signer is not PrivateAccount && i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
+																					.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
 																					.GroupBy(i => i.Signer)
 																					.Select(i => i.First())).ToList();
 					//var msg = Transactions.OfType<Message>();
@@ -1192,17 +1189,11 @@ namespace UC.Net
 								};
 				
 						foreach(var i in txs)
-							(b as Payload).AddNext(i);
-
-						foreach(var t in txs)
 						{
-							if(t.Signer is PrivateAccount)
-								foreach(var o in t.Operations)
-									o.Stage = ProcessingStage.Placed;
-
-							t.Stage = ProcessingStage.Placed;
+							(b as Payload).AddNext(i);
+							i.Stage = ProcessingStage.Placed;
 						}
-
+						
 						foreach(var i in b.Propositions)
 							i.Stage = ProcessingStage.Placed;
 
@@ -1269,7 +1260,7 @@ namespace UC.Net
 
 			Statistics.Generating.End();
 		}
-		
+
 		Peer GetRemoteMember()
 		{
 			lock(RemoteMemberLock)
@@ -1278,6 +1269,24 @@ namespace UC.Net
 				{
 					if(RemoteMember != null && RemoteMember.Api.Failures <= 3)
 						return RemoteMember;
+				}
+
+				if(Generator != null)
+				{
+					while(Working)
+					{ 
+						if(IP.Equals(IPAddress.None))
+							Thread.Sleep(1);
+						else
+							break;
+					}
+
+					lock(Lock)
+					{
+						RemoteMember = new Peer(IP){ Generator = Generator };
+						RemoteMember.Api = new JsonClient(HttpClient, $"http://{RemoteMember.IP}:{Zone.RpcPort(Settings.Zone)}", null);
+						return RemoteMember;
+					}
 				}
 
 /*				if(RemoteMember != null && RemoteMember.Api != null && RemoteMember.Api.Failures > 3)
@@ -1488,18 +1497,18 @@ namespace UC.Net
 					}
 					else if(Chain.QuorumFailed(r) || DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15))
 					{
-						foreach(var i in Operations) /// mark all prevously placed operations 'pending' again
-						{
-							if(Generator != null && i.Stage == ProcessingStage.Placed && i.Transaction.Payload.RoundId == r.Id) /// i.Stage == ProcessingStage.Placed must be verified first
-							{
-								i.Stage = ProcessingStage.Pending;
-								i.FlowReport?.StageChanged();
-								i.FlowReport?.Log.ReportWarning(this, "Quorum failed. Replacing/Redelegating required.");
-								i.Transaction = null;
-							}
-						}
+						//foreach(var i in Operations) /// mark all prevously placed operations 'pending' again
+						//{
+						//	if(Generator != null && i.Stage == ProcessingStage.Placed && i.Transaction.Payload.RoundId == r.Id) /// i.Stage == ProcessingStage.Placed must be verified first
+						//	{
+						//		i.Stage = ProcessingStage.Pending;
+						//		i.FlowReport?.StageChanged();
+						//		i.FlowReport?.Log.ReportWarning(this, "Quorum failed. Replacing/Redelegating required.");
+						//		i.Transaction = null;
+						//	}
+						//}
 
-						foreach(var i in Changes.Where(i => i.Signer is not PrivateAccount))
+						foreach(var i in Changes.OfType<Transaction>().Where(i => i.Payload.RoundId == r.Id))
 						{
 							i.Stage = ProcessingStage.Pending;
 						}
@@ -1526,12 +1535,12 @@ namespace UC.Net
 							{
 								Changes.RemoveAll(t => t.RoundMax <= p.Id);
 
-								foreach(var i in Operations.Where(o => o.Stage == ProcessingStage.Placed && p.AnyOperation(i => i.Transaction.SignatureEquals(o.Transaction))).ToArray())
-								{
-									i.Stage = ProcessingStage.Confirmed;
-									i.FlowReport?.StageChanged();
-									Operations.Remove(i);
-								}
+								//foreach(var i in Operations.Where(o => o.Stage == ProcessingStage.Placed && p.AnyOperation(i => i.Transaction.SignatureEquals(o.Transaction))).ToArray())
+								//{
+								//	i.Stage = ProcessingStage.Confirmed;
+								//	i.FlowReport?.StageChanged();
+								//	Operations.Remove(i);
+								//}
 
 								//foreach(var i in Messages.Where(o => o.Stage == ProcessingStage.Placed && )
 								//{
