@@ -204,9 +204,9 @@ namespace UC.Net
 		public string			Name {get; set;}
 	}
 
-	public class DeclareReleaseCall : RpcCall
+	public class DelegatePropositionCall : RpcCall
 	{
-		public ReleaseDeclaration	Declaration { get;set; }
+		public List<Proposition>	Propositions { get;set; }
 
 		public bool					Valid => true;
 		public override bool		Private => false;

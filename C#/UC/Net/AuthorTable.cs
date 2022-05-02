@@ -22,6 +22,32 @@ namespace UC.Net
 		{
 			return Encoding.UTF8.GetBytes(key);
 		}
+		
+		public void Save(WriteBatch batch, Round round)
+		{
+			///foreach(var i in releases)
+			///{
+			///	var e =	GetEntry(i.Address.Author);
+			///
+			///	var p = e.Products.Find(j => j.Name == i.Address.Product);
+			///
+			///	if(p == null)
+			///	{
+			///		p = new Product {Name = i.Address.Product};
+			///		e.Products.Add(p);
+			///	}
+			///
+			///	var r = p.Releases.Find(j => j.Platform == i.Address.Platform && j.Channel == i.Channel);
+			///
+			///	if(r == null)
+			///		p.Releases.Add(new Release(i.Address.Platform, i.Address.Version, i.Channel, round.Id));
+			///	else
+			///		r.Version = i.Address.Version;
+			///}
+
+			
+			Save(batch, round.Authors.Values);
+		}
 
 // 		public AuthorBid FindLastSuccessfulAuthorBid(string author, int maxrid)
 // 		{

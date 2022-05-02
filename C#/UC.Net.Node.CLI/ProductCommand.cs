@@ -38,10 +38,11 @@ namespace UC.Net.Node.CLI
 																				ProductAddress.Parse(GetString("address")),
 																				GetString("title"))));
 
-				//case "publish" : 
-				//	return Send(() => Client.Enqueue(new  GetPrivate("by", "password"), 
-				//											new Manifest(GetString("manifest"))
-				//											));
+				case "publish" : 
+					//return Send(() => Client.DeclareRelease(new ReleaseDeclaration(	GetPrivate("by", "password"), 
+					//																ReleaseAddress.Parse(GetString("address")),
+					//																GetString("channel")
+					//										)));
 				
 				default:
 					throw new SyntaxException("Unknown operation");;

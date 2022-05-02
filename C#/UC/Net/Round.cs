@@ -226,7 +226,7 @@ namespace UC.Net
 // 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
  		{
- 			foreach(var b in Payloads)
+ 			foreach(var b in Payloads.Where(i => i.Confirmed))
  				foreach(var t in b.Transactions)
  					foreach(var o in t.Operations.OfType<O>())
  						if(f(o))
@@ -247,7 +247,7 @@ namespace UC.Net
 // 
  		public bool AnyOperation(Func<Operation, bool> f)
  		{
- 			foreach(var b in Payloads)
+ 			foreach(var b in Payloads.Where(i => i.Confirmed))
  				foreach(var t in b.Transactions)
  					foreach(var o in t.Operations)
  						if(f(o))
@@ -260,7 +260,7 @@ namespace UC.Net
  		{
  			var o = new List<Transaction>();
  
- 			foreach(var b in Payloads)
+ 			foreach(var b in Payloads.Where(i => i.Confirmed))
  				foreach(var t in b.Transactions)
  					if(f(t))
  						o.Add(t);

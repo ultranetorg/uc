@@ -32,10 +32,10 @@ namespace UC.Net
 		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, 
 	}
 
-	public enum OperationArgument : byte
-	{
-		Null = 0, Coin, Integer, Bytes, String, Date, Version, Account
-	}
+// 	public enum OperationArgument : byte
+// 	{
+// 		Null = 0, Coin, Integer, Bytes, String, Date, Version, Account
+// 	}
 
 	public enum OperationResult : byte
 	{
@@ -57,7 +57,7 @@ namespace UC.Net
 		public ProcessingStage	Stage;
 		public bool				Successful => Result == OperationResult.OK;
 		public IFlowControl		FlowReport;
-		public abstract string	Description {get; }
+		public abstract string	Description { get; }
 
 		public static Operation FromType(Operations type)
 		{
@@ -637,7 +637,7 @@ namespace UC.Net
 			if(a == null || a.FindOwner(round) != Signer)
 				return OperationResult.Failed;
 
-			a.Products.Add(Name.Product);
+			a.Products.Add(new Product {Name = Name.Product});
  
 			var p = round.GetProduct(Name);
 		

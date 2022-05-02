@@ -46,69 +46,72 @@ namespace UC.Net
  
 	public class Core
 	{
-		public static readonly int[]		Versions = {1};
-		public const string					FailureExt = "failure";
-		//public const int					DefaultPort = 3080;
-		public const int					Timeout = 15000;
-		public const int					OperationsQueueLimit = 1000;
-		public const string					SettingsFileName = "Settings.xon";
-		const int							BalanceWidth = 24;
+		public static readonly int[]					Versions = {1};
+		public const string								FailureExt = "failure";
+		//public const int								DefaultPort = 3080;
+		public const int								Timeout = 15000;
+		public const int								OperationsQueueLimit = 1000;
+		public const string								SettingsFileName = "Settings.xon";
+		const int										BalanceWidth = 24;
 
-		public Log							Log;
-		public Vault						Vault;
-		public Nas							Nas;
-		public Roundchain					Chain;
-		RocksDb								Database;
-		public bool							IsNode => ListeningThread != null;
-		public bool							IsClient => DelegatingThread != null;
-		public object						Lock = new();
-		public Settings						Settings;
-		TimeProvider						TimeProvider;
+		public Log										Log;
+		public Vault									Vault;
+		public Nas										Nas;
+		public Roundchain								Chain;
+		RocksDb											Database;
+		public bool										IsNode => ListeningThread != null;
+		public bool										IsClient => DelegatingThread != null;
+		public object									Lock = new();
+		public Settings									Settings;
+		TimeProvider									TimeProvider;
 
-		public PrivateAccount				Generator;
-		CandidacyDeclaration				Declaration;
-		public Guid							Session;
-		public IPAddress					IP = IPAddress.None;
+		public PrivateAccount							Generator;
+		CandidacyDeclaration							Declaration;
+		public Guid										Session;
+		public IPAddress								IP = IPAddress.None;
 
-		public Statistics					PrevStatistics = new();
-		public Statistics					Statistics = new();
+		public Statistics								PrevStatistics = new();
+		public Statistics								Statistics = new();
 
-		public List<Transaction>			Transactions = new();
-		public List<Operation>				Operations	= new();
+		public List<Change>								Changes = new();
+		public List<Operation>							Operations	= new();
+		public List<Message>							Messages	= new();
 
-		public List<Peer>					Peers		= new();
-		public IEnumerable<Peer>			Connections	=> Peers.Where(i => i.Established);
-		public List<IPAddress>				IgnoredIPs	= new();
-		public List<Block>					Cache		= new();
-		public List<Peer>					Members		= new();
+		public List<Peer>								Peers		= new();
+		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
+		public List<IPAddress>							IgnoredIPs	= new();
+		public List<Block>								Cache		= new();
+		public List<Peer>								Members		= new();
+		//List<ReleaseDeclaration>						ReleaseDeclarations = new();
 
-		TcpListener							Listener;
-		Thread								ListeningThread;
-		Thread								DelegatingThread;
-		Thread								VerifingThread;
-		public Peer							RemoteMember;
-		object								RemoteMemberLock = new object();
+		TcpListener										Listener;
+		Thread											ListeningThread;
+		Thread											DelegatingThread;
+		Thread											VerifingThread;
+		public Peer										RemoteMember;
+		object											RemoteMemberLock = new object();
 
-		JsonServer							ApiServer;
-		HttpClient							HttpClient;
+		JsonServer										ApiServer;
+		HttpClient										HttpClient;
 
-		public bool							Working => Running && (Abort == null || !Abort());
-		bool								Running = true;
-		Func<bool>							Abort;
-		public Synchronization				_Synchronization = Synchronization.Null;
-		public Synchronization				Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
-		public CoreDelegate					SynchronizationChanged;
-		DateTime							SyncRequested;
-		int									SyncStart = -1;
-		int									SyncEnd = -1;
+		public bool										Working => Running && (Abort == null || !Abort());
+		bool											Running = true;
+		Func<bool>										Abort;
+		public Synchronization							_Synchronization = Synchronization.Null;
+		public Synchronization							Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
+		public CoreDelegate								SynchronizationChanged;
+		DateTime										SyncRequested;
+		int												SyncStart = -1;
+		int												SyncEnd = -1;
 
-		IGasAsker							GasAsker; 
-		IFeeAsker							FeeAsker;
-		
-		public static readonly RocksDbSharp.ColumnFamilies.Descriptor[] ColumnFamilies =	{
-																								new(nameof(Peers), new ())
-																							};
-		public ColumnFamilyHandle PeersFamily => Database.GetColumnFamily(nameof(Peers));
+		IGasAsker										GasAsker; 
+		IFeeAsker										FeeAsker;
+
+		public ColumnFamilyHandle						PeersFamily => Database.GetColumnFamily(nameof(Peers));
+		//public ColumnFamilyHandle						ReleasesFamily => Database.GetColumnFamily(nameof(Releases));
+
+		readonly DbOptions								DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
+																					.SetCreateMissingColumnFamilies(true);
 
 		public string[][] Info
 		{
@@ -125,9 +128,9 @@ namespace UC.Net
 				f.Add("    pending");			v.Add($"{Operations.Count(i => i.Stage == ProcessingStage.Pending)}");
 				f.Add("    delegated");			v.Add($"{Operations.Count(i => i.Stage == ProcessingStage.Delegated)}");
 				f.Add("    placed");			v.Add($"{Operations.Count(i => i.Stage == ProcessingStage.Placed)}");
-				f.Add("Transactions");			v.Add($"{Transactions.Count}");
-				f.Add("    pending");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Pending)}");
-				f.Add("    placed");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Placed)}");
+				f.Add("Transactions");			v.Add($"{Changes.Count}");
+				f.Add("    pending");			v.Add($"{Changes.Count(i => i.Stage == ProcessingStage.Pending)}");
+				f.Add("    placed");			v.Add($"{Changes.Count(i => i.Stage == ProcessingStage.Placed)}");
 
 				if(Chain != null)
 				{
@@ -238,15 +241,17 @@ namespace UC.Net
 		{
 			Abort		= abort;
 
-			var options = new DbOptions()	.SetCreateIfMissing(true)
-											.SetCreateMissingColumnFamilies(true);
-				
+			var descs = new ColumnFamilies.Descriptor[]	{
+															new (nameof(Peers), new ()),
+														};
+			
 			var cfamilies = new ColumnFamilies();
-
-			foreach(var i in ColumnFamilies)
+			
+			foreach(var i in descs)
 				cfamilies.Add(i);
 
-			Database = RocksDb.Open(options, Path.Join(Settings.Profile, "Client"), cfamilies);
+
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Client"), cfamilies);
 
 			overridefinal?.Invoke(Settings, Vault);
 
@@ -297,18 +302,23 @@ namespace UC.Net
 				return;
   			}
 
-			var options = new DbOptions()	.SetCreateIfMissing(true)
-											.SetCreateMissingColumnFamilies(true);
-				
+			var descs = new ColumnFamilies.Descriptor[]	{
+															new(nameof(Peers), new ()),
+
+															new (nameof(Members), new ()),
+															new (nameof(Roundchain.Accounts), new ()),
+															new (nameof(Roundchain.Authors), new ()),
+															new (nameof(Roundchain.Products), new ()),
+															new (nameof(Roundchain.Rounds), new ()),
+															new (nameof(Roundchain.Fundables), new ()),
+														};
+			
 			var cfamilies = new ColumnFamilies();
-
-			foreach(var i in ColumnFamilies)
+			
+			foreach(var i in descs)
 				cfamilies.Add(i);
 
-			foreach(var i in Roundchain.ColumnFamilies)
-				cfamilies.Add(i);
-
-			Database = RocksDb.Open(options, Path.Join(Settings.Profile, "Node"), cfamilies);
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), cfamilies);
 			Chain = new Roundchain(Settings, Log, Nas, Vault, Database);
 			Session = Guid.NewGuid();
 
@@ -899,27 +909,27 @@ namespace UC.Net
 							break;
 						}
 
-						case PacketType.Message:
-						{
-							IEnumerable<Message> messages;
-										
-							try
-							{
-								messages = Read(rq.Data, (r, t) => Message.FromType(Chain, (MessageType)t));
-							}
-							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-							{
-								peer.Disconnect();
-								break;
-							}
-		
-							lock(Lock)
-							{
-								ProcessIncoming(messages, peer);
-							}
-	
-							break;
-						}
+// 						case PacketType.Message:
+// 						{
+// 							IEnumerable<Message> messages;
+// 										
+// 							try
+// 							{
+// 								messages = Read(rq.Data, (r, t) => Message.FromType(Chain, (MessageType)t));
+// 							}
+// 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+// 							{
+// 								peer.Disconnect();
+// 								break;
+// 							}
+// 		
+// 							lock(Lock)
+// 							{
+// 								ProcessIncoming(messages, peer);
+// 							}
+// 	
+// 							break;
+// 						}
 
 						default:
 							Log?.ReportError(this, $"Wrong packet type {rq.Type}");
@@ -1056,11 +1066,6 @@ namespace UC.Net
 
 		}
 
-		public void ProcessIncoming(IEnumerable<Message> messages, Peer peer)
-		{
-			Broadcast(PacketType.Blocks, Write(messages), peer);
-		}
-
 		public Round GetNextAvailableRound()
 		{
 			var r = Chain.GetRound(Chain.LastVotedRound.Id + 1);
@@ -1076,7 +1081,7 @@ namespace UC.Net
 
 		List<Transaction> BuildTransactions(Account member, int rmax, Func<Account, int> nexttxid)
 		{
-			var txs = new List<Transaction>();
+			var l = new List<Transaction>();
 
 			foreach(var g in Operations.Where(i => i.Stage == ProcessingStage.Pending).GroupBy(i => i.Signer))
 			{
@@ -1089,10 +1094,31 @@ namespace UC.Net
 				}
 
 				t.Sign(member, rmax);
-				txs.Add(t);
+				l.Add(t);
 			}
 
-			return txs;
+			return l;
+		}
+
+		List<Proposition> BuildPropositions(Account member, int rmax)
+		{
+			var l = new List<Proposition>();
+
+			foreach(var g in Messages.Where(i => i.Stage == ProcessingStage.Pending).GroupBy(i => i.Signer))
+			{
+				var p = new Proposition(Settings, g.Key as PrivateAccount);
+
+				foreach(var o in g)
+				{
+					o.Proposition = p;
+					p.Messages.Add(o);
+				}
+
+				p.Sign(member, rmax);
+				l.Add(p);
+			}
+
+			return l;
 		}
 
 		void Generate()
@@ -1127,10 +1153,17 @@ namespace UC.Net
 				}
 				else
 				{
-					var txs = Chain.CollectValidTransactions(BuildTransactions(Generator, nar.Id, a => Chain.Accounts.GetNextTransactionId(a))
-																.Union(Transactions	.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
+					var txs = Chain.CollectValidTransactions(BuildTransactions(Generator, nar.Id, a => Chain.Accounts.GetNextTransactionId(a)) /// ToArray IS REQUIRED
+																.Union(Changes	.OfType<Transaction>()
+																				.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
+																				.GroupBy(i => i.Signer)
+																				.Select(i => i.First())), nar);
+
+					var msgs = BuildPropositions(Generator, nar.Id).Union(Changes	.OfType<Proposition>()
+																					.Where(i => i.Signer is not PrivateAccount && i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
 																					.GroupBy(i => i.Signer)
-																					.Select(i => i.First())), nar);
+																					.Select(i => i.First())).ToList();
+					//var msg = Transactions.OfType<Message>();
 
 					var prev = Chain.FindRound(nar.Id - 1).Votes.FirstOrDefault(i => i.Member == Generator);
 
@@ -1155,6 +1188,7 @@ namespace UC.Net
 									Leavers				= Chain.ProposeLeavers(nar, Generator).ToList(),
 									FundableAssignments	= new(),
 									FundableRevocations	= new(),
+									Propositions		= msgs
 								};
 				
 						foreach(var i in txs)
@@ -1169,6 +1203,9 @@ namespace UC.Net
 							t.Stage = ProcessingStage.Placed;
 						}
 
+						foreach(var i in b.Propositions)
+							i.Stage = ProcessingStage.Placed;
+
 						votes.Add(b);
 					}
 					else
@@ -1178,9 +1215,7 @@ namespace UC.Net
 						while(r != null)
 						{
 
-							if(	//Candidate != null &&
-								Chain.VotersFor(r).Any(i => i.Generator == Generator) &&			/// we must vote
-								//!BuildValidTransactions(r).Any() &&							/// no txs to add right now
+							if(	Chain.VotersFor(r).Any(i => i.Generator == Generator) &&			/// we must vote
 								!r.Votes.Any(i => i.Member == Generator) &&						/// no our block or vote yet
 								r.Votes.OfType<Payload>().Any() 								/// has already some payloads from other members
 								)
@@ -1203,7 +1238,11 @@ namespace UC.Net
 												Leavers				= Chain.ProposeLeavers(r, Generator).ToList(),
 												FundableAssignments	= new(),
 												FundableRevocations	= new(),
+												Propositions		= msgs
 											};
+							
+									foreach(var i in b.Propositions)
+										i.Stage = ProcessingStage.Placed;
 							
 									votes.Add(b);
 								}
@@ -1460,7 +1499,7 @@ namespace UC.Net
 							}
 						}
 
-						foreach(var i in Transactions.Where(i => i.Signer is not PrivateAccount))
+						foreach(var i in Changes.Where(i => i.Signer is not PrivateAccount))
 						{
 							i.Stage = ProcessingStage.Pending;
 						}
@@ -1485,7 +1524,7 @@ namespace UC.Net
 
 							if(p.Confirmed)
 							{
-								Transactions.RemoveAll(t => t.RoundMax <= p.Id);
+								Changes.RemoveAll(t => t.RoundMax <= p.Id);
 
 								foreach(var i in Operations.Where(o => o.Stage == ProcessingStage.Placed && p.AnyOperation(i => i.Transaction.SignatureEquals(o.Transaction))).ToArray())
 								{
@@ -1493,7 +1532,14 @@ namespace UC.Net
 									i.FlowReport?.StageChanged();
 									Operations.Remove(i);
 								}
-									
+
+								//foreach(var i in Messages.Where(o => o.Stage == ProcessingStage.Placed && )
+								//{
+								//	i.Stage = ProcessingStage.Confirmed;
+								//	//i.FlowReport?.StageChanged();
+								//	Messages.Remove(i);
+								//}
+							
 							}
 							else
 							{
@@ -1552,7 +1598,7 @@ namespace UC.Net
 
 					lock(Lock)
 					{
-						foreach(var t in Transactions.Where(i => i.Stage == ProcessingStage.Accepted).ToArray())
+						foreach(var t in Changes.OfType<Transaction>().Where(i => i.Stage == ProcessingStage.Accepted).ToArray())
 						{
 							bool valid = true;
 
@@ -1570,7 +1616,7 @@ namespace UC.Net
 						
 										if(wei != e.Wei)
 										{	
-											Transactions.Remove(t);
+											Changes.Remove(t);
 											valid = false;
 											break;
 										}
@@ -1600,26 +1646,47 @@ namespace UC.Net
 			}
 		}
 
-		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
+		public List<Change> ProcessIncoming(IEnumerable<Change> txs)
 		{
 			Statistics.TransactionsProcessing.Begin();
 
 			if(Generator == null) /// not ready to process external transactions
-				return new List<Transaction>();
+				return new();
 
-			var accepted = txs.Where(i => !Transactions.Any(j => i.SignatureEquals(j)) && 
+			var accepted = txs.Where(i =>	!Changes.Any(j => i.SignatureEquals(j)) && 
 											i.RoundMax > Chain.LastConfirmedRound.Id && 
 											i.Valid).ToList();
 								
 			foreach(var i in accepted)
 				i.Stage = ProcessingStage.Accepted;
 
-			Transactions.AddRange(accepted);
+			Changes.AddRange(accepted);
 
 			Statistics.TransactionsProcessing.End();
 
 			return accepted;
 		}
+		
+// 		public List<Message> ProcessIncoming(IEnumerable<Message> messages)
+// 		{
+// 			Statistics.TransactionsProcessing.Begin();
+// 
+// 			if(Generator == null) /// not ready to process external transactions
+// 				return new();
+// 
+// 			var accepted = messages.Where(i =>	!Transactions.OfType<Message>().Any(j => i.SignatureEquals(j)) && 
+// 												i.RoundMax > Chain.LastConfirmedRound.Id && 
+// 												i.Valid).ToList();
+// 								
+// 			foreach(var i in accepted)
+// 				i.Stage = ProcessingStage.Accepted;
+// 
+// 			Transactions.AddRange(accepted);
+// 
+// 			Statistics.TransactionsProcessing.End();
+// 
+// 			return accepted;
+// 		}
 
 		C[] Read<C>(Stream data, Func<BinaryReader, byte, C> construct) where C : IBinarySerializable
 		{
@@ -1853,11 +1920,6 @@ namespace UC.Net
 			{
 				return GetRemoteMember().Api.Send(new AuthorInfoCall {Name = author, Confirmed = confirmed}) as AuthorInfo;
 			}
-		}
-		
-		public void DecalreRelease(ReleaseDeclaration declaration)
-		{
-			throw new NotImplementedException();
 		}
 		
 		public ReleaseAddress QueryRelease(ReleaseQuery request)

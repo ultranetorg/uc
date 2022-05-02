@@ -146,15 +146,16 @@ namespace UC.Net
 
 	public class Vote : Block
 	{
-		public int				Try; /// TODO: revote if consensus not reached
-		public DateTime			Time;
-		public long				TimeDelta;
-		public RoundReference	Reference;
-		public List<Account>	Violators = new();
-		public List<Account>	Joiners = new();
-		public List<Account>	Leavers = new();
-		public List<Account>	FundableAssignments = new();
-		public List<Account>	FundableRevocations = new();
+		public int						Try; /// TODO: revote if consensus not reached
+		public DateTime					Time;
+		public long						TimeDelta;
+		public RoundReference			Reference;
+		public List<Proposition>			Propositions = new();
+		public List<Account>			Violators = new();
+		public List<Account>			Joiners = new();
+		public List<Account>			Leavers = new();
+		public List<Account>			FundableAssignments = new();
+		public List<Account>			FundableRevocations = new();
 
 		public byte[]			Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
 		public byte[]			PropositionsHash;
@@ -175,7 +176,6 @@ namespace UC.Net
 			Reference.WriteHashable(writer);
 
 			PropositionsHash = HashPropositions();
-
 			writer.Write(PropositionsHash);
 		}
 
@@ -183,6 +183,9 @@ namespace UC.Net
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
+
+			foreach(var i in Propositions)
+				i.Write(w);
 
 			foreach(var i in Violators)
 				w.Write(i);
@@ -215,6 +218,7 @@ namespace UC.Net
 			w.Write(Leavers, Chain);
 			w.Write(FundableAssignments, Chain);
 			w.Write(FundableRevocations, Chain);
+			w.Write(Propositions);
 		}
 
 		public override void Read(BinaryReader r)
@@ -231,7 +235,8 @@ namespace UC.Net
 			Leavers					= r.ReadAccounts(Chain);
 			FundableAssignments		= r.ReadAccounts(Chain);
 			FundableRevocations		= r.ReadAccounts(Chain);
-
+			Propositions			= r.ReadList<Proposition>();
+			
 			PropositionsHash = HashPropositions();
 		}
 	}

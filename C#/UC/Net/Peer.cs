@@ -17,7 +17,7 @@ namespace UC.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Hello, Blocks, RoundsRequest, Rounds, Message
+		Null, Hello, Blocks, RoundsRequest, Rounds
 	}
 
 	public class Packet

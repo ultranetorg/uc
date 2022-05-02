@@ -4,9 +4,74 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using RocksDbSharp;
 
 namespace UC.Net
 {
+	public class Release : IBinarySerializable
+	{
+		public string			Platform;
+		public Version			Version;
+		public string			Channel;		/// stable, beta, nightly, debug,...
+		public int				Rid;
+
+		public Release()
+		{
+		}
+
+		public Release(string platform, Version version, string channel, int rid)
+		{
+			Platform = platform;
+			Version = version;
+			Channel = channel;
+			Rid = rid;
+		}
+
+		public Release Clone()
+		{
+			return new Release(Platform, Version, Channel, Rid);
+		}
+
+		public void Read(BinaryReader r)
+		{
+			Platform = r.ReadUtf8();
+			Version = r.ReadVersion();
+			Channel = r.ReadUtf8();
+			Rid = r.Read7BitEncodedInt();
+		}
+
+		public void Write(BinaryWriter w)
+		{
+			w.WriteUtf8(Platform);
+			w.Write(Version);
+			w.WriteUtf8(Channel);
+			w.Write7BitEncodedInt(Rid);
+		}
+	}
+
+	public class Product : IBinarySerializable
+	{
+		public string			Name;
+		public List<Release>	Releases;
+
+		public Product Clone()
+		{
+			return new Product {Name = Name, Releases = Releases.Select(i => i.Clone()).ToList()};
+		}
+
+		public void Read(BinaryReader r)
+		{
+			Name		= r.ReadUtf8();
+			Releases	= r.ReadList<Release>();
+		}
+
+		public void Write(BinaryWriter w)
+		{
+			w.WriteUtf8(Name);
+			w.Write(Releases);
+		}
+	}
+
 	public class AuthorEntry : Entry<string>
 	{
 		public string				Name;
@@ -14,10 +79,7 @@ namespace UC.Net
 		public int					LastBid = -1;
 		public int					LastRegistration = -1;
 		public int					LastTransfer = -1;
-		public HashSet<string>		Products = new();
-		
-		//public AuthorTransfer		LastTransferOperation => LastTransfer != -1 ? Chain.FindRound(LastTransfer).FindOperation<AuthorTransfer>(i => i.Author == Name) : null;
-		//public Account				Owner => LastTransfer == -1 ? LastRegistrationOperation?.Signer : LastTransferOperation?.NewOwner;
+		public List<Product>		Products = new();
 
 		public override string		Key => Name;
 		Roundchain					Chain;
@@ -36,7 +98,7 @@ namespace UC.Net
 						LastBid = LastBid,
 						LastRegistration = LastRegistration,
 						LastTransfer = LastTransfer,
-						Products = new HashSet<string>(Products)
+						Products = Products.Select(i => i.Clone()).ToList()
 					};
 		}
 
@@ -46,7 +108,7 @@ namespace UC.Net
 			w.Write7BitEncodedInt(LastBid);
 			w.Write7BitEncodedInt(LastRegistration);
 			w.Write7BitEncodedInt(LastTransfer);
-			w.Write(Products, i => w.WriteUtf8(i));
+			w.Write(Products);
 		}
 
 		public override void Read(BinaryReader r)
@@ -55,7 +117,7 @@ namespace UC.Net
 			LastBid			= r.Read7BitEncodedInt();
 			LastRegistration= r.Read7BitEncodedInt();
 			LastTransfer	= r.Read7BitEncodedInt();
-			Products		= r.ReadHashSet(() => r.ReadUtf8());
+			Products		= r.ReadList<Product>();
 		}
 
 		public AuthorBid FindFirstBid(Round executing)

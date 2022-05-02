@@ -18,15 +18,13 @@ namespace UC.Net
 	{
 		public VersionQuery			VersionQuery { get; set; } 
 		public string				Stage { get; set; } 
-		public string				Localization { get; set; } // empty means default
 
 		public override bool		Valid => true;
 
-		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string stage, string localization) : base(author, product, platform, version)
+		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string stage) : base(author, product, platform, version)
 		{
 			VersionQuery = versionQuery;
 			Stage = stage;
-			Localization = localization;
 		}
 
 		public ReleaseQuery()
@@ -35,7 +33,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{base.ToString()}/{VersionQuery}/{Stage}/{Localization}";
+			return $"{base.ToString()}/{VersionQuery}/{Stage}";
 		}
 
 		public new static ReleaseQuery Parse(string v)
@@ -76,14 +74,12 @@ namespace UC.Net
 
 	public class ReleaseDownloadRequest : ReleaseAddress
 	{
-		public string				Localization { get; set; } // empty means default
 		public ReleaseDistribution	Distribution { get; set; }
 		public long					Offset { get; set; }
 		public long					Length { get; set; }
 
 		public ReleaseDownloadRequest(string author, string product, string platform, Version version, string localization, ReleaseDistribution distribution, long offset, long length) : base(author, product, platform, version)
 		{
-			Localization = localization;
 			Distribution = distribution;
 			Offset = offset;
 			Length = length;
@@ -95,7 +91,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{base.ToString()}/{Localization}/{Distribution.ToString().ToLower()[0]}/{Offset}/{Length}";
+			return $"{base.ToString()}/{Distribution.ToString().ToLower()[0]}/{Offset}/{Length}";
 		}
 
 		public new static ReleaseDownloadRequest Parse(string v)
@@ -110,13 +106,12 @@ namespace UC.Net
 		{
 			base.Parse(s);
 			
-			Localization = s[4];
-			Distribution = s[5] switch {"c" => ReleaseDistribution.Complete,
+			Distribution = s[6] switch {"c" => ReleaseDistribution.Complete,
 										"i"	=> ReleaseDistribution.Incremental,
 										_	=> throw new IntegrityException("Unknown ReleaseDistribution")};
 
-			Offset = long.Parse(s[6]);
-			Length = long.Parse(s[7]);
+			Offset = long.Parse(s[7]);
+			Length = long.Parse(s[8]);
 		}
 	}
 	

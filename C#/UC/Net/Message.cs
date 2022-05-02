@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using RocksDbSharp;
 
 namespace UC.Net
 {
@@ -7,12 +8,16 @@ namespace UC.Net
 	{
 		Null, ReleaseDeclaration
 	}
-
+	
 	public abstract class Message : ITypedBinarySerializable
 	{
-		public byte BinaryType => (byte)Type;
-
-		public static Message FromType(Roundchain chaim, MessageType type)
+		public abstract bool	Valid {get;}
+		public byte				BinaryType => (byte)Type;
+		public ProcessingStage	Stage;	
+		public Account			Signer;
+		public Proposition		Proposition;
+	
+		public static Message FromType(MessageType type)
 		{
 			return type switch
 						{
@@ -20,7 +25,7 @@ namespace UC.Net
 							_								=> throw new IntegrityException("Wrong MessageType"),
 						};
 		}
-
+	
 		public MessageType Type
 		{
 			get
@@ -32,86 +37,44 @@ namespace UC.Net
 							};
 			}
 		}
-
+	
 		public abstract void Read(BinaryReader r);
 		public abstract void Write(BinaryWriter w);
 	}
-
-	public class ReleaseDeclaration : Message
+	
+	public class ReleaseDeclaration : Message, IHashable
 	{
-		public Account			Signer { get;set; }
-		public ReleaseAddress	Address { get;set; }
-		public string			Stage { get;set; }		/// stable, beta, nightly, debug,...
-		public List<string>		Localizations { get;set; }
-		public byte[]			Signature { get;set; }
+		public ReleaseAddress			Address { get;set; }
+		public string					Channel { get;set; }		/// stable, beta, nightly, debug,...
 
-		public bool				Valid => Address.Valid;
+		public override bool			Valid => Address.Valid;
 
 		public ReleaseDeclaration()
 		{
 		}
 
-		public ReleaseDeclaration(Account signer, ReleaseAddress address, string stage, List<string> locs, byte[] signature)
+		public ReleaseDeclaration(ReleaseAddress address, string channel)
 		{
-			Signer = signer;
 			Address = address;
-			Stage = stage;
-			Localizations = locs;
-			Signature = signature;
+			Channel = channel;
 		}
 		
 		public void HashWrite(BinaryWriter w)
 		{
-			w.Write(Signer);
 			w.Write(Address);
-			w.WriteUtf8(Stage);
-			w.Write(Localizations, i => w.WriteUtf8(i));
+			w.WriteUtf8(Channel);
 		}
 
 		public override void Read(BinaryReader r)
 		{
 			Address = r.ReadReleaseAddress();
-			Stage = r.ReadUtf8();
-			Localizations = r.ReadList(() => r.ReadUtf8());
-			Signature = r.ReadSignature();
+			Channel = r.ReadUtf8();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			w.Write(Address);
-			w.WriteUtf8(Stage);
-			w.Write(Localizations, i => w.WriteUtf8(i));
-			w.Write(Signature);
+			w.WriteUtf8(Channel);
 		}
 	}
-
-	//public class ReleaseRequest : IBinarySerializable
-	//{
-	//	public ReleaseAddress	Address;
-	//	public string			Localization; /// empty means default
-	//
-	//	public bool				Valid => Address.Valid;
-	//
-	//	public ReleaseRequest()
-	//	{
-	//	}
-	//
-	//	public ReleaseRequest(ReleaseAddress address, string localization)
-	//	{
-	//		Address = address;
-	//		Localization = localization;
-	//	}
-	//
-	//	public void Read(BinaryReader r)
-	//	{
-	//		Address = r.ReadReleaseAddress();
-	//		Localization = r.ReadUtf8();
-	//	}
-	//
-	//	public void Write(BinaryWriter w)
-	//	{
-	//		w.Write(Address);
-	//		w.WriteUtf8(Localization);
-	//	}
-	//}
 }

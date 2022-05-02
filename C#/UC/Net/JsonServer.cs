@@ -244,22 +244,21 @@ namespace UC.Net
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								IEnumerable<Transaction> txs = new Transaction[0];
+								//IEnumerable<Transaction> txs = new Transaction[0];
 
-								var cd = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Core.Generator);
+								//var cd = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Core.Generator);
 		
-								txs = Core.Read(new MemoryStream(e.Data), r =>{
-																						return  new Transaction(Settings)
+								var txs = Core.Read(new MemoryStream(e.Data), r =>	{	return  new Transaction(Settings)
 																								{
 																									Member = Core.Generator
 																								};
 																					});
 		
-								var accep = Core.ProcessIncoming(txs);
+								var acc = Core.ProcessIncoming(txs);
 
-								respondjson(new DelegateTransactionsResponse {Accepted = accep.Select(i => i.Signature)});
+								respondjson(new DelegateTransactionsResponse {Accepted = acc.Select(i => i.Signature)});
 		
-								Log?.Report(this, "Incoming transaction(s)", $"Received={txs.Count()} Accepted={accep.Count()} from {context.Request.RemoteEndPoint}");
+								Log?.Report(this, "Incoming transaction(s)", $"Received={txs.Count()} Accepted={acc.Count()} from {context.Request.RemoteEndPoint}");
 							}
 
 							break;
@@ -327,12 +326,12 @@ namespace UC.Net
 							}
 							break;
 
-						case DeclareReleaseCall c:
+						case DelegatePropositionCall c:
 							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								Core.DecalreRelease(c.Declaration);
+								Core.ProcessIncoming(c.Propositions);
 							}
 							break;
 

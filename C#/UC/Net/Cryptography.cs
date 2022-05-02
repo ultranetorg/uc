@@ -52,6 +52,17 @@ namespace UC.Net
 
 			return Current.Sign(signer, Current.Hash(s.ToArray()));
 		}
+
+		
+		public Account AccountFrom(byte[] signature, IHashable hashable)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			hashable.HashWrite(w);
+
+			return AccountFrom(signature, Current.Hash(s.ToArray()));
+		}
 	}
 
 	public class NoCryptography : Cryptography
