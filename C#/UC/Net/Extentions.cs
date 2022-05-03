@@ -277,20 +277,20 @@ namespace UC
 		}
 
 
-		public static void Write(this BinaryWriter w, IEnumerable<Account> items, Roundchain chain)
+		public static void Write(this BinaryWriter w, IEnumerable<Account> items)
 		{
 			if(items != null)
 			{
 				w.Write7BitEncodedInt(items.Count());
 			
 				foreach(var i in items)
-					w.Write(i, chain);
+					w.Write(i);
 			}
 			else
 				w.Write7BitEncodedInt(0);
 		}
 
-		public static List<Account> ReadAccounts(this BinaryReader r, Roundchain chain)
+		public static List<Account> ReadAccounts(this BinaryReader r)
 		{
 			var n = r.Read7BitEncodedInt();
 			
@@ -298,46 +298,37 @@ namespace UC
 
 			for(int i = 0; i < n; i++)
 			{
-				o.Add(r.ReadAccount(chain));
+				o.Add(r.ReadAccount());
 			}
 
 			return o;
 		}
-
-		public static void Write(this BinaryWriter w, Account account, Roundchain chain)
+		
+		public static void Write(this BinaryWriter w, IEnumerable<string> items)
 		{
-			///var r = chain.FindFirstTransactionRound(account);
-			///
-			///if(r == null || !r.Confirmed)
-			///{
-			///	w.Write((byte)0);
-				w.Write(account);
-			///} 
-			///else
-			///{
-			///	w.Write((byte)1);
-			///	w.Write7BitEncodedInt(r.Id);
-			///	w.Write7BitEncodedInt(r.GetIndex(account));
-			///}
+			if(items != null)
+			{
+				w.Write7BitEncodedInt(items.Count());
+			
+				foreach(var i in items)
+					w.WriteUtf8(i);
+			}
+			else
+				w.Write7BitEncodedInt(0);
 		}
 
-		public static Account ReadAccount(this BinaryReader r, Roundchain chain)
+		public static List<string> ReadStings(this BinaryReader r)
 		{
-			///var p = r.ReadByte();
-			///
-			///if(p == 0)
-			///{
-					return r.ReadAccount();
-			///} 
-			///else if(p == 1)
-			///{
-			///	var rid = r.Read7BitEncodedInt();
-			///	var i = r.Read7BitEncodedInt();
-			///
-			///	return chain.FindRound(rid)?.FindAccount(i);
-			///}
-			///else
-			///	throw new IntegrityException("Wrong Acccount packing prefix");
+			var n = r.Read7BitEncodedInt();
+			
+			var o = new List<string>();
+
+			for(int i = 0; i < n; i++)
+			{
+				o.Add(r.ReadUtf8());
+			}
+
+			return o;
 		}
 
 	}

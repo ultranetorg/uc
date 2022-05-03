@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.IO;
+using System;
 
 namespace UC
 {
-	public class Version
+	public class Version : IEquatable<Version>
 	{
 		public ushort Era;
 		public ushort Generation;
@@ -51,6 +52,69 @@ namespace UC
 						Release = r.ReadUInt16(), 
 						Build = r.ReadUInt16()
 					};
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as Version);
+		}
+
+		public bool Equals(Version other)
+		{
+			return other != null &&
+				   Era == other.Era &&
+				   Generation == other.Generation &&
+				   Release == other.Release &&
+				   Build == other.Build;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Era, Generation, Release, Build);
+		}
+
+		public static bool operator < (Version a, Version b)
+		{
+			if(a.Era < b.Era)
+				return true;
+
+			if(a.Generation < b.Generation)
+				return true;
+
+			if(a.Release < b.Release)
+				return true;
+
+			if(a.Build < b.Build)
+				return true;
+
+			return false;
+		}
+
+		public static bool operator > (Version a, Version b)
+		{
+			if(a.Era > b.Era)
+				return true;
+
+			if(a.Generation > b.Generation)
+				return true;
+
+			if(a.Release > b.Release)
+				return true;
+
+			if(a.Build > b.Build)
+				return true;
+
+			return false;
+		}
+
+		public static bool operator == (Version left, Version right)
+		{
+			return EqualityComparer<Version>.Default.Equals(left, right);
+		}
+
+		public static bool operator !=(Version left, Version right)
+		{
+			return !(left == right);
 		}
 	}
 }

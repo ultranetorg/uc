@@ -37,7 +37,7 @@ namespace UC.Net.Node.FUI
 				
 				foreach(var ar in FindProducts(SearchAccount.SelectedItem as Account))
 				{
-					var i = new ListViewItem(ar.Product.Name.Product);
+					var i = new ListViewItem(ar.Product.Address.Product);
 					i.Tag = ar;
 					i.SubItems.Add(ar.Product.Title);
 					i.SubItems.Add(ar.Author.Name);

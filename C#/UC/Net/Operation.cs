@@ -598,9 +598,9 @@ namespace UC.Net
 
 	public class ProductRegistration : Operation
 	{
-		public ProductAddress	Name;
+		public ProductAddress	Address;
 		public string			Title;
-		public override string	Description => $"{Name} as {Title}";
+		public override string	Description => $"{Address} as {Title}";
 
 		public ProductRegistration()
 		{
@@ -609,37 +609,38 @@ namespace UC.Net
 		public ProductRegistration(PrivateAccount signer, ProductAddress name, string title)
 		{
 			Signer		= signer;
-			Name		= name;
+			Address		= name;
 			Title		= title;
 		}
 
 		public override bool IsValid()
 		{
-			return 0 < Name.Author.Length && 0 < Name.Product.Length;
+			return 0 < Address.Author.Length && 0 < Address.Product.Length;
 		}
 
 		public override void Read(BinaryReader r)
 		{
-			Name	= r.ReadProductAddress();
+			Address	= r.ReadProductAddress();
 			Title	= r.ReadUtf8();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
-			w.Write(Name);
+			w.Write(Address);
 			w.WriteUtf8(Title);
 		}
 
 		public override OperationResult Execute(Roundchain chain, Round round)
 		{
-			var a = round.FindAuthor(Name.Author);
+			var a = round.FindAuthor(Address.Author);
 
 			if(a == null || a.FindOwner(round) != Signer)
 				return OperationResult.Failed;
 
-			a.Products.Add(new Product {Name = Name.Product});
+			if(!a.Products.Contains(Address.Product))
+				a.Products.Add(Address.Product);
  
-			var p = round.GetProduct(Name);
+			var p = round.GetProduct(Address);
 		
 			p.Title				= Title;
 			p.LastRegistration	= round.Id;

@@ -97,14 +97,14 @@ namespace UC.Net
 				throw new IntegrityException("Wrong Signature length");
 
 			w.Write7BitEncodedInt(RoundId);
-			w.Write(Member, Chain);						/// needed to hash transactions
+			w.Write(Member);						/// needed to hash transactions
 			w.Write(Signature);
 		}
 
 		public virtual void Read(BinaryReader r)
 		{
 			RoundId		= r.Read7BitEncodedInt();
-			Member		= r.ReadAccount(Chain);	
+			Member		= r.ReadAccount();	
 			Signature	= r.ReadSignature();
 		}
 	}
@@ -146,19 +146,19 @@ namespace UC.Net
 
 	public class Vote : Block
 	{
-		public int						Try; /// TODO: revote if consensus not reached
-		public DateTime					Time;
-		public long						TimeDelta;
-		public RoundReference			Reference;
-		public List<Proposition>			Propositions = new();
-		public List<Account>			Violators = new();
-		public List<Account>			Joiners = new();
-		public List<Account>			Leavers = new();
-		public List<Account>			FundableAssignments = new();
-		public List<Account>			FundableRevocations = new();
+		public int					Try; /// TODO: revote if consensus not reached
+		public DateTime				Time;
+		public long					TimeDelta;
+		public RoundReference		Reference;
+		public List<Account>		Violators = new();
+		public List<Account>		Joiners = new();
+		public List<Account>		Leavers = new();
+		public List<Account>		FundableAssignments = new();
+		public List<Account>		FundableRevocations = new();
+		public List<Proposition>	Propositions = new();
 
-		public byte[]			Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
-		public byte[]			PropositionsHash;
+		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
+		public byte[]				PropositionsHash;
 
 		public Vote(Roundchain c) : base(c)
 		{
@@ -184,9 +184,6 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			foreach(var i in Propositions)
-				i.Write(w);
-
 			foreach(var i in Violators)
 				w.Write(i);
 
@@ -202,6 +199,9 @@ namespace UC.Net
 			foreach(var i in FundableRevocations)
 				w.Write(i);
 
+			foreach(var i in Propositions)
+				i.Write(w);
+
 			return Cryptography.Current.Hash(s.ToArray());
 		}
 
@@ -213,11 +213,11 @@ namespace UC.Net
 			w.Write7BitEncodedInt64(TimeDelta);
 			Reference.Write(w);
 
-			w.Write(Violators, Chain);
-			w.Write(Joiners, Chain);
-			w.Write(Leavers, Chain);
-			w.Write(FundableAssignments, Chain);
-			w.Write(FundableRevocations, Chain);
+			w.Write(Violators);
+			w.Write(Joiners);
+			w.Write(Leavers);
+			w.Write(FundableAssignments);
+			w.Write(FundableRevocations);
 			w.Write(Propositions);
 		}
 
@@ -230,12 +230,12 @@ namespace UC.Net
 			Reference = new RoundReference();
 			Reference.Read(r);
 
-			Violators				= r.ReadAccounts(Chain);
-			Joiners					= r.ReadAccounts(Chain);
-			Leavers					= r.ReadAccounts(Chain);
-			FundableAssignments		= r.ReadAccounts(Chain);
-			FundableRevocations		= r.ReadAccounts(Chain);
-			Propositions			= r.ReadList<Proposition>();
+			Violators			= r.ReadAccounts();
+			Joiners				= r.ReadAccounts();
+			Leavers				= r.ReadAccounts();
+			FundableAssignments	= r.ReadAccounts();
+			FundableRevocations	= r.ReadAccounts();
+			Propositions		= r.ReadList<Proposition>();
 			
 			PropositionsHash = HashPropositions();
 		}
@@ -297,30 +297,27 @@ namespace UC.Net
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
-
 			w.Write(Transactions);
 		}
 
 		public override void Read(BinaryReader r)
 		{
 			base.Read(r);
-
 			Transactions = r.ReadList(() =>	{
 												var t = new Transaction(Chain.Settings)
-												{
-													Payload	 = this,
-													Member	 = Member
-												};
+														{
+															Payload	 = this,
+															Member	 = Member
+														};
 
 												t.Read(r);
-
 												return t;
 											});
 		}
 
 		public void Save(BinaryWriter w)
 		{
-			w.Write(Member, Chain);
+			w.Write(Member);
 			w.Write(Signature);
 			w.Write7BitEncodedInt64(TimeDelta);
 			w.Write(PropositionsHash);
@@ -330,17 +327,17 @@ namespace UC.Net
 
 		public void Load(BinaryReader r)
 		{
-			Member				= r.ReadAccount(Chain);
+			Member				= r.ReadAccount();
 			Signature			= r.ReadSignature();
 			TimeDelta			= r.Read7BitEncodedInt64();
 			PropositionsHash	= r.ReadHash();
 
 			Transactions = r.ReadList(() =>	{
 												var t = new Transaction(Chain.Settings)
-												{
-													Payload	 = this,
-													Member	 = Member,
-												};
+														{
+															Payload	 = this,
+															Member	 = Member,
+														};
 
 												t.Load(r);
 												return t;

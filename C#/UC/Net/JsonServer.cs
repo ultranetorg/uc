@@ -367,6 +367,9 @@ namespace UC.Net
 							break;
 					}
 			}
+			catch(HttpListenerException)
+			{
+			}
 			catch(JsonException ex)
 			{
 				responderror(ex.Message, (int)HttpStatusCode.BadRequest);

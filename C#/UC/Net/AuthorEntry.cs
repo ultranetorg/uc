@@ -8,69 +8,50 @@ using RocksDbSharp;
 
 namespace UC.Net
 {
-	public class Release : IBinarySerializable
-	{
-		public string			Platform;
-		public Version			Version;
-		public string			Channel;		/// stable, beta, nightly, debug,...
-		public int				Rid;
 
-		public Release()
-		{
-		}
-
-		public Release(string platform, Version version, string channel, int rid)
-		{
-			Platform = platform;
-			Version = version;
-			Channel = channel;
-			Rid = rid;
-		}
-
-		public Release Clone()
-		{
-			return new Release(Platform, Version, Channel, Rid);
-		}
-
-		public void Read(BinaryReader r)
-		{
-			Platform = r.ReadUtf8();
-			Version = r.ReadVersion();
-			Channel = r.ReadUtf8();
-			Rid = r.Read7BitEncodedInt();
-		}
-
-		public void Write(BinaryWriter w)
-		{
-			w.WriteUtf8(Platform);
-			w.Write(Version);
-			w.WriteUtf8(Channel);
-			w.Write7BitEncodedInt(Rid);
-		}
-	}
-
-	public class Product : IBinarySerializable
-	{
-		public string			Name;
-		public List<Release>	Releases;
-
-		public Product Clone()
-		{
-			return new Product {Name = Name, Releases = Releases.Select(i => i.Clone()).ToList()};
-		}
-
-		public void Read(BinaryReader r)
-		{
-			Name		= r.ReadUtf8();
-			Releases	= r.ReadList<Release>();
-		}
-
-		public void Write(BinaryWriter w)
-		{
-			w.WriteUtf8(Name);
-			w.Write(Releases);
-		}
-	}
+// 	public class Product : IBinarySerializable
+// 	{
+// 		public string			Name;
+// 		public string			Title;
+// 		public List<Release>	Releases;
+// 		public int				LastRegistration = -1;
+// 
+// 		public Product(string name)
+// 		{
+// 			Name = name;
+// 		}
+// 
+// 		public Product()
+// 		{
+// 		}
+// 
+// 		public Product Clone()
+// 		{
+// 			return	new Product(Name)
+// 					{ 
+// 						Name = Name,
+// 						Title = Title, 
+// 						Releases = Releases.Select(i => i.Clone()).ToList(),
+// 						LastRegistration = LastRegistration,
+// 					};
+// 		}
+// 
+// 		public void Write(BinaryWriter w)
+// 		{
+// 			w.Write(Name);
+// 			w.Write(Title);
+// 			w.Write7BitEncodedInt(LastRegistration);
+// 			w.Write(Releases);
+// 		}
+// 
+// 		public void Read(BinaryReader r)
+// 		{
+// 			Name				= r.ReadUtf8();
+// 			Title				= r.ReadUtf8();
+// 			LastRegistration	= r.Read7BitEncodedInt();
+// 			Releases			= r.ReadList<Release>();
+// 		}
+// 	}
 
 	public class AuthorEntry : Entry<string>
 	{
@@ -79,7 +60,7 @@ namespace UC.Net
 		public int					LastBid = -1;
 		public int					LastRegistration = -1;
 		public int					LastTransfer = -1;
-		public List<Product>		Products = new();
+		public List<string>			Products = new();
 
 		public override string		Key => Name;
 		Roundchain					Chain;
@@ -98,7 +79,7 @@ namespace UC.Net
 						LastBid = LastBid,
 						LastRegistration = LastRegistration,
 						LastTransfer = LastTransfer,
-						Products = Products.Select(i => i.Clone()).ToList()
+						Products = new List<string>(Products)
 					};
 		}
 
@@ -117,7 +98,7 @@ namespace UC.Net
 			LastBid			= r.Read7BitEncodedInt();
 			LastRegistration= r.Read7BitEncodedInt();
 			LastTransfer	= r.Read7BitEncodedInt();
-			Products		= r.ReadList<Product>();
+			Products		= r.ReadStings();
 		}
 
 		public AuthorBid FindFirstBid(Round executing)

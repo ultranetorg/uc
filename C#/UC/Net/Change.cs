@@ -19,6 +19,7 @@ namespace UC.Net
 		public Settings					Settings;
 
 		public abstract bool			Valid { get; }
+		public byte[]					Prefix => Signature.Take(RoundReference.PrefixLength).ToArray();
 
 		public abstract void			HashWrite(BinaryWriter w);
 		public abstract void			Read(BinaryReader r);
@@ -138,7 +139,7 @@ namespace UC.Net
 
 		public override void Write(BinaryWriter w)
 		{
-			var p = w.BaseStream.Position;
+			//var p = w.BaseStream.Position;
 
 			//w.Write(Signer);
 			w.Write(Signature);

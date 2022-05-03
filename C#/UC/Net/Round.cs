@@ -10,64 +10,67 @@ namespace UC.Net
 {
 	public class Round : IBinarySerializable
 	{
-		public int							Id;
-		public int							ParentId => Id - Roundchain.Pitch;
+		public int										Id;
+		public int										ParentId => Id - Roundchain.Pitch;
 
-		public int							Try = 0;
-		public DateTime						FirstArrivalTime = DateTime.MaxValue;
-		public DateTime						LastAccessed = DateTime.UtcNow;
+		public int										Try = 0;
+		public DateTime									FirstArrivalTime = DateTime.MaxValue;
+		public DateTime									LastAccessed = DateTime.UtcNow;
 
-		public List<Block>					Blocks = new();
-		public IEnumerable<JoinRequest>		JoinRequests	=> Blocks.OfType<JoinRequest>();
-		public IEnumerable<Vote>			Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public IEnumerable<Payload>			Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.Signature, new BytesComparer());
-		public IEnumerable<Account>			Forkers			=> Votes.GroupBy(i => i.Member).Where(i => i.Count() > 1).Select(i => i.Key);
-		public IEnumerable<Vote>			Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Member).Where(i => i.Count() == 1).Select(i => i.First());
-		public IEnumerable<Vote>			Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
+		public List<Block>								Blocks = new();
+		public IEnumerable<JoinRequest>					JoinRequests	=> Blocks.OfType<JoinRequest>();
+		public IEnumerable<Vote>						Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
+		public IEnumerable<Payload>						Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.Signature, new BytesComparer());
+		public IEnumerable<Account>						Forkers			=> Votes.GroupBy(i => i.Member).Where(i => i.Count() > 1).Select(i => i.Key);
+		public IEnumerable<Vote>						Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Member).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Vote>						Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
-		public IEnumerable<Account>			ElectedViolators			=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>			ElectedJoiners				=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>			ElectedLeavers				=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>			ElectedFundableAssignments	=> Majority.SelectMany(i => i.FundableAssignments).Distinct().Where(j => Majority.Count(b => b.FundableAssignments.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
-		public IEnumerable<Account>			ElectedFundableRevocations	=> Majority.SelectMany(i => i.FundableRevocations).Distinct().Where(l => Majority.Count(b => b.FundableRevocations.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
+		public IEnumerable<Account>						ElectedViolators			=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<Account>						ElectedJoiners				=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<Account>						ElectedLeavers				=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<Account>						ElectedFundableAssignments	=> Majority.SelectMany(i => i.FundableAssignments).Distinct().Where(j => Majority.Count(b => b.FundableAssignments.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
+		public IEnumerable<Account>						ElectedFundableRevocations	=> Majority.SelectMany(i => i.FundableRevocations).Distinct().Where(l => Majority.Count(b => b.FundableRevocations.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
+		public IEnumerable<Proposition>					ElectedPropositions			=> Majority.SelectMany(i => i.Propositions).Distinct().Where(l => Majority.Count(b => b.Propositions.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
 
 		public Dictionary<Account, AccountEntry>		Accounts = new();
 		public Dictionary<string, AuthorEntry>			Authors = new();
 		public Dictionary<ProductAddress, ProductEntry>	Products = new();
 
-		public IEnumerable<Payload>			ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
-		public List<Account>				ConfirmedViolators = new();
-		public List<Account>				ConfirmedJoiners = new();
-		public List<Account>				ConfirmedLeavers = new();
-		public List<Account>				ConfirmedFundableAssignments = new();
-		public List<Account>				ConfirmedFundableRevocations = new();
+		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
+		public List<Account>							ConfirmedViolators;
+		public List<Account>							ConfirmedJoiners;
+		public List<Account>							ConfirmedLeavers;
+		public List<Account>							ConfirmedFundableAssignments;
+		public List<Account>							ConfirmedFundableRevocations;
+		public List<Proposition>						ConfirmedPropositions;
 
-		public List<Peer>					Members;
-		public List<Account>				Fundables;
+		public List<Peer>								Members;
+		public List<Account>							Fundables;
+		public List<ReleaseDeclaration>					Releases = new();
 
-		public bool							Voted = false;
-		public bool							Confirmed = false;
-		public byte[]						Hash;
+		public bool										Voted = false;
+		public bool										Confirmed = false;
+		public byte[]									Hash;
 
-		public ChainTime					Time;
-		public BigInteger					WeiSpent;
-		public Coin							Factor;
-		public Coin							Emission;
+		public ChainTime								Time;
+		public BigInteger								WeiSpent;
+		public Coin										Factor;
+		public Coin										Emission;
 
-		public Roundchain					Chain;
-		public Round						Previous =>	Chain.FindRound(Id - 1);
-		public Round						Next =>	Chain.FindRound(Id + 1);
-		public Round						Parent => Chain.FindRound(ParentId);
+		public Roundchain								Chain;
+		public Round									Previous =>	Chain.FindRound(Id - 1);
+		public Round									Next =>	Chain.FindRound(Id + 1);
+		public Round									Parent => Chain.FindRound(ParentId);
 
-		public Operation					CurrentOperation;
-		public IEnumerable<Payload>			ExecutingPayloads;
-		public IEnumerable<Operation>		EffectiveOperations => CurrentOperation != null ? ExecutingPayloads.SelectMany(i => i.SuccessfulTransactions).
-																												SelectMany(i => i.SuccessfulOperations).
-																												SkipWhile(i => i != CurrentOperation).
-																												Skip(1) 
-																							:
-																							(Confirmed ? ConfirmedPayloads : Payloads). SelectMany(i => i.SuccessfulTransactions).
-																																		SelectMany(i => i.SuccessfulOperations);
+		public Operation								CurrentOperation;
+		public IEnumerable<Payload>						ExecutingPayloads;
+		public IEnumerable<Operation>					EffectiveOperations => CurrentOperation != null ? ExecutingPayloads.SelectMany(i => i.SuccessfulTransactions).
+																															SelectMany(i => i.SuccessfulOperations).
+																															SkipWhile(i => i != CurrentOperation).
+																															Skip(1) 
+																										:
+																										(Confirmed ? ConfirmedPayloads : Payloads). SelectMany(i => i.SuccessfulTransactions).
+																																					SelectMany(i => i.SuccessfulOperations);
 		public Round(Roundchain c)
 		{
 			Chain = c;
@@ -310,6 +313,26 @@ namespace UC.Net
 // 			return Cryptography.Current.Hash((w.BaseStream as MemoryStream).ToArray());
 // 		}
 
+		public void Seal()
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write7BitEncodedInt(Try);
+			w.Write(Time);
+
+			foreach(var i in ConfirmedJoiners)				w.Write(i);
+			foreach(var i in ConfirmedLeavers)				w.Write(i);
+			foreach(var i in ConfirmedViolators)			w.Write(i);
+			foreach(var i in ConfirmedFundableAssignments)	w.Write(i);
+			foreach(var i in ConfirmedFundableRevocations)	w.Write(i);
+			foreach(var i in ConfirmedPropositions)			i.Write(w);
+
+			w.Write(ConfirmedPayloads, i => w.Write(i.Signature));
+
+			Hash = Cryptography.Current.Hash(s.ToArray());
+		}
+
 		public void Write(BinaryWriter w)
 		{
 			w.Write7BitEncodedInt(Id);
@@ -317,12 +340,13 @@ namespace UC.Net
 			w.Write(Confirmed);
 			w.Write(Time);
 		
-			w.Write(Blocks,	 i => {w.Write((byte)i.Type); i.Write(w);});
+			w.Write(Blocks,	i => {w.Write((byte)i.Type); i.Write(w);});
 			w.Write(ConfirmedJoiners);
 			w.Write(ConfirmedLeavers);
 			w.Write(ConfirmedViolators);
 			w.Write(ConfirmedFundableAssignments);
 			w.Write(ConfirmedFundableRevocations);
+			w.Write(Releases);
 		}
 
 		public void Read(BinaryReader r)
@@ -344,26 +368,8 @@ namespace UC.Net
 			ConfirmedViolators = r.ReadList<Account>();
 			ConfirmedFundableAssignments = r.ReadList<Account>();
 			ConfirmedFundableRevocations = r.ReadList<Account>();
-		}
-
-
-		public void Seal()
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			w.Write7BitEncodedInt(Try);
-			w.Write(Time);
-
-			foreach(var i in ConfirmedJoiners)				w.Write(i);
-			foreach(var i in ConfirmedLeavers)				w.Write(i);
-			foreach(var i in ConfirmedViolators)			w.Write(i);
-			foreach(var i in ConfirmedFundableAssignments)	w.Write(i);
-			foreach(var i in ConfirmedFundableRevocations)	w.Write(i);
-
-			w.Write(ConfirmedPayloads, i => w.Write(i.Signature));
-
-			Hash = Cryptography.Current.Hash(s.ToArray());
+			ConfirmedPropositions = new(); 
+			Releases = r.ReadList<ReleaseDeclaration>();
 		}
 
 		public void Save(BinaryWriter w)
@@ -375,6 +381,7 @@ namespace UC.Net
 			w.Write(ConfirmedViolators);
 			w.Write(ConfirmedFundableAssignments);
 			w.Write(ConfirmedFundableRevocations);
+			w.Write(Releases);
 		
 			//ConfirmedPayloads.First().Reference.Write(w);
 
@@ -385,11 +392,13 @@ namespace UC.Net
 		{
 			Try = r.Read7BitEncodedInt();
 			Time = r.ReadTime();
-			ConfirmedJoiners = r.ReadList(() => r.ReadAccount());
-			ConfirmedLeavers = r.ReadList(() => r.ReadAccount());
-			ConfirmedViolators = r.ReadList(() => r.ReadAccount());
-			ConfirmedFundableAssignments = r.ReadList(() => r.ReadAccount());
-			ConfirmedFundableRevocations = r.ReadList(() => r.ReadAccount());
+			ConfirmedJoiners				= r.ReadList(() => r.ReadAccount());
+			ConfirmedLeavers				= r.ReadList(() => r.ReadAccount());
+			ConfirmedViolators				= r.ReadList(() => r.ReadAccount());
+			ConfirmedFundableAssignments	= r.ReadList(() => r.ReadAccount());
+			ConfirmedFundableRevocations	= r.ReadList(() => r.ReadAccount());
+			ConfirmedPropositions			= new(); 
+			Releases						= r.ReadList<ReleaseDeclaration>();
 
 			//var rr = new RoundReference();
 			//rr.Read(r);

@@ -43,7 +43,7 @@ namespace UC.Net.Node.FUI
 			return Chain.FindAuthors(account, Chain.LastConfirmedRound)
 						.SelectMany(a => Chain.Authors.Find(a.Name, Chain.LastConfirmedRound.Id).Products.Select(i =>	new ProductModel
 																														{
-																															Product = Chain.FindProduct(new ProductAddress(a.Name, i.Name),  Chain.LastConfirmedRound.Id),
+																															Product = Chain.FindProduct(new ProductAddress(a.Name, i),  Chain.LastConfirmedRound.Id),
 																															Author	= a
 																														}));
 		}

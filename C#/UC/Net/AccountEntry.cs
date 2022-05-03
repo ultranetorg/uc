@@ -21,7 +21,7 @@ namespace UC.Net
 		public BailStatus				BailStatus;
 
 		public override Account			Key => Account;
-		Roundchain					Chain;
+		Roundchain						Chain;
 
 		public AccountEntry(Roundchain chain, Account a)
 		{
@@ -31,8 +31,7 @@ namespace UC.Net
 
 		public AccountEntry Clone()
 		{
-			return new AccountEntry(Chain, Account){ 
-														Authors = new List<string>(Authors),
+			return new AccountEntry(Chain, Account){	Authors = new List<string>(Authors),
 														Transactions = new HashSet<int>(Transactions),
 														Balance = Balance,
 														Bail = Bail,
