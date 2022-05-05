@@ -87,7 +87,7 @@ namespace UC.Net
  				//if(!Cryptography.Current.Valid(Signature, this, Signer))
  				//	return false;
 
-				return Operations.All(i => i.IsValid());
+				return Operations.All(i => i.Valid);
 			}
 		}
 
@@ -135,6 +135,15 @@ namespace UC.Net
 			Write(w);
 
 			return (int)s.Length;
+		}
+		
+		public void	Seal(BinaryWriter w)
+		{
+			w.Write(Signer);
+			w.Write(Operations.Where(i => !i.Free), i => { 
+															w.Write((byte)i.Type); 
+															i.Write(w); 
+														 });
 		}
 
 		public override void Write(BinaryWriter w)

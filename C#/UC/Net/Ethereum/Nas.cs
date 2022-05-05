@@ -10,24 +10,25 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using UC;
 
 namespace UC.Net
 {
-	public class Nas
+	public class Nas : INas
 	{
-		public const string							ContractAddress = "0x72329af958b5679e0354ff12fb27ddbf34d37aca";
-		Settings									Settings;
-		public Web3									Web3;
-		Log											Log;
+		public const string ContractAddress = "0x72329af958b5679e0354ff12fb27ddbf34d37aca";
+		Settings Settings;
+		public Web3 Web3;
+		Log Log;
 
-		ContractHandler								сontract;
-		Nethereum.Web3.Accounts.Account				account;
-		static Dictionary<string, List<IPAddress>>	Zones = new Dictionary<string, List<IPAddress>>();
-		static string								creator;
+		ContractHandler сontract;
+		Nethereum.Web3.Accounts.Account account;
+		static Dictionary<string, List<IPAddress>> Zones = new Dictionary<string, List<IPAddress>>();
+		static string creator;
 
-		public Nethereum.Signer.Chain				Chain => (Chain)Enum.Parse(typeof(Chain), Settings.Nas.Chain);
+		public Nethereum.Signer.Chain Chain => (Chain)Enum.Parse(typeof(Chain), Settings.Nas.Chain);
 
 		public Nethereum.Web3.Accounts.Account Account
 		{
@@ -37,8 +38,8 @@ namespace UC.Net
 				{
 					if(Settings.Secret?.NasWallet != null && Settings.Secret?.NasPassword != null)
 					{
-						account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secret.NasWallet),  Settings.Secret.NasPassword);
-					} 
+						account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secret.NasWallet), Settings.Secret.NasPassword);
+					}
 					else
 					{
 						account = new Nethereum.Web3.Accounts.Account(EthECKey.GenerateKey().GetPrivateKeyAsBytes());
@@ -49,7 +50,7 @@ namespace UC.Net
 			}
 		}
 
-		public ContractHandler Contract
+		ContractHandler Contract
 		{
 			get
 			{
@@ -62,7 +63,7 @@ namespace UC.Net
 				return сontract;
 			}
 		}
-			
+
 		public bool IsAdministrator
 		{
 			get
@@ -86,18 +87,18 @@ namespace UC.Net
 		{
 			if(zone == Zone.Localnet)
 			{
-				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {192, 168, 1, (byte)i})).ToList();
+				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] { 192, 168, 1, (byte)i })).ToList();
 			}
 
 			lock(Zones)
 			{
 				var ips = new List<IPAddress>();
-	
+
 				if(!Zones.ContainsKey(zone))
 				{
 					var z = GetZone(Settings.Zone);
 
-					foreach(var i in z.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries))
+					foreach(var i in z.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
 					{
 						if(!IPAddress.TryParse(i, out var ip))
 						{
@@ -120,7 +121,7 @@ namespace UC.Net
 					{
 						Zones[zone] = ips;
 					}
-						
+
 					return ips;
 				}
 				else
@@ -132,44 +133,45 @@ namespace UC.Net
 
 		public string GetZone(string name)
 		{
-			var input = new GetZoneFunction {Name = name};
+			var input = new GetZoneFunction { Name = name };
 			return Contract.QueryAsync<GetZoneFunction, string>(input).Result;
 		}
 
-/*
-		public List<string> LoadNodes()
-		{
-			var r = new List<string>();
-
-			try
-			{
-				var input = new GetNodesFunction();
-				var ids = ContractHandler.QueryDeserializingToObjectAsync<GetNodesFunction, GetNodesOutputDTO>(input).Result;
-								
-
-				for(BigInteger i=0; i<ids.Indexes.Count; i++)
+		/*
+				public List<string> LoadNodes()
 				{
-					var fi = new GetNodeFunction(){ Index = i };
-					var node = ContractHandler.QueryDeserializingToObjectAsync<GetNodeFunction, GetNodeOutputDTO>(fi).Result;
+					var r = new List<string>();
 
-					r.Add(node.Name);
-				}
+					try
+					{
+						var input = new GetNodesFunction();
+						var ids = ContractHandler.QueryDeserializingToObjectAsync<GetNodesFunction, GetNodesOutputDTO>(input).Result;
 
-			}
-			catch(Exception ex)
-			{
-				Log.ReportError(ex);
-			}
 
-			return r;
-		}*/
+						for(BigInteger i=0; i<ids.Indexes.Count; i++)
+						{
+							var fi = new GetNodeFunction(){ Index = i };
+							var node = ContractHandler.QueryDeserializingToObjectAsync<GetNodeFunction, GetNodeOutputDTO>(fi).Result;
+
+							r.Add(node.Name);
+						}
+
+					}
+					catch(Exception ex)
+					{
+						Log.ReportError(ex);
+					}
+
+					return r;
+				}*/
 
 		public async Task SetZone(string name, string nodes, IGasAsker asker)
 		{
 			var f = new SetZoneFunction
-					{
-					 	Name = name, Nodes = nodes
-					};
+			{
+				Name = name,
+				Nodes = nodes
+			};
 
 			try
 			{
@@ -177,8 +179,8 @@ namespace UC.Net
 
 				if(asker.Ask(Web3, Contract, Account.Address, f, null))
 				{
-					f.Gas		= asker.Gas;
-					f.GasPrice	= asker.GasPrice;
+					f.Gas = asker.Gas;
+					f.GasPrice = asker.GasPrice;
 
 					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
 
@@ -195,9 +197,9 @@ namespace UC.Net
 		public async Task RemoveZone(string name, IGasAsker asker)
 		{
 			var f = new RemoveZoneFunction
-					{
-						Name = name
-					};
+			{
+				Name = name
+			};
 
 			if(asker.Ask(Web3, Contract, Account.Address, f, null))
 			{
@@ -205,8 +207,8 @@ namespace UC.Net
 
 				try
 				{
-					f.Gas		= asker.Gas;
-					f.GasPrice	= asker.GasPrice;
+					f.Gas = asker.Gas;
+					f.GasPrice = asker.GasPrice;
 
 					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
 
@@ -220,12 +222,46 @@ namespace UC.Net
 			}
 		}
 
-		public BigInteger FindTransfer(Account account, int eid)
+		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, IFlowControl flowcontrol = null, CancellationTokenSource cts = null)
 		{
-			var f = new FindTransferFunction {Secret = Emission.Serialize(account, eid)};
-			
+			var args = Emission.Serialize(signer, eid);
+
+			var w3 = new Web3(source, Settings.Nas.Provider);
+			var c = w3.Eth.GetContractHandler(ContractAddress);
+
+			var rt = new RequestTransferFunction
+					 {
+					 	AmountToSend = wei,
+					 	Secret = args
+					 };
+
+			if(gasAsker.Ask(w3, c, source.Address, rt, flowcontrol?.Log))
+			{
+				rt.Gas = gasAsker.Gas;
+				rt.GasPrice = gasAsker.GasPrice;
+
+				flowcontrol?.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
+
+				var receipt = await c.SendRequestAndWaitForReceiptAsync(rt, cts);
+
+				flowcontrol?.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
+			}
+		}
+
+		public BigInteger FinishEmission(Account account, int eid)
+		{
+			var f = new FindTransferFunction { Secret = Emission.Serialize(account, eid) };
+
 			return Contract.QueryAsync<FindTransferFunction, BigInteger>(f).Result;
-					
+		}
+
+		public bool CheckEmission(Emission e)
+		{
+			var f = new FindTransferFunction { Secret = Emission.Serialize(e.Signer, e.Eid) };
+
+			var wei = Contract.QueryAsync<FindTransferFunction, BigInteger>(f).Result;
+
+			return wei == e.Wei;
 		}
 	}
 }

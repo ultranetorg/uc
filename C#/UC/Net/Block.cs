@@ -246,6 +246,8 @@ namespace UC.Net
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.Successful);
 
+		public byte[]					OrderingKey => Transactions.Any() ? Transactions.First().Signer : new byte[0];
+
 		public override bool Valid
 		{
 			get
@@ -292,6 +294,11 @@ namespace UC.Net
 			{
 				w.Write(i.Signature);
 			}
+		}
+		
+		public void Seal(BinaryWriter w)
+		{
+			w.Write(Transactions, i => i.Seal(w));
 		}
 
 		public override void Write(BinaryWriter w)

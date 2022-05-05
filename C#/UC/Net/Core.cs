@@ -56,7 +56,7 @@ namespace UC.Net
 
 		public Log										Log;
 		public Vault									Vault;
-		public Nas										Nas;
+		public INas										Nas;
 		public Roundchain								Chain;
 		RocksDb											Database;
 		public bool										IsNode => ListeningThread != null;
@@ -208,7 +208,7 @@ namespace UC.Net
 			}
 		}
 
-		public Core(Settings settings, string exedirectory, Log log, TimeProvider timeprovider, IGasAsker gasasker, IFeeAsker feeasker)
+		public Core(Settings settings, string exedirectory, Log log, TimeProvider timeprovider, INas nas, IGasAsker gasasker, IFeeAsker feeasker)
 		{
 			Settings = settings;
 			TimeProvider = timeprovider;
@@ -228,7 +228,7 @@ namespace UC.Net
 				Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
 			Vault		= new Vault(Settings, Log);
-			Nas			= new Nas(Settings, Log);
+			Nas			= nas;
 			HttpClient	= new HttpClient{Timeout = TimeSpan.FromSeconds(5)};
 		}
 
@@ -1615,18 +1615,15 @@ namespace UC.Net
 							{
 								if(o is Emission e)
 								{
-									var f = new FindTransferFunction {Secret = Emission.Serialize(e.Signer, e.Eid)};
-			
 									Monitor.Exit(Lock);
 
 									try
 									{
-										var wei = Nas.Contract.QueryAsync<FindTransferFunction, BigInteger>(f).Result;
-						
-										if(wei != e.Wei)
+										valid = Nas.CheckEmission(e);
+										
+										if(!valid)
 										{	
 											Changes.Remove(t);
-											valid = false;
 											break;
 										}
 									}
@@ -1841,41 +1838,21 @@ namespace UC.Net
 				l = await Task.Run<Emission>(() => GetRemoteMember().Api.Send(new LastOperationCall {Account = signer, Type = typeof(Emission).Name}) as Emission);
 
 			var eid = l == null ? 0 : l.Eid + 1;
-				
-			var args = Emission.Serialize(signer, eid); 
 
-			var w3 = new Web3(a, Settings.Nas.Provider);
-			var c = w3.Eth.GetContractHandler(Nas.ContractAddress);
-	
-			var rt = new RequestTransferFunction{
-													AmountToSend	= wei,
-													Secret			= args,
-												};
-	
-			if(GasAsker.Ask(w3, c, a.Address, rt, flowcontrol?.Log))
-			{
-				rt.Gas = GasAsker.Gas;
-				rt.GasPrice = GasAsker.GasPrice;
-
-				flowcontrol?.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
-	
-				var receipt = await c.SendRequestAndWaitForReceiptAsync(rt, cts);
-			
-				flowcontrol?.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
-	
-				var o = new Emission(signer, wei, eid);
-	
-				flowcontrol?.SetOperation(o);
-	
-				if(FeeAsker.Ask(this, signer, o))
-				{
-					lock(Lock)
-						Enqueue(o);
-	
-					flowcontrol?.Log?.Report(this, "State changed", $"{o} is queued for placing and confirmation");
+			await Nas.Emit(a, wei, signer, GasAsker, eid, flowcontrol, cts);		
 						
-					return o;
-				}
+			var o = new Emission(signer, wei, eid);
+
+			flowcontrol?.SetOperation(o);
+						
+			if(FeeAsker.Ask(this, signer, o))
+			{
+				lock(Lock)
+					Enqueue(o);
+	
+				flowcontrol?.Log?.Report(this, "State changed", $"{o} is queued for placing and confirmation");
+						
+				return o;
 			}
 
 			return null;
@@ -1888,7 +1865,7 @@ namespace UC.Net
 				var l = Chain.Accounts.FindLastOperation<Emission>(signer);
 				var eid = l == null ? 0 : l.Eid + 1;
 
-				var wei = Nas.FindTransfer(signer, eid);
+				var wei = Nas.FinishEmission(signer, eid);
 
 				if(wei == 0)
 					throw new RequirementException("No corresponding Ethrereum transaction found");

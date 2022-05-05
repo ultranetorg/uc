@@ -18,7 +18,7 @@ namespace UC.Net
 																			Leavers = new(), 
 																			FundableAssignments = new(), 
 																			FundableRevocations = new(),
-																			Propositions = new()
+																			//Propositions = new()
 																		  };
 
 		public byte[]			Hash;
@@ -28,7 +28,7 @@ namespace UC.Net
 		public List<byte[]>		Violators;
 		public List<byte[]>		FundableAssignments;
 		public List<byte[]>		FundableRevocations;
-		public List<byte[]>		Propositions;
+		//public List<byte[]>		Propositions;
 		public ChainTime		Time;
 
 
@@ -41,7 +41,7 @@ namespace UC.Net
 			if(Leavers.Any(i => i.Length != PrefixLength))				throw new IntegrityException("Wrong Leavers Prefix length");
 			if(FundableAssignments.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableAssignments Prefix length");
 			if(FundableRevocations.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableRevocations Prefix length");
-			if(Propositions.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Propositions Prefix length");
+			//if(Propositions.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Propositions Prefix length");
 
 			w.Write(Hash);
 
@@ -63,8 +63,8 @@ namespace UC.Net
 			foreach(var i in FundableRevocations)
 				w.Write(i);
 
-			foreach(var i in Propositions)
-				w.Write(i);
+			//foreach(var i in Propositions)
+			//	w.Write(i);
 			
 			w.Write(Time);
 		}
@@ -78,7 +78,7 @@ namespace UC.Net
 			if(Leavers.Any(i => i.Length != PrefixLength))				throw new IntegrityException("Wrong Leavers Prefix length");
 			if(FundableAssignments.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableAssignments Prefix length");
 			if(FundableRevocations.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableRevocations Prefix length");
-			if(Propositions.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Propositions Prefix length");
+			//if(Propositions.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Propositions Prefix length");
 
 			w.Write(Hash);
 			w.Write(Payloads,				i => w.Write(i));
@@ -87,7 +87,7 @@ namespace UC.Net
 			w.Write(Leavers,				i => w.Write(i));
 			w.Write(FundableAssignments,	i => w.Write(i));
 			w.Write(FundableRevocations,	i => w.Write(i));
-			w.Write(Propositions,			i => w.Write(i));
+			//w.Write(Propositions,			i => w.Write(i));
 			w.Write(Time);
 		}
 
@@ -100,7 +100,7 @@ namespace UC.Net
 			Leavers				= r.ReadList(() => r.ReadBytes(PrefixLength));
 			FundableAssignments	= r.ReadList(() => r.ReadBytes(PrefixLength));
 			FundableRevocations	= r.ReadList(() => r.ReadBytes(PrefixLength));
-			Propositions		= r.ReadList(() => r.ReadBytes(PrefixLength));
+			//Propositions		= r.ReadList(() => r.ReadBytes(PrefixLength));
 			Time				= r.ReadTime();
 		}
 
@@ -117,7 +117,7 @@ namespace UC.Net
 					Joiners.Count.GetHashCode() ^ 
 					FundableAssignments.Count.GetHashCode() ^ 
 					FundableRevocations.Count.GetHashCode() ^
-					Propositions.Count.GetHashCode() ^
+					//Propositions.Count.GetHashCode() ^
 					Time.Ticks.GetHashCode();
 		}
 
@@ -130,7 +130,7 @@ namespace UC.Net
 					Leavers				.SequenceEqual(o.Leavers,				new BytesEqualityComparer()) &&
 					FundableAssignments	.SequenceEqual(o.FundableAssignments,	new BytesEqualityComparer()) &&
 					FundableRevocations	.SequenceEqual(o.FundableRevocations,	new BytesEqualityComparer()) &&
-					Propositions		.SequenceEqual(o.Propositions,			new BytesEqualityComparer()) &&
+					//Propositions		.SequenceEqual(o.Propositions,			new BytesEqualityComparer()) &&
 					Time == o.Time;
 		}
 	}

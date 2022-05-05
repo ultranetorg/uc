@@ -38,7 +38,7 @@ namespace UC.Net
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(base.GetHashCode(), Version, Platform);
+			return base.GetHashCode();
 		}
 
 		public new static ReleaseAddress Parse(string v)

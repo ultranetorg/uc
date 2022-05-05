@@ -29,7 +29,7 @@ namespace UC.Net
 
 	public enum Operations
 	{
-		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, 
+		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, ReleaseDeclaration 
 	}
 
 // 	public enum OperationArgument : byte
@@ -58,6 +58,8 @@ namespace UC.Net
 		public bool				Successful => Result == OperationResult.OK;
 		public IFlowControl		FlowReport;
 		public abstract string	Description { get; }
+		public abstract bool	Valid {get;}
+		public virtual bool		Free { get => false; } 
 
 		public static Operation FromType(Operations type)
 		{
@@ -70,6 +72,7 @@ namespace UC.Net
 						Operations.AuthorRegistration	=> new AuthorRegistration(),
 						Operations.AuthorTransfer		=> new AuthorTransfer(),
 						Operations.ProductRegistration	=> new ProductRegistration(),
+						Operations.ReleaseDeclaration	=> new ReleaseDeclaration(),
 						_ => throw new IntegrityException("Wrong operation type")
 					};
 		}
@@ -87,6 +90,7 @@ namespace UC.Net
 							AuthorRegistration		=> Operations.AuthorRegistration,
 							AuthorTransfer			=> Operations.AuthorTransfer,
 							ProductRegistration		=> Operations.ProductRegistration,
+							ReleaseDeclaration		=> Operations.ReleaseDeclaration,
 							_ => throw new IntegrityException("Wrong operation type")
 						};
 			}
@@ -108,7 +112,6 @@ namespace UC.Net
 
 		public abstract void Read(BinaryReader r);
 		public abstract void Write(BinaryWriter w);
-		public abstract bool IsValid();
 		public virtual void HashWrite(BinaryWriter w)
 		{
 			Write(w);
@@ -141,6 +144,7 @@ namespace UC.Net
 		public Coin				Bail;
 		public IPAddress		IP;
 		public override string	Description => $"{Bail} UNT";
+		public override bool Valid => Transaction.Settings.Dev.DisableBailMin ? true : Bail >= Roundchain.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -153,11 +157,6 @@ namespace UC.Net
 			Signer = signer;
 			Bail = bail;
 			IP = ip;
-		}
-
-		public override bool IsValid()
-		{
-			return Transaction.Settings.Dev.DisableBailMin ? true : Bail >= Roundchain.BailMin;
 		}
 
 		public override void Read(BinaryReader r)
@@ -216,10 +215,7 @@ namespace UC.Net
 			Eid = eid;
 		}
 
-		public override bool IsValid()
-		{
-			return 0 < Wei && 0 <= Eid;
-		}
+		public override bool Valid => 0 < Wei && 0 <= Eid;
 
 		public override void Read(BinaryReader r)
 		{
@@ -328,10 +324,7 @@ namespace UC.Net
 			Amount = amount;
 		}
 
-		public override bool IsValid()
-		{
-			return 0 <= Amount;
-		}
+		public override bool Valid => 0 <= Amount;
 
 		public override void Read(BinaryReader r)
 		{
@@ -359,6 +352,7 @@ namespace UC.Net
 		public string			Author;
 		public Coin				Bid {get; set;}
 		public override string	Description => $"{Bid} UNT for {Author}";
+		public override bool	Valid => Author.Length > 0 && Author.Length <= AuthorRegistration.LengthMaxForAuction && (Transaction.Settings.Dev.DisableBidMin ? true : GetMinCost(Author) <= Bid);
 
 		public AuthorBid()
 		{
@@ -381,11 +375,6 @@ namespace UC.Net
 		{
 			w.WriteUtf8(Author);
 			w.Write(Bid);
-		}
-
-		public override bool IsValid()
-		{
-			return Author.Length > 0 && Author.Length <= AuthorRegistration.LengthMaxForAuction && (Transaction.Settings.Dev.DisableBidMin ? true : GetMinCost(Author) <= Bid);
 		}
 
 		public override OperationResult Execute(Roundchain chain, Round round)
@@ -472,6 +461,7 @@ namespace UC.Net
 
 		public bool					Exclusive => Author.Length <= LengthMaxForAuction; 
 		public override string		Description => $"{Author} ({Title}) for {Years} years";
+		public override bool		Valid => IsValid(Author, Title) && 0 < Years;
 		
 		public static Coin			GetCost(Round round, int years) => new Coin(1)/1000 * years * (Emission.FactorEnd - round.Factor) / Emission.FactorEnd;
 
@@ -490,10 +480,6 @@ namespace UC.Net
 			Years = years;
 		}
 
-		public override bool IsValid()
-		{
-			return IsValid(Author, Title) && 0 < Years;
-		}
 
 		public override void Read(BinaryReader r)
 		{
@@ -557,6 +543,7 @@ namespace UC.Net
 		public string			Author;
 		public Account			To  {get; set;}
 		public override string	Description => $"{Author} -> {To}";
+		public override bool	Valid => 0 < Author.Length;
 		
 		public AuthorTransfer()
 		{
@@ -569,10 +556,6 @@ namespace UC.Net
 			To = newowner;
 		}
 
-		public override bool IsValid()
-		{
-			return 0 < Author.Length;
-		}
 
 		public override void Read(BinaryReader r)
 		{
@@ -601,6 +584,7 @@ namespace UC.Net
 		public ProductAddress	Address;
 		public string			Title;
 		public override string	Description => $"{Address} as {Title}";
+		public override bool	Valid => 0 < Address.Author.Length && 0 < Address.Product.Length;
 
 		public ProductRegistration()
 		{
@@ -611,11 +595,6 @@ namespace UC.Net
 			Signer		= signer;
 			Address		= name;
 			Title		= title;
-		}
-
-		public override bool IsValid()
-		{
-			return 0 < Address.Author.Length && 0 < Address.Product.Length;
 		}
 
 		public override void Read(BinaryReader r)
@@ -674,10 +653,7 @@ namespace UC.Net
 			Actions		= new();
 		}
 
-		public override bool IsValid()
-		{
-			return Product.Valid;
-		}
+		public override bool Valid => Product.Valid;
 
 		public override string	ToString()							=> base.ToString() + $", {Product}";
 		public void				AddPublisher(Account publisher)		=> Actions[Change.AddPublisher] = publisher;
@@ -712,6 +688,81 @@ namespace UC.Net
 											case Change.SetStatus:			w.Write((bool)i.Value); break;
 										}; 
 									});
+		}
+	}
+
+		
+	public class ReleaseDeclaration : Operation, IBinarySerializable
+	{
+		public ReleaseAddress		Address { get; set; }
+		public string				Channel { get; set; }		/// stable, beta, nightly, debug,...
+
+		public override bool		Free => true;
+		public override bool		Valid => Address.Valid;
+		public override string		Description => $"{Address}/{Channel}";
+
+		public ReleaseDeclaration()
+		{
+		}
+
+		public ReleaseDeclaration(PrivateAccount signer, ReleaseAddress address, string channel)
+		{
+			Signer	= signer;
+			Address = address;
+			Channel = channel;
+		}
+		
+		public override void Read(BinaryReader r)
+		{
+			Address = r.ReadReleaseAddress();
+			Channel = r.ReadUtf8();
+		}
+
+		public override void Write(BinaryWriter w)
+		{
+			w.Write(Address);
+			w.WriteUtf8(Channel);
+		}
+
+		public override OperationResult Execute(Roundchain chain, Round round)
+		{
+			var a = round.FindAuthor(Address.Author);
+
+			if(a == null || a.FindOwner(round) != Signer)
+				return OperationResult.Failed;
+
+			if(!a.Products.Contains(Address.Product))
+				return OperationResult.Failed;
+ 
+			var p = round.FindProduct(Address);
+	
+			var r = p.Releases.FirstOrDefault(i => i.Platform == Address.Platform && i.Channel == Channel);
+					
+			if(r != null)
+			{
+				if(r.Version < Address.Version)
+				{
+					var oldrls = round.GetReleases(r.Rid);
+								
+					var prev = oldrls.Find(i =>	i.Address.Author == Address.Author && 
+												i.Address.Product == Address.Product && 
+												i.Address.Platform == Address.Platform && 
+												i.Channel == Channel);
+					if(prev == null)
+					{
+						throw new IntegrityException("No ReleaseDeclaration found");
+					}
+					
+					oldrls.Remove(prev);
+				} 
+				else
+					return OperationResult.Failed;
+			}
+
+			var rls = round.GetReleases(round.Id);
+			rls.Add(this);
+
+			return OperationResult.OK;
 		}
 	}
 }

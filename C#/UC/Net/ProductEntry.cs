@@ -49,16 +49,16 @@ namespace UC.Net
 
 	public class ProductEntry : Entry<ProductAddress>
 	{
-		public ProductAddress	Address;
-		public string			Title;
-		public int				LastRegistration = -1;
-		public List<Release>	Releases;
+		public ProductAddress			Address;
+		public string					Title;
+		public int						LastRegistration = -1;
+		public List<Release>			Releases = new();
 
 		public override ProductAddress	Key => Address;
 
-		public ProductEntry(ProductAddress name)
+		public ProductEntry(ProductAddress address)
 		{
-			Address = name;
+			Address = address;
 		}
 
 		public ProductEntry Clone()
@@ -70,7 +70,6 @@ namespace UC.Net
 						Releases = Releases.Select(i => i.Clone()).ToList(),
 					};
 		}
-
 
 		public override void Write(BinaryWriter w)
 		{

@@ -20,7 +20,7 @@ namespace UC.Net
 		public List<Block>								Blocks = new();
 		public IEnumerable<JoinRequest>					JoinRequests	=> Blocks.OfType<JoinRequest>();
 		public IEnumerable<Vote>						Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public IEnumerable<Payload>						Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.Signature, new BytesComparer());
+		public IEnumerable<Payload>						Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
 		public IEnumerable<Account>						Forkers			=> Votes.GroupBy(i => i.Member).Where(i => i.Count() > 1).Select(i => i.Key);
 		public IEnumerable<Vote>						Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Member).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>						Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
@@ -35,6 +35,8 @@ namespace UC.Net
 		public Dictionary<Account, AccountEntry>		Accounts = new();
 		public Dictionary<string, AuthorEntry>			Authors = new();
 		public Dictionary<ProductAddress, ProductEntry>	Products = new();
+		public Dictionary<Round, List<ReleaseDeclaration>>	AffectedReleases = new();
+		//public HashSet<Round>							Affected = new();
 
 		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
 		public List<Account>							ConfirmedViolators;
@@ -42,7 +44,7 @@ namespace UC.Net
 		public List<Account>							ConfirmedLeavers;
 		public List<Account>							ConfirmedFundableAssignments;
 		public List<Account>							ConfirmedFundableRevocations;
-		public List<Proposition>						ConfirmedPropositions;
+		//public List<Proposition>						ConfirmedPropositions;
 
 		public List<Peer>								Members;
 		public List<Account>							Fundables;
@@ -119,6 +121,16 @@ namespace UC.Net
 				GetAccount(b.First()).Balance += s - (x * (b.Count() - 1));
 			}
 		}
+		
+		public List<ReleaseDeclaration> GetReleases(int rid)
+		{
+			var r = Chain.FindRound(rid);
+
+			if(!AffectedReleases.ContainsKey(r))
+				AffectedReleases[r] = new List<ReleaseDeclaration>(r.Releases);
+
+			return AffectedReleases[r];
+		}
 
 		public AccountEntry GetAccount(Account account)
 		{
@@ -155,24 +167,24 @@ namespace UC.Net
 			return Chain.Authors.Find(name, Id - 1);
 		}
 
-		public ProductEntry GetProduct(ProductAddress name)
+		public ProductEntry GetProduct(ProductAddress address)
 		{
-			var e = FindProduct(name);
+			var e = FindProduct(address);
 
 			if(e != null)
-				Products[name] = e.Clone();
+				Products[address] = e.Clone();
 			else
-				Products[name] = new ProductEntry(name);
+				Products[address] = new ProductEntry(address);
 
-			return Products[name];
+			return Products[address];
 		}
 
-		public ProductEntry FindProduct(ProductAddress name)
+		public ProductEntry FindProduct(ProductAddress address)
 		{
-			if(Products.ContainsKey(name))
-				return Products[name];
+			if(Products.ContainsKey(address))
+				return Products[address];
 
-			return Chain.FindProduct(name, Id - 1);
+			return Chain.FindProduct(address, Id - 1);
 		}
 
 
@@ -318,17 +330,14 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write7BitEncodedInt(Try);
 			w.Write(Time);
-
+			foreach(var i in ConfirmedPayloads)				i.Seal(w);
 			foreach(var i in ConfirmedJoiners)				w.Write(i);
 			foreach(var i in ConfirmedLeavers)				w.Write(i);
 			foreach(var i in ConfirmedViolators)			w.Write(i);
 			foreach(var i in ConfirmedFundableAssignments)	w.Write(i);
 			foreach(var i in ConfirmedFundableRevocations)	w.Write(i);
-			foreach(var i in ConfirmedPropositions)			i.Write(w);
-
-			w.Write(ConfirmedPayloads, i => w.Write(i.Signature));
+			//foreach(var i in ConfirmedPropositions)			i.Write(w);
 
 			Hash = Cryptography.Current.Hash(s.ToArray());
 		}
@@ -338,14 +347,15 @@ namespace UC.Net
 			w.Write7BitEncodedInt(Id);
 			w.Write(Voted);
 			w.Write(Confirmed);
+			
 			w.Write(Time);
-		
 			w.Write(Blocks,	i => {w.Write((byte)i.Type); i.Write(w);});
 			w.Write(ConfirmedJoiners);
 			w.Write(ConfirmedLeavers);
 			w.Write(ConfirmedViolators);
 			w.Write(ConfirmedFundableAssignments);
 			w.Write(ConfirmedFundableRevocations);
+			
 			w.Write(Releases);
 		}
 
@@ -354,8 +364,8 @@ namespace UC.Net
 			Id			= r.Read7BitEncodedInt();
 			Voted		= r.ReadBoolean();
 			Confirmed	= r.ReadBoolean();
-			Time		= r.ReadTime();
 
+			Time		= r.ReadTime();
 			Blocks = r.ReadList(() =>	{
 											var b = Block.FromType(Chain, (BlockType)r.ReadByte());
 											b.Round = this;
@@ -368,7 +378,8 @@ namespace UC.Net
 			ConfirmedViolators = r.ReadList<Account>();
 			ConfirmedFundableAssignments = r.ReadList<Account>();
 			ConfirmedFundableRevocations = r.ReadList<Account>();
-			ConfirmedPropositions = new(); 
+			//ConfirmedPropositions = new(); 
+			
 			Releases = r.ReadList<ReleaseDeclaration>();
 		}
 
@@ -376,32 +387,23 @@ namespace UC.Net
 		{
 			w.Write7BitEncodedInt(Try);
 			w.Write(Time);
+			w.Write(ConfirmedPayloads, i => i.Save(w));
 			w.Write(ConfirmedJoiners);
 			w.Write(ConfirmedLeavers);
 			w.Write(ConfirmedViolators);
 			w.Write(ConfirmedFundableAssignments);
 			w.Write(ConfirmedFundableRevocations);
+			
 			w.Write(Releases);
 		
 			//ConfirmedPayloads.First().Reference.Write(w);
 
-			w.Write(ConfirmedPayloads, i => i.Save(w));
 		}
 
 		public void Load(BinaryReader r)
 		{
 			Try = r.Read7BitEncodedInt();
 			Time = r.ReadTime();
-			ConfirmedJoiners				= r.ReadList(() => r.ReadAccount());
-			ConfirmedLeavers				= r.ReadList(() => r.ReadAccount());
-			ConfirmedViolators				= r.ReadList(() => r.ReadAccount());
-			ConfirmedFundableAssignments	= r.ReadList(() => r.ReadAccount());
-			ConfirmedFundableRevocations	= r.ReadList(() => r.ReadAccount());
-			ConfirmedPropositions			= new(); 
-			Releases						= r.ReadList<ReleaseDeclaration>();
-
-			//var rr = new RoundReference();
-			//rr.Read(r);
 
 			Blocks = r.ReadList(() =>	{
 											var b =	new Payload(Chain)
@@ -414,6 +416,17 @@ namespace UC.Net
 											b.Load(r);
 											return b as Block;
 										});
+			ConfirmedJoiners				= r.ReadList(() => r.ReadAccount());
+			ConfirmedLeavers				= r.ReadList(() => r.ReadAccount());
+			ConfirmedViolators				= r.ReadList(() => r.ReadAccount());
+			ConfirmedFundableAssignments	= r.ReadList(() => r.ReadAccount());
+			ConfirmedFundableRevocations	= r.ReadList(() => r.ReadAccount());
+			//ConfirmedPropositions			= new(); 
+
+			Releases						= r.ReadList<ReleaseDeclaration>();
+
+			//var rr = new RoundReference();
+			//rr.Read(r);
 
 			Seal();
 		}
