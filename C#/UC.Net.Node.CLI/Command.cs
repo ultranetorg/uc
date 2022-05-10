@@ -73,6 +73,14 @@ namespace UC.Net.Node.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
+		protected string GetStringOrEmpty(string paramenter)
+		{
+			if(Args.Has(paramenter))
+				return Args.GetString(paramenter);
+			else
+				return string.Empty;
+		}
+
 		protected void Wait(Func<bool> waitiftrue)
 		{
 			Task.Run(() =>	{

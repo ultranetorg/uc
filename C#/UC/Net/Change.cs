@@ -127,12 +127,15 @@ namespace UC.Net
 									 });
 		}
 
-		public int CalculateSize()
+		public int CalculatePaidSize()
 		{
 			var s = new MemoryStream(); /// mock it
 			var w = new BinaryWriter(s);
 
-			Write(w);
+			w.Write(Operations.Where(i => !i.Free), i => {
+															w.Write((byte)i.Type); 
+															i.Write(w); 
+														 });
 
 			return (int)s.Length;
 		}

@@ -23,6 +23,21 @@ namespace UC.Net
 		{
 			return Encoding.UTF8.GetBytes(key.ToString());
 		}
+		
+		public ProductEntry Find(ProductAddress name, int ridmax)
+		{
+			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+				if(r.Products.ContainsKey(name))
+					return r.Products[name];
+
+			var e = FindEntry(name);
+
+			if(e != null && (e.LastRegistration > ridmax))
+				throw new IntegrityException("maxrid works inside pool only");
+
+			return e;
+		}
+
 
 //		protected override void Update(Round round, Operation o, HashSet<ProductEntry> affected)
 //		{

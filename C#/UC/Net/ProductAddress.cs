@@ -1,8 +1,9 @@
 ﻿using System;
+using System.IO;
 
 namespace UC.Net
 {
-	public class ProductAddress : IEquatable<ProductAddress>
+	public class ProductAddress : IEquatable<ProductAddress>, IBinarySerializable
 	{
 		public string Author { get; set; }
 		public string Product { get; set; }
@@ -61,6 +62,17 @@ namespace UC.Net
 		{
 			return !(left == right);
 		}
+		
+		public virtual void Write(BinaryWriter w)
+		{
+			w.WriteUtf8(Author);
+			w.WriteUtf8(Product);
+		}
 
+		public virtual void Read(BinaryReader r)
+		{
+			Author = r.ReadUtf8();
+			Product = r.ReadUtf8();
+		}
 	}
 }

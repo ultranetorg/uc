@@ -52,6 +52,7 @@ namespace UC.Net
 		public const int								Timeout = 15000;
 		public const int								OperationsQueueLimit = 1000;
 		public const string								SettingsFileName = "Settings.xon";
+
 		const int										BalanceWidth = 24;
 
 		public Log										Log;
@@ -1908,9 +1909,17 @@ namespace UC.Net
 			}
 		}
 		
-		public ReleaseAddress QueryRelease(ReleaseQuery request)
+		public ReleaseAddress QueryRelease(ReleaseQuery query, bool confirmed)
 		{
-			throw new NotImplementedException();
+			if(Chain != null)
+			{
+				lock(Lock)
+					return Chain.QueryRelease(query, confirmed);
+			}
+			else
+			{
+				return GetRemoteMember().Api.Send(new QueryReleaseCall { Query = query, Confirmed = confirmed}) as ReleaseAddress;
+			}
 		}
 				
 		public byte[] DownloadRelease(ReleaseDownloadRequest request)

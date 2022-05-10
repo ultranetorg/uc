@@ -72,7 +72,7 @@ namespace UC.Net
 						Operations.AuthorRegistration	=> new AuthorRegistration(),
 						Operations.AuthorTransfer		=> new AuthorTransfer(),
 						Operations.ProductRegistration	=> new ProductRegistration(),
-						Operations.ReleaseDeclaration	=> new ReleaseDeclaration(),
+						Operations.ReleaseDeclaration	=> new ReleaseManifest(),
 						_ => throw new IntegrityException("Wrong operation type")
 					};
 		}
@@ -90,7 +90,7 @@ namespace UC.Net
 							AuthorRegistration		=> Operations.AuthorRegistration,
 							AuthorTransfer			=> Operations.AuthorTransfer,
 							ProductRegistration		=> Operations.ProductRegistration,
-							ReleaseDeclaration		=> Operations.ReleaseDeclaration,
+							ReleaseManifest		=> Operations.ReleaseDeclaration,
 							_ => throw new IntegrityException("Wrong operation type")
 						};
 			}
@@ -599,7 +599,7 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
-			Address	= r.ReadProductAddress();
+			Address	= r.Read<ProductAddress>();
 			Title	= r.ReadUtf8();
 		}
 
@@ -662,7 +662,7 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
-			Product	= r.ReadProductAddress();
+			Product	= r.Read<ProductAddress>();
 			Actions = r.ReadDictionary(() =>{
 												var k = (Change)r.ReadByte();	
 												var o = new KeyValuePair<Change, object>(k,	k switch {
@@ -686,42 +686,68 @@ namespace UC.Net
 											case Change.AddPublisher:		w.Write(i.Value as Account); break;
 											case Change.RemovePublisher:	w.Write(i.Value as Account); break;
 											case Change.SetStatus:			w.Write((bool)i.Value); break;
-										}; 
+										}
 									});
 		}
 	}
 
 		
-	public class ReleaseDeclaration : Operation, IBinarySerializable
+	public class ReleaseManifest : Operation, IBinarySerializable
 	{
-		public ReleaseAddress		Address { get; set; }
-		public string				Channel { get; set; }		/// stable, beta, nightly, debug,...
+		public ReleaseAddress			Address;
+		public string					Channel;		/// stable, beta, nightly, debug,...
+		public Version					PreviousVersion;
+		public List<ReleaseAddress>		CompleteDependencies; /// signed Address + hash(Package)
+		public List<ReleaseAddress>		IncrementalDependencies; /// signed Address + hash(Package)
+		public byte[]					Signature;
 
-		public override bool		Free => true;
-		public override bool		Valid => Address.Valid;
-		public override string		Description => $"{Address}/{Channel}";
+		public override bool			Free => true;
+		public override bool			Valid => Address.Valid;
+		public override string			Description => $"{Address}/{Channel}";
 
-		public ReleaseDeclaration()
+		public ReleaseManifest()
 		{
 		}
 
-		public ReleaseDeclaration(PrivateAccount signer, ReleaseAddress address, string channel)
+		public ReleaseManifest(PrivateAccount signer, ReleaseAddress address, string channel, Version previousVersion, List<ReleaseAddress> completeDependencies, List<ReleaseAddress> incrementalDependencies)
 		{
 			Signer	= signer;
 			Address = address;
 			Channel = channel;
+			PreviousVersion = previousVersion;
+			CompleteDependencies = completeDependencies;
+			IncrementalDependencies = incrementalDependencies;
+			
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write(Address);
+			w.WriteUtf8(Channel);
+			w.Write(PreviousVersion);
+			w.Write(CompleteDependencies);
+			w.Write(IncrementalDependencies);
+			
+			Signature = Cryptography.Current.Sign(signer, Cryptography.Current.Hash(s.ToArray()));
 		}
-		
+
 		public override void Read(BinaryReader r)
 		{
-			Address = r.ReadReleaseAddress();
+			Address = r.Read<ReleaseAddress>();
 			Channel = r.ReadUtf8();
+			PreviousVersion = r.ReadVersion();
+			CompleteDependencies = r.ReadList<ReleaseAddress>();
+			IncrementalDependencies = r.ReadList<ReleaseAddress>();
+			Signature = r.ReadSignature();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			w.Write(Address);
 			w.WriteUtf8(Channel);
+			w.Write(PreviousVersion);
+			w.Write(CompleteDependencies);
+			w.Write(IncrementalDependencies);
+			w.Write(Signature);
 		}
 
 		public override OperationResult Execute(Roundchain chain, Round round)

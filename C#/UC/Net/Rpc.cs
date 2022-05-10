@@ -204,17 +204,18 @@ namespace UC.Net
 		public string			Name {get; set;}
 	}
 
-	public class DelegatePropositionCall : RpcCall
-	{
-		public List<Proposition>	Propositions { get;set; }
-
-		public bool					Valid => true;
-		public override bool		Private => false;
-	}
+// 	public class DelegatePropositionCall : RpcCall
+// 	{
+// 		public List<Proposition>	Propositions { get;set; }
+// 
+// 		public bool					Valid => true;
+// 		public override bool		Private => false;
+// 	}
 
 	public class QueryReleaseCall :  RpcCall
 	{
 		public ReleaseQuery		Query { get; set; }
+		public bool				Confirmed {get; set;} = false;
 
 		public bool				Valid => Query.Valid;
 		public override bool	Private => false;

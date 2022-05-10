@@ -81,29 +81,16 @@ namespace UC
 			w.Write7BitEncodedInt64(t.Ticks);
 		}
 
-		public static void Write(this BinaryWriter w, ProductAddress pa)
-		{
-			w.WriteUtf8(pa.Author);
-			w.WriteUtf8(pa.Product);
-		}
-
-		public static ProductAddress ReadProductAddress(this BinaryReader r)
-		{
-			return new ProductAddress(r.ReadUtf8(), r.ReadUtf8());
-		}
-
-		public static void Write(this BinaryWriter w, ReleaseAddress a)
-		{
-			w.WriteUtf8(a.Author);
-			w.WriteUtf8(a.Product);
-			w.WriteUtf8(a.Platform);
-			w.Write(a.Version);
-		}
-
-		public static ReleaseAddress ReadReleaseAddress(this BinaryReader r)
-		{
-			return new ReleaseAddress(r.ReadUtf8(), r.ReadUtf8(), r.ReadUtf8(), r.ReadVersion());
-		}
+// 		public static void Write(this BinaryWriter w, ProductAddress pa)
+// 		{
+// 			w.WriteUtf8(pa.Author);
+// 			w.WriteUtf8(pa.Product);
+// 		}
+// 
+// 		public static ProductAddress ReadProductAddress(this BinaryReader r)
+// 		{
+// 			return new ProductAddress(r.ReadUtf8(), r.ReadUtf8());
+// 		}
 
 		public static string ReadUtf8(this BinaryReader r)
 		{
@@ -136,6 +123,18 @@ namespace UC
 		public static void Union<T>(this List<T> items, IEnumerable<T> news, Func<T, T, bool> equal)
 		{
 			items.AddRange(news.Where(i => items.All(j => !equal(i, j))));
+		}
+
+		public static T Read<T>(this BinaryReader r) where T : IBinarySerializable, new()
+		{
+			var o = new T();
+			o.Read(r);
+			return o;
+		}
+
+		public static void Write(this BinaryWriter w, IBinarySerializable o)
+		{
+			o.Write(w);
 		}
 
 		public static void Write<T>(this BinaryWriter w, IEnumerable<T> items, Action<T> a)

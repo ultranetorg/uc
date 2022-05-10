@@ -656,7 +656,7 @@ namespace UC.Net
 
 		public Coin CalculateFee(Round r, Transaction t)
 		{
-			return FeePerByte * ((Emission.FactorEnd - r.Factor) / Emission.FactorEnd) * t.CalculateSize();
+			return FeePerByte * ((Emission.FactorEnd - r.Factor) / Emission.FactorEnd) * t.CalculatePaidSize();
 		}
 
 		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> blockforkers)
@@ -1059,7 +1059,7 @@ namespace UC.Net
 						yield return b;
 		}
 
-		public IEnumerable<ReleaseDeclaration> FindReleases(string author, string product, Func<ReleaseDeclaration, bool> f, int maxrid = int.MaxValue)
+		public IEnumerable<ReleaseManifest> FindReleases(string author, string product, Func<ReleaseManifest, bool> f, int maxrid = int.MaxValue)
 		{
 			throw new NotImplementedException();
 
@@ -1113,6 +1113,26 @@ namespace UC.Net
 				i.Products			= a.Products;
 	
 				return i;
+			}
+
+			return null;
+		}
+		
+		public ReleaseAddress QueryRelease(ReleaseQuery query, bool confirmed)
+		{
+			var roundmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
+
+			var p = Products.Find(query, roundmax.Id);
+
+			if(p != null)
+			{
+				var r = p.Releases.Find(i =>	i.Channel == query.Channel &&
+												i.Platform == query.Platform);
+
+				if(r != null)
+				{
+					return new ReleaseAddress(query.Author, query.Product, query.Platform, r.Version);
+				}
 			}
 
 			return null;

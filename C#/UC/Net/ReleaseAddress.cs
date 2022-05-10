@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -57,6 +58,22 @@ namespace UC.Net
 			Version = Version.Parse(s[3]);
 		}
 
+		public override void Write(BinaryWriter w)
+		{
+			w.WriteUtf8(Author);
+			w.WriteUtf8(Product);
+			w.WriteUtf8(Platform);
+			w.Write(Version);
+		}
+
+		public override void Read(BinaryReader r)
+		{
+			Author = r.ReadUtf8();
+			Product = r.ReadUtf8();
+			Platform = r.ReadUtf8();
+			Version = r.ReadVersion();
+		}
+		
 		public static bool operator == (ReleaseAddress left, ReleaseAddress right)
 		{
 			return left.Equals(right);

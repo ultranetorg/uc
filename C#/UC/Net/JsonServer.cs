@@ -326,21 +326,21 @@ namespace UC.Net
 							}
 							break;
 
-						case DelegatePropositionCall c:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								Core.ProcessIncoming(c.Propositions);
-							}
-							break;
+// 						case DelegatePropositionCall c:
+// 							if(Core.Synchronization != Synchronization.Synchronized)
+// 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+// 							else
+// 							{
+// 								Core.ProcessIncoming(c.Propositions);
+// 							}
+// 							break;
 
 						case QueryReleaseCall c:
 							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var ai = Core.QueryRelease(c.Query);
+								var ai = Core.QueryRelease(c.Query, c.Confirmed);
 								
 								respondjson(ai);
 							}

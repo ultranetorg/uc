@@ -81,7 +81,7 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
-			Address				= r.ReadProductAddress();
+			Address				= r.Read<ProductAddress>();
 			Title				= r.ReadUtf8();
 			LastRegistration	= r.Read7BitEncodedInt();
 			Releases			= r.ReadList<Release>();

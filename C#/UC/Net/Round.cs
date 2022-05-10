@@ -35,7 +35,7 @@ namespace UC.Net
 		public Dictionary<Account, AccountEntry>		Accounts = new();
 		public Dictionary<string, AuthorEntry>			Authors = new();
 		public Dictionary<ProductAddress, ProductEntry>	Products = new();
-		public Dictionary<Round, List<ReleaseDeclaration>>	AffectedReleases = new();
+		public Dictionary<Round, List<ReleaseManifest>>	AffectedReleases = new();
 		//public HashSet<Round>							Affected = new();
 
 		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
@@ -48,7 +48,7 @@ namespace UC.Net
 
 		public List<Peer>								Members;
 		public List<Account>							Fundables;
-		public List<ReleaseDeclaration>					Releases = new();
+		public List<ReleaseManifest>					Releases = new();
 
 		public bool										Voted = false;
 		public bool										Confirmed = false;
@@ -122,12 +122,12 @@ namespace UC.Net
 			}
 		}
 		
-		public List<ReleaseDeclaration> GetReleases(int rid)
+		public List<ReleaseManifest> GetReleases(int rid)
 		{
 			var r = Chain.FindRound(rid);
 
 			if(!AffectedReleases.ContainsKey(r))
-				AffectedReleases[r] = new List<ReleaseDeclaration>(r.Releases);
+				AffectedReleases[r] = new List<ReleaseManifest>(r.Releases);
 
 			return AffectedReleases[r];
 		}
@@ -380,7 +380,7 @@ namespace UC.Net
 			ConfirmedFundableRevocations = r.ReadList<Account>();
 			//ConfirmedPropositions = new(); 
 			
-			Releases = r.ReadList<ReleaseDeclaration>();
+			Releases = r.ReadList<ReleaseManifest>();
 		}
 
 		public void Save(BinaryWriter w)
@@ -423,7 +423,7 @@ namespace UC.Net
 			ConfirmedFundableRevocations	= r.ReadList(() => r.ReadAccount());
 			//ConfirmedPropositions			= new(); 
 
-			Releases						= r.ReadList<ReleaseDeclaration>();
+			Releases						= r.ReadList<ReleaseManifest>();
 
 			//var rr = new RoundReference();
 			//rr.Read(r);

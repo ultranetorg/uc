@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net.Node.CLI
 {
@@ -38,10 +39,23 @@ namespace UC.Net.Node.CLI
 																				ProductAddress.Parse(GetString("address")),
 																				GetString("title"))));
 
-				case "release" : 
-					return Send(() => Client.Enqueue(new ReleaseDeclaration(GetPrivate("by", "password"), 
+				case "publish" : 
+					return Send(() => Client.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
 																			ReleaseAddress.Parse(GetString("address")),
-																			GetString("channel"))));
+																			GetString("channel"), 
+																			Version.Parse(GetString("previous")),
+																			GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)).ToList(),
+																			GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)).ToList()
+																			)));
+
+		   		case "releasestatus" :
+				{
+					var r = Client.QueryRelease(ReleaseQuery.Parse("query"),  Args.Has("confirmed"));
+
+					Log.Report(this, "Release", r.ToString());
+
+					return r;
+				}
 				
 				default:
 					throw new SyntaxException("Unknown operation");;

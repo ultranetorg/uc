@@ -17,14 +17,14 @@ namespace UC.Net
 	public class ReleaseQuery : ReleaseAddress
 	{
 		public VersionQuery			VersionQuery { get; set; } 
-		public string				Stage { get; set; } 
+		public string				Channel { get; set; } 
 
 		public override bool		Valid => true;
 
-		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string stage) : base(author, product, platform, version)
+		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string channel) : base(author, product, platform, version)
 		{
 			VersionQuery = versionQuery;
-			Stage = stage;
+			Channel = channel;
 		}
 
 		public ReleaseQuery()
@@ -33,7 +33,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{base.ToString()}/{VersionQuery}/{Stage}";
+			return $"{base.ToString()}/{VersionQuery}/{Channel}";
 		}
 
 		public new static ReleaseQuery Parse(string v)
@@ -49,8 +49,7 @@ namespace UC.Net
 			base.Parse(s);
 
 			VersionQuery = Enum.Parse<VersionQuery>(s[4]);
-			Stage = s[5];
-			Platform = s[6];
+			Channel = s[5];
 		}
 
 		public bool Match(ReleaseAddress address)
