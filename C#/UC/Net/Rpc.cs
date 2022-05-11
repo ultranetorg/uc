@@ -212,16 +212,16 @@ namespace UC.Net
 // 		public override bool		Private => false;
 // 	}
 
-	public class QueryReleaseCall :  RpcCall
+	public class QueryReleaseCall : RpcCall
 	{
-		public ReleaseQuery		Query { get; set; }
-		public bool				Confirmed {get; set;} = false;
+		public List<ReleaseQuery>	Queries { get; set; }
+		public bool					Confirmed {get; set;} = false;
 
-		public bool				Valid => Query.Valid;
-		public override bool	Private => false;
+		public bool					Valid => Queries.All(i => i.Valid);
+		public override bool		Private => false;
 	}
 	
-	public class DownloadReleaseCall :  RpcCall
+	public class DownloadReleaseCall : RpcCall
 	{
 		public  ReleaseDownloadRequest	Request { get; set; }
 

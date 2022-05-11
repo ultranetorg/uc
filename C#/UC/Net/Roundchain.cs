@@ -355,7 +355,7 @@ namespace UC.Net
 						var ir = GetRound(i);
 						
 						if(ir.Majority.Any())
-							Execute(ir, ir.Majority.OfType<Payload>(), null);
+							Execute(ir, ir.Majority.OfType<Payload>(), null, true);
 						else
 							break;
 					}
@@ -571,7 +571,7 @@ namespace UC.Net
 					p.AddNext(i);
 				}
 				
- 				Execute(round, new Payload[] {p}, null);
+ 				Execute(round, new Payload[] {p}, null, true);
  	
  				txs = txs.Where(t => t.Successful);
 			}
@@ -659,7 +659,7 @@ namespace UC.Net
 			return FeePerByte * ((Emission.FactorEnd - r.Factor) / Emission.FactorEnd) * t.CalculatePaidSize();
 		}
 
-		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> blockforkers)
+		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> blockforkers, bool includefree)
 		{
 			var prev = round.Previous;
 				
@@ -693,7 +693,7 @@ namespace UC.Net
 							t.Successful = true;
 							round.GetAccount(t.Signer).Transactions.Add(round.Id);
 
-							foreach(var o in t.Operations.AsEnumerable().Reverse())
+							foreach(var o in t.Operations.Where(i => !i.Free || includefree).Reverse())
 							{
 								round.CurrentOperation = o;
 								o.Result = o.Execute(this, round);
@@ -838,12 +838,12 @@ namespace UC.Net
 
 			round.Confirmed = true;
 
-			Seal(round);
+			Seal(round, true);
 		}
 
-		public void Seal(Round round)
+		public void Seal(Round round, bool inculdefree)
 		{
-			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators);
+			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators, inculdefree);
 
 			round.Seal();
 
@@ -857,35 +857,13 @@ namespace UC.Net
 			Members.RemoveAll(i => round.ConfirmedLeavers.Contains(i.Generator));
 			Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Generator));
 
-			//var affected = new HashSet<Round>{round};
-
-			//foreach(var i in round.ConfirmedPropositions)
-			//{
-			//	foreach(var m in i.Messages)
-			//	{
-			//		if(m is ReleaseDeclaration d)
-			//		{
-			//			var r = FindProduct(d.Address, round.Id - 1)?.Releases.FirstOrDefault(i => i.Platform == d.Address.Platform && i.Channel == d.Channel);
-			//		
-			//			if(r != null && r.Version < d.Address.Version)
-			//			{
-			//				var rn = FindRound(r.Rid);
-			//				
-			//				var prev = rn.Releases.Find(i => i.Address.Author == d.Address.Author && 
-			//												 i.Address.Product == d.Address.Product && 
-			//												 i.Address.Platform == d.Address.Platform && 
-			//												 i.Channel == d.Channel);
-			//
-			//				if(prev != null)
-			//				{
-			//					rn.Releases.Remove(prev);
-			//					affected.Add(rn);
-			//				}
-			//			}
-			//		}
-			//	}
-			//}
-
+			if(inculdefree)
+			{
+				foreach(var i in round.AffectedReleases)
+				{
+					i.Key.Releases = i.Value;
+				}
+			}
 
 			if(round.Factor == Emission.FactorEnd) /// reorganization only after emission is over
 			{
@@ -923,8 +901,6 @@ namespace UC.Net
 
 					foreach(var i in r.AffectedReleases)
 					{
-						i.Key.Releases = i.Value;
-
 						var s = new MemoryStream();
 						var w = new BinaryWriter(s);
 						
@@ -957,6 +933,7 @@ namespace UC.Net
 
 				r.LastAccessed	= DateTime.UtcNow;
 				LoadedRounds[r.Id] = r;
+
 				Recycle();
 			}
 		}
@@ -1126,8 +1103,8 @@ namespace UC.Net
 
 			if(p != null)
 			{
-				var r = p.Releases.Find(i =>	i.Channel == query.Channel &&
-												i.Platform == query.Platform);
+				var r = p.Releases.Find(i => i.Channel == query.Channel &&
+											 i.Platform == query.Platform);
 
 				if(r != null)
 				{

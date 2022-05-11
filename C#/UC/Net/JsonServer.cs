@@ -340,7 +340,7 @@ namespace UC.Net
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var ai = Core.QueryRelease(c.Query, c.Confirmed);
+								var ai = Core.QueryRelease(c.Queries, c.Confirmed);
 								
 								respondjson(ai);
 							}

@@ -50,7 +50,7 @@ namespace UC.Net.Node.CLI
 
 		   		case "releasestatus" :
 				{
-					var r = Client.QueryRelease(ReleaseQuery.Parse("query"),  Args.Has("confirmed"));
+					var r = Client.QueryRelease(new []{ReleaseQuery.Parse("query")}, Args.Has("confirmed"));
 
 					Log.Report(this, "Release", r.ToString());
 

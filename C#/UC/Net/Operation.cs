@@ -760,7 +760,7 @@ namespace UC.Net
 			if(!a.Products.Contains(Address.Product))
 				return OperationResult.Failed;
  
-			var p = round.FindProduct(Address);
+			var p = round.GetProduct(Address);
 	
 			var r = p.Releases.FirstOrDefault(i => i.Platform == Address.Platform && i.Channel == Channel);
 					
@@ -780,6 +780,8 @@ namespace UC.Net
 					}
 					
 					oldrls.Remove(prev);
+					p.Releases.Remove(r);
+
 				} 
 				else
 					return OperationResult.Failed;
@@ -787,6 +789,8 @@ namespace UC.Net
 
 			var rls = round.GetReleases(round.Id);
 			rls.Add(this);
+
+			p.Releases.Add(new Release(Address.Platform, Address.Version, Channel, round.Id));
 
 			return OperationResult.OK;
 		}

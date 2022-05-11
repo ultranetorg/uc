@@ -114,7 +114,7 @@ namespace UC.Net.Node.CLI
 		{
 			var obj = create();
 
-			if(obj is Operation o)
+			if(obj is Operation o && !o.Free)
 			{
 				if(Args.Has("await") && Args.GetString("await") == "placing")
 					Wait(() => o.Stage != ProcessingStage.Placed && o.Stage != ProcessingStage.Delegated);

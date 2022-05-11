@@ -45,6 +45,8 @@ namespace UC.Net.Node.FUI
 			Blocks.Items.Clear();
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
+			Releases.Items.Clear();
+			Manifest.Text = null;
 
 			lock(Core.Lock)
 			{
@@ -52,9 +54,9 @@ namespace UC.Net.Node.FUI
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.Time + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
-									string.Join(", ", r.ConfirmedJoiners) + "\n" +
-									string.Join(", ", r.ConfirmedLeavers) + "\n" +
-									string.Join(", ", r.ConfirmedViolators)
+									(r.ConfirmedJoiners != null ? string.Join(", ", r.ConfirmedJoiners) : null) + "\n" +
+									(r.ConfirmedLeavers != null ? string.Join(", ", r.ConfirmedLeavers) : null) + "\n" +
+									(r.ConfirmedViolators != null ? string.Join(", ", r.ConfirmedViolators) : null)
 									;
 
 				Blocks.Items.AddRange(Core.Chain.FindRound((int)Round.Value).Payloads.Select(	(i, j) =>
@@ -72,6 +74,16 @@ namespace UC.Net.Node.FUI
 					if(Transactions.Items.Count > 0)
 						Transactions_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Transactions.Items[0], 0, true));
 				}
+
+				Releases.Items.AddRange(r.Releases.Select(	(i) =>
+															{
+																var li = new ListViewItem(i.Address.ToString());
+																li.Tag = i;
+																return li;
+															}).ToArray());
+				if(r.Releases.Any())
+					Releases_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Releases.Items[0], 0, true));
+
 			}
 		}
 
@@ -113,6 +125,18 @@ namespace UC.Net.Node.FUI
 																							}).ToArray());
 				}
 			}
+		}
+
+		private void Releases_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+		{
+			var m = e.Item.Tag as ReleaseManifest;
+
+			Manifest.Text = "Address  :" + m.Address + Environment.NewLine +
+							"Stage    :" + m.Channel + Environment.NewLine +
+							"Previuos :" + m.PreviousVersion + Environment.NewLine +
+							"Complete Dependencies :" + string.Join(Environment.NewLine, m.CompleteDependencies.Select(i => "   " + i.ToString())) + Environment.NewLine +
+							"Incremental Dependencies :" + string.Join(Environment.NewLine, m.IncrementalDependencies.Select(i => "   " + i.ToString()))
+							;
 		}
 	}
 }

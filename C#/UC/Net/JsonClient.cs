@@ -104,7 +104,7 @@ namespace UC.Net
 		}
 		public AuthorInfo						Send(AuthorInfoCall call) => Send<AuthorInfo>(call);
 		public AccountInfo						Send(AccountInfoCall call) => Send<AccountInfo>(call);
-		public ReleaseAddress					Send(QueryReleaseCall call) => Send<ReleaseAddress>(call);
+		public List<ReleaseAddress>				Send(QueryReleaseCall call) => Send<List<ReleaseAddress>>(call);
 		public byte[]							Send(DownloadReleaseCall call) => Send<byte[]>(call);
 	}
 }

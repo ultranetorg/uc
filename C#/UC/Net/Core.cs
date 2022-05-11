@@ -845,7 +845,7 @@ namespace UC.Net
 											Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
 											Chain.Rounds.Add(r);
 											Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
-											Chain.Seal(r);
+											Chain.Seal(r, false);
 									
 											Cache.RemoveAll(i => i.RoundId <= r.Id);
 										}
@@ -1419,7 +1419,7 @@ namespace UC.Net
 	
 					if(delegated.Any())
 					{
-						var rp = m.Api.Send(new GetTransactionsStatusCall {Transactions = delegated.Select(i => new GetTransactionsStatusCall.Item {Account = i.Signer, Id = i.Id})});
+						var rp = m.Api.Send(new GetTransactionsStatusCall {Transactions = delegated.Where(i => i.Operations.Any(o => !o.Free)).Select(i => new GetTransactionsStatusCall.Item {Account = i.Signer, Id = i.Id})});
 							
 						if(rp != null)
 						{
@@ -1456,6 +1456,25 @@ namespace UC.Net
 										o.FlowReport?.StageChanged();
 										o.FlowReport?.Log.ReportWarning(this, "Operations was not placed. Redelegating.");
 									}
+								}
+							}
+						}
+
+						var rms = Operations.OfType<ReleaseManifest>().Where(i => i.Stage == ProcessingStage.Delegated);
+
+						if(rms.Any())
+						{
+							var rs = m.Api.Send(new QueryReleaseCall {Queries = rms.Select(i => new ReleaseQuery(	i.Address.Author, 
+																													i.Address.Product, 
+																													i.Address.Platform, 
+																													i.Address.Version,
+																													VersionQuery.Latest,
+																													i.Channel)).ToList()});
+							if(rs != null)
+							{
+								foreach(var i in rs)
+								{
+									Operations.RemoveAll(o => o is ReleaseManifest r && r.Address == i);
 								}
 							}
 						}
@@ -1909,16 +1928,16 @@ namespace UC.Net
 			}
 		}
 		
-		public ReleaseAddress QueryRelease(ReleaseQuery query, bool confirmed)
+		public List<ReleaseAddress> QueryRelease(IEnumerable<ReleaseQuery> queries, bool confirmed)
 		{
 			if(Chain != null)
 			{
 				lock(Lock)
-					return Chain.QueryRelease(query, confirmed);
+					return queries.Select(i => Chain.QueryRelease(i, confirmed)).ToList();
 			}
 			else
 			{
-				return GetRemoteMember().Api.Send(new QueryReleaseCall { Query = query, Confirmed = confirmed}) as ReleaseAddress;
+				return GetRemoteMember().Api.Send(new QueryReleaseCall {Queries = queries.ToList(), Confirmed = confirmed}) as List<ReleaseAddress>;
 			}
 		}
 				
