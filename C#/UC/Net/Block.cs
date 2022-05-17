@@ -27,7 +27,7 @@ namespace UC.Net
 		public virtual bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Member);
 		public bool					Confirmed = false;
 
-		protected abstract void		WriteHashable(BinaryWriter w);
+		protected abstract void		WriteForSigning(BinaryWriter w);
 
 		public Block(Roundchain c)
 		{
@@ -52,7 +52,7 @@ namespace UC.Net
 				w.Write(Chain.Settings.Zone);
 				w.Write7BitEncodedInt(RoundId);
 
-				WriteHashable(w);
+				WriteForSigning(w);
 											
 				return Cryptography.Current.Hash(s.ToArray());
 			}
@@ -124,7 +124,7 @@ namespace UC.Net
 			return base.ToString() + ", IP=" + IP;
 		}
 
-		protected override void WriteHashable(BinaryWriter w)
+		protected override void WriteForSigning(BinaryWriter w)
 		{
 			w.Write((IP ?? IPAddress.None).GetAddressBytes());
 		}
@@ -140,7 +140,7 @@ namespace UC.Net
 		{
 			base.Read(r);
 
-			IP			= new IPAddress(r.ReadBytes(4));
+			IP = new IPAddress(r.ReadBytes(4));
 		}
 	}
 
@@ -155,7 +155,7 @@ namespace UC.Net
 		public List<Account>		Leavers = new();
 		public List<Account>		FundableAssignments = new();
 		public List<Account>		FundableRevocations = new();
-		public List<Proposition>	Propositions = new();
+		//public List<Proposition>	Propositions = new();
 
 		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
 		public byte[]				PropositionsHash;
@@ -169,17 +169,17 @@ namespace UC.Net
 			return base.ToString() + $", Parents={{{Reference.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
 		}
 
-		protected override void WriteHashable(BinaryWriter writer)
+		protected override void WriteForSigning(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
 			Reference.WriteHashable(writer);
 
-			PropositionsHash = HashPropositions();
+			PropositionsHash = HashProposals();
 			writer.Write(PropositionsHash);
 		}
 
-		byte[] HashPropositions()
+		byte[] HashProposals()
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -199,8 +199,8 @@ namespace UC.Net
 			foreach(var i in FundableRevocations)
 				w.Write(i);
 
-			foreach(var i in Propositions)
-				i.Write(w);
+			//foreach(var i in Propositions)
+			//	i.Write(w);
 
 			return Cryptography.Current.Hash(s.ToArray());
 		}
@@ -218,7 +218,7 @@ namespace UC.Net
 			w.Write(Leavers);
 			w.Write(FundableAssignments);
 			w.Write(FundableRevocations);
-			w.Write(Propositions);
+			//w.Write(Propositions);
 		}
 
 		public override void Read(BinaryReader r)
@@ -235,17 +235,16 @@ namespace UC.Net
 			Leavers				= r.ReadAccounts();
 			FundableAssignments	= r.ReadAccounts();
 			FundableRevocations	= r.ReadAccounts();
-			Propositions		= r.ReadList<Proposition>();
+			//Propositions		= r.ReadList<Proposition>();
 			
-			PropositionsHash = HashPropositions();
+			PropositionsHash = HashProposals();
 		}
 	}
 
 	public class Payload : Vote
 	{
 		public List<Transaction>		Transactions = new();
-		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.Successful);
-
+		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Any());
 		public byte[]					OrderingKey => Transactions.Any() ? Transactions.First().Signer : new byte[0];
 
 		public override bool Valid
@@ -286,20 +285,31 @@ namespace UC.Net
 			Transactions.Insert(0, t);
 		}
 				
-		protected override void WriteHashable(BinaryWriter w)
+		protected override void WriteForSigning(BinaryWriter w)
 		{
-			base.WriteHashable(w);
+			base.WriteForSigning(w);
 
 			foreach(var i in Transactions) 
 			{
 				w.Write(i.Signature);
 			}
 		}
-		
-		public void Seal(BinaryWriter w)
-		{
-			w.Write(Transactions, i => i.Seal(w));
-		}
+
+ 		public void WriteConfirmed(BinaryWriter w)
+ 		{
+			w.Write(Member);
+ 			w.Write(SuccessfulTransactions, i => i.WriteConfirmed(w));
+ 		}
+ 		
+ 		public void ReadConfirmed(BinaryReader r)
+ 		{
+			Member = r.ReadAccount();
+ 			Transactions = r.ReadList(() =>	{
+ 												var t = new Transaction(Chain.Settings){ Payload = this };
+ 												t.ReadConfirmed(r);
+ 												return t;
+ 											});
+ 		}
 
 		public override void Write(BinaryWriter w)
 		{
@@ -318,35 +328,6 @@ namespace UC.Net
 														};
 
 												t.Read(r);
-												return t;
-											});
-		}
-
-		public void Save(BinaryWriter w)
-		{
-			w.Write(Member);
-			w.Write(Signature);
-			w.Write7BitEncodedInt64(TimeDelta);
-			w.Write(PropositionsHash);
-
-			w.Write(Transactions, i => i.Save(w));
-		}
-
-		public void Load(BinaryReader r)
-		{
-			Member				= r.ReadAccount();
-			Signature			= r.ReadSignature();
-			TimeDelta			= r.Read7BitEncodedInt64();
-			PropositionsHash	= r.ReadHash();
-
-			Transactions = r.ReadList(() =>	{
-												var t = new Transaction(Chain.Settings)
-														{
-															Payload	 = this,
-															Member	 = Member,
-														};
-
-												t.Load(r);
 												return t;
 											});
 		}

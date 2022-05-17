@@ -85,9 +85,9 @@ namespace UC.Net
 			Thread?.Join();
 		}
 
-		void ProcessRequest(object o)
+		void ProcessRequest(object obj)
 		{
-			var context = o as HttpListenerContext;
+			var context = obj as HttpListenerContext;
 
 			var rq = context.Request;
 			var rp = context.Response;
@@ -205,17 +205,17 @@ namespace UC.Net
 									
 							break;
 							
-						case LastTransactionIdCall e:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var t = Core.Chain.Accounts.FindLastTransaction(e.Account, i => i.Successful);
-							
-								respondjson(new LastTransactionIdResponse {Id = t != null ? t.Id : -1});
-							}
-									
-							break;
+						//case LastOperationIdCall e:
+						//	if(Core.Synchronization != Synchronization.Synchronized)
+						//		rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+						//	else
+						//	{
+						//		var o = Core.Chain.Accounts.FindLastOperation(e.Account, i => i.Successful);
+						//	
+						//		respondjson(new LastTransactionIdResponse {Id = o != null ? o.Id : -1});
+						//	}
+						//			
+						//	break;
 							
 						case LastOperationCall e:
 						{
@@ -223,12 +223,13 @@ namespace UC.Net
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var l = Core.Chain.Accounts.FindLastOperation(e.Account, i => i.GetType().Name == e.Type);
+								var l = Core.Chain.Accounts.FindLastOperation(e.Account, i => e.Type == null || i.GetType().Name == e.Type);
 							
 								if(l != null)
 								{
 									var s = new MemoryStream();
 									var w = new BinaryWriter(s);
+									w.Write((byte)l.Type);
 									l.Write(w);
 									respondjson(new LastOperationResponse {Operation = s.ToArray()});
 								} 
@@ -244,19 +245,16 @@ namespace UC.Net
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								//IEnumerable<Transaction> txs = new Transaction[0];
-
-								//var cd = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Core.Generator);
-		
 								var txs = Core.Read(new MemoryStream(e.Data), r =>	{	return  new Transaction(Settings)
 																								{
 																									Member = Core.Generator
 																								};
 																					});
-		
 								var acc = Core.ProcessIncoming(txs);
 
-								respondjson(new DelegateTransactionsResponse {Accepted = acc.Select(i => i.Signature)});
+								respondjson(new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
+																							.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
+																							.ToList()});
 		
 								Log?.Report(this, "Incoming transaction(s)", $"Received={txs.Count()} Accepted={acc.Count()} from {context.Request.RemoteEndPoint}");
 							}
@@ -281,21 +279,24 @@ namespace UC.Net
 
 							break;
 
-						case GetTransactionsStatusCall c:
+						case GetOperationStatusCall c:
 							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
-								respondjson(new GetTransactionsStatusResponse
-											{
-												LastConfirmedRound = Chain.LastConfirmedRound.Id,
-												Transactions = c.Transactions	.Select(t => Core.Chain.Accounts.FindLastTransaction(t.Account, i => i.Successful && i.Id == t.Id))
-																				.Where(i => i != null)
-																				.Select(i => new GetTransactionsStatusResponse.Item{Account		= i.Signer,
-																																	Id			= i.Id,
-																																	Confirmed	= i.Payload.Round.Confirmed,
-																																	Stage		= i.Stage.ToString()})
-											});
-
+								respondjson(new GetOperationStatusResponse
+								{
+									LastConfirmedRound = Chain.LastConfirmedRound.Id,
+									Operations = c.Operations	.Select(o => new { A = o,
+																				   B = Core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
+																										.SelectMany(t => t.Operations)
+																										.Where(i => i.Id == o.Id)
+																										.FirstOrDefault()
+																						?? 
+																						Core.Chain.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
+																.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
+																													Id			= i.A.Id,
+																													Stage		= i.B == null ? PlacingStage.NotFoundOrFailed : i.B.Placing})
+								});
 							break;
 
 						case AccountInfoCall c:

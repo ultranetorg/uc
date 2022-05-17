@@ -114,14 +114,13 @@ namespace UC.Net.Node.CLI
 		{
 			var obj = create();
 
-			if(obj is Operation o && !o.Free)
+			if(obj is Operation o)
 			{
-				if(Args.Has("await") && Args.GetString("await") == "placing")
-					Wait(() => o.Stage != ProcessingStage.Placed && o.Stage != ProcessingStage.Delegated);
+				if(Args.Has("await") && Args.GetString("await") == "delegation")
+					Wait(() => o.Delegation != DelegationStage.Delegated && o.Delegation != DelegationStage.Confirmed && o.Delegation != DelegationStage.Failed);
 				else /// confirmation
-					Wait(() => o.Transaction == null || o.Transaction.Stage != ProcessingStage.Confirmed);
+					Wait(() => o.Delegation != DelegationStage.Confirmed && o.Delegation != DelegationStage.Failed);
 			}
-
 
 			return obj;
 		}

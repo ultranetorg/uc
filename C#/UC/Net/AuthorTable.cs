@@ -46,7 +46,7 @@ namespace UC.Net
 			///}
 
 			
-			Save(batch, round.Authors.Values);
+			Save(batch, round.AffectedAuthors.Values);
 		}
 
 // 		public AuthorBid FindLastSuccessfulAuthorBid(string author, int maxrid)
@@ -98,8 +98,8 @@ namespace UC.Net
 		public AuthorEntry Find(string name, int ridmax)
 		{
 			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
-				if(r.Authors.ContainsKey(name))
-					return r.Authors[name];
+				if(r.AffectedAuthors.ContainsKey(name))
+					return r.AffectedAuthors[name];
 
 			var e = FindEntry(name);
 

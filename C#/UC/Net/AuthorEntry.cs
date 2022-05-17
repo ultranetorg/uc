@@ -122,15 +122,15 @@ namespace UC.Net
 								return ab;
 
 
-			return executing.EffectiveOperations.Reverse().OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name);
+			return executing.ExecutedOperations.Reverse().OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name);
 		}
 
 		public AuthorBid FindLastBid(Round executing)
 		{
-			return	executing.EffectiveOperations.OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name)
+			return	executing.ExecutedOperations.OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name)
 					??
-					Chain.FindLastPoolOperation<AuthorBid>(o => o.Author == Name && o.Result == OperationResult.OK, 
-																t => t.Successful, 
+					Chain.FindLastPoolOperation<AuthorBid>(o => o.Author == Name && o.Successful, 
+																null, 
 																p => !p.Round.Confirmed || p.Confirmed, 
 																r => r.Id < executing.Id)
 					??
@@ -139,10 +139,10 @@ namespace UC.Net
 
 		public AuthorRegistration FindRegistration(Round executing)
 		{
-			return	executing.EffectiveOperations.OfType<AuthorRegistration>().FirstOrDefault(i => i.Author == Name)
+			return	executing.ExecutedOperations.OfType<AuthorRegistration>().FirstOrDefault(i => i.Author == Name)
 					??
-					Chain.FindLastPoolOperation<AuthorRegistration>(o => o.Author == Name && o.Result == OperationResult.OK, 
-																	t => t.Successful, 
+					Chain.FindLastPoolOperation<AuthorRegistration>(o => o.Author == Name && o.Successful, 
+																	null, 
 																	p => !p.Round.Confirmed || p.Confirmed, 
 																	r => r.Id < executing.Id)
 					??
@@ -151,10 +151,10 @@ namespace UC.Net
 
 		public AuthorTransfer FindTransfer(Round executing)
 		{
-			return	executing.EffectiveOperations.OfType<AuthorTransfer>().FirstOrDefault(i => i.Author == Name)
+			return	executing.ExecutedOperations.OfType<AuthorTransfer>().FirstOrDefault(i => i.Author == Name)
 					??
-					Chain.FindLastPoolOperation<AuthorTransfer>(o => o.Author == Name && o.Result == OperationResult.OK, 
-																t => t.Successful, 
+					Chain.FindLastPoolOperation<AuthorTransfer>(o => o.Author == Name && o.Successful, 
+																null, 
 																p => !p.Round.Confirmed || p.Confirmed, 
 																r => r.Id < executing.Id)
 					??

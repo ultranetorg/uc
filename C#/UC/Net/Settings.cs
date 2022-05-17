@@ -69,7 +69,7 @@ namespace UC.Net
 		public string		NasPassword;
 
 		public string		Path;
-		public string		Fathers => System.IO.Path.Join(Path, "Fathers");
+		public string		Fathers => System.IO.Path.Join(Path, "Fathers");	
 
 		public SecretSettings(string path)
 		{

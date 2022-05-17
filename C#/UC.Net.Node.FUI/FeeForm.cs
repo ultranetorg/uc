@@ -37,11 +37,11 @@ namespace UC.Net.Node
 		{
 			from.Text = account.ToString();
 			
-			var t = new Transaction(core.Settings, account, 0);
-			t.Operations.Add(operation);
+			var t = new Transaction(core.Settings, account);
+			t.AddOperation(operation);
 			t.Sign(new Account(Nethereum.Signer.EthECKey.GenerateKey()), 0);
 
-			var f = core.EstimateFee(t);
+			var f = core.EstimateFee(t.Operations);
 
 			fee.Text = f > 0 ? f.ToHumanString() : "unavailavle"; 
 

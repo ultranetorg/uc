@@ -151,11 +151,11 @@ namespace UC.Net
 			return o;
 		}
 
-		public int GetNextTransactionId(Account account)
-		{
-			var t = FindLastTransaction(account, i => i.Successful);
-			return t == null ? 0 : t.Id + 1;
-		}
+// 		public int GetNextTransactionId(Account account)
+// 		{
+// 			var t = FindLastTransaction(account, i => i.Successful);
+// 			return t == null ? 0 : t.Id + 1;
+// 		}
 
 		public Operation FindLastOperation(Account signer, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null, Func<Round, bool> rp = null)
 		{
@@ -189,8 +189,8 @@ namespace UC.Net
 		public AccountEntry Find(Account account, int ridmax)
 		{
 			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
-				if(r.Accounts.ContainsKey(account))
-					return r.Accounts[account];
+				if(r.AffectedAccounts.ContainsKey(account))
+					return r.AffectedAccounts[account];
 
 			var e = FindEntry(account);
 			

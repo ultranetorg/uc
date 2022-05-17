@@ -30,25 +30,23 @@ namespace UC.Net
 		public IEnumerable<Account>						ElectedLeavers				=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
 		public IEnumerable<Account>						ElectedFundableAssignments	=> Majority.SelectMany(i => i.FundableAssignments).Distinct().Where(j => Majority.Count(b => b.FundableAssignments.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
 		public IEnumerable<Account>						ElectedFundableRevocations	=> Majority.SelectMany(i => i.FundableRevocations).Distinct().Where(l => Majority.Count(b => b.FundableRevocations.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
-		public IEnumerable<Proposition>					ElectedPropositions			=> Majority.SelectMany(i => i.Propositions).Distinct().Where(l => Majority.Count(b => b.Propositions.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
+		//public IEnumerable<Proposition>					ElectedPropositions			=> Majority.SelectMany(i => i.Propositions).Distinct().Where(l => Majority.Count(b => b.Propositions.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
 
-		public Dictionary<Account, AccountEntry>		Accounts = new();
-		public Dictionary<string, AuthorEntry>			Authors = new();
-		public Dictionary<ProductAddress, ProductEntry>	Products = new();
-		public Dictionary<Round, List<ReleaseManifest>>	AffectedReleases = new();
-		//public HashSet<Round>							Affected = new();
+		public Dictionary<Account, AccountEntry>		AffectedAccounts = new();
+		public Dictionary<string, AuthorEntry>			AffectedAuthors = new();
+		public Dictionary<ProductAddress, ProductEntry>	AffectedProducts = new(); /// needed to not load all producta with all releases when fetching an author
+		public HashSet<Round>							AffectedRounds = new();
 
 		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
+		
 		public List<Account>							ConfirmedViolators;
 		public List<Account>							ConfirmedJoiners;
 		public List<Account>							ConfirmedLeavers;
 		public List<Account>							ConfirmedFundableAssignments;
 		public List<Account>							ConfirmedFundableRevocations;
-		//public List<Proposition>						ConfirmedPropositions;
 
 		public List<Peer>								Members;
 		public List<Account>							Fundables;
-		public List<ReleaseManifest>					Releases = new();
 
 		public bool										Voted = false;
 		public bool										Confirmed = false;
@@ -64,15 +62,10 @@ namespace UC.Net
 		public Round									Next =>	Chain.FindRound(Id + 1);
 		public Round									Parent => Chain.FindRound(ParentId);
 
-		public Operation								CurrentOperation;
+		//public Operation								CurrentOperation;
 		public IEnumerable<Payload>						ExecutingPayloads;
-		public IEnumerable<Operation>					EffectiveOperations => CurrentOperation != null ? ExecutingPayloads.SelectMany(i => i.SuccessfulTransactions).
-																															SelectMany(i => i.SuccessfulOperations).
-																															SkipWhile(i => i != CurrentOperation).
-																															Skip(1) 
-																										:
-																										(Confirmed ? ConfirmedPayloads : Payloads). SelectMany(i => i.SuccessfulTransactions).
-																																					SelectMany(i => i.SuccessfulOperations);
+		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads.SelectMany(i => i.Transactions).SelectMany(i => i.SuccessfulOperations);
+		
 		public Round(Roundchain c)
 		{
 			Chain = c;
@@ -105,9 +98,15 @@ namespace UC.Net
 				var x = s/a.Count();
 		
 				foreach(var i in a.Skip(1))
+				{
+					//RewardOrPay(i, x);
 					GetAccount(i).Balance += x;
-		
-				GetAccount(a.First()).Balance += s - (x * (a.Count() - 1));
+				}
+
+				var v = s - (x * (a.Count() - 1));
+				
+				//RewardOrPay(a.First(), v);
+				GetAccount(a.First()).Balance += v;
 			}
 
 			if(b.Any())
@@ -116,35 +115,57 @@ namespace UC.Net
 				var x = s/b.Count();
 		
 				foreach(var i in b.Skip(1))
+				{
+					//RewardOrPay(i, x);
 					GetAccount(i).Balance += x;
-		
-				GetAccount(b.First()).Balance += s - (x * (b.Count() - 1));
+				}
+
+				var v = s - (x * (b.Count() - 1));
+				//RewardOrPay(b.First(), v);
+				GetAccount(b.First()).Balance += v;
 			}
 		}
 		
-		public List<ReleaseManifest> GetReleases(int rid)
-		{
-			var r = Chain.FindRound(rid);
-
-			if(!AffectedReleases.ContainsKey(r))
-				AffectedReleases[r] = new List<ReleaseManifest>(r.Releases);
-
-			return AffectedReleases[r];
-		}
+		//public Operation GetMutable(int rid, Func<Operation, bool> op)
+		//{
+		//	var r = Chain.FindRound(rid);
+		//
+ 		//	foreach(var b in r.Payloads)
+ 		//		foreach(var t in b.Transactions)
+ 		//			foreach(var o in t.Operations.Where(i => i.Mutable))
+ 		//				if(op(o))
+		//				{	
+		//					if(!AffectedMutables.Contains(o))
+		//						AffectedMutables.Add(o);
+		//					
+		//					return o; 
+		//				}
+		//
+		//	return null;
+		//}
+// 
+// 		public void RewardOrPay(Account account, Coin fee)
+// 		{
+// 			if(Fees.ContainsKey(account))
+// 				Fees[account] += fee; 
+// 			else
+// 				Fees[account] = fee;
+// 
+// 		}
 
 		public AccountEntry GetAccount(Account account)
 		{
-			if(Accounts.ContainsKey(account))
-				return Accounts[account];
+			if(AffectedAccounts.ContainsKey(account))
+				return AffectedAccounts[account];
 
 			var e = Chain.Accounts.Find(account, Id - 1);
 
 			if(e != null)
-				Accounts[account] = e.Clone();
+				AffectedAccounts[account] = e.Clone();
 			else
-				Accounts[account] = new AccountEntry(Chain, account);
+				AffectedAccounts[account] = new AccountEntry(Chain, account);
 
-			return Accounts[account];
+			return AffectedAccounts[account];
 		}
 
 		public AuthorEntry GetAuthor(string name)
@@ -152,17 +173,17 @@ namespace UC.Net
 			var e = FindAuthor(name);
 
 			if(e != null)
-				Authors[name] = e.Clone();
+				AffectedAuthors[name] = e.Clone();
 			else
-				Authors[name] = new AuthorEntry(Chain, name);
+				AffectedAuthors[name] = new AuthorEntry(Chain, name);
 
-			return Authors[name];
+			return AffectedAuthors[name];
 		}
 
 		public AuthorEntry FindAuthor(string name)
 		{
-			if(Authors.ContainsKey(name))
-				return Authors[name];
+			if(AffectedAuthors.ContainsKey(name))
+				return AffectedAuthors[name];
 
 			return Chain.Authors.Find(name, Id - 1);
 		}
@@ -172,73 +193,21 @@ namespace UC.Net
 			var e = FindProduct(address);
 
 			if(e != null)
-				Products[address] = e.Clone();
+				AffectedProducts[address] = e.Clone();
 			else
-				Products[address] = new ProductEntry(address);
+				AffectedProducts[address] = new ProductEntry(address);
 
-			return Products[address];
+			return AffectedProducts[address];
 		}
 
 		public ProductEntry FindProduct(ProductAddress address)
 		{
-			if(Products.ContainsKey(address))
-				return Products[address];
+			if(AffectedProducts.ContainsKey(address))
+				return AffectedProducts[address];
 
 			return Chain.FindProduct(address, Id - 1);
 		}
 
-
-// 		public List<Operation> FindOperations(Func<Operation, bool> f)
-// 		{
-// 			var list = new List<Operation>();
-// 
-// 			foreach(var b in Payloads)
-// 				foreach(var t in b.Transactions)
-// 					foreach(var o in t.Operations)
-// 						if(f(o))
-// 							list.Add(o);
-// 
-// 			return list;
-// 		}
-
-// 		public List<O> FindOperations<O>(Func<O, bool> f = null)
-// 		{
-// 			var list = new List<O>();
-// 
-// 			foreach(var b in Payloads)
-// 				foreach(var t in b.Transactions)
-// 					foreach(var o in t.Operations.OfType<O>())
-// 						if(f == null || f(o))
-// 							list.Add(o);
-// 
-// 			return list;
-// 		}
-
-
-// 		public List<O> FindOperations<O>(Func<O, List<O>, bool> f = null)
-// 		{
-// 			var list = new List<O>();
-// 
-// 			foreach(var b in Payloads)
-// 				foreach(var t in b.Transactions)
-// 					foreach(var o in t.Operations.OfType<O>())
-// 						if(f == null || f(o, list))
-// 							list.Add(o);
-// 
-// 			return list;
-// 		}
-// 
-// 		public Operation FindOperation(Func<Operation, bool> f)
-// 		{
-// 			foreach(var b in Payloads)
-// 				foreach(var t in b.Transactions)
-// 					foreach(var o in t.Operations)
-// 						if(f(o))
-// 							return o;
-// 
-// 			return null;
-// 		}
-// 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
  		{
  			foreach(var b in Payloads.Where(i => i.Confirmed))
@@ -249,17 +218,7 @@ namespace UC.Net
  
  			return null;
  		}
-// 
-// 		public O FindOperation<O>() where O : Operation
-// 		{
-// 			foreach(var b in Payloads)
-// 				foreach(var t in b.Transactions)
-// 					foreach(var o in t.Operations.OfType<O>())
-// 						return o;
-// 
-// 			return null;
-// 		}
-// 
+
  		public bool AnyOperation(Func<Operation, bool> f)
  		{
  			foreach(var b in Payloads.Where(i => i.Confirmed))
@@ -282,62 +241,45 @@ namespace UC.Net
  
  			return o;
  		}
-// 
-// 		public Transaction FindTransaction(Func<Transaction, bool> f)
-// 		{
-// 			foreach(var b in Payloads)
-// 				foreach(var t in b.Transactions)
-// 					if(f(t))
-// 						return t;
-// 
-// 			return null;
-// 		}
-// 
-// 		public bool ContainsTransaction(Transaction t)
-// 		{
-// 			foreach(var b in Payloads)
-// 				if(b.Transactions.Contains(t))
-// 					return true;
-// 
-// 			return false;
-// 		}
-// 
-// 		public bool AnyTransaction(Func<Transaction, bool> f)
-// 		{
-// 			foreach(var b in Payloads)
-// 				foreach(var t in b.Transactions)
-// 					if(f(t))
-// 						return true;
-// 
-// 			return false;
-// 		}
 
-// 		public static byte[] CalculateHash(IEnumerable<Payload> blocks)
-// 		{
-// 			var s = new MemoryStream();
-// 			var w = new BinaryWriter(s);
-// 
-// 			foreach(var i in blocks)
-// 			{
-// 				w.Write(i.Hash);
-// 			}
-// 			
-// 			return Cryptography.Current.Hash((w.BaseStream as MemoryStream).ToArray());
-// 		}
+		void WriteConfirmed(BinaryWriter w)
+		{
+			w.Write(Time);
+			w.Write(ConfirmedPayloads, i => i.WriteConfirmed(w));
+			w.Write(ConfirmedJoiners);
+			w.Write(ConfirmedLeavers);
+			w.Write(ConfirmedViolators);
+			w.Write(ConfirmedFundableAssignments);
+			w.Write(ConfirmedFundableRevocations);
+		}
+
+		void ReadConfirmed(BinaryReader r)
+		{
+			Time		= r.ReadTime();
+			Blocks		= r.ReadList(() =>	{
+												var b = new Payload(Chain);											
+												b.RoundId = Id;
+												b.Round = this;
+												b.Confirmed = true;
+
+												b.ReadConfirmed(r);
+
+												return b as Block;
+											});
+	
+			ConfirmedJoiners				= r.ReadList<Account>();
+			ConfirmedLeavers				= r.ReadList<Account>();
+			ConfirmedViolators				= r.ReadList<Account>();
+			ConfirmedFundableAssignments	= r.ReadList<Account>();
+			ConfirmedFundableRevocations	= r.ReadList<Account>();
+		}
 
 		public void Seal()
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Time);
-			foreach(var i in ConfirmedPayloads)				i.Seal(w);
-			foreach(var i in ConfirmedJoiners)				w.Write(i);
-			foreach(var i in ConfirmedLeavers)				w.Write(i);
-			foreach(var i in ConfirmedViolators)			w.Write(i);
-			foreach(var i in ConfirmedFundableAssignments)	w.Write(i);
-			foreach(var i in ConfirmedFundableRevocations)	w.Write(i);
-			//foreach(var i in ConfirmedPropositions)			i.Write(w);
+			WriteConfirmed(w);
 
 			Hash = Cryptography.Current.Hash(s.ToArray());
 		}
@@ -345,90 +287,56 @@ namespace UC.Net
 		public void Write(BinaryWriter w)
 		{
 			w.Write7BitEncodedInt(Id);
-			w.Write(Voted);
 			w.Write(Confirmed);
 			
-			w.Write(Time);
-			w.Write(Blocks,	i => {w.Write((byte)i.Type); i.Write(w);});
-			w.Write(ConfirmedJoiners);
-			w.Write(ConfirmedLeavers);
-			w.Write(ConfirmedViolators);
-			w.Write(ConfirmedFundableAssignments);
-			w.Write(ConfirmedFundableRevocations);
-			
-			w.Write(Releases);
+			if(Confirmed)
+			{
+				WriteConfirmed(w);
+			} 
+			else
+			{
+				w.Write(Voted);
+				w.Write(Blocks, i => {
+										w.Write((byte)i.Type); 
+										i.Write(w); 
+									 });
+			}
 		}
 
 		public void Read(BinaryReader r)
 		{
 			Id			= r.Read7BitEncodedInt();
-			Voted		= r.ReadBoolean();
 			Confirmed	= r.ReadBoolean();
-
-			Time		= r.ReadTime();
-			Blocks = r.ReadList(() =>	{
-											var b = Block.FromType(Chain, (BlockType)r.ReadByte());
-											b.Round = this;
-											b.Read(r);
-											return b;
-										});
-
-			ConfirmedJoiners = r.ReadList<Account>();
-			ConfirmedLeavers = r.ReadList<Account>();
-			ConfirmedViolators = r.ReadList<Account>();
-			ConfirmedFundableAssignments = r.ReadList<Account>();
-			ConfirmedFundableRevocations = r.ReadList<Account>();
-			//ConfirmedPropositions = new(); 
 			
-			Releases = r.ReadList<ReleaseManifest>();
+			if(Confirmed)
+			{
+				ReadConfirmed(r);
+			} 
+			else
+			{
+				Voted	= r.ReadBoolean();
+				Blocks	= r.ReadList(() =>	{
+												var b = Block.FromType(Chain, (BlockType)r.ReadByte());
+												b.RoundId = Id;
+												b.Round = this;
+												b.Read(r);
+												return b;
+											});
+			}
 		}
 
 		public void Save(BinaryWriter w)
 		{
-			w.Write7BitEncodedInt(Try);
-			w.Write(Time);
-			w.Write(ConfirmedPayloads, i => i.Save(w));
-			w.Write(ConfirmedJoiners);
-			w.Write(ConfirmedLeavers);
-			w.Write(ConfirmedViolators);
-			w.Write(ConfirmedFundableAssignments);
-			w.Write(ConfirmedFundableRevocations);
+			WriteConfirmed(w);
 			
-			w.Write(Releases);
-		
-			//ConfirmedPayloads.First().Reference.Write(w);
-
+			w.Write(Hash);
 		}
 
 		public void Load(BinaryReader r)
 		{
-			Try = r.Read7BitEncodedInt();
-			Time = r.ReadTime();
+			ReadConfirmed(r);
 
-			Blocks = r.ReadList(() =>	{
-											var b =	new Payload(Chain)
-														{
-															Round = this,
-															RoundId = Id,
-															//Reference = rr,
-															Confirmed = true
-														};
-											b.Load(r);
-											return b as Block;
-										});
-			ConfirmedJoiners				= r.ReadList(() => r.ReadAccount());
-			ConfirmedLeavers				= r.ReadList(() => r.ReadAccount());
-			ConfirmedViolators				= r.ReadList(() => r.ReadAccount());
-			ConfirmedFundableAssignments	= r.ReadList(() => r.ReadAccount());
-			ConfirmedFundableRevocations	= r.ReadList(() => r.ReadAccount());
-			//ConfirmedPropositions			= new(); 
-
-			Releases						= r.ReadList<ReleaseManifest>();
-
-			//var rr = new RoundReference();
-			//rr.Read(r);
-
-			Seal();
+			Hash = r.ReadSha3();
 		}
 	}
 }

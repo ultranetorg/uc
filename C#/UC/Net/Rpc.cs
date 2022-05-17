@@ -25,6 +25,12 @@ namespace UC.Net
 		}
 	}
 
+	public class OperationAddress
+	{
+		public Account	Account { get; set; }
+		public int		Id { get; set; }
+	}
+
 	public class RpcException : Exception
 	{
 		public RpcException(string msg) : base(msg){ }
@@ -119,17 +125,6 @@ namespace UC.Net
 		public int NextRoundId  {get; set;}
 	}
 
-	public class LastTransactionIdCall : RpcCall
-	{
-		public override bool Private => false;
-		public Account Account {get; set;}
-	}
-
-	public class LastTransactionIdResponse
-	{
-		public int Id {get; set;}
-	}
-
 	public class LastOperationCall : RpcCall
 	{
 		public override bool	Private => false;
@@ -150,7 +145,7 @@ namespace UC.Net
 
 	public class DelegateTransactionsResponse
 	{
-		public IEnumerable<byte[]> Accepted { get; set; }
+		public IEnumerable<OperationAddress> Accepted { get; set; }
 	}
 
 	public class GetMembersCall : RpcCall
@@ -163,31 +158,24 @@ namespace UC.Net
 		public IEnumerable<Peer> Members { get; set; }
 	}
 
-	public class GetTransactionsStatusCall : RpcCall
+	public class GetOperationStatusCall : RpcCall
 	{
-		public class Item
-		{
-			public Account	Account { get; set; }
-			public int		Id { get; set; }
-		}
-
-		public override bool Private => false;
-		public IEnumerable<Item> Transactions { get; set; }
+		public override bool					Private => false;
+		public IEnumerable<OperationAddress>	Operations { get; set; }
 	}
 
-	public class GetTransactionsStatusResponse
+	public class GetOperationStatusResponse
 	{
 		public int LastConfirmedRound { get; set; }
 
 		public class Item
 		{
-			public Account	Account { get; set; }
-			public int		Id { get; set; }
-			public bool		Confirmed { get; set; }
-			public string	Stage { get; set; }
+			public Account		Account { get; set; }
+			public int			Id { get; set; }
+			public PlacingStage	Stage { get; set; }
 		}
 
-		public IEnumerable<Item> Transactions { get; set; }
+		public IEnumerable<Item> Operations { get; set; }
 	}
 
 	public class AccountInfoCall : RpcCall

@@ -27,8 +27,8 @@ namespace UC.Net
 		public ProductEntry Find(ProductAddress name, int ridmax)
 		{
 			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
-				if(r.Products.ContainsKey(name))
-					return r.Products[name];
+				if(r.AffectedProducts.ContainsKey(name))
+					return r.AffectedProducts[name];
 
 			var e = FindEntry(name);
 

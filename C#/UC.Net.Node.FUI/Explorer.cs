@@ -45,8 +45,8 @@ namespace UC.Net.Node.FUI
 			Blocks.Items.Clear();
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
-			Releases.Items.Clear();
-			Manifest.Text = null;
+			//Releases.Items.Clear();
+			Operation.Text = null;
 
 			lock(Core.Lock)
 			{
@@ -59,13 +59,17 @@ namespace UC.Net.Node.FUI
 									(r.ConfirmedViolators != null ? string.Join(", ", r.ConfirmedViolators) : null)
 									;
 
-				Blocks.Items.AddRange(Core.Chain.FindRound((int)Round.Value).Payloads.Select(	(i, j) =>
-																									{
-																										var li = new ListViewItem(j.ToString());
-																										li.Tag = i;
-																										li.SubItems.Add(i.Member.ToString());
-																										return li;
-																									}).ToArray());
+				Blocks.Items.AddRange(	Core.Chain.FindRound((int)Round.Value).Payloads
+										.Union(
+										Core.Chain.FindRound((int)Round.Value).Blocks.Where(i => i is not Payload))
+										.Select((i, j) =>
+										{
+											var li = new ListViewItem(j.ToString());
+											li.Tag = i;
+											li.SubItems.Add(i.GetType().Name);
+											li.SubItems.Add(i.Member.ToString());
+											return li;
+										}).ToArray());
 
 				if(Blocks.Items.Count > 0)
 				{
@@ -73,16 +77,11 @@ namespace UC.Net.Node.FUI
 
 					if(Transactions.Items.Count > 0)
 						Transactions_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Transactions.Items[0], 0, true));
+
+					if(Operations.Items.Count > 0)
+						Operations_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Operations.Items[0], 0, true));
 				}
 
-				Releases.Items.AddRange(r.Releases.Select(	(i) =>
-															{
-																var li = new ListViewItem(i.Address.ToString());
-																li.Tag = i;
-																return li;
-															}).ToArray());
-				if(r.Releases.Any())
-					Releases_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Releases.Items[0], 0, true));
 
 			}
 		}
@@ -92,20 +91,22 @@ namespace UC.Net.Node.FUI
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
 
-			if(e.IsSelected)
+			if(e.IsSelected && e.Item.Tag is Payload p)
 			{
 				lock(Core.Lock)
 				{
-					Transactions.Items.AddRange((e.Item.Tag as Payload).Transactions.Select((i) =>
-																							{
-																								var li = new ListViewItem(i.Signer.ToString());
-																								li.Tag = i;
-																								li.SubItems.Add(i.Id.ToString());
-																								li.SubItems.Add(i.Successful ? "OK" : "Failed");
-																								return li;
-																							}).ToArray());
-				}
+					Transactions.Items.AddRange(p.Transactions.Select((i) => {
+																			 	var li = new ListViewItem(i.Signer.ToString());
+																			 	li.Tag = i;
+																			 	//li.SubItems.Add(i.Id.ToString());
+																			 	li.SubItems.Add(i.SuccessfulOperations.Count().ToString());
+																			 	return li;
+																			 }).ToArray());
+					if(Transactions.Items.Count > 0)
+						Transactions_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Transactions.Items[0], 0, true));				}
 			}
+			else
+				Transactions.Items.Clear();
 		}
 
 		private void Transactions_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -118,25 +119,31 @@ namespace UC.Net.Node.FUI
 				{
 					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
 																							{
-																								var li = new ListViewItem(i.ToString());
-																								//li.Tag = i;
+																								var li = new ListViewItem(i.Id.ToString());
+																								li.Tag = i;
+																								li.SubItems.Add(i.ToString());
 																								li.SubItems.Add(i.Result.ToString());
 																								return li;
 																							}).ToArray());
+					if(Operations.Items.Count > 0)
+						Operations_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Operations.Items[0], 0, true));
 				}
 			}
 		}
 
-		private void Releases_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+		private void Operations_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 		{
-			var m = e.Item.Tag as ReleaseManifest;
-
-			Manifest.Text = "Address  :" + m.Address + Environment.NewLine +
-							"Stage    :" + m.Channel + Environment.NewLine +
-							"Previuos :" + m.PreviousVersion + Environment.NewLine +
-							"Complete Dependencies :" + string.Join(Environment.NewLine, m.CompleteDependencies.Select(i => "   " + i.ToString())) + Environment.NewLine +
-							"Incremental Dependencies :" + string.Join(Environment.NewLine, m.IncrementalDependencies.Select(i => "   " + i.ToString()))
-							;
+			if(e.Item.Tag is ReleaseManifest m)
+			{
+				Operation.Text ="Address  : " + m.Address + Environment.NewLine +
+								"Stage    : " + m.Channel + Environment.NewLine +
+								"Previuos : " + m.PreviousVersion + Environment.NewLine +
+								"Complete Dependencies : " + string.Join(Environment.NewLine, m.CompleteDependencies.Select(i => "   " + i.ToString())) + Environment.NewLine +
+								"Incremental Dependencies : " + string.Join(Environment.NewLine, m.IncrementalDependencies.Select(i => "   " + i.ToString()))
+								;
+			}
+			else
+				Operation.Text = (e.Item.Tag as Operation).ToString();
 		}
 	}
 }

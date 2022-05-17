@@ -32,6 +32,16 @@ namespace UC.Net
 			return Sha3Keccack.Current.CalculateHash(data);
 		}
 
+		public byte[] Hash(IHashable hashable)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			hashable.HashWrite(w);
+
+			return Sha3Keccack.Current.CalculateHash(s.ToArray());
+		}
+
 		public virtual bool Valid(byte[] signature, byte[] hash, Account a)
 		{
 			return AccountFrom(signature, hash) == a;

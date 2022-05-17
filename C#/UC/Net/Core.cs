@@ -74,9 +74,9 @@ namespace UC.Net
 		public Statistics								PrevStatistics = new();
 		public Statistics								Statistics = new();
 
-		public List<Change>								Changes = new();
+		public List<Transaction>						Transactions = new();
 		public List<Operation>							Operations	= new();
-		public List<Message>							Messages	= new();
+		//public List<Message>							Messages	= new();
 
 		public List<Peer>								Peers		= new();
 		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
@@ -126,12 +126,13 @@ namespace UC.Net
 				f.Add("IP(Reported):Port");		v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
 				f.Add($"Generator{(RemoteMember != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? RemoteMember?.Generator)}");
 				f.Add("Operations");			v.Add($"{Operations.Count}");
-				f.Add("    pending");			v.Add($"{Operations.Count(i => i.Stage == ProcessingStage.Pending)}");
-				f.Add("    delegated");			v.Add($"{Operations.Count(i => i.Stage == ProcessingStage.Delegated)}");
-				f.Add("    placed");			v.Add($"{Operations.Count(i => i.Stage == ProcessingStage.Placed)}");
-				f.Add("Transactions");			v.Add($"{Changes.Count}");
-				f.Add("    pending");			v.Add($"{Changes.Count(i => i.Stage == ProcessingStage.Pending)}");
-				f.Add("    placed");			v.Add($"{Changes.Count(i => i.Stage == ProcessingStage.Placed)}");
+				f.Add("    pending");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
+				f.Add("    delegated");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
+				f.Add("    confirmed");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Confirmed)}");
+				
+				//f.Add("Transactions");			v.Add($"{Transactions.Count}");
+				//f.Add("    pending");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Pending)}");
+				//f.Add("    placed");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Placed)}");
 
 				if(Chain != null)
 				{
@@ -163,7 +164,7 @@ namespace UC.Net
 					{
 						f.Add("NAS Eth Account");		v.Add($"{Nas.Account?.Address}");
 
-						foreach(var i in Chain.FindFundables(Chain.LastConfirmedRound))
+						foreach(var i in Chain.Fundables)
 						{
 							f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
 						}
@@ -330,9 +331,14 @@ namespace UC.Net
 			}
 
 			Chain.BlockAdded += b =>{
-										if(Settings.Generator != null)
-											Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator);
+										var prev = Declaration;
+
+										if(Generator != null)
+											Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator, null, null, null, r => r.Confirmed);
 			
+										if(prev != null && Declaration == null)
+											Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator, null, null, null, r => r.Confirmed);
+
 										ReachConsensus();
 									};
 
@@ -694,7 +700,7 @@ namespace UC.Net
 								{
 									h = Peer.WaitHello(client);
 								}
-								catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
+								catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
 								{
 									//Log.ReportWarning(this, "Inbound error", "WaitHello failed", ex);
 									goto failed;
@@ -722,7 +728,7 @@ namespace UC.Net
 									{
 										Peer.SendHello(client, Versions, Settings.Zone, Session, ip, Peers, Header);
 									}
-									catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
+									catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
 									{
 										//Log.ReportWarning(this, "Inbound error", "SendHello failed", ex);
 										goto failed;
@@ -845,7 +851,8 @@ namespace UC.Net
 											Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
 											Chain.Rounds.Add(r);
 											Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
-											Chain.Seal(r, false);
+											//Chain.Execute(r, r.ConfirmedPayloads, r.ConfirmedViolators);
+											Chain.Seal(r);
 									
 											Cache.RemoveAll(i => i.RoundId <= r.Id);
 										}
@@ -1078,18 +1085,18 @@ namespace UC.Net
 			return r;
 		}
 
-		List<Transaction> BuildTransactions(Account member, int rmax, Func<Account, int> nexttxid)
+		List<Transaction> BuildTransactions(Account member, int rmax, Dictionary<Account, int> nextids)
 		{
 			var l = new List<Transaction>();
 
-			foreach(var g in Operations.Where(i => i.Stage == ProcessingStage.Pending).GroupBy(i => i.Signer))
+			foreach(var g in Operations.Where(i => i.Delegation == DelegationStage.Pending).GroupBy(i => i.Signer))
 			{
-				var t = new Transaction(Settings, g.Key as PrivateAccount, nexttxid(g.Key));
+				var t = new Transaction(Settings, g.Key as PrivateAccount);
 
 				foreach(var o in g)
 				{
-					o.Transaction = t;
-					t.Operations.Add(o);
+					o.Id = nextids[g.Key]++;
+					t.AddOperation(o);
 				}
 
 				t.Sign(member, rmax);
@@ -1099,26 +1106,26 @@ namespace UC.Net
 			return l;
 		}
 
-		List<Proposition> BuildPropositions(Account member, int rmax)
-		{
-			var l = new List<Proposition>();
-
-			foreach(var g in Messages.Where(i => i.Stage == ProcessingStage.Pending).GroupBy(i => i.Signer))
-			{
-				var p = new Proposition(Settings, g.Key as PrivateAccount);
-
-				foreach(var o in g)
-				{
-					o.Proposition = p;
-					p.Messages.Add(o);
-				}
-
-				p.Sign(member, rmax);
-				l.Add(p);
-			}
-
-			return l;
-		}
+// 		List<Proposition> BuildPropositions(Account member, int rmax)
+// 		{
+// 			var l = new List<Proposition>();
+// 
+// 			foreach(var g in Messages.Where(i => i.Stage == ProcessingStage.Pending).GroupBy(i => i.Signer))
+// 			{
+// 				var p = new Proposition(Settings, g.Key as PrivateAccount);
+// 
+// 				foreach(var o in g)
+// 				{
+// 					o.Proposition = p;
+// 					p.Messages.Add(o);
+// 				}
+// 
+// 				p.Sign(member, rmax);
+// 				l.Add(p);
+// 			}
+// 
+// 			return l;
+// 		}
 
 		void Generate()
 		{
@@ -1152,15 +1159,14 @@ namespace UC.Net
 				}
 				else
 				{
-					var txs = Chain.CollectValidTransactions(Changes.OfType<Transaction>()
-																	.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
-																	.GroupBy(i => i.Signer)
-																	.Select(i => i.First()), nar);
+					var txs = Chain.CollectValidTransactions(Transactions	.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Pending) && i.RoundMax >= nar.Id)
+																			.GroupBy(i => i.Signer)
+																			.Select(i => i.First()), nar);
 
-					var msgs = BuildPropositions(Generator, nar.Id).Union(Changes	.OfType<Proposition>()
-																					.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
-																					.GroupBy(i => i.Signer)
-																					.Select(i => i.First())).ToList();
+// 					var msgs = BuildPropositions(Generator, nar.Id).Union(Changes	.OfType<Proposition>()
+// 																					.Where(i => i.Stage == ProcessingStage.Pending && i.RoundMax >= nar.Id)
+// 																					.GroupBy(i => i.Signer)
+// 																					.Select(i => i.First())).ToList();
 					//var msg = Transactions.OfType<Message>();
 
 					var prev = Chain.FindRound(nar.Id - 1).Votes.FirstOrDefault(i => i.Member == Generator);
@@ -1186,17 +1192,19 @@ namespace UC.Net
 									Leavers				= Chain.ProposeLeavers(nar, Generator).ToList(),
 									FundableAssignments	= new(),
 									FundableRevocations	= new(),
-									Propositions		= msgs
+									//Propositions		= msgs
 								};
 				
 						foreach(var i in txs)
 						{
 							(b as Payload).AddNext(i);
-							i.Stage = ProcessingStage.Placed;
+
+							foreach(var o in i.Operations)
+								o.Placing = PlacingStage.Placed;
 						}
 						
-						foreach(var i in b.Propositions)
-							i.Stage = ProcessingStage.Placed;
+// 						foreach(var i in b.Propositions)
+// 							i.Stage = ProcessingStage.Placed;
 
 						votes.Add(b);
 					}
@@ -1230,11 +1238,11 @@ namespace UC.Net
 												Leavers				= Chain.ProposeLeavers(r, Generator).ToList(),
 												FundableAssignments	= new(),
 												FundableRevocations	= new(),
-												Propositions		= msgs
+												//Propositions		= msgs
 											};
 							
-									foreach(var i in b.Propositions)
-										i.Stage = ProcessingStage.Placed;
+// 									foreach(var i in b.Propositions)
+// 										i.Stage = ProcessingStage.Placed;
 							
 									votes.Add(b);
 								}
@@ -1250,7 +1258,7 @@ namespace UC.Net
 					foreach(var b in votes)
 					{
 						b.Sign(Generator);
-						Chain.Add(b);
+						Chain.Add(b, b is Payload);
 					}
 
 					Broadcast(PacketType.Blocks, Write(votes));
@@ -1355,7 +1363,7 @@ namespace UC.Net
 			Operation[]					pendings;
 			Dictionary<Account, int>	accounts;
 			bool						ready;
-			IEnumerable<Transaction>	delegated;
+			IEnumerable<Operation>		delegated;
 
 			Log?.Report(this, "Delegating started");
 
@@ -1375,16 +1383,17 @@ namespace UC.Net
 					lock(Lock)
 					{
 						peers = Peers.ToArray();
-						pendings = Operations.Where(i => i.Stage == ProcessingStage.Pending).ToArray();
+						pendings = Operations.Where(i => i.Delegation == DelegationStage.Pending).ToArray();
 						accounts = pendings.GroupBy(i => i.Signer).Select(i => i.Key).ToDictionary(k => k, v => 0);
-						ready = pendings.Any() && Operations.Any(i => i.Stage != ProcessingStage.Delegated);
+						ready = pendings.Any() && Operations.Any(i => i.Delegation != DelegationStage.Delegated);
 					}
 
 					if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
 					{
 						foreach(var a in accounts)
 						{
-							accounts[a.Key] = m.Api.Send(new LastTransactionIdCall {Account = a.Key}).Id + 1;
+							var o = m.Api.Send(new LastOperationCall {Account = a.Key});
+							accounts[a.Key] = o == null ? 0 : o.Id + 1;
 						}
 
 						IEnumerable<Transaction> txs;
@@ -1392,92 +1401,89 @@ namespace UC.Net
 						var rmax = m.Api.Send(new NextRoundCall()).NextRoundId;
 
 						lock(Lock)
-							txs = BuildTransactions(m.Generator, Roundchain.GetValidityPeriod(rmax), a => accounts[a]);
+							txs = BuildTransactions(m.Generator, Roundchain.GetValidityPeriod(rmax), accounts);
 	
 						var accepted = m.Api.Send(new DelegateTransactionsCall {Data = Write(txs).ToArray()}).Accepted;
 	
 						lock(Lock)
-							foreach(var t in txs.Where(i => accepted.Any(a => a.SequenceEqual(i.Signature))))
-							{	
-								t.Stage = ProcessingStage.Delegated;
-
-								foreach(var o in t.Operations)
-								{
-									o.Stage = ProcessingStage.Delegated;
-									o.FlowReport?.StageChanged();
-									o.FlowReport?.Log.ReportWarning(this, $"Placing has been delegated to {m}");
-								}
+							foreach(var o in txs.SelectMany(i => i.Operations).Where(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))
+							{
+								o.Delegation = DelegationStage.Delegated;
+								o.FlowReport?.StageChanged();
+								o.FlowReport?.Log.ReportWarning(this, $"Placing has been delegated to {m}");
 							}
 									
-						Log?.Report(this, "Operation(s) delegated", $"{txs.Where(i => accepted.Any(j => j.SequenceEqual(i.Signature))).Sum(i => i.Operations.Count)} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {m.IP}");
+						Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {m.IP}");
 
 						Thread.Sleep(1000); /// prevent any flooding
 					}
 
 					lock(Lock)
-						delegated = Operations.Where(i => i.Stage == ProcessingStage.Delegated).GroupBy(i => i.Transaction).Select(i => i.Key).ToArray();
+						delegated = Operations.Where(i => i.Delegation == DelegationStage.Delegated).ToArray();
 	
 					if(delegated.Any())
 					{
-						var rp = m.Api.Send(new GetTransactionsStatusCall {Transactions = delegated.Where(i => i.Operations.Any(o => !o.Free)).Select(i => new GetTransactionsStatusCall.Item {Account = i.Signer, Id = i.Id})});
+						var rp = m.Api.Send(new GetOperationStatusCall {Operations = delegated.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id}).ToArray()});
 							
 						if(rp != null)
 						{
 							lock(Lock)
 							{
-								var ops = Operations.Where(o =>	o.Stage == ProcessingStage.Delegated && 
-																rp.Transactions.Any(s =>s.Account == o.Transaction.Signer && 
-																						s.Id == o.Transaction.Id &&
-																						s.Confirmed)); /// confirmed operations
-
-								if(ops.Any())
+								foreach(var i in rp.Operations)
 								{
-									Log?.Report(this, "Operation(s) confirmed", $"{ops.Count()}");
-	
-									foreach(var o in ops.ToArray())
+									var o = delegated.First(d => d.Signer == i.Account && d.Id == i.Id);
+
+									if(i.Stage == PlacingStage.Confirmed)
 									{
-										o.Transaction.Stage = ProcessingStage.Confirmed;
-										o.Stage = ProcessingStage.Confirmed;
+										o.Delegation = DelegationStage.Confirmed;
 										o.FlowReport?.StageChanged();
 										Operations.Remove(o);
 									}
-								}
 
-								ops = Operations.Where(o => o.Stage == ProcessingStage.Delegated && rp.LastConfirmedRound > o.Transaction.RoundMax); /// outdated
-
-								if(ops.Any())
-								{
-									Log?.Report(this, "Operation(s) outdated", $"{ops.Count()}");
-
-									foreach(var o in ops.ToArray())
+									if(i.Stage == PlacingStage.NotFoundOrFailed)
 									{
-										o.Transaction = null;
-										o.Stage = ProcessingStage.Pending;
+										o.Delegation = DelegationStage.Failed;
 										o.FlowReport?.StageChanged();
-										o.FlowReport?.Log.ReportWarning(this, "Operations was not placed. Redelegating.");
+										Operations.Remove(o);
 									}
+
 								}
+
+								//var ops = Operations.Where(o => o.Delegation == DelegationStage.Delegated && rp.LastConfirmedRound > o.Transaction.RoundMax); /// outdated
+								//
+								//if(ops.Any())
+								//{
+								//	Log?.Report(this, "Operation(s) outdated", $"{ops.Count()}");
+								//
+								//	foreach(var o in ops.ToArray())
+								//	{
+								//		o.Transaction = null;
+								//		o.Delegation = DelegationStage.Pending;
+								//		o.FlowReport?.StageChanged();
+								//		o.FlowReport?.Log.ReportWarning(this, "Operations was not placed. Redelegating...");
+								//	}
+								//}
 							}
 						}
-
-						var rms = Operations.OfType<ReleaseManifest>().Where(i => i.Stage == ProcessingStage.Delegated);
-
-						if(rms.Any())
-						{
-							var rs = m.Api.Send(new QueryReleaseCall {Queries = rms.Select(i => new ReleaseQuery(	i.Address.Author, 
-																													i.Address.Product, 
-																													i.Address.Platform, 
-																													i.Address.Version,
-																													VersionQuery.Latest,
-																													i.Channel)).ToList()});
-							if(rs != null)
-							{
-								foreach(var i in rs)
-								{
-									Operations.RemoveAll(o => o is ReleaseManifest r && r.Address == i);
-								}
-							}
-						}
+// 
+// 						var rms = Operations.OfType<ReleaseManifest>().Where(i => i.Stage == ProcessingStage.Delegated);
+// 
+// 						if(rms.Any())
+// 						{
+// 							var rs = m.Api.Send(new QueryReleaseCall {Queries = rms.Select(i => new ReleaseQuery(	i.Address.Author, 
+// 																													i.Address.Product, 
+// 																													i.Address.Platform, 
+// 																													i.Address.Version,
+// 																													VersionQuery.Latest,
+// 																													i.Channel)).ToList()});
+// 							if(rs != null)
+// 							{
+// 								foreach(var i in rs)
+// 								{
+// 									Operations.RemoveAll(o => o is ReleaseManifest r && r.Address == i);
+// 								}
+// 							}
+// 						}
 					}
 
 					Statistics.Delegating.End();
@@ -1528,9 +1534,9 @@ namespace UC.Net
 						//	}
 						//}
 
-						foreach(var i in Changes.OfType<Transaction>().Where(i => i.Payload.RoundId == r.Id))
+						foreach(var i in Transactions.OfType<Transaction>().Where(i => i.Payload.RoundId == r.Id).SelectMany(i => i.Operations))
 						{
-							i.Stage = ProcessingStage.Pending;
+							i.Placing = PlacingStage.Pending;
 						}
 
 						r.FirstArrivalTime = DateTime.MaxValue;
@@ -1553,7 +1559,7 @@ namespace UC.Net
 
 							if(p.Confirmed)
 							{
-								Changes.RemoveAll(t => t.RoundMax <= p.Id);
+								Transactions.RemoveAll(t => t.RoundMax <= p.Id);
 
 								//foreach(var i in Operations.Where(o => o.Stage == ProcessingStage.Placed && p.AnyOperation(i => i.Transaction.SignatureEquals(o.Transaction))).ToArray())
 								//{
@@ -1593,7 +1599,7 @@ namespace UC.Net
 		{
 			if(Operations.Count <= OperationsQueueLimit)
 			{
-				o.Stage = ProcessingStage.Pending;
+				o.Delegation = DelegationStage.Pending;
 				Operations.Add(o);
 			} 
 			else
@@ -1627,7 +1633,7 @@ namespace UC.Net
 
 					lock(Lock)
 					{
-						foreach(var t in Changes.OfType<Transaction>().Where(i => i.Stage == ProcessingStage.Accepted).ToArray())
+						foreach(var t in Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Accepted)).ToArray())
 						{
 							bool valid = true;
 
@@ -1643,7 +1649,7 @@ namespace UC.Net
 										
 										if(!valid)
 										{	
-											Changes.Remove(t);
+											Transactions.Remove(t);
 											break;
 										}
 									}
@@ -1658,10 +1664,9 @@ namespace UC.Net
 										Monitor.Enter(Lock);
 									}
 								}
+								
+								o.Placing = PlacingStage.Pending;
 							}
-
-							if(valid)
-								t.Stage = ProcessingStage.Pending;
 						}
 					}
 				}
@@ -1672,21 +1677,22 @@ namespace UC.Net
 			}
 		}
 
-		public List<Change> ProcessIncoming(IEnumerable<Change> txs)
+		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			Statistics.TransactionsProcessing.Begin();
 
 			if(Generator == null) /// not ready to process external transactions
 				return new();
 
-			var accepted = txs.Where(i =>	!Changes.Any(j => i.SignatureEquals(j)) && 
+			var accepted = txs.Where(i =>	!Transactions.Any(j => i.SignatureEquals(j)) && 
 											i.RoundMax > Chain.LastConfirmedRound.Id && 
 											i.Valid).ToList();
 								
 			foreach(var i in accepted)
-				i.Stage = ProcessingStage.Accepted;
+				foreach(var o in i.Operations)
+					o.Placing = PlacingStage.Accepted;
 
-			Changes.AddRange(accepted);
+			Transactions.AddRange(accepted);
 
 			Statistics.TransactionsProcessing.End();
 
@@ -1842,9 +1848,9 @@ namespace UC.Net
 				}
 		}
 
-		public Coin EstimateFee(Transaction t)
+		public Coin EstimateFee(IEnumerable<Operation> operations)
 		{
-			return Chain != null ? Chain.CalculateFee(Chain.LastConfirmedRound, t) : Coin.Zero;
+			return Chain != null ? Operation.CalculateFee(Chain.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
 		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, IFlowControl flowcontrol = null, CancellationTokenSource cts = null)

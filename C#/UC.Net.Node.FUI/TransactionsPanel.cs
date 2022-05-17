@@ -78,7 +78,7 @@ namespace UC.Net.Node.FUI
 				{
 					var a = Net.Account.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Core.Chain.Accounts.SearchTransactions(a).OrderByDescending(i => i.Id);
+					var txs = Core.Chain.Accounts.SearchTransactions(a).OrderByDescending(i => i.Operations.Max(o => o.Id));
 	
 					foreach(var i in txs)
 					{
@@ -86,9 +86,9 @@ namespace UC.Net.Node.FUI
 	
 						li.Tag = i;
 	
-						li.SubItems.Add(i.Id.ToString());
+						//li.SubItems.Add(i.Id.ToString());
 						li.SubItems.Add(i.Payload.Round.Id.ToString());
-						li.SubItems.Add(i.Successful ? "OK" : "Failed" /*i.Payload.Round.Confirmed ? "Confirmed" : "Confirming..."*/);
+						//li.SubItems.Add(i.Successful ? "OK" : "Failed" /*i.Payload.Round.Confirmed ? "Confirmed" : "Confirming..."*/);
 						li.SubItems.Add(i.Member?.ToString());
 		
 						Transactions.Items.Add(li);

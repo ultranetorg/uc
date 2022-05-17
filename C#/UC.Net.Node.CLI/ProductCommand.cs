@@ -39,24 +39,7 @@ namespace UC.Net.Node.CLI
 																				ProductAddress.Parse(GetString("address")),
 																				GetString("title"))));
 
-				case "publish" : 
-					return Send(() => Client.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
-																			ReleaseAddress.Parse(GetString("address")),
-																			GetString("channel"), 
-																			Version.Parse(GetString("previous")),
-																			GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)).ToList(),
-																			GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)).ToList()
-																			)));
-
-		   		case "releasestatus" :
-				{
-					var r = Client.QueryRelease(new []{ReleaseQuery.Parse("query")}, Args.Has("confirmed"));
-
-					Log.Report(this, "Release", r.ToString());
-
-					return r;
-				}
-				
+		
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

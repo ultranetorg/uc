@@ -83,10 +83,10 @@ namespace UC.Net
 		}
 
 		public UntTransfer						Send(TransferUntCall call) => Send<UntTransfer>(call);
-		public GetTransactionsStatusResponse	Send(GetTransactionsStatusCall call) => Send<GetTransactionsStatusResponse>(call);
+		public GetOperationStatusResponse		Send(GetOperationStatusCall call) => Send<GetOperationStatusResponse>(call);
 		public GetMembersResponse				Send(GetMembersCall call) => Send<GetMembersResponse>(call);
 		public NextRoundResponse				Send(NextRoundCall call) => Send<NextRoundResponse>(call);
-		public LastTransactionIdResponse		Send(LastTransactionIdCall call) => Send<LastTransactionIdResponse>(call);
+		//public LastTransactionIdResponse		Send(LastOperationIdCall call) => Send<LastTransactionIdResponse>(call);
 		public DelegateTransactionsResponse		Send(DelegateTransactionsCall call) => Send<DelegateTransactionsResponse>(call);
 		public GetStatusResponse				Send(GetStatusCall call) => Send<GetStatusResponse>(call);
 		public Operation						Send(LastOperationCall call)
@@ -95,8 +95,10 @@ namespace UC.Net
 
 			if(r.Operation != null)
 			{
-				var o = Type.GetType(GetType().Namespace + "." + call.Type).GetConstructor(new Type[0]).Invoke(new object[0]) as Operation;
-				o.Read(new BinaryReader(new MemoryStream(r.Operation)));
+				var rd = new BinaryReader(new MemoryStream(r.Operation));
+
+				var o = Operation.FromType((Operations)rd.ReadByte());
+				o.Read(rd);
 				return o;
 			} 
 			else

@@ -26,7 +26,7 @@ namespace UC
 			return false;
 		}
 
-		public static byte[] ReadHash(this BinaryReader r)
+		public static byte[] ReadSha3(this BinaryReader r)
 		{
 			return r.ReadBytes(Cryptography.HashSize);
 		}

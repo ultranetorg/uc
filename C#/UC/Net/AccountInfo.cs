@@ -21,7 +21,7 @@ namespace UC.Net
 			Name = o.GetType().Name;
 			Decsription = o.Description;
 			Result = o.Result;
-			TransactionId = o.Transaction.Id;
+			TransactionId = o.Id;
 			RoundId = o.Transaction.Payload.RoundId;
 		}
 	}
@@ -29,7 +29,7 @@ namespace UC.Net
 	public class AccountInfo
 	{
 		public Coin							Balance {get; set;}
-		public int							LastTransactionId {get; set;}
+		public int							LastOperationId {get; set;}
 		public List<string>					Authors {get; set;}
 		public List<AccountOperationInfo>	Operations {get; set;}
 
@@ -74,7 +74,7 @@ namespace UC.Net
 			var root = new Item();
 
 			root.Add("Balance",				Balance);
-			root.Add("Last Transaction Id",	LastTransactionId);
+			root.Add("Last Transaction Id",	LastOperationId);
 			
 			if(Authors != null)
 			{

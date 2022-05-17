@@ -13,7 +13,7 @@ namespace UC.Net.Node.FUI
 {
 	public partial class FlowControlForm : Form, IFlowControl
 	{
-		Core				Core;
+		Core					Core;
 		Operation				Operation;
 		Log						IFlowControl.Log => Log.Log;
 		CancellationTokenSource CancellationToken;
@@ -47,7 +47,7 @@ namespace UC.Net.Node.FUI
 
 		public void StageChanged()
 		{
-			Log.Log.Report(this, "Processing stage changed", $"to '{Operation.Stage}'");
+			Log.Log.Report(this, "Delegation stage changed", $"Delegation={Operation.Delegation}");
 		}
 	}
 }

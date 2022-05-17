@@ -31,14 +31,15 @@ namespace UC.Net.Node.FUI
 		{
 			this.Blocks = new System.Windows.Forms.ListView();
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
 			this.Transactions = new System.Windows.Forms.ListView();
 			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
 			this.Operations = new System.Windows.Forms.ListView();
+			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			this.label9 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
@@ -46,11 +47,7 @@ namespace UC.Net.Node.FUI
 			this.Round = new System.Windows.Forms.NumericUpDown();
 			this.InfoFields = new System.Windows.Forms.Label();
 			this.InfoValues = new System.Windows.Forms.Label();
-			this.Releases = new System.Windows.Forms.ListView();
-			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
-			this.Manifest = new System.Windows.Forms.TextBox();
-			this.label4 = new System.Windows.Forms.Label();
+			this.Operation = new System.Windows.Forms.TextBox();
 			this.label5 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.Round)).BeginInit();
 			this.SuspendLayout();
@@ -59,6 +56,7 @@ namespace UC.Net.Node.FUI
 			// 
 			this.Blocks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader2,
+            this.columnHeader6,
             this.columnHeader5});
 			this.Blocks.FullRowSelect = true;
 			this.Blocks.HideSelection = false;
@@ -76,6 +74,10 @@ namespace UC.Net.Node.FUI
 			this.columnHeader2.Text = "#";
 			this.columnHeader2.Width = 20;
 			// 
+			// columnHeader6
+			// 
+			this.columnHeader6.Text = "Type";
+			// 
 			// columnHeader5
 			// 
 			this.columnHeader5.Text = "By";
@@ -85,7 +87,6 @@ namespace UC.Net.Node.FUI
 			// 
 			this.Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader3,
-            this.columnHeader4,
             this.columnHeader7});
 			this.Transactions.FullRowSelect = true;
 			this.Transactions.HideSelection = false;
@@ -103,15 +104,9 @@ namespace UC.Net.Node.FUI
 			this.columnHeader3.Text = "Signer";
 			this.columnHeader3.Width = 150;
 			// 
-			// columnHeader4
-			// 
-			this.columnHeader4.Text = "Id";
-			this.columnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader4.Width = 30;
-			// 
 			// columnHeader7
 			// 
-			this.columnHeader7.Text = "Status";
+			this.columnHeader7.Text = "Successful Ops.";
 			this.columnHeader7.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.columnHeader7.Width = 100;
 			// 
@@ -120,8 +115,9 @@ namespace UC.Net.Node.FUI
 			this.Operations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader8,
             this.columnHeader1,
-            this.columnHeader6});
+            this.columnHeader4});
 			this.Operations.FullRowSelect = true;
 			this.Operations.HideSelection = false;
 			this.Operations.Location = new System.Drawing.Point(1105, 286);
@@ -131,17 +127,21 @@ namespace UC.Net.Node.FUI
 			this.Operations.TabIndex = 23;
 			this.Operations.UseCompatibleStateImageBehavior = false;
 			this.Operations.View = System.Windows.Forms.View.Details;
+			this.Operations.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.Operations_ItemSelectionChanged);
+			// 
+			// columnHeader8
+			// 
+			this.columnHeader8.Text = "Id";
 			// 
 			// columnHeader1
 			// 
 			this.columnHeader1.Text = "Operation";
 			this.columnHeader1.Width = 280;
 			// 
-			// columnHeader6
+			// columnHeader4
 			// 
-			this.columnHeader6.Text = "Status";
-			this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			this.columnHeader6.Width = 100;
+			this.columnHeader4.Text = "Status";
+			this.columnHeader4.Width = 100;
 			// 
 			// label9
 			// 
@@ -211,86 +211,44 @@ namespace UC.Net.Node.FUI
 			// InfoValues
 			// 
 			this.InfoValues.AutoSize = true;
-			this.InfoValues.Location = new System.Drawing.Point(544, 34);
+			this.InfoValues.Location = new System.Drawing.Point(544, 28);
 			this.InfoValues.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.InfoValues.Name = "InfoValues";
 			this.InfoValues.Size = new System.Drawing.Size(83, 32);
 			this.InfoValues.TabIndex = 24;
 			this.InfoValues.Text = "Round";
 			// 
-			// Releases
+			// Operation
 			// 
-			this.Releases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.Releases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader8,
-            this.columnHeader9});
-			this.Releases.FullRowSelect = true;
-			this.Releases.HideSelection = false;
-			this.Releases.Location = new System.Drawing.Point(0, 940);
-			this.Releases.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Releases.Name = "Releases";
-			this.Releases.Size = new System.Drawing.Size(777, 698);
-			this.Releases.TabIndex = 26;
-			this.Releases.UseCompatibleStateImageBehavior = false;
-			this.Releases.View = System.Windows.Forms.View.Details;
-			this.Releases.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.Releases_ItemSelectionChanged);
-			// 
-			// columnHeader8
-			// 
-			this.columnHeader8.Text = "Operation";
-			this.columnHeader8.Width = 280;
-			// 
-			// columnHeader9
-			// 
-			this.columnHeader9.Text = "Status";
-			this.columnHeader9.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			this.columnHeader9.Width = 100;
-			// 
-			// Manifest
-			// 
-			this.Manifest.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.Operation.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Manifest.Location = new System.Drawing.Point(809, 940);
-			this.Manifest.Multiline = true;
-			this.Manifest.Name = "Manifest";
-			this.Manifest.ReadOnly = true;
-			this.Manifest.Size = new System.Drawing.Size(1093, 698);
-			this.Manifest.TabIndex = 27;
-			// 
-			// label4
-			// 
-			this.label4.AutoSize = true;
-			this.label4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label4.Location = new System.Drawing.Point(0, 891);
-			this.label4.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(109, 27);
-			this.label4.TabIndex = 24;
-			this.label4.Text = "Releases";
+			this.Operation.Location = new System.Drawing.Point(0, 940);
+			this.Operation.Multiline = true;
+			this.Operation.Name = "Operation";
+			this.Operation.ReadOnly = true;
+			this.Operation.Size = new System.Drawing.Size(1902, 698);
+			this.Operation.TabIndex = 27;
 			// 
 			// label5
 			// 
 			this.label5.AutoSize = true;
 			this.label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label5.Location = new System.Drawing.Point(809, 891);
+			this.label5.Location = new System.Drawing.Point(0, 891);
 			this.label5.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(107, 27);
+			this.label5.Size = new System.Drawing.Size(206, 27);
 			this.label5.TabIndex = 24;
-			this.label5.Text = "Manifest";
+			this.label5.Text = "Operation Details";
 			// 
 			// ExplorerPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.Manifest);
-			this.Controls.Add(this.Releases);
+			this.Controls.Add(this.Operation);
 			this.Controls.Add(this.Round);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.label5);
-			this.Controls.Add(this.label4);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.InfoValues);
@@ -314,23 +272,20 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader5;
 		private System.Windows.Forms.ListView Transactions;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
-		private System.Windows.Forms.ColumnHeader columnHeader4;
 		private System.Windows.Forms.ListView Operations;
 		private System.Windows.Forms.Label label9;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private System.Windows.Forms.ColumnHeader columnHeader6;
 		private System.Windows.Forms.NumericUpDown Round;
 		private System.Windows.Forms.ColumnHeader columnHeader7;
 		private System.Windows.Forms.Label InfoFields;
 		private System.Windows.Forms.Label InfoValues;
-		private System.Windows.Forms.ListView Releases;
-		private System.Windows.Forms.ColumnHeader columnHeader8;
-		private System.Windows.Forms.ColumnHeader columnHeader9;
-		private System.Windows.Forms.TextBox Manifest;
-		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.TextBox Operation;
 		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.ColumnHeader columnHeader8;
+		private System.Windows.Forms.ColumnHeader columnHeader4;
+		private System.Windows.Forms.ColumnHeader columnHeader6;
 	}
 }

@@ -16,9 +16,14 @@ using Org.BouncyCastle.Utilities;
 
 namespace UC.Net
 {
-	public enum ProcessingStage
+	public enum DelegationStage
 	{
-		Null, Accepted, Pending, Delegated, Placed, Confirmed
+		Null, Pending, Delegated, Failed, Confirmed
+	}
+
+	public enum PlacingStage
+	{
+		Null, NotFoundOrFailed, Accepted, Pending, Placed, Confirmed
 	}
 
 	public struct Portion
@@ -51,15 +56,17 @@ namespace UC.Net
 
 	public abstract class Operation
 	{
+		public int				Id;
 		public OperationResult	Result;
 		public Account			Signer { get; set; }
 		public Transaction		Transaction;
-		public ProcessingStage	Stage;
+		public DelegationStage	Delegation;
+		public PlacingStage		Placing;
 		public bool				Successful => Result == OperationResult.OK;
 		public IFlowControl		FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
-		public virtual bool		Free { get => false; } 
+		//public virtual bool		Mutable { get => false; } 
 
 		public static Operation FromType(Operations type)
 		{
@@ -90,7 +97,7 @@ namespace UC.Net
 							AuthorRegistration		=> Operations.AuthorRegistration,
 							AuthorTransfer			=> Operations.AuthorTransfer,
 							ProductRegistration		=> Operations.ProductRegistration,
-							ReleaseManifest		=> Operations.ReleaseDeclaration,
+							ReleaseManifest			=> Operations.ReleaseDeclaration,
 							_ => throw new IntegrityException("Wrong operation type")
 						};
 			}
@@ -107,14 +114,38 @@ namespace UC.Net
  
 		public override string ToString()
 		{
-			return $"{Type}, " + Description;
+			return $"{Type}, {Id}, {Result}, " + Description;
 		}
 
-		public abstract void Read(BinaryReader r);
-		public abstract void Write(BinaryWriter w);
+		public virtual void Read(BinaryReader r)
+		{
+			Id = r.Read7BitEncodedInt();
+		}
+
+		public virtual void Write(BinaryWriter w)
+		{
+			w.Write7BitEncodedInt(Id);
+		}
+
 		public virtual void HashWrite(BinaryWriter w)
 		{
 			Write(w);
+		}
+
+		public virtual void WritePaid(BinaryWriter w)
+		{
+			Write(w);
+		}
+
+		public virtual void WriteConfirmed(BinaryWriter w)
+		{
+			Write(w);
+		}
+
+		public virtual void ReadConfirmed(BinaryReader r)
+		{
+			Placing = PlacingStage.Confirmed;
+			Read(r);
 		}
 
 		public static bool IsValid(string author, string title)
@@ -137,6 +168,29 @@ namespace UC.Net
 		{
 			return Regex.Matches(title, @"[a-zA-Z0-9_]+").Aggregate(string.Empty, (a,m) => a += m.Value).ToLower();
 		}
+		
+		public Coin CalculateFee(Coin factor)
+		{
+			var s = new MemoryStream(); 
+			var w = new BinaryWriter(s);
+
+			WritePaid(w); 
+
+			return Roundchain.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+		}
+		
+		public static Coin CalculateFee(Coin factor, IEnumerable<Operation> operations)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write(operations, i => {
+									 	i.WritePaid(w); 
+									 });
+
+			return Roundchain.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+		}
+
 	}
 
 	public class CandidacyDeclaration : Operation
@@ -161,12 +215,16 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			Bail	= r.ReadCoin();
 			IP		= new IPAddress(r.ReadBytes(4));
 		}
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.Write(Bail);
 			w.Write(IP.GetAddressBytes());
 		}
@@ -219,12 +277,16 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			Wei	= r.ReadBigInteger();
 			Eid	= r.Read7BitEncodedInt();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.Write(Wei);
 			w.Write7BitEncodedInt(Eid);
 		}
@@ -328,12 +390,16 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			To		= r.ReadAccount();
 			Amount	= r.ReadCoin();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.Write(To);
 			w.Write(Amount);
 		}
@@ -343,7 +409,7 @@ namespace UC.Net
 			round.GetAccount(Signer).Balance -= Amount;
 			round.GetAccount(To).Balance += Amount;
 
-			return round.Accounts[Signer].Balance >= 0 ? OperationResult.OK : OperationResult.Failed;
+			return round.AffectedAccounts[Signer].Balance >= 0 ? OperationResult.OK : OperationResult.Failed;
 		}
 	}
 
@@ -367,12 +433,16 @@ namespace UC.Net
 		
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			Author	= r.ReadUtf8();
 			Bid		= r.ReadCoin();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.WriteUtf8(Author);
 			w.Write(Bid);
 		}
@@ -480,9 +550,10 @@ namespace UC.Net
 			Years = years;
 		}
 
-
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			Author	= r.ReadUtf8();
 			Title	= r.ReadUtf8();
 			Years	= r.ReadByte();
@@ -490,6 +561,8 @@ namespace UC.Net
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Title);
 			w.Write(Years);
@@ -549,22 +622,26 @@ namespace UC.Net
 		{
 		}
 
-		public AuthorTransfer(PrivateAccount signer, string name, Account newowner)
+		public AuthorTransfer(PrivateAccount signer, string name, Account to)
 		{
 			Signer = signer;
 			Author = name;
-			To = newowner;
+			To = to;
 		}
 
 
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			Author	= r.ReadUtf8();
-			To= r.ReadAccount();
+			To		= r.ReadAccount();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.WriteUtf8(Author);
 			w.Write(To);
 		}
@@ -599,12 +676,16 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			Address	= r.Read<ProductAddress>();
 			Title	= r.ReadUtf8();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.Write(Address);
 			w.WriteUtf8(Title);
 		}
@@ -662,6 +743,8 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
+			base.Read(r);
+
 			Product	= r.Read<ProductAddress>();
 			Actions = r.ReadDictionary(() =>{
 												var k = (Change)r.ReadByte();	
@@ -677,6 +760,8 @@ namespace UC.Net
 
 		public override void Write(BinaryWriter w)
 		{
+			base.Write(w);
+
 			w.Write(Product);
 			w.Write(Actions, i =>	{
 										w.Write((byte)i.Key);
@@ -697,57 +782,105 @@ namespace UC.Net
 		public ReleaseAddress			Address;
 		public string					Channel;		/// stable, beta, nightly, debug,...
 		public Version					PreviousVersion;
-		public List<ReleaseAddress>		CompleteDependencies; /// signed Address + hash(Package)
-		public List<ReleaseAddress>		IncrementalDependencies; /// signed Address + hash(Package)
-		public byte[]					Signature;
+		public Version					MinimalVersion;
+		public List<ReleaseAddress>		CompleteDependencies;
+		public List<ReleaseAddress>		IncrementalDependencies;
 
-		public override bool			Free => true;
 		public override bool			Valid => Address.Valid;
 		public override string			Description => $"{Address}/{Channel}";
+
+		byte[]							Hash;
+		bool							HashOnly;
 
 		public ReleaseManifest()
 		{
 		}
 
-		public ReleaseManifest(PrivateAccount signer, ReleaseAddress address, string channel, Version previousVersion, List<ReleaseAddress> completeDependencies, List<ReleaseAddress> incrementalDependencies)
+		public ReleaseManifest(PrivateAccount signer, ReleaseAddress address, string channel, Version previous, Version minimal, List<ReleaseAddress> completeDependencies, List<ReleaseAddress> incrementalDependencies)
 		{
 			Signer	= signer;
 			Address = address;
 			Channel = channel;
-			PreviousVersion = previousVersion;
+			PreviousVersion = previous;
+			MinimalVersion = minimal;
 			CompleteDependencies = completeDependencies;
 			IncrementalDependencies = incrementalDependencies;
-			
+		}
+
+		public byte[] GetOrCalcHash()
+		{
+			if(Hash != null)
+			{
+				return Hash;
+			}
+
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
-
+	
 			w.Write(Address);
 			w.WriteUtf8(Channel);
 			w.Write(PreviousVersion);
+			w.Write(MinimalVersion);
 			w.Write(CompleteDependencies);
 			w.Write(IncrementalDependencies);
-			
-			Signature = Cryptography.Current.Sign(signer, Cryptography.Current.Hash(s.ToArray()));
+	
+			Hash = Cryptography.Current.Hash(s.ToArray());
+		
+			return Hash;
+		}
+
+		public override void HashWrite(BinaryWriter writer)
+		{
+			writer.Write(GetOrCalcHash());
+		}
+
+		public override void WritePaid(BinaryWriter w)
+		{
+			w.Write(GetOrCalcHash());
 		}
 
 		public override void Read(BinaryReader r)
 		{
-			Address = r.Read<ReleaseAddress>();
-			Channel = r.ReadUtf8();
-			PreviousVersion = r.ReadVersion();
-			CompleteDependencies = r.ReadList<ReleaseAddress>();
-			IncrementalDependencies = r.ReadList<ReleaseAddress>();
-			Signature = r.ReadSignature();
+			base.Read(r);
+
+			HashOnly = r.ReadBoolean();
+
+			if(HashOnly)
+			{
+				Hash = r.ReadSha3();
+			} 
+			else
+			{
+				Address = r.Read<ReleaseAddress>();
+				Channel = r.ReadUtf8();
+				PreviousVersion = r.ReadVersion();
+				MinimalVersion = r.ReadVersion();
+				CompleteDependencies = r.ReadList<ReleaseAddress>();
+				IncrementalDependencies = r.ReadList<ReleaseAddress>();
+
+				Hash = GetOrCalcHash();
+			}
 		}
 
 		public override void Write(BinaryWriter w)
 		{
-			w.Write(Address);
-			w.WriteUtf8(Channel);
-			w.Write(PreviousVersion);
-			w.Write(CompleteDependencies);
-			w.Write(IncrementalDependencies);
-			w.Write(Signature);
+			base.Write(w);
+
+			w.Write(HashOnly);
+
+			if(HashOnly)
+			{
+				w.Write(GetOrCalcHash());
+			} 
+			else
+			{
+				w.Write(Address);
+				w.WriteUtf8(Channel);
+				w.Write(PreviousVersion);
+				w.Write(MinimalVersion);
+				w.Write(CompleteDependencies);
+				w.Write(IncrementalDependencies);
+			}
 		}
 
 		public override OperationResult Execute(Roundchain chain, Round round)
@@ -768,18 +901,15 @@ namespace UC.Net
 			{
 				if(r.Version < Address.Version)
 				{
-					var oldrls = round.GetReleases(r.Rid);
-								
-					var prev = oldrls.Find(i =>	i.Address.Author == Address.Author && 
-												i.Address.Product == Address.Product && 
-												i.Address.Platform == Address.Platform && 
-												i.Channel == Channel);
+					var prev = chain.FindRound(r.Rid).FindOperation<ReleaseManifest>(m =>	m.Address.Author == Address.Author && 
+																							m.Address.Product == Address.Product && 
+																							m.Address.Platform == Address.Platform && 
+																							m.Channel == Channel);
 					if(prev == null)
-					{
 						throw new IntegrityException("No ReleaseDeclaration found");
-					}
 					
-					oldrls.Remove(prev);
+					prev.HashOnly = true;
+					round.AffectedRounds.Add(prev.Transaction.Payload.Round);
 					p.Releases.Remove(r);
 
 				} 
@@ -787,8 +917,8 @@ namespace UC.Net
 					return OperationResult.Failed;
 			}
 
-			var rls = round.GetReleases(round.Id);
-			rls.Add(this);
+			//var rls = round.GetReleases(round.Id);
+			//rls.Add(this);
 
 			p.Releases.Add(new Release(Address.Platform, Address.Version, Channel, round.Id));
 

@@ -43,7 +43,6 @@ namespace UC.Net
 		{
 			w.Write(Transactions);
 			w.Write(Authors, i => w.WriteUtf8(i));
-			///w.Write(Products, i => { w.WriteUtf8(i.Key); w.Write7BitEncodedInt(i.Value); });
 			w.Write(Balance);
 			w.Write(Bail);
 			w.Write((byte)BailStatus);
@@ -51,25 +50,24 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
-			Transactions			= r.ReadHashSet(() => r.Read7BitEncodedInt());
-			Authors					= r.ReadList(() => r.ReadUtf8());
-			///Products				= r.ReadDictionary(() => new KeyValuePair<string, int>(r.ReadUtf8(), r.Read7BitEncodedInt()));
-			Balance					= r.ReadCoin();
-			Bail					= r.ReadCoin();
-			BailStatus				= (BailStatus)r.ReadByte();
+			Transactions	= r.ReadHashSet(() => r.Read7BitEncodedInt());
+			Authors			= r.ReadList(() => r.ReadUtf8());
+			Balance			= r.ReadCoin();
+			Bail			= r.ReadCoin();
+			BailStatus		= (BailStatus)r.ReadByte();
 		}
 
 
 		public O FindOperation<O>(Round executing, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null) where O : Operation
 		{
-			return	(	executing.EffectiveOperations.FirstOrDefault(i =>	i.Signer == Account && 
+			return	(	executing.ExecutedOperations.FirstOrDefault(i =>	i.Signer == Account && 
 																			i is O &&
 																			(pp == null || pp(i.Transaction.Payload)) && 
 																			(tp == null || tp(i.Transaction)) && 
 																			(op == null || op(i)))
 						??
 						Chain.Accounts.FindLastOperation<O>(Account,o => o.Successful && (op == null || op(o)), 
-																	t => t.Successful && t.Signer == Account && (tp == null || tp(t)), 
+																	tp, 
 																	p => (!p.Round.Confirmed || p.Confirmed) && (pp == null || pp(p)), /// if round is confirmed than take confirmed blocks only
 																	r => r.Id < executing.Id)
 					)
