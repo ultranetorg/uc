@@ -37,16 +37,6 @@ namespace UC.Net
 		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, ReleaseDeclaration 
 	}
 
-// 	public enum OperationArgument : byte
-// 	{
-// 		Null = 0, Coin, Integer, Bytes, String, Date, Version, Account
-// 	}
-
-	public enum OperationResult : byte
-	{
-		Null = 0, OK, Failed, Rejected
-	}
-
 	public interface IFlowControl
 	{
 		Log			Log { get; }
@@ -57,16 +47,20 @@ namespace UC.Net
 	public abstract class Operation
 	{
 		public int				Id;
-		public OperationResult	Result;
+		public string			Error;
 		public Account			Signer { get; set; }
 		public Transaction		Transaction;
 		public DelegationStage	Delegation;
 		public PlacingStage		Placing;
-		public bool				Successful => Result == OperationResult.OK;
+		public bool				Successful => Error == null;
 		public IFlowControl		FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
-		//public virtual bool		Mutable { get => false; } 
+		public bool				Executed; 
+
+		public const string	Rejected = "Rejected";
+		public const string	NotEnoughUNT = "Not enough UNT";
+		public const string TheSignerDoesNotOwnTheAuthor = "The signer does not own the Author";
 
 		public static Operation FromType(Operations type)
 		{
@@ -107,14 +101,13 @@ namespace UC.Net
 		{
 		}
 
-		public virtual OperationResult Execute(Roundchain chain, Round round)
+		public virtual void Execute(Roundchain chain, Round round)
 		{
-			return OperationResult.OK;
 		}
  
 		public override string ToString()
 		{
-			return $"{Type}, {Id}, {Result}, " + Description;
+			return $"{Type}, {Id}, " + Description + $", {Error ?? "OK"}";
 		}
 
 		public virtual void Read(BinaryReader r)
@@ -229,7 +222,7 @@ namespace UC.Net
 			w.Write(IP.GetAddressBytes());
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void Execute(Roundchain chain, Round round)
 		{
 			var e = round.GetAccount(Signer);
 
@@ -243,8 +236,6 @@ namespace UC.Net
 
 			if(e.BailStatus == BailStatus.Siezed) /// if was siezed than reset to OK status
 				e.BailStatus = BailStatus.OK;
-
-			return e.Balance >= 0 ? OperationResult.OK : OperationResult.Failed;
 		}
 	}
 
@@ -291,7 +282,7 @@ namespace UC.Net
 			w.Write7BitEncodedInt(Eid);
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void Execute(Roundchain chain, Round round)
 		{
 			Portion = Calculate(round.WeiSpent, round.Factor, Wei);
 			
@@ -303,11 +294,9 @@ namespace UC.Net
 				round.Factor = Portion.Factor;
 				round.WeiSpent += Wei;
 				round.Emission += Portion.Amount;
-
-				return OperationResult.OK;
 			}
 			else
-				return OperationResult.Failed; /// emission is over
+				Error = "Emission is over"; /// emission is over
 		}
 
 		public static byte[] Serialize(Account beneficiary, int eid)
@@ -404,12 +393,10 @@ namespace UC.Net
 			w.Write(Amount);
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void  Execute(Roundchain chain, Round round)
 		{
 			round.GetAccount(Signer).Balance -= Amount;
 			round.GetAccount(To).Balance += Amount;
-
-			return round.AffectedAccounts[Signer].Balance >= 0 ? OperationResult.OK : OperationResult.Failed;
 		}
 	}
 
@@ -447,7 +434,7 @@ namespace UC.Net
 			w.Write(Bid);
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void Execute(Roundchain chain, Round round)
 		{
 			var a = round.GetAuthor(Author);
 
@@ -465,8 +452,8 @@ namespace UC.Net
 						round.GetAccount(Signer).Balance -= Bid;
 						a.FirstBid = round.Id;
 						a.LastBid = round.Id;
-	
-						return OperationResult.OK;
+						
+						return;
 					}
 					else
 					{
@@ -478,7 +465,7 @@ namespace UC.Net
 							round.GetAccount(Signer).Balance -= Bid;
 							a.LastBid = round.Id;
 					
-							return OperationResult.OK;
+							return;
 						}
 					}
 	 			}
@@ -504,10 +491,10 @@ namespace UC.Net
 				a.LastTransfer		= -1;
 				a.Products.Clear();
 			
-				return OperationResult.OK;
+				return;
 			}
 
-			return OperationResult.Failed;
+			Error = "Bid too low or auction is over";
 		}
 
 		public static Coin GetMinCost(string name)
@@ -568,8 +555,11 @@ namespace UC.Net
 			w.Write(Years);
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void Execute(Roundchain chain, Round round)
 		{
+if(Author == "companyinc" && Years == 2)
+	Author = Author;
+
 			AuthorBid lb = null;
 
 			var a = round.FindAuthor(Author);
@@ -603,11 +593,9 @@ namespace UC.Net
 				round.GetAccount(Signer).Balance -= cost;
 				round.GetAuthor(Author).LastRegistration = round.Id;
 				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
-
-				return OperationResult.OK;
 			}
-
-			return OperationResult.Failed;
+			else
+				Error = "Failed";
 		}
 	}
 
@@ -629,7 +617,6 @@ namespace UC.Net
 			To = to;
 		}
 
-
 		public override void Read(BinaryReader r)
 		{
 			base.Read(r);
@@ -646,13 +633,17 @@ namespace UC.Net
 			w.Write(To);
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void Execute(Roundchain chain, Round round)
 		{
+			if(!round.GetAccount(Signer).Authors.Contains(Author))
+			{
+				Error = TheSignerDoesNotOwnTheAuthor;
+				return;
+			}
+
 			round.GetAccount(Signer).Authors.Remove(Author);
 			round.GetAccount(To).Authors.Add(Author);
 			round.GetAuthor(Author).LastTransfer = round.Id;
-
-			return OperationResult.OK;
 		}
 	}
 
@@ -690,12 +681,15 @@ namespace UC.Net
 			w.WriteUtf8(Title);
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void Execute(Roundchain chain, Round round)
 		{
 			var a = round.FindAuthor(Address.Author);
 
 			if(a == null || a.FindOwner(round) != Signer)
-				return OperationResult.Failed;
+			{
+				Error = TheSignerDoesNotOwnTheAuthor;
+				return;
+			}
 
 			if(!a.Products.Contains(Address.Product))
 				a.Products.Add(Address.Product);
@@ -704,8 +698,6 @@ namespace UC.Net
 		
 			p.Title				= Title;
 			p.LastRegistration	= round.Id;
-
-			return OperationResult.OK;
 		}
 	}
 
@@ -883,15 +875,21 @@ namespace UC.Net
 			}
 		}
 
-		public override OperationResult Execute(Roundchain chain, Round round)
+		public override void Execute(Roundchain chain, Round round)
 		{
 			var a = round.FindAuthor(Address.Author);
 
 			if(a == null || a.FindOwner(round) != Signer)
-				return OperationResult.Failed;
+			{
+				Error = "TheSignerDoesNotOwnTheAuthor";
+				return;
+			}
 
 			if(!a.Products.Contains(Address.Product))
-				return OperationResult.Failed;
+			{
+				Error = "Product is not registered";
+				return;
+			}
  
 			var p = round.GetProduct(Address);
 	
@@ -914,15 +912,16 @@ namespace UC.Net
 
 				} 
 				else
-					return OperationResult.Failed;
+				{
+					Error = "Version must be greater than current";
+					return;
+				}
 			}
 
 			//var rls = round.GetReleases(round.Id);
 			//rls.Add(this);
 
 			p.Releases.Add(new Release(Address.Platform, Address.Version, Channel, round.Id));
-
-			return OperationResult.OK;
 		}
 	}
 }

@@ -10,7 +10,7 @@ namespace UC.Net
 	{
 		public string			Name {get; set;}
 		public string			Decsription {get; set;}
-		public OperationResult	Result {get; set;}
+		public string			Error {get; set;}
 		public int				TransactionId {get; set;}
 		public int				RoundId {get; set;}
 
@@ -20,7 +20,7 @@ namespace UC.Net
 		{
 			Name = o.GetType().Name;
 			Decsription = o.Description;
-			Result = o.Result;
+			Error = o.Error;
 			TransactionId = o.Id;
 			RoundId = o.Transaction.Payload.RoundId;
 		}
@@ -85,7 +85,7 @@ namespace UC.Net
 
 			foreach(var i in Operations)
 			{
-				ops.Add(i.Name, $"{i.Decsription} Tx={i.TransactionId} R={i.RoundId} Result={i.Result}");
+				ops.Add(i.Name, $"{i.Decsription} Tx={i.TransactionId} R={i.RoundId} Result={(i.Error ?? "OK")}");
 			}
 
 			var max = root.MaxNameLength(-1, 0);

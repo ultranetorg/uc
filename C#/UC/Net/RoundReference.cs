@@ -11,7 +11,7 @@ namespace UC.Net
 	public class RoundReference : IEquatable<RoundReference>
 	{
 		public const byte		PrefixLength = 4;
-		public static readonly	RoundReference Empty = new RoundReference {	Hash = new byte[Cryptography.HashSize], 
+		public static readonly	RoundReference Empty = new RoundReference {	//Hash = new byte[Cryptography.HashSize], 
 																			Payloads = new(), 
 																			Violators = new(), 
 																			Joiners = new(), 
@@ -21,7 +21,7 @@ namespace UC.Net
 																			//Propositions = new()
 																		  };
 
-		public byte[]			Hash;
+		//public byte[]			Hash;
 		public List<byte[]>		Payloads;
 		public List<byte[]>		Joiners;
 		public List<byte[]>		Leavers;
@@ -34,7 +34,7 @@ namespace UC.Net
 
 		public void WriteHashable(BinaryWriter w)
 		{
-			if(Hash.Length != Cryptography.HashSize)					throw new IntegrityException("Wrong PitchHash length");
+			//if(Hash.Length != Cryptography.HashSize)					throw new IntegrityException("Wrong PitchHash length");
 			if(Payloads.Any(i => i.Length != PrefixLength))				throw new IntegrityException("Wrong Payloads Prefix length");
 			if(Violators.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Violators Prefix length");
 			if(Joiners.Any(i => i.Length != PrefixLength))				throw new IntegrityException("Wrong Joiners Prefix length");
@@ -43,7 +43,7 @@ namespace UC.Net
 			if(FundableRevocations.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableRevocations Prefix length");
 			//if(Propositions.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Propositions Prefix length");
 
-			w.Write(Hash);
+			//w.Write(Hash);
 
 			foreach(var i in Payloads)
 				w.Write(i);
@@ -71,7 +71,7 @@ namespace UC.Net
 
 		public void Write(BinaryWriter w)
 		{
-			if(Hash.Length != Cryptography.HashSize)					throw new IntegrityException("Wrong PitchHash length");
+			//if(Hash.Length != Cryptography.HashSize)					throw new IntegrityException("Wrong PitchHash length");
 			if(Payloads.Any(i => i.Length != PrefixLength))				throw new IntegrityException("Wrong Payloads Prefix length");
 			if(Violators.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Violators Prefix length");
 			if(Joiners.Any(i => i.Length != PrefixLength))				throw new IntegrityException("Wrong Joiners Prefix length");
@@ -80,7 +80,7 @@ namespace UC.Net
 			if(FundableRevocations.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableRevocations Prefix length");
 			//if(Propositions.Any(i => i.Length != PrefixLength))			throw new IntegrityException("Wrong Propositions Prefix length");
 
-			w.Write(Hash);
+			//w.Write(Hash);
 			w.Write(Payloads,				i => w.Write(i));
 			w.Write(Violators,				i => w.Write(i));
 			w.Write(Joiners,				i => w.Write(i));
@@ -93,7 +93,7 @@ namespace UC.Net
 
 		public void Read(BinaryReader r)
 		{
-			Hash				= r.ReadBytes(Cryptography.HashSize);
+			//Hash				= r.ReadBytes(Cryptography.HashSize);
 			Payloads			= r.ReadList(() => r.ReadBytes(PrefixLength));
 			Violators			= r.ReadList(() => r.ReadBytes(PrefixLength));
 			Joiners				= r.ReadList(() => r.ReadBytes(PrefixLength));
@@ -111,7 +111,7 @@ namespace UC.Net
 
 		public override int GetHashCode()
 		{
-			return	Hash[0] ^
+			return	//Hash[0] ^
 					Payloads.Count.GetHashCode() ^ 
 					Violators.Count.GetHashCode() ^ 
 					Joiners.Count.GetHashCode() ^ 
@@ -123,7 +123,7 @@ namespace UC.Net
 
 		public bool Equals(RoundReference o)
 		{
-			return	Hash				.SequenceEqual(o.Hash) &&
+			return	//Hash				.SequenceEqual(o.Hash) &&
 					Payloads			.SequenceEqual(o.Payloads,				new BytesEqualityComparer()) &&
 					Violators			.SequenceEqual(o.Violators,				new BytesEqualityComparer()) &&
 					Joiners				.SequenceEqual(o.Joiners,				new BytesEqualityComparer()) &&

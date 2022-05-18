@@ -60,7 +60,7 @@ namespace UC.Net.Node.FUI
 																							{
 																								var li = new ListViewItem(i.ToString());
 																								//li.Tag = i;
-																								li.SubItems.Add(i.Result.ToString());
+																								li.SubItems.Add(i.Error);
 																								return li;
 																							})
 																							.ToArray());

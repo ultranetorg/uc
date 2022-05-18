@@ -11,7 +11,7 @@ namespace UC.Net
 	public class Transaction : IBinarySerializable, IHashable
 	{
 		public List<Operation>			Operations = new ();
-		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Result == OperationResult.OK);
+		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Successful);
 		
 		public Payload					Payload;
 		//public bool						Successful;
@@ -91,7 +91,6 @@ namespace UC.Net
 			Signer		= r.ReadAccount();
 			Operations	= r.ReadList(() => {
 												var o = Operation.FromType((Operations)r.ReadByte());
-												o.Result		= OperationResult.OK;
 												o.Placing		= PlacingStage.Confirmed;
 												o.Signer		= Signer;
 												o.Transaction	= this;

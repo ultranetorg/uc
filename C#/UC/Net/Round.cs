@@ -64,7 +64,9 @@ namespace UC.Net
 
 		//public Operation								CurrentOperation;
 		public IEnumerable<Payload>						ExecutingPayloads;
-		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads.SelectMany(i => i.Transactions).SelectMany(i => i.SuccessfulOperations);
+		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
+																								.SelectMany(i => i.SuccessfulOperations)
+																								.Where(i => i.Executed);
 		
 		public Round(Roundchain c)
 		{
@@ -242,6 +244,18 @@ namespace UC.Net
  			return o;
  		}
 
+		public void Seal()
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write(Id > 0 ? Previous.Hash : Cryptography.ZeroHash);
+
+			WriteConfirmed(w);
+
+			Hash = Cryptography.Current.Hash(s.ToArray());
+		}
+
 		void WriteConfirmed(BinaryWriter w)
 		{
 			w.Write(Time);
@@ -272,16 +286,6 @@ namespace UC.Net
 			ConfirmedViolators				= r.ReadList<Account>();
 			ConfirmedFundableAssignments	= r.ReadList<Account>();
 			ConfirmedFundableRevocations	= r.ReadList<Account>();
-		}
-
-		public void Seal()
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			WriteConfirmed(w);
-
-			Hash = Cryptography.Current.Hash(s.ToArray());
 		}
 
 		public void Write(BinaryWriter w)

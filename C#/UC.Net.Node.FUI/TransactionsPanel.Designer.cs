@@ -135,7 +135,7 @@ namespace UC.Net.Node.FUI
 			// 
 			this.columnHeader6.Text = "Status";
 			this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			this.columnHeader6.Width = 130;
+			this.columnHeader6.Width = 500;
 			// 
 			// TransactionsPanel
 			// 

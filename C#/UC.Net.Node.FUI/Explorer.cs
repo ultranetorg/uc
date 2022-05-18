@@ -51,6 +51,7 @@ namespace UC.Net.Node.FUI
 			lock(Core.Lock)
 			{
 				var r =  Core.Chain.FindRound((int)Round.Value);
+
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.Time + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
@@ -59,9 +60,9 @@ namespace UC.Net.Node.FUI
 									(r.ConfirmedViolators != null ? string.Join(", ", r.ConfirmedViolators) : null)
 									;
 
-				Blocks.Items.AddRange(	Core.Chain.FindRound((int)Round.Value).Payloads
+				Blocks.Items.AddRange(	r.Payloads
 										.Union(
-										Core.Chain.FindRound((int)Round.Value).Blocks.Where(i => i is not Payload))
+										r.Blocks.Where(i => i is not Payload))
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());
@@ -122,7 +123,7 @@ namespace UC.Net.Node.FUI
 																								var li = new ListViewItem(i.Id.ToString());
 																								li.Tag = i;
 																								li.SubItems.Add(i.ToString());
-																								li.SubItems.Add(i.Result.ToString());
+																								li.SubItems.Add(i.Error);
 																								return li;
 																							}).ToArray());
 					if(Operations.Items.Count > 0)

@@ -245,7 +245,7 @@ namespace UC.Net
 	{
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Any());
-		public byte[]					OrderingKey => Transactions.Any() ? Transactions.First().Signer : new byte[0];
+		public byte[]					OrderingKey => Member;
 
 		public override bool Valid
 		{
