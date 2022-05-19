@@ -20,6 +20,7 @@ namespace UC.Net
 		Log									Log;
 		public Dictionary<Account, byte[]>	Wallets = new();
 		public List<Account>				Accounts = new();
+		public Dictionary<Account, int>		OperationIds = new();
  		List<PrivateAccount>				Fathers = new();
 
 		public event Action					AccountsChanged;						

@@ -126,9 +126,12 @@ namespace UC.Net
 				f.Add("IP(Reported):Port");		v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
 				f.Add($"Generator{(RemoteMember != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? RemoteMember?.Generator)}");
 				f.Add("Operations");			v.Add($"{Operations.Count}");
-				f.Add("    pending");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
-				f.Add("    delegated");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
-				f.Add("    confirmed");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Confirmed)}");
+				f.Add("    Pending");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
+				f.Add("    Delegated");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
+				f.Add("       Accepted");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}");
+				f.Add("       Pending");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Pending)}");
+				f.Add("       Placed");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Placed)}");
+				f.Add("       Confirmed");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
 				
 				//f.Add("Transactions");			v.Add($"{Transactions.Count}");
 				//f.Add("    pending");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Pending)}");
@@ -331,14 +334,9 @@ namespace UC.Net
 			}
 
 			Chain.BlockAdded += b =>{
-										var prev = Declaration;
-
 										if(Generator != null)
 											Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator, null, null, null, r => r.Confirmed);
 			
-										if(prev != null && Declaration == null)
-											Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator, null, null, null, r => r.Confirmed);
-
 										ReachConsensus();
 									};
 
@@ -1085,27 +1083,6 @@ namespace UC.Net
 			return r;
 		}
 
-		List<Transaction> BuildTransactions(Account member, int rmax, Dictionary<Account, int> nextids)
-		{
-			var l = new List<Transaction>();
-
-			foreach(var g in Operations.Where(i => i.Delegation == DelegationStage.Pending).GroupBy(i => i.Signer))
-			{
-				var t = new Transaction(Settings, g.Key as PrivateAccount);
-
-				foreach(var o in g)
-				{
-					o.Id = nextids[g.Key]++;
-					t.AddOperation(o);
-				}
-
-				t.Sign(member, rmax);
-				l.Add(t);
-			}
-
-			return l;
-		}
-
 // 		List<Proposition> BuildPropositions(Account member, int rmax)
 // 		{
 // 			var l = new List<Proposition>();
@@ -1361,7 +1338,7 @@ namespace UC.Net
 		{
 			Peer[]						peers;
 			Operation[]					pendings;
-			Dictionary<Account, int>	accounts;
+			//IEnumerable<Account>		accounts;
 			bool						ready;
 			IEnumerable<Operation>		delegated;
 
@@ -1384,24 +1361,40 @@ namespace UC.Net
 					{
 						peers = Peers.ToArray();
 						pendings = Operations.Where(i => i.Delegation == DelegationStage.Pending).ToArray();
-						accounts = pendings.GroupBy(i => i.Signer).Select(i => i.Key).ToDictionary(k => k, v => 0);
+						//accounts = pendings.GroupBy(i => i.Signer).Select(i => i.Key);
 						ready = pendings.Any() && Operations.Any(i => i.Delegation != DelegationStage.Delegated);
 					}
 
 					if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
 					{
-						foreach(var a in accounts)
-						{
-							var o = m.Api.Send(new LastOperationCall {Account = a.Key});
-							accounts[a.Key] = o == null ? 0 : o.Id + 1;
-						}
-
-						IEnumerable<Transaction> txs;
+						var txs= new List<Transaction>();
 
 						var rmax = m.Api.Send(new NextRoundCall()).NextRoundId;
 
 						lock(Lock)
-							txs = BuildTransactions(m.Generator, Roundchain.GetValidityPeriod(rmax), accounts);
+						{
+							foreach(var g in Operations.Where(i => i.Delegation == DelegationStage.Pending).GroupBy(i => i.Signer))
+							{
+								if(!Vault.OperationIds.ContainsKey(g.Key))
+								{
+									Monitor.Exit(Lock);
+									var o = m.Api.Send(new LastOperationCall {Account = g.Key});
+									Monitor.Enter(Lock);
+									Vault.OperationIds[g.Key] = o == null ? 0 : o.Id + 1;
+								}
+
+								var t = new Transaction(Settings, g.Key as PrivateAccount);
+
+								foreach(var o in g)
+								{
+									o.Id = Vault.OperationIds[g.Key]++;
+									t.AddOperation(o);
+								}
+
+								t.Sign(m.Generator, Roundchain.GetValidityPeriod(rmax));
+								txs.Add(t);
+							}
+						}
 	
 						var accepted = m.Api.Send(new DelegateTransactionsCall {Data = Write(txs).ToArray()}).Accepted;
 	
@@ -1415,7 +1408,7 @@ namespace UC.Net
 									
 						Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {m.IP}");
 
-						Thread.Sleep(1000); /// prevent any flooding
+						Thread.Sleep(500); /// prevent any flooding
 					}
 
 					lock(Lock)
@@ -1433,16 +1426,18 @@ namespace UC.Net
 								{
 									var o = delegated.First(d => d.Signer == i.Account && d.Id == i.Id);
 
+									o.Placing = i.Stage;
+
 									if(i.Stage == PlacingStage.Confirmed)
 									{
-										o.Delegation = DelegationStage.Confirmed;
+										o.Delegation = DelegationStage.Processed;
 										o.FlowReport?.StageChanged();
 										Operations.Remove(o);
 									}
 
 									if(i.Stage == PlacingStage.NotFoundOrFailed)
 									{
-										o.Delegation = DelegationStage.Failed;
+										o.Delegation = DelegationStage.Processed;
 										o.FlowReport?.StageChanged();
 										Operations.Remove(o);
 									}

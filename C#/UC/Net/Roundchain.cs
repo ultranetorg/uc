@@ -905,7 +905,7 @@ namespace UC.Net
 																	return new Peer {Generator = i, IP = d.IP, JoinedAt = round.Id + Pitch};
 																}));
 
-			Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Generator));  /// CandidacyDeclaration cancels membership
+			Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Generator && o.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
 			Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Generator) && round.AffectedAccounts[i.Generator].Bail < (Settings.Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
 			Members.RemoveAll(i => round.ConfirmedLeavers.Contains(i.Generator));
 			Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Generator));
@@ -984,40 +984,6 @@ namespace UC.Net
 			}
 		}
 
-		public IEnumerable<AuthorEntry> FindAuthors(Account account, Round executing)
-		{
-			var o = new List<AuthorEntry>();
-
-			foreach(var r in Rounds.Where(i => i.Id <= executing.Id))
-				foreach(var a in r.AffectedAuthors)
-				{
-					var auth = Authors.Find(a.Key, executing.Id);
-
-					var lt = auth.FindTransfer(executing);
-					var lr = auth.FindRegistration(executing);
-
-					if(lr != null && (lt == null ? lr.Signer : lt.To) == account && !o.Any(i => i.Name == a.Value.Name))
-					{	
-						o.Add(a.Value);
-						yield return a.Value; 
-					}
-				}
-
-			var e = Accounts.FindEntry(account);
-
-			if(e != null)
-				foreach(var a in e.Authors.Select(i => Authors.FindEntry(i)))
-					if((a.LastTransfer != -1 ? a.LastTransfer : a.LastRegistration) <= executing.Id)
-					{
-						if(!o.Any(i => i.Name == a.Name))
-						{	
-							o.Add(a);
-							yield return a;
-						}
-					}
-					else
-						throw new IntegrityException("maxrid works inside pool only");
-		}
 
 		public ProductEntry FindProduct(ProductAddress authorproduct, int ridmax)
 		{

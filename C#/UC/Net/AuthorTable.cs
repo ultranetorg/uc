@@ -49,78 +49,48 @@ namespace UC.Net
 			Save(batch, round.AffectedAuthors.Values);
 		}
 
-// 		public AuthorBid FindLastSuccessfulAuthorBid(string author, int maxrid)
-// 		{
-// 			var o = Chain.FindLastPoolOperation<AuthorBid>(o => o.Author == author && o.Result == OperationResult.OK, t => t.Successful, p => !p.Round.Confirmed || p.Confirmed, r => r.Id <= maxrid);
-// 
-// 			if(o != null)
-// 				return o;
-// 
-// 			var e = FindEntry(author);
-// 
-// 			if(e != null)
-// 			{
-// 				foreach(var b in Chain.FindRound(e.LastBid).Payloads)
-// 					foreach(var t in b.Transactions)
-// 						foreach(var i in t.Operations.OfType<AuthorBid>())
-// 							if(i.Author == author)
-// 								return i;
-// 							
-// 				throw new IntegrityException("AuthorBid operation not found");
-// 			}
-// 
-// 			return null;
-// 		}
+ 		public AuthorEntry Find(string name, int ridmax)
+ 		{
+ 			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+ 				if(r.AffectedAuthors.ContainsKey(name))
+ 					return r.AffectedAuthors[name];
+ 		
+ 			var e = FindEntry(name);
+ 		
+ 			if(e != null && (e.LastRegistration > ridmax || e.LastTransfer > ridmax))
+ 				throw new IntegrityException("maxrid works inside pool only");
+ 		
+ 			return e;
+ 		}
 
-// 		public AuthorTransfer FindLastTransfer(string author, int maxrid)
-// 		{
-// 			var o = Chain.FindLastPoolOperation<AuthorTransfer>(o => o.Author == author && o.Result == OperationResult.OK, t => t.Successful, p => !p.Round.Confirmed || p.Confirmed, r => r.Id <= maxrid);
-// 
-// 			if(o != null)
-// 				return o;
-// 
-// 			var e = FindEntry(author);
-// 
-// 			if(e != null)
-// 			{
-// 				foreach(var b in Chain.FindRound(e.LastRegistration).Payloads)
-// 					foreach(var t in b.Transactions)
-// 						foreach(var i in t.Operations.OfType<AuthorTransfer>())
-// 							if(i.Author == author)
-// 								return i;
-// 							
-// 				throw new IntegrityException("AuthorTransfer operation not found");
-// 			}
-// 
-// 			return null;
-// 		}
-
-		public AuthorEntry Find(string name, int ridmax)
+		public IEnumerable<AuthorEntry> Find(Account account, int ridmax)
 		{
+			var o = new List<string>();
+
 			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
-				if(r.AffectedAuthors.ContainsKey(name))
-					return r.AffectedAuthors[name];
+				foreach(var a in r.AffectedAccounts)
+					if(a.Key == account)
+					{	
+						foreach(var i in a.Value.Authors)
+							yield return Find(i, r.Id);
 
-			var e = FindEntry(name);
+						yield break;
+					}
 
-			if(e != null && (e.LastRegistration > ridmax || e.LastTransfer > ridmax))
-				throw new IntegrityException("maxrid works inside pool only");
+			var e = Chain.Accounts.FindEntry(account);
 
-			return e;
+			if(e != null)
+				foreach(var a in e.Authors.Select(i => FindEntry(i)))
+					if((a.LastTransfer != -1 ? a.LastTransfer : a.LastRegistration) <= ridmax)
+					{
+						if(!o.Contains(a.Name))
+						{	
+							o.Add(a.Name);
+							yield return a;
+						}
+					}
+					else
+						throw new IntegrityException("maxrid works inside pool only");
 		}
-
-// 		public AuthorBid FindFirstBid(Round executing, string author)
-// 		{
-// 			return	executing.EffectiveOperations.Reverse().OfType<AuthorBid>().FirstOrDefault(i => i.Author == author)
-// 					??
-// 					FindFirstSuccessfulAuthorBid(author, executing.Id - 1);
-// 		}
-
-// 		public AuthorBid FindLastBid(Round executing, string author)
-// 		{
-// 			return	executing.EffectiveOperations.OfType<AuthorBid>().FirstOrDefault(i => i.Author == author)
-// 					??
-// 					FindLastSuccessfulAuthorBid(author, executing.Id - 1);
-// 		}
 	}
 }

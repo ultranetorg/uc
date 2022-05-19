@@ -35,12 +35,12 @@ namespace UC.Net.Node.FUI
 
 		public IEnumerable<AuthorEntry> FindAuthors(Account account)
 		{
-			return Core.Chain.FindAuthors(account, Chain.LastConfirmedRound);
+			return Chain.Authors.Find(account, Chain.LastConfirmedRound.Id);
 		}
 
 		public IEnumerable<ProductModel> FindProducts(Account account)
 		{
-			return Chain.FindAuthors(account, Chain.LastConfirmedRound)
+			return Chain.Authors.Find(account, Chain.LastConfirmedRound.Id)
 						.SelectMany(a => Chain.Authors.Find(a.Name, Chain.LastConfirmedRound.Id).Products.Select(i =>	new ProductModel
 																														{
 																															Product = Chain.FindProduct(new ProductAddress(a.Name, i),  Chain.LastConfirmedRound.Id),

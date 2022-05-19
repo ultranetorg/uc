@@ -116,10 +116,19 @@ namespace UC.Net.Node.CLI
 
 			if(obj is Operation o)
 			{
-				if(Args.Has("await") && Args.GetString("await") == "delegation")
-					Wait(() => o.Delegation != DelegationStage.Delegated && o.Delegation != DelegationStage.Confirmed && o.Delegation != DelegationStage.Failed);
-				else /// confirmation
-					Wait(() => o.Delegation != DelegationStage.Confirmed && o.Delegation != DelegationStage.Failed);
+				if(Args.Has("await"))
+					Wait(() =>	{
+									switch(Args.GetString("await"))
+									{
+										case "accepted" : return o.Placing < PlacingStage.Accepted;
+										case "placed" : return o.Placing < PlacingStage.Placed;
+										case "confirmed" : return o.Placing < PlacingStage.Confirmed;
+									}
+													
+									throw new SyntaxException("Unknown awaiting stage");
+								});
+				else
+					Wait(() =>	o.Placing < PlacingStage.Confirmed);
 			}
 
 			return obj;

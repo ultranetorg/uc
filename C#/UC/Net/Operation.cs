@@ -18,12 +18,12 @@ namespace UC.Net
 {
 	public enum DelegationStage
 	{
-		Null, Pending, Delegated, Failed, Confirmed
+		Null, Pending, Delegated, Processed
 	}
 
 	public enum PlacingStage
 	{
-		Null, NotFoundOrFailed, Accepted, Pending, Placed, Confirmed
+		Null, Accepted, Pending, Placed, Confirmed, NotFoundOrFailed
 	}
 
 	public struct Portion
@@ -877,6 +877,9 @@ if(Author == "companyinc" && Years == 2)
 
 		public override void Execute(Roundchain chain, Round round)
 		{
+			if(HashOnly)
+				return;
+
 			var a = round.FindAuthor(Address.Author);
 
 			if(a == null || a.FindOwner(round) != Signer)

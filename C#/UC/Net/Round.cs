@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
-//using Nethereum.Util;
 
 namespace UC.Net
 {
@@ -12,6 +11,9 @@ namespace UC.Net
 	{
 		public int										Id;
 		public int										ParentId => Id - Roundchain.Pitch;
+		public Round									Previous =>	Chain.FindRound(Id - 1);
+		public Round									Next =>	Chain.FindRound(Id + 1);
+		public Round									Parent => Chain.FindRound(ParentId);
 
 		public int										Try = 0;
 		public DateTime									FirstArrivalTime = DateTime.MaxValue;
@@ -30,23 +32,15 @@ namespace UC.Net
 		public IEnumerable<Account>						ElectedLeavers				=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
 		public IEnumerable<Account>						ElectedFundableAssignments	=> Majority.SelectMany(i => i.FundableAssignments).Distinct().Where(j => Majority.Count(b => b.FundableAssignments.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
 		public IEnumerable<Account>						ElectedFundableRevocations	=> Majority.SelectMany(i => i.FundableRevocations).Distinct().Where(l => Majority.Count(b => b.FundableRevocations.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
-		//public IEnumerable<Proposition>					ElectedPropositions			=> Majority.SelectMany(i => i.Propositions).Distinct().Where(l => Majority.Count(b => b.Propositions.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
 
-		public Dictionary<Account, AccountEntry>		AffectedAccounts = new();
-		public Dictionary<string, AuthorEntry>			AffectedAuthors = new();
-		public Dictionary<ProductAddress, ProductEntry>	AffectedProducts = new(); /// needed to not load all producta with all releases when fetching an author
-		public HashSet<Round>							AffectedRounds = new();
-
+		public List<Peer>								Members;
+		public List<Account>							Fundables;
 		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
-		
 		public List<Account>							ConfirmedViolators;
 		public List<Account>							ConfirmedJoiners;
 		public List<Account>							ConfirmedLeavers;
 		public List<Account>							ConfirmedFundableAssignments;
 		public List<Account>							ConfirmedFundableRevocations;
-
-		public List<Peer>								Members;
-		public List<Account>							Fundables;
 
 		public bool										Voted = false;
 		public bool										Confirmed = false;
@@ -57,16 +51,15 @@ namespace UC.Net
 		public Coin										Factor;
 		public Coin										Emission;
 
-		public Roundchain								Chain;
-		public Round									Previous =>	Chain.FindRound(Id - 1);
-		public Round									Next =>	Chain.FindRound(Id + 1);
-		public Round									Parent => Chain.FindRound(ParentId);
-
-		//public Operation								CurrentOperation;
+		public Dictionary<Account, AccountEntry>		AffectedAccounts = new();
+		public Dictionary<string, AuthorEntry>			AffectedAuthors = new();
+		public Dictionary<ProductAddress, ProductEntry>	AffectedProducts = new(); /// needed to not load all producta with all releases when fetching an author
+		public HashSet<Round>							AffectedRounds = new();
 		public IEnumerable<Payload>						ExecutingPayloads;
 		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
 																								.SelectMany(i => i.SuccessfulOperations)
 																								.Where(i => i.Executed);
+		public Roundchain								Chain;
 		
 		public Round(Roundchain c)
 		{
@@ -212,7 +205,7 @@ namespace UC.Net
 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
  		{
- 			foreach(var b in Payloads.Where(i => i.Confirmed))
+ 			foreach(var b in Payloads)
  				foreach(var t in b.Transactions)
  					foreach(var o in t.Operations.OfType<O>())
  						if(f(o))
@@ -223,7 +216,7 @@ namespace UC.Net
 
  		public bool AnyOperation(Func<Operation, bool> f)
  		{
- 			foreach(var b in Payloads.Where(i => i.Confirmed))
+ 			foreach(var b in Payloads)
  				foreach(var t in b.Transactions)
  					foreach(var o in t.Operations)
  						if(f(o))
@@ -236,7 +229,7 @@ namespace UC.Net
  		{
  			var o = new List<Transaction>();
  
- 			foreach(var b in Payloads.Where(i => i.Confirmed))
+ 			foreach(var b in Payloads)
  				foreach(var t in b.Transactions)
  					if(f(t))
  						o.Add(t);
