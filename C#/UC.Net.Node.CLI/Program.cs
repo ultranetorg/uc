@@ -67,7 +67,7 @@ namespace UC.Net.Node.CLI
 				Func<Core> d = () =>
 									 {
 									 	if(Core == null)
-									 		Core = new Core(Settings, dir, Log, new RealTimeProvider(), new Nas(Settings, Log), new SilentGasAsker(Log), new SilentFeeAsker());
+									 		Core = new Core(Settings, dir, Log, new RealTimeClock(), new Nas(Settings, Log), new SilentGasAsker(Log), new SilentFeeAsker());
 									 
 									 	return Core;
 									 };

@@ -15,6 +15,10 @@ namespace UC
 		{
 		}
 
+		public XonTextWriter(Stream s, Encoding encoding) : base(s, encoding)
+		{
+		}
+
 		public void WriteHeader()
 		{
 			BaseStream.Write(Encoding.GetPreamble());

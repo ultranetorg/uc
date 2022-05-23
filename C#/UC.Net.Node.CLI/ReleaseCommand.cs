@@ -42,7 +42,9 @@ namespace UC.Net.Node.CLI
 
 					foreach(var i in r)
 					{
-						Log?.Report(this, "Release: ", i.ToString());
+						i.Dump((n, l) => Log?.Report(this, null, new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Value.ToString()))));
+
+						
 					}
 
 					return r;

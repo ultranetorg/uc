@@ -15,7 +15,7 @@ namespace UC.Net
 		
 		public Payload					Payload;
 		//public bool						Successful;
-		public Account					Member;
+		public Account					Generator;
 		public int						RoundMax;
 		public byte[]					Signature;
 		
@@ -46,7 +46,7 @@ namespace UC.Net
 
 		public void Sign(Account member, int rmax)
 		{
-			Member		= member;
+			Generator		= member;
 			RoundMax	= rmax;
 			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, this);
 		}
@@ -70,7 +70,7 @@ namespace UC.Net
 		public void HashWrite(BinaryWriter w)
 		{
 			w.WriteUtf8(Settings.Zone); 
-			w.Write(Member);
+			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
 			w.Write(Operations, i => {
 										i.HashWrite(w);
@@ -92,6 +92,7 @@ namespace UC.Net
 			Operations	= r.ReadList(() => {
 												var o = Operation.FromType((Operations)r.ReadByte());
 												o.Placing		= PlacingStage.Confirmed;
+												o.Executed		= true;	
 												o.Signer		= Signer;
 												o.Transaction	= this;
 												o.ReadConfirmed(r); 

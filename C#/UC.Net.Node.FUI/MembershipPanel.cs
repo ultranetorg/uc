@@ -75,7 +75,7 @@ namespace UC.Net.Node.FUI
 						Declarations.Items.Add(r);
 					}
 	
-					foreach(var b in Core.Chain.FindLastBlocks(j => j.Member == i).OrderBy(i => i.RoundId))
+					foreach(var b in Core.Chain.FindLastBlocks(j => j.Generator == i).OrderBy(i => i.RoundId))
 					{
 						var r = new ListViewItem(b.RoundId.ToString());
 						r.SubItems.Add(b.Type.ToString()); 

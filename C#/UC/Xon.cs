@@ -32,12 +32,7 @@ namespace UC
 
 		public object Set(object v)
 		{
-			return v switch
-					{ 
-						string => v,
-						int i => i.ToString(),
-						_ => throw new NotSupportedException()
-					};
+			return v.ToString();
 		}
 	}
 

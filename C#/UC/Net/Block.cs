@@ -19,12 +19,12 @@ namespace UC.Net
 	{
 		public int					RoundId { get; set; }
 		public byte[]				Signature;
-		public Account				Member { get; set; }
+		public Account				Generator { get; set; }
 
 		public int					ParentId  => RoundId - Roundchain.Pitch;
 		public Round				Round;
 		protected Roundchain		Chain;
-		public virtual bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Member);
+		public virtual bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
 		public bool					Confirmed = false;
 
 		protected abstract void		WriteForSigning(BinaryWriter w);
@@ -58,10 +58,10 @@ namespace UC.Net
 			}
 		}
 
-		public void Sign(PrivateAccount member)
+		public void Sign(PrivateAccount generator)
 		{
-			Member = member;
-			Signature = Cryptography.Current.Sign(member, Hash);
+			Generator = generator;
+			Signature = Cryptography.Current.Sign(generator, Hash);
 		} 
 
 		public static Block FromType(Roundchain chaim, BlockType type)
@@ -97,14 +97,14 @@ namespace UC.Net
 				throw new IntegrityException("Wrong Signature length");
 
 			w.Write7BitEncodedInt(RoundId);
-			w.Write(Member);						/// needed to hash transactions
+			w.Write(Generator);						/// needed to hash transactions
 			w.Write(Signature);
 		}
 
 		public virtual void Read(BinaryReader r)
 		{
 			RoundId		= r.Read7BitEncodedInt();
-			Member		= r.ReadAccount();	
+			Generator	= r.ReadAccount();	
 			Signature	= r.ReadSignature();
 		}
 	}
@@ -158,7 +158,7 @@ namespace UC.Net
 		//public List<Proposition>	Propositions = new();
 
 		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
-		public byte[]				PropositionsHash;
+		//public byte[]				PropositionsHash;
 
 		public Vote(Roundchain c) : base(c)
 		{
@@ -175,34 +175,20 @@ namespace UC.Net
 			writer.Write7BitEncodedInt64(TimeDelta);
 			Reference.WriteHashable(writer);
 
-			PropositionsHash = HashProposals();
-			writer.Write(PropositionsHash);
-		}
-
-		byte[] HashProposals()
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
 			foreach(var i in Violators)
-				w.Write(i);
+				writer.Write(i);
 
 			foreach(var i in Joiners)
-				w.Write(i);
+				writer.Write(i);
 
 			foreach(var i in Leavers)
-				w.Write(i);
+				writer.Write(i);
 
 			foreach(var i in FundableAssignments)
-				w.Write(i);
+				writer.Write(i);
 
 			foreach(var i in FundableRevocations)
-				w.Write(i);
-
-			//foreach(var i in Propositions)
-			//	i.Write(w);
-
-			return Cryptography.Current.Hash(s.ToArray());
+				writer.Write(i);
 		}
 
 		public override void Write(BinaryWriter w)
@@ -218,7 +204,6 @@ namespace UC.Net
 			w.Write(Leavers);
 			w.Write(FundableAssignments);
 			w.Write(FundableRevocations);
-			//w.Write(Propositions);
 		}
 
 		public override void Read(BinaryReader r)
@@ -235,9 +220,6 @@ namespace UC.Net
 			Leavers				= r.ReadAccounts();
 			FundableAssignments	= r.ReadAccounts();
 			FundableRevocations	= r.ReadAccounts();
-			//Propositions		= r.ReadList<Proposition>();
-			
-			PropositionsHash = HashProposals();
 		}
 	}
 
@@ -245,7 +227,7 @@ namespace UC.Net
 	{
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Any());
-		public byte[]					OrderingKey => Member;
+		public byte[]					OrderingKey => Generator;
 
 		public override bool Valid
 		{
@@ -297,15 +279,19 @@ namespace UC.Net
 
  		public void WriteConfirmed(BinaryWriter w)
  		{
-			w.Write(Member);
+			w.Write(Generator);
  			w.Write(SuccessfulTransactions, i => i.WriteConfirmed(w));
  		}
  		
  		public void ReadConfirmed(BinaryReader r)
  		{
-			Member = r.ReadAccount();
+			Generator = r.ReadAccount();
  			Transactions = r.ReadList(() =>	{
- 												var t = new Transaction(Chain.Settings){ Payload = this };
+ 												var t = new Transaction(Chain.Settings)
+														{ 
+															Payload = this, 
+															Generator = Generator
+														};
  												t.ReadConfirmed(r);
  												return t;
  											});
@@ -324,7 +310,7 @@ namespace UC.Net
 												var t = new Transaction(Chain.Settings)
 														{
 															Payload	 = this,
-															Member	 = Member
+															Generator	 = Generator
 														};
 
 												t.Read(r);

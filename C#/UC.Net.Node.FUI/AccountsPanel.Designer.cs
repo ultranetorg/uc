@@ -45,10 +45,10 @@ namespace UC.Net.Node.FUI
 			// Remove
 			// 
 			this.Remove.Enabled = false;
-			this.Remove.Location = new System.Drawing.Point(188, 36);
-			this.Remove.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+			this.Remove.Location = new System.Drawing.Point(349, 77);
+			this.Remove.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Remove.Name = "Remove";
-			this.Remove.Size = new System.Drawing.Size(149, 28);
+			this.Remove.Size = new System.Drawing.Size(277, 60);
 			this.Remove.TabIndex = 1;
 			this.Remove.Text = "Remove Account";
 			this.Remove.UseVisualStyleBackColor = true;
@@ -56,10 +56,10 @@ namespace UC.Net.Node.FUI
 			// 
 			// add
 			// 
-			this.add.Location = new System.Drawing.Point(24, 36);
-			this.add.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+			this.add.Location = new System.Drawing.Point(45, 77);
+			this.add.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.add.Name = "add";
-			this.add.Size = new System.Drawing.Size(149, 28);
+			this.add.Size = new System.Drawing.Size(277, 60);
 			this.add.TabIndex = 1;
 			this.add.Text = "Add Account";
 			this.add.UseVisualStyleBackColor = true;
@@ -68,10 +68,10 @@ namespace UC.Net.Node.FUI
 			// Showprivate
 			// 
 			this.Showprivate.Enabled = false;
-			this.Showprivate.Location = new System.Drawing.Point(24, 119);
-			this.Showprivate.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+			this.Showprivate.Location = new System.Drawing.Point(45, 254);
+			this.Showprivate.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Showprivate.Name = "Showprivate";
-			this.Showprivate.Size = new System.Drawing.Size(313, 28);
+			this.Showprivate.Size = new System.Drawing.Size(581, 60);
 			this.Showprivate.TabIndex = 1;
 			this.Showprivate.Text = "Show Private Key";
 			this.Showprivate.UseVisualStyleBackColor = true;
@@ -80,10 +80,10 @@ namespace UC.Net.Node.FUI
 			// Backup
 			// 
 			this.Backup.Enabled = false;
-			this.Backup.Location = new System.Drawing.Point(24, 160);
-			this.Backup.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+			this.Backup.Location = new System.Drawing.Point(45, 341);
+			this.Backup.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Backup.Name = "Backup";
-			this.Backup.Size = new System.Drawing.Size(313, 28);
+			this.Backup.Size = new System.Drawing.Size(581, 60);
 			this.Backup.TabIndex = 1;
 			this.Backup.Text = "Back up Wallet File";
 			this.Backup.UseVisualStyleBackColor = true;
@@ -97,11 +97,11 @@ namespace UC.Net.Node.FUI
 			this.groupBox2.Controls.Add(this.CopyAddress);
 			this.groupBox2.Controls.Add(this.Remove);
 			this.groupBox2.Controls.Add(this.Showprivate);
-			this.groupBox2.Location = new System.Drawing.Point(0, 547);
-			this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.groupBox2.Location = new System.Drawing.Point(0, 1167);
+			this.groupBox2.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox2.Size = new System.Drawing.Size(368, 220);
+			this.groupBox2.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.groupBox2.Size = new System.Drawing.Size(683, 469);
 			this.groupBox2.TabIndex = 4;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Manage Account";
@@ -109,10 +109,10 @@ namespace UC.Net.Node.FUI
 			// CopyAddress
 			// 
 			this.CopyAddress.Enabled = false;
-			this.CopyAddress.Location = new System.Drawing.Point(24, 77);
-			this.CopyAddress.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+			this.CopyAddress.Location = new System.Drawing.Point(45, 164);
+			this.CopyAddress.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.CopyAddress.Name = "CopyAddress";
-			this.CopyAddress.Size = new System.Drawing.Size(313, 28);
+			this.CopyAddress.Size = new System.Drawing.Size(581, 60);
 			this.CopyAddress.TabIndex = 1;
 			this.CopyAddress.Text = "Copy Address To Clipboard";
 			this.CopyAddress.UseVisualStyleBackColor = true;
@@ -130,9 +130,9 @@ namespace UC.Net.Node.FUI
 			this.accounts.FullRowSelect = true;
 			this.accounts.HideSelection = false;
 			this.accounts.Location = new System.Drawing.Point(0, 0);
-			this.accounts.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.accounts.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.accounts.Name = "accounts";
-			this.accounts.Size = new System.Drawing.Size(1023, 540);
+			this.accounts.Size = new System.Drawing.Size(1896, 1147);
 			this.accounts.TabIndex = 5;
 			this.accounts.UseCompatibleStateImageBehavior = false;
 			this.accounts.View = System.Windows.Forms.View.Details;
@@ -157,13 +157,13 @@ namespace UC.Net.Node.FUI
 			// 
 			// AccountsPanel
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.accounts);
 			this.Controls.Add(this.groupBox2);
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Name = "AccountsPanel";
-			this.Size = new System.Drawing.Size(1024, 768);
+			this.Size = new System.Drawing.Size(1902, 1638);
 			this.groupBox2.ResumeLayout(false);
 			this.ResumeLayout(false);
 

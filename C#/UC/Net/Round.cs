@@ -23,8 +23,8 @@ namespace UC.Net
 		public IEnumerable<JoinRequest>					JoinRequests	=> Blocks.OfType<JoinRequest>();
 		public IEnumerable<Vote>						Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>						Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
-		public IEnumerable<Account>						Forkers			=> Votes.GroupBy(i => i.Member).Where(i => i.Count() > 1).Select(i => i.Key);
-		public IEnumerable<Vote>						Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Member).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Account>						Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
+		public IEnumerable<Vote>						Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>						Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
 		public IEnumerable<Account>						ElectedViolators			=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
@@ -57,7 +57,7 @@ namespace UC.Net
 		public HashSet<Round>							AffectedRounds = new();
 		public IEnumerable<Payload>						ExecutingPayloads;
 		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
-																								.SelectMany(i => i.SuccessfulOperations)
+																								.SelectMany(i => i.Operations)
 																								.Where(i => i.Executed);
 		public Roundchain								Chain;
 		

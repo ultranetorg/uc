@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace UC
@@ -191,6 +194,38 @@ namespace UC
 			}
 
 			w.Finish();
+		}
+		
+		public void Dump(Action<Xon, int> write)
+		{
+			void dump(Xon n, int l)
+			{
+				write(n, l);
+
+				foreach(var i in n.Nodes)
+				{
+					dump(i, l + 1);
+				}
+			}
+
+			foreach(var n in Nodes)
+				dump(n, 0);
+		}
+	}
+
+	public class XonDocumentJsonConverter : JsonConverter<XonDocument>
+	{
+		public override XonDocument Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return new XonDocument(new XonTextReader(reader.GetString()));
+		}
+
+		public override void Write(Utf8JsonWriter writer, XonDocument value, JsonSerializerOptions options)
+		{
+			var s = new MemoryStream();
+			value.Save(new XonTextWriter(s, Encoding.Default));
+			
+			writer.WriteStringValue(Encoding.Default.GetString(s.ToArray()));
 		}
 	}
 }

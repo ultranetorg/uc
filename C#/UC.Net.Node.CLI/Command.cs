@@ -120,18 +120,20 @@ namespace UC.Net.Node.CLI
 					Wait(() =>	{
 									switch(Args.GetString("await"))
 									{
-										case "accepted" : return o.Placing < PlacingStage.Accepted;
-										case "placed" : return o.Placing < PlacingStage.Placed;
-										case "confirmed" : return o.Placing < PlacingStage.Confirmed;
+										case "accepted" :			return o.Placing < PlacingStage.Accepted;
+										case "placed" :				return o.Placing < PlacingStage.Placed;
+										case "confirmed" :			return o.Placing != PlacingStage.Confirmed;
+										case "failedornotfound" :	return o.Placing != PlacingStage.FailedOrNotFound;
 									}
 													
 									throw new SyntaxException("Unknown awaiting stage");
 								});
 				else
-					Wait(() =>	o.Placing < PlacingStage.Confirmed);
+					Wait(() =>	o.Placing != PlacingStage.Confirmed);
 			}
 
 			return obj;
 		}
+
 	}
 }

@@ -68,7 +68,7 @@ namespace UC.Net.Node.FUI
 											var li = new ListViewItem(j.ToString());
 											li.Tag = i;
 											li.SubItems.Add(i.GetType().Name);
-											li.SubItems.Add(i.Member.ToString());
+											li.SubItems.Add(i.Generator.ToString());
 											return li;
 										}).ToArray());
 

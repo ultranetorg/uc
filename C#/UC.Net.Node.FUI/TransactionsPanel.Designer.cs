@@ -31,7 +31,6 @@ namespace UC.Net.Node.FUI
 		{
 			this.Transactions = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnRound = new System.Windows.Forms.ColumnHeader();
 			this.columnPlacedBy = new System.Windows.Forms.ColumnHeader();
 			this.label1 = new System.Windows.Forms.Label();
 			this.Account = new System.Windows.Forms.ComboBox();
@@ -43,19 +42,17 @@ namespace UC.Net.Node.FUI
 			// 
 			// Transactions
 			// 
-			this.Transactions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Transactions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
 			this.Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
-            this.columnRound,
             this.columnPlacedBy});
 			this.Transactions.FullRowSelect = true;
 			this.Transactions.HideSelection = false;
 			this.Transactions.Location = new System.Drawing.Point(0, 139);
 			this.Transactions.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Transactions.Name = "Transactions";
-			this.Transactions.Size = new System.Drawing.Size(1898, 1086);
+			this.Transactions.Size = new System.Drawing.Size(761, 1499);
 			this.Transactions.TabIndex = 1;
 			this.Transactions.UseCompatibleStateImageBehavior = false;
 			this.Transactions.View = System.Windows.Forms.View.Details;
@@ -63,17 +60,11 @@ namespace UC.Net.Node.FUI
 			// 
 			// columnHeader1
 			// 
-			this.columnHeader1.Text = "";
-			this.columnHeader1.Width = 10;
-			// 
-			// columnRound
-			// 
-			this.columnRound.Text = "Round";
-			this.columnRound.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.columnHeader1.Text = "Round";
 			// 
 			// columnPlacedBy
 			// 
-			this.columnPlacedBy.Text = "Placed By";
+			this.columnPlacedBy.Text = "Generator";
 			this.columnPlacedBy.Width = 300;
 			// 
 			// label1
@@ -111,30 +102,29 @@ namespace UC.Net.Node.FUI
 			// 
 			// Operations
 			// 
-			this.Operations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+			this.Operations.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader5,
             this.columnHeader6});
 			this.Operations.FullRowSelect = true;
 			this.Operations.HideSelection = false;
-			this.Operations.Location = new System.Drawing.Point(0, 1267);
+			this.Operations.Location = new System.Drawing.Point(802, 139);
 			this.Operations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Operations.Name = "Operations";
-			this.Operations.Size = new System.Drawing.Size(1896, 365);
+			this.Operations.Size = new System.Drawing.Size(1100, 1499);
 			this.Operations.TabIndex = 24;
 			this.Operations.UseCompatibleStateImageBehavior = false;
 			this.Operations.View = System.Windows.Forms.View.Details;
 			// 
 			// columnHeader5
 			// 
-			this.columnHeader5.Text = "Operation";
-			this.columnHeader5.Width = 300;
+			this.columnHeader5.Text = "Id";
 			// 
 			// columnHeader6
 			// 
-			this.columnHeader6.Text = "Status";
-			this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.columnHeader6.Text = "Details";
 			this.columnHeader6.Width = 500;
 			// 
 			// TransactionsPanel
@@ -165,6 +155,5 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ListView Operations;
 		private System.Windows.Forms.ColumnHeader columnHeader5;
 		private System.Windows.Forms.ColumnHeader columnHeader6;
-		private System.Windows.Forms.ColumnHeader columnRound;
 	}
 }

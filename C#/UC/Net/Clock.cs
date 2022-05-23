@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public class TimeProvider
+	public class Clock
 	{
 		public virtual DateTime	Now {get;}
 	}
 
-	public class RealTimeProvider : TimeProvider
+	public class RealTimeClock : Clock
 	{
 		override public DateTime	Now => DateTime.UtcNow;
 	}
 
-	public class SimulationTimeProvider : TimeProvider
+	public class SimulationClock : Clock
 	{
 		DateTime Time = DateTime.UtcNow;
 		DateTime Last = DateTime.UtcNow;

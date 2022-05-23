@@ -247,7 +247,7 @@ namespace UC.Net
 							{
 								var txs = Core.Read(new MemoryStream(e.Data), r =>	{	return  new Transaction(Settings)
 																								{
-																									Member = Core.Generator
+																									Generator = Core.Generator
 																								};
 																					});
 								var acc = Core.ProcessIncoming(txs);
@@ -283,20 +283,21 @@ namespace UC.Net
 							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
+							{
 								respondjson(new GetOperationStatusResponse
 								{
 									LastConfirmedRound = Chain.LastConfirmedRound.Id,
 									Operations = c.Operations	.Select(o => new { A = o,
 																				   B = Core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
 																										.SelectMany(t => t.Operations)
-																										.Where(i => i.Id == o.Id)
-																										.FirstOrDefault()
+																										.FirstOrDefault(i => i.Id == o.Id)
 																						?? 
 																						Core.Chain.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
 																.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
 																													Id			= i.A.Id,
-																													Stage		= i.B == null ? PlacingStage.NotFoundOrFailed : i.B.Placing})
+																													Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing})
 								});
+							}
 							break;
 
 						case AccountInfoCall c:

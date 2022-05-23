@@ -121,7 +121,6 @@ namespace UC.Net
 							if(o is AuthorBid ab && ab.Author == Name)
 								return ab;
 
-
 			return executing.ExecutedOperations.Reverse().OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name);
 		}
 

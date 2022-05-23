@@ -58,9 +58,9 @@ namespace UC.Net.Node.FUI
 				{
 					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
 																							{
-																								var li = new ListViewItem(i.ToString());
+																								var li = new ListViewItem(i.Id.ToString());
 																								//li.Tag = i;
-																								li.SubItems.Add(i.Error);
+																								li.SubItems.Add(i.GetType().Name + ", " + i.Description);
 																								return li;
 																							})
 																							.ToArray());
@@ -73,6 +73,7 @@ namespace UC.Net.Node.FUI
 			try
 			{
 				Transactions.Items.Clear();
+				Operations.Items.Clear();
 	
 				lock(Core.Lock)
 				{
@@ -82,16 +83,24 @@ namespace UC.Net.Node.FUI
 	
 					foreach(var i in txs)
 					{
-						var li = new ListViewItem();
+						var li = new ListViewItem(i.Payload.Round.Id.ToString());
 	
 						li.Tag = i;
 	
 						//li.SubItems.Add(i.Id.ToString());
-						li.SubItems.Add(i.Payload.Round.Id.ToString());
+						//li.SubItems.Add();
 						//li.SubItems.Add(i.Successful ? "OK" : "Failed" /*i.Payload.Round.Confirmed ? "Confirmed" : "Confirming..."*/);
-						li.SubItems.Add(i.Member?.ToString());
+						li.SubItems.Add(i.Generator?.ToString());
 		
 						Transactions.Items.Add(li);
+					}
+
+					foreach(var i in txs.SelectMany(i => i.Operations))
+					{
+						var li = new ListViewItem(i.Id.ToString());
+						li.SubItems.Add(i.GetType().Name + ", " + i.Description);
+		
+						Operations.Items.Add(li);
 					}
 				}
 	

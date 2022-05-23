@@ -114,7 +114,7 @@ namespace UC.Net.Node
 								}
 							}
 		
-							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Member)).Distinct().OrderBy(i => i);
+							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
 
 							f  = $"{{0,{nmaxid}}} {{1,{nmaxvoters}}} {{2}}{{3}} {{4,{nmaxdate}}}";
 
@@ -144,7 +144,7 @@ namespace UC.Net.Node
 						{
 							int y = 0;
 	
-							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Member)).Distinct().OrderBy(i => i);
+							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
 							
 							foreach(var i in members)
 							{
@@ -171,7 +171,7 @@ namespace UC.Net.Node
 			
 									foreach(var m in members)
 									{
-										var block = r.Blocks.FirstOrDefault(i => i.Member == m);
+										var block = r.Blocks.FirstOrDefault(i => i.Generator == m);
 		
 										if(block != null)
 										{

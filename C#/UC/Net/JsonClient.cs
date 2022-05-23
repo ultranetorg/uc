@@ -34,6 +34,7 @@ namespace UC.Net
 			Options.Converters.Add(new IPJsonConverter());
 			Options.Converters.Add(new ChainTimeJsonConverter());
 			Options.Converters.Add(new ReleaseAddressJsonConverter());
+			Options.Converters.Add(new XonDocumentJsonConverter());
 		}
 
 		public JsonClient(HttpClient http, string apiurl, string apikey)
@@ -106,7 +107,7 @@ namespace UC.Net
 		}
 		public AuthorInfo						Send(AuthorInfoCall call) => Send<AuthorInfo>(call);
 		public AccountInfo						Send(AccountInfoCall call) => Send<AccountInfo>(call);
-		public List<ReleaseAddress>				Send(QueryReleaseCall call) => Send<List<ReleaseAddress>>(call);
+		public List<XonDocument>				Send(QueryReleaseCall call) => Send<List<XonDocument>>(call);
 		public byte[]							Send(DownloadReleaseCall call) => Send<byte[]>(call);
 	}
 }

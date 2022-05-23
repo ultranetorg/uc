@@ -64,7 +64,7 @@ namespace UC.Net
 		public bool										IsClient => DelegatingThread != null;
 		public object									Lock = new();
 		public Settings									Settings;
-		TimeProvider									TimeProvider;
+		Clock									TimeProvider;
 
 		public PrivateAccount							Generator;
 		CandidacyDeclaration							Declaration;
@@ -213,7 +213,7 @@ namespace UC.Net
 			}
 		}
 
-		public Core(Settings settings, string exedirectory, Log log, TimeProvider timeprovider, INas nas, IGasAsker gasasker, IFeeAsker feeasker)
+		public Core(Settings settings, string exedirectory, Log log, Clock timeprovider, INas nas, IGasAsker gasasker, IFeeAsker feeasker)
 		{
 			Settings = settings;
 			TimeProvider = timeprovider;
@@ -1031,13 +1031,13 @@ namespace UC.Net
 				var inrange = accepted.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer);
 
 				var joins = inrange.OfType<JoinRequest>().Where(b => { 
-																		var d = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(b.Member);
+																		var d = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(b.Generator);
 														
 																		if(d == null)
 																			return false;
 
 																		for(int i = b.RoundId; i > b.RoundId - Roundchain.Pitch; i--) /// not often than 1 request per [Pitch] rounds
-																			if(Chain.GetRound(i).JoinRequests.Any(i => i.Member == b.Member))
+																			if(Chain.GetRound(i).JoinRequests.Any(i => i.Generator == b.Generator))
 																				return false;
 
 																		if(Chain.GetRound(b.RoundId).JoinRequests.Count() < Roundchain.MembersMax) /// keep  maximum MembersMax requests per round
@@ -1049,8 +1049,8 @@ namespace UC.Net
 																	});
 				Chain.Add(joins);
 					
-				var votes = inrange.Where(b => b is UC.Net.Vote v && (Chain.Members.Any(j => j.Generator == b.Member) || 
-																	 (Chain.Rounds.Any(r => r.Members == null ? false : r.Members.Any(m => m.Generator == b.Member)))));
+				var votes = inrange.Where(b => b is UC.Net.Vote v && (Chain.Members.Any(j => j.Generator == b.Generator) || 
+																	 (Chain.Rounds.Any(r => r.Members == null ? false : r.Members.Any(m => m.Generator == b.Generator)))));
 
 				Chain.Add(votes);
 
@@ -1074,7 +1074,7 @@ namespace UC.Net
 		{
 			var r = Chain.GetRound(Chain.LastVotedRound.Id + 1);
 
-			while(r.Blocks.Any(i => i.Member == Generator))
+			while(r.Blocks.Any(i => i.Generator == Generator))
 				r = Chain.GetRound(r.Id + 1);
 	
 			if(r.Id > Chain.LastVotedRound.Id + Roundchain.Pitch)
@@ -1121,7 +1121,7 @@ namespace UC.Net
 						
 				if(voters.All(i => i.Generator != Generator))
 				{
-					var jr = Chain.FindLastBlock(i => i is JoinRequest && i.Member == Generator);
+					var jr = Chain.FindLastBlock(i => i is JoinRequest && i.Generator == Generator);
 	
 					if(jr == null || (Chain.LastVotedRound.Id - jr.RoundId > Roundchain.Pitch * 2)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
@@ -1146,7 +1146,7 @@ namespace UC.Net
 // 																					.Select(i => i.First())).ToList();
 					//var msg = Transactions.OfType<Message>();
 
-					var prev = Chain.FindRound(nar.Id - 1).Votes.FirstOrDefault(i => i.Member == Generator);
+					var prev = Chain.FindRound(nar.Id - 1).Votes.FirstOrDefault(i => i.Generator == Generator);
 
 					if(txs.Any()) /// any pending foreign transactions or any our pending operations
 					{
@@ -1187,13 +1187,13 @@ namespace UC.Net
 					}
 					else
 					{
-						var r = Chain.Rounds.LastOrDefault(i => !i.Confirmed && !i.Blocks.Any(j => j.Member == Generator));
+						var r = Chain.Rounds.LastOrDefault(i => !i.Confirmed && !i.Blocks.Any(j => j.Generator == Generator));
 
 						while(r != null)
 						{
 
 							if(	Chain.VotersFor(r).Any(i => i.Generator == Generator) &&			/// we must vote
-								!r.Votes.Any(i => i.Member == Generator) &&						/// no our block or vote yet
+								!r.Votes.Any(i => i.Generator == Generator) &&						/// no our block or vote yet
 								r.Votes.OfType<Payload>().Any() 								/// has already some payloads from other members
 								)
 							{
@@ -1362,7 +1362,7 @@ namespace UC.Net
 						peers = Peers.ToArray();
 						pendings = Operations.Where(i => i.Delegation == DelegationStage.Pending).ToArray();
 						//accounts = pendings.GroupBy(i => i.Signer).Select(i => i.Key);
-						ready = pendings.Any() && Operations.Any(i => i.Delegation != DelegationStage.Delegated);
+						ready = pendings.Any() && !Operations.Any(i => i.Delegation == DelegationStage.Delegated && i.Placing == PlacingStage.Null);
 					}
 
 					if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
@@ -1373,21 +1373,23 @@ namespace UC.Net
 
 						lock(Lock)
 						{
-							foreach(var g in Operations.Where(i => i.Delegation == DelegationStage.Pending).GroupBy(i => i.Signer))
+							foreach(var g in pendings.GroupBy(i => i.Signer))
 							{
+								int id = 1;
+
 								if(!Vault.OperationIds.ContainsKey(g.Key))
 								{
 									Monitor.Exit(Lock);
 									var o = m.Api.Send(new LastOperationCall {Account = g.Key});
 									Monitor.Enter(Lock);
-									Vault.OperationIds[g.Key] = o == null ? 0 : o.Id + 1;
+									Vault.OperationIds[g.Key] = o == null ? -1 : o.Id;
 								}
 
 								var t = new Transaction(Settings, g.Key as PrivateAccount);
 
 								foreach(var o in g)
 								{
-									o.Id = Vault.OperationIds[g.Key]++;
+									o.Id = Vault.OperationIds[g.Key] + id++;
 									t.AddOperation(o);
 								}
 
@@ -1399,9 +1401,13 @@ namespace UC.Net
 						var accepted = m.Api.Send(new DelegateTransactionsCall {Data = Write(txs).ToArray()}).Accepted;
 	
 						lock(Lock)
-							foreach(var o in txs.SelectMany(i => i.Operations).Where(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))
+							foreach(var o in txs.SelectMany(i => i.Operations))
 							{
-								o.Delegation = DelegationStage.Delegated;
+								if(accepted.Any(i => i.Account == o.Signer && i.Id == o.Id))
+ 									o.Delegation = DelegationStage.Delegated;
+ 								//else
+ 								//	o.Delegation = DelegationStage.Pending;
+
 								o.FlowReport?.StageChanged();
 								o.FlowReport?.Log.ReportWarning(this, $"Placing has been delegated to {m}");
 							}
@@ -1425,23 +1431,36 @@ namespace UC.Net
 								foreach(var i in rp.Operations)
 								{
 									var o = delegated.First(d => d.Signer == i.Account && d.Id == i.Id);
-
-									o.Placing = i.Stage;
-
-									if(i.Stage == PlacingStage.Confirmed)
+																		
+									if(o.Placing != i.Placing)
 									{
-										o.Delegation = DelegationStage.Processed;
-										o.FlowReport?.StageChanged();
-										Operations.Remove(o);
-									}
+										if(i.Placing == PlacingStage.Placed)
+										{
+											if(o.Placing == PlacingStage.Null)
+												Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
+										}
 
-									if(i.Stage == PlacingStage.NotFoundOrFailed)
-									{
-										o.Delegation = DelegationStage.Processed;
-										o.FlowReport?.StageChanged();
-										Operations.Remove(o);
-									}
+										if(i.Placing == PlacingStage.Confirmed)
+										{
+											if(o.Placing == PlacingStage.Null)
+												Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
+											o.Delegation = DelegationStage.Completed;
+											Operations.Remove(o);
+										}
+	
+										if(i.Placing == PlacingStage.FailedOrNotFound)
+										{
+											if(o.Placing == PlacingStage.Null)
+												Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
+
+											o.Delegation = DelegationStage.Completed;
+											Operations.Remove(o);
+										}
+								
+										o.Placing = i.Placing;
+										o.FlowReport?.StageChanged();
+									}
 								}
 
 								//var ops = Operations.Where(o => o.Delegation == DelegationStage.Delegated && rp.LastConfirmedRound > o.Transaction.RoundMax); /// outdated
@@ -1674,6 +1693,9 @@ namespace UC.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
+			if(!Chain.Members.Any(i => i.Generator == Generator))
+				return new();
+
 			Statistics.TransactionsProcessing.Begin();
 
 			if(Generator == null) /// not ready to process external transactions
@@ -1929,7 +1951,7 @@ namespace UC.Net
 			}
 		}
 		
-		public List<ReleaseAddress> QueryRelease(IEnumerable<ReleaseQuery> queries, bool confirmed)
+		public List<XonDocument> QueryRelease(IEnumerable<ReleaseQuery> queries, bool confirmed)
 		{
 			if(Chain != null)
 			{
@@ -1938,7 +1960,7 @@ namespace UC.Net
 			}
 			else
 			{
-				return GetRemoteMember().Api.Send(new QueryReleaseCall {Queries = queries.ToList(), Confirmed = confirmed}) as List<ReleaseAddress>;
+				return GetRemoteMember().Api.Send(new QueryReleaseCall {Queries = queries.ToList(), Confirmed = confirmed}) as List<XonDocument>;
 			}
 		}
 				

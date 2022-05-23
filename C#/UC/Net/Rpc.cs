@@ -172,7 +172,7 @@ namespace UC.Net
 		{
 			public Account		Account { get; set; }
 			public int			Id { get; set; }
-			public PlacingStage	Stage { get; set; }
+			public PlacingStage	Placing { get; set; }
 		}
 
 		public IEnumerable<Item> Operations { get; set; }

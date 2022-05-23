@@ -13,17 +13,18 @@ using Nethereum.Model;
 using Nethereum.Util;
 using Nethereum.Web3.Accounts;
 using Org.BouncyCastle.Utilities;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net
 {
 	public enum DelegationStage
 	{
-		Null, Pending, Delegated, Processed
+		Null, Pending, Delegated, Completed
 	}
 
 	public enum PlacingStage
 	{
-		Null, Accepted, Pending, Placed, Confirmed, NotFoundOrFailed
+		Null, Accepted, Pending, Placed, Confirmed, FailedOrNotFound
 	}
 
 	public struct Portion
@@ -52,15 +53,15 @@ namespace UC.Net
 		public Transaction		Transaction;
 		public DelegationStage	Delegation;
 		public PlacingStage		Placing;
-		public bool				Successful => Error == null;
+		public bool				Successful => Executed && Error == null;
 		public IFlowControl		FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
 		public bool				Executed; 
 
-		public const string	Rejected = "Rejected";
-		public const string	NotEnoughUNT = "Not enough UNT";
-		public const string TheSignerDoesNotOwnTheAuthor = "The signer does not own the Author";
+		public const string		Rejected = "Rejected";
+		public const string		NotEnoughUNT = "Not enough UNT";
+		public const string		TheSignerDoesNotOwnTheAuthor = "The signer does not own the Author";
 
 		public static Operation FromType(Operations type)
 		{
@@ -107,7 +108,7 @@ namespace UC.Net
  
 		public override string ToString()
 		{
-			return $"{Type}, {Id}, " + Description + $", {Error ?? "OK"}";
+			return $"{Type}, Id={Id}, {Delegation}, {Placing}, " + Description + $", Error={Error}";
 		}
 
 		public virtual void Read(BinaryReader r)
@@ -557,9 +558,6 @@ namespace UC.Net
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-if(Author == "companyinc" && Years == 2)
-	Author = Author;
-
 			AuthorBid lb = null;
 
 			var a = round.FindAuthor(Author);
@@ -797,6 +795,38 @@ if(Author == "companyinc" && Years == 2)
 			MinimalVersion = minimal;
 			CompleteDependencies = completeDependencies;
 			IncrementalDependencies = incrementalDependencies;
+		}
+
+		public XonDocument ToXon()
+		{
+			var d = new XonDocument(new TextXonValueSerializator());
+
+			d.Add("Address").Value = Address;
+			d.Add("Channel").Value = Channel;
+			d.Add("PreviousVersion").Value = PreviousVersion;
+			d.Add("MinimalVersion").Value = MinimalVersion;
+
+			if(CompleteDependencies.Any())
+			{
+				var cd = d.Add("CompleteDependencies");
+				foreach(var i in CompleteDependencies)
+				{
+					cd.Add(i.ToString());
+				}
+			}
+
+			if(IncrementalDependencies.Any())
+			{
+				var id = d.Add("IncrementalDependencies");
+				foreach(var i in IncrementalDependencies)
+				{
+					id.Add(i.ToString());
+				}
+			}
+
+			d.Add("Hash").Value = Hex.ToHexString(Hash);
+
+			return d;		
 		}
 
 		public byte[] GetOrCalcHash()
