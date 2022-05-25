@@ -42,24 +42,16 @@ namespace UC.Net.Node.FUI
 			Fields.Text = null;
 			Values.Text = null;
 
-			void add(string f, object v)
-			{
-				Fields.Text += f + "\n";
-				Values.Text += v + "\n";
-			}
-
-			void sub(string f, object v)
-			{
-				Fields.Text += "   " + f + "\n";
-				Values.Text += v + "\n";
-			}
-
 			lock(Core.Lock)
 			{
 				var ai = Core.GetAuthorInfo(AuthorSearch.Text, false);
 
 				if(ai != null)
-					ai.Dump(add, sub);
+					ai.Dump((n, t) => 
+							{
+								Fields.Text += new string(' ', t * 3) + n.Name + "\n";
+								Values.Text += n.Value + "\n";
+							});
 				else 
 					Fields.Text = "Not found";
 			}
@@ -116,7 +108,7 @@ namespace UC.Net.Node.FUI
 		{
 			RegistrationStatus.Text = null;
 
-			if(AuthorName.Text.Length > AuthorRegistration.LengthMaxForAuction)
+			if(!AuthorEntry.IsExclusive(AuthorName.Text))
 			{
 				lock(Core.Lock)
 				{
@@ -124,7 +116,7 @@ namespace UC.Net.Node.FUI
 				}
 			}
 			else
-				RegistrationStatus.Text = $"Author Name must be longer than {AuthorRegistration.LengthMaxForAuction} characters";
+				RegistrationStatus.Text = $"Author Name must be longer than {AuthorEntry.LengthMaxForAuction} characters";
 		}
 
 		private void register_Click(object sender, EventArgs e)
@@ -154,7 +146,7 @@ namespace UC.Net.Node.FUI
 		{
 			AuctionStatus.Text = null;
 
-			if(AuctionAuthor.Text.Length <= AuthorRegistration.LengthMaxForAuction)
+			if(AuthorEntry.IsExclusive(AuctionAuthor.Text))
 			{
 				var a = Chain.Authors.Find(AuctionAuthor.Text, Chain.LastConfirmedRound.Id);
 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
@@ -165,14 +157,13 @@ namespace UC.Net.Node.FUI
 				}
 				else
 				{
-					var l = a?.FindLastBid(Chain.LastConfirmedRound);
-
-					Bid.Coins = l != null ? l.Bid : AuthorBid.GetMinCost(AuctionAuthor.Text);
-					AuctionStatus.Text = $"Ongoing auction: " + (l != null ? $"more than {Bid.Coins}" : $"minimum {Bid.Coins}") + " UNT required";
+					Bid.Coins = a?.LastWinner != null ? a.LastBid : AuthorBid.GetMinCost(AuctionAuthor.Text);
+					AuctionStatus.Text = $"Ongoing auction: " + (a?.LastWinner != null ? $"more than {a.LastBid}" : 
+																						 $"minimum {AuthorBid.GetMinCost(AuctionAuthor.Text)}") + " UNT required";
 				}
 			}
 			else
-				AuctionStatus.Text = $"Author Name must be less than {AuthorRegistration.LengthMaxForAuction} characters"; 
+				AuctionStatus.Text = $"Author Name must be less than {AuthorEntry.LengthMaxForAuction} characters"; 
 		}
 
 		private void transfer_Click(object sender, EventArgs e)
@@ -184,7 +175,7 @@ namespace UC.Net.Node.FUI
 
 				var a = Chain.Authors.Find(TransferingAuthor.Text, int.MaxValue);
 
-				Core.Enqueue(new AuthorTransfer(GetPrivate(a.FindOwner(Chain.LastConfirmedRound)), TransferingAuthor.Text, Account.Parse(NewOwner.Text)));
+				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), TransferingAuthor.Text, Account.Parse(NewOwner.Text)));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{

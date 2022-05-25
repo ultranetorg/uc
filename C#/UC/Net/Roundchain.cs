@@ -970,7 +970,7 @@ namespace UC.Net
 					b.Put(EmissionKey,	r.Emission.Attos.ToByteArray());
 
 					Accounts.Save(b, r.AffectedAccounts.Values);
-					Authors.Save(b, r/*r.Unique.SelectMany(i => i.Messages.SelectMany(i => i.Operations).OfType<ReleaseDeclaration>())*/);
+					Authors.Save(b, r.AffectedAuthors.Values);
 					Products.Save(b, r.AffectedProducts.Values);
 
 
@@ -1115,7 +1115,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public AuthorInfo GetAuthorInfo(string author, bool confirmed)
+		public XonDocument GetAuthorInfo(string author, bool confirmed)
 		{
 			var roundmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
 
@@ -1123,22 +1123,22 @@ namespace UC.Net
 
 			if(a != null)
 			{
-				var i = new AuthorInfo();
+// 				var i = new AuthorInfo();
+// 
+// 				var f = a.FindFirstBid(roundmax);
+// 				var l = a.FindLastBid(roundmax);
+// 				var r = a.FindRegistration(roundmax);
+// 				var t = a.FindTransfer(roundmax);
+// 
+// 				i.Name				= author;
+// 				i.Owner				= a.FindOwner(roundmax);
+// 				i.FirstBid			= f != null ? new AuthorBidInfo(f) : null;
+// 				i.LastBid			= l != null ? new AuthorBidInfo(l) : null;
+// 				i.LastRegistration	= r != null ? new AuthorRegistrationInfo(r) : null;
+// 				i.LastTransfer		= t != null ? new AuthorTransferInfo(t) : null;
+// 				i.Products			= a.Products;
 
-				var f = a.FindFirstBid(roundmax);
-				var l = a.FindLastBid(roundmax);
-				var r = a.FindRegistration(roundmax);
-				var t = a.FindTransfer(roundmax);
-
-				i.Name				= author;
-				i.Owner				= a.FindOwner(roundmax);
-				i.FirstBid			= f != null ? new AuthorBidInfo(f) : null;
-				i.LastBid			= l != null ? new AuthorBidInfo(l) : null;
-				i.LastRegistration	= r != null ? new AuthorRegistrationInfo(r) : null;
-				i.LastTransfer		= t != null ? new AuthorTransferInfo(t) : null;
-				i.Products			= a.Products;
-	
-				return i;
+				return a.ToXon();
 			}
 
 			return null;

@@ -406,7 +406,7 @@ namespace UC.Net
 		public string			Author;
 		public Coin				Bid {get; set;}
 		public override string	Description => $"{Bid} UNT for {Author}";
-		public override bool	Valid => Author.Length > 0 && Author.Length <= AuthorRegistration.LengthMaxForAuction && (Transaction.Settings.Dev.DisableBidMin ? true : GetMinCost(Author) <= Bid);
+		public override bool	Valid => Author.Length > 0 && AuthorEntry.IsExclusive(Author) && (Transaction.Settings.Dev.DisableBidMin || GetMinCost(Author) <= Bid);
 
 		public AuthorBid()
 		{
@@ -439,33 +439,39 @@ namespace UC.Net
 		{
 			var a = round.GetAuthor(Author);
 
-			ChainTime sinceauction() => round.Time - chain.FindRound(a.FirstBid).Time/* fb.Transaction.Payload.Round.Time*/;
+			ChainTime sinceauction() => round.Time - a.FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
 
-			bool expired = a.FirstBid != -1 && (a.LastRegistration == -1 && sinceauction() > ChainTime.FromYears(2) ||																		/// winner has not registered during 2 year since auction start, restart the auction
-												a.LastRegistration != -1 && round.Time - chain.FindRound(a.LastRegistration).Time > ChainTime.FromYears(a.FindRegistration(round).Years));	/// winner has not renewed, restart the auction
+			bool expired = a.LastWinner != null && (a.Owner == null && sinceauction() > ChainTime.FromYears(2) ||		/// winner has not registered since the end of auction																/// winner has not registered during 2 year since auction start, restart the auction
+													a.Owner != null && round.Time - a.RegistrationTime > ChainTime.FromYears(a.Years));	/// winner has not renewed, restart the auction
 
  			if(!expired)
  			{
-	 			if(a.FirstBid == -1 || sinceauction() < ChainTime.FromYears(1))
+	 			if(a.LastWinner == null || sinceauction() < ChainTime.FromYears(1))
 	 			{
-					if(a.FirstBid == -1) /// first bid
+					if(a.LastWinner == null) /// first bid
 					{
 						round.GetAccount(Signer).Balance -= Bid;
-						a.FirstBid = round.Id;
-						a.LastBid = round.Id;
+						
+						a.FirstBidTime = round.Time;
+						a.LastBid = Bid;
+						a.LastBidTime = round.Time;
+						a.LastWinner = Signer;
 						
 						return;
 					}
 					else
 					{
-						var lb = a.FindLastBid(round);
+						//var lb = a.FindLastBid(round);
 	
-						if(lb.Bid < Bid) /// outbid
+						if(a.LastBid < Bid) /// outbid
 						{
-							round.GetAccount(lb.Signer).Balance += lb.Bid;
+							round.GetAccount(a.LastWinner).Balance += a.LastBid;
 							round.GetAccount(Signer).Balance -= Bid;
-							a.LastBid = round.Id;
-					
+							
+							a.LastBid = Bid;
+							a.LastBidTime = round.Time;
+							a.LastWinner = Signer;
+				
 							return;
 						}
 					}
@@ -473,23 +479,25 @@ namespace UC.Net
  			} 
  			else
  			{
-				var lr = a.FindRegistration(round);
+				//var lr = a.FindRegistration(round);
 
-				if(lr != null)
+				if(a.Owner != null)
 				{
-					round.GetAccount(lr.Signer).Authors.Remove(Author);
+					round.GetAccount(a.Owner).Authors.Remove(Author);
+					a.Owner = null;
 				}
 
 				/// dont refund previous winner
 
-				var wb = a.FindLastBid(round);
-				round.Distribute(wb.Bid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
+				//var wb = a.FindLastBid(round);
+				round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
 
 				round.GetAccount(Signer).Balance -= Bid;
-				a.FirstBid			= round.Id;
-				a.LastBid			= round.Id;
-				a.LastRegistration	= -1;
-				a.LastTransfer		= -1;
+				
+				a.FirstBidTime = round.Time;
+				a.LastBid = Bid;
+				a.LastBidTime = round.Time;
+				a.LastWinner = Signer;
 				a.Products.Clear();
 			
 				return;
@@ -511,13 +519,12 @@ namespace UC.Net
 
 	public class AuthorRegistration : Operation
 	{
-		public const int			LengthMaxForAuction = 4;
 		
 		public string				Author;
 		public string				Title {get; set;}
 		public byte					Years {get; set;}
 
-		public bool					Exclusive => Author.Length <= LengthMaxForAuction; 
+		public bool					Exclusive => AuthorEntry.IsExclusive(Author); 
 		public override string		Description => $"{Author} ({Title}) for {Years} years";
 		public override bool		Valid => IsValid(Author, Title) && 0 < Years;
 		
@@ -558,38 +565,45 @@ namespace UC.Net
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-			AuthorBid lb = null;
+//			AuthorBid lb = null;
 
 			var a = round.FindAuthor(Author);
 
-			if(Exclusive)
-			{
-				lb = a?.FindLastBid(round);
-			}
+// 			if(Exclusive)
+// 			{
+// 				lb = a?.FindLastBid(round);
+// 			}
+// 
+// 			var lr = a?.FindRegistration(round);
 
-			var lr = a?.FindRegistration(round);
-
-			ChainTime sinceauction() => round.Time - chain.FindRound(a.FirstBid).Time;
-			ChainTime sincelastreg() => round.Time - lr.Transaction.Payload.Round.Time;
+			ChainTime sinceauction() => round.Time - a.FirstBidTime;
+			ChainTime sincelastreg() => round.Time - a.RegistrationTime;
 						
-			if(!Exclusive && a == null ||																																			/// available
-			   !Exclusive && sincelastreg() > ChainTime.FromYears(lr.Years)							||																				/// not renewed
-				Exclusive && lb != null && lb.Signer == Signer && a.LastRegistration == -1 && ChainTime.FromYears(1) < sinceauction() && sinceauction() < ChainTime.FromYears(2) ||	/// auction is over and a winner can register the author during 1 year
-				a != null && a.FindOwner(round) == Signer && sincelastreg() < ChainTime.FromYears(lr.Years) 																		/// renew
+			if(	a == null && !Exclusive ||																																			/// available
+				a != null && !Exclusive && sincelastreg() > ChainTime.FromYears(a.Years)							||																				/// not renewed
+				a != null && Exclusive && a.LastWinner == Signer && a.Owner == null && ChainTime.FromYears(1) < sinceauction() && sinceauction() < ChainTime.FromYears(2) ||	/// auction is over and a winner can register the author during 1 year
+				a != null && a.Owner == Signer && sincelastreg() < ChainTime.FromYears(a.Years) 																		/// renew
 			   )	
 			{
-				if(round.GetAuthor(Author).LastRegistration == -1)
+				if(a?.Owner == null)
 				{
 					if(Exclusive) /// distribite winner bid, one time
-						round.Distribute(lb.Bid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
+						round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
 
 					round.GetAccount(Signer).Authors.Add(Author);
 				}
 
 				var cost = GetCost(round, Years);
 
+
+				a = round.GetAuthor(Author);
+				a.Obtained = round.Id;
+				a.Title = Title;
+				a.Owner = Signer;
+				a.RegistrationTime = round.Time;
+				a.Years = Years;
+
 				round.GetAccount(Signer).Balance -= cost;
-				round.GetAuthor(Author).LastRegistration = round.Id;
 				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
 			}
 			else
@@ -641,7 +655,9 @@ namespace UC.Net
 
 			round.GetAccount(Signer).Authors.Remove(Author);
 			round.GetAccount(To).Authors.Add(Author);
-			round.GetAuthor(Author).LastTransfer = round.Id;
+
+			round.GetAuthor(Author).Obtained = round.Id;
+			round.GetAuthor(Author).Owner = To;
 		}
 	}
 
@@ -683,15 +699,18 @@ namespace UC.Net
 		{
 			var a = round.FindAuthor(Address.Author);
 
-			if(a == null || a.FindOwner(round) != Signer)
+			if(a == null || a.Owner != Signer)
 			{
 				Error = TheSignerDoesNotOwnTheAuthor;
 				return;
 			}
 
 			if(!a.Products.Contains(Address.Product))
+			{
+				///a.Rid = round.Id;
 				a.Products.Add(Address.Product);
- 
+			}
+			 
 			var p = round.GetProduct(Address);
 		
 			p.Title				= Title;
@@ -912,9 +931,9 @@ namespace UC.Net
 
 			var a = round.FindAuthor(Address.Author);
 
-			if(a == null || a.FindOwner(round) != Signer)
+			if(a == null || a.Owner != Signer)
 			{
-				Error = "TheSignerDoesNotOwnTheAuthor";
+				Error = TheSignerDoesNotOwnTheAuthor;
 				return;
 			}
 

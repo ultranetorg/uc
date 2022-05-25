@@ -64,9 +64,9 @@ namespace UC.Net.Node.FUI
 
 				var a = Core.Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue);
 
-				Core.Enqueue(new ProductRegistration(	GetPrivate(a.FindOwner(Chain.LastConfirmedRound)),
-															new ProductAddress(ProductName.Text, Author.SelectedItem as string),
-															ProductTitle.Text));
+				Core.Enqueue(new ProductRegistration(	GetPrivate(a.Owner),
+														new ProductAddress(ProductName.Text, Author.SelectedItem as string),
+														ProductTitle.Text));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{
@@ -102,7 +102,7 @@ namespace UC.Net.Node.FUI
 
 		private void products_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 		{
-			Management.Enabled = e.IsSelected && Vault.Accounts.Contains((e.Item.Tag as ProductModel).Author.FindOwner(Chain.LastConfirmedRound));
+			Management.Enabled = e.IsSelected && Vault.Accounts.Contains((e.Item.Tag as ProductModel).Author.Owner);
 		}
 	}
 }

@@ -1938,7 +1938,7 @@ namespace UC.Net
 			}
 		}
 
-		public AuthorInfo GetAuthorInfo(string author, bool confirmed, IFlowControl flowcontrol = null)
+		public XonDocument GetAuthorInfo(string author, bool confirmed, IFlowControl flowcontrol = null)
 		{
 			if(Chain != null)
 			{
@@ -1947,7 +1947,7 @@ namespace UC.Net
 			}
 			else
 			{
-				return GetRemoteMember().Api.Send(new AuthorInfoCall {Name = author, Confirmed = confirmed}) as AuthorInfo;
+				return GetRemoteMember().Api.Send(new AuthorInfoCall {Name = author, Confirmed = confirmed}) as XonDocument;
 			}
 		}
 		

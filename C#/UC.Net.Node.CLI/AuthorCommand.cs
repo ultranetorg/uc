@@ -67,9 +67,8 @@ namespace UC.Net.Node.CLI
 
 					Log.Report(this, "Author", $"'{GetString("name")}' :");
 
-					i.Dump(	(n, v) => Log.Report(this, null, v == null ? $"    {n,-20}" : ($"    {n,-20}: " + v)), 
-							(n, v) => Log.Report(this, null, $"        {n,-16}: " + v));
-
+					Dump(i);
+										
 					return null;
 				}
 

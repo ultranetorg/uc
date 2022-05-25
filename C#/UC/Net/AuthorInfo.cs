@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
+/*
 	public class OperationInfo
 	{
 		public int			RoundId {get; set; }
@@ -96,7 +97,7 @@ namespace UC.Net
 					at(LastTransfer);
 			}
 
-			if(Name.Length <= AuthorRegistration.LengthMaxForAuction)
+			if(AuthorEntry.IsExclusive(Name))
 			{
 				if(FirstBid != null)
 				{
@@ -117,5 +118,5 @@ namespace UC.Net
 				top("Products", string.Join(',', Products));
 			}
 		}
-	}
+	}*/
 }

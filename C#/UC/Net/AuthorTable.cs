@@ -23,32 +23,6 @@ namespace UC.Net
 			return Encoding.UTF8.GetBytes(key);
 		}
 		
-		public void Save(WriteBatch batch, Round round)
-		{
-			///foreach(var i in releases)
-			///{
-			///	var e =	GetEntry(i.Address.Author);
-			///
-			///	var p = e.Products.Find(j => j.Name == i.Address.Product);
-			///
-			///	if(p == null)
-			///	{
-			///		p = new Product {Name = i.Address.Product};
-			///		e.Products.Add(p);
-			///	}
-			///
-			///	var r = p.Releases.Find(j => j.Platform == i.Address.Platform && j.Channel == i.Channel);
-			///
-			///	if(r == null)
-			///		p.Releases.Add(new Release(i.Address.Platform, i.Address.Version, i.Channel, round.Id));
-			///	else
-			///		r.Version = i.Address.Version;
-			///}
-
-			
-			Save(batch, round.AffectedAuthors.Values);
-		}
-
  		public AuthorEntry Find(string name, int ridmax)
  		{
  			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
@@ -57,7 +31,7 @@ namespace UC.Net
  		
  			var e = FindEntry(name);
  		
- 			if(e != null && (e.LastRegistration > ridmax || e.LastTransfer > ridmax))
+ 			if(e != null && e.Obtained > ridmax)
  				throw new IntegrityException("maxrid works inside pool only");
  		
  			return e;
@@ -81,7 +55,7 @@ namespace UC.Net
 
 			if(e != null)
 				foreach(var a in e.Authors.Select(i => FindEntry(i)))
-					if((a.LastTransfer != -1 ? a.LastTransfer : a.LastRegistration) <= ridmax)
+					if(a.Obtained <= ridmax)
 					{
 						if(!o.Contains(a.Name))
 						{	

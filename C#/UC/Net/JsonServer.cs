@@ -372,6 +372,9 @@ namespace UC.Net
 			catch(HttpListenerException)
 			{
 			}
+			catch(ObjectDisposedException)
+			{ 
+			}
 			catch(JsonException ex)
 			{
 				responderror(ex.Message, (int)HttpStatusCode.BadRequest);

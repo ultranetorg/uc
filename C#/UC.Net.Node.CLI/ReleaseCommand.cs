@@ -40,11 +40,9 @@ namespace UC.Net.Node.CLI
 				{
 					var r = Client.QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
 
-					foreach(var i in r)
+					foreach(var item in r)
 					{
-						i.Dump((n, l) => Log?.Report(this, null, new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Value.ToString()))));
-
-						
+						Dump(item);
 					}
 
 					return r;

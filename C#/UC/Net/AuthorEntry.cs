@@ -56,14 +56,27 @@ namespace UC.Net
 	public class AuthorEntry : Entry<string>
 	{
 		public string				Name;
-		public int					FirstBid = -1;
-		public int					LastBid = -1;
-		public int					LastRegistration = -1;
-		public int					LastTransfer = -1;
+		public string				Title;
+		//public int					FirstBid = -1;
+		//public int					LastBid = -1;
+		//public int					LastRegistration = -1;
+		//public int					LastTransfer = -1;
 		public List<string>			Products = new();
+		public ChainTime			FirstBidTime;
+		public Account				LastWinner;
+		public Coin					LastBid;
+		public ChainTime			LastBidTime;
+		public Account				Owner;
+		public ChainTime			RegistrationTime;
+		public byte					Years;
+		public int					Obtained;
 
 		public override string		Key => Name;
 		Roundchain					Chain;
+
+		public const int			LengthMaxForAuction = 4;
+
+		public static bool			IsExclusive(string name) => name.Length <= LengthMaxForAuction; 
 
 		public AuthorEntry(Roundchain chain, string name)
 		{
@@ -74,106 +87,179 @@ namespace UC.Net
 		public AuthorEntry Clone()
 		{
 			return new AuthorEntry(Chain, Name)
-					{ 
-						FirstBid = FirstBid,
+					{
+						Title = Title,
+						FirstBidTime = FirstBidTime,
+						LastWinner = LastWinner,
 						LastBid = LastBid,
-						LastRegistration = LastRegistration,
-						LastTransfer = LastTransfer,
+						LastBidTime = LastBidTime,
+						Owner = Owner,
+						RegistrationTime = RegistrationTime,
+						Years = Years,
+						Obtained = Obtained,
 						Products = new List<string>(Products)
 					};
 		}
 
 		public override void Write(BinaryWriter w)
 		{
-			w.Write7BitEncodedInt(FirstBid);
-			w.Write7BitEncodedInt(LastBid);
-			w.Write7BitEncodedInt(LastRegistration);
-			w.Write7BitEncodedInt(LastTransfer);
-			w.Write(Products);
+			w.Write7BitEncodedInt(Obtained);
+
+			if(IsExclusive(Name))
+			{
+				w.Write(LastWinner != null);
+
+				if(LastWinner != null)
+				{
+					w.Write(FirstBidTime);
+					w.Write(LastWinner);
+					w.Write(LastBid);
+					w.Write(LastBidTime);
+				}
+			}
+
+			w.Write(Owner != null);
+
+			if(Owner != null)
+			{
+				w.Write(Owner);
+				w.Write(Title);
+				w.Write(RegistrationTime);
+				w.Write(Years);
+				w.Write(Products);
+			}
 		}
 
 		public override void Read(BinaryReader r)
 		{
-			FirstBid		= r.Read7BitEncodedInt();
-			LastBid			= r.Read7BitEncodedInt();
-			LastRegistration= r.Read7BitEncodedInt();
-			LastTransfer	= r.Read7BitEncodedInt();
-			Products		= r.ReadStings();
-		}
+			Obtained = r.Read7BitEncodedInt();
 
-		public AuthorBid FindFirstBid(Round executing)
-		{
-			if(FirstBid != -1)
+			if(IsExclusive(Name))
 			{
-				foreach(var b in Chain.FindRound(FirstBid).Payloads.AsEnumerable().Reverse())
-					foreach(var t in b.SuccessfulTransactions.AsEnumerable().Reverse())
-						foreach(var o in t.SuccessfulOperations.OfType<AuthorBid>().Reverse())
-							if(o.Author == Name)
-								return o;
-
-				throw new IntegrityException("AuthorBid operation not found");
+				if(r.ReadBoolean())
+				{
+					FirstBidTime = r.ReadTime();
+					LastWinner	 = r.ReadAccount();
+					LastBidTime	 = r.ReadTime();
+					LastBid		 = r.ReadCoin();
+				}
 			}
 
-			foreach(var r in Chain.Rounds.Where(i => i.Id < executing.Id).Reverse())
-				foreach(var b in (r.Confirmed ? r.ConfirmedPayloads : r.Payloads).AsEnumerable().Reverse())
-					foreach(var t in b.SuccessfulTransactions.AsEnumerable().Reverse())
-						foreach(var o in t.SuccessfulOperations.AsEnumerable().Reverse())
-							if(o is AuthorBid ab && ab.Author == Name)
-								return ab;
+			if(r.ReadBoolean())
+			{
+				Owner			 = r.ReadAccount();
+				Title			 = r.ReadString();
+				RegistrationTime = r.ReadTime();
+				Years			 = r.ReadByte();
+				Products		 = r.ReadStings();
+			}
 
-			return executing.ExecutedOperations.Reverse().OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name);
 		}
 
-		public AuthorBid FindLastBid(Round executing)
+		public XonDocument ToXon()
 		{
-			return	executing.ExecutedOperations.OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name)
-					??
-					Chain.FindLastPoolOperation<AuthorBid>(o => o.Author == Name && o.Successful, 
-																null, 
-																p => !p.Round.Confirmed || p.Confirmed, 
-																r => r.Id < executing.Id)
-					??
-					(LastBid != -1 ? Chain.FindRound(LastBid).FindOperation<AuthorBid>(i => i.Author == Name) : null);
+			var d = new XonDocument(new TextXonValueSerializator());
+
+			if(IsExclusive(Name))
+			{
+				if(LastWinner != null)
+				{
+					var p = d.Add("Auction");
+
+					p.Add("FirstBidTime").Value = FirstBidTime;
+					p.Add("LastWinner").Value = LastWinner;
+					p.Add("LastBid").Value = LastBid;
+					p.Add("LastBidTime").Value = LastBidTime;
+				}
+			}
+
+			if(Owner != null)
+			{
+				var p = d.Add("Registration");
+
+				p.Add("Owner").Value = Owner;
+				p.Add("Title").Value = Title;
+				p.Add("RegistrationTime").Value = RegistrationTime;
+				p.Add("Years").Value = Years;
+				p.Add("Products").Value = string.Join(", ", Products);
+			}
+
+			return d;
 		}
 
-		public AuthorRegistration FindRegistration(Round executing)
-		{
-			return	executing.ExecutedOperations.OfType<AuthorRegistration>().FirstOrDefault(i => i.Author == Name)
-					??
-					Chain.FindLastPoolOperation<AuthorRegistration>(o => o.Author == Name && o.Successful, 
-																	null, 
-																	p => !p.Round.Confirmed || p.Confirmed, 
-																	r => r.Id < executing.Id)
-					??
-					(LastRegistration != -1 ? Chain.FindRound(LastRegistration).FindOperation<AuthorRegistration>(i => i.Author == Name) : null);
-		}
+// 		public AuthorBid FindFirstBid(Round executing)
+// 		{
+// 			if(FirstBid != -1)
+// 			{
+// 				foreach(var b in Chain.FindRound(FirstBid).Payloads.AsEnumerable().Reverse())
+// 					foreach(var t in b.SuccessfulTransactions.AsEnumerable().Reverse())
+// 						foreach(var o in t.SuccessfulOperations.OfType<AuthorBid>().Reverse())
+// 							if(o.Author == Name)
+// 								return o;
+// 
+// 				throw new IntegrityException("AuthorBid operation not found");
+// 			}
+// 
+// 			foreach(var r in Chain.Rounds.Where(i => i.Id < executing.Id).Reverse())
+// 				foreach(var b in (r.Confirmed ? r.ConfirmedPayloads : r.Payloads).AsEnumerable().Reverse())
+// 					foreach(var t in b.SuccessfulTransactions.AsEnumerable().Reverse())
+// 						foreach(var o in t.SuccessfulOperations.AsEnumerable().Reverse())
+// 							if(o is AuthorBid ab && ab.Author == Name)
+// 								return ab;
+// 
+// 			return executing.ExecutedOperations.Reverse().OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name);
+// 		}
+// 
+// 		public AuthorBid FindLastBid(Round executing)
+// 		{
+// 			return	executing.ExecutedOperations.OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name)
+// 					??
+// 					Chain.FindLastPoolOperation<AuthorBid>(o => o.Author == Name && o.Successful, 
+// 																null, 
+// 																p => !p.Round.Confirmed || p.Confirmed, 
+// 																r => r.Id < executing.Id)
+// 					??
+// 					(LastBid != -1 ? Chain.FindRound(LastBid).FindOperation<AuthorBid>(i => i.Author == Name) : null);
+// 		}
+// 
+// 		public AuthorRegistration FindRegistration(Round executing)
+// 		{
+// 			return	executing.ExecutedOperations.OfType<AuthorRegistration>().FirstOrDefault(i => i.Author == Name)
+// 					??
+// 					Chain.FindLastPoolOperation<AuthorRegistration>(o => o.Author == Name && o.Successful, 
+// 																	null, 
+// 																	p => !p.Round.Confirmed || p.Confirmed, 
+// 																	r => r.Id < executing.Id)
+// 					??
+// 					(LastRegistration != -1 ? Chain.FindRound(LastRegistration).FindOperation<AuthorRegistration>(i => i.Author == Name) : null);
+// 		}
 
-		public AuthorTransfer FindTransfer(Round executing)
-		{
-			return	executing.ExecutedOperations.OfType<AuthorTransfer>().FirstOrDefault(i => i.Author == Name)
-					??
-					Chain.FindLastPoolOperation<AuthorTransfer>(o => o.Author == Name && o.Successful, 
-																null, 
-																p => !p.Round.Confirmed || p.Confirmed, 
-																r => r.Id < executing.Id)
-					??
-					(LastTransfer != -1 ? Chain.FindRound(LastTransfer).FindOperation<AuthorTransfer>(i => i.Author == Name) : null);
-		}
+// 		public AuthorTransfer FindTransfer(Round executing)
+// 		{
+// 			return	executing.ExecutedOperations.OfType<AuthorTransfer>().FirstOrDefault(i => i.Author == Name)
+// 					??
+// 					Chain.FindLastPoolOperation<AuthorTransfer>(o => o.Author == Name && o.Successful, 
+// 																null, 
+// 																p => !p.Round.Confirmed || p.Confirmed, 
+// 																r => r.Id < executing.Id)
+// 					??
+// 					(LastTransfer != -1 ? Chain.FindRound(LastTransfer).FindOperation<AuthorTransfer>(i => i.Author == Name) : null);
+// 		}
 
-		public Account FindOwner(Round executing)
-		{
-			var r = FindRegistration(executing);
-			var t = FindTransfer(executing);
-		
-			return t == null ? r?.Signer : t?.To;
-		}
+// 		public Account FindOwner(Round executing)
+// 		{
+// 			var r = FindRegistration(executing);
+// 			var t = FindTransfer(executing);
+// 		
+// 			return t == null ? r?.Signer : t?.To;
+// 		}
 
 		public bool IsOngoingAuction(Round executing)
 		{
-			ChainTime sinceauction() => executing.Time - Chain.FindRound(FirstBid).Time/* fb.Transaction.Payload.Round.Time*/;
+			ChainTime sinceauction() => executing.Time - FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
 
-			bool expired = (LastRegistration == -1 && sinceauction() > ChainTime.FromYears(2) ||																			/// winner has not registered during 2 year since auction start, restart the auction
-							LastRegistration != -1 && executing.Time - Chain.FindRound(LastRegistration).Time > ChainTime.FromYears(FindRegistration(executing).Years));	/// winner has not renewed, restart the auction
+			bool expired = (Owner == null && sinceauction() > ChainTime.FromYears(2) ||																			/// winner has not registered during 2 year since auction start, restart the auction
+							Owner != null && executing.Time - RegistrationTime > ChainTime.FromYears(Years));	/// winner has not renewed, restart the auction
 
  			if(!expired)
  			{

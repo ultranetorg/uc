@@ -105,7 +105,7 @@ namespace UC.Net
 			else
 				return null;
 		}
-		public AuthorInfo						Send(AuthorInfoCall call) => Send<AuthorInfo>(call);
+		public XonDocument						Send(AuthorInfoCall call) => Send<XonDocument>(call);
 		public AccountInfo						Send(AccountInfoCall call) => Send<AccountInfo>(call);
 		public List<XonDocument>				Send(QueryReleaseCall call) => Send<List<XonDocument>>(call);
 		public byte[]							Send(DownloadReleaseCall call) => Send<byte[]>(call);

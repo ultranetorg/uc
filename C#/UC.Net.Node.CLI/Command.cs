@@ -135,5 +135,10 @@ namespace UC.Net.Node.CLI
 			return obj;
 		}
 
+		protected void Dump(XonDocument document)
+		{
+			document.Dump((n, l) => Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Value.ToString()))));
+		}
+
 	}
 }
