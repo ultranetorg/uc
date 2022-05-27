@@ -167,13 +167,13 @@ namespace UC.Net
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)));
 
-			PeersMin			= doc.GetInt32("PeersMin");
-			PeersInMax			= doc.GetInt32("PeersInMax");
-			Port				= doc.Has("Port") ? doc.GetInt32("Port") : UC.Net.Zone.Port(Zone);
-			IP					= IPAddress.Parse(doc.GetString("IP"));
-			Generator			= doc.Has("Generator") ? doc.GetString("Generator") : null;
-			Log					= doc.Has("Log");
-			Telemetry			= doc.Has("Telemetry");
+			PeersMin	= doc.GetInt32("PeersMin");
+			PeersInMax	= doc.GetInt32("PeersInMax");
+			Port		= doc.Has("Port") ? doc.GetInt32("Port") : UC.Net.Zone.Port(Zone);
+			IP			= IPAddress.Parse(doc.GetString("IP"));
+			Generator	= doc.Has("Generator") ? doc.GetString("Generator") : null;
+			Log			= doc.Has("Log");
+			Telemetry	= doc.Has("Telemetry");
 
 			Dev			= new DevSettings(doc.One(nameof(Dev)));
 			Database	= new DatabaseSettings(doc.One(nameof(Database)));

@@ -10,7 +10,7 @@ namespace UC.Net
 		public string			Platform { get; set; }
 		public Version			Version { get; set; }
 
-		public override bool	Valid => !string.IsNullOrWhiteSpace(Platform)  && Version.Valid;
+		public override bool	Valid => !string.IsNullOrWhiteSpace(Platform);
 
 		public ReleaseAddress(string author, string product, string platform, Version version) : base(author, product)
 		{

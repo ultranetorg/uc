@@ -59,12 +59,13 @@ namespace UC.Net
 		public Vault									Vault;
 		public INas										Nas;
 		public Roundchain								Chain;
+		public Filebase									Filebase;
 		RocksDb											Database;
 		public bool										IsNode => ListeningThread != null;
 		public bool										IsClient => DelegatingThread != null;
 		public object									Lock = new();
 		public Settings									Settings;
-		Clock									TimeProvider;
+		Clock											Clock;
 
 		public PrivateAccount							Generator;
 		CandidacyDeclaration							Declaration;
@@ -216,7 +217,7 @@ namespace UC.Net
 		public Core(Settings settings, string exedirectory, Log log, Clock timeprovider, INas nas, IGasAsker gasasker, IFeeAsker feeasker)
 		{
 			Settings = settings;
-			TimeProvider = timeprovider;
+			Clock = timeprovider;
 			GasAsker = gasasker;
 			FeeAsker = feeasker;
 
@@ -235,6 +236,7 @@ namespace UC.Net
 			Vault		= new Vault(Settings, Log);
 			Nas			= nas;
 			HttpClient	= new HttpClient{Timeout = TimeSpan.FromSeconds(5)};
+			Filebase	= new Filebase(Settings);
 		}
 
 		public override string ToString()
@@ -826,13 +828,13 @@ namespace UC.Net
 									var from = rounds.Min(i => i.Id);
 									var to = rounds.Max(i => i.Id);
 		
-									bool seal = Chain.LastConfirmedRound.Id == from - 1;
+									bool confirmed = true;
 	
 									for(int i = from; i <= to; i++)
 									{
 										var r = rounds.FirstOrDefault(j => j.Id == i); 
 	
-										if(r == null && seal) /// not all reqested sealed rounds received? a peer must send the whole sealed sequence 
+										if(r == null && confirmed) /// not all reqested sealed rounds received? a peer must send the whole sealed sequence 
 										{
 											Synchronization = Synchronization.Downloading;
 											SyncStart = i;
@@ -840,25 +842,23 @@ namespace UC.Net
 											break;
 										}
 																			
-										if(seal && r.Confirmed)
+										if(r.Confirmed)
 										{
 											foreach(var b in r.Blocks)
 												b.Confirmed = true;
 	
-
 											Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
 											Chain.Rounds.Add(r);
 											Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
-											//Chain.Execute(r, r.ConfirmedPayloads, r.ConfirmedViolators);
 											Chain.Seal(r);
 									
 											Cache.RemoveAll(i => i.RoundId <= r.Id);
 										}
 										else
 										{
-											if(seal)
+											if(confirmed)
 											{
-												seal			= false;
+												confirmed		= false;
 												Synchronization	= Synchronization.Synchronizing;
 												SyncEnd			= peer.LastRound;
 											}
@@ -1162,8 +1162,8 @@ namespace UC.Net
 									RoundId				= nar.Id,
 									Try					= nar.Try,
 									Reference			= rr,
-									Time				= TimeProvider.Now,
-									TimeDelta			= prev == null ? 0 : (long)(TimeProvider.Now - prev.Time).TotalMilliseconds,
+									Time				= Clock.Now,
+									TimeDelta			= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators			= p.Forkers.ToList(),
 									Joiners				= Chain.ProposeJoiners(nar).ToList(),
 									Leavers				= Chain.ProposeLeavers(nar, Generator).ToList(),
@@ -1208,8 +1208,8 @@ namespace UC.Net
 												RoundId				= r.Id,
 												Try					= r.Try,
 												Reference			= rr,
-												Time				= TimeProvider.Now,
-												TimeDelta			= prev == null ? 0 : (long)(TimeProvider.Now - prev.Time).TotalMilliseconds,
+												Time				= Clock.Now,
+												TimeDelta			= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 												Violators			= p.Forkers.ToList(),
 												Joiners				= Chain.ProposeJoiners(r).ToList(),
 												Leavers				= Chain.ProposeLeavers(r, Generator).ToList(),

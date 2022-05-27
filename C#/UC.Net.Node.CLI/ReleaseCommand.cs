@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Org.BouncyCastle.Utilities.Encoders;
+using System.Collections.Generic;
 
 namespace UC.Net.Node.CLI
 {
@@ -26,15 +28,75 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 
-				case "publish" : 
+				case "declare" : 
 					return Send(() => Client.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
 																			ReleaseAddress.Parse(GetString("address")),
 																			GetString("channel"), 
-																			Version.Parse(GetString("previous")),
-																			Version.Parse(GetString("minimal")),
-																			GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)).ToList(),
-																			GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)).ToList()
+																			GetVersion("previous"),
+																			
+																			GetLong("csize"),
+																			GetHexBytes("chash"),
+																			GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)),
+
+																			GetVersion("iminimal"),
+																			GetLong("isize"),
+																			GetHexBytes("ihash"),
+																			GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i))
 																			)));
+
+				case "publish" :
+				{
+					var sources = GetString("sources").Split(',');
+					var r = ReleaseAddress.Parse(GetString("address"));
+					
+ 					var files = new Dictionary<string, string>();
+
+					foreach(var i in sources)
+					{
+						var sd = i.Split('=');
+						var s = sd[0];
+						var d = sd.Length == 2 ? sd[1] : null;
+
+						if(d == null)
+						{
+							if(Directory.Exists(s))
+							{
+			 					foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
+			 						files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
+							} 
+							else
+								files[s] = Path.GetFileName(s);
+						} 
+						else
+						{
+							if(Directory.Exists(s))
+							{
+			 					foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
+			 						files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
+							} 
+							else
+								files[s] = d;
+						}
+					}
+
+					var cpkg = Client.Filebase.Add(r, files, ReleaseDistribution.Complete);
+					var ipkg = Client.Filebase.AddIncremental(r, files, out Version previous, out Version minimal);
+
+					return Send(() => Client.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
+																			r,
+																			GetString("channel"), 
+																			previous,
+																			
+																			new FileInfo(cpkg).Length,
+																			Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+																			GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
+
+																			minimal,
+																			ipkg != null ? new FileInfo(ipkg).Length : 0,
+																			ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+																			GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i))
+																			)));
+				}
 
 		   		case "status" :
 				{

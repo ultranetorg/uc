@@ -208,7 +208,8 @@ namespace UC.Net
 		public bool					Valid => Queries.All(i => i.Valid);
 		public override bool		Private => false;
 	}
-	
+
+
 	public class DownloadReleaseCall : RpcCall
 	{
 		public  ReleaseDownloadRequest	Request { get; set; }

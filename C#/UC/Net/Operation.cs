@@ -791,29 +791,48 @@ namespace UC.Net
 		public ReleaseAddress			Address;
 		public string					Channel;		/// stable, beta, nightly, debug,...
 		public Version					PreviousVersion;
-		public Version					MinimalVersion;
-		public List<ReleaseAddress>		CompleteDependencies;
-		public List<ReleaseAddress>		IncrementalDependencies;
+		public byte[]					CompleteHash;
+		public long						CompleteSize;
+		public ReleaseAddress[]			CompleteDependencies;
+		public Version					IncrementalMinimalVersion;
+		public byte[]					IncrementalHash;
+		public long						IncrementalSize;
+		public ReleaseAddress[]			IncrementalDependencies;
+
 
 		public override bool			Valid => Address.Valid;
 		public override string			Description => $"{Address}/{Channel}";
 
 		byte[]							Hash;
-		bool							HashOnly;
+		bool							Archived;
 
 		public ReleaseManifest()
 		{
 		}
 
-		public ReleaseManifest(PrivateAccount signer, ReleaseAddress address, string channel, Version previous, Version minimal, List<ReleaseAddress> completeDependencies, List<ReleaseAddress> incrementalDependencies)
+		public ReleaseManifest(	PrivateAccount				signer, 
+								ReleaseAddress				address, 
+								string						channel, 
+								Version						previous, 
+								long						completesize,
+								byte[]						completehash,
+								IEnumerable<ReleaseAddress>	completedependencies, 
+								Version						incrementalminimalversion, 
+								long						incrementalsize,
+								byte[]						incrementalhash,
+								IEnumerable<ReleaseAddress>	incrementaldependencies)
 		{
 			Signer	= signer;
 			Address = address;
 			Channel = channel;
 			PreviousVersion = previous;
-			MinimalVersion = minimal;
-			CompleteDependencies = completeDependencies;
-			IncrementalDependencies = incrementalDependencies;
+			CompleteSize = completesize;
+			CompleteHash = completehash;
+			CompleteDependencies = completedependencies.ToArray();
+			IncrementalMinimalVersion = incrementalminimalversion;
+			IncrementalHash = incrementalhash;
+			IncrementalSize = incrementalsize;
+			IncrementalDependencies = incrementaldependencies.ToArray();
 		}
 
 		public XonDocument ToXon()
@@ -823,7 +842,9 @@ namespace UC.Net
 			d.Add("Address").Value = Address;
 			d.Add("Channel").Value = Channel;
 			d.Add("PreviousVersion").Value = PreviousVersion;
-			d.Add("MinimalVersion").Value = MinimalVersion;
+
+			d.Add("CompleteHash").Value = Hex.ToHexString(CompleteHash);
+			d.Add("CompleteSize").Value = CompleteSize;
 
 			if(CompleteDependencies.Any())
 			{
@@ -834,12 +855,19 @@ namespace UC.Net
 				}
 			}
 
-			if(IncrementalDependencies.Any())
+			if(IncrementalSize > 0)
 			{
-				var id = d.Add("IncrementalDependencies");
-				foreach(var i in IncrementalDependencies)
+				d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
+				d.Add("IncrementalHash").Value = Hex.ToHexString(IncrementalHash);
+				d.Add("IncrementalSize").Value = IncrementalSize;
+	
+				if(IncrementalDependencies.Any())
 				{
-					id.Add(i.ToString());
+					var id = d.Add("IncrementalDependencies");
+					foreach(var i in IncrementalDependencies)
+					{
+						id.Add(i.ToString());
+					}
 				}
 			}
 
@@ -861,10 +889,19 @@ namespace UC.Net
 			w.Write(Address);
 			w.WriteUtf8(Channel);
 			w.Write(PreviousVersion);
-			w.Write(MinimalVersion);
+			w.Write(CompleteHash);
+			w.Write7BitEncodedInt64(CompleteSize);
 			w.Write(CompleteDependencies);
-			w.Write(IncrementalDependencies);
-	
+			
+			w.Write7BitEncodedInt64(IncrementalSize);
+
+			if(IncrementalSize > 0)
+			{
+				w.Write(IncrementalMinimalVersion);
+				w.Write(IncrementalHash);
+				w.Write(IncrementalDependencies);
+			}
+				
 			Hash = Cryptography.Current.Hash(s.ToArray());
 		
 			return Hash;
@@ -884,9 +921,9 @@ namespace UC.Net
 		{
 			base.Read(r);
 
-			HashOnly = r.ReadBoolean();
+			Archived = r.ReadBoolean();
 
-			if(HashOnly)
+			if(Archived)
 			{
 				Hash = r.ReadSha3();
 			} 
@@ -895,9 +932,19 @@ namespace UC.Net
 				Address = r.Read<ReleaseAddress>();
 				Channel = r.ReadUtf8();
 				PreviousVersion = r.ReadVersion();
-				MinimalVersion = r.ReadVersion();
-				CompleteDependencies = r.ReadList<ReleaseAddress>();
-				IncrementalDependencies = r.ReadList<ReleaseAddress>();
+
+				CompleteSize = r.Read7BitEncodedInt64();
+				CompleteHash = r.ReadSha3();
+				CompleteDependencies = r.ReadArray<ReleaseAddress>();
+
+				IncrementalSize = r.Read7BitEncodedInt64();
+				
+				if(IncrementalSize > 0)
+				{
+					IncrementalMinimalVersion = r.ReadVersion();
+					IncrementalHash = r.ReadSha3();
+					IncrementalDependencies = r.ReadArray<ReleaseAddress>();
+				}
 
 				Hash = GetOrCalcHash();
 			}
@@ -907,9 +954,9 @@ namespace UC.Net
 		{
 			base.Write(w);
 
-			w.Write(HashOnly);
+			w.Write(Archived);
 
-			if(HashOnly)
+			if(Archived)
 			{
 				w.Write(GetOrCalcHash());
 			} 
@@ -918,15 +965,25 @@ namespace UC.Net
 				w.Write(Address);
 				w.WriteUtf8(Channel);
 				w.Write(PreviousVersion);
-				w.Write(MinimalVersion);
+
+				w.Write7BitEncodedInt64(CompleteSize);
+				w.Write(CompleteHash);
 				w.Write(CompleteDependencies);
-				w.Write(IncrementalDependencies);
+			
+				w.Write7BitEncodedInt64(IncrementalSize);
+
+				if(IncrementalSize > 0)
+				{
+					w.Write(IncrementalMinimalVersion);
+					w.Write(IncrementalHash);
+					w.Write(IncrementalDependencies);
+				}
 			}
 		}
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-			if(HashOnly)
+			if(Archived)
 				return;
 
 			var a = round.FindAuthor(Address.Author);
@@ -958,7 +1015,7 @@ namespace UC.Net
 					if(prev == null)
 						throw new IntegrityException("No ReleaseDeclaration found");
 					
-					prev.HashOnly = true;
+					prev.Archived = true;
 					round.AffectedRounds.Add(prev.Transaction.Payload.Round);
 					p.Releases.Remove(r);
 

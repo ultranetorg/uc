@@ -7,7 +7,7 @@ using System;
 
 namespace UC
 {
-	public class Version : IEquatable<Version>
+	public class Version : IEquatable<Version>, IComparable
 	{
 		public ushort Era;
 		public ushort Generation;
@@ -18,7 +18,7 @@ namespace UC
 		public string EGR => EG + $".{Release}";
 		public string EGRB => EGR + $".{Build}";
 
-		public bool Valid => true;
+		public readonly static Version Zero = new Version(0, 0, 0, 0);
 
 		public Version()
 		{
@@ -71,6 +71,18 @@ namespace UC
 		public override int GetHashCode()
 		{
 			return HashCode.Combine(Era, Generation, Release, Build);
+		}
+
+		public int CompareTo(object obj)
+		{
+			var o = obj as Version;
+
+			if(o > this)
+				return -1;
+			else if(o < this)
+				return 1;
+			else
+				return 0;
 		}
 
 		public static bool operator < (Version a, Version b)

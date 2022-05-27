@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
 using System;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net.Node.CLI
 {
@@ -69,6 +70,30 @@ namespace UC.Net.Node.CLI
 		{
 			if(Args.Has(paramenter))
 				return Args.GetString(paramenter);
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+		}
+
+		protected long GetLong(string paramenter)
+		{
+			if(Args.Has(paramenter))
+				return long.Parse(Args.GetString(paramenter));
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+		}
+
+		protected byte[] GetHexBytes(string paramenter)
+		{
+			if(Args.Has(paramenter))
+				return Hex.Decode(Args.GetString(paramenter));
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+		}
+
+		protected Version GetVersion(string paramenter)
+		{
+			if(Args.Has(paramenter))
+				return Version.Parse(Args.GetString(paramenter));
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}

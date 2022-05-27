@@ -1123,21 +1123,6 @@ namespace UC.Net
 
 			if(a != null)
 			{
-// 				var i = new AuthorInfo();
-// 
-// 				var f = a.FindFirstBid(roundmax);
-// 				var l = a.FindLastBid(roundmax);
-// 				var r = a.FindRegistration(roundmax);
-// 				var t = a.FindTransfer(roundmax);
-// 
-// 				i.Name				= author;
-// 				i.Owner				= a.FindOwner(roundmax);
-// 				i.FirstBid			= f != null ? new AuthorBidInfo(f) : null;
-// 				i.LastBid			= l != null ? new AuthorBidInfo(l) : null;
-// 				i.LastRegistration	= r != null ? new AuthorRegistrationInfo(r) : null;
-// 				i.LastTransfer		= t != null ? new AuthorTransferInfo(t) : null;
-// 				i.Products			= a.Products;
-
 				return a.ToXon();
 			}
 
@@ -1146,28 +1131,31 @@ namespace UC.Net
 				
 		public XonDocument QueryRelease(ReleaseQuery query, bool confirmed)
 		{
-			var roundmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
-
-			var p = Products.Find(query, roundmax.Id);
-
-			if(p != null)
+			if(query.VersionQuery == VersionQuery.Latest)
 			{
-				var r = p.Releases.Find(i => i.Channel == query.Channel &&
-											 i.Platform == query.Platform);
-
-				
-				if(r != null)
+				var roundmax = confirmed ? LastConfirmedRound : LastPayloadRound;
+	
+				var p = Products.Find(query, roundmax.Id);
+	
+				if(p != null)
 				{
-					var prev = FindRound(r.Rid).FindOperation<ReleaseManifest>(m =>	m.Address.Author == query.Author && 
-																					m.Address.Product == query.Product && 
-																					m.Address.Platform == query.Platform && 
-																					m.Channel == query.Channel);
-
-					return prev.ToXon();
+					var r = p.Releases.Find(i => i.Channel == query.Channel && i.Platform == query.Platform);
+					
+					if(r != null)
+					{
+						var prev = FindRound(r.Rid).FindOperation<ReleaseManifest>(m =>	m.Address.Author == query.Author && 
+																						m.Address.Product == query.Product && 
+																						m.Address.Platform == query.Platform && 
+																						m.Channel == query.Channel);
+	
+						return prev.ToXon();
+					}
 				}
+
+				return null;
 			}
 
-			return null;
+			throw new InvalidRequestException("Unknown VersionQuery");
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace UC.Net
 
 	public enum VersionQuery
 	{
-		Null, Exact, Latest
+		Null, Latest
 	}
 
 	public class ReleaseQuery : ReleaseAddress
@@ -77,7 +77,7 @@ namespace UC.Net
 		public long					Offset { get; set; }
 		public long					Length { get; set; }
 
-		public ReleaseDownloadRequest(string author, string product, string platform, Version version, string localization, ReleaseDistribution distribution, long offset, long length) : base(author, product, platform, version)
+		public ReleaseDownloadRequest(string author, string product, Version version, string platform, ReleaseDistribution distribution, long offset, long length) : base(author, product, platform, version)
 		{
 			Distribution = distribution;
 			Offset = offset;
@@ -87,43 +87,43 @@ namespace UC.Net
 		public ReleaseDownloadRequest()
 		{
 		}
-
-		public override string ToString()
-		{
-			return $"{base.ToString()}/{Distribution.ToString().ToLower()[0]}/{Offset}/{Length}";
-		}
-
-		public new static ReleaseDownloadRequest Parse(string v)
-		{
-			var s = v.Split('/');
-			var a = new ReleaseDownloadRequest();
-			a.Parse(s);
-			return a;
-		}
-				
-		public override void Parse(string[] s)
-		{
-			base.Parse(s);
-			
-			Distribution = s[6] switch {"c" => ReleaseDistribution.Complete,
-										"i"	=> ReleaseDistribution.Incremental,
-										_	=> throw new IntegrityException("Unknown ReleaseDistribution")};
-
-			Offset = long.Parse(s[7]);
-			Length = long.Parse(s[8]);
-		}
+// 
+// 		public override string ToString()
+// 		{
+// 			return $"{base.ToString()}/{Distribution.ToString().ToLower()[0]}/{Offset}/{Length}";
+// 		}
+// 
+// 		public new static ReleaseDownloadRequest Parse(string v)
+// 		{
+// 			var s = v.Split('/');
+// 			var a = new ReleaseDownloadRequest();
+// 			a.Parse(s);
+// 			return a;
+// 		}
+// 				
+// 		public override void Parse(string[] s)
+// 		{
+// 			base.Parse(s);
+// 			
+// 			Distribution = s[6] switch {"c" => ReleaseDistribution.Complete,
+// 										"i"	=> ReleaseDistribution.Incremental,
+// 										_	=> throw new IntegrityException("Unknown ReleaseDistribution")};
+// 
+// 			Offset = long.Parse(s[7]);
+// 			Length = long.Parse(s[8]);
+// 		}
 	}
 	
-	public class ReleaseDownloadRequestJsonConverter : JsonConverter<ReleaseDownloadRequest>
-	{
-		public override ReleaseDownloadRequest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			return ReleaseDownloadRequest.Parse(reader.GetString());
-		}
-
-		public override void Write(Utf8JsonWriter writer, ReleaseDownloadRequest value, JsonSerializerOptions options)
-		{
-			writer.WriteStringValue(value.ToString());
-		}
-	}
+//	public class ReleaseDownloadRequestJsonConverter : JsonConverter<ReleaseDownloadRequest>
+//	{
+//		public override ReleaseDownloadRequest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+//		{
+//			return ReleaseDownloadRequest.Parse(reader.GetString());
+//		}
+//
+//		public override void Write(Utf8JsonWriter writer, ReleaseDownloadRequest value, JsonSerializerOptions options)
+//		{
+//			writer.WriteStringValue(value.ToString());
+//		}
+//	}
 }
