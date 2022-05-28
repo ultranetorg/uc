@@ -108,6 +108,6 @@ namespace UC.Net
 		public XonDocument						Send(AuthorInfoCall call) => Send<XonDocument>(call);
 		public AccountInfo						Send(AccountInfoCall call) => Send<AccountInfo>(call);
 		public List<XonDocument>				Send(QueryReleaseCall call) => Send<List<XonDocument>>(call);
-		public byte[]							Send(DownloadReleaseCall call) => Send<byte[]>(call);
+		public byte[]							Send(DownloadPackageCall call) => Send<byte[]>(call);
 	}
 }

@@ -348,17 +348,12 @@ namespace UC.Net
 							}
 							break;
 
-						case DownloadReleaseCall c:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var ai = Core.DownloadRelease(c.Request);
-								
-								respondbinary(ai);
-							}
+						case DownloadPackageCall c:
+						{
+							var ai = Core.ReadPackage(c.Request);							
+							respondbinary(ai);
 							break;
-
+						}
 						case ExitCall e:
 							rp.Close();
 							Core.Stop("RPC call");

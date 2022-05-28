@@ -9,7 +9,7 @@ namespace UC.Net
 	public class ReleaseCertificate
 	{
 		public ReleaseAddress		Release;
-		public ReleaseDistribution	Distribution;
+		public Distribution	Distribution;
 		public List<byte[]>			Approvals; /// Signed Release + Distribution by Analyzer
 	}
 }

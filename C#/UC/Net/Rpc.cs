@@ -209,12 +209,19 @@ namespace UC.Net
 		public override bool		Private => false;
 	}
 
-
-	public class DownloadReleaseCall : RpcCall
+	public class DownloadPackageCall : RpcCall
 	{
-		public  ReleaseDownloadRequest	Request { get; set; }
+		public DownloadPackageRequest	Request { get; set; }
 
 		public bool						Valid => Request.Valid;
+		public override bool			Private => false;
+	}
+
+	public class LocatePackageCall : RpcCall
+	{
+		public  ReleaseAddress			Release { get; set; }
+		public  Distribution			Distribution { get; set; }
+
 		public override bool			Private => false;
 	}
 }

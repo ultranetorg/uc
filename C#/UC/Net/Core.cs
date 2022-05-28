@@ -84,7 +84,7 @@ namespace UC.Net
 		public List<IPAddress>							IgnoredIPs	= new();
 		public List<Block>								Cache		= new();
 		public List<Peer>								Members		= new();
-		//List<ReleaseDeclaration>						ReleaseDeclarations = new();
+		Dictionary<PackageAddress, List<IPAddress>>		PackagePeers = new();
 
 		TcpListener										Listener;
 		Thread											ListeningThread;
@@ -113,7 +113,7 @@ namespace UC.Net
 		//public ColumnFamilyHandle						ReleasesFamily => Database.GetColumnFamily(nameof(Releases));
 
 		readonly DbOptions								DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
-																					.SetCreateMissingColumnFamilies(true);
+																							.SetCreateMissingColumnFamilies(true);
 
 		public string[][] Info
 		{
@@ -1963,10 +1963,24 @@ namespace UC.Net
 				return GetRemoteMember().Api.Send(new QueryReleaseCall {Queries = queries.ToList(), Confirmed = confirmed}) as List<XonDocument>;
 			}
 		}
-				
-		public byte[] DownloadRelease(ReleaseDownloadRequest request)
+
+		public byte[] ReadPackage(DownloadPackageRequest request)
 		{
-			throw new NotImplementedException();
+			return Filebase.ReadPackage(request);
+		}
+				
+		public void DownloadPackage(ReleaseAddress release, Distribution distribution, long length)
+		{
+			var l = Filebase.GetLength(release, distribution);
+
+			while(l < length)
+			{
+				///var b = GetDownloadPeer(release, distribution).Api.Send(new DownloadPackageCall {Request = new DownloadPackageRequest(release.Author, release.Product, release.Version, release.Platform, distribution, l, Filebase.PieceLenghtMax)});
+				///
+				///Filebase.Append(release, distribution, b);
+				///
+				///l += b.Length;
+			}
 		}
 	}
 }

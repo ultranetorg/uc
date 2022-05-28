@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public enum ReleaseDistribution
+	public enum Distribution
 	{
 		Null, Complete, Incremental
 	}
@@ -71,20 +71,33 @@ namespace UC.Net
 		}
 	}
 
-	public class ReleaseDownloadRequest : ReleaseAddress
+	public class PackageAddress : ReleaseAddress
 	{
-		public ReleaseDistribution	Distribution { get; set; }
+		public Distribution			Distribution { get; set; }
+
+		public PackageAddress(string author, string product, Version version, string platform, Distribution distribution) : base(author, product, platform, version)
+		{
+			Distribution = distribution;
+		}
+
+		public PackageAddress()
+		{
+		}
+	}
+
+	public class DownloadPackageRequest : PackageAddress
+	{
 		public long					Offset { get; set; }
 		public long					Length { get; set; }
 
-		public ReleaseDownloadRequest(string author, string product, Version version, string platform, ReleaseDistribution distribution, long offset, long length) : base(author, product, platform, version)
+		public DownloadPackageRequest(string author, string product, Version version, string platform, Distribution distribution, long offset, long length) : base(author, product, version, platform, distribution)
 		{
 			Distribution = distribution;
 			Offset = offset;
 			Length = length;
 		}
 
-		public ReleaseDownloadRequest()
+		public DownloadPackageRequest()
 		{
 		}
 // 

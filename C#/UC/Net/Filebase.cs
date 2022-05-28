@@ -16,6 +16,7 @@ namespace UC.Net
 		const string CPKG = "cpkg";
 		const string REMOVALS = ".removals";
 		const string RENAMINGS = ".renamings"; /// TODO
+		public const long PieceLenghtMax = 1024 * 1024;
 
 		public Filebase(Settings settings)
 		{
@@ -23,14 +24,19 @@ namespace UC.Net
 
 			Directory.CreateDirectory(Root);
 		}
+		
+		string ToPath(ReleaseAddress address, Distribution distibution)
+		{
+			return Path.Join(Root, address.Author, address.Product, $"{address.Version}__{address.Platform}.{(distibution == Distribution.Complete ? CPKG : IPKG)}");
+		}
 
-		public string Add(ReleaseAddress release, IDictionary<string, string> files, ReleaseDistribution distribution, List<string> removals = null)
+		public string Add(ReleaseAddress release, IDictionary<string, string> files, Distribution distribution, List<string> removals = null)
 		{
 			var ap = Path.Join(Root, release.Author, release.Product);
 
 			Directory.CreateDirectory(ap);
 			
-			var zpath = Path.Join(ap, $"{release.Version}__{release.Platform}.{(distribution == ReleaseDistribution.Complete ? CPKG : IPKG)}");
+			var zpath = Path.Join(ap, $"{release.Version}__{release.Platform}.{(distribution == Distribution.Complete ? CPKG : IPKG)}");
 
 			using(var z = new FileStream(zpath, FileMode.Create))
 			{
@@ -148,7 +154,34 @@ namespace UC.Net
 
 			minimal = previous; /// TODO: determine really minimal
 			
-			return Add(release, incs, ReleaseDistribution.Incremental, rems);
+			return Add(release, incs, Distribution.Incremental, rems);
+		}
+
+		public byte[] ReadPackage(DownloadPackageRequest request)
+		{
+			using(var s = new FileStream(ToPath(request, request.Distribution), FileMode.Open, FileAccess.Read, FileShare.Read))
+			{
+				s.Seek(request.Offset, SeekOrigin.Begin);
+				
+				var b = new byte[Math.Min(request.Length, PieceLenghtMax)];
+	
+				s.Read(b);
+	
+				return b;
+			}
+		}
+
+		public long GetLength(ReleaseAddress release, Distribution distribution)
+		{
+			return new FileInfo(ToPath(release, distribution)).Length;
+		}
+
+		public void Append(ReleaseAddress release, Distribution distribution, byte[] data)
+		{
+			using(var s = new FileStream(ToPath(release, distribution), FileMode.Append, FileAccess.Write, FileShare.Read))
+			{
+				s.Write(data);
+			}
 		}
 	}
 }
