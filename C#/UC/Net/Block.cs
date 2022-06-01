@@ -15,7 +15,7 @@ namespace UC.Net
 		JoinRequest = 1, Vote = 2, Payload = 3
 	}
 
-	public abstract class Block : ITypedBinarySerializable
+	public abstract class Block : ITypedBinarySerializable, IBinarySerializable
 	{
 		public int					RoundId { get; set; }
 		public byte[]				Signature;
@@ -26,6 +26,7 @@ namespace UC.Net
 		protected Roundchain		Chain;
 		public virtual bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
 		public bool					Confirmed = false;
+		public byte[]				Hash;
 
 		protected abstract void		WriteForSigning(BinaryWriter w);
 
@@ -41,25 +42,23 @@ namespace UC.Net
 					//$"Signature={(Signature != null ? Hex.ToHexString(Signature).Substring(0, 16) : "")}";
 		}
 
-		public byte[] Hash
+		public byte[] CalculateHash()
 		{
-			get
-			{
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
 
-				w.Write((byte)Type);
-				w.Write(Chain.Settings.Zone);
-				w.Write7BitEncodedInt(RoundId);
+			w.Write((byte)Type);
+			w.Write(Chain.Settings.Zone);
+			w.Write7BitEncodedInt(RoundId);
 
-				WriteForSigning(w);
+			WriteForSigning(w);
 											
-				return Cryptography.Current.Hash(s.ToArray());
-			}
+			return Cryptography.Current.Hash(s.ToArray());
 		}
 
 		public void Sign(PrivateAccount generator)
 		{
+			Hash = CalculateHash();
 			Generator = generator;
 			Signature = Cryptography.Current.Sign(generator, Hash);
 		} 
@@ -191,35 +190,37 @@ namespace UC.Net
 				writer.Write(i);
 		}
 
-		public override void Write(BinaryWriter w)
+		public override void Write(BinaryWriter writer)
 		{
-			base.Write(w);
+			base.Write(writer);
 
-			w.Write7BitEncodedInt(Try);
-			w.Write7BitEncodedInt64(TimeDelta);
-			Reference.Write(w);
+			writer.Write7BitEncodedInt(Try);
+			writer.Write7BitEncodedInt64(TimeDelta);
+			Reference.Write(writer);
 
-			w.Write(Violators);
-			w.Write(Joiners);
-			w.Write(Leavers);
-			w.Write(FundableAssignments);
-			w.Write(FundableRevocations);
+			writer.Write(Violators);
+			writer.Write(Joiners);
+			writer.Write(Leavers);
+			writer.Write(FundableAssignments);
+			writer.Write(FundableRevocations);
 		}
 
-		public override void Read(BinaryReader r)
+		public override void Read(BinaryReader reader)
 		{
-			base.Read(r);
+			base.Read(reader);
 
-			Try = r.Read7BitEncodedInt();
-			TimeDelta = r.Read7BitEncodedInt64();
+			Try = reader.Read7BitEncodedInt();
+			TimeDelta = reader.Read7BitEncodedInt64();
 			Reference = new RoundReference();
-			Reference.Read(r);
+			Reference.Read(reader);
 
-			Violators			= r.ReadAccounts();
-			Joiners				= r.ReadAccounts();
-			Leavers				= r.ReadAccounts();
-			FundableAssignments	= r.ReadAccounts();
-			FundableRevocations	= r.ReadAccounts();
+			Violators			= reader.ReadAccounts();
+			Joiners				= reader.ReadAccounts();
+			Leavers				= reader.ReadAccounts();
+			FundableAssignments	= reader.ReadAccounts();
+			FundableRevocations	= reader.ReadAccounts();
+
+			Hash = CalculateHash();
 		}
 	}
 
@@ -316,6 +317,7 @@ namespace UC.Net
 												t.Read(r);
 												return t;
 											});
+			Hash = CalculateHash();
 		}
 	}
 }

@@ -50,7 +50,6 @@ namespace UC.Net.Node.CLI
 				Log.Stream = new FileStream(Path.Combine(boot.Main.Profile, "Log.txt"), FileMode.Create);
 
 				Settings = new Settings(boot);
-				Settings.Telemetry = false;
 
 				Cryptography.Current = Settings.Cryptography;
 									

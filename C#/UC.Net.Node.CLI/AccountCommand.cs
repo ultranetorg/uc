@@ -49,7 +49,7 @@ namespace UC.Net.Node.CLI
 		   		
 				case "overview" :
 				{
-					var i = Client.GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
+					var i = Client.Api.Send(new AccountInfoCall {Account = Account.Parse(GetString("address")), Confirmed = Args.Has("confirmed")});
 					
 					Log?.Report(this, "Account", GetString("address") + " :");
 

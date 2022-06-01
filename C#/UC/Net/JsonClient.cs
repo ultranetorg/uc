@@ -12,7 +12,7 @@ using System.Net;
 
 namespace UC.Net
 {
-	public class JsonClient
+	public class JsonClient// : RpcClient
 	{
 		HttpClient			HttpClient;
 		public string		Address;
@@ -24,8 +24,6 @@ namespace UC.Net
 		static JsonClient()
 		{
 			Options = new JsonSerializerOptions{};
-
-			//Options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
 
 			Options.IgnoreReadOnlyProperties = true;
 
@@ -58,7 +56,7 @@ namespace UC.Net
 			return HttpClient.Send(m);
 		}
 
-		public Rp Send<Rp>(RpcCall request)
+		public Rp Request<Rp>(RpcCall request)
 		{
 			var cr = Post(request);
 
@@ -75,7 +73,7 @@ namespace UC.Net
 			}
 		}
 		
-		public void Send(RpcCall request)
+		public void SendOnly(RpcCall request)
 		{
 			var cr = Post(request);
 			
@@ -83,31 +81,14 @@ namespace UC.Net
 				throw new RpcException(cr.StatusCode.ToString());
 		}
 
-		public UntTransfer						Send(TransferUntCall call) => Send<UntTransfer>(call);
-		public GetOperationStatusResponse		Send(GetOperationStatusCall call) => Send<GetOperationStatusResponse>(call);
-		public GetMembersResponse				Send(GetMembersCall call) => Send<GetMembersResponse>(call);
-		public NextRoundResponse				Send(NextRoundCall call) => Send<NextRoundResponse>(call);
-		//public LastTransactionIdResponse		Send(LastOperationIdCall call) => Send<LastTransactionIdResponse>(call);
-		public DelegateTransactionsResponse		Send(DelegateTransactionsCall call) => Send<DelegateTransactionsResponse>(call);
-		public GetStatusResponse				Send(GetStatusCall call) => Send<GetStatusResponse>(call);
-		public Operation						Send(LastOperationCall call)
-		{
-			var r = Send<LastOperationResponse>(call);
+		public UntTransfer								Send(TransferUntCall call) => Request<UntTransfer>(call);
+		public GetStatusResponse						Send(StatusCall call) => Request<GetStatusResponse>(call);
+		public XonDocument								Send(AuthorInfoCall call) => Request<XonDocument>(call);
+		public AccountInfo								Send(AccountInfoCall call) => Request<AccountInfo>(call);
 
-			if(r.Operation != null)
-			{
-				var rd = new BinaryReader(new MemoryStream(r.Operation));
-
-				var o = Operation.FromType((Operations)rd.ReadByte());
-				o.Read(rd);
-				return o;
-			} 
-			else
-				return null;
-		}
-		public XonDocument						Send(AuthorInfoCall call) => Send<XonDocument>(call);
-		public AccountInfo						Send(AccountInfoCall call) => Send<AccountInfo>(call);
-		public List<XonDocument>				Send(QueryReleaseCall call) => Send<List<XonDocument>>(call);
-		public byte[]							Send(DownloadPackageCall call) => Send<byte[]>(call);
+		//public GetMembersResponse						Send(GetMembersCall call) => Request<GetMembersResponse>(call);
+		
+		public List<XonDocument>						Send(QueryReleaseCall call) => Request<List<XonDocument>>(call);
+		public byte[]									Send(DownloadPackageCall call) => Request<byte[]>(call);
 	}
 }

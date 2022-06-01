@@ -50,7 +50,7 @@ namespace UC.Net.Node.FUI
 
 									try
 									{
-										t = Core.GetAccountInfo(i.Tag as Account, true)?.Balance.ToHumanString(); 
+										t = Core.Api.Send(new AccountInfoCall{ Account = i.Tag as Account, Confirmed = true })?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{
@@ -78,7 +78,7 @@ namespace UC.Net.Node.FUI
 
 									try
 									{
-										t = Core.GetAccountInfo(i.Tag as Account, false)?.Balance.ToHumanString(); 
+										t = Core.Api.Send(new AccountInfoCall{ Account = i.Tag as Account, Confirmed = false })?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{

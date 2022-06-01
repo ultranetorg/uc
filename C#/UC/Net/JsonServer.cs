@@ -20,7 +20,7 @@ namespace UC.Net
 {
 	public class JsonServer
 	{
-		Core		Core;
+		Core			Core;
 		HttpListener	Listener;
 		Thread			Thread;
 
@@ -39,7 +39,7 @@ namespace UC.Net
 									{
 										Listener = new HttpListener();
 	
-										var prefixes = new string[] {$"http://{(Settings.IP.ToString() != "0.0.0.0" ? Settings.IP.ToString() : "+")}:{Zone.RpcPort(Settings.Zone)}/"};
+										var prefixes = new string[] {$"http://{(Settings.IP.ToString() != "0.0.0.0" ? Settings.IP.ToString() : "+")}:{Zone.JsonPort(Settings.Zone)}/"};
 			
 										foreach(string s in prefixes)
 										{
@@ -71,6 +71,7 @@ namespace UC.Net
 										Core.Stop(MethodBase.GetCurrentMethod(), ex);
 									}
 								});
+
 			Thread.Name = $"{Settings.IP.GetAddressBytes()[3]} Aping";
 			Thread.Start();
 		}
@@ -183,123 +184,13 @@ namespace UC.Net
 							Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 							break;
 	
-						case GetStatusCall s:
+						case StatusCall s:
 							respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
 																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
 																InfoValues	= Core.Info[1].Take(s.Limit) });
 							break;
 							
-						case NextRoundCall e:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var r = Core.GetNextAvailableRound();
-								
-								if(r != null)
-									respondjson(new NextRoundResponse {NextRoundId = r.Id});
-								else
-									responderror("Next round not available");
-							}
-									
-							break;
-							
-						//case LastOperationIdCall e:
-						//	if(Core.Synchronization != Synchronization.Synchronized)
-						//		rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-						//	else
-						//	{
-						//		var o = Core.Chain.Accounts.FindLastOperation(e.Account, i => i.Successful);
-						//	
-						//		respondjson(new LastTransactionIdResponse {Id = o != null ? o.Id : -1});
-						//	}
-						//			
-						//	break;
-							
-						case LastOperationCall e:
-						{
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var l = Core.Chain.Accounts.FindLastOperation(e.Account, i => e.Type == null || i.GetType().Name == e.Type);
-							
-								if(l != null)
-								{
-									var s = new MemoryStream();
-									var w = new BinaryWriter(s);
-									w.Write((byte)l.Type);
-									l.Write(w);
-									respondjson(new LastOperationResponse {Operation = s.ToArray()});
-								} 
-								else
-									respondjson(new LastOperationResponse {Operation = null});
-							}
-									
-							break;
-						}	
-						
-						case DelegateTransactionsCall e:
-							if(Core.Synchronization != Synchronization.Synchronized || Core.Generator == null)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var txs = Core.Read(new MemoryStream(e.Data), r =>	{	return  new Transaction(Settings)
-																								{
-																									Generator = Core.Generator
-																								};
-																					});
-								var acc = Core.ProcessIncoming(txs);
-
-								respondjson(new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
-																							.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
-																							.ToList()});
-		
-								Log?.Report(this, "Incoming transaction(s)", $"Received={txs.Count()} Accepted={acc.Count()} from {context.Request.RemoteEndPoint}");
-							}
-
-							break;
-
-						case GetMembersCall e:
-							if(Chain != null)
-							{
-								if(Core.Synchronization == Synchronization.Synchronized)
-									respondjson(new GetMembersResponse {Members = Chain.Members});
-								else
-									rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							}
-							else
-							{
-								if(Core.Members.Any())
-									respondjson(new GetMembersResponse {Members = Core.Members});
-								else
-									rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							}
-
-							break;
-
-						case GetOperationStatusCall c:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								respondjson(new GetOperationStatusResponse
-								{
-									LastConfirmedRound = Chain.LastConfirmedRound.Id,
-									Operations = c.Operations	.Select(o => new { A = o,
-																				   B = Core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
-																										.SelectMany(t => t.Operations)
-																										.FirstOrDefault(i => i.Id == o.Id)
-																						?? 
-																						Core.Chain.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
-																.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
-																													Id			= i.A.Id,
-																													Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing})
-								});
-							}
-							break;
-
 						case AccountInfoCall c:
 							if(Core.Synchronization != Synchronization.Synchronized)
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
@@ -342,7 +233,7 @@ namespace UC.Net
 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
 							else
 							{
-								var ai = Core.QueryRelease(c.Queries, c.Confirmed);
+								var ai = c.Queries.Select(i => Chain.QueryRelease(i, c.Confirmed));
 								
 								respondjson(ai);
 							}
@@ -350,8 +241,8 @@ namespace UC.Net
 
 						case DownloadPackageCall c:
 						{
-							var ai = Core.ReadPackage(c.Request);							
-							respondbinary(ai);
+							///var ai = Core.Api.Send(new DownloadPackageRequest(c.Request);							
+							///respondbinary(ai);
 							break;
 						}
 						case ExitCall e:

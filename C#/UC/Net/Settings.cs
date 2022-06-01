@@ -120,28 +120,27 @@ namespace UC.Net
 
 	public class Settings
 	{
-		public bool				Log;
-		public bool				Telemetry;
-		public int				Port;
-		public string			Zone;
-		public int				PeersMin;
-		public int				PeersInMax;
-		public IPAddress		IP = IPAddress.Any;
-		public string			Generator;
-		public string			Profile;
+		public bool					Log;
+		public int					Port;
+		public string				Zone;
+		public int					PeersMin;
+		public int					PeersInMax;
+		public IPAddress			IP = IPAddress.Any;
+		public string				Generator;
+		public string				Profile;
 
-		public DevSettings		Dev;
-		public NasSettings		Nas;
-		public IpfsSettings		Ipfs;
-		public RpcSettings		Rpc;
-		public DatabaseSettings	Database;
-		public SecretSettings	Secret;
+		public static DevSettings	Dev;
+		public NasSettings			Nas;
+		public IpfsSettings			Ipfs;
+		public RpcSettings			Rpc;
+		public DatabaseSettings		Database;
+		public SecretSettings		Secret;
 
-		public List<string>		Accounts;
-		public List<Account>	ApprovedFundables = new();
+		public List<string>			Accounts;
+		public List<Account>		ApprovedFundables = new();
 
-		XonDocument				Document;
-		string					Path; 
+		XonDocument					Document;
+		string						Path; 
 
 		public Cryptography Cryptography
 		{
@@ -173,7 +172,6 @@ namespace UC.Net
 			IP			= IPAddress.Parse(doc.GetString("IP"));
 			Generator	= doc.Has("Generator") ? doc.GetString("Generator") : null;
 			Log			= doc.Has("Log");
-			Telemetry	= doc.Has("Telemetry");
 
 			Dev			= new DevSettings(doc.One(nameof(Dev)));
 			Database	= new DatabaseSettings(doc.One(nameof(Database)));

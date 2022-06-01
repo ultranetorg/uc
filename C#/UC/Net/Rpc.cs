@@ -1,227 +1,250 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Net.Http;
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
-using System.Net;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using Org.BouncyCastle.Security;
 
 namespace UC.Net
 {
-	public class IPJsonConverter : JsonConverter<IPAddress>
+	public enum RpcType : byte
 	{
-		public override IPAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		Null, NextRound, GetMembers, LastOperation, DelegateTransactions, GetOperationStatus,
+	}
+
+	public abstract class Request : ITypedBinarySerializable
+	{
+		public byte[]					Id {get; set;}
+
+		public byte						BinaryType => (byte)Type;
+		public AutoResetEvent			Event;
+		public Response					RecievedResponse;
+		public bool						Sent;
+
+		public const int				IdLength = 8;
+		static readonly SecureRandom	Random = new SecureRandom();
+
+		public static Request FromType(Roundchain chaim, RpcType type)
 		{
-			return IPAddress.Parse(reader.GetString());
+			try
+			{
+				return Assembly.GetExecutingAssembly().GetType(typeof(GetMembersRequest).Namespace + "." + type + nameof(Request)).GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as Request;
+			}
+			catch(Exception ex)
+			{
+				throw new IntegrityException($"Wrong {nameof(Request)} type", ex);
+			}
 		}
 
-		public override void Write(Utf8JsonWriter writer, IPAddress value, JsonSerializerOptions options)
+		public RpcType Type
 		{
-			writer.WriteStringValue(value.ToString());
+			get
+			{
+				return Enum.Parse<RpcType>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Request))));
+			}
+		}
+
+		public Request()
+		{
+			Id = new byte[IdLength];
+			Random.NextBytes(Id);
+			Event = new AutoResetEvent(false);
+		}
+
+		public abstract Response Execute(Core core);
+	}
+
+	public enum ResponseStatus
+	{
+		Null, OK, Failed
+	}
+
+	public abstract class Response : ITypedBinarySerializable
+	{
+		public byte				BinaryType => (byte)Type;
+		public byte[]			Id {get; set;}
+		public ResponseStatus	Status {get; set;}
+
+		public static Response FromType(Roundchain chaim, RpcType type)
+		{
+			try
+			{
+				return Assembly.GetExecutingAssembly().GetType(typeof(GetMembersRequest).Namespace + "." + type + nameof(Response)).GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as Response;
+			}
+			catch(Exception ex)
+			{
+				throw new IntegrityException($"Wrong {nameof(Response)} type", ex);
+			}
+		}
+
+
+		public RpcType Type
+		{
+			get
+			{
+				return Enum.Parse<RpcType>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
+			}
 		}
 	}
 
-	public class OperationAddress
+	public class NextRoundRequest : Request
 	{
-		public Account	Account { get; set; }
-		public int		Id { get; set; }
+		public override Response Execute(Core core)
+		{
+			if(core.Synchronization != Synchronization.Synchronized)
+				throw new RpcException("Not synchronized");
+			else
+				return new NextRoundResponse {NextRoundId = core.GetNextAvailableRound().Id};
+		}
 	}
 
-	public class RpcException : Exception
+	public class NextRoundResponse : Response
 	{
-		public RpcException(string msg) : base(msg){ }
-		public RpcException(string msg, Exception ex) : base(msg, ex){ }
+		public int NextRoundId { get;set; }
 	}
 
-	public abstract class RpcCall
+	public class GetMembersRequest : Request
 	{
-		public string			Version { get; set; }
-		public string			AccessKey { get; set; }
-
-		[JsonIgnore]
-		public abstract bool	Private { get; }
-
-		public static string NameOf<C>() => NameOf(typeof(C));
-		public static string NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
+		public override Response Execute(Core core)
+		{
+ 			if(core.Chain != null)
+ 			{
+ 				if(core.Synchronization == Synchronization.Synchronized)
+ 					return new GetMembersResponse { Members = core.Chain.Members };
+ 				else
+ 					throw new RpcException("Not synchronized");
+ 			}
+ 			else
+ 			{
+ 				return new GetMembersResponse { Members = core.Members };
+ 			}
+		}
 	}
 
-	public class ExitCall : RpcCall
+	public class GetMembersResponse : Response
 	{
-		public override bool	Private => true;
-		public string			Reason { get; set; }
+		public IEnumerable<Peer> Members {get; set;}
 	}
-
-	public class GetStatusCall : RpcCall
+	
+	public class LastOperationRequest : Request
 	{
-		public override bool	Private => true;
-		public int				Limit  { get; set; }
-	}
-
-	public class GetStatusResponse
-	{
-		public IEnumerable<string>	Log {get; set;}
-		public IEnumerable<string>	Rounds {get; set;}
-		public IEnumerable<string>	InfoFields {get; set;}
-		public IEnumerable<string>	InfoValues {get; set;}
-	}
-
-	public enum MassTransactionCommand
-	{
-		Start, Stop
-	}
-
-	//public class MassTransactionCall : RpcCall
-	//{
-	//	public override bool Private => true;
-	//	public string Command { get; set; }
-	//	public string From { get; set; }
-	//	public string To { get; set; }
-	//}
-
-	public class RunCall : RpcCall
-	{
-		public override bool	Private => true;
-	}
-
-	public class AddWalletCall : RpcCall
-	{
-		public override bool	Private => true;
 		public Account			Account {get; set;}
-		public byte[]			Wallet {get; set;}
+		public string			Class {get; set;}
+
+		public override Response Execute(Core core)
+		{
+			if(core.Synchronization != Synchronization.Synchronized)
+				throw new RpcException("Not synchronized");
+			else
+			{
+				var l = core.Chain.Accounts.FindLastOperation(Account, i => Class == null || i.GetType().Name == Class);
+							
+				return new LastOperationResponse {Operation = l};
+			}
+		}
 	}
 
-	public class UnlockWalletCall : RpcCall
+	public class LastOperationResponse : Response
 	{
-		public override bool	Private => true;
-		public Account			Account {get; set;}
-		public string			Password {get; set;}
+		public Operation Operation {get; set;}
 	}
 
-	public class SetGeneratorCall : RpcCall
+	public class DelegateTransactionsRequest : Request
 	{
-		public override bool	Private => true;
-		public Account			Account {get; set;}
+		public byte[]	Data {get; set;}
+
+		public override Response Execute(Core core)
+		{
+			if(core.Synchronization != Synchronization.Synchronized || core.Generator == null)
+				throw new RpcException("Not synchronized");
+			else
+			{
+				var txs = core.Read(new MemoryStream(Data), r => { return	new Transaction(core.Settings)
+																			{
+																				Generator = core.Generator
+																			};
+																});
+				var acc = core.ProcessIncoming(txs);
+
+				return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
+																		.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
+																		.ToList()};
+			}
+		}
 	}
 
-	public class TransferUntCall : RpcCall
-	{
-		public override bool	Private => true;
-		public Account			From {get; set;}
-		public Account			To {get; set;}
-		public Coin				Amount {get; set;}
-	}
-
-	public class NextRoundCall : RpcCall
-	{
-		public override bool Private => false;
-	}
-
-	public class NextRoundResponse
-	{
-		public int NextRoundId  {get; set;}
-	}
-
-	public class LastOperationCall : RpcCall
-	{
-		public override bool	Private => false;
-		public Account			Account {get; set;}
-		public string			Type {get; set;}
-	}
-
-	public class LastOperationResponse
-	{
-		public byte[] Operation {get; set;}
-	}
-
-	public class DelegateTransactionsCall : RpcCall
-	{
-		public override bool	Private => false;
-		public byte[]			Data {get; set;}
-	}
-
-	public class DelegateTransactionsResponse
+	public class DelegateTransactionsResponse : Response
 	{
 		public IEnumerable<OperationAddress> Accepted { get; set; }
 	}
 
-	public class GetMembersCall : RpcCall
+	public class GetOperationStatusRequest : Request
 	{
-		public override bool Private => false;
-	}
-
-	public class GetMembersResponse
-	{
-		public IEnumerable<Peer> Members { get; set; }
-	}
-
-	public class GetOperationStatusCall : RpcCall
-	{
-		public override bool					Private => false;
 		public IEnumerable<OperationAddress>	Operations { get; set; }
+
+		public override Response Execute(Core core)
+		{
+			if(core.Synchronization != Synchronization.Synchronized)
+				throw new RpcException("Not synchronized");
+			else
+			{
+				return	new GetOperationStatusResponse
+						{
+							//LastConfirmedRound = core.Chain.LastConfirmedRound.Id,
+							Operations = Operations.Select(o => new {	A = o,
+																		B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
+																								.SelectMany(t => t.Operations)
+																								.FirstOrDefault(i => i.Id == o.Id)
+																		?? 
+																		core.Chain.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
+													.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
+																										Id			= i.A.Id,
+																										Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
+						};
+			}
+		}
 	}
 
-	public class GetOperationStatusResponse
+	public class GetOperationStatusResponse : Response
 	{
-		public int LastConfirmedRound { get; set; }
-
 		public class Item
 		{
-			public Account		Account { get; set; }
-			public int			Id { get; set; }
-			public PlacingStage	Placing { get; set; }
+			public Account			Account { get; set; }
+			public int				Id { get; set; }
+			public PlacingStage		Placing { get; set; }
 		}
 
 		public IEnumerable<Item> Operations { get; set; }
 	}
 
-	public class AccountInfoCall : RpcCall
-	{
-		public override bool	Private => false;
-		public bool				Confirmed {get; set;} = false;
-		public Account			Account {get; set;}
-	}
-
-	public class AuthorInfoCall : RpcCall
-	{
-		public override bool	Private => false;
-		public bool				Confirmed {get; set;} = false;
-		public string			Name {get; set;}
-	}
-
-// 	public class DelegatePropositionCall : RpcCall
-// 	{
-// 		public List<Proposition>	Propositions { get;set; }
-// 
-// 		public bool					Valid => true;
-// 		public override bool		Private => false;
-// 	}
-
-	public class QueryReleaseCall : RpcCall
-	{
-		public List<ReleaseQuery>	Queries { get; set; }
-		public bool					Confirmed {get; set;} = false;
-
-		public bool					Valid => Queries.All(i => i.Valid);
-		public override bool		Private => false;
-	}
-
-	public class DownloadPackageCall : RpcCall
-	{
-		public DownloadPackageRequest	Request { get; set; }
-
-		public bool						Valid => Request.Valid;
-		public override bool			Private => false;
-	}
-
-	public class LocatePackageCall : RpcCall
-	{
-		public  ReleaseAddress			Release { get; set; }
-		public  Distribution			Distribution { get; set; }
-
-		public override bool			Private => false;
-	}
+	//public class ReleaseRequest : IBinarySerializable
+	//{
+	//	public ReleaseAddress	Address;
+	//	public string			Localization; /// empty means default
+	//
+	//	public bool				Valid => Address.Valid;
+	//
+	//	public ReleaseRequest()
+	//	{
+	//	}
+	//
+	//	public ReleaseRequest(ReleaseAddress address, string localization)
+	//	{
+	//		Address = address;
+	//		Localization = localization;
+	//	}
+	//
+	//	public void Read(BinaryReader r)
+	//	{
+	//		Address = r.ReadReleaseAddress();
+	//		Localization = r.ReadUtf8();
+	//	}
+	//
+	//	public void Write(BinaryWriter w)
+	//	{
+	//		w.Write(Address);
+	//		w.WriteUtf8(Localization);
+	//	}
+	//}
 }

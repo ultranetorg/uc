@@ -43,8 +43,14 @@ namespace UC.Net
 	{
 		Null, Downloading, Synchronizing, Synchronized
 	}
+
+	public enum PeerCapability
+	{
+		DMS = 0b00000001,
+		RDN = 0b00000010
+	}
  
-	public class Core
+	public class Core : RpcClient
 	{
 		public static readonly int[]					Versions = {1};
 		public const string								FailureExt = "failure";
@@ -67,9 +73,9 @@ namespace UC.Net
 		public Settings									Settings;
 		Clock											Clock;
 
-		public PrivateAccount							Generator;
+		//public PrivateAccount							Generator;
 		CandidacyDeclaration							Declaration;
-		public Guid										Session;
+		public Guid										Nuid;
 		public IPAddress								IP = IPAddress.None;
 
 		public Statistics								PrevStatistics = new();
@@ -90,10 +96,11 @@ namespace UC.Net
 		Thread											ListeningThread;
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
-		public Peer										RemoteMember;
+		public RpcClient									RemoteMember;
 		object											RemoteMemberLock = new object();
 
 		JsonServer										ApiServer;
+		JsonClient										ApiClient;
 		HttpClient										HttpClient;
 
 		public bool										Working => Running && (Abort == null || !Abort());
@@ -115,6 +122,55 @@ namespace UC.Net
 		readonly DbOptions								DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																							.SetCreateMissingColumnFamilies(true);
 
+		public JsonClient Api;
+// 		{
+// 			get
+// 			{
+// 				if(ApiClient == null)
+// 					if(Chain != null)
+// 					{
+// 						ApiClient = new JsonClient(HttpClient, $"http://{Settings.IP}:{Zone.JsonPort(Settings.Zone)}", Settings.Rpc.AccessKey);
+// 					}
+// 					else
+// 					{
+// 						Peer peer;
+// 				
+// 						while(Working)
+// 						{
+// 							Thread.Sleep(1);
+// 	
+// 							lock(Lock)
+// 							{
+// 								peer = RemoteMember as Peer ?? Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ApiReachFailures).FirstOrDefault();
+// 	
+// 								if(peer == null)
+// 									continue;
+// 							}
+// 
+// 							try
+// 							{
+// 								var api = new JsonClient(HttpClient, $"http://{peer.IP}:{Zone.JsonPort(Settings.Zone)}", null);
+// 
+// 								var cr = api.Send(new StatusCall());
+// 	
+// 								lock(Lock)
+// 								{
+// 									peer.ApiReachFailures = 0;
+// 									
+// 									ApiClient = api;
+// 								}
+// 							}
+// 							catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
+// 							{
+// 								peer.ApiReachFailures++;
+// 							}
+// 						}
+// 					}
+// 
+// 				return ApiClient; 
+// 			}
+// 		}
+
 		public string[][] Info
 		{
 			get
@@ -133,6 +189,7 @@ namespace UC.Net
 				f.Add("       Pending");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Pending)}");
 				f.Add("       Placed");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Placed)}");
 				f.Add("       Confirmed");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
+				f.Add("Peers in/out/min/known");v.Add($"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}");
 				
 				//f.Add("Transactions");			v.Add($"{Transactions.Count}");
 				//f.Add("    pending");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Pending)}");
@@ -141,7 +198,6 @@ namespace UC.Net
 				if(Chain != null)
 				{
 					f.Add("Synchronization");		v.Add($"{Synchronization}");
-					f.Add("Peers in/out/min/known");v.Add($"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}");
 					f.Add("Members");				v.Add($"{Chain.Members.Count}");
 					f.Add("Emission");				v.Add($"{Chain.LastPayloadRound.Emission.ToHumanString()}");
 					f.Add("Cached Blocks");			v.Add($"{Cache.Count()}");
@@ -156,7 +212,7 @@ namespace UC.Net
 
 					string formatbalance(Account a, bool confirmed)
 					{
-						return GetAccountInfo(a, false)?.Balance.ToHumanString();
+						return Chain.GetAccountInfo(a, false)?.Balance.ToHumanString();
 					}
 
 					foreach(var i in Vault.Accounts)
@@ -195,7 +251,7 @@ namespace UC.Net
 			}
 		}
 		
-		Header Header
+		public Header Header
 		{
 			get
 			{
@@ -205,8 +261,8 @@ namespace UC.Net
 				{
 					h =	new Header
 						{ 
-							LastRound			= Chain.LastNonEmptyRound.Id,
-							LastConfirmedRound	= Chain.LastConfirmedRound.Id,
+							LastRound			= Chain == null ? -1 : Chain.LastNonEmptyRound.Id,
+							LastConfirmedRound	= Chain == null ? -1 : Chain.LastConfirmedRound.Id,
 						};
 				}
 
@@ -241,32 +297,73 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{Settings.IP} {Synchronization}";
+			return $"{Settings.IP} {Connections.Count()}/{Settings.PeersMin} {Synchronization}";
+		}
+
+		public void RunServer()
+		{
+			if(!HttpListener.IsSupported)
+			{
+				Environment.ExitCode = -1;
+				throw new RequirementException("Windows XP SP2, Windows Server 2003 or higher is required to use the application.");
+			}
+
+			ApiServer = new JsonServer(this);
 		}
 
 		public void RunClient(Action<Settings, Vault> overridefinal = null, Func<bool> abort = null)
 		{
-			Abort		= abort;
+			Abort = abort;
 
 			var descs = new ColumnFamilies.Descriptor[]	{
 															new (nameof(Peers), new ()),
 														};
-			
 			var cfamilies = new ColumnFamilies();
 			
 			foreach(var i in descs)
 				cfamilies.Add(i);
 
-
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Client"), cfamilies);
+			LoadPeers();
 
 			overridefinal?.Invoke(Settings, Vault);
 
-			LoadPeers();
+			ListeningThread = new Thread(Listening);
+			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
+			ListeningThread.Start();
 
 			DelegatingThread = new Thread(Delegating);
 			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
 			DelegatingThread.Start();
+
+ 			var t = new Thread(	() =>
+ 								{ 
+ 									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
+ 
+ 									try
+ 									{
+ 										while(Working)
+ 										{
+ 											lock(Lock)
+ 											{
+ 												if(!Working)
+ 													break;
+ 
+ 												Connect();
+ 											}
+ 	
+ 											Thread.Sleep(1);
+ 										}
+ 	
+ 										ListeningThread?.Join();
+										DelegatingThread?.Join();
+ 									}
+ 									catch(Exception ex) when (!Debugger.IsAttached)
+ 									{
+ 										Stop(MethodBase.GetCurrentMethod(), ex);
+ 									}
+ 								});
+			t.Start();
 
 			Task.Run(() =>	{
 								while(Working && RemoteMember == null) 
@@ -279,17 +376,6 @@ namespace UC.Net
 			{
 				throw new AbortException();
 			}
-		}
-
-		public void RunServer()
-		{
-			if(!HttpListener.IsSupported)
-			{
-				Environment.ExitCode = -1;
-				throw new RequirementException("Windows XP SP2, Windows Server 2003 or higher is required to use the application.");
-			}
-
-			ApiServer = new JsonServer(this);
 		}
 
 		public void RunNode()
@@ -327,7 +413,7 @@ namespace UC.Net
 
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), cfamilies);
 			Chain = new Roundchain(Settings, Log, Nas, Vault, Database);
-			Session = Guid.NewGuid();
+			Nuid = Guid.NewGuid();
 
 			if(Settings.Generator != null)
 			{
@@ -357,7 +443,6 @@ namespace UC.Net
 				VerifingThread.Start();
 			}
 
-
 			void main()
 			{
 				Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
@@ -366,8 +451,6 @@ namespace UC.Net
 				{
 					LoadPeers();
 									
-					var time = DateTime.MinValue;
-	
 					while(Working)
 					{
 						lock(Lock)
@@ -381,14 +464,6 @@ namespace UC.Net
 							if(Synchronization == Synchronization.Synchronized && Generator != null)
 							{
 								Generate();
-							}
-						}
-	
-						if(Settings.Telemetry)
-						{
-							if(DateTime.UtcNow - time > TimeSpan.FromMilliseconds(1000))
-							{
-								time = DateTime.UtcNow;
 							}
 						}
 	
@@ -426,8 +501,6 @@ namespace UC.Net
 			if(!Running)
 				return;
 
-			Log?.Report(this, "Stopped", "Cause=" + message);
-
 			Running = false;
 			Listener?.Stop();
 			ApiServer?.Stop();
@@ -440,7 +513,7 @@ namespace UC.Net
 
 			Database?.Dispose();
 
-			Log?.Report(this, null, "Stopped");
+			Log?.Report(this, "Stopped", "Cause=" + message);
 		}
 
 		void LoadPeers()
@@ -538,7 +611,7 @@ namespace UC.Net
 			foreach(var i in Peers.Where(i => i.Client != null && i.Status == ConnectionStatus.Failed))
 				i.Disconnect();
 
-			if(Synchronization == Synchronization.Null)
+			if(Chain != null && Synchronization == Synchronization.Null)
 			{
 				if(Connections.Count() >= Settings.PeersMin)
 				{
@@ -580,6 +653,29 @@ namespace UC.Net
 			}
 		}
 
+		Hello CreateHello(IPAddress ip)
+		{
+			Peer[] peers;
+		
+			lock(Lock)
+			{
+				peers = Peers.ToArray();
+			}
+
+			var h = new Hello();
+
+			h.Capabilities			= (Chain != null ? PeerCapability.DMS : 0) | (Filebase != null ? PeerCapability.RDN : 0);
+			h.Versions				= Versions;
+			h.Zone					= Settings.Zone;
+			h.IP					= ip;
+			h.Nuid					= Nuid;
+			h.Peers					= peers;
+			h.LastRound				= Header.LastRound;
+			h.LastConfirmedRound	= Header.LastConfirmedRound; 
+			
+			return h;
+		}
+
 		void OutboundConnect(Peer peer)
 		{
 			peer.OutStatus = EstablishingStatus.Initiated;
@@ -612,17 +708,17 @@ namespace UC.Net
 									
 					try
 					{
-						Peer.SendHello(client, Versions, Settings.Zone, Session, peer.IP, peers, Header);
+						Peer.SendHello(client, CreateHello(peer.IP));
 						h = Peer.WaitHello(client);
 					}
-					catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+					catch(Exception)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
 						goto failed;
 					}
 	
 					lock(Lock)
 					{
-						if(h.Session == Session)
+						if(h.Nuid == Nuid)
 						{
 							Peers.Remove(peer);
 							goto failed;
@@ -708,7 +804,7 @@ namespace UC.Net
 				
 								lock(Lock)
 								{
-									if(h.Session == Session)
+									if(h.Nuid == Nuid)
 									{
 										goto failed;
 									}
@@ -726,7 +822,7 @@ namespace UC.Net
 	
 									try
 									{
-										Peer.SendHello(client, Versions, Settings.Zone, Session, ip, Peers, Header);
+										Peer.SendHello(client, CreateHello(ip));
 									}
 									catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
 									{
@@ -770,9 +866,9 @@ namespace UC.Net
 	 		{
 				while(peer.Established)
 				{
-					var rq = peer.Read();
+					var pk = peer.Read();
 
-					if(rq == null)
+					if(pk == null)
 					{
 						lock(Lock)
 							peer.Status = ConnectionStatus.Failed;
@@ -782,8 +878,10 @@ namespace UC.Net
 					lock(Lock)
 						if(!Working || !peer.Established)
 							return;
+					
+					var reader = new BinaryReader(pk.Data); 
 
-					switch(rq.Type)
+					switch(pk.Type)
 					{
 						case PacketType.Blocks:
 						{
@@ -791,7 +889,7 @@ namespace UC.Net
 										
 							try
 							{
-								blocks = Read(rq.Data, (r, t) => Block.FromType(Chain, (BlockType)t));
+								blocks = Read(pk.Data, (r, t) => Block.FromType(Chain, (BlockType)t));
 							}
 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
 							{
@@ -813,7 +911,7 @@ namespace UC.Net
 	
 							try
 							{
-								rounds = Read(rq.Data, r => new Round(Chain));
+								rounds = Read(pk.Data, r => new Round(Chain));
 							}
 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
 							{
@@ -893,7 +991,6 @@ namespace UC.Net
 		
 							try
 							{
-								var reader = new BinaryReader(rq.Data); 
 
 								from	= reader.Read7BitEncodedInt();
 								to		= reader.Read7BitEncodedInt();
@@ -913,30 +1010,59 @@ namespace UC.Net
 							break;
 						}
 
-// 						case PacketType.Message:
-// 						{
-// 							IEnumerable<Message> messages;
-// 										
-// 							try
-// 							{
-// 								messages = Read(rq.Data, (r, t) => Message.FromType(Chain, (MessageType)t));
-// 							}
-// 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-// 							{
-// 								peer.Disconnect();
-// 								break;
-// 							}
-// 		
-// 							lock(Lock)
-// 							{
-// 								ProcessIncoming(messages, peer);
-// 							}
-// 	
-// 							break;
-// 						}
+ 						case PacketType.Request:
+ 						{
+							Request[] requests;
+
+ 							try
+ 							{
+								//requests = Read(pk.Data, (r, t) => UC.Net.Request.FromType(Chain, (RpcType)t));
+								requests = BinarySerializator.Deserialize(reader, t => UC.Net.Request.FromType(Chain, (RpcType)t));
+ 							}
+ 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+ 							{
+ 								peer.Disconnect();
+ 								break;
+ 							}
+
+							lock(peer.InRequests)
+ 								peer.InRequests.AddRange(requests);
+ 	
+ 							break;
+ 						}
+
+						case PacketType.Response:
+ 						{
+							Response[] responses;
+							
+							try
+ 							{
+								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
+								responses = BinarySerializator.Deserialize(reader, t => UC.Net.Response.FromType(Chain, (RpcType)t));
+ 							}
+ 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+ 							{
+ 								peer.Disconnect();
+ 								break;
+ 							}
+
+							lock(peer.OutRequests)
+								foreach(var rp in responses)
+								{
+									var rq = peer.OutRequests.Find(j => j.Id.SequenceEqual(rp.Id));
+
+									if(rq != null)
+									{
+										rq.RecievedResponse = rp;
+										rq.Event.Set();
+ 										peer.OutRequests.Remove(rq);
+									}
+								}
+							break;
+						}
 
 						default:
-							Log?.ReportError(this, $"Wrong packet type {rq.Type}");
+							Log?.ReportError(this, $"Wrong packet type {pk.Type}");
 							peer.Status = ConnectionStatus.Failed;
 							return;
 					}
@@ -947,6 +1073,21 @@ namespace UC.Net
 				Stop(MethodBase.GetCurrentMethod(), ex);
 			}
 		}
+
+//		public Response Respond(Peer peer, Request request)
+//		{
+// 			switch(request.Type)
+// 			{
+// 				case RpcType.GetMembers:			return Send(request as GetMembersRequest);
+// 				case RpcType.NextRound:				return Send(request as NextRoundRequest);
+// // 				case RequestType.LastOperation:			return Send(request as NextRoundRequest?);
+// // 				case RequestType.DelegateTransactions:	return Send(request as NextRoundRequest?);
+// // 				case RequestType.GetOperationStatus:	return Send(request as NextRoundRequest?);
+// 
+// 				default:
+// 					throw new IntegrityException("Unknown request type");
+// 			}
+//		}
 
 		void StartSynchronization()
 		{
@@ -1234,7 +1375,7 @@ namespace UC.Net
 				{
 					foreach(var b in votes)
 					{
-						b.Sign(Generator);
+						b.Sign(Generator as PrivateAccount);
 						Chain.Add(b, b is Payload);
 					}
 
@@ -1247,13 +1388,13 @@ namespace UC.Net
 			Statistics.Generating.End();
 		}
 
-		Peer GetRemoteMember()
+		RpcClient GetRemoteMember()
 		{
 			lock(RemoteMemberLock)
 			{
 				lock(Lock)
 				{
-					if(RemoteMember != null && RemoteMember.Api.Failures <= 3)
+					if(RemoteMember != null && RemoteMember.ApiFailures <= 3)
 						return RemoteMember;
 				}
 
@@ -1269,8 +1410,12 @@ namespace UC.Net
 
 					lock(Lock)
 					{
-						RemoteMember = new Peer(IP){ Generator = Generator };
-						RemoteMember.Api = new JsonClient(HttpClient, $"http://{RemoteMember.IP}:{Zone.RpcPort(Settings.Zone)}", null);
+						RemoteMember = this;
+						//RemoteMember.Generator = Generator;
+						//RemoteMember.IP = IP;
+						//RemoteMember.SetupRpc(this, HttpClient, $"http://{RemoteMember.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
+						Api = new JsonClient(HttpClient, $"http://{IP}:{Zone.JsonPort(Settings.Zone)}", null);
+						
 						return RemoteMember;
 					}
 				}
@@ -1294,16 +1439,17 @@ namespace UC.Net
 						if(peer == null)
 							continue;
 							
-						if(peer.Api == null)
-						{
-							peer.Api = new JsonClient(HttpClient, $"http://{peer.IP}:{Zone.RpcPort(Settings.Zone)}", null);
-						}
+						//if(peer.Api == null)
+						//{
+						//	(peer as Peer).SetupRpc(this, HttpClient, $"http://{peer.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
+						//	peer.Api =     new JsonClient(HttpClient, $"http://{peer.IP}:{Zone.RpcPort(Settings.Zone)}", null);
+						//}
 					}
 	
 					if(peer != null)
 						try
 						{
-							var cr = peer.Api.Send(new GetMembersCall());
+							var cr = peer.Send(new GetMembersRequest());
 	
 							lock(Lock)
 							{
@@ -1315,8 +1461,16 @@ namespace UC.Net
 	
 									Members = cr.Members.ToList();
 								
-									RemoteMember = Members.OrderBy(i => Guid.NewGuid()).First();
-									RemoteMember.Api = new JsonClient(HttpClient, $"http://{RemoteMember.IP}:{Zone.RpcPort(Settings.Zone)}", null);
+									var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
+
+									if(c == null)
+										continue;
+			
+									c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
+									//c.SetupRpc(this, HttpClient, $"http://{c.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
+									Api = new JsonClient(HttpClient, $"http://{c.IP}:{Zone.JsonPort(Settings.Zone)}", null);
+
+									RemoteMember = c;
 		
 									Log?.Report(this, "Member chosen", RemoteMember.ToString());
 		
@@ -1338,7 +1492,6 @@ namespace UC.Net
 		{
 			Peer[]						peers;
 			Operation[]					pendings;
-			//IEnumerable<Account>		accounts;
 			bool						ready;
 			IEnumerable<Operation>		delegated;
 
@@ -1361,7 +1514,6 @@ namespace UC.Net
 					{
 						peers = Peers.ToArray();
 						pendings = Operations.Where(i => i.Delegation == DelegationStage.Pending).ToArray();
-						//accounts = pendings.GroupBy(i => i.Signer).Select(i => i.Key);
 						ready = pendings.Any() && !Operations.Any(i => i.Delegation == DelegationStage.Delegated && i.Placing == PlacingStage.Null);
 					}
 
@@ -1369,7 +1521,7 @@ namespace UC.Net
 					{
 						var txs= new List<Transaction>();
 
-						var rmax = m.Api.Send(new NextRoundCall()).NextRoundId;
+						var rmax = m.Send(new NextRoundRequest()).NextRoundId;
 
 						lock(Lock)
 						{
@@ -1380,7 +1532,7 @@ namespace UC.Net
 								if(!Vault.OperationIds.ContainsKey(g.Key))
 								{
 									Monitor.Exit(Lock);
-									var o = m.Api.Send(new LastOperationCall {Account = g.Key});
+									var o = m.Send(new LastOperationRequest {Account = g.Key}).Operation;
 									Monitor.Enter(Lock);
 									Vault.OperationIds[g.Key] = o == null ? -1 : o.Id;
 								}
@@ -1398,7 +1550,7 @@ namespace UC.Net
 							}
 						}
 	
-						var accepted = m.Api.Send(new DelegateTransactionsCall {Data = Write(txs).ToArray()}).Accepted;
+						var accepted = m.Send(new DelegateTransactionsRequest {Data = Write(txs).ToArray()}).Accepted;
 	
 						lock(Lock)
 							foreach(var o in txs.SelectMany(i => i.Operations))
@@ -1409,10 +1561,10 @@ namespace UC.Net
  								//	o.Delegation = DelegationStage.Pending;
 
 								o.FlowReport?.StageChanged();
-								o.FlowReport?.Log.ReportWarning(this, $"Placing has been delegated to {m}");
+								o.FlowReport?.Log?.ReportWarning(this, $"Placing has been delegated to {m}");
 							}
 									
-						Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {m.IP}");
+						Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {(m is Peer p ? p.IP : "Self")}");
 
 						Thread.Sleep(500); /// prevent any flooding
 					}
@@ -1422,7 +1574,7 @@ namespace UC.Net
 	
 					if(delegated.Any())
 					{
-						var rp = m.Api.Send(new GetOperationStatusCall {Operations = delegated.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id}).ToArray()});
+						var rp = m.Send(new GetOperationStatusRequest {Operations = delegated.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id}).ToArray()});
 							
 						if(rp != null)
 						{
@@ -1462,49 +1614,15 @@ namespace UC.Net
 										o.FlowReport?.StageChanged();
 									}
 								}
-
-								//var ops = Operations.Where(o => o.Delegation == DelegationStage.Delegated && rp.LastConfirmedRound > o.Transaction.RoundMax); /// outdated
-								//
-								//if(ops.Any())
-								//{
-								//	Log?.Report(this, "Operation(s) outdated", $"{ops.Count()}");
-								//
-								//	foreach(var o in ops.ToArray())
-								//	{
-								//		o.Transaction = null;
-								//		o.Delegation = DelegationStage.Pending;
-								//		o.FlowReport?.StageChanged();
-								//		o.FlowReport?.Log.ReportWarning(this, "Operations was not placed. Redelegating...");
-								//	}
-								//}
 							}
 						}
-// 
-// 						var rms = Operations.OfType<ReleaseManifest>().Where(i => i.Stage == ProcessingStage.Delegated);
-// 
-// 						if(rms.Any())
-// 						{
-// 							var rs = m.Api.Send(new QueryReleaseCall {Queries = rms.Select(i => new ReleaseQuery(	i.Address.Author, 
-// 																													i.Address.Product, 
-// 																													i.Address.Platform, 
-// 																													i.Address.Version,
-// 																													VersionQuery.Latest,
-// 																													i.Channel)).ToList()});
-// 							if(rs != null)
-// 							{
-// 								foreach(var i in rs)
-// 								{
-// 									Operations.RemoveAll(o => o is ReleaseManifest r && r.Address == i);
-// 								}
-// 							}
-// 						}
 					}
 
 					Statistics.Delegating.End();
 				}
 				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
 				{
-					m.Api.Failures++;
+					m.ApiFailures++;
 					Log?.ReportError(this, $"Failed to communicate with remote node {m}", ex);
 
 					Thread.Sleep(1000); /// prevent any flooding
@@ -1716,26 +1834,10 @@ namespace UC.Net
 			return accepted;
 		}
 		
-// 		public List<Message> ProcessIncoming(IEnumerable<Message> messages)
-// 		{
-// 			Statistics.TransactionsProcessing.Begin();
-// 
-// 			if(Generator == null) /// not ready to process external transactions
-// 				return new();
-// 
-// 			var accepted = messages.Where(i =>	!Transactions.OfType<Message>().Any(j => i.SignatureEquals(j)) && 
-// 												i.RoundMax > Chain.LastConfirmedRound.Id && 
-// 												i.Valid).ToList();
-// 								
-// 			foreach(var i in accepted)
-// 				i.Stage = ProcessingStage.Accepted;
-// 
-// 			Transactions.AddRange(accepted);
-// 
-// 			Statistics.TransactionsProcessing.End();
-// 
-// 			return accepted;
-// 		}
+ 		public void ProcessIncoming(IEnumerable<Request> messages)
+ 		{
+
+ 		}
 
 		C[] Read<C>(Stream data, Func<BinaryReader, byte, C> construct) where C : IBinarySerializable
 		{
@@ -1803,7 +1905,7 @@ namespace UC.Net
 			} 
 		}
 
-		MemoryStream Write<T>(IEnumerable<T> many) where T : IBinarySerializable
+		public static MemoryStream Write<T>(IEnumerable<T> many) where T : IBinarySerializable
 		{
 			if(many.Count() > 0)
 			{
@@ -1861,7 +1963,13 @@ namespace UC.Net
 			if(data != null)
 				foreach(var i in Connections.Where(j => j != skip))
 				{
-					i.Send(Header, type, data);
+					if(type == PacketType.Blocks)
+					{
+						if((i.Capabilities & PeerCapability.DMS) != 0)
+							i.Send(Header, type, data);
+					}
+					else
+						i.Send(Header, type, data);
 				}
 		}
 
@@ -1878,7 +1986,10 @@ namespace UC.Net
 				lock(Lock)
 					l = Chain.Accounts.FindLastOperation<Emission>(signer);
 			else
-				l = await Task.Run<Emission>(() => GetRemoteMember().Api.Send(new LastOperationCall {Account = signer, Type = typeof(Emission).Name}) as Emission);
+				l = await Task.Run<Emission>(() => GetRemoteMember().Send(new LastOperationRequest {
+																										Account = signer, 
+																										Class = typeof(Emission).Name
+																									}).Operation as Emission);
 
 			var eid = l == null ? 0 : l.Eid + 1;
 
@@ -1925,62 +2036,67 @@ namespace UC.Net
 			return null;
 		}
 
-		public AccountInfo GetAccountInfo(Account account, bool confirmed, IFlowControl flowcontrol = null)
-		{
-			if(Chain != null)
-			{
-				lock(Lock)
-					return Chain.GetAccountInfo(account, confirmed);
-			}
-			else
-			{
-				return GetRemoteMember().Api.Send(new AccountInfoCall {Account = account, Confirmed = confirmed}) as AccountInfo;
-			}
-		}
+// 		public AccountInfo GetAccountInfo(Account account, bool confirmed, IFlowControl flowcontrol = null)
+// 		{
+// 			if(Chain != null)
+// 			{
+// 				lock(Lock)
+// 					return Chain.GetAccountInfo(account, confirmed);
+// 			}
+// 			else
+// 			{
+// 				 return new JsonClient(HttpClient, $"http://{(GetRemoteMember() as Peer).IP}:{Zone.RpcPort(Settings.Zone)}", null).Send(new AccountInfoCall {Account = account, Confirmed = confirmed}) as AccountInfo;
+// 			}
+// 		}
+// 
+// 		public XonDocument GetAuthorInfo(string author, bool confirmed, IFlowControl flowcontrol = null)
+// 		{
+// 			if(Chain != null)
+// 			{
+// 				lock(Lock)
+// 					return Chain.GetAuthorInfo(author, confirmed);
+// 			}
+// 			else
+// 			{
+// 				return ApiServer.Send(new AuthorInfoCall {Name = author, Confirmed = confirmed}) as XonDocument;
+// 			}
+// 		}
+// 		
+// 		public List<XonDocument> QueryRelease(IEnumerable<ReleaseQuery> queries, bool confirmed)
+// 		{
+// 			if(Chain != null)
+// 			{
+// 				lock(Lock)
+// 					return queries.Select(i => Chain.QueryRelease(i, confirmed)).ToList();
+// 			}
+// 			else
+// 			{
+// 				return new JsonClient(HttpClient, $"http://{(GetRemoteMember() as Peer).IP}:{Zone.RpcPort(Settings.Zone)}", null).Send(new QueryReleaseCall {Queries = queries.ToList(), Confirmed = confirmed}) as List<XonDocument>;
+// 			}
+// 		}
 
-		public XonDocument GetAuthorInfo(string author, bool confirmed, IFlowControl flowcontrol = null)
-		{
-			if(Chain != null)
-			{
-				lock(Lock)
-					return Chain.GetAuthorInfo(author, confirmed);
-			}
-			else
-			{
-				return GetRemoteMember().Api.Send(new AuthorInfoCall {Name = author, Confirmed = confirmed}) as XonDocument;
-			}
-		}
-		
-		public List<XonDocument> QueryRelease(IEnumerable<ReleaseQuery> queries, bool confirmed)
-		{
-			if(Chain != null)
-			{
-				lock(Lock)
-					return queries.Select(i => Chain.QueryRelease(i, confirmed)).ToList();
-			}
-			else
-			{
-				return GetRemoteMember().Api.Send(new QueryReleaseCall {Queries = queries.ToList(), Confirmed = confirmed}) as List<XonDocument>;
-			}
-		}
-
-		public byte[] ReadPackage(DownloadPackageRequest request)
-		{
-			return Filebase.ReadPackage(request);
-		}
-				
-		public void DownloadPackage(ReleaseAddress release, Distribution distribution, long length)
-		{
-			var l = Filebase.GetLength(release, distribution);
-
-			while(l < length)
-			{
-				///var b = GetDownloadPeer(release, distribution).Api.Send(new DownloadPackageCall {Request = new DownloadPackageRequest(release.Author, release.Product, release.Version, release.Platform, distribution, l, Filebase.PieceLenghtMax)});
-				///
-				///Filebase.Append(release, distribution, b);
-				///
-				///l += b.Length;
-			}
-		}
+// 		public byte[] ReadPackage(DownloadPackageRequest request)
+// 		{
+// 			return Filebase.ReadPackage(request);
+// 		}
+// 				
+// 		public void DownloadPackage(ReleaseAddress release, Distribution distribution, long length)
+// 		{
+// 			var l = Filebase.GetLength(release, distribution);
+// 
+// 			while(l < length)
+// 			{
+// 				///var b = GetDownloadPeer(release, distribution).Api.Send(new DownloadPackageCall {Request = new DownloadPackageRequest(release.Author, release.Product, release.Version, release.Platform, distribution, l, Filebase.PieceLenghtMax)});
+// 				///
+// 				///Filebase.Append(release, distribution, b);
+// 				///
+// 				///l += b.Length;
+// 			}
+// 		}
+// 
+  		public override Rp Request<Rp>(Request rq) where Rp : class
+  		{
+ 			return rq.Execute(this) as Rp;
+ 		}
 	}
 }

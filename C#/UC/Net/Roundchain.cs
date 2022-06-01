@@ -100,19 +100,17 @@ namespace UC.Net
 		public Round										LastVotedRound		=> Rounds.FirstOrDefault(i => i.Voted) ?? LastConfirmedRound;
 		public Round										LastNonEmptyRound	=> Rounds.FirstOrDefault(i => i.Blocks.Any()) ?? LastConfirmedRound;
 		public Round										LastPayloadRound	=> Rounds.FirstOrDefault(i => i.Blocks.Any(i => i is Payload)) ?? LastConfirmedRound;
-		
-		Round LastSavedRound
-		{
-			get
-			{
-				var d = Database.Get(LastRoundKey);
+		Round												LastSavedRound	{
+																				get
+																				{
+																					var d = Database.Get(LastRoundKey);
 
-				if(d == null)
-					return null;
-				else
-					return FindRound(BitConverter.ToInt32(d));
-			}
-		}
+																					if(d == null)
+																						return null;
+																					else
+																						return FindRound(BitConverter.ToInt32(d));
+																				}
+																			}
 
 		public BigInteger									LastSavedWeiSpent	=> new BigInteger(Database.Get(WeiSpentKey));
 		public Coin											LastSavedFactor		=> new Coin(Database.Get(FactorKey));
@@ -141,7 +139,7 @@ namespace UC.Net
 
 			if(LastSavedRound == null)
 			{
-				if(settings.Dev.GenerateGenesis)
+				if(Settings.Dev.GenerateGenesis)
 				{
 					var ips = nas.GetInitials(settings.Zone).ToArray();
 

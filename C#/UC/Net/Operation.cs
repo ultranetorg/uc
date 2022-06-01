@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -35,7 +36,7 @@ namespace UC.Net
 
 	public enum Operations
 	{
-		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, ReleaseDeclaration 
+		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, ReleaseManifest 
 	}
 
 	public interface IFlowControl
@@ -63,43 +64,22 @@ namespace UC.Net
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		TheSignerDoesNotOwnTheAuthor = "The signer does not own the Author";
 
-		public static Operation FromType(Operations type)
-		{
-			return	type switch
-					{
-						Operations.CandidacyDeclaration	=> new CandidacyDeclaration(),
-						Operations.Emission				=> new Emission(),
-						Operations.UntTransfer			=> new UntTransfer(),
-						Operations.AuthorBid			=> new AuthorBid(),
-						Operations.AuthorRegistration	=> new AuthorRegistration(),
-						Operations.AuthorTransfer		=> new AuthorTransfer(),
-						Operations.ProductRegistration	=> new ProductRegistration(),
-						Operations.ReleaseDeclaration	=> new ReleaseManifest(),
-						_ => throw new IntegrityException("Wrong operation type")
-					};
-		}
-
-		public Operations Type
-		{
-			get
-			{
-				return	this switch
-						{
-							CandidacyDeclaration	=> Operations.CandidacyDeclaration,
-							Emission 				=> Operations.Emission,
-							UntTransfer				=> Operations.UntTransfer,
-							AuthorBid				=> Operations.AuthorBid,
-							AuthorRegistration		=> Operations.AuthorRegistration,
-							AuthorTransfer			=> Operations.AuthorTransfer,
-							ProductRegistration		=> Operations.ProductRegistration,
-							ReleaseManifest			=> Operations.ReleaseDeclaration,
-							_ => throw new IntegrityException("Wrong operation type")
-						};
-			}
-		}
+		public Operations		Type => Enum.Parse<Operations>(GetType().Name);
 
 		public Operation()
 		{
+		}
+
+		public static Operation FromType(Operations type)
+		{
+			try
+			{
+				return Assembly.GetExecutingAssembly().GetType(typeof(GetMembersRequest).Namespace + "." + type).GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as Operation;
+			}
+			catch(Exception ex)
+			{
+				throw new IntegrityException($"Wrong {nameof(Operation)} type", ex);
+			}
 		}
 
 		public virtual void Execute(Roundchain chain, Round round)
@@ -192,7 +172,7 @@ namespace UC.Net
 		public Coin				Bail;
 		public IPAddress		IP;
 		public override string	Description => $"{Bail} UNT";
-		public override bool Valid => Transaction.Settings.Dev.DisableBailMin ? true : Bail >= Roundchain.BailMin;
+		public override bool Valid => Settings.Dev.DisableBailMin ? true : Bail >= Roundchain.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -406,7 +386,7 @@ namespace UC.Net
 		public string			Author;
 		public Coin				Bid {get; set;}
 		public override string	Description => $"{Bid} UNT for {Author}";
-		public override bool	Valid => Author.Length > 0 && AuthorEntry.IsExclusive(Author) && (Transaction.Settings.Dev.DisableBidMin || GetMinCost(Author) <= Bid);
+		public override bool	Valid => Author.Length > 0 && AuthorEntry.IsExclusive(Author) && (Settings.Dev.DisableBidMin || GetMinCost(Author) <= Bid);
 
 		public AuthorBid()
 		{

@@ -20,7 +20,7 @@ namespace UC.Net.Node.CLI
 		protected static bool	ConsoleSupported = true;
 		Operation				Operation;
 
-		Log				IFlowControl.Log => Log;
+		Log						IFlowControl.Log => Log;
 
 		public abstract object Execute();
 

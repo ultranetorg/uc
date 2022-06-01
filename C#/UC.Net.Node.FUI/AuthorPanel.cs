@@ -44,7 +44,7 @@ namespace UC.Net.Node.FUI
 
 			lock(Core.Lock)
 			{
-				var ai = Core.GetAuthorInfo(AuthorSearch.Text, false);
+				var ai = Core.Api.Send(new AuthorInfoCall{ Name = AuthorSearch.Text, Confirmed = false });
 
 				if(ai != null)
 					ai.Dump((n, t) => 

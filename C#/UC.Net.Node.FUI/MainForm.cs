@@ -74,7 +74,7 @@ namespace UC.Net.Node.FUI
 					nodes.Nodes.Add(members);
 				}
 
-				if(Core.Settings.Dev.UI)
+				if(Settings.Dev.UI)
 				{
 					var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
 					nodes.Nodes.Add(initials);

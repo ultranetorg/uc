@@ -23,7 +23,7 @@ namespace UC.Net
 				throw new IntegrityException("Unknown zone");
 		}
 	
-		public static ushort RpcPort(string zone) => (ushort)(Port(zone) == 3080 ? 3090 : Port(zone) + 100);
+		public static ushort JsonPort(string zone) => (ushort)(Port(zone) == 3080 ? 3090 : Port(zone) + 100);
 
 	}
 }
