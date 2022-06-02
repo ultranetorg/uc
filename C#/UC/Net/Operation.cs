@@ -815,9 +815,9 @@ namespace UC.Net
 			IncrementalDependencies = incrementaldependencies.ToArray();
 		}
 
-		public XonDocument ToXon()
+		public XonDocument ToXon(XonValueSerializator serializator)
 		{
-			var d = new XonDocument(new TextXonValueSerializator());
+			var d = new XonDocument(serializator);
 
 			d.Add("Address").Value = Address;
 			d.Add("Channel").Value = Channel;

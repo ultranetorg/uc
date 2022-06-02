@@ -118,43 +118,4 @@ namespace UC.Net
 		public Account			To {get; set;}
 		public Coin				Amount {get; set;}
 	}
-
-	public class AccountInfoCall : RpcCall
-	{
-		public override bool	Private => false;
-		public bool				Confirmed {get; set;} = false;
-		public Account			Account {get; set;}
-	}
-
-	public class AuthorInfoCall : RpcCall
-	{
-		public override bool	Private => false;
-		public bool				Confirmed {get; set;} = false;
-		public string			Name {get; set;}
-	}
-
-	public class QueryReleaseCall : RpcCall
-	{
-		public List<ReleaseQuery>	Queries { get; set; }
-		public bool					Confirmed {get; set;} = false;
-
-		public bool					Valid => Queries.All(i => i.Valid);
-		public override bool		Private => false;
-	}
-
-	public class DownloadPackageCall : RpcCall
-	{
-		public DownloadPackageRequest	Request { get; set; }
-
-		public bool						Valid => Request.Valid;
-		public override bool			Private => false;
-	}
-
-	public class LocatePackageCall : RpcCall
-	{
-		public  ReleaseAddress			Release { get; set; }
-		public  Distribution			Distribution { get; set; }
-
-		public override bool			Private => false;
-	}
 }

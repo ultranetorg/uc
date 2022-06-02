@@ -191,33 +191,33 @@ namespace UC.Net
 																InfoValues	= Core.Info[1].Take(s.Limit) });
 							break;
 							
-						case AccountInfoCall c:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var ai = Chain.GetAccountInfo(c.Account, c.Confirmed);
-								
-								if(ai != null)
-									respondjson(ai);
-								else
-									responderror("Account not found");
-							}
-							break;
-
-						case AuthorInfoCall c:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var ai = Chain.GetAuthorInfo(c.Name, c.Confirmed);
-								
-								if(ai != null)
-									respondjson(ai);
-								else
-									responderror("Author not found");
-							}
-							break;
+// 						case AccountInfoCall c:
+// 							if(Core.Synchronization != Synchronization.Synchronized)
+// 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+// 							else
+// 							{
+// 								var ai = Chain.GetAccountInfo(c.Account, c.Confirmed);
+// 								
+// 								if(ai != null)
+// 									respondjson(ai);
+// 								else
+// 									responderror("Account not found");
+// 							}
+// 							break;
+// 
+// 						case AuthorInfoCall c:
+// 							if(Core.Synchronization != Synchronization.Synchronized)
+// 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+// 							else
+// 							{
+// 								var ai = Chain.GetAuthorInfo(c.Name, c.Confirmed);
+// 								
+// 								if(ai != null)
+// 									respondjson(ai);
+// 								else
+// 									responderror("Author not found");
+// 							}
+// 							break;
 
 // 						case DelegatePropositionCall c:
 // 							if(Core.Synchronization != Synchronization.Synchronized)
@@ -228,23 +228,23 @@ namespace UC.Net
 // 							}
 // 							break;
 
-						case QueryReleaseCall c:
-							if(Core.Synchronization != Synchronization.Synchronized)
-								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-							else
-							{
-								var ai = c.Queries.Select(i => Chain.QueryRelease(i, c.Confirmed));
-								
-								respondjson(ai);
-							}
-							break;
+//						case QueryReleaseCall c:
+//							if(Core.Synchronization != Synchronization.Synchronized)
+//								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+//							else
+//							{
+//								var ai = c.Queries.Select(i => Chain.QueryRelease(i, c.Confirmed));
+//								
+//								respondjson(ai);
+//							}
+//							break;
 
-						case DownloadPackageCall c:
-						{
-							///var ai = Core.Api.Send(new DownloadPackageRequest(c.Request);							
-							///respondbinary(ai);
-							break;
-						}
+// 						case DownloadPackageRequest c:
+// 						{
+// 							///var ai = Core.Api.Send(new DownloadPackageRequest(c.Request);							
+// 							///respondbinary(ai);
+// 							break;
+// 						}
 						case ExitCall e:
 							rp.Close();
 							Core.Stop("RPC call");

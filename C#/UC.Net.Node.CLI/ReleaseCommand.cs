@@ -100,9 +100,9 @@ namespace UC.Net.Node.CLI
 
 		   		case "status" :
 				{
-					var r = Client.Api.Send(new QueryReleaseCall{ Queries = new List<ReleaseQuery> {ReleaseQuery.Parse(GetString("query"))}, Confirmed = Args.Has("confirmed") });
+					var r = Client.Npc.QueryRelease(ReleaseQuery.Parse(GetString("query")), Args.Has("confirmed"));
 
-					foreach(var item in r)
+					foreach(var item in r.Xons)
 					{
 						Dump(item);
 					}

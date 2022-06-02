@@ -157,7 +157,7 @@ namespace UC.Net
 			return Add(release, incs, Distribution.Incremental, rems);
 		}
 
-		public byte[] ReadPackage(DownloadPackageRequest request)
+		public byte[] ReadPackage(PackageDownload request)
 		{
 			using(var s = new FileStream(ToPath(request, request.Distribution), FileMode.Open, FileAccess.Read, FileShare.Read))
 			{

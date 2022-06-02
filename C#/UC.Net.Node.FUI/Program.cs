@@ -29,8 +29,8 @@ namespace UC.Net.Node.FUI
 			{
 				var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				var b = new XonDocument(new XonTextReader(File.ReadAllText(Path.Combine(exedir, "Boot.xon"))));
-				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))));
+				var b = new XonDocument(new XonTextReader(File.ReadAllText(Path.Combine(exedir, "Boot.xon"))), XonTextValueSerializator.Default);
+				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
 				var orig = Path.Combine(exedir, Core.SettingsFileName);

@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace UC
 {
-	public interface IXonWriter
+	public interface IBinarySerializable
 	{
-		void Start();
-		void Write(Xon s);
-		void Finish();
-		//void Write(IEnumerable<Xon> items);
-	};
+		void Read(BinaryReader r);
+		void Write(BinaryWriter w);
+	}
 }

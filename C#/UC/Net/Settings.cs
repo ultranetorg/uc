@@ -77,7 +77,7 @@ namespace UC.Net
 
 			var s = System.IO.Path.Join(path, "Secrets.xon");
 
-			var d = new XonDocument(new XonTextReader(File.ReadAllText(s)));
+			var d = new XonDocument(new XonTextReader(File.ReadAllText(s)), XonTextValueSerializator.Default);
 				
 			Password	= d.GetString("Password");
 
@@ -164,7 +164,7 @@ namespace UC.Net
 			Path			= System.IO.Path.Join(boot.Main.Profile, "Settings.xon");
 			Zone			= boot.Main.Zone;
 
-			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)));
+			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
 
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
@@ -245,7 +245,7 @@ namespace UC.Net
 
 			using(var s = File.Create(Path))
 			{
-				Document.Save(new XonTextWriter(s));
+				Document.Save(new XonTextWriter(s, Encoding.UTF8));
 			}
 		}
 	}

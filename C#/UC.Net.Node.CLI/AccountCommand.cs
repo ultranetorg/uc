@@ -49,11 +49,11 @@ namespace UC.Net.Node.CLI
 		   		
 				case "overview" :
 				{
-					var i = Client.Api.Send(new AccountInfoCall {Account = Account.Parse(GetString("address")), Confirmed = Args.Has("confirmed")});
+					var i = Client.Npc.GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
 					
 					Log?.Report(this, "Account", GetString("address") + " :");
 
-					i.Dump((d, m, n, v) => Log.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
+					i.Info.Dump((d, m, n, v) => Log.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
 
 					return null;
 				}

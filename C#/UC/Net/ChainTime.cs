@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public struct ChainTime
+	public struct ChainTime : IBinarySerializable
 	{
 		public long							Ticks;
 		const int							Divider = 10_000;
@@ -26,6 +27,11 @@ namespace UC.Net
 		public static bool					operator!= (ChainTime a, ChainTime b) => a.Ticks != b.Ticks;
 
 		public string						ToString(string format) => Ticks >= 0 ? (new DateTime(Ticks * Divider)).ToString(format) : "~";
+
+		public ChainTime(long t)
+		{
+			Ticks = t;
+		}
 
 		public override string ToString()
 		{
@@ -47,9 +53,14 @@ namespace UC.Net
 			return new ChainTime(TimeSpan.FromDays(365).Ticks / Divider * years);
 		}
 
-		public ChainTime(long t)
+		public void Read(BinaryReader r)
 		{
-			Ticks = t;
+			Ticks = r.Read7BitEncodedInt64();
+		}
+
+		public void Write(BinaryWriter w)
+		{
+			w.Write7BitEncodedInt64(Ticks);
 		}
 	}
 

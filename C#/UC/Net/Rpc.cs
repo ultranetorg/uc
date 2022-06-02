@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using Org.BouncyCastle.Security;
@@ -10,14 +11,14 @@ namespace UC.Net
 {
 	public enum RpcType : byte
 	{
-		Null, NextRound, GetMembers, LastOperation, DelegateTransactions, GetOperationStatus,
+		Null, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, QueryRelease
 	}
 
 	public abstract class Request : ITypedBinarySerializable
 	{
 		public byte[]					Id {get; set;}
 
-		public byte						BinaryType => (byte)Type;
+		public byte						TypeCode => (byte)Type;
 		public AutoResetEvent			Event;
 		public Response					RecievedResponse;
 		public bool						Sent;
@@ -62,9 +63,11 @@ namespace UC.Net
 
 	public abstract class Response : ITypedBinarySerializable
 	{
-		public byte				BinaryType => (byte)Type;
 		public byte[]			Id {get; set;}
 		public ResponseStatus	Status {get; set;}
+
+		public byte				TypeCode => (byte)Type;
+		public RpcType			Type => Enum.Parse<RpcType>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
 
 		public static Response FromType(Roundchain chaim, RpcType type)
 		{
@@ -78,24 +81,17 @@ namespace UC.Net
 			}
 		}
 
-
-		public RpcType Type
-		{
-			get
-			{
-				return Enum.Parse<RpcType>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
-			}
-		}
 	}
 
 	public class NextRoundRequest : Request
 	{
 		public override Response Execute(Core core)
 		{
-			if(core.Synchronization != Synchronization.Synchronized)
-				throw new RpcException("Not synchronized");
-			else
-				return new NextRoundResponse {NextRoundId = core.GetNextAvailableRound().Id};
+			lock(core.Lock)
+				if(core.Synchronization != Synchronization.Synchronized)
+					throw new RpcException("Not synchronized");
+				else
+					return new NextRoundResponse {NextRoundId = core.GetNextAvailableRound().Id};
 		}
 	}
 
@@ -108,17 +104,18 @@ namespace UC.Net
 	{
 		public override Response Execute(Core core)
 		{
- 			if(core.Chain != null)
- 			{
- 				if(core.Synchronization == Synchronization.Synchronized)
- 					return new GetMembersResponse { Members = core.Chain.Members };
+			lock(core.Lock)
+ 				if(core.Chain != null)
+ 				{
+ 					if(core.Synchronization == Synchronization.Synchronized)
+ 						return new GetMembersResponse { Members = core.Chain.Members };
+ 					else
+ 						throw new RpcException("Not synchronized");
+ 				}
  				else
- 					throw new RpcException("Not synchronized");
- 			}
- 			else
- 			{
- 				return new GetMembersResponse { Members = core.Members };
- 			}
+ 				{
+ 					return new GetMembersResponse { Members = core.Members };
+ 				}
 		}
 	}
 
@@ -134,14 +131,15 @@ namespace UC.Net
 
 		public override Response Execute(Core core)
 		{
-			if(core.Synchronization != Synchronization.Synchronized)
-				throw new RpcException("Not synchronized");
-			else
-			{
-				var l = core.Chain.Accounts.FindLastOperation(Account, i => Class == null || i.GetType().Name == Class);
+			lock(core.Lock)
+				if(core.Synchronization != Synchronization.Synchronized)
+					throw new RpcException("Not synchronized");
+				else
+				{
+					var l = core.Chain.Accounts.FindLastOperation(Account, i => Class == null || i.GetType().Name == Class);
 							
-				return new LastOperationResponse {Operation = l};
-			}
+					return new LastOperationResponse {Operation = l};
+				}
 		}
 	}
 
@@ -156,21 +154,22 @@ namespace UC.Net
 
 		public override Response Execute(Core core)
 		{
-			if(core.Synchronization != Synchronization.Synchronized || core.Generator == null)
-				throw new RpcException("Not synchronized");
-			else
-			{
-				var txs = core.Read(new MemoryStream(Data), r => { return	new Transaction(core.Settings)
-																			{
-																				Generator = core.Generator
-																			};
-																});
-				var acc = core.ProcessIncoming(txs);
+			lock(core.Lock)
+				if(core.Synchronization != Synchronization.Synchronized || core.Generator == null)
+					throw new RpcException("Not synchronized");
+				else
+				{
+					var txs = core.Read(new MemoryStream(Data), r => { return	new Transaction(core.Settings)
+																				{
+																					Generator = core.Generator
+																				};
+																	});
+					var acc = core.ProcessIncoming(txs);
 
-				return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
-																		.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
-																		.ToList()};
-			}
+					return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
+																			.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
+																			.ToList()};
+				}
 		}
 	}
 
@@ -185,24 +184,25 @@ namespace UC.Net
 
 		public override Response Execute(Core core)
 		{
-			if(core.Synchronization != Synchronization.Synchronized)
-				throw new RpcException("Not synchronized");
-			else
-			{
-				return	new GetOperationStatusResponse
-						{
-							//LastConfirmedRound = core.Chain.LastConfirmedRound.Id,
-							Operations = Operations.Select(o => new {	A = o,
-																		B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
-																								.SelectMany(t => t.Operations)
-																								.FirstOrDefault(i => i.Id == o.Id)
-																		?? 
-																		core.Chain.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
-													.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
-																										Id			= i.A.Id,
-																										Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
-						};
-			}
+			lock(core.Lock)
+				if(core.Synchronization != Synchronization.Synchronized)
+					throw new RpcException("Not synchronized");
+				else
+				{
+					return	new GetOperationStatusResponse
+							{
+								//LastConfirmedRound = core.Chain.LastConfirmedRound.Id,
+								Operations = Operations.Select(o => new {	A = o,
+																			B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
+																									.SelectMany(t => t.Operations)
+																									.FirstOrDefault(i => i.Id == o.Id)
+																			?? 
+																			core.Chain.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
+														.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
+																											Id			= i.A.Id,
+																											Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
+							};
+				}
 		}
 	}
 
@@ -216,6 +216,99 @@ namespace UC.Net
 		}
 
 		public IEnumerable<Item> Operations { get; set; }
+	}
+
+	public class AccountInfoRequest : Request
+	{
+		public bool				Confirmed {get; set;}
+		public Account			Account {get; set;}
+
+		public override Response Execute(Core core)
+		{
+ 			lock(core.Lock)
+ 				if(core.Synchronization != Synchronization.Synchronized)
+					throw new RpcException("Not synchronized");
+				else
+ 					return new AccountInfoResponse{ Info = core.Chain.GetAccountInfo(Account, Confirmed) };
+		}
+	}
+
+	public class AccountInfoResponse : Response
+	{
+		public AccountInfo Info {get; set;}
+	}
+
+	public class AuthorInfoResponse : Response
+	{
+		public XonDocument Xon {get; set;}
+	}
+
+	public class AuthorInfoRequest : Request
+	{
+		public bool				Confirmed {get; set;}
+		public string			Name {get; set;}
+
+		public override Response Execute(Core core)
+		{
+ 			lock(core.Lock)
+ 				if(core.Synchronization != Synchronization.Synchronized)
+					throw new RpcException("Not synchronized");
+				else
+ 					return new AuthorInfoResponse{Xon = core.Chain.GetAuthorInfo(Name, Confirmed, new XonTypedBinaryValueSerializator())};
+		}
+	}
+	
+	public class QueryReleaseResponse : Response
+	{
+		public IEnumerable<XonDocument> Xons {get; set;}
+	}
+
+	public class QueryReleaseRequest : Request
+	{
+		public IEnumerable<ReleaseQuery>	Queries { get; set; }
+		public bool							Confirmed {get; set;}
+
+		public bool							Valid => Queries.All(i => i.Valid);
+
+		public override Response Execute(Core core)
+		{
+ 			lock(core.Lock)
+ 				if(core.Synchronization != Synchronization.Synchronized)
+					throw new RpcException("Not synchronized");
+				else
+ 					return new QueryReleaseResponse{ Xons = Queries.Select(i => core.Chain.QueryRelease(i, Confirmed, new XonTypedBinaryValueSerializator())) };
+		}
+	}
+
+	public class LocatePackageRequest : Request
+	{
+		public PackageAddress		Package { get; set; }
+
+		public override Response Execute(Core core)
+		{
+			throw new NotImplementedException();
+		}
+	}
+	
+	public class LocatePackageResponse : Response
+	{
+		public IEnumerable<IPAddress>	Peers { get; set; }
+	}
+
+	public class DownloadPackageRequest : Request
+	{
+		public PackageDownload	Request { get; set; }
+		public bool				Valid => Request.Valid;
+
+		public override Response Execute(Core core)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class DownloadPackagerResponse : Response
+	{
+		public byte[]		Data { get; set; }
 	}
 
 	//public class ReleaseRequest : IBinarySerializable

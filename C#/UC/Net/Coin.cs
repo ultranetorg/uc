@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public struct Coin : IComparable, IComparable<Coin>, IEquatable<Coin>
+	public struct Coin : IComparable, IComparable<Coin>, IEquatable<Coin>, IBinarySerializable
 	{
 		readonly static BigInteger			One = 1_000_000_000_000_000_000;
 

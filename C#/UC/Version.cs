@@ -4,10 +4,11 @@ using System.Text;
 using System.Linq;
 using System.IO;
 using System;
+using UC.Net;
 
 namespace UC
 {
-	public class Version : IEquatable<Version>, IComparable
+	public class Version : IEquatable<Version>, IComparable, IBinarySerializable
 	{
 		public ushort Era;
 		public ushort Generation;
@@ -83,6 +84,22 @@ namespace UC
 				return 1;
 			else
 				return 0;
+		}
+
+		void IBinarySerializable.Read(BinaryReader r)
+		{
+			Era = r.ReadUInt16();
+			Generation = r.ReadUInt16(); 
+			Release = r.ReadUInt16();
+			Build = r.ReadUInt16();
+		}
+
+		public void Write(BinaryWriter w)
+		{
+			w.Write(Era);
+			w.Write(Generation);
+			w.Write(Release);
+			w.Write(Build);
 		}
 
 		public static bool operator < (Version a, Version b)

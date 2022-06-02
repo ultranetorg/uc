@@ -7,22 +7,23 @@ using System.Threading.Tasks;
 
 namespace UC
 {
-    public class XonTextReader
-    {
-		public XonToken									Current;
+	public class XonTextReader : IXonReader
+	{
+		//public XonValueSerializator Serializator;
+		public XonToken Current { get; set; }
 
-		string											Text;
-		Queue<bool>										Type = new Queue<bool>();
+		string Text;
+		Queue<bool> Type = new Queue<bool>();
 
-		private int										c;
-		private char									C { get => Text[c]; }
+		private int c;
+		private char C { get => Text[c]; }
 
 		public XonTextReader(string s)
 		{
 			Text = s;
 		}
-		
-		public XonToken Read()
+
+		public XonToken Read(XonValueSerializator serializator)
 		{
 			if(Text.Length > 0)
 			{
@@ -38,7 +39,7 @@ namespace UC
 		public XonToken ReadNext()
 		{
 			Next(ref c);
-	
+
 			if(c < Text.Length)
 			{
 				switch(Current)
@@ -48,7 +49,7 @@ namespace UC
 						if(C == '}') // after last child
 						{
 							bool t = Type.Dequeue();
-							
+
 							Current = t ? XonToken.AttrValueEnd : XonToken.ChildrenEnd;
 							c++;
 						}
@@ -88,7 +89,7 @@ namespace UC
 						else
 							Current = XonToken.SimpleValueBegin;
 						break;
-			
+
 					case XonToken.AttrValueBegin:
 						if(C == '}')
 						{
@@ -100,7 +101,7 @@ namespace UC
 							Current = XonToken.NodeBegin;
 						}
 						break;
-			
+
 					case XonToken.ChildrenBegin:
 						if(C == '}')
 						{
@@ -108,7 +109,7 @@ namespace UC
 							c++;
 						}
 						else
-						{	
+						{
 							Current = XonToken.NodeBegin;
 						}
 						break;
@@ -142,7 +143,7 @@ namespace UC
 			return Current;
 		}
 
-		public string ParseValue()
+		public object ParseValue()
 		{
 			string value = null;
 
@@ -159,7 +160,7 @@ namespace UC
 							break;
 					}
 					else if(C == '\"') // opening "
-					{	
+					{
 						value = "";
 						//if(!foundsemicolon)
 						q = true;
@@ -167,13 +168,13 @@ namespace UC
 					else
 					{
 						if(value == null)
-						{ 
+						{
 							//found = true;
 							value = "";
 						}
 						value += C;
 					}
-				} 
+				}
 				else
 				{
 					if(C == '\"') // closing " or escaping
@@ -202,10 +203,12 @@ namespace UC
 			return value;
 		}
 
-		public void ParseName(ref string name, ref string type)
+		public string ParseName()
 		{
-			bool typefound = false;
+			//bool typefound = false;
 			bool q = false;
+
+			string name = null; 
 
 			while(true)
 			{
@@ -214,27 +217,18 @@ namespace UC
 					if(c == Text.Length || C == ' ' || C == '\t' || C == '\r' || C == '\n' || C == '{' || C == '}' || C == '=')
 					{
 						Current = XonToken.NameEnd;
-						return;
+						return name;
 					}
 					else if(C == '\"') // opening '
-					{	
+					{
 						//if(!foundsemicolon)
 						q = true;
 					}
-					else if(C == ':')
+					else
 					{
-						typefound = true;
+						name += C;
 					}
-					else 
-						if(!typefound)
-						{
-							name += C;
-						} 
-						else
-						{
-							type += C;
-						}
-				} 
+				}
 				else
 				{
 					if(C == '\"') // closing ' or escaping
@@ -256,6 +250,13 @@ namespace UC
 				}
 				c++;
 			}
+
+			return name;
+		}
+
+		public object ParseMeta()
+		{
+			throw new NotSupportedException();
 		}
 
 		private void Next(ref int c)
@@ -273,7 +274,7 @@ namespace UC
 						while(c < Text.Length && C != '\r' && C != '\n')
 							c++;
 					else
-					{	
+					{
 						c--;
 						break;
 					}
@@ -282,5 +283,5 @@ namespace UC
 					break;
 			}
 		}
-    }
+	}
 }

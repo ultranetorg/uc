@@ -1113,7 +1113,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public XonDocument GetAuthorInfo(string author, bool confirmed)
+		public XonDocument GetAuthorInfo(string author, bool confirmed, XonValueSerializator serializator)
 		{
 			var roundmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
 
@@ -1121,13 +1121,13 @@ namespace UC.Net
 
 			if(a != null)
 			{
-				return a.ToXon();
+				return a.ToXon(serializator);
 			}
 
 			return null;
 		}
 				
-		public XonDocument QueryRelease(ReleaseQuery query, bool confirmed)
+		public XonDocument QueryRelease(ReleaseQuery query, bool confirmed, XonValueSerializator serializator)
 		{
 			if(query.VersionQuery == VersionQuery.Latest)
 			{
@@ -1146,7 +1146,7 @@ namespace UC.Net
 																						m.Address.Platform == query.Platform && 
 																						m.Channel == query.Channel);
 	
-						return prev.ToXon();
+						return prev.ToXon(serializator);
 					}
 				}
 

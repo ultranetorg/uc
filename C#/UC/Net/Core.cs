@@ -96,7 +96,7 @@ namespace UC.Net
 		Thread											ListeningThread;
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
-		public RpcClient									RemoteMember;
+		public RpcClient									Npc;
 		object											RemoteMemberLock = new object();
 
 		JsonServer										ApiServer;
@@ -181,7 +181,7 @@ namespace UC.Net
 				f.Add("Zone");					v.Add(Settings.Zone);
 				f.Add("Profile");				v.Add(Settings.Profile);
 				f.Add("IP(Reported):Port");		v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
-				f.Add($"Generator{(RemoteMember != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? RemoteMember?.Generator)}");
+				f.Add($"Generator{(Npc != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Npc?.Generator)}");
 				f.Add("Operations");			v.Add($"{Operations.Count}");
 				f.Add("    Pending");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
 				f.Add("    Delegated");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
@@ -366,13 +366,13 @@ namespace UC.Net
 			t.Start();
 
 			Task.Run(() =>	{
-								while(Working && RemoteMember == null) 
+								while(Working && Npc == null) 
 								{
 									Thread.Sleep(100); 
 								}
 							}).Wait();
 
-			if(RemoteMember == null && Abort != null && Abort())
+			if(Npc == null && Abort != null && Abort())
 			{
 				throw new AbortException();
 			}
@@ -1394,8 +1394,8 @@ namespace UC.Net
 			{
 				lock(Lock)
 				{
-					if(RemoteMember != null && RemoteMember.ApiFailures <= 3)
-						return RemoteMember;
+					if(Npc != null && Npc.ApiFailures <= 3)
+						return Npc;
 				}
 
 				if(Generator != null)
@@ -1410,13 +1410,13 @@ namespace UC.Net
 
 					lock(Lock)
 					{
-						RemoteMember = this;
+						Npc = this;
 						//RemoteMember.Generator = Generator;
 						//RemoteMember.IP = IP;
 						//RemoteMember.SetupRpc(this, HttpClient, $"http://{RemoteMember.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
 						Api = new JsonClient(HttpClient, $"http://{IP}:{Zone.JsonPort(Settings.Zone)}", null);
 						
-						return RemoteMember;
+						return Npc;
 					}
 				}
 
@@ -1425,7 +1425,7 @@ namespace UC.Net
 					RemoteMember.ApiReachFailures++;;
 				}	*/
 
-				RemoteMember = null;
+				Npc = null;
 				Peer peer;
 				
 				while(Working)
@@ -1470,11 +1470,11 @@ namespace UC.Net
 									//c.SetupRpc(this, HttpClient, $"http://{c.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
 									Api = new JsonClient(HttpClient, $"http://{c.IP}:{Zone.JsonPort(Settings.Zone)}", null);
 
-									RemoteMember = c;
+									Npc = c;
 		
-									Log?.Report(this, "Member chosen", RemoteMember.ToString());
+									Log?.Report(this, "Member chosen", Npc.ToString());
 		
-									return RemoteMember;
+									return Npc;
 								}
 							}
 						}
@@ -1917,7 +1917,7 @@ namespace UC.Net
 				foreach(var i in many)
 				{
 					if(i is ITypedBinarySerializable t)
-						w.Write(t.BinaryType);
+						w.Write(t.TypeCode);
 
 					i.Write(w);
 				}

@@ -8,15 +8,9 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public interface IBinarySerializable
-	{
-		void Read(BinaryReader r);
-		void Write(BinaryWriter w);
-	}
-
 	public interface ITypedBinarySerializable
 	{
-		byte BinaryType { get; }
+		byte TypeCode { get; }
 	}
 
 	public class BinarySerializator
@@ -27,69 +21,91 @@ namespace UC.Net
 			{
 				var val = i.GetValue(o);
 
-				switch(val)
-				{
-					case int v:
-						writer.Write7BitEncodedInt(v);
-						continue;
-
-					case long v:
-						writer.Write7BitEncodedInt64(v);
-						continue;
-				}
-
-				if(i.PropertyType.IsEnum)
-				{
-					writer.Write7BitEncodedInt((int)i.GetValue(o));
-					continue;
-				}
-
-				writer.Write(val != null);
-
-				if(val == null)
-				{
-					continue;
-				}
-				
-				switch(val)
-				{
-					case string v:
-						writer.WriteUtf8(v);
-						continue;
-
-					case byte[] v:
-						writer.Write7BitEncodedInt(v.Length);
-						writer.Write(v);
-						continue;
-
-					case IPAddress v:
-						var b = v.GetAddressBytes();
-						writer.Write7BitEncodedInt(b.Length);
-						writer.Write(b);
-						continue;
-
-					case IBinarySerializable v:
-						writer.Write(v);
-						continue;
-
-	 				case Operation v:
-	 					writer.Write((byte)v.Type);
-	 					v.Write(writer);
-						continue;
-
-					case System.Collections.IEnumerable v:
-						writer.Write7BitEncodedInt((v as IEnumerable<object>).Count());
-							
-						foreach(var j in v)
-						{
-							Serialize(writer, j);
-						}
-						continue;
-
-					default:
-						throw new NotSupportedException();
-				}
+				if(!Serialize(writer, val, i.PropertyType))
+					Serialize(writer, val);
 			}
+		}
+
+		static bool Serialize(BinaryWriter writer, object val, Type type)
+		{
+			switch(val)
+			{
+				case bool v:
+					writer.Write(v);
+					return true;
+
+				case int v:
+					writer.Write7BitEncodedInt(v);
+					return true;
+
+				case long v:
+					writer.Write7BitEncodedInt64(v);
+					return true;
+			}
+
+			if(type.IsEnum)
+			{
+				writer.Write7BitEncodedInt((int)val);
+				return true;
+			}
+
+			writer.Write(val != null); /// null or not?
+
+			if(val == null)
+			{
+				return true;
+			}
+				
+			switch(val)
+			{
+				case string v:
+					writer.WriteUtf8(v);
+					return true;
+
+				case byte[] v:
+					writer.Write7BitEncodedInt(v.Length);
+					writer.Write(v);
+					return true;
+
+				case IPAddress v:
+				{
+					var b = v.GetAddressBytes();
+					writer.Write7BitEncodedInt(b.Length);
+					writer.Write(b);
+					return true;
+				}
+				case IBinarySerializable v:
+					writer.Write(v);
+					return true;
+
+	 			case Operation v:
+	 				writer.Write((byte)v.Type);
+	 				v.Write(writer);
+					return true;
+
+	 			case XonDocument v:
+				{	
+					var s = new MemoryStream();
+					v.Save(new XonBinaryWriter(s));
+			
+					var b = s.ToArray();
+						
+					writer.Write7BitEncodedInt(b.Length);
+					writer.Write(b);
+					return true;
+				}
+				case System.Collections.IEnumerable v:
+					writer.Write7BitEncodedInt((v as IEnumerable<object>).Count());
+							
+					foreach(var j in v)
+					{
+						if(!Serialize(writer, j, type.GetGenericArguments()[0]))
+							Serialize(writer, j);
+					}
+					return true;
+			}
+
+			return false;
 		}
 
 
@@ -101,7 +117,7 @@ namespace UC.Net
 			{
 				if(i is ITypedBinarySerializable t)
 				{
-					writer.Write(t.BinaryType);
+					writer.Write(t.TypeCode);
 				}
 
 				Serialize(writer, i);
@@ -119,7 +135,10 @@ namespace UC.Net
 
 				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
 				{
-					p.SetValue(l[i], DeserializeProperty(reader, p.PropertyType));
+					if(DeserializeValue(reader, p.PropertyType, out object val))
+						p.SetValue(l[i], val);
+					else
+						Deserialize(reader, p.PropertyType);
 				}
 			}
 
@@ -138,42 +157,82 @@ namespace UC.Net
 
 			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
 			{
-				p.SetValue(o, DeserializeProperty(reader, p.PropertyType));
+				if(DeserializeValue(reader, p.PropertyType, out object val))
+					p.SetValue(o, val);
+				else
+					Deserialize(reader, p.PropertyType);
 			}
 
 			return o;
 		}
 
-		static object DeserializeProperty(BinaryReader reader, Type type)
+		static bool DeserializeValue(BinaryReader reader, Type type, out object value)
 		{
-			if(typeof(int) == type)			
-				return reader.Read7BitEncodedInt(); else 
+			if(typeof(bool) == type)			
+			{
+				value = reader.ReadBoolean();
+				return true;
+			}
+			else 
+			if(typeof(int) == type)
+			{	
+				value = reader.Read7BitEncodedInt(); 
+				return true;
+			}
+			else 
 			if(typeof(long) == type)		
-				return reader.Read7BitEncodedInt64(); else
+			{
+				value = reader.Read7BitEncodedInt64(); 
+				return true;
+			}
+			else
 			if(type.IsEnum)
-				return Enum.ToObject(type, reader.Read7BitEncodedInt()); 
+			{
+				value = Enum.ToObject(type, reader.Read7BitEncodedInt()); 
+				return true;
+			}
 
 			if(reader.ReadBoolean())
 			{
-				if(typeof(string) == type)		return reader.ReadUtf8(); 
+				if(typeof(string) == type)
+				{
+					value = reader.ReadUtf8(); 
+					return true;
+				} 
 				else
-				if(typeof(byte[]) == type)		return reader.ReadBytes(reader.Read7BitEncodedInt()); 
+				if(typeof(byte[]) == type)
+				{ 
+					value = reader.ReadBytes(reader.Read7BitEncodedInt()); 
+					return true;
+				}
 				else
-				if(typeof(IPAddress) == type)	return new IPAddress(reader.ReadBytes(reader.Read7BitEncodedInt())); 
+				if(typeof(IPAddress) == type)
+				{
+					value = new IPAddress(reader.ReadBytes(reader.Read7BitEncodedInt()));
+					return true;
+				}
+				else
+				if(type == typeof(XonDocument))
+				{ 
+					value = new XonDocument(new XonBinaryReader(new MemoryStream(reader.ReadBytes(reader.Read7BitEncodedInt()))), new XonTypedBinaryValueSerializator());
+					return true;
+				}
 				else
 				if(type == typeof(Operation) || type.IsSubclassOf(typeof(Operation)))
 				{ 
 					var t = (Operations)reader.ReadByte();
 					var o = Operation.FromType(t);
 					o.Read(reader);
-					return o;
+					value = o;
+					return true;
 				}
 				else
 				if(type.GetInterfaces().Any(i => i == typeof(IBinarySerializable))) 
 				{
-					var x = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as IBinarySerializable;
-					x.Read(reader);
-					return x;
+					var o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as IBinarySerializable;
+					o.Read(reader);
+					value = o;
+					return true;
 				}
 				else 
 				if(type.GetInterfaces().Any(i => i == typeof(System.Collections.IEnumerable)))
@@ -184,20 +243,28 @@ namespace UC.Net
 	
 					var l = ltype.GetConstructor(new System.Type[]{typeof(int)}).Invoke(new object[]{n}) as object[];
 	
-	
 					for(int i=0; i<n; i++)
 					{
-						l[i] = Deserialize(reader, type.GetGenericArguments()[0]);
-						//ltype.GetProperties(System.Reflection.BindingFlags.SetProperty) .Invoke(l, new object[] {i, e} );
+						if(DeserializeValue(reader, type.GetGenericArguments()[0], out object v))
+							l[i] = v; 
+						else
+							l[i] = Deserialize(reader, type.GetGenericArguments()[0]);
 					}
-	
-					return l;
+
+					value = l;
+					return true;
 				}
 				else
-					throw new NotSupportedException();
-			} 
+				{
+					value = null;
+					return false;
+				}
+			}
 			else
-				return null;
+			{
+				value = null;
+				return true;
+			}
 		}
 	}
 }

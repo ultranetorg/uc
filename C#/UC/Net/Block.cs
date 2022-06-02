@@ -21,6 +21,7 @@ namespace UC.Net
 		public byte[]				Signature;
 		public Account				Generator { get; set; }
 
+		public byte					TypeCode => (byte)Type;
 		public int					ParentId  => RoundId - Roundchain.Pitch;
 		public Round				Round;
 		protected Roundchain		Chain;
@@ -87,8 +88,6 @@ namespace UC.Net
 							};
 			}
 		}
-
-		public byte BinaryType => (byte)Type;
 
 		public virtual void Write(BinaryWriter w)
 		{

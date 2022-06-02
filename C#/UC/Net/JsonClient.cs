@@ -83,12 +83,11 @@ namespace UC.Net
 
 		public UntTransfer								Send(TransferUntCall call) => Request<UntTransfer>(call);
 		public GetStatusResponse						Send(StatusCall call) => Request<GetStatusResponse>(call);
-		public XonDocument								Send(AuthorInfoCall call) => Request<XonDocument>(call);
-		public AccountInfo								Send(AccountInfoCall call) => Request<AccountInfo>(call);
+		//	public XonDocument								Send(AuthorInfoCall call) => Request<XonDocument>(call);
+		//public AccountInfo								Send(AccountInfoCall call) => Request<AccountInfo>(call);
 
 		//public GetMembersResponse						Send(GetMembersCall call) => Request<GetMembersResponse>(call);
 		
-		public List<XonDocument>						Send(QueryReleaseCall call) => Request<List<XonDocument>>(call);
-		public byte[]									Send(DownloadPackageCall call) => Request<byte[]>(call);
+		//public List<XonDocument>						Send(QueryReleaseCall call) => Request<List<XonDocument>>(call);
 	}
 }

@@ -9,17 +9,11 @@ namespace UC
 {
 	public class XonTextWriter : StreamWriter, IXonWriter 
 	{
-		//public override Encoding Encoding { get => Encoding.UTF8; } 
-
-		public XonTextWriter(Stream s) : base(s, Encoding.UTF8)
-		{
-		}
-
 		public XonTextWriter(Stream s, Encoding encoding) : base(s, encoding)
 		{
 		}
 
-		public void WriteHeader()
+		public void Start()
 		{
 			BaseStream.Write(Encoding.GetPreamble());
 		}
@@ -29,12 +23,15 @@ namespace UC
 			Flush();
 		}
 
-		public void Write(Xon n)
+		public void Write(Xon root)
 		{
 			string s = "";
 		
-			Write(ref s, n, 0);
-
+			foreach(var i in root.Nodes)
+			{
+				Write(ref s, i, 0);
+			}
+			
 			Write(s);
 		}
 

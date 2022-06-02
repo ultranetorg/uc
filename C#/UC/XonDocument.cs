@@ -15,18 +15,18 @@ namespace UC
 		{
 		}
 		
-		public XonDocument(IXonValueSerializator serializator) : base(serializator)
+		public XonDocument(XonValueSerializator serializator) : base(serializator)
 		{
 		}
 		
-		public XonDocument(XonTextReader r) : base(new TextXonValueSerializator())
+		public XonDocument(IXonReader r, XonValueSerializator serializator) : base(serializator)
 		{
 			Load(null, r);
 		}
 
-		internal void Load(XonDocument t, XonTextReader r)
+		internal void Load(XonDocument t, IXonReader r)
 		{
-			r.Read();
+			r.Read(Serializator);
 	
 			Xon n;
 
@@ -47,7 +47,7 @@ namespace UC
 			//}
 		}
 
-		protected Xon Load(XonTextReader r, Xon parent, Xon tparent)
+		protected Xon Load(IXonReader r, Xon parent, Xon tparent)
 		{
 			//CString name;
 			//CString type;
@@ -89,7 +89,7 @@ namespace UC
 
 					case XonToken.NameBegin:
 					{
-						r.ParseName(ref n.Name, ref n.Type);
+						n.Name = r.ParseName();
 
 						var pre = n.Name[0];
 
@@ -142,8 +142,12 @@ namespace UC
 						break;
 					}	
 
+					case XonToken.MetaBegin:
+						n.Meta = r.ParseMeta();
+						break;
+
 					case XonToken.SimpleValueBegin:
-						n.Value = r.ParseValue();
+						n._Value = r.ParseValue();
 						break;
 
 					case XonToken.AttrValueBegin:
@@ -186,13 +190,8 @@ namespace UC
 
 		public void Save(IXonWriter w)
 		{
-			w.WriteHeader();
-
-			foreach(var i in Nodes)
-			{
-				w.Write(i);
-			}
-
+			w.Start();
+			w.Write(this);
 			w.Finish();
 		}
 		
@@ -217,7 +216,7 @@ namespace UC
 	{
 		public override XonDocument Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return new XonDocument(new XonTextReader(reader.GetString()));
+			return new XonDocument(new XonTextReader(reader.GetString()), XonTextValueSerializator.Default);
 		}
 
 		public override void Write(Utf8JsonWriter writer, XonDocument value, JsonSerializerOptions options)
