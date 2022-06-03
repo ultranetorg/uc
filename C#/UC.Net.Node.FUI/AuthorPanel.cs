@@ -44,7 +44,7 @@ namespace UC.Net.Node.FUI
 
 			lock(Core.Lock)
 			{
-				var ai = Core.Npc.GetAuthorInfo(AuthorSearch.Text, false);
+				var ai = Core.ConnectToNode().GetAuthorInfo(AuthorSearch.Text, false);
 
 				if(ai.Xon != null)
 					ai.Xon.Dump((n, t) => 

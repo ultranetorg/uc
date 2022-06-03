@@ -50,11 +50,10 @@ namespace UC.Net
 		RDN = 0b00000010
 	}
  
-	public class Core : RpcClient
+	public class Core : Nci
 	{
 		public static readonly int[]					Versions = {1};
 		public const string								FailureExt = "failure";
-		//public const int								DefaultPort = 3080;
 		public const int								Timeout = 15000;
 		public const int								OperationsQueueLimit = 1000;
 		public const string								SettingsFileName = "Settings.xon";
@@ -73,7 +72,8 @@ namespace UC.Net
 		public Settings									Settings;
 		Clock											Clock;
 
-		//public PrivateAccount							Generator;
+		//Nci												Nci;
+
 		CandidacyDeclaration							Declaration;
 		public Guid										Nuid;
 		public IPAddress								IP = IPAddress.None;
@@ -83,7 +83,6 @@ namespace UC.Net
 
 		public List<Transaction>						Transactions = new();
 		public List<Operation>							Operations	= new();
-		//public List<Message>							Messages	= new();
 
 		public List<Peer>								Peers		= new();
 		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
@@ -96,12 +95,9 @@ namespace UC.Net
 		Thread											ListeningThread;
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
-		public RpcClient									Npc;
 		object											RemoteMemberLock = new object();
 
 		JsonServer										ApiServer;
-		JsonClient										ApiClient;
-		HttpClient										HttpClient;
 
 		public bool										Working => Running && (Abort == null || !Abort());
 		bool											Running = true;
@@ -121,56 +117,6 @@ namespace UC.Net
 
 		readonly DbOptions								DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																							.SetCreateMissingColumnFamilies(true);
-
-		public JsonClient Api;
-// 		{
-// 			get
-// 			{
-// 				if(ApiClient == null)
-// 					if(Chain != null)
-// 					{
-// 						ApiClient = new JsonClient(HttpClient, $"http://{Settings.IP}:{Zone.JsonPort(Settings.Zone)}", Settings.Rpc.AccessKey);
-// 					}
-// 					else
-// 					{
-// 						Peer peer;
-// 				
-// 						while(Working)
-// 						{
-// 							Thread.Sleep(1);
-// 	
-// 							lock(Lock)
-// 							{
-// 								peer = RemoteMember as Peer ?? Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ApiReachFailures).FirstOrDefault();
-// 	
-// 								if(peer == null)
-// 									continue;
-// 							}
-// 
-// 							try
-// 							{
-// 								var api = new JsonClient(HttpClient, $"http://{peer.IP}:{Zone.JsonPort(Settings.Zone)}", null);
-// 
-// 								var cr = api.Send(new StatusCall());
-// 	
-// 								lock(Lock)
-// 								{
-// 									peer.ApiReachFailures = 0;
-// 									
-// 									ApiClient = api;
-// 								}
-// 							}
-// 							catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
-// 							{
-// 								peer.ApiReachFailures++;
-// 							}
-// 						}
-// 					}
-// 
-// 				return ApiClient; 
-// 			}
-// 		}
-
 		public string[][] Info
 		{
 			get
@@ -181,7 +127,7 @@ namespace UC.Net
 				f.Add("Zone");					v.Add(Settings.Zone);
 				f.Add("Profile");				v.Add(Settings.Profile);
 				f.Add("IP(Reported):Port");		v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
-				f.Add($"Generator{(Npc != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Npc?.Generator)}");
+				//f.Add($"Generator{(Nci != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Nci?.Generator)}");
 				f.Add("Operations");			v.Add($"{Operations.Count}");
 				f.Add("    Pending");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
 				f.Add("    Delegated");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
@@ -291,7 +237,7 @@ namespace UC.Net
 
 			Vault		= new Vault(Settings, Log);
 			Nas			= nas;
-			HttpClient	= new HttpClient{Timeout = TimeSpan.FromSeconds(5)};
+			//HttpClient	= new HttpClient{Timeout = TimeSpan.FromSeconds(5)};
 			Filebase	= new Filebase(Settings);
 		}
 
@@ -365,14 +311,14 @@ namespace UC.Net
  								});
 			t.Start();
 
-			Task.Run(() =>	{
-								while(Working && Npc == null) 
-								{
-									Thread.Sleep(100); 
-								}
-							}).Wait();
+// 			Task.Run(() =>	{
+// 								while(Working && Nci == null) 
+// 								{
+// 									Thread.Sleep(100); 
+// 								}
+// 							}).Wait();
 
-			if(Npc == null && Abort != null && Abort())
+			if(Abort != null && Abort())
 			{
 				throw new AbortException();
 			}
@@ -1388,44 +1334,30 @@ namespace UC.Net
 			Statistics.Generating.End();
 		}
 
-		RpcClient GetRemoteMember()
+		public Nci ConnectToMember()
 		{
 			lock(RemoteMemberLock)
 			{
-				lock(Lock)
-				{
-					if(Npc != null && Npc.ApiFailures <= 3)
-						return Npc;
-				}
-
 				if(Generator != null)
 				{
-					while(Working)
-					{ 
-						if(IP.Equals(IPAddress.None))
-							Thread.Sleep(1);
-						else
-							break;
-					}
+					//while(Working)
+					//{ 
+					//	var nar = GetNextAvailableRound();
+					//
+					//	if(nar == null)
+					//		continue;
+					//
+					//	var voters = Chain.VotersFor(nar);
+					//	
+					//	if(voters.All(i => i.Generator != Generator))
+					//		break;
+					//
+					//	Thread.Sleep(1);
+					//}
 
-					lock(Lock)
-					{
-						Npc = this;
-						//RemoteMember.Generator = Generator;
-						//RemoteMember.IP = IP;
-						//RemoteMember.SetupRpc(this, HttpClient, $"http://{RemoteMember.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
-						Api = new JsonClient(HttpClient, $"http://{IP}:{Zone.JsonPort(Settings.Zone)}", null);
-						
-						return Npc;
-					}
+					return this;
 				}
 
-/*				if(RemoteMember != null && RemoteMember.Api != null && RemoteMember.Api.Failures > 3)
-				{
-					RemoteMember.ApiReachFailures++;;
-				}	*/
-
-				Npc = null;
 				Peer peer;
 				
 				while(Working)
@@ -1434,57 +1366,95 @@ namespace UC.Net
 	
 					lock(Lock)
 					{
-						peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ApiReachFailures).FirstOrDefault();
+						peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
 	
 						if(peer == null)
 							continue;
-							
-						//if(peer.Api == null)
-						//{
-						//	(peer as Peer).SetupRpc(this, HttpClient, $"http://{peer.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
-						//	peer.Api =     new JsonClient(HttpClient, $"http://{peer.IP}:{Zone.RpcPort(Settings.Zone)}", null);
-						//}
 					}
 	
-					if(peer != null)
-						try
+					try
+					{
+						var cr = peer.Send(new GetMembersRequest());
+	
+						lock(Lock)
 						{
-							var cr = peer.Send(new GetMembersRequest());
-	
-							lock(Lock)
+							if(cr.Members.Any())
 							{
-								if(cr.Members.Any())
-								{
-									RememberPeers(cr.Members);
+								RememberPeers(cr.Members);
 
-									peer.ApiReachFailures = 0;
+								peer.ReachFailures = 0;
 	
-									Members = cr.Members.ToList();
+								Members = cr.Members.ToList();
 								
-									var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
+								var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
 
-									if(c == null)
-										continue;
+								if(c == null)
+									continue;
 			
-									c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
-									//c.SetupRpc(this, HttpClient, $"http://{c.IP}:{Zone.RpcPort(Settings.Zone)}", null); 
-									Api = new JsonClient(HttpClient, $"http://{c.IP}:{Zone.JsonPort(Settings.Zone)}", null);
+								c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
 
-									Npc = c;
+								Log?.Report(this, "Member chosen", c.ToString());
 		
-									Log?.Report(this, "Member chosen", Npc.ToString());
-		
-									return Npc;
-								}
+								return c;
 							}
 						}
-						catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
-						{
-							peer.ApiReachFailures++;
-						}
+					}
+					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
+					{
+						peer.ReachFailures++;
+					}
 				}
 	
-				return null;
+				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stopping");
+			}
+		}
+
+		public Nci ConnectToNode()
+		{
+			lock(RemoteMemberLock)
+			{
+				if(Generator != null)
+				{
+					return this;
+				}
+
+				Peer peer;
+				
+				while(Working)
+				{
+					Thread.Sleep(1);
+	
+					lock(Lock)
+					{
+						peer = Peers.OrderByDescending(i => i.Established && i.Capabilities.HasFlag(PeerCapability.DMS)).ThenBy(i => i.ReachFailures).FirstOrDefault();
+	
+						if(peer == null)
+							continue;
+
+						if(!peer.Established && peer.InStatus != EstablishingStatus.Initiated && peer.OutStatus != EstablishingStatus.Initiated)
+						{
+							peer.LastTry = DateTime.UtcNow;
+							peer.Retries++;
+		
+							OutboundConnect(peer);
+						}
+					}
+
+					while(Working)
+					{
+						lock(Lock)
+							if(peer.Established || peer.OutStatus == EstablishingStatus.Failed)
+								break;
+
+						Thread.Sleep(1);
+					}
+
+					lock(Lock)
+						if(peer.Established)
+							return peer;
+				}
+	
+				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stopping");
 			}
 		}
 
@@ -1497,14 +1467,14 @@ namespace UC.Net
 
 			Log?.Report(this, "Delegating started");
 
+			Nci m = null;
+
 			while(Working)
 			{
 				Thread.Sleep(1);
 
-				var m = GetRemoteMember();
-
 				if(m == null)
-					continue;
+					m = ConnectToMember();
 
 				try
 				{
@@ -1622,8 +1592,12 @@ namespace UC.Net
 				}
 				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
 				{
-					m.ApiFailures++;
 					Log?.ReportError(this, $"Failed to communicate with remote node {m}", ex);
+
+					if(m.Failures < 3)
+						m.Failures++;
+					else
+						m = null;
 
 					Thread.Sleep(1000); /// prevent any flooding
 				}
@@ -1986,11 +1960,10 @@ namespace UC.Net
 				lock(Lock)
 					l = Chain.Accounts.FindLastOperation<Emission>(signer);
 			else
-				l = await Task.Run<Emission>(() => GetRemoteMember().Send(new LastOperationRequest {
-																										Account = signer, 
-																										Class = typeof(Emission).Name
-																									}).Operation as Emission);
-
+				l = await Task.Run<Emission>(() => ConnectToNode().Send(new LastOperationRequest{
+																									Account = signer, 
+																									Class = typeof(Emission).Name
+																								}).Operation as Emission);
 			var eid = l == null ? 0 : l.Eid + 1;
 
 			await Nas.Emit(a, wei, signer, GasAsker, eid, flowcontrol, cts);		
@@ -2036,64 +2009,6 @@ namespace UC.Net
 			return null;
 		}
 
-// 		public AccountInfo GetAccountInfo(Account account, bool confirmed, IFlowControl flowcontrol = null)
-// 		{
-// 			if(Chain != null)
-// 			{
-// 				lock(Lock)
-// 					return Chain.GetAccountInfo(account, confirmed);
-// 			}
-// 			else
-// 			{
-// 				 return new JsonClient(HttpClient, $"http://{(GetRemoteMember() as Peer).IP}:{Zone.RpcPort(Settings.Zone)}", null).Send(new AccountInfoCall {Account = account, Confirmed = confirmed}) as AccountInfo;
-// 			}
-// 		}
-// 
-// 		public XonDocument GetAuthorInfo(string author, bool confirmed, IFlowControl flowcontrol = null)
-// 		{
-// 			if(Chain != null)
-// 			{
-// 				lock(Lock)
-// 					return Chain.GetAuthorInfo(author, confirmed);
-// 			}
-// 			else
-// 			{
-// 				return ApiServer.Send(new AuthorInfoCall {Name = author, Confirmed = confirmed}) as XonDocument;
-// 			}
-// 		}
-// 		
-// 		public List<XonDocument> QueryRelease(IEnumerable<ReleaseQuery> queries, bool confirmed)
-// 		{
-// 			if(Chain != null)
-// 			{
-// 				lock(Lock)
-// 					return queries.Select(i => Chain.QueryRelease(i, confirmed)).ToList();
-// 			}
-// 			else
-// 			{
-// 				return new JsonClient(HttpClient, $"http://{(GetRemoteMember() as Peer).IP}:{Zone.RpcPort(Settings.Zone)}", null).Send(new QueryReleaseCall {Queries = queries.ToList(), Confirmed = confirmed}) as List<XonDocument>;
-// 			}
-// 		}
-
-// 		public byte[] ReadPackage(DownloadPackageRequest request)
-// 		{
-// 			return Filebase.ReadPackage(request);
-// 		}
-// 				
-// 		public void DownloadPackage(ReleaseAddress release, Distribution distribution, long length)
-// 		{
-// 			var l = Filebase.GetLength(release, distribution);
-// 
-// 			while(l < length)
-// 			{
-// 				///var b = GetDownloadPeer(release, distribution).Api.Send(new DownloadPackageCall {Request = new DownloadPackageRequest(release.Author, release.Product, release.Version, release.Platform, distribution, l, Filebase.PieceLenghtMax)});
-// 				///
-// 				///Filebase.Append(release, distribution, b);
-// 				///
-// 				///l += b.Length;
-// 			}
-// 		}
-// 
   		public override Rp Request<Rp>(Request rq) where Rp : class
   		{
  			return rq.Execute(this) as Rp;

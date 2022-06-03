@@ -156,7 +156,7 @@ namespace UC.Net
 
 		}
 
-		public XonDocument ToXon(XonValueSerializator serializator)
+		public XonDocument ToXon(IXonValueSerializator serializator)
 		{
 			var d = new XonDocument(serializator);
 

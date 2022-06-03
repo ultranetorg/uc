@@ -2,7 +2,7 @@
 {
 	public interface IXonReader
 	{
-		XonToken				Read(XonValueSerializator serializator);
+		XonToken				Read(IXonValueSerializator serializator);
 		XonToken				Current{ get; }
 		XonToken				ReadNext();
 		string					ParseName();

@@ -50,7 +50,7 @@ namespace UC.Net.Node.FUI
 
 									try
 									{
-										t = Core.Npc.GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
+										t = Core.ConnectToNode().GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{
@@ -78,7 +78,7 @@ namespace UC.Net.Node.FUI
 
 									try
 									{
-										t = Core.Npc.GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
+										t = Core.ConnectToNode().GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{

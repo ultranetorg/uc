@@ -1113,7 +1113,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public XonDocument GetAuthorInfo(string author, bool confirmed, XonValueSerializator serializator)
+		public XonDocument GetAuthorInfo(string author, bool confirmed, IXonValueSerializator serializator)
 		{
 			var roundmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
 
@@ -1127,7 +1127,7 @@ namespace UC.Net
 			return null;
 		}
 				
-		public XonDocument QueryRelease(ReleaseQuery query, bool confirmed, XonValueSerializator serializator)
+		public XonDocument QueryRelease(ReleaseQuery query, bool confirmed, IXonValueSerializator serializator)
 		{
 			if(query.VersionQuery == VersionQuery.Latest)
 			{

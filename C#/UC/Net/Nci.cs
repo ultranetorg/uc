@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public abstract class RpcClient
+	public abstract class Nci
 	{
 		public Account							Generator {get; set;} /// serializable
 		
-		public int								ApiFailures;
-		public int								ApiReachFailures;
+		public int								Failures;
+		public int								ReachFailures;
 
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
 

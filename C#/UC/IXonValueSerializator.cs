@@ -10,7 +10,7 @@ using UC.Net;
 
 namespace UC
 {
-	public interface XonValueSerializator
+	public interface IXonValueSerializator
 	{
 		object	Set(Xon node, object v);
 		O		Get<O>(Xon node, object v);
@@ -23,7 +23,7 @@ namespace UC
 		void	DeserializeHeader(byte[] header);
 	}
 
-	public class XonTextValueSerializator : XonValueSerializator
+	public class XonTextValueSerializator : IXonValueSerializator
 	{
 		public static readonly XonTextValueSerializator Default = new XonTextValueSerializator();
 
@@ -43,7 +43,7 @@ namespace UC
 		}
 	}
 
-	public class XonBinaryValueSerializator : XonValueSerializator
+	public class XonBinaryValueSerializator : IXonValueSerializator
 	{
 		public static readonly XonBinaryValueSerializator Default = new XonBinaryValueSerializator();
 
@@ -179,7 +179,7 @@ namespace UC
 		}
 	}
 
-	public class AsIsXonValueSerializator : XonValueSerializator
+	public class AsIsXonValueSerializator : IXonValueSerializator
 	{
 		public static readonly AsIsXonValueSerializator Default = new AsIsXonValueSerializator();
 

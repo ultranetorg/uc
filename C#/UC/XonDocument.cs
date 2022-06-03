@@ -15,11 +15,11 @@ namespace UC
 		{
 		}
 		
-		public XonDocument(XonValueSerializator serializator) : base(serializator)
+		public XonDocument(IXonValueSerializator serializator) : base(serializator)
 		{
 		}
 		
-		public XonDocument(IXonReader r, XonValueSerializator serializator) : base(serializator)
+		public XonDocument(IXonReader r, IXonValueSerializator serializator) : base(serializator)
 		{
 			Load(null, r);
 		}

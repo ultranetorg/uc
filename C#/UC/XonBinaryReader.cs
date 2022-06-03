@@ -21,7 +21,7 @@ namespace UC
 			Reader = new BinaryReader(Stream);
 		}
 		
-		public XonToken Read(XonValueSerializator serializator)
+		public XonToken Read(IXonValueSerializator serializator)
 		{
 			//Serializator = serializator;
 

@@ -100,7 +100,7 @@ namespace UC.Net.Node.CLI
 
 		   		case "status" :
 				{
-					var r = Client.Npc.QueryRelease(ReleaseQuery.Parse(GetString("query")), Args.Has("confirmed"));
+					var r = Client.ConnectToNode().QueryRelease(ReleaseQuery.Parse(GetString("query")), Args.Has("confirmed"));
 
 					foreach(var item in r.Xons)
 					{

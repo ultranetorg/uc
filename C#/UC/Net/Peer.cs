@@ -45,7 +45,7 @@ namespace UC.Net
 		public int		LastConfirmedRound;
 	}
 
-	public class Peer : RpcClient
+	public class Peer : Nci
 	{
 		public int						JoinedAt {get; set;} /// json serializable
 		public IPAddress				IP {get; set;} 

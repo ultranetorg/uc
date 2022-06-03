@@ -63,7 +63,7 @@ namespace UC.Net.Node.CLI
 																		Account.Parse(GetString("to")))));
 		   		case "overview" :
 				{
-					var i = Client.Npc.GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
+					var i = Client.ConnectToNode().GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
 
 					Log.Report(this, "Author", $"'{GetString("name")}' :");
 

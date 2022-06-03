@@ -22,7 +22,7 @@ namespace UC
 		public List<Xon>				Nodes = new List<Xon>();
 		public Xon 						Parent;
 		
-		public XonValueSerializator		Serializator = AsIsXonValueSerializator.Default;
+		public IXonValueSerializator		Serializator = AsIsXonValueSerializator.Default;
 		public object					_Value;
 		public object					Value { set => _Value = value is null ? null : (value is Xon ? value : Serializator.Set(this, value)); get => _Value; }
 
@@ -38,12 +38,12 @@ namespace UC
 		{
 		}
 
-		public Xon(XonValueSerializator serializator)
+		public Xon(IXonValueSerializator serializator)
 		{
 			Serializator = serializator;
 		}
 
-		public Xon(XonValueSerializator serializator, string name)
+		public Xon(IXonValueSerializator serializator, string name)
 		{
 			Serializator = serializator;
 			Parent		= null;

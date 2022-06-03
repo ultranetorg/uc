@@ -23,7 +23,7 @@ namespace UC
 			Text = s;
 		}
 
-		public XonToken Read(XonValueSerializator serializator)
+		public XonToken Read(IXonValueSerializator serializator)
 		{
 			if(Text.Length > 0)
 			{
