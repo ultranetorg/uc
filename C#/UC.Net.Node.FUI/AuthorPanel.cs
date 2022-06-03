@@ -50,7 +50,7 @@ namespace UC.Net.Node.FUI
 					ai.Xon.Dump((n, t) => 
 								{
 									Fields.Text += new string(' ', t * 3) + n.Name + "\n";
-									Values.Text += (n.Value != null ? n.Serializator.GetString(n, n.Value) : null) + "\n";
+									Values.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\n";
 								});
 				else 
 					Fields.Text = "Not found";

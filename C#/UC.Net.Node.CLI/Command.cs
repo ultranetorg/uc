@@ -162,7 +162,7 @@ namespace UC.Net.Node.CLI
 
 		protected void Dump(XonDocument document)
 		{
-			document.Dump((n, l) => Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.GetString(n, n.Value)))));
+			document.Dump((n, l) => Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
 		}
 
 	}
