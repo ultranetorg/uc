@@ -24,9 +24,42 @@ namespace UC.Net
 
 	public class Packet
 	{
-		public Header			Header;
+		//public Header			Header;
 		public PacketType		Type;
 		public MemoryStream		Data;
+
+		public Packet()
+		{
+		}
+
+		public Packet(PacketType type, MemoryStream data)
+		{
+			Type = type;
+			Data = data;
+		}
+
+		public static Packet Create<T>(PacketType type, IEnumerable<T> many) where T : IBinarySerializable
+		{
+			if(many.Count() > 0)
+			{
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+	
+				w.Write7BitEncodedInt(many.Count());
+	
+				foreach(var i in many)
+				{
+					if(i is ITypedBinarySerializable t)
+						w.Write(t.TypeCode);
+
+					i.Write(w);
+				}
+	
+				return new Packet(type, s);
+			}
+			else
+				return null;
+		}
 	}
 
 	public enum EstablishingStatus
@@ -47,34 +80,35 @@ namespace UC.Net
 
 	public class Peer : Nci
 	{
-		public int						JoinedAt {get; set;} /// json serializable
-		public IPAddress				IP {get; set;} 
+		public int					JoinedAt {get; set;} /// json serializable
+		public IPAddress			IP {get; set;} 
 		
-		public int						LastRound;
-		public int						LastConfirmedRound;
+		public int					LastRound;
+		public int					LastConfirmedRound;
 
-		public EstablishingStatus		InStatus = EstablishingStatus.Null;
-		public EstablishingStatus		OutStatus = EstablishingStatus.Null;
-		public ConnectionStatus			Status = ConnectionStatus.Disconnected;
-		public TcpClient				Client;
-		NetworkStream					Stream;
-		BinaryWriter					Writer;
-		object							Lock;
-		Thread							ReadThread;
-		Thread							WriteThread;
-		Queue<Packet>					Out = new();
+		public EstablishingStatus	InStatus = EstablishingStatus.Null;
+		public EstablishingStatus	OutStatus = EstablishingStatus.Null;
+		public ConnectionStatus		Status = ConnectionStatus.Disconnected;
+		Core						Core;
+		public TcpClient			Client;
+		NetworkStream				Stream;
+		BinaryWriter				Writer;
+		object						Lock;
+		Thread						ReadThread;
+		Thread						WriteThread;
+		Queue<Packet>				Out = new();
 
-		public DateTime					LastSeen = DateTime.MinValue;
-		public DateTime					LastTry = DateTime.MinValue;
-		public int						Retries;
+		public DateTime				LastSeen = DateTime.MinValue;
+		public DateTime				LastTry = DateTime.MinValue;
+		public int					Retries;
 
-		public bool						Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
-		public string					StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
+		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
+		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
 
-		public List<Request>			InRequests = new();
-		public List<Request>			OutRequests = new();
+		public List<Request>		InRequests = new();
+		public List<Request>		OutRequests = new();
 
-		public PeerCapability			Capabilities;
+		public Role					Role;
 
 		public Peer()
 		{
@@ -151,6 +185,12 @@ namespace UC.Net
 					Status = ConnectionStatus.Disconnecting;
 				else
 					return;
+
+				foreach(var i in OutRequests)
+					i.Event.Set();
+
+				lock(OutRequests)
+					OutRequests.Clear();
 	
 				if(Client != null)
 				{
@@ -172,6 +212,7 @@ namespace UC.Net
 
 		public void Start(Core core, TcpClient client, Hello h, Action<Peer> read, object lockk, string host)
 		{
+			Core = core;
 			Client = client;
 
 			Status				= ConnectionStatus.OK;
@@ -181,7 +222,7 @@ namespace UC.Net
 			Lock				= lockk;
 			LastRound			= h.LastRound;
 			LastConfirmedRound	= h.LastConfirmedRound;
-			Capabilities		= h.Capabilities;
+			Role				= h.Capabilities;
 	
 			ReadThread = new (() => { read(this); });
 			ReadThread.Name = $"{host} listening to {IP.GetAddressBytes()[3]}";
@@ -195,31 +236,6 @@ namespace UC.Net
 									{
 										Packet p = null;
 
-										lock(OutRequests)
-										{	
-											var notsent = OutRequests.Where(i => !i.Sent);
-											
-											if(notsent.Any())
-											{
-												p = new Packet();
-												p.Header = core.Header;
-												p.Type = PacketType.Request;
-												//p.Data = Core.Write(OutRequests);
-												var s = new MemoryStream();
-												BinarySerializator.Serialize(new BinaryWriter(s), OutRequests);
-												p.Data = s;
-												
-												foreach(var i in notsent)
-												{
-													i.Sent = true;
-												}
-												//OutRequests.Clear();
-
-												lock(Out)
-													Out.Enqueue(p);
-											}
-										}
-											
 										lock(InRequests)
 											if(InRequests.Any())
 											{	
@@ -249,18 +265,11 @@ namespace UC.Net
 
 												if(responses.Any())
 												{
-													p = new Packet();
-													p.Header = core.Header;
-													p.Type = PacketType.Response;
-													//p.Data = Core.Write(responses);
 													var s = new MemoryStream();
 													BinarySerializator.Serialize(new BinaryWriter(s), responses);
-													p.Data = s;
-
-													lock(Out)
-														Out.Enqueue(p);
+													Send(new Packet(PacketType.Response, s));
 												}
-											}										
+											}
 
 										p = null;
 	
@@ -274,8 +283,10 @@ namespace UC.Net
 										{
 											try
 											{
-								 				Writer.Write7BitEncodedInt(p.Header.LastRound);
-								 				Writer.Write7BitEncodedInt(p.Header.LastConfirmedRound);
+												var h = core.Header;
+
+									 			Writer.Write7BitEncodedInt(h.LastRound);
+									 			Writer.Write7BitEncodedInt(h.LastConfirmedRound);
 								 				Writer.Write((byte)p.Type);
 								 
 								 				if(p.Data != null)
@@ -305,8 +316,7 @@ namespace UC.Net
 								}
 							});
 	
-			WriteThread.Name			= $"{host} sending to {IP.GetAddressBytes()[3]}";
-			//WriteThread.IsBackground	= true;
+			WriteThread.Name = $"{host} sending to {IP.GetAddressBytes()[3]}";
 			WriteThread.Start();
 		}
 
@@ -349,20 +359,20 @@ namespace UC.Net
 			return null;
 		}
 
-		public void Send(Header h, PacketType type, MemoryStream data)
+		public void Send(Packet packet)
 		{
-			var rq = new Packet();
-			rq.Header = h;
-			rq.Type = type;
-			rq.Data = data;
+			if(packet == null)
+			{
+				packet = packet;
+			}
 
 			lock(Out)
 			{
-				Out.Enqueue(rq);
+				Out.Enqueue(packet);
 			}
 		}
 
-		public void RequestRounds(Header h, int from, int to)
+		public void RequestRounds(int from, int to)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -370,86 +380,49 @@ namespace UC.Net
 			w.Write7BitEncodedInt(from);
 			w.Write7BitEncodedInt(to);
 
-			Send(h, PacketType.RoundsRequest, s);
+			Send(new Packet(PacketType.RoundsRequest, s));
 		}
 
  		public override Rp Request<Rp>(Request rq) where Rp : class
  		{
- 			lock(OutRequests)
- 				OutRequests.Add(rq);
+			if(!Established)
+				throw new RpcException("Peer is not connectevd");
+
+			var s = new MemoryStream();
+			BinarySerializator.Serialize(new BinaryWriter(s), new[] {rq});
+												
+			Send(new Packet(PacketType.Request, s));
+
+			rq.Sent = true;
+
+			lock(OutRequests)
+			{
+				OutRequests.Add(rq);
+			}
  
  			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : 15000))
  			{
+				if(rq.RecievedResponse == null)
+					throw new OperationCanceledException();
+
  				if(rq.RecievedResponse.Status == ResponseStatus.OK)
- 				{
 	 				return rq.RecievedResponse as Rp;
- 				} 
  				else
-					throw new RpcException("Failed");
+					throw new RpcException("Operation failed");
  			}
 			else
  				throw new TimeoutException($"Request {rq.GetType().Name} has timed out");
  		}
-//  
-//  		public NextRoundResponse1 GetNextRound()
-//  		{
-//  			return Request<NextRoundResponse1>(new NextRoundRequest());
-//  		}
 
-// 		public void SetupApi(Core core, HttpClient http, string apikey)
-// 		{
-// 			JsonApi = new JsonClient(http, $"http://{IP}:{Zone.RpcPort(core.Settings.Zone)}", apikey);
-// 		}
-
-// 		HttpResponseMessage Post(RpcCall request) 
-// 		{
-// 			request.Version = Core.Versions.First().ToString();
-// 			request.AccessKey = Key;
-// 
-// 			var c = JsonSerializer.Serialize(request, request.GetType(), JsonClient.Options);
-// 
-// 			var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + RpcCall.NameOf(request.GetType()));
-// 
-// 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
-// 
-// 			return HttpClient.Send(m);
-// 		}
-// 
-// 		public Rp Request<Rp>(RpcCall request)
-// 		{
-// 			var cr = Post(request);
-// 
-// 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-// 				throw new RpcException(cr.Content.ReadAsStringAsync().Result);
-// 
-// 			try
-// 			{
-// 				return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, JsonClient.Options);
-// 			}
-// 			catch(Exception ex)
-// 			{
-// 				throw new RpcException("Response deserialization failed", ex);
-// 			}
-// 		}
-
- 		//public override GetMembersResponse				Send(GetMembersRequest call) => Request<GetMembersResponse>(call);
- 		//public override NextRoundResponse				Send(NextRoundRequest call) => Request<NextRoundResponse>(call);
-//  		public override Operation						Send(LastOperationCall call){
-//  																						var r = Request<LastOperationResponse>(call);
-//  
-//  																						if(r.Operation != null)
-//  																						{
-//  																							var rd = new BinaryReader(new MemoryStream(r.Operation));
-//  
-//  																							var o = Operation.FromType((Operations)rd.ReadByte());
-//  																							o.Read(rd);
-//  																							return o;
-//  																						} 
-//  																						else
-//  																							return null;
-//  																					}
-// 		public override DelegateTransactionsResponse	Send(DelegateTransactionsCall call) => Request<DelegateTransactionsResponse>(call);
-// 		public override GetOperationStatusResponse		Send(GetOperationStatusCall call) => Request<GetOperationStatusResponse>(call);
-
+ 		//public void Send(Request rq)
+		//{
+		//	var s = new MemoryStream();
+		//	BinarySerializator.Serialize(new BinaryWriter(s), new[]{rq});
+		//										
+		//	Send(Core.Header, PacketType.Request, s);
+		//
+		//	rq.Sent = true;
+		//	OutRequests.Add(rq);
+		//}
 	}
 }

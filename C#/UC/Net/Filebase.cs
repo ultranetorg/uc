@@ -3,20 +3,29 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace UC.Net
 {
+	class Package
+	{
+		public PackageAddress	Address;
+		public List<IPAddress>	Peers = new();
+	}
+
 	public class Filebase
 	{
 		string Root;
 
-		const string IPKG = "ipkg";
-		const string CPKG = "cpkg";
-		const string REMOVALS = ".removals";
-		const string RENAMINGS = ".renamings"; /// TODO
-		public const long PieceLenghtMax = 1024 * 1024;
+		const string		Ipkg = "ipkg";
+		const string		Cpkg = "cpkg";
+		const string		Removals = ".removals";
+		const string		Renamings = ".renamings"; /// TODO
+		public const long	PieceMaxLength = 64 * 1024;
+
+		List<Package>		Packages = new ();
 
 		public Filebase(Settings settings)
 		{
@@ -25,18 +34,36 @@ namespace UC.Net
 			Directory.CreateDirectory(Root);
 		}
 		
-		string ToPath(ReleaseAddress address, Distribution distibution)
+		string ToPath(PackageAddress address)
 		{
-			return Path.Join(Root, address.Author, address.Product, $"{address.Version}__{address.Platform}.{(distibution == Distribution.Complete ? CPKG : IPKG)}");
+			return Path.Join(Root, address.Author, address.Product, $"{address.Version}__{address.Platform}.{(address.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
 		}
 
-		public string Add(ReleaseAddress release, IDictionary<string, string> files, Distribution distribution, List<string> removals = null)
+		public void AddSources(PackageAddress package, IEnumerable<IPAddress> addresses)
+		{
+			foreach(var i in addresses)
+			{
+				var p = Packages.Find(i => i.Address == package);
+
+				if(p == null)
+				{
+					p = new Package() {Address = package};
+				}
+
+				if(!p.Peers.Any(j => j.Equals(i)))
+				{
+					p.Peers.Add(i);
+				}
+			}
+		}
+
+		public string Add(ReleaseAddress release, Distribution distribution, IDictionary<string, string> files, List<string> removals = null)
 		{
 			var ap = Path.Join(Root, release.Author, release.Product);
 
 			Directory.CreateDirectory(ap);
 			
-			var zpath = Path.Join(ap, $"{release.Version}__{release.Platform}.{(distribution == Distribution.Complete ? CPKG : IPKG)}");
+			var zpath = Path.Join(ap, $"{release.Version}__{release.Platform}.{(distribution == Distribution.Complete ? Cpkg : Ipkg)}");
 
 			using(var z = new FileStream(zpath, FileMode.Create))
 			{
@@ -49,7 +76,7 @@ namespace UC.Net
 
 					if(removals != null)
 					{
-						var e = arch.CreateEntry(REMOVALS);
+						var e = arch.CreateEntry(Removals);
 						var f = string.Join('\n', removals);
 						
 						using(var s = e.Open())
@@ -71,7 +98,7 @@ namespace UC.Net
 
 			var prod = Path.Join(Root, release.Author, release.Product);
 
-			var history = Directory.EnumerateFiles(prod, $"*.*.*.*__{release.Platform}.{CPKG}").Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i).Split("__")[0])).Where(i => i != release.Version);
+			var history = Directory.EnumerateFiles(prod, $"*.*.*.*__{release.Platform}.{Cpkg}").Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i).Split("__")[0])).Where(i => i != release.Version);
 
 			if(!history.Any())
 			{
@@ -84,7 +111,7 @@ namespace UC.Net
 				previous = history.Max();
 			}
 
-			using(var s = new FileStream(Path.Join(prod, $"{previous}__{release.Platform}.{CPKG}"), FileMode.Open))
+			using(var s = new FileStream(Path.Join(prod, $"{previous}__{release.Platform}.{Cpkg}"), FileMode.Open))
 			{
 				using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
 				{
@@ -154,16 +181,21 @@ namespace UC.Net
 
 			minimal = previous; /// TODO: determine really minimal
 			
-			return Add(release, incs, Distribution.Incremental, rems);
+			return Add(release, Distribution.Incremental, incs, rems);
+		}
+
+		public bool Exists(PackageAddress release)
+		{
+			return File.Exists(ToPath(release));
 		}
 
 		public byte[] ReadPackage(PackageDownload request)
 		{
-			using(var s = new FileStream(ToPath(request, request.Distribution), FileMode.Open, FileAccess.Read, FileShare.Read))
+			using(var s = new FileStream(ToPath(request), FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				s.Seek(request.Offset, SeekOrigin.Begin);
 				
-				var b = new byte[Math.Min(request.Length, PieceLenghtMax)];
+				var b = new byte[Math.Min(request.Length, PieceMaxLength)];
 	
 				s.Read(b);
 	
@@ -171,14 +203,14 @@ namespace UC.Net
 			}
 		}
 
-		public long GetLength(ReleaseAddress release, Distribution distribution)
+		public long GetLength(PackageAddress release)
 		{
-			return new FileInfo(ToPath(release, distribution)).Length;
+			return new FileInfo(ToPath(release)).Length;
 		}
 
-		public void Append(ReleaseAddress release, Distribution distribution, byte[] data)
+		public void Append(PackageAddress release, byte[] data)
 		{
-			using(var s = new FileStream(ToPath(release, distribution), FileMode.Append, FileAccess.Write, FileShare.Read))
+			using(var s = new FileStream(ToPath(release), FileMode.Append, FileAccess.Write, FileShare.Read))
 			{
 				s.Write(data);
 			}

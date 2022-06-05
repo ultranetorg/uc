@@ -14,13 +14,11 @@ namespace UC.Net
 		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Successful);
 		
 		public Payload					Payload;
-		//public bool						Successful;
 		public Account					Generator;
 		public int						RoundMax;
 		public byte[]					Signature;
 		
 		public Account					Signer;
-		//public ProcessingStage			Stage;
 		public Settings					Settings;
 
 		public byte[]					Prefix => Signature.Take(RoundReference.PrefixLength).ToArray();
@@ -33,9 +31,9 @@ namespace UC.Net
 			}
 		}
 
-		public Transaction(Settings chain)
+		public Transaction(Settings settings)
 		{
-			Settings = chain;
+			Settings = settings;
 		}
 
 		public Transaction(Settings settings, PrivateAccount signer)

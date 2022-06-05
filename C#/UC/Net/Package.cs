@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace UC.Net
 {
-	public class PackageAddress : ReleaseAddress
+	public class PackageAddress : ReleaseAddress, IEquatable<ReleaseAddress>
 	{
 		public Distribution			Distribution { get; set; }
 	
@@ -25,6 +26,16 @@ namespace UC.Net
 		{
 			throw new NotImplementedException();
 		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is PackageAddress address && base.Equals(obj) && Distribution == address.Distribution;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(base.GetHashCode(), Distribution);
+		}
 	}
 
 	public class PackageDownload : PackageAddress
@@ -34,7 +45,6 @@ namespace UC.Net
 	
 		public PackageDownload(string author, string product, Version version, string platform, Distribution distribution, long offset, long length) : base(author, product, version, platform, distribution)
 		{
-			Distribution = distribution;
 			Offset = offset;
 			Length = length;
 		}

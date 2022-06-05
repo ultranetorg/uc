@@ -39,7 +39,7 @@ namespace UC.Net
 
 		public override int GetHashCode()
 		{
-			return base.GetHashCode();
+			return HashCode.Combine(base.GetHashCode(), Platform, Version);
 		}
 
 		public new static ReleaseAddress Parse(string v)
@@ -72,16 +72,6 @@ namespace UC.Net
 			Product = r.ReadUtf8();
 			Platform = r.ReadUtf8();
 			Version = r.ReadVersion();
-		}
-		
-		public static bool operator == (ReleaseAddress left, ReleaseAddress right)
-		{
-			return left.Equals(right);
-		}
-
-		public static bool operator != (ReleaseAddress left, ReleaseAddress right)
-		{
-			return !(left == right);
 		}
 	}
 

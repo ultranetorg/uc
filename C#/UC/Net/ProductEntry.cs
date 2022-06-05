@@ -73,6 +73,11 @@ namespace UC.Net
 
 		public override void Write(BinaryWriter w)
 		{
+			if(Title == null)
+			{
+				Title = Title;
+			}
+
 			w.Write(Address);
 			w.Write(Title);
 			w.Write7BitEncodedInt(LastRegistration);

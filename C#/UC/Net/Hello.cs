@@ -10,7 +10,7 @@ namespace UC.Net
 	{
 		public int[]			Versions;
 		public Guid				Nuid;
-		public PeerCapability	Capabilities;
+		public Role	Capabilities;
 		public string			Zone;
 		public IPAddress		IP;
 		public Peer[]			Peers;
@@ -32,7 +32,7 @@ namespace UC.Net
 
 		public void Read(BinaryReader r)
 		{
-			Capabilities		= (PeerCapability)r.ReadUInt32();
+			Capabilities		= (Role)r.ReadUInt32();
 			Versions			= r.ReadArray(() => r.Read7BitEncodedInt());
 			Zone				= r.ReadUtf8();
 			IP					= new IPAddress(r.ReadBytes(4));

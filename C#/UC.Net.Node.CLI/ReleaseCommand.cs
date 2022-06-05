@@ -79,7 +79,7 @@ namespace UC.Net.Node.CLI
 						}
 					}
 
-					var cpkg = Client.Filebase.Add(r, files, Distribution.Complete);
+					var cpkg = Client.Filebase.Add(r, Distribution.Complete, files);
 					var ipkg = Client.Filebase.AddIncremental(r, files, out Version previous, out Version minimal);
 
 					return Send(() => Client.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 

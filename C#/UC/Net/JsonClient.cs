@@ -19,7 +19,7 @@ namespace UC.Net
 		string				Key;
 		public int			Failures;
 
-		public static JsonSerializerOptions Options;
+		public static		JsonSerializerOptions Options;
 		
 		static JsonClient()
 		{
@@ -83,11 +83,5 @@ namespace UC.Net
 
 		public UntTransfer								Send(TransferUntCall call) => Request<UntTransfer>(call);
 		public GetStatusResponse						Send(StatusCall call) => Request<GetStatusResponse>(call);
-		//	public XonDocument								Send(AuthorInfoCall call) => Request<XonDocument>(call);
-		//public AccountInfo								Send(AccountInfoCall call) => Request<AccountInfo>(call);
-
-		//public GetMembersResponse						Send(GetMembersCall call) => Request<GetMembersResponse>(call);
-		
-		//public List<XonDocument>						Send(QueryReleaseCall call) => Request<List<XonDocument>>(call);
 	}
 }
