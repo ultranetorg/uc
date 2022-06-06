@@ -22,46 +22,6 @@ namespace UC.Net
 		Null, Hello, Blocks, RoundsRequest, Rounds, Request, Response
 	}
 
-	public class Packet
-	{
-		public Header			Header;
-		public PacketType		Type;
-		public MemoryStream		Data;
-
-		public Packet()
-		{
-		}
-
-		public Packet(PacketType type, MemoryStream data)
-		{
-			Type = type;
-			Data = data;
-		}
-
-		public static Packet Create<T>(PacketType type, IEnumerable<T> many) where T : IBinarySerializable
-		{
-			if(many.Count() > 0)
-			{
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
-	
-				w.Write7BitEncodedInt(many.Count());
-	
-				foreach(var i in many)
-				{
-					if(i is ITypedBinarySerializable t)
-						w.Write(t.TypeCode);
-
-					i.Write(w);
-				}
-	
-				return new Packet(type, s);
-			}
-			else
-				return null;
-		}
-	}
-
 	public enum EstablishingStatus
 	{
 		Failed = -1, Null = 0, Initiated = 1, Succeeded = 2, 
@@ -243,7 +203,7 @@ namespace UC.Net
 											if(notsent.Any())
 											{
 												p = new Packet();
-												p.Header = core.Header;
+												//p.Header = core.Header;
 												p.Type = PacketType.Request;
 												//p.Data = Core.Write(OutRequests);
 												var s = new MemoryStream();
@@ -291,7 +251,7 @@ namespace UC.Net
 												if(responses.Any())
 												{
 													p = new Packet();
-													p.Header = core.Header;
+													//p.Header = core.Header;
 													p.Type = PacketType.Response;
 													//p.Data = Core.Write(responses);
 													var s = new MemoryStream();
@@ -315,8 +275,10 @@ namespace UC.Net
 										{
 											try
 											{
-								 				Writer.Write7BitEncodedInt(p.Header.LastRound);
-								 				Writer.Write7BitEncodedInt(p.Header.LastConfirmedRound);
+												var h = core.Header;
+
+								 				Writer.Write7BitEncodedInt(h.LastRound);
+								 				Writer.Write7BitEncodedInt(h.LastConfirmedRound);
 								 				Writer.Write((byte)p.Type);
 								 
 								 				if(p.Data != null)
@@ -389,10 +351,18 @@ namespace UC.Net
 			return null;
 		}
 
+		public void Send(Packet packet)
+		{
+			lock(Out)
+			{
+				Out.Enqueue(packet);
+			}
+		}
+
 		public void Send(Header h, PacketType type, MemoryStream data)
 		{
 			var rq = new Packet();
-			rq.Header = h;
+			//rq.Header = h;
 			rq.Type = type;
 			rq.Data = data;
 

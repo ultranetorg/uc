@@ -31,10 +31,10 @@ namespace UC.Net
 			}
 		}
 
-		public Transaction(Settings settings)
-		{
-			Settings = settings;
-		}
+ 		public Transaction(Settings settings)
+ 		{
+ 			Settings = settings;
+ 		}
 
 		public Transaction(Settings settings, PrivateAccount signer)
 		{
@@ -44,7 +44,7 @@ namespace UC.Net
 
 		public void Sign(Account member, int rmax)
 		{
-			Generator		= member;
+			Generator	= member;
 			RoundMax	= rmax;
 			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, this);
 		}

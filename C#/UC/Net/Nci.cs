@@ -103,7 +103,6 @@ namespace UC.Net
 				throw new IntegrityException($"Wrong {nameof(Response)} type", ex);
 			}
 		}
-
 	}
 
 	public class NextRoundRequest : Request
@@ -173,7 +172,8 @@ namespace UC.Net
 
 	public class DelegateTransactionsRequest : Request
 	{
-		public byte[]	Data {get; set;}
+//		public byte[]					Data {get; set;}
+		public IEnumerable<Transaction>	Transactions {get; set;}
 
 		public override Response Execute(Core core)
 		{
@@ -182,12 +182,14 @@ namespace UC.Net
 					throw new RpcException("Not synchronized");
 				else
 				{
-					var txs = core.Read(new MemoryStream(Data), r => { return	new Transaction(core.Settings)
-																				{
-																					Generator = core.Generator
-																				};
-																	});
-					var acc = core.ProcessIncoming(txs);
+ 					//var txs = new Packet(PacketType.Null, new MemoryStream(Data)).Read(r => {	return new Transaction(core.Settings)
+ 					//																			{
+ 					//																				Generator = core.Generator
+ 					//																			};
+ 					//																		});
+					//var acc = core.ProcessIncoming(txs);
+					
+					var acc = core.ProcessIncoming(Transactions);
 
 					return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
 																			.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
