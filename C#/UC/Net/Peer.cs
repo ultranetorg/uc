@@ -24,7 +24,7 @@ namespace UC.Net
 
 	public class Packet
 	{
-		//public Header			Header;
+		public Header			Header;
 		public PacketType		Type;
 		public MemoryStream		Data;
 
@@ -236,6 +236,31 @@ namespace UC.Net
 									{
 										Packet p = null;
 
+										lock(OutRequests)
+										{	
+											var notsent = OutRequests.Where(i => !i.Sent);
+											
+											if(notsent.Any())
+											{
+												p = new Packet();
+												p.Header = core.Header;
+												p.Type = PacketType.Request;
+												//p.Data = Core.Write(OutRequests);
+												var s = new MemoryStream();
+												BinarySerializator.Serialize(new BinaryWriter(s), notsent);
+												p.Data = s;
+												
+												foreach(var i in notsent)
+												{
+													i.Sent = true;
+												}
+												//OutRequests.Clear();
+
+												lock(Out)
+													Out.Enqueue(p);
+											}
+										}
+											
 										lock(InRequests)
 											if(InRequests.Any())
 											{	
@@ -265,9 +290,16 @@ namespace UC.Net
 
 												if(responses.Any())
 												{
+													p = new Packet();
+													p.Header = core.Header;
+													p.Type = PacketType.Response;
+													//p.Data = Core.Write(responses);
 													var s = new MemoryStream();
 													BinarySerializator.Serialize(new BinaryWriter(s), responses);
-													Send(new Packet(PacketType.Response, s));
+													p.Data = s;
+
+													lock(Out)
+														Out.Enqueue(p);
 												}
 											}
 
@@ -283,10 +315,8 @@ namespace UC.Net
 										{
 											try
 											{
-												var h = core.Header;
-
-									 			Writer.Write7BitEncodedInt(h.LastRound);
-									 			Writer.Write7BitEncodedInt(h.LastConfirmedRound);
+								 				Writer.Write7BitEncodedInt(p.Header.LastRound);
+								 				Writer.Write7BitEncodedInt(p.Header.LastConfirmedRound);
 								 				Writer.Write((byte)p.Type);
 								 
 								 				if(p.Data != null)
@@ -359,20 +389,20 @@ namespace UC.Net
 			return null;
 		}
 
-		public void Send(Packet packet)
+		public void Send(Header h, PacketType type, MemoryStream data)
 		{
-			if(packet == null)
-			{
-				packet = packet;
-			}
+			var rq = new Packet();
+			rq.Header = h;
+			rq.Type = type;
+			rq.Data = data;
 
 			lock(Out)
 			{
-				Out.Enqueue(packet);
+				Out.Enqueue(rq);
 			}
 		}
 
-		public void RequestRounds(int from, int to)
+		public void RequestRounds(Header h, int from, int to)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -380,20 +410,13 @@ namespace UC.Net
 			w.Write7BitEncodedInt(from);
 			w.Write7BitEncodedInt(to);
 
-			Send(new Packet(PacketType.RoundsRequest, s));
+			Send(h, PacketType.RoundsRequest, s);
 		}
 
  		public override Rp Request<Rp>(Request rq) where Rp : class
  		{
 			if(!Established)
 				throw new RpcException("Peer is not connectevd");
-
-			var s = new MemoryStream();
-			BinarySerializator.Serialize(new BinaryWriter(s), new[] {rq});
-												
-			Send(new Packet(PacketType.Request, s));
-
-			rq.Sent = true;
 
 			lock(OutRequests)
 			{

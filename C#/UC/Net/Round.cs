@@ -78,9 +78,9 @@ namespace UC.Net
 				var x = amount/a.Count();
 	
 				foreach(var i in a.Skip(1))
-					GetAccount(i).Balance += x;
+					ChangeAccount(i).Balance += x;
 	
-				GetAccount(a.First()).Balance += amount - (x * (a.Count() - 1));
+				ChangeAccount(a.First()).Balance += amount - (x * (a.Count() - 1));
 			}
 		}
 
@@ -95,13 +95,13 @@ namespace UC.Net
 				foreach(var i in a.Skip(1))
 				{
 					//RewardOrPay(i, x);
-					GetAccount(i).Balance += x;
+					ChangeAccount(i).Balance += x;
 				}
 
 				var v = s - (x * (a.Count() - 1));
 				
 				//RewardOrPay(a.First(), v);
-				GetAccount(a.First()).Balance += v;
+				ChangeAccount(a.First()).Balance += v;
 			}
 
 			if(b.Any())
@@ -112,12 +112,12 @@ namespace UC.Net
 				foreach(var i in b.Skip(1))
 				{
 					//RewardOrPay(i, x);
-					GetAccount(i).Balance += x;
+					ChangeAccount(i).Balance += x;
 				}
 
 				var v = s - (x * (b.Count() - 1));
 				//RewardOrPay(b.First(), v);
-				GetAccount(b.First()).Balance += v;
+				ChangeAccount(b.First()).Balance += v;
 			}
 		}
 		
@@ -148,7 +148,7 @@ namespace UC.Net
 // 
 // 		}
 
-		public AccountEntry GetAccount(Account account)
+		public AccountEntry ChangeAccount(Account account)
 		{
 			if(AffectedAccounts.ContainsKey(account))
 				return AffectedAccounts[account];
@@ -163,7 +163,7 @@ namespace UC.Net
 			return AffectedAccounts[account];
 		}
 
-		public AuthorEntry GetAuthor(string name)
+		public AuthorEntry ChangeAuthor(string name)
 		{
 			var e = FindAuthor(name);
 
@@ -183,7 +183,7 @@ namespace UC.Net
 			return Chain.Authors.Find(name, Id - 1);
 		}
 
-		public ProductEntry GetProduct(ProductAddress address)
+		public ProductEntry ChangeProduct(ProductAddress address)
 		{
 			var e = FindProduct(address);
 

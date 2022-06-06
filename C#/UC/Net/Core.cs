@@ -949,7 +949,7 @@ namespace UC.Net
 							lock(Lock)
 							{
 								var rounds = Enumerable.Range(from, to - from + 1).Select(i => Chain.FindRound(i)).Where(i => i != null).ToList();
-								peer.Send(Packet.Create(PacketType.Rounds, rounds));
+								peer.Send(Header, PacketType.Rounds, Write(rounds));
 							}
 								
 							break;
@@ -962,13 +962,7 @@ namespace UC.Net
  							try
  							{
 								//requests = Read(pk.Data, (r, t) => UC.Net.Request.FromType(Chain, (RpcType)t));
-								requests = BinarySerializator.Deserialize(reader,	c => {
-																							var o = UC.Net.Request.FromType(Chain, (RpcType)c); 
-																							o.Peer = peer; 
-																							return o;
-																						},
-																					t => t == typeof(Transaction) ? new Transaction(Settings){ Generator = Generator } : null
-																					);
+								requests = BinarySerializator.Deserialize(reader, t => UC.Net.Request.FromType(Chain, (RpcType)t));
  							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
  							{
@@ -989,7 +983,7 @@ namespace UC.Net
 							try
  							{
 								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
-								responses = BinarySerializator.Deserialize(reader, t => UC.Net.Response.FromType(Chain, (RpcType)t), t => t == typeof(Transaction) ? new Transaction(Settings){ Generator = Generator } : null);
+								responses = BinarySerializator.Deserialize(reader, t => UC.Net.Response.FromType(Chain, (RpcType)t));
  							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
  							{
@@ -1084,7 +1078,7 @@ namespace UC.Net
 			 	{
 					if(DateTime.UtcNow - SyncRequested > TimeSpan.FromSeconds(15))
 					{
-						peer.RequestRounds(from, to); 
+						peer.RequestRounds(Header, from, to); 
 							
 						SyncRequested = DateTime.UtcNow;
 					}
@@ -1155,7 +1149,7 @@ namespace UC.Net
 
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing || Synchronization == Synchronization.Synchronized) /// Null and Synchronizing needed for Dev purposes
 			{
-				Broadcast(Packet.Create(PacketType.Blocks, accepted), peer);
+				Broadcast(PacketType.Blocks, Write(accepted), peer);
 			}
 
 			Statistics.BlocksProcessing.End();
@@ -1330,7 +1324,7 @@ namespace UC.Net
 						Chain.Add(b, b is Payload);
 					}
 
-					Broadcast(Packet.Create(PacketType.Blocks, votes));
+					Broadcast(PacketType.Blocks, Write(votes));
 													
 					Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Type}({i.RoundId})")));
 				}
@@ -1525,7 +1519,7 @@ namespace UC.Net
 							}
 						}
 	
-						var accepted = m.Send(new DelegateTransactionsRequest {Transactions = txs}).Accepted;
+						var accepted = m.Send(new DelegateTransactionsRequest {Data = Write(txs).ToArray()}).Accepted;
 	
 						lock(Lock)
 							foreach(var o in txs.SelectMany(i => i.Operations))
@@ -1794,16 +1788,13 @@ namespace UC.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(Generator == null) /// not ready to process external transactions
-				return new();
-
 			if(!Chain.Members.Any(i => i.Generator == Generator))
 				return new();
 
 			Statistics.TransactionsProcessing.Begin();
 
-			foreach(var i in txs)
-				i.Generator = Generator;
+			if(Generator == null) /// not ready to process external transactions
+				return new();
 
 			var accepted = txs.Where(i =>	!Transactions.Any(j => i.SignatureEquals(j)) && 
 											i.RoundMax > Chain.LastConfirmedRound.Id && 
@@ -1891,38 +1882,71 @@ namespace UC.Net
 			} 
 		}
 
-// 		MemoryStream Write<T>(IEnumerable<T> many, Action<BinaryWriter, T> write)
-// 		{
-// 			if(many.Count() > 0)
-// 			{
-// 				var s = new MemoryStream();
-// 				var w = new BinaryWriter(s);
-// 	
-// 				w.Write7BitEncodedInt(many.Count());
-// 	
-// 				foreach(var i in many)
-// 				{
-// 					write(w, i);
-// 				}
-// 	
-// 				return s;
-// 			}
-// 			else
-// 				return null;
-// 		}
-
-		void Broadcast(Packet packet, Peer skip = null)
+		public static MemoryStream Write<T>(IEnumerable<T> many) where T : IBinarySerializable
 		{
-			if(packet != null)
+			if(many.Count() > 0)
+			{
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+	
+				w.Write7BitEncodedInt(many.Count());
+	
+				foreach(var i in many)
+				{
+					if(i is ITypedBinarySerializable t)
+						w.Write(t.TypeCode);
+
+					i.Write(w);
+				}
+	
+				return s;
+			}
+			else
+				return null;
+		}
+
+		MemoryStream Write<T>(IEnumerable<T> many, Action<BinaryWriter, T> write)
+		{
+			if(many.Count() > 0)
+			{
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+	
+				w.Write7BitEncodedInt(many.Count());
+	
+				foreach(var i in many)
+				{
+					write(w, i);
+				}
+	
+				return s;
+			}
+			else
+				return null;
+		}
+
+		void Broadcast<T>(PacketType type, T o, Peer skip = null) where T : IBinarySerializable
+		{
+			Broadcast(type, Write(new T[] {o}), skip);
+		}
+
+		void Broadcast<T>(PacketType type, IEnumerable<T> o, Peer skip = null) where T : IBinarySerializable
+		{
+			Broadcast(type, Write(o), skip);
+		}
+
+		void Broadcast(PacketType type, MemoryStream data, Peer skip = null)
+		{
+			if(data != null)
 				foreach(var i in Connections.Where(j => j != skip))
 				{
-					if(packet.Type == PacketType.Blocks)
+					if(type == PacketType.Blocks)
 					{
-						if(i.Role.HasFlag(Role.DMS))
-							i.Send(packet);
+						if((i.Role & Role.DMS) != 0)
+							i.Send(Header, type, data);
 					}
 					else
-						i.Send(packet);
+						i.Send(Header, type, data);
 				}
 		}
 

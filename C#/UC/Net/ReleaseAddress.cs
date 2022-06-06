@@ -29,7 +29,7 @@ namespace UC.Net
 
 		public override bool Equals(object o)
 		{
-			return o is ReleaseAddress a && a.Equals(o);
+			return o is ReleaseAddress a && Equals(a);
 		}
 
 		public bool Equals(ReleaseAddress o)
@@ -37,10 +37,10 @@ namespace UC.Net
 			return base.Equals(this) && Version.Equals(o.Version) && Platform.Equals(o.Platform);
 		}
 
-		public override int GetHashCode()
-		{
-			return HashCode.Combine(base.GetHashCode(), Platform, Version);
-		}
+// 		public override int GetHashCode()
+// 		{
+// 			return HashCode.Combine(base.GetHashCode(), Platform, Version);
+// 		}
 
 		public new static ReleaseAddress Parse(string v)
 		{

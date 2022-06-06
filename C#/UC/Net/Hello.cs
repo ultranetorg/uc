@@ -10,7 +10,7 @@ namespace UC.Net
 	{
 		public int[]			Versions;
 		public Guid				Nuid;
-		public Role	Capabilities;
+		public Role				Capabilities;
 		public string			Zone;
 		public IPAddress		IP;
 		public Peer[]			Peers;

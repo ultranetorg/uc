@@ -35,7 +35,7 @@ namespace UC.Net.Node.FUI
 			{
 				products.Items.Clear();
 				
-				foreach(var ar in FindProducts(SearchAccount.SelectedItem as Account))
+				foreach(var ar in FindProducts(Account.Parse(SearchAccount.Text.ToString())))
 				{
 					var i = new ListViewItem(ar.Product.Address.Product);
 					i.Tag = ar;
@@ -46,7 +46,7 @@ namespace UC.Net.Node.FUI
 					products.Items.Add(i);
 				}
 			}
-			catch(RequirementException ex)
+			catch(Exception ex)
 			{
 				ShowError(ex.Message);
 			}

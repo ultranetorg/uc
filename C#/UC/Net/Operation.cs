@@ -62,7 +62,7 @@ namespace UC.Net
 
 		public const string		Rejected = "Rejected";
 		public const string		NotEnoughUNT = "Not enough UNT";
-		public const string		TheSignerDoesNotOwnTheAuthor = "The signer does not own the Author";
+		public const string		SignerDoesNotOwnTheAuthor = "The signer does not own the Author";
 
 		public Operations		Type => Enum.Parse<Operations>(GetType().Name);
 
@@ -205,7 +205,7 @@ namespace UC.Net
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-			var e = round.GetAccount(Signer);
+			var e = round.ChangeAccount(Signer);
 
 			var prev = e.FindOperation<CandidacyDeclaration>(round);
 
@@ -269,7 +269,7 @@ namespace UC.Net
 			
 			if(Portion.Factor < FactorEnd)
 			{
-				round.GetAccount(Signer).Balance += Portion.Amount;
+				round.ChangeAccount(Signer).Balance += Portion.Amount;
 				round.Distribute(Portion.Amount * 1/10, round.Fundables);
 
 				round.Factor = Portion.Factor;
@@ -376,8 +376,8 @@ namespace UC.Net
 
 		public override void  Execute(Roundchain chain, Round round)
 		{
-			round.GetAccount(Signer).Balance -= Amount;
-			round.GetAccount(To).Balance += Amount;
+			round.ChangeAccount(Signer).Balance -= Amount;
+			round.ChangeAccount(To).Balance += Amount;
 		}
 	}
 
@@ -417,7 +417,7 @@ namespace UC.Net
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-			var a = round.GetAuthor(Author);
+			var a = round.ChangeAuthor(Author);
 
 			ChainTime sinceauction() => round.Time - a.FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
 
@@ -430,7 +430,7 @@ namespace UC.Net
 	 			{
 					if(a.LastWinner == null) /// first bid
 					{
-						round.GetAccount(Signer).Balance -= Bid;
+						round.ChangeAccount(Signer).Balance -= Bid;
 						
 						a.FirstBidTime = round.Time;
 						a.LastBid = Bid;
@@ -445,8 +445,8 @@ namespace UC.Net
 	
 						if(a.LastBid < Bid) /// outbid
 						{
-							round.GetAccount(a.LastWinner).Balance += a.LastBid;
-							round.GetAccount(Signer).Balance -= Bid;
+							round.ChangeAccount(a.LastWinner).Balance += a.LastBid;
+							round.ChangeAccount(Signer).Balance -= Bid;
 							
 							a.LastBid = Bid;
 							a.LastBidTime = round.Time;
@@ -463,7 +463,7 @@ namespace UC.Net
 
 				if(a.Owner != null)
 				{
-					round.GetAccount(a.Owner).Authors.Remove(Author);
+					round.ChangeAccount(a.Owner).Authors.Remove(Author);
 					a.Owner = null;
 				}
 
@@ -472,7 +472,7 @@ namespace UC.Net
 				//var wb = a.FindLastBid(round);
 				round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
 
-				round.GetAccount(Signer).Balance -= Bid;
+				round.ChangeAccount(Signer).Balance -= Bid;
 				
 				a.FirstBidTime = round.Time;
 				a.LastBid = Bid;
@@ -570,20 +570,20 @@ namespace UC.Net
 					if(Exclusive) /// distribite winner bid, one time
 						round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
 
-					round.GetAccount(Signer).Authors.Add(Author);
+					round.ChangeAccount(Signer).Authors.Add(Author);
 				}
 
 				var cost = GetCost(round, Years);
 
 
-				a = round.GetAuthor(Author);
+				a = round.ChangeAuthor(Author);
 				a.Obtained = round.Id;
 				a.Title = Title;
 				a.Owner = Signer;
 				a.RegistrationTime = round.Time;
 				a.Years = Years;
 
-				round.GetAccount(Signer).Balance -= cost;
+				round.ChangeAccount(Signer).Balance -= cost;
 				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
 			}
 			else
@@ -627,17 +627,17 @@ namespace UC.Net
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-			if(!round.GetAccount(Signer).Authors.Contains(Author))
+			if(!round.ChangeAccount(Signer).Authors.Contains(Author))
 			{
-				Error = TheSignerDoesNotOwnTheAuthor;
+				Error = SignerDoesNotOwnTheAuthor;
 				return;
 			}
 
-			round.GetAccount(Signer).Authors.Remove(Author);
-			round.GetAccount(To).Authors.Add(Author);
+			round.ChangeAccount(Signer).Authors.Remove(Author);
+			round.ChangeAccount(To).Authors.Add(Author);
 
-			round.GetAuthor(Author).Obtained = round.Id;
-			round.GetAuthor(Author).Owner = To;
+			round.ChangeAuthor(Author).Obtained = round.Id;
+			round.ChangeAuthor(Author).Owner = To;
 		}
 	}
 
@@ -665,11 +665,21 @@ namespace UC.Net
 
 			Address	= r.Read<ProductAddress>();
 			Title	= r.ReadUtf8();
+
+			if(Title== null)
+			{
+				Title = Title;
+			}
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
+
+			if(Title== null)
+			{
+				Title = Title;
+			}
 
 			w.Write(Address);
 			w.WriteUtf8(Title);
@@ -681,17 +691,19 @@ namespace UC.Net
 
 			if(a == null || a.Owner != Signer)
 			{
-				Error = TheSignerDoesNotOwnTheAuthor;
+				Error = SignerDoesNotOwnTheAuthor;
 				return;
 			}
 
+
 			if(!a.Products.Contains(Address.Product))
 			{
+				a = round.ChangeAuthor(Address.Author);
 				///a.Rid = round.Id;
 				a.Products.Add(Address.Product);
 			}
 			 
-			var p = round.GetProduct(Address);
+			var p = round.ChangeProduct(Address);
 		
 			p.Title				= Title;
 			p.LastRegistration	= round.Id;
@@ -970,7 +982,7 @@ namespace UC.Net
 
 			if(a == null || a.Owner != Signer)
 			{
-				Error = TheSignerDoesNotOwnTheAuthor;
+				Error = SignerDoesNotOwnTheAuthor;
 				return;
 			}
 
@@ -980,7 +992,10 @@ namespace UC.Net
 				return;
 			}
  
-			var p = round.GetProduct(Address);
+			var p = round.FindProduct(Address);
+
+			if(p == null)
+				throw new IntegrityException("Product not found");
 	
 			var r = p.Releases.FirstOrDefault(i => i.Platform == Address.Platform && i.Channel == Channel);
 					
@@ -995,6 +1010,8 @@ namespace UC.Net
 					if(prev == null)
 						throw new IntegrityException("No ReleaseDeclaration found");
 					
+					p = round.ChangeProduct(Address);
+
 					prev.Archived = true;
 					round.AffectedRounds.Add(prev.Transaction.Payload.Round);
 					p.Releases.Remove(r);
@@ -1006,6 +1023,9 @@ namespace UC.Net
 					return;
 				}
 			}
+			else
+				p = round.ChangeProduct(Address);
+
 
 			//var rls = round.GetReleases(round.Id);
 			//rls.Add(this);

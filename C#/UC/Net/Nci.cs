@@ -173,7 +173,7 @@ namespace UC.Net
 
 	public class DelegateTransactionsRequest : Request
 	{
-		public IEnumerable<Transaction>	Transactions {get; set;}
+		public byte[]	Data {get; set;}
 
 		public override Response Execute(Core core)
 		{
@@ -182,7 +182,12 @@ namespace UC.Net
 					throw new RpcException("Not synchronized");
 				else
 				{
-					var acc = core.ProcessIncoming(Transactions);
+					var txs = core.Read(new MemoryStream(Data), r => { return	new Transaction(core.Settings)
+																				{
+																					Generator = core.Generator
+																				};
+																	});
+					var acc = core.ProcessIncoming(txs);
 
 					return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
 																			.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})

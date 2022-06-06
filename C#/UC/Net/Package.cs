@@ -4,7 +4,7 @@ using System.IO;
 
 namespace UC.Net
 {
-	public class PackageAddress : ReleaseAddress, IEquatable<ReleaseAddress>
+	public class PackageAddress : ReleaseAddress, IEquatable<PackageAddress>
 	{
 		public Distribution			Distribution { get; set; }
 	
@@ -32,9 +32,14 @@ namespace UC.Net
 			return obj is PackageAddress address && base.Equals(obj) && Distribution == address.Distribution;
 		}
 
-		public override int GetHashCode()
+// 		public override int GetHashCode()
+// 		{
+// 			return HashCode.Combine(base.GetHashCode(), Distribution);
+// 		}
+
+		public bool Equals(PackageAddress other)
 		{
-			return HashCode.Combine(base.GetHashCode(), Distribution);
+			return Equals(other as PackageAddress);
 		}
 	}
 

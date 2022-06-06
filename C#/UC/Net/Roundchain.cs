@@ -795,7 +795,7 @@ namespace UC.Net
 
 					foreach(var o in t.Operations.AsEnumerable().Reverse())
 					{
-						var l = round.GetAccount(t.Signer).FindOperation<Operation>(round);
+						var l = round.ChangeAccount(t.Signer).FindOperation<Operation>(round);
 					
 						if(/*l == null && o.Id != 0 ||*/ l != null && o.Id <= l.Id)
 						{
@@ -813,10 +813,10 @@ namespace UC.Net
 						{
 							var f = o.CalculateFee(round.Factor);
 	
-							if(round.GetAccount(t.Signer).Balance - f >= 0)
+							if(round.ChangeAccount(t.Signer).Balance - f >= 0)
 							{
 								fee += f;
-								round.GetAccount(t.Signer).Balance -= f;
+								round.ChangeAccount(t.Signer).Balance -= f;
 							}
 							else
 							{
@@ -828,7 +828,7 @@ namespace UC.Net
 						
 					if(t.SuccessfulOperations.Any())
 					{
-						round.GetAccount(t.Signer).Transactions.Add(round.Id);
+						round.ChangeAccount(t.Signer).Transactions.Add(round.Id);
 						round.Distribute(fee, new [] {b.Generator}, 9, round.Fundables, 1); /// this way we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding 
 					}
 				}
@@ -844,7 +844,7 @@ namespace UC.Net
 					foreach(var f in blockforkers)
 					{
 						penalty += Accounts.FindLastOperation<CandidacyDeclaration>(f, o => o.Successful, null, null, i => i.Id < round.Id).Bail;
-						round.GetAccount(f).BailStatus = BailStatus.Siezed;
+						round.ChangeAccount(f).BailStatus = BailStatus.Siezed;
 					}
 
 					round.Distribute(penalty, round.Members.Where(i => !blockforkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Fundables, 1);
@@ -969,8 +969,13 @@ namespace UC.Net
 
 					Accounts.Save(b, r.AffectedAccounts.Values);
 					Authors.Save(b, r.AffectedAuthors.Values);
-					Products.Save(b, r.AffectedProducts.Values);
 
+					if(r.AffectedProducts.Any())
+					{
+						r=r;
+					}
+
+					Products.Save(b, r.AffectedProducts.Values);
 
 					foreach(var i in r.ConfirmedJoiners)
 						b.Put(i, new byte[0], MembersFamily);
