@@ -47,11 +47,17 @@ namespace UC.Net.Node.FUI
 				Cryptography.Current = settings.Cryptography;
 
 				var log = new Log();
-				var core = new Core(settings, exedir, log, new RealTimeClock(), new Nas(settings, log), new EthereumFeeForm(), new FeeForm(settings));
+				var core =	new Core(settings, exedir, log)
+							{
+								Clock = new RealTimeClock(), 
+								Nas = new Nas(settings, log), 
+								GasAsker = new EthereumFeeForm(), 
+								FeeAsker = new FeeForm(settings)
+							}; 
 
 				//if(isnode)
 				//{
-					core.RunServer();
+					core.RunApi();
 					core.RunNode();
 				//} 
 				//else

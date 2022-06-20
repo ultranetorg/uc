@@ -31,22 +31,20 @@ namespace UC.Net
 		}
 	}
 
-	public class IpfsSettings
+	public class HubSettings
 	{
-		public string		Path;
-		public string		Host;
+		public bool Enabled;
 
-		public IpfsSettings(Xon x)
+		public HubSettings(Xon x)
 		{
-			Host =  x.GetString("Host");
-			Path =  x.GetString("Path");
+			Enabled = x.Has("Enabled");
 		}
 	}
 
 	public class RpcSettings
 	{
 		public bool		Enabled = true;
-		//public int		Port { get; }
+		//public int	Port { get; }
 		public string	AccessKey;
 		Settings		Main;
 
@@ -131,8 +129,8 @@ namespace UC.Net
 
 		public static DevSettings	Dev;
 		public NasSettings			Nas;
-		public IpfsSettings			Ipfs;
-		public RpcSettings			Rpc;
+		public HubSettings			Hub;
+		public RpcSettings			Api;
 		public DatabaseSettings		Database;
 		public SecretSettings		Secret;
 
@@ -173,11 +171,11 @@ namespace UC.Net
 			Generator	= doc.Has("Generator") ? doc.GetString("Generator") : null;
 			Log			= doc.Has("Log");
 
-			Dev			= new DevSettings(doc.One(nameof(Dev)));
-			Database	= new DatabaseSettings(doc.One(nameof(Database)));
-			Nas			= new NasSettings(doc.One(nameof(Nas)));
-			Ipfs		= new IpfsSettings(doc.One(nameof(Ipfs)));
-			Rpc			= new RpcSettings(doc.One(nameof(Rpc)), this);
+			Dev			= new (doc.One(nameof(Dev)));
+			Database	= new (doc.One(nameof(Database)));
+			Nas			= new (doc.One(nameof(Nas)));
+			Hub			= new (doc.One(nameof(Hub)));
+			Api			= new (doc.One(nameof(Api)), this);
 
 			if(doc.Has("Secrets") && File.Exists(doc.GetString("Secrets")))
 			{
@@ -192,7 +190,7 @@ namespace UC.Net
 
 			if(boot.Vault.Accounts.Any())	Accounts = boot.Vault.Accounts;
 
-			if(boot.Rpc.AccessKey != null)	Rpc.AccessKey = boot.Rpc.AccessKey;
+			if(boot.Api.AccessKey != null)	Api.AccessKey = boot.Api.AccessKey;
 
 			Document = doc;
 		}

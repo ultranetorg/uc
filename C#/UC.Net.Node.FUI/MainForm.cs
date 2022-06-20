@@ -60,28 +60,25 @@ namespace UC.Net.Node.FUI
 			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Core, core.Vault) };
 			navigator.Nodes.Add(transfer);
 
-			var nodes = new TreeNode("Network");
+			var nodes = new TreeNode("Network"){ Tag = new NetworkPanel(Core, core.Vault) };
 			nodes.Expand();
 			navigator.Nodes.Add(nodes);
 
 			{
-				var peers = new TreeNode("Peers"){ Tag = new PeersPanel(Core, core.Vault) };
-				nodes.Nodes.Add(peers);
-
-				if(core.Chain != null)
-				{
-					var members = new TreeNode("Members"){ Tag = new MembersPanel(Core, core.Vault)};
-					nodes.Nodes.Add(members);
-				}
+				//if(core.Chain != null)
+				//{
+				//	var members = new TreeNode("Members"){ Tag = new NetworkPanel(Core, core.Vault)};
+				//	nodes.Nodes.Add(members);
+				//}
 
 				if(Settings.Dev.UI)
 				{
 					var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
 					nodes.Nodes.Add(initials);
 				}
-
-				var ipfs = new TreeNode("IPFS"){  };
-				nodes.Nodes.Add(ipfs);
+ 
+// 				var ipfs = new TreeNode("IPFS"){  };
+// 				nodes.Nodes.Add(ipfs);
 			}
 
 			var apps = new TreeNode("Applications"){ Tag = new ApplicationsPanel(Core, core.Vault) };

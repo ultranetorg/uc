@@ -40,8 +40,9 @@ namespace UC.Net
 
 	public class Peer : Nci
 	{
-		public int					JoinedAt {get; set;} /// json serializable
 		public IPAddress			IP {get; set;} 
+		public int					JoinedGeneratorsAt {get; set;}
+		public int					JoinedHubsAt {get; set;}
 		
 		public int					LastRound;
 		public int					LastConfirmedRound;
@@ -81,7 +82,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedAt}";
+			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedGeneratorsAt}";
 		}
  		
   		public void SaveNode(BinaryWriter w)
@@ -109,14 +110,14 @@ namespace UC.Net
  		{
  			w.Write(IP.GetAddressBytes());
  			w.Write(Generator);
-			w.Write7BitEncodedInt(JoinedAt);
+			w.Write7BitEncodedInt(JoinedGeneratorsAt);
  		}
  
  		public void ReadMember(BinaryReader r)
  		{
  			IP = new IPAddress(r.ReadBytes(4));
 			Generator = r.ReadAccount();
-			JoinedAt = r.Read7BitEncodedInt();
+			JoinedGeneratorsAt = r.Read7BitEncodedInt();
  		}
 
 		public static void SendHello(TcpClient client, Hello h)
@@ -406,16 +407,5 @@ namespace UC.Net
 			else
  				throw new TimeoutException($"Request {rq.GetType().Name} has timed out");
  		}
-
- 		//public void Send(Request rq)
-		//{
-		//	var s = new MemoryStream();
-		//	BinarySerializator.Serialize(new BinaryWriter(s), new[]{rq});
-		//										
-		//	Send(Core.Header, PacketType.Request, s);
-		//
-		//	rq.Sent = true;
-		//	OutRequests.Add(rq);
-		//}
 	}
 }

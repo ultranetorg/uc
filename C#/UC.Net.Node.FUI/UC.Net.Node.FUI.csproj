@@ -59,9 +59,8 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="AccountsPanel.cs" />
-    <Compile Update="MembersPanel.cs" />
+    <Compile Update="NetworkPanel.cs" />
     <Compile Update="InitialsPanel.cs" />
-    <Compile Update="PeersPanel.cs" />
     <Compile Update="DashboardPanel - Copy.Designer.cs">
       <DependentUpon>DashboardPanel.Designer.cs</DependentUpon>
     </Compile>

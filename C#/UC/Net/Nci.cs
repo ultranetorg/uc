@@ -9,9 +9,10 @@ using Org.BouncyCastle.Security;
 
 namespace UC.Net
 {
-	public enum RpcType : byte
+	public enum NciCall : byte
 	{
-		Null, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, QueryRelease
+		Null, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
+		QueryRelease, DeclarePackages, LocatePackage, DownloadPackage
 	}
 
 	public abstract class Nci
@@ -21,6 +22,7 @@ namespace UC.Net
 		public int								ReachFailures;
 
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
+		//public abstract void					Send(Request rq);
 
 		public NextRoundResponse				Send(NextRoundRequest call) => Request<NextRoundResponse>(call);
 		public LastOperationResponse			Send(LastOperationRequest call) => Request<LastOperationResponse>(call);
@@ -32,7 +34,7 @@ namespace UC.Net
 		public AuthorInfoResponse				GetAuthorInfo(string author, bool confirmed) => Request<AuthorInfoResponse>(new AuthorInfoRequest{ Name = author, Confirmed = confirmed });
 		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{ Account = account, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(ReleaseQuery release, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] { release }, Confirmed = confirmed });
-		public LocatePackageResponse			LocatePackage(PackageAddress package) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package });
+		//public LocatePackageResponse			LocatePackage(PackageAddress package) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package });
 		public DownloadPackagerResponse			DownloadPackage(PackageDownload request) => Request<DownloadPackagerResponse>(new DownloadPackageRequest{ Request = request });
 	}
 
@@ -42,14 +44,15 @@ namespace UC.Net
 
 		public byte						TypeCode => (byte)Type;
 		public Peer						Peer;
-		public AutoResetEvent			Event;
+		public ManualResetEvent			Event;
 		public Response					RecievedResponse;
 		public bool						Sent;
+		public Action					Process;
 
 		public const int				IdLength = 8;
 		static readonly SecureRandom	Random = new SecureRandom();
 
-		public static Request FromType(Roundchain chaim, RpcType type)
+		public static Request FromType(Roundchain chaim, NciCall type)
 		{
 			try
 			{
@@ -61,11 +64,11 @@ namespace UC.Net
 			}
 		}
 
-		public RpcType Type
+		public NciCall Type
 		{
 			get
 			{
-				return Enum.Parse<RpcType>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Request))));
+				return Enum.Parse<NciCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Request))));
 			}
 		}
 
@@ -73,7 +76,7 @@ namespace UC.Net
 		{
 			Id = new byte[IdLength];
 			Random.NextBytes(Id);
-			Event = new AutoResetEvent(false);
+			Event = new ManualResetEvent(false);
 		}
 
 		public abstract Response Execute(Core core);
@@ -88,11 +91,12 @@ namespace UC.Net
 	{
 		public byte[]			Id {get; set;}
 		public ResponseStatus	Status {get; set;}
+		public bool				Final {get; set;} = true;
 
 		public byte				TypeCode => (byte)Type;
-		public RpcType			Type => Enum.Parse<RpcType>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
+		public NciCall			Type => Enum.Parse<NciCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
 
-		public static Response FromType(Roundchain chaim, RpcType type)
+		public static Response FromType(Roundchain chaim, NciCall type)
 		{
 			try
 			{
@@ -305,21 +309,36 @@ namespace UC.Net
 		public IEnumerable<XonDocument> Xons {get; set;}
 	}
 
-	public class LocatePackageRequest : Request
+	public class DeclarePackagesRequest : Request
 	{
-		public PackageAddress		Package { get; set; }
+		public IEnumerable<PackageAddress> Packages { get; set; }
 
 		public override Response Execute(Core core)
 		{
-			//core.Broadcast(PacketType.Request, Peer. );
+			core.Hub.Declare(Peer.IP, Packages);
 
-			return new LocatePackageResponse {Peers = new[] {core.IP}};
+			return new DeclarePackagesResponse();
+		}
+	}
+	
+	public class DeclarePackagesResponse : Response
+	{
+	}
+
+	public class LocatePackageRequest : Request
+	{
+		public PackageAddress	Package { get; set; }
+		public int				Count { get; set; }
+
+		public override Response Execute(Core core)
+		{
+			return new LocatePackageResponse {Seeders = core.Hub.Locate(this)};
 		}
 	}
 	
 	public class LocatePackageResponse : Response
 	{
-		public IEnumerable<IPAddress>	Peers { get; set; }
+		public IEnumerable<IPAddress>	Seeders { get; set; }
 	}
 
 	public class DownloadPackageRequest : Request

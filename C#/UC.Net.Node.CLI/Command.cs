@@ -31,7 +31,7 @@ namespace UC.Net.Node.CLI
 				if(Core.IsClient)
 					return Core;
 
-				Core.RunClient(null, () => ConsoleSupported && Console.KeyAvailable);
+				Core.RunClient(() => ConsoleSupported && Console.KeyAvailable);
 
 				return Core;
 			}

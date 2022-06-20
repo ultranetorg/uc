@@ -32,10 +32,10 @@ namespace UC.Net
 			return obj is PackageAddress address && base.Equals(obj) && Distribution == address.Distribution;
 		}
 
-// 		public override int GetHashCode()
-// 		{
-// 			return HashCode.Combine(base.GetHashCode(), Distribution);
-// 		}
+ 		public override int GetHashCode()
+ 		{
+ 			return base.GetHashCode(); /// don't change this!
+ 		}
 
 		public bool Equals(PackageAddress other)
 		{

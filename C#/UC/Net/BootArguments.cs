@@ -97,14 +97,14 @@ namespace UC.Net
 		public MainArguments			Main;
 		public VaultArguments			Vault;
 		public CoreArguments		Core;
-		public RpcArguments				Rpc;
+		public RpcArguments				Api;
 
 		public BootArguments(Xon boot, Xon cmd)
 		{
 			Main		= new(boot, cmd);
 			Vault		= new(cmd);
 			Core	= new(cmd);
-			Rpc			= new(cmd);
+			Api			= new(cmd);
 		}
 	}
 }

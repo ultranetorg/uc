@@ -65,12 +65,13 @@ namespace UC.Net
 		public INas										Nas;
 		public Roundchain								Chain;
 		public Filebase									Filebase;
+		public Hub										Hub;
 		RocksDb											Database;
 		public bool										IsNode => ListeningThread != null;
 		public bool										IsClient => DelegatingThread != null;
 		public object									Lock = new();
 		public Settings									Settings;
-		Clock											Clock;
+		public Clock									Clock;
 
 		//Nci												Nci;
 
@@ -109,8 +110,8 @@ namespace UC.Net
 		int												SyncStart = -1;
 		int												SyncEnd = -1;
 
-		IGasAsker										GasAsker; 
-		IFeeAsker										FeeAsker;
+		public IGasAsker								GasAsker; 
+		public IFeeAsker								FeeAsker;
 
 		public ColumnFamilyHandle						PeersFamily => Database.GetColumnFamily(nameof(Peers));
 		//public ColumnFamilyHandle						ReleasesFamily => Database.GetColumnFamily(nameof(Releases));
@@ -173,7 +174,7 @@ namespace UC.Net
 					{
 						f.Add("NAS Eth Account");		v.Add($"{Nas.Account?.Address}");
 
-						foreach(var i in Chain.Fundables)
+						foreach(var i in Chain.Funds)
 						{
 							f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
 						}
@@ -219,12 +220,9 @@ namespace UC.Net
 			}
 		}
 
-		public Core(Settings settings, string exedirectory, Log log, Clock timeprovider, INas nas, IGasAsker gasasker, IFeeAsker feeasker)
+		public Core(Settings settings, string exedirectory, Log log)
 		{
 			Settings = settings;
-			Clock = timeprovider;
-			GasAsker = gasasker;
-			FeeAsker = feeasker;
 
 			Directory.CreateDirectory(Settings.Profile);
 
@@ -238,9 +236,7 @@ namespace UC.Net
 			if(Settings.Dev.Any)
 				Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
-			Vault		= new Vault(Settings, Log);
-			Nas			= nas;
-			Filebase	= new Filebase(Settings);
+			Vault	= new Vault(Settings, Log);
 		}
 
 		public override string ToString()
@@ -248,7 +244,7 @@ namespace UC.Net
 			return $"{Settings.IP} {Connections.Count()}/{Settings.PeersMin} {Synchronization}";
 		}
 
-		public void RunServer()
+		public void RunApi()
 		{
 			if(!HttpListener.IsSupported)
 			{
@@ -259,7 +255,17 @@ namespace UC.Net
 			ApiServer = new JsonServer(this);
 		}
 
-		public void RunClient(Action<Settings, Vault> overridefinal = null, Func<bool> abort = null)
+		public void RunHub()
+		{
+			Hub = new Hub(this);
+		}
+
+		public void RunFilebase()
+		{
+			Filebase = new Filebase(Settings);
+		}
+
+		public void RunClient(Func<bool> abort = null)
 		{
 			Abort = abort;
 
@@ -274,7 +280,7 @@ namespace UC.Net
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Client"), cfamilies);
 			LoadPeers();
 
-			overridefinal?.Invoke(Settings, Vault);
+			//overridefinal?.Invoke(Settings, Vault);
 
 			ListeningThread = new Thread(Listening);
 			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
@@ -321,7 +327,7 @@ namespace UC.Net
 
 		public void RunNode()
 		{
-			Log?.Report(this, "Running");
+			Log?.Report(this, "Node started");
 
   			try
   			{
@@ -344,7 +350,7 @@ namespace UC.Net
 															new (nameof(Roundchain.Authors), new ()),
 															new (nameof(Roundchain.Products), new ()),
 															new (nameof(Roundchain.Rounds), new ()),
-															new (nameof(Roundchain.Fundables), new ()),
+															new (nameof(Roundchain.Funds), new ()),
 														};
 			
 			var cfamilies = new ColumnFamilies();
@@ -943,7 +949,7 @@ namespace UC.Net
  							try
  							{
 								requests = BinarySerializator.Deserialize(reader,	c => {
-																							var o = UC.Net.Request.FromType(Chain, (RpcType)c); 
+																							var o = UC.Net.Request.FromType(Chain, (NciCall)c); 
 																							o.Peer = peer; 
 																							return o;
 																						},
@@ -970,7 +976,7 @@ namespace UC.Net
  							{
 								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
 								responses = BinarySerializator.Deserialize(	reader,
-																			t => UC.Net.Response.FromType(Chain, (RpcType)t), 
+																			t => UC.Net.Response.FromType(Chain, (NciCall)t), 
 																			Constractor
 																			);
  							}
@@ -989,7 +995,11 @@ namespace UC.Net
 									{
 										rq.RecievedResponse = rp;
 										rq.Event.Set();
- 										peer.OutRequests.Remove(rq);
+ 									
+										if(rp.Final)
+										{
+											peer.OutRequests.Remove(rq);
+										}
 									}
 								}
 							break;
@@ -1090,7 +1100,7 @@ namespace UC.Net
 
 				var inrange = accepted.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer);
 
-				var joins = inrange.OfType<JoinRequest>().Where(b => { 
+				var joins = inrange.OfType<GeneratorJoinRequest>().Where(b => { 
 																		var d = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(b.Generator);
 														
 																		if(d == null)
@@ -1154,11 +1164,11 @@ namespace UC.Net
 						
 				if(voters.All(i => i.Generator != Generator))
 				{
-					var jr = Chain.FindLastBlock(i => i is JoinRequest && i.Generator == Generator);
+					var jr = Chain.FindLastBlock(i => i is GeneratorJoinRequest && i.Generator == Generator);
 	
 					if(jr == null || (Chain.LastVotedRound.Id - jr.RoundId > Roundchain.Pitch * 2)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
-						var b = new JoinRequest(Chain)
+						var b = new GeneratorJoinRequest(Chain)
 									{
 										RoundId		= nar.Id,
 										IP			= IP
@@ -1186,16 +1196,18 @@ namespace UC.Net
 				
 						var b = new Payload(Chain)
 								{
-									RoundId				= nar.Id,
-									Try					= nar.Try,
-									Reference			= rr,
-									Time				= Clock.Now,
-									TimeDelta			= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
-									Violators			= p.Forkers.ToList(),
-									Joiners				= Chain.ProposeJoiners(nar).ToList(),
-									Leavers				= Chain.ProposeLeavers(nar, Generator).ToList(),
-									FundableAssignments	= new(),
-									FundableRevocations	= new(),
+									RoundId		= nar.Id,
+									Try			= nar.Try,
+									Reference	= rr,
+									Time		= Clock.Now,
+									TimeDelta	= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
+									Violators	= p.Forkers.ToList(),
+									Joiners		= Chain.ProposeJoiners(nar).ToList(),
+									Leavers		= Chain.ProposeLeavers(nar, Generator).ToList(),
+									HubJoiners	= Chain.ProposeHubJoiners(nar).ToList(),
+									HubLeavers	= Chain.ProposeHubLeavers(nar).ToList(),
+									FundJoiners	= new(),
+									FundLeavers	= new(),
 									//Propositions		= msgs
 								};
 				
@@ -1229,16 +1241,18 @@ namespace UC.Net
 
 									var b = new Vote(Chain)
 											{	
-												RoundId				= r.Id,
-												Try					= r.Try,
-												Reference			= rr,
-												Time				= Clock.Now,
-												TimeDelta			= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
-												Violators			= p.Forkers.ToList(),
-												Joiners				= Chain.ProposeJoiners(r).ToList(),
-												Leavers				= Chain.ProposeLeavers(r, Generator).ToList(),
-												FundableAssignments	= new(),
-												FundableRevocations	= new(),
+												RoundId		= r.Id,
+												Try			= r.Try,
+												Reference	= rr,
+												Time		= Clock.Now,
+												TimeDelta	= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
+												Violators	= p.Forkers.ToList(),
+												Joiners		= Chain.ProposeJoiners(r).ToList(),
+												Leavers		= Chain.ProposeLeavers(r, Generator).ToList(),
+												HubJoiners	= Chain.ProposeHubJoiners(r).ToList(),
+												HubLeavers	= Chain.ProposeHubLeavers(r).ToList(),
+												FundJoiners	= new(),
+												FundLeavers	= new(),
 											};
 							
 									votes.Add(b);
@@ -1374,6 +1388,67 @@ namespace UC.Net
 	
 				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stopping");
 			}
+		}
+
+		public Nci[] ConnectToHubs()
+		{
+			throw new NotImplementedException();
+// 			lock(RemoteMemberLock)
+// 			{
+// 				if(Generator != null)
+// 				{
+// 					return this;
+// 				}
+// 
+// 				Peer peer;
+// 				
+// 				while(Working)
+// 				{
+// 					Thread.Sleep(1);
+// 	
+// 					lock(Lock)
+// 					{
+// 						peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+// 	
+// 						if(peer == null)
+// 							continue;
+// 					}
+// 	
+// 					try
+// 					{
+// 						var cr = peer.Send(new GetMembersRequest());
+// 	
+// 						lock(Lock)
+// 						{
+// 							if(cr.Members.Any())
+// 							{
+// 								RememberPeers(cr.Members);
+// 
+// 								peer.ReachFailures = 0;
+// 	
+// 								Members = cr.Members.ToList();
+// 								
+// 								var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
+// 
+// 								if(c == null)
+// 									continue;
+// 			
+// 								c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
+// 
+// 								Log?.Report(this, "Member chosen", c.ToString());
+// 		
+// 								return c;
+// 							}
+// 						}
+// 					}
+// 					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
+// 					{
+// 						peer.ReachFailures++;
+// 					}
+// 				}
+// 	
+// 				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stop");
+// 			}
 		}
 
 		void Delegating()

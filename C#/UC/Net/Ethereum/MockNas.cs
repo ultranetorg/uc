@@ -14,7 +14,7 @@ namespace UC.Net
 	{
 		public Nethereum.Web3.Accounts.Account	Account { get => null; }
 		public Chain							Chain { get => Chain.Ropsten; }
-		public bool								IsAdministrator { get => throw new NotImplementedException(); }
+		public bool								IsAdministrator => true;
 
 		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, IFlowControl flowcontrol = null, CancellationTokenSource cts = null)
 		{

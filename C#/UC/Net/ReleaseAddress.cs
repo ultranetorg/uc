@@ -37,10 +37,10 @@ namespace UC.Net
 			return base.Equals(this) && Version.Equals(o.Version) && Platform.Equals(o.Platform);
 		}
 
-// 		public override int GetHashCode()
-// 		{
-// 			return HashCode.Combine(base.GetHashCode(), Platform, Version);
-// 		}
+ 		public override int GetHashCode()
+ 		{
+ 			return base.GetHashCode(); /// don't change this!
+ 		}
 
 		public new static ReleaseAddress Parse(string v)
 		{

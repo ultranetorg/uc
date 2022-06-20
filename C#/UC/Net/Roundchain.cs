@@ -39,8 +39,10 @@ namespace UC.Net
 		public const int									MembersMin = 7;
 		public const int									MembersMax = 1024;
 		public const int									NewMembersPerRoundMax = 1;
+		public const int									NewHubsPerRoundMax = 1;
+		public const int									HubsMax = 32;
 		public const int									MembersRotation = 32;
-		const int											CacheLimit = 100_000;
+		const int											LoadedRoundsMax = 100_000;
 		public static readonly Coin							BailMin = 1000;
 		//public static readonly Coin							FundablesPercent = 10;
 		public static readonly Coin							FeePerByte = new Coin(0.000001);
@@ -53,7 +55,8 @@ namespace UC.Net
 		public List<Round>									Rounds	= new();
 		public Dictionary<int, Round>						LoadedRounds = new();
 		public List<Peer>									Members	= new();
-		public List<Account>								Fundables = new();
+		public List<Account>								Funds = new();
+		public List<Peer>									Hubs = new();
 
 		public AccountTable									Accounts;
 		public AuthorTable									Authors;
@@ -84,7 +87,7 @@ namespace UC.Net
 
 		readonly static List<Genesis>						Genesises =	new()
 															{
-																new Genesis {Zone = Zone.Localnet, Crypto = new NoCryptography(),		 Rounds = "00000102030000ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000017a101f96a80ffeaff71aa602034b3e811ce7c7a9204ff7579a2fab2f5e123f6000000000000000000000000000000080006680ad7845cfb115cd56f834385817e93999a000000000000000000000000cc68da1ec4802a53161ee4505a0dd354d3370d87dc25ec7976df35a077efb37f0000020101090000a0dec5adc93536c0a8016a020009000040bd8b5b936b6c000005a748d15de450cd488fbed9cc3b3213f042e50000000000000000000000003db9baf6c23ce50886c89ad4a15454fe35f0b4a126e5cafb3c6d46278c585f720000020101090000a0dec5adc93536c0a80169020009000040bd8b5b936b6c000004761973068828923e7c811dd7f5b8eee0bae500000000000000000000000025c7ef6c5fbba25040b6456ed8fccc84e8e63802eefcdc91994ee36223e6a5940000020101090000a0dec5adc93536c0a80168020009000040bd8b5b936b6c0000031174fcd4f971249e4112f925209a16813137000000000000000000000000ce774e8cb5870c2812ed3f7297df7a2b62beff77c0f3131d7c7546c1e837730c0000020101090000a0dec5adc93536c0a80167020009000040bd8b5b936b6c000002a311f7cf0aabfd3a248a89824bbd94a458a2000000000000000000000000c4f57261b1d1dfe64afd6405c2b7580d81df26d32808f074a3d3e0c8537a2c480000020101090000a0dec5adc93536c0a80166020009000040bd8b5b936b6c0000015326bcf44c84a605afbdd5343de4aaf1138700000000000000000000000095e69c2bdec171d0667f2ae391e5355c077672f9514e5b5aeda868cf64cb04550000020101090000a0dec5adc93536c0a80165020009000040bd8b5b936b6c00000038a7a3cb80ec769c632b7b3e43525547ecd1000000000000000000000000c2272b737a269f04420b9215316413927e6f2aec968eb45b3ac374362a36f0620000020101090000a0dec5adc93536c0a80164020009000040bd8b5b936b6c0000fe929a68368c301a1906ed39016ee9be3d937b00000000000000000000000034194c3da9e99cf9effd5c4e692165f6762ab4f1926e7ab0390d4bc2b2682b09000002040102756f0100020008000064a7b3b6e00d000100000038a7a3cb80ec769c632b7b3e43525547ecd1000038a7a3cb80ec769c632b7b3e43525547ecd1000000000000000000000000620088857e2bd8107d10973587f7fc06938abaeec0531279c18a306f46b4bfaf00c0a8016401000101030100ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000dc40e951ba547e8341b75958883a29826d4f287bc9d466d439d6eb5243a1cac7000081d8c4bd750000000000000000000000000100fe929a68368c301a1906ed39016ee9be3d937b00000000000000000000000095d426f93628e237ec35d9d796236f4a7e037112c8379d955028e0a9bbc3115c000101050202756f02554fff02000101030200ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000ce64d68880d318e48810383b5ef7b843c1fa94996038493377c6b543781287280000010000000000000000000000000003000101030300ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000000de0090ad4e2dc6e666ddb06e989dc1499c35d62fa1462d88a0006ecb05435e70000010000000000000000000000000004000101030400ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000f5cfb189d693c4af6a48ea30c2e9998f3c55d1e8cb5ec1974e239593ee9918e90000010000000000000000000000000005000101030500ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000aa449dbc09dfb1e0cea40ef379d49d01df9cd579f264a58e2b9999779d4f9a260000010000000000000000000000000006000101030600ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000009657a5d7536732bad9651a33cd95c25f6ed83a8f96a9dee209b869663449a2640000010000000000000000000000000007000101030700ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000009862dc2751cbbd623f23d3bcaa810c17c8f6a52b1a5d5fe77322afb49c3f81310000010000000000000000000000000008000101030800ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000021afa93d68e2cc17837788dbec35e61fe9c40415df581cfb71754154f21aeb04000001000000000000000001000038a7a3cb80ec769c632b7b3e43525547ecd10000000009000101030900ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000090653b6c7faeeafe0b24db4fa3f170452f5de3009ed66d7cccb2aa1943f35656000001000000000000000000000100fe929a68368c301a1906ed39016ee9be3d937b00000a000101030a00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000577ac10eaf9ce7bb172d8c98a749ce3eb91f4d44bd8bbeede51721fd40e53b6a000001000000000000000000000000000b000101030b00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000007008c27d575214be6d758b6b56576fc2c8e7566ec702d2431ee35eb3fd77498d000001000000000000000000000000000c000101030c00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000c73b986b7e001bc450945e8ca7ba0316d9b653f5ae6bbe066c11f6aec4a75411000001000000000000000000000000000d000101030d00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000257e7e98ccf0feb2d4afc32332fd0df174b73439d18368fd12121d457f4ae438000001000000000000000000000000000e000101030e00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000004916686982ac8f3b1c9ee42a1a1bac67046fffd9cc5a18649c02deb0ea5368ab000001000000000000000000000000000f000101030f00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000007d5afe9deca84eecb5500c581334abad57b2d12aeaf5b209729d8bbfd9c573ec0000010000000000000000000000000010000101031000ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000007dd10ab32937740ecade47e806692e26db89abb9d615872778f38057332e57bb0000010121afa93d0001000038a700000001000000000000"},
+																new Genesis {Zone = Zone.Localnet, Crypto = new NoCryptography(),		 Rounds = "000001020100000038a7a3cb80ec769c632b7b3e43525547ecd1000038a7a3cb80ec769c632b7b3e43525547ecd1000000000000000000000000620088857e2bd8107d10973587f7fc06938abaeec0531279c18a306f46b4bfaf00c0a80164030000ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000009462edf581a5e76ed7042f8a14a8d88536cf1b660bd24d963a73c6e1b438c9ae00000000000000000000000000000007c0a80164c0a80165c0a80166c0a80167c0a80168c0a80169c0a8016a000100fe929a68368c301a1906ed39016ee9be3d937b00080006680ad7845cfb115cd56f834385817e93999a000000000000000000000000cc68da1ec4802a53161ee4505a0dd354d3370d87dc25ec7976df35a077efb37f0000020101090000a0dec5adc93536c0a8016a020009000040bd8b5b936b6c000005a748d15de450cd488fbed9cc3b3213f042e50000000000000000000000003db9baf6c23ce50886c89ad4a15454fe35f0b4a126e5cafb3c6d46278c585f720000020101090000a0dec5adc93536c0a80169020009000040bd8b5b936b6c000004761973068828923e7c811dd7f5b8eee0bae500000000000000000000000025c7ef6c5fbba25040b6456ed8fccc84e8e63802eefcdc91994ee36223e6a5940000020101090000a0dec5adc93536c0a80168020009000040bd8b5b936b6c0000031174fcd4f971249e4112f925209a16813137000000000000000000000000ce774e8cb5870c2812ed3f7297df7a2b62beff77c0f3131d7c7546c1e837730c0000020101090000a0dec5adc93536c0a80167020009000040bd8b5b936b6c000002a311f7cf0aabfd3a248a89824bbd94a458a2000000000000000000000000c4f57261b1d1dfe64afd6405c2b7580d81df26d32808f074a3d3e0c8537a2c480000020101090000a0dec5adc93536c0a80166020009000040bd8b5b936b6c0000015326bcf44c84a605afbdd5343de4aaf1138700000000000000000000000095e69c2bdec171d0667f2ae391e5355c077672f9514e5b5aeda868cf64cb04550000020101090000a0dec5adc93536c0a80165020009000040bd8b5b936b6c00000038a7a3cb80ec769c632b7b3e43525547ecd1000000000000000000000000c2272b737a269f04420b9215316413927e6f2aec968eb45b3ac374362a36f0620000020101090000a0dec5adc93536c0a80164020009000040bd8b5b936b6c0000fe929a68368c301a1906ed39016ee9be3d937b00000000000000000000000034194c3da9e99cf9effd5c4e692165f6762ab4f1926e7ab0390d4bc2b2682b09000002040102756f0100020008000064a7b3b6e00d0001000101030100ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000e3b5797a3e1223f35e67c92a580ab2418cddc397d88a7065ffec09b1d17442f6000081d8c4bd75000000000000000000000000000000000100fe929a68368c301a1906ed39016ee9be3d937b00000000000000000000000095d426f93628e237ec35d9d796236f4a7e037112c8379d955028e0a9bbc3115c000101050202756f02554fff02000101030200ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000292da6cb781cc3e21587911b73d321da8281184280518ff30e4f118493de17bf000001000000000000000000000000000000000003000101030300ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000093f6e031029a73d9c0da96f5bfca7a9b06b370f3ec108b67ba031d4631bf531c000001000000000000000000000000000000000004000101030400ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000008458c6b3e1afe8b23d18de0893e94ae02c69c2fc0dc61aa29eb631b1118fe329000001000000000000000000000000000000000005000101030500ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d28750000000000000000000000004a63d44b52eceb30e56c491e7366effe55339810ef110c83d6277d0b3a985ea0000001000000000000000000000000000000000006000101030600ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000f72e41dd014a1c37dfc71bdf83803925ade36ba21add7c003b53c36e2301f469000001000000000000000000000000000000000007000101030700ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000f1fcbb37f7af4b8d4cd4e65917a611ba15c7d561b4b262fba988bc2385f0736b000001000000000000000000000000000000000008000101030800ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000910f0780d606a1145ebd990ac19b05bf2fd6185352d896b4b4aed4fed850fa890000010000000000000000000001000038a7a3cb80ec769c632b7b3e43525547ecd100000000000009000101030900ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000084ed3145f7c071af8a98b61ac640836ffd1fca22c2baf31e1af0877e7b837f4400000100000000000000000000000000000000000a000101030a00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000041ab6615f24eb1361ebe73949bc0fe9eef040e7126ba8130b442bb514b6b92900000100000000000000000000000000000000000b000101030b00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000042480f9c319ad764865532755784329e8eeb63d720782d9c3b05d6cd688d84c700000100000000000000000000000000000000000c000101030c00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000789a0a80a51d6b8e71fc6a37f204319f3c80f675301aa084ed7f0570e25345ac00000100000000000000000000000000000000000d000101030d00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000a30c41abf124c9ee140d2b22b5b477e23bda1dff209525eea13efec1009f3b1700000100000000000000000000000000000000000e000101030e00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000026f1e4285c1bbdd396ecb9bcfb5b48f6bacc81d6ef0e761d0907a71020942c2400000100000000000000000000000000000000000f000101030f00ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d287500000000000000000000000042233ff58c14eb67b09b04543e8504d92dd68ed5a826c10cd936c2b793349cd2000001000000000000000000000000000000000010000101031000ffea61659c02c4a38d5736767bec23ab8d287500ffea61659c02c4a38d5736767bec23ab8d2875000000000000000000000000b0513606c22689ec2690f13d11c336ed32e033537952fe93d65f29b3a014b0db00000101910f07800001000038a70000000000010000000000000000"},
 																//new Genesis {Zone = Zone.Local, Crypto = new EthereumCryptography(), Rounds = "0001000002030000ffea61659c02c4a38d5736767bec23ab8d28752118dcc5aa9c4ea5ac7a6baeb2c00fe795131249fff38aa123804415e92fc46067430454532a3445367b2f6fa24e6f0f1f71eeebf77d3f5179dbeec93eda59ea1b00000000000000000000000000000832b3d6ba18c945bbfc9baf44b52f65a449880b348520ccb42cd5fb38fc5016fe73c908ba73699e77c8c0d350ff14bc3d5f46e6d109f29cd21e4312679095a5f81b00000201090000a0dec5adc93536c0a8016a02080000c84e676dc11b000f31436863408437bf50c02865cab034aafe625d71fe4c9af7ccbbb72f7bd5b37feb8aba785eac0d60327ee7ab779525c12ee1957468336bc916c34a35273def1c00000201090000a0dec5adc93536c0a8016902080000c84e676dc11b00ae7ba257f8ae7dc6ae1c6c9a18f0947def9550a079abc02380020bea56162c37673c77412077a28c7e8e8d3803fbbdc11ff354dcf5f582d7aae42c5142a2b62e1c00000201090000a0dec5adc93536c0a8016802080000c84e676dc11b001a06703e7774c581c5f22c57e5d4ae01c7d3eb81e305ec5d32ae7521e6d53f836d9694151789a36e33dac68339f47bfe70b16c6b78fa6e8ca3ebcd44607b8ca11c00000201090000a0dec5adc93536c0a8016702080000c84e676dc11b00c97c2585746d1aed2eed862a21abeac3df1a4ceb2871429e3f40548660742159686039fdc966acc4679a8334b366c90db87333d849c5d92ed313625083f9981e1b00000201090000a0dec5adc93536c0a8016602080000c84e676dc11b006ffec6696eaf311a4e6d0b4ed03a3b8e4c7a37f8c4bd6f8e1a6568d3a58360916066f20a448846f1f5ce2fe0d494895dfc490278e38f70e94876e540f57231171b00000201090000a0dec5adc93536c0a8016502080000c84e676dc11b00e15bbcb49faa9daa8586b24aee9a1a7058b270e5325698eefb8507c7441616cf16fb8372bf549782c930b4e926affa5f30e01855a673a0142a95b730689996bb1c00000201090000a0dec5adc93536c0a8016402080000c84e676dc11b0089531e12cf910e62c26d5b8d5388527fa3d90b841955d385cfa9985482c706d054cef1778afbefa0ce61aeae488adb549b49dc29461e4348a32f6cf62d9a781a1b0000020402756f01000208000064a7b3b6e00d000100000038a7a3cb80ec769c632b7b3e43525547ecd1262509a8167f6693d39f21763f27134736a2b7ac3748f63f8bc602f7d6411ec357f4482ec576c8fca0c1e81f572ca0049461ed1c01a7cd5a1fb2fb64cdf3acf51cc0a8016400000000000101000001030100ffea61659c02c4a38d5736767bec23ab8d287515bb970258e792336b5b5a25a2776bb5545d86727877b66484e2cd938336721a6a79c88085bcefcab120b0983db1b64b6c0d3836a7a075f7672d8f96b03458b81b0081d8c4bd75000000000000000000000000011add463d846716812fb3d8992eef576e4e8aea1061a47ff5e4412fdadc32befc04e5db6b6074a017ee57b1cfce40f80f74aa7ae1b35a43212cc086bf914750c71b0101010502756f02554fff00000000000201000001030200ffea61659c02c4a38d5736767bec23ab8d2875726fa00c278d0194b0ed9b201949f2b2b579598afeeaf69a841b44149c5f9e1448ae784e390eb45adc8049beff11929d5eabfd388a29ee6713b7974541c8191a1c00010000000000000000000000000000000000000301000001030300ffea61659c02c4a38d5736767bec23ab8d28753eef6e8f4c15ddcfd8a6d7f18ed8d9f99a873523595a92a1fb4a2bc2e771bab84ddc51fcd004f55fa8a49597102d54195c18a4be6423b962bf58fa6fbe19dac61b00010000000000000000000000000000000000000401000001030400ffea61659c02c4a38d5736767bec23ab8d2875e4d286f6fd65b81e96a3612c32edcb047ee164c163fdb2443a6dbd95fde57493559f726e39eb0944f8e670005e1effe59e124e19fe9d4da5d6dc6f749c2eb7781b00010000000000000000000000000000000000000501000001030500ffea61659c02c4a38d5736767bec23ab8d28752b8041c52bc22ae8fab2e95c2a03223e84bad203db2f1bd34957e41d18a774f06a6a3e1ec12aacf994a3c8bc61d587d0984b4d223369cd38be0425f9ba9ede291b00010000000000000000000000000000000000000601000001030600ffea61659c02c4a38d5736767bec23ab8d2875511857c0b4df66d58af0c1237f1e55e3508d4232c1c9c7935b8576861ab9869c330d429aaab5587e9c19d61d4c68f0c7e5cd3223ab62ed3c09ff0f85a2d7c2be1b00010000000000000000000000000000000000000701000001030700ffea61659c02c4a38d5736767bec23ab8d2875b890b2162ca8b00993baf33d84568b67343212bf7fca18eb04e1677dd55fe7bd32e2dd35822c66d2612222a3100713eee5772719ccc244ad98480fee2292de391c00010000000000000000000000000000000000000801000001030800ffea61659c02c4a38d5736767bec23ab8d2875ee02ea3c839beb5929dc5bd7015d9a508419dffcff6d82d64fc35bb0d7c29ca66c7eaa76f023d11a5e277241b217f51458b4bbb26b695de51443b646f239131c1c0001000000000000000001000038a7a3cb80ec769c632b7b3e43525547ecd10000000000000000000901000001030900ffea61659c02c4a38d5736767bec23ab8d28752d86e829f4f3467a2a7d35411992baed3f646b25bb94da7b858320e8d92e0f153b410caa15ff00f0daef27915834118842c4ee23e918f14bd384be2b14e388841c0001000000000000000000000100fe929a68368c301a1906ed39016ee9be3d937b000000000000000a01000001030a00ffea61659c02c4a38d5736767bec23ab8d2875a1ab94398ff9ed9488233381df7aec80cd239e9f60cf5d3473a07f0c87774c7932ef58a0246dde93a989f4581c8a6a98fbb550eddafdad9b76270dbf7ae86a4e1c00010000000000000000000000000000000000000b01000001030b00ffea61659c02c4a38d5736767bec23ab8d287582bd2bf95a787747a6ded0e177430b660b59e1cd8f15eedd7473197e2bfeae2f01fe94ebd4a25c5c07b203993b873df3635eea3f558c4b04b45c824f0c7f9e551b00010000000000000000000000000000000000000c01000001030c00ffea61659c02c4a38d5736767bec23ab8d28758bdd4fe8f8a51e305c1047c3cbb60f71e49e225b62a2a9d0ad24288f24d599193c624422c21ad0a689d07222eaa574ca3ab5d74d1f4ee0e7bee7ec9713964caf1b00010000000000000000000000000000000000000d01000001030d00ffea61659c02c4a38d5736767bec23ab8d28751f7cad65a8132dd003cc78f5cd2072b968eab3fbc81723412744f687570b3d381c2a4a04902125201583da4914d9a0a3f0e8ff7a8abbd458626209269a05b2091c00010000000000000000000000000000000000000e01000001030e00ffea61659c02c4a38d5736767bec23ab8d2875756b64452b2da3d326f9f457eba3ff70c2fa91dc726b0adecb867a340ae2be256b4059e38f16a4f1bc28fb7bbf341b83de39d52bf53fff3da53a52d7981a735c1c00010000000000000000000000000000000000000f01000001030f00ffea61659c02c4a38d5736767bec23ab8d287508994bf6f6ade6ea4327286abc5e5a91d7ea8877817d1f10125ea5e5d5f347f955b7c714ff44119171552674a1b3323263f201bad656719708fd30ed3ece58fc1b00010000000000000000000000000000000000001001000001031000ffea61659c02c4a38d5736767bec23ab8d28753311bef7c11f68a9fd87a6f624f77dbcaea32116972ae7662dc30f9b562d5da77d9defa7040c6b2bac8644902e795c9e7b83e2f0e64662d89c1b6c54d62d20b71b000101763880ea0001000038a7000000010000000000000000000000"},
 
 																new Genesis {Zone = Zone.Testnet0,	Crypto = new EthereumCryptography(), Rounds = "0001000002030000ffea61659c02c4a38d5736767bec23ab8d287533cb3ac7add11304966337c25d2c343b765e6972d481b7955b91de0822902c574345e9722b7165451470b4c2ecbf51bc3876c97a363a15209036d7153f0fa88f1b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008841c4fbd07e9852d651286a1aad4d8bfc6ee475e02c58c8a8424308e35f176810ce46cb2e8bce6b88ec3a86484f6fd915d1ab1a9f288d369e07aa53528bcca861c00000201090000a0dec5adc935364e2fcde50209000040bd8b5b936b6c00e4b3625c1b8b4f512e8fcf3a37ab09eedf66472f7b8883cec55ef950b89ee3d92950e02222ecc6c54fc9c1b360d0cb43b1912e46427f3775917f91af16567d6f1b00000201090000a0dec5adc935364e2fc6da0209000040bd8b5b936b6c00ff54c76828026d02721dca6235422d70d20920f54bf4af72cb0067f4bc47d82705b1b27c064228710f0632b80b43ee58b3739c9d3366971f7e6e8fb09dc5d4b71c00000201090000a0dec5adc935364e2fd6ab0209000040bd8b5b936b6c007bf2930038cfe8a55c64d2e8efaea9600686e14e19d7124b1dcc46824b9501fd10337a1865893b1e9b94ae6fe16a8b62283d9f449322fd4958fe3139ef0dae8b1b00000201090000a0dec5adc935364e2fd6aa0209000040bd8b5b936b6c0093fc5d0e116b8800a96a920843dc25ac7da62aa589a94f78dca8dea745a972d3713bc66e82cce5aa68e680549eb93f3caae23f65a52a25215da7f1bca9cb5bed1c00000201090000a0dec5adc935364e2fd6a60209000040bd8b5b936b6c0081b8a20bccf847858db4d0d9debc96c06c672f2d8e33f425e3602d5c8b3a10e37f72729b4f41df7e62779ac00e6c6133b35fe21c0c6f44dfe565b92ed6bece381c00000201090000a0dec5adc935364e2fd6a10209000040bd8b5b936b6c0078725dede4f416ce7fea07335e8c585f51fc3205bb362990238ae7a3db4ffd9b3aea09dfcdc9075a4964f966eac82c660288ce2db428ba9653f66dde1dde6a171c00000201090000a0dec5adc935364e2fcc640209000040bd8b5b936b6c006c21fdae2a60eb686d65586551efb91809524ca27ccf4174d86809c5f646ef704af5af3ccad81d17691a4665906cc80d69627f1cf6b34bbb1ca7f1442e022d6f1c0000020402756f01000208000064a7b3b6e00d000100000038a7a3cb80ec769c632b7b3e43525547ecd1ed9aff0d4b41645d58886edacf4259fba842441ecffec9f080520b1beb31ecdf4df826dcb79c39b06c38df08546bd1b7fbcdf4a01a355d8474a8ddcc9af036b61c4e2fcc6400000000000101000001030100ffea61659c02c4a38d5736767bec23ab8d2875dea52621c09ec7ae411fb757a08cf3c8b0f666f4311114926453b27cfdf4adcc7d2a139fae7a0bc6ea5aa4d8b1154aa9cd08069f5234fb2797c0b3bc60a8369e1c0081d8c4bd75000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001344a20f323561bb2e6262a65e8a62360a1de13e1d3ce799516ac6268b247a56e2137826c1f634f11d14cc2f462c249460f63fc88662e921602f4d73311acd5991b0101010502756f02554fff00000000000201000001030200ffea61659c02c4a38d5736767bec23ab8d28752f7d1dd5253f25ca054505974ae86ae01f6e572caa329c39c22d8162e3aea3344f8ec3bce8ade9014a4a1e214a8ef798a5ff99426049edaa5b4ef6bdaa673ab31b000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000301000001030300ffea61659c02c4a38d5736767bec23ab8d287588c8bd67ba998789eadeeb45dc71d7bbec59699f513f566f01b465e06950f13655043faa8a4333ab837a20bb02d618eced00b12b84f7e2339aa5bf91a47b519a1c000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000401000001030400ffea61659c02c4a38d5736767bec23ab8d28751d595cdd2dc2a293e93e52393f6a2a767269e48f8b0114798e7fe6c8ee4d8a5d28a73bef43f5cda4a8b2849a205cfb1fe6031efd966bec7c4072ca5c485d47931b000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000501000001030500ffea61659c02c4a38d5736767bec23ab8d2875ed68b322797dbd2808eef00c119b46101ca380227094c8903bef1fe0881526be7b6d6c2574eaa18acee3a83f55003f6e578a3de86aa522d0ad4e681c9ac3b5c91c000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000601000001030600ffea61659c02c4a38d5736767bec23ab8d2875ff2ce26d6a5c1dc6e0b300f0e25e02c460644815614c84490dfa95ec64ed698315b09010e603ea8ad1d54be1c614b166dc9cbb5c9d18e4cbc9182a7c9fbf4bc11b000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000701000001030700ffea61659c02c4a38d5736767bec23ab8d2875d41c87cc005bbaa787873be938b8cb382e23fa74005af1e07cf5daa266e26ca302b4d45b6dfaafa343e6f4ade2c4793a91ccd830218eeed37add01b692a5cd491c000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000801000001030800ffea61659c02c4a38d5736767bec23ab8d28754181fb4d1798e4f7db57831814500476e2254206a49aac05a0ca157e2c8368796bfadc783fc0d72cb185c40b31d4923bf3eb5a71944ee4e55349c8775724e9f71c00010000000000000000000000000000000000000000000000000000000000000000000000000000000001000038a7a3cb80ec769c632b7b3e43525547ecd10000000000000000000901000001030900ffea61659c02c4a38d5736767bec23ab8d287539cbc43587904a6ab28b9920dc5a9fc3d7a41155a810dc87292b9ae13c07eb88153c58d9edee0efe3fc9a0f9c7b7384a44280952cd14170042c9d6ead596b5a41c00010000000000000000000000000000000000000000000000000000000000000000000000000000000000000100fe929a68368c301a1906ed39016ee9be3d937b000000000000000a01000001030a00ffea61659c02c4a38d5736767bec23ab8d2875dc6f77a9e890a534cf317806fe493c571c9c98e94716f548b6216dc3df92eb5b2ee01409b6f165ea28b3145b4a95dcf250c783a97eb5fea2a1d5027b7b9685141c000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000b01000001030b00ffea61659c02c4a38d5736767bec23ab8d2875162e6b4ae50f27015d47f2cc71be16c867ed870ed23510a04e9f1b18d7b6a0f64a42c4a84584ca3a96bd2373c8fea576138f7ea3d4e2dd25ff48988792fd38ae1b000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c01000001030c00ffea61659c02c4a38d5736767bec23ab8d2875affc0c8b2975d8ff55f2822dafc52bf02dc66bea66bcd70eada83ec2abfe87eb6ebcdcaab67e80ca029ea622ba1dc805a7e814ed2bc266b18822a3ce59e420971c000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d01000001030d00ffea61659c02c4a38d5736767bec23ab8d287558338bcf99d66248eaff7a40b82853b00b718a90f8ea075d64fae8f5bde976380dbef353a561ca8949d3eecffafca24b84a1ac3bb692e8c3cadf7d648db9cebb1c000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e01000001030e00ffea61659c02c4a38d5736767bec23ab8d2875ca2c6ae9b62bf37b2e18858cb394f9011564048bae1e4b83c9fc7eecb7635bc71e859155a30805bfc671d55f3364199e29253b878b59184050b781fcb05e16491b000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f01000001030f00ffea61659c02c4a38d5736767bec23ab8d287587c391ef9852490c8ee6da369527e3add67b95f18ea655a1b8febfb9a96172ed5fceee685c665ad6f564680e797a0d8686cc43822eb9f6d4be11f071ad5313851b000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001001000001031000ffea61659c02c4a38d5736767bec23ab8d2875446bf064a5dd466f835e52e230e6d416248d0857e8e7b91021715ace63f63f740ff07cf662f322e53e83020b1dd25a15cd501d9728ad5420eaae4ef1794bcbd81b000122df927e5298d841286e8f9661134ee764a13ae915d5a2735ef6b153592c08fd01aa6b96100001000038a7000000010000000000000000000000"},
@@ -95,6 +98,8 @@ namespace UC.Net
 		readonly byte[]										WeiSpentKey		= new byte[] {2};
 		readonly byte[]										FactorKey		= new byte[] {3};
 		readonly byte[]										EmissionKey		= new byte[] {4};
+		readonly byte[]										MembersKey		= new byte[] {5};
+		readonly byte[]										FundablesKey	= new byte[] {6};
 
 		public Round										LastConfirmedRound	=> Rounds.FirstOrDefault(i => i.Confirmed) ?? LastSavedRound;
 		public Round										LastVotedRound		=> Rounds.FirstOrDefault(i => i.Voted) ?? LastConfirmedRound;
@@ -121,7 +126,7 @@ namespace UC.Net
 		public ColumnFamilyHandle							ProductsFamily	=> Database.GetColumnFamily(nameof(Products));
 		public ColumnFamilyHandle							RoundsFamily	=> Database.GetColumnFamily(nameof(Rounds));
 		public ColumnFamilyHandle							MembersFamily	=> Database.GetColumnFamily(nameof(Members));
-		public ColumnFamilyHandle							FundablesFamily	=> Database.GetColumnFamily(nameof(Fundables));
+		public ColumnFamilyHandle							FundablesFamily	=> Database.GetColumnFamily(nameof(Funds));
 
 		public static int									GetValidityPeriod(int rid) => rid + Pitch;
 
@@ -139,10 +144,10 @@ namespace UC.Net
 
 			if(LastSavedRound == null)
 			{
+				var ips = nas.GetInitials(settings.Zone).ToArray();
+
 				if(Settings.Dev.GenerateGenesis)
 				{
-					var ips = nas.GetInitials(settings.Zone).ToArray();
-
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
 
@@ -166,11 +171,13 @@ namespace UC.Net
 								Reference	= RoundReference.Empty,
 							};
 
-					var jr = new JoinRequest(this)
+					var jr = new GeneratorJoinRequest(this)
 								{
-									RoundId		= 0,
-									IP			= ips[0]
+									RoundId	= 0,
+									IP		= ips[0]
 								};
+					jr.Sign(vault.GetFather(Fathers[0]));
+					Add(jr, false);
 
 					var t = new Transaction(Settings, org);
 					t.AddOperation(new Emission(org, Web3.Convert.ToWei(1, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
@@ -188,13 +195,14 @@ namespace UC.Net
 						t.Sign(gen, 0);
 
 						b0.AddNext(t);
+
+						b0.HubJoiners.Add(ips[i]);
 					}
-		
+
+					b0.FundJoiners.Add(OrgAccount);
+
 					b0.Sign(gen);
 					Add(b0, false);
-
-					jr.Sign(vault.GetFather(Fathers[0]));
-					Add(jr, false);
 
 					write(0);
 					
@@ -235,9 +243,6 @@ namespace UC.Net
 						if(i == Pitch)
 							b.Joiners.Add(Fathers[0]);
 
-						if(i == Pitch + 1)
-							b.FundableAssignments.Add(OrgAccount);
-
 						b.Sign(gen);
 						Add(b, false);
 
@@ -265,15 +270,35 @@ namespace UC.Net
 					{
 						r.ConfirmedJoiners = new ();
 						r.ConfirmedJoiners.Add(Fathers[0]);
+
+						r.ConfirmedFundJoiners = new ();
+						r.ConfirmedFundJoiners.Add(OrgAccount);
+
+						r.ConfirmedHubJoiners = new ();
+
+						for(int j=0; j<Fathers.Length; j++)
+						{
+							r.ConfirmedHubJoiners.Add(ips[j]);
+						}
 					}
 
-					if(i == Pitch + 1)
-					{
-						r.ConfirmedFundableAssignments= new ();
-						r.ConfirmedFundableAssignments.Add(OrgAccount);
-					}
+					r.ConfirmedViolators	= r.ConfirmedViolators		?? new();
+					r.ConfirmedJoiners		= r.ConfirmedJoiners		?? new();
+					r.ConfirmedLeavers		= r.ConfirmedLeavers		?? new();
+					r.ConfirmedHubJoiners	= r.ConfirmedHubJoiners		?? new();
+					r.ConfirmedHubLeavers	= r.ConfirmedHubLeavers		?? new();
+					r.ConfirmedFundJoiners	= r.ConfirmedFundJoiners	?? new();
+					r.ConfirmedFundLeavers	= r.ConfirmedFundLeavers	?? new();
 
-					Confirm(r);
+					foreach(var p in r.Payloads)
+						p.Confirmed = true;
+
+					if(r.Id > 0)
+						r.Time = CalculateTime(r, r.Unique.OfType<Payload>());
+
+					r.Confirmed = true;
+
+					Seal(r);
 				}
 
 				if(!Rounds.All(i => i.Payloads.All(i => i.Transactions.All(i => i.Operations.All(i => i.Successful)))))
@@ -283,26 +308,11 @@ namespace UC.Net
 			}
 			else
 			{
-				using(var i = Database.NewIterator(MembersFamily))
-				{
-					for(i.SeekToFirst(); i.Valid(); i.Next())
-					{
-						var a = new Account();
-						a.Read(new BinaryReader(new MemoryStream(i.Key())));
+				var r = new BinaryReader(new MemoryStream(Database.Get(MembersKey)));
+				Members = r.ReadList<Peer>(() => { var p = new Peer(); p.ReadMember(r); return p; }).ToList();
 
-						var cd = Accounts.FindLastOperation<CandidacyDeclaration>(a, i => i.Successful);
-
-						Members.Add(new Peer {Generator = a, IP = cd.IP, JoinedAt = cd.Transaction.Payload.RoundId + Pitch*2});
-					}
-				}
-
-				using(var i = Database.NewIterator(FundablesFamily))
-				{
-					for(i.SeekToFirst(); i.Valid(); i.Next())
-					{
-						Fundables.Add(new Account(i.Key()));
-					}
-				}
+				r = new BinaryReader(new MemoryStream(Database.Get(FundablesKey)));
+				Funds = r.ReadList<Account>();
 			}
 		}
 
@@ -354,7 +364,7 @@ namespace UC.Net
 
 			if(execute)
 			{
-				if(b is JoinRequest jr)
+				if(b is GeneratorJoinRequest jr)
 				{
 					jr.Declaration = Accounts.FindLastOperation<CandidacyDeclaration>(jr.Generator);
 				}
@@ -454,42 +464,29 @@ namespace UC.Net
 
 		void Recycle()
 		{
-			//if(LoadedRounds.Count > CacheLimit)
-			//{
-			//	foreach(var i in LoadedRounds.OrderByDescending(i => i.LastAccessed).Skip(CacheLimit))
-			//	{
-			//		LoadedRounds.Remove(i);
-			//	}
-			//}
+			if(LoadedRounds.Count > LoadedRoundsMax)
+			{
+				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.LastAccessed).Skip(LoadedRoundsMax))
+				{
+					LoadedRounds.Remove(i.Key);
+				}
+			}
 		}
-
-		//public Round FindRound(Func<Round, bool> f, int maxrid = int.MaxValue, int depth = int.MaxValue)
-		//{
-		//	foreach(var r in Rounds.Where(i => maxrid - depth < i.Id && i.Id <= maxrid))
-		//		if(f(r))
-		//			return r;
-		//
-		//	
-		//	for
-		//		foreach(var r in e.Rounds.Where(i => i.Id <= maxrid))
-		//			if(f(r))
-		//				return r;
-		//
-		//	return null;
-		//}
 
 		public IEnumerable<Peer> VotersFor(Round r)
 		{
-			return Members.Where(i => i.JoinedAt < r.Id);
+			return Members.Where(i => i.JoinedGeneratorsAt < r.Id);
 		}
 
-		public IEnumerable<JoinRequest> JoinersFor(Round round)
+		public IEnumerable<GeneratorJoinRequest> JoinersFor(Round round)
 		{
-			return FindRound(round.ParentId).JoinRequests.Where(jr =>	{
-																			var cd = Accounts.FindLastOperation<CandidacyDeclaration>(jr.Generator, o => o.Successful, rp: r => r.Confirmed && r.Id < jr.RoundId);
-																			return cd != null;
-																		})
-															.OrderByDescending(jr => Accounts.FindLastOperation<CandidacyDeclaration>(jr.Generator, o => o.Successful, rp: r => r.Confirmed && r.Id < jr.RoundId).Bail);
+			return FindRound(round.ParentId).JoinRequests.Select(jr =>	{
+																			var d = Accounts.FindLastOperation<CandidacyDeclaration>(jr.Generator, rp: r => r.Confirmed && r.Id <= round.ParentId - Pitch);
+																			return new{jr = jr, d = d};
+																		})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
+															.Where(i => i.d != null && i.d.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin))
+															.OrderByDescending(i => i.d.Bail)
+															.Select(i => i.jr);
 		}
 
 		public IEnumerable<Account> ProposeJoiners(Round round)
@@ -498,6 +495,11 @@ namespace UC.Net
 
 			var n = Members.Count < MembersMax ? MembersMax - Members.Count : MembersRotation;
 
+			//.Where(i =>	{ 
+			//				var d = Accounts.FindLastOperation<CandidacyDeclaration>(i, null, null, null, r => r.Id <= round.Id);
+			//				return d != null && d.Transaction.Payload.RoundId <= round.Id - Pitch*2 && d.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin); 
+			//			})
+
 			return joiners.Take(n).Select(i => i.Generator);
 		}
 
@@ -505,7 +507,7 @@ namespace UC.Net
 		{
 			var joiners = JoinersFor(round);
 
-			var o = VotersFor(round).Where(i =>	i.JoinedAt < round.ParentId &&
+			var o = VotersFor(round).Where(i =>	i.JoinedGeneratorsAt < round.ParentId &&
 												Rounds.Count(r =>	round.ParentId <= r.Id && r.Id < round.Id &&					/// in previous Pitch number of rounds
 																	r.Blocks.Any(b => b.Generator == i.Generator)) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
 												!Enumerable.Range(round.Id - Pitch + 1, Pitch - 1).Select(i => FindRound(i)).Any(r => r.Votes.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator))) /// not yet reported in prev [Pitch-1] rounds
@@ -514,9 +516,24 @@ namespace UC.Net
 									.Select(i => i.Generator);
 
 			if(!o.Any() && Members.Count == MembersMax && joiners.Any())
-				return Members.OrderByDescending(i => i.JoinedAt).Take(joiners.Take(MembersRotation).Count()).Select(i => i.Generator);
+				return Members.OrderByDescending(i => i.JoinedGeneratorsAt).Take(joiners.Take(MembersRotation).Count()).Select(i => i.Generator);
 			else
 				return o;
+		}
+
+		public IEnumerable<IPAddress> ProposeHubJoiners(Round round)
+		{
+			var joiners = FindRound(round.ParentId).Blocks.OfType<HubJoinRequest>().OrderBy(jr => jr.IP.GetAddressBytes(), new BytesComparer());
+
+			var n = HubsMax - Hubs.Count;
+			//var n = Hubs.Count < HubsMax ? HubsMax - Members.Count : HubsMaxRotation;
+
+			return joiners.Take(n).Select(i => i.IP);
+		}
+
+		public IEnumerable<IPAddress> ProposeHubLeavers(Round round)
+		{
+			return new IPAddress[0];
 		}
 
 		public bool QuorumReached(Round r)
@@ -675,88 +692,18 @@ namespace UC.Net
 			var rr = new RoundReference();
 
 			//rr.Hash					= h;
-			rr.Payloads				= pp.								Select(i => i.Prefix).ToList();
-			rr.Leavers				= round.ElectedLeavers.				Select(i => i.Prefix).ToList();
-			rr.Joiners				= round.ElectedJoiners.				Select(i => i.Prefix).OrderBy(i => i, new BytesComparer()).Take(rr.Leavers.Count + NewMembersPerRoundMax).ToList();
-			rr.Violators			= round.ElectedViolators.			Select(i => i.Prefix).ToList();
-			rr.FundableAssignments	= round.ElectedFundableAssignments.	Select(i => i.Prefix).ToList();
-			rr.FundableRevocations	= round.ElectedFundableRevocations.	Select(i => i.Prefix).ToList();
-			rr.Time					= CalculateTime(round, pp);
+			rr.Payloads		= pp.						Select(i => i.Prefix).ToList();
+			rr.Violators	= round.ElectedViolators.	Select(i => i.Prefix).ToList();
+			rr.Leavers		= round.ElectedLeavers.		Select(i => i.Prefix).ToList();
+			rr.Joiners		= round.ElectedJoiners.		Select(i => i.Prefix).OrderBy(i => i, new BytesComparer()).Take(rr.Leavers.Count + NewMembersPerRoundMax).ToList();
+			rr.HubLeavers	= round.ElectedHubLeavers.	Select(i => i.GetAddressBytes()).ToList();
+			rr.HubJoiners	= round.ElectedHubJoiners.	Select(i => i.GetAddressBytes()).OrderBy(i => i, new BytesComparer()).Take(rr.HubLeavers.Count + NewHubsPerRoundMax).ToList();
+			rr.FundLeavers	= round.ElectedFundLeavers.	Select(i => i.Prefix).ToList();
+			rr.FundJoiners	= round.ElectedFundJoiners.	Select(i => i.Prefix).ToList();
+			rr.Time			= CalculateTime(round, pp);
 
 			return rr;
 		}
-
-// 		public void ExecuteWithoutErrors(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> blockforkers)
-// 		{
-// 			var prev = round.Previous;
-// 				
-// 			if(round.Id != 0 && prev == null)
-// 				return;
-// 
-// 			round.Members			= Members.ToList();
-// 			round.Fundables			= Fundables.ToList();
-// 			round.ExecutingPayloads = payloads;
-// 			round.Time				= CalculateTime(round, payloads);
-// 
-// 			round.AffectedAccounts.Clear();
-// 			round.AffectedAuthors.Clear();
-// 			round.AffectedProducts.Clear();
-// 			round.AffectedRounds.Clear();
-// 
-// 			round.Emission	= round.Id == 0 ? 0						: (prev == LastSavedRound ?	LastSavedEmission	: prev.Emission);
-// 			round.WeiSpent	= round.Id == 0 ? 0						: (prev == LastSavedRound ?	LastSavedWeiSpent	: prev.WeiSpent);
-// 			round.Factor	= round.Id == 0 ? Emission.FactorStart	: (prev == LastSavedRound ?	LastSavedFactor		: prev.Factor);
-// 
-// 			foreach(var b in round.ExecutingPayloads.Reverse())
-// 				foreach(var t in b.Transactions.AsEnumerable().Reverse())
-// 					foreach(var o in t.Operations)
-// 						o.Executed = false;
-// 
-// 			foreach(var b in round.ExecutingPayloads.Reverse())
-// 			{
-// 				foreach(var t in b.Transactions.AsEnumerable().Reverse())
-// 				{
-// 					Coin fee = 0;
-// 
-// 					foreach(var o in t.Operations.AsEnumerable().Reverse())
-// 					{
-// 						if(o.Error == null)
-// 						{
-// 							o.Execute(this, round);
-// 							o.Executed = true;
-// 
-// 							if(o.Error != null)
-// 								round = round;
-// 
-// 
-// 							var f = o.CalculateFee(round.Factor);
-// 
-// 							fee += f;
-// 							round.GetAccount(t.Signer).Balance -= f;
-// 						}
-// 					}
-// 						
-// 					round.GetAccount(t.Signer).Transactions.Add(round.Id);
-// 					round.Distribute(fee, new [] {b.Member}, 9, round.Fundables, 1); /// this way we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding 
-// 				}
-// 			}
-// 
-// 			if(round.Id > LastGenesisRound)
-// 			{
-// 				var penalty = Coin.Zero;
-// 
-// 				if(blockforkers != null && blockforkers.Any())
-// 				{
-// 					foreach(var f in blockforkers)
-// 					{
-// 						penalty += Accounts.FindLastOperation<CandidacyDeclaration>(f, o => o.Successful, null, null, i => i.Id < round.Id).Bail;
-// 						round.GetAccount(f).BailStatus = BailStatus.Siezed;
-// 					}
-// 
-// 					round.Distribute(penalty, round.Members.Where(i => !blockforkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Fundables, 1);
-// 				}
-// 			}
-// 		}
 
 		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> blockforkers)
 		{
@@ -766,7 +713,8 @@ namespace UC.Net
 				return;
 
 			round.Members			= Members.ToList();
-			round.Fundables			= Fundables.ToList();
+			round.Funds				= Funds.ToList();
+			round.Hubs				= Hubs.ToList();
 			round.ExecutingPayloads = payloads;
 			round.Time				= CalculateTime(round, payloads);
 
@@ -829,7 +777,7 @@ namespace UC.Net
 					if(t.SuccessfulOperations.Any())
 					{
 						round.ChangeAccount(t.Signer).Transactions.Add(round.Id);
-						round.Distribute(fee, new [] {b.Generator}, 9, round.Fundables, 1); /// this way we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding 
+						round.Distribute(fee, new [] {b.Generator}, 9, round.Funds, 1); /// this way we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding 
 					}
 				}
 			}
@@ -847,7 +795,7 @@ namespace UC.Net
 						round.ChangeAccount(f).BailStatus = BailStatus.Siezed;
 					}
 
-					round.Distribute(penalty, round.Members.Where(i => !blockforkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Fundables, 1);
+					round.Distribute(penalty, round.Members.Where(i => !blockforkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Funds, 1);
 				}
 			}
 			//ExecuteWithoutErrors(round, payloads, blockforkers);
@@ -859,65 +807,43 @@ namespace UC.Net
 				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
 
 			List<T>	confirm<T>(IEnumerable<byte[]> prefixes, Func<Vote, IEnumerable<T>> get, Func<T, byte[]> getprefix)
-							{
-								var o = prefixes.Select(v => round.Unique.SelectMany(i => get(i)).FirstOrDefault(i => getprefix(i).SequenceEqual(v)));
+			{
+				var o = prefixes.Select(v => round.Unique.SelectMany(i => get(i)).FirstOrDefault(i => getprefix(i).SequenceEqual(v)));
 
-								if(o.Contains(default(T)))
-									throw new ConfirmationException("Can't confirm, some references not found", round);
-								else 
-									return o.ToList();
-							}
+				if(o.Contains(default(T)))
+					throw new ConfirmationException("Can't confirm, some references not found", round);
+				else 
+					return o.ToList();
+			}
 
 			/// check we have all payload blocks 
 
-			if(round.Id > LastGenesisRound)
-			{
-				foreach(var i in round.Payloads)
-					i.Confirmed = false;
+			foreach(var i in round.Payloads)
+				i.Confirmed = false;
 
-				var child = FindRound(round.Id + Pitch);
-				var rf = child.Majority.First().Reference;
+			var child = FindRound(round.Id + Pitch);
+			var rf = child.Majority.First().Reference;
  	
-				foreach(var pf in rf.Payloads)
-				{
-					var b = round.Unique.FirstOrDefault(i => pf.SequenceEqual(i.Prefix));
-
-					if(b != null)
-						b.Confirmed = true;
-					else
-						return; // Some block(s) not present
-				}
-
-				round.Blocks.RemoveAll(i => i is Payload p && !p.Confirmed);
-
-				round.ConfirmedJoiners				= confirm(rf.Joiners, i => i.Joiners, i => i.Prefix).Where(i =>	{ 
-																														var d = Accounts.FindLastOperation<CandidacyDeclaration>(i, o => o.Successful, null, null, r => r.Id <= round.Id);
-																														return d != null && d.Transaction.Payload.RoundId <= round.Id - Pitch*2 && d.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin); 
-																													})
-																										.ToList(); /// round.Id - Pitch*2 means to not join earlier than 2 Pitches after declaration, and not redeclare after a join is requested
-				round.ConfirmedLeavers				= confirm(rf.Leavers,				i => i.Leavers,				i => i.Prefix);
-				round.ConfirmedViolators			= confirm(rf.Violators,				i => i.Violators,			i => i.Prefix);
-				round.ConfirmedFundableAssignments	= confirm(rf.FundableAssignments,	i => i.FundableAssignments, i => i.Prefix);
-				round.ConfirmedFundableRevocations	= confirm(rf.FundableRevocations,	i => i.FundableRevocations, i => i.Prefix);
-				round.Time							= rf.Time;
-
-				//??Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators);
-
-			}
-			else
+			foreach(var pf in rf.Payloads)
 			{
-				round.ConfirmedJoiners				= round.ConfirmedJoiners			 ?? new();
-				round.ConfirmedLeavers				= round.ConfirmedLeavers			 ?? new();
-				round.ConfirmedViolators			= round.ConfirmedViolators			 ?? new();
-				round.ConfirmedFundableAssignments	= round.ConfirmedFundableAssignments ?? new();
-				round.ConfirmedFundableRevocations	= round.ConfirmedFundableRevocations ?? new();
+				var b = round.Unique.FirstOrDefault(i => pf.SequenceEqual(i.Prefix));
 
-				foreach(var i in round.Payloads)
-					i.Confirmed = true;
-
-				if(round.Id > 0)
-					round.Time = CalculateTime(round, round.Unique.OfType<Payload>());
+				if(b != null)
+					b.Confirmed = true;
+				else
+					return; // Some block(s) not present
 			}
+
+			round.Blocks.RemoveAll(i => i is Payload p && !p.Confirmed);
+
+			round.ConfirmedViolators	= confirm(rf.Violators,		i => i.Violators,	i => i.Prefix);
+			round.ConfirmedJoiners		= confirm(rf.Joiners,		i => i.Joiners,		i => i.Prefix);
+			round.ConfirmedLeavers		= confirm(rf.Leavers,		i => i.Leavers,		i => i.Prefix);
+			round.ConfirmedHubJoiners	= confirm(rf.HubJoiners,	i => i.HubJoiners,	i => i.GetAddressBytes());
+			round.ConfirmedHubLeavers	= confirm(rf.HubLeavers,	i => i.HubLeavers,	i => i.GetAddressBytes());
+			round.ConfirmedFundJoiners	= confirm(rf.FundJoiners,	i => i.FundJoiners, i => i.Prefix);
+			round.ConfirmedFundLeavers	= confirm(rf.FundLeavers,	i => i.FundLeavers, i => i.Prefix);
+			round.Time					= rf.Time;
 
 			round.Confirmed = true;
 
@@ -937,24 +863,31 @@ namespace UC.Net
 
 			Members.AddRange(round.ConfirmedJoiners.Select(i =>	{
 																	var d = Accounts.FindLastOperation<CandidacyDeclaration>(i, o => o.Successful, null, null, r => r.Id < round.Id);
-																	return new Peer {Generator = i, IP = d.IP, JoinedAt = round.Id + Pitch};
+																	return new Peer {Generator = i, IP = d.IP, JoinedGeneratorsAt = round.Id + Pitch};
 																}));
 
 			Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Generator && o.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
 			Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Generator) && round.AffectedAccounts[i.Generator].Bail < (Settings.Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
 			Members.RemoveAll(i => round.ConfirmedLeavers.Contains(i.Generator));
 			Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Generator));
-// 
-// 			foreach(var i in round.RemovedMutables)
-// 			{
-// 				i.Transaction.Operations.Remove(i);
-// 			}
 
 			if(round.Id <= LastGenesisRound || round.Factor == Emission.FactorEnd) /// reorganization only after emission is over
 			{
-				Fundables.AddRange(round.ConfirmedFundableAssignments);
-				Fundables.RemoveAll(i => round.ConfirmedFundableRevocations.Contains(i));
+				Funds.AddRange(round.ConfirmedFundJoiners);
+				Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
 			}
+
+			Hubs.AddRange(round.ConfirmedHubJoiners.Select(i => new Peer(i){JoinedHubsAt = round.Id}));
+			Hubs.RemoveAll(i => round.ConfirmedHubLeavers.Contains(i.IP));
+
+			//if(Hubs.Count > HubsMax)
+			//{
+			//	Hubs.OrderByDescending(i => i.JoinedHubsAt).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer())
+			//} 
+
+ 			round.Members	= Members.ToList();
+ 			round.Funds		= Funds.ToList();
+ 			round.Hubs		= Hubs.ToList();
 
 			if(round.Id - Rounds.Last().Id > Pitch + Pitch + 1) /// keep last [Pitch] sealed rounds cause [LastSealed - Pitch] round may contain JoinRequests that are needed if a node is joining
 			{
@@ -969,37 +902,29 @@ namespace UC.Net
 
 					Accounts.Save(b, r.AffectedAccounts.Values);
 					Authors.Save(b, r.AffectedAuthors.Values);
-
-					if(r.AffectedProducts.Any())
-					{
-						r=r;
-					}
-
 					Products.Save(b, r.AffectedProducts.Values);
 
-					foreach(var i in r.ConfirmedJoiners)
-						b.Put(i, new byte[0], MembersFamily);
+					var s = new MemoryStream();
+					var w = new BinaryWriter(s);
+					w.Write(r.Members, i => i.WriteMember(w));
+					b.Put(MembersKey, s.ToArray());
 
-					foreach(var i in r.ConfirmedLeavers)
-						b.Delete(i, MembersFamily);
-
-					foreach(var i in r.ConfirmedFundableAssignments)
-						b.Put(i, new byte[0], FundablesFamily);
-
-					foreach(var i in r.ConfirmedFundableRevocations)
-						b.Delete(i, FundablesFamily);
+					s = new MemoryStream();
+					w = new BinaryWriter(s);
+					w.Write(r.Funds);
+					b.Put(FundablesKey, s.ToArray());
 
 					foreach(var i in r.AffectedRounds)
 					{
-						var ss = new MemoryStream();
-						var ww = new BinaryWriter(ss);
+						s = new MemoryStream();
+						w = new BinaryWriter(s);
 						
-						i.Save(ww);
-						b.Put(BitConverter.GetBytes(i.Id), ss.ToArray(), RoundsFamily);
+						i.Save(w);
+						b.Put(BitConverter.GetBytes(i.Id), s.ToArray(), RoundsFamily);
 					}
 
-					var s = new MemoryStream(); /// may duplicate above if affected, not big deal
-					var w = new BinaryWriter(s);
+					s = new MemoryStream(); /// may duplicate above if affected, not big deal
+					w = new BinaryWriter(s);
 						
 					r.Save(w);
 					b.Put(BitConverter.GetBytes(r.Id), s.ToArray(), RoundsFamily);
@@ -1011,7 +936,8 @@ namespace UC.Net
 				
 				/// to save RAM
 				r.Members = null;
-				r.Fundables = null;
+				r.Funds = null;
+				r.Hubs = null;
 				r.AffectedAccounts = null;
 				r.AffectedAuthors = null;
 				r.AffectedProducts = null;

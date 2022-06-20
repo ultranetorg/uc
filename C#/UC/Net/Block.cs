@@ -7,12 +7,13 @@ using System.IO;
 using System.Net;
 using Org.BouncyCastle.Utilities.Encoders;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace UC.Net
 {
 	public enum BlockType : byte
 	{
-		JoinRequest = 1, Vote = 2, Payload = 3
+		GeneratorJoinRequest = 1, Vote = 2, Payload = 3
 	}
 
 	public abstract class Block : ITypedBinarySerializable, IBinarySerializable
@@ -31,6 +32,8 @@ namespace UC.Net
 
 		protected abstract void		WriteForSigning(BinaryWriter w);
 
+		public BlockType			Type => Enum.Parse<BlockType>(GetType().Name);
+
 		public Block(Roundchain c)
 		{
 			Chain = c;
@@ -41,6 +44,18 @@ namespace UC.Net
 			return	$"{Type}, Round={RoundId}";
 					//$"Member={Member.ToString().Substring(0, 16)}, " +
 					//$"Signature={(Signature != null ? Hex.ToHexString(Signature).Substring(0, 16) : "")}";
+		}
+
+		public static Block FromType(Roundchain chain, BlockType type)
+		{
+			try
+			{
+				return Assembly.GetExecutingAssembly().GetType(typeof(Block).Namespace + "." + type).GetConstructor(new System.Type[]{typeof(Roundchain)}).Invoke(new object[]{chain}) as Block;
+			}
+			catch(Exception ex)
+			{
+				throw new IntegrityException($"Wrong {nameof(Block)} type", ex);
+			}
 		}
 
 		public byte[] CalculateHash()
@@ -64,30 +79,7 @@ namespace UC.Net
 			Signature = Cryptography.Current.Sign(generator, Hash);
 		} 
 
-		public static Block FromType(Roundchain chaim, BlockType type)
-		{
-			return type switch
-						{
-							BlockType.Vote					=> new Vote(chaim),
-							BlockType.Payload				=> new Payload(chaim),
-							BlockType.JoinRequest			=> new JoinRequest(chaim),
-							_								=> throw new IntegrityException("Wrong BlockType"),
-						};
-		}
 
-		public BlockType Type
-		{
-			get
-			{
-				return this switch
-							{
-								Payload					=> BlockType.Payload,
-								Vote 					=> BlockType.Vote,
-								JoinRequest				=> BlockType.JoinRequest,
-								_						=> throw new IntegrityException("Wrong Block class"),
-							};
-			}
-		}
 
 		public virtual void Write(BinaryWriter w)
 		{
@@ -107,13 +99,13 @@ namespace UC.Net
 		}
 	}
 
-	public class JoinRequest : Block
+	public class GeneratorJoinRequest : Block
 	{
 		public IPAddress	IP;
 
 		public CandidacyDeclaration Declaration;
 
-		public JoinRequest(Roundchain c) : base(c)
+		public GeneratorJoinRequest(Roundchain c) : base(c)
 		{
 		}
 
@@ -141,6 +133,37 @@ namespace UC.Net
 			IP = new IPAddress(r.ReadBytes(4));
 		}
 	}
+	
+	public class HubJoinRequest : Block
+	{
+		public IPAddress	IP;
+
+		public HubJoinRequest(Roundchain c) : base(c)
+		{
+		}
+
+		public override string ToString()
+		{
+			return base.ToString() + ", IP=" + IP;
+		}
+
+		protected override void WriteForSigning(BinaryWriter w)
+		{
+			w.Write(IP.MapToIPv4().GetAddressBytes());
+		}
+
+		public override void Write(BinaryWriter w)
+		{
+			base.Write(w);
+			w.Write(IP.MapToIPv4().GetAddressBytes());
+		}
+
+		public override void Read(BinaryReader r)
+		{
+			base.Read(r);
+			IP = new IPAddress(r.ReadBytes(4));
+		}
+	}
 
 	public class Vote : Block
 	{
@@ -151,8 +174,10 @@ namespace UC.Net
 		public List<Account>		Violators = new();
 		public List<Account>		Joiners = new();
 		public List<Account>		Leavers = new();
-		public List<Account>		FundableAssignments = new();
-		public List<Account>		FundableRevocations = new();
+		public List<IPAddress>		HubJoiners = new();
+		public List<IPAddress>		HubLeavers = new();
+		public List<Account>		FundJoiners = new();
+		public List<Account>		FundLeavers = new();
 		//public List<Proposition>	Propositions = new();
 
 		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
@@ -173,20 +198,13 @@ namespace UC.Net
 			writer.Write7BitEncodedInt64(TimeDelta);
 			Reference.WriteHashable(writer);
 
-			foreach(var i in Violators)
-				writer.Write(i);
-
-			foreach(var i in Joiners)
-				writer.Write(i);
-
-			foreach(var i in Leavers)
-				writer.Write(i);
-
-			foreach(var i in FundableAssignments)
-				writer.Write(i);
-
-			foreach(var i in FundableRevocations)
-				writer.Write(i);
+			writer.Write(Violators);
+			writer.Write(Joiners);
+			writer.Write(Leavers);
+			writer.Write(HubJoiners, i => writer.Write(i.GetAddressBytes()));
+			writer.Write(HubLeavers, i => writer.Write(i.GetAddressBytes()));
+			writer.Write(FundJoiners);
+			writer.Write(FundLeavers);
 		}
 
 		public override void Write(BinaryWriter writer)
@@ -200,8 +218,10 @@ namespace UC.Net
 			writer.Write(Violators);
 			writer.Write(Joiners);
 			writer.Write(Leavers);
-			writer.Write(FundableAssignments);
-			writer.Write(FundableRevocations);
+			writer.Write(HubJoiners, i => writer.Write(i.GetAddressBytes()));
+			writer.Write(HubLeavers, i => writer.Write(i.GetAddressBytes()));
+			writer.Write(FundJoiners);
+			writer.Write(FundLeavers);
 		}
 
 		public override void Read(BinaryReader reader)
@@ -216,8 +236,10 @@ namespace UC.Net
 			Violators			= reader.ReadAccounts();
 			Joiners				= reader.ReadAccounts();
 			Leavers				= reader.ReadAccounts();
-			FundableAssignments	= reader.ReadAccounts();
-			FundableRevocations	= reader.ReadAccounts();
+			HubJoiners			= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
+			HubLeavers			= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
+			FundJoiners	= reader.ReadAccounts();
+			FundLeavers	= reader.ReadAccounts();
 
 			Hash = CalculateHash();
 		}

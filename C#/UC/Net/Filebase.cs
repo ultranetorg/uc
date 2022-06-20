@@ -9,23 +9,16 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	class Package
-	{
-		public PackageAddress	Address;
-		public List<IPAddress>	Peers = new();
-	}
-
 	public class Filebase
 	{
-		string Root;
+		//Core										Core;
+		string										Root;
 
-		const string		Ipkg = "ipkg";
-		const string		Cpkg = "cpkg";
-		const string		Removals = ".removals";
-		const string		Renamings = ".renamings"; /// TODO
-		public const long	PieceMaxLength = 64 * 1024;
-
-		List<Package>		Packages = new ();
+		const string								Ipkg = "ipkg";
+		const string								Cpkg = "cpkg";
+		const string								Removals = ".removals";
+		const string								Renamings = ".renamings"; /// TODO
+		public const long							PieceMaxLength = 64 * 1024;
 
 		public Filebase(Settings settings)
 		{
@@ -33,26 +26,24 @@ namespace UC.Net
 
 			Directory.CreateDirectory(Root);
 		}
-		
+				
 		string ToPath(PackageAddress address)
 		{
 			return Path.Join(Root, address.Author, address.Product, $"{address.Version}__{address.Platform}.{(address.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
 		}
 
-		public void AddSources(PackageAddress package, IEnumerable<IPAddress> addresses)
+		public void WriteInstalled(BinaryWriter writer)
 		{
-			foreach(var i in addresses)
+			foreach(var a in Directory.EnumerateDirectories(Root))
 			{
-				var p = Packages.Find(i => i.Address == package);
-
-				if(p == null)
+				foreach(var p in Directory.EnumerateDirectories(a))
 				{
-					p = new Package() {Address = package};
-				}
+					var packs = Directory.EnumerateFiles(p, $"*").GroupBy(i => Version.Parse(Path.GetFileNameWithoutExtension(i).Split("__")[0]));
 
-				if(!p.Peers.Any(j => j.Equals(i)))
-				{
-					p.Peers.Add(i);
+					writer.WriteUtf8(a);
+					writer.WriteUtf8(p);
+					writer.Write(packs.Min(i => i.Key));
+					writer.Write(packs.Max(i => i.Key));
 				}
 			}
 		}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using System.Net;
 
 namespace UC.Net
 {
@@ -20,7 +21,7 @@ namespace UC.Net
 		public DateTime									LastAccessed = DateTime.UtcNow;
 
 		public List<Block>								Blocks = new();
-		public IEnumerable<JoinRequest>					JoinRequests	=> Blocks.OfType<JoinRequest>();
+		public IEnumerable<GeneratorJoinRequest>		JoinRequests	=> Blocks.OfType<GeneratorJoinRequest>();
 		public IEnumerable<Vote>						Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>						Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
 		public IEnumerable<Account>						Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
@@ -30,17 +31,22 @@ namespace UC.Net
 		public IEnumerable<Account>						ElectedViolators			=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
 		public IEnumerable<Account>						ElectedJoiners				=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Majority.Count() * 2 / 3);
 		public IEnumerable<Account>						ElectedLeavers				=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>						ElectedFundableAssignments	=> Majority.SelectMany(i => i.FundableAssignments).Distinct().Where(j => Majority.Count(b => b.FundableAssignments.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
-		public IEnumerable<Account>						ElectedFundableRevocations	=> Majority.SelectMany(i => i.FundableRevocations).Distinct().Where(l => Majority.Count(b => b.FundableRevocations.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
+		public IEnumerable<IPAddress>					ElectedHubJoiners			=> Majority.SelectMany(i => i.HubJoiners).Distinct().Where(j => Majority.Count(b => b.HubJoiners.Contains(j)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<IPAddress>					ElectedHubLeavers			=> Majority.SelectMany(i => i.HubLeavers).Distinct().Where(l => Majority.Count(b => b.HubLeavers.Contains(l)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<Account>						ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
+		public IEnumerable<Account>						ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
 
 		public List<Peer>								Members;
-		public List<Account>							Fundables;
+		public List<Account>							Funds;
+		public List<Peer>								Hubs;
 		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
 		public List<Account>							ConfirmedViolators;
 		public List<Account>							ConfirmedJoiners;
 		public List<Account>							ConfirmedLeavers;
-		public List<Account>							ConfirmedFundableAssignments;
-		public List<Account>							ConfirmedFundableRevocations;
+		public List<IPAddress>							ConfirmedHubJoiners;
+		public List<IPAddress>							ConfirmedHubLeavers;
+		public List<Account>							ConfirmedFundJoiners;
+		public List<Account>							ConfirmedFundLeavers;
 
 		public bool										Voted = false;
 		public bool										Confirmed = false;
@@ -249,36 +255,40 @@ namespace UC.Net
 			Hash = Cryptography.Current.Hash(s.ToArray());
 		}
 
-		void WriteConfirmed(BinaryWriter w)
+		void WriteConfirmed(BinaryWriter writer)
 		{
-			w.Write(Time);
-			w.Write(ConfirmedPayloads, i => i.WriteConfirmed(w));
-			w.Write(ConfirmedJoiners);
-			w.Write(ConfirmedLeavers);
-			w.Write(ConfirmedViolators);
-			w.Write(ConfirmedFundableAssignments);
-			w.Write(ConfirmedFundableRevocations);
+			writer.Write(Time);
+			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
+			writer.Write(ConfirmedViolators);
+			writer.Write(ConfirmedJoiners);
+			writer.Write(ConfirmedLeavers);
+			writer.Write(ConfirmedHubJoiners, i => writer.Write(i.GetAddressBytes()));
+			writer.Write(ConfirmedHubLeavers, i => writer.Write(i.GetAddressBytes()));
+			writer.Write(ConfirmedFundJoiners);
+			writer.Write(ConfirmedFundLeavers);
 		}
 
-		void ReadConfirmed(BinaryReader r)
+		void ReadConfirmed(BinaryReader reader)
 		{
-			Time		= r.ReadTime();
-			Blocks		= r.ReadList(() =>	{
-												var b = new Payload(Chain);											
-												b.RoundId = Id;
-												b.Round = this;
-												b.Confirmed = true;
+			Time		= reader.ReadTime();
+			Blocks		= reader.ReadList(() =>	{	
+													var b = new Payload(Chain);											
+													b.RoundId = Id;
+													b.Round = this;
+													b.Confirmed = true;
 
-												b.ReadConfirmed(r);
+													b.ReadConfirmed(reader);
 
-												return b as Block;
-											});
+													return b as Block;
+												});
 	
-			ConfirmedJoiners				= r.ReadList<Account>();
-			ConfirmedLeavers				= r.ReadList<Account>();
-			ConfirmedViolators				= r.ReadList<Account>();
-			ConfirmedFundableAssignments	= r.ReadList<Account>();
-			ConfirmedFundableRevocations	= r.ReadList<Account>();
+			ConfirmedViolators				= reader.ReadList<Account>();
+			ConfirmedJoiners				= reader.ReadList<Account>();
+			ConfirmedLeavers				= reader.ReadList<Account>();
+			ConfirmedHubJoiners				= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
+			ConfirmedHubLeavers				= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
+			ConfirmedFundJoiners	= reader.ReadList<Account>();
+			ConfirmedFundLeavers	= reader.ReadList<Account>();
 		}
 
 		public void Write(BinaryWriter w)

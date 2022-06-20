@@ -270,7 +270,7 @@ namespace UC.Net
 			if(Portion.Factor < FactorEnd)
 			{
 				round.ChangeAccount(Signer).Balance += Portion.Amount;
-				round.Distribute(Portion.Amount * 1/10, round.Fundables);
+				round.Distribute(Portion.Amount * 1/10, round.Funds);
 
 				round.Factor = Portion.Factor;
 				round.WeiSpent += Wei;
@@ -470,7 +470,7 @@ namespace UC.Net
 				/// dont refund previous winner
 
 				//var wb = a.FindLastBid(round);
-				round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
+				round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
 
 				round.ChangeAccount(Signer).Balance -= Bid;
 				
@@ -568,7 +568,7 @@ namespace UC.Net
 				if(a?.Owner == null)
 				{
 					if(Exclusive) /// distribite winner bid, one time
-						round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
+						round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
 
 					round.ChangeAccount(Signer).Authors.Add(Author);
 				}
@@ -584,7 +584,7 @@ namespace UC.Net
 				a.Years = Years;
 
 				round.ChangeAccount(Signer).Balance -= cost;
-				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Fundables, 1);
+				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
 			}
 			else
 				Error = "Failed";
@@ -665,21 +665,11 @@ namespace UC.Net
 
 			Address	= r.Read<ProductAddress>();
 			Title	= r.ReadUtf8();
-
-			if(Title== null)
-			{
-				Title = Title;
-			}
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
-
-			if(Title== null)
-			{
-				Title = Title;
-			}
 
 			w.Write(Address);
 			w.WriteUtf8(Title);

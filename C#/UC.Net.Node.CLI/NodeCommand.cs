@@ -19,11 +19,11 @@ namespace UC.Net.Node.CLI
 
 			if(Args.Has("server"))
 			{
-				Core.RunServer();
+				Core.RunApi();
 			}
 			else
 			{
-				Core.RunServer();
+				Core.RunApi();
 				Core.RunNode();
 			}
 

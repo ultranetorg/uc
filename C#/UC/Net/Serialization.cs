@@ -157,11 +157,6 @@ namespace UC.Net
 			if(construct != null)
 				o = construct(type);
 
-			if(o != null)
-			{
-				o = o;
-			}
-
 			if(o == null)
 				o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
 
@@ -243,11 +238,6 @@ namespace UC.Net
 
 					if(construct != null)
 						o = construct(type);
-
-			if(o != null)
-			{
-				o = o;
-			}
 
 					if(o == null)
 						o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
