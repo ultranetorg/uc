@@ -79,8 +79,6 @@ namespace UC.Net
 			Signature = Cryptography.Current.Sign(generator, Hash);
 		} 
 
-
-
 		public virtual void Write(BinaryWriter w)
 		{
 			if(Signature.Length != Cryptography.SignatureSize)
@@ -102,7 +100,6 @@ namespace UC.Net
 	public class GeneratorJoinRequest : Block
 	{
 		public IPAddress	IP;
-
 		public CandidacyDeclaration Declaration;
 
 		public GeneratorJoinRequest(Roundchain c) : base(c)
@@ -116,21 +113,21 @@ namespace UC.Net
 
 		protected override void WriteForSigning(BinaryWriter w)
 		{
-			w.Write((IP ?? IPAddress.None).GetAddressBytes());
+			w.Write(IP);
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
 
-			w.Write((IP ?? IPAddress.None).GetAddressBytes());
+			w.Write(IP);
 		}
 
 		public override void Read(BinaryReader r)
 		{
 			base.Read(r);
 
-			IP = new IPAddress(r.ReadBytes(4));
+			IP = r.ReadIPAddress();
 		}
 	}
 	
@@ -149,19 +146,19 @@ namespace UC.Net
 
 		protected override void WriteForSigning(BinaryWriter w)
 		{
-			w.Write(IP.MapToIPv4().GetAddressBytes());
+			w.Write(IP);
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
-			w.Write(IP.MapToIPv4().GetAddressBytes());
+			w.Write(IP);
 		}
 
 		public override void Read(BinaryReader r)
 		{
 			base.Read(r);
-			IP = new IPAddress(r.ReadBytes(4));
+			IP = r.ReadIPAddress();
 		}
 	}
 
@@ -233,11 +230,11 @@ namespace UC.Net
 			Reference = new RoundReference();
 			Reference.Read(reader);
 
-			Violators			= reader.ReadAccounts();
-			Joiners				= reader.ReadAccounts();
-			Leavers				= reader.ReadAccounts();
-			HubJoiners			= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
-			HubLeavers			= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
+			Violators	= reader.ReadAccounts();
+			Joiners		= reader.ReadAccounts();
+			Leavers		= reader.ReadAccounts();
+			HubJoiners	= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
+			HubLeavers	= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
 			FundJoiners	= reader.ReadAccounts();
 			FundLeavers	= reader.ReadAccounts();
 
@@ -301,12 +298,14 @@ namespace UC.Net
 
  		public void WriteConfirmed(BinaryWriter w)
  		{
+			//w.Write7BitEncodedInt64(TimeDelta);
 			w.Write(Generator);
  			w.Write(SuccessfulTransactions, i => i.WriteConfirmed(w));
  		}
  		
  		public void ReadConfirmed(BinaryReader r)
  		{
+			//TimeDelta = r.Read7BitEncodedInt64();
 			Generator = r.ReadAccount();
  			Transactions = r.ReadList(() =>	{
  												var t = new Transaction(Chain.Settings)

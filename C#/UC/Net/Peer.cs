@@ -97,27 +97,38 @@ namespace UC.Net
  
  		public void WriteNode(BinaryWriter w)
  		{
- 			w.Write(IP.GetAddressBytes());
+ 			w.Write(IP);
  		}
  
  		public void ReadNode(BinaryReader r)
  		{
- 			IP = new IPAddress(r.ReadBytes(4));
+ 			IP = r.ReadIPAddress();
  		}
 		
- 
- 		public void WriteMember(BinaryWriter w)
+  		public void WriteMember(BinaryWriter w)
  		{
- 			w.Write(IP.GetAddressBytes());
+ 			w.Write(IP);
  			w.Write(Generator);
 			w.Write7BitEncodedInt(JoinedGeneratorsAt);
  		}
  
  		public void ReadMember(BinaryReader r)
  		{
- 			IP = new IPAddress(r.ReadBytes(4));
+ 			IP = r.ReadIPAddress();
 			Generator = r.ReadAccount();
 			JoinedGeneratorsAt = r.Read7BitEncodedInt();
+ 		}
+		
+  		public void WriteHub(BinaryWriter w)
+ 		{
+ 			w.Write(IP);
+			w.Write7BitEncodedInt(JoinedHubsAt);
+ 		}
+ 
+ 		public void ReadHub(BinaryReader r)
+ 		{
+ 			IP = r.ReadIPAddress();
+			JoinedHubsAt = r.Read7BitEncodedInt();
  		}
 
 		public static void SendHello(TcpClient client, Hello h)

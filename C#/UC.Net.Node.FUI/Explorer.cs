@@ -134,17 +134,17 @@ namespace UC.Net.Node.FUI
 
 		private void Operations_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 		{
-			if(e.Item.Tag is ReleaseManifest m)
+			Operation.Text = null;
+	
+			if(e.IsSelected)
 			{
-				Operation.Text ="Address  : " + m.Address + Environment.NewLine +
-								"Stage    : " + m.Channel + Environment.NewLine +
-								"Previuos : " + m.PreviousVersion + Environment.NewLine +
-								"Complete Dependencies : " + string.Join(Environment.NewLine, m.CompleteDependencies.Select(i => "   " + i.ToString())) + Environment.NewLine +
-								"Incremental Dependencies : " + string.Join(Environment.NewLine, m.IncrementalDependencies.Select(i => "   " + i.ToString()))
-								;
+				if(e.Item.Tag is ReleaseManifest m)
+				{
+					m.ToXon(new XonTextValueSerializator()).Dump((n, l) => Operation.Text += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
+				}
+				else
+					Operation.Text = (e.Item.Tag as Operation).ToString();
 			}
-			else
-				Operation.Text = (e.Item.Tag as Operation).ToString();
 		}
 	}
 }

@@ -35,7 +35,7 @@ namespace UC.Net
 		{
 			if(zone == Zone.Localnet)
 			{
-				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] { 192, 168, 1, (byte)i })).ToList();
+				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToList();
 			}
 		
 			throw new NotImplementedException();

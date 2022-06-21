@@ -99,7 +99,8 @@ namespace UC.Net
 		readonly byte[]										FactorKey		= new byte[] {3};
 		readonly byte[]										EmissionKey		= new byte[] {4};
 		readonly byte[]										MembersKey		= new byte[] {5};
-		readonly byte[]										FundablesKey	= new byte[] {6};
+		readonly byte[]										FundsKey	= new byte[] {6};
+		readonly byte[]										HubsKey			= new byte[] {7};
 
 		public Round										LastConfirmedRound	=> Rounds.FirstOrDefault(i => i.Confirmed) ?? LastSavedRound;
 		public Round										LastVotedRound		=> Rounds.FirstOrDefault(i => i.Voted) ?? LastConfirmedRound;
@@ -309,9 +310,12 @@ namespace UC.Net
 			else
 			{
 				var r = new BinaryReader(new MemoryStream(Database.Get(MembersKey)));
-				Members = r.ReadList<Peer>(() => { var p = new Peer(); p.ReadMember(r); return p; }).ToList();
+				Members = r.ReadList<Peer>(() => { var p = new Peer(); p.ReadMember(r); return p; });
 
-				r = new BinaryReader(new MemoryStream(Database.Get(FundablesKey)));
+				r = new BinaryReader(new MemoryStream(Database.Get(HubsKey)));
+				Hubs = r.ReadList<Peer>(() => { var p = new Peer(); p.ReadHub(r); return p; });
+
+				r = new BinaryReader(new MemoryStream(Database.Get(FundsKey)));
 				Funds = r.ReadList<Account>();
 			}
 		}
@@ -375,7 +379,10 @@ namespace UC.Net
  						var ir = GetRound(i);
  						
  						if(ir.Payloads.Any())
- 							Execute(ir, ir.Payloads, null);
+						{
+							ir.Time = CalculateTime(ir, ir.Payloads);
+							Execute(ir, ir.Payloads, null);
+						}
  						else
  							break;
  					}
@@ -635,63 +642,13 @@ namespace UC.Net
 			if(round.Id < Pitch)
 				return RoundReference.Empty;
 
-			//byte [] hash(Round r, IEnumerable<Payload> votedfor) /// hash referred round and previous [Pitch-1] ones
-			//{
-			//	var s = new MemoryStream();
-			//	var w = new BinaryWriter(s);
-			//	//
-			//	//for(int i = Math.Max(0, last.Id - Roundchain.Pitch + 1); i < last.Id; i++) /// previous [Pitch-1] rounds
-			//	//{
-			//	//	var r = FindRound(i);
-			//	//
-			//	//	if(r.Id > LastGenesisRound && !r.Confirmed)
-			//	//	{
-			//	//		return null;
-			//	//	}
-			//	//
-			//	//	w.Write(i < Pitch ? Cryptography.ZeroHash : r.Hash);
-			//	//}
-			//
-			//	w.Write(last.Hash);
-			//
-			//	foreach(var p in votedfor) /// referred round itself
-			//	{
-			//		r.WriteConfirmed(w);
-			//	}
-			//
-			//	return Cryptography.Current.Hash(s.ToArray());
-			//}
-
-			//var p = round.Parent;
-
 			if(!round.Parent.Confirmed && round.Id > LastGenesisRound)
 				return null;
 
-			var pp = round.Unique	.OfType<Payload>()	
-									.GroupBy(i => i.Reference)
-									.Aggregate((i, j) => i.Count() > j.Count() ? i : j)
-									.OrderBy(i => i.OrderingKey, new BytesComparer());
+			var pp = round.Majority.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
 			
-			//var h = hashpitch(p, );		/// get candidates' its own referance hash, [parent.Id - Pitch + 1 .. parent.Id]
-																								/// must always return non-null cause all of rounds must be already confirmed
-
-			//var payloads = round.Unique.OfType<Payload>().Where(i => i.Reference.Hash.SequenceEqual(round.ParentId < Pitch ? RoundReference.Empty.Hash : h));	/// refers to correct confirmed [Pitch] number of parent rounds
-			//
-			//if(payloads.Any())
-			//	payloads = payloads.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j); /// take majority if any
-			//else
-			//	payloads = payloads;
-			//
-			//payloads = payloads.OrderBy(i => i.OrderingKey, new BytesComparer());
-			//
-			//h = hash(round, payloads); /// now get the hash to this round and [Pitch-1] of previous
-			//
-			//if(h == null) 
-			//	return null; /// some of previous [Pitch-1] rounds is not confirmed
-
 			var rr = new RoundReference();
 
-			//rr.Hash					= h;
 			rr.Payloads		= pp.						Select(i => i.Prefix).ToList();
 			rr.Violators	= round.ElectedViolators.	Select(i => i.Prefix).ToList();
 			rr.Leavers		= round.ElectedLeavers.		Select(i => i.Prefix).ToList();
@@ -716,7 +673,7 @@ namespace UC.Net
 			round.Funds				= Funds.ToList();
 			round.Hubs				= Hubs.ToList();
 			round.ExecutingPayloads = payloads;
-			round.Time				= CalculateTime(round, payloads);
+			//round.Time				= time;//CalculateTime(round, payloads);
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
@@ -831,10 +788,8 @@ namespace UC.Net
 				if(b != null)
 					b.Confirmed = true;
 				else
-					return; // Some block(s) not present
+					throw new ConfirmationException("Can't confirm, missing blocks", round);
 			}
-
-			round.Blocks.RemoveAll(i => i is Payload p && !p.Confirmed);
 
 			round.ConfirmedViolators	= confirm(rf.Violators,		i => i.Violators,	i => i.Prefix);
 			round.ConfirmedJoiners		= confirm(rf.Joiners,		i => i.Joiners,		i => i.Prefix);
@@ -909,24 +864,23 @@ namespace UC.Net
 					w.Write(r.Members, i => i.WriteMember(w));
 					b.Put(MembersKey, s.ToArray());
 
-					s = new MemoryStream();
-					w = new BinaryWriter(s);
+					s.SetLength(0);
 					w.Write(r.Funds);
-					b.Put(FundablesKey, s.ToArray());
+					b.Put(FundsKey, s.ToArray());
+
+					s.SetLength(0);
+					w.Write(r.Hubs, i => i.WriteHub(w));
+					b.Put(HubsKey, s.ToArray());
 
 					foreach(var i in r.AffectedRounds)
 					{
-						s = new MemoryStream();
-						w = new BinaryWriter(s);
-						
+						s.SetLength(0);						
 						i.Save(w);
 						b.Put(BitConverter.GetBytes(i.Id), s.ToArray(), RoundsFamily);
 					}
 
-					s = new MemoryStream(); /// may duplicate above if affected, not big deal
-					w = new BinaryWriter(s);
-						
-					r.Save(w);
+					s.SetLength(0);
+					r.Save(w); /// may duplicate above if affected, not big deal
 					b.Put(BitConverter.GetBytes(r.Id), s.ToArray(), RoundsFamily);
 
 					Database.Write(b);
@@ -935,13 +889,13 @@ namespace UC.Net
 				Rounds.Remove(r);
 				
 				/// to save RAM
+				r.Blocks.RemoveAll(i => !i.Confirmed);
 				r.Members = null;
 				r.Funds = null;
 				r.Hubs = null;
 				r.AffectedAccounts = null;
 				r.AffectedAuthors = null;
 				r.AffectedProducts = null;
-				r.Blocks.RemoveAll(i => !i.Confirmed);
 
 				r.LastAccessed	= DateTime.UtcNow;
 				LoadedRounds[r.Id] = r;

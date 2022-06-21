@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Numerics;
 using System.Text;
 using UC.Net;
@@ -112,12 +113,14 @@ namespace UC
 			return new BigInteger(r.ReadBytes(r.ReadByte()));
 		}
 
-		public static void Write(this BinaryWriter w, UC.Version v)
+		public static void Write(this BinaryWriter w, IPAddress v)
 		{
-			w.Write(v.Era);
-			w.Write(v.Generation);
-			w.Write(v.Release);
-			w.Write(v.Build);
+			w.Write(v.MapToIPv4().GetAddressBytes());
+		}
+
+		public static IPAddress ReadIPAddress(this BinaryReader r)
+		{
+			return new IPAddress(r.ReadBytes(4));
 		}
 
 		public static void Union<T>(this List<T> items, IEnumerable<T> news, Func<T, T, bool> equal)

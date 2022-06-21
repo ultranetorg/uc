@@ -96,7 +96,8 @@ namespace UC.Net
 
 				if(!Zones.ContainsKey(zone))
 				{
-					var z = GetZone(Settings.Zone);
+					var input = new GetZoneFunction { Name = Settings.Zone };
+					var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
 
 					foreach(var i in z.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
 					{
@@ -130,40 +131,6 @@ namespace UC.Net
 				}
 			}
 		}
-
-		public string GetZone(string name)
-		{
-			var input = new GetZoneFunction { Name = name };
-			return Contract.QueryAsync<GetZoneFunction, string>(input).Result;
-		}
-
-		/*
-				public List<string> LoadNodes()
-				{
-					var r = new List<string>();
-
-					try
-					{
-						var input = new GetNodesFunction();
-						var ids = ContractHandler.QueryDeserializingToObjectAsync<GetNodesFunction, GetNodesOutputDTO>(input).Result;
-
-
-						for(BigInteger i=0; i<ids.Indexes.Count; i++)
-						{
-							var fi = new GetNodeFunction(){ Index = i };
-							var node = ContractHandler.QueryDeserializingToObjectAsync<GetNodeFunction, GetNodeOutputDTO>(fi).Result;
-
-							r.Add(node.Name);
-						}
-
-					}
-					catch(Exception ex)
-					{
-						Log.ReportError(ex);
-					}
-
-					return r;
-				}*/
 
 		public async Task SetZone(string name, string nodes, IGasAsker asker)
 		{

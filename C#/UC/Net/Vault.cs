@@ -72,8 +72,9 @@ namespace UC.Net
 		{
 			var p = PrivateAccount.Load(Wallets[a], password);
 
+			var i = Accounts.IndexOf(a);
 			Accounts.Remove(a);
-			Accounts.Add(p);
+			Accounts.Insert(i, p);
 
 			Log?.Report(this, "Account unlocked", a.ToString());
 

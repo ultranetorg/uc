@@ -83,11 +83,9 @@ namespace UC.Net.Node.FUI
 	
 				Task.Run(	() =>
 							{
-								//Core.Nas.ReloadInitials();
-	
 								Invoke( (MethodInvoker)delegate()
 										{
-											nodes.Text = string.Join("\r\n", Core.Nas.GetZone(Zone.ValueByName(zone.SelectedItem as string)).Split(new char[]{'\r','\n'}, StringSplitOptions.RemoveEmptyEntries));
+											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ValueByName(zone.SelectedItem as string)));
 						
 											manage.Enabled = true;
 											nodes.Enabled = true;

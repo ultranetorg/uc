@@ -48,12 +48,12 @@ namespace UC.Net
 			if(FundJoiners.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableAssignments Prefix length");
 			if(FundLeavers.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableRevocations Prefix length");
 
-			w.Write(Payloads,				i => w.Write(i));
-			w.Write(Violators,				i => w.Write(i));
-			w.Write(Joiners,				i => w.Write(i));
-			w.Write(Leavers,				i => w.Write(i));
-			w.Write(HubJoiners,				i => w.Write(i));
-			w.Write(HubLeavers,				i => w.Write(i));
+			w.Write(Payloads,		i => w.Write(i));
+			w.Write(Violators,		i => w.Write(i));
+			w.Write(Joiners,		i => w.Write(i));
+			w.Write(Leavers,		i => w.Write(i));
+			w.Write(HubJoiners,		i => w.Write(i));
+			w.Write(HubLeavers,		i => w.Write(i));
 			w.Write(FundJoiners,	i => w.Write(i));
 			w.Write(FundLeavers,	i => w.Write(i));
 			w.Write(Time);
@@ -61,15 +61,15 @@ namespace UC.Net
 
 		public void Read(BinaryReader r)
 		{
-			Payloads			= r.ReadList(() => r.ReadBytes(PrefixLength));
-			Violators			= r.ReadList(() => r.ReadBytes(PrefixLength));
-			Joiners				= r.ReadList(() => r.ReadBytes(PrefixLength));
-			Leavers				= r.ReadList(() => r.ReadBytes(PrefixLength));
-			HubJoiners			= r.ReadList(() => r.ReadBytes(PrefixLength));
-			HubLeavers			= r.ReadList(() => r.ReadBytes(PrefixLength));
+			Payloads	= r.ReadList(() => r.ReadBytes(PrefixLength));
+			Violators	= r.ReadList(() => r.ReadBytes(PrefixLength));
+			Joiners		= r.ReadList(() => r.ReadBytes(PrefixLength));
+			Leavers		= r.ReadList(() => r.ReadBytes(PrefixLength));
+			HubJoiners	= r.ReadList(() => r.ReadBytes(PrefixLength));
+			HubLeavers	= r.ReadList(() => r.ReadBytes(PrefixLength));
 			FundJoiners	= r.ReadList(() => r.ReadBytes(PrefixLength));
 			FundLeavers	= r.ReadList(() => r.ReadBytes(PrefixLength));
-			Time				= r.ReadTime();
+			Time		= r.ReadTime();
 		}
 
 		public override bool Equals(object obj)
@@ -92,12 +92,12 @@ namespace UC.Net
 
 		public bool Equals(RoundReference o)
 		{
-			return	Payloads			.SequenceEqual(o.Payloads,				new BytesEqualityComparer()) &&
-					Violators			.SequenceEqual(o.Violators,				new BytesEqualityComparer()) &&
-					Joiners				.SequenceEqual(o.Joiners,				new BytesEqualityComparer()) &&
-					Leavers				.SequenceEqual(o.Leavers,				new BytesEqualityComparer()) &&
-					HubJoiners			.SequenceEqual(o.HubJoiners,			new BytesEqualityComparer()) &&
-					HubLeavers			.SequenceEqual(o.HubLeavers,			new BytesEqualityComparer()) &&
+			return	Payloads	.SequenceEqual(o.Payloads,		new BytesEqualityComparer()) &&
+					Violators	.SequenceEqual(o.Violators,		new BytesEqualityComparer()) &&
+					Joiners		.SequenceEqual(o.Joiners,		new BytesEqualityComparer()) &&
+					Leavers		.SequenceEqual(o.Leavers,		new BytesEqualityComparer()) &&
+					HubJoiners	.SequenceEqual(o.HubJoiners,	new BytesEqualityComparer()) &&
+					HubLeavers	.SequenceEqual(o.HubLeavers,	new BytesEqualityComparer()) &&
 					FundJoiners	.SequenceEqual(o.FundJoiners,	new BytesEqualityComparer()) &&
 					FundLeavers	.SequenceEqual(o.FundLeavers,	new BytesEqualityComparer()) &&
 					Time == o.Time;
