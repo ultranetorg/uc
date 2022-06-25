@@ -332,6 +332,11 @@ namespace UC.Net
 
 		public override Response Execute(Core core)
 		{
+			if(core.Hub == null)
+			{
+				throw new RequirementException("Is not hub");
+			}
+
 			return new LocatePackageResponse {Seeders = core.Hub.Locate(this)};
 		}
 	}
@@ -353,6 +358,6 @@ namespace UC.Net
 
 	public class DownloadPackagerResponse : Response
 	{
-		public byte[]		Data { get; set; }
+		public byte[] Data { get; set; }
 	}
 }

@@ -824,31 +824,34 @@ namespace UC.Net
 			d.Add("Address").Value = Address;
 			d.Add("Channel").Value = Channel;
 			d.Add("PreviousVersion").Value = PreviousVersion;
-
-			d.Add("CompleteHash").Value = Hex.ToHexString(CompleteHash);
-			d.Add("CompleteSize").Value = CompleteSize;
-
-			if(CompleteDependencies.Any())
-			{
-				var cd = d.Add("CompleteDependencies");
-				foreach(var i in CompleteDependencies)
-				{
-					cd.Add(i.ToString());
-				}
-			}
-
-			if(IncrementalSize > 0)
-			{
-				d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
-				d.Add("IncrementalHash").Value = Hex.ToHexString(IncrementalHash);
-				d.Add("IncrementalSize").Value = IncrementalSize;
 	
-				if(IncrementalDependencies.Any())
+			if(!Archived)
+			{
+				d.Add("CompleteHash").Value = Hex.ToHexString(CompleteHash);
+				d.Add("CompleteSize").Value = CompleteSize;
+	
+				if(CompleteDependencies.Any())
 				{
-					var id = d.Add("IncrementalDependencies");
-					foreach(var i in IncrementalDependencies)
+					var cd = d.Add("CompleteDependencies");
+					foreach(var i in CompleteDependencies)
 					{
-						id.Add(i.ToString());
+						cd.Add(i.ToString());
+					}
+				}
+	
+				if(IncrementalSize > 0)
+				{
+					d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
+					d.Add("IncrementalHash").Value = Hex.ToHexString(IncrementalHash);
+					d.Add("IncrementalSize").Value = IncrementalSize;
+		
+					if(IncrementalDependencies.Any())
+					{
+						var id = d.Add("IncrementalDependencies");
+						foreach(var i in IncrementalDependencies)
+						{
+							id.Add(i.ToString());
+						}
 					}
 				}
 			}
@@ -903,6 +906,10 @@ namespace UC.Net
 		{
 			base.Read(r);
 
+			Address = r.Read<ReleaseAddress>();
+			Channel = r.ReadUtf8();
+			PreviousVersion = r.ReadVersion();
+
 			Archived = r.ReadBoolean();
 
 			if(Archived)
@@ -911,10 +918,6 @@ namespace UC.Net
 			} 
 			else
 			{
-				Address = r.Read<ReleaseAddress>();
-				Channel = r.ReadUtf8();
-				PreviousVersion = r.ReadVersion();
-
 				CompleteSize = r.Read7BitEncodedInt64();
 				CompleteHash = r.ReadSha3();
 				CompleteDependencies = r.ReadArray<ReleaseAddress>();
@@ -936,6 +939,10 @@ namespace UC.Net
 		{
 			base.Write(w);
 
+			w.Write(Address);
+			w.WriteUtf8(Channel);
+			w.Write(PreviousVersion);
+
 			w.Write(Archived);
 
 			if(Archived)
@@ -944,10 +951,6 @@ namespace UC.Net
 			} 
 			else
 			{
-				w.Write(Address);
-				w.WriteUtf8(Channel);
-				w.Write(PreviousVersion);
-
 				w.Write7BitEncodedInt64(CompleteSize);
 				w.Write(CompleteHash);
 				w.Write(CompleteDependencies);
