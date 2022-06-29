@@ -788,6 +788,9 @@ namespace UC.Net
 		byte[]							Hash;
 		bool							Archived;
 
+		public const string				IncrementalSizeField = "IncrementalSize";
+		public const string				CompleteSizeField = "CompleteSize";
+
 		public ReleaseManifest()
 		{
 		}
@@ -828,7 +831,7 @@ namespace UC.Net
 			if(!Archived)
 			{
 				d.Add("CompleteHash").Value = Hex.ToHexString(CompleteHash);
-				d.Add("CompleteSize").Value = CompleteSize;
+				d.Add(CompleteSizeField).Value = CompleteSize;
 	
 				if(CompleteDependencies.Any())
 				{
@@ -843,7 +846,7 @@ namespace UC.Net
 				{
 					d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
 					d.Add("IncrementalHash").Value = Hex.ToHexString(IncrementalHash);
-					d.Add("IncrementalSize").Value = IncrementalSize;
+					d.Add(IncrementalSizeField).Value = IncrementalSize;
 		
 					if(IncrementalDependencies.Any())
 					{

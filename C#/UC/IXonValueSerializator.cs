@@ -32,6 +32,7 @@ namespace UC
 			var v = value as string;
 
 			if(typeof(O) == typeof(int))	return (O)(object)int.Parse(v);
+			if(typeof(O) == typeof(long))	return (O)(object)long.Parse(v);
 			if(typeof(O) == typeof(string))	return (O)(object)v;
 
 			throw new NotSupportedException();

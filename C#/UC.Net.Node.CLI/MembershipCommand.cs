@@ -36,7 +36,7 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "declare" : 
-					return Send(() => Client.Enqueue(new CandidacyDeclaration(	GetPrivate("candidate", "password"), 
+					return Send(() => Node.Enqueue(new CandidacyDeclaration(	GetPrivate("candidate", "password"), 
 																				Coin.ParseDecimal(GetString("bail")), 
 																				IPAddress.Parse(GetString("ip")))));
 				default:

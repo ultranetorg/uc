@@ -49,21 +49,21 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "bid" : 
-					return Send(() => Client.Enqueue(new AuthorBid(	GetPrivate("by", "password"), 
+					return Send(() => Node.Enqueue(new AuthorBid(	GetPrivate("by", "password"), 
 																	GetString("name"),
 																	Coin.ParseDecimal(GetString("amount")))));
 		   		case "register" : 
-					return Send(() => Client.Enqueue(new AuthorRegistration(GetPrivate("by", "password"), 
+					return Send(() => Node.Enqueue(new AuthorRegistration(GetPrivate("by", "password"), 
 																			GetString("name"),
 																			GetString("title"),
 																			byte.Parse(GetString("years")))));
 		   		case "transfer" : 
-					return Send(() => Client.Enqueue(new AuthorTransfer(GetPrivate("from", "password"), 
+					return Send(() => Node.Enqueue(new AuthorTransfer(GetPrivate("from", "password"), 
 																		GetString("name"),
 																		Account.Parse(GetString("to")))));
 		   		case "overview" :
 				{
-					var i = Client.ConnectToNode().GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
+					var i = Node.Connect(Role.Chain, null, Cancellation.Token).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
 
 					Log.Report(this, "Author", $"'{GetString("name")}' :");
 

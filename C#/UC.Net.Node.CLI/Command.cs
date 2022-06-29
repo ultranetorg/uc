@@ -12,26 +12,26 @@ namespace UC.Net.Node.CLI
 {
 	public abstract class Command : IFlowControl
 	{
-		protected Settings		Settings; 
-		protected Log			Log; 
-		protected Xon			Args;
-		protected Core			Core => CoreFunc();
-		protected Func<Core>	CoreFunc;
-		protected static bool	ConsoleSupported = true;
-		Operation				Operation;
-
-		Log						IFlowControl.Log => Log;
+		protected Settings					Settings; 
+		protected Log						Log; 
+		protected Xon						Args;
+		protected Core						Core => CoreFunc();
+		protected Func<Core>				CoreFunc;
+		protected static bool				ConsoleSupported = true;
+		Operation							Operation;
+		public CancellationTokenSource		Cancellation = new CancellationTokenSource();
+		Log									IFlowControl.Log => Log;
 
 		public abstract object Execute();
 
-		protected Core Client
+		protected Core Node
 		{
 			get
 			{
-				if(Core.IsClient)
+				if(Core.IsNodee)
 					return Core;
 
-				Core.RunClient(() => ConsoleSupported && Console.KeyAvailable);
+				Core.RunNode(() => ConsoleSupported && Console.KeyAvailable);
 
 				return Core;
 			}
@@ -132,7 +132,7 @@ namespace UC.Net.Node.CLI
 				p = a.Password; 
 			}
 
-			return Client.Vault.Unlock(Account.Parse(GetString(walletarg)), p);
+			return Node.Vault.Unlock(Account.Parse(GetString(walletarg)), p);
 		}
 
 		protected object Send(Func<object> create)

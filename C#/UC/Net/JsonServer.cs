@@ -163,7 +163,7 @@ namespace UC.Net
 					switch(call)
 					{
 						case RunCall e:
-							Core.RunNode();
+							Core.RunChain();
 							break;
 
 						case AddWalletCall e:

@@ -5,8 +5,11 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
+using System.Diagnostics;
 
 namespace UC.Net.Node.FUI
 {
@@ -42,10 +45,15 @@ namespace UC.Net.Node.FUI
 			Fields.Text = null;
 			Values.Text = null;
 
-			lock(Core.Lock)
-			{
-				var ai = Core.ConnectToNode().GetAuthorInfo(AuthorSearch.Text, false);
+			var c = new CancellationTokenSource(30 * 1000);
 
+			try
+			{
+				AuthorInfoResponse ai;
+
+				lock(Core.Lock)
+					ai = Core.Connect(Role.Chain, null, c.Token).GetAuthorInfo(AuthorSearch.Text, false);
+	
 				if(ai.Xon != null)
 					ai.Xon.Dump((n, t) => 
 								{
@@ -54,6 +62,14 @@ namespace UC.Net.Node.FUI
 								});
 				else 
 					Fields.Text = "Not found";
+			}
+			catch(Exception ex) when(!Debugger.IsAttached)
+			{
+				ShowException("Falied", ex);
+			}
+			finally
+			{
+				c.Dispose();
 			}
 		}
 

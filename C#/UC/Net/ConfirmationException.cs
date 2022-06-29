@@ -2,13 +2,14 @@
 
 namespace UC.Net
 {
-	public class ConfirmationException : Exception
+	public class ConnectionFailedException : Exception
 	{
-		Round Round;
-
-		public ConfirmationException(string m, Round r) : base(m)
+		public ConnectionFailedException(string m)
 		{
-			Round = r;
+		}
+
+		public ConnectionFailedException(string m, Exception ex) : base(m, ex)
+		{
 		}
 	}
 }

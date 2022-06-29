@@ -22,12 +22,13 @@ namespace UC
 		public List<Xon>				Nodes = new List<Xon>();
 		public Xon 						Parent;
 		
-		public IXonValueSerializator		Serializator = AsIsXonValueSerializator.Default;
+		public IXonValueSerializator	Serializator = AsIsXonValueSerializator.Default;
 		public object					_Value;
 		public object					Value { set => _Value = value is null ? null : (value is Xon ? value : Serializator.Set(this, value)); get => _Value; }
 
 		public string					String => Serializator.Get<String>(this, _Value);
 		public int						Int => Serializator.Get<Int32>(this, _Value);
+		public long						Long => Serializator.Get<Int64>(this, _Value);
 
 		public List<Xon>				Templates = new List<Xon>();
 		public bool						IsTemplate = false;
@@ -197,6 +198,7 @@ namespace UC
 
 		public string	GetString(string name) => One(name).String;
 		public int		GetInt32(string name) => One(name).Int;
+		public long		GetInt64(string name) => One(name).Long;
 		public O		Get<O>(string name) where O : new() => Serializator.Get<O>(this, One(name).Value);
 			//public long		GetInt64(string name) => One(name).Value;
 	}

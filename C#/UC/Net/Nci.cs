@@ -12,7 +12,7 @@ namespace UC.Net
 	public enum NciCall : byte
 	{
 		Null, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
-		QueryRelease, DeclarePackages, LocatePackage, DownloadPackage
+		QueryRelease, DeclarePackage, LocatePackage, DownloadPackage
 	}
 
 	public abstract class Nci
@@ -29,13 +29,16 @@ namespace UC.Net
 		public DelegateTransactionsResponse		Send(DelegateTransactionsRequest call) => Request<DelegateTransactionsResponse>(call);
 		public GetOperationStatusResponse		Send(GetOperationStatusRequest call) => Request<GetOperationStatusResponse>(call);
 		public GetMembersResponse				Send(GetMembersRequest call) => Request<GetMembersResponse>(call);
+		//public LocatePackageResponse			Send(LocatePackageRequest call) => Request<LocatePackageResponse>(call);
 
  
 		public AuthorInfoResponse				GetAuthorInfo(string author, bool confirmed) => Request<AuthorInfoResponse>(new AuthorInfoRequest{ Name = author, Confirmed = confirmed });
 		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{ Account = account, Confirmed = confirmed });
-		public QueryReleaseResponse				QueryRelease(ReleaseQuery release, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] { release }, Confirmed = confirmed });
-		//public LocatePackageResponse			LocatePackage(PackageAddress package) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package });
-		public DownloadPackagerResponse			DownloadPackage(PackageDownload request) => Request<DownloadPackagerResponse>(new DownloadPackageRequest{ Request = request });
+		public QueryReleaseResponse				QueryRelease(ReleaseQuery query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {query}, Confirmed = confirmed });
+		public QueryReleaseResponse				QueryRelease(ReleaseAddress release, VersionQuery version, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(release, version, channel)}, Confirmed = confirmed });
+		public LocatePackageResponse			LocatePackage(PackageAddress package, int count) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package, Count = count  });
+		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = packages});
+		public DownloadPackageResponse			DownloadPackage(PackageAddress package, long offset, long length) => Request<DownloadPackageResponse>(new DownloadPackageRequest{Package = package, Offset = offset, Length = length});
 	}
 
 	public abstract class Request : ITypedBinarySerializable
@@ -46,7 +49,7 @@ namespace UC.Net
 		public Peer						Peer;
 		public ManualResetEvent			Event;
 		public Response					RecievedResponse;
-		public bool						Sent;
+		//public bool						Sent;
 		public Action					Process;
 
 		public const int				IdLength = 8;
@@ -290,7 +293,7 @@ namespace UC.Net
 	public class QueryReleaseRequest : Request
 	{
 		public IEnumerable<ReleaseQuery>	Queries { get; set; }
-		public bool							Confirmed {get; set;}
+		public bool							Confirmed { get; set; }
 
 		public bool							Valid => Queries.All(i => i.Valid);
 
@@ -300,16 +303,16 @@ namespace UC.Net
  				if(core.Synchronization != Synchronization.Synchronized)
 					throw new RpcException("Not synchronized");
 				else
- 					return new QueryReleaseResponse {Xons = Queries.Select(i => core.Chain.QueryRelease(i, Confirmed, new XonTypedBinaryValueSerializator()))};
+ 					return new QueryReleaseResponse {Manifests = Queries.Select(i => core.Chain.QueryRelease(i, Confirmed, new XonTypedBinaryValueSerializator()))};
 		}
 	}
 	
 	public class QueryReleaseResponse : Response
 	{
-		public IEnumerable<XonDocument> Xons {get; set;}
+		public IEnumerable<XonDocument> Manifests { get; set; }
 	}
 
-	public class DeclarePackagesRequest : Request
+	public class DeclarePackageRequest : Request
 	{
 		public IEnumerable<PackageAddress> Packages { get; set; }
 
@@ -317,11 +320,11 @@ namespace UC.Net
 		{
 			core.Hub.Declare(Peer.IP, Packages);
 
-			return new DeclarePackagesResponse();
+			return new DeclarePackageResponse();
 		}
 	}
 	
-	public class DeclarePackagesResponse : Response
+	public class DeclarePackageResponse : Response
 	{
 	}
 
@@ -334,7 +337,7 @@ namespace UC.Net
 		{
 			if(core.Hub == null)
 			{
-				throw new RequirementException("Is not hub");
+				throw new RequirementException("Is not Hub");
 			}
 
 			return new LocatePackageResponse {Seeders = core.Hub.Locate(this)};
@@ -348,15 +351,22 @@ namespace UC.Net
 
 	public class DownloadPackageRequest : Request
 	{
-		public PackageDownload	Request { get; set; }
+		public PackageAddress		Package { get; set; }
+		public long					Offset { get; set; }
+		public long					Length { get; set; }
 
 		public override Response Execute(Core core)
 		{
-			throw new NotImplementedException();
+			if(core.Filebase == null)
+			{
+				throw new RequirementException("Is not Filebase");
+			}
+
+			return new DownloadPackageResponse{Data = core.Filebase.ReadPackage(Package, Offset, Length)};
 		}
 	}
 
-	public class DownloadPackagerResponse : Response
+	public class DownloadPackageResponse : Response
 	{
 		public byte[] Data { get; set; }
 	}

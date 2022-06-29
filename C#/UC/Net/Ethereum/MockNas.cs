@@ -38,7 +38,7 @@ namespace UC.Net
 				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToList();
 			}
 		
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		public string GetZone(string name)

@@ -36,6 +36,7 @@ namespace UC.Net.Node.FUI
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
 					r.SubItems.Add(i.Retries.ToString());
+					r.SubItems.Add(string.Join(", ", Enum.GetValues<Role>().Where(j => i.Role.HasFlag(j))));
 					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));
 					r.Tag = i;
 				}
@@ -49,6 +50,13 @@ namespace UC.Net.Node.FUI
 					li.SubItems.Add(i.IP.ToString());
 				}
 
+				foreach(var i in Core.Peers.Where(i => i.Role.HasFlag(Role.Hub)).OrderBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
+				{
+					var li = new ListViewItem(i.IP.ToString());
+					//li.SubItems.Add(i.JoinedHubsAt.ToString());
+					Hubs.Items.Add(li);
+				}
+
 				if(Chain != null)
 				{
 					foreach(var i in Chain.Funds.OrderBy(i => i))
@@ -57,12 +65,6 @@ namespace UC.Net.Node.FUI
 						Funds.Items.Add(li);
 					}
 	
-					foreach(var i in Chain.Hubs.OrderBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
-					{
-						var li = new ListViewItem(i.IP.ToString());
-						li.SubItems.Add(i.JoinedHubsAt.ToString());
-						Hubs.Items.Add(li);
-					}
 				}
 			}
 		}

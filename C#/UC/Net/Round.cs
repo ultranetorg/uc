@@ -31,8 +31,6 @@ namespace UC.Net
 		public IEnumerable<Account>						ElectedViolators	=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
 		public IEnumerable<Account>						ElectedJoiners		=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Majority.Count() * 2 / 3);
 		public IEnumerable<Account>						ElectedLeavers		=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<IPAddress>					ElectedHubJoiners	=> Majority.SelectMany(i => i.HubJoiners).Distinct().Where(j => Majority.Count(b => b.HubJoiners.Contains(j)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<IPAddress>					ElectedHubLeavers	=> Majority.SelectMany(i => i.HubLeavers).Distinct().Where(l => Majority.Count(b => b.HubLeavers.Contains(l)) >= Majority.Count() * 2 / 3);
 		public IEnumerable<Account>						ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
 		public IEnumerable<Account>						ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
 
@@ -43,8 +41,6 @@ namespace UC.Net
 		public List<Account>							ConfirmedViolators;
 		public List<Account>							ConfirmedJoiners;
 		public List<Account>							ConfirmedLeavers;
-		public List<IPAddress>							ConfirmedHubJoiners;
-		public List<IPAddress>							ConfirmedHubLeavers;
 		public List<Account>							ConfirmedFundJoiners;
 		public List<Account>							ConfirmedFundLeavers;
 
@@ -262,8 +258,6 @@ namespace UC.Net
 			writer.Write(ConfirmedViolators);
 			writer.Write(ConfirmedJoiners);
 			writer.Write(ConfirmedLeavers);
-			writer.Write(ConfirmedHubJoiners, i => writer.Write(i));
-			writer.Write(ConfirmedHubLeavers, i => writer.Write(i));
 			writer.Write(ConfirmedFundJoiners);
 			writer.Write(ConfirmedFundLeavers);
 		}
@@ -285,8 +279,6 @@ namespace UC.Net
 			ConfirmedViolators		= reader.ReadList<Account>();
 			ConfirmedJoiners		= reader.ReadList<Account>();
 			ConfirmedLeavers		= reader.ReadList<Account>();
-			ConfirmedHubJoiners		= reader.ReadList(() => reader.ReadIPAddress());
-			ConfirmedHubLeavers		= reader.ReadList(() => reader.ReadIPAddress());
 			ConfirmedFundJoiners	= reader.ReadList<Account>();
 			ConfirmedFundLeavers	= reader.ReadList<Account>();
 		}

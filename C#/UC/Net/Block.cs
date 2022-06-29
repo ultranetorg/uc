@@ -131,37 +131,6 @@ namespace UC.Net
 		}
 	}
 	
-	public class HubJoinRequest : Block
-	{
-		public IPAddress	IP;
-
-		public HubJoinRequest(Roundchain c) : base(c)
-		{
-		}
-
-		public override string ToString()
-		{
-			return base.ToString() + ", IP=" + IP;
-		}
-
-		protected override void WriteForSigning(BinaryWriter w)
-		{
-			w.Write(IP);
-		}
-
-		public override void Write(BinaryWriter w)
-		{
-			base.Write(w);
-			w.Write(IP);
-		}
-
-		public override void Read(BinaryReader r)
-		{
-			base.Read(r);
-			IP = r.ReadIPAddress();
-		}
-	}
-
 	public class Vote : Block
 	{
 		public int					Try; /// TODO: revote if consensus not reached
@@ -171,8 +140,6 @@ namespace UC.Net
 		public List<Account>		Violators = new();
 		public List<Account>		Joiners = new();
 		public List<Account>		Leavers = new();
-		public List<IPAddress>		HubJoiners = new();
-		public List<IPAddress>		HubLeavers = new();
 		public List<Account>		FundJoiners = new();
 		public List<Account>		FundLeavers = new();
 		//public List<Proposition>	Propositions = new();
@@ -198,8 +165,6 @@ namespace UC.Net
 			writer.Write(Violators);
 			writer.Write(Joiners);
 			writer.Write(Leavers);
-			writer.Write(HubJoiners, i => writer.Write(i.GetAddressBytes()));
-			writer.Write(HubLeavers, i => writer.Write(i.GetAddressBytes()));
 			writer.Write(FundJoiners);
 			writer.Write(FundLeavers);
 		}
@@ -215,8 +180,6 @@ namespace UC.Net
 			writer.Write(Violators);
 			writer.Write(Joiners);
 			writer.Write(Leavers);
-			writer.Write(HubJoiners, i => writer.Write(i.GetAddressBytes()));
-			writer.Write(HubLeavers, i => writer.Write(i.GetAddressBytes()));
 			writer.Write(FundJoiners);
 			writer.Write(FundLeavers);
 		}
@@ -233,8 +196,6 @@ namespace UC.Net
 			Violators	= reader.ReadAccounts();
 			Joiners		= reader.ReadAccounts();
 			Leavers		= reader.ReadAccounts();
-			HubJoiners	= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
-			HubLeavers	= reader.ReadList(() => new IPAddress(reader.ReadBytes(4)));
 			FundJoiners	= reader.ReadAccounts();
 			FundLeavers	= reader.ReadAccounts();
 

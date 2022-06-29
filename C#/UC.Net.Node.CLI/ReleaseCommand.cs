@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Org.BouncyCastle.Utilities.Encoders;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace UC.Net.Node.CLI
 {
@@ -29,7 +30,7 @@ namespace UC.Net.Node.CLI
 			{
 
 				case "declare" : 
-					return Send(() => Client.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
+					return Send(() => Node.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
 																			ReleaseAddress.Parse(GetString("address")),
 																			GetString("channel"), 
 																			GetVersion("previous"),
@@ -79,14 +80,14 @@ namespace UC.Net.Node.CLI
 						}
 					}
 
-					var cpkg = Client.Filebase.Add(r, Distribution.Complete, files);
-					var ipkg = Client.Filebase.AddIncremental(r, files, out Version previous, out Version minimal);
+					var cpkg = Node.Filebase.Add(r, Distribution.Complete, files);
+					var ipkg = Node.Filebase.AddIncremental(r, files, out Version previous, out Version minimal);
 
-					return Send(() => Client.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
+					var rm = Send(() => Node.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
 																			r,
 																			GetString("channel"), 
 																			previous,
-																			
+																	
 																			new FileInfo(cpkg).Length,
 																			Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
 																			GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
@@ -95,14 +96,68 @@ namespace UC.Net.Node.CLI
 																			ipkg != null ? new FileInfo(ipkg).Length : 0,
 																			ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
 																			GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i))
-																			)));
+																		   )));
+
+					Log?.Report(this, "Manifest added to the chain");
+
+					var hubs = new HashSet<Peer>();
+					
+					int success = 0;
+					int failures = 0;
+
+					while(success < 8 && success + failures < Node.Peers.Count(i => i.Role.HasFlag(Role.Hub)))
+					{
+						Peer h = null;
+
+						try
+						{
+							h = Node.Connect(Role.Hub, hubs, Cancellation.Token);
+							success++;
+						}
+						catch(ConnectionFailedException)
+						{
+							failures++;
+							continue;
+						}
+						catch(OperationCanceledException)
+						{
+							if(Cancellation.IsCancellationRequested)
+								throw;
+							else
+							{
+								failures++;
+								continue;	
+							}
+						}
+
+						h.DeclarePackage(new[]{new PackageAddress(r, Distribution.Complete), new PackageAddress(r, Distribution.Incremental)});
+						
+						Log?.Report(this, "Package declared", $"Hub={h.IP}");
+
+						hubs.Add(h);
+					}
+					
+					return rm;
+				}
+
+				case "download" :
+				{
+					var d = Node.DownloadPackage(PackageAddress.Parse(GetString("address")), CancellationToken.None);
+
+					while(!d.Succeeded)
+					{
+						Log.Report(this, $"{d.CurrentLength}/{d.TotalLength}");
+						Thread.Sleep(1000);
+					}
+
+					return d;
 				}
 
 		   		case "status" :
 				{
-					var r = Client.ConnectToNode().QueryRelease(ReleaseQuery.Parse(GetString("query")), Args.Has("confirmed"));
+					var r = Node.Connect(Role.Chain, null, Cancellation.Token).QueryRelease(ReleaseQuery.Parse(GetString("query")), Args.Has("confirmed"));
 
-					foreach(var item in r.Xons)
+					foreach(var item in r.Manifests)
 					{
 						Dump(item);
 					}

@@ -47,6 +47,7 @@ namespace UC.Net.Node.FUI
 			this.columnHeader13 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader14 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader15 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader16 = new System.Windows.Forms.ColumnHeader();
 			this.SuspendLayout();
 			// 
@@ -60,10 +61,10 @@ namespace UC.Net.Node.FUI
             this.columnHeader2});
 			this.Generators.FullRowSelect = true;
 			this.Generators.HideSelection = false;
-			this.Generators.Location = new System.Drawing.Point(0, 860);
-			this.Generators.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.Generators.Location = new System.Drawing.Point(0, 403);
+			this.Generators.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Generators.Name = "Generators";
-			this.Generators.Size = new System.Drawing.Size(933, 778);
+			this.Generators.Size = new System.Drawing.Size(504, 367);
 			this.Generators.TabIndex = 1;
 			this.Generators.UseCompatibleStateImageBehavior = false;
 			this.Generators.View = System.Windows.Forms.View.Details;
@@ -95,10 +96,10 @@ namespace UC.Net.Node.FUI
 			this.DestLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.DestLabel.AutoSize = true;
 			this.DestLabel.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.DestLabel.Location = new System.Drawing.Point(7, 819);
-			this.DestLabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			this.DestLabel.Location = new System.Drawing.Point(4, 384);
+			this.DestLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.DestLabel.Name = "DestLabel";
-			this.DestLabel.Size = new System.Drawing.Size(135, 27);
+			this.DestLabel.Size = new System.Drawing.Size(71, 13);
 			this.DestLabel.TabIndex = 2;
 			this.DestLabel.Text = "Generators";
 			this.DestLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -107,10 +108,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(7, 23);
-			this.label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			this.label1.Location = new System.Drawing.Point(4, 11);
+			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(73, 27);
+			this.label1.Size = new System.Drawing.Size(39, 13);
 			this.label1.TabIndex = 2;
 			this.label1.Text = "Peers";
 			this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -124,10 +125,10 @@ namespace UC.Net.Node.FUI
             this.columnHeader6});
 			this.Hubs.FullRowSelect = true;
 			this.Hubs.HideSelection = false;
-			this.Hubs.Location = new System.Drawing.Point(985, 860);
-			this.Hubs.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.Hubs.Location = new System.Drawing.Point(530, 403);
+			this.Hubs.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Hubs.Name = "Hubs";
-			this.Hubs.Size = new System.Drawing.Size(917, 357);
+			this.Hubs.Size = new System.Drawing.Size(496, 169);
 			this.Hubs.TabIndex = 4;
 			this.Hubs.UseCompatibleStateImageBehavior = false;
 			this.Hubs.View = System.Windows.Forms.View.Details;
@@ -148,10 +149,10 @@ namespace UC.Net.Node.FUI
 			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label2.Location = new System.Drawing.Point(985, 819);
-			this.label2.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			this.label2.Location = new System.Drawing.Point(530, 384);
+			this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(68, 27);
+			this.label2.Size = new System.Drawing.Size(35, 13);
 			this.label2.TabIndex = 2;
 			this.label2.Text = "Hubs";
 			this.label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -164,10 +165,10 @@ namespace UC.Net.Node.FUI
             this.columnHeader9});
 			this.Funds.FullRowSelect = true;
 			this.Funds.HideSelection = false;
-			this.Funds.Location = new System.Drawing.Point(985, 1281);
-			this.Funds.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.Funds.Location = new System.Drawing.Point(530, 600);
+			this.Funds.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Funds.Name = "Funds";
-			this.Funds.Size = new System.Drawing.Size(917, 357);
+			this.Funds.Size = new System.Drawing.Size(496, 169);
 			this.Funds.TabIndex = 5;
 			this.Funds.UseCompatibleStateImageBehavior = false;
 			this.Funds.View = System.Windows.Forms.View.Details;
@@ -181,10 +182,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label3.Location = new System.Drawing.Point(985, 1236);
-			this.label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			this.label3.Location = new System.Drawing.Point(530, 579);
+			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(78, 27);
+			this.label3.Size = new System.Drawing.Size(40, 13);
 			this.label3.TabIndex = 2;
 			this.label3.Text = "Funds";
 			this.label3.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -198,13 +199,14 @@ namespace UC.Net.Node.FUI
             this.columnHeader13,
             this.columnHeader14,
             this.columnHeader15,
+            this.columnHeader7,
             this.columnHeader16});
 			this.Peers.FullRowSelect = true;
 			this.Peers.HideSelection = false;
-			this.Peers.Location = new System.Drawing.Point(0, 66);
-			this.Peers.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.Peers.Location = new System.Drawing.Point(0, 31);
+			this.Peers.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Peers.Name = "Peers";
-			this.Peers.Size = new System.Drawing.Size(1902, 714);
+			this.Peers.Size = new System.Drawing.Size(1026, 337);
 			this.Peers.TabIndex = 6;
 			this.Peers.UseCompatibleStateImageBehavior = false;
 			this.Peers.View = System.Windows.Forms.View.Details;
@@ -212,29 +214,33 @@ namespace UC.Net.Node.FUI
 			// columnHeader13
 			// 
 			this.columnHeader13.Text = "IP";
-			this.columnHeader13.Width = 200;
+			this.columnHeader13.Width = 100;
 			// 
 			// columnHeader14
 			// 
 			this.columnHeader14.Text = "Status";
 			this.columnHeader14.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			this.columnHeader14.Width = 200;
+			this.columnHeader14.Width = 150;
 			// 
 			// columnHeader15
 			// 
 			this.columnHeader15.Text = "Retries";
 			this.columnHeader15.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader15.Width = 150;
+			this.columnHeader15.Width = 75;
+			// 
+			// columnHeader7
+			// 
+			this.columnHeader7.Text = "Roles";
+			this.columnHeader7.Width = 200;
 			// 
 			// columnHeader16
 			// 
 			this.columnHeader16.Text = "Last Seen";
-			this.columnHeader16.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader16.Width = 200;
+			this.columnHeader16.Width = 150;
 			// 
 			// NetworkPanel
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.Peers);
 			this.Controls.Add(this.Funds);
@@ -244,9 +250,9 @@ namespace UC.Net.Node.FUI
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.DestLabel);
 			this.Controls.Add(this.Generators);
-			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "NetworkPanel";
-			this.Size = new System.Drawing.Size(1902, 1638);
+			this.Size = new System.Drawing.Size(1024, 768);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -273,5 +279,6 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader15;
 		private System.Windows.Forms.ColumnHeader columnHeader16;
 		private System.Windows.Forms.ColumnHeader columnHeader6;
+		private System.Windows.Forms.ColumnHeader columnHeader7;
 	}
 }

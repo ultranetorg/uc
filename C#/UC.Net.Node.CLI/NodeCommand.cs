@@ -24,7 +24,7 @@ namespace UC.Net.Node.CLI
 			else
 			{
 				Core.RunApi();
-				Core.RunNode();
+				Core.RunChain();
 			}
 
 			if(ConsoleSupported)

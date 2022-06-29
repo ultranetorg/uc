@@ -43,20 +43,25 @@ namespace UC.Net.Node.FUI
 				if(!(bool)i.SubItems[1].Tag)
 				{
 					i.SubItems[1].Tag = true;
-
+	
 					Task.Run(	() =>
 								{
 									string t;
-
+									var c = new CancellationTokenSource(30 * 1000);
+	
 									try
 									{
-										t = Core.ConnectToNode().GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
+										t = Core.Connect(Role.Chain, null, c.Token).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{
 										t = "...";
 									}
-
+									finally
+									{
+										c.Dispose();
+									}
+	
 									Invoke(	(MethodInvoker) delegate
 											{
 												i.SubItems[1].Text = t; 
@@ -65,26 +70,31 @@ namespace UC.Net.Node.FUI
 								});
 				}
 			}
-
+	
 			foreach(ListViewItem i in accounts.Items)
 			{
 				if(!(bool)i.SubItems[2].Tag)
 				{
 					i.SubItems[2].Tag = true;
-
+	
 					Task.Run(	() =>
 								{
 									string t;
-
+									var c = new CancellationTokenSource(30 * 1000);
+	
 									try
 									{
-										t = Core.ConnectToNode().GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
+										t = Core.Connect(Role.Chain, null, c.Token).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
 									}
 									catch(RpcException)
 									{
 										t = "...";
 									}
-
+									finally
+									{
+										c.Dispose();
+									}
+	
 									Invoke(	(MethodInvoker) delegate
 											{
 												i.SubItems[2].Text = t; 

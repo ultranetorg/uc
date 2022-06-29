@@ -63,19 +63,19 @@ namespace UC.Net.Node.CLI
 
 				string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				Func<Core> d = () =>
-									 {
-									 	if(Core == null)
-									 		Core = new Core(Settings, dir, Log)
-													{
-														Clock = new RealTimeClock(), 
-														Nas = new Nas(Settings, Log), 
-														GasAsker = new SilentGasAsker(Log), 
-														FeeAsker = new SilentFeeAsker()
-													}; 
+				Func<Core> d =	() =>
+								{
+									if(Core == null)
+										Core = new Core(Settings, dir, Log)
+												{
+													Clock = new RealTimeClock(), 
+													Nas = new Nas(Settings, Log), 
+													GasAsker = new SilentGasAsker(Log), 
+													FeeAsker = new SilentFeeAsker()
+												}; 
 
-									 	return Core;
-									 };
+									return Core;
+								};
 				
 				Command c = null;
 

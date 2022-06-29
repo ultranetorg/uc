@@ -27,9 +27,9 @@ namespace UC.Net
 			Directory.CreateDirectory(Root);
 		}
 				
-		string ToPath(PackageAddress address)
+		string ToPath(PackageAddress package)
 		{
-			return Path.Join(Root, address.Author, address.Product, $"{address.Version}__{address.Platform}.{(address.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
+			return Path.Join(Root, package.Author, package.Product, $"{package.Version}__{package.Platform}.{(package.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
 		}
 
 		public void WriteInstalled(BinaryWriter writer)
@@ -175,18 +175,18 @@ namespace UC.Net
 			return Add(release, Distribution.Incremental, incs, rems);
 		}
 
-		public bool Exists(PackageAddress release)
+		public bool Exists(PackageAddress package)
 		{
-			return File.Exists(ToPath(release));
+			return File.Exists(ToPath(package));
 		}
 
-		public byte[] ReadPackage(PackageDownload request)
+		public byte[] ReadPackage(PackageAddress package, long offset, long length)
 		{
-			using(var s = new FileStream(ToPath(request), FileMode.Open, FileAccess.Read, FileShare.Read))
+			using(var s = new FileStream(ToPath(package), FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
-				s.Seek(request.Offset, SeekOrigin.Begin);
+				s.Seek(offset, SeekOrigin.Begin);
 				
-				var b = new byte[Math.Min(request.Length, PieceMaxLength)];
+				var b = new byte[Math.Min(length, PieceMaxLength)];
 	
 				s.Read(b);
 	
@@ -194,14 +194,19 @@ namespace UC.Net
 			}
 		}
 
-		public long GetLength(PackageAddress release)
+		public long GetLength(PackageAddress package)
 		{
-			return new FileInfo(ToPath(release)).Length;
+			return File.Exists(ToPath(package)) ? new FileInfo(ToPath(package)).Length : 0;
 		}
 
-		public void Append(PackageAddress release, byte[] data)
+		public void Append(PackageAddress package, byte[] data)
 		{
-			using(var s = new FileStream(ToPath(release), FileMode.Append, FileAccess.Write, FileShare.Read))
+			var dir = Path.Join(Root, package.Author, package.Product);
+
+			if(!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+
+			using(var s = new FileStream(ToPath(package), !File.Exists(ToPath(package)) ? FileMode.Create : FileMode.Append, FileAccess.Write, FileShare.Read))
 			{
 				s.Write(data);
 			}

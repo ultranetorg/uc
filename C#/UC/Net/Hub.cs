@@ -22,7 +22,7 @@ namespace UC.Net
  	public class Package
  	{
 		//public Peer				SearchInitiator;
-		public List<Seeder>	Seeders;
+		public List<Seeder>	Seeders = new();
  	}
 
 	public class Hub
@@ -75,7 +75,7 @@ namespace UC.Net
  			if(Packages.ContainsKey(request.Package))
 	 			return Packages[request.Package].Seeders.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedersPerRequestMax)).Select(i => i.IP).ToArray();
  			else
- 				throw new HubException("No seeders found"); /// TODO: ask other hub
+ 				return new IPAddress[0]; /// TODO: ask other hubs
  		}
 
 		void Searching()

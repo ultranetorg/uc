@@ -35,7 +35,7 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 				case "register" : 
-					return Send(() => Client.Enqueue(new ProductRegistration(	GetPrivate("by", "password"), 
+					return Send(() => Node.Enqueue(new ProductRegistration(	GetPrivate("by", "password"), 
 																				ProductAddress.Parse(GetString("address")),
 																				GetString("title"))));
 

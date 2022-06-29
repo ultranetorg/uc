@@ -110,8 +110,8 @@ namespace UC.Net.Node.FUI
 		{
 			lock(Core.Lock)
 			{
-				Text = "Ultranet " + (Core.IsNode ? "Node" : "Client"); //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += $"{(Core.IsNode && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.IsNode && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
+				Text = "Ultranet Node"; //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
+				Text += $"{(Core.IsNodee && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.IsNodee && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
 			}
 
 			foreach(var i in Controls)

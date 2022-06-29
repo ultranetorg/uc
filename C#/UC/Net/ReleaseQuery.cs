@@ -12,7 +12,7 @@ namespace UC.Net
 
 	public enum VersionQuery
 	{
-		Null, Latest
+		Null, Exact, Latest
 	}
 
 	public class ReleaseQuery : ReleaseAddress
@@ -23,6 +23,12 @@ namespace UC.Net
 		public override bool		Valid => true;
 
 		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string channel) : base(author, product, platform, version)
+		{
+			VersionQuery = versionQuery;
+			Channel = channel;
+		}
+
+		public ReleaseQuery(ReleaseAddress release, VersionQuery versionQuery, string channel) : base(release.Author, release.Product, release.Platform, release.Version)
 		{
 			VersionQuery = versionQuery;
 			Channel = channel;

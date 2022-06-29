@@ -42,7 +42,6 @@ namespace UC.Net
 	{
 		public IPAddress			IP {get; set;} 
 		public int					JoinedGeneratorsAt {get; set;}
-		public int					JoinedHubsAt {get; set;}
 		
 		public int					LastRound;
 		public int					LastConfirmedRound;
@@ -62,6 +61,10 @@ namespace UC.Net
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
+		public int					HubHits;
+		public int					HubMisses;
+		public List<PackageAddress>	HubMissedResources = new();
+		public List<PackageAddress>	HubHitResources = new();
 
 		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
@@ -87,22 +90,28 @@ namespace UC.Net
  		
   		public void SaveNode(BinaryWriter w)
   		{
-  			w.Write(LastSeen.ToBinary());
+  			w.Write7BitEncodedInt64(LastSeen.ToBinary());
+			w.Write7BitEncodedInt(HubHits);
+			w.Write7BitEncodedInt(HubMisses);
   		}
   
   		public void LoadNode(BinaryReader r)
   		{
-  			LastSeen = DateTime.FromBinary(r.ReadInt64());
+  			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
+			HubHits = r.Read7BitEncodedInt();
+			HubMisses = r.Read7BitEncodedInt();
   		}
  
  		public void WriteNode(BinaryWriter w)
  		{
  			w.Write(IP);
+			w.Write((byte)Role);
  		}
  
  		public void ReadNode(BinaryReader r)
  		{
  			IP = r.ReadIPAddress();
+			Role = (Role)r.ReadByte();
  		}
 		
   		public void WriteMember(BinaryWriter w)
@@ -119,17 +128,17 @@ namespace UC.Net
 			JoinedGeneratorsAt = r.Read7BitEncodedInt();
  		}
 		
-  		public void WriteHub(BinaryWriter w)
- 		{
- 			w.Write(IP);
-			w.Write7BitEncodedInt(JoinedHubsAt);
- 		}
- 
- 		public void ReadHub(BinaryReader r)
- 		{
- 			IP = r.ReadIPAddress();
-			JoinedHubsAt = r.Read7BitEncodedInt();
- 		}
+//   		public void WriteHub(BinaryWriter w)
+//  		{
+//  			w.Write(IP);
+// 			w.Write7BitEncodedInt(JoinedHubsAt);
+//  		}
+//  
+//  		public void ReadHub(BinaryReader r)
+//  		{
+//  			IP = r.ReadIPAddress();
+// 			JoinedHubsAt = r.Read7BitEncodedInt();
+//  		}
 
 		public static void SendHello(TcpClient client, Hello h)
 		{
@@ -207,31 +216,6 @@ namespace UC.Net
 									while(core.Working && Established)
 									{
 										Packet p = null;
-
-										lock(OutRequests)
-										{	
-											var notsent = OutRequests.Where(i => !i.Sent);
-											
-											if(notsent.Any())
-											{
-												p = new Packet();
-												//p.Header = core.Header;
-												p.Type = PacketType.Request;
-												//p.Data = Core.Write(OutRequests);
-												var s = new MemoryStream();
-												BinarySerializator.Serialize(new BinaryWriter(s), notsent);
-												p.Data = s;
-												
-												foreach(var i in notsent)
-												{
-													i.Sent = true;
-												}
-												//OutRequests.Clear();
-
-												lock(Out)
-													Out.Enqueue(p);
-											}
-										}
 											
 										lock(InRequests)
 											if(InRequests.Any())
@@ -249,7 +233,7 @@ namespace UC.Net
 															//rp = core.Respond(this, i);
 															rp.Status = ResponseStatus.OK;
 														}
-														catch(RpcException ex)
+														catch(Exception ex)
 														{
 															rp = Response.FromType(core.Chain, i.Type);
 															rp.Status = ResponseStatus.Failed;
@@ -401,8 +385,17 @@ namespace UC.Net
 				throw new RpcException("Peer is not connectevd");
 
 			lock(OutRequests)
-			{
+			{	
+				var p = new Packet();
+				p.Type = PacketType.Request;
+				var s = new MemoryStream();
+				BinarySerializator.Serialize(new BinaryWriter(s), new[]{rq});
+				p.Data = s;
+
 				OutRequests.Add(rq);
+												
+				lock(Out)
+					Out.Enqueue(p);
 			}
  
  			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : 15000))
@@ -413,7 +406,7 @@ namespace UC.Net
  				if(rq.RecievedResponse.Status == ResponseStatus.OK)
 	 				return rq.RecievedResponse as Rp;
  				else
-					throw new RpcException("Operation failed");
+					throw new RpcException("Failed");
  			}
 			else
  				throw new TimeoutException($"Request {rq.GetType().Name} has timed out");

@@ -39,6 +39,16 @@ namespace UC.Net
 		}
 	}
 
+	public class Download
+	{
+		public PackageAddress				Package;
+		public Dictionary<Peer, List<Peer>> HubsSeeders = new();
+		public Task							Task;
+		public long							TotalLength;
+		public long							CurrentLength;
+		public bool							Succeeded => TotalLength > 0 && CurrentLength == TotalLength;
+	}
+
 	public enum Synchronization
 	{
 		Null, Downloading, Synchronizing, Synchronized
@@ -46,8 +56,9 @@ namespace UC.Net
 
 	public enum Role
 	{
-		DMS = 0b00000001,
-		RDN = 0b00000010
+		Chain	= 0b00000001,
+		Seeder	= 0b00000010,
+		Hub		= 0b00000100,
 	}
  
 	public class Core : Nci
@@ -57,7 +68,6 @@ namespace UC.Net
 		public const int								Timeout = 15000;
 		public const int								OperationsQueueLimit = 1000;
 		public const string								SettingsFileName = "Settings.xon";
-
 		const int										BalanceWidth = 24;
 
 		public Log										Log;
@@ -67,13 +77,10 @@ namespace UC.Net
 		public Filebase									Filebase;
 		public Hub										Hub;
 		RocksDb											Database;
-		public bool										IsNode => ListeningThread != null;
-		public bool										IsClient => DelegatingThread != null;
+		public bool										IsNodee => ListeningThread != null && DelegatingThread != null;
 		public object									Lock = new();
 		public Settings									Settings;
 		public Clock									Clock;
-
-		//Nci												Nci;
 
 		CandidacyDeclaration							Declaration;
 		public Guid										Nuid;
@@ -90,7 +97,8 @@ namespace UC.Net
 		public List<IPAddress>							IgnoredIPs	= new();
 		public List<Block>								Cache		= new();
 		public List<Peer>								Members		= new();
-		Dictionary<PackageAddress, List<IPAddress>>		PackagePeers = new();
+		//Dictionary<PackageAddress, List<IPAddress>>		PackagePeers = new();
+		List<Download>									Downloads = new();
 
 		TcpListener										Listener;
 		Thread											ListeningThread;
@@ -265,9 +273,10 @@ namespace UC.Net
 			Filebase = new Filebase(Settings);
 		}
 
-		public void RunClient(Func<bool> abort = null)
+		public void RunNode(Func<bool> abort = null)
 		{
 			Abort = abort;
+			Nuid = Guid.NewGuid();
 
 			var descs = new ColumnFamilies.Descriptor[]	{
 															new (nameof(Peers), new ()),
@@ -277,7 +286,7 @@ namespace UC.Net
 			foreach(var i in descs)
 				cfamilies.Add(i);
 
-			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Client"), cfamilies);
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Relay"), cfamilies);
 			LoadPeers();
 
 			//overridefinal?.Invoke(Settings, Vault);
@@ -303,7 +312,7 @@ namespace UC.Net
  												if(!Working)
  													break;
  
- 												Connect();
+ 												MaintainPeerConnections();
  											}
  	
  											Thread.Sleep(1);
@@ -325,9 +334,10 @@ namespace UC.Net
 			}
 		}
 
-		public void RunNode()
+		public void RunChain()
 		{
 			Log?.Report(this, "Node started");
+			Nuid = Guid.NewGuid();
 
   			try
   			{
@@ -360,7 +370,6 @@ namespace UC.Net
 
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), cfamilies);
 			Chain = new Roundchain(Settings, Log, Nas, Vault, Database);
-			Nuid = Guid.NewGuid();
 
 			if(Settings.Generator != null)
 			{
@@ -405,7 +414,7 @@ namespace UC.Net
 							if(!Working)
 								break;
 
-							Connect();
+							MaintainPeerConnections();
 							Synchronize();
 	
 							if(Synchronization == Synchronization.Synchronized && Generator != null)
@@ -463,6 +472,24 @@ namespace UC.Net
 			Log?.Report(this, "Stopped", "Cause=" + message);
 		}
 
+		Peer GetPeer(IPAddress ip)
+		{
+			Peer p = null;
+
+			lock(Lock)
+			{
+				p = Peers.Find(i => i.IP.Equals(ip));
+	
+				if(p != null)
+					return p;
+	
+				p = new Peer(ip);
+				Peers.Add(p);
+			}
+
+			return p;
+		}
+
 		void LoadPeers()
 		{
 			using(var i = Database.NewIterator(PeersFamily))
@@ -489,7 +516,7 @@ namespace UC.Net
 
 						if(initials.Any())
 						{
-							RememberPeers(initials.Select(i => new Peer(i){ LastSeen = DateTime.UtcNow }));
+							RememberPeers(initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
 
 							Log?.Report(this, "Initial nodes retrieved", initials.Count.ToString());
 							break;
@@ -528,7 +555,7 @@ namespace UC.Net
 			}
 		}
 
-		void Connect()
+		void MaintainPeerConnections()
 		{
 			var needed = Settings.PeersMin - Peers.Count(i => i.Established || i.InStatus == EstablishingStatus.Initiated || i.OutStatus == EstablishingStatus.Initiated);
 		
@@ -599,7 +626,7 @@ namespace UC.Net
 
 			var h = new Hello();
 
-			h.Capabilities			= (Chain != null ? Role.DMS : 0) | (Filebase != null ? Role.RDN : 0);
+			h.Capabilities			= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seeder : 0) | (Hub != null ? Role.Hub : 0);
 			h.Versions				= Versions;
 			h.Zone					= Settings.Zone;
 			h.IP					= ip;
@@ -1204,8 +1231,6 @@ namespace UC.Net
 									Violators	= p.Forkers.ToList(),
 									Joiners		= Chain.ProposeJoiners(nar).ToList(),
 									Leavers		= Chain.ProposeLeavers(nar, Generator).ToList(),
-									HubJoiners	= Chain.ProposeHubJoiners(nar).ToList(),
-									HubLeavers	= Chain.ProposeHubLeavers(nar).ToList(),
 									FundJoiners	= new(),
 									FundLeavers	= new(),
 									//Propositions		= msgs
@@ -1249,8 +1274,6 @@ namespace UC.Net
 												Violators	= p.Forkers.ToList(),
 												Joiners		= Chain.ProposeJoiners(r).ToList(),
 												Leavers		= Chain.ProposeLeavers(r, Generator).ToList(),
-												HubJoiners	= Chain.ProposeHubJoiners(r).ToList(),
-												HubLeavers	= Chain.ProposeHubLeavers(r).ToList(),
 												FundJoiners	= new(),
 												FundLeavers	= new(),
 											};
@@ -1279,176 +1302,6 @@ namespace UC.Net
 			}
 
 			Statistics.Generating.End();
-		}
-
-		public Nci ConnectToMember()
-		{
-			lock(RemoteMemberLock)
-			{
-				if(Generator != null)
-				{
-					return this;
-				}
-
-				Peer peer;
-				
-				while(Working)
-				{
-					Thread.Sleep(1);
-	
-					lock(Lock)
-					{
-						peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
-	
-						if(peer == null)
-							continue;
-					}
-	
-					try
-					{
-						var cr = peer.Send(new GetMembersRequest());
-	
-						lock(Lock)
-						{
-							if(cr.Members.Any())
-							{
-								RememberPeers(cr.Members);
-
-								peer.ReachFailures = 0;
-	
-								Members = cr.Members.ToList();
-								
-								var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
-
-								if(c == null)
-									continue;
-			
-								c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
-
-								Log?.Report(this, "Member chosen", c.ToString());
-		
-								return c;
-							}
-						}
-					}
-					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
-					{
-						peer.ReachFailures++;
-					}
-				}
-	
-				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stopping");
-			}
-		}
-
-		public Nci ConnectToNode()
-		{
-			lock(RemoteMemberLock)
-			{
-				if(Generator != null)
-				{
-					return this;
-				}
-
-				Peer peer;
-				
-				while(Working)
-				{
-					Thread.Sleep(1);
-	
-					lock(Lock)
-					{
-						peer = Peers.OrderByDescending(i => i.Established && i.Role.HasFlag(Role.DMS)).ThenBy(i => i.ReachFailures).FirstOrDefault();
-	
-						if(peer == null)
-							continue;
-
-						if(!peer.Established && peer.InStatus != EstablishingStatus.Initiated && peer.OutStatus != EstablishingStatus.Initiated)
-						{
-							peer.LastTry = DateTime.UtcNow;
-							peer.Retries++;
-		
-							OutboundConnect(peer);
-						}
-					}
-
-					while(Working)
-					{
-						lock(Lock)
-							if(peer.Established || peer.OutStatus == EstablishingStatus.Failed)
-								break;
-
-						Thread.Sleep(1);
-					}
-
-					lock(Lock)
-						if(peer.Established)
-							return peer;
-				}
-	
-				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stopping");
-			}
-		}
-
-		public Nci[] ConnectToHubs()
-		{
-			throw new NotImplementedException();
-// 			lock(RemoteMemberLock)
-// 			{
-// 				if(Generator != null)
-// 				{
-// 					return this;
-// 				}
-// 
-// 				Peer peer;
-// 				
-// 				while(Working)
-// 				{
-// 					Thread.Sleep(1);
-// 	
-// 					lock(Lock)
-// 					{
-// 						peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
-// 	
-// 						if(peer == null)
-// 							continue;
-// 					}
-// 	
-// 					try
-// 					{
-// 						var cr = peer.Send(new GetMembersRequest());
-// 	
-// 						lock(Lock)
-// 						{
-// 							if(cr.Members.Any())
-// 							{
-// 								RememberPeers(cr.Members);
-// 
-// 								peer.ReachFailures = 0;
-// 	
-// 								Members = cr.Members.ToList();
-// 								
-// 								var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
-// 
-// 								if(c == null)
-// 									continue;
-// 			
-// 								c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
-// 
-// 								Log?.Report(this, "Member chosen", c.ToString());
-// 		
-// 								return c;
-// 							}
-// 						}
-// 					}
-// 					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
-// 					{
-// 						peer.ReachFailures++;
-// 					}
-// 				}
-// 	
-// 				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stop");
-// 			}
 		}
 
 		void Delegating()
@@ -1622,7 +1475,7 @@ namespace UC.Net
 					{
 						r.Voted = true;
 					}
-					else if(Chain.QuorumFailed(r) || DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15))
+					else if(Chain.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15)))
 					{
 						foreach(var i in Transactions.OfType<Transaction>().Where(i => i.Payload.RoundId == r.Id).SelectMany(i => i.Operations))
 						{
@@ -1789,13 +1642,181 @@ namespace UC.Net
 				{
 					if(packet.Type == PacketType.Blocks)
 					{
-						if((i.Role & Role.DMS) != 0)
+						if((i.Role & Role.Chain) != 0)
 							i.Send(packet);
 					}
 					else
 						i.Send(packet);
 				}
 		}
+
+		public Nci ConnectToMember()
+		{
+			lock(RemoteMemberLock)
+			{
+				if(Generator != null)
+				{
+					return this;
+				}
+
+				Peer peer;
+				
+				while(Working)
+				{
+					Thread.Sleep(1);
+	
+					lock(Lock)
+					{
+						peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+	
+						if(peer == null)
+							continue;
+					}
+	
+					try
+					{
+						var cr = peer.Send(new GetMembersRequest());
+	
+						lock(Lock)
+						{
+							if(cr.Members.Any())
+							{
+								RememberPeers(cr.Members);
+
+								peer.ReachFailures = 0;
+	
+								Members = cr.Members.ToList();
+								
+								var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
+
+								if(c == null)
+									continue;
+			
+								c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
+
+								Log?.Report(this, "Member chosen", c.ToString());
+		
+								return c;
+							}
+						}
+					}
+					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
+					{
+						peer.ReachFailures++;
+					}
+				}
+	
+				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stopping");
+			}
+		}
+
+		public Peer Connect(Role role, HashSet<Peer> exclusions, CancellationToken cancellation)
+		{
+			Peer peer;
+				
+			while(Working && !cancellation.IsCancellationRequested)
+			{
+				Thread.Sleep(1);
+	
+				lock(Lock)
+				{
+					peer = Peers.Where(i => i.Role.HasFlag(role) && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+	
+					if(peer == null)
+						continue;
+				}
+
+				exclusions?.Add(peer);
+
+				try
+				{
+					Connect(peer, cancellation);
+	
+					return peer;
+				}
+				catch(OperationCanceledException ex)
+				{
+					if(ex.CancellationToken.IsCancellationRequested)
+						throw;
+				}
+			}
+
+			throw new OperationCanceledException("Looking for a node to connect has been aborted");
+		}
+
+//  		public Nci[] ConnectMany(Role role, int min, int desired, IEnumerable<Peer> exclusions, CancellationToken cancellation)
+//  		{
+//  			Peer[] peers;
+//  			
+//  			while(Working)
+//  			{
+//  				Thread.Sleep(1);
+// 
+// 				var tasks = new List<Task>();
+//  	
+//  				lock(Lock)
+//  				{
+//  					peers = Peers.Where(i => exclusions == null || !exclusions.Contains(i)).OrderByDescending(i => i.Established && i.Role.HasFlag(role)).ThenBy(i => i.ReachFailures).Take(desired).ToArray();
+//  					
+//  					if(!peers.Any())
+//  						continue;
+//  
+//  					foreach(var i in peers)
+//  					{
+//  						var t = Task.Run(() =>
+//  										 {
+// 												try
+// 												{
+// 		 											Connect(i, cancellation);
+// 												}
+// 												catch(ConnectionFailedException)
+// 												{
+// 												}
+// 												catch(OperationCanceledException)
+// 												{
+// 												}
+//  										 });
+//  
+//  						tasks.Add(t);
+//  					}
+//  				}
+//  
+//  				Task.WaitAll(tasks.ToArray());
+//  
+//  				if(peers.Count(i => i.Established) >= min)
+//  					return peers.Where(i => i.Established).ToArray();
+//  			}
+//  
+//  			throw new OperationCanceledException("Looking for a node to connect has been aborted because of overall stopping");
+//  		}
+
+		void Connect(Peer peer, CancellationToken cancellation)
+		{
+			lock(Lock)
+			{
+				if(!peer.Established && peer.InStatus != EstablishingStatus.Initiated && peer.OutStatus != EstablishingStatus.Initiated)
+				{
+					peer.LastTry = DateTime.UtcNow;
+					peer.Retries++;
+			
+					OutboundConnect(peer);
+				}
+			}
+
+			while(Working && !cancellation.IsCancellationRequested)
+			{
+				lock(Lock)
+					if(peer.Established)
+						return;
+					else if(peer.OutStatus == EstablishingStatus.Failed)
+						throw new ConnectionFailedException("Connecting to a node has failed");
+
+				Thread.Sleep(1);
+			}
+
+			throw new OperationCanceledException("Connecting to a node has been aborted", cancellation);
+		}
+
 
 		public Coin EstimateFee(IEnumerable<Operation> operations)
 		{
@@ -1810,10 +1831,10 @@ namespace UC.Net
 				lock(Lock)
 					l = Chain.Accounts.FindLastOperation<Emission>(signer);
 			else
-				l = await Task.Run<Emission>(() => ConnectToNode().Send(new LastOperationRequest{
-																									Account = signer, 
-																									Class = typeof(Emission).Name
-																								}).Operation as Emission);
+				l = await Task.Run<Emission>(() => Connect(Role.Chain, null, cts != null ? cts.Token : CancellationToken.None).Send(new LastOperationRequest(){
+																																							Account = signer, 
+																																							Class = typeof(Emission).Name
+																																						}).Operation as Emission);
 			var eid = l == null ? 0 : l.Eid + 1;
 
 			await Nas.Emit(a, wei, signer, GasAsker, eid, flowcontrol, cts);		
@@ -1857,6 +1878,143 @@ namespace UC.Net
 			}
 
 			return null;
+		}
+
+		public void Downloading()
+		{
+		}
+
+		public Download DownloadPackage(PackageAddress package, CancellationToken cancellation)
+		{
+			var d = new Download{Package = package};
+
+			Downloads.Add(d);
+
+			d.Task = Task.Run(	() =>
+								{
+									var c = Connect(Role.Chain, null, cancellation);
+									var qrrp = c.QueryRelease(package, VersionQuery.Exact, "", true);
+
+									d.TotalLength = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteSizeField, 
+																													Distribution.Incremental => ReleaseManifest.IncrementalSizeField, 
+																													_ =>  throw new RequirementException("Wrong Distribution value") });
+
+									lock(Lock)
+									{
+										if(Filebase.GetLength(package) == d.TotalLength)
+										{	
+											d.CurrentLength = d.TotalLength;
+											return;
+										}
+									}
+
+									var hubs = new HashSet<Peer>();
+
+									using(var cts = new CancellationTokenSource())
+									{
+										do
+										{
+											var lcts = CancellationTokenSource.CreateLinkedTokenSource(cancellation, cts.Token);
+																						
+											Peer h;
+											LocatePackageResponse lp;
+
+											try
+											{
+												if(!Settings.Dev.DisableTimeouts)
+													lcts.CancelAfter(5 * 1000);
+												
+												h = Connect(Role.Hub, hubs, lcts.Token);
+
+												lp = h.LocatePackage(package, 16);
+
+												if(!d.HubsSeeders.ContainsKey(h))
+													d.HubsSeeders[h] = new();
+											}
+											catch(ConnectionFailedException)
+											{
+												continue;	
+											}
+											catch(RpcException)
+											{
+												continue;	
+											}
+											catch(OperationCanceledException)
+											{
+												if(cancellation.IsCancellationRequested)
+													throw;
+												else
+													continue;	
+											}
+						
+											foreach(var i in lp.Seeders)
+											{
+												var s = GetPeer(i);
+														
+												try
+												{
+													if(!Settings.Dev.DisableTimeouts)
+														lcts.CancelAfter(5 * 1000);
+													
+													Connect(s, lcts.Token);
+													
+													d.CurrentLength = Filebase.GetLength(package);
+
+													while(d.CurrentLength < d.TotalLength)
+													{
+														byte[] data = null;
+
+														for(int j=0; j<3; j++)
+														{
+															try
+															{
+																data = s.DownloadPackage(package, d.CurrentLength, Math.Min(65536, d.TotalLength - d.CurrentLength)).Data;
+																break;
+															}
+															catch(RpcException)
+															{
+															}
+														}
+	
+														lock(Lock)
+															if(data != null)
+															{
+																Filebase.Append(package, data);
+																d.CurrentLength += data.LongLength;
+															}
+															else
+																break;
+													}
+				
+													if(d.CurrentLength == d.TotalLength)
+													{
+														if(!d.HubsSeeders[h].Contains(s))
+															d.HubsSeeders[h].Add(s);
+	
+														return;
+													}
+												}
+												catch(ConnectionFailedException)
+												{
+													continue;	
+												}
+												catch(RpcException)
+												{
+													continue;	
+												}
+												catch(OperationCanceledException)
+												{
+													if(cancellation.IsCancellationRequested)
+														throw;
+												}
+											}
+										}
+										while(Working);
+									}
+								},
+								cancellation);
+
+			return d;
 		}
 
   		public override Rp Request<Rp>(Request rq) where Rp : class
