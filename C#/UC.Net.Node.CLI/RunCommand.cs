@@ -4,11 +4,11 @@ using System.Reflection;
 
 namespace UC.Net.Node.CLI
 {
-	internal class NodeCommand : Command
+	internal class RunCommand : Command
 	{
-		public const string Keyword = "node";
+		public const string Keyword = "run";
 
-		public NodeCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
+		public RunCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 
@@ -17,15 +17,11 @@ namespace UC.Net.Node.CLI
 			if(ConsoleSupported)
 				Log.ReportWarning(this, "Pressing any key stops the node");
 
-			if(Args.Has("server"))
-			{
+			if(Args.Has("api"))
 				Core.RunApi();
-			}
-			else
-			{
-				Core.RunApi();
-				Core.RunChain();
-			}
+
+			if(Args.Has("node"))
+				Core.RunNode();
 
 			if(ConsoleSupported)
 				Console.ReadKey();

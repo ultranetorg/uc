@@ -162,8 +162,8 @@ namespace UC.Net
 				lock(Core.Lock)
 					switch(call)
 					{
-						case RunCall e:
-							Core.RunChain();
+						case RunNodeCall e:
+							Core.RunNode();
 							break;
 
 						case AddWalletCall e:

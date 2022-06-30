@@ -97,7 +97,6 @@ namespace UC.Net
 		readonly byte[]										EmissionKey		= new byte[] {4};
 		readonly byte[]										MembersKey		= new byte[] {5};
 		readonly byte[]										FundsKey		= new byte[] {6};
-		//readonly byte[]										HubsKey			= new byte[] {7};
 
 		public Round										LastConfirmedRound	=> Rounds.FirstOrDefault(i => i.Confirmed) ?? LastSavedRound;
 		public Round										LastVotedRound		=> Rounds.FirstOrDefault(i => i.Voted) ?? LastConfirmedRound;
@@ -123,8 +122,6 @@ namespace UC.Net
 		public ColumnFamilyHandle							AuthorsFamily	=> Database.GetColumnFamily(nameof(Authors));
 		public ColumnFamilyHandle							ProductsFamily	=> Database.GetColumnFamily(nameof(Products));
 		public ColumnFamilyHandle							RoundsFamily	=> Database.GetColumnFamily(nameof(Rounds));
-		public ColumnFamilyHandle							MembersFamily	=> Database.GetColumnFamily(nameof(Members));
-		public ColumnFamilyHandle							FundablesFamily	=> Database.GetColumnFamily(nameof(Funds));
 
 		public static int									GetValidityPeriod(int rid) => rid + Pitch;
 

@@ -86,7 +86,7 @@ namespace UC.Net.Node.CLI
 				switch(t)
 				{
 					case HostCommand.Keyword:		c = new HostCommand(Settings, Log, d, cmd); break;
-					case NodeCommand.Keyword:		c = new NodeCommand(Settings, Log, d, cmd); break;
+					case RunCommand.Keyword:		c = new RunCommand(Settings, Log, d, cmd); break;
 					case AccountCommand.Keyword:	c = new AccountCommand(Settings, Log, d, cmd); break;
 					case UntCommand.Keyword:		c = new UntCommand(Settings, Log, d, cmd); break;
 					case MembershipCommand.Keyword:	c = new MembershipCommand(Settings, Log, d, cmd); break;

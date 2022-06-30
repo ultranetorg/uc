@@ -9,13 +9,13 @@ using System.Reflection;
 
 namespace UC.Net
 {
-	public class DatabaseSettings
+	public class ChainSettings
 	{
-		//public bool			Enabled;
+		public bool			Enabled;
 
-		public DatabaseSettings(Xon x)
+		public ChainSettings(Xon x)
 		{
-			//Enabled	= x.One("Enabled") != null;
+			Enabled	= x.Has("Enabled");
 		}
 	}
 
@@ -41,14 +41,24 @@ namespace UC.Net
 		}
 	}
 
-	public class RpcSettings
+	public class FilebaseSettings
+	{
+		public bool Enabled;
+
+		public FilebaseSettings(Xon x)
+		{
+			Enabled = x.Has("Enabled");
+		}
+	}
+
+	public class ApiSettings
 	{
 		public bool		Enabled = true;
 		//public int	Port { get; }
 		public string	AccessKey;
 		Settings		Main;
 
-		public RpcSettings(Xon x, Settings main)
+		public ApiSettings(Xon x, Settings main)
 		{
 			Main		= main;
 			Enabled		= x.One("Enabled") != null;
@@ -89,15 +99,15 @@ namespace UC.Net
 
 	public class DevSettings
 	{
-		public bool UI;
-		public bool GenerateGenesis;
-		public bool DisableBailMin;
-		public bool DisableBidMin;
-		public bool DisableTimeouts;
-		public bool ThrowOnCorrupted;
+		public bool				UI;
+		public bool				GenerateGenesis;
+		public bool				DisableBailMin;
+		public bool				DisableBidMin;
+		public bool				DisableTimeouts;
+		public bool				ThrowOnCorrupted;
 
-		public bool Any => Fields.Any(i => (bool)i.GetValue(this));
-		IEnumerable<FieldInfo> Fields => GetType().GetFields().Where(i => i.FieldType == typeof(bool));
+		public bool				Any => Fields.Any(i => (bool)i.GetValue(this));
+		IEnumerable<FieldInfo>	Fields => GetType().GetFields().Where(i => i.FieldType == typeof(bool));
 
 		public DevSettings(Xon x)
 		{
@@ -130,8 +140,9 @@ namespace UC.Net
 		public static DevSettings	Dev;
 		public NasSettings			Nas;
 		public HubSettings			Hub;
-		public RpcSettings			Api;
-		public DatabaseSettings		Database;
+		public ApiSettings			Api;
+		public FilebaseSettings		Filebase;
+		public ChainSettings		Chain;
 		public SecretSettings		Secret;
 
 		public List<string>			Accounts;
@@ -172,10 +183,11 @@ namespace UC.Net
 			Log			= doc.Has("Log");
 
 			Dev			= new (doc.One(nameof(Dev)));
-			Database	= new (doc.One(nameof(Database)));
+			Chain		= new (doc.One(nameof(Chain)));
 			Nas			= new (doc.One(nameof(Nas)));
-			Hub			= new (doc.One(nameof(Hub)));
 			Api			= new (doc.One(nameof(Api)), this);
+			Hub			= new (doc.One(nameof(Hub)));
+			Filebase	= new (doc.One(nameof(Filebase)));
 
 			if(doc.Has("Secrets") && File.Exists(doc.GetString("Secrets")))
 			{
@@ -239,7 +251,6 @@ namespace UC.Net
 			{
 				save(Document, this, i);
 			}
-
 
 			using(var s = File.Create(Path))
 			{

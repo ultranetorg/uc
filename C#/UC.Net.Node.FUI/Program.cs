@@ -58,7 +58,7 @@ namespace UC.Net.Node.FUI
 				//if(isnode)
 				//{
 					core.RunApi();
-					core.RunChain();
+					core.RunNode();
 				//} 
 				//else
 				//{

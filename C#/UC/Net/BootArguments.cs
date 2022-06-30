@@ -45,16 +45,16 @@ namespace UC.Net
 	{
 		public int				Port = -1;
 		public IPAddress		IP;
+		
 		public CoreArguments(Xon cmd)
 		{
 			if(cmd.Has("core"))
-				Parse(cmd.One("core"), (n,v) => { 
-														switch(n)
-														{
-															case "port":	Port	= int.Parse(v); break;
-															case "ip":		IP		= IPAddress.Parse(v); break;
-														}
-													});
+				Parse(cmd.One("core"), (n,v) => {	switch(n)
+													{
+														case "port":	Port	= int.Parse(v); break;
+														case "ip":		IP		= IPAddress.Parse(v); break;
+													}
+												});
 			}
 	}
 
@@ -75,14 +75,14 @@ namespace UC.Net
 		}
 	}
 
-	public class RpcArguments : LaunchArguments
+	public class ApiArguments : LaunchArguments
 	{
 		public string AccessKey;
 
-		public RpcArguments(Xon args)
+		public ApiArguments(Xon args)
 		{
-			if(args.Has("rpc"))
-				Parse(args.One("rpc"), (n, v) => {	switch(n)
+			if(args.Has("api"))
+				Parse(args.One("api"), (n, v) => {	switch(n)
 													{
 														case "accesskey":
 															AccessKey = v; 
@@ -94,16 +94,16 @@ namespace UC.Net
 
 	public class BootArguments
 	{
-		public MainArguments			Main;
-		public VaultArguments			Vault;
-		public CoreArguments		Core;
-		public RpcArguments				Api;
+		public MainArguments	Main;
+		public VaultArguments	Vault;
+		public CoreArguments	Core;
+		public ApiArguments		Api;
 
 		public BootArguments(Xon boot, Xon cmd)
 		{
 			Main		= new(boot, cmd);
 			Vault		= new(cmd);
-			Core	= new(cmd);
+			Core		= new(cmd);
 			Api			= new(cmd);
 		}
 	}

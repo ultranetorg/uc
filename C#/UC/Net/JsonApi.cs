@@ -86,7 +86,7 @@ namespace UC.Net
 		Start, Stop
 	}
 
-	public class RunCall : RpcCall
+	public class RunNodeCall : RpcCall
 	{
 		public override bool	Private => true;
 	}

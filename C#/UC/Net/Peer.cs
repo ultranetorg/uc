@@ -203,7 +203,7 @@ namespace UC.Net
 			Lock				= lockk;
 			LastRound			= h.LastRound;
 			LastConfirmedRound	= h.LastConfirmedRound;
-			Role				= h.Capabilities;
+			Role				= h.Roles;
 	
 			ReadThread = new (() => { read(this); });
 			ReadThread.Name = $"{host} listening to {IP.GetAddressBytes()[3]}";
@@ -233,7 +233,7 @@ namespace UC.Net
 															//rp = core.Respond(this, i);
 															rp.Status = ResponseStatus.OK;
 														}
-														catch(Exception ex)
+														catch(Exception)// when(!Debugger.IsAttached)
 														{
 															rp = Response.FromType(core.Chain, i.Type);
 															rp.Status = ResponseStatus.Failed;

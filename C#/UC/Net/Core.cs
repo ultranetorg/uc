@@ -54,7 +54,8 @@ namespace UC.Net
 		Null, Downloading, Synchronizing, Synchronized
 	}
 
-	public enum Role
+	[Flags]
+	public enum Role : uint
 	{
 		Chain	= 0b00000001,
 		Seeder	= 0b00000010,
@@ -244,7 +245,21 @@ namespace UC.Net
 			if(Settings.Dev.Any)
 				Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
-			Vault	= new Vault(Settings, Log);
+			Vault = new Vault(Settings, Log);
+
+			var cfamilies = new ColumnFamilies();
+			
+			foreach(var i in new ColumnFamilies.Descriptor[]{
+																new (nameof(Peers), new ()),
+																new (nameof(Roundchain.Accounts), new ()),
+																new (nameof(Roundchain.Authors), new ()),
+																new (nameof(Roundchain.Products), new ()),
+																new (nameof(Roundchain.Rounds), new ()),
+																new (nameof(Roundchain.Funds), new ()),
+															})
+			cfamilies.Add(i);
+
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
 		}
 
 		public override string ToString()
@@ -260,17 +275,10 @@ namespace UC.Net
 				throw new RequirementException("Windows XP SP2, Windows Server 2003 or higher is required to use the application.");
 			}
 
-			ApiServer = new JsonServer(this);
-		}
-
-		public void RunHub()
-		{
-			Hub = new Hub(this);
-		}
-
-		public void RunFilebase()
-		{
-			Filebase = new Filebase(Settings);
+			lock(Lock)
+			{
+				ApiServer = new JsonServer(this);
+			}
 		}
 
 		public void RunNode(Func<bool> abort = null)
@@ -278,15 +286,56 @@ namespace UC.Net
 			Abort = abort;
 			Nuid = Guid.NewGuid();
 
-			var descs = new ColumnFamilies.Descriptor[]	{
-															new (nameof(Peers), new ()),
-														};
-			var cfamilies = new ColumnFamilies();
-			
-			foreach(var i in descs)
-				cfamilies.Add(i);
+			if(Settings.Hub.Enabled)
+			{
+				Hub = new Hub(this);
+			}
 
-			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Relay"), cfamilies);
+			if(Settings.Filebase.Enabled)
+			{
+				Filebase = new Filebase(Settings);
+			}
+
+			if(Settings.Chain.Enabled)
+			{
+				Log?.Report(this, "Chain started");
+		
+		  		try
+		  		{
+		 			new Uri(Settings.Nas.Provider);
+		  		}
+		  		catch(Exception)
+		  		{
+		  			Log.ReportError(this, $"Ethereum provider (Settings.xon -> Nas -> Provider) is not set or has incorrect format.");
+		 			Log.ReportError(this, $"It's required to run the node in full mode.");
+		 			Log.ReportError(this, $"This can be instance of some Ethereum client or third-party services like Infura.");
+		 			Log.ReportError(this, $"Corresponding configuration file is located here: {Path.Join(Settings.Profile, SettingsFileName)}");
+					return;
+		  		}
+		
+				Chain = new Roundchain(Settings, Log, Nas, Vault, Database);
+		
+				if(Settings.Generator != null)
+				{
+					Generator = PrivateAccount.Parse(Settings.Generator);
+					Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator);
+				}
+		
+				Chain.BlockAdded += b => {
+											if(Generator != null)
+												Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator, null, null, null, r => r.Confirmed);
+					
+											ReachConsensus();
+										 };
+		
+				if(Generator != null)
+				{
+					VerifingThread = new Thread(Verifing);
+					VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
+					VerifingThread.Start();
+				}
+			}
+
 			LoadPeers();
 
 			//overridefinal?.Invoke(Settings, Vault);
@@ -301,30 +350,37 @@ namespace UC.Net
 
  			var t = new Thread(	() =>
  								{ 
- 									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
- 
- 									try
- 									{
- 										while(Working)
- 										{
- 											lock(Lock)
- 											{
- 												if(!Working)
- 													break;
- 
- 												MaintainPeerConnections();
- 											}
- 	
- 											Thread.Sleep(1);
- 										}
- 	
- 										ListeningThread?.Join();
-										DelegatingThread?.Join();
- 									}
- 									catch(Exception ex) when (!Debugger.IsAttached)
- 									{
- 										Stop(MethodBase.GetCurrentMethod(), ex);
- 									}
+									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
+
+									try
+									{
+										while(Working)
+										{
+											lock(Lock)
+											{
+												if(!Working)
+													break;
+
+												MaintainPeerConnections();
+												
+												if(Chain != null)
+												{
+													Synchronize();
+
+													if(Synchronization == Synchronization.Synchronized && Generator != null)
+													{
+														Generate();
+													}
+												}
+											}
+	
+											Thread.Sleep(1);
+										}
+									}
+									catch(Exception ex) when (!Debugger.IsAttached)
+									{
+										Stop(MethodBase.GetCurrentMethod(), ex);
+									}
  								});
 			t.Start();
 
@@ -332,112 +388,6 @@ namespace UC.Net
 			{
 				throw new AbortException();
 			}
-		}
-
-		public void RunChain()
-		{
-			Log?.Report(this, "Node started");
-			Nuid = Guid.NewGuid();
-
-  			try
-  			{
- 				new Uri(Settings.Nas.Provider);
-  			}
-  			catch(Exception)
-  			{
-  				Log.ReportError(this, $"Ethereum provider (Settings.xon -> Nas -> Provider) is not set or has incorrect format.");
- 				Log.ReportError(this, $"It's required to run the node in full mode.");
- 				Log.ReportError(this, $"This can be instance of some Ethereum client or third-party services like Infura.");
- 				Log.ReportError(this, $"Corresponding configuration file is located here: {Path.Join(Settings.Profile, SettingsFileName)}");
-				return;
-  			}
-
-			var descs = new ColumnFamilies.Descriptor[]	{
-															new(nameof(Peers), new ()),
-
-															new (nameof(Members), new ()),
-															new (nameof(Roundchain.Accounts), new ()),
-															new (nameof(Roundchain.Authors), new ()),
-															new (nameof(Roundchain.Products), new ()),
-															new (nameof(Roundchain.Rounds), new ()),
-															new (nameof(Roundchain.Funds), new ()),
-														};
-			
-			var cfamilies = new ColumnFamilies();
-			
-			foreach(var i in descs)
-				cfamilies.Add(i);
-
-			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), cfamilies);
-			Chain = new Roundchain(Settings, Log, Nas, Vault, Database);
-
-			if(Settings.Generator != null)
-			{
-				Generator = PrivateAccount.Parse(Settings.Generator);
-				Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator);
-			}
-
-			Chain.BlockAdded += b =>{
-										if(Generator != null)
-											Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator, null, null, null, r => r.Confirmed);
-			
-										ReachConsensus();
-									};
-
-			ListeningThread = new Thread(Listening);
-			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
-			ListeningThread.Start();
-
-			DelegatingThread = new Thread(Delegating);
-			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
-			DelegatingThread.Start();
-
-			if(Generator != null)
-			{
-				VerifingThread = new Thread(Verifing);
-				VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
-				VerifingThread.Start();
-			}
-
-			void main()
-			{
-				Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
-
-				try
-				{
-					LoadPeers();
-									
-					while(Working)
-					{
-						lock(Lock)
-						{
-							if(!Working)
-								break;
-
-							MaintainPeerConnections();
-							Synchronize();
-	
-							if(Synchronization == Synchronization.Synchronized && Generator != null)
-							{
-								Generate();
-							}
-						}
-	
-						Thread.Sleep(1);
-					}
-	
-					ListeningThread?.Join();
-					DelegatingThread?.Join();
-					ApiServer?.WaitStop();
-				}
-				catch(Exception ex) when (!Debugger.IsAttached)
-				{
-					Stop(MethodBase.GetCurrentMethod(), ex);
-				}
-			}
-
-			var t = new Thread(main);
-			t.Start();
 		}
 
 		public void Stop(MethodBase methodBase, Exception ex)
@@ -466,6 +416,9 @@ namespace UC.Net
 				foreach(var i in Peers.Where(i => i.Established))
 					i.Disconnect();
 			}
+
+			ListeningThread?.Join();
+			DelegatingThread?.Join();
 
 			Database?.Dispose();
 
@@ -626,7 +579,7 @@ namespace UC.Net
 
 			var h = new Hello();
 
-			h.Capabilities			= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seeder : 0) | (Hub != null ? Role.Hub : 0);
+			h.Roles					= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seeder : 0) | (Hub != null ? Role.Hub : 0);
 			h.Versions				= Versions;
 			h.Zone					= Settings.Zone;
 			h.IP					= ip;
@@ -1981,6 +1934,9 @@ namespace UC.Net
 															{
 																Filebase.Append(package, data);
 																d.CurrentLength += data.LongLength;
+
+																if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
+																	d.HubsSeeders[h].Add(s);
 															}
 															else
 																break;
@@ -1988,9 +1944,6 @@ namespace UC.Net
 				
 													if(d.CurrentLength == d.TotalLength)
 													{
-														if(!d.HubsSeeders[h].Contains(s))
-															d.HubsSeeders[h].Add(s);
-	
 														return;
 													}
 												}
