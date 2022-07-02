@@ -9,7 +9,7 @@ namespace UC
 {
     public class XonBinaryReader : IXonReader
     {
-		//XonValueSerializator		Serializator;
+		//IXonValueSerializator		Serializator;
 		public XonToken				Current { get; set; }
 		List<EBonHeader>			Flags = new();
 		Stream						Stream;
@@ -32,7 +32,7 @@ namespace UC
 
 			var sig = Reader.ReadUtf8();
 
-			if(sig == "XON02")
+			if(sig == IXonWriter.BonHeader)
 			{
 				var h = Reader.Read7BitEncodedInt();
 

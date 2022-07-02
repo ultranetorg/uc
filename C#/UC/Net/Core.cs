@@ -44,6 +44,7 @@ namespace UC.Net
 		public PackageAddress				Package;
 		public Dictionary<Peer, List<Peer>> HubsSeeders = new();
 		public Task							Task;
+		public byte[]						Hash;
 		public long							TotalLength;
 		public long							CurrentLength;
 		public bool							Succeeded => TotalLength > 0 && CurrentLength == TotalLength;
@@ -489,9 +490,9 @@ namespace UC.Net
 
 		void RememberPeers(IEnumerable<Peer> peers)
 		{
-			peers = peers.Where(i => !i.IP.Equals(IP) && !Peers.Any(j => j.IP.Equals(i.IP))).ToArray();
+			var news = peers.Where(i => !i.IP.Equals(IP) && !Peers.Any(j => j.IP.Equals(i.IP))).ToArray();
 												
-			foreach(var peer in peers)
+			foreach(var peer in news)
 				Peers.Add(peer);
 
 			using(var b = new WriteBatch())
@@ -1851,10 +1852,14 @@ namespace UC.Net
 									d.TotalLength = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteSizeField, 
 																													Distribution.Incremental => ReleaseManifest.IncrementalSizeField, 
 																													_ =>  throw new RequirementException("Wrong Distribution value") });
+									
+									d.Hash = qrrp.Manifests.First().Get<byte[]>(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteHashField, 
+																												Distribution.Incremental => ReleaseManifest.IncrementalHashField, 
+																												_ =>  throw new RequirementException("Wrong Distribution value") });
 
 									lock(Lock)
 									{
-										if(Filebase.GetLength(package) == d.TotalLength)
+										if(Filebase.GetLength(package) == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
 										{	
 											d.CurrentLength = d.TotalLength;
 											return;
@@ -1865,7 +1870,7 @@ namespace UC.Net
 
 									using(var cts = new CancellationTokenSource())
 									{
-										do
+										while(Working)
 										{
 											var lcts = CancellationTokenSource.CreateLinkedTokenSource(cancellation, cts.Token);
 																						
@@ -1886,11 +1891,11 @@ namespace UC.Net
 											}
 											catch(ConnectionFailedException)
 											{
-												continue;	
+												continue;
 											}
 											catch(RpcException)
 											{
-												continue;	
+												continue;
 											}
 											catch(OperationCanceledException)
 											{
@@ -1900,10 +1905,8 @@ namespace UC.Net
 													continue;	
 											}
 						
-											foreach(var i in lp.Seeders)
+											foreach(var s in lp.Seeders.Select(i => GetPeer(i)))
 											{
-												var s = GetPeer(i);
-														
 												try
 												{
 													if(!Settings.Dev.DisableTimeouts)
@@ -1942,18 +1945,23 @@ namespace UC.Net
 																break;
 													}
 				
-													if(d.CurrentLength == d.TotalLength)
+													if(d.CurrentLength == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
 													{
-														return;
+														if(d.HubsSeeders[h].Any())
+															h.HubHits++;
+
+														RememberPeers(new[]{h});
+
+														return; /// Success
 													}
 												}
 												catch(ConnectionFailedException)
 												{
-													continue;	
+													continue;
 												}
 												catch(RpcException)
 												{
-													continue;	
+													continue;
 												}
 												catch(OperationCanceledException)
 												{
@@ -1961,8 +1969,11 @@ namespace UC.Net
 														throw;
 												}
 											}
+
+											h.HubMisses++;
+
+											RememberPeers(new[]{h});
 										}
-										while(Working);
 									}
 								},
 								cancellation);

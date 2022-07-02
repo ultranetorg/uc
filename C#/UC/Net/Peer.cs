@@ -63,8 +63,8 @@ namespace UC.Net
 		public int					Retries;
 		public int					HubHits;
 		public int					HubMisses;
-		public List<PackageAddress>	HubMissedResources = new();
-		public List<PackageAddress>	HubHitResources = new();
+		//public List<PackageAddress>	HubMissedResources = new();
+		//public List<PackageAddress>	HubHitResources = new();
 
 		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());

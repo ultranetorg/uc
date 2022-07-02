@@ -770,26 +770,28 @@ namespace UC.Net
 		
 	public class ReleaseManifest : Operation, IBinarySerializable
 	{
-		public ReleaseAddress			Address;
-		public string					Channel;		/// stable, beta, nightly, debug,...
-		public Version					PreviousVersion;
-		public byte[]					CompleteHash;
-		public long						CompleteSize;
-		public ReleaseAddress[]			CompleteDependencies;
-		public Version					IncrementalMinimalVersion;
-		public byte[]					IncrementalHash;
-		public long						IncrementalSize;
-		public ReleaseAddress[]			IncrementalDependencies;
+		public ReleaseAddress	Address;
+		public string			Channel;		/// stable, beta, nightly, debug,...
+		public Version			PreviousVersion;
+		public byte[]			CompleteHash;
+		public long				CompleteSize;
+		public ReleaseAddress[]	CompleteDependencies;
+		public Version			IncrementalMinimalVersion;
+		public byte[]			IncrementalHash;
+		public long				IncrementalSize;
+		public ReleaseAddress[]	IncrementalDependencies;
 
 
-		public override bool			Valid => Address.Valid;
-		public override string			Description => $"{Address}/{Channel}";
+		public override bool	Valid => Address.Valid;
+		public override string	Description => $"{Address}/{Channel}";
 
-		byte[]							Hash;
-		bool							Archived;
+		byte[]					Hash;
+		bool					Archived;
 
-		public const string				IncrementalSizeField = "IncrementalSize";
-		public const string				CompleteSizeField = "CompleteSize";
+		public const string		CompleteSizeField = "CompleteSize";
+		public const string		CompleteHashField = "CompleteHash";
+		public const string		IncrementalSizeField = "IncrementalSize";
+		public const string		IncrementalHashField = "IncrementalHash";
 
 		public ReleaseManifest()
 		{
@@ -811,13 +813,15 @@ namespace UC.Net
 			Address = address;
 			Channel = channel;
 			PreviousVersion = previous;
-			CompleteSize = completesize;
-			CompleteHash = completehash;
-			CompleteDependencies = completedependencies.ToArray();
-			IncrementalMinimalVersion = incrementalminimalversion;
-			IncrementalHash = incrementalhash;
-			IncrementalSize = incrementalsize;
-			IncrementalDependencies = incrementaldependencies.ToArray();
+			
+			CompleteSize			= completesize;
+			CompleteHash			= completehash;
+			CompleteDependencies	= completedependencies.ToArray();
+			
+			IncrementalMinimalVersion	= incrementalminimalversion;
+			IncrementalHash				= incrementalhash;
+			IncrementalSize				= incrementalsize;
+			IncrementalDependencies		= incrementaldependencies.ToArray();
 		}
 
 		public XonDocument ToXon(IXonValueSerializator serializator)
@@ -830,7 +834,7 @@ namespace UC.Net
 	
 			if(!Archived)
 			{
-				d.Add("CompleteHash").Value = Hex.ToHexString(CompleteHash);
+				d.Add(CompleteHashField).Value = CompleteHash;
 				d.Add(CompleteSizeField).Value = CompleteSize;
 	
 				if(CompleteDependencies.Any())
@@ -845,7 +849,7 @@ namespace UC.Net
 				if(IncrementalSize > 0)
 				{
 					d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
-					d.Add("IncrementalHash").Value = Hex.ToHexString(IncrementalHash);
+					d.Add(IncrementalHashField).Value = IncrementalHash;
 					d.Add(IncrementalSizeField).Value = IncrementalSize;
 		
 					if(IncrementalDependencies.Any())

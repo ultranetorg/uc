@@ -153,7 +153,6 @@ namespace UC.Net
 				Years			 = r.ReadByte();
 				Products		 = r.ReadStings();
 			}
-
 		}
 
 		public XonDocument ToXon(IXonValueSerializator serializator)

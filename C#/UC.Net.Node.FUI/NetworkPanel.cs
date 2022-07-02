@@ -53,7 +53,7 @@ namespace UC.Net.Node.FUI
 				foreach(var i in Core.Peers.Where(i => i.Role.HasFlag(Role.Hub)).OrderBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
 				{
 					var li = new ListViewItem(i.IP.ToString());
-					//li.SubItems.Add(i.JoinedHubsAt.ToString());
+					li.SubItems.Add(i.HubHits.ToString());
 					Hubs.Items.Add(li);
 				}
 

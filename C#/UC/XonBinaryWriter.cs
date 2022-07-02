@@ -30,7 +30,7 @@ namespace UC
 		public void Start()
 		{
 			Writer = new BinaryWriter(Stream);
-			Writer.WriteUtf8("XON02");
+			Writer.WriteUtf8(IXonWriter.BonHeader);
 		}
 
 		public void Finish()

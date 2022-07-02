@@ -194,6 +194,11 @@ namespace UC.Net
 			}
 		}
 
+		public byte[] GetHash(PackageAddress package)
+		{
+			return Cryptography.Current.Hash(File.ReadAllBytes(ToPath(package)));
+		}
+
 		public long GetLength(PackageAddress package)
 		{
 			return File.Exists(ToPath(package)) ? new FileInfo(ToPath(package)).Length : 0;

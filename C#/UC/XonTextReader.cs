@@ -9,7 +9,7 @@ namespace UC
 {
 	public class XonTextReader : IXonReader
 	{
-		//public XonValueSerializator Serializator;
+		//public IXonValueSerializator Serializator;
 		public XonToken Current { get; set; }
 
 		string Text;
