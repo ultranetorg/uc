@@ -15,7 +15,7 @@ namespace UC.Net.Node.CLI
 		public override object Execute()
 		{
 			if(ConsoleSupported)
-				Log.ReportWarning(this, "Pressing any key stops the node");
+				Flowvizor.Log?.ReportWarning(this, "Pressing any key stops the node");
 
 			if(Args.Has("api"))
 				Core.RunApi();
@@ -24,9 +24,12 @@ namespace UC.Net.Node.CLI
 				Core.RunNode();
 
 			if(ConsoleSupported)
+			{	
 				Console.ReadKey();
+				Core.Stop("By user input");
+			}
 			else
-				Wait(() => Core.Working);
+				Wait(() => Core.Running);
 			
 			return Core;
 		}

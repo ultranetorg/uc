@@ -163,13 +163,13 @@ namespace UC.Net.Node.FUI
 						
 					if(k != null)
 					{
-						var ct = new CancellationTokenSource();
+						var v = new Flowvizor(log);
 
-						var f = new FlowControlForm(Core, log, ct);
+						var f = new FlowControlForm(Core, v);
 						f.StartPosition = FormStartPosition.CenterParent;
 						f.Show(ParentForm);
 
-						await Core.Emit(a, eth.Wei, k, f, ct);
+						await Core.Emit(a, eth.Wei, k, v);
 					}
 				}
 			}

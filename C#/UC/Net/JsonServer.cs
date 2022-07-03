@@ -50,7 +50,7 @@ namespace UC.Net
 				
 										Log?.Report(this, "Listening started", prefixes[0]);
 		
-										while(Core.Working)
+										while(Core.Running)
 										{
 											ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
 										}

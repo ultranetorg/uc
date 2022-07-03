@@ -47,19 +47,14 @@ namespace UC.Net.Node.FUI
 					Task.Run(	() =>
 								{
 									string t;
-									var c = new CancellationTokenSource(30 * 1000);
 	
 									try
 									{
-										t = Core.Connect(Role.Chain, null, c.Token).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
+										t = Core.Connect(Role.Chain, null, new Flowvizor(5 * 1000)).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
 									}
-									catch(RpcException)
+									catch(ApiCallException)
 									{
 										t = "...";
-									}
-									finally
-									{
-										c.Dispose();
 									}
 	
 									Invoke(	(MethodInvoker) delegate
@@ -84,9 +79,9 @@ namespace UC.Net.Node.FUI
 	
 									try
 									{
-										t = Core.Connect(Role.Chain, null, c.Token).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
+										t = Core.Connect(Role.Chain, null, new Flowvizor(null)).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
 									}
-									catch(RpcException)
+									catch(ApiCallException)
 									{
 										t = "...";
 									}

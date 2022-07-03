@@ -67,12 +67,13 @@ namespace UC.Net
 	{
 		public static readonly int[]					Versions = {1};
 		public const string								FailureExt = "failure";
-		public const int								Timeout = 15000;
+		public const int								Timeout = 5000;
 		public const int								OperationsQueueLimit = 1000;
 		public const string								SettingsFileName = "Settings.xon";
 		const int										BalanceWidth = 24;
 
 		public Log										Log;
+		Flowvizor										Flowvizor;
 		public Vault									Vault;
 		public INas										Nas;
 		public Roundchain								Chain;
@@ -110,9 +111,7 @@ namespace UC.Net
 
 		JsonServer										ApiServer;
 
-		public bool										Working => Running && (Abort == null || !Abort());
-		bool											Running = true;
-		Func<bool>										Abort;
+		public bool										Running { get; protected set; } = true;
 		public Synchronization							_Synchronization = Synchronization.Null;
 		public Synchronization							Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate								SynchronizationChanged;
@@ -233,10 +232,12 @@ namespace UC.Net
 		public Core(Settings settings, string exedirectory, Log log)
 		{
 			Settings = settings;
+			Log	 = Settings.Log ? log : null;
+
+			Flowvizor = new Flowvizor(log);
 
 			Directory.CreateDirectory(Settings.Profile);
 
-			Log	 = Settings.Log ? log : null;
 			Log?.Report(this, $"Ultranet Node/Client {Assembly.GetEntryAssembly().GetName().Version}");
 			Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Log?.Report(this, $"Profile: {Settings.Profile}");	
@@ -282,9 +283,8 @@ namespace UC.Net
 			}
 		}
 
-		public void RunNode(Func<bool> abort = null)
+		public void RunNode()
 		{
-			Abort = abort;
 			Nuid = Guid.NewGuid();
 
 			if(Settings.Hub.Enabled)
@@ -355,11 +355,11 @@ namespace UC.Net
 
 									try
 									{
-										while(Working)
+										while(Running)
 										{
 											lock(Lock)
 											{
-												if(!Working)
+												if(!Running)
 													break;
 
 												MaintainPeerConnections();
@@ -385,10 +385,10 @@ namespace UC.Net
  								});
 			t.Start();
 
-			if(Abort != null && Abort())
-			{
-				throw new AbortException();
-			}
+// 			if(Abort != null && Abort())
+// 			{
+// 				throw new AbortException();
+// 			}
 		}
 
 		public void Stop(MethodBase methodBase, Exception ex)
@@ -409,6 +409,7 @@ namespace UC.Net
 				return;
 
 			Running = false;
+			Flowvizor.Cancellation.Cancel();
 			Listener?.Stop();
 			ApiServer?.Stop();
 
@@ -462,7 +463,7 @@ namespace UC.Net
 			}
 			else
 			{
-				while(Working)
+				while(Running)
 				{
 					try
 					{
@@ -546,7 +547,7 @@ namespace UC.Net
 	
 				Log?.Report(this, "Listening started", $"{Settings.IP}:{Settings.Port}");
 
-				while(Working)
+				while(Running)
 				{
 					var client = Listener.AcceptTcpClient();
 	
@@ -790,7 +791,7 @@ namespace UC.Net
 					}
 
 					lock(Lock)
-						if(!Working || !peer.Established)
+						if(!Running || !peer.Established)
 							return;
 					
 					var reader = new BinaryReader(pk.Data); 
@@ -1269,12 +1270,19 @@ namespace UC.Net
 
 			Nci m = null;
 
-			while(Working)
+			while(Running)
 			{
 				Thread.Sleep(1);
 
 				if(m == null)
-					m = ConnectToMember();
+				{	
+					var v = Flowvizor.CreateNested();
+
+					if(!Settings.Dev.DisableTimeouts)
+						v.Cancellation.CancelAfter(Timeout);
+
+					m = ConnectToMember(v);
+				}
 
 				try
 				{
@@ -1291,7 +1299,7 @@ namespace UC.Net
 					{
 						var txs= new List<Transaction>();
 
-						var rmax = m.Send(new NextRoundRequest()).NextRoundId;
+						var rmax = m.GetNextRound().NextRoundId;
 
 						lock(Lock)
 						{
@@ -1302,7 +1310,7 @@ namespace UC.Net
 								if(!Vault.OperationIds.ContainsKey(g.Key))
 								{
 									Monitor.Exit(Lock);
-									var o = m.Send(new LastOperationRequest {Account = g.Key}).Operation;
+									var o = m.GetLastOperation(g.Key, null).Operation;
 									Monitor.Enter(Lock);
 									Vault.OperationIds[g.Key] = o == null ? -1 : o.Id;
 								}
@@ -1320,7 +1328,7 @@ namespace UC.Net
 							}
 						}
 	
-						var accepted = m.Send(new DelegateTransactionsRequest {Transactions = txs }).Accepted;
+						var accepted = m.DelegateTransactions(txs).Accepted;
 	
 						lock(Lock)
 							foreach(var o in txs.SelectMany(i => i.Operations))
@@ -1328,7 +1336,7 @@ namespace UC.Net
 								if(accepted.Any(i => i.Account == o.Signer && i.Id == o.Id))
  									o.Delegation = DelegationStage.Delegated;
 
-								o.FlowReport?.StageChanged();
+								//o.FlowReport?.StageChanged();
 								o.FlowReport?.Log?.ReportWarning(this, $"Placing has been delegated to {m}");
 							}
 									
@@ -1342,7 +1350,7 @@ namespace UC.Net
 	
 					if(delegated.Any())
 					{
-						var rp = m.Send(new GetOperationStatusRequest {Operations = delegated.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id}).ToArray()});
+						var rp = m.GetOperationStatus(delegated.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}).ToArray());
 							
 						if(rp != null)
 						{
@@ -1379,7 +1387,7 @@ namespace UC.Net
 										}
 								
 										o.Placing = i.Placing;
-										o.FlowReport?.StageChanged();
+										//o.FlowReport?.StageChanged();
 									}
 								}
 							}
@@ -1388,7 +1396,7 @@ namespace UC.Net
 
 					Statistics.Delegating.End();
 				}
-				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException)
+				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is RequirementException)
 				{
 					Log?.ReportError(this, $"Failed to communicate with remote node {m}", ex);
 
@@ -1490,7 +1498,7 @@ namespace UC.Net
 			}
 		}
 		
-		public Operation Enqueue(Operation operation, IFlowControl flowcontrol = null)
+		public Operation Enqueue(Operation operation, Flowvizor flowcontrol = null)
 		{
 			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
 			{
@@ -1509,7 +1517,7 @@ namespace UC.Net
 
 			try
 			{
-				while(Working)
+				while(Running)
 				{
 					Thread.Sleep(1);
 
@@ -1604,7 +1612,7 @@ namespace UC.Net
 				}
 		}
 
-		public Nci ConnectToMember()
+		public Nci ConnectToMember(Flowvizor vizor)
 		{
 			lock(RemoteMemberLock)
 			{
@@ -1615,7 +1623,7 @@ namespace UC.Net
 
 				Peer peer;
 				
-				while(Working)
+				while(Running && !vizor.Cancellation.IsCancellationRequested)
 				{
 					Thread.Sleep(1);
 	
@@ -1629,7 +1637,9 @@ namespace UC.Net
 	
 					try
 					{
-						var cr = peer.Send(new GetMembersRequest());
+						Connect(peer, vizor);
+
+						var cr = peer.GetMembers();
 	
 						lock(Lock)
 						{
@@ -1654,21 +1664,21 @@ namespace UC.Net
 							}
 						}
 					}
-					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RpcException || ex is OperationCanceledException)
+					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is OperationCanceledException)
 					{
 						peer.ReachFailures++;
 					}
 				}
 	
-				throw new OperationCanceledException("Looking for a member to connect has been aborted because of overral stopping");
+				throw new OperationCanceledException("Looking for a member to connect has been aborted");
 			}
 		}
 
-		public Peer Connect(Role role, HashSet<Peer> exclusions, CancellationToken cancellation)
+		public Peer Connect(Role role, HashSet<Peer> exclusions, Flowvizor vizor)
 		{
 			Peer peer;
 				
-			while(Working && !cancellation.IsCancellationRequested)
+			while(Running && !vizor.Cancellation.IsCancellationRequested)
 			{
 				Thread.Sleep(1);
 	
@@ -1684,7 +1694,7 @@ namespace UC.Net
 
 				try
 				{
-					Connect(peer, cancellation);
+					Connect(peer, vizor);
 	
 					return peer;
 				}
@@ -1698,53 +1708,7 @@ namespace UC.Net
 			throw new OperationCanceledException("Looking for a node to connect has been aborted");
 		}
 
-//  		public Nci[] ConnectMany(Role role, int min, int desired, IEnumerable<Peer> exclusions, CancellationToken cancellation)
-//  		{
-//  			Peer[] peers;
-//  			
-//  			while(Working)
-//  			{
-//  				Thread.Sleep(1);
-// 
-// 				var tasks = new List<Task>();
-//  	
-//  				lock(Lock)
-//  				{
-//  					peers = Peers.Where(i => exclusions == null || !exclusions.Contains(i)).OrderByDescending(i => i.Established && i.Role.HasFlag(role)).ThenBy(i => i.ReachFailures).Take(desired).ToArray();
-//  					
-//  					if(!peers.Any())
-//  						continue;
-//  
-//  					foreach(var i in peers)
-//  					{
-//  						var t = Task.Run(() =>
-//  										 {
-// 												try
-// 												{
-// 		 											Connect(i, cancellation);
-// 												}
-// 												catch(ConnectionFailedException)
-// 												{
-// 												}
-// 												catch(OperationCanceledException)
-// 												{
-// 												}
-//  										 });
-//  
-//  						tasks.Add(t);
-//  					}
-//  				}
-//  
-//  				Task.WaitAll(tasks.ToArray());
-//  
-//  				if(peers.Count(i => i.Established) >= min)
-//  					return peers.Where(i => i.Established).ToArray();
-//  			}
-//  
-//  			throw new OperationCanceledException("Looking for a node to connect has been aborted because of overall stopping");
-//  		}
-
-		void Connect(Peer peer, CancellationToken cancellation)
+		void Connect(Peer peer, Flowvizor vizor)
 		{
 			lock(Lock)
 			{
@@ -1757,7 +1721,7 @@ namespace UC.Net
 				}
 			}
 
-			while(Working && !cancellation.IsCancellationRequested)
+			while(Running && !vizor.Cancellation.IsCancellationRequested)
 			{
 				lock(Lock)
 					if(peer.Established)
@@ -1768,7 +1732,7 @@ namespace UC.Net
 				Thread.Sleep(1);
 			}
 
-			throw new OperationCanceledException("Connecting to a node has been aborted", cancellation);
+			throw new OperationCanceledException("Connecting to a node has been aborted");
 		}
 
 
@@ -1777,7 +1741,7 @@ namespace UC.Net
 			return Chain != null ? Operation.CalculateFee(Chain.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
-		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, IFlowControl flowcontrol = null, CancellationTokenSource cts = null)
+		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, Flowvizor vizor)
 		{
 			Emission l;
 
@@ -1785,24 +1749,22 @@ namespace UC.Net
 				lock(Lock)
 					l = Chain.Accounts.FindLastOperation<Emission>(signer);
 			else
-				l = await Task.Run<Emission>(() => Connect(Role.Chain, null, cts != null ? cts.Token : CancellationToken.None).Send(new LastOperationRequest(){
-																																							Account = signer, 
-																																							Class = typeof(Emission).Name
-																																						}).Operation as Emission);
+				l = await Task.Run<Emission>(() => Connect(Role.Chain, null, vizor).GetLastOperation(signer, typeof(Emission).Name).Operation as Emission);
+			
 			var eid = l == null ? 0 : l.Eid + 1;
 
-			await Nas.Emit(a, wei, signer, GasAsker, eid, flowcontrol, cts);		
+			await Nas.Emit(a, wei, signer, GasAsker, eid, vizor);		
 						
 			var o = new Emission(signer, wei, eid);
 
-			flowcontrol?.SetOperation(o);
+			//flow?.SetOperation(o);
 						
 			if(FeeAsker.Ask(this, signer, o))
 			{
 				lock(Lock)
 					Enqueue(o);
 	
-				flowcontrol?.Log?.Report(this, "State changed", $"{o} is queued for placing and confirmation");
+				vizor?.Log?.Report(this, "State changed", $"{o} is queued for placing and confirmation");
 						
 				return o;
 			}
@@ -1810,7 +1772,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Emission FinishTransfer(PrivateAccount signer, IFlowControl flowcontrol = null)
+		public Emission FinishTransfer(PrivateAccount signer, Flowvizor flowcontrol = null)
 		{
 			lock(Lock)
 			{
@@ -1834,11 +1796,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public void Downloading()
-		{
-		}
-
-		public Download DownloadPackage(PackageAddress package, CancellationToken cancellation)
+		public Download DownloadPackage(PackageAddress package, Flowvizor vizor)
 		{
 			var d = new Download{Package = package};
 
@@ -1846,7 +1804,7 @@ namespace UC.Net
 
 			d.Task = Task.Run(	() =>
 								{
-									var c = Connect(Role.Chain, null, cancellation);
+									var c = Connect(Role.Chain, null, vizor);
 									var qrrp = c.QueryRelease(package, VersionQuery.Exact, "", true);
 
 									d.TotalLength = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteSizeField, 
@@ -1868,117 +1826,208 @@ namespace UC.Net
 
 									var hubs = new HashSet<Peer>();
 
-									using(var cts = new CancellationTokenSource())
+									var timeout = vizor.CreateNested();
+									
+									while(Running)
 									{
-										while(Working)
-										{
-											var lcts = CancellationTokenSource.CreateLinkedTokenSource(cancellation, cts.Token);
-																						
-											Peer h;
-											LocatePackageResponse lp;
+										Peer h;
+										LocatePackageResponse lp;
 
+										try
+										{
+											if(!Settings.Dev.DisableTimeouts)
+												timeout.Cancellation.CancelAfter(Timeout);
+												
+											h = Connect(Role.Hub, hubs, timeout);
+
+											lp = h.LocatePackage(package, 16);
+
+											if(!d.HubsSeeders.ContainsKey(h))
+												d.HubsSeeders[h] = new();
+										}
+										catch(ConnectionFailedException)
+										{
+											continue;
+										}
+										catch(RemoteCallException)
+										{
+											continue;
+										}
+										catch(OperationCanceledException)
+										{
+											if(vizor.Cancellation.IsCancellationRequested)
+												throw;
+											else
+												continue;	
+										}
+						
+										foreach(var s in lp.Seeders.Select(i => GetPeer(i)))
+										{
 											try
 											{
 												if(!Settings.Dev.DisableTimeouts)
-													lcts.CancelAfter(5 * 1000);
-												
-												h = Connect(Role.Hub, hubs, lcts.Token);
+													timeout.Cancellation.CancelAfter(Timeout);
+													
+												Connect(s, timeout);
+													
+												d.CurrentLength = Filebase.GetLength(package);
 
-												lp = h.LocatePackage(package, 16);
+												while(d.CurrentLength < d.TotalLength)
+												{
+													byte[] data = null;
 
-												if(!d.HubsSeeders.ContainsKey(h))
-													d.HubsSeeders[h] = new();
+													for(int j=0; j<3; j++)
+													{
+														try
+														{
+															data = s.DownloadPackage(package, d.CurrentLength, Math.Min(65536, d.TotalLength - d.CurrentLength)).Data;
+															break;
+														}
+														catch(RemoteCallException)
+														{
+														}
+													}
+	
+													lock(Lock)
+														if(data != null)
+														{
+															Filebase.Append(package, data);
+															d.CurrentLength += data.LongLength;
+
+															if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
+																d.HubsSeeders[h].Add(s);
+														}
+														else
+															break;
+												}
+				
+												if(d.CurrentLength == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
+												{
+													if(d.HubsSeeders[h].Any())
+														h.HubHits++;
+
+													RememberPeers(new[]{h});
+
+													return; /// Success
+												}
 											}
 											catch(ConnectionFailedException)
 											{
 												continue;
 											}
-											catch(RpcException)
+											catch(RemoteCallException)
 											{
 												continue;
 											}
 											catch(OperationCanceledException)
 											{
-												if(cancellation.IsCancellationRequested)
+												if(vizor.Cancellation.IsCancellationRequested)
 													throw;
-												else
-													continue;	
 											}
-						
-											foreach(var s in lp.Seeders.Select(i => GetPeer(i)))
-											{
-												try
-												{
-													if(!Settings.Dev.DisableTimeouts)
-														lcts.CancelAfter(5 * 1000);
-													
-													Connect(s, lcts.Token);
-													
-													d.CurrentLength = Filebase.GetLength(package);
-
-													while(d.CurrentLength < d.TotalLength)
-													{
-														byte[] data = null;
-
-														for(int j=0; j<3; j++)
-														{
-															try
-															{
-																data = s.DownloadPackage(package, d.CurrentLength, Math.Min(65536, d.TotalLength - d.CurrentLength)).Data;
-																break;
-															}
-															catch(RpcException)
-															{
-															}
-														}
-	
-														lock(Lock)
-															if(data != null)
-															{
-																Filebase.Append(package, data);
-																d.CurrentLength += data.LongLength;
-
-																if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
-																	d.HubsSeeders[h].Add(s);
-															}
-															else
-																break;
-													}
-				
-													if(d.CurrentLength == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
-													{
-														if(d.HubsSeeders[h].Any())
-															h.HubHits++;
-
-														RememberPeers(new[]{h});
-
-														return; /// Success
-													}
-												}
-												catch(ConnectionFailedException)
-												{
-													continue;
-												}
-												catch(RpcException)
-												{
-													continue;
-												}
-												catch(OperationCanceledException)
-												{
-													if(cancellation.IsCancellationRequested)
-														throw;
-												}
-											}
-
-											h.HubMisses++;
-
-											RememberPeers(new[]{h});
 										}
+
+										h.HubMisses++;
+
+										RememberPeers(new[]{h});
 									}
+									
 								},
-								cancellation);
+								vizor.Cancellation.Token);
 
 			return d;
+		}
+
+		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Flowvizor vizor)
+		{
+ 			var files = new Dictionary<string, string>();
+
+			foreach(var i in sources)
+			{
+				var sd = i.Split('=');
+				var s = sd[0];
+				var d = sd.Length == 2 ? sd[1] : null;
+
+				if(d == null)
+				{
+					if(Directory.Exists(s))
+					{
+			 			foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
+			 				files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
+					} 
+					else
+						files[s] = Path.GetFileName(s);
+				} 
+				else
+				{
+					if(Directory.Exists(s))
+					{
+			 			foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
+			 				files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
+					} 
+					else
+						files[s] = d;
+				}
+			}
+
+			var cpkg = Filebase.Add(release, Distribution.Complete, files);
+			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal);
+
+			var o = new ReleaseManifest(by, 
+										release,
+										channel, 
+										previous,
+													
+										new FileInfo(cpkg).Length,
+										Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+										cdependencies,
+
+										minimal,
+										ipkg != null ? new FileInfo(ipkg).Length : 0,
+										ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+										idependencies);
+			Enqueue(o);
+
+			while(o.Delegation != DelegationStage.Completed) 
+				Thread.Sleep(1);
+
+			Log?.Report(this, "Manifest added to the chain");
+
+			var hubs = new HashSet<Peer>();
+					
+			int success = 0;
+			int failures = 0;
+
+			while(success < 8 && success + failures < Peers.Count(i => i.Role.HasFlag(Role.Hub)))
+			{
+				Peer h = null;
+
+				try
+				{
+					h = Connect(Role.Hub, hubs, vizor);
+					success++;
+				}
+				catch(ConnectionFailedException)
+				{
+					failures++;
+					continue;
+				}
+				catch(OperationCanceledException)
+				{
+					if(vizor.Cancellation.IsCancellationRequested)
+						throw;
+					else
+					{
+						failures++;
+						continue;	
+					}
+				}
+
+				h.DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)});
+						
+				Log?.Report(this, "Package declared", $"Hub={h.IP}");
+
+				hubs.Add(h);
+			}
 		}
 
   		public override Rp Request<Rp>(Request rq) where Rp : class

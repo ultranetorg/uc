@@ -11,25 +11,24 @@ using System.Windows.Forms;
 
 namespace UC.Net.Node.FUI
 {
-	public partial class FlowControlForm : Form, IFlowControl
+	public partial class FlowControlForm : Form
 	{
-		Core					Core;
-		Operation				Operation;
-		Log						IFlowControl.Log => Log.Log;
-		CancellationTokenSource CancellationToken;
+		Core				Core;
+		Operation			Operation;
+		Flowvizor			Vizor;
 
-		public FlowControlForm(Core core, Log log, CancellationTokenSource cancellationTokenSource)
+		public FlowControlForm(Core core, Flowvizor vizor)
 		{
 			InitializeComponent();
 
 			Core = core;
-			CancellationToken = cancellationTokenSource;
-			Log.Log = log;
+			Vizor = vizor;
+			Logview.Log = Vizor.Log;
 		}
 
 		private void Abort_Click(object sender, EventArgs e)
 		{
-			CancellationToken.Cancel();
+			Vizor.Cancellation.Cancel();
 			Close();
 		}
 
@@ -38,16 +37,16 @@ namespace UC.Net.Node.FUI
 			Close();
 		}
 
-		public void SetOperation(Operation o)
-		{
-			Operation = o;
-			Operation.FlowReport = this;
-			Text = o.ToString();
-		}
-
-		public void StageChanged()
-		{
-			Log.Log.Report(this, "Delegation stage changed", $"Delegation={Operation.Delegation}");
-		}
+		//public void SetOperation(Operation o)
+		//{
+		//	Operation = o;
+		//	Operation.FlowReport = this;
+		//	Text = o.ToString();
+		//}
+		//
+		//public void StageChanged()
+		//{
+		//	Logview.Log.Report(this, "Delegation stage changed", $"Delegation={Operation.Delegation}");
+		//}
 	}
 }

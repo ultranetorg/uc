@@ -43,12 +43,6 @@ namespace UC.Net
 		}
 	}
 
-	public class RpcException : Exception
-	{
-		public RpcException(string msg) : base(msg){ }
-		public RpcException(string msg, Exception ex) : base(msg, ex){ }
-	}
-
 	public abstract class RpcCall
 	{
 		public string			Version { get; set; }

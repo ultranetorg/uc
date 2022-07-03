@@ -39,13 +39,6 @@ namespace UC.Net
 		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, ReleaseManifest 
 	}
 
-	public interface IFlowControl
-	{
-		Log			Log { get; }
-		void		StageChanged();
-		void		SetOperation(Operation o);
-	}
-
 	public abstract class Operation
 	{
 		public int				Id;
@@ -55,7 +48,7 @@ namespace UC.Net
 		public DelegationStage	Delegation;
 		public PlacingStage		Placing;
 		public bool				Successful => Executed && Error == null;
-		public IFlowControl		FlowReport;
+		public Flowvizor		FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
 		public bool				Executed; 

@@ -213,7 +213,7 @@ namespace UC.Net
 							{
 								try
 								{
-									while(core.Working && Established)
+									while(core.Running && Established)
 									{
 										Packet p = null;
 											
@@ -231,12 +231,12 @@ namespace UC.Net
 														{
 															rp = i.Execute(core);
 															//rp = core.Respond(this, i);
-															rp.Status = ResponseStatus.OK;
+															//rp.Status = ResponseStatus.OK;
 														}
-														catch(Exception)// when(!Debugger.IsAttached)
+														catch(Exception ex)// when(!Debugger.IsAttached)
 														{
 															rp = Response.FromType(core.Chain, i.Type);
-															rp.Status = ResponseStatus.Failed;
+															rp.Error = ex.Message;
 														}
 												
 													rp.Id = i.Id;
@@ -382,7 +382,7 @@ namespace UC.Net
  		public override Rp Request<Rp>(Request rq) where Rp : class
  		{
 			if(!Established)
-				throw new RpcException("Peer is not connectevd");
+				throw new RequirementException("Peer is not connectevd");
 
 			lock(OutRequests)
 			{	
@@ -403,10 +403,10 @@ namespace UC.Net
 				if(rq.RecievedResponse == null)
 					throw new OperationCanceledException();
 
- 				if(rq.RecievedResponse.Status == ResponseStatus.OK)
+ 				if(rq.RecievedResponse.Error == null)
 	 				return rq.RecievedResponse as Rp;
  				else
-					throw new RpcException("Failed");
+					throw new RemoteCallException(rq.RecievedResponse);
  			}
 			else
  				throw new TimeoutException($"Request {rq.GetType().Name} has timed out");

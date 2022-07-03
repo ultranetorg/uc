@@ -12,6 +12,12 @@ using System.Net;
 
 namespace UC.Net
 {
+	public class ApiCallException : Exception
+	{
+		public ApiCallException(string msg) : base(msg){ }
+		public ApiCallException(string msg, Exception ex) : base(msg, ex){ }
+	}
+
 	public class JsonClient// : RpcClient
 	{
 		HttpClient			HttpClient;
@@ -42,6 +48,9 @@ namespace UC.Net
 			Key = apikey;
 		}
 
+		public UntTransfer								Send(TransferUntCall call) => Request<UntTransfer>(call);
+		public GetStatusResponse						Send(StatusCall call) => Request<GetStatusResponse>(call);
+
 		HttpResponseMessage Post(RpcCall request) 
 		{
 			request.Version = Core.Versions.First().ToString();
@@ -61,7 +70,7 @@ namespace UC.Net
 			var cr = Post(request);
 
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-				throw new RpcException(cr.Content.ReadAsStringAsync().Result);
+				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
 
 			try
 			{
@@ -69,7 +78,7 @@ namespace UC.Net
 			}
 			catch(Exception ex)
 			{
-				throw new RpcException("Response deserialization failed", ex);
+				throw new ApiCallException("Response deserialization failed", ex);
 			}
 		}
 		
@@ -78,10 +87,7 @@ namespace UC.Net
 			var cr = Post(request);
 			
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-				throw new RpcException(cr.StatusCode.ToString());
+				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
 		}
-
-		public UntTransfer								Send(TransferUntCall call) => Request<UntTransfer>(call);
-		public GetStatusResponse						Send(StatusCall call) => Request<GetStatusResponse>(call);
 	}
 }

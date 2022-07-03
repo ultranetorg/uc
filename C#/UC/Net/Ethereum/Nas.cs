@@ -189,7 +189,7 @@ namespace UC.Net
 			}
 		}
 
-		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, IFlowControl flowcontrol = null, CancellationTokenSource cts = null)
+		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Flowvizor vizor)
 		{
 			var args = Emission.Serialize(signer, eid);
 
@@ -202,16 +202,16 @@ namespace UC.Net
 					 	Secret = args
 					 };
 
-			if(gasAsker.Ask(w3, c, source.Address, rt, flowcontrol?.Log))
+			if(gasAsker.Ask(w3, c, source.Address, rt, vizor?.Log))
 			{
 				rt.Gas = gasAsker.Gas;
 				rt.GasPrice = gasAsker.GasPrice;
 
-				flowcontrol?.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
+				vizor?.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
 
-				var receipt = await c.SendRequestAndWaitForReceiptAsync(rt, cts);
+				var receipt = await c.SendRequestAndWaitForReceiptAsync(rt, vizor.Cancellation);
 
-				flowcontrol?.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
+				vizor?.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
 			}
 		}
 

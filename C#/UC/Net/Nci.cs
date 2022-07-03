@@ -15,6 +15,13 @@ namespace UC.Net
 		QueryRelease, DeclarePackage, LocatePackage, DownloadPackage
 	}
 
+ 	public class RemoteCallException : Exception
+ 	{
+		public Response	Response;
+
+ 		public RemoteCallException(Response response) : base(response.Error){}
+ 	}
+
 	public abstract class Nci
 	{
 		public Account							Generator {get; set;} /// serializable
@@ -22,16 +29,12 @@ namespace UC.Net
 		public int								ReachFailures;
 
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
-		//public abstract void					Send(Request rq);
-
-		public NextRoundResponse				Send(NextRoundRequest call) => Request<NextRoundResponse>(call);
-		public LastOperationResponse			Send(LastOperationRequest call) => Request<LastOperationResponse>(call);
-		public DelegateTransactionsResponse		Send(DelegateTransactionsRequest call) => Request<DelegateTransactionsResponse>(call);
-		public GetOperationStatusResponse		Send(GetOperationStatusRequest call) => Request<GetOperationStatusResponse>(call);
-		public GetMembersResponse				Send(GetMembersRequest call) => Request<GetMembersResponse>(call);
-		//public LocatePackageResponse			Send(LocatePackageRequest call) => Request<LocatePackageResponse>(call);
-
  
+		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
+		public LastOperationResponse			GetLastOperation(Account account, string oclasss) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss});
+		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
+		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
+		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
 		public AuthorInfoResponse				GetAuthorInfo(string author, bool confirmed) => Request<AuthorInfoResponse>(new AuthorInfoRequest{ Name = author, Confirmed = confirmed });
 		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{ Account = account, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(ReleaseQuery query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {query}, Confirmed = confirmed });
@@ -85,15 +88,10 @@ namespace UC.Net
 		public abstract Response Execute(Core core);
 	}
 
-	public enum ResponseStatus
-	{
-		Null, OK, Failed
-	}
-
 	public abstract class Response : ITypedBinarySerializable
 	{
 		public byte[]			Id {get; set;}
-		public ResponseStatus	Status {get; set;}
+		public string			Error {get; set;}
 		public bool				Final {get; set;} = true;
 
 		public byte				TypeCode => (byte)Type;
@@ -118,7 +116,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RpcException("Not synchronized");
+					throw new RequirementException("Not synchronized");
 				else
 					return new NextRoundResponse {NextRoundId = core.GetNextAvailableRound().Id};
 		}
@@ -139,7 +137,7 @@ namespace UC.Net
  					if(core.Synchronization == Synchronization.Synchronized)
  						return new GetMembersResponse { Members = core.Chain.Members };
  					else
- 						throw new RpcException("Not synchronized");
+ 						throw new RequirementException("Not synchronized");
  				}
  				else
  				{
@@ -162,7 +160,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RpcException("Not synchronized");
+					throw new RequirementException("Not synchronized");
 				else
 				{
 					var l = core.Chain.Accounts.FindLastOperation(Account, i => Class == null || i.GetType().Name == Class);
@@ -186,7 +184,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized || core.Generator == null)
-					throw new RpcException("Not synchronized");
+					throw new RequirementException("Not synchronized");
 				else
 				{
  					//var txs = new Packet(PacketType.Null, new MemoryStream(Data)).Read(r => {	return new Transaction(core.Settings)
@@ -218,7 +216,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RpcException("Not synchronized");
+					throw new RequirementException("Not synchronized");
 				else
 				{
 					return	new GetOperationStatusResponse
@@ -259,7 +257,7 @@ namespace UC.Net
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RpcException("Not synchronized");
+					throw new RequirementException("Not synchronized");
 				else
  					return new AccountInfoResponse{ Info = core.Chain.GetAccountInfo(Account, Confirmed) };
 		}
@@ -279,7 +277,7 @@ namespace UC.Net
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RpcException("Not synchronized");
+					throw new RequirementException("Not synchronized");
 				else
  					return new AuthorInfoResponse{Xon = core.Chain.GetAuthorInfo(Name, Confirmed, new XonTypedBinaryValueSerializator())};
 		}
@@ -301,7 +299,7 @@ namespace UC.Net
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RpcException("Not synchronized");
+					throw new RequirementException("Not synchronized");
 				else
  					return new QueryReleaseResponse {Manifests = Queries.Select(i => core.Chain.QueryRelease(i, Confirmed, new XonTypedBinaryValueSerializator()))};
 		}

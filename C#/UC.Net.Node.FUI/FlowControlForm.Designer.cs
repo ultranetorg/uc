@@ -29,27 +29,27 @@ namespace UC.Net.Node.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.Log = new UC.Net.Node.Logbox();
+			this.Logview = new UC.Net.Node.Logbox();
 			this.Abort = new System.Windows.Forms.Button();
 			this.Exit = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// Log
 			// 
-			this.Log.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.Logview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Log.Font = new System.Drawing.Font("Lucida Console", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.Log.Location = new System.Drawing.Point(12, 12);
-			this.Log.Log = null;
-			this.Log.Margin = new System.Windows.Forms.Padding(6);
-			this.Log.Multiline = true;
-			this.Log.Name = "Log";
-			this.Log.ReadOnly = true;
-			this.Log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.Log.Size = new System.Drawing.Size(775, 134);
-			this.Log.TabIndex = 0;
-			this.Log.WordWrap = false;
+			this.Logview.Font = new System.Drawing.Font("Lucida Console", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			this.Logview.Location = new System.Drawing.Point(12, 12);
+			this.Logview.Log = null;
+			this.Logview.Margin = new System.Windows.Forms.Padding(6);
+			this.Logview.Multiline = true;
+			this.Logview.Name = "Log";
+			this.Logview.ReadOnly = true;
+			this.Logview.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.Logview.Size = new System.Drawing.Size(775, 134);
+			this.Logview.TabIndex = 0;
+			this.Logview.WordWrap = false;
 			// 
 			// Abort
 			// 
@@ -82,7 +82,7 @@ namespace UC.Net.Node.FUI
 			this.ClientSize = new System.Drawing.Size(799, 197);
 			this.Controls.Add(this.Exit);
 			this.Controls.Add(this.Abort);
-			this.Controls.Add(this.Log);
+			this.Controls.Add(this.Logview);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "FlowControlForm";
@@ -94,7 +94,7 @@ namespace UC.Net.Node.FUI
 
 		#endregion
 
-		private Logbox Log;
+		private Logbox Logview;
 		private System.Windows.Forms.Button Abort;
 		private System.Windows.Forms.Button Exit;
 	}

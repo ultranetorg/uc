@@ -43,17 +43,17 @@ namespace UC.Net.Node.CLI
 						var a = PrivateAccount.Load(i, Settings.Secret.Password);
 						Cryptography.Current = new NoCryptography();
 						a.Save(Path.Join(Settings.Secret.Fathers, Path.GetFileNameWithoutExtension(i)) + "." + Vault.NoCryptoWalletExtention, Settings.Secret.Password);
-						Log.Report(this, null, a.ToString());
+						Flowvizor.Log?.Report(this, null, a.ToString());
 					}
 					return null;
 		   		
 				case "overview" :
 				{
-					var i = Node.Connect(Role.Chain, null, Cancellation.Token).GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
+					var i = Node.Connect(Role.Chain, null, Flowvizor).GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
 					
-					Log?.Report(this, "Account", GetString("address") + " :");
+					Flowvizor.Log?.Report(this, "Account", GetString("address") + " :");
 
-					i.Info.Dump((d, m, n, v) => Log.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
+					i.Info.Dump((d, m, n, v) => Flowvizor.Log?.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
 
 					return null;
 				}
@@ -128,7 +128,7 @@ namespace UC.Net.Node.CLI
 
 			var acc = PrivateAccount.Create();
 
-			Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
+			Flowvizor.Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
 			Core.Vault.SaveAccount(acc, p);
 
@@ -146,7 +146,7 @@ namespace UC.Net.Node.CLI
 
 			if(Core.Vault.Accounts.Contains(acc))
 			{
-				Log?.ReportError(this, $"Account already exists: " + acc);
+				Flowvizor.Log?.ReportError(this, $"Account already exists: " + acc);
 				return null;
 			}
 
@@ -196,7 +196,7 @@ namespace UC.Net.Node.CLI
 			Console.WriteLine();
 			Console.ForegroundColor = c;							
 
-			Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
+			Flowvizor.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
 			Core.Vault.SaveAccount(acc, p);
 

@@ -10,17 +10,15 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net.Node.CLI
 {
-	public abstract class Command : IFlowControl
+	public abstract class Command
 	{
 		protected Settings					Settings; 
-		protected Log						Log; 
 		protected Xon						Args;
 		protected Core						Core => CoreFunc();
 		protected Func<Core>				CoreFunc;
-		protected static bool				ConsoleSupported = true;
-		Operation							Operation;
-		public CancellationTokenSource		Cancellation = new CancellationTokenSource();
-		Log									IFlowControl.Log => Log;
+		public static bool					ConsoleSupported { get; protected set; }
+		//Operation							Operation;
+		public Flowvizor					Flowvizor {get;}
 
 		public abstract object Execute();
 
@@ -31,7 +29,7 @@ namespace UC.Net.Node.CLI
 				if(Core.IsNodee)
 					return Core;
 
-				Core.RunNode(() => ConsoleSupported && Console.KeyAvailable);
+				Core.RunNode();
 
 				return Core;
 			}
@@ -52,18 +50,9 @@ namespace UC.Net.Node.CLI
 		protected Command(Settings settings, Log log, Func<Core> core, Xon args)
 		{
 			Settings = settings;
-			Log = log;
 			CoreFunc = core;
 			Args = args;
-		}
-
-		public void	SetOperation(Operation o)
-		{
-			Operation = o;
-		}
-
-		public void	StageChanged()
-		{
+			Flowvizor = new Flowvizor(log);
 		}
 
 		protected string GetString(string paramenter)
@@ -109,7 +98,7 @@ namespace UC.Net.Node.CLI
 		protected void Wait(Func<bool> waitiftrue)
 		{
 			Task.Run(() =>	{
-								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable)) 
+								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Flowvizor.Cancellation.IsCancellationRequested) 
 								{
 									Thread.Sleep(100); 
 								}
@@ -154,7 +143,7 @@ namespace UC.Net.Node.CLI
 									throw new SyntaxException("Unknown awaiting stage");
 								});
 				else
-					Wait(() =>	o.Placing != PlacingStage.Confirmed);
+					Wait(() =>	o.Delegation != DelegationStage.Completed);
 			}
 
 			return obj;
@@ -162,7 +151,7 @@ namespace UC.Net.Node.CLI
 
 		protected void Dump(XonDocument document)
 		{
-			document.Dump((n, l) => Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
+			document.Dump((n, l) => Flowvizor.Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
 		}
 
 	}

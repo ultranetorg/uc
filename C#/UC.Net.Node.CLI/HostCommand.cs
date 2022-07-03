@@ -40,7 +40,7 @@ namespace UC.Net.Node.CLI
 	
 							client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Zone.Port(Settings.Zone));
 				
-							Log.Report(this, null, $"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
+							Flowvizor.Log?.Report(this, null, $"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 	
 							client.Close();
 						}

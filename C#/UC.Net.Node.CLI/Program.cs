@@ -68,6 +68,7 @@ namespace UC.Net.Node.CLI
 									if(Core == null)
 										Core = new Core(Settings, dir, Log)
 												{
+													//Running = () => !Command.ConsoleSupported || Command.ConsoleSupported && Console.KeyAvailable,
 													Clock = new RealTimeClock(), 
 													Nas = new Nas(Settings, Log), 
 													GasAsker = new SilentGasAsker(Log), 
@@ -98,7 +99,7 @@ namespace UC.Net.Node.CLI
 				{
 					c?.Execute();
 				}
-				catch(RpcException ex)
+				catch(RemoteCallException ex)
 				{
 					Log.ReportError(null, ex.Message);
 				}

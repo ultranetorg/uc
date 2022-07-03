@@ -14,7 +14,7 @@ namespace UC.Net
 		bool							IsAdministrator { get; }
 
 		bool							CheckEmission(Emission e);
-		Task							Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, IFlowControl flowcontrol = null, CancellationTokenSource cts = null);
+		Task							Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Flowvizor flowcontrol = null);
 		BigInteger						FinishEmission(Account account, int eid);
 		List<IPAddress>					GetInitials(string zone);
 		Task							RemoveZone(string name, IGasAsker asker);
