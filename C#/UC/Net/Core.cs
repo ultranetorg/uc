@@ -937,6 +937,7 @@ namespace UC.Net
 																						},
 																					Constractor
 																					);
+
  							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
  							{
@@ -961,7 +962,7 @@ namespace UC.Net
 																			t => UC.Net.Response.FromType(Chain, (NciCall)t), 
 																			Constractor
 																			);
- 							}
+							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
  							{
  								peer.Disconnect();

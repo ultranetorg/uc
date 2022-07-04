@@ -41,6 +41,10 @@ namespace UC.Net
 				case long v:
 					writer.Write7BitEncodedInt64(v);
 					return true;
+
+				case Coin v:
+					v.Write(writer);
+					return true;
 			}
 
 			if(type.IsEnum)
@@ -138,7 +142,7 @@ namespace UC.Net
 					if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 						p.SetValue(l[i], val);
 					else
-						Deserialize(reader, p.PropertyType, construct);
+						p.SetValue(l[i], Deserialize(reader, p.PropertyType, construct));
 				}
 			}
 
@@ -165,7 +169,7 @@ namespace UC.Net
 				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 					p.SetValue(o, val);
 				else
-					Deserialize(reader, p.PropertyType, construct);
+					p.SetValue(o, Deserialize(reader, p.PropertyType, construct));
 			}
 
 			return o;
@@ -188,6 +192,14 @@ namespace UC.Net
 			if(typeof(long) == type)		
 			{
 				value = reader.Read7BitEncodedInt64(); 
+				return true;
+			}
+			else 
+			if(typeof(Coin) == type)
+			{
+				var c = new Coin(); 
+				c.Read(reader);
+				value = c;
 				return true;
 			}
 			else

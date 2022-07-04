@@ -79,7 +79,7 @@ namespace UC.Net.Node.FUI
 	
 									try
 									{
-										t = Core.Connect(Role.Chain, null, new Flowvizor(null)).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
+										t = Core.Connect(Role.Chain, null, new Flowvizor(5 * 1000)).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
 									}
 									catch(ApiCallException)
 									{
