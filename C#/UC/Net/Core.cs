@@ -409,7 +409,7 @@ namespace UC.Net
 				return;
 
 			Running = false;
-			Flowvizor.Cancellation.Cancel();
+			Flowvizor.Abort();
 			Listener?.Stop();
 			ApiServer?.Stop();
 
@@ -626,6 +626,7 @@ namespace UC.Net
 					try
 					{
 						Peer.SendHello(client, CreateHello(peer.IP));
+						client.ReceiveTimeout = Timeout;
 						h = Peer.WaitHello(client);
 					}
 					catch(Exception)// when(!Settings.Dev.ThrowOnCorrupted)
@@ -1282,7 +1283,14 @@ namespace UC.Net
 					if(!Settings.Dev.DisableTimeouts)
 						v.Cancellation.CancelAfter(Timeout);
 
-					m = ConnectToMember(v);
+					try
+					{
+						m = ConnectToMember(v);
+					}
+					catch(ConnectionFailedException)
+					{
+						continue;
+					}
 				}
 
 				try
@@ -1624,7 +1632,7 @@ namespace UC.Net
 
 				Peer peer;
 				
-				while(Running && !vizor.Cancellation.IsCancellationRequested)
+				while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
 				{
 					Thread.Sleep(1);
 	
@@ -1665,13 +1673,13 @@ namespace UC.Net
 							}
 						}
 					}
-					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is OperationCanceledException)
+					catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is OperationCanceledException)
 					{
 						peer.ReachFailures++;
 					}
 				}
 	
-				throw new OperationCanceledException("Looking for a member to connect has been aborted");
+				throw new ConnectionFailedException("Aborted, timeour of overall abort");
 			}
 		}
 
@@ -1679,7 +1687,7 @@ namespace UC.Net
 		{
 			Peer peer;
 				
-			while(Running && !vizor.Cancellation.IsCancellationRequested)
+			while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
 			{
 				Thread.Sleep(1);
 	
@@ -1699,14 +1707,12 @@ namespace UC.Net
 	
 					return peer;
 				}
-				catch(OperationCanceledException ex)
+				catch(ConnectionFailedException)
 				{
-					if(ex.CancellationToken.IsCancellationRequested)
-						throw;
 				}
 			}
 
-			throw new OperationCanceledException("Looking for a node to connect has been aborted");
+			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
 		void Connect(Peer peer, Flowvizor vizor)
@@ -1722,18 +1728,18 @@ namespace UC.Net
 				}
 			}
 
-			while(Running && !vizor.Cancellation.IsCancellationRequested)
+			while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
 			{
 				lock(Lock)
 					if(peer.Established)
 						return;
 					else if(peer.OutStatus == EstablishingStatus.Failed)
-						throw new ConnectionFailedException("Connecting to a node has failed");
+						throw new ConnectionFailedException("Failed");
 
 				Thread.Sleep(1);
 			}
 
-			throw new OperationCanceledException("Connecting to a node has been aborted");
+			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
 

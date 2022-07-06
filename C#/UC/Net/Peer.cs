@@ -195,6 +195,7 @@ namespace UC.Net
 		{
 			Core = core;
 			Client = client;
+			Client.ReceiveTimeout = 0;
 
 			Status				= ConnectionStatus.OK;
 			Stream				= client.GetStream();
@@ -205,6 +206,7 @@ namespace UC.Net
 			LastConfirmedRound	= h.LastConfirmedRound;
 			Role				= h.Roles;
 	
+
 			ReadThread = new (() => { read(this); });
 			ReadThread.Name = $"{host} listening to {IP.GetAddressBytes()[3]}";
 			ReadThread.Start();

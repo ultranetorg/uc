@@ -6,6 +6,7 @@ namespace UC.Net
 	{
 		public CancellationTokenSource	Cancellation { get; }
 		public Log						Log { get; }
+		public bool						IsAborted { get; protected set; }
 
 		public Flowvizor(Log log)
 		{
@@ -29,6 +30,12 @@ namespace UC.Net
 			var a = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token);
 
 			return new Flowvizor(Log, a);
+		}
+
+		public void Abort()
+		{
+			Cancellation.Cancel();
+			IsAborted = true;
 		}
 	}
 }
