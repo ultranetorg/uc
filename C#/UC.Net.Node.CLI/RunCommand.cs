@@ -25,7 +25,7 @@ namespace UC.Net.Node.CLI
 
 			if(ConsoleSupported)
 			{	
-				Console.ReadKey();
+				Console.ReadKey(true);
 				Core.Stop("By user input");
 			}
 			else

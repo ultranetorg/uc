@@ -40,6 +40,7 @@ namespace UC.Net.Node.CLI
 			try
 			{
 				var p = Console.KeyAvailable;
+				ConsoleSupported = true;
 			}
 			catch(Exception)
 			{
