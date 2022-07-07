@@ -856,7 +856,7 @@ namespace UC.Net
 				}
 			}
 
-			d.Add("Hash").Value = Hex.ToHexString(Hash);
+			d.Add("Hash").Value = Hash;
 
 			return d;		
 		}

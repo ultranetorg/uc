@@ -20,6 +20,8 @@ namespace UC.Net
 		public Response	Response;
 
  		public RemoteCallException(Response response) : base(response.Error){}
+		public RemoteCallException(string message) : base(message){}
+		public RemoteCallException(string message, Exception ex) : base(message, ex){}
  	}
 
 	public abstract class Nci
@@ -51,7 +53,7 @@ namespace UC.Net
 		public byte						TypeCode => (byte)Type;
 		public Peer						Peer;
 		public ManualResetEvent			Event;
-		public Response					RecievedResponse;
+		public Response					Response;
 		//public bool						Sent;
 		public Action					Process;
 

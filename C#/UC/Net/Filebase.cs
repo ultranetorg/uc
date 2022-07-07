@@ -204,15 +204,16 @@ namespace UC.Net
 			return File.Exists(ToPath(package)) ? new FileInfo(ToPath(package)).Length : 0;
 		}
 
-		public void Append(PackageAddress package, byte[] data)
+		public void Write(PackageAddress package, long offset, byte[] data)
 		{
 			var dir = Path.Join(Root, package.Author, package.Product);
 
 			if(!Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
-			using(var s = new FileStream(ToPath(package), !File.Exists(ToPath(package)) ? FileMode.Create : FileMode.Append, FileAccess.Write, FileShare.Read))
+			using(var s = new FileStream(ToPath(package), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
 			{
+				s.Seek(offset, SeekOrigin.Begin);
 				s.Write(data);
 			}
 		}

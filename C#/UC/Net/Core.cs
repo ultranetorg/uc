@@ -39,17 +39,6 @@ namespace UC.Net
 		}
 	}
 
-	public class Download
-	{
-		public PackageAddress				Package;
-		public Dictionary<Peer, List<Peer>> HubsSeeders = new();
-		public Task							Task;
-		public byte[]						Hash;
-		public long							TotalLength;
-		public long							CurrentLength;
-		public bool							Succeeded => TotalLength > 0 && CurrentLength == TotalLength;
-	}
-
 	public enum Synchronization
 	{
 		Null, Downloading, Synchronizing, Synchronized
@@ -427,7 +416,7 @@ namespace UC.Net
 			Log?.Report(this, "Stopped", "Cause=" + message);
 		}
 
-		Peer GetPeer(IPAddress ip)
+		public Peer GetPeer(IPAddress ip)
 		{
 			Peer p = null;
 
@@ -489,7 +478,7 @@ namespace UC.Net
 			}
 		}
 
-		void RememberPeers(IEnumerable<Peer> peers)
+		public void RememberPeers(IEnumerable<Peer> peers)
 		{
 			var news = peers.Where(i => !i.IP.Equals(IP) && !Peers.Any(j => j.IP.Equals(i.IP))).ToArray();
 												
@@ -625,8 +614,10 @@ namespace UC.Net
 									
 					try
 					{
+						client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+						client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+
 						Peer.SendHello(client, CreateHello(peer.IP));
-						client.ReceiveTimeout = Timeout;
 						h = Peer.WaitHello(client);
 					}
 					catch(Exception)// when(!Settings.Dev.ThrowOnCorrupted)
@@ -705,13 +696,13 @@ namespace UC.Net
 			void incon(){
 							try
 							{
-								client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
-								//client.ReceiveTimeout = Timeout;
-	
 								Hello h = null;
 	
 								try
 								{
+									client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+									client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+
 									h = Peer.WaitHello(client);
 								}
 								catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
@@ -977,7 +968,7 @@ namespace UC.Net
 
 									if(rq != null)
 									{
-										rq.RecievedResponse = rp;
+										rq.Response = rp;
 										rq.Event.Set();
  									
 										if(rp.Final)
@@ -1683,6 +1674,12 @@ namespace UC.Net
 			}
 		}
 
+		public Peer FindBestPeer(Role role, HashSet<Peer> exclusions)
+		{
+			lock(Lock)
+				return Peers.Where(i => i.Role.HasFlag(role) && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+		}
+
 		public Peer Connect(Role role, HashSet<Peer> exclusions, Flowvizor vizor)
 		{
 			Peer peer;
@@ -1715,7 +1712,45 @@ namespace UC.Net
 			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
-		void Connect(Peer peer, Flowvizor vizor)
+		public R Call<R>(Role role, Flowvizor vizor, Func<Peer, R> call)
+		{
+			var exclusions = new HashSet<Peer>();
+
+			Peer peer;
+				
+			while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+			{
+				Thread.Sleep(1);
+	
+				lock(Lock)
+				{
+					peer = Peers.Where(i => i.Role.HasFlag(role) && !exclusions.Contains(i)).OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+	
+					if(peer == null)
+						continue;
+				}
+
+				exclusions?.Add(peer);
+
+				try
+				{
+					Connect(peer, vizor);
+
+					return call(peer);
+				}
+				catch(ConnectionFailedException)
+				{
+				}
+				catch(RemoteCallException)
+				{
+				}
+			}
+
+			throw new ConnectionFailedException("Aborted, overall abort or timeout");
+		}
+
+
+		public void Connect(Peer peer, Flowvizor vizor)
 		{
 			lock(Lock)
 			{
@@ -1805,143 +1840,14 @@ namespace UC.Net
 
 		public Download DownloadPackage(PackageAddress package, Flowvizor vizor)
 		{
-			var d = new Download{Package = package};
-
-			Downloads.Add(d);
-
-			d.Task = Task.Run(	() =>
-								{
-									var c = Connect(Role.Chain, null, vizor);
-									var qrrp = c.QueryRelease(package, VersionQuery.Exact, "", true);
-
-									d.TotalLength = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteSizeField, 
-																													Distribution.Incremental => ReleaseManifest.IncrementalSizeField, 
-																													_ =>  throw new RequirementException("Wrong Distribution value") });
-									
-									d.Hash = qrrp.Manifests.First().Get<byte[]>(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteHashField, 
-																												Distribution.Incremental => ReleaseManifest.IncrementalHashField, 
-																												_ =>  throw new RequirementException("Wrong Distribution value") });
-
-									lock(Lock)
-									{
-										if(Filebase.GetLength(package) == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
-										{	
-											d.CurrentLength = d.TotalLength;
-											return;
-										}
-									}
-
-									var hubs = new HashSet<Peer>();
-
-									var timeout = vizor.CreateNested();
-									
-									while(Running)
-									{
-										Peer h;
-										LocatePackageResponse lp;
-
-										try
-										{
-											if(!Settings.Dev.DisableTimeouts)
-												timeout.Cancellation.CancelAfter(Timeout);
-												
-											h = Connect(Role.Hub, hubs, timeout);
-
-											lp = h.LocatePackage(package, 16);
-
-											if(!d.HubsSeeders.ContainsKey(h))
-												d.HubsSeeders[h] = new();
-										}
-										catch(ConnectionFailedException)
-										{
-											continue;
-										}
-										catch(RemoteCallException)
-										{
-											continue;
-										}
-										catch(OperationCanceledException)
-										{
-											if(vizor.Cancellation.IsCancellationRequested)
-												throw;
-											else
-												continue;	
-										}
-						
-										foreach(var s in lp.Seeders.Select(i => GetPeer(i)))
-										{
-											try
-											{
-												if(!Settings.Dev.DisableTimeouts)
-													timeout.Cancellation.CancelAfter(Timeout);
-													
-												Connect(s, timeout);
-													
-												d.CurrentLength = Filebase.GetLength(package);
-
-												while(d.CurrentLength < d.TotalLength)
-												{
-													byte[] data = null;
-
-													for(int j=0; j<3; j++)
-													{
-														try
-														{
-															data = s.DownloadPackage(package, d.CurrentLength, Math.Min(65536, d.TotalLength - d.CurrentLength)).Data;
-															break;
-														}
-														catch(RemoteCallException)
-														{
-														}
-													}
+			lock(Lock)
+			{
+				var d = new Download(this, vizor, package);
 	
-													lock(Lock)
-														if(data != null)
-														{
-															Filebase.Append(package, data);
-															d.CurrentLength += data.LongLength;
-
-															if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
-																d.HubsSeeders[h].Add(s);
-														}
-														else
-															break;
-												}
-				
-												if(d.CurrentLength == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
-												{
-													if(d.HubsSeeders[h].Any())
-														h.HubHits++;
-
-													RememberPeers(new[]{h});
-
-													return; /// Success
-												}
-											}
-											catch(ConnectionFailedException)
-											{
-												continue;
-											}
-											catch(RemoteCallException)
-											{
-												continue;
-											}
-											catch(OperationCanceledException)
-											{
-												if(vizor.Cancellation.IsCancellationRequested)
-													throw;
-											}
-										}
-
-										h.HubMisses++;
-
-										RememberPeers(new[]{h});
-									}
-									
-								},
-								vizor.Cancellation.Token);
-
-			return d;
+				Downloads.Add(d);
+		
+				return d;
+			}
 		}
 
 		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Flowvizor vizor)

@@ -125,7 +125,7 @@ namespace UC
 	
 				var v = value as byte[];
 	
-				if(t == typeof(byte[]).FullName)	return (O)(object)v.ToString();
+				if(t == typeof(byte[]).FullName)	return (O)(object)Hex.ToHexString(v);
 				if(t == typeof(byte).FullName)		return (O)(object)v[0].ToString();
 				if(t == typeof(short).FullName)		return (O)(object)BitConverter.ToInt16(v).ToString();
 				if(t == typeof(int).FullName)		return (O)(object)BitConverter.ToInt32(v).ToString();

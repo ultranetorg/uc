@@ -195,7 +195,9 @@ namespace UC.Net
 		{
 			Core = core;
 			Client = client;
+			
 			Client.ReceiveTimeout = 0;
+			Client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Core.Timeout;
 
 			Status				= ConnectionStatus.OK;
 			Stream				= client.GetStream();
@@ -384,7 +386,7 @@ namespace UC.Net
  		public override Rp Request<Rp>(Request rq) where Rp : class
  		{
 			if(!Established)
-				throw new RequirementException("Peer is not connectevd");
+				throw new RequirementException("Peer is not connected");
 
 			lock(OutRequests)
 			{	
@@ -402,16 +404,16 @@ namespace UC.Net
  
  			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : 15000))
  			{
-				if(rq.RecievedResponse == null)
+				if(rq.Response == null)
 					throw new OperationCanceledException();
 
- 				if(rq.RecievedResponse.Error == null)
-	 				return rq.RecievedResponse as Rp;
+ 				if(rq.Response.Error == null)
+	 				return rq.Response as Rp;
  				else
-					throw new RemoteCallException(rq.RecievedResponse);
+					throw new RemoteCallException(rq.Response);
  			}
 			else
- 				throw new TimeoutException($"Request {rq.GetType().Name} has timed out");
+ 				throw new RemoteCallException($"Timed out");
  		}
 	}
 }

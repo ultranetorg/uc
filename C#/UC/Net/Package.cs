@@ -29,7 +29,12 @@ namespace UC.Net
 			a.Parse(s);
 			return a;
 		}
-		
+
+		public override string ToString()
+		{
+			return base.ToString() + "/" + Distribution.ToString().ToLower()[0];
+		}
+
 		public override void Parse(string[] s)
 		{
 			base.Parse(s);
