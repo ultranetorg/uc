@@ -110,9 +110,9 @@
     <AndroidResource Include="Resources\drawable\splash_screen.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UC.Net.Node.MAUI\UC.Net.Node.MAUI.csproj">
-      <Project>{9C5ED4FD-774E-4CDE-A550-F545BD0F0CDD}</Project>
-      <Name>UC.Net.Node.MAUI</Name>
+    <ProjectReference Include="..\UC.Net.Node.MAUI\UC.Net.Node.MAUI.Markup.csproj">
+      <Project>{635C127B-45D8-40B7-BBE8-29CD7FC62A45}</Project>
+      <Name>UC.Net.Node.MAUI.Markup</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

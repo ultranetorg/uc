@@ -7,7 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UC.Net.Node.MAUI.Android", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UC.Net.Node.MAUI.iOS", "UC.Net.Node.MAUI.iOS\UC.Net.Node.MAUI.iOS.csproj", "{1BB0053F-5606-4CB5-905B-ABC2A6D0929D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UC.Net.Node.MAUI", "UC.Net.Node.MAUI\UC.Net.Node.MAUI.csproj", "{635C127B-45D8-40B7-BBE8-29CD7FC62A45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UC.Net.Node.MAUI.Markup", "UC.Net.Node.MAUI\UC.Net.Node.MAUI.Markup.csproj", "{635C127B-45D8-40B7-BBE8-29CD7FC62A45}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UC.Net.Node.MAUI", "UC.Net.Node.MAUI.App\UC.Net.Node.MAUI.csproj", "{4B33C050-4295-42B1-887B-7EE4AD49C032}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Markup", "Markup", "{FAA51DD1-2245-44C6-A4B8-96BB792E493B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,9 +77,32 @@ Global
 		{635C127B-45D8-40B7-BBE8-29CD7FC62A45}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{635C127B-45D8-40B7-BBE8-29CD7FC62A45}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{635C127B-45D8-40B7-BBE8-29CD7FC62A45}.Release|iPhoneSimulator.Deploy.0 = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|iPhone.Deploy.0 = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Debug|iPhoneSimulator.Deploy.0 = Debug|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|iPhone.Build.0 = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|iPhone.Deploy.0 = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{4B33C050-4295-42B1-887B-7EE4AD49C032}.Release|iPhoneSimulator.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E2164F73-0BDE-4A45-86D6-964952463428} = {FAA51DD1-2245-44C6-A4B8-96BB792E493B}
+		{1BB0053F-5606-4CB5-905B-ABC2A6D0929D} = {FAA51DD1-2245-44C6-A4B8-96BB792E493B}
+		{635C127B-45D8-40B7-BBE8-29CD7FC62A45} = {FAA51DD1-2245-44C6-A4B8-96BB792E493B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EE28837F-B66E-47C7-9B2B-34E86D7114D4}
