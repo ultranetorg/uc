@@ -81,6 +81,12 @@ namespace UC.Net.Node.FUI
 // 				nodes.Nodes.Add(ipfs);
 			}
 
+			if(Core.Hub != null)
+			{
+				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Core, core.Vault) };
+				navigator.Nodes.Add(hub);
+			}
+
 			var apps = new TreeNode("Applications"){ Tag = new ApplicationsPanel(Core, core.Vault) };
 			navigator.Nodes.Add(apps);
 		}

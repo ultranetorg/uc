@@ -62,28 +62,28 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(19, 18);
-			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label1.Location = new System.Drawing.Point(32, 32);
+			this.label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(53, 13);
+			this.label1.Size = new System.Drawing.Size(102, 27);
 			this.label1.TabIndex = 16;
 			this.label1.Text = "Account";
 			// 
 			// SearchAccount
 			// 
 			this.SearchAccount.FormattingEnabled = true;
-			this.SearchAccount.Location = new System.Drawing.Point(88, 15);
-			this.SearchAccount.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.SearchAccount.Location = new System.Drawing.Point(165, 25);
+			this.SearchAccount.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.SearchAccount.Name = "SearchAccount";
-			this.SearchAccount.Size = new System.Drawing.Size(326, 23);
+			this.SearchAccount.Size = new System.Drawing.Size(602, 40);
 			this.SearchAccount.TabIndex = 17;
 			// 
 			// search
 			// 
-			this.search.Location = new System.Drawing.Point(432, 14);
-			this.search.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.search.Location = new System.Drawing.Point(801, 15);
+			this.search.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.search.Name = "search";
-			this.search.Size = new System.Drawing.Size(117, 27);
+			this.search.Size = new System.Drawing.Size(217, 58);
 			this.search.TabIndex = 15;
 			this.search.Text = "Search";
 			this.search.UseVisualStyleBackColor = true;
@@ -101,10 +101,10 @@ namespace UC.Net.Node.FUI
             this.columnHeader4});
 			this.products.FullRowSelect = true;
 			this.products.HideSelection = false;
-			this.products.Location = new System.Drawing.Point(0, 65);
-			this.products.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.products.Location = new System.Drawing.Point(0, 139);
+			this.products.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.products.Name = "products";
-			this.products.Size = new System.Drawing.Size(1023, 392);
+			this.products.Size = new System.Drawing.Size(1896, 832);
 			this.products.TabIndex = 18;
 			this.products.UseCompatibleStateImageBehavior = false;
 			this.products.View = System.Windows.Forms.View.Details;
@@ -141,21 +141,21 @@ namespace UC.Net.Node.FUI
 			this.registerGroup.Controls.Add(this.Author);
 			this.registerGroup.Controls.Add(this.ProductTitle);
 			this.registerGroup.Controls.Add(this.ProductName);
-			this.registerGroup.Location = new System.Drawing.Point(0, 464);
-			this.registerGroup.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.registerGroup.Location = new System.Drawing.Point(0, 990);
+			this.registerGroup.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.registerGroup.Name = "registerGroup";
-			this.registerGroup.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.registerGroup.Size = new System.Drawing.Size(403, 303);
+			this.registerGroup.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.registerGroup.Size = new System.Drawing.Size(748, 646);
 			this.registerGroup.TabIndex = 19;
 			this.registerGroup.TabStop = false;
 			this.registerGroup.Text = "Product Registration";
 			// 
 			// Register
 			// 
-			this.Register.Location = new System.Drawing.Point(204, 166);
-			this.Register.Margin = new System.Windows.Forms.Padding(9);
+			this.Register.Location = new System.Drawing.Point(379, 354);
+			this.Register.Margin = new System.Windows.Forms.Padding(17, 19, 17, 19);
 			this.Register.Name = "Register";
-			this.Register.Size = new System.Drawing.Size(166, 27);
+			this.Register.Size = new System.Drawing.Size(308, 58);
 			this.Register.TabIndex = 9;
 			this.Register.Text = "Register";
 			this.Register.UseVisualStyleBackColor = true;
@@ -165,10 +165,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label8.AutoSize = true;
 			this.label8.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label8.Location = new System.Drawing.Point(70, 44);
-			this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label8.Location = new System.Drawing.Point(130, 94);
+			this.label8.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(46, 13);
+			this.label8.Size = new System.Drawing.Size(88, 27);
 			this.label8.TabIndex = 8;
 			this.label8.Text = "Author";
 			// 
@@ -176,10 +176,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label9.AutoSize = true;
 			this.label9.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label9.Location = new System.Drawing.Point(31, 82);
-			this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label9.Location = new System.Drawing.Point(58, 175);
+			this.label9.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(79, 13);
+			this.label9.Size = new System.Drawing.Size(154, 27);
 			this.label9.TabIndex = 8;
 			this.label9.Text = "Product Title";
 			// 
@@ -187,10 +187,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label3.Location = new System.Drawing.Point(26, 120);
-			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label3.Location = new System.Drawing.Point(48, 256);
+			this.label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(86, 13);
+			this.label3.Size = new System.Drawing.Size(169, 27);
 			this.label3.TabIndex = 8;
 			this.label3.Text = "Product Name";
 			// 
@@ -198,28 +198,28 @@ namespace UC.Net.Node.FUI
 			// 
 			this.Author.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.Author.FormattingEnabled = true;
-			this.Author.Location = new System.Drawing.Point(136, 40);
-			this.Author.Margin = new System.Windows.Forms.Padding(7);
+			this.Author.Location = new System.Drawing.Point(253, 85);
+			this.Author.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Author.Name = "Author";
-			this.Author.Size = new System.Drawing.Size(233, 23);
+			this.Author.Size = new System.Drawing.Size(429, 40);
 			this.Author.TabIndex = 10;
 			// 
 			// ProductTitle
 			// 
-			this.ProductTitle.Location = new System.Drawing.Point(136, 78);
-			this.ProductTitle.Margin = new System.Windows.Forms.Padding(7);
+			this.ProductTitle.Location = new System.Drawing.Point(253, 166);
+			this.ProductTitle.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.ProductTitle.Name = "ProductTitle";
-			this.ProductTitle.Size = new System.Drawing.Size(233, 23);
+			this.ProductTitle.Size = new System.Drawing.Size(429, 39);
 			this.ProductTitle.TabIndex = 11;
 			this.ProductTitle.TextChanged += new System.EventHandler(this.registeringProduct_TextChanged);
 			// 
 			// ProductName
 			// 
-			this.ProductName.Location = new System.Drawing.Point(136, 117);
-			this.ProductName.Margin = new System.Windows.Forms.Padding(7);
+			this.ProductName.Location = new System.Drawing.Point(253, 250);
+			this.ProductName.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.ProductName.Name = "ProductName";
 			this.ProductName.ReadOnly = true;
-			this.ProductName.Size = new System.Drawing.Size(233, 23);
+			this.ProductName.Size = new System.Drawing.Size(429, 39);
 			this.ProductName.TabIndex = 11;
 			// 
 			// Management
@@ -234,11 +234,11 @@ namespace UC.Net.Node.FUI
 			this.Management.Controls.Add(this.label7);
 			this.Management.Controls.Add(this.PublisherAccount);
 			this.Management.Enabled = false;
-			this.Management.Location = new System.Drawing.Point(421, 464);
-			this.Management.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.Management.Location = new System.Drawing.Point(782, 990);
+			this.Management.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Management.Name = "Management";
-			this.Management.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.Management.Size = new System.Drawing.Size(603, 303);
+			this.Management.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.Management.Size = new System.Drawing.Size(1120, 646);
 			this.Management.TabIndex = 19;
 			this.Management.TabStop = false;
 			this.Management.Text = "Product Management";
@@ -246,29 +246,29 @@ namespace UC.Net.Node.FUI
 			// checkBox1
 			// 
 			this.checkBox1.AutoSize = true;
-			this.checkBox1.Location = new System.Drawing.Point(106, 205);
-			this.checkBox1.Margin = new System.Windows.Forms.Padding(7);
+			this.checkBox1.Location = new System.Drawing.Point(197, 437);
+			this.checkBox1.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.checkBox1.Name = "checkBox1";
-			this.checkBox1.Size = new System.Drawing.Size(15, 14);
+			this.checkBox1.Size = new System.Drawing.Size(28, 27);
 			this.checkBox1.TabIndex = 12;
 			this.checkBox1.UseVisualStyleBackColor = true;
 			// 
 			// Publishers
 			// 
 			this.Publishers.FormattingEnabled = true;
-			this.Publishers.ItemHeight = 15;
-			this.Publishers.Location = new System.Drawing.Point(106, 46);
-			this.Publishers.Margin = new System.Windows.Forms.Padding(7);
+			this.Publishers.ItemHeight = 32;
+			this.Publishers.Location = new System.Drawing.Point(197, 98);
+			this.Publishers.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Publishers.Name = "Publishers";
-			this.Publishers.Size = new System.Drawing.Size(280, 109);
+			this.Publishers.Size = new System.Drawing.Size(517, 228);
 			this.Publishers.TabIndex = 11;
 			// 
 			// Change
 			// 
-			this.Change.Location = new System.Drawing.Point(400, 198);
-			this.Change.Margin = new System.Windows.Forms.Padding(7);
+			this.Change.Location = new System.Drawing.Point(743, 422);
+			this.Change.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Change.Name = "Change";
-			this.Change.Size = new System.Drawing.Size(166, 27);
+			this.Change.Size = new System.Drawing.Size(308, 58);
 			this.Change.TabIndex = 9;
 			this.Change.Text = "Update";
 			this.Change.UseVisualStyleBackColor = true;
@@ -276,10 +276,10 @@ namespace UC.Net.Node.FUI
 			// 
 			// AddPublisher
 			// 
-			this.AddPublisher.Location = new System.Drawing.Point(400, 163);
-			this.AddPublisher.Margin = new System.Windows.Forms.Padding(7);
+			this.AddPublisher.Location = new System.Drawing.Point(743, 348);
+			this.AddPublisher.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.AddPublisher.Name = "AddPublisher";
-			this.AddPublisher.Size = new System.Drawing.Size(166, 27);
+			this.AddPublisher.Size = new System.Drawing.Size(308, 58);
 			this.AddPublisher.TabIndex = 9;
 			this.AddPublisher.Text = "Add Publisher";
 			this.AddPublisher.UseVisualStyleBackColor = true;
@@ -287,10 +287,10 @@ namespace UC.Net.Node.FUI
 			// 
 			// RemovePublisher
 			// 
-			this.RemovePublisher.Location = new System.Drawing.Point(400, 46);
-			this.RemovePublisher.Margin = new System.Windows.Forms.Padding(7);
+			this.RemovePublisher.Location = new System.Drawing.Point(743, 98);
+			this.RemovePublisher.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.RemovePublisher.Name = "RemovePublisher";
-			this.RemovePublisher.Size = new System.Drawing.Size(166, 27);
+			this.RemovePublisher.Size = new System.Drawing.Size(308, 58);
 			this.RemovePublisher.TabIndex = 9;
 			this.RemovePublisher.Text = "Remove Publisher";
 			this.RemovePublisher.UseVisualStyleBackColor = true;
@@ -300,10 +300,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label2.Location = new System.Drawing.Point(52, 205);
-			this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label2.Location = new System.Drawing.Point(97, 437);
+			this.label2.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(43, 13);
+			this.label2.Size = new System.Drawing.Size(81, 27);
 			this.label2.TabIndex = 8;
 			this.label2.Text = "Active";
 			// 
@@ -311,25 +311,25 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label7.AutoSize = true;
 			this.label7.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label7.Location = new System.Drawing.Point(30, 46);
-			this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label7.Location = new System.Drawing.Point(56, 98);
+			this.label7.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(65, 13);
+			this.label7.Size = new System.Drawing.Size(127, 27);
 			this.label7.TabIndex = 8;
 			this.label7.Text = "Publishers";
 			// 
 			// PublisherAccount
 			// 
 			this.PublisherAccount.FormattingEnabled = true;
-			this.PublisherAccount.Location = new System.Drawing.Point(106, 166);
-			this.PublisherAccount.Margin = new System.Windows.Forms.Padding(7);
+			this.PublisherAccount.Location = new System.Drawing.Point(197, 354);
+			this.PublisherAccount.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.PublisherAccount.Name = "PublisherAccount";
-			this.PublisherAccount.Size = new System.Drawing.Size(280, 23);
+			this.PublisherAccount.Size = new System.Drawing.Size(517, 40);
 			this.PublisherAccount.TabIndex = 10;
 			// 
 			// ProductPanel
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.Management);
 			this.Controls.Add(this.registerGroup);
@@ -337,9 +337,9 @@ namespace UC.Net.Node.FUI
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.SearchAccount);
 			this.Controls.Add(this.search);
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Name = "ProductPanel";
-			this.Size = new System.Drawing.Size(1024, 768);
+			this.Size = new System.Drawing.Size(1902, 1638);
 			this.registerGroup.ResumeLayout(false);
 			this.registerGroup.PerformLayout();
 			this.Management.ResumeLayout(false);

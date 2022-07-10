@@ -11,14 +11,14 @@ namespace UC.Net
 {
 	public class Filebase
 	{
-		//Core										Core;
-		string										Root;
+		//Core					Core;
+		string					Root;
 
-		const string								Ipkg = "ipkg";
-		const string								Cpkg = "cpkg";
-		const string								Removals = ".removals";
-		const string								Renamings = ".renamings"; /// TODO
-		public const long							PieceMaxLength = 64 * 1024;
+		const string			Ipkg = "ipkg";
+		const string			Cpkg = "cpkg";
+		const string			Removals = ".removals";
+		const string			Renamings = ".renamings"; /// TODO
+		public const long		PieceMaxLength = 64 * 1024;
 
 		public Filebase(Settings settings)
 		{
@@ -32,20 +32,18 @@ namespace UC.Net
 			return Path.Join(Root, package.Author, package.Product, $"{package.Version}__{package.Platform}.{(package.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
 		}
 
-		public void WriteInstalled(BinaryWriter writer)
+		public PackageAddress[] GetAll()
 		{
-			foreach(var a in Directory.EnumerateDirectories(Root))
-			{
-				foreach(var p in Directory.EnumerateDirectories(a))
-				{
-					var packs = Directory.EnumerateFiles(p, $"*").GroupBy(i => Version.Parse(Path.GetFileNameWithoutExtension(i).Split("__")[0]));
-
-					writer.WriteUtf8(a);
-					writer.WriteUtf8(p);
-					writer.Write(packs.Min(i => i.Key));
-					writer.Write(packs.Max(i => i.Key));
-				}
-			}
+			return Directory.EnumerateDirectories(Root).SelectMany(a => 
+						Directory.EnumerateDirectories(a).SelectMany(p => 
+							Directory.EnumerateFiles(p, $"*").Select(i =>	{
+																				var x = Path.GetFileNameWithoutExtension(i).Split("__");
+																				return new PackageAddress(	Path.GetFileName(a), 
+																											Path.GetFileName(p), 
+																											Version.Parse(x[0]), 
+																											x[1], 
+																											Path.GetExtension(i)[1] == 'c' ? Distribution.Complete : Distribution.Incremental);
+																			}))).ToArray();
 		}
 
 		public string Add(ReleaseAddress release, Distribution distribution, IDictionary<string, string> files, List<string> removals = null)

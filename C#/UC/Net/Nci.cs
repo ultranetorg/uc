@@ -42,7 +42,7 @@ namespace UC.Net
 		public QueryReleaseResponse				QueryRelease(ReleaseQuery query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {query}, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(ReleaseAddress release, VersionQuery version, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(release, version, channel)}, Confirmed = confirmed });
 		public LocatePackageResponse			LocatePackage(PackageAddress package, int count) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package, Count = count  });
-		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = packages});
+		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = new PackageAddressGroup(packages)});
 		public DownloadPackageResponse			DownloadPackage(PackageAddress package, long offset, long length) => Request<DownloadPackageResponse>(new DownloadPackageRequest{Package = package, Offset = offset, Length = length});
 	}
 
@@ -314,11 +314,11 @@ namespace UC.Net
 
 	public class DeclarePackageRequest : Request
 	{
-		public IEnumerable<PackageAddress> Packages { get; set; }
+		public PackageAddressGroup Packages { get; set; }
 
 		public override Response Execute(Core core)
 		{
-			core.Hub.Declare(Peer.IP, Packages);
+			core.Hub.Declare(Peer.IP, Packages.Items);
 
 			return new DeclarePackageResponse();
 		}

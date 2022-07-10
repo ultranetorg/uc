@@ -8,11 +8,6 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public enum DownloadStage
-	{
-		Null, Working, Completed
-	}
-
 	public enum SeederResult
 	{
 		Null, Good, Bad
@@ -29,7 +24,6 @@ namespace UC.Net
 			public int				Piece = -1;
 			public long				Length => Piece * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
 			public long				Offset => Piece * DefaultPieceLength;
-			public DownloadStage	Stage;
 			public MemoryStream		Data = new MemoryStream();
 			public bool				Succeeded => Data.Length == Length;
 			Download				Download;
@@ -40,7 +34,6 @@ namespace UC.Net
 				Download = download;
 				Peer = peer;
 				Piece = piece;
-				Stage = DownloadStage.Working;
 
 				Task = Task.Run(() =>	
 								{
@@ -75,8 +68,6 @@ namespace UC.Net
 									catch(OperationCanceledException)
 									{
 									}
-									
-									Stage = DownloadStage.Completed;
 								}, 
 								Download.Flowvizor.Cancellation.Token);
 				}
@@ -95,6 +86,7 @@ namespace UC.Net
 		public bool									Successful; 
 		public HashSet<int>							CompletedPieces = new();
 		Task										Task;
+		object										Lock = new object();
 		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
 																		- (CompletedPieces.Contains(PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
 																		+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
@@ -117,7 +109,7 @@ namespace UC.Net
 																										Distribution.Incremental => ReleaseManifest.IncrementalHashField, 
 																										_ =>  throw new RequirementException("Wrong Distribution value") });
 								
-								Download.Job j ;
+								Job j ;
 
 								while(Core.Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
 								{
@@ -125,7 +117,7 @@ namespace UC.Net
 
 									Thread.Sleep(1);
 
-									lock(Core.Lock)
+									lock(Lock)
 									{
 										for(int i=0; i<8 - Hubs.Count; i++)
 										{
@@ -135,49 +127,49 @@ namespace UC.Net
 											{
 												Hubs[h] = null;
 	
-												var t = Task.Run(() =>	
-																{
-																	var timeout = Flowvizor.CreateNested();
+												Task.Run(() =>	
+														{
+															var timeout = Flowvizor.CreateNested();
 	
-																	LocatePackageResponse lp = null;
+															LocatePackageResponse lp = null;
 		
-																	try
-																	{
-																		if(!Settings.Dev.DisableTimeouts)
-																			timeout.Cancellation.CancelAfter(Core.Timeout);
+															try
+															{
+																if(!Settings.Dev.DisableTimeouts)
+																	timeout.Cancellation.CancelAfter(Core.Timeout);
 													
-																		Core.Connect(h, timeout);
+																Core.Connect(h, timeout);
 		
-																		lp = h.LocatePackage(Package, 16);
+																lp = h.LocatePackage(Package, 16);
 
-																		lock(Core.Lock)
-																		{
-																			Hubs[h] = lp.Seeders.ToList();
+																lock(Lock)
+																{
+																	Hubs[h] = lp.Seeders.ToList();
 
-																			foreach(var s in lp.Seeders)
-																			{
-																				if(!Seeders.ContainsKey(s))
-																					Seeders[s] = SeederResult.Null;
-																			}
-																		}
-																	}
-																	catch(ConnectionFailedException)
+																	foreach(var s in lp.Seeders)
 																	{
+																		if(!Seeders.ContainsKey(s))
+																			Seeders[s] = SeederResult.Null;
 																	}
-																	catch(RemoteCallException)
-																	{
-																	}
-																	catch(OperationCanceledException)
-																	{
-																	}
-																});
-	
+																}
+															}
+															catch(ConnectionFailedException)
+															{
+															}
+															catch(RemoteCallException)
+															{
+															}
+															catch(OperationCanceledException)
+															{
+															}
+														},
+														vizor.Cancellation.Token);
 											}
 											else
 												break;
 										}
 
-										if(Jobs.Count(i => i.Stage == DownloadStage.Working) < Math.Min(8, PiecesTotal - CompletedPieces.Count))
+										if(Jobs.Count < Math.Min(8, PiecesTotal - CompletedPieces.Count))
 										{
 											var s = Seeders.FirstOrDefault(i => i.Value != SeederResult.Bad && !Jobs.Any(j => j.Peer.IP.Equals(i.Key)));
 											
@@ -197,7 +189,7 @@ namespace UC.Net
 
 									var ti = Task.WaitAny(tasks, vizor.Cancellation.Token);
 
-									lock(Core.Lock)
+									lock(Lock)
 									{	
 										j = Jobs.Find(i => i.Task == tasks[ti]);
 										
@@ -205,22 +197,29 @@ namespace UC.Net
 
 										if(j.Succeeded)
 										{
-											Core.Filebase.Write(package, j.Offset, j.Data.ToArray());
+											lock(Core.Lock)
+												Core.Filebase.Write(package, j.Offset, j.Data.ToArray());
+											
 											CompletedPieces.Add(j.Piece);
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
 												Seeders[j.Peer.IP] = SeederResult.Good;
-												Core.RememberPeers(new[]{j.Peer});
+												
+												//Core.RememberPeers(new[]{j.Peer});
 
 												if(Core.Filebase.GetHash(package).SequenceEqual(Hash))
 												{
+													Core.DeclarePackage(new[]{package}, Flowvizor);
+
 													Successful = true;
 
-													foreach(var s in Seeders.Where(i => i.Value == SeederResult.Good))
-														foreach(var h in Hubs)
-															if(h.Value.Any(i => i.Equals(s.Key)))
-																h.Key.HubHits++;
+													var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeederResult.Good && h.Value.Any(ip => ip.Equals(s.Key)))).Select(i => i.Key);
+
+													foreach(var h in hubs)
+														h.HubHits++;
+
+													Core.RememberPeers(hubs);
 												} 
 												else
 												{

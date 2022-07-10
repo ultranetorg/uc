@@ -38,6 +38,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="AuthorPanel.cs" />
+    <Compile Update="HubPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="PublishPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

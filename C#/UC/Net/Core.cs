@@ -84,6 +84,7 @@ namespace UC.Net
 		public List<Transaction>						Transactions = new();
 		public List<Operation>							Operations	= new();
 
+		bool											MinimalPeersReached;
 		public List<Peer>								Peers		= new();
 		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
 		public List<IPAddress>							IgnoredIPs	= new();
@@ -351,7 +352,7 @@ namespace UC.Net
 												if(!Running)
 													break;
 
-												MaintainPeerConnections();
+												ProcessConnectivity();
 												
 												if(Chain != null)
 												{
@@ -480,30 +481,33 @@ namespace UC.Net
 
 		public void RememberPeers(IEnumerable<Peer> peers)
 		{
-			var news = peers.Where(i => !i.IP.Equals(IP) && !Peers.Any(j => j.IP.Equals(i.IP))).ToArray();
-												
-			foreach(var peer in news)
-				Peers.Add(peer);
-
-			using(var b = new WriteBatch())
+			lock(Lock)
 			{
-				foreach(var i in peers)
+				var news = peers.Where(i => !i.IP.Equals(IP) && !Peers.Any(j => j.IP.Equals(i.IP))).ToArray();
+													
+				foreach(var peer in news)
+					Peers.Add(peer);
+	
+				using(var b = new WriteBatch())
 				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					i.SaveNode(w);
-					b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
+					foreach(var i in peers)
+					{
+						var s = new MemoryStream();
+						var w = new BinaryWriter(s);
+						i.SaveNode(w);
+						b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
+					}
+	
+					Database.Write(b);
 				}
-
-				Database.Write(b);
 			}
 		}
 
-		void MaintainPeerConnections()
+		void ProcessConnectivity()
 		{
 			var needed = Settings.PeersMin - Peers.Count(i => i.Established || i.InStatus == EstablishingStatus.Initiated || i.OutStatus == EstablishingStatus.Initiated);
 		
-			foreach(var p in Peers.Where(m =>	(m.InStatus == EstablishingStatus.Null || m.InStatus == EstablishingStatus.Failed) &&
+			foreach(var p in Peers	.Where(m =>	(m.InStatus == EstablishingStatus.Null || m.InStatus == EstablishingStatus.Failed) &&
 												(m.OutStatus == EstablishingStatus.Null || m.OutStatus == EstablishingStatus.Failed) && 
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 									.OrderBy(i => i.Retries)
@@ -518,12 +522,27 @@ namespace UC.Net
 			foreach(var i in Peers.Where(i => i.Client != null && i.Status == ConnectionStatus.Failed))
 				i.Disconnect();
 
-			if(Chain != null && Synchronization == Synchronization.Null)
+			if(!MinimalPeersReached && Connections.Count() >= Settings.PeersMin)
 			{
-				if(Connections.Count() >= Settings.PeersMin)
+				if(Filebase != null)
+				{
+					var ps = Filebase.GetAll();
+					
+					if(ps.Any())
+					{
+						Task.Run(() =>	{
+											DeclarePackage(ps, Flowvizor);
+											Log?.Report(this, "Initial declaration completed");
+										});
+					}
+				}
+
+				if(Chain != null)
 				{
 					StartSynchronization();
 				}
+
+				MinimalPeersReached = true;
 			}
 		}
 
@@ -648,7 +667,7 @@ namespace UC.Net
 						RememberPeers(h.Peers);
 	
 						peer.OutStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");	
+						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 	
 						Log?.Report(this, "Connected to", $"{peer}");
 	
@@ -1852,7 +1871,7 @@ namespace UC.Net
 
 		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Flowvizor vizor)
 		{
- 			var files = new Dictionary<string, string>();
+			var files = new Dictionary<string, string>();
 
 			foreach(var i in sources)
 			{
@@ -1864,19 +1883,19 @@ namespace UC.Net
 				{
 					if(Directory.Exists(s))
 					{
-			 			foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
-			 				files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
-					} 
+						foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions { RecurseSubdirectories = true }))
+							files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
+					}
 					else
 						files[s] = Path.GetFileName(s);
-				} 
+				}
 				else
 				{
 					if(Directory.Exists(s))
 					{
-			 			foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
-			 				files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
-					} 
+						foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions { RecurseSubdirectories = true }))
+							files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
+					}
 					else
 						files[s] = d;
 				}
@@ -1885,11 +1904,11 @@ namespace UC.Net
 			var cpkg = Filebase.Add(release, Distribution.Complete, files);
 			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal);
 
-			var o = new ReleaseManifest(by, 
+			var o = new ReleaseManifest(by,
 										release,
-										channel, 
+										channel,
 										previous,
-													
+
 										new FileInfo(cpkg).Length,
 										Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
 										cdependencies,
@@ -1900,17 +1919,22 @@ namespace UC.Net
 										idependencies);
 			Enqueue(o);
 
-			while(o.Delegation != DelegationStage.Completed) 
+			while(o.Delegation != DelegationStage.Completed)
 				Thread.Sleep(1);
 
 			Log?.Report(this, "Manifest added to the chain");
 
+			DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)}, vizor);
+		}
+
+		public void DeclarePackage(IEnumerable<PackageAddress> packages, Flowvizor vizor)
+		{
 			var hubs = new HashSet<Peer>();
-					
+
 			int success = 0;
 			int failures = 0;
 
-			while(success < 8 && success + failures < Peers.Count(i => i.Role.HasFlag(Role.Hub)))
+			while(success < 8 && success + failures < Peers.Count(i => i.Role.HasFlag(Role.Hub)) && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
 			{
 				Peer h = null;
 
@@ -1924,26 +1948,16 @@ namespace UC.Net
 					failures++;
 					continue;
 				}
-				catch(OperationCanceledException)
-				{
-					if(vizor.Cancellation.IsCancellationRequested)
-						throw;
-					else
-					{
-						failures++;
-						continue;	
-					}
-				}
 
-				h.DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)});
-						
+				h.DeclarePackage(packages);
+
 				Log?.Report(this, "Package declared", $"Hub={h.IP}");
 
 				hubs.Add(h);
 			}
 		}
 
-  		public override Rp Request<Rp>(Request rq) where Rp : class
+		public override Rp Request<Rp>(Request rq) where Rp : class
   		{
 			if(rq.Peer == null) /// self call, cloning needed
 			{

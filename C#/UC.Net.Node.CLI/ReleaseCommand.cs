@@ -65,7 +65,7 @@ namespace UC.Net.Node.CLI
 					while(!d.Completed)
 					{
 						Flowvizor.Log?.Report(this, $"{d.CompletedLength + d.Jobs.Sum(i => i.Data != null ? i.Data.Length : 0)}/{d.Length}");
-						Thread.Sleep(10);
+						Thread.Sleep(1000);
 					}
 
 					return d;
