@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Xamarin.Essentials;
-
-namespace UC.Net.Node.MAUI.Helpers
+﻿namespace UC.Net.Node.MAUI.Helpers
 {
     public static class PictureSourceHelper
     {

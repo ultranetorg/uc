@@ -1,16 +1,9 @@
-﻿using UC.Net.Node.MAUI.Models;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
-using Xamarin.Forms;
+﻿using System.Globalization;
 
 namespace UC.Net.Node.MAUI.Converters
 {
     public class NotificationTypeConverter : IValueConverter
     {
-        
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             switch ((NotificationType)value)
@@ -20,7 +13,7 @@ namespace UC.Net.Node.MAUI.Converters
                     {
                         FontFamily= "icomoon",
                         Size=40,
-                        Color=Color.FromHex("#E03030"),
+                        Color=Color.FromArgb("#E03030"),
                         Glyph= IconFont.ProductOperations
                     };
                 case NotificationType.SystemEvent:
@@ -28,7 +21,7 @@ namespace UC.Net.Node.MAUI.Converters
                     {
                         FontFamily = "icomoon",
                         Size = 40,
-                        Color = Color.FromHex("#E09A30"),
+                        Color = Color.FromArgb("#E09A30"),
                         Glyph = IconFont.SystemEvent
                     };
                 case NotificationType.AuthorOperations:
@@ -36,7 +29,7 @@ namespace UC.Net.Node.MAUI.Converters
                     {
                         FontFamily = "icomoon",
                         Size = 40,
-                        Color = Color.FromHex("#53E030"),
+                        Color = Color.FromArgb("#53E030"),
                         Glyph = IconFont.AuthorOperations
                     };
                 case NotificationType.TokenOperations:
@@ -44,7 +37,7 @@ namespace UC.Net.Node.MAUI.Converters
                     {
                         FontFamily = "icomoon",
                         Size = 40,
-                        Color = Color.FromHex("#E03030"),
+                        Color = Color.FromArgb("#E03030"),
                         Glyph = IconFont.ProductOperations
                     };
                 case NotificationType.Server:
@@ -52,7 +45,7 @@ namespace UC.Net.Node.MAUI.Converters
                     {
                         FontFamily = "icomoon",
                         Size = 40,
-                        Color = Color.FromHex("#53E030"),
+                        Color = Color.FromArgb("#53E030"),
                         Glyph = IconFont.Server
                     };
                 case NotificationType.Wallet:
@@ -60,7 +53,7 @@ namespace UC.Net.Node.MAUI.Converters
                     {
                         FontFamily = "icomoon",
                         Size = 40,
-                        Color = Color.FromHex("#53E030"),
+                        Color = Color.FromArgb("#53E030"),
                         Glyph = IconFont.Wallet
                     };
             }

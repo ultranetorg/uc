@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UC.Net.Node.MAUI.Models
-
+﻿namespace UC.Net.Node.MAUI.Models
 {
-
-	
 	static class MaterialIconFont
 	{
 		public const string Icon1 = "\u0030";

@@ -1,9 +1,4 @@
-﻿using UC.Net.Node.MAUI.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xamarin.Forms;
-using static UC.Net.Node.MAUI.Pages.RestoreAccountViewModel;
+﻿//using static UC.Net.Node.MAUI.Pages.RestoreAccountViewModel;
 
 namespace UC.Net.Node.MAUI.Models
 {
@@ -15,7 +10,7 @@ namespace UC.Net.Node.MAUI.Models
                 new GradientStopCollection
                 {
                 new GradientStop(color, 0.1f),
-                new GradientStop(color.WithSaturation(0.7), 1.0f)
+                new GradientStop(color.WithSaturation(0.7f), 1.0f)
                 });
         }
         public Guid Id { get; set; }

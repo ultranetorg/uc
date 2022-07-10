@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UC.Net.Node.MAUI.Models
+﻿namespace UC.Net.Node.MAUI.Models
 {
     public class Notification
     {

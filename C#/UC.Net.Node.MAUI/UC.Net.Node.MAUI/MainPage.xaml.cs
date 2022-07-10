@@ -1,19 +1,24 @@
-﻿using UC.Net.Node.MAUI.Controls;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
+﻿namespace UC.Net.Node.MAUI;
 
-namespace UC.Net.Node.MAUI
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : CustomPage
-    {
-        public MainPage()
-        {
-            InitializeComponent();
-        }
-    }
+	int count = 0;
+
+	public MainPage()
+	{
+		InitializeComponent();
+	}
+
+	private void OnCounterClicked(object sender, EventArgs e)
+	{
+		count++;
+
+		if (count == 1)
+			CounterBtn.Text = $"Clicked {count} time";
+		else
+			CounterBtn.Text = $"Clicked {count} times";
+
+		SemanticScreenReader.Announce(CounterBtn.Text);
+	}
 }
+

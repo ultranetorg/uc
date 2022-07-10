@@ -1,6 +1,5 @@
-﻿using UC.Net.Node.MAUI.Popups;
+﻿// using UC.Net.Node.MAUI.Popups;
 using System.Threading.Tasks;
-using Xamarin.Essentials;
 
 namespace UC.Net.Node.MAUI.Helpers
 {
@@ -14,7 +13,7 @@ namespace UC.Net.Node.MAUI.Helpers
             }
             else
             {
-               await AlertPopup.Show("LostConnection");
+               // await AlertPopup.Show("LostConnection");
             }
             return false;
         }

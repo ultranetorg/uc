@@ -1,7 +1,4 @@
-﻿using Xamarin.Essentials;
-using Color = Xamarin.Forms.Color;
-
-namespace UC.Net.Node.MAUI
+﻿namespace UC.Net.Node.MAUI
 {
 
     public static class Settings

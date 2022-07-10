@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xamarin.Forms;
-
-namespace UC.Net.Node.MAUI.Models
+﻿namespace UC.Net.Node.MAUI.Models
 {
     public class Product
     {
