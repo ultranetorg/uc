@@ -61,10 +61,6 @@ namespace UC.Net
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
-		public int					HubHits;
-		public int					HubMisses;
-		//public List<PackageAddress>	HubMissedResources = new();
-		//public List<PackageAddress>	HubHitResources = new();
 
 		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
@@ -72,7 +68,10 @@ namespace UC.Net
 		public List<Request>		InRequests = new();
 		public List<Request>		OutRequests = new();
 
-		public Role					Role;
+		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
+		public int					ChainRank = 0;
+		public int					HubRank = 0;
+		public int					SeedRank = 0;
 
 		public Peer()
 		{
@@ -85,33 +84,51 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedGeneratorsAt}";
+			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedGeneratorsAt}, Cr={ChainRank}, Hr={HubRank}, Sr={SeedRank}";
 		}
  		
+		public int GetRank(Role role)
+		{
+			return role switch{	Role.Chain => ChainRank,
+								Role.Hub => HubRank,
+								Role.Seed => SeedRank,
+								_ => throw new IntegrityException("Wrong rank") };
+		}
+
   		public void SaveNode(BinaryWriter w)
   		{
   			w.Write7BitEncodedInt64(LastSeen.ToBinary());
-			w.Write7BitEncodedInt(HubHits);
-			w.Write7BitEncodedInt(HubMisses);
+			//w.Write7BitEncodedInt(HubHits);
+			//w.Write7BitEncodedInt(HubMisses);
+			w.Write(ChainRank);
+			w.Write(HubRank);
+			w.Write(SeedRank);
   		}
   
   		public void LoadNode(BinaryReader r)
   		{
   			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
-			HubHits = r.Read7BitEncodedInt();
-			HubMisses = r.Read7BitEncodedInt();
+			//HubHits = r.Read7BitEncodedInt();
+			//HubMisses = r.Read7BitEncodedInt();
+			ChainRank = r.ReadInt32();
+			HubRank = r.ReadInt32();
+			SeedRank = r.ReadInt32();
   		}
  
- 		public void WriteNode(BinaryWriter w)
+ 		public void WritePeer(BinaryWriter w)
  		{
  			w.Write(IP);
-			w.Write((byte)Role);
+			w.Write((byte)Roles);
  		}
  
- 		public void ReadNode(BinaryReader r)
+ 		public void ReadPeer(BinaryReader reader)
  		{
- 			IP = r.ReadIPAddress();
-			Role = (Role)r.ReadByte();
+ 			IP = reader.ReadIPAddress();
+			var r = (Role)reader.ReadByte();
+			ChainRank	= r.HasFlag(Role.Chain) ? 1 : 0;
+			HubRank		= r.HasFlag(Role.Hub) ? 1 : 0;
+			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
+
  		}
 		
   		public void WriteMember(BinaryWriter w)
@@ -206,7 +223,9 @@ namespace UC.Net
 			Lock				= lockk;
 			LastRound			= h.LastRound;
 			LastConfirmedRound	= h.LastConfirmedRound;
-			Role				= h.Roles;
+			ChainRank			= h.Roles.HasFlag(Role.Chain) ? 1 : 0;
+			HubRank				= h.Roles.HasFlag(Role.Hub) ? 1 : 0;
+			SeedRank			= h.Roles.HasFlag(Role.Seed) ? 1 : 0;
 	
 
 			ReadThread = new (() => { read(this); });
@@ -402,7 +421,7 @@ namespace UC.Net
 					Out.Enqueue(p);
 			}
  
- 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : 15000))
+ 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : Core.Timeout))
  			{
 				if(rq.Response == null)
 					throw new OperationCanceledException();

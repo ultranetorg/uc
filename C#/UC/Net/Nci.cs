@@ -95,6 +95,7 @@ namespace UC.Net
 		public byte[]			Id {get; set;}
 		public string			Error {get; set;}
 		public bool				Final {get; set;} = true;
+		public Peer				Peer;
 
 		public byte				TypeCode => (byte)Type;
 		public NciCall			Type => Enum.Parse<NciCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));

@@ -15,11 +15,6 @@ namespace UC.Net.Node.FUI
 		public NetworkPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
-
-// 			foreach(DataGridViewColumn i in peers.Columns)
-// 			{
-// 				i.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-// 			}
 		}
 
 		public override void Open(bool first)
@@ -36,7 +31,9 @@ namespace UC.Net.Node.FUI
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
 					r.SubItems.Add(i.Retries.ToString());
-					r.SubItems.Add(string.Join(", ", Enum.GetValues<Role>().Where(j => i.Role.HasFlag(j))));
+					r.SubItems.Add(i.GetRank(Role.Chain).ToString());
+					r.SubItems.Add(i.GetRank(Role.Hub).ToString());
+					r.SubItems.Add(i.GetRank(Role.Seed).ToString());
 					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));
 					r.Tag = i;
 				}
@@ -50,10 +47,11 @@ namespace UC.Net.Node.FUI
 					li.SubItems.Add(i.IP.ToString());
 				}
 
-				foreach(var i in Core.Peers.Where(i => i.Role.HasFlag(Role.Hub)).OrderBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
+				foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
 				{
 					var li = new ListViewItem(i.IP.ToString());
-					li.SubItems.Add(i.HubHits.ToString());
+					li.SubItems.Add(i.GetRank(Role.Hub).ToString());
+					//li.SubItems.Add(i.HubHits.ToString());
 					Hubs.Items.Add(li);
 				}
 

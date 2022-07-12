@@ -38,6 +38,7 @@ namespace UC.Net.Node.FUI
 			this.label1 = new System.Windows.Forms.Label();
 			this.Hubs = new System.Windows.Forms.ListView();
 			this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
 			this.label2 = new System.Windows.Forms.Label();
 			this.Funds = new System.Windows.Forms.ListView();
 			this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
@@ -47,8 +48,9 @@ namespace UC.Net.Node.FUI
 			this.columnHeader14 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader15 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader16 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader10 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader16 = new System.Windows.Forms.ColumnHeader();
 			this.SuspendLayout();
 			// 
 			// Generators
@@ -96,7 +98,7 @@ namespace UC.Net.Node.FUI
 			this.DestLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.DestLabel.AutoSize = true;
 			this.DestLabel.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.DestLabel.Location = new System.Drawing.Point(7, 819);
+			this.DestLabel.Location = new System.Drawing.Point(0, 819);
 			this.DestLabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.DestLabel.Name = "DestLabel";
 			this.DestLabel.Size = new System.Drawing.Size(135, 27);
@@ -108,7 +110,7 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(7, 23);
+			this.label1.Location = new System.Drawing.Point(0, 32);
 			this.label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(73, 27);
@@ -122,7 +124,7 @@ namespace UC.Net.Node.FUI
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Hubs.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader5,
-            this.columnHeader8});
+            this.columnHeader6});
 			this.Hubs.FullRowSelect = true;
 			this.Hubs.HideSelection = false;
 			this.Hubs.Location = new System.Drawing.Point(984, 860);
@@ -137,6 +139,11 @@ namespace UC.Net.Node.FUI
 			// 
 			this.columnHeader5.Text = "IP";
 			this.columnHeader5.Width = 100;
+			// 
+			// columnHeader6
+			// 
+			this.columnHeader6.Text = "Rank";
+			this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// label2
 			// 
@@ -194,13 +201,15 @@ namespace UC.Net.Node.FUI
             this.columnHeader14,
             this.columnHeader15,
             this.columnHeader7,
+            this.columnHeader8,
+            this.columnHeader10,
             this.columnHeader16});
 			this.Peers.FullRowSelect = true;
 			this.Peers.HideSelection = false;
-			this.Peers.Location = new System.Drawing.Point(0, 66);
+			this.Peers.Location = new System.Drawing.Point(0, 83);
 			this.Peers.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Peers.Name = "Peers";
-			this.Peers.Size = new System.Drawing.Size(1902, 714);
+			this.Peers.Size = new System.Drawing.Size(1902, 697);
 			this.Peers.TabIndex = 6;
 			this.Peers.UseCompatibleStateImageBehavior = false;
 			this.Peers.View = System.Windows.Forms.View.Details;
@@ -224,18 +233,26 @@ namespace UC.Net.Node.FUI
 			// 
 			// columnHeader7
 			// 
-			this.columnHeader7.Text = "Roles";
-			this.columnHeader7.Width = 200;
+			this.columnHeader7.Text = "Chain Rank";
+			this.columnHeader7.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.columnHeader7.Width = 100;
+			// 
+			// columnHeader8
+			// 
+			this.columnHeader8.Text = "Hub Rank";
+			this.columnHeader8.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.columnHeader8.Width = 100;
+			// 
+			// columnHeader10
+			// 
+			this.columnHeader10.Text = "Seed Rank";
+			this.columnHeader10.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.columnHeader10.Width = 100;
 			// 
 			// columnHeader16
 			// 
 			this.columnHeader16.Text = "Last Seen";
 			this.columnHeader16.Width = 150;
-			// 
-			// columnHeader8
-			// 
-			this.columnHeader8.Text = "Rank";
-			this.columnHeader8.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// NetworkPanel
 			// 
@@ -278,6 +295,8 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader15;
 		private System.Windows.Forms.ColumnHeader columnHeader16;
 		private System.Windows.Forms.ColumnHeader columnHeader7;
+		private System.Windows.Forms.ColumnHeader columnHeader6;
 		private System.Windows.Forms.ColumnHeader columnHeader8;
+		private System.Windows.Forms.ColumnHeader columnHeader10;
 	}
 }

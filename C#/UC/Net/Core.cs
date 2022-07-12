@@ -48,7 +48,7 @@ namespace UC.Net
 	public enum Role : uint
 	{
 		Chain	= 0b00000001,
-		Seeder	= 0b00000010,
+		Seed	= 0b00000010,
 		Hub		= 0b00000100,
 	}
  
@@ -483,11 +483,47 @@ namespace UC.Net
 		{
 			lock(Lock)
 			{
-				var news = peers.Where(i => !i.IP.Equals(IP) && !Peers.Any(j => j.IP.Equals(i.IP))).ToArray();
+				var tosave = new List<Peer>();
 													
-				foreach(var peer in news)
-					Peers.Add(peer);
+				foreach(var i in peers)
+				{
+					var p = Peers.Find(j => j.IP.Equals(i.IP));
+					
+					if(p == null)
+					{
+						Peers.Add(i);
+						tosave.Add(i);
+					}
+					else
+					{
+						bool c = p.ChainRank == 0 && i.ChainRank > 0;
+						bool h = p.HubRank == 0 && i.HubRank > 0;
+						bool s = p.SeedRank == 0 && i.SeedRank > 0;
+
+						if(c || h || s)
+						{
+							if(c)
+								p.ChainRank = 1;
+
+							if(h)
+								p.HubRank = 1;
+
+							if(s)
+								p.SeedRank = 1;
+						
+							tosave.Add(p);
+						}
+					}
+				}
 	
+				UpdatePeers(tosave.Where(i => !i.IP.Equals(IP)));
+			}
+		}
+
+		public void UpdatePeers(IEnumerable<Peer> peers)
+		{
+			lock(Lock)
+			{
 				using(var b = new WriteBatch())
 				{
 					foreach(var i in peers)
@@ -589,7 +625,7 @@ namespace UC.Net
 
 			var h = new Hello();
 
-			h.Roles					= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seeder : 0) | (Hub != null ? Role.Hub : 0);
+			h.Roles					= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seed : 0) | (Hub != null ? Role.Hub : 0);
 			h.Versions				= Versions;
 			h.Zone					= Settings.Zone;
 			h.IP					= ip;
@@ -987,6 +1023,7 @@ namespace UC.Net
 
 									if(rq != null)
 									{
+										rp.Peer = peer;
 										rq.Response = rp;
 										rq.Event.Set();
  									
@@ -1623,7 +1660,7 @@ namespace UC.Net
 				{
 					if(packet.Type == PacketType.Blocks)
 					{
-						if((i.Role & Role.Chain) != 0)
+						if(i.ChainRank > 0)
 							i.Send(packet);
 					}
 					else
@@ -1696,7 +1733,10 @@ namespace UC.Net
 		public Peer FindBestPeer(Role role, HashSet<Peer> exclusions)
 		{
 			lock(Lock)
-				return Peers.Where(i => i.Role.HasFlag(role) && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+				return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established)
+																												.ThenBy(i => i.ReachFailures)
+																												.ThenByDescending(i => i.GetRank(role))
+																												.FirstOrDefault();
 		}
 
 		public Peer Connect(Role role, HashSet<Peer> exclusions, Flowvizor vizor)
@@ -1709,7 +1749,7 @@ namespace UC.Net
 	
 				lock(Lock)
 				{
-					peer = Peers.Where(i => i.Role.HasFlag(role) && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+					peer = FindBestPeer(role, exclusions);
 	
 					if(peer == null)
 						continue;
@@ -1743,7 +1783,7 @@ namespace UC.Net
 	
 				lock(Lock)
 				{
-					peer = Peers.Where(i => i.Role.HasFlag(role) && !exclusions.Contains(i)).OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+					peer = FindBestPeer(role, exclusions);
 	
 					if(peer == null)
 						continue;
@@ -1934,7 +1974,7 @@ namespace UC.Net
 			int success = 0;
 			int failures = 0;
 
-			while(success < 8 && success + failures < Peers.Count(i => i.Role.HasFlag(Role.Hub)) && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0) && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
 			{
 				Peer h = null;
 

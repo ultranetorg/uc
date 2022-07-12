@@ -84,11 +84,11 @@ namespace UC.Net
 		public int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
 		public bool									Completed;
 		public bool									Successful; 
-		public HashSet<int>							CompletedPieces = new();
+		public List<Job>							CompletedPieces = new();
 		Task										Task;
 		object										Lock = new object();
 		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
-																		- (CompletedPieces.Contains(PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+																		- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
 																		+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
 
 		public Download(Core core, Flowvizor vizor, PackageAddress package)
@@ -175,7 +175,7 @@ namespace UC.Net
 											
 											if(s.Key != null)
 											{
-												Add(Core.GetPeer(s.Key), Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Contains(i)));
+												Add(Core.GetPeer(s.Key), Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.Piece == i)));
 											}
 										}
 									
@@ -200,27 +200,32 @@ namespace UC.Net
 											lock(Core.Lock)
 												Core.Filebase.Write(package, j.Offset, j.Data.ToArray());
 											
-											CompletedPieces.Add(j.Piece);
+											CompletedPieces.Add(j);
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
 												Seeders[j.Peer.IP] = SeederResult.Good;
 												
-												//Core.RememberPeers(new[]{j.Peer});
-
 												if(Core.Filebase.GetHash(package).SequenceEqual(Hash))
 												{
 													Core.DeclarePackage(new[]{package}, Flowvizor);
 
-													Successful = true;
-
 													var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeederResult.Good && h.Value.Any(ip => ip.Equals(s.Key)))).Select(i => i.Key);
 
 													foreach(var h in hubs)
-														h.HubHits++;
+														h.HubRank++;
 
-													Core.RememberPeers(hubs);
-												} 
+													var seeds = CompletedPieces.Select(i => i.Peer);
+
+													foreach(var h in seeds)
+														h.SeedRank++;
+
+													qrrp.Peer.ChainRank++;
+
+													Core.UpdatePeers(seeds.Union(hubs).Union(new[]{qrrp.Peer}).Distinct());
+												
+													Successful = true;
+												}
 												else
 												{
 												///	throw new 

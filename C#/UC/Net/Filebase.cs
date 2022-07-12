@@ -11,7 +11,6 @@ namespace UC.Net
 {
 	public class Filebase
 	{
-		//Core					Core;
 		string					Root;
 
 		const string			Ipkg = "ipkg";
