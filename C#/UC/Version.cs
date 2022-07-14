@@ -40,8 +40,22 @@ namespace UC
 
 		public static Version Parse(string s)
 		{
-			var v = s.Split('.').Select(i => ushort.Parse(i)).ToArray();
-			return new Version{ Era = v[0], Generation = v[1], Release = v[2], Build = v[3] };
+			var c = s.Split('.').ToArray();
+
+			var v = new Version();
+
+			v.Era = ushort.Parse(c[0]);
+					
+			if(c.Length > 1)
+				v.Generation = ushort.Parse(c[1]);
+
+			if(c.Length > 2)
+				v.Release = ushort.Parse(c[2]);
+
+			if(c.Length > 3)
+				v.Build = ushort.Parse(c[3]);
+
+			return v;
 		}
 
 		public static Version Read(BinaryReader r)
