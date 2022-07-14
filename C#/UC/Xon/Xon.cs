@@ -201,10 +201,9 @@ namespace UC
 
 		public bool IsDifferenceDeleted { get => false; }
 
-		public string	GetString(string name) => One(name).String;
+		public string	GetString(string name) => One(name)?.String;
 		public int		GetInt32(string name) => One(name).Int;
 		public long		GetInt64(string name) => One(name).Long;
 		public O		Get<O>(string name) => Serializator.Get<O>(this, One(name).Value);
-			//public long		GetInt64(string name) => One(name).Value;
 	}
 }

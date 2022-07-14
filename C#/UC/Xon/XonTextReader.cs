@@ -13,7 +13,7 @@ namespace UC
 		public XonToken Current { get; set; }
 
 		string Text;
-		Queue<bool> Type = new Queue<bool>();
+		Stack<bool> Type = new ();
 
 		private int c;
 		private char C { get => Text[c]; }
@@ -27,7 +27,7 @@ namespace UC
 		{
 			if(Text.Length > 0)
 			{
-				Type.Enqueue(false);
+				Type.Push(false);
 				Current = XonToken.NodeBegin;
 				c = 0;
 			}
@@ -48,7 +48,7 @@ namespace UC
 					{
 						if(C == '}') // after last child
 						{
-							bool t = Type.Dequeue();
+							bool t = Type.Pop();
 
 							Current = t ? XonToken.AttrValueEnd : XonToken.ChildrenEnd;
 							c++;
@@ -72,7 +72,7 @@ namespace UC
 						else if(C == '{')
 						{
 							c++;
-							Type.Enqueue(false);
+							Type.Push(false);
 							Current = XonToken.ChildrenBegin;
 						}
 						else
@@ -83,7 +83,7 @@ namespace UC
 						if(C == '{')
 						{
 							c++;
-							Type.Enqueue(true);
+							Type.Push(true);
 							Current = XonToken.AttrValueBegin;
 						}
 						else
@@ -128,7 +128,7 @@ namespace UC
 						if(C == '{')
 						{
 							c++;
-							Type.Enqueue(false);
+							Type.Push(false);
 							Current = XonToken.ChildrenBegin;
 						}
 						else
