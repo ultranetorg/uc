@@ -21,7 +21,6 @@ namespace UC.Net.Node.CLI
 
 		static Core Core;
 
-
 		static void Main(string[] args)
 		{
 			Thread.CurrentThread.CurrentCulture = 
@@ -39,15 +38,15 @@ namespace UC.Net.Node.CLI
 				var boot = new BootArguments(b, cmd);
 
 				var orig = Path.Combine(exedir, Core.SettingsFileName);
-				var user = Path.Combine(boot.Main.Profile, Core.SettingsFileName);
+				var user = Path.Combine(boot.Profile, Core.SettingsFileName);
 
 				if(!File.Exists(user))
 				{
-					Directory.CreateDirectory(boot.Main.Profile);
+					Directory.CreateDirectory(boot.Profile);
 					File.Copy(orig, user);
 				}
 
-				Log.Stream = new FileStream(Path.Combine(boot.Main.Profile, "Log.txt"), FileMode.Create);
+				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
 
 				Settings = new Settings(boot);
 
@@ -116,7 +115,7 @@ namespace UC.Net.Node.CLI
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
 				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Core.FailureExt), ex.ToString());
-				Log.ReportError(null, $"{m} failed", ex);
+				throw;
 			}
 	
 			if(Core != null)

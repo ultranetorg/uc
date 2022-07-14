@@ -159,7 +159,6 @@ namespace UC.Net
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
-				lock(Core.Lock)
 					switch(call)
 					{
 						case RunNodeCall e:
@@ -167,84 +166,44 @@ namespace UC.Net
 							break;
 
 						case AddWalletCall e:
-							Vault.AddWallet(e.Account, e.Wallet);
+							lock(Core.Lock)
+								Vault.AddWallet(e.Account, e.Wallet);
 							break;
 
 						case UnlockWalletCall e:
-							Vault.Unlock(e.Account, e.Password);
+							lock(Core.Lock)
+								Vault.Unlock(e.Account, e.Password);
 							break;
 	
 						case SetGeneratorCall e:
-							Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
-							Log?.Report(this, "Generator is set", e.Account.ToString());
+							lock(Core.Lock)
+							{
+								Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
+								Log?.Report(this, "Generator is set", e.Account.ToString());
+							}
 							break;
 
 						case TransferUntCall e:
-							respondjson(Core.Enqueue(new UntTransfer(Vault.GetPrivate(e.From), e.To, e.Amount)));
+
+							PrivateAccount  pa;
+							
+							lock(Core.Lock)
+							{
+								pa = Vault.GetPrivate(e.From);
+							}
+
+							respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount)));
 							Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 							break;
 	
 						case StatusCall s:
-							respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
-																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
-																InfoFields	= Core.Info[0].Take(s.Limit), 
-																InfoValues	= Core.Info[1].Take(s.Limit) });
+							lock(Core.Lock)
+								respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
+																	Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
+																	InfoFields	= Core.Info[0].Take(s.Limit), 
+																	InfoValues	= Core.Info[1].Take(s.Limit) });
 							break;
 							
-// 						case AccountInfoCall c:
-// 							if(Core.Synchronization != Synchronization.Synchronized)
-// 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-// 							else
-// 							{
-// 								var ai = Chain.GetAccountInfo(c.Account, c.Confirmed);
-// 								
-// 								if(ai != null)
-// 									respondjson(ai);
-// 								else
-// 									responderror("Account not found");
-// 							}
-// 							break;
-// 
-// 						case AuthorInfoCall c:
-// 							if(Core.Synchronization != Synchronization.Synchronized)
-// 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-// 							else
-// 							{
-// 								var ai = Chain.GetAuthorInfo(c.Name, c.Confirmed);
-// 								
-// 								if(ai != null)
-// 									respondjson(ai);
-// 								else
-// 									responderror("Author not found");
-// 							}
-// 							break;
-
-// 						case DelegatePropositionCall c:
-// 							if(Core.Synchronization != Synchronization.Synchronized)
-// 								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-// 							else
-// 							{
-// 								Core.ProcessIncoming(c.Propositions);
-// 							}
-// 							break;
-
-//						case QueryReleaseCall c:
-//							if(Core.Synchronization != Synchronization.Synchronized)
-//								rp.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-//							else
-//							{
-//								var ai = c.Queries.Select(i => Chain.QueryRelease(i, c.Confirmed));
-//								
-//								respondjson(ai);
-//							}
-//							break;
-
-// 						case DownloadPackageRequest c:
-// 						{
-// 							///var ai = Core.Api.Send(new DownloadPackageRequest(c.Request);							
-// 							///respondbinary(ai);
-// 							break;
-// 						}
 						case ExitCall e:
 							rp.Close();
 							Core.Stop("RPC call");

@@ -34,7 +34,7 @@ namespace UC.Net.Node.FUI
 				var boot = new BootArguments(b, cmd);
 
 				var orig = Path.Combine(exedir, Core.SettingsFileName);
-				var user = Path.Combine(boot.Main.Profile, Core.SettingsFileName);
+				var user = Path.Combine(boot.Profile, Core.SettingsFileName);
 
 				if(!File.Exists(user))
 				{

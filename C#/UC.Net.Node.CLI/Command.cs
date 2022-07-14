@@ -99,7 +99,7 @@ namespace UC.Net.Node.CLI
 		protected void Wait(Func<bool> waitiftrue)
 		{
 			Task.Run(() =>	{
-								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Flowvizor.Cancellation.IsCancellationRequested) 
+								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Flowvizor.Cancellation.IsCancellationRequested && !Flowvizor.IsAborted)
 								{
 									Thread.Sleep(100); 
 								}

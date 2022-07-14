@@ -170,10 +170,13 @@ namespace UC.Net
 
 		public Settings(BootArguments boot)
 		{
-			Path			= System.IO.Path.Join(boot.Main.Profile, "Settings.xon");
-			Zone			= boot.Main.Zone;
+			Path			= System.IO.Path.Join(boot.Profile, "Settings.xon");
+			Zone			= boot.Zone;
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
+
+//doc.Dump((n, l) => Console.WriteLine(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
+//Console.WriteLine(doc.Has("PeersMin"));
 
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
@@ -194,15 +197,12 @@ namespace UC.Net
 				LoadSecrets(doc.GetString("Secrets"));
 			}
 
-			if(boot.Core.Port != -1)	Port = boot.Core.Port;
-			if(boot.Core.IP != null)	IP = boot.Core.IP;
+			if(boot.Profile != null)	Profile = boot.Profile;
+			if(boot.Secrets != null)	LoadSecrets(boot.Secrets);
 
-			if(boot.Main.Profile != null)	Profile = boot.Main.Profile;
-			if(boot.Main.Secrets != null)	LoadSecrets(boot.Main.Secrets);
+			//if(boot.Vault.Accounts.Any())	Accounts = boot.Vault.Accounts;
 
-			if(boot.Vault.Accounts.Any())	Accounts = boot.Vault.Accounts;
-
-			if(boot.Api.AccessKey != null)	Api.AccessKey = boot.Api.AccessKey;
+			//if(boot.Api.AccessKey != null)	Api.AccessKey = boot.Api.AccessKey;
 
 			Document = doc;
 		}

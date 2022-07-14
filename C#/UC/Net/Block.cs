@@ -128,6 +128,8 @@ namespace UC.Net
 			base.Read(r);
 
 			IP = r.ReadIPAddress();
+		
+			Hash = CalculateHash();
 		}
 	}
 	

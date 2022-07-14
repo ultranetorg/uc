@@ -9,6 +9,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Net;
+using System.Threading;
 
 namespace UC.Net
 {
@@ -48,10 +49,10 @@ namespace UC.Net
 			Key = apikey;
 		}
 
-		public UntTransfer								Send(TransferUntCall call) => Request<UntTransfer>(call);
-		public GetStatusResponse						Send(StatusCall call) => Request<GetStatusResponse>(call);
+		public UntTransfer			Send(TransferUntCall call, CancellationToken cancellation = default) => Request<UntTransfer>(call, cancellation );
+		public GetStatusResponse	Send(StatusCall call, CancellationToken cancellation = default) => Request<GetStatusResponse>(call, cancellation);
 
-		HttpResponseMessage Post(RpcCall request) 
+		HttpResponseMessage Post(RpcCall request, CancellationToken cancellation = default) 
 		{
 			request.Version = Core.Versions.First().ToString();
 			request.AccessKey = Key;
@@ -62,12 +63,12 @@ namespace UC.Net
 
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
-			return HttpClient.Send(m);
+			return HttpClient.Send(m, cancellation);
 		}
 
-		public Rp Request<Rp>(RpcCall request)
+		public Rp Request<Rp>(RpcCall request, CancellationToken cancellation = default)
 		{
-			var cr = Post(request);
+			var cr = Post(request, cancellation);
 
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
@@ -82,9 +83,9 @@ namespace UC.Net
 			}
 		}
 		
-		public void SendOnly(RpcCall request)
+		public void SendOnly(RpcCall request, CancellationToken cancellation = default)
 		{
-			var cr = Post(request);
+			var cr = Post(request, cancellation);
 			
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);

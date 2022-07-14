@@ -1043,9 +1043,9 @@ namespace UC.Net
 					}
 				}
 	 		}
-			catch(Exception ex) when (!Debugger.IsAttached)
+			catch(Exception) when (!Debugger.IsAttached)
 			{
-				Stop(MethodBase.GetCurrentMethod(), ex);
+				peer.Disconnect();
 			}
 		}
 
