@@ -8,7 +8,6 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Ipfs.Http;
 using Nethereum.ABI.Util;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Nethereum.Hex.HexConvertors.Extensions;
