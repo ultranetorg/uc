@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>UC.Net.Node.FUI</AssemblyName>
     <RootNamespace>UC.Net.Node.FUI</RootNamespace>
-    <Version>0.0.365</Version>
+    <Version>0.0.367</Version>
     <Company>Ultranet Organization</Company>
     <Authors>Ultranet Organization</Authors>
     <Product>Dotnet-based Ultranet Node (DUN) with Forms UI</Product>
