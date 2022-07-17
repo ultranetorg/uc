@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Company>Ultranet Organization</Company>
@@ -15,12 +15,12 @@
     <Version>0.0.367</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\dotnet__UC\</OutputPath>
+    <OutputPath>..\..\..\_Debug\dotnet\</OutputPath>
     <NoWarn>1701;1702;</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\dotnet__UC\</OutputPath>
+    <OutputPath>..\..\..\_Release\dotnet\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>false</Optimize>
   </PropertyGroup>
