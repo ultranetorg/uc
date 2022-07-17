@@ -7,12 +7,12 @@
     <Company>Ultranet Organization</Company>
     <Authors>Ultranet Organization</Authors>
     <Product>Framework</Product>
-    <AssemblyVersion>0.0.169.0</AssemblyVersion>
-    <FileVersion>0.0.169.0</FileVersion>
+    <AssemblyVersion>0.0.172.0</AssemblyVersion>
+    <FileVersion>0.0.172.0</FileVersion>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <Version>0.0.367</Version>
+    <Version>0.0.370</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\dotnet\</OutputPath>
