@@ -1,8 +1,13 @@
 {
   "profiles": {
-    "newProfile1": {
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {},
+      "distributionName": ""
+    },
+    "run node": {
       "commandName": "Project",
-      "commandLineArgs": "run node Settings{IP=192.168.1.100 Api{AccessKey=password}}"
+      "commandLineArgs": "run node api"
     }
   }
 }

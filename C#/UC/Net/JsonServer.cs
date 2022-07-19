@@ -150,7 +150,7 @@ namespace UC.Net
 				
 				var call = JsonSerializer.Deserialize(json, Type.GetType(GetType().Namespace + "." + rq.Url.LocalPath.Substring(1) + "Call"), JsonClient.Options) as RpcCall;
 
-				if(call.Private && (string.IsNullOrWhiteSpace(Settings.Api.AccessKey) || call.AccessKey != Settings.Api.AccessKey))
+				if(string.IsNullOrWhiteSpace(Settings.Api.AccessKey) || call.AccessKey != Settings.Api.AccessKey)
 				{
 					rp.StatusCode = (int)HttpStatusCode.Unauthorized;
 					rp.Close();

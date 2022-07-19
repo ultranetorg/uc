@@ -25,8 +25,13 @@ namespace UC.Net.Node.CLI
 
 			if(ConsoleSupported)
 			{	
-				Console.ReadKey(true);
-				Core.Stop("By user input");
+				//Console.ReadKey(true);
+				Wait(() => Core.Running && !Console.KeyAvailable);
+
+				if(Core.Running)
+				{
+					Core.Stop("By user input");
+				}
 			}
 			else
 				Wait(() => Core.Running);

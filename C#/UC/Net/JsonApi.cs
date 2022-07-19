@@ -48,8 +48,8 @@ namespace UC.Net
 		public string			Version { get; set; }
 		public string			AccessKey { get; set; }
 
-		[JsonIgnore]
-		public abstract bool	Private { get; }
+		//[JsonIgnore]
+		//public abstract bool	Private { get; }
 
 		public static string NameOf<C>() => NameOf(typeof(C));
 		public static string NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
@@ -57,13 +57,13 @@ namespace UC.Net
 
 	public class ExitCall : RpcCall
 	{
-		public override bool	Private => true;
+		//public override bool	Private => true;
 		public string			Reason { get; set; }
 	}
 
 	public class StatusCall : RpcCall
 	{
-		public override bool	Private => false;
+		//public override bool	Private => false;
 		public int				Limit  { get; set; }
 	}
 
@@ -82,32 +82,32 @@ namespace UC.Net
 
 	public class RunNodeCall : RpcCall
 	{
-		public override bool	Private => true;
+		//public override bool	Private => true;
 	}
 
 	public class AddWalletCall : RpcCall
 	{
-		public override bool	Private => true;
+		//public override bool	Private => true;
 		public Account			Account {get; set;}
 		public byte[]			Wallet {get; set;}
 	}
 
 	public class UnlockWalletCall : RpcCall
 	{
-		public override bool	Private => true;
+		//public override bool	Private => true;
 		public Account			Account {get; set;}
 		public string			Password {get; set;}
 	}
 
 	public class SetGeneratorCall : RpcCall
 	{
-		public override bool	Private => true;
+		//public override bool	Private => true;
 		public Account			Account {get; set;}
 	}
 
 	public class TransferUntCall : RpcCall
 	{
-		public override bool	Private => true;
+		//public override bool	Private => true;
 		public Account			From {get; set;}
 		public Account			To {get; set;}
 		public Coin				Amount {get; set;}

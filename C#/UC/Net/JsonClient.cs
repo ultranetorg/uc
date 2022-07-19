@@ -42,10 +42,10 @@ namespace UC.Net
 			Options.Converters.Add(new XonDocumentJsonConverter());
 		}
 
-		public JsonClient(HttpClient http, string apiurl, string apikey)
+		public JsonClient(HttpClient http, string server, string zone, string apikey)
 		{
 			HttpClient = http;
-			Address = apiurl;
+			Address = $"http://{server}:{UC.Net.Zone.JsonPort(zone)}";
 			Key = apikey;
 		}
 
