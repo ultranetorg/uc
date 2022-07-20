@@ -11,7 +11,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Markup", "Markup", "{FAA51D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UC.Net.Node.MAUI.Markup", "UC.Net.Node.MAUI.Markup\UC.Net.Node.MAUI.Markup.csproj", "{AEF16879-0729-4DF0-8BC1-BF0A5090CF5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UC.Net.Node.MAUI", "UC.Net.Node.MAUI\UC.Net.Node.MAUI.csproj", "{93D27E78-C23B-4C22-99DF-5FD21FA9068D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UC.Net.Node.MAUI", "UC.Net.Node.MAUI\UC.Net.Node.MAUI.csproj", "{93D27E78-C23B-4C22-99DF-5FD21FA9068D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B40D75FA-A155-400C-8BB5-29A37657A46E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -264,11 +264,17 @@ namespace UC.Net.Node.MAUI.Controls
 
         #region EmptyStar and fillstar property
         public static readonly BindableProperty EmptyStarImageProperty = BindableProperty.Create(
+
             propertyName: "EmptyStarImage",
+
             returnType: typeof(ImageSource),
+
             declaringType: typeof(RattingBar),
+
             defaultValue: default(ImageSource),
+
             defaultBindingMode: BindingMode.TwoWay,
+
             propertyChanged: EmptyStarImagePropertyChanged
          );
 
@@ -304,11 +310,17 @@ namespace UC.Net.Node.MAUI.Controls
 
 
         public static readonly BindableProperty FillStarImageProperty = BindableProperty.Create(
+
           propertyName: "FillStarImage",
+
           returnType: typeof(ImageSource),
+
           declaringType: typeof(RattingBar),
+
           defaultValue: default(ImageSource),
+
           defaultBindingMode: BindingMode.TwoWay,
+
           propertyChanged: FillStarImagePropertyChanged
        );
 
@@ -337,11 +349,17 @@ namespace UC.Net.Node.MAUI.Controls
 
         #region this will return the selected star value and also you can set the default selected star
         public static readonly BindableProperty SelectedStarValueProperty = BindableProperty.Create(
+
           propertyName: "SelectedStarValue",
+
           returnType: typeof(int),
+
           declaringType: typeof(RattingBar),
+
           defaultValue: 0,
+
           defaultBindingMode: BindingMode.TwoWay,
+
           propertyChanged: SelectedStarValuePropertyChanged
        );
 
