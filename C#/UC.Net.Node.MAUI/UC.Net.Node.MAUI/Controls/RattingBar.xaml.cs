@@ -73,11 +73,16 @@ namespace UC.Net.Node.MAUI.Controls
 
         #region  Image Height Width Property
         public static readonly BindableProperty ImageHeightProperty = BindableProperty.Create(
-        propertyName: "ImageHeight",
-        returnType: typeof(double),
-        declaringType: typeof(RattingBar),
-        defaultBindingMode: BindingMode.TwoWay,
-        propertyChanged: ImageHeightPropertyChanged
+
+			propertyName: "ImageHeight",
+
+			returnType: typeof(double),
+
+			declaringType: typeof(RattingBar),
+
+			defaultBindingMode: BindingMode.TwoWay,
+
+			propertyChanged: ImageHeightPropertyChanged
          );
 
         public double ImageHeight
@@ -98,17 +103,20 @@ namespace UC.Net.Node.MAUI.Controls
                 control.star4.HeightRequest = (double)newValue;
                 control.star5.HeightRequest = (double)newValue;
             }
-
         }
-
 
         //image width
         public static readonly BindableProperty ImageWidthProperty = BindableProperty.Create(
-        propertyName: "ImageWidth",
-        returnType: typeof(double),
-        declaringType: typeof(RattingBar),
-        defaultBindingMode: BindingMode.TwoWay,
-        propertyChanged: ImageWidthPropertyChanged
+
+			propertyName: "ImageWidth",
+
+			returnType: typeof(double),
+
+			declaringType: typeof(RattingBar),
+
+			defaultBindingMode: BindingMode.TwoWay,
+
+			propertyChanged: ImageWidthPropertyChanged
          );
 
         public double ImageWidth
@@ -130,15 +138,22 @@ namespace UC.Net.Node.MAUI.Controls
                 control.star5.WidthRequest = (double)newValue;
             }
         }
+
         #endregion
 
 
-        #region Horizontal Vertical Allignment 
+        #region Horizontal Vertical Allignment
+		
         public static readonly BindableProperty HorizontalOptionsProperty = BindableProperty.Create(
+
         propertyName: "HorizontalOptions",
+
         returnType: typeof(LayoutOptions),
+
         declaringType: typeof(RattingBar),
+
         defaultBindingMode: BindingMode.TwoWay,
+
         propertyChanged: HorizontalOptionsPropertyChanged
          );
 
@@ -157,10 +172,15 @@ namespace UC.Net.Node.MAUI.Controls
         //VERTICLE option set
 
         public static readonly BindableProperty VerticalOptionsProperty = BindableProperty.Create(
+
         propertyName: "VerticalOptions",
+
         returnType: typeof(LayoutOptions),
+
         declaringType: typeof(RattingBar),
+
         defaultBindingMode: BindingMode.TwoWay,
+
         propertyChanged: VerticalOptionsPropertyChanged
          );
 
@@ -175,15 +195,20 @@ namespace UC.Net.Node.MAUI.Controls
             var control = (RattingBar)bindable;
             control.stkRattingbar.VerticalOptions = (LayoutOptions)newValue;
         }
+
         #endregion
 
 
         #region Command binding property
+
         public static readonly BindableProperty CommandProperty = BindableProperty.Create(
+
          propertyName: "Command",
+
          returnType: typeof(ICommand),
+
          declaringType: typeof(RattingBar)
-         );
+		);
 
         public ICommand Command
         {
@@ -193,11 +218,16 @@ namespace UC.Net.Node.MAUI.Controls
 
         //  this property is private becuase i don't wanna access it globally
         private static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(
+
          propertyName: "CommandParameter",
+
          returnType: typeof(object),
+
          declaringType: typeof(RattingBar),
+
          propertyChanged: CommandParameterPropertyChanged
          );
+
         private object CommandParameter
         {
             get { return base.GetValue(CommandParameterProperty); }
