@@ -69,6 +69,8 @@ namespace UC.Net
 
 	public class SecretSettings
 	{
+		public const string FileName = "Secrets.globals";
+
 		public string		Password;
 		public string		EmissionWallet;
 		public string		EmissionPassword;
@@ -83,7 +85,7 @@ namespace UC.Net
 		{
 			Path = path;
 
-			var s = System.IO.Path.Join(path, "Secrets.xon");
+			var s = System.IO.Path.Join(path, FileName);
 
 			var d = new XonDocument(new XonTextReader(File.ReadAllText(s)), XonTextValueSerializator.Default);
 				
