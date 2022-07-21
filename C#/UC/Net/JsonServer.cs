@@ -39,7 +39,7 @@ namespace UC.Net
 									{
 										Listener = new HttpListener();
 	
-										var prefixes = new string[] {$"http://{(Settings.IP.ToString() != "0.0.0.0" ? Settings.IP.ToString() : "+")}:{Zone.JsonPort(Settings.Zone)}/"};
+										var prefixes = new string[] {$"http://{(Settings.IP.ToString() != "0.0.0.0" ? Settings.IP.ToString() : "+")}:{Settings.Zone.JsonPort}/"};
 			
 										foreach(string s in prefixes)
 										{

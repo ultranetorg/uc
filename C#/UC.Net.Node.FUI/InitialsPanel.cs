@@ -26,12 +26,12 @@ namespace UC.Net.Node.FUI
 
 			zone.Items.Clear();
 
-			foreach(var i in  Zone.Names)
+			foreach(var i in  Zone.All.Select(i => i.Name))
 			{
 				zone.Items.Add(i);
 			}
 
-			zone.SelectedItem = Zone.NameByValue(Core.Settings.Zone);
+			zone.SelectedItem = Core.Settings.Zone.Name;
 
 			//ReloadDefaultNodes();
 		}
@@ -43,7 +43,7 @@ namespace UC.Net.Node.FUI
 				manage.Enabled = false;
 				nodes.Enabled = false;
 
-				await Core.Nas.SetZone(Zone.ValueByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
+				await Core.Nas.SetZone(Zone.ByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
@@ -60,7 +60,7 @@ namespace UC.Net.Node.FUI
 			{
 				manage.Enabled = false;
 
-				await Core.Nas.RemoveZone(Zone.ValueByName(zone.SelectedItem as string), new EthereumFeeForm());
+				await Core.Nas.RemoveZone(Zone.ByName(zone.SelectedItem as string), new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
@@ -85,7 +85,7 @@ namespace UC.Net.Node.FUI
 							{
 								Invoke( (MethodInvoker)delegate()
 										{
-											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ValueByName(zone.SelectedItem as string)));
+											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ByName(zone.SelectedItem as string)));
 						
 											manage.Enabled = true;
 											nodes.Enabled = true;

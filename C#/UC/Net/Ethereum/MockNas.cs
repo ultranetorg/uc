@@ -31,7 +31,7 @@ namespace UC.Net
 			throw new NotImplementedException();
 		}
 
-		public List<IPAddress> GetInitials(string zone)
+		public List<IPAddress> GetInitials(Zone zone)
 		{
 			if(zone == Zone.Localnet)
 			{
@@ -41,17 +41,17 @@ namespace UC.Net
 			throw new NotSupportedException();
 		}
 
-		public string GetZone(string name)
+		public string GetZone(Zone zone)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task RemoveZone(string name, IGasAsker asker)
+		public Task RemoveZone(Zone zone, IGasAsker asker)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task SetZone(string name, string nodes, IGasAsker asker)
+		public Task SetZone(Zone zone, string nodes, IGasAsker asker)
 		{
 			throw new NotImplementedException();
 		}

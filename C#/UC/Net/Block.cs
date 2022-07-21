@@ -64,7 +64,7 @@ namespace UC.Net
 			var w = new BinaryWriter(s);
 
 			w.Write((byte)Type);
-			w.Write(Chain.Settings.Zone);
+			w.Write(Chain.Settings.Zone.Name);
 			w.Write7BitEncodedInt(RoundId);
 
 			WriteForSigning(w);

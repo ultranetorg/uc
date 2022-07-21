@@ -126,7 +126,7 @@ namespace UC.Net
 				List<string> f = new();
 				List<string> v = new(); 
 															
-				f.Add("Zone");					v.Add(Settings.Zone);
+				f.Add("Zone");					v.Add(Settings.Zone.Name);
 				f.Add("Profile");				v.Add(Settings.Profile);
 				f.Add("IP(Reported):Port");		v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
 				//f.Add($"Generator{(Nci != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Nci?.Generator)}");
@@ -626,7 +626,7 @@ namespace UC.Net
 
 			h.Roles					= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seed : 0) | (Hub != null ? Role.Hub : 0);
 			h.Versions				= Versions;
-			h.Zone					= Settings.Zone;
+			h.Zone					= Settings.Zone.Name;
 			h.IP					= ip;
 			h.Nuid					= Nuid;
 			h.Peers					= peers;

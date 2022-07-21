@@ -28,7 +28,7 @@ namespace UC.Net
 	{
 		class Genesis
 		{
-			public string Zone;
+			public Zone Zone;
 			public Cryptography Crypto;
 			public string Rounds;
 		}

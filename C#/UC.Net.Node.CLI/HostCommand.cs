@@ -38,7 +38,7 @@ namespace UC.Net.Node.CLI
 	
 							var t = DateTime.Now;
 	
-							client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Zone.Port(Settings.Zone));
+							client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Settings.Zone.Port);
 				
 							Flowvizor.Log?.Report(this, null, $"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 	

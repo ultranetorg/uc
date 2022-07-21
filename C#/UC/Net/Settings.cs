@@ -135,7 +135,7 @@ namespace UC.Net
 		string						Path; 
 
 		public readonly int			Port;
-		public readonly string		Zone;
+		public readonly Zone		Zone;
 	
 		public bool					Log;
 		public int					PeersMin;
@@ -160,7 +160,7 @@ namespace UC.Net
 			{
 				if(Zone == UC.Net.Zone.Localnet)
 					return new NoCryptography();
-				else if(Zone == UC.Net.Zone.Mainnet || UC.Net.Zone.IsTest(Zone))
+				else if(Zone == UC.Net.Zone.Mainnet || Zone.IsTest)
 					return new EthereumCryptography();
 				else
 					throw new IntegrityException("Unknown zone");
@@ -175,7 +175,7 @@ namespace UC.Net
 		{
 			Profile = boot.Profile;
 			Path	= System.IO.Path.Join(boot.Profile, "Settings.xon");
-			Zone	= boot.Zone;
+			Zone	= Zone.All.First(i => i.Name == boot.Zone);
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
 
@@ -184,7 +184,7 @@ namespace UC.Net
 
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
-			Port		= doc.Has("Port") ? doc.GetInt32("Port") : UC.Net.Zone.Port(Zone);
+			Port		= doc.Has("Port") ? doc.GetInt32("Port") : Zone.Port;
 			IP			= IPAddress.Parse(doc.GetString("IP"));
 			Generator	= doc.Has("Generator") ? doc.GetString("Generator") : null;
 			Log			= doc.Has("Log");
