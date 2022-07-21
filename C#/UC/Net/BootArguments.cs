@@ -98,6 +98,10 @@ namespace UC.Net
 	 	public string			Secrets;
 	 	public string			Zone;
 
+		public BootArguments()
+		{
+		}
+
 		public BootArguments(Xon boot, Xon cmd)
 		{
  			Zone = boot.GetString("Zone");

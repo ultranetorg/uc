@@ -33,8 +33,8 @@ namespace UC.Net.Node.FUI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
-				var orig = Path.Combine(exedir, Core.SettingsFileName);
-				var user = Path.Combine(boot.Profile, Core.SettingsFileName);
+				var orig = Path.Combine(exedir, UC.Net.Settings.FileName);
+				var user = Path.Combine(boot.Profile, UC.Net.Settings.FileName);
 
 				if(!File.Exists(user))
 				{

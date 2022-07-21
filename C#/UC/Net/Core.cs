@@ -58,7 +58,6 @@ namespace UC.Net
 		public const string								FailureExt = "failure";
 		public const int								Timeout = 5000;
 		public const int								OperationsQueueLimit = 1000;
-		public const string								SettingsFileName = "Settings.xon";
 		const int										BalanceWidth = 24;
 
 		public Log										Log;
@@ -300,7 +299,7 @@ namespace UC.Net
 		  			Log.ReportError(this, $"Ethereum provider (Settings.xon -> Nas -> Provider) is not set or has incorrect format.");
 		 			Log.ReportError(this, $"It's required to run the node in full mode.");
 		 			Log.ReportError(this, $"This can be instance of some Ethereum client or third-party services like Infura.");
-		 			Log.ReportError(this, $"Corresponding configuration file is located here: {Path.Join(Settings.Profile, SettingsFileName)}");
+		 			Log.ReportError(this, $"Corresponding configuration file is located here: {Path.Join(Settings.Profile, Settings.FileName)}");
 					return;
 		  		}
 		

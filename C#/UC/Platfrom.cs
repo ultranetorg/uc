@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UC
 {
-	public class OperatingSystem : StringEnum<OperatingSystem>
+	public class OS : StringEnum<OS>
 	{
 		public const string Windows	= "win";
 		public const string Linux	= "lin";
@@ -14,7 +14,7 @@ namespace UC
 		public const string Uos		= "uos";
 	}
 
-	public class Architecture : StringEnum<OperatingSystem>
+	public class Architecture : StringEnum<OS>
 	{
 		public const string X86		= "x86";
 		public const string X64		= "x64";
@@ -27,7 +27,7 @@ namespace UC
 	public class Platform : IEquatable<Platform>
 	{
 		public string	System;
-		public string	SystemTitle => OperatingSystem.NameByValue(System);
+		public string	SystemTitle => OS.NameByValue(System);
 		//public string	Modification;
 		public string	Architecture;
 		//public Version	Version;

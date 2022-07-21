@@ -38,26 +38,14 @@ namespace UC.Net
 
 			Directory.CreateDirectory(Settings.Profile);
 
-			if(Settings.Accounts != null)
+			if(Directory.Exists(Settings.Profile))
 			{
-				foreach(var i in Settings.Accounts)
+				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt))
 				{
 					Wallets[Account.Parse(Path.GetFileNameWithoutExtension(i))] = File.ReadAllBytes(i);
 					Accounts.Add(Account.Parse(Path.GetFileNameWithoutExtension(i)));
 				}
 			}
-			else
-			{
-				if(Directory.Exists(Settings.Profile))
-				{
-					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt))
-					{
-						Wallets[Account.Parse(Path.GetFileNameWithoutExtension(i))] = File.ReadAllBytes(i);
-						Accounts.Add(Account.Parse(Path.GetFileNameWithoutExtension(i)));
-					}
-				}
-			}
-
 		}
 
 		public void AddWallet(Account account, byte[] wallet)
