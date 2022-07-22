@@ -51,15 +51,12 @@ namespace UC.Net.Node.MAUI.Controls
                 {
                     try
                     {
-
                         if (Command != null)
                         {
                             Command.Execute(IsOn);
                         }
                     }
-                    catch
-                    {
-                    }
+                    catch{}
                 });
             }
         }

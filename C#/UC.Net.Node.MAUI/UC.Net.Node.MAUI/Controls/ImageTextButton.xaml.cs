@@ -80,9 +80,7 @@ namespace UC.Net.Node.MAUI.Controls
                             Command.Execute(CommandParameter);
                         }
                     }
-                    catch
-                    {
-                    }
+                    catch{}
                 });
             }
         }

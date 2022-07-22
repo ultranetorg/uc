@@ -51,8 +51,7 @@ namespace UC.Net.Node.MAUI.Controls
                         }
                     }
                     catch
-                    {
-                    }
+                    {}
                 });
             }
         }

@@ -58,16 +58,15 @@
         }
         private static void TextpropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            //var grid = (bindable as MultiFieldsEntry);
-            //if (grid.Children.Count >= grid.Text.Length)
-            //{
-            //    for (var i = 0; i < grid.Text.Length; i++)
-            //    {
-            //        (grid.Children[i] as BorderEntry).Text = grid.Text[i].ToString();
-            //    }
-            //}
-            
-        }
+			var grid = (bindable as MultiFieldsEntry);
+			if (grid.Children.Count >= grid.Text.Length)
+			{
+				for (var i = 0; i < grid.Text.Length; i++)
+				{
+					(grid.Children[i] as BorderEntry).Text = grid.Text[i].ToString();
+				}
+			}
+		}
 
         public static BindableProperty PlaceholderProperty = BindableProperty.Create(nameof(Placeholder), typeof(string), typeof(MultiFieldsEntry));
         public string Placeholder

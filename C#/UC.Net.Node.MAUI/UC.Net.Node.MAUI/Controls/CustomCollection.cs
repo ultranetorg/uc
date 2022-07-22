@@ -36,9 +36,7 @@ namespace UC.Net.Node.MAUI.Controls
             }
             catch
             {
-
             }
-           
         }
 
         public void AddRange(IEnumerable<T> list)

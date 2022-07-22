@@ -21,7 +21,8 @@ namespace UC.Net.Node.MAUI.Controls
             star4 = new Image();
             star5 = new Image();
 
-            #region adding Gesture Recognizer on Star(Image Control)
+            #region Adding Gesture Recognizer on Star (Image Control)
+
             star1.GestureRecognizers.Add(new TapGestureRecognizer
             {
                 Command = ItemTappedCommand,
@@ -49,7 +50,8 @@ namespace UC.Net.Node.MAUI.Controls
                 Command = ItemTappedCommand,
                 CommandParameter = 5
             });
-            #endregion
+
+            #endregion Adding Gesture Recognizer on Star (Image Control)
 
             stkRattingbar.Children.Add(star1);
             stkRattingbar.Children.Add(star2);
@@ -71,7 +73,8 @@ namespace UC.Net.Node.MAUI.Controls
             }
         }
 
-        #region  Image Height Width Property
+        #region Image Height Width Property
+
         public static readonly BindableProperty ImageHeightProperty = BindableProperty.Create(
 
 			propertyName: "ImageHeight",
@@ -139,22 +142,22 @@ namespace UC.Net.Node.MAUI.Controls
             }
         }
 
-        #endregion
+        #endregion Image Height Width Property
 
 
         #region Horizontal Vertical Allignment
 		
         public static readonly BindableProperty HorizontalOptionsProperty = BindableProperty.Create(
 
-        propertyName: "HorizontalOptions",
+			propertyName: "HorizontalOptions",
 
-        returnType: typeof(LayoutOptions),
+			returnType: typeof(LayoutOptions),
 
-        declaringType: typeof(RattingBar),
+			declaringType: typeof(RattingBar),
 
-        defaultBindingMode: BindingMode.TwoWay,
+			defaultBindingMode: BindingMode.TwoWay,
 
-        propertyChanged: HorizontalOptionsPropertyChanged
+			propertyChanged: HorizontalOptionsPropertyChanged
          );
 
         public LayoutOptions HorizontalOptions
@@ -173,15 +176,15 @@ namespace UC.Net.Node.MAUI.Controls
 
         public static readonly BindableProperty VerticalOptionsProperty = BindableProperty.Create(
 
-        propertyName: "VerticalOptions",
+			propertyName: "VerticalOptions",
 
-        returnType: typeof(LayoutOptions),
+			returnType: typeof(LayoutOptions),
 
-        declaringType: typeof(RattingBar),
+			declaringType: typeof(RattingBar),
 
-        defaultBindingMode: BindingMode.TwoWay,
+			defaultBindingMode: BindingMode.TwoWay,
 
-        propertyChanged: VerticalOptionsPropertyChanged
+			propertyChanged: VerticalOptionsPropertyChanged
          );
 
         public LayoutOptions VerticalOptions
@@ -196,18 +199,18 @@ namespace UC.Net.Node.MAUI.Controls
             control.stkRattingbar.VerticalOptions = (LayoutOptions)newValue;
         }
 
-        #endregion
+        #endregion Horizontal Vertical Allignment
 
 
         #region Command binding property
 
         public static readonly BindableProperty CommandProperty = BindableProperty.Create(
 
-         propertyName: "Command",
+			 propertyName: "Command",
 
-         returnType: typeof(ICommand),
+			 returnType: typeof(ICommand),
 
-         declaringType: typeof(RattingBar)
+			 declaringType: typeof(RattingBar)
 		);
 
         public ICommand Command
@@ -219,13 +222,13 @@ namespace UC.Net.Node.MAUI.Controls
         //  this property is private becuase i don't wanna access it globally
         private static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(
 
-         propertyName: "CommandParameter",
+			propertyName: "CommandParameter",
 
-         returnType: typeof(object),
+			returnType: typeof(object),
 
-         declaringType: typeof(RattingBar),
+			declaringType: typeof(RattingBar),
 
-         propertyChanged: CommandParameterPropertyChanged
+			propertyChanged: CommandParameterPropertyChanged
          );
 
         private object CommandParameter
@@ -246,7 +249,7 @@ namespace UC.Net.Node.MAUI.Controls
 
         }
 
-        #endregion
+        #endregion Command binding property
 
         // this function will replace empty star with fill star
         private static void fillStar(int selectedValue, RattingBar obj)
@@ -293,19 +296,20 @@ namespace UC.Net.Node.MAUI.Controls
         }
 
         #region EmptyStar and fillstar property
+
         public static readonly BindableProperty EmptyStarImageProperty = BindableProperty.Create(
 
-            propertyName: "EmptyStarImage",
+			propertyName: "EmptyStarImage",
 
-            returnType: typeof(ImageSource),
+			returnType: typeof(ImageSource),
 
-            declaringType: typeof(RattingBar),
+			declaringType: typeof(RattingBar),
 
-            defaultValue: default(ImageSource),
+			defaultValue: default(ImageSource),
 
-            defaultBindingMode: BindingMode.TwoWay,
+			defaultBindingMode: BindingMode.TwoWay,
 
-            propertyChanged: EmptyStarImagePropertyChanged
+			propertyChanged: EmptyStarImagePropertyChanged
          );
 
         public ImageSource EmptyStarImage
@@ -341,17 +345,17 @@ namespace UC.Net.Node.MAUI.Controls
 
         public static readonly BindableProperty FillStarImageProperty = BindableProperty.Create(
 
-          propertyName: "FillStarImage",
+			propertyName: "FillStarImage",
 
-          returnType: typeof(ImageSource),
+			returnType: typeof(ImageSource),
 
-          declaringType: typeof(RattingBar),
+			declaringType: typeof(RattingBar),
 
-          defaultValue: default(ImageSource),
+			defaultValue: default(ImageSource),
 
-          defaultBindingMode: BindingMode.TwoWay,
+			defaultBindingMode: BindingMode.TwoWay,
 
-          propertyChanged: FillStarImagePropertyChanged
+			propertyChanged: FillStarImagePropertyChanged
        );
 
         public ImageSource FillStarImage
@@ -374,23 +378,25 @@ namespace UC.Net.Node.MAUI.Controls
             }
 
         }
-        #endregion
+
+        #endregion EmptyStar and fillstar property
 
 
-        #region this will return the selected star value and also you can set the default selected star
+        #region This will return the selected star value and also you can set the default selected star
+
         public static readonly BindableProperty SelectedStarValueProperty = BindableProperty.Create(
 
-          propertyName: "SelectedStarValue",
+			propertyName: "SelectedStarValue",
 
-          returnType: typeof(int),
+			returnType: typeof(int),
 
-          declaringType: typeof(RattingBar),
+			declaringType: typeof(RattingBar),
 
-          defaultValue: 0,
+			defaultValue: 0,
 
-          defaultBindingMode: BindingMode.TwoWay,
+			defaultBindingMode: BindingMode.TwoWay,
 
-          propertyChanged: SelectedStarValuePropertyChanged
+			propertyChanged: SelectedStarValuePropertyChanged
        );
 
         private static void SelectedStarValuePropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -412,7 +418,8 @@ namespace UC.Net.Node.MAUI.Controls
             get { return (int)GetValue(SelectedStarValueProperty); }
             set { SetValue(SelectedStarValueProperty, value); }
         }
-        #endregion
+
+        #endregion This will return the selected star value and also you can set the default selected star
 
 
         private void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)
