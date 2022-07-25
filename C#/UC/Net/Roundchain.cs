@@ -973,13 +973,11 @@ namespace UC.Net
 	
 				if(p != null)
 				{
-					var r = p.Releases.Find(i => i.Channel == query.Channel && i.Platform == query.Platform);
+					var r = p.Releases.Where(i => i.Channel == query.Channel && i.Platform == query.Platform).MaxBy(i => i.Version);
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseManifest>(m =>	m.Address.Author == query.Author && 
-																						m.Address.Product == query.Product && 
-																						m.Address.Platform == query.Platform && 
+						var prev = FindRound(r.Rid).FindOperation<ReleaseManifest>(m =>	m.Address == query && 
 																						m.Channel == query.Channel);
 	
 						return prev.ToXon(serializator);

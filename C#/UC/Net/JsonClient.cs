@@ -19,6 +19,19 @@ namespace UC.Net
 		public ApiCallException(string msg, Exception ex) : base(msg, ex){ }
 	}
 
+	public class IPJsonConverter : JsonConverter<IPAddress>
+	{
+		public override IPAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return IPAddress.Parse(reader.GetString());
+		}
+
+		public override void Write(Utf8JsonWriter writer, IPAddress value, JsonSerializerOptions options)
+		{
+			writer.WriteStringValue(value.ToString());
+		}
+	}
+
 	public class JsonClient// : RpcClient
 	{
 		HttpClient			HttpClient;
@@ -39,6 +52,8 @@ namespace UC.Net
 			Options.Converters.Add(new IPJsonConverter());
 			Options.Converters.Add(new ChainTimeJsonConverter());
 			Options.Converters.Add(new ReleaseAddressJsonConverter());
+			Options.Converters.Add(new PackageAddressJsonConverter());
+			Options.Converters.Add(new VersionJsonConverter());
 			Options.Converters.Add(new XonDocumentJsonConverter());
 		}
 
@@ -52,21 +67,21 @@ namespace UC.Net
 		public UntTransfer			Send(TransferUntCall call, CancellationToken cancellation = default) => Request<UntTransfer>(call, cancellation );
 		public GetStatusResponse	Send(StatusCall call, CancellationToken cancellation = default) => Request<GetStatusResponse>(call, cancellation);
 
-		HttpResponseMessage Post(RpcCall request, CancellationToken cancellation = default) 
+		HttpResponseMessage Post(ApiCall request, CancellationToken cancellation = default) 
 		{
 			request.Version = Core.Versions.First().ToString();
 			request.AccessKey = Key;
 
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + RpcCall.NameOf(request.GetType()));
+			var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + ApiCall.NameOf(request.GetType()));
 
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
 			return HttpClient.Send(m, cancellation);
 		}
 
-		public Rp Request<Rp>(RpcCall request, CancellationToken cancellation = default)
+		public Rp Request<Rp>(ApiCall request, CancellationToken cancellation = default)
 		{
 			var cr = Post(request, cancellation);
 
@@ -83,7 +98,7 @@ namespace UC.Net
 			}
 		}
 		
-		public void SendOnly(RpcCall request, CancellationToken cancellation = default)
+		public void SendOnly(ApiCall request, CancellationToken cancellation = default)
 		{
 			var cr = Post(request, cancellation);
 			

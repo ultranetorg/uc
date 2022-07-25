@@ -98,7 +98,7 @@ namespace UC.Net.Node.CLI
 				{
 					c?.Execute();
 				}
-				catch(RemoteCallException ex)
+				catch(DistributedCallException ex)
 				{
 					Log.ReportError(null, ex.Message);
 				}

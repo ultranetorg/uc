@@ -9,24 +9,42 @@ using Org.BouncyCastle.Security;
 
 namespace UC.Net
 {
-	public enum NciCall : byte
+	public enum DistributedCall : byte
 	{
 		Null, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
 		QueryRelease, DeclarePackage, LocatePackage, DownloadPackage
 	}
 
- 	public class RemoteCallException : Exception
+ 	public class DistributedCallException : Exception
  	{
 		public Response	Response;
 
- 		public RemoteCallException(Response response) : base(response.Error){}
-		public RemoteCallException(string message) : base(message){}
-		public RemoteCallException(string message, Exception ex) : base(message, ex){}
+ 		public DistributedCallException(Response response) : base(response.Error){}
+		public DistributedCallException(string message) : base(message){}
+		public DistributedCallException(string message, Exception ex) : base(message, ex){}
  	}
 
-	public abstract class Nci
+	public class OperationAddress : IBinarySerializable
 	{
-		public Account							Generator {get; set;} /// serializable
+		public Account	Account { get; set; }
+		public int		Id { get; set; }
+
+		public void Read(BinaryReader r)
+		{
+			Account = r.ReadAccount();
+			Id = r.Read7BitEncodedInt();
+		}
+
+		public void Write(BinaryWriter w)
+		{
+			w.Write(Account); 
+			w.Write7BitEncodedInt(Id);
+		}
+	}
+
+	public abstract class Dci
+	{
+		public Account							Generator { get; set; } /// serializable
 		public int								Failures;
 		public int								ReachFailures;
 
@@ -39,7 +57,7 @@ namespace UC.Net
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
 		public AuthorInfoResponse				GetAuthorInfo(string author, bool confirmed) => Request<AuthorInfoResponse>(new AuthorInfoRequest{ Name = author, Confirmed = confirmed });
 		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{ Account = account, Confirmed = confirmed });
-		public QueryReleaseResponse				QueryRelease(ReleaseQuery query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {query}, Confirmed = confirmed });
+		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(ReleaseAddress release, VersionQuery version, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(release, version, channel)}, Confirmed = confirmed });
 		public LocatePackageResponse			LocatePackage(PackageAddress package, int count) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package, Count = count  });
 		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = new PackageAddressGroup(packages)});
@@ -60,7 +78,7 @@ namespace UC.Net
 		public const int				IdLength = 8;
 		static readonly SecureRandom	Random = new SecureRandom();
 
-		public static Request FromType(Roundchain chaim, NciCall type)
+		public static Request FromType(Roundchain chaim, DistributedCall type)
 		{
 			try
 			{
@@ -72,11 +90,11 @@ namespace UC.Net
 			}
 		}
 
-		public NciCall Type
+		public DistributedCall Type
 		{
 			get
 			{
-				return Enum.Parse<NciCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Request))));
+				return Enum.Parse<DistributedCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Request))));
 			}
 		}
 
@@ -98,9 +116,9 @@ namespace UC.Net
 		public Peer				Peer;
 
 		public byte				TypeCode => (byte)Type;
-		public NciCall			Type => Enum.Parse<NciCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
+		public DistributedCall			Type => Enum.Parse<DistributedCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
 
-		public static Response FromType(Roundchain chaim, NciCall type)
+		public static Response FromType(Roundchain chaim, DistributedCall type)
 		{
 			try
 			{

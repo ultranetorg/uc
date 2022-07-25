@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
@@ -66,6 +68,19 @@ namespace UC.Net
 		public bool Equals(PackageAddress other)
 		{
 			return Equals(other as object);
+		}
+	}
+
+	public class PackageAddressJsonConverter : JsonConverter<PackageAddress>
+	{
+		public override PackageAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return PackageAddress.Parse(reader.GetString());
+		}
+
+		public override void Write(Utf8JsonWriter writer, PackageAddress value, JsonSerializerOptions options)
+		{
+			writer.WriteStringValue(value.ToString());
 		}
 	}
 

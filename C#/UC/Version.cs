@@ -5,6 +5,8 @@ using System.Linq;
 using System.IO;
 using System;
 using UC.Net;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace UC
 {
@@ -160,4 +162,17 @@ namespace UC
 			return !(left == right);
 		}
 	}
+
+ 	public class VersionJsonConverter : JsonConverter<Version>
+ 	{
+ 		public override Version Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+ 		{
+ 			return Version.Parse(reader.GetString());
+ 		}
+ 
+ 		public override void Write(Utf8JsonWriter writer, Version value, JsonSerializerOptions options)
+ 		{
+ 			writer.WriteStringValue(value.ToString());
+ 		}
+ 	}
 }

@@ -78,19 +78,19 @@ namespace UC.Net
 			Channel = r.ReadUtf8();
 		}
 	}
-
-	public class ReleaseQueryJsonConverter : JsonConverter<ReleaseQuery>
-	{
-		public override ReleaseQuery Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			return ReleaseQuery.Parse(reader.GetString());
-		}
-
-		public override void Write(Utf8JsonWriter writer, ReleaseQuery value, JsonSerializerOptions options)
-		{
-			writer.WriteStringValue(value.ToString());
-		}
-	}
+// 
+// 	public class ReleaseQueryJsonConverter : JsonConverter<ReleaseQuery>
+// 	{
+// 		public override ReleaseQuery Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+// 		{
+// 			return ReleaseQuery.Parse(reader.GetString());
+// 		}
+// 
+// 		public override void Write(Utf8JsonWriter writer, ReleaseQuery value, JsonSerializerOptions options)
+// 		{
+// 			writer.WriteStringValue(value.ToString());
+// 		}
+// 	}
 
 
 }

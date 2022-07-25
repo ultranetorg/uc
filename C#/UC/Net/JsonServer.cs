@@ -148,7 +148,7 @@ namespace UC.Net
 			{
 				var json = reader.ReadToEnd();
 				
-				var call = JsonSerializer.Deserialize(json, Type.GetType(GetType().Namespace + "." + rq.Url.LocalPath.Substring(1) + "Call"), JsonClient.Options) as RpcCall;
+				var call = JsonSerializer.Deserialize(json, Type.GetType(GetType().Namespace + "." + rq.Url.LocalPath.Substring(1) + "Call"), JsonClient.Options) as ApiCall;
 
 				if(string.IsNullOrWhiteSpace(Settings.Api.AccessKey) || call.AccessKey != Settings.Api.AccessKey)
 				{
@@ -208,7 +208,25 @@ namespace UC.Net
 							rp.Close();
 							Core.Stop("RPC call");
 							return;
-	
+
+						case QueryReleaseCall c:
+						{
+							var a = Core.Connect(Role.Chain, null, new Flowvizor(Core.Timeout));
+							var r = Core.QueryRelease(c.Queries, c.Confirmed);
+
+							respondjson(new QueryReleaseResult{Manifests = r.Manifests});
+							break;
+						}
+						case DownloadPackageCall c:
+						{
+							Core.DownloadPackage(c.Package, new Flowvizor(null, new CancellationTokenSource()));
+							break;
+						}
+						case DownloadStatusCall c:
+						{
+							respondjson(Core.GetDownloadStatus(c.Package));
+							break;
+						}
 						default:
 							rp.StatusCode = (int)HttpStatusCode.NotFound;
 							break;

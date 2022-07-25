@@ -38,7 +38,7 @@ namespace UC.Net
 		public int		LastConfirmedRound;
 	}
 
-	public class Peer : Nci
+	public class Peer : Dci
 	{
 		public IPAddress			IP {get; set;} 
 		public int					JoinedGeneratorsAt {get; set;}
@@ -429,10 +429,10 @@ namespace UC.Net
  				if(rq.Response.Error == null)
 	 				return rq.Response as Rp;
  				else
-					throw new RemoteCallException(rq.Response);
+					throw new DistributedCallException(rq.Response);
  			}
 			else
- 				throw new RemoteCallException($"Timed out");
+ 				throw new DistributedCallException($"Timed out");
  		}
 	}
 }

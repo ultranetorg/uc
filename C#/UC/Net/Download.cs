@@ -56,7 +56,7 @@ namespace UC.Net
 													Data.Write(d, 0, d.Length);
 													break;
 												}
-												catch(RemoteCallException)
+												catch(DistributedCallException)
 												{
 												}
 											}
@@ -125,7 +125,7 @@ namespace UC.Net
 	
 											if(h != null)
 											{
-												Hubs[h] = null;
+												Hubs[h] = new();
 	
 												Task.Run(() =>	
 														{
@@ -156,7 +156,7 @@ namespace UC.Net
 															catch(ConnectionFailedException)
 															{
 															}
-															catch(RemoteCallException)
+															catch(DistributedCallException)
 															{
 															}
 															catch(OperationCanceledException)

@@ -52,7 +52,7 @@ namespace UC.Net
 		Hub		= 0b00000100,
 	}
  
-	public class Core : Nci
+	public class Core : Dci
 	{
 		public static readonly int[]					Versions = {1};
 		public const string								FailureExt = "failure";
@@ -977,7 +977,7 @@ namespace UC.Net
  							try
  							{
 								requests = BinarySerializator.Deserialize(reader,	c => {
-																							var o = UC.Net.Request.FromType(Chain, (NciCall)c); 
+																							var o = UC.Net.Request.FromType(Chain, (DistributedCall)c); 
 																							o.Peer = peer; 
 																							return o;
 																						},
@@ -1005,7 +1005,7 @@ namespace UC.Net
  							{
 								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
 								responses = BinarySerializator.Deserialize(	reader,
-																			t => UC.Net.Response.FromType(Chain, (NciCall)t), 
+																			t => UC.Net.Response.FromType(Chain, (DistributedCall)t), 
 																			Constractor
 																			);
 							}
@@ -1316,7 +1316,7 @@ namespace UC.Net
 
 			Log?.Report(this, "Delegating started");
 
-			Nci m = null;
+			Dci m = null;
 
 			while(Running)
 			{
@@ -1451,7 +1451,7 @@ namespace UC.Net
 
 					Statistics.Delegating.End();
 				}
-				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is RequirementException)
+				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is DistributedCallException || ex is RequirementException)
 				{
 					Log?.ReportError(this, $"Failed to communicate with remote node {m}", ex);
 
@@ -1667,7 +1667,7 @@ namespace UC.Net
 				}
 		}
 
-		public Nci ConnectToMember(Flowvizor vizor)
+		public Dci ConnectToMember(Flowvizor vizor)
 		{
 			lock(RemoteMemberLock)
 			{
@@ -1719,7 +1719,7 @@ namespace UC.Net
 							}
 						}
 					}
-					catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is OperationCanceledException)
+					catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is HttpRequestException || ex is DistributedCallException || ex is OperationCanceledException)
 					{
 						peer.ReachFailures++;
 					}
@@ -1799,7 +1799,7 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(RemoteCallException)
+				catch(DistributedCallException)
 				{
 				}
 			}
@@ -1905,6 +1905,26 @@ namespace UC.Net
 				Downloads.Add(d);
 		
 				return d;
+			}
+		}
+
+		public DownloadStatus GetDownloadStatus(PackageAddress package)
+		{
+			lock(Lock)
+			{
+				var d = Downloads.Find(i => i.Package == package);
+
+				if(d != null)
+				{
+					return new DownloadStatus{Length = d.Length, CompletedLength = d.CompletedLength};
+				}
+
+				if(Filebase.Exists(package))
+				{
+					return new DownloadStatus{Length = Filebase.GetLength(package), CompletedLength = Filebase.GetLength(package)};
+				}
+
+				return new DownloadStatus();
 			}
 		}
 

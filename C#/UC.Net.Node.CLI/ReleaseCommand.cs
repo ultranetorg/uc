@@ -73,7 +73,7 @@ namespace UC.Net.Node.CLI
 
 		   		case "status" :
 				{
-					var r = Node.Connect(Role.Chain, null, Flowvizor).QueryRelease(ReleaseQuery.Parse(GetString("query")), Args.Has("confirmed"));
+					var r = Node.Connect(Role.Chain, null, Flowvizor).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
 
 					foreach(var item in r.Manifests)
 					{
