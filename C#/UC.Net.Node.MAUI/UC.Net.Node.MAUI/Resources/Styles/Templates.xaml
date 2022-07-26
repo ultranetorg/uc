@@ -14,15 +14,18 @@
                 HasShadow="False"
                 HeightRequest="93">
                 <Grid RowSpacing="0" VerticalOptions="CenterAndExpand">
-                    <!--<Image
+                    <Image
                         Grid.Row="0"
                         Margin="2"
-                        xct:IconTintColorEffect.TintColor="{TemplateBinding CurrentTextColor}"
                         HeightRequest="28"
                         HorizontalOptions="Center"
                         Source="{TemplateBinding CurrentIcon}"
                         VerticalOptions="Center"
-                        WidthRequest="28" />-->
+                        WidthRequest="28">
+                        <Image.Behaviors>
+                            <xct:IconTintColorBehavior TintColor="{TemplateBinding CurrentTextColor}" />
+                        </Image.Behaviors>
+                    </Image>
                     <Label
                         Grid.Row="1"
                         FontSize="13"

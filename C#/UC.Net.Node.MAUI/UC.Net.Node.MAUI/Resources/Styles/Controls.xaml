@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models">
     
     <!--#region Buttons -->
@@ -18,12 +19,12 @@
         <Setter Property="TextTransform" Value="None" />
     </Style>
 
-    <Style x:Key="LableButton" TargetType="Button">
+    <Style x:Key="LabelButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="TextColor" Value="{StaticResource PrimaryForLight}" />
     </Style>
 
-    <Style x:Key="LableButton2" TargetType="Button">
+    <Style x:Key="LabelButton2" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryForLight}}" />
     </Style>
@@ -525,7 +526,7 @@
         <Setter Property="BackgroundColor" Value="Transparent" />
     </Style>   
     
-    <!--<Style ApplyToDerivedTypes="True" TargetType="cls:SwitchView">
+    <Style ApplyToDerivedTypes="True" TargetType="cls:SwitchView">
         <Setter Property="OffColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
         <Setter Property="OnColor" Value="{StaticResource Primary}" />
         <Setter Property="CornerRadius" Value="3" />
@@ -537,7 +538,7 @@
     </Style>
     <Style x:Key="InValid" TargetType="cls:BorderEntry">
         <Setter Property="BorderColor" Value="{StaticResource Red}" />
-    </Style>-->
+    </Style>
     
     <Style ApplyToDerivedTypes="True" TargetType="Picker">
         <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
@@ -560,7 +561,7 @@
         <Setter Property="FontFamily" Value="Medium" />
     </Style>
 
-    <!--<Style ApplyToDerivedTypes="True" TargetType="cls:BorderPicker">
+    <Style ApplyToDerivedTypes="True" TargetType="cls:BorderPicker">
         <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="BorderWidth" Value="1" />
@@ -613,6 +614,6 @@
         <Setter Property="PlaceholderColor" Value="LightGray" />
         <Setter Property="FontFamily" Value="SemiBold" />
         <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light=#DDEAEE}" />
-    </Style>-->
+    </Style>
 
 </ResourceDictionary>
