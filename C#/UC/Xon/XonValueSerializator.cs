@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,12 +30,13 @@ namespace UC
 
 		public object Set(Xon node, object v)
 		{
+			if(v.GetType() == typeof(string))			return v;
 			if(v.GetType() == typeof(int))				return v.ToString();
 			if(v.GetType() == typeof(long))				return v.ToString();
 			if(v.GetType() == typeof(byte[]))			return Hex.ToHexString(v as byte[]);
 			if(v.GetType() == typeof(ReleaseAddress))	return v.ToString();
 			if(v.GetType() == typeof(Version))			return v.ToString();
-			if(v.GetType() == typeof(string))			return v;
+			if(v.GetType() == typeof(IPAddress))		return v.ToString();
 
 			throw new NotSupportedException();
 		}
@@ -43,12 +45,13 @@ namespace UC
 		{
 			var v = value as string;
 
+			if(typeof(O) == typeof(string))			return (O)(object)v;
 			if(typeof(O) == typeof(int))			return (O)(object)int.Parse(v);
 			if(typeof(O) == typeof(long))			return (O)(object)long.Parse(v);
 			if(typeof(O) == typeof(byte[]))			return (O)(object)Hex.Decode(v);
 			if(typeof(O) == typeof(ReleaseAddress))	return (O)(object)ReleaseAddress.Parse(v);
 			if(typeof(O) == typeof(Version))		return (O)(object)Version.Parse(v);
-			if(typeof(O) == typeof(string))			return (O)(object)v;
+			if(typeof(O) == typeof(IPAddress))		return (O)(object)IPAddress.Parse(v);
 
 			throw new NotSupportedException();
 		}

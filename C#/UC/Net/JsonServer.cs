@@ -159,78 +159,78 @@ namespace UC.Net
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
-					switch(call)
+				switch(call)
+				{
+					case RunNodeCall e:
+						Core.RunNode();
+						break;
+
+					case AddWalletCall e:
+						lock(Core.Lock)
+							Vault.AddWallet(e.Account, e.Wallet);
+						break;
+
+					case UnlockWalletCall e:
+						lock(Core.Lock)
+							Vault.Unlock(e.Account, e.Password);
+						break;
+	
+					case SetGeneratorCall e:
+						lock(Core.Lock)
+						{
+							Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
+							Log?.Report(this, "Generator is set", e.Account.ToString());
+						}
+						break;
+
+					case TransferUntCall e:
+
+						PrivateAccount  pa;
+							
+						lock(Core.Lock)
+						{
+							pa = Vault.GetPrivate(e.From);
+						}
+
+						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount)));
+						Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
+						break;
+	
+					case StatusCall s:
+						lock(Core.Lock)
+							respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
+																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
+																InfoFields	= Core.Info[0].Take(s.Limit), 
+																InfoValues	= Core.Info[1].Take(s.Limit) });
+						break;
+							
+					case ExitCall e:
+						rp.Close();
+						Core.Stop("RPC call");
+						return;
+
+					case QueryReleaseCall c:
 					{
-						case RunNodeCall e:
-							Core.RunNode();
-							break;
+						var a = Core.Connect(Role.Chain, null, new Flowvizor(Core.Timeout));
+						var r = Core.QueryRelease(c.Queries, c.Confirmed);
 
-						case AddWalletCall e:
-							lock(Core.Lock)
-								Vault.AddWallet(e.Account, e.Wallet);
-							break;
-
-						case UnlockWalletCall e:
-							lock(Core.Lock)
-								Vault.Unlock(e.Account, e.Password);
-							break;
-	
-						case SetGeneratorCall e:
-							lock(Core.Lock)
-							{
-								Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
-								Log?.Report(this, "Generator is set", e.Account.ToString());
-							}
-							break;
-
-						case TransferUntCall e:
-
-							PrivateAccount  pa;
-							
-							lock(Core.Lock)
-							{
-								pa = Vault.GetPrivate(e.From);
-							}
-
-							respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount)));
-							Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
-							break;
-	
-						case StatusCall s:
-							lock(Core.Lock)
-								respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
-																	Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
-																	InfoFields	= Core.Info[0].Take(s.Limit), 
-																	InfoValues	= Core.Info[1].Take(s.Limit) });
-							break;
-							
-						case ExitCall e:
-							rp.Close();
-							Core.Stop("RPC call");
-							return;
-
-						case QueryReleaseCall c:
-						{
-							var a = Core.Connect(Role.Chain, null, new Flowvizor(Core.Timeout));
-							var r = Core.QueryRelease(c.Queries, c.Confirmed);
-
-							respondjson(new QueryReleaseResult{Manifests = r.Manifests});
-							break;
-						}
-						case DownloadPackageCall c:
-						{
-							Core.DownloadPackage(c.Package, new Flowvizor(null, new CancellationTokenSource()));
-							break;
-						}
-						case DownloadStatusCall c:
-						{
-							respondjson(Core.GetDownloadStatus(c.Package));
-							break;
-						}
-						default:
-							rp.StatusCode = (int)HttpStatusCode.NotFound;
-							break;
+						respondjson(new QueryReleaseResult{Manifests = r.Manifests});
+						break;
 					}
+					case DownloadPackageCall c:
+					{
+						Core.DownloadPackage(c.Package, new Flowvizor(null, new CancellationTokenSource()));
+						break;
+					}
+					case DownloadStatusCall c:
+					{
+						respondjson(Core.GetDownloadStatus(c.Package));
+						break;
+					}
+					default:
+						rp.StatusCode = (int)HttpStatusCode.NotFound;
+						break;
+				}
 			}
 			catch(HttpListenerException)
 			{

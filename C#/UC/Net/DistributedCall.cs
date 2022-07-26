@@ -11,7 +11,7 @@ namespace UC.Net
 {
 	public enum DistributedCall : byte
 	{
-		Null, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
+		Null, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
 		QueryRelease, DeclarePackage, LocatePackage, DownloadPackage
 	}
 
@@ -388,5 +388,26 @@ namespace UC.Net
 	public class DownloadPackageResponse : Response
 	{
 		public byte[] Data { get; set; }
+	}
+
+	public class DownloadRoundsRequest : Request
+	{
+		public int From { get; set; }
+		public int To { get; set; }
+		
+		public override Response Execute(Core core)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Chain.FindRound(i)).Where(i => i != null),  i => i.Write(w));
+			
+			return new DownloadRoundsResponse{Rounds = s.ToArray()};
+		}
+	}
+
+	public class DownloadRoundsResponse : Response
+	{
+		public byte[]	Rounds { get; set; }
 	}
 }

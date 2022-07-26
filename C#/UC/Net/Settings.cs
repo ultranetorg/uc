@@ -12,10 +12,12 @@ namespace UC.Net
 	public class ChainSettings
 	{
 		public bool			Enabled;
+		public int			PeersMin;
 
 		public ChainSettings(Xon x)
 		{
-			Enabled	= x.Has("Enabled");
+			Enabled		= x.Has("Enabled");
+			PeersMin	= x.GetInt32("PeersMin");
 		}
 	}
 

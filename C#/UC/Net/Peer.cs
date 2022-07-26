@@ -19,7 +19,7 @@ namespace UC.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Hello, Blocks, RoundsRequest, Rounds, Request, Response
+		Null, Hello, Blocks, /*RoundsRequest, Rounds,*/ Request, Response
 	}
 
 	public enum EstablishingStatus
@@ -391,16 +391,16 @@ namespace UC.Net
 			}
 		}
 
-		public void RequestRounds(Header h, int from, int to)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-			
-			w.Write7BitEncodedInt(from);
-			w.Write7BitEncodedInt(to);
-
-			Send(h, PacketType.RoundsRequest, s);
-		}
+// 		public void RequestRounds(Header h, int from, int to)
+// 		{
+// 			var s = new MemoryStream();
+// 			var w = new BinaryWriter(s);
+// 			
+// 			w.Write7BitEncodedInt(from);
+// 			w.Write7BitEncodedInt(to);
+// 
+// 			Send(h, PacketType.RoundsRequest, s);
+// 		}
 
  		public override Rp Request<Rp>(Request rq) where Rp : class
  		{

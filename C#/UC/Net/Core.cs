@@ -96,6 +96,7 @@ namespace UC.Net
 		Thread											ListeningThread;
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
+		Thread											SynchronizingThread;
 		object											RemoteMemberLock = new object();
 
 		JsonServer										ApiServer;
@@ -104,9 +105,7 @@ namespace UC.Net
 		public Synchronization							_Synchronization = Synchronization.Null;
 		public Synchronization							Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate								SynchronizationChanged;
-		DateTime										SyncRequested;
-		int												SyncStart = -1;
-		int												SyncEnd = -1;
+		//DateTime										SyncRequested;
 
 		public IGasAsker								GasAsker; 
 		public IFeeAsker								FeeAsker;
@@ -338,6 +337,7 @@ namespace UC.Net
 			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
 			DelegatingThread.Start();
 
+					
  			var t = new Thread(	() =>
  								{ 
 									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
@@ -355,11 +355,24 @@ namespace UC.Net
 												
 												if(Chain != null)
 												{
-													Synchronize();
-
-													if(Synchronization == Synchronization.Synchronized && Generator != null)
+													if(Synchronization == Synchronization.Synchronized)
 													{
-														Generate();
+														var conns = Connections.Where(i => i.Roles.HasFlag(Role.Chain)).GroupBy(i => i.LastConfirmedRound).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
+		
+														if(conns.Any())
+														{
+															var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
+							
+															if(max.Key - Chain.LastConfirmedRound.Id > Roundchain.Pitch) /// we are late, force to resync
+															{
+																StartSynchronization();
+															}
+														}
+
+														if(Generator != null)
+														{
+															Generate();
+														}
 													}
 												}
 											}
@@ -557,7 +570,9 @@ namespace UC.Net
 			foreach(var i in Peers.Where(i => i.Client != null && i.Status == ConnectionStatus.Failed))
 				i.Disconnect();
 
-			if(!MinimalPeersReached && Connections.Count() >= Settings.PeersMin)
+			if(!MinimalPeersReached && 
+				Connections.Count() >= Settings.PeersMin && 
+				(Chain == null || Connections.Count(i => i.Roles.HasFlag(Role.Chain)) >= Settings.Chain.PeersMin))
 			{
 				if(Filebase != null)
 				{
@@ -709,11 +724,11 @@ namespace UC.Net
 						return;
 					}
 	
-				failed:
-					lock(Lock)
-						peer.OutStatus = EstablishingStatus.Failed;
+					failed:
+						lock(Lock)
+							peer.OutStatus = EstablishingStatus.Failed;
 									
-					client.Close();
+						client.Close();
 				}
 				catch(Exception ex) when(!Debugger.IsAttached)
 				{
@@ -866,109 +881,46 @@ namespace UC.Net
 							break;
 						}
 
-						case PacketType.Rounds:
-						{
-							Round[] rounds;
-	
-							try
-							{
-								rounds = pk.Read(r => new Round(Chain));
-							}
-							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-							{
-								peer.Disconnect();
-								break;
-							}
+						//case PacketType.Rounds:
+						//{
+						//	Round[] rounds;
+						//
+						//	try
+						//	{
+						//		rounds = pk.Read(r => new Round(Chain));
+						//	}
+						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+						//	{
+						//		peer.Disconnect();
+						//		break;
+						//	}
+						//
+						//	break;
+						//}
 
-							lock(Lock)
-							{
-								if(rounds.Any())
-								{
-									var from = rounds.Min(i => i.Id);
-									var to = rounds.Max(i => i.Id);
-		
-									bool confirmed = true;
-	
-									for(int i = from; i <= to; i++)
-									{
-										var r = rounds.FirstOrDefault(j => j.Id == i); 
-	
-										if(r == null && confirmed) /// not all reqested sealed rounds received? a peer must send the whole sealed sequence 
-										{
-											Synchronization = Synchronization.Downloading;
-											SyncStart = i;
-											SyncEnd = -1;
-											break;
-										}
-																			
-										if(r.Confirmed)
-										{
-											foreach(var b in r.Blocks)
-												b.Confirmed = true;
-	
-											Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
-											Chain.Rounds.Add(r);
-											Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
-											Chain.Seal(r);
-									
-											Cache.RemoveAll(i => i.RoundId <= r.Id);
-										}
-										else
-										{
-											if(confirmed)
-											{
-												confirmed		= false;
-												Synchronization	= Synchronization.Synchronizing;
-												SyncEnd			= peer.LastRound;
-											}
-	
-											if(r != null)
-											{
-												ProcessIncoming(r.Blocks, null);
-											}
-										}
-																	
-										SyncStart = i + 1;
-									}
-							
-									Log?.Report(this, "Rounds received", $"{from}..{to}");
-								}
-								else
-								{
-									Synchronization	= Synchronization.Synchronizing;
-									SyncEnd			= peer.LastRound;
-								}
-
-								SyncRequested = DateTime.MinValue;
-							}
-
-							break;
-						}
-
-						case PacketType.RoundsRequest:
-						{
-							int from;
-							int to;
-		
-							try
-							{
-								from	= reader.Read7BitEncodedInt();
-								to		= reader.Read7BitEncodedInt();
-							}
-							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-							{
-								peer.Disconnect();
-								break;
-							}
-	
-							lock(Lock)
-							{
-								var rounds = Enumerable.Range(from, to - from + 1).Select(i => Chain.FindRound(i)).Where(i => i != null).ToList();
-								peer.Send(Packet.Create(PacketType.Rounds, rounds));
-							}
-								
-							break;
-						}
+						//case PacketType.RoundsRequest:
+						//{
+						//	int from;
+						//	int to;
+						//
+						//	try
+						//	{
+						//		from	= reader.Read7BitEncodedInt();
+						//		to		= reader.Read7BitEncodedInt();
+						//	}
+						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+						//	{
+						//		peer.Disconnect();
+						//		break;
+						//	}
+						//
+						//	lock(Lock)
+						//	{
+						//		peer.Send(Packet.Create(PacketType.Rounds, rounds));
+						//	}
+						//		
+						//	break;
+						//}
 
  						case PacketType.Request:
  						{
@@ -1050,63 +1002,102 @@ namespace UC.Net
 
 		void StartSynchronization()
 		{
-		 	lock(Lock)
-		 	{
-			 	if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
-			 	{
-				 	Log?.Report(this, "Syncing started");
+			if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
+			{
+				Log?.Report(this, "Syncing started");
 
-					SyncStart = -1;
-					SyncEnd	  = -1;
+				SynchronizingThread= new Thread(Synchronizing);
+				SynchronizingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Synchronizing";
+				SynchronizingThread.Start();
 		
-					Synchronization = Synchronization.Downloading;
-			 	}
-		 	}
+				Synchronization = Synchronization.Downloading;
+			}
 		}
 
-		void Synchronize()
+		void Synchronizing()
 		{
-			if(Synchronization == Synchronization.Synchronized)
+			int start = -1; 
+			int end = -1; 
+
+			var used = new HashSet<Peer>();
+
+		 	var peer = Connect(Role.Chain, used, new Flowvizor(Timeout)); //Connections.Aggregate((i, j) => i.LastRound > j.LastRound ? i : j);
+
+			while(Running)
 			{
-				var conns = Connections.GroupBy(i => i.LastConfirmedRound).ToList(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
-	
-				if(conns.Any())
-				{
-					var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
-						
-					if(max.Key - Chain.LastConfirmedRound.Id > Roundchain.Pitch) /// we are late, force to resync
-					{
-						StartSynchronization();
-					}
-				}
-			}
-	
-			if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
-			{
-			 	var peer = Connections.Aggregate((i, j) => i.LastRound > j.LastRound ? i : j);
+				if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
+				{	
+					var from = start != -1 ? start : (Chain.LastConfirmedRound.Id + 1);
+				 	var to	 = end != -1 ? end : (from + Math.Min(peer.LastRound - from, Roundchain.Pitch));
 			 	
-				var from = SyncStart != -1 ? SyncStart	: (Chain.LastConfirmedRound.Id + 1);
-			 	var to	 = SyncEnd != -1 ?	 SyncEnd	: (from + Math.Min(peer.LastRound - from, Roundchain.Pitch));
-		 	
-			 	if(from <= to)
-			 	{
-					if(DateTime.UtcNow - SyncRequested > TimeSpan.FromSeconds(15))
-					{
-						peer.RequestRounds(Header, from, to); 
+				 	if(from <= to)
+				 	{
+						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
+
+						var rd = new BinaryReader(new MemoryStream(rp.Rounds));
+
+						var rounds = rd.ReadArray<Round>(() =>	{
+																	var r = new Round(Chain);
+																	r.Read(rd);
+																	return r;
+																});
+						lock(Lock)
+						{
+							bool confirmed = true;
+	
+							foreach(var r in rounds.OrderBy(i => i.Id))
+							{
+								if(confirmed && r.Confirmed)
+								{
+									foreach(var b in r.Blocks)
+										b.Confirmed = true;
+	
+									Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
+									Chain.Rounds.Add(r);
+									Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
+									Chain.Seal(r);
+									
+									Cache.RemoveAll(i => i.RoundId <= r.Id);
+								}
+								else
+								{
+									if(confirmed && !r.Confirmed)
+									{
+										confirmed	= false;
+										start		= rounds.Max(i => i.Id) + 1;
+										end			= peer.LastRound; 
+										Synchronization	= Synchronization.Synchronizing;
+									}
+
+									if(!confirmed && r.Confirmed)
+									{
+				 						peer = Connect(Role.Chain, used, new Flowvizor(Timeout)); /// unacceptable case, choose other chain peer
+										break;
+									}
+	
+									ProcessIncoming(r.Blocks, null);
+								}
+							}
 							
-						SyncRequested = DateTime.UtcNow;
-					}
-			 	}
-				else
-				{
-					Synchronization = Synchronization.Synchronized;
-	
-					Chain.Add(Cache.OrderBy(i => i.RoundId));
-					Cache.Clear();
-	
-				 	Log?.Report(this, "Syncing finished");
+							Log?.Report(this, "Rounds received", $"{from}..{to}");
+						}
+				 	}
+					else
+						break;
 				}
 			}
+
+			lock(Lock)
+			{
+				Chain.Add(Cache.OrderBy(i => i.RoundId));
+				Cache.Clear();
+
+				Synchronization = Synchronization.Synchronized;
+				SynchronizingThread = null;
+			}
+
+			Log?.Report(this, "Syncing finished");
+
 		}
 
 		public void ProcessIncoming(IEnumerable<Block> blocks, Peer peer)
@@ -1473,7 +1464,7 @@ namespace UC.Net
 			}
 		}
 
-		public void ReachConsensus()
+		void ReachConsensus()
 		{
 			if(Synchronization != Synchronization.Synchronized)
 				return;
