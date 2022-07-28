@@ -4,7 +4,6 @@
 #include "Base58.h"
 #include "IExecutorProtocol.h"
 #include "ILevel.h"
-#include "Ethereum.h"
 #include "Dms.h"
 
 namespace uc

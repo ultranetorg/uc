@@ -64,7 +64,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include;..\Libs\Cef;..\Libs\vmime\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\nlohmann\Include;..\Libs\Cef;..\Libs\vmime\</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
@@ -94,7 +94,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\Ipfs\Include;..\Libs\nlohmann\Include;..\Libs\Cef;..\Libs\vmime\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\nlohmann\Include;..\Libs\Cef;..\Libs\vmime\</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>

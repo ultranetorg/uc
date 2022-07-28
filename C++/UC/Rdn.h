@@ -7,7 +7,7 @@ namespace uc
 	{
 		public:
 			CLevel2 *									Level;
-			ipfs::Client *								Ipfs;
+			//ipfs::Client *								Ipfs;
 
 			CMap<CArray<char> *, std::function<void(CArray<char> *)>>		Loads;
 

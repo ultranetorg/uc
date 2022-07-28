@@ -139,36 +139,36 @@ void CNexus::StartServers()
 		}
 	}
 	
-	Dms->FindReleases(Core->Product.Name.ToLower(), 
-					Core->Product.Platform.ToLower(),	
-					[this](CArray<uint256> & builds)
-					{
-						if(!builds.empty())
+	Dms->FindReleases(	Core->Product.Name.ToLower(), 
+						Core->Product.Platform.ToLower(),	
+						[this](CArray<uint256> & builds)
 						{
-							Dms->GetRelease(Core->Product.Name.ToLower(), 
-											builds.back(),
-											[this](auto p, auto v, auto cid)
-											{
-												if(Core->Product.Version < v)
+							if(!builds.empty())
+							{
+								Dms->GetRelease(Core->Product.Name.ToLower(), 
+												builds.back(),
+												[this](auto p, auto v, auto cid)
 												{
-													auto b = new CProductRelease();
-													b->Product	= Core->Product.Name.ToLower();
-													b->Version	= v;
-													b->Cid		= cid;
+													if(Core->Product.Version < v)
+													{
+														auto b = new CProductRelease();
+														b->Product	= Core->Product.Name.ToLower();
+														b->Version	= v;
+														b->Cid		= cid;
 
-													NewReleases.push_back(b);
+														NewReleases.push_back(b);
 
-													Core->Log->ReportMessage(this, L"Latest release: %s %s %s", p, v.ToString(), cid);
-												}
-												else
-													UpdateStatus = L"No updates found";
+														Core->Log->ReportMessage(this, L"Latest release: %s %s %s", p, v.ToString(), cid);
+													}
+													else
+														UpdateStatus = L"No updates found";
 
-												UpdateStatusChanged();
-											});
-						}
-						else
-							Core->Log->ReportWarning(this, L"No %s release found", Core->Product.HumanName);
-					});
+													UpdateStatusChanged();
+												});
+							}
+							else
+								Core->Log->ReportWarning(this, L"No %s release found", Core->Product.HumanName);
+						});
 
 
 

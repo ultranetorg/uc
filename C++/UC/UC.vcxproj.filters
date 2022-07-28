@@ -31,9 +31,6 @@
     <Filter Include="Storage">
       <UniqueIdentifier>{ce3a2fd4-acac-451e-943f-ef584aab68bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Ethereum">
-      <UniqueIdentifier>{6b57e1dc-099f-41cb-a1ad-e8835e94ac01}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Net">
       <UniqueIdentifier>{84b35116-7435-4365-8154-b7cfd069c6bc}</UniqueIdentifier>
     </Filter>
@@ -355,9 +352,6 @@
     <ClInclude Include="PipeClient.h">
       <Filter>I/O</Filter>
     </ClInclude>
-    <ClInclude Include="Ethereum.h">
-      <Filter>Ethereum</Filter>
-    </ClInclude>
     <ClInclude Include="HttpRequest.h">
       <Filter>Net</Filter>
     </ClInclude>
@@ -373,10 +367,7 @@
     <ClInclude Include="Int64.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="SolidityValue.h">
-      <Filter>Ethereum</Filter>
-    </ClInclude>
-    <ClInclude Include="Fdn.h">
+    <ClInclude Include="Rdn.h">
       <Filter>DMS</Filter>
     </ClInclude>
     <ClInclude Include="Dms.h">
@@ -610,9 +601,6 @@
     <ClCompile Include="Line.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Ethereum.cpp">
-      <Filter>Ethereum</Filter>
-    </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
@@ -628,10 +616,7 @@
     <ClCompile Include="DateTime.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="SolidityValue.cpp">
-      <Filter>Ethereum</Filter>
-    </ClCompile>
-    <ClCompile Include="Fdn.cpp">
+    <ClCompile Include="Rdn.cpp">
       <Filter>DMS</Filter>
     </ClCompile>
     <ClCompile Include="Dms.cpp">

@@ -39,10 +39,6 @@
 #include <Zip/contib/minizip/zip.h>
 #include <Zip/contib/minizip/unzip.h>
 
-#include <Ipfs/client.h>
-
-#include <Keccak/Keccak.h>
-
 #include <curl/curl.h>
 
 #include <DirectXMath.h>
