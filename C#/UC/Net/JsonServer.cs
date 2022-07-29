@@ -148,7 +148,16 @@ namespace UC.Net
 			{
 				var json = reader.ReadToEnd();
 				
-				var call = JsonSerializer.Deserialize(json, Type.GetType(GetType().Namespace + "." + rq.Url.LocalPath.Substring(1) + "Call"), JsonClient.Options) as ApiCall;
+				var t = Type.GetType(GetType().Namespace + "." + rq.Url.LocalPath.Substring(1) + "Call");
+
+				if(t == null)
+				{
+					rp.StatusCode = (int)HttpStatusCode.NotFound;
+					rp.Close();
+					return;
+				}
+
+				var call = JsonSerializer.Deserialize(json, t, JsonClient.Options) as ApiCall;
 
 				if(string.IsNullOrWhiteSpace(Settings.Api.AccessKey) || call.AccessKey != Settings.Api.AccessKey)
 				{
@@ -227,9 +236,6 @@ namespace UC.Net
 						respondjson(Core.GetDownloadStatus(c.Package));
 						break;
 					}
-					default:
-						rp.StatusCode = (int)HttpStatusCode.NotFound;
-						break;
 				}
 			}
 			catch(HttpListenerException)

@@ -112,7 +112,7 @@ void CShellServer::Start(EStartMode sm)
 {
 	EstablishConnections();
 
-	if(sm == EStartMode::Installing)
+	if(sm == EStartMode::Initialization)
 	{
 		TCHAR szPath[MAX_PATH];
 
@@ -141,7 +141,6 @@ void CShellServer::Start(EStartMode sm)
 		Server->RegisterObject(menu, true);
 		menu->Free();
 		board->Add(menu->Url, AVATAR_WIDGET);
-
 
 		// tray
 		auto tr = new CTray(this, SHELL_TRAY_1);
@@ -191,7 +190,7 @@ void CShellServer::Start(EStartMode sm)
 
 		CList<CUol> links;
 		
-		for(auto i : items)
+		for(auto & i : items)
 		{
 			auto link = new CLink(this);
 			link->SetTarget((CUrl)Storage->ToUol(i.Type, i.Path));
@@ -250,8 +249,6 @@ void CShellServer::Start(EStartMode sm)
 		t->SetSource(MapPath(L"Spaceland.vwm"));
 		Server->RegisterObject(t, true);
 		t->Free();
-
-
 
 		auto d = new CFieldServer(this, SHELL_FIELD_HOME);
 		d->SetTitle(L"Home");

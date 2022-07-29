@@ -127,7 +127,7 @@ void CExperimentalServer::Start(EStartMode sm)
 	auto work	= shell->FindField(CUol(shell.Server->Url, SHELL_FIELD_WORK));
 	auto home	= shell->FindField(CUol(shell.Server->Url, SHELL_FIELD_HOME));
 
-	if(sm == EStartMode::Installing)
+	if(sm == EStartMode::Initialization)
 	{
 		TCHAR szPath[MAX_PATH];
 		PWSTR ppath;

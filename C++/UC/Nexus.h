@@ -4,7 +4,7 @@
 #include "Base58.h"
 #include "IExecutorProtocol.h"
 #include "ILevel.h"
-#include "Dms.h"
+#include "JsonClient.h"
 
 namespace uc
 {
@@ -33,8 +33,7 @@ namespace uc
 			
 			CString										RestartCommand;
 			
-			CDms *										Dms;
-			CFdn *										Fdn;
+			CJsonClient *								NodeApi;
 
 			CString										UpdateStatus;
 			CList<CProductRelease *>					NewReleases;

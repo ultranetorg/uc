@@ -87,10 +87,4 @@ namespace UC.Net
 	{
 		public PackageAddress	Package { get; set; }
 	}
-
-	public class DownloadStatus
-	{
-		public long Length { get; set; }
-		public long CompletedLength { get; set; }
-	}
 }

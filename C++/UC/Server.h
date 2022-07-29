@@ -25,7 +25,7 @@ namespace uc
 
 	enum class EStartMode
 	{
-		Installing, Start
+		Initialization, Start
 	};
 
 	class UOS_LINKING CServer : public virtual IType

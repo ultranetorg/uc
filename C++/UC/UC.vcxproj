@@ -124,11 +124,10 @@
     <ClInclude Include="Animated.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Base64.h" />
-    <ClInclude Include="Dms.h" />
+    <ClInclude Include="JsonClient.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="HttpClient.h" />
     <ClInclude Include="Int64.h" />
-    <ClInclude Include="Rdn.h" />
     <ClInclude Include="DateTime.h" />
     <ClInclude Include="Layout.h" />
     <ClInclude Include="PipeClient.h" />
@@ -247,11 +246,10 @@
     <ClCompile Include="Angle.cpp" />
     <ClCompile Include="Animated.cpp" />
     <ClCompile Include="Base64.cpp" />
-    <ClCompile Include="Dms.cpp" />
+    <ClCompile Include="JsonClient.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="HttpRequest.cpp" />
     <ClCompile Include="Int64.cpp" />
-    <ClCompile Include="Rdn.cpp" />
     <ClCompile Include="Layout.cpp" />
     <ClCompile Include="Size.cpp" />
     <ClCompile Include="Base58.cpp" />

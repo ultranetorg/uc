@@ -52,8 +52,7 @@ CNexus::~CNexus()
 {
 	StopServers();
 
-	delete Dms;
-	delete Fdn;
+	delete NodeApi;
 
 	Config->Save(&CXonTextWriter(&CFileStream(Core->MapToDatabase(UOS_MOUNT_USER_GLOBAL L"\\Nexus.xon"), EFileMode::New), false), DefaultConfig);
 	delete Config;
@@ -110,8 +109,7 @@ void CNexus::StartServers()
 
 	Storage->Start(EStartMode::Start);
 
-	Fdn	= new CFdn(&Level2);
-	Dms	= new CDms(&Level2, Fdn);
+	NodeApi	= new CJsonClient(&Level2);
 
 	SetDllDirectories();
 
@@ -130,7 +128,7 @@ void CNexus::StartServers()
 		if(!i->Installed)
 		{
 			Storage->CreateMounts(i);
-			s->Start(EStartMode::Installing);
+			s->Start(EStartMode::Initialization);
 			i->Xon->One(L"IsInitialized")->Set(true);
 		}
 		else
@@ -139,36 +137,36 @@ void CNexus::StartServers()
 		}
 	}
 	
-	Dms->FindReleases(	Core->Product.Name.ToLower(), 
-						Core->Product.Platform.ToLower(),	
-						[this](CArray<uint256> & builds)
-						{
-							if(!builds.empty())
-							{
-								Dms->GetRelease(Core->Product.Name.ToLower(), 
-												builds.back(),
-												[this](auto p, auto v, auto cid)
-												{
-													if(Core->Product.Version < v)
-													{
-														auto b = new CProductRelease();
-														b->Product	= Core->Product.Name.ToLower();
-														b->Version	= v;
-														b->Cid		= cid;
-
-														NewReleases.push_back(b);
-
-														Core->Log->ReportMessage(this, L"Latest release: %s %s %s", p, v.ToString(), cid);
-													}
-													else
-														UpdateStatus = L"No updates found";
-
-													UpdateStatusChanged();
-												});
-							}
-							else
-								Core->Log->ReportWarning(this, L"No %s release found", Core->Product.HumanName);
-						});
+// 	Dms->FindReleases(	Core->Product.Name.ToLower(), 
+// 						Core->Product.Platform.ToLower(),	
+// 						[this](CArray<uint256> & builds)
+// 						{
+// 							if(!builds.empty())
+// 							{
+// 								Dms->GetRelease(Core->Product.Name.ToLower(), 
+// 												builds.back(),
+// 												[this](auto p, auto v, auto cid)
+// 												{
+// 													if(Core->Product.Version < v)
+// 													{
+// 														auto b = new CProductRelease();
+// 														b->Product	= Core->Product.Name.ToLower();
+// 														b->Version	= v;
+// 														b->Cid		= cid;
+// 
+// 														NewReleases.push_back(b);
+// 
+// 														Core->Log->ReportMessage(this, L"Latest release: %s %s %s", p, v.ToString(), cid);
+// 													}
+// 													else
+// 														UpdateStatus = L"No updates found";
+// 
+// 													UpdateStatusChanged();
+// 												});
+// 							}
+// 							else
+// 								Core->Log->ReportWarning(this, L"No %s release found", Core->Product.HumanName);
+// 						});
 
 
 

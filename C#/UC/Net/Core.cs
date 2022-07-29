@@ -1899,7 +1899,7 @@ namespace UC.Net
 			}
 		}
 
-		public DownloadStatus GetDownloadStatus(PackageAddress package)
+		public PackageStatus GetDownloadStatus(PackageAddress package)
 		{
 			lock(Lock)
 			{
@@ -1907,15 +1907,15 @@ namespace UC.Net
 
 				if(d != null)
 				{
-					return new DownloadStatus{Length = d.Length, CompletedLength = d.CompletedLength};
+					return new PackageStatus{Length = d.Length, CompletedLength = d.CompletedLength};
 				}
 
 				if(Filebase.Exists(package))
 				{
-					return new DownloadStatus{Length = Filebase.GetLength(package), CompletedLength = Filebase.GetLength(package)};
+					return new PackageStatus{Length = Filebase.GetLength(package), CompletedLength = Filebase.GetLength(package)};
 				}
 
-				return new DownloadStatus();
+				return new PackageStatus();
 			}
 		}
 

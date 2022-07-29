@@ -367,12 +367,6 @@
     <ClInclude Include="Int64.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rdn.h">
-      <Filter>DMS</Filter>
-    </ClInclude>
-    <ClInclude Include="Dms.h">
-      <Filter>DMS</Filter>
-    </ClInclude>
     <ClInclude Include="Polygon.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -385,6 +379,9 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="Os.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonClient.h">
+      <Filter>Net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -616,12 +613,6 @@
     <ClCompile Include="DateTime.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Rdn.cpp">
-      <Filter>DMS</Filter>
-    </ClCompile>
-    <ClCompile Include="Dms.cpp">
-      <Filter>DMS</Filter>
-    </ClCompile>
     <ClCompile Include="Polygon.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -633,6 +624,9 @@
     </ClCompile>
     <ClCompile Include="Os.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonClient.cpp">
+      <Filter>Net</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

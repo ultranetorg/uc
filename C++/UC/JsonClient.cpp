@@ -1,20 +1,19 @@
 #include "stdafx.h"
-#include "Dms.h"
+#include "JsonClient.h"
 
 using namespace uc;
 
-CDms::CDms(CLevel2 * l, CFdn * fdn)
+CJsonClient::CJsonClient(CLevel2 * l)
 {
 	Level = l;
-	Fdn = fdn;
 }
 
-CDms::~CDms()
+CJsonClient::~CJsonClient()
 {
 }
 
-void CDms::FindReleases(const CString & product, CString const & platfrom, std::function<void(CArray<uint256> &)> ok)
-{
+//void CDms::FindReleases(const CString & product, CString const & platfrom, std::function<void(CArray<uint256> &)> ok)
+//{
 //	CArray<CSolidityValue> in;
 //	in.push_back(CSolidityValue(product));
 //	in.push_back(CSolidityValue(platfrom));
@@ -27,10 +26,10 @@ void CDms::FindReleases(const CString & product, CString const & platfrom, std::
 //																ok((*out)[0].GetIntArray());
 //																delete out;
 //															}) ;
-}
-
-void CDms::GetRelease(CString const & product, uint256 id, std::function<void(CString, CVersion, CString)> ok)
-{
+//}
+//
+//void CDms::GetRelease(CString const & product, uint256 id, std::function<void(CString, CVersion, CString)> ok)
+//{
 //	CArray<CSolidityValue> in;
 //	in.push_back(CSolidityValue(product));
 //	in.push_back(CSolidityValue(id));
@@ -46,4 +45,4 @@ void CDms::GetRelease(CString const & product, uint256 id, std::function<void(CS
 //																ok((*out)[0].GetString(), CVersion(uint(v[0]), uint(v[1]), uint(v[2]), uint(v[3])), (*out)[2].GetString());
 //																delete out;
 //															});
-}
+//}
