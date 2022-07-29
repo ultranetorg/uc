@@ -4,30 +4,39 @@ namespace UC.Net.Node.MAUI.Controls
 {
     public partial class SwitchView : ContentView
     {
+        private bool JustSet = true;
+        private bool IsRunning;
+
+        public event EventHandler Tapped;
+
         public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create("CornerRadius", typeof(double), typeof(SwitchView), default);
         public double CornerRadius
         {
             get { return (double)GetValue(CornerRadiusProperty); }
             set { SetValue(CornerRadiusProperty, value); }
         }
+
         public static BindableProperty CurrentColorProperty = BindableProperty.Create(nameof(CurrentColor), typeof(Color), typeof(SwitchView), Colors.Gray);
         public Color CurrentColor
         {
             get { return (Color)GetValue(CurrentColorProperty); }
             set { SetValue(CurrentColorProperty, value); }
         }
+
         public static BindableProperty OffColorProperty = BindableProperty.Create(nameof(OffColor), typeof(Color), typeof(SwitchView), Colors.Gray);
         public Color OffColor
         {
             get { return (Color)GetValue(OffColorProperty); }
             set { SetValue(OffColorProperty, value); }
         }
+
         public static BindableProperty OnColorProperty = BindableProperty.Create(nameof(OnColor), typeof(Color), typeof(SwitchView), Colors.Blue);
         public Color OnColor
         {
             get { return (Color)GetValue(OnColorProperty); }
             set { SetValue(OnColorProperty, value); }
         }
+
         public static readonly BindableProperty IsOnProperty = BindableProperty.Create("IsOn", typeof(bool), typeof(SwitchView), true);
         public bool IsOn
         {
@@ -35,14 +44,6 @@ namespace UC.Net.Node.MAUI.Controls
             set { SetValue(IsOnProperty, value); }
         }
 
-        private bool JustSet=true;
-        private bool IsRunning;
-        public static readonly BindableProperty CommandProperty = BindableProperty.Create("Command", typeof(ICommand), typeof(SwitchView), null);
-        public ICommand Command
-        {
-            get { return (ICommand)GetValue(CommandProperty); }
-            set { SetValue(CommandProperty, value); }
-        }
         private ICommand TransitionCommand
         {
             get
@@ -60,8 +61,20 @@ namespace UC.Net.Node.MAUI.Controls
                 });
             }
         }
+        public static readonly BindableProperty CommandProperty = BindableProperty.Create("Command", typeof(ICommand), typeof(SwitchView), null);
 
-        public event EventHandler Tapped;
+        public ICommand Command
+        {
+            get { return (ICommand)GetValue(CommandProperty); }
+            set { SetValue(CommandProperty, value); }
+        }
+
+        public SwitchView()
+        {
+            InitializeComponent();
+            Initialize();
+        }
+
         public void Initialize()
         {
             CurrentColor = OffColor;
@@ -82,6 +95,7 @@ namespace UC.Net.Node.MAUI.Controls
         {
             if (IsRunning) return;
             IsRunning = true;
+
             if (IsOn && !JustSet)
             {
                 await thumb.TranslateTo(thumb.TranslationX-thumb.Width, 0);
@@ -92,13 +106,9 @@ namespace UC.Net.Node.MAUI.Controls
                 await thumb.TranslateTo(thumb.Width, 0);
                 CurrentColor = OnColor;
             }
+
             IsOn = !IsOn;
             IsRunning=JustSet = false;
-        }
-        public SwitchView()
-        {
-            InitializeComponent();
-            Initialize();
         }
 
         private void instance_SizeChanged(object sender, EventArgs e)
@@ -107,7 +117,7 @@ namespace UC.Net.Node.MAUI.Controls
             {
                 frame.WidthRequest = frame.Height * 2;
                 thumb.HeightRequest=thumb.WidthRequest = frame.Height-4;
-                thumb.HorizontalOptions = LayoutOptions.StartAndExpand;
+                thumb.HorizontalOptions = LayoutOptions.Start;
                 Switch();
             }
         }

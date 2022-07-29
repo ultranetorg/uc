@@ -102,6 +102,14 @@
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\SendPage.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\AccountOptionsPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Popups\AccountsPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
@@ -110,11 +118,43 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Popups\CreatePinPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\DeleteAccountPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Popups\NoNetworkPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Popups\NotificationPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\NotificationsPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\RecipientAccountPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\SelectAuthorPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Popups\SourceAccountPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\TransactionPopup.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\WhatsNewPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -186,16 +226,46 @@
 	  <Compile Update="Controls\SwitchView.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
+	  <Compile Update="Pages\SendPage.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Popups\AccountOptionsPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
 	  <Compile Update="Popups\AccountsPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Popups\AlertPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
+	  <Compile Update="Popups\CreatePinPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Popups\DeleteAccountPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
 	  <Compile Update="Popups\NoNetworkPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
+	  <Compile Update="Popups\NotificationPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Popups\NotificationsPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Popups\RecipientAccountPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Popups\SelectAuthorPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
 	  <Compile Update="Popups\SourceAccountPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Popups\TransactionPopup.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Popups\WhatsNewPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\AccountView.xaml.cs">

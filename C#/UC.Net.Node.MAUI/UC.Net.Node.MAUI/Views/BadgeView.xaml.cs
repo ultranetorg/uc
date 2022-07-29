@@ -7,6 +7,7 @@ public partial class BadgeView : ContentView
         get { return (string)GetValue(BadgeValueProperty); }
         set { SetValue(BadgeValueProperty, value); }
     }
+
     public BadgeView()
     {
         InitializeComponent();

@@ -2,9 +2,8 @@
 
 public partial class ETHTransferStepThreeViewModel : BaseViewModel
 {
-    public ETHTransferStepThreeViewModel(ILogger<ETHTransferStepThreeViewModel> logger) : base(logger){}
-
-    Wallet _Wallet = new Wallet
+	[ObservableProperty]
+    private Wallet _wallet = new()
     {
         Id = Guid.NewGuid(),
         Unts = 5005,
@@ -12,9 +11,6 @@ public partial class ETHTransferStepThreeViewModel : BaseViewModel
         Name = "Main ultranet wallet",
         AccountColor = Color.FromArgb("#6601e3"),
     };
-    public Wallet Wallet
-    {
-        get { return _Wallet; }
-        set { SetProperty(ref _Wallet, value); }
-    }
+
+    public ETHTransferStepThreeViewModel(ILogger<ETHTransferStepThreeViewModel> logger) : base(logger){}
 }

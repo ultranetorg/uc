@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.Controls
 {
-    public class MultiFieldsEntry:Grid
+    public class MultiFieldsEntry : Grid
     {
         public static BindableProperty FieldsProperty = BindableProperty.Create(nameof(Fields), typeof(int), typeof(BorderEditor), 4);
 
@@ -56,6 +56,7 @@
             get { return (string)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
+
         private static void TextpropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
 			var grid = (bindable as MultiFieldsEntry);
@@ -74,9 +75,15 @@
             get { return (string)GetValue(PlaceholderProperty); }
             set { SetValue(PlaceholderProperty, value); }
         }
+
         public MultiFieldsEntry()
         {
-            Children.Clear();
+			Initialization();
+        }
+
+		private void Initialization()
+		{
+			Children.Clear();
             ColumnDefinitions.Clear();
             ColumnSpacing = 10;
             FlowDirection=FlowDirection.LeftToRight;
@@ -91,16 +98,16 @@
                     TextColor = TextColor,
                     FontSize = FontSize,
                     Placeholder = Placeholder,
-                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    HorizontalOptions = LayoutOptions.Fill,
                     HorizontalTextAlignment= TextAlignment.Center,
                     Keyboard= Keyboard.Numeric,
                 };
                 entry.TextChanged += Entry_TextChanged;
                 ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
-                Children.Add(entry); // , ColumnDefinitions.Count-1, 0
+                Children.Add(entry); //, ColumnDefinitions.Count-1, 0
             }
             (Children[0] as BorderEntry).Focus();
-        }
+		}
 
         private void Entry_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -110,6 +117,7 @@
 
                 ((Entry)sender).Text = isValid ? e.NewTextValue : e.NewTextValue.Remove(e.NewTextValue.Length - 1);
             }
+
             if (e.NewTextValue.Length>0)
             {
                 var nextindex = Children.IndexOf(sender as BorderEntry) + 1;
@@ -119,10 +127,12 @@
                     nextenrty.Focus();
                 }
             }
+
             if (e.NewTextValue.Length > 1)
             {
                 (sender as BorderEntry).Text = e.NewTextValue.Substring(1, 1);
             }
+
             if (e.NewTextValue.Length == 0)
             {
                 var Preindex = Children.IndexOf(sender as BorderEntry) - 1;
@@ -132,7 +142,8 @@
                     Prevenrty.Focus();
                 }
             }
-            Text = String.Empty;
+
+            Text = string.Empty;
             foreach (var entry in Children)
             {
                 Text += (entry as BorderEntry).Text;

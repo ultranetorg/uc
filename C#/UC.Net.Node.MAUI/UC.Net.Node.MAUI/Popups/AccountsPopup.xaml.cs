@@ -1,18 +1,15 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿namespace UC.Net.Node.MAUI.Popups;
 
-namespace UC.Net.Node.MAUI.Popups
+public partial class AccountsPopup : Popup
 {
-    public partial class AccountsPopup : Popup
+    public AccountsPopup()
     {
-        public AccountsPopup()
-        {
-            InitializeComponent();
-			Size = PopupSizeConstants.AutoCompleteControl;
-        }
+        InitializeComponent();
+		Size = PopupSizeConstants.AutoCompleteControl;
+    }
 
-        public void Hide()
-        {
-            Close();
-        }
+    public void Hide()
+    {
+        Close();
     }
 }

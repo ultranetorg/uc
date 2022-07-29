@@ -147,7 +147,7 @@ namespace UC.Net.Node.MAUI.Controls
 
         #region Horizontal Vertical Allignment
 		
-        public static readonly BindableProperty HorizontalOptionsProperty = BindableProperty.Create(
+        public static new readonly BindableProperty HorizontalOptionsProperty = BindableProperty.Create(
 
 			propertyName: "HorizontalOptions",
 
@@ -160,7 +160,7 @@ namespace UC.Net.Node.MAUI.Controls
 			propertyChanged: HorizontalOptionsPropertyChanged
          );
 
-        public LayoutOptions HorizontalOptions
+        public new LayoutOptions HorizontalOptions
         {
             get { return (LayoutOptions)base.GetValue(HorizontalOptionsProperty); }
             set { base.SetValue(HorizontalOptionsProperty, value); }
@@ -174,7 +174,7 @@ namespace UC.Net.Node.MAUI.Controls
 
         //VERTICLE option set
 
-        public static readonly BindableProperty VerticalOptionsProperty = BindableProperty.Create(
+        public static new readonly BindableProperty VerticalOptionsProperty = BindableProperty.Create(
 
 			propertyName: "VerticalOptions",
 
@@ -187,7 +187,7 @@ namespace UC.Net.Node.MAUI.Controls
 			propertyChanged: VerticalOptionsPropertyChanged
          );
 
-        public LayoutOptions VerticalOptions
+        public new LayoutOptions VerticalOptions
         {
             get { return (LayoutOptions)base.GetValue(VerticalOptionsProperty); }
             set { base.SetValue(VerticalOptionsProperty, value); }

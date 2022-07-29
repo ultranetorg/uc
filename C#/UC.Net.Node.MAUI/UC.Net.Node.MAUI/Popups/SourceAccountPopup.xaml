@@ -93,8 +93,10 @@
                                                 <Setter Property="BackgroundColor" Value="Transparent" />
                                             </DataTrigger>
                                         </Grid.Triggers>
+                                        <!--xct:TouchEffect.Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}"
+                                        xct:TouchEffect.CommandParameter="{Binding .}"-->
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTppedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
+                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
                                         <Label
                                             Grid.Row="0"

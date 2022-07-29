@@ -1,0 +1,21 @@
+﻿namespace UC.Net.Node.MAUI.Popups;
+
+public partial class NotificationsPopup : Popup
+{
+    public NotificationsPopup()
+    {
+        InitializeComponent();
+        BindingContext = new NotificationsViewModel(ServiceHelper.GetService<ILogger<NotificationsViewModel>>());
+    }
+       
+    public void Hide()
+    {
+		Close();
+    }
+
+    //public static async Task Show()
+    //{
+    //    popup = new NotificationsPopup();
+    //    await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+    //}
+}

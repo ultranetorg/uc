@@ -1,28 +1,25 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿namespace UC.Net.Node.MAUI.Popups;
 
-namespace UC.Net.Node.MAUI.Popups
+public partial class AlertPopup : Popup
 {
-    public partial class AlertPopup : Popup
+    public AlertPopup(string message)
     {
-        public AlertPopup(string message)
-        {
-            InitializeComponent();
+        InitializeComponent();
 
-            Message = message;
-			Size = PopupSizeConstants.AutoCompleteControl;
-            BindingContext = this;
-        }
+        Message = message;
+		Size = PopupSizeConstants.AutoCompleteControl;
+        BindingContext = this;
+    }
 
-        public string Message { get; private set; }
+    public string Message { get; private set; }
 
-        public void Hide()
-        {
-            Close();
-        }
+    public void Hide()
+    {
+        Close();
+    }
 
-        private void CancelButtonClicked(object sender, EventArgs e)
-        {
-            Close();
-        }
+    private void CancelButtonClicked(object sender, EventArgs e)
+    {
+        Hide();
     }
 }
