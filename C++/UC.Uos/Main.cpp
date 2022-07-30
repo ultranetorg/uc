@@ -9,7 +9,7 @@ using namespace uc;
 
 void Create(HINSTANCE instance, LPTSTR cmd)
 {
-	wchar_t p[32768];
+	wchar_t p[4096];
 	GetModuleFileNameW(instance, p, _countof(p));
 
 	//auto dll = CPath::ReplaceFileName(p, L"UC.dll");
@@ -50,15 +50,16 @@ void Create(HINSTANCE instance, LPTSTR cmd)
 	}
 }
 
-int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
+int wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF);
 
 	CString c;
 
-	if(COs::ParseCommandLine(cmd).Has([](CUrq & i){ return i.GetSystem() == L"Core" && i.Query.Contains(L"OverrideCommandLine"); }))
+	if(COs::ParseCommandLine(cmd).Has([](auto & i){ return i.GetSystem() == L"Core" && i.Query.Contains(L"HardcodedCommandLine"); }))
 	{
-
+		c += COs::GetEnvironmentValue(L"G_Mmc");
+		c += L" ";
 		c += L"/UC.World?" 
 					L"Name=Desktop"
 					//L"Name=Mobile.E"
@@ -69,10 +70,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow
 						//L"&Layout=FullScreen"
 						//L"&Skin/ShowLabels=n"	
 						//L"&ScreenEngine/RenderScaling=0.5" 
-			L" ";
-		
-		//c += COs::GetEnvironmentValue(L"UO_Mmc");
-
+					L" ";
+	
 		cmd = c.data();
 	}
 

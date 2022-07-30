@@ -97,6 +97,7 @@ void CNativeWindow::RegisterDefaultClass()
 		wcex.lpszMenuName	= null;
 		wcex.lpszClassName	= UOS_DEFAULT_WINDOW_CLASS;
 		wcex.hIconSm		= icon16;
+
 		DefaultClass = RegisterClassEx(&wcex);
 	}
 }
@@ -149,8 +150,11 @@ LRESULT CNativeWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 					break;
 
 				case WM_SETCURSOR:
-					::SetCursor(i->second->Cursor);
-					return TRUE;
+					if(i->second->Cursor != null)
+					{
+						::SetCursor(i->second->Cursor);
+						return TRUE;
+					}
 			}
 		}
 	}

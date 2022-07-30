@@ -17,13 +17,13 @@ CMmc::CMmc(CCore * core) : CNativeWindow(core, core->LocationInstance, IDF_MMC, 
 				auto tags = i.Query(L"Config");
 				if(!tags.empty())
 				{
-					ConfigName = ConfigName + L"-" + tags;
+					ConfigName = tags;
 				}
 			}
 		}
 	}
 	
-	Config = Core->CreateConfig(core->GetPathTo(ESystemPath::Root, ConfigName + L".xon"), core->MapToDatabase(UOS_MOUNT_USER_LOCAL L"\\" + GetClassName() + L".xon"));
+	Config = Core->CreateConfig(core->GetPathTo(ESystemPath::Root, ConfigName + L".mmc"), core->MapToDatabase(UOS_MOUNT_USER_LOCAL L"\\Default.mmc"));
 
 	Core->Information->Mmc = Hwnd;
 
@@ -117,7 +117,7 @@ CMmc::~CMmc()
 		Config->One(L"CustomRect")->Set(GetRect());
 	}
 
-	auto dconf = Core->CreateConfig(Core->GetPathTo(ESystemPath::Root, ConfigName + L".xon"), L"");
+	auto dconf = Core->CreateConfig(Core->GetPathTo(ESystemPath::Root, ConfigName + L".mmc"), L"");
 	Config->Save(&CXonTextWriter(&CFileStream(Core->MapToDatabase(UOS_MOUNT_USER_LOCAL L"\\" + GetClassName() + L".xon"), EFileMode::New), false), dconf);
 	delete Config;
 	delete dconf;

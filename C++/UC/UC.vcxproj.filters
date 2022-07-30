@@ -34,9 +34,6 @@
     <Filter Include="Net">
       <UniqueIdentifier>{84b35116-7435-4365-8154-b7cfd069c6bc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DMS">
-      <UniqueIdentifier>{ac3c1456-5f88-463f-9715-6861cbfcb524}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h">

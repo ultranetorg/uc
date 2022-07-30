@@ -113,13 +113,13 @@ void CNexus::StartServers()
 
 	SetDllDirectories();
 
-	for(auto i : Infos)
-	{
-		if(i == Storage->Info)
-			continue;
-			
-		auto s = GetServer(i->Url.Server);
-	}
+//	for(auto i : Infos)
+//	{
+//		if(i == Storage->Info)
+//			continue;
+//			
+//		auto s = GetServer(i->Url.Server);
+//	}
 
 	for(auto i : Infos)
 	{
