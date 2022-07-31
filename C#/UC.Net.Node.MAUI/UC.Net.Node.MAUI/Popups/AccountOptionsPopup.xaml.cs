@@ -4,10 +4,14 @@ namespace UC.Net.Node.MAUI.Popups
 {
     public partial class AccountOptionsPopup : Popup
     {
-        public AccountOptionsPopup()
+		private static AccountOptionsPopup popup;
+		
+        public Wallet Wallet { get; }
+
+        public AccountOptionsPopup(Wallet wallet)
         {
             InitializeComponent();
-            // Wallet = wallet;
+            Wallet = wallet;
             BindingContext = this;
         }
 
@@ -21,12 +25,11 @@ namespace UC.Net.Node.MAUI.Popups
 		{
 			Close();
 		}
-		
-        // public Wallet Wallet { get; }
-		//public static async Task Show(Wallet wallet)
-		//{
-		//	popup = new AccountOptionsPopup(wallet);
-		//	await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-		//}
+
+		public static async Task Show(Wallet wallet)
+		{
+			popup = new AccountOptionsPopup(wallet);
+			await App.Current.MainPage.ShowPopupAsync(popup);
+		}
 	}
 }

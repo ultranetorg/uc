@@ -2,6 +2,8 @@
 
 public partial class RecipientAccountPopup : Popup
 {
+	private static RecipientAccountPopup popup;
+
     public RecipientAccountPopup()
     {
         InitializeComponent();
@@ -13,9 +15,9 @@ public partial class RecipientAccountPopup : Popup
 		Close();
     }
 
-    //public static async Task Show()
-    //{
-    //    popup = new RecipientAccountPopup();
-    //    await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-    //}
+	public static async Task Show()
+	{
+		popup = new RecipientAccountPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup);
+	}
 }

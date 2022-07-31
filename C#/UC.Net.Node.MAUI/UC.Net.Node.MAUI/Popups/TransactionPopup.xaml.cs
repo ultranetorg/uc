@@ -2,6 +2,7 @@
 {
     public partial class TransactionPopup : Popup
     {
+		private static TransactionPopup popup;
         public Transaction Transaction { get; }
         public Wallet Wallet { get; }
 
@@ -18,10 +19,10 @@
 			Close();
         }
 
-        //public static async Task Show(Transaction transaction)
-        //{
-        //    popup = new TransactionPopup(transaction);
-        //    await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        //}
-    }
+		public static async Task Show(Transaction transaction)
+		{
+			popup = new TransactionPopup(transaction);
+			await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+		}
+	}
 }

@@ -2,6 +2,7 @@
 
 public partial class AccountsPopup : Popup
 {
+        private static AccountsPopup popup;
     public AccountsPopup()
     {
         InitializeComponent();
@@ -11,5 +12,10 @@ public partial class AccountsPopup : Popup
     public void Hide()
     {
         Close();
+    }
+    public static async Task Show()
+    {
+        popup = new AccountsPopup();
+        await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
     }
 }

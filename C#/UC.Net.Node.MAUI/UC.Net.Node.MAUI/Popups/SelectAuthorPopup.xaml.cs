@@ -2,6 +2,9 @@
 
 public partial class SelectAuthorPopup : Popup
 {
+	private static SelectAuthorPopup popup;
+	public SelectAuthorViewModel vm => BindingContext as SelectAuthorViewModel;
+
     public SelectAuthorPopup()
     {
         InitializeComponent();
@@ -13,10 +16,10 @@ public partial class SelectAuthorPopup : Popup
 		Close();
     }
 
-    //public static async Task<Author> Show()
-    //{
-    //    popup = new SelectAuthorPopup();
-    //    await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-    //    return popup.viewModel.SelectedAuthor;
-    //}
+	public static async Task<Author> Show()
+	{
+		popup = new SelectAuthorPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup);
+		return popup.vm.SelectedAuthor;
+	}
 }

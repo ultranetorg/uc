@@ -2,23 +2,25 @@
 {
     public partial class DeleteAccountPopup : Popup
     {
-        public DeleteAccountPopup()
+        private static DeleteAccountPopup popup;
+		public Wallet Wallet { get; }
+
+        public DeleteAccountPopup(Wallet wallet)
         {
             InitializeComponent();
-            //Wallet = wallet;
-            BindingContext = this;
+			Wallet = wallet;
+			BindingContext = this;
         }
 
         public void Hide()
         {
 			Close();
         }
-		
-        //public Wallet Wallet { get; }
-        //public static async Task Show(Wallet wallet)
-        //{
-        //    popup = new DeleteAccountPopup(wallet);
-        //    await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        //}
-    }    
+
+		public static async Task Show(Wallet wallet)
+		{
+			popup = new DeleteAccountPopup(wallet);
+			await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+		}
+	}    
 }

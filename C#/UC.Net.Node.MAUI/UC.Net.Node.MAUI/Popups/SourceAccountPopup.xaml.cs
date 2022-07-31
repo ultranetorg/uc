@@ -2,6 +2,9 @@
 
 public partial class SourceAccountPopup : Popup
 {
+	private static SourceAccountPopup popup;
+	public SourceAccountViewModel vm => BindingContext as SourceAccountViewModel;
+
     public SourceAccountPopup()
     {
         InitializeComponent();
@@ -13,5 +16,10 @@ public partial class SourceAccountPopup : Popup
 		Close();
     }
 
-    //Show returns popup.viewModel.Wallet (Task<Wallet>)
+	public static async Task<Wallet> Show()
+	{
+		popup = new SourceAccountPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup);
+		return popup.vm.Wallet;
+	}
 }

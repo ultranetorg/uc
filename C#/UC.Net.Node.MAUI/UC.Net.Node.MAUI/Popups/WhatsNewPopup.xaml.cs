@@ -2,6 +2,8 @@
 {
     public partial class WhatsNewPopup : Popup
     {
+        private static WhatsNewPopup popup;
+
         public WhatsNewPopup()
         {
             InitializeComponent();
@@ -12,10 +14,10 @@
 			Close();
         }
 
-        //public static async Task Show()
-        //{
-        //    popup = new WhatsNewPopup();
-        //    await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        //}
-    }
+		public static async Task Show()
+		{
+			popup = new WhatsNewPopup();
+			await App.Current.MainPage.ShowPopupAsync(popup);
+		}
+	}
 }
