@@ -52,7 +52,7 @@
                     </StackLayout>
                 </StackLayout>
             </Grid>
-            <Button Style="{StaticResource LabelButton2}" Text="Exit program" />
+            <Button Style="{DynamicResource LabelButton2}" Text="Exit program" />
             <Button Text="Try again" />
         </StackLayout>
     </Frame>

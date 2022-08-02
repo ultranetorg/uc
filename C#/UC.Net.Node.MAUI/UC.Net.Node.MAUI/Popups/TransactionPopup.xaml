@@ -117,7 +117,7 @@
                     Text="0" />
             </Grid>
             <Button Style="{StaticResource CopyHashButton}" Text="Copy Transaction Hash" />
-            <Button Style="{StaticResource LableButton}" Text="Cancel" />
+            <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
         </StackLayout>
     </Frame>
 </toolkit:Popup>

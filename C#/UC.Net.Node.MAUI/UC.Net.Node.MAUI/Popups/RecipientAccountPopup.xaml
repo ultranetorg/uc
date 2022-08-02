@@ -262,7 +262,7 @@
                 <Button Command="{Binding CloseCommand}" Text="Continue" />
                 <Button
                     Command="{Binding CloseCommand}"
-                    Style="{StaticResource LableButton}"
+                    Style="{DynamicResource LabelButton}"
                     Text="Cancel" />
             </StackLayout>
         </Grid>

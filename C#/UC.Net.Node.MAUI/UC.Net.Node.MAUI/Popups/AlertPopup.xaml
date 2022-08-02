@@ -38,7 +38,7 @@
                 Margin="0,0,0,-15"
                 Clicked="CancelButtonClicked"
                 HorizontalOptions="StartAndExpand"
-                Style="{StaticResource LabelButton}"
+                Style="{DynamicResource LabelButton}"
                 Text="Cancel" />
         </StackLayout>
     </Frame>

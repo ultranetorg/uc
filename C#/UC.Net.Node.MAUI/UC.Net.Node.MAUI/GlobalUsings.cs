@@ -5,7 +5,6 @@ global using CommunityToolkit.Maui.Views;
 
 // Project usings
 global using UC.Net.Node.MAUI.Models;
-global using UC.Net.Node.MAUI.Models.Constants;
 global using UC.Net.Node.MAUI.ViewModels;
 global using UC.Net.Node.MAUI.ViewModels.Popups;
 global using UC.Net.Node.MAUI.ViewModels.Pages;
@@ -13,3 +12,4 @@ global using UC.Net.Node.MAUI.ViewModels.Views;
 global using UC.Net.Node.MAUI.Helpers;
 global using UC.Net.Node.MAUI.Popups;
 global using UC.Net.Node.MAUI.Controls;
+global using UC.Net.Node.MAUI.Pages;
