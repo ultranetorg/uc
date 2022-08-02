@@ -6,7 +6,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     {
         Wallet = wallet;
 
-        ColorsCollection.Add(new AccountColor { Color = Color.FromArgb("#6601e3") ,BoderColor = Page.BackgroundColor });
+        ColorsCollection.Add(new AccountColor { Color = Color.FromArgb("#6601e3") ,BoderColor = Shell.Current.BackgroundColor });
         ColorsCollection.Add(new AccountColor { Color = Color.FromArgb("#3765f4"), BoderColor = Colors.Transparent });
         ColorsCollection.Add(new AccountColor { Color = Color.FromArgb("#4cb16c"),  BoderColor = Colors.Transparent });
         ColorsCollection.Add(new AccountColor { Color = Color.FromArgb("#ba918c"), BoderColor = Colors.Transparent });

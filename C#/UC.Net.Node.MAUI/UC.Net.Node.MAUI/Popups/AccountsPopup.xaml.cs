@@ -1,8 +1,11 @@
-﻿namespace UC.Net.Node.MAUI.Popups;
+﻿using UC.Net.Node.MAUI.Models.Constants;
+
+namespace UC.Net.Node.MAUI.Popups;
 
 public partial class AccountsPopup : Popup
 {
-        private static AccountsPopup popup;
+    private static AccountsPopup popup;
+
     public AccountsPopup()
     {
         InitializeComponent();
@@ -13,9 +16,10 @@ public partial class AccountsPopup : Popup
     {
         Close();
     }
+
     public static async Task Show()
     {
         popup = new AccountsPopup();
-        await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+        await App.Current.MainPage.ShowPopupAsync(popup);
     }
 }

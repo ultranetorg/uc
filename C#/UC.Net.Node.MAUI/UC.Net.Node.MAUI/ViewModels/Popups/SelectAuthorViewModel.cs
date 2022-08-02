@@ -4,8 +4,6 @@ public partial class SelectAuthorViewModel : BaseViewModel
 {
     public Author SelectedAuthor;
 
-    public Page Page { get; }
-        
     public SelectAuthorPopup Popup { get; }
 
 	[ObservableProperty]

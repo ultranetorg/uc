@@ -1,4 +1,6 @@
-﻿namespace UC.Net.Node.MAUI.Popups;
+﻿using UC.Net.Node.MAUI.Models.Constants;
+
+namespace UC.Net.Node.MAUI.Popups;
 
 public partial class AlertPopup : Popup
 {
@@ -19,10 +21,11 @@ public partial class AlertPopup : Popup
     {
         Close();
     }
+
     public static async Task Show(string message)
     {
         popup = new AlertPopup(message);
-        await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+        await App.Current.MainPage.ShowPopupAsync(popup);
     }
 
     private void CancelButtonClicked(object sender, EventArgs e)

@@ -2,8 +2,6 @@
 
 public partial class ETHTransferStepTwoViewModel : BaseViewModel
 {
-	public Page Page { get; }
-	
 	[ObservableProperty]
 	private Wallet _wallet = new()
 	{

@@ -3,6 +3,7 @@
 public partial class NotificationPopup : Popup
 {
     private static NotificationPopup popup;
+
     public NotificationPopup()
     {
         InitializeComponent();
@@ -17,6 +18,6 @@ public partial class NotificationPopup : Popup
 	public static async Task Show()
 	{
 		popup = new NotificationPopup();
-		await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+		await App.Current.MainPage.ShowPopupAsync(popup);
 	}
 }

@@ -2,8 +2,6 @@
 
 public partial class RecipientAccountViewModel : BaseViewModel
 {
-    public Page Page { get; }
-
     public RecipientAccountPopup Popup { get; }
 
 	[ObservableProperty]

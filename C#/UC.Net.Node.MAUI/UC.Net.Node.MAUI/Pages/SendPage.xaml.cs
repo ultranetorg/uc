@@ -5,6 +5,6 @@ public partial class SendPage : CustomPage
     public SendPage()
     {
         InitializeComponent();
-        BindingContext = new SendViewModel(this, ServiceHelper.GetService<ILogger<SendViewModel>>());
+        BindingContext = new SendViewModel(ServiceHelper.GetService<ILogger<SendViewModel>>());
     }
 }

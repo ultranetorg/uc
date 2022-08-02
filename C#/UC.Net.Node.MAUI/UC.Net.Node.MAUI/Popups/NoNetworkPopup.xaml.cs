@@ -1,24 +1,25 @@
-﻿namespace UC.Net.Node.MAUI.Popups
+﻿using UC.Net.Node.MAUI.Models.Constants;
+
+namespace UC.Net.Node.MAUI.Popups;
+
+public partial class NoNetworkPopup : Popup
 {
-    public partial class NoNetworkPopup : Popup
+	private static NoNetworkPopup popup;
+
+    public NoNetworkPopup()
     {
-		private static NoNetworkPopup popup;
+        InitializeComponent();
+		Size = PopupSizeConstants.AutoCompleteControl;
+    }
 
-        public NoNetworkPopup()
-        {
-            InitializeComponent();
-			Size = PopupSizeConstants.AutoCompleteControl;
-        }
+    public void Hide()
+    {
+        Close();
+    }
 
-        public void Hide()
-        {
-            Close();
-        }
-
-		public static async Task Show()
-        {
-            popup = new NoNetworkPopup();
-            await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        }
+	public static async Task Show()
+    {
+        popup = new NoNetworkPopup();
+        await App.Current.MainPage.ShowPopupAsync(popup);
     }
 }

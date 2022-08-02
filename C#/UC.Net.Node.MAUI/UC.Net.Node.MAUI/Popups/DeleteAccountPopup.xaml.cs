@@ -1,26 +1,25 @@
-﻿namespace UC.Net.Node.MAUI.Popups
+﻿namespace UC.Net.Node.MAUI.Popups;
+
+public partial class DeleteAccountPopup : Popup
 {
-    public partial class DeleteAccountPopup : Popup
+    private static DeleteAccountPopup popup;
+	public Wallet Wallet { get; }
+
+    public DeleteAccountPopup(Wallet wallet)
     {
-        private static DeleteAccountPopup popup;
-		public Wallet Wallet { get; }
+        InitializeComponent();
+		Wallet = wallet;
+		BindingContext = this;
+    }
 
-        public DeleteAccountPopup(Wallet wallet)
-        {
-            InitializeComponent();
-			Wallet = wallet;
-			BindingContext = this;
-        }
+    public void Hide()
+    {
+		Close();
+    }
 
-        public void Hide()
-        {
-			Close();
-        }
-
-		public static async Task Show(Wallet wallet)
-		{
-			popup = new DeleteAccountPopup(wallet);
-			await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-		}
-	}    
-}
+	public static async Task Show(Wallet wallet)
+	{
+		popup = new DeleteAccountPopup(wallet);
+		await App.Current.MainPage.ShowPopupAsync(popup);
+	}
+} 

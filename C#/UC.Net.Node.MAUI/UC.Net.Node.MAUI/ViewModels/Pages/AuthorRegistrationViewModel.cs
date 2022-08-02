@@ -8,4 +8,10 @@ public partial class AuthorRegistrationViewModel : BaseAccountViewModel
     public AuthorRegistrationViewModel(ILogger<AuthorRegistrationViewModel> logger) : base(logger)
     {
     }
+
+	[RelayCommand]
+    private async void ClosePageAsync()
+    {
+        await Shell.Current.Navigation.PopAsync();
+    }
 }

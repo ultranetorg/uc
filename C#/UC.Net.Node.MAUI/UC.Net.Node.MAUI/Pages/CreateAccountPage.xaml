@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cls:CustomPage
-    x:Class="UC.Net.Node.MAUI.Pages.AuthorRegistrationPage"
+    x:Class="UC.Net.Node.MAUI.Pages.CreateAccountPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    Title="Author Registration"
+    Title="Create account"
     HasBackButton="False"
     x:Name="page">
     <cls:CustomPage.LeftContent>
@@ -15,7 +15,7 @@
             Style="{StaticResource Prev}" />
     </cls:CustomPage.LeftContent>
     <cls:CustomPage.RightContent>
-        <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding ClosePageCommad}" Style="{StaticResource Close}" />
+        <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding CloseCommad}" Style="{StaticResource Close}" />
     </cls:CustomPage.RightContent>
     <cls:CustomPage.MainContent>
         <Grid
@@ -37,16 +37,16 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:AuthorRegistrationStepOneView />
-                        <views:AuthorRegistrationStepTwoView />
+                        <views:CreateAccountStepOneView />
+                        <views:CreateAccountStepTwoView />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <StackLayout Grid.Row="2">
-                <Button Command="{Binding NextCommad}" Style="{DynamicResource NextButton}" />
-                <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
-            </StackLayout>
+            <Button 
+                Grid.Row="2"
+                Command="{Binding NextCommad}"
+                Style="{DynamicResource NextButton}" />
         </Grid>
     </cls:CustomPage.MainContent>
 </cls:CustomPage>

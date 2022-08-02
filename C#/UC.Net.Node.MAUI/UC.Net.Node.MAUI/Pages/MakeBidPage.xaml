@@ -1,22 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cls:CustomPage
-    x:Class="UC.Net.Node.MAUI.Pages.AuthorRegistrationPage"
+    x:Class="UC.Net.Node.MAUI.Pages.MakeBidPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    Title="Author Registration"
-    HasBackButton="False"
+    Title="Make a bid"
     x:Name="page">
-    <cls:CustomPage.LeftContent>
-        <ImageButton Opacity="0.5" HeightRequest="28"
-            Command="{Binding PrevCommand}"
-            IsVisible="{Binding Position, Converter={StaticResource IntToBoolConverter}}"
-            Style="{StaticResource Prev}" />
-    </cls:CustomPage.LeftContent>
-    <cls:CustomPage.RightContent>
-        <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding ClosePageCommad}" Style="{StaticResource Close}" />
-    </cls:CustomPage.RightContent>
     <cls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
@@ -37,8 +27,8 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:AuthorRegistrationStepOneView />
-                        <views:AuthorRegistrationStepTwoView />
+                        <views:MakeBidStepOneView />
+                        <views:MakeBidStepTwoView />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

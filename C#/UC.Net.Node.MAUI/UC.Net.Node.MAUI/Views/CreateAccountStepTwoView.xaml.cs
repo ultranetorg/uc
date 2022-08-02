@@ -1,4 +1,7 @@
-﻿namespace UC.Net.Node.MAUI.Views;
+﻿using CreateAccountViewModel = UC.Net.Node.MAUI.ViewModels.Views.CreateAccountViewModel;
+
+namespace UC.Net.Node.MAUI.Views;
+
 public partial class CreateAccountStepTwoView : ContentView
 {
     public CreateAccountStepTwoView()

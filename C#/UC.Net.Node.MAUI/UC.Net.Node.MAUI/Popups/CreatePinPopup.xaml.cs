@@ -18,6 +18,6 @@ public partial class CreatePinPopup : Popup
 	public static async Task Show()
 	{
 		popup = new CreatePinPopup();
-		await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+		await App.Current.MainPage.ShowPopupAsync(popup);
 	}
 }

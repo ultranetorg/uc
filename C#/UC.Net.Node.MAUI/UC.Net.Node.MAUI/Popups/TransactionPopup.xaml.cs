@@ -22,7 +22,7 @@
 		public static async Task Show(Transaction transaction)
 		{
 			popup = new TransactionPopup(transaction);
-			await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
+			await App.Current.MainPage.ShowPopupAsync(popup);
 		}
 	}
 }

@@ -2,27 +2,23 @@
 
 public partial class SendViewModel : BaseViewModel
 {
-    public Page Page { get; }
-      
 	[ObservableProperty]
     private int _position;
 
-    public SendViewModel(Page page, ILogger<SendViewModel> logger) : base(logger)
+    public SendViewModel(ILogger<SendViewModel> logger) : base(logger)
     {
-        Page = page;
     }
 
 	[RelayCommand]
     private async void Close()
     {
-        await Page.Navigation.PopModalAsync();
+        await Shell.Current.Navigation.PopModalAsync();
     }
 
 	[RelayCommand]
     private async void Confirm()
     {
-		// new TransferCompletePage()
-        await Page.Navigation.PushAsync(Page);
+        await Shell.Current.Navigation.PushAsync(new TransferCompletePage());
     }
       
 	[RelayCommand]
