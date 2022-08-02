@@ -22,19 +22,19 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async void Send()
+    private async void SendAsync()
     {
         await Shell.Current.Navigation.PushAsync(new SendPage());
     }
 
 	[RelayCommand]
-    private async void ShowKey()
+    private async void ShowKeyAsync()
     {
         await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Wallet));
     }
 
 	[RelayCommand]
-    private async void Delete()
+    private async void DeleteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Wallet));
     }

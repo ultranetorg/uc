@@ -13,13 +13,13 @@ public partial class AuthorSearchCViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void Cancel()
+    private async void CancelAsync()
     {
         await Shell.Current.Navigation.PopAsync();
     }
 	
 	[RelayCommand]
-    private async void MakeBid()
+    private async void MakeBidAsync()
     {
         await Shell.Current.Navigation.PushAsync(new MakeBidPage());
     }

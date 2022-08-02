@@ -1,8 +1,8 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class AboutViewModel : BaseViewModel
+public partial class WhatsNewViewModel : BaseViewModel
 {
-    public AboutViewModel(ILogger<AboutViewModel> logger) : base(logger)
+    public WhatsNewViewModel(ILogger<WhatsNewViewModel> logger) : base(logger)
     {
     }
 

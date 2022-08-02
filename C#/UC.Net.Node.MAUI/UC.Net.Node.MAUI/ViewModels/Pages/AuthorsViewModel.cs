@@ -17,19 +17,19 @@ public partial class AuthorsViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void Create()
+    private async void CreateAsync()
     {
         await Shell.Current.Navigation.PushModalAsync(new CreateAccountPage());
     }
 	
 	[RelayCommand]
-    private async void Restore()
+    private async void RestoreAsync()
     {
         await Shell.Current.Navigation.PushAsync(new RestoreAccountPage());
     }
 	
 	[RelayCommand]
-    private async void ItemTapped(Author Author)
+    private async void ItemTappedAsync(Author Author)
     {
         if (Author == null) 
             return;
@@ -37,18 +37,20 @@ public partial class AuthorsViewModel : BaseViewModel
     }
 	
 	[RelayCommand]
-    private async void Options(Wallet wallet)
+    private async void OptionsAsync(Wallet wallet)
     {
 		// has been changed from Author to Wallet
         await AccountOptionsPopup.Show(wallet);
     }
-
-    private async void TransferAuthorCommand(object sender, EventArgs e)
+	
+	[RelayCommand]
+    private async void TransferAuthorAsync()
     {
         await Shell.Current.Navigation.PushAsync(new AuthorRegistrationPage());
     }
-
-    private async void MackBidCommand(object sender, EventArgs e)
+	
+	[RelayCommand]
+    private async void MakeBidAsync()
     {
         await Shell.Current.Navigation.PushAsync(new MakeBidPage());
     }

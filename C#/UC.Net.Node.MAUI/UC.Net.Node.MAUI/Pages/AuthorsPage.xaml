@@ -139,7 +139,7 @@
                                                     <ImageButton
                                                         Padding="15"
                                                         CornerRadius="0"
-                                                        Command="{Binding MackBidCommand}"
+                                                        Command="{Binding MakeBidCommand}"
                                                         HorizontalOptions="FillAndExpand"
                                                         Style="{StaticResource Bid}"
                                                         VerticalOptions="FillAndExpand" />

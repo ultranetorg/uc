@@ -1,8 +1,8 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class AboutViewModel : BaseViewModel
+public partial class HelpBViewModel : BaseViewModel
 {
-    public AboutViewModel(ILogger<AboutViewModel> logger) : base(logger)
+    public HelpBViewModel(ILogger<HelpBViewModel> logger) : base(logger)
     {
     }
 
@@ -11,10 +11,10 @@ public partial class AboutViewModel : BaseViewModel
     {
         await Shell.Current.Navigation.PopAsync();
     }
-	
+
 	[RelayCommand]
     private async void TransactionsAsync()
     {
         await Shell.Current.Navigation.PushAsync(new TransactionsPage());
-    }
+    }  
 }

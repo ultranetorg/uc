@@ -8,161 +8,161 @@
         <ScrollView>
             <StackLayout Padding="35">
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="10"
                     Text="Manage Accounts" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="5"
                     Text="Create Account" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="0"
                     Text="Account Details" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="7"
                     Text="Delete Account" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="14"
                     Text="Restore Account" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="11"
                     Text="Show Private Key" />
 
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="8"
                     Text="ETH Transfer" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="17"
                     Text="ETH Transfer Completed" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="18"
                     Text="ETH Transfer Unfinished" />
 
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="15"
                     Text="Send" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="16"
                     Text="Transactions A" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="22"
                     Text="Transactions B" />
 
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="1"
                     Text="Authors" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="2"
                     Text="Author Search A" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="19"
                     Text="Author Search B" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="20"
                     Text="Author Search C" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="3"
                     Text="Author Registration" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="4"
                     Text="Author Registration Renewal" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="9"
                     Text="Make a Bid" />
 
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="13"
                     Text="Products A" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="21"
                     Text="Products B" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="12"
                     Text="Products Search" />
 
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="6"
                     Text="Dashboard" />
 
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="23"
                     Text="Enter Pin A" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="24"
                     Text="Enter Pin B" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="25"
                     Text="Create Pin" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="26"
                     Text="Network" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="27"
                     Text="Settings A" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="28"
                     Text="Settings B" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="29"
                     Text="Help A" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="30"
                     Text="Help B" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="31"
                     Text="Whats New" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="32"
                     Text="Whats New Popup" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="33"
                     Text="Notifications" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="34"
                     Text="Notification" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="35"
                     Text="Accounts Popup" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="36"
                     Text="No Network Popup" />
                 <Button
-                    Clicked="ButtonClicked"
+                    Command="{Binding StartCommand}"
                     CommandParameter="37"
                     Text="About" />
             </StackLayout>

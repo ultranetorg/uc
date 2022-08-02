@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
+    xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models"
     Title="Transfer sucessfully completed"
     x:Name="page">
     <cls:CustomPage.RightContent>
