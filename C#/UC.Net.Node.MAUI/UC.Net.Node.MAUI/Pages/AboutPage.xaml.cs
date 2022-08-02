@@ -5,6 +5,6 @@ public partial class AboutPage : CustomPage
     public AboutPage()
     {
         InitializeComponent();
-        BindingContext = new AboutViewModel(this, ServiceHelper.GetService<ILogger<AboutViewModel>>());
+        BindingContext = new AboutViewModel(ServiceHelper.GetService<ILogger<AboutViewModel>>());
     }
 }

@@ -2,8 +2,7 @@
 
 public class AuthorRegistrationRenewalViewModel : BaseAccountViewModel
 {
-    public AuthorRegistrationRenewalViewModel(Page page, ILogger<AuthorRegistrationRenewalViewModel> logger) : base(logger)
+    public AuthorRegistrationRenewalViewModel(ILogger<AuthorRegistrationRenewalViewModel> logger) : base(logger)
     {
-        Page = page;
     }
 }

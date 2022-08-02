@@ -2,9 +2,8 @@
 
 public partial class AccountDetailsViewModel : BaseAccountViewModel
 {
-    public AccountDetailsViewModel(Page page, Wallet wallet, ILogger<AccountDetailsViewModel> logger) : base(logger)
+    public AccountDetailsViewModel(Wallet wallet, ILogger<AccountDetailsViewModel> logger) : base(logger)
     {
-        Page = page;
         Wallet = wallet;
 
         ColorsCollection.Add(new AccountColor { Color = Color.FromArgb("#6601e3") ,BoderColor = Page.BackgroundColor });
@@ -25,18 +24,18 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	[RelayCommand]
     private async void Send()
     {
-        await Page.Navigation.PushAsync(new SendPage());
+        await Shell.Current.Navigation.PushAsync(new SendPage());
     }
 
 	[RelayCommand]
     private async void ShowKey()
     {
-        await Page.Navigation.PushAsync(new PrivateKeyPage(Wallet));
+        await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Wallet));
     }
 
 	[RelayCommand]
     private async void Delete()
     {
-        await Page.Navigation.PushAsync(new DeleteAccountPage(Wallet));
+        await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Wallet));
     }
 }

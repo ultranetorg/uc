@@ -2,8 +2,6 @@
 
 public partial class BaseAccountViewModel : BaseViewModel
 {
-    public Page Page { get; protected set; }
-
 	[ObservableProperty]
     private CustomCollection<AccountColor> _colorsCollection = new();
 	
@@ -29,7 +27,7 @@ public partial class BaseAccountViewModel : BaseViewModel
             item.BoderColor = Colors.Transparent;
             ColorsCollection.ReportItemChange(item);
         }
-        accountColor.BoderColor = Page.BackgroundColor;
+        accountColor.BoderColor = Shell.Current.BackgroundColor;
         ColorsCollection.ReportItemChange(accountColor);
         Wallet.AccountColor = accountColor.Color;
     }  
@@ -37,7 +35,7 @@ public partial class BaseAccountViewModel : BaseViewModel
 	[RelayCommand]
     private async void Close()
     {
-        await Page.Navigation.PopAsync();
+        await Shell.Current.Navigation.PopAsync();
     }
 
 	[RelayCommand]
