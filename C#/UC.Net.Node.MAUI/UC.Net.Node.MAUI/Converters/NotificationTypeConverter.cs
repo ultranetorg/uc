@@ -6,58 +6,65 @@ namespace UC.Net.Node.MAUI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch ((NotificationType)value)
+			FontImageSource result = null;
+            switch ((NotificationType) value)
             {
                 case NotificationType.ProductOperations:
-                    return new FontImageSource
-                    {
-                        FontFamily= "icomoon",
-                        Size=40,
-                        Color=Color.FromArgb("#E03030"),
-                        Glyph= IconFont.ProductOperations
-                    };
-                case NotificationType.SystemEvent:
-                    return new FontImageSource
-                    {
-                        FontFamily = "icomoon",
-                        Size = 40,
-                        Color = Color.FromArgb("#E09A30"),
-                        Glyph = IconFont.SystemEvent
-                    };
-                case NotificationType.AuthorOperations:
-                    return new FontImageSource
-                    {
-                        FontFamily = "icomoon",
-                        Size = 40,
-                        Color = Color.FromArgb("#53E030"),
-                        Glyph = IconFont.AuthorOperations
-                    };
-                case NotificationType.TokenOperations:
-                    return new FontImageSource
+                    result = new FontImageSource
                     {
                         FontFamily = "icomoon",
                         Size = 40,
                         Color = Color.FromArgb("#E03030"),
                         Glyph = IconFont.ProductOperations
                     };
+					break;
+                case NotificationType.SystemEvent:
+                    result = new FontImageSource
+                    {
+                        FontFamily = "icomoon",
+                        Size = 40,
+                        Color = Color.FromArgb("#E09A30"),
+                        Glyph = IconFont.SystemEvent
+                    };
+					break;
+                case NotificationType.AuthorOperations:
+                    result = new FontImageSource
+                    {
+                        FontFamily = "icomoon",
+                        Size = 40,
+                        Color = Color.FromArgb("#53E030"),
+                        Glyph = IconFont.AuthorOperations
+                    };
+					break;
+                case NotificationType.TokenOperations:
+                    result = new FontImageSource
+                    {
+                        FontFamily = "icomoon",
+                        Size = 40,
+                        Color = Color.FromArgb("#E03030"),
+                        Glyph = IconFont.ProductOperations
+                    };
+					break;
                 case NotificationType.Server:
-                    return new FontImageSource
+                    result = new FontImageSource
                     {
                         FontFamily = "icomoon",
                         Size = 40,
                         Color = Color.FromArgb("#53E030"),
                         Glyph = IconFont.Server
                     };
+					break;
                 case NotificationType.Wallet:
-                    return new FontImageSource
+                    result = new FontImageSource
                     {
                         FontFamily = "icomoon",
                         Size = 40,
                         Color = Color.FromArgb("#53E030"),
                         Glyph = IconFont.Wallet
                     };
+                    break;
             }
-            return null;
+            return result;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

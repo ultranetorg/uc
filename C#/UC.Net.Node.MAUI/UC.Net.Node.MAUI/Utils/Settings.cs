@@ -1,12 +1,12 @@
 ﻿namespace UC.Net.Node.MAUI
 {
-
     public static class Settings
     {
         public static void Reset()
         {
             Preferences.Clear();
         }
+
         public static Color PrimaryLight
         {
             get { return (Color)App.Current.Resources["PrimaryLight"]; }

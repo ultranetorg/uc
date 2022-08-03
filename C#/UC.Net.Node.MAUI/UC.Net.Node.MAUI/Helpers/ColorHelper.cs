@@ -2,7 +2,7 @@
 {
     public static class ColorHelper
     {
-        static Random rnd = new Random();
+        private static readonly Random rnd = new();
 
         public static Color GetRandomColor()
         {

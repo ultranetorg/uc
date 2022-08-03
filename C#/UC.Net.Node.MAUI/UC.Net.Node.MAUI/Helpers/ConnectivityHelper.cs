@@ -1,6 +1,4 @@
-﻿using UC.Net.Node.MAUI.Popups;
-
-namespace UC.Net.Node.MAUI.Helpers
+﻿namespace UC.Net.Node.MAUI.Helpers
 {
     public static class ConnectivityHelper
     {

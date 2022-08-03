@@ -4,19 +4,18 @@ namespace UC.Net.Node.MAUI.Converters
 {
     public class IconTintConverter : IValueConverter
     {
-        Button btn;
-        private FontImageSource source;
+        private Button btn;
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            btn= (Button)parameter;
+            btn = (Button)parameter;
+			FontImageSource result = null;
             if (btn != null)
             {
-                source = btn.ImageSource as FontImageSource;
-                source.Color = btn.TextColor;
-                return source;
+                result = btn.ImageSource as FontImageSource;
+                result.Color = btn.TextColor;
             }
-            return null;
+            return result;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
