@@ -61,6 +61,7 @@ namespace UC.Net
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
+		public int					ReachFailures;
 
 		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
@@ -391,21 +392,10 @@ namespace UC.Net
 			}
 		}
 
-// 		public void RequestRounds(Header h, int from, int to)
-// 		{
-// 			var s = new MemoryStream();
-// 			var w = new BinaryWriter(s);
-// 			
-// 			w.Write7BitEncodedInt(from);
-// 			w.Write7BitEncodedInt(to);
-// 
-// 			Send(h, PacketType.RoundsRequest, s);
-// 		}
-
  		public override Rp Request<Rp>(Request rq) where Rp : class
  		{
 			if(!Established)
-				throw new RequirementException("Peer is not connected");
+				throw new ConnectionFailedException("Peer is not connected");
 
 			lock(OutRequests)
 			{	

@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.Signer;
 using Nethereum.Web3;
 using RocksDbSharp;
 
@@ -1034,13 +1035,8 @@ namespace UC.Net
 				 	{
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
 
-						var rd = new BinaryReader(new MemoryStream(rp.Rounds));
-
-						var rounds = rd.ReadArray<Round>(() =>	{
-																	var r = new Round(Chain);
-																	r.Read(rd);
-																	return r;
-																});
+						var rounds = rp.Read(Chain);
+						
 						lock(Lock)
 						{
 							bool confirmed = true;
@@ -1442,7 +1438,7 @@ namespace UC.Net
 
 					Statistics.Delegating.End();
 				}
-				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is DistributedCallException || ex is RequirementException)
+				catch(Exception ex) when (ex is ConnectionFailedException )
 				{
 					Log?.ReportError(this, $"Failed to communicate with remote node {m}", ex);
 
@@ -1451,7 +1447,7 @@ namespace UC.Net
 					else
 						m = null;
 
-					Thread.Sleep(1000); /// prevent any flooding
+					Thread.Sleep(500); /// prevent any flooding
 				}
 				catch(OperationCanceledException)
 				{

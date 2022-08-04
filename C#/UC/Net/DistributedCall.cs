@@ -44,9 +44,8 @@ namespace UC.Net
 
 	public abstract class Dci
 	{
-		public Account							Generator { get; set; } /// serializable
+		public Account							Generator { get; set; }
 		public int								Failures;
-		public int								ReachFailures;
 
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
  
@@ -128,6 +127,38 @@ namespace UC.Net
 			{
 				throw new IntegrityException($"Wrong {nameof(Response)} type", ex);
 			}
+		}
+	}
+
+	public class DownloadRoundsRequest : Request
+	{
+		public int From { get; set; }
+		public int To { get; set; }
+		
+		public override Response Execute(Core core)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Chain.FindRound(i)).Where(i => i != null),  i => i.Write(w));
+			
+			return new DownloadRoundsResponse{Rounds = s.ToArray()};
+		}
+	}
+
+	public class DownloadRoundsResponse : Response
+	{
+		public byte[] Rounds { get; set; }
+
+		public Round[] Read(Roundchain chain)
+		{
+			var rd = new BinaryReader(new MemoryStream(Rounds));
+
+			return rd.ReadArray<Round>(() =>	{
+													var r = new Round(chain);
+													r.Read(rd);
+													return r;
+												});
 		}
 	}
 
@@ -388,26 +419,5 @@ namespace UC.Net
 	public class DownloadPackageResponse : Response
 	{
 		public byte[] Data { get; set; }
-	}
-
-	public class DownloadRoundsRequest : Request
-	{
-		public int From { get; set; }
-		public int To { get; set; }
-		
-		public override Response Execute(Core core)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-			
-			w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Chain.FindRound(i)).Where(i => i != null),  i => i.Write(w));
-			
-			return new DownloadRoundsResponse{Rounds = s.ToArray()};
-		}
-	}
-
-	public class DownloadRoundsResponse : Response
-	{
-		public byte[]	Rounds { get; set; }
 	}
 }
