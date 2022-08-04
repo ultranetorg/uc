@@ -163,7 +163,7 @@ namespace UC.Net.Node.FUI
 						
 					if(k != null)
 					{
-						var v = new Flowvizor(log);
+						var v = new Workflow(log);
 
 						var f = new FlowControlForm(Core, v);
 						f.StartPosition = FormStartPosition.CenterParent;

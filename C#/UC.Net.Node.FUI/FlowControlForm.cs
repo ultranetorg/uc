@@ -15,9 +15,9 @@ namespace UC.Net.Node.FUI
 	{
 		Core				Core;
 		Operation			Operation;
-		Flowvizor			Vizor;
+		Workflow			Vizor;
 
-		public FlowControlForm(Core core, Flowvizor vizor)
+		public FlowControlForm(Core core, Workflow vizor)
 		{
 			InitializeComponent();
 
@@ -28,7 +28,7 @@ namespace UC.Net.Node.FUI
 
 		private void Abort_Click(object sender, EventArgs e)
 		{
-			Vizor.Cancellation.Cancel();
+			Vizor.Abort();
 			Close();
 		}
 

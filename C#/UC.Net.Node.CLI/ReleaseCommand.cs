@@ -53,18 +53,18 @@ namespace UC.Net.Node.CLI
 									GetPrivate("by", "password"),
 									GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
 									GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-									Flowvizor);
+									Workflow);
 
 					return null;
 				}
 
 				case "download" :
 				{
-					var d = Node.DownloadPackage(PackageAddress.Parse(GetString("address")), Flowvizor);
+					var d = Node.DownloadPackage(PackageAddress.Parse(GetString("address")), Workflow);
 
 					while(!d.Completed)
 					{
-						Flowvizor.Log?.Report(this, $"{d.CompletedLength + d.Jobs.Sum(i => i.Data != null ? i.Data.Length : 0)}/{d.Length}");
+						Workflow.Log?.Report(this, $"{d.CompletedLength + d.Jobs.Sum(i => i.Data != null ? i.Data.Length : 0)}/{d.Length}");
 						Thread.Sleep(1000);
 					}
 
@@ -73,7 +73,7 @@ namespace UC.Net.Node.CLI
 
 		   		case "status" :
 				{
-					var r = Node.Connect(Role.Chain, null, Flowvizor).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
+					var r = Node.Connect(Role.Chain, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
 
 					foreach(var item in r.Manifests)
 					{

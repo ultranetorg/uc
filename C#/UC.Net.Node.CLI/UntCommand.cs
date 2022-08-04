@@ -79,7 +79,7 @@ namespace UC.Net.Node.CLI
 					return Send(() => Node.Emit(	from,
 													Web3.Convert.ToWei(GetString("amount")),
 													GetPrivate("to/account", "to/password"), 
-													Flowvizor).Result);
+													Workflow).Result);
 				}
 
 		   		case "transfer" : 

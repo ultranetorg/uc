@@ -220,7 +220,7 @@ namespace UC.Net
 
 					case QueryReleaseCall c:
 					{
-						var a = Core.Connect(Role.Chain, null, new Flowvizor(Core.Timeout));
+						var a = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout));
 						var r = Core.QueryRelease(c.Queries, c.Confirmed);
 
 						respondjson(new QueryReleaseResult{Manifests = r.Manifests});
@@ -228,7 +228,7 @@ namespace UC.Net
 					}
 					case DownloadPackageCall c:
 					{
-						Core.DownloadPackage(c.Package, new Flowvizor(null, new CancellationTokenSource()));
+						Core.DownloadPackage(c.Package, new Workflow(null, new CancellationTokenSource()));
 						break;
 					}
 					case DownloadStatusCall c:

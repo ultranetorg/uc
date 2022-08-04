@@ -37,7 +37,7 @@ namespace UC.Net
 
 				Task = Task.Run(() =>	
 								{
-									var timeout = Download.Flowvizor.CreateNested();
+									var timeout = Download.Workflow.CreateNested();
 
 									try
 									{
@@ -69,16 +69,17 @@ namespace UC.Net
 									{
 									}
 								}, 
-								Download.Flowvizor.Cancellation.Token);
+								Download.Workflow.Cancellation.Token);
 				}
 		}
 
 		public Core									Core;
-		public Flowvizor							Flowvizor;
+		public Workflow							Workflow;
 		public PackageAddress						Package;
 		public List<Job>							Jobs = new();
 		public Dictionary<Peer, List<IPAddress>>	Hubs = new();
 		public Dictionary<IPAddress, SeederResult>	Seeders = new();
+		public List<Download>						Dependencies = new();
 		public byte[]								Hash;
 		public long									Length;
 		public int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
@@ -91,10 +92,10 @@ namespace UC.Net
 																		- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
 																		+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
 
-		public Download(Core core, Flowvizor vizor, PackageAddress package)
+		public Download(Core core, Workflow vizor, PackageAddress package)
 		{
 			Core = core;
-			Flowvizor = vizor;
+			Workflow = vizor;
 			Package = package;
 
 			Task = Task.Run(() =>
@@ -109,9 +110,44 @@ namespace UC.Net
 																										Distribution.Incremental => ReleaseManifest.IncrementalHashField, 
 																										_ =>  throw new RequirementException("Wrong Distribution value") });
 								
-								Job j ;
+								lock(core.Lock)
+								{
+									if(package.Distribution == Distribution.Complete)
+									{
+										var d = qrrp.Manifests.First().One("CompleteDependencies");
+										
+										if(d != null)
+										{
+											foreach(var i in d.Nodes)
+											{
+												if(!core.Downloads.Any(j => j.Package == PackageAddress.Parse(i.Name)))
+												{
+													Dependencies.Add(core.DownloadPackage(PackageAddress.Parse(i.Name), vizor));
+												}
+											}
+										}
+									}
+	
+									if(package.Distribution == Distribution.Incremental)
+									{
+										var d = qrrp.Manifests.First().One("IncrementalDependencies");
+										
+										if(d != null)
+										{
+											foreach(var i in d.Nodes)
+											{
+												if(!core.Downloads.Any(j => j.Package == PackageAddress.Parse(i.Name)))
+												{
+													Dependencies.Add(core.DownloadPackage(PackageAddress.Parse(i.Name), vizor));
+												}
+											}
+										}
+									}
+								}
+								
+								Job j;
 
-								while(Core.Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+								while(Core.Running && !vizor.IsAborted)
 								{
 									Task[] tasks;
 
@@ -129,7 +165,7 @@ namespace UC.Net
 	
 												Task.Run(() =>	
 														{
-															var timeout = Flowvizor.CreateNested();
+															var timeout = Workflow.CreateNested();
 	
 															LocatePackageResponse lp = null;
 		
@@ -202,13 +238,13 @@ namespace UC.Net
 											
 											CompletedPieces.Add(j);
 
-											if(CompletedPieces.Count() == PiecesTotal)
+											if(CompletedPieces.Count() == PiecesTotal && Dependencies.All(i => i.Completed))
 											{
 												Seeders[j.Peer.IP] = SeederResult.Good;
 												
-												if(Core.Filebase.GetHash(package).SequenceEqual(Hash))
+												if(Core.Filebase.GetHash(package).SequenceEqual(Hash) && Dependencies.All(i => i.Successful))
 												{
-													Core.DeclarePackage(new[]{package}, Flowvizor);
+													Core.DeclarePackage(new[]{package}, Workflow);
 
 													var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeederResult.Good && h.Value.Any(ip => ip.Equals(s.Key)))).Select(i => i.Key);
 

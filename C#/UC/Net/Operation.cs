@@ -48,7 +48,7 @@ namespace UC.Net
 		public DelegationStage	Delegation;
 		public PlacingStage		Placing;
 		public bool				Successful => Executed && Error == null;
-		public Flowvizor		FlowReport;
+		public Workflow		FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
 		public bool				Executed; 

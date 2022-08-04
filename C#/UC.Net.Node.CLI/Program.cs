@@ -17,7 +17,7 @@ namespace UC.Net.Node.CLI
 	{
 		static Settings			Settings = null;
 		static Log				Log = new Log();
-		static ConsoleLogView	LogView = new ConsoleLogView(Log, false, true);
+		static ConsoleLogView	LogView = new ConsoleLogView(Log, true, true);
 
 		static Core Core;
 

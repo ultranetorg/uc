@@ -46,7 +46,7 @@ namespace UC.Net.Node.FUI
 
 			try
 			{
-				var ai = Core.Connect(Role.Chain, null, new Flowvizor(Core.Timeout)).GetAuthorInfo(AuthorSearch.Text, false);
+				var ai = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout)).GetAuthorInfo(AuthorSearch.Text, false);
 	
 				if(ai.Xon != null)
 					ai.Xon.Dump((n, t) => 

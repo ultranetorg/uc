@@ -205,8 +205,8 @@ namespace UC.Net
 	
 	public class LastOperationRequest : Request
 	{
-		public Account			Account {get; set;}
-		public string			Class {get; set;}
+		public Account	Account {get; set;}
+		public string	Class {get; set;}
 
 		public override Response Execute(Core core)
 		{

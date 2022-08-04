@@ -15,7 +15,7 @@ namespace UC.Net.Node.CLI
 		public override object Execute()
 		{
 			if(ConsoleSupported)
-				Flowvizor.Log?.ReportWarning(this, "Pressing any key stops the node");
+				Workflow.Log?.ReportWarning(this, "Pressing any key stops the node");
 
 			if(Args.Has("api"))
 				Core.RunApi();

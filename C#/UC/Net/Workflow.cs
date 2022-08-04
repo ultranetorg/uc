@@ -2,43 +2,40 @@
 
 namespace UC.Net
 {
-	public class Flowvizor
+	public class Workflow
 	{
 		public CancellationTokenSource	Cancellation { get; }
 		public Log						Log { get; }
 		
-		public bool						_IsAborted;
-		public bool						IsAborted { get => _IsAborted || (Parent != null && Parent.IsAborted);  }
-		public Flowvizor				Parent;
+		public bool						IsAborted { get => Cancellation.Token.IsCancellationRequested; }
 
-		public Flowvizor(Log log)
+		public Workflow(Log log)
 		{
 			Cancellation = new CancellationTokenSource();
 			Log = log;
 		}
 
-		public Flowvizor(int cancelafter)
+		public Workflow(int cancelafter)
 		{
 			Cancellation = new CancellationTokenSource(cancelafter);
 		}
 
-		public Flowvizor(Log log, CancellationTokenSource cancellation)
+		public Workflow(Log log, CancellationTokenSource cancellation)
 		{
 			Cancellation = cancellation;
 			Log = log;
 		}
 
-		public Flowvizor CreateNested()
+		public Workflow CreateNested()
 		{
 			var a = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token);
-
-			return new Flowvizor(Log, a){Parent = this};
+			
+			return new Workflow(Log, a);
 		}
 
 		public void Abort()
 		{
 			Cancellation.Cancel();
-			_IsAborted = true;
 		}
 	}
 }

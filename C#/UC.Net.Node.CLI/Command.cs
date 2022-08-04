@@ -12,13 +12,13 @@ namespace UC.Net.Node.CLI
 {
 	public abstract class Command
 	{
-		protected Settings					Settings; 
-		protected Xon						Args;
-		protected Core						Core => CoreFunc();
-		protected Func<Core>				CoreFunc;
-		public static bool					ConsoleSupported { get; protected set; }
-		//Operation							Operation;
-		public Flowvizor					Flowvizor {get;}
+		protected Settings		Settings; 
+		protected Xon			Args;
+		protected Core			Core => CoreFunc();
+		protected Func<Core>	CoreFunc;
+		public static bool		ConsoleSupported { get; protected set; }
+		//Operation				Operation;
+		public Workflow			Workflow {get;}
 
 		public abstract object Execute();
 
@@ -53,7 +53,7 @@ namespace UC.Net.Node.CLI
 			Settings = settings;
 			CoreFunc = core;
 			Args = args;
-			Flowvizor = new Flowvizor(log);
+			Workflow = new Workflow(log);
 		}
 
 		protected string GetString(string paramenter)
@@ -99,7 +99,7 @@ namespace UC.Net.Node.CLI
 		protected void Wait(Func<bool> waitiftrue)
 		{
 			Task.Run(() =>	{
-								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Flowvizor.Cancellation.IsCancellationRequested && !Flowvizor.IsAborted)
+								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Workflow.IsAborted)
 								{
 									Thread.Sleep(100); 
 								}
@@ -152,7 +152,7 @@ namespace UC.Net.Node.CLI
 
 		protected void Dump(XonDocument document)
 		{
-			document.Dump((n, l) => Flowvizor.Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
+			document.Dump((n, l) => Workflow.Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
 		}
 
 	}

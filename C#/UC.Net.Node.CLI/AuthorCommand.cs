@@ -63,9 +63,9 @@ namespace UC.Net.Node.CLI
 																		Account.Parse(GetString("to")))));
 		   		case "overview" :
 				{
-					var i = Node.Connect(Role.Chain, null, Flowvizor).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
+					var i = Node.Connect(Role.Chain, null, Workflow).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
 
-					Flowvizor.Log?.Report(this, "Author", $"'{GetString("name")}' :");
+					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 
 					Dump(i.Xon);
 										

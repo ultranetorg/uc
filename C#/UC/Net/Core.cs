@@ -62,7 +62,7 @@ namespace UC.Net
 		const int										BalanceWidth = 24;
 
 		public Log										Log;
-		Flowvizor										Flowvizor;
+		Workflow										Workflow;
 		public Vault									Vault;
 		public INas										Nas;
 		public Roundchain								Chain;
@@ -91,7 +91,7 @@ namespace UC.Net
 		public List<Block>								Cache		= new();
 		public List<Peer>								Members		= new();
 		//Dictionary<PackageAddress, List<IPAddress>>		PackagePeers = new();
-		List<Download>									Downloads = new();
+		public List<Download>							Downloads = new();
 
 		TcpListener										Listener;
 		Thread											ListeningThread;
@@ -223,7 +223,7 @@ namespace UC.Net
 			Settings = settings;
 			Log	 = Settings.Log ? log : null;
 
-			Flowvizor = new Flowvizor(log);
+			Workflow = new Workflow(log);
 
 			Directory.CreateDirectory(Settings.Profile);
 
@@ -412,7 +412,7 @@ namespace UC.Net
 				return;
 
 			Running = false;
-			Flowvizor.Abort();
+			Workflow.Abort();
 			Listener?.Stop();
 			ApiServer?.Stop();
 
@@ -582,7 +582,7 @@ namespace UC.Net
 					if(ps.Any())
 					{
 						Task.Run(() =>	{
-											DeclarePackage(ps, Flowvizor);
+											DeclarePackage(ps, Workflow);
 											Log?.Report(this, "Initial declaration completed");
 										});
 					}
@@ -1022,7 +1022,7 @@ namespace UC.Net
 
 			var used = new HashSet<Peer>();
 
-		 	var peer = Connect(Role.Chain, used, new Flowvizor(Timeout)); //Connections.Aggregate((i, j) => i.LastRound > j.LastRound ? i : j);
+		 	var peer = Connect(Role.Chain, used, new Workflow(Timeout)); //Connections.Aggregate((i, j) => i.LastRound > j.LastRound ? i : j);
 
 			while(Running)
 			{
@@ -1067,7 +1067,7 @@ namespace UC.Net
 
 									if(!confirmed && r.Confirmed)
 									{
-				 						peer = Connect(Role.Chain, used, new Flowvizor(Timeout)); /// unacceptable case, choose other chain peer
+				 						peer = Connect(Role.Chain, used, new Workflow(Timeout)); /// unacceptable case, choose other chain peer
 										break;
 									}
 	
@@ -1311,7 +1311,7 @@ namespace UC.Net
 
 				if(m == null)
 				{	
-					var v = Flowvizor.CreateNested();
+					var v = Workflow.CreateNested();
 
 					if(!Settings.Dev.DisableTimeouts)
 						v.Cancellation.CancelAfter(Timeout);
@@ -1540,7 +1540,7 @@ namespace UC.Net
 			}
 		}
 		
-		public Operation Enqueue(Operation operation, Flowvizor flowcontrol = null)
+		public Operation Enqueue(Operation operation, Workflow flowcontrol = null)
 		{
 			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
 			{
@@ -1654,7 +1654,7 @@ namespace UC.Net
 				}
 		}
 
-		public Dci ConnectToMember(Flowvizor vizor)
+		public Dci ConnectToMember(Workflow vizor)
 		{
 			lock(RemoteMemberLock)
 			{
@@ -1665,7 +1665,7 @@ namespace UC.Net
 
 				Peer peer;
 				
-				while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+				while(Running && !vizor.IsAborted)
 				{
 					Thread.Sleep(1);
 	
@@ -1725,11 +1725,11 @@ namespace UC.Net
 																												.FirstOrDefault();
 		}
 
-		public Peer Connect(Role role, HashSet<Peer> exclusions, Flowvizor vizor)
+		public Peer Connect(Role role, HashSet<Peer> exclusions, Workflow vizor)
 		{
 			Peer peer;
 				
-			while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+			while(Running && !vizor.IsAborted)
 			{
 				Thread.Sleep(1);
 	
@@ -1757,13 +1757,13 @@ namespace UC.Net
 			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
-		public R Call<R>(Role role, Flowvizor vizor, Func<Peer, R> call)
+		public R Call<R>(Role role, Workflow vizor, Func<Peer, R> call)
 		{
 			var exclusions = new HashSet<Peer>();
 
 			Peer peer;
 				
-			while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+			while(Running && !vizor.IsAborted)
 			{
 				Thread.Sleep(1);
 	
@@ -1795,7 +1795,7 @@ namespace UC.Net
 		}
 
 
-		public void Connect(Peer peer, Flowvizor vizor)
+		public void Connect(Peer peer, Workflow vizor)
 		{
 			lock(Lock)
 			{
@@ -1808,7 +1808,7 @@ namespace UC.Net
 				}
 			}
 
-			while(Running && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+			while(Running && !vizor.IsAborted)
 			{
 				lock(Lock)
 					if(peer.Established)
@@ -1819,7 +1819,7 @@ namespace UC.Net
 				Thread.Sleep(1);
 			}
 
-			throw new ConnectionFailedException("Aborted, overall abort or timeout");
+			throw new ConnectionFailedException("Overall abort or timeout");
 		}
 
 
@@ -1828,7 +1828,7 @@ namespace UC.Net
 			return Chain != null ? Operation.CalculateFee(Chain.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
-		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, Flowvizor vizor)
+		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, Workflow vizor)
 		{
 			Emission l;
 
@@ -1859,7 +1859,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Emission FinishTransfer(PrivateAccount signer, Flowvizor flowcontrol = null)
+		public Emission FinishTransfer(PrivateAccount signer, Workflow flowcontrol = null)
 		{
 			lock(Lock)
 			{
@@ -1883,7 +1883,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Download DownloadPackage(PackageAddress package, Flowvizor vizor)
+		public Download DownloadPackage(PackageAddress package, Workflow vizor)
 		{
 			lock(Lock)
 			{
@@ -1915,7 +1915,7 @@ namespace UC.Net
 			}
 		}
 
-		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Flowvizor vizor)
+		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Workflow vizor)
 		{
 			var files = new Dictionary<string, string>();
 
@@ -1973,14 +1973,14 @@ namespace UC.Net
 			DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)}, vizor);
 		}
 
-		public void DeclarePackage(IEnumerable<PackageAddress> packages, Flowvizor vizor)
+		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow vizor)
 		{
 			var hubs = new HashSet<Peer>();
 
 			int success = 0;
 			int failures = 0;
 
-			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0) && !vizor.Cancellation.IsCancellationRequested && !vizor.IsAborted)
+			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0) && !vizor.IsAborted)
 			{
 				Peer h = null;
 

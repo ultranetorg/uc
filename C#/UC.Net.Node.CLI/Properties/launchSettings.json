@@ -7,7 +7,7 @@
     },
     "run node": {
       "commandName": "Project",
-      "commandLineArgs": "run node api"
+      "commandLineArgs": "run node api secrets=a:\\uo"
     }
   }
 }
