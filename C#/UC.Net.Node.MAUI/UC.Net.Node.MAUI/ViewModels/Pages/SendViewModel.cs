@@ -10,13 +10,13 @@ public partial class SendViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void Close()
+    private async void CloseAsync()
     {
         await Shell.Current.Navigation.PopModalAsync();
     }
 
 	[RelayCommand]
-    private async void Confirm()
+    private async void ConfirmAsync()
     {
         await Shell.Current.Navigation.PushAsync(new TransferCompletePage());
     }

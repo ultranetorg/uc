@@ -14,7 +14,7 @@ public partial class CreateAccountViewModel : BaseAccountViewModel
 	[RelayCommand]
     private void Randomize()
     {
-        ColorTapped(ColorsCollection[new Random().Next(0, ColorsCollection.Count)]);
+        ColorTappedCommand.Execute(ColorsCollection[new Random().Next(0, ColorsCollection.Count)]);
     }
 
 	private void AddFakeData()

@@ -43,53 +43,57 @@ public partial class DashboardViewModel : BaseViewModel
         await Shell.Current.Navigation.PushAsync(new ManageAccountsPage());
     }
 
+	#region Fake Data
+
 	private void FillFakeData()
 	{
 		Wallets.Add(new Wallet
-        {
-            Id = Guid.NewGuid(),
-            Unts = 5005,
-            IconCode = "47F0",
-            Name = "Main ultranet"
-        });
-        Wallets.Add(new Wallet
-        {
-            Id = Guid.NewGuid(),
-            Unts = 5005,
-            IconCode = "2T52",
-            Name = "Main ultranet"
-        });
-        Wallets.Add(new Wallet
-        {
-            Id = Guid.NewGuid(),
-            Unts = 5005,
-            IconCode = "9MDL",
-            Name = "Main ultranet"
-        });
+		{
+			Id = Guid.NewGuid(),
+			Unts = 5005,
+			IconCode = "47F0",
+			Name = "Main ultranet"
+		});
+		Wallets.Add(new Wallet
+		{
+			Id = Guid.NewGuid(),
+			Unts = 5005,
+			IconCode = "2T52",
+			Name = "Main ultranet"
+		});
+		Wallets.Add(new Wallet
+		{
+			Id = Guid.NewGuid(),
+			Unts = 5005,
+			IconCode = "9MDL",
+			Name = "Main ultranet"
+		});
 
-        Transactions.Add(new Transaction
-        {
-            FromId = Generator.GenerateUniqueID(6),
-            ToId = Generator.GenerateUniqueID(6),
-            Unt = 540,
-            Name = "UNT Transfer",
-            Status = TransactionsStatus.Pending
-        });
-        Transactions.Add(new Transaction
-        {
-            FromId = Generator.GenerateUniqueID(6),
-            ToId = Generator.GenerateUniqueID(6),
-            Unt = 590,
-            Name = "UNT Transfer",
-            Status = TransactionsStatus.Sent
-        });
-        Transactions.Add(new Transaction
-        {
-            FromId = Generator.GenerateUniqueID(6),
-            ToId = Generator.GenerateUniqueID(6),
-            Unt = 590,
-            Name = "UNT Transfer",
-            Status = TransactionsStatus.Failed
-        });
+		Transactions.Add(new Transaction
+		{
+			FromId = Generator.GenerateUniqueID(6),
+			ToId = Generator.GenerateUniqueID(6),
+			Unt = 540,
+			Name = "UNT Transfer",
+			Status = TransactionsStatus.Pending
+		});
+		Transactions.Add(new Transaction
+		{
+			FromId = Generator.GenerateUniqueID(6),
+			ToId = Generator.GenerateUniqueID(6),
+			Unt = 590,
+			Name = "UNT Transfer",
+			Status = TransactionsStatus.Sent
+		});
+		Transactions.Add(new Transaction
+		{
+			FromId = Generator.GenerateUniqueID(6),
+			ToId = Generator.GenerateUniqueID(6),
+			Unt = 590,
+			Name = "UNT Transfer",
+			Status = TransactionsStatus.Failed
+		});
 	}
+
+	#endregion Fake Data
 }

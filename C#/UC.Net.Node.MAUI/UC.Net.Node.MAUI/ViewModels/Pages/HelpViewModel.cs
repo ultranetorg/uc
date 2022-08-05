@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class HelpViewModel : BaseViewModel
+public partial class HelpViewModel : BaseTransactionsViewModel
 {
 	[ObservableProperty]
     private Transaction _selectedItem ;
@@ -11,23 +11,6 @@ public partial class HelpViewModel : BaseViewModel
     public HelpViewModel(ILogger<HelpViewModel> logger) : base(logger)
     {
 		FillFakeData();
-    }
-
-	[RelayCommand]
-    private async void CreateAsync()
-    {
-        await Shell.Current.Navigation.PushModalAsync(new CreateAccountPage());
-    }
-
-	[RelayCommand]
-    private async void RestoreAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new RestoreAccountPage());
-    }
-
-	[RelayCommand]
-    private void ItemTappedAsync(string help)
-    { 
     }
 
 	private void FillFakeData()

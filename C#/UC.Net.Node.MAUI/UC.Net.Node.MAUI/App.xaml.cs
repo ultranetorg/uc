@@ -7,5 +7,10 @@ public partial class App : Application
 		InitializeComponent();
 
 		MainPage = new AppShell();
+
+		// NEXT Step:
+		// Set up Application Shell initialization, add basic navigation
+
+		// MainPage = new NavigationPage(new StartPage());
 	}
 }

@@ -20,7 +20,7 @@ public partial class BaseAccountViewModel : BaseViewModel
 	protected BaseAccountViewModel(ILogger logger): base(logger){}
 	
 	[RelayCommand]
-    protected void ColorTapped(AccountColor accountColor)
+    private void ColorTapped(AccountColor accountColor)
     {
         foreach (var item in ColorsCollection)
         {
@@ -33,19 +33,19 @@ public partial class BaseAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    protected async void CloseAsync()
+    private async void CloseAsync()
     {
         await Shell.Current.Navigation.PopModalAsync();
     }
 
 	[RelayCommand]
-    protected void Prev()
+    private void Prev()
     {
         Position -= 1;
     }
 
 	[RelayCommand]
-    protected void Next()
+    private void Next()
     {
         if (Position == 1) return;
         Position += 1;

@@ -33,7 +33,7 @@ public partial class SettingsBViewModel : BaseViewModel
         Months.Add("July");
         Months.Add("Augest");
         Months.Add("Spetemper");
-        Months.Add("November"); 
+        Months.Add("November");
 		_wallet = new()
 		{
 			Id = Guid.NewGuid(),

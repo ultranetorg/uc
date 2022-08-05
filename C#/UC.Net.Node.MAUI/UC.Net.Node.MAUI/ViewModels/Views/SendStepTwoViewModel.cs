@@ -2,6 +2,16 @@
 
 public partial class SendStepTwoViewModel : BaseViewModel
 {
+	[ObservableProperty]
+    private Wallet _recipientWallet = new()
+    {
+        Id = Guid.NewGuid(),
+        Unts = 5005,
+        IconCode = "47F0",
+        Name = "Main ultranet wallet",
+        AccountColor = Color.FromArgb("#6601e3"),
+    };
+
     public SendStepTwoViewModel(ILogger<SendStepTwoViewModel> logger): base(logger){}
         
 	[RelayCommand]
@@ -18,16 +28,5 @@ public partial class SendStepTwoViewModel : BaseViewModel
         IconCode = "47FO",
         Name = "Main ultranet wallet",
         AccountColor = Color.FromArgb("#56d7de"),
-
-    };
-	
-	[ObservableProperty]
-    private Wallet _recipientWallet = new()
-    {
-        Id = Guid.NewGuid(),
-        Unts = 5005,
-        IconCode = "47F0",
-        Name = "Main ultranet wallet",
-        AccountColor = Color.FromArgb("#6601e3"),
     };
 }

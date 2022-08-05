@@ -5,6 +5,8 @@ namespace UC.Net.Node.MAUI.Controls
 {
     public class CustomCollection<T> : ObservableCollection<T>
     {
+        private bool _suppressNotification = false;
+
         public CustomCollection(IEnumerable<T> list)
         { 
             AddRange(list);
@@ -25,8 +27,6 @@ namespace UC.Net.Node.MAUI.Controls
             OnCollectionChanged(args);
         }
 
-        private bool _suppressNotification = false;
-
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             try
@@ -34,24 +34,30 @@ namespace UC.Net.Node.MAUI.Controls
                 if (!_suppressNotification)
                     base.OnCollectionChanged(e);
             }
-            catch
+            catch // Exception ex
             {
             }
         }
 
         public void AddRange(IEnumerable<T> list)
         {
-            if (list == null)
-                throw new ArgumentNullException("list");
-
-            _suppressNotification = true;
-
-            foreach (T item in list)
+            try
             {
-                Add(item);
+				if (list == null)
+					throw new ArgumentNullException("list");
+
+				_suppressNotification = true;
+
+				foreach (T item in list)
+				{
+					Add(item);
+				}
+				_suppressNotification = false;
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
-            _suppressNotification = false;
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            catch // Exception ex
+            {
+            }
         }
     }
 }

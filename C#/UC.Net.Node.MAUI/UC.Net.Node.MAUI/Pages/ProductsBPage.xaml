@@ -47,7 +47,7 @@
                                         RowSpacing="0"
                                         Style="{StaticResource AccountGrid}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedEmptyCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
                                         <Frame
                                             Grid.Row="0"
@@ -85,7 +85,7 @@
                                             Grid.RowSpan="2"
                                             Grid.Column="2"
                                             Padding="1"
-                                            Command="{Binding BindingContext.OptionsCommand, Source={x:Reference page}}"
+                                            Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource Dots}"
                                             VerticalOptions="Center" />

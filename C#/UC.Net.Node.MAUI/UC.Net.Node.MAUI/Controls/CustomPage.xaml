@@ -26,7 +26,7 @@
                     <ImageButton
                         x:Name="BackButton"
                         Grid.Column="0"
-                        Clicked="BackButtonclicked"
+                        Clicked="BackButtonClicked"
                         HeightRequest="28"
                         IsVisible="{Binding HasBackButton, Source={x:Reference Instance}}"
                         Opacity="0.4"

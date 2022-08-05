@@ -18,18 +18,22 @@ public partial class BaseWalletViewModel : BaseViewModel
 	protected BaseWalletViewModel(ILogger logger): base(logger){}
 
     [RelayCommand]
-    protected virtual async void SelectAuthorAsync()
+    private async void SelectAuthorAsync()
     {
         var author = await SelectAuthorPopup.Show();
-        if (author == null) return;
-        Author = author;
+        if (author != null)
+		{
+			Author = author;
+		}
     }
 
     [RelayCommand]
-    protected async void SelectAccountAsync()
+    private async void SelectAccountAsync()
     {
         var wallet = await SourceAccountPopup.Show();
-        if (wallet == null) return;
-        Wallet = wallet;
+        if (wallet != null)
+		{
+			Wallet = wallet;
+		}
     }
 }

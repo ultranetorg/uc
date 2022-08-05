@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class ProductsViewModel : BaseViewModel
+public partial class ProductsViewModel : BaseTransactionsViewModel
 {
 	[ObservableProperty]
     private Product _selectedItem;
@@ -14,30 +14,6 @@ public partial class ProductsViewModel : BaseViewModel
     public ProductsViewModel(ILogger<ProductsViewModel> logger) : base(logger)
     {
 		FillFakeData();
-    }
-
-	[RelayCommand]
-    private async void CreateAsync()
-    {
-        await Shell.Current.Navigation.PushModalAsync(new CreateAccountPage());
-    }
-	
-	[RelayCommand]
-    private async void RestoreAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new RestoreAccountPage());
-    }
-
-	[RelayCommand]
-    private void ItemTappedAsync(Product Product)
-    {  
-    }
-
-	[RelayCommand]
-    private async void OptionsAsync(Wallet wallet)
-    {
-		// has been changes from Product to Wallet
-        await AccountOptionsPopup.Show(wallet);
     }
 
 	private void FillFakeData()

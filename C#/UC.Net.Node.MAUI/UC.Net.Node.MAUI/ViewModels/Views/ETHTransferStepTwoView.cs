@@ -42,6 +42,8 @@ public partial class ETHTransferStepTwoViewModel : BaseViewModel
 		AccountsShown = !AccountsShown;
 	}
 
+	#region Fake Data
+	
 	private void AddFakeData()
 	{
 		Wallets.Add(new Wallet
@@ -56,7 +58,7 @@ public partial class ETHTransferStepTwoViewModel : BaseViewModel
 		{
 			Id = Guid.NewGuid(),
 			Unts = 5005,
-			IconCode = "2T52", 
+			IconCode = "2T52",
 			Name = "Primary ultranet wallet",
 			AccountColor = Color.FromArgb("#3765f4")
 		});
@@ -109,4 +111,6 @@ public partial class ETHTransferStepTwoViewModel : BaseViewModel
 			AccountColor = Color.FromArgb("#bb50dd")
 		});
 	}
+	
+	#endregion Fake Data
 }

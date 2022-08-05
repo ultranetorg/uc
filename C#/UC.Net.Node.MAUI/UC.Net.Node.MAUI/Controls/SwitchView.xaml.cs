@@ -1,125 +1,126 @@
 ﻿using System.Windows.Input;
 
-namespace UC.Net.Node.MAUI.Controls
+namespace UC.Net.Node.MAUI.Controls;
+
+public partial class SwitchView : ContentView
 {
-    public partial class SwitchView : ContentView
+    private bool JustSet = true;
+    private bool IsRunning;
+
+    public event EventHandler Tapped;
+
+    public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create("CornerRadius", typeof(double), typeof(SwitchView), default);
+    public double CornerRadius
     {
-        private bool JustSet = true;
-        private bool IsRunning;
+        get { return (double)GetValue(CornerRadiusProperty); }
+        set { SetValue(CornerRadiusProperty, value); }
+    }
 
-        public event EventHandler Tapped;
+    public static BindableProperty CurrentColorProperty = BindableProperty.Create(nameof(CurrentColor), typeof(Color), typeof(SwitchView), Colors.Gray);
+    public Color CurrentColor
+    {
+        get { return (Color)GetValue(CurrentColorProperty); }
+        set { SetValue(CurrentColorProperty, value); }
+    }
 
-        public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create("CornerRadius", typeof(double), typeof(SwitchView), default);
-        public double CornerRadius
+    public static BindableProperty OffColorProperty = BindableProperty.Create(nameof(OffColor), typeof(Color), typeof(SwitchView), Colors.Gray);
+    public Color OffColor
+    {
+        get { return (Color)GetValue(OffColorProperty); }
+        set { SetValue(OffColorProperty, value); }
+    }
+
+    public static BindableProperty OnColorProperty = BindableProperty.Create(nameof(OnColor), typeof(Color), typeof(SwitchView), Colors.Blue);
+    public Color OnColor
+    {
+        get { return (Color)GetValue(OnColorProperty); }
+        set { SetValue(OnColorProperty, value); }
+    }
+
+    public static readonly BindableProperty IsOnProperty = BindableProperty.Create("IsOn", typeof(bool), typeof(SwitchView), true);
+    public bool IsOn
+    {
+        get { return (bool)GetValue(IsOnProperty); }
+        set { SetValue(IsOnProperty, value); }
+    }
+
+    private ICommand TransitionCommand
+    {
+        get
         {
-            get { return (double)GetValue(CornerRadiusProperty); }
-            set { SetValue(CornerRadiusProperty, value); }
-        }
-
-        public static BindableProperty CurrentColorProperty = BindableProperty.Create(nameof(CurrentColor), typeof(Color), typeof(SwitchView), Colors.Gray);
-        public Color CurrentColor
-        {
-            get { return (Color)GetValue(CurrentColorProperty); }
-            set { SetValue(CurrentColorProperty, value); }
-        }
-
-        public static BindableProperty OffColorProperty = BindableProperty.Create(nameof(OffColor), typeof(Color), typeof(SwitchView), Colors.Gray);
-        public Color OffColor
-        {
-            get { return (Color)GetValue(OffColorProperty); }
-            set { SetValue(OffColorProperty, value); }
-        }
-
-        public static BindableProperty OnColorProperty = BindableProperty.Create(nameof(OnColor), typeof(Color), typeof(SwitchView), Colors.Blue);
-        public Color OnColor
-        {
-            get { return (Color)GetValue(OnColorProperty); }
-            set { SetValue(OnColorProperty, value); }
-        }
-
-        public static readonly BindableProperty IsOnProperty = BindableProperty.Create("IsOn", typeof(bool), typeof(SwitchView), true);
-        public bool IsOn
-        {
-            get { return (bool)GetValue(IsOnProperty); }
-            set { SetValue(IsOnProperty, value); }
-        }
-
-        private ICommand TransitionCommand
-        {
-            get
+            return new Command(() =>
             {
-                return new Command(() =>
+                try
                 {
-                    try
+                    if (Command != null)
                     {
-                        if (Command != null)
-                        {
-                            Command.Execute(IsOn);
-                        }
+                        Command.Execute(IsOn);
                     }
-                    catch{}
-                });
-            }
+                }
+                catch{}
+            });
         }
-        public static readonly BindableProperty CommandProperty = BindableProperty.Create("Command", typeof(ICommand), typeof(SwitchView), null);
+    }
+    public static readonly BindableProperty CommandProperty = BindableProperty.Create("Command", typeof(ICommand), typeof(SwitchView), null);
 
-        public ICommand Command
-        {
-            get { return (ICommand)GetValue(CommandProperty); }
-            set { SetValue(CommandProperty, value); }
-        }
+    public ICommand Command
+    {
+        get { return (ICommand)GetValue(CommandProperty); }
+        set { SetValue(CommandProperty, value); }
+    }
 
-        public SwitchView()
-        {
-            InitializeComponent();
-            Initialize();
-        }
+    public SwitchView()
+    {
+        InitializeComponent();
+        Initialize();
+    }
 
-        public void Initialize()
-        {
-            CurrentColor = OffColor;
-            var tap = new TapGestureRecognizer();
-            tap.Tapped += Tap_Tapped;
-            tap.Command = TransitionCommand;
-            GestureRecognizers.Add(tap);
+    public void Initialize()
+    {
+        CurrentColor = OffColor;
+        var tap = new TapGestureRecognizer();
+        tap.Tapped += Tap_Tapped;
+        tap.Command = TransitionCommand;
+        GestureRecognizers.Add(tap);
 
-        }
+    }
 
-        private void Tap_Tapped(object sender, EventArgs e)
-        {
-            Switch();
-            Tapped?.Invoke(sender, e);
-        }
+    private void Tap_Tapped(object sender, EventArgs e)
+    {
+        Switch();
+        Tapped?.Invoke(sender, e);
+    }
         
-        public async void Switch()
+    public async void Switch()
+    {
+        if (!IsRunning)
+		{
+			IsRunning = true;
+
+			if (IsOn && !JustSet)
+			{
+				await thumb.TranslateTo(thumb.TranslationX - thumb.Width, 0);
+				CurrentColor = OffColor;
+			}
+			else if (!IsOn)
+			{
+				await thumb.TranslateTo(thumb.Width, 0);
+				CurrentColor = OnColor;
+			}
+
+			IsOn = !IsOn;
+			IsRunning = JustSet = false;
+			}
+    }
+
+    private void Instance_SizeChanged(object sender, EventArgs e)
+    {
+        if (frame.Width > 0)
         {
-            if (IsRunning) return;
-            IsRunning = true;
-
-            if (IsOn && !JustSet)
-            {
-                await thumb.TranslateTo(thumb.TranslationX-thumb.Width, 0);
-                CurrentColor = OffColor;
-            }
-            else if (!IsOn)
-            {
-                await thumb.TranslateTo(thumb.Width, 0);
-                CurrentColor = OnColor;
-            }
-
-            IsOn = !IsOn;
-            IsRunning=JustSet = false;
-        }
-
-        private void instance_SizeChanged(object sender, EventArgs e)
-        {
-            if (frame.Width > 0)
-            {
-                frame.WidthRequest = frame.Height * 2;
-                thumb.HeightRequest=thumb.WidthRequest = frame.Height-4;
-                thumb.HorizontalOptions = LayoutOptions.Start;
-                Switch();
-            }
+            frame.WidthRequest = frame.Height * 2;
+            thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
+            thumb.HorizontalOptions = LayoutOptions.Start;
+            Switch();
         }
     }
 }

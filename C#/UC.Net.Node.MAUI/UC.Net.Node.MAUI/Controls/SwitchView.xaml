@@ -6,7 +6,7 @@
     x:Name="instance"
     BackgroundColor="Transparent"
     HorizontalOptions="Center"
-    SizeChanged="instance_SizeChanged">
+    SizeChanged="Instance_SizeChanged">
     <Frame
         x:Name="frame"
         Padding="4"

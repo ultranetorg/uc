@@ -1,23 +1,17 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class StartViewModel
+public partial class StartViewModel : BaseWalletViewModel
 {
-	protected readonly ILogger _logger;
-
-	private Wallet _wallet = new()
-    {
-        Id = Guid.NewGuid(),
-        Unts = 5005,
-        IconCode = "2T52",
-        Name = "Main ultranet wallet",
-        AccountColor = Color.FromArgb("#bb50dd"),
-    };
-
-	private Author _author = new() { BidStatus = BidStatus.None, Name = "amazon.com", ActiveDue = "Active due: 07/07/2022 (in 182 days)" };
-
-	public StartViewModel(ILogger<StartViewModel> logger)
+	public StartViewModel(ILogger<StartViewModel> logger) : base(logger)
 	{
-		_logger = logger;
+		Wallet = new()
+		{
+			Id = Guid.NewGuid(),
+			Unts = 5005,
+			IconCode = "2T52",
+			Name = "Main ultranet wallet",
+			AccountColor = Color.FromArgb("#bb50dd"),
+		};
 	}
 
 	[RelayCommand]
@@ -26,19 +20,19 @@ public partial class StartViewModel
 		switch(int.Parse(commandParameter))
         {
             case 0:
-                await Shell.Current.Navigation.PushAsync(new AccountDetailsPage(_wallet));
+                await Shell.Current.Navigation.PushAsync(new AccountDetailsPage(Wallet));
                 break;
             case 1:
                 await Shell.Current.Navigation.PushAsync(new AuthorsPage());
                 break;
             case 2:
-                await Shell.Current.Navigation.PushAsync(new AuthorSearchPage(_author));
+                await Shell.Current.Navigation.PushAsync(new AuthorSearchPage(Author));
                 break;
             case 19:
-                await Shell.Current.Navigation.PushAsync(new AuthorSearchBPage(_author));
+                await Shell.Current.Navigation.PushAsync(new AuthorSearchBPage(Author));
                 break;
             case 20:
-                await Shell.Current.Navigation.PushAsync(new AuthorSearchCPage(_author));
+                await Shell.Current.Navigation.PushAsync(new AuthorSearchCPage(Author));
                 break;
             case 3:
                 await Shell.Current.Navigation.PushAsync(new AuthorRegistrationPage());
@@ -53,7 +47,7 @@ public partial class StartViewModel
                 await Shell.Current.Navigation.PushAsync(new DashboardPage());
                 break;
             case 7:
-                await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(_wallet));
+                await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Wallet));
                 break;
             case 8:
                 await Shell.Current.Navigation.PushAsync(new ETHTransferPage());
@@ -65,7 +59,7 @@ public partial class StartViewModel
                 await Shell.Current.Navigation.PushAsync(new ManageAccountsPage());
                 break;
             case 11:
-                await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(_wallet));
+                await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Wallet));
                 break;
             case 12:
                 await Shell.Current.Navigation.PushAsync(new ProductSearchPage());

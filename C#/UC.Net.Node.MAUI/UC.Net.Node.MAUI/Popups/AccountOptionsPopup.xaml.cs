@@ -1,6 +1,4 @@
-﻿using UC.Net.Node.MAUI.Pages;
-
-namespace UC.Net.Node.MAUI.Popups
+﻿namespace UC.Net.Node.MAUI.Popups
 {
     public partial class AccountOptionsPopup : Popup
     {

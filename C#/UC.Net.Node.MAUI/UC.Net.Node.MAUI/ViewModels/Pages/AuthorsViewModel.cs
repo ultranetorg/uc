@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class AuthorsViewModel : BaseViewModel
+public partial class AuthorsViewModel : BaseTransactionsViewModel
 {
 	[ObservableProperty]
     private Author _selectedItem;
@@ -15,32 +15,13 @@ public partial class AuthorsViewModel : BaseViewModel
     {
 		FillFakeData();
     }
-
-	[RelayCommand]
-    private async void CreateAsync()
-    {
-        await Shell.Current.Navigation.PushModalAsync(new CreateAccountPage());
-    }
 	
 	[RelayCommand]
-    private async void RestoreAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new RestoreAccountPage());
-    }
-	
-	[RelayCommand]
-    private async void ItemTappedAsync(Author Author)
+    private async void AuthorTappedAsync(Author Author)
     {
         if (Author == null) 
             return;
         await Shell.Current.Navigation.PushAsync(new AuthorSearchPage(Author));
-    }
-	
-	[RelayCommand]
-    private async void OptionsAsync(Wallet wallet)
-    {
-		// has been changed from Author to Wallet
-        await AccountOptionsPopup.Show(wallet);
     }
 	
 	[RelayCommand]

@@ -65,6 +65,18 @@ namespace UC.Net.Node.MAUI.Controls
             set => SetValue(NextEditorProperty, value);
         }
 
+        public static readonly BindableProperty ImageProperty =
+            BindableProperty.Create(nameof(Image), typeof(string), typeof(BorderEditor), string.Empty);
+
+        public static readonly BindableProperty LineColorProperty =
+            BindableProperty.Create(nameof(LineColor), typeof(Color), typeof(BorderEditor), Colors.Transparent);
+
+        public Color LineColor
+        {
+            get { return (Color)GetValue(LineColorProperty); }
+            set { SetValue(LineColorProperty, value); }
+        }
+
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             base.OnPropertyChanged(propertyName);
@@ -78,17 +90,6 @@ namespace UC.Net.Node.MAUI.Controls
         public void OnNext()
         {
             NextEditor?.Focus();
-        }
-        public static readonly BindableProperty ImageProperty =
-            BindableProperty.Create(nameof(Image), typeof(string), typeof(BorderEditor), string.Empty);
-
-        public static readonly BindableProperty LineColorProperty =
-            BindableProperty.Create(nameof(LineColor), typeof(Color), typeof(BorderEditor), Colors.Transparent);
-
-        public Color LineColor
-        {
-            get { return (Color)GetValue(LineColorProperty); }
-            set { SetValue(LineColorProperty, value); }
         }
     }
 }
