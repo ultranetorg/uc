@@ -18,7 +18,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	CoInitialize(NULL);
 
-	wchar_t p[32768];
+	wchar_t p[4096];
 	GetModuleFileNameW(CreationInstance, p, _countof(p));
 
 	SupervisorName		= supervisor_folder;

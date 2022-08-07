@@ -7,7 +7,7 @@ namespace uc
 {
 	#define UOS_FILE_SYSTEM_PROTOCOL					L"Uos.Storage"
 	#define UOS_FILE_SYSTEM								L"UC.Storage"
-	#define UOS_FILE_SYSTEM_ORIGIN						L"una.ultranet.org/UC.Storage"
+	//#define UOS_FILE_SYSTEM_ORIGIN						L"uc/storage"
 
 	class IStorageProtocol : public virtual IProtocol
 	{

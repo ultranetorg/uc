@@ -35,6 +35,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\UO.Experimental\Cef.xml" />
+    <Xml Include="..\UC.Experimental.Browser.Cef\Cef.xml" />
   </ItemGroup>
 </Project>

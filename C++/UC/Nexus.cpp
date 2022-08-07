@@ -86,7 +86,7 @@ void CNexus::StartServers()
 	auto inf = new CServerInfo();
 	inf->HInstance		= null;
 	inf->Xon			= null;
-	inf->Origin			= CUrl(UOS_FILE_SYSTEM_ORIGIN);
+	//inf->Origin			= CUrl(UOS_FILE_SYSTEM_ORIGIN);
 	inf->Url			= CUsl(/*Core->DatabaseId + L".ultranet"*/L"", UOS_FILE_SYSTEM/*, UOS_FILE_SYSTEM_ORIGIN*/);
 	inf->Role			= L"Server";
 	inf->Installed		= true;

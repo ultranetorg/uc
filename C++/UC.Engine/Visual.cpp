@@ -268,7 +268,7 @@ void CVisual::SetMatrix(const CMatrix & m)
 
 		//MatrixModified();
 		Updates |= EVisualUpdate_Obb;
-		FinalMatrixChanged();
+		//FinalMatrixChanged();
 	}
 }
 

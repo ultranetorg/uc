@@ -44,7 +44,7 @@
     <GenerateManifest>true</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
-    <OutDir>$(G_Root)\_$(Configuration)\win.x64__$(ProjectName)\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uc-uos-win64\0.0.0.0\</OutDir>
     <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
@@ -52,7 +52,7 @@
     <GenerateManifest>true</GenerateManifest>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
-    <OutDir>$(G_Root)\_$(Configuration)\win.x64__$(ProjectName)\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uc-uos-win64\0.0.0.0\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -144,13 +144,16 @@
     <ResourceCompile Include="Resources\Level1.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\UC.World\UC.World.vcxproj">
+      <Project>{1c7a99b2-adc2-4e07-8062-eabc8988050f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\UC\UC.vcxproj">
       <Project>{9505d95f-fbb9-4365-9d27-be5d96f75a9b}</Project>
       <Private>false</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\UO.Experimental\Cef.xml" />
+    <Xml Include="..\UC.Experimental.Browser.Cef\Cef.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

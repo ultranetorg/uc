@@ -44,14 +44,14 @@
     <GenerateManifest>false</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
-    <OutDir>$(G_Root)\_$(Configuration)\win.x64__$(ProjectName)\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uc-uos-win64\0.0.0.0\</OutDir>
     <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
-    <OutDir>$(G_Root)\_$(Configuration)\win.x64__$(ProjectName)\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uc-uos-win64\0.0.0.0\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
