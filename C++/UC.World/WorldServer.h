@@ -10,9 +10,12 @@ namespace uc
 {
 	class CMobileSkinModel;
 	
-	class CWorldServer : public CServer, public CWorld, public IExecutorProtocol, public IViewStore, public IUwmProtocol, public IAvatarProtocol
+	class CWorldServer : public CStorableServer, public CWorld, public IExecutorProtocol, public IViewStore, public IUwmProtocol, public IAvatarProtocol
 	{
 		public:
+			using CWorldLevel::Storage;
+			using CWorldLevel::Nexus;
+
 			CList<CUnit *>								Units;
 			CList<CUnit *>								Showings;
 			CArray<CUnit *>								Movings;
@@ -46,13 +49,16 @@ namespace uc
 			float										Fov;
 
 			UOS_RTTI
-			CWorldServer(CLevel2 * l, CServerInfo * si);
+			CWorldServer(CNexus * l, CServerInfo * si);
 			~CWorldServer();
 
 			void										Start(EStartMode sm) override;
 			IProtocol *									Connect(CString const & pr) override;
 			void										Disconnect(IProtocol * c) override;
-			
+
+			void										EstablishConnections();
+			void										OnDisconnecting(CServer *, IProtocol *, CString &);
+
 			CGroup *									CreateGroup(CString const & name) override;
 
 			virtual void								InitializeViewports(){}
@@ -120,7 +126,7 @@ namespace uc
 
 			CNexusObject *								CreateObject(CString const & name) override;
 
-			virtual CNexusObject *						GetEntity(CUol & a) override;
+			virtual CBaseNexusObject *					GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 	};

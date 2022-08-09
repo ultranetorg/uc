@@ -33,7 +33,7 @@ CFieldItemElement::CFieldItemElement(CShellLevel * l, CFieldWorld * fo, CString 
 												};
 
 
-	Selection = new CVisual(&Level->Engine->EngineLevel, L"selection", null, null, CMatrix::FromPosition(0, 0, Z_STEP));
+	Selection = new CVisual(Level->Engine->Level, L"selection", null, null, CMatrix::FromPosition(0, 0, Z_STEP));
 	auto m = Level->Engine->CreateMesh();
 	Selection->SetMesh(m);
 	Selection->SetMaterial(Level->World->Materials->GetMaterial(Level->Style->Get<CFloat4>(L"Selection/Border/Material")));
@@ -72,7 +72,7 @@ void CFieldItemElement::Revive()
 	}
 }
 
-void CFieldItemElement::OnDependencyDestroying(CNexusObject * o)
+void CFieldItemElement::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	///if(Avatar && o == Avatar)
 	///{
@@ -109,7 +109,7 @@ void CFieldItemElement::Save(IMeshStore * mhs, IMaterialStore * mts)
 	
 	Save(&d);
 
-	auto s = Level->Storage->OpenWriteStream(Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
+	auto s = Level->Storage->OpenWriteStream(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
 	d.Save(&CXonTextWriter(s, true));
 	Level->Storage->Close(s);
 	
@@ -125,7 +125,7 @@ void CFieldItemElement::Save(IMeshStore * mhs, IMaterialStore * mts)
 
 void CFieldItemElement::Load(IMeshStore * mhs, IMaterialStore * mts, CFieldServer * field)
 {
-	auto f = Level->Storage->OpenReadStream(Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
+	auto f = Level->Storage->OpenReadStream(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
 	auto & d = CTonDocument(CXonTextReader(f));
 	Level->Storage->Close(f);
 
@@ -164,7 +164,7 @@ void CFieldItemElement::Load(IMeshStore * mhs, IMaterialStore * mts, CFieldServe
 
 void CFieldItemElement::Delete()
 {
-	Level->Storage->DeleteFile(Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
+	Level->Storage->DeleteFile(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
 	Avatar->Delete();
 	//Level->World->DestroyAvatar(Avatar);
 }

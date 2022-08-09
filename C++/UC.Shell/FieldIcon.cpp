@@ -7,10 +7,10 @@ CFieldIcon::CFieldIcon(CShellLevel * l, CString const & name) : CIcon(l->World, 
 {
 	Level = l;
 
-	AMesh = new CSolidRectangleMesh(&l->World->Engine->EngineLevel);
+	AMesh = new CSolidRectangleMesh(l->World->Engine->Level);
 	Active->SetMesh(AMesh);
 
-	auto msh = new CMesh(&Level->World->Engine->EngineLevel);
+	auto msh = new CMesh(Level->World->Engine->Level);
 	msh->SetPrimitiveInfo(EPrimitiveType::TriangleList);	
 	Visual->SetMesh(msh);
 	msh->Free();
@@ -46,7 +46,7 @@ void CFieldIcon::UpdateLayout(CLimits const & l, bool apply)
 		
 		auto t = 0.75f * min(IW, IH) / 3;
 	
-		auto m = new CSolidRectangleMesh(&Level->World->Engine->EngineLevel);
+		auto m = new CSolidRectangleMesh(Level->World->Engine->Level);
 	
 		for(int x=0; x<3; x++)
 		{

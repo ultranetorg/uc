@@ -27,7 +27,7 @@ namespace uc
 				Title = Object->Title;
 			}
 
-			void OnDependencyDestroying(CNexusObject * o)
+			void OnDependencyDestroying(CBaseNexusObject * o)
 			{
 				if(Object)
 				{
@@ -141,7 +141,7 @@ namespace uc
 
 			void LoadInstance() override
 			{
-				if(Level->Nexus->Storage->Exists(CPath::Join(GlobalDirectory, Level->World->Name + L".xon")))
+				if(Level->Storage->Exists(CPath::Join(GlobalDirectory, Level->World->Name + L".xon")))
 				{
 					CTonDocument d;
 					LoadGlobal(d, Level->World->Name + L".xon");

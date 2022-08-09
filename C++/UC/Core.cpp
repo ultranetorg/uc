@@ -496,8 +496,8 @@ CString CCore::GetPathTo(ESystemPath folder, const CString & path)
 	switch(folder)
 	{
 		case ESystemPath::Root:		return CNativePath::Join(RootPath, path);
-		case ESystemPath::Servers:	return ServersPath + path;
-		case ESystemPath::Common:	return CommonPath + path;
+		case ESystemPath::Servers:	return CNativePath::Join(ServersPath, path);
+		case ESystemPath::Common:	return CNativePath::Join(CommonPath, path);
 	}
 
 	throw CException(HERE, L"Wrong folder type");

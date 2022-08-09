@@ -5,7 +5,7 @@ using namespace uc;
 
 static CShellServer * This = null;
 
-CServer * StartUosServer(CLevel2 * l, CServerInfo * info)
+CServer * StartUosServer(CNexus * l, CServerInfo * info)
 {
 	This = new CShellServer(l, info);
 	return This;
@@ -16,11 +16,12 @@ void StopUosServer()
 	delete This;
 }
 
-CShellServer::CShellServer(CLevel2 * l, CServerInfo * si) : CServer(l, si), CShellLevel(l)
+CShellServer::CShellServer(CNexus * l, CServerInfo * si) : CStorableServer(l, si)
 {
-	Server		= this;
-	Log			= l->Core->Supervisor->CreateLog(SHELL_OBJECT);
-	Storage		= Nexus->Storage;
+	Server	= this;
+	Nexus	= Server->Nexus;
+	Core	= Nexus->Core;
+	Log		= l->Core->Supervisor->CreateLog(Url.Server);
 }
 
 CShellServer::~CShellServer()
@@ -38,7 +39,6 @@ CShellServer::~CShellServer()
 
 	delete ImageExtractor;
 	delete Style;
-	delete WebInformer;
 
 	if(World)
 	{
@@ -47,16 +47,14 @@ CShellServer::~CShellServer()
 			World->Sphere->Active->MouseEvent -= ThisHandler(OnWorldSphereMouse);
 		}
 
-		World.Server->Disconnecting -= ThisHandler(OnWorldDisconnecting);
+		World.Server->Disconnecting -= ThisHandler(OnDisconnecting);
 		Nexus->Disconnect(World);
 	}
-}
 
-void CShellServer::OnWorldDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(p == World && pn == WORLD_PROTOCOL)
+	if(Storage)
 	{
-		Nexus->StopServer(this); // THE END
+		Storage.Server->Disconnecting -= ThisHandler(OnDisconnecting);
+		Nexus->Disconnect(Storage);
 	}
 }
 
@@ -65,12 +63,26 @@ void CShellServer::EstablishConnections()
 	if(!World)
 	{
 		World = Nexus->Connect(this, WORLD_PROTOCOL);
-		World.Server->Disconnecting += ThisHandler(OnWorldDisconnecting);
-		
+		World.Server->Disconnecting += ThisHandler(OnDisconnecting);
+
 		Engine			= World->Engine;
 		Style			= World->Style->Clone();
 		ImageExtractor	= new CImageExtractor(World, Server);
-		WebInformer		= new CWebInformer(Level, this, MapUserGlobalPath(L"")); /// finish FS changes
+	}
+
+	if(!Storage)
+	{
+		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
+		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
+	}
+}
+
+void CShellServer::OnDisconnecting(CServer * s, IProtocol * p, CString & pn)
+{
+	if(	p == World && pn == WORLD_PROTOCOL ||
+		p == Storage && pn == UOS_STORAGE_PROTOCOL)
+	{
+		Nexus->StopServer(this); // THE END
 	}
 }
 
@@ -168,7 +180,7 @@ void CShellServer::Start(EStartMode sm)
 	
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szPath))) 
 		{
-			auto d = Storage->OpenDirectory(Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
+			auto d = Storage->OpenDirectory(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
 			for(auto i : d->Enumerate(L"*.*"))
 			{
 				items.push_back(i);
@@ -178,7 +190,7 @@ void CShellServer::Start(EStartMode sm)
 	
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, szPath)))
 		{
-			auto d = Storage->OpenDirectory(Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
+			auto d = Storage->OpenDirectory(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
 			for(auto i : d->Enumerate(L"*.*"))
 			{
 				items.push_back(i);
@@ -203,7 +215,7 @@ void CShellServer::Start(EStartMode sm)
 
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_MYPICTURES, NULL, 0, szPath)))
 		{
-			auto d = Storage->OpenDirectory(Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
+			auto d = Storage->OpenDirectory(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
 			
 			int n = 0;
 			for(auto i : d->Enumerate(L"*.*"))
@@ -232,7 +244,7 @@ void CShellServer::Start(EStartMode sm)
 
 		// Usage.txt notepad
 		auto v = new CNotepad(this);
-		v->SetFile(Storage->MapPath(UOS_MOUNT_CORE, L"About.txt"));
+		v->SetFile(Nexus->MapPath(UOS_MOUNT_CORE, L"About.txt"));
 		Server->RegisterObject(v, true);
 		home->Add(v->Url, AVATAR_WIDGET);
 		v->Free();
@@ -339,7 +351,7 @@ void CShellServer::OnWorldSphereMouse(CActive *, CActive *, CMouseArgs * arg)
 	}
 }
 
-CNexusObject * CShellServer::GetEntity(CUol & e)
+CBaseNexusObject * CShellServer::GetEntity(CUol & e)
 {
 	return Server->FindObject(e);
 }
@@ -480,10 +492,10 @@ IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMen
 												{
 													CList<CUol> links;
 
-													for(auto i : paths)
+													for(auto & i : paths)
 													{
 														auto link = new CLink(this);
-														link->SetTarget((CUrl)Storage->ToUol(Storage->GetType(Storage->NativeToUniversal(i)), Storage->NativeToUniversal(i)));
+														link->SetTarget((CUrl)Storage->ToUol(Storage->GetType(Nexus->NativeToUniversal(i)), Nexus->NativeToUniversal(i)));
 														Server->RegisterObject(link, true);
 														link->Free();
 														links.push_back(link->Url);
@@ -504,7 +516,7 @@ IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMen
 												if(!paths.empty())
 												{
 													auto v = new CNotepad(this);
-													v->SetFile(Nexus->Storage->NativeToUniversal(paths.front()));
+													v->SetFile(Nexus->NativeToUniversal(paths.front()));
 													Server->RegisterObject(v, true);
 													v->Free();
 
@@ -523,7 +535,7 @@ IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMen
 												if(!paths.empty())
 												{
 													auto v = new CPicture(this);
-													v->SetFile(Nexus->Storage->NativeToUniversal(paths.front()));
+													v->SetFile(Nexus->NativeToUniversal(paths.front()));
 													Server->RegisterObject(v, true);
 													v->Free();
 
@@ -542,7 +554,7 @@ IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMen
 											if(!list.empty())
 											{
 												auto o = new CDirectoryMenu(this);
-												o->AddPath(Nexus->Storage->NativeToUniversal(list.front()));
+												o->AddPath(Nexus->NativeToUniversal(list.front()));
 												Server->RegisterObject(o, true);
 												o->Free();
 												
@@ -601,12 +613,12 @@ CRefList<CMenuItem *> CShellServer::CreateActions()
 
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, szPath)))
 	{
-		sources.push_back(Nexus->Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
+		sources.push_back(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
 	}
 
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAMS, NULL, 0, szPath)))
 	{
-		sources.push_back(Nexus->Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
+		sources.push_back(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
 	}
 
 	win->Opening =	[this, win, sources]() mutable
@@ -716,7 +728,7 @@ void CShellServer::Execute(const CUrq & u, CExecutionParameters * ep)
 					Server->RegisterObject(d, true);
 					d->Free();
 
-					d->SetSource(Nexus->Storage->NativeToUniversal(paths.front()));
+					d->SetSource(Nexus->NativeToUniversal(paths.front()));
 
 					World->OpenEntity(d->Url, AREA_THEME, dynamic_cast<CShowParameters *>(ep));
 				}

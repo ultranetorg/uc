@@ -30,8 +30,8 @@ CHudFieldElement::CHudFieldElement(CShellLevel * l) : CFieldElement(l, GetClassN
 	Placing += ThisHandler(OnPlacing);
 
 	auto s = new CFieldSurface(l->World, L"Surface");
-	AMesh = new CSolidRectangleMesh(&l->World->Engine->EngineLevel);
-	VMesh = new CGridRectangleMesh(&l->World->Engine->EngineLevel);
+	AMesh = new CSolidRectangleMesh(l->World->Engine->Level);
+	VMesh = new CGridRectangleMesh(l->World->Engine->Level);
 	s->Transform(0, 0, Z_STEP);
 	s->Visual->SetMesh(VMesh);
 	s->Active->SetMesh(AMesh);
@@ -42,8 +42,7 @@ CHudFieldElement::CHudFieldElement(CShellLevel * l) : CFieldElement(l, GetClassN
 	SetSurface(s);
 	s->Free();
 		
-	Level->WebInformer->ProductInfoRetrieved += ThisHandler(OnProductInfoRetrieved);
-	
+
 /*
 	Info = new CParagraph(l->World);
 	//Info->SetView(l->World->MainOrthoView);

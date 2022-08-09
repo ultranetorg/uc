@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CDesktopWorld::CDesktopWorld(CLevel2 * l, CServerInfo * si) : CWorldServer(l, si)
+CDesktopWorld::CDesktopWorld(CNexus * l, CServerInfo * si) : CWorldServer(l, si)
 {
 	Name = WORLD_DESKTOP;
 	Complexity = AVATAR_ENVIRONMENT;
@@ -25,7 +25,7 @@ void CDesktopWorld::InitializeViewports()
 {
 	for(auto i : Targets)
 	{
-		Viewports.push_back(new CScreenViewport(&Engine->EngineLevel, i,	i->Size.W / Engine->ScreenEngine->Scaling.x, i->Size.H / Engine->ScreenEngine->Scaling.y, 
+		Viewports.push_back(new CScreenViewport(Engine->Level, i,	i->Size.W / Engine->ScreenEngine->Scaling.x, i->Size.H / Engine->ScreenEngine->Scaling.y, 
 																			0, 0,
 																			i->Size.W, i->Size.H,
 																			i->Screen->Rect.W, i->Screen->Rect.H
@@ -45,9 +45,9 @@ void CDesktopWorld::InitializeGraphs()
 
 void CDesktopWorld::InitializeView()
 {
-	MainView = new CWorldView(this, Engine, L"Main");
-	HudView = new CWorldView(this, Engine, L"Hud");
-	ThemeView = new CWorldView(this, Engine, L"Theme");
+	MainView = new CWorldView(this, L"Main");
+	HudView = new CWorldView(this, L"Hud");
+	ThemeView = new CWorldView(this, L"Theme");
 
 	//Z = MainView->GetCamera(MainViewport)->UnprojectZ(1, 1);
 	Z = 1000;

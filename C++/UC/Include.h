@@ -7,6 +7,7 @@
 // Levels
 #include "Core.h"
 #include "Nexus.h"
+#include "StorableServer.h"
 #include "EmptyLicenseService.h"
 #include "IExecutorProtocol.h"
 #include "NativeWindow.h"

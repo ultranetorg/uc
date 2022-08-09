@@ -60,7 +60,7 @@ int wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
 	{
 		c += COs::GetEnvironmentValue(L"G_Mmc");
 		c += L" ";
-		c += L"/UC.World?" 
+		c += L"/World?" 
 					L"Name=Desktop"
 					//L"Name=Mobile.E"
 					//L"Name=VR.E"

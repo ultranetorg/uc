@@ -41,7 +41,7 @@ void CWidgetWindow::SetEntity(CUol & o)
 	Entity->Destroying += ThisHandler(OnDependencyDestroying);
 }
 
-void CWidgetWindow::OnDependencyDestroying(CNexusObject * o)
+void CWidgetWindow::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(Entity && o == Entity)
 	{

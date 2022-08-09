@@ -12,7 +12,7 @@ CPictureWidget::CPictureWidget(CShellLevel * l, CString const & name) : CWidgetW
 	f->Reset(L"B");
 	SetFace(f);
 
-	auto m = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+	auto m = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 	m->AlphaBlending = true;
 	
 	Texture = Level->World->Engine->TextureFactory->CreateTexture();

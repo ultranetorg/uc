@@ -18,7 +18,7 @@ CColumnFileList::CColumnFileList(CExperimentalLevel * l) : CRectangle(l->World, 
 	Active->MouseEvent[EListen::NormalAll]		+= ThisHandler(OnMouse);
 	Active->KeyboardEvent[EListen::NormalAll]	+= ThisHandler(OnKeyboard);
 
-	IconMesh = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	IconMesh = new CSolidRectangleMesh(l->Engine->Level);
 	IconMesh->Generate(0, 0, 16, 16);
 
 	Express(L"C",	[this](auto apply)

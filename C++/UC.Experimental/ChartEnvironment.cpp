@@ -49,7 +49,7 @@ void CChartEnvironment::SetEntity(CUol & e)
 	OnTitleChanged(Entity);
 }
 
-void CChartEnvironment::OnDependencyDestroying(CNexusObject * o)
+void CChartEnvironment::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(Entity && Entity == o)
 	{

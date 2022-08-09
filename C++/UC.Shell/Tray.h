@@ -75,15 +75,15 @@ namespace uc
 				i->SetTitle(CString::Format(L"Profile: %s", Level->Core->Unid));
 				i->MarkOld();
 
-				UpdateItem = AddItem(CUol(Url, CGuid::Generate64(L"Update")));
-				UpdateItem->SetTitle(Level->Nexus->UpdateStatus);
-
-				Level->Nexus->UpdateStatusChanged += ThisHandler(UpdateStatusChanged);
+				/// UpdateItem = AddItem(CUol(Url, CGuid::Generate64(L"Update")));
+				/// UpdateItem->SetTitle(Level->Nexus->UpdateStatus);
+				///
+				/// Level->Nexus->UpdateStatusChanged += ThisHandler(UpdateStatusChanged);
 			}
 
 			~CTray()
 			{
-				Level->Nexus->UpdateStatusChanged -= ThisHandler(UpdateStatusChanged);
+				///Level->Nexus->UpdateStatusChanged -= ThisHandler(UpdateStatusChanged);
 
 				Save();
 
@@ -93,15 +93,15 @@ namespace uc
 				}
 			}
 
-			void UpdateStatusChanged()
-			{
-				UpdateItem->SetTitle(CString::Format(L"Updates found: %d", Level->Nexus->NewReleases.size()));
-
-				if(Level->Nexus->NewReleases.empty())
-				{
-					UpdateItem->MarkOld();
-				}
-			}
+			///	void UpdateStatusChanged()
+			///	{
+			///		UpdateItem->SetTitle(CString::Format(L"Updates found: %d", Level->Nexus->NewReleases.size()));
+			///
+			///		if(Level->Nexus->NewReleases.empty())
+			///		{
+			///			UpdateItem->MarkOld();
+			///		}
+			///	}
 
 			CTrayItem * AddItem(CUol & u) override
 			{

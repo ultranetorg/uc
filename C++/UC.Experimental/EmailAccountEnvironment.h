@@ -14,7 +14,7 @@ namespace uc
 			~CEmailAccountEnvironment();
 
 			void										SetEntity(CUol & e);
-			void										OnDependencyDestroying(CNexusObject *);
+			void										OnDependencyDestroying(CBaseNexusObject *);
 
 			virtual void								DetermineSize(CSize & smax, CSize & s) override;
 	};

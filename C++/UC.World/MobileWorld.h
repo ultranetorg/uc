@@ -18,7 +18,7 @@ namespace uc
 			CUnit *						Board = null;
 			CUnit *						Tray = null;
 
-			CMobileWorld(CLevel2 * l, CServerInfo * si) : CWorldServer(l, si) 
+			CMobileWorld(CNexus * l, CServerInfo * si) : CWorldServer(l, si) 
 			{
 				Name		= WORLD_MOBILE_EMULATION;
 				Complexity	= AVATAR_WIDGET;
@@ -39,7 +39,7 @@ namespace uc
 				auto s = Engine->ScreenEngine->PrimaryScreen;
 				auto t = Targets.Find([s](auto i){ return i->Screen = s; });
 				
-				SkinViewport = new CScreenViewport(&Engine->EngineLevel, t,	t->Size.W / Engine->ScreenEngine->Scaling.x, t->Size.H / Engine->ScreenEngine->Scaling.y, 
+				SkinViewport = new CScreenViewport(Engine->Level, t,	t->Size.W / Engine->ScreenEngine->Scaling.x, t->Size.H / Engine->ScreenEngine->Scaling.y, 
 																			0, 0,
 																			t->Size.W, t->Size.H,
 																			t->Screen->Rect.W, t->Screen->Rect.H);
@@ -61,7 +61,7 @@ namespace uc
 					y = 84.f;
 				}
 
-				MainViewport = new CScreenViewport(&Engine->EngineLevel, t,	w, h,
+				MainViewport = new CScreenViewport(Engine->Level, t,	w, h,
 																			x * Engine->ScreenEngine->Scaling.x,	y * Engine->ScreenEngine->Scaling.y,
 																			w * Engine->ScreenEngine->Scaling.x,	h * Engine->ScreenEngine->Scaling.y,
 																			w * Engine->ScreenEngine->DpiScaling.x,	h * Engine->ScreenEngine->DpiScaling.y);
@@ -82,10 +82,10 @@ namespace uc
 				auto sa = SkinViewport->W/SkinViewport->H;
 				auto fovs = 2.f * sa * atan((SkinViewport->W * 0.5f)/(sa * Z));
 
-				MainView	= new CWorldView(this, Engine, L"Main");
-				HudView		= new CWorldView(this, Engine, L"Hud");
-				ThemeView	= new CWorldView(this, Engine, L"Theme");
-				SkinView	= new CWorldView(this, Engine, L"Skin");
+				MainView	= new CWorldView(this, L"Main");
+				HudView		= new CWorldView(this, L"Hud");
+				ThemeView	= new CWorldView(this, L"Theme");
+				SkinView	= new CWorldView(this, L"Skin");
 
 				HudView->	AddCamera(MainViewport, fovm, 100, 1e4)->UseAffine();
 				MainView->	AddCamera(MainViewport, fovm, 100, 15000)->UseAffine();

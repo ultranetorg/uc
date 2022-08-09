@@ -1,17 +1,18 @@
 #pragma once
 #include "ExperimentalLevel.h"
+#include "TradeProvider.h"
 
 namespace uc
 {
 	class CTrade : public CWorldEntity
 	{
 		public:
-			CEvent<>										Retrieved;
-			CEvent<>										Changed;
-			CString										Symbol;
-			CString										Interval;
-			CString										Style;
-			CTradeProvider *							MarketProvider;
+			CEvent<>			Retrieved;
+			CEvent<>			Changed;
+			CString				Symbol;
+			CString				Interval;
+			CString				Style;
+			CTradeProvider *	Provider;
 
 			UOS_RTTI
 			CTrade(CExperimentalLevel * l, CString const & name) : CWorldEntity(l->Server, name)
@@ -61,10 +62,10 @@ namespace uc
 
 			void UpdateTitle()
 			{
-				CString i = MarketProvider->Intervals.Contains(Interval) ? MarketProvider->Intervals(Interval) : Interval;
-				CString s = MarketProvider->FindSymbolName(Symbol);
+				CString i = Provider->Intervals.Contains(Interval) ? Provider->Intervals(Interval) : Interval;
+				CString s = Provider->FindSymbolName(Symbol);
 
-				SetTitle(MarketProvider->Name + L" - " + s + L" - " + i);
+				SetTitle(Provider->Name + L" - " + s + L" - " + i);
 			}
 	};
 }

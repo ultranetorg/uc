@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CHttpRequest::CHttpRequest(CLevel2 * l, CString const & url)
+CHttpRequest::CHttpRequest(CCore * l, CString const & url)
 {
 	Level = l;
 	Url = url;

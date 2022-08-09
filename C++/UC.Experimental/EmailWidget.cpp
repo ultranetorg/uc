@@ -39,7 +39,7 @@ void CEmailWidget::SetEntity(CUol & e)
 	Entity->MessageRecieved += ThisHandler(OnMessageRecieved);
 }
 
-void CEmailWidget::OnDependencyDestroying(CNexusObject * o)
+void CEmailWidget::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(o == Entity && Entity)
 	{

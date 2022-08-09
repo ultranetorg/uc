@@ -55,7 +55,7 @@ CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CXon * r, IMeshStore * mhs
 
 	Express(L"Size", [size](auto){ return size; });
 
-	auto am = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	auto am = new CSolidRectangleMesh(l->Engine->Level);
 	am->Generate(0, 0, Size.W, Size.H);
 	Active->SetMesh(am);
 	am->Free();
@@ -76,7 +76,7 @@ CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CElement * e, const CStrin
 
 	Express(L"Size", [size](auto){ return size; });
 
-	auto am = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	auto am = new CSolidRectangleMesh(l->Engine->Level);
 	am->Generate(0, 0, Size.W, Size.H);
 	Active->SetMesh(am);
 	am->Free();

@@ -19,7 +19,7 @@ CStandardFileList::CStandardFileList(CExperimentalLevel * l) : CRectangle(l->Wor
 
 	Selector->BorderMaterial = Level->World->Materials->GetMaterial(CFloat3(252/255.f, 172.f/255, 41.f/255));
 
-	IconMesh = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	IconMesh = new CSolidRectangleMesh(l->Engine->Level);
 	IconMesh->Generate(0, 0, 16, 16);
 
 	Express(L"C",	[this](auto apply)

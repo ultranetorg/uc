@@ -4,33 +4,32 @@
 
 using namespace uc;
 
-CConfig::CConfig(CLevel2 * l, CString & durl, CString & curl)
+CConfig::CConfig(IStorageProtocol * l, CString & durl, CString & curl)
 {
-	Level = l;
+	Storage = l;
 	DefaultUri = durl;
 	CustomUri = curl;
 
-	auto ds = Level->Nexus->Storage->OpenReadStream(durl);
+	auto ds = Storage->OpenReadStream(durl);
 	DefaultDoc = new CTonDocument(CXonTextReader(ds));
-	Level->Nexus->Storage->Close(ds);
+	Storage->Close(ds);
 
-	if(Level->Nexus->Storage->Exists(curl))
+	if(Storage->Exists(curl))
 	{
-		auto ds = Level->Nexus->Storage->OpenReadStream(durl);
-		auto cs = Level->Nexus->Storage->OpenReadStream(curl);
+		auto ds = Storage->OpenReadStream(durl);
+		auto cs = Storage->OpenReadStream(curl);
 
 		Root = new CTonDocument(CXonTextReader(ds), CXonTextReader(cs));
 		
-		Level->Nexus->Storage->Close(ds);
-		Level->Nexus->Storage->Close(cs);
+		Storage->Close(ds);
+		Storage->Close(cs);
 	}
 	else
 	{
-		auto s = Level->Nexus->Storage->OpenReadStream(durl);
+		auto s = Storage->OpenReadStream(durl);
 		Root = new CTonDocument(CXonTextReader(s));
-		Level->Nexus->Storage->Close(s);
+		Storage->Close(s);
 	}
-
 }
 
 CConfig::~CConfig()
@@ -41,11 +40,11 @@ CConfig::~CConfig()
 
 void CConfig::Save()
 {
-	auto cs = Level->Nexus->Storage->OpenWriteStream(CustomUri);
+	auto cs = Storage->OpenWriteStream(CustomUri);
 
 	Root->Save(&CXonTextWriter(cs, false), DefaultDoc);
 
-	Level->Nexus->Storage->Close(cs);
+	Storage->Close(cs);
 }
 
 CXon * CConfig::GetRoot()

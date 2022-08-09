@@ -1,5 +1,5 @@
 #pragma once
-#include "Level2.h"
+#include "Core.h"
 #include "MemoryStream.h"
 
 namespace uc
@@ -8,7 +8,7 @@ namespace uc
 	{
 		public:
 			CString										Url;
-			CLevel2 *									Level;
+			CCore *										Level;
 			CMemoryStream 								Stream;
 			CThread *									Thread;
 			CList<CString>								Headers;
@@ -23,7 +23,7 @@ namespace uc
 			std::function<void()>						Recieved;
 			std::function<void()>						Failed;
 
-			CHttpRequest(CLevel2 * l, CString const & url);
+			CHttpRequest(CCore * l, CString const & url);
 			~CHttpRequest();
 
 			void Send();

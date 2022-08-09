@@ -29,10 +29,10 @@ namespace uc
 			
 			CUrl										Url;
 			CMap<CString, CString>						OutData;
-			CLevel2 *									Level;
+			//CLevel2 *									Level;
 
 			UOS_RTTI
-			CWebInformer(CLevel2 * l, CServer * s, CString & dir);
+			CWebInformer(CNexus * l, CServer * s, CString & dir);
 			~CWebInformer();
 
 			void										OnNexusInitialized();
@@ -42,3 +42,4 @@ namespace uc
 			void										GetStatusXMLFromServer(const CString & url, CMemoryStream * s);
 	};
 }
+

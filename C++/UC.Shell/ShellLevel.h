@@ -14,19 +14,17 @@ namespace uc
 		}
 	};
 
-	struct CShellLevel : public CLevel2
+	struct CShellLevel
 	{
-		CProtocolConnection<CWorld>						World;
-		CEngine *										Engine;
-		CServer *										Server;
-		CImageExtractor *								ImageExtractor;
-		CStyle *										Style;
-		CWebInformer *									WebInformer;
-		CStorage *										Storage;
-
-		CShellLevel(CLevel2 * l) : CLevel2(*l)
-		{
-		}
+		CProtocolConnection<CWorld>				World;
+		CProtocolConnection<IStorageProtocol>	Storage;
+		CEngine *								Engine;
+		CStorableServer *						Server;
+		CCore *									Core;
+		CNexus *								Nexus;
+		CImageExtractor *						ImageExtractor;
+		CStyle *								Style;
+		CLog *									Log;
 
 		void AddModeSwitch(IMenuSection * s)
 		{
@@ -331,7 +329,7 @@ namespace uc
 						{
 							mi->Execute =	[this, i](auto args)
 											{
-												Nexus->Execute(Nexus->Storage->ToUol(i.Type, i.Path), sh_new<CShowParameters>(args, Style)); 
+												Nexus->Execute(Storage->ToUol(i.Type, i.Path), sh_new<CShowParameters>(args, Style)); 
 											};
 						}
 						

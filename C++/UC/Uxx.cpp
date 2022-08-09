@@ -18,7 +18,7 @@ CUsl::CUsl(CString const & u) : CUsl(CUrl(u))
 CUsl::CUsl(const CUrl & u)
 {
 	Domain = u.Domain;
-	Server = u.Path.Substring(L"/", 0);
+	Server = u.Path.Substring(0, u.Path.find_last_of(L'/'));
 }
 
 CUsl::CUsl(CString const & d, CString const & s)
@@ -87,7 +87,7 @@ void CUsl::Read(CStream * s)
 
 	CUrl::Read(t, null, &Domain, &Server, null);
 
-	Server = Server.Substring(L'/', 0);
+	///Server = Server.Substring(L'/', 0);
 }
 
 int64_t CUsl::Write(CStream * s)  
@@ -104,7 +104,7 @@ void CUsl::Read(const std::wstring & addr)
 {
 	CUrl::Read(addr, null, &Domain, &Server, null);
 
-	Server = Server.Substring(L'/', 0);
+	///Server = Server.Substring(L'/', 0);
 }
 
 ISerializable * CUsl::Clone()
@@ -136,11 +136,21 @@ CUol::CUol()
 {
 }
 
+CString ExtractServer(CString const & path)
+{
+	return path.Substring(0, path.find(L'/'));
+}
+
+CString ExtractObject(CString const & path)
+{
+	return path.Substring(path.find(L'/') + 1);
+}
+
 CUol::CUol(const CUrl & u)
 {
 	Domain = u.Domain;
-	Server = u.Path.Substring(L"/", 0);
-	Object = u.Path.Substring(u.Path.find(L"/") + 1);
+	Server = ExtractServer(u.Path);
+	Object = ExtractObject(u.Path);
 	Parameters = u.Query;
 }
 
@@ -176,8 +186,8 @@ CUol & CUol::operator= (CUrl & addr)
 	auto u = const_cast<CUrl &>(addr);
 
 	Domain		= u.Domain;
-	Server		= u.Path.Substring(L"/", 0);
-	Object		= u.Path.Substring(u.Path.find(L"/") + 1);
+	Server		= ExtractServer(u.Path);
+	Object		= ExtractObject(u.Path);
 	Parameters	= u.Query;
 
 	return *this;
@@ -224,8 +234,8 @@ void CUol::Read(const std::wstring & addr)
 	CString p;
 	CUrl::Read(addr, null, &Domain, &p, &Parameters);
 	
-	Server = p.Substring(L"/", 0);
-	Object = p.Substring(p.find(L"/") + 1);
+	Server = ExtractServer(p);
+	Object = ExtractObject(p);
 }
 
 ISerializable * CUol::Clone()

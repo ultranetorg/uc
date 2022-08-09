@@ -21,7 +21,7 @@ namespace uc
 			void										SetEntity(CUol & o);
 
 			void										OnItemPlacing(CFieldItemElement * fie);
-			void										OnDependencyDestroying(CNexusObject * o);
+			void										OnDependencyDestroying(CBaseNexusObject * o);
 
 			virtual void								SetDirectories(CString const & dir) override;
 			virtual void								SaveInstance() override;

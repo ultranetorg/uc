@@ -1,10 +1,10 @@
 #pragma once
+#include "Array.h"
 #include "Exception.h"
 #include "Directory.h"
 #include "ZipStream.h"
 #include "NativePath.h"
-#include "Array.h"
-#include "Storage.h"
+#include "Directory.h"
 
 namespace uc
 {
@@ -14,7 +14,7 @@ namespace uc
 			virtual CStream *							OpenWriteStream(CString const & name) override;
 			virtual CStream * 							OpenReadStream(CString const & name) override;
 			virtual void								Close(CStream * s) override;
-			virtual CList<CStorageEntry>						Enumerate(CString const & mask) override;
+			virtual CList<CStorageEntry>				Enumerate(CString const & mask) override;
 			virtual CList<CFSRegexItem>					EnumerateByRegex(CString const & mask) override;
 			virtual void								Delete();
 

@@ -8,11 +8,11 @@ namespace uc
 	template<class E> class CIcon : public CAvatar, public CFieldable
 	{
 		public:
-			CWorld *									Level;
-			CServer *									Server;
-			E *											Entity;
-			CVwmImporter *								Importer = null;
-			CRectangleMenu *							Menu = null;
+			CWorld *			Level;
+			CServer *			Server;
+			E *					Entity;
+			CVwmImporter *		Importer = null;
+			CRectangleMenu *	Menu = null;
 
 			CIcon(CWorld * l, CServer * s, CString const & name) : CAvatar(l, s, name)
 			{
@@ -76,7 +76,7 @@ namespace uc
 			{
 				auto r = UseRectangle();
 				
-				auto m = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				auto m = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				m->AlphaBlending = true;
 				r->Visual->SetMaterial(m);
 				

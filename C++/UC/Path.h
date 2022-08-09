@@ -7,6 +7,7 @@ namespace uc
 	{
 		public:
 			static CString								Join(CString const & a, CString const & b);
+			static CString								Join(CString const & a, CString const & b, CString const & c);
 			static CString								ReplaceLast(CString & p, CString const & path);
 			static CString								ReplaceExtension(CString const & p, CString const & ext);
 			static CString								ReplaceMount(CString & p, CString const & mount);

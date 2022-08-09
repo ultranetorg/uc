@@ -2,15 +2,13 @@
 
 namespace uc
 {
-	class CEngineLevel : public CLevel2
+	class CEngineLevel
 	{
 		public:
-			CConfig *									Config;
-			CServer *									Server;
-
-			CEngineLevel(CLevel2 & l) : CLevel2(l)
-			{
-			}
+			CConfig *				Config;
+			CStorableServer *		Server;
+			CCore *					Core;
+			CLog *					Log;
 			
 			static void VerifyCritical(const wchar_t * m, int l, HRESULT hr)
 			{

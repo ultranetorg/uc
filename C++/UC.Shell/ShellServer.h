@@ -22,18 +22,21 @@
 
 namespace uc
 {
-	class CShellServer : public CServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarProtocol, public IFieldProtocol, public IExecutorProtocol
+	class CShellServer : public CStorableServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarProtocol, public IFieldProtocol, public IExecutorProtocol
 	{
 		using CShellLevel::Server;
+		using CShellLevel::Nexus;
+		using CShellLevel::Storage;
 		
 		public:
 			CRectangleMenu *							Menu = null;
 
 			UOS_RTTI
-			CShellServer(CLevel2 * l, CServerInfo * si);
+			CShellServer(CNexus * l, CServerInfo * si);
 			~CShellServer();
 			
 			void										EstablishConnections();
+			void										OnDisconnecting(CServer *, IProtocol *, CString &);
 
 			void										Start(EStartMode sm) override;
 			IProtocol * 								Connect(CString const & pr)override;
@@ -45,7 +48,7 @@ namespace uc
 			
 			CRefList<CMenuItem *>						CreateActions() override;
 
-			virtual CNexusObject *						GetEntity(CUol & a) override;
+			virtual CBaseNexusObject *					GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 			virtual void								DestroyAvatar(CAvatar * a) override;
@@ -58,7 +61,6 @@ namespace uc
 			void virtual								Execute(const CUrq & o, CExecutionParameters * ep) override;
 			bool virtual								CanExecute(const CUrq & o) override;
 
-			void										OnWorldDisconnecting(CServer *, IProtocol *, CString &);
 			void										OnWorldSphereMouse(CActive *, CActive *, CMouseArgs *);
 	};
 }

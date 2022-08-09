@@ -3,14 +3,16 @@
 
 namespace uc
 {
-	struct CWorldLevel : public CLevel2
+	struct CWorldLevel
 	{
-		CServer *										Server;
-		CEngine *										Engine;
-		CMaterialPool *									Materials;
-		CStyle *										Style;
-		CStorage *										Storage;
-
-		CWorldLevel(CLevel2 * l) : CLevel2(*l){}
+		//CConfig *								Config;
+		CStorableServer *						Server;
+		CCore *									Core;
+		CNexus *								Nexus;
+		CLog *									Log;
+		CEngine *								Engine;
+		CMaterialPool *							Materials;
+		CStyle *								Style;
+		CProtocolConnection<IStorageProtocol>	Storage;
 	};
 }

@@ -48,7 +48,7 @@ namespace uc
 		public:
 			CShellLevel *								Level;
 			CList<CFieldItem *>							Items;
-			CEvent<CFieldItem *>							Added;
+			CEvent<CFieldItem *>						Added;
 
 			CFieldServer(CShellLevel * l, CString const & name = CGuid::Generate64(CField::GetClassName()));
 			virtual ~CFieldServer();

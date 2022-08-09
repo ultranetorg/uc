@@ -47,7 +47,7 @@
     <GenerateManifest>false</GenerateManifest>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(G_Root)\_$(Configuration)\uc-experimental-win64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uc-experimental-winx64\0.0.0.0\</OutDir>
     <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -55,7 +55,7 @@
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <LinkIncremental />
     <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
-    <OutDir>$(G_Root)\_$(Configuration)\uc-experimental-win64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uc-experimental-winx64\0.0.0.0\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -71,12 +71,12 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Cef\_winx64-$(Configuration);..\Libs\Vmime\_winx64-$(Configuration);..\Libs\Vmime\gsasl\_winx64;..\Libs\Vmime\openssl\_winx64</AdditionalLibraryDirectories>
       <AdditionalDependencies>Wininet.lib;libcef.lib;libcef_dll_wrapper.lib;libcrypto.lib;libgsasl.lib;libssl.lib;vmime.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <AdditionalOptions>/EXPORT:StartUosServer /EXPORT:StopUosServer</AdditionalOptions>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
     <ResourceCompile />
     <ProjectReference />
@@ -184,6 +184,7 @@
     <ClCompile Include="Email.cpp" />
     <ClCompile Include="EmailAccountEnvironment.cpp" />
     <ClCompile Include="EmailWidget.cpp" />
+    <ClCompile Include="ExperimentalLevel.cpp" />
     <ClCompile Include="ExperimentalServer.cpp" />
     <ClCompile Include="EarthEnvironment.cpp" />
     <ClCompile Include="EarthIcon.cpp" />

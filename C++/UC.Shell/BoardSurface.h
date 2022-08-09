@@ -17,13 +17,13 @@ namespace uc
 			{
 				Level = l;
 
-				SolidMesh = new CSolidQuadragonMesh(&l->Engine->EngineLevel);
+				SolidMesh = new CSolidQuadragonMesh(l->Engine->Level);
 				Active->SetMesh(SolidMesh);
 
 				Visual->SetMesh(SolidMesh);
 				Visual->SetMaterial(l->World->Materials->GetMaterial(L"0 0 0 0.5"));
 
-				GridMesh = new CGridQuadragonMesh(&Level->World->Engine->EngineLevel);
+				GridMesh = new CGridQuadragonMesh(Level->World->Engine->Level);
 												
 				auto v = Level->Engine->CreateVisual(L"grid", GridMesh, l->World->Materials->GetMaterial(L"0 0.3 0.3"), CMatrix(0, 0, Z_STEP));
 				Visual->AddNode(v);

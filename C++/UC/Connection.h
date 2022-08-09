@@ -1,9 +1,10 @@
 #pragma once
-#include "Server.h"
 #include "Protocol.h"
 
 namespace uc
 {
+	class CServer;
+
 	struct CConnection
 	{
 		//CNexus *			Nexus;
@@ -17,6 +18,7 @@ namespace uc
 			Who = null;
 			Server = null;
 		}
+
 		CConnection(IType * who, CServer * r, IProtocol * p, CString const & pn)
 		{
 			Who = who;

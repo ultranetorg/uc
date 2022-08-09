@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Directory.h"
 //#include "Nexus.h"
-#include "Storage.h"
+#include "LocalStorage.h"
 
 using namespace uc;
 
@@ -78,17 +78,17 @@ void CDirectoryServer::Delete()
 
 CStream * CDirectoryServer::OpenWriteStream(CString const & name)
 {
-	return dynamic_cast<CStorage *>(Server)->OpenWriteStream(CPath::Join(CUol::GetObjectID(Url.Object), name));
+	return dynamic_cast<CLocalStorage *>(Server)->OpenWriteStream(CPath::Join(CUol::GetObjectID(Url.Object), name));
 }
 
 CStream * CDirectoryServer::OpenReadStream(CString const & name)
 {
-	return dynamic_cast<CStorage *>(Server)->OpenReadStream(CPath::Join(CUol::GetObjectID(Url.Object), name));
+	return dynamic_cast<CLocalStorage *>(Server)->OpenReadStream(CPath::Join(CUol::GetObjectID(Url.Object), name));
 }
 
 void CDirectoryServer::Close(CStream * s)
 {
-	return dynamic_cast<CStorage *>(Server)->Close(s);
+	return dynamic_cast<CLocalStorage *>(Server)->Close(s);
 }
 
 CList<CFSRegexItem> CDirectoryServer::EnumerateByRegex(CString const & pattern)

@@ -212,7 +212,7 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Guid.h" />
-    <ClInclude Include="NexusObject.h">
+    <ClInclude Include="BaseNexusObject.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="FastDelegate.h">
@@ -241,9 +241,6 @@
     </ClInclude>
     <ClInclude Include="File.h">
       <Filter>Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="Level2.h">
-      <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="Directory.h">
       <Filter>Storage</Filter>
@@ -325,10 +322,7 @@
     <ClInclude Include="Uxx.h">
       <Filter>Nexus</Filter>
     </ClInclude>
-    <ClInclude Include="IStorageProtocol.h">
-      <Filter>Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="Storage.h">
+    <ClInclude Include="LocalStorage.h">
       <Filter>Storage</Filter>
     </ClInclude>
     <ClInclude Include="Size.h">
@@ -355,7 +349,7 @@
     <ClInclude Include="HttpClient.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="Server.h">
+    <ClInclude Include="StorableServer.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="XonValue.h">
@@ -379,6 +373,13 @@
     </ClInclude>
     <ClInclude Include="JsonClient.h">
       <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerAddress.h" />
+    <ClInclude Include="Server.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="NexusObject.h">
+      <Filter>Nexus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -512,7 +513,7 @@
     <ClCompile Include="Xon.cpp">
       <Filter>Xon</Filter>
     </ClCompile>
-    <ClCompile Include="NexusObject.cpp">
+    <ClCompile Include="BaseNexusObject.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="Shared.cpp" />
@@ -583,7 +584,7 @@
     <ClCompile Include="Uxx.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
-    <ClCompile Include="Storage.cpp">
+    <ClCompile Include="LocalStorage.cpp">
       <Filter>Storage</Filter>
     </ClCompile>
     <ClCompile Include="Size.cpp">
@@ -595,7 +596,7 @@
     <ClCompile Include="Line.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Server.cpp">
+    <ClCompile Include="StorableServer.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="HttpRequest.cpp">
@@ -625,11 +626,21 @@
     <ClCompile Include="JsonClient.cpp">
       <Filter>Net</Filter>
     </ClCompile>
+    <ClCompile Include="UC.cpp" />
+    <ClCompile Include="ReleaseAddress.cpp" />
+    <ClCompile Include="ServerAddress.cpp" />
+    <ClCompile Include="Server.cpp">
+      <Filter>Nexus</Filter>
+    </ClCompile>
+    <ClCompile Include="NexusObject.cpp">
+      <Filter>Nexus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\lucon.ttf">
       <Filter>Resources</Filter>
     </None>
+    <None Include="ReleaseAddress.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Primary.rc">

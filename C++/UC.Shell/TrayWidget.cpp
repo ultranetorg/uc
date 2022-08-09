@@ -61,7 +61,7 @@ void CTrayWidget::SetEntity(CUol & o)
 	}
 }
 
-void CTrayWidget::OnDependencyDestroying(CNexusObject * o)
+void CTrayWidget::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(Entity && o == Entity)
 	{

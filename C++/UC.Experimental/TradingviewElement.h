@@ -1,6 +1,7 @@
 #pragma once
 #include "Tradingview.h"
 #include "CefElement.h"
+#include "TradingviewProvider.h"
 
 namespace uc
 {

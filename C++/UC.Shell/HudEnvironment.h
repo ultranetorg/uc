@@ -20,7 +20,7 @@ namespace uc
 			virtual CTransformation						DetermineTransformation(CPositioning * ps, CPick & pk, CTransformation & t) override;
 			virtual bool								StartWorldOperation(EModelAction a, CActive * n){ return a != EModelAction::Positioning; }
 
-			void										OnDependencyDestroying(CNexusObject *);
+			void										OnDependencyDestroying(CBaseNexusObject *);
 
 			virtual void								SetDirectories(CString const & dir) override;
 			virtual void								SaveInstance() override;

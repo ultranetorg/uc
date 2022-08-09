@@ -27,7 +27,7 @@ using namespace uc;
 
 static CExperimentalServer * This = null;
 
-CServer * StartUosServer(CLevel2 * l, CServerInfo * info)
+CServer * StartUosServer(CNexus * l, CServerInfo * info)
 {
 	This = new CExperimentalServer(l, info);
 	return This;
@@ -38,11 +38,13 @@ void StopUosServer()
 	delete This;
 }
 
-CExperimentalServer::CExperimentalServer(CLevel2 * l, CServerInfo * si) : CExperimentalLevel(l), CServer(l, si)
+CExperimentalServer::CExperimentalServer(CNexus * l, CServerInfo * si) : CStorableServer(l, si)
 {
-	Server		= this;
-	Log			= l->Core->Supervisor->CreateLog(Url.Server);
-	Storage		= l->Nexus->Storage;
+	Server	= this;
+	Nexus	= Server->Nexus;
+	Core	= Nexus->Core;
+	Log		= l->Core->Supervisor->CreateLog(Url.Server);
+///	Storage		= l->Storage;
 }
 
 CExperimentalServer::~CExperimentalServer()
@@ -54,7 +56,7 @@ CExperimentalServer::~CExperimentalServer()
 
 	if(World)
 	{
-		World.Server->Disconnecting -= ThisHandler(OnDependencyDisconnecting);
+		World.Server->Disconnecting -= ThisHandler(OnDisconnecting);
 		Nexus->Disconnect(World);
 	}
 
@@ -62,6 +64,12 @@ CExperimentalServer::~CExperimentalServer()
 	delete Bitfinex;
 	delete Tradingview;
 	delete GeoStore;
+
+	if(Storage)
+	{
+		Storage.Server->Disconnecting -= ThisHandler(OnDisconnecting);
+		Nexus->Disconnect(Storage);
+	}
 }
 
 void CExperimentalServer::EstablishConnections()
@@ -69,14 +77,30 @@ void CExperimentalServer::EstablishConnections()
 	if(!World)
 	{
 		World = Nexus->Connect(this, WORLD_PROTOCOL);
-		World.Server->Disconnecting += ThisHandler(OnDependencyDisconnecting);
+		World.Server->Disconnecting += ThisHandler(OnDisconnecting);
 
-		Engine		= World->Engine;
-		Style		= World->Style->Clone();
+		Engine	= World->Engine;
+		Style	= World->Style->Clone();
 
-		Bitfinex = new CBitfinexProvider(this);
+		Bitfinex	= new CBitfinexProvider(this);
 		Tradingview = new CTradingviewProvider(this);
-		GeoStore = new CGeoStore(this);
+		GeoStore	= new CGeoStore(this);
+	}
+
+	if(!Storage)
+	{
+		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
+		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
+	}
+
+}
+
+void CExperimentalServer::OnDisconnecting(CServer * s, IProtocol * p, CString & pn)
+{
+	if(	p == World && pn == WORLD_PROTOCOL ||
+		p == Storage && pn == UOS_STORAGE_PROTOCOL)
+	{
+		Nexus->StopServer(this); // THE END
 	}
 }
 
@@ -89,8 +113,7 @@ void CExperimentalServer::Disconnect(IProtocol * p)
 {
 }
 
-
-CNexusObject * CExperimentalServer::CreateObject(CString const & name)
+CBaseNexusObject * CExperimentalServer::CreateObject(CString const & name)
 {
 	EstablishConnections();
 
@@ -107,14 +130,6 @@ CNexusObject * CExperimentalServer::CreateObject(CString const & name)
 	if(type == CEmail		::GetClassName())	o = new CEmail(this, name);  
 
 	return o;
-}
-
-void CExperimentalServer::OnDependencyDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(p == World && pn == WORLD_PROTOCOL)
-	{
-		Nexus->StopServer(this); // THE END
-	}
 }
 
 void CExperimentalServer::Start(EStartMode sm)
@@ -137,7 +152,7 @@ void CExperimentalServer::Start(EStartMode sm)
 			if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
 			{
 				auto c = new CCommander(this, COMMANDER_AT_HOME_1);
-				c->SetRoot(Nexus->Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
+				c->SetRoot(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
 				Server->RegisterObject(c, true);
 				c->Free();
 				
@@ -147,7 +162,7 @@ void CExperimentalServer::Start(EStartMode sm)
 			if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
 			{
 				auto c = new CCommander(this, COMMANDER_AT_HOME_2);
-				c->SetRoot(Nexus->Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(ppath)));
+				c->SetRoot(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(ppath)));
 				Server->RegisterObject(c, true);
 				c->Free();
 		
@@ -309,7 +324,8 @@ void CExperimentalServer::Start(EStartMode sm)
 
 	Nexus->Disconnect(shell);
 }
-CNexusObject * CExperimentalServer::GetEntity(CUol & e)
+
+CBaseNexusObject * CExperimentalServer::GetEntity(CUol & e)
 {
 	return Server->FindObject(e);
 }
@@ -425,7 +441,7 @@ IMenuSection * CExperimentalServer::CreateNewMenu(CFieldElement * fe, CFloat3 & 
 												if(!list.empty())
 												{
 													auto c = new CCommander(this);
-													c->SetRoot(Nexus->Storage->NativeToUniversal(list.front()));
+													c->SetRoot(Nexus->NativeToUniversal(list.front()));
 													Server->RegisterObject(c, true);
 													c->Free();
 			

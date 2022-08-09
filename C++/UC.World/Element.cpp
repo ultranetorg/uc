@@ -18,8 +18,8 @@ CElement::CElement(CWorldLevel * l, const CString & name)
 		Name.resize(i);
 	}
 
-	Visual	= new CVisual(&l->Engine->EngineLevel, Name, null, null, CMatrix());
-	Active	= new CActive(&l->Engine->EngineLevel, Name);
+	Visual	= new CVisual(l->Engine->Level, Name, null, null, CMatrix());
+	Active	= new CActive(l->Engine->Level, Name);
 	   
 	Active->Owner = this;
 
@@ -442,9 +442,9 @@ void CElement::Load(CStyle * s, CString & u)
 		}
 	}
 
-	auto rs = Level->Storage->OpenReadStream(u);
+	auto rs = Level->Server->Storage->OpenReadStream(u);
 	auto & d = CTonDocument(CXonTextReader(rs));
-	Level->Storage->Close(rs);
+	Level->Server->Storage->Close(rs);
 
 	std::function<CElement *(CXon *, CElement *)> load;
 
@@ -716,7 +716,7 @@ void CElement::UseCanvas(CVisual * v, CMesh * mesh, CShader * s)
 {
 	Texture = Level->Engine->TextureFactory->CreateTexture();
 
-	auto material = new CMaterial(&Level->Engine->EngineLevel, s);
+	auto material = new CMaterial(Level->Engine->Level, s);
 	material->Textures[L"DiffuseTexture"] = Texture;	
 	material->Samplers[L"DiffuseSampler"].SetFilter(ETextureFilter::Point, ETextureFilter::Point, ETextureFilter::Point);
 	material->Samplers[L"DiffuseSampler"].SetAddressMode(ETextureAddressMode::Clamp, ETextureAddressMode::Clamp);
@@ -727,7 +727,7 @@ void CElement::UseCanvas(CVisual * v, CMesh * mesh, CShader * s)
 
 	if(!mesh)
 	{
-		CanvasMesh = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+		CanvasMesh = new CSolidRectangleMesh(Level->Engine->Level);
 		v->SetMesh(CanvasMesh);
 		CanvasMesh->Free();
 	}

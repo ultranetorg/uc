@@ -21,7 +21,7 @@ using namespace uc;
 
 static CWorldServer * This = null;
 	
-CServer * StartUosServer(CLevel2 * l, CServerInfo * si)
+CServer * StartUosServer(CNexus * l, CServerInfo * si)
 {
 	for(auto i : l->Core->FindStartCommands(si->Url))
 	{
@@ -48,13 +48,14 @@ void StopUosServer()
 	delete This;
 }
 
-CWorldServer::CWorldServer(CLevel2 * l, CServerInfo * si) : CServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
+CWorldServer::CWorldServer(CNexus * l, CServerInfo * si) : CStorableServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
 {
 	Server = this;
+	Nexus = Server->Nexus;
+	Core = Nexus->Core;
 	Log  = Core->Supervisor->CreateLog(WORLD);
 	Core->ExitRequested	+= ThisHandler(OnExitRequested);
 	Nexus->Stopping += ThisHandler(OnNexusStopping);
-	Storage = l->Nexus->Storage;
 
 	PfcUpdate	= new CPerformanceCounter(CString(WORLD) + L" update");
 	Diagnostic	= Core->Supervisor->CreateDiagnostics(WORLD);
@@ -69,22 +70,6 @@ CWorldServer::CWorldServer(CLevel2 * l, CServerInfo * si) : CServer(l, si), CWor
 	DiagGrid.AddColumn(L"Smax");
 	DiagGrid.AddColumn(L"Pmax");
 	DiagGrid.AddColumn(L"Expressions");
-
-	for(auto i : Storage->Enumerate(MapPath(L""), L"*.*"))
-	{
-		if(i.Type == CDirectory::GetClassName())
-		{
-			auto ws = Storage->OpenReadStream(CPath::Join(i.Path, L"World.xon"));
-			auto es = Storage->OpenReadStream(CPath::Join(i.Path, L"Engine.xon"));
-			Modes.push_back({	
-								CPath::GetName(i.Path),
-								new CTonDocument(CXonTextReader(ws)), 
-								new CTonDocument(CXonTextReader(es)), 
-							});
-			Storage->Close(ws);
-			Storage->Close(es);
-		}
-	}
 }
 
 CWorldServer::~CWorldServer()
@@ -139,6 +124,29 @@ CWorldServer::~CWorldServer()
 	Core->ExitRequested	-= ThisHandler(OnExitRequested);
 	Nexus->Stopping -= ThisHandler(OnNexusStopping);
 	Diagnostic->Updating -= ThisHandler(OnDiagnosticsUpdating);
+
+	if(Storage)
+	{
+		Storage.Server->Disconnecting -= ThisHandler(OnDisconnecting);
+		Nexus->Disconnect(Storage);
+	}
+}
+
+void CWorldServer::OnDisconnecting(CServer * s, IProtocol * p, CString & pn)
+{
+	if(p == Storage && pn == UOS_STORAGE_PROTOCOL)
+	{
+		Nexus->StopServer(this); /// THE END
+	}
+}
+
+void CWorldServer::EstablishConnections()
+{
+	if(!Storage)
+	{
+		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
+		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
+	}
 }
 
 IProtocol * CWorldServer::Connect(CString const & pr)
@@ -157,6 +165,24 @@ void CWorldServer::Start(EStartMode sm)
 
 void CWorldServer::Start()
 {
+	EstablishConnections();
+
+	for(auto & i : Storage->Enumerate(MapPath(L""), L"*.*"))
+	{
+		if(i.Type == CDirectory::GetClassName())
+		{
+			auto ws = Storage->OpenReadStream(CPath::Join(i.Path, L"World.xon"));
+			auto es = Storage->OpenReadStream(CPath::Join(i.Path, L"Engine.xon"));
+			Modes.push_back({	
+								CPath::GetName(i.Path),
+								new CTonDocument(CXonTextReader(ws)), 
+								new CTonDocument(CXonTextReader(es)), 
+							});
+			Storage->Close(ws);
+			Storage->Close(es);
+		}
+	}
+
 	ScreenshotId = Core->RegisterGlobalHotKey(MOD_ALT|MOD_CONTROL, VK_SNAPSHOT, [this](auto){ Engine->ScreenEngine->TakeScreenshot(Name); });
 	
 	auto sconfig = LoadServerDocument(Name + L"/World.xon"); 
@@ -186,9 +212,9 @@ void CWorldServer::Start()
 	
 	auto df = MapPath(L"Engine.xon");
 	auto cf = MapPath(Name + L"/Engine.xon");
-	EngineConfig = new CConfig(this, df, cf);
+	EngineConfig = new CConfig(Storage, df, cf);
 		
-	Engine = new CEngine(this, this, EngineConfig);
+	Engine = new CEngine(this, EngineConfig);
 	Engine->ScreenEngine->SetLayout(Layout);
 
 	Materials = new CMaterialPool(Engine);
@@ -219,10 +245,10 @@ void CWorldServer::Start()
 	
 	for(auto i : Viewports)
 	{	
-		auto vs = Area->AllocateVisualSpace(i);
+		auto & vs = Area->AllocateVisualSpace(i);
 		VisualGraph->AddBack(vs.Space);
 
-		auto as = Area->AllocateActiveSpace(i);
+		auto & as = Area->AllocateActiveSpace(i);
 		ActiveGraph->AddBack(as.Space);
 	}
 
@@ -385,7 +411,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 	}
 	else
 	{
-		for(auto & i : Level->Nexus->ConnectMany<IAvatarProtocol>(this, AVATAR_PROTOCOL))
+		for(auto & i : Nexus->ConnectMany<IAvatarProtocol>(this, AVATAR_PROTOCOL))
 		{
 			avs = i->GenerateSupportedAvatars(entity, type);
 			if(!avs.empty())
@@ -1108,7 +1134,7 @@ CElement * CWorldServer::CreateElement(CString const & name, CString const & typ
 }
 
 
-CNexusObject * CWorldServer::GetEntity(CUol & e)
+CBaseNexusObject * CWorldServer::GetEntity(CUol & e)
 {
 	return Server->FindObject(e);
 }

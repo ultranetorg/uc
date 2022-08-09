@@ -7,7 +7,7 @@ using namespace std;
 CTradeHistory::CTradeHistory(CExperimentalLevel * l, CString const & name) : CTrade(l, name)
 {
 	Level = l;
-	MarketProvider = l->Bitfinex;
+	Provider = l->Bitfinex;
 
 	SetDirectories(MapRelative(L""));
 
@@ -47,7 +47,7 @@ void CTradeHistory::Refresh()
 		delete Request;
 	}
 
-	Request = new CHttpRequest(Level, L"https://api.bitfinex.com/v2/candles/trade:" + Interval + L":" + Symbol + L"/hist?limit=2000");
+	Request = new CHttpRequest(Level->Core, L"https://api.bitfinex.com/v2/candles/trade:" + Interval + L":" + Symbol + L"/hist?limit=2000");
 
 	LastCheck = CDateTime::Min;
 }

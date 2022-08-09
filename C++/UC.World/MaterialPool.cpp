@@ -29,7 +29,7 @@ CMaterial * CMaterialPool::GetMaterial(const CString & name)
 		auto parts = name.Split(L" ");
 		if(parts.size() == 3)
 		{
-			m = new CMaterial(&Engine->EngineLevel, Engine->PipelineFactory->DiffuseColorShader);
+			m = new CMaterial(Engine->Level, Engine->PipelineFactory->DiffuseColorShader);
 
 			float r = CFloat::Parse(parts[0]);
 			float g = CFloat::Parse(parts[1]);
@@ -39,7 +39,7 @@ CMaterial * CMaterialPool::GetMaterial(const CString & name)
 		}
 		else if(parts.size() == 4)
 		{
-			m = new CMaterial(&Engine->EngineLevel, Engine->PipelineFactory->DiffuseColorShader);
+			m = new CMaterial(Engine->Level, Engine->PipelineFactory->DiffuseColorShader);
 
 			float r = CFloat::Parse(parts[0]);
 			float g = CFloat::Parse(parts[1]);

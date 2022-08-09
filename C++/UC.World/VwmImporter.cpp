@@ -47,7 +47,7 @@ void CVwmImporter::Import(IDirectory * dir)
 //{
 //	std::function<CVisual * (CXon *)>	loadNode =	[this, &loadNode](auto p)
 //														{
-//															auto v =  new CVisual(	&Level->Engine->EngineLevel,
+//															auto v =  new CVisual(	Level->Engine->Level,
 //																					p->AsString(),
 //																					p->One(L"Mesh")  ? ImportMesh(p->Get<CString>(L"Mesh")) : null,
 //																					p->One(L"Material") ? ImportMaterial(p->Get<CString>(L"Material")) : null,
@@ -173,7 +173,7 @@ CLight * CVwmImporter::ImportLight(const CString & file)
 
 	if(root->One(L"Type")->Get<CString>() == L"Directional")
 	{
-		auto l = new CDirectionalLight(&Level->Engine->EngineLevel);
+		auto l = new CDirectionalLight(Level->Engine->Level);
 		l->SetDirection(root->One(L"Direction")->Get<CFloat3>());
 		l->SetDiffuseIntensity(root->One(L"DiffuseIntensity")->AsFloat32());
 		Lights[file] = l;
@@ -232,7 +232,7 @@ CMaterial * CVwmImporter::LoadStandardMaterial(CXon * root, CLight * l)
 	auto simn = root->One(L"SelfIlluminationMap");
 
 	auto sh = new CShader(L"StandardMaterial");
-	auto m = new CMaterial(&Engine->EngineLevel, root->Get<CString>(L"Name"));
+	auto m = new CMaterial(Engine->Level, root->Get<CString>(L"Name"));
 
 	auto cgeo = sh->AddConstantBuffer(L"Geometry");
 	auto cmtl = sh->AddConstantBuffer(L"Material");
@@ -381,7 +381,7 @@ CMaterial * CVwmImporter::LoadStandardMaterial(CXon * root, CLight * l)
 CMaterial * CVwmImporter::LoadBlendMaterial(CXon * root, CLight * l)
 {
 	auto sh = new CShader();
-	auto m = new CMaterial(&Engine->EngineLevel);
+	auto m = new CMaterial(Engine->Level);
 
 	auto cgeo = sh->AddConstantBuffer(L"Geometry");
 	sh->AddConstant(cgeo, L"WVP",	L"float4x4", EPipelineStage::Vertex);

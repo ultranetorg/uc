@@ -18,7 +18,7 @@ namespace uc
 			~CChartEnvironment();
 			
 			void										SetEntity(CUol & l);
-			void										OnDependencyDestroying(CNexusObject *);
+			void										OnDependencyDestroying(CBaseNexusObject *);
 			void										OnTitleChanged(CWorldEntity * e);
 
 			virtual void								SaveInstance() override;

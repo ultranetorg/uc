@@ -112,7 +112,7 @@ void CLinkProperties::SaveInstance()
 	SaveGlobal(d, GetClassName() + L".xon");
 }
 
-void CLinkProperties::OnDependencyDestroying(CNexusObject * o)
+void CLinkProperties::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(Entity && Entity == o)
 	{

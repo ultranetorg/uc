@@ -97,7 +97,7 @@ namespace uc
 				Visual->Clipping = EClipping::Apply;
 				Active->Clipping = EClipping::Apply;
 
-				auto mtl = new CMaterial(&Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				auto mtl = new CMaterial(Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				mtl->Textures[L"DiffuseTexture"] = Texture;	
 				mtl->Samplers[L"DiffuseSampler"].SetFilter(ETextureFilter::Point, ETextureFilter::Point, ETextureFilter::Point);
 

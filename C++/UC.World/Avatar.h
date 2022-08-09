@@ -35,7 +35,7 @@ namespace uc
 	class IAvatarProtocol : public virtual IProtocol
 	{
 		public:
-			virtual CNexusObject *						GetEntity(CUol & a)=0;
+			virtual CBaseNexusObject *					GetEntity(CUol & a)=0;
 			virtual CAvatar *							CreateAvatar(CUol & a)=0;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & o, CString const & type)=0;
 			virtual void								DestroyAvatar(CAvatar * a) = 0;

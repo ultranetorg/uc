@@ -16,11 +16,11 @@
     <AssemblyName>dun</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\dotnet__UC.Net.Node</OutputPath>
+    <OutputPath>..\..\..\_Debug\uc-dun-dotnet6\0.0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\dotnet__UC.Net.Node</OutputPath>
+    <OutputPath>..\..\..\_Release\uc-dun-dotnet6\0.0.0.0</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\UC\UC.csproj" />

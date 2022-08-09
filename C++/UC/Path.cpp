@@ -27,6 +27,11 @@ CString CPath::GetNameBase(CString const & u)
 	return n;
 }
 
+CString CPath::Join(CString const & a, CString const & b, CString const & c)
+{
+	return Join(Join(a, b), c);
+}
+
 CString CPath::Join(CString const & a, CString const & b)
 {
 	auto & aa = a.EndsWith(L"/") 	? a.substr(0, a.size()-1) : a;

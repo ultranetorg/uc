@@ -151,7 +151,7 @@ void CImageExtractor::DoIdle()
 void CImageExtractor::FetchIcon(CUrl & f, int wh, CGetIconMaterialJob * j)
 {
 	if(CUol::IsValid(f))
-		j->Path = Level->Storage->Resolve(CUol(f).GetId());
+		j->Path = Level->Nexus->Resolve(CUol(f).GetId());
 	else
 		throw CException(HERE, L"Not implemented");
 
@@ -319,7 +319,7 @@ CGetIconMaterialJob * CImageExtractor::GetIconMaterial(IType * r, CUrl & f, int 
 
 								if(t)
 								{
-									auto m = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+									auto m = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 									m->AlphaBlending = true;
 									m->Textures[L"DiffuseTexture"] = t;
 
@@ -363,7 +363,7 @@ CSolidRectangleMesh * CImageExtractor::GetMesh(float w, float h)
 
 	if(!m)
 	{
-		m = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+		m = new CSolidRectangleMesh(Level->Engine->Level);
 		m->Generate(0, 0, w, h);
 		Meshes.AddNew(m);
 	} 

@@ -3,13 +3,13 @@
 
 namespace uc
 {
-	class UOS_LINKING CFile : public CNexusObject
+	class UOS_LINKING CFile : public CBaseNexusObject
 	{
 		public:
 			int											Users = 0;
 
 			UOS_RTTI
-			CFile(CServer * s, CString const & name) : CNexusObject(s, name){}
+			CFile(CServer * s, CString const & name) : CBaseNexusObject(s, name){}
 	};
 
 	class UOS_LINKING CLocalFile : public CFile

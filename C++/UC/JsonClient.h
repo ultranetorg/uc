@@ -1,15 +1,9 @@
 #pragma once
-#include "Storage.h"
+#include "IType.h"
 
 namespace uc
 {
-	class CProductRelease
-	{
-		public:
-			CString		Product;
-			CVersion	Version;
-			CString		Cid;
-	};
+	struct CLevel2;
 
 	class CJsonClient : virtual public IType
 	{

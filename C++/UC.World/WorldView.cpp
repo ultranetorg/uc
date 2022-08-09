@@ -3,9 +3,9 @@
 
 using namespace uc;
 
-CWorldView::CWorldView(CLevel2 * l2, CEngine * en, const CString & name)
+CWorldView::CWorldView(CWorldLevel * l2, const CString & name)
 {
-	Engine = en;
+	Level = l2;
 	Name = name;
 }
 
@@ -19,7 +19,7 @@ CWorldView::~CWorldView()
 
 CCamera * CWorldView::AddCamera(CViewport * vp, float fov, float znear, float zfar)
 {
-	CCamera * c = new CCamera(&Engine->EngineLevel, vp, L"Camera", fov, znear, zfar);
+	CCamera * c = new CCamera(Level->Engine->Level, vp, L"Camera", fov, znear, zfar);
 	Cameras.push_back(c);
 
 	if(Cameras.size() == 1)
@@ -32,7 +32,7 @@ CCamera * CWorldView::AddCamera(CViewport * vp, float fov, float znear, float zf
 
 CCamera * CWorldView::AddCamera(CViewport * vp, float znear, float zfar)
 {
-	CCamera * c = new CCamera(&Engine->EngineLevel, vp, L"Camera", znear, zfar);
+	CCamera * c = new CCamera(Level->Engine->Level, vp, L"Camera", znear, zfar);
 	Cameras.push_back(c);
 
 	if(Cameras.size() == 1)

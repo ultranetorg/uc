@@ -86,5 +86,4 @@ namespace uc
 			CString										GetSystem() const;
 			CString										GetObject() const; 
 	};
-
 }

@@ -58,7 +58,7 @@ namespace uc
 									while(n < 3)\
 									{\
 										if(*p == L':')\
-										{	\
+										{\
 											n++;\
 											if(n == 2)\
 												e = p;\
@@ -83,8 +83,8 @@ namespace uc
 								if(b.empty())\
 								{\
 									auto p = typeid(*this).name();\
-									const char * name = strstr(p, "C") + 1; if(!name) name = p;\
-									auto n = MultiByteToWideChar(CP_ACP, 0, name, -1, null, 0);\
+									auto name = strstr(p, "C") + 1; if(!name) name = p;\
+									auto n = (size_t)MultiByteToWideChar(CP_ACP, 0, name, -1, null, 0);\
 									b.resize(n - 1); /* ending \0 not needed */\
 									MultiByteToWideChar(CP_ACP, 0, name, -1, (LPWSTR)b.data(), (int)b.size());\
 								}\

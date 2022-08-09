@@ -20,7 +20,7 @@ namespace uc
 				Name = name;
 
 				Texture = Level->Engine->TextureFactory->CreateTexture();
-				Material = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				Material = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				Material->Textures[L"DiffuseTexture"] = Texture;
 				Material->Samplers[L"DiffuseSampler"].SetAddressMode(ETextureAddressMode::Clamp, ETextureAddressMode::Clamp);
 			}
@@ -91,9 +91,9 @@ namespace uc
 					auto m = new CGeoMaterial(Level, name);
 					Materials.push_back(m);
 
-					m->Request = new CHttpRequest(Level, CString::Format(L"https://api.mapbox.com/styles/v1/mapbox/" + style + L"/tiles/%d/%d/%d?"
-																		 "access_token=pk.eyJ1IjoibWlnaHR5d2lsbCIsImEiOiJjanRoMDVodDcyMzlkNDNwOHBvZDlpeG93In0.ZpobQTwDvXWRHg3PwgzaVQ",
-																		 lod, tx, ty));
+					m->Request = new CHttpRequest(Level->Core, CString::Format(L"https://api.mapbox.com/styles/v1/mapbox/" + style + L"/tiles/%d/%d/%d?"
+																			 "access_token=pk.eyJ1IjoibWlnaHR5d2lsbCIsImEiOiJjanRoMDVodDcyMzlkNDNwOHBvZDlpeG93In0.ZpobQTwDvXWRHg3PwgzaVQ",
+																			 lod, tx, ty));
 					m->Request->Caching = true;
 					m->Request->Recieved =	[this, name, m, ok]
 											{

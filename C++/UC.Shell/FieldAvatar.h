@@ -35,7 +35,7 @@ namespace uc
 
 			void										ShowGrid(bool s);
 
-			void										OnDependencyDestroying(CNexusObject * o);
+			void										OnDependencyDestroying(CBaseNexusObject * o);
 			void										OnTitleChanged(CWorldEntity * e);
 			void										OnPlacing(CFieldItemElement * fie);
 			void										OnMouse(CActive * r, CActive * s, CMouseArgs * a);

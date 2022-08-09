@@ -17,13 +17,13 @@ namespace uc
 				auto t = Level->Engine->TextureFactory->CreateTexture();
 				t->Load(Level->Server->Info->HInstance, IDB_UOS_PNG);
 
-				auto mtl = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				auto mtl = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				mtl->AlphaBlending = true;
 				mtl->Textures[L"DiffuseTexture"] = t;	
 				mtl->Samplers[L"DiffuseSampler"].SetFilter(ETextureFilter::Point, ETextureFilter::Point, ETextureFilter::Point);
 
 
-				auto msh = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+				auto msh = new CSolidRectangleMesh(Level->Engine->Level);
 				msh->Generate(0, 0, float(t->W), float(t->H));
 				Visual->SetMaterial(mtl);
 				Visual->SetMesh(msh);

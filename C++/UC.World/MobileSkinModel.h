@@ -29,13 +29,13 @@ namespace uc
 				t->Load(f);
 				Level->Storage->Close(f);
 
-				auto m = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				auto m = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				m->AlphaBlending = true;
 				m->Textures[L"DiffuseTexture"] = t;
 				m->Samplers[L"DiffuseSampler"].SetFilter(ETextureFilter::Point, ETextureFilter::Point, ETextureFilter::Point);
 				Visual->SetMaterial(m);
 
-				Frame = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+				Frame = new CSolidRectangleMesh(l->Engine->Level);
 				Visual->SetMesh(Frame);
 				Active->SetMesh(Frame);
 				Frame->Free();

@@ -6,11 +6,11 @@ namespace uc
 	class CBitfinexProvider : public CTradeProvider, public virtual IType
 	{
 		public:
-			CLevel2 *							Level;
-			CHttpRequest *						Request;
+			CExperimentalLevel *	Level;
+			CHttpRequest *			Request;
 			
 			UOS_RTTI
-			CBitfinexProvider(CLevel2 * l)
+			CBitfinexProvider(CExperimentalLevel * l)
 			{
 				Name = L"Bitfinex";
 
@@ -28,7 +28,7 @@ namespace uc
 				Intervals[L"1M"]	= L"1 month";
 
 				Level = l;
-				Request = new CHttpRequest(Level, L"https://api.bitfinex.com/v2/tickers?symbols=ALL"); 
+				Request = new CHttpRequest(Level->Core, L"https://api.bitfinex.com/v2/tickers?symbols=ALL"); 
 				Request->Recieved =	[this]()
 									{
 										Markets.clear();

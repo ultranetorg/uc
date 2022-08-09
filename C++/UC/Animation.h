@@ -17,7 +17,7 @@ namespace uc
 				{
 					//Current = Begin + (End-Begin) * GetLagrangeInterpolation(elapsed/AnimateTime);
 					//return  sqrt(Timer.GetTime()/Time);
-					return  pow(Timer.GetTime()/Time - 1, 3) + 1; // ((x-1)^3)+1
+					return  (float)pow(Timer.GetTime()/Time - 1, 3) + 1; // ((x-1)^3)+1
 				}
 				else
 				{

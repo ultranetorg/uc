@@ -56,7 +56,7 @@ void CAvatarCard::SetEntity(CUol & e)
 	}
 }
 
-void CAvatarCard::OnDependencyDestroying(CNexusObject * o)
+void CAvatarCard::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(Avatar && o == Avatar)
 	{

@@ -26,8 +26,8 @@ CFieldAvatar::CFieldAvatar(CShellLevel * l, CString const & name) : CModel(l->Wo
 	AddNode(FieldElement);
 
 	Surface = new CFieldSurface(Level->World, L"Surface");
-	AMesh = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
-	VMesh = new CGridRectangleMesh(&Level->Engine->EngineLevel);
+	AMesh = new CSolidRectangleMesh(Level->Engine->Level);
+	VMesh = new CGridRectangleMesh(Level->Engine->Level);
 	Surface->Visual->SetMesh(VMesh);
 	Surface->Active->SetMesh(AMesh);
 	Surface->Express(L"P", [this]{ return CFloat6(4.f); });
@@ -76,7 +76,7 @@ void CFieldAvatar::SetEntity(CUol & e)
 	OnTitleChanged(Entity);
 }
 
-void CFieldAvatar::OnDependencyDestroying(CNexusObject * o)
+void CFieldAvatar::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(Entity && o == Entity)
 	{

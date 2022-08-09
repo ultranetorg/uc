@@ -1,19 +1,16 @@
 #pragma once
 #include "Connection.h"
-#include "Storage.h"
 #include "Base58.h"
 #include "IExecutorProtocol.h"
 #include "ILevel.h"
-#include "JsonClient.h"
+#include "Server.h"
 
 namespace uc
 {
 	class UOS_LINKING CNexus : public ILevel, public IType, public ICommandExecutor
 	{
 		public:
-			CLevel2										Level2;
 			CCore *										Core;
-			CStorage *									Storage;
 
 			int											ExitHotKeyId;
 			int											SuspendHotKeyId;
@@ -33,12 +30,6 @@ namespace uc
 			
 			CString										RestartCommand;
 			
-			CJsonClient *								NodeApi;
-
-			CString										UpdateStatus;
-			CList<CProductRelease *>					NewReleases;
-			CEvent<>									UpdateStatusChanged;
-
 			UOS_RTTI
 			CNexus(CCore * l, CXonDocument * config);
 			~CNexus();
@@ -51,13 +42,21 @@ namespace uc
 			void										StopServers();
 			void										StopServer(CServer * s);
 
+			CString										UniversalToNative(CString const & path);
+			CString										NativeToUniversal(CString const & path);
+			CString										MapPath(CString const & mount, CString const & path);
+			CString										MapPath(CServerAddress & server, CString const & path);
+			CString 									MapPath(CUsl & u, CString const & path);
+			CString										Resolve(CString const & u);
+			void										CreateMounts(CServerInfo * s);
+
 			void										Execute(const CUrq & o, CExecutionParameters * p);
 
 			CMap<CServerInfo *, CXon *>					GetRegistry(CString const & path);
 			CXon *										GetRegistry(CUsl & s, CString const & path);
 
 			void										SetDllDirectories();
-			CString										GetExecutable(CString const & spath);
+			//CString										GetExecutable(CString const & spath);
 
 			CConnection 								Connect(IType * who, CUsl & o, CString const & p);
 			CConnection 								Connect(IType * who, CString const & p);

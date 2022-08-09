@@ -11,7 +11,7 @@ namespace uc
 
 			EWorldAction				TouchStage = EWorldAction::Null;
 
-			CDesktopWorld(CLevel2 * l, CServerInfo * si);
+			CDesktopWorld(CNexus * l, CServerInfo * si);
 			~CDesktopWorld();
 
 			void						InitializeViewports() override;
@@ -24,9 +24,9 @@ namespace uc
 			virtual void				OnTouch(CActive * r, CActive * s, CTouchArgs * arg);
 			void						OnKeyboard(CActive *, CActive * s, CKeyboardArgs * arg);
 			void						OnStateChanged(CActive * r, CActive * s, CActiveStateArgs * arg);
-			void StartMovement(CPick & pk, CInputArgs * arg);
-			void ProcessMovement(CPick & pk, CInputArgs * arg);
-			void FinishMovement(CInputArgs * arg);
+			void						StartMovement(CPick & pk, CInputArgs * arg);
+			void						ProcessMovement(CPick & pk, CInputArgs * arg);
+			void						FinishMovement(CInputArgs * arg);
 	};
 }
 

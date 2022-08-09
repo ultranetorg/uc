@@ -14,7 +14,7 @@ namespace uc
 
 				Visual->Enable(false);
 
-				auto m = new CSphereMesh(&l->Engine->EngineLevel);
+				auto m = new CSphereMesh(l->Engine->Level);
 				//w = MainPerspView->PrimaryCamera->GetX(1000000, MainViewport->Width/2);
 				//h = MainPerspView->PrimaryCamera->GetY(1000000, MainViewport->Height/2);
 				m->Generate(0, 0, 0, 1e6, 16);

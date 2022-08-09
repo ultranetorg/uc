@@ -39,11 +39,11 @@ namespace uc
 			virtual ~IDirectory(){}
 	};
 
-	class UOS_LINKING CDirectory : public CNexusObject, public IDirectory
+	class UOS_LINKING CDirectory : public CBaseNexusObject, public IDirectory
 	{
 		public:
 			UOS_RTTI
-			CDirectory(CServer * s, CString const & name) : CNexusObject(s, name) {}
+			CDirectory(CServer * s, CString const & name) : CBaseNexusObject(s, name) {}
 	};
 
 	class UOS_LINKING CDirectoryServer : public CDirectory

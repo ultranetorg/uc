@@ -63,7 +63,7 @@ void CBoardAvatar::SetEntity(CUol & o)
 	}
 }
 
-void CBoardAvatar::OnDependencyDestroying(CNexusObject * o)
+void CBoardAvatar::OnDependencyDestroying(CBaseNexusObject * o)
 {
 	if(Entity && o == Entity) 
 	{

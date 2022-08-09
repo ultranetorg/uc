@@ -25,32 +25,32 @@ namespace uc
 	class CMenuWidget : public CAvatar, public CFieldable
 	{
 		public:
-			CShellLevel *								Level;
-			CRectangleMenuSection *						Section = null;
-			CRectangleMenu *							Menu = null;
-			CObject<CDirectoryMenu>						Entity;
-			CList<CProtocolConnection<CStorage>>		FileSystems;
-			CList<CProtocolConnection<IImageExtractor>>	FileExtractor;
+			CShellLevel *									Level;
+			CRectangleMenuSection *							Section = null;
+			CRectangleMenu *								Menu = null;
+			CObject<CDirectoryMenu>							Entity;
+			CList<CProtocolConnection<IStorageProtocol>>	FileSystems;
+			CList<CProtocolConnection<IImageExtractor>>		FileExtractor;
 						
 			UOS_RTTI
 			CMenuWidget(CShellLevel * l, CString const & name = CGuid::Generate64(GetClassName()));
 			virtual ~CMenuWidget();
 			
-			void										SetEntity(CUol & d);
+			void											SetEntity(CUol & d);
 			
-			void										OnDependencyDestroying(CNexusObject * o);
+			void											OnDependencyDestroying(CBaseNexusObject * o);
 
-			void										OnStateModified(CActive *, CActive *, CActiveStateArgs *);
-			void										OnMouse(CActive *, CActive *, CMouseArgs *);
+			void											OnStateModified(CActive *, CActive *, CActiveStateArgs *);
+			void											OnMouse(CActive *, CActive *, CMouseArgs *);
 
-			virtual void								SaveInstance() override;
-			virtual void								LoadInstance() override;
+			virtual void									SaveInstance() override;
+			virtual void									LoadInstance() override;
 
-			virtual IMenuSection *						CreateSection(const CString & name = L"MenuSection")/*override*/;
-			void										AddMenuWidgetSectionItem(CMenuItem * i);
-			CMenuWidgetSectionItem *					AddMenuWidgetSectionItem(CString const & name);
+			virtual IMenuSection *							CreateSection(const CString & name = L"MenuSection")/*override*/;
+			void											AddMenuWidgetSectionItem(CMenuItem * i);
+			CMenuWidgetSectionItem *						AddMenuWidgetSectionItem(CString const & name);
 
-			void										DetermineSize(CSize & smax, CSize & s) override;
+			void											DetermineSize(CSize & smax, CSize & s) override;
 
 	};
 }

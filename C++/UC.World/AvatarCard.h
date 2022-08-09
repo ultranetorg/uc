@@ -16,7 +16,7 @@ namespace uc
 			void										SetAvatar(CUol & e, CString const & dir);
 			void										SetEntity(CUol & a);
 
-			void										OnDependencyDestroying(CNexusObject * o);
+			void										OnDependencyDestroying(CBaseNexusObject * o);
 			void										OnTitleChanged(CWorldEntity *);
 
 			void										SetMetrics(CCardMetrics & m);

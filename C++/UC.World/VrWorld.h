@@ -16,7 +16,7 @@ namespace uc
 			CAnimated<CFloat3>			MainAnimatedDirection;
 			CAnimated<CFloat3>			NearAnimatedDirection;
 
-			CVrWorld(CLevel2 * l, CServerInfo * si) : CDesktopWorld(l, si) 
+			CVrWorld(CNexus * l, CServerInfo * si) : CDesktopWorld(l, si) 
 			{
 				Name		= WORLD_VR_EMULATION;
 				Complexity	= AVATAR_ENVIRONMENT;
@@ -56,7 +56,7 @@ namespace uc
 			{
 				__super::InitializeView();
 
-				NearView = new CWorldView(this, Engine, L"Near");
+				NearView = new CWorldView(this, L"Near");
 				NearView->AddCamera(MainViewport, CAngle::ToRadian(90.f), 500.f, 10000);
 
 				HudView->PrimaryCamera->UseAffine();

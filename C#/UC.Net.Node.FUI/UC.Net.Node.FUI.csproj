@@ -18,12 +18,12 @@
     <Description></Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\dotnet__UC.Net.Node</OutputPath>
+    <OutputPath>..\..\..\_Debug\duc-dun-dotnet6\0.0.0.0</OutputPath>
     <NoWarn>1701;1702;0169</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\dotnet__UC.Net.Node</OutputPath>
+    <OutputPath>..\..\..\_Release\uc-dun-dotnet6\0.0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
   </PropertyGroup>
