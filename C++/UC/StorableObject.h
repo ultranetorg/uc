@@ -1,20 +1,20 @@
 #pragma once
-#include "BaseNexusObject.h"
+#include "InterObject.h"
 #include "XonDocument.h"
 #include "FileStream.h"
 #include "NativeDirectory.h"
 
 namespace uc
 {
-	class UOS_LINKING CNexusObject : public CBaseNexusObject//, public virtual IProtocol
+	class UOS_LINKING CStorableObject : public CInterObject
 	{
 		public:
 			CString				GlobalDirectory;
 			CString				LocalDirectory;
-			CXonDocument *		InfoDoc = null;
+			CXonDocument *		Info = null;
 
 			UOS_RTTI
-			~CNexusObject();
+			~CStorableObject();
 
 			virtual void		SetDirectories(CString const & path);
 			void				Load();
@@ -33,8 +33,8 @@ namespace uc
 			void				LoadInfo(CStream * s);
 			void				SaveInfo(CStream * s);
 
-			protected:
-			CNexusObject(CServer * s, CString const & name);
+		protected:
+			CStorableObject(CServer * s, CString const & name);
 
 			virtual void		SaveInstance();
 			virtual void		LoadInstance();

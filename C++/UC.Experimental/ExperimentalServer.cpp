@@ -56,7 +56,6 @@ CExperimentalServer::~CExperimentalServer()
 
 	if(World)
 	{
-		World.Server->Disconnecting -= ThisHandler(OnDisconnecting);
 		Nexus->Disconnect(World);
 	}
 
@@ -67,7 +66,6 @@ CExperimentalServer::~CExperimentalServer()
 
 	if(Storage)
 	{
-		Storage.Server->Disconnecting -= ThisHandler(OnDisconnecting);
 		Nexus->Disconnect(Storage);
 	}
 }
@@ -76,14 +74,12 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world)
 {
 	if(storage && !Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
-		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
+		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL, [&]{ Nexus->StopServer(this); });
 	}
 
 	if(world && !World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL);
-		World.Server->Disconnecting += ThisHandler(OnDisconnecting);
+		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(this); });
 
 		Engine	= World->Engine;
 		Style	= World->Style->Clone();
@@ -91,15 +87,6 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world)
 		Bitfinex	= new CBitfinexProvider(this);
 		Tradingview = new CTradingviewProvider(this);
 		GeoStore	= new CGeoStore(this);
-	}
-}
-
-void CExperimentalServer::OnDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(	p == World && pn == WORLD_PROTOCOL ||
-		p == Storage && pn == UOS_STORAGE_PROTOCOL)
-	{
-		Nexus->StopServer(this); // THE END
 	}
 }
 
@@ -112,11 +99,11 @@ void CExperimentalServer::Disconnect(IProtocol * p)
 {
 }
 
-CBaseNexusObject * CExperimentalServer::CreateObject(CString const & name)
+CInterObject * CExperimentalServer::CreateObject(CString const & name)
 {
 	EstablishConnections(true, false);
 
-	CNexusObject * o = null;
+	CStorableObject * o = null;
 
 	auto type = name.substr(0, name.find(L'-'));
 
@@ -324,7 +311,7 @@ void CExperimentalServer::Start(EStartMode sm)
 	Nexus->Disconnect(shell);
 }
 
-CBaseNexusObject * CExperimentalServer::GetEntity(CUol & e)
+CInterObject * CExperimentalServer::GetEntity(CUol & e)
 {
 	EstablishConnections(true, false);
 

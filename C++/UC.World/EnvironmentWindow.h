@@ -25,7 +25,7 @@ namespace uc
 			//using										CWorldNode::UpdateLayout;
 			virtual void								SetEntity(CUol & e) override;
 
-			void										OnDependencyDestroying(CBaseNexusObject * o);
+			void										OnDependencyDestroying(CInterObject * o);
 			void										OnMouse(CActive *, CActive *, CMouseArgs *);
 			void										OnIconCursorMoved(CActive * r, CActive * s, CMouseArgs * a);
 

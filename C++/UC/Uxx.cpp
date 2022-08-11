@@ -18,7 +18,7 @@ CUsl::CUsl(CString const & u) : CUsl(CUrl(u))
 CUsl::CUsl(const CUrl & u)
 {
 	Domain = u.Domain;
-	Server = u.Path.Substring(0, u.Path.find_last_of(L'/'));
+	Server = u.Path.Substring(u.Path.find(L'/') + 1);
 }
 
 CUsl::CUsl(CString const & d, CString const & s)

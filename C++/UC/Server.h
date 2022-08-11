@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "NexusObject.h"
+#include "StorableObject.h"
 #include "ServerAddress.h"
 #include "Manifest.h"
 
@@ -47,11 +47,11 @@ namespace uc
 			CUsl										Url;
 			CServerInfo *								Info;
 
-			CList<CBaseNexusObject *>					Objects;
+			CList<CInterObject *>					Objects;
 			
 			CMap<CString, IProtocol *>					Protocols;
-			CMap<CString, CList<IType *>>				Users;
-			CEvent<CServer *, IProtocol *, CString &>	Disconnecting;
+			CMap<CString, CMap<IType *, std::function<void()>>>	Users;
+			//CEvent<CServer *, IProtocol *, CString &>	Disconnecting;
 			
 			UOS_RTTI
 			CServer(CNexus * l, CServerInfo * info);
@@ -63,12 +63,12 @@ namespace uc
 			virtual IProtocol *		 					Connect(CString const & pr)=0;
 			virtual void								Disconnect(IProtocol * s)=0;
 
-			virtual CBaseNexusObject *					CreateObject(CString const & name);
-			virtual void								RegisterObject(CBaseNexusObject * o, bool shared);
-			virtual void								DestroyObject(CBaseNexusObject * o);
+			virtual CInterObject *					CreateObject(CString const & name);
+			virtual void								RegisterObject(CInterObject * o, bool shared);
+			virtual void								DestroyObject(CInterObject * o);
 
-			virtual CBaseNexusObject *					FindObject(CString const & name);
-			CBaseNexusObject *							FindObject(CUol const & u);
+			virtual CInterObject *					FindObject(CString const & name);
+			CInterObject *							FindObject(CUol const & u);
 			template<class T> T *						FindObject(CString const & name)
 														{
 															return FindObject(name)->As<T>();

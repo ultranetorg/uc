@@ -50,7 +50,7 @@ CObject<CFieldItem> CFieldServer::Add(CUol & e, CString const & complexity)
 	fi->Object = e;
 	Items.push_back(fi);
 
-	///CObject<CNexusObject> o = Level->Nexus->GetObject(e);
+	///CObject<CStorableObject> o = Level->Nexus->GetObject(e);
 	///if(!GlobalDirectory.IsEmpty() || !LocalDirectory.IsEmpty())
 	///{
 	///	fi->SetDirectories(CFileSystem::Join(CDirectory::GetClassName(), GlobalDirectory, fi->Url.Object), CFileSystem::Join(CDirectory::GetClassName(), LocalDirectory, fi->Url.Object));
@@ -69,7 +69,7 @@ void CFieldServer::Remove(CFieldItem * fi)
 	Items.remove(fi);
 
 	Level->Server->DeleteObject(fi);
-	///CObject<CNexusObject> o = Level->Nexus->GetObject(e);
+	///CObject<CStorableObject> o = Level->Nexus->GetObject(e);
 	///if(!GlobalDirectory.IsEmpty() || !LocalDirectory.IsEmpty())
 	///{
 	///	fi->SetDirectories(CFileSystem::Join(CDirectory::GetClassName(), GlobalDirectory, fi->Url.Object), CFileSystem::Join(CDirectory::GetClassName(), LocalDirectory, fi->Url.Object));

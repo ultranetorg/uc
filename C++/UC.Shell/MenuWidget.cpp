@@ -167,7 +167,7 @@ CMenuWidgetSectionItem * CMenuWidget::AddMenuWidgetSectionItem(CString const & l
 	return si;
 }
 
-void CMenuWidget::OnDependencyDestroying(CBaseNexusObject * o)
+void CMenuWidget::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity)
 	{

@@ -2,14 +2,14 @@
 
 namespace uc
 {
-	class CWorldEntity : public CNexusObject
+	class CWorldEntity : public CStorableObject
 	{
 		public:
 			CString										DefaultInteractiveMasterTag;
 			CString										Title;
 			CEvent<CWorldEntity *>						Retitled;
 
-			CWorldEntity(CServer * s, CString const & name) : CNexusObject(s, name)
+			CWorldEntity(CServer * s, CString const & name) : CStorableObject(s, name)
 			{
 			}
 

@@ -17,7 +17,7 @@ namespace uc
 			virtual void								Place(CFieldWorld * fo) override;
 
 			void										SetEntity(CUol & e);
-			void										OnDependencyDestroying(CBaseNexusObject *);
+			void										OnDependencyDestroying(CInterObject *);
 
 			void										OnMessageRecieved(CEmailMessage * o);
 			void										OnMouse(CActive * r, CActive * s, CMouseArgs * a) override;

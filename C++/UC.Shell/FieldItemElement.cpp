@@ -72,7 +72,7 @@ void CFieldItemElement::Revive()
 	}
 }
 
-void CFieldItemElement::OnDependencyDestroying(CBaseNexusObject * o)
+void CFieldItemElement::OnDependencyDestroying(CInterObject * o)
 {
 	///if(Avatar && o == Avatar)
 	///{

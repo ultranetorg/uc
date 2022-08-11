@@ -5,17 +5,17 @@
 
 using namespace uc;
 
-CDirectoryServer::CDirectoryServer(CServer * s, CString const & path, CString const & npath) : CDirectory(s, CDirectory::GetClassName() + L"-" + path)
+CLocalDirectory::CLocalDirectory(CServer * s, CString const & path, CString const & npath) : CDirectory(s, CDirectory::GetClassName() + L"-" + path)
 {
 	Path = npath;
 }
 
-CDirectoryServer::~CDirectoryServer()
+CLocalDirectory::~CLocalDirectory()
 {
 
 }
 
-CList<CStorageEntry> CDirectoryServer::Enumerate(CString const & mask)
+CList<CStorageEntry> CLocalDirectory::Enumerate(CString const & mask)
 {
 	CList<CStorageEntry> ooo;
 
@@ -71,27 +71,27 @@ CList<CStorageEntry> CDirectoryServer::Enumerate(CString const & mask)
 	return ooo;
 }
 
-void CDirectoryServer::Delete()
+void CLocalDirectory::Delete()
 {
 	CNativeDirectory::Delete(Path);
 }
 
-CStream * CDirectoryServer::OpenWriteStream(CString const & name)
+CStream * CLocalDirectory::OpenWriteStream(CString const & name)
 {
 	return dynamic_cast<CLocalStorage *>(Server)->OpenWriteStream(CPath::Join(CUol::GetObjectID(Url.Object), name));
 }
 
-CStream * CDirectoryServer::OpenReadStream(CString const & name)
+CStream * CLocalDirectory::OpenReadStream(CString const & name)
 {
 	return dynamic_cast<CLocalStorage *>(Server)->OpenReadStream(CPath::Join(CUol::GetObjectID(Url.Object), name));
 }
 
-void CDirectoryServer::Close(CStream * s)
+void CLocalDirectory::Close(CStream * s)
 {
 	return dynamic_cast<CLocalStorage *>(Server)->Close(s);
 }
 
-CList<CFSRegexItem> CDirectoryServer::EnumerateByRegex(CString const & pattern)
+CList<CFSRegexItem> CLocalDirectory::EnumerateByRegex(CString const & pattern)
 {
 	CList<CFSRegexItem> o;
 

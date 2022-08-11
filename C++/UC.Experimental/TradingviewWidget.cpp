@@ -52,7 +52,7 @@ void CTradingviewWidget::OnChanged()
 {
 }
 
-void CTradingviewWidget::OnDependencyDestroying(CNexusObject * o)
+void CTradingviewWidget::OnDependencyDestroying(CStorableObject * o)
 {
 	if(o == Entity)
 	{

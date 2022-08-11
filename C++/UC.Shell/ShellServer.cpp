@@ -47,42 +47,29 @@ CShellServer::~CShellServer()
 			World->Sphere->Active->MouseEvent -= ThisHandler(OnWorldSphereMouse);
 		}
 
-		World.Server->Disconnecting -= ThisHandler(OnDisconnecting);
 		Nexus->Disconnect(World);
 	}
 
 	if(Storage)
 	{
-		Storage.Server->Disconnecting -= ThisHandler(OnDisconnecting);
 		Nexus->Disconnect(Storage);
 	}
 }
 
 void CShellServer::EstablishConnections()
 {
+	if(!Storage)
+	{
+		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL, [&]{ Nexus->StopServer(this); });
+	}
+
 	if(!World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL);
-		World.Server->Disconnecting += ThisHandler(OnDisconnecting);
+		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(this); });
 
 		Engine			= World->Engine;
 		Style			= World->Style->Clone();
 		ImageExtractor	= new CImageExtractor(World, Server);
-	}
-
-	if(!Storage)
-	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
-		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
-	}
-}
-
-void CShellServer::OnDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(	p == World && pn == WORLD_PROTOCOL ||
-		p == Storage && pn == UOS_STORAGE_PROTOCOL)
-	{
-		Nexus->StopServer(this); // THE END
 	}
 }
 
@@ -97,11 +84,11 @@ void CShellServer::Disconnect(IProtocol * o)
 {
 }
 
-CNexusObject * CShellServer::CreateObject(CString const & name)
+CStorableObject * CShellServer::CreateObject(CString const & name)
 {
 	EstablishConnections();
 
-	CNexusObject * o = null;
+	CStorableObject * o = null;
 
 	auto type = CUol::GetObjectType(name);
 
@@ -351,7 +338,7 @@ void CShellServer::OnWorldSphereMouse(CActive *, CActive *, CMouseArgs * arg)
 	}
 }
 
-CBaseNexusObject * CShellServer::GetEntity(CUol & e)
+CInterObject * CShellServer::GetEntity(CUol & e)
 {
 	return Server->FindObject(e);
 }

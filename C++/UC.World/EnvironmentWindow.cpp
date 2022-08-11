@@ -36,7 +36,7 @@ void CEnvironmentWindow::SetEntity(CUol & e)
 	Entity->Destroying += ThisHandler(OnDependencyDestroying);
 }
 
-void CEnvironmentWindow::OnDependencyDestroying(CBaseNexusObject * o)
+void CEnvironmentWindow::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity)
 	{

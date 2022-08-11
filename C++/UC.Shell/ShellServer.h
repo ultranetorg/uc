@@ -36,19 +36,18 @@ namespace uc
 			~CShellServer();
 			
 			void										EstablishConnections();
-			void										OnDisconnecting(CServer *, IProtocol *, CString &);
 
 			void										Start(EStartMode sm) override;
 			IProtocol * 								Connect(CString const & pr)override;
 			void										Disconnect(IProtocol * s) override;
-			CNexusObject *								CreateObject(CString const & name) override;
+			CStorableObject *								CreateObject(CString const & name) override;
 
 			CString										GetTitle() override { return SHELL_OBJECT; }
 			IMenuSection *								CreateNewMenu(CFieldElement * f, CFloat3 & p, IMenu * m) override;
 			
 			CRefList<CMenuItem *>						CreateActions() override;
 
-			virtual CBaseNexusObject *					GetEntity(CUol & a) override;
+			virtual CInterObject *					GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 			virtual void								DestroyAvatar(CAvatar * a) override;

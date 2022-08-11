@@ -16,7 +16,7 @@ namespace uc
 			CTrayWidget(CShellLevel * l, CString const & name = CGuid::Generate64(GetClassName()));
 			~CTrayWidget();
 
-			void										OnDependencyDestroying(CBaseNexusObject * o);
+			void										OnDependencyDestroying(CInterObject * o);
 
 			void										SetEntity(CUol & o) override;
 

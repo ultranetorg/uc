@@ -41,11 +41,15 @@ void CAvatarCard::SetAvatar(CUol & a, CString const & dir)
 
 void CAvatarCard::SetEntity(CUol & e)
 {
-	auto protocol = Level->Nexus->Connect<IAvatarProtocol>(this, e, AVATAR_PROTOCOL);
+	auto AvatarProtocol = Level->Nexus->Connect<IAvatarProtocol>(this, e, AVATAR_PROTOCOL,	[&]
+																							{ 
+																								//OnDependencyDestroying(Avatar);
+																								//OnDependencyDestroying(Entity);
+																							});
 		
-	if(protocol)
+	if(AvatarProtocol)
 	{
-		Entity = protocol->GetEntity(e);
+		Entity = AvatarProtocol->GetEntity(e);
 		Entity->Destroying += ThisHandler(OnDependencyDestroying);
 		Entity->Retitled += ThisHandler(OnTitleChanged);
 
@@ -56,10 +60,11 @@ void CAvatarCard::SetEntity(CUol & e)
 	}
 }
 
-void CAvatarCard::OnDependencyDestroying(CBaseNexusObject * o)
+void CAvatarCard::OnDependencyDestroying(CInterObject * o)
 {
 	if(Avatar && o == Avatar)
 	{
+
 		SetFace(null);
 		Avatar->Destroying -= ThisHandler(OnDependencyDestroying);
 		//Avatar = null;

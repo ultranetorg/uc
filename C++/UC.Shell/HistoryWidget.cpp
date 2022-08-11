@@ -53,7 +53,7 @@ void CHistoryWidget::SetEntity(CUol & o)
 	}
 }
 
-void CHistoryWidget::OnDependencyDestroying(CBaseNexusObject * o)
+void CHistoryWidget::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity)
 	{

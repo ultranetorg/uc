@@ -38,7 +38,7 @@ namespace uc
 			
 			void											SetEntity(CUol & d);
 			
-			void											OnDependencyDestroying(CBaseNexusObject * o);
+			void											OnDependencyDestroying(CInterObject * o);
 
 			void											OnStateModified(CActive *, CActive *, CActiveStateArgs *);
 			void											OnMouse(CActive *, CActive *, CMouseArgs *);

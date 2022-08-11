@@ -16,12 +16,12 @@ namespace uc
 
 			using									CServer::FindObject;
 
-			CBaseNexusObject *						FindObject(CString const & name) override;
+			CInterObject *							FindObject(CString const & name) override;
 
 			bool									Exists(CString const & name);
-			void									DeleteObject(CBaseNexusObject * r);
-			void									DestroyObject(CBaseNexusObject * o, bool save);
-			void									LoadObject(CNexusObject * o);
+			void									DeleteObject(CInterObject * r);
+			void									DestroyObject(CInterObject * o, bool save);
+			void									LoadObject(CStorableObject * o);
 
 			CTonDocument *							LoadServerDocument(CString const & path);
 			CTonDocument *							LoadGlobalDocument(CString const & path);

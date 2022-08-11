@@ -76,7 +76,7 @@ void CFieldAvatar::SetEntity(CUol & e)
 	OnTitleChanged(Entity);
 }
 
-void CFieldAvatar::OnDependencyDestroying(CBaseNexusObject * o)
+void CFieldAvatar::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity)
 	{

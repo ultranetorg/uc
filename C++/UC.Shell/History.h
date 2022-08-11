@@ -27,7 +27,7 @@ namespace uc
 				Title = Object->Title;
 			}
 
-			void OnDependencyDestroying(CBaseNexusObject * o)
+			void OnDependencyDestroying(CInterObject * o)
 			{
 				if(Object)
 				{

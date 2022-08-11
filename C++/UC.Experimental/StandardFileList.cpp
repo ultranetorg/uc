@@ -97,31 +97,16 @@ CStandardFileList::~CStandardFileList()
 	}
 	Selector->Free();
 
-	if(FileExtractor)
-		FileExtractor.Server->Disconnecting -= ThisHandler(OnDependencyDisconnecting);
-
 	IconMesh->Free();
 }
 
 void CStandardFileList::SetSource(CString & u)
 {
-	FileExtractor = Level->Nexus->Connect(this, IMAGE_EXTRACTOR_PROTOCOL);
-	FileExtractor.Server->Disconnecting += ThisHandler(OnDependencyDisconnecting);
+	ImageExtractor = Level->Nexus->Connect(this, IMAGE_EXTRACTOR_PROTOCOL);
 
 	Source = u;
 
 	Load(u);
-}
-
-void CStandardFileList::OnDependencyDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(p == FileExtractor)
-	{
-		//for(auto i : Items)
-		//{
-		//	i->Icon->Visual->SetMaterial(null);
-		//}
-	}
 }
 
 void CStandardFileList::Load(CString path)
@@ -162,7 +147,7 @@ void CStandardFileList::Load(CString path)
 
 	for(auto file : entries)
 	{
-		auto fi = new CFileItemElement(Level, &file, IconMesh, FileExtractor);
+		auto fi = new CFileItemElement(Level, &file, IconMesh, ImageExtractor);
 		fi->Express(L"M", []{ return CFloat6(1.f); });
 		fi->CalculateFullSize();
 

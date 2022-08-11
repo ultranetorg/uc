@@ -28,7 +28,7 @@ ECardTitleMode uc::ToAvatarTitleMode(const CString & name)
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-CAvatar::CAvatar(CWorld * l, CServer * s, CString const & name) : CElement(l, name), CNexusObject(s, name)
+CAvatar::CAvatar(CWorld * l, CServer * s, CString const & name) : CElement(l, name), CStorableObject(s, name)
 {
 	World = l;
 }

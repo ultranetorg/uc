@@ -36,7 +36,7 @@ void CHudEnvironment::SetEntity(CUol & hud)
 	FieldElement->SetEntity(Entity);
 }
 
-void CHudEnvironment::OnDependencyDestroying(CBaseNexusObject * o)
+void CHudEnvironment::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity) 
 	{

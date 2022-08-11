@@ -212,7 +212,7 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Guid.h" />
-    <ClInclude Include="BaseNexusObject.h">
+    <ClInclude Include="InterObject.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="FastDelegate.h">
@@ -377,9 +377,6 @@
     <ClInclude Include="Server.h">
       <Filter>Nexus</Filter>
     </ClInclude>
-    <ClInclude Include="NexusObject.h">
-      <Filter>Nexus</Filter>
-    </ClInclude>
     <ClInclude Include="Manifest.h">
       <Filter>Net</Filter>
     </ClInclude>
@@ -396,6 +393,9 @@
       <Filter>Net</Filter>
     </ClInclude>
     <ClInclude Include="IStorageProtocol.h" />
+    <ClInclude Include="StorableObject.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Angle.cpp">
@@ -528,7 +528,7 @@
     <ClCompile Include="Xon.cpp">
       <Filter>Xon</Filter>
     </ClCompile>
-    <ClCompile Include="BaseNexusObject.cpp">
+    <ClCompile Include="InterObject.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="Shared.cpp" />
@@ -645,9 +645,6 @@
     <ClCompile Include="Server.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
-    <ClCompile Include="NexusObject.cpp">
-      <Filter>Nexus</Filter>
-    </ClCompile>
     <ClCompile Include="Manifest.cpp">
       <Filter>Net</Filter>
     </ClCompile>
@@ -665,6 +662,10 @@
     </ClCompile>
     <ClCompile Include="ProductAddress.cpp">
       <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="StorableObject.cpp">
+      <Filter>Nexus</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

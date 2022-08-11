@@ -14,7 +14,7 @@ CStorableServer::~CStorableServer()
 {
 }
 
-CBaseNexusObject * CStorableServer::FindObject(CString const & name)
+CInterObject * CStorableServer::FindObject(CString const & name)
 {
 	auto o = CServer::FindObject(name);
 
@@ -22,7 +22,7 @@ CBaseNexusObject * CStorableServer::FindObject(CString const & name)
 	{
 		o = CreateObject(name);
 
-		auto so = dynamic_cast<CNexusObject *>(o);
+		auto so = dynamic_cast<CStorableObject *>(o);
 		
 		if(so)
 		{
@@ -45,7 +45,7 @@ bool CStorableServer::Exists(CString const & name)
 	return Storage->Exists(f) || Storage->Exists(g) || Storage->Exists(l);
 }
 
-void CStorableServer::LoadObject(CNexusObject * o)
+void CStorableServer::LoadObject(CStorableObject * o)
 {
 	auto f = MapUserGlobalPath(o->Url.Object + L".object");
 	auto g = MapUserGlobalPath(o->Url.Object);
@@ -66,7 +66,7 @@ void CStorableServer::LoadObject(CNexusObject * o)
 	}
 }
 
-void CStorableServer::DeleteObject(CBaseNexusObject * r)
+void CStorableServer::DeleteObject(CInterObject * r)
 {
 	auto name = r->Url.Object;
 	auto shared = r->Shared;
@@ -87,11 +87,11 @@ void CStorableServer::DeleteObject(CBaseNexusObject * r)
 	//r->Free();
 }
 
-void CStorableServer::DestroyObject(CBaseNexusObject * o, bool save)
+void CStorableServer::DestroyObject(CInterObject * o, bool save)
 {
 	if(save && o->Shared)
 	{
-		auto so = dynamic_cast<CNexusObject *>(o);
+		auto so = dynamic_cast<CStorableObject *>(o);
 
 		if(so)
 		{

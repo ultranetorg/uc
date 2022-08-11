@@ -31,6 +31,8 @@ namespace uc
 			
 			CString										RestartCommand;
 			
+			CString										InitialPATH;
+
 			UOS_RTTI
 			CNexus(CCore * l, CXonDocument * config);
 			~CNexus();
@@ -58,11 +60,10 @@ namespace uc
 			CMap<CServerInfo *, CXon *>					GetRegistry(CString const & path);
 			CXon *										GetRegistry(CUsl & s, CString const & path);
 
-			void										SetDllDirectories();
-			//CString										GetExecutable(CString const & spath);
+			void										SetDllDirectories(CServerInfo * info);
 
-			CConnection 								Connect(IType * who, CUsl & o, CString const & p);
-			CConnection 								Connect(IType * who, CString const & p);
+			CConnection 								Connect(IType * who, CUsl & o, CString const & p, std::function<void()> ondisconnect = std::function<void()>());
+			CConnection 								Connect(IType * who, CString const & pp, std::function<void()> ondisconnect = std::function<void()>());
 			CList<CConnection> 							ConnectMany(IType * who, CString const & p);
 			void										Disconnect(CConnection & c);
 			void										Disconnect(CList<CConnection> & c);
@@ -75,9 +76,9 @@ namespace uc
 			void										Break(CUsl & u, CString const & pr);
 		
 
-			template<class T> CProtocolConnection<T>	Connect(IType * who, CUsl & u, CString const & p)
+			template<class T> CProtocolConnection<T>	Connect(IType * who, CUsl & u, CString const & p, std::function<void()> ondisconnect = std::function<void()>())
 														{
-															auto c = Connect(who, u, p);
+															auto c = Connect(who, u, p, ondisconnect);
 
 															if(c && c.As<T>() == null)
 															{
@@ -86,9 +87,9 @@ namespace uc
 															return CProtocolConnection<T>(c);
 														}
 
-			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & p)
+			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & p, std::function<void()> ondisconnect = std::function<void()>())
 														{
-															return CProtocolConnection<T>(Connect(who, p));
+															return CProtocolConnection<T>(Connect(who, p, ondisconnect));
 														}
 
 			template<class T> 

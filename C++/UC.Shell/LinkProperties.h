@@ -27,7 +27,7 @@ namespace uc
 			~CLinkProperties();
 
 			void										SetEntity(CUol & e);
-			void										OnDependencyDestroying(CBaseNexusObject * d);
+			void										OnDependencyDestroying(CInterObject * d);
 
 			virtual void								SaveInstance() override;
 			virtual void								LoadInstance() override;

@@ -8,7 +8,7 @@ namespace uc
 	class CWorld;
 	class IAvatarProtocol;
 	
-	class UOS_WORLD_LINKING CAvatar : public CElement, public CNexusObject 
+	class UOS_WORLD_LINKING CAvatar : public CElement, public CStorableObject 
 	{
 		public:
 			CProtocolConnection<IAvatarProtocol>		Protocol;
@@ -17,7 +17,7 @@ namespace uc
 			UOS_RTTI
 			CAvatar(CWorld * l, CServer * s, CString const & name); 
 
-			using CNexusObject::Load;
+			using CStorableObject::Load;
 
 			virtual void								SetEntity(CUol & e);
 			virtual void								DetermineSize(CSize & smax, CSize & s);
@@ -35,7 +35,7 @@ namespace uc
 	class IAvatarProtocol : public virtual IProtocol
 	{
 		public:
-			virtual CBaseNexusObject *					GetEntity(CUol & a)=0;
+			virtual CInterObject *					GetEntity(CUol & a)=0;
 			virtual CAvatar *							CreateAvatar(CUol & a)=0;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & o, CString const & type)=0;
 			virtual void								DestroyAvatar(CAvatar * a) = 0;

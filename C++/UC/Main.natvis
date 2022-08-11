@@ -47,7 +47,7 @@
 		<DisplayString>{Object}</DisplayString>
 	</Type>
 
-	<Type Name="uo::CNexusObject">
+	<Type Name="uo::CStorableObject">
 		<DisplayString>{Url.Object}</DisplayString>
 	</Type>
 

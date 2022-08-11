@@ -4,7 +4,7 @@
 
 using namespace uc;
 
-CLocalStorage::CLocalStorage(CNexus * l, CServerInfo * info) : CServer(l, info), CDirectoryServer(this, L"/", L"")
+CLocalStorage::CLocalStorage(CNexus * l, CServerInfo * info) : CServer(l, info), CLocalDirectory(this, L"/", L"")
 {
 	//Protocols[UOS_STORAGE_PROTOCOL] = null;
 }
@@ -72,7 +72,7 @@ CObject<CDirectory> CLocalStorage::OpenDirectory(CString const & addr)
 	
 	if(CNativeDirectory::Exists(native))
 	{
-		d = new CDirectoryServer(this, addr, native);
+		d = new CLocalDirectory(this, addr, native);
 
 		Directories.push_back(d);
 		RegisterObject(d, false);
@@ -163,7 +163,7 @@ void CLocalStorage::Close(CDirectory * d)
 
 	if(d->GetRefs() == 1)
 	{
-		Directories.Remove(d->As<CDirectoryServer>());
+		Directories.Remove(d->As<CLocalDirectory>());
 		DestroyObject(d);
 	}
 	else
@@ -188,7 +188,7 @@ void CLocalStorage::CreateDirectory(CString const & o)
 // 	CreateDirectory(d);
 // }
 
-void CLocalStorage::CreateGlobalDirectory(CNexusObject * o, CString const & path)
+void CLocalStorage::CreateGlobalDirectory(CStorableObject * o, CString const & path)
 {
 	auto d = o->MapGlobalPath(path);
 	CreateDirectory(d);
@@ -206,7 +206,7 @@ void CLocalStorage::CreateLocalDirectory(CString const & path)
 	CreateDirectory(d);
 }
 
-void CLocalStorage::CreateLocalDirectory(CNexusObject * o, CString const & path)
+void CLocalStorage::CreateLocalDirectory(CStorableObject * o, CString const & path)
 {
 	auto d = o->MapLocalPath(path);
 	CreateDirectory(d);

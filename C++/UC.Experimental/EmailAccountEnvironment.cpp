@@ -42,7 +42,7 @@ void CEmailAccountEnvironment::SetEntity(CUol & e)
 										};
 }
 
-void CEmailAccountEnvironment::OnDependencyDestroying(CBaseNexusObject * o)
+void CEmailAccountEnvironment::OnDependencyDestroying(CInterObject * o)
 {
 	if(o == Entity && Entity)
 	{

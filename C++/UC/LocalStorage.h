@@ -4,14 +4,14 @@
 
 namespace uc
 {
-	class UOS_LINKING CLocalStorage : public CServer, public IStorageProtocol, protected CDirectoryServer
+	class UOS_LINKING CLocalStorage : public CServer, public IStorageProtocol, protected CLocalDirectory
 	{	
 		public:
 			CMap<CString, CString>		Mounts;
 
 			CList<CStream *>			WriteStreams;
 			CList<CStream *>			ReadStreams;
-			CList<CDirectoryServer *>	Directories;
+			CList<CLocalDirectory *>	Directories;
 
 			UOS_RTTI
 			CLocalStorage(CNexus * l, CServerInfo * info);
@@ -38,10 +38,10 @@ namespace uc
 
 
 			//void						CreateGlobalDirectory(CString const & path);
-			void						CreateGlobalDirectory(CNexusObject * o, CString const & path = CString());
+			void						CreateGlobalDirectory(CStorableObject * o, CString const & path = CString());
 			void						CreateGlobalDirectory(CServer * s, CString const & path = CString()) override;
 			void						CreateLocalDirectory(CString const & path);
-			void						CreateLocalDirectory(CNexusObject * o, CString const & path = CString());
+			void						CreateLocalDirectory(CStorableObject * o, CString const & path = CString());
 			void 						CreateLocalDirectory(CServer * s, CString const & path = CString()) override;
 
 			CList<CStorageEntry>		Enumerate(CString const & dir, CString const & mask) override;

@@ -122,21 +122,12 @@ CWorldServer::~CWorldServer()
 	}
 
 	Core->ExitRequested	-= ThisHandler(OnExitRequested);
-	Nexus->Stopping -= ThisHandler(OnNexusStopping);
+	Nexus->Stopping	-= ThisHandler(OnNexusStopping);
 	Diagnostic->Updating -= ThisHandler(OnDiagnosticsUpdating);
 
 	if(Storage)
 	{
-		Storage.Server->Disconnecting -= ThisHandler(OnDisconnecting);
 		Nexus->Disconnect(Storage);
-	}
-}
-
-void CWorldServer::OnDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(p == Storage && pn == UOS_STORAGE_PROTOCOL)
-	{
-		Nexus->StopServer(this); /// THE END
 	}
 }
 
@@ -144,8 +135,7 @@ void CWorldServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
-		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
+		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL, [&]{ Nexus->StopServer(this); });
 	}
 }
 
@@ -381,9 +371,9 @@ CGroup * CWorldServer::CreateGroup(CString const & name)
 	return o;
 }
 
-CNexusObject * CWorldServer::CreateObject(CString const & name)
+CStorableObject * CWorldServer::CreateObject(CString const & name)
 {	
-	CNexusObject * o = null;
+	CStorableObject * o = null;
 
 	auto type = CUol::GetObjectType(name);
 
@@ -461,7 +451,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 	else
 	{	
 		a = new CDefaultIcon(this);
-		a->Protocol = CProtocolConnection<IAvatarProtocol>(CConnection(this, this, this, AVATAR_PROTOCOL));
+		a->Protocol = CProtocolConnection<IAvatarProtocol>(CConnection(this, this, AVATAR_PROTOCOL));
 		RegisterObject(a, false);
 		a->Free();
 	}
@@ -1134,7 +1124,7 @@ CElement * CWorldServer::CreateElement(CString const & name, CString const & typ
 }
 
 
-CBaseNexusObject * CWorldServer::GetEntity(CUol & e)
+CInterObject * CWorldServer::GetEntity(CUol & e)
 {
 	return Server->FindObject(e);
 }

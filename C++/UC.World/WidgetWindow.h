@@ -23,7 +23,7 @@ namespace uc
 
 			void										SetFace(CElement * e);
 			virtual void								SetEntity(CUol & o) override;
-			void										OnDependencyDestroying(CBaseNexusObject *);
+			void										OnDependencyDestroying(CInterObject *);
 
 			virtual void								SaveInstance() override;
 			virtual void								LoadInstance() override;

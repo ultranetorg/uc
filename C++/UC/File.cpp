@@ -27,9 +27,11 @@ bool CLocalFile::Exists(CString const & file)
 	WIN32_FIND_DATA FindFileData;
 	HANDLE handle = FindFirstFile(file.data(), &FindFileData) ;
 	int found = handle != INVALID_HANDLE_VALUE;
+
 	if(found) 
 	{
 		FindClose(handle);
 	}
+
 	return found;
 }

@@ -5,49 +5,25 @@ namespace uc
 {
 	class CServer;
 
-	struct CConnection
+	class UOS_LINKING CConnection
 	{
-		//CNexus *			Nexus;
-		IType *				Who;
-		CServer *			Server;
-		IProtocol *			Protocol;
-		CString				ProtocolName;
+		public:
+			IType *				Who;
+			CServer *			Server;
+			IProtocol *			Protocol;
+			CString				ProtocolName;
 
-		CConnection()
-		{
-			Who = null;
-			Server = null;
-		}
+			CConnection();
+			CConnection(IType * who, CServer * server, CString const & pn);
 
-		CConnection(IType * who, CServer * r, IProtocol * p, CString const & pn)
-		{
-			Who = who;
-			Server = r;
-			Protocol = p;
-			ProtocolName = pn;
-		}
+			void Clear();
+			operator bool () const;
+			bool operator! () const;
 
-		void Clear()
-		{
-			Who = null;
-			Server = null;
-			Protocol = null;
-		}
-
-		operator bool () const
-		{
-			return Server != null;
-		}
-
-		bool operator! () const
-		{
-			return Server == null;
-		}
-
-		template<class T> T * As()
-		{
-			return dynamic_cast<T *>(Protocol);
-		}
+			template<class T> T * As()
+			{
+				return dynamic_cast<T *>(Protocol);
+			}
 	};
 
 	template<class P> struct CProtocolConnection : public CConnection

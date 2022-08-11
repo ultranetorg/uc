@@ -129,7 +129,7 @@
     <ClInclude Include="Hex.h" />
     <ClInclude Include="IStorageProtocol.h" />
     <ClInclude Include="Manifest.h" />
-    <ClInclude Include="NexusObject.h" />
+    <ClInclude Include="StorableObject.h" />
     <ClInclude Include="ProductAddress.h" />
     <ClInclude Include="RealizationAddress.h" />
     <ClInclude Include="Server.h" />
@@ -185,7 +185,7 @@
     <ClInclude Include="IFileService.h" />
     <ClInclude Include="ILevel.h" />
     <ClInclude Include="ILicenseService.h" />
-    <ClInclude Include="BaseNexusObject.h" />
+    <ClInclude Include="InterObject.h" />
     <ClInclude Include="INativeMessageHandler.h" />
     <ClInclude Include="Int32.h" />
     <ClInclude Include="Int32Array.h" />
@@ -254,9 +254,10 @@
     <ClCompile Include="Angle.cpp" />
     <ClCompile Include="Animated.cpp" />
     <ClCompile Include="Base64.cpp" />
+    <ClCompile Include="Connection.cpp" />
     <ClCompile Include="Hex.cpp" />
     <ClCompile Include="Manifest.cpp" />
-    <ClCompile Include="NexusObject.cpp" />
+    <ClCompile Include="StorableObject.cpp" />
     <ClCompile Include="ProductAddress.cpp" />
     <ClCompile Include="RealizationAddress.cpp" />
     <ClCompile Include="Server.cpp" />
@@ -280,7 +281,7 @@
     <ClCompile Include="GdiRect.cpp" />
     <ClCompile Include="Guid.cpp" />
     <ClCompile Include="Line.cpp" />
-    <ClCompile Include="BaseNexusObject.cpp" />
+    <ClCompile Include="InterObject.cpp" />
     <ClCompile Include="Converter.cpp" />
     <ClCompile Include="CpuMonitor.cpp" />
     <ClCompile Include="DiagGrid.cpp" />

@@ -29,7 +29,7 @@ void CThemeAvatar::SetEntity(CUol & e)
 	LoadScene();
 }
 
-void CThemeAvatar::OnDependencyDestroying(CBaseNexusObject * o)
+void CThemeAvatar::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && Entity == o)
 	{

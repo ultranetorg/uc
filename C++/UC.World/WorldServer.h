@@ -57,7 +57,6 @@ namespace uc
 			void										Disconnect(IProtocol * c) override;
 
 			void										EstablishConnections();
-			void										OnDisconnecting(CServer *, IProtocol *, CString &);
 
 			CGroup *									CreateGroup(CString const & name) override;
 
@@ -124,9 +123,9 @@ namespace uc
 
 			virtual CElement *							CreateElement(CString const & name, CString const & type) override;
 
-			CNexusObject *								CreateObject(CString const & name) override;
+			CStorableObject *								CreateObject(CString const & name) override;
 
-			virtual CBaseNexusObject *					GetEntity(CUol & a) override;
+			virtual CInterObject *					GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 	};

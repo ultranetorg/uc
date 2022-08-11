@@ -1,15 +1,15 @@
 #pragma once
-#include "NexusObject.h"
+#include "StorableObject.h"
 
 namespace uc
 {
-	class UOS_LINKING CFile : public CBaseNexusObject
+	class UOS_LINKING CFile : public CInterObject
 	{
 		public:
 			int											Users = 0;
 
 			UOS_RTTI
-			CFile(CServer * s, CString const & name) : CBaseNexusObject(s, name){}
+			CFile(CServer * s, CString const & name) : CInterObject(s, name){}
 	};
 
 	class UOS_LINKING CLocalFile : public CFile

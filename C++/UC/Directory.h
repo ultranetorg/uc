@@ -1,5 +1,5 @@
 #pragma once
-#include "NexusObject.h"
+#include "StorableObject.h"
 #include "File.h"
 
 namespace uc
@@ -39,21 +39,21 @@ namespace uc
 			virtual ~IDirectory(){}
 	};
 
-	class UOS_LINKING CDirectory : public CBaseNexusObject, public IDirectory
+	class UOS_LINKING CDirectory : public CInterObject, public IDirectory
 	{
 		public:
 			UOS_RTTI
-			CDirectory(CServer * s, CString const & name) : CBaseNexusObject(s, name) {}
+			CDirectory(CServer * s, CString const & name) : CInterObject(s, name) {}
 	};
 
-	class UOS_LINKING CDirectoryServer : public CDirectory
+	class UOS_LINKING CLocalDirectory : public CDirectory
 	{
 		public:
 			CString										Path;
 
 			UOS_RTTI
-			CDirectoryServer(CServer * s, CString const & path, CString const & npath);
-			~CDirectoryServer();
+			CLocalDirectory(CServer * s, CString const & path, CString const & npath);
+			~CLocalDirectory();
 
 			CList<CStorageEntry>						Enumerate(CString const & mask) override;
 			CList<CFSRegexItem>							EnumerateByRegex(CString const & pattern);

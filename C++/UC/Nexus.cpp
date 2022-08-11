@@ -24,12 +24,10 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 	Diagnostic = Core->Supervisor->CreateDiagnostics(GetClassName());
 	Diagnostic->Updating += ThisHandler(OnDiagnosticUpdating);
 	
-
-//		SetDllDirectory(Core->GetPathTo(ESystemFolder::Executables, L".").c_str());
-	wchar_t b[32768];
+	wchar_t b[32767];
 	GetEnvironmentVariable(L"PATH", b, _countof(b));
-	CString e_path = Core->GetPathTo(ESystemPath::Common, L".") + L";" + CString(b);
-	SetEnvironmentVariable(L"PATH", e_path.c_str());		
+	InitialPATH = b; // Core->GetPathTo(ESystemPath::Common, L".") + L";" + CString(b);
+	//SetEnvironmentVariable(L"PATH", InitialPATH.c_str());		
 
 	ExitHotKeyId	= Core->RegisterGlobalHotKey(MOD_ALT|MOD_CONTROL,			VK_ESCAPE, ThisHandler(ProcessHotKey));
 	SuspendHotKeyId	= Core->RegisterGlobalHotKey(MOD_ALT|MOD_CONTROL|MOD_SHIFT,	VK_ESCAPE, ThisHandler(ProcessHotKey));
@@ -132,8 +130,6 @@ void CNexus::StartServers()
 		Infos.push_back(inf);
 	}
 
-	SetDllDirectories();
-
 	for(auto i : Infos)
 	{
 		auto s = GetServer(i->Url.Server);
@@ -168,7 +164,7 @@ void CNexus::StopServers()
 		if(i->HInstance)
 		{
 			#ifndef _DEBUG
-			FreeLibrary(si->HInstance);
+			FreeLibrary(i->HInstance);
 			#endif
 		}
 		delete i;
@@ -211,23 +207,32 @@ void CNexus::Restart(CString const & cmd)
 	RestartCommand = cmd;
 }
 
-void CNexus::SetDllDirectories()
+void CNexus::SetDllDirectories(CServerInfo * info)
 {
-	wchar_t b[32767];
-	GetEnvironmentVariable(L"PATH", b, _countof(b));
+	CString path = InitialPATH;
 
-	CString path = b;
-
+	//auto l = LoadLibrary(L"Kernel32.dll");
+	//auto addDllDirectory = (DLL_DIRECTORY_COOKIE (*)(PCWSTR))GetProcAddress(l, "AddDllDirectory");
 	//SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 
-	for(auto i : Releases)
-	{
-		auto d = CPath::GetDirectoryPath(UniversalToNative(MapPathToRelease(i->Manifest->Address, L"")));
-		///auto d = CNativePath::GetDirectoryPath(Storage->UniversalToNative(dll));
-		path += L";" + d;
-	}
+	auto add =	[&](const auto & self, CManifest * r) -> void
+				{
+					auto d = UniversalToNative(MapPathToRelease(r->Address, L""));
+					
+					path += L";" + d;
+					//addDllDirectory(d.c_str());
+
+					for(auto i : r->CompleteDependencies)
+					{
+						self(self ,i);
+					}
+				};
+
+	add(add, info->Release->Manifest);
 
 	SetEnvironmentVariable(L"PATH", path.data());
+
+	//FreeLibrary(l);
 }
 
 CServer * CNexus::GetServer(CString const & name)
@@ -253,6 +258,7 @@ CServer * CNexus::GetServer(CString const & name)
 		throw CException(HERE, CString::Format(L"Server dll not found: %s", l));
 	}
 
+	SetDllDirectories(info);
 	info->HInstance = LoadLibrary(l.c_str());
 
 	if(info->HInstance == null)
@@ -268,7 +274,8 @@ CServer * CNexus::GetServer(CString const & name)
 		FreeLibrary(info->HInstance);
 		throw CException(HERE, CString::Format(L"Interface not found: %s", l));
 	}
-			
+	
+
 	s = f(this, info);
 		
 	if(s == null)
@@ -291,7 +298,7 @@ CServer * CNexus::GetServer(CString const & name)
 	return s;
 }
 
-CConnection CNexus::Connect(IType * who, CUsl & u, CString const & p)
+CConnection CNexus::Connect(IType * who, CUsl & u, CString const & p, std::function<void()> ondisconnect)
 {
 	auto s = GetServer(u.Server);
 
@@ -312,20 +319,21 @@ CConnection CNexus::Connect(IType * who, CUsl & u, CString const & p)
 	
 		if(s->Protocols[p] != null)
 		{
-			s->Users[p].push_back(who);
-			return CConnection(who, s, s->Protocols[p], p);
+			s->Users[p][who] = ondisconnect;
+			return CConnection(who, s, p);
 		}
 	}
 	
 	return CConnection();
 }
 
-CConnection CNexus::Connect(IType * who, CString const & p)
+CConnection CNexus::Connect(IType * who, CString const & p, std::function<void()> ondisconnect)
 {
 	auto o = FindImplementators(p);
+
 	if(!o.empty())
 	{
-		return Connect(who, o.front(), p);
+		return Connect(who, o.front(), p, ondisconnect);
 	}
 	else
 		return CConnection();
@@ -369,18 +377,37 @@ void CNexus::Disconnect(CList<CConnection> & cc)
 	}
 }
 
-void CNexus::Break(CUsl & sys, CString const & pr)
+void CNexus::Break(CUsl & server, CString const & protocol)
 {
-	Core->Log->ReportMessage(this, L"Disconnecting: %s %s", sys.Server, pr);
+	Core->Log->ReportMessage(this, L"Disconnecting: %s %s", server.Server, protocol);
 
-	auto s = GetServer(sys.Server);
+	auto s = GetServer(server.Server);
 
-	if(s->Protocols.Contains(pr) && s->Protocols[pr] != null)
+	if(s->Protocols.Contains(protocol) && s->Protocols[protocol] != null)
 	{
-		s->Disconnecting(s, s->Protocols[pr], const_cast<CString &>(pr));
-		s->Disconnect(s->Protocols[pr]);
+		//s->Disconnecting(s, s->Protocols[protocol], const_cast<CString &>(protocol));
+
+		auto i = s->Users[protocol].begin();
+
+		while(i != s->Users[protocol].end())
+		{
+			auto k = i->first;
+
+			if(i->second)
+				i->second();
+
+			if(s->Users[protocol].Contains(k))
+			{
+				//Core->Log->ReportWarning(this, L"%s disconnected improperly from %s -> %s", k->GetInstanceName(), s->Url.Server, pr);
+				s->Users[protocol].Remove(k);
+			}
+			
+			i = s->Users[protocol].begin();
+		}
+
+		s->Disconnect(s->Protocols[protocol]);
 	
-		s->Protocols[pr] = null;
+		s->Protocols[protocol] = null;
 	}
 }
 

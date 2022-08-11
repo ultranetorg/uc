@@ -15,12 +15,12 @@ CServer::~CServer()
 {
 }
 
-CBaseNexusObject * CServer::CreateObject(CString const & name)
+CInterObject * CServer::CreateObject(CString const & name)
 {
 	return null;
 }
 
-void CServer::RegisterObject(CBaseNexusObject * o, bool shared)
+void CServer::RegisterObject(CInterObject * o, bool shared)
 {
 	if(Objects.Has([o](auto i){ return i->Url.Object == o->Url.Object; }))
 	{	
@@ -33,7 +33,7 @@ void CServer::RegisterObject(CBaseNexusObject * o, bool shared)
 	Objects.push_back(o);
 }
 
-void CServer::DestroyObject(CBaseNexusObject * o)
+void CServer::DestroyObject(CInterObject * o)
 {
 	if(Objects.Contains(o))
 		Objects.Remove(o);
@@ -44,7 +44,7 @@ void CServer::DestroyObject(CBaseNexusObject * o)
 	o->Free();
 }
 
-CBaseNexusObject * CServer::FindObject(CUol const & u)
+CInterObject * CServer::FindObject(CUol const & u)
 {
 	if(!u.IsEmpty() && ((CUsl)u != Url))
 	{
@@ -54,7 +54,7 @@ CBaseNexusObject * CServer::FindObject(CUol const & u)
 	return FindObject(u.Object);
 }
 
-CBaseNexusObject * CServer::FindObject(CString const & name)
+CInterObject * CServer::FindObject(CString const & name)
 {
 	return Objects.Find([&name](auto i){ return i->Url.Object == name; });
 }

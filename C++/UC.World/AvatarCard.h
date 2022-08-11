@@ -8,6 +8,7 @@ namespace uc
 		public:
 			CObject<CAvatar>							Avatar;
 			CObject<CWorldEntity>						Entity;
+			CProtocolConnection<IAvatarProtocol>		AvatarProtocol;
 
 			UOS_RTTI
 			CAvatarCard(CWorld * l, const CString & name = GetClassName());
@@ -16,7 +17,7 @@ namespace uc
 			void										SetAvatar(CUol & e, CString const & dir);
 			void										SetEntity(CUol & a);
 
-			void										OnDependencyDestroying(CBaseNexusObject * o);
+			void										OnDependencyDestroying(CInterObject * o);
 			void										OnTitleChanged(CWorldEntity *);
 
 			void										SetMetrics(CCardMetrics & m);
