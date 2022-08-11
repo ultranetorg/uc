@@ -14,7 +14,6 @@ namespace uc
 			CStorableServer(CNexus * l, CServerInfo * info);
 			~CStorableServer();
 
-			using									CServer::DestroyObject;
 			using									CServer::FindObject;
 
 			CBaseNexusObject *						FindObject(CString const & name) override;
@@ -27,6 +26,8 @@ namespace uc
 			CTonDocument *							LoadServerDocument(CString const & path);
 			CTonDocument *							LoadGlobalDocument(CString const & path);
 
+		protected:
+			using									CServer::DestroyObject;
 
 	};
 }

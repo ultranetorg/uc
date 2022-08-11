@@ -1,12 +1,22 @@
 #pragma once
-//#include "Level2.h"
 #include "Core.h"
 #include "NexusObject.h"
 #include "ServerAddress.h"
+#include "Manifest.h"
 
 namespace uc
 {
 	class CNexus;
+
+	struct CReleaseInfo
+	{
+		CManifest *			Manifest = null;
+
+		~CReleaseInfo()
+		{
+			delete Manifest;
+		}
+	};
 
 	struct CServerInfo
 	{
@@ -16,6 +26,7 @@ namespace uc
 		CUsl 				Url;
 		HINSTANCE			HInstance;
 		CXon *				Xon;
+		CReleaseInfo *		Release;
 		CXonDocument *		Registry = null;
 
 		~CServerInfo()

@@ -335,7 +335,7 @@ void CCore::InitializeDatabase()
 		auto workbasepath = CNativePath::Join(CNativePath::GetTmp(), workbasename);
 
 		WorkDirectory		= workbasepath + L"-" + CGuid::Generate64();
-		TmpDirectory		= workbasepath + L"-" + UOS_MOUNT_APP_TMP;
+		TmpDirectory		= workbasepath + L"-" + UOS_MOUNT_SERVER_TMP;
 		SupervisorDirectory = WorkDirectory + L"\\" + SupervisorName;
 
 		try

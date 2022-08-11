@@ -815,7 +815,7 @@ CTransformation CFieldElement::GetRandomFreePosition(CFieldItemElement * fie)
 }
 
 
-CRefList<CFieldItemElement *> CFieldElement::Find(CList<CUol> & items)
+CRefList<CFieldItemElement *> CFieldElement::Find(CArray<CUol> & items)
 {
 	CRefList<CFieldItemElement *> a;
 

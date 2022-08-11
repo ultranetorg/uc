@@ -45,7 +45,7 @@ namespace uc
 			void 						CreateLocalDirectory(CServer * s, CString const & path = CString()) override;
 
 			CList<CStorageEntry>		Enumerate(CString const & dir, CString const & mask) override;
-			CList<CStorageEntry>		Enumerate();
+			CList<CStorageEntry>		Enumerate(CString const & mask);
 
 			CUol						ToUol(CString const & type, CString const & path) override;
 			CString						GetType(CString const & path) override;

@@ -24,7 +24,6 @@ CEngine::CEngine(CStorableServer * s, CConfig * c)
 		EngineLevel.Log->ReportWarning(this, L"D3D_DEBUG_INFO enabled");
 	#endif*/
 
-
 	#ifdef UOS_ENGINE_DIRECT
 		DisplaySystem	= new CDirectSystem(Level);
 	#elif defined UOS_ENGINE_VULKAN

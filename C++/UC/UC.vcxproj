@@ -126,7 +126,12 @@
     <ClInclude Include="Animated.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Base64.h" />
+    <ClInclude Include="Hex.h" />
+    <ClInclude Include="IStorageProtocol.h" />
+    <ClInclude Include="Manifest.h" />
     <ClInclude Include="NexusObject.h" />
+    <ClInclude Include="ProductAddress.h" />
+    <ClInclude Include="RealizationAddress.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="ServerAddress.h" />
     <ClInclude Include="JsonClient.h" />
@@ -249,7 +254,11 @@
     <ClCompile Include="Angle.cpp" />
     <ClCompile Include="Animated.cpp" />
     <ClCompile Include="Base64.cpp" />
+    <ClCompile Include="Hex.cpp" />
+    <ClCompile Include="Manifest.cpp" />
     <ClCompile Include="NexusObject.cpp" />
+    <ClCompile Include="ProductAddress.cpp" />
+    <ClCompile Include="RealizationAddress.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerAddress.cpp" />
     <ClCompile Include="JsonClient.cpp" />

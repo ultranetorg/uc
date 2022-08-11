@@ -69,13 +69,13 @@ int wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
 						//L"&Layout=PhoneB"
 						//L"&Layout=FullScreen"
 						//L"&Skin/ShowLabels=n"	
-						//L"&ScreenEngine/RenderScaling=0.5" 
+						//L"&ScreenEngine/RenderScaling=0.5"
 					L" ";
 	
 		cmd = c.data();
 	}
 
-	//_CrtSetBreakAlloc(17153);
+	//_CrtSetBreakAlloc(5080);
 
 	//_try
 	{

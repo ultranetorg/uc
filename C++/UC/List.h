@@ -310,12 +310,14 @@ namespace uc
 				return -1;
 			}
 
-			template<typename T, typename Pred> CList<T> Select(Pred p)
+			template<typename T, typename Pred> CArray<T> Select(Pred p)
 			{
-				CList<T> o;
+				CArray<T> o(size());
+				auto j = 0;
+				
 				for(auto i : *this)
 				{
-					o.push_back(p(i));
+					o[j++] = p(i);
 				}
 				return o;
 			}

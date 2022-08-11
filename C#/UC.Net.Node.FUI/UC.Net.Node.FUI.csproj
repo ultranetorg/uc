@@ -18,7 +18,7 @@
     <Description></Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\duc-dun-dotnet6\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uc-dun-dotnet6\0.0.0.0</OutputPath>
     <NoWarn>1701;1702;0169</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>

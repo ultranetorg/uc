@@ -51,7 +51,7 @@ CExperimentalServer::~CExperimentalServer()
 {
 	while(auto i = Objects.Find([](auto j){ return j->Shared;  }))
 	{
-		DestroyObject(i);
+		DestroyObject(i, true);
 	}
 
 	if(World)
@@ -72,9 +72,15 @@ CExperimentalServer::~CExperimentalServer()
 	}
 }
 
-void CExperimentalServer::EstablishConnections()
+void CExperimentalServer::EstablishConnections(bool storage, bool world)
 {
-	if(!World)
+	if(storage && !Storage)
+	{
+		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
+		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
+	}
+
+	if(world && !World)
 	{
 		World = Nexus->Connect(this, WORLD_PROTOCOL);
 		World.Server->Disconnecting += ThisHandler(OnDisconnecting);
@@ -86,13 +92,6 @@ void CExperimentalServer::EstablishConnections()
 		Tradingview = new CTradingviewProvider(this);
 		GeoStore	= new CGeoStore(this);
 	}
-
-	if(!Storage)
-	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL);
-		Storage.Server->Disconnecting += ThisHandler(OnDisconnecting);
-	}
-
 }
 
 void CExperimentalServer::OnDisconnecting(CServer * s, IProtocol * p, CString & pn)
@@ -115,7 +114,7 @@ void CExperimentalServer::Disconnect(IProtocol * p)
 
 CBaseNexusObject * CExperimentalServer::CreateObject(CString const & name)
 {
-	EstablishConnections();
+	EstablishConnections(true, false);
 
 	CNexusObject * o = null;
 
@@ -134,7 +133,7 @@ CBaseNexusObject * CExperimentalServer::CreateObject(CString const & name)
 
 void CExperimentalServer::Start(EStartMode sm)
 {
-	EstablishConnections();
+	EstablishConnections(true, true);
 
 	auto shell	= Nexus->Connect<CShell>(this, SHELL_PROTOCOL);
 
@@ -327,6 +326,8 @@ void CExperimentalServer::Start(EStartMode sm)
 
 CBaseNexusObject * CExperimentalServer::GetEntity(CUol & e)
 {
+	EstablishConnections(true, false);
+
 	return Server->FindObject(e);
 }
 
@@ -386,7 +387,7 @@ CList<CUol> CExperimentalServer::GenerateSupportedAvatars(CUol & e, CString cons
 
 CAvatar * CExperimentalServer::CreateAvatar(CUol & u)
 {
-	EstablishConnections();
+	EstablishConnections(true, true);
 
 	CAvatar * a = null;
 	
@@ -589,7 +590,7 @@ bool CExperimentalServer::CanExecute(const CUrq & u)
 
 void CExperimentalServer::Execute(const CUrq & u, CExecutionParameters * ep)
 {
-	EstablishConnections();
+	EstablishConnections(true, true);
 
 	if(CUol::IsValid(u))
 	{

@@ -7,7 +7,6 @@
 
 namespace uc
 {
-	#define UOS_WORLD		L"UC.World"
 
 	enum class EWorldAction
 	{

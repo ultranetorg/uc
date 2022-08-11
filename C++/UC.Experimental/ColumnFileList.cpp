@@ -146,7 +146,7 @@ void CColumnFileList::AddColumn(const CString & path)
 
 	auto c = new CFileListColumn(Level, path);
 			
-	auto & entries = d->Enumerate(L"*.*");
+	auto & entries = d->Enumerate(L"*");
 	
 	if(entries.empty())
 	{

@@ -17,7 +17,7 @@ namespace uc
 			CExperimentalServer(CNexus * l, CServerInfo * si);
 			~CExperimentalServer();
 			
-			void						EstablishConnections();
+			void						EstablishConnections(bool storage, bool world);
 			void						OnDisconnecting(CServer *, IProtocol *, CString &);
 
 			void						Start(EStartMode sm) override;

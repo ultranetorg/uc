@@ -46,8 +46,10 @@ void CExperimentalLevel::RequireCef()
 	settings.windowless_rendering_enabled = true;
 	settings.log_severity = LOGSEVERITY_ERROR;
 
-	CefString(&settings.resources_dir_path)		.FromWString(Nexus->Resolve(Server->MapPath(L"Browser"))); 
-	CefString(&settings.locales_dir_path)		.FromWString(Nexus->Resolve(Server->MapPath(L"Browser/locales")));
+	auto cef = Server->Info->Release->Manifest->CompleteDependencies.Find([](auto i){ return i->Address.Product == L"cef"; });
+
+	CefString(&settings.resources_dir_path)		.FromWString(Nexus->Resolve(Nexus->MapPathToRelease(cef->Address, L""))); 
+	CefString(&settings.locales_dir_path)		.FromWString(Nexus->Resolve(Nexus->MapPathToRelease(cef->Address, L"locales")));
 	CefString(&settings.browser_subprocess_path).FromWString(Nexus->UniversalToNative(Server->MapPath(CNativePath::GetFileNameBase(PROJECT_TARGET_FILENAME) + L".Browser.Cef.exe")));
 	CefString(&settings.cache_path)				.FromWString(Nexus->UniversalToNative(Server->MapTmpPath(L"Browser/Cache")));
 	CefString(&settings.log_file)				.FromWString(Nexus->UniversalToNative(Server->MapTmpPath(L"Browser/Cef.log")));

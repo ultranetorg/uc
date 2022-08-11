@@ -76,7 +76,7 @@ CString CServer::MapUserGlobalPath(CString const & path)
 
 CString CServer::MapTmpPath(CString const & path)
 {
-	return Nexus->MapPath(UOS_MOUNT_APP_TMP, MapRelative(path));
+	return Nexus->MapPath(UOS_MOUNT_SERVER_TMP, MapRelative(path));
 }
 
 CString CServer::MapPath(CString const & path)

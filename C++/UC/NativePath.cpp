@@ -188,9 +188,9 @@ CString CNativePath::EscapeRegex(CString &regex)
 	r.SelfReplace(L")",	 L"\\)");
 	r.SelfReplace(L"[",	 L"\\[");
 	r.SelfReplace(L"]",	 L"\\]");
-	r.SelfReplace(L"*",	 L"\\*");
+	//r.SelfReplace(L"*",	 L"\\*");
 	r.SelfReplace(L"+",	 L"\\+");
-	r.SelfReplace(L"?",	 L"\\?");
+	//r.SelfReplace(L"?",	 L"\\?");
 	r.SelfReplace(L"/",	 L"\\/");
 
 	return r;
@@ -202,8 +202,8 @@ bool CNativePath::MatchWildcards(const CString &text, CString wildcardPattern, b
 	EscapeRegex(wildcardPattern);
 
 	// Convert chars '*?' back to their regex equivalents
-	boost::replace_all(wildcardPattern, L"\\?", L".");
-	boost::replace_all(wildcardPattern, L"\\*", L".*");
+	boost::replace_all(wildcardPattern, L"?", L".");
+	boost::replace_all(wildcardPattern, L"*", L".*");
 
 	std::wregex pattern(wildcardPattern, caseSensitive ? std::wregex::basic : std::wregex::icase);
 

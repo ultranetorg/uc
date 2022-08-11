@@ -5,10 +5,10 @@ namespace uc
 	#undef GetClassName
 
 	#define null										NULL
+	#define byte										unsigned char
 	#define HERE										__FUNCTIONW__,__LINE__
 
 	typedef unsigned int								uint;
-
 	#define PROJECT_DEVELOPMENT_STAGE					L"Prototype"
 
 	#define UOS_OBJECT_PROTOCOL							L"unap"
@@ -23,7 +23,7 @@ namespace uc
 	#define UOS_MOUNT_PERSONAL							L"Personal"
 	#define UOS_MOUNT_CORE								L"Core"
 	#define UOS_MOUNT_SERVER							L"Server"
-	#define UOS_MOUNT_APP_TMP							L"App.Tmp"
+	#define UOS_MOUNT_SERVER_TMP							L"App.Tmp"
 	#define UOS_MOUNT_USER_LOCAL						L"User.Local"
 	#define UOS_MOUNT_USER_GLOBAL						L"User.Global"
 

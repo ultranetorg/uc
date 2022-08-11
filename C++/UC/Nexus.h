@@ -15,6 +15,7 @@ namespace uc
 			int											ExitHotKeyId;
 			int											SuspendHotKeyId;
 			
+			CList<CReleaseInfo *>						Releases;
 			CList<CServerInfo *>						Infos;
 			CList<CServer *>							Servers;
 			
@@ -45,7 +46,9 @@ namespace uc
 			CString										UniversalToNative(CString const & path);
 			CString										NativeToUniversal(CString const & path);
 			CString										MapPath(CString const & mount, CString const & path);
-			CString										MapPath(CServerAddress & server, CString const & path);
+			CString										MapPathToRelease(CReleaseAddress & release, CString const & path);
+			CString										MapPathToRealization(CRealizationAddress & release, CString const & path = CString());
+			//CString										MapPath(CServerAddress & server, CString const & path = CString());
 			CString 									MapPath(CUsl & u, CString const & path);
 			CString										Resolve(CString const & u);
 			void										CreateMounts(CServerInfo * s);

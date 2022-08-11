@@ -374,13 +374,28 @@
     <ClInclude Include="JsonClient.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="ServerAddress.h" />
     <ClInclude Include="Server.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="NexusObject.h">
       <Filter>Nexus</Filter>
     </ClInclude>
+    <ClInclude Include="Manifest.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Hex.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="RealizationAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="ProductAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="IStorageProtocol.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Angle.cpp">
@@ -627,20 +642,38 @@
       <Filter>Net</Filter>
     </ClCompile>
     <ClCompile Include="UC.cpp" />
-    <ClCompile Include="ReleaseAddress.cpp" />
-    <ClCompile Include="ServerAddress.cpp" />
     <ClCompile Include="Server.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="NexusObject.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
+    <ClCompile Include="Manifest.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Hex.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="ReleaseAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="RealizationAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="ProductAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\lucon.ttf">
       <Filter>Resources</Filter>
     </None>
-    <None Include="ReleaseAddress.h" />
+    <None Include="ReleaseAddress.h">
+      <Filter>Net</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Primary.rc">

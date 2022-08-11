@@ -7,17 +7,14 @@ CReleaseAddress::CReleaseAddress()
 {
 }
 
-CReleaseAddress::CReleaseAddress(CString const & author, CString const & product, CString const & platform, CVersion & version)
-{
-	Author = author;
-	Product = product;
-	Platform = platform;
+CReleaseAddress::CReleaseAddress(CString const & author, CString const & product, CString const & platform, CVersion & version) : CRealizationAddress(author, product, platform)
+{ 
 	Version = version;
 }
 
 bool CReleaseAddress::operator == (const CReleaseAddress & u) const
 {
-	return Author == u.Author && Product == u.Product && Platform == u.Platform && Version == u.Version;
+	return __super::operator==(u) && Version == u.Version;
 }
 
 bool CReleaseAddress::operator != (const CReleaseAddress & u) const
@@ -28,7 +25,7 @@ bool CReleaseAddress::operator != (const CReleaseAddress & u) const
 
 CString CReleaseAddress::ToString()
 {
-	return Author + L"/" + Product + L"/" + Platform + L"/" + Version.ToString();
+	return __super::ToString() + L"/" + Version.ToString();
 }
 
 CReleaseAddress CReleaseAddress::Parse(CString const & text)

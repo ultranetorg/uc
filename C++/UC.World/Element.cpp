@@ -432,7 +432,7 @@ void CElement::Load(CStyle * s, CString & u)
 {
 	CMap<CString, CProtocolConnection<IUwmProtocol>> classes;
 
-	for(auto i : Level->Nexus->GetRegistry(L"World.Uwm"))
+	for(auto i : Level->Nexus->GetRegistry(L"Interfaces/Uos.Uwm"))
 	{
 		auto c = Level->Nexus->Connect<IUwmProtocol>(this, i.first->Url, UWM_PROTOCOL);
 

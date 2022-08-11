@@ -7,10 +7,11 @@ namespace uc
 	auto constexpr WORLD_MOBILE_EMULATION				= L"Mobile.E";
 	auto constexpr WORLD_VR_EMULATION					= L"VR.E";
 
-	auto constexpr WORLD								= L"World";
-	auto constexpr WORLD_SERVER							= L"UC.World";
+	//auto constexpr WORLD								= L"World";
+	auto constexpr WORLD_SERVER							= L"World";
 	auto constexpr WORLD_PROTOCOL						= L"Uos.World";
 	auto constexpr WORLD_FRIEND_PROTOCOL				= L"Uos.WorldFriend";
+	//#define UOS_WORALD		L"UC.World"
 
 	auto constexpr UWM_PROTOCOL							= L"Uos.Uwm";
 

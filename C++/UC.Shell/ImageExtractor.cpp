@@ -151,7 +151,7 @@ void CImageExtractor::DoIdle()
 void CImageExtractor::FetchIcon(CUrl & f, int wh, CGetIconMaterialJob * j)
 {
 	if(CUol::IsValid(f))
-		j->Path = Level->Nexus->Resolve(CUol(f).GetId());
+		j->Path = Level->Nexus->UniversalToNative(CUol(f).GetId());
 	else
 		throw CException(HERE, L"Not implemented");
 

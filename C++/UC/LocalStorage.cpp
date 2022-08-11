@@ -11,7 +11,7 @@ CLocalStorage::CLocalStorage(CNexus * l, CServerInfo * info) : CServer(l, info),
 
 CLocalStorage::~CLocalStorage()
 {
-	while(auto i = Objects.Find([](auto j){ return j->Shared;  }))
+	while(auto i = Objects.Find([](auto j){ return j->Shared; }))
 	{
 		DestroyObject(i);
 	}
@@ -157,14 +157,14 @@ void CLocalStorage::Close(CDirectory * d)
 {
 	if(d == this)
 	{
-		DeleteObject(d);
+		DestroyObject(d);
 		return;
 	}
 
 	if(d->GetRefs() == 1)
 	{
 		Directories.Remove(d->As<CDirectoryServer>());
-		DeleteObject(d);
+		DestroyObject(d);
 	}
 	else
 		d->Free();
@@ -218,14 +218,14 @@ void CLocalStorage::CreateLocalDirectory(CServer * s, CString const & path)
 	CreateDirectory(d);
 }
 
-CList<CStorageEntry> CLocalStorage::Enumerate()
+CList<CStorageEntry> CLocalStorage::Enumerate(CString const & mask)
 {
 	CList<CStorageEntry> ooo;
 
-	ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_LOCAL, L""),		CDirectory::GetClassName()	));
-	ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_SERVER, L""),		CDirectory::GetClassName()	));
-	ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, L""),	CDirectory::GetClassName()	));
-	ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_USER_LOCAL, L""),	CDirectory::GetClassName()	));
+	if(CNativePath::MatchWildcards(UOS_MOUNT_LOCAL, mask, false))		ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_LOCAL, L""),		CDirectory::GetClassName()));
+	if(CNativePath::MatchWildcards(UOS_MOUNT_SERVER, mask, false))		ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_SERVER, L""),		CDirectory::GetClassName()	));
+	if(CNativePath::MatchWildcards(UOS_MOUNT_USER_GLOBAL, mask, false))	ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, L""),	CDirectory::GetClassName()	));
+	if(CNativePath::MatchWildcards(UOS_MOUNT_USER_LOCAL, mask, false))	ooo.push_back(CStorageEntry(Nexus->MapPath(UOS_MOUNT_USER_LOCAL, L""),	CDirectory::GetClassName()	));
 
 	return ooo;
 }

@@ -14,7 +14,7 @@ CServerAddress::CServerAddress(CString const & author, CString const & product, 
 
 bool CServerAddress::operator == (const CServerAddress & u) const
 {
-	return CReleaseAddress::operator ==(u) && Server == u.Server;
+	return __super::operator==(u) && Server == u.Server;
 }
 
 bool CServerAddress::operator != (const CServerAddress & u) const
@@ -25,7 +25,7 @@ bool CServerAddress::operator != (const CServerAddress & u) const
 
 CString CServerAddress::ToString()
 {
-	return Author + L"/" + Product + L"/" + Platform + L"/" + Version.ToString() + L"/" + Server;
+	return __super::ToString() + L"/" + Server;
 }
 
 CServerAddress CServerAddress::Parse(CString const & text)

@@ -73,38 +73,61 @@ void CNexus::OnDiagnosticUpdating(CDiagnosticUpdate & a)
 	}
 }
 
-CString CNexus::MapPath(CServerAddress & server, CString const & path = CString())
+CString CNexus::MapPathToRealization(CRealizationAddress & release, CString const & path)
 {
-	auto & r = server;
+	auto & r = release;
 
-	return Core->GetPathTo(ESystemPath::Servers, CNativePath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, r.Version.ToString(), path));
+	return Core->GetPathTo(ESystemPath::Servers, CNativePath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, path));
+}
+
+CString CNexus::MapPathToRelease(CReleaseAddress & release, CString const & path)
+{
+	return MapPathToRealization(release, CNativePath::Join(release.Version.ToString(), path));
 }
 
 void CNexus::StartServers()
 {
-///	auto inf = new CServerInfo();
-///	inf->HInstance		= null;
-///	inf->Xon			= null;
-///	//inf->Origin		= CUrl(UOS_FILE_SYSTEM_ORIGIN);
-///	inf->Url			= CUsl(/*Core->DatabaseId + L".ultranet"*/L"", UOS_FILE_SYSTEM/*, UOS_FILE_SYSTEM_ORIGIN*/);
-///	inf->Role			= L"Server";
-///	inf->Installed		= true;
-///	Infos.push_back(inf);
-///	Servers.push_back(Storage = new CStorage(&Level2, inf));
-	
+	std::function<CReleaseInfo *(CReleaseAddress & a)> loadrelease;
+
+	loadrelease =	[&](CReleaseAddress & a) -> CReleaseInfo *
+					{
+						auto r = Releases.Find([&](auto i){ return i->Manifest->Address == a; });
+
+						if(!r)
+						{
+							auto & xon = CTonDocument(CXonTextReader(&CFileStream(Resolve(MapPathToRealization(a, a.Version.ToString() + L".manifest")), EFileMode::Open)));
+
+							r = new CReleaseInfo();
+							r->Manifest = new CManifest(a, xon);
+
+
+							if(auto d = xon.One(L"CompleteDependencies"))
+							{
+								r->Manifest->CompleteDependencies = d->Children.Select<CManifest *>([&](auto i){ return loadrelease(CReleaseAddress::Parse(i->Name))->Manifest; });
+							}
+						
+							Releases.AddBack(r);
+						}
+
+						return r;
+					};
+
 	for(auto i : Config->Many(L"Server"))
 	{
 		auto inf = new CServerInfo();
 		inf->Xon			= i;
 		inf->Name			= i->Get<CString>();
 		inf->Locator		= CServerAddress::Parse(i->Get<CString>(L"Locator"));
-		//inf->Location		= i->Get<CString>(L"Executable");
 		inf->Url			= CUsl(L"", inf->Name);
-		//inf->Role			= i->Get<CString>(L"Role");
 		inf->Installed		= i->Get<CBool>(L"IsInitialized").Value;
-		//inf->ObjectsPath	= Storage->MapPath(UOS_MOUNT_USER_GLOBAL, i->AsString());
-		inf->Registry		= new CTonDocument(CXonTextReader(&CFileStream(Resolve(MapPath(inf->Locator, L"Server.registry")), EFileMode::Open)));
+		inf->Release		= loadrelease(inf->Locator);
 
+		auto & p = Resolve(MapPathToRelease(inf->Locator, inf->Locator.Server + L".registry"));
+
+		if(CNativePath::IsFile(p))
+		{
+			inf->Registry = new CTonDocument(CXonTextReader(&CFileStream(p, EFileMode::Open))); 
+		}
 
 		Infos.push_back(inf);
 	}
@@ -140,18 +163,24 @@ void CNexus::StopServers()
 		StopServer(s);
 	}
 
-	for(auto si : Infos)
+	for(auto i : Infos)
 	{
-		if(si->HInstance)
+		if(i->HInstance)
 		{
 			#ifndef _DEBUG
 			FreeLibrary(si->HInstance);
 			#endif
 		}
-		delete si;
+		delete i;
 	}
-
 	Infos.clear();
+
+
+	for(auto i : Releases)
+	{
+		delete i;
+	}
+	Releases.clear();
 }
 
 void CNexus::StopServer(CServer * s)
@@ -168,8 +197,6 @@ void CNexus::StopServer(CServer * s)
 
 	auto si = Infos.Find([s](auto i){ return i->Url == s->Url; });
 	
-	delete si->Registry;
-
 	if(si->HInstance)
 	{
 		auto stop = (FStopUosServer)GetProcAddress(si->HInstance, "StopUosServer");
@@ -193,9 +220,9 @@ void CNexus::SetDllDirectories()
 
 	//SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 
-	for(auto i : Infos)
+	for(auto i : Releases)
 	{
-		auto d = CPath::GetDirectoryPath(UniversalToNative(MapPath(i->Locator, L"")));
+		auto d = CPath::GetDirectoryPath(UniversalToNative(MapPathToRelease(i->Manifest->Address, L"")));
 		///auto d = CNativePath::GetDirectoryPath(Storage->UniversalToNative(dll));
 		path += L";" + d;
 	}
@@ -219,13 +246,12 @@ CServer * CNexus::GetServer(CString const & name)
 		return s;
 	}
 
-	auto l = MapPath(info->Locator, info->Registry->Children.Find([&](auto i){ return i->Name == info->Locator.Server; })->Get<CString>(L"Executable"));
+	auto l = MapPathToRelease(info->Locator, info->Registry->Get<CString>(L"Executable"));
 
 	if(!CNativePath::IsFile(l))
 	{
 		throw CException(HERE, CString::Format(L"Server dll not found: %s", l));
 	}
-
 
 	info->HInstance = LoadLibrary(l.c_str());
 
@@ -250,7 +276,7 @@ CServer * CNexus::GetServer(CString const & name)
 		throw CException(HERE, CString::Format(L"Unable to initilize system: %s", l));
 	}
 
-	if(auto r = info->Registry->One(info->Name + L"/Interfaces"))
+	if(auto r = info->Registry->One(L"Interfaces"))
 	{
 		for(auto i : r->Children)
 		{
@@ -429,12 +455,9 @@ CMap<CServerInfo *, CXon *> CNexus::GetRegistry(CString const & path)
 
 	for(auto i : Infos)
 	{
-		//if(i != Storage->Info)
+		if(auto r = GetRegistry(i->Url, path))
 		{
-			if(auto r = GetRegistry(i->Url, path))
-			{
-				l[i] = r;
-			}
+			l[i] = r;
 		}
 	}
 
@@ -460,7 +483,7 @@ CString CNexus::MapPath(CUsl & u, CString const & path)
 
 	auto i = Infos.Find([&](auto i){ return i->Url == u; });
 
-	return MapPath(i->Locator, path);
+	return MapPathToRelease(i->Locator, path);
 }
 
 void CNexus::CreateMounts(CServerInfo * s)
@@ -494,11 +517,16 @@ CString CNexus::UniversalToNative(CString const & p)
 	}
 	else if(mount == UOS_MOUNT_SERVER)
 	{
-		auto & s = lpath.Substring(L'/', 0);
-		auto & r = s.length() < lpath.length() ? lpath.Substring(s.length() + 1) : L"";
-		path = Resolve(MapPath(Infos.Find([&](auto i){ return i->Name == s; })->Locator, CPath::Nativize(r)));
+		if(lpath.empty())
+			path = Core->GetPathTo(ESystemPath::Servers, L"");
+		else
+		{
+			auto & s = lpath.Substring(L'/', 0);
+			auto & r = s.length() < lpath.length() ? lpath.Substring(s.length() + 1) : L"";
+			path = Resolve(MapPathToRelease(Infos.Find([&](auto i){ return i->Name == s; })->Locator, CPath::Nativize(r)));
+		}
 	}
-	else if(mount == UOS_MOUNT_APP_TMP)
+	else if(mount == UOS_MOUNT_SERVER_TMP)
 	{
 		path = Core->MapToTmp(CPath::Nativize(lpath));
 	}
@@ -521,7 +549,7 @@ CString CNexus::NativeToUniversal(CString const & path)
 
 CString CNexus::Resolve(CString const & n)
 {
-	if(CNativePath::IsDirectory(n) || CNativePath::IsFile(n))
+	if(CNativePath::IsFile(n))
 	{
 		return n;
 	}
@@ -534,10 +562,5 @@ CString CNexus::Resolve(CString const & n)
 
 	r = CNativePath::Canonicalize(r);
 
-	if(CNativePath::IsDirectory(r) || CNativePath::IsFile(r))
-	{
-		return r;
-	}
-
-	return n;
+	return r;
 }

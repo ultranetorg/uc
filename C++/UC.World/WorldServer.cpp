@@ -53,12 +53,12 @@ CWorldServer::CWorldServer(CNexus * l, CServerInfo * si) : CStorableServer(l, si
 	Server = this;
 	Nexus = Server->Nexus;
 	Core = Nexus->Core;
-	Log  = Core->Supervisor->CreateLog(WORLD);
+	Log  = Core->Supervisor->CreateLog(Url.Server);
 	Core->ExitRequested	+= ThisHandler(OnExitRequested);
 	Nexus->Stopping += ThisHandler(OnNexusStopping);
 
-	PfcUpdate	= new CPerformanceCounter(CString(WORLD) + L" update");
-	Diagnostic	= Core->Supervisor->CreateDiagnostics(WORLD);
+	PfcUpdate	= new CPerformanceCounter(Url.Server + L" update");
+	Diagnostic	= Core->Supervisor->CreateDiagnostics(Url.Server);
 	Diagnostic->Updating += ThisHandler(OnDiagnosticsUpdating);
 
 	DiagGrid.AddColumn(L"Name");
@@ -76,7 +76,7 @@ CWorldServer::~CWorldServer()
 {
 	while(auto i = Objects.Find([](auto j){ return j->Shared;  }))
 	{
-		DestroyObject(i);
+		DestroyObject(i, true);
 	}
 
 	if(Sphere)
@@ -472,7 +472,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 void CWorldServer::DestroyAvatar(CAvatar * a)
 {
 	if(a->Protocol == this)
-		Server->DestroyObject(a);
+		Server->DestroyObject(a, true);
 	else
 		a->Protocol->DestroyAvatar(a);
 }

@@ -15,7 +15,7 @@ CFieldServer::~CFieldServer()
 {
 	Save();
 
-	Items.Do([this](auto i){ Level->Server->DestroyObject(i); });
+	Items.Do([this](auto i){ Level->Server->DestroyObject(i, true); });
 }
 
 void CFieldServer::SetTitle(CString const & name)

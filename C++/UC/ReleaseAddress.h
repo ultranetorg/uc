@@ -1,14 +1,12 @@
 #pragma once
+#include "RealizationAddress.h"
 #include "Version.h"
 
 namespace uc
 {
-	class UOS_LINKING CReleaseAddress
+	class UOS_LINKING CReleaseAddress : public CRealizationAddress
 	{
 		public:
-			CString										Author;
-			CString										Product;
-			CString										Platform;
 			CVersion									Version;
 
 			CReleaseAddress();

@@ -28,7 +28,7 @@ CShellServer::~CShellServer()
 {
 	while(auto i = Objects.Find([](auto j){ return j->Shared;  }))
 	{
-		DestroyObject(i);
+		DestroyObject(i, true);
 	}
 
 	if(Menu)
@@ -477,7 +477,7 @@ CAvatar * CShellServer::CreateAvatar(CUol & u)
 
 void CShellServer::DestroyAvatar(CAvatar * a)
 {
-	Server->DestroyObject(a);
+	Server->DestroyObject(a, true);
 }
 
 IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMenu * m)

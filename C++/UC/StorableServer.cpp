@@ -71,7 +71,6 @@ void CStorableServer::DeleteObject(CBaseNexusObject * r)
 	auto name = r->Url.Object;
 	auto shared = r->Shared;
 
-	DestroyObject(r, false);
 
 	if(shared)
 	{
@@ -84,6 +83,7 @@ void CStorableServer::DeleteObject(CBaseNexusObject * r)
 		Storage->DeleteFile(Nexus->MapPath(UOS_MOUNT_USER_LOCAL, name + L".object"));
 	}
 
+	DestroyObject(r, false);
 	//r->Free();
 }
 

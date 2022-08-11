@@ -28,7 +28,7 @@ CTradeHistory::~CTradeHistory()
 
 void CTradeHistory::OnServerDestructing(CNexusObject * o)
 {
-	Level->Server->DestroyObject(this);
+	Level->Server->DestroyObject(this, true);
 }
 
 void CTradeHistory::LoadInstance()
