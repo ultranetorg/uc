@@ -8,15 +8,18 @@ public static class PictureSourceHelper
 
     public static async Task<string> GetPicture()
     {
+		var result = string.Empty;
         try 
         {
             var sheet = await App.Current.MainPage.DisplayActionSheet(
-				"ChoosePictureSource", "", null, new string[] { "Camera","Gallery" });
+				"ChoosePictureSource", string.Empty, null, new string[] { "Camera","Gallery" });
 
-			var result = string.Empty;
             if (sheet != null)
 			{
-				photo = sheet == "Camera" && MediaPicker.IsCaptureSupported ? await MediaPicker.CapturePhotoAsync() : await MediaPicker.PickPhotoAsync();
+				photo = sheet == "Camera" && MediaPicker.IsCaptureSupported
+					? await MediaPicker.CapturePhotoAsync()
+					: await MediaPicker.PickPhotoAsync();
+
 				if (photo != null)
 				{
 					var newFile = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
@@ -26,13 +29,12 @@ public static class PictureSourceHelper
 					result = newFile;
 				}
 			}
-            return result;
         }
         catch
         {
             await ToastHelper.ShowMessageAsync("Capturing pictures isn't supported");
         }
-        return string.Empty;
+        return result;
     }
 
     public static async Task<byte[]> PathToBytes(string path)

@@ -29,8 +29,8 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:SendStepOneView />
-                        <views:SendStepTwoView />
+                        <views:Send1View />
+                        <views:Send2View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

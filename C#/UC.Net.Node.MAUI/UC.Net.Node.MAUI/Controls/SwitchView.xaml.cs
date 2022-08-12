@@ -9,67 +9,59 @@ public partial class SwitchView : ContentView
 
     public event EventHandler Tapped;
 
-    public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create("CornerRadius", typeof(double), typeof(SwitchView), default);
-    public double CornerRadius
-    {
-        get { return (double)GetValue(CornerRadiusProperty); }
-        set { SetValue(CornerRadiusProperty, value); }
-    }
+	#region Bindable Properties
 
-    public static BindableProperty CurrentColorProperty = BindableProperty.Create(nameof(CurrentColor), typeof(Color), typeof(SwitchView), Colors.Gray);
-    public Color CurrentColor
-    {
-        get { return (Color)GetValue(CurrentColorProperty); }
-        set { SetValue(CurrentColorProperty, value); }
-    }
+	public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(nameof(CornerRadius), typeof(double), typeof(SwitchView), default);
 
-    public static BindableProperty OffColorProperty = BindableProperty.Create(nameof(OffColor), typeof(Color), typeof(SwitchView), Colors.Gray);
-    public Color OffColor
-    {
-        get { return (Color)GetValue(OffColorProperty); }
-        set { SetValue(OffColorProperty, value); }
-    }
+	public double CornerRadius
+	{
+		get { return (double)GetValue(CornerRadiusProperty); }
+		set { SetValue(CornerRadiusProperty, value); }
+	}
 
-    public static BindableProperty OnColorProperty = BindableProperty.Create(nameof(OnColor), typeof(Color), typeof(SwitchView), Colors.Blue);
-    public Color OnColor
-    {
-        get { return (Color)GetValue(OnColorProperty); }
-        set { SetValue(OnColorProperty, value); }
-    }
+	public static BindableProperty CurrentColorProperty = BindableProperty.Create(nameof(CurrentColor), typeof(Color), typeof(SwitchView), Colors.Gray);
 
-    public static readonly BindableProperty IsOnProperty = BindableProperty.Create("IsOn", typeof(bool), typeof(SwitchView), true);
-    public bool IsOn
-    {
-        get { return (bool)GetValue(IsOnProperty); }
-        set { SetValue(IsOnProperty, value); }
-    }
+	public Color CurrentColor
+	{
+		get { return (Color)GetValue(CurrentColorProperty); }
+		set { SetValue(CurrentColorProperty, value); }
+	}
 
-    private ICommand TransitionCommand
-    {
-        get
-        {
-            return new Command(() =>
-            {
-                try
-                {
-                    if (Command != null)
-                    {
-                        Command.Execute(IsOn);
-                    }
-                }
-                catch{}
-            });
-        }
-    }
-    public static readonly BindableProperty CommandProperty = BindableProperty.Create("Command", typeof(ICommand), typeof(SwitchView), null);
+	public static BindableProperty OffColorProperty = BindableProperty.Create(nameof(OffColor), typeof(Color), typeof(SwitchView), Colors.Gray);
 
-    public ICommand Command
-    {
-        get { return (ICommand)GetValue(CommandProperty); }
-        set { SetValue(CommandProperty, value); }
-    }
+	public Color OffColor
+	{
+		get { return (Color)GetValue(OffColorProperty); }
+		set { SetValue(OffColorProperty, value); }
+	}
 
-    public SwitchView()
+	public static BindableProperty OnColorProperty = BindableProperty.Create(nameof(OnColor), typeof(Color), typeof(SwitchView), Colors.Blue);
+
+	public Color OnColor
+	{
+		get { return (Color)GetValue(OnColorProperty); }
+		set { SetValue(OnColorProperty, value); }
+	}
+
+	public static readonly BindableProperty IsOnProperty = BindableProperty.Create(nameof(IsOn), typeof(bool), typeof(SwitchView), true);
+
+	public bool IsOn
+	{
+		get { return (bool)GetValue(IsOnProperty); }
+		set { SetValue(IsOnProperty, value); }
+	}
+
+	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(SwitchView), null);
+
+	public ICommand Command
+	{
+		get { return (ICommand)GetValue(CommandProperty); }
+		set { SetValue(CommandProperty, value); }
+	}
+
+	#endregion Bindable Properties
+
+	public SwitchView()
     {
         InitializeComponent();
         Initialize();
@@ -79,16 +71,10 @@ public partial class SwitchView : ContentView
     {
         CurrentColor = OffColor;
         var tap = new TapGestureRecognizer();
-        tap.Tapped += Tap_Tapped;
-        tap.Command = TransitionCommand;
+        tap.Tapped += (sender, e) => { Switch(); Tapped?.Invoke(sender, e); };
+        tap.Command = Command;
+        tap.CommandParameter = IsOn;
         GestureRecognizers.Add(tap);
-
-    }
-
-    private void Tap_Tapped(object sender, EventArgs e)
-    {
-        Switch();
-        Tapped?.Invoke(sender, e);
     }
         
     public async void Switch()
@@ -107,10 +93,9 @@ public partial class SwitchView : ContentView
 				await thumb.TranslateTo(thumb.Width, 0);
 				CurrentColor = OnColor;
 			}
-
 			IsOn = !IsOn;
 			IsRunning = JustSet = false;
-			}
+		}
     }
 
     private void Instance_SizeChanged(object sender, EventArgs e)

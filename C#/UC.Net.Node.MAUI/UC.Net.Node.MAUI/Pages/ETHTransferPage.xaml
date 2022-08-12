@@ -33,9 +33,9 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:ETHTransferStepOneView />
-                        <views:ETHTransferStepTwoView />
-                        <views:ETHTransferStepThreeView />
+                        <views:ETHTransfer1View />
+                        <views:ETHTransfer2View />
+                        <views:ETHTransfer3View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

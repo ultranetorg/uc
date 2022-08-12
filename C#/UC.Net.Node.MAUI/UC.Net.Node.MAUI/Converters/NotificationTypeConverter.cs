@@ -1,19 +1,26 @@
-﻿using System.Globalization;
+﻿using CommunityToolkit.Diagnostics;
+using System.Globalization;
 
 namespace UC.Net.Node.MAUI.Converters;
 
 public class NotificationTypeConverter : IValueConverter
 {
+	private const string _defaultFontFamily = "icomoon";
+	private const int _defaultFontSize = 40;
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+		Guard.IsOfType<NotificationType>(value);
+		Guard.IsNotNull(value);
+
 		FontImageSource result = null;
         switch ((NotificationType) value)
         {
             case NotificationType.ProductOperations:
                 result = new FontImageSource
                 {
-                    FontFamily = "icomoon",
-                    Size = 40,
+                    FontFamily = _defaultFontFamily,
+                    Size = _defaultFontSize,
                     Color = Color.FromArgb("#E03030"),
                     Glyph = IconFont.ProductOperations
                 };
@@ -21,8 +28,8 @@ public class NotificationTypeConverter : IValueConverter
             case NotificationType.SystemEvent:
                 result = new FontImageSource
                 {
-                    FontFamily = "icomoon",
-                    Size = 40,
+                    FontFamily = _defaultFontFamily,
+                    Size = _defaultFontSize,
                     Color = Color.FromArgb("#E09A30"),
                     Glyph = IconFont.SystemEvent
                 };
@@ -30,8 +37,8 @@ public class NotificationTypeConverter : IValueConverter
             case NotificationType.AuthorOperations:
                 result = new FontImageSource
                 {
-                    FontFamily = "icomoon",
-                    Size = 40,
+                    FontFamily = _defaultFontFamily,
+                    Size = _defaultFontSize,
                     Color = Color.FromArgb("#53E030"),
                     Glyph = IconFont.AuthorOperations
                 };
@@ -39,8 +46,8 @@ public class NotificationTypeConverter : IValueConverter
             case NotificationType.TokenOperations:
                 result = new FontImageSource
                 {
-                    FontFamily = "icomoon",
-                    Size = 40,
+                    FontFamily = _defaultFontFamily,
+                    Size = _defaultFontSize,
                     Color = Color.FromArgb("#E03030"),
                     Glyph = IconFont.ProductOperations
                 };
@@ -48,8 +55,8 @@ public class NotificationTypeConverter : IValueConverter
             case NotificationType.Server:
                 result = new FontImageSource
                 {
-                    FontFamily = "icomoon",
-                    Size = 40,
+                    FontFamily = _defaultFontFamily,
+                    Size = _defaultFontSize,
                     Color = Color.FromArgb("#53E030"),
                     Glyph = IconFont.Server
                 };
@@ -57,8 +64,8 @@ public class NotificationTypeConverter : IValueConverter
             case NotificationType.Wallet:
                 result = new FontImageSource
                 {
-                    FontFamily = "icomoon",
-                    Size = 40,
+                    FontFamily = _defaultFontFamily,
+                    Size = _defaultFontSize,
                     Color = Color.FromArgb("#53E030"),
                     Glyph = IconFont.Wallet
                 };

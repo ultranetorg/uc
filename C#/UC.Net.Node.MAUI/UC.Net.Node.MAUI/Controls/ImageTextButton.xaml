@@ -25,5 +25,4 @@
         Style="{StaticResource Medium}"
         Text="{Binding Text, Source={x:Reference Instance}}"
         VerticalOptions="Center" />
-
 </Grid>

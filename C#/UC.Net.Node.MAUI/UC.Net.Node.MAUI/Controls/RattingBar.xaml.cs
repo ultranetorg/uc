@@ -1,42 +1,43 @@
-﻿using System.Windows.Input;
+﻿using CommunityToolkit.Diagnostics;
+using System.Windows.Input;
 
 namespace UC.Net.Node.MAUI.Controls;
 
 public partial class RattingBar : ContentView
 {
     public event EventHandler ItemTapped = delegate { };
-    public ImageSource emptyStarImage = string.Empty;
-    public ImageSource fillStarImage = string.Empty;
-    public Image star1;
-    public Image star2;
-    public Image star3;
-    public Image star4;
-    public Image star5;
+    private ImageSource _emptyStarImage = string.Empty;
+    private ImageSource _fillStarImage = string.Empty;
+    private readonly Image _star1 = new ();
+    private readonly Image _star2 = new ();
+    private readonly Image _star3 = new ();
+    private readonly Image _star4 = new ();
+    private readonly Image _star5 = new ();
 
     public RattingBar()
     {
+		InitializeComponent();
 		FillFakeData();
     }
 
     #region Image Height Width Property
 
     public static readonly BindableProperty ImageHeightProperty = BindableProperty.Create(
-
-	propertyName: "ImageHeight",
-
-	returnType: typeof(double),
-
-	declaringType: typeof(RattingBar),
-
-	defaultBindingMode: BindingMode.TwoWay,
-
-	propertyChanged: ImageHeightPropertyChanged
-        );
+		nameof(ImageHeight), typeof(double), typeof(RattingBar), BindingMode.TwoWay, propertyChanged: ImageHeightPropertyChanged);
 
     public double ImageHeight
     {
-        get { return (double)base.GetValue(ImageHeightProperty); }
-        set { base.SetValue(ImageHeightProperty, value); }
+        get { return (double)GetValue(ImageHeightProperty); }
+        set { SetValue(ImageHeightProperty, value); }
+    }
+
+    public static readonly BindableProperty ImageWidthProperty = BindableProperty.Create(
+		nameof(ImageWidth), typeof(double), typeof(RattingBar), BindingMode.TwoWay, propertyChanged: ImageWidthPropertyChanged);
+
+    public double ImageWidth
+    {
+        get { return (double)GetValue(ImageWidthProperty); }
+        set { SetValue(ImageWidthProperty, value); }
     }
 
     private static void ImageHeightPropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -44,46 +45,26 @@ public partial class RattingBar : ContentView
         var control = (RattingBar)bindable;
         if (control != null)
         {
-            // set all images height  equal
-            control.star1.HeightRequest = (double)newValue;
-            control.star2.HeightRequest = (double)newValue;
-            control.star3.HeightRequest = (double)newValue;
-            control.star4.HeightRequest = (double)newValue;
-            control.star5.HeightRequest = (double)newValue;
+            // Set all images height equal
+            control._star1.HeightRequest = (double)newValue;
+            control._star2.HeightRequest = (double)newValue;
+            control._star3.HeightRequest = (double)newValue;
+            control._star4.HeightRequest = (double)newValue;
+            control._star5.HeightRequest = (double)newValue;
         }
-    }
-
-    //image width
-    public static readonly BindableProperty ImageWidthProperty = BindableProperty.Create(
-
-	propertyName: "ImageWidth",
-
-	returnType: typeof(double),
-
-	declaringType: typeof(RattingBar),
-
-	defaultBindingMode: BindingMode.TwoWay,
-
-	propertyChanged: ImageWidthPropertyChanged
-        );
-
-    public double ImageWidth
-    {
-        get { return (double)base.GetValue(ImageWidthProperty); }
-        set { base.SetValue(ImageWidthProperty, value); }
     }
 
     private static void ImageWidthPropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        // set all images width  equal
         var control = (RattingBar)bindable;
         if (control != null)
         {
-            control.star1.WidthRequest = (double)newValue;
-            control.star2.WidthRequest = (double)newValue;
-            control.star3.WidthRequest = (double)newValue;
-            control.star4.WidthRequest = (double)newValue;
-            control.star5.WidthRequest = (double)newValue;
+			// Set all images width equal
+            control._star1.WidthRequest = (double)newValue;
+            control._star2.WidthRequest = (double)newValue;
+            control._star3.WidthRequest = (double)newValue;
+            control._star4.WidthRequest = (double)newValue;
+            control._star5.WidthRequest = (double)newValue;
         }
     }
 
@@ -92,22 +73,12 @@ public partial class RattingBar : ContentView
     #region Horizontal Vertical Allignment
 	
     public static new readonly BindableProperty HorizontalOptionsProperty = BindableProperty.Create(
-
-	propertyName: "HorizontalOptions",
-
-	returnType: typeof(LayoutOptions),
-
-	declaringType: typeof(RattingBar),
-
-	defaultBindingMode: BindingMode.TwoWay,
-
-	propertyChanged: HorizontalOptionsPropertyChanged
-        );
+		nameof(HorizontalOptions), typeof(LayoutOptions), typeof(RattingBar), BindingMode.TwoWay, propertyChanged: HorizontalOptionsPropertyChanged);
 
     public new LayoutOptions HorizontalOptions
     {
-        get { return (LayoutOptions)base.GetValue(HorizontalOptionsProperty); }
-        set { base.SetValue(HorizontalOptionsProperty, value); }
+        get { return (LayoutOptions)GetValue(HorizontalOptionsProperty); }
+        set { SetValue(HorizontalOptionsProperty, value); }
     }
 
     private static void HorizontalOptionsPropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -116,25 +87,13 @@ public partial class RattingBar : ContentView
         control.stkRattingbar.HorizontalOptions = (LayoutOptions)newValue;
     }
 
-    //VERTICLE option set
-
     public static new readonly BindableProperty VerticalOptionsProperty = BindableProperty.Create(
-
-	propertyName: "VerticalOptions",
-
-	returnType: typeof(LayoutOptions),
-
-	declaringType: typeof(RattingBar),
-
-	defaultBindingMode: BindingMode.TwoWay,
-
-	propertyChanged: VerticalOptionsPropertyChanged
-        );
+		nameof(VerticalOptions), typeof(LayoutOptions), typeof(RattingBar), BindingMode.TwoWay, propertyChanged: VerticalOptionsPropertyChanged);
 
     public new LayoutOptions VerticalOptions
     {
-        get { return (LayoutOptions)base.GetValue(VerticalOptionsProperty); }
-        set { base.SetValue(VerticalOptionsProperty, value); }
+        get { return (LayoutOptions)GetValue(VerticalOptionsProperty); }
+        set { SetValue(VerticalOptionsProperty, value); }
     }
 
     private static void VerticalOptionsPropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -147,131 +106,92 @@ public partial class RattingBar : ContentView
 
     #region Command binding property
 
-    public static readonly BindableProperty CommandProperty = BindableProperty.Create(
-
-		propertyName: "Command",
-
-		returnType: typeof(ICommand),
-
-		declaringType: typeof(RattingBar)
-);
+    public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(RattingBar));
 
     public ICommand Command
     {
-        get { return (ICommand)base.GetValue(CommandProperty); }
-        set { base.SetValue(CommandProperty, value); }
+        get { return (ICommand)GetValue(CommandProperty); }
+        set { SetValue(CommandProperty, value); }
     }
 
-    //  this property is private becuase i don't wanna access it globally
+    // (TBR) this property is private becuase i don't wanna access it globally
     private static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(
-
-	propertyName: "CommandParameter",
-
-	returnType: typeof(object),
-
-	declaringType: typeof(RattingBar),
-
-	propertyChanged: CommandParameterPropertyChanged
-        );
+		nameof(CommandParameter), typeof(object), typeof(RattingBar), propertyChanged: CommandParameterPropertyChanged);
 
     private object CommandParameter
     {
-        get { return base.GetValue(CommandParameterProperty); }
-        set { base.SetValue(CommandParameterProperty, value); }
+        get { return GetValue(CommandParameterProperty); }
+        set { SetValue(CommandParameterProperty, value); }
     }
 
     // on the change of command parameter replace empty star image with fillstar image
     private static void CommandParameterPropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        var control = (RattingBar)bindable;
-        if (control != null)
+        if (bindable is RattingBar control)
         {
             var selectedValue = (int)newValue;
-            FillStar(selectedValue, control);
+            FillStars(selectedValue, control);
         }
-
     }
 
 	#endregion Command binding property
 
 	#region Fill Data
 
-	// this function will replace empty star with fill star
-	private static void FillStar(int selectedValue, RattingBar obj)
+	// (TBR!) this function will replace empty star with fill star
+	private static void FillStars(int selectedValue, RattingBar bar)
 	{
-		obj.SelectedStarValue = selectedValue;
+		Guard.IsNotNull(bar);
+
+		bar.SelectedStarValue = selectedValue;
+		bar._star1.Source = bar._fillStarImage;
+		bar._star2.Source = bar._emptyStarImage;
+		bar._star3.Source = bar._emptyStarImage;
+		bar._star4.Source = bar._emptyStarImage;
+		bar._star5.Source = bar._emptyStarImage;
 		switch (selectedValue)
 		{
 			case 1:
-				obj.star1.Source = obj.fillStarImage;
-				obj.star2.Source = obj.emptyStarImage;
-				obj.star3.Source = obj.emptyStarImage;
-				obj.star4.Source = obj.emptyStarImage;
-				obj.star5.Source = obj.emptyStarImage;
 				break;
 			case 2:
-				obj.star1.Source = obj.fillStarImage;
-				obj.star2.Source = obj.fillStarImage;
-				obj.star3.Source = obj.emptyStarImage;
-				obj.star4.Source = obj.emptyStarImage;
-				obj.star5.Source = obj.emptyStarImage;
+				bar._star2.Source = bar._fillStarImage;
 				break;
 			case 3:
-				obj.star1.Source = obj.fillStarImage;
-				obj.star2.Source = obj.fillStarImage;
-				obj.star3.Source = obj.fillStarImage;
-				obj.star4.Source = obj.emptyStarImage;
-				obj.star5.Source = obj.emptyStarImage;
+				bar._star2.Source = bar._fillStarImage;
+				bar._star3.Source = bar._fillStarImage;
 				break;
 			case 4:
-				obj.star1.Source = obj.fillStarImage;
-				obj.star2.Source = obj.fillStarImage;
-				obj.star3.Source = obj.fillStarImage;
-				obj.star4.Source = obj.fillStarImage;
-				obj.star5.Source = obj.emptyStarImage;
+				bar._star2.Source = bar._fillStarImage;
+				bar._star3.Source = bar._fillStarImage;
+				bar._star4.Source = bar._fillStarImage;
 				break;
 			case 5:
-				obj.star1.Source = obj.fillStarImage;
-				obj.star2.Source = obj.fillStarImage;
-				obj.star3.Source = obj.fillStarImage;
-				obj.star4.Source = obj.fillStarImage;
-				obj.star5.Source = obj.fillStarImage;
+				bar._star2.Source = bar._fillStarImage;
+				bar._star3.Source = bar._fillStarImage;
+				bar._star4.Source = bar._fillStarImage;
+				bar._star5.Source = bar._fillStarImage;
 				break;
 		}
 	}
 
 	private void FillFakeData()
 	{
-		InitializeComponent();
-
-		AddGestureRecognizer(star1, 1);
-		AddGestureRecognizer(star2, 2);
-		AddGestureRecognizer(star3, 3);
-		AddGestureRecognizer(star4, 4);
-		AddGestureRecognizer(star5, 5);
+		AddGestureRecognizer(_star1, 1);
+		AddGestureRecognizer(_star2, 2);
+		AddGestureRecognizer(_star3, 3);
+		AddGestureRecognizer(_star4, 4);
+		AddGestureRecognizer(_star5, 5);
 	}
-
-    // this event will fire when you click on image(star)
-    private ICommand ItemTappedCommand
-    {
-        get
-        {
-            return new Command((Object obj) =>
-            {
-                CommandParameter = obj;
-                Command?.Execute(CommandParameter);
-            });
-        }
-    }
 
 	private void AddGestureRecognizer(Image star = null, int parameter = 0)
 	{
-		star = new Image();
-
+		star ??= new Image();
+		
+		// this event will fire when you click on image (star)
 		star.GestureRecognizers.Add(new TapGestureRecognizer
 		{
-			Command = ItemTappedCommand,
-			CommandParameter = parameter
+			Command = Command,
+			CommandParameter = parameter != 0 ? parameter : CommandParameter
 		});
 
 		stkRattingbar.Children.Add(star);
@@ -282,24 +202,12 @@ public partial class RattingBar : ContentView
 	#region EmptyStar and fillstar property
 
 	public static readonly BindableProperty EmptyStarImageProperty = BindableProperty.Create(
-
-	propertyName: "EmptyStarImage",
-
-	returnType: typeof(ImageSource),
-
-	declaringType: typeof(RattingBar),
-
-	defaultValue: default(ImageSource),
-
-	defaultBindingMode: BindingMode.TwoWay,
-
-	propertyChanged: EmptyStarImagePropertyChanged
-        );
+		nameof(EmptyStarImage), typeof(ImageSource), typeof(RattingBar), default(ImageSource), BindingMode.TwoWay, propertyChanged: EmptyStarImagePropertyChanged);
 
     public ImageSource EmptyStarImage
     {
-        get { return (ImageSource)base.GetValue(EmptyStarImageProperty); }
-        set { base.SetValue(EmptyStarImageProperty, value); }
+        get { return (ImageSource)GetValue(EmptyStarImageProperty); }
+        set { SetValue(EmptyStarImageProperty, value); }
     }
 
     private static void EmptyStarImagePropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -307,60 +215,48 @@ public partial class RattingBar : ContentView
         var control = (RattingBar)bindable;
         if (control != null)
         {
-            control.emptyStarImage = (ImageSource)newValue;
-            //default set to all images as emptyStar
-            control.star1.Source = control.emptyStarImage;
-            control.star2.Source = control.emptyStarImage;
-            control.star3.Source = control.emptyStarImage;
-            control.star4.Source = control.emptyStarImage;
-            control.star5.Source = control.emptyStarImage;
+            control._emptyStarImage = (ImageSource)newValue;
 
-            // when default SelectedStarValue is assign  first and fillstariamge or emptystart image assign later then on the Property Change of
-            //SelectedStar fillStartImage and emptyStart Image show emty string so to handle this  here i write this logic
-            // < customcontrol:RattingBar x:Name = "customRattingBar"  ImageWidth = "25" ImageHeight = "25" SelectedStarValue = "1"    FillStarImage = "fillstar" EmptyStarImage = "emptystar" />
-            if (control.fillStarImage!=null)
+            //default set to all images as emptyStar
+            control._star1.Source = control._emptyStarImage;
+            control._star2.Source = control._emptyStarImage;
+            control._star3.Source = control._emptyStarImage;
+            control._star4.Source = control._emptyStarImage;
+            control._star5.Source = control._emptyStarImage;
+
+			// TBR
+            // when default SelectedStarValue is assign first and fillstariamge or emptystart image assign later then on the Property Change of
+            // SelectedStar fillStartImage and emptyStart Image show emty string so to handle this here i write this logic
+            // <customcontrol:RattingBar x:Name = "customRattingBar" ImageWidth = "25" ImageHeight = "25" SelectedStarValue = "1"
+			// FillStarImage = "fillstar" EmptyStarImage = "emptystar" />
+
+            if (control._fillStarImage != null)
             {
-                FillStar(control.SelectedStarValue, control);
+                FillStars(control.SelectedStarValue, control);
             }
         }
-
     }
 
-
     public static readonly BindableProperty FillStarImageProperty = BindableProperty.Create(
-
-	propertyName: "FillStarImage",
-
-	returnType: typeof(ImageSource),
-
-	declaringType: typeof(RattingBar),
-
-	defaultValue: default(ImageSource),
-
-	defaultBindingMode: BindingMode.TwoWay,
-
-	propertyChanged: FillStarImagePropertyChanged
-    );
+		nameof(FillStarImage), typeof(ImageSource), typeof(RattingBar), default(ImageSource), BindingMode.TwoWay, propertyChanged: FillStarImagePropertyChanged);
 
     public ImageSource FillStarImage
     {
-        get { return (ImageSource)base.GetValue(FillStarImageProperty); }
-        set { base.SetValue(FillStarImageProperty, value); }
+        get { return (ImageSource)GetValue(FillStarImageProperty); }
+        set { SetValue(FillStarImageProperty, value); }
     }
 
     private static void FillStarImagePropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        var control = (RattingBar)bindable;
-        if (control != null)
+        if (bindable is RattingBar control)
         {
-            control.fillStarImage = (ImageSource)newValue;
+            control._fillStarImage = (ImageSource)newValue;
 
-            if (control.emptyStarImage != null)
+            if (control._emptyStarImage != null)
             {
-                FillStar(control.SelectedStarValue, control);
+                FillStars(control.SelectedStarValue, control);
             }
         }
-
     }
 
 	#endregion EmptyStar and fillstar property
@@ -369,34 +265,22 @@ public partial class RattingBar : ContentView
 
 	// This will return the selected star value and also you can set the default selected star
 	public static readonly BindableProperty SelectedStarValueProperty = BindableProperty.Create(
-
-	propertyName: "SelectedStarValue",
-
-	returnType: typeof(int),
-
-	declaringType: typeof(RattingBar),
-
-	defaultValue: 0,
-
-	defaultBindingMode: BindingMode.TwoWay,
-
-	propertyChanged: SelectedStarValuePropertyChanged
-	);
+		nameof(SelectedStarValue), typeof(int), typeof(RattingBar), defaultValue: 0, BindingMode.TwoWay, propertyChanged: SelectedStarValuePropertyChanged);
 
 	private static void SelectedStarValuePropertyChanged(BindableObject bindable, object oldValue, object newValue)
 	{
-		var control = (RattingBar)bindable;
-		control.SelectedStarValue = (int)newValue;
-		if (control != null)
+		if (bindable is RattingBar control)
 		{
+			control.SelectedStarValue = (int)newValue;
+
 			// if the SelectedStarValue is assign first and later fillStarImage & EmptyStar assign   
-			if (control.fillStarImage != null && control.emptyStarImage != null)
+			if (control._fillStarImage != null && control._emptyStarImage != null)
 			{
-				FillStar(control.SelectedStarValue, control);
+				FillStars(control.SelectedStarValue, control);
 			}
 		}
-
 	}
+
 	public int SelectedStarValue
 	{
 		get { return (int)GetValue(SelectedStarValueProperty); }
@@ -408,33 +292,33 @@ public partial class RattingBar : ContentView
 	private void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)
     {
         // Handle the pan
-        var obj = e;
-        double width = star1.Width;
-        if (obj.TotalX > 0)
+        double width = _star1.Width;
+
+        if (e.TotalX > 0)
         {
-            FillStar(1, this);
+            FillStars(1, this);
             Command?.Execute(1);
         }
-        if (obj.TotalX > width)
+        if (e.TotalX > width)
         {
-            FillStar(2, this);
+            FillStars(2, this);
             Command?.Execute(2);
         }
-        if (obj.TotalX > (width * 2))
+        if (e.TotalX > (width * 2))
         {
-            FillStar(3, this);
+            FillStars(3, this);
             Command?.Execute(3);
 
         }
-        if (obj.TotalX > (width * 3))
+        if (e.TotalX > (width * 3))
         {
-            FillStar(4, this);
+            FillStars(4, this);
             Command?.Execute(4);
 
         }
-        if (obj.TotalX > (width * 4))
+        if (e.TotalX > (width * 4))
         {
-            FillStar(5, this);
+            FillStars(5, this);
             Command?.Execute(5);
         }
     }

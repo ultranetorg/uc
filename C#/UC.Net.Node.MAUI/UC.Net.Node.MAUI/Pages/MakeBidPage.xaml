@@ -27,8 +27,8 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:MakeBidStepOneView />
-                        <views:MakeBidStepTwoView />
+                        <views:MakeBid1View />
+                        <views:MakeBid2View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

@@ -138,7 +138,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\MianPageButton.xaml">
+	  <MauiXaml Update="Controls\MainPageButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
@@ -162,7 +162,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\AuthorRegistrationRenewalPage.xaml">
+	  <MauiXaml Update="Pages\AuthorRenewalPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -353,19 +353,19 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AuthorRegistrationRenewalStepOneView.xaml">
+	  <MauiXaml Update="Views\AuthorRenewal1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AuthorRegistrationRenewalStepTwoView.xaml">
+	  <MauiXaml Update="Views\AuthorRenewal2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AuthorRegistrationStepOneView.xaml">
+	  <MauiXaml Update="Views\AuthorRegistration1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AuthorRegistrationStepTwoView.xaml">
+	  <MauiXaml Update="Views\AuthorRegistration2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -373,39 +373,39 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccountStepOneView.xaml">
+	  <MauiXaml Update="Views\CreateAccount1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccountStepTwoView.xaml">
+	  <MauiXaml Update="Views\CreateAccount2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ETHTransferStepOneView.xaml">
+	  <MauiXaml Update="Views\ETHTransfer1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ETHTransferStepThreeView.xaml">
+	  <MauiXaml Update="Views\ETHTransfer3View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ETHTransferStepTwoView.xaml">
+	  <MauiXaml Update="Views\ETHTransfer2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\MakeBidStepOneView.xaml">
+	  <MauiXaml Update="Views\MakeBid1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\MakeBidStepTwoView.xaml">
+	  <MauiXaml Update="Views\MakeBid2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\SendStepOneView.xaml">
+	  <MauiXaml Update="Views\Send1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\SendStepTwoView.xaml">
+	  <MauiXaml Update="Views\Send2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -425,8 +425,8 @@
 	  <Compile Update="Controls\ImageTextButton.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\MianPageButton.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Controls\MainPageButton.xaml.cs">
+	    <DependentUpon>MainPageButton.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Controls\RattingBar.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
@@ -443,8 +443,8 @@
 	  <Compile Update="Pages\AuthorRegistrationPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\AuthorRegistrationRenewalPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Pages\AuthorRenewalPage.xaml.cs">
+	    <DependentUpon>AuthorRenewalPage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\AuthorsPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
@@ -566,47 +566,47 @@
 	  <Compile Update="Views\AccountView.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\AuthorRegistrationRenewalStepOneView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\AuthorRenewal1View.xaml.cs">
+	    <DependentUpon>AuthorRenewal1View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\AuthorRegistrationRenewalStepTwoView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\AuthorRenewal2View.xaml.cs">
+	    <DependentUpon>AuthorRenewal2View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\AuthorRegistrationStepOneView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\AuthorRegistration1View.xaml.cs">
+	    <DependentUpon>AuthorRegistration1View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\AuthorRegistrationStepTwoView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\AuthorRegistration2View.xaml.cs">
+	    <DependentUpon>AuthorRegistration2View.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\BadgeView.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\CreateAccountStepOneView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\CreateAccount1View.xaml.cs">
+	    <DependentUpon>CreateAccount1View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\CreateAccountStepTwoView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\CreateAccount2View.xaml.cs">
+	    <DependentUpon>CreateAccount2View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ETHTransferStepOneView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\ETHTransfer1View.xaml.cs">
+	    <DependentUpon>ETHTransfer1View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ETHTransferStepThreeView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\ETHTransfer3View.xaml.cs">
+	    <DependentUpon>ETHTransfer3View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ETHTransferStepTwoView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\ETHTransfer2View.xaml.cs">
+	    <DependentUpon>ETHTransfer2View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\MakeBidStepOneView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\MakeBid1View.xaml.cs">
+	    <DependentUpon>MakeBid1View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\MakeBidStepTwoView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\MakeBid2View.xaml.cs">
+	    <DependentUpon>MakeBid2View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\SendStepOneView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\Send1View.xaml.cs">
+	    <DependentUpon>Send1View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\SendStepTwoView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Views\Send2View.xaml.cs">
+	    <DependentUpon>Send2View.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 

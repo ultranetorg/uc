@@ -38,7 +38,7 @@ public partial class StartViewModel : BaseWalletViewModel
                 await Shell.Current.Navigation.PushAsync(new AuthorRegistrationPage());
                 break;
             case 4:
-                await Shell.Current.Navigation.PushAsync(new AuthorRegistrationRenewalPage());
+                await Shell.Current.Navigation.PushAsync(new AuthorRenewalPage());
                 break;
             case 5:
                 await Shell.Current.Navigation.PushAsync(new CreateAccountPage());

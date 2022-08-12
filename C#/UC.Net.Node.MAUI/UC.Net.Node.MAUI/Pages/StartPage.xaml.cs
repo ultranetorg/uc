@@ -2,8 +2,10 @@
 
 public partial class StartPage : ContentPage
 {
-    public StartPage()
+    public StartPage(StartViewModel vm)
     {
         InitializeComponent();
+
+		BindingContext = vm;
     }
 }

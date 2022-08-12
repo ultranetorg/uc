@@ -1,16 +1,17 @@
-﻿using System.Globalization;
+﻿using CommunityToolkit.Diagnostics;
+using System.Globalization;
 
 namespace UC.Net.Node.MAUI.Converters;
 
 public class IconTintConverter : IValueConverter
 {
-    private Button btn;
-
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        btn = (Button)parameter;
+		Guard.IsOfType<Button>(parameter);
+		Guard.IsNotNull(parameter);
+
 		FontImageSource result = null;
-        if (btn != null)
+		if (parameter is Button btn)
         {
             result = btn.ImageSource as FontImageSource;
             result.Color = btn.TextColor;

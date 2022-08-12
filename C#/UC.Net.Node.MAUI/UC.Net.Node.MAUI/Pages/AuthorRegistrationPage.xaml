@@ -37,8 +37,8 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:AuthorRegistrationStepOneView />
-                        <views:AuthorRegistrationStepTwoView />
+                        <views:AuthorRegistration1View />
+                        <views:AuthorRegistration2View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

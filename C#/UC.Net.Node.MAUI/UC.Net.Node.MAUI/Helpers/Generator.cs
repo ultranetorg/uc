@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-
 namespace UC.Net.Node.MAUI;
 
 public static class Generator
@@ -9,6 +8,6 @@ public static class Generator
         int sufficientBufferSizeInBytes = (length * 6 + 7) / 8;
         var buffer = new byte[sufficientBufferSizeInBytes];
         RandomNumberGenerator.Create().GetBytes(buffer);
-        return Convert.ToBase64String(buffer).Substring(0, length);
+        return Convert.ToBase64String(buffer)[..length];
     }
 }

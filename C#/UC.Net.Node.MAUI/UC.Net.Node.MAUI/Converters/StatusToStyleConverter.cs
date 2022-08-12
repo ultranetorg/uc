@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using CommunityToolkit.Diagnostics;
+using System.Globalization;
 
 namespace UC.Net.Node.MAUI.Converters;
 
@@ -6,6 +7,9 @@ public class StatusToStyleConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+		Guard.IsOfType<TransactionsStatus>(value);
+		Guard.IsNotNull(value);
+
 		Style result = null;
         switch ((TransactionsStatus)value)
         {

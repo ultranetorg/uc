@@ -37,8 +37,8 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:CreateAccountStepOneView />
-                        <views:CreateAccountStepTwoView />
+                        <views:CreateAccount1View />
+                        <views:CreateAccount2View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

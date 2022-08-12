@@ -4,168 +4,160 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     NavigationPage.HasNavigationBar="False">
-    <ContentPage.Content>
-        <ScrollView>
-            <StackLayout Padding="35">
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="10"
-                    Text="Manage Accounts" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="5"
-                    Text="Create Account" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="0"
-                    Text="Account Details" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="7"
-                    Text="Delete Account" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="14"
-                    Text="Restore Account" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="11"
-                    Text="Show Private Key" />
-
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="8"
-                    Text="ETH Transfer" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="17"
-                    Text="ETH Transfer Completed" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="18"
-                    Text="ETH Transfer Unfinished" />
-
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="15"
-                    Text="Send" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="16"
-                    Text="Transactions A" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="22"
-                    Text="Transactions B" />
-
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="1"
-                    Text="Authors" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="2"
-                    Text="Author Search A" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="19"
-                    Text="Author Search B" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="20"
-                    Text="Author Search C" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="3"
-                    Text="Author Registration" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="4"
-                    Text="Author Registration Renewal" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="9"
-                    Text="Make a Bid" />
-
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="13"
-                    Text="Products A" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="21"
-                    Text="Products B" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="12"
-                    Text="Products Search" />
-
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="6"
-                    Text="Dashboard" />
-
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="23"
-                    Text="Enter Pin A" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="24"
-                    Text="Enter Pin B" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="25"
-                    Text="Create Pin" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="26"
-                    Text="Network" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="27"
-                    Text="Settings A" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="28"
-                    Text="Settings B" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="29"
-                    Text="Help A" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="30"
-                    Text="Help B" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="31"
-                    Text="Whats New" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="32"
-                    Text="Whats New Popup" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="33"
-                    Text="Notifications" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="34"
-                    Text="Notification" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="35"
-                    Text="Accounts Popup" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="36"
-                    Text="No Network Popup" />
-                <Button
-                    Command="{Binding StartCommand}"
-                    CommandParameter="37"
-                    Text="About" />
-            </StackLayout>
-        </ScrollView>
-    </ContentPage.Content>
+    <ScrollView>
+        <StackLayout Padding="35">
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="10"
+                Text="Manage Accounts" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="5"
+                Text="Create Account" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="0"
+                Text="Account Details" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="7"
+                Text="Delete Account" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="14"
+                Text="Restore Account" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="11"
+                Text="Show Private Key" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="8"
+                Text="ETH Transfer" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="17"
+                Text="ETH Transfer Completed" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="18"
+                Text="ETH Transfer Unfinished" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="15"
+                Text="Send" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="16"
+                Text="Transactions A" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="22"
+                Text="Transactions B" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="1"
+                Text="Authors" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="2"
+                Text="Author Search A" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="19"
+                Text="Author Search B" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="20"
+                Text="Author Search C" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="3"
+                Text="Author Registration" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="4"
+                Text="Author Registration Renewal" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="9"
+                Text="Make a Bid" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="13"
+                Text="Products A" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="21"
+                Text="Products B" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="12"
+                Text="Products Search" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="6"
+                Text="Dashboard" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="23"
+                Text="Enter Pin A" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="24"
+                Text="Enter Pin B" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="25"
+                Text="Create Pin" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="26"
+                Text="Network" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="27"
+                Text="Settings A" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="28"
+                Text="Settings B" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="29"
+                Text="Help A" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="30"
+                Text="Help B" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="31"
+                Text="Whats New" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="32"
+                Text="Whats New Popup" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="33"
+                Text="Notifications" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="34"
+                Text="Notification" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="35"
+                Text="Accounts Popup" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="36"
+                Text="No Network Popup" />
+            <Button
+                Command="{Binding StartCommand}"
+                CommandParameter="37"
+                Text="About" />
+        </StackLayout>
+    </ScrollView>
 </ContentPage>
