@@ -2,9 +2,9 @@
 
 public partial class WhatsNewPage : CustomPage
 {
-    public WhatsNewPage()
+    public WhatsNewPage(WhatsNewViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new WhatsNewViewModel(ServiceHelper.GetService<ILogger<WhatsNewViewModel>>());
+        BindingContext = vm;
     }
 }

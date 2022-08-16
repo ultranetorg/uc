@@ -2,9 +2,9 @@
 
 public partial class ProductSearchPage : CustomPage
 {
-    public ProductSearchPage()
+    public ProductSearchPage(ProductSearchViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new ProductSearchViewModel(ServiceHelper.GetService<ILogger<ProductSearchViewModel>>());
+        BindingContext = vm;
     }
 }

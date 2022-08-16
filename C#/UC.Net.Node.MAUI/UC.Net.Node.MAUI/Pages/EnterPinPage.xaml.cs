@@ -2,9 +2,9 @@
 
 public partial class EnterPinPage : CustomPage
 {
-    public EnterPinPage()
+    public EnterPinPage(EnterPinViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new EnterPinViewModel(ServiceHelper.GetService<ILogger<EnterPinViewModel>>());
+        BindingContext = vm;
     }
 }

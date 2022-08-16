@@ -5,10 +5,12 @@ public partial class SourceAccountPopup : Popup
 	private static SourceAccountPopup popup;
 	public SourceAccountViewModel vm => BindingContext as SourceAccountViewModel;
 
-    public SourceAccountPopup()
+    public SourceAccountPopup(SourceAccountViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new SourceAccountViewModel(this, ServiceHelper.GetService<ILogger<SourceAccountViewModel>>());
+		// TBR
+		vm.Popup = this;
+        BindingContext = vm;
     }
 
     public void Hide()
@@ -18,7 +20,7 @@ public partial class SourceAccountPopup : Popup
 
 	public static async Task<Wallet> Show()
 	{
-		popup = new SourceAccountPopup();
+		popup = new SourceAccountPopup(App.ServiceProvider.GetService<SourceAccountViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);
 		return popup.vm.Wallet;
 	}

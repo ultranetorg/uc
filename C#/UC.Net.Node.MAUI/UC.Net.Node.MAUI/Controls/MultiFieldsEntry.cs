@@ -1,4 +1,5 @@
-﻿namespace UC.Net.Node.MAUI.Controls;
+﻿using static Microsoft.Maui.Controls.Compatibility.Grid;
+namespace UC.Net.Node.MAUI.Controls;
 
 public class MultiFieldsEntry : Grid
 {
@@ -119,7 +120,7 @@ public class MultiFieldsEntry : Grid
 			};
 			entry.TextChanged += Entry_TextChanged;
 			ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
-			Children.Add(entry); //, ColumnDefinitions.Count-1, 0
+			((IGridList<View>)Children).Add(entry, ColumnDefinitions.Count-1, 0 );
 		}
 		(Children[0] as BorderEntry).Focus();
 	}

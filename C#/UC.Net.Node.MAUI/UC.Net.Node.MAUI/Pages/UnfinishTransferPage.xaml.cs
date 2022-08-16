@@ -2,9 +2,9 @@
 
 public partial class UnfinishTransferPage : CustomPage
 {
-    public UnfinishTransferPage()
+    public UnfinishTransferPage(UnfinishTransferViewModel vm = null)
     {
         InitializeComponent();
-        BindingContext = new UnfinishTransferViewModel(ServiceHelper.GetService<ILogger<UnfinishTransferViewModel>>());
+        BindingContext = vm ?? App.ServiceProvider.GetService<UnfinishTransferViewModel>();
     }
 }

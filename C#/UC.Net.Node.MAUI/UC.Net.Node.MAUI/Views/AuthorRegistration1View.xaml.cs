@@ -2,9 +2,15 @@
 
 public partial class AuthorRegistration1View : ContentView
 {
+    public AuthorRegistration1View(AuthorRegistration1ViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
+    }
+	
     public AuthorRegistration1View()
     {
         InitializeComponent();
-        BindingContext = new AuthorRegistration1ViewModel(ServiceHelper.GetService<ILogger<AuthorRegistration1ViewModel>>());
+        BindingContext = App.ServiceProvider.GetService<AuthorRegistration1ViewModel>();
     }
 }

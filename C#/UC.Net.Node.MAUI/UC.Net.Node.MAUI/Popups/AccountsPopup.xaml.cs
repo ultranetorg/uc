@@ -1,5 +1,4 @@
 ﻿using UC.Net.Node.MAUI.Models.Constants;
-
 namespace UC.Net.Node.MAUI.Popups;
 
 public partial class AccountsPopup : Popup

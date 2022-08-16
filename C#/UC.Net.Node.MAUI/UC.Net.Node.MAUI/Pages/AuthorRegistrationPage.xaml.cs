@@ -2,9 +2,9 @@
 
 public partial class AuthorRegistrationPage : CustomPage
 {
-    public AuthorRegistrationPage()
+    public AuthorRegistrationPage(AuthorRegistrationViewModel vm = null)
     {
         InitializeComponent();
-        BindingContext = new AuthorRegistrationViewModel(ServiceHelper.GetService<ILogger<AuthorRegistrationViewModel>>());
+        BindingContext = vm ?? App.ServiceProvider.GetService<AuthorRegistrationViewModel>();
     }
 }

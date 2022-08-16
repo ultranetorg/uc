@@ -4,7 +4,6 @@ using Microsoft.Maui.Controls.Compatibility.Platform.Android.AppCompat;
 using UC.Net.Node.MAUI.Droid.Renderers;
 
 [assembly: ExportRenderer(typeof(NavigationPage), typeof(CNavigationPageRenderer))]
-
 namespace UC.Net.Node.MAUI.Droid.Renderers;
 
 public class CNavigationPageRenderer : NavigationPageRenderer

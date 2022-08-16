@@ -2,9 +2,9 @@
 
 public partial class ETHTransferPage : CustomPage
 {
-    public ETHTransferPage()
+    public ETHTransferPage(ETHTransferViewModel vm = null)
     {
         InitializeComponent();
-        BindingContext = new ETHTransferViewModel(ServiceHelper.GetService<ILogger<ETHTransferViewModel>>());
+        BindingContext = vm ?? App.ServiceProvider.GetService<ETHTransferViewModel>();
     }
 }

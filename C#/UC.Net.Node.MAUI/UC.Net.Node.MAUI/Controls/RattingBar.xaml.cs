@@ -3,6 +3,7 @@ using System.Windows.Input;
 
 namespace UC.Net.Node.MAUI.Controls;
 
+// TBR
 public partial class RattingBar : ContentView
 {
     public event EventHandler ItemTapped = delegate { };
@@ -291,7 +292,7 @@ public partial class RattingBar : ContentView
 
 	private void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)
     {
-        // Handle the pan
+        // Handle the pan - TBR
         double width = _star1.Width;
 
         if (e.TotalX > 0)

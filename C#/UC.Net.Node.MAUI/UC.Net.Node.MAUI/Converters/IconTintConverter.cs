@@ -9,14 +9,13 @@ public class IconTintConverter : IValueConverter
     {
 		Guard.IsOfType<Button>(parameter);
 		Guard.IsNotNull(parameter);
-
 		FontImageSource result = null;
 		if (parameter is Button btn)
-        {
-            result = btn.ImageSource as FontImageSource;
-            result.Color = btn.TextColor;
-        }
-        return result;
+		{
+			result = btn.ImageSource as FontImageSource;
+			result.Color = btn.TextColor;
+		}
+		return result;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

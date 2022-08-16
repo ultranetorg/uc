@@ -11,9 +11,8 @@ public partial class PrivateKeyViewModel : BaseViewModel
 	[ObservableProperty]
     private Wallet _wallet;
 
-    public PrivateKeyViewModel(Wallet wallet, ILogger<PrivateKeyViewModel> logger) : base(logger)
-    {
-        Wallet = wallet;   
+    public PrivateKeyViewModel(ILogger<PrivateKeyViewModel> logger) : base(logger)
+    { 
     }
 
 	[RelayCommand]

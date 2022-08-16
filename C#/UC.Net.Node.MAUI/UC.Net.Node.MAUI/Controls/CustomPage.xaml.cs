@@ -6,7 +6,7 @@ public partial class CustomPage : ContentPage
 
 	#region Bindable Properties
 
-    public static readonly BindableProperty LeftContentProperty = BindableProperty.Create("LeftContent", typeof(View), typeof(CustomPage), null);
+    public static readonly BindableProperty LeftContentProperty = BindableProperty.Create(nameof(LeftContent), typeof(View), typeof(CustomPage), null);
 
 	public View LeftContent
 	{
@@ -14,7 +14,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(LeftContentProperty, value); }
 	}
 
-	public static readonly BindableProperty RightContentProperty = BindableProperty.Create("RightContent", typeof(View), typeof(CustomPage), null);
+	public static readonly BindableProperty RightContentProperty = BindableProperty.Create(nameof(RightContent), typeof(View), typeof(CustomPage), null);
 
 	public View RightContent
 	{
@@ -22,7 +22,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(RightContentProperty, value); }
 	}
 
-	public static readonly BindableProperty BadgeValueProperty = BindableProperty.Create("BadgeValue", typeof(string), typeof(CustomPage), string.Empty);
+	public static readonly BindableProperty BadgeValueProperty = BindableProperty.Create(nameof(BadgeValue), typeof(string), typeof(CustomPage), string.Empty);
 
 	public string BadgeValue
 	{
@@ -30,7 +30,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(BadgeValueProperty, value); }
 	}
 
-	public static readonly BindableProperty HasBackButtonProperty = BindableProperty.Create("HasBackButton", typeof(bool), typeof(CustomPage), true);
+	public static readonly BindableProperty HasBackButtonProperty = BindableProperty.Create(nameof(HasBackButton), typeof(bool), typeof(CustomPage), true);
 
 	public bool HasBackButton
 	{
@@ -38,7 +38,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(HasBackButtonProperty, value); }
 	}
 
-	public static readonly BindableProperty AnimationEnabledProperty = BindableProperty.Create("AnimationEnabled", typeof(bool), typeof(CustomPage), false);
+	public static readonly BindableProperty AnimationEnabledProperty = BindableProperty.Create(nameof(AnimationEnabled), typeof(bool), typeof(CustomPage), false);
 
 	public bool AnimationEnabled
 	{
@@ -46,7 +46,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(AnimationEnabledProperty, value); }
 	}
 
-	public static readonly BindableProperty MainContentProperty = BindableProperty.Create("MainContent", typeof(View), typeof(CustomPage), null);
+	public static readonly BindableProperty MainContentProperty = BindableProperty.Create(nameof(MainContent), typeof(View), typeof(CustomPage), null);
 
 	public View MainContent
 	{
@@ -54,7 +54,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(MainContentProperty, value); }
 	}
 
-	public static readonly BindableProperty HeaderProperty = BindableProperty.Create("Header", typeof(View), typeof(CustomPage), null);
+	public static readonly BindableProperty HeaderProperty = BindableProperty.Create(nameof(Header), typeof(View), typeof(CustomPage), null);
 
 	public View Header
 	{
@@ -62,7 +62,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(HeaderProperty, value); }
 	}
 
-	public static readonly BindableProperty HeaderHeightProperty = BindableProperty.Create("HeaderHeight", typeof(double), typeof(CustomPage), default);
+	public static readonly BindableProperty HeaderHeightProperty = BindableProperty.Create(nameof(HeaderHeight), typeof(double), typeof(CustomPage), default);
 
 	public double HeaderHeight
 	{
@@ -70,7 +70,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(HeaderHeightProperty, value); }
 	}
 
-	public static readonly BindableProperty IsHeaderVisibleProperty = BindableProperty.Create("HeaderHeight", typeof(bool), typeof(CustomPage), false);
+	public static readonly BindableProperty IsHeaderVisibleProperty = BindableProperty.Create(nameof(HeaderHeight), typeof(bool), typeof(CustomPage), false);
 
 	public bool IsHeaderVisible
 	{
@@ -78,7 +78,7 @@ public partial class CustomPage : ContentPage
 		set { SetValue(IsHeaderVisibleProperty, value); }
 	}
 
-	public static readonly BindableProperty BarItemsProperty = BindableProperty.Create("BarItems", typeof(CustomCollection<ImageButton>), typeof(CustomPage), new CustomCollection<ImageButton>());
+	public static readonly BindableProperty BarItemsProperty = BindableProperty.Create(nameof(BarItems), typeof(CustomCollection<ImageButton>), typeof(CustomPage), new CustomCollection<ImageButton>());
 
 	public CustomCollection<ImageButton> BarItems
 	{

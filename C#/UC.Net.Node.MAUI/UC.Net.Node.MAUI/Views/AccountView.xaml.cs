@@ -1,10 +1,9 @@
-﻿namespace UC.Net.Node.MAUI.Views
+﻿namespace UC.Net.Node.MAUI.Views;
+
+public partial class AccountView : ContentView
 {
-    public partial class AccountView : ContentView
+    public AccountView()
     {
-        public AccountView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

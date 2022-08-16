@@ -8,7 +8,7 @@ using Microsoft.Maui.Controls.Compatibility.Platform.Android.AppCompat;
 [assembly: ExportRenderer(typeof(Picker), typeof(CustomPickerRenderer))]
 namespace UC.Net.Node.MAUI.Droid;
 
-class CustomPickerRenderer : PickerRenderer
+public class CustomPickerRenderer : PickerRenderer
 {
     public CustomPickerRenderer(Context context) : base(context)
     {

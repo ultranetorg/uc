@@ -2,9 +2,9 @@
 
 public partial class DashboardPage : CustomPage
 {
-    public DashboardPage()
+    public DashboardPage(DashboardViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new DashboardViewModel(ServiceHelper.GetService<ILogger<DashboardViewModel>>());
+        BindingContext = vm;
     }
 }

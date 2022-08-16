@@ -4,7 +4,7 @@ public partial class CreatePinPopup : Popup
 {
     private static CreatePinPopup popup;
 
-    public CreatePinPopup( )
+    public CreatePinPopup()
     {
         InitializeComponent();
         BindingContext = this;

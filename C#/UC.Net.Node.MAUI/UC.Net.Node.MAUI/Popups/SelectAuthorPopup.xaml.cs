@@ -5,10 +5,12 @@ public partial class SelectAuthorPopup : Popup
 	private static SelectAuthorPopup popup;
 	public SelectAuthorViewModel vm => BindingContext as SelectAuthorViewModel;
 
-    public SelectAuthorPopup()
+    public SelectAuthorPopup(SelectAuthorViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new SelectAuthorViewModel(this, ServiceHelper.GetService<ILogger<SelectAuthorViewModel>>());
+		// TBD: Popup manager
+		vm.Popup = this;
+        BindingContext = vm;
     }
 
     public void Hide()
@@ -18,7 +20,7 @@ public partial class SelectAuthorPopup : Popup
 
 	public static async Task<Author> Show()
 	{
-		popup = new SelectAuthorPopup();
+		popup = new SelectAuthorPopup(App.ServiceProvider.GetService<SelectAuthorViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);
 		return popup.vm.SelectedAuthor;
 	}

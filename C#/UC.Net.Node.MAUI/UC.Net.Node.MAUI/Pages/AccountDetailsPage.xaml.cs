@@ -2,9 +2,10 @@
 
 public partial class AccountDetailsPage : CustomPage
 {
-    public AccountDetailsPage(Wallet wallet)
+    public AccountDetailsPage(Wallet wallet, AccountDetailsViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new AccountDetailsViewModel(wallet, ServiceHelper.GetService<ILogger<AccountDetailsViewModel>>());
+		vm.Wallet = wallet;
+        BindingContext = vm;
     }
 }

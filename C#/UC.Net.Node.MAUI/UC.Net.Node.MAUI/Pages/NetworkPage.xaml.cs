@@ -2,9 +2,9 @@
 
 public partial class NetworkPage : CustomPage
 {
-    public NetworkPage()
+    public NetworkPage(NetworkViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new NetworkViewModel(ServiceHelper.GetService<ILogger<NetworkViewModel>>());
+        BindingContext = vm;
     }
 }

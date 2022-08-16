@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-
 namespace UC.Net.Node.MAUI.Helpers;
 
 public static class PictureSourceHelper
@@ -39,13 +38,14 @@ public static class PictureSourceHelper
 
     public static async Task<byte[]> PathToBytes(string path)
     {
+		byte[] result = null;
         try
         {
             using (var stream = File.OpenWrite(path))
             using (var newStream = new MemoryStream())
             {
                 await stream.CopyToAsync(newStream);
-                return newStream.ToArray();
+                result = newStream.ToArray();
             }
         }
         catch(Exception ex)
@@ -53,6 +53,6 @@ public static class PictureSourceHelper
             await ToastHelper.ShowMessageAsync("Loading error");
 			ThrowHelper.ThrowInvalidOperationException("PathToBytes: Loading error", ex);
         }
-        return null;
+        return result;
     }
 }

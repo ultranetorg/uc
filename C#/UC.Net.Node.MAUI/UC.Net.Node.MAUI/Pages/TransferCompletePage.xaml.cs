@@ -2,9 +2,9 @@
 
 public partial class TransferCompletePage : CustomPage
 {
-    public TransferCompletePage()
+    public TransferCompletePage(TransferCompleteViewModel vm = null)
     {
         InitializeComponent();
-        BindingContext = new TransferCompleteViewModel(ServiceHelper.GetService<ILogger<TransferCompleteViewModel>>());
+        BindingContext = vm ?? App.ServiceProvider.GetService<TransferCompleteViewModel>();
     }
 }

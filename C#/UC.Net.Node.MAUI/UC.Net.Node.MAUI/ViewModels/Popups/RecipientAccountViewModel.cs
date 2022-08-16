@@ -2,7 +2,7 @@
 
 public partial class RecipientAccountViewModel : BaseViewModel
 {
-    public RecipientAccountPopup Popup { get; }
+    public RecipientAccountPopup Popup { get; set;}
 
 	[ObservableProperty]
     private CustomCollection<Wallet> _wallets = new();
@@ -17,10 +17,9 @@ public partial class RecipientAccountViewModel : BaseViewModel
         AccountColor = Color.FromArgb("#6601e3"),
     };
 
-    public RecipientAccountViewModel(RecipientAccountPopup popup, ILogger<NotificationsViewModel> logger): base(logger)
+    public RecipientAccountViewModel(ILogger<NotificationsViewModel> logger): base(logger)
     {
 		AddFakeData();
-        Popup = popup;
     }
 
 	[RelayCommand]

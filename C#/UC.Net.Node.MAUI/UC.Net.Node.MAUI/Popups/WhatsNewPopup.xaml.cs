@@ -1,23 +1,22 @@
-﻿namespace UC.Net.Node.MAUI.Popups
+﻿namespace UC.Net.Node.MAUI.Popups;
+
+public partial class WhatsNewPopup : Popup
 {
-    public partial class WhatsNewPopup : Popup
+    private static WhatsNewPopup popup;
+
+    public WhatsNewPopup()
     {
-        private static WhatsNewPopup popup;
-
-        public WhatsNewPopup()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
        
-        public void Hide()
-        {
-			Close();
-        }
+    public void Hide()
+    {
+	Close();
+    }
 
-		public static async Task Show()
-		{
-			popup = new WhatsNewPopup();
-			await App.Current.MainPage.ShowPopupAsync(popup);
-		}
+	public static async Task Show()
+	{
+		popup = new WhatsNewPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup);
 	}
 }

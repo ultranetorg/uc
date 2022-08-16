@@ -2,7 +2,7 @@
 
 public partial class BaseAuthorViewModel : BaseViewModel
 {
-    public Author Author { get; protected set;}
+    public Author Author { get; set;}
 
 	[ObservableProperty]
     private bool _isRegistered;

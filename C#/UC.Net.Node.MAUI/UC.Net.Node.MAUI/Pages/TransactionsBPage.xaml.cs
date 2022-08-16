@@ -2,9 +2,9 @@
 
 public partial class TransactionsBPage : CustomPage
 {
-    public TransactionsBPage()
+    public TransactionsBPage(TransactionsBViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new TransactionsBViewModel(ServiceHelper.GetService<ILogger<TransactionsBViewModel>>());
+        BindingContext = vm;
     }
 }

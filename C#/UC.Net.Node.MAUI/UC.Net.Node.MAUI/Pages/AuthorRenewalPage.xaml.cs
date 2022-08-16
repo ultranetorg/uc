@@ -2,9 +2,9 @@
 
 public partial class AuthorRenewalPage : CustomPage
 {
-    public AuthorRenewalPage()
+    public AuthorRenewalPage(AuthorRenewalViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new AuthorRenewalViewModel(ServiceHelper.GetService<ILogger<AuthorRenewalViewModel>>());
+        BindingContext = vm;
     }
 }

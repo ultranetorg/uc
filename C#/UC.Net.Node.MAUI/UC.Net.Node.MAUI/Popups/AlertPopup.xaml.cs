@@ -1,5 +1,4 @@
 ﻿using UC.Net.Node.MAUI.Models.Constants;
-
 namespace UC.Net.Node.MAUI.Popups;
 
 public partial class AlertPopup : Popup
@@ -21,7 +20,8 @@ public partial class AlertPopup : Popup
     {
         Close();
     }
-
+	
+	// this will be static helper method
     public static async Task Show(string message)
     {
         popup = new AlertPopup(message);

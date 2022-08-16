@@ -10,21 +10,17 @@ public class StatusToStyleConverter : IValueConverter
 		Guard.IsOfType<TransactionsStatus>(value);
 		Guard.IsNotNull(value);
 
-		Style result = null;
         switch ((TransactionsStatus)value)
         {
             case TransactionsStatus.Pending:
-                result = (Style)App.Current.Resources["Watch"];
-			break;
+                return (Style)App.Current.Resources["Watch"];
             case TransactionsStatus.Sent:
             case TransactionsStatus.Received:
-                result = (Style)App.Current.Resources["Done"];
-			break;
+                return (Style)App.Current.Resources["Done"];
             case TransactionsStatus.Failed:
-                result = (Style)App.Current.Resources["Clear"];
-			break;
+                return (Style)App.Current.Resources["Clear"];
         }
-        return result;
+        return null;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

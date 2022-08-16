@@ -22,7 +22,7 @@ public partial class DeleteAccountViewModel : BaseViewModel
         await DeleteAccountPopup.Show(Wallet);
     }
 
-	private void FillFakeData(Wallet wallet)
+	public void FillFakeData(Wallet wallet)
 	{
 		Wallet = wallet;          
         Authors.Add(new Author { Name = "ultranet" });

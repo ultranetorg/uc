@@ -13,20 +13,17 @@ public class TransactionStatusToIconConverter : IValueConverter
 		Guard.IsOfType<TransactionsStatus>(value);
 		Guard.IsNotNull(value);
 
-		FontImageSource result = null;
         switch ((TransactionsStatus)value)
         {
             case TransactionsStatus.Pending:
-                result = new FontImageSource { Color = Settings.Purple, Size = _defaultFontSize, Glyph = IconFont.Accounts, FontFamily = _defaultFontFamily };
-			break;
+				// Color source will be changed
+                return new FontImageSource { Color = (Color)App.Current.Resources["Purple"], Size = _defaultFontSize, Glyph = IconFont.Accounts, FontFamily = _defaultFontFamily };
             case TransactionsStatus.Received:
-                result = new FontImageSource { Color = Settings.Green, Size = _defaultFontSize, Glyph = IconFont.Receive, FontFamily = _defaultFontFamily };
-			break;
+                return new FontImageSource { Color = (Color)App.Current.Resources["Green"], Size = _defaultFontSize, Glyph = IconFont.Receive, FontFamily = _defaultFontFamily };
             case TransactionsStatus.Sent:
-                result = new FontImageSource { Color = Settings.Blue, Size = _defaultFontSize, Glyph = IconFont.Send, FontFamily = _defaultFontFamily };
-                break;
+                return new FontImageSource { Color = (Color)App.Current.Resources["Blue"], Size = _defaultFontSize, Glyph = IconFont.Send, FontFamily = _defaultFontFamily };
         }
-        return result;
+        return null;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

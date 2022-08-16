@@ -8,7 +8,7 @@ using Microsoft.Maui.Controls.Compatibility.Platform.Android;
 [assembly: ExportRenderer(typeof(DatePicker), typeof(CustomDatePickerRenderer))]
 namespace UC.Net.Node.MAUI.Droid;
 
-class CustomDatePickerRenderer : DatePickerRenderer
+public class CustomDatePickerRenderer : DatePickerRenderer
 {
     public CustomDatePickerRenderer(Context context) : base(context)
     {

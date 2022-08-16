@@ -2,9 +2,15 @@
 
 public partial class Send2View : ContentView
 {
+    public Send2View(Send2ViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm; 
+    }
+
     public Send2View()
     {
         InitializeComponent();
-        BindingContext = new Send2ViewModel(ServiceHelper.GetService<ILogger<Send2ViewModel>>()); 
+        BindingContext = App.ServiceProvider.GetService<Send2ViewModel>();
     }
 }

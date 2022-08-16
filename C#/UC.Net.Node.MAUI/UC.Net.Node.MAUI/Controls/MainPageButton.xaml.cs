@@ -1,12 +1,11 @@
 ﻿using System.Windows.Input;
-
 namespace UC.Net.Node.MAUI.Controls;
 
 public partial class MainPageButton : Frame
 {
 	#region Bindable Properties
 	
-	public static readonly BindableProperty ImageProperty = BindableProperty.Create("Image", typeof(ImageSource), typeof(MainPageButton), null);
+	public static readonly BindableProperty ImageProperty = BindableProperty.Create(nameof(Image), typeof(ImageSource), typeof(MainPageButton), null);
 
 	public ImageSource Image
 	{
@@ -14,7 +13,7 @@ public partial class MainPageButton : Frame
 		set { SetValue(ImageProperty, value); }
 	}
 
-	public static readonly BindableProperty TextProperty = BindableProperty.Create("Text", typeof(string), typeof(MainPageButton), null);
+	public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(MainPageButton), null);
 
 	public string Text
 	{
@@ -22,7 +21,7 @@ public partial class MainPageButton : Frame
 		set { SetValue(TextProperty, value); }
 	}
 
-	public static readonly BindableProperty DetailsProperty = BindableProperty.Create("Details", typeof(string), typeof(MainPageButton), null);
+	public static readonly BindableProperty DetailsProperty = BindableProperty.Create(nameof(Details), typeof(string), typeof(MainPageButton), null);
 
 	public string Details
 	{
@@ -30,7 +29,7 @@ public partial class MainPageButton : Frame
 		set { SetValue(DetailsProperty, value); }
 	}
 
-	public static readonly BindableProperty CommandProperty = BindableProperty.Create("Command", typeof(ICommand), typeof(MainPageButton), null);
+	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(MainPageButton), null);
 
 	public ICommand Command
 	{
@@ -38,7 +37,7 @@ public partial class MainPageButton : Frame
 		set { SetValue(CommandProperty, value); }
 	}
 
-	public static readonly BindableProperty CommandParameterProperty = BindableProperty.Create("CommandParameter", typeof(object), typeof(MainPageButton), null);
+	public static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(nameof(CommandParameter), typeof(object), typeof(MainPageButton), null);
 
 	public object CommandParameter
 	{

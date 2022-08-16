@@ -2,9 +2,9 @@
 
 public partial class RestoreAccountPage : CustomPage
 {
-    public RestoreAccountPage()
+    public RestoreAccountPage(RestoreAccountViewModel vm = null)
     {
         InitializeComponent();
-        BindingContext = new RestoreAccountViewModel(ServiceHelper.GetService<ILogger<RestoreAccountViewModel>>());
+        BindingContext = vm ?? App.ServiceProvider.GetService<RestoreAccountViewModel>();
     }
 }

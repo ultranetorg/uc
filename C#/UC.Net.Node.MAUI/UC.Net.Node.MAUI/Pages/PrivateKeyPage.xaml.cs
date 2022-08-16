@@ -5,6 +5,15 @@ public partial class PrivateKeyPage : CustomPage
     public PrivateKeyPage(Wallet wallet)
     {
         InitializeComponent();
-        BindingContext = new PrivateKeyViewModel(wallet, ServiceHelper.GetService<ILogger<PrivateKeyViewModel>>());
+		var vm = App.ServiceProvider.GetService<PrivateKeyViewModel>();
+		vm.Wallet = wallet;
+        BindingContext = vm;
+    }
+
+    public PrivateKeyPage(Wallet wallet, PrivateKeyViewModel vm)
+    {
+        InitializeComponent();
+		vm.Wallet = wallet;
+        BindingContext = vm;
     }
 }

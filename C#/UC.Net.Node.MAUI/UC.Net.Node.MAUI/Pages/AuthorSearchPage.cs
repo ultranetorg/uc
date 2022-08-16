@@ -2,9 +2,18 @@
 
 public partial class AuthorSearchPage : CustomPage
 {
-    public AuthorSearchPage(Author author)
+    public AuthorSearchPage(Author author, AuthorSearchPViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new AuthorSearchPViewModel(author, ServiceHelper.GetService<ILogger<AuthorSearchPViewModel>>());
+		vm.Author = author;
+        BindingContext = vm;
     }
+
+	public AuthorSearchPage(Author author)
+	{
+        InitializeComponent();
+		var vm = App.ServiceProvider.GetService<AuthorSearchPViewModel>();
+		vm.Author = author;
+        BindingContext = vm;
+	}
 }

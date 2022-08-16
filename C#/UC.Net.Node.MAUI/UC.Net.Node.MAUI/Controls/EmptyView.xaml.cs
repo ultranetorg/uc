@@ -2,7 +2,7 @@
 
 public partial class EmptyView : ContentView
 {
-    public static readonly BindableProperty TextProperty = BindableProperty.Create("Text", typeof(string), typeof(EmptyView), null);
+    public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(EmptyView), null);
 
     public string Text
     {

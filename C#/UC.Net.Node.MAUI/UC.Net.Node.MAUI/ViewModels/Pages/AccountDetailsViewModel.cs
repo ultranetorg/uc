@@ -2,9 +2,8 @@
 
 public partial class AccountDetailsViewModel : BaseAccountViewModel
 {
-    public AccountDetailsViewModel(Wallet wallet, ILogger<AccountDetailsViewModel> logger) : base(logger)
+    public AccountDetailsViewModel(ILogger<AccountDetailsViewModel> logger) : base(logger)
     {
-        Wallet = wallet;
 		FillFakeData();
     }
 

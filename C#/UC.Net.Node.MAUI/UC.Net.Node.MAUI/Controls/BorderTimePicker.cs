@@ -4,11 +4,13 @@ namespace UC.Net.Node.MAUI.Controls;
 
 public class BorderTimePicker : TimePicker
 {
-    public BorderTimePicker() : base(){}
+    public BorderTimePicker() : base()
+	{
+	}
 
 	#region Bindable Properties
 
-	public static readonly BindableProperty AutoFocusProperty = BindableProperty.Create("AutoFocus", typeof(bool), typeof(BorderTimePicker), false);
+	public static readonly BindableProperty AutoFocusProperty = BindableProperty.Create(nameof(AutoFocus), typeof(bool), typeof(BorderTimePicker), false);
 
 	public bool AutoFocus
 	{
@@ -16,7 +18,7 @@ public class BorderTimePicker : TimePicker
 		set { SetValue(AutoFocusProperty, value); }
 	}
 
-	public static readonly BindableProperty CommandProperty = BindableProperty.Create("Command", typeof(ICommand), typeof(BorderTimePicker), null);
+	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(BorderTimePicker), null);
 
 	public ICommand Command
 	{

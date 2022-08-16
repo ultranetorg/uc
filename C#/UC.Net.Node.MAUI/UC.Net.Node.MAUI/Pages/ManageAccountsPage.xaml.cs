@@ -2,9 +2,9 @@
 
 public partial class ManageAccountsPage : CustomPage
 {
-    public ManageAccountsPage()
+    public ManageAccountsPage(ManageAccountsViewModel vm = null)
     {
         InitializeComponent();
-        BindingContext = new ManageAccountsViewModel(ServiceHelper.GetService<ILogger<ManageAccountsViewModel>>());
+        BindingContext = vm ?? App.ServiceProvider.GetService<ManageAccountsViewModel>();
     }
 }

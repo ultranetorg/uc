@@ -2,8 +2,7 @@
 
 public partial class AuthorSearchPViewModel : BaseAuthorViewModel
 {
-    public AuthorSearchPViewModel(Author author, ILogger<AuthorSearchPViewModel> logger) : base(logger)
+    public AuthorSearchPViewModel(ILogger<AuthorSearchPViewModel> logger) : base(logger)
     {
-        Author = author;
     }
 }

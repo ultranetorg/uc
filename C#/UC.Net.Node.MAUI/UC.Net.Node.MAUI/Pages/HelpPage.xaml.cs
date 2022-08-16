@@ -2,9 +2,9 @@
 
 public partial class HelpPage : CustomPage
 {
-    public HelpPage()
+    public HelpPage(HelpViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new HelpViewModel(ServiceHelper.GetService<ILogger<HelpViewModel>>());
+        BindingContext = vm;
     }
 }

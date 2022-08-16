@@ -18,12 +18,8 @@ public class CustomCollection<T> : ObservableCollection<T>
 
     public void ReportItemChange(T item)
     {
-        NotifyCollectionChangedEventArgs args =
-            new NotifyCollectionChangedEventArgs(
-                NotifyCollectionChangedAction.Replace,
-                item,
-                item,
-                IndexOf(item));
+        NotifyCollectionChangedEventArgs args = new NotifyCollectionChangedEventArgs(
+                NotifyCollectionChangedAction.Replace, item, item, IndexOf(item));
         OnCollectionChanged(args);
     }
 

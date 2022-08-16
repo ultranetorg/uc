@@ -2,9 +2,15 @@
 
 public partial class MakeBid1View : ContentView
 {
+    public MakeBid1View(MakeBid1ViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
+    }
+
     public MakeBid1View()
     {
         InitializeComponent();
-        BindingContext = new MakeBid1ViewModel(ServiceHelper.GetService<ILogger<MakeBid1ViewModel>>());
+        BindingContext = App.ServiceProvider.GetService<MakeBid1ViewModel>();
     }
 }

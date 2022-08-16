@@ -2,10 +2,9 @@
 
 public partial class AboutPage : CustomPage
 {
-    public AboutPage()
+    public AboutPage(AboutViewModel vm)
     {
         InitializeComponent();
-		var service = App.ServiceProvider.GetService<ILogger<AboutViewModel>>();
-        BindingContext = new AboutViewModel(service);
+        BindingContext = vm;
     }
 }

@@ -2,9 +2,15 @@
 
 public partial class AuthorRenewal1View : ContentView
 {
+    public AuthorRenewal1View(AuthorRenewal1ViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
+    }
+	
     public AuthorRenewal1View()
     {
         InitializeComponent();
-        BindingContext = new AuthorRenewal1ViewModel(ServiceHelper.GetService<ILogger<AuthorRenewal1ViewModel>>());
+        BindingContext = App.ServiceProvider.GetService<AuthorRenewal1ViewModel>();
     }
 }

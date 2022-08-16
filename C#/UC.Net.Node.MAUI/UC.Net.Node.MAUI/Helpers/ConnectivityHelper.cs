@@ -4,15 +4,12 @@ public static class ConnectivityHelper
 {
     public static async Task<bool> Check()
     {
-        if (Connectivity.NetworkAccess == NetworkAccess.Internet)
+		var access = Connectivity.NetworkAccess == NetworkAccess.Internet;
+        if (!access)
         {
-            return true;
+			await App.Current.MainPage.ShowPopupAsync(new AlertPopup("LostConnection"));
         }
-        else
-        {
-            await App.Current.MainPage.ShowPopupAsync(new AlertPopup("LostConnection"));
-        }
-        return false;
+		return access;
     }
 
     static void Connectivity_ConnectivityChanged(object sender, ConnectivityChangedEventArgs e)

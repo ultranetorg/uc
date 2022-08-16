@@ -4,7 +4,7 @@ public partial class SelectAuthorViewModel : BaseViewModel
 {
     public Author SelectedAuthor;
 
-    public SelectAuthorPopup Popup { get; }
+    public SelectAuthorPopup Popup { get; set;}
 
 	[ObservableProperty]
 	private CustomCollection<Author> _authors = new();
@@ -39,4 +39,3 @@ public partial class SelectAuthorViewModel : BaseViewModel
         Authors.Add(new Author { BidStatus = BidStatus.Lower, Name = "Auction B", ActiveDue = "43 days left", CurrentBid = 2435 });
 	}
 }
-

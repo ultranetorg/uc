@@ -2,9 +2,9 @@
 
 public partial class SettingsBPage : CustomPage
 {
-    public SettingsBPage()
+    public SettingsBPage(SettingsBViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new SettingsBViewModel(ServiceHelper.GetService<ILogger<SettingsBViewModel>>());
+        BindingContext = vm;
     }
 }

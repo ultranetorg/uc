@@ -4,10 +4,11 @@ public partial class RecipientAccountPopup : Popup
 {
 	private static RecipientAccountPopup popup;
 
-    public RecipientAccountPopup()
+    public RecipientAccountPopup(RecipientAccountViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new RecipientAccountViewModel(this, ServiceHelper.GetService<ILogger<NotificationsViewModel>>());
+		vm.Popup = this;
+        BindingContext = vm;
     }
 
     public void Hide()
@@ -17,7 +18,7 @@ public partial class RecipientAccountPopup : Popup
 
 	public static async Task Show()
 	{
-		popup = new RecipientAccountPopup();
+		popup = new RecipientAccountPopup(App.ServiceProvider.GetService<RecipientAccountViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);
 	}
 }

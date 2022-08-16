@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels;
 
-public partial class ETHTransferStepTwoViewModel : BaseViewModel
+public partial class ETHTransfer2ViewModel : BaseViewModel
 {
 	[ObservableProperty]
 	private Wallet _wallet = new()
@@ -21,7 +21,7 @@ public partial class ETHTransferStepTwoViewModel : BaseViewModel
 	[ObservableProperty]
 	private bool _accountsShown;
 
-	public ETHTransferStepTwoViewModel(ILogger<ETHTransferStepTwoViewModel> logger): base(logger)
+	public ETHTransfer2ViewModel(ILogger<ETHTransfer2ViewModel> logger): base(logger)
 	{
 		AddFakeData();
 	}

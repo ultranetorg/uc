@@ -2,9 +2,9 @@
 
 public partial class ProductsPage : CustomPage
 {
-    public ProductsPage()
+    public ProductsPage(ProductsViewModel vm = null)
     {
         InitializeComponent();
-        BindingContext = new ProductsViewModel(ServiceHelper.GetService<ILogger<ProductsViewModel>>());
+        BindingContext = vm ?? App.ServiceProvider.GetService<ProductsViewModel>();
     }
 }

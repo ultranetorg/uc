@@ -29,8 +29,8 @@ public class ButtonCustomRenderer : ButtonRenderer
         {
             const int imageMargin = 10; // This might need to get multiplied by the screen density, not sure yet.  I'll update this later if it does.
             float imageOffset = (float)(Control.ImageView.Frame.Right + imageMargin);
-		// TODO: unsupported on ios 15.0 and later
-            Control.ImageEdgeInsets = new UIEdgeInsets(0, imageOffset, 0, imageOffset);
+			// TODO: unsupported on ios 15.0 and later
+			Control.ImageEdgeInsets = new UIEdgeInsets(0, imageOffset, 0, imageOffset);
 
             float textOffset = (float)(Control.TitleLabel.Frame.Right + (Control.Frame.Width - Control.TitleLabel.Frame.Width) / 2);
             Control.TitleEdgeInsets = new UIEdgeInsets(0, textOffset, 0,textOffset);

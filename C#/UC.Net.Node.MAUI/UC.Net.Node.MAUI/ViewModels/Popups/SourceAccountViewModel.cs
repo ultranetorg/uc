@@ -2,7 +2,7 @@
 
 public partial class SourceAccountViewModel : BaseViewModel
 {
-    public SourceAccountPopup Popup { get; }
+    public SourceAccountPopup Popup { get; set; }
 
 	[ObservableProperty]
     private Wallet _wallet = new()
