@@ -63,7 +63,7 @@ void CThemeEnvironment::OnMoveInput(CActive * r, CActive * s, CMouseArgs * a)
 	///
 	///	auto a = Level->World->Allocations.Find([this](auto a)
 	///											{ 
-	///												return a->IsOpen() && Level->World->FindArea(AREA_FIELDS)->ContainsDescedant(a->Area) && a->Parents.empty(); 
+	///												return a->IsOpen() && Level->World->FindArea(CArea::Fields)->ContainsDescedant(a->Area) && a->Parents.empty(); 
 	///											});
 	///
 	///	if(a)

@@ -4,7 +4,7 @@
 
 using namespace uc;
 
-CInterObject::CInterObject(CServer * s, CString const & name) : Url(s->Url, name), Server(s)
+CInterObject::CInterObject(CString const & scheme, CServer * s, CString const & name) : Url(scheme, s->Instance, name), Server(s)
 {
 }
 
@@ -14,7 +14,7 @@ CInterObject::~CInterObject()
 
 CString CInterObject::MapRelative(CString const & path)
 {
-	return Server->MapRelative(CPath::Join(Url.Object, path));
+	return CPath::Join(Server->Instance, Url.Object, path);
 }
 
 CString CInterObject::MapGlobalPath(CString const & path)

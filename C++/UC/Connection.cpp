@@ -25,7 +25,7 @@ CConnection::CConnection(IType * who, CServer * server, CString const & pn)
 {
 	Who = who;
 	Server = server;
-	Protocol = server->Protocols[pn];
+	Protocol = server->Interfaces[pn];
 	ProtocolName = pn;
 }
 

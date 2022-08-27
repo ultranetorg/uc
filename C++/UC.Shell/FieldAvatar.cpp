@@ -229,7 +229,7 @@ void CFieldAvatar::OnMouse(CActive * r, CActive * s, CMouseArgs * arg)
 				Menu->Section->AddItem(L"Hide")->Clicked =  [this](auto, auto){ Level->World->Hide(Unit, null); };
 				Menu->Section->AddItem(L"Push")->Clicked =	[this, arg](auto, auto) mutable 
 															{ 
-																Level->World->Show(Unit, AREA_BACKGROUND, sh_new<CShowParameters>(arg, Level->Style));
+																Level->World->Show(Unit, CArea::Background, sh_new<CShowParameters>(arg, Level->Style));
 															};
 			}
 

@@ -1,10 +1,10 @@
 #include "StdAfx.h"
-#include "FileStream.h"
+#include "LocalFileStream.h"
 
 using namespace uc;
 
 
-CFileStream::CFileStream(const CString & path, EFileMode mode)
+CLocalFileStream::CLocalFileStream(const CString & path, EFileMode mode)
 {
 /*
 	if(mode == EFileMode::Open && !CPath::IsExists(path))
@@ -31,7 +31,7 @@ CFileStream::CFileStream(const CString & path, EFileMode mode)
 	}
 }
 
-CFileStream::~CFileStream()
+CLocalFileStream::~CLocalFileStream()
 {
 	if(Stream.is_open())
 	{
@@ -39,7 +39,7 @@ CFileStream::~CFileStream()
 	}
 }
 
-void CFileStream::Open(std::ios::openmode mode)
+void CLocalFileStream::Open(std::ios::openmode mode)
 {
 	auto p = CNativePath::IsUNCServer(Path) ? Path : (L"\\\\?\\" + Path);
 	Stream.open(p.c_str(), mode);
@@ -50,12 +50,12 @@ void CFileStream::Open(std::ios::openmode mode)
 	}
 }
 
-bool CFileStream::IsValid()
+bool CLocalFileStream::IsValid()
 {
 	return !Stream.fail();
 }
 
-int64_t CFileStream::GetSize()
+int64_t CLocalFileStream::GetSize()
 {
 	auto p = Stream.tellg();
 
@@ -65,13 +65,13 @@ int64_t CFileStream::GetSize()
 	return size;
 }
 
-int64_t CFileStream::Read(void * p, int64_t size)
+int64_t CLocalFileStream::Read(void * p, int64_t size)
 {
 	Stream.read((char *)p, size);
 	return (int)Stream.gcount();
 }
 
-int64_t CFileStream::Write(const void * p, int64_t size)
+int64_t CLocalFileStream::Write(const void * p, int64_t size)
 {
 	if(size > 0)
 	{
@@ -79,6 +79,7 @@ int64_t CFileStream::Write(const void * p, int64_t size)
 		{
 			Open(std::ios::out|std::ios::binary);
 		}
+
 		Stream.write((const char *)p, size);
 
 		return size;
@@ -87,22 +88,22 @@ int64_t CFileStream::Write(const void * p, int64_t size)
 		return 0;
 }
 
-int64_t CFileStream::GetPosition()
+int64_t CLocalFileStream::GetPosition()
 {
 	return Stream.tellg();
 }
 
-void CFileStream::ReadSeek(int64_t n)
+void CLocalFileStream::ReadSeek(int64_t n)
 {
 	Stream.seekg(n, std::ios::cur);
 }
 
-void CFileStream::WriteSeek(int64_t n)
+void CLocalFileStream::WriteSeek(int64_t n)
 {
 	Stream.seekp(n, std::ios::cur);
 }
 
-bool uc::CFileStream::IsEnd()
+bool uc::CLocalFileStream::IsEnd()
 {
 	return Stream.eof();
 }

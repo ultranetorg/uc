@@ -1,7 +1,7 @@
 #pragma once
 #include "InterObject.h"
 #include "XonDocument.h"
-#include "FileStream.h"
+#include "LocalFileStream.h"
 #include "NativeDirectory.h"
 
 namespace uc
@@ -34,7 +34,7 @@ namespace uc
 			void				SaveInfo(CStream * s);
 
 		protected:
-			CStorableObject(CServer * s, CString const & name);
+			CStorableObject(CString const & scheme, CServer * server, CString const & name);
 
 			virtual void		SaveInstance();
 			virtual void		LoadInstance();

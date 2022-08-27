@@ -1,12 +1,12 @@
 #pragma once
-#include "IStorageProtocol.h"
+#include "IFileSystem.h"
 
 namespace uc
 {
 	class UOS_LINKING CConfig : public IType
 	{
 		public:
-			IStorageProtocol *	Storage;
+			IFileSystem *		Storage;
 			CString				DefaultUri;
 			CString				CustomUri;
 
@@ -18,7 +18,7 @@ namespace uc
 			CXon *				GetRoot();
 
 			UOS_RTTI
-			CConfig(IStorageProtocol * l, CString & durl, CString & curl);
+			CConfig(IFileSystem * l, CString & durl, CString & curl);
 			~CConfig();
 
 	};

@@ -5,7 +5,7 @@
 
 using namespace uc;
 
-CStorableObject::CStorableObject(CServer * s, CString const & name) : CInterObject(s, name)
+CStorableObject::CStorableObject(CString const & scheme, CServer * server, CString const & name) : CInterObject(scheme, server, name)
 {
 }
 
@@ -24,20 +24,20 @@ void CStorableObject::LoadInstance()
 
 void CStorableObject::SetDirectories(CString const & path)
 {
-	GlobalDirectory = Server->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, path);
-	LocalDirectory	= Server->Nexus->MapPath(UOS_MOUNT_USER_LOCAL, path);
+	GlobalDirectory = CPath::Join(IFileSystem::UserGlobal, path);
+	LocalDirectory	= CPath::Join(IFileSystem::UserLocal, path);
 }
 
 void CStorableObject::SaveGlobal(CTonDocument & d, CString const & path)
 {
-	auto s = Server->As<CStorableServer>()->Storage->OpenWriteStream(CPath::Join(GlobalDirectory, path));
+	auto s = Server->As<CStorableServer>()->Storage->WriteFile(CPath::Join(GlobalDirectory, path));
 	d.Save(&CXonTextWriter(s));
 	Server->As<CStorableServer>()->Storage->Close(s);
 }
 
 void CStorableObject::LoadGlobal(CTonDocument & d, CString const & path)
 {
-	auto s = Server->As<CStorableServer>()->Storage->OpenReadStream(CPath::Join(GlobalDirectory, path));
+	auto s = Server->As<CStorableServer>()->Storage->ReadFile(CPath::Join(GlobalDirectory, path));
 	d.Load(null, CXonTextReader(s));
 	Server->As<CStorableServer>()->Storage->Close(s);
 }
@@ -65,8 +65,8 @@ bool CStorableObject::IsSaved()
 
 void CStorableObject::Delete()
 {
-	Server->As<CStorableServer>()->Storage->DeleteDirectory(GlobalDirectory);
-	Server->As<CStorableServer>()->Storage->DeleteDirectory(LocalDirectory);
+	Server->As<CStorableServer>()->Storage->Delete(GlobalDirectory);
+	Server->As<CStorableServer>()->Storage->Delete(LocalDirectory);
 }
 
 CString CStorableObject::AddGlobalReference(CUol & r)

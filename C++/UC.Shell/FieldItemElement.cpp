@@ -18,7 +18,7 @@ CFieldItemElement::CFieldItemElement(CShellLevel * l, CFieldWorld * fo, CString 
 												{
 													if(arg->Control == EMouseControl::LeftButton && arg->Event == EGraphEvent::Click)
 													{
-														Level->Core->Execute(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
+														Level->Nexus->Open(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
 														arg->StopPropagation = true;
 													}
 												};
@@ -27,7 +27,7 @@ CFieldItemElement::CFieldItemElement(CShellLevel * l, CFieldWorld * fo, CString 
 												{
 													if(arg->Event == EGraphEvent::Click && arg->Picks.size() == 1)
 													{
-														Level->Core->Execute(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
+														Level->Nexus->Open(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
 														arg->StopPropagation = true;
 													}
 												};
@@ -109,7 +109,7 @@ void CFieldItemElement::Save(IMeshStore * mhs, IMaterialStore * mts)
 	
 	Save(&d);
 
-	auto s = Level->Storage->OpenWriteStream(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
+	auto s = Level->Storage->WriteFile(CPath::Join(IFileSystem::UserGlobal, Path));
 	d.Save(&CXonTextWriter(s, true));
 	Level->Storage->Close(s);
 	
@@ -118,14 +118,14 @@ void CFieldItemElement::Save(IMeshStore * mhs, IMaterialStore * mts)
 	///CTonDocument vd;
 	///Avatar->SaveBasic(vd.Add(L"Static"), mhs, mts);
 	///
-	///s = Level->Storage->OpenWriteStream(Level->Storage->MapPath(UOS_MOUNT_SERVER_GLOBAL, VisualPath));
+	///s = Level->Storage->WriteFile(Level->Storage->MapPath(UOS_MOUNT_SERVER_GLOBAL, VisualPath));
 	///vd.Save(&CXonTextWriter(s, true));
 	///Level->Storage->Close(s);
 }
 
 void CFieldItemElement::Load(IMeshStore * mhs, IMaterialStore * mts, CFieldServer * field)
 {
-	auto f = Level->Storage->OpenReadStream(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
+	auto f = Level->Storage->ReadFile(CPath::Join(IFileSystem::UserGlobal, Path));
 	auto & d = CTonDocument(CXonTextReader(f));
 	Level->Storage->Close(f);
 
@@ -164,7 +164,7 @@ void CFieldItemElement::Load(IMeshStore * mhs, IMaterialStore * mts, CFieldServe
 
 void CFieldItemElement::Delete()
 {
-	Level->Storage->DeleteFile(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, Path));
+	Level->Storage->Delete(CPath::Join(IFileSystem::UserGlobal, Path));
 	Avatar->Delete();
 	//Level->World->DestroyAvatar(Avatar);
 }

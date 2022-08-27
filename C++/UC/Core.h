@@ -4,13 +4,14 @@
 #include "Supervisor.h"
 #include "PerformanceCounter.h"
 #include "CpuMonitor.h"
-#include "LicenseService.h"
 #include "Thread.h"
 #include "XonDocument.h"
 #include "NativeDirectory.h"
 #include "ILevel.h"
 #include "Sha256.h"
 #include "Shared.h"
+#include "ServerAddress.h"
+#include "License.h"
 
 namespace uc
 {
@@ -21,7 +22,7 @@ namespace uc
 
 	enum class ESystemPath
 	{
-		Root, Servers, ServersCommon, Common
+		Null, Core, System, Users, Software, RootRemapping, /*UserLocal, UserGlobal, */Tmp
 	};
 
 	struct CLevel1
@@ -57,7 +58,7 @@ namespace uc
 
 	struct ICommandExecutor
 	{
-		virtual void Execute(const CUrq & u, CExecutionParameters * ep)=0;
+		virtual void Execute(CXon * ep, CExecutionParameters * parameters)=0;
 	};
 
 
@@ -75,7 +76,7 @@ namespace uc
 			CEvent<>									MmcActivated;
 			CEvent<>									ExitRequested;
 
-			CList<CUrq>									Commands;
+			CXon *										Commands;
 			CString										SupervisorName;
 			CString										RestartCommand;
 			
@@ -84,10 +85,10 @@ namespace uc
 			bool										CommitDatabase = true;
 			CString										DatabaseObject;
 			
-			CString										CorePath;
-			CString										RootPath;
-			CString										CommonPath;
-			CString										ServersPath;
+			CString										CoreDirectory;
+			CString										CurrentReleaseSubPath;
+			CString										RemapPath;
+			CString										SoftwarePath;
 			CString										UserPath;
 
 			CString										SupervisorDirectory;
@@ -98,7 +99,7 @@ namespace uc
 
 			CUosNodeInformation	*						Information = null;
 			HANDLE										HInformation;
-			CString										LaunchFolder;
+			CString										LaunchDirectory;
 			CString										FrameworkDirectory;
 			CString										LaunchPath;
 			HANDLE										SingleInstanceHandle = null;
@@ -120,7 +121,6 @@ namespace uc
 
 			COs *										Os = null;
 			CSupervisor *								Supervisor = null;
-			ILicenseService *							LicenseService = null;
 			CMmc *										Mmc = null;
 
 			bool										Exiting = false;
@@ -150,23 +150,19 @@ namespace uc
 			CPerformanceCounter *						PCCycle;
 
 			UOS_RTTI
-			CCore(CSupervisor * s, HINSTANCE i, wchar_t * cmd, const wchar_t * supervisor_folder, const wchar_t * root_from_exe, const wchar_t * coredir, CProductInfo & pi);
+			CCore(CSupervisor * s, HINSTANCE i, wchar_t * cmd, const wchar_t * supervisor_folder, const wchar_t * coredir, CProductInfo & pi);
 			~CCore();
 
 			void										InitializeUnid();
 			void										InitializeDatabase();
 			void										ShutdownDatabase();
+			CString										Resolve(CString const & u);
 
 			CTonDocument *								CreateConfig(CString const & d, CString const & u);
 
-			void										AddRestartCommand(CUrl const & cmd);
-			CList<CUrq>									FindStartCommands(CUsl & s);
-			std::pair<const CString, CString> *			FindStartCommand(CUsl & s, CString const & name);
-			bool										HasCommand(CString const & name, CString const & val);
+			void										AddRestartCommand(CString const & cmd);
 			void										SetCommit(bool c);
 			CString										ResolveConstants(CString const & dir);
-			CString 									MapToDatabase(const CString & path);
-			CString										MapToTmp(const CString & path);
 
 			void										Run();
 			void										Exit();
@@ -177,8 +173,8 @@ namespace uc
 			bool 										ProcessMessages(MSG & m);
 			void										ProcessOther();
 			void										ProcessCopyData(COPYDATASTRUCT * s);
-			CString									 	GetPathTo(ESystemPath folder, const CString & path);
 
+			CString									 	MapPath(ESystemPath folder, const CString & path);
 
 			void										AddPerformanceCounter(IPerformanceCounter *);
 			void										RemovePerformanceCounter(IPerformanceCounter * name);
@@ -199,8 +195,9 @@ namespace uc
 			void										UnregisterGlobalHotKey(int id);
 			
 
-			void										Execute(const CUrq & c, CExecutionParameters * p);
-
+			void										Execute(CXon * p, CExecutionParameters * parameters);
+			void										Execute(CString const & command);
+			
 			void										LoadParameters();
 			void 										OnDiagnosticsUpdate(CDiagnosticUpdate & a);
 

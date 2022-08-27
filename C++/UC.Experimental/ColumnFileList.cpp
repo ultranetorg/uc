@@ -93,7 +93,7 @@ CColumnFileList::~CColumnFileList()
 
 void CColumnFileList::SetRoot(CString & u)
 {
-	FileExtractor = Level->Nexus->Connect(this, IMAGE_EXTRACTOR_PROTOCOL);
+	FileExtractor = Level->Nexus->Connect(this, IImageExtractor::InterfaceName);
 	
 	//Storage.Hub->Disconnecting += ThisHandler(OnDependencyDisconnecting);
 	//FileExtractor.Hub->Disconnecting += ThisHandler(OnDependencyDisconnecting);
@@ -142,22 +142,26 @@ void CColumnFileList::Clear()
 
 void CColumnFileList::AddColumn(const CString & path)
 {
-	auto d = Level->Storage->OpenDirectory(path);
-
 	auto c = new CFileListColumn(Level, path);
 			
-	auto & entries = d->Enumerate(L"*");
+	auto & entries = Level->Storage->Enumerate(path, L".*");
 	
 	if(entries.empty())
 	{
-		CStorageEntry di;
+		CFileSystemEntry di;
 		di.NameOverride = L"..";
 		entries.push_front(di);
 	}
 
-	for(auto & file : entries)
+	for(auto & f : entries)
 	{
-		auto fie = new CFileItemElement(Level, &file, IconMesh, FileExtractor);
+		auto fie = new CFileItemElement(Level, 
+										f.NameOverride == L".." ? L"" : CPath::Join(path, f.Name),
+										f.NameOverride, 
+										f.Type == CFileSystemEntry::Directory, 
+										IconMesh, 
+										FileExtractor);
+
 		fie->Express(L"M", []{ return CFloat6(1.f); });
 		fie->CalculateFullSize();
 
@@ -177,8 +181,6 @@ void CColumnFileList::AddColumn(const CString & path)
 	SetCurrent(c->Items.front());
 
 	PathChanged(path);
-
-	Level->Storage->Close(d);
 }
 
 void CColumnFileList::RemoveColumn(CFileListColumn * c)

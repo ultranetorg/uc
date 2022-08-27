@@ -16,9 +16,9 @@ namespace uc
 			CAnimated<CFloat3>			MainAnimatedDirection;
 			CAnimated<CFloat3>			NearAnimatedDirection;
 
-			CVrWorld(CNexus * l, CServerInfo * si) : CDesktopWorld(l, si) 
+			CVrWorld(CNexus * l, CServerRelease * si) : CDesktopWorld(l, si) 
 			{
-				Name		= WORLD_VR_EMULATION;
+				CWorldCapabilities::Name = WORLD_VR_EMULATION;
 				Complexity	= AVATAR_ENVIRONMENT;
 				Free3D		= true;
 				FullScreen	= false;
@@ -70,7 +70,7 @@ namespace uc
 				auto w = MainViewport->W;
 				auto h = MainViewport->H;
 
-				NearArea = Area->Match(AREA_NEAR)->As<CPositioningArea>();
+				NearArea = Area->Match(CArea::Near)->As<CPositioningArea>();
 
 				FrontPositioning		= new CPolygonalPositioning(false);
 				NearPositioning			= new CPolygonalPositioning(false);

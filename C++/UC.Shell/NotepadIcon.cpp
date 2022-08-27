@@ -16,6 +16,6 @@ void CNotepadIcon::SetEntity(CUol & e)
 {
 	__super::SetEntity(e);
 	
-	Level->ImageExtractor->GetIconMaterial(this, (CUrl)Level->Storage->ToUol(CFile::GetClassName(), Entity->File), 48)->Done = [this](auto m){ SetContentFromMaterial(m); };
+	Level->ImageExtractor->GetIconMaterial(this, (CUrl)Level->Storage->ToUol(Entity->File), 48)->Done = [this](auto m){ SetContentFromMaterial(m); };
 }
 

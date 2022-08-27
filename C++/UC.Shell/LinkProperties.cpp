@@ -100,7 +100,7 @@ void CLinkProperties::SetEntity(CUol & e)
 
 	TitleEdit->SetText(Entity->Title);
 	TargetEdit->SetText(Entity->Target.ToString());
-	ExecutorEdit->SetText(Entity->Executor.ToString());
+	ExecutorEdit->SetText(Entity->Executor);
 }
 
 void CLinkProperties::SaveInstance()

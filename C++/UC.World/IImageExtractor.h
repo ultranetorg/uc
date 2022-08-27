@@ -2,8 +2,6 @@
 
 namespace uc
 {
-	auto constexpr IMAGE_EXTRACTOR_PROTOCOL = L"Uos.ImageExtractor";
-
 	struct CGetIconMaterialJob
 	{
 		IType *									Requester = null;
@@ -17,12 +15,14 @@ namespace uc
 		SHFILEINFOW								Sfi = {0};
 	};
 
-	class IImageExtractor : public virtual IProtocol
+	class IImageExtractor : public virtual IInterface
 	{
 		public:
-			//virtual CImage *							GetIcon(CUol & u, int wh)=0;
-			//virtual CTexture *							GetIconTexture(CUol & u, int wh)=0;
-			virtual CGetIconMaterialJob *				GetIconMaterial(IType * r, CUrl & u, int wh)=0;
+			inline static const CString				InterfaceName = L"IImageExtractor";
+
+			//virtual CImage *						GetIcon(CUol & u, int wh)=0;
+			//virtual CTexture *					GetIconTexture(CUol & u, int wh)=0;
+			virtual CGetIconMaterialJob *			GetIconMaterial(IType * r, CUrl & u, int wh)=0;
 
 			virtual ~IImageExtractor(){}
 	};

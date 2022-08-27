@@ -23,9 +23,23 @@ namespace uc
 		ELifespan										Lifespan = ELifespan::Null;
 	};
 
+
 	class UOS_WORLD_LINKING CArea : public virtual IType, public virtual CShared
 	{
 		public:
+			const static inline CString					Skin			= L"Skin";
+			const static inline CString					ServiceBack		= L"ServiceBack";
+			const static inline CString					Theme			= L"Theme";
+			const static inline CString					Background		= L"Background";
+			const static inline CString					Fields			= L"Fields";
+			const static inline CString					Main			= L"Main";
+			const static inline CString					Near			= L"Near";
+			const static inline CString					Hud				= L"Hud";
+			const static inline CString					Top				= L"Top";
+			const static inline CString					ServiceFront	= L"ServiceFront";
+			const static inline CString					LastInteractive	= L"<LAST-INTERACTIVE>";
+			const static inline CString					Last			= L"<LAST>";
+
 			CString										Name;
 			CWorldServer *								Level;
 			bool										Interactive = false;

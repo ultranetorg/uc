@@ -55,7 +55,7 @@ namespace uc
 
 			void RequestTile(int lod, int tx, int ty, CString const & style, std::function<void(CMaterial *)> ok)
 			{
-				auto name = Level->Server->MapTmpPath(CString::Format(L"Earth/Cache/%s-%d-%d-%d.jpg", style, lod, tx, ty));
+				auto name = Level->Server->MapSystemPath(CString::Format(L"Earth/Cache/%s-%d-%d-%d.jpg", style, lod, tx, ty));
 					
 				if(auto m = Materials.Find([name](auto i){ return i->Name == name; }))
 				{
@@ -73,7 +73,7 @@ namespace uc
 					auto m = new CGeoMaterial(Level, name);
 					Materials.push_back(m);
 
-					auto s = Level->Storage->OpenAsyncReadStream(name);
+					auto s = Level->Storage->ReadFileAsync(name);
 
 					s->ReadAsync(	[this, s, name, m, ok]
 									{
@@ -99,7 +99,7 @@ namespace uc
 											{
 												m->Texture->Load(&m->Request->Stream);
 	
-												auto s = Level->Storage->OpenWriteStream(name);
+												auto s = Level->Storage->WriteFile(name);
 												m->Request->Stream.ReadSeek(0);
 												s->Write(&m->Request->Stream);
 												Level->Storage->Close(s);

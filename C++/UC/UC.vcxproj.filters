@@ -28,11 +28,11 @@
     <Filter Include="Math">
       <UniqueIdentifier>{59f8b776-ab40-4ba5-b7dc-3b4704c25ddc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Storage">
-      <UniqueIdentifier>{ce3a2fd4-acac-451e-943f-ef584aab68bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Net">
       <UniqueIdentifier>{84b35116-7435-4365-8154-b7cfd069c6bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{ce3a2fd4-acac-451e-943f-ef584aab68bb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -70,9 +70,6 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="FileService.h">
-      <Filter>I/O</Filter>
-    </ClInclude>
-    <ClInclude Include="FileStream.h">
       <Filter>I/O</Filter>
     </ClInclude>
     <ClInclude Include="IFileService.h">
@@ -227,7 +224,7 @@
     <ClInclude Include="SerializableBuffer.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Protocol.h">
+    <ClInclude Include="Interface.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="Connection.h">
@@ -239,13 +236,7 @@
     <ClInclude Include="Xon.h">
       <Filter>Xon</Filter>
     </ClInclude>
-    <ClInclude Include="File.h">
-      <Filter>Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="Directory.h">
-      <Filter>Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="IExecutorProtocol.h">
+    <ClInclude Include="IExecutor.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
@@ -322,8 +313,8 @@
     <ClInclude Include="Uxx.h">
       <Filter>Nexus</Filter>
     </ClInclude>
-    <ClInclude Include="LocalStorage.h">
-      <Filter>Storage</Filter>
+    <ClInclude Include="LocalFileSystemProvider.h">
+      <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="Size.h">
       <Filter>Math</Filter>
@@ -365,7 +356,7 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="Path.h">
-      <Filter>Storage</Filter>
+      <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="Map.h" />
     <ClInclude Include="Os.h">
@@ -392,9 +383,26 @@
     <ClInclude Include="ProductAddress.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="IStorageProtocol.h" />
     <ClInclude Include="StorableObject.h">
       <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IFileSystem.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IFileSystemProvider.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemEntry.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemDirectory.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalFileStream.h">
+      <Filter>FileSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -420,9 +428,6 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="FileService.cpp">
-      <Filter>I/O</Filter>
-    </ClCompile>
-    <ClCompile Include="FileStream.cpp">
       <Filter>I/O</Filter>
     </ClCompile>
     <ClCompile Include="MemoryStream.cpp">
@@ -535,12 +540,6 @@
     <ClCompile Include="Url.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
-    <ClCompile Include="File.cpp">
-      <Filter>Storage</Filter>
-    </ClCompile>
-    <ClCompile Include="Directory.cpp">
-      <Filter>Storage</Filter>
-    </ClCompile>
     <ClCompile Include="Guid.cpp" />
     <ClCompile Include="stdafx.cpp">
       <Filter>Resources</Filter>
@@ -599,8 +598,8 @@
     <ClCompile Include="Uxx.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
-    <ClCompile Include="LocalStorage.cpp">
-      <Filter>Storage</Filter>
+    <ClCompile Include="LocalFileSystemProvider.cpp">
+      <Filter>FileSystem</Filter>
     </ClCompile>
     <ClCompile Include="Size.cpp">
       <Filter>Math</Filter>
@@ -633,7 +632,7 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="Path.cpp">
-      <Filter>Storage</Filter>
+      <Filter>FileSystem</Filter>
     </ClCompile>
     <ClCompile Include="Os.cpp">
       <Filter>Core</Filter>
@@ -666,6 +665,15 @@
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="StorableObject.cpp">
       <Filter>Nexus</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystemDirectory.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalFileStream.cpp">
+      <Filter>FileSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

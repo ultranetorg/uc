@@ -1,18 +1,25 @@
 #include "StdAfx.h"
-#include "LocalStorage.h"
+#include "LocalFileSystemProvider.h"
+#include "FileSystem.h"
 #include "Nexus.h"
 
 using namespace uc;
 
-static CLocalStorage * Storage = null;
-
-CServer * StartUosServer(CNexus * l, CServerInfo * info)
+CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
 {
-	Storage = new CLocalStorage(l, info);
-	return Storage;
+	if(info->Address.Server == CFileSystem::GetClassName())
+	{
+		return new CFileSystem(l, info);
+	}
+	if(info->Address.Server == CLocalFileSystemProvider::GetClassName())
+	{
+		return new CLocalFileSystemProvider(l, info);
+	}
+
+	return null;
 }
 
-void StopUosServer()
+void StopUosServer(CServer * s)
 {
-	delete Storage;
+	delete s;
 }

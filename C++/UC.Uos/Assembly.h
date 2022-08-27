@@ -25,7 +25,6 @@ namespace uc
 		
 	constexpr auto SUPERVISOR_FOLDER	=	L"Supervisor";
 	constexpr auto CORE_FOLDER			=	L".";
-	constexpr auto ROOT_FROM_EXE_FOLDER	=	L".";
 	
 	constexpr auto WEB_PAGE_HOMEPAGE	=	L"http://www.ultranet.org";
 	constexpr auto WEB_PAGE_CONTACT		=	L"http://www.ultranet.org/contacts";

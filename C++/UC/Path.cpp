@@ -32,31 +32,44 @@ CString CPath::Join(CString const & a, CString const & b, CString const & c)
 	return Join(Join(a, b), c);
 }
 
+CString CPath::Join(CString const & a, CString const & b, CString const & c, CString const & d)
+{
+	return Join(Join(a, b, c), d);
+}
+
 CString CPath::Join(CString const & a, CString const & b)
 {
-	auto & aa = a.EndsWith(L"/") 	? a.substr(0, a.size()-1) : a;
-	auto & bb = b.StartsWith(L"/")	? b.substr(1, b.size()-1) : b;
+	if(a.empty())
+	{
+		if(b.empty())
+			return L"";
 
-	CString r = L"";
+		auto s = std::count(b.begin(), b.end(), L'/');
+		
+		if(s > 0 && s == b.length()) /// b is "///..."
+			return L"/";
 
-	if(!aa.empty() && !bb.empty())
-	{
-		r = aa + L"/" + bb;
+		return b[0] == L'/' ? L'/' + b.Trim(L"/") : b.Trim(L"/");
 	}
-	else if(!aa.empty() && bb.empty())
-	{
-		r = a;
-	}
-	else if(aa.empty() && !bb.empty())
-	{
-		r = b;
-	}
-	else if(a + b == L"/")
-		return L"/";
 
-	if(r.EndsWith(L"/"))
+	if(b.empty())
 	{
-		r.resize(r.size() - 1);
+		if(a.empty())
+			return L"";
+
+		auto s = std::count(a.begin(), a.end(), L'/');
+		
+		if(s > 0 && s == a.length()) /// a is "///..."
+			return L"/";
+
+		return a[0] == L'/' ? L'/' + a.Trim(L"/") : a.Trim(L"/");
+	}
+
+	auto r = a.Trim(L"/") + L'/' + b.Trim(L"/");
+
+	if(a[0] == L'/' && a != L"/")
+	{
+		r = L'/' + r;
 	}
 
 	return r;
@@ -89,7 +102,13 @@ CString CPath::ReplaceExtension(CString const & p, CString const & ext)
 
 CString CPath::GetDirectoryPath(const CString & addr)
 {
-	return addr.Substring(0, addr.find_last_of(L'/'));
+	auto i = addr.find_last_of(L'/');
+	if(i == 0)
+		return L"/";
+	else if(i == CString::npos)
+		return L"";
+	else
+		return addr.Substring(0, i);
 }
 
 CString CPath::GetExtension(CString & f)

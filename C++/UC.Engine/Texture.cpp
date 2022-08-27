@@ -174,7 +174,7 @@ void CTexture::Apply(CDirectDevice * d, int slot)
 				#ifdef _DEBUG
 				{
 					auto & jpg = d->SaveImage(DxTextures(d));
-					auto s = Level->Nexus->Storage->OpenWriteStream(Level->Nexus->Storage->MapTmpPath(CFile::GetClassName(), CString::Format(L"Texture-%p-0.jpg", DxTextures(d))));
+					auto s = Level->Nexus->Storage->WriteFile(Level->Nexus->Storage->MapTmpPath(CFile::GetClassName(), CString::Format(L"Texture-%p-0.jpg", DxTextures(d))));
 					s->Write(jpg.data(), jpg.size());
 					Level->Nexus->Storage->Close(s);
 				}

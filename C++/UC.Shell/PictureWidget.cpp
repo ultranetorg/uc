@@ -46,7 +46,7 @@ void CPictureWidget::SetEntity(CUol & o)
 	__super::SetEntity(o);
 	Entity = __super::Entity->As<CPicture>();
 
-	if(auto s = Level->Storage->OpenReadStream(Entity->File))
+	if(auto s = Level->Storage->ReadFile(Entity->File))
 	{
 		auto supported = Level->World->Engine->TextureFactory->IsSupported(s);
 		Level->Storage->Close(s);
@@ -81,7 +81,7 @@ void CPictureWidget::Refresh()
 
 	if(w > 1 && h > 1)
 	{
-		if(auto s = Level->Storage->OpenReadStream(Entity->File))
+		if(auto s = Level->Storage->ReadFile(Entity->File))
 		{
 			if(Texture->W != w || Texture->H != w)
 			{
@@ -96,7 +96,7 @@ void CPictureWidget::Refresh()
 
 void CPictureWidget::DetermineSize(CSize & smax, CSize & s)
 {
-	if(auto f = Level->Storage->OpenReadStream(Entity->File))
+	if(auto f = Level->Storage->ReadFile(Entity->File))
 	{
 		auto d = Level->Engine->TextureFactory->GetDimension(f);
 		Level->Storage->Close(f);

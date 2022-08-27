@@ -46,13 +46,13 @@ void CExperimentalLevel::RequireCef()
 	settings.windowless_rendering_enabled = true;
 	settings.log_severity = LOGSEVERITY_ERROR;
 
-	auto cef = Server->Info->Release->Manifest->CompleteDependencies.Find([](auto i){ return i->Address.Product == L"cef"; });
+	auto cef = Server->Release->Manifest->CompleteDependencies.Find([](auto i){ return i->Address.Product == L"cef"; });
 
-	CefString(&settings.resources_dir_path)		.FromWString(Nexus->Resolve(Nexus->MapPathToRelease(cef->Address, L""))); 
-	CefString(&settings.locales_dir_path)		.FromWString(Nexus->Resolve(Nexus->MapPathToRelease(cef->Address, L"locales")));
-	CefString(&settings.browser_subprocess_path).FromWString(Nexus->UniversalToNative(Server->MapPath(CNativePath::GetFileNameBase(PROJECT_TARGET_FILENAME) + L".Browser.Cef.exe")));
-	CefString(&settings.cache_path)				.FromWString(Nexus->UniversalToNative(Server->MapTmpPath(L"Browser/Cache")));
-	CefString(&settings.log_file)				.FromWString(Nexus->UniversalToNative(Server->MapTmpPath(L"Browser/Cef.log")));
+	CefString(&settings.resources_dir_path)		.FromWString(Core->Resolve(Nexus->MapPathToRelease(cef->Address, L""))); 
+	CefString(&settings.locales_dir_path)		.FromWString(Core->Resolve(Nexus->MapPathToRelease(cef->Address, L"locales")));
+	CefString(&settings.browser_subprocess_path).FromWString(Storage->UniversalToNative(Server->MapReleasePath(CNativePath::GetFileNameBase(PROJECT_TARGET_FILENAME) + L".Browser.Cef.exe")));
+	CefString(&settings.cache_path)				.FromWString(Storage->UniversalToNative(Server->MapUserLocalPath(L"Browser/Cache")));
+	CefString(&settings.log_file)				.FromWString(Storage->UniversalToNative(Server->MapUserLocalPath(L"Browser/Cef.log")));
 	CefString(&settings.user_agent)				.FromWString(CString::Format(L"Mozilla/5.0 Chrome/%d.%d.%d.%d Mobile", CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR, CHROME_VERSION_BUILD, CHROME_VERSION_PATCH));
 	
 	CefMainArgs args;

@@ -1,6 +1,6 @@
 #pragma once
 #include "Server.h"
-#include "IStorageProtocol.h"
+#include "IFileSystem.h"
 #include "Connection.h"
 
 namespace uc
@@ -8,10 +8,10 @@ namespace uc
 	class UOS_LINKING CStorableServer : public CServer
 	{
 		public:
-			CProtocolConnection<IStorageProtocol>	Storage;
+			CProtocolConnection<IFileSystem>		Storage;
 
 			UOS_RTTI
-			CStorableServer(CNexus * l, CServerInfo * info);
+			CStorableServer(CNexus * l, CServerRelease * info);
 			~CStorableServer();
 
 			using									CServer::FindObject;
@@ -23,7 +23,7 @@ namespace uc
 			void									DestroyObject(CInterObject * o, bool save);
 			void									LoadObject(CStorableObject * o);
 
-			CTonDocument *							LoadServerDocument(CString const & path);
+			CTonDocument *							LoadReleaseDocument(CString const & path);
 			CTonDocument *							LoadGlobalDocument(CString const & path);
 
 		protected:

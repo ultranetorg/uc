@@ -3,6 +3,7 @@
 #include "IWriterProgress.h"
 #include "NativePath.h"
 #include "MemoryStream.h"
+#include "IType.h"
 
 namespace uc
 {

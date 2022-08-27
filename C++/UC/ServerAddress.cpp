@@ -35,3 +35,8 @@ CServerAddress CServerAddress::Parse(CString const & text)
 	return CServerAddress(c[0], c[1], c[2], CVersion(c[3]), c[4]);
 }
 
+bool CServerAddress::Empty()
+{
+	return Author.empty() && Product.empty() && Platform.empty() && Server.empty();
+}
+

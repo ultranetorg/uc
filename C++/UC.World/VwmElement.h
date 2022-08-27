@@ -7,7 +7,7 @@ namespace uc
 	class CVwmElement : public CRectangle
 	{
 		public:
-			CElement *								Content;
+			CElement *	Content;
 
 			UOS_RTTI
 			CVwmElement(CWorldLevel * l, IDirectory * d, CString const & nodename, const CString & name = GetClassName()) : CRectangle(l, name)

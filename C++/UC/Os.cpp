@@ -354,18 +354,3 @@ CString COs::GetEnvironmentValue(CString const & name)
 	else
 		return L"";
 }
-
-CList<CUrq> COs::ParseCommandLine(CString const & cmd)
-{
-	CList<CUrq> o;
-
-	int n;
-	auto p = CommandLineToArgvW(cmd.data(), &n);
-
-	for(int i=0; i<n; i++)
-	{
-		o.push_back(CUrq(p[i]));
-	}
-
-	return o;
-}

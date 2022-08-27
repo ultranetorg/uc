@@ -29,7 +29,7 @@ namespace uc
 			CRectangleMenuSection *							Section = null;
 			CRectangleMenu *								Menu = null;
 			CObject<CDirectoryMenu>							Entity;
-			CList<CProtocolConnection<IStorageProtocol>>	FileSystems;
+			CList<CProtocolConnection<IStorage>>	FileSystems;
 			CList<CProtocolConnection<IImageExtractor>>		FileExtractor;
 						
 			UOS_RTTI

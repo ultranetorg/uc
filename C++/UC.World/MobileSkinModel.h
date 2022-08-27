@@ -23,8 +23,8 @@ namespace uc
 				Level = l;
 				Tags = {L"Skin"};
 
-				auto path = Level->Server->MapPath(Level->Layout == L"PhoneB" ? L"PhoneB.png" : L"Phone.png");
-				auto f = Level->Storage->OpenReadStream(path);
+				auto path = Level->Server->MapReleasePath(Level->Layout == L"PhoneB" ? L"PhoneB.png" : L"Phone.png");
+				auto f = Level->Storage->ReadFile(path);
 				auto t = Level->Engine->TextureFactory->CreateTexture();
 				t->Load(f);
 				Level->Storage->Close(f);
@@ -49,9 +49,9 @@ namespace uc
 				auto lables = true;
 				auto placeholder = L"                         ";
 				
-				if(auto a = Level->Core->FindStartCommand(Level->Server->Url, L"Skin/ShowLabels"))
+				if(auto a = Level->Server->Command->One(L"Skin/ShowLabels"))
 				{
-					lables = a->second == L"y";
+					lables = a->Get<CBool>();
 				}
 
 				SwipeLeft	= new CText(l, l->Style, L"SwipeLeft",	true);
@@ -165,8 +165,8 @@ namespace uc
 
 			void OnClick(CScreen * s, CFloat2 & p)
 			{
-				float w = Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.W;// 370.f-1; 
-				float h = Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.H; //628.f-1;
+				float w = (float)Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.W;// 370.f-1; 
+				float h = (float)Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.H; //628.f-1;
 
 				if(CRect(250, 17, 106, 45).Contains(p))
 				{

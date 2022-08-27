@@ -5,23 +5,23 @@ using namespace uc;
 
 static CShellServer * This = null;
 
-CServer * StartUosServer(CNexus * l, CServerInfo * info)
+CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
 {
 	This = new CShellServer(l, info);
 	return This;
 }
 
-void StopUosServer()
+void StopUosServer(CServer *)
 {
 	delete This;
 }
 
-CShellServer::CShellServer(CNexus * l, CServerInfo * si) : CStorableServer(l, si)
+CShellServer::CShellServer(CNexus * l, CServerRelease * si) : CStorableServer(l, si)
 {
 	Server	= this;
 	Nexus	= Server->Nexus;
 	Core	= Nexus->Core;
-	Log		= l->Core->Supervisor->CreateLog(Url.Server);
+	Log		= l->Core->Supervisor->CreateLog(Instance);
 }
 
 CShellServer::~CShellServer()
@@ -60,7 +60,7 @@ void CShellServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL, [&]{ Nexus->StopServer(this); });
+		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(this); });
 	}
 
 	if(!World)
@@ -73,14 +73,14 @@ void CShellServer::EstablishConnections()
 	}
 }
 
-IProtocol * CShellServer::Connect(CString const & p)
+IInterface * CShellServer::Connect(CString const & p)
 {
-	if(p == IMAGE_EXTRACTOR_PROTOCOL)	return ImageExtractor; else
-	if(p == TRAY_PROTOCOL)				return FindObject<IProtocol>(SHELL_TRAY_1); else
+	if(p == IImageExtractor::InterfaceName)	return ImageExtractor; else
+	if(p == ITray::InterfaceName)			return FindObject<IInterface>(SHELL_TRAY_1); else
 		return this;
 }
 
-void CShellServer::Disconnect(IProtocol * o)
+void CShellServer::Disconnect(IInterface * o)
 {
 }
 
@@ -90,7 +90,7 @@ CStorableObject * CShellServer::CreateObject(CString const & name)
 
 	CStorableObject * o = null;
 
-	auto type = CUol::GetObjectType(name);
+	auto type = CUol::GetObjectClass(name);
 
 	if(type == SHELL_HUD)							o = new CFieldServer(this, name); else 
 	if(type == CField::GetClassName())				o = new CFieldServer(this, name); else
@@ -107,19 +107,352 @@ CStorableObject * CShellServer::CreateObject(CString const & name)
 	return o;
 }
 
-void CShellServer::Start(EStartMode sm)
+void CShellServer::OnWorldSphereMouse(CActive *, CActive *, CMouseArgs * arg)
+{
+	if(arg->Control == EMouseControl::RightButton && arg->Event == EGraphEvent::Click)
+	{
+		if(!Menu)
+		{
+			Menu = new CRectangleMenu(World, Style, L"ShellGlobalMenu");
+		}
+
+		Menu->Section->Clear();
+
+		AddSystemMenuItems(Menu->Section);
+
+		Menu->Open(arg->Pick);
+
+		arg->StopPropagation = true;
+	}
+}
+
+CInterObject * CShellServer::GetEntity(CUol & e)
+{
+	return Server->FindObject(e);
+}
+
+CList<CUol> CShellServer::GenerateSupportedAvatars(CUol & e, CString const & type)
+{
+	CList<CUol> l;
+
+	auto p = CMap<CString, CString>{{L"entity", e.ToString()}, {L"type", type}};
+
+	if(e.GetObjectClass() == SHELL_HUD)
+	{
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CHudEnvironment::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CHistory::GetClassName())
+	{
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CHistoryWidget::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CBoard::GetClassName())
+	{
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CBoardWidget::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CBoardEnvironment::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CField::GetClassName())
+	{
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CFieldEnvironment::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CFieldWidget::GetClassName()), p)); else
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CFieldIcon::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CDirectoryMenu::GetClassName())
+	{
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CMenuWidget::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CApplicationsMenu::GetClassName())
+	{
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CSystemMenuWidget::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CTheme::GetClassName())
+	{
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CThemeWidget::GetClassName()), p)); else
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CThemeEnvironment::GetClassName()), p));;
+	}
+
+	if(e.GetObjectClass() == CLink::GetClassName())
+	{
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CLinkIcon::GetClassName()), p));;
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CLinkProperties::GetClassName()), p));;
+	}
+
+	if(e.GetObjectClass() == CNotepad::GetClassName())
+	{
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CNotepadIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CNotepadWidget::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CPicture::GetClassName())
+	{
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CPictureIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CPictureWidget::GetClassName()), p));
+	}
+
+	if(e.GetObjectClass() == CTray::GetClassName())
+	{
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CTrayWidget::GetClassName()), p));
+	}
+
+	return l;
+
+}
+
+CAvatar * CShellServer::CreateAvatar(CUol & entity)
 {
 	EstablishConnections();
 
-	if(sm == EStartMode::Initialization)
+	CAvatar * a = null;
+	
+	if(entity.Scheme == CAvatar::Scheme && entity.Server == Instance)
+	{
+		if(entity.GetObjectClass() == CHudEnvironment::GetClassName())		a = new CHudEnvironment(this, entity.Object); else 
+
+		if(entity.GetObjectClass() == CHistoryWidget::GetClassName())		a = new CHistoryWidget(this, entity.Object); else 
+
+		if(entity.GetObjectClass() == CBoardWidget::GetClassName())			a = new CBoardWidget(this, entity.Object); else 
+		if(entity.GetObjectClass() == CBoardEnvironment::GetClassName())	a = new CBoardEnvironment(this, entity.Object); else 
+
+		if(entity.GetObjectClass() == CFieldEnvironment::GetClassName())	a = new CFieldEnvironmentServer(this, entity.Object); else 
+		if(entity.GetObjectClass() == CFieldWidget::GetClassName())			a = new CFieldWidget(this, entity.Object); else 
+		if(entity.GetObjectClass() == CFieldIcon::GetClassName())			a = new CFieldIcon(this, entity.Object); else 
+
+		if(entity.GetObjectClass() == CMenuWidget::GetClassName())			a = new CMenuWidget(this, entity.Object); else 
+		if(entity.GetObjectClass() == CSystemMenuWidget::GetClassName())	a = new CSystemMenuWidget(this, entity.Object); else 
+
+		if(entity.GetObjectClass() == CThemeWidget::GetClassName())			a = new CThemeWidget(this, entity.Object); else
+		if(entity.GetObjectClass() == CThemeEnvironment::GetClassName())	a = new CThemeEnvironment(this, entity.Object); else 
+
+		if(entity.GetObjectClass() == CLinkIcon::GetClassName())			a = new CLinkIcon(this, entity.Object); else 
+		if(entity.GetObjectClass() == CLinkProperties::GetClassName())		a = new CLinkProperties(this, entity.Object); else 
+		
+		if(entity.GetObjectClass() == CNotepadIcon::GetClassName())			a = new CNotepadIcon(this, entity.Object); else 
+		if(entity.GetObjectClass() == CNotepadWidget::GetClassName())		a = new CNotepadWidget(this, entity.Object); else
+
+		if(entity.GetObjectClass() == CPictureIcon::GetClassName())			a = new CPictureIcon(this, entity.Object); else 
+		if(entity.GetObjectClass() == CPictureWidget::GetClassName())		a = new CPictureWidget(this, entity.Object); else
+
+		if(entity.GetObjectClass() == CTrayWidget::GetClassName())			a = new CTrayWidget(this, entity.Object); 
+		
+		else 
+			return null;
+	}
+	else
+		return null;
+
+	a->Url = entity;
+	
+	Server->RegisterObject(a, false);
+	a->Free();
+	
+	return a;
+}
+
+void CShellServer::DestroyAvatar(CAvatar * a)
+{
+	Server->DestroyObject(a, true);
+}
+
+IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMenu * m)
+{
+	auto types = m->CreateSection(L"ShellActions:MenuSection");
+
+	types->AddItem(L"Link(s)")->Clicked =	[this, fe, p](auto, auto mi)
+											{
+												auto paths = Core->Os->OpenFileDialog(FOS_ALLOWMULTISELECT | FOS_NODEREFERENCELINKS);
+												
+												if(!paths.empty())
+												{
+													CList<CUol> links;
+
+													for(auto & i : paths)
+													{
+														auto link = new CLink(this);
+														link->SetTarget((CUrl)Storage->ToUol(Storage->NativeToUniversal(i)));
+														Server->RegisterObject(link, true);
+														link->Free();
+														links.push_back(link->Url);
+													}
+
+													auto fis = fe->Entity->Add(links, AVATAR_ICON2D);
+	
+													auto fies = fe->Find(fis.Select<CUol>([](auto i){ return i->Url; }));
+					
+													fe->Arrange(fies, EXAlign::Center);
+													fe->TransformItems(fies, CTransformation(p/* - CFloat3(-a.W/2, -a.H/2, 0)*/));
+												}
+											};
+	types->AddItem(L"Notepad")->Clicked =	[this, fe, p](auto, auto mi)
+											{
+												auto paths = Core->Os->OpenFileDialog(FOS_NODEREFERENCELINKS);
+												
+												if(!paths.empty())
+												{
+													auto v = new CNotepad(this);
+													v->SetFile(Storage->NativeToUniversal(paths.front()));
+													Server->RegisterObject(v, true);
+													v->Free();
+
+													auto fi = fe->Entity->Add(v->Url, AVATAR_WIDGET);
+													auto fie = fe->Find(fi->Url);
+																																							
+													fie->Transform(0, 0, 0);
+													fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
+												}
+											};
+
+	types->AddItem(L"Picture")->Clicked =	[this, fe, p](auto, auto mi)
+											{
+												auto paths = Core->Os->OpenFileDialog(FOS_NODEREFERENCELINKS);
+												
+												if(!paths.empty())
+												{
+													auto v = new CPicture(this);
+													v->SetFile(Storage->NativeToUniversal(paths.front()));
+													Server->RegisterObject(v, true);
+													v->Free();
+
+													auto fi = fe->Entity->Add(v->Url, AVATAR_WIDGET);
+													auto fie = fe->Find(fi->Url);
+																																							
+													fie->Transform(0, 0, 0);
+													fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
+												}
+											};
+
+	types->AddItem(L"Menu")->Clicked =	[this, fe, p](auto, auto mi)
+										{
+											auto list = Core->Os->OpenFileDialog(FOS_PICKFOLDERS);
+
+											if(!list.empty())
+											{
+												auto o = new CDirectoryMenu(this);
+												o->AddPath(Storage->NativeToUniversal(list.front()));
+												Server->RegisterObject(o, true);
+												o->Free();
+												
+												//auto o = Nexus->Storage->LocalPathToObject(paths.front());
+												auto fi = fe->Entity->Add(o->Url, AVATAR_WIDGET);
+												auto fie = fe->Find(fi->Url);
+
+												fie->Transform(0, 0, 0);
+												fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
+											}
+										};
+
+	types->AddItem(L"System Menu")->Clicked =	[this, fe, p](auto, auto mi)
+												{
+													auto o = new CApplicationsMenu(this);
+													Server->RegisterObject(o, true);
+													o->Free();
+
+												
+													auto fi = fe->Entity->Add(o->Url, AVATAR_WIDGET);
+													auto fie = fe->Find(fi->Url);
+
+													fie->Transform(0, 0, 0);
+													fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
+												};
+
+	return types;
+}
+
+CRefList<CMenuItem *> CShellServer::CreateActions()
+{
+	CRefList<CMenuItem *> actions;
+
+	auto shell = new CMenuItem(L"Shell");
+	
+	auto a = Instance + L"{";
+	a += L"Create ";
+
+	auto f = a + L" Class=" + CField::GetClassName();
+	f += L"}";
+	shell->Items.AddNew(new CMenuItem(L"Field", [this, f](auto args)
+												{
+													Nexus->Execute(&CTonDocument(CXonTextReader(f)), sh_new<CShowParameters>(args, Style)); 
+												}));
+
+	auto t = a + L" Class=" + CTheme::GetClassName();
+	f += L"}";
+	shell->Items.AddNew(new CMenuItem(L"Theme", [this, t](auto args)
+												{
+													Nexus->Execute(&CTonDocument(CXonTextReader(t)), sh_new<CShowParameters>(args, Style)); 
+												}));
+
+
+	auto win = new CMenuItem(L"Windows");
+
+	TCHAR			szPath[MAX_PATH];
+	CList<CString>	sources;
+
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, szPath)))
+	{
+		sources.push_back(CPath::Join(IFileSystem::This, CPath::Universalize(szPath)));
+	}
+
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAMS, NULL, 0, szPath)))
+	{
+		sources.push_back(CPath::Join(IFileSystem::This, CPath::Universalize(szPath)));
+	}
+
+	win->Opening =	[this, win, sources]() mutable
+					{
+						win->Items = LoadLinks(sources); 
+					};
+	
+	actions.AddNew(shell);
+	actions.AddNew(win);
+
+	return actions;
+}
+
+CObject<CField> CShellServer::FindField(CUol & o)
+{
+	return Server->FindObject(o);
+}
+
+CObject<CFieldEnvironment> CShellServer::FindFieldEnvironmentByEntity(CUol & o)
+{
+	for(auto i : Server->Objects)
+	{
+		if(i->Url.Object.StartsWith(CFieldEnvironment::GetClassName()+L"-"))
+		{
+			CObject<CFieldEnvironment> de = Server->FindObject(i->Url);
+			
+			if(de->As<CFieldEnvironmentServer>()->Entity->Url == o)
+			{
+				return de;
+			}
+		}
+	}
+
+	return CObject<CFieldEnvironment>();
+}
+
+CObject<CFieldServer> CShellServer::GetField(CUol & o)
+{
+	return Server->FindObject(o);
+}
+
+void CShellServer::Execute(CXon * arguments, CExecutionParameters * parameters)
+{
+	EstablishConnections();
+
+	auto f = arguments->Nodes.First();
+
+	if(f->Name == L"CreateDefaultObjects")
 	{
 		TCHAR szPath[MAX_PATH];
 
-		Storage->CreateGlobalDirectory(this);
-
 		// hud
 		auto hud = new CFieldServer(this, SHELL_HUD_1);
-		hud->SetDefaultInteractiveMaster(AREA_HUD);
+		hud->SetDefaultInteractiveMaster(CArea::Hud);
 		Server->RegisterObject(hud, true);
 		hud->Free();
 
@@ -163,36 +496,36 @@ void CShellServer::Start(EStartMode sm)
 		auto work = create(SHELL_FIELD_WORK,		L"Work");
 
 		// desktop icons
-		CList<CStorageEntry> items;
+		CList<CString> items;
 	
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szPath))) 
 		{
-			auto d = Storage->OpenDirectory(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
-			for(auto i : d->Enumerate(L"*.*"))
+			auto  dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
+			
+			for(auto & i : Storage->Enumerate(dir, L".*"))
 			{
-				items.push_back(i);
+				items.push_back(CPath::Join(dir, i.Name));
 			}
-			Storage->Close(d);
 		}
 	
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, szPath)))
 		{
-			auto d = Storage->OpenDirectory(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
-			for(auto i : d->Enumerate(L"*.*"))
+			auto  dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
+
+			for(auto & i : Storage->Enumerate(dir, L".*"))
 			{
-				items.push_back(i);
+				items.push_back(CPath::Join(dir, i.Name));
 			}
-			Storage->Close(d);
 		}
 			
-		items.RemoveIf([](auto & i){ return i.Path.EndsWith(L"/desktop.ini"); });
+		items.RemoveIf([](auto & i){ return i == L"desktop.ini"; });
 
 		CList<CUol> links;
 		
 		for(auto & i : items)
 		{
 			auto link = new CLink(this);
-			link->SetTarget((CUrl)Storage->ToUol(i.Type, i.Path));
+			link->SetTarget((CUrl)Storage->ToUol(i));
 			Server->RegisterObject(link, true);
 			links.push_back(link->Url);
 			link->Free();
@@ -202,17 +535,18 @@ void CShellServer::Start(EStartMode sm)
 
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_MYPICTURES, NULL, 0, szPath)))
 		{
-			auto d = Storage->OpenDirectory(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
-			
 			int n = 0;
-			for(auto i : d->Enumerate(L"*.*"))
+
+			auto dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
+
+			for(auto & i : Storage->Enumerate(dir, L".*"))
 			{
-				auto e = CPath::GetExtension(i.Path);
+				auto e = CPath::GetExtension(i.Name);
 				
 				if(e == L"jpg" || e == L"png")
 				{
 					auto p = new CPicture(this);
-					p->SetFile(i.Path);
+					p->SetFile(CPath::Join(dir, i.Name));
 					Server->RegisterObject(p, true);
 					pics->Add(p->Url, AVATAR_WIDGET);
 					p->Free();
@@ -225,27 +559,25 @@ void CShellServer::Start(EStartMode sm)
 					}
 				}
 			}
-			Storage->Close(d);
 		}
-
 
 		// Usage.txt notepad
 		auto v = new CNotepad(this);
-		v->SetFile(Nexus->MapPath(UOS_MOUNT_CORE, L"About.txt"));
+		v->SetFile(CPath::Join(IFileSystem::Software, Core->CurrentReleaseSubPath, L"About.txt"));
 		Server->RegisterObject(v, true);
 		home->Add(v->Url, AVATAR_WIDGET);
 		v->Free();
 
 		// Mouse.png picture	
 		auto p = new CPicture(this);
-		p->SetFile(MapPath(L"Mouse.png"));
+		p->SetFile(MapReleasePath(L"Mouse.png"));
 		Server->RegisterObject(p, true);
 		home->Add(p->Url, AVATAR_WIDGET);
 		p->Free();
 
 		// theme
 		auto t = new CTheme(this, SHELL_THEME_1);
-		t->SetSource(MapPath(L"Spaceland.vwm"));
+		t->SetSource(MapReleasePath(L"Spaceland.vwm"));
 		Server->RegisterObject(t, true);
 		t->Free();
 
@@ -254,476 +586,137 @@ void CShellServer::Start(EStartMode sm)
 		Server->RegisterObject(d, true);
 		d->Free();
 
-		d->Add(CUol(Url, SHELL_FIELD_MAIN), AVATAR_ICON2D);
-		d->Add(CUol(Url, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
-		d->Add(CUol(Url, SHELL_FIELD_WORK), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_MAIN), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_WORK), AVATAR_ICON2D);
 	}
-
-	Server->FindObject(SHELL_HISTORY_1); // force to revive
-
-	if(World->Initializing)
+	else if(f->Name == L"Start")
 	{
-		if(World->Complexity == AVATAR_ENVIRONMENT)
+		Server->FindObject(SHELL_HISTORY_1); // force to revive
+	
+		if(World->Initializing)
 		{
-			World->OpenEntity(CUol(Url, SHELL_HUD_1), AREA_HUD, null);
-
-			if(World->Free3D)
+			if(World->Complexity == AVATAR_ENVIRONMENT)
 			{
-				World->OpenEntity(CUol(Url, SHELL_BOARD_1), AREA_NEAR, null);
+				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_HUD_1), CArea::Hud, null);
+	
+				if(World->Free3D)
+				{
+					World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_BOARD_1), CArea::Near, null);
+				}
 			}
+	
+			auto f = new CShowParameters(); 
+			f->PlaceOnBoard = true;
+			
+			auto u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_WORK), CArea::Fields, f);
+			
+			if(World->BackArea)
+				World->Show(u, CArea::Background, null);
+	
+			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_PICTURES), CArea::Fields, f);
+			
+			if(World->BackArea)
+				World->Show(u, CArea::Background, null);
+			
+			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_MAIN), CArea::Fields, f);
+			
+			if(World->BackArea)
+				World->Show(u, CArea::Background, null);
+	
+			World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_THEME_1), CArea::Theme, null);
+			
+			if(World->FullScreen)
+			{
+				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_HOME), CArea::Fields, f);
+			}
+	
+			f->Free();
 		}
-
-		auto f = new CShowParameters(); 
-		f->PlaceOnBoard = true;
-		
-		auto u = World->OpenEntity(CUol(Url, SHELL_FIELD_WORK), AREA_FIELDS, f);
-		
-		if(World->BackArea)
-			World->Show(u, AREA_BACKGROUND, null);
-
-		u = World->OpenEntity(CUol(Url, SHELL_FIELD_PICTURES), AREA_FIELDS, f);
-		
-		if(World->BackArea)
-			World->Show(u, AREA_BACKGROUND, null);
-		
-		u = World->OpenEntity(CUol(Url, SHELL_FIELD_MAIN), AREA_FIELDS, f);
-		
-		if(World->BackArea)
-			World->Show(u, AREA_BACKGROUND, null);
-
-		World->OpenEntity(CUol(Url, SHELL_THEME_1), AREA_THEME, null);
-		
+	
 		if(World->FullScreen)
 		{
-			World->OpenEntity(CUol(Url, SHELL_FIELD_HOME), AREA_FIELDS, f);
+			World->Components[WORLD_HISTORY] = CUol(CWorldEntity::Scheme, Instance, SHELL_HISTORY_1);
+			World->Components[WORLD_BOARD]	 = CUol(CWorldEntity::Scheme, Instance, SHELL_BOARD_1);
+			World->Components[WORLD_TRAY]	 = CUol(CWorldEntity::Scheme, Instance, SHELL_TRAY_1);
+	
+			World->GlobalHotKeys[EKeyboardControl::GlobalHome] =[this](auto k)
+																{ 
+																	World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_HOME), CArea::LastInteractive, null);
+																};
 		}
-
-		f->Free();
-	}
-
-	if(World->FullScreen)
-	{
-		World->Components[WORLD_HISTORY]	= CUol(Url, SHELL_HISTORY_1);
-		World->Components[WORLD_BOARD]		= CUol(Url, SHELL_BOARD_1);
-		World->Components[WORLD_TRAY]		= CUol(Url, SHELL_TRAY_1);
-
-		World->GlobalHotKeys[EKeyboardControl::GlobalHome] =[this](auto k)
-															{ 
-																World->OpenEntity(CUol(Url, SHELL_FIELD_HOME), AREA_LAST_INTERACTIVE, null);
-															};
-	}
-
-	if(World->Sphere)
-	{
-		World->Sphere->Active->MouseEvent[EListen::Normal] += ThisHandler(OnWorldSphereMouse);
-	}
-}
-
-void CShellServer::OnWorldSphereMouse(CActive *, CActive *, CMouseArgs * arg)
-{
-	if(arg->Control == EMouseControl::RightButton && arg->Event == EGraphEvent::Click)
-	{
-		if(!Menu)
+	
+		if(World->Sphere)
 		{
-			Menu = new CRectangleMenu(World, Style, L"ShellGlobalMenu");
+			World->Sphere->Active->MouseEvent[EListen::Normal] += ThisHandler(OnWorldSphereMouse);
 		}
-
-		Menu->Section->Clear();
-
-		AddSystemMenuItems(Menu->Section);
-
-		Menu->Open(arg->Pick);
-
-		arg->StopPropagation = true;
 	}
-}
-
-CInterObject * CShellServer::GetEntity(CUol & e)
-{
-	return Server->FindObject(e);
-}
-
-CList<CUol> CShellServer::GenerateSupportedAvatars(CUol & e, CString const & type)
-{
-	CList<CUol> l;
-
-	auto p = CMap<CString, CString>{{L"entity", e.ToString()}, {L"type", type}};
-
-	if(e.GetType() == SHELL_HUD)
+	else if(f->Name == L"Open" && arguments->Any(L"Url"))
 	{
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CHudEnvironment::GetClassName()), p));
-	}
+		CUrl u(arguments->Get<CString>(L"Url"));
 
-	if(e.GetType() == CHistory::GetClassName())
-	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CHistoryWidget::GetClassName()), p));
-	}
-
-	if(e.GetType() == CBoard::GetClassName())
-	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CBoardWidget::GetClassName()), p));
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CBoardEnvironment::GetClassName()), p));
-	}
-
-	if(e.GetType() == CField::GetClassName())
-	{
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CFieldEnvironment::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CFieldWidget::GetClassName()), p)); else
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CFieldIcon::GetClassName()), p));
-	}
-
-	if(e.GetType() == CDirectoryMenu::GetClassName())
-	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CMenuWidget::GetClassName()), p));
-	}
-
-	if(e.GetType() == CApplicationsMenu::GetClassName())
-	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CSystemMenuWidget::GetClassName()), p));
-	}
-
-	if(e.GetType() == CTheme::GetClassName())
-	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CThemeWidget::GetClassName()), p)); else
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CThemeEnvironment::GetClassName()), p));;
-	}
-
-	if(e.GetType() == CLink::GetClassName())
-	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CLinkIcon::GetClassName()), p));;
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CLinkProperties::GetClassName()), p));;
-	}
-
-	if(e.GetType() == CNotepad::GetClassName())
-	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CNotepadIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CNotepadWidget::GetClassName()), p));
-	}
-
-	if(e.GetType() == CPicture::GetClassName())
-	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CPictureIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CPictureWidget::GetClassName()), p));
-	}
-
-	if(e.GetType() == CTray::GetClassName())
-	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CTrayWidget::GetClassName()), p));
-	}
-
-	return l;
-
-}
-
-CAvatar * CShellServer::CreateAvatar(CUol & u)
-{
-	EstablishConnections();
-
-	CAvatar * a = null;
-	
-	if(u.Server == Url.Server)
-	{
-		if(u.GetType() == CHudEnvironment::GetClassName())			a = new CHudEnvironment(this, u.Object); else 
-
-		if(u.GetType() == CHistoryWidget::GetClassName())			a = new CHistoryWidget(this, u.Object); else 
-
-		if(u.GetType() == CBoardWidget::GetClassName())				a = new CBoardWidget(this, u.Object); else 
-		if(u.GetType() == CBoardEnvironment::GetClassName())		a = new CBoardEnvironment(this, u.Object); else 
-
-		if(u.GetType() == CFieldEnvironment::GetClassName())		a = new CFieldEnvironmentServer(this, u.Object); else 
-		if(u.GetType() == CFieldWidget::GetClassName())				a = new CFieldWidget(this, u.Object); else 
-		if(u.GetType() == CFieldIcon::GetClassName())				a = new CFieldIcon(this, u.Object); else 
-
-		if(u.GetType() == CMenuWidget::GetClassName())				a = new CMenuWidget(this, u.Object); else 
-		if(u.GetType() == CSystemMenuWidget::GetClassName())	a = new CSystemMenuWidget(this, u.Object); else 
-
-		if(u.GetType() == CThemeWidget::GetClassName())				a = new CThemeWidget(this, u.Object); else
-		if(u.GetType() == CThemeEnvironment::GetClassName())		a = new CThemeEnvironment(this, u.Object); else 
-
-		if(u.GetType() == CLinkIcon::GetClassName())				a = new CLinkIcon(this, u.Object); else 
-		if(u.GetType() == CLinkProperties::GetClassName())			a = new CLinkProperties(this, u.Object); else 
-		
-		if(u.GetType() == CNotepadIcon::GetClassName())				a = new CNotepadIcon(this, u.Object); else 
-		if(u.GetType() == CNotepadWidget::GetClassName())			a = new CNotepadWidget(this, u.Object); else
-
-		if(u.GetType() == CPictureIcon::GetClassName())				a = new CPictureIcon(this, u.Object); else 
-		if(u.GetType() == CPictureWidget::GetClassName())			a = new CPictureWidget(this, u.Object); else
-
-		if(u.GetType() == CTrayWidget::GetClassName())				a = new CTrayWidget(this, u.Object); else
-
-		return null;
-	}
-
-	a->Url = u;
-	
-	Server->RegisterObject(a, false);
-	a->Free();
-	
-	return a;
-}
-
-void CShellServer::DestroyAvatar(CAvatar * a)
-{
-	Server->DestroyObject(a, true);
-}
-
-IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMenu * m)
-{
-	auto types = m->CreateSection(L"ShellActions:MenuSection");
-
-	types->AddItem(L"Link(s)")->Clicked =	[this, fe, p](auto, auto mi)
-											{
-												auto paths = Core->Os->OpenFileDialog(FOS_ALLOWMULTISELECT | FOS_NODEREFERENCELINKS);
-												
-												if(!paths.empty())
-												{
-													CList<CUol> links;
-
-													for(auto & i : paths)
-													{
-														auto link = new CLink(this);
-														link->SetTarget((CUrl)Storage->ToUol(Storage->GetType(Nexus->NativeToUniversal(i)), Nexus->NativeToUniversal(i)));
-														Server->RegisterObject(link, true);
-														link->Free();
-														links.push_back(link->Url);
-													}
-
-													auto fis = fe->Entity->Add(links, AVATAR_ICON2D);
-	
-													auto fies = fe->Find(fis.Select<CUol>([](auto i){ return i->Url; }));
-					
-													fe->Arrange(fies, EXAlign::Center);
-													fe->TransformItems(fies, CTransformation(p/* - CFloat3(-a.W/2, -a.H/2, 0)*/));
-												}
-											};
-	types->AddItem(L"Notepad")->Clicked =	[this, fe, p](auto, auto mi)
-											{
-												auto paths = Core->Os->OpenFileDialog(FOS_NODEREFERENCELINKS);
-												
-												if(!paths.empty())
-												{
-													auto v = new CNotepad(this);
-													v->SetFile(Nexus->NativeToUniversal(paths.front()));
-													Server->RegisterObject(v, true);
-													v->Free();
-
-													auto fi = fe->Entity->Add(v->Url, AVATAR_WIDGET);
-													auto fie = fe->Find(fi->Url);
-																																							
-													fie->Transform(0, 0, 0);
-													fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
-												}
-											};
-
-	types->AddItem(L"Picture")->Clicked =	[this, fe, p](auto, auto mi)
-											{
-												auto paths = Core->Os->OpenFileDialog(FOS_NODEREFERENCELINKS);
-												
-												if(!paths.empty())
-												{
-													auto v = new CPicture(this);
-													v->SetFile(Nexus->NativeToUniversal(paths.front()));
-													Server->RegisterObject(v, true);
-													v->Free();
-
-													auto fi = fe->Entity->Add(v->Url, AVATAR_WIDGET);
-													auto fie = fe->Find(fi->Url);
-																																							
-													fie->Transform(0, 0, 0);
-													fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
-												}
-											};
-
-	types->AddItem(L"Menu")->Clicked =	[this, fe, p](auto, auto mi)
-										{
-											auto list = Core->Os->OpenFileDialog(FOS_PICKFOLDERS);
-
-											if(!list.empty())
-											{
-												auto o = new CDirectoryMenu(this);
-												o->AddPath(Nexus->NativeToUniversal(list.front()));
-												Server->RegisterObject(o, true);
-												o->Free();
-												
-												//auto o = Nexus->Storage->LocalPathToObject(paths.front());
-												auto fi = fe->Entity->Add(o->Url, AVATAR_WIDGET);
-												auto fie = fe->Find(fi->Url);
-
-												fie->Transform(0, 0, 0);
-												fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
-											}
-										};
-
-	types->AddItem(L"System Menu")->Clicked =	[this, fe, p](auto, auto mi)
-												{
-													auto o = new CApplicationsMenu(this);
-													Server->RegisterObject(o, true);
-													o->Free();
-
-												
-													auto fi = fe->Entity->Add(o->Url, AVATAR_WIDGET);
-													auto fie = fe->Find(fi->Url);
-
-													fie->Transform(0, 0, 0);
-													fe->TransformItems(CRefList<CFieldItemElement *>{fie}, CTransformation(p));
-												};
-
-	return types;
-}
-
-CRefList<CMenuItem *> CShellServer::CreateActions()
-{
-	CRefList<CMenuItem *> actions;
-
-	auto shell = new CMenuItem(L"Shell");
-	
-	CUrl a = Server->Url;
-	a[L"Action"] = L"Create";
-
-	a[L"Class"] = CField::GetClassName();
-	shell->Items.AddNew(new CMenuItem(L"Field", [this, a](auto args)
-												{
-													Nexus->Execute(a, sh_new<CShowParameters>(args, Style)); 
-												}));
-
-	a[L"Class"] = CTheme::GetClassName();
-	shell->Items.AddNew(new CMenuItem(L"Theme", [this, a](auto args)
-												{
-													Nexus->Execute(a, sh_new<CShowParameters>(args, Style)); 
-												}));
-
-
-	auto win = new CMenuItem(L"Windows");
-
-	TCHAR			szPath[MAX_PATH];
-	CList<CString>	sources;
-
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, szPath)))
-	{
-		sources.push_back(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
-	}
-
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAMS, NULL, 0, szPath)))
-	{
-		sources.push_back(Nexus->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
-	}
-
-	win->Opening =	[this, win, sources]() mutable
-					{
-						win->Items = LoadLinks(sources); 
-					};
-	
-	actions.AddNew(shell);
-	actions.AddNew(win);
-
-	return actions;
-}
-
-CObject<CField> CShellServer::FindField(CUol & o)
-{
-	return Server->FindObject(o);
-}
-
-CObject<CFieldEnvironment> CShellServer::FindFieldEnvironmentByEntity(CUol & o)
-{
-	for(auto i : Server->Objects)
-	{
-		if(i->Url.Object.StartsWith(CFieldEnvironment::GetClassName()+L"-"))
+		if(u.Scheme == CWorldEntity::Scheme)
 		{
-			CObject<CFieldEnvironment> de = Server->FindObject(i->Url);
-			
-			if(de->As<CFieldEnvironmentServer>()->Entity->Url == o)
+			CUol o(u);
+
+			if(o.GetObjectClass() == CLink::GetClassName())
 			{
-				return de;
+				CObject<CLink> l = Server->FindObject(o);
+	
+				Nexus->Execute(&CTonDocument(CXonTextReader(L"Open Url=" + l->Target.ToString())), parameters);
+			} 
+			else if(o.GetObjectClass() == CField::GetClassName() || 
+					o.GetObjectClass() == CTheme::GetClassName() ||
+					o.GetObjectClass() == CPicture::GetClassName() ||
+					o.GetObjectClass() == CNotepad::GetClassName())
+			{
+				auto e = Server->FindObject(o);
+	
+				World->OpenEntity(e->Url, CArea::LastInteractive, dynamic_cast<CShowParameters *>(parameters));
+			}
+			else
+			{
+				Log->ReportWarning(this, L"Object Class not supported: %s", o.Object);
 			}
 		}
 	}
-
-	return CObject<CFieldEnvironment>();
-}
-
-CObject<CFieldServer> CShellServer::GetField(CUol & o)
-{
-	return Server->FindObject(o);
-}
-
-bool CShellServer::CanExecute(const CUrq & u)
-{
-	if(u.Protocol == CUol::Protocol)
+	else if(f->Name == L"Create")
 	{
-		return CUsl(u) == Server->Url;
-	}
-	return false;
-}
-
-void CShellServer::Execute(const CUrq & u, CExecutionParameters * ep)
-{
-	EstablishConnections();
-
-	if(CUol::IsValid(u))
-	{
-		CUol o(u);
-
-		if(o.GetType() == CLink::GetClassName())
+		if(arguments->Get<CString>(L"Class") == CField::GetClassName()) 
 		{
-			CObject<CLink> l = Server->FindObject(o);
-
-			Nexus->Execute(l->Target, ep);
-		} 
-		else if(o.GetType() == CField::GetClassName() || 
-				o.GetType() == CTheme::GetClassName() ||
-				o.GetType() == CPicture::GetClassName() ||
-				o.GetType() == CNotepad::GetClassName())
-		{
-			auto e = Server->FindObject(o);
-
-			World->OpenEntity(e->Url, AREA_LAST_INTERACTIVE, dynamic_cast<CShowParameters *>(ep));
+			auto d = new CFieldServer(this);
+			d->SetTitle(L"Field (New)");
+			Server->RegisterObject(d, true);
+			d->Free();
+				
+			World->OpenEntity(d->Url, CArea::Fields, dynamic_cast<CShowParameters *>(parameters));
 		}
-		else
+		if(arguments->Get<CString>(L"Class") == CTheme::GetClassName())
 		{
-			Log->ReportWarning(this, L"Object Class not supported: %s", o.Object);
-		}
-	}
-	else if(CUsl::IsUsl(u))
-	{
-		if(u.Query.Contains(L"Action", L"Create"))
-		{
-			if(u.Query.Contains(L"Class", CField::GetClassName())) 
+			CArray<std::pair<CString, CString>> types;
+			types.push_back({L"All supported formats", L"*.vwm; "});
+
+			for(auto & i : Engine->TextureFactory->Formats)
 			{
-				auto d = new CFieldServer(this);
-				d->SetTitle(L"Field (New)");
+				types.back().second += CString::Join(i.second.Split(L" "), [](auto t){ return L"*." + t; }, L"; ") + L"; ";
+			}
+
+			auto paths = Core->Os->OpenFileDialog(0, types);
+
+			if(!paths.empty())
+			{
+				auto d = new CTheme(this);
 				Server->RegisterObject(d, true);
 				d->Free();
-				
-				World->OpenEntity(d->Url, AREA_FIELDS, dynamic_cast<CShowParameters *>(ep));
-			}
-			if(u.Query.Contains(L"Class", CTheme::GetClassName()))
-			{
-				CArray<std::pair<CString, CString>> types;
-				types.push_back({L"All supported formats", L"*.vwm; "});
 
-				for(auto i : Engine->TextureFactory->Formats)
-				{
-					types.back().second += CString::Join(i.second.Split(L" "), [](auto t){ return L"*." + t; }, L"; ") + L"; ";
-				}
+				d->SetSource(Storage->NativeToUniversal(paths.front()));
 
-				auto paths = Core->Os->OpenFileDialog(0, types);
-
-				if(!paths.empty())
-				{
-					auto d = new CTheme(this);
-					Server->RegisterObject(d, true);
-					d->Free();
-
-					d->SetSource(Nexus->NativeToUniversal(paths.front()));
-
-					World->OpenEntity(d->Url, AREA_THEME, dynamic_cast<CShowParameters *>(ep));
-				}
+				World->OpenEntity(d->Url, CArea::Theme, dynamic_cast<CShowParameters *>(parameters));
 			}
 		}
 	}
 	else
-		throw CException(HERE, L"Wrong Urq");
+		throw CException(HERE, L"Wrong command");
 
 	//else
 	//{

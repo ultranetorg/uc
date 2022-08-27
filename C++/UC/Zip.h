@@ -1,33 +1,32 @@
 #pragma once
 #include "Array.h"
 #include "Exception.h"
-#include "Directory.h"
 #include "ZipStream.h"
 #include "NativePath.h"
-#include "Directory.h"
+#include "FileSystemEntry.h"
+#include "Path.h"
 
 namespace uc
 {
 	class UOS_LINKING CZipDirectory : public IDirectory
 	{
 		public:
-			virtual CStream *							OpenWriteStream(CString const & name) override;
-			virtual CStream * 							OpenReadStream(CString const & name) override;
-			virtual void								Close(CStream * s) override;
-			virtual CList<CStorageEntry>				Enumerate(CString const & mask) override;
-			virtual CList<CFSRegexItem>					EnumerateByRegex(CString const & mask) override;
-			virtual void								Delete();
+			virtual CList<CFileSystemEntry>		Enumerate(CString const & regex) override;
+			virtual CStream *					WriteFile(CString const & path) override;
+			virtual CStream * 					ReadFile(CString const & path) override;
+			virtual void						Close(CStream * s) override;
+			virtual void						Delete(CString const & path) override;
 
-			void										Add(const CString & dst, CStream * src);
-			void										Add(const CString & dst, CStream * src, IWriterProgress * p);
-			bool										Contains(const CString & filepath);
+			void								Add(const CString & dst, CStream * src);
+			void								Add(const CString & dst, CStream * src, IWriterProgress * p);
+			bool								Contains(const CString & filepath);
 
-			int											GetSize(const CString & entrypath);
-			CString										GetUri(const CString & entrypath);
+			int									GetSize(const CString & entrypath);
+			CString								GetUri(const CString & entrypath);
 			
-			CString										GetUri();
-			EFileMode									GetMode();
-			void *										GetHandle();
+			CString								GetUri();
+			EFileMode							GetMode();
+			void *								GetHandle();
 
 			CZipDirectory(const CString & zippath, EFileMode mode);
 			CZipDirectory(CStream * s, EFileMode mode);
@@ -35,10 +34,10 @@ namespace uc
 
 
 		private:
-			CString										ZipPath;	
-			void *										ZFile;
-			EFileMode									Mode;
-			CBuffer										Buffer;
+			CString								ZipPath;	
+			void *								ZFile;
+			EFileMode							Mode;
+			CBuffer								Buffer;
 
 	};
 
@@ -46,7 +45,7 @@ namespace uc
 	class UOS_LINKING CZip
 	{
 		public:
-			static std::vector<uint8_t>					Compress(void *in_data, size_t in_data_size);
-			static CArray<char>							Decompress(void *in_data, size_t in_data_size);
+			static std::vector<uint8_t>			Compress(void *in_data, size_t in_data_size);
+			static CArray<char>					Decompress(void *in_data, size_t in_data_size);
 	};
 }

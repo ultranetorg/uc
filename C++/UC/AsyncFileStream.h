@@ -1,16 +1,17 @@
 #pragma once
 #include "Core.h"
+#include "LocalFileStream.h"
 
 namespace uc
 {
-	class CAsyncFileStream : public CFileStream
+	class CAsyncFileStream : public CLocalFileStream
 	{
 		public:
 			CCore *		Core;
 			CThread *	Thread;
 			CBuffer		Buffer;
 
-			CAsyncFileStream(CCore * l, const CString & filepath, EFileMode mode) : CFileStream(filepath, mode)
+			CAsyncFileStream(CCore * l, const CString & filepath, EFileMode mode) : CLocalFileStream(filepath, mode)
 			{
 				Core = l;
 			}

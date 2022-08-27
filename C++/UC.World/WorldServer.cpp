@@ -21,44 +21,47 @@ using namespace uc;
 
 static CWorldServer * This = null;
 	
-CServer * StartUosServer(CNexus * l, CServerInfo * si)
+CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
 {
-	for(auto i : l->Core->FindStartCommands(si->Url))
+	if(command)
 	{
-		if(i.Query.Contains(L"Name", WORLD_VR_EMULATION))
+		if(auto n = command->One(L"Name"))
 		{
-			This = new CVrWorld(l, si);
-		}
-		else if(i.Query.Contains(L"Name", WORLD_MOBILE_EMULATION))
-		{
-			This = new CMobileWorld(l, si);
+			if(n->Get<CString>() == WORLD_VR_EMULATION)
+			{
+				This = new CVrWorld(l, info);
+			}
+			else if(n->Get<CString>() == WORLD_MOBILE_EMULATION)
+			{
+				This = new CMobileWorld(l, info);
+			}
 		}
 	}
 
 	if(!This)
 	{
-		This = new CDesktopWorld(l, si);
+		This = new CDesktopWorld(l, info);
 	}
 
 	return This;
 }
 
-void StopUosServer()
+void StopUosServer(CServer *)
 {
 	delete This;
 }
 
-CWorldServer::CWorldServer(CNexus * l, CServerInfo * si) : CStorableServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
+CWorldServer::CWorldServer(CNexus * l, CServerRelease * si) : CStorableServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
 {
 	Server = this;
 	Nexus = Server->Nexus;
 	Core = Nexus->Core;
-	Log  = Core->Supervisor->CreateLog(Url.Server);
+	Log  = Core->Supervisor->CreateLog(CWorldCapabilities::Name);
 	Core->ExitRequested	+= ThisHandler(OnExitRequested);
 	Nexus->Stopping += ThisHandler(OnNexusStopping);
 
-	PfcUpdate	= new CPerformanceCounter(Url.Server + L" update");
-	Diagnostic	= Core->Supervisor->CreateDiagnostics(Url.Server);
+	PfcUpdate	= new CPerformanceCounter(CWorldCapabilities::Name + L" update");
+	Diagnostic	= Core->Supervisor->CreateDiagnostics(CWorldCapabilities::Name);
 	Diagnostic->Updating += ThisHandler(OnDiagnosticsUpdating);
 
 	DiagGrid.AddColumn(L"Name");
@@ -135,36 +138,33 @@ void CWorldServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, UOS_STORAGE_PROTOCOL, [&]{ Nexus->StopServer(this); });
+		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(this); });
 	}
 }
 
-IProtocol * CWorldServer::Connect(CString const & pr)
+IInterface * CWorldServer::Connect(CString const & pr)
 {
 	return this;
 }
 
-void CWorldServer::Disconnect(IProtocol * o)
+void CWorldServer::Disconnect(IInterface * o)
 {
-}
-
-void CWorldServer::Start(EStartMode sm)
-{
-	Start();
 }
 
 void CWorldServer::Start()
 {
 	EstablishConnections();
 
-	for(auto & i : Storage->Enumerate(MapPath(L""), L"*.*"))
+	auto r = MapReleasePath(L"");
+
+	for(auto & i : Storage->Enumerate(r, L".*"))
 	{
-		if(i.Type == CDirectory::GetClassName())
+		if(i.Type == CFileSystemEntry::Directory)
 		{
-			auto ws = Storage->OpenReadStream(CPath::Join(i.Path, L"World.xon"));
-			auto es = Storage->OpenReadStream(CPath::Join(i.Path, L"Engine.xon"));
-			Modes.push_back({	
-								CPath::GetName(i.Path),
+			auto ws = Storage->ReadFile(CPath::Join(r, i.Name, L"World.xon"));
+			auto es = Storage->ReadFile(CPath::Join(r, i.Name, L"Engine.xon"));
+			Modes.push_back({
+								i.Name,
 								new CTonDocument(CXonTextReader(ws)), 
 								new CTonDocument(CXonTextReader(es)), 
 							});
@@ -175,7 +175,7 @@ void CWorldServer::Start()
 
 	ScreenshotId = Core->RegisterGlobalHotKey(MOD_ALT|MOD_CONTROL, VK_SNAPSHOT, [this](auto){ Engine->ScreenEngine->TakeScreenshot(Name); });
 	
-	auto sconfig = LoadServerDocument(Name + L"/World.xon"); 
+	auto sconfig = LoadReleaseDocument(Name + L"/World.xon"); 
 	auto gconfig = LoadGlobalDocument(Name + L"/World.xon");
 		
 	if(gconfig)
@@ -189,19 +189,19 @@ void CWorldServer::Start()
 	Layout	= WorldConfig->Get<CString>(L"Layout");
 	Fov		= WorldConfig->Get<CFloat>(L"Fov");
 
-	for(auto i : Core->FindStartCommands(Url))
+	for(auto i : Command->Nodes)
 	{
-		if(i.Query.Contains(L"Layout"))			Layout = i.Query(L"Layout"); 
+		if(i->Name == L"Layout") Layout = i->Get<CString>(); 
 	}
 
 	if(!(AreasConfig = LoadGlobalDocument(Name + L"/" + Layout + L".layout/Areas.xon")))
 	{
-		AreasConfig = LoadServerDocument(Name + L"/Areas.xon");
+		AreasConfig = LoadReleaseDocument(Name + L"/Areas.xon");
 		Initializing = true;
 	}
 	
-	auto df = MapPath(L"Engine.xon");
-	auto cf = MapPath(Name + L"/Engine.xon");
+	auto df = MapReleasePath(L"Engine.xon");
+	auto cf = MapReleasePath(Name + L"/Engine.xon");
 	EngineConfig = new CConfig(Storage, df, cf);
 		
 	Engine = new CEngine(this, EngineConfig);
@@ -209,7 +209,7 @@ void CWorldServer::Start()
 
 	Materials = new CMaterialPool(Engine);
 
-	auto sf = Storage->OpenReadStream(MapPath(Name + L"/Default.style"));
+	auto sf = Storage->ReadFile(MapReleasePath(Name + L"/Default.style"));
 	Style = new CStyle(Engine, Materials, CXonTextReader(sf));
 	Storage->Close(sf);
 
@@ -244,13 +244,13 @@ void CWorldServer::Start()
 
 	Area->Load(AreasConfig->One(L"Area"));
 	
-	ServiceBackArea	= Area->Match(AREA_SERVICE_BACK);
-	ThemeArea		= Area->Match(AREA_THEME);
-	FieldArea		= Area->Match(AREA_FIELDS)->As<CPositioningArea>();
-	MainArea		= Area->Match(AREA_MAIN)->As<CPositioningArea>();
-	HudArea			= Area->Match(AREA_HUD)->As<CPositioningArea>();
-	TopArea			= Area->Match(AREA_TOP)->As<CPositioningArea>();
-	ServiceFrontArea= Area->Match(AREA_SERVICE_FRONT);
+	ServiceBackArea	= Area->Match(CArea::ServiceBack);
+	ThemeArea		= Area->Match(CArea::Theme);
+	FieldArea		= Area->Match(CArea::Fields)->As<CPositioningArea>();
+	MainArea		= Area->Match(CArea::Main)->As<CPositioningArea>();
+	HudArea			= Area->Match(CArea::Hud)->As<CPositioningArea>();
+	TopArea			= Area->Match(CArea::Top)->As<CPositioningArea>();
+	ServiceFrontArea= Area->Match(CArea::ServiceFront);
 
 	ServiceBackArea	->SetView(MainView); 
 	ThemeArea		->SetView(ThemeView); 
@@ -260,9 +260,9 @@ void CWorldServer::Start()
 	TopArea			->SetView(HudView); 
 	ServiceFrontArea->SetView(MainView); 
 	
-	if(Area->Match(AREA_BACKGROUND))
+	if(Area->Match(CArea::Background))
 	{
-		BackArea = Area->Match(AREA_BACKGROUND)->As<CPositioningArea>();
+		BackArea = Area->Match(CArea::Background)->As<CPositioningArea>();
 		BackArea->SetView(MainView); 
 	}
 
@@ -277,12 +277,12 @@ void CWorldServer::Start()
 	auto logo = new CLogo(this);
 	logo->SetText(WorldConfig->Get<CString>(L"Title") + L" Mode");
 	auto a = AllocateUnit(logo);
-	Show(a, AREA_SERVICE_FRONT, null);
+	Show(a, CArea::ServiceFront, null);
 	logo->Free();
 	
 	Sphere = new CSphere(this);
 	auto sphere = AllocateUnit(Sphere);
-	Show(sphere, AREA_SERVICE_BACK, null);
+	Show(sphere, CArea::ServiceBack, null);
 
 	InitializeModels();
 
@@ -295,7 +295,7 @@ void CWorldServer::Start()
 		auto sf = new CShowParameters();
 		sf->Activate = false;
 
-		OpenUnit(u, AREA_LAST, sf);
+		OpenUnit(u, CArea::Last, sf);
 
 		sf->Free();
 
@@ -314,12 +314,12 @@ void CWorldServer::OnExitRequested()
 	auto logo = new CLogo(this);
 	logo->SetText(Core->RestartCommand.empty() ?  L"Exiting..." : L"Restarting...");
 	auto a = AllocateUnit(logo);
-	Show(a, AREA_SERVICE_FRONT, null);
+	Show(a, CArea::ServiceFront, null);
 	logo->Free();
 
 	for(auto i : Area->Areas)
 	{
-		if(CUol::GetObjectID(i->Area->Name) != AREA_SERVICE_FRONT && CUol::GetObjectID(i->Area->Name) != AREA_SKIN)
+		if(CUol::GetObjectId(i->Area->Name) != CArea::ServiceFront && CUol::GetObjectId(i->Area->Name) != CArea::Skin)
 		{
 			i->Area->DetachSpaces();
 		}
@@ -332,8 +332,8 @@ void CWorldServer::OnNexusStopping()
 {
 	Engine->Stop();
 
-	Storage->CreateGlobalDirectory(this);
-	Storage->CreateLocalDirectory(this);
+	//Storage->CreateGlobalDirectory(this);
+	//Storage->CreateLocalDirectory(this);
 
 	for(auto i : AreasConfig->Many(L"Open"))
 		AreasConfig->Remove(i);
@@ -353,11 +353,11 @@ void CWorldServer::OnNexusStopping()
 
 	Area->Save(AreasConfig->Add(L"Area"));
 
-	auto f = Storage->OpenWriteStream(MapUserGlobalPath(Name + L"/" + Layout + L".layout/Areas.xon"));
+	auto f = Storage->WriteFile(MapUserGlobalPath(Name + L"/" + Layout + L".layout/Areas.xon"));
 	AreasConfig->Save(&CXonTextWriter(f, true));
 	Storage->Close(f);
 
-	f = Storage->OpenWriteStream(MapUserGlobalPath(Name + L"/World.xon"));
+	f = Storage->WriteFile(MapUserGlobalPath(Name + L"/World.xon"));
 	WorldConfig->Save(&CXonTextWriter(f));
 	Storage->Close(f);
 
@@ -375,7 +375,7 @@ CStorableObject * CWorldServer::CreateObject(CString const & name)
 {	
 	CStorableObject * o = null;
 
-	auto type = CUol::GetObjectType(name);
+	auto type = CUol::GetObjectClass(name);
 
 	if(type == CGroup::GetClassName())	o = new CGroup(this, name);
 
@@ -386,7 +386,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 {
 	CList<CUol> avs;
 
-	auto protocol = Nexus->Connect<IAvatarProtocol>(this, entity, AVATAR_PROTOCOL);
+	auto protocol = Nexus->Connect<IAvatarProtocol>(this, entity.Server);
 
 	CUol avatar;
 	CAvatar * a = null;
@@ -401,7 +401,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 	}
 	else
 	{
-		for(auto & i : Nexus->ConnectMany<IAvatarProtocol>(this, AVATAR_PROTOCOL))
+		for(auto & i : Nexus->ConnectMany<IAvatarProtocol>(this))
 		{
 			avs = i->GenerateSupportedAvatars(entity, type);
 			if(!avs.empty())
@@ -417,7 +417,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 	{
 		auto p = CMap<CString, CString>{{L"entity", entity.ToString()}, {L"type", type}};
 		
-		if(type == AVATAR_ICON2D)	avatar = CUol(Url, CGuid::Generate64(CDefaultIcon::GetClassName()), p);
+		if(type == AVATAR_ICON2D)	avatar = CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CDefaultIcon::GetClassName()), p);
 	}
 
 	
@@ -428,7 +428,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 {
 	CAvatar * a = null;
 
-	auto protocol = Nexus->Connect<IAvatarProtocol>(this, avatar, AVATAR_PROTOCOL);
+	auto protocol = Nexus->Connect<IAvatarProtocol>(this, avatar.Server);
 		
 	if(protocol)
 	{
@@ -451,7 +451,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 	else
 	{	
 		a = new CDefaultIcon(this);
-		a->Protocol = CProtocolConnection<IAvatarProtocol>(CConnection(this, this, AVATAR_PROTOCOL));
+		a->Protocol = CProtocolConnection<IAvatarProtocol>(CConnection(this, this, IAvatarProtocol::InterfaceName));
 		RegisterObject(a, false);
 		a->Free();
 	}
@@ -476,11 +476,11 @@ CUnit * CWorldServer::AllocateUnit(CModel * m)
 
 CUnit * CWorldServer::AllocateUnit(CUol & entity, CString const & type)
 {
-	auto dir = MapRelative(Name + L"/" + Layout + L".layout/" + entity.Object);
+	auto dir = CPath::Join(Instance, Name, Layout + L".layout/" + entity.Object);
 	
 	auto u = (CUnit *)null;
 
-	if(entity.GetType() == CGroup::GetClassName())
+	if(entity.GetObjectClass() == CGroup::GetClassName())
 	{	
 		if(Tight)
 			u = new CLowspaceGroupUnit(this, dir, entity, type, MainView);
@@ -564,17 +564,18 @@ CUnit * CWorldServer::FindUnit(CUol & entity)
 
 					if(e.empty())
 					{
-						for(auto & i : Storage->Enumerate(MapUserGlobalPath(Name + L"/" + Layout + L".layout"), L"Group-.*").Where([](auto & i){ return i.Type == CDirectory::GetClassName(); }))
+						auto ldir = MapUserGlobalPath(Name + L"/" + Layout + L".layout");
+						
+						for(auto & i : Storage->Enumerate(l, L"Group-.*").Where([](auto & i){ return i.Type == CFileSystemEntry::Directory; }))
 						{
-							auto l = CPath::Join(i.Path, CPath::GetName(entity.Object));
+							auto l = CPath::Join(ldir, i.Name, CPath::GetName(entity.Object));
 
 							if(Storage->Exists(l))
 							{
-								e = CPath::GetName(i.Path);
+								e = i.Name;
 								break;
 							}
 						}
-						
 					}
 
 					if(!e.empty())
@@ -585,24 +586,23 @@ CUnit * CWorldServer::FindUnit(CUol & entity)
 						{
 							if(Tight)
 								u = new CLowspaceGroupUnit(	this, 
-															MapRelative(Name + L"/" + Layout + L".layout/" + e), 
+															CPath::Join(Instance, Name, Layout + L".layout/" + e), 
 															e,
 															MainView);
 							else
 								u = new CHighspaceGroupUnit(this, 
-															MapRelative(Name + L"/" + Layout + L".layout/" + e), 
+															CPath::Join(Instance, Name, Layout + L".layout/" + e), 
 															e,
 															MainView);
 						}
 						else
 						{
-							u = new CSolo(this, 
-												MapRelative(Name + L"/" + Layout + L".layout/" + e), 
-												MainView,
-												e);
+							u = new CSolo(	this, 
+											CPath::Join(Instance, Name, Layout + L".layout/" + e), 
+											MainView,
+											e);
 						}
-
-						
+												
 						//u->Load(&CTonDocument(CXonTextReader(s)));
 						Units.push_back(u);
 	
@@ -634,14 +634,14 @@ void CWorldServer::Show(CUnit * u, CString const & area, CShowParameters * f)
 	auto master		= (CArea *)null;
 	auto origin		= CTransformation::Nan;
 
-	if(area == AREA_LAST_INTERACTIVE)
+	if(area == CArea::LastInteractive)
 	{
 		master = Area->Find(u->LastInteractiveMaster);
 
 		if(!master)
 			master = Area->Match(u->GetDefaultInteractiveMasterTag());
 	}
-	else if(area == AREA_LAST)
+	else if(area == CArea::Last)
 	{
 		master = Area->Find(u->LastMaster);
 
@@ -802,7 +802,7 @@ void CWorldServer::Attach(CElement * m, CUol & alloc)
 	///{	
 	///	a->Attached.push_back(alloc);
 	///	b->Parents.push_back(a);
-	///	auto b = OpenAllocation(alloc, AREA_LAST_INTERACTIVE, CShowFeatures());
+	///	auto b = OpenAllocation(alloc, CArea::LastInteractive, CShowFeatures());
 	///	
 	///	if(a->Avatar)
 	///	{
@@ -959,31 +959,24 @@ void CWorldServer::RunAnimation(CArea * n, CAnimated<CTransformation> a)
 					});
 }
 
-bool CWorldServer::CanExecute(const CUrq & u)
+void CWorldServer::Execute(CXon * command, CExecutionParameters * parameters)
 {
-	if(CUol::IsValid(u))
-	{
-		CUol o(u);
-		return o.GetType() == CGroup::GetClassName();
-	}
-	if(u.Query.Contains(L"Action"))
-	{
-		return true;
-	}
-	return false;
-}
+	auto f = command->Nodes.First();
 
-void CWorldServer::Execute(const CUrq & u, CExecutionParameters * p)
-{
-	if(CUol::IsValid(u) && CUol(u).GetType() == CGroup::GetClassName())
+	if(f->Name == L"Start")
 	{
-		OpenEntity(CUol(u), AREA_LAST_INTERACTIVE, dynamic_cast<CShowParameters *>(p));
-	}
-	else if(u.Query(L"Action") == L"Open")
-	{
-		OpenEntity(CUol(u.Query(L"Entity")), AREA_LAST_INTERACTIVE, dynamic_cast<CShowParameters *>(p));
+		Start();
 	}
 
+	if(f->Name == L"Open" && f->Any(L"Url"))
+	{
+		CUrl o(f->Get<CString>(L"Url"));
+
+		if(o.Scheme == CWorldEntity::Scheme)
+		{
+			OpenEntity(CUol(f->Get<CString>(L"Url")), CArea::LastInteractive, dynamic_cast<CShowParameters *>(parameters));
+		}
+	}
 }
 
 CView * CWorldServer::Get(const CString & name)
@@ -1086,19 +1079,19 @@ CProtocolConnection<IAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CS
 {
 	CList<CUol> avs;
 
-	auto avatarProtocol = Nexus->Connect<IAvatarProtocol>(this, e, AVATAR_PROTOCOL);
+	auto p = Nexus->Connect<IAvatarProtocol>(this, e.Server);
 
-	if(avatarProtocol)
+	if(p)
 	{
-		avs = avatarProtocol->GenerateSupportedAvatars(e, type);
+		avs = p->GenerateSupportedAvatars(e, type);
 		if(!avs.empty())
 		{
-			return avatarProtocol;
+			return p;
 		}
 	}
 	else
 	{
-		for(auto & i : Nexus->ConnectMany<IAvatarProtocol>(this, AVATAR_PROTOCOL))
+		for(auto & i : Nexus->ConnectMany<IAvatarProtocol>(this))
 		{
 			avs = i->GenerateSupportedAvatars(e, type);
 			if(!avs.empty())
@@ -1135,9 +1128,9 @@ CList<CUol> CWorldServer::GenerateSupportedAvatars(CUol & e, CString const & typ
 
 	auto p = CMap<CString, CString>{{L"entity", e.ToString()}, {L"type", type}};
 
-	if(e.GetType() == CGroup::GetClassName())
+	if(e.GetObjectClass() == CGroup::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)	l.push_back(CUol(Url, CGuid::Generate64(CGroupIcon::GetClassName()), p));
+		if(type == AVATAR_ICON2D)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CGroupIcon::GetClassName()), p));
 	}
 
 	return l;
@@ -1148,11 +1141,10 @@ CAvatar * CWorldServer::CreateAvatar(CUol & u)
 {
 	CAvatar * a = null;
 	
-	if(u.Server == Url.Server)
+	if(u.Server == Instance)
 	{
-		if(u.GetType() == CGroupIcon::GetClassName())	a = new CGroupIcon(this, u.Object); else
-
-		if(u.GetType() == CDefaultIcon::GetClassName())	a = new CDefaultIcon(this, u.Object); else
+		if(u.GetObjectClass() == CGroupIcon::GetClassName())	a = new CGroupIcon(this, u.Object); else
+		if(u.GetObjectClass() == CDefaultIcon::GetClassName())	a = new CDefaultIcon(this, u.Object); else
 
 		return null;
 	}

@@ -7,7 +7,7 @@ CCommanderIcon::CCommanderIcon(CExperimentalLevel * l, CString const & name) : C
 {
 	Level = l;
 
-	SetContentFromImage(Server->MapPath(L"Commander-24x24.png"));
+	SetContentFromImage(Server->MapReleasePath(L"Commander-24x24.png"));
 }
 
 CCommanderIcon::~CCommanderIcon()

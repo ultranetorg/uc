@@ -1,7 +1,6 @@
 #pragma once
 #include "IOs.h"
 #include "IType.h"
-#include "Uxx.h"
 
 namespace uc
 {
@@ -23,8 +22,6 @@ namespace uc
 			BOOL										SetPrivilege(HANDLE hToken, /* access token handle */ LPCTSTR lpszPrivilege, /* name of privilege to enable/disable */ BOOL bEnablePrivilege /* to enable or disable privilege */);
 			
 			static CString								GetEnvironmentValue(CString const & name);
-
-			static CList<CUrq>						ParseCommandLine(CString const & cmd);
 
 			UOS_RTTI
 			COs();

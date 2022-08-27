@@ -9,7 +9,7 @@
 #include "Nexus.h"
 #include "StorableServer.h"
 #include "EmptyLicenseService.h"
-#include "IExecutorProtocol.h"
+#include "IExecutor.h"
 #include "NativeWindow.h"
 
 // Math

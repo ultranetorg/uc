@@ -15,7 +15,7 @@ namespace uc
 				Level = l;
 			
 				SetDirectories(MapRelative(L""));
-				SetDefaultInteractiveMaster(AREA_MAIN);
+				SetDefaultInteractiveMaster(CArea::Main);
 			}
 
 			~CNotepad()

@@ -29,7 +29,7 @@ namespace uc
 
 				SetTitle(L"Email Account - " + User);
 				SetDirectories(MapRelative(L""));
-				SetDefaultInteractiveMaster(AREA_MAIN);
+				SetDefaultInteractiveMaster(CArea::Main);
 			}
 
 			~CEmailAccount()

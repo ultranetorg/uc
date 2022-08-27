@@ -19,20 +19,10 @@ namespace uc
 	#define UOS_PROJECT_CONFIGURATION_DEBUG				L"Debug"
 	#define UOS_PROJECT_CONFIGURATION_RELEASE			L"Release"
 
-	#define UOS_MOUNT_LOCAL								L"Local"
-	#define UOS_MOUNT_PERSONAL							L"Personal"
-	#define UOS_MOUNT_CORE								L"Core"
-	#define UOS_MOUNT_SERVER							L"Server"
-	#define UOS_MOUNT_SERVER_TMP							L"App.Tmp"
-	#define UOS_MOUNT_USER_LOCAL						L"User.Local"
-	#define UOS_MOUNT_USER_GLOBAL						L"User.Global"
-
 	#define UC_NAME										L"Ultranet Community"
 	#define UC_NAMESPACE								L"UC"
 	#define UC_COPYRIGHT								L"© Ultranet Community"
 	#define UO_WEB_HOME									L"https://ultranet.org"
-	#define UO_WEB_SERVICE_ACTIVITY						L"https://ultranet.org/service/activity"
-
 
 	#define Bit(a, n)		(((a >> n) & 0x1)==1)
 		

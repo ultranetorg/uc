@@ -11,7 +11,7 @@ namespace uc
 
 			EWorldAction				TouchStage = EWorldAction::Null;
 
-			CDesktopWorld(CNexus * l, CServerInfo * si);
+			CDesktopWorld(CNexus * l, CServerRelease * si);
 			~CDesktopWorld();
 
 			void						InitializeViewports() override;

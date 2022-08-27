@@ -5,11 +5,13 @@ namespace uc
 	class CWorldEntity : public CStorableObject
 	{
 		public:
-			CString										DefaultInteractiveMasterTag;
-			CString										Title;
-			CEvent<CWorldEntity *>						Retitled;
+			inline static const CString   	Scheme = L"worldentity";
 
-			CWorldEntity(CServer * s, CString const & name) : CStorableObject(s, name)
+			CString							DefaultInteractiveMasterTag;
+			CString							Title;
+			CEvent<CWorldEntity *>			Retitled;
+
+			CWorldEntity(CServer * s, CString const & name) : CStorableObject(Scheme, s, name)
 			{
 			}
 

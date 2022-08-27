@@ -3,7 +3,6 @@
 
 namespace uc
 {
-
 	template<class T, int N> class CStaticArray
 	{
 		public:

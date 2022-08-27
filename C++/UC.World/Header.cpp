@@ -64,7 +64,7 @@ CHeader::CHeader(CWorldServer * l, CView * view) : CArea(l, GetClassName())
 																	{
 																		Menu = new CRectangleMenu(Level, Level->Style);
 																		Menu->Section->AddItem(L"Hide")->Clicked = [this](auto, auto)	{ Level->Hide(Parent->As<CUnit>(), null); };
-																		Menu->Section->AddItem(L"Push")->Clicked = [this](auto arg, auto){ Level->Show(Parent->As<CUnit>(), AREA_BACKGROUND, sh_new<CShowParameters>(arg, Level->Style)); };
+																		Menu->Section->AddItem(L"Push")->Clicked = [this](auto arg, auto){ Level->Show(Parent->As<CUnit>(), CArea::Background, sh_new<CShowParameters>(arg, Level->Style)); };
 																	}
 		
 																	Menu->Open(arg->Pick);

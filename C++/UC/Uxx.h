@@ -3,87 +3,55 @@
 
 namespace uc
 {
-	class UOS_LINKING CUsl : public ISerializable
+	/// <summary>
+	/// {protocol=worldentity realization=uc.experimental.winx64 server=Experimental host=127.0.0.1 class=UC.Experimental.Commander id=4444444444444444444444444444444}
+	/// {protocol=worldentity server=Experimental class=UC.Experimental.Commander id=4444444444444444444444444444444}
+	/// {protocol=worldentity class=UC.Experimental.Commander id=4444444444444444444444444444444}
+	/// 
+	/// worldentity://127.0.0.1/uc/experimental/winx64/0.0.0.0/Experimental/Experimental0/UC.Experimental.Commander/4444444444444444444444444444444
+	/// worldentity://///////UC.Experimental.Commander/4444444444444444444444444444444
+	///	worldentity:///UC.Experimental.Browser/4444444444444444444444444444444
+	///	worldentity:///UC.Experimental.Earth/4444444444444444444444444444444
+	/// </summary>
+
+	class UOS_LINKING CUol : public ISerializable // universal object locator
 	{
 		public:
-			const static CString						Protocol;
-			CString										Domain;
+			CString										Scheme;
 			CString										Server;
-
-			const static std::wstring					TypeName;
-
-			CUsl();
-			CUsl(const CUrl & u);
-			CUsl(CString const & u);
-			CUsl(CString const & d, CString const & s);
-			
-			bool										operator==(const CUsl & a) const;
-			bool										operator!=(const CUsl & a) const;
-			virtual CString								ToString() const;
-			bool										IsEmpty();
-			bool static									IsUsl(const CUrl & u);
-
-			operator									CUrl() const;
-
-			/// ISerializable
-
-			virtual std::wstring						GetTypeName() override;
-			virtual void								Read(CStream * s)  override;
-			virtual int64_t								Write(CStream * s) override;
-			virtual void								Write(std::wstring & s) override;
-			virtual void								Read(const std::wstring & addr) override;
-			virtual ISerializable *						Clone() override;
-			virtual bool								Equals(const ISerializable & a) const override;
-
-	};
-
-
-	class UOS_LINKING CUol : public CUsl // universal object locator
-	{
-		public:
 			CString										Object;
 			CMap<CString, CString>						Parameters;
 
 			const static std::wstring					TypeName;
 
 			CUol();
+			CUol(CString const & protocol, CString const & server, CString const & object);
+			CUol(CString const & protocol, CString const & server, CString const & object, CMap<CString, CString> & parameters);
 			CUol(const CUrl & addr);
-			CUol(CUsl & u, CString const & o);
-			CUol(CUsl & u, CString const & o, CMap<CString, CString> const & params);
-			CUol(CUrl & u, CString const & o);
-			CUol(CString const & d, CString const & s, CString const & o);
 
-			static CString								GetObjectType(CString const & name);
-			static CString								GetObjectID(CString const & name);
+			static CString								GetObjectClass(CString const & name);
+			static CString								GetObjectId(CString const & name);
 
 			bool static									IsValid(const CUrl & u);
 			bool										IsEmpty() const;
-			CString										GetType();
-			CString										GetId() const;
-			virtual CString								ToString() const override;
-			
+			CString										ToString() const;
+			CString										GetObjectClass();
+			CString										GetObjectId();
+
 			bool										operator!= (const CUol & a) const;
 			bool										operator== (const CUol & a) const;
 			CUol &										operator=  (CUrl & addr);
 			operator									CUrl() const;
 			
 			/// ISerializable
-
 			virtual std::wstring						GetTypeName() override;
-			virtual void								Read(CStream * s) override { __super::Read(s); };
-			virtual void								Read(const std::wstring & addr) override;
+			virtual void								Read(CStream * s)  override;
+			virtual int64_t								Write(CStream * s) override;
+			virtual void								Write(std::wstring & s) override;
+			virtual void								Read(std::wstring const & addr) override;
 			virtual ISerializable *						Clone() override;
 			virtual bool								Equals(const ISerializable & a) const override;
 	};
 
-	class UOS_LINKING CUrq : public CUrl // universal system request
-	{
-		public:
-			CUrq(CString const & u);
-			CUrq(CUol const & u);
-			CUrq(CUrl const & u);
 
-			CString										GetSystem() const;
-			CString										GetObject() const; 
-	};
 }

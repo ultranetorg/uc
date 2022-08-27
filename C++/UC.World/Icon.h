@@ -82,7 +82,7 @@ namespace uc
 				
 				auto t = Level->Engine->TextureFactory->CreateTexture();
 				
-				auto s = Level->Storage->OpenReadStream(l);
+				auto s = Level->Storage->ReadFile(l);
 				t->Load(s);
 				Level->Storage->Close(s);
 				

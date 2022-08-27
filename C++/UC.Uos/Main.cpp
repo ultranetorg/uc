@@ -28,54 +28,67 @@ void Create(HINSTANCE instance, LPTSTR cmd)
 	pi.Build			= PROJECT_CONFIGURATION;
 	pi.Platform			= PROJECT_TARGET_PLATFORM;
 
-	try
-	{
-		CSupervisor s;
-		auto core = new CCore(&s, instance, cmd, SUPERVISOR_FOLDER, ROOT_FROM_EXE_FOLDER, CORE_FOLDER, pi);
+	auto main = [&]
+				{
+					CSupervisor s;
+					auto core = new CCore(&s, instance, cmd, SUPERVISOR_FOLDER, CORE_FOLDER, pi);
 
-		if(core->Initialized)
+					if(core->Initialized)
+					{
+						auto nexus = new CNexus(core, core->Config);
+						core->Run();
+						delete nexus;
+					}
+
+					delete core;
+				};
+
+	if(IsDebuggerPresent())
+	{
+		main();
+	} 
+	else
+	{
+		try
 		{
-			auto nexus = new CNexus(core, core->Config);
-			core->Run();
-			delete nexus;
+			main();
 		}
-
-		delete core;
-
-	}
-	catch(CException & e)
-	{
-		MessageBox(null, (e.Source.ClassMethod + L":" + CInt32::ToString(e.Source.Line) + L"\n\n" + e.Message).data(), pi.ToString(L"NVSPB").data(), MB_OK|MB_ICONERROR);
-		abort();
+		catch(CException & e)
+		{
+			MessageBox(null, (e.Source.ClassMethod + L":" + CInt32::ToString(e.Source.Line) + L"\n\n" + e.Message).data(), pi.ToString(L"NVSPB").data(), MB_OK|MB_ICONERROR);
+			abort();
+		}
 	}
 }
 
 int wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetBreakAlloc(6086);
 
 	CString c;
 
-	if(COs::ParseCommandLine(cmd).Has([](auto & i){ return i.GetSystem() == L"Core" && i.Query.Contains(L"HardcodedCommandLine"); }))
+	auto x = new CTonDocument(CXonTextReader(cmd));
+
+	if(x->Any(L"Core/HardcodedCommandLine"))
 	{
 		c += COs::GetEnvironmentValue(L"G_Mmc");
 		c += L" ";
-		c += L"/World?" 
-					L"Name=Desktop"
+		c += L"World{" 
+					L"Name=Desktop "
 					//L"Name=Mobile.E"
 					//L"Name=VR.E"
-						L"&Layout=" + COs::GetEnvironmentValue(L"G_Layout") +
+						//L"Layout=" + COs::GetEnvironmentValue(L"G_Layout") +
 						//L"&Layout=" + COs::GetEnvironmentValue(L"UO_DuoLayout") +
 						//L"&Layout=PhoneB"
 						//L"&Layout=FullScreen"
 						//L"&Skin/ShowLabels=n"	
 						//L"&ScreenEngine/RenderScaling=0.5"
-					L" ";
+					L"}";
 	
 		cmd = c.data();
 	}
 
-	//_CrtSetBreakAlloc(5080);
 
 	//_try
 	{
@@ -90,6 +103,8 @@ int wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
 	}
 	
 	//RestoreSystem(mw::GetRestoreFolder());
+
+	delete x;
 
 	return 0;
 }

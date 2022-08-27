@@ -62,11 +62,11 @@ void CFieldElement::Load()
 	}
 	Items.Clear();
 
-	auto url = Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, CPath::Join(Directory, L"Store.xon"));
+	auto url = CPath::Join(IFileSystem::UserGlobal, Directory, L"Store.xon");
 
 	if(Level->Storage->Exists(url))
 	{
-		auto store = Level->Storage->OpenReadStream(url);
+		auto store = Level->Storage->ReadFile(url);
 
 		auto & doc = CTonDocument(CXonTextReader(store));
 		CMeshStore		mhs(Level->World);
@@ -75,11 +75,11 @@ void CFieldElement::Load()
 		mhs.Load(&doc);
 		mts.Load(&doc);
 
-		auto g = Level->Storage->OpenDirectory(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, Directory));
+		auto g = CPath::Join(IFileSystem::UserGlobal, Directory);
 
-		for(auto & f : g->Enumerate(L"FieldItemElement-*.xon"))
+		for(auto & f : Level->Storage->Enumerate(g, L"FieldItemElement-.+\\.xon"))
 		{
-			auto fie = new CFieldItemElement(Level, this, CPath::Join(Directory, CPath::GetName(f.Path)));
+			auto fie = new CFieldItemElement(Level, this, CPath::Join(Directory, f.Name));
 			fie->Load(&mhs, &mts, Entity);
 
 			if(fie->Entity)
@@ -101,7 +101,6 @@ void CFieldElement::Load()
 
 		}
 
-		Level->Storage->Close(g);
 		Level->Storage->Close(store);
 	}
 }
@@ -120,7 +119,7 @@ void CFieldElement::Save()
 	mhs.Save(&d);
 	mts.Save(&d);
 
-	auto f = Level->Storage->OpenWriteStream(Level->Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, CPath::Join(Directory, L"Store.xon")));
+	auto f = Level->Storage->WriteFile(CPath::Join(IFileSystem::UserGlobal, Directory, L"Store.xon"));
 	d.Save(&CXonTextWriter(f, true));
 	Level->Storage->Close(f);
 }
@@ -960,7 +959,7 @@ void CFieldElement::AddNewMenu(CRectangleMenu * menu, CFloat3 & p)
 	auto nmi = new CRectangleSectionMenuItem(Level->World, Level->Style, L"New");
 	menu->Section->AddItem(nmi);
 			
-	auto cc = Level->Nexus->ConnectMany<IShellFriend>(this, SHELL_FRIEND_PROTOCOL);
+	auto cc = Level->Nexus->ConnectMany<IShellFriend>(this);
 	for(auto f : cc)
 	{
 		auto smi = new CRectangleSectionMenuItem(Level->World, Level->Style, f->GetTitle());

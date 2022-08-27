@@ -8,7 +8,7 @@ CHudEnvironment::CHudEnvironment(CShellLevel * l, CString const & name) : CModel
 {
 	Level = l;
 	Tags = {L"Hud-Primary"};
-	PreferedPlacement[AREA_HUD] = EPreferedPlacement::Default;
+	PreferedPlacement[CArea::Hud] = EPreferedPlacement::Default;
 
 	FieldElement = new CHudFieldElement(Level);
 	FieldElement->Express(L"W", [this]{ return Size.W; });

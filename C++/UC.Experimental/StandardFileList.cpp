@@ -102,7 +102,7 @@ CStandardFileList::~CStandardFileList()
 
 void CStandardFileList::SetSource(CString & u)
 {
-	ImageExtractor = Level->Nexus->Connect(this, IMAGE_EXTRACTOR_PROTOCOL);
+	ImageExtractor = Level->Nexus->Connect(this, IImageExtractor::InterfaceName);
 
 	Source = u;
 
@@ -125,7 +125,7 @@ void CStandardFileList::Load(CString path)
 		
 	Items.Clear();
 	
-	auto & entries = Level->Storage->Enumerate(path, L"*.*");
+	auto & entries = Level->Storage->Enumerate(path, L".*");
 
 	CString prev;
 		
@@ -138,16 +138,22 @@ void CStandardFileList::Load(CString path)
 
 	if(!Paths.empty())
 	{
-		CStorageEntry e;
+		CFileSystemEntry e;
 		e.NameOverride = L"..";
-		e.Path = Paths.back();
-		e.Type = CDirectory::GetClassName();
+		//e.Name = Paths.back();
+		e.Type = CFileSystemEntry::Directory;
 		entries.push_front(e);
 	}
 
-	for(auto file : entries)
+	for(auto & f : entries)
 	{
-		auto fi = new CFileItemElement(Level, &file, IconMesh, ImageExtractor);
+		auto fi = new CFileItemElement(	Level, 
+										f.NameOverride == L".." ? Paths.back() : CPath::Join(path, f.Name), 
+										f.NameOverride, 
+										f.Type == CFileSystemEntry::Directory, 
+										IconMesh, 
+										ImageExtractor);
+
 		fi->Express(L"M", []{ return CFloat6(1.f); });
 		fi->CalculateFullSize();
 
@@ -202,7 +208,7 @@ void CStandardFileList::OnMouse(CActive * r, CActive * s, CMouseArgs * arg)
 	{
 		if(Current)
 		{
-			Level->Nexus->Execute(Current->Object, sh_new<CShowParameters>(arg, Level->Style));
+			Level->Nexus->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
 		}
 	}
 }
@@ -261,7 +267,7 @@ void CStandardFileList::OnKeyboard(CActive * r, CActive * s, CKeyboardArgs * arg
 				if(Current->IsDirectory)
 					Load(Current->Path);
 				else
-					Level->Nexus->Execute(Current->Object, sh_new<CShowParameters>(arg, Level->Style));
+					Level->Nexus->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
 
 				break;
 		}

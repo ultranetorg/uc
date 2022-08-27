@@ -3,14 +3,15 @@
 
 namespace uc
 {
-	struct CFieldItem : public CStorableObject
+	class CFieldItem : public CStorableObject
 	{
 		public:
-			CUol				Object;
-			CString				Complexity;
+			const static inline CString		Scheme = L"fielditem";
+			CUol							Object;
+			CString							Complexity;
 
 			UOS_RTTI
-			CFieldItem(CServer * s, CString const & complexity, CString const & name = CGuid::Generate64(GetClassName())) : CStorableObject(s, name)
+			CFieldItem(CServer * server, CString const & complexity, CString const & name = CGuid::Generate64(GetClassName())) : CStorableObject(Scheme, server, name)
 			{
 				Complexity = complexity;
 			}

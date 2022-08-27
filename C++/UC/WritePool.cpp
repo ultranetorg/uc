@@ -1,10 +1,10 @@
 #include "StdAfx.h"
 #include "WritePool.h"
-#include "FileStream.h"
+#include "LocalFileStream.h"
 
 using namespace uc;
 
-CWritePool::CWritePool(IDirectory * d)
+CWritePool::CWritePool(CString const & d)
 {
 	Directory = d;
 }
@@ -57,9 +57,8 @@ void CWritePool::Add(const CString & dst, const CString & src, IWriterProgress *
 	pf.DestinationPath	= dst;
 	pf.SourcePath		= srcReal;
 	
-	auto s = Directory->OpenWriteStream(dst);
-	s->Write(&CFileStream(srcReal, EFileMode::Open));
-	Directory->Close(s);
+	CLocalFileStream s(CNativePath::Join(Directory, dst), EFileMode::New);
+	s.Write(&CLocalFileStream(srcReal, EFileMode::Open));
 	
 	Files.push_back(pf);
 }

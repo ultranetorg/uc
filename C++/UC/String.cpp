@@ -184,6 +184,9 @@ CString CString::Substring(wchar_t const separ, int index) const
 	auto x = 0ull;
 	auto y = find(separ);
 
+	if(y == npos && index == 0)
+		return *this;
+
 	while(x != npos)
 	{
 		if(i == index)
@@ -203,19 +206,19 @@ CString CString::Substring(CString const & separ, int index) const
 	auto x = 0ull;
 	auto y = find(separ);
 
-	if(y == npos)
-	{
-		return index == 0 ? *this : L"";
-	}
+	//if(y == npos)
+	//{
+	//	return index == 0 ? *this : L"";
+	//}
 
 	while(x != npos)
 	{
 		if(i == index)
 		{
-			return Substring(x, y);
+			return Substring(x, y != npos ? y - x : length() - x);
 		}
-		x = y;
-		y = find(separ, y);
+		x = y + separ.length();
+		y = find(separ, x);
 		i++;
 	}
 	return L"";

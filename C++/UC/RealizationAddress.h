@@ -15,6 +15,6 @@ namespace uc
 
 			bool										operator==(const CRealizationAddress & a) const;
 			bool										operator!=(const CRealizationAddress & a) const;
-			virtual CString								ToString();
+			CString										ToString();
 	};
 }

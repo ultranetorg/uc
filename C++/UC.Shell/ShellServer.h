@@ -22,7 +22,7 @@
 
 namespace uc
 {
-	class CShellServer : public CStorableServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarProtocol, public IFieldProtocol, public IExecutorProtocol
+	class CShellServer : public CStorableServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarProtocol, public IFieldProtocol, public IExecutor
 	{
 		using CShellLevel::Server;
 		using CShellLevel::Nexus;
@@ -32,14 +32,13 @@ namespace uc
 			CRectangleMenu *							Menu = null;
 
 			UOS_RTTI
-			CShellServer(CNexus * l, CServerInfo * si);
+			CShellServer(CNexus * l, CServerRelease * si);
 			~CShellServer();
 			
 			void										EstablishConnections();
 
-			void										Start(EStartMode sm) override;
-			IProtocol * 								Connect(CString const & pr)override;
-			void										Disconnect(IProtocol * s) override;
+			IInterface * 								Connect(CString const & pr)override;
+			void										Disconnect(IInterface * s) override;
 			CStorableObject *								CreateObject(CString const & name) override;
 
 			CString										GetTitle() override { return SHELL_OBJECT; }
@@ -47,7 +46,7 @@ namespace uc
 			
 			CRefList<CMenuItem *>						CreateActions() override;
 
-			virtual CInterObject *					GetEntity(CUol & a) override;
+			virtual CInterObject *						GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 			virtual void								DestroyAvatar(CAvatar * a) override;
@@ -57,8 +56,7 @@ namespace uc
 			
 			CObject<CFieldServer>						GetField(CUol & o) override;
 
-			void virtual								Execute(const CUrq & o, CExecutionParameters * ep) override;
-			bool virtual								CanExecute(const CUrq & o) override;
+			void virtual								Execute(CXon * arguments, CExecutionParameters * parameters) override;
 
 			void										OnWorldSphereMouse(CActive *, CActive *, CMouseArgs *);
 	};

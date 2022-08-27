@@ -7,7 +7,7 @@ CEmailAccountEnvironment::CEmailAccountEnvironment(CExperimentalLevel * l, CStri
 {
 	Level = l;
 
-	Load(l->Style, Server->MapPath(L"EmailAccount.uwm"));
+	Load(l->Style, Server->MapReleasePath(L"EmailAccount.uwm"));
 }
 
 CEmailAccountEnvironment::~CEmailAccountEnvironment()

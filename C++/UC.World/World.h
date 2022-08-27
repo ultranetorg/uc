@@ -21,17 +21,17 @@ namespace uc
 		CString			Name;
 		CTonDocument *	WorldConfig;
 		CTonDocument *	EngineConfig;
+
+		const static inline CString DESKTOP		= L"Desktop";
+		const static inline CString MOBILE_E	= L"Mobile.E";
+		const static inline CString VR_E		= L"VR.E";
 	};
 
 	#define WORLD_HISTORY	L"History"
 	#define WORLD_BOARD		L"Board"
 	#define WORLD_TRAY		L"Tray"
 
-	auto constexpr WORLD_MODE_DESKTOP	= L"Desktop";
-	auto constexpr WORLD_MODE_MOBILE_E	= L"Mobile.E";
-	auto constexpr WORLD_MODE_VR_E		= L"VR.E";
-
-	class CWorld : public CWorldLevel, public CWorldCapabilities, public virtual IProtocol
+	class CWorld : public CWorldLevel, public CWorldCapabilities, public virtual IInterface
 	{
 		public:
 			CList<CWorldMode>										Modes;

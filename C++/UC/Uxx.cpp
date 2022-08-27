@@ -3,9 +3,11 @@
 
 using namespace uc;
 
+const std::wstring	CUol::TypeName = L"uol";
+
+/*
 const CString		CUsl::Protocol = UOS_OBJECT_PROTOCOL;
 const std::wstring	CUsl::TypeName = L"usl";
-const std::wstring	CUol::TypeName = L"uol";
 
 CUsl::CUsl()
 {
@@ -124,12 +126,18 @@ bool CUsl::IsEmpty()
 }
 
 //////////////////////// Uol /////////////////////////////////////
+*/
 
-CUol::CUol(CString const & d, CString const & s, CString const & o)
+CUol::CUol(CString const & protocol, CString const & server, CString const & object)
 {
-	Domain = d;
-	Server = s;
-	Object = o;
+	Scheme = protocol;
+	Server = server;
+	Object = object;
+}
+
+CUol::CUol(CString const & protocol, CString const & server, CString const & object, CMap<CString, CString> & parameters) : CUol(protocol, server, object)
+{
+	Parameters = parameters;
 }
 
 CUol::CUol()
@@ -146,29 +154,15 @@ CString ExtractObject(CString const & path)
 	return path.Substring(path.find(L'/') + 1);
 }
 
-CUol::CUol(const CUrl & u)
+CUol::CUol(const CUrl & addr)
 {
-	Domain = u.Domain;
-	Server = ExtractServer(u.Path);
-	Object = ExtractObject(u.Path);
-	Parameters = u.Query;
-}
+	auto u = const_cast<CUrl &>(addr);
+	
+	Scheme	= u.Scheme;
+	Parameters	= u.Query;
 
-CUol::CUol(CUrl & u, CString const & o) : CUol(u)
-{
-	Object = o;
-}
-
-CUol::CUol(CUsl & u, CString const & o)
-{
-	Domain = u.Domain;
-	Server = u.Server;
-	Object = o;
-}
-
-CUol::CUol(CUsl & u, CString const & o, CMap<CString, CString> const & params) : CUol(u, o)
-{
-	Parameters = params;
+	Server	= ExtractServer(addr.Path);
+	Object	= ExtractObject(addr.Path);
 }
 
 bool CUol::operator==(const CUol & a) const
@@ -181,47 +175,59 @@ bool CUol::operator!=(const CUol & a) const
 	return !Equals(a);
 }
 
-CUol & CUol::operator= (CUrl & addr)
+CUol & CUol::operator=(CUrl & addr)
 {
-	auto u = const_cast<CUrl &>(addr);
-
-	Domain		= u.Domain;
-	Server		= ExtractServer(u.Path);
-	Object		= ExtractObject(u.Path);
-	Parameters	= u.Query;
+	this->CUol::CUol(addr);
 
 	return *this;
-}
-
-bool CUol::IsEmpty() const
-{
-	return Domain.empty() && Server.empty() && Object.empty() && Parameters.empty();// && Params.empty();
-}
-
-CString CUol::GetType()
-{
-	return Object.substr(0, Object.find(L'-'));
-}
-
-CString CUol::GetId() const
-{
-	return Object.substr(Object.find(L'-') + 1);
 }
 
 CUol::operator CUrl() const
 {
 	CUrl u;
-	u.Protocol = Protocol;
-	u.Domain = Domain;
-	u.Path = Server + L"/" + Object;
+	u.Scheme = Scheme;
+	u.Path = Server + L'/' + Object;
 	u.Query = Parameters;
 
 	return u;
 }
 
+bool CUol::IsEmpty() const
+{
+	return Server.empty() && Object.empty() && Parameters.empty();// && Params.empty();
+}
+
 CString CUol::ToString() const
 {
-	return !IsEmpty() ? __super::ToString() + L"/" + Object + (Parameters.empty() ? L"" : L"?" + CString::Join(Parameters, [](auto & i){ return i.first + L"=" + i.second; }, L"&")) : L"";
+	if(IsEmpty())
+		return CString();
+
+	return Scheme + L":///" + Server + L'/' + Object + (Parameters.empty() ? L"" : L'?' + CString::Join(Parameters, [](auto & i){ return i.first + L"=" + i.second; }, L"&"));
+}
+
+CString CUol::GetObjectClass(CString const & o)
+{
+	return o.Substring(0, o.find('-'));
+}
+
+CString CUol::GetObjectId(CString const & o)
+{
+	return o.Substring(o.find('-') + 1);
+}
+
+CString CUol::GetObjectClass()
+{
+	return GetObjectClass(Object);
+}
+
+CString CUol::GetObjectId()
+{
+	return GetObjectId(Object);
+}
+
+bool CUol::IsValid(const CUrl & u)
+{
+	return !u.Scheme.empty() && !u.Path.empty();
 }
 
 std::wstring CUol::GetTypeName()
@@ -229,13 +235,32 @@ std::wstring CUol::GetTypeName()
 	return TypeName;
 }
 
+void CUol::Read(CStream * s)
+{
+	CString t;
+	t.Read(s);
+
+	Read(t);
+}
+
+int64_t CUol::Write(CStream * s)  
+{
+	return ToString().Write(s);
+}
+
+void CUol::Write(std::wstring & s)
+{
+	s += ToString();
+}
+
 void CUol::Read(const std::wstring & addr)
 {
-	CString p;
-	CUrl::Read(addr, null, &Domain, &p, &Parameters);
-	
-	Server = ExtractServer(p);
-	Object = ExtractObject(p);
+	CString path;
+
+	CUrl::Read(addr, &Scheme, null, &path, &Parameters);
+
+	Server	= ExtractServer(path);
+	Object	= ExtractObject(path);
 }
 
 ISerializable * CUol::Clone()
@@ -243,21 +268,17 @@ ISerializable * CUol::Clone()
 	return new CUol(*this);
 }
 
-bool CUol::Equals(const ISerializable & a) const
+bool CUol::Equals(const ISerializable & serializable) const
 {
-	if(!__super::Equals(a))
-	{
-		return false;
-	}
-	if(Object != ((CUol const &)a).Object)
-	{
-		return false;
-	}
+	auto & a = static_cast<CUol const &>(serializable);
 
-	auto & ap = ((CUol &)a).Parameters.begin();
+	if(Scheme != a.Scheme || Server != a.Server || Object != a.Object)
+		return false;
+
+	auto & ap = a.Parameters.begin();
 	auto & bp = Parameters.begin();
 
-	while(ap != ((CUol &)a).Parameters.end() && bp != Parameters.end())
+	while(ap != a.Parameters.end() && bp != Parameters.end())
 	{
 		if(ap->second != bp->second)
 		{
@@ -268,55 +289,6 @@ bool CUol::Equals(const ISerializable & a) const
 		bp++;
 	}
 
-
 	return true;
-//	return CUol::operator==(static_cast<const CUol&>(a));
 }
 
-CString CUol::GetObjectType(CString const & o)
-{
-	return o.Substring(0, o.find('-'));
-}
-
-CString CUol::GetObjectID(CString const & o)
-{
-	return o.Substring(o.find('-') + 1);
-}
-
-bool CUol::IsValid(const CUrl & u)
-{
-	return CUsl::IsUsl(u) && !u.Path.Substring(L"/", 1).empty();
-}
-
-//////////////////////// Uor /////////////////////////////////////
-
-CUrq::CUrq(CString const & u) : CUrl(u)
-{
-}
-
-CUrq::CUrq(CUrl const & u) : CUrl(u)
-{
-}
-
-CUrq::CUrq(CUol const & u)
-{
-	Protocol = u.Protocol;
-	Domain = u.Domain;
-	Path = u.Server + L"/" + u.Object;
-}
-
-CString CUrq::GetSystem() const
-{
-	return Path.Substring(L'/', 0);
-}
-
-CString CUrq::GetObject() const
-{
-	auto i = Path.find(L'/');
-
-	if(i != CString::npos)
-		return Path.Substring(i + 1);
-	else
-		return L"";
-
-}

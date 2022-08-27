@@ -11,16 +11,18 @@ namespace uc
 	class UOS_WORLD_LINKING CAvatar : public CElement, public CStorableObject 
 	{
 		public:
-			CProtocolConnection<IAvatarProtocol>		Protocol;
-			CWorld *									World;
+			inline static const CString				Scheme = L"worldavatar";
+
+			CProtocolConnection<IAvatarProtocol>	Protocol;
+			CWorld *								World;
 
 			UOS_RTTI
 			CAvatar(CWorld * l, CServer * s, CString const & name); 
 
 			using CStorableObject::Load;
 
-			virtual void								SetEntity(CUol & e);
-			virtual void								DetermineSize(CSize & smax, CSize & s);
+			virtual void							SetEntity(CUol & e);
+			virtual void							DetermineSize(CSize & smax, CSize & s);
 	};
 	
 	class UOS_WORLD_LINKING CStaticAvatar : public CAvatar
@@ -32,13 +34,15 @@ namespace uc
 			virtual ~CStaticAvatar();
 	};
 
-	class IAvatarProtocol : public virtual IProtocol
+	class IAvatarProtocol : public virtual IInterface
 	{
 		public:
+			inline static const CString				InterfaceName = L"IAvatar";
+
 			virtual CInterObject *					GetEntity(CUol & a)=0;
-			virtual CAvatar *							CreateAvatar(CUol & a)=0;
-			virtual CList<CUol>							GenerateSupportedAvatars(CUol & o, CString const & type)=0;
-			virtual void								DestroyAvatar(CAvatar * a) = 0;
+			virtual CAvatar *						CreateAvatar(CUol & a)=0;
+			virtual CList<CUol>						GenerateSupportedAvatars(CUol & o, CString const & type)=0;
+			virtual void							DestroyAvatar(CAvatar * a) = 0;
 
 			virtual ~IAvatarProtocol(){}
 	};

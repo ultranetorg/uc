@@ -16,11 +16,8 @@ CScreenEngine::CScreenEngine(CEngineLevel * l, CDirectSystem * ge) : CEngineEnti
 		Layouts.push_back(i->AsString());
 	}
 
-	for(auto i : Level->Core->FindStartCommands(Level->Server->Url))
-	{
-		if(i.Query.Contains(RENDER_SCALING))	
-			RenderScaling = CFloat::Parse(i.Query(RENDER_SCALING)); 
-	}
+	if(auto s = Level->Server->Command->One(RENDER_SCALING))	
+		RenderScaling = s->Get<CFloat>(RENDER_SCALING); 
 
 	Level->Core->Suspended		+= ThisHandler(OnLevel1Suspended);
 	Level->Core->Resumed		+= ThisHandler(OnLevel1Resumed);

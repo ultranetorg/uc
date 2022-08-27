@@ -17,7 +17,7 @@ namespace uc
 			UOS_RTTI
 			CTrade(CExperimentalLevel * l, CString const & name) : CWorldEntity(l->Server, name)
 			{
-				SetDefaultInteractiveMaster(AREA_MAIN);
+				SetDefaultInteractiveMaster(CArea::Main);
 			}
 
 			void SaveInstance()

@@ -4,10 +4,8 @@
 
 using namespace uc;
 
-CStorableServer::CStorableServer(CNexus * l, CServerInfo * info) : CServer(l, info)
+CStorableServer::CStorableServer(CNexus * l, CServerRelease * info) : CServer(l, info)
 {
-	Url = info->Url;
-	Info = info;
 }
 	
 CStorableServer::~CStorableServer()
@@ -55,7 +53,7 @@ void CStorableServer::LoadObject(CStorableObject * o)
 	{
 		o->Shared = true;
 				
-		auto s = Storage->OpenReadStream(f);
+		auto s = Storage->ReadFile(f);
 		o->LoadInfo(s);
 		Storage->Close(s);
 	}
@@ -74,13 +72,13 @@ void CStorableServer::DeleteObject(CInterObject * r)
 
 	if(shared)
 	{
-		if(CUol::GetObjectID(name).Has([](auto c){ return !iswalnum(c); }))
+		if(CUol::GetObjectId(name).Has([](auto c){ return !iswalnum(c); }))
 		{
 			throw CException(HERE, L"Incorrect permanent object name");
 		}
 
-		Storage->DeleteFile(Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, name + L".object"));
-		Storage->DeleteFile(Nexus->MapPath(UOS_MOUNT_USER_LOCAL, name + L".object"));
+		Storage->Delete(CPath::Join(IFileSystem::UserGlobal, name + L".object"));
+		Storage->Delete(CPath::Join(IFileSystem::UserLocal, name + L".object"));
 	}
 
 	DestroyObject(r, false);
@@ -95,7 +93,7 @@ void CStorableServer::DestroyObject(CInterObject * o, bool save)
 
 		if(so)
 		{
-			auto s = Storage->OpenWriteStream(MapUserGlobalPath(o->Url.Object + L".object"));
+			auto s = Storage->WriteFile(MapUserGlobalPath(o->Url.Object + L".object"));
 			so->SaveInfo(s);
 			Storage->Close(s);
 		}
@@ -104,9 +102,9 @@ void CStorableServer::DestroyObject(CInterObject * o, bool save)
 	DestroyObject(o);
 }
 
-CTonDocument * CStorableServer::LoadServerDocument(CString const & path)
+CTonDocument * CStorableServer::LoadReleaseDocument(CString const & path)
 {
-	if(auto s = Storage->OpenReadStream(MapPath(path)))
+	if(auto s = Storage->ReadFile(MapReleasePath(path)))
 	{
 		auto d = new CTonDocument(CXonTextReader(s));
 		Storage->Close(s);
@@ -118,12 +116,15 @@ CTonDocument * CStorableServer::LoadServerDocument(CString const & path)
 
 CTonDocument * CStorableServer::LoadGlobalDocument(CString const & path)
 {
-	if(auto s = Storage->OpenReadStream(MapUserGlobalPath(path)))
+	try
 	{
+		auto s = Storage->ReadFile(MapUserGlobalPath(path));
 		auto d = new CTonDocument(CXonTextReader(s));
 		Storage->Close(s);
 		return d;
 	}
-	else
+	catch(CFileException &)
+	{
 		return null;
+	}
 }

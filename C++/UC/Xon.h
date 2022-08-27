@@ -52,7 +52,7 @@ namespace uc
 		public:
 			CString										Name;
 			CString										Id;
-			CList<CXon *>								Children;
+			CList<CXon *>								Nodes;
 			CXon *										Parent = null;
 			CList<CXon *>								Templates;
 			bool										IsTemplatesOwner = false;
@@ -74,6 +74,7 @@ namespace uc
 
 			CXon *										GetRoot();
 			CXon *										One(const CString & name);
+			bool										Any(const CString & name);
 			CArray<CXon *>								Many(const CString & name);
 			CArray<CXon *>								ManyOf(const CString & name);
 			CXon *										GetOrAdd(const CString & name);
@@ -150,7 +151,7 @@ namespace uc
 
 			template<class T> CXon * Find(const CString & name, T const & v)
 			{
-				for(auto i : Children)
+				for(auto i : Nodes)
 				{
 					if(i->Name == name && i->Get<T>() == v)
 					{

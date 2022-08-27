@@ -55,8 +55,16 @@
 		<DisplayString>{Server}</DisplayString>
 	</Type>
 
+	<Type Name="uc::CRealizationAddress">
+		<DisplayString>{{Author}={Author} Product={Product} Platform={Platform}}}</DisplayString>
+	</Type>
+
 	<Type Name="uc::CReleaseAddress">
-		<DisplayString>{{{Author}/{Product}/{Platform}/{Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision}}}</DisplayString>
+		<DisplayString>{{Author}={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision}}}</DisplayString>
+	</Type>
+
+	<Type Name="uc::CServerAddress">
+		<DisplayString>{{Author}={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision} Server={Server}}}</DisplayString>
 	</Type>
 
 </AutoVisualizer>

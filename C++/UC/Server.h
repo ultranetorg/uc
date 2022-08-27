@@ -7,29 +7,21 @@
 namespace uc
 {
 	class CNexus;
+	class CServer;
+	struct CServerRelease;
 
-	struct CReleaseInfo
+	typedef CServer *	(* FStartUosServer)(CNexus * l, CServerRelease * info, CXon * command);
+	typedef void		(* FStopUosServer)(CServer *);
+
+	struct CServerRelease
 	{
-		CManifest *			Manifest = null;
-
-		~CReleaseInfo()
-		{
-			delete Manifest;
-		}
-	};
-
-	struct CServerInfo
-	{
-		CString				Name;
-		CServerAddress		Locator;
-		bool				Installed = false;
-		CUsl 				Url;
+		CServerAddress		Address;
 		HINSTANCE			HInstance;
-		CXon *				Xon;
-		CReleaseInfo *		Release;
+		FStartUosServer		StartUosServer;
+		CManifest *			Manifest = null;
 		CXonDocument *		Registry = null;
 
-		~CServerInfo()
+		~CServerRelease()
 		{
 			delete Registry;
 		}
@@ -40,50 +32,54 @@ namespace uc
 		Initialization, Start
 	};
 
+	class CIdentity
+	{
+	};
+
 	class UOS_LINKING CServer : public virtual IType
 	{
 		public:
-			CNexus *									Nexus;
-			CUsl										Url;
-			CServerInfo *								Info;
+			CString												Instance;
+			bool												Initialized = false;
+			CXon *												Registration;
+			CXon *												Command;
+			CServerRelease *									Release;
+			CNexus *											Nexus;
+			CIdentity *											Identity = null;
 
-			CList<CInterObject *>					Objects;
+			CList<CInterObject *>								Objects;
 			
-			CMap<CString, IProtocol *>					Protocols;
+			CMap<CString, IInterface *>							Interfaces;
 			CMap<CString, CMap<IType *, std::function<void()>>>	Users;
-			//CEvent<CServer *, IProtocol *, CString &>	Disconnecting;
 			
 			UOS_RTTI
-			CServer(CNexus * l, CServerInfo * info);
+			CServer(CNexus * l, CServerRelease * info);
 			~CServer();
 
-			virtual void								Start(EStartMode sm){}
-			virtual void								Execute(const CUrl & u, CExecutionParameters * ep){}
+			//virtual void								Execute(CXonValue * ep){}
 
-			virtual IProtocol *		 					Connect(CString const & pr)=0;
-			virtual void								Disconnect(IProtocol * s)=0;
+			virtual IInterface *		 				Connect(CString const & pr)=0;
+			virtual void								Disconnect(IInterface * s)=0;
 
-			virtual CInterObject *					CreateObject(CString const & name);
+			virtual CInterObject *						CreateObject(CString const & name);
 			virtual void								RegisterObject(CInterObject * o, bool shared);
 			virtual void								DestroyObject(CInterObject * o);
 
-			virtual CInterObject *					FindObject(CString const & name);
-			CInterObject *							FindObject(CUol const & u);
+			virtual CInterObject *						FindObject(CString const & name);
+			CInterObject * FindObject(CUol const & u);
 			template<class T> T *						FindObject(CString const & name)
 														{
 															return FindObject(name)->As<T>();
 														}
 
-			CString										MapRelative(CString const & path);
+			CString										MapReleasePath(CString const & path);
+			CString										MapSystemPath(CString const & path);
+			CString										MapSystemTmpPath(CString const & path);
 			CString										MapUserLocalPath(CString const & path);
 			CString										MapUserGlobalPath(CString const & path);
-			CString										MapTmpPath(CString const & path);
-			CString										MapPath(CString const & path);
+			CString										MapUserTmpPath(CString const & path);
 
 	};
-
-	typedef CServer *	(* FStartUosServer)(CNexus * l, CServerInfo * info);
-	typedef void		(* FStopUosServer)();
 }
 
 

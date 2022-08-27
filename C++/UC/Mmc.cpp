@@ -8,13 +8,14 @@ CMmc::CMmc(CCore * core) : CNativeWindow(core, core->LocationInstance, IDF_MMC, 
 {
 	Core = core;
 
-	for(auto & i : core->Commands)
+	for(auto i : core->Commands->Nodes)
 	{
-		if(i.Path == L"Core/Mmc")
+		if(i->Name == L"Core/Mmc")
 		{
-			if(i.Query.Contains(L"Config"))
+			if(i->Any(L"Config"))
 			{
-				auto tags = i.Query(L"Config");
+				auto tags = i->Get<CString>(L"Config");
+				
 				if(!tags.empty())
 				{
 					ConfigName = tags;
@@ -23,7 +24,7 @@ CMmc::CMmc(CCore * core) : CNativeWindow(core, core->LocationInstance, IDF_MMC, 
 		}
 	}
 	
-	Config = Core->CreateConfig(core->GetPathTo(ESystemPath::Root, ConfigName + L".mmc"), core->MapToDatabase(UOS_MOUNT_USER_LOCAL L"\\Default.mmc"));
+	Config = Core->CreateConfig(core->MapPath(ESystemPath::Core, ConfigName + L".mmc"), core->MapPath(ESystemPath::System, L"Default.mmc"));
 
 	Core->Information->Mmc = Hwnd;
 
@@ -117,8 +118,8 @@ CMmc::~CMmc()
 		Config->One(L"CustomRect")->Set(GetRect());
 	}
 
-	auto dconf = Core->CreateConfig(Core->GetPathTo(ESystemPath::Root, ConfigName + L".mmc"), L"");
-	Config->Save(&CXonTextWriter(&CFileStream(Core->MapToDatabase(UOS_MOUNT_USER_LOCAL L"\\" + GetClassName() + L".xon"), EFileMode::New), false), dconf);
+	auto dconf = Core->CreateConfig(Core->MapPath(ESystemPath::Core, ConfigName + L".mmc"), L"");
+	Config->Save(&CXonTextWriter(&CLocalFileStream(Core->MapPath(ESystemPath::System, ConfigName + L".mmc"), EFileMode::New), false), dconf);
 	delete Config;
 	delete dconf;
 }
@@ -339,11 +340,6 @@ void CMmc::InitMenus()
 	EnableMenuItem(FileMenu, ID_MENU_SUSPEND,	MF_BYCOMMAND|MF_ENABLED);
 	EnableMenuItem(FileMenu, ID_MENU_RESUME,	MF_BYCOMMAND|MF_GRAYED);
 
-	if(Core->LicenseService && Core->LicenseService->IsAllowed())
-	{
-		DeleteMenu(HelpMenu, ID_HELP_REGISTRATION, MF_BYCOMMAND);
-	}
-		
 	if(Core->IsAdministrating)
 	{
 		LogsMenu = CreateMenu();

@@ -8,7 +8,7 @@ CEmail::CEmail(CExperimentalLevel * l, CString const & name) : CWorldEntity(l->S
 	Level = l;
 
 	SetDirectories(MapRelative(L""));
-	SetDefaultInteractiveMaster(AREA_MAIN);
+	SetDefaultInteractiveMaster(CArea::Main);
 
 	SetTitle(GetClassName());
 

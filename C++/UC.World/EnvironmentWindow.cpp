@@ -92,7 +92,7 @@ void CEnvironmentWindow::OnIconCursorMoved(CActive * r, CActive * s, CMouseArgs 
 
 void CEnvironmentWindow::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *, CElement *)> & load)
 {
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		auto c = load(i, null);
 		SetContent(c);
@@ -120,7 +120,7 @@ void CEnvironmentWindow::LoadProperties(CStyle * s, CXon * n)
 {
 	//__super::LoadProperties(s, n);
 
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		if(i->Name == L"Sizer")
 		{

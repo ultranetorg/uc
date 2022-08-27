@@ -36,7 +36,7 @@ void CVwmImporter::Import(IDirectory * dir)
 {
 	Directory = dir;
 	
-	auto f = dir->OpenReadStream(L"Graph.bon");
+	auto f = dir->ReadFile(L"Graph.bon");
 	
 	Graph = new CBonDocument(CXonBinaryReader(f));
 	
@@ -165,7 +165,7 @@ CLight * CVwmImporter::ImportLight(const CString & file)
 		return i->second;
 	}
 		
-	auto f = Directory->OpenReadStream(file);
+	auto f = Directory->ReadFile(file);
 	auto & mwx = CBonDocument(CXonBinaryReader(f));
 	Directory->Close(f);
 
@@ -190,7 +190,7 @@ CMaterial * CVwmImporter::ImportMaterial(const CString & file, CLight * l)
 		return i->second;
 	}
 
-	auto f = Directory->OpenReadStream(file);
+	auto f = Directory->ReadFile(file);
 	auto & mwx = CBonDocument(CXonBinaryReader(f));
 	Directory->Close(f);
 
@@ -457,7 +457,7 @@ CTexture * CVwmImporter::LoadTexture2d(CXon * fileNode)
 		return i->second;
 	}
 
-	auto f = Directory->OpenReadStream(file);
+	auto f = Directory->ReadFile(file);
 	auto t = Engine->TextureFactory->CreateTexture();
 	t->Load(f);
 	Directory->Close(f);
@@ -476,7 +476,7 @@ CTexture * CVwmImporter::LoadVolumeTexture(CXon * fileNode)
 		return i->second;
 	}
 
-	auto f = Directory->OpenReadStream(file);
+	auto f = Directory->ReadFile(file);
 	auto t = Engine->TextureFactory->CreateTexture();
 	t->Load(f);
 	Directory->Close(f);
@@ -500,12 +500,12 @@ CTexture * CVwmImporter::LoadCubeTexture(CXon * n)
 		return i->second;
 	}
 
-	auto zp = Directory->OpenReadStream(n->Get<CString>(L"FileBK"));
-	auto yn = Directory->OpenReadStream(n->Get<CString>(L"FileDN"));
-	auto zn = Directory->OpenReadStream(n->Get<CString>(L"FileFR"));
-	auto xn = Directory->OpenReadStream(n->Get<CString>(L"FileLF"));
-	auto xp = Directory->OpenReadStream(n->Get<CString>(L"FileRT"));
-	auto yp = Directory->OpenReadStream(n->Get<CString>(L"FileUP"));
+	auto zp = Directory->ReadFile(n->Get<CString>(L"FileBK"));
+	auto yn = Directory->ReadFile(n->Get<CString>(L"FileDN"));
+	auto zn = Directory->ReadFile(n->Get<CString>(L"FileFR"));
+	auto xn = Directory->ReadFile(n->Get<CString>(L"FileLF"));
+	auto xp = Directory->ReadFile(n->Get<CString>(L"FileRT"));
+	auto yp = Directory->ReadFile(n->Get<CString>(L"FileUP"));
 
 	auto t = Engine->TextureFactory->CreateTexture();
 	t->LoadArray(xp, xn, yp, yn, zp, zn);
@@ -532,7 +532,7 @@ CMesh * CVwmImporter::ImportMesh(const CString & file)
 	auto mesh = Engine->CreateMesh();
 	Meshes[file] = mesh;
 
-	auto f = Directory->OpenReadStream(file);
+	auto f = Directory->ReadFile(file);
 	auto & mwx = CBonDocument(CXonBinaryReader(f));
 	Directory->Close(f);
 		

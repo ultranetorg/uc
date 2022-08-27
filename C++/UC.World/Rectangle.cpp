@@ -140,16 +140,16 @@ void CRectangle::LoadProperties(CStyle * s, CXon * n)
 {
 	__super::LoadProperties(s, n);
 	
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		if(i->Name == L"Background")
-			for(auto j : i->Children)
+			for(auto j : i->Nodes)
 			{
 				if(j->Name == L"Material")
 					Visual->SetMaterial(Level->Materials->GetMaterial(j->Get<CString>()));
 			}
 		else if(i->Name == L"Border")
-			for(auto j : i->Children)
+			for(auto j : i->Nodes)
 			{
 				if(j->Name == L"Material")
 					BorderMaterial = Level->Materials->GetMaterial(j->Get<CString>());

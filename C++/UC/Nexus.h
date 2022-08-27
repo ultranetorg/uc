@@ -1,9 +1,10 @@
 #pragma once
 #include "Connection.h"
 #include "Base58.h"
-#include "IExecutorProtocol.h"
+#include "IExecutor.h"
 #include "ILevel.h"
 #include "Server.h"
+#include "IFileSystem.h"
 
 namespace uc
 {
@@ -15,15 +16,16 @@ namespace uc
 			int											ExitHotKeyId;
 			int											SuspendHotKeyId;
 			
-			CList<CReleaseInfo *>						Releases;
-			CList<CServerInfo *>						Infos;
+			CList<CManifest *>							Manifests;
+			CList<CServerRelease *>						Releases;
 			CList<CServer *>							Servers;
-			
-			CXonDocument *								Config = null;
-			CXonDocument *								DefaultConfig = null;
+			CProtocolConnection<IFileSystem>			FileSystem;
+			CIdentity *									Identity = null;
+
+			CXonDocument *								SystemConfig = null;
+			CXonDocument *								UserConfig = null;
 			CDiagnostic *								Diagnostic;
 
-			CString										DirectoryPath;
 			CString										ObjectTemplatePath;
 			
 			CEvent<>									Initialized;
@@ -32,6 +34,9 @@ namespace uc
 			CString										RestartCommand;
 			
 			CString										InitialPATH;
+
+			inline static const CString					SystemNexusFile = L"System.nexus";
+			inline static const CString					UserNexusFile = L"User.nexus";
 
 			UOS_RTTI
 			CNexus(CCore * l, CXonDocument * config);
@@ -45,40 +50,32 @@ namespace uc
 			void										StopServers();
 			void										StopServer(CServer * s);
 
-			CString										UniversalToNative(CString const & path);
-			CString										NativeToUniversal(CString const & path);
-			CString										MapPath(CString const & mount, CString const & path);
 			CString										MapPathToRelease(CReleaseAddress & release, CString const & path);
 			CString										MapPathToRealization(CRealizationAddress & release, CString const & path = CString());
-			//CString										MapPath(CServerAddress & server, CString const & path = CString());
-			CString 									MapPath(CUsl & u, CString const & path);
-			CString										Resolve(CString const & u);
-			void										CreateMounts(CServerInfo * s);
 
-			void										Execute(const CUrq & o, CExecutionParameters * p);
+			void										Open(CUrl const & object, CExecutionParameters * parameters);
+			void										Execute(CXon * arguments, CExecutionParameters * parameters);
+			void										Execute(CString const & command, CExecutionParameters * parameters);
 
-			CMap<CServerInfo *, CXon *>					GetRegistry(CString const & path);
-			CXon *										GetRegistry(CUsl & s, CString const & path);
+			CMap<CServerRelease *, CXon *>				QueryRegistry(CString const & path);
+			CXon *										QueryRegistry(CServerAddress const & server, CString const & path);
 
-			void										SetDllDirectories(CServerInfo * info);
+			void										SetDllDirectories(CServerRelease * info);
 
-			CConnection 								Connect(IType * who, CUsl & o, CString const & p, std::function<void()> ondisconnect = std::function<void()>());
-			CConnection 								Connect(IType * who, CString const & pp, std::function<void()> ondisconnect = std::function<void()>());
-			CList<CConnection> 							ConnectMany(IType * who, CString const & p);
-			void										Disconnect(CConnection & c);
-			void										Disconnect(CList<CConnection> & c);
+			CServerRelease *							LoadRelease(CServerAddress & address);
+			CServer *									CreateServer(CServerAddress & address, CString const & instance, CXon * command, CXon * definition);
+			CServer *									GetServer(CString const & instance);
+			CServer *									GetServer(CServerAddress & server);
 
-			//CSystem *									GetSystem(CUsl & u);
-			CServer *									GetServer(CString const & name);
+			CConnection 								Connect(IType * who, CString const & instance, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
+			CConnection									Connect(IType * who, CServerAddress & server, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
+			CConnection 								Connect(IType * who, CString const & iface,								std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
+			CProtocolConnection<IExecutor>				ConnectExecutor(IType * who, CString const & protocol,					std::function<void()> ondisconnect = std::function<void()>());
+			CList<CConnection> 							ConnectMany(IType * who, CString const & iface);
 
-			CList<CUsl>									FindImplementators(CString const & pr);
-
-			void										Break(CUsl & u, CString const & pr);
-		
-
-			template<class T> CProtocolConnection<T>	Connect(IType * who, CUsl & u, CString const & p, std::function<void()> ondisconnect = std::function<void()>())
+			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & instance, std::function<void()> ondisconnect = std::function<void()>())
 														{
-															auto c = Connect(who, u, p, ondisconnect);
+															auto c = Connect(who, instance, T::InterfaceName, ondisconnect);
 
 															if(c && c.As<T>() == null)
 															{
@@ -87,19 +84,26 @@ namespace uc
 															return CProtocolConnection<T>(c);
 														}
 
-			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & p, std::function<void()> ondisconnect = std::function<void()>())
+			template<class P> CProtocolConnection<P>	Connect(IType * who, std::function<void()> ondisconnect = std::function<void()>())
 														{
-															return CProtocolConnection<T>(Connect(who, p, ondisconnect));
+															return CProtocolConnection<P>(Connect(who, P::InterfaceName, ondisconnect));
+														}
+
+			template<class P> CProtocolConnection<P>	Connect(IType * who, CServerAddress & server, std::function<void()> ondisconnect = std::function<void()>())
+														{
+															return CProtocolConnection<P>(Connect(who, server, P::InterfaceName, ondisconnect));
 														}
 
 			template<class T> 
-			CList<CProtocolConnection<T>>				ConnectMany(IType * who, CString const & p)
+			CList<CProtocolConnection<T>>				ConnectMany(IType * who)
 														{
 															CList<CProtocolConnection<T>> cc;
-															for(auto c : ConnectMany(who, p))
+															
+															for(auto c : ConnectMany(who, T::InterfaceName))
 															{
 																cc.push_back(CProtocolConnection<T>(c));
 															}
+															
 															return cc;
 														}
 
@@ -110,5 +114,14 @@ namespace uc
 																Disconnect(c);
 															}
 														}
+
+			void										Disconnect(CConnection & c);
+			void										Disconnect(CList<CConnection> & c);
+
+			//CSystem *									GetSystem(CUsl & u);
+
+			CList<CServerRelease *>						FindImplementators(CString const & pr);
+
+			void										Break(CString const & server, CString const & iface);
 	};
 }

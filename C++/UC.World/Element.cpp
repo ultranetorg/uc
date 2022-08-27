@@ -420,7 +420,7 @@ CSize CElement::CalculateSize(CRefList<CElement *> & nodes)
 
 void CElement::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *, CElement *)> & load)
 {
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		auto c = load(i, null);
 		AddNode(c);
@@ -430,19 +430,19 @@ void CElement::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *,
 
 void CElement::Load(CStyle * s, CString & u)
 {
-	CMap<CString, CProtocolConnection<IUwmProtocol>> classes;
+	CMap<CString, CProtocolConnection<IUwm>> classes;
 
-	for(auto i : Level->Nexus->GetRegistry(L"Interfaces/Uos.Uwm"))
+	for(auto & i : Level->Nexus->QueryRegistry(L"Interfaces/" + IUwm::InterfaceName))
 	{
-		auto c = Level->Nexus->Connect<IUwmProtocol>(this, i.first->Url, UWM_PROTOCOL);
+		auto c = Level->Nexus->Connect<IUwm>(this, i.first->Address);
 
-		for(auto j : i.second->Children)
+		for(auto j : i.second->Nodes)
 		{
 			classes[j->Get<CString>()] = c;
 		}
 	}
 
-	auto rs = Level->Server->Storage->OpenReadStream(u);
+	auto rs = Level->Server->Storage->ReadFile(u);
 	auto & d = CTonDocument(CXonTextReader(rs));
 	Level->Server->Storage->Close(rs);
 
@@ -469,7 +469,7 @@ void CElement::Load(CStyle * s, CString & u)
 				return wn;
 			};
 
-	load(d.Children.front(), this);
+	load(d.Nodes.front(), this);
 }
 
 void CElement::ApplyStyles(CStyle * s, CList<CString> const & classes)
@@ -643,7 +643,7 @@ float CElement::IHtoH(float ih)
 
 void CElement::LoadProperties(CStyle * s, CXon * n)
 {
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		auto t = i->Value ? i->AsString().Split(L";") : CArray<CString>();
 

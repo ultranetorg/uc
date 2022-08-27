@@ -3,14 +3,15 @@
 
 using namespace uc;
 
-int char2int(char input)
+byte char2int(wchar_t input)
 {
-    if(input >= '0' && input <= '9')
-        return input - '0';
-    if(input >= 'A' && input <= 'F')
+    if(input >= L'0' && input <= L'9')
+        return input - L'0';
+    if(input >= L'A' && input <= L'F')
         return input - 'A' + 10;
-    if(input >= 'a' && input <= 'f')
-        return input - 'a' + 10;
+    if(input >= L'a' && input <= L'f')
+        return input - L'a' + 10;
+    
     throw std::invalid_argument("Invalid input string");
 }
 
@@ -40,6 +41,7 @@ CString CHex::ToString(CArray<byte> & bytes)
     auto bb = bytes.data();
 
     const char xx[]= "0123456789ABCDEF";
+
     while (--n >= 0) 
         xp[n] = xx[(bb[n>>1] >> ((1 - (n&1)) << 2)) & 0xF];
 

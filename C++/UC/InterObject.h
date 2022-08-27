@@ -2,9 +2,10 @@
 #include "Shared.h"
 #include "Uxx.h"
 #include "Guid.h"
-#include "Protocol.h"
+#include "Interface.h"
 #include "Event.h"
 #include "Path.h"
+#include "IType.h"
 
 namespace uc
 {
@@ -27,7 +28,7 @@ namespace uc
 			CString						MapLocalPath(CString const & path);
 
 		protected:
-			CInterObject(CServer * s, CString const & name);
+			CInterObject(CString const & scheme, CServer * s, CString const & name);
 	};
 
 	template<class T> struct CObject

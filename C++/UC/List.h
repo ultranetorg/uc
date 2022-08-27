@@ -119,6 +119,15 @@ namespace uc
 				return !empty() ? back() : Default;
 			}
 
+			template<class Pred> T & Last(Pred p)
+			{
+				for(auto i = rbegin(); i != rend(); i++)
+					if(p(*i))
+						return *i;
+
+				return Default;
+			}
+
 			T & Previous(const T & e)
 			{
 				if(empty() || front() == e)

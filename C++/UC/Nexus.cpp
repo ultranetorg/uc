@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Nexus.h"
+#include "LocalFileSystemProvider.h"
 
 using namespace uc;
 
@@ -7,19 +8,10 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 {
 	Core = l;
 
-	auto d = Resolve(Core->GetPathTo(ESystemPath::Root, L"Nexus.xon"));
-	auto c = Core->MapToDatabase(UOS_MOUNT_USER_GLOBAL L"\\Nexus.xon");
+	auto d = Core->Resolve(Core->MapPath(ESystemPath::Core, SystemNexusFile));
+	auto c = Core->MapPath(ESystemPath::System, SystemNexusFile);
 
-	DefaultConfig = new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)));
-
-	if(CNativePath::IsFile(c))
-	{
-		Config = new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)), CXonTextReader(&CFileStream(c, EFileMode::Open)));
-	}
-	else
-	{
-		Config = new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)));
-	}
+	SystemConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::IsFile(c) ? c : d, EFileMode::Open)));
 
 	Diagnostic = Core->Supervisor->CreateDiagnostics(GetClassName());
 	Diagnostic->Updating += ThisHandler(OnDiagnosticUpdating);
@@ -32,8 +24,7 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 	ExitHotKeyId	= Core->RegisterGlobalHotKey(MOD_ALT|MOD_CONTROL,			VK_ESCAPE, ThisHandler(ProcessHotKey));
 	SuspendHotKeyId	= Core->RegisterGlobalHotKey(MOD_ALT|MOD_CONTROL|MOD_SHIFT,	VK_ESCAPE, ThisHandler(ProcessHotKey));
 
-	DirectoryPath		= Core->MapToDatabase(L".");
-	ObjectTemplatePath	= Core->GetPathTo(ESystemPath::Root, L"Object.xon");
+	ObjectTemplatePath	= Core->MapPath(ESystemPath::Core, L"Object.xon");
 
 	StartServers();
 	
@@ -46,10 +37,8 @@ CNexus::~CNexus()
 {
 	StopServers();
 
-	Config->Save(&CXonTextWriter(&CFileStream(Core->MapToDatabase(UOS_MOUNT_USER_GLOBAL L"\\Nexus.xon"), EFileMode::New), false), DefaultConfig);
-	delete Config;
-	delete DefaultConfig;
-
+	SystemConfig->Save(&CXonTextWriter(&CLocalFileStream(Core->MapPath(ESystemPath::System, SystemNexusFile), EFileMode::New), false));
+	delete SystemConfig;
 
 	Diagnostic->Updating -= ThisHandler(OnDiagnosticUpdating);
 	Core->LevelDestroyed(2, this);
@@ -60,22 +49,27 @@ void CNexus::OnDiagnosticUpdating(CDiagnosticUpdate & a)
 {
 	for(auto s : Servers)
 	{
-		Diagnostic->Add(s->Info->Url.Server);
+		Diagnostic->Add(s->Instance);
 
 		for(auto o : s->Objects)
-		{
 			Diagnostic->Add(CString::Format(L"  %-55s %3d", o->Url.Object, o->GetRefs()));
 			
-			//Diagnostic->Append(CString::Format(L"%-s", CString::Join(o->Users, [](auto & i){ return CString::Format(L"%s(%d)", i.first, i.second.size()); }, L",") ));
-		}
+		//Diagnostic->Append(CString::Format(L"%-s", CString::Join(o->Users, [](auto & i){ return CString::Format(L"%s(%d)", i.first, i.second.size()); }, L",") ));
 	}
 }
+
+// CString CNexus::AddressToName(CRealizationAddress & release)
+// {
+// 	auto & r = release;
+// 
+// 	return r.Author + L"-" + r.Product + L"-" + r.Platform;
+// }
 
 CString CNexus::MapPathToRealization(CRealizationAddress & release, CString const & path)
 {
 	auto & r = release;
 
-	return Core->GetPathTo(ESystemPath::Servers, CNativePath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, path));
+	return Core->MapPath(ESystemPath::Software, CNativePath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, path));
 }
 
 CString CNexus::MapPathToRelease(CReleaseAddress & release, CString const & path)
@@ -83,69 +77,211 @@ CString CNexus::MapPathToRelease(CReleaseAddress & release, CString const & path
 	return MapPathToRealization(release, CNativePath::Join(release.Version.ToString(), path));
 }
 
-void CNexus::StartServers()
+CServerRelease * CNexus::LoadRelease(CServerAddress & address)
 {
-	std::function<CReleaseInfo *(CReleaseAddress & a)> loadrelease;
+	std::function<CManifest *(CReleaseAddress & a)> loadmanifest;
 
-	loadrelease =	[&](CReleaseAddress & a) -> CReleaseInfo *
+	loadmanifest =	[&](CReleaseAddress & a) -> CManifest *
 					{
-						auto r = Releases.Find([&](auto i){ return i->Manifest->Address == a; });
+						auto r = Manifests.Find([&](auto i){ return i->Address == a; });
 
 						if(!r)
 						{
-							auto & xon = CTonDocument(CXonTextReader(&CFileStream(Resolve(MapPathToRealization(a, a.Version.ToString() + L".manifest")), EFileMode::Open)));
+							auto & xon = CTonDocument(CXonTextReader(&CLocalFileStream(Core->Resolve(MapPathToRealization(a, a.Version.ToString() + L".manifest")), EFileMode::Open)));
 
-							r = new CReleaseInfo();
-							r->Manifest = new CManifest(a, xon);
-
+							r = new CManifest(a, xon);
 
 							if(auto d = xon.One(L"CompleteDependencies"))
 							{
-								r->Manifest->CompleteDependencies = d->Children.Select<CManifest *>([&](auto i){ return loadrelease(CReleaseAddress::Parse(i->Name))->Manifest; });
+								r->CompleteDependencies = d->Nodes.Select<CManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
 							}
 						
-							Releases.AddBack(r);
+							Manifests.AddBack(r);
 						}
 
 						return r;
 					};
 
-	for(auto i : Config->Many(L"Server"))
+	auto r = new CServerRelease();
+	r->Address	= address;
+	r->Manifest	= loadmanifest(r->Address);
+
+	auto & reg = Core->Resolve(MapPathToRelease(r->Address, r->Address.Server + L".registry"));
+
+	if(CNativePath::IsFile(reg))
 	{
-		auto inf = new CServerInfo();
-		inf->Xon			= i;
-		inf->Name			= i->Get<CString>();
-		inf->Locator		= CServerAddress::Parse(i->Get<CString>(L"Locator"));
-		inf->Url			= CUsl(L"", inf->Name);
-		inf->Installed		= i->Get<CBool>(L"IsInitialized").Value;
-		inf->Release		= loadrelease(inf->Locator);
-
-		auto & p = Resolve(MapPathToRelease(inf->Locator, inf->Locator.Server + L".registry"));
-
-		if(CNativePath::IsFile(p))
-		{
-			inf->Registry = new CTonDocument(CXonTextReader(&CFileStream(p, EFileMode::Open))); 
-		}
-
-		Infos.push_back(inf);
+		r->Registry = new CTonDocument(CXonTextReader(&CLocalFileStream(reg, EFileMode::Open))); 
 	}
 
-	for(auto i : Infos)
-	{
-		auto s = GetServer(i->Url.Server);
+	Releases.push_back(r);
 
-		if(!i->Installed)
-		{
-			CreateMounts(i);
-			s->Start(EStartMode::Initialization);
-			i->Xon->One(L"IsInitialized")->Set(true);
-		}
-		else
-		{
-			s->Start(EStartMode::Start);
-		}
+	return r;
+}
+
+CServer * CNexus::CreateServer(CServerAddress & address, CString const & instance, CXon * command, CXon * registration)
+{
+	auto r = Releases.Find([&](auto i){ return i->Address == address; });
+
+	if(!r)
+	{
+		r = LoadRelease(address);
 	}
+
+	//auto info = Servers.Find([&](auto i){ return i->Address == address; });
+
+	if(r->HInstance == null)
+	{
+		auto l = MapPathToRelease(r->Address, r->Registry->Get<CString>(L"Executable"));
 	
+		if(!CNativePath::IsFile(l))
+		{
+			throw CException(HERE, CString::Format(L"Server dll not found: %s", l));
+		}
+	
+		SetDllDirectories(r);
+	
+		r->HInstance = LoadLibrary(l.c_str());
+	
+		if(r->HInstance == null)
+		{
+			throw CLastErrorException(HERE, GetLastError(), L"DLL loading error: %s ", l.c_str());
+		}
+	
+		r->StartUosServer = (FStartUosServer)GetProcAddress(r->HInstance, "StartUosServer");
+	
+		if(r->StartUosServer == null)
+		{
+			FreeLibrary(r->HInstance);
+			throw CException(HERE, CString::Format(L"Interface not found: %s", l));
+		}
+	}
+
+	auto rcmd = registration ? registration->One(L"Command") : null;
+	auto cmd = command ? command : rcmd;
+
+	auto s = r->StartUosServer(this, r, cmd);
+
+	if(s == null)
+	{
+		throw CException(HERE, CString::Format(L"Unable to initilize server: %s", address.ToString()));
+	}
+
+	if(auto i = r->Registry->One(L"Interfaces"))
+	{
+		for(auto j : i->Nodes)
+		{
+			s->Interfaces[j->Name] = null;
+		}
+	}
+
+	s->Instance		= instance;
+	s->Identity		= Identity;
+	s->Command		= cmd ? cmd->CloneInternal(null) : null;
+	s->Registration	= registration;
+	s->Initialized	= registration ? registration->Get<CBool>(L"Initialized") : false;
+
+	Servers.push_back(s);
+
+
+	Core->Log->ReportMessage(this, CString::Format(L"Server started: %s", instance));
+
+
+	return s;
+}
+
+void CNexus::StartServers()
+{
+	for(auto i : SystemConfig->Many(L"Server"))
+	{
+		CreateServer(CServerAddress::Parse(i->Get<CString>(L"Address")), 
+					i->Get<CString>(), 
+					Core->Commands->Nodes.Find([&](auto j){ return j->Name == i->Get<CString>(); }),
+					i);
+	}
+
+	for(auto i : SystemConfig->Many(L"Command"))
+	{
+		auto s = Servers.Find([&](auto j){ return j->Instance == i->Get<CString>(); });
+		auto e = Connect<IExecutor>(this, s->Instance);
+			
+		if(e)
+		{
+			if(!s->Initialized)
+			{
+				if(auto c = s->Release->Registry->One(L"Installation/Command"))
+				{
+					e->Execute(c, null);
+			
+					if(s->Registration)
+					{
+						s->Registration->One(L"Initialized")->Set(true);
+					}
+
+					s->Initialized = true;
+				}
+			}
+
+			e->Execute(i, null);
+		
+			Disconnect(e);
+		}
+	}
+
+
+	FileSystem = Connect<IFileSystem>(this);
+	CString user = L"User";
+	auto lp = Releases.Find([&](auto i){ return i->Address.Server == L"LocalFileSystemProvider"; });
+	FileSystem->Mount(IFileSystem::UserLocal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".local"))));
+	FileSystem->Mount(IFileSystem::UserGlobal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".global"))));
+	FileSystem->Mount(IFileSystem::UserTmp,		lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Tmp, user))));
+
+	Identity = new CIdentity();
+
+	auto d = Core->Resolve(Core->MapPath(ESystemPath::Core, UserNexusFile));
+	auto c = FileSystem->UniversalToNative(CPath::Join(IFileSystem::UserGlobal, UserNexusFile));
+
+	UserConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::IsFile(c) ? c : d, EFileMode::Open)));
+
+	for(auto i : UserConfig->Nodes)
+	{
+		if(i->Name == L"Server")
+		{
+			CreateServer(CServerAddress::Parse(i->Get<CString>(L"Address")), 
+						i->Get<CString>(), 
+						Core->Commands->Nodes.Find([&](auto j){ return j->Name == i->Get<CString>(); }),
+						i);
+		}
+	}
+
+	for(auto i : UserConfig->Many(L"Command"))
+	{
+		auto s = Servers.Find([&](auto j){ return j->Instance == i->Get<CString>(); });
+		auto e = Connect<IExecutor>(this, s->Instance);
+			
+		if(e)
+		{
+			if(!s->Initialized)
+			{
+				if(auto c = s->Release->Registry->One(L"Installation/Command"))
+				{
+					e->Execute(c, null);
+			
+					if(s->Registration)
+					{
+						s->Registration->One(L"Initialized")->Set(true);
+					}
+
+					s->Initialized = true;
+				}
+			}
+
+			e->Execute(i, null);
+		
+			Disconnect(e);
+		}
+	}
+
+
 	Core->Log->ReportMessage(this, L"-------------------------------- Nexus created --------------------------------");
 	Core->LevelCreated(2, this);
 }
@@ -154,12 +290,22 @@ void CNexus::StopServers()
 {
 	Stopping();
 
-	while(auto s = Servers.Last())
-	{
+	while(auto s = Servers.Last([&](auto s){ return s->Identity != null; }))
 		StopServer(s);
-	}
 
-	for(auto i : Infos)
+	UserConfig->Save(&CXonTextWriter(&CLocalFileStream(FileSystem->UniversalToNative(CPath::Join(IFileSystem::UserGlobal, UserNexusFile)), EFileMode::New), false));
+	delete UserConfig;
+
+	delete Identity;
+
+	Disconnect(FileSystem);
+
+	while(auto s = Servers.Last())
+		StopServer(s);
+
+	Servers.clear();
+
+	for(auto i : Releases)
 	{
 		if(i->HInstance)
 		{
@@ -169,37 +315,32 @@ void CNexus::StopServers()
 		}
 		delete i;
 	}
-	Infos.clear();
 
-
-	for(auto i : Releases)
-	{
-		delete i;
-	}
 	Releases.clear();
+
+	for(auto i : Manifests)
+		delete i;
+
+	Manifests.clear();
 }
 
 void CNexus::StopServer(CServer * s)
 {
-	for(auto & i : s->Protocols)
+	for(auto & i : s->Interfaces)
 	{
 		if(i.second)
 		{
-			Break(s->Url, i.first);
+			Break(s->Instance, i.first);
 		}
 	}
 
-	Servers.Remove(s);
+	//Infos.Remove(s);
+	cleandelete(s->Command);
 
-	auto si = Infos.Find([s](auto i){ return i->Url == s->Url; });
-	
-	if(si->HInstance)
-	{
-		auto stop = (FStopUosServer)GetProcAddress(si->HInstance, "StopUosServer");
-		stop();
-	}
-	else
-		delete s;
+	auto stop = (FStopUosServer)GetProcAddress(s->Release->HInstance, "StopUosServer");
+	stop(s);
+
+	Servers.Remove(s);
 }
 
 void CNexus::Restart(CString const & cmd)
@@ -207,7 +348,7 @@ void CNexus::Restart(CString const & cmd)
 	RestartCommand = cmd;
 }
 
-void CNexus::SetDllDirectories(CServerInfo * info)
+void CNexus::SetDllDirectories(CServerRelease * info)
 {
 	CString path = InitialPATH;
 
@@ -217,7 +358,7 @@ void CNexus::SetDllDirectories(CServerInfo * info)
 
 	auto add =	[&](const auto & self, CManifest * r) -> void
 				{
-					auto d = UniversalToNative(MapPathToRelease(r->Address, L""));
+					auto d = MapPathToRelease(r->Address, L"");
 					
 					path += L";" + d;
 					//addDllDirectory(d.c_str());
@@ -228,134 +369,131 @@ void CNexus::SetDllDirectories(CServerInfo * info)
 					}
 				};
 
-	add(add, info->Release->Manifest);
+	add(add, info->Manifest);
 
 	SetEnvironmentVariable(L"PATH", path.data());
 
 	//FreeLibrary(l);
 }
 
-CServer * CNexus::GetServer(CString const & name)
+CServer * CNexus::GetServer(CString const & instance)
 {
-	auto info = Infos.Find([name](auto i){ return i->Url.Server == name; });
-
-	if(!info)
-	{
-		return null;
-	}
-
-	auto s = Servers.Find([info](auto i){ return i->Info == info; });
+	auto s = Servers.Find([&](auto i){ return i->Instance == instance; });
 
 	if(s)
-	{
 		return s;
-	}
 
-	auto l = MapPathToRelease(info->Locator, info->Registry->Get<CString>(L"Executable"));
+	if(auto s = SystemConfig->Nodes.Find([&](auto i){ return i->Name == L"Server" && i->Get<CString>() == instance; }))
+		return CreateServer(CServerAddress::Parse(s->Get<CString>(L"Address")), instance, Core->Commands->Nodes.Find([&](auto j){ return j->Name == s->Get<CString>(); }), s);
 
-	if(!CNativePath::IsFile(l))
-	{
-		throw CException(HERE, CString::Format(L"Server dll not found: %s", l));
-	}
+	if(auto u = UserConfig->Nodes.Find([&](auto i){ return i->Name == L"Server" && i->Get<CString>() == instance; }))
+		return CreateServer(CServerAddress::Parse(u->Get<CString>(L"Address")), instance, Core->Commands->Nodes.Find([&](auto j){ return j->Name == u->Get<CString>(); }), u);
 
-	SetDllDirectories(info);
-	info->HInstance = LoadLibrary(l.c_str());
-
-	if(info->HInstance == null)
-	{
-		throw CLastErrorException(HERE, GetLastError(), L"DLL loading error: %s ", l.c_str());
-	}
-	
-	auto f = (FStartUosServer)GetProcAddress(info->HInstance, "StartUosServer");
-
-
-	if(f == null)
-	{
-		FreeLibrary(info->HInstance);
-		throw CException(HERE, CString::Format(L"Interface not found: %s", l));
-	}
-	
-
-	s = f(this, info);
-		
-	if(s == null)
-	{
-		throw CException(HERE, CString::Format(L"Unable to initilize system: %s", l));
-	}
-
-	if(auto r = info->Registry->One(L"Interfaces"))
-	{
-		for(auto i : r->Children)
-		{
-			s->Protocols[i->Name] = null;
-		}
-	}
-
-	Core->Log->ReportMessage(this, CString::Format(L"Server loaded: %s", info->Url.Server));
-		
-	Servers.push_back(s);
-
-	return s;
+	return null;
 }
 
-CConnection CNexus::Connect(IType * who, CUsl & u, CString const & p, std::function<void()> ondisconnect)
+CServer * CNexus::GetServer(CServerAddress & server)
 {
-	auto s = GetServer(u.Server);
+	auto s = Servers.Find([&](auto i){ return i->Release->Address == server; });
+
+	if(s)
+		return s;
+
+	return CreateServer(server, L"", null, null);
+}
+
+CConnection CNexus::Connect(IType * who, CString const & instance, CString const & iface, std::function<void()> ondisconnect)
+{
+	auto s = GetServer(instance);
 
 	if(!s)
 		return CConnection();
 
-	if(s->Protocols.Contains(p))
+	if(s->Interfaces.Contains(iface))
 	{
-		if(s->Protocols(p) == null)
+		if(s->Interfaces(iface) == null)
 		{
-			auto imp = s->Connect(p);
-			if(imp)
+			if(auto imp = s->Connect(iface))
 			{
-				s->Protocols[p] = imp;
-				Core->Log->ReportMessage(this, L"Server connected: %-30s -> %-30s -> %-30s", who->GetInstanceName(), p, s->Url.Server);
+				s->Interfaces[iface] = imp;
+				Core->Log->ReportMessage(this, L"Server connected: %-30s -> %-30s -> %-30s", who->GetInstanceName(), iface, s->Instance);
 			}
 		}
 	
-		if(s->Protocols[p] != null)
+		if(s->Interfaces[iface] != null)
 		{
-			s->Users[p][who] = ondisconnect;
-			return CConnection(who, s, p);
+			s->Users[iface][who] = ondisconnect;
+			return CConnection(who, s, iface);
 		}
 	}
 	
 	return CConnection();
 }
 
-CConnection CNexus::Connect(IType * who, CString const & p, std::function<void()> ondisconnect)
+CConnection CNexus::Connect(IType * who, CServerAddress & server, CString const & iface, std::function<void()> ondisconnect)
 {
-	auto o = FindImplementators(p);
+	auto s = GetServer(server);
+
+	if(!s)
+		return CConnection();
+
+	if(s->Interfaces.Contains(iface))
+	{
+		if(s->Interfaces(iface) == null)
+		{
+			if(auto imp = s->Connect(iface))
+			{
+				s->Interfaces[iface] = imp;
+				Core->Log->ReportMessage(this, L"Server connected: %-30s -> %-30s -> %-30s", who->GetInstanceName(), iface, s->Instance);
+			}
+		}
+
+		if(s->Interfaces[iface] != null)
+		{
+			s->Users[iface][who] = ondisconnect;
+			return CConnection(who, s, iface);
+		}
+	}
+
+	return CConnection();
+}
+
+CProtocolConnection<IExecutor> CNexus::ConnectExecutor(IType * who, CString const & scheme, std::function<void()> ondisconnect)
+{
+	if(auto imp = Releases.Find([&](auto i){ return i->Registry->Any(L"Interfaces/" + IExecutor::InterfaceName + L'/' + scheme); }))
+	{
+		if(auto c = Connect(who, imp->Address, IExecutor::InterfaceName))
+		{
+			return c;
+		}
+	}
+
+	return CConnection();
+}
+
+CConnection CNexus::Connect(IType * who, CString const & iface, std::function<void()> ondisconnect)
+{
+	auto o = FindImplementators(iface);
 
 	if(!o.empty())
-	{
-		return Connect(who, o.front(), p, ondisconnect);
-	}
+		return Connect(who, o.front()->Address, iface, ondisconnect);
 	else
 		return CConnection();
 }
 
-
-CList<CConnection> CNexus::ConnectMany(IType * who, CString const & p)
+CList<CConnection> CNexus::ConnectMany(IType * who, CString const & iface)
 {
-	if(p.empty())
+	if(iface.empty())
 	{
 		throw CException(HERE, L"Protocol must be specified");
 	}
 
+	auto releases = FindImplementators(iface);
+
 	CList<CConnection> cc;
 
-	for(auto i : Servers)
-	{
-		if(i->Protocols.Contains(p))
-		{
-			cc.push_back(Connect(who, i->Url, p));
-		}
-	}
+	for(auto s : releases)
+		cc.push_back(Connect(who, s->Address, iface));
 	
 	return cc;
 }
@@ -377,52 +515,43 @@ void CNexus::Disconnect(CList<CConnection> & cc)
 	}
 }
 
-void CNexus::Break(CUsl & server, CString const & protocol)
+void CNexus::Break(CString const & server, CString const & iface)
 {
-	Core->Log->ReportMessage(this, L"Disconnecting: %s %s", server.Server, protocol);
+	Core->Log->ReportMessage(this, L"Disconnecting: %s %s", server, iface);
 
-	auto s = GetServer(server.Server);
+	auto s = GetServer(server);
 
-	if(s->Protocols.Contains(protocol) && s->Protocols[protocol] != null)
+	if(s->Interfaces.Contains(iface) && s->Interfaces[iface] != null)
 	{
 		//s->Disconnecting(s, s->Protocols[protocol], const_cast<CString &>(protocol));
 
-		auto i = s->Users[protocol].begin();
+		auto i = s->Users[iface].begin();
 
-		while(i != s->Users[protocol].end())
+		while(i != s->Users[iface].end())
 		{
 			auto k = i->first;
 
 			if(i->second)
 				i->second();
 
-			if(s->Users[protocol].Contains(k))
+			if(s->Users[iface].Contains(k))
 			{
 				//Core->Log->ReportWarning(this, L"%s disconnected improperly from %s -> %s", k->GetInstanceName(), s->Url.Server, pr);
-				s->Users[protocol].Remove(k);
+				s->Users[iface].Remove(k);
 			}
 			
-			i = s->Users[protocol].begin();
+			i = s->Users[iface].begin();
 		}
 
-		s->Disconnect(s->Protocols[protocol]);
+		s->Disconnect(s->Interfaces[iface]);
 	
-		s->Protocols[protocol] = null;
+		s->Interfaces[iface] = null;
 	}
 }
 
-CList<CUsl> CNexus::FindImplementators(CString const & pr)
+CList<CServerRelease *> CNexus::FindImplementators(CString const & iface)
 {
-	CList<CUsl> o;
-	
-	for(auto i : Servers)
-	{
-		if(i->Protocols.Contains(pr))
-		{
-			o.push_back(i->Url);
-		}
-	}
-	return o;
+	return Releases.Where([&](auto i){ return i->Registry->One(L"Interfaces")->Any(iface); });
 }
 
 void CNexus::ProcessHotKey(int64_t id)
@@ -444,150 +573,73 @@ void CNexus::ProcessHotKey(int64_t id)
 	}
 }
 
-void CNexus::Execute(const CUrq & u, CExecutionParameters * p)
+void CNexus::Open(CUrl const & object, CExecutionParameters * parameters)
 {
-	if(u.Protocol == CUol::Protocol)
+	Execute(&CTonDocument(CXonTextReader(L"Open Url=" + object.ToString())), parameters);
+}
+
+void CNexus::Execute(CString const & command, CExecutionParameters * parameters)
+{
+	Execute(&CTonDocument(CXonTextReader(command)), parameters);
+}
+
+void CNexus::Execute(CXon * command, CExecutionParameters * parameters)
+{
+	auto f = command->Nodes.First();
+
+	if(f->Name == L"Open" &&  command->Any(L"Url"))
 	{
-		auto ep = Connect<IExecutorProtocol>(this, CUsl(u), EXECUTOR_PROTOCOL);
+		//CUrl u(f->Get<CString>(L"Url"));
 
-		if(ep && ep->CanExecute(u))
+// 		if(o.Scheme == CWorldEntity::Scheme)
+// 		{
+// 			OpenEntity(CUol(f->Get<CString>(L"Url")), CArea::LastInteractive, dynamic_cast<CShowParameters *>(parameters));
+// 		}
+// 	}
+		if(CUol::IsValid(command->Get<CString>(L"Url")))
 		{
-			ep->Execute(u, p);
-			Disconnect(ep);
-			return;
-		}
+			auto o = CUol(command->Get<CString>(L"Url"));
 
-		auto pp = ConnectMany<IExecutorProtocol>(this, EXECUTOR_PROTOCOL);
+			//auto s = o.Parameters.Contains(L"server") ? o.Parameters[L"server"] : L"";
 
-		for(auto i : pp)
-		{
-			if(i->CanExecute(u))
+			if(auto i = Servers.Find([&](auto i){ return i->Instance == o.Server; }))
 			{
-				i->Execute(u, p);
-				break;
+				if(auto e = Connect<IExecutor>(this, o.Server))
+				{
+					e->Execute(command, parameters);
+					Disconnect(e);
+
+					return;
+				}
+			}
+	
+			if(auto e = ConnectExecutor(this, o.Scheme))
+			{
+				e->Execute(command, parameters);
+				Disconnect(e);
 			}
 		}
-
-		Disconnect(pp);
-	}
-	else
-	{
-		ShellExecute(null, L"open", u.ToString().data(), NULL, NULL, SW_SHOWNORMAL);
 	}
 }
 
-CMap<CServerInfo *, CXon *> CNexus::GetRegistry(CString const & path)
+CXon * CNexus::QueryRegistry(CServerAddress const & server, CString const & path)
 {
-	CMap<CServerInfo *, CXon *> l;
+	auto info = Releases.Find([&](auto i){ return i->Address == server; });
 
-	for(auto i : Infos)
+	return info && info->Registry ? info->Registry->One(path) : null;
+}
+
+CMap<CServerRelease *, CXon *> CNexus::QueryRegistry(CString const & path)
+{
+	CMap<CServerRelease *, CXon *> l;
+
+	for(auto i : Releases)
 	{
-		if(auto r = GetRegistry(i->Url, path))
+		if(auto r = QueryRegistry(i->Address, path))
 		{
 			l[i] = r;
 		}
 	}
 
 	return l;
-}
-
-CXon * CNexus::GetRegistry(CUsl & s, CString const & path)
-{
-	auto info = Infos.Find([s](auto i){ return i->Url == s; });
-
-	return info && info->Registry ? info->Registry->One(path) : null;
-}
-
-
-CString CNexus::MapPath(CString const & mount, CString const & path)
-{
-	return CPath::Join(L"/" + mount, path);
-}
-
-CString CNexus::MapPath(CUsl & u, CString const & path)
-{
-	//auto s = Servers.Find([](auto i){ return i->Url == u});
-
-	auto i = Infos.Find([&](auto i){ return i->Url == u; });
-
-	return MapPathToRelease(i->Locator, path);
-}
-
-void CNexus::CreateMounts(CServerInfo * s)
-{
-	CNativeDirectory::Create(Core->MapToDatabase(CNativePath::Join(UOS_MOUNT_USER_GLOBAL, s->Url.Server)));
-	CNativeDirectory::Create(Core->MapToDatabase(CNativePath::Join(UOS_MOUNT_USER_LOCAL, s->Url.Server)));
-}
-
-CString CNexus::UniversalToNative(CString const & p)
-{
-	auto path = p;
-	auto mount = path.Substring(L'/', 1);
-	auto lpath = p.size() > mount.size() + 1 ? path.Substring(path.find(L'/', path.find(L'/') + 1) + 1) : L"";
-
-	if(mount == UOS_MOUNT_LOCAL)
-	{
-		if(lpath.empty())
-			return L"\\";
-		if(lpath.size() == 2 && lpath[1] == L':')
-			return lpath + L"\\";
-		else
-			path = CPath::Nativize(lpath);
-	}
-	//else if(mount == UOS_MOUNT_PERSONAL)
-	//{
-	//	path = Level->Core->MapToGlobal(CPath::Nativize(lpath));
-	//}
-	else if(mount == UOS_MOUNT_CORE)
-	{
-		path = Resolve(Core->GetPathTo(ESystemPath::Root, CPath::Nativize(lpath)));
-	}
-	else if(mount == UOS_MOUNT_SERVER)
-	{
-		if(lpath.empty())
-			path = Core->GetPathTo(ESystemPath::Servers, L"");
-		else
-		{
-			auto & s = lpath.Substring(L'/', 0);
-			auto & r = s.length() < lpath.length() ? lpath.Substring(s.length() + 1) : L"";
-			path = Resolve(MapPathToRelease(Infos.Find([&](auto i){ return i->Name == s; })->Locator, CPath::Nativize(r)));
-		}
-	}
-	else if(mount == UOS_MOUNT_SERVER_TMP)
-	{
-		path = Core->MapToTmp(CPath::Nativize(lpath));
-	}
-	else if(mount == UOS_MOUNT_USER_LOCAL)
-	{
-		path = Core->MapToDatabase(CPath::Nativize(path));
-	}
-	else if(mount == UOS_MOUNT_USER_GLOBAL)
-	{
-		path = Core->MapToDatabase(CPath::Nativize(path));
-	}
-
-	return path;	
-}
-
-CString CNexus::NativeToUniversal(CString const & path)
-{
-	return L"/" UOS_MOUNT_LOCAL L"/" + CPath::Universalize(path);
-}
-
-CString CNexus::Resolve(CString const & n)
-{
-	if(CNativePath::IsFile(n))
-	{
-		return n;
-	}
-
-	CString s;
-
-	auto c = Core->GetPathTo(ESystemPath::Common, L"");
-	
-	auto r = CNativePath::Join(c, n.Substring(c.length() - 1));
-
-	r = CNativePath::Canonicalize(r);
-
-	return r;
 }

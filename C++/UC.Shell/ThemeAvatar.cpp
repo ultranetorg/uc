@@ -127,7 +127,7 @@ void CThemeAvatar::LoadScene()
 
 		auto t = Level->Engine->TextureFactory->CreateTexture();
 
-		auto s = Level->Storage->OpenReadStream(Entity->Source);
+		auto s = Level->Storage->ReadFile(Entity->Source);
 		t->Load(s);
 		Level->Storage->Close(s);
 

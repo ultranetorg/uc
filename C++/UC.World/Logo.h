@@ -12,10 +12,10 @@ namespace uc
 			CLogo(CWorld * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
 			{
 				Level = l;
-				Tags = {AREA_SERVICE_FRONT, L"Apps"};
+				Tags = {CArea::ServiceFront, L"Apps"};
 
 				auto t = Level->Engine->TextureFactory->CreateTexture();
-				t->Load(Level->Server->Info->HInstance, IDB_UOS_PNG);
+				t->Load(Level->Server->Release->HInstance, IDB_UOS_PNG);
 
 				auto mtl = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				mtl->AlphaBlending = true;

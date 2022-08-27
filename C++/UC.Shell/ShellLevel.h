@@ -17,7 +17,7 @@ namespace uc
 	struct CShellLevel
 	{
 		CProtocolConnection<CWorld>				World;
-		CProtocolConnection<IStorageProtocol>	Storage;
+		CProtocolConnection<IFileSystem>		Storage;
 		CEngine *								Engine;
 		CStorableServer *						Server;
 		CCore *									Core;
@@ -28,7 +28,7 @@ namespace uc
 
 		void AddModeSwitch(IMenuSection * s)
 		{
-			auto cmd = (CUrl)World.Server->Url;
+			auto cmd = World.Server->Instance + L"{";
 
 			#ifndef _DEBUG // copy World command options
 				for(auto & i : Core->FindStartCommands(World->Server->Url))
@@ -43,47 +43,47 @@ namespace uc
 			auto dm = s->AddSectionItem(L"Switch to Desktop Mode");
 			dm->GetSection()->AddItem(L"Default")->Clicked	=	[this, cmd](auto, auto) mutable
 																{ 
-																	cmd.Query[L"Name"] = WORLD_MODE_DESKTOP;
-																	cmd.Query[L"Layout"] = L"Default";
-																	Core->AddRestartCommand(cmd);
+																	cmd += L"Name=" + CWorldMode::DESKTOP;
+																	cmd += L" Layout=Default";
+																	Core->AddRestartCommand(cmd + L"}");
 																	Core->Exit();
 																};
 			dm->GetSection()->AddItem(L"Duo")->Clicked	=		[this, cmd](auto, auto) mutable
 																{ 
-																	cmd.Query[L"Name"] = WORLD_MODE_DESKTOP;
-																	cmd.Query[L"Layout"] = L"Duo";
-																	Core->AddRestartCommand(cmd);
+																	cmd += L"Name=" + CWorldMode::DESKTOP;
+																	cmd += L" Layout=Duo";
+																	Core->AddRestartCommand(cmd + L"}");
 																	Core->Exit();
 																};
 
 			#ifdef _DEBUG
 				dm->GetSection()->AddItem(L"MWS1")->Clicked	=		[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_DESKTOP;
-																		cmd.Query[L"Layout"] = L"MWS1";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::DESKTOP;
+																		cmd += L" Layout=MWS1";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 				dm->GetSection()->AddItem(L"MWS1.Split")->Clicked =	[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_DESKTOP;
-																		cmd.Query[L"Layout"] = L"MWS1.Duo.Split";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::DESKTOP;
+																		cmd += L" Layout=MWS1.Duo.Split";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 				dm->GetSection()->AddItem(L"MWS7")->Clicked =		[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_DESKTOP;
-																		cmd.Query[L"Layout"] = L"MWS7";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::DESKTOP;
+																		cmd += L" Layout=MWS7";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 				dm->GetSection()->AddItem(L"MWS7 0.4")->Clicked =	[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_DESKTOP;
-																		cmd.Query[L"Layout"] = L"MWS7";
-																		cmd.Query[CScreenEngine::RENDER_SCALING] = L"0.4";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::DESKTOP;
+																		cmd += L" Layout=MWS7 ";
+																		cmd += CScreenEngine::RENDER_SCALING + L"=0.4";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 			#endif
@@ -91,32 +91,32 @@ namespace uc
 			auto mm = s->AddSectionItem(L"Switch to Mobile Emulation Mode");
 			mm->GetSection()->AddItem(L"Default")->Clicked =	[this, cmd](auto, auto) mutable
 																{ 
-																	cmd.Query[L"Name"] = WORLD_MODE_MOBILE_E;
-																	cmd.Query[L"Layout"] = L"Default";
-																	Core->AddRestartCommand(cmd);
+																	cmd += L"Name=" + CWorldMode::MOBILE_E;
+																	cmd += L" Layout=Default";
+																	Core->AddRestartCommand(cmd + L"}");
 																	Core->Exit();
 																};
 
 			#ifdef _DEBUG
 				mm->GetSection()->AddItem(L"MWS1")->Clicked =		[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_MOBILE_E;
-																		cmd.Query[L"Layout"] = L"MWS1";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::MOBILE_E;
+																		cmd += L" Layout=MWS1";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 				mm->GetSection()->AddItem(L"MWS7")->Clicked =		[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_MOBILE_E;
-																		cmd.Query[L"Layout"] = L"MWS7";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::MOBILE_E;
+																		cmd += L" Layout=MWS7";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 				mm->GetSection()->AddItem(L"MWS7-0.4")->Clicked =	[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_MOBILE_E;
-																		cmd.Query[L"Layout"] = L"MWS7";
-																		cmd.Query[CScreenEngine::RENDER_SCALING] = L"0.4";
+																		cmd += L"Name=" + CWorldMode::MOBILE_E;
+																		cmd += L" Layout=MWS7 ";
+																		cmd += CScreenEngine::RENDER_SCALING + L"=0.4";
 																		Core->AddRestartCommand(cmd);
 																		Core->Exit();
 																	};
@@ -125,31 +125,31 @@ namespace uc
 			auto vm = s->AddSectionItem(L"Switch to VR Emulation Mode");
 			vm->GetSection()->AddItem(L"Default")->Clicked =	[this, cmd](auto, auto) mutable
 																{ 
-																	cmd.Query[L"Name"] = WORLD_MODE_VR_E;
-																	cmd.Query[L"Layout"] = L"Default";
-																	Core->AddRestartCommand(cmd);
+																	cmd += L"Name=" + CWorldMode::VR_E;
+																	cmd += L" Layout=Default";
+																	Core->AddRestartCommand(cmd + L"}");
 																	Core->Exit();
 																};
 			#ifdef _DEBUG
 				vm->GetSection()->AddItem(L"MWS1")->Clicked =		[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_VR_E;
-																		cmd.Query[L"Layout"] = L"MWS1";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::VR_E;
+																		cmd += L" Layout=MWS1";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 				vm->GetSection()->AddItem(L"MWS7")->Clicked =		[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_VR_E;
-																		cmd.Query[L"Layout"] = L"MWS7";
-																		Core->AddRestartCommand(cmd);
+																		cmd += L"Name=" + CWorldMode::VR_E;
+																		cmd += L" Layout=MWS7";
+																		Core->AddRestartCommand(cmd + L"}");
 																		Core->Exit();
 																	};
 				vm->GetSection()->AddItem(L"MWS7-0.4")->Clicked =	[this, cmd](auto, auto) mutable
 																	{ 
-																		cmd.Query[L"Name"] = WORLD_MODE_VR_E;
-																		cmd.Query[L"Layout"] = L"MWS7";
-																		cmd.Query[CScreenEngine::RENDER_SCALING] = L"0.4";
+																		cmd += L"Name=" + CWorldMode::VR_E;
+																		cmd += L" Layout=MWS7 ";
+																		cmd += CScreenEngine::RENDER_SCALING + L"=0.4";
 																		Core->AddRestartCommand(cmd);
 																		Core->Exit();
 																	};
@@ -158,9 +158,9 @@ namespace uc
 		
 		void AddSystemMenuItems(CRectangleMenuSection * ms)
 		{
-			auto syses = Nexus->ConnectMany<IWorldFriend>(Server, WORLD_FRIEND_PROTOCOL);
+			auto syses = Nexus->ConnectMany<IWorldFriend>(Server);
 
-			for(auto i : syses)
+			for(auto & i : syses)
 			{
 				for(auto i : i->CreateActions())
 				{
@@ -282,32 +282,32 @@ namespace uc
 
 			for(auto & o : sources)
 			{
-				auto d = Storage->OpenDirectory(o);
-
-				for(auto & i : d->Enumerate(L"*.*"))
+				for(auto & i : Storage->Enumerate(o, L".*"))
 				{
+					auto path = CPath::Join(o, i.Name);
+
 					CMenuItem * existing = null;
 
 					existing = out.Find([i](auto k)
 										{
 											return k->MetaAs<CMergeMeta>()->Sources.Has([i](auto j) mutable
 																						{
-																							return CPath::GetName(j) == CPath::GetName(i.Path); 
+																							return CPath::GetName(j) == i.Name; 
 																						}); 
 										});
 					
 					if(existing)
 					{
 						auto meta = existing->MetaAs<CMergeMeta>();
-						meta->Sources.push_back(i.Path);
+						meta->Sources.push_back(path);
 					}
 					else
 					{
 						auto meta = new CMergeMeta();
-						meta->Sources.push_back(i.Path);
-						meta->Object = i.Path;
+						meta->Sources.push_back(path);
+						meta->Object = path;
 
-						auto & name = i.Type == CFile::GetClassName() ? CPath::GetNameBase(i.Path) : CPath::GetName(i.Path);
+						auto & name = CPath::GetNameBase(i.Name);
 
 						if(!i.NameOverride.empty())
 						{
@@ -316,9 +316,9 @@ namespace uc
 
 						auto mi = new CMenuItem(name);
 						mi->Meta		= meta;
-						mi->IconEntity	= Storage->ToUol(i.Type, i.Path);
+						mi->IconEntity	= Storage->ToUol(path);
 
-						if(i.Type == CDirectory::GetClassName())
+						if(i.Type == CFileSystemEntry::Directory)
 						{
 							mi->Opening =	[this, mi, meta]
 											{
@@ -327,9 +327,9 @@ namespace uc
 						}
 						else
 						{
-							mi->Execute =	[this, i](auto args)
+							mi->Execute =	[=](auto args)
 											{
-												Nexus->Execute(Storage->ToUol(i.Type, i.Path), sh_new<CShowParameters>(args, Style)); 
+												Nexus->Execute(&CTonDocument(CXonTextReader(L"Open Url=" + Storage->ToUol(path).ToString())), sh_new<CShowParameters>(args, Style));
 											};
 						}
 						
@@ -337,8 +337,6 @@ namespace uc
 						mi->Free();
 					}
 				}
-
-				Storage->Close(d);
 			}
 
 			out.Sort(	[](auto a, auto b)

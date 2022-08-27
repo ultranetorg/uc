@@ -4,20 +4,20 @@
 
 using namespace uc;
 
-CConfig::CConfig(IStorageProtocol * l, CString & durl, CString & curl)
+CConfig::CConfig(IFileSystem * l, CString & durl, CString & curl)
 {
 	Storage = l;
 	DefaultUri = durl;
 	CustomUri = curl;
 
-	auto ds = Storage->OpenReadStream(durl);
+	auto ds = Storage->ReadFile(durl);
 	DefaultDoc = new CTonDocument(CXonTextReader(ds));
 	Storage->Close(ds);
 
 	if(Storage->Exists(curl))
 	{
-		auto ds = Storage->OpenReadStream(durl);
-		auto cs = Storage->OpenReadStream(curl);
+		auto ds = Storage->ReadFile(durl);
+		auto cs = Storage->ReadFile(curl);
 
 		Root = new CTonDocument(CXonTextReader(ds), CXonTextReader(cs));
 		
@@ -26,7 +26,7 @@ CConfig::CConfig(IStorageProtocol * l, CString & durl, CString & curl)
 	}
 	else
 	{
-		auto s = Storage->OpenReadStream(durl);
+		auto s = Storage->ReadFile(durl);
 		Root = new CTonDocument(CXonTextReader(s));
 		Storage->Close(s);
 	}
@@ -40,7 +40,7 @@ CConfig::~CConfig()
 
 void CConfig::Save()
 {
-	auto cs = Storage->OpenWriteStream(CustomUri);
+	auto cs = Storage->WriteFile(CustomUri);
 
 	Root->Save(&CXonTextWriter(cs, false), DefaultDoc);
 

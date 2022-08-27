@@ -86,7 +86,7 @@ void CEmailWidget::OnMouse(CActive * r, CActive * s, CMouseArgs * arg)
 																	Entity->SetEntity(ea->Url);
 																}
 															
-																Level->World->OpenEntity(Entity->Account.Url, AREA_MAIN, sh_new<CShowParameters>(a, Level->Style));
+																Level->World->OpenEntity(Entity->Account.Url, CArea::Main, sh_new<CShowParameters>(a, Level->Style));
 	
 															};
 			Menu->Section->AddSeparator();

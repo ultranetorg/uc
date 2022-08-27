@@ -4,11 +4,10 @@
 
 using namespace uc;
 
-CServer::CServer(CNexus * l, CServerInfo * info)
+CServer::CServer(CNexus * l, CServerRelease * info)
 {
 	Nexus = l;
-	Url = info->Url;
-	Info = info;
+	Release = info;
 }
 
 CServer::~CServer()
@@ -46,10 +45,10 @@ void CServer::DestroyObject(CInterObject * o)
 
 CInterObject * CServer::FindObject(CUol const & u)
 {
-	if(!u.IsEmpty() && ((CUsl)u != Url))
-	{
-		throw CException(HERE, L"Alien system object");
-	}
+// 	if(!u.IsEmpty() && (CUsl)u != Url)
+// 	{
+// 		throw CException(HERE, L"Alien system object");
+// 	}
 
 	return FindObject(u.Object);
 }
@@ -59,27 +58,34 @@ CInterObject * CServer::FindObject(CString const & name)
 	return Objects.Find([&name](auto i){ return i->Url.Object == name; });
 }
 
-CString CServer::MapRelative(CString const & path)
+CString CServer::MapReleasePath(CString const & path)
 {
-	return CPath::Join(Url.Server, path);
+	//auto & r = Release->Address;
+
+	return CPath::Join(IFileSystem::Servers, CPath::Join(Instance, path));
+}
+
+CString CServer::MapSystemPath(CString const & path)
+{
+	return CPath::Join(IFileSystem::System, Instance, path);
+}
+
+CString CServer::MapSystemTmpPath(CString const & path)
+{
+	return CPath::Join(IFileSystem::SystemTmp, Instance, path);
 }
 
 CString CServer::MapUserLocalPath(CString const & path)
 {
-	return Nexus->MapPath(UOS_MOUNT_USER_LOCAL, MapRelative(path));
+	return CPath::Join(IFileSystem::UserLocal, Instance, path);
 }
 
 CString CServer::MapUserGlobalPath(CString const & path)
 {
-	return Nexus->MapPath(UOS_MOUNT_USER_GLOBAL, MapRelative(path));
+	return CPath::Join(IFileSystem::UserGlobal, Instance, path);
 }
 
-CString CServer::MapTmpPath(CString const & path)
+CString CServer::MapUserTmpPath(CString const & path)
 {
-	return Nexus->MapPath(UOS_MOUNT_SERVER_TMP, MapRelative(path));
-}
-
-CString CServer::MapPath(CString const & path)
-{
-	return Nexus->MapPath(UOS_MOUNT_SERVER, MapRelative(path));
+	return CPath::Join(IFileSystem::UserTmp, Instance, path);
 }

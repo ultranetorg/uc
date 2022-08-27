@@ -1,5 +1,6 @@
 #pragma once
-#include "Protocol.h"
+#include "Interface.h"
+#include "IType.h"
 
 namespace uc
 {
@@ -10,15 +11,15 @@ namespace uc
 		public:
 			IType *				Who;
 			CServer *			Server;
-			IProtocol *			Protocol;
+			IInterface *		Protocol;
 			CString				ProtocolName;
 
 			CConnection();
 			CConnection(IType * who, CServer * server, CString const & pn);
 
-			void Clear();
+			void				Clear();
+			bool				operator! () const;
 			operator bool () const;
-			bool operator! () const;
 
 			template<class T> T * As()
 			{

@@ -1,6 +1,7 @@
 #pragma once
 #include "Avatar.h"
 #include "Entity.h"
+#include "Area.h"
 
 namespace uc
 {
@@ -15,7 +16,7 @@ namespace uc
 			{
 				Level = l;
 				SetDirectories(MapRelative(L""));
-				SetDefaultInteractiveMaster(AREA_MAIN);
+				SetDefaultInteractiveMaster(CArea::Main);
 			}
 
 			~CGroup()

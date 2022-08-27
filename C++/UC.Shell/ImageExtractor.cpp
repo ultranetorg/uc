@@ -17,12 +17,12 @@ CImageExtractor::CImageExtractor(CWorldLevel * l, CServer * server)
 
 
 	Notfound24 = Level->Engine->TextureFactory->CreateTexture();
-	auto s = Level->Storage->OpenReadStream(server->MapPath(L"Notfound-24x24.png"));
+	auto s = Level->Storage->ReadFile(server->MapReleasePath(L"Notfound-24x24.png"));
 	Notfound24->Load(s);
 	Level->Storage->Close(s);
 
 	Notfound48 = Level->Engine->TextureFactory->CreateTexture();
-	s = Level->Storage->OpenReadStream(server->MapPath(L"Notfound-48x48.png"));
+	s = Level->Storage->ReadFile(server->MapReleasePath(L"Notfound-48x48.png"));
 	Notfound48->Load(s);
 	Level->Storage->Close(s);
 
@@ -150,12 +150,19 @@ void CImageExtractor::DoIdle()
 
 void CImageExtractor::FetchIcon(CUrl & f, int wh, CGetIconMaterialJob * j)
 {
-	if(CUol::IsValid(f))
-		j->Path = Level->Nexus->UniversalToNative(CUol(f).GetId());
+	if(f.Scheme == CFileSystemEntry::Scheme)
+		try
+		{
+			j->Path = Level->Storage->UniversalToNative(CUol(f).Object);
+		}
+		catch(CMappingExcepion &)
+		{
+			j->Path = CPath::GetName(CUol(f).Object);
+		}
 	else
 		throw CException(HERE, L"Not implemented");
 
-	auto ext = CPath::GetExtension(CUol(f).GetId());
+	auto ext = CPath::GetExtension(CUol(f).GetObjectId());
 
 	bool custom = ext == L"exe" || ext == L"msi" || ext == L"lnk" || CNativeDirectory::Exists(j->Path);
 

@@ -10,7 +10,7 @@ namespace uc
 	{
 		CProtocolConnection<CWorld>				World;
 		CProtocolConnection<CShell>				Shell;
-		CProtocolConnection<IStorageProtocol>	Storage;
+		CProtocolConnection<IFileSystem>		Storage;
 
 		CCore *									Core;
 		CNexus *								Nexus;
@@ -18,8 +18,8 @@ namespace uc
 		CStorableServer *						Server;
 		CStyle *								Style;
 		CLog *									Log;
-		CBitfinexProvider *						Bitfinex;
-		CTradingviewProvider *					Tradingview;
+		CBitfinexProvider *						Bitfinex = null;
+		CTradingviewProvider *					Tradingview = null;
 
 		CefRefPtr<CCef>							Cef;
 		std::atomic_int							CefCounter = 0;

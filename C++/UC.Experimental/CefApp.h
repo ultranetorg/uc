@@ -86,7 +86,7 @@ namespace uc
 			{
 				auto type = command_line->GetSwitchValue(L"type");
 
-				CefString s(Nexus->UniversalToNative(Server->MapTmpPath(L"Browser/" + type.ToWString() + L".log"))); 
+				CefString s(Server->Storage->UniversalToNative(Server->MapUserLocalPath(L"Browser/" + type.ToWString() + L".log"))); 
 				
 				command_line->AppendSwitchWithValue("log-file", s);
 			}

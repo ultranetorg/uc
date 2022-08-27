@@ -10,7 +10,7 @@ namespace uc
 {
 	class CMobileSkinModel;
 	
-	class CWorldServer : public CStorableServer, public CWorld, public IExecutorProtocol, public IViewStore, public IUwmProtocol, public IAvatarProtocol
+	class CWorldServer : public CStorableServer, public CWorld, public IExecutor, public IViewStore, public IUwm, public IAvatarProtocol
 	{
 		public:
 			using CWorldLevel::Storage;
@@ -49,12 +49,11 @@ namespace uc
 			float										Fov;
 
 			UOS_RTTI
-			CWorldServer(CNexus * l, CServerInfo * si);
+			CWorldServer(CNexus * l, CServerRelease * si);
 			~CWorldServer();
 
-			void										Start(EStartMode sm) override;
-			IProtocol *									Connect(CString const & pr) override;
-			void										Disconnect(IProtocol * c) override;
+			IInterface *								Connect(CString const & pr) override;
+			void										Disconnect(IInterface * c) override;
 
 			void										EstablishConnections();
 
@@ -68,8 +67,7 @@ namespace uc
 
 			void										Start();
 
-			virtual void								Execute(const CUrq & o, CExecutionParameters * p) override;
-			virtual bool								CanExecute(const CUrq & o) override;
+			virtual void								Execute(CXon * command, CExecutionParameters * parameters) override;
 
 			CUol										GenerateAvatar(CUol & entity, CString const & type) override;
 			CAvatar *									CreateAvatar(CUol & avatar, CString const & dir) override;
@@ -125,7 +123,7 @@ namespace uc
 
 			CStorableObject *								CreateObject(CString const & name) override;
 
-			virtual CInterObject *					GetEntity(CUol & a) override;
+			virtual CInterObject *						GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 	};

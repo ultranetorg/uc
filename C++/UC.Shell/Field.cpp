@@ -8,7 +8,7 @@ CFieldServer::CFieldServer(CShellLevel * l, CString const & name) : CField(l, na
 	Level = l;
 
 	SetDirectories(MapRelative(L""));
-	SetDefaultInteractiveMaster(AREA_FIELDS);
+	SetDefaultInteractiveMaster(CArea::Fields);
 }
 
 CFieldServer::~CFieldServer()
