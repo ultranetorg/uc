@@ -176,7 +176,7 @@ CServer * CNexus::CreateServer(CServerAddress & address, CString const & instanc
 			{
 				for(auto sheme : j->Nodes)
 				{
-					Core->Os->RegisterUrlProtocol(sheme->Name, Core->FrameworkDirectory, Core->CoreExePath + L" " + CCore::GetClassName() + L"{" + CCore::OpenDirective + L" " + CCore::UrlArgument + L"=\"%1\"}");
+					Core->Os->RegisterUrlProtocol(sheme->Name, Core->FrameworkDirectory, Core->CoreExePath + L" {" + CCore::OpenDirective + L" " + CCore::UrlArgument + L"=\"%1\"}");
 				}
 			}
 
@@ -572,7 +572,7 @@ void CNexus::ProcessHotKey(int64_t id)
 
 void CNexus::Execute(CXon * command, CExecutionParameters * parameters)
 {
-	if(command->Name == CCore::GetClassName())
+	if(command->Name.empty())
 	{
 		if(command->Nodes.First()->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 		{

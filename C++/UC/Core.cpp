@@ -204,7 +204,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 	Supervisor->StartWriting(SupervisorDirectory);
 	PCCycle =  new CPerformanceCounter();
 
-	Os->RegisterUrlProtocol(CliScheme, FrameworkDirectory, CoreExePath + L" " + GetClassName() + L"{" + OpenDirective + L" " + UrlArgument + L"=\"%1\"}");
+	Os->RegisterUrlProtocol(CliScheme, FrameworkDirectory, CoreExePath + L" {" + OpenDirective + L" " + UrlArgument + L"=\"%1\"}");
 
 	Log->ReportMessage(this, L"Supervisor directory: %s", Supervisor->Directory);
 	Log->ReportMessage(this, L"Database source:      %s", SourceDirectory);
@@ -555,7 +555,7 @@ void CCore::Open(CUrl const & object, CExecutionParameters * parameters)
 {
 	CTonDocument d;
 
-	auto core = d.Add(CCore::GetClassName());
+	auto core = d.Add(L"");
 	core->Add(CCore::OpenDirective);
 	core->Add(CCore::UrlArgument)->Set(object.ToString());
 
@@ -574,7 +574,7 @@ void CCore::Execute(CString const & command, CExecutionParameters * parameters)
 
 void CCore::Execute(CXon * command, CExecutionParameters * parameters)
 {
-	if(command->Name == GetClassName())
+	if(command->Name.empty())
 	{
 		if(command->Nodes.First()->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 		{

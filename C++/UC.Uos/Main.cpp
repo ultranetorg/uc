@@ -61,7 +61,7 @@ void Create(HINSTANCE instance, LPTSTR cmd)
 	}
 }
 
-int wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
+int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev, LPWSTR cmd, int nCmdShow)
 {
 //	auto & d = CTonDocument(CXonTextReader(L"{a b c} {e f}"));
 
