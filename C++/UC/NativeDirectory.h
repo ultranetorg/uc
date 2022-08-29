@@ -14,7 +14,7 @@ namespace uc
 	class UOS_LINKING CNativeDirectory
 	{
 		public:
-			static CList<CFileSystemEntry>				Enumerate(CString const & folder, const CString & mask, EDirectoryFlag f);
+			static CList<CFileSystemEntry>				Enumerate(CString const & folder, const CString & regex, EDirectoryFlag f);
 
 			static void									Delete(CString const & src, bool premove = true);
 			static void									Copy(CString const & src, CString const & dst);

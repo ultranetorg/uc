@@ -174,7 +174,7 @@
     <ClInclude Include="Icon.h">
       <Filter>Avatar</Filter>
     </ClInclude>
-    <ClInclude Include="IUwmProtocol.h" />
+    <ClInclude Include="IUwmServer.h" />
     <ClInclude Include="Stack.h">
       <Filter>Elements</Filter>
     </ClInclude>

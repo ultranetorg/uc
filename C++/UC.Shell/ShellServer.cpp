@@ -366,23 +366,25 @@ CRefList<CMenuItem *> CShellServer::CreateActions()
 {
 	CRefList<CMenuItem *> actions;
 
-	auto shell = new CMenuItem(L"Shell");
+	auto shell = new CMenuItem(GetTitle());
 	
-	auto a = Instance + L"{";
-	a += L"Create ";
+	//auto c = Instance + L"{" + IExecutor::CreateDirective + L" ";
 
-	auto f = a + L" Class=" + CField::GetClassName();
-	f += L"}";
-	shell->Items.AddNew(new CMenuItem(L"Field", [this, f](auto args)
+	CTonDocument c;
+	c.Add(Instance)->Add(IExecutor::CreateDirective);
+		
+	shell->Items.AddNew(new CMenuItem(L"Field", [=](auto args)
 												{
-													Nexus->Execute(&CTonDocument(CXonTextReader(f)), sh_new<CShowParameters>(args, Style)); 
+													auto cc = c;
+													cc.One(Instance)->Add(L"class")->Set(CField::GetClassName());
+													Core->Execute(cc.One(Instance), sh_new<CShowParameters>(args, Style)); 
 												}));
 
-	auto t = a + L" Class=" + CTheme::GetClassName();
-	f += L"}";
-	shell->Items.AddNew(new CMenuItem(L"Theme", [this, t](auto args)
+	shell->Items.AddNew(new CMenuItem(L"Theme", [=](auto args)
 												{
-													Nexus->Execute(&CTonDocument(CXonTextReader(t)), sh_new<CShowParameters>(args, Style)); 
+													auto cc = c;
+													cc.One(Instance)->Add(L"class")->Set(CTheme::GetClassName());
+													Core->Execute(cc.One(Instance), sh_new<CShowParameters>(args, Style)); 
 												}));
 
 
@@ -440,11 +442,11 @@ CObject<CFieldServer> CShellServer::GetField(CUol & o)
 	return Server->FindObject(o);
 }
 
-void CShellServer::Execute(CXon * arguments, CExecutionParameters * parameters)
+void CShellServer::Execute(CXon * command, CExecutionParameters * parameters)
 {
 	EstablishConnections();
 
-	auto f = arguments->Nodes.First();
+	auto f = command->Nodes.First();
 
 	if(f->Name == L"CreateDefaultObjects")
 	{
@@ -651,9 +653,9 @@ void CShellServer::Execute(CXon * arguments, CExecutionParameters * parameters)
 			World->Sphere->Active->MouseEvent[EListen::Normal] += ThisHandler(OnWorldSphereMouse);
 		}
 	}
-	else if(f->Name == L"Open" && arguments->Any(L"Url"))
+	else if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 	{
-		CUrl u(arguments->Get<CString>(L"Url"));
+		CUrl u(command->Get<CString>(CCore::UrlArgument));
 
 		if(u.Scheme == CWorldEntity::Scheme)
 		{
@@ -661,16 +663,16 @@ void CShellServer::Execute(CXon * arguments, CExecutionParameters * parameters)
 
 			if(o.GetObjectClass() == CLink::GetClassName())
 			{
-				CObject<CLink> l = Server->FindObject(o);
+				CObject<CLink> l = FindObject(o);
 	
-				Nexus->Execute(&CTonDocument(CXonTextReader(L"Open Url=" + l->Target.ToString())), parameters);
+				Core->Open(l->Target, parameters);
 			} 
 			else if(o.GetObjectClass() == CField::GetClassName() || 
 					o.GetObjectClass() == CTheme::GetClassName() ||
 					o.GetObjectClass() == CPicture::GetClassName() ||
 					o.GetObjectClass() == CNotepad::GetClassName())
 			{
-				auto e = Server->FindObject(o);
+				auto e = FindObject(o);
 	
 				World->OpenEntity(e->Url, CArea::LastInteractive, dynamic_cast<CShowParameters *>(parameters));
 			}
@@ -680,9 +682,9 @@ void CShellServer::Execute(CXon * arguments, CExecutionParameters * parameters)
 			}
 		}
 	}
-	else if(f->Name == L"Create")
+	else if(f->Name == IExecutor::CreateDirective)
 	{
-		if(arguments->Get<CString>(L"Class") == CField::GetClassName()) 
+		if(command->Get<CString>(L"class") == CField::GetClassName()) 
 		{
 			auto d = new CFieldServer(this);
 			d->SetTitle(L"Field (New)");
@@ -691,7 +693,7 @@ void CShellServer::Execute(CXon * arguments, CExecutionParameters * parameters)
 				
 			World->OpenEntity(d->Url, CArea::Fields, dynamic_cast<CShowParameters *>(parameters));
 		}
-		if(arguments->Get<CString>(L"Class") == CTheme::GetClassName())
+		if(command->Get<CString>(L"class") == CTheme::GetClassName())
 		{
 			CArray<std::pair<CString, CString>> types;
 			types.push_back({L"All supported formats", L"*.vwm; "});

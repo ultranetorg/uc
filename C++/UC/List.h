@@ -37,7 +37,12 @@ namespace uc
 					p(i);
 				}
 			}
-			
+
+			bool Any()
+			{
+				return !empty();
+			}
+
 			template<class Pred> bool Has(const Pred p)
 			{
 				return std::find_if(begin(), end(), p) != end();

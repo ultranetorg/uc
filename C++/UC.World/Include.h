@@ -7,7 +7,7 @@
 #include "World.h"
 
 #include "IWorldFriend.h"
-#include "IUwmProtocol.h"
+#include "IUwmServer.h"
 
 #include "PolygonPositioning.h"
 

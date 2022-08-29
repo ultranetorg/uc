@@ -4,7 +4,7 @@
 
 namespace uc
 {
-	class CExperimentalServer : public CExperimentalLevel, public CStorableServer, public IWorldFriend, public IShellFriend, public IAvatarProtocol, public IExecutor, public IUwm
+	class CExperimentalServer : public CExperimentalLevel, public CStorableServer, public IWorldFriend, public IShellFriend, public IAvatarServer, public IExecutor, public IUwmServer
 	{
 		using CExperimentalLevel::Server;
 		using CExperimentalLevel::Nexus;

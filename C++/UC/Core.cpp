@@ -7,29 +7,62 @@
 
 using namespace uc;
 
-CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t * supervisor_folder, const wchar_t * coredir, CProductInfo & pi)
+CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar_t * supervisor_folder, const wchar_t * coredir, CProductInfo & pi)
 {
 	Supervisor			= s;
 	Core				= this;
 	CreationInstance	= instance;
 	Product				= pi;
 	Os					= new COs();
+	Commands			= new CTonDocument(CXonTextReader(command));
 
 	CoInitialize(NULL);
 
 	wchar_t p[4096];
 	GetModuleFileNameW(CreationInstance, p, _countof(p));
 
-	SupervisorName	= supervisor_folder;
-	LaunchPath		= CNativePath::Canonicalize(p);
-	LaunchDirectory	= CNativePath::GetDirectoryPath(LaunchPath);
-	CoreDirectory	= CNativePath::Join(LaunchDirectory, coredir);
-	DatabaseObject	= GetClassName() + L"/Database";
-	CurrentReleaseSubPath		= CPath::Universalize(CoreDirectory.Substring(CNativePath::GetDirectoryPath(CNativePath::GetDirectoryPath(CoreDirectory)).length() + 1));
+	SupervisorName			= supervisor_folder;
+	CoreExePath				= CNativePath::Canonicalize(p);
+	LaunchDirectory			= CNativePath::GetDirectoryPath(CoreExePath);
+	CoreDirectory			= CNativePath::Join(LaunchDirectory, coredir);
+	DatabaseObject			= GetClassName() + L"/Database";
+	CurrentReleaseSubPath	= CPath::Universalize(CoreDirectory.Substring(CNativePath::GetDirectoryPath(CNativePath::GetDirectoryPath(CoreDirectory)).length() + 1));
 
 	auto hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 	GetModuleFileNameEx(hProcess, LoadLibrary(L"UC.dll"), p, sizeof(p) / sizeof(TCHAR));
 	FrameworkDirectory = CNativePath::GetDirectoryPath(p);
+
+	auto cmd = Commands->One(GetClassName());
+
+	if(!cmd || cmd->Any(VersionAutoUpArgument) && cmd->Get<CBool>(VersionAutoUpArgument) == false)
+	{
+		auto versions = CNativeDirectory::Enumerate(CNativePath::Join(CoreDirectory, L".."), L"[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", EDirectoryFlag::DirectoriesOnly);
+		versions.Sort([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); });
+	
+		if(CVersion(versions.First().Name) > CVersion(CNativePath::GetDirectoryName(CoreDirectory)))
+		{
+			STARTUPINFO info = {sizeof(info)};
+			PROCESS_INFORMATION processInfo;
+	
+			auto exe = CoreExePath.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
+			auto dir = FrameworkDirectory.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
+	
+			wchar_t cmd[32768] = {};
+			wcscpy_s(cmd, _countof(cmd), (L"\"" + exe + L"\"").data());
+	
+			//SetDllDirectory(FrameworkDirectory.data());
+			//SetCurrentDirectory(FrameworkDirectory.data());
+	
+			if(CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, dir.data(), &info, &processInfo))
+			{
+				//auto e = GetLastError();
+				CloseHandle(processInfo.hProcess);
+				CloseHandle(processInfo.hThread);
+			}
+	
+			return;
+		}
+	}
 
 	Timings.TotalTicks			= 0;
 	Timings.MessageP1SCounter	= 0;
@@ -44,18 +77,6 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 	Log->ReportMessage(this, L"OS: %s", Os->GetVersion().ToString());
 	Log->ReportMessage(this, L"User Admin?: %s", CSecurity().IsUserAdmin()? L"y" : L"n");
 	Log->ReportMessage(this, L"Core directory: %s", CoreDirectory);
-
-	Commands = new CTonDocument(CXonTextReader(cmd));
-
-	CString mode;
-
-	if(auto c = Commands->One(L"Core"))
-	{
-		if(auto m = Commands->One(L"Mode"))
-		{
-			mode = m->Get<CString>();
-		}
-	}
 
 	HANDLE hAccessToken = NULL;
 
@@ -110,7 +131,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	HInformation = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bufsize, fmname.c_str());
 
-	if(HInformation == NULL)
+	if(HInformation == null)
 	{
 		throw CLastErrorException(HERE, GetLastError(), L"Could not create file mapping: %s", fmname.c_str());
 	}
@@ -126,28 +147,31 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	if(status == ERROR_ALREADY_EXISTS)
 	{
-		if(mode == START_MODE_UNAP)
+		if(Commands && Commands->Nodes.Any())
 		{
-			COPYDATASTRUCT cd;
-			cd.dwData = 0;
-			cd.lpData = cmd;
-			cd.cbData = (DWORD)wcslen(cmd) * (sizeof(*cmd) + 1);
-	
-			auto e = SendMessage(info->Mmc, WM_COPYDATA, (WPARAM)0, (LPARAM)&cd);
-		
-			return;
-		}
-		else if(mode == START_MODE_RESTART)
-		{
-			do 
+			if(Commands->Nodes.First()->Name == RestartDirective)
 			{
-				HInformation = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bufsize, fmname.c_str());
-				
-				status = GetLastError();
-
-				Sleep(10);
+				do 
+				{
+					HInformation = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bufsize, fmname.c_str());
+					
+					status = GetLastError();
+	
+					Sleep(10);
+				}
+				while(status != ERROR_SUCCESS);
 			}
-			while(status != ERROR_SUCCESS);
+			else
+			{
+				COPYDATASTRUCT cd = {};
+				cd.dwData = 0;
+				cd.lpData = command;
+				cd.cbData = (DWORD)(wcslen(command) + 1) * sizeof(*command);
+		
+				auto e = SendMessage(info->Mmc, WM_COPYDATA, (WPARAM)0, (LPARAM)&cd);
+			
+				return;
+			}
 		}
 		else
 			return;
@@ -159,7 +183,6 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 		Information->ProcessId = GetCurrentProcessId();
 		Information->MainThreadId = GetCurrentThreadId();
 	}
-
 
 	static int memory=0;
 	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPWSTR)&memory, &LocationInstance);
@@ -180,9 +203,8 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	Supervisor->StartWriting(SupervisorDirectory);
 	PCCycle =  new CPerformanceCounter();
-	
 
-	Os->RegisterUrlProtocol(UOS_OBJECT_PROTOCOL, FrameworkDirectory, LaunchPath + L" " + GetClassName() + L"{Mode=" + START_MODE_UNAP + L"}");
+	Os->RegisterUrlProtocol(CliScheme, FrameworkDirectory, CoreExePath + L" " + GetClassName() + L"{" + OpenDirective + L" " + UrlArgument + L"=\"%1\"}");
 
 	Log->ReportMessage(this, L"Supervisor directory: %s", Supervisor->Directory);
 	Log->ReportMessage(this, L"Database source:      %s", SourceDirectory);
@@ -235,17 +257,18 @@ CCore::~CCore()
 			PROCESS_INFORMATION processInfo;
 
 			wchar_t cmd[32768] = {};
-			wcscpy_s(cmd, _countof(cmd), (L"\"" + LaunchPath + L"\" " +  + L" " + GetClassName() +  L"{Mode=" + START_MODE_RESTART + L"} " + RestartCommand).data());
+			wcscpy_s(cmd, _countof(cmd), (L"\"" + CoreExePath + L"\" " + GetClassName() +  L"{" + RestartDirective + L"} " + RestartCommand).data());
 
 			SetDllDirectory(FrameworkDirectory.data());
 			SetCurrentDirectory(FrameworkDirectory.data());
 
-			if(!CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, FrameworkDirectory.data(), &info, &processInfo))
+			if(CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, FrameworkDirectory.data(), &info, &processInfo))
 			{
-				auto e = GetLastError();
+				//auto e = GetLastError();
+				CloseHandle(processInfo.hProcess);
+				CloseHandle(processInfo.hThread);
 			}
 		}
-		
 	}
 
 	delete Commands;
@@ -528,29 +551,50 @@ void CCore::RegisterExecutor(ICommandExecutor * e)
 	}
 }
 
-void CCore::Execute(CXon * args, CExecutionParameters * parameters)
+void CCore::Open(CUrl const & object, CExecutionParameters * parameters)
 {
-	if(args->Name == DatabaseObject)
-	{
-		//if(p->Children.Contains(L"Action", L"Clear"))
-		{
-			///if(CPath::IsDirectory(WorkFolder))
-			///{
-			///	CNativeDirectory::Delete(WorkFolder);
-			///	CreateDirectories(WorkFolder, true);
-			///}
-		}
-	}
-	else
-		for(auto j : Executors)
-		{
-			j->Execute(args, parameters);
-		}
+	CTonDocument d;
+
+	auto core = d.Add(CCore::GetClassName());
+	core->Add(CCore::OpenDirective);
+	core->Add(CCore::UrlArgument)->Set(object.ToString());
+
+	Execute(core, parameters);
 }
 
-void CCore::Execute(CString const & command)
+void CCore::Execute(CString const & command, CExecutionParameters * parameters)
 {
-	ShellExecute(null, L"open", command.data(), NULL, NULL, SW_SHOWNORMAL);
+	auto & d = CTonDocument(CXonTextReader(command));
+
+	for(auto i : d.Nodes)
+	{
+		Execute(i, parameters);
+	}
+}
+
+void CCore::Execute(CXon * command, CExecutionParameters * parameters)
+{
+	if(command->Name == GetClassName())
+	{
+		if(command->Nodes.First()->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
+		{
+			auto u = command->Get<CString>(CCore::UrlArgument);
+
+			auto url = CUrl(u);
+
+			if(url.Scheme == CCore::CliScheme)
+			{
+				Execute(url.Path, parameters);
+
+				return;
+			}
+		}
+	}
+
+	for(auto j : Executors)
+	{
+		j->Execute(command, parameters);
+	}
 }
 
 void CCore::AddRestartCommand(CString const & c)
@@ -671,7 +715,13 @@ void CCore::ProcessOther()
 void CCore::ProcessCopyData(COPYDATASTRUCT * cd)
 {
 	Log->ReportMessage(this, L"Instance message recieved: %s", cd->lpData);
-	Execute(&CTonDocument(CXonTextReader((wchar_t *)cd->lpData)), null);
+
+	CTonDocument d(CXonTextReader((wchar_t *)cd->lpData));
+	
+	for(auto i : d.Nodes)
+	{
+		Execute(i, null);
+	}
 }
 	
 void CCore::ProcessEvents(int i)

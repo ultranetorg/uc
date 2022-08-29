@@ -1,7 +1,7 @@
 #pragma once
 #include "World.h"
 #include "IWorldFriend.h"
-#include "IUwmProtocol.h"
+#include "IUwmServer.h"
 #include "CylindricalPositioning.h"
 #include "PolygonPositioning.h"
 #include "Sphere.h"
@@ -10,7 +10,7 @@ namespace uc
 {
 	class CMobileSkinModel;
 	
-	class CWorldServer : public CStorableServer, public CWorld, public IExecutor, public IViewStore, public IUwm, public IAvatarProtocol
+	class CWorldServer : public CStorableServer, public CWorld, public IExecutor, public IViewStore, public IUwmServer, public IAvatarServer
 	{
 		public:
 			using CWorldLevel::Storage;
@@ -117,7 +117,7 @@ namespace uc
 			
 			virtual CView *								Get(const CString & name) override;
 			
-			CProtocolConnection<IAvatarProtocol>		FindAvatarSystem(CUol & e, CString const & type) override;
+			CProtocolConnection<IAvatarServer>		FindAvatarSystem(CUol & e, CString const & type) override;
 
 			virtual CElement *							CreateElement(CString const & name, CString const & type) override;
 

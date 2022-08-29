@@ -53,9 +53,6 @@ namespace uc
 			CString										MapPathToRelease(CReleaseAddress & release, CString const & path);
 			CString										MapPathToRealization(CRealizationAddress & release, CString const & path = CString());
 
-			void										Open(CUrl const & object, CExecutionParameters * parameters);
-			void										Execute(CXon * arguments, CExecutionParameters * parameters);
-			void										Execute(CString const & command, CExecutionParameters * parameters);
 
 			CMap<CServerRelease *, CXon *>				QueryRegistry(CString const & path);
 			CXon *										QueryRegistry(CServerAddress const & server, CString const & path);
@@ -70,7 +67,6 @@ namespace uc
 			CConnection 								Connect(IType * who, CString const & instance, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
 			CConnection									Connect(IType * who, CServerAddress & server, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
 			CConnection 								Connect(IType * who, CString const & iface,								std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
-			CProtocolConnection<IExecutor>				ConnectExecutor(IType * who, CString const & protocol,					std::function<void()> ondisconnect = std::function<void()>());
 			CList<CConnection> 							ConnectMany(IType * who, CString const & iface);
 
 			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & instance, std::function<void()> ondisconnect = std::function<void()>())
@@ -123,5 +119,8 @@ namespace uc
 			CList<CServerRelease *>						FindImplementators(CString const & pr);
 
 			void										Break(CString const & server, CString const & iface);
+
+		protected:
+			void										Execute(CXon * arguments, CExecutionParameters * parameters);
 	};
 }

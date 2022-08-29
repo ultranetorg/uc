@@ -171,6 +171,15 @@ CServer * CNexus::CreateServer(CServerAddress & address, CString const & instanc
 		for(auto j : i->Nodes)
 		{
 			s->Interfaces[j->Name] = null;
+
+			if(j->Name == IExecutor::InterfaceName)
+			{
+				for(auto sheme : j->Nodes)
+				{
+					Core->Os->RegisterUrlProtocol(sheme->Name, Core->FrameworkDirectory, Core->CoreExePath + L" " + CCore::GetClassName() + L"{" + CCore::OpenDirective + L" " + CCore::UrlArgument + L"=\"%1\"}");
+				}
+			}
+
 		}
 	}
 
@@ -458,18 +467,6 @@ CConnection CNexus::Connect(IType * who, CServerAddress & server, CString const 
 	return CConnection();
 }
 
-CProtocolConnection<IExecutor> CNexus::ConnectExecutor(IType * who, CString const & scheme, std::function<void()> ondisconnect)
-{
-	if(auto imp = Releases.Find([&](auto i){ return i->Registry->Any(L"Interfaces/" + IExecutor::InterfaceName + L'/' + scheme); }))
-	{
-		if(auto c = Connect(who, imp->Address, IExecutor::InterfaceName))
-		{
-			return c;
-		}
-	}
-
-	return CConnection();
-}
 
 CConnection CNexus::Connect(IType * who, CString const & iface, std::function<void()> ondisconnect)
 {
@@ -573,52 +570,27 @@ void CNexus::ProcessHotKey(int64_t id)
 	}
 }
 
-void CNexus::Open(CUrl const & object, CExecutionParameters * parameters)
-{
-	Execute(&CTonDocument(CXonTextReader(L"Open Url=" + object.ToString())), parameters);
-}
-
-void CNexus::Execute(CString const & command, CExecutionParameters * parameters)
-{
-	Execute(&CTonDocument(CXonTextReader(command)), parameters);
-}
-
 void CNexus::Execute(CXon * command, CExecutionParameters * parameters)
 {
-	auto f = command->Nodes.First();
-
-	if(f->Name == L"Open" &&  command->Any(L"Url"))
+	if(command->Name == CCore::GetClassName())
 	{
-		//CUrl u(f->Get<CString>(L"Url"));
-
-// 		if(o.Scheme == CWorldEntity::Scheme)
-// 		{
-// 			OpenEntity(CUol(f->Get<CString>(L"Url")), CArea::LastInteractive, dynamic_cast<CShowParameters *>(parameters));
-// 		}
-// 	}
-		if(CUol::IsValid(command->Get<CString>(L"Url")))
+		if(command->Nodes.First()->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 		{
-			auto o = CUol(command->Get<CString>(L"Url"));
+			auto u = command->Get<CString>(CCore::UrlArgument);
 
-			//auto s = o.Parameters.Contains(L"server") ? o.Parameters[L"server"] : L"";
+			auto o = CUol(u);
 
-			if(auto i = Servers.Find([&](auto i){ return i->Instance == o.Server; }))
-			{
-				if(auto e = Connect<IExecutor>(this, o.Server))
-				{
-					e->Execute(command, parameters);
-					Disconnect(e);
-
-					return;
-				}
-			}
-	
-			if(auto e = ConnectExecutor(this, o.Scheme))
+			if(auto e = Connect<IExecutor>(this, o.Server))
 			{
 				e->Execute(command, parameters);
 				Disconnect(e);
 			}
 		}
+	}
+	else if(auto e = Connect<IExecutor>(this, command->Name))
+	{
+		e->Execute(command, parameters);
+		Disconnect(e);
 	}
 }
 

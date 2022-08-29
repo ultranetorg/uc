@@ -266,7 +266,8 @@ namespace uc
 
 			if(!item->IconEntity.IsEmpty())
 			{
-				ImageExtractor->GetIconMaterial(mi, (CUrl)item->IconEntity, 16)->Done = [mi](auto m){  mi->Icon->Visual->SetMaterial(m);  }; 
+				mi->Take();
+				ImageExtractor->GetIconMaterial(mi, (CUrl)item->IconEntity, 16)->Done = [mi](auto m){  mi->Icon->Visual->SetMaterial(m); mi->Free();  }; 
 			}
 
 			mi->Active->SetMeta(item);
@@ -329,7 +330,7 @@ namespace uc
 						{
 							mi->Execute =	[=](auto args)
 											{
-												Nexus->Execute(&CTonDocument(CXonTextReader(L"Open Url=" + Storage->ToUol(path).ToString())), sh_new<CShowParameters>(args, Style));
+												Core->Open(Storage->ToUol(path), sh_new<CShowParameters>(args, Style));
 											};
 						}
 						

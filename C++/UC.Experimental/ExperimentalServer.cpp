@@ -81,8 +81,7 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world)
 	if(storage && !Storage)
 	{
 		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(this); });
-
-		GeoStore	= new CGeoStore(this);
+		GeoStore = new CGeoStore(this);
 	}
 
 	if(world && !World)
@@ -109,7 +108,7 @@ CInterObject * CExperimentalServer::CreateObject(CString const & name)
 
 	CStorableObject * o = null;
 
-	auto type = name.substr(0, name.find(L'-'));
+	auto type = CUol::GetObjectClass(name);
 
 	if(type == CCommander	::GetClassName())	o = new CCommander(this, name); else 
 	if(type == CBrowser		::GetClassName())	o = new CBrowser(this, name); else
@@ -356,35 +355,35 @@ CRefList<CMenuItem *> CExperimentalServer::CreateActions()
 {
 	CRefList<CMenuItem *> actions;
 
-	auto root = new CMenuItem(L"Experimental");
+	auto root = new CMenuItem(GetTitle());
 	
-	CString a = Instance + L"{Create ";
+	auto a = Instance + L"{" + IExecutor::CreateDirective + L" ";
 
 	root->Items.AddNew(new CMenuItem(L"Commander",	[this, a](auto args)
 													{
-														Nexus->Execute(a + L"Class=" + CCommander::GetClassName() + L"}", sh_new<CShowParameters>(args, Style));
+														Core->Execute(a + L"class=" + CCommander::GetClassName() + L"}", sh_new<CShowParameters>(args, Style));
 													}));
 
 	root->Items.AddNew(new CMenuItem(L"Browser",	[this, a](auto args)
 													{
-														Nexus->Execute(a + L"Class=" + CBrowser::GetClassName() + L"}", sh_new<CShowParameters>(args, Style)); 
+														Core->Execute(a + L"class=" + CBrowser::GetClassName() + L"}", sh_new<CShowParameters>(args, Style)); 
 													}));
 
-	root->Items.AddNew(new CMenuItem(L"Earth",	[this, a](auto args)
-												{
-													Nexus->Execute(a + L"Class=" + CEarth::GetClassName() + L"}", sh_new<CShowParameters>(args, Style)); 
-												}));
+	root->Items.AddNew(new CMenuItem(L"Earth",		[this, a](auto args)
+													{
+														Core->Execute(a + L"class=" + CEarth::GetClassName() + L"}", sh_new<CShowParameters>(args, Style)); 
+													}));
 
 	actions.AddNew(root);
 
 	return actions;
 }
 
-void CExperimentalServer::Execute(CXon * arguments, CExecutionParameters * ep)
+void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 {
 	EstablishConnections(true, true);
 
-	auto f = arguments->Nodes.First();
+	auto f = command->Nodes.First();
 
 	auto shell	= Nexus->Connect<CShell>(this);
 
@@ -573,18 +572,18 @@ void CExperimentalServer::Execute(CXon * arguments, CExecutionParameters * ep)
 			sp->Free();
 		}
 	}
-	else if(f->Name == L"Open")
+	else if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 	{
-		CUrl u(arguments->Get<CString>(L"Url"));
+		CUrl u(command->Get<CString>(CCore::UrlArgument));
 
 		if(u.Scheme == CWorldEntity::Scheme)
 		{
-			World->OpenEntity(CUol(u), CArea::Main, dynamic_cast<CShowParameters *>(ep));
+			World->OpenEntity(CUol(u), CArea::LastInteractive, dynamic_cast<CShowParameters *>(ep));
 		}
 	}
-	else if(f->Name == L"Create")
+	else if(f->Name == IExecutor::CreateDirective)
 	{
-		if(arguments->Get<CString>(L"Class") == CTradeHistory::GetClassName())
+		if(command->Get<CString>(L"class") == CTradeHistory::GetClassName())
 		{
 			auto c = new CTradeHistory(this);
 			Server->RegisterObject(c, true);
@@ -593,7 +592,7 @@ void CExperimentalServer::Execute(CXon * arguments, CExecutionParameters * ep)
 			World->OpenEntity(c->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
 		}
 
-		if(arguments->Get<CString>(L"Class") == CCommander::GetClassName())
+		if(command->Get<CString>(L"class") == CCommander::GetClassName())
 		{
 			auto c = new CCommander(this);
 			c->SetRoot(L"/");
@@ -603,7 +602,7 @@ void CExperimentalServer::Execute(CXon * arguments, CExecutionParameters * ep)
 			World->OpenEntity(c->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
 		}
 
-		if(arguments->Get<CString>(L"Class") == CBrowser::GetClassName())
+		if(command->Get<CString>(L"class") == CBrowser::GetClassName())
 		{
 			auto c = new CBrowser(this);
 			c->SetAddress(CUrl(UO_WEB_HOME));
@@ -613,7 +612,7 @@ void CExperimentalServer::Execute(CXon * arguments, CExecutionParameters * ep)
 			World->OpenEntity(c->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
 		}
 
-		if(arguments->Get<CString>(L"Class") == CEarth::GetClassName())
+		if(command->Get<CString>(L"class") == CEarth::GetClassName())
 		{
 			auto d = new CEarth(this);
 			Server->RegisterObject(d, true);

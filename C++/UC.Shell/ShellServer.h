@@ -22,7 +22,7 @@
 
 namespace uc
 {
-	class CShellServer : public CStorableServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarProtocol, public IFieldProtocol, public IExecutor
+	class CShellServer : public CStorableServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarServer, public IFieldProtocol, public IExecutor
 	{
 		using CShellLevel::Server;
 		using CShellLevel::Nexus;
@@ -39,7 +39,7 @@ namespace uc
 
 			IInterface * 								Connect(CString const & pr)override;
 			void										Disconnect(IInterface * s) override;
-			CStorableObject *								CreateObject(CString const & name) override;
+			CStorableObject *							CreateObject(CString const & name) override;
 
 			CString										GetTitle() override { return SHELL_OBJECT; }
 			IMenuSection *								CreateNewMenu(CFieldElement * f, CFloat3 & p, IMenu * m) override;

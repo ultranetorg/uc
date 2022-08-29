@@ -42,13 +42,13 @@ void CFileSystem::Execute(CXon * command, CExecutionParameters * parameter)
 {
 	auto f = command->Nodes.First();
 
-	if(f->Name == L"Open" && f->Any(L"Url"))
+	if(f->Name == CCore::OpenDirective && command->One(CCore::UrlArgument))
 	{
-		CUrl o(f->Get<CString>(L"Url"));
+		CUrl o(command->Get<CString>(CCore::UrlArgument));
 
 		if(o.Scheme == CFileSystemEntry::Scheme)
 		{
-			Nexus->Core->Execute(UniversalToNative(CUol(CUol(f->Get<CString>(L"Url"))).Object));
+			Nexus->Core->Os->Execute(UniversalToNative(CUol(o).Object));
 		}
 	}
 }

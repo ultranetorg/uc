@@ -23,6 +23,8 @@ namespace uc
 			
 			static CString								GetEnvironmentValue(CString const & name);
 
+			void										Execute(CString const & command);
+
 			UOS_RTTI
 			COs();
 			~COs();

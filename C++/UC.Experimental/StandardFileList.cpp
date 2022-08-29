@@ -208,7 +208,7 @@ void CStandardFileList::OnMouse(CActive * r, CActive * s, CMouseArgs * arg)
 	{
 		if(Current)
 		{
-			Level->Nexus->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
+			Level->Core->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
 		}
 	}
 }
@@ -267,7 +267,7 @@ void CStandardFileList::OnKeyboard(CActive * r, CActive * s, CKeyboardArgs * arg
 				if(Current->IsDirectory)
 					Load(Current->Path);
 				else
-					Level->Nexus->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
+					Level->Core->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
 
 				break;
 		}

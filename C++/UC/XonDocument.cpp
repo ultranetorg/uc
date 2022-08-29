@@ -25,6 +25,21 @@ CXonDocument::CXonDocument(CXonDocument && d)
 	//IsRemoved = false;
 }
 
+CXonDocument::CXonDocument(CXonDocument const & d)
+{
+	for(auto i : d.Nodes)
+	{
+		Nodes.push_back(i->CloneInternal(this));
+	}
+
+	Name = d.Name;
+
+	if(d.Value)
+	{
+		Value = d.Value->Clone();
+	} 
+}
+
 CXonDocument::~CXonDocument()
 {
 

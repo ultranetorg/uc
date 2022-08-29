@@ -4,7 +4,7 @@
 
 namespace uc
 {
-	class IAvatarProtocol;
+	class IAvatarServer;
 	class CUnit;
 	class CWorld;
 

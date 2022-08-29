@@ -3,9 +3,9 @@
 using namespace uc;
 
 /// /Core/Database?Action=Rollback
-/// /UC.Experimental?Action=Create&Class=Commander&origin=una.ultranet.org/Experimental
 /// /UC.World?Mode=Mobile.Emulation
 /// /UC.World?Mode=VR.Emulation
+/// Experimental{create class=Commander} address=uc/experimental/Experimental
 
 void Create(HINSTANCE instance, LPTSTR cmd)
 {

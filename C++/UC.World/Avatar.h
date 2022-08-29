@@ -6,14 +6,14 @@
 namespace uc
 {
 	class CWorld;
-	class IAvatarProtocol;
+	class IAvatarServer;
 	
 	class UOS_WORLD_LINKING CAvatar : public CElement, public CStorableObject 
 	{
 		public:
 			inline static const CString				Scheme = L"worldavatar";
 
-			CProtocolConnection<IAvatarProtocol>	Protocol;
+			CProtocolConnection<IAvatarServer>	Protocol;
 			CWorld *								World;
 
 			UOS_RTTI
@@ -34,7 +34,7 @@ namespace uc
 			virtual ~CStaticAvatar();
 	};
 
-	class IAvatarProtocol : public virtual IInterface
+	class IAvatarServer : public virtual IInterface
 	{
 		public:
 			inline static const CString				InterfaceName = L"IAvatar";
@@ -44,6 +44,6 @@ namespace uc
 			virtual CList<CUol>						GenerateSupportedAvatars(CUol & o, CString const & type)=0;
 			virtual void							DestroyAvatar(CAvatar * a) = 0;
 
-			virtual ~IAvatarProtocol(){}
+			virtual ~IAvatarServer(){}
 	};
 }

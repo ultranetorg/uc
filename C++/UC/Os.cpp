@@ -240,7 +240,13 @@ CString uc::COs::GetUserName()
 
 	return b;
 }
-void COs::RegisterUrlProtocol(const CString & protocolName, const CString & wd, const CString & pwAppPath)
+
+void COs::Execute(CString const & command)
+{
+	ShellExecute(null, L"open", command.data(), NULL, NULL, SW_SHOWNORMAL);
+}
+
+void COs::RegisterUrlProtocol(const CString & protocolName, const CString & directory, const CString & command)
 {
 	WCHAR szValue[MAX_PATH] = {0};
 	HKEY hKey = NULL;
@@ -266,7 +272,7 @@ void COs::RegisterUrlProtocol(const CString & protocolName, const CString & wd, 
 
 		if(hKeyDefaultIcon)
 		{
-			RegSetValueExW(hKeyDefaultIcon, L"", 0, REG_SZ, (BYTE *)pwAppPath.data(), (DWORD)pwAppPath.size() * 2 + 2);
+			RegSetValueExW(hKeyDefaultIcon, L"", 0, REG_SZ, (BYTE *)command.data(), (DWORD)command.size() * 2 + 2);
 		}
 
 		if(RegOpenKeyExW(hKey, UOS_URL_PROTOCOL_COMMAND, 0L, KEY_READ | KEY_WRITE, &hKeyCommand) != ERROR_SUCCESS)
@@ -279,11 +285,11 @@ void COs::RegisterUrlProtocol(const CString & protocolName, const CString & wd, 
 			DWORD n = sizeof(szValue);
 			RegGetValue(hKeyCommand, NULL, NULL, RRF_RT_REG_SZ, NULL, (BYTE *)szValue, &n);
 
-			auto p = CString::Format(L"\"%s\" \"%%1\"", pwAppPath);
+			//auto p = CString::Format(L"\"%s\" \"%%1\"", pwAppPath);
 
-			if(!p.EqualsInsensitive(szValue))
+			if(!command.EqualsInsensitive(szValue))
 			{
-				RegSetValueExW(hKeyCommand, L"", 0, REG_SZ, (BYTE *)p.data(), (DWORD)p.size() * 2 + 2);
+				RegSetValueExW(hKeyCommand, L"", 0, REG_SZ, (BYTE *)command.data(), (DWORD)command.size() * 2 + 2);
 				//Log->ReportWarning(this, L"Protocol overrided: %s - %s", protocolName, szValue);
 			}
 

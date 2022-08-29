@@ -138,7 +138,7 @@
     <ClInclude Include="FieldWorld.h" />
     <ClInclude Include="IImageExtractor.h" />
     <ClInclude Include="Positioning.h" />
-    <ClInclude Include="IUwmProtocol.h" />
+    <ClInclude Include="IUwmServer.h" />
     <ClInclude Include="Logo.h" />
     <ClInclude Include="MenuItem.h" />
     <ClInclude Include="MobileWorld.h" />

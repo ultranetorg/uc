@@ -76,7 +76,7 @@ CString CNativePath::Join(const CString & a, const CString & b)
 		r.resize(r.size() - 1);
 	}
 
-	return r;
+	return Canonicalize(r);
 }
 
 CString CNativePath::Join(const CString & a, const CString & b, const CString & c)

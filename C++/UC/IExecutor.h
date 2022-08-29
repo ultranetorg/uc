@@ -8,6 +8,8 @@ namespace uc
 		public:
 			inline static const CString   		InterfaceName = L"IExecutor";
 
+			static const inline CString			CreateDirective	= L"create";
+
 			void virtual						Execute(CXon * arguments, CExecutionParameters * parameters)=0;
 
 			virtual ~IExecutor(){}

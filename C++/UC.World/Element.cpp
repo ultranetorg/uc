@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "Element.h"
-#include "IUwmProtocol.h"
+#include "IUwmServer.h"
 #include "Unit.h"
 
 using namespace uc;
@@ -430,11 +430,11 @@ void CElement::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *,
 
 void CElement::Load(CStyle * s, CString & u)
 {
-	CMap<CString, CProtocolConnection<IUwm>> classes;
+	CMap<CString, CProtocolConnection<IUwmServer>> classes;
 
-	for(auto & i : Level->Nexus->QueryRegistry(L"Interfaces/" + IUwm::InterfaceName))
+	for(auto & i : Level->Nexus->QueryRegistry(L"Interfaces/" + IUwmServer::InterfaceName))
 	{
-		auto c = Level->Nexus->Connect<IUwm>(this, i.first->Address);
+		auto c = Level->Nexus->Connect<IUwmServer>(this, i.first->Address);
 
 		for(auto j : i.second->Nodes)
 		{

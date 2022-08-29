@@ -189,9 +189,12 @@ void CWorldServer::Start()
 	Layout	= WorldConfig->Get<CString>(L"Layout");
 	Fov		= WorldConfig->Get<CFloat>(L"Fov");
 
-	for(auto i : Command->Nodes)
+	if(Command)
 	{
-		if(i->Name == L"Layout") Layout = i->Get<CString>(); 
+		for(auto i : Command->Nodes)
+		{
+			if(i->Name == L"Layout") Layout = i->Get<CString>(); 
+		}
 	}
 
 	if(!(AreasConfig = LoadGlobalDocument(Name + L"/" + Layout + L".layout/Areas.xon")))
@@ -386,7 +389,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 {
 	CList<CUol> avs;
 
-	auto protocol = Nexus->Connect<IAvatarProtocol>(this, entity.Server);
+	auto protocol = Nexus->Connect<IAvatarServer>(this, entity.Server);
 
 	CUol avatar;
 	CAvatar * a = null;
@@ -401,7 +404,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 	}
 	else
 	{
-		for(auto & i : Nexus->ConnectMany<IAvatarProtocol>(this))
+		for(auto & i : Nexus->ConnectMany<IAvatarServer>(this))
 		{
 			avs = i->GenerateSupportedAvatars(entity, type);
 			if(!avs.empty())
@@ -428,7 +431,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 {
 	CAvatar * a = null;
 
-	auto protocol = Nexus->Connect<IAvatarProtocol>(this, avatar.Server);
+	auto protocol = Nexus->Connect<IAvatarServer>(this, avatar.Server);
 		
 	if(protocol)
 	{
@@ -451,7 +454,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 	else
 	{	
 		a = new CDefaultIcon(this);
-		a->Protocol = CProtocolConnection<IAvatarProtocol>(CConnection(this, this, IAvatarProtocol::InterfaceName));
+		a->Protocol = CProtocolConnection<IAvatarServer>(CConnection(this, this, IAvatarServer::InterfaceName));
 		RegisterObject(a, false);
 		a->Free();
 	}
@@ -967,14 +970,13 @@ void CWorldServer::Execute(CXon * command, CExecutionParameters * parameters)
 	{
 		Start();
 	}
-
-	if(f->Name == L"Open" && f->Any(L"Url"))
+	else if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 	{
-		CUrl o(f->Get<CString>(L"Url"));
+		CUrl o(command->Get<CString>(CCore::UrlArgument));
 
 		if(o.Scheme == CWorldEntity::Scheme)
 		{
-			OpenEntity(CUol(f->Get<CString>(L"Url")), CArea::LastInteractive, dynamic_cast<CShowParameters *>(parameters));
+			OpenEntity(CUol(o), CArea::LastInteractive, dynamic_cast<CShowParameters *>(parameters));
 		}
 	}
 }
@@ -1075,11 +1077,11 @@ void CWorldServer::OnDiagnosticsUpdating(CDiagnosticUpdate & u)
 	Diagnostic->Add(u, DiagGrid);
 }
 
-CProtocolConnection<IAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CString const & type)
+CProtocolConnection<IAvatarServer> CWorldServer::FindAvatarSystem(CUol & e, CString const & type)
 {
 	CList<CUol> avs;
 
-	auto p = Nexus->Connect<IAvatarProtocol>(this, e.Server);
+	auto p = Nexus->Connect<IAvatarServer>(this, e.Server);
 
 	if(p)
 	{
@@ -1091,7 +1093,7 @@ CProtocolConnection<IAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CS
 	}
 	else
 	{
-		for(auto & i : Nexus->ConnectMany<IAvatarProtocol>(this))
+		for(auto & i : Nexus->ConnectMany<IAvatarServer>(this))
 		{
 			avs = i->GenerateSupportedAvatars(e, type);
 			if(!avs.empty())
@@ -1101,7 +1103,7 @@ CProtocolConnection<IAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CS
 		}
 	}
 
-	return CProtocolConnection<IAvatarProtocol>();
+	return CProtocolConnection<IAvatarServer>();
 }
 
 CElement * CWorldServer::CreateElement(CString const & name, CString const & type)

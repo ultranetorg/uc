@@ -11,7 +11,7 @@ namespace uc
 	typedef unsigned int								uint;
 	#define PROJECT_DEVELOPMENT_STAGE					L"Prototype"
 
-	#define UOS_OBJECT_PROTOCOL							L"unap"
+	//#define UOS_OBJECT_PROTOCOL							L"unap"
 
 	#define UOS_PROJECT_TARGET_PLATFORM_WIN32_X86		L"Winx86"
 	#define UOS_PROJECT_TARGET_PLATFORM_WIN32_X64		L"Winx64"

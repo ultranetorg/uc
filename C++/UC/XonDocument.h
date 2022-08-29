@@ -28,6 +28,7 @@ namespace uc
 
 			UOS_RTTI
 			CXonDocument(CXonDocument && d);
+			CXonDocument(CXonDocument const & d);
 			CXonDocument();
 			virtual ~CXonDocument();
 		

@@ -65,8 +65,11 @@ namespace uc
 	class UOS_LINKING CCore : public IType, public CLevel1, public ILevel
 	{
 		public:
-			static auto constexpr						START_MODE_UNAP		= L"Unap";
-			static auto constexpr						START_MODE_RESTART	= L"Restart";
+			static const inline CString					RestartDirective		= L"restart";
+			static const inline CString					OpenDirective			= L"open";
+			static const inline CString					UrlArgument				= L"url";
+			static const inline CString					VersionAutoUpArgument	= L"versionautoup";
+			static const inline CString					CliScheme				= L"uoscli";
 
 			CString										Unid;
 			CEvent<>									Processed;
@@ -76,7 +79,7 @@ namespace uc
 			CEvent<>									MmcActivated;
 			CEvent<>									ExitRequested;
 
-			CXon *										Commands;
+			CXon *										Commands = null;
 			CString										SupervisorName;
 			CString										RestartCommand;
 			
@@ -101,7 +104,7 @@ namespace uc
 			HANDLE										HInformation;
 			CString										LaunchDirectory;
 			CString										FrameworkDirectory;
-			CString										LaunchPath;
+			CString										CoreExePath;
 			HANDLE										SingleInstanceHandle = null;
 			bool										Initialized = false;
 			bool										DatabaseInitialized = false;
@@ -193,16 +196,14 @@ namespace uc
 			void										UnregisterEvent(HANDLE e);
 			int											RegisterGlobalHotKey(int modifier, int vk, std::function<void(int64_t)> h);
 			void										UnregisterGlobalHotKey(int id);
-			
 
+			void										Open(CUrl const & object, CExecutionParameters * parameters);
+			void										Execute(CString const & command, CExecutionParameters * parameters);
 			void										Execute(CXon * p, CExecutionParameters * parameters);
-			void										Execute(CString const & command);
 			
 			void										LoadParameters();
 			void 										OnDiagnosticsUpdate(CDiagnosticUpdate & a);
 
 			bool										IsMainThread();
-
-
 	};
 }

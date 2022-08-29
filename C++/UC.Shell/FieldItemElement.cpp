@@ -18,7 +18,7 @@ CFieldItemElement::CFieldItemElement(CShellLevel * l, CFieldWorld * fo, CString 
 												{
 													if(arg->Control == EMouseControl::LeftButton && arg->Event == EGraphEvent::Click)
 													{
-														Level->Nexus->Open(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
+														Level->Core->Open(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
 														arg->StopPropagation = true;
 													}
 												};
@@ -27,7 +27,7 @@ CFieldItemElement::CFieldItemElement(CShellLevel * l, CFieldWorld * fo, CString 
 												{
 													if(arg->Event == EGraphEvent::Click && arg->Picks.size() == 1)
 													{
-														Level->Nexus->Open(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
+														Level->Core->Open(Entity->Object, sh_new<CShowParameters>(arg, Level->Style));
 														arg->StopPropagation = true;
 													}
 												};

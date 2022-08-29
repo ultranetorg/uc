@@ -41,7 +41,7 @@ void CAvatarCard::SetAvatar(CUol & a, CString const & dir)
 
 void CAvatarCard::SetEntity(CUol & e)
 {
-	auto AvatarProtocol = Level->Nexus->Connect<IAvatarProtocol>(this, e.Server);
+	auto AvatarProtocol = Level->Nexus->Connect<IAvatarServer>(this, e.Server);
 		
 	if(AvatarProtocol)
 	{
