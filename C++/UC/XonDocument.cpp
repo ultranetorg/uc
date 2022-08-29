@@ -106,9 +106,10 @@ CXon * CXonDocument::Load(IXonReader & r, CXon * parent, CXon * tparent)
 				}
 				return n;
 
-			case EXonToken::NameBegin:
+			case EXonToken::NameEnd:
 			{
-				r.ReadName(n->Name, n->Id);
+				n->Name = r.LastName; 
+				n->Id = r.LastType;
 
 				auto pre = n->Name[0];
 

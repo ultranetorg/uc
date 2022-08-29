@@ -63,6 +63,8 @@ void Create(HINSTANCE instance, LPTSTR cmd)
 
 int wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
 {
+//	auto & d = CTonDocument(CXonTextReader(L"{a b c} {e f}"));
+
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF);
 	//_CrtSetBreakAlloc(6086);
 

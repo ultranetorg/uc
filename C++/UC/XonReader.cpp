@@ -51,7 +51,6 @@ EXonToken CXonTextReader::ReadNext()
 	switch(Current)
 	{
 		case EXonToken::NodeEnd:
-		{
 			if(*C == L'}') // after last child
 			{
 				bool t = Type.back();
@@ -65,9 +64,28 @@ EXonToken CXonTextReader::ReadNext()
 			else // next child
 				Current = EXonToken::NodeBegin;
 			break;
-		}
+		
 		case EXonToken::NodeBegin:
-			Current = EXonToken::NameBegin;
+			LastName.clear();
+			LastType.clear();
+
+			if(*C == L'=')
+			{
+				Current = EXonToken::NameEnd;
+			}
+			else if(*C == L'{')
+			{
+				Current = EXonToken::NameEnd;
+			}
+			else
+				Current = EXonToken::NameBegin;
+			break;
+
+		case EXonToken::NameBegin:
+
+			ReadName(LastName, LastType);
+			Current = EXonToken::NameEnd;
+
 			break;
 
 		case EXonToken::NameEnd:
@@ -186,7 +204,6 @@ void CXonTextReader::ReadName(CString & name, CString & type)
 		{
 			if(*C == 0 || *C == L' ' || *C == L'\t' || *C == L'\r' || *C == L'\n' || *C == L'{' || *C == L'}' || *C == L'=')
 			{
-				Current = EXonToken::NameEnd;
 				return;
 			}
 			else if(*C == L'\"') // opening '
@@ -220,7 +237,6 @@ void CXonTextReader::ReadName(CString & name, CString & type)
 				}
 				else
 				{
-					Current = EXonToken::NameEnd;
 					break;
 				}
 			}
@@ -344,6 +360,9 @@ EXonToken CXonBinaryReader::ReadNext()
 		switch(Current)
 		{
 			case EXonToken::NodeBegin:
+				LastName.clear();
+				LastType.clear();
+
 				unsigned char f;
 				Stream->Read(&f, sizeof(f));
 				Flags.push_back(f);
@@ -363,6 +382,13 @@ EXonToken CXonBinaryReader::ReadNext()
 					Current = EXonToken::NodeBegin;
 
 				Flags.pop_back();
+				break;
+
+			case EXonToken::NameBegin:
+
+				ReadName(LastName, LastType);
+				Current = EXonToken::NameEnd;
+
 				break;
 
 			case EXonToken::NameEnd:
@@ -431,8 +457,6 @@ void CXonBinaryReader::ReadName(CString & name, CString & type)
 	{	
 		type = CString().GetTypeName();
 	}
-
-	Current = EXonToken::NameEnd;
 }
 
 void CXonBinaryReader::ReadValue(CXonSimpleValue * v)

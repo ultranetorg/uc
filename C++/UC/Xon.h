@@ -41,8 +41,9 @@ namespace uc
 		virtual EXonToken							Read()=0;
 		virtual EXonToken							ReadNext()=0;
 		virtual void								ReadValue(CXonSimpleValue * v)=0;
-		virtual void								ReadName(CString & name, CString & type)=0;
-		EXonToken				Current;
+		CString										LastName;
+		CString										LastType;
+		EXonToken									Current;
 
 		~IXonReader(){}
 	};
