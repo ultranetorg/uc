@@ -11,7 +11,7 @@
 #include "Sha256.h"
 #include "Shared.h"
 #include "ServerAddress.h"
-#include "License.h"
+#include "ProductInfo.h"
 
 namespace uc
 {

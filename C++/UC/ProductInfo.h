@@ -44,19 +44,5 @@ namespace uc
 		}
 
 	};
-
-	class UOS_LINKING CLicenseItem
-	{
-		public:
-//			bool										IsValid(CString & name, CVersion & v);
-//			bool										IsRegistered();
-
-			CString										Name;
-			CVersion									Version;
-
-			CLicenseItem(const CString & n, CVersion & v);
-
-		private:
-	};
 }
 	

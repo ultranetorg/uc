@@ -10,9 +10,6 @@
     <Filter Include="I/O">
       <UniqueIdentifier>{fef29dd7-a12e-4bc9-bad1-acef526749ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="License">
-      <UniqueIdentifier>{0918e0ad-45f7-4ec8-b708-da9c7381f8f9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{60a38fce-ceda-4114-82a7-bfa3967340ef}</UniqueIdentifier>
     </Filter>
@@ -149,18 +146,6 @@
     </ClInclude>
     <ClInclude Include="StaticArray.h">
       <Filter>Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="LicenseService.h">
-      <Filter>License</Filter>
-    </ClInclude>
-    <ClInclude Include="EmptyLicenseService.h">
-      <Filter>License</Filter>
-    </ClInclude>
-    <ClInclude Include="ILicenseService.h">
-      <Filter>License</Filter>
-    </ClInclude>
-    <ClInclude Include="License.h">
-      <Filter>License</Filter>
     </ClInclude>
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Animation.h">
@@ -404,6 +389,7 @@
     <ClInclude Include="LocalFileStream.h">
       <Filter>FileSystem</Filter>
     </ClInclude>
+    <ClInclude Include="ProductInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Angle.cpp">
@@ -486,15 +472,6 @@
     </ClCompile>
     <ClCompile Include="Plane.cpp">
       <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="EmptyLicenseService.cpp">
-      <Filter>License</Filter>
-    </ClCompile>
-    <ClCompile Include="License.cpp">
-      <Filter>License</Filter>
-    </ClCompile>
-    <ClCompile Include="LicenseService.cpp">
-      <Filter>License</Filter>
     </ClCompile>
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Config.cpp">

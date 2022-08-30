@@ -131,6 +131,7 @@
     <ClInclude Include="Hex.h" />
     <ClInclude Include="IFileSystem.h" />
     <ClInclude Include="IFileSystemProvider.h" />
+    <ClInclude Include="ProductInfo.h" />
     <ClInclude Include="Manifest.h" />
     <ClInclude Include="StorableObject.h" />
     <ClInclude Include="ProductAddress.h" />
@@ -167,7 +168,6 @@
     <ClInclude Include="DiagGrid.h" />
     <ClInclude Include="Diagnostic.h" />
     <ClInclude Include="DiagnosticView.h" />
-    <ClInclude Include="EmptyLicenseService.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Sha256.h" />
@@ -186,7 +186,6 @@
     <ClInclude Include="Guid.h" />
     <ClInclude Include="IFileService.h" />
     <ClInclude Include="ILevel.h" />
-    <ClInclude Include="ILicenseService.h" />
     <ClInclude Include="InterObject.h" />
     <ClInclude Include="INativeMessageHandler.h" />
     <ClInclude Include="Int32.h" />
@@ -205,8 +204,6 @@
     <ClInclude Include="IWriterProgress.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Nexus.h" />
-    <ClInclude Include="License.h" />
-    <ClInclude Include="LicenseService.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="NativeDirectory.h" />
     <ClInclude Include="Log.h" />
@@ -288,7 +285,6 @@
     <ClCompile Include="DiagGrid.cpp" />
     <ClCompile Include="Diagnostic.cpp" />
     <ClCompile Include="DiagnosticView.cpp" />
-    <ClCompile Include="EmptyLicenseService.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="FileService.cpp" />
     <ClCompile Include="LocalFileStream.cpp" />
@@ -298,8 +294,6 @@
     <ClCompile Include="Int32Array.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Nexus.cpp" />
-    <ClCompile Include="License.cpp" />
-    <ClCompile Include="LicenseService.cpp" />
     <ClCompile Include="NativeDirectory.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="LogView.cpp" />
