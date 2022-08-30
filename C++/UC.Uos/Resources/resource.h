@@ -2,8 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by Level1.rc
 //
-#define IDF_REGISTRATION                106
-#define IDF_ABOUT                       110
 #define IDB_BITMAP1                     112
 #define IDB_ABOUTHEADER                 112
 #define IDC_EDIT_REGINFO                1006
