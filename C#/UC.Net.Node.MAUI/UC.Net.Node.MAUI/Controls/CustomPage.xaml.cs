@@ -110,8 +110,5 @@ public partial class CustomPage : ContentPage
             await MainFrame.TranslateTo(0, Height, LENGTH, Easing.Linear);
     }
 
-    private async void BackButtonClicked(object sender, EventArgs e)
-    {
-        await Navigation.PopAsync();
-    }
+    private async void BackButtonClicked(object sender, EventArgs e) => await Navigation.PopAsync();
 }

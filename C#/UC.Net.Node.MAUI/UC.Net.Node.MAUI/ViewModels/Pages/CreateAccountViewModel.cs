@@ -1,11 +1,11 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class CreateAccountViewModel : BaseAccountViewModel
+public partial class CreateAccountPageViewModel : BaseAccountViewModel
 {
 	[ObservableProperty]
     private AccountColor _selectedAccountColor;
 
-    public CreateAccountViewModel(ILogger<CreateAccountViewModel> logger) : base(logger)
+    public CreateAccountPageViewModel(ILogger<CreateAccountPageViewModel> logger) : base(logger)
     {
 		FillFakeData();
     }

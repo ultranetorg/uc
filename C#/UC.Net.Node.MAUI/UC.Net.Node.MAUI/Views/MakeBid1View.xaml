@@ -46,16 +46,8 @@
             </Frame>
         </StackLayout>
         <StackLayout Spacing="15">
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Current bid" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Text="185 UNT ($104 100)" />
-            </Grid>
+            <cls:LabelPair Text1="Current bid" Text2="185 UNT ($104 100)" />
+            
             <StackLayout Grid.Column="0" Spacing="10">
                 <Label Style="{StaticResource DashLabel}" Text="Your bid" />
                 <AbsoluteLayout>

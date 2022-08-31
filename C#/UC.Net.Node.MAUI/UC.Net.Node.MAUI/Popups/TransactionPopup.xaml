@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
     x:Name="page">
     
@@ -68,17 +69,8 @@
                 <Label Style="{StaticResource DashLabel}" Text="Hash" />
                 <Label Opacity="0.7" Text="{Binding Transaction.Hash}" />
             </StackLayout>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Date and time" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="{Binding Transaction.Date, StringFormat='{0: MM.DD.yyyy hh:mm'}" />
-            </Grid>
+            <cls:LabelPair Text1="Date and time" Text2="{Binding Transaction.Date, StringFormat='{0: MM.DD.yyyy hh:mm'}" />
+            
             <Grid ColumnDefinitions="*,*">
                 <Label
                     Grid.Column="0"
@@ -94,28 +86,10 @@
                     VerticalOptions="Center"
                     WidthRequest="18" />
             </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="size" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="789 B" />
-            </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Confirmations" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="0" />
-            </Grid>
+            
+            <cls:LabelPair Text1="Size" Text2="789 B" />
+            <cls:LabelPair Text1="Confirmations" Text2="0" />
+            
             <Button Style="{StaticResource CopyHashButton}" Text="Copy Transaction Hash" />
             <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
         </StackLayout>

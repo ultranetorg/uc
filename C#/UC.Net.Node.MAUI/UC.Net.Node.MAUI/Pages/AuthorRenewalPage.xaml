@@ -33,10 +33,7 @@
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <StackLayout Grid.Row="2">
-                <Button Command="{Binding NextCommad}" Style="{DynamicResource NextButton}" />
-                <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
-            </StackLayout>
+            <cls:NextCancelButton Grid.Row="2" NextCommad="{Binding NextCommad}" />
         </Grid>
     </cls:CustomPage.MainContent>
 </cls:CustomPage>

@@ -2,9 +2,15 @@
 
 public partial class MakeBidPage : CustomPage
 {
-    public MakeBidPage(MakeBidViewModel vm = null)
+    public MakeBidPage()
     {
         InitializeComponent();
-        BindingContext = vm ?? App.ServiceProvider.GetService<MakeBidViewModel>();
+        BindingContext = App.ServiceProvider.GetService<MakeBidViewModel>();
+    }
+
+    public MakeBidPage(MakeBidViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
     }
 }

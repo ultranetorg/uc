@@ -2,9 +2,15 @@
 
 public partial class AuthorsPage : CustomPage
 {
-    public AuthorsPage(AuthorsViewModel vm = null)
+    public AuthorsPage()
     {
         InitializeComponent();
-        BindingContext = vm ?? App.ServiceProvider.GetService<AuthorsViewModel>();
+        BindingContext = App.ServiceProvider.GetService<AuthorsViewModel>();
+    }
+
+    public AuthorsPage(AuthorsViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
     }
 }

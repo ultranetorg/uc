@@ -2,9 +2,15 @@
 
 public partial class ManageAccountsPage : CustomPage
 {
-    public ManageAccountsPage(ManageAccountsViewModel vm = null)
+    public ManageAccountsPage()
     {
         InitializeComponent();
-        BindingContext = vm ?? App.ServiceProvider.GetService<ManageAccountsViewModel>();
+        BindingContext = App.ServiceProvider.GetService<ManageAccountsViewModel>();
+    }
+
+    public ManageAccountsPage(ManageAccountsViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
     }
 }

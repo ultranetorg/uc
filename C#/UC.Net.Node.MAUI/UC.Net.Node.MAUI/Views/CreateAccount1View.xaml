@@ -37,42 +37,12 @@
                     Grid.Column="1"
                     FontSize="13"
                     Style="{StaticResource SubText}"
-                    Text="At least 8 characters- the more characters the better"
+                    Text="At least 8 characters - the more characters the better"
                     VerticalOptions="Center" />
             </Grid>
-            <Grid ColumnDefinitions="30,*">
-                <ImageButton
-                    Grid.Column="0"
-                    IsEnabled="False"
-                    Style="{StaticResource Check}" />
-                <Label
-                    Grid.Column="1"
-                    FontSize="13"
-                    Style="{StaticResource SubText}"
-                    Text="A mixture of both uppercase and lowercase"
-                    VerticalOptions="Center" />
-            </Grid>
-            <Grid ColumnDefinitions="30,*">
-                <ImageButton Grid.Column="0" Style="{StaticResource Check}" />
-                <Label
-                    Grid.Column="1"
-                    FontSize="13"
-                    Style="{StaticResource SubText}"
-                    Text="A mixture of letters and numbers"
-                    VerticalOptions="Center" />
-            </Grid>
-            <Grid ColumnDefinitions="30,*">
-                <ImageButton
-                    Grid.Column="0"
-                    IsEnabled="False"
-                    Style="{StaticResource Check}" />
-                <Label
-                    Grid.Column="1"
-                    FontSize="13"
-                    Style="{StaticResource SubText}"
-                    Text="Inclusion of  at least one special character e.g !@#?"
-                    VerticalOptions="Center" />
-            </Grid>
+            <cls:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="False"/>
+            <cls:ImageTextColumn Text="A mixture of letters and numbers" IsEnabledImage="True"/>
+            <cls:ImageTextColumn Text="Inclusion of  at least one special character e.g !@#" IsEnabledImage="False"/>
         </StackLayout>
     </StackLayout>
 </ContentView>

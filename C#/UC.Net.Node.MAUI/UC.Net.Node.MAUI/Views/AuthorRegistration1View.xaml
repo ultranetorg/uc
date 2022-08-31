@@ -29,7 +29,7 @@
                 <Label
                     FontSize="13"
                     Style="{StaticResource Regular}"
-                    Text="Please specify Author name. This name will be used like a application domain" />
+                    Text="Please specify Author name. This name will be used like an application domain" />
                 <cls:BorderEntry Text="Title">
                     <cls:BorderEntry.Behaviors>
                         <toolkit:CharactersValidationBehavior
@@ -76,17 +76,8 @@
                         TextColor="{StaticResource Red}" />
                 </StackLayout>
             </StackLayout>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Estimated price:" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="10 UNT ($15)" />
-            </Grid>
+            
+            <cls:LabelPair Text1="UNT amount" Text2="10 UNT ($15)" />
         </StackLayout>
     </ScrollView>
 </ContentView>

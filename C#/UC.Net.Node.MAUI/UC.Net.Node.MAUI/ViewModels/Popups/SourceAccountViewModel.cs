@@ -17,10 +17,9 @@ public partial class SourceAccountViewModel : BaseViewModel
 	[ObservableProperty]
     private CustomCollection<Wallet> _wallets = new();
 
-    public SourceAccountViewModel(SourceAccountPopup popup, ILogger<SourceAccountViewModel> logger) : base(logger)
+    public SourceAccountViewModel(ILogger<SourceAccountViewModel> logger) : base(logger)
     {
 		AddFakeData();
-        Popup = popup;
     }
 
 	[RelayCommand]

@@ -98,7 +98,6 @@ public class BorderEntry : Entry
 	protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         base.OnPropertyChanged(propertyName);
-
         Completed += (sender, e) => NextEntry?.Focus();
     }
 }

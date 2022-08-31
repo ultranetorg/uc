@@ -95,7 +95,7 @@ public class MultiFieldsEntry : Grid
 	public MultiFieldsEntry()
     {
 		Initialization();
-		}
+	}
 
 	private void Initialization()
 	{
@@ -103,6 +103,7 @@ public class MultiFieldsEntry : Grid
 		ColumnDefinitions.Clear();
 		ColumnSpacing = 10;
 		FlowDirection = FlowDirection.LeftToRight;
+
 		for (var i = 0; i < Fields; i++)
 		{
 			var entry = new BorderEntry
@@ -131,10 +132,9 @@ public class MultiFieldsEntry : Grid
         if (!string.IsNullOrWhiteSpace(e.NewTextValue))
         {
             bool isValid = e.NewTextValue.ToCharArray().All(x => char.IsDigit(x));
-
             ((Entry)sender).Text = isValid ? e.NewTextValue : e.NewTextValue.Remove(e.NewTextValue.Length - 1);
         }
-        if (e.NewTextValue.Length>0)
+        if (e.NewTextValue.Length > 0)
         {
             var nextindex = Children.IndexOf(sender as BorderEntry) + 1;
             if (Children.Count > nextindex)
@@ -149,11 +149,11 @@ public class MultiFieldsEntry : Grid
         }
         if (e.NewTextValue.Length == 0)
         {
-            var Preindex = Children.IndexOf(sender as BorderEntry) - 1;
-            if (Preindex > -1)
+            var preIndex = Children.IndexOf(sender as BorderEntry) - 1;
+            if (preIndex > -1)
             {
-                var Prevenrty = Children[Preindex] as BorderEntry;
-                Prevenrty.Focus();
+                var prevenrty = Children[preIndex] as BorderEntry;
+                prevenrty.Focus();
             }
         }
         Text = string.Empty;

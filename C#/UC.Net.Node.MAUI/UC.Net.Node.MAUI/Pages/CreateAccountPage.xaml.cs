@@ -1,11 +1,16 @@
-﻿using CreateAccountViewModel = UC.Net.Node.MAUI.ViewModels.Pages.CreateAccountViewModel;
-namespace UC.Net.Node.MAUI.Pages;
+﻿namespace UC.Net.Node.MAUI.Pages;
 
 public partial class CreateAccountPage : CustomPage
 {
-    public CreateAccountPage(CreateAccountViewModel vm = null)
+    public CreateAccountPage()
     {
         InitializeComponent();
-        BindingContext = vm ?? App.ServiceProvider.GetService<CreateAccountViewModel>();
+        BindingContext = App.ServiceProvider.GetService<CreateAccountPageViewModel>();
+    }
+
+    public CreateAccountPage(CreateAccountPageViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
     }
 }

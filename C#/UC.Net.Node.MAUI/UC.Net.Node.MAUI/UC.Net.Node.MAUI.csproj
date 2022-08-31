@@ -138,8 +138,17 @@
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\ImageTextColumn.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\LabelPair.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\MainPageButton.xaml">
 	    <SubType>Designer</SubType>
+	    <Generator></Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\NextCancelButton.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\RattingBar.xaml">
@@ -412,6 +421,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Services\" />
 	  <Folder Include="Resources\Splash\" />
 	</ItemGroup>
 

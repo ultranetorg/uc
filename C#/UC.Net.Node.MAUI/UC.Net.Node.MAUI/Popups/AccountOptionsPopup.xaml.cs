@@ -2,7 +2,7 @@
 
 public partial class AccountOptionsPopup : Popup
 {
-private static AccountOptionsPopup popup;
+	private static AccountOptionsPopup popup;
 	
     public Wallet Wallet { get; }
 
@@ -14,7 +14,7 @@ private static AccountOptionsPopup popup;
     }
 
 	[RelayCommand]
-	private async void Send()
+	private async Task Send()
 	{
 		await Shell.Current.Navigation.PushAsync(new SendPage());
 	}
@@ -24,7 +24,6 @@ private static AccountOptionsPopup popup;
 		Close();
 	}
 
-	// this will be static helper method
 	public static async Task Show(Wallet wallet)
 	{
 		popup = new AccountOptionsPopup(wallet);

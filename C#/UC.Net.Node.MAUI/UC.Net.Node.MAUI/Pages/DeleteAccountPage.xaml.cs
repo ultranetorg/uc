@@ -2,12 +2,20 @@
 
 public partial class DeleteAccountPage : CustomPage
 {
-    public DeleteAccountPage(Wallet wallet)
+    public DeleteAccountPage()
+    {
+        InitializeComponent();
+        var vm = App.ServiceProvider.GetService<DeleteAccountViewModel>();
+		vm.FillFakeData(new Wallet());
+		BindingContext = vm;
+    }
+
+	public DeleteAccountPage(Wallet wallet)
     {
         InitializeComponent();
         var vm = App.ServiceProvider.GetService<DeleteAccountViewModel>();
 		vm.FillFakeData(wallet);
-		BindingContext = vm;
+        BindingContext = vm;
     }
 
 	public DeleteAccountPage(Wallet wallet, DeleteAccountViewModel vm)

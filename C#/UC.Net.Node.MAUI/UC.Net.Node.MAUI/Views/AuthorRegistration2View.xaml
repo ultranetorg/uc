@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
+    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     x:Name="view">
     <StackLayout Padding="5" Spacing="30">
         <StackLayout>
@@ -14,36 +15,9 @@
                 Text="Clicking 'Confirm' button, registration will start" />
         </StackLayout>
         <StackLayout Spacing="20">
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Registering Author:" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Text="UltRAnet ORG" />
-            </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="With name:" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Text="ultranetorg" />
-            </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="With price:" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Text="500 UNT ($220)" />
-            </Grid>
+            <cls:LabelPair Text1="Registering Author:" Text2="UltRAnet ORG" />
+            <cls:LabelPair Text1="With name:" Text2="ultranetorg" />
+            <cls:LabelPair Text1="With price:" Text2="500 UNT ($220)" />
         </StackLayout>
         <StackLayout>
             <Label Style="{StaticResource DashLabel}" Text="From Account" />

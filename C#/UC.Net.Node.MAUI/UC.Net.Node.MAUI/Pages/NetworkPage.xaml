@@ -13,68 +13,13 @@
                 Padding="30"
                 Spacing="20"
                 VerticalOptions="StartAndExpand">
-                <Grid ColumnDefinitions="*,*">
-                    <Label
-                        Grid.Column="0"
-                        Style="{StaticResource DashLabel}"
-                        Text="Nodes count" />
-                    <Label
-                        Grid.Column="1"
-                        HorizontalOptions="End"
-                        Text="381" />
-                </Grid>
-                <Grid ColumnDefinitions="*,*">
-                    <Label
-                        Grid.Column="0"
-                        Style="{StaticResource DashLabel}"
-                        Text="Number of active users " />
-                    <Label
-                        Grid.Column="1"
-                        HorizontalOptions="End"
-                        Text="94" />
-                </Grid>
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*">
-                    <Label
-                        Grid.Column="0"
-                        Style="{StaticResource DashLabel}"
-                        Text="Bandwidth" />
-                    <Label
-                        Grid.Column="2"
-                        HorizontalOptions="End"
-                        Text="180 TH/s" />
-                </Grid>
-                <Grid ColumnDefinitions="*,*">
-                    <Label
-                        Grid.Column="0"
-                        Style="{StaticResource DashLabel}"
-                        Text="Last block date" />
-                    <Label
-                        Grid.Column="1"
-                        HorizontalOptions="End"
-                        Text="29 Jun 2021 20:47" />
-                </Grid>
-                <Grid ColumnDefinitions="*,*">
-                    <Label
-                        Grid.Column="0"
-                        Style="{StaticResource DashLabel}"
-                        Text="Round number" />
-                    <Label
-                        Grid.Column="1"
-                        HorizontalOptions="End"
-                        Text="36017" />
-                </Grid>
-                <Grid ColumnDefinitions="*,*">
-                    <Label
-                        Grid.Column="0"
-                        Style="{StaticResource DashLabel}"
-                        Text="Current time" />
-                    <Label
-                        Grid.Column="1"
-                        HorizontalOptions="End"
-                        Text="2020 Aug 21 23:20" />
-                </Grid>
+                <cls:LabelPair Text1="Nodes count" Text2="381" />
+                <cls:LabelPair Text1="Number of active users" Text2="94" />
+                <cls:LabelPair Text1="Bandwidth" Text2="180 TH/s" />
+                <cls:LabelPair Text1="Last block date" Text2="29 Jun 2021 20:47" />
+                <cls:LabelPair Text1="Round number" Text2="36017" />
+                <cls:LabelPair Text1="Current time" Text2="2020 Aug 21 23:20" />
             </StackLayout>
-
             <Frame
                 Grid.Row="1"
                 Margin="0,0,0,-20"

@@ -17,7 +17,7 @@ public partial class RecipientAccountViewModel : BaseViewModel
         AccountColor = Color.FromArgb("#6601e3"),
     };
 
-    public RecipientAccountViewModel(ILogger<NotificationsViewModel> logger): base(logger)
+    public RecipientAccountViewModel(ILogger<RecipientAccountViewModel> logger): base(logger)
     {
 		AddFakeData();
     }

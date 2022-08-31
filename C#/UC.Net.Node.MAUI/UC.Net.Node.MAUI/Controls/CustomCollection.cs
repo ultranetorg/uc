@@ -48,6 +48,7 @@ public class CustomCollection<T> : ObservableCollection<T>
 			{
 				Add(item);
 			}
+
 			_suppressNotification = false;
 			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }

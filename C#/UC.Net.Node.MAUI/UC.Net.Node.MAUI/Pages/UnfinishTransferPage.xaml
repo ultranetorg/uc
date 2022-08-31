@@ -19,26 +19,9 @@
                     <views:AccountView BindingContext="{Binding Wallet}"/>
                 </StackLayout>
                 <StackLayout Spacing="15">
-                    <Grid ColumnDefinitions="*,*">
-                        <Label
-                            Grid.Column="0"
-                            Style="{StaticResource DashLabel}"
-                            Text="Total" />
-                        <Label
-                            Grid.Column="1"
-                            HorizontalOptions="End"
-                            Text="22355 UNT" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,*">
-                        <Label
-                            Grid.Column="0"
-                            Style="{StaticResource DashLabel}"
-                            Text="Estimated UNT" />
-                        <Label
-                            Grid.Column="1"
-                            HorizontalOptions="End"
-                            Text="10 000 UNT" />
-                    </Grid>
+                    <cls:LabelPair Text1="Total" Text2="22355 UNT" />
+                    <cls:LabelPair Text1="Estimated UNT" Text2="10 000 UNT" />
+                    
                     <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*,*">
                         <Label
                             Grid.Column="0"
@@ -56,18 +39,10 @@
                     <StackLayout BindableLayout.ItemsSource="{Binding Emissions}" Grid.ColumnSpan="3" Grid.Row="1">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate>
-                                <Grid  ColumnDefinitions="*,*,*">
-                                    <Label
-                            Grid.Column="0"
-
-                                        Text="{Binding Number}" />
-                                    <Label
-                            Grid.Column="1"
-HorizontalOptions="End"
-                                        Text="{Binding ETH}" />
-                                    <Label
-                            Grid.Column="2" HorizontalOptions="End"
-                                        Text="{Binding UNT}" />
+                                <Grid ColumnDefinitions="*,*,*">
+                                    <Label Grid.Column="0" Text="{Binding Number}" />
+                                    <Label Grid.Column="1" HorizontalOptions="End" Text="{Binding ETH}" />
+                                    <Label Grid.Column="2" HorizontalOptions="End" Text="{Binding UNT}" />
                                 </Grid>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
@@ -75,7 +50,7 @@ HorizontalOptions="End"
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand">
                     <Button Command="{Binding TransactionsCommand}" Text="Transfer" />
-                    <Button  Command="{Binding CancelCommand}"  Style="{DynamicResource LabelButton}" Text="Cancel" />
+                    <Button Command="{Binding CancelCommand}" Style="{DynamicResource LabelButton}" Text="Cancel" />
                 </StackLayout>
             </StackLayout>
         </ScrollView>

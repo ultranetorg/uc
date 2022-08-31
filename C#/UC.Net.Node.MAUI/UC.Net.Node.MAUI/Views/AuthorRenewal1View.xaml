@@ -87,28 +87,8 @@
                     </cls:BorderEntry.Behaviors>
                 </cls:BorderEntry>
             </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Estimated end date" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="01/10/2033" />
-            </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Estimated comission" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="10 UNT ($15)" />
-            </Grid>
+            <cls:LabelPair Text1="Estimated end date" Text2="01/10/2033" />
+            <cls:LabelPair Text1="Estimated comission" Text2="10 UNT ($15)" />
         </StackLayout>
     </StackLayout>
 </ContentView>

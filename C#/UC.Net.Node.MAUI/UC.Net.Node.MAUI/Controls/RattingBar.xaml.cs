@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace UC.Net.Node.MAUI.Controls;
 
-// TBR
+// TBR completely
 public partial class RattingBar : ContentView
 {
     public event EventHandler ItemTapped = delegate { };

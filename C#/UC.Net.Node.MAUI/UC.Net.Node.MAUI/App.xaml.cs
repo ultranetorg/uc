@@ -8,12 +8,18 @@ public partial class App : Application
 	{
 		InitializeComponent();
 		ServiceProvider = sp;
+
+		InitializeRouting();
+	}
+
+	private void InitializeRouting()
+	{
+		MainPage = new AppShell();
 		
-		MainPage = ServiceProvider.GetService<AppShell>();
+        // Global Routes (Pages not in Shell XAML) Example
+        Routing.RegisterRoute(nameof(AboutPage), typeof(AboutPage));
 
-		// NEXT Step:
-		// Set up Application Shell initialization, add basic navigation
-
-		// MainPage = new NavigationPage(new StartPage());
+        // Sub-Page Routes Example
+        Routing.RegisterRoute(nameof(HelpPage), typeof(HelpPage));
 	}
 }

@@ -3,15 +3,15 @@ namespace UC.Net.Node.MAUI.Views;
 
 public partial class CreateAccount2View : ContentView
 {
-    public CreateAccount2View(CreateAccountViewModel vm)
-    {
-        InitializeComponent();
-        BindingContext = vm;
-    }
-
     public CreateAccount2View()
     {
         InitializeComponent();
         BindingContext = App.ServiceProvider.GetService<CreateAccountViewModel>();
+    }
+
+    public CreateAccount2View(CreateAccountViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
     }
 }

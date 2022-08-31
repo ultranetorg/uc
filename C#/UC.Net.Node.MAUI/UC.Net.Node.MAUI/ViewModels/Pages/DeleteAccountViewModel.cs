@@ -3,17 +3,16 @@
 public partial class DeleteAccountViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private CustomCollection<Author> _authors = new CustomCollection<Author>();
+    private CustomCollection<Author> _authors = new();
 
 	[ObservableProperty]
-    private CustomCollection<Product> _products = new CustomCollection<Product>();
+    private CustomCollection<Product> _products = new();
 
 	[ObservableProperty]
     private Wallet _wallet;
 
-    public DeleteAccountViewModel(Wallet wallet, ILogger<DeleteAccountViewModel> logger) : base(logger)
+    public DeleteAccountViewModel(ILogger<DeleteAccountViewModel> logger) : base(logger)
     {
-		FillFakeData(wallet);
     }
 
     [RelayCommand]

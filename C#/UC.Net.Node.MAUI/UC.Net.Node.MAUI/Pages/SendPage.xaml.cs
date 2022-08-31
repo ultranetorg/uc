@@ -2,9 +2,15 @@
 
 public partial class SendPage : CustomPage
 {
-    public SendPage(SendViewModel vm = null)
+    public SendPage()
     {
         InitializeComponent();
-        BindingContext = vm ?? App.ServiceProvider.GetService<SendViewModel>();
+        BindingContext = App.ServiceProvider.GetService<SendViewModel>();
+    }
+
+    public SendPage(SendViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
     }
 }

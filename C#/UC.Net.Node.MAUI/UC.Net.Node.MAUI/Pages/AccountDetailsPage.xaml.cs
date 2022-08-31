@@ -2,6 +2,14 @@
 
 public partial class AccountDetailsPage : CustomPage
 {
+    public AccountDetailsPage()
+    {
+        InitializeComponent();
+        var vm = App.ServiceProvider.GetService<AccountDetailsViewModel>();
+		vm.Wallet = new Wallet();
+        BindingContext = vm;
+    }
+
     public AccountDetailsPage(Wallet wallet, AccountDetailsViewModel vm)
     {
         InitializeComponent();

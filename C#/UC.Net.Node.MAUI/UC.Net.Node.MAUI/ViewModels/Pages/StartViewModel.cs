@@ -41,7 +41,7 @@ public partial class StartViewModel : BaseWalletViewModel
                 await Shell.Current.Navigation.PushAsync(new AuthorRenewalPage(App.ServiceProvider.GetService<AuthorRenewalViewModel>()));
                 break;
             case 5:
-                await Shell.Current.Navigation.PushAsync(new CreateAccountPage(App.ServiceProvider.GetService<CreateAccountViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new CreateAccountPage(App.ServiceProvider.GetService<CreateAccountPageViewModel>()));
                 break;
             case 6:
                 await Shell.Current.Navigation.PushAsync(new DashboardPage(App.ServiceProvider.GetService<DashboardViewModel>()));

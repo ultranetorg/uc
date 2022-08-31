@@ -9,9 +9,8 @@ public partial class SelectAuthorViewModel : BaseViewModel
 	[ObservableProperty]
 	private CustomCollection<Author> _authors = new();
 
-    public SelectAuthorViewModel(SelectAuthorPopup popup, ILogger<SelectAuthorViewModel> logger) : base(logger)
+    public SelectAuthorViewModel(ILogger<SelectAuthorViewModel> logger) : base(logger)
     {
-        Popup = popup;
 		AddFakeData();
     }
 

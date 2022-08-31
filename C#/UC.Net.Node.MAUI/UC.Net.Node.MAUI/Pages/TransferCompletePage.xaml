@@ -39,50 +39,10 @@
                     <views:AccountView BindingContext="{Binding Wallet}"/>
                 </StackLayout>
                 <StackLayout Spacing="10">
-                    <Grid ColumnDefinitions="*,*">
-                        <Label
-                            Grid.Column="0"
-                            Style="{StaticResource DashLabel}"
-                            Text="You will receive" />
-                        <Label
-                            Grid.Column="1"
-                            HorizontalOptions="End"
-                            Opacity="0.7"
-                            Text="22355 UNT" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,*">
-                        <Label
-                            Grid.Column="0"
-                            Style="{StaticResource DashLabel}"
-                            Text="You have paid ETH comission" />
-                        <Label
-                            Grid.Column="1"
-                            HorizontalOptions="End"
-                            Opacity="0.7"
-                            Text="1 ETH" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,*">
-                        <Label
-                            Grid.Column="0"
-                            Style="{StaticResource DashLabel}"
-                            Text="You have paid UNT comission" />
-                        <Label
-                            Grid.Column="1"
-                            HorizontalOptions="End"
-                            Opacity="0.7"
-                            Text="12 UNT" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,*">
-                        <Label
-                            Grid.Column="0"
-                            Style="{StaticResource DashLabel}"
-                            Text="Transaction date and time" />
-                        <Label
-                            Grid.Column="1"
-                            HorizontalOptions="End"
-                            Opacity="0.7"
-                            Text="10/15/2021 19:24" />
-                    </Grid>
+                    <cls:LabelPair Text1="You will receive" Text2="22355 UNT" />
+                    <cls:LabelPair Text1="You have paid ETH comission" Text2="1 ETH" />
+                    <cls:LabelPair Text1="You have paid UNT comission" Text2="12 UNT" />
+                    <cls:LabelPair Text1="Transaction date and time" Text2="10/15/2021 19:24" />
                 </StackLayout>
 
                 <StackLayout VerticalOptions="EndAndExpand">

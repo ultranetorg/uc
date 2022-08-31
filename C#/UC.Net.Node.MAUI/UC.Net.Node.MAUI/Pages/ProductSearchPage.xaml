@@ -71,13 +71,7 @@
                             BindableLayout.ItemsSource="{Binding Products}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid ColumnDefinitions="*,*">
-                                        <Label Grid.Column="0" Text="{Binding Name}" />
-                                        <Label
-                                            Grid.Column="1"
-                                            HorizontalOptions="Start"
-                                            Text="{Binding Owner}" />
-                                    </Grid>
+                                    <cls:LabelPair Text1="{Binding Name}" Text2="{Binding Owner}" />
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
