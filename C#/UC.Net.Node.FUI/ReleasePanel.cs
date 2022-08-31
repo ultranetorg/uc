@@ -27,7 +27,7 @@ namespace UC.Net.Node.FUI
 		{
 			if(Releases.SelectedItems.Count > 0)
 			{
-				var r = Releases.SelectedItems[0].Tag as ReleaseManifest;
+				var r = Releases.SelectedItems[0].Tag as ReleaseRegistration;
 				///manifest.Text = r.Manifest;
 			}
 			else

@@ -1950,7 +1950,7 @@ namespace UC.Net
 			var cpkg = Filebase.Add(release, Distribution.Complete, files);
 			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal);
 
-			var o = new ReleaseManifest(by,
+			var o = new ReleaseRegistration(by,
 										release,
 										channel,
 										previous,

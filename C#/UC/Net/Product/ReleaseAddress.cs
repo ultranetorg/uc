@@ -5,16 +5,13 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public class ReleaseAddress : ProductAddress, IEquatable<ReleaseAddress>
+	public class ReleaseAddress : RealizationAddress, IEquatable<ReleaseAddress>
 	{
-		public string			Platform { get; set; }
 		public Version			Version { get; set; }
+		public override bool	Valid => base.Valid;
 
-		public override bool	Valid => !string.IsNullOrWhiteSpace(Platform);
-
-		public ReleaseAddress(string author, string product, string platform, Version version) : base(author, product)
+		public ReleaseAddress(string author, string product, string platform, Version version) : base(author, product, platform)
 		{
-			Platform = platform;
 			Version = version;
 		}
 
@@ -24,7 +21,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{base.ToString()}/{Platform}/{Version}";
+			return $"{base.ToString()}/{Version}";
 		}
 
 		public override bool Equals(object o)
@@ -34,7 +31,7 @@ namespace UC.Net
 
 		public bool Equals(ReleaseAddress o)
 		{
-			return base.Equals(this) && Version.Equals(o.Version) && Platform.Equals(o.Platform);
+			return base.Equals(this) && Version.Equals(o.Version);
 		}
 
  		public override int GetHashCode()
@@ -53,24 +50,18 @@ namespace UC.Net
 		public override void Parse(string[] s)
 		{
 			base.Parse(s);
-	
-			Platform = s[2];
 			Version = Version.Parse(s[3]);
 		}
 
 		public override void Write(BinaryWriter w)
 		{
-			w.WriteUtf8(Author);
-			w.WriteUtf8(Product);
-			w.WriteUtf8(Platform);
+			base.Write(w);
 			w.Write(Version);
 		}
 
 		public override void Read(BinaryReader r)
 		{
-			Author = r.ReadUtf8();
-			Product = r.ReadUtf8();
-			Platform = r.ReadUtf8();
+			base.Read(r);
 			Version = r.ReadVersion();
 		}
 	}

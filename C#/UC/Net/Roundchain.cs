@@ -919,7 +919,7 @@ namespace UC.Net
 						yield return b;
 		}
 
-		public IEnumerable<ReleaseManifest> FindReleases(string author, string product, Func<ReleaseManifest, bool> f, int maxrid = int.MaxValue)
+		public IEnumerable<ReleaseRegistration> FindReleases(string author, string product, Func<ReleaseRegistration, bool> f, int maxrid = int.MaxValue)
 		{
 			throw new NotImplementedException();
 
@@ -977,7 +977,7 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseManifest>(m =>	m.Address == query && 
+						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address == query && 
 																						m.Channel == query.Channel);
 	
 						return prev.ToXon(serializator);
@@ -999,7 +999,7 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseManifest>(m =>	m.Address == query);
+						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address == query);
 	
 						return prev.ToXon(serializator);
 					}

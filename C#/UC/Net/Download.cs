@@ -102,12 +102,12 @@ namespace UC.Net
 							{
 								var qrrp = Core.Call(Role.Chain, vizor, c => c.QueryRelease(package, VersionQuery.Exact, "", true));
 		
-								Length = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteSizeField, 
-																										Distribution.Incremental => ReleaseManifest.IncrementalSizeField, 
+								Length = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseRegistration.CompleteSizeField, 
+																										Distribution.Incremental => ReleaseRegistration.IncrementalSizeField, 
 																										_ =>  throw new RequirementException("Wrong Distribution value") });
 										
-								Hash = qrrp.Manifests.First().Get<byte[]>(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteHashField, 
-																										Distribution.Incremental => ReleaseManifest.IncrementalHashField, 
+								Hash = qrrp.Manifests.First().Get<byte[]>(package.Distribution switch {	Distribution.Complete => ReleaseRegistration.CompleteHashField, 
+																										Distribution.Incremental => ReleaseRegistration.IncrementalHashField, 
 																										_ =>  throw new RequirementException("Wrong Distribution value") });
 								
 								lock(core.Lock)

@@ -36,9 +36,8 @@ namespace UC.Net.Node.CLI
 			{
 				case "register" : 
 					return Send(() => Node.Enqueue(new ProductRegistration(	GetPrivate("by", "password"), 
-																				ProductAddress.Parse(GetString("address")),
-																				GetString("title"))));
-
+																			ProductAddress.Parse(GetString("address")),
+																			GetString("title"))));
 		
 				default:
 					throw new SyntaxException("Unknown operation");;

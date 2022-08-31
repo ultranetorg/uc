@@ -30,7 +30,7 @@ namespace UC.Net.Node.CLI
 			{
 
 				case "declare" : 
-					return Send(() => Node.Enqueue(new ReleaseManifest (	GetPrivate("by", "password"), 
+					return Send(() => Node.Enqueue(new ReleaseRegistration (	GetPrivate("by", "password"), 
 																			ReleaseAddress.Parse(GetString("address")),
 																			GetString("channel"), 
 																			GetVersion("previous"),
