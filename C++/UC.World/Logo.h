@@ -15,7 +15,7 @@ namespace uc
 				Tags = {CArea::ServiceFront, L"Apps"};
 
 				auto t = Level->Engine->TextureFactory->CreateTexture();
-				t->Load(Level->Server->Release->HInstance, IDB_UOS_PNG);
+				t->Load(Level->Server->Instance->Release->Module, IDB_UOS_PNG);
 
 				auto mtl = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				mtl->AlphaBlending = true;

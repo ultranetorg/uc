@@ -21,11 +21,11 @@ using namespace uc;
 
 static CWorldServer * This = null;
 	
-CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
+CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
-	if(command)
+	if(info->Command)
 	{
-		if(auto n = command->One(L"Name"))
+		if(auto n = info->Command->One(L"Name"))
 		{
 			if(n->Get<CString>() == WORLD_VR_EMULATION)
 			{
@@ -46,12 +46,12 @@ CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
 	return This;
 }
 
-void StopUosServer(CServer *)
+void DestroyUosServer(CServer *)
 {
 	delete This;
 }
 
-CWorldServer::CWorldServer(CNexus * l, CServerRelease * si) : CStorableServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
+CWorldServer::CWorldServer(CNexus * l, CServerInstance * si) : CStorableServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
 {
 	Server = this;
 	Nexus = Server->Nexus;
@@ -138,7 +138,7 @@ void CWorldServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(this); });
+		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(Instance); });
 	}
 }
 
@@ -189,9 +189,9 @@ void CWorldServer::Start()
 	Layout	= WorldConfig->Get<CString>(L"Layout");
 	Fov		= WorldConfig->Get<CFloat>(L"Fov");
 
-	if(Command)
+	if(Instance->Command)
 	{
-		for(auto i : Command->Nodes)
+		for(auto i : Instance->Command->Nodes)
 		{
 			if(i->Name == L"Layout") Layout = i->Get<CString>(); 
 		}
@@ -420,7 +420,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 	{
 		auto p = CMap<CString, CString>{{L"entity", entity.ToString()}, {L"type", type}};
 		
-		if(type == AVATAR_ICON2D)	avatar = CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CDefaultIcon::GetClassName()), p);
+		if(type == AVATAR_ICON2D)	avatar = CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CDefaultIcon::GetClassName()), p);
 	}
 
 	
@@ -479,7 +479,7 @@ CUnit * CWorldServer::AllocateUnit(CModel * m)
 
 CUnit * CWorldServer::AllocateUnit(CUol & entity, CString const & type)
 {
-	auto dir = CPath::Join(Instance, Name, Layout + L".layout/" + entity.Object);
+	auto dir = CPath::Join(Instance->Name, Name, Layout + L".layout/" + entity.Object);
 	
 	auto u = (CUnit *)null;
 
@@ -589,19 +589,19 @@ CUnit * CWorldServer::FindUnit(CUol & entity)
 						{
 							if(Tight)
 								u = new CLowspaceGroupUnit(	this, 
-															CPath::Join(Instance, Name, Layout + L".layout/" + e), 
+															CPath::Join(Instance->Name, Name, Layout + L".layout/" + e), 
 															e,
 															MainView);
 							else
 								u = new CHighspaceGroupUnit(this, 
-															CPath::Join(Instance, Name, Layout + L".layout/" + e), 
+															CPath::Join(Instance->Name, Name, Layout + L".layout/" + e), 
 															e,
 															MainView);
 						}
 						else
 						{
 							u = new CSolo(	this, 
-											CPath::Join(Instance, Name, Layout + L".layout/" + e), 
+											CPath::Join(Instance->Name, Name, Layout + L".layout/" + e), 
 											MainView,
 											e);
 						}
@@ -1132,7 +1132,7 @@ CList<CUol> CWorldServer::GenerateSupportedAvatars(CUol & e, CString const & typ
 
 	if(e.GetObjectClass() == CGroup::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CGroupIcon::GetClassName()), p));
+		if(type == AVATAR_ICON2D)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CGroupIcon::GetClassName()), p));
 	}
 
 	return l;
@@ -1143,7 +1143,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & u)
 {
 	CAvatar * a = null;
 	
-	if(u.Server == Instance)
+	if(u.Server == Instance->Name)
 	{
 		if(u.GetObjectClass() == CGroupIcon::GetClassName())	a = new CGroupIcon(this, u.Object); else
 		if(u.GetObjectClass() == CDefaultIcon::GetClassName())	a = new CDefaultIcon(this, u.Object); else

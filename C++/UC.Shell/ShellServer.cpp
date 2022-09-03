@@ -5,23 +5,23 @@ using namespace uc;
 
 static CShellServer * This = null;
 
-CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
+CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
 	This = new CShellServer(l, info);
 	return This;
 }
 
-void StopUosServer(CServer *)
+void DestroyUosServer(CServer *)
 {
 	delete This;
 }
 
-CShellServer::CShellServer(CNexus * l, CServerRelease * si) : CStorableServer(l, si)
+CShellServer::CShellServer(CNexus * l, CServerInstance * si) : CStorableServer(l, si)
 {
 	Server	= this;
 	Nexus	= Server->Nexus;
 	Core	= Nexus->Core;
-	Log		= l->Core->Supervisor->CreateLog(Instance);
+	Log		= l->Core->Supervisor->CreateLog(Instance->Name);
 }
 
 CShellServer::~CShellServer()
@@ -60,12 +60,12 @@ void CShellServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(this); });
+		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(Instance); });
 	}
 
 	if(!World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(this); });
+		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(Instance); });
 
 		Engine			= World->Engine;
 		Style			= World->Style->Clone();
@@ -139,64 +139,64 @@ CList<CUol> CShellServer::GenerateSupportedAvatars(CUol & e, CString const & typ
 
 	if(e.GetObjectClass() == SHELL_HUD)
 	{
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CHudEnvironment::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CHudEnvironment::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CHistory::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CHistoryWidget::GetClassName()), p));
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CHistoryWidget::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CBoard::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CBoardWidget::GetClassName()), p));
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CBoardEnvironment::GetClassName()), p));
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBoardWidget::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBoardEnvironment::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CField::GetClassName())
 	{
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CFieldEnvironment::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CFieldWidget::GetClassName()), p)); else
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CFieldIcon::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CFieldEnvironment::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CFieldWidget::GetClassName()), p)); else
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CFieldIcon::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CDirectoryMenu::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CMenuWidget::GetClassName()), p));
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CMenuWidget::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CApplicationsMenu::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CSystemMenuWidget::GetClassName()), p));
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CSystemMenuWidget::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CTheme::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CThemeWidget::GetClassName()), p)); else
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CThemeEnvironment::GetClassName()), p));;
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CThemeWidget::GetClassName()), p)); else
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CThemeEnvironment::GetClassName()), p));;
 	}
 
 	if(e.GetObjectClass() == CLink::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CLinkIcon::GetClassName()), p));;
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CLinkProperties::GetClassName()), p));;
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CLinkIcon::GetClassName()), p));;
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CLinkProperties::GetClassName()), p));;
 	}
 
 	if(e.GetObjectClass() == CNotepad::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CNotepadIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CNotepadWidget::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CNotepadIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CNotepadWidget::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CPicture::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CPictureIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CPictureWidget::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CPictureIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CPictureWidget::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CTray::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CTrayWidget::GetClassName()), p));
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CTrayWidget::GetClassName()), p));
 	}
 
 	return l;
@@ -209,7 +209,7 @@ CAvatar * CShellServer::CreateAvatar(CUol & entity)
 
 	CAvatar * a = null;
 	
-	if(entity.Scheme == CAvatar::Scheme && entity.Server == Instance)
+	if(entity.Scheme == CAvatar::Scheme && entity.Server == Instance->Name)
 	{
 		if(entity.GetObjectClass() == CHudEnvironment::GetClassName())		a = new CHudEnvironment(this, entity.Object); else 
 
@@ -371,20 +371,20 @@ CRefList<CMenuItem *> CShellServer::CreateActions()
 	//auto c = Instance + L"{" + IExecutor::CreateDirective + L" ";
 
 	CTonDocument c;
-	c.Add(Instance)->Add(IExecutor::CreateDirective);
+	c.Add(Instance->Name)->Add(IExecutor::CreateDirective);
 		
 	shell->Items.AddNew(new CMenuItem(L"Field", [=](auto args)
 												{
 													auto cc = c;
-													cc.One(Instance)->Add(L"class")->Set(CField::GetClassName());
-													Core->Execute(cc.One(Instance), sh_new<CShowParameters>(args, Style)); 
+													cc.One(Instance->Name)->Add(L"class")->Set(CField::GetClassName());
+													Core->Execute(cc.One(Instance->Name), sh_new<CShowParameters>(args, Style)); 
 												}));
 
 	shell->Items.AddNew(new CMenuItem(L"Theme", [=](auto args)
 												{
 													auto cc = c;
-													cc.One(Instance)->Add(L"class")->Set(CTheme::GetClassName());
-													Core->Execute(cc.One(Instance), sh_new<CShowParameters>(args, Style)); 
+													cc.One(Instance->Name)->Add(L"class")->Set(CTheme::GetClassName());
+													Core->Execute(cc.One(Instance->Name), sh_new<CShowParameters>(args, Style)); 
 												}));
 
 
@@ -588,9 +588,9 @@ void CShellServer::Execute(CXon * command, CExecutionParameters * parameters)
 		Server->RegisterObject(d, true);
 		d->Free();
 
-		d->Add(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_MAIN), AVATAR_ICON2D);
-		d->Add(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
-		d->Add(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_WORK), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), AVATAR_ICON2D);
 	}
 	else if(f->Name == L"Start")
 	{
@@ -600,37 +600,37 @@ void CShellServer::Execute(CXon * command, CExecutionParameters * parameters)
 		{
 			if(World->Complexity == AVATAR_ENVIRONMENT)
 			{
-				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_HUD_1), CArea::Hud, null);
+				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_HUD_1), CArea::Hud, null);
 	
 				if(World->Free3D)
 				{
-					World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_BOARD_1), CArea::Near, null);
+					World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_BOARD_1), CArea::Near, null);
 				}
 			}
 	
 			auto f = new CShowParameters(); 
 			f->PlaceOnBoard = true;
 			
-			auto u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_WORK), CArea::Fields, f);
+			auto u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), CArea::Fields, f);
 			
 			if(World->BackArea)
 				World->Show(u, CArea::Background, null);
 	
-			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_PICTURES), CArea::Fields, f);
+			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), CArea::Fields, f);
 			
 			if(World->BackArea)
 				World->Show(u, CArea::Background, null);
 			
-			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_MAIN), CArea::Fields, f);
+			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), CArea::Fields, f);
 			
 			if(World->BackArea)
 				World->Show(u, CArea::Background, null);
 	
-			World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_THEME_1), CArea::Theme, null);
+			World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_THEME_1), CArea::Theme, null);
 			
 			if(World->FullScreen)
 			{
-				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_HOME), CArea::Fields, f);
+				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_HOME), CArea::Fields, f);
 			}
 	
 			f->Free();
@@ -638,13 +638,13 @@ void CShellServer::Execute(CXon * command, CExecutionParameters * parameters)
 	
 		if(World->FullScreen)
 		{
-			World->Components[WORLD_HISTORY] = CUol(CWorldEntity::Scheme, Instance, SHELL_HISTORY_1);
-			World->Components[WORLD_BOARD]	 = CUol(CWorldEntity::Scheme, Instance, SHELL_BOARD_1);
-			World->Components[WORLD_TRAY]	 = CUol(CWorldEntity::Scheme, Instance, SHELL_TRAY_1);
+			World->Components[WORLD_HISTORY] = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_HISTORY_1);
+			World->Components[WORLD_BOARD]	 = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_BOARD_1);
+			World->Components[WORLD_TRAY]	 = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_TRAY_1);
 	
 			World->GlobalHotKeys[EKeyboardControl::GlobalHome] =[this](auto k)
 																{ 
-																	World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, SHELL_FIELD_HOME), CArea::LastInteractive, null);
+																	World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_HOME), CArea::LastInteractive, null);
 																};
 		}
 	

@@ -72,7 +72,7 @@
       <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\Ipfs\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);..\Libs\Keccak\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
-      <AdditionalOptions>/EXPORT:StartUosServer /EXPORT:StopUosServer %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer</AdditionalOptions>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
     <ResourceCompile />
@@ -110,7 +110,7 @@
       </ImageHasSafeExceptionHandlers>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
-      <AdditionalOptions>/EXPORT:StartUosServer /EXPORT:StopUosServer %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer</AdditionalOptions>
     </Link>
     <ResourceCompile />
     <PreBuildEvent>

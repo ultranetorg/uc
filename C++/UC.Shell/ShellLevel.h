@@ -28,7 +28,7 @@ namespace uc
 
 		void AddModeSwitch(IMenuSection * s)
 		{
-			auto cmd = World.Server->Instance + L"{";
+			auto cmd = World.Server->Instance->Name + L"{";
 
 			#ifndef _DEBUG // copy World command options
 				for(auto & i : Core->FindStartCommands(World->Server->Url))

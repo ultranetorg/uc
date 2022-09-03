@@ -23,12 +23,22 @@ namespace UC.Net
 
 	public class ExitCall : ApiCall
 	{
-		public string			Reason { get; set; }
+		public string Reason { get; set; }
+	}
+
+	public class SettingsCall : ApiCall
+	{
+	}
+
+	public class SettingsResponse
+	{
+		public string		ProfilePath {get; set;}
+		public Settings		Settings {get; set;}
 	}
 
 	public class StatusCall : ApiCall
 	{
-		public int				Limit  { get; set; }
+		public int Limit  { get; set; }
 	}
 
 	public class GetStatusResponse

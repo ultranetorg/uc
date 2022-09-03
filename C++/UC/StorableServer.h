@@ -11,7 +11,7 @@ namespace uc
 			CProtocolConnection<IFileSystem>		Storage;
 
 			UOS_RTTI
-			CStorableServer(CNexus * l, CServerRelease * info);
+			CStorableServer(CNexus * l, CServerInstance * info);
 			~CStorableServer();
 
 			using									CServer::FindObject;

@@ -32,7 +32,7 @@ namespace uc
 			CRectangleMenu *							Menu = null;
 
 			UOS_RTTI
-			CShellServer(CNexus * l, CServerRelease * si);
+			CShellServer(CNexus * l, CServerInstance * si);
 			~CShellServer();
 			
 			void										EstablishConnections();

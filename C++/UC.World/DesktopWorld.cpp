@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CDesktopWorld::CDesktopWorld(CNexus * l, CServerRelease * si) : CWorldServer(l, si)
+CDesktopWorld::CDesktopWorld(CNexus * l, CServerInstance * si) : CWorldServer(l, si)
 {
 	CWorldCapabilities::Name = WORLD_DESKTOP;
 	Complexity = AVATAR_ENVIRONMENT;

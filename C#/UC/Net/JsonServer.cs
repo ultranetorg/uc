@@ -170,6 +170,11 @@ namespace UC.Net
 
 				switch(call)
 				{
+					case SettingsCall c:
+						respondjson(new SettingsResponse{	ProfilePath  = Core.Settings.Profile, 
+															Settings = Core.Settings}); /// TODO: serialize
+						break;
+
 					case RunNodeCall e:
 						Core.RunNode();
 						break;

@@ -4,7 +4,7 @@
 
 using namespace uc;
 
-CLocalFileSystemProvider::CLocalFileSystemProvider(CNexus * l, CServerRelease * info) : CServer(l, info)
+CLocalFileSystemProvider::CLocalFileSystemProvider(CNexus * l, CServerInstance * info) : CServer(l, info)
 {
 	//Protocols[UOS_STORAGE_PROTOCOL] = null;
 }

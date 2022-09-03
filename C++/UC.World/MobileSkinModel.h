@@ -49,7 +49,7 @@ namespace uc
 				auto lables = true;
 				auto placeholder = L"                         ";
 				
-				if(auto a = Level->Server->Command->One(L"Skin/ShowLabels"))
+				if(auto a = Level->Server->Instance->Command->One(L"Skin/ShowLabels"))
 				{
 					lables = a->Get<CBool>();
 				}

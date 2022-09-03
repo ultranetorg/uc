@@ -16,7 +16,7 @@ namespace UC.Net
 	{
 		public Distribution Distribution { get; set; }
 	
-		public PackageAddress(string author, string product, Version version, string platform, Distribution distribution) : base(author, product, platform, version)
+		public PackageAddress(string author, string product, string platform, Version version, Distribution distribution) : base(author, product, platform, version)
 		{
 			Distribution = distribution;
 		}

@@ -18,7 +18,7 @@ namespace uc
 			CUnit *						Board = null;
 			CUnit *						Tray = null;
 
-			CMobileWorld(CNexus * l, CServerRelease * si) : CWorldServer(l, si) 
+			CMobileWorld(CNexus * l, CServerInstance * si) : CWorldServer(l, si) 
 			{
 				CWorldCapabilities::Name = WORLD_MOBILE_EMULATION;
 				Complexity	= AVATAR_WIDGET;

@@ -14,7 +14,7 @@ namespace uc
 			CGeoStore *					GeoStore;
 
 			UOS_RTTI
-			CExperimentalServer(CNexus * l, CServerRelease * si);
+			CExperimentalServer(CNexus * l, CServerInstance * si);
 			~CExperimentalServer();
 			
 			void						EstablishConnections(bool storage, bool world);

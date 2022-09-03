@@ -16,7 +16,7 @@ namespace uc
 			CAnimated<CFloat3>			MainAnimatedDirection;
 			CAnimated<CFloat3>			NearAnimatedDirection;
 
-			CVrWorld(CNexus * l, CServerRelease * si) : CDesktopWorld(l, si) 
+			CVrWorld(CNexus * l, CServerInstance * si) : CDesktopWorld(l, si) 
 			{
 				CWorldCapabilities::Name = WORLD_VR_EMULATION;
 				Complexity	= AVATAR_ENVIRONMENT;

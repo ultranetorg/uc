@@ -20,7 +20,7 @@ namespace uc
 			CMap<CStream *, CMapping>							Streams;
 
 			UOS_RTTI
-			CFileSystem(CNexus * l, CServerRelease * info);
+			CFileSystem(CNexus * l, CServerInstance * info);
 			~CFileSystem();
 
 			IInterface *											Connect(CString const & pr) override;

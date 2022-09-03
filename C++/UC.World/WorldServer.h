@@ -49,7 +49,7 @@ namespace uc
 			float										Fov;
 
 			UOS_RTTI
-			CWorldServer(CNexus * l, CServerRelease * si);
+			CWorldServer(CNexus * l, CServerInstance * si);
 			~CWorldServer();
 
 			IInterface *								Connect(CString const & pr) override;

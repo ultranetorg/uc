@@ -128,22 +128,22 @@ void CHudFieldElement::OnPlacing(CFieldItemElement * fie)
 {
 	if(Level->World->Initializing)
 	{
-		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance, SHELL_HISTORY_1))
+		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance->Name, SHELL_HISTORY_1))
 		{
 			fie->Transform(0, 0, ItemZ);
 		}
 					
-		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance, SHELL_BOARD_1))
+		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance->Name, SHELL_BOARD_1))
 		{
 			fie->Transform(IW * 0.15f, 0, ItemZ);
 		}
 
-		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance, SHELL_TRAY_1))
+		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance->Name, SHELL_TRAY_1))
 		{
 			fie->Transform(IW * 0.85f, 0, ItemZ);
 		}
 
-		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance, SHELL_APPLICATIONSMENU_1))
+		if(fie->Entity->Object == CUol(CWorldEntity::Scheme, Level->Server->Instance->Name, SHELL_APPLICATIONSMENU_1))
 		{
 			fie->Transform(0, 200, ItemZ);
 		}

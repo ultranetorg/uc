@@ -6,7 +6,7 @@
 
 using namespace uc;
 
-CFileSystem::CFileSystem(CNexus * l, CServerRelease * info) : CServer(l, info)
+CFileSystem::CFileSystem(CNexus * l, CServerInstance * info) : CServer(l, info)
 {
 	//Protocols[UOS_STORAGE_PROTOCOL] = null;
 }
@@ -55,12 +55,12 @@ void CFileSystem::Execute(CXon * command, CExecutionParameters * parameter)
 
 void CFileSystem::Mount(CString const & path, CServerAddress & provider, CXon * parameters)
 {
-	auto s = Nexus->CreateServer(provider, provider.Server + path, null, null);
+	auto s = Nexus->AddServer(provider, provider.Server + path, null, null);
 	
-	auto p = Nexus->Connect<IFileSystemProvider>(this, s->Instance, [&, path]
-																	{
-																		Mounts.Remove(path);
-																	});
+	auto p = Nexus->Connect<IFileSystemProvider>(this, s,	[&, path]
+															{
+																Mounts.Remove(path);
+															});
 	if(p)
 	{
 		p->MountRoot(parameters);
@@ -123,7 +123,7 @@ CString CFileSystem::UniversalToNative(CString const & path)
 			throw CMappingExcepion(HERE);
 
 		auto & l = sep != CString::npos ? lpath.Substring(sep + 1) : L"";
-		auto & r = Nexus->Servers.Find([&](auto i){ return i->Instance == s; })->Release->Address;
+		auto & r = Nexus->Servers.Find([&](auto i){ return i->Name == s; })->Release->Address;
 		p = Nexus->Core->Resolve(Nexus->Core->MapPath(ESystemPath::Software, CPath::Nativize(CPath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, r.Version.ToString(), l))));
 	}
 	else if(mount == IFileSystem::System)
@@ -155,7 +155,7 @@ CString CFileSystem::NativeToUniversal(CString const & path)
 
 CUol CFileSystem::ToUol(CString const & path)
 {
-	return CUol(CFileSystemEntry::Scheme, Instance, path);
+	return CUol(CFileSystemEntry::Scheme, Instance->Name, path);
 }
 
 CString CFileSystem::GetType(CString const & path)

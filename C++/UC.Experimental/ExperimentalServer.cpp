@@ -27,23 +27,23 @@ using namespace uc;
 
 static CExperimentalServer * This = null;
 
-CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
+CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
 	This = new CExperimentalServer(l, info);
 	return This;
 }
 
-void StopUosServer(CServer *)
+void DestroyUosServer(CServer *)
 {
 	delete This;
 }
 
-CExperimentalServer::CExperimentalServer(CNexus * l, CServerRelease * si) : CStorableServer(l, si)
+CExperimentalServer::CExperimentalServer(CNexus * l, CServerInstance * si) : CStorableServer(l, si)
 {
 	Server	= this;
 	Nexus	= Server->Nexus;
 	Core	= Nexus->Core;
-	Log		= l->Core->Supervisor->CreateLog(Instance);
+	Log		= l->Core->Supervisor->CreateLog(Instance->Name);
 ///	Storage		= l->Storage;
 }
 
@@ -80,13 +80,13 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world)
 
 	if(storage && !Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(this); });
+		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(Instance); });
 		GeoStore = new CGeoStore(this);
 	}
 
 	if(world && !World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(this); });
+		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(Instance); });
 
 		Engine	= World->Engine;
 		Style	= World->Style->Clone();
@@ -136,47 +136,47 @@ CList<CUol> CExperimentalServer::GenerateSupportedAvatars(CUol & e, CString cons
 
 	if(e.GetObjectClass() == CCommander::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CCommanderIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CCommanderWidget::GetClassName()), p)); else
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CCommanderEnvironment::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CCommanderIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CCommanderWidget::GetClassName()), p)); else
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CCommanderEnvironment::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CBrowser::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CBrowserIcon::GetClassName()), p)); else 
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CBrowserWidget::GetClassName()), p)); else
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CBrowserEnvironment::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBrowserIcon::GetClassName()), p)); else 
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBrowserWidget::GetClassName()), p)); else
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBrowserEnvironment::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CTradeHistory::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CChartWidget::GetClassName()), p)); 
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CChartWidget::GetClassName()), p)); 
 		//if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate(CChartEnvironment::GetClassName())));
 	}
 
 	if(e.GetObjectClass() == CTradingview::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CTradingviewWidget::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CTradingviewWidget::GetClassName()), p));
 		//if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate(CTradingviewEnvironment::GetClassName())));
 	}
 
 	if(e.GetObjectClass() == CEarth::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CEarthIcon::GetClassName()), p));
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CEarthWidget::GetClassName()), p));
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CEarthEnvironment::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEarthIcon::GetClassName()), p));
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEarthWidget::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEarthEnvironment::GetClassName()), p));
 	}
 
 	if(e.GetObjectClass() == CEmailAccount::GetClassName())
 	{
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CEmailAccountEnvironment::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEmailAccountEnvironment::GetClassName()), p));
 	}
 	
 	if(e.GetObjectClass() == CEmail::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)	l.push_back(CUol(CAvatar::Scheme, Instance, CGuid::Generate64(CEmailWidget::GetClassName()), p));
+		if(type == AVATAR_WIDGET)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEmailWidget::GetClassName()), p));
 	}
 
 	return l;
@@ -188,7 +188,7 @@ CAvatar * CExperimentalServer::CreateAvatar(CUol & avatar)
 
 	CAvatar * a = null;
 	
-	if(avatar.Scheme == CAvatar::Scheme && avatar.Server == Instance)
+	if(avatar.Scheme == CAvatar::Scheme && avatar.Server == Instance->Name)
 	{
 		if(avatar.GetObjectClass() == CCommanderIcon::GetClassName())			a = new CCommanderIcon(this, avatar.Object); else
 		if(avatar.GetObjectClass() == CCommanderEnvironment::GetClassName())	a = new CCommanderEnvironment(this, avatar.Object); else 
@@ -357,7 +357,7 @@ CRefList<CMenuItem *> CExperimentalServer::CreateActions()
 
 	auto root = new CMenuItem(GetTitle());
 	
-	auto a = Instance + L"{" + IExecutor::CreateDirective + L" ";
+	auto a = Instance->Name + L"{" + IExecutor::CreateDirective + L" ";
 
 	root->Items.AddNew(new CMenuItem(L"Commander",	[this, a](auto args)
 													{
@@ -387,9 +387,9 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 
 	auto shell	= Nexus->Connect<CShell>(this);
 
-	auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance, SHELL_FIELD_MAIN));
-	auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance, SHELL_FIELD_WORK));
-	auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance, SHELL_FIELD_HOME));
+	auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_MAIN));
+	auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_WORK));
+	auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_HOME));
 
 	if(f->Name == L"CreateDefaultObjects")
 	{
@@ -502,9 +502,9 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 
 		if(home)
 		{
-			home->Add(CUol(CWorldEntity::Scheme, Instance, COMMANDER_1),	AVATAR_ICON2D);
-			home->Add(CUol(CWorldEntity::Scheme, Instance, BROWSER_1),		AVATAR_ICON2D);
-			home->Add(CUol(CWorldEntity::Scheme, Instance, EARTH_1),		AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1),	AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1),		AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1),		AVATAR_ICON2D);
 			home->Add(CUol(CWorldEntity::Scheme, WORLD_SERVER, GROUP_1),	AVATAR_ICON2D);
 		}
 	}
@@ -526,7 +526,7 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 					CFieldItemElement * fiea = null;
 					CFieldItemElement * fieb = null;
 		
-					if(auto fia = main->FindByObject(CUol(CWorldEntity::Scheme, Instance, COMMANDER_AT_HOME_1)))
+					if(auto fia = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_1)))
 					{
 						fiea = def->Find(fia->Url);
 						fiea->SetMetrics(m);
@@ -535,7 +535,7 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 						//def->MoveAvatar(fiea->Avatar, CTransformation(def->IW - def->IW * 0.2f - m.FaceSize.W, def->IH * 0.2f, def->ItemZ));
 					}
 				
-					if(auto fib = main->FindByObject(CUol(CWorldEntity::Scheme, Instance, COMMANDER_AT_HOME_2)))
+					if(auto fib = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_2)))
 					{
 						fieb = def->Find(fib->Url);
 						fieb->SetMetrics(m);
@@ -549,9 +549,9 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 			auto sp = new CShowParameters();
 			sp->PlaceOnBoard = true;
 		
-			auto c = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, COMMANDER_1), CArea::Main, sp);
-			auto b = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, BROWSER_1), CArea::Main, sp);
-			auto e = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance, EARTH_1), CArea::Main, sp);
+			auto c = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1), CArea::Main, sp);
+			auto b = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1), CArea::Main, sp);
+			auto e = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1), CArea::Main, sp);
 			auto g = World->OpenEntity(CUol(CWorldEntity::Scheme, WORLD_SERVER, GROUP_1), CArea::Main, sp);
 
 			if(World->BackArea)

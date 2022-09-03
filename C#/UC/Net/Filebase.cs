@@ -11,13 +11,13 @@ namespace UC.Net
 {
 	public class Filebase
 	{
-		string					Root;
+		string				Root;
 
-		const string			Ipkg = "ipkg";
-		const string			Cpkg = "cpkg";
-		const string			Removals = ".removals";
-		const string			Renamings = ".renamings"; /// TODO
-		public const long		PieceMaxLength = 64 * 1024;
+		const string		Ipkg = "ipkg";
+		const string		Cpkg = "cpkg";
+		const string		Removals = ".removals";
+		const string		Renamings = ".renamings"; /// TODO
+		public const long	PieceMaxLength = 64 * 1024;
 
 		public Filebase(Settings settings)
 		{
@@ -28,30 +28,30 @@ namespace UC.Net
 				
 		string ToPath(PackageAddress package)
 		{
-			return Path.Join(Root, package.Author, package.Product, $"{package.Version}__{package.Platform}.{(package.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
+			return Path.Join(Root, package.Author, package.Product, package.Platform, $"{package.Version}.{(package.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
 		}
 
 		public PackageAddress[] GetAll()
 		{
 			return Directory.EnumerateDirectories(Root).SelectMany(a => 
 						Directory.EnumerateDirectories(a).SelectMany(p => 
-							Directory.EnumerateFiles(p, $"*").Select(i =>	{
-																				var x = Path.GetFileNameWithoutExtension(i).Split("__");
-																				return new PackageAddress(	Path.GetFileName(a), 
-																											Path.GetFileName(p), 
-																											Version.Parse(x[0]), 
-																											x[1], 
-																											Path.GetExtension(i)[1] == 'c' ? Distribution.Complete : Distribution.Incremental);
-																			}))).ToArray();
-		}
+							Directory.EnumerateDirectories(p).SelectMany(r => 
+								Directory.EnumerateFiles(r, $"*").Select(i =>	{
+																					return new PackageAddress(	Path.GetFileName(a), 
+																												Path.GetFileName(p), 
+																												Path.GetFileName(r), 
+																												Version.Parse(Path.GetFileNameWithoutExtension(i)),
+																												Path.GetExtension(i)[1] == 'c' ? Distribution.Complete : Distribution.Incremental);
+																				})))).ToArray();
+			}
 
 		public string Add(ReleaseAddress release, Distribution distribution, IDictionary<string, string> files, List<string> removals = null)
 		{
-			var ap = Path.Join(Root, release.Author, release.Product);
+			var ap = Path.Join(Root, release.Author, release.Product, release.Platform);
 
 			Directory.CreateDirectory(ap);
 			
-			var zpath = Path.Join(ap, $"{release.Version}__{release.Platform}.{(distribution == Distribution.Complete ? Cpkg : Ipkg)}");
+			var zpath = Path.Join(ap, $"{release.Version}.{(distribution == Distribution.Complete ? Cpkg : Ipkg)}");
 
 			using(var z = new FileStream(zpath, FileMode.Create))
 			{
@@ -84,9 +84,9 @@ namespace UC.Net
 			var incs = new Dictionary<string, string>();
 			var olds = new List<string>();
 
-			var prod = Path.Join(Root, release.Author, release.Product);
+			var rlz = Path.Join(Root, release.Author, release.Product, release.Platform);
 
-			var history = Directory.EnumerateFiles(prod, $"*.*.*.*__{release.Platform}.{Cpkg}").Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i).Split("__")[0])).Where(i => i != release.Version);
+			var history = Directory.EnumerateFiles(rlz, $"*.*.*.*.{Cpkg}").Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i != release.Version);
 
 			if(!history.Any())
 			{
@@ -99,7 +99,7 @@ namespace UC.Net
 				previous = history.Max();
 			}
 
-			using(var s = new FileStream(Path.Join(prod, $"{previous}__{release.Platform}.{Cpkg}"), FileMode.Open))
+			using(var s = new FileStream(Path.Join(rlz, $"{previous}.{Cpkg}"), FileMode.Open))
 			{
 				using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
 				{
@@ -203,7 +203,7 @@ namespace UC.Net
 
 		public void Write(PackageAddress package, long offset, byte[] data)
 		{
-			var dir = Path.Join(Root, package.Author, package.Product);
+			var dir = Path.GetDirectoryName(ToPath(package));
 
 			if(!Directory.Exists(dir))
 				Directory.CreateDirectory(dir);

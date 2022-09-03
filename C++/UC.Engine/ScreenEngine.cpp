@@ -16,9 +16,9 @@ CScreenEngine::CScreenEngine(CEngineLevel * l, CDirectSystem * ge) : CEngineEnti
 		Layouts.push_back(i->AsString());
 	}
 
-	if(Level->Server->Command)
+	if(Level->Server->Instance->Command)
 	{
-		if(auto s = Level->Server->Command->One(RENDER_SCALING))	
+		if(auto s = Level->Server->Instance->Command->One(RENDER_SCALING))	
 			RenderScaling = s->Get<CFloat>(RENDER_SCALING); 
 	}
 

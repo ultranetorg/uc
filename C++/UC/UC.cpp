@@ -5,13 +5,13 @@
 
 using namespace uc;
 
-CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
+CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
-	if(info->Address.Server == CFileSystem::GetClassName())
+	if(info->Release->Address.Server == CFileSystem::GetClassName())
 	{
 		return new CFileSystem(l, info);
 	}
-	if(info->Address.Server == CLocalFileSystemProvider::GetClassName())
+	if(info->Release->Address.Server == CLocalFileSystemProvider::GetClassName())
 	{
 		return new CLocalFileSystemProvider(l, info);
 	}
@@ -19,7 +19,7 @@ CServer * StartUosServer(CNexus * l, CServerRelease * info, CXon * command)
 	return null;
 }
 
-void StopUosServer(CServer * s)
+void DestroyUosServer(CServer * s)
 {
 	delete s;
 }

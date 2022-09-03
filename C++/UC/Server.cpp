@@ -4,10 +4,10 @@
 
 using namespace uc;
 
-CServer::CServer(CNexus * l, CServerRelease * info)
+CServer::CServer(CNexus * l, CServerInstance * info)
 {
 	Nexus = l;
-	Release = info;
+	Instance = info;
 }
 
 CServer::~CServer()
@@ -62,30 +62,30 @@ CString CServer::MapReleasePath(CString const & path)
 {
 	//auto & r = Release->Address;
 
-	return CPath::Join(IFileSystem::Servers, CPath::Join(Instance, path));
+	return CPath::Join(IFileSystem::Servers, CPath::Join(Instance->Name, path));
 }
 
 CString CServer::MapSystemPath(CString const & path)
 {
-	return CPath::Join(IFileSystem::System, Instance, path);
+	return CPath::Join(IFileSystem::System, Instance->Name, path);
 }
 
 CString CServer::MapSystemTmpPath(CString const & path)
 {
-	return CPath::Join(IFileSystem::SystemTmp, Instance, path);
+	return CPath::Join(IFileSystem::SystemTmp, Instance->Name, path);
 }
 
 CString CServer::MapUserLocalPath(CString const & path)
 {
-	return CPath::Join(IFileSystem::UserLocal, Instance, path);
+	return CPath::Join(IFileSystem::UserLocal, Instance->Name, path);
 }
 
 CString CServer::MapUserGlobalPath(CString const & path)
 {
-	return CPath::Join(IFileSystem::UserGlobal, Instance, path);
+	return CPath::Join(IFileSystem::UserGlobal, Instance->Name, path);
 }
 
 CString CServer::MapUserTmpPath(CString const & path)
 {
-	return CPath::Join(IFileSystem::UserTmp, Instance, path);
+	return CPath::Join(IFileSystem::UserTmp, Instance->Name, path);
 }

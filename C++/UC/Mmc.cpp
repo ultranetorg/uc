@@ -243,24 +243,24 @@ bool CMmc::ProcessMessage(HWND hwnd, UINT msg, WPARAM w, LPARAM l, INT_PTR * r)
 			SetMenuItemInfo(MainMenu, 3, true, &mii);
 
 			for(auto s : Nexus->Servers)
-				for(auto o : s->Objects)
-				{
-					Items.push_back(CMmcMenuItem());
-					auto mi = &(Items.back());
+				if(s->Instance)
+					for(auto o : s->Instance->Objects)
+					{
+						Items.push_back(CMmcMenuItem());
+						auto mi = &(Items.back());
 
-					mi->Id			= NextId();
-					mi->Object		= o;
+						mi->Id			= NextId();
+						mi->Object		= o;
 
-					AppendMenu(ObjectsMenu, MF_STRING, Items.size(), o->Url.Object.c_str());
+						AppendMenu(ObjectsMenu, MF_STRING, Items.size(), o->Url.Object.c_str());
 
-					MENUITEMINFO mii;
-					mii.cbSize = sizeof(MENUITEMINFO);
-					mii.fMask = MIIM_DATA;
-					mii.dwItemData = (INT_PTR)mi;
+						MENUITEMINFO mii;
+						mii.cbSize = sizeof(MENUITEMINFO);
+						mii.fMask = MIIM_DATA;
+						mii.dwItemData = (INT_PTR)mi;
 
-					SetMenuItemInfo(ObjectsMenu, mi->Id, false, &mii);
-				}
-
+						SetMenuItemInfo(ObjectsMenu, mi->Id, false, &mii);
+					}
 
 			break;
 		}

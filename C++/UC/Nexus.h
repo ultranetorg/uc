@@ -18,7 +18,7 @@ namespace uc
 			
 			CList<CManifest *>							Manifests;
 			CList<CServerRelease *>						Releases;
-			CList<CServer *>							Servers;
+			CList<CServerInstance *>					Servers;
 			CProtocolConnection<IFileSystem>			FileSystem;
 			CIdentity *									Identity = null;
 
@@ -48,7 +48,7 @@ namespace uc
 			void										OnDiagnosticUpdating(CDiagnosticUpdate & a);
 			void										StartServers();
 			void										StopServers();
-			void										StopServer(CServer * s);
+			void										StopServer(CServerInstance * s);
 
 			CString										MapPathToRelease(CReleaseAddress & release, CString const & path);
 			CString										MapPathToRealization(CRealizationAddress & release, CString const & path = CString());
@@ -60,16 +60,28 @@ namespace uc
 			void										SetDllDirectories(CServerRelease * info);
 
 			CServerRelease *							LoadRelease(CServerAddress & address);
-			CServer *									CreateServer(CServerAddress & address, CString const & instance, CXon * command, CXon * definition);
-			CServer *									GetServer(CString const & instance);
-			CServer *									GetServer(CServerAddress & server);
+			CServerInstance *							AddServer(CServerAddress & address, CString const & instance, CXon * command, CXon * definition);
+			CServerInstance *							GetServer(CString const & instance);
+			CServerInstance *							GetServer(CServerAddress & server);
 
-			CConnection 								Connect(IType * who, CString const & instance, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
+			CConnection 								Connect(IType * who, CServerInstance * si, CString const & iface,		std::function<void()> ondisconnect = std::function<void()>());
+			CConnection									Connect(IType * who, CString const & instance, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
 			CConnection									Connect(IType * who, CServerAddress & server, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
 			CConnection 								Connect(IType * who, CString const & iface,								std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
 			CList<CConnection> 							ConnectMany(IType * who, CString const & iface);
 
 			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & instance, std::function<void()> ondisconnect = std::function<void()>())
+														{
+															auto c = Connect(who, instance, T::InterfaceName, ondisconnect);
+
+															if(c && c.As<T>() == null)
+															{
+																return CProtocolConnection<T>();
+															}
+															return CProtocolConnection<T>(c);
+														}
+
+			template<class T> CProtocolConnection<T>	Connect(IType * who, CServerInstance * instance, std::function<void()> ondisconnect = std::function<void()>())
 														{
 															auto c = Connect(who, instance, T::InterfaceName, ondisconnect);
 

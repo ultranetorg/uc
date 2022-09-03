@@ -1951,18 +1951,18 @@ namespace UC.Net
 			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal);
 
 			var o = new ReleaseRegistration(by,
-										release,
-										channel,
-										previous,
+											release,
+											channel,
+											previous,
 
-										new FileInfo(cpkg).Length,
-										Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
-										cdependencies,
+											new FileInfo(cpkg).Length,
+											Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+											cdependencies,
 
-										minimal,
-										ipkg != null ? new FileInfo(ipkg).Length : 0,
-										ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
-										idependencies);
+											minimal,
+											ipkg != null ? new FileInfo(ipkg).Length : 0,
+											ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+											idependencies);
 			Enqueue(o);
 
 			while(o.Delegation != DelegationStage.Completed)

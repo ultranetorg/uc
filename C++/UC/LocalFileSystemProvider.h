@@ -13,7 +13,7 @@ namespace uc
 			CString						Root;
 
 			UOS_RTTI
-			CLocalFileSystemProvider(CNexus * l, CServerRelease * info);
+			CLocalFileSystemProvider(CNexus * l, CServerInstance * info);
 			~CLocalFileSystemProvider();
 
 			IInterface *				Connect(CString const & pr) override;

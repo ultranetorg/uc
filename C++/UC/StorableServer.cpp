@@ -4,7 +4,7 @@
 
 using namespace uc;
 
-CStorableServer::CStorableServer(CNexus * l, CServerRelease * info) : CServer(l, info)
+CStorableServer::CStorableServer(CNexus * l, CServerInstance * info) : CServer(l, info)
 {
 }
 	

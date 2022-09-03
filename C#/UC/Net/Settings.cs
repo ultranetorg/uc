@@ -212,7 +212,7 @@ namespace UC.Net
 			Secret = new SecretSettings(path);
 		}
 
-		public void Save()
+		public XonDocument Save()
 		{
 			var doc = new XonDocument(XonTextValueSerializator.Default);
 
@@ -259,6 +259,8 @@ namespace UC.Net
 			{
 				doc.Save(new XonTextWriter(s, Encoding.UTF8));
 			}
+
+			return doc;
 		}
 	}
 }

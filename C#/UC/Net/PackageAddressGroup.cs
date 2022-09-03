@@ -85,7 +85,7 @@ namespace UC.Net
 						{
 							var pr = reader.ReadUtf8();
 
-							list.AddRange(reader.ReadArray(() => new PackageAddress(a, pr, reader.Read<Version>(), pf, d)));
+							list.AddRange(reader.ReadArray(() => new PackageAddress(a, pr, pf, reader.Read<Version>(), d)));
 						}
 					}
 				}
