@@ -17,6 +17,7 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient(sp => new AuthorSearchPViewModel(
 			App.ServiceProvider.GetService<ILogger<AuthorSearchPViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorsViewModel(
+			App.ServiceProvider.GetService<IServicesMockData>(),
 			App.ServiceProvider.GetService<ILogger<AuthorsViewModel>>()));
 		builder.Services.AddTransient(sp => new CreateAccountPageViewModel(
 			App.ServiceProvider.GetService<ILogger<CreateAccountPageViewModel>>()));
@@ -65,6 +66,7 @@ public static class ViewModelExtensions
 
 		// Singleton ViewModels
 		builder.Services.AddSingleton(sp => new AccountDetailsViewModel(
+			App.ServiceProvider.GetService<IServicesMockData>(),
 			App.ServiceProvider.GetService<ILogger<AccountDetailsViewModel>>()));
 		builder.Services.AddSingleton(sp => new AuthorRegistrationViewModel(
 			App.ServiceProvider.GetService<ILogger<AuthorRegistrationViewModel>>()));

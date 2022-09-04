@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Services.Transactions;
+﻿namespace UC.Net.Node.MAUI.Services;
 
 public class TransactionsMockService : ITransactionsService
 {

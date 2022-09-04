@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Services.Accounts;
+﻿namespace UC.Net.Node.MAUI.Services;
 
 public sealed class AccountsService : IAccountsService
 {

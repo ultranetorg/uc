@@ -75,7 +75,7 @@ public partial class DashboardViewModel : BaseViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 540,
 			Name = "UNT Transfer",
-			Status = TransactionsStatus.Pending
+			Status = TransactionStatus.Pending
 		});
 		Transactions.Add(new Transaction
 		{
@@ -83,7 +83,7 @@ public partial class DashboardViewModel : BaseViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 590,
 			Name = "UNT Transfer",
-			Status = TransactionsStatus.Sent
+			Status = TransactionStatus.Sent
 		});
 		Transactions.Add(new Transaction
 		{
@@ -91,7 +91,7 @@ public partial class DashboardViewModel : BaseViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 590,
 			Name = "UNT Transfer",
-			Status = TransactionsStatus.Failed
+			Status = TransactionStatus.Failed
 		});
 	}
 

@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Services.Products;
+﻿namespace UC.Net.Node.MAUI.Services;
 
 public class ProductsService : IProductsService
 {

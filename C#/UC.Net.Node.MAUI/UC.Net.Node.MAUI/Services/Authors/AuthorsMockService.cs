@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Services.Authors;
+﻿namespace UC.Net.Node.MAUI.Services;
 
 public class AuthorsMockService : IAuthorsService
 {

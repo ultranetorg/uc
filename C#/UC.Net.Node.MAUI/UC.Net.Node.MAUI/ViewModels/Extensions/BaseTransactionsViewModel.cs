@@ -21,9 +21,8 @@ public partial class BaseTransactionsViewModel : BaseViewModel
 	[RelayCommand]
     private async void ItemTappedAsync(Transaction Transaction)
     {
-        if (Transaction == null) 
-            return;
-        if (Transaction.Status == TransactionsStatus.Pending)
+        if (Transaction == null) return;
+        if (Transaction.Status == TransactionStatus.Pending)
             await Shell.Current.Navigation.PushAsync(new UnfinishTransferPage());
         else
             await TransactionPopup.Show(Transaction);
@@ -38,7 +37,7 @@ public partial class BaseTransactionsViewModel : BaseViewModel
 	[RelayCommand]
     private async void OptionsAsync(Transaction Transaction)
     {
-        if (Transaction.Status == TransactionsStatus.Pending)
+        if (Transaction.Status == TransactionStatus.Pending)
             await Shell.Current.Navigation.PushAsync(new UnfinishTransferPage());
         else
             await TransactionPopup.Show(Transaction);

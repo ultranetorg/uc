@@ -25,10 +25,8 @@ public partial class BaseAccountViewModel : BaseViewModel
         foreach (var item in ColorsCollection)
         {
             item.BoderColor = Colors.Transparent;
-            ColorsCollection.ReportItemChange(item);
         }
         accountColor.BoderColor = Shell.Current.BackgroundColor;
-        ColorsCollection.ReportItemChange(accountColor);
         Wallet.AccountColor = accountColor.Color;
     }
 

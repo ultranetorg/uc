@@ -23,7 +23,7 @@ public partial class TransactionsViewModel : BaseTransactionsViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 540,
 			Name = "Register ultranetorg author",
-			Status = TransactionsStatus.Pending,
+			Status = TransactionStatus.Pending,
 			USD = 185.35,
 			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
 			Wallet = new Wallet
@@ -41,7 +41,7 @@ public partial class TransactionsViewModel : BaseTransactionsViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 590,
 			Name = "Sent to 0xAA...FF00",
-			Status = TransactionsStatus.Sent,
+			Status = TransactionStatus.Sent,
 			USD = 85.33,
 			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
 			Wallet = new Wallet
@@ -59,7 +59,7 @@ public partial class TransactionsViewModel : BaseTransactionsViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 590,
 			Name = "Recieve from 0xAA...FF00",
-			Status = TransactionsStatus.Received,
+			Status = TransactionStatus.Received,
 			USD = 85.33,
 			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
 			Wallet = new Wallet
@@ -77,7 +77,7 @@ public partial class TransactionsViewModel : BaseTransactionsViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 540,
 			Name = "Sent to 0xAA...FF00",
-			Status = TransactionsStatus.Sent,
+			Status = TransactionStatus.Sent,
 			USD = 185.44,
 			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
 			Wallet = new Wallet
@@ -95,7 +95,7 @@ public partial class TransactionsViewModel : BaseTransactionsViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 590,
 			Name = "Register ultranetorg author",
-			Status = TransactionsStatus.Pending,
+			Status = TransactionStatus.Pending,
 			USD = 85.33,
 			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
 			Wallet = new Wallet
@@ -113,7 +113,7 @@ public partial class TransactionsViewModel : BaseTransactionsViewModel
 			ToId = Generator.GenerateUniqueID(6),
 			Unt = 590,
 			Name = "Recieve from 0xAA...FF00",
-			Status = TransactionsStatus.Received,
+			Status = TransactionStatus.Received,
 			USD = 185.55,
 			Wallet = new Wallet
 			{

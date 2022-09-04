@@ -7,6 +7,8 @@ public static class ServiceExtensions
         // Core Services
         builder.Services.AddSingleton<IServicesMockData, ServicesMockData>(sp => new ServicesMockData());
 
+		// TODO: add other services
+
         return builder;
     }
 }
