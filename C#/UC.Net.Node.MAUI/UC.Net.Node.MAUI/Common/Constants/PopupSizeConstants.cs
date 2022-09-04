@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Models.Constants;
+﻿namespace UC.Net.Node.MAUI.Constants;
 
 public static class PopupSizeConstants
 {

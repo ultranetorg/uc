@@ -19,8 +19,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	[RelayCommand]
     private async void AuthorTappedAsync(Author Author)
     {
-        if (Author == null) 
-            return;
+        if (Author == null) return;
         await Shell.Current.Navigation.PushAsync(new AuthorSearchPage(Author));
     }
 	

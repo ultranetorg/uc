@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-namespace UC.Net.Node.MAUI.Helpers;
+﻿namespace UC.Net.Node.MAUI.Helpers;
 
 public static class PictureSourceHelper
 {

@@ -2,18 +2,25 @@
 
 public class Transaction
 {
+	// TBR
+	public int Id { get; set; }
     public Wallet Wallet { get; set; }  
     public string FromId { get; set; }
     public string ToId { get; set; }
     public string Name { get; set; }
     public double USD { get; set; }
     public int Unt { get; set; }
-    public TransactionsStatus Status { get; set; }
-    public DateTime Date { set; get; }= DateTime.Now;
+    public TransactionStatus Status { get; set; }
+    public DateTime Date { set; get; } = DateTime.Now;
     public string Hash { get; internal set; }
+    public Account Account { get; set; }
 }
 
-public enum TransactionsStatus
+public enum TransactionStatus
 {
-    Pending, Failed, Sent, Received
+	None,
+    Pending,
+	Sent,
+	Received,
+	Failed,
 }

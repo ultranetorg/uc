@@ -7,4 +7,6 @@ public class Product
     public string Owner { get; internal set; }
     public string Initl { get; internal set; }
     public Color Color { get; internal set; }
+
+    public Author Author { get; set; }
 }

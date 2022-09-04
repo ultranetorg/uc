@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+
 namespace UC.Net.Node.MAUI;
 
 public static class MauiProgram
@@ -10,6 +11,7 @@ public static class MauiProgram
 			.UseMauiApp<App>()
             .UseMauiCommunityToolkit()
             .ConfigureEssentials()
+            .ConfigureServices()
             .ConfigureViewModels()
 			.ConfigureFonts(fonts =>
 			{
