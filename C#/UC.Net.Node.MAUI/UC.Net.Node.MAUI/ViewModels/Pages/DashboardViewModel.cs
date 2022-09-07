@@ -2,15 +2,17 @@
 
 public partial class DashboardViewModel : BaseViewModel
 {
+	private readonly ITransactionsService _service;
+
 	[ObservableProperty]
     private CustomCollection<Wallet> _wallets = new();
 
 	[ObservableProperty]
     private CustomCollection<Transaction> _transactions = new();
 
-    public DashboardViewModel(ILogger<DashboardViewModel> logger) : base(logger)
+    public DashboardViewModel(ITransactionsService service, ILogger<DashboardViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		_service = service;
     }
 
 	[RelayCommand]
@@ -43,57 +45,10 @@ public partial class DashboardViewModel : BaseViewModel
         await Shell.Current.Navigation.PushAsync(new ManageAccountsPage());
     }
 
-	#region Fake Data
-
-	private void FillFakeData()
+	internal async Task InitializeAsync()
 	{
-		Wallets.Add(new Wallet
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "47F0",
-			Name = "Main ultranet"
-		});
-		Wallets.Add(new Wallet
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "2T52",
-			Name = "Main ultranet"
-		});
-		Wallets.Add(new Wallet
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "9MDL",
-			Name = "Main ultranet"
-		});
+		var transactions = await _service.GetLastAsync(20);
 
-		Transactions.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 540,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.Pending
-		});
-		Transactions.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.Sent
-		});
-		Transactions.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.Failed
-		});
+		Transactions.AddRange(transactions);
 	}
-
-	#endregion Fake Data
 }

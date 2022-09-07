@@ -21,5 +21,7 @@ public class Account
 
     public IList<Author> Authors { get; set; } = new List<Author>();
 
+    public IList<Wallet> Wallets { get; set; } = new List<Wallet>();
+
     public IList<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

@@ -6,11 +6,18 @@ public partial class SettingsBViewModel : BaseViewModel
     private CustomCollection<string> _months;
     
 	[ObservableProperty]
-    private Wallet _wallet;
+    private Wallet _wallet = new()
+	{
+		Id = Guid.NewGuid(),
+		Unts = 5005,
+		IconCode = "47F0",
+		Name = "Main ultranet wallet",
+		AccountColor = Color.FromArgb("#6601e3"),
+	};
 
     public SettingsBViewModel(ILogger<SettingsBViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		LoadData();
     }
 
 	[RelayCommand]
@@ -25,23 +32,15 @@ public partial class SettingsBViewModel : BaseViewModel
         await Shell.Current.Navigation.PopAsync();
     }
 
-	private void FillFakeData()
+	private void LoadData()
 	{
-		Months.Add("April");
+		_months = new();
+        Months.Add("April");
         Months.Add("May");
         Months.Add("June");
         Months.Add("July");
         Months.Add("Augest");
         Months.Add("Spetemper");
         Months.Add("November");
-		_wallet = new()
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "47F0",
-			Name = "Main ultranet wallet",
-			AccountColor = Color.FromArgb("#6601e3"),
-		};
-		_months = new();
 	}
 }

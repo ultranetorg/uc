@@ -2,6 +2,8 @@
 
 public partial class TransactionsPage : CustomPage
 {
+    TransactionsViewModel Vm => BindingContext as TransactionsViewModel;
+
     public TransactionsPage()
     {
         InitializeComponent();
@@ -12,5 +14,12 @@ public partial class TransactionsPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        await Vm.InitializeAsync();
     }
 }

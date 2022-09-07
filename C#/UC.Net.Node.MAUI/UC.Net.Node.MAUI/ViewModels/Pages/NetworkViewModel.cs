@@ -2,15 +2,25 @@
 
 public partial class NetworkViewModel : BaseViewModel
 {
+	private readonly IServicesMockData _service;
+
 	[ObservableProperty]
     private CustomCollection<Emission> _emissions = new();
     
 	[ObservableProperty]
-    private Wallet _wallet;
+    private Wallet _wallet = new()
+	{
+		Id = Guid.NewGuid(),
+		Unts = 5005,
+		IconCode = "47F0",
+		Name = "Main ultranet wallet",
+		AccountColor = Color.FromArgb("#6601e3"),
+	};
 
-    public NetworkViewModel(ILogger<NetworkViewModel> logger) : base(logger)
+    public NetworkViewModel(IServicesMockData service, ILogger<NetworkViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		_service = service;
+		Initialize();
     }
 
 	[RelayCommand]
@@ -25,19 +35,9 @@ public partial class NetworkViewModel : BaseViewModel
         await Shell.Current.Navigation.PushAsync(new TransactionsPage());
     }
 
-	private void FillFakeData()
+	private void Initialize()
 	{
-		_wallet = new()
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "47F0",
-			Name = "Main ultranet wallet",
-			AccountColor = Color.FromArgb("#6601e3"),
-		}; 
-        Emissions.Add(new Emission { ETH = "100", Number = 1,UNT = "100" });
-        Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });
-        Emissions.Add(new Emission { ETH = "10000", Number = 3, UNT = "10000" });
-        Emissions.Add(new Emission { ETH = "100000", Number = 4, UNT = "10000" });
+		Emissions.Clear();
+		Emissions.AddRange(_service.Emissions);
 	}
 }

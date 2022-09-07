@@ -2,6 +2,8 @@
 
 public partial class DashboardPage : CustomPage
 {
+    DashboardViewModel Vm => BindingContext as DashboardViewModel;
+
     public DashboardPage()
     {
         InitializeComponent();
@@ -12,5 +14,12 @@ public partial class DashboardPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        await Vm.InitializeAsync();
     }
 }

@@ -12,13 +12,19 @@ public partial class Send2ViewModel : BaseViewModel
         AccountColor = Color.FromArgb("#6601e3"),
     };
 
-    public Send2ViewModel(ILogger<Send2ViewModel> logger): base(logger){}
+    public Send2ViewModel(ILogger<Send2ViewModel> logger): base(logger)
+	{
+	}
         
 	[RelayCommand]
-    private void SourceTapped(){}
+    private void SourceTapped()
+	{
+	}
 
 	[RelayCommand]
-    private void RecipientTapped(){}
+    private void RecipientTapped()
+	{
+	}
     
 	[ObservableProperty]
     private Wallet _sourceWallet = new()

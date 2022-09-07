@@ -2,55 +2,22 @@
 
 public partial class ProductSearchViewModel : BaseTransactionsViewModel
 {
+	private readonly IProductsService _service;
 	[ObservableProperty]
     private CustomCollection<Product> _products = new();
     
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();
 
-    public ProductSearchViewModel(ILogger<ProductSearchViewModel> logger) : base(logger)
+    public ProductSearchViewModel(IProductsService service, ILogger<ProductSearchViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		_service = service;
     }
 
-	private void FillFakeData()
+	internal async Task InitializeAsync()
 	{
+		var products = await _service.GetAllAsync();
+		Products.AddRange(products);
         ProductsFilter = new CustomCollection<string> { "Recent", "By author" };
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
-        Products.Add(new Product { Name = "Edge Browser", Owner = "microsoft" });
-        Products.Add(new Product { Name = "Amazon Helmet", Owner = "Amazon" });
-        Products.Add(new Product { Name = "Chrome", Owner = "Google" });
 	}
 }

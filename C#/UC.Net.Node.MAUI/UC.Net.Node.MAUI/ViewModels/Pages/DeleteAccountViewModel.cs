@@ -2,6 +2,9 @@
 
 public partial class DeleteAccountViewModel : BaseViewModel
 {
+	// will be splitted into 3 services
+	private readonly IServicesMockData _service;
+
 	[ObservableProperty]
     private CustomCollection<Author> _authors = new();
 
@@ -11,8 +14,9 @@ public partial class DeleteAccountViewModel : BaseViewModel
 	[ObservableProperty]
     private Wallet _wallet;
 
-    public DeleteAccountViewModel(ILogger<DeleteAccountViewModel> logger) : base(logger)
+    public DeleteAccountViewModel(IServicesMockData service, ILogger<DeleteAccountViewModel> logger) : base(logger)
     {
+		_service = service;
     }
 
     [RelayCommand]
@@ -21,14 +25,12 @@ public partial class DeleteAccountViewModel : BaseViewModel
         await DeleteAccountPopup.Show(Wallet);
     }
 
-	public void FillFakeData(Wallet wallet)
+	internal void Initialize(Wallet wallet)
 	{
-		Wallet = wallet;          
-        Authors.Add(new Author { Name = "ultranet" });
-        Authors.Add(new Author { Name = "ultranetorganization" });
-        Authors.Add(new Author { Name = "aximion" });
-        Products.Add(new Product { Name = "UNS" });
-        Products.Add(new Product { Name = "Aximion3D" });
-        Products.Add(new Product { Name = "ultranet" });
+		Wallet = wallet;
+		Authors.Clear();
+		Products.Clear();
+		Authors.AddRange(_service.Authors);
+		Products.AddRange(_service.Products);
 	}
 }

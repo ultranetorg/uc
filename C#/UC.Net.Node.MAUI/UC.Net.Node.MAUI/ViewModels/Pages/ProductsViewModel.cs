@@ -2,6 +2,8 @@
 
 public partial class ProductsViewModel : BaseTransactionsViewModel
 {
+	private readonly IProductsService _service;
+
 	[ObservableProperty]
     private Product _selectedItem;
         
@@ -11,24 +13,15 @@ public partial class ProductsViewModel : BaseTransactionsViewModel
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();
 
-    public ProductsViewModel(ILogger<ProductsViewModel> logger) : base(logger)
+    public ProductsViewModel(IProductsService service, ILogger<ProductsViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		_service = service;
     }
 
-	private void FillFakeData()
+	internal async Task InitializeAsync()
 	{
+		var products = await _service.GetAllAsync();
+		Products.AddRange(products);
         ProductsFilter = new CustomCollection<string> {"All", "To be expired", "Expired", "Hidden", "Shown" };
-        Products.Add(new Product {Name = "Ultranet User Center", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "Aximion3D", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "Ultranet User Center", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "3D UI", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "Ultranet User Node", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "Aximion3D", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "3D UI", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "Ultranet User Node", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "Aximion3D", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "3D UI", Owner = "ultranetorg" });
-        Products.Add(new Product { Name = "Ultranet User Node", Owner = "ultranetorg" });
 	}
 }

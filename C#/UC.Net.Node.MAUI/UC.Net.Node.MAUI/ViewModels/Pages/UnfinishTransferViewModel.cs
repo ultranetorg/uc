@@ -2,15 +2,25 @@
 
 public partial class UnfinishTransferViewModel : BaseViewModel
 {
-	[ObservableProperty]
-    private CustomCollection<Emission> _emissions;
+	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private Wallet _wallet;
+    private CustomCollection<Emission> _emissions = new();
 
-    public UnfinishTransferViewModel(ILogger<UnfinishTransferViewModel> logger) : base(logger)
+	[ObservableProperty]
+    private Wallet _wallet = new()
+	{
+		Id = Guid.NewGuid(),
+		Unts = 5005,
+		IconCode = "47F0",
+		Name = "Main ultranet wallet",
+		AccountColor = Color.FromArgb("#6601e3"),
+	}; 
+
+    public UnfinishTransferViewModel(IServicesMockData service, ILogger<UnfinishTransferViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		_service = service;
+		Initialize();
     }
 
 	[RelayCommand]
@@ -25,20 +35,9 @@ public partial class UnfinishTransferViewModel : BaseViewModel
         await Shell.Current.Navigation.PopAsync();
     }
 
-	private void FillFakeData()
+	private void Initialize()
 	{
-		_wallet = new()
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "47F0",
-			Name = "Main ultranet wallet",
-			AccountColor = Color.FromArgb("#6601e3"),
-		}; 
-		_emissions = new();
-		Emissions.Add(new Emission { ETH = "100", Number=1,UNT="100" });
-        Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });
-        Emissions.Add(new Emission { ETH = "10000", Number = 3, UNT = "10000" });
-        Emissions.Add(new Emission { ETH = "100000", Number = 4, UNT = "10000" });
+		Emissions.Clear();
+		Emissions.AddRange(_service.Emissions);
 	}
 }

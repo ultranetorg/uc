@@ -10,23 +10,24 @@ public partial class HelpViewModel : BaseTransactionsViewModel
 
     public HelpViewModel(ILogger<HelpViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		Initialize();
     }
 
-	private void FillFakeData()
+	private void Initialize()
 	{
-        Helps.Add("How to turn animation on or off in the search bar");
-        Helps.Add("How to quickly change Android phone settings");
-        Helps.Add("How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel");
-        Helps.Add("The quick settings panel makes it easy to navigate and customize options");
-        Helps.Add("How to turn animation on or off in the search bar");
-        Helps.Add("How to quickly change Android phone settings");
-        Helps.Add("How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel");
-        Helps.Add("The quick settings panel makes it easy to navigate and customize options");
-        Helps.Add("How to turn animation on or off in the search bar");
-        Helps.Add("How to quickly change Android phone settings");
-        Helps.Add("How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel");
-        Helps.Add("The quick settings panel makes it easy to navigate and customize options");
-        Helps.Add("How to turn animation on or off in the search bar");
+		Helps.Clear();
+        Helps.Add(Properties.Resources.HelpLine1);
+        Helps.Add(Properties.Resources.HelpLine2);
+        Helps.Add(Properties.Resources.HelpLine3);
+        Helps.Add(Properties.Resources.HelpLine4);
+        Helps.Add(Properties.Resources.HelpLine5);
+        Helps.Add(Properties.Resources.HelpLine6);
+        Helps.Add(Properties.Resources.HelpLine7);
+        Helps.Add(Properties.Resources.HelpLine8);
+        Helps.Add(Properties.Resources.HelpLine9);
+        Helps.Add(Properties.Resources.HelpLine10);
+        Helps.Add(Properties.Resources.HelpLine11);
+        Helps.Add(Properties.Resources.HelpLine12);
+        Helps.Add(Properties.Resources.HelpLine13);
 	}
 }

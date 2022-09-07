@@ -16,7 +16,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     public AuthorsViewModel(IServicesMockData service, ILogger<AuthorsViewModel> logger) : base(logger)
     {
 		_service = service;
-		FillFakeData();
+		LoadData();
     }
 	
 	[RelayCommand]
@@ -38,7 +38,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
         await Shell.Current.Navigation.PushAsync(new MakeBidPage());
     }
 
-	private void FillFakeData()
+	private void LoadData()
 	{
         AuthorsFilter = new CustomCollection<string> {"All", "To be expired", "Expired", "Hidden", "Shown" };
 

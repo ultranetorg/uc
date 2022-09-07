@@ -2,6 +2,8 @@
 
 public partial class ProductsBPage : CustomPage
 {
+    ProductsBViewModel Vm => BindingContext as ProductsBViewModel;
+
     public ProductsBPage()
     {
         InitializeComponent();
@@ -12,5 +14,12 @@ public partial class ProductsBPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        await Vm.InitializeAsync();
     }
 }

@@ -2,6 +2,8 @@
 
 public partial class ProductSearchPage : CustomPage
 {
+    ProductSearchViewModel Vm => BindingContext as ProductSearchViewModel;
+
     public ProductSearchPage()
     {
         InitializeComponent();
@@ -12,5 +14,12 @@ public partial class ProductSearchPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        await Vm.InitializeAsync();
     }
 }

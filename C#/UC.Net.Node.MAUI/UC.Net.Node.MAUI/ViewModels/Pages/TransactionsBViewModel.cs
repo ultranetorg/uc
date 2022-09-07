@@ -2,6 +2,8 @@
 
 public partial class TransactionsBViewModel : BaseTransactionsViewModel
 {
+	private readonly ITransactionsService _service;
+
     private TransactionList TransactionsThisWeek;
     private TransactionList TransactionsLastWeek;
 
@@ -11,155 +13,18 @@ public partial class TransactionsBViewModel : BaseTransactionsViewModel
 	[ObservableProperty]
     private Wallet _wallet;
 
-    public TransactionsBViewModel(ILogger<TransactionsBViewModel> logger) : base(logger)
+    public TransactionsBViewModel(ITransactionsService service, ILogger<TransactionsBViewModel> logger) : base(logger)
     {
-		FillFakeData();
+		_service = service;
     }
 
-	#region Fake Data
-	
-	private void FillFakeData()
+	internal async Task InitializeAsync()
 	{
-		TransactionsLastWeek = new TransactionList("Last week");
-		TransactionsThisWeek = new TransactionList("This week");
+		var transactions = await _service.GetLastAsync(20);
+		TransactionsThisWeek.AddRange(transactions.Take(10));
+		TransactionsLastWeek.AddRange(transactions.Skip(10));
+
 		Transactions.Add(TransactionsThisWeek);
 		Transactions.Add(TransactionsLastWeek);
-
-		_wallet = new()
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "47F0",
-			Name = "Main ultranet wallet",
-			AccountColor = Color.FromArgb("#6601e3"),
-		};
-
-		TransactionsThisWeek.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 540,
-			Name = "Register ultranetorg author",
-			Status = TransactionStatus.Pending,
-			USD = 185.35,
-			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
-			Wallet = new Wallet
-			{
-				Id = Guid.NewGuid(),
-				Unts = 5005,
-				IconCode = "47F0",
-				Name = "Main ultranet wallet",
-				AccountColor = Color.FromArgb("#6601e3"),
-			}
-		});
-		TransactionsThisWeek.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "Sent to 0xAA...FF00",
-			Status = TransactionStatus.Sent,
-			USD = 85.33,
-			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
-			Wallet = new Wallet
-			{
-				Id = Guid.NewGuid(),
-				Unts = 5005,
-				IconCode = "47F0",
-				Name = "Main ultranet wallet",
-				AccountColor = Color.FromArgb("#6601e3"),
-			}
-		});
-		TransactionsThisWeek.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "Recieve from 0xAA...FF00",
-			Status = TransactionStatus.Received,
-			USD = 85.33,
-			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
-			Wallet = new Wallet
-			{
-				Id = Guid.NewGuid(),
-				Unts = 5005,
-				IconCode = "47F0",
-				Name = "Main ultranet wallet",
-				AccountColor = Color.FromArgb("#6601e3"),
-			}
-		});
-		TransactionsThisWeek.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 540,
-			Name = "Sent to 0xAA...FF00",
-			Status = TransactionStatus.Sent,
-			USD = 185.44,
-			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
-			Wallet = new Wallet
-			{
-				Id = Guid.NewGuid(),
-				Unts = 5005,
-				IconCode = "47F0",
-				Name = "Main ultranet wallet",
-				AccountColor = Color.FromArgb("#6601e3"),
-			}
-		});
-		TransactionsLastWeek.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "Register ultranetorg author",
-			Status = TransactionStatus.Pending,
-			USD = 85.33,
-			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
-			Wallet = new Wallet
-			{
-				Id = Guid.NewGuid(),
-				Unts = 5005,
-				IconCode = "47F0",
-				Name = "Main ultranet wallet",
-				AccountColor = Color.FromArgb("#6601e3"),
-			}
-		});
-		TransactionsLastWeek.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "Recieve from 0xAA...FF00",
-			Status = TransactionStatus.Received,
-			USD = 185.55,
-			Wallet = new Wallet
-			{
-				Id = Guid.NewGuid(),
-				Unts = 5005,
-				IconCode = "47F0",
-				Name = "Main ultranet wallet",
-				AccountColor = Color.FromArgb("#6601e3"),
-			}
-		});
-		TransactionsLastWeek.Add(new Transaction
-		{
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "Register ultranetorg author",
-			Status = TransactionStatus.Pending,
-			USD = 85.33,
-			Hash = "0x63FaC9201494f0bd17B9892B9fad52fe3BD377",
-			Wallet = new Wallet
-			{
-				Id = Guid.NewGuid(),
-				Unts = 5005,
-				IconCode = "47F0",
-				Name = "Main ultranet wallet",
-				AccountColor = Color.FromArgb("#6601e3"),
-			}
-		});
 	}
-
-	#endregion Fake Data
 }

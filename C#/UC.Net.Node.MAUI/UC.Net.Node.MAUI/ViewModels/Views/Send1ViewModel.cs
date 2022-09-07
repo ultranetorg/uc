@@ -22,7 +22,9 @@ public partial class Send1ViewModel : BaseViewModel
         AccountColor = Color.FromArgb("#6601e3"),
     };
 
-    public Send1ViewModel(ILogger<Send1ViewModel> logger): base(logger){}
+    public Send1ViewModel(ILogger<Send1ViewModel> logger): base(logger)
+	{
+	}
     
 	[RelayCommand]
     private async void SourceTapped()
