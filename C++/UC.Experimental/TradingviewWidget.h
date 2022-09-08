@@ -16,7 +16,7 @@ namespace uc
 			~CTradingviewWidget();
 			
 			void										SetEntity(CUol & e);
-			void										OnDependencyDestroying(CStorableObject *);
+			void										OnDependencyDestroying(CPersistentObject *);
 
 			void										Open(CWorldCapabilities * caps, CUnit * a) override;
 			void										Place(CFieldWorld * fo) override;

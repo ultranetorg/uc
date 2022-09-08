@@ -19,7 +19,7 @@
 
 using namespace uc;
 
-static CWorldServer * This = null;
+static CWorldServer * Server = null;
 	
 CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
@@ -29,29 +29,39 @@ CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 		{
 			if(n->Get<CString>() == WORLD_VR_EMULATION)
 			{
-				This = new CVrWorld(l, info);
+				Server = new CVrWorld(l, info);
 			}
 			else if(n->Get<CString>() == WORLD_MOBILE_EMULATION)
 			{
-				This = new CMobileWorld(l, info);
+				Server = new CMobileWorld(l, info);
 			}
 		}
 	}
 
-	if(!This)
+	if(!Server)
 	{
-		This = new CDesktopWorld(l, info);
+		Server = new CDesktopWorld(l, info);
 	}
 
-	return This;
+	return Server;
 }
 
 void DestroyUosServer(CServer *)
 {
-	delete This;
+	delete Server;
 }
 
-CWorldServer::CWorldServer(CNexus * l, CServerInstance * si) : CStorableServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
+CClient * CreateUosClient(CNexus * nexus, CClientInstance * instance)
+{
+	return new CWorldClient(nexus, instance, Server);
+}
+
+void DestroyUosClient(CClient * client)
+{
+	delete client;
+}
+
+CWorldServer::CWorldServer(CNexus * l, CServerInstance * si) : CPersistentServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
 {
 	Server = this;
 	Nexus = Server->Nexus;
@@ -138,7 +148,7 @@ void CWorldServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
 	}
 }
 
@@ -148,6 +158,10 @@ IInterface * CWorldServer::Connect(CString const & pr)
 }
 
 void CWorldServer::Disconnect(IInterface * o)
+{
+}
+
+void CWorldServer::Initialize()
 {
 }
 
@@ -374,9 +388,9 @@ CGroup * CWorldServer::CreateGroup(CString const & name)
 	return o;
 }
 
-CStorableObject * CWorldServer::CreateObject(CString const & name)
+CPersistentObject * CWorldServer::CreateObject(CString const & name)
 {	
-	CStorableObject * o = null;
+	CPersistentObject * o = null;
 
 	auto type = CUol::GetObjectClass(name);
 
@@ -454,7 +468,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 	else
 	{	
 		a = new CDefaultIcon(this);
-		a->Protocol = CProtocolConnection<IAvatarServer>(CConnection(this, this, IAvatarServer::InterfaceName));
+		a->Protocol = CProtocolConnection<IAvatarServer>(CConnection(this, null, IAvatarServer::InterfaceName));
 		RegisterObject(a, false);
 		a->Free();
 	}
@@ -966,11 +980,7 @@ void CWorldServer::Execute(CXon * command, CExecutionParameters * parameters)
 {
 	auto f = command->Nodes.First();
 
-	if(f->Name == L"Start")
-	{
-		Start();
-	}
-	else if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
+	if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 	{
 		CUrl o(command->Get<CString>(CCore::UrlArgument));
 

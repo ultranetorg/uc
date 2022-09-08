@@ -53,11 +53,13 @@ void CFileSystem::Execute(CXon * command, CExecutionParameters * parameter)
 	}
 }
 
-void CFileSystem::Mount(CString const & path, CServerAddress & provider, CXon * parameters)
+void CFileSystem::Mount(CString const & path, CApplicationAddress & provider, CXon * parameters)
 {
-	auto s = Nexus->AddServer(provider, provider.Server + path, null, null);
+	auto name = provider.Application + path.Replace(L"/", L"_");
+
+	auto s = Nexus->AddServer(provider, name, null, null);
 	
-	auto p = Nexus->Connect<IFileSystemProvider>(this, s,	[&, path]
+	auto p = Nexus->Connect<IFileSystemProvider>(this, name,[&, path]
 															{
 																Mounts.Remove(path);
 															});
@@ -155,7 +157,7 @@ CString CFileSystem::NativeToUniversal(CString const & path)
 
 CUol CFileSystem::ToUol(CString const & path)
 {
-	return CUol(CFileSystemEntry::Scheme, Instance->Name, path);
+	return CUol(CFileSystemEntry::Scheme, CServer::Instance->Name, path);
 }
 
 CString CFileSystem::GetType(CString const & path)
@@ -363,4 +365,3 @@ void CFileSystem::CreateLocalDirectory(CServer * s, CString const & path)
 	auto d = s->MapUserLocalPath(path);
 	CreateDirectory(d);
 }
-

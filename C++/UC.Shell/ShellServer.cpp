@@ -3,20 +3,30 @@
 
 using namespace uc;
 
-static CShellServer * This = null;
+static CShellServer * Server = null;
 
 CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
-	This = new CShellServer(l, info);
-	return This;
+	Server = new CShellServer(l, info);
+	return Server;
 }
 
 void DestroyUosServer(CServer *)
 {
-	delete This;
+	delete Server;
 }
 
-CShellServer::CShellServer(CNexus * l, CServerInstance * si) : CStorableServer(l, si)
+CClient * CreateUosClient(CNexus * nexus, CClientInstance * instance)
+{
+	return new CShellClient(nexus, instance, Server);
+}
+
+void DestroyUosClient(CClient * client)
+{
+	delete client;
+}
+
+CShellServer::CShellServer(CNexus * l, CServerInstance * si) : CPersistentServer(l, si)
 {
 	Server	= this;
 	Nexus	= Server->Nexus;
@@ -60,16 +70,227 @@ void CShellServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
 	}
 
 	if(!World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(Instance); });
+		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->Stop(Instance); });
 
 		Engine			= World->Engine;
 		Style			= World->Style->Clone();
 		ImageExtractor	= new CImageExtractor(World, Server);
+	}
+}
+
+void CShellServer::Initialize()
+{
+	EstablishConnections();
+
+	TCHAR szPath[MAX_PATH];
+
+	// hud
+	auto hud = new CFieldServer(this, SHELL_HUD_1);
+	hud->SetDefaultInteractiveMaster(CArea::Hud);
+	Server->RegisterObject(hud, true);
+	hud->Free();
+
+	// history 
+	auto his = new CHistory(this, SHELL_HISTORY_1);
+	Server->RegisterObject(his, true);
+	his->Free();
+	hud->Add(his->Url, AVATAR_WIDGET);
+
+	// board
+	auto board = new CBoard(this, SHELL_BOARD_1);
+	Server->RegisterObject(board, true);
+	board->Free();
+	hud->Add(board->Url, AVATAR_WIDGET);
+
+	// apps menu
+	auto menu = new CApplicationsMenu(this, SHELL_APPLICATIONSMENU_1);
+	Server->RegisterObject(menu, true);
+	menu->Free();
+	board->Add(menu->Url, AVATAR_WIDGET);
+
+	// tray
+	auto tr = new CTray(this, SHELL_TRAY_1);
+	Server->RegisterObject(tr, true);
+	tr->Free();
+	hud->Add(tr->Url, AVATAR_WIDGET);
+								
+	//desktops
+	auto create =	[this](const CString & name, const CString & title)
+					{
+						auto d = new CFieldServer(this, name);
+						d->SetTitle(title);
+						Server->RegisterObject(d, true);
+						d->Free();
+							
+						return d;
+					};
+		
+	auto home = create(SHELL_FIELD_MAIN,		L"Main");
+	auto pics = create(SHELL_FIELD_PICTURES,	L"Pictures");
+	auto work = create(SHELL_FIELD_WORK,		L"Work");
+
+	// desktop icons
+	CList<CString> items;
+	
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szPath))) 
+	{
+		auto  dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
+			
+		for(auto & i : Storage->Enumerate(dir, L".*"))
+		{
+			items.push_back(CPath::Join(dir, i.Name));
+		}
+	}
+	
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, szPath)))
+	{
+		auto  dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
+
+		for(auto & i : Storage->Enumerate(dir, L".*"))
+		{
+			items.push_back(CPath::Join(dir, i.Name));
+		}
+	}
+			
+	items.RemoveIf([](auto & i){ return i == L"desktop.ini"; });
+
+	CList<CUol> links;
+		
+	for(auto & i : items)
+	{
+		auto link = new CLink(this);
+		link->SetTarget((CUrl)Storage->ToUol(i));
+		Server->RegisterObject(link, true);
+		links.push_back(link->Url);
+		link->Free();
+	}
+
+	home->Add(links, AVATAR_ICON2D);
+
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_MYPICTURES, NULL, 0, szPath)))
+	{
+		int n = 0;
+
+		auto dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
+
+		for(auto & i : Storage->Enumerate(dir, L".*"))
+		{
+			auto e = CPath::GetExtension(i.Name);
+				
+			if(e == L"jpg" || e == L"png")
+			{
+				auto p = new CPicture(this);
+				p->SetFile(CPath::Join(dir, i.Name));
+				Server->RegisterObject(p, true);
+				pics->Add(p->Url, AVATAR_WIDGET);
+				p->Free();
+				
+				n++;
+
+				if(n > 8)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	// Usage.txt notepad
+	auto v = new CNotepad(this);
+	v->SetFile(CPath::Join(IFileSystem::Software, Core->CurrentReleaseSubPath, L"About.txt"));
+	Server->RegisterObject(v, true);
+	home->Add(v->Url, AVATAR_WIDGET);
+	v->Free();
+
+	// Mouse.png picture	
+	auto p = new CPicture(this);
+	p->SetFile(MapReleasePath(L"Mouse.png"));
+	Server->RegisterObject(p, true);
+	home->Add(p->Url, AVATAR_WIDGET);
+	p->Free();
+
+	// theme
+	auto t = new CTheme(this, SHELL_THEME_1);
+	t->SetSource(MapReleasePath(L"Spaceland.vwm"));
+	Server->RegisterObject(t, true);
+	t->Free();
+
+	auto d = new CFieldServer(this, SHELL_FIELD_HOME);
+	d->SetTitle(L"Home");
+	Server->RegisterObject(d, true);
+	d->Free();
+
+	d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), AVATAR_ICON2D);
+	d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
+	d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), AVATAR_ICON2D);
+}
+
+void CShellServer::Start()
+{
+	EstablishConnections();
+
+	Server->FindObject(SHELL_HISTORY_1); // force to revive
+	
+	if(World->Initializing)
+	{
+		if(World->Complexity == AVATAR_ENVIRONMENT)
+		{
+			World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_HUD_1), CArea::Hud, null);
+	
+			if(World->Free3D)
+			{
+				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_BOARD_1), CArea::Near, null);
+			}
+		}
+	
+		auto f = new CShowParameters(); 
+		f->PlaceOnBoard = true;
+			
+		auto u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), CArea::Fields, f);
+			
+		if(World->BackArea)
+			World->Show(u, CArea::Background, null);
+	
+		u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), CArea::Fields, f);
+			
+		if(World->BackArea)
+			World->Show(u, CArea::Background, null);
+			
+		u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), CArea::Fields, f);
+			
+		if(World->BackArea)
+			World->Show(u, CArea::Background, null);
+	
+		World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_THEME_1), CArea::Theme, null);
+			
+		if(World->FullScreen)
+		{
+			World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_HOME), CArea::Fields, f);
+		}
+	
+		f->Free();
+	}
+	
+	if(World->FullScreen)
+	{
+		World->Components[WORLD_HISTORY] = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_HISTORY_1);
+		World->Components[WORLD_BOARD]	 = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_BOARD_1);
+		World->Components[WORLD_TRAY]	 = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_TRAY_1);
+	
+		World->GlobalHotKeys[EKeyboardControl::GlobalHome] =[this](auto k)
+															{ 
+																World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_HOME), CArea::LastInteractive, null);
+															};
+	}
+	
+	if(World->Sphere)
+	{
+		World->Sphere->Active->MouseEvent[EListen::Normal] += ThisHandler(OnWorldSphereMouse);
 	}
 }
 
@@ -84,11 +305,11 @@ void CShellServer::Disconnect(IInterface * o)
 {
 }
 
-CStorableObject * CShellServer::CreateObject(CString const & name)
+CPersistentObject * CShellServer::CreateObject(CString const & name)
 {
 	EstablishConnections();
 
-	CStorableObject * o = null;
+	CPersistentObject * o = null;
 
 	auto type = CUol::GetObjectClass(name);
 
@@ -448,212 +669,7 @@ void CShellServer::Execute(CXon * command, CExecutionParameters * parameters)
 
 	auto f = command->Nodes.First();
 
-	if(f->Name == L"CreateDefaultObjects")
-	{
-		TCHAR szPath[MAX_PATH];
-
-		// hud
-		auto hud = new CFieldServer(this, SHELL_HUD_1);
-		hud->SetDefaultInteractiveMaster(CArea::Hud);
-		Server->RegisterObject(hud, true);
-		hud->Free();
-
-		// history 
-		auto his = new CHistory(this, SHELL_HISTORY_1);
-		Server->RegisterObject(his, true);
-		his->Free();
-		hud->Add(his->Url, AVATAR_WIDGET);
-
-		// board
-		auto board = new CBoard(this, SHELL_BOARD_1);
-		Server->RegisterObject(board, true);
-		board->Free();
-		hud->Add(board->Url, AVATAR_WIDGET);
-
-		// apps menu
-		auto menu = new CApplicationsMenu(this, SHELL_APPLICATIONSMENU_1);
-		Server->RegisterObject(menu, true);
-		menu->Free();
-		board->Add(menu->Url, AVATAR_WIDGET);
-
-		// tray
-		auto tr = new CTray(this, SHELL_TRAY_1);
-		Server->RegisterObject(tr, true);
-		tr->Free();
-		hud->Add(tr->Url, AVATAR_WIDGET);
-								
-		//desktops
-		auto create =	[this](const CString & name, const CString & title)
-						{
-							auto d = new CFieldServer(this, name);
-							d->SetTitle(title);
-							Server->RegisterObject(d, true);
-							d->Free();
-							
-							return d;
-						};
-		
-		auto home = create(SHELL_FIELD_MAIN,		L"Main");
-		auto pics = create(SHELL_FIELD_PICTURES,	L"Pictures");
-		auto work = create(SHELL_FIELD_WORK,		L"Work");
-
-		// desktop icons
-		CList<CString> items;
-	
-		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szPath))) 
-		{
-			auto  dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
-			
-			for(auto & i : Storage->Enumerate(dir, L".*"))
-			{
-				items.push_back(CPath::Join(dir, i.Name));
-			}
-		}
-	
-		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, szPath)))
-		{
-			auto  dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
-
-			for(auto & i : Storage->Enumerate(dir, L".*"))
-			{
-				items.push_back(CPath::Join(dir, i.Name));
-			}
-		}
-			
-		items.RemoveIf([](auto & i){ return i == L"desktop.ini"; });
-
-		CList<CUol> links;
-		
-		for(auto & i : items)
-		{
-			auto link = new CLink(this);
-			link->SetTarget((CUrl)Storage->ToUol(i));
-			Server->RegisterObject(link, true);
-			links.push_back(link->Url);
-			link->Free();
-		}
-
-		home->Add(links, AVATAR_ICON2D);
-
-		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_MYPICTURES, NULL, 0, szPath)))
-		{
-			int n = 0;
-
-			auto dir = CPath::Join(IFileSystem::This, CPath::Universalize(szPath));
-
-			for(auto & i : Storage->Enumerate(dir, L".*"))
-			{
-				auto e = CPath::GetExtension(i.Name);
-				
-				if(e == L"jpg" || e == L"png")
-				{
-					auto p = new CPicture(this);
-					p->SetFile(CPath::Join(dir, i.Name));
-					Server->RegisterObject(p, true);
-					pics->Add(p->Url, AVATAR_WIDGET);
-					p->Free();
-				
-					n++;
-
-					if(n > 8)
-					{
-						break;
-					}
-				}
-			}
-		}
-
-		// Usage.txt notepad
-		auto v = new CNotepad(this);
-		v->SetFile(CPath::Join(IFileSystem::Software, Core->CurrentReleaseSubPath, L"About.txt"));
-		Server->RegisterObject(v, true);
-		home->Add(v->Url, AVATAR_WIDGET);
-		v->Free();
-
-		// Mouse.png picture	
-		auto p = new CPicture(this);
-		p->SetFile(MapReleasePath(L"Mouse.png"));
-		Server->RegisterObject(p, true);
-		home->Add(p->Url, AVATAR_WIDGET);
-		p->Free();
-
-		// theme
-		auto t = new CTheme(this, SHELL_THEME_1);
-		t->SetSource(MapReleasePath(L"Spaceland.vwm"));
-		Server->RegisterObject(t, true);
-		t->Free();
-
-		auto d = new CFieldServer(this, SHELL_FIELD_HOME);
-		d->SetTitle(L"Home");
-		Server->RegisterObject(d, true);
-		d->Free();
-
-		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), AVATAR_ICON2D);
-		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
-		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), AVATAR_ICON2D);
-	}
-	else if(f->Name == L"Start")
-	{
-		Server->FindObject(SHELL_HISTORY_1); // force to revive
-	
-		if(World->Initializing)
-		{
-			if(World->Complexity == AVATAR_ENVIRONMENT)
-			{
-				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_HUD_1), CArea::Hud, null);
-	
-				if(World->Free3D)
-				{
-					World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_BOARD_1), CArea::Near, null);
-				}
-			}
-	
-			auto f = new CShowParameters(); 
-			f->PlaceOnBoard = true;
-			
-			auto u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), CArea::Fields, f);
-			
-			if(World->BackArea)
-				World->Show(u, CArea::Background, null);
-	
-			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), CArea::Fields, f);
-			
-			if(World->BackArea)
-				World->Show(u, CArea::Background, null);
-			
-			u = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), CArea::Fields, f);
-			
-			if(World->BackArea)
-				World->Show(u, CArea::Background, null);
-	
-			World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_THEME_1), CArea::Theme, null);
-			
-			if(World->FullScreen)
-			{
-				World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_HOME), CArea::Fields, f);
-			}
-	
-			f->Free();
-		}
-	
-		if(World->FullScreen)
-		{
-			World->Components[WORLD_HISTORY] = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_HISTORY_1);
-			World->Components[WORLD_BOARD]	 = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_BOARD_1);
-			World->Components[WORLD_TRAY]	 = CUol(CWorldEntity::Scheme, Instance->Name, SHELL_TRAY_1);
-	
-			World->GlobalHotKeys[EKeyboardControl::GlobalHome] =[this](auto k)
-																{ 
-																	World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_HOME), CArea::LastInteractive, null);
-																};
-		}
-	
-		if(World->Sphere)
-		{
-			World->Sphere->Active->MouseEvent[EListen::Normal] += ThisHandler(OnWorldSphereMouse);
-		}
-	}
-	else if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
+	if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 	{
 		CUrl u(command->Get<CString>(CCore::UrlArgument));
 

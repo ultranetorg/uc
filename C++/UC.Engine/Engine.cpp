@@ -4,7 +4,7 @@
 
 using namespace uc;
 
-CEngine::CEngine(CStorableServer * s, CConfig * c)
+CEngine::CEngine(CPersistentServer * s, CConfig * c)
 {
 	ilInit();
 	ilEnable(IL_ORIGIN_SET);

@@ -29,7 +29,7 @@ namespace uc
 
 			void										LoadInstance() override;
 
-			void										OnServerDestructing(CStorableObject * o);
+			void										OnServerDestructing(CPersistentObject * o);
 
 			void										DoIdle() override;
 	};

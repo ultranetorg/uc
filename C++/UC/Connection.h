@@ -4,18 +4,18 @@
 
 namespace uc
 {
-	class CServer;
+	class CClient;
 
 	class UOS_LINKING CConnection
 	{
 		public:
 			IType *				Who;
-			CServer *			Server;
+			CClient *			Client;
 			IInterface *		Protocol;
 			CString				ProtocolName;
 
 			CConnection();
-			CConnection(IType * who, CServer * server, CString const & pn);
+			CConnection(IType * who, CClient * server, CString const & pn);
 
 			void				Clear();
 			bool				operator! () const;

@@ -10,7 +10,7 @@ namespace uc
 {
 	class CMobileSkinModel;
 	
-	class CWorldServer : public CStorableServer, public CWorld, public IExecutor, public IViewStore, public IUwmServer, public IAvatarServer
+	class CWorldServer : public CPersistentServer, public CWorld, public IExecutor, public IViewStore, public IUwmServer, public IAvatarServer
 	{
 		public:
 			using CWorldLevel::Storage;
@@ -52,8 +52,10 @@ namespace uc
 			CWorldServer(CNexus * l, CServerInstance * si);
 			~CWorldServer();
 
-			IInterface *								Connect(CString const & pr) override;
-			void										Disconnect(IInterface * c) override;
+			void										Initialize() override;
+			void										Start() override;
+			IInterface *								Connect(CString const & iface);
+			void										Disconnect(IInterface * iface);
 
 			void										EstablishConnections();
 
@@ -64,8 +66,6 @@ namespace uc
 			virtual void								InitializeView(){}
 			virtual void								InitializeAreas(){}
 			virtual void								InitializeModels(){}
-
-			void										Start();
 
 			virtual void								Execute(CXon * command, CExecutionParameters * parameters) override;
 
@@ -117,15 +117,40 @@ namespace uc
 			
 			virtual CView *								Get(const CString & name) override;
 			
-			CProtocolConnection<IAvatarServer>		FindAvatarSystem(CUol & e, CString const & type) override;
+			CProtocolConnection<IAvatarServer>			FindAvatarSystem(CUol & e, CString const & type) override;
 
 			virtual CElement *							CreateElement(CString const & name, CString const & type) override;
 
-			CStorableObject *								CreateObject(CString const & name) override;
+			CPersistentObject *							CreateObject(CString const & name) override;
 
 			virtual CInterObject *						GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 	};
 
+	class CWorldClient : public CClient
+	{
+		public:
+			CWorldServer * Server;
+
+			UOS_RTTI
+			CWorldClient(CNexus * nexus, CClientInstance * instance, CWorldServer * server) : CClient(instance)
+			{
+				Server = server;
+			}
+
+			virtual ~CWorldClient()
+			{
+			}
+
+			IInterface * Connect(CString const & iface) override
+			{
+				return Server->Connect(iface);
+			}
+
+			void Disconnect(IInterface * iface) override
+			{
+				Server->Disconnect(iface);
+			}
+	};
 }

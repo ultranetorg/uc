@@ -4,15 +4,12 @@
 namespace uc
 {
 	auto constexpr WORLD_DESKTOP						= L"Desktop";
-	auto constexpr WORLD_MOBILE_EMULATION				= L"Mobile.E";
 	auto constexpr WORLD_VR_EMULATION					= L"VR.E";
+	auto constexpr WORLD_MOBILE_EMULATION				= L"Mobile.E";
 
-	//auto constexpr WORLD								= L"World";
 	auto constexpr WORLD_SERVER							= L"World";
 	auto constexpr WORLD_PROTOCOL						= L"IWorld";
 	auto constexpr WORLD_FRIEND_PROTOCOL				= L"IWorldFriend";
-	//#define UOS_WORALD		L"UC.World"
-
 
 	auto constexpr LAYOUT_HUD_PRIMARY					= L"Hud-Primary";
 	auto constexpr LAYOUT_HUD_MAXIMIZE					= L"Hud-Maximize";

@@ -3,7 +3,7 @@
 
 namespace uc
 {
-	class CFieldItem : public CStorableObject
+	class CFieldItem : public CPersistentObject
 	{
 		public:
 			const static inline CString		Scheme = L"fielditem";
@@ -11,7 +11,7 @@ namespace uc
 			CString							Complexity;
 
 			UOS_RTTI
-			CFieldItem(CServer * server, CString const & complexity, CString const & name = CGuid::Generate64(GetClassName())) : CStorableObject(Scheme, server, name)
+			CFieldItem(CServer * server, CString const & complexity, CString const & name = CGuid::Generate64(GetClassName())) : CPersistentObject(Scheme, server, name)
 			{
 				Complexity = complexity;
 			}

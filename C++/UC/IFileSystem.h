@@ -25,7 +25,7 @@ namespace uc
 
 			inline static const CString   	InterfaceName = L"IFileSystem";
 
-			virtual void					Mount(CString const & path, CServerAddress & provider, CXon * parameters)=0;
+			virtual void					Mount(CString const & path, CApplicationAddress & provider, CXon * parameters)=0;
 			virtual CString					UniversalToNative(CString const & path)=0;
 			virtual CString					NativeToUniversal(CString const & path)=0;
 			virtual CList<CFileSystemEntry>	Enumerate(CString const & dir, CString const & regex)=0;

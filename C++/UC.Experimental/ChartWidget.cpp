@@ -55,7 +55,7 @@ void CChartWidget::OnChanged()
 {
 }
 
-void CChartWidget::OnDependencyDestroying(CStorableObject * o)
+void CChartWidget::OnDependencyDestroying(CPersistentObject * o)
 {
 	if(o == Entity)
 	{

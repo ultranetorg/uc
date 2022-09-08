@@ -254,7 +254,7 @@ CString CXonDocument::Dump()
 	CList<CXon*> a;
 	a.push_back(this);
 
-	auto maxnamelen = a.GetHeirarchicalMax([](CXon * i){ return &i->Nodes; },[](auto i){ return i->Name.size(); });
+	auto maxnamelen = a.GetHeirarchicalMax([](CXon * i){ return &i->Nodes; },	[](auto i){ return i->Name.size(); });
 	auto maxdfnlen = a.GetHeirarchicalMax([](CXon * i){ return &i->Nodes; },	[](auto i)
 																						{
 																							CString s;

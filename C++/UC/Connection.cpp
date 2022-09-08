@@ -1,36 +1,36 @@
 #include "stdafx.h"
 #include "Connection.h"
-#include "Server.h"
+#include "Client.h"
 
 using namespace uc;
 
 bool CConnection::operator!() const
 {
-	return Server == null;
+	return Client == null;
 }
 
 CConnection::operator bool() const
 {
-	return Server != null;
+	return Client != null;
 }
 
 void CConnection::Clear()
 {
 	Who = null;
-	Server = null;
+	Client = null;
 	Protocol = null;
 }
 
-CConnection::CConnection(IType * who, CServer * server, CString const & pn)
+CConnection::CConnection(IType * who, CClient * client, CString const & pn)
 {
 	Who = who;
-	Server = server;
-	Protocol = server->Instance->Interfaces[pn];
+	Client = client;
+	Protocol = client->Instance->Interfaces[pn];
 	ProtocolName = pn;
 }
 
 CConnection::CConnection()
 {
 	Who = null;
-	Server = null;
+	Client = null;
 }

@@ -283,6 +283,7 @@
     <ClInclude Include="Solo.h">
       <Filter>Area</Filter>
     </ClInclude>
+    <ClInclude Include="WorldClient.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

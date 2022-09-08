@@ -19,7 +19,7 @@ namespace uc
 		CProtocolConnection<CWorld>				World;
 		CProtocolConnection<IFileSystem>		Storage;
 		CEngine *								Engine;
-		CStorableServer *						Server;
+		CPersistentServer *						Server;
 		CCore *									Core;
 		CNexus *								Nexus;
 		CImageExtractor *						ImageExtractor;
@@ -28,7 +28,7 @@ namespace uc
 
 		void AddModeSwitch(IMenuSection * s)
 		{
-			auto cmd = World.Server->Instance->Name + L"{";
+			auto cmd = World.Client->Instance->Name + L"{";
 
 			#ifndef _DEBUG // copy World command options
 				for(auto & i : Core->FindStartCommands(World->Server->Url))

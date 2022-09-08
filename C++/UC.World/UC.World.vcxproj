@@ -68,7 +68,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer</AdditionalOptions>
+      <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <AdditionalLibraryDirectories>..\Libs\Boost</AdditionalLibraryDirectories>
@@ -99,7 +99,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
-      <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer</AdditionalOptions>
+      <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
       <AdditionalLibraryDirectories>..\Libs\Boost</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -175,6 +175,7 @@
     <ClInclude Include="IWorldFriend.h" />
     <ClInclude Include="WidgetWindow.h" />
     <ClInclude Include="WorldCapabilities.h" />
+    <ClInclude Include="WorldClient.h" />
     <ClInclude Include="WorldLevel.h" />
     <ClInclude Include="VwmElement.h" />
     <ClInclude Include="VwmImporter.h" />

@@ -15,7 +15,7 @@ namespace uc
 		CCore *									Core;
 		CNexus *								Nexus;
 		CEngine *								Engine;
-		CStorableServer *						Server;
+		CPersistentServer *						Server;
 		CStyle *								Style;
 		CLog *									Log;
 		CBitfinexProvider *						Bitfinex = null;

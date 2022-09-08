@@ -4,7 +4,7 @@
 
 namespace uc
 {
-	class CExperimentalServer : public CExperimentalLevel, public CStorableServer, public IWorldFriend, public IShellFriend, public IAvatarServer, public IExecutor, public IUwmServer
+	class CExperimentalServer : public CExperimentalLevel, public CPersistentServer, public IWorldFriend, public IShellFriend, public IAvatarServer, public IExecutor, public IUwmServer
 	{
 		using CExperimentalLevel::Server;
 		using CExperimentalLevel::Nexus;
@@ -19,8 +19,11 @@ namespace uc
 			
 			void						EstablishConnections(bool storage, bool world);
 
-			IInterface * 				Connect(CString const & pr)override;
-			void						Disconnect(IInterface * s) override;
+			void						Initialize() override;
+			void						Start() override;
+
+			IInterface * 				Connect(CString const & pr);
+			void						Disconnect(IInterface * s);
 			CInterObject *				CreateObject(CString const & name) override;
 
 			void						Execute(CXon * command, CExecutionParameters * ep);
@@ -36,5 +39,31 @@ namespace uc
 			virtual void				DestroyAvatar(CAvatar * a) override;
 
 			virtual CElement *			CreateElement(CString const & name, CString const & type) override;
+	};
+
+	class CExperimentalClient : public CClient
+	{
+		public:
+			CExperimentalServer * Server;
+
+			UOS_RTTI
+			CExperimentalClient(CNexus * nexus, CClientInstance * instance, CExperimentalServer * server) : CClient(instance)
+			{
+				Server = server;
+			}
+
+			virtual ~CExperimentalClient()
+			{
+			}
+
+			IInterface * Connect(CString const & iface) override
+			{
+				return Server->Connect(iface);
+			}
+
+			void Disconnect(IInterface * iface) override
+			{
+				Server->Disconnect(iface);
+			}
 	};
 }

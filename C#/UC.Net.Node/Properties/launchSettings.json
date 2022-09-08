@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "UC.Net.Node": {
+      "commandName": "Project",
+      "commandLineArgs": "secrets=a:\\uo"
+    }
+  }
+}

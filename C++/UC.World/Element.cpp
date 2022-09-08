@@ -434,7 +434,7 @@ void CElement::Load(CStyle * s, CString & u)
 
 	for(auto & i : Level->Nexus->QueryRegistry(L"Interfaces/" + IUwmServer::InterfaceName))
 	{
-		auto c = Level->Nexus->Connect<IUwmServer>(this, i.first->Address);
+		auto c = Level->Nexus->Connect<IUwmServer>(this, i.first);
 
 		for(auto j : i.second->Nodes)
 		{

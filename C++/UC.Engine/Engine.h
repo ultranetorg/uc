@@ -45,7 +45,7 @@ namespace uc
 			std::mutex									Lock;
 
 			UOS_RTTI
-			CEngine(CStorableServer * una, CConfig * c);
+			CEngine(CPersistentServer * una, CConfig * c);
 			~CEngine();
 
 			void										Start();

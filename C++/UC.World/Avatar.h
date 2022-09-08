@@ -8,7 +8,7 @@ namespace uc
 	class CWorld;
 	class IAvatarServer;
 	
-	class UOS_WORLD_LINKING CAvatar : public CElement, public CStorableObject 
+	class UOS_WORLD_LINKING CAvatar : public CElement, public CPersistentObject 
 	{
 		public:
 			inline static const CString				Scheme = L"worldavatar";
@@ -19,7 +19,7 @@ namespace uc
 			UOS_RTTI
 			CAvatar(CWorld * l, CServer * s, CString const & name); 
 
-			using CStorableObject::Load;
+			using CPersistentObject::Load;
 
 			virtual void							SetEntity(CUol & e);
 			virtual void							DetermineSize(CSize & smax, CSize & s);

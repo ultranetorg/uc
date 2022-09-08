@@ -5,14 +5,14 @@
 
 namespace uc
 {
-	class UOS_LINKING CStorableServer : public CServer
+	class UOS_LINKING CPersistentServer : public CServer
 	{
 		public:
 			CProtocolConnection<IFileSystem>		Storage;
 
 			UOS_RTTI
-			CStorableServer(CNexus * l, CServerInstance * info);
-			~CStorableServer();
+			CPersistentServer(CNexus * l, CServerInstance * info);
+			~CPersistentServer();
 
 			using									CServer::FindObject;
 
@@ -21,7 +21,7 @@ namespace uc
 			bool									Exists(CString const & name);
 			void									DeleteObject(CInterObject * r);
 			void									DestroyObject(CInterObject * o, bool save);
-			void									LoadObject(CStorableObject * o);
+			void									LoadObject(CPersistentObject * o);
 
 			CTonDocument *							LoadReleaseDocument(CString const & path);
 			CTonDocument *							LoadGlobalDocument(CString const & path);

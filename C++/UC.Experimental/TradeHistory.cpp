@@ -26,7 +26,7 @@ CTradeHistory::~CTradeHistory()
 	Level->Core->RemoveWorker(this);
 }
 
-void CTradeHistory::OnServerDestructing(CStorableObject * o)
+void CTradeHistory::OnServerDestructing(CPersistentObject * o)
 {
 	Level->Server->DestroyObject(this, true);
 }

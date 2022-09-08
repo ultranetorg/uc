@@ -40,7 +40,7 @@ void CXonTextWriter::Write(std::wostringstream & s, CXon * n, int d)
 	}
 	if(n->Value)
 	{
-		CString v = dynamic_cast<CXonTextValue *>(n->Value)->Text;
+		auto & v = dynamic_cast<CXonTextValue *>(n->Value)->Text;
 
 		if(!v.empty())
 		{
@@ -66,18 +66,29 @@ void CXonTextWriter::Write(std::wostringstream & s, CXon * n, int d)
 		else
 			s <<  L" = \"\"";
 	}
-
-	s << endl;
+	
+	if(Eol)
+		s << endl;
 
 	if(!n->Nodes.empty())
 	{
-		s << t << L"{" << endl;
+		s << t << L"{";
+
+		if(Eol)
+			 s << endl;
+
 		for(auto i : n->Nodes)
 		{
 			Write(s, i, d+1);
 		}
-		s << t << L"}" << endl;
+		s << t << L"}";
+
+		if(Eol)
+			 s << endl;
 	}
+	else
+		if(!Eol)
+			 s << L' ';
 }
 
 /////////////////////////////// CXonBinaryWriter ///////////////////////////////////////////////

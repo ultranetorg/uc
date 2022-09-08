@@ -6,9 +6,9 @@ namespace uc
 	{
 		public:
 			CNexus * Nexus;
-			CStorableServer * Server;
+			CPersistentServer * Server;
 
-			CCef(CNexus * l, CStorableServer * s)
+			CCef(CNexus * l, CPersistentServer * s)
 			{
 				Nexus = l;
 				Server = s;

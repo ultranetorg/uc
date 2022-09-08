@@ -6,7 +6,7 @@
 
 namespace uc
 {
-	class UOS_LINKING CStorableObject : public CInterObject
+	class UOS_LINKING CPersistentObject : public CInterObject
 	{
 		public:
 			CString				GlobalDirectory;
@@ -14,7 +14,7 @@ namespace uc
 			CXonDocument *		Info = null;
 
 			UOS_RTTI
-			~CStorableObject();
+			~CPersistentObject();
 
 			virtual void		SetDirectories(CString const & path);
 			void				Load();
@@ -34,7 +34,7 @@ namespace uc
 			void				SaveInfo(CStream * s);
 
 		protected:
-			CStorableObject(CString const & scheme, CServer * server, CString const & name);
+			CPersistentObject(CString const & scheme, CServer * server, CString const & name);
 
 			virtual void		SaveInstance();
 			virtual void		LoadInstance();

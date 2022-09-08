@@ -31,6 +31,9 @@
     <Filter Include="FileSystem">
       <UniqueIdentifier>{ce3a2fd4-acac-451e-943f-ef584aab68bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Node">
+      <UniqueIdentifier>{c9318c50-80bc-4fac-b77a-3ac3a2f6eb21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\resource.h">
@@ -325,7 +328,7 @@
     <ClInclude Include="HttpClient.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="StorableServer.h">
+    <ClInclude Include="PersistentServer.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="XonValue.h">
@@ -359,7 +362,7 @@
     <ClInclude Include="Hex.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="ServerAddress.h">
+    <ClInclude Include="ApplicationAddress.h">
       <Filter>Net</Filter>
     </ClInclude>
     <ClInclude Include="RealizationAddress.h">
@@ -368,7 +371,7 @@
     <ClInclude Include="ProductAddress.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="StorableObject.h">
+    <ClInclude Include="PersistentObject.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="FileSystem.h">
@@ -390,6 +393,21 @@
       <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="ProductInfo.h" />
+    <ClInclude Include="ServerProcess.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Fun.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplicationRelease.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="Identity.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Angle.cpp">
@@ -587,7 +605,7 @@
     <ClCompile Include="Line.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="StorableServer.cpp">
+    <ClCompile Include="PersistentServer.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="HttpRequest.cpp">
@@ -630,7 +648,7 @@
     <ClCompile Include="ReleaseAddress.cpp">
       <Filter>Net</Filter>
     </ClCompile>
-    <ClCompile Include="ServerAddress.cpp">
+    <ClCompile Include="ApplicationAddress.cpp">
       <Filter>Net</Filter>
     </ClCompile>
     <ClCompile Include="RealizationAddress.cpp">
@@ -640,7 +658,7 @@
       <Filter>Net</Filter>
     </ClCompile>
     <ClCompile Include="Connection.cpp" />
-    <ClCompile Include="StorableObject.cpp">
+    <ClCompile Include="PersistentObject.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="FileSystem.cpp">
@@ -652,6 +670,10 @@
     <ClCompile Include="LocalFileStream.cpp">
       <Filter>FileSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Fun.cpp">
+      <Filter>Node</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\lucon.ttf">

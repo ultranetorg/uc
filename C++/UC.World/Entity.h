@@ -2,7 +2,7 @@
 
 namespace uc
 {
-	class CWorldEntity : public CStorableObject
+	class CWorldEntity : public CPersistentObject
 	{
 		public:
 			inline static const CString   	Scheme = L"worldentity";
@@ -11,7 +11,7 @@ namespace uc
 			CString							Title;
 			CEvent<CWorldEntity *>			Retitled;
 
-			CWorldEntity(CServer * s, CString const & name) : CStorableObject(Scheme, s, name)
+			CWorldEntity(CServer * s, CString const & name) : CPersistentObject(Scheme, s, name)
 			{
 			}
 

@@ -22,7 +22,7 @@
 
 namespace uc
 {
-	class CShellServer : public CStorableServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarServer, public IFieldProtocol, public IExecutor
+	class CShellServer : public CPersistentServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarServer, public IFieldProtocol, public IExecutor
 	{
 		using CShellLevel::Server;
 		using CShellLevel::Nexus;
@@ -37,9 +37,11 @@ namespace uc
 			
 			void										EstablishConnections();
 
-			IInterface * 								Connect(CString const & pr)override;
-			void										Disconnect(IInterface * s) override;
-			CStorableObject *							CreateObject(CString const & name) override;
+			void										Initialize() override;
+			void										Start() override;
+			IInterface * 								Connect(CString const & pr);
+			void										Disconnect(IInterface * s);
+			CPersistentObject *							CreateObject(CString const & name) override;
 
 			CString										GetTitle() override { return SHELL_OBJECT; }
 			IMenuSection *								CreateNewMenu(CFieldElement * f, CFloat3 & p, IMenu * m) override;
@@ -59,5 +61,31 @@ namespace uc
 			void virtual								Execute(CXon * arguments, CExecutionParameters * parameters) override;
 
 			void										OnWorldSphereMouse(CActive *, CActive *, CMouseArgs *);
+	};
+
+	class CShellClient : public CClient
+	{
+		public:
+			CShellServer * Server;
+
+			UOS_RTTI
+			CShellClient(CNexus * nexus, CClientInstance * instance, CShellServer * server) : CClient(instance)
+			{
+				Server = server;
+			}
+
+			virtual ~CShellClient()
+			{
+			}
+
+			IInterface * Connect(CString const & iface) override
+			{
+				return Server->Connect(iface);
+			}
+
+			void Disconnect(IInterface * iface) override
+			{
+				Server->Disconnect(iface);
+			}
 	};
 }

@@ -6,7 +6,7 @@ namespace uc
 	struct CWorldLevel
 	{
 		//CConfig *								Config;
-		CStorableServer *						Server;
+		CPersistentServer *						Server;
 		CCore *									Core;
 		CNexus *								Nexus;
 		CLog *									Log;

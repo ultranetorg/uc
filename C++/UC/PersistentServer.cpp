@@ -1,18 +1,18 @@
 #include "StdAfx.h"
-#include "StorableServer.h"
+#include "PersistentServer.h"
 #include "Nexus.h"
 
 using namespace uc;
 
-CStorableServer::CStorableServer(CNexus * l, CServerInstance * info) : CServer(l, info)
+CPersistentServer::CPersistentServer(CNexus * l, CServerInstance * info) : CServer(l, info)
 {
 }
 	
-CStorableServer::~CStorableServer()
+CPersistentServer::~CPersistentServer()
 {
 }
 
-CInterObject * CStorableServer::FindObject(CString const & name)
+CInterObject * CPersistentServer::FindObject(CString const & name)
 {
 	auto o = CServer::FindObject(name);
 
@@ -20,7 +20,7 @@ CInterObject * CStorableServer::FindObject(CString const & name)
 	{
 		o = CreateObject(name);
 
-		auto so = dynamic_cast<CStorableObject *>(o);
+		auto so = dynamic_cast<CPersistentObject *>(o);
 		
 		if(so)
 		{
@@ -34,7 +34,7 @@ CInterObject * CStorableServer::FindObject(CString const & name)
 	return o;
 }
 
-bool CStorableServer::Exists(CString const & name)
+bool CPersistentServer::Exists(CString const & name)
 {
 	auto f = MapUserGlobalPath(name + L".object");
 	auto g = MapUserGlobalPath(name);
@@ -43,7 +43,7 @@ bool CStorableServer::Exists(CString const & name)
 	return Storage->Exists(f) || Storage->Exists(g) || Storage->Exists(l);
 }
 
-void CStorableServer::LoadObject(CStorableObject * o)
+void CPersistentServer::LoadObject(CPersistentObject * o)
 {
 	auto f = MapUserGlobalPath(o->Url.Object + L".object");
 	auto g = MapUserGlobalPath(o->Url.Object);
@@ -64,7 +64,7 @@ void CStorableServer::LoadObject(CStorableObject * o)
 	}
 }
 
-void CStorableServer::DeleteObject(CInterObject * r)
+void CPersistentServer::DeleteObject(CInterObject * r)
 {
 	auto name = r->Url.Object;
 	auto shared = r->Shared;
@@ -85,11 +85,11 @@ void CStorableServer::DeleteObject(CInterObject * r)
 	//r->Free();
 }
 
-void CStorableServer::DestroyObject(CInterObject * o, bool save)
+void CPersistentServer::DestroyObject(CInterObject * o, bool save)
 {
 	if(save && o->Shared)
 	{
-		auto so = dynamic_cast<CStorableObject *>(o);
+		auto so = dynamic_cast<CPersistentObject *>(o);
 
 		if(so)
 		{
@@ -102,7 +102,7 @@ void CStorableServer::DestroyObject(CInterObject * o, bool save)
 	DestroyObject(o);
 }
 
-CTonDocument * CStorableServer::LoadReleaseDocument(CString const & path)
+CTonDocument * CPersistentServer::LoadReleaseDocument(CString const & path)
 {
 	if(auto s = Storage->ReadFile(MapReleasePath(path)))
 	{
@@ -114,7 +114,7 @@ CTonDocument * CStorableServer::LoadReleaseDocument(CString const & path)
 		return null;
 }
 
-CTonDocument * CStorableServer::LoadGlobalDocument(CString const & path)
+CTonDocument * CPersistentServer::LoadGlobalDocument(CString const & path)
 {
 	try
 	{

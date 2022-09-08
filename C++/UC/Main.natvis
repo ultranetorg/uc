@@ -47,7 +47,7 @@
 		<DisplayString>{Object}</DisplayString>
 	</Type>
 
-	<Type Name="uo::CStorableObject">
+	<Type Name="uo::CPersistentObject">
 		<DisplayString>{Url.Object}</DisplayString>
 	</Type>
 
@@ -55,16 +55,20 @@
 		<DisplayString>{Server}</DisplayString>
 	</Type>
 
+	<Type Name="uc::CProductAddress">
+		<DisplayString>Author={Author} Product={Product}</DisplayString>
+	</Type>
+
 	<Type Name="uc::CRealizationAddress">
-		<DisplayString>{{Author}={Author} Product={Product} Platform={Platform}}}</DisplayString>
+		<DisplayString>Author={Author} Product={Product} Platform={Platform}</DisplayString>
 	</Type>
 
 	<Type Name="uc::CReleaseAddress">
-		<DisplayString>{{Author}={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision}}}</DisplayString>
+		<DisplayString>Author={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision}</DisplayString>
 	</Type>
 
-	<Type Name="uc::CServerAddress">
-		<DisplayString>{{Author}={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision} Server={Server}}}</DisplayString>
+	<Type Name="uc::CApplicationAddress">
+		<DisplayString>Author={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision} Application={Application}</DisplayString>
 	</Type>
 
 </AutoVisualizer>

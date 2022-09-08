@@ -6,7 +6,7 @@ namespace uc
 	{
 		public:
 			CConfig *				Config;
-			CStorableServer *		Server;
+			CPersistentServer *		Server;
 			CCore *					Core;
 			CLog *					Log;
 			

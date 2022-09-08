@@ -22,29 +22,37 @@
 #include "EmailAccountEnvironment.h"
 #include "EmailWidget.h"
 
-
 using namespace uc;
 
-static CExperimentalServer * This = null;
+static CExperimentalServer * Server = null;
 
 CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
-	This = new CExperimentalServer(l, info);
-	return This;
+	Server = new CExperimentalServer(l, info);
+	return Server;
 }
 
 void DestroyUosServer(CServer *)
 {
-	delete This;
+	delete Server;
 }
 
-CExperimentalServer::CExperimentalServer(CNexus * l, CServerInstance * si) : CStorableServer(l, si)
+CClient * CreateUosClient(CNexus * nexus, CClientInstance * instance)
+{
+	return new CExperimentalClient(nexus, instance, Server);
+}
+
+void DestroyUosClient(CClient * client)
+{
+	delete client;
+}
+
+CExperimentalServer::CExperimentalServer(CNexus * l, CServerInstance * si) : CPersistentServer(l, si)
 {
 	Server	= this;
 	Nexus	= Server->Nexus;
 	Core	= Nexus->Core;
 	Log		= l->Core->Supervisor->CreateLog(Instance->Name);
-///	Storage		= l->Storage;
 }
 
 CExperimentalServer::~CExperimentalServer()
@@ -80,16 +88,217 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world)
 
 	if(storage && !Storage)
 	{
-		Storage = CStorableServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->StopServer(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
 		GeoStore = new CGeoStore(this);
 	}
 
 	if(world && !World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->StopServer(Instance); });
+		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->Stop(Instance); });
 
 		Engine	= World->Engine;
 		Style	= World->Style->Clone();
+	}
+}
+
+void CExperimentalServer::Initialize()
+{
+	EstablishConnections(true, true);
+
+	auto shell	= Nexus->Connect<CShell>(this);
+	
+	auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_MAIN));
+	auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_WORK));
+	auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_HOME));
+
+	TCHAR szPath[MAX_PATH];
+	PWSTR ppath;
+	
+	if(main)
+	{
+		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
+		{
+			auto c = new CCommander(this, COMMANDER_AT_HOME_1);
+			c->SetRoot(CPath::Join(IFileSystem::This, CPath::Universalize(szPath)));
+			Server->RegisterObject(c, true);
+			c->Free();
+				
+			auto fia = main->Add(c->Url, AVATAR_WIDGET);
+		}
+
+		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
+		{
+			auto c = new CCommander(this, COMMANDER_AT_HOME_2);
+			c->SetRoot(CPath::Join(IFileSystem::This, CPath::Universalize(ppath)));
+			Server->RegisterObject(c, true);
+			c->Free();
+		
+			auto fib = main->Add(c->Url, AVATAR_WIDGET);
+
+			CoTaskMemFree(ppath);
+		}
+	}
+
+	if(work)
+	{
+		auto th = new CTradeHistory(this);
+		th->SetSymbol(L"tBTCUSD");
+		th->SetInterval(L"1h");
+		th->Refresh();
+		Server->RegisterObject(th, true);
+		th->Free();
+		work->Add(th->Url, AVATAR_WIDGET);
+
+		auto dj = new CTradingview(this);
+		dj->SetSymbol(L"US30");
+		dj->SetInterval(L"W");
+		dj->SetStyle(L"1");
+		Server->RegisterObject(dj, true);
+		dj->Free();
+		work->Add(dj->Url, AVATAR_WIDGET);
+
+		auto snp = new CTradingview(this);
+		snp->SetSymbol(L"US500");
+		snp->SetInterval(L"W");
+		snp->SetStyle(L"1");
+		Server->RegisterObject(snp, true);
+		snp->Free();
+		work->Add(snp->Url, AVATAR_WIDGET);
+
+		auto nq = new CTradingview(this);
+		nq->SetSymbol(L"US100");
+		nq->SetInterval(L"W");
+		nq->SetStyle(L"1");
+		Server->RegisterObject(nq, true);
+		nq->Free();
+		work->Add(nq->Url, AVATAR_WIDGET);
+
+		auto e = new CEmail(this);
+		Server->RegisterObject(e, true);
+		e->Free();
+		work->Add(e->Url, AVATAR_WIDGET);
+	}
+
+	// COMMANDER_1
+	auto c1 = CreateObject(COMMANDER_1)->As<CCommander>();
+	c1->SetRoot(L"/");
+	Server->RegisterObject(c1, true);
+	c1->Free();
+
+	// BROWSER_1
+	auto b1 = CreateObject(BROWSER_1)->As<CBrowser>();
+	b1->SetAddress(CUrl(UO_WEB_HOME));
+	Server->RegisterObject(b1, true);
+	b1->Free();
+
+	// EARTH_1
+	auto e1 = CreateObject(EARTH_1)->As<CEarth>();
+	Server->RegisterObject(e1, true);
+	e1->Free();
+
+	// GROUP_1
+	auto c = CreateObject(COMMANDER_AT_GROUP)->As<CCommander>();
+	c->SetRoot(L"/");
+	Server->RegisterObject(c, true);
+	c->Free();
+
+	auto b = CreateObject(BROWSER_AT_GROUP)->As<CBrowser>();
+	b->SetAddress(CUrl(UO_WEB_HOME));
+	Server->RegisterObject(b, true);
+	b->Free();
+
+	auto e = CreateObject(EARTH_AT_GROUP)->As<CEarth>();
+	Server->RegisterObject(e, true);
+	e->Free();
+		
+	auto g = World->CreateGroup(GROUP_1);
+	g->SetTitle(L"Group #1");
+	g->Entities.push_back(c);
+	g->Entities.push_back(b);
+	g->Entities.push_back(e);
+	g->Free();
+
+	if(home)
+	{
+		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1),	AVATAR_ICON2D);
+		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1),	AVATAR_ICON2D);
+		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1),		AVATAR_ICON2D);
+		home->Add(CUol(CWorldEntity::Scheme, WORLD_SERVER,	 GROUP_1),		AVATAR_ICON2D);
+	}
+
+	Nexus->Disconnect(shell);
+}
+
+void CExperimentalServer::Start()
+{
+	if(World->Initializing)
+	{
+		auto shell	= Nexus->Connect<CShell>(this);
+
+		auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_MAIN));
+		//auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_WORK));
+		//auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_HOME));
+
+		if(World->Complexity == AVATAR_ENVIRONMENT)
+		{
+			auto de	= shell->FindFieldEnvironmentByEntity(main->Url);
+
+			if(de)
+			{
+				auto def = de->GetField();
+		
+				auto m = def->GetMetrics(AVATAR_WIDGET, ECardTitleMode::Top, CSize::Nan);
+				m.FaceSize = CSize(m.FaceSize.H, m.FaceSize.H, 0);
+		
+				CFieldItemElement * fiea = null;
+				CFieldItemElement * fieb = null;
+		
+				if(auto fia = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_1)))
+				{
+					fiea = def->Find(fia->Url);
+					fiea->SetMetrics(m);
+					fiea->SetTitleMode(ECardTitleMode::Top);
+					fiea->UpdateLayout(def->Slimits, true);
+					//def->MoveAvatar(fiea->Avatar, CTransformation(def->IW - def->IW * 0.2f - m.FaceSize.W, def->IH * 0.2f, def->ItemZ));
+				}
+				
+				if(auto fib = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_2)))
+				{
+					fieb = def->Find(fib->Url);
+					fieb->SetMetrics(m);
+					fieb->SetTitleMode(ECardTitleMode::Top);
+					fieb->UpdateLayout(def->Slimits, true);
+					//def->MoveAvatar(fieb->Avatar, CTransformation(def->IW - def->IW * 0.2f - m.FaceSize.W, fiea->Transformation.Position.y + fiea->H, def->ItemZ));
+				}
+			}
+		}
+
+		auto sp = new CShowParameters();
+		sp->PlaceOnBoard = true;
+		
+		auto c = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1), CArea::Main, sp);
+		auto b = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1), CArea::Main, sp);
+		auto e = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1), CArea::Main, sp);
+		auto g = World->OpenEntity(CUol(CWorldEntity::Scheme, WORLD_SERVER, GROUP_1), CArea::Main, sp);
+
+		if(World->BackArea)
+		{
+			World->Show(c, CArea::Background, null);
+			World->Show(b, CArea::Background, null);
+			World->Show(e, CArea::Background, null);
+			World->Show(g, CArea::Background, null);
+		}
+		else
+		{
+			World->Hide(c, null);
+			World->Hide(b, null);
+			World->Hide(e, null);
+			World->Hide(g, null);
+		}
+
+		sp->Free();
+	
+		Nexus->Disconnect(shell);
 	}
 }
 
@@ -106,7 +315,7 @@ CInterObject * CExperimentalServer::CreateObject(CString const & name)
 {
 	EstablishConnections(true, false);
 
-	CStorableObject * o = null;
+	CPersistentObject * o = null;
 
 	auto type = CUol::GetObjectClass(name);
 
@@ -385,194 +594,7 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 
 	auto f = command->Nodes.First();
 
-	auto shell	= Nexus->Connect<CShell>(this);
-
-	auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_MAIN));
-	auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_WORK));
-	auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_HOME));
-
-	if(f->Name == L"CreateDefaultObjects")
-	{
-		TCHAR szPath[MAX_PATH];
-		PWSTR ppath;
-	
-		if(main)
-		{
-			if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
-			{
-				auto c = new CCommander(this, COMMANDER_AT_HOME_1);
-				c->SetRoot(CPath::Join(IFileSystem::This, CPath::Universalize(szPath)));
-				Server->RegisterObject(c, true);
-				c->Free();
-				
-				auto fia = main->Add(c->Url, AVATAR_WIDGET);
-			}
-
-			if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
-			{
-				auto c = new CCommander(this, COMMANDER_AT_HOME_2);
-				c->SetRoot(CPath::Join(IFileSystem::This, CPath::Universalize(ppath)));
-				Server->RegisterObject(c, true);
-				c->Free();
-		
-				auto fib = main->Add(c->Url, AVATAR_WIDGET);
-
-				CoTaskMemFree(ppath);
-			}
-		}
-
-		if(work)
-		{
-			auto th = new CTradeHistory(this);
-			th->SetSymbol(L"tBTCUSD");
-			th->SetInterval(L"1h");
-			th->Refresh();
-			Server->RegisterObject(th, true);
-			th->Free();
-			work->Add(th->Url, AVATAR_WIDGET);
-
-			auto dj = new CTradingview(this);
-			dj->SetSymbol(L"US30");
-			dj->SetInterval(L"W");
-			dj->SetStyle(L"1");
-			Server->RegisterObject(dj, true);
-			dj->Free();
-			work->Add(dj->Url, AVATAR_WIDGET);
-
-			auto snp = new CTradingview(this);
-			snp->SetSymbol(L"US500");
-			snp->SetInterval(L"W");
-			snp->SetStyle(L"1");
-			Server->RegisterObject(snp, true);
-			snp->Free();
-			work->Add(snp->Url, AVATAR_WIDGET);
-
-			auto nq = new CTradingview(this);
-			nq->SetSymbol(L"US100");
-			nq->SetInterval(L"W");
-			nq->SetStyle(L"1");
-			Server->RegisterObject(nq, true);
-			nq->Free();
-			work->Add(nq->Url, AVATAR_WIDGET);
-
-			auto e = new CEmail(this);
-			Server->RegisterObject(e, true);
-			e->Free();
-			work->Add(e->Url, AVATAR_WIDGET);
-		}
-
-		// COMMANDER_1
-		auto c1 = CreateObject(COMMANDER_1)->As<CCommander>();
-		c1->SetRoot(L"/");
-		Server->RegisterObject(c1, true);
-		c1->Free();
-
-		// BROWSER_1
-		auto b1 = CreateObject(BROWSER_1)->As<CBrowser>();
-		b1->SetAddress(CUrl(UO_WEB_HOME));
-		Server->RegisterObject(b1, true);
-		b1->Free();
-
-		// EARTH_1
-		auto e1 = CreateObject(EARTH_1)->As<CEarth>();
-		Server->RegisterObject(e1, true);
-		e1->Free();
-
-		// GROUP_1
-		auto c = CreateObject(COMMANDER_AT_GROUP)->As<CCommander>();
-		c->SetRoot(L"/");
-		Server->RegisterObject(c, true);
-		c->Free();
-
-		auto b = CreateObject(BROWSER_AT_GROUP)->As<CBrowser>();
-		b->SetAddress(CUrl(UO_WEB_HOME));
-		Server->RegisterObject(b, true);
-		b->Free();
-
-		auto e = CreateObject(EARTH_AT_GROUP)->As<CEarth>();
-		Server->RegisterObject(e, true);
-		e->Free();
-		
-		auto g = World->CreateGroup(GROUP_1);
-		g->SetTitle(L"Group #1");
-		g->Entities.push_back(c);
-		g->Entities.push_back(b);
-		g->Entities.push_back(e);
-		g->Free();
-
-		if(home)
-		{
-			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1),	AVATAR_ICON2D);
-			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1),		AVATAR_ICON2D);
-			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1),		AVATAR_ICON2D);
-			home->Add(CUol(CWorldEntity::Scheme, WORLD_SERVER, GROUP_1),	AVATAR_ICON2D);
-		}
-	}
-	else if(f->Name == L"Start")
-	{
-		if(World->Initializing)
-		{
-			if(World->Complexity == AVATAR_ENVIRONMENT)
-			{
-				auto de	= shell->FindFieldEnvironmentByEntity(main->Url);
-
-				if(de)
-				{
-					auto def = de->GetField();
-		
-					auto m = def->GetMetrics(AVATAR_WIDGET, ECardTitleMode::Top, CSize::Nan);
-					m.FaceSize = CSize(m.FaceSize.H, m.FaceSize.H, 0);
-		
-					CFieldItemElement * fiea = null;
-					CFieldItemElement * fieb = null;
-		
-					if(auto fia = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_1)))
-					{
-						fiea = def->Find(fia->Url);
-						fiea->SetMetrics(m);
-						fiea->SetTitleMode(ECardTitleMode::Top);
-						fiea->UpdateLayout(def->Slimits, true);
-						//def->MoveAvatar(fiea->Avatar, CTransformation(def->IW - def->IW * 0.2f - m.FaceSize.W, def->IH * 0.2f, def->ItemZ));
-					}
-				
-					if(auto fib = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_2)))
-					{
-						fieb = def->Find(fib->Url);
-						fieb->SetMetrics(m);
-						fieb->SetTitleMode(ECardTitleMode::Top);
-						fieb->UpdateLayout(def->Slimits, true);
-						//def->MoveAvatar(fieb->Avatar, CTransformation(def->IW - def->IW * 0.2f - m.FaceSize.W, fiea->Transformation.Position.y + fiea->H, def->ItemZ));
-					}
-				}
-			}
-
-			auto sp = new CShowParameters();
-			sp->PlaceOnBoard = true;
-		
-			auto c = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1), CArea::Main, sp);
-			auto b = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1), CArea::Main, sp);
-			auto e = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1), CArea::Main, sp);
-			auto g = World->OpenEntity(CUol(CWorldEntity::Scheme, WORLD_SERVER, GROUP_1), CArea::Main, sp);
-
-			if(World->BackArea)
-			{
-				World->Show(c, CArea::Background, null);
-				World->Show(b, CArea::Background, null);
-				World->Show(e, CArea::Background, null);
-				World->Show(g, CArea::Background, null);
-			}
-			else
-			{
-				World->Hide(c, null);
-				World->Hide(b, null);
-				World->Hide(e, null);
-				World->Hide(g, null);
-			}
-
-			sp->Free();
-		}
-	}
-	else if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
+	if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 	{
 		CUrl u(command->Get<CString>(CCore::UrlArgument));
 
@@ -620,13 +642,9 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 
 			World->OpenEntity(d->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
 		}
-		
 	}
 	else
 		Log->ReportError(this, L"Wrong command");
-
-	Nexus->Disconnect(shell);
-
 }
 
 CElement * CExperimentalServer::CreateElement(CString const & name, CString const & type)

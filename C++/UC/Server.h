@@ -1,54 +1,26 @@
 #pragma once
-#include "Core.h"
-#include "StorableObject.h"
-#include "ServerAddress.h"
-#include "Manifest.h"
+//#include "Core.h"
+#include "PersistentObject.h"
+#include "ApplicationRelease.h"
+#include "Identity.h"
 
 namespace uc
 {
 	class CNexus;
 	class CServer;
-	struct CServerRelease;
-	struct CServerInstance;
-
-	typedef CServer *	(* FStartUosServer)(CNexus * l, CServerInstance * info);
-	typedef void		(* FStopUosServer)(CServer *);
-
-	class CIdentity
-	{
-	};
-
-	struct CServerRelease
-	{
-		CServerAddress		Address;
-		HINSTANCE			Module;
-		FStartUosServer		CreateUosServer;
-		CManifest *			Manifest = null;
-		CXonDocument *		Registry = null;
-
-		~CServerRelease()
-		{
-			delete Registry;
-		}
-	};
 
 	struct CServerInstance
 	{
 		CString												Name;
-		CServerRelease *									Release;
+		CApplicationRelease *								Release;
 		CServer	*											Instance = null;
 		bool												Initialized = false;
 		CXon *												Registration;
-		CXon *												Command;
+		CXon *												Command = null;
 		CIdentity *											Identity = null;
 
-		CMap<CString, IInterface *>							Interfaces;
-		CMap<CString, CMap<IType *, std::function<void()>>>	Users;
-	};
-
-	enum class EStartMode
-	{
-		Initialization, Start
+		//CMap<CString, IInterface *>							Interfaces;
+		//CMap<CString, CMap<IType *, std::function<void()>>>	Users;
 	};
 
 	class UOS_LINKING CServer : public virtual IType
@@ -63,17 +35,15 @@ namespace uc
 			CServer(CNexus * l, CServerInstance * info);
 			~CServer();
 
-			//virtual void								Execute(CXonValue * ep){}
-
-			virtual IInterface *		 				Connect(CString const & pr)=0;
-			virtual void								Disconnect(IInterface * s)=0;
+			virtual void								Initialize(){}
+			virtual void								Start(){}
 
 			virtual CInterObject *						CreateObject(CString const & name);
 			virtual void								RegisterObject(CInterObject * o, bool shared);
 			virtual void								DestroyObject(CInterObject * o);
 
 			virtual CInterObject *						FindObject(CString const & name);
-			CInterObject * FindObject(CUol const & u);
+			CInterObject *								FindObject(CUol const & u);
 			template<class T> T *						FindObject(CString const & name)
 														{
 															return FindObject(name)->As<T>();

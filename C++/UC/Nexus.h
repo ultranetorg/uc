@@ -4,6 +4,7 @@
 #include "IExecutor.h"
 #include "ILevel.h"
 #include "Server.h"
+#include "Client.h"
 #include "IFileSystem.h"
 
 namespace uc
@@ -13,12 +14,15 @@ namespace uc
 		public:
 			CCore *										Core;
 
+			bool										Primary = true;
+
 			int											ExitHotKeyId;
 			int											SuspendHotKeyId;
 			
 			CList<CManifest *>							Manifests;
-			CList<CServerRelease *>						Releases;
+			CList<CApplicationRelease *>				Releases;
 			CList<CServerInstance *>					Servers;
+			CList<CClientInstance *>					Clients;
 			CProtocolConnection<IFileSystem>			FileSystem;
 			CIdentity *									Identity = null;
 
@@ -47,27 +51,30 @@ namespace uc
 			void										ProcessHotKey(int64_t id);
 			void										OnDiagnosticUpdating(CDiagnosticUpdate & a);
 			void										StartServers();
-			void										StopServers();
-			void										StopServer(CServerInstance * s);
+			void										Stop();
+			void										Stop(CServerInstance * s);
+			void										Stop(CClientInstance * s);
 
 			CString										MapPathToRelease(CReleaseAddress & release, CString const & path);
 			CString										MapPathToRealization(CRealizationAddress & release, CString const & path = CString());
 
+			CMap<CString, CXon *>						QueryRegistry(CString const & path);
+			CXon *										QueryRegistry(CString const & instance, CString const & path);
 
-			CMap<CServerRelease *, CXon *>				QueryRegistry(CString const & path);
-			CXon *										QueryRegistry(CServerAddress const & server, CString const & path);
+			void										SetDllDirectories(CApplicationRelease * info);
 
-			void										SetDllDirectories(CServerRelease * info);
+			CApplicationRelease *						LoadRelease(CApplicationAddress & address);
+			CServerInstance *							AddServer(CApplicationAddress & address, CString const & instance, CXon * command, CXon * registration);
+			CClientInstance *							AddClient(CApplicationAddress & address, CString const & instance);
+			void										Instantiate(CServerInstance * si);
+			//void										Instantiate(CClientInstance * si);
+			//CClientInstance *							FindClient(CString const & instance);
+			CClientInstance *							GetClient(CString const & instance);
 
-			CServerRelease *							LoadRelease(CServerAddress & address);
-			CServerInstance *							AddServer(CServerAddress & address, CString const & instance, CXon * command, CXon * definition);
-			CServerInstance *							GetServer(CString const & instance);
-			CServerInstance *							GetServer(CServerAddress & server);
-
-			CConnection 								Connect(IType * who, CServerInstance * si, CString const & iface,		std::function<void()> ondisconnect = std::function<void()>());
-			CConnection									Connect(IType * who, CString const & instance, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
-			CConnection									Connect(IType * who, CServerAddress & server, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
-			CConnection 								Connect(IType * who, CString const & iface,								std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
+			CConnection 								Connect(IType * who, CClientInstance * si, CString const & iface,			std::function<void()> ondisconnect = std::function<void()>());
+			CConnection									Connect(IType * who, CString const & instance, CString const & iface,		std::function<void()> ondisconnect = std::function<void()>());
+			//CConnection									Connect(IType * who, CApplicationAddress & server, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
+			CConnection 								Connect(IType * who, CString const & iface,									std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
 			CList<CConnection> 							ConnectMany(IType * who, CString const & iface);
 
 			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & instance, std::function<void()> ondisconnect = std::function<void()>())
@@ -81,7 +88,7 @@ namespace uc
 															return CProtocolConnection<T>(c);
 														}
 
-			template<class T> CProtocolConnection<T>	Connect(IType * who, CServerInstance * instance, std::function<void()> ondisconnect = std::function<void()>())
+			template<class T> CProtocolConnection<T>	Connect(IType * who, CClientInstance * instance, std::function<void()> ondisconnect = std::function<void()>())
 														{
 															auto c = Connect(who, instance, T::InterfaceName, ondisconnect);
 
@@ -97,9 +104,9 @@ namespace uc
 															return CProtocolConnection<P>(Connect(who, P::InterfaceName, ondisconnect));
 														}
 
-			template<class P> CProtocolConnection<P>	Connect(IType * who, CServerAddress & server, std::function<void()> ondisconnect = std::function<void()>())
+			template<class P> CProtocolConnection<P>	Connect(IType * who, CApplicationAddress & application, std::function<void()> ondisconnect = std::function<void()>())
 														{
-															return CProtocolConnection<P>(Connect(who, server, P::InterfaceName, ondisconnect));
+															return CProtocolConnection<P>(Connect(who, application, P::InterfaceName, ondisconnect));
 														}
 
 			template<class T> 
@@ -128,7 +135,7 @@ namespace uc
 
 			//CSystem *									GetSystem(CUsl & u);
 
-			CList<CServerRelease *>						FindImplementators(CString const & pr);
+			CList<CServerInstance *>					FindImplementators(CString const & pr);
 
 			void										Break(CString const & server, CString const & iface);
 
