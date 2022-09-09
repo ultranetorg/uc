@@ -196,7 +196,6 @@ CClientInstance * CNexus::AddClient(CApplicationAddress & address, CString const
 		}
 	}
 
-
 	if(r->ClientModule == null)
 	{
 		auto l = MapPathToRelease(r->Address, r->Registry->Get<CString>(L"Client"));
@@ -346,6 +345,7 @@ void CNexus::Stop(CServerInstance * s)
 		} 
 		else
 		{
+			s->Instance->As<CServerProcess>()->Send(CStopMessage());
 			delete s->Instance;
 		}
 	}
@@ -469,8 +469,7 @@ void CNexus::Instantiate(CServerInstance * si)
 				throw CException(HERE, CString::Format(L"Unable to create server: %s", si->Name));
 			}
 		} 
-		
-		if(CPath::GetExtension(bin) == L"exe")
+		else if(CPath::GetExtension(bin) == L"exe")
 		{
 			si->Instance = new CServerProcess(this, si);
 		}

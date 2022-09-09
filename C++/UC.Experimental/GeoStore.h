@@ -98,9 +98,9 @@ namespace uc
 					m->Request->Recieved =	[this, name, m, ok]
 											{
 												m->Texture->Load(&m->Request->Stream);
+												m->Request->Stream.ReadSeek(0);
 	
 												auto s = Level->Storage->WriteFile(name);
-												m->Request->Stream.ReadSeek(0);
 												s->Write(&m->Request->Stream);
 												Level->Storage->Close(s);
 	

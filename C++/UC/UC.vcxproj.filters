@@ -393,9 +393,6 @@
       <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="ProductInfo.h" />
-    <ClInclude Include="ServerProcess.h">
-      <Filter>FileSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Fun.h">
       <Filter>Node</Filter>
     </ClInclude>
@@ -406,6 +403,18 @@
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="Identity.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerProcess.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryReader.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryWriter.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="Message.h">
       <Filter>Nexus</Filter>
     </ClInclude>
   </ItemGroup>

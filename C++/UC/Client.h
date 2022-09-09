@@ -19,7 +19,7 @@ namespace uc
 		CMap<CString, CMap<IType *, std::function<void()>>>	Users;
 	};
 
-	class UOS_LINKING CClient : public virtual IType
+	class UOS_LINKING CClient
 	{
 		public:
  			CClientInstance *					Instance;

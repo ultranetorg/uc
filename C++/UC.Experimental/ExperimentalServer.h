@@ -41,7 +41,7 @@ namespace uc
 			virtual CElement *			CreateElement(CString const & name, CString const & type) override;
 	};
 
-	class CExperimentalClient : public CClient
+	class CExperimentalClient : public CClient, public virtual IType
 	{
 		public:
 			CExperimentalServer * Server;

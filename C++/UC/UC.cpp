@@ -2,6 +2,7 @@
 #include "LocalFileSystemProvider.h"
 #include "FileSystem.h"
 #include "Nexus.h"
+#include "Fun.h"
 
 using namespace uc;
 
@@ -41,14 +42,16 @@ CClient * CreateUosClient(CNexus * nexus, CClientInstance * info)
 	if(info->Release->Address.Application == CFileSystem::GetClassName())
 	{
 		auto s = Servers.Find([&](auto i){ return i->Instance->Name == info->Name; });
-
 		c = new CFileSystemClient(nexus, info, dynamic_cast<CFileSystem *>(s));
 	}
-	if(info->Release->Address.Application == CLocalFileSystemProvider::GetClassName())
+	else if(info->Release->Address.Application == CLocalFileSystemProvider::GetClassName())
 	{
 		auto s = Servers.Find([&](auto i){ return i->Instance->Name == info->Name; });
-
 		c = new CLocalFileSystemProviderClient(nexus, info, dynamic_cast<CLocalFileSystemProvider *>(s));
+	}
+	else if(info->Release->Address.Application == L"Fun")
+	{
+		c = new CFunClient(nexus, info);
 	}
 
 	if(c)

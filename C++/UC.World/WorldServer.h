@@ -128,7 +128,7 @@ namespace uc
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 	};
 
-	class CWorldClient : public CClient
+	class CWorldClient : public CClient, public virtual IType
 	{
 		public:
 			CWorldServer * Server;

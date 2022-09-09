@@ -498,9 +498,9 @@ void CTexture::LoadArray(CStream * xp, CStream * xn, CStream * yp, CStream * yn,
 	D3D11_SUBRESOURCE_DATA srd[6];
 	CArray<char> buffer[6];
 
-	auto load = [&](CStream * s, int i)
+	auto load = [&](CBuffer & b, int i)
 				{
-					auto b = s->Read();	
+					//auto b = s->Read();	
 					assert(b.GetSize() <= UINT_MAX);
 					ilLoadL(IL_TYPE_UNKNOWN, b.GetData(), (ILuint)b.GetSize());	
 					ilConvertImage(IL_BGRA, IL_UNSIGNED_BYTE);
@@ -525,12 +525,12 @@ void CTexture::LoadArray(CStream * xp, CStream * xn, CStream * yp, CStream * yn,
 					srd[i].SysMemSlicePitch = 0;
 				};
 
-	load(xp, 0);
-	load(xn, 1);
-	load(yp, 2);
-	load(yn, 3);
-	load(zp, 4);
-	load(zn, 5);
+	load(b, 0);
+	load(xn->Read(), 1);
+	load(yp->Read(), 2);
+	load(yn->Read(), 3);
+	load(zp->Read(), 4);
+	load(zn->Read(), 5);
 
 
 	ID3D11Texture2D * t;

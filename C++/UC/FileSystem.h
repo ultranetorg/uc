@@ -54,7 +54,7 @@ namespace uc
 			void 								CreateLocalDirectory(CServer * s, CString const & path = CString());
 	};
 
-	class UOS_LINKING CFileSystemClient : public CClient
+	class UOS_LINKING CFileSystemClient : public CClient, public virtual IType
 	{
 		public:
 			CFileSystem * Server;

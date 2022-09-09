@@ -63,7 +63,7 @@ namespace uc
 			void										OnWorldSphereMouse(CActive *, CActive *, CMouseArgs *);
 	};
 
-	class CShellClient : public CClient
+	class CShellClient : public CClient, public virtual IType
 	{
 		public:
 			CShellServer * Server;

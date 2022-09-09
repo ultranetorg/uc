@@ -9,9 +9,5 @@ namespace UC
 {
 	public class FileSystem
 	{
-		public Stream ReadFile(string path)
-		{
-
-		}
 	}
 }

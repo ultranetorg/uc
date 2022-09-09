@@ -35,7 +35,7 @@ namespace uc
 			CString						MapPath(CString const & path);
 	};
 
-	class UOS_LINKING CLocalFileSystemProviderClient : public CClient
+	class UOS_LINKING CLocalFileSystemProviderClient : public CClient, public virtual IType
 	{
 		public:
 			CLocalFileSystemProvider * Server;

@@ -3,6 +3,7 @@ using Nethereum.Web3;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -18,6 +19,8 @@ namespace UC.Net.Node.CLI
 		static Settings		Settings = null;
 		static Log			Log = new();
 		static Core			Core;
+
+		private static int numThreads = 1;
 
 		static void Main(string[] args)
 		{
@@ -58,13 +61,15 @@ namespace UC.Net.Node.CLI
 				Core.RunApi();
 				Core.RunNode();
 
-				Task.Run(() =>	{
-									while(Core.Running)
-									{
-										Thread.Sleep(100); 
-									}
-								})
-								.Wait();
+// 				Task.Run(() =>	{
+// 									while(Core.Running)
+// 									{
+// 										Thread.Sleep(100); 
+// 									}
+// 								})
+// 								.Wait();
+
+				StartUosServer();
 			}
 			catch(AbortException)
 			{
@@ -81,6 +86,34 @@ namespace UC.Net.Node.CLI
 			{
 				Core.Stop("End");
 			}
+		}
+
+		static void StartUosServer()
+		{
+			var pipe = new NamedPipeServerStream("UOS-A-" + Process.GetCurrentProcess().Id, PipeDirection.InOut, numThreads, PipeTransmissionMode.Message);
+
+			pipe.WaitForConnection();
+
+			var r = new BinaryReader(pipe);
+
+			while(Core.Running)
+			{
+				var m = Message.FromType((MessageType)r.ReadByte());
+	
+				m.Read(r);
+	
+				switch(m as object)
+				{
+					case StopMessage:
+					{
+						Core.Stop("By UOS request");
+						goto stop;
+					}
+				}
+			}
+
+			stop:
+				pipe.Close();
 		}
 	}
 }

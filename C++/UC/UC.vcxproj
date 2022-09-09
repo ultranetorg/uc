@@ -126,6 +126,8 @@
     <ClInclude Include="Animated.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Base64.h" />
+    <ClInclude Include="BinaryReader.h" />
+    <ClInclude Include="BinaryWriter.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="FileSystemDirectory.h" />
     <ClInclude Include="FileSystemEntry.h" />
@@ -134,6 +136,7 @@
     <ClInclude Include="Identity.h" />
     <ClInclude Include="IFileSystem.h" />
     <ClInclude Include="IFileSystemProvider.h" />
+    <ClInclude Include="Message.h" />
     <ClInclude Include="ProductInfo.h" />
     <ClInclude Include="Manifest.h" />
     <ClInclude Include="ApplicationRelease.h" />
