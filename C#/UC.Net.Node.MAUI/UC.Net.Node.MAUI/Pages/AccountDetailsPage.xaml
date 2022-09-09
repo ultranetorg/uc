@@ -69,7 +69,7 @@
                                         WidthRequest="34">
                                         <ImageButton
                                             BackgroundColor="{Binding Color}"
-                                            BorderColor="{Binding BoderColor}"
+                                            BorderColor="{Binding BorderColor}"
                                             BorderWidth="2"
                                             Command="{Binding BindingContext.ColorTappedCommand, Source={x:Reference page}}"
                                             CommandParameter="{Binding .}"

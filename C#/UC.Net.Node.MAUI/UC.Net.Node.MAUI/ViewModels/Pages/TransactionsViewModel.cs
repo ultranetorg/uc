@@ -1,7 +1,7 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
 public partial class TransactionsViewModel : BaseTransactionsViewModel
-{	
+{
 	private readonly ITransactionsService _service;
 
 	[ObservableProperty]

@@ -3,4 +3,5 @@
 public interface INotificationsService
 {
     Task<int> GetNotificationsCountAsync();
+    Task<CustomCollection<Notification>> GetAllAsync();
 }

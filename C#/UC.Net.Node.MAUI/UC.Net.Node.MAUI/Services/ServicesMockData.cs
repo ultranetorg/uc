@@ -4,263 +4,18 @@ public class ServicesMockData : IServicesMockData
 {
     public ServicesMockData()
 	{
-		#region Transaction
-
-		Transaction transaction1 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction2 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 50,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.Pending,
-		};
-		Transaction transaction3 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Sent,
-		};
-		Transaction transaction4 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Failed,
-		};
-		Transaction transaction5 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Status = TransactionStatus.Received,
-		};
-		Transaction transaction6 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-
-		Transaction transaction7 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Pending,
-		};
-		Transaction transaction8 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Sent,
-		};
-		Transaction transaction9 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Status = TransactionStatus.Received,
-		};
-		Transaction transaction10 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Failed,
-		};
-		Transaction transaction11 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-
-		Transaction transaction12 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 5290,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.None,
-		};
-
-		Transaction transaction13 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Pending,
-		};
-		Transaction transaction14 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Sent,
-		};
-		Transaction transaction15 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Status = TransactionStatus.Received,
-		};
-		Transaction transaction16 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Failed,
-		};
-		Transaction transaction17 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction18 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 190,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction19 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-
-		Transaction transaction20 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Status = TransactionStatus.Sent,
-		};
-		Transaction transaction21 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Failed,
-		};
-		Transaction transaction22 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Received,
-		};
-		Transaction transaction23 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction24 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction25 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction26 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 520,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction27 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Received,
-		};
-		Transaction transaction28 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.Failed,
-		};
-		Transaction transaction29 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Status = TransactionStatus.Sent,
-		};
-		Transaction transaction30 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction31 = new()
-		{
-			Id = 1,
-			Status = TransactionStatus.None,
-		};
-		Transaction transaction32 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 540,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.Failed,
-		};
-		Transaction transaction33 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.Sent,
-		};
-		Transaction transaction34 = new()
-		{
-			Id = 1,
-			FromId = Generator.GenerateUniqueID(6),
-			ToId = Generator.GenerateUniqueID(6),
-			Unt = 590,
-			Name = "UNT Transfer",
-			Status = TransactionStatus.Received,
-		};
-
-		#endregion Transaction
 
 		#region Products
 
-		Product product1 = new()
-		{
-			Name = "Windows",
-		};
-		Product product2 = new()
-		{
-			Name = "Office",
-		};
-		Product product3 = new()
-		{
-			Name = "Visual Studio Code",
-		};
-		Product product4 = new()
-		{
-			Name = "Outlook 365",
-		};
-		Product product5 = new()
-		{
-			Name = "Paint",
-		};
-		Product product6 = new()
-		{
-			Name = "Google Search",
-		};
-		Product product7 = new()
-		{
-			Name = "AWS",
-		};
-		Product product8 = new()
-		{
-			Name = "Warehouse",
-		};
-		Product product9 = new()
-		{
-			Name = "Gate Defender 3",
-		};
+		Product product1 = new("Windows");
+		Product product2 = new("Office");
+		Product product3 = new("Visual Studio Code");
+		Product product4 = new("Outlook 365");
+		Product product5 = new("Paint");
+		Product product6 = new("Google Search");
+		Product product7 = new("AWS");
+		Product product8 = new("Warehouse");
+		Product product9 = new("Gate Defender 3");
 
 		#endregion Products
 
@@ -330,6 +85,14 @@ public class ServicesMockData : IServicesMockData
 
 		#region Accounts
 
+		Transaction transaction1 = DefaultDataMock.CreateTransaction();
+		Transaction transaction2 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 50, "UNT Transfer");
+		Transaction transaction3 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent);
+		Transaction transaction4 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed);
+		Transaction transaction5 = DefaultDataMock.CreateTransaction(TransactionStatus.Received);
+		Transaction transaction6 = DefaultDataMock.CreateTransaction(TransactionStatus.None, 5290, "UNT Transfer");
+		Transaction transaction7 = DefaultDataMock.CreateTransaction();
+
 		Account account1 = new("0x8Ba6145c7900B0830AC15fcC0487a7CFf7a3136f")
 		{
 			Name = "Main Ultranet Account",
@@ -349,7 +112,6 @@ public class ServicesMockData : IServicesMockData
 				transaction5,
 				transaction6,
 				transaction7,
-				transaction8,
 			},
 		};
 		author1.Account = account1;
@@ -357,11 +119,8 @@ public class ServicesMockData : IServicesMockData
 		transaction1.Account = account1;
 		transaction2.Account = account1;
 		transaction3.Account = account1;
-		transaction4.Account = account1;
-		transaction5.Account = account1;
 		transaction6.Account = account1;
 		transaction7.Account = account1;
-		transaction8.Account = account1;
 
 		Account account2 = new("0x2AdA01E7fEe46327f7E18a439e87060645af6da3")
 		{
@@ -373,13 +132,13 @@ public class ServicesMockData : IServicesMockData
 			},
 			Transactions = new List<Transaction>
 			{
-				transaction8,
-				transaction9,
+				transaction4,
+				transaction5,
 			},
 		};
 		author3.Account = account2;
-		transaction8.Account = account2;
-		transaction9.Account = account2;
+		transaction4.Account = account1;
+		transaction5.Account = account1;
 
 		Account account3 = new("0x47C0566c10c00cfc29aa439Fa1C7d4B888b413D0")
 		{
@@ -387,24 +146,15 @@ public class ServicesMockData : IServicesMockData
 			Balance = 2.982258M,
 			Transactions = new List<Transaction>
 			{
-				transaction10,
-				transaction11,
-				transaction12,
-				transaction13,
-				transaction14,
-				transaction15,
-				transaction16,
-				transaction17,
+				transaction6,
+				transaction7,
 			},
 		};
-		transaction10.Account = account3;
-		transaction11.Account = account3;
-		transaction12.Account = account3;
-		transaction13.Account = account3;
-		transaction14.Account = account3;
-		transaction15.Account = account3;
-		transaction16.Account = account3;
-		transaction17.Account = account3;
+		transaction6.Account = account1;
+		transaction7.Account = account1;
+
+		Transaction transaction8 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent);
+		Transaction transaction9 = DefaultDataMock.CreateTransaction(TransactionStatus.Received);
 
 		Account account4 = new("0x0362C7DfE8B4A40D3374D5e22cDF102c33E44df0")
 		{
@@ -412,14 +162,17 @@ public class ServicesMockData : IServicesMockData
 			Balance = 65.61161M,
 			Transactions = new List<Transaction>
 			{
-				transaction18,
-				transaction19,
-				transaction20,
+				transaction8,
+				transaction9,
 			},
 		};
-		transaction18.Account = account4;
-		transaction19.Account = account4;
-		transaction20.Account = account4;
+		transaction8.Account = account4;
+		transaction9.Account = account4;
+
+		Transaction transaction10 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed);
+		Transaction transaction11 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 50);
+		Transaction transaction12 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 100);
+		Transaction transaction13 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 500);
 
 		Account account5 = new("0x033A45c42b1E4C6beEdF0dc76e847A942B37e0Ba")
 		{
@@ -431,19 +184,23 @@ public class ServicesMockData : IServicesMockData
 			},
 			Transactions = new List<Transaction>
 			{
-				transaction21,
-				transaction22,
-				transaction23,
-				transaction24,
-				transaction25,
+				transaction10,
+				transaction11,
+				transaction12,
+				transaction13,
 			},
 		};
 		author4.Account = account5;
-		transaction21.Account = account5;
-		transaction22.Account = account5;
-		transaction23.Account = account5;
-		transaction24.Account = account5;
-		transaction25.Account = account5;
+		transaction10.Account = account5;
+		transaction11.Account = account5;
+		transaction12.Account = account5;
+		transaction13.Account = account5;
+
+		Transaction transaction14 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 200);
+		Transaction transaction15 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 1100);
+		Transaction transaction16 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 1100, "Transfer");
+		Transaction transaction17 = DefaultDataMock.CreateTransaction();
+		Transaction transaction18 = DefaultDataMock.CreateTransaction();
 
 		Account account6 = new("0x59E58E6821BC870fB2E125477d58b50F23a8De5c")
 		{
@@ -455,27 +212,19 @@ public class ServicesMockData : IServicesMockData
 			},
 			Transactions = new List<Transaction>
 			{
-				transaction26,
-				transaction27,
-				transaction28,
-				transaction29,
-				transaction30,
-				transaction31,
-				transaction32,
-				transaction33,
-				transaction34,
+				transaction14,
+				transaction15,
+				transaction16,
+				transaction17,
+				transaction18,
 			},
 		};
 		author5.Account = account6;
-		transaction26.Account = account6;
-		transaction27.Account = account6;
-		transaction28.Account = account6;
-		transaction29.Account = account6;
-		transaction30.Account = account6;
-		transaction31.Account = account6;
-		transaction32.Account = account6;
-		transaction33.Account = account6;
-		transaction34.Account = account6;
+		transaction14.Account = account6;
+		transaction15.Account = account6;
+		transaction16.Account = account6;
+		transaction17.Account = account6;
+		transaction18.Account = account6;
 
 		Account account7 = new("0xD786C52802740f16Ca920876F827AAe62D54F4a0")
 		{
@@ -507,28 +256,9 @@ public class ServicesMockData : IServicesMockData
 			Balance = 0,
 		};
 
-		var wallet1 = new Wallet
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "47F0",
-			Name = "Main ultranet",
-			AccountColor = Color.FromArgb("#6601e3"),
-		};
-		var wallet2 = new Wallet
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "2T52",
-			Name = "Main ultranet"
-		};
-		var wallet3 = new Wallet
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "9MDL",
-			Name = "Main ultranet"
-		};
+		var wallet1 = DefaultDataMock.Wallet1;
+		var wallet2 = DefaultDataMock.Wallet2;
+		var wallet3 = DefaultDataMock.Wallet3;
 
 		account1.Wallets = new List<Wallet> { wallet1, wallet2, wallet3 };
 		account3.Wallets = new List<Wallet> { wallet1, wallet2 };
@@ -551,19 +281,26 @@ public class ServicesMockData : IServicesMockData
 		};
 
 		#endregion Accounts
+		
+		AccountColors.Add(DefaultDataMock.CreateColor("#6601e3", Shell.Current.BackgroundColor));
+		AccountColors.Add(DefaultDataMock.CreateColor("#3765f4"));
+		AccountColors.Add(DefaultDataMock.CreateColor("#ba918c"));
+		AccountColors.Add(DefaultDataMock.CreateColor("#d56a48"));
+		AccountColors.Add(DefaultDataMock.CreateColor("#56d7de"));
+		AccountColors.Add(DefaultDataMock.CreateColor("#bb50dd"));
 
-		AccountColors.Add(new AccountColor { Color = Color.FromArgb("#6601e3") ,BoderColor = Shell.Current.BackgroundColor });
-        AccountColors.Add(new AccountColor { Color = Color.FromArgb("#3765f4"), BoderColor = Colors.Transparent });
-        AccountColors.Add(new AccountColor { Color = Color.FromArgb("#4cb16c"),  BoderColor = Colors.Transparent });
-        AccountColors.Add(new AccountColor { Color = Color.FromArgb("#ba918c"), BoderColor = Colors.Transparent });
-        AccountColors.Add(new AccountColor { Color = Color.FromArgb("#d56a48"),  BoderColor = Colors.Transparent });
-        AccountColors.Add(new AccountColor { Color = Color.FromArgb("#56d7de"), BoderColor = Colors.Transparent });
-        AccountColors.Add(new AccountColor { Color = Color.FromArgb("#bb50dd"), BoderColor = Colors.Transparent });
-
-        Emissions.Add(new Emission { ETH = "100", Number = 1,UNT = "100" });
+        Emissions.Add(new Emission { ETH = "100", Number = 1, UNT = "100" });
         Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });
         Emissions.Add(new Emission { ETH = "10000", Number = 3, UNT = "10000" });
         Emissions.Add(new Emission { ETH = "100000", Number = 4, UNT = "10000" });
+
+		Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.ProductOperations));
+		Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.SystemEvent));
+		Notifications.Add(DefaultDataMock.CreateNotification(Severity.Mid, NotificationType.AuthorOperations));
+		Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.TokenOperations));
+		Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.Server));
+		Notifications.Add(DefaultDataMock.CreateNotification(Severity.Mid, NotificationType.Wallet));
+		Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.Server));
     }
 
     public IList<Account> Accounts { get; set; }
@@ -573,4 +310,5 @@ public class ServicesMockData : IServicesMockData
     public IList<Wallet> Wallets => Accounts.SelectMany(x => x.Wallets).ToList();
 	public IList<AccountColor> AccountColors { get; set; }
     public IList<Emission> Emissions { get; set; }
+    public IList<Notification> Notifications { get; set; }
 }

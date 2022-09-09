@@ -15,9 +15,10 @@ public partial class NotificationsPopup : Popup
 		Close();
     }
 
+	// TBR async
 	public static async Task Show()
 	{
 		popup = new NotificationsPopup();
-		await App.Current.MainPage.ShowPopupAsync(popup);
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 	}
 }

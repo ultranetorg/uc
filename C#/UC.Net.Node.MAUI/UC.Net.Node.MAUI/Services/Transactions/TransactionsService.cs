@@ -2,13 +2,13 @@
 
 public class TransactionsService : ITransactionsService
 {
-    public Task<ObservableCollection<Transaction>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
+    public Task<CustomCollection<Transaction>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
-    public Task<ObservableCollection<Transaction>> GetLastAsync(int lastTransactionsCount)
+    public Task<CustomCollection<Transaction>> GetLastAsync(int lastTransactionsCount)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 }

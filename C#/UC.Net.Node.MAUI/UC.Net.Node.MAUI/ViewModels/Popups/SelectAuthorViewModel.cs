@@ -2,6 +2,8 @@
 
 public partial class SelectAuthorViewModel : BaseViewModel
 {
+	private readonly IAuthorsService _service;
+
     public Author SelectedAuthor;
 
     public SelectAuthorPopup Popup { get; set;}
@@ -9,9 +11,10 @@ public partial class SelectAuthorViewModel : BaseViewModel
 	[ObservableProperty]
 	private CustomCollection<Author> _authors = new();
 
-    public SelectAuthorViewModel(ILogger<SelectAuthorViewModel> logger) : base(logger)
+    public SelectAuthorViewModel(IAuthorsService service, ILogger<SelectAuthorViewModel> logger) : base(logger)
     {
-		AddFakeData();
+		Initialize();
+		_service = service;
     }
 
 	[RelayCommand]
@@ -25,16 +28,10 @@ public partial class SelectAuthorViewModel : BaseViewModel
     {
         Popup.Hide();
     }
-
-	private void AddFakeData()
+	
+	public void Initialize()
 	{
-        Authors.Add(new Author { BidStatus = BidStatus.None, Name = "amazon.com", ActiveDue = "Active due: 07/07/2022 (in 182 days)" });
-        Authors.Add(new Author { BidStatus = BidStatus.None, Name = "amazon.com", ActiveDue = "Active due: 07/07/2022 (in 182 days)" });
-        Authors.Add(new Author { BidStatus = BidStatus.Higher, Name = "Auction A", ActiveDue = "43 days left", CurrentBid = 2435 });
-        Authors.Add(new Author { BidStatus = BidStatus.Lower, Name = "Auction A", ActiveDue = "43 days left", CurrentBid = 2435 });
-        Authors.Add(new Author { BidStatus = BidStatus.None, Name = "ultranet.org", ActiveDue = "Active due: 07/07/2022 (in 182 days)" });
-        Authors.Add(new Author { BidStatus = BidStatus.None, Name = "amazon.com", ActiveDue = "Active due: 07/07/2022 (in 182 days)" });
-        Authors.Add(new Author { BidStatus = BidStatus.Higher, Name = "Auction A", ActiveDue = "43 days left", CurrentBid = 2435 });
-        Authors.Add(new Author { BidStatus = BidStatus.Lower, Name = "Auction B", ActiveDue = "43 days left", CurrentBid = 2435 });
+		var authors = Task.Run(async () => await _service.GetAllAsync()).Result;
+		Authors.AddRange(authors);
 	}
 }

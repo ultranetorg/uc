@@ -3,24 +3,10 @@
 public partial class Send1ViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Wallet _sourceWallet = new()
-    {
-        Id = Guid.NewGuid(),
-        Unts = 5005,
-        IconCode = "47FO",
-        Name = "Main ultranet wallet",
-        AccountColor = Color.FromArgb("#56d7de"),
+    private Wallet _sourceWallet = DefaultDataMock.Wallet1;
 
-    };
 	[ObservableProperty]
-    private Wallet _recipientWallet = new()
-    {
-        Id = Guid.NewGuid(),
-        Unts = 5005,
-        IconCode = "47F0",
-        Name = "Main ultranet wallet",
-        AccountColor = Color.FromArgb("#6601e3"),
-    };
+    private Wallet _recipientWallet = DefaultDataMock.Wallet2;
 
     public Send1ViewModel(ILogger<Send1ViewModel> logger): base(logger)
 	{

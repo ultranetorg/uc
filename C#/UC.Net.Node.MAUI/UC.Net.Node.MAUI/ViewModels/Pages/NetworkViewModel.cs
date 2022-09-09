@@ -8,14 +8,7 @@ public partial class NetworkViewModel : BaseViewModel
     private CustomCollection<Emission> _emissions = new();
     
 	[ObservableProperty]
-    private Wallet _wallet = new()
-	{
-		Id = Guid.NewGuid(),
-		Unts = 5005,
-		IconCode = "47F0",
-		Name = "Main ultranet wallet",
-		AccountColor = Color.FromArgb("#6601e3"),
-	};
+    private Wallet _wallet = DefaultDataMock.Wallet1;
 
     public NetworkViewModel(IServicesMockData service, ILogger<NetworkViewModel> logger) : base(logger)
     {

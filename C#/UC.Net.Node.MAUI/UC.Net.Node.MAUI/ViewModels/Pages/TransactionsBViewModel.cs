@@ -4,8 +4,8 @@ public partial class TransactionsBViewModel : BaseTransactionsViewModel
 {
 	private readonly ITransactionsService _service;
 
-    private TransactionList TransactionsThisWeek;
-    private TransactionList TransactionsLastWeek;
+    private readonly TransactionList TransactionsThisWeek = new("This Week");
+    private readonly TransactionList TransactionsLastWeek = new("Last Week");
 
 	[ObservableProperty]
     private CustomCollection<TransactionList> _transactions = new();

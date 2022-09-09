@@ -8,14 +8,7 @@ public partial class UnfinishTransferViewModel : BaseViewModel
     private CustomCollection<Emission> _emissions = new();
 
 	[ObservableProperty]
-    private Wallet _wallet = new()
-	{
-		Id = Guid.NewGuid(),
-		Unts = 5005,
-		IconCode = "47F0",
-		Name = "Main ultranet wallet",
-		AccountColor = Color.FromArgb("#6601e3"),
-	}; 
+    private Wallet _wallet = DefaultDataMock.Wallet1;
 
     public UnfinishTransferViewModel(IServicesMockData service, ILogger<UnfinishTransferViewModel> logger) : base(logger)
     {

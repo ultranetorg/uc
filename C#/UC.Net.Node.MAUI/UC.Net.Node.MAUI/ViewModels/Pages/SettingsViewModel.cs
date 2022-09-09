@@ -6,14 +6,7 @@ public partial class SettingsViewModel : BaseViewModel
     private CustomCollection<string> _months;
     
 	[ObservableProperty]
-    private Wallet _wallet = new()
-	{
-		Id = Guid.NewGuid(),
-		Unts = 5005,
-		IconCode = "47F0",
-		Name = "Main ultranet wallet",
-		AccountColor = Color.FromArgb("#6601e3"),
-	};
+    private Wallet _wallet = DefaultDataMock.Wallet1;
 
     public SettingsViewModel(ILogger<SettingsViewModel> logger) : base(logger)
     {
@@ -34,13 +27,6 @@ public partial class SettingsViewModel : BaseViewModel
 
 	private void LoadData()
 	{
-		_months = new();
-        Months.Add("April");
-        Months.Add("May");
-        Months.Add("June");
-        Months.Add("July");
-        Months.Add("Augest");
-        Months.Add("Spetemper");
-        Months.Add("November");
+		_months = DefaultDataMock.MonthList1;
 	}
 }

@@ -2,68 +2,20 @@
 
 public partial class NotificationsViewModel : BaseViewModel
 {
+	private readonly INotificationsService _service;
+
 	[ObservableProperty]
     private CustomCollection<Notification> _notifications = new();
 
-    public NotificationsViewModel(ILogger<NotificationsViewModel> logger): base(logger)
+    public NotificationsViewModel(INotificationsService service, ILogger<NotificationsViewModel> logger): base(logger)
     {
-		AddFakeData();
+		_service = service;
+		Initialize();
     }
-
-	#region Fake Data
 	
-	private void AddFakeData()
+	public void Initialize()
 	{
-		Notifications.Add(new Notification
-		{
-			Title = "Today at 16:00",
-			Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-			Type = NotificationType.ProductOperations,
-			Severity = Severity.High
-		});
-		Notifications.Add(new Notification
-		{
-			Title = "Today at 16:00",
-			Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-			Type = NotificationType.SystemEvent,
-			Severity = Severity.Low
-		});
-		Notifications.Add(new Notification
-		{
-			Title = "Today at 16:00",
-			Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-			Type = NotificationType.AuthorOperations,
-			Severity = Severity.Mid
-		});
-		Notifications.Add(new Notification
-		{
-			Title = "Today at 16:00",
-			Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-			Type = NotificationType.TokenOperations,
-			Severity = Severity.High
-		});
-		Notifications.Add(new Notification
-		{
-			Title = "Today at 16:00",
-			Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-			Type = NotificationType.Server,
-			Severity = Severity.Low
-		});
-		Notifications.Add(new Notification
-		{
-			Title = "Today at 16:00",
-			Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-			Type = NotificationType.Wallet,
-			Severity = Severity.Mid
-		});
-		Notifications.Add(new Notification
-		{
-			Title = "Today at 16:00",
-			Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-			Type = NotificationType.Server,
-			Severity = Severity.High
-		});
+		var notifications = Task.Run(async () => await _service.GetAllAsync()).Result;
+		Notifications.AddRange(notifications);
 	}
-
-	#endregion Fake Data
 }

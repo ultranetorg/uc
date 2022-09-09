@@ -2,6 +2,7 @@
 
 public partial class AuthorsPage : CustomPage
 {
+	AuthorsViewModel Vm => BindingContext as AuthorsViewModel;
     public AuthorsPage()
     {
         InitializeComponent();
@@ -12,5 +13,11 @@ public partial class AuthorsPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await Vm.InitializeAsync();
     }
 }

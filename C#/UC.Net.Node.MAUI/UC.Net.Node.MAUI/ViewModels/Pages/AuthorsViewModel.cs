@@ -2,7 +2,7 @@
 
 public partial class AuthorsViewModel : BaseTransactionsViewModel
 {
-	private readonly IServicesMockData _service;
+	private readonly IAuthorsService _service;
 
 	[ObservableProperty]
     private Author _selectedItem;
@@ -13,10 +13,9 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	[ObservableProperty]
     private CustomCollection<string> _authorsFilter = new();
 
-    public AuthorsViewModel(IServicesMockData service, ILogger<AuthorsViewModel> logger) : base(logger)
+    public AuthorsViewModel(IAuthorsService service, ILogger<AuthorsViewModel> logger) : base(logger)
     {
 		_service = service;
-		LoadData();
     }
 	
 	[RelayCommand]
@@ -38,11 +37,12 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
         await Shell.Current.Navigation.PushAsync(new MakeBidPage());
     }
 
-	private void LoadData()
+	public async Task InitializeAsync()
 	{
         AuthorsFilter = new CustomCollection<string> {"All", "To be expired", "Expired", "Hidden", "Shown" };
-
+		
 		Authors.Clear();
-		Authors.AddRange(_service.Authors);
+		var authors = await _service.GetAllAsync();
+		Authors.AddRange(authors);
 	}
 }

@@ -86,7 +86,7 @@
                             WidthRequest="44">
                             <ImageButton
                                 BackgroundColor="{Binding Color}"
-                                BorderColor="{Binding BoderColor}"
+                                BorderColor="{Binding BorderColor}"
                                 BorderWidth="2"
                                 Command="{Binding BindingContext.ColorTappedCommand, Source={x:Reference view}}"
                                 CommandParameter="{Binding .}"

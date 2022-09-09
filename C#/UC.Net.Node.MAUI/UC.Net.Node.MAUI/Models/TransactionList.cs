@@ -2,11 +2,11 @@
 
 public class TransactionList: CustomCollection<Transaction>
 {
-    public string Head { get; set; }
+    public string Header { get; set; }
     public CustomCollection<Transaction> Transactions => this;
 
-    public TransactionList(string head)
+    public TransactionList(string header)
     {
-        Head = head;
+        Header = header;
     }
 }

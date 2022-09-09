@@ -4,6 +4,11 @@ public class NotificationsService : INotificationsService
 {
     public Task<int> GetNotificationsCountAsync()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
+    }
+
+    public Task<CustomCollection<Notification>> GetAllAsync()
+    {
+        throw new NotImplementedException();
     }
 }

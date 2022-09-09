@@ -4,14 +4,7 @@ public partial class StartViewModel : BaseWalletViewModel
 {
 	public StartViewModel(ILogger<StartViewModel> logger) : base(logger)
 	{
-		Wallet = new()
-		{
-			Id = Guid.NewGuid(),
-			Unts = 5005,
-			IconCode = "2T52",
-			Name = "Main ultranet wallet",
-			AccountColor = Color.FromArgb("#bb50dd"),
-		};
+		Wallet = DefaultDataMock.Wallet3;
 	}
 
 	[RelayCommand]

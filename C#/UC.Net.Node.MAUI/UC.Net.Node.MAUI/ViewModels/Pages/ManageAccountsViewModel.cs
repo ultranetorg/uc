@@ -1,8 +1,9 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
 public partial class ManageAccountsViewModel : BaseTransactionsViewModel
-{	
+{
 	private readonly IServicesMockData _service;
+
 	[ObservableProperty]
     private Wallet _selectedItem;
 

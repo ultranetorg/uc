@@ -22,6 +22,6 @@ public partial class ProductsViewModel : BaseTransactionsViewModel
 	{
 		var products = await _service.GetAllAsync();
 		Products.AddRange(products);
-        ProductsFilter = new CustomCollection<string> {"All", "To be expired", "Expired", "Hidden", "Shown" };
+        ProductsFilter = DefaultDataMock.ProductsFilter1;
 	}
 }
