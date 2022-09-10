@@ -42,7 +42,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
-    <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
     <OutDir>$(G_Root)\_$(Configuration)\uc-uos-winx64\0.0.0.0\</OutDir>
@@ -65,20 +64,21 @@
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>shlwapi.lib;Version.lib;DbgHelp.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\Ipfs\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);..\Libs\Keccak\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <ResourceCompile />
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    <ProjectReference />
     <Manifest>
       <EnableDpiAwareness>false</EnableDpiAwareness>
     </Manifest>
@@ -97,10 +97,11 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\Ipfs\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);..\Libs\Keccak\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>shlwapi.lib;Version.lib;DbgHelp.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <OptimizeReferences>true</OptimizeReferences>
@@ -111,6 +112,7 @@
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <ResourceCompile />
     <PreBuildEvent>
@@ -131,10 +133,11 @@
     <ClInclude Include="Client.h" />
     <ClInclude Include="FileSystemDirectory.h" />
     <ClInclude Include="FileSystemEntry.h" />
-    <ClInclude Include="Fun.h" />
+    <ClInclude Include="SunClient.h" />
+    <ClInclude Include="Sun.h" />
     <ClInclude Include="Hex.h" />
     <ClInclude Include="Identity.h" />
-    <ClInclude Include="IFileSystem.h" />
+    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="IFileSystemProvider.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="ProductInfo.h" />
@@ -181,7 +184,7 @@
     <ClInclude Include="Sha256.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Path.h" />
-    <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="FileSystemServer.h" />
     <ClInclude Include="UniversalDelegate.h" />
     <ClInclude Include="FastDelegateBind.h" />
     <ClInclude Include="FileService.h" />
@@ -264,7 +267,7 @@
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="FileSystemDirectory.cpp" />
-    <ClCompile Include="Fun.cpp" />
+    <ClCompile Include="SunClient.cpp" />
     <ClCompile Include="Hex.cpp" />
     <ClCompile Include="Manifest.cpp" />
     <ClCompile Include="PersistentObject.cpp" />
@@ -318,7 +321,7 @@
     <ClCompile Include="Os.cpp" />
     <ClInclude Include="TextReader.h" />
     <ClCompile Include="Path.cpp" />
-    <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="FileSystemServer.cpp" />
     <ClCompile Include="UC.cpp" />
     <ClCompile Include="Url.cpp" />
     <ClCompile Include="Uxx.cpp" />

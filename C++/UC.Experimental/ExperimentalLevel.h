@@ -10,7 +10,7 @@ namespace uc
 	{
 		CProtocolConnection<CWorld>				World;
 		CProtocolConnection<CShell>				Shell;
-		CProtocolConnection<IFileSystem>		Storage;
+		CProtocolConnection<CFileSystem>		Storage;
 
 		CCore *									Core;
 		CNexus *								Nexus;

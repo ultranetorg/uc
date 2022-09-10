@@ -264,17 +264,21 @@ void CNexus::StartServers()
 
 	start(SystemConfig);
 
-	FileSystem = Connect<IFileSystem>(this);
+	FileSystem = Connect<CFileSystem>(this);
 	CString user = L"User";
 	auto lp = Releases.Find([&](auto i){ return i->Address.Application == CLocalFileSystemProvider::Name; });
-	FileSystem->Mount(IFileSystem::UserLocal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".local"))));
-	FileSystem->Mount(IFileSystem::UserGlobal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".global"))));
-	FileSystem->Mount(IFileSystem::UserTmp,		lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Tmp, user))));
+	FileSystem->Mount(CFileSystem::UserLocal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".local"))));
+	FileSystem->Mount(CFileSystem::UserGlobal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".global"))));
+	FileSystem->Mount(CFileSystem::UserTmp,		lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Tmp, user))));
+
+	Sun = Connect<CSun>(this);
+
+	auto s = Sun->GetSettings();
 
 	Identity = new CIdentity();
 
 	auto d = Core->Resolve(Core->MapPath(ESystemPath::Core, UserNexusFile));
-	auto c = FileSystem->UniversalToNative(CPath::Join(IFileSystem::UserGlobal, UserNexusFile));
+	auto c = FileSystem->UniversalToNative(CPath::Join(CFileSystem::UserGlobal, UserNexusFile));
 
 	UserConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::IsFile(c) ? c : d, EFileMode::Open)));
 
@@ -294,11 +298,12 @@ void CNexus::Stop()
 	while(auto s = Servers.Last([&](auto s){ return s->Identity != null; }))
 		Stop(s);
 
-	UserConfig->Save(&CXonTextWriter(&CLocalFileStream(FileSystem->UniversalToNative(CPath::Join(IFileSystem::UserGlobal, UserNexusFile)), EFileMode::New), false));
+	UserConfig->Save(&CXonTextWriter(&CLocalFileStream(FileSystem->UniversalToNative(CPath::Join(CFileSystem::UserGlobal, UserNexusFile)), EFileMode::New), false));
 	delete UserConfig;
 
 	delete Identity;
 
+	Disconnect(Sun);
 	Disconnect(FileSystem);
 
 	while(auto c = Clients.Last())

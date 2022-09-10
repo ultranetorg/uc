@@ -65,6 +65,7 @@
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -75,6 +76,7 @@
       <AdditionalOptions>
       </AdditionalOptions>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <ResourceCompile />
     <Manifest>
@@ -95,6 +97,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,6 +110,7 @@
       </AdditionalOptions>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <ResourceCompile />
     <PreBuildEvent>

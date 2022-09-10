@@ -17,7 +17,7 @@ namespace uc
 	struct CShellLevel
 	{
 		CProtocolConnection<CWorld>				World;
-		CProtocolConnection<IFileSystem>		Storage;
+		CProtocolConnection<CFileSystem>		Storage;
 		CEngine *								Engine;
 		CPersistentServer *						Server;
 		CCore *									Core;
@@ -30,15 +30,17 @@ namespace uc
 		{
 			auto cmd = World.Client->Instance->Name + L"{";
 
-			#ifndef _DEBUG // copy World command options
-				for(auto & i : Core->FindStartCommands(World->Server->Url))
-				{
-					for(auto & j : i.Query)
-					{
-						cmd.Query[j.first] = j.second;
-					}
-				}
-			#endif
+///	CANT RECALL PURPOSE
+/// 
+/// 			#ifndef _DEBUG // copy World command options
+///				for(auto & i : Core->FindStartCommands(World->Server->Url))
+///				{
+///					for(auto & j : i.Query)
+///					{
+///						cmd.Query[j.first] = j.second;
+///					}
+///				}
+///			#endif
 
 			auto dm = s->AddSectionItem(L"Switch to Desktop Mode");
 			dm->GetSection()->AddItem(L"Default")->Clicked	=	[this, cmd](auto, auto) mutable

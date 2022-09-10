@@ -1,12 +1,12 @@
 #pragma once
-#include "IFileSystem.h"
+#include "FileSystem.h"
 
 namespace uc
 {
 	class UOS_LINKING CConfig : public IType
 	{
 		public:
-			IFileSystem *		Storage;
+			CFileSystem *		Storage;
 			CString				DefaultUri;
 			CString				CustomUri;
 
@@ -18,7 +18,7 @@ namespace uc
 			CXon *				GetRoot();
 
 			UOS_RTTI
-			CConfig(IFileSystem * l, CString & durl, CString & curl);
+			CConfig(CFileSystem * l, CString & durl, CString & curl);
 			~CConfig();
 
 	};

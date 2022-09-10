@@ -13,6 +13,6 @@ namespace uc
 		CEngine *								Engine;
 		CMaterialPool *							Materials;
 		CStyle *								Style;
-		CProtocolConnection<IFileSystem>		Storage;
+		CProtocolConnection<CFileSystem>		Storage;
 	};
 }

@@ -1,10 +1,10 @@
 #include "StdAfx.h"
 #include "FileSystemDirectory.h"
-#include "FileSystem.h"
+#include "FileSystemServer.h"
 
 using namespace uc;
 
-CFileSystemDirectory::CFileSystemDirectory(CFileSystem * filesystem, CString const & path)
+CFileSystemDirectory::CFileSystemDirectory(CFileSystemServer * filesystem, CString const & path)
 {
 	FileSystem = filesystem;
 	Path = path;

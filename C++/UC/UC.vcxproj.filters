@@ -31,7 +31,7 @@
     <Filter Include="FileSystem">
       <UniqueIdentifier>{ce3a2fd4-acac-451e-943f-ef584aab68bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Node">
+    <Filter Include="Sun">
       <UniqueIdentifier>{c9318c50-80bc-4fac-b77a-3ac3a2f6eb21}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -374,10 +374,10 @@
     <ClInclude Include="PersistentObject.h">
       <Filter>Nexus</Filter>
     </ClInclude>
-    <ClInclude Include="FileSystem.h">
+    <ClInclude Include="FileSystemServer.h">
       <Filter>FileSystem</Filter>
     </ClInclude>
-    <ClInclude Include="IFileSystem.h">
+    <ClInclude Include="FileSystem.h">
       <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="IFileSystemProvider.h">
@@ -393,8 +393,8 @@
       <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="ProductInfo.h" />
-    <ClInclude Include="Fun.h">
-      <Filter>Node</Filter>
+    <ClInclude Include="SunClient.h">
+      <Filter>Sun</Filter>
     </ClInclude>
     <ClInclude Include="Client.h">
       <Filter>Nexus</Filter>
@@ -416,6 +416,9 @@
     </ClInclude>
     <ClInclude Include="Message.h">
       <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="Sun.h">
+      <Filter>Sun</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -670,7 +673,7 @@
     <ClCompile Include="PersistentObject.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
-    <ClCompile Include="FileSystem.cpp">
+    <ClCompile Include="FileSystemServer.cpp">
       <Filter>FileSystem</Filter>
     </ClCompile>
     <ClCompile Include="FileSystemDirectory.cpp">
@@ -679,8 +682,8 @@
     <ClCompile Include="LocalFileStream.cpp">
       <Filter>FileSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Fun.cpp">
-      <Filter>Node</Filter>
+    <ClCompile Include="SunClient.cpp">
+      <Filter>Sun</Filter>
     </ClCompile>
     <ClCompile Include="Client.cpp" />
   </ItemGroup>

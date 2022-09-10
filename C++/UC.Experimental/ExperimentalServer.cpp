@@ -88,7 +88,7 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world)
 
 	if(storage && !Storage)
 	{
-		Storage = CPersistentServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect(this, CFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
 		GeoStore = new CGeoStore(this);
 	}
 
@@ -119,7 +119,7 @@ void CExperimentalServer::Initialize()
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
 		{
 			auto c = new CCommander(this, COMMANDER_AT_HOME_1);
-			c->SetRoot(CPath::Join(IFileSystem::This, CPath::Universalize(szPath)));
+			c->SetRoot(CPath::Join(CFileSystem::This, CPath::Universalize(szPath)));
 			Server->RegisterObject(c, true);
 			c->Free();
 				
@@ -129,7 +129,7 @@ void CExperimentalServer::Initialize()
 		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
 		{
 			auto c = new CCommander(this, COMMANDER_AT_HOME_2);
-			c->SetRoot(CPath::Join(IFileSystem::This, CPath::Universalize(ppath)));
+			c->SetRoot(CPath::Join(CFileSystem::This, CPath::Universalize(ppath)));
 			Server->RegisterObject(c, true);
 			c->Free();
 		

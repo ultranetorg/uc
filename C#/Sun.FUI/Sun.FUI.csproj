@@ -4,12 +4,12 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyName>UC.Net.Node.FUI</AssemblyName>
+    <AssemblyName>Sun.FUI</AssemblyName>
     <RootNamespace>UC.Net.Node.FUI</RootNamespace>
     <Version>0.0.430</Version>
     <Company>Ultranet Organization</Company>
     <Authors>Ultranet Organization</Authors>
-    <Product>Dotnet-based Ultranet Node (DUN) with Forms UI</Product>
+    <Product>Standard Ultranet Node (SUN) with Forms UI</Product>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
@@ -18,12 +18,12 @@
     <Description></Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uc-dun-dotnet6\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uc-sun-dotnet\0.0.0.0</OutputPath>
     <NoWarn>1701;1702;0169</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uc-dun-dotnet6\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Release\uc-sun-dotnet\0.0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
   </PropertyGroup>

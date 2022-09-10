@@ -53,21 +53,20 @@ namespace uc
 
 
 				PipeName = L"\\\\.\\Pipe\\UOS-A-" + CInt32::ToString(processInfo.dwProcessId);
-				
+
+//  				if(!WaitNamedPipe(PipeName.data(), 3000))
+//  				{
+// 					auto e = GetLastError();
+//  					throw CException(HERE, L"Failed to open pipe");
+//  				}
+
 				do 
 				{
-					Pipe = CreateFile(PipeName.data(), GENERIC_READ | GENERIC_WRITE, 0, null, OPEN_EXISTING, 0, null);
-
-					auto e = GetLastError();
+					Pipe = CreateFile(PipeName.data(), GENERIC_READ|GENERIC_WRITE, 0, null, OPEN_EXISTING, 0, null);
 
 					Sleep(1);
 				}
 				while(Pipe == INVALID_HANDLE_VALUE);
-
-// 				if(!WaitNamedPipe(PipeName.data(), 3000))
-// 				{
-// 					throw CException(HERE, L"Failed to open pipe");
-// 				}
 
 				DWORD dwMode = PIPE_READMODE_MESSAGE;
 

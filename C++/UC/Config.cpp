@@ -4,7 +4,7 @@
 
 using namespace uc;
 
-CConfig::CConfig(IFileSystem * l, CString & durl, CString & curl)
+CConfig::CConfig(CFileSystem * l, CString & durl, CString & curl)
 {
 	Storage = l;
 	DefaultUri = durl;

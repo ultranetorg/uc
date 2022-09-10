@@ -5,7 +5,8 @@
 #include "ILevel.h"
 #include "Server.h"
 #include "Client.h"
-#include "IFileSystem.h"
+#include "FileSystem.h"
+#include "Sun.h"
 
 namespace uc
 {
@@ -23,7 +24,8 @@ namespace uc
 			CList<CApplicationRelease *>				Releases;
 			CList<CServerInstance *>					Servers;
 			CList<CClientInstance *>					Clients;
-			CProtocolConnection<IFileSystem>			FileSystem;
+			CProtocolConnection<CFileSystem>			FileSystem;
+			CProtocolConnection<CSun>					Sun;
 			CIdentity *									Identity = null;
 
 			CXonDocument *								SystemConfig = null;

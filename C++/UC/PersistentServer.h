@@ -1,6 +1,6 @@
 #pragma once
 #include "Server.h"
-#include "IFileSystem.h"
+#include "FileSystem.h"
 #include "Connection.h"
 
 namespace uc
@@ -8,7 +8,7 @@ namespace uc
 	class UOS_LINKING CPersistentServer : public CServer
 	{
 		public:
-			CProtocolConnection<IFileSystem>		Storage;
+			CProtocolConnection<CFileSystem>		Storage;
 
 			UOS_RTTI
 			CPersistentServer(CNexus * l, CServerInstance * info);

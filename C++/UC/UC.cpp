@@ -1,8 +1,7 @@
 #include "StdAfx.h"
 #include "LocalFileSystemProvider.h"
-#include "FileSystem.h"
-#include "Nexus.h"
-#include "Fun.h"
+#include "FileSystemServer.h"
+#include "SunClient.h"
 
 using namespace uc;
 
@@ -13,9 +12,9 @@ CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
 	CServer * s = null;
 
-	if(info->Release->Address.Application == CFileSystem::GetClassName())
+	if(info->Release->Address.Application == L"FileSystem")
 	{
-		s = new CFileSystem(l, info);
+		s = new CFileSystemServer(l, info);
 	}
 	if(info->Release->Address.Application == CLocalFileSystemProvider::GetClassName())
 	{
@@ -39,19 +38,19 @@ CClient * CreateUosClient(CNexus * nexus, CClientInstance * info)
 {
 	CClient * c = null;
 
-	if(info->Release->Address.Application == CFileSystem::GetClassName())
+	if(info->Release->Address.Application == L"FileSystem")
 	{
 		auto s = Servers.Find([&](auto i){ return i->Instance->Name == info->Name; });
-		c = new CFileSystemClient(nexus, info, dynamic_cast<CFileSystem *>(s));
+		c = new CFileSystemClient(nexus, info, dynamic_cast<CFileSystemServer *>(s));
 	}
 	else if(info->Release->Address.Application == CLocalFileSystemProvider::GetClassName())
 	{
 		auto s = Servers.Find([&](auto i){ return i->Instance->Name == info->Name; });
 		c = new CLocalFileSystemProviderClient(nexus, info, dynamic_cast<CLocalFileSystemProvider *>(s));
 	}
-	else if(info->Release->Address.Application == L"Fun")
+	else if(info->Release->Address.Application == L"Sun")
 	{
-		c = new CFunClient(nexus, info);
+		c = new CSunClient(nexus, info);
 	}
 
 	if(c)

@@ -68,6 +68,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -77,6 +78,7 @@
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <ResourceCompile />
     <ProjectReference />
@@ -99,6 +101,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -110,6 +113,7 @@
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <ResourceCompile />
     <PreBuildEvent>

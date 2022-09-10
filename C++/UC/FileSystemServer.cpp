@@ -1,26 +1,26 @@
 #include "StdAfx.h"
-#include "FileSystem.h"
+#include "FileSystemServer.h"
 #include "Nexus.h"
 #include "LocalFileSystemProvider.h"
 #include "FileSystemDirectory.h"
 
 using namespace uc;
 
-CFileSystem::CFileSystem(CNexus * l, CServerInstance * info) : CServer(l, info)
+CFileSystemServer::CFileSystemServer(CNexus * l, CServerInstance * info) : CServer(l, info)
 {
 	//Protocols[UOS_STORAGE_PROTOCOL] = null;
 }
 
-CFileSystem::~CFileSystem()
+CFileSystemServer::~CFileSystemServer()
 {
 }
 
-IInterface * CFileSystem::Connect(CString const & pr)
+IInterface * CFileSystemServer::Connect(CString const & pr)
 {
 	return this;
 }
 
-void CFileSystem::Disconnect(IInterface * p)
+void CFileSystemServer::Disconnect(IInterface * p)
 {
 	if(p == this)
 	{
@@ -38,7 +38,7 @@ void CFileSystem::Disconnect(IInterface * p)
 	}
 }
 
-void CFileSystem::Execute(CXon * command, CExecutionParameters * parameter)
+void CFileSystemServer::Execute(CXon * command, CExecutionParameters * parameter)
 {
 	auto f = command->Nodes.First();
 
@@ -53,7 +53,7 @@ void CFileSystem::Execute(CXon * command, CExecutionParameters * parameter)
 	}
 }
 
-void CFileSystem::Mount(CString const & path, CApplicationAddress & provider, CXon * parameters)
+void CFileSystemServer::Mount(CString const & path, CApplicationAddress & provider, CXon * parameters)
 {
 	auto name = provider.Application + path.Replace(L"/", L"_");
 
@@ -72,7 +72,7 @@ void CFileSystem::Mount(CString const & path, CApplicationAddress & provider, CX
 		throw CException(HERE, L"Failed to connecting filesystem provider");
 }
 
-CString CFileSystem::UniversalToNative(CString const & path)
+CString CFileSystemServer::UniversalToNative(CString const & path)
 {
 	auto m = FindMount(path);
 
@@ -88,7 +88,7 @@ CString CFileSystem::UniversalToNative(CString const & path)
 	auto mount = L"/" + p.Substring(L'/', 1);
 	auto & lpath = path.size() > mount.size() ? p.Substring(p.find(L'/', p.find(L'/') + 1) + 1) : L"";
 
-	if(mount == IFileSystem::This)
+	if(mount == CFileSystem::This)
 	{
 		if(lpath.empty())
 			return L"\\";
@@ -105,7 +105,7 @@ CString CFileSystem::UniversalToNative(CString const & path)
 	//{
 	//	path = Resolve(Nexus->Core->GetPathTo(ESystemPath::Root, CPath::Nativize(lpath)));
 	//}
-	else if(mount == IFileSystem::Software)
+	else if(mount == CFileSystem::Software)
 	{
 		//if(lpath.empty())
 			p = Nexus->Core->Resolve(Nexus->Core->MapPath(ESystemPath::Software, CPath::Nativize(lpath)));
@@ -116,7 +116,7 @@ CString CFileSystem::UniversalToNative(CString const & path)
 		//	path = Nexus->Resolve(Nexus->MapPathToRelease(Servers.Find([&](auto i){ return i->Name == s; })->Address, CPath::Nativize(r)));
 		//}
 	}
-	else if(mount == IFileSystem::Servers)
+	else if(mount == CFileSystem::Servers)
 	{
 		auto sep = lpath.find(L'/');
 		auto s = lpath.Substring(0, sep);
@@ -128,11 +128,11 @@ CString CFileSystem::UniversalToNative(CString const & path)
 		auto & r = Nexus->Servers.Find([&](auto i){ return i->Name == s; })->Release->Address;
 		p = Nexus->Core->Resolve(Nexus->Core->MapPath(ESystemPath::Software, CPath::Nativize(CPath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, r.Version.ToString(), l))));
 	}
-	else if(mount == IFileSystem::System)
+	else if(mount == CFileSystem::System)
 	{
 		p = Nexus->Core->MapPath(ESystemPath::System, CPath::Nativize(lpath));
 	}
-	else if(mount == IFileSystem::SystemTmp)
+	else if(mount == CFileSystem::SystemTmp)
 	{
 		p = Nexus->Core->MapPath(ESystemPath::Tmp, CPath::Nativize(lpath));
 	}
@@ -150,17 +150,17 @@ CString CFileSystem::UniversalToNative(CString const & path)
 	return p;	
 }
 
-CString CFileSystem::NativeToUniversal(CString const & path)
+CString CFileSystemServer::NativeToUniversal(CString const & path)
 {
-	return IFileSystem::This + L"/" + CPath::Universalize(path);
+	return CFileSystem::This + L"/" + CPath::Universalize(path);
 }
 
-CUol CFileSystem::ToUol(CString const & path)
+CUol CFileSystemServer::ToUol(CString const & path)
 {
 	return CUol(CFileSystemEntry::Scheme, CServer::Instance->Name, path);
 }
 
-CString CFileSystem::GetType(CString const & path)
+CString CFileSystemServer::GetType(CString const & path)
 {
 	auto m = FindMount(path);
 
@@ -170,7 +170,7 @@ CString CFileSystem::GetType(CString const & path)
 	return m.Provider->GetType(m.Path);
 }
 
-CList<CFileSystemEntry> CFileSystem::Enumerate()
+CList<CFileSystemEntry> CFileSystemServer::Enumerate()
 {
 	CList<CFileSystemEntry> ooo;
 
@@ -187,7 +187,7 @@ CList<CFileSystemEntry> CFileSystem::Enumerate()
 	return ooo;
 }
 
-CFileSystem::CMapping CFileSystem::FindMount(CString const & path)
+CFileSystemServer::CMapping CFileSystemServer::FindMount(CString const & path)
 {
 	auto p = path;
 
@@ -204,7 +204,7 @@ CFileSystem::CMapping CFileSystem::FindMount(CString const & path)
 	return CMapping{path.Substring(p.length() + 1), Mounts(p)};
 }
 
-CList<CFileSystemEntry>	CFileSystem::Enumerate(CString const & path, CString const & regex)
+CList<CFileSystemEntry>	CFileSystemServer::Enumerate(CString const & path, CString const & regex)
 {
 	if(path == L"/")
 	{
@@ -235,7 +235,7 @@ CList<CFileSystemEntry>	CFileSystem::Enumerate(CString const & path, CString con
 		return CNativeDirectory::Enumerate(UniversalToNative(path), regex, SkipHidden);
 }
 
-void CFileSystem::CreateDirectory(CString const & path)
+void CFileSystemServer::CreateDirectory(CString const & path)
 {
 	auto m = FindMount(path);
 
@@ -245,12 +245,12 @@ void CFileSystem::CreateDirectory(CString const & path)
 		return CNativeDirectory::CreateAll(UniversalToNative(path));
 }
 
-IDirectory * CFileSystem::OpenDirectory(CString const & path)
+IDirectory * CFileSystemServer::OpenDirectory(CString const & path)
 {
 	return new CFileSystemDirectory(this, path);
 }
 
-CStream * CFileSystem::WriteFile(CString const & path)
+CStream * CFileSystemServer::WriteFile(CString const & path)
 {
 	auto & m = FindMount(path);
 
@@ -266,7 +266,7 @@ CStream * CFileSystem::WriteFile(CString const & path)
 	return s;
 }
 
-CStream * CFileSystem::ReadFile(CString const & path)
+CStream * CFileSystemServer::ReadFile(CString const & path)
 {
 	auto & m = FindMount(path);
 
@@ -282,7 +282,7 @@ CStream * CFileSystem::ReadFile(CString const & path)
 	return s;
 }
 
-CAsyncFileStream * CFileSystem::ReadFileAsync(CString const & path)
+CAsyncFileStream * CFileSystemServer::ReadFileAsync(CString const & path)
 {
 	auto & m = FindMount(path);
 
@@ -298,7 +298,7 @@ CAsyncFileStream * CFileSystem::ReadFileAsync(CString const & path)
 	return s;
 }
 
-void CFileSystem::Close(CStream * stream)
+void CFileSystemServer::Close(CStream * stream)
 {
 	auto & m = Streams(stream);
 
@@ -310,12 +310,12 @@ void CFileSystem::Close(CStream * stream)
 	Streams.Remove(stream);
 }
 
-void CFileSystem::Close(IDirectory * directory)
+void CFileSystemServer::Close(IDirectory * directory)
 {
 	delete directory;
 }
 
-bool CFileSystem::Exists(CString const & path)
+bool CFileSystemServer::Exists(CString const & path)
 {
 	auto m = FindMount(path);
 
@@ -325,7 +325,7 @@ bool CFileSystem::Exists(CString const & path)
 		return CNativePath::IsFile(UniversalToNative(path)) || CNativePath::IsDirectory(UniversalToNative(path));
 }
 
-void CFileSystem::Delete(CString const & path)
+void CFileSystemServer::Delete(CString const & path)
 {
 	auto m = FindMount(path);
 
@@ -342,25 +342,25 @@ void CFileSystem::Delete(CString const & path)
 // 	CreateDirectory(d);
 // }
 
-void CFileSystem::CreateGlobalDirectory(CInterObject * o, CString const & path)
+void CFileSystemServer::CreateGlobalDirectory(CInterObject * o, CString const & path)
 {
 	auto d = o->MapGlobalPath(path);
 	CreateDirectory(d);
 }
 
-void CFileSystem::CreateGlobalDirectory(CServer * s, CString const & path)
+void CFileSystemServer::CreateGlobalDirectory(CServer * s, CString const & path)
 {
 	auto d = s->MapUserGlobalPath(path);
 	CreateDirectory(d);
 }
 
-void CFileSystem::CreateLocalDirectory(CInterObject * o, CString const & path)
+void CFileSystemServer::CreateLocalDirectory(CInterObject * o, CString const & path)
 {
 	auto d = o->MapLocalPath(path);
 	CreateDirectory(d);
 }
 
-void CFileSystem::CreateLocalDirectory(CServer * s, CString const & path)
+void CFileSystemServer::CreateLocalDirectory(CServer * s, CString const & path)
 {
 	auto d = s->MapUserLocalPath(path);
 	CreateDirectory(d);

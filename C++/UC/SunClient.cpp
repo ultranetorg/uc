@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "Fun.h"
+#include "SunClient.h"
 
 using namespace uc;
 
-CFunClient::CFunClient(CNexus * nexus, CClientInstance * instance) : CClient(instance)
+CSunClient::CSunClient(CNexus * nexus, CClientInstance * instance) : CClient(instance)
 {
 	Nexus = nexus;
 }
 
-IInterface * CFunClient::Connect(CString const & iface)
+IInterface * CSunClient::Connect(CString const & iface)
 {
-	if(iface == CFun::InterfaceName)
+	if(iface == CSun::InterfaceName)
 	{
 		Http = new CHttpClient(Nexus->Core);
 
@@ -20,33 +20,33 @@ IInterface * CFunClient::Connect(CString const & iface)
 	throw CException(HERE, L"Not supported interface");
 }
 
-void CFunClient::Disconnect(IInterface * iface)
+void CSunClient::Disconnect(IInterface * iface)
 {
 	cleandelete(Http);
 }
 
-CFunSettings CFunClient::GetSettings()
+CSunSettings CSunClient::GetSettings()
 {
 	auto r = L"	{\
 					\"Version\":\"1\",\
 					\"AccessKey\":\"password\",\
 				}";
 
-	CFunSettings s;
+	CSunSettings s;
 
 	bool done = false;
 
 	Http->Send(L"http://127.0.0.1:3090/Settings", L"GET", {}, r, false,	[&](CHttpRequest * r)
 																		{
 
-																			auto b = r->Stream.Read();
-																			auto t = CAnsiString((const char *)b.GetData(), (int)b.GetSize());
+																			//auto b = r->Stream.Read();
+																			//auto t = CAnsiString((const char *)b.GetData(), (int)b.GetSize());
 										
 																			nlohmann::json j;
 
 																			try
 																			{
-																				j = nlohmann::json::parse(t);
+																				j = nlohmann::json::parse((char *)r->Stream.GetBuffer());
 																			}
 																			catch(nlohmann::detail::parse_error &)
 																			{

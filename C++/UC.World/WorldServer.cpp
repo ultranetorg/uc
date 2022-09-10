@@ -148,7 +148,7 @@ void CWorldServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CPersistentServer::Storage = Nexus->Connect(this, IFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect(this, CFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
 	}
 }
 

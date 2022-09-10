@@ -62,7 +62,7 @@ void CFieldElement::Load()
 	}
 	Items.Clear();
 
-	auto url = CPath::Join(IFileSystem::UserGlobal, Directory, L"Store.xon");
+	auto url = CPath::Join(CFileSystem::UserGlobal, Directory, L"Store.xon");
 
 	if(Level->Storage->Exists(url))
 	{
@@ -75,7 +75,7 @@ void CFieldElement::Load()
 		mhs.Load(&doc);
 		mts.Load(&doc);
 
-		auto g = CPath::Join(IFileSystem::UserGlobal, Directory);
+		auto g = CPath::Join(CFileSystem::UserGlobal, Directory);
 
 		for(auto & f : Level->Storage->Enumerate(g, L"FieldItemElement-.+\\.xon"))
 		{
@@ -119,7 +119,7 @@ void CFieldElement::Save()
 	mhs.Save(&d);
 	mts.Save(&d);
 
-	auto f = Level->Storage->WriteFile(CPath::Join(IFileSystem::UserGlobal, Directory, L"Store.xon"));
+	auto f = Level->Storage->WriteFile(CPath::Join(CFileSystem::UserGlobal, Directory, L"Store.xon"));
 	d.Save(&CXonTextWriter(f, true));
 	Level->Storage->Close(f);
 }
