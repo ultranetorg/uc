@@ -54,10 +54,10 @@
             <Setter Property="HeightRequest" Value="6" />
             <Setter Property="WidthRequest" Value="6" />
         </Style>
-        <Style x:Key="OrangDot" TargetType="Frame">
+        <Style x:Key="OranegDot" TargetType="Frame">
             <Setter Property="Padding" Value="0" />
             <Setter Property="CornerRadius" Value="3" />
-            <Setter Property="BackgroundColor" Value="{StaticResource Orang}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Orange}" />
             <Setter Property="HeightRequest" Value="6" />
             <Setter Property="WidthRequest" Value="6" />
         </Style>

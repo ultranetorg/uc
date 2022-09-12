@@ -17,4 +17,16 @@ public partial class BaseViewModel : ObservableObject
 	{
 		_logger = logger;
 	}
+
+    protected async Task NavigateToAsync(ShellNavigationState state, IDictionary<string, object> parameters = null)
+    {
+        try
+        {
+			await Navigation.NavigateToAsync(state, parameters);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ShellNavigateTo Exception: {Ex}", ex.Message);
+        }
+    }
 }

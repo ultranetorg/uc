@@ -95,7 +95,7 @@
                                         Binding="{Binding Severity}"
                                         TargetType="Frame"
                                         Value="{Static models:Severity.Mid}">
-                                        <Setter Property="Style" Value="{StaticResource OrangDot}" />
+                                        <Setter Property="Style" Value="{StaticResource OrangeDot}" />
                                     </DataTrigger>
                                     <DataTrigger
                                         Binding="{Binding Severity}"

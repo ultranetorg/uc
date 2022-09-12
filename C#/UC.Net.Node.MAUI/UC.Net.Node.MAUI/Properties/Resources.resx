@@ -117,43 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DefaultWalletName" xml:space="preserve">
+    <value>Main ultranet wallet</value>
+  </data>
   <data name="HelpLine1" xml:space="preserve">
-    <value>"How to turn animation on or off in the search bar"</value>
+    <value>How to turn animation on or off in the search bar</value>
   </data>
   <data name="HelpLine10" xml:space="preserve">
-    <value>"How to quickly change Android phone settings"</value>
+    <value>How to quickly change Android phone settings</value>
   </data>
   <data name="HelpLine11" xml:space="preserve">
-    <value>"How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel")</value>
+    <value>How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel</value>
   </data>
   <data name="HelpLine12" xml:space="preserve">
-    <value>"The quick settings panel makes it easy to navigate and customize options"</value>
+    <value>The quick settings panel makes it easy to navigate and customize options</value>
   </data>
   <data name="HelpLine13" xml:space="preserve">
-    <value>"How to turn animation on or off in the search bar"</value>
+    <value>How to turn animation on or off in the search bar</value>
   </data>
   <data name="HelpLine2" xml:space="preserve">
-    <value>"How to quickly change Android phone settings"</value>
+    <value>How to quickly change Android phone settings</value>
   </data>
   <data name="HelpLine3" xml:space="preserve">
-    <value>"How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel"</value>
+    <value>How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel</value>
   </data>
   <data name="HelpLine4" xml:space="preserve">
     <value>The quick settings panel makes it easy to navigate and customize options</value>
   </data>
   <data name="HelpLine5" xml:space="preserve">
-    <value>"How to turn animation on or off in the search bar"</value>
+    <value>How to turn animation on or off in the search bar</value>
   </data>
   <data name="HelpLine6" xml:space="preserve">
-    <value>"How to quickly change Android phone settings"</value>
+    <value>How to quickly change Android phone settings</value>
   </data>
   <data name="HelpLine7" xml:space="preserve">
-    <value>"How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel"</value>
+    <value>How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel</value>
   </data>
   <data name="HelpLine8" xml:space="preserve">
-    <value>"The quick settings panel makes it easy to navigate and customize options"</value>
+    <value>The quick settings panel makes it easy to navigate and customize options</value>
   </data>
   <data name="HelpLine9" xml:space="preserve">
-    <value>"How to turn animation on or off in the search bar"</value>
+    <value>How to turn animation on or off in the search bar</value>
   </data>
 </root>

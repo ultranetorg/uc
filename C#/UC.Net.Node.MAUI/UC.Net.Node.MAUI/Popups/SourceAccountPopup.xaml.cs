@@ -3,7 +3,7 @@
 public partial class SourceAccountPopup : Popup
 {
 	private static SourceAccountPopup popup;
-	public SourceAccountViewModel vm => BindingContext as SourceAccountViewModel;
+	public SourceAccountViewModel Vm => BindingContext as SourceAccountViewModel;
 
     public SourceAccountPopup(SourceAccountViewModel vm)
     {
@@ -22,6 +22,6 @@ public partial class SourceAccountPopup : Popup
 	{
 		popup = new SourceAccountPopup(App.ServiceProvider.GetService<SourceAccountViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);
-		return popup.vm.Wallet;
+		return popup.Vm.Wallet;
 	}
 }

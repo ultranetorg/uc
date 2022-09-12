@@ -10,7 +10,9 @@ public class Product
 
     public Author Author { get; set; }
 
-	public Product(){}
+	public Product()
+	{
+	}
 
 	public Product(string name, string owner = null, string abbr = null, Color color = null)
 	{

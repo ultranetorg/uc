@@ -4,7 +4,8 @@ public class Account
 {
     public Account(string address)
     {
-        Guard.IsNotNullOrEmpty(address, nameof(address));
+		// shouldn't be in model
+        // Guard.IsNotNullOrEmpty(address, nameof(address));
 
         Address = address;
     }

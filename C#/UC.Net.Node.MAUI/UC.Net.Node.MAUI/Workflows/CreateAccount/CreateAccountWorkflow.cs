@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Workflows.CreateAccount;
+﻿namespace UC.Net.Node.MAUI.Workflows;
 
 public class CreateAccountWorkflow : ICreateAccountWorkflow
 {

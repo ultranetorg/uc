@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Workflows.RestoreAccount;
+﻿namespace UC.Net.Node.MAUI.Workflows;
 
 internal class RestoreAccountWorkflow : IRestoreAccountWorkflow
 {

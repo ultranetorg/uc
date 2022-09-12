@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Workflows.RegisterAuthor;
+﻿namespace UC.Net.Node.MAUI.Workflows;
 
 internal class RegisterAuthorWorkflow : IRegisterAuthorWorkflow
 {

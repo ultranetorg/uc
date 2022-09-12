@@ -11,7 +11,7 @@ public class Transaction
     public double USD { get; set; }
     public int Unt { get; set; }
     public TransactionStatus Status { get; set; }
-    public DateTime Date { set; get; } = DateTime.Now;
+    public DateTime Date { get; set; } = DateTime.Now;
     public string Hash { get; internal set; }
     public Account Account { get; set; }
 }

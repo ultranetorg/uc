@@ -24,7 +24,7 @@
     <Color x:Key="Blue200Accent">#72ACF1</Color>
     <Color x:Key="Blue300Accent">#A7CBF6</Color>
     
-    <Color x:Key="Orang">#E09A30</Color>
+    <Color x:Key="Orange">#E09A30</Color>
     <Color x:Key="Green">#7AE291</Color>
     <Color x:Key="Blue">#408CFF</Color>
     <Color x:Key="Purple">#9A4AFF</Color>

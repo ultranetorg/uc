@@ -61,7 +61,16 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to turn animation on or off in the search bar&quot;.
+        ///   Looks up a localized string similar to Main ultranet wallet.
+        /// </summary>
+        internal static string DefaultWalletName {
+            get {
+                return ResourceManager.GetString("DefaultWalletName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
         internal static string HelpLine1 {
             get {
@@ -70,7 +79,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to quickly change Android phone settings&quot;.
+        ///   Looks up a localized string similar to How to quickly change Android phone settings.
         /// </summary>
         internal static string HelpLine10 {
             get {
@@ -79,7 +88,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel&quot;).
+        ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
         /// </summary>
         internal static string HelpLine11 {
             get {
@@ -88,7 +97,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;The quick settings panel makes it easy to navigate and customize options&quot;.
+        ///   Looks up a localized string similar to The quick settings panel makes it easy to navigate and customize options.
         /// </summary>
         internal static string HelpLine12 {
             get {
@@ -97,7 +106,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to turn animation on or off in the search bar&quot;.
+        ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
         internal static string HelpLine13 {
             get {
@@ -106,7 +115,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to quickly change Android phone settings&quot;.
+        ///   Looks up a localized string similar to How to quickly change Android phone settings.
         /// </summary>
         internal static string HelpLine2 {
             get {
@@ -115,7 +124,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel&quot;.
+        ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
         /// </summary>
         internal static string HelpLine3 {
             get {
@@ -133,7 +142,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to turn animation on or off in the search bar&quot;.
+        ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
         internal static string HelpLine5 {
             get {
@@ -142,7 +151,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to quickly change Android phone settings&quot;.
+        ///   Looks up a localized string similar to How to quickly change Android phone settings.
         /// </summary>
         internal static string HelpLine6 {
             get {
@@ -151,7 +160,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel&quot;.
+        ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
         /// </summary>
         internal static string HelpLine7 {
             get {
@@ -160,7 +169,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;The quick settings panel makes it easy to navigate and customize options&quot;.
+        ///   Looks up a localized string similar to The quick settings panel makes it easy to navigate and customize options.
         /// </summary>
         internal static string HelpLine8 {
             get {
@@ -169,7 +178,7 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;How to turn animation on or off in the search bar&quot;.
+        ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
         internal static string HelpLine9 {
             get {
