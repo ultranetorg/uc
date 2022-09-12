@@ -19,7 +19,7 @@ public class Wallet : BindableObject
 		}
 	}
 
-    public LinearGradientBrush Background { set; get; }
+    public LinearGradientBrush Background { get; set; }
 
     public static LinearGradientBrush GradientStops(Color color) => new (
 		new GradientStopCollection {

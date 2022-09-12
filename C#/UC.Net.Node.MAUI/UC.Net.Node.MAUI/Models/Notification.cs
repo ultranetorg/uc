@@ -7,7 +7,7 @@ public class Notification
     public DateTime Date { get; set; }
     public string Body { get; set; }
     public Severity Severity { get; set; }
-    public NotificationType Type { set; get; }
+    public NotificationType Type { get; set; }
 }
 
 public enum NotificationType

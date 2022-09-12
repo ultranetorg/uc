@@ -5,15 +5,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:UC.Net.Node.MAUI.Pages"
     Shell.FlyoutBehavior="Disabled">
-    
-    <ShellContent
-        Title="Account Details"
-        ContentTemplate="{DataTemplate pages:AccountDetailsPage}"
-        Route="AccountDetailsPage" />
 
     <ShellContent
         Title="Dashboard"
         ContentTemplate="{DataTemplate pages:DashboardPage}"
         Route="DashboardPage" />
+    
+    <ShellContent
+        Title="Account Details"
+        ContentTemplate="{DataTemplate pages:AccountDetailsPage}"
+        Route="AccountDetailsPage" />
 
 </Shell>

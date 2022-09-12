@@ -6,7 +6,7 @@ public class Author
     public string Name { get; set; }
     public string Title { get; set; }
     public int CurrentBid { get; set; }
-    public BidStatus BidStatus { set; get; }
+    public BidStatus BidStatus { get; set; }
     public string ActiveDue { get; internal set; }
     public Account Account { get; set; }
     public IList<Product> Products { get; set; } = new List<Product>();
