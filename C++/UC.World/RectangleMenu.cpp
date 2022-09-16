@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CRectangleMenu::CRectangleMenu(CWorld * w, CStyle * st, const CString & name) : CModel(w, w->Server, ELifespan::Visibility, name)
+CRectangleMenu::CRectangleMenu(CWorldProtocol * w, CStyle * st, const CString & name) : CModel(w, w->Server, ELifespan::Visibility, name)
 {
 	World = w;
 	Style = st;

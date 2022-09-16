@@ -8,9 +8,9 @@ CSunClient::CSunClient(CNexus * nexus, CClientInstance * instance) : CClient(ins
 	Nexus = nexus;
 }
 
-IInterface * CSunClient::Connect(CString const & iface)
+IProtocol * CSunClient::Connect(CString const & iface)
 {
-	if(iface == CSun::InterfaceName)
+	if(iface == CSunProtocol::InterfaceName)
 	{
 		Http = new CHttpClient(Nexus->Core);
 
@@ -20,7 +20,7 @@ IInterface * CSunClient::Connect(CString const & iface)
 	throw CException(HERE, L"Not supported interface");
 }
 
-void CSunClient::Disconnect(IInterface * iface)
+void CSunClient::Disconnect(IProtocol * iface)
 {
 	cleandelete(Http);
 }

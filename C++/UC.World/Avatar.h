@@ -5,19 +5,19 @@
 
 namespace uc
 {
-	class CWorld;
-	class IAvatarServer;
+	class CWorldProtocol;
+	class CAvatarProtocol;
 	
 	class UOS_WORLD_LINKING CAvatar : public CElement, public CPersistentObject 
 	{
 		public:
 			inline static const CString				Scheme = L"worldavatar";
 
-			CProtocolConnection<IAvatarServer>	Protocol;
-			CWorld *								World;
+			CProtocolConnection<CAvatarProtocol>	Protocol;
+			CWorldProtocol *								World;
 
 			UOS_RTTI
-			CAvatar(CWorld * l, CServer * s, CString const & name); 
+			CAvatar(CWorldProtocol * l, CServer * s, CString const & name); 
 
 			using CPersistentObject::Load;
 
@@ -29,21 +29,21 @@ namespace uc
 	{
 		public: 
 			UOS_RTTI
-			CStaticAvatar(CWorld * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name = CGuid::Generate64(GetClassName()));
-			CStaticAvatar(CWorld * l, CServer * s, CElement * e, const CString & name);
+			CStaticAvatar(CWorldProtocol * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name = CGuid::Generate64(GetClassName()));
+			CStaticAvatar(CWorldProtocol * l, CServer * s, CElement * e, const CString & name);
 			virtual ~CStaticAvatar();
 	};
 
-	class IAvatarServer : public virtual IInterface
+	class CAvatarProtocol : public virtual IProtocol
 	{
 		public:
-			inline static const CString				InterfaceName = L"IAvatar";
+			inline static const CString				InterfaceName = L"Avatar1";
 
 			virtual CInterObject *					GetEntity(CUol & a)=0;
 			virtual CAvatar *						CreateAvatar(CUol & a)=0;
 			virtual CList<CUol>						GenerateSupportedAvatars(CUol & o, CString const & type)=0;
 			virtual void							DestroyAvatar(CAvatar * a) = 0;
 
-			virtual ~IAvatarServer(){}
+			virtual ~CAvatarProtocol(){}
 	};
 }

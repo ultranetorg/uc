@@ -42,17 +42,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <OutDir>$(G_Root)\_$(Configuration)\uc-uos-winx64\0.0.0.0\</OutDir>
-    <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
-    <IntDir>$(G_Tmp)\win.x64-$(Configuration)-$(ProjectName)\</IntDir>
+    <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
     <OutDir>$(G_Root)\_$(Configuration)\uc-uos-winx64\0.0.0.0\</OutDir>
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -180,7 +180,6 @@
     <ClInclude Include="IWorldFriend.h" />
     <ClInclude Include="WidgetWindow.h" />
     <ClInclude Include="WorldCapabilities.h" />
-    <ClInclude Include="WorldClient.h" />
     <ClInclude Include="WorldLevel.h" />
     <ClInclude Include="VwmElement.h" />
     <ClInclude Include="VwmImporter.h" />

@@ -1,6 +1,6 @@
 #pragma once
 #include "Shell.h"
-#include "IShellFriend.h"
+#include "ShellFriendProtocol.h"
 #include "ShellLevel.h"
 #include "FieldIcon.h"
 #include "FieldWidget.h"
@@ -22,7 +22,7 @@
 
 namespace uc
 {
-	class CShellServer : public CPersistentServer, public CShellLevel, public CShell, public IWorldFriend, public IShellFriend, public IAvatarServer, public IFieldProtocol, public IExecutor
+	class CShellServer : public CPersistentServer, public CShellLevel, public CShellProtocol, public CWorldFriendProtocol, public CShellFriendProtocol, public CAvatarProtocol, public IFieldProtocol, public CExecutorProtocol
 	{
 		using CShellLevel::Server;
 		using CShellLevel::Nexus;
@@ -39,11 +39,11 @@ namespace uc
 
 			void										Initialize() override;
 			void										Start() override;
-			IInterface * 								Connect(CString const & pr);
-			void										Disconnect(IInterface * s);
+			IProtocol * 								Accept(CString const & protocol);
+			void										Break(IProtocol * s);
 			CPersistentObject *							CreateObject(CString const & name) override;
 
-			CString										GetTitle() override { return SHELL_OBJECT; }
+			CString										GetTitle() override { return Server->Instance->Release->Address.Application; }
 			IMenuSection *								CreateNewMenu(CFieldElement * f, CFloat3 & p, IMenu * m) override;
 			
 			CRefList<CMenuItem *>						CreateActions() override;
@@ -78,14 +78,14 @@ namespace uc
 			{
 			}
 
-			IInterface * Connect(CString const & iface) override
+			IProtocol * Connect(CString const & iface) override
 			{
-				return Server->Connect(iface);
+				return Server->Accept(iface);
 			}
 
-			void Disconnect(IInterface * iface) override
+			void Disconnect(IProtocol * iface) override
 			{
-				Server->Disconnect(iface);
+				Server->Break(iface);
 			}
 	};
 }

@@ -6,7 +6,7 @@ namespace uc
 	class CMobileSkinModel : public CModel
 	{
 		public:
-			CWorld *									Level;
+			CWorldProtocol *									Level;
 			
 			CText *										SwipeLeft;
 			CText *										SwipeRight;
@@ -18,7 +18,7 @@ namespace uc
 			CList<CTouch *> Touches;
 
 			UOS_RTTI
-			CMobileSkinModel(CWorld * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
+			CMobileSkinModel(CWorldProtocol * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
 			{
 				Level = l;
 				Tags = {L"Skin"};

@@ -16,19 +16,19 @@ namespace uc
 
 	struct CShellLevel
 	{
-		CProtocolConnection<CWorld>				World;
-		CProtocolConnection<CFileSystem>		Storage;
-		CEngine *								Engine;
-		CPersistentServer *						Server;
-		CCore *									Core;
-		CNexus *								Nexus;
-		CImageExtractor *						ImageExtractor;
-		CStyle *								Style;
-		CLog *									Log;
+		CProtocolConnection<CWorldProtocol>			World;
+		CProtocolConnection<CFileSystemProtocol>	Storage;
+		CEngine *									Engine;
+		CPersistentServer *							Server;
+		CCore *										Core;
+		CNexus *									Nexus;
+		CImageExtractor *							ImageExtractor;
+		CStyle *									Style;
+		CLog *										Log;
 
 		void AddModeSwitch(IMenuSection * s)
 		{
-			auto cmd = World.Client->Instance->Name + L"{";
+			auto cmd = World.Connection->Client->Instance->Name + L"{";
 
 ///	CANT RECALL PURPOSE
 /// 
@@ -160,7 +160,7 @@ namespace uc
 		
 		void AddSystemMenuItems(CRectangleMenuSection * ms)
 		{
-			auto syses = Nexus->ConnectMany<IWorldFriend>(Server);
+			auto syses = Nexus->ConnectMany<CWorldFriendProtocol>(Server->Instance->Release);
 
 			for(auto & i : syses)
 			{

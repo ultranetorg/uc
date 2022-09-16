@@ -87,17 +87,10 @@ CColumnFileList::~CColumnFileList()
 	Selector->Free();
 
 	IconMesh->Free();
-
-	Level->Nexus->Disconnect(FileExtractor);
 }
 
 void CColumnFileList::SetRoot(CString & u)
 {
-	FileExtractor = Level->Nexus->Connect(this, IImageExtractor::InterfaceName);
-	
-	//Storage.Hub->Disconnecting += ThisHandler(OnDependencyDisconnecting);
-	//FileExtractor.Hub->Disconnecting += ThisHandler(OnDependencyDisconnecting);
-
 	Root = u;
 
 	Clear();
@@ -160,7 +153,7 @@ void CColumnFileList::AddColumn(const CString & path)
 										f.NameOverride, 
 										f.Type == CFileSystemEntry::Directory, 
 										IconMesh, 
-										FileExtractor);
+										Level->ImageExtractor);
 
 		fie->Express(L"M", []{ return CFloat6(1.f); });
 		fie->CalculateFullSize();

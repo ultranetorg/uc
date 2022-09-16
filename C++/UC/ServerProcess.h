@@ -22,7 +22,7 @@ namespace uc
 
 			void Start() override
 			{
-				auto exe = Instance->Release->Registry->Get<CString>(L"Server");
+				auto exe = Instance->Release->Registry->Get<CString>(L"Executable");
 
 				STARTUPINFO info = {sizeof(info)};
 				PROCESS_INFORMATION processInfo;
@@ -49,8 +49,6 @@ namespace uc
 
 				CloseHandle(processInfo.hProcess);
 				CloseHandle(processInfo.hThread);
-
-
 
 				PipeName = L"\\\\.\\Pipe\\UOS-A-" + CInt32::ToString(processInfo.dwProcessId);
 
@@ -93,5 +91,17 @@ namespace uc
                     throw CException(HERE, L"Failed to WriteFile");
                 }
 			}
-    };
+
+
+			IProtocol * Accept(CString const & protocol) override
+			{
+				throw std::logic_error("The method or operation is not implemented.");
+			}
+
+			void Break(IProtocol * protocol) override
+			{
+				throw std::logic_error("The method or operation is not implemented.");
+			}
+
+	};
 }

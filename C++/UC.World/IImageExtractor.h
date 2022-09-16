@@ -15,15 +15,15 @@ namespace uc
 		SHFILEINFOW								Sfi = {0};
 	};
 
-	class IImageExtractor : public virtual IInterface
+	class CImageExtractorProtocol : public virtual IProtocol
 	{
 		public:
-			inline static const CString				InterfaceName = L"IImageExtractor";
+			inline static const CString				InterfaceName = L"ImageExtractor1";
 
 			//virtual CImage *						GetIcon(CUol & u, int wh)=0;
 			//virtual CTexture *					GetIconTexture(CUol & u, int wh)=0;
 			virtual CGetIconMaterialJob *			GetIconMaterial(IType * r, CUrl & u, int wh)=0;
 
-			virtual ~IImageExtractor(){}
+			virtual ~CImageExtractorProtocol(){}
 	};
 }

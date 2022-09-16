@@ -10,7 +10,7 @@ namespace uc
 	class UOS_WORLD_LINKING CWidgetWindow : public CFieldableModel
 	{
 		public:
-			CWorld *									World;
+			CWorldProtocol *									World;
 			CObject<CWorldEntity>						Entity;
 			CStyle *									Style;
 			CElement *									Face = null;
@@ -18,7 +18,7 @@ namespace uc
 			CRectangleMenu *							Menu = null;
 
 			UOS_RTTI
-			CWidgetWindow(CWorld * l, CServer * sys, CStyle * s, const CString & name = CGuid::Generate64(GetClassName()));
+			CWidgetWindow(CWorldProtocol * l, CServer * sys, CStyle * s, const CString & name = CGuid::Generate64(GetClassName()));
 			~CWidgetWindow();
 
 			void										SetFace(CElement * e);

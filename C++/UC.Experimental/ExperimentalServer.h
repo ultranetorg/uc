@@ -4,7 +4,7 @@
 
 namespace uc
 {
-	class CExperimentalServer : public CExperimentalLevel, public CPersistentServer, public IWorldFriend, public IShellFriend, public IAvatarServer, public IExecutor, public IUwmServer
+	class CExperimentalServer : public CExperimentalLevel, public CPersistentServer, public CWorldFriendProtocol, public CShellFriendProtocol, public CAvatarProtocol, public CExecutorProtocol, public CUwmProtocol
 	{
 		using CExperimentalLevel::Server;
 		using CExperimentalLevel::Nexus;
@@ -17,18 +17,17 @@ namespace uc
 			CExperimentalServer(CNexus * l, CServerInstance * si);
 			~CExperimentalServer();
 			
-			void						EstablishConnections(bool storage, bool world);
+			void						EstablishConnections(bool storage, bool world, bool imageextractor);
 
 			void						Initialize() override;
 			void						Start() override;
-
-			IInterface * 				Connect(CString const & pr);
-			void						Disconnect(IInterface * s);
+			IProtocol * 				Accept(CString const & pr) override;
+			void						Break(IProtocol * s) override;
 			CInterObject *				CreateObject(CString const & name) override;
 
 			void						Execute(CXon * command, CExecutionParameters * ep);
 
-			CString						GetTitle() override { return L"Experimental"; }
+			CString						GetTitle() override { return Instance->Release->Address.Application; }
 			CRefList<CMenuItem *>		CreateActions() override;
 
 			IMenuSection *				CreateNewMenu(CFieldElement * fo, CFloat3 & p, IMenu * m) override;
@@ -56,14 +55,14 @@ namespace uc
 			{
 			}
 
-			IInterface * Connect(CString const & iface) override
+			IProtocol * Connect(CString const & iface) override
 			{
-				return Server->Connect(iface);
+				return Server->Accept(iface);
 			}
 
-			void Disconnect(IInterface * iface) override
+			void Disconnect(IProtocol * iface) override
 			{
-				Server->Disconnect(iface);
+				Server->Break(iface);
 			}
 	};
 }

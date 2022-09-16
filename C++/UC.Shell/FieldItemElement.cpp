@@ -109,7 +109,7 @@ void CFieldItemElement::Save(IMeshStore * mhs, IMaterialStore * mts)
 	
 	Save(&d);
 
-	auto s = Level->Storage->WriteFile(CPath::Join(CFileSystem::UserGlobal, Path));
+	auto s = Level->Storage->WriteFile(CPath::Join(CFileSystemProtocol::UserGlobal, Path));
 	d.Save(&CXonTextWriter(s, true));
 	Level->Storage->Close(s);
 	
@@ -125,7 +125,7 @@ void CFieldItemElement::Save(IMeshStore * mhs, IMaterialStore * mts)
 
 void CFieldItemElement::Load(IMeshStore * mhs, IMaterialStore * mts, CFieldServer * field)
 {
-	auto f = Level->Storage->ReadFile(CPath::Join(CFileSystem::UserGlobal, Path));
+	auto f = Level->Storage->ReadFile(CPath::Join(CFileSystemProtocol::UserGlobal, Path));
 	auto & d = CTonDocument(CXonTextReader(f));
 	Level->Storage->Close(f);
 
@@ -164,7 +164,7 @@ void CFieldItemElement::Load(IMeshStore * mhs, IMaterialStore * mts, CFieldServe
 
 void CFieldItemElement::Delete()
 {
-	Level->Storage->Delete(CPath::Join(CFileSystem::UserGlobal, Path));
+	Level->Storage->Delete(CPath::Join(CFileSystemProtocol::UserGlobal, Path));
 	Avatar->Delete();
 	//Level->World->DestroyAvatar(Avatar);
 }

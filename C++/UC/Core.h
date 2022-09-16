@@ -10,7 +10,7 @@
 #include "ILevel.h"
 #include "Sha256.h"
 #include "Shared.h"
-#include "ApplicationAddress.h"
+#include "ApplicationReleaseAddress.h"
 #include "ProductInfo.h"
 
 namespace uc

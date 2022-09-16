@@ -1,11 +1,11 @@
 #pragma once
 #include "Server.h"
-#include "IFileSystemProvider.h"
+#include "FileSystemProviderProtocol.h"
 #include "Client.h"
 
 namespace uc
 {
-	class UOS_LINKING CLocalFileSystemProvider : public CServer, public IFileSystemProvider
+	class UOS_LINKING CLocalFileSystemProvider : public CServer, public CFileSystemProviderProtocol
 	{	
 		public:
 			const static inline CString Name = L"LocalFileSystemProvider";
@@ -17,8 +17,8 @@ namespace uc
 			CLocalFileSystemProvider(CNexus * l, CServerInstance * info);
 			~CLocalFileSystemProvider();
 
-			IInterface *				Connect(CString const & pr);
-			void						Disconnect(IInterface * c);
+			IProtocol *					Accept(CString const & pr) override;
+			void						Break(IProtocol * c) override;
 
 			void						MountRoot(CXon * parameters) override;
 
@@ -50,14 +50,14 @@ namespace uc
 			{
 			}
 
-			IInterface * Connect(CString const & iface) override
+			IProtocol * Connect(CString const & iface) override
 			{
-				return Server->Connect(iface);
+				return Server->Accept(iface);
 			}
 
-			void Disconnect(IInterface * iface) override
+			void Disconnect(IProtocol * iface) override
 			{
-				Server->Disconnect(iface);
+				Server->Break(iface);
 			}
 	};
 }

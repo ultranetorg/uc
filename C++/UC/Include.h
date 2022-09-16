@@ -8,7 +8,7 @@
 #include "Core.h"
 #include "Nexus.h"
 #include "PersistentServer.h"
-#include "IExecutor.h"
+#include "ExecutorProtocol.h"
 #include "NativeWindow.h"
 
 // Math
@@ -40,3 +40,4 @@
 #include "DateTime.h"
 
 #include "WebInformer.h"
+#include "InprocClient.h"

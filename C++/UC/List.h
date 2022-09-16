@@ -270,6 +270,14 @@ namespace uc
 				sort(p);
 			}
 
+			template<class Pred> CList<T> OrderBy(Pred p)
+			{
+				auto a = *this;
+				a.sort(p);
+
+				return a;
+			}
+
 			template<class Pred> CList<T> Where(Pred p)
 			{
 				CList<T> out;

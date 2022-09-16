@@ -1,13 +1,13 @@
 #pragma once
-#include "ApplicationAddress.h"
+#include "ApplicationReleaseAddress.h"
 #include "Manifest.h"
 
 namespace uc
 {
 	class CNexus;
 	class CServer;
-	struct CServerInstance;
 	class CClient;
+	struct CServerInstance;
 	struct CClientInstance;
 
 	typedef CServer *	(* FCreateUosServer)(CNexus * nexus, CServerInstance * info);
@@ -17,13 +17,10 @@ namespace uc
 
 	struct CApplicationRelease
 	{
-		CApplicationAddress		Address;
-		HINSTANCE				ServerModule;
-		FCreateUosServer		CreateServer;
-		HINSTANCE				ClientModule;
-		FCreateUosClient		CreateClient;
-		CManifest *				Manifest = null;
-		CXonDocument *			Registry = null;
+		CApplicationReleaseAddress		Address;
+		HINSTANCE						Module;
+		CManifest *						Manifest = null;
+		CXonDocument *					Registry = null;
 
 		~CApplicationRelease()
 		{

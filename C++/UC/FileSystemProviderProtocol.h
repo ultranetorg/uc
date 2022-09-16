@@ -8,10 +8,10 @@ namespace uc
 {
 #undef CreateDirectory
 
-	class IFileSystemProvider : public virtual IInterface
+	class CFileSystemProviderProtocol : public virtual IProtocol
 	{
 		public:
-			inline static const CString   		InterfaceName = L"IFileSystemProvider";
+			inline static const CString   		InterfaceName = L"FileSystemProvider1";
 
 			virtual void						MountRoot(CXon * parameters)=0;
 
@@ -25,7 +25,7 @@ namespace uc
 			virtual bool						Exists(CString const & name)=0;
 			virtual CString						GetType(CString const & path)=0;
 
-			virtual								~IFileSystemProvider(){}
+			virtual								~CFileSystemProviderProtocol(){}
 	};
 }
 

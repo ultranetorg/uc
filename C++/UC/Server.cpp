@@ -62,30 +62,30 @@ CString CServer::MapReleasePath(CString const & path)
 {
 	//auto & r = Release->Address;
 
-	return CPath::Join(CFileSystem::Servers, CPath::Join(Instance->Name, path));
+	return CPath::Join(CFileSystemProtocol::Servers, CPath::Join(Instance->Name, path));
 }
 
 CString CServer::MapSystemPath(CString const & path)
 {
-	return CPath::Join(CFileSystem::System, Instance->Name, path);
+	return CPath::Join(CFileSystemProtocol::System, Instance->Name, path);
 }
 
 CString CServer::MapSystemTmpPath(CString const & path)
 {
-	return CPath::Join(CFileSystem::SystemTmp, Instance->Name, path);
+	return CPath::Join(CFileSystemProtocol::SystemTmp, Instance->Name, path);
 }
 
 CString CServer::MapUserLocalPath(CString const & path)
 {
-	return CPath::Join(CFileSystem::UserLocal, Instance->Name, path);
+	return CPath::Join(CFileSystemProtocol::UserLocal, Instance->Name, path);
 }
 
 CString CServer::MapUserGlobalPath(CString const & path)
 {
-	return CPath::Join(CFileSystem::UserGlobal, Instance->Name, path);
+	return CPath::Join(CFileSystemProtocol::UserGlobal, Instance->Name, path);
 }
 
 CString CServer::MapUserTmpPath(CString const & path)
 {
-	return CPath::Join(CFileSystem::UserTmp, Instance->Name, path);
+	return CPath::Join(CFileSystemProtocol::UserTmp, Instance->Name, path);
 }

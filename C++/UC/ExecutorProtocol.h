@@ -3,14 +3,14 @@
 
 namespace uc
 {
-	class IExecutor
+	class CExecutorProtocol : public virtual IProtocol
 	{
 		public:
-			inline static const CString   		InterfaceName = L"IExecutor";
+			inline static const CString   		InterfaceName = L"Executor1";
 			static const inline CString			CreateDirective	= L"create";
 
 			void virtual						Execute(CXon * arguments, CExecutionParameters * parameters)=0;
 
-			virtual ~IExecutor(){}
+			virtual ~CExecutorProtocol(){}
 	};
 }

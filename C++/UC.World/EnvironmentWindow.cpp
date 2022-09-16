@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CEnvironmentWindow::CEnvironmentWindow(CWorld * l, CServer * server, CStyle * s, const CString & name) : CModel(l, server, ELifespan::Permanent, name)
+CEnvironmentWindow::CEnvironmentWindow(CWorldProtocol * l, CServer * server, CStyle * s, const CString & name) : CModel(l, server, ELifespan::Permanent, name)
 {
 	Level = l;
 	Server = server;

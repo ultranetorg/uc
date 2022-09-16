@@ -18,9 +18,6 @@ namespace uc
 		CXon *												Registration;
 		CXon *												Command = null;
 		CIdentity *											Identity = null;
-
-		//CMap<CString, IInterface *>							Interfaces;
-		//CMap<CString, CMap<IType *, std::function<void()>>>	Users;
 	};
 
 	class UOS_LINKING CServer : public virtual IType
@@ -37,6 +34,9 @@ namespace uc
 
 			virtual void								Initialize(){}
 			virtual void								Start(){}
+
+			virtual IProtocol *							Accept(CString const & protocol)=0;
+			virtual void								Break(IProtocol * protocol)=0;
 
 			virtual CInterObject *						CreateObject(CString const & name);
 			virtual void								RegisterObject(CInterObject * o, bool shared);

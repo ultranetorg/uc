@@ -11,8 +11,6 @@
 
 namespace uc
 {
-	constexpr auto SHELL_OBJECT			 =				L"Shell";
-	
 	#define SHELL_HUD									L"Hud"
 	#define SHELL_HUD_1									L"Hud-1111111111111111"
 	#define SHELL_FIELD_MAIN							L"Field-1111111111111111"

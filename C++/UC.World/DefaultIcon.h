@@ -7,7 +7,7 @@ namespace uc
 	{
 		public:
 			UOS_RTTI
-			CDefaultIcon(CWorld * l, CString const & name = CGuid::Generate64(GetClassName()));
+			CDefaultIcon(CWorldProtocol * l, CString const & name = CGuid::Generate64(GetClassName()));
 			virtual ~CDefaultIcon();
 
 			void										SetEntity(CUol & e) override;

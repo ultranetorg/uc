@@ -5,17 +5,19 @@
 namespace uc
 {
 	class CClient;
+	struct CApplicationRelease;
 
-	class UOS_LINKING CConnection
+	class UOS_LINKING CClientConnection
 	{
 		public:
-			IType *				Who;
-			CClient *			Client;
-			IInterface *		Protocol;
-			CString				ProtocolName;
+			CApplicationRelease *	Who;
+			CClient *				Client;
+			IProtocol *				Protocol;
+			CString					ProtocolName;
+			std::function<void()>	OnDisconnect;
 
-			CConnection();
-			CConnection(IType * who, CClient * server, CString const & pn);
+			CClientConnection();
+			CClientConnection(CApplicationRelease * who, CClient * client, CString const & protocol, std::function<void()> ondisconnect);
 
 			void				Clear();
 			bool				operator! () const;
@@ -27,19 +29,55 @@ namespace uc
 			}
 	};
 
-	template<class P> struct CProtocolConnection : public CConnection
+// 	class UOS_LINKING CServerConnection
+// 	{
+// 		public:
+// 			CApplicationRelease *	Who;
+// 			CClient *				Client;
+// 			IProtocol *				Protocol;
+// 			CString					ProtocolName;
+// 
+// 			CClientConnection();
+// 			CClientConnection(CApplicationRelease * who, CClient * client, CString const & protocol);
+// 
+// 			void				Clear();
+// 			bool				operator! () const;
+// 			operator bool () const;
+// 
+// 			template<class T> T * As()
+// 			{
+// 				return dynamic_cast<T *>(Protocol);
+// 			}
+// 	};
+
+	template<class P> struct CProtocolConnection
 	{
+		CClientConnection * Connection = null;
+
 		CProtocolConnection(){}
-		CProtocolConnection(CConnection & c) : CConnection(c){}
+		CProtocolConnection(CClientConnection * c)
+		{
+			Connection = c;
+		}
 
 		P * operator->()
 		{
-			return dynamic_cast<P *>(Protocol);
+			return dynamic_cast<P *>(Connection->Protocol);
 		}
 
 		operator P * () const
 		{
-			return dynamic_cast<P *>(Protocol);
+			return dynamic_cast<P *>(Connection->Protocol);
+		}
+
+		operator CClientConnection * () const
+		{
+			return Connection;
+		}
+
+		operator bool()
+		{
+			return Connection != null;
 		}
 	};
 

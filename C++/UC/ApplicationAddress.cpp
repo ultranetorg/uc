@@ -7,7 +7,7 @@ CApplicationAddress::CApplicationAddress()
 {
 }
 
-CApplicationAddress::CApplicationAddress(CString const & author, CString const & product, CString const & platform, CVersion & version, CString const & application) : CReleaseAddress(author, product, platform, version)
+CApplicationAddress::CApplicationAddress(CString const & author, CString const & product, CString const & platform, CString const & application) : CRealizationAddress(author, product, platform)
 {
 	Application = application;
 }
@@ -32,7 +32,7 @@ CApplicationAddress CApplicationAddress::Parse(CString const & text)
 {
 	auto c = text.Split(L"/");
 
-	return CApplicationAddress(c[0], c[1], c[2], CVersion(c[3]), c[4]);
+	return CApplicationAddress(c[0], c[1], c[2], c[4]);
 }
 
 bool CApplicationAddress::Empty()

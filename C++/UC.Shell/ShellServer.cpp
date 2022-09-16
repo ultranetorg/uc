@@ -70,12 +70,12 @@ void CShellServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CPersistentServer::Storage = Nexus->Connect(this, CFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect<CFileSystemProtocol>(Server->Instance->Release, CNexus::FileSystem0, [&]{ Nexus->Stop(Instance); });
 	}
 
 	if(!World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->Stop(Instance); });
+		World = Nexus->Connect<CWorldProtocol>(Server->Instance->Release, CNexus::World0, [&]{ Nexus->Stop(Instance); });
 
 		Engine			= World->Engine;
 		Style			= World->Style->Clone();
@@ -139,7 +139,7 @@ void CShellServer::Initialize()
 	
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szPath))) 
 	{
-		auto  dir = CPath::Join(CFileSystem::This, CPath::Universalize(szPath));
+		auto  dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
 			
 		for(auto & i : Storage->Enumerate(dir, L".*"))
 		{
@@ -149,7 +149,7 @@ void CShellServer::Initialize()
 	
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, szPath)))
 	{
-		auto  dir = CPath::Join(CFileSystem::This, CPath::Universalize(szPath));
+		auto  dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
 
 		for(auto & i : Storage->Enumerate(dir, L".*"))
 		{
@@ -176,7 +176,7 @@ void CShellServer::Initialize()
 	{
 		int n = 0;
 
-		auto dir = CPath::Join(CFileSystem::This, CPath::Universalize(szPath));
+		auto dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
 
 		for(auto & i : Storage->Enumerate(dir, L".*"))
 		{
@@ -202,7 +202,7 @@ void CShellServer::Initialize()
 
 	// Usage.txt notepad
 	auto v = new CNotepad(this);
-	v->SetFile(CPath::Join(CFileSystem::Software, Core->CurrentReleaseSubPath, L"About.txt"));
+	v->SetFile(CPath::Join(CFileSystemProtocol::Software, Core->CurrentReleaseSubPath, L"About.txt"));
 	Server->RegisterObject(v, true);
 	home->Add(v->Url, AVATAR_WIDGET);
 	v->Free();
@@ -294,14 +294,14 @@ void CShellServer::Start()
 	}
 }
 
-IInterface * CShellServer::Connect(CString const & p)
+IProtocol * CShellServer::Accept(CString const & p)
 {
-	if(p == IImageExtractor::InterfaceName)	return ImageExtractor; else
-	if(p == ITray::InterfaceName)			return FindObject<IInterface>(SHELL_TRAY_1); else
+	if(p == CImageExtractorProtocol::InterfaceName)	return ImageExtractor; else
+	if(p == CTrayProtocol::InterfaceName)			return FindObject<IProtocol>(SHELL_TRAY_1); else
 		return this;
 }
 
-void CShellServer::Disconnect(IInterface * o)
+void CShellServer::Break(IProtocol * o)
 {
 }
 
@@ -592,7 +592,7 @@ CRefList<CMenuItem *> CShellServer::CreateActions()
 	//auto c = Instance + L"{" + IExecutor::CreateDirective + L" ";
 
 	CTonDocument c;
-	c.Add(Instance->Name)->Add(IExecutor::CreateDirective);
+	c.Add(Instance->Name)->Add(CExecutorProtocol::CreateDirective);
 		
 	shell->Items.AddNew(new CMenuItem(L"Field", [=](auto args)
 												{
@@ -616,12 +616,12 @@ CRefList<CMenuItem *> CShellServer::CreateActions()
 
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, szPath)))
 	{
-		sources.push_back(CPath::Join(CFileSystem::This, CPath::Universalize(szPath)));
+		sources.push_back(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath)));
 	}
 
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAMS, NULL, 0, szPath)))
 	{
-		sources.push_back(CPath::Join(CFileSystem::This, CPath::Universalize(szPath)));
+		sources.push_back(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath)));
 	}
 
 	win->Opening =	[this, win, sources]() mutable
@@ -698,7 +698,7 @@ void CShellServer::Execute(CXon * command, CExecutionParameters * parameters)
 			}
 		}
 	}
-	else if(f->Name == IExecutor::CreateDirective)
+	else if(f->Name == CExecutorProtocol::CreateDirective)
 	{
 		if(command->Get<CString>(L"class") == CField::GetClassName()) 
 		{

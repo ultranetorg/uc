@@ -28,7 +28,7 @@ ECardTitleMode uc::ToAvatarTitleMode(const CString & name)
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-CAvatar::CAvatar(CWorld * l, CServer * s, CString const & name) : CElement(l, name), CPersistentObject(Scheme, s, name)
+CAvatar::CAvatar(CWorldProtocol * l, CServer * s, CString const & name) : CElement(l, name), CPersistentObject(Scheme, s, name)
 {
 	World = l;
 }
@@ -42,7 +42,7 @@ void CAvatar::DetermineSize(CSize & smax, CSize & s)
 	throw CException(HERE, L"Not implemented");
 }
 
-CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name) : CAvatar(l, s, name)
+CStaticAvatar::CStaticAvatar(CWorldProtocol * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name) : CAvatar(l, s, name)
 {
 	LoadBasic(r, mhs, mts);
 	
@@ -61,7 +61,7 @@ CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CXon * r, IMeshStore * mhs
 	am->Free();
 }
 
-CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CElement * e, const CString & name) : CAvatar(l, s, name)
+CStaticAvatar::CStaticAvatar(CWorldProtocol * l, CServer * s, CElement * e, const CString & name) : CAvatar(l, s, name)
 {
 	Name			= e->Name;
 	Enabled			= e->Enabled;

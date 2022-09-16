@@ -2,9 +2,9 @@
 
 namespace uc
 {
-	class IInterface
+	class IProtocol
 	{
 		public:
-			virtual										~IInterface(){}
+			virtual										~IProtocol(){}
 	};
 }

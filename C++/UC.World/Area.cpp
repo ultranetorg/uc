@@ -261,7 +261,7 @@ void CArea::Save()
 {
 	CTonDocument d;
 	Save(&d);
-	auto f = Level->Storage->WriteFile(CPath::Join(CFileSystem::UserGlobal, Directory, GetClassName() + L".area"));
+	auto f = Level->Storage->WriteFile(CPath::Join(CFileSystemProtocol::UserGlobal, Directory, GetClassName() + L".area"));
 	d.Save(&CXonTextWriter(f));
 	Level->Storage->Close(f);
 }
@@ -290,7 +290,7 @@ void CArea::Save(CXon * x)
 
 void CArea::Load()
 {
-	auto s = Level->Storage->ReadFile(CPath::Join(CFileSystem::UserGlobal, Directory, GetClassName() + L".area"));
+	auto s = Level->Storage->ReadFile(CPath::Join(CFileSystemProtocol::UserGlobal, Directory, GetClassName() + L".area"));
 	Load(&CTonDocument(CXonTextReader(s)));
 	Level->Storage->Close(s);
 }

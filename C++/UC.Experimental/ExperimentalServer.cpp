@@ -62,6 +62,11 @@ CExperimentalServer::~CExperimentalServer()
 		DestroyObject(i, true);
 	}
 
+	if(ImageExtractor)
+	{
+		Nexus->Disconnect(ImageExtractor);
+	}
+
 	if(World)
 	{
 		Nexus->Disconnect(World);
@@ -78,7 +83,7 @@ CExperimentalServer::~CExperimentalServer()
 	}
 }
 
-void CExperimentalServer::EstablishConnections(bool storage, bool world)
+void CExperimentalServer::EstablishConnections(bool storage, bool world, bool imageextractor)
 {
 	if(!Bitfinex)
 		Bitfinex = new CBitfinexProvider(this);
@@ -88,28 +93,33 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world)
 
 	if(storage && !Storage)
 	{
-		Storage = CPersistentServer::Storage = Nexus->Connect(this, CFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect<CFileSystemProtocol>(Server->Instance->Release, CNexus::FileSystem0, [&]{ Nexus->Stop(Instance); });
 		GeoStore = new CGeoStore(this);
 	}
 
 	if(world && !World)
 	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL, [&]{ Nexus->Stop(Instance); });
+		World = Nexus->Connect<CWorldProtocol>(Server->Instance->Release, CNexus::World0, [&]{ Nexus->Stop(Instance); });
 
 		Engine	= World->Engine;
 		Style	= World->Style->Clone();
+	}
+
+	if(imageextractor && !ImageExtractor)
+	{
+		ImageExtractor = Nexus->Connect<CImageExtractorProtocol>(Instance->Release, CNexus::Shell0, [&]{ Nexus->Stop(Instance); });
 	}
 }
 
 void CExperimentalServer::Initialize()
 {
-	EstablishConnections(true, true);
+	EstablishConnections(true, true, false);
 
-	auto shell	= Nexus->Connect<CShell>(this);
+	auto shell	= Nexus->Connect<CShellProtocol>(Server->Instance->Release, CNexus::Shell0);
 	
-	auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_MAIN));
-	auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_WORK));
-	auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_HOME));
+	auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_MAIN));
+	auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_WORK));
+	auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_HOME));
 
 	TCHAR szPath[MAX_PATH];
 	PWSTR ppath;
@@ -119,7 +129,7 @@ void CExperimentalServer::Initialize()
 		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
 		{
 			auto c = new CCommander(this, COMMANDER_AT_HOME_1);
-			c->SetRoot(CPath::Join(CFileSystem::This, CPath::Universalize(szPath)));
+			c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath)));
 			Server->RegisterObject(c, true);
 			c->Free();
 				
@@ -129,7 +139,7 @@ void CExperimentalServer::Initialize()
 		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
 		{
 			auto c = new CCommander(this, COMMANDER_AT_HOME_2);
-			c->SetRoot(CPath::Join(CFileSystem::This, CPath::Universalize(ppath)));
+			c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(ppath)));
 			Server->RegisterObject(c, true);
 			c->Free();
 		
@@ -223,7 +233,7 @@ void CExperimentalServer::Initialize()
 		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1),	AVATAR_ICON2D);
 		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1),	AVATAR_ICON2D);
 		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1),		AVATAR_ICON2D);
-		home->Add(CUol(CWorldEntity::Scheme, WORLD_SERVER,	 GROUP_1),		AVATAR_ICON2D);
+		home->Add(CUol(CWorldEntity::Scheme, World.Connection->Client->Instance->Name,	 GROUP_1),		AVATAR_ICON2D);
 	}
 
 	Nexus->Disconnect(shell);
@@ -233,9 +243,9 @@ void CExperimentalServer::Start()
 {
 	if(World->Initializing)
 	{
-		auto shell	= Nexus->Connect<CShell>(this);
+		auto shell	= Nexus->Connect<CShellProtocol>(Server->Instance->Release, CNexus::Shell0);
 
-		auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Client->Instance->Name, SHELL_FIELD_MAIN));
+		auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_MAIN));
 		//auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_WORK));
 		//auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_HOME));
 
@@ -279,7 +289,7 @@ void CExperimentalServer::Start()
 		auto c = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1), CArea::Main, sp);
 		auto b = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1), CArea::Main, sp);
 		auto e = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1), CArea::Main, sp);
-		auto g = World->OpenEntity(CUol(CWorldEntity::Scheme, WORLD_SERVER, GROUP_1), CArea::Main, sp);
+		auto g = World->OpenEntity(CUol(CWorldEntity::Scheme, World.Connection->Client->Instance->Name, GROUP_1), CArea::Main, sp);
 
 		if(World->BackArea)
 		{
@@ -302,18 +312,18 @@ void CExperimentalServer::Start()
 	}
 }
 
-IInterface * CExperimentalServer::Connect(CString const & prot)
+IProtocol * CExperimentalServer::Accept(CString const & prot)
 {
 	return this;
 }
 
-void CExperimentalServer::Disconnect(IInterface * p)
+void CExperimentalServer::Break(IProtocol * p)
 {
 }
 
 CInterObject * CExperimentalServer::CreateObject(CString const & name)
 {
-	EstablishConnections(true, false);
+	EstablishConnections(true, false, false);
 
 	CPersistentObject * o = null;
 
@@ -332,7 +342,7 @@ CInterObject * CExperimentalServer::CreateObject(CString const & name)
 
 CInterObject * CExperimentalServer::GetEntity(CUol & e)
 {
-	EstablishConnections(true, false);
+	EstablishConnections(true, false, false);
 
 	return Server->FindObject(e);
 }
@@ -393,7 +403,7 @@ CList<CUol> CExperimentalServer::GenerateSupportedAvatars(CUol & e, CString cons
 
 CAvatar * CExperimentalServer::CreateAvatar(CUol & avatar)
 {
-	EstablishConnections(true, true);
+	EstablishConnections(true, true, true);
 
 	CAvatar * a = null;
 	
@@ -566,7 +576,7 @@ CRefList<CMenuItem *> CExperimentalServer::CreateActions()
 
 	auto root = new CMenuItem(GetTitle());
 	
-	auto a = Instance->Name + L"{" + IExecutor::CreateDirective + L" ";
+	auto a = Instance->Name + L"{" + CExecutorProtocol::CreateDirective + L" ";
 
 	root->Items.AddNew(new CMenuItem(L"Commander",	[this, a](auto args)
 													{
@@ -590,7 +600,7 @@ CRefList<CMenuItem *> CExperimentalServer::CreateActions()
 
 void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 {
-	EstablishConnections(true, true);
+	EstablishConnections(true, true, true);
 
 	auto f = command->Nodes.First();
 
@@ -603,7 +613,7 @@ void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 			World->OpenEntity(CUol(u), CArea::LastInteractive, dynamic_cast<CShowParameters *>(ep));
 		}
 	}
-	else if(f->Name == IExecutor::CreateDirective)
+	else if(f->Name == CExecutorProtocol::CreateDirective)
 	{
 		if(command->Get<CString>(L"class") == CTradeHistory::GetClassName())
 		{

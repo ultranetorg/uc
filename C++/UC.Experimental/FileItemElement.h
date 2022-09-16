@@ -14,12 +14,12 @@ namespace uc
 			bool					IsDirectory;
 			CSize					FullArea;
 			CSize					LastImax;
-			IImageExtractor *		FileExtractor;
+			CImageExtractorProtocol *		FileExtractor;
 			//CString					Object;
 			float					LastColumnW = 0.f;
 
 			UOS_RTTI
-			CFileItemElement(CExperimentalLevel * l, CString const & path, CString const & nameoverride, bool isdir, CMesh * m, IImageExtractor * fe) : CRectangle(l->World, GetClassName())
+			CFileItemElement(CExperimentalLevel * l, CString const & path, CString const & nameoverride, bool isdir, CMesh * m, CImageExtractorProtocol * fe) : CRectangle(l->World, GetClassName())
 			{
 				Level = l;
 				FileExtractor = fe;

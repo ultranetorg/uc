@@ -4,33 +4,35 @@
 
 using namespace uc;
 
-bool CConnection::operator!() const
+bool CClientConnection::operator!() const
 {
 	return Client == null;
 }
 
-CConnection::operator bool() const
+CClientConnection::operator bool() const
 {
 	return Client != null;
 }
 
-void CConnection::Clear()
+void CClientConnection::Clear()
 {
 	Who = null;
 	Client = null;
 	Protocol = null;
 }
 
-CConnection::CConnection(IType * who, CClient * client, CString const & pn)
+CClientConnection::CClientConnection(CApplicationRelease * who, CClient * client, CString const & protocol, std::function<void()> ondisconnect)
 {
 	Who = who;
 	Client = client;
-	Protocol = client->Instance->Interfaces[pn];
-	ProtocolName = pn;
+	Protocol = client->Instance->Interfaces(protocol);
+	ProtocolName = protocol;
+	OnDisconnect = ondisconnect;
 }
 
-CConnection::CConnection()
+CClientConnection::CClientConnection()
 {
 	Who = null;
 	Client = null;
+	Protocol = null;
 }

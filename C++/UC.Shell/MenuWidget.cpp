@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CMenuWidgetSectionItem::CMenuWidgetSectionItem(CWorld * w, CMenuWidget * mw, const CString & name) : CRectangleSectionMenuItem(w, w->Style, name)
+CMenuWidgetSectionItem::CMenuWidgetSectionItem(CWorldProtocol * w, CMenuWidget * mw, const CString & name) : CRectangleSectionMenuItem(w, w->Style, name)
 {
 	World = w;
 	Widget = mw;

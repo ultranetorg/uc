@@ -8,7 +8,7 @@ namespace uc
 	class UOS_WORLD_LINKING CEnvironmentWindow : public CModel
 	{
 		public:
-			CWorld * 									Level;
+			CWorldProtocol * 									Level;
 			CElement *									Content = null;
 			CRectangleMenu *							ServiceMenu;
 			CStyle *									Style;
@@ -17,7 +17,7 @@ namespace uc
 			CServer *									Server;
 
 			UOS_RTTI
-			CEnvironmentWindow(CWorld * l, CServer * sys, CStyle * s, const CString & name = CGuid::Generate64(GetClassName()));
+			CEnvironmentWindow(CWorldProtocol * l, CServer * sys, CStyle * s, const CString & name = CGuid::Generate64(GetClassName()));
 			~CEnvironmentWindow();
 
 			using CElement::Load;

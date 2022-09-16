@@ -61,6 +61,8 @@ void CExperimentalLevel::RequireCef()
 
 	CefThread = Core->RunThread(L"Cef", [this, args, settings]
 										{
+											Nexus->SetDllDirectories(Server->Instance->Release);
+
 											CefEnableHighDPISupport();
 
 											CefInitialize(args, settings, Cef, nullptr);

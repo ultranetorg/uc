@@ -1,7 +1,8 @@
 #include "StdAfx.h"
 #include "LocalFileSystemProvider.h"
-#include "FileSystemServer.h"
+#include "FileSystem.h"
 #include "SunClient.h"
+#include "InprocClient.h"
 
 using namespace uc;
 
@@ -14,7 +15,7 @@ CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 
 	if(info->Release->Address.Application == L"FileSystem")
 	{
-		s = new CFileSystemServer(l, info);
+		s = new CFileSystem(l, info);
 	}
 	if(info->Release->Address.Application == CLocalFileSystemProvider::GetClassName())
 	{
@@ -41,7 +42,7 @@ CClient * CreateUosClient(CNexus * nexus, CClientInstance * info)
 	if(info->Release->Address.Application == L"FileSystem")
 	{
 		auto s = Servers.Find([&](auto i){ return i->Instance->Name == info->Name; });
-		c = new CFileSystemClient(nexus, info, dynamic_cast<CFileSystemServer *>(s));
+		c = new CFileSystemClient(nexus, info, dynamic_cast<CFileSystem *>(s));
 	}
 	else if(info->Release->Address.Application == CLocalFileSystemProvider::GetClassName())
 	{
@@ -51,6 +52,10 @@ CClient * CreateUosClient(CNexus * nexus, CClientInstance * info)
 	else if(info->Release->Address.Application == L"Sun")
 	{
 		c = new CSunClient(nexus, info);
+	}
+	else if(info->Release->Address.Application == L"Executor")
+	{
+		c = new CInprocClient(nexus, info);
 	}
 
 	if(c)

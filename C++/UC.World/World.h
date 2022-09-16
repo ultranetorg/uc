@@ -31,9 +31,11 @@ namespace uc
 	#define WORLD_BOARD		L"Board"
 	#define WORLD_TRAY		L"Tray"
 
-	class CWorld : public CWorldLevel, public CWorldCapabilities, public virtual IInterface
+	class CWorldProtocol : public CWorldLevel, public CWorldCapabilities, public virtual IProtocol
 	{
 		public:
+			inline static const CString								InterfaceName = L"World1";
+
 			CList<CWorldMode>										Modes;
 						
 			CList<CScreenViewport *>								Viewports;
@@ -104,9 +106,9 @@ namespace uc
 			virtual void											Drag(CArray<CDragItem> & d)=0;
 			virtual void											CancelDragDrop()=0;
 
-			virtual CProtocolConnection<IAvatarServer>			FindAvatarSystem(CUol & e, CString const & type)=0;
+			virtual CProtocolConnection<CAvatarProtocol>			FindAvatarSystem(CUol & e, CString const & type)=0;
 
-			CWorld(CNexus * l){}
-			virtual ~CWorld(){}
+			CWorldProtocol(CNexus * l){}
+			virtual ~CWorldProtocol(){}
 	};
 }

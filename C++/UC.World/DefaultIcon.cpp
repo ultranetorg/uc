@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CDefaultIcon::CDefaultIcon(CWorld * l, CString const & name) : CIcon(l, l->Server, name)
+CDefaultIcon::CDefaultIcon(CWorldProtocol * l, CString const & name) : CIcon(l, l->Server, name)
 {
 	SetContentFromMaterial(Level->Materials->GetMaterial(L"1 1 1"));
 }

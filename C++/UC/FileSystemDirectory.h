@@ -3,15 +3,15 @@
 
 namespace uc
 {
-	class CFileSystemServer;
+	class CFileSystem;
 
 	class CFileSystemDirectory : public IDirectory
 	{
 		public:
-			CFileSystemServer	*			FileSystem;
+			CFileSystem	*			FileSystem;
 			CString					Path;
 
-			CFileSystemDirectory(CFileSystemServer * filesystem, CString const & path);
+			CFileSystemDirectory(CFileSystem * filesystem, CString const & path);
 
 			CList<CFileSystemEntry> Enumerate(CString const & regex) override;
 			CStream *			WriteFile(CString const & path) override;

@@ -3,15 +3,15 @@
 
 namespace uc
 {
-	class IShellFriend  : public virtual IInterface
+	class CShellFriendProtocol  : public virtual IProtocol
 	{
 		public:
-			inline static const CString					InterfaceName = L"IShellFriend";
+			inline static const CString					InterfaceName = L"ShellFriend1";
 
 			virtual CString 							GetTitle()=0;
 			virtual IMenuSection *						CreateNewMenu(CFieldElement * f, CFloat3 & p, IMenu * m)=0;
 
-			virtual ~IShellFriend(){}
+			virtual ~CShellFriendProtocol(){}
 	};
 }
 	

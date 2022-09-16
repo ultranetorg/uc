@@ -13,7 +13,7 @@ CLocalFileSystemProvider::~CLocalFileSystemProvider()
 {
 }
 
-IInterface * CLocalFileSystemProvider::Connect(CString const & pr)
+IProtocol * CLocalFileSystemProvider::Accept(CString const & pr)
 {
 	if(pr == InterfaceName)
 	{
@@ -23,7 +23,7 @@ IInterface * CLocalFileSystemProvider::Connect(CString const & pr)
 	return null;
 }
 
-void CLocalFileSystemProvider::Disconnect(IInterface * p)
+void CLocalFileSystemProvider::Break(IProtocol * p)
 {
 	if(p == this)
 	{

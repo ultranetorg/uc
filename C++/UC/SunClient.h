@@ -6,7 +6,7 @@
 
 namespace uc
 {
-	class CSunClient : public CClient, public CSun
+	class CSunClient : public CClient, public CSunProtocol
 	{
 		public:
 			CHttpClient *	Http = null;
@@ -15,8 +15,8 @@ namespace uc
 			CSunClient(CNexus * nexus, CClientInstance * is);
 
 			
-			IInterface *	Connect(CString const & iface) override;
-			void			Disconnect(IInterface * iface) override;
+			IProtocol *	Connect(CString const & iface) override;
+			void			Disconnect(IProtocol * iface) override;
 
 			CSunSettings	GetSettings() override;
 

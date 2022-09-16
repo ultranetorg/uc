@@ -1,24 +1,24 @@
 #pragma once
-#include "FileSystem.h"
+#include "FileSystemProtocol.h"
 
 namespace uc
 {
 	class UOS_LINKING CConfig : public IType
 	{
 		public:
-			CFileSystem *		Storage;
-			CString				DefaultUri;
-			CString				CustomUri;
+			CFileSystemProtocol *	Storage;
+			CString					DefaultUri;
+			CString					CustomUri;
 
-			CXonDocument *		Root = null;
-			CXonDocument *		DefaultDoc = null;
+			CXonDocument *			Root = null;
+			CXonDocument *			DefaultDoc = null;
 
-			void				Save();
+			void					Save();
 
-			CXon *				GetRoot();
+			CXon *					GetRoot();
 
 			UOS_RTTI
-			CConfig(CFileSystem * l, CString & durl, CString & curl);
+			CConfig(CFileSystemProtocol * l, CString & durl, CString & curl);
 			~CConfig();
 
 	};

@@ -45,19 +45,19 @@ namespace uc
 	};
 
 
-	class ITray : public IInterface
+	class CTrayProtocol : public IProtocol
 	{
 		public:
-			auto static constexpr	InterfaceName = L"ITray";
+			auto static constexpr	InterfaceName = L"Tray1";
 
 			virtual	CTrayItem *		AddItem(CUol & u)=0;
 			virtual	void			RemoveItem(CTrayItem *)=0;
 
-			virtual ~ITray(){}
+			virtual ~CTrayProtocol(){}
 	};
 
 
-	class CTray : public CWorldEntity, public ITray
+	class CTray : public CWorldEntity, public CTrayProtocol
 	{
 		public:
 			CShellLevel *			Level;

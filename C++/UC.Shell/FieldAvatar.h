@@ -1,5 +1,5 @@
 #pragma once
-#include "IShellFriend.h"
+#include "ShellFriendProtocol.h"
 
 using namespace uc;
 

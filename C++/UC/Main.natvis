@@ -67,7 +67,7 @@
 		<DisplayString>Author={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision}</DisplayString>
 	</Type>
 
-	<Type Name="uc::CApplicationAddress">
+	<Type Name="uc::CApplicationReleaseAddress">
 		<DisplayString>Author={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision} Application={Application}</DisplayString>
 	</Type>
 

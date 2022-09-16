@@ -5,10 +5,10 @@ namespace uc
 	class UOS_WORLD_LINKING CSphere : public CModel
 	{
 		public:
-			CWorld * 									Level;
+			CWorldProtocol * 									Level;
 
 			UOS_RTTI
-			CSphere(CWorld * l) : CModel(l, l->Server, ELifespan::Session, GetClassName())
+			CSphere(CWorldProtocol * l) : CModel(l, l->Server, ELifespan::Session, GetClassName())
 			{
 				Level = l;
 

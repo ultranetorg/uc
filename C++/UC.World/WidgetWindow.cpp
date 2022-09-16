@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CWidgetWindow::CWidgetWindow(CWorld * l, CServer * srv, CStyle * s, const CString & name) : CFieldableModel(l, srv, ELifespan::Permanent, name), Sizer(l)
+CWidgetWindow::CWidgetWindow(CWorldProtocol * l, CServer * srv, CStyle * s, const CString & name) : CFieldableModel(l, srv, ELifespan::Permanent, name), Sizer(l)
 {
 	World = l;
 	Style = s;

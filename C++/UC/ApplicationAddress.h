@@ -1,15 +1,15 @@
 #pragma once
-#include "ReleaseAddress.h"
+#include "RealizationAddress.h"
 
 namespace uc
 {
-	class UOS_LINKING CApplicationAddress : public CReleaseAddress
+	class UOS_LINKING CApplicationAddress : public CRealizationAddress
 	{
 		public:
 			CString						Application;
 
 			CApplicationAddress();
-			CApplicationAddress(CString const & author, CString const & product, CString const & platform, CVersion & version, CString const & application);
+			CApplicationAddress(CString const & author, CString const & product, CString const & platform, CString const & application);
 
 			bool						Empty();
 			static CApplicationAddress	Parse(CString const & text);

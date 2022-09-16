@@ -224,7 +224,7 @@
     <ClInclude Include="Xon.h">
       <Filter>Xon</Filter>
     </ClInclude>
-    <ClInclude Include="IExecutor.h">
+    <ClInclude Include="ExecutorProtocol.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
@@ -362,7 +362,7 @@
     <ClInclude Include="Hex.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="ApplicationAddress.h">
+    <ClInclude Include="ApplicationReleaseAddress.h">
       <Filter>Net</Filter>
     </ClInclude>
     <ClInclude Include="RealizationAddress.h">
@@ -374,13 +374,13 @@
     <ClInclude Include="PersistentObject.h">
       <Filter>Nexus</Filter>
     </ClInclude>
-    <ClInclude Include="FileSystemServer.h">
-      <Filter>FileSystem</Filter>
-    </ClInclude>
     <ClInclude Include="FileSystem.h">
       <Filter>FileSystem</Filter>
     </ClInclude>
-    <ClInclude Include="IFileSystemProvider.h">
+    <ClInclude Include="FileSystemProtocol.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemProviderProtocol.h">
       <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="FileSystemEntry.h">
@@ -395,9 +395,6 @@
     <ClInclude Include="ProductInfo.h" />
     <ClInclude Include="SunClient.h">
       <Filter>Sun</Filter>
-    </ClInclude>
-    <ClInclude Include="Client.h">
-      <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="ApplicationRelease.h">
       <Filter>Nexus</Filter>
@@ -419,6 +416,15 @@
     </ClInclude>
     <ClInclude Include="Sun.h">
       <Filter>Sun</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplicationAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="InprocClient.h">
+      <Filter>Nexus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -660,7 +666,7 @@
     <ClCompile Include="ReleaseAddress.cpp">
       <Filter>Net</Filter>
     </ClCompile>
-    <ClCompile Include="ApplicationAddress.cpp">
+    <ClCompile Include="ApplicationReleaseAddress.cpp">
       <Filter>Net</Filter>
     </ClCompile>
     <ClCompile Include="RealizationAddress.cpp">
@@ -673,7 +679,7 @@
     <ClCompile Include="PersistentObject.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
-    <ClCompile Include="FileSystemServer.cpp">
+    <ClCompile Include="FileSystem.cpp">
       <Filter>FileSystem</Filter>
     </ClCompile>
     <ClCompile Include="FileSystemDirectory.cpp">
@@ -685,7 +691,12 @@
     <ClCompile Include="SunClient.cpp">
       <Filter>Sun</Filter>
     </ClCompile>
-    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ApplicationAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>Nexus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\lucon.ttf">

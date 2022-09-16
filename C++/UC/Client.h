@@ -2,6 +2,8 @@
 #include "ApplicationRelease.h"
 #include "Interface.h"
 #include "Identity.h"
+#include "ApplicationAddress.h"
+#include "Connection.h"
 
 namespace uc
 {
@@ -10,13 +12,14 @@ namespace uc
 
 	struct CClientInstance
 	{
-		CString												Name;
-		CApplicationRelease *								Release;
-		CClient	*											Instance = null;
-		CIdentity *											Identity = null;
+		CString										Name;
+		//CApplicationAddress									Address;
+		CApplicationRelease *						Release;
+		CClient	*									Instance = null;
+		CIdentity *									Identity = null;
 
-		CMap<CString, IInterface *>							Interfaces;
-		CMap<CString, CMap<IType *, std::function<void()>>>	Users;
+		CMap<CString, IProtocol *>					Interfaces;
+		CMap<CString, CList<CClientConnection *>>	Users;
 	};
 
 	class UOS_LINKING CClient
@@ -27,7 +30,7 @@ namespace uc
 
 			CClient(/*CNexus * nexus, */CClientInstance * instance);
 
-			virtual IInterface *				Connect(CString const & iface)=0;
-			virtual void						Disconnect(IInterface * iface)=0;
+			virtual IProtocol *				Connect(CString const & iface)=0;
+			virtual void						Disconnect(IProtocol * iface)=0;
 	};
 }

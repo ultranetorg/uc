@@ -77,8 +77,8 @@ void CPersistentServer::DeleteObject(CInterObject * r)
 			throw CException(HERE, L"Incorrect permanent object name");
 		}
 
-		Storage->Delete(CPath::Join(CFileSystem::UserGlobal, name + L".object"));
-		Storage->Delete(CPath::Join(CFileSystem::UserLocal, name + L".object"));
+		Storage->Delete(CPath::Join(CFileSystemProtocol::UserGlobal, name + L".object"));
+		Storage->Delete(CPath::Join(CFileSystemProtocol::UserLocal, name + L".object"));
 	}
 
 	DestroyObject(r, false);

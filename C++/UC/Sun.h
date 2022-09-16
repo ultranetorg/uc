@@ -8,10 +8,10 @@ namespace uc
 			CString		ProfilePath;
 	};
 
-	class CSun : public IInterface
+	class CSunProtocol : public IProtocol
 	{
 		public:
-			inline static const CString   	InterfaceName = L"Sun";
+			inline static const CString   	InterfaceName = L"Sun1";
 	
 			virtual CSunSettings			GetSettings() = 0;
 	};

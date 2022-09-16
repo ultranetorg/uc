@@ -7,10 +7,10 @@ namespace uc
 	class CGroupIcon : public CIcon<CGroup>
 	{
 		public:
-			CWorld *									Level;
+			CWorldProtocol *									Level;
 						
 			UOS_RTTI
-			CGroupIcon(CWorld * l, CString const & name = CGuid::Generate64(GetClassName()));
+			CGroupIcon(CWorldProtocol * l, CString const & name = CGuid::Generate64(GetClassName()));
 			~CGroupIcon();
 	};
 }

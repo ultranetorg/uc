@@ -17,6 +17,7 @@
 #include "HighspaceGroupUnit.h"
 #include "LowspaceGroupUnit.h"
 
+
 using namespace uc;
 
 static CWorldServer * Server = null;
@@ -53,7 +54,18 @@ void DestroyUosServer(CServer *)
 
 CClient * CreateUosClient(CNexus * nexus, CClientInstance * instance)
 {
-	return new CWorldClient(nexus, instance, Server);
+	if(instance->Release->Address.Application == L"World")
+	{
+		return new CWorldClient(nexus, instance, Server);
+	}
+	else if(instance->Release->Address.Application == L"Avatar" ||
+			instance->Release->Address.Application == L"WorldFriend" ||
+			instance->Release->Address.Application == L"Uwm")
+	{
+		return new CInprocClient(nexus, instance);
+	}
+
+	throw CException(HERE, L"Application not found");
 }
 
 void DestroyUosClient(CClient * client)
@@ -61,7 +73,7 @@ void DestroyUosClient(CClient * client)
 	delete client;
 }
 
-CWorldServer::CWorldServer(CNexus * l, CServerInstance * si) : CPersistentServer(l, si), CWorld(l)//, InteractiveMover(l), BackgroundMover(l)
+CWorldServer::CWorldServer(CNexus * l, CServerInstance * si) : CPersistentServer(l, si), CWorldProtocol(l)//, InteractiveMover(l), BackgroundMover(l)
 {
 	Server = this;
 	Nexus = Server->Nexus;
@@ -148,16 +160,16 @@ void CWorldServer::EstablishConnections()
 {
 	if(!Storage)
 	{
-		Storage = CPersistentServer::Storage = Nexus->Connect(this, CFileSystem::InterfaceName, [&]{ Nexus->Stop(Instance); });
+		Storage = CPersistentServer::Storage = Nexus->Connect<CFileSystemProtocol>(Instance->Release, CNexus::FileSystem0, [&]{ Nexus->Stop(Instance); });
 	}
 }
 
-IInterface * CWorldServer::Connect(CString const & pr)
+IProtocol * CWorldServer::Accept(CString const & pr)
 {
 	return this;
 }
 
-void CWorldServer::Disconnect(IInterface * o)
+void CWorldServer::Break(IProtocol * o)
 {
 }
 
@@ -403,7 +415,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 {
 	CList<CUol> avs;
 
-	auto protocol = Nexus->Connect<IAvatarServer>(this, entity.Server);
+	auto protocol = Nexus->Connect<CAvatarProtocol>(Instance->Release, entity.Server);
 
 	CUol avatar;
 	CAvatar * a = null;
@@ -418,7 +430,7 @@ CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 	}
 	else
 	{
-		for(auto & i : Nexus->ConnectMany<IAvatarServer>(this))
+		for(auto & i : Nexus->ConnectMany<CAvatarProtocol>(Instance->Release))
 		{
 			avs = i->GenerateSupportedAvatars(entity, type);
 			if(!avs.empty())
@@ -445,7 +457,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 {
 	CAvatar * a = null;
 
-	auto protocol = Nexus->Connect<IAvatarServer>(this, avatar.Server);
+	auto protocol = Nexus->Connect<CAvatarProtocol>(Instance->Release, avatar.Server);
 		
 	if(protocol)
 	{
@@ -468,7 +480,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 	else
 	{	
 		a = new CDefaultIcon(this);
-		a->Protocol = CProtocolConnection<IAvatarServer>(CConnection(this, null, IAvatarServer::InterfaceName));
+		a->Protocol = CProtocolConnection<CAvatarProtocol>(new CClientConnection(Instance->Release, null, CAvatarProtocol::InterfaceName, {}));
 		RegisterObject(a, false);
 		a->Free();
 	}
@@ -1087,11 +1099,11 @@ void CWorldServer::OnDiagnosticsUpdating(CDiagnosticUpdate & u)
 	Diagnostic->Add(u, DiagGrid);
 }
 
-CProtocolConnection<IAvatarServer> CWorldServer::FindAvatarSystem(CUol & e, CString const & type)
+CProtocolConnection<CAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CString const & type)
 {
 	CList<CUol> avs;
 
-	auto p = Nexus->Connect<IAvatarServer>(this, e.Server);
+	auto p = Nexus->Connect<CAvatarProtocol>(Instance->Release, e.Server);
 
 	if(p)
 	{
@@ -1103,7 +1115,7 @@ CProtocolConnection<IAvatarServer> CWorldServer::FindAvatarSystem(CUol & e, CStr
 	}
 	else
 	{
-		for(auto & i : Nexus->ConnectMany<IAvatarServer>(this))
+		for(auto & i : Nexus->ConnectMany<CAvatarProtocol>(Instance->Release))
 		{
 			avs = i->GenerateSupportedAvatars(e, type);
 			if(!avs.empty())
@@ -1113,7 +1125,7 @@ CProtocolConnection<IAvatarServer> CWorldServer::FindAvatarSystem(CUol & e, CStr
 		}
 	}
 
-	return CProtocolConnection<IAvatarServer>();
+	return CProtocolConnection<CAvatarProtocol>();
 }
 
 CElement * CWorldServer::CreateElement(CString const & name, CString const & type)

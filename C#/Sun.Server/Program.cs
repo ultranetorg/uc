@@ -70,6 +70,8 @@ namespace UC.Net.Node.CLI
 // 								.Wait();
 
 				StartUosServer();
+
+				Core.Stop("The End");
 			}
 			catch(AbortException)
 			{
@@ -98,17 +100,24 @@ namespace UC.Net.Node.CLI
 
 			while(Core.Running)
 			{
-				var m = Message.FromType((MessageType)r.ReadByte());
-	
-				m.Read(r);
-	
-				switch(m as object)
+				try
 				{
-					case StopMessage:
+					var m = Message.FromType((MessageType)r.ReadByte());
+		
+					m.Read(r);
+		
+					switch(m as object)
 					{
-						Core.Stop("By UOS request");
-						goto stop;
+						case StopMessage:
+						{
+							Core.Stop("By UOS request");
+							goto stop;
+						}
 					}
+				}
+				catch(EndOfStreamException)
+				{
+					break;
 				}
 			}
 

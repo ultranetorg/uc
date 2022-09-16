@@ -8,12 +8,12 @@ namespace uc
 	{
 		public:
 			CRectangleMenuSection *						Section = null;
-			CWorld *									World;
+			CWorldProtocol *									World;
 			CSize 										Available;
 			CStyle *									Style;
 
 			UOS_RTTI
-			CRectangleMenu(CWorld * w, CStyle * s, const CString & name = GetClassName());
+			CRectangleMenu(CWorldProtocol * w, CStyle * s, const CString & name = GetClassName());
 			virtual ~CRectangleMenu();
 	
 			IMenuSection *								CreateSection(const CString & name = CRectangleMenuSection::GetClassName()); // default style section

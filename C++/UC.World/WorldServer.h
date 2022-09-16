@@ -10,7 +10,7 @@ namespace uc
 {
 	class CMobileSkinModel;
 	
-	class CWorldServer : public CPersistentServer, public CWorld, public IExecutor, public IViewStore, public IUwmServer, public IAvatarServer
+	class CWorldServer : public CPersistentServer, public CWorldProtocol, public CExecutorProtocol, public IViewStore, public CUwmProtocol, public CAvatarProtocol
 	{
 		public:
 			using CWorldLevel::Storage;
@@ -54,8 +54,8 @@ namespace uc
 
 			void										Initialize() override;
 			void										Start() override;
-			IInterface *								Connect(CString const & iface);
-			void										Disconnect(IInterface * iface);
+			IProtocol *									Accept(CString const & iface) override;
+			void										Break(IProtocol * iface) override;
 
 			void										EstablishConnections();
 
@@ -117,7 +117,7 @@ namespace uc
 			
 			virtual CView *								Get(const CString & name) override;
 			
-			CProtocolConnection<IAvatarServer>			FindAvatarSystem(CUol & e, CString const & type) override;
+			CProtocolConnection<CAvatarProtocol>		FindAvatarSystem(CUol & e, CString const & type) override;
 
 			virtual CElement *							CreateElement(CString const & name, CString const & type) override;
 
@@ -139,18 +139,19 @@ namespace uc
 				Server = server;
 			}
 
+
 			virtual ~CWorldClient()
 			{
 			}
 
-			IInterface * Connect(CString const & iface) override
+			IProtocol * Connect(CString const & iface) override
 			{
-				return Server->Connect(iface);
+				return Server->Accept(iface);
 			}
 
-			void Disconnect(IInterface * iface) override
+			void Disconnect(IProtocol * iface) override
 			{
-				Server->Disconnect(iface);
+				Server->Break(iface);
 			}
 	};
 }

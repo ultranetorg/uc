@@ -1,11 +1,11 @@
 #pragma once
 #include "Connection.h"
 #include "Base58.h"
-#include "IExecutor.h"
+#include "ExecutorProtocol.h"
 #include "ILevel.h"
 #include "Server.h"
 #include "Client.h"
-#include "FileSystem.h"
+#include "FileSystemProtocol.h"
 #include "Sun.h"
 
 namespace uc
@@ -21,11 +21,12 @@ namespace uc
 			int											SuspendHotKeyId;
 			
 			CList<CManifest *>							Manifests;
-			CList<CApplicationRelease *>				Releases;
+			CList<CApplicationRelease *>				ServerReleases;
+			CList<CApplicationRelease *>				ClientReleases;
 			CList<CServerInstance *>					Servers;
 			CList<CClientInstance *>					Clients;
-			CProtocolConnection<CFileSystem>			FileSystem;
-			CProtocolConnection<CSun>					Sun;
+			CProtocolConnection<CFileSystemProtocol>			FileSystem;
+			CProtocolConnection<CSunProtocol>					Sun;
 			CIdentity *									Identity = null;
 
 			CXonDocument *								SystemConfig = null;
@@ -43,6 +44,11 @@ namespace uc
 
 			inline static const CString					SystemNexusFile = L"System.nexus";
 			inline static const CString					UserNexusFile = L"User.nexus";
+
+			inline static const CString					FileSystem0 = L"FileSystem0";
+			inline static const CString					Sun0 = L"Sun0";
+			inline static const CString					World0 = L"World0";
+			inline static const CString					Shell0 = L"Shell0";
 
 			UOS_RTTI
 			CNexus(CCore * l, CXonDocument * config);
@@ -65,54 +71,47 @@ namespace uc
 
 			void										SetDllDirectories(CApplicationRelease * info);
 
-			CApplicationRelease *						LoadRelease(CApplicationAddress & address);
-			CServerInstance *							AddServer(CApplicationAddress & address, CString const & instance, CXon * command, CXon * registration);
-			CClientInstance *							AddClient(CApplicationAddress & address, CString const & instance);
+			CApplicationRelease *						LoadRelease(CApplicationReleaseAddress & address, bool client);
+			CApplicationRelease *						GetRelease(CApplicationReleaseAddress & address, bool server);
+			CServerInstance *							AddServer(CApplicationReleaseAddress & address, CString const & instance, CXon * command, CXon * registration);
+			CClientInstance *							GetClient(CApplicationReleaseAddress & address, CString const & instance);
 			void										Instantiate(CServerInstance * si);
 			//void										Instantiate(CClientInstance * si);
 			//CClientInstance *							FindClient(CString const & instance);
-			CClientInstance *							GetClient(CString const & instance);
+			//CClientInstance *							GetClient(CString const & server);
 
-			CConnection 								Connect(IType * who, CClientInstance * si, CString const & iface,			std::function<void()> ondisconnect = std::function<void()>());
-			CConnection									Connect(IType * who, CString const & instance, CString const & iface,		std::function<void()> ondisconnect = std::function<void()>());
-			//CConnection									Connect(IType * who, CApplicationAddress & server, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
-			CConnection 								Connect(IType * who, CString const & iface,									std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
-			CList<CConnection> 							ConnectMany(IType * who, CString const & iface);
+			CClientConnection *							Connect(CApplicationRelease * who, CClientInstance * si, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
+			CClientConnection *							Connect(CApplicationRelease * who, CString const & instance, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
+			//CConnection								Connect(IType * who, CApplicationAddress & server, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>());
+			//CConnection 								Connect(IType * who, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
+			CList<CClientConnection *> 					ConnectMany(CApplicationRelease * CApplicationRelease, CString const & iface);
 
-			template<class T> CProtocolConnection<T>	Connect(IType * who, CString const & instance, std::function<void()> ondisconnect = std::function<void()>())
+			template<class T> CProtocolConnection<T>	Connect(CApplicationRelease * who, CString const & server, std::function<void()> ondisconnect = std::function<void()>())
 														{
-															auto c = Connect(who, instance, T::InterfaceName, ondisconnect);
+															auto c = Connect(who, server, T::InterfaceName, ondisconnect);
 
-															if(c && c.As<T>() == null)
-															{
-																return CProtocolConnection<T>();
-															}
 															return CProtocolConnection<T>(c);
 														}
 
-			template<class T> CProtocolConnection<T>	Connect(IType * who, CClientInstance * instance, std::function<void()> ondisconnect = std::function<void()>())
+			template<class T> CProtocolConnection<T>	Connect(CApplicationRelease * who, CClientInstance * instance, std::function<void()> ondisconnect = std::function<void()>())
 														{
 															auto c = Connect(who, instance, T::InterfaceName, ondisconnect);
 
-															if(c && c.As<T>() == null)
-															{
-																return CProtocolConnection<T>();
-															}
 															return CProtocolConnection<T>(c);
 														}
+// 
+// 			template<class P> CProtocolConnection<P>	Connect(IType * who, CString const & server, std::function<void()> ondisconnect = std::function<void()>())
+// 														{
+// 															return CProtocolConnection<P>(Connect(who, server, P::InterfaceName, ondisconnect));
+// 														}
 
-			template<class P> CProtocolConnection<P>	Connect(IType * who, std::function<void()> ondisconnect = std::function<void()>())
-														{
-															return CProtocolConnection<P>(Connect(who, P::InterfaceName, ondisconnect));
-														}
-
-			template<class P> CProtocolConnection<P>	Connect(IType * who, CApplicationAddress & application, std::function<void()> ondisconnect = std::function<void()>())
+			template<class P> CProtocolConnection<P>	Connect(CApplicationRelease * who, CApplicationReleaseAddress & application, std::function<void()> ondisconnect = std::function<void()>())
 														{
 															return CProtocolConnection<P>(Connect(who, application, P::InterfaceName, ondisconnect));
 														}
 
 			template<class T> 
-			CList<CProtocolConnection<T>>				ConnectMany(IType * who)
+			CList<CProtocolConnection<T>>				ConnectMany(CApplicationRelease * who)
 														{
 															CList<CProtocolConnection<T>> cc;
 															
@@ -132,14 +131,14 @@ namespace uc
 															}
 														}
 
-			void										Disconnect(CConnection & c);
-			void										Disconnect(CList<CConnection> & c);
+			void										Disconnect(CClientConnection * c);
+			void										Disconnect(CList<CClientConnection *> & c);
 
 			//CSystem *									GetSystem(CUsl & u);
 
 			CList<CServerInstance *>					FindImplementators(CString const & pr);
 
-			void										Break(CString const & server, CString const & iface);
+			void										Break(CClientInstance * client, CString const & iface);
 
 		protected:
 			void										Execute(CXon * arguments, CExecutionParameters * parameters);

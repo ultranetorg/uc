@@ -102,8 +102,6 @@ CStandardFileList::~CStandardFileList()
 
 void CStandardFileList::SetSource(CString & u)
 {
-	ImageExtractor = Level->Nexus->Connect(this, IImageExtractor::InterfaceName);
-
 	Source = u;
 
 	Load(u);
@@ -152,7 +150,7 @@ void CStandardFileList::Load(CString path)
 										f.NameOverride, 
 										f.Type == CFileSystemEntry::Directory, 
 										IconMesh, 
-										ImageExtractor);
+										Level->ImageExtractor);
 
 		fi->Express(L"M", []{ return CFloat6(1.f); });
 		fi->CalculateFullSize();

@@ -8,13 +8,13 @@ namespace uc
 	template<class E> class CIcon : public CAvatar, public CFieldable
 	{
 		public:
-			CWorld *			Level;
+			CWorldProtocol *			Level;
 			CServer *			Server;
 			E *					Entity;
 			CVwmImporter *		Importer = null;
 			CRectangleMenu *	Menu = null;
 
-			CIcon(CWorld * l, CServer * s, CString const & name) : CAvatar(l, s, name)
+			CIcon(CWorldProtocol * l, CServer * s, CString const & name) : CAvatar(l, s, name)
 			{
 				Level = l;
 				Server = s;

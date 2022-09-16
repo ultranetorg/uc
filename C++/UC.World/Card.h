@@ -7,7 +7,7 @@ namespace uc
 	class UOS_WORLD_LINKING CCard : public CRectangle
 	{
 		public:
-			CWorld *									Level;
+			CWorldProtocol *									Level;
 			ECardTitleMode								TitleMode = ECardTitleMode::Null;
 			EXAlign										TitleXAlign = EXAlign::Null;
 			CElement *									Face = null;
@@ -19,7 +19,7 @@ namespace uc
 			CString										Type;
 
 			UOS_RTTI
-			CCard(CWorld * l, const CString & name = GetClassName());
+			CCard(CWorldProtocol * l, const CString & name = GetClassName());
 			~CCard();
 
 			void										SetFace(CElement * f);

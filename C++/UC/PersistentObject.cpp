@@ -24,8 +24,8 @@ void CPersistentObject::LoadInstance()
 
 void CPersistentObject::SetDirectories(CString const & path)
 {
-	GlobalDirectory = CPath::Join(CFileSystem::UserGlobal, path);
-	LocalDirectory	= CPath::Join(CFileSystem::UserLocal, path);
+	GlobalDirectory = CPath::Join(CFileSystemProtocol::UserGlobal, path);
+	LocalDirectory	= CPath::Join(CFileSystemProtocol::UserLocal, path);
 }
 
 void CPersistentObject::SaveGlobal(CTonDocument & d, CString const & path)

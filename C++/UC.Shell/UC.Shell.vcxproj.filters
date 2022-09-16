@@ -119,7 +119,7 @@
       <Filter>Theme</Filter>
     </ClInclude>
     <ClInclude Include="ShellLevel.h" />
-    <ClInclude Include="IShellFriend.h" />
+    <ClInclude Include="ShellFriendProtocol.h" />
     <ClInclude Include="MenuWidget.h">
       <Filter>Menu</Filter>
     </ClInclude>

@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CAvatarCard::CAvatarCard(CWorld * l, const CString & name) : CCard(l, name)
+CAvatarCard::CAvatarCard(CWorldProtocol * l, const CString & name) : CCard(l, name)
 {
 }
 
@@ -41,16 +41,13 @@ void CAvatarCard::SetAvatar(CUol & a, CString const & dir)
 
 void CAvatarCard::SetEntity(CUol & e)
 {
-	auto AvatarProtocol = Level->Nexus->Connect<IAvatarServer>(this, e.Server);
+	auto AvatarProtocol = Level->Nexus->Connect<CAvatarProtocol>(Level->Server->Instance->Release, e.Server);
 		
 	if(AvatarProtocol)
 	{
 		Entity = AvatarProtocol->GetEntity(e);
 		Entity->Destroying += ThisHandler(OnDependencyDestroying);
 		Entity->Retitled += ThisHandler(OnTitleChanged);
-
-// 	if(Entity->GetInstanceName().StartsWith(L"Email"))
-// 		Title = Title;
 
 		OnTitleChanged(Entity);
 	}

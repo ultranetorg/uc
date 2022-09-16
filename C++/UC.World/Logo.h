@@ -5,17 +5,17 @@ namespace uc
 	class UOS_WORLD_LINKING CLogo : public CModel
 	{
 		public:
-			CWorld * 	Level;
+			CWorldProtocol * 	Level;
 			CText *		Mode;
 
 			UOS_RTTI
-			CLogo(CWorld * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
+			CLogo(CWorldProtocol * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
 			{
 				Level = l;
 				Tags = {CArea::ServiceFront, L"Apps"};
 
 				auto t = Level->Engine->TextureFactory->CreateTexture();
-				t->Load(Level->Server->Instance->Release->ServerModule, IDB_UOS_PNG);
+				t->Load(Level->Server->Instance->Release->Module, IDB_UOS_PNG);
 
 				auto mtl = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				mtl->AlphaBlending = true;

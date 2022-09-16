@@ -5,14 +5,14 @@
 
 namespace uc
 {
-	class IWorldFriend : public virtual IInterface
+	class CWorldFriendProtocol : public virtual IProtocol
 	{
 		public:
-			inline static const CString					InterfaceName = L"IWorldFriend";
+			inline static const CString					InterfaceName = L"WorldFriend1";
 
 			virtual CString 							GetTitle()=0;
 			virtual CRefList<CMenuItem *>				CreateActions()=0;
 
-			virtual ~IWorldFriend(){}
+			virtual ~CWorldFriendProtocol(){}
 	};
 }

@@ -7,8 +7,6 @@ namespace uc
 	class CStandardFileList : public CRectangle
 	{
 		public:
-			CProtocolConnection<CImageExtractor>		ImageExtractor;
-			
 			CString										Source;
 			CList<CString>								Paths;
 

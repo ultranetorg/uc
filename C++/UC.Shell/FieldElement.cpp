@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FieldElement.h"
-#include "IShellFriend.h"
+#include "ShellFriendProtocol.h"
 
 using namespace uc;
 
@@ -62,7 +62,7 @@ void CFieldElement::Load()
 	}
 	Items.Clear();
 
-	auto url = CPath::Join(CFileSystem::UserGlobal, Directory, L"Store.xon");
+	auto url = CPath::Join(CFileSystemProtocol::UserGlobal, Directory, L"Store.xon");
 
 	if(Level->Storage->Exists(url))
 	{
@@ -75,7 +75,7 @@ void CFieldElement::Load()
 		mhs.Load(&doc);
 		mts.Load(&doc);
 
-		auto g = CPath::Join(CFileSystem::UserGlobal, Directory);
+		auto g = CPath::Join(CFileSystemProtocol::UserGlobal, Directory);
 
 		for(auto & f : Level->Storage->Enumerate(g, L"FieldItemElement-.+\\.xon"))
 		{
@@ -119,7 +119,7 @@ void CFieldElement::Save()
 	mhs.Save(&d);
 	mts.Save(&d);
 
-	auto f = Level->Storage->WriteFile(CPath::Join(CFileSystem::UserGlobal, Directory, L"Store.xon"));
+	auto f = Level->Storage->WriteFile(CPath::Join(CFileSystemProtocol::UserGlobal, Directory, L"Store.xon"));
 	d.Save(&CXonTextWriter(f, true));
 	Level->Storage->Close(f);
 }
@@ -959,7 +959,8 @@ void CFieldElement::AddNewMenu(CRectangleMenu * menu, CFloat3 & p)
 	auto nmi = new CRectangleSectionMenuItem(Level->World, Level->Style, L"New");
 	menu->Section->AddItem(nmi);
 			
-	auto cc = Level->Nexus->ConnectMany<IShellFriend>(this);
+	auto cc = Level->Nexus->ConnectMany<CShellFriendProtocol>(Level->Server->Instance->Release);
+	
 	for(auto f : cc)
 	{
 		auto smi = new CRectangleSectionMenuItem(Level->World, Level->Style, f->GetTitle());

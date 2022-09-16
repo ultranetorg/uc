@@ -1,7 +1,7 @@
 #pragma once
 #include "ShellLevel.h"
 #include "FieldElement.h"
-#include "IShellFriend.h"
+#include "ShellFriendProtocol.h"
 
 namespace uc
 {
