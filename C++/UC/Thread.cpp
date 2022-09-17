@@ -23,6 +23,8 @@ void CThread::Start()
 	Timer.Restart();
 
 	Handle	= (HANDLE)_beginthreadex(null, 0, Run, this, CREATE_SUSPENDED, null);
+	
+	SetThreadDescription(Handle, Name.data());
 	//Core->RegisterEvent(Handle, []{});
 	ResumeThread(Handle);
 }

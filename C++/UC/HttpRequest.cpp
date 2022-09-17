@@ -70,6 +70,7 @@ void CHttpRequest::Send()
 									CURL * curl;
 
 									curl = curl_easy_init();
+
 									if(curl)
 									{
 										curl_easy_setopt(curl, CURLOPT_URL, Url.ToAnsi().data());
@@ -92,7 +93,7 @@ void CHttpRequest::Send()
 											curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 										}
 
-										if(Method == L"POST")
+										if(!Content.empty())
 										{
 											curl_easy_setopt(curl, CURLOPT_POSTFIELDS, Content.data());
 										}

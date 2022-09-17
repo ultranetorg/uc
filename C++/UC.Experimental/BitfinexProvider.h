@@ -42,9 +42,9 @@ namespace uc
 										{
 											j = nlohmann::json::parse(t);
 										}
-										catch(nlohmann::detail::parse_error &)
+										catch(nlohmann::detail::parse_error & e)
 										{
-											Level->Log->ReportError(this, L"Json parse error: %s", Request->Url);
+											Level->Log->ReportError(this, L"Json parse error: %s", CString::FromAnsi(e.what()));
 											return;
 										}
 
@@ -52,13 +52,13 @@ namespace uc
 										{
 											CMarket & m = CMarket();
 										
-											for(auto i : j)
+											for(auto & i : j)
 											{
 												CString s;
 												
 												s = CString::FromAnsi(i[0].get<std::string>());
 	
-												CString n = s.substr(1, 3);
+												auto n = s.substr(1, 3);
 	
 												if(s[0] == 't')
 												{

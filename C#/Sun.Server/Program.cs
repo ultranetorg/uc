@@ -19,6 +19,7 @@ namespace UC.Net.Node.CLI
 		static Settings		Settings = null;
 		static Log			Log = new();
 		static Core			Core;
+		ManualResetEvent	CancelUosServer = new ManualResetEvent(false);
 
 		private static int numThreads = 1;
 
@@ -38,7 +39,16 @@ namespace UC.Net.Node.CLI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
+				Directory.CreateDirectory(boot.Profile);
+
 				var orig = Path.Combine(exedir, Settings.FileName);
+				var user = Path.Combine(boot.Profile, Settings.FileName);
+
+				if(!File.Exists(user))
+				{
+					Directory.CreateDirectory(boot.Profile);
+					File.Copy(orig, user);
+				}
 
 				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
 
@@ -69,7 +79,7 @@ namespace UC.Net.Node.CLI
 // 								})
 // 								.Wait();
 
-				StartUosServer();
+				RunUosServer();
 
 				Core.Stop("The End");
 			}
@@ -90,7 +100,29 @@ namespace UC.Net.Node.CLI
 			}
 		}
 
-		static void StartUosServer()
+// 		public static void WaitForConnectionEx(this NamedPipeServerStream stream, ManualResetEvent cancelEvent)
+// 		{
+// 			Exception e = null;
+// 			AutoResetEvent connectEvent = new AutoResetEvent(false);
+// 			stream.BeginWaitForConnection(ar =>
+// 			{
+// 				try
+// 				{
+// 					stream.EndWaitForConnection(ar);
+// 				}
+// 				catch (Exception er)
+// 				{
+// 					e = er;
+// 				}
+// 				connectEvent.Set();
+// 			}, null);
+// 			if (WaitHandle.WaitAny(new WaitHandle[] { connectEvent, cancelEvent }) == 1)
+// 				stream.Close();
+// 			if (e != null)
+// 				throw e; // rethrow exception
+// 		}
+
+		static void RunUosServer()
 		{
 			var pipe = new NamedPipeServerStream("UOS-A-" + Process.GetCurrentProcess().Id, PipeDirection.InOut, numThreads, PipeTransmissionMode.Message);
 
@@ -121,8 +153,10 @@ namespace UC.Net.Node.CLI
 				}
 			}
 
-			stop:
-				pipe.Close();
+		stop:
+			pipe.Close();
 		}
 	}
+
+
 }

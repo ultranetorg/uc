@@ -4,6 +4,7 @@
 #include "LocalFileStream.h"
 #include "StaticArray.h"
 #include "Path.h"
+#include "Nexus.h"
 
 using namespace uc;
 
@@ -223,15 +224,19 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 
 	Initialized = true;
 
+	Nexus = new CNexus(this, Config);
+
 	Log->ReportMessage(this, L"-------------------------------- Core created --------------------------------");
 
+	Run();
 }
 	
 CCore::~CCore()
 {
-
 	if(Initialized)
 	{
+		delete Nexus;
+
 		delete Mmc;
 
 		Config->Save(&CXonTextWriter(&CLocalFileStream(Core->MapPath(ESystemPath::System, L"Core.xon"), EFileMode::New), false), DefaultConfig);

@@ -25,45 +25,73 @@ void CSunClient::Disconnect(IProtocol * iface)
 	cleandelete(Http);
 }
 
-CSunSettings CSunClient::GetSettings()
+void CSunClient::GetSettings(std::function<void(CSunSettings &)> ok)
 {
 	auto r = L"	{\
 					\"Version\":\"1\",\
-					\"AccessKey\":\"password\",\
+					\"AccessKey\":\"password\"\
 				}";
 
-	CSunSettings s;
 
-	bool done = false;
+	Send(L"Settings", r,	[ok](nlohmann::json & j)
+							{
+								CSunSettings s;
 
-	Http->Send(L"http://127.0.0.1:3090/Settings", L"GET", {}, r, false,	[&](CHttpRequest * r)
-																		{
+								s.ProfilePath = CString::FromAnsi(j["ProfilePath"].get<std::string>());
 
-																			//auto b = r->Stream.Read();
-																			//auto t = CAnsiString((const char *)b.GetData(), (int)b.GetSize());
-										
-																			nlohmann::json j;
+								ok(s);
+							},
+							[]{}
+		);
+}
 
-																			try
+void CSunClient::QueryRelease(CList<CReleaseAddress> & releases, std::function<void(nlohmann::json)> ok, std::function<void()> failure)
+{
+	CString r = L"	{\
+					\"Version\":\"1\",\
+					\"AccessKey\":\"password\",\
+					\"Queries\":[";
+
+	for(auto i : releases)
+	{
+		r += CString::Format(L"{\"Author\":\"%s\",", i.Author);
+		r += CString::Format(L"\"Product\":\"%s\",", i.Product);
+		r += CString::Format(L"\"Platform\":\"%s\",", i.Platform);
+		r += CString::Format(L"\"Version\":\"%s\",", i.Version.ToString());
+
+		r +=  L"\"VersionQuery\": 2,\
+              \"Channel\": \"Stable\"}";
+
+		if(i != releases.Last())
+			r += L",";
+	}
+
+	r += L"]",
+	r += L"}",
+
+	Send(L"QueryRelease", r, ok, failure);
+}
+
+void CSunClient::Send(CString const & method, CString const & json, std::function<void(nlohmann::json)> ok, std::function<void()> failure)
+{
+	Http->Send(L"http://127.0.0.1:30901/" + method, L"GET", {}, json, false,[&, ok, failure](CHttpRequest * r)
 																			{
-																				j = nlohmann::json::parse((char *)r->Stream.GetBuffer());
-																			}
-																			catch(nlohmann::detail::parse_error &)
+																				nlohmann::json j;
+
+																				try
+																				{
+																					auto  b = (char *)r->Stream.GetBuffer();
+																					j = nlohmann::json::parse(b, b + r->Stream.GetSize());
+																			
+																					ok(j);
+																				}
+																				catch(nlohmann::detail::parse_error & e)
+																				{
+																					failure();
+																				}
+																			},
+																			[&](CHttpRequest * r)
 																			{
-																				//Level->Log->ReportError(this, L"Json parse error: %s", Request->Url);
-																				return;
-																			}
-
-																			s.ProfilePath = j["ProfilePath"];
-
-																			done = true;
-																		},
-																		[&](CHttpRequest * r)
-																		{
-																			done = true;
-																		});
-
-	Nexus->Core->RunThread(L"GetSettings", [&done]{ while(!done){ Sleep(1); } }, []{});
-
-	return s;
+																				failure();
+																			});
 }

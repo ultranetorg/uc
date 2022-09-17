@@ -33,13 +33,6 @@ void Create(HINSTANCE instance, LPTSTR cmd)
 					CSupervisor s;
 					auto core = new CCore(&s, instance, cmd, SUPERVISOR_FOLDER, CORE_FOLDER, pi);
 
-					if(core->Initialized)
-					{
-						auto nexus = new CNexus(core, core->Config);
-						core->Run();
-						delete nexus;
-					}
-
 					delete core;
 				};
 

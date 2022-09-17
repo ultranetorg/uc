@@ -94,9 +94,9 @@ namespace UC.Net
 
 	public class BootArguments
 	{
-	 	public string			Profile;
-	 	public string			Secrets;
-	 	public string			Zone;
+	 	public string	Profile;
+	 	public string	Secrets;
+	 	public string	Zone;
 
 		public BootArguments()
 		{
@@ -105,7 +105,7 @@ namespace UC.Net
 		public BootArguments(Xon boot, Xon cmd)
 		{
  			Zone = boot.GetString("Zone");
- 			Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UC.Dun", Zone);
+ 			Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UC.Sun", Zone);
 		
  			Parse(cmd, (n,v) => { 
  									switch(n)

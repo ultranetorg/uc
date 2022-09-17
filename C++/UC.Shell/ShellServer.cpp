@@ -502,7 +502,7 @@ IMenuSection * CShellServer::CreateNewMenu(CFieldElement * fe, CFloat3 & p, IMen
 
 													auto fis = fe->Entity->Add(links, AVATAR_ICON2D);
 	
-													auto fies = fe->Find(fis.Select<CUol>([](auto i){ return i->Url; }));
+													auto fies = fe->Find(fis.SelectArray<CUol>([](auto i){ return i->Url; }));
 					
 													fe->Arrange(fies, EXAlign::Center);
 													fe->TransformItems(fies, CTransformation(p/* - CFloat3(-a.W/2, -a.H/2, 0)*/));

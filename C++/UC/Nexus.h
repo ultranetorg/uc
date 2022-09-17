@@ -6,7 +6,7 @@
 #include "Server.h"
 #include "Client.h"
 #include "FileSystemProtocol.h"
-#include "Sun.h"
+#include "SunProtocol.h"
 
 namespace uc
 {
@@ -25,8 +25,8 @@ namespace uc
 			CList<CApplicationRelease *>				ClientReleases;
 			CList<CServerInstance *>					Servers;
 			CList<CClientInstance *>					Clients;
-			CConnection<CFileSystemProtocol>	FileSystem;
-			CConnection<CSunProtocol>			Sun;
+			CConnection<CFileSystemProtocol>			FileSystem;
+			CConnection<CSunProtocol>					Sun;
 			CIdentity *									Identity = null;
 
 			CXonDocument *								SystemConfig = null;
@@ -35,7 +35,6 @@ namespace uc
 
 			CString										ObjectTemplatePath;
 			
-			CEvent<>									Initialized;
 			CEvent<>									Stopping;
 			
 			CString										RestartCommand;
@@ -58,11 +57,11 @@ namespace uc
 
 			void										ProcessHotKey(int64_t id);
 			void										OnDiagnosticUpdating(CDiagnosticUpdate & a);
-			void										StartServers();
 			void										Stop();
 			void										Stop(CServerInstance * s);
 			void										Stop(CClientInstance * s);
 
+			CList<CReleaseAddress>						GetLatestReleases();
 			CString										MapPathToRelease(CReleaseAddress & release, CString const & path);
 			CString										MapPathToRealization(CRealizationAddress & release, CString const & path = CString());
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "Nexus.h"
-#include "Sun.h"
+#include "SunProtocol.h"
 #include "Client.h"
 #include "HttpClient.h"
 
@@ -15,10 +15,12 @@ namespace uc
 			CSunClient(CNexus * nexus, CClientInstance * is);
 
 			
-			IProtocol *	Connect(CString const & iface) override;
+			IProtocol *		Connect(CString const & iface) override;
 			void			Disconnect(IProtocol * iface) override;
 
-			CSunSettings	GetSettings() override;
+			void			GetSettings(std::function<void(CSunSettings &)> ok) override;
+			void			QueryRelease(CList<CReleaseAddress> & releases, std::function<void(nlohmann::json)> ok, std::function<void()> failure);
 
+			void			Send(CString const & method, CString const & json, std::function<void(nlohmann::json)> ok, std::function<void()> failure);
 	};
 }

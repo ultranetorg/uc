@@ -27,11 +27,71 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 
 	ObjectTemplatePath	= Core->MapPath(ESystemPath::Core, L"Object.xon");
 
-	StartServers();
-	
-	Core->RegisterExecutor(this);
+	auto start = [this](CXon * config)
+				 {
+					for(auto i : config->One(L"Servers")->Nodes)
+					{
+						AddServer(	CApplicationReleaseAddress::Parse(i->Get<CString>(L"Address")), 
+									i->Name, 
+									Core->Commands->Nodes.Find([&](auto j){ return j->Name == i->Name; }),
+									i);
+					}
 
-	Initialized();
+					for(auto i : config->One(L"Start")->Nodes)
+					{
+						auto s = Servers.Find([&](auto j){ return j->Name == i->Name; });
+
+						if(!s->Command)
+						{
+							s->Command = i->Any(L"Command") ? i->One(L"Command")->CloneInternal(null) : null;
+						}
+			
+						Instantiate(s);
+
+						s->Instance->Start();
+					}
+				};
+
+	start(SystemConfig);
+
+	FileSystem = Connect<CFileSystemProtocol>(null, FileSystem0);
+	CString user = L"User";
+
+	auto lp = ServerReleases.Find([&](auto i){ return i->Address.Application == CLocalFileSystemProvider::Name; });
+	FileSystem->Mount(CFileSystemProtocol::UserLocal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".local"))));
+	FileSystem->Mount(CFileSystemProtocol::UserGlobal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".global"))));
+	FileSystem->Mount(CFileSystemProtocol::UserTmp,		lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Tmp, user))));
+
+	Sun = Connect<CSunProtocol>(null, Sun0);
+
+	Core->RunThread(L"Sun", [&]
+							{
+								Sun->GetSettings(	[&](CSunSettings & s)
+													{
+														Sun = Sun;
+
+														Sun->QueryRelease(	GetLatestReleases(),
+																			[](auto & j)
+																			{
+																				int i = 0;
+																			},
+																			[]{});
+													});
+							}, 
+							[]{});
+
+	Identity = new CIdentity();
+
+	d = Core->Resolve(Core->MapPath(ESystemPath::Core, UserNexusFile));
+	c = FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, UserNexusFile));
+
+	UserConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::IsFile(c) ? c : d, EFileMode::Open)));
+
+	start(UserConfig);
+
+	Core->Log->ReportMessage(this, L"-------------------------------- Nexus created --------------------------------");
+	Core->LevelCreated(2, this);	
+	Core->RegisterExecutor(this);
 }
 
 CNexus::~CNexus()
@@ -81,6 +141,20 @@ CString CNexus::MapPathToRelease(CReleaseAddress & release, CString const & path
 	return MapPathToRealization(release, CNativePath::Join(release.Version.ToString(), path));
 }
 
+CList<CReleaseAddress> CNexus::GetLatestReleases()
+{
+	CList<CReleaseAddress> r;
+
+	for(auto & rlz : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, L".")), L".+-.+-.+", DirectoriesOnly))
+		for(auto & v : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, rlz.Name)), L".*", DirectoriesOnly).OrderBy([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); }))
+		{
+			auto a = rlz.Name.Split(L"-");
+			r.push_back(CReleaseAddress(a[0], a[1], a[2], CVersion(v.Name)));
+		}
+
+	return r;
+}
+
 CApplicationRelease * CNexus::LoadRelease(CApplicationReleaseAddress & address, bool server)
 {
 	std::function<CManifest *(CReleaseAddress & a)> loadmanifest;
@@ -97,7 +171,7 @@ CApplicationRelease * CNexus::LoadRelease(CApplicationReleaseAddress & address, 
 
 							if(auto d = xon.One(L"CompleteDependencies"))
 							{
-								r->CompleteDependencies = d->Nodes.Select<CManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
+								r->CompleteDependencies = d->Nodes.SelectArray<CManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
 							}
 						
 							Manifests.AddBack(r);
@@ -236,60 +310,6 @@ CClientInstance * CNexus::GetClient(CApplicationReleaseAddress & address, CStrin
 	Clients.push_back(c);
 
 	return c;
-}
-
-void CNexus::StartServers()
-{
-	auto start = [this](CXon * config)
-				 {
-					for(auto i : config->One(L"Servers")->Nodes)
-					{
-						AddServer(	CApplicationReleaseAddress::Parse(i->Get<CString>(L"Address")), 
-									i->Name, 
-									Core->Commands->Nodes.Find([&](auto j){ return j->Name == i->Name; }),
-									i);
-					}
-
-					for(auto i : config->One(L"Start")->Nodes)
-					{
-						auto s = Servers.Find([&](auto j){ return j->Name == i->Name; });
-
-						if(!s->Command)
-						{
-							s->Command = i->Any(L"Command") ? i->One(L"Command")->CloneInternal(null) : null;
-						}
-			
-						Instantiate(s);
-
-						s->Instance->Start();
-					}
-				};
-
-	start(SystemConfig);
-
-	FileSystem = Connect<CFileSystemProtocol>(null, FileSystem0);
-	CString user = L"User";
-
-	auto lp = ServerReleases.Find([&](auto i){ return i->Address.Application == CLocalFileSystemProvider::Name; });
-	FileSystem->Mount(CFileSystemProtocol::UserLocal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".local"))));
-	FileSystem->Mount(CFileSystemProtocol::UserGlobal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".global"))));
-	FileSystem->Mount(CFileSystemProtocol::UserTmp,		lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Tmp, user))));
-
-	Sun = Connect<CSunProtocol>(null, Sun0);
-
-	auto s = Sun->GetSettings();
-
-	Identity = new CIdentity();
-
-	auto d = Core->Resolve(Core->MapPath(ESystemPath::Core, UserNexusFile));
-	auto c = FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, UserNexusFile));
-
-	UserConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::IsFile(c) ? c : d, EFileMode::Open)));
-
-	start(UserConfig);
-
-	Core->Log->ReportMessage(this, L"-------------------------------- Nexus created --------------------------------");
-	Core->LevelCreated(2, this);
 }
 
 void CNexus::Stop()

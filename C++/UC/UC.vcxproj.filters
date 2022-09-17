@@ -414,7 +414,7 @@
     <ClInclude Include="Message.h">
       <Filter>Nexus</Filter>
     </ClInclude>
-    <ClInclude Include="Sun.h">
+    <ClInclude Include="SunProtocol.h">
       <Filter>Sun</Filter>
     </ClInclude>
     <ClInclude Include="ApplicationAddress.h">

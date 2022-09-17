@@ -137,7 +137,7 @@
     <ClInclude Include="FileSystemDirectory.h" />
     <ClInclude Include="FileSystemEntry.h" />
     <ClInclude Include="SunClient.h" />
-    <ClInclude Include="Sun.h" />
+    <ClInclude Include="SunProtocol.h" />
     <ClInclude Include="Hex.h" />
     <ClInclude Include="Identity.h" />
     <ClInclude Include="FileSystemProtocol.h" />

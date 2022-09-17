@@ -19,6 +19,7 @@ namespace uc
 
 	class CCore;
 	class CMmc;
+	class CNexus;
 
 	enum class ESystemPath
 	{
@@ -151,6 +152,8 @@ namespace uc
 			CTimer										TickTimer;
 			CTimer										SecTimer;
 			CPerformanceCounter *						PCCycle;
+
+			CNexus *									Nexus;
 
 			UOS_RTTI
 			CCore(CSupervisor * s, HINSTANCE i, wchar_t * cmd, const wchar_t * supervisor_folder, const wchar_t * coredir, CProductInfo & pi);
