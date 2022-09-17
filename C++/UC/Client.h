@@ -13,7 +13,7 @@ namespace uc
 	struct CClientInstance
 	{
 		CString										Name;
-		//CApplicationAddress									Address;
+		//CApplicationAddress						Address;
 		CApplicationRelease *						Release;
 		CClient	*									Instance = null;
 		CIdentity *									Identity = null;

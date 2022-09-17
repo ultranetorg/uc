@@ -430,7 +430,7 @@ void CElement::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *,
 
 void CElement::Load(CStyle * s, CString & u)
 {
-	CMap<CString, CProtocolConnection<CUwmProtocol>> classes;
+	CMap<CString, CConnection<CUwmProtocol>> classes;
 
 	for(auto & i : Level->Nexus->QueryRegistry(L"Implementer/" + CUwmProtocol::InterfaceName))
 	{

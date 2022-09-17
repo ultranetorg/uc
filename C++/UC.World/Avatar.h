@@ -13,8 +13,8 @@ namespace uc
 		public:
 			inline static const CString				Scheme = L"worldavatar";
 
-			CProtocolConnection<CAvatarProtocol>	Protocol;
-			CWorldProtocol *								World;
+			CConnection<CAvatarProtocol>			Protocol;
+			CWorldProtocol *						World;
 
 			UOS_RTTI
 			CAvatar(CWorldProtocol * l, CServer * s, CString const & name); 

@@ -106,7 +106,7 @@ namespace uc
 			virtual void											Drag(CArray<CDragItem> & d)=0;
 			virtual void											CancelDragDrop()=0;
 
-			virtual CProtocolConnection<CAvatarProtocol>			FindAvatarSystem(CUol & e, CString const & type)=0;
+			virtual CConnection<CAvatarProtocol>					FindAvatarSystem(CUol & e, CString const & type)=0;
 
 			CWorldProtocol(CNexus * l){}
 			virtual ~CWorldProtocol(){}

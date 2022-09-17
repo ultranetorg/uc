@@ -8,7 +8,7 @@ namespace uc
 		public:
 			CObject<CAvatar>							Avatar;
 			CObject<CWorldEntity>						Entity;
-			CProtocolConnection<CAvatarProtocol>		AvatarProtocol;
+			CConnection<CAvatarProtocol>				AvatarProtocol;
 
 			UOS_RTTI
 			CAvatarCard(CWorldProtocol * l, const CString & name = GetClassName());

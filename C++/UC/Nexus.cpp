@@ -296,8 +296,8 @@ void CNexus::Stop()
 {
 	Stopping();
 
-	while(auto c = Clients.Last([&](auto i){ return i->Identity != null; }))
-		Stop(c);
+// 	while(auto c = Clients.Last([&](auto i){ return i->Identity != null; }))
+// 		Stop(c);
 
 	while(auto s = Servers.Last([&](auto s){ return s->Identity != null; }))
 		Stop(s);
@@ -310,8 +310,8 @@ void CNexus::Stop()
 	Disconnect(Sun);
 	Disconnect(FileSystem);
 
-	while(auto c = Clients.Last())
-		Stop(c);
+//	while(auto c = Clients.Last())
+//		Stop(c);
 
 	while(auto s = Servers.Last())
 		Stop(s);
@@ -544,26 +544,6 @@ found:
 	return null;
 }
 
-// CConnection CNexus::Connect(IType * who, CApplicationAddress & server, CString const & iface, std::function<void()> ondisconnect)
-// {
-// 	auto si = GetClient(server);
-// 
-// 	if(!si)
-// 		return CConnection();
-// 
-// 	return Connect(who, si, iface, ondisconnect);
-// }
-
-// CConnection CNexus::Connect(IType * who, CString const & iface, std::function<void()> ondisconnect)
-// {
-// 	auto o = FindImplementators(iface);
-// 
-// 	if(!o.empty())
-// 		return Connect(who, o.front()->Name, iface, ondisconnect);
-// 	else
-// 		return CConnection();
-// }
-
 CList<CClientConnection *> CNexus::ConnectMany(CApplicationRelease * who, CString const & iface)
 {
 	if(iface.empty())
@@ -586,9 +566,6 @@ void CNexus::Disconnect(CClientConnection * c)
 	c->Client->Instance->Users[c->ProtocolName].Remove(c);
 	
 	delete c;
-	//c.Protocol = null;
-	//c.Client = null;
-	//c.Who = null;
 }
 
 void CNexus::Disconnect(CList<CClientConnection *> & cc)
@@ -607,14 +584,12 @@ void CNexus::Break(CClientInstance * client, CString const & iface)
 	{
 		auto c = *i;
 
-		if(c->OnDisconnect)
-			c->OnDisconnect();
+		if(c->OnDisconnecting)
+			c->OnDisconnecting();
 
 		if(client->Users(iface).Contains(c))
 		{
-			//Core->Log->ReportWarning(this, L"%s disconnected improperly from %s -> %s", k->GetInstanceName(), s->Url.Server, pr);
-			client->Users(iface).Remove(c);
-			delete c;
+			Disconnect(c);
 		}
 			
 		i = client->Users(iface).begin();

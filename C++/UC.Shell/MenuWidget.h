@@ -9,17 +9,17 @@ namespace uc
 	class CMenuWidgetSectionItem : public CRectangleSectionMenuItem
 	{
 		public:
-			CWorldProtocol *									World;
-			CRectangleMenu *							Menu = null;
-			CMenuWidget *								Widget;
+			CWorldProtocol *	World;
+			CRectangleMenu *	Menu = null;
+			CMenuWidget *		Widget;
 
-			bool										ClosingByWidget = false;
+			bool				ClosingByWidget = false;
 
 			UOS_RTTI
 			CMenuWidgetSectionItem(CWorldProtocol * w, CMenuWidget * mw, const CString & name = GetClassName());
 			~CMenuWidgetSectionItem();
 
-			virtual void								Highlight(CArea * a, bool e, CSize & s, CPick * p) override;
+			virtual void		Highlight(CArea * a, bool e, CSize & s, CPick * p) override;
 	};
 
 	class CMenuWidget : public CAvatar, public CFieldable
@@ -29,8 +29,8 @@ namespace uc
 			CRectangleMenuSection *							Section = null;
 			CRectangleMenu *								Menu = null;
 			CObject<CDirectoryMenu>							Entity;
-			CList<CProtocolConnection<IStorage>>	FileSystems;
-			CList<CProtocolConnection<CImageExtractorProtocol>>		FileExtractor;
+			CList<CConnection<IStorage>>	FileSystems;
+			CList<CConnection<CImageExtractorProtocol>>		FileExtractor;
 						
 			UOS_RTTI
 			CMenuWidget(CShellLevel * l, CString const & name = CGuid::Generate64(GetClassName()));

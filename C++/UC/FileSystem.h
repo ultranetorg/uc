@@ -16,8 +16,8 @@ namespace uc
 				CFileSystemProviderProtocol	*	Provider;
 			};
 
-			CMap<CString, CProtocolConnection<CFileSystemProviderProtocol>>	Mounts;
-			CMap<CStream *, CMapping>										Streams;
+			CMap<CString, CConnection<CFileSystemProviderProtocol>>		Mounts;
+			CMap<CStream *, CMapping>									Streams;
 
 			UOS_RTTI
 			CFileSystem(CNexus * l, CServerInstance * info);

@@ -25,8 +25,8 @@ namespace uc
 			CList<CApplicationRelease *>				ClientReleases;
 			CList<CServerInstance *>					Servers;
 			CList<CClientInstance *>					Clients;
-			CProtocolConnection<CFileSystemProtocol>			FileSystem;
-			CProtocolConnection<CSunProtocol>					Sun;
+			CConnection<CFileSystemProtocol>	FileSystem;
+			CConnection<CSunProtocol>			Sun;
 			CIdentity *									Identity = null;
 
 			CXonDocument *								SystemConfig = null;
@@ -86,18 +86,18 @@ namespace uc
 			//CConnection 								Connect(IType * who, CString const & iface,	std::function<void()> ondisconnect = std::function<void()>() = std::function<void()>());
 			CList<CClientConnection *> 					ConnectMany(CApplicationRelease * CApplicationRelease, CString const & iface);
 
-			template<class T> CProtocolConnection<T>	Connect(CApplicationRelease * who, CString const & server, std::function<void()> ondisconnect = std::function<void()>())
+			template<class T> CConnection<T>	Connect(CApplicationRelease * who, CString const & server, std::function<void()> ondisconnect = std::function<void()>())
 														{
 															auto c = Connect(who, server, T::InterfaceName, ondisconnect);
 
-															return CProtocolConnection<T>(c);
+															return CConnection<T>(c);
 														}
 
-			template<class T> CProtocolConnection<T>	Connect(CApplicationRelease * who, CClientInstance * instance, std::function<void()> ondisconnect = std::function<void()>())
+			template<class T> CConnection<T>	Connect(CApplicationRelease * who, CClientInstance * instance, std::function<void()> ondisconnect = std::function<void()>())
 														{
 															auto c = Connect(who, instance, T::InterfaceName, ondisconnect);
 
-															return CProtocolConnection<T>(c);
+															return CConnection<T>(c);
 														}
 // 
 // 			template<class P> CProtocolConnection<P>	Connect(IType * who, CString const & server, std::function<void()> ondisconnect = std::function<void()>())
@@ -105,25 +105,25 @@ namespace uc
 // 															return CProtocolConnection<P>(Connect(who, server, P::InterfaceName, ondisconnect));
 // 														}
 
-			template<class P> CProtocolConnection<P>	Connect(CApplicationRelease * who, CApplicationReleaseAddress & application, std::function<void()> ondisconnect = std::function<void()>())
+			template<class P> CConnection<P>	Connect(CApplicationRelease * who, CApplicationReleaseAddress & application, std::function<void()> ondisconnect = std::function<void()>())
 														{
-															return CProtocolConnection<P>(Connect(who, application, P::InterfaceName, ondisconnect));
+															return CConnection<P>(Connect(who, application, P::InterfaceName, ondisconnect));
 														}
 
 			template<class T> 
-			CList<CProtocolConnection<T>>				ConnectMany(CApplicationRelease * who)
+			CList<CConnection<T>>				ConnectMany(CApplicationRelease * who)
 														{
-															CList<CProtocolConnection<T>> cc;
+															CList<CConnection<T>> cc;
 															
 															for(auto c : ConnectMany(who, T::InterfaceName))
 															{
-																cc.push_back(CProtocolConnection<T>(c));
+																cc.push_back(CConnection<T>(c));
 															}
 															
 															return cc;
 														}
 
-			template<class T> void						Disconnect(CList<CProtocolConnection<T>> & cc)
+			template<class T> void						Disconnect(CList<CConnection<T>> & cc)
 														{
 															for(auto & c : cc)
 															{

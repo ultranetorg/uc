@@ -480,7 +480,7 @@ CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)
 	else
 	{	
 		a = new CDefaultIcon(this);
-		a->Protocol = CProtocolConnection<CAvatarProtocol>(new CClientConnection(Instance->Release, null, CAvatarProtocol::InterfaceName, {}));
+		a->Protocol = CConnection<CAvatarProtocol>(new CClientConnection(Instance->Release, null, CAvatarProtocol::InterfaceName, {}));
 		RegisterObject(a, false);
 		a->Free();
 	}
@@ -1099,7 +1099,7 @@ void CWorldServer::OnDiagnosticsUpdating(CDiagnosticUpdate & u)
 	Diagnostic->Add(u, DiagGrid);
 }
 
-CProtocolConnection<CAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CString const & type)
+CConnection<CAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CString const & type)
 {
 	CList<CUol> avs;
 
@@ -1125,7 +1125,7 @@ CProtocolConnection<CAvatarProtocol> CWorldServer::FindAvatarSystem(CUol & e, CS
 		}
 	}
 
-	return CProtocolConnection<CAvatarProtocol>();
+	return CConnection<CAvatarProtocol>();
 }
 
 CElement * CWorldServer::CreateElement(CString const & name, CString const & type)

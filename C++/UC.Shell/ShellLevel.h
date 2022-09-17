@@ -16,15 +16,15 @@ namespace uc
 
 	struct CShellLevel
 	{
-		CProtocolConnection<CWorldProtocol>			World;
-		CProtocolConnection<CFileSystemProtocol>	Storage;
-		CEngine *									Engine;
-		CPersistentServer *							Server;
-		CCore *										Core;
-		CNexus *									Nexus;
-		CImageExtractor *							ImageExtractor;
-		CStyle *									Style;
-		CLog *										Log;
+		CConnection<CWorldProtocol>			World;
+		CConnection<CFileSystemProtocol>	Storage;
+		CEngine *							Engine;
+		CPersistentServer *					Server;
+		CCore *								Core;
+		CNexus *							Nexus;
+		CImageExtractor *					ImageExtractor;
+		CStyle *							Style;
+		CLog *								Log;
 
 		void AddModeSwitch(IMenuSection * s)
 		{

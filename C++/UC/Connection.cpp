@@ -27,7 +27,7 @@ CClientConnection::CClientConnection(CApplicationRelease * who, CClient * client
 	Client = client;
 	Protocol = client->Instance->Interfaces(protocol);
 	ProtocolName = protocol;
-	OnDisconnect = ondisconnect;
+	OnDisconnecting = ondisconnect;
 }
 
 CClientConnection::CClientConnection()

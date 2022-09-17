@@ -117,7 +117,7 @@ namespace uc
 			
 			virtual CView *								Get(const CString & name) override;
 			
-			CProtocolConnection<CAvatarProtocol>		FindAvatarSystem(CUol & e, CString const & type) override;
+			CConnection<CAvatarProtocol>				FindAvatarSystem(CUol & e, CString const & type) override;
 
 			virtual CElement *							CreateElement(CString const & name, CString const & type) override;
 

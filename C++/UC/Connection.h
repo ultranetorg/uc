@@ -14,7 +14,7 @@ namespace uc
 			CClient *				Client;
 			IProtocol *				Protocol;
 			CString					ProtocolName;
-			std::function<void()>	OnDisconnect;
+			std::function<void()>	OnDisconnecting;
 
 			CClientConnection();
 			CClientConnection(CApplicationRelease * who, CClient * client, CString const & protocol, std::function<void()> ondisconnect);
@@ -50,12 +50,12 @@ namespace uc
 // 			}
 // 	};
 
-	template<class P> struct CProtocolConnection
+	template<class P> struct CConnection
 	{
 		CClientConnection * Connection = null;
 
-		CProtocolConnection(){}
-		CProtocolConnection(CClientConnection * c)
+		CConnection(){}
+		CConnection(CClientConnection * c)
 		{
 			Connection = c;
 		}
