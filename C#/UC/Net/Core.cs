@@ -231,7 +231,7 @@ namespace UC.Net
 			Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Log?.Report(this, $"Profile: {Settings.Profile}");	
 			Log?.Report(this, $"Protocol Versions: {string.Join(',', Versions)}");
-			Log?.Report(this, $"Zone: {Settings.Zone}");
+			Log?.Report(this, $"Zone: {Settings.Zone.Name}");
 			
 			if(Settings.Dev.Any)
 				Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
