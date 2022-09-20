@@ -83,158 +83,166 @@ void CShellServer::EstablishConnections()
 	}
 }
 
-void CShellServer::Initialize()
+void CShellServer::UserStart()
 {
 	EstablishConnections();
 
-	TCHAR szPath[MAX_PATH];
+	auto config = LoadGlobalDocument(Shell_config);
 
-	// hud
-	auto hud = new CFieldServer(this, SHELL_HUD_1);
-	hud->SetDefaultInteractiveMaster(CArea::Hud);
-	Server->RegisterObject(hud, true);
-	hud->Free();
+	if(!config)
+	{
+		config = new CTonDocument();
 
-	// history 
-	auto his = new CHistory(this, SHELL_HISTORY_1);
-	Server->RegisterObject(his, true);
-	his->Free();
-	hud->Add(his->Url, AVATAR_WIDGET);
-
-	// board
-	auto board = new CBoard(this, SHELL_BOARD_1);
-	Server->RegisterObject(board, true);
-	board->Free();
-	hud->Add(board->Url, AVATAR_WIDGET);
-
-	// apps menu
-	auto menu = new CApplicationsMenu(this, SHELL_APPLICATIONSMENU_1);
-	Server->RegisterObject(menu, true);
-	menu->Free();
-	board->Add(menu->Url, AVATAR_WIDGET);
-
-	// tray
-	auto tr = new CTray(this, SHELL_TRAY_1);
-	Server->RegisterObject(tr, true);
-	tr->Free();
-	hud->Add(tr->Url, AVATAR_WIDGET);
+		TCHAR szPath[MAX_PATH];
+	
+		// hud
+		auto hud = new CFieldServer(this, SHELL_HUD_1);
+		hud->SetDefaultInteractiveMaster(CArea::Hud);
+		Server->RegisterObject(hud, true);
+		hud->Free();
+	
+		// history 
+		auto his = new CHistory(this, SHELL_HISTORY_1);
+		Server->RegisterObject(his, true);
+		his->Free();
+		hud->Add(his->Url, AVATAR_WIDGET);
+	
+		// board
+		auto board = new CBoard(this, SHELL_BOARD_1);
+		Server->RegisterObject(board, true);
+		board->Free();
+		hud->Add(board->Url, AVATAR_WIDGET);
+	
+		// apps menu
+		auto menu = new CApplicationsMenu(this, SHELL_APPLICATIONSMENU_1);
+		Server->RegisterObject(menu, true);
+		menu->Free();
+		board->Add(menu->Url, AVATAR_WIDGET);
+	
+		// tray
+		auto tr = new CTray(this, SHELL_TRAY_1);
+		Server->RegisterObject(tr, true);
+		tr->Free();
+		hud->Add(tr->Url, AVATAR_WIDGET);
+									
+		//desktops
+		auto create =	[this](const CString & name, const CString & title)
+						{
+							auto d = new CFieldServer(this, name);
+							d->SetTitle(title);
+							Server->RegisterObject(d, true);
+							d->Free();
 								
-	//desktops
-	auto create =	[this](const CString & name, const CString & title)
-					{
-						auto d = new CFieldServer(this, name);
-						d->SetTitle(title);
-						Server->RegisterObject(d, true);
-						d->Free();
-							
-						return d;
-					};
-		
-	auto home = create(SHELL_FIELD_MAIN,		L"Main");
-	auto pics = create(SHELL_FIELD_PICTURES,	L"Pictures");
-	auto work = create(SHELL_FIELD_WORK,		L"Work");
-
-	// desktop icons
-	CList<CString> items;
-	
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szPath))) 
-	{
-		auto  dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
+							return d;
+						};
 			
-		for(auto & i : Storage->Enumerate(dir, L".*"))
-		{
-			items.push_back(CPath::Join(dir, i.Name));
-		}
-	}
+		auto home = create(SHELL_FIELD_MAIN,		L"Main");
+		auto pics = create(SHELL_FIELD_PICTURES,	L"Pictures");
+		auto work = create(SHELL_FIELD_WORK,		L"Work");
 	
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, szPath)))
-	{
-		auto  dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
-
-		for(auto & i : Storage->Enumerate(dir, L".*"))
-		{
-			items.push_back(CPath::Join(dir, i.Name));
-		}
-	}
-			
-	items.RemoveIf([](auto & i){ return i == L"desktop.ini"; });
-
-	CList<CUol> links;
+		// desktop icons
+		CList<CString> items;
 		
-	for(auto & i : items)
-	{
-		auto link = new CLink(this);
-		link->SetTarget((CUrl)Storage->ToUol(i));
-		Server->RegisterObject(link, true);
-		links.push_back(link->Url);
-		link->Free();
-	}
-
-	home->Add(links, AVATAR_ICON2D);
-
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_MYPICTURES, NULL, 0, szPath)))
-	{
-		int n = 0;
-
-		auto dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
-
-		for(auto & i : Storage->Enumerate(dir, L".*"))
+		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szPath))) 
 		{
-			auto e = CPath::GetExtension(i.Name);
+			auto  dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
 				
-			if(e == L"jpg" || e == L"png")
+			for(auto & i : Storage->Enumerate(dir, L".*"))
 			{
-				auto p = new CPicture(this);
-				p->SetFile(CPath::Join(dir, i.Name));
-				Server->RegisterObject(p, true);
-				pics->Add(p->Url, AVATAR_WIDGET);
-				p->Free();
+				items.push_back(CPath::Join(dir, i.Name));
+			}
+		}
+		
+		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, szPath)))
+		{
+			auto  dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
+	
+			for(auto & i : Storage->Enumerate(dir, L".*"))
+			{
+				items.push_back(CPath::Join(dir, i.Name));
+			}
+		}
 				
-				n++;
-
-				if(n > 8)
+		items.RemoveIf([](auto & i){ return i == L"desktop.ini"; });
+	
+		CList<CUol> links;
+			
+		for(auto & i : items)
+		{
+			auto link = new CLink(this);
+			link->SetTarget((CUrl)Storage->ToUol(i));
+			Server->RegisterObject(link, true);
+			links.push_back(link->Url);
+			link->Free();
+		}
+	
+		home->Add(links, AVATAR_ICON2D);
+	
+		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_MYPICTURES, NULL, 0, szPath)))
+		{
+			int n = 0;
+	
+			auto dir = CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath));
+	
+			for(auto & i : Storage->Enumerate(dir, L".*"))
+			{
+				auto e = CPath::GetExtension(i.Name);
+					
+				if(e == L"jpg" || e == L"png")
 				{
-					break;
+					auto p = new CPicture(this);
+					p->SetFile(CPath::Join(dir, i.Name));
+					Server->RegisterObject(p, true);
+					pics->Add(p->Url, AVATAR_WIDGET);
+					p->Free();
+					
+					n++;
+	
+					if(n > 8)
+					{
+						break;
+					}
 				}
 			}
 		}
+	
+		// Usage.txt notepad
+		auto v = new CNotepad(this);
+		v->SetFile(CPath::Join(CFileSystemProtocol::Software, Core->CurrentReleaseSubPath, L"About.txt"));
+		Server->RegisterObject(v, true);
+		home->Add(v->Url, AVATAR_WIDGET);
+		v->Free();
+	
+		// Mouse.png picture	
+		auto p = new CPicture(this);
+		p->SetFile(MapReleasePath(L"Mouse.png"));
+		Server->RegisterObject(p, true);
+		home->Add(p->Url, AVATAR_WIDGET);
+		p->Free();
+	
+		// theme
+		auto t = new CTheme(this, SHELL_THEME_1);
+		t->SetSource(MapReleasePath(L"Spaceland.vwm"));
+		Server->RegisterObject(t, true);
+		t->Free();
+	
+		auto d = new CFieldServer(this, SHELL_FIELD_HOME);
+		d->SetTitle(L"Home");
+		Server->RegisterObject(d, true);
+		d->Free();
+	
+		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
+		d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), AVATAR_ICON2D);
+
+		auto f = Storage->WriteFile(MapUserGlobalPath(Shell_config));
+		config->Save(&CXonTextWriter(f, true));
+		Storage->Close(f);
 	}
 
-	// Usage.txt notepad
-	auto v = new CNotepad(this);
-	v->SetFile(CPath::Join(CFileSystemProtocol::Software, Core->CurrentReleaseSubPath, L"About.txt"));
-	Server->RegisterObject(v, true);
-	home->Add(v->Url, AVATAR_WIDGET);
-	v->Free();
+	delete config;
 
-	// Mouse.png picture	
-	auto p = new CPicture(this);
-	p->SetFile(MapReleasePath(L"Mouse.png"));
-	Server->RegisterObject(p, true);
-	home->Add(p->Url, AVATAR_WIDGET);
-	p->Free();
-
-	// theme
-	auto t = new CTheme(this, SHELL_THEME_1);
-	t->SetSource(MapReleasePath(L"Spaceland.vwm"));
-	Server->RegisterObject(t, true);
-	t->Free();
-
-	auto d = new CFieldServer(this, SHELL_FIELD_HOME);
-	d->SetTitle(L"Home");
-	Server->RegisterObject(d, true);
-	d->Free();
-
-	d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_MAIN), AVATAR_ICON2D);
-	d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_PICTURES), AVATAR_ICON2D);
-	d->Add(CUol(CWorldEntity::Scheme, Instance->Name, SHELL_FIELD_WORK), AVATAR_ICON2D);
-}
-
-void CShellServer::Start()
-{
-	EstablishConnections();
-
-	Server->FindObject(SHELL_HISTORY_1); // force to revive
+	Server->FindObject(SHELL_HISTORY_1); /// force to revive
 	
 	if(World->Initializing)
 	{

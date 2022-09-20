@@ -445,22 +445,23 @@ void CCore::InitializeDatabase()
 	}
 }
 
-CString CCore::Resolve(CString const & n)
+CString CCore::Resolve(CString const & orig)
 {
-	if(CNativePath::IsFile(n))
+	if(Core->RemapPath.empty())
 	{
-		return n;
+		return orig;
+	}
+
+	if(CNativePath::IsFile(orig))
+	{
+		return orig;
 	}
 
 	CString s;
 
-	auto c = MapPath(ESystemPath::RootRemapping, L"");
+	auto r = MapPath(ESystemPath::RootRemapping, orig.Substring(SoftwarePath.length()));
 
-	auto r = CNativePath::Join(c, n.Substring(SoftwarePath.length()));
-
-	r = CNativePath::Canonicalize(r);
-
-	return r;
+	return CNativePath::Canonicalize(r);
 }
 
 

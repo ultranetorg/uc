@@ -49,8 +49,6 @@ namespace uc
 			CWorldView *											HudView = null;
 			CWorldView *											NearView = null;
 
-			CTonDocument *											WorldConfig;
-
 			CString													Layout;
 
 			CEvent<CUnit *, CTransformation &, CShowParameters *>	UnitOpened;	

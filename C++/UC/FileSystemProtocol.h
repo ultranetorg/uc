@@ -25,6 +25,9 @@ namespace uc
 
 			inline static const CString   	InterfaceName = L"FileSystem1";
 
+			CEvent<CString const &>			MountDisconnecting;
+			CEvent<CString const &>			MountLost;
+
 			virtual void					Mount(CString const & path, CApplicationReleaseAddress & provider, CXon * parameters)=0;
 			virtual CString					UniversalToNative(CString const & path)=0;
 			virtual CString					NativeToUniversal(CString const & path)=0;

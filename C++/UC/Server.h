@@ -14,7 +14,7 @@ namespace uc
 		CString												Name;
 		CApplicationRelease *								Release;
 		CServer	*											Instance = null;
-		bool												Initialized = false;
+		//bool												Initialized = false;
 		CXon *												Registration;
 		CXon *												Command = null;
 		CIdentity *											Identity = null;
@@ -32,8 +32,8 @@ namespace uc
 			CServer(CNexus * l, CServerInstance * info);
 			~CServer();
 
-			virtual void								Initialize(){}
-			virtual void								Start(){}
+			virtual void								SystemStart(){}
+			virtual void								UserStart(){}
 
 			virtual IProtocol *							Accept(CString const & protocol)=0;
 			virtual void								Break(IProtocol * protocol)=0;

@@ -48,46 +48,51 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 			
 						Instantiate(s);
 
-						s->Instance->Start();
+						s->Instance->SystemStart();
+
+						if(i->Name == Sun0)
+						{
+							Sun = Connect<CSunProtocol>(null, Sun0);
+
+							Core->RunThread(L"Sun", [&]
+													{
+														Sun->GetSettings(	[&](CSunSettings & s)
+																			{
+																				Sun = Sun;
+
+																				Sun->QueryRelease(	GetLatestReleases(),
+																									[](auto & j)
+																									{
+																										int i = 0;
+																									},
+																									[]{});
+																			});
+													}, 
+													[]{});
+						}
 					}
 				};
 
 	start(SystemConfig);
 
+	auto fss = Servers.Find([](auto i){ return i->Name == FileSystem0; });
+	fss->Instance->UserStart();
 	FileSystem = Connect<CFileSystemProtocol>(null, FileSystem0);
-	CString user = L"User";
-
-	auto lp = ServerReleases.Find([&](auto i){ return i->Address.Application == CLocalFileSystemProvider::Name; });
-	FileSystem->Mount(CFileSystemProtocol::UserLocal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".local"))));
-	FileSystem->Mount(CFileSystemProtocol::UserGlobal,	lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".global"))));
-	FileSystem->Mount(CFileSystemProtocol::UserTmp,		lp->Address, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Tmp, user))));
-
-	Sun = Connect<CSunProtocol>(null, Sun0);
-
-	Core->RunThread(L"Sun", [&]
-							{
-								Sun->GetSettings(	[&](CSunSettings & s)
-													{
-														Sun = Sun;
-
-														Sun->QueryRelease(	GetLatestReleases(),
-																			[](auto & j)
-																			{
-																				int i = 0;
-																			},
-																			[]{});
-													});
-							}, 
-							[]{});
-
-	Identity = new CIdentity();
-
-	d = Core->Resolve(Core->MapPath(ESystemPath::Core, UserNexusFile));
-	c = FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, UserNexusFile));
+	
+	d = Core->Resolve(Core->MapPath(ESystemPath::Core, User_nexus));
+	c = FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, User_nexus));
 
 	UserConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::IsFile(c) ? c : d, EFileMode::Open)));
 
+	Identity = new CIdentity();
+
 	start(UserConfig);
+
+	for(auto i : Servers)
+	{
+		if(i != fss)
+			i->Instance->UserStart();
+	}
 
 	Core->Log->ReportMessage(this, L"-------------------------------- Nexus created --------------------------------");
 	Core->LevelCreated(2, this);	
@@ -220,7 +225,7 @@ CServerInstance * CNexus::AddServer(CApplicationReleaseAddress & address, CStrin
 	s->Identity		= Identity;
 	s->Command		= command ? command->CloneInternal(null) : null;
 	s->Registration	= registration;
-	s->Initialized	= registration ? registration->Any(L"Initialized") : false;
+	//s->Initialized	= registration ? registration->Any(L"Initialized") : false;
 
 ///	if(auto i = r->Registry->One(L"Interfaces"))
 ///	{
@@ -322,7 +327,7 @@ void CNexus::Stop()
 	while(auto s = Servers.Last([&](auto s){ return s->Identity != null; }))
 		Stop(s);
 
-	UserConfig->Save(&CXonTextWriter(&CLocalFileStream(FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, UserNexusFile)), EFileMode::New), false));
+	UserConfig->Save(&CXonTextWriter(&CLocalFileStream(FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, User_nexus)), EFileMode::New), false));
 	delete UserConfig;
 
 	delete Identity;
@@ -337,13 +342,14 @@ void CNexus::Stop()
 		Stop(s);
 
 	Servers.clear();
+	Clients.clear();
 
 	for(auto i : ClientReleases)
 	{
 		if(i->Module)
 		{
 			#ifndef _DEBUG
-			FreeLibrary(i->ClientModule);
+			FreeLibrary(i->Module);
 			#endif
 		}
 		delete i;
@@ -356,7 +362,7 @@ void CNexus::Stop()
 		if(i->Module)
 		{
 			#ifndef _DEBUG
-			FreeLibrary(i->ClientModule);
+			FreeLibrary(i->Module);
 			#endif
 		}
 		delete i;
@@ -485,17 +491,17 @@ void CNexus::Instantiate(CServerInstance * si)
 		}
 	}
 
-	if(!si->Initialized)
-	{
-		si->Instance->Initialize();
-			
-		if(si->Registration)
-		{
-			si->Registration->Add(L"Initialized");
-		}
-
-		si->Initialized = true;
-	}
+	//if(!si->Initialized)
+	//{
+	//	si->Instance->Initialize();
+	//		
+	//	if(si->Registration)
+	//	{
+	//		si->Registration->Add(L"Initialized");
+	//	}
+	//
+	//	si->Initialized = true;
+	//}
 }
 
 CClientConnection * CNexus::Connect(CApplicationRelease * who, CClientInstance * client, CString const & iface, std::function<void()> ondisconnect)

@@ -29,6 +29,7 @@ namespace uc
 			
 			CTonDocument *								AreasConfig;
 			CConfig *									EngineConfig;
+			CTonDocument *								WorldConfig;
 			
 			CArray<CDragItem>							Drags;
 			CObject<CAvatar>							DragAllocation = null;
@@ -42,22 +43,23 @@ namespace uc
 			CList<CScreenRenderTarget *>				Targets;
 			CMap<CViewport *, CScreenRenderLayer *>		RenderLayers;
 			CMap<CViewport *, CActiveLayer *>			ActiveLayers;
-								   
+			
+			CUnit *										Logo;
+
 			int											ScreenshotId;
 
 			float										Z;
-			float										Fov;
-
+			
 			UOS_RTTI
 			CWorldServer(CNexus * l, CServerInstance * si);
 			~CWorldServer();
 
-			void										Initialize() override;
-			void										Start() override;
+			void										UserStart() override;
 			IProtocol *									Accept(CString const & iface) override;
 			void										Break(IProtocol * iface) override;
 
 			void										EstablishConnections();
+			void										OnMountDisconnecting(CString const & name);
 
 			CGroup *									CreateGroup(CString const & name) override;
 

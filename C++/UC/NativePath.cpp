@@ -117,6 +117,11 @@ CString CNativePath::GetFileNameBase(const CString & a)
 
 CString CNativePath::Canonicalize(const CString & a)
 {
+	if(a.empty())
+	{
+		return a;
+	}
+
 	wchar_t p[32768];
 	PathCanonicalize(p, a.c_str());
 	return p;

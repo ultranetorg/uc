@@ -20,7 +20,7 @@ namespace uc
 
 			}
 
-			void Start() override
+			void SystemStart() override
 			{
 				auto exe = Instance->Release->Registry->Get<CString>(L"Executable");
 

@@ -14,8 +14,9 @@ namespace uc
 	{
 		public:
 			CCore *										Core;
+			CDiagnostic *								Diagnostic;
 
-			bool										Primary = true;
+			//bool										Primary = true;
 
 			int											ExitHotKeyId;
 			int											SuspendHotKeyId;
@@ -31,7 +32,7 @@ namespace uc
 
 			CXonDocument *								SystemConfig = null;
 			CXonDocument *								UserConfig = null;
-			CDiagnostic *								Diagnostic;
+			//CEvent<>									UserLoaded;
 
 			CString										ObjectTemplatePath;
 			
@@ -42,7 +43,7 @@ namespace uc
 			CString										InitialPATH;
 
 			inline static const CString					SystemNexusFile = L"System.nexus";
-			inline static const CString					UserNexusFile = L"User.nexus";
+			inline static const CString					User_nexus = L"User.nexus";
 
 			inline static const CString					FileSystem0 = L"FileSystem0";
 			inline static const CString					Sun0 = L"Sun0";

@@ -12,6 +12,7 @@ namespace uc
 		
 		public:
 			CGeoStore *					GeoStore;
+			inline static const CString Experimental_config = L"Experimental.config";
 
 			UOS_RTTI
 			CExperimentalServer(CNexus * l, CServerInstance * si);
@@ -19,8 +20,7 @@ namespace uc
 			
 			void						EstablishConnections(bool storage, bool world, bool imageextractor);
 
-			void						Initialize() override;
-			void						Start() override;
+			void						UserStart() override;
 			IProtocol * 				Accept(CString const & pr) override;
 			void						Break(IProtocol * s) override;
 			CInterObject *				CreateObject(CString const & name) override;

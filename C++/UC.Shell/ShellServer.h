@@ -31,14 +31,15 @@ namespace uc
 		public:
 			CRectangleMenu *							Menu = null;
 
+			inline static const CString 				Shell_config =	L"Shell.config";
+
 			UOS_RTTI
 			CShellServer(CNexus * l, CServerInstance * si);
 			~CShellServer();
 			
 			void										EstablishConnections();
 
-			void										Initialize() override;
-			void										Start() override;
+			void										UserStart() override;
 			IProtocol * 								Accept(CString const & protocol);
 			void										Break(IProtocol * s);
 			CPersistentObject *							CreateObject(CString const & name) override;

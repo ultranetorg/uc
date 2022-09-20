@@ -23,6 +23,7 @@ namespace uc
 			CFileSystem(CNexus * l, CServerInstance * info);
 			~CFileSystem();
 
+			void								UserStart() override;
 			IProtocol *							Accept(CString const & pr) override;
 			void								Break(IProtocol * c) override;
 
@@ -52,6 +53,8 @@ namespace uc
 			void								CreateLocalDirectory(CInterObject * o, CString const & path = CString());
 			void								CreateGlobalDirectory(CServer * s, CString const & path = CString());
 			void 								CreateLocalDirectory(CServer * s, CString const & path = CString());
+
+
 	};
 
 	class UOS_LINKING CFileSystemClient : public CClient, public virtual IType

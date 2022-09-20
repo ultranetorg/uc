@@ -111,136 +111,146 @@ void CExperimentalServer::EstablishConnections(bool storage, bool world, bool im
 	}
 }
 
-void CExperimentalServer::Initialize()
+void CExperimentalServer::UserStart()
 {
 	EstablishConnections(true, true, false);
 
-	auto shell	= Nexus->Connect<CShellProtocol>(Server->Instance->Release, CNexus::Shell0);
-	
-	auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_MAIN));
-	auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_WORK));
-	auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_HOME));
+	auto config = LoadGlobalDocument(Experimental_config);
 
-	TCHAR szPath[MAX_PATH];
-	PWSTR ppath;
-	
-	if(main)
+	if(!config)
 	{
-		if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
+		config = new CTonDocument();
+
+		auto shell	= Nexus->Connect<CShellProtocol>(Server->Instance->Release, CNexus::Shell0);
+	
+		auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_MAIN));
+		auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_WORK));
+		auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_HOME));
+
+		TCHAR szPath[MAX_PATH];
+		PWSTR ppath;
+	
+		if(main)
 		{
-			auto c = new CCommander(this, COMMANDER_AT_HOME_1);
-			c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath)));
-			Server->RegisterObject(c, true);
-			c->Free();
+			if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
+			{
+				auto c = new CCommander(this, COMMANDER_AT_HOME_1);
+				c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath)));
+				Server->RegisterObject(c, true);
+				c->Free();
 				
-			auto fia = main->Add(c->Url, AVATAR_WIDGET);
-		}
+				auto fia = main->Add(c->Url, AVATAR_WIDGET);
+			}
 
-		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
-		{
-			auto c = new CCommander(this, COMMANDER_AT_HOME_2);
-			c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(ppath)));
-			Server->RegisterObject(c, true);
-			c->Free();
+			if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
+			{
+				auto c = new CCommander(this, COMMANDER_AT_HOME_2);
+				c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(ppath)));
+				Server->RegisterObject(c, true);
+				c->Free();
 		
-			auto fib = main->Add(c->Url, AVATAR_WIDGET);
+				auto fib = main->Add(c->Url, AVATAR_WIDGET);
 
-			CoTaskMemFree(ppath);
+				CoTaskMemFree(ppath);
+			}
 		}
-	}
 
-	if(work)
-	{
-		auto th = new CTradeHistory(this);
-		th->SetSymbol(L"tBTCUSD");
-		th->SetInterval(L"1h");
-		th->Refresh();
-		Server->RegisterObject(th, true);
-		th->Free();
-		work->Add(th->Url, AVATAR_WIDGET);
+		if(work)
+		{
+			auto th = new CTradeHistory(this);
+			th->SetSymbol(L"tBTCUSD");
+			th->SetInterval(L"1h");
+			th->Refresh();
+			Server->RegisterObject(th, true);
+			th->Free();
+			work->Add(th->Url, AVATAR_WIDGET);
 
-		auto dj = new CTradingview(this);
-		dj->SetSymbol(L"US30");
-		dj->SetInterval(L"W");
-		dj->SetStyle(L"1");
-		Server->RegisterObject(dj, true);
-		dj->Free();
-		work->Add(dj->Url, AVATAR_WIDGET);
+			auto dj = new CTradingview(this);
+			dj->SetSymbol(L"US30");
+			dj->SetInterval(L"W");
+			dj->SetStyle(L"1");
+			Server->RegisterObject(dj, true);
+			dj->Free();
+			work->Add(dj->Url, AVATAR_WIDGET);
 
-		auto snp = new CTradingview(this);
-		snp->SetSymbol(L"US500");
-		snp->SetInterval(L"W");
-		snp->SetStyle(L"1");
-		Server->RegisterObject(snp, true);
-		snp->Free();
-		work->Add(snp->Url, AVATAR_WIDGET);
+			auto snp = new CTradingview(this);
+			snp->SetSymbol(L"US500");
+			snp->SetInterval(L"W");
+			snp->SetStyle(L"1");
+			Server->RegisterObject(snp, true);
+			snp->Free();
+			work->Add(snp->Url, AVATAR_WIDGET);
 
-		auto nq = new CTradingview(this);
-		nq->SetSymbol(L"US100");
-		nq->SetInterval(L"W");
-		nq->SetStyle(L"1");
-		Server->RegisterObject(nq, true);
-		nq->Free();
-		work->Add(nq->Url, AVATAR_WIDGET);
+			auto nq = new CTradingview(this);
+			nq->SetSymbol(L"US100");
+			nq->SetInterval(L"W");
+			nq->SetStyle(L"1");
+			Server->RegisterObject(nq, true);
+			nq->Free();
+			work->Add(nq->Url, AVATAR_WIDGET);
 
-		auto e = new CEmail(this);
+			auto e = new CEmail(this);
+			Server->RegisterObject(e, true);
+			e->Free();
+			work->Add(e->Url, AVATAR_WIDGET);
+		}
+
+		// COMMANDER_1
+		auto c1 = CreateObject(COMMANDER_1)->As<CCommander>();
+		c1->SetRoot(L"/");
+		Server->RegisterObject(c1, true);
+		c1->Free();
+
+		// BROWSER_1
+		auto b1 = CreateObject(BROWSER_1)->As<CBrowser>();
+		b1->SetAddress(CUrl(UO_WEB_HOME));
+		Server->RegisterObject(b1, true);
+		b1->Free();
+
+		// EARTH_1
+		auto e1 = CreateObject(EARTH_1)->As<CEarth>();
+		Server->RegisterObject(e1, true);
+		e1->Free();
+
+		// GROUP_1
+		auto c = CreateObject(COMMANDER_AT_GROUP)->As<CCommander>();
+		c->SetRoot(L"/");
+		Server->RegisterObject(c, true);
+		c->Free();
+
+		auto b = CreateObject(BROWSER_AT_GROUP)->As<CBrowser>();
+		b->SetAddress(CUrl(UO_WEB_HOME));
+		Server->RegisterObject(b, true);
+		b->Free();
+
+		auto e = CreateObject(EARTH_AT_GROUP)->As<CEarth>();
 		Server->RegisterObject(e, true);
 		e->Free();
-		work->Add(e->Url, AVATAR_WIDGET);
-	}
-
-	// COMMANDER_1
-	auto c1 = CreateObject(COMMANDER_1)->As<CCommander>();
-	c1->SetRoot(L"/");
-	Server->RegisterObject(c1, true);
-	c1->Free();
-
-	// BROWSER_1
-	auto b1 = CreateObject(BROWSER_1)->As<CBrowser>();
-	b1->SetAddress(CUrl(UO_WEB_HOME));
-	Server->RegisterObject(b1, true);
-	b1->Free();
-
-	// EARTH_1
-	auto e1 = CreateObject(EARTH_1)->As<CEarth>();
-	Server->RegisterObject(e1, true);
-	e1->Free();
-
-	// GROUP_1
-	auto c = CreateObject(COMMANDER_AT_GROUP)->As<CCommander>();
-	c->SetRoot(L"/");
-	Server->RegisterObject(c, true);
-	c->Free();
-
-	auto b = CreateObject(BROWSER_AT_GROUP)->As<CBrowser>();
-	b->SetAddress(CUrl(UO_WEB_HOME));
-	Server->RegisterObject(b, true);
-	b->Free();
-
-	auto e = CreateObject(EARTH_AT_GROUP)->As<CEarth>();
-	Server->RegisterObject(e, true);
-	e->Free();
 		
-	auto g = World->CreateGroup(GROUP_1);
-	g->SetTitle(L"Group #1");
-	g->Entities.push_back(c);
-	g->Entities.push_back(b);
-	g->Entities.push_back(e);
-	g->Free();
+		auto g = World->CreateGroup(GROUP_1);
+		g->SetTitle(L"Group #1");
+		g->Entities.push_back(c);
+		g->Entities.push_back(b);
+		g->Entities.push_back(e);
+		g->Free();
 
-	if(home)
-	{
-		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1),	AVATAR_ICON2D);
-		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1),	AVATAR_ICON2D);
-		home->Add(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1),		AVATAR_ICON2D);
-		home->Add(CUol(CWorldEntity::Scheme, World.Connection->Client->Instance->Name,	 GROUP_1),		AVATAR_ICON2D);
+		if(home)
+		{
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1),	AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1),	AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1),		AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, World.Connection->Client->Instance->Name,	 GROUP_1),		AVATAR_ICON2D);
+		}
+
+		Nexus->Disconnect(shell);
+
+		auto f = Storage->WriteFile(MapUserGlobalPath(Experimental_config));
+		config->Save(&CXonTextWriter(f, true));
+		Storage->Close(f);
 	}
 
-	Nexus->Disconnect(shell);
-}
+	delete config;
 
-void CExperimentalServer::Start()
-{
 	if(World->Initializing)
 	{
 		auto shell	= Nexus->Connect<CShellProtocol>(Server->Instance->Release, CNexus::Shell0);

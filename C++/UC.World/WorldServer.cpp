@@ -152,6 +152,7 @@ CWorldServer::~CWorldServer()
 
 	if(Storage)
 	{
+		Storage->MountDisconnecting -= ThisHandler(OnMountDisconnecting);
 		Nexus->Disconnect(Storage);
 	}
 }
@@ -161,7 +162,14 @@ void CWorldServer::EstablishConnections()
 	if(!Storage)
 	{
 		Storage = CPersistentServer::Storage = Nexus->Connect<CFileSystemProtocol>(Instance->Release, CNexus::FileSystem0, [&]{ Nexus->Stop(Instance); });
+
+		Storage->MountDisconnecting += ThisHandler(OnMountDisconnecting);
 	}
+}
+
+void CWorldServer::OnMountDisconnecting(CString const & name)
+{
+	Nexus->Stop(Instance);
 }
 
 IProtocol * CWorldServer::Accept(CString const & pr)
@@ -173,11 +181,7 @@ void CWorldServer::Break(IProtocol * o)
 {
 }
 
-void CWorldServer::Initialize()
-{
-}
-
-void CWorldServer::Start()
+void CWorldServer::UserStart()
 {
 	EstablishConnections();
 
@@ -213,7 +217,6 @@ void CWorldServer::Start()
 		WorldConfig = sconfig;
 
 	Layout	= WorldConfig->Get<CString>(L"Layout");
-	Fov		= WorldConfig->Get<CFloat>(L"Fov");
 
 	if(Instance->Command)
 	{
@@ -299,14 +302,14 @@ void CWorldServer::Start()
 	
 	for(auto vp : Viewports)
 	{
-		RenderLayers[vp]	= Engine->Renderer->AddLayer(vp, VisualGraph, Area->VisualSpaces.Match(vp).Space);
-		ActiveLayers[vp]	= Engine->Interactor->AddLayer(vp, Area->ActiveSpaces.Match(vp).Space);
+		RenderLayers[vp] = Engine->Renderer->AddLayer(vp, VisualGraph, Area->VisualSpaces.Match(vp).Space);
+		ActiveLayers[vp] = Engine->Interactor->AddLayer(vp, Area->ActiveSpaces.Match(vp).Space);
 	}
 
 	auto logo = new CLogo(this);
 	logo->SetText(WorldConfig->Get<CString>(L"Title") + L" Mode");
-	auto a = AllocateUnit(logo);
-	Show(a, CArea::ServiceFront, null);
+	Logo = AllocateUnit(logo);
+	Show(Logo, CArea::ServiceFront, null);
 	logo->Free();
 	
 	Sphere = new CSphere(this);
@@ -333,7 +336,7 @@ void CWorldServer::Start()
 	
 	Engine->Start();
 
-	Hide(a, null);
+	Hide(Logo, null);
 
 	Starting = false;
 }
