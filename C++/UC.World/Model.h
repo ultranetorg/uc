@@ -4,9 +4,9 @@
 
 namespace uc
 {
-	class IAvatarProtocol;
+	class CAvatarProtocol;
 	class CUnit;
-	class CWorld;
+	class CWorldProtocol;
 
 	enum class ELifespan
 	{
@@ -90,7 +90,7 @@ namespace uc
 			CList<CString>								Tags = {L"Apps"};
 
 			UOS_RTTI
-			CModel(CWorld * l, CServer * s, ELifespan life, CString const & name);
+			CModel(CWorldProtocol * l, CServer * s, ELifespan life, CString const & name);
 			virtual ~CModel();
 
 			using CAvatar::UpdateLayout;

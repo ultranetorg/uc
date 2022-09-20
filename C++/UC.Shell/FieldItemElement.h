@@ -38,7 +38,7 @@ namespace uc
 			virtual void								UpdateLayout(CLimits const & l, bool apply) override;
 			virtual void								PropagateLayoutChanges(CElement * s) override;
 
-			void										OnDependencyDestroying(CNexusObject *);
+			void										OnDependencyDestroying(CInterObject *);
 
 			bool										IsSelected();
 			void										Select(bool e);

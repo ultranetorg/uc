@@ -111,7 +111,7 @@ void CMesh::Save(CXon * r)
 void CMesh::Load(CXon * r)
 {
 	auto p = r->One(L"Vertexes");
-	for(auto i : p->Children)
+	for(auto i : p->Nodes)
 	{
 		if(i->Id == CFloat2Array::TypeName)	SetVertices(i->Name, i->Get<CFloat2Array>()); else
 		if(i->Id == CFloat3Array::TypeName)	SetVertices(i->Name, i->Get<CFloat3Array>()); else

@@ -22,13 +22,13 @@ void CChartEnvironment::SetEntity(CUol & e)
 	Entity = Server->FindObject(e);
 	Entity->Destroying += ThisHandler(OnDependencyDestroying);
 
-	if(e.GetType() == CTradeHistory::GetClassName())
+	if(e.GetObjectClass() == CTradeHistory::GetClassName())
 	{
 		ChartElement = new CChartElement(Level, Level->Style);
 		ChartElement->As<CChartElement>()->SetEntity(Entity->As<CTradeHistory>());
 	}
 
-	if(e.GetType() == CTradingview::GetClassName())
+	if(e.GetObjectClass() == CTradingview::GetClassName())
 	{
 		ChartElement = new CTradingviewElement(Level, Level->Style);
 		ChartElement->As<CTradingviewElement>()->SetEntity(Entity->As<CTradingview>());
@@ -49,7 +49,7 @@ void CChartEnvironment::SetEntity(CUol & e)
 	OnTitleChanged(Entity);
 }
 
-void CChartEnvironment::OnDependencyDestroying(CNexusObject * o)
+void CChartEnvironment::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && Entity == o)
 	{

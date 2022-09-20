@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FieldElement.h"
-#include "IShellFriend.h"
+#include "ShellFriendProtocol.h"
 
 using namespace uc;
 
@@ -18,8 +18,8 @@ CFieldElement::CFieldElement(CShellLevel * l, const CString & name) : CRectangle
 	Active->MouseEvent[EListen::NormalAll]	+= ThisHandler(OnMouse);
 	Active->TouchEvent[EListen::NormalAll]	+= ThisHandler(OnTouch);
 	
-	SelectionMesh = new CFrameMesh(&Level->World->Engine->EngineLevel);
-	Selection = new CVisual(&Level->World->Engine->EngineLevel, L"selection", SelectionMesh, Level->World->Materials->GetMaterial(Level->Style->Get<CFloat4>(L"Selection/Border/Material")), CMatrix::Identity);
+	SelectionMesh = new CFrameMesh(Level->World->Engine->Level);
+	Selection = new CVisual(Level->World->Engine->Level, L"selection", SelectionMesh, Level->World->Materials->GetMaterial(Level->Style->Get<CFloat4>(L"Selection/Border/Material")), CMatrix::Identity);
 
 	Positioning.GetView					= [this]		 { return GetUnit()->GetActualView(); };
 	Positioning.Bounds[null]			= [this]		 { return Surface->Polygon; };
@@ -62,11 +62,11 @@ void CFieldElement::Load()
 	}
 	Items.Clear();
 
-	auto url = Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, CPath::Join(Directory, L"Store.xon"));
+	auto url = CPath::Join(CFileSystemProtocol::UserGlobal, Directory, L"Store.xon");
 
 	if(Level->Storage->Exists(url))
 	{
-		auto store = Level->Storage->OpenReadStream(url);
+		auto store = Level->Storage->ReadFile(url);
 
 		auto & doc = CTonDocument(CXonTextReader(store));
 		CMeshStore		mhs(Level->World);
@@ -75,11 +75,11 @@ void CFieldElement::Load()
 		mhs.Load(&doc);
 		mts.Load(&doc);
 
-		auto g = Level->Storage->OpenDirectory(Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, Directory));
+		auto g = CPath::Join(CFileSystemProtocol::UserGlobal, Directory);
 
-		for(auto & f : g->Enumerate(L"FieldItemElement-*.xon"))
+		for(auto & f : Level->Storage->Enumerate(g, L"FieldItemElement-.+\\.xon"))
 		{
-			auto fie = new CFieldItemElement(Level, this, CPath::Join(Directory, CPath::GetName(f.Path)));
+			auto fie = new CFieldItemElement(Level, this, CPath::Join(Directory, f.Name));
 			fie->Load(&mhs, &mts, Entity);
 
 			if(fie->Entity)
@@ -101,7 +101,6 @@ void CFieldElement::Load()
 
 		}
 
-		Level->Storage->Close(g);
 		Level->Storage->Close(store);
 	}
 }
@@ -120,7 +119,7 @@ void CFieldElement::Save()
 	mhs.Save(&d);
 	mts.Save(&d);
 
-	auto f = Level->Storage->OpenWriteStream(Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, CPath::Join(Directory, L"Store.xon")));
+	auto f = Level->Storage->WriteFile(CPath::Join(CFileSystemProtocol::UserGlobal, Directory, L"Store.xon"));
 	d.Save(&CXonTextWriter(f, true));
 	Level->Storage->Close(f);
 }
@@ -672,7 +671,6 @@ CCardMetrics CFieldElement::GetMetrics(CString const & am, ECardTitleMode tm, co
 
 		m.FaceSize		= size;
 		m.FaceMargin	= {0};
-				
 
 		if(tm == ECardTitleMode::Left || tm == ECardTitleMode::Right)	m.TextSize	= CSize(size.W * 4, size.H, 0);
 		if(tm == ECardTitleMode::Bottom || tm == ECardTitleMode::Top)	m.TextSize	= CSize(size.W * (Level->World->Tight ? 1 : 2), Level->Style->GetFont(L"Text/Font")->Height * 4, 0);
@@ -816,7 +814,7 @@ CTransformation CFieldElement::GetRandomFreePosition(CFieldItemElement * fie)
 }
 
 
-CRefList<CFieldItemElement *> CFieldElement::Find(CList<CUol> & items)
+CRefList<CFieldItemElement *> CFieldElement::Find(CArray<CUol> & items)
 {
 	CRefList<CFieldItemElement *> a;
 
@@ -961,7 +959,8 @@ void CFieldElement::AddNewMenu(CRectangleMenu * menu, CFloat3 & p)
 	auto nmi = new CRectangleSectionMenuItem(Level->World, Level->Style, L"New");
 	menu->Section->AddItem(nmi);
 			
-	auto cc = Level->Nexus->ConnectMany<IShellFriend>(this, SHELL_FRIEND_PROTOCOL);
+	auto cc = Level->Nexus->ConnectMany<CShellFriendProtocol>(Level->Server->Instance->Release);
+	
 	for(auto f : cc)
 	{
 		auto smi = new CRectangleSectionMenuItem(Level->World, Level->Style, f->GetTitle());

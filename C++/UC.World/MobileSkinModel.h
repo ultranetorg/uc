@@ -6,7 +6,7 @@ namespace uc
 	class CMobileSkinModel : public CModel
 	{
 		public:
-			CWorld *									Level;
+			CWorldProtocol *									Level;
 			
 			CText *										SwipeLeft;
 			CText *										SwipeRight;
@@ -18,24 +18,24 @@ namespace uc
 			CList<CTouch *> Touches;
 
 			UOS_RTTI
-			CMobileSkinModel(CWorld * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
+			CMobileSkinModel(CWorldProtocol * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
 			{
 				Level = l;
 				Tags = {L"Skin"};
 
-				auto path = Level->Server->MapPath(Level->Layout == L"PhoneB" ? L"PhoneB.png" : L"Phone.png");
-				auto f = Level->Storage->OpenReadStream(path);
+				auto path = Level->Server->MapReleasePath(Level->Layout == L"PhoneB" ? L"PhoneB.png" : L"Phone.png");
+				auto f = Level->Storage->ReadFile(path);
 				auto t = Level->Engine->TextureFactory->CreateTexture();
 				t->Load(f);
 				Level->Storage->Close(f);
 
-				auto m = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				auto m = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				m->AlphaBlending = true;
 				m->Textures[L"DiffuseTexture"] = t;
 				m->Samplers[L"DiffuseSampler"].SetFilter(ETextureFilter::Point, ETextureFilter::Point, ETextureFilter::Point);
 				Visual->SetMaterial(m);
 
-				Frame = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+				Frame = new CSolidRectangleMesh(l->Engine->Level);
 				Visual->SetMesh(Frame);
 				Active->SetMesh(Frame);
 				Frame->Free();
@@ -49,9 +49,9 @@ namespace uc
 				auto lables = true;
 				auto placeholder = L"                         ";
 				
-				if(auto a = Level->Core->FindStartCommand(Level->Server->Url, L"Skin/ShowLabels"))
+				if(auto a = Level->Server->Instance->Command->One(L"Skin/ShowLabels"))
 				{
-					lables = a->second == L"y";
+					lables = a->Get<CBool>();
 				}
 
 				SwipeLeft	= new CText(l, l->Style, L"SwipeLeft",	true);
@@ -165,8 +165,8 @@ namespace uc
 
 			void OnClick(CScreen * s, CFloat2 & p)
 			{
-				float w = Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.W;// 370.f-1; 
-				float h = Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.H; //628.f-1;
+				float w = (float)Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.W;// 370.f-1; 
+				float h = (float)Level->MainViewport->As<CScreenViewport>()->Target->Screen->Rect.H; //628.f-1;
 
 				if(CRect(250, 17, 106, 45).Contains(p))
 				{

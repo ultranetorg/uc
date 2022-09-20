@@ -4,7 +4,7 @@
 
 using namespace uc;
 
-CModel::CModel(CWorld * l, CServer * s, ELifespan life, CString const & name) : CAvatar(l, s, name), Lifespan(life)
+CModel::CModel(CWorldProtocol * l, CServer * s, ELifespan life, CString const & name) : CAvatar(l, s, name), Lifespan(life)
 {
 }
 

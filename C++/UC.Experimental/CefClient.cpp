@@ -381,7 +381,7 @@ void CCefClient::OnProtocolExecution(CefRefPtr<CefBrowser> browser, const CefStr
 {
 	Level->Core->DoUrgent(this, __FUNCTIONW__,	[this, url]
 												{
-													Level->Nexus->Execute(CString(url), sh_new<CShowParameters>(LastMouseArgs, Level->Style));
+													Level->Core->Execute(CString(url), sh_new<CShowParameters>(LastMouseArgs, Level->Style));
 													return true;
 												});
 

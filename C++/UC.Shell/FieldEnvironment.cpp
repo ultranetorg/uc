@@ -5,7 +5,7 @@ using namespace uc;
 
 CFieldEnvironmentServer::CFieldEnvironmentServer(CShellLevel * l, const CString & name) : CFieldAvatar(l, name), Sizer(l->World)
 {
-	PreferedPlacement[AREA_FIELDS] = EPreferedPlacement::Default;
+	PreferedPlacement[CArea::Fields] = EPreferedPlacement::Default;
 
 	Sizer.SetTarget(Surface);
 	Sizer.InGripper =	[this](auto & pk)

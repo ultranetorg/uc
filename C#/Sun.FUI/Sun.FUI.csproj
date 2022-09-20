@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>Sun.FUI</AssemblyName>
+    <RootNamespace>UC.Net.Node.FUI</RootNamespace>
+    <Version>0.0.431</Version>
+    <Company>Ultranet Organization</Company>
+    <Authors>Ultranet Organization</Authors>
+    <Product>Standard Ultranet Node (SUN) with Forms UI</Product>
+    <PackageProjectUrl>{HOME}</PackageProjectUrl>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <AnalysisLevel>none</AnalysisLevel>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SignAssembly>false</SignAssembly>
+    <Description></Description>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\_Debug\uc-sun-dotnet\0.0.0.0</OutputPath>
+    <NoWarn>1701;1702;0169</NoWarn>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\_Release\uc-sun-dotnet\0.0.0.0</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Nethereum.Web3" Version="4.6.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UC\UC.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="MembershipPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="AuthorPanel.cs" />
+    <Compile Update="HubPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="PublishPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Explorer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="TransactionsPanel.cs" />
+    <Compile Update="ProductPanel.cs" />
+    <Compile Update="ReleasePanel.cs" />
+    <Compile Update="ApplicationsPanel.cs" />
+    <Compile Update="TextForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FeeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="EmissionPanel.cs" />
+    <Compile Update="CreatePasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="AccountsPanel.cs" />
+    <Compile Update="NetworkPanel.cs" />
+    <Compile Update="InitialsPanel.cs" />
+    <Compile Update="DashboardPanel - Copy.Designer.cs">
+      <DependentUpon>DashboardPanel.Designer.cs</DependentUpon>
+    </Compile>
+    <Compile Update="PasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="CreatePasswordForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="DashboardPanel - Copy.resx">
+      <DependentUpon>DashboardPanel.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="TextForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="FeeForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="PasswordForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

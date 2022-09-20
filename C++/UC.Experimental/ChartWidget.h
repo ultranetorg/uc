@@ -16,7 +16,7 @@ namespace uc
 			~CChartWidget();
 			
 			void										SetEntity(CUol & e);
-			void										OnDependencyDestroying(CNexusObject *);
+			void										OnDependencyDestroying(CPersistentObject *);
 
 			void										Place(CFieldWorld * fo) override;
 

@@ -5,25 +5,25 @@ namespace uc
 	class UOS_WORLD_LINKING CLogo : public CModel
 	{
 		public:
-			CWorld * 	Level;
+			CWorldProtocol * 	Level;
 			CText *		Mode;
 
 			UOS_RTTI
-			CLogo(CWorld * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
+			CLogo(CWorldProtocol * l) : CModel(l, l->Server, ELifespan::Visibility, GetClassName())
 			{
 				Level = l;
-				Tags = {AREA_SERVICE_FRONT, L"Apps"};
+				Tags = {CArea::ServiceFront, L"Apps"};
 
 				auto t = Level->Engine->TextureFactory->CreateTexture();
-				t->Load(Level->Server->Info->HInstance, IDB_UOS_PNG);
+				t->Load(Level->Server->Instance->Release->Module, IDB_UOS_PNG);
 
-				auto mtl = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				auto mtl = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				mtl->AlphaBlending = true;
 				mtl->Textures[L"DiffuseTexture"] = t;	
 				mtl->Samplers[L"DiffuseSampler"].SetFilter(ETextureFilter::Point, ETextureFilter::Point, ETextureFilter::Point);
 
 
-				auto msh = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+				auto msh = new CSolidRectangleMesh(Level->Engine->Level);
 				msh->Generate(0, 0, float(t->W), float(t->H));
 				Visual->SetMaterial(mtl);
 				Visual->SetMesh(msh);

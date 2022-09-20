@@ -7,7 +7,7 @@ CEarthIcon::CEarthIcon(CExperimentalLevel * l, CString const & name) : CIcon(l->
 {
 	Level = l;
 
-	SetContentFromImage(Server->MapPath(L"Earth-24x24.png"));
+	SetContentFromImage(Server->MapReleasePath(L"Earth-24x24.png"));
 }
 
 CEarthIcon::~CEarthIcon()

@@ -42,7 +42,7 @@ namespace UC
 			Console.Write(new string(' ', 4)); 
 
  			if(ShowSender && m.Sender != null)
-				Console.Write(m.Sender + " : ");
+				Console.Write(m.Sender.GetType().Name + " : ");
 
 			if(ShowSubject && m.Subject != null)
 			{

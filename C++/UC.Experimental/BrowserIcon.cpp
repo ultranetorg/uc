@@ -30,7 +30,7 @@ void CBrowserIcon::UpdateLayout(CLimits const & l, bool apply)
 
 		if(n != CurrentFile)
 		{
-			SetContentFromImage(Server->MapPath(n));
+			SetContentFromImage(Server->MapReleasePath(n));
 			CurrentFile = n;
 		}
 	}

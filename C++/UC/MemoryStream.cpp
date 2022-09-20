@@ -13,56 +13,72 @@ CMemoryStream::~CMemoryStream()
 
 bool CMemoryStream::IsValid()
 {
-	return !Stream.fail();
+	return true;
 }
 
 int64_t CMemoryStream::GetSize()
 {
-	auto p = Stream.tellp();
-	Stream.seekp(0, std::ios::end);
-	auto s = (int64_t)Stream.tellp();
-	Stream.seekp(p);
-	return s;
+	return Buffer.size();
 }
 
 int64_t CMemoryStream::Read(void * p, int64_t size)
 {
-	Stream.read((char *)p, size);
-	return Stream.gcount();
+	if(ReadPosition + size > (int64_t)Buffer.size())
+	{
+		throw CException(HERE, L"Length exceeded");
+	}
+
+	CopyMemory(p, Buffer.data() + ReadPosition, size);
+	//
+	// meStream.read((char *)p, size);
+	//return Stream.gcount();
+
+	ReadPosition += size;
+
+	return size;
 }
 
 int64_t CMemoryStream::Write(const void * p, int64_t size)
 {
 	if(size > 0)
 	{
-		Stream.write((const char *)p, size);
+		Buffer.insert(Buffer.end(), (const byte *)p, (const byte *)p + size);
+		WritePosition += size;
 	}
+
 	return size;
 }
 
 int64_t CMemoryStream::GetPosition()
 {
-	return Stream.tellg();
+	return ReadPosition;
 }
 
-void CMemoryStream::ReadSeek(int64_t n)
+void CMemoryStream::ReadSeek(int64_t p)
 {
-	Stream.seekg(n);
+	ReadPosition = p;
 }
 
-void CMemoryStream::WriteSeek(int64_t n)
+void CMemoryStream::WriteSeek(int64_t p)
 {
-	Stream.seekp(n);
+	WritePosition = p;
 }
 
 bool CMemoryStream::IsEnd()
 {
-	return Stream.eof();
+	return ReadPosition == Buffer.size() - 1;
 }
 
 void CMemoryStream::Clear()
 {
-	Stream.clear();
-	Stream.str("");
+	ReadPosition = 0;
+	WritePosition = 0;
+
+	Buffer.clear();
+}
+
+void * CMemoryStream::GetBuffer()
+{
+	return Buffer.data();
 }
 

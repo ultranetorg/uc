@@ -7,7 +7,7 @@ namespace uc
 	{
 		public:
 			CUrl				Target;
-			CUsl				Executor;
+			CString				Executor;
 			CUol				PropertiesAvatar;
 			CShellLevel *		Level;
 
@@ -17,7 +17,7 @@ namespace uc
 				Level = l;
 
 				SetDirectories(MapRelative(L""));
-				SetDefaultInteractiveMaster(AREA_MAIN);
+				SetDefaultInteractiveMaster(CArea::Main);
 			}
 
 			~CLink()
@@ -42,7 +42,7 @@ namespace uc
 
 				Title				= d.Get<CString>(L"Title");
 				Target				= d.Get<CUrl>(L"Target");
-				Executor			= d.Get<CUsl>(L"Executor");
+				Executor			= d.Get<CString>(L"Executor");
 				PropertiesAvatar	= d.Get<CUol>(L"PropertiesAvatar");
 			}
 
@@ -52,8 +52,8 @@ namespace uc
 
 				if(Title.empty())
 				{
-					if(Target.Protocol == CUol::Protocol)
-						Title = CPath::GetNameBase(CUol(Target).GetId());
+					if(Target.Scheme == CFileSystemEntry::Scheme)
+						Title = CPath::GetNameBase(CUol(Target).GetObjectId());
 					else
 						Title = Target.ToString();
 				}

@@ -127,12 +127,12 @@ CString CVersion::GetStringInfo(const CString & path, const CString & v)
 	return out;
 }	
 
-bool CVersion::operator==(CVersion & v)
+bool CVersion::operator==(CVersion const & v) const 
 {
 	return Era==v.Era && Release==v.Release && Build==v.Build && Revision==v.Revision;
 }
 
-bool CVersion::operator!=(CVersion & v)
+bool CVersion::operator!=(CVersion const & v) const 
 {
 	return !(*this == v);
 }

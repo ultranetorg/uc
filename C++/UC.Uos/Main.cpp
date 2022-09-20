@@ -3,13 +3,13 @@
 using namespace uc;
 
 /// /Core/Database?Action=Rollback
-/// /UC.Experimental?Action=Create&Class=Commander&origin=una.ultranet.org/Experimental
 /// /UC.World?Mode=Mobile.Emulation
 /// /UC.World?Mode=VR.Emulation
+/// Experimental{create class=Commander} address=uc/experimental/Experimental
 
 void Create(HINSTANCE instance, LPTSTR cmd)
 {
-	wchar_t p[32768];
+	wchar_t p[4096];
 	GetModuleFileNameW(instance, p, _countof(p));
 
 	//auto dll = CPath::ReplaceFileName(p, L"UC.dll");
@@ -28,55 +28,62 @@ void Create(HINSTANCE instance, LPTSTR cmd)
 	pi.Build			= PROJECT_CONFIGURATION;
 	pi.Platform			= PROJECT_TARGET_PLATFORM;
 
-	try
-	{
-		CSupervisor s;
-		auto core = new CCore(&s, instance, cmd, SUPERVISOR_FOLDER, ROOT_FROM_EXE_FOLDER, CORE_FOLDER, pi);
+	auto main = [&]
+				{
+					CSupervisor s;
+					auto core = new CCore(&s, instance, cmd, SUPERVISOR_FOLDER, CORE_FOLDER, pi);
 
-		if(core->Initialized)
+					delete core;
+				};
+
+	if(IsDebuggerPresent())
+	{
+		main();
+	} 
+	else
+	{
+		try
 		{
-			auto nexus = new CNexus(core, core->Config);
-			core->Run();
-			delete nexus;
+			main();
 		}
-
-		delete core;
-
-	}
-	catch(CException & e)
-	{
-		MessageBox(null, (e.Source.ClassMethod + L":" + CInt32::ToString(e.Source.Line) + L"\n\n" + e.Message).data(), pi.ToString(L"NVSPB").data(), MB_OK|MB_ICONERROR);
-		abort();
+		catch(CException & e)
+		{
+			MessageBox(null, (e.Source.ClassMethod + L":" + CInt32::ToString(e.Source.Line) + L"\n\n" + e.Message).data(), pi.ToString(L"NVSPB").data(), MB_OK|MB_ICONERROR);
+			abort();
+		}
 	}
 }
 
-int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow)
+int wWinMain(HINSTANCE instance, HINSTANCE prev, LPWSTR cmd, int nCmdShow)
 {
+//	auto & d = CTonDocument(CXonTextReader(L"{a b c} {e f}"));
+
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetBreakAlloc(6086);
 
 	CString c;
 
-	if(COs::ParseCommandLine(cmd).Has([](CUrq & i){ return i.GetSystem() == L"Core" && i.Query.Contains(L"OverrideCommandLine"); }))
-	{
+	auto x = new CTonDocument(CXonTextReader(cmd));
 
-		c += L"/UC.World?" 
-					L"Name=Desktop"
+	if(x->Any(L"Core/HardcodedCommandLine"))
+	{
+		c += COs::GetEnvironmentValue(L"G_Mmc");
+		c += L" ";
+		c += L"World{" 
+					L"Name=Desktop "
 					//L"Name=Mobile.E"
 					//L"Name=VR.E"
-						L"&Layout=" + COs::GetEnvironmentValue(L"G_Layout") +
+						//L"Layout=" + COs::GetEnvironmentValue(L"G_Layout") +
 						//L"&Layout=" + COs::GetEnvironmentValue(L"UO_DuoLayout") +
 						//L"&Layout=PhoneB"
 						//L"&Layout=FullScreen"
 						//L"&Skin/ShowLabels=n"	
-						//L"&ScreenEngine/RenderScaling=0.5" 
-			L" ";
-		
-		//c += COs::GetEnvironmentValue(L"UO_Mmc");
-
+						//L"&ScreenEngine/RenderScaling=0.5"
+					L"}";
+	
 		cmd = c.data();
 	}
 
-	//_CrtSetBreakAlloc(17153);
 
 	//_try
 	{
@@ -91,6 +98,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev, LPTSTR cmd, int nCmdShow
 	}
 	
 	//RestoreSystem(mw::GetRestoreFolder());
+
+	delete x;
 
 	return 0;
 }

@@ -8,7 +8,7 @@ CDirectoryMenu::CDirectoryMenu(CShellLevel * l, CString const & name) : CWorldEn
 	Level = l;
 
 	SetDirectories(MapRelative(L""));
-	SetDefaultInteractiveMaster(AREA_MAIN);
+	SetDefaultInteractiveMaster(CArea::Main);
 }
 
 CDirectoryMenu::~CDirectoryMenu()

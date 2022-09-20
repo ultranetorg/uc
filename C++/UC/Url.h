@@ -7,7 +7,7 @@ namespace uc
 	class UOS_LINKING CUrl : public ISerializable
 	{
 		public:
-			CString										Protocol;
+			CString										Scheme;
 			CString										Domain;
 			CString										Path;
 			CMap<CString, CString>						Query; // TreeMap only !!!!!!!!!

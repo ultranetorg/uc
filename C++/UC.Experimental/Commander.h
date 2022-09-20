@@ -10,7 +10,7 @@ namespace uc
 			CString										Root;
 			CString										Path;
 
-			CEvent<>										PathChanged;
+			CEvent<>									PathChanged;
 
 			UOS_RTTI
 			CCommander(CExperimentalLevel * l, CString const & name = CGuid::Generate64(GetClassName()));

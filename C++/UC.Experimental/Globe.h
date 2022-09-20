@@ -49,17 +49,17 @@ namespace uc
 
 				UseClipping(EClipping::Inherit, true);
 
-				Notloaded = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseColorShader);
+				Notloaded = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseColorShader);
 				Notloaded->Float4s[L"DiffuseColor"] = CFloat4(0.f, 0.f, 0.1f, 1.f);
 			
-				auto uol = Level->Server->MapTmpPath(L"Earth/Cache");
-				Level->Storage->CreateAllDirectories(uol);
+				auto uol = Level->Server->MapSystemPath(L"Earth/Cache");
+				Level->Storage->CreateDirectory(uol);
 
 				Diagnostic	= Level->Core->Supervisor->CreateDiagnostics(L"Globe");
 				Diagnostic->Updating += ThisHandler(OnDiagnosticUpdateing);
 
-				Viewport = new CViewport(&Level->Engine->EngineLevel);
-				Camera = new CCamera(&Level->Engine->EngineLevel, Viewport, L"Static", CFloat::PI/2, 100, 10000);
+				Viewport = new CViewport(Level->Engine->Level);
+				Camera = new CCamera(Level->Engine->Level, Viewport, L"Static", CFloat::PI/2, 100, 10000);
 				Camera->UseAffine();
 			}
 

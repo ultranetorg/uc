@@ -7,7 +7,7 @@ CEmailAccountEnvironment::CEmailAccountEnvironment(CExperimentalLevel * l, CStri
 {
 	Level = l;
 
-	Load(l->Style, Server->MapPath(L"EmailAccount.uwm"));
+	Load(l->Style, Server->MapReleasePath(L"EmailAccount.uwm"));
 }
 
 CEmailAccountEnvironment::~CEmailAccountEnvironment()
@@ -42,7 +42,7 @@ void CEmailAccountEnvironment::SetEntity(CUol & e)
 										};
 }
 
-void CEmailAccountEnvironment::OnDependencyDestroying(CNexusObject * o)
+void CEmailAccountEnvironment::OnDependencyDestroying(CInterObject * o)
 {
 	if(o == Entity && Entity)
 	{

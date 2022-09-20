@@ -25,7 +25,7 @@ namespace UC.Net
 
 		ContractHandler сontract;
 		Nethereum.Web3.Accounts.Account account;
-		static Dictionary<string, List<IPAddress>> Zones = new Dictionary<string, List<IPAddress>>();
+		static Dictionary<Zone, List<IPAddress>> Zones = new Dictionary<Zone, List<IPAddress>>();
 		static string creator;
 
 		public Nethereum.Signer.Chain Chain => (Chain)Enum.Parse(typeof(Chain), Settings.Nas.Chain);
@@ -83,7 +83,7 @@ namespace UC.Net
 			Settings = s;
 		}
 
-		public List<IPAddress> GetInitials(string zone)
+		public List<IPAddress> GetInitials(Zone zone)
 		{
 			if(zone == Zone.Localnet)
 			{
@@ -96,7 +96,7 @@ namespace UC.Net
 
 				if(!Zones.ContainsKey(zone))
 				{
-					var input = new GetZoneFunction { Name = Settings.Zone };
+					var input = new GetZoneFunction { Name = zone.Name };
 					var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
 
 					foreach(var i in z.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
@@ -132,11 +132,11 @@ namespace UC.Net
 			}
 		}
 
-		public async Task SetZone(string name, string nodes, IGasAsker asker)
+		public async Task SetZone(Zone zone, string nodes, IGasAsker asker)
 		{
 			var f = new SetZoneFunction
 			{
-				Name = name,
+				Name = zone.Name,
 				Nodes = nodes
 			};
 
@@ -161,11 +161,11 @@ namespace UC.Net
 			}
 		}
 
-		public async Task RemoveZone(string name, IGasAsker asker)
+		public async Task RemoveZone(Zone zone, IGasAsker asker)
 		{
 			var f = new RemoveZoneFunction
 			{
-				Name = name
+				Name = zone.Name
 			};
 
 			if(asker.Ask(Web3, Contract, Account.Address, f, null))
@@ -189,7 +189,7 @@ namespace UC.Net
 			}
 		}
 
-		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Flowvizor vizor)
+		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
 		{
 			var args = Emission.Serialize(signer, eid);
 

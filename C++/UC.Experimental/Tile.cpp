@@ -379,7 +379,7 @@ void CTile::RequestTile()
 								auto t = CreateMaterial();
 								t->Load(&Request->Stream);
 	
-								auto s = Level->Storage->OpenWriteStream(ufl);
+								auto s = Level->Storage->WriteFile(ufl);
 								t->Save(s);
 								Level->Storage->Close(s);
 	

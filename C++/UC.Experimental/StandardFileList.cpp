@@ -19,7 +19,7 @@ CStandardFileList::CStandardFileList(CExperimentalLevel * l) : CRectangle(l->Wor
 
 	Selector->BorderMaterial = Level->World->Materials->GetMaterial(CFloat3(252/255.f, 172.f/255, 41.f/255));
 
-	IconMesh = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	IconMesh = new CSolidRectangleMesh(l->Engine->Level);
 	IconMesh->Generate(0, 0, 16, 16);
 
 	Express(L"C",	[this](auto apply)
@@ -97,31 +97,14 @@ CStandardFileList::~CStandardFileList()
 	}
 	Selector->Free();
 
-	if(FileExtractor)
-		FileExtractor.Server->Disconnecting -= ThisHandler(OnDependencyDisconnecting);
-
 	IconMesh->Free();
 }
 
 void CStandardFileList::SetSource(CString & u)
 {
-	FileExtractor = Level->Nexus->Connect(this, IMAGE_EXTRACTOR_PROTOCOL);
-	FileExtractor.Server->Disconnecting += ThisHandler(OnDependencyDisconnecting);
-
 	Source = u;
 
 	Load(u);
-}
-
-void CStandardFileList::OnDependencyDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(p == FileExtractor)
-	{
-		//for(auto i : Items)
-		//{
-		//	i->Icon->Visual->SetMaterial(null);
-		//}
-	}
 }
 
 void CStandardFileList::Load(CString path)
@@ -140,7 +123,7 @@ void CStandardFileList::Load(CString path)
 		
 	Items.Clear();
 	
-	auto & entries = Level->Storage->Enumerate(path, L"*.*");
+	auto & entries = Level->Storage->Enumerate(path, L".*");
 
 	CString prev;
 		
@@ -153,16 +136,22 @@ void CStandardFileList::Load(CString path)
 
 	if(!Paths.empty())
 	{
-		CStorageEntry e;
+		CFileSystemEntry e;
 		e.NameOverride = L"..";
-		e.Path = Paths.back();
-		e.Type = CDirectory::GetClassName();
+		//e.Name = Paths.back();
+		e.Type = CFileSystemEntry::Directory;
 		entries.push_front(e);
 	}
 
-	for(auto file : entries)
+	for(auto & f : entries)
 	{
-		auto fi = new CFileItemElement(Level, &file, IconMesh, FileExtractor);
+		auto fi = new CFileItemElement(	Level, 
+										f.NameOverride == L".." ? Paths.back() : CPath::Join(path, f.Name), 
+										f.NameOverride, 
+										f.Type == CFileSystemEntry::Directory, 
+										IconMesh, 
+										Level->ImageExtractor);
+
 		fi->Express(L"M", []{ return CFloat6(1.f); });
 		fi->CalculateFullSize();
 
@@ -217,7 +206,7 @@ void CStandardFileList::OnMouse(CActive * r, CActive * s, CMouseArgs * arg)
 	{
 		if(Current)
 		{
-			Level->Nexus->Execute(Current->Object, sh_new<CShowParameters>(arg, Level->Style));
+			Level->Core->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
 		}
 	}
 }
@@ -276,7 +265,7 @@ void CStandardFileList::OnKeyboard(CActive * r, CActive * s, CKeyboardArgs * arg
 				if(Current->IsDirectory)
 					Load(Current->Path);
 				else
-					Level->Nexus->Execute(Current->Object, sh_new<CShowParameters>(arg, Level->Style));
+					Level->Core->Open(Level->Storage->ToUol(Current->Path), sh_new<CShowParameters>(arg, Level->Style));
 
 				break;
 		}

@@ -67,7 +67,7 @@ namespace UC.Net
 
 		public void HashWrite(BinaryWriter w)
 		{
-			w.WriteUtf8(Settings.Zone); 
+			w.WriteUtf8(Settings.Zone.Name); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
 			w.Write(Operations, i => {

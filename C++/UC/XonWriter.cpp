@@ -16,7 +16,7 @@ void CXonTextWriter::Write(CXon * root)
 
 	std::wostringstream s;
 	
-	for(auto i : root->Children)
+	for(auto i : root->Nodes)
 	{
 		Write(s, i, 0);
 	}
@@ -40,7 +40,7 @@ void CXonTextWriter::Write(std::wostringstream & s, CXon * n, int d)
 	}
 	if(n->Value)
 	{
-		CString v = dynamic_cast<CXonTextValue *>(n->Value)->Text;
+		auto & v = dynamic_cast<CXonTextValue *>(n->Value)->Text;
 
 		if(!v.empty())
 		{
@@ -66,18 +66,29 @@ void CXonTextWriter::Write(std::wostringstream & s, CXon * n, int d)
 		else
 			s <<  L" = \"\"";
 	}
+	
+	if(Eol)
+		s << endl;
 
-	s << endl;
-
-	if(!n->Children.empty())
+	if(!n->Nodes.empty())
 	{
-		s << t << L"{" << endl;
-		for(auto i : n->Children)
+		s << t << L"{";
+
+		if(Eol)
+			 s << endl;
+
+		for(auto i : n->Nodes)
 		{
 			Write(s, i, d+1);
 		}
-		s << t << L"}" << endl;
+		s << t << L"}";
+
+		if(Eol)
+			 s << endl;
 	}
+	else
+		if(!Eol)
+			 s << L' ';
 }
 
 /////////////////////////////// CXonBinaryWriter ///////////////////////////////////////////////
@@ -115,7 +126,7 @@ void CXonBinaryWriter::Write(CXon * root)
 														types[t] = (char)types.size();
 														indexes.push_back(t);
 													}
-													for(auto i : p->Children)
+													for(auto i : p->Nodes)
 													{
 														collectTypes(i);
 													}
@@ -135,7 +146,7 @@ void CXonBinaryWriter::Write(CXon * root)
 	std::function<void(CXon *, CXon *)> save = [this, &types, &save](auto p, auto last)
 	{
 		char f = (unsigned char)EBonHeader::Null;
-		if(!p->Children.empty())
+		if(!p->Nodes.empty())
 		{
 			f |= (char)EBonHeader::Parent;
 		}
@@ -202,15 +213,15 @@ void CXonBinaryWriter::Write(CXon * root)
 			Stream->Write(v->Data);
 		}
 
-		for(auto i : p->Children)
+		for(auto i : p->Nodes)
 		{
-			save(i, p->Children.back());
+			save(i, p->Nodes.back());
 		}
 	};
 
-	for(auto i : root->Children)
+	for(auto i : root->Nodes)
 	{
-		save(i, root->Children.back());
+		save(i, root->Nodes.back());
 	}
 }
 

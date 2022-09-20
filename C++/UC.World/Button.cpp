@@ -86,7 +86,7 @@ void CButton::LoadProperties(CStyle * s, CXon * n)
 {
 	__super::LoadProperties(s, n);
 
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		if(i->Name == L"Text")
 		{

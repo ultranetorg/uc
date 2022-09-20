@@ -39,7 +39,7 @@ namespace uc
 			int											StencilIndex = -1;
 			EClipping									Clipping = EClipping::Inherit;
 
-			CEvent<>										FinalMatrixChanged;
+			//CEvent<>									FinalMatrixChanged;
 
 			#ifdef _DEBUG
 			CString										FullName;

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Tradingview.h"
+#include "TradingviewProvider.h"
 
 using namespace uc;
 
@@ -7,7 +8,7 @@ CTradingview::CTradingview(CExperimentalLevel * l, CString const & name) : CTrad
 {
 	Level = l;
 
-	MarketProvider = l->Tradingview;
+	Provider = l->Tradingview;
 
 	SetDirectories(MapRelative(L""));
 }

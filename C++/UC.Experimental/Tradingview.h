@@ -1,6 +1,4 @@
 #pragma once
-#include "ExperimentalLevel.h"
-#include "BitfinexProvider.h"
 #include "Trade.h"
 
 namespace uc

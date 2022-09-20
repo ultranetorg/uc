@@ -47,12 +47,28 @@
 		<DisplayString>{Object}</DisplayString>
 	</Type>
 
-	<Type Name="uo::CNexusObject">
+	<Type Name="uo::CPersistentObject">
 		<DisplayString>{Url.Object}</DisplayString>
 	</Type>
 
 	<Type Name="uo::CProtocolConnection&lt;*&gt;">
 		<DisplayString>{Server}</DisplayString>
+	</Type>
+
+	<Type Name="uc::CProductAddress">
+		<DisplayString>Author={Author} Product={Product}</DisplayString>
+	</Type>
+
+	<Type Name="uc::CRealizationAddress">
+		<DisplayString>Author={Author} Product={Product} Platform={Platform}</DisplayString>
+	</Type>
+
+	<Type Name="uc::CReleaseAddress">
+		<DisplayString>Author={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision}</DisplayString>
+	</Type>
+
+	<Type Name="uc::CApplicationReleaseAddress">
+		<DisplayString>Author={Author} Product={Product} Platform={Platform} Version={Version.Era}.{Version.Release}.{Version.Build}.{Version.Revision} Application={Application}</DisplayString>
 	</Type>
 
 </AutoVisualizer>

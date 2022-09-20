@@ -119,7 +119,7 @@ CTableCell * CTable::GetCell(int r, int c)
 
 void CTable::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *, CElement *)> & load)
 {
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		auto p = i->Name.Split(L",");
 
@@ -141,7 +141,7 @@ void CTable::LoadProperties(CStyle * s, CXon * n)
 {
 	__super::LoadProperties(s, n);
 
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		if(i->Name == L"Spacing")	Spacing = CFloat2(i->Get<CString>()); 
 	}

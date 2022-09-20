@@ -1,5 +1,4 @@
 ﻿using System;
-using Ipfs.Http;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using System.Collections.Generic;

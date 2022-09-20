@@ -104,7 +104,7 @@ namespace uc
 			
 			void										AddNewMenu(CRectangleMenu * menu, CFloat3 & p);
 
-			CRefList<CFieldItemElement *>				Find(CList<CUol> & items);
+			CRefList<CFieldItemElement *>				Find(CArray<CUol> & items);
 			CFieldItemElement *							Find(CUol & o);
 	
 			void										OnItemAdded(CFieldItem * item);

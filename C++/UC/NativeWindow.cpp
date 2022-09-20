@@ -78,8 +78,8 @@ void CNativeWindow::RegisterDefaultClass()
 		HICON	icon16;
 		HICON	icon32;
 		UINT	iconId;
-		PrivateExtractIcons(Core->LaunchPath.data(), 0, 16, 16, &icon16, &iconId, 1, LR_DEFAULTCOLOR);
-		PrivateExtractIcons(Core->LaunchPath.data(), 0, 32, 32, &icon32, &iconId, 1, LR_DEFAULTCOLOR);
+		PrivateExtractIcons(Core->CoreExePath.data(), 0, 16, 16, &icon16, &iconId, 1, LR_DEFAULTCOLOR);
+		PrivateExtractIcons(Core->CoreExePath.data(), 0, 32, 32, &icon32, &iconId, 1, LR_DEFAULTCOLOR);
 
 		HMODULE wndprocModule;
 		GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPWSTR)WindowProc, &wndprocModule);
@@ -97,6 +97,7 @@ void CNativeWindow::RegisterDefaultClass()
 		wcex.lpszMenuName	= null;
 		wcex.lpszClassName	= UOS_DEFAULT_WINDOW_CLASS;
 		wcex.hIconSm		= icon16;
+
 		DefaultClass = RegisterClassEx(&wcex);
 	}
 }
@@ -149,8 +150,11 @@ LRESULT CNativeWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 					break;
 
 				case WM_SETCURSOR:
-					::SetCursor(i->second->Cursor);
-					return TRUE;
+					if(i->second->Cursor != null)
+					{
+						::SetCursor(i->second->Cursor);
+						return TRUE;
+					}
 			}
 		}
 	}

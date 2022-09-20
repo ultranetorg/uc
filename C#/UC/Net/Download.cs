@@ -1,0 +1,305 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace UC.Net
+{
+	public enum SeederResult
+	{
+		Null, Good, Bad
+	}
+
+	public class Download
+	{
+		public const long DefaultPieceLength = 65536;
+
+		public class Job
+		{
+			public Peer				Peer;
+			public Task				Task;
+			public int				Piece = -1;
+			public long				Length => Piece * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
+			public long				Offset => Piece * DefaultPieceLength;
+			public MemoryStream		Data = new MemoryStream();
+			public bool				Succeeded => Data.Length == Length;
+			Download				Download;
+			Core					Core => Download.Core;
+
+			public Job(Download download, Peer peer, int piece)
+			{
+				Download = download;
+				Peer = peer;
+				Piece = piece;
+
+				Task = Task.Run(() =>	
+								{
+									var timeout = Download.Workflow.CreateNested();
+
+									try
+									{
+										if(!Settings.Dev.DisableTimeouts)
+											timeout.Cancellation.CancelAfter(Core.Timeout);
+												
+										Download.Core.Connect(Peer, timeout);
+												
+										while(Data.Length < Length)
+										{
+											for(int e=0; e<3; e++)
+											{
+												try
+												{
+													var d = Peer.DownloadPackage(Download.Package, Offset + Data.Length, Length - Data.Length).Data;
+													Data.Write(d, 0, d.Length);
+													break;
+												}
+												catch(DistributedCallException)
+												{
+												}
+											}
+										}
+									}
+									catch(ConnectionFailedException)
+									{
+									}
+									catch(OperationCanceledException)
+									{
+									}
+								}, 
+								Download.Workflow.Cancellation.Token);
+				}
+		}
+
+		public Core									Core;
+		public Workflow							Workflow;
+		public PackageAddress						Package;
+		public List<Job>							Jobs = new();
+		public Dictionary<Peer, List<IPAddress>>	Hubs = new();
+		public Dictionary<IPAddress, SeederResult>	Seeders = new();
+		public List<Download>						Dependencies = new();
+		public byte[]								Hash;
+		public long									Length;
+		public int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
+		public bool									Completed;
+		public bool									Successful; 
+		public List<Job>							CompletedPieces = new();
+		Task										Task;
+		object										Lock = new object();
+		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
+																		- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+																		+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
+
+		public Download(Core core, Workflow vizor, PackageAddress package)
+		{
+			Core = core;
+			Workflow = vizor;
+			Package = package;
+
+			Task = Task.Run(() =>
+							{
+								var qrrp = Core.Call(Role.Chain, vizor, c => c.QueryRelease(package, VersionQuery.Exact, "", true));
+		
+								Length = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseRegistration.CompleteSizeField, 
+																										Distribution.Incremental => ReleaseRegistration.IncrementalSizeField, 
+																										_ =>  throw new RequirementException("Wrong Distribution value") });
+										
+								Hash = qrrp.Manifests.First().Get<byte[]>(package.Distribution switch {	Distribution.Complete => ReleaseRegistration.CompleteHashField, 
+																										Distribution.Incremental => ReleaseRegistration.IncrementalHashField, 
+																										_ =>  throw new RequirementException("Wrong Distribution value") });
+								
+								lock(core.Lock)
+								{
+									if(package.Distribution == Distribution.Complete)
+									{
+										var d = qrrp.Manifests.First().One("CompleteDependencies");
+										
+										if(d != null)
+										{
+											foreach(var i in d.Nodes)
+											{
+												if(!core.Downloads.Any(j => j.Package == PackageAddress.Parse(i.Name)))
+												{
+													Dependencies.Add(core.DownloadPackage(PackageAddress.Parse(i.Name), vizor));
+												}
+											}
+										}
+									}
+	
+									if(package.Distribution == Distribution.Incremental)
+									{
+										var d = qrrp.Manifests.First().One("IncrementalDependencies");
+										
+										if(d != null)
+										{
+											foreach(var i in d.Nodes)
+											{
+												if(!core.Downloads.Any(j => j.Package == PackageAddress.Parse(i.Name)))
+												{
+													Dependencies.Add(core.DownloadPackage(PackageAddress.Parse(i.Name), vizor));
+												}
+											}
+										}
+									}
+								}
+								
+								Job j;
+
+								while(Core.Running && !vizor.IsAborted)
+								{
+									Task[] tasks;
+
+									Thread.Sleep(1);
+
+									lock(Lock)
+									{
+										for(int i=0; i<8 - Hubs.Count; i++)
+										{
+											var h = Core.FindBestPeer(Role.Hub, Hubs.Keys.ToHashSet());
+	
+											if(h != null)
+											{
+												Hubs[h] = new();
+	
+												Task.Run(() =>	
+														{
+															var timeout = Workflow.CreateNested();
+	
+															LocatePackageResponse lp = null;
+		
+															try
+															{
+																if(!Settings.Dev.DisableTimeouts)
+																	timeout.Cancellation.CancelAfter(Core.Timeout);
+													
+																Core.Connect(h, timeout);
+		
+																lp = h.LocatePackage(Package, 16);
+
+																lock(Lock)
+																{
+																	Hubs[h] = lp.Seeders.ToList();
+
+																	foreach(var s in lp.Seeders)
+																	{
+																		if(!Seeders.ContainsKey(s))
+																			Seeders[s] = SeederResult.Null;
+																	}
+																}
+															}
+															catch(ConnectionFailedException)
+															{
+															}
+															catch(DistributedCallException)
+															{
+															}
+															catch(OperationCanceledException)
+															{
+															}
+														},
+														vizor.Cancellation.Token);
+											}
+											else
+												break;
+										}
+
+										if(Jobs.Count < Math.Min(8, PiecesTotal - CompletedPieces.Count))
+										{
+											var s = Seeders.FirstOrDefault(i => i.Value != SeederResult.Bad && !Jobs.Any(j => j.Peer.IP.Equals(i.Key)));
+											
+											if(s.Key != null)
+											{
+												Add(Core.GetPeer(s.Key), Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.Piece == i)));
+											}
+										}
+									
+										tasks = Jobs.Select(i => i.Task).ToArray();
+
+										if(tasks.Length == 0)
+										{
+											continue;
+										}
+									}
+
+									var ti = Task.WaitAny(tasks, vizor.Cancellation.Token);
+
+									lock(Lock)
+									{	
+										j = Jobs.Find(i => i.Task == tasks[ti]);
+										
+										Jobs.Remove(j);
+
+										if(j.Succeeded)
+										{
+											lock(Core.Lock)
+												Core.Filebase.Write(package, j.Offset, j.Data.ToArray());
+											
+											CompletedPieces.Add(j);
+
+											if(CompletedPieces.Count() == PiecesTotal && Dependencies.All(i => i.Completed))
+											{
+												Seeders[j.Peer.IP] = SeederResult.Good;
+												
+												if(Core.Filebase.GetHash(package).SequenceEqual(Hash) && Dependencies.All(i => i.Successful))
+												{
+													Core.DeclarePackage(new[]{package}, Workflow);
+
+													var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeederResult.Good && h.Value.Any(ip => ip.Equals(s.Key)))).Select(i => i.Key);
+
+													foreach(var h in hubs)
+														h.HubRank++;
+
+													var seeds = CompletedPieces.Select(i => i.Peer);
+
+													foreach(var h in seeds)
+														h.SeedRank++;
+
+													qrrp.Peer.ChainRank++;
+
+													Core.UpdatePeers(seeds.Union(hubs).Union(new[]{qrrp.Peer}).Distinct());
+												
+													Successful = true;
+												}
+												else
+												{
+												///	throw new 
+												}
+
+												Completed = true;
+
+												return;
+											}
+
+											///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
+											///	d.HubsSeeders[h].Add(s);
+										}
+										else
+										{	
+											Seeders[j.Peer.IP] = SeederResult.Bad;
+										}
+									}
+								}
+							},
+							vizor.Cancellation.Token);
+		}
+
+		public Job Add(Peer peer, int i)
+		{
+			var j = new Job(this, peer, i);
+			Jobs.Add(j);
+
+			return j;
+		}
+
+		//public Job AddCompleted(int i)
+		//{
+		//	var j = new Job(this, null);
+		//	j.Piece = i;
+		//	j.CurrentLength = j.PieceLength;
+		//	Jobs.Add(j);
+		//	return j;
+		//}
+	}
+}

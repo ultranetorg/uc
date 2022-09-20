@@ -5,13 +5,13 @@ namespace uc
 	#undef GetClassName
 
 	#define null										NULL
+	#define byte										unsigned char
 	#define HERE										__FUNCTIONW__,__LINE__
 
 	typedef unsigned int								uint;
-
 	#define PROJECT_DEVELOPMENT_STAGE					L"Prototype"
 
-	#define UOS_OBJECT_PROTOCOL							L"unap"
+	//#define UOS_OBJECT_PROTOCOL							L"unap"
 
 	#define UOS_PROJECT_TARGET_PLATFORM_WIN32_X86		L"Winx86"
 	#define UOS_PROJECT_TARGET_PLATFORM_WIN32_X64		L"Winx64"
@@ -19,20 +19,10 @@ namespace uc
 	#define UOS_PROJECT_CONFIGURATION_DEBUG				L"Debug"
 	#define UOS_PROJECT_CONFIGURATION_RELEASE			L"Release"
 
-	#define UOS_MOUNT_LOCAL								L"Local"
-	#define UOS_MOUNT_PERSONAL							L"Personal"
-	#define UOS_MOUNT_CORE								L"Core"
-	#define UOS_MOUNT_SERVER							L"Server"
-	#define UOS_MOUNT_APP_TMP							L"App.Tmp"
-	#define UOS_MOUNT_USER_LOCAL						L"User.Local"
-	#define UOS_MOUNT_USER_GLOBAL						L"User.Global"
-
 	#define UC_NAME										L"Ultranet Community"
 	#define UC_NAMESPACE								L"UC"
 	#define UC_COPYRIGHT								L"© Ultranet Community"
 	#define UO_WEB_HOME									L"https://ultranet.org"
-	#define UO_WEB_SERVICE_ACTIVITY						L"https://ultranet.org/service/activity"
-
 
 	#define Bit(a, n)		(((a >> n) & 0x1)==1)
 		
@@ -58,7 +48,7 @@ namespace uc
 									while(n < 3)\
 									{\
 										if(*p == L':')\
-										{	\
+										{\
 											n++;\
 											if(n == 2)\
 												e = p;\
@@ -83,8 +73,8 @@ namespace uc
 								if(b.empty())\
 								{\
 									auto p = typeid(*this).name();\
-									const char * name = strstr(p, "C") + 1; if(!name) name = p;\
-									auto n = MultiByteToWideChar(CP_ACP, 0, name, -1, null, 0);\
+									auto name = strstr(p, "C") + 1; if(!name) name = p;\
+									auto n = (size_t)MultiByteToWideChar(CP_ACP, 0, name, -1, null, 0);\
 									b.resize(n - 1); /* ending \0 not needed */\
 									MultiByteToWideChar(CP_ACP, 0, name, -1, (LPWSTR)b.data(), (int)b.size());\
 								}\

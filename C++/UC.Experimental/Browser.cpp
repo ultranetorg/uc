@@ -8,7 +8,7 @@ CBrowser::CBrowser(CExperimentalLevel * l, CString const & name) : CWorldEntity(
 	Level = l;
 
 	SetDirectories(MapRelative(L""));
-	SetDefaultInteractiveMaster(AREA_MAIN);
+	SetDefaultInteractiveMaster(CArea::Main);
 	SetTitle(L"Browser");
 }
 

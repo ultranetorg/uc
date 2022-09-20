@@ -16,7 +16,7 @@ namespace UC.Net
 		public Chain							Chain { get => Chain.Ropsten; }
 		public bool								IsAdministrator => true;
 
-		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Flowvizor vizor)
+		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
 		{
 			await Task.CompletedTask;
 		}
@@ -31,7 +31,7 @@ namespace UC.Net
 			throw new NotImplementedException();
 		}
 
-		public List<IPAddress> GetInitials(string zone)
+		public List<IPAddress> GetInitials(Zone zone)
 		{
 			if(zone == Zone.Localnet)
 			{
@@ -41,17 +41,17 @@ namespace UC.Net
 			throw new NotSupportedException();
 		}
 
-		public string GetZone(string name)
+		public string GetZone(Zone zone)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task RemoveZone(string name, IGasAsker asker)
+		public Task RemoveZone(Zone zone, IGasAsker asker)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task SetZone(string name, string nodes, IGasAsker asker)
+		public Task SetZone(Zone zone, string nodes, IGasAsker asker)
 		{
 			throw new NotImplementedException();
 		}

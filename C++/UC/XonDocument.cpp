@@ -9,8 +9,8 @@ CXonDocument::CXonDocument()
 
 CXonDocument::CXonDocument(CXonDocument && d)
 {
-	Children = d.Children;
-	d.Children.clear();
+	Nodes = d.Nodes;
+	d.Nodes.clear();
 
 	Name = d.Name;
 
@@ -25,6 +25,21 @@ CXonDocument::CXonDocument(CXonDocument && d)
 	//IsRemoved = false;
 }
 
+CXonDocument::CXonDocument(CXonDocument const & d)
+{
+	for(auto i : d.Nodes)
+	{
+		Nodes.push_back(i->CloneInternal(this));
+	}
+
+	Name = d.Name;
+
+	if(d.Value)
+	{
+		Value = d.Value->Clone();
+	} 
+}
+
 CXonDocument::~CXonDocument()
 {
 
@@ -32,7 +47,7 @@ CXonDocument::~CXonDocument()
 
 void CXonDocument::Load(CXonDocument * t, IXonReader & r)
 {
-	if(!Children.empty())
+	if(!Nodes.empty())
 	{
 		throw CException(HERE, L"Must be empty");
 	}
@@ -72,28 +87,29 @@ CXon * CXonDocument::Load(IXonReader & r, CXon * parent, CXon * tparent)
 				{
 					if(tparent)
 					{
-						auto d = tparent->Children.Find([n](auto j){  return j->Name == n->Name && j->Value && n->Value && n->Value->Equals(*j->Value); }); // from default list?
+						auto d = tparent->Nodes.Find([n](auto j){  return j->Name == n->Name && j->Value && n->Value && n->Value->Equals(*j->Value); }); // from default list?
 						if(d)
 							t = d;
 					}
 						
-					for(auto i : t->Children)
+					for(auto i : t->Nodes)
 					{
 						//if(!i->IsTemplatesOwner)
 						{
-							auto c = n->Children.Find([i](auto j){ return j->Name == i->Name; });
+							auto c = n->Nodes.Find([i](auto j){ return j->Name == i->Name; });
 							if(!c)
 							{
-								n->Children.push_back(i->CloneInternal(n));
+								n->Nodes.push_back(i->CloneInternal(n));
 							}
 						}
 					}
 				}
 				return n;
 
-			case EXonToken::NameBegin:
+			case EXonToken::NameEnd:
 			{
-				r.ReadName(n->Name, n->Id);
+				n->Name = r.LastName; 
+				n->Id = r.LastType;
 
 				auto pre = n->Name[0];
 
@@ -111,7 +127,7 @@ CXon * CXonDocument::Load(IXonReader & r, CXon * parent, CXon * tparent)
 				{
 					t = tparent->Templates.Find([n](auto i){ return i->Name == n->Name; }); // multi merge
 					if(!t)
-						t = tparent->Children.Find([n](auto i){ return i->Name == n->Name; }); // single merge
+						t = tparent->Nodes.Find([n](auto i){ return i->Name == n->Name; }); // single merge
 				}
 				else if(parent) // self merge
 				{
@@ -123,7 +139,7 @@ CXon * CXonDocument::Load(IXonReader & r, CXon * parent, CXon * tparent)
 					//delete n;
 					//n = t->CloneInternal(parent);
 					//parent->Children.push_back(n);
-					parent->Children.push_back(n);
+					parent->Nodes.push_back(n);
 				}
 				else
 				{
@@ -133,7 +149,7 @@ CXon * CXonDocument::Load(IXonReader & r, CXon * parent, CXon * tparent)
 						parent->Templates.push_back(n);
 					}
 					else
-						parent->Children.push_back(n); // to children
+						parent->Nodes.push_back(n); // to children
 				}
 
 				if(t && t->Value)
@@ -193,13 +209,13 @@ void CXonDocument::Merge(CXon * dnode, CXon * cnode)
 		dnode->Set(cnode->Value);
 	}
 
-	for(auto i : cnode->Children)
+	for(auto i : cnode->Nodes)
 	{
 		if(i->IsRemoved) // remove defaults
 		{
-			auto d = dnode->Children.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); });
+			auto d = dnode->Nodes.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); });
 
-			dnode->Children.remove(d);
+			dnode->Nodes.remove(d);
 			dnode->Removed.push_back(d);
 			continue;
 		}
@@ -210,7 +226,7 @@ void CXonDocument::Merge(CXon * dnode, CXon * cnode)
 
 		if(t)
 		{
-			auto d = dnode->Children.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); });
+			auto d = dnode->Nodes.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); });
 			if(d) // default list item?
 			{
 				t = d;
@@ -222,12 +238,12 @@ void CXonDocument::Merge(CXon * dnode, CXon * cnode)
 			}
 		}
 		else  // single
-			t = dnode->Children.Find([i](auto j){ return i->Name == j->Name; });
+			t = dnode->Nodes.Find([i](auto j){ return i->Name == j->Name; });
 			
 		Merge(t, i);
 
 		if(clone)
-			dnode->Children.push_back(t);
+			dnode->Nodes.push_back(t);
 	}
 }
 
@@ -238,8 +254,8 @@ CString CXonDocument::Dump()
 	CList<CXon*> a;
 	a.push_back(this);
 
-	auto maxnamelen = a.GetHeirarchicalMax([](CXon * i){ return &i->Children; },[](auto i){ return i->Name.size(); });
-	auto maxdfnlen = a.GetHeirarchicalMax([](CXon * i){ return &i->Children; },	[](auto i)
+	auto maxnamelen = a.GetHeirarchicalMax([](CXon * i){ return &i->Nodes; },	[](auto i){ return i->Name.size(); });
+	auto maxdfnlen = a.GetHeirarchicalMax([](CXon * i){ return &i->Nodes; },	[](auto i)
 																						{
 																							CString s;
 																							for(auto j : i->Templates)
@@ -266,7 +282,7 @@ CString CXonDocument::Dump()
 			dumpNode(i, t + L"  +");
 		}
 
-		for(auto i : n->Children)
+		for(auto i : n->Nodes)
 		{
 			dumpNode(i, t + L"  ");
 		}
@@ -306,8 +322,8 @@ CXon * CXonDocument::CreateDifference(CXon * p, CXon * d)
 
 	for(auto i : p->Removed)
 	{
-		auto pd = p->Children.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); }); // have similar in children?
-		auto dd = d->Children.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); }); // is item of default list?
+		auto pd = p->Nodes.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); }); // have similar in children?
+		auto dd = d->Nodes.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); }); // is item of default list?
 		if(!pd && dd)
 		{
 			if(!n)
@@ -318,7 +334,7 @@ CXon * CXonDocument::CreateDifference(CXon * p, CXon * d)
 		}
 	}
 
-	for(auto i : p->Children)
+	for(auto i : p->Nodes)
 	{
 		auto t = d->Templates.Find([i](auto j){ return i->Name == j->Name; });
 		bool multi = t != null;
@@ -330,14 +346,14 @@ CXon * CXonDocument::CreateDifference(CXon * p, CXon * d)
 				throw CException(HERE, L"Multi node requires both key and value");
 			}
 				
-			auto dd = d->Children.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); });
+			auto dd = d->Nodes.Find([i](auto j){ return i->Name == j->Name && j->Value && i->Value->Equals(*j->Value); });
 			if(dd)
 			{
 				t = dd;
 			}
 		}
 		else
-			t = d->Children.Find([i](auto j){ return i->Name == j->Name; });
+			t = d->Nodes.Find([i](auto j){ return i->Name == j->Name; });
 
 		auto diff = CreateDifference(i, t);
 		if(diff)

@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.Signer;
 using Nethereum.Web3;
 using RocksDbSharp;
 
@@ -39,17 +40,6 @@ namespace UC.Net
 		}
 	}
 
-	public class Download
-	{
-		public PackageAddress				Package;
-		public Dictionary<Peer, List<Peer>> HubsSeeders = new();
-		public Task							Task;
-		public byte[]						Hash;
-		public long							TotalLength;
-		public long							CurrentLength;
-		public bool							Succeeded => TotalLength > 0 && CurrentLength == TotalLength;
-	}
-
 	public enum Synchronization
 	{
 		Null, Downloading, Synchronizing, Synchronized
@@ -59,21 +49,20 @@ namespace UC.Net
 	public enum Role : uint
 	{
 		Chain	= 0b00000001,
-		Seeder	= 0b00000010,
+		Seed	= 0b00000010,
 		Hub		= 0b00000100,
 	}
  
-	public class Core : Nci
+	public class Core : Dci
 	{
 		public static readonly int[]					Versions = {1};
 		public const string								FailureExt = "failure";
 		public const int								Timeout = 5000;
 		public const int								OperationsQueueLimit = 1000;
-		public const string								SettingsFileName = "Settings.xon";
 		const int										BalanceWidth = 24;
 
 		public Log										Log;
-		Flowvizor										Flowvizor;
+		Workflow										Workflow;
 		public Vault									Vault;
 		public INas										Nas;
 		public Roundchain								Chain;
@@ -95,18 +84,20 @@ namespace UC.Net
 		public List<Transaction>						Transactions = new();
 		public List<Operation>							Operations	= new();
 
+		bool											MinimalPeersReached;
 		public List<Peer>								Peers		= new();
 		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
 		public List<IPAddress>							IgnoredIPs	= new();
 		public List<Block>								Cache		= new();
 		public List<Peer>								Members		= new();
 		//Dictionary<PackageAddress, List<IPAddress>>		PackagePeers = new();
-		List<Download>									Downloads = new();
+		public List<Download>							Downloads = new();
 
 		TcpListener										Listener;
 		Thread											ListeningThread;
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
+		Thread											SynchronizingThread;
 		object											RemoteMemberLock = new object();
 
 		JsonServer										ApiServer;
@@ -115,9 +106,7 @@ namespace UC.Net
 		public Synchronization							_Synchronization = Synchronization.Null;
 		public Synchronization							Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate								SynchronizationChanged;
-		DateTime										SyncRequested;
-		int												SyncStart = -1;
-		int												SyncEnd = -1;
+		//DateTime										SyncRequested;
 
 		public IGasAsker								GasAsker; 
 		public IFeeAsker								FeeAsker;
@@ -137,7 +126,7 @@ namespace UC.Net
 				List<string> f = new();
 				List<string> v = new(); 
 															
-				f.Add("Zone");					v.Add(Settings.Zone);
+				f.Add("Zone");					v.Add(Settings.Zone.Name);
 				f.Add("Profile");				v.Add(Settings.Profile);
 				f.Add("IP(Reported):Port");		v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
 				//f.Add($"Generator{(Nci != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Nci?.Generator)}");
@@ -234,7 +223,7 @@ namespace UC.Net
 			Settings = settings;
 			Log	 = Settings.Log ? log : null;
 
-			Flowvizor = new Flowvizor(log);
+			Workflow = new Workflow(log);
 
 			Directory.CreateDirectory(Settings.Profile);
 
@@ -242,7 +231,7 @@ namespace UC.Net
 			Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Log?.Report(this, $"Profile: {Settings.Profile}");	
 			Log?.Report(this, $"Protocol Versions: {string.Join(',', Versions)}");
-			Log?.Report(this, $"Zone: {Settings.Zone}");
+			Log?.Report(this, $"Zone: {Settings.Zone.Name}");
 			
 			if(Settings.Dev.Any)
 				Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
@@ -310,7 +299,7 @@ namespace UC.Net
 		  			Log.ReportError(this, $"Ethereum provider (Settings.xon -> Nas -> Provider) is not set or has incorrect format.");
 		 			Log.ReportError(this, $"It's required to run the node in full mode.");
 		 			Log.ReportError(this, $"This can be instance of some Ethereum client or third-party services like Infura.");
-		 			Log.ReportError(this, $"Corresponding configuration file is located here: {Path.Join(Settings.Profile, SettingsFileName)}");
+		 			Log.ReportError(this, $"Corresponding configuration file is located here: {Path.Join(Settings.Profile, Settings.FileName)}");
 					return;
 		  		}
 		
@@ -349,6 +338,7 @@ namespace UC.Net
 			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
 			DelegatingThread.Start();
 
+					
  			var t = new Thread(	() =>
  								{ 
 									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
@@ -362,15 +352,28 @@ namespace UC.Net
 												if(!Running)
 													break;
 
-												MaintainPeerConnections();
+												ProcessConnectivity();
 												
 												if(Chain != null)
 												{
-													Synchronize();
-
-													if(Synchronization == Synchronization.Synchronized && Generator != null)
+													if(Synchronization == Synchronization.Synchronized)
 													{
-														Generate();
+														var conns = Connections.Where(i => i.Roles.HasFlag(Role.Chain)).GroupBy(i => i.LastConfirmedRound).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
+		
+														if(conns.Any())
+														{
+															var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
+							
+															if(max.Key - Chain.LastConfirmedRound.Id > Roundchain.Pitch) /// we are late, force to resync
+															{
+																StartSynchronization();
+															}
+														}
+
+														if(Generator != null)
+														{
+															Generate();
+														}
 													}
 												}
 											}
@@ -409,7 +412,7 @@ namespace UC.Net
 				return;
 
 			Running = false;
-			Flowvizor.Cancellation.Cancel();
+			Workflow.Abort();
 			Listener?.Stop();
 			ApiServer?.Stop();
 
@@ -427,7 +430,7 @@ namespace UC.Net
 			Log?.Report(this, "Stopped", "Cause=" + message);
 		}
 
-		Peer GetPeer(IPAddress ip)
+		public Peer GetPeer(IPAddress ip)
 		{
 			Peer p = null;
 
@@ -489,32 +492,71 @@ namespace UC.Net
 			}
 		}
 
-		void RememberPeers(IEnumerable<Peer> peers)
+		public void RememberPeers(IEnumerable<Peer> peers)
 		{
-			var news = peers.Where(i => !i.IP.Equals(IP) && !Peers.Any(j => j.IP.Equals(i.IP))).ToArray();
-												
-			foreach(var peer in news)
-				Peers.Add(peer);
-
-			using(var b = new WriteBatch())
+			lock(Lock)
 			{
+				var tosave = new List<Peer>();
+													
 				foreach(var i in peers)
 				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					i.SaveNode(w);
-					b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
-				}
+					var p = Peers.Find(j => j.IP.Equals(i.IP));
+					
+					if(p == null)
+					{
+						Peers.Add(i);
+						tosave.Add(i);
+					}
+					else
+					{
+						bool c = p.ChainRank == 0 && i.ChainRank > 0;
+						bool h = p.HubRank == 0 && i.HubRank > 0;
+						bool s = p.SeedRank == 0 && i.SeedRank > 0;
 
-				Database.Write(b);
+						if(c || h || s)
+						{
+							if(c)
+								p.ChainRank = 1;
+
+							if(h)
+								p.HubRank = 1;
+
+							if(s)
+								p.SeedRank = 1;
+						
+							tosave.Add(p);
+						}
+					}
+				}
+	
+				UpdatePeers(tosave.Where(i => !i.IP.Equals(IP)));
 			}
 		}
 
-		void MaintainPeerConnections()
+		public void UpdatePeers(IEnumerable<Peer> peers)
+		{
+			lock(Lock)
+			{
+				using(var b = new WriteBatch())
+				{
+					foreach(var i in peers)
+					{
+						var s = new MemoryStream();
+						var w = new BinaryWriter(s);
+						i.SaveNode(w);
+						b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
+					}
+	
+					Database.Write(b);
+				}
+			}
+		}
+
+		void ProcessConnectivity()
 		{
 			var needed = Settings.PeersMin - Peers.Count(i => i.Established || i.InStatus == EstablishingStatus.Initiated || i.OutStatus == EstablishingStatus.Initiated);
 		
-			foreach(var p in Peers.Where(m =>	(m.InStatus == EstablishingStatus.Null || m.InStatus == EstablishingStatus.Failed) &&
+			foreach(var p in Peers	.Where(m =>	(m.InStatus == EstablishingStatus.Null || m.InStatus == EstablishingStatus.Failed) &&
 												(m.OutStatus == EstablishingStatus.Null || m.OutStatus == EstablishingStatus.Failed) && 
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 									.OrderBy(i => i.Retries)
@@ -529,12 +571,29 @@ namespace UC.Net
 			foreach(var i in Peers.Where(i => i.Client != null && i.Status == ConnectionStatus.Failed))
 				i.Disconnect();
 
-			if(Chain != null && Synchronization == Synchronization.Null)
+			if(!MinimalPeersReached && 
+				Connections.Count() >= Settings.PeersMin && 
+				(Chain == null || Connections.Count(i => i.Roles.HasFlag(Role.Chain)) >= Settings.Chain.PeersMin))
 			{
-				if(Connections.Count() >= Settings.PeersMin)
+				if(Filebase != null)
+				{
+					var ps = Filebase.GetAll();
+					
+					if(ps.Any())
+					{
+						Task.Run(() =>	{
+											DeclarePackage(ps, Workflow);
+											Log?.Report(this, "Initial declaration completed");
+										});
+					}
+				}
+
+				if(Chain != null)
 				{
 					StartSynchronization();
 				}
+
+				MinimalPeersReached = true;
 			}
 		}
 
@@ -581,9 +640,9 @@ namespace UC.Net
 
 			var h = new Hello();
 
-			h.Roles					= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seeder : 0) | (Hub != null ? Role.Hub : 0);
+			h.Roles					= (Chain != null ? Role.Chain : 0) | (Filebase != null ? Role.Seed : 0) | (Hub != null ? Role.Hub : 0);
 			h.Versions				= Versions;
-			h.Zone					= Settings.Zone;
+			h.Zone					= Settings.Zone.Name;
 			h.IP					= ip;
 			h.Nuid					= Nuid;
 			h.Peers					= peers;
@@ -625,6 +684,9 @@ namespace UC.Net
 									
 					try
 					{
+						client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+						client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+
 						Peer.SendHello(client, CreateHello(peer.IP));
 						h = Peer.WaitHello(client);
 					}
@@ -656,18 +718,18 @@ namespace UC.Net
 						RememberPeers(h.Peers);
 	
 						peer.OutStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");	
+						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 	
 						Log?.Report(this, "Connected to", $"{peer}");
 	
 						return;
 					}
 	
-				failed:
-					lock(Lock)
-						peer.OutStatus = EstablishingStatus.Failed;
+					failed:
+						lock(Lock)
+							peer.OutStatus = EstablishingStatus.Failed;
 									
-					client.Close();
+						client.Close();
 				}
 				catch(Exception ex) when(!Debugger.IsAttached)
 				{
@@ -704,13 +766,13 @@ namespace UC.Net
 			void incon(){
 							try
 							{
-								client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
-								//client.ReceiveTimeout = Timeout;
-	
 								Hello h = null;
 	
 								try
 								{
+									client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+									client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+
 									h = Peer.WaitHello(client);
 								}
 								catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
@@ -820,109 +882,46 @@ namespace UC.Net
 							break;
 						}
 
-						case PacketType.Rounds:
-						{
-							Round[] rounds;
-	
-							try
-							{
-								rounds = pk.Read(r => new Round(Chain));
-							}
-							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-							{
-								peer.Disconnect();
-								break;
-							}
+						//case PacketType.Rounds:
+						//{
+						//	Round[] rounds;
+						//
+						//	try
+						//	{
+						//		rounds = pk.Read(r => new Round(Chain));
+						//	}
+						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+						//	{
+						//		peer.Disconnect();
+						//		break;
+						//	}
+						//
+						//	break;
+						//}
 
-							lock(Lock)
-							{
-								if(rounds.Any())
-								{
-									var from = rounds.Min(i => i.Id);
-									var to = rounds.Max(i => i.Id);
-		
-									bool confirmed = true;
-	
-									for(int i = from; i <= to; i++)
-									{
-										var r = rounds.FirstOrDefault(j => j.Id == i); 
-	
-										if(r == null && confirmed) /// not all reqested sealed rounds received? a peer must send the whole sealed sequence 
-										{
-											Synchronization = Synchronization.Downloading;
-											SyncStart = i;
-											SyncEnd = -1;
-											break;
-										}
-																			
-										if(r.Confirmed)
-										{
-											foreach(var b in r.Blocks)
-												b.Confirmed = true;
-	
-											Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
-											Chain.Rounds.Add(r);
-											Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
-											Chain.Seal(r);
-									
-											Cache.RemoveAll(i => i.RoundId <= r.Id);
-										}
-										else
-										{
-											if(confirmed)
-											{
-												confirmed		= false;
-												Synchronization	= Synchronization.Synchronizing;
-												SyncEnd			= peer.LastRound;
-											}
-	
-											if(r != null)
-											{
-												ProcessIncoming(r.Blocks, null);
-											}
-										}
-																	
-										SyncStart = i + 1;
-									}
-							
-									Log?.Report(this, "Rounds received", $"{from}..{to}");
-								}
-								else
-								{
-									Synchronization	= Synchronization.Synchronizing;
-									SyncEnd			= peer.LastRound;
-								}
-
-								SyncRequested = DateTime.MinValue;
-							}
-
-							break;
-						}
-
-						case PacketType.RoundsRequest:
-						{
-							int from;
-							int to;
-		
-							try
-							{
-								from	= reader.Read7BitEncodedInt();
-								to		= reader.Read7BitEncodedInt();
-							}
-							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-							{
-								peer.Disconnect();
-								break;
-							}
-	
-							lock(Lock)
-							{
-								var rounds = Enumerable.Range(from, to - from + 1).Select(i => Chain.FindRound(i)).Where(i => i != null).ToList();
-								peer.Send(Packet.Create(PacketType.Rounds, rounds));
-							}
-								
-							break;
-						}
+						//case PacketType.RoundsRequest:
+						//{
+						//	int from;
+						//	int to;
+						//
+						//	try
+						//	{
+						//		from	= reader.Read7BitEncodedInt();
+						//		to		= reader.Read7BitEncodedInt();
+						//	}
+						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+						//	{
+						//		peer.Disconnect();
+						//		break;
+						//	}
+						//
+						//	lock(Lock)
+						//	{
+						//		peer.Send(Packet.Create(PacketType.Rounds, rounds));
+						//	}
+						//		
+						//	break;
+						//}
 
  						case PacketType.Request:
  						{
@@ -931,7 +930,7 @@ namespace UC.Net
  							try
  							{
 								requests = BinarySerializator.Deserialize(reader,	c => {
-																							var o = UC.Net.Request.FromType(Chain, (NciCall)c); 
+																							var o = UC.Net.Request.FromType(Chain, (DistributedCall)c); 
 																							o.Peer = peer; 
 																							return o;
 																						},
@@ -959,7 +958,7 @@ namespace UC.Net
  							{
 								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
 								responses = BinarySerializator.Deserialize(	reader,
-																			t => UC.Net.Response.FromType(Chain, (NciCall)t), 
+																			t => UC.Net.Response.FromType(Chain, (DistributedCall)t), 
 																			Constractor
 																			);
 							}
@@ -976,7 +975,8 @@ namespace UC.Net
 
 									if(rq != null)
 									{
-										rq.RecievedResponse = rp;
+										rp.Peer = peer;
+										rq.Response = rp;
 										rq.Event.Set();
  									
 										if(rp.Final)
@@ -995,71 +995,105 @@ namespace UC.Net
 					}
 				}
 	 		}
-			catch(Exception ex) when (!Debugger.IsAttached)
+			catch(Exception) when (!Debugger.IsAttached)
 			{
-				Stop(MethodBase.GetCurrentMethod(), ex);
+				peer.Disconnect();
 			}
 		}
 
 		void StartSynchronization()
 		{
-		 	lock(Lock)
-		 	{
-			 	if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
-			 	{
-				 	Log?.Report(this, "Syncing started");
+			if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
+			{
+				Log?.Report(this, "Syncing started");
 
-					SyncStart = -1;
-					SyncEnd	  = -1;
+				SynchronizingThread= new Thread(Synchronizing);
+				SynchronizingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Synchronizing";
+				SynchronizingThread.Start();
 		
-					Synchronization = Synchronization.Downloading;
-			 	}
-		 	}
+				Synchronization = Synchronization.Downloading;
+			}
 		}
 
-		void Synchronize()
+		void Synchronizing()
 		{
-			if(Synchronization == Synchronization.Synchronized)
+			int start = -1; 
+			int end = -1; 
+
+			var used = new HashSet<Peer>();
+
+		 	var peer = Connect(Role.Chain, used, new Workflow(Timeout)); //Connections.Aggregate((i, j) => i.LastRound > j.LastRound ? i : j);
+
+			while(Running)
 			{
-				var conns = Connections.GroupBy(i => i.LastConfirmedRound).ToList(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
-	
-				if(conns.Any())
-				{
-					var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
-						
-					if(max.Key - Chain.LastConfirmedRound.Id > Roundchain.Pitch) /// we are late, force to resync
-					{
-						StartSynchronization();
-					}
-				}
-			}
-	
-			if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
-			{
-			 	var peer = Connections.Aggregate((i, j) => i.LastRound > j.LastRound ? i : j);
+				if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
+				{	
+					var from = start != -1 ? start : (Chain.LastConfirmedRound.Id + 1);
+				 	var to	 = end != -1 ? end : (from + Math.Min(peer.LastRound - from, Roundchain.Pitch));
 			 	
-				var from = SyncStart != -1 ? SyncStart	: (Chain.LastConfirmedRound.Id + 1);
-			 	var to	 = SyncEnd != -1 ?	 SyncEnd	: (from + Math.Min(peer.LastRound - from, Roundchain.Pitch));
-		 	
-			 	if(from <= to)
-			 	{
-					if(DateTime.UtcNow - SyncRequested > TimeSpan.FromSeconds(15))
-					{
-						peer.RequestRounds(Header, from, to); 
+				 	if(from <= to)
+				 	{
+						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
+
+						var rounds = rp.Read(Chain);
+						
+						lock(Lock)
+						{
+							bool confirmed = true;
+	
+							foreach(var r in rounds.OrderBy(i => i.Id))
+							{
+								if(confirmed && r.Confirmed)
+								{
+									foreach(var b in r.Blocks)
+										b.Confirmed = true;
+	
+									Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
+									Chain.Rounds.Add(r);
+									Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
+									Chain.Seal(r);
+									
+									Cache.RemoveAll(i => i.RoundId <= r.Id);
+								}
+								else
+								{
+									if(confirmed && !r.Confirmed)
+									{
+										confirmed	= false;
+										start		= rounds.Max(i => i.Id) + 1;
+										end			= peer.LastRound; 
+										Synchronization	= Synchronization.Synchronizing;
+									}
+
+									if(!confirmed && r.Confirmed)
+									{
+				 						peer = Connect(Role.Chain, used, new Workflow(Timeout)); /// unacceptable case, choose other chain peer
+										break;
+									}
+	
+									ProcessIncoming(r.Blocks, null);
+								}
+							}
 							
-						SyncRequested = DateTime.UtcNow;
-					}
-			 	}
-				else
-				{
-					Synchronization = Synchronization.Synchronized;
-	
-					Chain.Add(Cache.OrderBy(i => i.RoundId));
-					Cache.Clear();
-	
-				 	Log?.Report(this, "Syncing finished");
+							Log?.Report(this, "Rounds received", $"{from}..{to}");
+						}
+				 	}
+					else
+						break;
 				}
 			}
+
+			lock(Lock)
+			{
+				Chain.Add(Cache.OrderBy(i => i.RoundId));
+				Cache.Clear();
+
+				Synchronization = Synchronization.Synchronized;
+				SynchronizingThread = null;
+			}
+
+			Log?.Report(this, "Syncing finished");
+
 		}
 
 		public void ProcessIncoming(IEnumerable<Block> blocks, Peer peer)
@@ -1269,7 +1303,7 @@ namespace UC.Net
 
 			Log?.Report(this, "Delegating started");
 
-			Nci m = null;
+			Dci m = null;
 
 			while(Running)
 			{
@@ -1277,12 +1311,19 @@ namespace UC.Net
 
 				if(m == null)
 				{	
-					var v = Flowvizor.CreateNested();
+					var v = Workflow.CreateNested();
 
 					if(!Settings.Dev.DisableTimeouts)
 						v.Cancellation.CancelAfter(Timeout);
 
-					m = ConnectToMember(v);
+					try
+					{
+						m = ConnectToMember(v);
+					}
+					catch(ConnectionFailedException)
+					{
+						continue;
+					}
 				}
 
 				try
@@ -1397,7 +1438,7 @@ namespace UC.Net
 
 					Statistics.Delegating.End();
 				}
-				catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is RequirementException)
+				catch(Exception ex) when (ex is ConnectionFailedException )
 				{
 					Log?.ReportError(this, $"Failed to communicate with remote node {m}", ex);
 
@@ -1406,7 +1447,7 @@ namespace UC.Net
 					else
 						m = null;
 
-					Thread.Sleep(1000); /// prevent any flooding
+					Thread.Sleep(500); /// prevent any flooding
 				}
 				catch(OperationCanceledException)
 				{
@@ -1419,7 +1460,7 @@ namespace UC.Net
 			}
 		}
 
-		public void ReachConsensus()
+		void ReachConsensus()
 		{
 			if(Synchronization != Synchronization.Synchronized)
 				return;
@@ -1499,7 +1540,7 @@ namespace UC.Net
 			}
 		}
 		
-		public Operation Enqueue(Operation operation, Flowvizor flowcontrol = null)
+		public Operation Enqueue(Operation operation, Workflow flowcontrol = null)
 		{
 			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
 			{
@@ -1605,7 +1646,7 @@ namespace UC.Net
 				{
 					if(packet.Type == PacketType.Blocks)
 					{
-						if((i.Role & Role.Chain) != 0)
+						if(i.ChainRank > 0)
 							i.Send(packet);
 					}
 					else
@@ -1613,7 +1654,7 @@ namespace UC.Net
 				}
 		}
 
-		public Nci ConnectToMember(Flowvizor vizor)
+		public Dci ConnectToMember(Workflow vizor)
 		{
 			lock(RemoteMemberLock)
 			{
@@ -1624,7 +1665,7 @@ namespace UC.Net
 
 				Peer peer;
 				
-				while(Running && !vizor.Cancellation.IsCancellationRequested)
+				while(Running && !vizor.IsAborted)
 				{
 					Thread.Sleep(1);
 	
@@ -1665,27 +1706,36 @@ namespace UC.Net
 							}
 						}
 					}
-					catch(Exception ex) when (ex is AggregateException || ex is HttpRequestException || ex is RemoteCallException || ex is OperationCanceledException)
+					catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is HttpRequestException || ex is DistributedCallException || ex is OperationCanceledException)
 					{
 						peer.ReachFailures++;
 					}
 				}
 	
-				throw new OperationCanceledException("Looking for a member to connect has been aborted");
+				throw new ConnectionFailedException("Aborted, timeour of overall abort");
 			}
 		}
 
-		public Peer Connect(Role role, HashSet<Peer> exclusions, Flowvizor vizor)
+		public Peer FindBestPeer(Role role, HashSet<Peer> exclusions)
+		{
+			lock(Lock)
+				return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established)
+																												.ThenBy(i => i.ReachFailures)
+																												.ThenByDescending(i => i.GetRank(role))
+																												.FirstOrDefault();
+		}
+
+		public Peer Connect(Role role, HashSet<Peer> exclusions, Workflow vizor)
 		{
 			Peer peer;
 				
-			while(Running && !vizor.Cancellation.IsCancellationRequested)
+			while(Running && !vizor.IsAborted)
 			{
 				Thread.Sleep(1);
 	
 				lock(Lock)
 				{
-					peer = Peers.Where(i => i.Role.HasFlag(role) && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+					peer = FindBestPeer(role, exclusions);
 	
 					if(peer == null)
 						continue;
@@ -1699,17 +1749,53 @@ namespace UC.Net
 	
 					return peer;
 				}
-				catch(OperationCanceledException ex)
+				catch(ConnectionFailedException)
 				{
-					if(ex.CancellationToken.IsCancellationRequested)
-						throw;
 				}
 			}
 
-			throw new OperationCanceledException("Looking for a node to connect has been aborted");
+			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
-		void Connect(Peer peer, Flowvizor vizor)
+		public R Call<R>(Role role, Workflow vizor, Func<Peer, R> call)
+		{
+			var exclusions = new HashSet<Peer>();
+
+			Peer peer;
+				
+			while(Running && !vizor.IsAborted)
+			{
+				Thread.Sleep(1);
+	
+				lock(Lock)
+				{
+					peer = FindBestPeer(role, exclusions);
+	
+					if(peer == null)
+						continue;
+				}
+
+				exclusions?.Add(peer);
+
+				try
+				{
+					Connect(peer, vizor);
+
+					return call(peer);
+				}
+				catch(ConnectionFailedException)
+				{
+				}
+				catch(DistributedCallException)
+				{
+				}
+			}
+
+			throw new ConnectionFailedException("Aborted, overall abort or timeout");
+		}
+
+
+		public void Connect(Peer peer, Workflow vizor)
 		{
 			lock(Lock)
 			{
@@ -1722,18 +1808,18 @@ namespace UC.Net
 				}
 			}
 
-			while(Running && !vizor.Cancellation.IsCancellationRequested)
+			while(Running && !vizor.IsAborted)
 			{
 				lock(Lock)
 					if(peer.Established)
 						return;
 					else if(peer.OutStatus == EstablishingStatus.Failed)
-						throw new ConnectionFailedException("Connecting to a node has failed");
+						throw new ConnectionFailedException("Failed");
 
 				Thread.Sleep(1);
 			}
 
-			throw new OperationCanceledException("Connecting to a node has been aborted");
+			throw new ConnectionFailedException("Overall abort or timeout");
 		}
 
 
@@ -1742,7 +1828,7 @@ namespace UC.Net
 			return Chain != null ? Operation.CalculateFee(Chain.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
-		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, Flowvizor vizor)
+		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, Workflow vizor)
 		{
 			Emission l;
 
@@ -1773,7 +1859,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Emission FinishTransfer(PrivateAccount signer, Flowvizor flowcontrol = null)
+		public Emission FinishTransfer(PrivateAccount signer, Workflow flowcontrol = null)
 		{
 			lock(Lock)
 			{
@@ -1797,150 +1883,41 @@ namespace UC.Net
 			return null;
 		}
 
-		public Download DownloadPackage(PackageAddress package, Flowvizor vizor)
+		public Download DownloadPackage(PackageAddress package, Workflow vizor)
 		{
-			var d = new Download{Package = package};
-
-			Downloads.Add(d);
-
-			d.Task = Task.Run(	() =>
-								{
-									var c = Connect(Role.Chain, null, vizor);
-									var qrrp = c.QueryRelease(package, VersionQuery.Exact, "", true);
-
-									d.TotalLength = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteSizeField, 
-																													Distribution.Incremental => ReleaseManifest.IncrementalSizeField, 
-																													_ =>  throw new RequirementException("Wrong Distribution value") });
-									
-									d.Hash = qrrp.Manifests.First().Get<byte[]>(package.Distribution switch {	Distribution.Complete => ReleaseManifest.CompleteHashField, 
-																												Distribution.Incremental => ReleaseManifest.IncrementalHashField, 
-																												_ =>  throw new RequirementException("Wrong Distribution value") });
-
-									lock(Lock)
-									{
-										if(Filebase.GetLength(package) == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
-										{	
-											d.CurrentLength = d.TotalLength;
-											return;
-										}
-									}
-
-									var hubs = new HashSet<Peer>();
-
-									var timeout = vizor.CreateNested();
-									
-									while(Running)
-									{
-										Peer h;
-										LocatePackageResponse lp;
-
-										try
-										{
-											if(!Settings.Dev.DisableTimeouts)
-												timeout.Cancellation.CancelAfter(Timeout);
-												
-											h = Connect(Role.Hub, hubs, timeout);
-
-											lp = h.LocatePackage(package, 16);
-
-											if(!d.HubsSeeders.ContainsKey(h))
-												d.HubsSeeders[h] = new();
-										}
-										catch(ConnectionFailedException)
-										{
-											continue;
-										}
-										catch(RemoteCallException)
-										{
-											continue;
-										}
-										catch(OperationCanceledException)
-										{
-											if(vizor.Cancellation.IsCancellationRequested)
-												throw;
-											else
-												continue;	
-										}
-						
-										foreach(var s in lp.Seeders.Select(i => GetPeer(i)))
-										{
-											try
-											{
-												if(!Settings.Dev.DisableTimeouts)
-													timeout.Cancellation.CancelAfter(Timeout);
-													
-												Connect(s, timeout);
-													
-												d.CurrentLength = Filebase.GetLength(package);
-
-												while(d.CurrentLength < d.TotalLength)
-												{
-													byte[] data = null;
-
-													for(int j=0; j<3; j++)
-													{
-														try
-														{
-															data = s.DownloadPackage(package, d.CurrentLength, Math.Min(65536, d.TotalLength - d.CurrentLength)).Data;
-															break;
-														}
-														catch(RemoteCallException)
-														{
-														}
-													}
+			lock(Lock)
+			{
+				var d = new Download(this, vizor, package);
 	
-													lock(Lock)
-														if(data != null)
-														{
-															Filebase.Append(package, data);
-															d.CurrentLength += data.LongLength;
-
-															if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
-																d.HubsSeeders[h].Add(s);
-														}
-														else
-															break;
-												}
-				
-												if(d.CurrentLength == d.TotalLength && Filebase.GetHash(package).SequenceEqual(d.Hash))
-												{
-													if(d.HubsSeeders[h].Any())
-														h.HubHits++;
-
-													RememberPeers(new[]{h});
-
-													return; /// Success
-												}
-											}
-											catch(ConnectionFailedException)
-											{
-												continue;
-											}
-											catch(RemoteCallException)
-											{
-												continue;
-											}
-											catch(OperationCanceledException)
-											{
-												if(vizor.Cancellation.IsCancellationRequested)
-													throw;
-											}
-										}
-
-										h.HubMisses++;
-
-										RememberPeers(new[]{h});
-									}
-									
-								},
-								vizor.Cancellation.Token);
-
-			return d;
+				Downloads.Add(d);
+		
+				return d;
+			}
 		}
 
-		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Flowvizor vizor)
+		public PackageStatus GetDownloadStatus(PackageAddress package)
 		{
- 			var files = new Dictionary<string, string>();
+			lock(Lock)
+			{
+				var d = Downloads.Find(i => i.Package == package);
+
+				if(d != null)
+				{
+					return new PackageStatus{Length = d.Length, CompletedLength = d.CompletedLength};
+				}
+
+				if(Filebase.Exists(package))
+				{
+					return new PackageStatus{Length = Filebase.GetLength(package), CompletedLength = Filebase.GetLength(package)};
+				}
+
+				return new PackageStatus();
+			}
+		}
+
+		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Workflow vizor)
+		{
+			var files = new Dictionary<string, string>();
 
 			foreach(var i in sources)
 			{
@@ -1952,19 +1929,19 @@ namespace UC.Net
 				{
 					if(Directory.Exists(s))
 					{
-			 			foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
-			 				files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
-					} 
+						foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions { RecurseSubdirectories = true }))
+							files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
+					}
 					else
 						files[s] = Path.GetFileName(s);
-				} 
+				}
 				else
 				{
 					if(Directory.Exists(s))
 					{
-			 			foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions {RecurseSubdirectories = true}))
-			 				files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
-					} 
+						foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions { RecurseSubdirectories = true }))
+							files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
+					}
 					else
 						files[s] = d;
 				}
@@ -1973,32 +1950,37 @@ namespace UC.Net
 			var cpkg = Filebase.Add(release, Distribution.Complete, files);
 			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal);
 
-			var o = new ReleaseManifest(by, 
-										release,
-										channel, 
-										previous,
-													
-										new FileInfo(cpkg).Length,
-										Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
-										cdependencies,
+			var o = new ReleaseRegistration(by,
+											release,
+											channel,
+											previous,
 
-										minimal,
-										ipkg != null ? new FileInfo(ipkg).Length : 0,
-										ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
-										idependencies);
+											new FileInfo(cpkg).Length,
+											Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+											cdependencies,
+
+											minimal,
+											ipkg != null ? new FileInfo(ipkg).Length : 0,
+											ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+											idependencies);
 			Enqueue(o);
 
-			while(o.Delegation != DelegationStage.Completed) 
+			while(o.Delegation != DelegationStage.Completed)
 				Thread.Sleep(1);
 
 			Log?.Report(this, "Manifest added to the chain");
 
+			DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)}, vizor);
+		}
+
+		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow vizor)
+		{
 			var hubs = new HashSet<Peer>();
-					
+
 			int success = 0;
 			int failures = 0;
 
-			while(success < 8 && success + failures < Peers.Count(i => i.Role.HasFlag(Role.Hub)))
+			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0) && !vizor.IsAborted)
 			{
 				Peer h = null;
 
@@ -2012,26 +1994,16 @@ namespace UC.Net
 					failures++;
 					continue;
 				}
-				catch(OperationCanceledException)
-				{
-					if(vizor.Cancellation.IsCancellationRequested)
-						throw;
-					else
-					{
-						failures++;
-						continue;	
-					}
-				}
 
-				h.DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)});
-						
+				h.DeclarePackage(packages);
+
 				Log?.Report(this, "Package declared", $"Hub={h.IP}");
 
 				hubs.Add(h);
 			}
 		}
 
-  		public override Rp Request<Rp>(Request rq) where Rp : class
+		public override Rp Request<Rp>(Request rq) where Rp : class
   		{
 			if(rq.Peer == null) /// self call, cloning needed
 			{

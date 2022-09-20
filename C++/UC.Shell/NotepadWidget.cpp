@@ -28,7 +28,7 @@ void CNotepadWidget::SetEntity(CUol & o)
 	__super::SetEntity(o);
 	Entity = __super::Entity->As<CNotepad>();
 
-	if(auto s = Level->Storage->OpenReadStream(Entity->File))
+	if(auto s = Level->Storage->ReadFile(Entity->File))
 	{
 		CTextReader r(s, ETextEncoding::UTF8);
 	

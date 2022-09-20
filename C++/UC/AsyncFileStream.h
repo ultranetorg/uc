@@ -1,28 +1,28 @@
 #pragma once
-#include "FileStream.h"
-
+#include "Core.h"
+#include "LocalFileStream.h"
 
 namespace uc
 {
-	class CAsyncFileStream : public CFileStream
+	class CAsyncFileStream : public CLocalFileStream
 	{
 		public:
-		CLevel2 *									Level;
-		CThread *									Thread;
-		CBuffer										Buffer;
+			CCore *		Core;
+			CThread *	Thread;
+			CBuffer		Buffer;
 
-		CAsyncFileStream(CLevel2 * l, const CString & filepath, EFileMode mode) : CFileStream(filepath, mode)
-		{
-			Level = l;
-		}
+			CAsyncFileStream(CCore * l, const CString & filepath, EFileMode mode) : CLocalFileStream(filepath, mode)
+			{
+				Core = l;
+			}
 
-		~CAsyncFileStream()
-		{
-		}
+			~CAsyncFileStream()
+			{
+			}
 
-		void ReadAsync(std::function<void()> ondone)
-		{
-			Level->Core->RunThread(Path,[this]()
+			void ReadAsync(std::function<void()> ondone)
+			{
+				Core->RunThread(Path,	[this]()
 										{
 											Buffer = Read();
 										},
@@ -30,7 +30,7 @@ namespace uc
 										{ 
 											ondone();
 										});
-		}
+			}
 	};
 }
 

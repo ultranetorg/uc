@@ -37,7 +37,7 @@ namespace uc
 			CString										StartPosition;
 			CString										DeactivationAction;
 			CXonDocument *								Config;
-			CString										ConfigName = L"Mmc";
+			CString										ConfigName = L"Default";
 
 			CNativeWindow *								View;
 			HMENU										MainMenu;

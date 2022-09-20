@@ -140,7 +140,7 @@ void CShader::Load(CXon * r)
 	for(auto i : r->Many(L"Buffer"))
 	{
 		Buffers.push_back({ i->AsString() });
-		for(auto j : i->Children)
+		for(auto j : i->Nodes)
 		{	
 			d.Load(j);
 			d.Size = SizeByType(d.Type, d.Format);
@@ -148,7 +148,7 @@ void CShader::Load(CXon * r)
 		}
 	}
 
-	for(auto i : r->One(L"VertexInput")->Children)
+	for(auto i : r->One(L"VertexInput")->Nodes)
 	{
 		d.Load(i);
 		d.Size = SizeByType(d.Type, d.Format);
@@ -159,7 +159,7 @@ void CShader::Load(CXon * r)
 	d.Size = 0;
 	d.Format.clear();
 
-	for(auto i : r->One(L"VertexOutput")->Children)
+	for(auto i : r->One(L"VertexOutput")->Nodes)
 	{
 		d.Load(i);
 		VertexOutput.push_back(d);

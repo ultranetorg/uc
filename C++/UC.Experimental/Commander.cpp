@@ -8,7 +8,7 @@ CCommander::CCommander(CExperimentalLevel * l, CString const & name) : CWorldEnt
 	Level = l;
 
 	SetDirectories(MapRelative(L""));
-	SetDefaultInteractiveMaster(AREA_MAIN);
+	SetDefaultInteractiveMaster(CArea::Main);
 }
 
 CCommander::~CCommander()

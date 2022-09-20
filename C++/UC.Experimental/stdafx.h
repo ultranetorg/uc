@@ -7,6 +7,8 @@
 #include <include/cef_client.h>
 #include <include/cef_version.h>
 
+#include <nlohmann/json.hpp>
+
 #include <vmime/vmime/vmime.hpp>
 #include <vmime/vmime/platforms/posix/posixHandler.hpp>
 

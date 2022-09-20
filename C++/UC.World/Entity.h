@@ -2,14 +2,16 @@
 
 namespace uc
 {
-	class CWorldEntity : public CNexusObject
+	class CWorldEntity : public CPersistentObject
 	{
 		public:
-			CString										DefaultInteractiveMasterTag;
-			CString										Title;
-			CEvent<CWorldEntity *>						Retitled;
+			inline static const CString   	Scheme = L"worldentity";
 
-			CWorldEntity(CServer * s, CString const & name) : CNexusObject(s, name)
+			CString							DefaultInteractiveMasterTag;
+			CString							Title;
+			CEvent<CWorldEntity *>			Retitled;
+
+			CWorldEntity(CServer * s, CString const & name) : CPersistentObject(Scheme, s, name)
 			{
 			}
 

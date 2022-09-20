@@ -20,7 +20,7 @@ namespace uc
 				Name = name;
 
 				Texture = Level->Engine->TextureFactory->CreateTexture();
-				Material = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+				Material = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 				Material->Textures[L"DiffuseTexture"] = Texture;
 				Material->Samplers[L"DiffuseSampler"].SetAddressMode(ETextureAddressMode::Clamp, ETextureAddressMode::Clamp);
 			}
@@ -55,7 +55,7 @@ namespace uc
 
 			void RequestTile(int lod, int tx, int ty, CString const & style, std::function<void(CMaterial *)> ok)
 			{
-				auto name = Level->Server->MapTmpPath(CString::Format(L"Earth/Cache/%s-%d-%d-%d.jpg", style, lod, tx, ty));
+				auto name = Level->Server->MapSystemPath(CString::Format(L"Earth/Cache/%s-%d-%d-%d.jpg", style, lod, tx, ty));
 					
 				if(auto m = Materials.Find([name](auto i){ return i->Name == name; }))
 				{
@@ -73,7 +73,7 @@ namespace uc
 					auto m = new CGeoMaterial(Level, name);
 					Materials.push_back(m);
 
-					auto s = Level->Storage->OpenAsyncReadStream(name);
+					auto s = Level->Storage->ReadFileAsync(name);
 
 					s->ReadAsync(	[this, s, name, m, ok]
 									{
@@ -91,16 +91,16 @@ namespace uc
 					auto m = new CGeoMaterial(Level, name);
 					Materials.push_back(m);
 
-					m->Request = new CHttpRequest(Level, CString::Format(L"https://api.mapbox.com/styles/v1/mapbox/" + style + L"/tiles/%d/%d/%d?"
-																		 "access_token=pk.eyJ1IjoibWlnaHR5d2lsbCIsImEiOiJjanRoMDVodDcyMzlkNDNwOHBvZDlpeG93In0.ZpobQTwDvXWRHg3PwgzaVQ",
-																		 lod, tx, ty));
+					m->Request = new CHttpRequest(Level->Core, CString::Format(L"https://api.mapbox.com/styles/v1/mapbox/" + style + L"/tiles/%d/%d/%d?"
+																			 "access_token=pk.eyJ1IjoibWlnaHR5d2lsbCIsImEiOiJjanRoMDVodDcyMzlkNDNwOHBvZDlpeG93In0.ZpobQTwDvXWRHg3PwgzaVQ",
+																			 lod, tx, ty));
 					m->Request->Caching = true;
 					m->Request->Recieved =	[this, name, m, ok]
 											{
 												m->Texture->Load(&m->Request->Stream);
-	
-												auto s = Level->Storage->OpenWriteStream(name);
 												m->Request->Stream.ReadSeek(0);
+	
+												auto s = Level->Storage->WriteFile(name);
 												s->Write(&m->Request->Stream);
 												Level->Storage->Close(s);
 	

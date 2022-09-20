@@ -1,11 +1,12 @@
 #pragma once
+#include "WorldLevel.h"
 
 namespace uc
 {
 	class UOS_WORLD_LINKING CWorldView : public IType, public CView
 	{
 		public:
-			CEngine *									Engine;
+			CWorldLevel *								Level;
 			CString										Name;
 			//CSize										Area;
 
@@ -16,7 +17,7 @@ namespace uc
 			CCamera *									AddCamera(CViewport * vp, float znear, float zfar);
 			
 			UOS_RTTI
-			CWorldView(CLevel2 * l2, CEngine * en, const CString & name);
+			CWorldView(CWorldLevel * l2, const CString & name);
 			~CWorldView();
 	};
 }

@@ -29,7 +29,7 @@ void CThemeAvatar::SetEntity(CUol & e)
 	LoadScene();
 }
 
-void CThemeAvatar::OnDependencyDestroying(CNexusObject * o)
+void CThemeAvatar::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && Entity == o)
 	{
@@ -103,7 +103,7 @@ void CThemeAvatar::LoadScene()
 		Size = Root->Visual->GetAABB().GetSize();
 		//Root->SetView(Level->World->ThemeView);
 	
-//		auto m = new CBoxMesh(&Level->Engine->EngineLevel);
+//		auto m = new CBoxMesh(Level->Engine->Level);
 //		m->Generate(bb.Min.x, bb.Min.y, bb.Min.z, bb.GetWidth(), bb.GetHeight(), bb.GetDepth());
 //		Active->SetMesh(m);
 //		m->Free();
@@ -120,14 +120,14 @@ void CThemeAvatar::LoadScene()
 		Root = new CRectangle(Level->World, L"Wallpaper");
 		auto r = Root->As<CRectangle>();
 
-		auto m = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+		auto m = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 		r->EnableActiveBody = false;
 		r->Visual->SetMaterial(m);
 		m->Free();
 
 		auto t = Level->Engine->TextureFactory->CreateTexture();
 
-		auto s = Level->Storage->OpenReadStream(Entity->Source);
+		auto s = Level->Storage->ReadFile(Entity->Source);
 		t->Load(s);
 		Level->Storage->Close(s);
 

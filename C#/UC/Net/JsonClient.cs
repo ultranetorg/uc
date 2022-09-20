@@ -9,6 +9,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Net;
+using System.Threading;
 
 namespace UC.Net
 {
@@ -16,6 +17,19 @@ namespace UC.Net
 	{
 		public ApiCallException(string msg) : base(msg){ }
 		public ApiCallException(string msg, Exception ex) : base(msg, ex){ }
+	}
+
+	public class IPJsonConverter : JsonConverter<IPAddress>
+	{
+		public override IPAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return IPAddress.Parse(reader.GetString());
+		}
+
+		public override void Write(Utf8JsonWriter writer, IPAddress value, JsonSerializerOptions options)
+		{
+			writer.WriteStringValue(value.ToString());
+		}
 	}
 
 	public class JsonClient// : RpcClient
@@ -38,36 +52,38 @@ namespace UC.Net
 			Options.Converters.Add(new IPJsonConverter());
 			Options.Converters.Add(new ChainTimeJsonConverter());
 			Options.Converters.Add(new ReleaseAddressJsonConverter());
+			Options.Converters.Add(new PackageAddressJsonConverter());
+			Options.Converters.Add(new VersionJsonConverter());
 			Options.Converters.Add(new XonDocumentJsonConverter());
 		}
 
-		public JsonClient(HttpClient http, string apiurl, string apikey)
+		public JsonClient(HttpClient http, string server, Zone zone, string apikey)
 		{
 			HttpClient = http;
-			Address = apiurl;
+			Address = $"http://{server}:{zone.JsonPort}";
 			Key = apikey;
 		}
 
-		public UntTransfer								Send(TransferUntCall call) => Request<UntTransfer>(call);
-		public GetStatusResponse						Send(StatusCall call) => Request<GetStatusResponse>(call);
+		public UntTransfer			Send(TransferUntCall call, CancellationToken cancellation = default) => Request<UntTransfer>(call, cancellation );
+		public GetStatusResponse	Send(StatusCall call, CancellationToken cancellation = default) => Request<GetStatusResponse>(call, cancellation);
 
-		HttpResponseMessage Post(RpcCall request) 
+		HttpResponseMessage Post(ApiCall request, CancellationToken cancellation = default) 
 		{
 			request.Version = Core.Versions.First().ToString();
 			request.AccessKey = Key;
 
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + RpcCall.NameOf(request.GetType()));
+			var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + ApiCall.NameOf(request.GetType()));
 
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
-			return HttpClient.Send(m);
+			return HttpClient.Send(m, cancellation);
 		}
 
-		public Rp Request<Rp>(RpcCall request)
+		public Rp Request<Rp>(ApiCall request, CancellationToken cancellation = default)
 		{
-			var cr = Post(request);
+			var cr = Post(request, cancellation);
 
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
@@ -82,9 +98,9 @@ namespace UC.Net
 			}
 		}
 		
-		public void SendOnly(RpcCall request)
+		public void SendOnly(ApiCall request, CancellationToken cancellation = default)
 		{
-			var cr = Post(request);
+			var cr = Post(request, cancellation);
 			
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);

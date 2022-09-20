@@ -12,10 +12,12 @@ namespace UC.Net
 	public class ChainSettings
 	{
 		public bool			Enabled;
+		public int			PeersMin;
 
 		public ChainSettings(Xon x)
 		{
-			Enabled	= x.Has("Enabled");
+			Enabled		= x.Has("Enabled");
+			PeersMin	= x.GetInt32("PeersMin");
 		}
 	}
 
@@ -69,6 +71,8 @@ namespace UC.Net
 
 	public class SecretSettings
 	{
+		public const string FileName = "Secrets.globals";
+
 		public string		Password;
 		public string		EmissionWallet;
 		public string		EmissionPassword;
@@ -83,7 +87,7 @@ namespace UC.Net
 		{
 			Path = path;
 
-			var s = System.IO.Path.Join(path, "Secrets.xon");
+			var s = System.IO.Path.Join(path, FileName);
 
 			var d = new XonDocument(new XonTextReader(File.ReadAllText(s)), XonTextValueSerializator.Default);
 				
@@ -128,9 +132,14 @@ namespace UC.Net
 
 	public class Settings
 	{
+		public const string			FileName = "Settings.xon";
+
+		string						Path; 
+
+		public readonly int			Port;
+		public readonly Zone		Zone;
+	
 		public bool					Log;
-		public int					Port;
-		public string				Zone;
 		public int					PeersMin;
 		public int					PeersInMax;
 		public IPAddress			IP = IPAddress.Any;
@@ -145,11 +154,7 @@ namespace UC.Net
 		public ChainSettings		Chain;
 		public SecretSettings		Secret;
 
-		public List<string>			Accounts;
-		public List<Account>		ApprovedFundables = new();
-
-		XonDocument					Document;
-		string						Path; 
+		public List<Account>		ProposedFundables = new(){};
 
 		public Cryptography Cryptography
 		{
@@ -157,7 +162,7 @@ namespace UC.Net
 			{
 				if(Zone == UC.Net.Zone.Localnet)
 					return new NoCryptography();
-				else if(Zone == UC.Net.Zone.Mainnet || UC.Net.Zone.IsTest(Zone))
+				else if(Zone == UC.Net.Zone.Mainnet || Zone.IsTest)
 					return new EthereumCryptography();
 				else
 					throw new IntegrityException("Unknown zone");
@@ -170,14 +175,18 @@ namespace UC.Net
 
 		public Settings(BootArguments boot)
 		{
-			Path			= System.IO.Path.Join(boot.Main.Profile, "Settings.xon");
-			Zone			= boot.Main.Zone;
+			Profile = boot.Profile;
+			Path	= System.IO.Path.Join(boot.Profile, "Settings.xon");
+			Zone	= Zone.All.First(i => i.Name == boot.Zone);
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
 
+//doc.Dump((n, l) => Console.WriteLine(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
+//Console.WriteLine(doc.Has("PeersMin"));
+
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
-			Port		= doc.Has("Port") ? doc.GetInt32("Port") : UC.Net.Zone.Port(Zone);
+			Port		= doc.Has("Port") ? doc.GetInt32("Port") : Zone.Port;
 			IP			= IPAddress.Parse(doc.GetString("IP"));
 			Generator	= doc.Has("Generator") ? doc.GetString("Generator") : null;
 			Log			= doc.Has("Log");
@@ -194,17 +203,8 @@ namespace UC.Net
 				LoadSecrets(doc.GetString("Secrets"));
 			}
 
-			if(boot.Core.Port != -1)	Port = boot.Core.Port;
-			if(boot.Core.IP != null)	IP = boot.Core.IP;
-
-			if(boot.Main.Profile != null)	Profile = boot.Main.Profile;
-			if(boot.Main.Secrets != null)	LoadSecrets(boot.Main.Secrets);
-
-			if(boot.Vault.Accounts.Any())	Accounts = boot.Vault.Accounts;
-
-			if(boot.Api.AccessKey != null)	Api.AccessKey = boot.Api.AccessKey;
-
-			Document = doc;
+			
+			if(boot.Secrets != null)	LoadSecrets(boot.Secrets);
 		}
 
 		void LoadSecrets(string path)
@@ -212,50 +212,55 @@ namespace UC.Net
 			Secret = new SecretSettings(path);
 		}
 
-		public void Save()
+		public XonDocument Save()
 		{
-			void save(Xon xon, object o, FieldInfo fi)
+			var doc = new XonDocument(XonTextValueSerializator.Default);
+
+			void save(Xon parent, string name, Type type, object value)
 			{
-				void set(object v)
+				if(type.Name.EndsWith("Settings"))
 				{
-					(xon.One(fi.Name) ?? xon.Add(fi.Name)).Value = v;
-				}
+					var x = parent.Add(name);
+					///var v = fi.GetValue(owner);
 
-				if(fi.Name == nameof(Profile) || fi.Name == nameof(Secret))
-					return;
-
-				if(fi.FieldType.Name.EndsWith("Settings"))
-				{
-					foreach(var j in fi.FieldType.GetFields())
+					foreach(var f in type.GetFields().Where(i => !i.IsInitOnly && !i.IsLiteral))
 					{
-						save(xon.One(fi.Name), fi.GetValue(o), j);
+						save(x, f.Name, f.FieldType, f.GetValue(value));
 					}
 				}
 				else
-					if(fi.FieldType == typeof(Int32))	set((int)fi.GetValue(o)); else
-					if(fi.FieldType == typeof(String))	set(fi.GetValue(o) as string); else 
-					if(fi.FieldType == typeof(Boolean))	{ 
-															var x = xon.One(fi.Name);
-
-															if((bool)fi.GetValue(o))
-															{
-																if(x == null)
-																	xon.Add(fi.Name);
-															}
-															else if(x != null)
-																xon.Nodes.Remove(x);
-														}
+					if(type == typeof(Boolean))	
+					{ 
+						if((bool)value)
+						{
+							parent.Add(name);
+						}
+					}
+					else if(type.GetInterfaces().Any(i => i == typeof(System.Collections.IEnumerable) && type.GetGenericArguments().Any()))
+					{
+						foreach(var i in value as System.Collections.IEnumerable)
+						{
+							save(parent, name.Trim('s'), type.GetGenericArguments()[0], i);
+						}
+					}
+					else
+						parent.Add(name).Value = value;
 			}
 
-			foreach(var i in GetType().GetFields())
+			foreach(var i in GetType().GetFields().Where(i => !i.IsInitOnly && !i.IsLiteral))
 			{
-				save(Document, this, i);
+				if(i.Name == nameof(Profile) || i.Name == nameof(Secret))
+					continue;
+
+				save(doc, i.Name, i.FieldType, i.GetValue(this));
 			}
 
 			using(var s = File.Create(Path))
 			{
-				Document.Save(new XonTextWriter(s, Encoding.UTF8));
+				doc.Save(new XonTextWriter(s, Encoding.UTF8));
 			}
+
+			return doc;
 		}
 	}
 }

@@ -8,7 +8,7 @@ CHudEnvironment::CHudEnvironment(CShellLevel * l, CString const & name) : CModel
 {
 	Level = l;
 	Tags = {L"Hud-Primary"};
-	PreferedPlacement[AREA_HUD] = EPreferedPlacement::Default;
+	PreferedPlacement[CArea::Hud] = EPreferedPlacement::Default;
 
 	FieldElement = new CHudFieldElement(Level);
 	FieldElement->Express(L"W", [this]{ return Size.W; });
@@ -36,7 +36,7 @@ void CHudEnvironment::SetEntity(CUol & hud)
 	FieldElement->SetEntity(Entity);
 }
 
-void CHudEnvironment::OnDependencyDestroying(CNexusObject * o)
+void CHudEnvironment::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity) 
 	{

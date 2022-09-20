@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "run node": {
+      "commandName": "Project",
+      "commandLineArgs": "run node api secrets=a:\\uo"
+    }
+  }
+}

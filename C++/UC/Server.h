@@ -1,83 +1,62 @@
 #pragma once
-#include "Level2.h"
-#include "NexusObject.h"
+//#include "Core.h"
+#include "PersistentObject.h"
+#include "ApplicationRelease.h"
+#include "Identity.h"
 
 namespace uc
 {
-	struct CServerInfo
-	{
-		CUrl											Origin;
-		CString											Role;
-		bool											Installed = false;
-		CUsl 											Url;
-		CString											InstallPath;
-		CString											ObjectsPath;
-		HINSTANCE										HInstance;
-		CXon *											Xon;
-		CVersion										Version;
-		CXonDocument *									Registry = null;
+	class CNexus;
+	class CServer;
 
-		~CServerInfo()
-		{
-			delete Registry;
-		}
-	};
-
-	enum class EStartMode
+	struct CServerInstance
 	{
-		Installing, Start
+		CString												Name;
+		CApplicationRelease *								Release;
+		CServer	*											Instance = null;
+		//bool												Initialized = false;
+		CXon *												Registration;
+		CXon *												Command = null;
+		CIdentity *											Identity = null;
 	};
 
 	class UOS_LINKING CServer : public virtual IType
 	{
 		public:
-			CLevel2 *									Level;
-			CUsl										Url;
-			CServerInfo *								Info;
-			//CString									GlobalDataPath;
+			CServerInstance *							Instance;
+			CNexus *									Nexus;
 
-			CList<CNexusObject *>						Objects;
-			
-			CMap<CString, IProtocol *>					Protocols;
-			CMap<CString, CList<IType *>>				Users;
-			CEvent<CServer *, IProtocol *, CString &>	Disconnecting;
-			
+			CList<CInterObject *>						Objects;
+						
 			UOS_RTTI
-			CServer(CLevel2 * l, CServerInfo * info);
+			CServer(CNexus * l, CServerInstance * info);
 			~CServer();
 
-			virtual void								Execute(const CUrl & u, CExecutionParameters * ep){}
-			virtual void								Start(EStartMode sm){}
-			
-			virtual IProtocol *		 					Connect(CString const & pr)=0;
-			virtual void								Disconnect(IProtocol * s)=0;
+			virtual void								SystemStart(){}
+			virtual void								UserStart(){}
 
-			virtual CNexusObject *						CreateObject(CString const & name);
-			void										RegisterObject(CNexusObject * o, bool shared);
-			void										DeleteObject(CNexusObject * r);
-			bool										Exists(CString const & name);
-			void										LoadObject(CNexusObject * o);
-			void										DestroyObject(CNexusObject * o, bool save = true);
+			virtual IProtocol *							Accept(CString const & protocol)=0;
+			virtual void								Break(IProtocol * protocol)=0;
 
-			CNexusObject *								FindObject(CString const & name);
-			CNexusObject *								FindObject(CUol const & u);
+			virtual CInterObject *						CreateObject(CString const & name);
+			virtual void								RegisterObject(CInterObject * o, bool shared);
+			virtual void								DestroyObject(CInterObject * o);
+
+			virtual CInterObject *						FindObject(CString const & name);
+			CInterObject *								FindObject(CUol const & u);
 			template<class T> T *						FindObject(CString const & name)
 														{
 															return FindObject(name)->As<T>();
 														}
 
-			CTonDocument *								LoadServerDocument(CString const & path);
-			CTonDocument *								LoadGlobalDocument(CString const & path);
-
-
-			CString										MapRelative(CString const & path);
+			CString										MapReleasePath(CString const & path);
+			CString										MapSystemPath(CString const & path);
+			CString										MapSystemTmpPath(CString const & path);
 			CString										MapUserLocalPath(CString const & path);
 			CString										MapUserGlobalPath(CString const & path);
-			CString										MapTmpPath(CString const & path);
-			CString										MapPath(CString const & path);
-	};
+			CString										MapUserTmpPath(CString const & path);
 
-	typedef CServer *	(* FStartUosHub)(CLevel2 * l, CServerInfo * info);
-	typedef void	(* FStopUosHub)();
+	};
 }
+
 
