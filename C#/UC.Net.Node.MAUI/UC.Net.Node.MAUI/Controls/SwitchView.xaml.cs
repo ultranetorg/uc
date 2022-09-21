@@ -63,48 +63,48 @@ public partial class SwitchView : ContentView
 	public SwitchView()
     {
         InitializeComponent();
-        Initialize();
+        // Initialize();
     }
 
-    public void Initialize()
-    {
-        CurrentColor = OffColor;
-        var tap = new TapGestureRecognizer();
-        tap.Tapped += (sender, e) => { Switch(); Tapped?.Invoke(sender, e); };
-        tap.Command = Command;
-        tap.CommandParameter = IsOn;
-        GestureRecognizers.Add(tap);
-    }
-        
-    public async void Switch()
-    {
-        if (!IsRunning)
-		{
-			IsRunning = true;
+	//  public void Initialize()
+	//  {
+	//      CurrentColor = OffColor;
+	//      var tap = new TapGestureRecognizer();
+	//      tap.Tapped += (sender, e) => { Switch(); Tapped?.Invoke(sender, e); };
+	//      tap.Command = Command;
+	//      tap.CommandParameter = IsOn;
+	//      GestureRecognizers.Add(tap);
+	//  }
 
-			if (IsOn && !JustSet)
-			{
-				await thumb.TranslateTo(thumb.TranslationX - thumb.Width, 0);
-				CurrentColor = OffColor;
-			}
-			else if (!IsOn)
-			{
-				await thumb.TranslateTo(thumb.Width, 0);
-				CurrentColor = OnColor;
-			}
-			IsOn = !IsOn;
-			IsRunning = JustSet = false;
-		}
-    }
+	//  public async void Switch()
+	//  {
+	//      if (!IsRunning)
+	//{
+	//	IsRunning = true;
 
-    private void Instance_SizeChanged(object sender, EventArgs e)
-    {
-        if (frame.Width > 0)
-        {
-            frame.WidthRequest = frame.Height * 2;
-            thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
-            thumb.HorizontalOptions = LayoutOptions.Start;
-            Switch();
-        }
-    }
+	//	if (IsOn && !JustSet)
+	//	{
+	//		await thumb.TranslateTo(thumb.TranslationX - thumb.Width, 0);
+	//		CurrentColor = OffColor;
+	//	}
+	//	else if (!IsOn)
+	//	{
+	//		await thumb.TranslateTo(thumb.Width, 0);
+	//		CurrentColor = OnColor;
+	//	}
+	//	IsOn = !IsOn;
+	//	IsRunning = JustSet = false;
+	//}
+	//  }
+
+	private void Instance_SizeChanged(object sender, EventArgs e)
+	{
+		//if (frame.Width > 0)
+		//{
+		//	frame.WidthRequest = frame.Height * 2;
+		//	thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
+		//	thumb.HorizontalOptions = LayoutOptions.Start;
+		//	Switch();
+		//}
+	}
 }

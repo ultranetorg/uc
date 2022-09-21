@@ -4,16 +4,55 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:UC.Net.Node.MAUI.Pages"
-    Shell.FlyoutBehavior="Disabled">
+    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    ios:Page.UseSafeArea="True"
+    x:DataType="vm:ShellViewModel">
 
-    <ShellContent
-        Title="Dashboard"
-        ContentTemplate="{DataTemplate pages:DashboardPage}"
-        Route="DashboardPage" />
+    <FlyoutItem Title="{Binding Dashboard.Title}" Route="DashboardPage">
+        <ShellContent 
+            Title="{Binding Dashboard.Title}"
+            ContentTemplate="{DataTemplate pages:DashboardPage}"
+            Icon="{Binding Dashboard.Icon}" />
+    </FlyoutItem>
     
-    <ShellContent
-        Title="Account Details"
-        ContentTemplate="{DataTemplate pages:AccountDetailsPage}"
-        Route="AccountDetailsPage" />
+    <FlyoutItem Title="{Binding AccountDetails.Title}" Route="AccountDetailsPage">
+        <ShellContent
+            Title="{Binding AccountDetails.Title}"
+            ContentTemplate="{DataTemplate pages:AccountDetailsPage}"
+            Icon="{Binding AccountDetails.Icon}" />
+    </FlyoutItem>
+    
+    <!--All other routes-->
+    <ShellItem FlyoutItemIsVisible="False" Route="LoginPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="AccountsPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}"  />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="AuthorsPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="ProductsPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="TransfersPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="TransactionsPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="AuctionsPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="SearchPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="NewtworkPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+    <ShellItem FlyoutItemIsVisible="False" Route="HelpPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
 
 </Shell>

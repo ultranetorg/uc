@@ -308,17 +308,17 @@
         </Style>
 
         <Style x:Key="Logo2" TargetType="Image">
-            <Setter Property="Source" Value="{AppThemeBinding Dark='Logo2Dark.png', Light='Logo2Light.png'}" />
+            <Setter Property="Source" Value="{AppThemeBinding Dark='logo2_dark.png', Light='logo2_light.png'}" />
             <Setter Property="HeightRequest" Value="120" />
             <Setter Property="WidthRequest" Value="120" />
         </Style>
         <Style x:Key="Logo" TargetType="Image">
-            <Setter Property="Source" Value="{AppThemeBinding Dark='IconNight.png', Light='Icon.png'}" />
+            <Setter Property="Source" Value="{AppThemeBinding Dark='icon_night.png', Light='icon.png'}" />
             <Setter Property="HeightRequest" Value="120" />
             <Setter Property="WidthRequest" Value="120" />
         </Style>
         <Style x:Key="Logo3" TargetType="Image">
-            <Setter Property="Source" Value="IconNight.png" />
+            <Setter Property="Source" Value="icon_night.png" />
             <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
             <Setter Property="HeightRequest" Value="120" />
             <Setter Property="WidthRequest" Value="120" />
@@ -329,7 +329,7 @@
             <Setter Property="WidthRequest" Value="48" />
         </Style>
         <Style x:Key="AccountsLogo" TargetType="Image">
-            <Setter Property="Source" Value="Accounts.png" />
+            <Setter Property="Source" Value="accounts.png" />
             <Setter Property="HeightRequest" Value="48" />
             <Setter Property="WidthRequest" Value="48" />
         </Style>

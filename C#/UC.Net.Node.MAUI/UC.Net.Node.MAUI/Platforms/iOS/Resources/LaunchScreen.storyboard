@@ -20,7 +20,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView alpha="0.4" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="FrameBg.png" translatesAutoresizingMaskIntoConstraints="NO" id="j0V-2B-aFz">
+                            <imageView alpha="0.4" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="frame_bg.png" translatesAutoresizingMaskIntoConstraints="NO" id="j0V-2B-aFz">
                                 <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                             </imageView>
@@ -38,7 +38,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="FrameBg.png" width="375" height="812"/>
+        <image name="frame_bg.png" width="375" height="812"/>
         <image name="SplashImage" width="128" height="128"/>
         <namedColor name="SplashColor">
             <color red="0.94117647058823528" green="0.96862745098039216" blue="0.97647058823529409" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

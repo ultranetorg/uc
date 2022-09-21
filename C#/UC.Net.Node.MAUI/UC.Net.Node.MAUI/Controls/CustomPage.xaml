@@ -10,7 +10,7 @@
             AbsoluteLayout.LayoutBounds="0,1,1,1"
             AbsoluteLayout.LayoutFlags="All"
             Opacity="0.4"
-            Source="FrameBg.png" />
+            Source="frame_bg.png" />
         <Grid
             Padding="{StaticResource UniPadding}"
             AbsoluteLayout.LayoutBounds="0,1,1,1"

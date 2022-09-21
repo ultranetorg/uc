@@ -7,6 +7,25 @@ public static class ViewModelExtensions
     {
 		#region Pages
 
+		// Singleton ViewModels
+        builder.Services.AddSingleton(() => new ShellViewModel());
+		builder.Services.AddSingleton(sp => new AccountDetailsViewModel(
+			App.ServiceProvider.GetService<IServicesMockData>(),
+			App.ServiceProvider.GetService<ILogger<AccountDetailsViewModel>>()));
+		builder.Services.AddSingleton(sp => new AuthorRegistrationViewModel(
+			App.ServiceProvider.GetService<ILogger<AuthorRegistrationViewModel>>()));
+		builder.Services.AddSingleton(sp => new AuthorRenewalViewModel(
+			App.ServiceProvider.GetService<ILogger<AuthorRenewalViewModel>>()));
+		builder.Services.AddSingleton(sp => new DeleteAccountViewModel(
+			App.ServiceProvider.GetService<IServicesMockData>(),
+			App.ServiceProvider.GetService<ILogger<DeleteAccountViewModel>>()));
+		builder.Services.AddSingleton(sp => new ManageAccountsViewModel(
+			App.ServiceProvider.GetService<IServicesMockData>(),
+			App.ServiceProvider.GetService<ILogger<ManageAccountsViewModel>>()));
+		builder.Services.AddTransient(sp => new RestoreAccountViewModel(
+			App.ServiceProvider.GetService<IServicesMockData>(),
+			App.ServiceProvider.GetService<ILogger<RestoreAccountViewModel>>()));
+
 		// Transient ViewModels
 		builder.Services.AddTransient(sp => new AboutViewModel(
 			App.ServiceProvider.GetService<ILogger<AboutViewModel>>()));
@@ -72,24 +91,6 @@ public static class ViewModelExtensions
 			App.ServiceProvider.GetService<ILogger<UnfinishTransferViewModel>>()));
 		builder.Services.AddTransient(sp => new WhatsNewViewModel(
 			App.ServiceProvider.GetService<ILogger<WhatsNewViewModel>>()));
-
-		// Singleton ViewModels
-		builder.Services.AddSingleton(sp => new AccountDetailsViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<AccountDetailsViewModel>>()));
-		builder.Services.AddSingleton(sp => new AuthorRegistrationViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRegistrationViewModel>>()));
-		builder.Services.AddSingleton(sp => new AuthorRenewalViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRenewalViewModel>>()));
-		builder.Services.AddSingleton(sp => new DeleteAccountViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<DeleteAccountViewModel>>()));
-		builder.Services.AddSingleton(sp => new ManageAccountsViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<ManageAccountsViewModel>>()));
-		builder.Services.AddTransient(sp => new RestoreAccountViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<RestoreAccountViewModel>>()));
 
 		#endregion Pages
 

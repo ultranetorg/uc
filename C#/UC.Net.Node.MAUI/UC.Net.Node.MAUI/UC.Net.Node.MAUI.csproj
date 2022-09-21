@@ -48,49 +48,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <AndroidAsset Remove="Platforms\Android\Assets\AboutAssets.txt" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Platforms\Android\Resources\drawable-hdpi\Accounts.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-hdpi\Icon.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-hdpi\IconNight.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-hdpi\NoNetwork.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-mdpi\Accounts.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-mdpi\Icon.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-mdpi\IconNight.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-mdpi\NoNetwork.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xhdpi\Accounts.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xhdpi\Icon.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xhdpi\IconNight.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xhdpi\NoNetwork.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxhdpi\Accounts.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxhdpi\Icon.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxhdpi\IconNight.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxhdpi\NoNetwork.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxxhdpi\Accounts.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxxhdpi\Icon.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxxhdpi\IconNight.png" />
-	  <None Remove="Platforms\Android\Resources\drawable-xxxhdpi\NoNetwork.png" />
-	  <None Remove="Platforms\Android\Resources\drawable\FrameBg.png" />
-	  <None Remove="Platforms\Android\Resources\drawable\LauncherLight.png" />
-	  <None Remove="Platforms\Android\Resources\drawable\LauncherNight.png" />
-	  <None Remove="Platforms\Android\Resources\drawable\Logo2Dark.png" />
-	  <None Remove="Platforms\Android\Resources\drawable\Logo2Light.png" />
-	  <None Remove="Platforms\Android\Resources\drawable\splash_screen.xml" />
-	  <None Remove="Platforms\Android\Resources\drawable\splash_screen_night.xml" />
-	  <None Remove="Platforms\Android\Resources\mipmap-anydpi-v26\icon.xml" />
-	  <None Remove="Platforms\Android\Resources\mipmap-anydpi-v26\icon_round.xml" />
-	  <None Remove="Platforms\Android\Resources\mipmap-hdpi\icon.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-hdpi\launcher_foreground.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-mdpi\icon.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-mdpi\launcher_foreground.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-xhdpi\icon.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-xhdpi\launcher_foreground.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-xxhdpi\icon.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-xxhdpi\launcher_foreground.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-xxxhdpi\icon.png" />
-	  <None Remove="Platforms\Android\Resources\mipmap-xxxhdpi\launcher_foreground.png" />
 	  <None Remove="Platforms\Android\Resources\values-night\colors.xml" />
 	  <None Remove="Platforms\Android\Resources\values-night\styles.xml" />
 	  <None Remove="Platforms\Android\Resources\values\styles.xml" />
@@ -114,6 +71,9 @@
 	  <None Remove="Resources\Fonts\Montserrat-SemiBoldItalic.ttf" />
 	  <None Remove="Resources\Fonts\Montserrat-Thin.ttf" />
 	  <None Remove="Resources\Fonts\Montserrat-ThinItalic.ttf" />
+	  <None Remove="Resources\Images\dashboard_outline.svg" />
+	  <None Remove="Resources\Images\Icon.svg" />
+	  <None Remove="Resources\Images\icon_night.svg" />
 	</ItemGroup>
 
 	<ItemGroup>

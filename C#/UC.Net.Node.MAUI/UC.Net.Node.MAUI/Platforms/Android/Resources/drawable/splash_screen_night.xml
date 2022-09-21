@@ -3,7 +3,7 @@
 	<item>
 		<color android:color="@color/launcher_background"/>
 	</item>
-	<item >
+	<!--<item >
 		<bitmap android:gravity="fill"
 			android:src="@drawable/FrameBg"
 			android:tileMode="disabled"
@@ -14,5 +14,5 @@
 			android:src="@drawable/launchernight"
 			android:tileMode="disabled"
        />
-	</item>
+	</item>-->
 </layer-list>

@@ -93,22 +93,22 @@ public partial class CustomPage : ContentPage
         InitializeComponent();
     }
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        if (AnimationEnabled)
-        {
-            MainFrame.TranslationY = Height;
-            await MainFrame.TranslateTo(0, 0, LENGTH, Easing.Linear);
-        }
-    }
+    //protected override async void OnAppearing()
+    //{
+    //    base.OnAppearing();
+    //    if (AnimationEnabled)
+    //    {
+    //        MainFrame.TranslationY = Height;
+    //        await MainFrame.TranslateTo(0, 0, LENGTH, Easing.Linear);
+    //    }
+    //}
 
-    protected override async void OnDisappearing()
-    {
-        base.OnDisappearing();
-        if (AnimationEnabled)
-            await MainFrame.TranslateTo(0, Height, LENGTH, Easing.Linear);
-    }
+    //protected override async void OnDisappearing()
+    //{
+    //    base.OnDisappearing();
+    //    if (AnimationEnabled)
+    //        await MainFrame.TranslateTo(0, Height, LENGTH, Easing.Linear);
+    //}
 
     private async void BackButtonClicked(object sender, EventArgs e) => await Navigation.PopAsync();
 }
