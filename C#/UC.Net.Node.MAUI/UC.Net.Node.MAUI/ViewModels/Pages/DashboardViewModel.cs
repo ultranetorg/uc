@@ -2,7 +2,7 @@
 
 public partial class DashboardViewModel : BaseViewModel
 {
-	private readonly ITransactionsService _service;
+	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
     private CustomCollection<Wallet> _wallets = new();
@@ -10,7 +10,7 @@ public partial class DashboardViewModel : BaseViewModel
 	[ObservableProperty]
     private CustomCollection<Transaction> _transactions = new();
 
-    public DashboardViewModel(ITransactionsService service, ILogger<DashboardViewModel> logger) : base(logger)
+    public DashboardViewModel(IServicesMockData service, ILogger<DashboardViewModel> logger) : base(logger)
     {
 		_service = service;
     }
@@ -34,21 +34,24 @@ public partial class DashboardViewModel : BaseViewModel
     }
 	
 	[RelayCommand]
-    public async void TransactionsCommandExcuteAsync()
+    public async void TransactionsExcuteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new TransactionsPage());
     }
 
 	[RelayCommand]
-    public async void AccountsCommandExcuteAsync()
+    public async void AccountsExcuteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new ManageAccountsPage());
     }
 
 	internal async Task InitializeAsync()
 	{
-		var transactions = await _service.GetLastAsync(20);
+		Transactions.Clear();
+		Wallets.Clear();
+		Transactions.AddRange(_service.Transactions);
+		Wallets.AddRange(_service.Wallets);
 
-		Transactions.AddRange(transactions);
+		await Task.Delay(10);
 	}
 }

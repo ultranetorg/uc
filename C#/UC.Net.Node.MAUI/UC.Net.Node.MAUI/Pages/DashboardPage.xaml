@@ -4,8 +4,20 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Pages"
+    xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:converters="clr-namespace:UC.Net.Node.MAUI.Converters"
+    ios:Page.UseSafeArea="True"
+    BadgeValue="3"
     HasBackButton="False"
-    BadgeValue="3">
+    x:DataType="vm:DashboardViewModel">
+    <cls:CustomPage.Resources>
+        <toolkit:IsStringNullOrWhiteSpaceConverter x:Key="IsStringNullOrWhiteSpace" />
+        <converters:StatusToStyleConverter x:Key="StatusToStyleConverter" />
+    </cls:CustomPage.Resources>
+    
     <cls:CustomPage.LeftContent>
         <StackLayout>
             <Label
@@ -19,13 +31,13 @@
             <ImageButton
                 AbsoluteLayout.LayoutBounds="0,1,1,1"
                 AbsoluteLayout.LayoutFlags="All"
-                Style="{StaticResource Bell2}" />
+                Style="{DynamicResource Bell2}" />
             <Frame
                 Margin="2"
                 AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional"
-                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsNotNullOrEmptyConverter}}"
-                Style="{StaticResource BadgeFrame}">
+                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNullOrWhiteSpace}}"
+                Style="{DynamicResource BadgeFrame}">
                 <Label
                     x:Name="BadgeValueLabel"
                     Padding="0"
@@ -42,28 +54,31 @@
             <StackLayout Padding="15,0,15,40">
                 <Label
                     FontSize="12"
-                    Style="{StaticResource DashLabel}"
+                    Style="{DynamicResource DashLabel}"
                     Text="Accounts" />
-                <Frame Style="{StaticResource SqureFrame}">
+                <Frame Style="{DynamicResource SquareFrame}">
                     <StackLayout BindableLayout.ItemsSource="{Binding Wallets}" Spacing="5">
                         <BindableLayout.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:Wallet">
                                 <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="20">
                                     <Label
                                         Grid.Column="0"
                                         MaxLines="1"
-                                        Style="{StaticResource Regular}"
+                                        Style="{DynamicResource Regular}"
                                         Text="{Binding Name}"
+                                        TextColor="Black"
                                         VerticalOptions="Center" />
                                     <Label
                                         Grid.Column="1"
                                         MaxLines="1"
-                                        Style="{StaticResource Regular}"
+                                        Style="{DynamicResource Regular}"
                                         Text="{Binding Id}"
+                                        TextColor="Black"
                                         VerticalOptions="Center" />
                                     <Label
                                         Grid.Column="2"
-                                        Style="{StaticResource Regular}"
+                                        Style="{DynamicResource Regular}"
+                                        TextColor="Black"
                                         VerticalOptions="Center">
                                         <Label.FormattedText>
                                             <FormattedString>
@@ -83,23 +98,25 @@
                 </Frame>
                 <Label
                     FontSize="12"
-                    Style="{StaticResource DashLabel}"
+                    Style="{DynamicResource DashLabel}"
                     Text="Transactions" />
-                <Frame Style="{StaticResource SqureFrame}">
+                <Frame Style="{DynamicResource SquareFrame}">
                     <StackLayout BindableLayout.ItemsSource="{Binding Transactions}" Spacing="0">
                         <BindableLayout.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:Transaction">
                                 <Grid ColumnDefinitions="Auto,*,23">
                                     <Label
                                         Grid.Column="0"
                                         FontSize="11"
                                         MaxLines="1"
-                                        Text="{Binding Name}"
+                                        TextColor="Black"
+                                        Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}"
                                         VerticalOptions="Center" />
                                     <Label
                                         Grid.Column="1"
                                         MaxLines="1"
-                                        Style="{StaticResource Regular}"
+                                        TextColor="Black"
+                                        Style="{DynamicResource Regular}"
                                         VerticalOptions="Center">
                                         <Label.FormattedText>
                                             <FormattedString>
@@ -129,7 +146,7 @@
                         <Label
                             Grid.Column="0"
                             FontSize="11"
-                            Style="{StaticResource DashLabel}"
+                            Style="{DynamicResource DashLabel}"
                             Text="Accounts" />
                         <Label
                             Grid.Column="1"
@@ -140,7 +157,7 @@
                         <Label
                             Grid.Column="0"
                             FontSize="11"
-                            Style="{StaticResource DashLabel}"
+                            Style="{DynamicResource DashLabel}"
                             Text="Auctions (OutBinded)" />
                         <Label
                             Grid.Column="1"
@@ -151,7 +168,7 @@
                         <Label
                             Grid.Column="0"
                             FontSize="11"
-                            Style="{StaticResource DashLabel}"
+                            Style="{DynamicResource DashLabel}"
                             Text="Auctions (renewal needed)" />
                         <Label
                             Grid.Column="1"
@@ -162,7 +179,7 @@
                         <Label
                             Grid.Column="0"
                             FontSize="11"
-                            Style="{StaticResource DashLabel}"
+                            Style="{DynamicResource DashLabel}"
                             Text="Procusts" />
                         <Label
                             Grid.Column="1"
@@ -173,7 +190,7 @@
                         <Label
                             Grid.Column="0"
                             FontSize="11"
-                            Style="{StaticResource DashLabel}"
+                            Style="{DynamicResource DashLabel}"
                             Text="Releases (total/clean/compromised)" />
                         <Label
                             Grid.Column="1"
@@ -184,7 +201,7 @@
                         <Label
                             Grid.Column="0"
                             FontSize="11"
-                            Style="{StaticResource DashLabel}"
+                            Style="{DynamicResource DashLabel}"
                             Text="Last Release" />
                         <Label
                             Grid.Column="1"
@@ -200,56 +217,56 @@
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="0"
-                        Command="{Binding AccountsCommand}"
-                        ImageStyle="{StaticResource Accounts}"
+                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Accounts}"
                         Text="Accounts" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="1"
-                        Command="{Binding AuthorsCommand}"
-                        ImageStyle="{StaticResource Authors}"
+                        Command="{Binding AuthorsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Authors}"
                         Text="Authors" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="2"
-                        Command="{Binding AccountsCommand}"
-                        ImageStyle="{StaticResource Auctions}"
+                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Auctions}"
                         Text="Auctions" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="3"
-                        Command="{Binding ProductsCommand}"
-                        ImageStyle="{StaticResource Products}"
+                        Command="{Binding ProductsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Products}"
                         Text="Products" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="0"
-                        Command="{Binding TransactionsCommand}"
-                        ImageStyle="{StaticResource Transactions}"
+                        Command="{Binding TransactionsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Transactions}"
                         Text="Transactions" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="1"
-                        Command="{Binding AccountsCommand}"
-                        ImageStyle="{StaticResource Search}"
+                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Search}"
                         Text="Search" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="2"
-                        Command="{Binding AccountsCommand}"
-                        ImageStyle="{StaticResource Network}"
+                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Network}"
                         Text="Network" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="3"
-                        Command="{Binding ETHTransferCommand}"
-                        ImageStyle="{StaticResource Transfer}"
+                        Command="{Binding ETHTransferExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Transfer}"
                         Text="ETH-UNT Transfer" />
                     <cls:ImageTextButton
                         Grid.Row="2"
                         Grid.Column="0"
-                        Command="{Binding AccountsCommand}"
-                        ImageStyle="{StaticResource Help}"
+                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        ImageStyle="{DynamicResource Help}"
                         Text="Help" />
                 </Grid>
             </StackLayout>

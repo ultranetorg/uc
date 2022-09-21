@@ -12,15 +12,50 @@
     <FlyoutItem Title="{Binding Dashboard.Title}" Route="DashboardPage">
         <ShellContent 
             Title="{Binding Dashboard.Title}"
-            ContentTemplate="{DataTemplate pages:DashboardPage}"
-            Icon="{Binding Dashboard.Icon}" />
+            Icon="{Binding Dashboard.Icon}"
+            ContentTemplate="{DataTemplate pages:DashboardPage}" />
     </FlyoutItem>
     
     <FlyoutItem Title="{Binding AccountDetails.Title}" Route="AccountDetailsPage">
         <ShellContent
             Title="{Binding AccountDetails.Title}"
-            ContentTemplate="{DataTemplate pages:AccountDetailsPage}"
-            Icon="{Binding AccountDetails.Icon}" />
+            Icon="{Binding AccountDetails.Icon}"
+            ContentTemplate="{DataTemplate pages:AccountDetailsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="{Binding Authors.Title}" Route="AuthorsPage">
+        <ShellContent
+            Title="{Binding Authors.Title}"
+            Icon="{Binding Authors.Icon}"
+            ContentTemplate="{DataTemplate pages:AuthorsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="{Binding Products.Title}" Route="ProductsPage">
+        <ShellContent
+            Title="{Binding Products.Title}"
+            Icon="{Binding Products.Icon}"
+            ContentTemplate="{DataTemplate pages:ProductsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="{Binding Transactions.Title}" Route="TransactionsPage">
+        <ShellContent
+            Title="{Binding Transactions.Title}"
+            Icon="{Binding Transactions.Icon}"
+            ContentTemplate="{DataTemplate pages:TransactionsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="{Binding Network.Title}" Route="NewtworkPage">
+        <ShellContent
+            Title="{Binding Network.Title}"
+            Icon="{Binding Network.Icon}"
+            ContentTemplate="{DataTemplate pages:NetworkPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="{Binding Help.Title}" Route="HelpPage">
+        <ShellContent
+            Title="{Binding Help.Title}"
+            Icon="{Binding Help.Icon}"
+            ContentTemplate="{DataTemplate pages:HelpPage}" />
     </FlyoutItem>
     
     <!--All other routes-->
@@ -30,16 +65,7 @@
     <ShellItem FlyoutItemIsVisible="False" Route="AccountsPage">
         <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}"  />
     </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="AuthorsPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="ProductsPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
     <ShellItem FlyoutItemIsVisible="False" Route="TransfersPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="TransactionsPage">
         <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
     </ShellItem>
     <ShellItem FlyoutItemIsVisible="False" Route="AuctionsPage">
@@ -48,11 +74,4 @@
     <ShellItem FlyoutItemIsVisible="False" Route="SearchPage">
         <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
     </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="NewtworkPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="HelpPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
-
 </Shell>

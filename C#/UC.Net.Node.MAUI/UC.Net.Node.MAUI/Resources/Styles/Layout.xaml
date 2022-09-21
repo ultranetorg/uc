@@ -103,7 +103,7 @@
             <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
             <Setter Property="IsClippedToBounds" Value="True" />
         </Style>
-        <Style x:Key="SqureFrame" TargetType="Frame">
+        <Style x:Key="SquareFrame" TargetType="Frame">
             <Setter Property="CornerRadius" Value="0" />
             <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
             <Setter Property="BackgroundColor" Value="Transparent" />

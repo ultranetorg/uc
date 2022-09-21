@@ -42,7 +42,7 @@ public static class ViewModelExtensions
 			App.ServiceProvider.GetService<IServicesMockData>(),
 			App.ServiceProvider.GetService<ILogger<CreateAccountPageViewModel>>()));
 		builder.Services.AddTransient(sp => new DashboardViewModel(
-			App.ServiceProvider.GetService<ITransactionsService>(),
+			App.ServiceProvider.GetService<IServicesMockData>(),
 			App.ServiceProvider.GetService<ILogger<DashboardViewModel>>()));
 		builder.Services.AddTransient(sp => new EnterPinBViewModel(
 			App.ServiceProvider.GetService<ILogger<EnterPinBViewModel>>()));

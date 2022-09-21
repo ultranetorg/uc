@@ -63,7 +63,7 @@
                         Style="{StaticResource DashLabel}"
                         Text="Author" />
                 </Grid>
-                <Frame Grid.Row="2" Style="{StaticResource SqureFrame}">
+                <Frame Grid.Row="2" Style="{StaticResource SquareFrame}">
                     <ScrollView>
                         <StackLayout
                             Grid.Row="1"

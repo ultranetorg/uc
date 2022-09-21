@@ -12,13 +12,13 @@
             <ImageButton
                 Command="{Binding DeleteCommand}"
                 HorizontalOptions="End"
-                Style="{StaticResource Delete}"
+                Style="{DynamicResource Delete}"
                 VerticalOptions="Center" />
         </StackLayout>
     </cls:CustomPage.RightContent>
     <cls:CustomPage.MainContent>
         <ScrollView>
-            <StackLayout Padding="{StaticResource PagePadding}" Spacing="22">
+            <StackLayout Padding="{DynamicResource PagePadding}" Spacing="22">
                 <Grid
                     ColumnDefinitions="60,*,Auto"
                     ColumnSpacing="20"
@@ -35,14 +35,14 @@
                         WidthRequest="60">
                         <Label
                             HorizontalOptions="Center"
-                            Style="{StaticResource CodeLabel}"
+                            Style="{DynamicResource CodeLabel}"
                             Text="{Binding Wallet.IconCode}"
                             VerticalOptions="Center" />
                     </Frame>
                     <Label
                         Grid.Row="0"
                         Grid.Column="1"
-                        Style="{StaticResource DashLabel}"
+                        Style="{DynamicResource DashLabel}"
                         Text="Account color"
                         VerticalOptions="Center" />
                     <ScrollView
@@ -91,29 +91,29 @@
                         <Label
                             Grid.Column="0"
                             Text="Rnadom"
-                            TextColor="{StaticResource PrimaryDarkLighten}"
+                            TextColor="{DynamicResource PrimaryDarkLighten}"
                             VerticalOptions="Center" />
                         <ImageButton
                             Grid.Column="1"
-                            Style="{StaticResource Random}"
+                            Style="{DynamicResource Random}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Grid>
                 <StackLayout Spacing="5">
-                    <Label Style="{StaticResource DashLabel}" Text="Account" />
+                    <Label Style="{DynamicResource DashLabel}" Text="Account" />
                     <Label
                         FontSize="13"
-                        Style="{StaticResource Medium}"
+                        Style="{DynamicResource Medium}"
                         Text="{Binding Wallet.Id}" />
                 </StackLayout>
                 <StackLayout Spacing="8">
-                    <Label Style="{StaticResource DashLabel}" Text="Name" />
+                    <Label Style="{DynamicResource DashLabel}" Text="Name" />
                     <cls:BorderEntry Placeholder="Account name" Text="{Binding Wallet.Name}">
                         <cls:BorderEntry.Behaviors>
                             <toolkit:CharactersValidationBehavior
                                 x:Name="cb"
                                 CharacterType="Letter"
-                                Flags="ValidateOnValueChanged" ValidStyle="{StaticResource Valid}" InvalidStyle="{StaticResource InValid}"
+                                Flags="ValidateOnValueChanged" ValidStyle="{DynamicResource Valid}" InvalidStyle="{DynamicResource InValid}"
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1" />
                         </cls:BorderEntry.Behaviors>
@@ -124,18 +124,18 @@
                             FontSize="12"
                             IsVisible="{Binding IsNotValid, Source={x:Reference cb}}"
                             Text="Validation text message"
-                            TextColor="{StaticResource Red}" />
+                            TextColor="{DynamicResource Red}" />
                     </StackLayout>
                 </StackLayout>
                 <StackLayout Spacing="5">
-                    <Label Style="{StaticResource DashLabel}" Text="Balance" />
+                    <Label Style="{DynamicResource DashLabel}" Text="Balance" />
                     <Label FontSize="13">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Style="{StaticResource Medium}" Text="{Binding Wallet.Unts}" />
+                                <Span Style="{DynamicResource Medium}" Text="{Binding Wallet.Unts}" />
                                 <Span Text=" " />
                                 <Span Text="UNT" />
-                                <Span Style="{StaticResource Regular}" Text=" ($2000)" />
+                                <Span Style="{DynamicResource Regular}" Text=" ($2000)" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
@@ -143,12 +143,12 @@
                 <Grid ColumnDefinitions="*,46" RowDefinitions="14,14">
                     <Label
                         Grid.Row="0"
-                        Style="{StaticResource DashLabel}"
+                        Style="{DynamicResource DashLabel}"
                         Text="Hide" />
                     <Label
                         Grid.Row="1"
                         FontSize="13"
-                        Style="{StaticResource Medium}"
+                        Style="{DynamicResource Medium}"
                         Text="Account from Dashboard" />
                     <cls:SwitchView
                         Grid.RowSpan="2"
@@ -158,7 +158,7 @@
                 <Grid RowDefinitions="Auto,23">
                     <Label
                         Grid.Row="0"
-                        Style="{StaticResource DashLabel}"
+                        Style="{DynamicResource DashLabel}"
                         Text="Authors" />
                     <ScrollView
                         Grid.Row="1"
@@ -173,10 +173,10 @@
                                     <Frame
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
+                                        Style="{DynamicResource ButtonFrame}"
                                         VerticalOptions="Center">
                                         <Label
-                                            Style="{StaticResource ButtonLabel}"
+                                            Style="{DynamicResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
                                     </Frame>
@@ -188,7 +188,7 @@
                 <Grid RowDefinitions="Auto,23">
                     <Label
                         Grid.Row="0"
-                        Style="{StaticResource DashLabel}"
+                        Style="{DynamicResource DashLabel}"
                         Text="Products" />
                     <CollectionView Grid.Row="1" ItemsSource="{Binding Products}">
                         <CollectionView.ItemsLayout>
@@ -200,10 +200,10 @@
                                     <Frame
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
+                                        Style="{DynamicResource ButtonFrame}"
                                         VerticalOptions="Center">
                                         <Label
-                                            Style="{StaticResource ButtonLabel}"
+                                            Style="{DynamicResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
                                     </Frame>
@@ -211,11 +211,11 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                         <CollectionView.Footer>
-                            <StackLayout Padding="{StaticResource SidePadding}">
+                            <StackLayout Padding="{DynamicResource SidePadding}">
                                 <Label
-                                    Style="{StaticResource Medium}"
+                                    Style="{DynamicResource Medium}"
                                     Text="and 100 more"
-                                    TextColor="{StaticResource Primary}"
+                                    TextColor="{DynamicResource Primary}"
                                     TextDecorations="Underline"
                                     VerticalOptions="CenterAndExpand" />
                             </StackLayout>
