@@ -5,7 +5,7 @@ public partial class AuthorRenewal1View : ContentView
     public AuthorRenewal1View()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<AuthorRenewal1ViewModel>();
+        BindingContext = Ioc.Default.GetService<AuthorRenewal1ViewModel>();
     }
 
     public AuthorRenewal1View(AuthorRenewal1ViewModel vm)

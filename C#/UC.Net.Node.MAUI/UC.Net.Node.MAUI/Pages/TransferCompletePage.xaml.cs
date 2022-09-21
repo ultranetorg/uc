@@ -5,7 +5,7 @@ public partial class TransferCompletePage : CustomPage
     public TransferCompletePage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<TransferCompleteViewModel>();
+        BindingContext = Ioc.Default.GetService<TransferCompleteViewModel>();
     }
 
     public TransferCompletePage(TransferCompleteViewModel vm)

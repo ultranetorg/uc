@@ -5,7 +5,7 @@ public partial class AuthorRegistration2View : ContentView
     public AuthorRegistration2View()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<AuthorRegistration2ViewModel>();
+        BindingContext = Ioc.Default.GetService<AuthorRegistration2ViewModel>();
     }
 
     public AuthorRegistration2View(AuthorRegistration2ViewModel vm)

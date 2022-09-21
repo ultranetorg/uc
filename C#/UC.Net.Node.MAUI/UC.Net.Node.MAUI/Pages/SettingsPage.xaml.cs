@@ -5,7 +5,7 @@ public partial class SettingsPage : CustomPage
     public SettingsPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<SettingsViewModel>();
+        BindingContext = Ioc.Default.GetService<SettingsViewModel>();
     }
 
     public SettingsPage(SettingsViewModel vm)

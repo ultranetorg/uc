@@ -7,7 +7,7 @@ public partial class TransactionsPage : CustomPage
     public TransactionsPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<TransactionsViewModel>();
+        BindingContext = Ioc.Default.GetService<TransactionsViewModel>();
     }
 
     public TransactionsPage(TransactionsViewModel vm)

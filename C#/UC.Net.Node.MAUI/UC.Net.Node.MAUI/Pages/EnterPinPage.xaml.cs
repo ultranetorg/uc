@@ -5,7 +5,7 @@ public partial class EnterPinPage : CustomPage
     public EnterPinPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<EnterPinViewModel>();
+        BindingContext = Ioc.Default.GetService<EnterPinViewModel>();
     }
 
     public EnterPinPage(EnterPinViewModel vm)

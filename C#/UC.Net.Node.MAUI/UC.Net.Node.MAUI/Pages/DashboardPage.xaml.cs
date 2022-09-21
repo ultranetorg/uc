@@ -7,7 +7,7 @@ public partial class DashboardPage : CustomPage
     public DashboardPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<DashboardViewModel>();
+        BindingContext = Ioc.Default.GetService<DashboardViewModel>();
     }
 	
     public DashboardPage(DashboardViewModel vm)

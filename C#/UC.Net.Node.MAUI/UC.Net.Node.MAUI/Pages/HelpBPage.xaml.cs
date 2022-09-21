@@ -5,7 +5,7 @@ public partial class HelpBPage : CustomPage
     public HelpBPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<HelpBViewModel>();
+        BindingContext = Ioc.Default.GetService<HelpBViewModel>();
     }
 
     public HelpBPage(HelpBViewModel vm)

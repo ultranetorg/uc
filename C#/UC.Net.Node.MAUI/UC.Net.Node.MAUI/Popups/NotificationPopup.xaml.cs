@@ -7,7 +7,7 @@ public partial class NotificationPopup : Popup
     public NotificationPopup()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<NotificationViewModel>();
+        BindingContext = Ioc.Default.GetService<NotificationViewModel>();
     }
 
     public void Hide()

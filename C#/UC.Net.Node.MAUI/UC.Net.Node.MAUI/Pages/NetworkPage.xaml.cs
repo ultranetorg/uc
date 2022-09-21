@@ -5,7 +5,7 @@ public partial class NetworkPage : CustomPage
     public NetworkPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<NetworkViewModel>();
+        BindingContext = Ioc.Default.GetService<NetworkViewModel>();
     }
 
     public NetworkPage(NetworkViewModel vm)

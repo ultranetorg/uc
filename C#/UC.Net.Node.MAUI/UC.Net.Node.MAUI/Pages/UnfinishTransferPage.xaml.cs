@@ -5,7 +5,7 @@ public partial class UnfinishTransferPage : CustomPage
     public UnfinishTransferPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<UnfinishTransferViewModel>();
+        BindingContext = Ioc.Default.GetService<UnfinishTransferViewModel>();
     }
 	
     public UnfinishTransferPage(UnfinishTransferViewModel vm)

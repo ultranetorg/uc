@@ -20,7 +20,7 @@ public partial class SourceAccountPopup : Popup
 
 	public static async Task<Wallet> Show()
 	{
-		popup = new SourceAccountPopup(App.ServiceProvider.GetService<SourceAccountViewModel>());
+		popup = new SourceAccountPopup(Ioc.Default.GetService<SourceAccountViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);
 		return popup.Vm.Wallet;
 	}

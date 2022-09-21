@@ -5,7 +5,7 @@ public partial class SendPage : CustomPage
     public SendPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<SendViewModel>();
+        BindingContext = Ioc.Default.GetService<SendViewModel>();
     }
 
     public SendPage(SendViewModel vm)

@@ -5,7 +5,7 @@ public partial class ETHTransferPage : CustomPage
     public ETHTransferPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<ETHTransferViewModel>();
+        BindingContext = Ioc.Default.GetService<ETHTransferViewModel>();
     }
 
     public ETHTransferPage(ETHTransferViewModel vm)

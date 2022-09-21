@@ -5,7 +5,7 @@ public partial class StartPage : ContentPage
     public StartPage()
     {
         InitializeComponent();
-		BindingContext = App.ServiceProvider.GetService<StartViewModel>();
+		BindingContext = Ioc.Default.GetService<StartViewModel>();
     }
 
     public StartPage(StartViewModel vm)

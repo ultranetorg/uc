@@ -7,7 +7,7 @@ public partial class ProductSearchPage : CustomPage
     public ProductSearchPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<ProductSearchViewModel>();
+        BindingContext = Ioc.Default.GetService<ProductSearchViewModel>();
     }
 
     public ProductSearchPage(ProductSearchViewModel vm)

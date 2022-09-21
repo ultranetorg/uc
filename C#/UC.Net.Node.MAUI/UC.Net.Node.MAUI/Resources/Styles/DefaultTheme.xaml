@@ -23,6 +23,7 @@
     <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     <toolkit:IsListNotNullOrEmptyConverter x:Key="IsListNotNullOrEmptyConverter" />
     <toolkit:IsNotNullConverter x:Key="IsNotNullConverter" />
+    <toolkit:IsStringNullOrWhiteSpaceConverter x:Key="IsStringNullOrWhiteSpace" />
     <toolkit:IntToBoolConverter x:Key="IntToBoolConverter" />
     <OnPlatform x:Key="UniPadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>

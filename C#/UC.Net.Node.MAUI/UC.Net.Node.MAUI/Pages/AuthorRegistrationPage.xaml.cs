@@ -5,7 +5,7 @@ public partial class AuthorRegistrationPage : CustomPage
     public AuthorRegistrationPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<AuthorRegistrationViewModel>();
+        BindingContext = Ioc.Default.GetService<AuthorRegistrationViewModel>();
     }
 
     public AuthorRegistrationPage(AuthorRegistrationViewModel vm)

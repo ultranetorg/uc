@@ -5,7 +5,7 @@ public partial class WhatsNewPage : CustomPage
     public WhatsNewPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<WhatsNewViewModel>();
+        BindingContext = Ioc.Default.GetService<WhatsNewViewModel>();
     }
 
     public WhatsNewPage(WhatsNewViewModel vm)

@@ -6,7 +6,7 @@ public partial class AuthorsPage : CustomPage
     public AuthorsPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<AuthorsViewModel>();
+        BindingContext = Ioc.Default.GetService<AuthorsViewModel>();
     }
 
     public AuthorsPage(AuthorsViewModel vm)

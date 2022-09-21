@@ -9,15 +9,15 @@ public static class ServiceExtensions
 		// Services
         builder.Services.AddSingleton<IServicesMockData, ServicesMockData>(sp => new ServicesMockData());
         builder.Services.AddSingleton<IAccountsService, AccountsMockService>(sp => new AccountsMockService(
-			App.ServiceProvider.GetService<IServicesMockData>()));
+			Ioc.Default.GetService<IServicesMockData>()));
         builder.Services.AddSingleton<IAuthorsService, AuthorsMockService>(sp => new AuthorsMockService(
-			App.ServiceProvider.GetService<IServicesMockData>()));
+			Ioc.Default.GetService<IServicesMockData>()));
         builder.Services.AddSingleton<INotificationsService, NotificationsMockService>(sp => new NotificationsMockService(
-			App.ServiceProvider.GetService<IServicesMockData>()));
+			Ioc.Default.GetService<IServicesMockData>()));
         builder.Services.AddSingleton<IProductsService, ProductsMockService>(sp => new ProductsMockService(
-			App.ServiceProvider.GetService<IServicesMockData>()));
+			Ioc.Default.GetService<IServicesMockData>()));
         builder.Services.AddSingleton<ITransactionsService, TransactionsMockService>(sp => new TransactionsMockService(
-			App.ServiceProvider.GetService<IServicesMockData>()));
+			Ioc.Default.GetService<IServicesMockData>()));
 
 		// Workflows
         builder.Services.AddSingleton<ICreateAccountWorkflow, CreateAccountWorkflow>(sp => new CreateAccountWorkflow());

@@ -7,7 +7,7 @@ public partial class ProductsPage : CustomPage
     public ProductsPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<ProductsViewModel>();
+        BindingContext = Ioc.Default.GetService<ProductsViewModel>();
     }
 
     public ProductsPage(ProductsViewModel vm)

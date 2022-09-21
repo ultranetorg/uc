@@ -5,7 +5,7 @@ public partial class Send1View : ContentView
     public Send1View()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<Send1ViewModel>();
+        BindingContext = Ioc.Default.GetService<Send1ViewModel>();
     }
 
     public Send1View(Send1ViewModel vm)

@@ -5,7 +5,7 @@ public partial class ManageAccountsPage : CustomPage
     public ManageAccountsPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<ManageAccountsViewModel>();
+        BindingContext = Ioc.Default.GetService<ManageAccountsViewModel>();
     }
 
     public ManageAccountsPage(ManageAccountsViewModel vm)

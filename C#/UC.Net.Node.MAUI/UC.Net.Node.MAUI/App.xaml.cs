@@ -1,20 +1,31 @@
-﻿namespace UC.Net.Node.MAUI;
+﻿using Application = Microsoft.Maui.Controls.Application;
+using Microsoft.Maui.Handlers;
+
+namespace UC.Net.Node.MAUI;
 
 public partial class App : Application
 {
-	public static IServiceProvider ServiceProvider { get; set; }
-
-	public App(IServiceProvider sp)
+	public App(IServiceProvider provider)
 	{
 		InitializeComponent();
-		ServiceProvider = sp;
+
+        Ioc.Default.ConfigureServices(provider);
+
+		MainPage = new AppShell();
 
 		InitializeRouting();
+			
+        // Workaround for AnimatedModal not working on Android: https://github.com/dotnet/maui/issues/8062
+        WindowHandler.Mapper.ModifyMapping(nameof(IWindow.Content), OnWorkaround);
 	}
+
+    private void OnWorkaround(IWindowHandler arg1, IWindow arg2, Action<IElementHandler, IElement> arg3)
+    {
+        WindowHandler.MapContent(arg1, arg2);
+    }
 
 	private void InitializeRouting()
 	{
-		MainPage = new AppShell();
 		
         // Global Routes (Pages not in Shell XAML) Example
         Routing.RegisterRoute(nameof(AboutPage), typeof(AboutPage));

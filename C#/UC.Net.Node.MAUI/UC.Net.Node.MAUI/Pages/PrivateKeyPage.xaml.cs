@@ -5,7 +5,7 @@ public partial class PrivateKeyPage : CustomPage
     public PrivateKeyPage()
     {
         InitializeComponent();
-		var vm = App.ServiceProvider.GetService<PrivateKeyViewModel>();
+		var vm = Ioc.Default.GetService<PrivateKeyViewModel>();
 		vm.Wallet = new Wallet();
         BindingContext = vm;
     }
@@ -13,7 +13,7 @@ public partial class PrivateKeyPage : CustomPage
     public PrivateKeyPage(Wallet wallet)
     {
         InitializeComponent();
-		var vm = App.ServiceProvider.GetService<PrivateKeyViewModel>();
+		var vm = Ioc.Default.GetService<PrivateKeyViewModel>();
 		vm.Wallet = wallet;
         BindingContext = vm;
     }

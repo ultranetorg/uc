@@ -6,7 +6,7 @@ public partial class CreateAccount2View : ContentView
     public CreateAccount2View()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<CreateAccountViewModel>();
+        BindingContext = Ioc.Default.GetService<CreateAccountViewModel>();
     }
 
     public CreateAccount2View(CreateAccountViewModel vm)

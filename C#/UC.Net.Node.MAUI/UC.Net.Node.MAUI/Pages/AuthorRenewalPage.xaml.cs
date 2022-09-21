@@ -5,7 +5,7 @@ public partial class AuthorRenewalPage : CustomPage
     public AuthorRenewalPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<AuthorRenewalViewModel>();
+        BindingContext = Ioc.Default.GetService<AuthorRenewalViewModel>();
     }
 
     public AuthorRenewalPage(AuthorRenewalViewModel vm)

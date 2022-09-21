@@ -10,87 +10,87 @@ public static class ViewModelExtensions
 		// Singleton ViewModels
         builder.Services.AddSingleton(() => new ShellViewModel());
 		builder.Services.AddSingleton(sp => new AccountDetailsViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<AccountDetailsViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<AccountDetailsViewModel>>()));
 		builder.Services.AddSingleton(sp => new AuthorRegistrationViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRegistrationViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorRegistrationViewModel>>()));
 		builder.Services.AddSingleton(sp => new AuthorRenewalViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRenewalViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorRenewalViewModel>>()));
 		builder.Services.AddSingleton(sp => new DeleteAccountViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<DeleteAccountViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<DeleteAccountViewModel>>()));
 		builder.Services.AddSingleton(sp => new ManageAccountsViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<ManageAccountsViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<ManageAccountsViewModel>>()));
 		builder.Services.AddTransient(sp => new RestoreAccountViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<RestoreAccountViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<RestoreAccountViewModel>>()));
 
 		// Transient ViewModels
 		builder.Services.AddTransient(sp => new AboutViewModel(
-			App.ServiceProvider.GetService<ILogger<AboutViewModel>>()));
+			Ioc.Default.GetService<ILogger<AboutViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorSearchBViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorSearchBViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorSearchBViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorSearchCViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorSearchCViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorSearchCViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorSearchPViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorSearchPViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorSearchPViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorsViewModel(
-			App.ServiceProvider.GetService<IAuthorsService>(),
-			App.ServiceProvider.GetService<ILogger<AuthorsViewModel>>()));
+			Ioc.Default.GetService<IAuthorsService>(),
+			Ioc.Default.GetService<ILogger<AuthorsViewModel>>()));
 		builder.Services.AddTransient(sp => new CreateAccountPageViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<CreateAccountPageViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<CreateAccountPageViewModel>>()));
 		builder.Services.AddTransient(sp => new DashboardViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<DashboardViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<DashboardViewModel>>()));
 		builder.Services.AddTransient(sp => new EnterPinBViewModel(
-			App.ServiceProvider.GetService<ILogger<EnterPinBViewModel>>()));
+			Ioc.Default.GetService<ILogger<EnterPinBViewModel>>()));
 		builder.Services.AddTransient(sp => new EnterPinViewModel(
-			App.ServiceProvider.GetService<ILogger<EnterPinViewModel>>()));
+			Ioc.Default.GetService<ILogger<EnterPinViewModel>>()));
 		builder.Services.AddTransient(sp => new ETHTransferViewModel(
-			App.ServiceProvider.GetService<ILogger<ETHTransferViewModel>>()));
+			Ioc.Default.GetService<ILogger<ETHTransferViewModel>>()));
 		builder.Services.AddTransient(sp => new HelpViewModel(
-			App.ServiceProvider.GetService<ILogger<HelpViewModel>>()));
+			Ioc.Default.GetService<ILogger<HelpViewModel>>()));
 		builder.Services.AddTransient(sp => new HelpBViewModel(
-			App.ServiceProvider.GetService<ILogger<HelpBViewModel>>()));
+			Ioc.Default.GetService<ILogger<HelpBViewModel>>()));
 		builder.Services.AddTransient(sp => new MakeBidViewModel(
-			App.ServiceProvider.GetService<ILogger<MakeBidViewModel>>()));
+			Ioc.Default.GetService<ILogger<MakeBidViewModel>>()));
 		builder.Services.AddTransient(sp => new NetworkViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<NetworkViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<NetworkViewModel>>()));
 		builder.Services.AddTransient(sp => new PrivateKeyViewModel(
-			App.ServiceProvider.GetService<ILogger<PrivateKeyViewModel>>()));
+			Ioc.Default.GetService<ILogger<PrivateKeyViewModel>>()));
 		builder.Services.AddTransient(sp => new ProductsBViewModel(
-			App.ServiceProvider.GetService<IProductsService>(),
-			App.ServiceProvider.GetService<ILogger<ProductsBViewModel>>()));
+			Ioc.Default.GetService<IProductsService>(),
+			Ioc.Default.GetService<ILogger<ProductsBViewModel>>()));
 		builder.Services.AddTransient(sp => new ProductsViewModel(
-			App.ServiceProvider.GetService<IProductsService>(),
-			App.ServiceProvider.GetService<ILogger<ProductsViewModel>>()));
+			Ioc.Default.GetService<IProductsService>(),
+			Ioc.Default.GetService<ILogger<ProductsViewModel>>()));
 		builder.Services.AddTransient(sp => new ProductSearchViewModel(
-			App.ServiceProvider.GetService<IProductsService>(),
-			App.ServiceProvider.GetService<ILogger<ProductSearchViewModel>>()));
+			Ioc.Default.GetService<IProductsService>(),
+			Ioc.Default.GetService<ILogger<ProductSearchViewModel>>()));
 		builder.Services.AddTransient(sp => new SendViewModel(
-			App.ServiceProvider.GetService<ILogger<SendViewModel>>()));
+			Ioc.Default.GetService<ILogger<SendViewModel>>()));
 		builder.Services.AddTransient(sp => new SettingsBViewModel(
-			App.ServiceProvider.GetService<ILogger<SettingsBViewModel>>()));
+			Ioc.Default.GetService<ILogger<SettingsBViewModel>>()));
 		builder.Services.AddTransient(sp => new SettingsViewModel(
-			App.ServiceProvider.GetService<ILogger<SettingsViewModel>>()));
+			Ioc.Default.GetService<ILogger<SettingsViewModel>>()));
 		builder.Services.AddTransient(sp => new StartViewModel(
-			App.ServiceProvider.GetService<ILogger<StartViewModel>>()));
+			Ioc.Default.GetService<ILogger<StartViewModel>>()));
 		builder.Services.AddTransient(sp => new TransactionsBViewModel(
-			App.ServiceProvider.GetService<ITransactionsService>(),
-			App.ServiceProvider.GetService<ILogger<TransactionsBViewModel>>()));
+			Ioc.Default.GetService<ITransactionsService>(),
+			Ioc.Default.GetService<ILogger<TransactionsBViewModel>>()));
 		builder.Services.AddTransient(sp => new TransactionsViewModel(
-			App.ServiceProvider.GetService<ITransactionsService>(),
-			App.ServiceProvider.GetService<ILogger<TransactionsViewModel>>()));
+			Ioc.Default.GetService<ITransactionsService>(),
+			Ioc.Default.GetService<ILogger<TransactionsViewModel>>()));
 		builder.Services.AddTransient(sp => new TransferCompleteViewModel(
-			App.ServiceProvider.GetService<ILogger<TransferCompleteViewModel>>()));
+			Ioc.Default.GetService<ILogger<TransferCompleteViewModel>>()));
 		builder.Services.AddTransient(sp => new UnfinishTransferViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<UnfinishTransferViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<UnfinishTransferViewModel>>()));
 		builder.Services.AddTransient(sp => new WhatsNewViewModel(
-			App.ServiceProvider.GetService<ILogger<WhatsNewViewModel>>()));
+			Ioc.Default.GetService<ILogger<WhatsNewViewModel>>()));
 
 		#endregion Pages
 
@@ -98,19 +98,19 @@ public static class ViewModelExtensions
 
 		// Transient ViewModels
 		builder.Services.AddTransient(sp => new NotificationsViewModel(
-			App.ServiceProvider.GetService<INotificationsService>(),
-			App.ServiceProvider.GetService<ILogger<NotificationsViewModel>>()));
+			Ioc.Default.GetService<INotificationsService>(),
+			Ioc.Default.GetService<ILogger<NotificationsViewModel>>()));
 		builder.Services.AddTransient(sp => new NotificationViewModel(
-			App.ServiceProvider.GetService<ILogger<NotificationViewModel>>()));
+			Ioc.Default.GetService<ILogger<NotificationViewModel>>()));
 		builder.Services.AddTransient(sp => new RecipientAccountViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<RecipientAccountViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<RecipientAccountViewModel>>()));
 		builder.Services.AddTransient(sp => new SelectAuthorViewModel(
-			App.ServiceProvider.GetService<IAuthorsService>(),
-			App.ServiceProvider.GetService<ILogger<SelectAuthorViewModel>>()));
+			Ioc.Default.GetService<IAuthorsService>(),
+			Ioc.Default.GetService<ILogger<SelectAuthorViewModel>>()));
 		builder.Services.AddTransient(sp => new SourceAccountViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<SourceAccountViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<SourceAccountViewModel>>()));
 
 		#endregion
 
@@ -118,29 +118,29 @@ public static class ViewModelExtensions
 
 		// Transient ViewModels
 		builder.Services.AddTransient(sp => new AuthorRegistration1ViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRegistration1ViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorRegistration1ViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorRegistrationViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRegistrationViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorRegistrationViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorRenewal1ViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRenewal1ViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorRenewal1ViewModel>>()));
 		builder.Services.AddTransient(sp => new AuthorRenewal2ViewModel(
-			App.ServiceProvider.GetService<ILogger<AuthorRenewal2ViewModel>>()));
+			Ioc.Default.GetService<ILogger<AuthorRenewal2ViewModel>>()));
 		builder.Services.AddTransient(sp => new CreateAccountViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<CreateAccountViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<CreateAccountViewModel>>()));
 		builder.Services.AddTransient(sp => new ETHTransfer2ViewModel(
-			App.ServiceProvider.GetService<IServicesMockData>(),
-			App.ServiceProvider.GetService<ILogger<ETHTransfer2ViewModel>>()));
+			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ILogger<ETHTransfer2ViewModel>>()));
 		builder.Services.AddTransient(sp => new ETHTransfer3ViewModel(
-			App.ServiceProvider.GetService<ILogger<ETHTransfer3ViewModel>>()));
+			Ioc.Default.GetService<ILogger<ETHTransfer3ViewModel>>()));
 		builder.Services.AddTransient(sp => new MakeBid1ViewModel(
-			App.ServiceProvider.GetService<ILogger<MakeBid1ViewModel>>()));
+			Ioc.Default.GetService<ILogger<MakeBid1ViewModel>>()));
 		builder.Services.AddTransient(sp => new MakeBid2ViewModel(
-			App.ServiceProvider.GetService<ILogger<MakeBid2ViewModel>>()));
+			Ioc.Default.GetService<ILogger<MakeBid2ViewModel>>()));
 		builder.Services.AddTransient(sp => new Send1ViewModel(
-			App.ServiceProvider.GetService<ILogger<Send1ViewModel>>()));
+			Ioc.Default.GetService<ILogger<Send1ViewModel>>()));
 		builder.Services.AddTransient(sp => new Send2ViewModel(
-			App.ServiceProvider.GetService<ILogger<Send2ViewModel>>()));
+			Ioc.Default.GetService<ILogger<Send2ViewModel>>()));
 
 		#endregion
 

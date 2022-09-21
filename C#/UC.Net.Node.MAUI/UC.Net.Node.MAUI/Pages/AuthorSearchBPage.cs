@@ -5,7 +5,7 @@ public partial class AuthorSearchBPage : CustomPage
     public AuthorSearchBPage()
     {
         InitializeComponent();
-        var vm = App.ServiceProvider.GetService<AuthorSearchBViewModel>();
+        var vm = Ioc.Default.GetService<AuthorSearchBViewModel>();
 		vm.Author = new Author();
         BindingContext = vm;
     }

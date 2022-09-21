@@ -5,7 +5,7 @@ public partial class AccountDetailsPage : CustomPage
     public AccountDetailsPage()
     {
         InitializeComponent();
-        var vm = App.ServiceProvider.GetService<AccountDetailsViewModel>();
+        var vm = Ioc.Default.GetService<AccountDetailsViewModel>();
 		vm.Wallet = new Wallet();
         BindingContext = vm;
     }

@@ -5,7 +5,7 @@ public partial class AboutPage : CustomPage
     public AboutPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<AboutViewModel>();
+        BindingContext = Ioc.Default.GetService<AboutViewModel>();
     }
 
     public AboutPage(AboutViewModel vm)

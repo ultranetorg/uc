@@ -5,7 +5,7 @@ public partial class CreateAccountPage : CustomPage
     public CreateAccountPage()
     {
         InitializeComponent();
-        BindingContext = App.ServiceProvider.GetService<CreateAccountPageViewModel>();
+        BindingContext = Ioc.Default.GetService<CreateAccountPageViewModel>();
     }
 
     public CreateAccountPage(CreateAccountPageViewModel vm)

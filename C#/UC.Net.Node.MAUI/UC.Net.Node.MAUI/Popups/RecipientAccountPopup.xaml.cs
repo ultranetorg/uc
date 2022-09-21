@@ -18,7 +18,7 @@ public partial class RecipientAccountPopup : Popup
 
 	public static async Task Show()
 	{
-		popup = new RecipientAccountPopup(App.ServiceProvider.GetService<RecipientAccountViewModel>());
+		popup = new RecipientAccountPopup(Ioc.Default.GetService<RecipientAccountViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);
 	}
 }

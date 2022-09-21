@@ -20,7 +20,7 @@ public partial class SelectAuthorPopup : Popup
 
 	public static async Task<Author> Show()
 	{
-		popup = new SelectAuthorPopup(App.ServiceProvider.GetService<SelectAuthorViewModel>());
+		popup = new SelectAuthorPopup(Ioc.Default.GetService<SelectAuthorViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);
 		return popup.vm.SelectedAuthor;
 	}
