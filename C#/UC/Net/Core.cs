@@ -98,7 +98,6 @@ namespace UC.Net
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
 		Thread											SynchronizingThread;
-		object											RemoteMemberLock = new object();
 
 		JsonServer										ApiServer;
 
@@ -1311,16 +1310,21 @@ namespace UC.Net
 
 				if(m == null)
 				{	
-					var v = Workflow.CreateNested();
+					var w = Workflow.CreateNested();
 
 					if(!Settings.Dev.DisableTimeouts)
-						v.Cancellation.CancelAfter(Timeout);
+						w.Cancellation.CancelAfter(Timeout);
 
 					try
 					{
-						m = ConnectToMember(v);
+						m = ConnectToMember(w);
 					}
 					catch(ConnectionFailedException)
+					{
+						continue;
+					}
+
+					if(m == this && Synchronization != Synchronization.Synchronized)
 					{
 						continue;
 					}
@@ -1339,7 +1343,7 @@ namespace UC.Net
 
 					if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
 					{
-						var txs= new List<Transaction>();
+						var txs = new List<Transaction>();
 
 						var rmax = m.GetNextRound().NextRoundId;
 
@@ -1656,64 +1660,61 @@ namespace UC.Net
 
 		public Dci ConnectToMember(Workflow vizor)
 		{
-			lock(RemoteMemberLock)
+			if(Generator != null)
 			{
-				if(Generator != null)
-				{
-					return this;
-				}
+				return this;
+			}
 
-				Peer peer;
+			Peer peer;
 				
-				while(Running && !vizor.IsAborted)
+			while(Running && !vizor.IsAborted)
+			{
+				Thread.Sleep(1);
+	
+				lock(Lock)
 				{
-					Thread.Sleep(1);
+					peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
+	
+					if(peer == null)
+						continue;
+				}
+	
+				try
+				{
+					Connect(peer, vizor);
+
+					var cr = peer.GetMembers();
 	
 					lock(Lock)
 					{
-						peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
-	
-						if(peer == null)
-							continue;
-					}
-	
-					try
-					{
-						Connect(peer, vizor);
-
-						var cr = peer.GetMembers();
-	
-						lock(Lock)
+						if(cr.Members.Any())
 						{
-							if(cr.Members.Any())
-							{
-								RememberPeers(cr.Members);
+							RememberPeers(cr.Members);
 
-								peer.ReachFailures = 0;
+							peer.ReachFailures = 0;
 	
-								Members = cr.Members.ToList();
+							Members = cr.Members.ToList();
 								
-								var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
+							var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
 
-								if(c == null)
-									continue;
+							if(c == null)
+								continue;
 			
-								c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
+							c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
 
-								Log?.Report(this, "Member chosen", c.ToString());
+							Log?.Report(this, "Member chosen", c.ToString());
 		
-								return c;
-							}
+							return c;
 						}
 					}
-					catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is HttpRequestException || ex is DistributedCallException || ex is OperationCanceledException)
-					{
-						peer.ReachFailures++;
-					}
 				}
-	
-				throw new ConnectionFailedException("Aborted, timeour of overall abort");
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is HttpRequestException || ex is DistributedCallException || ex is OperationCanceledException)
+				{
+					peer.ReachFailures++;
+				}
 			}
+	
+			throw new ConnectionFailedException("Aborted, timeour of overall abort");
 		}
 
 		public Peer FindBestPeer(Role role, HashSet<Peer> exclusions)

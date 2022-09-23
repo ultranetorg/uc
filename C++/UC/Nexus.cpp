@@ -27,74 +27,83 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 
 	ObjectTemplatePath	= Core->MapPath(ESystemPath::Core, L"Object.xon");
 
-	auto start = [this](CXon * config)
-				 {
-					for(auto i : config->One(L"Servers")->Nodes)
-					{
-						AddServer(	CApplicationReleaseAddress::Parse(i->Get<CString>(L"Address")), 
-									i->Name, 
-									Core->Commands->Nodes.Find([&](auto j){ return j->Name == i->Name; }),
-									i);
-					}
-
-					for(auto i : config->One(L"Start")->Nodes)
-					{
-						auto s = Servers.Find([&](auto j){ return j->Name == i->Name; });
-
-						if(!s->Command)
+	auto systemstart =	[this](CXon * config)
 						{
-							s->Command = i->Any(L"Command") ? i->One(L"Command")->CloneInternal(null) : null;
-						}
+							for(auto i : config->One(L"Servers")->Nodes)
+							{
+								AddServer(	CApplicationReleaseAddress::Parse(i->Get<CString>(L"Address")), 
+											i->Name, 
+											Core->Commands->Nodes.Find([&](auto j){ return j->Name == i->Name; }),
+											i);
+							}
+
+							for(auto i : config->One(L"Start")->Nodes)
+							{
+								auto s = Servers.Find([&](auto j){ return j->Name == i->Name; });
+
+								if(!s->Command)
+								{
+									s->Command = i->Any(L"Command") ? i->One(L"Command")->CloneInternal(null) : null;
+								}
 			
-						Instantiate(s);
+								Instantiate(s);
 
-						s->Instance->SystemStart();
+								s->Instance->SystemStart();
 
-						if(i->Name == Sun0)
-						{
-							Sun = Connect<CSunProtocol>(null, Sun0);
+								if(i->Name == Sun0)
+								{
+									Sun = Connect<CSunProtocol>(null, Sun0);
 
-							Core->RunThread(L"Sun", [&]
-													{
-														Sun->GetSettings(	[&](CSunSettings & s)
-																			{
-																				Sun = Sun;
+									Core->RunThread(L"Sun", [&]
+															{
+																Sun->GetSettings(	[&](CSunSettings & s)
+																					{
+																						Sun->QueryRelease(	GetLatestReleases(),
+																											[](auto & j)
+																											{
+																												int i = 0;
+																											},
+																											[]{});
+																					});
+															}, 
+															[]{});
+								}
+							}
+						};
 
-																				Sun->QueryRelease(	GetLatestReleases(),
-																									[](auto & j)
-																									{
-																										int i = 0;
-																									},
-																									[]{});
-																			});
-													}, 
-													[]{});
-						}
-					}
-				};
-
-	start(SystemConfig);
+	systemstart(SystemConfig);
 
 	auto fss = Servers.Find([](auto i){ return i->Name == FileSystem0; });
-	fss->Instance->UserStart();
 	FileSystem = Connect<CFileSystemProtocol>(null, FileSystem0);
-	
+
+	//FileSystem = Connect<CFileSystemProtocol>(null, FileSystem0);
+
+	auto id = new CIdentity();
+	id->Provider = new CUserStorageProvider();
+	auto user = id->ToString();
+
+	//auto lp = Servers.Find([&](auto j){ return j->Name == FileSystem0; });
+	auto & lpa = fss->Release->Address;
+	lpa.Application = CLocalFileSystemProvider::GetClassName();
+	FileSystem->Mount(CFileSystemProtocol::UserLocal,	lpa, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".local"))));
+	FileSystem->Mount(CFileSystemProtocol::UserGlobal,	lpa, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Users, user + L".global"))));
+	FileSystem->Mount(CFileSystemProtocol::UserTmp,		lpa, &CTonDocument(CXonTextReader(L"To=" + Core->MapPath(ESystemPath::Tmp, user))));
+
 	d = Core->Resolve(Core->MapPath(ESystemPath::Core, User_nexus));
 	c = FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, User_nexus));
 
 	UserConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::IsFile(c) ? c : d, EFileMode::Open)));
 
-	Identity = new CIdentity();
+	systemstart(UserConfig);
 
-	start(UserConfig);
+	Identity = id;
 
 	for(auto i : Servers)
 	{
-		if(i != fss)
-			i->Instance->UserStart();
+		i->Instance->UserStart();
 	}
 
-	Core->Log->ReportMessage(this, L"-------------------------------- Nexus created --------------------------------");
+	Core->Log->ReportMessage(this, L"Nexus created");
 	Core->LevelCreated(2, this);	
 	Core->RegisterExecutor(this);
 }
@@ -330,6 +339,7 @@ void CNexus::Stop()
 	UserConfig->Save(&CXonTextWriter(&CLocalFileStream(FileSystem->UniversalToNative(CPath::Join(CFileSystemProtocol::UserGlobal, User_nexus)), EFileMode::New), false));
 	delete UserConfig;
 
+	delete Identity->Provider;
 	delete Identity;
 
 	Disconnect(Sun);

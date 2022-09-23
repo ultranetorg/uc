@@ -38,19 +38,6 @@ void CFileSystem::Break(IProtocol * p)
 	}
 }
 
-void CFileSystem::UserStart()
-{
-	//FileSystem = Connect<CFileSystemProtocol>(null, FileSystem0);
-	CString user = L"User";
-
-	//auto lp = Servers.Find([&](auto j){ return j->Name == FileSystem0; });
-	auto lpa = Instance->Release->Address;
-	lpa.Application = L"LocalFileSystemProvider";
-	Mount(CFileSystemProtocol::UserLocal,	lpa, &CTonDocument(CXonTextReader(L"To=" + Nexus->Core->MapPath(ESystemPath::Users, user + L".local"))));
-	Mount(CFileSystemProtocol::UserGlobal,	lpa, &CTonDocument(CXonTextReader(L"To=" + Nexus->Core->MapPath(ESystemPath::Users, user + L".global"))));
-	Mount(CFileSystemProtocol::UserTmp,		lpa, &CTonDocument(CXonTextReader(L"To=" + Nexus->Core->MapPath(ESystemPath::Tmp, user))));
-}
-
 void CFileSystem::Execute(CXon * command, CExecutionParameters * parameter)
 {
 	auto f = command->Nodes.First();
