@@ -13,6 +13,8 @@ public partial class App : Application
 
 		MainPage = new AppShell();
 
+		App.Current.UserAppTheme = AppTheme.Light;
+
 		InitializeRouting();
 			
         // Workaround for AnimatedModal not working on Android: https://github.com/dotnet/maui/issues/8062
@@ -26,7 +28,6 @@ public partial class App : Application
 
 	private void InitializeRouting()
 	{
-		
         // Global Routes (Pages not in Shell XAML) Example
         Routing.RegisterRoute(nameof(AboutPage), typeof(AboutPage));
 

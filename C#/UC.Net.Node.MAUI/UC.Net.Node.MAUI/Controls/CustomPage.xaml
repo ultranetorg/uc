@@ -3,8 +3,7 @@
     x:Name="Instance"
     x:Class="UC.Net.Node.MAUI.Controls.CustomPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    NavigationPage.HasNavigationBar="False">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <AbsoluteLayout>
         <Image
             AbsoluteLayout.LayoutBounds="0,1,1,1"
@@ -15,42 +14,9 @@
             Padding="{StaticResource UniPadding}"
             AbsoluteLayout.LayoutBounds="0,1,1,1"
             AbsoluteLayout.LayoutFlags="All"
-            BackgroundColor="Transparent"
-            RowDefinitions="50,*"
-            RowSpacing="0">
-            <AbsoluteLayout Grid.Row="0" Padding="15,0,15,0">
-                <Grid
-                    AbsoluteLayout.LayoutBounds="0,0.5,-1,-1"
-                    AbsoluteLayout.LayoutFlags="PositionProportional"
-                    ColumnDefinitions="Auto,Auto">
-                    <ImageButton
-                        x:Name="BackButton"
-                        Grid.Column="0"
-                        Clicked="BackButtonClicked"
-                        HeightRequest="28"
-                        IsVisible="{Binding HasBackButton, Source={x:Reference Instance}}"
-                        Opacity="0.4"
-                        Style="{StaticResource ArrowLeft}"
-                        VerticalOptions="Center"
-                        WidthRequest="28" />
-                    <ContentView
-                        Grid.Column="1"
-                        Content="{Binding LeftContent, Source={x:Reference Instance}}"
-                        VerticalOptions="Center" />
-                </Grid>
-
-                <Label
-                    AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1"
-                    AbsoluteLayout.LayoutFlags="PositionProportional"
-                    Text="{Binding Title, Source={x:Reference Instance}}" />
-                <ContentView
-                    AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
-                    AbsoluteLayout.LayoutFlags="PositionProportional"
-                    Content="{Binding RightContent, Source={x:Reference Instance}}" />
-            </AbsoluteLayout>
+            BackgroundColor="Transparent">
             <ContentView
                 x:Name="MainFrame"
-                Grid.Row="1"
                 Content="{Binding MainContent, Source={x:Reference Instance}}" />
         </Grid>
     </AbsoluteLayout>

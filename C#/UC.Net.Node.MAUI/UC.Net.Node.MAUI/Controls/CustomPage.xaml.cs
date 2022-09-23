@@ -4,47 +4,11 @@ public partial class CustomPage : ContentPage
 {
 	private const int LENGTH = 220;
 
-	#region Bindable Properties
-
-    public static readonly BindableProperty LeftContentProperty = BindableProperty.Create(nameof(LeftContent), typeof(View), typeof(CustomPage), null);
-
-	public View LeftContent
-	{
-		get { return (View)GetValue(LeftContentProperty); }
-		set { SetValue(LeftContentProperty, value); }
-	}
-
 	public static readonly BindableProperty RightContentProperty = BindableProperty.Create(nameof(RightContent), typeof(View), typeof(CustomPage), null);
-
-	public View RightContent
-	{
-		get { return (View)GetValue(RightContentProperty); }
-		set { SetValue(RightContentProperty, value); }
-	}
-
-	public static readonly BindableProperty BadgeValueProperty = BindableProperty.Create(nameof(BadgeValue), typeof(string), typeof(CustomPage), string.Empty);
-
-	public string BadgeValue
-	{
-		get { return (string)GetValue(BadgeValueProperty); }
-		set { SetValue(BadgeValueProperty, value); }
-	}
 
 	public static readonly BindableProperty HasBackButtonProperty = BindableProperty.Create(nameof(HasBackButton), typeof(bool), typeof(CustomPage), true);
 
-	public bool HasBackButton
-	{
-		get { return (bool)GetValue(HasBackButtonProperty); }
-		set { SetValue(HasBackButtonProperty, value); }
-	}
-
 	public static readonly BindableProperty AnimationEnabledProperty = BindableProperty.Create(nameof(AnimationEnabled), typeof(bool), typeof(CustomPage), false);
-
-	public bool AnimationEnabled
-	{
-		get { return (bool)GetValue(AnimationEnabledProperty); }
-		set { SetValue(AnimationEnabledProperty, value); }
-	}
 
 	public static readonly BindableProperty MainContentProperty = BindableProperty.Create(nameof(MainContent), typeof(View), typeof(CustomPage), null);
 
@@ -54,39 +18,23 @@ public partial class CustomPage : ContentPage
 		set { SetValue(MainContentProperty, value); }
 	}
 
-	public static readonly BindableProperty HeaderProperty = BindableProperty.Create(nameof(Header), typeof(View), typeof(CustomPage), null);
-
-	public View Header
+	public bool AnimationEnabled
 	{
-		get { return (View)GetValue(HeaderProperty); }
-		set { SetValue(HeaderProperty, value); }
+		get { return (bool)GetValue(AnimationEnabledProperty); }
+		set { SetValue(AnimationEnabledProperty, value); }
 	}
 
-	public static readonly BindableProperty HeaderHeightProperty = BindableProperty.Create(nameof(HeaderHeight), typeof(double), typeof(CustomPage), default);
-
-	public double HeaderHeight
+	public bool HasBackButton
 	{
-		get { return (double)GetValue(HeaderHeightProperty); }
-		set { SetValue(HeaderHeightProperty, value); }
+		get { return (bool)GetValue(HasBackButtonProperty); }
+		set { SetValue(HasBackButtonProperty, value); }
 	}
 
-	public static readonly BindableProperty IsHeaderVisibleProperty = BindableProperty.Create(nameof(HeaderHeight), typeof(bool), typeof(CustomPage), false);
-
-	public bool IsHeaderVisible
+	public View RightContent
 	{
-		get { return (bool)GetValue(IsHeaderVisibleProperty); }
-		set { SetValue(IsHeaderVisibleProperty, value); }
+		get { return (View)GetValue(RightContentProperty); }
+		set { SetValue(RightContentProperty, value); }
 	}
-
-	public static readonly BindableProperty BarItemsProperty = BindableProperty.Create(nameof(BarItems), typeof(CustomCollection<ImageButton>), typeof(CustomPage), new CustomCollection<ImageButton>());
-
-	public CustomCollection<ImageButton> BarItems
-	{
-		get { return (CustomCollection<ImageButton>)GetValue(BarItemsProperty); }
-		set { SetValue(BarItemsProperty, value); }
-	}
-
-	#endregion Bindable Properties
 
 	public CustomPage()
     {
@@ -110,5 +58,5 @@ public partial class CustomPage : ContentPage
     //        await MainFrame.TranslateTo(0, Height, LENGTH, Easing.Linear);
     //}
 
-    private async void BackButtonClicked(object sender, EventArgs e) => await Navigation.PopAsync();
+    //private async void BackButtonClicked(object sender, EventArgs e) => await Navigation.PopAsync();
 }

@@ -10,22 +10,83 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:converters="clr-namespace:UC.Net.Node.MAUI.Converters"
     ios:Page.UseSafeArea="True"
-    BadgeValue="3"
-    HasBackButton="False"
     x:DataType="vm:DashboardViewModel">
     <cls:CustomPage.Resources>
         <toolkit:IsStringNullOrWhiteSpaceConverter x:Key="IsStringNullOrWhiteSpace" />
         <converters:StatusToStyleConverter x:Key="StatusToStyleConverter" />
+        <DataTemplate x:DataType="models:Transaction" x:Key="TransactionTemplate">
+            <Grid ColumnDefinitions="Auto,*,23">
+                <Label
+                    Grid.Column="0"
+                    FontSize="11"
+                    MaxLines="1"
+                    Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Column="1"
+                    MaxLines="1"
+                    Style="{DynamicResource Regular}"
+                    VerticalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding Unt}" />
+                            <Span Text=" Unt" />
+                            <Span Text=", " />
+                            <Span Text="{Binding FromId}" />
+                            <Span Text="-&gt;" />
+                            <Span Text="{Binding ToId}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <ImageButton
+                    Grid.Column="2"
+                    Padding="2"
+                    HeightRequest="23"
+                    Style="{Binding Status, Converter={StaticResource StatusToStyleConverter}}"
+                    VerticalOptions="Center"
+                    WidthRequest="23" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:DataType="models:Wallet" x:Key="WalletTemplate">
+            <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="20">
+                <Label
+                    Grid.Column="0"
+                    MaxLines="1"
+                    Style="{DynamicResource Regular}"
+                    Text="{Binding Name}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Column="1"
+                    MaxLines="1"
+                    Style="{DynamicResource Regular}"
+                    Text="{Binding Id}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Column="2"
+                    Style="{DynamicResource Regular}"
+                    VerticalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                Text="{Binding Unts}" />
+                            <Span Text=" " />
+                            <Span Text="UNT" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Grid>
+        </DataTemplate>
     </cls:CustomPage.Resources>
-    
-    <cls:CustomPage.LeftContent>
+    <!--<cls:CustomPage.LeftContent>
         <StackLayout>
             <Label
                 HorizontalOptions="Start"
                 Text="Ultranet User Center"
                 VerticalOptions="Center" />
         </StackLayout>
-    </cls:CustomPage.LeftContent>
+    </cls:CustomPage.LeftContent>-->
     <cls:CustomPage.RightContent>
         <AbsoluteLayout HeightRequest="32" WidthRequest="32">
             <ImageButton
@@ -57,157 +118,29 @@
                     Style="{DynamicResource DashLabel}"
                     Text="Accounts" />
                 <Frame Style="{DynamicResource SquareFrame}">
-                    <StackLayout BindableLayout.ItemsSource="{Binding Wallets}" Spacing="5">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:Wallet">
-                                <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="20">
-                                    <Label
-                                        Grid.Column="0"
-                                        MaxLines="1"
-                                        Style="{DynamicResource Regular}"
-                                        Text="{Binding Name}"
-                                        TextColor="Black"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="1"
-                                        MaxLines="1"
-                                        Style="{DynamicResource Regular}"
-                                        Text="{Binding Id}"
-                                        TextColor="Black"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="2"
-                                        Style="{DynamicResource Regular}"
-                                        TextColor="Black"
-                                        VerticalOptions="Center">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span
-                                                    FontAttributes="Bold"
-                                                    FontSize="11"
-                                                    Text="{Binding Unts}" />
-                                                <Span Text=" " />
-                                                <Span Text="UNT" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </StackLayout>
+                    <StackLayout
+                        BindableLayout.ItemsSource="{Binding Wallets}"
+                        BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
+                        Spacing="5" />
                 </Frame>
+                
                 <Label
                     FontSize="12"
                     Style="{DynamicResource DashLabel}"
                     Text="Transactions" />
                 <Frame Style="{DynamicResource SquareFrame}">
-                    <StackLayout BindableLayout.ItemsSource="{Binding Transactions}" Spacing="0">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:Transaction">
-                                <Grid ColumnDefinitions="Auto,*,23">
-                                    <Label
-                                        Grid.Column="0"
-                                        FontSize="11"
-                                        MaxLines="1"
-                                        TextColor="Black"
-                                        Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="1"
-                                        MaxLines="1"
-                                        TextColor="Black"
-                                        Style="{DynamicResource Regular}"
-                                        VerticalOptions="Center">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding Unt}" />
-                                                <Span Text=" Unt" />
-                                                <Span Text=", " />
-                                                <Span Text="{Binding FromId}" />
-                                                <Span Text="-&gt;" />
-                                                <Span Text="{Binding ToId}" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                    <ImageButton
-                                        Grid.Column="2"
-                                        Padding="2"
-                                        HeightRequest="23"
-                                        Style="{Binding Status, Converter={StaticResource StatusToStyleConverter}}"
-                                        VerticalOptions="Center"
-                                        WidthRequest="23" />
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </StackLayout>
+                    <StackLayout
+                        BindableLayout.ItemsSource="{Binding Transactions}"
+                        BindableLayout.ItemTemplate="{StaticResource TransactionTemplate}"
+                        Spacing="0" />
                 </Frame>
                 <StackLayout Padding="10">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label
-                            Grid.Column="0"
-                            FontSize="11"
-                            Style="{DynamicResource DashLabel}"
-                            Text="Accounts" />
-                        <Label
-                            Grid.Column="1"
-                            FontSize="11"
-                            Text="10" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label
-                            Grid.Column="0"
-                            FontSize="11"
-                            Style="{DynamicResource DashLabel}"
-                            Text="Auctions (OutBinded)" />
-                        <Label
-                            Grid.Column="1"
-                            FontSize="11"
-                            Text="0(0)" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label
-                            Grid.Column="0"
-                            FontSize="11"
-                            Style="{DynamicResource DashLabel}"
-                            Text="Auctions (renewal needed)" />
-                        <Label
-                            Grid.Column="1"
-                            FontSize="11"
-                            Text="2(0)" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label
-                            Grid.Column="0"
-                            FontSize="11"
-                            Style="{DynamicResource DashLabel}"
-                            Text="Procusts" />
-                        <Label
-                            Grid.Column="1"
-                            FontSize="11"
-                            Text="4" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label
-                            Grid.Column="0"
-                            FontSize="11"
-                            Style="{DynamicResource DashLabel}"
-                            Text="Releases (total/clean/compromised)" />
-                        <Label
-                            Grid.Column="1"
-                            FontSize="11"
-                            Text="346/300/2" />
-                    </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label
-                            Grid.Column="0"
-                            FontSize="11"
-                            Style="{DynamicResource DashLabel}"
-                            Text="Last Release" />
-                        <Label
-                            Grid.Column="1"
-                            FontSize="11"
-                            Text="UOS 0.1.670" />
-                    </Grid>
+                    <cls:LabelPair Text1="Accounts" Text2="10" />
+                    <cls:LabelPair Text1="Auctions (outbinded)" Text2="0 (0)" />
+                    <cls:LabelPair Text1="Auctions (renewal needed)" Text2="2 (0)" />
+                    <cls:LabelPair Text1="Products" Text2="4" />
+                    <cls:LabelPair Text1="Releases (total/clean/compromised)" Text2="346/300/2" />
+                    <cls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
                 </StackLayout>
                 <Grid
                     Margin="0,25,0,0"

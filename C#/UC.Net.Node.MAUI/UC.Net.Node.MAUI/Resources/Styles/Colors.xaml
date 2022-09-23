@@ -40,6 +40,7 @@
     <Color x:Key="PrimaryLight">#F0F7F9</Color>
     <Color x:Key="PrimaryLighter">#F4F9FB</Color>
     <Color x:Key="Secondary">#18181B</Color>
+    <Color x:Key="Tertiary">#18181B</Color>
     <Color x:Key="LightBackground">#FBFEFF</Color>
     <Color x:Key="DarkBackground">#202222</Color>
     <Color x:Key="Red">#c44242</Color>
