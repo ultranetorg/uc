@@ -8,8 +8,7 @@ namespace UC.Net.Node.CLI
 	/// Usage: product register 
 	///							by = ACCOUNT 
 	///							[password = PASSWORD] 
-	///							under = AUTHOR 
-	///							name = PRODUCT 
+	///							address = AUTHOR/PRODUCT 
 	///							title = TITLE
 	///		   product publish 
 	///							by = ACCOUNT 
