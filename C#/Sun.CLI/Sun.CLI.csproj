@@ -16,11 +16,11 @@
     <AssemblyName>Sun</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uc-sun-dotnet\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uo-sun-dotnet\0.0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uc-sun-dotnet\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Release\uo-sun-dotnet\0.0.0.0</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\UC\UC.csproj" />

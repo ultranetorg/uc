@@ -9,7 +9,7 @@ namespace UC.Net.Node.CLI
 	///							by = ACCOUNT 
 	///							[password = PASSWORD] 
 	///							product = PRODUCT 
-	///							obis = OBIs - {windows.10.*.x64}
+	///							oses = OBIs - {windows.10.*.x64}
 	/// </summary>
 	public class RealizationCommand : Command
 	{

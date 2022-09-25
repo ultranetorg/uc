@@ -44,7 +44,7 @@
     <GenerateManifest>true</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
-    <OutDir>$(G_Root)\_$(Configuration)\uc-uos-winx64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uo-uos-winx64\0.0.0.0\</OutDir>
     <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
@@ -52,7 +52,7 @@
     <GenerateManifest>true</GenerateManifest>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
-    <OutDir>$(G_Root)\_$(Configuration)\uc-uos-winx64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uo-uos-winx64\0.0.0.0\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>

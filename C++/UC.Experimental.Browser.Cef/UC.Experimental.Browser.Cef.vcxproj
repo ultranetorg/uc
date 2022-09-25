@@ -47,7 +47,7 @@
     <GenerateManifest>true</GenerateManifest>
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(G_Root)\_$(Configuration)\uc-experimental-winx64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uo-experimental-winx64\0.0.0.0\</OutDir>
     <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -55,7 +55,7 @@
     <IncludePath>$(IncludePath);m:\UO\C++\Libs\</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
-    <OutDir>$(G_Root)\_$(Configuration)\uc-experimental-winx64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uo-experimental-winx64\0.0.0.0\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

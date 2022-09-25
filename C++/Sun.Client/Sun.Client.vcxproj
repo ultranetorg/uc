@@ -44,13 +44,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(G_Root)\_$(Configuration)\uc-sunc-winx64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uo-sunc-winx64\0.0.0.0\</OutDir>
     <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
     <GenerateManifest>false</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(G_Root)\_$(Configuration)\uc-sunc-winx64\0.0.0.0\</OutDir>
+    <OutDir>$(G_Root)\_$(Configuration)\uo-sunc-winx64\0.0.0.0\</OutDir>
     <IntDir>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName)\</IntDir>
     <GenerateManifest>false</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
