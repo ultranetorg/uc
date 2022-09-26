@@ -66,7 +66,9 @@ namespace UC.Net.Node.FUI
 
 				Core.Enqueue(new ProductRegistration(	GetPrivate(a.Owner),
 														new ProductAddress(ProductName.Text, Author.SelectedItem as string),
-														ProductTitle.Text));
+														ProductTitle.Text),
+														PlacingStage.Null,
+														null);
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{

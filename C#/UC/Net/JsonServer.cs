@@ -206,7 +206,7 @@ namespace UC.Net
 							pa = Vault.GetPrivate(e.From);
 						}
 
-						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount)));
+						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, null));
 						Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 						break;
 	

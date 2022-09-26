@@ -19,9 +19,9 @@ namespace UC.Net.Node.FUI
 
 	public class BaseControl : UserControl
 	{
-		protected readonly Core	Core;
-		protected readonly Vault		Vault;
-		protected Roundchain			Chain => Core.Chain;
+		protected readonly Core		Core;
+		protected readonly Vault	Vault;
+		protected Roundchain		Chain => Core.Chain;
 
 		public BaseControl()
 		{

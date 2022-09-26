@@ -7,6 +7,10 @@
     "run node": {
       "commandName": "Project",
       "commandLineArgs": "run node api secrets=a:\\uo"
+    },
+    "Profile 1": {
+      "commandName": "Project",
+      "commandLineArgs": "release publish address=uo/cef/winx64/3.3578.1870.0 channel=prototype sources=M:\\UO\\_Release\\\\uo-cef-winx64\\0.0.0.0  by=0x00fe929a68368c301a1906ed39016ee9be3d937b password=forweshallwinthroughnomatterthecost await=placed secrets=A:\\UO"
     }
   }
 }

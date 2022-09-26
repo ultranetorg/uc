@@ -16,9 +16,8 @@ namespace UC.Net
 		public Chain							Chain { get => Chain.Ropsten; }
 		public bool								IsAdministrator => true;
 
-		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
+		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
 		{
-			await Task.CompletedTask;
 		}
 
 		public bool CheckEmission(Emission e)

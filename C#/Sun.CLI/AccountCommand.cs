@@ -41,19 +41,21 @@ namespace UC.Net.Node.CLI
 					{
 						Cryptography.Current = new EthereumCryptography();
 						var a = PrivateAccount.Load(i, Settings.Secret.Password);
+						
 						Cryptography.Current = new NoCryptography();
 						a.Save(Path.Join(Settings.Secret.Fathers, Path.GetFileNameWithoutExtension(i)) + "." + Vault.NoCryptoWalletExtention, Settings.Secret.Password);
-						Workflow.Log?.Report(this, null, a.ToString());
+						
+						Workflow?.Log?.Report(this, null, a.ToString());
 					}
 					return null;
 		   		
 				case "overview" :
 				{
-					var i = Node.Connect(Role.Chain, null, Workflow).GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
+					var i = Core.Connect(Role.Chain, null, Workflow).GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
 					
-					Workflow.Log?.Report(this, "Account", GetString("address") + " :");
+					Workflow?.Log?.Report(this, "Account", GetString("address") + " :");
 
-					i.Info.Dump((d, m, n, v) => Workflow.Log?.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
+					i.Info.Dump((d, m, n, v) => Workflow?.Log?.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
 
 					return null;
 				}

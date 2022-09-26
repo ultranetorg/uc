@@ -55,15 +55,9 @@ namespace UC.Net.Node.FUI
 								FeeAsker = new FeeForm(settings)
 							}; 
 
-				//if(isnode)
-				//{
-					core.RunApi();
-					core.RunNode();
-				//} 
-				//else
-				//{
-				//	core.RunClient(overridedispatcher);
-				//}
+
+				core.RunApi();
+				core.RunNode();
 
 				var f = new MainForm(core);
 				f.StartPosition = FormStartPosition.CenterScreen;

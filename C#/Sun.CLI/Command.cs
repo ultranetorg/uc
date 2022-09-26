@@ -14,26 +14,12 @@ namespace UC.Net.Node.CLI
 	{
 		protected Settings		Settings; 
 		protected Xon			Args;
-		protected Core			Core => CoreFunc();
-		protected Func<Core>	CoreFunc;
+		protected Core			Core => GetCore();
+		protected Func<Core>	GetCore;
 		public static bool		ConsoleSupported { get; protected set; }
-		//Operation				Operation;
-		public Workflow			Workflow {get;}
+		public Workflow			Workflow { get; }
 
 		public abstract object Execute();
-
-		protected Core Node
-		{
-			get
-			{
-				if(Core.IsNodee)
-					return Core;
-
-				Core.RunNode();
-
-				return Core;
-			}
-		}
 
 		static Command()
 		{
@@ -48,10 +34,10 @@ namespace UC.Net.Node.CLI
 			}
 		}
 
-		protected Command(Settings settings, Log log, Func<Core> core, Xon args)
+		protected Command(Settings settings, Log log, Func<Core> getcore, Xon args)
 		{
 			Settings = settings;
-			CoreFunc = core;
+			GetCore = getcore;
 			Args = args;
 			Workflow = new Workflow(log);
 		}
@@ -96,17 +82,6 @@ namespace UC.Net.Node.CLI
 				return string.Empty;
 		}
 
-		protected void Wait(Func<bool> waitiftrue)
-		{
-			Task.Run(() =>	{
-								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Workflow.IsAborted)
-								{
-									Thread.Sleep(100); 
-								}
-							})
-							.Wait();
-		}
-
 		protected PrivateAccount GetPrivate(string walletarg, string passwordarg)
 		{
 			string p = null;
@@ -122,38 +97,66 @@ namespace UC.Net.Node.CLI
 				p = a.Password; 
 			}
 
-			return Node.Vault.Unlock(Account.Parse(GetString(walletarg)), p);
+			return Core.Vault.Unlock(Account.Parse(GetString(walletarg)), p);
 		}
 
-		protected object Send(Func<object> create)
+		protected void Wait(Func<bool> waitiftrue)
 		{
-			var obj = create();
-
-			if(obj is Operation o)
-			{
-				if(Args.Has("await"))
-					Wait(() =>	{
-									switch(Args.GetString("await"))
-									{
-										case "accepted" :			return o.Placing < PlacingStage.Accepted;
-										case "placed" :				return o.Placing < PlacingStage.Placed;
-										case "confirmed" :			return o.Placing != PlacingStage.Confirmed;
-										case "failedornotfound" :	return o.Placing != PlacingStage.FailedOrNotFound;
-									}
-													
-									throw new SyntaxException("Unknown awaiting stage");
-								});
-				else
-					Wait(() =>	o.Delegation != DelegationStage.Completed);
-			}
-
-			return obj;
+			Task.Run(() =>	{
+								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Workflow.IsAborted)
+								{
+									Thread.Sleep(10); 
+								}
+							})
+							.Wait();
 		}
+
+		//protected object Send(Func<object> create)
+		//{
+		//	var obj = create();
+		//
+		//	if(obj is Operation o)
+		//	{
+		//		if(Args.Has("await"))
+		//			Wait(() =>	{
+		//							switch(Args.GetString("await"))
+		//							{
+		//								case "accepted" :			return o.Placing < PlacingStage.Accepted;
+		//								case "placed" :				return o.Placing < PlacingStage.Placed;
+		//								case "confirmed" :			return o.Placing != PlacingStage.Confirmed;
+		//								case "failedornotfound" :	return o.Placing != PlacingStage.FailedOrNotFound;
+		//							}
+		//											
+		//							throw new SyntaxException("Unknown awaiting stage");
+		//						});
+		//		else
+		//			Wait(() => o.Placing < PlacingStage.Placed);
+		//	}
+		//
+		//	return obj;
+		//}
 
 		protected void Dump(XonDocument document)
 		{
 			document.Dump((n, l) => Workflow.Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
 		}
 
+		public PlacingStage GetAwaitStage()
+		{
+			if(Args.Has("await"))
+			{
+				switch(Args.GetString("await"))
+				{
+					case "accepted" :			return PlacingStage.Accepted;
+					case "placed" :				return PlacingStage.Placed;
+					case "confirmed" :			return PlacingStage.Confirmed;
+					case "failedornotfound" :	return PlacingStage.FailedOrNotFound;
+				}
+			
+				throw new SyntaxException("Unknown awaiting stage");
+			}
+			else
+				return PlacingStage.Placed;
+		}
 	}
 }

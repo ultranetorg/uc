@@ -123,7 +123,7 @@ namespace UC.Net.Node.FUI
 			}
 		}
 
-	 	async private void transfer_Click(object sender, EventArgs e)
+	 	private void transfer_Click(object sender, EventArgs e)
 		{
 			transfergroup.Enabled = false;
 			finishgroup.Enabled = false;
@@ -169,7 +169,7 @@ namespace UC.Net.Node.FUI
 						f.StartPosition = FormStartPosition.CenterParent;
 						f.Show(ParentForm);
 
-						await Core.Emit(a, eth.Wei, k, v);
+						Core.Emit(a, eth.Wei, k, PlacingStage.Null, v);
 					}
 				}
 			}

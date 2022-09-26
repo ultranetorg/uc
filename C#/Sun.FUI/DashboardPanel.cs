@@ -69,9 +69,7 @@ namespace UC.Net.Node.FUI
 			{
 				try
 				{
-					Core.Enqueue(new UntTransfer(	signer,
-														Account.Parse(destination.Text),
-														amount.Coins));
+					Core.Enqueue(new UntTransfer(signer, Account.Parse(destination.Text), amount.Coins), PlacingStage.Null, null);
 				}
 				catch(RequirementException ex)
 				{

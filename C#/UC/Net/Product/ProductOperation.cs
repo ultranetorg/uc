@@ -193,7 +193,7 @@ namespace UC.Net
 		}
 	}
 
-	public class ReleaseRegistration : Operation, IBinarySerializable
+	public class ReleaseRegistration : Operation
 	{
 		public ReleaseAddress		Address;
 		public string				Channel;		/// stable, beta, nightly, debug,...

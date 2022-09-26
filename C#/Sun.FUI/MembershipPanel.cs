@@ -95,9 +95,11 @@ namespace UC.Net.Node.FUI
 		{
 			try
 			{
-				Core.Enqueue(new CandidacyDeclaration(GetPrivate(Candidates.SelectedItem as Account), 
-															Bail.Coins,
-															IPAddress.Parse(IP.Text)));
+				Core.Enqueue(new CandidacyDeclaration(	GetPrivate(Candidates.SelectedItem as Account), 
+														Bail.Coins,
+														IPAddress.Parse(IP.Text)),
+														PlacingStage.Null,
+														null);
 			}
 			catch(Exception ex)
 			{

@@ -69,7 +69,8 @@ namespace UC.Net
 		public Filebase									Filebase;
 		public Hub										Hub;
 		RocksDb											Database;
-		public bool										IsNodee => ListeningThread != null && DelegatingThread != null;
+		public bool										Networking => DelegatingThread != null;
+		public bool										IsClient => Networking && ListeningThread == null;
 		public object									Lock = new();
 		public Settings									Settings;
 		public Clock									Clock;
@@ -271,6 +272,55 @@ namespace UC.Net
 			}
 		}
 
+		public void RunClient()
+		{
+			Nuid = Guid.NewGuid();
+
+			if(Settings.Filebase.Enabled)
+			{
+				Filebase = new Filebase(Settings);
+			}
+
+			LoadPeers();
+
+			//ListeningThread = new Thread(Listening);
+			//ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
+			//ListeningThread.Start();
+
+			DelegatingThread = new Thread(Delegating);
+			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
+			DelegatingThread.Start();
+								
+ 			var t = new Thread(	() =>
+ 								{ 
+									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
+
+									try
+									{
+										while(Running)
+										{
+											lock(Lock)
+											{
+												if(!Running)
+													break;
+
+												ProcessConnectivity();
+											}
+	
+											Thread.Sleep(1);
+										}
+									}
+									catch(Exception ex) when (!Debugger.IsAttached)
+									{
+										Stop(MethodBase.GetCurrentMethod(), ex);
+									}
+ 								});
+			t.Start();
+
+			while(!MinimalPeersReached && !Workflow.IsAborted)
+				Thread.Sleep(1);
+		}
+
 		public void RunNode()
 		{
 			Nuid = Guid.NewGuid();
@@ -426,7 +476,7 @@ namespace UC.Net
 
 			Database?.Dispose();
 
-			Log?.Report(this, "Stopped", "Cause=" + message);
+			Log?.Report(this, "Stopped", message);
 		}
 
 		public Peer GetPeer(IPAddress ip)
@@ -574,7 +624,7 @@ namespace UC.Net
 				Connections.Count() >= Settings.PeersMin && 
 				(Chain == null || Connections.Count(i => i.Roles.HasFlag(Role.Chain)) >= Settings.Chain.PeersMin))
 			{
-				if(Filebase != null)
+				if(Filebase != null && !IsClient)
 				{
 					var ps = Filebase.GetAll();
 					
@@ -1355,8 +1405,18 @@ namespace UC.Net
 
 								if(!Vault.OperationIds.ContainsKey(g.Key))
 								{
+									Operation o = null;
+
 									Monitor.Exit(Lock);
-									var o = m.GetLastOperation(g.Key, null).Operation;
+
+									try
+									{
+										o = m.GetLastOperation(g.Key, null).Operation;
+									}
+									catch(Exception) when(!Debugger.IsAttached)
+									{
+									}
+									
 									Monitor.Enter(Lock);
 									Vault.OperationIds[g.Key] = o == null ? -1 : o.Id;
 								}
@@ -1544,12 +1604,14 @@ namespace UC.Net
 			}
 		}
 		
-		public Operation Enqueue(Operation operation, Workflow flowcontrol = null)
+		public Operation Enqueue(Operation operation, PlacingStage waitstage, Workflow workflow)
 		{
 			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
 			{
 				lock(Lock)
 				 	Enqueue(operation);
+
+				Await(operation, waitstage, workflow);
 
 				return operation;
 			}
@@ -1829,7 +1891,7 @@ namespace UC.Net
 			return Chain != null ? Operation.CalculateFee(Chain.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
-		public async Task<Emission> Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, Workflow vizor)
+		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, PlacingStage awaitstage, Workflow workflow)
 		{
 			Emission l;
 
@@ -1837,11 +1899,11 @@ namespace UC.Net
 				lock(Lock)
 					l = Chain.Accounts.FindLastOperation<Emission>(signer);
 			else
-				l = await Task.Run<Emission>(() => Connect(Role.Chain, null, vizor).GetLastOperation(signer, typeof(Emission).Name).Operation as Emission);
+				l = Connect(Role.Chain, null, workflow).GetLastOperation(signer, typeof(Emission).Name).Operation as Emission;
 			
 			var eid = l == null ? 0 : l.Eid + 1;
 
-			await Nas.Emit(a, wei, signer, GasAsker, eid, vizor);		
+			Nas.Emit(a, wei, signer, GasAsker, eid, workflow);		
 						
 			var o = new Emission(signer, wei, eid);
 
@@ -1849,10 +1911,9 @@ namespace UC.Net
 						
 			if(FeeAsker.Ask(this, signer, o))
 			{
-				lock(Lock)
-					Enqueue(o);
+				Enqueue(o, awaitstage, workflow);
 	
-				vizor?.Log?.Report(this, "State changed", $"{o} is queued for placing and confirmation");
+				workflow?.Log?.Report(this, "State changed", $"{o} is queued for placing and confirmation");
 						
 				return o;
 			}
@@ -1916,7 +1977,7 @@ namespace UC.Net
 			}
 		}
 
-		public void Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, Workflow vizor)
+		public Operation Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, PlacingStage waitstage, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 
@@ -1930,7 +1991,7 @@ namespace UC.Net
 				{
 					if(Directory.Exists(s))
 					{
-						foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions { RecurseSubdirectories = true }))
+						foreach(var e in Directory.EnumerateFiles(s, "*", new EnumerationOptions{RecurseSubdirectories = true}))
 							files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
 					}
 					else
@@ -1940,7 +2001,7 @@ namespace UC.Net
 				{
 					if(Directory.Exists(s))
 					{
-						foreach(var e in Directory.EnumerateFileSystemEntries(s, "*", new EnumerationOptions { RecurseSubdirectories = true }))
+						foreach(var e in Directory.EnumerateFiles(s, "*", new EnumerationOptions{RecurseSubdirectories = true}))
 							files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
 					}
 					else
@@ -1966,28 +2027,32 @@ namespace UC.Net
 											idependencies);
 			Enqueue(o);
 
-			while(o.Delegation != DelegationStage.Completed)
-				Thread.Sleep(1);
+			Await(o, waitstage, workflow);
 
-			Log?.Report(this, "Manifest added to the chain");
+			workflow?.Log?.Report(this, "Manifest added to the chain");
 
-			DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)}, vizor);
+			if(ipkg != null)
+				DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)}, workflow);
+			else
+				DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete)}, workflow);
+
+			return o;
 		}
 
-		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow vizor)
+		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow workflow)
 		{
 			var hubs = new HashSet<Peer>();
 
 			int success = 0;
 			int failures = 0;
 
-			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0) && !vizor.IsAborted)
+			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0) && !workflow.IsAborted)
 			{
 				Peer h = null;
 
 				try
 				{
-					h = Connect(Role.Hub, hubs, vizor);
+					h = Connect(Role.Hub, hubs, workflow);
 					success++;
 				}
 				catch(ConnectionFailedException)
@@ -1998,7 +2063,7 @@ namespace UC.Net
 
 				h.DeclarePackage(packages);
 
-				Log?.Report(this, "Package declared", $"Hub={h.IP}");
+				workflow?.Log?.Report(this, "Package declared", $"Hub={h.IP}");
 
 				hubs.Add(h);
 			}
@@ -2016,5 +2081,22 @@ namespace UC.Net
 
  			return rq.Execute(this) as Rp;
  		}
+
+		void Await(Operation o, PlacingStage s, Workflow workflow)
+		{
+			while(!workflow?.IsAborted ?? true)
+			{ 
+				switch(s)
+				{
+					case PlacingStage.Null :				return;
+					case PlacingStage.Accepted :			if(o.Placing >= PlacingStage.Accepted) return; else break;
+					case PlacingStage.Placed :				if(o.Placing >= PlacingStage.Placed) return; else break;
+					case PlacingStage.Confirmed :			if(o.Placing == PlacingStage.Confirmed) return; else break;
+					case PlacingStage.FailedOrNotFound :	if(o.Placing == PlacingStage.FailedOrNotFound) return; else break;
+				}
+
+				Thread.Sleep(1);
+			}
+		}
 	}
 }

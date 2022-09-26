@@ -76,17 +76,21 @@ namespace UC.Net.Node.CLI
 																				new BigInteger((int)Enum.Parse(typeof(Chain), Settings.Nas.Chain)));
 					}
 
-					return Send(() => Node.Emit(	from,
-													Web3.Convert.ToWei(GetString("amount")),
-													GetPrivate("to/account", "to/password"), 
-													Workflow).Result);
+					return Core.Emit(	from,
+										Web3.Convert.ToWei(GetString("amount")),
+										GetPrivate("to/account", "to/password"), 
+										GetAwaitStage(),
+										Workflow);
 				}
 
 		   		case "transfer" : 
 				{
-					return Send(() => Node.Enqueue(new UntTransfer(	GetPrivate("from/account", "from/password"), 
-																		Account.Parse(GetString("to")), 
-																		Coin.ParseDecimal(GetString("amount")))));
+					return Core.Enqueue(new UntTransfer(GetPrivate("from/account", "from/password"), 
+														Account.Parse(GetString("to")), 
+														Coin.ParseDecimal(GetString("amount"))),
+														GetAwaitStage(), 
+														Workflow);
+
 				}
 
 				default:

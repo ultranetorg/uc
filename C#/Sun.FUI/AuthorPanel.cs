@@ -137,10 +137,7 @@ namespace UC.Net.Node.FUI
 				if(a == null)
 					return;
 
-				Core.Enqueue(new AuthorRegistration(	a,
-															AuthorName.Text,  
-															AuthorTitle.Text,  
-															(byte)Years.Value));
+				Core.Enqueue(new AuthorRegistration(a, AuthorName.Text, AuthorTitle.Text, (byte)Years.Value), PlacingStage.Null, null);
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{
@@ -181,7 +178,7 @@ namespace UC.Net.Node.FUI
 
 				var a = Chain.Authors.Find(TransferingAuthor.Text, int.MaxValue);
 
-				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), TransferingAuthor.Text, Account.Parse(NewOwner.Text)));
+				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), TransferingAuthor.Text, Account.Parse(NewOwner.Text)), PlacingStage.Null, null);
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{
@@ -198,7 +195,7 @@ namespace UC.Net.Node.FUI
 				if(s == null)
 					return;
 
-				Core.Enqueue(new AuthorBid(s, AuctionAuthor.Text, Bid.Coins));
+				Core.Enqueue(new AuthorBid(s, AuctionAuthor.Text, Bid.Coins), PlacingStage.Null, null);
 			}
 			catch(Exception ex)
 			{

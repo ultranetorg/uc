@@ -210,7 +210,7 @@ namespace UC.Net
 						if(i == 1)
 						{
 							t = new Transaction(Settings, org);
-							t.AddOperation(new AuthorRegistration(org, "uo", "Ultranet Organization", 255){ Id = 2 });
+							t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255){ Id = 2 });
 							t.Sign(gen, i);
 							b.AddNext(t);
 						}

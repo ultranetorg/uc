@@ -19,7 +19,7 @@ namespace UC.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Hello, Blocks, /*RoundsRequest, Rounds,*/ Request, Response
+		Null, Hello, Blocks, Request, Response
 	}
 
 	public enum EstablishingStatus
@@ -336,7 +336,7 @@ namespace UC.Net
 		{
 			try
 			{
-				var buf = new byte[Client.ReceiveBufferSize];
+				var buf = new byte[65636];
 
 				var p = new Packet();
 				var s = new MemoryStream();

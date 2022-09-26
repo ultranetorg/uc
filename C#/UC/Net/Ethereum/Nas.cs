@@ -189,7 +189,7 @@ namespace UC.Net
 			}
 		}
 
-		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
+		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
 		{
 			var args = Emission.Serialize(signer, eid);
 
@@ -209,7 +209,7 @@ namespace UC.Net
 
 				vizor?.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
 
-				var receipt = await c.SendRequestAndWaitForReceiptAsync(rt, vizor.Cancellation);
+				var receipt = c.SendRequestAndWaitForReceiptAsync(rt, vizor.Cancellation).Result;
 
 				vizor?.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
 			}
