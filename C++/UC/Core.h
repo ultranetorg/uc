@@ -67,6 +67,7 @@ namespace uc
 	{
 		public:
 			static const inline CString					RestartDirective		= L"restart";
+			static const inline CString					RollbackDirective		= L"rollback";
 			static const inline CString					OpenDirective			= L"open";
 			static const inline CString					UrlArgument				= L"url";
 			static const inline CString					VersionAutoUpArgument	= L"versionautoup";

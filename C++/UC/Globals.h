@@ -13,14 +13,13 @@ namespace uc
 
 	//#define UOS_OBJECT_PROTOCOL							L"unap"
 
-	#define UOS_PROJECT_TARGET_PLATFORM_WIN32_X86		L"Winx86"
-	#define UOS_PROJECT_TARGET_PLATFORM_WIN32_X64		L"Winx64"
+	#define UOS_PROJECT_TARGET_PLATFORM_WIN32_X64		L"winx64"
 
 	#define UOS_PROJECT_CONFIGURATION_DEBUG				L"Debug"
 	#define UOS_PROJECT_CONFIGURATION_RELEASE			L"Release"
 
-	#define UC_NAME										L"Ultranet Community"
-	#define UC_NAMESPACE								L"UC"
+	#define UC_TITLE									L"Ultranet Community"
+	#define UC_ABBREVIATION								L"UC"
 	#define UC_COPYRIGHT								L"© Ultranet Community"
 	#define UO_WEB_HOME									L"https://ultranet.org"
 

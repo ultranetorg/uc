@@ -19,7 +19,7 @@ namespace UC.Net.Node.CLI
 		static Settings		Settings = null;
 		static Log			Log = new();
 		static Core			Core;
-		ManualResetEvent	CancelUosServer = new ManualResetEvent(false);
+		//ManualResetEvent	CancelUosServer = new ManualResetEvent(false);
 
 		private static int numThreads = 1;
 
@@ -71,17 +71,7 @@ namespace UC.Net.Node.CLI
 				Core.RunApi();
 				Core.RunNode();
 
-// 				Task.Run(() =>	{
-// 									while(Core.Running)
-// 									{
-// 										Thread.Sleep(100); 
-// 									}
-// 								})
-// 								.Wait();
-
 				RunUosServer();
-
-				Core.Stop("The End");
 			}
 			catch(AbortException)
 			{
@@ -96,7 +86,7 @@ namespace UC.Net.Node.CLI
 	
 			if(Core != null)
 			{
-				Core.Stop("End");
+				Core.Stop("The End");
 			}
 		}
 

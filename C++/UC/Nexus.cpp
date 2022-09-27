@@ -33,7 +33,7 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 							{
 								AddServer(	CApplicationReleaseAddress::Parse(i->Get<CString>(L"Address")), 
 											i->Name, 
-											Core->Commands->Nodes.Find([&](auto j){ return j->Name == i->Name; }),
+											Core->Commands->One(i->Name),
 											i);
 							}
 
@@ -179,11 +179,11 @@ CApplicationRelease * CNexus::LoadRelease(CApplicationReleaseAddress & address, 
 
 						if(!r)
 						{
-							auto & xon = CTonDocument(CXonTextReader(&CLocalFileStream(Core->Resolve(MapPathToRealization(a, a.Version.ToString() + L".manifest")), EFileMode::Open)));
+							auto & m = CTonDocument(CXonTextReader(&CLocalFileStream(Core->Resolve(MapPathToRealization(a, a.Version.ToString() + L".manifest")), EFileMode::Open)));
 
-							r = new CManifest(a, xon);
+							r = new CManifest(a, m);
 
-							if(auto d = xon.One(L"CompleteDependencies"))
+							if(auto d = m.One(L"CompleteDependencies"))
 							{
 								r->CompleteDependencies = d->Nodes.SelectArray<CManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
 							}

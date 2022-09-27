@@ -11,13 +11,13 @@ namespace uc
 		CString			Description;
 		CString			Stage;
 		CString			Build;
-		CString			CompanyName;
+		CString			AuthorTitle;
+		CString			AuthorAbbreviation;
 		CString			Copyright;
 		CString			WebPageHome;
 		CString			WebPageSupport;
 		CVersion		Version;
 		CString			Platform;
-		CString			Namespace;
 
 		CString ToString(CString const & a)
 		{	

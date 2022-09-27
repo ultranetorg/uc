@@ -29,7 +29,7 @@ namespace UC.Net
 // 		public MainArguments(Xon boot, Xon cmd)
 // 		{
 // 			Zone = boot.GetString("Zone");
-// 			Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UC.Sun", Zone);
+// 			Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone);
 // 
 // 			Parse(cmd, (n,v) => { 
 // 									switch(n)
@@ -105,7 +105,7 @@ namespace UC.Net
 		public BootArguments(Xon boot, Xon cmd)
 		{
  			Zone = boot.GetString("Zone");
- 			Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UC.Sun", Zone);
+ 			Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone);
 		
  			Parse(cmd, (n,v) => { 
  									switch(n)
