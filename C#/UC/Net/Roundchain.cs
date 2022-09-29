@@ -856,13 +856,13 @@ namespace UC.Net
 		}
 
 
-		public ProductEntry FindProduct(ProductAddress authorproduct, int ridmax)
+		public ProductEntry FindProduct(ProductAddress product, int ridmax)
 		{
 			foreach(var r in Rounds.Where(i => i.Id <= ridmax))
-				if(r.AffectedProducts.ContainsKey(authorproduct))
-					return r.AffectedProducts[authorproduct];
+				if(r.AffectedProducts.ContainsKey(product))
+					return r.AffectedProducts[product];
 
-			var e = Products.FindEntry(authorproduct);
+			var e = Products.FindEntry(product);
 
 			if(e != null && (e.LastRegistration > ridmax))
 				throw new IntegrityException("maxrid works inside pool only");
@@ -921,9 +921,13 @@ namespace UC.Net
 
 		public IEnumerable<ReleaseRegistration> FindReleases(string author, string product, Func<ReleaseRegistration, bool> f, int maxrid = int.MaxValue)
 		{
-			throw new NotImplementedException();
+			var p = FindProduct(new ProductAddress(author, product), maxrid);
 
-///			return FindLastPoolOperations<Release>(i => i.Author == author && i.Product == product && f(i), rp: r => r.Id <= maxrid).Union(Products.FindReleases(author, product, f));
+			if(p == null)
+				yield break;
+
+			foreach(var r in p.Releases.Where(i => i.Rid <= maxrid).Select(i => FindRound(i.Rid).FindOperation<ReleaseRegistration>(o => o.Manifest.Address.Author == author && o.Manifest.Address.Product == product)))
+				yield return r;
 		}
 		
 		public AccountInfo GetAccountInfo(Account account, bool confirmed)
@@ -977,10 +981,9 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address == query && 
-																						m.Channel == query.Channel);
+						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address == query && m.Manifest.Channel == query.Channel);
 	
-						return prev.ToXon(serializator);
+						return prev.Manifest.ToXon(serializator);
 					}
 				}
 
@@ -999,9 +1002,9 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address == query);
+						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address == query);
 	
-						return prev.ToXon(serializator);
+						return prev.Manifest.ToXon(serializator);
 					}
 				}
 

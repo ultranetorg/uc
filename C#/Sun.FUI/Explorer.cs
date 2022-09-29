@@ -140,7 +140,7 @@ namespace UC.Net.Node.FUI
 			{
 				if(e.Item.Tag is ReleaseRegistration m)
 				{
-					m.ToXon(new XonTextValueSerializator()).Dump((n, l) => Operation.Text += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
+					m.Manifest.ToXon(new XonTextValueSerializator()).Dump((n, l) => Operation.Text += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
 				}
 				else
 					Operation.Text = (e.Item.Tag as Operation).ToString();

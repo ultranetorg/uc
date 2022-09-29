@@ -29,18 +29,15 @@ namespace UC.Net.Node.CLI
 
 				case "declare" : 
 					return Core.Enqueue(new ReleaseRegistration(GetPrivate("by", "password"), 
-																ReleaseAddress.Parse(GetString("address")),
-																GetString("channel"), 
-																GetVersion("previous"),
-																
-																GetLong("csize"),
-																GetHexBytes("chash"),
-																GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)),
-
-																GetVersion("iminimal"),
-																GetLong("isize"),
-																GetHexBytes("ihash"),
-																GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i))),
+																new Manifest(	ReleaseAddress.Parse(GetString("address")),
+																				GetString("channel"), 
+																				GetLong("csize"),
+																				GetHexBytes("chash"),
+																				GetVersion("iminimal"),
+																				GetLong("isize"),
+																				GetHexBytes("ihash"),
+																				GetStringOrEmpty("acd").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)),
+																				GetStringOrEmpty("rcd").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)))),
 										GetAwaitStage(), 
 										Workflow);
 

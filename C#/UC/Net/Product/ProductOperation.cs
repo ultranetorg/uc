@@ -15,6 +15,7 @@ using Nethereum.Util;
 using Nethereum.Web3.Accounts;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
+using UC.Net;
 
 namespace UC.Net
 {
@@ -195,22 +196,10 @@ namespace UC.Net
 
 	public class ReleaseRegistration : Operation
 	{
-		public ReleaseAddress		Address;
-		public string				Channel;		/// stable, beta, nightly, debug,...
-		public Version				PreviousVersion;
-		public byte[]				CompleteHash;
-		public long					CompleteSize;
-		public ReleaseAddress[]		CompleteDependencies;
-		public Version				IncrementalMinimalVersion;
-		public byte[]				IncrementalHash;
-		public long					IncrementalSize;
-		public ReleaseAddress[]		IncrementalDependencies;
+		public Manifest				Manifest;
 
-		public override bool		Valid => Address.Valid;
-		public override string		Description => $"{Address}/{Channel}";
-
-		byte[]						Hash;
-		bool						Archived;
+		public override bool		Valid => true;
+		public override string		Description => $"{Manifest.Address}/{Manifest.Channel}";
 
 		public const string			CompleteSizeField = "CompleteSize";
 		public const string			CompleteHashField = "CompleteHash";
@@ -221,188 +210,42 @@ namespace UC.Net
 		{
 		}
 
-		public ReleaseRegistration(	PrivateAccount				signer, 
-									ReleaseAddress				address, 
-									string						channel, 
-									Version						previous, 
-									long						completesize,
-									byte[]						completehash,
-									IEnumerable<ReleaseAddress>	completedependencies, 
-									Version						incrementalminimalversion, 
-									long						incrementalsize,
-									byte[]						incrementalhash,
-									IEnumerable<ReleaseAddress>	incrementaldependencies)
+		public ReleaseRegistration(	PrivateAccount signer, Manifest manifest)
 		{
 			Signer	= signer;
-			Address = address;
-			Channel = channel;
-			PreviousVersion = previous;
-			
-			CompleteSize			= completesize;
-			CompleteHash			= completehash;
-			CompleteDependencies	= completedependencies.ToArray();
-			
-			IncrementalMinimalVersion	= incrementalminimalversion;
-			IncrementalHash				= incrementalhash;
-			IncrementalSize				= incrementalsize;
-			IncrementalDependencies		= incrementaldependencies.ToArray();
-		}
-
-		public XonDocument ToXon(IXonValueSerializator serializator)
-		{
-			var d = new XonDocument(serializator);
-
-			d.Add("Address").Value = Address;
-			d.Add("Channel").Value = Channel;
-			d.Add("PreviousVersion").Value = PreviousVersion;
-	
-			if(!Archived)
-			{
-				d.Add(CompleteHashField).Value = CompleteHash;
-				d.Add(CompleteSizeField).Value = CompleteSize;
-	
-				if(CompleteDependencies.Any())
-				{
-					var cd = d.Add("CompleteDependencies");
-					foreach(var i in CompleteDependencies)
-					{
-						cd.Add(i.ToString());
-					}
-				}
-	
-				if(IncrementalSize > 0)
-				{
-					d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
-					d.Add(IncrementalHashField).Value = IncrementalHash;
-					d.Add(IncrementalSizeField).Value = IncrementalSize;
-		
-					if(IncrementalDependencies.Any())
-					{
-						var id = d.Add("IncrementalDependencies");
-						foreach(var i in IncrementalDependencies)
-						{
-							id.Add(i.ToString());
-						}
-					}
-				}
-			}
-
-			d.Add("Hash").Value = Hash;
-
-			return d;		
-		}
-
-		public byte[] GetOrCalcHash()
-		{
-			if(Hash != null)
-			{
-				return Hash;
-			}
-
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-	
-			w.Write(Address);
-			w.WriteUtf8(Channel);
-			w.Write(PreviousVersion);
-			w.Write(CompleteHash);
-			w.Write7BitEncodedInt64(CompleteSize);
-			w.Write(CompleteDependencies);
-			
-			w.Write7BitEncodedInt64(IncrementalSize);
-
-			if(IncrementalSize > 0)
-			{
-				w.Write(IncrementalMinimalVersion);
-				w.Write(IncrementalHash);
-				w.Write(IncrementalDependencies);
-			}
-				
-			Hash = Cryptography.Current.Hash(s.ToArray());
-		
-			return Hash;
+			Manifest = manifest;
 		}
 
 		public override void HashWrite(BinaryWriter writer)
 		{
-			writer.Write(GetOrCalcHash());
+			writer.Write(Manifest.GetOrCalcHash());
 		}
 
 		public override void WritePaid(BinaryWriter w)
 		{
-			w.Write(GetOrCalcHash());
+			w.Write(Manifest.GetOrCalcHash());
 		}
 
 		public override void Read(BinaryReader r)
 		{
 			base.Read(r);
 
-			Address = r.Read<ReleaseAddress>();
-			Channel = r.ReadUtf8();
-			PreviousVersion = r.ReadVersion();
-
-			Archived = r.ReadBoolean();
-
-			if(Archived)
-			{
-				Hash = r.ReadSha3();
-			} 
-			else
-			{
-				CompleteSize = r.Read7BitEncodedInt64();
-				CompleteHash = r.ReadSha3();
-				CompleteDependencies = r.ReadArray<ReleaseAddress>();
-
-				IncrementalSize = r.Read7BitEncodedInt64();
-				
-				if(IncrementalSize > 0)
-				{
-					IncrementalMinimalVersion = r.ReadVersion();
-					IncrementalHash = r.ReadSha3();
-					IncrementalDependencies = r.ReadArray<ReleaseAddress>();
-				}
-
-				Hash = GetOrCalcHash();
-			}
+			Manifest = r.Read<Manifest>();
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
 
-			w.Write(Address);
-			w.WriteUtf8(Channel);
-			w.Write(PreviousVersion);
-
-			w.Write(Archived);
-
-			if(Archived)
-			{
-				w.Write(GetOrCalcHash());
-			} 
-			else
-			{
-				w.Write7BitEncodedInt64(CompleteSize);
-				w.Write(CompleteHash);
-				w.Write(CompleteDependencies);
-			
-				w.Write7BitEncodedInt64(IncrementalSize);
-
-				if(IncrementalSize > 0)
-				{
-					w.Write(IncrementalMinimalVersion);
-					w.Write(IncrementalHash);
-					w.Write(IncrementalDependencies);
-				}
-			}
+			w.Write(Manifest);
 		}
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-			if(Archived)
+			if(Manifest.Archived)
 				return;
 
-			var a = round.FindAuthor(Address.Author);
+			var a = round.FindAuthor(Manifest.Address.Author);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -410,18 +253,18 @@ namespace UC.Net
 				return;
 			}
 
-			if(!a.Products.Contains(Address.Product))
+			if(!a.Products.Contains(Manifest.Address.Product))
 			{
 				Error = "Product is not registered";
 				return;
 			}
  
-			var p = round.FindProduct(Address);
+			var p = round.FindProduct(Manifest.Address);
 
 			if(p == null)
 				throw new IntegrityException("Product not found");
 			
-			var z = p.Realizations.Find(i => i.Name == Address.Platform);
+			var z = p.Realizations.Find(i => i.Name == Manifest.Address.Platform);
 
 			if(z == null)
 			{
@@ -429,22 +272,22 @@ namespace UC.Net
 				return;
 			}
 	
-			var r = p.Releases.FirstOrDefault(i => i.Platform == Address.Platform && i.Channel == Channel);
+			var r = p.Releases.FirstOrDefault(i => i.Platform == Manifest.Address.Platform && i.Channel == Manifest.Channel);
 					
 			if(r != null)
 			{
-				if(r.Version < Address.Version)
+				if(r.Version < Manifest.Address.Version)
 				{
-					var prev = chain.FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address.Author == Address.Author && 
-																								m.Address.Product == Address.Product && 
-																								m.Address.Platform == Address.Platform && 
-																								m.Channel == Channel);
+					var prev = chain.FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address.Author == Manifest.Address.Author && 
+																								m.Manifest.Address.Product == Manifest.Address.Product && 
+																								m.Manifest.Address.Platform == Manifest.Address.Platform && 
+																								m.Manifest.Channel == Manifest.Channel);
 					if(prev == null)
 						throw new IntegrityException("No ReleaseRegistration found");
 					
-					p = round.ChangeProduct(Address);
+					p = round.ChangeProduct(Manifest.Address);
 
-					prev.Archived = true;
+					prev.Manifest.Archived = true;
 					round.AffectedRounds.Add(prev.Transaction.Payload.Round);
 					p.Releases.Remove(r);
 
@@ -456,13 +299,13 @@ namespace UC.Net
 				}
 			}
 			else
-				p = round.ChangeProduct(Address);
+				p = round.ChangeProduct(Manifest.Address);
 
 
 			//var rls = round.GetReleases(round.Id);
 			//rls.Add(this);
 
-			p.Releases.Add(new ReleaseEntry(Address.Platform, Address.Version, Channel, round.Id));
+			p.Releases.Add(new ReleaseEntry(Manifest.Address.Platform, Manifest.Address.Version, Manifest.Channel, round.Id));
 		}
 	}
 }

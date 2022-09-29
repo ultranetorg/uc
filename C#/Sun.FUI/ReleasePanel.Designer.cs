@@ -32,8 +32,6 @@ namespace UC.Net.Node.FUI
 			this.manifest = new System.Windows.Forms.TextBox();
 			this.Releases = new System.Windows.Forms.ListView();
 			this.cVersion = new System.Windows.Forms.ColumnHeader();
-			this.cPlatform = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
 			this.label5 = new System.Windows.Forms.Label();
 			this.Author = new System.Windows.Forms.ComboBox();
 			this.search = new System.Windows.Forms.Button();
@@ -70,11 +68,8 @@ namespace UC.Net.Node.FUI
 			this.Releases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Releases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.cVersion,
-            this.cPlatform,
-            this.columnHeader3});
+            this.cVersion});
 			this.Releases.FullRowSelect = true;
-			this.Releases.HideSelection = false;
 			this.Releases.Location = new System.Drawing.Point(0, 65);
 			this.Releases.Name = "Releases";
 			this.Releases.Size = new System.Drawing.Size(1024, 349);
@@ -85,18 +80,8 @@ namespace UC.Net.Node.FUI
 			// 
 			// cVersion
 			// 
-			this.cVersion.Text = "Version";
-			this.cVersion.Width = 150;
-			// 
-			// cPlatform
-			// 
-			this.cPlatform.Text = "Platform";
-			this.cPlatform.Width = 150;
-			// 
-			// columnHeader3
-			// 
-			this.columnHeader3.Text = "Manifest Address";
-			this.columnHeader3.Width = 300;
+			this.cVersion.Text = "Address";
+			this.cVersion.Width = 300;
 			// 
 			// label5
 			// 
@@ -210,7 +195,6 @@ namespace UC.Net.Node.FUI
             this.columnHeader1,
             this.columnHeader2});
 			this.listView1.FullRowSelect = true;
-			this.listView1.HideSelection = false;
 			this.listView1.Location = new System.Drawing.Point(7, 7);
 			this.listView1.Name = "listView1";
 			this.listView1.Size = new System.Drawing.Size(1002, 307);
@@ -256,7 +240,6 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.TextBox manifest;
 		private System.Windows.Forms.ListView Releases;
 		private System.Windows.Forms.ColumnHeader cVersion;
-		private System.Windows.Forms.ColumnHeader cPlatform;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ComboBox Author;
 		private System.Windows.Forms.Button search;
@@ -270,6 +253,5 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
-		private System.Windows.Forms.ColumnHeader columnHeader3;
 	}
 }

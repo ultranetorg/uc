@@ -1977,7 +1977,7 @@ namespace UC.Net
 			}
 		}
 
-		public Operation Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> cdependencies, IEnumerable<ReleaseAddress> idependencies, PlacingStage waitstage, Workflow workflow)
+		public Operation Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> acd, IEnumerable<ReleaseAddress> rcd, PlacingStage waitstage, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 
@@ -2013,18 +2013,15 @@ namespace UC.Net
 			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal);
 
 			var o = new ReleaseRegistration(by,
-											release,
-											channel,
-											previous,
-
-											new FileInfo(cpkg).Length,
-											Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
-											cdependencies,
-
-											minimal,
-											ipkg != null ? new FileInfo(ipkg).Length : 0,
-											ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
-											idependencies);
+											new Manifest(	release,
+															channel,
+															new FileInfo(cpkg).Length,
+															Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+															minimal,
+															ipkg != null ? new FileInfo(ipkg).Length : 0,
+															ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+															acd,
+															rcd));
 			Enqueue(o);
 
 			Await(o, waitstage, workflow);

@@ -25,14 +25,18 @@ namespace UC.Net.Node.FUI
 
 		private void releases_SelectedIndexChanged(object sender, EventArgs e)
 		{
+			manifest.Text = null;
+		
 			if(Releases.SelectedItems.Count > 0)
 			{
 				var r = Releases.SelectedItems[0].Tag as ReleaseRegistration;
-				///manifest.Text = r.Manifest;
-			}
-			else
-			{
-				manifest.Text = null;
+				var m = r.Manifest.ToXon(new XonTextValueSerializator());
+
+				m.Dump(	(n, t) => 
+						{
+							manifest.Text += new string(' ', t * 3) + n.Name + " = ";
+							manifest.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\r\n";
+						});
 			}
 		}
 
@@ -41,20 +45,20 @@ namespace UC.Net.Node.FUI
 			try
 			{
 				Releases.Items.Clear();
+				manifest.Text = null;
 	
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				//foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Platform == Platform.Text))
-				//{
-				//	var i = new ListViewItem(r.Version.ToString());
-				//	
-				//	i.Tag = r;
-				//	i.SubItems.Add(r.Platform);
-				//	i.SubItems.Add(r.Manifest);
-				//
-				//	Releases.Items.Add(i);
-				//}
+				foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Manifest.Address.Platform == Platform.Text))
+				{
+					var i = new ListViewItem(r.Manifest.Address.ToString());
+					
+					i.Tag = r;
+					//i.SubItems.Add(r.Manifest.Address.ToString());
+				
+					Releases.Items.Add(i);
+				}
 	
 				if(Releases.Items.Count == 0)
 				{
