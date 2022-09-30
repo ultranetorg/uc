@@ -21,8 +21,8 @@ namespace UC.Net
 		public ReleaseAddress[]		AddedCoreDependencies;
 		public ReleaseAddress[]		RemovedCoreDependencies;
 
-		public byte[]				Hash;
-		public bool					Archived;
+ 		byte[]				Hash;
+// 		public bool					Archived;
 
 		public const string			CompleteSizeField = "CompleteSize";
 		public const string			CompleteHashField = "CompleteHash";
@@ -33,18 +33,18 @@ namespace UC.Net
 		{
 		}
 
-		public Manifest(ReleaseAddress				address, 
-						string						channel, 
+		public Manifest(ReleaseAddress				address,
+						string						channel,
 						long						completesize,
 						byte[]						completehash,
-						Version						incrementalminimalversion, 
+						Version						incrementalminimalversion,
 						long						incrementalsize,
 						byte[]						incrementalhash,
 						IEnumerable<ReleaseAddress>	addedcoredependencies,
 						IEnumerable<ReleaseAddress>	removedcoredependencies)
 		{
-			Address = address;
-			Channel = channel;
+			Address						= address;
+			Channel						= channel;
 			
 			CompleteSize				= completesize;
 			CompleteHash				= completehash;
@@ -64,7 +64,7 @@ namespace UC.Net
 			d.Add("Address").Value = Address;
 			d.Add("Channel").Value = Channel;
 	
-			if(!Archived)
+			//if(!Archived)
 			{
 				d.Add(CompleteHashField).Value = CompleteHash;
 				d.Add(CompleteSizeField).Value = CompleteSize;
@@ -97,54 +97,54 @@ namespace UC.Net
 				}
 			}
 
-			d.Add("Hash").Value = Hash;
+			//d.Add("Hash").Value = Hash;
 
 			return d;		
 		}
 
-		public byte[] GetOrCalcHash()
-		{
-			if(Hash != null)
-			{
-				return Hash;
-			}
-
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-	
-			w.Write(Address);
-			w.WriteUtf8(Channel);
-			w.Write(CompleteHash);
-			w.Write7BitEncodedInt64(CompleteSize);
-			
-			w.Write7BitEncodedInt64(IncrementalSize);
-
-			if(IncrementalSize > 0)
-			{
-				w.Write(IncrementalMinimalVersion);
-				w.Write(IncrementalHash);
-			}
-
-			w.Write(AddedCoreDependencies);
-			w.Write(RemovedCoreDependencies);
-				
-			Hash = Cryptography.Current.Hash(s.ToArray());
-		
-			return Hash;
-		}
+ 		public byte[] GetOrCalcHash()
+ 		{
+ 			if(Hash != null)
+ 			{
+ 				return Hash;
+ 			}
+ 
+ 			var s = new MemoryStream();
+ 			var w = new BinaryWriter(s);
+ 	
+ 			w.Write(Address);
+ 			w.WriteUtf8(Channel);
+ 			w.Write(CompleteHash);
+ 			w.Write7BitEncodedInt64(CompleteSize);
+ 			
+ 			w.Write7BitEncodedInt64(IncrementalSize);
+ 
+ 			if(IncrementalSize > 0)
+ 			{
+ 				w.Write(IncrementalMinimalVersion);
+ 				w.Write(IncrementalHash);
+ 			}
+ 
+ 			w.Write(AddedCoreDependencies);
+ 			w.Write(RemovedCoreDependencies);
+ 				
+ 			Hash = Cryptography.Current.Hash(s.ToArray());
+ 		
+ 			return Hash;
+ 		}
 
 		public void Read(BinaryReader r)
 		{
 			Address = r.Read<ReleaseAddress>();
 			Channel = r.ReadUtf8();
 
-			Archived = r.ReadBoolean();
+			//Archived = r.ReadBoolean();
 
-			if(Archived)
-			{
-				Hash = r.ReadSha3();
-			} 
-			else
+			//if(Archived)
+			//{
+			//	Hash = r.ReadSha3();
+			//} 
+			//else
 			{
 				CompleteSize = r.Read7BitEncodedInt64();
 				CompleteHash = r.ReadSha3();
@@ -160,7 +160,7 @@ namespace UC.Net
 				AddedCoreDependencies = r.ReadArray<ReleaseAddress>();
 				RemovedCoreDependencies = r.ReadArray<ReleaseAddress>();
 
-				Hash = GetOrCalcHash();
+				//Hash = GetOrCalcHash();
 			}
 		}
 
@@ -169,13 +169,13 @@ namespace UC.Net
 			w.Write(Address);
 			w.WriteUtf8(Channel);
 
-			w.Write(Archived);
+			//w.Write(Archived);
 
-			if(Archived)
-			{
-				w.Write(GetOrCalcHash());
-			} 
-			else
+			//if(Archived)
+			//{
+			//	w.Write(GetOrCalcHash());
+			//} 
+			//else
 			{
 				w.Write7BitEncodedInt64(CompleteSize);
 				w.Write(CompleteHash);

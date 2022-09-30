@@ -1,18 +1,13 @@
-﻿using Nethereum.Signer;
-using Nethereum.Web3;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Numerics;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.Application
 {
 	class Program
 	{

@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using UC;
 using System.Threading.Tasks;
 
-namespace UC.Net.Node
+namespace UC.Sun.FUI
 {
 	public partial class Logbox : TextBox
 	{

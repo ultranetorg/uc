@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	internal class RunCommand : Command
 	{

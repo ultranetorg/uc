@@ -2009,19 +2009,23 @@ namespace UC.Net
 				}
 			}
 
-			var cpkg = Filebase.Add(release, Distribution.Complete, files);
-			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal);
+			var cpkg = Filebase.Add(release, Distribution.Complete, files, null, workflow);
+			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal, workflow);
 
-			var o = new ReleaseRegistration(by,
-											new Manifest(	release,
-															channel,
-															new FileInfo(cpkg).Length,
-															Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
-															minimal,
-															ipkg != null ? new FileInfo(ipkg).Length : 0,
-															ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
-															acd,
-															rcd));
+			var m = new Manifest(	release,
+									channel,
+									new FileInfo(cpkg).Length,
+									Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+									minimal,
+									ipkg != null ? new FileInfo(ipkg).Length : 0,
+									ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+									acd,
+									rcd);
+
+			Filebase.Save(m);
+
+			var o = new ReleaseRegistration(by, m);
+
 			Enqueue(o);
 
 			Await(o, waitstage, workflow);

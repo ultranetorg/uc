@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class NetworkPanel
 	{

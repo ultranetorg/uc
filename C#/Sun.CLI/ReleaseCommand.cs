@@ -4,8 +4,9 @@ using System.Linq;
 using Org.BouncyCastle.Utilities.Encoders;
 using System.Collections.Generic;
 using System.Threading;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: 

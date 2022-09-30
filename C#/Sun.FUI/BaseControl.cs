@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using Nethereum.KeyStore.Crypto;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public class ProductModel
 	{

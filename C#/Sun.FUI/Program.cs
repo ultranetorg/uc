@@ -10,7 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 using RocksDbSharp;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	static class Program
 	{

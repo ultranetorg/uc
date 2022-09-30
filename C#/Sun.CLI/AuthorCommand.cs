@@ -7,8 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Util;
 using Nethereum.Web3;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: author bid 

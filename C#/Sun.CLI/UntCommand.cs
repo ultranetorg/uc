@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using Nethereum.Signer;
 using Nethereum.Util;
 using Nethereum.Web3;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: unt emit from {

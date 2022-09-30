@@ -201,16 +201,11 @@ namespace UC.Net
 		public override bool		Valid => true;
 		public override string		Description => $"{Manifest.Address}/{Manifest.Channel}";
 
-		public const string			CompleteSizeField = "CompleteSize";
-		public const string			CompleteHashField = "CompleteHash";
-		public const string			IncrementalSizeField = "IncrementalSize";
-		public const string			IncrementalHashField = "IncrementalHash";
-
 		public ReleaseRegistration()
 		{
 		}
 
-		public ReleaseRegistration(	PrivateAccount signer, Manifest manifest)
+		public ReleaseRegistration(PrivateAccount signer, Manifest manifest)
 		{
 			Signer	= signer;
 			Manifest = manifest;
@@ -242,8 +237,8 @@ namespace UC.Net
 
 		public override void Execute(Roundchain chain, Round round)
 		{
-			if(Manifest.Archived)
-				return;
+			//if(Manifest.Archived)
+			//	return;
 
 			var a = round.FindAuthor(Manifest.Address.Author);
 
@@ -272,24 +267,24 @@ namespace UC.Net
 				return;
 			}
 	
-			var r = p.Releases.FirstOrDefault(i => i.Platform == Manifest.Address.Platform && i.Channel == Manifest.Channel);
+			var r = p.Releases.Where(i => i.Platform == Manifest.Address.Platform && i.Channel == Manifest.Channel).MaxBy(i => i.Version);
 					
 			if(r != null)
 			{
 				if(r.Version < Manifest.Address.Version)
 				{
-					var prev = chain.FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address.Author == Manifest.Address.Author && 
-																								m.Manifest.Address.Product == Manifest.Address.Product && 
-																								m.Manifest.Address.Platform == Manifest.Address.Platform && 
-																								m.Manifest.Channel == Manifest.Channel);
-					if(prev == null)
-						throw new IntegrityException("No ReleaseRegistration found");
-					
+				//	var prev = chain.FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address.Author == Manifest.Address.Author && 
+				//																				m.Manifest.Address.Product == Manifest.Address.Product && 
+				//																				m.Manifest.Address.Platform == Manifest.Address.Platform && 
+				//																				m.Manifest.Channel == Manifest.Channel);
+				//	if(prev == null)
+				//		throw new IntegrityException("No ReleaseRegistration found");
+				//	
 					p = round.ChangeProduct(Manifest.Address);
-
-					prev.Manifest.Archived = true;
-					round.AffectedRounds.Add(prev.Transaction.Payload.Round);
-					p.Releases.Remove(r);
+				//
+				//	prev.Manifest.Archived = true;
+				//	round.AffectedRounds.Add(prev.Transaction.Payload.Round);
+				//	p.Releases.Remove(r);
 
 				} 
 				else
