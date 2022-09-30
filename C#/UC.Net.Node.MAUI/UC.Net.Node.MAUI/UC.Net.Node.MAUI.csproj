@@ -71,9 +71,22 @@
 	  <None Remove="Resources\Fonts\Montserrat-SemiBoldItalic.ttf" />
 	  <None Remove="Resources\Fonts\Montserrat-Thin.ttf" />
 	  <None Remove="Resources\Fonts\Montserrat-ThinItalic.ttf" />
+	  <None Remove="Resources\Images\accounts_light.svg" />
+	  <None Remove="Resources\Images\auctions_light.svg" />
+	  <None Remove="Resources\Images\authors_light.svg" />
+	  <None Remove="Resources\Images\bell_light.svg" />
 	  <None Remove="Resources\Images\dashboard_outline.svg" />
-	  <None Remove="Resources\Images\Icon.svg" />
+	  <None Remove="Resources\Images\help_light.svg" />
+	  <None Remove="Resources\Images\icon.svg" />
 	  <None Remove="Resources\Images\icon_night.svg" />
+	  <None Remove="Resources\Images\network_light.svg" />
+	  <None Remove="Resources\Images\products_light.svg" />
+	  <None Remove="Resources\Images\search_light.svg" />
+	  <None Remove="Resources\Images\transactions_light.svg" />
+	  <None Remove="Resources\Images\transfer_light.svg" />
+	  <None Remove="Resources\Images\ts_done_light.svg" />
+	  <None Remove="Resources\Images\ts_failed_light.svg" />
+	  <None Remove="Resources\Images\ts_pending_light.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -376,6 +389,9 @@
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Send2View.xaml">
 	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Shared\PageTitleView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

@@ -93,9 +93,9 @@
     </Style>
     <Style x:Key="DashBoard" TargetType="ImageButton">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
-        <Setter Property="HeightRequest" Value="60" />
-        <Setter Property="WidthRequest" Value="60" />
-        <Setter Property="Padding" Value="16" />
+        <Setter Property="HeightRequest" Value="80" />
+        <Setter Property="WidthRequest" Value="80" />
+        <Setter Property="Padding" Value="12" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryLight}}" />
     </Style>
@@ -477,6 +477,7 @@
         TargetType="Label">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarker},Dark={StaticResource Primary}}" />
         <Setter Property="FontSize" Value="13" />
+        <Setter Property="Margin" Value="0,3" />
     </Style>
     <Style
         x:Key="ButtonLabel"

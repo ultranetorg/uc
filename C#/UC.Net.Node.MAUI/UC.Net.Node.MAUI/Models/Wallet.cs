@@ -11,6 +11,8 @@ public class Wallet : BindableObject
 
     public bool IsSelected { get; set; }
 
+	public string DisplayAmount => $"{Unts} UNT";
+
     public Color AccountColor {
 		get => _accountColor;
 		set {

@@ -42,7 +42,8 @@ public static class ViewModelExtensions
 			Ioc.Default.GetService<IServicesMockData>(),
 			Ioc.Default.GetService<ILogger<CreateAccountPageViewModel>>()));
 		builder.Services.AddTransient(sp => new DashboardViewModel(
-			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<ITransactionsService>(),
+			Ioc.Default.GetService<IWalletsService>(),
 			Ioc.Default.GetService<ILogger<DashboardViewModel>>()));
 		builder.Services.AddTransient(sp => new EnterPinBViewModel(
 			Ioc.Default.GetService<ILogger<EnterPinBViewModel>>()));

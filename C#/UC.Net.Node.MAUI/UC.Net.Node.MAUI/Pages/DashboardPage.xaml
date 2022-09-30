@@ -9,105 +9,101 @@
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:converters="clr-namespace:UC.Net.Node.MAUI.Converters"
+    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
     ios:Page.UseSafeArea="True"
     x:DataType="vm:DashboardViewModel">
+    
+    <Shell.TitleView>
+        <views:PageTitleView Title="Ultranet User Center" />
+    </Shell.TitleView>
+    
     <cls:CustomPage.Resources>
-        <toolkit:IsStringNullOrWhiteSpaceConverter x:Key="IsStringNullOrWhiteSpace" />
+        <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrWhiteSpace" />
         <converters:StatusToStyleConverter x:Key="StatusToStyleConverter" />
         <DataTemplate x:DataType="models:Transaction" x:Key="TransactionTemplate">
-            <Grid ColumnDefinitions="Auto,*,23">
+            <Grid ColumnDefinitions="*,25">
                 <Label
                     Grid.Column="0"
                     FontSize="11"
                     MaxLines="1"
+                    Style="{StaticResource Regular}"
+                    FontAttributes="Bold"
                     Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}"
-                    VerticalOptions="Center" />
-                <Label
-                    Grid.Column="1"
-                    MaxLines="1"
-                    Style="{DynamicResource Regular}"
-                    VerticalOptions="Center">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="{Binding Unt}" />
-                            <Span Text=" Unt" />
-                            <Span Text=", " />
-                            <Span Text="{Binding FromId}" />
-                            <Span Text="-&gt;" />
-                            <Span Text="{Binding ToId}" />
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
+                    VerticalOptions="Center">              
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}" FontAttributes="Bold" />
+                                <Span Text=", " />
+                                <Span Text="{Binding DisplayDetails}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                 <ImageButton
                     Grid.Column="2"
                     Padding="2"
                     HeightRequest="23"
-                    Style="{Binding Status, Converter={StaticResource StatusToStyleConverter}}"
+                    Source="{Binding Status, Converter={StaticResource StatusToStyleConverter}}"
                     VerticalOptions="Center"
                     WidthRequest="23" />
             </Grid>
         </DataTemplate>
         <DataTemplate x:DataType="models:Wallet" x:Key="WalletTemplate">
-            <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="20">
+            <Grid ColumnDefinitions="*,2*,Auto" ColumnSpacing="20">
                 <Label
                     Grid.Column="0"
                     MaxLines="1"
-                    Style="{DynamicResource Regular}"
+                    FontSize="11"
+                    Style="{StaticResource Regular}"
                     Text="{Binding Name}"
                     VerticalOptions="Center" />
                 <Label
                     Grid.Column="1"
                     MaxLines="1"
-                    Style="{DynamicResource Regular}"
+                    FontSize="11"
+                    Style="{StaticResource Regular}"
                     Text="{Binding Id}"
                     VerticalOptions="Center" />
                 <Label
                     Grid.Column="2"
-                    Style="{DynamicResource Regular}"
-                    VerticalOptions="Center">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                Text="{Binding Unts}" />
-                            <Span Text=" " />
-                            <Span Text="UNT" />
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
+                    FontSize="11"
+                    Style="{StaticResource Regular}"
+                    VerticalOptions="Center"
+                    FontAttributes="Bold"
+                    Text="{Binding DisplayAmount}"/>
             </Grid>
         </DataTemplate>
     </cls:CustomPage.Resources>
-    <!--<cls:CustomPage.LeftContent>
-        <StackLayout>
+    <cls:CustomPage.LeftContent>
+        <Grid>
             <Label
                 HorizontalOptions="Start"
                 Text="Ultranet User Center"
                 VerticalOptions="Center" />
-        </StackLayout>
-    </cls:CustomPage.LeftContent>-->
+        </Grid>
+    </cls:CustomPage.LeftContent>
     <cls:CustomPage.RightContent>
-        <AbsoluteLayout HeightRequest="32" WidthRequest="32">
+        <AbsoluteLayout HeightRequest="40" WidthRequest="40">
             <ImageButton
                 AbsoluteLayout.LayoutBounds="0,1,1,1"
                 AbsoluteLayout.LayoutFlags="All"
-                Style="{DynamicResource Bell2}" />
-            <Frame
-                Margin="2"
+                Aspect="AspectFill"
+                HeightRequest="48"
+                Source="bell_light.png"/>
+            <Border
                 AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional"
-                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNullOrWhiteSpace}}"
-                Style="{DynamicResource BadgeFrame}">
+                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNotNullOrWhiteSpace}}"
+                Style="{StaticResource BadgeFrame}">
                 <Label
                     x:Name="BadgeValueLabel"
                     Padding="0"
-                    FontSize="11"
                     HorizontalOptions="CenterAndExpand"
+                    VerticalOptions="CenterAndExpand"
                     Text="2"
                     TextColor="White"
-                    VerticalOptions="CenterAndExpand" />
-            </Frame>
+                    FontSize="12"
+                    FontAttributes="Bold" />
+            </Border>
         </AbsoluteLayout>
     </cls:CustomPage.RightContent>
     <cls:CustomPage.MainContent>
@@ -115,10 +111,11 @@
             <StackLayout Padding="15,0,15,40">
                 <Label
                     FontSize="12"
-                    Style="{DynamicResource DashLabel}"
+                    FontAttributes="Bold"
+                    Style="{StaticResource DashLabel}"
                     Text="Accounts" />
-                <Frame Style="{DynamicResource SquareFrame}">
-                    <StackLayout
+                <Frame Style="{StaticResource SquareFrame}">
+                    <VerticalStackLayout
                         BindableLayout.ItemsSource="{Binding Wallets}"
                         BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
                         Spacing="5" />
@@ -126,9 +123,10 @@
                 
                 <Label
                     FontSize="12"
-                    Style="{DynamicResource DashLabel}"
-                    Text="Transactions" />
-                <Frame Style="{DynamicResource SquareFrame}">
+                    Style="{StaticResource DashLabel}"
+                    Text="Transactions"
+                    FontAttributes="Bold" />
+                <Frame Style="{StaticResource SquareFrame}">
                     <StackLayout
                         BindableLayout.ItemsSource="{Binding Transactions}"
                         BindableLayout.ItemTemplate="{StaticResource TransactionTemplate}"
@@ -143,63 +141,72 @@
                     <cls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
                 </StackLayout>
                 <Grid
-                    Margin="0,25,0,0"
+                    Margin="-12,15,-12,0"
                     ColumnDefinitions="*,*,*,*"
                     RowDefinitions="Auto,Auto,Auto"
-                    RowSpacing="15">
+                    RowSpacing="8">
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="0"
                         Command="{Binding AccountsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Accounts}"
+                        ImageSource="accounts_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Accounts" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="1"
                         Command="{Binding AuthorsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Authors}"
+                        ImageSource="authors_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Authors" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="2"
                         Command="{Binding AccountsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Auctions}"
+                        ImageSource="auctions_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Auctions" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="3"
                         Command="{Binding ProductsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Products}"
+                        ImageSource="products_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Products" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="0"
                         Command="{Binding TransactionsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Transactions}"
+                        ImageSource="transactions_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Transactions" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="1"
                         Command="{Binding AccountsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Search}"
+                        ImageSource="search_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Search" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="2"
                         Command="{Binding AccountsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Network}"
+                        ImageSource="network_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Network" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="3"
                         Command="{Binding ETHTransferExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Transfer}"
+                        ImageSource="transfer_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="ETH-UNT Transfer" />
                     <cls:ImageTextButton
                         Grid.Row="2"
                         Grid.Column="0"
                         Command="{Binding AccountsExcuteAsyncCommand}"
-                        ImageStyle="{DynamicResource Help}"
+                        ImageSource="help_light.png"
+                        ImageStyle="{StaticResource DashBoard}"
                         Text="Help" />
                 </Grid>
             </StackLayout>

@@ -5,25 +5,38 @@ public partial class ImageTextButton : Grid
 {
 	#region Bindable Properties
 	
-	public static readonly BindableProperty ImageProperty = BindableProperty.Create(nameof(Image), typeof(ImageSource), typeof(ImageTextButton), null);
+	public static readonly BindableProperty ImageProperty
+		= BindableProperty.Create(nameof(Image), typeof(ImageSource), typeof(ImageTextButton), null);
 
-	public static readonly BindableProperty TextProperty = BindableProperty.Create(nameof(Text), typeof(string), typeof(ImageTextButton), null);
+	public static readonly BindableProperty TextProperty
+		= BindableProperty.Create(nameof(Text), typeof(string), typeof(ImageTextButton), null);
 
-	public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(nameof(FontSize), typeof(double), typeof(ImageTextButton), 24.0);
+	public static readonly BindableProperty FontSizeProperty
+		= BindableProperty.Create(nameof(FontSize), typeof(double), typeof(ImageTextButton), 24.0);
 
-	public static readonly BindableProperty ImageHeightProperty = BindableProperty.Create(nameof(ImageHeight), typeof(double), typeof(ImageTextButton), 24.0);
+	public static readonly BindableProperty ImageHeightProperty
+		= BindableProperty.Create(nameof(ImageHeight), typeof(double), typeof(ImageTextButton), 24.0);
 
-	public static readonly BindableProperty ImageWidthProperty = BindableProperty.Create(nameof(ImageWidth), typeof(double), typeof(ImageTextButton), 24.0);
+	public static readonly BindableProperty ImageWidthProperty
+		= BindableProperty.Create(nameof(ImageWidth), typeof(double), typeof(ImageTextButton), 24.0);
 
-	public static readonly BindableProperty TextColorProperty = BindableProperty.Create(nameof(TextColor), typeof(Color), typeof(ImageTextButton), Colors.Black);
+	public static readonly BindableProperty TextColorProperty
+		= BindableProperty.Create(nameof(TextColor), typeof(Color), typeof(ImageTextButton), Colors.Black);
 
-	public static readonly BindableProperty ImageColorProperty = BindableProperty.Create(nameof(ImageColor), typeof(Color), typeof(ImageTextButton), null);
+	public static readonly BindableProperty ImageColorProperty
+		= BindableProperty.Create(nameof(ImageColor), typeof(Color), typeof(ImageTextButton), null);
 
-	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ImageTextButton), null);
+	public static readonly BindableProperty ImageSourceProperty
+		= BindableProperty.Create(nameof(ImageSource), typeof(string), typeof(ImageTextButton), null);
 
-	public static readonly BindableProperty ImageStyleProperty = BindableProperty.Create(nameof(ImageStyle), typeof(Style), typeof(ImageTextButton), null);
+	public static readonly BindableProperty ImageStyleProperty
+		= BindableProperty.Create(nameof(ImageStyle), typeof(Style), typeof(ImageTextButton), null);
 
-	public static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(nameof(CommandParameter), typeof(object), typeof(ImageTextButton), null);
+	public static readonly BindableProperty CommandProperty
+		= BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ImageTextButton), null);
+
+	public static readonly BindableProperty CommandParameterProperty
+		= BindableProperty.Create(nameof(CommandParameter), typeof(object), typeof(ImageTextButton), null);
 
 	public Color ImageColor
 	{
@@ -67,16 +80,22 @@ public partial class ImageTextButton : Grid
 		set { SetValue(ImageProperty, value); }
 	}
 
-	public ICommand Command
+	public string ImageSource
 	{
-		get { return (ICommand)GetValue(CommandProperty); }
-		set { SetValue(CommandProperty, value); }
+		get { return (string)GetValue(ImageSourceProperty); }
+		set { SetValue(ImageSourceProperty, value); }
 	}
-
+	
 	public Style ImageStyle
 	{
 		get { return (Style)GetValue(ImageStyleProperty); }
 		set { SetValue(ImageStyleProperty, value); }
+	}
+
+	public ICommand Command
+	{
+		get { return (ICommand)GetValue(CommandProperty); }
+		set { SetValue(CommandProperty, value); }
 	}
 
 	public object CommandParameter

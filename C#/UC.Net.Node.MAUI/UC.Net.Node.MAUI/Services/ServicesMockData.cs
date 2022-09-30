@@ -99,13 +99,13 @@ public class ServicesMockData : IServicesMockData
 			#endregion Authors
 
 			#region Accounts
-
-			Transaction transaction1 = DefaultDataMock.CreateTransaction();
+			
+			Transaction transaction1 = DefaultDataMock.CreateTransaction(TransactionStatus.None, 5290, "UNT Transfer");
 			Transaction transaction2 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 50, "UNT Transfer");
-			Transaction transaction3 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent);
-			Transaction transaction4 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed);
-			Transaction transaction5 = DefaultDataMock.CreateTransaction(TransactionStatus.Received);
-			Transaction transaction6 = DefaultDataMock.CreateTransaction(TransactionStatus.None, 5290, "UNT Transfer");
+			Transaction transaction3 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent, 10, "UNT Transfer");
+			Transaction transaction4 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed, 234, "UNT Transfer");
+			Transaction transaction5 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 100, "UNT Transfer");
+			Transaction transaction6 = DefaultDataMock.CreateTransaction();
 			Transaction transaction7 = DefaultDataMock.CreateTransaction();
 
 			Account account1 = new("0x8Ba6145c7900B0830AC15fcC0487a7CFf7a3136f")

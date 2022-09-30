@@ -8,11 +8,15 @@
     x:Name="Instance">
     <Label
         Grid.Column="0"
+        FontSize="12"
         Style="{StaticResource DashLabel}"
         Text="{Binding Text1, Source={x:Reference Instance}}" />
     <Label
         Grid.Column="1"
         HorizontalOptions="End"
         Opacity="0.7"
+        FontSize="12"
+        FontAttributes="Bold"
+        Style="{StaticResource DashLabel}"
         Text="{Binding Text2, Source={x:Reference Instance}}" />
 </Grid>

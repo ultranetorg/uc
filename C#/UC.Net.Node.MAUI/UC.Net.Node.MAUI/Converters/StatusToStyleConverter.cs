@@ -12,12 +12,12 @@ public class StatusToStyleConverter : IValueConverter
         switch ((TransactionStatus)value)
         {
             case TransactionStatus.Pending:
-                return (Style)App.Current.Resources["Watch"];
+                return "ts_pending_light.png";
             case TransactionStatus.Sent:
             case TransactionStatus.Received:
-                return (Style)App.Current.Resources["Done"];
+                return "ts_done_light.png";
             case TransactionStatus.Failed:
-                return (Style)App.Current.Resources["Clear"];
+                return "ts_failed_light.png";
         }
         return null;
     }

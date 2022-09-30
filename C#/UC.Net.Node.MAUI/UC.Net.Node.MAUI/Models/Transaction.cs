@@ -14,6 +14,8 @@ public class Transaction
     public DateTime Date { get; set; } = DateTime.Now;
     public string Hash { get; internal set; }
     public Account Account { get; set; }
+
+	public string DisplayDetails => $"{Unt}, {FromId} -> {ToId}";
 }
 
 public enum TransactionStatus

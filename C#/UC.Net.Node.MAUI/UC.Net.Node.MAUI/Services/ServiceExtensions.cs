@@ -18,6 +18,8 @@ public static class ServiceExtensions
 			Ioc.Default.GetService<IServicesMockData>()));
         builder.Services.AddSingleton<ITransactionsService, TransactionsMockService>(sp => new TransactionsMockService(
 			Ioc.Default.GetService<IServicesMockData>()));
+        builder.Services.AddSingleton<IWalletsService, WalletsMockService>(sp => new WalletsMockService(
+			Ioc.Default.GetService<IServicesMockData>()));
 
 		// Workflows
         builder.Services.AddSingleton<ICreateAccountWorkflow, CreateAccountWorkflow>(sp => new CreateAccountWorkflow());

@@ -14,9 +14,22 @@
             Padding="{StaticResource UniPadding}"
             AbsoluteLayout.LayoutBounds="0,1,1,1"
             AbsoluteLayout.LayoutFlags="All"
-            BackgroundColor="Transparent">
+            RowDefinitions="40,*"
+            RowSpacing="0">
+            <AbsoluteLayout Grid.Row="0" Padding="15,0,15,0">
+                <ContentView
+                    AbsoluteLayout.LayoutBounds="0,0.5,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    Content="{Binding LeftContent, Source={x:Reference Instance}}"
+                    VerticalOptions="Center" />
+                <ContentView
+                    AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    Content="{Binding RightContent, Source={x:Reference Instance}}" />
+            </AbsoluteLayout>
             <ContentView
                 x:Name="MainFrame"
+                Grid.Row="1"
                 Content="{Binding MainContent, Source={x:Reference Instance}}" />
         </Grid>
     </AbsoluteLayout>

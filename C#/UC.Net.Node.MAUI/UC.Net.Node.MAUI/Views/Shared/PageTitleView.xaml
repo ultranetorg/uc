@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentView
+    x:Class="UC.Net.Node.MAUI.Views.Shared.PageTitleView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="This">
+    <ContentView.Resources>
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource DarkThemeText}}" />
+            <Setter Property="FontSize" Value="20" />
+        </Style>
+    </ContentView.Resources>
+    <FlexLayout
+        AlignItems="Center"
+        BindingContext="{x:Reference This}"
+        Direction="Row"
+        JustifyContent="SpaceBetween">
+        <Label
+            FontFamily="sans-serif-semiBold"
+            Style="{Binding TitleStyle}"
+            TextColor="{StaticResource PrimaryLight}"
+            Text="{Binding Title}"
+            VerticalOptions="Center" />
+        <AbsoluteLayout HeightRequest="40" WidthRequest="40" Margin="0,2,10,0">
+            <ImageButton
+                AbsoluteLayout.LayoutBounds="0,1,1,1"
+                AbsoluteLayout.LayoutFlags="All"
+                Aspect="AspectFill"
+                HeightRequest="48"
+                Source="bell_light.png"/>
+            <Border
+                AbsoluteLayout.LayoutBounds="1,0,-1,-1"
+                AbsoluteLayout.LayoutFlags="PositionProportional"
+                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNotNullOrWhiteSpace}}"
+                Style="{StaticResource BadgeFrame}">
+                <Label
+                    x:Name="BadgeValueLabel"
+                    Padding="0"
+                    HorizontalOptions="CenterAndExpand"
+                    VerticalOptions="CenterAndExpand"
+                    Text="2"
+                    TextColor="White"
+                    FontSize="12"
+                    FontAttributes="Bold" />
+            </Border>
+        </AbsoluteLayout>
+    </FlexLayout>
+</ContentView>

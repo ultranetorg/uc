@@ -131,11 +131,11 @@
         <Setter Property="Padding" Value="0" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
-    <Style x:Key="BadgeFrame" TargetType="Frame">
+    <Style x:Key="BadgeFrame" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark=#ec790f, Light=#62d260}" />
         <Setter Property="Padding" Value="0" />
-        <Setter Property="HeightRequest" Value="14" />
-        <Setter Property="WidthRequest" Value="14" />
-        <Setter Property="CornerRadius" Value="7" />
+        <Setter Property="HeightRequest" Value="20" />
+        <Setter Property="WidthRequest" Value="20" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
     </Style>
 </ResourceDictionary>

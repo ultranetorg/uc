@@ -4,18 +4,26 @@ public partial class CustomPage : ContentPage
 {
 	private const int LENGTH = 220;
 
+	public static readonly BindableProperty MainContentProperty = BindableProperty.Create(nameof(MainContent), typeof(View), typeof(CustomPage), null);
+
 	public static readonly BindableProperty RightContentProperty = BindableProperty.Create(nameof(RightContent), typeof(View), typeof(CustomPage), null);
+
+    public static readonly BindableProperty LeftContentProperty = BindableProperty.Create(nameof(LeftContent), typeof(View), typeof(CustomPage), null);
 
 	public static readonly BindableProperty HasBackButtonProperty = BindableProperty.Create(nameof(HasBackButton), typeof(bool), typeof(CustomPage), true);
 
 	public static readonly BindableProperty AnimationEnabledProperty = BindableProperty.Create(nameof(AnimationEnabled), typeof(bool), typeof(CustomPage), false);
 
-	public static readonly BindableProperty MainContentProperty = BindableProperty.Create(nameof(MainContent), typeof(View), typeof(CustomPage), null);
-
 	public View MainContent
 	{
 		get { return (View)GetValue(MainContentProperty); }
 		set { SetValue(MainContentProperty, value); }
+	}
+
+	public View LeftContent
+	{
+		get { return (View)GetValue(LeftContentProperty); }
+		set { SetValue(LeftContentProperty, value); }
 	}
 
 	public bool AnimationEnabled
