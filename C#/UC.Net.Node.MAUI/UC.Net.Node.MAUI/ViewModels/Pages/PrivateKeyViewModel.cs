@@ -16,7 +16,7 @@ public partial class PrivateKeyViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void DeleteAsync()
+    private async Task DeleteAsync()
     {
         await DeleteAccountPopup.Show(Wallet);
     }

@@ -115,63 +115,63 @@
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="0"
-                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        Command="{Binding AccountsExcuteCommand}"
                         ImageSource="accounts_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Accounts" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="1"
-                        Command="{Binding AuthorsExcuteAsyncCommand}"
+                        Command="{Binding AuthorsExcuteCommand}"
                         ImageSource="authors_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Authors" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="2"
-                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        Command="{Binding AccountsExcuteCommand}"
                         ImageSource="auctions_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Auctions" />
                     <cls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="3"
-                        Command="{Binding ProductsExcuteAsyncCommand}"
+                        Command="{Binding ProductsExcuteCommand}"
                         ImageSource="products_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Products" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="0"
-                        Command="{Binding TransactionsExcuteAsyncCommand}"
+                        Command="{Binding TransactionsExcuteCommand}"
                         ImageSource="transactions_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Transactions" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="1"
-                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        Command="{Binding AccountsExcuteCommand}"
                         ImageSource="search_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Search" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="2"
-                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        Command="{Binding AccountsExcuteCommand}"
                         ImageSource="network_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Network" />
                     <cls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="3"
-                        Command="{Binding ETHTransferExcuteAsyncCommand}"
+                        Command="{Binding ETHTransferExcuteCommand}"
                         ImageSource="transfer_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="ETH-UNT Transfer" />
                     <cls:ImageTextButton
                         Grid.Row="2"
                         Grid.Column="0"
-                        Command="{Binding AccountsExcuteAsyncCommand}"
+                        Command="{Binding AccountsExcuteCommand}"
                         ImageSource="help_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Help" />

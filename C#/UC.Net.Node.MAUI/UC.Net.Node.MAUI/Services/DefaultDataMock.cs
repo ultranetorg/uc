@@ -40,8 +40,8 @@ internal static class DefaultDataMock
 		ActiveDue = _defaultAuthorDue
 	};
 
-	public static CustomCollection<string> ProductsFilter1 = new() { "All", "To be expired", "Expired", "Hidden", "Shown" };
-	public static CustomCollection<string> ProductsFilter2 = new() { "Recent", "By author" };
+	public static CustomCollection<string> DefaultFilter = new() { "All", "To be expired", "Expired", "Hidden", "Shown" };
+	public static CustomCollection<string> ProductsFilter = new() { "Recent", "By author" };
 
 	public static CustomCollection<string> MonthList1 = new() { "April", "May", "June", "July", "Augest", "Spetemper", "November" };
 

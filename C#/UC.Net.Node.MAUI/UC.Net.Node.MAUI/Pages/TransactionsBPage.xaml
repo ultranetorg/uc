@@ -7,14 +7,14 @@
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
     Title="Transactions"
     x:Name="page">
-    <cls:CustomPage.RightContent>
+    <!--<cls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
                 HorizontalOptions="End"
                 Style="{StaticResource Sort}"
                 VerticalOptions="Center" />
         </StackLayout>
-    </cls:CustomPage.RightContent>
+    </cls:CustomPage.RightContent>-->
     <cls:CustomPage.MainContent>
         <Grid Padding="20,0" RowDefinitions="Auto,*">
             <AbsoluteLayout Grid.Row="0">
@@ -97,7 +97,6 @@
                                         Opacity="0.4"
                                         Text="{Binding USD, StringFormat='${0}'}"
                                         VerticalOptions="Start" />
-
                                 </Grid>
                             </Frame>
                         </StackLayout>

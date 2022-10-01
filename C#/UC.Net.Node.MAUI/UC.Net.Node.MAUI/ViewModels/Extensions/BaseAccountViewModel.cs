@@ -31,7 +31,7 @@ public partial class BaseAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void CloseAsync()
+    private async Task CloseAsync()
     {
         await Shell.Current.Navigation.PopModalAsync();
     }

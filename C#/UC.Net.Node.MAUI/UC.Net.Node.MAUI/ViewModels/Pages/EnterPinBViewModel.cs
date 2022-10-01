@@ -10,13 +10,13 @@ public partial class EnterPinBViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async void DeleteAsync()
+    private async Task DeleteAsync()
     {
         await DeleteAccountPopup.Show(Wallet);
     }
 	
     [RelayCommand]
-    private async void TransactionsAsync()
+    private async Task TransactionsAsync()
     {
         await Shell.Current.Navigation.PushAsync(new TransactionsPage());
     }

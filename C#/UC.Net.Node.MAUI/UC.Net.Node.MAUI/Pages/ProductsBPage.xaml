@@ -6,15 +6,6 @@
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="My Products"
     x:Name="page">
-    <cls:CustomPage.RightContent>
-        <Grid ColumnDefinitions="Auto,Auto">
-            <ImageButton
-                Grid.Column="1"
-                HorizontalOptions="End"
-                Style="{StaticResource Close}"
-                VerticalOptions="Center" />
-        </Grid>
-    </cls:CustomPage.RightContent>
     <cls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <CollectionView
@@ -28,13 +19,13 @@
                                 <SwipeView>
                                     <SwipeView.RightItems>
                                         <SwipeItems>
-                                            <SwipeItemView WidthRequest="83">
+                                            <SwipeItemView WidthRequest="84">
                                                 <ImageButton
-                                                    Padding="15"
+                                                    Padding="16"
                                                     CornerRadius="0"
                                                     HorizontalOptions="FillAndExpand"
-                                                    Style="{StaticResource TransferProduct}"
-                                                    VerticalOptions="FillAndExpand" />
+                                                    VerticalOptions="FillAndExpand"
+                                                    Style="{StaticResource TransferProduct}" />
                                             </SwipeItemView>
                                         </SwipeItems>
                                     </SwipeView.RightItems>
@@ -65,9 +56,9 @@
                                             Margin="-10,-5,0,-10"
                                             FontSize="24"
                                             HorizontalOptions="Center"
+                                            VerticalOptions="Center"
                                             Text="{Binding Initl}"
-                                            TextColor="{Binding Color}"
-                                            VerticalOptions="Center" />
+                                            TextColor="{Binding Color}" />
                                         <Label
                                             Grid.Row="0"
                                             Grid.Column="1"
@@ -96,6 +87,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            
             <Frame
                 Grid.Row="1"
                 Margin="0,0,0,-20"

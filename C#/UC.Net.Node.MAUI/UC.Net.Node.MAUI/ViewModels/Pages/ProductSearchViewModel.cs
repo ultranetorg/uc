@@ -18,6 +18,6 @@ public partial class ProductSearchViewModel : BaseTransactionsViewModel
 	{
 		var products = await _service.GetAllAsync();
 		Products.AddRange(products);
-        ProductsFilter = DefaultDataMock.ProductsFilter2;
+        ProductsFilter = DefaultDataMock.ProductsFilter;
 	}
 }

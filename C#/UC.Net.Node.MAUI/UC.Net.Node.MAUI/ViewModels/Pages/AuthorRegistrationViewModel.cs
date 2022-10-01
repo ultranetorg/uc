@@ -10,7 +10,7 @@ public partial class AuthorRegistrationViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async void ClosePageAsync()
+    private async Task ClosePageAsync()
     {
         await Shell.Current.Navigation.PopAsync();
     }

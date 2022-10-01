@@ -20,7 +20,7 @@ public partial class DeleteAccountViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async void DeleteAsync()
+    private async Task DeleteAsync()
     {
         await DeleteAccountPopup.Show(Wallet);
     }

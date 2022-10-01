@@ -11,7 +11,7 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async void ClosePageAsync()
+    private async Task ClosePageAsync()
     {
         await Shell.Current.Navigation.PopAsync();
     }

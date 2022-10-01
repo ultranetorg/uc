@@ -7,7 +7,7 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async void ConfirmAsync()
+    private async Task ConfirmAsync()
     {
         await Shell.Current.Navigation.PushAsync(new TransferCompletePage());
     }

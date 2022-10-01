@@ -18,10 +18,17 @@ public partial class ProductsViewModel : BaseTransactionsViewModel
 		_service = service;
     }
 
+	[RelayCommand]
+    private async Task OpenProductOptionsAsync(Product product)
+    {
+        // await AccountOptionsPopup.Show(author);
+		await Task.Delay(10);
+    }
+
 	internal async Task InitializeAsync()
 	{
 		var products = await _service.GetAllAsync();
 		Products.AddRange(products);
-        ProductsFilter = DefaultDataMock.ProductsFilter1;
+        ProductsFilter = DefaultDataMock.DefaultFilter;
 	}
 }

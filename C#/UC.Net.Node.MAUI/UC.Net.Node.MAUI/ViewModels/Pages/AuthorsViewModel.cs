@@ -19,27 +19,34 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     }
 	
 	[RelayCommand]
-    private async void AuthorTappedAsync(Author Author)
+    private async Task AuthorTappedAsync(Author author)
     {
-        if (Author == null) return;
-        await Shell.Current.Navigation.PushAsync(new AuthorSearchPage(Author));
+        if (author == null) return;
+			await Shell.Current.Navigation.PushAsync(new AuthorSearchPage(author));
     }
 	
 	[RelayCommand]
-    private async void TransferAuthorAsync()
+    private async Task TransferAuthorAsync()
     {
         await Shell.Current.Navigation.PushAsync(new AuthorRegistrationPage());
     }
 	
 	[RelayCommand]
-    private async void MakeBidAsync()
+    private async Task MakeBidAsync()
     {
         await Shell.Current.Navigation.PushAsync(new MakeBidPage());
     }
 
+	[RelayCommand]
+    private async Task OpenAuthorOptionsAsync(Author author)
+    {
+        // await AccountOptionsPopup.Show(author);
+		await Task.Delay(10);
+    }
+
 	public async Task InitializeAsync()
 	{
-        AuthorsFilter = new CustomCollection<string> {"All", "To be expired", "Expired", "Hidden", "Shown" };
+        AuthorsFilter = DefaultDataMock.DefaultFilter;
 		
 		Authors.Clear();
 		var authors = await _service.GetAllAsync();

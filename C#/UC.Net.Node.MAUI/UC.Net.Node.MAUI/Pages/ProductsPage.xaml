@@ -6,15 +6,6 @@
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="My Products"
     x:Name="page">
-    <cls:CustomPage.RightContent>
-        <Grid ColumnDefinitions="Auto,Auto">
-            <ImageButton
-                Grid.Column="1"
-                HorizontalOptions="End"
-                Style="{StaticResource Close}"
-                VerticalOptions="Center" />
-        </Grid>
-    </cls:CustomPage.RightContent>
     <cls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <CollectionView
@@ -47,7 +38,7 @@
                                         RowSpacing="0"
                                         Style="{StaticResource AccountGrid}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedEmptyCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                            <TapGestureRecognizer Command="{Binding ItemTappedEmptyCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
                                         <Label
                                             Grid.Row="0"
@@ -66,7 +57,7 @@
                                             Grid.RowSpan="2"
                                             Grid.Column="2"
                                             Padding="1"
-                                            Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
+                                            Command="{Binding OpenOptionsCommand, Source={x:Reference page}}"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource Dots}"
                                             VerticalOptions="Center" />

@@ -18,31 +18,31 @@ public partial class DashboardViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    public async void AuthorsExcuteAsync()
+    public async Task AuthorsExcuteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new AuthorsPage());
     }
 
 	[RelayCommand]
-    public async void ProductsExcuteAsync()
+    public async Task ProductsExcuteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new ProductsPage());
     }
 	
 	[RelayCommand]
-    public async void ETHTransferExcuteAsync()
+    public async Task ETHTransferExcuteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new ETHTransferPage());
     }
 	
 	[RelayCommand]
-    public async void TransactionsExcuteAsync()
+    public async Task TransactionsExcuteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new TransactionsPage());
     }
 
 	[RelayCommand]
-    public async void AccountsExcuteAsync()
+    public async Task AccountsExcuteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new ManageAccountsPage());
     }

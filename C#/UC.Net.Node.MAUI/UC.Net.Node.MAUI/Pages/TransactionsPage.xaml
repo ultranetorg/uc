@@ -6,18 +6,20 @@
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Transactions"
     x:Name="page">
-    <cls:CustomPage.RightContent>
+    <!--<cls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
                 HorizontalOptions="End"
                 Style="{StaticResource Sort}"
                 VerticalOptions="Center" />
         </StackLayout>
-    </cls:CustomPage.RightContent>
+    </cls:CustomPage.RightContent>-->
     <cls:CustomPage.MainContent>
         <Grid Padding="20,0" RowDefinitions="Auto,*">
             <AbsoluteLayout Grid.Row="0">
-                <cls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+                <cls:BorderEntry
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All" />
                 <Image
                     Margin="10,0"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -28,8 +30,8 @@
             </AbsoluteLayout>
             <CollectionView
                 Grid.Row="1"
-                ItemsSource="{Binding Transactions}"
-                SelectionMode="None">
+                SelectionMode="None"
+                ItemsSource="{Binding Transactions}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout>
@@ -52,8 +54,8 @@
                                         Grid.Column="0"
                                         HeightRequest="30"
                                         HorizontalOptions="Center"
-                                        Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
                                         VerticalOptions="Center"
+                                        Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
                                         WidthRequest="30" />
                                     <Label
                                         Grid.Row="0"

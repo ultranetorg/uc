@@ -7,19 +7,19 @@ public partial class BaseTransactionsViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-    private async void CreateAsync()
+    private async Task CreateAsync()
     {
         await Shell.Current.Navigation.PushModalAsync(new CreateAccountPage());
     }
 
 	[RelayCommand]
-    private async void RestoreAsync()
+    private async Task RestoreAsync()
     {
         await Shell.Current.Navigation.PushAsync(new RestoreAccountPage());
     }
 
 	[RelayCommand]
-    private async void ItemTappedAsync(Transaction Transaction)
+    private async Task ItemTappedAsync(Transaction Transaction)
     {
         if (Transaction == null) return;
         if (Transaction.Status == TransactionStatus.Pending)
@@ -35,7 +35,7 @@ public partial class BaseTransactionsViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void OptionsAsync(Transaction Transaction)
+    private async Task OptionsAsync(Transaction Transaction)
     {
         if (Transaction.Status == TransactionStatus.Pending)
             await Shell.Current.Navigation.PushAsync(new UnfinishTransferPage());
@@ -44,7 +44,7 @@ public partial class BaseTransactionsViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void OpenOptionsAsync(Wallet wallet)
+    private async Task OpenOptionsAsync(Wallet wallet)
     {
         await AccountOptionsPopup.Show(wallet);
     }

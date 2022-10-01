@@ -8,7 +8,7 @@ public partial class StartViewModel : BaseWalletViewModel
 	}
 
 	[RelayCommand]
-	private async void StartAsync(string commandParameter)
+	private async Task StartAsync(string commandParameter)
 	{
 		// To be reworked
 		switch(int.Parse(commandParameter))

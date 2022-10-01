@@ -10,13 +10,13 @@ public partial class BaseAuthorViewModel : BaseViewModel
 	protected BaseAuthorViewModel(ILogger logger) : base(logger){}
 	
 	[RelayCommand]
-    private async void CancelAsync()
+    private async Task CancelAsync()
     {
         await Shell.Current.Navigation.PopAsync();
     }
 
 	[RelayCommand]
-    private async void MakeBidAsync()
+    private async Task MakeBidAsync()
     {
         await Shell.Current.Navigation.PushAsync(new MakeBidPage());
     }

@@ -7,13 +7,13 @@ public partial class AboutViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async void CancelAsync()
+    private async Task CancelAsync()
     {
         await Shell.Current.Navigation.PopAsync();
     }
 	
 	[RelayCommand]
-    private async void TransactionsAsync()
+    private async Task TransactionsAsync()
     {
         await Shell.Current.Navigation.PushAsync(new TransactionsPage());
     }

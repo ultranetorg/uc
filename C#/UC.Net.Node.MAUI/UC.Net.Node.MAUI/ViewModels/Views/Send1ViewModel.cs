@@ -13,13 +13,13 @@ public partial class Send1ViewModel : BaseViewModel
 	}
     
 	[RelayCommand]
-    private async void SourceTapped()
+    private async Task SourceTapped()
     {
         await SourceAccountPopup.Show();
     }
 
 	[RelayCommand]
-    private async void RecipientTapped()
+    private async Task RecipientTapped()
     {
         await RecipientAccountPopup.Show();
     }

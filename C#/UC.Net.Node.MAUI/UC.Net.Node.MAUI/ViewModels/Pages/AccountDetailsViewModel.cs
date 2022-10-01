@@ -2,7 +2,7 @@
 
 public partial class AccountDetailsViewModel : BaseAccountViewModel
 {
-	// will be splitted into 3 services
+	// todo: split into 3 services
 	private readonly IServicesMockData _service;
 
     public AccountDetailsViewModel(IServicesMockData service, ILogger<AccountDetailsViewModel> logger) : base(logger)
@@ -12,26 +12,25 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async void SendAsync()
+    private async Task SendAsync()
     {
         await Shell.Current.Navigation.PushAsync(new SendPage());
     }
 
 	[RelayCommand]
-    private async void ShowKeyAsync()
+    private async Task ShowKeyAsync()
     {
         await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Wallet));
     }
 
 	[RelayCommand]
-    private async void DeleteAsync()
+    private async Task DeleteAsync()
     {
         await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Wallet));
     }
 
 	private void LoadData()
 	{
-		// TBR
 		Authors.Clear();
 		Products.Clear();
 		ColorsCollection.Clear();

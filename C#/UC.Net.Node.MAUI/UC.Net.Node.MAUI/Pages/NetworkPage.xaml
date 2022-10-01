@@ -4,8 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    Title="Network"
-    x:Name="page">
+    Title="Network">
     <cls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <StackLayout
@@ -27,7 +26,7 @@
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
                 HasShadow="True">
-                <StackLayout Padding="15">
+                <StackLayout Padding="16">
                     <Button Command="{Binding RegisterProductCommand}" Text="Close" />
                 </StackLayout>
             </Frame>
