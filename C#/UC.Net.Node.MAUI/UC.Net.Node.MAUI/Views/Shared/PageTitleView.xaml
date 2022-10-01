@@ -7,7 +7,7 @@
     x:Name="This">
     <ContentView.Resources>
         <Style TargetType="Label">
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource DarkThemeText}}" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryForLight}, Dark={StaticResource Primary}}" />
             <Setter Property="FontSize" Value="20" />
         </Style>
     </ContentView.Resources>
@@ -18,17 +18,17 @@
         JustifyContent="SpaceBetween">
         <Label
             FontFamily="sans-serif-semiBold"
+            VerticalOptions="Center"
             Style="{Binding TitleStyle}"
             TextColor="{StaticResource PrimaryLight}"
-            Text="{Binding Title}"
-            VerticalOptions="Center" />
+            Text="{Binding Title}" />
         <AbsoluteLayout HeightRequest="40" WidthRequest="40" Margin="0,2,10,0">
             <ImageButton
                 AbsoluteLayout.LayoutBounds="0,1,1,1"
                 AbsoluteLayout.LayoutFlags="All"
                 Aspect="AspectFill"
                 HeightRequest="48"
-                Source="bell_light.png"/>
+                Source="bell_dark.png"/>
             <Border
                 AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional"

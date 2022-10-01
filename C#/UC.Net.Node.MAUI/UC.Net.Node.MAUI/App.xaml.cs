@@ -11,9 +11,9 @@ public partial class App : Application
 
         Ioc.Default.ConfigureServices(provider);
 
-		MainPage = new AppShell();
-
-		App.Current.UserAppTheme = AppTheme.Light;
+		MainPage = new AppShell();        
+		
+		GlobalAppTheme.SetTheme();
 
 		InitializeRouting();
 			

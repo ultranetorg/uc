@@ -32,10 +32,10 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\appicon.svg" ForegroundFile="Resources\appiconfg.svg" Color="#512BD4" />
+		<MauiIcon Include="Resources\appicon.svg" ForegroundFile="Resources\appiconfg.svg" Color="#E1E1E1" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\appiconfg.svg" Color="#512BD4" />
+		<MauiSplashScreen Include="Resources\appiconfg.svg" Color="#E1E1E1" />
 		
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -48,9 +48,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Platforms\Android\Resources\values-night\colors.xml" />
-	  <None Remove="Platforms\Android\Resources\values-night\styles.xml" />
-	  <None Remove="Platforms\Android\Resources\values\styles.xml" />
 	  <None Remove="Resources\Fonts\icomoon.ttf" />
 	  <None Remove="Resources\Fonts\MaterialIcons.ttf" />
 	  <None Remove="Resources\Fonts\Montserrat-Black.ttf" />
@@ -74,6 +71,7 @@
 	  <None Remove="Resources\Images\accounts_light.svg" />
 	  <None Remove="Resources\Images\auctions_light.svg" />
 	  <None Remove="Resources\Images\authors_light.svg" />
+	  <None Remove="Resources\Images\bell_dark.svg" />
 	  <None Remove="Resources\Images\bell_light.svg" />
 	  <None Remove="Resources\Images\dashboard_outline.svg" />
 	  <None Remove="Resources\Images\help_light.svg" />
@@ -96,6 +94,10 @@
 	  <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0-preview.7.22375.6" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0-preview.7.22375.6" />
 	  <PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Folder Include="Resources\Splash\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -394,10 +396,6 @@
 	  <MauiXaml Update="Views\Shared\PageTitleView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Resources\Splash\" />
 	</ItemGroup>
 
 	<ItemGroup>

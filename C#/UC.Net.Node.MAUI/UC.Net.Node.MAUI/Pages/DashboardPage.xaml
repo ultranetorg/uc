@@ -73,39 +73,6 @@
             </Grid>
         </DataTemplate>
     </cls:CustomPage.Resources>
-    <cls:CustomPage.LeftContent>
-        <Grid>
-            <Label
-                HorizontalOptions="Start"
-                Text="Ultranet User Center"
-                VerticalOptions="Center" />
-        </Grid>
-    </cls:CustomPage.LeftContent>
-    <cls:CustomPage.RightContent>
-        <AbsoluteLayout HeightRequest="40" WidthRequest="40">
-            <ImageButton
-                AbsoluteLayout.LayoutBounds="0,1,1,1"
-                AbsoluteLayout.LayoutFlags="All"
-                Aspect="AspectFill"
-                HeightRequest="48"
-                Source="bell_light.png"/>
-            <Border
-                AbsoluteLayout.LayoutBounds="1,0,-1,-1"
-                AbsoluteLayout.LayoutFlags="PositionProportional"
-                IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNotNullOrWhiteSpace}}"
-                Style="{StaticResource BadgeFrame}">
-                <Label
-                    x:Name="BadgeValueLabel"
-                    Padding="0"
-                    HorizontalOptions="CenterAndExpand"
-                    VerticalOptions="CenterAndExpand"
-                    Text="2"
-                    TextColor="White"
-                    FontSize="12"
-                    FontAttributes="Bold" />
-            </Border>
-        </AbsoluteLayout>
-    </cls:CustomPage.RightContent>
     <cls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="15,0,15,40">
