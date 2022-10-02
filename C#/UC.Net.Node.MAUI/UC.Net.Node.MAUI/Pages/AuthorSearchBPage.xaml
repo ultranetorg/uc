@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.AuthorSearchBPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     x:Name="page"
     Title="Authors">
-    <cls:CustomPage.RightContent>
+    <controls:CustomPage.RightContent>
         <Grid ColumnDefinitions="Auto,Auto">
             <ImageButton
                 Grid.Column="1"
@@ -19,12 +19,12 @@
                 Style="{StaticResource Sort}"
                 VerticalOptions="Center" />
         </Grid>
-    </cls:CustomPage.RightContent>
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>
+    <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="{StaticResource PagePadding}" Spacing="30">
                 <AbsoluteLayout Grid.Row="0">
-                    <cls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+                    <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
                     <Image
                         Margin="10,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -90,5 +90,5 @@
                 </StackLayout>
             </StackLayout>
         </ScrollView>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

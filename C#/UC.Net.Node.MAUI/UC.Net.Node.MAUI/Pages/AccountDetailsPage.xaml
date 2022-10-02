@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.AccountDetailsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Account Details"
     x:Name="page">
-    <!--<cls:CustomPage.RightContent>
+    <!--<controls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
                 Command="{Binding DeleteCommand}"
@@ -15,8 +15,8 @@
                 Style="{DynamicResource Delete}"
                 VerticalOptions="Center" />
         </StackLayout>
-    </cls:CustomPage.RightContent>-->
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>-->
+    <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="{DynamicResource PagePadding}" Spacing="22">
                 <Grid
@@ -108,17 +108,17 @@
                 </StackLayout>
                 <StackLayout Spacing="8">
                     <Label Style="{DynamicResource DashLabel}" Text="Name" />
-                    <cls:BorderEntry Placeholder="Account name" Text="{Binding Wallet.Name}">
-                        <cls:BorderEntry.Behaviors>
+                    <controls:BorderEntry Placeholder="Account name" Text="{Binding Wallet.Name}">
+                        <controls:BorderEntry.Behaviors>
                             <toolkit:CharactersValidationBehavior
                                 x:Name="cb"
                                 CharacterType="Letter"
                                 Flags="ValidateOnValueChanged" ValidStyle="{DynamicResource Valid}" InvalidStyle="{DynamicResource InValid}"
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1" />
-                        </cls:BorderEntry.Behaviors>
+                        </controls:BorderEntry.Behaviors>
                         
-                    </cls:BorderEntry>
+                    </controls:BorderEntry>
                     <StackLayout >
                         <Label
                             FontSize="12"
@@ -150,7 +150,7 @@
                         FontSize="13"
                         Style="{DynamicResource Medium}"
                         Text="Account from Dashboard" />
-                    <cls:SwitchView
+                    <controls:SwitchView
                         Grid.RowSpan="2"
                         Grid.Column="1"
                         VerticalOptions="Center" />
@@ -247,5 +247,5 @@
                 </Grid>
             </StackLayout>
         </ScrollView>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
     x:Name="view">
     <StackLayout Padding="5" Spacing="30">
@@ -71,11 +71,11 @@
                     Style="{StaticResource DashLabel}"
                     Text="Renewal period"
                     VerticalOptions="Center" />
-                <cls:BorderEntry
+                <controls:BorderEntry
                     Grid.Column="1"
                     FontSize="24"
                     RightPadding="35">
-                    <cls:BorderEntry.Behaviors>
+                    <controls:BorderEntry.Behaviors>
                         <toolkit:CharactersValidationBehavior
                             x:Name="cb2"
                             CharacterType="Letter"
@@ -84,11 +84,11 @@
                             MaximumCharacterTypeCount="30"
                             MinimumCharacterTypeCount="1"
                             ValidStyle="{StaticResource Valid}" />
-                    </cls:BorderEntry.Behaviors>
-                </cls:BorderEntry>
+                    </controls:BorderEntry.Behaviors>
+                </controls:BorderEntry>
             </Grid>
-            <cls:LabelPair Text1="Estimated end date" Text2="01/10/2033" />
-            <cls:LabelPair Text1="Estimated comission" Text2="10 UNT ($15)" />
+            <controls:LabelPair Text1="Estimated end date" Text2="01/10/2033" />
+            <controls:LabelPair Text1="Estimated comission" Text2="10 UNT ($15)" />
         </StackLayout>
     </StackLayout>
 </ContentView>

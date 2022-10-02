@@ -3,7 +3,7 @@
     x:Class="UC.Net.Node.MAUI.Views.ETHTransfer1View"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
     <StackLayout Padding="{StaticResource PagePadding}" Spacing="20">
         <StackLayout Spacing="20">
@@ -31,7 +31,7 @@
                                 FontSize="13"
                                 Style="{StaticResource Regular}"
                                 Text="Please specify Ultranet account public key" />
-                            <cls:BorderEditor
+                            <controls:BorderEditor
                                 FontSize="12"
                                 Style="{StaticResource Medium}"
                                 Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
@@ -50,7 +50,7 @@
                                 ColumnDefinitions="*,44"
                                 ColumnSpacing="8"
                                 HeightRequest="44">
-                                <cls:BorderEntry
+                                <controls:BorderEntry
                                     Grid.Column="0"
                                     BorderRadius="6"
                                     IsReadOnly="True"
@@ -72,12 +72,12 @@
             <StackLayout Grid.Column="0" Spacing="10">
                 <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
                 <AbsoluteLayout>
-                    <cls:BorderEntry
+                    <controls:BorderEntry
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
                         FontSize="24"
                         RightPadding="35">
-                        <cls:BorderEntry.Behaviors>
+                        <controls:BorderEntry.Behaviors>
                             <xct:CharactersValidationBehavior
                                 x:Name="cb1"
                                 CharacterType="Letter"
@@ -86,8 +86,8 @@
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1"
                                 ValidStyle="{StaticResource Valid}" />
-                        </cls:BorderEntry.Behaviors>
-                    </cls:BorderEntry>
+                        </controls:BorderEntry.Behaviors>
+                    </controls:BorderEntry>
                     <Label
                         Margin="10"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -110,12 +110,12 @@
             <StackLayout Grid.Column="2" Spacing="10">
                 <Label FontSize="13" Text="350 ETH available" />
                 <AbsoluteLayout>
-                    <cls:BorderEntry
+                    <controls:BorderEntry
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
                         FontSize="24"
                         RightPadding="35">
-                        <cls:BorderEntry.Behaviors>
+                        <controls:BorderEntry.Behaviors>
                             <xct:CharactersValidationBehavior
                                 x:Name="cb2"
                                 CharacterType="Letter"
@@ -124,9 +124,9 @@
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1"
                                 ValidStyle="{StaticResource Valid}" />
-                        </cls:BorderEntry.Behaviors>
+                        </controls:BorderEntry.Behaviors>
 
-                    </cls:BorderEntry>
+                    </controls:BorderEntry>
                     <Label
                         Margin="10"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"

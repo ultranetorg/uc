@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.ProductSearchPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Product Search"
     x:Name="page">
-    <cls:CustomPage.RightContent>
+    <controls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
                 HorizontalOptions="End"
                 Style="{StaticResource Close}"
                 VerticalOptions="Center" />
         </StackLayout>
-    </cls:CustomPage.RightContent>
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>
+    <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="Auto,*"
             RowSpacing="30">
             <Grid Grid.Row="0" RowDefinitions="Auto,30">
                 <AbsoluteLayout Grid.Row="0">
-                    <cls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+                    <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
                     <Image
                         Margin="10,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -71,7 +71,7 @@
                             BindableLayout.ItemsSource="{Binding Products}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate>
-                                    <cls:LabelPair Text1="{Binding Name}" Text2="{Binding Owner}" />
+                                    <controls:LabelPair Text1="{Binding Name}" Text2="{Binding Owner}" />
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
@@ -79,5 +79,5 @@
                 </Frame>
             </StackLayout>
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

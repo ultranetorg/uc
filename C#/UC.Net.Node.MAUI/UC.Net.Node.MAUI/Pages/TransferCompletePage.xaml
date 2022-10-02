@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.TransferCompletePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
     xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models"
     Title="Transfer sucessfully completed"
     x:Name="page">
-    <cls:CustomPage.RightContent>
+    <controls:CustomPage.RightContent>
         <ImageButton HeightRequest="28" Command="{Binding CloseCommad}" Style="{StaticResource Close}" />
-    </cls:CustomPage.RightContent>
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>
+    <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="{StaticResource PagePadding}" Spacing="30">
                 <Grid
@@ -39,10 +39,10 @@
                     <views:AccountView BindingContext="{Binding Wallet}"/>
                 </StackLayout>
                 <StackLayout Spacing="10">
-                    <cls:LabelPair Text1="You will receive" Text2="22355 UNT" />
-                    <cls:LabelPair Text1="You have paid ETH comission" Text2="1 ETH" />
-                    <cls:LabelPair Text1="You have paid UNT comission" Text2="12 UNT" />
-                    <cls:LabelPair Text1="Transaction date and time" Text2="10/15/2021 19:24" />
+                    <controls:LabelPair Text1="You will receive" Text2="22355 UNT" />
+                    <controls:LabelPair Text1="You have paid ETH comission" Text2="1 ETH" />
+                    <controls:LabelPair Text1="You have paid UNT comission" Text2="12 UNT" />
+                    <controls:LabelPair Text1="Transaction date and time" Text2="10/15/2021 19:24" />
                 </StackLayout>
 
                 <StackLayout VerticalOptions="EndAndExpand">
@@ -50,5 +50,5 @@
                 </StackLayout>
             </StackLayout>
         </ScrollView>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.RestoreAccountPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Restore account"
     x:Name="page">
-    <cls:CustomPage.MainContent>
+    <controls:CustomPage.MainContent>
         <StackLayout Padding="{StaticResource PagePadding}" Spacing="20">
             <StackLayout Spacing="20">
                 <StackLayout>
@@ -32,7 +32,7 @@
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
                                     Text="Please specify Ultranet account public key" />
-                                <cls:BorderEditor
+                                <controls:BorderEditor
                                     FontSize="12"
                                     Style="{StaticResource Medium}"
                                     Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
@@ -51,7 +51,7 @@
                                     ColumnDefinitions="*,44"
                                     ColumnSpacing="8"
                                     HeightRequest="44">
-                                    <cls:BorderEntry
+                                    <controls:BorderEntry
                                         Grid.Column="0"
                                         BorderRadius="6"
                                         IsReadOnly="True"
@@ -84,5 +84,5 @@
                 Text="Import"
                 VerticalOptions="EndAndExpand" />
         </StackLayout>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

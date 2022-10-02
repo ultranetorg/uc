@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Pages"
     xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
@@ -17,7 +17,7 @@
         <views:PageTitleView Title="Ultranet User Center" />
     </Shell.TitleView>
     
-    <cls:CustomPage.Resources>
+    <controls:CustomPage.Resources>
         <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrWhiteSpace" />
         <converters:StatusToStyleConverter x:Key="StatusToStyleConverter" />
         <DataTemplate x:DataType="models:Transaction" x:Key="TransactionTemplate">
@@ -72,8 +72,8 @@
                     Text="{Binding DisplayAmount}"/>
             </Grid>
         </DataTemplate>
-    </cls:CustomPage.Resources>
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.Resources>
+    <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="15,0,15,40">
                 <Label
@@ -100,83 +100,83 @@
                         Spacing="0" />
                 </Frame>
                 <StackLayout Padding="10">
-                    <cls:LabelPair Text1="Accounts" Text2="10" />
-                    <cls:LabelPair Text1="Auctions (outbinded)" Text2="0 (0)" />
-                    <cls:LabelPair Text1="Auctions (renewal needed)" Text2="2 (0)" />
-                    <cls:LabelPair Text1="Products" Text2="4" />
-                    <cls:LabelPair Text1="Releases (total/clean/compromised)" Text2="346/300/2" />
-                    <cls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
+                    <controls:LabelPair Text1="Accounts" Text2="10" />
+                    <controls:LabelPair Text1="Auctions (outbinded)" Text2="0 (0)" />
+                    <controls:LabelPair Text1="Auctions (renewal needed)" Text2="2 (0)" />
+                    <controls:LabelPair Text1="Products" Text2="4" />
+                    <controls:LabelPair Text1="Releases (total/clean/compromised)" Text2="346/300/2" />
+                    <controls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
                 </StackLayout>
                 <Grid
                     Margin="-12,15,-12,0"
                     ColumnDefinitions="*,*,*,*"
                     RowDefinitions="Auto,Auto,Auto"
                     RowSpacing="8">
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="0"
                         Command="{Binding AccountsExcuteCommand}"
                         ImageSource="accounts_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Accounts" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="1"
                         Command="{Binding AuthorsExcuteCommand}"
                         ImageSource="authors_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Authors" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="2"
                         Command="{Binding AccountsExcuteCommand}"
                         ImageSource="auctions_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Auctions" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="3"
                         Command="{Binding ProductsExcuteCommand}"
                         ImageSource="products_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Products" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="0"
                         Command="{Binding TransactionsExcuteCommand}"
                         ImageSource="transactions_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Transactions" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="1"
                         Command="{Binding AccountsExcuteCommand}"
                         ImageSource="search_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Search" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="2"
-                        Command="{Binding AccountsExcuteCommand}"
+                        Command="{Binding NetworkExcuteCommand}"
                         ImageSource="network_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Network" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="3"
                         Command="{Binding ETHTransferExcuteCommand}"
                         ImageSource="transfer_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="ETH-UNT Transfer" />
-                    <cls:ImageTextButton
+                    <controls:ImageTextButton
                         Grid.Row="2"
                         Grid.Column="0"
-                        Command="{Binding AccountsExcuteCommand}"
+                        Command="{Binding HelpExcuteCommand}"
                         ImageSource="help_light.png"
                         ImageStyle="{StaticResource DashBoard}"
                         Text="Help" />
                 </Grid>
             </StackLayout>
         </ScrollView>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

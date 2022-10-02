@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.SettingsBPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:c1="http://schemas.grapecity.com/xf/2019/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Settings"
     x:Name="page">
-    <cls:CustomPage.RightContent>
+    <controls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
                 HorizontalOptions="End"
                 Style="{StaticResource SearchSettings}"
                 VerticalOptions="Center" />
         </StackLayout>
-    </cls:CustomPage.RightContent>
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>
+    <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="Auto,1,Auto,1,Auto,1,*,Auto"
@@ -37,7 +37,7 @@
                     FontSize="13"
                     Style="{StaticResource Regular}"
                     Text="After blocking, the application will become not available for download" />
-                <cls:SwitchView
+                <controls:SwitchView
                     Grid.RowSpan="2"
                     Grid.Column="1"
                     VerticalOptions="Center" />
@@ -60,7 +60,7 @@
                     FontSize="13"
                     Style="{StaticResource Regular}"
                     Text="After blocking, the application will become not available for download" />
-                <cls:SwitchView
+                <controls:SwitchView
                     Grid.RowSpan="2"
                     Grid.Column="1"
                     VerticalOptions="Center" />
@@ -83,7 +83,7 @@
                     FontSize="13"
                     Style="{StaticResource Regular}"
                     Text="After blocking, the application will become not available for download" />
-                <cls:SwitchView
+                <controls:SwitchView
                     Grid.RowSpan="2"
                     Grid.Column="1"
                     VerticalOptions="Center" />
@@ -95,7 +95,7 @@
                     ColumnDefinitions="*,35"
                     RowDefinitions="44,Auto"
                     RowSpacing="-3">
-                    <cls:BorderEntry
+                    <controls:BorderEntry
                         x:Name="picker"
                         Grid.Row="0"
                         Grid.ColumnSpan="2"
@@ -104,21 +104,21 @@
                         Placeholder="Select"
                         Style="{StaticResource EntryPicker}"
                         Text="{Binding SelectedItem, Source={Reference pickerList}}">
-                        <cls:BorderEntry.Triggers>
+                        <controls:BorderEntry.Triggers>
                             <DataTrigger
                                 Binding="{Binding IsFocused, Source={Reference picker}}"
-                                TargetType="cls:BorderEntry"
+                                TargetType="controls:BorderEntry"
                                 Value="True">
                                 <Setter Property="AutoFocus" Value="False" />
                             </DataTrigger>
                             <DataTrigger
                                 Binding="{Binding IsFocused, Source={Reference pickerList}}"
-                                TargetType="cls:BorderEntry"
+                                TargetType="controls:BorderEntry"
                                 Value="True">
                                 <Setter Property="AutoFocus" Value="False" />
                             </DataTrigger>
-                        </cls:BorderEntry.Triggers>
-                    </cls:BorderEntry>
+                        </controls:BorderEntry.Triggers>
+                    </controls:BorderEntry>
                     <Image
                         Grid.Row="0"
                         Grid.Column="1"
@@ -184,5 +184,5 @@
                 Command="{Binding RegisterProductCommand}"
                 Text="Close" />
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.SendPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
     xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Pages"
     x:Name="page"
     Title="Send">
-    <cls:CustomPage.MainContent>
+    <controls:CustomPage.MainContent>
         <Grid 
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,20,Auto,Auto"
@@ -65,5 +65,5 @@
                     Style="{DynamicResource LabelButton}" Text="Cancel" />
             </StackLayout>
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

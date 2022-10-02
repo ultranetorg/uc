@@ -3,7 +3,7 @@
     x:Class="UC.Net.Node.MAUI.Views.CreateAccount1View"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
     <StackLayout Padding="5" Spacing="30">
         <StackLayout>
@@ -13,8 +13,8 @@
                 Style="{StaticResource Regular}"
                 Text="Use strong password for account" />
         </StackLayout>
-        <cls:BorderEntry IsPassword="True" Text="password">
-            <cls:BorderEntry.Behaviors>
+        <controls:BorderEntry IsPassword="True" Text="password">
+            <controls:BorderEntry.Behaviors>
                 <xct:MultiValidationBehavior>
                     <xct:TextValidationBehavior MinimumLength="8" />
                     <xct:CharactersValidationBehavior CharacterType="Digit" MinimumCharacterTypeCount="1" />
@@ -23,8 +23,8 @@
                     <xct:CharactersValidationBehavior CharacterType="NonAlphanumericSymbol" MinimumCharacterTypeCount="1" />
                     <xct:CharactersValidationBehavior CharacterType="Whitespace" MaximumCharacterTypeCount="0" />
                 </xct:MultiValidationBehavior>
-            </cls:BorderEntry.Behaviors>
-        </cls:BorderEntry>
+            </controls:BorderEntry.Behaviors>
+        </controls:BorderEntry>
         <Button Margin="0,-10,0,0" Style="{StaticResource RandomizeButton}" />
         <Label
             FontSize="13"
@@ -40,9 +40,9 @@
                     Text="At least 8 characters - the more characters the better"
                     VerticalOptions="Center" />
             </Grid>
-            <cls:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="False"/>
-            <cls:ImageTextColumn Text="A mixture of letters and numbers" IsEnabledImage="True"/>
-            <cls:ImageTextColumn Text="Inclusion of  at least one special character e.g !@#" IsEnabledImage="False"/>
+            <controls:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="False"/>
+            <controls:ImageTextColumn Text="A mixture of letters and numbers" IsEnabledImage="True"/>
+            <controls:ImageTextColumn Text="Inclusion of  at least one special character e.g !@#" IsEnabledImage="False"/>
         </StackLayout>
     </StackLayout>
 </ContentView>

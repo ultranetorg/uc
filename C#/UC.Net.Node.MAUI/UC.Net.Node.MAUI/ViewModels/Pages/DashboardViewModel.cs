@@ -18,34 +18,25 @@ public partial class DashboardViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    public async Task AuthorsExcuteAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new AuthorsPage());
-    }
+    public async Task AccountsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(AccountDetailsPage));
 
 	[RelayCommand]
-    public async Task ProductsExcuteAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new ProductsPage());
-    }
-	
-	[RelayCommand]
-    public async Task ETHTransferExcuteAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new ETHTransferPage());
-    }
-	
-	[RelayCommand]
-    public async Task TransactionsExcuteAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
-    }
+    public async Task AuthorsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(AuthorsPage));
 
 	[RelayCommand]
-    public async Task AccountsExcuteAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new ManageAccountsPage());
-    }
+    public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(ProductsPage));
+	
+	[RelayCommand]
+    public async Task ETHTransferExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(ETHTransferPage));
+	
+	[RelayCommand]
+    public async Task TransactionsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(TransactionsPage));
+	
+	[RelayCommand]
+    public async Task NetworkExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(NetworkPage));
+	
+	[RelayCommand]
+    public async Task HelpExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(HelpPage));
 
 	internal async Task InitializeAsync()
 	{

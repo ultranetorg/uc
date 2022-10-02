@@ -1,18 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.EnterPinPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     x:Name="page">
-    <cls:CustomPage.Resources>
+    <controls:CustomPage.Resources>
         <Style TargetType="Label" BasedOn="{StaticResource NumberLabel}">
             <Setter Property="HorizontalOptions" Value="Center"/>
             <Setter Property="VerticalOptions" Value="Center"/>
         </Style>
-    </cls:CustomPage.Resources>
+    </controls:CustomPage.Resources>
     
-    <cls:CustomPage.MainContent>
+    <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="{StaticResource PagePadding}" Spacing="60">
                 <Label
@@ -55,5 +55,5 @@
                 </Grid>
             </StackLayout>
         </ScrollView>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

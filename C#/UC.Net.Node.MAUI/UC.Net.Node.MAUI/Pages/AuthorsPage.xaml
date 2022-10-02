@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.AuthorsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     Title="Authors"
     x:Name="page">
-    <!--<cls:CustomPage.RightContent>
+    <!--<controls:CustomPage.RightContent>
         <Grid ColumnDefinitions="Auto,Auto">
             <ImageButton
                 Grid.Column="1"
@@ -20,8 +20,8 @@
                 Style="{StaticResource Sort}"
                 VerticalOptions="Center" />
         </Grid>
-    </cls:CustomPage.RightContent>-->
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>-->
+    <controls:CustomPage.MainContent>
         <Grid RowDefinitions="30,*">
             <CollectionView Margin="18,0,0,0" ItemsSource="{Binding AuthorsFilter}">
                 <CollectionView.ItemsLayout>
@@ -235,5 +235,5 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>
