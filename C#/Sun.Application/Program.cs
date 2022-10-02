@@ -55,9 +55,7 @@ namespace UC.Sun.Application
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
 
-				string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-				Core =	new Core(Settings, dir, Log)
+				Core =	new Core(Settings, exedir, Log)
 						{
 							Clock = new RealTimeClock(), 
 							Nas = new Nas(Settings, Log), 

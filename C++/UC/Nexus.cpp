@@ -171,24 +171,29 @@ CList<CReleaseAddress> CNexus::GetLatestReleases()
 
 CApplicationRelease * CNexus::LoadRelease(CApplicationReleaseAddress & address, bool server)
 {
-	std::function<CManifest *(CReleaseAddress & a)> loadmanifest;
+	std::function<CCompiledManifest *(CReleaseAddress & a)> loadmanifest;
 
-	loadmanifest =	[&](CReleaseAddress & a) -> CManifest *
+	loadmanifest =	[&](CReleaseAddress & a) -> CCompiledManifest *
 					{
 						auto r = Manifests.Find([&](auto i){ return i->Address == a; });
 
 						if(!r)
 						{
-							auto & m = CTonDocument(CXonTextReader(&CLocalFileStream(Core->Resolve(MapPathToRealization(a, a.Version.ToString() + L".manifest")), EFileMode::Open)));
+							auto deps = Core->Resolve(MapPathToRealization(a, a.Version.ToString() + L".mm"));
 
-							r = new CManifest(a, m);
-
-							if(auto d = m.One(L"CompleteDependencies"))
+							if(CNativePath::IsFile(deps))
 							{
-								r->CompleteDependencies = d->Nodes.SelectArray<CManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
+								auto & m = CTonDocument(CXonTextReader(&CLocalFileStream(deps, EFileMode::Open)));
+	
+								r = new CCompiledManifest(a, m);
+	
+								if(auto d = m.One(L"Dependencies"))
+								{
+									r->Dependencies = d->Nodes.SelectArray<CCompiledManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
+								}
+							
+								Manifests.AddBack(r);
 							}
-						
-							Manifests.AddBack(r);
 						}
 
 						return r;
@@ -442,14 +447,14 @@ void CNexus::SetDllDirectories(CApplicationRelease * info)
 	//auto addDllDirectory = (DLL_DIRECTORY_COOKIE (*)(PCWSTR))GetProcAddress(l, "AddDllDirectory");
 	//SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 
-	auto add =	[&](const auto & self, CManifest * r) -> void
+	auto add =	[&](const auto & self, CCompiledManifest * r) -> void
 				{
 					auto d = MapPathToRelease(r->Address, L"");
 					
 					path += L";" + d;
 					//addDllDirectory(d.c_str());
 
-					for(auto i : r->CompleteDependencies)
+					for(auto i : r->Dependencies)
 					{
 						self(self ,i);
 					}

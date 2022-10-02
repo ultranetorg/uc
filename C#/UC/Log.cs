@@ -17,8 +17,9 @@ namespace UC
 		{
 			return	$"{(Severity != UC.Log.Severity.Info ? ("!!! " + Severity + " : ") : null)}" +
 					$"{(Sender != null ? Sender.GetType().Name + " : " : null)}" +
-					$"{(Subject != null ? Subject + " : " : null)}" +
-					$"{(Text != null ? string.Join("; ", Text) : null)}";
+					$"{(Subject != null ? Subject : null)}" +
+					(Subject != null && Text != null ? " : " : null) +
+					$"{(Text != null ?  string.Join("; ", Text) : null)}";
 		}
 	}
 

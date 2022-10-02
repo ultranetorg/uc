@@ -21,7 +21,7 @@ namespace uc
 			int											ExitHotKeyId;
 			int											SuspendHotKeyId;
 			
-			CList<CManifest *>							Manifests;
+			CList<CCompiledManifest *>							Manifests;
 			CList<CApplicationRelease *>				ServerReleases;
 			CList<CApplicationRelease *>				ClientReleases;
 			CList<CServerInstance *>					Servers;

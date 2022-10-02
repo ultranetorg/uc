@@ -53,8 +53,8 @@ namespace UC.Net
 			IncrementalHash				= incrementalhash;
 			IncrementalSize				= incrementalsize;
 
-			AddedCoreDependencies		= addedcoredependencies.ToArray();
-			RemovedCoreDependencies		= removedcoredependencies.ToArray();
+			AddedCoreDependencies		= addedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
+			RemovedCoreDependencies		= removedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
 		}
 
 		public XonDocument ToXon(IXonValueSerializator serializator)
