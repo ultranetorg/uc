@@ -220,22 +220,25 @@ namespace UC.Net
 							
 					case ExitCall e:
 						rp.Close();
-						Core.Stop("RPC call");
+						Core.Stop("Json Api call");
 						return;
 
 					case QueryReleaseCall c:
 					{
-						var a = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout));
+						//var a = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout));
 						var r = Core.QueryRelease(c.Queries, c.Confirmed);
 
-						respondjson(new QueryReleaseResult{Manifests = r.Manifests});
+						respondjson(r);
+
 						break;
 					}
-					case DownloadPackageCall c:
+
+					case DownloadReleaseCall c:
 					{
-						Core.DownloadPackage(c.Package, new Workflow(null, new CancellationTokenSource()));
+						Core.DownloadRelease(c.Release, new Workflow(null, new CancellationTokenSource()));
 						break;
 					}
+
 					case DownloadStatusCall c:
 					{
 						respondjson(Core.GetDownloadStatus(c.Package));

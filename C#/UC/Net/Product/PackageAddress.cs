@@ -12,25 +12,36 @@ namespace UC.Net
 		public long CompletedLength { get; set; }
 	}
 
-	public class PackageAddress : ReleaseAddress, IEquatable<PackageAddress>
+	public class PackageAddress : IBinarySerializable, IEquatable<PackageAddress>
 	{
-		public Distribution Distribution { get; set; }
+		ReleaseAddress			Release;
+		public string			Author => Release.Author;
+		public string			Product => Release.Product;
+		public string			Platform => Release.Platform;
+		public Version			Version => Release.Version;
+		public Distributive		Distributive { get; set; }
 	
-		public PackageAddress(string author, string product, string platform, Version version, Distribution distribution) : base(author, product, platform, version)
+		public static implicit operator ProductAddress(PackageAddress a) => a.Release;
+		public static implicit operator RealizationAddress(PackageAddress a) => a.Release;
+		public static implicit operator ReleaseAddress(PackageAddress a) => a.Release;
+
+		public PackageAddress(string author, string product, string platform, Version version, Distributive distribution)
 		{
-			Distribution = distribution;
+			Release = new(author, product, platform, version);
+			Distributive = distribution;
 		}
 	
-		public PackageAddress(ReleaseAddress release, Distribution distribution) : base(release.Author, release.Product, release.Platform, release.Version)
+		public PackageAddress(ReleaseAddress release, Distributive distribution)
 		{
-			Distribution = distribution;
+			Release = new(release.Author, release.Product, release.Platform, release.Version);
+			Distributive = distribution;
 		}
 	
 		public PackageAddress()
 		{
 		}
 
-		public new static PackageAddress Parse(string v)
+		public static PackageAddress Parse(string v)
 		{
 			var s = v.Split('/');
 			var a = new PackageAddress();
@@ -40,40 +51,52 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return base.ToString() + "/" + Distribution.ToString().ToLower()[0];
+			return Release.ToString() + "/" + Distributive.ToString().ToLower()[0];
 		}
 
-		public override void Parse(string[] s)
+		public void Parse(string[] s)
 		{
-			base.Parse(s);
-			Distribution = s[4] == "c" ? Net.Distribution.Complete : Net.Distribution.Incremental;
+			Release = new();
+			Release.Parse(s);
+			Distributive = s[4] == "c" ? Distributive.Complete : Net.Distributive.Incremental;
 		}
 
-		public override void Write(BinaryWriter w)
+		public void Write(BinaryWriter w)
 		{
-			base.Write(w);
-			w.Write((byte)Distribution);
+			Release.Write(w);
+			w.Write((byte)Distributive);
 		}
 
-		public override void Read(BinaryReader r)
+		public void Read(BinaryReader r)
 		{
-			base.Read(r);
-			Distribution = (Distribution)r.ReadByte();
+			Release = new();
+			Release.Read(r);
+			Distributive = (Distributive)r.ReadByte();
 		}
 
 		public override bool Equals(object obj)
 		{
-			return obj is PackageAddress address && base.Equals(obj) && Distribution == address.Distribution;
+			return obj is PackageAddress p && Equals(p);
+		}
+
+		public bool Equals(PackageAddress other)
+		{
+			return Release.Equals(other.Release) && Distributive == other.Distributive;
 		}
 
  		public override int GetHashCode()
  		{
- 			return base.GetHashCode(); /// don't change this!
+ 			return Release.GetHashCode();
  		}
 
-		public bool Equals(PackageAddress other)
+		public static bool operator ==(PackageAddress left, PackageAddress right)
 		{
-			return Equals(other as object);
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(PackageAddress left, PackageAddress right)
+		{
+			return !(left == right);
 		}
 	}
 
@@ -89,69 +112,4 @@ namespace UC.Net
 			writer.WriteStringValue(value.ToString());
 		}
 	}
-
-	//public class PackageDownload : PackageAddress
-	//{
-	//	public long					Offset { get; set; }
-	//	public long					Length { get; set; }
-	//
-	//	public PackageDownload(string author, string product, Version version, string platform, Distribution distribution, long offset, long length) : base(author, product, version, platform, distribution)
-	//	{
-	//		Offset = offset;
-	//		Length = length;
-	//	}
-	//
-	//	public PackageDownload()
-	//	{
-	//	}
-	//
-	//	public override void Write(BinaryWriter w)
-	//	{
-	//		throw new NotImplementedException();
-	//	}
-	//
-	//	public override void Read(BinaryReader r)
-	//	{
-	//		throw new NotImplementedException();
-	//	}
-	//	// 
-	//	// 		public override string ToString()
-	//	// 		{
-	//	// 			return $"{base.ToString()}/{Distribution.ToString().ToLower()[0]}/{Offset}/{Length}";
-	//	// 		}
-	//	// 
-	//	// 		public new static ReleaseDownloadRequest Parse(string v)
-	//	// 		{
-	//	// 			var s = v.Split('/');
-	//	// 			var a = new ReleaseDownloadRequest();
-	//	// 			a.Parse(s);
-	//	// 			return a;
-	//	// 		}
-	//	// 				
-	//	// 		public override void Parse(string[] s)
-	//	// 		{
-	//	// 			base.Parse(s);
-	//	// 			
-	//	// 			Distribution = s[6] switch {"c" => ReleaseDistribution.Complete,
-	//	// 										"i"	=> ReleaseDistribution.Incremental,
-	//	// 										_	=> throw new IntegrityException("Unknown ReleaseDistribution")};
-	//	// 
-	//	// 			Offset = long.Parse(s[7]);
-	//	// 			Length = long.Parse(s[8]);
-	//	// 		}
-	//}
-
-	//	public class ReleaseDownloadRequestJsonConverter : JsonConverter<ReleaseDownloadRequest>
-	//	{
-	//		public override ReleaseDownloadRequest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-	//		{
-	//			return ReleaseDownloadRequest.Parse(reader.GetString());
-	//		}
-	//
-	//		public override void Write(Utf8JsonWriter writer, ReleaseDownloadRequest value, JsonSerializerOptions options)
-	//		{
-	//			writer.WriteStringValue(value.ToString());
-	//		}
-	//	}
-
 }

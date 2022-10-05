@@ -1373,11 +1373,6 @@ namespace UC.Net
 					{
 						continue;
 					}
-
-					if(m == this && Synchronization != Synchronization.Synchronized)
-					{
-						continue;
-					}
 				}
 
 				try
@@ -1386,6 +1381,9 @@ namespace UC.Net
 
 					lock(Lock)
 					{
+						if(m == this && Synchronization != Synchronization.Synchronized)
+							continue;
+
 						peers = Peers.ToArray();
 						pendings = Operations.Where(i => i.Delegation == DelegationStage.Pending).ToArray();
 						ready = pendings.Any() && !Operations.Any(i => i.Delegation == DelegationStage.Delegated && i.Placing == PlacingStage.Null);
@@ -1921,7 +1919,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Emission FinishTransfer(PrivateAccount signer, Workflow flowcontrol = null)
+		public Emission FinishTransfer(PrivateAccount signer, Workflow workflow = null)
 		{
 			lock(Lock)
 			{
@@ -1945,11 +1943,11 @@ namespace UC.Net
 			return null;
 		}
 
-		public Download DownloadPackage(PackageAddress package, Workflow vizor)
+		public Download DownloadRelease(ReleaseAddress package, Workflow workflow)
 		{
 			lock(Lock)
 			{
-				var d = new Download(this, vizor, package);
+				var d = new Download(this, package, workflow);
 	
 				Downloads.Add(d);
 		
@@ -1977,7 +1975,7 @@ namespace UC.Net
 			}
 		}
 
-		public Operation Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, PrivateAccount by, IEnumerable<ReleaseAddress> acd, IEnumerable<ReleaseAddress> rcd, PlacingStage waitstage, Workflow workflow)
+		public Operation Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory,  PrivateAccount by, PlacingStage waitstage, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 
@@ -2009,8 +2007,23 @@ namespace UC.Net
 				}
 			}
 
-			var cpkg = Filebase.Add(release, Distribution.Complete, files, null, workflow);
+			var cpkg = Filebase.Add(release, Distributive.Complete, files, null, workflow);
 			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal, workflow);
+
+			var vs = Directory.EnumerateFiles(dependsdirectory, "*.dependencies").Select(i => UC.Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i < release.Version).OrderBy(i => i);
+
+			IEnumerable<ReleaseAddress> acd = null;
+			IEnumerable<ReleaseAddress> rcd = null;
+
+			if(vs.Any())
+			{
+				var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.dependencies")).Select(i => ReleaseAddress.Parse(i));
+	
+				var deps = File.ReadLines(Path.Join(dependsdirectory, release.Version.EGRB + ".dependencies")).Select(i => ReleaseAddress.Parse(i));
+	
+				acd = deps.Where(i => !lastdeps.Contains(i));
+				rcd = lastdeps.Where(i => !deps.Contains(i));
+			}
 
 			var m = new Manifest(	release,
 									channel,
@@ -2033,9 +2046,9 @@ namespace UC.Net
 			workflow?.Log?.Report(this, "Manifest added to the chain");
 
 			if(ipkg != null)
-				DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete), new PackageAddress(release, Distribution.Incremental)}, workflow);
+				DeclarePackage(new[]{new PackageAddress(release, Distributive.Complete), new PackageAddress(release, Distributive.Incremental)}, workflow);
 			else
-				DeclarePackage(new[]{new PackageAddress(release, Distribution.Complete)}, workflow);
+				DeclarePackage(new[]{new PackageAddress(release, Distributive.Complete)}, workflow);
 
 			return o;
 		}
@@ -2064,7 +2077,7 @@ namespace UC.Net
 
 				h.DeclarePackage(packages);
 
-				workflow?.Log?.Report(this, "Package declared", $"Hub={h.IP}");
+				workflow?.Log?.Report(this, "Package declared", $"N={packages.Count()} Hub={h.IP}");
 
 				hubs.Add(h);
 			}

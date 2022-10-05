@@ -22,7 +22,7 @@ namespace UC.Net
 
 		public void Write(BinaryWriter writer)
 		{
-			var ds = Items.GroupBy(i => i.Distribution);
+			var ds = Items.GroupBy(i => i.Distributive);
 			writer.Write7BitEncodedInt(ds.Count());
 
 			foreach(var d in ds)
@@ -65,7 +65,7 @@ namespace UC.Net
 
 			for(int i=0; i<dn; i++)
 			{
-				var d = (Distribution)reader.ReadByte();
+				var d = (Distributive)reader.ReadByte();
 
 				var pfn = reader.Read7BitEncodedInt();
 

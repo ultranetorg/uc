@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Model;
 using Nethereum.Util;
@@ -250,14 +251,14 @@ namespace UC.Net
 
 			if(!a.Products.Contains(Manifest.Address.Product))
 			{
-				Error = "Product is not registered";
+				Error = "Product not found";
 				return;
 			}
  
 			var p = round.FindProduct(Manifest.Address);
 
 			if(p == null)
-				throw new IntegrityException("Product not found");
+				throw new IntegrityException("ProductEntry not found");
 			
 			var z = p.Realizations.Find(i => i.Name == Manifest.Address.Platform);
 
@@ -266,12 +267,55 @@ namespace UC.Net
 				Error = "Realization not found";
 				return;
 			}
-	
-			var r = p.Releases.Where(i => i.Platform == Manifest.Address.Platform && i.Channel == Manifest.Channel).MaxBy(i => i.Version);
-					
-			if(r != null)
+
+			bool checkrlz(ReleaseAddress d)
 			{
-				if(r.Version < Manifest.Address.Version)
+				var a = round.FindAuthor(d.Author);
+				
+				if(a == null)
+					return false;
+
+				if(!a.Products.Contains(d.Product))
+					return false;
+			
+				var p = round.FindProduct(d);
+
+				if(p == null)
+					throw new IntegrityException("ProductEntry not found");
+
+				var z = p.Realizations.Find(i => i.Name == d.Platform);
+				
+				if(z == null)
+					return false;
+
+				var r = p.Releases.Where(i => i.Platform == d.Platform && i.Version == d.Version);
+
+				return r != null;
+			}
+
+			foreach(var i in Manifest.AddedCoreDependencies)
+			{
+				if(checkrlz(i) == false)
+				{
+					Error = "Incorrect AddedCoreDependencies";
+					return;
+				}
+			}
+
+			foreach(var i in Manifest.RemovedCoreDependencies)
+			{
+				if(checkrlz(i) == false)
+				{
+					Error = "Incorrect RemovedCoreDependencies";
+					return;
+				}
+			}
+	
+			var ce = p.Releases.Where(i => i.Platform == Manifest.Address.Platform).MaxBy(i => i.Version);
+					
+			if(ce != null)
+			{
+				if(ce.Version < Manifest.Address.Version)
 				{
 				//	var prev = chain.FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address.Author == Manifest.Address.Author && 
 				//																				m.Manifest.Address.Product == Manifest.Address.Product && 
@@ -285,7 +329,6 @@ namespace UC.Net
 				//	prev.Manifest.Archived = true;
 				//	round.AffectedRounds.Add(prev.Transaction.Payload.Round);
 				//	p.Releases.Remove(r);
-
 				} 
 				else
 				{
@@ -295,12 +338,21 @@ namespace UC.Net
 			}
 			else
 				p = round.ChangeProduct(Manifest.Address);
+			
+			var e = new ReleaseEntry(Manifest.Address.Platform, Manifest.Address.Version, Manifest.Channel, round.Id);
 
+			//if(ce != null)
+			//{
+			//	e.MergedDependencies = new List<ReleaseAddress>(ce.MergedDependencies);
+			//}
+			//
+			//foreach(var i in Manifest.AddedCoreDependencies)
+			//	e.MergedDependencies.Add(i);
+			//
+			//foreach(var i in Manifest.RemovedCoreDependencies)
+			//	e.MergedDependencies.Remove(i);
 
-			//var rls = round.GetReleases(round.Id);
-			//rls.Add(this);
-
-			p.Releases.Add(new ReleaseEntry(Manifest.Address.Platform, Manifest.Address.Version, Manifest.Channel, round.Id));
+			p.Releases.Add(e);
 		}
 	}
 }

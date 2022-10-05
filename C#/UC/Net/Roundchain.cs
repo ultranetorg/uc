@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -967,13 +968,13 @@ namespace UC.Net
 			return null;
 		}
 				
-		public XonDocument QueryRelease(ReleaseQuery query, bool confirmed, IXonValueSerializator serializator)
+		public QueryReleaseResult QueryRelease(ReleaseQuery query, bool confirmed)
 		{
 			if(query.VersionQuery == VersionQuery.Latest)
 			{
 				var roundmax = confirmed ? LastConfirmedRound : LastPayloadRound;
 	
-				var p = Products.Find(query, roundmax.Id);
+				var p = Products.Find(query.Realization, roundmax.Id);
 	
 				if(p != null)
 				{
@@ -981,9 +982,12 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address == query && m.Manifest.Channel == query.Channel);
+						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Manifest.Address == (RealizationAddress)query.Realization && 
+																							m.Manifest.Address.Version == r.Version && 
+																							m.Manifest.Channel == query.Channel);
+						//var re = FindRound(r.Rid).FindProduct(query.Realization).Releases.Find(i => i.Platform == query.Platform && i.Version == r.Version);
 	
-						return prev.Manifest.ToXon(serializator);
+						return new QueryReleaseResult{Manifest = rr.Manifest/*, Dependencies = re.MergedDependencies*/};
 					}
 				}
 
@@ -994,7 +998,7 @@ namespace UC.Net
 			{
 				var roundmax = confirmed ? LastConfirmedRound : LastPayloadRound;
 	
-				var p = Products.Find(query, roundmax.Id);
+				var p = Products.Find(query.Realization, roundmax.Id);
 	
 				if(p != null)
 				{
@@ -1002,9 +1006,10 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address == query);
+						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m => m.Manifest.Address == query.Realization);
+						//var re = FindRound(r.Rid).FindProduct(query.Realization).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
 	
-						return prev.Manifest.ToXon(serializator);
+						return new QueryReleaseResult{Manifest = rr.Manifest/*, Dependencies = re.MergedDependencies*/};
 					}
 				}
 
@@ -1012,6 +1017,29 @@ namespace UC.Net
 			}
 
 			throw new ArgumentException("Unknown VersionQuery");
+		}
+
+		public ReleaseHistoryResponse GetRealizationHistory(RealizationAddress realization, bool confirmed)
+		{
+			var round = confirmed ? LastConfirmedRound : LastPayloadRound;
+				
+			var p = Products.Find(realization, round.Id);
+			
+			if(p != null)
+			{
+				var ms = new List<Manifest>();
+
+				foreach(var r in p.Releases)
+				{
+					var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Manifest.Address == realization && i.Manifest.Address.Version == r.Version);
+					//var re = FindRound(r.Rid).FindProduct(query).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
+					ms.Add(rr.Manifest);
+				}
+
+				return new ReleaseHistoryResponse{Manifests = ms};
+			}
+
+			return null;
 		}
 	}
 }

@@ -5,31 +5,53 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public enum Distribution
+	public enum Distributive
 	{
 		Null, Complete, Incremental
 	}
 
 	public enum VersionQuery
 	{
-		Null, Exact, Latest
+		Null, Exact, Latest, Previous
 	}
 
-	public class ReleaseQuery : ReleaseAddress
+	public class ReleaseQuery
 	{
+		public RealizationAddress	Realization = new();
+		public Version				Version { get; set; } 
 		public VersionQuery			VersionQuery { get; set; } 
 		public string				Channel { get; set; } 
 
-		public override bool		Valid => true;
+		public string Author
+		{ 
+			set { Realization.Author = value; } 
+			get { return Realization.Author; } 
+		}
 
-		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string channel) : base(author, product, platform, version)
+		public string Product
+		{ 
+			set { Realization.Product = value; } 
+			get { return Realization.Product; } 
+		}
+
+		public string Platform
+		{ 
+			set { Realization.Platform = value; } 
+			get { return Realization.Platform; } 
+		}
+
+		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string channel)
 		{
+			Realization = new(author, product, platform);
+			Version = version;
 			VersionQuery = versionQuery;
 			Channel = channel;
 		}
 
-		public ReleaseQuery(ReleaseAddress release, VersionQuery versionQuery, string channel) : base(release.Author, release.Product, release.Platform, release.Version)
+		public ReleaseQuery(RealizationAddress realization, Version version, VersionQuery versionQuery, string channel)
 		{
+			Realization = new(realization.Author, realization.Product, realization.Platform);
+			Version = version;
 			VersionQuery = versionQuery;
 			Channel = channel;
 		}
@@ -38,45 +60,49 @@ namespace UC.Net
 		{
 		}
 
-		public override string ToString()
-		{
-			return $"{base.ToString()}/{VersionQuery}/{Channel}";
-		}
-
-		public new static ReleaseQuery Parse(string v)
-		{
-			var s = v.Split('/');
-			var a = new ReleaseQuery();
-			a.Parse(s);
-			return a;
-		}
-				
-		public override void Parse(string[] s)
-		{
-			base.Parse(s);
-
-			VersionQuery = Enum.Parse<VersionQuery>(s[4]);
-			Channel = s[5];
-		}
+ 		public override string ToString()
+ 		{
+ 			return $"{Realization} {Version} {VersionQuery} {Channel}";
+ 		}
+ 
+ 		public static ReleaseQuery Parse(string v)
+ 		{
+ 			var s = v.Split('/');
+ 			var a = new ReleaseQuery();
+ 			a.Parse(s);
+ 			return a;
+ 		}
+ 				
+ 		public void Parse(string[] s)
+ 		{
+ 			Realization = new();
+ 			Realization.Parse(s);
+ 
+			Version = Version.Parse(s[3]);
+ 			VersionQuery = Enum.Parse<VersionQuery>(s[4]);
+ 			Channel = s[5];
+ 		}
 
 		public bool Match(ReleaseAddress address)
 		{
 			throw new NotImplementedException();
 		}
 
-		public override void Write(BinaryWriter w)
-		{
-			base.Write(w);
-			w.Write((byte)VersionQuery);
-			w.WriteUtf8(Channel);
-		}
-
-		public override void Read(BinaryReader r)
-		{
-			base.Read(r);
-			VersionQuery = (VersionQuery)r.ReadByte();
-			Channel = r.ReadUtf8();
-		}
+// 		public void Write(BinaryWriter w)
+// 		{
+// 			Realization.Write(w);
+// 			w.Write(Version);
+// 			w.Write((byte)VersionQuery);
+// 			w.WriteUtf8(Channel);
+// 		}
+// 
+// 		public void Read(BinaryReader r)
+// 		{
+// 			Realization = new();
+// 			Realization.Read(r);
+// 			VersionQuery = (VersionQuery)r.ReadByte();
+// 			Channel = r.ReadUtf8();
+// 		}
 	}
 // 
 // 	public class ReleaseQueryJsonConverter : JsonConverter<ReleaseQuery>

@@ -17,6 +17,11 @@ namespace UC.Net
 			IP = ip;
 			Arrived = arrived;
 		}
+
+		public override string ToString()
+		{
+			return IP.ToString();
+		}
 	}
 
  	public class Package

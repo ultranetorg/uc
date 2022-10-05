@@ -66,7 +66,7 @@ namespace UC.Sun.FUI
 					r.SubItems.Add(i.Key.Product);
 					r.SubItems.Add(i.Key.Platform);
 					r.SubItems.Add(i.Key.Version.ToString());
-					r.SubItems.Add(i.Key.Distribution.ToString());
+					r.SubItems.Add(i.Key.Distributive.ToString());
 					r.Tag = i.Value;
 				}
 			}

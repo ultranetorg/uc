@@ -47,9 +47,10 @@ namespace UC.Sun.CLI
 					Core.Publish(	ReleaseAddress.Parse(GetString("address")), 
 									GetString("channel"),
 									GetString("sources").Split(','), 
+									GetString("dependsdirectory"), 
 									GetPrivate("by", "password"),
-									GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-									GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
+									//GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
+									//GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
 									GetAwaitStage(),
 									Workflow);
 
@@ -58,7 +59,7 @@ namespace UC.Sun.CLI
 
 				case "download" :
 				{
-					var d = Core.DownloadPackage(PackageAddress.Parse(GetString("address")), Workflow);
+					var d = Core.DownloadRelease(ReleaseAddress.Parse(GetString("address")), Workflow);
 
 					while(!d.Completed)
 					{
@@ -73,9 +74,9 @@ namespace UC.Sun.CLI
 				{
 					var r = Core.Connect(Role.Chain, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
 
-					foreach(var item in r.Manifests)
+					foreach(var i in r.Results)
 					{
-						Dump(item);
+						Dump(i.Manifest.ToXon(new XonTextValueSerializator()));
 					}
 
 					return r;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.Contracts.QueryHandlers.MultiCall;
 
 namespace UC.Net
 {
@@ -92,62 +93,44 @@ namespace UC.Net
 																		- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
 																		+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
 
-		public Download(Core core, Workflow vizor, PackageAddress package)
+		public Download(Core core, ReleaseAddress release, Workflow workflow)
 		{
 			Core = core;
-			Workflow = vizor;
-			Package = package;
+			Workflow = workflow;
 
 			Task = Task.Run(() =>
 							{
-								var qrrp = Core.Call(Role.Chain, vizor, c => c.QueryRelease(package, VersionQuery.Exact, "", true));
+								var r = Core.Call(Role.Chain, workflow, c => c.QueryRelease(release, release.Version, VersionQuery.Exact, null, true));
+								var his = Core.Call(Role.Chain, workflow, c => c.GetReleaseHistory(release, true));
+
+								Core.Filebase.DetermineDelta(his.Manifests, r.Results.First().Manifest.Address, out Distributive d, out List<ReleaseAddress> deps);
+
+								var qrr = r.Results.First();
+
+								Package = new PackageAddress(release, d);
 		
-								Length = qrrp.Manifests.First().GetInt64(package.Distribution switch {	Distribution.Complete => Manifest.CompleteSizeField, 
-																										Distribution.Incremental => Manifest.IncrementalSizeField, 
-																										_ =>  throw new RequirementException("Wrong Distribution value") });
+								Length = d switch {	Distributive.Complete => qrr.Manifest.CompleteSize,
+													Distributive.Incremental => qrr.Manifest.IncrementalSize,
+													_ => throw new ArgumentException("Wrong Distribution value")};
 										
-								Hash = qrrp.Manifests.First().Get<byte[]>(package.Distribution switch {	Distribution.Complete => Manifest.CompleteHashField, 
-																										Distribution.Incremental => Manifest.IncrementalHashField, 
-																										_ =>  throw new RequirementException("Wrong Distribution value") });
+								Hash = d switch {	Distributive.Complete => qrr.Manifest.CompleteHash,
+													Distributive.Incremental => qrr.Manifest.IncrementalHash, 
+													_ => throw new ArgumentException("Wrong Distribution value")};
 								
 								lock(core.Lock)
 								{
-									if(package.Distribution == Distribution.Complete)
+									foreach(var i in deps)
 									{
-										var d = qrrp.Manifests.First().One("CompleteDependencies");
-										
-										if(d != null)
+										if(!core.Downloads.Any(j => (ReleaseAddress)j.Package == i))
 										{
-											foreach(var i in d.Nodes)
-											{
-												if(!core.Downloads.Any(j => j.Package == PackageAddress.Parse(i.Name)))
-												{
-													Dependencies.Add(core.DownloadPackage(PackageAddress.Parse(i.Name), vizor));
-												}
-											}
-										}
-									}
-	
-									if(package.Distribution == Distribution.Incremental)
-									{
-										var d = qrrp.Manifests.First().One("IncrementalDependencies");
-										
-										if(d != null)
-										{
-											foreach(var i in d.Nodes)
-											{
-												if(!core.Downloads.Any(j => j.Package == PackageAddress.Parse(i.Name)))
-												{
-													Dependencies.Add(core.DownloadPackage(PackageAddress.Parse(i.Name), vizor));
-												}
-											}
+											Dependencies.Add(core.DownloadRelease(i, workflow));
 										}
 									}
 								}
 								
 								Job j;
 
-								while(Core.Running && !vizor.IsAborted)
+								while(Core.Running && !workflow.IsAborted)
 								{
 									Task[] tasks;
 
@@ -163,43 +146,42 @@ namespace UC.Net
 											{
 												Hubs[h] = new();
 	
-												Task.Run(() =>	
-														{
-															var timeout = Workflow.CreateNested();
+												Task.Run(() =>	{
+																	var timeout = Workflow.CreateNested();
 	
-															LocatePackageResponse lp = null;
+																	//LocatePackageResponse lp = null;
 		
-															try
-															{
-																if(!Settings.Dev.DisableTimeouts)
-																	timeout.Cancellation.CancelAfter(Core.Timeout);
-													
-																Core.Connect(h, timeout);
-		
-																lp = h.LocatePackage(Package, 16);
-
-																lock(Lock)
-																{
-																	Hubs[h] = lp.Seeders.ToList();
-
-																	foreach(var s in lp.Seeders)
+																	try
 																	{
-																		if(!Seeders.ContainsKey(s))
-																			Seeders[s] = SeederResult.Null;
+																		if(!Settings.Dev.DisableTimeouts)
+																			timeout.Cancellation.CancelAfter(Core.Timeout);
+													
+																		Core.Connect(h, timeout);
+		
+																		var lp = h.LocatePackage(Package, 16);
+
+																		lock(Lock)
+																		{
+																			Hubs[h] = lp.Seeders.ToList();
+
+																			foreach(var s in lp.Seeders)
+																			{
+																				if(!Seeders.ContainsKey(s))
+																					Seeders[s] = SeederResult.Null;
+																			}
+																		}
 																	}
-																}
-															}
-															catch(ConnectionFailedException)
-															{
-															}
-															catch(DistributedCallException)
-															{
-															}
-															catch(OperationCanceledException)
-															{
-															}
-														},
-														vizor.Cancellation.Token);
+																	catch(ConnectionFailedException)
+																	{
+																	}
+																	catch(DistributedCallException)
+																	{
+																	}
+																	catch(OperationCanceledException)
+																	{
+																	}
+																},
+																workflow.Cancellation.Token);
 											}
 											else
 												break;
@@ -223,7 +205,7 @@ namespace UC.Net
 										}
 									}
 
-									var ti = Task.WaitAny(tasks, vizor.Cancellation.Token);
+									var ti = Task.WaitAny(tasks, workflow.Cancellation.Token);
 
 									lock(Lock)
 									{	
@@ -234,17 +216,17 @@ namespace UC.Net
 										if(j.Succeeded)
 										{
 											lock(Core.Lock)
-												Core.Filebase.Write(package, j.Offset, j.Data.ToArray());
+												Core.Filebase.Write(Package, j.Offset, j.Data.ToArray());
 											
 											CompletedPieces.Add(j);
 
-											if(CompletedPieces.Count() == PiecesTotal && Dependencies.All(i => i.Completed))
+											if(CompletedPieces.Count() == PiecesTotal)
 											{
 												Seeders[j.Peer.IP] = SeederResult.Good;
-												
-												if(Core.Filebase.GetHash(package).SequenceEqual(Hash) && Dependencies.All(i => i.Successful))
+
+												if(Core.Filebase.GetHash(Package).SequenceEqual(Hash))
 												{
-													Core.DeclarePackage(new[]{package}, Workflow);
+													Core.DeclarePackage(new[]{Package}, Workflow);
 
 													var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeederResult.Good && h.Value.Any(ip => ip.Equals(s.Key)))).Select(i => i.Key);
 
@@ -256,9 +238,12 @@ namespace UC.Net
 													foreach(var h in seeds)
 														h.SeedRank++;
 
-													qrrp.Peer.ChainRank++;
+													r.Peer.ChainRank++;
 
-													Core.UpdatePeers(seeds.Union(hubs).Union(new[]{qrrp.Peer}).Distinct());
+													Core.UpdatePeers(seeds.Union(hubs).Union(new[]{r.Peer}).Distinct());
+
+													while(Dependencies.Any(i => !i.Completed) && Core.Running && !workflow.IsAborted)
+														Thread.Sleep(1);
 												
 													Successful = true;
 												}
@@ -282,7 +267,7 @@ namespace UC.Net
 									}
 								}
 							},
-							vizor.Cancellation.Token);
+							workflow.Cancellation.Token);
 		}
 
 		public Job Add(Peer peer, int i)

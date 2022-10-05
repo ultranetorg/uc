@@ -82,15 +82,10 @@ namespace UC.Net
 		public IEnumerable<ReleaseQuery>	Queries { get; set; }
 		public bool							Confirmed { get; set; }
 	}
-	
-	public class QueryReleaseResult
-	{
-		public IEnumerable<XonDocument> Manifests { get; set; }
-	}
 
-	public class DownloadPackageCall : ApiCall
+	public class DownloadReleaseCall : ApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ReleaseAddress	Release { get; set; }
 	}
 
 	public class DownloadStatusCall : ApiCall

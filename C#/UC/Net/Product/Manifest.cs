@@ -153,7 +153,7 @@ namespace UC.Net
 				
 				if(IncrementalSize > 0)
 				{
-					IncrementalMinimalVersion = r.ReadVersion();
+					IncrementalMinimalVersion = r.Read<Version>();
 					IncrementalHash = r.ReadSha3();
 				}
 

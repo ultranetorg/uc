@@ -79,7 +79,7 @@ namespace UC.Net
 					return true;
 				}
 				case IBinarySerializable v:
-					writer.Write(v);
+					v.Write(writer);
 					return true;
 
 	 			case Operation v:
@@ -121,6 +121,9 @@ namespace UC.Net
 			{
 				if(i is ITypedBinarySerializable t)
 				{
+					if(t.TypeCode == 13)
+						writer=writer;
+					
 					writer.Write(t.TypeCode);
 				}
 
@@ -135,7 +138,12 @@ namespace UC.Net
 
 			for(int i=0; i<n; i++)
 			{
-				l[i] = fromtype(reader.ReadByte());
+				var t = reader.ReadByte();
+				
+				if(t == 13)
+					t=t;
+
+				l[i] = fromtype(t);
 
 				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
 				{

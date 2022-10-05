@@ -28,7 +28,7 @@ namespace UC.Net
 				
 		string ToPath(PackageAddress package)
 		{
-			return Path.Join(Root, package.Author, package.Product, package.Platform, $"{package.Version}.{(package.Distribution == Distribution.Complete ? Cpkg : Ipkg)}");
+			return Path.Join(Root, package.Author, package.Product, package.Platform, $"{package.Version}.{(package.Distributive == Distributive.Complete ? Cpkg : Ipkg)}");
 		}
 
 		public PackageAddress[] GetAll()
@@ -41,7 +41,7 @@ namespace UC.Net
 																											Path.GetFileName(p), 
 																											Path.GetFileName(r), 
 																											Version.Parse(Path.GetFileNameWithoutExtension(i)),
-																											Path.GetExtension(i)[1] == 'c' ? Distribution.Complete : Distribution.Incremental);
+																											Path.GetExtension(i)[1] == 'c' ? Distributive.Complete : Distributive.Incremental);
 																			})))).ToArray();
 		}
 
@@ -51,13 +51,13 @@ namespace UC.Net
 			manifest.ToXon(new XonTextValueSerializator()).Save(new XonTextWriter(File.OpenWrite(p), Encoding.UTF8));
 		}
 
-		public string Add(ReleaseAddress release, Distribution distribution, IDictionary<string, string> files, List<string> removals, Workflow workflow)
+		public string Add(ReleaseAddress release, Distributive distribution, IDictionary<string, string> files, List<string> removals, Workflow workflow)
 		{
 			var ap = Path.Join(Root, release.Author, release.Product, release.Platform);
 
 			Directory.CreateDirectory(ap);
 			
-			var zpath = Path.Join(ap, $"{release.Version}.{(distribution == Distribution.Complete ? Cpkg : Ipkg)}");
+			var zpath = Path.Join(ap, $"{release.Version}.{(distribution == Distributive.Complete ? Cpkg : Ipkg)}");
 
 			using(var z = new FileStream(zpath, FileMode.Create))
 			{
@@ -179,12 +179,54 @@ namespace UC.Net
 
 			minimal = previous; /// TODO: determine really minimal
 			
-			return Add(release, Distribution.Incremental, incs, rems, workflow);
+			return Add(release, Distributive.Incremental, incs, rems, workflow);
 		}
 
 		public bool Exists(PackageAddress package)
 		{
 			return File.Exists(ToPath(package));
+		}
+
+		public void DetermineDelta(IEnumerable<Manifest> history, ReleaseAddress target, out Distributive distributive, out List<ReleaseAddress> dependencies)
+		{
+			dependencies = new();
+
+			var dir = Path.Join(Root, target.Author, target.Product, target.Platform);
+
+			if(Directory.Exists(dir))
+			{
+				var c = Directory.EnumerateFiles(dir, $"*.{Cpkg}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
+																	.OrderBy(i => i)
+																	.TakeWhile(i => i < target.Version) 
+																	.FirstOrDefault();	/// find last complete package
+				if(c != null) 
+				{
+					var need = history.SkipWhile(i => i.Address.Version <= c).TakeWhile(i => i.Address.Version < target.Version);
+					
+					if(need.All(i => Exists(new PackageAddress(i.Address, Distributive.Incremental))))
+					{
+						foreach(var i in need)
+						{
+							dependencies.AddRange(i.AddedCoreDependencies);
+							dependencies.RemoveAll(j => i.RemovedCoreDependencies.Contains(j));
+						}
+						
+						var t = history.First(i => i.Address == target);
+						dependencies.AddRange(t.AddedCoreDependencies);
+						dependencies.RemoveAll(j => t.RemovedCoreDependencies.Contains(j));
+						distributive = Distributive.Incremental; /// we have all incremental packages since last complete one
+						return;
+					}
+				}
+			}
+
+			foreach(var i in history.TakeWhile(i => i.Address.Version <= target.Version))
+			{
+				dependencies.AddRange(i.AddedCoreDependencies);
+				dependencies.RemoveAll(j => i.RemovedCoreDependencies.Contains(j));
+			}
+
+			distributive = Distributive.Complete;
 		}
 
 		public byte[] ReadPackage(PackageAddress package, long offset, long length)

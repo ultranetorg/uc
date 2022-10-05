@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using UC.Net;
 
 namespace UC.Sun.FUI
 {
@@ -20,23 +21,6 @@ namespace UC.Sun.FUI
 										Author.Text = null;
 										Author.SelectedIndex = -1;
 									});
-			}
-		}
-
-		private void releases_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			manifest.Text = null;
-		
-			if(Releases.SelectedItems.Count > 0)
-			{
-				var r = Releases.SelectedItems[0].Tag as ReleaseRegistration;
-				var m = r.Manifest.ToXon(new XonTextValueSerializator());
-
-				m.Dump(	(n, t) => 
-						{
-							manifest.Text += new string(' ', t * 3) + n.Name + " = ";
-							manifest.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\r\n";
-						});
 			}
 		}
 
@@ -69,6 +53,23 @@ namespace UC.Sun.FUI
 			catch(Exception ex)
 			{
 				ShowError(ex.Message);
+			}
+		}
+
+		private void releases_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			manifest.Text = null;
+		
+			if(Releases.SelectedItems.Count > 0)
+			{
+				var r = Releases.SelectedItems[0].Tag as ReleaseRegistration;
+				var q = Core.QueryRelease(r.Manifest.Address, r.Manifest.Address.Version, VersionQuery.Exact, null, false);
+
+				q.Results.First().Manifest.ToXon(new XonTextValueSerializator()).Dump(	(n, t) => 
+																						{
+																							manifest.Text += new string(' ', t * 3) + n.Name + " = ";
+																							manifest.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\r\n";
+																						});
 			}
 		}
 
