@@ -9,6 +9,9 @@ public static class GlobalAppTheme
         get => Enum.Parse<AppTheme>(Preferences.Get(nameof(Theme), Enum.GetName(THEME_OPTIONS)));
         set => Preferences.Set(nameof(Theme), value.ToString());
     }
+
+	public static string ThemeLowerCase => Theme.ToString().ToLower();
+
     public static bool IsWifiOnlyEnabled
     {
         get => Preferences.Get(nameof(IsWifiOnlyEnabled), false);

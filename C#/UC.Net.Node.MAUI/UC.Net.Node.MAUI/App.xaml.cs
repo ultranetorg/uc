@@ -11,7 +11,9 @@ public partial class App : Application
 
         Ioc.Default.ConfigureServices(provider);
 
-		MainPage = new AppShell();        
+		MainPage = new AppShell();
+
+		GlobalAppTheme.Theme = AppTheme.Dark;
 		
 		GlobalAppTheme.SetTheme();
 

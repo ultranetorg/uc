@@ -7,12 +7,12 @@
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
     Title="ETH-UNT Transfer"
     x:Name="page">
-    <controls:CustomPage.RightContent>
+    <!--<controls:CustomPage.RightContent>
         <ImageButton
             Command="{Binding OptionsCommad}"
             Opacity="0.5"
             Style="{StaticResource Dots}" />
-    </controls:CustomPage.RightContent>
+    </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"

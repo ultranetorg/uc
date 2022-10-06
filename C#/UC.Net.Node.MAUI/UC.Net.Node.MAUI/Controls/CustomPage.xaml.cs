@@ -6,12 +6,6 @@ public partial class CustomPage : ContentPage
 
 	public static readonly BindableProperty MainContentProperty = BindableProperty.Create(nameof(MainContent), typeof(View), typeof(CustomPage), null);
 
-	public static readonly BindableProperty RightContentProperty = BindableProperty.Create(nameof(RightContent), typeof(View), typeof(CustomPage), null);
-
-    public static readonly BindableProperty LeftContentProperty = BindableProperty.Create(nameof(LeftContent), typeof(View), typeof(CustomPage), null);
-
-	public static readonly BindableProperty HasBackButtonProperty = BindableProperty.Create(nameof(HasBackButton), typeof(bool), typeof(CustomPage), true);
-
 	public static readonly BindableProperty AnimationEnabledProperty = BindableProperty.Create(nameof(AnimationEnabled), typeof(bool), typeof(CustomPage), false);
 
 	public View MainContent
@@ -20,28 +14,10 @@ public partial class CustomPage : ContentPage
 		set { SetValue(MainContentProperty, value); }
 	}
 
-	public View LeftContent
-	{
-		get { return (View)GetValue(LeftContentProperty); }
-		set { SetValue(LeftContentProperty, value); }
-	}
-
 	public bool AnimationEnabled
 	{
 		get { return (bool)GetValue(AnimationEnabledProperty); }
 		set { SetValue(AnimationEnabledProperty, value); }
-	}
-
-	public bool HasBackButton
-	{
-		get { return (bool)GetValue(HasBackButtonProperty); }
-		set { SetValue(HasBackButtonProperty, value); }
-	}
-
-	public View RightContent
-	{
-		get { return (View)GetValue(RightContentProperty); }
-		set { SetValue(RightContentProperty, value); }
 	}
 
 	public CustomPage()
@@ -65,6 +41,4 @@ public partial class CustomPage : ContentPage
     //    if (AnimationEnabled)
     //        await MainFrame.TranslateTo(0, Height, LENGTH, Easing.Linear);
     //}
-
-    //private async Task BackButtonClicked(object sender, EventArgs e) => await Navigation.PopAsync();
 }

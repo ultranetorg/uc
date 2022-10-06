@@ -13,9 +13,9 @@
             IsVisible="{Binding Position, Converter={StaticResource IntToBoolConverter}}"
             Style="{StaticResource Prev}" />
     </controls:CustomPage.LeftContent>-->
-    <controls:CustomPage.RightContent>
+    <!--<controls:CustomPage.RightContent>
         <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding CloseCommad}" Style="{StaticResource Close}" />
-    </controls:CustomPage.RightContent>
+    </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"

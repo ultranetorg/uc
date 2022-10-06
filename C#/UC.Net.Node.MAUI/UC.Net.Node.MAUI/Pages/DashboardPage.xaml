@@ -80,26 +80,29 @@
                     FontSize="12"
                     FontAttributes="Bold"
                     Style="{StaticResource DashLabel}"
+                    Margin="0,8"
                     Text="Accounts" />
-                <Frame Style="{StaticResource SquareFrame}">
+                <Border Style="{StaticResource SquareBorder}">
                     <VerticalStackLayout
                         BindableLayout.ItemsSource="{Binding Wallets}"
                         BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
                         Spacing="5" />
-                </Frame>
+                </Border>
                 
                 <Label
                     FontSize="12"
                     Style="{StaticResource DashLabel}"
                     Text="Transactions"
-                    FontAttributes="Bold" />
-                <Frame Style="{StaticResource SquareFrame}">
+                    FontAttributes="Bold"
+                    Margin="0,8" />
+                
+                <Border Style="{StaticResource SquareBorder}">
                     <StackLayout
                         BindableLayout.ItemsSource="{Binding Transactions}"
                         BindableLayout.ItemTemplate="{StaticResource TransactionTemplate}"
                         Spacing="0" />
-                </Frame>
-                <StackLayout Padding="10">
+                </Border>
+                <StackLayout Padding="8">
                     <controls:LabelPair Text1="Accounts" Text2="10" />
                     <controls:LabelPair Text1="Auctions (outbinded)" Text2="0 (0)" />
                     <controls:LabelPair Text1="Auctions (renewal needed)" Text2="2 (0)" />
@@ -108,10 +111,10 @@
                     <controls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
                 </StackLayout>
                 <Grid
-                    Margin="-12,15,-12,0"
+                    Margin="-12,10,-12,0"
                     ColumnDefinitions="*,*,*,*"
                     RowDefinitions="Auto,Auto,Auto"
-                    RowSpacing="8">
+                    RowSpacing="4">
                     <controls:ImageTextButton
                         Grid.Row="0"
                         Grid.Column="0"

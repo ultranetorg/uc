@@ -6,7 +6,7 @@
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Authors"
     x:Name="page">
-    <controls:CustomPage.RightContent>
+    <!--<controls:CustomPage.RightContent>
         <Grid ColumnDefinitions="Auto,Auto">
             <ImageButton
                 Grid.Column="1"
@@ -19,7 +19,7 @@
                 Style="{StaticResource Sort}"
                 VerticalOptions="Center" />
         </Grid>
-    </controls:CustomPage.RightContent>
+    </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="{StaticResource PagePadding}" Spacing="30">

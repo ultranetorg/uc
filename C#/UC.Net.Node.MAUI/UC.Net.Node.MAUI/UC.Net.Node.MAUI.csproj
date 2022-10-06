@@ -82,8 +82,11 @@
 	  <None Remove="Resources\Images\search_light.svg" />
 	  <None Remove="Resources\Images\transactions_light.svg" />
 	  <None Remove="Resources\Images\transfer_light.svg" />
+	  <None Remove="Resources\Images\ts_done_dark.svg" />
 	  <None Remove="Resources\Images\ts_done_light.svg" />
+	  <None Remove="Resources\Images\ts_failed_dark.svg" />
 	  <None Remove="Resources\Images\ts_failed_light.svg" />
+	  <None Remove="Resources\Images\ts_pending_dark.svg" />
 	  <None Remove="Resources\Images\ts_pending_light.svg" />
 	</ItemGroup>
 

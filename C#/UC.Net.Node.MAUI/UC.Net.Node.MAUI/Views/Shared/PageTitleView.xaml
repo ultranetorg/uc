@@ -33,7 +33,7 @@
                 AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional"
                 IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNotNullOrWhiteSpace}}"
-                Style="{StaticResource BadgeFrame}">
+                Style="{StaticResource BadgeBorder}">
                 <Label
                     x:Name="BadgeValueLabel"
                     Padding="0"

@@ -90,7 +90,7 @@
                         ColumnSpacing="0">
                         <Label
                             Grid.Column="0"
-                            Text="Rnadom"
+                            Text="Random"
                             TextColor="{DynamicResource PrimaryDarkLighten}"
                             VerticalOptions="Center" />
                         <ImageButton

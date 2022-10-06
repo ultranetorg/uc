@@ -9,17 +9,22 @@ public class StatusToStyleConverter : IValueConverter
 		Guard.IsOfType<TransactionStatus>(value);
 		Guard.IsNotNull(value);
 
+		string iconName = string.Empty;
         switch ((TransactionStatus)value)
         {
             case TransactionStatus.Pending:
-                return "ts_pending_light.png";
+                iconName = $"ts_pending";
+				break;
             case TransactionStatus.Sent:
             case TransactionStatus.Received:
-                return "ts_done_light.png";
+                iconName = $"ts_done";
+				break;
             case TransactionStatus.Failed:
-                return "ts_failed_light.png";
+                iconName = $"ts_failed";
+				break;
         }
-        return null;
+
+        return $"{iconName}_{GlobalAppTheme.ThemeLowerCase}.png";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

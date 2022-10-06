@@ -4,8 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Name="Instance"
-    RowDefinitions="Auto,30"
-    RowSpacing="2"
+    RowDefinitions="Auto,14"
     HorizontalOptions="CenterAndExpand"
     VerticalOptions="CenterAndExpand"
     Padding="0">
@@ -19,7 +18,7 @@
 
     <Label
         Grid.Row="1"
-        FontSize="12"
+        FontSize="11"
         VerticalOptions="Center"
         HorizontalOptions="FillAndExpand"
         HorizontalTextAlignment="Center"

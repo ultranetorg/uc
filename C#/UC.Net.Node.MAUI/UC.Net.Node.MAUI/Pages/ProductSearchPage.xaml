@@ -6,14 +6,14 @@
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Product Search"
     x:Name="page">
-    <controls:CustomPage.RightContent>
+    <!--<controls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
                 HorizontalOptions="End"
                 Style="{StaticResource Close}"
                 VerticalOptions="Center" />
         </StackLayout>
-    </controls:CustomPage.RightContent>
+    </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
