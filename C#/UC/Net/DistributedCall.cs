@@ -12,7 +12,7 @@ namespace UC.Net
 	public enum DistributedCall : byte
 	{
 		Null, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
-		QueryRelease, ReleaseHistory, DeclarePackage, LocatePackage, DownloadPackage
+		QueryRelease, ReleaseHistory, DeclarePackage, LocatePackage, PackageInfo, DownloadPackage
 	}
 
  	public class DistributedCallException : Exception
@@ -60,6 +60,7 @@ namespace UC.Net
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
 		public LocatePackageResponse			LocatePackage(PackageAddress package, int count) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package, Count = count  });
 		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = new PackageAddressGroup(packages)});
+		public PackageInfoResponse				GetPackageInfo(PackageAddress packages) => Request<PackageInfoResponse>(new PackageInfoRequest{Packages = new[]{packages}});
 		public DownloadPackageResponse			DownloadPackage(PackageAddress package, long offset, long length) => Request<DownloadPackageResponse>(new DownloadPackageRequest{Package = package, Offset = offset, Length = length});
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
@@ -402,6 +403,26 @@ namespace UC.Net
 	public class LocatePackageResponse : Response
 	{
 		public IEnumerable<IPAddress>	Seeders { get; set; }
+	}
+
+	public class PackageInfoRequest : Request
+	{
+		public IEnumerable<PackageAddress>	Packages { get; set; }
+
+		public override Response Execute(Core core)
+		{
+			if(core.Filebase == null)
+			{
+				throw new RequirementException("Is not Filebase");
+			}
+
+			return new PackageInfoResponse{Length = Packages.Select(i => core.Filebase.GetLength(i))};
+		}
+	}
+	
+	public class PackageInfoResponse : Response
+	{
+		public IEnumerable<long> Length { get; set; }
 	}
 
 	public class DownloadPackageRequest : Request

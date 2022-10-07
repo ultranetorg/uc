@@ -283,11 +283,15 @@ namespace UC.Net
 
 			LoadPeers();
 
-			//ListeningThread = new Thread(Listening);
-			//ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
-			//ListeningThread.Start();
-
-			DelegatingThread = new Thread(Delegating);
+			DelegatingThread = new Thread(() => { 
+													try
+													{
+														Delegating();
+													}
+													catch(OperationCanceledException)
+													{
+													}
+												});
 			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
 			DelegatingThread.Start();
 								
@@ -317,8 +321,11 @@ namespace UC.Net
  								});
 			t.Start();
 
-			while(!MinimalPeersReached && !Workflow.IsAborted)
+			while(!MinimalPeersReached)
+			{
+				Workflow.ThrowIfAborted();
 				Thread.Sleep(1);
+			}
 		}
 
 		public void RunNode()
@@ -379,11 +386,27 @@ namespace UC.Net
 
 			//overridefinal?.Invoke(Settings, Vault);
 
-			ListeningThread = new Thread(Listening);
+			ListeningThread = new Thread(() =>	{
+													try
+													{
+														Listening();
+													}
+													catch(OperationCanceledException)
+													{
+													}
+												});
 			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
 			ListeningThread.Start();
 
-			DelegatingThread = new Thread(Delegating);
+			DelegatingThread = new Thread(() =>	{ 
+													try
+													{
+														Delegating();
+													}
+													catch(OperationCanceledException)
+													{
+													}
+												});
 			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
 			DelegatingThread.Start();
 
@@ -429,6 +452,10 @@ namespace UC.Net
 	
 											Thread.Sleep(1);
 										}
+									}
+									catch(OperationCanceledException)
+									{
+										Stop("Canceled");
 									}
 									catch(Exception ex) when (!Debugger.IsAttached)
 									{
@@ -1056,7 +1083,7 @@ namespace UC.Net
 			{
 				Log?.Report(this, "Syncing started");
 
-				SynchronizingThread= new Thread(Synchronizing);
+				SynchronizingThread = new Thread(Synchronizing);
 				SynchronizingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Synchronizing";
 				SynchronizingThread.Start();
 		
@@ -1068,40 +1095,42 @@ namespace UC.Net
 		{
 			int start = -1; 
 			int end = -1; 
-
+	
 			var used = new HashSet<Peer>();
-
-		 	var peer = Connect(Role.Chain, used, new Workflow(Timeout)); //Connections.Aggregate((i, j) => i.LastRound > j.LastRound ? i : j);
-
-			while(Running)
+	
+			var peer = Connect(Role.Chain, used, Workflow);
+	
+			while(true)
 			{
+				Workflow.ThrowIfAborted();
+
 				if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 				{	
 					var from = start != -1 ? start : (Chain.LastConfirmedRound.Id + 1);
-				 	var to	 = end != -1 ? end : (from + Math.Min(peer.LastRound - from, Roundchain.Pitch));
-			 	
-				 	if(from <= to)
-				 	{
+					var to	 = end != -1 ? end : (from + Math.Min(peer.LastRound - from, Roundchain.Pitch));
+				 	
+					if(from <= to)
+					{
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
-
+	
 						var rounds = rp.Read(Chain);
-						
+							
 						lock(Lock)
 						{
 							bool confirmed = true;
-	
+		
 							foreach(var r in rounds.OrderBy(i => i.Id))
 							{
 								if(confirmed && r.Confirmed)
 								{
 									foreach(var b in r.Blocks)
 										b.Confirmed = true;
-	
+		
 									Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
 									Chain.Rounds.Add(r);
 									Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
 									Chain.Seal(r);
-									
+										
 									Cache.RemoveAll(i => i.RoundId <= r.Id);
 								}
 								else
@@ -1113,36 +1142,35 @@ namespace UC.Net
 										end			= peer.LastRound; 
 										Synchronization	= Synchronization.Synchronizing;
 									}
-
+	
 									if(!confirmed && r.Confirmed)
 									{
-				 						peer = Connect(Role.Chain, used, new Workflow(Timeout)); /// unacceptable case, choose other chain peer
+					 					peer = Connect(Role.Chain, used, Workflow); /// unacceptable case, choose other chain peer
 										break;
 									}
-	
+		
 									ProcessIncoming(r.Blocks, null);
 								}
 							}
-							
+								
 							Log?.Report(this, "Rounds received", $"{from}..{to}");
 						}
-				 	}
+					}
 					else
 						break;
 				}
 			}
-
+	
 			lock(Lock)
 			{
 				Chain.Add(Cache.OrderBy(i => i.RoundId));
 				Cache.Clear();
-
+	
 				Synchronization = Synchronization.Synchronized;
 				SynchronizingThread = null;
 			}
-
+	
 			Log?.Report(this, "Syncing finished");
-
 		}
 
 		public void ProcessIncoming(IEnumerable<Block> blocks, Peer peer)
@@ -1718,7 +1746,7 @@ namespace UC.Net
 				}
 		}
 
-		public Dci ConnectToMember(Workflow vizor)
+		public Dci ConnectToMember(Workflow workflow)
 		{
 			if(Generator != null)
 			{
@@ -1727,9 +1755,10 @@ namespace UC.Net
 
 			Peer peer;
 				
-			while(Running && !vizor.IsAborted)
+			while(true)
 			{
 				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
 	
 				lock(Lock)
 				{
@@ -1741,7 +1770,7 @@ namespace UC.Net
 	
 				try
 				{
-					Connect(peer, vizor);
+					Connect(peer, workflow);
 
 					var cr = peer.GetMembers();
 	
@@ -1768,7 +1797,7 @@ namespace UC.Net
 						}
 					}
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is HttpRequestException || ex is DistributedCallException || ex is OperationCanceledException)
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is DistributedCallException)
 				{
 					peer.ReachFailures++;
 				}
@@ -1786,13 +1815,14 @@ namespace UC.Net
 																												.FirstOrDefault();
 		}
 
-		public Peer Connect(Role role, HashSet<Peer> exclusions, Workflow vizor)
+		public Peer Connect(Role role, HashSet<Peer> exclusions, Workflow workflow)
 		{
 			Peer peer;
 				
-			while(Running && !vizor.IsAborted)
+			while(Running)
 			{
 				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
 	
 				lock(Lock)
 				{
@@ -1806,7 +1836,7 @@ namespace UC.Net
 
 				try
 				{
-					Connect(peer, vizor);
+					Connect(peer, workflow);
 	
 					return peer;
 				}
@@ -1818,15 +1848,16 @@ namespace UC.Net
 			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
-		public R Call<R>(Role role, Workflow vizor, Func<Peer, R> call)
+		public R Call<R>(Role role, Workflow workflow, Func<Peer, R> call)
 		{
 			var exclusions = new HashSet<Peer>();
 
 			Peer peer;
 				
-			while(Running && !vizor.IsAborted)
+			while(true)
 			{
 				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
 	
 				lock(Lock)
 				{
@@ -1840,7 +1871,7 @@ namespace UC.Net
 
 				try
 				{
-					Connect(peer, vizor);
+					Connect(peer, workflow);
 
 					return call(peer);
 				}
@@ -1851,12 +1882,38 @@ namespace UC.Net
 				{
 				}
 			}
-
-			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
 
-		public void Connect(Peer peer, Workflow vizor)
+		public R Call<R>(IEnumerable<IPAddress> ips, Func<Peer, R> call, Workflow workflow)
+		{
+			Peer p;
+				
+			foreach(var i in ips)
+			{
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+	
+				try
+				{
+					p = GetPeer(i);
+
+					Connect(p, workflow);
+
+					return call(p);
+				}
+				catch(ConnectionFailedException)
+				{
+				}
+				catch(DistributedCallException)
+				{
+				}
+			}
+
+			throw new DistributedCallException("No valid nodes found");
+		}
+
+		public void Connect(Peer peer, Workflow workflow)
 		{
 			lock(Lock)
 			{
@@ -1869,18 +1926,26 @@ namespace UC.Net
 				}
 			}
 
-			while(Running && !vizor.IsAborted)
+			var t = DateTime.Now;
+
+			while(true)
 			{
+				workflow.ThrowIfAborted();
+
 				lock(Lock)
 					if(peer.Established)
 						return;
 					else if(peer.OutStatus == EstablishingStatus.Failed)
 						throw new ConnectionFailedException("Failed");
 
+				if(!Settings.Dev.DisableTimeouts)
+					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
+						throw new ConnectionFailedException("Timed out");
+
 				Thread.Sleep(1);
 			}
 
-			throw new ConnectionFailedException("Overall abort or timeout");
+			//throw new ConnectionFailedException("Overall abort or timeout");
 		}
 
 
@@ -2015,22 +2080,24 @@ namespace UC.Net
 			IEnumerable<ReleaseAddress> acd = null;
 			IEnumerable<ReleaseAddress> rcd = null;
 
+			var f = Path.Join(dependsdirectory, release.Version.EGRB + ".dependencies");
+			
+			var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
+			
 			if(vs.Any())
 			{
 				var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.dependencies")).Select(i => ReleaseAddress.Parse(i));
-	
-				var deps = File.ReadLines(Path.Join(dependsdirectory, release.Version.EGRB + ".dependencies")).Select(i => ReleaseAddress.Parse(i));
-	
+		
 				acd = deps.Where(i => !lastdeps.Contains(i));
 				rcd = lastdeps.Where(i => !deps.Contains(i));
 			}
+			else
+				acd = deps;
 
 			var m = new Manifest(	release,
 									channel,
-									new FileInfo(cpkg).Length,
 									Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
 									minimal,
-									ipkg != null ? new FileInfo(ipkg).Length : 0,
 									ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
 									acd,
 									rcd);
@@ -2060,8 +2127,10 @@ namespace UC.Net
 			int success = 0;
 			int failures = 0;
 
-			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0) && !workflow.IsAborted)
+			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0))
 			{
+				workflow.ThrowIfAborted();
+
 				Peer h = null;
 
 				try
@@ -2077,9 +2146,9 @@ namespace UC.Net
 
 				h.DeclarePackage(packages);
 
-				workflow?.Log?.Report(this, "Package declared", $"N={packages.Count()} Hub={h.IP}");
-
 				hubs.Add(h);
+
+				workflow?.Log?.Report(this, "Package declared", $"N={packages.Count()} Hub={h.IP}");
 			}
 		}
 
@@ -2098,8 +2167,11 @@ namespace UC.Net
 
 		void Await(Operation o, PlacingStage s, Workflow workflow)
 		{
-			while(!workflow?.IsAborted ?? true)
+			while(true)
 			{ 
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+
 				switch(s)
 				{
 					case PlacingStage.Null :				return;
@@ -2108,8 +2180,6 @@ namespace UC.Net
 					case PlacingStage.Confirmed :			if(o.Placing == PlacingStage.Confirmed) return; else break;
 					case PlacingStage.FailedOrNotFound :	if(o.Placing == PlacingStage.FailedOrNotFound) return; else break;
 				}
-
-				Thread.Sleep(1);
 			}
 		}
 	}

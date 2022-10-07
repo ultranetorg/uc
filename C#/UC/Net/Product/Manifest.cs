@@ -12,21 +12,17 @@ namespace UC.Net
 		public ReleaseAddress		Address;
 		public string				Channel;		/// stable, beta, nightly, debug,...
 		public byte[]				CompleteHash;
-		public long					CompleteSize;
 
 		public Version				IncrementalMinimalVersion;
 		public byte[]				IncrementalHash;
-		public long					IncrementalSize;
 		
 		public ReleaseAddress[]		AddedCoreDependencies;
 		public ReleaseAddress[]		RemovedCoreDependencies;
 
- 		byte[]				Hash;
+ 		byte[]						Hash;
 // 		public bool					Archived;
 
-		public const string			CompleteSizeField = "CompleteSize";
 		public const string			CompleteHashField = "CompleteHash";
-		public const string			IncrementalSizeField = "IncrementalSize";
 		public const string			IncrementalHashField = "IncrementalHash";
 
 		public Manifest()
@@ -35,10 +31,8 @@ namespace UC.Net
 
 		public Manifest(ReleaseAddress				address,
 						string						channel,
-						long						completesize,
 						byte[]						completehash,
 						Version						incrementalminimalversion,
-						long						incrementalsize,
 						byte[]						incrementalhash,
 						IEnumerable<ReleaseAddress>	addedcoredependencies,
 						IEnumerable<ReleaseAddress>	removedcoredependencies)
@@ -46,12 +40,10 @@ namespace UC.Net
 			Address						= address;
 			Channel						= channel;
 			
-			CompleteSize				= completesize;
 			CompleteHash				= completehash;
 			
 			IncrementalMinimalVersion	= incrementalminimalversion;
 			IncrementalHash				= incrementalhash;
-			IncrementalSize				= incrementalsize;
 
 			AddedCoreDependencies		= addedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
 			RemovedCoreDependencies		= removedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
@@ -67,13 +59,11 @@ namespace UC.Net
 			//if(!Archived)
 			{
 				d.Add(CompleteHashField).Value = CompleteHash;
-				d.Add(CompleteSizeField).Value = CompleteSize;
 	
-				if(IncrementalSize > 0)
+				if(IncrementalHash != null)
 				{
 					d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
 					d.Add(IncrementalHashField).Value = IncrementalHash;
-					d.Add(IncrementalSizeField).Value = IncrementalSize;
 				}
 	
 				if(AddedCoreDependencies.Any())
@@ -115,11 +105,8 @@ namespace UC.Net
  			w.Write(Address);
  			w.WriteUtf8(Channel);
  			w.Write(CompleteHash);
- 			w.Write7BitEncodedInt64(CompleteSize);
- 			
- 			w.Write7BitEncodedInt64(IncrementalSize);
  
- 			if(IncrementalSize > 0)
+ 			if(IncrementalHash != null)
  			{
  				w.Write(IncrementalMinimalVersion);
  				w.Write(IncrementalHash);
@@ -132,37 +119,6 @@ namespace UC.Net
  		
  			return Hash;
  		}
-
-		public void Read(BinaryReader r)
-		{
-			Address = r.Read<ReleaseAddress>();
-			Channel = r.ReadUtf8();
-
-			//Archived = r.ReadBoolean();
-
-			//if(Archived)
-			//{
-			//	Hash = r.ReadSha3();
-			//} 
-			//else
-			{
-				CompleteSize = r.Read7BitEncodedInt64();
-				CompleteHash = r.ReadSha3();
-
-				IncrementalSize = r.Read7BitEncodedInt64();
-				
-				if(IncrementalSize > 0)
-				{
-					IncrementalMinimalVersion = r.Read<Version>();
-					IncrementalHash = r.ReadSha3();
-				}
-
-				AddedCoreDependencies = r.ReadArray<ReleaseAddress>();
-				RemovedCoreDependencies = r.ReadArray<ReleaseAddress>();
-
-				//Hash = GetOrCalcHash();
-			}
-		}
 
 		public void Write(BinaryWriter w)
 		{
@@ -177,12 +133,14 @@ namespace UC.Net
 			//} 
 			//else
 			{
-				w.Write7BitEncodedInt64(CompleteSize);
-				w.Write(CompleteHash);
-			
-				w.Write7BitEncodedInt64(IncrementalSize);
+				w.Write(CompleteHash != null);
 
-				if(IncrementalSize > 0)
+				if(CompleteHash != null)
+					w.Write(CompleteHash);
+			
+				w.Write(IncrementalHash != null);
+				
+				if(IncrementalHash != null)
 				{
 					w.Write(IncrementalMinimalVersion);
 					w.Write(IncrementalHash);
@@ -190,6 +148,35 @@ namespace UC.Net
 
 				w.Write(AddedCoreDependencies);
 				w.Write(RemovedCoreDependencies);
+			}
+		}
+
+		public void Read(BinaryReader r)
+		{
+			Address = r.Read<ReleaseAddress>();
+			Channel = r.ReadUtf8();
+
+			//Archived = r.ReadBoolean();
+
+			//if(Archived)
+			//{
+			//	Hash = r.ReadSha3();
+			//} 
+			//else
+			{
+				if(r.ReadBoolean())
+					CompleteHash = r.ReadSha3();
+
+				if(r.ReadBoolean())
+				{
+					IncrementalMinimalVersion = r.Read<Version>();
+					IncrementalHash = r.ReadSha3();
+				}
+
+				AddedCoreDependencies = r.ReadArray<ReleaseAddress>();
+				RemovedCoreDependencies = r.ReadArray<ReleaseAddress>();
+
+				//Hash = GetOrCalcHash();
 			}
 		}
 	}

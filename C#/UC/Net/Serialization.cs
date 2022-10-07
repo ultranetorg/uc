@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -99,7 +100,14 @@ namespace UC.Net
 					return true;
 				}
 				case System.Collections.IEnumerable v:
-					writer.Write7BitEncodedInt((v as IEnumerable<object>).Count());
+
+					var n = 0;
+					foreach(var i in (System.Collections.IEnumerable)v)
+					{
+						n++;
+					}
+
+					writer.Write7BitEncodedInt(n);
 							
 					foreach(var j in v)
 					{
@@ -273,14 +281,15 @@ namespace UC.Net
 	
 					var n = reader.Read7BitEncodedInt();
 	
-					var l = ltype.GetConstructor(new System.Type[]{typeof(int)}).Invoke(new object[]{n}) as object[];
+					var l = ltype.GetConstructor(new System.Type[]{typeof(int)}).Invoke(new object[]{n});
 	
 					for(int i=0; i<n; i++)
 					{
 						if(DeserializeValue(reader, type.GetGenericArguments()[0], construct, out object v))
-							l[i] = v; 
+							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, v});
+							//l[i] = v; 
 						else
-							l[i] = Deserialize(reader, type.GetGenericArguments()[0], construct);
+							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, Deserialize(reader, type.GetGenericArguments()[0], construct)});
 					}
 
 					value = l;

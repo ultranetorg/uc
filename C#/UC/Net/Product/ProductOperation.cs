@@ -214,26 +214,24 @@ namespace UC.Net
 
 		public override void HashWrite(BinaryWriter writer)
 		{
-			writer.Write(Manifest.GetOrCalcHash());
+			writer.Write(Manifest);
 		}
 
-		public override void WritePaid(BinaryWriter w)
+		public override void WritePaid(BinaryWriter writer)
 		{
-			w.Write(Manifest.GetOrCalcHash());
+			writer.Write(Manifest);
 		}
 
-		public override void Read(BinaryReader r)
+		public override void Read(BinaryReader reader)
 		{
-			base.Read(r);
-
-			Manifest = r.Read<Manifest>();
+			base.Read(reader);
+			Manifest = reader.Read<Manifest>();
 		}
 
-		public override void Write(BinaryWriter w)
+		public override void Write(BinaryWriter writer)
 		{
-			base.Write(w);
-
-			w.Write(Manifest);
+			base.Write(writer);
+			writer.Write(Manifest);
 		}
 
 		public override void Execute(Roundchain chain, Round round)

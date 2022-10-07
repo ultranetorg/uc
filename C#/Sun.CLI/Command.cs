@@ -104,9 +104,9 @@ namespace UC.Sun.CLI
 		protected void Wait(Func<bool> waitiftrue)
 		{
 			Task.Run(() =>	{
-								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Workflow.IsAborted)
+								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Workflow.Cancellation.IsCancellationRequested)
 								{
-									Thread.Sleep(10); 
+									Thread.Sleep(1); 
 								}
 							})
 							.Wait();

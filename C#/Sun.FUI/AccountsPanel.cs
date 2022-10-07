@@ -44,25 +44,24 @@ namespace UC.Sun.FUI
 				{
 					i.SubItems[1].Tag = true;
 	
-					Task.Run(	() =>
-								{
-									string t;
+					Task.Run(() =>	{
+										string t;
 	
-									try
-									{
-										t = Core.Connect(Role.Chain, null, new Workflow(5 * 1000)).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
-									}
-									catch(ApiCallException)
-									{
-										t = "...";
-									}
+										try
+										{
+											t = Core.Connect(Role.Chain, null, new Workflow()).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
+										}
+										catch(ApiCallException)
+										{
+											t = "...";
+										}
 	
-									Invoke(	(MethodInvoker) delegate
-											{
-												i.SubItems[1].Text = t; 
-												i.SubItems[1].Tag = false;
-											});
-								});
+										Invoke(	(MethodInvoker) delegate
+												{
+													i.SubItems[1].Text = t; 
+													i.SubItems[1].Tag = false;
+												});
+									});
 				}
 			}
 	
@@ -79,7 +78,7 @@ namespace UC.Sun.FUI
 	
 									try
 									{
-										t = Core.Connect(Role.Chain, null, new Workflow(5 * 1000)).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
+										t = Core.Connect(Role.Chain, null, new Workflow()).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
 									}
 									catch(ApiCallException)
 									{
