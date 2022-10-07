@@ -3,9 +3,9 @@
     x:Class="UC.Net.Node.MAUI.Controls.LabelPair"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Padding="0"
-    ColumnDefinitions="*,*"
-    x:Name="Instance">
+    ColumnDefinitions="2*,1*"
+    x:Name="Instance"
+    Padding="0">
     <Label
         Grid.Column="0"
         FontSize="12"
@@ -14,9 +14,8 @@
     <Label
         Grid.Column="1"
         HorizontalOptions="End"
-        Opacity="0.7"
         FontSize="12"
         FontAttributes="Bold"
-        Style="{StaticResource DashLabel}"
+        Style="{StaticResource DashLabelValue}"
         Text="{Binding Text2, Source={x:Reference Instance}}" />
 </Grid>

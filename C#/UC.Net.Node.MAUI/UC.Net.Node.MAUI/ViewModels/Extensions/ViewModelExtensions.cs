@@ -53,8 +53,8 @@ public static class ViewModelExtensions
 			Ioc.Default.GetService<ILogger<ETHTransferViewModel>>()));
 		builder.Services.AddTransient(sp => new HelpViewModel(
 			Ioc.Default.GetService<ILogger<HelpViewModel>>()));
-		builder.Services.AddTransient(sp => new HelpBViewModel(
-			Ioc.Default.GetService<ILogger<HelpBViewModel>>()));
+		builder.Services.AddTransient(sp => new HelpDetailsViewModel(
+			Ioc.Default.GetService<ILogger<HelpDetailsViewModel>>()));
 		builder.Services.AddTransient(sp => new MakeBidViewModel(
 			Ioc.Default.GetService<ILogger<MakeBidViewModel>>()));
 		builder.Services.AddTransient(sp => new NetworkViewModel(

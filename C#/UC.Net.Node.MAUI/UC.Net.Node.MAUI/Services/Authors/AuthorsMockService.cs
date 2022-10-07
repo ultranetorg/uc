@@ -17,7 +17,7 @@ public class AuthorsMockService : IAuthorsService
 
     public Task<ObservableCollection<Author>> GetAllAsync()
     {
-        ObservableCollection<Author> result = new(_data.Authors);
+        var result = new ObservableCollection<Author>(_data.Authors);
         return Task.FromResult(result);
     }
 }

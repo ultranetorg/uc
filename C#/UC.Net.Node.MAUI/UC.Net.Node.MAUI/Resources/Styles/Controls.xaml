@@ -434,7 +434,6 @@
         TargetType="Label">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontFamily" Value="Regular" />
-
     </Style>
     <Style
         x:Key="SubText"
@@ -476,6 +475,14 @@
         ApplyToDerivedTypes="True"
         TargetType="Label">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarker},Dark={StaticResource Primary}}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Margin" Value="0,3" />
+    </Style>
+    <Style
+        x:Key="DashLabelValue"
+        ApplyToDerivedTypes="True"
+        TargetType="Label">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarker},Dark={StaticResource White}}" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="Margin" Value="0,3" />
     </Style>

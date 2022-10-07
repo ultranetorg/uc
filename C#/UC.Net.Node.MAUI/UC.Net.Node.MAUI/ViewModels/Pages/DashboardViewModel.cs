@@ -40,15 +40,13 @@ public partial class DashboardViewModel : BaseViewModel
 
 	internal async Task InitializeAsync()
 	{
-		Transactions.Clear();
 		Wallets.Clear();
+		Transactions.Clear();
 
-		var transactions = await _transactionsService.GetLastAsync(5);
 		var wallets = await _walletsService.GetAllAsync();
+		var transactions = await _transactionsService.GetLastAsync(3);
 
-		Transactions.AddRange(transactions);
 		Wallets.AddRange(wallets.Count < 3 ? wallets : wallets.Take(3));
-
-		await Task.Delay(10);
+		Transactions.AddRange(transactions);
 	}
 }

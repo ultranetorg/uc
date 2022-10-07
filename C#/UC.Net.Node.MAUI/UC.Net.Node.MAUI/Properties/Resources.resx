@@ -120,6 +120,12 @@
   <data name="DefaultWalletName" xml:space="preserve">
     <value>Main ultranet wallet</value>
   </data>
+  <data name="HelpAnswer1" xml:space="preserve">
+    <value>Press and hold the search bar. Tap the three dots icon More then Settings. Turn Search Box Effects on or off. </value>
+  </data>
+  <data name="HelpAnswer2" xml:space="preserve">
+    <value>The following icons are located in the upper right corner of the screen or in the quick settings panel. To see their names and descriptions, swipe down twice from the top of the screen.</value>
+  </data>
   <data name="HelpLine1" xml:space="preserve">
     <value>How to turn animation on or off in the search bar</value>
   </data>
@@ -158,5 +164,8 @@
   </data>
   <data name="HelpLine9" xml:space="preserve">
     <value>How to turn animation on or off in the search bar</value>
+  </data>
+  <data name="HelpQuestion1" xml:space="preserve">
+    <value>How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel</value>
   </data>
 </root>

@@ -68,19 +68,28 @@
 	  <None Remove="Resources\Fonts\Montserrat-SemiBoldItalic.ttf" />
 	  <None Remove="Resources\Fonts\Montserrat-Thin.ttf" />
 	  <None Remove="Resources\Fonts\Montserrat-ThinItalic.ttf" />
+	  <None Remove="Resources\Images\accounts_dark.svg" />
 	  <None Remove="Resources\Images\accounts_light.svg" />
+	  <None Remove="Resources\Images\auctions_dark.svg" />
 	  <None Remove="Resources\Images\auctions_light.svg" />
+	  <None Remove="Resources\Images\authors_dark.svg" />
 	  <None Remove="Resources\Images\authors_light.svg" />
 	  <None Remove="Resources\Images\bell_dark.svg" />
 	  <None Remove="Resources\Images\bell_light.svg" />
 	  <None Remove="Resources\Images\dashboard_outline.svg" />
+	  <None Remove="Resources\Images\help_dark.svg" />
 	  <None Remove="Resources\Images\help_light.svg" />
 	  <None Remove="Resources\Images\icon.svg" />
 	  <None Remove="Resources\Images\icon_night.svg" />
+	  <None Remove="Resources\Images\network_dark.svg" />
 	  <None Remove="Resources\Images\network_light.svg" />
+	  <None Remove="Resources\Images\products_dark.svg" />
 	  <None Remove="Resources\Images\products_light.svg" />
+	  <None Remove="Resources\Images\search_dark.svg" />
 	  <None Remove="Resources\Images\search_light.svg" />
+	  <None Remove="Resources\Images\transactions_dark.svg" />
 	  <None Remove="Resources\Images\transactions_light.svg" />
+	  <None Remove="Resources\Images\transfer_dark.svg" />
 	  <None Remove="Resources\Images\transfer_light.svg" />
 	  <None Remove="Resources\Images\ts_done_dark.svg" />
 	  <None Remove="Resources\Images\ts_done_light.svg" />
@@ -193,7 +202,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\HelpBPage.xaml">
+	  <MauiXaml Update="Pages\HelpDetailsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -453,8 +462,8 @@
 	  <Compile Update="Pages\ETHTransferPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\HelpBPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
+	  <Compile Update="Pages\HelpDetailsPage.xaml.cs">
+	    <DependentUpon>HelpDetailsPage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\HelpPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>

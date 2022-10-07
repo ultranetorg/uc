@@ -70,6 +70,24 @@ namespace UC.Net.Node.MAUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Press and hold the search bar. Tap the three dots icon More then Settings. Turn Search Box Effects on or off. .
+        /// </summary>
+        internal static string HelpAnswer1 {
+            get {
+                return ResourceManager.GetString("HelpAnswer1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The following icons are located in the upper right corner of the screen or in the quick settings panel. To see their names and descriptions, swipe down twice from the top of the screen..
+        /// </summary>
+        internal static string HelpAnswer2 {
+            get {
+                return ResourceManager.GetString("HelpAnswer2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
         internal static string HelpLine1 {
@@ -183,6 +201,15 @@ namespace UC.Net.Node.MAUI.Properties {
         internal static string HelpLine9 {
             get {
                 return ResourceManager.GetString("HelpLine9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
+        /// </summary>
+        internal static string HelpQuestion1 {
+            get {
+                return ResourceManager.GetString("HelpQuestion1", resourceCulture);
             }
         }
     }

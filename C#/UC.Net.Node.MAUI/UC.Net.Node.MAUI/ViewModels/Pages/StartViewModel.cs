@@ -104,7 +104,7 @@ public partial class StartViewModel : BaseWalletViewModel
                 await Shell.Current.Navigation.PushAsync(new HelpPage(Ioc.Default.GetService<HelpViewModel>()));
                 break;
             case 30:
-                await Shell.Current.Navigation.PushAsync(new HelpBPage(Ioc.Default.GetService<HelpBViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new HelpDetailsPage(Ioc.Default.GetService<HelpDetailsViewModel>()));
                 break;
             case 31:
                 await Shell.Current.Navigation.PushAsync(new WhatsNewPage(Ioc.Default.GetService<WhatsNewViewModel>()));

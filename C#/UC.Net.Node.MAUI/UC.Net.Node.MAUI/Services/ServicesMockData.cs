@@ -22,15 +22,15 @@ public class ServicesMockData : IServicesMockData
 		{
 			#region Products
 
-			Product product1 = new("Windows");
-			Product product2 = new("Office");
-			Product product3 = new("Visual Studio Code");
-			Product product4 = new("Outlook 365");
-			Product product5 = new("Paint");
-			Product product6 = new("Google Search");
-			Product product7 = new("AWS");
-			Product product8 = new("Warehouse");
-			Product product9 = new("Gate Defender 3");
+			Product product1 = new("Windows", "Microsoft");
+			Product product2 = new("Office", "Microsoft");
+			Product product3 = new("Visual Studio Code", "Microsoft");
+			Product product4 = new("Outlook 365", "Microsoft");
+			Product product5 = new("Paint", "Microsoft");
+			Product product6 = new("Google Search", "Alphabet");
+			Product product7 = new("AWS", "Amazon");
+			Product product8 = new("Warehouse", "Space X");
+			Product product9 = new("Gate Defender 3", "Gate 500");
 
 			#endregion Products
 
@@ -40,6 +40,8 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "microsoft",
 				Title = "Microsoft",
+				ActiveDue = "01/02/2023",
+				BidStatus = BidStatus.Higher,
 				Products = new List<Product>
 				{
 					product1,
@@ -59,6 +61,8 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "alphabet",
 				Title = "Alphabet",
+				ActiveDue = "01/03/2023",
+				BidStatus = BidStatus.Lower,
 				Products = new List<Product>
 				{
 					product6,
@@ -70,6 +74,8 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "amazonlimited",
 				Title = "Amazon Limited",
+				ActiveDue = "01/03/2024",
+				BidStatus = BidStatus.Higher,
 				Products = new List<Product>
 				{
 					product7,
@@ -83,12 +89,16 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "spacex",
 				Title = "Space X",
+				ActiveDue = "01/09/2023",
+				BidStatus = BidStatus.Lower,
 			};
 
 			Author author5 = new()
 			{
 				Name = "gate500",
 				Title = "Gate 500",
+				ActiveDue = "01/09/2023",
+				BidStatus = BidStatus.Lower,
 				Products = new List<Product>
 				{
 					product9,
@@ -100,11 +110,11 @@ public class ServicesMockData : IServicesMockData
 
 			#region Accounts
 			
-			Transaction transaction1 = DefaultDataMock.CreateTransaction(TransactionStatus.None, 5290, "UNT Transfer");
-			Transaction transaction2 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 50, "UNT Transfer");
-			Transaction transaction3 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent, 10, "UNT Transfer");
-			Transaction transaction4 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed, 234, "UNT Transfer");
-			Transaction transaction5 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 100, "UNT Transfer");
+			Transaction transaction1 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 50, "UNT Transfer");
+			Transaction transaction2 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 100, "UNT Transfer");
+			Transaction transaction3 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed, 234, "UNT Transfer");
+			Transaction transaction4 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent, 10, "UNT Transfer");
+			Transaction transaction5 = DefaultDataMock.CreateTransaction(TransactionStatus.None, 5290, "UNT Transfer");
 			Transaction transaction6 = DefaultDataMock.CreateTransaction();
 			Transaction transaction7 = DefaultDataMock.CreateTransaction();
 

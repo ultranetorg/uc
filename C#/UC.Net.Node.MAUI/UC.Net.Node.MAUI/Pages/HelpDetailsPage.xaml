@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <controls:CustomPage
-    x:Class="UC.Net.Node.MAUI.Pages.HelpBPage"
+    x:Class="UC.Net.Node.MAUI.Pages.HelpDetailsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
@@ -15,9 +15,9 @@
                     <Label
                         Grid.Column="0"
                         Style="{StaticResource DashLabel}"
-                        Text="How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel" />
-                    <Label Margin="0,5" Text="Press and hold the search bar. Tap the three dots icon More then Settings. Turn Search Box Effects on or off. Press and hold the search bar. Tap the three dots icon More then Settings. Turn Search Box Effects on or off." />
-                    <Label Text="The following icons are located in the upper right corner of the screen or in the quick settings panel. To see their names and descriptions, swipe down twice from the top of the screen." />
+                        Text="{Binding HelpQuestionExample}" />
+                    <Label Margin="0,5" Text="{Binding HelpAnswerExample1}" />
+                    <Label Text="{Binding HelpAnswerExample2}" />
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand">
                     <Label

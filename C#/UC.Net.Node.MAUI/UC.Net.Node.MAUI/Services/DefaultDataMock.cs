@@ -20,7 +20,7 @@ internal static class DefaultDataMock
         Id = Guid.NewGuid(),
         Unts = 5005,
         IconCode = "47FO",
-        Name =Properties.Resources.DefaultWalletName,
+        Name = Properties.Resources.DefaultWalletName,
         AccountColor = Color.FromArgb("#56d7de")
     };
 

@@ -7,8 +7,10 @@
     Title="Help">
     <controls:CustomPage.MainContent>
         <Grid Padding="20,0" RowDefinitions="Auto,*">
-            <AbsoluteLayout Grid.Row="0">
-                <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+            <AbsoluteLayout Grid.Row="0" Margin="0,12">
+                <controls:BorderEntry
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All" />
                 <Image
                     Margin="10,0"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -23,12 +25,10 @@
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout>
-                            <Grid Margin="0,8" ColumnDefinitions="16,*">
-                                <Image Grid.Column="0" Style="{StaticResource Rhombus}" />
-                                <Label Grid.Column="1" Text="{Binding .}" />
-                            </Grid>
-                        </StackLayout>
+                        <Grid Margin="0,8" ColumnDefinitions="16,*" ColumnSpacing="8">
+                            <Image Grid.Column="0" Style="{StaticResource Rhombus}" />
+                            <Label Grid.Column="1" Text="{Binding .}" />
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
