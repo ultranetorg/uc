@@ -85,6 +85,8 @@
 	  <None Remove="Resources\Images\network_light.svg" />
 	  <None Remove="Resources\Images\products_dark.svg" />
 	  <None Remove="Resources\Images\products_light.svg" />
+	  <None Remove="Resources\Images\random_dark.svg" />
+	  <None Remove="Resources\Images\random_light.svg" />
 	  <None Remove="Resources\Images\search_dark.svg" />
 	  <None Remove="Resources\Images\search_light.svg" />
 	  <None Remove="Resources\Images\transactions_dark.svg" />

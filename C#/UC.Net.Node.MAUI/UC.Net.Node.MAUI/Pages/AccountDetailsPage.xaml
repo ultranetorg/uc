@@ -12,13 +12,39 @@
             <ImageButton
                 Command="{Binding DeleteCommand}"
                 HorizontalOptions="End"
-                Style="{DynamicResource Delete}"
+                Style="{StaticResource Delete}"
                 VerticalOptions="Center" />
         </StackLayout>
     </controls:CustomPage.RightContent>-->
+    <controls:CustomPage.Resources>
+        <DataTemplate x:Key="ColorsTemplate">
+            <Frame
+                Padding="0"
+                BackgroundColor="{Binding Color}"
+                CornerRadius="17"
+                HasShadow="False"
+                HeightRequest="34"
+                HorizontalOptions="Center"
+                IsClippedToBounds="True"
+                VerticalOptions="Center"
+                WidthRequest="34">
+                <ImageButton
+                    BackgroundColor="{Binding Color}"
+                    BorderColor="{Binding BorderColor}"
+                    BorderWidth="2"
+                    Command="{Binding BindingContext.ColorTappedCommand, Source={x:Reference page}}"
+                    CommandParameter="{Binding .}"
+                    CornerRadius="15"
+                    HeightRequest="30"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    WidthRequest="30" />
+            </Frame>
+        </DataTemplate>    
+    </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
         <ScrollView>
-            <StackLayout Padding="{DynamicResource PagePadding}" Spacing="22">
+            <StackLayout Padding="{StaticResource PagePadding}" Spacing="22">
                 <Grid
                     ColumnDefinitions="60,*,Auto"
                     ColumnSpacing="20"
@@ -35,14 +61,14 @@
                         WidthRequest="60">
                         <Label
                             HorizontalOptions="Center"
-                            Style="{DynamicResource CodeLabel}"
+                            Style="{StaticResource CodeLabel}"
                             Text="{Binding Wallet.IconCode}"
                             VerticalOptions="Center" />
                     </Frame>
                     <Label
                         Grid.Row="0"
                         Grid.Column="1"
-                        Style="{DynamicResource DashLabel}"
+                        Style="{StaticResource DashLabel}"
                         Text="Account color"
                         VerticalOptions="Center" />
                     <ScrollView
@@ -53,35 +79,9 @@
                         Orientation="Horizontal">
                         <StackLayout
                             BindableLayout.ItemsSource="{Binding Colors}"
+                            BindableLayout.ItemTemplate="{Binding ColorsTemplate}"
                             Orientation="Horizontal"
-                            Spacing="10">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Frame
-                                        Padding="0"
-                                        BackgroundColor="{Binding Color}"
-                                        CornerRadius="17"
-                                        HasShadow="False"
-                                        HeightRequest="34"
-                                        HorizontalOptions="Center"
-                                        IsClippedToBounds="True"
-                                        VerticalOptions="Center"
-                                        WidthRequest="34">
-                                        <ImageButton
-                                            BackgroundColor="{Binding Color}"
-                                            BorderColor="{Binding BorderColor}"
-                                            BorderWidth="2"
-                                            Command="{Binding BindingContext.ColorTappedCommand, Source={x:Reference page}}"
-                                            CommandParameter="{Binding .}"
-                                            CornerRadius="15"
-                                            HeightRequest="30"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center"
-                                            WidthRequest="30" />
-                                    </Frame>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </StackLayout>
+                            Spacing="10" />
                     </ScrollView>
                     <Grid
                         Grid.Row="0"
@@ -91,29 +91,29 @@
                         <Label
                             Grid.Column="0"
                             Text="Random"
-                            TextColor="{DynamicResource PrimaryDarkLighten}"
+                            TextColor="{StaticResource PrimaryDark}"
                             VerticalOptions="Center" />
                         <ImageButton
                             Grid.Column="1"
-                            Style="{DynamicResource Random}"
+                            Style="{StaticResource Random}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Grid>
                 <StackLayout Spacing="5">
-                    <Label Style="{DynamicResource DashLabel}" Text="Account" />
+                    <Label Style="{StaticResource DashLabel}" Text="Account" />
                     <Label
                         FontSize="13"
-                        Style="{DynamicResource Medium}"
+                        Style="{StaticResource Medium}"
                         Text="{Binding Wallet.Id}" />
                 </StackLayout>
                 <StackLayout Spacing="8">
-                    <Label Style="{DynamicResource DashLabel}" Text="Name" />
+                    <Label Style="{StaticResource DashLabel}" Text="Name" />
                     <controls:BorderEntry Placeholder="Account name" Text="{Binding Wallet.Name}">
                         <controls:BorderEntry.Behaviors>
                             <toolkit:CharactersValidationBehavior
                                 x:Name="cb"
                                 CharacterType="Letter"
-                                Flags="ValidateOnValueChanged" ValidStyle="{DynamicResource Valid}" InvalidStyle="{DynamicResource InValid}"
+                                Flags="ValidateOnValueChanged" ValidStyle="{StaticResource Valid}" InvalidStyle="{StaticResource InValid}"
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1" />
                         </controls:BorderEntry.Behaviors>
@@ -124,31 +124,31 @@
                             FontSize="12"
                             IsVisible="{Binding IsNotValid, Source={x:Reference cb}}"
                             Text="Validation text message"
-                            TextColor="{DynamicResource Red}" />
+                            TextColor="{StaticResource Red}" />
                     </StackLayout>
                 </StackLayout>
                 <StackLayout Spacing="5">
-                    <Label Style="{DynamicResource DashLabel}" Text="Balance" />
+                    <Label Style="{StaticResource DashLabel}" Text="Balance" />
                     <Label FontSize="13">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Style="{DynamicResource Medium}" Text="{Binding Wallet.Unts}" />
-                                <Span Text=" " />
-                                <Span Text="UNT" />
-                                <Span Style="{DynamicResource Regular}" Text=" ($2000)" />
+                                <Span Style="{StaticResource Medium}" Text="{Binding Wallet.Unts}" />
+                                <Span Style="{StaticResource Medium}" Text=" " />
+                                <Span Style="{StaticResource Medium}" Text="UNT " />
+                                <Span Style="{StaticResource Regular}" Text="($2000)" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
                 </StackLayout>
-                <Grid ColumnDefinitions="*,46" RowDefinitions="14,14">
+                <Grid ColumnDefinitions="*,46" RowDefinitions="24,14">
                     <Label
                         Grid.Row="0"
-                        Style="{DynamicResource DashLabel}"
+                        Style="{StaticResource DashLabel}"
                         Text="Hide" />
                     <Label
                         Grid.Row="1"
                         FontSize="13"
-                        Style="{DynamicResource Medium}"
+                        Style="{StaticResource Medium}"
                         Text="Account from Dashboard" />
                     <controls:SwitchView
                         Grid.RowSpan="2"
@@ -158,7 +158,7 @@
                 <Grid RowDefinitions="Auto,23">
                     <Label
                         Grid.Row="0"
-                        Style="{DynamicResource DashLabel}"
+                        Style="{StaticResource DashLabel}"
                         Text="Authors" />
                     <ScrollView
                         Grid.Row="1"
@@ -173,10 +173,10 @@
                                     <Frame
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{DynamicResource ButtonFrame}"
+                                        Style="{StaticResource ButtonFrame}"
                                         VerticalOptions="Center">
                                         <Label
-                                            Style="{DynamicResource ButtonLabel}"
+                                            Style="{StaticResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
                                     </Frame>
@@ -188,7 +188,7 @@
                 <Grid RowDefinitions="Auto,23">
                     <Label
                         Grid.Row="0"
-                        Style="{DynamicResource DashLabel}"
+                        Style="{StaticResource DashLabel}"
                         Text="Products" />
                     <CollectionView Grid.Row="1" ItemsSource="{Binding Products}">
                         <CollectionView.ItemsLayout>
@@ -200,10 +200,10 @@
                                     <Frame
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{DynamicResource ButtonFrame}"
+                                        Style="{StaticResource ButtonFrame}"
                                         VerticalOptions="Center">
                                         <Label
-                                            Style="{DynamicResource ButtonLabel}"
+                                            Style="{StaticResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
                                     </Frame>
@@ -211,11 +211,11 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                         <CollectionView.Footer>
-                            <StackLayout Padding="{DynamicResource SidePadding}">
+                            <StackLayout Padding="{StaticResource SidePadding}">
                                 <Label
-                                    Style="{DynamicResource Medium}"
+                                    Style="{StaticResource Medium}"
                                     Text="and 100 more"
-                                    TextColor="{DynamicResource Primary}"
+                                    TextColor="{StaticResource Primary}"
                                     TextDecorations="Underline"
                                     VerticalOptions="CenterAndExpand" />
                             </StackLayout>
