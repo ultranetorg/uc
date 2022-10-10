@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Org.BouncyCastle.Utilities.Encoders;
 using UC.Net;
 
 namespace UC.Sun.FUI
 {
 	public partial class ReleasePanel : MainPanel
 	{
+		Workflow ManifestWorkflow;
+
 		public ReleasePanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
@@ -34,12 +38,13 @@ namespace UC.Sun.FUI
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Manifest.Address.Platform == Platform.Text))
+				foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Release.Platform == Platform.Text))
 				{
-					var i = new ListViewItem(r.Manifest.Address.ToString());
+					var i = new ListViewItem(r.Release.ToString());
 					
 					i.Tag = r;
-					//i.SubItems.Add(r.Manifest.Address.ToString());
+					i.SubItems.Add(Hex.ToHexString(r.Manifest));
+					i.SubItems.Add(r.Channel);
 				
 					Releases.Items.Add(i);
 				}
@@ -63,13 +68,30 @@ namespace UC.Sun.FUI
 			if(Releases.SelectedItems.Count > 0)
 			{
 				var r = Releases.SelectedItems[0].Tag as ReleaseRegistration;
-				var q = Core.QueryRelease(r.Manifest.Address, r.Manifest.Address.Version, VersionQuery.Exact, null, false);
 
-				q.Results.First().Manifest.ToXon(new XonTextValueSerializator()).Dump(	(n, t) => 
-																						{
-																							manifest.Text += new string(' ', t * 3) + n.Name + " = ";
-																							manifest.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\r\n";
-																						});
+				if(ManifestWorkflow != null)
+				{
+					ManifestWorkflow.Abort();
+				}
+
+				ManifestWorkflow = new Workflow();
+
+				manifest.Text = "Downloading ...";
+
+				Task.Run(() =>	{ 
+									try
+									{
+										var m = Core.Call(Role.Seed, p => p.GetManifest(r.Release).Manifests.First(), ManifestWorkflow);
+
+										BeginInvoke((MethodInvoker)delegate
+													{
+														manifest.Text = Dump(m.ToXon(new XonTextValueSerializator()));
+													});
+									}
+									catch(OperationCanceledException)
+									{
+									}
+								});
 			}
 		}
 

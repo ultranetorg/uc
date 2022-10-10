@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public class PackageAddressGroup : IBinarySerializable
+	public class PackageAddressPack : IBinarySerializable
 	{
 		public IEnumerable<PackageAddress> Items;
 
-		public PackageAddressGroup()
+		public PackageAddressPack()
 		{
 		}
 
-		public PackageAddressGroup(IEnumerable<PackageAddress> packages)
+		public PackageAddressPack(IEnumerable<PackageAddress> packages)
 		{
 			Items = packages;
 		}
@@ -29,28 +29,27 @@ namespace UC.Net
 			{
 				writer.Write((byte)d.Key);
 
-				var pfs = d.GroupBy(i => i.Platform);
-				writer.Write7BitEncodedInt(pfs.Count());
+				var aths = d.GroupBy(i => i.Author);
+				writer.Write7BitEncodedInt(aths.Count());
 
-				foreach(var pf in pfs)
+				foreach(var a in aths)
 				{
-					writer.WriteUtf8(pf.Key);
+					writer.WriteUtf8(a.Key);
 
-					var aths = pf.GroupBy(i => i.Author);
-					writer.Write7BitEncodedInt(aths.Count());
+					var fs = a.GroupBy(i => i.Platform);
+					writer.Write7BitEncodedInt(fs.Count());
 
-					foreach(var a in aths)
+					foreach(var f in fs)
 					{
-						writer.WriteUtf8(a.Key);
+						writer.WriteUtf8(f.Key);
 
-						var prs = a.GroupBy(i => i.Product);
-						writer.Write7BitEncodedInt(prs.Count());
+						var ps = f.GroupBy(i => i.Product);
+						writer.Write7BitEncodedInt(ps.Count());
 
-						foreach(var pr in prs)
+						foreach(var p in ps)
 						{
-							writer.WriteUtf8(pr.Key);
-
-							writer.Write(pr, i => i.Version.Write(writer));
+							writer.WriteUtf8(p.Key);
+							writer.Write(p, i => i.Version.Write(writer));
 						}
 					}
 				}
@@ -66,26 +65,22 @@ namespace UC.Net
 			for(int i=0; i<dn; i++)
 			{
 				var d = (Distributive)reader.ReadByte();
+				var an = reader.Read7BitEncodedInt();
 
-				var pfn = reader.Read7BitEncodedInt();
-
-				for(int j=0; j<pfn; j++)
+				for(int j=0; j<an; j++)
 				{
-					var pf = reader.ReadUtf8();
+					var a = reader.ReadUtf8();
+					var fn = reader.Read7BitEncodedInt();
 
-					var an = reader.Read7BitEncodedInt();
-
-					for(int k=0; k<an; k++)
+					for(int k=0; k<fn; k++)
 					{
-						var a = reader.ReadUtf8();
+						var f = reader.ReadUtf8();
+						var pn = reader.Read7BitEncodedInt();
 
-						var prn = reader.Read7BitEncodedInt();
-
-						for(int l=0; l<prn; l++)
+						for(int l=0; l<pn; l++)
 						{
-							var pr = reader.ReadUtf8();
-
-							list.AddRange(reader.ReadArray(() => new PackageAddress(a, pr, pf, reader.Read<Version>(), d)));
+							var p = reader.ReadUtf8();
+							list.AddRange(reader.ReadArray(() => new PackageAddress(a, p, f, reader.Read<Version>(), d)));
 						}
 					}
 				}

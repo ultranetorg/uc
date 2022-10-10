@@ -91,7 +91,7 @@ namespace UC.Net
 
 		public static bool operator ==(PackageAddress left, PackageAddress right)
 		{
-			return left.Equals(right);
+			return (left is null && right is null) || (left is not null && right is not null && left.Equals(right));
 		}
 
 		public static bool operator !=(PackageAddress left, PackageAddress right)

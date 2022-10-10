@@ -160,6 +160,13 @@ namespace UC.Sun.FUI
 
 			return null;
 		}
+
+		public static string Dump(XonDocument doc)
+		{
+			string t = "";
+			doc.Dump((n, l) => t += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
+			return t;
+		}
 	}
 
 	public class MainPanel : BaseControl

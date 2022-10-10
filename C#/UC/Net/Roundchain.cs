@@ -927,7 +927,7 @@ namespace UC.Net
 			if(p == null)
 				yield break;
 
-			foreach(var r in p.Releases.Where(i => i.Rid <= maxrid).Select(i => FindRound(i.Rid).FindOperation<ReleaseRegistration>(o => o.Manifest.Address.Author == author && o.Manifest.Address.Product == product)))
+			foreach(var r in p.Releases.Where(i => i.Rid <= maxrid).Select(i => FindRound(i.Rid).FindOperation<ReleaseRegistration>(o => o.Release.Author == author && o.Release.Product == product && o.Release.Version == i.Version)))
 				yield return r;
 		}
 		
@@ -978,16 +978,14 @@ namespace UC.Net
 	
 				if(p != null)
 				{
-					var r = p.Releases.Where(i => i.Channel == query.Channel && i.Platform == query.Platform).MaxBy(i => i.Version);
+					var r = p.Releases.Where(i => i.Platform == query.Platform && i.Channel == query.Channel).MaxBy(i => i.Version);
 					
 					if(r != null)
 					{
-						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Manifest.Address == (RealizationAddress)query.Realization && 
-																							m.Manifest.Address.Version == r.Version && 
-																							m.Manifest.Channel == query.Channel);
-						//var re = FindRound(r.Rid).FindProduct(query.Realization).Releases.Find(i => i.Platform == query.Platform && i.Version == r.Version);
+						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Release == (RealizationAddress)query.Realization && 
+																							m.Release.Version == r.Version);
 	
-						return new QueryReleaseResult{Manifest = rr.Manifest/*, Dependencies = re.MergedDependencies*/};
+						return new QueryReleaseResult{Registration = rr};
 					}
 				}
 
@@ -1006,17 +1004,17 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m => m.Manifest.Address == query.Realization);
-						//var re = FindRound(r.Rid).FindProduct(query.Realization).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
+						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Release == (RealizationAddress)query.Realization && 
+																							m.Release.Version == r.Version);
 	
-						return new QueryReleaseResult{Manifest = rr.Manifest/*, Dependencies = re.MergedDependencies*/};
+						return new QueryReleaseResult{Registration = rr};
 					}
 				}
 
 				return null;
 			}
 
-			throw new ArgumentException("Unknown VersionQuery");
+			throw new ArgumentException("Unsupported VersionQuery");
 		}
 
 		public ReleaseHistoryResponse GetRealizationHistory(RealizationAddress realization, bool confirmed)
@@ -1027,16 +1025,16 @@ namespace UC.Net
 			
 			if(p != null)
 			{
-				var ms = new List<Manifest>();
+				var ms = new List<ReleaseRegistration>();
 
 				foreach(var r in p.Releases)
 				{
-					var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Manifest.Address == realization && i.Manifest.Address.Version == r.Version);
+					var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Release == realization && i.Release.Version == r.Version);
 					//var re = FindRound(r.Rid).FindProduct(query).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
-					ms.Add(rr.Manifest);
+					ms.Add(rr);
 				}
 
-				return new ReleaseHistoryResponse{Manifests = ms};
+				return new ReleaseHistoryResponse{Registrations = ms};
 			}
 
 			return null;

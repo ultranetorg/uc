@@ -7,7 +7,7 @@ namespace UC.Net
 {
 	public enum Distributive
 	{
-		Null, Complete, Incremental
+		Null, Complete = 0b01, Incremental = 0b10
 	}
 
 	public enum VersionQuery

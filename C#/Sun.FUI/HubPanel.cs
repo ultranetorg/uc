@@ -60,13 +60,13 @@ namespace UC.Sun.FUI
 	
 			lock(Core.Lock)
 			{
-				foreach(var i in Core.Hub.Packages)
+				foreach(var i in Core.Hub.Releases)
 				{
 					var r = Packages.Items.Add(i.Key.Author);
 					r.SubItems.Add(i.Key.Product);
 					r.SubItems.Add(i.Key.Platform);
 					r.SubItems.Add(i.Key.Version.ToString());
-					r.SubItems.Add(i.Key.Distributive.ToString());
+					//r.SubItems.Add(i.Key.Distributives.ToString());
 					r.Tag = i.Value;
 				}
 			}
@@ -80,9 +80,10 @@ namespace UC.Sun.FUI
 	
 				lock(Core.Lock)
 				{
-					foreach(var i in (e.Item.Tag as Package).Seeders)
+					foreach(var i in e.Item.Tag as List<Seeder>)
 					{
 						var r = Seeds.Items.Add(i.IP.ToString());
+						r.SubItems.Add((i.Distributives.HasFlag(Distributive.Complete) ? "c" : "") + (i.Distributives.HasFlag(Distributive.Complete) ? "i" : ""));
 						r.SubItems.Add(i.Arrived.ToString(ChainTime.DateFormat));
 					}
 				}

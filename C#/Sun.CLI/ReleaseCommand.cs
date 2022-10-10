@@ -30,13 +30,9 @@ namespace UC.Sun.CLI
 
 				case "declare" : 
 					return Core.Enqueue(new ReleaseRegistration(GetPrivate("by", "password"), 
-																new Manifest(	ReleaseAddress.Parse(GetString("address")),
-																				GetString("channel"), 
-																				GetHexBytes("chash"),
-																				GetVersion("iminimal"),
-																				GetHexBytes("ihash"),
-																				GetStringOrEmpty("acd").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)),
-																				GetStringOrEmpty("rcd").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i =>  ReleaseAddress.Parse(i)))),
+																ReleaseAddress.Parse(GetString("address")),
+																GetString("channel"),
+																GetHexBytes("hash")),
 										GetAwaitStage(), 
 										Workflow);
 
@@ -72,10 +68,16 @@ namespace UC.Sun.CLI
 				{
 					var r = Core.Connect(Role.Chain, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
 
-					foreach(var i in r.Results)
+					var i = r.Results.First();
+
+					if(i != null)
 					{
-						Dump(i.Manifest.ToXon(new XonTextValueSerializator()));
+						Workflow.Log?.Report(this, null, "   " + i.Registration.Release.ToString());
+						Workflow.Log?.Report(this, null, "   " + i.Registration.Channel);
+						Workflow.Log?.Report(this, null, "   " + Hex.ToHexString(i.Registration.Manifest));
 					}
+					else
+						Workflow.Log?.Report(this, null, "Not found");
 
 					return r;
 				}

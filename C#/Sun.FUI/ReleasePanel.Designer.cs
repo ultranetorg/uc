@@ -32,6 +32,8 @@ namespace UC.Sun.FUI
 			this.manifest = new System.Windows.Forms.TextBox();
 			this.Releases = new System.Windows.Forms.ListView();
 			this.cVersion = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			this.label5 = new System.Windows.Forms.Label();
 			this.Author = new System.Windows.Forms.ComboBox();
 			this.search = new System.Windows.Forms.Button();
@@ -68,7 +70,9 @@ namespace UC.Sun.FUI
 			this.Releases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Releases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.cVersion});
+            this.cVersion,
+            this.columnHeader3,
+            this.columnHeader4});
 			this.Releases.FullRowSelect = true;
 			this.Releases.Location = new System.Drawing.Point(0, 65);
 			this.Releases.Name = "Releases";
@@ -82,6 +86,16 @@ namespace UC.Sun.FUI
 			// 
 			this.cVersion.Text = "Address";
 			this.cVersion.Width = 300;
+			// 
+			// columnHeader3
+			// 
+			this.columnHeader3.Text = "Manifest Hash";
+			this.columnHeader3.Width = 500;
+			// 
+			// columnHeader4
+			// 
+			this.columnHeader4.Text = "Channel";
+			this.columnHeader4.Width = 100;
 			// 
 			// label5
 			// 
@@ -253,5 +267,7 @@ namespace UC.Sun.FUI
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader columnHeader3;
+		private System.Windows.Forms.ColumnHeader columnHeader4;
 	}
 }

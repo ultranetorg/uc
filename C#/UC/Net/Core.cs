@@ -1848,7 +1848,7 @@ namespace UC.Net
 			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
-		public R Call<R>(Role role, Workflow workflow, Func<Peer, R> call)
+		public R Call<R>(Role role, Func<Peer, R> call, Workflow workflow)
 		{
 			var exclusions = new HashSet<Peer>();
 
@@ -1884,23 +1884,24 @@ namespace UC.Net
 			}
 		}
 
-
-		public R Call<R>(IEnumerable<IPAddress> ips, Func<Peer, R> call, Workflow workflow)
+		public R Call<R>(IPAddress ip, Func<Peer, R> call, Workflow workflow)
 		{
 			Peer p;
 				
-			foreach(var i in ips)
+			p = GetPeer(ip);
+
+			Connect(p, workflow);
+
+			return call(p);
+		}
+
+		public R Call<R>(IEnumerable<IPAddress> any, Func<Peer, R> call, Workflow workflow)
+		{
+			foreach(var i in any)
 			{
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
-	
 				try
 				{
-					p = GetPeer(i);
-
-					Connect(p, workflow);
-
-					return call(p);
+					return Call(i, call, workflow);
 				}
 				catch(ConnectionFailedException)
 				{
@@ -2094,17 +2095,18 @@ namespace UC.Net
 			else
 				acd = deps;
 
-			var m = new Manifest(	release,
-									channel,
-									Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
-									minimal,
+			var m = new Manifest(	Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+									new FileInfo(cpkg).Length,
+									deps,
 									ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+									ipkg != null ? new FileInfo(ipkg).Length : 0,
+									minimal,
 									acd,
 									rcd);
 
-			Filebase.Save(m);
+			Filebase.AddManifest(release, m);
 
-			var o = new ReleaseRegistration(by, m);
+			var o = new ReleaseRegistration(by, release, channel, m.GetOrCalcHash());
 
 			Enqueue(o);
 

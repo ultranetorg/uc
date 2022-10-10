@@ -15,9 +15,12 @@ namespace UC.Net
 
 		const string		Ipkg = "ipkg";
 		const string		Cpkg = "cpkg";
+		const string		ManifestExt = "manifest";
 		const string		Removals = ".removals";
 		const string		Renamings = ".renamings"; /// TODO
 		public const long	PieceMaxLength = 64 * 1024;
+
+		List<Manifest>		Manifests = new();
 
 		public Filebase(Settings settings)
 		{
@@ -45,10 +48,36 @@ namespace UC.Net
 																			})))).ToArray();
 		}
 
-		public void Save(Manifest manifest)
+		public void AddManifest(ReleaseAddress release, Manifest manifest)
 		{
-			var p = Path.Join(Root, manifest.Address.Author, manifest.Address.Product, manifest.Address.Platform, manifest.Address.Version + ".manifest");
-			manifest.ToXon(new XonTextValueSerializator()).Save(new XonTextWriter(File.OpenWrite(p), Encoding.UTF8));
+			var p = Path.Join(Root, release.Author, release.Product, release.Platform, release.Version + $".{ManifestExt}");
+
+			using(var s = File.OpenWrite(p))
+			{
+				manifest.Write(new BinaryWriter(s));
+			}
+			//manifest.ToXon(new XonTextValueSerializator()).Save(new XonTextWriter(File.OpenWrite(p), Encoding.UTF8));
+		}
+
+		public Manifest GetManifest(ReleaseAddress release)
+		{
+			var r = Manifests.Find(i => i.Release == release);
+
+			if(r != null)
+				return r;
+
+			var m = new Manifest(){Release = release};
+
+			var p = Path.Join(Root, release.Author, release.Product, release.Platform, release.Version + $".{ManifestExt}");
+
+			using(var s = File.OpenRead(p))
+			{
+				m.Read(new BinaryReader(s));
+			}
+
+			Manifests.Add(m);
+
+			return m;
 		}
 
 		public string Add(ReleaseAddress release, Distributive distribution, IDictionary<string, string> files, List<string> removals, Workflow workflow)
@@ -187,44 +216,50 @@ namespace UC.Net
 			return File.Exists(ToPath(package));
 		}
 
-		public void DetermineDelta(IEnumerable<Manifest> history, ReleaseAddress target, out Distributive distributive, out List<ReleaseAddress> dependencies)
+		public void DetermineDelta(IEnumerable<ReleaseRegistration> history, ReleaseAddress release, out Distributive distributive, out List<ReleaseAddress> dependencies)
 		{
 			dependencies = new();
 
-			var dir = Path.Join(Root, target.Author, target.Product, target.Platform);
+			var dir = Path.Join(Root, release.Author, release.Product, release.Platform);
 
 			if(Directory.Exists(dir))
 			{
 				var c = Directory.EnumerateFiles(dir, $"*.{Cpkg}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
 																	.OrderBy(i => i)
-																	.TakeWhile(i => i < target.Version) 
+																	.TakeWhile(i => i < release.Version) 
 																	.FirstOrDefault();	/// find last complete package
 				if(c != null) 
 				{
-					var need = history.SkipWhile(i => i.Address.Version <= c).TakeWhile(i => i.Address.Version < target.Version);
+					var need = history.SkipWhile(i => i.Release.Version <= c).TakeWhile(i => i.Release.Version < release.Version);
 					
-					if(need.All(i => Exists(new PackageAddress(i.Address, Distributive.Incremental))))
+					if(need.All(i => Exists(new PackageAddress(i.Release, Distributive.Incremental))))
 					{
 						foreach(var i in need)
 						{
-							dependencies.AddRange(i.AddedCoreDependencies);
-							dependencies.RemoveAll(j => i.RemovedCoreDependencies.Contains(j));
+							var m = GetManifest(i.Release);
+
+							dependencies.AddRange(m.AddedDependencies);
+							dependencies.RemoveAll(j => m.RemovedDependencies.Contains(j));
 						}
 						
-						var t = history.First(i => i.Address == target);
-						dependencies.AddRange(t.AddedCoreDependencies);
-						dependencies.RemoveAll(j => t.RemovedCoreDependencies.Contains(j));
+						var t = GetManifest(release);
+
+						dependencies.AddRange(t.AddedDependencies);
+						dependencies.RemoveAll(j => t.RemovedDependencies.Contains(j));
 						distributive = Distributive.Incremental; /// we have all incremental packages since last complete one
+
 						return;
 					}
 				}
 			}
 
-			foreach(var i in history.TakeWhile(i => i.Address.Version <= target.Version))
-			{
-				dependencies.AddRange(i.AddedCoreDependencies);
-				dependencies.RemoveAll(j => i.RemovedCoreDependencies.Contains(j));
-			}
+// 			foreach(var i in history.TakeWhile(i => i.Release.Version <= release.Version))
+// 			{
+// 				var m = GetManifest(i.Release);
+// 
+// 				dependencies.AddRange(m.AddedDependencies);
+// 				dependencies.RemoveAll(j => m.RemovedDependencies.Contains(j));
+// 			}
 
 			distributive = Distributive.Complete;
 		}
@@ -266,5 +301,6 @@ namespace UC.Net
 				s.Write(data);
 			}
 		}
+
 	}
 }

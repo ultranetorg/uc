@@ -9,85 +9,92 @@ namespace UC.Net
 {
 	public class Manifest : IBinarySerializable
 	{
-		public ReleaseAddress		Address;
-		public string				Channel;		/// stable, beta, nightly, debug,...
+		public ReleaseAddress		Release;
+		//public string				Channel;		/// stable, beta, nightly, debug,...
 		public byte[]				CompleteHash;
+		public long					CompleteLength;
+		public ReleaseAddress[]		CompleteDependencies;
 
-		public Version				IncrementalMinimalVersion;
 		public byte[]				IncrementalHash;
-		
-		public ReleaseAddress[]		AddedCoreDependencies;
-		public ReleaseAddress[]		RemovedCoreDependencies;
+		public long					IncrementalLength;
+		public Version				IncrementalMinimalVersion;
+		public ReleaseAddress[]		AddedDependencies;
+		public ReleaseAddress[]		RemovedDependencies;
 
  		byte[]						Hash;
 // 		public bool					Archived;
-
-		public const string			CompleteHashField = "CompleteHash";
-		public const string			IncrementalHashField = "IncrementalHash";
 
 		public Manifest()
 		{
 		}
 
-		public Manifest(ReleaseAddress				address,
-						string						channel,
-						byte[]						completehash,
-						Version						incrementalminimalversion,
+		public Manifest(byte[]						completehash,
+						long						completelength,
+						IEnumerable<ReleaseAddress>	completecoredependencies,
 						byte[]						incrementalhash,
+						long						incrementallength,
+						Version						incrementalminimalversion,
 						IEnumerable<ReleaseAddress>	addedcoredependencies,
 						IEnumerable<ReleaseAddress>	removedcoredependencies)
 		{
-			Address						= address;
-			Channel						= channel;
-			
 			CompleteHash				= completehash;
+			CompleteLength				= completelength;
+			CompleteDependencies		= completecoredependencies?.ToArray() ?? new ReleaseAddress[]{};
 			
-			IncrementalMinimalVersion	= incrementalminimalversion;
 			IncrementalHash				= incrementalhash;
+			IncrementalLength			= incrementallength;
+			IncrementalMinimalVersion	= incrementalminimalversion;
 
-			AddedCoreDependencies		= addedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
-			RemovedCoreDependencies		= removedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
+			AddedDependencies		= addedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
+			RemovedDependencies		= removedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
 		}
 
 		public XonDocument ToXon(IXonValueSerializator serializator)
 		{
 			var d = new XonDocument(serializator);
 
-			d.Add("Address").Value = Address;
-			d.Add("Channel").Value = Channel;
-	
-			//if(!Archived)
+			if(CompleteHash != null)
 			{
-				d.Add(CompleteHashField).Value = CompleteHash;
+				d.Add("CompleteHash").Value = CompleteHash;
+				d.Add("CompleteLength").Value = CompleteLength;
 	
-				if(IncrementalHash != null)
+				if(CompleteDependencies.Any())
 				{
-					d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
-					d.Add(IncrementalHashField).Value = IncrementalHash;
-				}
+					var cd = d.Add("CompleteCoreDependencies");
 	
-				if(AddedCoreDependencies.Any())
-				{
-					var cd = d.Add("AddedCoreDependencies");
-
-					foreach(var i in AddedCoreDependencies)
-					{
-						cd.Add(i.ToString());
-					}
-				}
-	
-				if(RemovedCoreDependencies.Any())
-				{
-					var cd = d.Add("RemovedCoreDependencies");
-
-					foreach(var i in RemovedCoreDependencies)
+					foreach(var i in CompleteDependencies)
 					{
 						cd.Add(i.ToString());
 					}
 				}
 			}
+	
+			if(IncrementalHash != null)
+			{
+				d.Add("IncrementalHash").Value = IncrementalHash;
+				d.Add("IncrementalLength").Value = IncrementalLength;
+				d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
 
-			//d.Add("Hash").Value = Hash;
+				if(AddedDependencies.Any())
+				{
+					var cd = d.Add("AddedCoreDependencies");
+
+					foreach(var i in AddedDependencies)
+					{
+						cd.Add(i.ToString());
+					}
+				}
+	
+				if(RemovedDependencies.Any())
+				{
+					var cd = d.Add("RemovedCoreDependencies");
+
+					foreach(var i in RemovedDependencies)
+					{
+						cd.Add(i.ToString());
+					}
+				}
+			}
 
 			return d;		
 		}
@@ -102,19 +109,8 @@ namespace UC.Net
  			var s = new MemoryStream();
  			var w = new BinaryWriter(s);
  	
- 			w.Write(Address);
- 			w.WriteUtf8(Channel);
- 			w.Write(CompleteHash);
- 
- 			if(IncrementalHash != null)
- 			{
- 				w.Write(IncrementalMinimalVersion);
- 				w.Write(IncrementalHash);
- 			}
- 
- 			w.Write(AddedCoreDependencies);
- 			w.Write(RemovedCoreDependencies);
- 				
+			Write(w);
+				
  			Hash = Cryptography.Current.Hash(s.ToArray());
  		
  			return Hash;
@@ -122,61 +118,44 @@ namespace UC.Net
 
 		public void Write(BinaryWriter w)
 		{
-			w.Write(Address);
-			w.WriteUtf8(Channel);
+			w.Write(CompleteHash != null);
 
-			//w.Write(Archived);
-
-			//if(Archived)
-			//{
-			//	w.Write(GetOrCalcHash());
-			//} 
-			//else
+			if(CompleteHash != null)
 			{
-				w.Write(CompleteHash != null);
-
-				if(CompleteHash != null)
-					w.Write(CompleteHash);
-			
-				w.Write(IncrementalHash != null);
+				w.Write(CompleteHash);
+				w.Write7BitEncodedInt64(CompleteLength);
+				w.Write(CompleteDependencies);
+			}
+							
+			w.Write(IncrementalHash != null);
 				
-				if(IncrementalHash != null)
-				{
-					w.Write(IncrementalMinimalVersion);
-					w.Write(IncrementalHash);
-				}
+			if(IncrementalHash != null)
+			{
+				w.Write(IncrementalHash);
+				w.Write7BitEncodedInt64(IncrementalLength);
+				w.Write(IncrementalMinimalVersion);
 
-				w.Write(AddedCoreDependencies);
-				w.Write(RemovedCoreDependencies);
+				w.Write(AddedDependencies);
+				w.Write(RemovedDependencies);
 			}
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Address = r.Read<ReleaseAddress>();
-			Channel = r.ReadUtf8();
-
-			//Archived = r.ReadBoolean();
-
-			//if(Archived)
-			//{
-			//	Hash = r.ReadSha3();
-			//} 
-			//else
+			if(r.ReadBoolean())
 			{
-				if(r.ReadBoolean())
-					CompleteHash = r.ReadSha3();
+				CompleteHash = r.ReadSha3();
+				CompleteLength = r.Read7BitEncodedInt64();
+				CompleteDependencies = r.ReadArray<ReleaseAddress>();
+			}
 
-				if(r.ReadBoolean())
-				{
-					IncrementalMinimalVersion = r.Read<Version>();
-					IncrementalHash = r.ReadSha3();
-				}
-
-				AddedCoreDependencies = r.ReadArray<ReleaseAddress>();
-				RemovedCoreDependencies = r.ReadArray<ReleaseAddress>();
-
-				//Hash = GetOrCalcHash();
+			if(r.ReadBoolean())
+			{
+				IncrementalHash = r.ReadSha3();
+				IncrementalLength = r.Read7BitEncodedInt64();
+				IncrementalMinimalVersion = r.Read<Version>();
+				AddedDependencies = r.ReadArray<ReleaseAddress>();
+				RemovedDependencies = r.ReadArray<ReleaseAddress>();
 			}
 		}
 	}

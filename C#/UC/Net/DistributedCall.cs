@@ -12,7 +12,7 @@ namespace UC.Net
 	public enum DistributedCall : byte
 	{
 		Null, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
-		QueryRelease, ReleaseHistory, DeclarePackage, LocatePackage, PackageInfo, DownloadPackage
+		QueryRelease, ReleaseHistory, DeclarePackage, LocateRelease, Manifest, DownloadPackage
 	}
 
  	public class DistributedCallException : Exception
@@ -54,13 +54,13 @@ namespace UC.Net
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
-		public AuthorInfoResponse				GetAuthorInfo(string author, bool confirmed) => Request<AuthorInfoResponse>(new AuthorInfoRequest{ Name = author, Confirmed = confirmed });
-		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{ Account = account, Confirmed = confirmed });
+		public AuthorInfoResponse				GetAuthorInfo(string author, bool confirmed) => Request<AuthorInfoResponse>(new AuthorInfoRequest{Name = author, Confirmed = confirmed });
+		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{Account = account, Confirmed = confirmed});
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
-		public LocatePackageResponse			LocatePackage(PackageAddress package, int count) => Request<LocatePackageResponse>(new LocatePackageRequest{ Package = package, Count = count  });
-		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = new PackageAddressGroup(packages)});
-		public PackageInfoResponse				GetPackageInfo(PackageAddress packages) => Request<PackageInfoResponse>(new PackageInfoRequest{Packages = new[]{packages}});
+		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
+		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = new PackageAddressPack(packages)});
+		public ManifestResponse					GetManifest(ReleaseAddress packages) => Request<ManifestResponse>(new ManifestRequest{Releases = new[]{packages}});
 		public DownloadPackageResponse			DownloadPackage(PackageAddress package, long offset, long length) => Request<DownloadPackageResponse>(new DownloadPackageRequest{Package = package, Offset = offset, Length = length});
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
@@ -364,13 +364,13 @@ namespace UC.Net
 
 	public class QueryReleaseResult
 	{
-		public Manifest						Manifest { get; set; }
+		public ReleaseRegistration				Registration { get; set; }
 		//public IEnumerable<ReleaseAddress>	Dependencies { get; set; }
 	}
 
 	public class DeclarePackageRequest : Request
 	{
-		public PackageAddressGroup Packages { get; set; }
+		public PackageAddressPack Packages { get; set; }
 
 		public override Response Execute(Core core)
 		{
@@ -384,9 +384,9 @@ namespace UC.Net
 	{
 	}
 
-	public class LocatePackageRequest : Request
+	public class LocateReleaseRequest : Request
 	{
-		public PackageAddress	Package { get; set; }
+		public ReleaseAddress	Release { get; set; }
 		public int				Count { get; set; }
 
 		public override Response Execute(Core core)
@@ -396,18 +396,18 @@ namespace UC.Net
 				throw new RequirementException("Is not Hub");
 			}
 
-			return new LocatePackageResponse {Seeders = core.Hub.Locate(this)};
+			return new LocateReleaseResponse {Seeders = core.Hub.Locate(this)};
 		}
 	}
 	
-	public class LocatePackageResponse : Response
+	public class LocateReleaseResponse : Response
 	{
 		public IEnumerable<IPAddress>	Seeders { get; set; }
 	}
 
-	public class PackageInfoRequest : Request
+	public class ManifestRequest : Request
 	{
-		public IEnumerable<PackageAddress>	Packages { get; set; }
+		public IEnumerable<ReleaseAddress>	Releases { get; set; }
 
 		public override Response Execute(Core core)
 		{
@@ -416,13 +416,13 @@ namespace UC.Net
 				throw new RequirementException("Is not Filebase");
 			}
 
-			return new PackageInfoResponse{Length = Packages.Select(i => core.Filebase.GetLength(i))};
+			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.GetManifest(i)).ToArray()};
 		}
 	}
 	
-	public class PackageInfoResponse : Response
+	public class ManifestResponse : Response
 	{
-		public IEnumerable<long> Length { get; set; }
+		public IEnumerable<Manifest> Manifests { get; set; }
 	}
 
 	public class DownloadPackageRequest : Request
@@ -460,7 +460,7 @@ namespace UC.Net
 	
 	public class ReleaseHistoryResponse : Response
 	{
-		public IEnumerable<Manifest> Manifests { get; set; }
+		public IEnumerable<ReleaseRegistration> Registrations { get; set; }
 	}
 
 }

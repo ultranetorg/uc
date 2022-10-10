@@ -82,6 +82,7 @@ namespace UC.Net
 		public bool									Completed;
 		public bool									Successful; 
 		public List<Job>							CompletedPieces = new();
+		Manifest									Manifest;
 		Task										Task;
 		object										Lock = new object();
 		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
@@ -94,27 +95,8 @@ namespace UC.Net
 			Workflow = workflow;
 
 			Task = Task.Run(() =>	{
-										var his = Core.Call(Role.Chain, workflow, c => c.GetReleaseHistory(release, true));
-
-										Core.Filebase.DetermineDelta(his.Manifests, release, out Distributive d, out List<ReleaseAddress> deps);
-
-										var manifest = his.Manifests.First(i => i.Address == release);
-
-										Package = new PackageAddress(release, d);
-		
-										Hash = d == Distributive.Complete ? manifest.CompleteHash : manifest.IncrementalHash;
-								
-										lock(core.Lock)
-										{
-											foreach(var i in deps)
-											{
-												if(!core.Downloads.Any(j => (ReleaseAddress)j.Package == i))
-												{
-													Dependencies.Add(core.DownloadRelease(i, workflow));
-												}
-											}
-										}
-								
+										var his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, true), workflow);
+				
 										Job j;
 
 										while(Core.Running)
@@ -139,7 +121,7 @@ namespace UC.Net
 																			{
 																				Core.Connect(h, workflow);
 		
-																				var lp = h.LocatePackage(Package, 16);
+																				var lp = h.LocateRelease(release, 16);
 
 																				lock(Lock)
 																				{
@@ -153,13 +135,7 @@ namespace UC.Net
 																					}
 																				}
 																			}
-																			catch(ConnectionFailedException)
-																			{
-																			}
-																			catch(DistributedCallException)
-																			{
-																			}
-																			catch(OperationCanceledException)
+																			catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException || ex is OperationCanceledException)
 																			{
 																			}
 																		},
@@ -169,24 +145,47 @@ namespace UC.Net
 														break;
 												}
 
-												//if(Length == 0)
-												//{
-												//	Length = Core.Call(Seeders.Keys, p => p.GetPackageInfo(Package).Length.First(), workflow);
-												//}
-
 												if(Jobs.Count < (Length == 0 ? 1 : Math.Min(8, PiecesTotal - CompletedPieces.Count)))
 												{
 													var s = Seeders.FirstOrDefault(i => i.Value != SeederResult.Bad && !Jobs.Any(j => j.Peer.IP.Equals(i.Key)));
 											
 													if(s.Key != null)
 													{
-														if(Length == 0)
+														if(Manifest == null)
 														{
-															var p = core.GetPeer(s.Key);
+															try
+															{
+																Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifests.First(), workflow);
 
-															core.Connect(p, workflow);
+																if(!Manifest.GetOrCalcHash().SequenceEqual(his.Registrations.First(i => i.Release == release).Manifest))
+																{
+																	Manifest = null;
+																	continue;
+																}
+															}
+															catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+															{
+																continue;
+															}
+															
+															Core.Filebase.DetermineDelta(his.Registrations, release, out Distributive d, out List<ReleaseAddress> deps);
 
-															Length = p.GetPackageInfo(Package).Length.First();
+															Package = new PackageAddress(release, d);
+
+															deps	= d == Distributive.Incremental ? deps : Manifest.CompleteDependencies.ToList();
+															Hash	= d == Distributive.Complete ? Manifest.CompleteHash : Manifest.IncrementalHash;
+															Length	= d == Distributive.Complete ? Manifest.CompleteLength : Manifest.IncrementalLength;
+								
+															lock(core.Lock)
+															{
+																foreach(var i in deps)
+																{
+																	if(!core.Downloads.Any(j => (ReleaseAddress)j.Package == i))
+																	{
+																		Dependencies.Add(core.DownloadRelease(i, workflow));
+																	}
+																}
+															}
 														}
 														
 														Add(Core.GetPeer(s.Key), Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.Piece == i)));
@@ -221,7 +220,9 @@ namespace UC.Net
 														Seeders[j.Peer.IP] = SeederResult.Good;
 
 														if(Core.Filebase.GetHash(Package).SequenceEqual(Hash))
-														{
+														{	
+															Core.Filebase.AddManifest(release, Manifest);
+
 															Core.DeclarePackage(new[]{Package}, Workflow);
 
 															var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeederResult.Good && h.Value.Any(ip => ip.Equals(s.Key)))).Select(i => i.Key);
