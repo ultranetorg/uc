@@ -64,10 +64,10 @@ namespace UC.Net
 			Key = apikey;
 		}
 
-		public UntTransfer			Send(TransferUntCall call, CancellationToken cancellation = default) => Request<UntTransfer>(call, cancellation );
-		public GetStatusResponse	Send(StatusCall call, CancellationToken cancellation = default) => Request<GetStatusResponse>(call, cancellation);
+		public UntTransfer			Send(TransferUntCall call, Workflow workflow) => Request<UntTransfer>(call, workflow);
+		public GetStatusResponse	Send(StatusCall call, Workflow workflow) => Request<GetStatusResponse>(call, workflow);
 
-		HttpResponseMessage Post(ApiCall request, CancellationToken cancellation = default) 
+		HttpResponseMessage Post(ApiCall request, Workflow workflow) 
 		{
 			request.Version = Core.Versions.First().ToString();
 			request.AccessKey = Key;
@@ -78,12 +78,12 @@ namespace UC.Net
 
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
-			return HttpClient.Send(m, cancellation);
+			return HttpClient.Send(m, workflow.Cancellation.Token);
 		}
 
-		public Rp Request<Rp>(ApiCall request, CancellationToken cancellation = default)
+		public Rp Request<Rp>(ApiCall request, Workflow workflow)
 		{
-			var cr = Post(request, cancellation);
+			var cr = Post(request, workflow);
 
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
@@ -98,9 +98,9 @@ namespace UC.Net
 			}
 		}
 		
-		public void SendOnly(ApiCall request, CancellationToken cancellation = default)
+		public void SendOnly(ApiCall request, Workflow workflow)
 		{
-			var cr = Post(request, cancellation);
+			var cr = Post(request, workflow);
 			
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);

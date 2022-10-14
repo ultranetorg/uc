@@ -211,7 +211,7 @@ namespace UC.Net
 												if(j.Succeeded)
 												{
 													lock(Core.Lock)
-														Core.Filebase.Write(Package, j.Offset, j.Data.ToArray());
+														Core.Filebase.WritePackage(Package, j.Offset, j.Data.ToArray());
 											
 													CompletedPieces.Add(j);
 

@@ -109,35 +109,32 @@ namespace UC.Net
 															catch(InvalidOperationException)
 															{
 															}
+															catch(HttpListenerException)
+															{
+															}
 														}
 	
 			void respondjson(dynamic t){
-											try
-											{
-												var output = rp.OutputStream;
-												var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonClient.Options));
+											var output = rp.OutputStream;
+											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonClient.Options));
 							
-												rp.ContentType = "text/json" ;
-												rp.ContentLength64 = buffer.Length;
+											rp.ContentType = "text/json" ;
+											rp.ContentLength64 = buffer.Length;
 
-												output.Write(buffer, 0, buffer.Length);
-											}
-											catch(InvalidOperationException)
-											{
-											}
-									}
-
-			void respondbinary(byte[] t){
-											try
-											{
-												rp.ContentType = "application/octet-stream";
-						
-												rp.OutputStream.Write(t, 0, t.Length);
-											}
-											catch(InvalidOperationException)
-											{
-											}
+											output.Write(buffer, 0, buffer.Length);
 										}
+
+// 			void respondbinary(byte[] t){
+// 											try
+// 											{
+// 												rp.ContentType = "application/octet-stream";
+// 						
+// 												rp.OutputStream.Write(t, 0, t.Length);
+// 											}
+// 											catch(InvalidOperationException)
+// 											{
+// 											}
+// 										}
 	
 			if(rq.ContentType == null || !rq.HasEntityBody)
 				return;
@@ -233,9 +230,27 @@ namespace UC.Net
 						break;
 					}
 
+					case DistributeReleaseCall c:
+					{
+						Core.Filebase.AddManifest(c.Release, c.Manifest);
+
+						if(c.Complete != null)
+						{
+							Core.Filebase.WritePackage(new PackageAddress(c.Release, Distributive.Complete), 0, c.Complete);
+							Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
+						}
+						if(c.Incremental != null)
+						{
+							Core.Filebase.WritePackage(new PackageAddress(c.Release, Distributive.Incremental), 0, c.Incremental);
+							Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
+						}
+
+						break;
+					}
+
 					case DownloadReleaseCall c:
 					{
-						Core.DownloadRelease(c.Release, new Workflow(null, new CancellationTokenSource()));
+						Core.DownloadRelease(c.Release, new Workflow());
 						break;
 					}
 

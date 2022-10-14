@@ -33,18 +33,7 @@ namespace UC.Sun.FUI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
-				var orig = Path.Combine(exedir, UC.Net.Settings.FileName);
-				var user = Path.Combine(boot.Profile, UC.Net.Settings.FileName);
-
-				if(!File.Exists(user))
-				{
-					Directory.CreateDirectory(Path.GetDirectoryName(user));
-					File.Copy(orig, user);
-				}
-
-				var settings = new Settings(boot);
-
-				Cryptography.Current = settings.Cryptography;
+				var settings = new Settings(exedir, boot);
 
 				var log = new Log();
 				var core =	new Core(settings, exedir, log)

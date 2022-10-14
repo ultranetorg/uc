@@ -36,17 +36,17 @@ namespace UC.Sun.CLI
 										GetAwaitStage(), 
 										Workflow);
 
-				case "publish" :
+				case "add" :
 				{
-					Core.Publish(	ReleaseAddress.Parse(GetString("address")), 
-									GetString("channel"),
-									GetString("sources").Split(','), 
-									GetString("dependsdirectory"), 
-									GetPrivate("by", "password"),
-									//GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-									//GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-									GetAwaitStage(),
-									Workflow);
+					Core.Filebase.AddRelease(	ReleaseAddress.Parse(GetString("address")), 
+												//GetString("channel"),
+												GetString("sources").Split(','), 
+												GetString("dependsdirectory"), 
+												//GetPrivate("by", "password"),
+												//GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
+												//GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
+												//GetAwaitStage(),
+												Workflow);
 
 					return null;
 				}

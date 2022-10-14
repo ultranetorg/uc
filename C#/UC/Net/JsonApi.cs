@@ -83,6 +83,14 @@ namespace UC.Net
 		public bool							Confirmed { get; set; }
 	}
 
+	public class DistributeReleaseCall : ApiCall
+	{
+		public ReleaseAddress	Release { get; set; }
+		public byte[]			Complete { get; set; }
+		public byte[]			Incremental { get; set; }
+		public byte[]			Manifest { get; set; }
+	}
+
 	public class DownloadReleaseCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }

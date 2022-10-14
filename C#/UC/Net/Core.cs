@@ -221,6 +221,7 @@ namespace UC.Net
 		public Core(Settings settings, string exedirectory, Log log)
 		{
 			Settings = settings;
+			Cryptography.Current = settings.Cryptography;
 			Log	 = Settings.Log ? log : null;
 
 			Workflow = new Workflow(log);
@@ -544,26 +545,18 @@ namespace UC.Net
 			{
 				while(Running)
 				{
-					try
+					var initials = Nas.GetInitials(Settings.Zone);
+
+					if(initials.Any())
 					{
-						var initials = Nas.GetInitials(Settings.Zone);
+						RememberPeers(initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
 
-						if(initials.Any())
-						{
-							RememberPeers(initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
-
-							Log?.Report(this, "Initial nodes retrieved", initials.Count.ToString());
-							break;
-						}
-						else
-							throw new RequirementException($"No initial peers found for zone '{Settings.Zone}'");
-
+						Log?.Report(this, "Initial nodes retrieved", initials.Length.ToString());
+						break;
 					}
-					catch(Exception ex) when (ex is not RequirementException)
-					{
-						Log.ReportError(this, "Can't retrieve initial peers. Retrying in 5 sec...", ex);
-						Thread.Sleep(5000);
-					}
+					else
+						throw new RequirementException($"No initial peers found for zone '{Settings.Zone}'");
+
 				}
 			}
 		}
@@ -696,6 +689,10 @@ namespace UC.Net
 				}
 			}
 			catch(SocketException e) when(e.SocketErrorCode == SocketError.Interrupted)
+			{
+				Listener = null;
+			}
+			catch(ObjectDisposedException)
 			{
 				Listener = null;
 			}
@@ -1385,17 +1382,13 @@ namespace UC.Net
 			while(Running)
 			{
 				Thread.Sleep(1);
+				Workflow.ThrowIfAborted();
 
 				if(m == null)
 				{	
-					var w = Workflow.CreateNested();
-
-					if(!Settings.Dev.DisableTimeouts)
-						w.Cancellation.CancelAfter(Timeout);
-
 					try
 					{
-						m = ConnectToMember(w);
+						m = ConnectToMember(Workflow);
 					}
 					catch(ConnectionFailedException)
 					{
@@ -1528,9 +1521,9 @@ namespace UC.Net
 
 					Statistics.Delegating.End();
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException )
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
 				{
-					Log?.ReportError(this, $"Failed to communicate with remote node {m}", ex);
+					Log?.ReportWarning(this, "Delegation", $"Member={m}", ex);
 
 					if(m.Failures < 3)
 						m.Failures++;
@@ -2039,87 +2032,6 @@ namespace UC.Net
 
 				return new PackageStatus();
 			}
-		}
-
-		public Operation Publish(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory,  PrivateAccount by, PlacingStage waitstage, Workflow workflow)
-		{
-			var files = new Dictionary<string, string>();
-
-			foreach(var i in sources)
-			{
-				var sd = i.Split('=');
-				var s = sd[0];
-				var d = sd.Length == 2 ? sd[1] : null;
-
-				if(d == null)
-				{
-					if(Directory.Exists(s))
-					{
-						foreach(var e in Directory.EnumerateFiles(s, "*", new EnumerationOptions{RecurseSubdirectories = true}))
-							files[e] = e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/');
-					}
-					else
-						files[s] = Path.GetFileName(s);
-				}
-				else
-				{
-					if(Directory.Exists(s))
-					{
-						foreach(var e in Directory.EnumerateFiles(s, "*", new EnumerationOptions{RecurseSubdirectories = true}))
-							files[e] = Path.Join(d, e.Substring(s.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
-					}
-					else
-						files[s] = d;
-				}
-			}
-
-			var cpkg = Filebase.Add(release, Distributive.Complete, files, null, workflow);
-			var ipkg = Filebase.AddIncremental(release, files, out Version previous, out Version minimal, workflow);
-
-			var vs = Directory.EnumerateFiles(dependsdirectory, "*.dependencies").Select(i => UC.Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i < release.Version).OrderBy(i => i);
-
-			IEnumerable<ReleaseAddress> acd = null;
-			IEnumerable<ReleaseAddress> rcd = null;
-
-			var f = Path.Join(dependsdirectory, release.Version.EGRB + ".dependencies");
-			
-			var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
-			
-			if(vs.Any())
-			{
-				var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.dependencies")).Select(i => ReleaseAddress.Parse(i));
-		
-				acd = deps.Where(i => !lastdeps.Contains(i));
-				rcd = lastdeps.Where(i => !deps.Contains(i));
-			}
-			else
-				acd = deps;
-
-			var m = new Manifest(	Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
-									new FileInfo(cpkg).Length,
-									deps,
-									ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
-									ipkg != null ? new FileInfo(ipkg).Length : 0,
-									minimal,
-									acd,
-									rcd);
-
-			Filebase.AddManifest(release, m);
-
-			var o = new ReleaseRegistration(by, release, channel, m.GetOrCalcHash());
-
-			Enqueue(o);
-
-			Await(o, waitstage, workflow);
-
-			workflow?.Log?.Report(this, "Manifest added to the chain");
-
-			if(ipkg != null)
-				DeclarePackage(new[]{new PackageAddress(release, Distributive.Complete), new PackageAddress(release, Distributive.Incremental)}, workflow);
-			else
-				DeclarePackage(new[]{new PackageAddress(release, Distributive.Complete)}, workflow);
-
-			return o;
 		}
 
 		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow workflow)

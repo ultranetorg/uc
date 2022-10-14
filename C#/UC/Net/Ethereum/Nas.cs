@@ -18,15 +18,15 @@ namespace UC.Net
 {
 	public class Nas : INas
 	{
-		public const string ContractAddress = "0x72329af958b5679e0354ff12fb27ddbf34d37aca";
-		Settings Settings;
-		public Web3 Web3;
-		Log Log;
+		public const string							ContractAddress = "0x72329af958b5679e0354ff12fb27ddbf34d37aca";
+		Settings									Settings;
+		public Web3									Web3;
+		Log											Log;
 
-		ContractHandler сontract;
-		Nethereum.Web3.Accounts.Account account;
-		static Dictionary<Zone, List<IPAddress>> Zones = new Dictionary<Zone, List<IPAddress>>();
-		static string creator;
+		ContractHandler								_Contract;
+		Nethereum.Web3.Accounts.Account				_Account;
+		static Dictionary<Zone, IPAddress[]>		Zones = new ();
+		static string								Creator;
 
 		public Nethereum.Signer.Chain Chain => (Chain)Enum.Parse(typeof(Chain), Settings.Nas.Chain);
 
@@ -34,19 +34,19 @@ namespace UC.Net
 		{
 			get
 			{
-				if(account == null)
+				if(_Account == null)
 				{
 					if(Settings.Secret?.NasWallet != null && Settings.Secret?.NasPassword != null)
 					{
-						account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secret.NasWallet), Settings.Secret.NasPassword);
+						_Account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secret.NasWallet), Settings.Secret.NasPassword);
 					}
 					else
 					{
-						account = new Nethereum.Web3.Accounts.Account(EthECKey.GenerateKey().GetPrivateKeyAsBytes());
+						_Account = new Nethereum.Web3.Accounts.Account(EthECKey.GenerateKey().GetPrivateKeyAsBytes());
 					}
 				}
 
-				return account;
+				return _Account;
 			}
 		}
 
@@ -54,13 +54,13 @@ namespace UC.Net
 		{
 			get
 			{
-				if(сontract == null)
+				if(_Contract == null)
 				{
 					Web3 = new Web3(Account, Settings.Nas.Provider);
-					сontract = Web3.Eth.GetContractHandler(ContractAddress);
+					_Contract = Web3.Eth.GetContractHandler(ContractAddress);
 				}
 
-				return сontract;
+				return _Contract;
 			}
 		}
 
@@ -68,12 +68,12 @@ namespace UC.Net
 		{
 			get
 			{
-				if(creator == null)
+				if(Creator == null)
 				{
 					var input = new CreatorFunction();
-					creator = Contract.QueryAsync<CreatorFunction, string>(input).Result;
+					Creator = Contract.QueryAsync<CreatorFunction, string>(input).Result;
 				}
-				return string.Compare(Account.Address, creator, true) == 0;
+				return string.Compare(Account.Address, Creator, true) == 0;
 			}
 		}
 
@@ -83,47 +83,51 @@ namespace UC.Net
 			Settings = s;
 		}
 
-		public List<IPAddress> GetInitials(Zone zone)
+		public IPAddress[] GetInitials(Zone zone)
 		{
-			if(zone == Zone.Localnet)
-			{
-				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] { 192, 168, 1, (byte)i })).ToList();
-			}
-
 			lock(Zones)
 			{
 				var ips = new List<IPAddress>();
 
 				if(!Zones.ContainsKey(zone))
 				{
-					var input = new GetZoneFunction { Name = zone.Name };
-					var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
-
-					foreach(var i in z.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+					try
 					{
-						if(!IPAddress.TryParse(i, out var ip))
+						var input = new GetZoneFunction{Name = zone.Name};
+						var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
+	
+						foreach(var i in z.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries))
 						{
-							try
+							if(!IPAddress.TryParse(i, out var ip))
 							{
-								var r = Dns.GetHostEntry(i);
-								ip = r.AddressList.First();
+								try
+								{
+									var r = Dns.GetHostEntry(i);
+									ip = r.AddressList.First();
+								}
+								catch(SocketException ex)
+								{
+									Log.ReportError(this, $"Can't DNS resolve - {i}", ex);
+									continue;
+								}
 							}
-							catch(SocketException ex)
-							{
-								Log.ReportError(this, $"Peer: {i} - {ex.Message}");
-								continue;
-							}
+	
+							ips.Add(ip);
 						}
-
-						ips.Add(ip);
+	
+					}
+					catch(Exception ex) when (ex is not RequirementException)
+					{
+						Log.ReportError(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used. " + ex.Message);
+						ips = zone.Nodes.ToList();
 					}
 
 					if(ips.Any())
 					{
-						Zones[zone] = ips;
+						Zones[zone] = ips.ToArray();
 					}
 
-					return ips;
+					return ips.ToArray();
 				}
 				else
 				{

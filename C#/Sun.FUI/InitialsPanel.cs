@@ -85,7 +85,7 @@ namespace UC.Sun.FUI
 							{
 								Invoke( (MethodInvoker)delegate()
 										{
-											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ByName(zone.SelectedItem as string)));
+											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ByName(zone.SelectedItem as string)).Select(i => i as object));
 						
 											manage.Enabled = true;
 											nodes.Enabled = true;

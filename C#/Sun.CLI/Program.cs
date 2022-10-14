@@ -18,7 +18,7 @@ namespace UC.Sun.CLI
 	{
 		static Settings			Settings = null;
 		static Log				Log = new Log();
-		static ConsoleLogView	LogView = new ConsoleLogView(Log, true, true);
+		static ConsoleLogView	LogView;
 
 		static Core Core;
 
@@ -31,6 +31,15 @@ namespace UC.Sun.CLI
 
 			try
 			{
+				var p = Console.KeyAvailable;
+				LogView = new ConsoleLogView(Log, true, true);
+			}
+			catch(Exception)
+			{
+			}
+
+			try
+			{
 				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
 					File.Delete(i);
 					
@@ -38,20 +47,9 @@ namespace UC.Sun.CLI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
-				var orig = Path.Combine(exedir, UC.Net.Settings.FileName);
-				var user = Path.Combine(boot.Profile, UC.Net.Settings.FileName);
-
-				if(!File.Exists(user))
-				{
-					Directory.CreateDirectory(boot.Profile);
-					File.Copy(orig, user);
-				}
-
 				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
 
-				Settings = new Settings(boot);
-
-				Cryptography.Current = Settings.Cryptography;
+				Settings = new Settings(exedir, boot);
 									
 				if(File.Exists(Settings.Profile))
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))

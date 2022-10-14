@@ -93,23 +93,21 @@ namespace UC
 
 		public void ReportWarning(object sender, string subject, string message, Exception ex)
 		{
-			var t = new List<string>();
+			var t = new List<string>(){message};
+
+			var e = ex;
+
+			while(e != null)
+			{
+				t.Add(e.Message);
+				e = e.InnerException;
+			}
 
 			if(ex is AggregateException a)
 			{
 				foreach(var i in a.InnerExceptions)
 				{
 					t.Add(i.Message);
-				}
-			}
-			else
-			{
-				var e = ex;
-				
-				while(e != null)
-				{
-					t.Add(e.Message);
-					e = e.InnerException;
 				}
 			}
 			
@@ -118,7 +116,15 @@ namespace UC
 
 		public void ReportError(object sender, string message, Exception ex)
 		{
-			var t = new List<string>();
+			var t = new List<string>(){message};
+
+			var e = ex;
+
+			while(e != null)
+			{
+				t.Add(e.Message);
+				e = e.InnerException;
+			}
 
 			if(ex is AggregateException a)
 			{
@@ -127,16 +133,7 @@ namespace UC
 					t.Add(i.Message);
 				}
 			}
-			else
-			{
-				var e = ex;
-				
-				while(e != null)
-				{
-					t.Add(e.Message);
-					e = e.InnerException;
-				}
-			}
+
 			
 			Report(sender, null, Severity.Error, t.ToArray());
 		}

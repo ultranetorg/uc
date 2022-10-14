@@ -175,10 +175,19 @@ namespace UC.Net
 		{
 		}
 
-		public Settings(BootArguments boot)
+		public Settings(string exedir, BootArguments boot)
 		{
+			Directory.CreateDirectory(boot.Profile);
+
+			var orig = System.IO.Path.Join(exedir, FileName);
+			Path = System.IO.Path.Join(boot.Profile, FileName);
+
+			if(!File.Exists(Path))
+			{
+				File.Copy(orig, Path, true);
+			}
+
 			Profile = boot.Profile;
-			Path	= System.IO.Path.Join(boot.Profile, FileName);
 			Zone	= Zone.All.First(i => i.Name == boot.Zone);
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);

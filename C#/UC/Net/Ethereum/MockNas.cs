@@ -30,14 +30,9 @@ namespace UC.Net
 			throw new NotImplementedException();
 		}
 
-		public List<IPAddress> GetInitials(Zone zone)
+		public IPAddress[] GetInitials(Zone zone)
 		{
-			if(zone == Zone.Localnet)
-			{
-				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToList();
-			}
-		
-			throw new NotSupportedException();
+			return zone.Nodes ?? throw new NotSupportedException();
 		}
 
 		public string GetZone(Zone zone)

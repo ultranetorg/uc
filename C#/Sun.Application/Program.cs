@@ -34,22 +34,9 @@ namespace UC.Sun.Application
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
-				Directory.CreateDirectory(boot.Profile);
-
-				var orig = Path.Combine(exedir, Settings.FileName);
-				var user = Path.Combine(boot.Profile, Settings.FileName);
-
-				if(!File.Exists(user))
-				{
-					Directory.CreateDirectory(boot.Profile);
-					File.Copy(orig, user);
-				}
-
 				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
 
-				Settings = new Settings(boot);
-
-				Cryptography.Current = Settings.Cryptography;
+				Settings = new Settings(exedir, boot);
 									
 				if(File.Exists(Settings.Profile))
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
