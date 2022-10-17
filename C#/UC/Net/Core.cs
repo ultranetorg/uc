@@ -139,6 +139,10 @@ namespace UC.Net
 				f.Add("       Confirmed");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
 				f.Add("Peers in/out/min/known");v.Add($"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}");
 				
+				foreach(var i in Peers)
+				{
+					f.Add(i.IP.ToString()); v.Add($"S={i.Status} iS={i.InStatus} oS={i.OutStatus}");
+				}
 				//f.Add("Transactions");			v.Add($"{Transactions.Count}");
 				//f.Add("    pending");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Pending)}");
 				//f.Add("    placed");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Placed)}");
@@ -629,6 +633,7 @@ namespace UC.Net
 												(m.OutStatus == EstablishingStatus.Null || m.OutStatus == EstablishingStatus.Failed) && 
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 									.OrderBy(i => i.Retries)
+									.ThenByDescending(i => i.PeerRank)
 									.Take(needed))
 			{
 				p.LastTry = DateTime.UtcNow;
@@ -741,8 +746,9 @@ namespace UC.Net
 						//client.ReceiveTimeout = Timeout;
 						client.Connect(peer.IP, Settings.Port);
 					}
-					catch(SocketException) 
+					catch(SocketException ex) 
 					{
+						Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -763,8 +769,9 @@ namespace UC.Net
 						Peer.SendHello(client, CreateHello(peer.IP));
 						h = Peer.WaitHello(client);
 					}
-					catch(Exception)// when(!Settings.Dev.ThrowOnCorrupted)
+					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
+						Log?.Report(this, "Establishing failed", $"To {peer.IP}; Send/Wait Hello; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -772,8 +779,10 @@ namespace UC.Net
 					{
 						if(h.Nuid == Nuid)
 						{
+							Log?.Report(this, "Establishing failed", "It's me");
 							Peers.Remove(peer);
-							goto failed;
+							client.Close();
+							return;
 						}
 													
 						if(IP.Equals(IPAddress.None))
@@ -784,6 +793,7 @@ namespace UC.Net
 	
 						if(peer.Established/* && (peer.IP.GetAddressBytes()[3] + IP.GetAddressBytes()[3]) % 2 == 0*/)
 						{
+							Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
 							client.Close();
 							return;
 						}
@@ -792,7 +802,7 @@ namespace UC.Net
 	
 						peer.OutStatus = EstablishingStatus.Succeeded;
 						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
-	
+							
 						Log?.Report(this, "Connected to", $"{peer}");
 	
 						return;
@@ -818,18 +828,18 @@ namespace UC.Net
 		private void InboundConnect(TcpClient client)
 		{
 			var ip = (client.Client.RemoteEndPoint as IPEndPoint).Address.MapToIPv4();
-			var p = Peers.Find(i => i.IP.Equals(ip));
+			var peer = Peers.Find(i => i.IP.Equals(ip));
 
 			if(ip.Equals(IP) || IgnoredIPs.Any(j => j.Equals(ip)))
 			{
-				Peers.Remove(p);
+				Peers.Remove(peer);
 				client.Close();
 				return;
 			}
 
-			if(p != null)
+			if(peer != null)
 			{
-				p.InStatus = EstablishingStatus.Initiated;
+				peer.InStatus = EstablishingStatus.Initiated;
 			}
 
 			var t = new Thread(a => incon());
@@ -848,8 +858,9 @@ namespace UC.Net
 
 									h = Peer.WaitHello(client);
 								}
-								catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+								catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
 								{
+									Log?.Report(this, "Establishing failed", $"From {peer.IP}; WaitHello {ex.Message}");
 									goto failed;
 								}
 				
@@ -857,7 +868,17 @@ namespace UC.Net
 								{
 									if(h.Nuid == Nuid)
 									{
-										goto failed;
+										Log?.Report(this, "Establishing failed", "It's me");
+										Peers.Remove(peer);
+										client.Close();
+										return;
+									}
+
+									if(peer != null && peer.Established)
+									{
+										Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
+										client.Close();
+										return;
 									}
 	
 									if(IP.Equals(IPAddress.None))
@@ -866,40 +887,36 @@ namespace UC.Net
 										Log?.Report(this, "Detected IP", IP.ToString());
 									}
 		
-									if(p != null && p.Established)
-									{
-										goto failed;
-									}
-	
 									try
 									{
 										Peer.SendHello(client, CreateHello(ip));
 									}
-									catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+									catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
 									{
+										Log?.Report(this, "Establishing failed", $"From {peer.IP}; SendHello; {ex.Message}");
 										goto failed;
 									}
 	
-									if(p == null)
+									if(peer == null)
 									{
-										p = new Peer(ip);
-										Peers.Add(p);
+										peer = new Peer(ip);
+										Peers.Add(peer);
 									}
 									
-									RememberPeers(h.Peers.Append(p));
+									RememberPeers(h.Peers.Append(peer));
 	
-									p.InStatus = EstablishingStatus.Succeeded;
-									p.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+									peer.InStatus = EstablishingStatus.Succeeded;
+									peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 			
-									Log?.Report(this, "Accepted from", $"{p}");
+									Log?.Report(this, "Accepted from", $"{peer}");
 	
 									return;
 								}
 	
 							failed:
 								lock(Lock)
-									if(p != null)
-										p.InStatus = EstablishingStatus.Failed;
+									if(peer != null)
+										peer.InStatus = EstablishingStatus.Failed;
 
 								client.Close();
 							}

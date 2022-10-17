@@ -139,6 +139,8 @@ namespace UC.Net
 
 			if(LastSavedRound == null)
 			{
+				Rounds.Clear();
+
 				var ips = nas.GetInitials(settings.Zone).ToArray();
 
 				if(Settings.Dev.GenerateGenesis)
@@ -282,7 +284,7 @@ namespace UC.Net
 
 					r.Confirmed = true;
 
-					Seal(r);
+					Seal(r, true);
 				}
 
 				if(!Rounds.All(i => i.Payloads.All(i => i.Transactions.All(i => i.Operations.All(i => i.Successful)))))
@@ -765,7 +767,7 @@ namespace UC.Net
 			Seal(round);
 		}
 
-		public void Seal(Round round)
+		public void Seal(Round round, bool force = false)
 		{
 			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators);
 
@@ -800,7 +802,7 @@ namespace UC.Net
  			round.Members	= Members.ToList();
  			round.Funds		= Funds.ToList();
 
-			if(round.Id - Rounds.Last().Id > Pitch + Pitch + 1) /// keep last [Pitch] sealed rounds cause [LastSealed - Pitch] round may contain JoinRequests that are needed if a node is joining
+			if(force || round.Id - Rounds.Last().Id > Pitch + Pitch + 1) /// keep last [Pitch] sealed rounds cause [LastSealed - Pitch] round may contain JoinRequests that are needed if a node is joining
 			{
 				var r = Rounds.Last();
 

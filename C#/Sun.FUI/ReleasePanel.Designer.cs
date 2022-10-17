@@ -101,7 +101,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label5.AutoSize = true;
 			this.label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label5.Location = new System.Drawing.Point(19, 18);
+			this.label5.Location = new System.Drawing.Point(19, 20);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(46, 13);
 			this.label5.TabIndex = 13;
@@ -110,7 +110,7 @@ namespace UC.Sun.FUI
 			// Author
 			// 
 			this.Author.FormattingEnabled = true;
-			this.Author.Location = new System.Drawing.Point(85, 15);
+			this.Author.Location = new System.Drawing.Point(71, 15);
 			this.Author.Name = "Author";
 			this.Author.Size = new System.Drawing.Size(233, 23);
 			this.Author.TabIndex = 0;
@@ -140,7 +140,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(624, 19);
+			this.label1.Location = new System.Drawing.Point(624, 20);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(56, 13);
 			this.label1.TabIndex = 13;
@@ -149,7 +149,7 @@ namespace UC.Sun.FUI
 			// Product
 			// 
 			this.Product.FormattingEnabled = true;
-			this.Product.Location = new System.Drawing.Point(405, 15);
+			this.Product.Location = new System.Drawing.Point(395, 15);
 			this.Product.Name = "Product";
 			this.Product.Size = new System.Drawing.Size(192, 23);
 			this.Product.TabIndex = 1;
@@ -159,7 +159,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label2.Location = new System.Drawing.Point(338, 18);
+			this.label2.Location = new System.Drawing.Point(338, 20);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(51, 13);
 			this.label2.TabIndex = 13;

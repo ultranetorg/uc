@@ -18,7 +18,7 @@ namespace UC.Net
 {
 	public class Nas : INas
 	{
-		public const string							ContractAddress = "0x72329af958b5679e0354ff12fb27ddbf34d37aca";
+		public const string							ContractAddress = "0x43958d38C348579362353E1B81Ef74B9f47B2310";
 		Settings									Settings;
 		public Web3									Web3;
 		Log											Log;

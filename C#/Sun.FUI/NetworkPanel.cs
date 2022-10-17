@@ -31,6 +31,7 @@ namespace UC.Sun.FUI
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
 					r.SubItems.Add(i.Retries.ToString());
+					r.SubItems.Add(i.PeerRank.ToString());
 					r.SubItems.Add(i.GetRank(Role.Chain).ToString());
 					r.SubItems.Add(i.GetRank(Role.Hub).ToString());
 					r.SubItems.Add(i.GetRank(Role.Seed).ToString());
