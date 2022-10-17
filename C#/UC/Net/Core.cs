@@ -126,27 +126,19 @@ namespace UC.Net
 				List<string> f = new();
 				List<string> v = new(); 
 															
-				f.Add("Zone");					v.Add(Settings.Zone.Name);
-				f.Add("Profile");				v.Add(Settings.Profile);
-				f.Add("IP(Reported):Port");		v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
+				f.Add("Zone");						v.Add(Settings.Zone.Name);
+				f.Add("Profile");					v.Add(Settings.Profile);
+				f.Add("IP(Reported):Port");			v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
 				//f.Add($"Generator{(Nci != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Nci?.Generator)}");
-				f.Add("Operations");			v.Add($"{Operations.Count}");
-				f.Add("    Pending");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
-				f.Add("    Delegated");			v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
-				f.Add("       Accepted");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}");
-				f.Add("       Pending");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Pending)}");
-				f.Add("       Placed");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Placed)}");
-				f.Add("       Confirmed");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
-				f.Add("Peers in/out/min/known");v.Add($"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}");
+				f.Add("Operations");				v.Add($"{Operations.Count}");
+				f.Add("    Pending");				v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
+				f.Add("    Delegated");				v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
+				f.Add("       Accepted");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}");
+				f.Add("       Pending");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Pending)}");
+				f.Add("       Placed");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Placed)}");
+				f.Add("       Confirmed");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
+				f.Add("Peers in/out/min/known");	v.Add($"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}");
 				
-				foreach(var i in Peers)
-				{
-					f.Add(i.IP.ToString()); v.Add($"S={i.Status} iS={i.InStatus} oS={i.OutStatus}");
-				}
-				//f.Add("Transactions");			v.Add($"{Transactions.Count}");
-				//f.Add("    pending");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Pending)}");
-				//f.Add("    placed");			v.Add($"{Transactions.Count(i => i.Stage == ProcessingStage.Placed)}");
-
 				if(Chain != null)
 				{
 					f.Add("Synchronization");		v.Add($"{Synchronization}");

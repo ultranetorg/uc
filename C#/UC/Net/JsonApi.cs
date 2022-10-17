@@ -47,6 +47,7 @@ namespace UC.Net
 		public IEnumerable<string>	Rounds {get; set;}
 		public IEnumerable<string>	InfoFields {get; set;}
 		public IEnumerable<string>	InfoValues {get; set;}
+		public IEnumerable<string>	Peers {get; set;}
 	}
 
 	public class RunNodeCall : ApiCall
