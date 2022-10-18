@@ -47,10 +47,10 @@ namespace UC.Sun.CLI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
-				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
-
 				Settings = new Settings(exedir, boot);
-									
+				
+				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
+				
 				if(File.Exists(Settings.Profile))
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);

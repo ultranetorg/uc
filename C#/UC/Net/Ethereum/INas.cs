@@ -19,5 +19,6 @@ namespace UC.Net
 		IPAddress[]						GetInitials(Zone zone);
 		Task							RemoveZone(Zone zone, IGasAsker asker);
 		Task							SetZone(Zone zone, string nodes, IGasAsker asker);
+		void							ReportEthereumJsonAPIWarning(string message, bool aserror);
 	}
 }

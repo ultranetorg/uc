@@ -341,28 +341,7 @@ namespace UC.Net
 
 			if(Settings.Chain.Enabled)
 			{
-				Log?.Report(this, "Chain started");
-		
-		  		try
-		  		{
-		 			new Uri(Settings.Nas.Provider);
-		  		}
-		  		catch(Exception)
-		  		{
-		  			Log.ReportError(this, $"Ethereum provider (Settings.xon -> Nas -> Provider) is not set or has incorrect format.");
-		 			Log.ReportError(this, $"It's required to run the node in full mode.");
-		 			Log.ReportError(this, $"This can be instance of some Ethereum client or third-party services like Infura.");
-		 			Log.ReportError(this, $"Corresponding configuration file is located here: {Path.Join(Settings.Profile, Settings.FileName)}");
-					return;
-		  		}
-		
 				Chain = new Roundchain(Settings, Log, Nas, Vault, Database);
-		
-				if(Settings.Generator != null)
-				{
-					Generator = PrivateAccount.Parse(Settings.Generator);
-					Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator);
-				}
 		
 				Chain.BlockAdded += b => {
 											if(Generator != null)
@@ -371,12 +350,27 @@ namespace UC.Net
 											ReachConsensus();
 										 };
 		
-				if(Generator != null)
+				if(Settings.Generator != null)
 				{
+		  			try
+		  			{
+		 				new Uri(Settings.Nas.Provider);
+		  			}
+		  			catch(Exception)
+		  			{
+		  				Nas.ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to run the node as a generator.", true);
+						return;
+		  			}
+
+					Generator = PrivateAccount.Parse(Settings.Generator);
+					Declaration = Chain.Accounts.FindLastOperation<CandidacyDeclaration>(Generator);
+
 					VerifingThread = new Thread(Verifing);
 					VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
 					VerifingThread.Start();
 				}
+
+				Log?.Report(this, "Chain started");
 			}
 
 			LoadPeers();

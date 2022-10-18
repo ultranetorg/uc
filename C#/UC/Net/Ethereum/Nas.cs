@@ -118,7 +118,17 @@ namespace UC.Net
 					}
 					catch(Exception ex) when (ex is not RequirementException)
 					{
-						Log.ReportError(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used. " + ex.Message);
+						Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used. ");
+
+		  				try
+		  				{
+		 					new Uri(Settings.Nas.Provider);
+		  				}
+		  				catch(Exception)
+		  				{
+							ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to get intial nodes.", false);
+		  				}
+
 						ips = zone.Nodes.ToList();
 					}
 
@@ -133,6 +143,22 @@ namespace UC.Net
 				{
 					return Zones[zone];
 				}
+			}
+		}
+
+		public void ReportEthereumJsonAPIWarning(string message, bool aserror)
+		{
+			var s = new string[]{	message,
+									$"But it is not set or incorrect.",
+		 							$"It's located in {Path.Join(Settings.Profile, Settings.FileName)} -> Nas -> Provider",
+		 							$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"};
+
+			foreach(var i in s)
+			{
+				if(aserror)
+					Log.ReportError(this, i);
+				else
+					Log.ReportWarning(this, i);
 			}
 		}
 

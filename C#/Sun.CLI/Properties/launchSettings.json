@@ -15,6 +15,10 @@
     "realization register": {
       "commandName": "Project",
       "commandLineArgs": "realization register address=uo/shell/winx64 oses{1.2.3.4} by=0x00fe929a68368c301a1906ed39016ee9be3d937b password=forweshallwinthroughnomatterthecost await=placed profile=A:\\UO\\SunOrgT1-Profile zone=Testnet1 secrets=A:\\UO"
+    },
+    "empty": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
     }
   }
 }

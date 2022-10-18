@@ -49,5 +49,9 @@ namespace UC.Net
 		{
 			throw new NotImplementedException();
 		}
+
+		public void ReportEthereumJsonAPIWarning(string message, bool aserror)
+		{
+		}
 	}
 }
