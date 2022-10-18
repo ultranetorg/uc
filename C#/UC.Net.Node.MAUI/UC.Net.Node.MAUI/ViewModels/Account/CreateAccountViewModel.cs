@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
+﻿namespace UC.Net.Node.MAUI.ViewModels.Account;
 
 public partial class CreateAccountPageViewModel : BaseAccountViewModel
 {

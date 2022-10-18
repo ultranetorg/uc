@@ -3,10 +3,12 @@
     x:Class="UC.Net.Node.MAUI.Pages.AccountDetailsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Account"
+    xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Account Details"
-    x:Name="page">
+    x:Name="page"
+    x:DataType="vm:AccountDetailsViewModel">
     <!--<controls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
@@ -17,7 +19,7 @@
         </StackLayout>
     </controls:CustomPage.RightContent>-->
     <controls:CustomPage.Resources>
-        <DataTemplate x:Key="ColorsTemplate">
+        <DataTemplate x:Key="ColorsTemplate" x:DataType="models:AccountColor">
             <Frame
                 Padding="0"
                 BackgroundColor="{Binding Color}"
@@ -44,11 +46,11 @@
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
         <ScrollView>
-            <StackLayout Padding="{StaticResource PagePadding}" Spacing="22">
+            <StackLayout Padding="{StaticResource PagePadding}" Spacing="16">
                 <Grid
-                    ColumnDefinitions="60,*,Auto"
+                    ColumnDefinitions="64,*,Auto"
                     ColumnSpacing="20"
-                    RowDefinitions="30,40">
+                    RowDefinitions="32,40">
                     <Frame
                         Grid.Row="0"
                         Grid.RowSpan="2"
@@ -61,7 +63,7 @@
                         WidthRequest="60">
                         <Label
                             HorizontalOptions="Center"
-                            Style="{StaticResource CodeLabel}"
+                            TextColor="{StaticResource PrimaryLight}"
                             Text="{Binding Wallet.IconCode}"
                             VerticalOptions="Center" />
                     </Frame>
@@ -70,7 +72,8 @@
                         Grid.Column="1"
                         Style="{StaticResource DashLabel}"
                         Text="Account color"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center"
+                        FontAttributes="Bold" />
                     <ScrollView
                         Grid.Row="1"
                         Grid.Column="1"
@@ -78,10 +81,11 @@
                         HorizontalScrollBarVisibility="Never"
                         Orientation="Horizontal">
                         <StackLayout
-                            BindableLayout.ItemsSource="{Binding Colors}"
-                            BindableLayout.ItemTemplate="{Binding ColorsTemplate}"
+                            Padding="4"
+                            BindableLayout.ItemsSource="{Binding ColorsCollection}"
+                            BindableLayout.ItemTemplate="{StaticResource ColorsTemplate}"
                             Orientation="Horizontal"
-                            Spacing="10" />
+                            Spacing="12" />
                     </ScrollView>
                     <Grid
                         Grid.Row="0"
@@ -92,55 +96,42 @@
                             Grid.Column="0"
                             Text="Random"
                             TextColor="{StaticResource PrimaryDark}"
-                            VerticalOptions="Center" />
+                            VerticalOptions="Center"
+                            FontAttributes="Bold" />
                         <ImageButton
                             Grid.Column="1"
                             Style="{StaticResource Random}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Grid>
-                <StackLayout Spacing="5">
+                <StackLayout Spacing="4">
                     <Label Style="{StaticResource DashLabel}" Text="Account" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Medium}"
                         Text="{Binding Wallet.Id}" />
                 </StackLayout>
-                <StackLayout Spacing="8">
-                    <Label Style="{StaticResource DashLabel}" Text="Name" />
-                    <controls:BorderEntry Placeholder="Account name" Text="{Binding Wallet.Name}">
-                        <controls:BorderEntry.Behaviors>
-                            <toolkit:CharactersValidationBehavior
-                                x:Name="cb"
-                                CharacterType="Letter"
-                                Flags="ValidateOnValueChanged" ValidStyle="{StaticResource Valid}" InvalidStyle="{StaticResource InValid}"
-                                MaximumCharacterTypeCount="30"
-                                MinimumCharacterTypeCount="1" />
-                        </controls:BorderEntry.Behaviors>
-                        
-                    </controls:BorderEntry>
-                    <StackLayout >
-                        <Label
-                            FontSize="12"
-                            IsVisible="{Binding IsNotValid, Source={x:Reference cb}}"
-                            Text="Validation text message"
-                            TextColor="{StaticResource Red}" />
-                    </StackLayout>
+                
+                <controls:FormEntryControl
+                    Placeholder="Account Name"
+                    Value="{Binding AccountName}"
+                    ErrorMessage="{Binding AccountNameError}"
+                    Margin="0,8,0,0"
+                    MaxLength="30"
+                    MinLength="1" />
+                
+                <StackLayout Spacing="4">
+                    <Label
+                        Style="{StaticResource DashLabel}"
+                        Margin="0"
+                        Text="Balance" />
+                    <Label
+                        FontSize="13"
+                        Text="{Binding Wallet.DisplayAmount}" 
+                        Style="{StaticResource Medium}" />
                 </StackLayout>
-                <StackLayout Spacing="5">
-                    <Label Style="{StaticResource DashLabel}" Text="Balance" />
-                    <Label FontSize="13">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Style="{StaticResource Medium}" Text="{Binding Wallet.Unts}" />
-                                <Span Style="{StaticResource Medium}" Text=" " />
-                                <Span Style="{StaticResource Medium}" Text="UNT " />
-                                <Span Style="{StaticResource Regular}" Text="($2000)" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                </StackLayout>
-                <Grid ColumnDefinitions="*,46" RowDefinitions="24,14">
+                
+                <Grid ColumnDefinitions="*,48" RowDefinitions="24,16">
                     <Label
                         Grid.Row="0"
                         Style="{StaticResource DashLabel}"
@@ -169,7 +160,7 @@
                             Orientation="Horizontal"
                             Spacing="10">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:Author">
                                     <Frame
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
@@ -195,7 +186,7 @@
                             <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:Product">
                                 <StackLayout>
                                     <Frame
                                         HeightRequest="22"

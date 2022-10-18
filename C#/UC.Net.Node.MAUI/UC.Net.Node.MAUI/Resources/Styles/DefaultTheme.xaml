@@ -29,27 +29,27 @@
         <OnPlatform.Platforms>
             <On Platform="iOS" Value="0,30,0,0" />
             <On Platform="Android" Value="0,2,0,0" />
-            <On Platform="UWP" Value="0,0,0,0" />
+            <On Platform="UWP" Value="0" />
         </OnPlatform.Platforms>
     </OnPlatform>
     <OnPlatform x:Key="SidePadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>
             <On Platform="iOS" Value="30,0,0,0" />
             <On Platform="Android" Value="15,0,0,0" />
-            <On Platform="UWP" Value="0,0,0,0" />
+            <On Platform="UWP" Value="0" />
         </OnPlatform.Platforms>
     </OnPlatform>
     <OnPlatform x:Key="LeftPadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>
             <On Platform="iOS" Value="0,0,10,0" />
-            <On Platform="Android" Value="0,0,0,0" />
-            <On Platform="UWP" Value="0,0,0,0" />
+            <On Platform="Android" Value="0" />
+            <On Platform="UWP" Value="0" />
         </OnPlatform.Platforms>
     </OnPlatform>
     <OnPlatform x:Key="PagePadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>
             <On Platform="iOS" Value="20,20,20,40" />
-            <On Platform="Android" Value="20,20,20,20" />
+            <On Platform="Android" Value="20" />
         </OnPlatform.Platforms>
     </OnPlatform>
     <OnPlatform x:Key="PopupPadding" x:TypeArguments="Thickness">

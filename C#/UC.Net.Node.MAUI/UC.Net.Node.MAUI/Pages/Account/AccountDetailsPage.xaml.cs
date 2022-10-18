@@ -6,7 +6,7 @@ public partial class AccountDetailsPage : CustomPage
     {
         InitializeComponent();
         var vm = Ioc.Default.GetService<AccountDetailsViewModel>();
-		vm.Wallet = new Wallet();
+		vm.Wallet = DefaultDataMock.Wallet1;
         BindingContext = vm;
     }
 

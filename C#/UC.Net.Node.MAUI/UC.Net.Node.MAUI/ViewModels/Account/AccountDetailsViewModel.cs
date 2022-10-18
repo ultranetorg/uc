@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
+﻿namespace UC.Net.Node.MAUI.ViewModels.Account;
 
 public partial class AccountDetailsViewModel : BaseAccountViewModel
 {
@@ -38,5 +38,8 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		Authors.AddRange(_service.Authors);
 		Products.AddRange(_service.Products);
 		ColorsCollection.AddRange(_service.AccountColors);
+
+		// will be replaced from query parameter
+		AccountName = "Account Name";
 	}
 }

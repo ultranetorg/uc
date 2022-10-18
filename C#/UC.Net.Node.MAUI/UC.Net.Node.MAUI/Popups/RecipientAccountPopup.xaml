@@ -185,7 +185,7 @@
                                         x:Name="cb"
                                         CharacterType="Letter"
                                         Flags="ValidateOnValueChanging"
-                                        InvalidStyle="{StaticResource InValid}"
+                                        InvalidStyle="{StaticResource InvalidEntry}"
                                         MaximumCharacterCount="30"
                                         MinimumCharacterCount="1"
                                         ValidStyle="{StaticResource Valid}" />
@@ -240,7 +240,7 @@
                                         x:Name="cb1"
                                         CharacterType="Letter"
                                         Flags="ValidateOnValueChanging"
-                                        InvalidStyle="{StaticResource InValid}"
+                                        InvalidStyle="{StaticResource InvalidEntry}"
                                         MaximumCharacterCount="30"
                                         MinimumCharacterCount="1"
                                         ValidStyle="{StaticResource Valid}" />

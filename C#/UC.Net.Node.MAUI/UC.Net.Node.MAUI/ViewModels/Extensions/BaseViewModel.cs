@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels;
 
-public partial class BaseViewModel : ObservableObject
+public partial class BaseViewModel : ObservableValidator
 {
 	protected readonly ILogger _logger;
 

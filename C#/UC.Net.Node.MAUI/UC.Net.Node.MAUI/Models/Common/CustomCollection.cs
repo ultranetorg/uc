@@ -1,7 +1,6 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 
-namespace UC.Net.Node.MAUI.Controls;
+namespace UC.Net.Node.MAUI.Models;
 
 public class CustomCollection<T> : ObservableCollection<T>
 {

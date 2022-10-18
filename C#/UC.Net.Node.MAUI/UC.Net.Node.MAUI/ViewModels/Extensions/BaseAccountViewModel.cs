@@ -1,7 +1,17 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace UC.Net.Node.MAUI.ViewModels;
 
 public partial class BaseAccountViewModel : BaseViewModel
 {
+    [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Required")]
+    [NotifyPropertyChangedFor(nameof(AccountNameError))]
+    private string _accountName;
+
+    public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
+
 	[ObservableProperty]
     private CustomCollection<AccountColor> _colorsCollection = new();
 	
@@ -47,5 +57,31 @@ public partial class BaseAccountViewModel : BaseViewModel
     {
         if (Position == 1) return;
         Position += 1;
+    }
+
+    protected string GetControlErrorMessage(string nameOfControl)
+    {
+        var message = string.Empty;
+
+        try
+        {
+            if (HasErrors)
+            {
+                Guard.IsNotNullOrWhiteSpace(nameOfControl);
+
+                var errors = GetErrors(nameOfControl)?.Select(x => x.ErrorMessage).ToList();
+
+                if (errors.Count > 0)
+                {
+                    message = errors[0];
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GetControlErrorMessage({Value}) - Error: {Ex} ", nameOfControl, ex.Message);
+        }
+
+        return message;
     }
 }

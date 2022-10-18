@@ -3,6 +3,7 @@ using System.Windows.Input;
 
 namespace UC.Net.Node.MAUI.Controls;
 
+// Obsolete
 public class BorderEditor : Editor
 {
     public BorderEditor() : base()

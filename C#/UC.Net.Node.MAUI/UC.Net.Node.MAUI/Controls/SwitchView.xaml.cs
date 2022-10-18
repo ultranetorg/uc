@@ -4,13 +4,19 @@ namespace UC.Net.Node.MAUI.Controls;
 public partial class SwitchView : ContentView
 {
     private bool JustSet = true;
-    private bool IsRunning;
-
-    public event EventHandler Tapped;
-
-	#region Bindable Properties
+    private bool IsRunning = false;
 
 	public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(nameof(CornerRadius), typeof(double), typeof(SwitchView), default);
+
+	public static BindableProperty CurrentColorProperty = BindableProperty.Create(nameof(CurrentColor), typeof(Color), typeof(SwitchView), Colors.Gray);
+
+	public static BindableProperty OffColorProperty = BindableProperty.Create(nameof(OffColor), typeof(Color), typeof(SwitchView), Colors.Gray);
+
+	public static BindableProperty OnColorProperty = BindableProperty.Create(nameof(OnColor), typeof(Color), typeof(SwitchView), Colors.Blue);
+
+	public static readonly BindableProperty IsOnProperty = BindableProperty.Create(nameof(IsOn), typeof(bool), typeof(SwitchView), true);
+
+	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(SwitchView), null);
 
 	public double CornerRadius
 	{
@@ -18,15 +24,11 @@ public partial class SwitchView : ContentView
 		set { SetValue(CornerRadiusProperty, value); }
 	}
 
-	public static BindableProperty CurrentColorProperty = BindableProperty.Create(nameof(CurrentColor), typeof(Color), typeof(SwitchView), Colors.Gray);
-
 	public Color CurrentColor
 	{
 		get { return (Color)GetValue(CurrentColorProperty); }
 		set { SetValue(CurrentColorProperty, value); }
 	}
-
-	public static BindableProperty OffColorProperty = BindableProperty.Create(nameof(OffColor), typeof(Color), typeof(SwitchView), Colors.Gray);
 
 	public Color OffColor
 	{
@@ -34,15 +36,11 @@ public partial class SwitchView : ContentView
 		set { SetValue(OffColorProperty, value); }
 	}
 
-	public static BindableProperty OnColorProperty = BindableProperty.Create(nameof(OnColor), typeof(Color), typeof(SwitchView), Colors.Blue);
-
 	public Color OnColor
 	{
 		get { return (Color)GetValue(OnColorProperty); }
 		set { SetValue(OnColorProperty, value); }
 	}
-
-	public static readonly BindableProperty IsOnProperty = BindableProperty.Create(nameof(IsOn), typeof(bool), typeof(SwitchView), true);
 
 	public bool IsOn
 	{
@@ -50,61 +48,53 @@ public partial class SwitchView : ContentView
 		set { SetValue(IsOnProperty, value); }
 	}
 
-	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(SwitchView), null);
-
 	public ICommand Command
 	{
 		get { return (ICommand)GetValue(CommandProperty); }
 		set { SetValue(CommandProperty, value); }
 	}
 
-	#endregion Bindable Properties
-
 	public SwitchView()
     {
         InitializeComponent();
-        // Initialize();
-    }
+		Initialize();
+	}
 
-	//  public void Initialize()
-	//  {
-	//      CurrentColor = OffColor;
-	//      var tap = new TapGestureRecognizer();
-	//      tap.Tapped += (sender, e) => { Switch(); Tapped?.Invoke(sender, e); };
-	//      tap.Command = Command;
-	//      tap.CommandParameter = IsOn;
-	//      GestureRecognizers.Add(tap);
-	//  }
-
-	//  public async void Switch()
-	//  {
-	//      if (!IsRunning)
-	//{
-	//	IsRunning = true;
-
-	//	if (IsOn && !JustSet)
-	//	{
-	//		await thumb.TranslateTo(thumb.TranslationX - thumb.Width, 0);
-	//		CurrentColor = OffColor;
-	//	}
-	//	else if (!IsOn)
-	//	{
-	//		await thumb.TranslateTo(thumb.Width, 0);
-	//		CurrentColor = OnColor;
-	//	}
-	//	IsOn = !IsOn;
-	//	IsRunning = JustSet = false;
-	//}
-	//  }
-
-	private void Instance_SizeChanged(object sender, EventArgs e)
+	public void Initialize()
 	{
-		//if (frame.Width > 0)
-		//{
-		//	frame.WidthRequest = frame.Height * 2;
-		//	thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
-		//	thumb.HorizontalOptions = LayoutOptions.Start;
-		//	Switch();
-		//}
+		CurrentColor = OffColor;
+	}
+
+	[RelayCommand]
+	private async Task SwitchAsync()
+	{
+		if (!IsRunning)
+		{
+			IsRunning = true;
+
+			if (IsOn && !JustSet)
+			{
+				await thumb.TranslateTo(thumb.TranslationX - thumb.Width, 0);
+				CurrentColor = OffColor;
+			}
+			else if (!IsOn)
+			{
+				await thumb.TranslateTo(thumb.Width, 0);
+				CurrentColor = OnColor;
+			}
+			IsOn = !IsOn;
+			IsRunning = JustSet = false;
+		}
+	}
+
+	private async void Instance_SizeChanged(object sender, EventArgs e)
+	{
+		if (frame.Width > 0)
+		{
+			frame.WidthRequest = frame.Height * 2;
+			thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
+			thumb.HorizontalOptions = LayoutOptions.Start;
+			await SwitchAsync();
+		}
 	}
 }

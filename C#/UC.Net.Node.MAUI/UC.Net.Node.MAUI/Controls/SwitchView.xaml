@@ -19,5 +19,8 @@
             BackgroundColor="{Binding CurrentColor, Source={x:Reference instance}}"
             CornerRadius="{Binding CornerRadius, Source={x:Reference instance}}"
             VerticalOptions="FillAndExpand" />
+        <Frame.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding SwitchCommand, Source={x:Reference instance}}" />
+        </Frame.GestureRecognizers>
     </Frame>
 </ContentView>

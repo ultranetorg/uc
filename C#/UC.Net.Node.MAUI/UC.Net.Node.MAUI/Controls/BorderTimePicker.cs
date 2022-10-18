@@ -2,6 +2,7 @@
 
 namespace UC.Net.Node.MAUI.Controls;
 
+// Obsolete
 public class BorderTimePicker : TimePicker
 {
     public BorderTimePicker() : base()

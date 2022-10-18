@@ -123,6 +123,15 @@
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\FormDatePickerControl.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\FormEntryControl.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\FormTimePickerControl.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\ImageTextButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
@@ -152,7 +161,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\AccountDetailsPage.xaml">
+	  <MauiXaml Update="Pages\Account\AccountDetailsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -180,7 +189,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\CreateAccountPage.xaml">
+	  <MauiXaml Update="Pages\Account\CreateAccountPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -188,7 +197,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\DeleteAccountPage.xaml">
+	  <MauiXaml Update="Pages\Account\DeleteAccountPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -216,7 +225,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\ManageAccountsPage.xaml">
+	  <MauiXaml Update="Pages\Account\ManageAccountsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -224,7 +233,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\PrivateKeyPage.xaml">
+	  <MauiXaml Update="Pages\Account\PrivateKeyPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -240,7 +249,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\RestoreAccountPage.xaml">
+	  <MauiXaml Update="Pages\Account\RestoreAccountPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -280,11 +289,11 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\AccountOptionsPopup.xaml">
+	  <MauiXaml Update="Popups\Account\AccountOptionsPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\AccountsPopup.xaml">
+	  <MauiXaml Update="Popups\Account\AccountsPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -296,7 +305,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\DeleteAccountPopup.xaml">
+	  <MauiXaml Update="Popups\Account\DeleteAccountPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -434,7 +443,7 @@
 	  <Compile Update="Pages\AboutPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\AccountDetailsPage.xaml.cs">
+	  <Compile Update="Pages\Account\AccountDetailsPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\AuthorRegistrationPage.xaml.cs">
@@ -446,13 +455,13 @@
 	  <Compile Update="Pages\AuthorsPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\CreateAccountPage.xaml.cs">
+	  <Compile Update="Pages\Account\CreateAccountPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\DashboardPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\DeleteAccountPage.xaml.cs">
+	  <Compile Update="Pages\Account\DeleteAccountPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\EnterPinBPage.xaml.cs">
@@ -473,13 +482,13 @@
 	  <Compile Update="Pages\MakeBidPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\ManageAccountsPage.xaml.cs">
+	  <Compile Update="Pages\Account\ManageAccountsPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\NetworkPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\PrivateKeyPage.xaml.cs">
+	  <Compile Update="Pages\Account\PrivateKeyPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\ProductsBPage.xaml.cs">
@@ -491,7 +500,7 @@
 	  <Compile Update="Pages\ProductsPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\RestoreAccountPage.xaml.cs">
+	  <Compile Update="Pages\Account\RestoreAccountPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\SendPage.xaml.cs">
@@ -521,10 +530,10 @@
 	  <Compile Update="Pages\WhatsNewPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Popups\AccountOptionsPopup.xaml.cs">
+	  <Compile Update="Popups\Account\AccountOptionsPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Popups\AccountsPopup.xaml.cs">
+	  <Compile Update="Popups\Account\AccountsPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Popups\AlertPopup.xaml.cs">
@@ -533,7 +542,7 @@
 	  <Compile Update="Popups\CreatePinPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Popups\DeleteAccountPopup.xaml.cs">
+	  <Compile Update="Popups\Account\DeleteAccountPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Popups\NoNetworkPopup.xaml.cs">
@@ -626,7 +635,7 @@
 
 	<ProjectExtensions>
 		<VisualStudio>
-			<UserProperties XamarinHotReloadDebuggerTimeoutExceptionCMSCOMHideInfoBar="True" XamarinHotReloadEntryPointExceptionCMSCOMHideInfoBar="True" />
+			<UserProperties XamarinHotReloadDebuggerTimeoutExceptionHideInfoBar="True" XamarinHotReloadEntryPointExceptionHideInfoBar="True" />
 		</VisualStudio>
 	</ProjectExtensions>
 </Project>

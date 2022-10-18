@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:converters="clr-namespace:CMSCOM.Converters"
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models"
     xmlns:local="clr-namespace:UC.Net.Node.MAUI.Resources.Styles">
@@ -494,6 +495,11 @@
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontFamily" Value="Medium" />
     </Style>
+
+    <Style x:Key="InvalidLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource Error}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
     <!--#endregion Labels -->
     
     <!--TODO: Change TabView to TabbedPages-->
@@ -549,7 +555,7 @@
     <Style x:Key="Valid" TargetType="controls:BorderEntry">
         <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
     </Style>
-    <Style x:Key="InValid" TargetType="controls:BorderEntry">
+    <Style x:Key="InvalidEntry" TargetType="controls:BorderEntry">
         <Setter Property="BorderColor" Value="{StaticResource Red}" />
     </Style>
     
@@ -628,5 +634,122 @@
         <Setter Property="FontFamily" Value="SemiBold" />
         <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light=#DDEAEE}" />
     </Style>
+    
+    <Style x:Key="ValidBorderStyle" TargetType="Border">
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray600}}" />
+    </Style>
+    <Style x:Key="InvalidBorderStyle" TargetType="Border">
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource Error}}" />
+    </Style>
+
+    <Style
+        x:Key="ValidEditorStyle"
+        BaseResourceKey="ValidInputStyle"
+        TargetType="Editor" />
+    <Style
+        x:Key="InvalidEditorStyle"
+        BaseResourceKey="InvalidInputStyle"
+        TargetType="Editor" />
+
+    <Style
+        x:Key="ValidEntryStyle"
+        BaseResourceKey="ValidInputStyle"
+        TargetType="Entry" />
+    <Style
+        x:Key="InvalidEntryStyle"
+        BaseResourceKey="InvalidInputStyle"
+        TargetType="Entry" />
+    <Style x:Key="ValidPickerStyle" TargetType="Picker">
+        <Setter Property="TitleColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" />
+    </Style>
+    <Style x:Key="InvalidPickerStyle" TargetType="Picker">
+        <Setter Property="TitleColor" Value="{StaticResource Error}" />
+    </Style>
+
+    <Style
+        x:Key="InvalidInputStyle"
+        BaseResourceKey="InvalidTextStyle"
+        TargetType="InputView">
+        <Setter Property="PlaceholderColor" Value="{StaticResource Error}" />
+    </Style>
+    <Style
+        x:Key="ValidInputStyle"
+        BaseResourceKey="ValidTextStyle"
+        TargetType="Entry">
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource LightGray}}" />
+    </Style>
+
+    <Style x:Key="ValidTextStyle" TargetType="Span">
+        <Setter Property="FontAttributes" Value="None" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource LightThemeText}, Dark={StaticResource DarkThemeText}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource Black}}" />
+    </Style>
+    <Style x:Key="InvalidTextStyle" TargetType="Span">
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource Error}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource Black}}" />
+    </Style>
+
+    <Style
+        x:Key="ActiveBorderStyle"
+        BasedOn="{StaticResource ValidBorderStyle}"
+        TargetType="Border" />
+    <Style
+        x:Key="ActiveEditorStyle"
+        BasedOn="{StaticResource ValidEditorStyle}"
+        TargetType="Editor" />
+    <Style
+        x:Key="ActiveEntryStyle"
+        BasedOn="{StaticResource ValidEntryStyle}"
+        TargetType="Entry" />
+    <Style
+        x:Key="ActivePickerStyle"
+        BasedOn="{StaticResource ValidPickerStyle}"
+        TargetType="Picker" />
+    <Style
+        x:Key="ActiveSpanStyle"
+        BasedOn="{StaticResource ValidTextStyle}"
+        TargetType="Span" />
+
+    <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
+    <converters:IsObjectNotNullOrEmptyConverter x:Key="IsObjectNotNullOrEmptyConverter" />
+
+    <ControlTemplate x:Key="ControlOutline">
+        <Grid RowDefinitions="6,4,4,4,20,4,16" RowSpacing="2">
+            <Border
+                Grid.Row="1"
+                Grid.RowSpan="5"
+                Margin="0"
+                BackgroundColor="Transparent"
+                StrokeShape="RoundRectangle 4"
+                StrokeThickness="1"
+                Style="{DynamicResource ActiveBorderStyle}">
+                <ContentPresenter x:Name="ControlOutlineContentPresenter" Margin="12,0" />
+            </Border>
+            <Label
+                Grid.Row="0"
+                Grid.RowSpan="4"
+                Padding="8,0,8,0"
+                FontSize="12"
+                IsVisible="{TemplateBinding Value,
+                                            Converter={StaticResource IsObjectNotNullOrEmptyConverter}}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Style="{DynamicResource ActiveSpanStyle}" Text="  " />
+                        <Span Style="{DynamicResource ActiveSpanStyle}" Text="{TemplateBinding Placeholder}" />
+                        <Span Style="{DynamicResource ActiveSpanStyle}" Text="  " />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Label
+                Grid.Row="5"
+                Grid.RowSpan="2"
+                Padding="16,2,16,0"
+                IsVisible="{TemplateBinding ErrorMessage,
+                                            Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
+                Style="{StaticResource InvalidLabelStyle}"
+                Text="{TemplateBinding ErrorMessage}" />
+        </Grid>
+    </ControlTemplate>
 
 </ResourceDictionary>
