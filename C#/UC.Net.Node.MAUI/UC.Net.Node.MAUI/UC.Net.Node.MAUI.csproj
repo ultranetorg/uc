@@ -77,6 +77,7 @@
 	  <None Remove="Resources\Images\bell_dark.svg" />
 	  <None Remove="Resources\Images\bell_light.svg" />
 	  <None Remove="Resources\Images\dashboard_outline.svg" />
+	  <None Remove="Resources\Images\delete_button.svg" />
 	  <None Remove="Resources\Images\help_dark.svg" />
 	  <None Remove="Resources\Images\help_light.svg" />
 	  <None Remove="Resources\Images\icon.svg" />
@@ -416,7 +417,10 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\PageTitleView.xaml">
+	  <MauiXaml Update="Views\Shared\PageTitleActionView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Shared\PageTitleNotificationsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
@@ -618,6 +622,15 @@
 	  </Compile>
 	  <Compile Update="Views\Send2View.xaml.cs">
 	    <DependentUpon>Send2View.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Shared\BasePageTitleView.xaml.cs">
+	    <DependentUpon>%(Filename)</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Shared\PageTitleActionView.xaml.cs">
+	    <DependentUpon>PageTitleActionView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Shared\PageTitleNotificationsView.xaml.cs">
+	    <DependentUpon>PageTitleNotificationsView.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 

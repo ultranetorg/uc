@@ -1,16 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
-<ContentView
-    x:Class="UC.Net.Node.MAUI.Views.Shared.PageTitleView"
+<shared:BasePageTitleView
+    x:Class="UC.Net.Node.MAUI.Views.Shared.PageTitleNotificationsView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Name="This">
-    <ContentView.Resources>
-        <Style TargetType="Label">
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryForLight}, Dark={StaticResource Primary}}" />
-            <Setter Property="FontSize" Value="20" />
-        </Style>
-    </ContentView.Resources>
+    xmlns:shared="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
+    x:Name="This"
+    x:TypeArguments="shared:PageTitleNotificationsView">
     <FlexLayout
         AlignItems="Center"
         BindingContext="{x:Reference This}"
@@ -18,7 +14,6 @@
         JustifyContent="SpaceBetween">
         <Label
             FontFamily="sans-serif-semiBold"
-            VerticalOptions="Center"
             Style="{Binding TitleStyle}"
             TextColor="{StaticResource PrimaryLight}"
             Text="{Binding Title}" />
@@ -46,4 +41,4 @@
             </Border>
         </AbsoluteLayout>
     </FlexLayout>
-</ContentView>
+</shared:BasePageTitleView>

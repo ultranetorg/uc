@@ -29,6 +29,9 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
         await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Wallet));
     }
 
+	[RelayCommand]
+    private void SelectRandomColor() => Wallet.AccountColor = ColorHelper.GetRandomColor();
+
 	private void LoadData()
 	{
 		Authors.Clear();
@@ -41,5 +44,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 
 		// will be replaced from query parameter
 		AccountName = "Account Name";
+		
+		// TODO: add workflow object, the wallet is coming from api
 	}
 }

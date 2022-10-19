@@ -500,6 +500,11 @@
         <Setter Property="TextColor" Value="{StaticResource Error}" />
         <Setter Property="FontSize" Value="12" />
     </Style>
+    
+    <Style x:Key="TitleLabel" TargetType="Label">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryForLight}, Dark={StaticResource Primary}}" />
+        <Setter Property="FontSize" Value="20" />
+    </Style>
     <!--#endregion Labels -->
     
     <!--TODO: Change TabView to TabbedPages-->

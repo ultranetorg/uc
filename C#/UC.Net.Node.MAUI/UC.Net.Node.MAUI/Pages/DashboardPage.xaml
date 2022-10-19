@@ -14,7 +14,9 @@
     x:DataType="vm:DashboardViewModel">
     
     <Shell.TitleView>
-        <views:PageTitleView Title="Ultranet User Center" />
+        <views:PageTitleNotificationsView
+            Title="Ultranet User Center"
+            TitleStyle="{StaticResource TitleLabel}" />
     </Shell.TitleView>
     
     <controls:CustomPage.Resources>

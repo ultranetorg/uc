@@ -6,18 +6,18 @@
     xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Account"
     xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
     Title="Account Details"
     x:Name="page"
     x:DataType="vm:AccountDetailsViewModel">
-    <!--<controls:CustomPage.RightContent>
-        <StackLayout>
-            <ImageButton
-                Command="{Binding DeleteCommand}"
-                HorizontalOptions="End"
-                Style="{StaticResource Delete}"
-                VerticalOptions="Center" />
-        </StackLayout>
-    </controls:CustomPage.RightContent>-->
+    
+    <Shell.TitleView>
+        <views:PageTitleActionView
+            Title="Account Details"
+            IconSource="delete_button.png"
+            TitleStyle="{StaticResource TitleLabel}" />
+    </Shell.TitleView>
+    
     <controls:CustomPage.Resources>
         <DataTemplate x:Key="ColorsTemplate" x:DataType="models:AccountColor">
             <Frame
@@ -101,6 +101,7 @@
                         <ImageButton
                             Grid.Column="1"
                             Style="{StaticResource Random}"
+                            Command="{Binding SelectRandomColorCommand}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Grid>

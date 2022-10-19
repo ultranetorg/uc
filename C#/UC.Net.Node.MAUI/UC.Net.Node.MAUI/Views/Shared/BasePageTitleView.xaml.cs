@@ -1,12 +1,12 @@
 ﻿namespace UC.Net.Node.MAUI.Views.Shared;
 
-public partial class PageTitleView : ContentView
+public class BasePageTitleView<TView> : ContentView
 {
     public static readonly BindableProperty TitleProperty =
-        BindableProperty.Create(nameof(Title), typeof(string), typeof(PageTitleView));
+        BindableProperty.Create(nameof(Title), typeof(string), typeof(TView));
 
     public static readonly BindableProperty TitleStyleProperty =
-        BindableProperty.Create(nameof(TitleStyle), typeof(Style), typeof(PageTitleView));
+        BindableProperty.Create(nameof(TitleStyle), typeof(Style), typeof(TView));
 
     public string Title
     {
@@ -18,10 +18,5 @@ public partial class PageTitleView : ContentView
     {
         get => (Style)GetValue(TitleStyleProperty);
         set => SetValue(TitleStyleProperty, value);
-    }
-
-    public PageTitleView()
-    {
-        InitializeComponent();
     }
 }

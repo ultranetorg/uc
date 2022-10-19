@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.Models;
 
-public class Wallet : BindableObject
+public partial class Wallet : ObservableObject
 {
     private Color _accountColor;
 
@@ -21,9 +21,11 @@ public class Wallet : BindableObject
 			Background = GradientStops(value);
 		}
 	}
+	
+	[ObservableProperty]
+    public LinearGradientBrush _background;
 
-    public LinearGradientBrush Background { get; set; }
-
+	// TODO: probably need to be moved into view model and need to remove inheritance
     public static LinearGradientBrush GradientStops(Color color) => new (
 		new GradientStopCollection {
 			new GradientStop(color, 0.1f),
