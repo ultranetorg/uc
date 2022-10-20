@@ -2,7 +2,6 @@
 
 public partial class AccountDetailsViewModel : BaseAccountViewModel
 {
-	// todo: split into 3 services
 	private readonly IServicesMockData _service;
 
     public AccountDetailsViewModel(IServicesMockData service, ILogger<AccountDetailsViewModel> logger) : base(logger)
@@ -10,6 +9,11 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		_service = service;
 		LoadData();
     }
+
+	// !NEXT STEPS TO DO:
+	// 1. retrieve account object from query parameter after redirecting from ManageAccountsPage
+	// 2. set background in model only in VM after submitting
+	// 3. remove wallet model, we need only account model with wallet balance property
 
 	[RelayCommand]
     private async Task SendAsync()

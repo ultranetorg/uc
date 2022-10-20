@@ -19,7 +19,12 @@ public class Account
 
     public IList<Author> Authors { get; set; } = new List<Author>();
 
-    public IList<Wallet> Wallets { get; set; } = new List<Wallet>();
+	public IList<Wallet> Wallets { get; set; } = new List<Wallet>();
 
     public IList<Transaction> Transactions { get; set; } = new List<Transaction>();
+
+	// lets say 1 unts = $1 unless we can recieve rate
+	public string DisplayAmount => $"{Balance} UNT (${Balance})";
+
+    public string IconCode => Address.Substring(0,4);
 }

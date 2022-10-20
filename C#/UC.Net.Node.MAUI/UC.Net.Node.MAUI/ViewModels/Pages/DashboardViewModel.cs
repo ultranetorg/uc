@@ -17,6 +17,8 @@ public partial class DashboardViewModel : BaseViewModel
 		_walletsService = walletsService;
     }
 
+	// TODO: replace AccountDetails with ManageAccount Page
+
 	[RelayCommand]
     public async Task AccountsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(AccountDetailsPage));
 

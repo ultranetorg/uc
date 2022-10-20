@@ -18,16 +18,10 @@ public partial class Wallet : ObservableObject
 		get => _accountColor;
 		set {
 			_accountColor = value;
-			Background = GradientStops(value);
+			Background = ColorHelper.CreateGradientColor(value);
 		}
 	}
 	
 	[ObservableProperty]
     public LinearGradientBrush _background;
-
-	// TODO: probably need to be moved into view model and need to remove inheritance
-    public static LinearGradientBrush GradientStops(Color color) => new (
-		new GradientStopCollection {
-			new GradientStop(color, 0.1f),
-			new GradientStop(color.WithSaturation(0.1f), 1.0f) });
 }
