@@ -156,7 +156,7 @@ namespace UC.Net
 
 					string formatbalance(Account a, bool confirmed)
 					{
-						return Chain.GetAccountInfo(a, false)?.Balance.ToHumanString();
+						return Chain.GetAccountInfo(a, confirmed)?.Balance.ToHumanString();
 					}
 
 					foreach(var i in Vault.Accounts)
@@ -777,7 +777,7 @@ namespace UC.Net
 							Log?.Report(this, "Detected IP", IP.ToString());
 						}
 	
-						if(peer.Established/* && (peer.IP.GetAddressBytes()[3] + IP.GetAddressBytes()[3]) % 2 == 0*/)
+						if(peer.Established)
 						{
 							Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
 							client.Close();
@@ -832,85 +832,86 @@ namespace UC.Net
 			t.Name = Settings.IP.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
 			t.Start();
 
-			void incon(){
-							try
-							{
-								Hello h = null;
+			void incon()
+			{
+				try
+				{
+					Hello h = null;
 	
-								try
-								{
-									client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
-									client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+					try
+					{
+						client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+						client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
 
-									h = Peer.WaitHello(client);
-								}
-								catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
-								{
-									Log?.Report(this, "Establishing failed", $"From {peer.IP}; WaitHello {ex.Message}");
-									goto failed;
-								}
+						h = Peer.WaitHello(client);
+					}
+					catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
+					{
+						Log?.Report(this, "Establishing failed", $"From {ip}; WaitHello {ex.Message}");
+						goto failed;
+					}
 				
-								lock(Lock)
-								{
-									if(h.Nuid == Nuid)
-									{
-										Log?.Report(this, "Establishing failed", "It's me");
-										Peers.Remove(peer);
-										client.Close();
-										return;
-									}
-
-									if(peer != null && peer.Established)
-									{
-										Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
-										client.Close();
-										return;
-									}
-	
-									if(IP.Equals(IPAddress.None))
-									{
-										IP = h.IP;
-										Log?.Report(this, "Detected IP", IP.ToString());
-									}
-		
-									try
-									{
-										Peer.SendHello(client, CreateHello(ip));
-									}
-									catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
-									{
-										Log?.Report(this, "Establishing failed", $"From {peer.IP}; SendHello; {ex.Message}");
-										goto failed;
-									}
-	
-									if(peer == null)
-									{
-										peer = new Peer(ip);
-										Peers.Add(peer);
-									}
-									
-									RememberPeers(h.Peers.Append(peer));
-	
-									peer.InStatus = EstablishingStatus.Succeeded;
-									peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
-			
-									Log?.Report(this, "Accepted from", $"{peer}");
-	
-									return;
-								}
-	
-							failed:
-								lock(Lock)
-									if(peer != null)
-										peer.InStatus = EstablishingStatus.Failed;
-
-								client.Close();
-							}
-							catch(Exception ex) when(!Debugger.IsAttached)
-							{
-								Stop(MethodBase.GetCurrentMethod(), ex);
-							}
+					lock(Lock)
+					{
+						if(h.Nuid == Nuid)
+						{
+							Log?.Report(this, "Establishing failed", "It's me");
+							Peers.Remove(peer);
+							client.Close();
+							return;
 						}
+
+						if(peer != null && peer.Established)
+						{
+							Log?.Report(this, "Establishing failed", $"From {ip}; Already established" );
+							client.Close();
+							return;
+						}
+	
+						if(IP.Equals(IPAddress.None))
+						{
+							IP = h.IP;
+							Log?.Report(this, "Reported IP", IP.ToString());
+						}
+		
+						try
+						{
+							Peer.SendHello(client, CreateHello(ip));
+						}
+						catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
+						{
+							Log?.Report(this, "Establishing failed", $"From {ip}; SendHello; {ex.Message}");
+							goto failed;
+						}
+	
+						if(peer == null)
+						{
+							peer = new Peer(ip);
+							Peers.Add(peer);
+						}
+									
+						RememberPeers(h.Peers.Append(peer));
+	
+						peer.InStatus = EstablishingStatus.Succeeded;
+						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+			
+						Log?.Report(this, "Accepted from", $"{peer}");
+	
+						return;
+					}
+	
+				failed:
+					lock(Lock)
+						if(peer != null)
+							peer.InStatus = EstablishingStatus.Failed;
+
+					client.Close();
+				}
+				catch(Exception ex) when(!Debugger.IsAttached)
+				{
+					Stop(MethodBase.GetCurrentMethod(), ex);
+				}
+			}
 		}
 
 		void Listening(Peer peer)
@@ -1129,7 +1130,9 @@ namespace UC.Net
 									Chain.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
 									Chain.Rounds.Add(r);
 									Chain.Rounds = Chain.Rounds.OrderByDescending(i => i.Id).ToList();
-									Chain.Seal(r);
+
+									r.Confirmed = false;
+									Chain.Confirm(r, true);
 										
 									Cache.RemoveAll(i => i.RoundId <= r.Id);
 								}
@@ -1588,7 +1591,7 @@ namespace UC.Net
 					{
 						do
 						{
-							Chain.Confirm(p);
+							Chain.Confirm(p, false);
 
 							if(p.Confirmed)
 							{

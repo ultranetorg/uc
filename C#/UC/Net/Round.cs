@@ -36,7 +36,7 @@ namespace UC.Net
 
 		public List<Peer>								Members;
 		public List<Account>							Funds;
-		public List<Peer>								Hubs;
+		//public List<Peer>								Hubs;
 		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
 		public List<Account>							ConfirmedViolators;
 		public List<Account>							ConfirmedJoiners;
@@ -56,7 +56,7 @@ namespace UC.Net
 		public Dictionary<Account, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>			AffectedAuthors = new();
 		public Dictionary<ProductAddress, ProductEntry>	AffectedProducts = new(); /// needed to not load all producta with all releases when fetching an author
-		public HashSet<Round>							AffectedRounds = new();
+		//public HashSet<Round>							AffectedRounds = new();
 		public IEnumerable<Payload>						ExecutingPayloads;
 		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
 																								.SelectMany(i => i.Operations)

@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Sun.FUI</AssemblyName>
     <RootNamespace>UC.Sun.FUI</RootNamespace>
-    <Version>0.0.468</Version>
+    <Version>0.0.469</Version>
     <Company>uo</Company>
     <Authors>uo</Authors>
     <Product>Standard Ultranet Node (SUN) with Forms UI</Product>

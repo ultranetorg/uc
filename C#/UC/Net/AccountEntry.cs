@@ -57,18 +57,17 @@ namespace UC.Net
 			BailStatus		= (BailStatus)r.ReadByte();
 		}
 
-		public O FindOperation<O>(Round executing, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null) where O : Operation
+		public O ExeFindOperation<O>(Round executing, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null) where O : Operation
 		{
 			return	(	executing.ExecutedOperations.FirstOrDefault(i =>	i.Signer == Account && 
-																			i is O &&
+																			(i.Successful && i is O o && (op == null || op(o))) &&
 																			(pp == null || pp(i.Transaction.Payload)) && 
-																			(tp == null || tp(i.Transaction)) && 
-																			(op == null || op(i)))
+																			(tp == null || tp(i.Transaction)))
 						??
-						Chain.Accounts.FindLastOperation<O>(Account, o =>	o.Successful && (op == null || op(o)), 
-																			tp, 
-																			p => (!p.Round.Confirmed || p.Confirmed) && (pp == null || pp(p)), /// if round is confirmed than take confirmed blocks only
-																			r => r.Id < executing.Id)
+						Chain.Accounts.FindLastOperation<O>(Account,	o => o.Successful && (op == null || op(o)), 
+																		tp, 
+																		p => (!p.Round.Confirmed || p.Confirmed) && (pp == null || pp(p)), /// if round is confirmed then take confirmed blocks only
+																		r => r.Id < executing.Id)
 					)
 					as O;
 		}

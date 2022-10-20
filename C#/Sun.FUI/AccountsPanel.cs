@@ -74,8 +74,7 @@ namespace UC.Sun.FUI
 					Task.Run(	() =>
 								{
 									string t;
-									var c = new CancellationTokenSource(30 * 1000);
-	
+									
 									try
 									{
 										t = Core.Connect(Role.Chain, null, new Workflow()).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
@@ -84,11 +83,7 @@ namespace UC.Sun.FUI
 									{
 										t = "...";
 									}
-									finally
-									{
-										c.Dispose();
-									}
-	
+										
 									Invoke(	(MethodInvoker) delegate
 											{
 												i.SubItems[2].Text = t; 

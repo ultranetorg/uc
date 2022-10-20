@@ -200,7 +200,7 @@ namespace UC.Net
 		{
 			var e = round.ChangeAccount(Signer);
 
-			var prev = e.FindOperation<CandidacyDeclaration>(round);
+			var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
 
 			if(prev != null && e.BailStatus == BailStatus.OK) /// first, add existing if not previously Siezed
 				e.Balance += prev.Bail;
