@@ -25,7 +25,7 @@ namespace UC.Sun.FUI
 		{
 			if(first)
 			{
-				logbox.Log = Core.Log;
+				logbox.Log = Core.Workflow.Log;
 
 				BindAccounts(source);
 				BindAccounts(destination);

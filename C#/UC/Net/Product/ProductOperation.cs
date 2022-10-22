@@ -68,12 +68,12 @@ namespace UC.Net
 
 			if(!a.Products.Contains(Address.Product))
 			{
-				a = round.ChangeAuthor(Address.Author);
+				a = round.AffectAuthor(Address.Author);
 				///a.Rid = round.Id;
 				a.Products.Add(Address.Product);
 			}
 			 
-			var p = round.ChangeProduct(Address);
+			var p = round.AffectProduct(Address);
 		
 			p.Title				= Title;
 			p.LastRegistration	= round.Id;
@@ -122,7 +122,7 @@ namespace UC.Net
 			//	a.Products.Add(Address.Product);
 			//}
 			 
-			var p = round.ChangeProduct(Address);
+			var p = round.AffectProduct(Address);
 			
 			p.Realizations.RemoveAll(i => i.Name == Address.Platform);
 			p.Realizations.Add(new RealizationEntry{Name = Address.Platform, OSes = OSes});
@@ -315,7 +315,7 @@ namespace UC.Net
 				//	if(prev == null)
 				//		throw new IntegrityException("No ReleaseRegistration found");
 				//	
-					p = round.ChangeProduct(Release);
+					p = round.AffectProduct(Release);
 				//
 				//	prev.Manifest.Archived = true;
 				//	round.AffectedRounds.Add(prev.Transaction.Payload.Round);
@@ -328,7 +328,7 @@ namespace UC.Net
 				}
 			}
 			else
-				p = round.ChangeProduct(Release);
+				p = round.AffectProduct(Release);
 			
 			var e = new ReleaseEntry(Release.Platform, Release.Version, Channel, round.Id);
 

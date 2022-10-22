@@ -454,7 +454,7 @@ namespace UC.Net
 
 		public override Response Execute(Core core)
 		{
-			return core.Chain.GetRealizationHistory(Realization, Confirmed);
+			return core.Chain.GetReleaseHistory(Realization, Confirmed);
 		}
 	}
 	

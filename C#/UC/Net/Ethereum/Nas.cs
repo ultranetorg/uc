@@ -114,12 +114,11 @@ namespace UC.Net
 	
 							ips.Add(ip);
 						}
-	
+
+						Zones[zone] = ips.ToArray();
 					}
 					catch(Exception ex) when (ex is not RequirementException)
 					{
-						Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used. ");
-
 		  				try
 		  				{
 		 					new Uri(Settings.Nas.Provider);
@@ -129,20 +128,16 @@ namespace UC.Net
 							ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to get intial nodes.", false);
 		  				}
 
-						ips = zone.Nodes.ToList();
 					}
 
-					if(ips.Any())
+					if(!ips.Any())
 					{
-						Zones[zone] = ips.ToArray();
+						Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used.");
+						Zones[zone] = zone.Initials;
 					}
+				}
 
-					return ips.ToArray();
-				}
-				else
-				{
-					return Zones[zone];
-				}
+				return Zones[zone];
 			}
 		}
 

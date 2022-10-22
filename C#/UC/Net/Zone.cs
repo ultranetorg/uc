@@ -9,8 +9,8 @@ namespace UC.Net
 		public readonly string Name;
 		public readonly string EtheterumNetwork;
 
-		public static readonly Zone Localnet = new Zone("Localnet",				"Goerli"){Nodes = Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToArray()};
-		public static readonly Zone Testnet1 = new Zone(TestnetPrefix + "1",	"Goerli"){Nodes = new string[]{	"78.47.204.100", 
+		public static readonly Zone Localnet = new Zone("Localnet",				"Goerli"){Initials = Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToArray()};
+		public static readonly Zone Testnet1 = new Zone(TestnetPrefix + "1",	"Goerli"){Initials = new string[]{	"78.47.204.100", 
 																												"78.47.214.161",
 																												"78.47.214.166",
 																												"78.47.214.170",
@@ -23,13 +23,18 @@ namespace UC.Net
 
 		public const string TestnetPrefix	= "Testnet";
 
-		public IPAddress[] Nodes;
+		public IPAddress[] Initials;
 												
 
 		public Zone(string name, string etheterumNetwork)
 		{
 			Name = name;
 			EtheterumNetwork = etheterumNetwork;
+		}
+
+		public override string ToString()
+		{
+			return Name;
 		}
 
 		public static Zone ByName(string name) => All.First(i => i.Name == name);

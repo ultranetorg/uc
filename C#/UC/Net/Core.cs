@@ -61,8 +61,8 @@ namespace UC.Net
 		public const int								OperationsQueueLimit = 1000;
 		const int										BalanceWidth = 24;
 
-		public Log										Log;
-		Workflow										Workflow;
+		//public Log										Log;
+		public Workflow									Workflow;
 		public Vault									Vault;
 		public INas										Nas;
 		public Roundchain								Chain;
@@ -91,7 +91,6 @@ namespace UC.Net
 		public List<IPAddress>							IgnoredIPs	= new();
 		public List<Block>								Cache		= new();
 		public List<Peer>								Members		= new();
-		//Dictionary<PackageAddress, List<IPAddress>>		PackagePeers = new();
 		public List<Download>							Downloads = new();
 
 		TcpListener										Listener;
@@ -218,22 +217,21 @@ namespace UC.Net
 		{
 			Settings = settings;
 			Cryptography.Current = settings.Cryptography;
-			Log	 = Settings.Log ? log : null;
 
 			Workflow = new Workflow(log);
 
 			Directory.CreateDirectory(Settings.Profile);
 
-			Log?.Report(this, $"Ultranet Node/Client {Assembly.GetEntryAssembly().GetName().Version}");
-			Log?.Report(this, $"Runtime: {Environment.Version}");	
-			Log?.Report(this, $"Profile: {Settings.Profile}");	
-			Log?.Report(this, $"Protocol Versions: {string.Join(',', Versions)}");
-			Log?.Report(this, $"Zone: {Settings.Zone.Name}");
+			Workflow?.Log?.Report(this, $"Ultranet Node/Client {Assembly.GetAssembly(GetType()).GetName().Version}");
+			Workflow?.Log?.Report(this, $"Runtime: {Environment.Version}");	
+			Workflow?.Log?.Report(this, $"Profile: {Settings.Profile}");	
+			Workflow?.Log?.Report(this, $"Protocol Versions: {string.Join(',', Versions)}");
+			Workflow?.Log?.Report(this, $"Zone: {Settings.Zone.Name}");
 			
 			if(Settings.Dev.Any)
-				Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
+				Workflow?.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
-			Vault = new Vault(Settings, Log);
+			Vault = new Vault(Settings, Workflow?.Log);
 
 			var cfamilies = new ColumnFamilies();
 			
@@ -341,7 +339,7 @@ namespace UC.Net
 
 			if(Settings.Chain.Enabled)
 			{
-				Chain = new Roundchain(Settings, Log, Nas, Vault, Database);
+				Chain = new Roundchain(Settings, Workflow?.Log, Nas, Vault, Database);
 		
 				Chain.BlockAdded += b => {
 											if(Generator != null)
@@ -370,7 +368,7 @@ namespace UC.Net
 					VerifingThread.Start();
 				}
 
-				Log?.Report(this, "Chain started");
+				Workflow.Log?.Report(this, "Chain started");
 			}
 
 			LoadPeers();
@@ -467,7 +465,7 @@ namespace UC.Net
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(methodBase.Name, (c1, c2) => c1.Replace(c2, '_'));
 				File.WriteAllText(Path.Join(Settings.Profile, m + "." + Core.FailureExt), ex.ToString());
-				Log?.ReportError(this, m, ex);
+				Workflow?.Log?.ReportError(this, m, ex);
 	
 				Stop("Exception");
 			}
@@ -494,7 +492,7 @@ namespace UC.Net
 
 			Database?.Dispose();
 
-			Log?.Report(this, "Stopped", message);
+			Workflow?.Log?.Report(this, "Stopped", message);
 		}
 
 		public Peer GetPeer(IPAddress ip)
@@ -529,7 +527,7 @@ namespace UC.Net
 			
 			if(Peers.Any())
 			{
-				Log?.Report(this, "Peers loaded", $"n={Peers.Count}");
+				Workflow?.Log?.Report(this, "Peers loaded", $"n={Peers.Count}");
 			}
 			else
 			{
@@ -541,7 +539,7 @@ namespace UC.Net
 					{
 						RememberPeers(initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
 
-						Log?.Report(this, "Initial nodes retrieved", initials.Length.ToString());
+						Workflow?.Log?.Report(this, "Initial nodes retrieved", initials.Length.ToString());
 						break;
 					}
 					else
@@ -643,7 +641,7 @@ namespace UC.Net
 					{
 						Task.Run(() =>	{
 											DeclarePackage(ps, Workflow);
-											Log?.Report(this, "Initial declaration completed");
+											Workflow.Log?.Report(this, "Initial declaration completed");
 										});
 					}
 				}
@@ -664,7 +662,7 @@ namespace UC.Net
 				Listener = new TcpListener(Settings.IP, Settings.Port);
 				Listener.Start();
 	
-				Log?.Report(this, "Listening started", $"{Settings.IP}:{Settings.Port}");
+				Workflow?.Log?.Report(this, "Listening started", $"{Settings.IP}:{Settings.Port}");
 
 				while(Running)
 				{
@@ -734,7 +732,7 @@ namespace UC.Net
 					}
 					catch(SocketException ex) 
 					{
-						Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
+						Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -757,7 +755,7 @@ namespace UC.Net
 					}
 					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
-						Log?.Report(this, "Establishing failed", $"To {peer.IP}; Send/Wait Hello; {ex.Message}" );
+						Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Send/Wait Hello; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -765,7 +763,7 @@ namespace UC.Net
 					{
 						if(h.Nuid == Nuid)
 						{
-							Log?.Report(this, "Establishing failed", "It's me");
+							Workflow.Log?.Report(this, "Establishing failed", "It's me");
 							Peers.Remove(peer);
 							client.Close();
 							return;
@@ -774,12 +772,12 @@ namespace UC.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Log?.Report(this, "Detected IP", IP.ToString());
+							Workflow.Log?.Report(this, "Detected IP", IP.ToString());
 						}
 	
 						if(peer.Established)
 						{
-							Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
+							Workflow.Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
 							client.Close();
 							return;
 						}
@@ -789,7 +787,7 @@ namespace UC.Net
 						peer.OutStatus = EstablishingStatus.Succeeded;
 						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 							
-						Log?.Report(this, "Connected to", $"{peer}");
+						Workflow.Log?.Report(this, "Connected to", $"{peer}");
 	
 						return;
 					}
@@ -847,7 +845,7 @@ namespace UC.Net
 					}
 					catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
 					{
-						Log?.Report(this, "Establishing failed", $"From {ip}; WaitHello {ex.Message}");
+						Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; WaitHello {ex.Message}");
 						goto failed;
 					}
 				
@@ -855,7 +853,7 @@ namespace UC.Net
 					{
 						if(h.Nuid == Nuid)
 						{
-							Log?.Report(this, "Establishing failed", "It's me");
+							Workflow.Log?.Report(this, "Establishing failed", "It's me");
 							Peers.Remove(peer);
 							client.Close();
 							return;
@@ -863,7 +861,7 @@ namespace UC.Net
 
 						if(peer != null && peer.Established)
 						{
-							Log?.Report(this, "Establishing failed", $"From {ip}; Already established" );
+							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; Already established" );
 							client.Close();
 							return;
 						}
@@ -871,7 +869,7 @@ namespace UC.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Log?.Report(this, "Reported IP", IP.ToString());
+							Workflow.Log?.Report(this, "Reported IP", IP.ToString());
 						}
 		
 						try
@@ -880,7 +878,7 @@ namespace UC.Net
 						}
 						catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
 						{
-							Log?.Report(this, "Establishing failed", $"From {ip}; SendHello; {ex.Message}");
+							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; SendHello; {ex.Message}");
 							goto failed;
 						}
 	
@@ -895,7 +893,7 @@ namespace UC.Net
 						peer.InStatus = EstablishingStatus.Succeeded;
 						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 			
-						Log?.Report(this, "Accepted from", $"{peer}");
+						Workflow.Log?.Report(this, "Accepted from", $"{peer}");
 	
 						return;
 					}
@@ -1066,7 +1064,7 @@ namespace UC.Net
 						}
 
 						default:
-							Log?.ReportError(this, $"Wrong packet type {pk.Type}");
+							Workflow.Log?.ReportError(this, $"Wrong packet type {pk.Type}");
 							peer.Status = ConnectionStatus.Failed;
 							return;
 					}
@@ -1082,7 +1080,7 @@ namespace UC.Net
 		{
 			if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
 			{
-				Log?.Report(this, "Syncing started");
+				Workflow.Log?.Report(this, "Syncing started");
 
 				SynchronizingThread = new Thread(Synchronizing);
 				SynchronizingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Synchronizing";
@@ -1156,7 +1154,7 @@ namespace UC.Net
 								}
 							}
 								
-							Log?.Report(this, "Rounds received", $"{from}..{to}");
+							Workflow.Log?.Report(this, "Rounds received", $"{from}..{to}");
 						}
 					}
 					else
@@ -1173,7 +1171,7 @@ namespace UC.Net
 				SynchronizingThread = null;
 			}
 	
-			Log?.Report(this, "Syncing finished");
+			Workflow.Log?.Report(this, "Syncing finished");
 		}
 
 		public void ProcessIncoming(IEnumerable<Block> blocks, Peer peer)
@@ -1367,7 +1365,7 @@ namespace UC.Net
 
 					Broadcast(Packet.Create(PacketType.Blocks, votes));
 													
-					Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Type}({i.RoundId})")));
+					Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Type}({i.RoundId})")));
 				}
 			}
 
@@ -1381,7 +1379,7 @@ namespace UC.Net
 			bool						ready;
 			IEnumerable<Operation>		delegated;
 
-			Log?.Report(this, "Delegating started");
+			Workflow.Log?.Report(this, "Delegating started");
 
 			Dci m = null;
 
@@ -1471,7 +1469,7 @@ namespace UC.Net
 								o.FlowReport?.Log?.ReportWarning(this, $"Placing has been delegated to {m}");
 							}
 									
-						Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {(m is Peer p ? p.IP : "Self")}");
+						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {(m is Peer p ? p.IP : "Self")}");
 
 						Thread.Sleep(500); /// prevent any flooding
 					}
@@ -1529,7 +1527,7 @@ namespace UC.Net
 				}
 				catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
 				{
-					Log?.ReportWarning(this, "Delegation", $"Member={m}", ex);
+					Workflow.Log?.ReportWarning(this, "Delegation", $"Member={m}", ex);
 
 					if(m.Failures < 3)
 						m.Failures++;
@@ -1625,7 +1623,7 @@ namespace UC.Net
 			} 
 			else
 			{
-				Log?.ReportError(this, "Too many pending/unconfirmed operations");
+				Workflow.Log?.ReportError(this, "Too many pending/unconfirmed operations");
 			}
 		}
 		
@@ -1646,7 +1644,7 @@ namespace UC.Net
 
 		void Verifing()
 		{
-			Log?.Report(this, "Verifing started");
+			Workflow.Log?.Report(this, "Verifing started");
 
 			try
 			{
@@ -1679,7 +1677,7 @@ namespace UC.Net
 									catch(Exception ex)
 									{
 										valid = false;
-										Log?.ReportError(this, "Can't verify Emission operation", ex);
+										Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
 										break;
 									}
 									finally
@@ -1790,7 +1788,7 @@ namespace UC.Net
 			
 							c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
 
-							Log?.Report(this, "Member chosen", c.ToString());
+							Workflow.Log?.Report(this, "Member chosen", c.ToString());
 		
 							return c;
 						}

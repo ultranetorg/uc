@@ -625,7 +625,7 @@ namespace UC.Net
 			return rr;
 		}
 
-		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> blockforkers, byte stage)
+		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> forkers, byte stage)
 		{
 			var prev = round.Previous;
 				
@@ -665,7 +665,7 @@ namespace UC.Net
 						if(stage == 1 && o.Error != null)
 							continue;
 
-						var l = round.ChangeAccount(t.Signer).ExeFindOperation<Operation>(round);
+						var l = round.AffectAccount(t.Signer).ExeFindOperation<Operation>(round);
 					
 						if(l != null && o.Id <= l.Id)
 						{
@@ -685,10 +685,10 @@ namespace UC.Net
 						{
 							var f = o.CalculateFee(round.Factor);
 	
-							if(round.ChangeAccount(t.Signer).Balance - f >= 0)
+							if(round.AffectAccount(t.Signer).Balance - f >= 0)
 							{
 								fee += f;
-								round.ChangeAccount(t.Signer).Balance -= f;
+								round.AffectAccount(t.Signer).Balance -= f;
 							}
 							else
 							{
@@ -698,12 +698,14 @@ namespace UC.Net
 								o.Error = Operation.NotEnoughUNT;
 							}
 						}
+						else if(stage == 1)
+							throw new IntegrityException("Must be no errors");
 					}
 						
 					if(t.SuccessfulOperations.Any())
 					{
-						round.ChangeAccount(t.Signer).Transactions.Add(round.Id);
-						round.Distribute(fee, new [] {b.Generator}, 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
+						round.AffectAccount(t.Signer).Transactions.Add(round.Id);
+						round.Distribute(fee, new[]{b.Generator}, 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 					}
 				}
 			}
@@ -712,15 +714,15 @@ namespace UC.Net
 			{
 				var penalty = Coin.Zero;
 
-				if(blockforkers != null && blockforkers.Any())
+				if(forkers != null && forkers.Any())
 				{
-					foreach(var f in blockforkers)
+					foreach(var f in forkers)
 					{
-						penalty += Accounts.FindLastOperation<CandidacyDeclaration>(f, o => o.Successful, null, null, i => i.Id < round.Id).Bail;
-						round.ChangeAccount(f).BailStatus = BailStatus.Siezed;
+						penalty += round.AffectAccount(f).ExeFindOperation<CandidacyDeclaration>(round).Bail;
+						round.AffectAccount(f).BailStatus = BailStatus.Siezed;
 					}
 
-					round.Distribute(penalty, round.Members.Where(i => !blockforkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Funds, 1);
+					round.Distribute(penalty, round.Members.Where(i => !forkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Funds, 1);
 				}
 			}
 		}
@@ -1020,11 +1022,11 @@ namespace UC.Net
 			throw new ArgumentException("Unsupported VersionQuery");
 		}
 
-		public ReleaseHistoryResponse GetRealizationHistory(RealizationAddress realization, bool confirmed)
+		public ReleaseHistoryResponse GetReleaseHistory(RealizationAddress realization, bool confirmed)
 		{
-			var round = confirmed ? LastConfirmedRound : LastPayloadRound;
+			var rmax = confirmed ? LastConfirmedRound : LastPayloadRound;
 				
-			var p = Products.Find(realization, round.Id);
+			var p = Products.Find(realization, rmax.Id);
 			
 			if(p != null)
 			{
@@ -1039,8 +1041,8 @@ namespace UC.Net
 
 				return new ReleaseHistoryResponse{Registrations = ms};
 			}
-
-			return null;
+			else
+				return new ReleaseHistoryResponse{Error = "Product not found"};
 		}
 	}
 }

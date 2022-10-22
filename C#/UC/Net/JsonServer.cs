@@ -24,7 +24,7 @@ namespace UC.Net
 		HttpListener	Listener;
 		Thread			Thread;
 
-		Log				Log  => Core.Log;
+		Workflow		Workflow => Core.Workflow;
 		Settings		Settings => Core.Settings;
 		Vault			Vault => Core.Vault;
 		Roundchain		Chain => Core.Chain;
@@ -48,7 +48,7 @@ namespace UC.Net
 	
 										Listener.Start();
 				
-										Log?.Report(this, "Listening started", prefixes[0]);
+										Workflow.Log?.Report(this, "Listening started", prefixes[0]);
 		
 										while(Core.Running)
 										{
@@ -190,7 +190,7 @@ namespace UC.Net
 						lock(Core.Lock)
 						{
 							Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
-							Log?.Report(this, "Generator is set", e.Account.ToString());
+							Workflow.Log?.Report(this, "Generator is set", e.Account.ToString());
 						}
 						break;
 
@@ -204,12 +204,12 @@ namespace UC.Net
 						}
 
 						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, null));
-						Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
+						Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 						break;
 	
 					case StatusCall s:
 						lock(Core.Lock)
-							respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
+							respondjson(new GetStatusResponse {	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
 																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
 																InfoValues	= Core.Info[1].Take(s.Limit), 

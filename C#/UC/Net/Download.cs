@@ -95,7 +95,7 @@ namespace UC.Net
 			Workflow = workflow;
 
 			Task = Task.Run(() =>	{
-										var his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, true), workflow);
+										var his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, false), workflow);
 				
 										Job j;
 

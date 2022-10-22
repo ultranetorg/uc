@@ -12,6 +12,7 @@ namespace UC
 		public string		Subject;
 		public Log.Severity Severity;
 		public string[]		Text;
+		public byte			Level;
 
 		public override string ToString()
 		{
@@ -34,10 +35,11 @@ namespace UC
 		public ReportedDelegate		Reported;
 		public Stream				Stream{ set { Writer = new StreamWriter(value); }  }
 		public TextWriter			Writer;
+		public byte					Level;
 
 		protected void Report(object sender, string subject, Severity severity, string[] a)
 		{
-			var m = new LogMessage {Severity = severity, Sender = sender, Subject = subject, Text = a};
+			var m = new LogMessage {Level = Level, Severity = severity, Sender = sender, Subject = subject, Text = a};
 			
 			lock(Messages)
 			{

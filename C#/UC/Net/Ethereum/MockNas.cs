@@ -32,7 +32,7 @@ namespace UC.Net
 
 		public IPAddress[] GetInitials(Zone zone)
 		{
-			return zone.Nodes ?? throw new NotSupportedException();
+			return zone.Initials ?? throw new NotSupportedException();
 		}
 
 		public string GetZone(Zone zone)
