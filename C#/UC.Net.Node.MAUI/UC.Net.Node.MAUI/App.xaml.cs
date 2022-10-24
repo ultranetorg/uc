@@ -31,9 +31,10 @@ public partial class App : Application
 	private void InitializeRouting()
 	{
         // Global Routes (Pages not in Shell XAML) Example
+        Routing.RegisterRoute(nameof(AccountDetailsPage), typeof(AccountDetailsPage));
         Routing.RegisterRoute(nameof(AboutPage), typeof(AboutPage));
 
         // Sub-Page Routes Example
-        Routing.RegisterRoute(nameof(HelpPage), typeof(HelpPage));
+        // Routing.RegisterRoute(nameof(HelpPage), typeof(HelpPage));
 	}
 }

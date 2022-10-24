@@ -3,13 +3,13 @@
     x:Class="UC.Net.Node.MAUI.Pages.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Pages"
-    xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:converters="clr-namespace:UC.Net.Node.MAUI.Converters"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
+    xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:converters="clr-namespace:UC.Net.Node.MAUI.Converters"
     ios:Page.UseSafeArea="True"
     x:DataType="vm:DashboardViewModel">
     

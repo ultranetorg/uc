@@ -90,6 +90,8 @@
 	  <None Remove="Resources\Images\random_light.svg" />
 	  <None Remove="Resources\Images\search_dark.svg" />
 	  <None Remove="Resources\Images\search_light.svg" />
+	  <None Remove="Resources\Images\sort_dark.svg" />
+	  <None Remove="Resources\Images\sort_light.svg" />
 	  <None Remove="Resources\Images\transactions_dark.svg" />
 	  <None Remove="Resources\Images\transactions_light.svg" />
 	  <None Remove="Resources\Images\transfer_dark.svg" />

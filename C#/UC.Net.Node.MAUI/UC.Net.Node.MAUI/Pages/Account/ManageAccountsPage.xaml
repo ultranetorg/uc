@@ -3,17 +3,18 @@
     x:Class="UC.Net.Node.MAUI.Pages.ManageAccountsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Account"
+    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
+    xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    Title="Manage Accounts"
-    x:Name="page">
-    <!--<controls:CustomPage.RightContent>
-        <StackLayout>
-            <ImageButton
-                HorizontalOptions="End"
-                Style="{StaticResource Sort}"
-                VerticalOptions="Center" />
-        </StackLayout>
-    </controls:CustomPage.RightContent>-->
+    x:Name="page"
+    x:DataType="vm:ManageAccountsViewModel">
+    <Shell.TitleView>
+        <views:PageTitleActionView
+            Title="Manage Accounts"
+            IconSource="{AppThemeBinding Light='sort_light.png', Dark='sort_dark.png'}"
+            TitleStyle="{StaticResource TitleLabel}" />
+    </Shell.TitleView>
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <CollectionView
@@ -21,7 +22,7 @@
                 ItemsSource="{Binding Wallets}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:Wallet">
                         <StackLayout>
                             <Frame Margin="18,8,18,8" Style="{StaticResource AccountCard}">
                                 <SwipeView>
@@ -99,7 +100,7 @@
                                             Grid.RowSpan="3"
                                             Grid.Column="2"
                                             Padding="1"
-                                            Command="{Binding BindingContext.OptionsCommand, Source={x:Reference page}}"
+                                            Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource Dots}"
                                             VerticalOptions="Center" />
