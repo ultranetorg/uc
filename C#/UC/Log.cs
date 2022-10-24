@@ -12,7 +12,7 @@ namespace UC
 		public string		Subject;
 		public Log.Severity Severity;
 		public string[]		Text;
-		public byte			Level;
+		public Log			Log;
 
 		public override string ToString()
 		{
@@ -33,29 +33,60 @@ namespace UC
 
 		public List<LogMessage>		Messages = new List<LogMessage>();
 		public ReportedDelegate		Reported;
-		public Stream				Stream{ set { Writer = new StreamWriter(value); }  }
+		public Stream				Stream { set { Writer = new StreamWriter(value); } }
 		public TextWriter			Writer;
-		public byte					Level;
+		public Log					Parent;
+		string						Name;
+		public int Depth
+		{
+			get
+			{
+				var r = this;
+				int d = 0;
+			
+				while(r.Parent != null)
+				{
+					r = r.Parent;
+					d++;
+				}
+
+				return d;
+			}
+		}
+
+		public Log SubLog(string name)
+		{
+			Report(null, name);
+
+			var l = new Log{Name = name, Parent = this};
+
+			return l;
+		}
 
 		protected void Report(object sender, string subject, Severity severity, string[] a)
 		{
-			var m = new LogMessage {Level = Level, Severity = severity, Sender = sender, Subject = subject, Text = a};
+			var m = new LogMessage{Log = this, Severity = severity, Sender = sender, Subject = subject, Text = a};
+
+			var r = this;
 			
-			lock(Messages)
+			while(r.Parent != null)
+				r = r.Parent;
+			
+			lock(r.Messages)
 			{
-				Messages.Add(m);
+				r.Messages.Add(m);
 	
-				if(Messages.Count > 1000)
-					Messages.RemoveRange(0, Messages.Count - 1000);
+				if(r.Messages.Count > 1000)
+					r.Messages.RemoveRange(0, r.Messages.Count - 1000);
 			}
 
-			if(Writer != null)
+			if(r.Writer != null)
 			{
-				Writer.WriteLine(m.ToString());
-				Writer.Flush();
+				r.Writer.WriteLine(m.ToString());
+				r.Writer.Flush();
 			}
-					
-			Reported?.Invoke(m);
+			
+			r.Reported?.Invoke(m);
 		}
 
 		public void Report(object sender, string subject)

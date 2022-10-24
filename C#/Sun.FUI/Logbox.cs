@@ -82,7 +82,7 @@ namespace UC.Sun.FUI
  										Text = Text.Remove(0, p + Environment.NewLine.Length);
  									}
 
-									AppendText(new string(' ', 4 * m.Level));
+									AppendText(new string(' ', 4 * m.Log.Depth));
  
 									if(m.Severity != UC.Log.Severity.Info)
 										AppendText("!!! " + m.Severity + " : ");
@@ -107,7 +107,7 @@ namespace UC.Sun.FUI
 									{
  										foreach(var i in m.Text.Skip(1))
  										{
- 											AppendText(new string(' ', 4 * m.Level + 4) + i + Environment.NewLine);
+ 											AppendText(new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
  										}
 									}
  								});

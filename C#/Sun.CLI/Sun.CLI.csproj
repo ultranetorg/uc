@@ -3,13 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>0.0.520.0</AssemblyVersion>
-    <FileVersion>0.0.520.0</FileVersion>
+    <AssemblyVersion>0.0.533.0</AssemblyVersion>
+    <FileVersion>0.0.533.0</FileVersion>
     <Company>uo</Company>
     <Product>Standard Ultranet Node (SUN) with Command Line UI</Product>
     <Authors>uo</Authors>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
-    <Version>0.0.520</Version>
+    <Version>0.0.533</Version>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
