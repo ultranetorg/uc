@@ -6,7 +6,7 @@ public partial class SettingsBViewModel : BaseViewModel
     private CustomCollection<string> _months;
     
 	[ObservableProperty]
-    private Wallet _wallet = DefaultDataMock.Wallet1;
+    private Account _account = DefaultDataMock.Account1;
 
     public SettingsBViewModel(ILogger<SettingsBViewModel> logger) : base(logger)
     {

@@ -6,22 +6,22 @@ public partial class PrivateKeyPage : CustomPage
     {
         InitializeComponent();
 		var vm = Ioc.Default.GetService<PrivateKeyViewModel>();
-		vm.Wallet = new Wallet();
+		vm.Account = DefaultDataMock.Account1;
         BindingContext = vm;
     }
 
-    public PrivateKeyPage(Wallet wallet)
+    public PrivateKeyPage(Account account)
     {
         InitializeComponent();
 		var vm = Ioc.Default.GetService<PrivateKeyViewModel>();
-		vm.Wallet = wallet;
+		vm.Account = account;
         BindingContext = vm;
     }
 
-    public PrivateKeyPage(Wallet wallet, PrivateKeyViewModel vm)
+    public PrivateKeyPage(Account account, PrivateKeyViewModel vm)
     {
         InitializeComponent();
-		vm.Wallet = wallet;
+		vm.Account = account;
         BindingContext = vm;
     }
 }

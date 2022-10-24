@@ -7,7 +7,6 @@ public interface IServicesMockData
     public IList<Product> Products { get; }
     public IEnumerable<Transaction> Transactions { get; }
     public IList<AccountColor> AccountColors { get; }
-    public IList<Wallet> Wallets { get; }
     public IList<Emission> Emissions { get; }
     public IList<Notification> Notifications { get; }
 }

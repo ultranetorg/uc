@@ -44,8 +44,8 @@ public partial class BaseTransactionsViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async Task OpenOptionsAsync(Wallet wallet)
+    private async Task OpenOptionsAsync(Account account)
     {
-        await AccountOptionsPopup.Show(wallet);
+        await AccountOptionsPopup.Show(account);
     }
 }

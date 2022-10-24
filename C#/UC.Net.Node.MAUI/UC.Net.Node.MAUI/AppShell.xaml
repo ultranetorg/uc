@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:UC.Net.Node.MAUI.Pages"
     xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels"
-    xmlns:constants="clr-namespace:UC.Net.Node.MAUI.Common.Constants"
+    xmlns:constants="clr-namespace:UC.Net.Node.MAUI.Constants"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     ios:Page.UseSafeArea="True"
     x:DataType="vm:ShellViewModel"

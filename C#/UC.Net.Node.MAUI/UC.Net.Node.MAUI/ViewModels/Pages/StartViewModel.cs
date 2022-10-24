@@ -4,7 +4,7 @@ public partial class StartViewModel : BaseWalletViewModel
 {
 	public StartViewModel(ILogger<StartViewModel> logger) : base(logger)
 	{
-		Wallet = DefaultDataMock.Wallet3;
+		Account = DefaultDataMock.Account1;
 	}
 
 	[RelayCommand]
@@ -14,7 +14,7 @@ public partial class StartViewModel : BaseWalletViewModel
 		switch(int.Parse(commandParameter))
         {
             case 0:
-                await Shell.Current.Navigation.PushAsync(new AccountDetailsPage(Wallet, Ioc.Default.GetService<AccountDetailsViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new AccountDetailsPage(Account, Ioc.Default.GetService<AccountDetailsViewModel>()));
                 break;
             case 1:
                 await Shell.Current.Navigation.PushAsync(new AuthorsPage(Ioc.Default.GetService<AuthorsViewModel>()));
@@ -41,7 +41,7 @@ public partial class StartViewModel : BaseWalletViewModel
                 await Shell.Current.Navigation.PushAsync(new DashboardPage(Ioc.Default.GetService<DashboardViewModel>()));
                 break;
             case 7:
-                await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Wallet, Ioc.Default.GetService<DeleteAccountViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Account, Ioc.Default.GetService<DeleteAccountViewModel>()));
                 break;
             case 8:
                 await Shell.Current.Navigation.PushAsync(new ETHTransferPage(Ioc.Default.GetService<ETHTransferViewModel>()));
@@ -53,7 +53,7 @@ public partial class StartViewModel : BaseWalletViewModel
                 await Shell.Current.Navigation.PushAsync(new ManageAccountsPage(Ioc.Default.GetService<ManageAccountsViewModel>()));
                 break;
             case 11:
-                await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Wallet, Ioc.Default.GetService<PrivateKeyViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Account, Ioc.Default.GetService<PrivateKeyViewModel>()));
                 break;
             case 12:
                 await Shell.Current.Navigation.PushAsync(new ProductSearchPage(Ioc.Default.GetService<ProductSearchViewModel>()));

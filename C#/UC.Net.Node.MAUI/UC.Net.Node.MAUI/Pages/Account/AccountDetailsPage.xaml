@@ -3,7 +3,7 @@
     x:Class="UC.Net.Node.MAUI.Pages.AccountDetailsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels.Account"
+    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels"
     xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
@@ -55,7 +55,7 @@
                         Grid.RowSpan="2"
                         Grid.Column="0"
                         Padding="0"
-                        Background="{Binding Wallet.Background}"
+                        Background="{Binding Account.Color}"
                         CornerRadius="8"
                         HeightRequest="60"
                         VerticalOptions="Center"
@@ -63,7 +63,7 @@
                         <Label
                             HorizontalOptions="Center"
                             TextColor="{StaticResource PrimaryLight}"
-                            Text="{Binding Wallet.IconCode}"
+                            Text="{Binding Account.IconCode}"
                             VerticalOptions="Center" />
                     </Frame>
                     <Label
@@ -109,7 +109,7 @@
                     <Label
                         FontSize="13"
                         Style="{StaticResource Medium}"
-                        Text="{Binding Wallet.Id}" />
+                        Text="{Binding Account.Address}" />
                 </StackLayout>
                 
                 <controls:FormEntryControl
@@ -127,7 +127,7 @@
                         Text="Balance" />
                     <Label
                         FontSize="13"
-                        Text="{Binding Wallet.DisplayAmount}" 
+                        Text="{Binding Account.DisplayAmount}" 
                         Style="{StaticResource Medium}" />
                 </StackLayout>
                 

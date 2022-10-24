@@ -3,7 +3,7 @@
 public partial class TransferCompleteViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Wallet _wallet = DefaultDataMock.Wallet1;
+    private Account _account = DefaultDataMock.Account1;
 
     public TransferCompleteViewModel(ILogger<TransferCompleteViewModel> logger) : base(logger)
     {
@@ -18,6 +18,6 @@ public partial class TransferCompleteViewModel : BaseViewModel
 	[RelayCommand]
     private async Task DeleteAsync()
     {
-        await DeleteAccountPopup.Show(Wallet);
+        await DeleteAccountPopup.Show(Account);
     }
 }

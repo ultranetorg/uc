@@ -1,6 +1,6 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels.Account;
+﻿namespace UC.Net.Node.MAUI.ViewModels;
 
-public partial class DeleteAccountViewModel : BaseViewModel
+public partial class DeleteAccountViewModel : BaseAccountViewModel
 {
 	// will be splitted into 3 services
 	private readonly IServicesMockData _service;
@@ -11,9 +11,6 @@ public partial class DeleteAccountViewModel : BaseViewModel
 	[ObservableProperty]
     private CustomCollection<Product> _products = new();
 
-	[ObservableProperty]
-    private Wallet _wallet;
-
     public DeleteAccountViewModel(IServicesMockData service, ILogger<DeleteAccountViewModel> logger) : base(logger)
     {
 		_service = service;
@@ -22,14 +19,15 @@ public partial class DeleteAccountViewModel : BaseViewModel
     [RelayCommand]
     private async Task DeleteAsync()
     {
-        await DeleteAccountPopup.Show(Wallet);
+        await DeleteAccountPopup.Show(Account);
     }
 
-	internal void Initialize(Wallet wallet)
+	internal void Initialize(Account account)
 	{
-		Wallet = wallet;
+		Account = account;
 		Authors.Clear();
 		Products.Clear();
+
 		Authors.AddRange(_service.Authors);
 		Products.AddRange(_service.Products);
 	}

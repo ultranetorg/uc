@@ -11,7 +11,6 @@ global using CommunityToolkit.Diagnostics;
 global using UC.Net.Node.MAUI.Models;
 global using UC.Net.Node.MAUI.ViewModels;
 global using UC.Net.Node.MAUI.ViewModels.Popups;
-global using UC.Net.Node.MAUI.ViewModels.Account;
 global using UC.Net.Node.MAUI.ViewModels.Pages;
 global using UC.Net.Node.MAUI.ViewModels.Views;
 global using UC.Net.Node.MAUI.Helpers;

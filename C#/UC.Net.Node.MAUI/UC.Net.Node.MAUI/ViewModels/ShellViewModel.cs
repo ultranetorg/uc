@@ -1,4 +1,4 @@
-﻿using UC.Net.Node.MAUI.Common.Constants;
+﻿using UC.Net.Node.MAUI.Constants;
 
 namespace UC.Net.Node.MAUI.ViewModels;
 

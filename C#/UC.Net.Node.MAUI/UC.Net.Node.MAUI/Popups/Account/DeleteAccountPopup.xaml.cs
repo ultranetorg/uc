@@ -3,12 +3,12 @@
 public partial class DeleteAccountPopup : Popup
 {
     private static DeleteAccountPopup popup;
-	public Wallet Wallet { get; }
+	public Account Account { get; }
 
-    public DeleteAccountPopup(Wallet wallet)
+    public DeleteAccountPopup(Account account)
     {
         InitializeComponent();
-		Wallet = wallet;
+		Account = account;
 		BindingContext = this;
     }
 
@@ -17,9 +17,9 @@ public partial class DeleteAccountPopup : Popup
 		Close();
     }
 
-	public static async Task Show(Wallet wallet)
+	public static async Task Show(Account account)
 	{
-		popup = new DeleteAccountPopup(wallet);
+		popup = new DeleteAccountPopup(account);
 		await App.Current.MainPage.ShowPopupAsync(popup);
 	}
 } 

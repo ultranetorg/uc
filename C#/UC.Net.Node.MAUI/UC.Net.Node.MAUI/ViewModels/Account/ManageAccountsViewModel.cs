@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels.Account;
+﻿namespace UC.Net.Node.MAUI.ViewModels;
 
 public partial class ManageAccountsViewModel : BaseTransactionsViewModel
 {
@@ -8,7 +8,7 @@ public partial class ManageAccountsViewModel : BaseTransactionsViewModel
     private Wallet _selectedItem;
 
 	[ObservableProperty]
-    private CustomCollection<Wallet> _wallets = new();
+    private CustomCollection<Account> _accounts = new();
 
     public ManageAccountsViewModel(IServicesMockData service, ILogger<ManageAccountsViewModel> logger) : base(logger)
     {
@@ -18,7 +18,7 @@ public partial class ManageAccountsViewModel : BaseTransactionsViewModel
 	
 	private void LoadData()
 	{
-		Wallets.Clear();
-		Wallets.AddRange(_service.Wallets);
+		Accounts.Clear();
+		Accounts.AddRange(_service.Accounts);
 	}
 }

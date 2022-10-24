@@ -43,7 +43,7 @@ public static class ViewModelExtensions
 			Ioc.Default.GetService<ILogger<CreateAccountPageViewModel>>()));
 		builder.Services.AddTransient(sp => new DashboardViewModel(
 			Ioc.Default.GetService<ITransactionsService>(),
-			Ioc.Default.GetService<IWalletsService>(),
+			Ioc.Default.GetService<IAccountsService>(),
 			Ioc.Default.GetService<ILogger<DashboardViewModel>>()));
 		builder.Services.AddTransient(sp => new EnterPinBViewModel(
 			Ioc.Default.GetService<ILogger<EnterPinBViewModel>>()));

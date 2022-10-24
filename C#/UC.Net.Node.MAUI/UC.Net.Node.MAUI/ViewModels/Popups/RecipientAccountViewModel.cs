@@ -7,10 +7,10 @@ public partial class RecipientAccountViewModel : BaseViewModel
     public RecipientAccountPopup Popup { get; set;}
 
 	[ObservableProperty]
-    private CustomCollection<Wallet> _wallets = new();
+    private CustomCollection<Account> _accounts = new();
         
 	[ObservableProperty]
-    private Wallet _wallet = DefaultDataMock.Wallet1;
+    private Account _account = DefaultDataMock.Account1;
 
     public RecipientAccountViewModel(IServicesMockData service, ILogger<RecipientAccountViewModel> logger): base(logger)
     {
@@ -27,16 +27,16 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	[RelayCommand]
     private void ItemTapped(Wallet wallet)
     {
-        foreach (var item in Wallets)
-        {
-            item.IsSelected = false;
-        }
-        wallet.IsSelected = true;
+        //foreach (var item in Accounts)
+        //{
+        //    item.IsSelected = false;
+        //}
+        //wallet.IsSelected = true;
     }
 	
 	private void LoadData()
 	{
-		Wallets.Clear();
-		Wallets.AddRange(_service.Wallets);
+		Accounts.Clear();
+		Accounts.AddRange(_service.Accounts);
 	}
 }

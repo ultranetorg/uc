@@ -1,17 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace UC.Net.Node.MAUI.ViewModels;
+﻿namespace UC.Net.Node.MAUI.ViewModels;
 
 public partial class BaseAccountViewModel : BaseViewModel
 {
-    [ObservableProperty]
-    [NotifyDataErrorInfo]
-    [Required(ErrorMessage = "Required")]
-    [NotifyPropertyChangedFor(nameof(AccountNameError))]
-    private string _accountName;
-
-    public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
-
 	[ObservableProperty]
     private CustomCollection<AccountColor> _colorsCollection = new();
 	
@@ -22,12 +12,14 @@ public partial class BaseAccountViewModel : BaseViewModel
     private CustomCollection<Product> _products = new();
 
 	[ObservableProperty]
-    private Wallet _wallet;
+    private Account _account;
 
 	[ObservableProperty]
     private int _position;
 
-	protected BaseAccountViewModel(ILogger logger): base(logger){}
+	protected BaseAccountViewModel(ILogger logger): base(logger)
+	{
+	}
 	
 	[RelayCommand]
     private void ColorTapped(AccountColor accountColor)
@@ -37,7 +29,7 @@ public partial class BaseAccountViewModel : BaseViewModel
             item.BorderColor = Colors.Transparent;
         }
         accountColor.BorderColor = Shell.Current.BackgroundColor;
-        Wallet.AccountColor = accountColor.Color;
+        Account.Color = ColorHelper.CreateGradientColor(accountColor.Color);
     }
 
 	[RelayCommand]

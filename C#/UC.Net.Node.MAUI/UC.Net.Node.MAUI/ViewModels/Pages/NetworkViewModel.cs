@@ -8,7 +8,7 @@ public partial class NetworkViewModel : BaseViewModel
     private CustomCollection<Emission> _emissions = new();
     
 	[ObservableProperty]
-    private Wallet _wallet = DefaultDataMock.Wallet1;
+    private Account _account = DefaultDataMock.Account1;
 
     public NetworkViewModel(IServicesMockData service, ILogger<NetworkViewModel> logger) : base(logger)
     {

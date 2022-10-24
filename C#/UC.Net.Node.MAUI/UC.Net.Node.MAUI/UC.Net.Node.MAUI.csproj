@@ -118,45 +118,45 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Controls\CustomPage.xaml">
+	  <MauiXaml Update="Views\Shared\CustomPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\EmptyView.xaml">
+	  <MauiXaml Update="Views\Shared\EmptyView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\FormDatePickerControl.xaml">
+	  <MauiXaml Update="Views\Controls\FormDatePickerControl.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\FormEntryControl.xaml">
+	  <MauiXaml Update="Views\Controls\FormEntryControl.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\FormTimePickerControl.xaml">
+	  <MauiXaml Update="Views\Controls\FormTimePickerControl.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\ImageTextButton.xaml">
+	  <MauiXaml Update="Views\Shared\ImageTextButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\ImageTextColumn.xaml">
+	  <MauiXaml Update="Views\Shared\ImageTextColumn.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\LabelPair.xaml">
+	  <MauiXaml Update="Views\Shared\LabelPair.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\MainPageButton.xaml">
+	  <MauiXaml Update="Views\Shared\MainPageButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\NextCancelButton.xaml">
+	  <MauiXaml Update="Views\Shared\NextCancelButton.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\RattingBar.xaml">
+	  <MauiXaml Update="Views\Controls\RattingBar.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\SwitchView.xaml">
+	  <MauiXaml Update="Views\Shared\SwitchView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
@@ -359,7 +359,7 @@
 	  <MauiXaml Update="Resources\Styles\Templates.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AccountView.xaml">
+	  <MauiXaml Update="Views\Account\AccountView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -383,11 +383,11 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccount1View.xaml">
+	  <MauiXaml Update="Views\Account\CreateAccount1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccount2View.xaml">
+	  <MauiXaml Update="Views\Account\CreateAccount2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -428,22 +428,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Controls\CustomPage.xaml.cs">
+	  <Compile Update="Views\Shared\CustomPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\EmptyView.xaml.cs">
+	  <Compile Update="Views\Shared\EmptyView.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\ImageTextButton.xaml.cs">
+	  <Compile Update="Views\Shared\ImageTextButton.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\MainPageButton.xaml.cs">
+	  <Compile Update="Views\Shared\MainPageButton.xaml.cs">
 	    <DependentUpon>MainPageButton.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\RattingBar.xaml.cs">
+	  <Compile Update="Views\Controls\RattingBar.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\SwitchView.xaml.cs">
+	  <Compile Update="Views\Shared\SwitchView.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\AboutPage.xaml.cs">
@@ -580,7 +580,7 @@
 	    <AutoGen>True</AutoGen>
 	    <DependentUpon>Resources.resx</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\AccountView.xaml.cs">
+	  <Compile Update="Views\Account\AccountView.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\AuthorRenewal1View.xaml.cs">
@@ -598,10 +598,10 @@
 	  <Compile Update="Views\BadgeView.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\CreateAccount1View.xaml.cs">
+	  <Compile Update="Views\Account\CreateAccount1View.xaml.cs">
 	    <DependentUpon>CreateAccount1View.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\CreateAccount2View.xaml.cs">
+	  <Compile Update="Views\Account\CreateAccount2View.xaml.cs">
 	    <DependentUpon>CreateAccount2View.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\ETHTransfer1View.xaml.cs">

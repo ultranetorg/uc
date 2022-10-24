@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels.Account;
+﻿namespace UC.Net.Node.MAUI.ViewModels;
 
 public partial class PrivateKeyViewModel : BaseViewModel
 {
@@ -9,7 +9,7 @@ public partial class PrivateKeyViewModel : BaseViewModel
     private CustomCollection<Product> _products = new();
 	
 	[ObservableProperty]
-    private Wallet _wallet;
+    private Account _account;
 
     public PrivateKeyViewModel(ILogger<PrivateKeyViewModel> logger) : base(logger)
     { 
@@ -18,6 +18,6 @@ public partial class PrivateKeyViewModel : BaseViewModel
 	[RelayCommand]
     private async Task DeleteAsync()
     {
-        await DeleteAccountPopup.Show(Wallet);
+        await DeleteAccountPopup.Show(Account);
     }
 }

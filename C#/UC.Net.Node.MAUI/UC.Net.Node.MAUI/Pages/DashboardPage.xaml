@@ -49,8 +49,8 @@
                     WidthRequest="23" />
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="models:Wallet" x:Key="WalletTemplate">
-            <Grid ColumnDefinitions="*,2*,Auto" ColumnSpacing="20">
+        <DataTemplate x:DataType="models:Account" x:Key="WalletTemplate">
+            <Grid ColumnDefinitions="*,2*,*" ColumnSpacing="20">
                 <Label
                     Grid.Column="0"
                     MaxLines="1"
@@ -63,7 +63,7 @@
                     MaxLines="1"
                     FontSize="11"
                     Style="{StaticResource Regular}"
-                    Text="{Binding Id}"
+                    Text="{Binding Address}"
                     VerticalOptions="Center" />
                 <Label
                     Grid.Column="2"
@@ -86,7 +86,7 @@
                     Text="Accounts" />
                 <Border Style="{StaticResource SquareBorder}">
                     <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding Wallets}"
+                        BindableLayout.ItemsSource="{Binding Accounts}"
                         BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
                         Spacing="5" />
                 </Border>

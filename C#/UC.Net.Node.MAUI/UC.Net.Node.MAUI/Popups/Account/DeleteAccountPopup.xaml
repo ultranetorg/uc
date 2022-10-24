@@ -44,7 +44,7 @@
                 HorizontalOptions="Center"
                 Text="Delete confirmation" />
 
-            <views:AccountView BindingContext="{Binding Wallet}" Grid.Row="2" />
+            <views:AccountView BindingContext="{Binding Account}" Grid.Row="2" />
             <StackLayout Grid.Row="3">
                 <Label Style="{StaticResource SubText}" Text="If you wish to delete account please specify next text" />
                 <AbsoluteLayout HeightRequest="55">

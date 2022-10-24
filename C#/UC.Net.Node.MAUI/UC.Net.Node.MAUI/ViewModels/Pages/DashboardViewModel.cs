@@ -3,24 +3,22 @@
 public partial class DashboardViewModel : BaseViewModel
 {
 	private readonly ITransactionsService _transactionsService;
-	private readonly IWalletsService _walletsService;
+	private readonly IAccountsService _accountsService;
 
 	[ObservableProperty]
-    private CustomCollection<Wallet> _wallets = new();
+    private CustomCollection<Account> _accounts = new();
 
 	[ObservableProperty]
     private CustomCollection<Transaction> _transactions = new();
 
-    public DashboardViewModel(ITransactionsService transactionsService, IWalletsService walletsService, ILogger<DashboardViewModel> logger) : base(logger)
+    public DashboardViewModel(ITransactionsService transactionsService, IAccountsService accountsService, ILogger<DashboardViewModel> logger) : base(logger)
     {
 		_transactionsService = transactionsService;
-		_walletsService = walletsService;
+		_accountsService = accountsService;
     }
 
-	// TODO: replace AccountDetails with ManageAccount Page
-
 	[RelayCommand]
-    public async Task AccountsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(AccountDetailsPage));
+    public async Task AccountsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(ManageAccountsPage));
 
 	[RelayCommand]
     public async Task AuthorsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(AuthorsPage));
@@ -42,13 +40,13 @@ public partial class DashboardViewModel : BaseViewModel
 
 	internal async Task InitializeAsync()
 	{
-		Wallets.Clear();
+		Accounts.Clear();
 		Transactions.Clear();
 
-		var wallets = await _walletsService.GetAllAsync();
+		var wallets = await _accountsService.GetAllAsync();
 		var transactions = await _transactionsService.GetLastAsync(3);
 
-		Wallets.AddRange(wallets.Count < 3 ? wallets : wallets.Take(3));
+		Accounts.AddRange(wallets.Count < 3 ? wallets : wallets.Take(3));
 		Transactions.AddRange(transactions);
 	}
 }

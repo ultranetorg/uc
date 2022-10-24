@@ -4,12 +4,12 @@ public partial class AccountOptionsPopup : Popup
 {
 	private static AccountOptionsPopup popup;
 	
-    public Wallet Wallet { get; }
+    public Account Account { get; }
 
-    public AccountOptionsPopup(Wallet wallet)
+    public AccountOptionsPopup(Account account)
     {
         InitializeComponent();
-        Wallet = wallet;
+        Account = account;
         BindingContext = this;
     }
 
@@ -24,9 +24,9 @@ public partial class AccountOptionsPopup : Popup
 		Close();
 	}
 
-	public static async Task Show(Wallet wallet)
+	public static async Task Show(Account account)
 	{
-		popup = new AccountOptionsPopup(wallet);
+		popup = new AccountOptionsPopup(account);
 		await App.Current.MainPage.ShowPopupAsync(popup);
 	}
 }

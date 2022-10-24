@@ -6,7 +6,6 @@ public class ServicesMockData : IServicesMockData
     public IList<Author> Authors => Accounts.SelectMany(x => x.Authors).ToList();
     public IList<Product> Products => Authors.SelectMany(x => x.Products).ToList();
     public IEnumerable<Transaction> Transactions => Accounts.SelectMany(x => x.Transactions);
-    public IList<Wallet> Wallets => Accounts.SelectMany(x => x.Wallets).ToList();
 	public IList<AccountColor> AccountColors { get; set; } = new List<AccountColor>();
     public IList<Emission> Emissions { get; set; } = new List<Emission>();
     public IList<Notification> Notifications { get; set; } = new List<Notification>();
@@ -122,7 +121,7 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "Main Ultranet Account",
 				Balance = 5005.0094M,
-				Color = GradientColor.FromColors(Color.FromRgb(0, 0, 15), Color.FromRgb(0, 0, 115)),
+				Color = ColorHelper.CreateRandomGradientColor(),
 				Authors = new List<Author>
 				{
 					author1,
@@ -151,6 +150,7 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "Primary Ultranet Account",
 				Balance = 102.5124M,
+				Color = ColorHelper.CreateRandomGradientColor(),
 				Authors = new List<Author>
 				{
 					author3,
@@ -168,7 +168,8 @@ public class ServicesMockData : IServicesMockData
 			Account account3 = new("0x47C0566c10c00cfc29aa439Fa1C7d4B888b413D0")
 			{
 				Name = "Secondary Ultranet Account",
-				Balance = 2.982258M,
+				Balance = 2.982258m,
+				Color = ColorHelper.CreateRandomGradientColor(),
 				Transactions = new List<Transaction>
 				{
 					transaction6,
@@ -184,7 +185,7 @@ public class ServicesMockData : IServicesMockData
 			Account account4 = new("0x0362C7DfE8B4A40D3374D5e22cDF102c33E44df0")
 			{
 				Name = "Account for Payments",
-				Balance = 65.61161M,
+				Balance = 65.61161m,
 				Transactions = new List<Transaction>
 				{
 					transaction8,
@@ -202,7 +203,8 @@ public class ServicesMockData : IServicesMockData
 			Account account5 = new("0x033A45c42b1E4C6beEdF0dc76e847A942B37e0Ba")
 			{
 				Name = "Accounts for Fees",
-				Balance = 0.94707M,
+				Balance = 0.94707m,
+				Color = ColorHelper.CreateRandomGradientColor(),
 				Authors = new List<Author>
 				{
 					author4,
@@ -230,7 +232,8 @@ public class ServicesMockData : IServicesMockData
 			Account account6 = new("0x59E58E6821BC870fB2E125477d58b50F23a8De5c")
 			{
 				Name = "Money for bet",
-				Balance = 84.4341M,
+				Balance = 84.4341m,
+				Color = ColorHelper.CreateRandomGradientColor(),
 				Authors = new List<Author>
 				{
 					author5,
@@ -254,25 +257,29 @@ public class ServicesMockData : IServicesMockData
 			Account account7 = new("0xD786C52802740f16Ca920876F827AAe62D54F4a0")
 			{
 				Name = "Test account 1",
+				Color = ColorHelper.CreateRandomGradientColor(),
 				Balance = 0,
 			};
 
 			Account account8 = new("0xD90144134D9165AE356F603331655cD95e662250")
 			{
 				Name = "Test account 2",
-				Balance = 0,
+				Color = ColorHelper.CreateRandomGradientColor(),
+				Balance = 1,
 			};
 
 			Account account9 = new("0x556c92A73DBDC40aF2D82Eb3Bf7CCed5eEDd8Ae3")
 			{
 				Name = "Test account 3",
-				Balance = 0,
+				Color = ColorHelper.CreateRandomGradientColor(),
+				Balance = 2.098m,
 			};
 
 			Account account10 = new("0xBDfc21E1812E9eF07f6bE562ded4Af59F0e065a1")
 			{
 				Name = "Test account 4",
-				Balance = 0,
+				Color = ColorHelper.CreateRandomGradientColor(),
+				Balance = 0.77m,
 			};
 
 			Account account11 = new("0xE3b7e424C2335944991a1aec6317008A138252cb")
@@ -280,15 +287,6 @@ public class ServicesMockData : IServicesMockData
 				Name = "Test account 5",
 				Balance = 0,
 			};
-
-			var wallet1 = DefaultDataMock.Wallet1;
-			var wallet2 = DefaultDataMock.Wallet2;
-			var wallet3 = DefaultDataMock.Wallet3;
-
-			account1.Wallets = new List<Wallet> { wallet1, wallet2, wallet3 };
-			account3.Wallets = new List<Wallet> { wallet1, wallet2 };
-			account3.Wallets = new List<Wallet> { wallet1, wallet3 };
-			account2.Wallets = new List<Wallet> { wallet2, wallet3 };
 
 			Accounts = new List<Account>
 			{

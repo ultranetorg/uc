@@ -3,10 +3,10 @@
 public partial class Send2ViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Wallet _recipientWallet = DefaultDataMock.Wallet1;
+    private Account _recipientAccount = DefaultDataMock.Account1;
     
 	[ObservableProperty]
-    private Wallet _sourceWallet = DefaultDataMock.Wallet2;
+    private Account _sourceAccount = DefaultDataMock.Account2;
 
     public Send2ViewModel(ILogger<Send2ViewModel> logger): base(logger)
 	{

@@ -7,10 +7,10 @@ public partial class SourceAccountViewModel : BaseViewModel
     public SourceAccountPopup Popup { get; set; }
 
 	[ObservableProperty]
-    private Wallet _wallet = DefaultDataMock.Wallet1;
+    private Account _account = DefaultDataMock.Account1;
 
 	[ObservableProperty]
-    private CustomCollection<Wallet> _wallets = new();
+    private CustomCollection<Account> _accounts = new();
 
     public SourceAccountViewModel(IServicesMockData service, ILogger<SourceAccountViewModel> logger) : base(logger)
     {
@@ -19,13 +19,13 @@ public partial class SourceAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void ItemTapped(Wallet wallet)
+    private void ItemTapped(Account account)
     {
-        foreach (var item in Wallets)
-        {
-            item.IsSelected = false;
-        }
-        wallet.IsSelected = true;
+        //foreach (var item in Accounts)
+        //{
+        //    item.IsSelected = false;
+        //}
+        //wallet.IsSelected = true;
     }
 
 	[RelayCommand]
@@ -36,7 +36,7 @@ public partial class SourceAccountViewModel : BaseViewModel
 	
 	private void LoadData()
 	{
-		Wallets.Clear();
-		Wallets.AddRange(_service.Wallets);
+		Accounts.Clear();
+		Accounts.AddRange(_service.Accounts);
 	}
 }

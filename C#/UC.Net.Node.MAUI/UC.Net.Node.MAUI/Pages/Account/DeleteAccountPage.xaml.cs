@@ -6,22 +6,22 @@ public partial class DeleteAccountPage : CustomPage
     {
         InitializeComponent();
         var vm = Ioc.Default.GetService<DeleteAccountViewModel>();
-		vm.Initialize(new Wallet());
+		vm.Initialize(DefaultDataMock.Account1);
 		BindingContext = vm;
     }
 
-	public DeleteAccountPage(Wallet wallet)
+	public DeleteAccountPage(Account account)
     {
         InitializeComponent();
         var vm = Ioc.Default.GetService<DeleteAccountViewModel>();
-		vm.Initialize(wallet);
+		vm.Initialize(account);
         BindingContext = vm;
     }
 
-	public DeleteAccountPage(Wallet wallet, DeleteAccountViewModel vm)
+	public DeleteAccountPage(Account account, DeleteAccountViewModel vm)
     {
         InitializeComponent();
-		vm.Initialize(wallet);
+		vm.Initialize(account);
         BindingContext = vm;
     }
 }

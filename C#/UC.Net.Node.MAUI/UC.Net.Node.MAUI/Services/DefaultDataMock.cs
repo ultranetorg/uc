@@ -6,31 +6,36 @@ internal static class DefaultDataMock
 	static string _defaultNotificationTitle = "Today at 16:00";
 	static string _defaultAuthorDue = "Active due: 07/07/2022 (in 182 days)";
 
-	public static Wallet Wallet1 => new()
-    {
-        Id = Guid.NewGuid(),
-        Unts = 5005,
-        IconCode = "47F0",
-        Name = Properties.Resources.DefaultWalletName,
-        AccountColor = Color.FromArgb("#6601e3")
-    };
-
-	public static Wallet Wallet2 => new()
-    {
-        Id = Guid.NewGuid(),
-        Unts = 5005,
-        IconCode = "47FO",
-        Name = Properties.Resources.DefaultWalletName,
-        AccountColor = Color.FromArgb("#56d7de")
-    };
-
-	public static Wallet Wallet3 => new()
+	public static Account Account1 => new("0x2AdA01E7fEe46327f7E18a439e87060645af6da3")
 	{
-		Id = Guid.NewGuid(),
-		Unts = 5005,
-		IconCode = "2T52",
-		Name = Properties.Resources.DefaultWalletName,
-		AccountColor = Color.FromArgb("#bb50dd")
+		Name = "Primary Ultranet Account",
+		Balance = 102.5124M,
+		Color = ColorHelper.CreateRandomGradientColor(),
+		Authors = new List<Author>
+		{
+			Author1,
+		},
+		Transactions = new List<Transaction>
+		{
+			CreateTransaction(),
+			CreateTransaction(),
+		},
+	};
+
+	public static Account Account2 => new("0x8Ba6145c7900B0830AC15fcC0487a7CFf7a3136f")
+	{
+		Name = "Main Ultranet Account",
+		Balance = 5005.0094M,
+		Color = ColorHelper.CreateRandomGradientColor(),
+		Authors = new List<Author>
+		{
+			Author1,
+		},
+		Transactions = new List<Transaction>
+		{
+			CreateTransaction(),
+			CreateTransaction(),
+		},
 	};
 
     public static Author Author1 => new()
@@ -60,8 +65,8 @@ internal static class DefaultDataMock
 		int unt = 0, string name = null) => new()
 	{
 		Id = Guid.NewGuid(),
-		FromId = Generator.GenerateUniqueID(6),
-		ToId = Generator.GenerateUniqueID(6),
+		FromId = Common.GenerateUniqueID(6),
+		ToId = Common.GenerateUniqueID(6),
 		Status = status,
 		Unt = unt,
 		Name = name

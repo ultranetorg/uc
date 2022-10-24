@@ -5,10 +5,10 @@ public partial class ETHTransfer2ViewModel : BaseViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private Wallet _wallet = DefaultDataMock.Wallet1;
+    private Account _account = DefaultDataMock.Account1;
 
 	[ObservableProperty]
-	private CustomCollection<Wallet> _wallets = new();
+	private CustomCollection<Account> _accounts = new();
 
 	[ObservableProperty]
 	private AccountColor _selectedAccountColor;
@@ -23,13 +23,13 @@ public partial class ETHTransfer2ViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-	private void ItemTapped(Wallet wallet)
+	private void ItemTapped(Account account)
 	{
-		foreach (var item in Wallets)
-		{
-			item.IsSelected = false;
-		}
-		wallet.IsSelected = true;
+		//foreach (var item in Accounts)
+		//{
+		//	item.IsSelected = false;
+		//}
+		//wallet.IsSelected = true;
 	}
 
 	[RelayCommand]
@@ -40,7 +40,7 @@ public partial class ETHTransfer2ViewModel : BaseViewModel
 	
 	private void LoadData()
 	{
-		Wallets.Clear();
-		Wallets.AddRange(_service.Wallets);
+		Accounts.Clear();
+		Accounts.AddRange(_service.Accounts);
 	}
 }

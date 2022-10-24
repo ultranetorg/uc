@@ -3,7 +3,7 @@
 public partial class BaseWalletViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Wallet _wallet = DefaultDataMock.Wallet1;
+    private Account _account = DefaultDataMock.Account1;
 
 	[ObservableProperty]
     private Author _author = DefaultDataMock.Author1;
@@ -23,10 +23,10 @@ public partial class BaseWalletViewModel : BaseViewModel
     [RelayCommand]
     private async Task SelectAccountAsync()
     {
-        var wallet = await SourceAccountPopup.Show();
-        if (wallet != null)
+        var account = await SourceAccountPopup.Show();
+        if (account != null)
 		{
-			Wallet = wallet;
+			Account = account;
 		}
     }
 }
