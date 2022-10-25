@@ -55,6 +55,7 @@ namespace UC.Net
  
 	public class Core : Dci
 	{
+		public System.Version							Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]					Versions = {1};
 		public const string								FailureExt = "failure";
 		public const int								Timeout = 5000;
@@ -125,6 +126,7 @@ namespace UC.Net
 				List<string> f = new();
 				List<string> v = new(); 
 															
+				f.Add("Version");					v.Add(Version.ToString());
 				f.Add("Zone");						v.Add(Settings.Zone.Name);
 				f.Add("Profile");					v.Add(Settings.Profile);
 				f.Add("IP(Reported):Port");			v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
@@ -222,11 +224,11 @@ namespace UC.Net
 
 			Directory.CreateDirectory(Settings.Profile);
 
-			Workflow?.Log?.Report(this, $"Ultranet Node/Client {Assembly.GetAssembly(GetType()).GetName().Version}");
+			Workflow?.Log?.Report(this, $"Ultranet Node/Client {Version}");
 			Workflow?.Log?.Report(this, $"Runtime: {Environment.Version}");	
-			Workflow?.Log?.Report(this, $"Profile: {Settings.Profile}");	
-			Workflow?.Log?.Report(this, $"Protocol Versions: {string.Join(',', Versions)}");
+			Workflow?.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
 			Workflow?.Log?.Report(this, $"Zone: {Settings.Zone.Name}");
+			Workflow?.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
 			if(Settings.Dev.Any)
 				Workflow?.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");

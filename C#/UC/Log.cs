@@ -28,7 +28,7 @@ namespace UC
 	{
 		public enum Severity
 		{
-			Null, Info, Warning, Error
+			Null, Info, Warning, Error, SubLog
 		}
 
 		public List<LogMessage>		Messages = new List<LogMessage>();
@@ -37,6 +37,7 @@ namespace UC
 		public TextWriter			Writer;
 		public Log					Parent;
 		string						Name;
+
 		public int Depth
 		{
 			get
@@ -56,7 +57,7 @@ namespace UC
 
 		public Log SubLog(string name)
 		{
-			Report(null, name);
+			Report(null, name, Severity.SubLog, null);
 
 			var l = new Log{Name = name, Parent = this};
 

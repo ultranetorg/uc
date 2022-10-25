@@ -47,6 +47,7 @@ namespace UC
 	
 				Console.ForegroundColor = m.Severity switch
 													 { 
+														Log.Severity.SubLog => ConsoleColor.Green,
 														Log.Severity.Error => ConsoleColor.Red,
 														Log.Severity.Warning => ConsoleColor.Yellow,
 														_ => prev
