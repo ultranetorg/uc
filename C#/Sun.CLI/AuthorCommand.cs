@@ -7,8 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Util;
 using Nethereum.Web3;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: author bid 
@@ -49,21 +50,28 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "bid" : 
-					return Send(() => Node.Enqueue(new AuthorBid(	GetPrivate("by", "password"), 
-																	GetString("name"),
-																	Coin.ParseDecimal(GetString("amount")))));
+					return Core.Enqueue(new AuthorBid(	GetPrivate("by", "password"), 
+														GetString("name"),
+														Coin.ParseDecimal(GetString("amount"))), 
+														GetAwaitStage(), 
+														Workflow);
 		   		case "register" : 
-					return Send(() => Node.Enqueue(new AuthorRegistration(GetPrivate("by", "password"), 
-																			GetString("name"),
-																			GetString("title"),
-																			byte.Parse(GetString("years")))));
+					return Core.Enqueue(new AuthorRegistration(	GetPrivate("by", "password"), 
+																GetString("name"),
+																GetString("title"),
+																byte.Parse(GetString("years"))),
+																GetAwaitStage(),
+																Workflow);
 		   		case "transfer" : 
-					return Send(() => Node.Enqueue(new AuthorTransfer(GetPrivate("from", "password"), 
-																		GetString("name"),
-																		Account.Parse(GetString("to")))));
+					return Core.Enqueue(new AuthorTransfer(	GetPrivate("from", "password"), 
+															GetString("name"),
+															Account.Parse(GetString("to"))),
+															GetAwaitStage(), 
+															Workflow);
+
 		   		case "overview" :
 				{
-					var i = Node.Connect(Role.Chain, null, Workflow).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
+					var i = Core.Connect(Role.Chain, null, Workflow).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
 
 					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 

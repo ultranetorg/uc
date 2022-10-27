@@ -29,7 +29,6 @@ namespace UC.Net
 			w.Write7BitEncodedInt(LastConfirmedRound);
 		}
 
-
 		public void Read(BinaryReader r)
 		{
 			Roles				= (Role)r.ReadUInt32();

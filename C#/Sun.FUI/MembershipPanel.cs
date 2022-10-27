@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class MembershipPanel : MainPanel
 	{
@@ -95,9 +95,11 @@ namespace UC.Net.Node.FUI
 		{
 			try
 			{
-				Core.Enqueue(new CandidacyDeclaration(GetPrivate(Candidates.SelectedItem as Account), 
-															Bail.Coins,
-															IPAddress.Parse(IP.Text)));
+				Core.Enqueue(new CandidacyDeclaration(	GetPrivate(Candidates.SelectedItem as Account), 
+														Bail.Coins,
+														IPAddress.Parse(IP.Text)),
+														PlacingStage.Null,
+														null);
 			}
 			catch(Exception ex)
 			{

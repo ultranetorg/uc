@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace UC.Net
 {
@@ -7,17 +8,16 @@ namespace UC.Net
 		public CancellationTokenSource	Cancellation { get; }
 		public Log						Log { get; }
 		
-		public bool						IsAborted { get => Cancellation.Token.IsCancellationRequested; }
+
+		public Workflow()
+		{
+			Cancellation = new CancellationTokenSource();
+		}
 
 		public Workflow(Log log)
 		{
 			Cancellation = new CancellationTokenSource();
 			Log = log;
-		}
-
-		public Workflow(int cancelafter)
-		{
-			Cancellation = new CancellationTokenSource(cancelafter);
 		}
 
 		public Workflow(Log log, CancellationTokenSource cancellation)
@@ -36,6 +36,14 @@ namespace UC.Net
 		public void Abort()
 		{
 			Cancellation.Cancel();
+		}
+
+		public void	ThrowIfAborted()
+		{
+			if(Cancellation.Token.IsCancellationRequested)
+			{
+				throw new OperationCanceledException(Cancellation.Token);
+			}
 		}
 	}
 }

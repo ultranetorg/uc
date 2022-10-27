@@ -5,10 +5,11 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Sun.FUI</AssemblyName>
-    <RootNamespace>UC.Net.Node.FUI</RootNamespace>
-    <Version>0.0.431</Version>
-    <Company>Ultranet Organization</Company>
-    <Authors>Ultranet Organization</Authors>
+    <RootNamespace>UC.Sun.FUI</RootNamespace>
+    <AssemblyVersion>0.0.551.0</AssemblyVersion>
+    <Version>0.0.551</Version>
+    <Company>uo</Company>
+    <Authors>uo</Authors>
     <Product>Standard Ultranet Node (SUN) with Forms UI</Product>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
@@ -18,12 +19,12 @@
     <Description></Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uc-sun-dotnet\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uo-sun-dotnet\0.0.0.0</OutputPath>
     <NoWarn>1701;1702;0169</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uc-sun-dotnet\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Release\uo-sun-dotnet\0.0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
   </PropertyGroup>

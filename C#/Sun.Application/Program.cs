@@ -1,25 +1,20 @@
-﻿using Nethereum.Signer;
-using Nethereum.Web3;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Numerics;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.Application
 {
 	class Program
 	{
 		static Settings		Settings = null;
 		static Log			Log = new();
 		static Core			Core;
-		ManualResetEvent	CancelUosServer = new ManualResetEvent(false);
+		//ManualResetEvent	CancelUosServer = new ManualResetEvent(false);
 
 		private static int numThreads = 1;
 
@@ -39,30 +34,15 @@ namespace UC.Net.Node.CLI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
-				Directory.CreateDirectory(boot.Profile);
-
-				var orig = Path.Combine(exedir, Settings.FileName);
-				var user = Path.Combine(boot.Profile, Settings.FileName);
-
-				if(!File.Exists(user))
-				{
-					Directory.CreateDirectory(boot.Profile);
-					File.Copy(orig, user);
-				}
-
 				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
 
-				Settings = new Settings(boot);
-
-				Cryptography.Current = Settings.Cryptography;
+				Settings = new Settings(exedir, boot);
 									
 				if(File.Exists(Settings.Profile))
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
 
-				string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-				Core =	new Core(Settings, dir, Log)
+				Core =	new Core(Settings, exedir, Log)
 						{
 							Clock = new RealTimeClock(), 
 							Nas = new Nas(Settings, Log), 
@@ -71,17 +51,7 @@ namespace UC.Net.Node.CLI
 				Core.RunApi();
 				Core.RunNode();
 
-// 				Task.Run(() =>	{
-// 									while(Core.Running)
-// 									{
-// 										Thread.Sleep(100); 
-// 									}
-// 								})
-// 								.Wait();
-
 				RunUosServer();
-
-				Core.Stop("The End");
 			}
 			catch(AbortException)
 			{
@@ -96,7 +66,7 @@ namespace UC.Net.Node.CLI
 	
 			if(Core != null)
 			{
-				Core.Stop("End");
+				Core.Stop("The End");
 			}
 		}
 

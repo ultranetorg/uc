@@ -47,6 +47,7 @@ namespace UC.Net
 		public IEnumerable<string>	Rounds {get; set;}
 		public IEnumerable<string>	InfoFields {get; set;}
 		public IEnumerable<string>	InfoValues {get; set;}
+		public IEnumerable<string>	Peers {get; set;}
 	}
 
 	public class RunNodeCall : ApiCall
@@ -82,15 +83,18 @@ namespace UC.Net
 		public IEnumerable<ReleaseQuery>	Queries { get; set; }
 		public bool							Confirmed { get; set; }
 	}
-	
-	public class QueryReleaseResult
+
+	public class DistributeReleaseCall : ApiCall
 	{
-		public IEnumerable<XonDocument> Manifests { get; set; }
+		public ReleaseAddress	Release { get; set; }
+		public byte[]			Complete { get; set; }
+		public byte[]			Incremental { get; set; }
+		public byte[]			Manifest { get; set; }
 	}
 
-	public class DownloadPackageCall : ApiCall
+	public class DownloadReleaseCall : ApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ReleaseAddress	Release { get; set; }
 	}
 
 	public class DownloadStatusCall : ApiCall

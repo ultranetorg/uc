@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -54,10 +55,10 @@ namespace UC.Net
 		public List<Peer>									Members	= new();
 		public List<Account>								Funds = new();
 
+		public RocksDb										Database;
 		public AccountTable									Accounts;
 		public AuthorTable									Authors;
 		public ProductTable									Products;
-		public RocksDb										Database;
 		
 		public Log											Log;
 		public BlockDelegate								BlockAdded;
@@ -138,6 +139,8 @@ namespace UC.Net
 
 			if(LastSavedRound == null)
 			{
+				Rounds.Clear();
+
 				var ips = nas.GetInitials(settings.Zone).ToArray();
 
 				if(Settings.Dev.GenerateGenesis)
@@ -279,9 +282,7 @@ namespace UC.Net
 					if(r.Id > 0)
 						r.Time = CalculateTime(r, r.Unique.OfType<Payload>());
 
-					r.Confirmed = true;
-
-					Seal(r);
+					Confirm(r, true);
 				}
 
 				if(!Rounds.All(i => i.Payloads.All(i => i.Transactions.All(i => i.Operations.All(i => i.Successful)))))
@@ -360,7 +361,7 @@ namespace UC.Net
  						if(ir.Payloads.Any())
 						{
 							ir.Time = CalculateTime(ir, ir.Payloads);
-							Execute(ir, ir.Payloads, null);
+							Execute(ir, ir.Payloads, null, 0);
 						}
  						else
  							break;
@@ -624,7 +625,7 @@ namespace UC.Net
 			return rr;
 		}
 
-		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> blockforkers)
+		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> forkers, byte stage)
 		{
 			var prev = round.Previous;
 				
@@ -634,12 +635,10 @@ namespace UC.Net
 			round.Members			= Members.ToList();
 			round.Funds				= Funds.ToList();
 			round.ExecutingPayloads = payloads;
-			//round.Time				= time;//CalculateTime(round, payloads);
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
 			round.AffectedProducts.Clear();
-			round.AffectedRounds.Clear();
 
 			round.Emission	= round.Id == 0 ? 0						: (prev == LastSavedRound ?	LastSavedEmission	: prev.Emission);
 			round.WeiSpent	= round.Id == 0 ? 0						: (prev == LastSavedRound ?	LastSavedWeiSpent	: prev.WeiSpent);
@@ -650,7 +649,9 @@ namespace UC.Net
 					foreach(var o in t.Operations)
 					{
 						o.Executed = false;
-						o.Error = null;
+						
+						if(stage == 0)
+							o.Error = null;
 					}
 
 			foreach(var b in round.ExecutingPayloads.Reverse())
@@ -661,117 +662,127 @@ namespace UC.Net
 
 					foreach(var o in t.Operations.AsEnumerable().Reverse())
 					{
-						var l = round.ChangeAccount(t.Signer).FindOperation<Operation>(round);
+						if(stage == 1 && o.Error != null)
+							continue;
+
+						var l = round.AffectAccount(t.Signer).ExeFindOperation<Operation>(round);
 					
-						if(/*l == null && o.Id != 0 ||*/ l != null && o.Id <= l.Id)
+						if(l != null && o.Id <= l.Id)
 						{
-							o.Error = "Non sequential";
+							if(stage == 1)
+								throw new IntegrityException("Must be no errors");
+
+							foreach(var i in t.Operations.AsEnumerable().Reverse().SkipWhile(i => i != o))
+								o.Error = "Not sequential";
+
 							break;
 						}
 						
 						o.Execute(this, round);
 						o.Executed = true;
 
-// 						if(o.Error != null)
-// 							break;
-
 						if(o.Error == null)
 						{
 							var f = o.CalculateFee(round.Factor);
 	
-							if(round.ChangeAccount(t.Signer).Balance - f >= 0)
+							if(round.AffectAccount(t.Signer).Balance - f >= 0)
 							{
 								fee += f;
-								round.ChangeAccount(t.Signer).Balance -= f;
+								round.AffectAccount(t.Signer).Balance -= f;
 							}
 							else
 							{
+								if(stage == 1)
+									throw new IntegrityException("Must be no errors");
+
 								o.Error = Operation.NotEnoughUNT;
-	//							break;
 							}
 						}
+						else if(stage == 1)
+							throw new IntegrityException("Must be no errors");
 					}
 						
 					if(t.SuccessfulOperations.Any())
 					{
-						round.ChangeAccount(t.Signer).Transactions.Add(round.Id);
-						round.Distribute(fee, new [] {b.Generator}, 9, round.Funds, 1); /// this way we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding 
+						round.AffectAccount(t.Signer).Transactions.Add(round.Id);
+						round.Distribute(fee, new[]{b.Generator}, 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 					}
 				}
 			}
-
 
 			if(round.Id > LastGenesisRound)
 			{
 				var penalty = Coin.Zero;
 
-				if(blockforkers != null && blockforkers.Any())
+				if(forkers != null && forkers.Any())
 				{
-					foreach(var f in blockforkers)
+					foreach(var f in forkers)
 					{
-						penalty += Accounts.FindLastOperation<CandidacyDeclaration>(f, o => o.Successful, null, null, i => i.Id < round.Id).Bail;
-						round.ChangeAccount(f).BailStatus = BailStatus.Siezed;
+						penalty += round.AffectAccount(f).ExeFindOperation<CandidacyDeclaration>(round).Bail;
+						round.AffectAccount(f).BailStatus = BailStatus.Siezed;
 					}
 
-					round.Distribute(penalty, round.Members.Where(i => !blockforkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Funds, 1);
+					round.Distribute(penalty, round.Members.Where(i => !forkers.Contains(i.Generator)).Select(i => i.Generator), 1, round.Funds, 1);
 				}
 			}
-			//ExecuteWithoutErrors(round, payloads, blockforkers);
 		}
 
-		public void Confirm(Round round)
+		public void Confirm(Round round, bool skipconsensus)
 		{
 			if(round.Id > 0 && LastConfirmedRound.Id + 1 != round.Id)
 				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
 
-			List<T>	confirm<T>(IEnumerable<byte[]> prefixes, Func<Vote, IEnumerable<T>> get, Func<T, byte[]> getprefix)
+			if(!skipconsensus)
 			{
-				var o = prefixes.Select(v => round.Unique.SelectMany(i => get(i)).FirstOrDefault(i => getprefix(i).SequenceEqual(v)));
+				List<T>	confirm<T>(IEnumerable<byte[]> prefixes, Func<Vote, IEnumerable<T>> get, Func<T, byte[]> getprefix)
+				{
+					var o = prefixes.Select(v => round.Unique.SelectMany(i => get(i)).FirstOrDefault(i => getprefix(i).SequenceEqual(v)));
+	
+					if(o.Contains(default(T)))
+						throw new ConfirmationException("Can't confirm, some references not found", round);
+					else 
+						return o.ToList();
+				}
+	
+				/// check we have all payload blocks 
+	
+				foreach(var i in round.Payloads)
+					i.Confirmed = false;
+	
+				var child = FindRound(round.Id + Pitch);
+				var rf = child.Majority.First().Reference;
+	 	
+				foreach(var pf in rf.Payloads)
+				{
+					var b = round.Unique.FirstOrDefault(i => pf.SequenceEqual(i.Prefix));
+	
+					if(b != null)
+						b.Confirmed = true;
+					else
+						throw new ConfirmationException("Can't confirm, missing blocks", round);
+				}
 
-				if(o.Contains(default(T)))
-					throw new ConfirmationException("Can't confirm, some references not found", round);
-				else 
-					return o.ToList();
+				round.ConfirmedViolators	= confirm(rf.Violators,		i => i.Violators,	i => i.Prefix);
+				round.ConfirmedJoiners		= confirm(rf.Joiners,		i => i.Joiners,		i => i.Prefix);
+				round.ConfirmedLeavers		= confirm(rf.Leavers,		i => i.Leavers,		i => i.Prefix);
+				round.ConfirmedFundJoiners	= confirm(rf.FundJoiners,	i => i.FundJoiners, i => i.Prefix);
+				round.ConfirmedFundLeavers	= confirm(rf.FundLeavers,	i => i.FundLeavers, i => i.Prefix);
+				round.Time					= rf.Time;
 			}
-
-			/// check we have all payload blocks 
-
-			foreach(var i in round.Payloads)
-				i.Confirmed = false;
-
-			var child = FindRound(round.Id + Pitch);
-			var rf = child.Majority.First().Reference;
- 	
-			foreach(var pf in rf.Payloads)
-			{
-				var b = round.Unique.FirstOrDefault(i => pf.SequenceEqual(i.Prefix));
-
-				if(b != null)
-					b.Confirmed = true;
-				else
-					throw new ConfirmationException("Can't confirm, missing blocks", round);
-			}
-
-			round.ConfirmedViolators	= confirm(rf.Violators,		i => i.Violators,	i => i.Prefix);
-			round.ConfirmedJoiners		= confirm(rf.Joiners,		i => i.Joiners,		i => i.Prefix);
-			round.ConfirmedLeavers		= confirm(rf.Leavers,		i => i.Leavers,		i => i.Prefix);
-			round.ConfirmedFundJoiners	= confirm(rf.FundJoiners,	i => i.FundJoiners, i => i.Prefix);
-			round.ConfirmedFundLeavers	= confirm(rf.FundLeavers,	i => i.FundLeavers, i => i.Prefix);
-			round.Time					= rf.Time;
 
 			round.Confirmed = true;
 
-			Seal(round);
-		}
-
-		public void Seal(Round round)
-		{
-			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators);
-
+			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators, 0);
+			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators, 1);
+			
 			foreach(var b in round.Payloads)
 				foreach(var t in b.Transactions)
+				{	
 					foreach(var o in t.Operations)
 						o.Placing = b.Confirmed && o.Successful ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+				
+					t.Operations.RemoveAll(i => !i.Successful);
+				}
 
 			round.Seal();
 
@@ -784,69 +795,62 @@ namespace UC.Net
 			Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Generator) && round.AffectedAccounts[i.Generator].Bail < (Settings.Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
 			Members.RemoveAll(i => round.ConfirmedLeavers.Contains(i.Generator));
 			Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Generator));
+ 			round.Members = Members.ToList();
 
-			if(round.Id <= LastGenesisRound || round.Factor == Emission.FactorEnd) /// reorganization only after emission is over
+			if(round.Id <= LastGenesisRound || round.Factor == Emission.FactorEnd) /// Funds reorganization only after emission is over
 			{
 				Funds.AddRange(round.ConfirmedFundJoiners);
 				Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
+ 				round.Funds	= Funds.ToList();
 			}
 
-			//if(Hubs.Count > HubsMax)
-			//{
-			//	Hubs.OrderByDescending(i => i.JoinedHubsAt).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer())
-			//} 
+			using(var b = new WriteBatch())
+			{
+				b.Put(LastRoundKey, BitConverter.GetBytes(round.Id));
+				b.Put(WeiSpentKey,	round.WeiSpent.ToByteArray());
+				b.Put(FactorKey,	round.Factor.Attos.ToByteArray());
+				b.Put(EmissionKey,	round.Emission.Attos.ToByteArray());
 
- 			round.Members	= Members.ToList();
- 			round.Funds		= Funds.ToList();
+				Accounts.Save(b, round.AffectedAccounts.Values);
+				Authors.Save(b, round.AffectedAuthors.Values);
+				Products.Save(b, round.AffectedProducts.Values);
+
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+				w.Write(round.Members, i => i.WriteMember(w));
+				b.Put(MembersKey, s.ToArray());
+
+				s.SetLength(0);
+				w.Write(round.Funds);
+				b.Put(FundsKey, s.ToArray());
+
+				//foreach(var i in round.AffectedRounds)
+				//{
+				//	s.SetLength(0);						
+				//	i.Save(w);
+				//	b.Put(BitConverter.GetBytes(i.Id), s.ToArray(), RoundsFamily);
+				//}
+
+				s.SetLength(0);
+				round.Save(w); /// may duplicate above if affected, not big deal
+				b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), RoundsFamily);
+
+				Database.Write(b);
+			}
+
+			round.AffectedAccounts.Clear();
+			round.AffectedAuthors.Clear();
+			round.AffectedProducts.Clear();
+			round.Members = null;
+			round.Funds = null;
 
 			if(round.Id - Rounds.Last().Id > Pitch + Pitch + 1) /// keep last [Pitch] sealed rounds cause [LastSealed - Pitch] round may contain JoinRequests that are needed if a node is joining
 			{
 				var r = Rounds.Last();
-
-				using(var b = new WriteBatch())
-				{
-					b.Put(LastRoundKey, BitConverter.GetBytes(r.Id));
-					b.Put(WeiSpentKey,	r.WeiSpent.ToByteArray());
-					b.Put(FactorKey,	r.Factor.Attos.ToByteArray());
-					b.Put(EmissionKey,	r.Emission.Attos.ToByteArray());
-
-					Accounts.Save(b, r.AffectedAccounts.Values);
-					Authors.Save(b, r.AffectedAuthors.Values);
-					Products.Save(b, r.AffectedProducts.Values);
-
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-					w.Write(r.Members, i => i.WriteMember(w));
-					b.Put(MembersKey, s.ToArray());
-
-					s.SetLength(0);
-					w.Write(r.Funds);
-					b.Put(FundsKey, s.ToArray());
-
-					foreach(var i in r.AffectedRounds)
-					{
-						s.SetLength(0);						
-						i.Save(w);
-						b.Put(BitConverter.GetBytes(i.Id), s.ToArray(), RoundsFamily);
-					}
-
-					s.SetLength(0);
-					r.Save(w); /// may duplicate above if affected, not big deal
-					b.Put(BitConverter.GetBytes(r.Id), s.ToArray(), RoundsFamily);
-
-					Database.Write(b);
-				}
 				
 				Rounds.Remove(r);
 				
-				/// to save RAM
 				r.Blocks.RemoveAll(i => !i.Confirmed);
-				r.Members = null;
-				r.Funds = null;
-				r.Hubs = null;
-				r.AffectedAccounts = null;
-				r.AffectedAuthors = null;
-				r.AffectedProducts = null;
 
 				r.LastAccessed	= DateTime.UtcNow;
 				LoadedRounds[r.Id] = r;
@@ -855,14 +859,13 @@ namespace UC.Net
 			}
 		}
 
-
-		public ProductEntry FindProduct(ProductAddress authorproduct, int ridmax)
+		public ProductEntry FindProduct(ProductAddress product, int ridmax)
 		{
 			foreach(var r in Rounds.Where(i => i.Id <= ridmax))
-				if(r.AffectedProducts.ContainsKey(authorproduct))
-					return r.AffectedProducts[authorproduct];
+				if(r.AffectedProducts.ContainsKey(product))
+					return r.AffectedProducts[product];
 
-			var e = Products.FindEntry(authorproduct);
+			var e = Products.FindEntry(product);
 
 			if(e != null && (e.LastRegistration > ridmax))
 				throw new IntegrityException("maxrid works inside pool only");
@@ -921,27 +924,34 @@ namespace UC.Net
 
 		public IEnumerable<ReleaseRegistration> FindReleases(string author, string product, Func<ReleaseRegistration, bool> f, int maxrid = int.MaxValue)
 		{
-			throw new NotImplementedException();
+			var p = FindProduct(new ProductAddress(author, product), maxrid);
 
-///			return FindLastPoolOperations<Release>(i => i.Author == author && i.Product == product && f(i), rp: r => r.Id <= maxrid).Union(Products.FindReleases(author, product, f));
+			if(p == null)
+				yield break;
+
+			foreach(var r in p.Releases.Where(i => i.Rid <= maxrid).Select(i => FindRound(i.Rid).FindOperation<ReleaseRegistration>(o => o.Release.Author == author && o.Release.Product == product && o.Release.Version == i.Version)))
+				yield return r;
 		}
 		
 		public AccountInfo GetAccountInfo(Account account, bool confirmed)
 		{
-			var roundmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
+			if(account.ToString().StartsWith("0x3a6"))
+				confirmed = confirmed;
 
-			var a = Accounts.Find(account, roundmax.Id);
+			var rmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
+
+			var a = Accounts.Find(account, rmax.Id);
 
 			if(a != null)
 			{
 				var i = new AccountInfo();
 
-				var t = Accounts.FindLastOperation(account, i => i.Successful);
+				var t = Accounts.FindLastOperation(account, i => i.Successful, null, null, r => r.Id <= rmax.Id);
 
 				i.Balance			= a.Balance;
 				i.LastOperationId	= t == null ? -1 : t.Id;
 				i.Authors			= a.Authors;
-				i.Operations		= Accounts.FindLastOperations<Operation>(account).Take(10).Reverse().Select(i => new AccountOperationInfo(i)).ToList();
+				i.Operations		= Accounts.FindLastOperations<Operation>(account, null, null, null, r => r.Id <= rmax.Id).Take(10).Reverse().Select(i => new AccountOperationInfo(i)).ToList();
 
 				return i;
 			}
@@ -963,24 +973,24 @@ namespace UC.Net
 			return null;
 		}
 				
-		public XonDocument QueryRelease(ReleaseQuery query, bool confirmed, IXonValueSerializator serializator)
+		public QueryReleaseResult QueryRelease(ReleaseQuery query, bool confirmed)
 		{
 			if(query.VersionQuery == VersionQuery.Latest)
 			{
 				var roundmax = confirmed ? LastConfirmedRound : LastPayloadRound;
 	
-				var p = Products.Find(query, roundmax.Id);
+				var p = Products.Find(query.Realization, roundmax.Id);
 	
 				if(p != null)
 				{
-					var r = p.Releases.Where(i => i.Channel == query.Channel && i.Platform == query.Platform).MaxBy(i => i.Version);
+					var r = p.Releases.Where(i => i.Platform == query.Platform && i.Channel == query.Channel).MaxBy(i => i.Version);
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address == query && 
-																						m.Channel == query.Channel);
+						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Release == (RealizationAddress)query.Realization && 
+																							m.Release.Version == r.Version);
 	
-						return prev.ToXon(serializator);
+						return new QueryReleaseResult{Registration = rr};
 					}
 				}
 
@@ -991,7 +1001,7 @@ namespace UC.Net
 			{
 				var roundmax = confirmed ? LastConfirmedRound : LastPayloadRound;
 	
-				var p = Products.Find(query, roundmax.Id);
+				var p = Products.Find(query.Realization, roundmax.Id);
 	
 				if(p != null)
 				{
@@ -999,16 +1009,40 @@ namespace UC.Net
 					
 					if(r != null)
 					{
-						var prev = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address == query);
+						var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Release == (RealizationAddress)query.Realization && 
+																							m.Release.Version == r.Version);
 	
-						return prev.ToXon(serializator);
+						return new QueryReleaseResult{Registration = rr};
 					}
 				}
 
 				return null;
 			}
 
-			throw new ArgumentException("Unknown VersionQuery");
+			throw new ArgumentException("Unsupported VersionQuery");
+		}
+
+		public ReleaseHistoryResponse GetReleaseHistory(RealizationAddress realization, bool confirmed)
+		{
+			var rmax = confirmed ? LastConfirmedRound : LastPayloadRound;
+				
+			var p = Products.Find(realization, rmax.Id);
+			
+			if(p != null)
+			{
+				var ms = new List<ReleaseRegistration>();
+
+				foreach(var r in p.Releases)
+				{
+					var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Release == realization && i.Release.Version == r.Version);
+					//var re = FindRound(r.Rid).FindProduct(query).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
+					ms.Add(rr);
+				}
+
+				return new ReleaseHistoryResponse{Registrations = ms};
+			}
+			else
+				return new ReleaseHistoryResponse{Error = "Product not found"};
 		}
 	}
 }

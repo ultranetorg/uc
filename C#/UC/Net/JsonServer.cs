@@ -24,7 +24,7 @@ namespace UC.Net
 		HttpListener	Listener;
 		Thread			Thread;
 
-		Log				Log  => Core.Log;
+		Workflow		Workflow => Core.Workflow;
 		Settings		Settings => Core.Settings;
 		Vault			Vault => Core.Vault;
 		Roundchain		Chain => Core.Chain;
@@ -48,7 +48,7 @@ namespace UC.Net
 	
 										Listener.Start();
 				
-										Log?.Report(this, "Listening started", prefixes[0]);
+										Workflow.Log?.Report(this, "Listening started", prefixes[0]);
 		
 										while(Core.Running)
 										{
@@ -109,35 +109,32 @@ namespace UC.Net
 															catch(InvalidOperationException)
 															{
 															}
+															catch(HttpListenerException)
+															{
+															}
 														}
 	
 			void respondjson(dynamic t){
-											try
-											{
-												var output = rp.OutputStream;
-												var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonClient.Options));
+											var output = rp.OutputStream;
+											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonClient.Options));
 							
-												rp.ContentType = "text/json" ;
-												rp.ContentLength64 = buffer.Length;
+											rp.ContentType = "text/json" ;
+											rp.ContentLength64 = buffer.Length;
 
-												output.Write(buffer, 0, buffer.Length);
-											}
-											catch(InvalidOperationException)
-											{
-											}
-									}
-
-			void respondbinary(byte[] t){
-											try
-											{
-												rp.ContentType = "application/octet-stream";
-						
-												rp.OutputStream.Write(t, 0, t.Length);
-											}
-											catch(InvalidOperationException)
-											{
-											}
+											output.Write(buffer, 0, buffer.Length);
 										}
+
+// 			void respondbinary(byte[] t){
+// 											try
+// 											{
+// 												rp.ContentType = "application/octet-stream";
+// 						
+// 												rp.OutputStream.Write(t, 0, t.Length);
+// 											}
+// 											catch(InvalidOperationException)
+// 											{
+// 											}
+// 										}
 	
 			if(rq.ContentType == null || !rq.HasEntityBody)
 				return;
@@ -193,7 +190,7 @@ namespace UC.Net
 						lock(Core.Lock)
 						{
 							Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
-							Log?.Report(this, "Generator is set", e.Account.ToString());
+							Workflow.Log?.Report(this, "Generator is set", e.Account.ToString());
 						}
 						break;
 
@@ -206,36 +203,59 @@ namespace UC.Net
 							pa = Vault.GetPrivate(e.From);
 						}
 
-						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount)));
-						Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
+						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, null));
+						Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 						break;
 	
 					case StatusCall s:
 						lock(Core.Lock)
-							respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
+							respondjson(new GetStatusResponse {	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
 																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
-																InfoValues	= Core.Info[1].Take(s.Limit) });
+																InfoValues	= Core.Info[1].Take(s.Limit), 
+																Peers		= Core.Peers.Select(i => $"{i.IP} S={i.Status} In={i.InStatus} Out={i.OutStatus} F={i.Failures}")
+																});
 						break;
 							
 					case ExitCall e:
 						rp.Close();
-						Core.Stop("RPC call");
+						Core.Stop("Json Api call");
 						return;
 
 					case QueryReleaseCall c:
 					{
-						var a = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout));
+						//var a = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout));
 						var r = Core.QueryRelease(c.Queries, c.Confirmed);
 
-						respondjson(new QueryReleaseResult{Manifests = r.Manifests});
+						respondjson(r);
+
 						break;
 					}
-					case DownloadPackageCall c:
+
+					case DistributeReleaseCall c:
 					{
-						Core.DownloadPackage(c.Package, new Workflow(null, new CancellationTokenSource()));
+						Core.Filebase.AddManifest(c.Release, c.Manifest);
+
+						if(c.Complete != null)
+						{
+							Core.Filebase.WritePackage(new PackageAddress(c.Release, Distributive.Complete), 0, c.Complete);
+							Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
+						}
+						if(c.Incremental != null)
+						{
+							Core.Filebase.WritePackage(new PackageAddress(c.Release, Distributive.Incremental), 0, c.Incremental);
+							Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
+						}
+
 						break;
 					}
+
+					case DownloadReleaseCall c:
+					{
+						Core.DownloadRelease(c.Release, new Workflow());
+						break;
+					}
+
 					case DownloadStatusCall c:
 					{
 						respondjson(Core.GetDownloadStatus(c.Package));

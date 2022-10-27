@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class ExplorerPanel : MainPanel
 	{
@@ -138,11 +138,11 @@ namespace UC.Net.Node.FUI
 	
 			if(e.IsSelected)
 			{
-				if(e.Item.Tag is ReleaseRegistration m)
-				{
-					m.ToXon(new XonTextValueSerializator()).Dump((n, l) => Operation.Text += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
-				}
-				else
+				//if(e.Item.Tag is ReleaseRegistration m)
+				//{
+				//	m.Manifest.ToXon(new XonTextValueSerializator()).Dump((n, l) => Operation.Text += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
+				//}
+				//else
 					Operation.Text = (e.Item.Tag as Operation).ToString();
 			}
 		}

@@ -46,7 +46,7 @@ void CExperimentalLevel::RequireCef()
 	settings.windowless_rendering_enabled = true;
 	settings.log_severity = LOGSEVERITY_ERROR;
 
-	auto cef = Server->Instance->Release->Manifest->CompleteDependencies.Find([](auto i){ return i->Address.Product == L"cef"; });
+	auto cef = Server->Instance->Release->Manifest->Dependencies.Find([](auto i){ return i->Address.Product == L"cef"; });
 
 	CefString(&settings.resources_dir_path)		.FromWString(Core->Resolve(Nexus->MapPathToRelease(cef->Address, L""))); 
 	CefString(&settings.locales_dir_path)		.FromWString(Core->Resolve(Nexus->MapPathToRelease(cef->Address, L"locales")));

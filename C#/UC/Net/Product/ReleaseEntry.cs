@@ -1,13 +1,15 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace UC.Net
 {
 	public class ReleaseEntry : IBinarySerializable
 	{
-		public string			Platform;
-		public Version			Version;
-		public string			Channel; /// stable, beta, nightly, debug,...
-		public int				Rid;
+		public string				Platform;
+		public Version				Version;
+		public string				Channel; /// stable, beta, nightly, debug,...
+		public int					Rid;
+		//public List<ReleaseAddress>	MergedDependencies = new();
 
 		public ReleaseEntry()
 		{
@@ -29,9 +31,10 @@ namespace UC.Net
 		public void Read(BinaryReader r)
 		{
 			Platform = r.ReadUtf8();
-			Version = r.ReadVersion();
+			Version = r.Read<Version>();
 			Channel = r.ReadUtf8();
 			Rid = r.Read7BitEncodedInt();
+			//MergedDependencies = r.ReadList<ReleaseAddress>();
 		}
 
 		public void Write(BinaryWriter w)
@@ -40,6 +43,7 @@ namespace UC.Net
 			w.Write(Version);
 			w.WriteUtf8(Channel);
 			w.Write7BitEncodedInt(Rid);
+			//w.Write(MergedDependencies);
 		}
 	}
 }

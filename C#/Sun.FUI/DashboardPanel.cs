@@ -4,7 +4,7 @@ using Org.BouncyCastle.Crypto;
 using System;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class DashboardPanel : MainPanel
 	{
@@ -25,7 +25,7 @@ namespace UC.Net.Node.FUI
 		{
 			if(first)
 			{
-				logbox.Log = Core.Log;
+				logbox.Log = Core.Workflow.Log;
 
 				BindAccounts(source);
 				BindAccounts(destination);
@@ -69,9 +69,7 @@ namespace UC.Net.Node.FUI
 			{
 				try
 				{
-					Core.Enqueue(new UntTransfer(	signer,
-														Account.Parse(destination.Text),
-														amount.Coins));
+					Core.Enqueue(new UntTransfer(signer, Account.Parse(destination.Text), amount.Coins), PlacingStage.Null, new Workflow());
 				}
 				catch(RequirementException ex)
 				{

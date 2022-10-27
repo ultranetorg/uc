@@ -10,14 +10,15 @@ using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	class Program
 	{
 		static Settings			Settings = null;
 		static Log				Log = new Log();
-		static ConsoleLogView	LogView = new ConsoleLogView(Log, true, true);
+		static ConsoleLogView	LogView;
 
 		static Core Core;
 
@@ -30,6 +31,15 @@ namespace UC.Net.Node.CLI
 
 			try
 			{
+				var p = Console.KeyAvailable;
+				LogView = new ConsoleLogView(Log, true, true);
+			}
+			catch(Exception)
+			{
+			}
+
+			try
+			{
 				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
 					File.Delete(i);
 					
@@ -37,21 +47,10 @@ namespace UC.Net.Node.CLI
 				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
 				var boot = new BootArguments(b, cmd);
 
-				var orig = Path.Combine(exedir, UC.Net.Settings.FileName);
-				var user = Path.Combine(boot.Profile, UC.Net.Settings.FileName);
-
-				if(!File.Exists(user))
-				{
-					Directory.CreateDirectory(boot.Profile);
-					File.Copy(orig, user);
-				}
-
+				Settings = new Settings(exedir, boot);
+				
 				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
-
-				Settings = new Settings(boot);
-
-				Cryptography.Current = Settings.Cryptography;
-									
+				
 				if(File.Exists(Settings.Profile))
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
@@ -59,23 +58,40 @@ namespace UC.Net.Node.CLI
 				if(!cmd.Nodes.Any())
 					return;
 
-
 				string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				Func<Core> d =	() =>
-								{
-									if(Core == null)
-										Core = new Core(Settings, dir, Log)
-												{
-													//Running = () => !Command.ConsoleSupported || Command.ConsoleSupported && Console.KeyAvailable,
-													Clock = new RealTimeClock(), 
-													Nas = new Nas(Settings, Log), 
-													GasAsker = new SilentGasAsker(Log), 
-													FeeAsker = new SilentFeeAsker()
-												}; 
+				Func<Core> getcore =	() =>
+										{
+											if(Core == null)
+											{
+												Core = new Core(Settings, dir, Log)	{
+																						Clock = new RealTimeClock(),
+																						Nas = new Nas(Settings, Log),
+																						GasAsker = new SilentGasAsker(Log),
+																						FeeAsker = new SilentFeeAsker()
+																					};
+											}
 
-									return Core;
-								};
+											return Core;
+										};
+
+
+				Func<Core> getclient =	() =>
+										{
+											if(Core == null)
+											{
+												Core = new Core(Settings, dir, Log)	{
+																						Clock = new RealTimeClock(),
+																						Nas = new Nas(Settings, Log),
+																						GasAsker = new SilentGasAsker(Log),
+																						FeeAsker = new SilentFeeAsker()
+																					};
+
+												Core.RunClient();
+											}
+
+											return Core;
+										};
 				
 				Command c = null;
 
@@ -85,27 +101,18 @@ namespace UC.Net.Node.CLI
 
 				switch(t)
 				{
-					case HostCommand.Keyword:		c = new HostCommand(Settings, Log, d, cmd); break;
-					case RunCommand.Keyword:		c = new RunCommand(Settings, Log, d, cmd); break;
-					case AccountCommand.Keyword:	c = new AccountCommand(Settings, Log, d, cmd); break;
-					case UntCommand.Keyword:		c = new UntCommand(Settings, Log, d, cmd); break;
-					case MembershipCommand.Keyword:	c = new MembershipCommand(Settings, Log, d, cmd); break;
-					case AuthorCommand.Keyword:		c = new AuthorCommand(Settings, Log, d, cmd); break;
-					case ProductCommand.Keyword:	c = new ProductCommand(Settings, Log, d, cmd); break;
+					case RunCommand.Keyword:			c = new RunCommand(Settings, Log, getcore, cmd); break;
+					case HostCommand.Keyword:			c = new HostCommand(Settings, Log, getclient, cmd); break;
+					case AccountCommand.Keyword:		c = new AccountCommand(Settings, Log, getclient, cmd); break;
+					case UntCommand.Keyword:			c = new UntCommand(Settings, Log, getclient, cmd); break;
+					case MembershipCommand.Keyword:		c = new MembershipCommand(Settings, Log, getclient, cmd); break;
+					case AuthorCommand.Keyword:			c = new AuthorCommand(Settings, Log, getclient, cmd); break;
+					case ProductCommand.Keyword:		c = new ProductCommand(Settings, Log, getclient, cmd); break;
+					case RealizationCommand.Keyword:	c = new RealizationCommand(Settings, Log, getclient, cmd); break;
+					case ReleaseCommand.Keyword:		c = new ReleaseCommand(Settings, Log, getclient, cmd); break;
 				}
 
-				try
-				{
-					c?.Execute();
-				}
-				catch(DistributedCallException ex)
-				{
-					Log.ReportError(null, ex.Message);
-				}
-				catch(SyntaxException ex)
-				{
-					Log.ReportError(null, ex.Message);
-				}
+				c?.Execute();
 			}
 			catch(AbortException)
 			{
@@ -120,7 +127,7 @@ namespace UC.Net.Node.CLI
 	
 			if(Core != null)
 			{
-				Core.Stop("End");
+				Core.Stop("The End");
 			}
 		}
 	}

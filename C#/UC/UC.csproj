@@ -4,15 +4,15 @@
     <TargetFramework>net6.0</TargetFramework>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Company>Ultranet Organization</Company>
-    <Authors>Ultranet Organization</Authors>
+    <Company>uo</Company>
+    <Authors>uo</Authors>
     <Product>Framework</Product>
-    <AssemblyVersion>0.0.233.0</AssemblyVersion>
-    <FileVersion>0.0.233.0</FileVersion>
+    <AssemblyVersion>0.0.555.0</AssemblyVersion>
+    <FileVersion>0.0.555.0</FileVersion>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <Version>0.0.431</Version>
+    <Version>0.0.555</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\dotnet\</OutputPath>

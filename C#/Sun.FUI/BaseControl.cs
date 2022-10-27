@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using Nethereum.KeyStore.Crypto;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public class ProductModel
 	{
@@ -19,9 +19,9 @@ namespace UC.Net.Node.FUI
 
 	public class BaseControl : UserControl
 	{
-		protected readonly Core	Core;
-		protected readonly Vault		Vault;
-		protected Roundchain			Chain => Core.Chain;
+		protected readonly Core		Core;
+		protected readonly Vault	Vault;
+		protected Roundchain		Chain => Core.Chain;
 
 		public BaseControl()
 		{
@@ -159,6 +159,13 @@ namespace UC.Net.Node.FUI
 			}
 
 			return null;
+		}
+
+		public static string Dump(XonDocument doc)
+		{
+			string t = "";
+			doc.Dump((n, l) => t += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
+			return t;
 		}
 	}
 

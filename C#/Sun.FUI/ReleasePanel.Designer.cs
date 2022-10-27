@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class ReleasePanel
 	{
@@ -32,8 +32,8 @@ namespace UC.Net.Node.FUI
 			this.manifest = new System.Windows.Forms.TextBox();
 			this.Releases = new System.Windows.Forms.ListView();
 			this.cVersion = new System.Windows.Forms.ColumnHeader();
-			this.cPlatform = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			this.label5 = new System.Windows.Forms.Label();
 			this.Author = new System.Windows.Forms.ComboBox();
 			this.search = new System.Windows.Forms.Button();
@@ -71,10 +71,9 @@ namespace UC.Net.Node.FUI
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Releases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.cVersion,
-            this.cPlatform,
-            this.columnHeader3});
+            this.columnHeader3,
+            this.columnHeader4});
 			this.Releases.FullRowSelect = true;
-			this.Releases.HideSelection = false;
 			this.Releases.Location = new System.Drawing.Point(0, 65);
 			this.Releases.Name = "Releases";
 			this.Releases.Size = new System.Drawing.Size(1024, 349);
@@ -85,24 +84,24 @@ namespace UC.Net.Node.FUI
 			// 
 			// cVersion
 			// 
-			this.cVersion.Text = "Version";
-			this.cVersion.Width = 150;
-			// 
-			// cPlatform
-			// 
-			this.cPlatform.Text = "Platform";
-			this.cPlatform.Width = 150;
+			this.cVersion.Text = "Address";
+			this.cVersion.Width = 300;
 			// 
 			// columnHeader3
 			// 
-			this.columnHeader3.Text = "Manifest Address";
-			this.columnHeader3.Width = 300;
+			this.columnHeader3.Text = "Manifest Hash";
+			this.columnHeader3.Width = 500;
+			// 
+			// columnHeader4
+			// 
+			this.columnHeader4.Text = "Channel";
+			this.columnHeader4.Width = 100;
 			// 
 			// label5
 			// 
 			this.label5.AutoSize = true;
 			this.label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label5.Location = new System.Drawing.Point(19, 18);
+			this.label5.Location = new System.Drawing.Point(19, 20);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(46, 13);
 			this.label5.TabIndex = 13;
@@ -111,7 +110,7 @@ namespace UC.Net.Node.FUI
 			// Author
 			// 
 			this.Author.FormattingEnabled = true;
-			this.Author.Location = new System.Drawing.Point(85, 15);
+			this.Author.Location = new System.Drawing.Point(71, 15);
 			this.Author.Name = "Author";
 			this.Author.Size = new System.Drawing.Size(233, 23);
 			this.Author.TabIndex = 0;
@@ -141,7 +140,7 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(624, 19);
+			this.label1.Location = new System.Drawing.Point(624, 20);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(56, 13);
 			this.label1.TabIndex = 13;
@@ -150,7 +149,7 @@ namespace UC.Net.Node.FUI
 			// Product
 			// 
 			this.Product.FormattingEnabled = true;
-			this.Product.Location = new System.Drawing.Point(405, 15);
+			this.Product.Location = new System.Drawing.Point(395, 15);
 			this.Product.Name = "Product";
 			this.Product.Size = new System.Drawing.Size(192, 23);
 			this.Product.TabIndex = 1;
@@ -160,7 +159,7 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label2.Location = new System.Drawing.Point(338, 18);
+			this.label2.Location = new System.Drawing.Point(338, 20);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(51, 13);
 			this.label2.TabIndex = 13;
@@ -210,7 +209,6 @@ namespace UC.Net.Node.FUI
             this.columnHeader1,
             this.columnHeader2});
 			this.listView1.FullRowSelect = true;
-			this.listView1.HideSelection = false;
 			this.listView1.Location = new System.Drawing.Point(7, 7);
 			this.listView1.Name = "listView1";
 			this.listView1.Size = new System.Drawing.Size(1002, 307);
@@ -256,7 +254,6 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.TextBox manifest;
 		private System.Windows.Forms.ListView Releases;
 		private System.Windows.Forms.ColumnHeader cVersion;
-		private System.Windows.Forms.ColumnHeader cPlatform;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ComboBox Author;
 		private System.Windows.Forms.Button search;
@@ -271,5 +268,6 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
+		private System.Windows.Forms.ColumnHeader columnHeader4;
 	}
 }

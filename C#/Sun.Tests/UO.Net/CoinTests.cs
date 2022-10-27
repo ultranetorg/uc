@@ -2,7 +2,7 @@
 using System.Numerics;
 using Xunit;
 
-namespace UC.Net.Node.Tests
+namespace UC.Net.Tests
 {
 	public static class CoinTests
 	{

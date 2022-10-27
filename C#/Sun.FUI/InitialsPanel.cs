@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class InitialsPanel : MainPanel
 	{
@@ -85,7 +85,7 @@ namespace UC.Net.Node.FUI
 							{
 								Invoke( (MethodInvoker)delegate()
 										{
-											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ByName(zone.SelectedItem as string)));
+											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ByName(zone.SelectedItem as string)).Select(i => i as object));
 						
 											manage.Enabled = true;
 											nodes.Enabled = true;

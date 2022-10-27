@@ -16,9 +16,8 @@ namespace UC.Net
 		public Chain							Chain { get => Chain.Ropsten; }
 		public bool								IsAdministrator => true;
 
-		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
+		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
 		{
-			await Task.CompletedTask;
 		}
 
 		public bool CheckEmission(Emission e)
@@ -31,14 +30,9 @@ namespace UC.Net
 			throw new NotImplementedException();
 		}
 
-		public List<IPAddress> GetInitials(Zone zone)
+		public IPAddress[] GetInitials(Zone zone)
 		{
-			if(zone == Zone.Localnet)
-			{
-				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToList();
-			}
-		
-			throw new NotSupportedException();
+			return zone.Initials ?? throw new NotSupportedException();
 		}
 
 		public string GetZone(Zone zone)
@@ -54,6 +48,10 @@ namespace UC.Net
 		public Task SetZone(Zone zone, string nodes, IGasAsker asker)
 		{
 			throw new NotImplementedException();
+		}
+
+		public void ReportEthereumJsonAPIWarning(string message, bool aserror)
+		{
 		}
 	}
 }

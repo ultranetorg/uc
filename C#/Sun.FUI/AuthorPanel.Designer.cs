@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class AuthorPanel
 	{
@@ -36,7 +36,7 @@ namespace UC.Net.Node.FUI
 			this.label5 = new System.Windows.Forms.Label();
 			this.NewOwner = new System.Windows.Forms.TextBox();
 			this.registerGroup = new System.Windows.Forms.GroupBox();
-			this.Cost = new UC.Net.Node.FUI.CoinEdit();
+			this.Cost = new UC.Sun.FUI.CoinEdit();
 			this.Years = new System.Windows.Forms.NumericUpDown();
 			this.register = new System.Windows.Forms.Button();
 			this.RegistrationStatus = new System.Windows.Forms.Label();
@@ -49,7 +49,7 @@ namespace UC.Net.Node.FUI
 			this.AuthorTitle = new System.Windows.Forms.TextBox();
 			this.AuthorName = new System.Windows.Forms.TextBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.Bid = new UC.Net.Node.FUI.CoinEdit();
+			this.Bid = new UC.Sun.FUI.CoinEdit();
 			this.MakeBid = new System.Windows.Forms.Button();
 			this.label11 = new System.Windows.Forms.Label();
 			this.AuctionStatus = new System.Windows.Forms.Label();

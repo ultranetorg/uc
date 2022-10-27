@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Xunit;
 
-namespace UC.Net.Node.Tests
+namespace UC.Net.Tests
 {
 	public static class BytesTests
 	{

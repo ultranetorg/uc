@@ -11,7 +11,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class MainForm : Form
 	{
@@ -117,7 +117,7 @@ namespace UC.Net.Node.FUI
 			lock(Core.Lock)
 			{
 				Text = "Ultranet Node"; //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += $"{(Core.IsNodee && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.IsNodee && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
+				Text += $"{(Core.Networking && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.Networking && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
 			}
 
 			foreach(var i in Controls)

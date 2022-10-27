@@ -6,9 +6,8 @@ using Nethereum.Web3;
 using System;
 using System.Numerics;
 using System.Windows.Forms;
-using UC.Net;
 
-namespace UC.Net.Node
+namespace UC.Sun.FUI
 {
 	public partial class TextForm : Form
 	{

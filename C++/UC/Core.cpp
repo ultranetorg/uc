@@ -148,9 +148,9 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 
 	if(status == ERROR_ALREADY_EXISTS)
 	{
-		if(Commands && Commands->Nodes.Any())
+		if(cmd)
 		{
-			if(Commands->Nodes.First()->Name == RestartDirective)
+			if(cmd->Any(RestartDirective))
 			{
 				do 
 				{
@@ -325,7 +325,9 @@ void CCore::InitializeDatabase()
 {
 	auto fbase = UserPath + L"-" + Unid + L"\\%08d";
 
-	if(Commands->Any(L"Action/Rollback") && LastCommit >= 0)
+	auto cmd = Commands->One(GetClassName());
+
+	if(cmd && cmd->Any(RollbackDirective) && LastCommit >= 0)
 	{
 		CNativeDirectory::Delete(CString::Format(fbase, LastCommit));
 		LastCommit--;
@@ -445,6 +447,26 @@ void CCore::InitializeDatabase()
 	}
 }
 
+CString CCore::ResolveConstants(CString const & dir)
+{
+	CString userprofile;
+	TCHAR szPath[MAX_PATH];
+	
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
+	{
+		userprofile = CNativePath::Join(szPath, Product.AuthorAbbreviation + L"." + Product.Name);
+	}
+
+	CString o = dir;
+
+	o = o.Replace(L"{CoreDirectory}",		CoreDirectory);
+	o = o.Replace(L"{LocalUsername}",		Os->GetUserName());
+	o = o.Replace(L"{LocalUserProfile}",	userprofile);
+	o = o.Replace(L"\\\\",					L"\\");
+
+	return CNativePath::Canonicalize(o);
+}
+
 CString CCore::Resolve(CString const & orig)
 {
 	if(Core->RemapPath.empty())
@@ -509,26 +531,6 @@ void CCore::ShutdownDatabase()
 
 		CLocalFileStream s(DestinationDirectory + L"\\ok", EFileMode::New);
 	}
-}
-
-CString CCore::ResolveConstants(CString const & dir)
-{
-	CString userprofile;
-	TCHAR szPath[MAX_PATH];
-	
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
-	{
-		userprofile = CNativePath::Join(szPath, Product.Name);
-	}
-
-	CString o = dir;
-
-	o = o.Replace(L"{CoreDirectory}",		CoreDirectory);
-	o = o.Replace(L"{LocalUsername}",		Os->GetUserName());
-	o = o.Replace(L"{LocalUserProfile}",	userprofile);
-	o = o.Replace(L"\\\\",					L"\\");
-
-	return CNativePath::Canonicalize(o);
 }
 	
 CString CCore::MapPath(ESystemPath folder, const CString & path)

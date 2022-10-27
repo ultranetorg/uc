@@ -3,24 +3,24 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>0.0.1.0</AssemblyVersion>
-    <FileVersion>0.0.1.0</FileVersion>
+    <AssemblyVersion>0.0.27.0</AssemblyVersion>
+    <FileVersion>0.0.27.0</FileVersion>
     <Company>Ultranet Organization</Company>
-    <Product>Standard Ultranet Node (SUN) for UOS</Product>
+    <Product>Standard Ultranet Node (SUN) Server for UOS</Product>
     <Authors>Ultranet Organization</Authors>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
-    <Version>0.0.438</Version>
+    <Version>0.0.27.0</Version>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyName>Sun.Server</AssemblyName>
+    <AssemblyName>Sun.Application</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uc-sun-uosdotnet\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uo-sun-uosdotnet\0.0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uc-sun-uosdotnet\0.0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Release\uo-sun-uosdotnet\0.0.0.0</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\UC\UC.csproj" />

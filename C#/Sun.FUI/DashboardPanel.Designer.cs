@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class DashboardPanel
 	{
@@ -29,14 +29,14 @@ namespace UC.Net.Node.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.logbox = new UC.Net.Node.Logbox();
+			this.logbox = new UC.Sun.FUI.Logbox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.fields = new System.Windows.Forms.Label();
 			this.values = new System.Windows.Forms.Label();
-			this.monitor = new UC.Net.Node.ChainMonitor();
+			this.monitor = new UC.Sun.FUI.ChainMonitor();
 			this.sendgroup = new System.Windows.Forms.GroupBox();
-			this.amount = new UC.Net.Node.FUI.CoinEdit();
+			this.amount = new UC.Sun.FUI.CoinEdit();
 			this.send = new System.Windows.Forms.Button();
 			this.all = new System.Windows.Forms.LinkLabel();
 			this.source = new System.Windows.Forms.ComboBox();

@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Linq;
 using Org.BouncyCastle.Utilities.Encoders;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: realization register
 	///							by = ACCOUNT 
 	///							[password = PASSWORD] 
 	///							product = PRODUCT 
-	///							obis = OBIs - {windows.10.*.x64}
+	///							oses = OBIs - {windows.10.*.x64}
 	/// </summary>
 	public class RealizationCommand : Command
 	{
@@ -27,14 +28,14 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 				case "register" : 
-					var c = new RealizationRegistration
-							{ 
-								Signer = GetPrivate("by", "password"), 
-								Address = RealizationAddress.Parse(GetString("address")),
-								OSes = Args.One("oses").Nodes.Select(i => OsBinaryIdentifier.Parse(i.Name)).ToArray()
-							};
-
-					return Send(() => Node.Enqueue(c));
+					return Core.Enqueue(new RealizationRegistration
+										{ 
+											Signer = GetPrivate("by", "password"), 
+											Address = RealizationAddress.Parse(GetString("address")),
+											OSes = Args.One("oses").Nodes.Select(i => OsBinaryIdentifier.Parse(i.Name)).ToArray()
+										},
+										GetAwaitStage(), 
+										Workflow);
 		
 				default:
 					throw new SyntaxException("Unknown operation");;

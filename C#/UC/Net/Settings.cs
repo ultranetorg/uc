@@ -79,6 +79,7 @@ namespace UC.Net
 
 		public string		NasWallet;
 		public string		NasPassword;
+		public string		NasProvider;
 
 		public string		Path;
 		public string		Fathers => System.IO.Path.Join(Path, "Fathers");	
@@ -95,6 +96,7 @@ namespace UC.Net
 
 			NasWallet		= d.GetString("NasWallet");
 			NasPassword		= d.GetString("NasPassword");
+			NasProvider		= d.GetString("NasProvider");
 
 			EmissionWallet	 = d.GetString("EmissionWallet");
 			EmissionPassword = d.GetString("EmissionPassword");
@@ -173,10 +175,19 @@ namespace UC.Net
 		{
 		}
 
-		public Settings(BootArguments boot)
+		public Settings(string exedir, BootArguments boot)
 		{
+			Directory.CreateDirectory(boot.Profile);
+
+			var orig = System.IO.Path.Join(exedir, FileName);
+			Path = System.IO.Path.Join(boot.Profile, FileName);
+
+			if(!File.Exists(Path))
+			{
+				File.Copy(orig, Path, true);
+			}
+
 			Profile = boot.Profile;
-			Path	= System.IO.Path.Join(boot.Profile, "Settings.xon");
 			Zone	= Zone.All.First(i => i.Name == boot.Zone);
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
@@ -202,8 +213,7 @@ namespace UC.Net
 			{
 				LoadSecrets(doc.GetString("Secrets"));
 			}
-
-			
+						
 			if(boot.Secrets != null)	LoadSecrets(boot.Secrets);
 		}
 

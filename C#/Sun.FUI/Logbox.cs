@@ -8,15 +8,17 @@ using System.Linq;
 using System.Windows.Forms;
 using UC;
 using System.Threading.Tasks;
+using System.Reflection.Emit;
 
-namespace UC.Net.Node
+namespace UC.Sun.FUI
 {
-	public partial class Logbox : TextBox
+	public partial class Logbox : TextBox, ILogView
 	{
 		Log log;
 
 		public bool ShowSender { get;set; } = false;
 		public bool ShowSubject { get;set; } = true;
+		public int BufferWidth => MaxLength;
 
 		public Log Log 
 		{
@@ -79,6 +81,8 @@ namespace UC.Net.Node
  
  										Text = Text.Remove(0, p + Environment.NewLine.Length);
  									}
+
+									AppendText(new string(' ', 4 * m.Log.Depth));
  
 									if(m.Severity != UC.Log.Severity.Info)
 										AppendText("!!! " + m.Severity + " : ");
@@ -93,22 +97,19 @@ namespace UC.Net.Node
 										if(m.Text != null)
 											AppendText(" : "); 
 									}
-
+									
 									if(m.Text != null)
-									{
-										AppendText(m.Text[0]);
-									}
-
-									AppendText(Environment.NewLine);
+										AppendText(m.Text[0] + Environment.NewLine);
+									else
+										AppendText(Environment.NewLine);
 
 									if(m.Text != null)
 									{
  										foreach(var i in m.Text.Skip(1))
  										{
- 											AppendText(new string(' ', 4) + i + Environment.NewLine);
+ 											AppendText(new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
  										}
-									 }
-
+									}
  								});
  
  			if(InvokeRequired)

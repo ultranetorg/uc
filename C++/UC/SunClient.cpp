@@ -85,7 +85,7 @@ void CSunClient::Send(CString const & method, CString const & json, std::functio
 																			
 																					ok(j);
 																				}
-																				catch(nlohmann::detail::parse_error & e)
+																				catch(nlohmann::detail::parse_error &)
 																				{
 																					failure();
 																				}

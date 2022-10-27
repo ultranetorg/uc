@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node
+﻿namespace UC.Sun.FUI
 {
 	partial class EthereumFeeForm
 	{

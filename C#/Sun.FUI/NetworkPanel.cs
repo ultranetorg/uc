@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class NetworkPanel : MainPanel
 	{
@@ -31,6 +31,7 @@ namespace UC.Net.Node.FUI
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
 					r.SubItems.Add(i.Retries.ToString());
+					r.SubItems.Add(i.PeerRank.ToString());
 					r.SubItems.Add(i.GetRank(Role.Chain).ToString());
 					r.SubItems.Add(i.GetRank(Role.Hub).ToString());
 					r.SubItems.Add(i.GetRank(Role.Seed).ToString());

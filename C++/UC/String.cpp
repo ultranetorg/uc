@@ -90,6 +90,13 @@ CArray<CString> CString::Split(const wchar_t * s, bool compress) const
 	return parts;
 }
 
+CArray<CString> CString::Split(wchar_t s, bool compress) const
+{
+	CArray<CString> parts;
+	boost::algorithm::split(parts, *this, [s](auto i){ return i == s; }, compress ? boost::algorithm::token_compress_on : boost::algorithm::token_compress_off);
+	return parts;
+}
+
 CAnsiString CString::ToAnsi() const
 {
 	assert(size() < INT_MAX);

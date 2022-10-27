@@ -2,7 +2,7 @@
   "profiles": {
     "newProfile1": {
       "commandName": "Project",
-      "commandLineArgs": "secrets=a:\\ultranet ",
+      "commandLineArgs": "secrets=a:\\uo",
       "remoteDebugEnabled": false,
       "remoteDebugMachine": "MVM1",
       "authenticationMode": "Windows"

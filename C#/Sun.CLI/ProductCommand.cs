@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
-using Org.BouncyCastle.Utilities.Encoders;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: product register 
 	///							by = ACCOUNT 
 	///							[password = PASSWORD] 
-	///							under = AUTHOR 
-	///							name = PRODUCT 
+	///							address = AUTHOR/PRODUCT 
 	///							title = TITLE
 	///		   product publish 
 	///							by = ACCOUNT 
@@ -35,9 +34,12 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 				case "register" : 
-					return Send(() => Node.Enqueue(new ProductRegistration(	GetPrivate("by", "password"), 
-																			ProductAddress.Parse(GetString("address")),
-																			GetString("title"))));
+					return Core.Enqueue(new ProductRegistration(GetPrivate("by", "password"), 
+																ProductAddress.Parse(GetString("address")),
+																GetString("title")),
+																GetAwaitStage(), 
+																Workflow);
+
 		
 				default:
 					throw new SyntaxException("Unknown operation");;
