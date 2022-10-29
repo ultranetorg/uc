@@ -2072,6 +2072,14 @@ namespace UC.Net
 			}
 		}
 
+		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
+		{
+			var qlatest = Call(Role.Chain, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
+			var previos = qlatest.Releases.FirstOrDefault()?.Registration.Release.Version;
+
+			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
+		}
+
 		public override Rp Request<Rp>(Request rq) where Rp : class
   		{
 			if(rq.Peer == null) /// self call, cloning needed

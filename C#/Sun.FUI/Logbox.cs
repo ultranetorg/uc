@@ -84,7 +84,7 @@ namespace UC.Sun.FUI
 
 									AppendText(new string(' ', 4 * m.Log.Depth));
  
-									if(m.Severity != UC.Log.Severity.Info)
+									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
 										AppendText("!!! " + m.Severity + " : ");
 
  									if(ShowSender && m.Sender != null)

@@ -13,12 +13,13 @@ namespace UC.Net
 	{
 		string				Root;
 
-		const string		Ipkg = "ipkg";
-		const string		Cpkg = "cpkg";
-		const string		ManifestExt = "manifest";
-		const string		Removals = ".removals";
-		const string		Renamings = ".renamings"; /// TODO
-		public const long	PieceMaxLength = 64 * 1024;
+		public const string		Ipkg = "ipkg";
+		public const string		Cpkg = "cpkg";
+		public const string		ManifestExt = "manifest";
+		public const string		Removals = ".removals";
+		public const string		DependenciesExt = "dependencies";
+		public const string		Renamings = ".renamings"; /// TODO
+		public const long		PieceMaxLength = 64 * 1024;
 
 		List<Manifest>		Manifests = new();
 
@@ -101,7 +102,7 @@ namespace UC.Net
 			return File.ReadAllBytes(p);
 		}
 
-		public string Add(ReleaseAddress release, Distributive distribution, IDictionary<string, string> files, List<string> removals, Workflow workflow)
+		public string Add(ReleaseAddress release, Distributive distribution, IDictionary<string, string> files, IEnumerable<string> removals, Workflow workflow)
 		{
 			var zpath = Path.Join(GetDirectory(release), $"{release.Version}.{(distribution == Distributive.Complete ? Cpkg : Ipkg)}");
 
@@ -115,7 +116,7 @@ namespace UC.Net
 						workflow?.Log?.Report(this, "Packed", f.Value);
 					}
 
-					if(removals != null)
+					if(removals.Any())
 					{
 						var e = arch.CreateEntry(Removals);
 						var f = string.Join('\n', removals);
@@ -131,7 +132,7 @@ namespace UC.Net
 			return zpath;
 		}
 		
-		public string AddIncremental(ReleaseAddress release, IDictionary<string, string> files, out Version previous, out Version minimal, Workflow workflow)
+		public string AddIncremental(ReleaseAddress release, Version previous, IDictionary<string, string> files, out Version minimal, Workflow workflow)
 		{
 			var rems = new List<string>();
 			var incs = new Dictionary<string, string>();
@@ -139,18 +140,22 @@ namespace UC.Net
 
 			var rlz = GetDirectory(release);
 
-			var history = Directory.EnumerateFiles(rlz, $"*.*.*.*.{Cpkg}").Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i != release.Version);
+// 			var history = Directory.EnumerateFiles(rlz, $"*.*.*.*.{Cpkg}").Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i != release.Version);
+// 
+// 			if(!history.Any())
+// 			{
+// 				llr = Version.Zero;
+// 				minimal = Version.Zero;
+// 				return null;
+// 			}
+// 			else
+// 			{
+// 				llr = history.Max();
+// 			}
 
-			if(!history.Any())
-			{
-				previous = Version.Zero;
-				minimal = Version.Zero;
-				return null;
-			}
-			else
-			{
-				previous = history.Max();
-			}
+// 			if(latestdeclared != null && llr != latestdeclared)
+// 			{
+// 			}
 
 			using(var s = new FileStream(Path.Join(rlz, $"{previous}.{Cpkg}"), FileMode.Open))
 			{
@@ -171,29 +176,20 @@ namespace UC.Net
 								var a = e.Open();
 								var b =	File.OpenRead(f.Key);
 
-								var abuffer = new byte[16*1024];
-								var bbuffer = new byte[16*1024];
+								var abuffer = new byte[e.Length];
+								var bbuffer = new byte[e.Length];
 
-								while(true)
-								{
-									var n = a.Read(abuffer, 0, abuffer.Length);
-									var m = b.Read(bbuffer, 0, bbuffer.Length);
+								var n = a.Read(abuffer, 0, (int)e.Length);
 
-									if(n == 0 && m == 0)
-										break;
+								while(n < e.Length)
+									n += a.Read(abuffer, n, (int)e.Length - n);
 
-									if(n != m)
-									{
-										changed = true;
-										break;
-									}
-								
-									if(!abuffer.SequenceEqual(bbuffer))
-									{
-										changed = true;
-										break;
-									}
-								}
+								var m = b.Read(bbuffer, 0, (int)e.Length);
+
+								while(m < e.Length)
+									m += b.Read(bbuffer, m, (int)e.Length - m);
+																
+								changed = !abuffer.SequenceEqual(bbuffer);
 
 								a.Close();
 								b.Close();
@@ -233,21 +229,21 @@ namespace UC.Net
 			return File.Exists(ToPath(package));
 		}
 
-		public void DetermineDelta(IEnumerable<ReleaseRegistration> history, ReleaseAddress release, out Distributive distributive, out List<ReleaseAddress> dependencies)
+		public void DetermineDelta(IEnumerable<ReleaseRegistration> history, Manifest manifest, out Distributive distributive, out List<ReleaseAddress> dependencies)
 		{
 			dependencies = new();
 
-			var dir = GetDirectory(release);
+			var dir = GetDirectory(manifest.Release);
 
 			if(Directory.Exists(dir))
 			{
 				var c = Directory.EnumerateFiles(dir, $"*.{Cpkg}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
 																	.OrderBy(i => i)
-																	.TakeWhile(i => i < release.Version) 
+																	.TakeWhile(i => i < manifest.Release.Version) 
 																	.FirstOrDefault();	/// find last complete package
 				if(c != null) 
 				{
-					var need = history.SkipWhile(i => i.Release.Version <= c).TakeWhile(i => i.Release.Version < release.Version);
+					var need = history.SkipWhile(i => i.Release.Version <= c).TakeWhile(i => i.Release.Version < manifest.Release.Version);
 					
 					if(need.All(i => Exists(new PackageAddress(i.Release, Distributive.Incremental))))
 					{
@@ -259,10 +255,8 @@ namespace UC.Net
 							dependencies.RemoveAll(j => m.RemovedDependencies.Contains(j));
 						}
 						
-						var t = GetManifest(release);
-
-						dependencies.AddRange(t.AddedDependencies);
-						dependencies.RemoveAll(j => t.RemovedDependencies.Contains(j));
+						dependencies.AddRange(manifest.AddedDependencies);
+						dependencies.RemoveAll(j => manifest.RemovedDependencies.Contains(j));
 						distributive = Distributive.Incremental; /// we have all incremental packages since last complete one
 
 						return;
@@ -321,7 +315,7 @@ namespace UC.Net
 			}
 		}
 
-		public void AddRelease(ReleaseAddress release, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
+		public void AddRelease(ReleaseAddress release, Version latestdeclared, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 
@@ -353,21 +347,28 @@ namespace UC.Net
 				}
 			}
 
-			var cpkg = Add(release, Distributive.Complete, files, null, workflow);
-			var ipkg = AddIncremental(release, files, out Version previous, out Version minimal, workflow);
+			var minimal = Version.Zero;
 
-			var vs = Directory.EnumerateFiles(dependsdirectory, "*.dependencies").Select(i => UC.Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i < release.Version).OrderBy(i => i);
+			var cpkg = Add(release, Distributive.Complete, files, new string[]{}, workflow);
+			var ipkg = (string)null;
+
+			if(latestdeclared != null)
+			{
+				ipkg = AddIncremental(release, latestdeclared, files, out minimal, workflow);
+			}
+
+			var vs = Directory.EnumerateFiles(dependsdirectory, $"*.{DependenciesExt}").Select(i => UC.Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i < release.Version).OrderBy(i => i);
 
 			IEnumerable<ReleaseAddress> acd = null;
 			IEnumerable<ReleaseAddress> rcd = null;
 
-			var f = Path.Join(dependsdirectory, release.Version.EGRB + ".dependencies");
+			var f = Path.Join(dependsdirectory, $"{release.Version.EGRB}.{DependenciesExt}");
 			
 			var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
 			
 			if(vs.Any())
 			{
-				var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.dependencies")).Select(i => ReleaseAddress.Parse(i));
+				var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}")).Select(i => ReleaseAddress.Parse(i));
 		
 				acd = deps.Where(i => !lastdeps.Contains(i));
 				rcd = lastdeps.Where(i => !deps.Contains(i));

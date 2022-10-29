@@ -39,15 +39,10 @@ namespace UC.Sun.CLI
 				case "add" :
 				{
 					Core.Filebase.AddRelease(	ReleaseAddress.Parse(GetString("address")), 
-												//GetString("channel"),
+												Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
 												GetString("sources").Split(','), 
 												GetString("dependsdirectory"), 
-												//GetPrivate("by", "password"),
-												//GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-												//GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-												//GetAwaitStage(),
 												Workflow);
-
 					return null;
 				}
 
@@ -68,7 +63,7 @@ namespace UC.Sun.CLI
 				{
 					var r = Core.Connect(Role.Chain, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
 
-					var i = r.Results.First();
+					var i = r.Releases.First();
 
 					if(i != null)
 					{

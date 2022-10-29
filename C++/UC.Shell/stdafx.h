@@ -1,5 +1,6 @@
 #pragma once
 #include "targetver.h"
+#include "Assembly.h"
 
 #include "../UC.World/Include.h"
 

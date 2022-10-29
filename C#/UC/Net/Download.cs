@@ -156,6 +156,7 @@ namespace UC.Net
 															try
 															{
 																Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifests.First(), workflow);
+																Manifest.Release = release;
 
 																if(!Manifest.GetOrCalcHash().SequenceEqual(his.Registrations.First(i => i.Release == release).Manifest))
 																{
@@ -168,7 +169,7 @@ namespace UC.Net
 																continue;
 															}
 															
-															Core.Filebase.DetermineDelta(his.Registrations, release, out Distributive d, out List<ReleaseAddress> deps);
+															Core.Filebase.DetermineDelta(his.Registrations, Manifest, out Distributive d, out List<ReleaseAddress> deps);
 
 															Package = new PackageAddress(release, d);
 

@@ -353,13 +353,13 @@ namespace UC.Net
  				if(core.Synchronization != Synchronization.Synchronized)
 					throw new RequirementException("Not synchronized");
 				else
- 					return new QueryReleaseResponse {Results = Queries.Select(i => core.Chain.QueryRelease(i, Confirmed))};
+ 					return new QueryReleaseResponse {Releases = Queries.Select(i => core.Chain.QueryRelease(i, Confirmed))};
 		}
 	}
 	
 	public class QueryReleaseResponse : Response
 	{
-		public IEnumerable<QueryReleaseResult> Results { get; set; }
+		public IEnumerable<QueryReleaseResult> Releases { get; set; }
 	}
 
 	public class QueryReleaseResult
