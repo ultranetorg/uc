@@ -52,7 +52,7 @@ namespace UC.Sun.CLI
 
 					while(!d.Completed)
 					{
-						Workflow.Log?.Report(this, $"{d.CompletedLength + d.Jobs.Sum(i => i.Data != null ? i.Data.Length : 0)}/{d.Length}");
+						Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length}");
 						Thread.Sleep(1000);
 					}
 

@@ -9,11 +9,6 @@ using Nethereum.Contracts.QueryHandlers.MultiCall;
 
 namespace UC.Net
 {
-	public enum SeederResult
-	{
-		Null, Good, Bad
-	}
-
 	public class Download
 	{
 		public const long DefaultPieceLength = 65536;
@@ -69,25 +64,42 @@ namespace UC.Net
 				}
 		}
 
-		public Core									Core;
-		public Workflow								Workflow;
-		public PackageAddress						Package;
-		public List<Job>							Jobs = new();
-		public Dictionary<Peer, List<IPAddress>>	Hubs = new();
-		public Dictionary<IPAddress, SeederResult>	Seeders = new();
-		public List<Download>						Dependencies = new();
-		public byte[]								Hash;
-		public long									Length;
-		public int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
-		public bool									Completed;
-		public bool									Successful; 
-		public List<Job>							CompletedPieces = new();
-		Manifest									Manifest;
-		Task										Task;
-		object										Lock = new object();
-		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
-																		- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
-																		+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
+		public enum SeedStatus
+		{
+			Null, Good, Bad
+		}
+
+		public enum HubStatus
+		{
+			Null, Useless
+		}
+
+		class Hub
+		{
+			public Peer					Peer;
+			public List<IPAddress>		Seeds = new();
+			public HubStatus			Status;
+		}
+
+		public PackageAddress				Package { get; protected set; }
+		public long							Length { get; protected set; }
+		public bool							Completed { get; protected set; }
+		public bool							Successful { get; protected set; }
+		public long							CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
+																- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+																+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
+		Core								Core;
+		Workflow							Workflow;
+		List<Job>							Jobs = new();
+		List<Hub>							Hubs = new();
+		Dictionary<IPAddress, SeedStatus>	Seeders = new();
+		List<Download>						Dependencies = new();
+		byte[]								Hash;
+		int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
+		List<Job>							CompletedPieces = new();
+		Manifest							Manifest;
+		Task								Task;
+		object								Lock = new object();
 
 		public Download(Core core, ReleaseAddress release, Workflow workflow)
 		{
@@ -108,34 +120,32 @@ namespace UC.Net
 
 											lock(Lock)
 											{
-												for(int i = 0; i < 8 - Hubs.Count; i++)
+												for(int i = 0; i < 8 - Hubs.Count(i => i.Status == HubStatus.Null); i++)
 												{
-													var h = Core.FindBestPeer(Role.Hub, Hubs.Keys.ToHashSet());
+													var p = Core.FindBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
 	
-													if(h != null)
+													if(p != null)
 													{
-														Hubs[h] = new();
+														var h = new Hub{Peer = p};
+														Hubs.Add(h);
 	
 														Task.Run(() =>	{
 																			try
 																			{
-																				Core.Connect(h, workflow);
-		
-																				var lp = h.LocateRelease(release, 16);
+																				var lp = Core.Call(h.Peer.IP, p => p.LocateRelease(release, 16), workflow);
 
 																				lock(Lock)
 																				{
-																					if(!Hubs.ContainsKey(h))
-																						Hubs.Add(h, lp.Seeders.ToList());
+																					h.Seeds = lp.Seeders.ToList();
 
 																					foreach(var s in lp.Seeders)
 																					{
 																						if(!Seeders.ContainsKey(s))
-																							Seeders.Add(s, SeederResult.Null);
+																							Seeders.Add(s, SeedStatus.Null);
 																					}
 																				}
 																			}
-																			catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException || ex is OperationCanceledException)
+																			catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
 																			{
 																			}
 																		},
@@ -147,7 +157,7 @@ namespace UC.Net
 
 												if(Jobs.Count < (Length == 0 ? 1 : Math.Min(8, PiecesTotal - CompletedPieces.Count)))
 												{
-													var s = Seeders.FirstOrDefault(i => i.Value != SeederResult.Bad && !Jobs.Any(j => j.Peer.IP.Equals(i.Key)));
+													var s = Seeders.FirstOrDefault(i => i.Value != SeedStatus.Bad && !Jobs.Any(j => j.Peer.IP.Equals(i.Key)));
 											
 													if(s.Key != null)
 													{
@@ -166,6 +176,7 @@ namespace UC.Net
 															}
 															catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
 															{
+																Seeders[s.Key] = SeedStatus.Bad;
 																continue;
 															}
 															
@@ -190,6 +201,16 @@ namespace UC.Net
 														}
 														
 														Add(Core.GetPeer(s.Key), Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.Piece == i)));
+													}
+													else
+													{
+														foreach(var h in Hubs.Where(i => i.Status == HubStatus.Null && i.Seeds.Any()))
+														{
+															if(h.Seeds.All(i => Seeders[i] == SeedStatus.Bad))
+															{
+																h.Status = HubStatus.Useless;
+															}
+														}
 													}
 												}
 									
@@ -218,7 +239,7 @@ namespace UC.Net
 
 													if(CompletedPieces.Count() == PiecesTotal)
 													{
-														Seeders[j.Peer.IP] = SeederResult.Good;
+														Seeders[j.Peer.IP] = SeedStatus.Good;
 
 														if(Core.Filebase.GetHash(Package).SequenceEqual(Hash))
 														{	
@@ -226,7 +247,7 @@ namespace UC.Net
 
 															Core.DeclarePackage(new[]{Package}, Workflow);
 
-															var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeederResult.Good && h.Value.Any(ip => ip.Equals(s.Key)))).Select(i => i.Key);
+															var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeedStatus.Good && h.Seeds.Any(ip => ip.Equals(s.Key)))).Select(i => i.Peer);
 
 															foreach(var h in hubs)
 																h.HubRank++;
@@ -263,7 +284,7 @@ namespace UC.Net
 												}
 												else
 												{	
-													Seeders[j.Peer.IP] = SeederResult.Bad;
+													Seeders[j.Peer.IP] = SeedStatus.Bad;
 												}
 											}
 										}
