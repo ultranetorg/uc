@@ -7,25 +7,13 @@ public partial class BaseTransactionsViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-    private async Task CreateAsync()
+    private async Task ItemTappedAsync(TransactionViewModel transaction)
     {
-        await Shell.Current.Navigation.PushModalAsync(new CreateAccountPage());
-    }
-
-	[RelayCommand]
-    private async Task RestoreAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new RestoreAccountPage());
-    }
-
-	[RelayCommand]
-    private async Task ItemTappedAsync(Transaction Transaction)
-    {
-        if (Transaction == null) return;
-        if (Transaction.Status == TransactionStatus.Pending)
+        if (transaction == null) return;
+        if (transaction.Status == TransactionStatus.Pending)
             await Shell.Current.Navigation.PushAsync(new UnfinishTransferPage());
         else
-            await TransactionPopup.Show(Transaction);
+            await TransactionPopup.Show(transaction);
     }
 
 	[RelayCommand]
@@ -35,17 +23,11 @@ public partial class BaseTransactionsViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async Task OptionsAsync(Transaction Transaction)
+    private async Task OptionsAsync(TransactionViewModel Transaction)
     {
         if (Transaction.Status == TransactionStatus.Pending)
             await Shell.Current.Navigation.PushAsync(new UnfinishTransferPage());
         else
             await TransactionPopup.Show(Transaction);
-    }
-
-	[RelayCommand]
-    private async Task OpenOptionsAsync(Account account)
-    {
-        await AccountOptionsPopup.Show(account);
     }
 }

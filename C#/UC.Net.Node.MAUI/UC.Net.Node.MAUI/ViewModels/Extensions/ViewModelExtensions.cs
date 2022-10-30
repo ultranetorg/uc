@@ -20,7 +20,7 @@ public static class ViewModelExtensions
 			Ioc.Default.GetService<IServicesMockData>(),
 			Ioc.Default.GetService<ILogger<DeleteAccountViewModel>>()));
 		builder.Services.AddSingleton(sp => new ManageAccountsViewModel(
-			Ioc.Default.GetService<IServicesMockData>(),
+			Ioc.Default.GetService<IAccountsService>(),
 			Ioc.Default.GetService<ILogger<ManageAccountsViewModel>>()));
 		builder.Services.AddTransient(sp => new RestoreAccountViewModel(
 			Ioc.Default.GetService<IServicesMockData>(),

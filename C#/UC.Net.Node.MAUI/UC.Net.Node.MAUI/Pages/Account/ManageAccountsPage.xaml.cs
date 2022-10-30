@@ -2,6 +2,8 @@
 
 public partial class ManageAccountsPage : CustomPage
 {
+	ManageAccountsViewModel Vm => BindingContext as ManageAccountsViewModel;
+
     public ManageAccountsPage()
     {
         InitializeComponent();
@@ -12,5 +14,11 @@ public partial class ManageAccountsPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await Vm.InitializeAsync();
     }
 }

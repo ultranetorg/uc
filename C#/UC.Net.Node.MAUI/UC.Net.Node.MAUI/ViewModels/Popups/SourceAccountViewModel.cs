@@ -7,10 +7,10 @@ public partial class SourceAccountViewModel : BaseViewModel
     public SourceAccountPopup Popup { get; set; }
 
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
 	[ObservableProperty]
-    private CustomCollection<Account> _accounts = new();
+    private CustomCollection<AccountViewModel> _accounts = new();
 
     public SourceAccountViewModel(IServicesMockData service, ILogger<SourceAccountViewModel> logger) : base(logger)
     {
@@ -19,7 +19,7 @@ public partial class SourceAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void ItemTapped(Account account)
+    private void ItemTapped(AccountViewModel account)
     {
         //foreach (var item in Accounts)
         //{
@@ -38,5 +38,7 @@ public partial class SourceAccountViewModel : BaseViewModel
 	{
 		Accounts.Clear();
 		Accounts.AddRange(_service.Accounts);
+
+		Account = DefaultDataMock.CreateAccount();
 	}
 }

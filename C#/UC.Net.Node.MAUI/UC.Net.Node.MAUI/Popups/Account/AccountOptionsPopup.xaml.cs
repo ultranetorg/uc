@@ -4,9 +4,9 @@ public partial class AccountOptionsPopup : Popup
 {
 	private static AccountOptionsPopup popup;
 	
-    public Account Account { get; }
+    public AccountViewModel Account { get; }
 
-    public AccountOptionsPopup(Account account)
+    public AccountOptionsPopup(AccountViewModel account)
     {
         InitializeComponent();
         Account = account;
@@ -24,7 +24,7 @@ public partial class AccountOptionsPopup : Popup
 		Close();
 	}
 
-	public static async Task Show(Account account)
+	public static async Task Show(AccountViewModel account)
 	{
 		popup = new AccountOptionsPopup(account);
 		await App.Current.MainPage.ShowPopupAsync(popup);

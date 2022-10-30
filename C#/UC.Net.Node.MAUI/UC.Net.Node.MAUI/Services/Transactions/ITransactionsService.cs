@@ -2,7 +2,7 @@
 
 public interface ITransactionsService
 {
-    Task<CustomCollection<Transaction>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount);
+    Task<CustomCollection<TransactionViewModel>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount);
 
-    Task<CustomCollection<Transaction>> GetLastAsync(int lastTransactionsCount);
+    Task<CustomCollection<TransactionViewModel>> GetLastAsync(int lastTransactionsCount);
 }

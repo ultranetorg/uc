@@ -22,9 +22,9 @@
                 ItemsSource="{Binding Accounts}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Account">
+                    <DataTemplate x:DataType="models:AccountViewModel">
                         <StackLayout>
-                            <Frame Margin="18,8,18,8" Style="{StaticResource AccountCard}">
+                            <Border Margin="18,8" Style="{StaticResource AccountCardBorder}">
                                 <SwipeView>
                                     <SwipeView.RightItems>
                                         <SwipeItems>
@@ -55,20 +55,24 @@
                                         RowSpacing="0"
                                         Style="{StaticResource AccountGrid}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                            <TapGestureRecognizer
+                                                Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
+                                                CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
-                                        <Frame
+                                        <Border
                                             Grid.Row="0"
                                             Grid.RowSpan="3"
                                             Grid.Column="0"
                                             Background="{Binding Color}"
-                                            Style="{StaticResource AccountColor}">
+                                            Style="{StaticResource AccountColorBorder}">
                                             <Label
                                                 HorizontalOptions="Center"
                                                 Style="{StaticResource CodeLabel}"
-                                                Text="{Binding IconCode, Source={x:RelativeSource AncestorType={x:Type vm:ManageAccountsViewModel}}}"
+                                                Text="{Binding IconCode}"
+                                                FontSize="13"
+                                                FontAttributes="Bold"
                                                 VerticalOptions="Center" />
-                                        </Frame>
+                                        </Border>
                                         <Label
                                             Grid.Row="0"
                                             Grid.Column="1"
@@ -82,7 +86,7 @@
                                             VerticalOptions="Center">
                                             <Label.FormattedText>
                                                 <FormattedString>
-                                                    <Span Text="{Binding Balance}" />
+                                                    <Span Text="{Binding Balance}" FontAttributes="Bold" />
                                                     <Span Text=" " />
                                                     <Span Style="{StaticResource Regular}" Text="UNT" />
                                                 </FormattedString>
@@ -106,18 +110,16 @@
                                             VerticalOptions="Center" />
                                     </Grid>
                                 </SwipeView>
-                            </Frame>
+                            </Border>
                         </StackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <Frame
+            <Border
                 Grid.Row="1"
-                Margin="0,0,0,-20"
-                Padding="0,0,0,30"
+                Margin="0,0,0,-10"
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
-                AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
-                HasShadow="True">
+                AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
                 <StackLayout Padding="15">
                     <Button Command="{Binding CreateCommand}" Text="Create" />
                     <Button
@@ -125,7 +127,7 @@
                         Style="{DynamicResource LabelButton}"
                         Text="Restore account" />
                 </StackLayout>
-            </Frame>
+            </Border>
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

@@ -1,6 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.Models;
 
-public class Transaction
+public class TransactionViewModel
 {
 	// TBR
 	public Guid Id { get; set; }
@@ -13,7 +13,7 @@ public class Transaction
     public TransactionStatus Status { get; set; }
     public DateTime Date { get; set; } = DateTime.Now;
     public string Hash { get; internal set; }
-    public Account Account { get; set; }
+    public AccountViewModel Account { get; set; }
 
 	public string DisplayDetails => $"{Unt}, {FromId} -> {ToId}";
 }

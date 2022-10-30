@@ -3,11 +3,17 @@
 public partial class TransferCompleteViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
     public TransferCompleteViewModel(ILogger<TransferCompleteViewModel> logger) : base(logger)
     {
+		LoadData();
     }
+
+	private void LoadData()
+	{
+		Account = DefaultDataMock.CreateAccount();
+	}
 	
 	[RelayCommand]
     private async Task TransactionsAsync()

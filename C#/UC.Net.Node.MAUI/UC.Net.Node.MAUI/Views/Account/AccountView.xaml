@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
     x:Name="Page">
-    <Frame x:DataType="models:Account" Style="{StaticResource AccountCard}">
+    <Frame x:DataType="models:AccountViewModel" Style="{StaticResource AccountCard}">
         <Grid
             Padding="14"
             ColumnDefinitions="60,*"
@@ -50,7 +50,7 @@
                 MaxLines="1"
                 Opacity="0.3"
                 Style="{StaticResource Light}"
-                Text="{Binding Id}" />
+                Text="{Binding Address}" />
         </Grid>
     </Frame>
 

@@ -22,7 +22,7 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
         await DeleteAccountPopup.Show(Account);
     }
 
-	internal void Initialize(Account account)
+	internal void Initialize(AccountViewModel account)
 	{
 		Account = account;
 		Authors.Clear();

@@ -9,7 +9,7 @@ public partial class PrivateKeyViewModel : BaseViewModel
     private CustomCollection<Product> _products = new();
 	
 	[ObservableProperty]
-    private Account _account;
+    private AccountViewModel _account;
 
     public PrivateKeyViewModel(ILogger<PrivateKeyViewModel> logger) : base(logger)
     { 

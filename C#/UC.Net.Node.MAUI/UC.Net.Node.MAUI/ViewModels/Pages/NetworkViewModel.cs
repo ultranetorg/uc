@@ -5,10 +5,10 @@ public partial class NetworkViewModel : BaseViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private CustomCollection<Emission> _emissions = new();
+    private CustomCollection<Models.Emission> _emissions = new();
     
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
     public NetworkViewModel(IServicesMockData service, ILogger<NetworkViewModel> logger) : base(logger)
     {
@@ -30,6 +30,8 @@ public partial class NetworkViewModel : BaseViewModel
 
 	private void Initialize()
 	{
+		Account = DefaultDataMock.CreateAccount();
+
 		Emissions.Clear();
 		Emissions.AddRange(_service.Emissions);
 	}

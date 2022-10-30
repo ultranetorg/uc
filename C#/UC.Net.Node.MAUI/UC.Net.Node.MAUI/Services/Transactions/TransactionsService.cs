@@ -2,12 +2,12 @@
 
 public class TransactionsService : ITransactionsService
 {
-    public Task<CustomCollection<Transaction>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
+    public Task<CustomCollection<TransactionViewModel>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
     {
         throw new NotImplementedException();
     }
 
-    public Task<CustomCollection<Transaction>> GetLastAsync(int lastTransactionsCount)
+    public Task<CustomCollection<TransactionViewModel>> GetLastAsync(int lastTransactionsCount)
     {
         throw new NotImplementedException();
     }

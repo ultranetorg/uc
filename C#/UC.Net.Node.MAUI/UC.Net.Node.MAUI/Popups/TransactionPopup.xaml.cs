@@ -3,10 +3,10 @@
 public partial class TransactionPopup : Popup
 {
 	private static TransactionPopup popup;
-    public Transaction Transaction { get; }
+    public TransactionViewModel Transaction { get; }
     public Wallet Wallet { get; }
 
-    public TransactionPopup(Transaction transaction)
+    public TransactionPopup(TransactionViewModel transaction)
     {
         InitializeComponent();
         Transaction = transaction;
@@ -19,7 +19,7 @@ public partial class TransactionPopup : Popup
 	Close();
     }
 
-	public static async Task Show(Transaction transaction)
+	public static async Task Show(TransactionViewModel transaction)
 	{
 		popup = new TransactionPopup(transaction);
 		await App.Current.MainPage.ShowPopupAsync(popup);

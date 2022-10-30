@@ -18,7 +18,7 @@ public partial class SourceAccountPopup : Popup
 		Close();
     }
 
-	public static async Task<Account> Show()
+	public static async Task<AccountViewModel> Show()
 	{
 		popup = new SourceAccountPopup(Ioc.Default.GetService<SourceAccountViewModel>());
 		await App.Current.MainPage.ShowPopupAsync(popup);

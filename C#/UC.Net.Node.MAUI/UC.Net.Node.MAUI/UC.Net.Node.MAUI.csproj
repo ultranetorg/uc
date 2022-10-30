@@ -116,6 +116,10 @@
 	<ItemGroup>
 		<Folder Include="Resources\Splash\" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\..\UC\UC.csproj" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Update="Views\Shared\CustomPage.xaml">

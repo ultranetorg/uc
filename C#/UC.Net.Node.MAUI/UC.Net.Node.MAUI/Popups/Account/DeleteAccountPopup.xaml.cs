@@ -3,9 +3,9 @@
 public partial class DeleteAccountPopup : Popup
 {
     private static DeleteAccountPopup popup;
-	public Account Account { get; }
+	public AccountViewModel Account { get; }
 
-    public DeleteAccountPopup(Account account)
+    public DeleteAccountPopup(AccountViewModel account)
     {
         InitializeComponent();
 		Account = account;
@@ -17,7 +17,7 @@ public partial class DeleteAccountPopup : Popup
 		Close();
     }
 
-	public static async Task Show(Account account)
+	public static async Task Show(AccountViewModel account)
 	{
 		popup = new DeleteAccountPopup(account);
 		await App.Current.MainPage.ShowPopupAsync(popup);

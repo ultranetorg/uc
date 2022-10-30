@@ -6,39 +6,33 @@ internal static class DefaultDataMock
 	static string _defaultNotificationTitle = "Today at 16:00";
 	static string _defaultAuthorDue = "Active due: 07/07/2022 (in 182 days)";
 
-	public static Account Account1 => new("0x2AdA01E7fEe46327f7E18a439e87060645af6da3")
-	{
-		Name = "Primary Ultranet Account",
-		Balance = 102.5124M,
-		Color = ColorHelper.CreateRandomGradientColor(),
-		Authors = new List<Author>
-		{
-			Author1,
-		},
-		Transactions = new List<Transaction>
-		{
-			CreateTransaction(),
-			CreateTransaction(),
-		},
-	};
+	//public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M) 
+	//{
+	//	var settings = new Settings();
+	//	var log = new Log();
+	//	var vault = new Vault(settings, log);
+	//	var round = new Roundchain(settings, log, null, vault, null);
+	//	var acc = new Account(Nethereum.Signer.EthECKey.GenerateKey());
+	//	var entry = new AccountEntry(round, acc);
+	//	entry.Balance = new Coin(balance);
+	//	return new AccountViewModel(entry)
+	//	{
+	//		Name = name, // "Primary Ultranet Account"
+	//		Color = ColorHelper.CreateRandomGradientColor(),
+	//	};
+	//}
 
-	public static Account Account2 => new("0x8Ba6145c7900B0830AC15fcC0487a7CFf7a3136f")
+	public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M)
 	{
-		Name = "Main Ultranet Account",
-		Balance = 5005.0094M,
-		Color = ColorHelper.CreateRandomGradientColor(),
-		Authors = new List<Author>
+		return new AccountViewModel("0x72329af958b5679e0354ff12fb27ddbf34d37aca")
 		{
-			Author1,
-		},
-		Transactions = new List<Transaction>
-		{
-			CreateTransaction(),
-			CreateTransaction(),
-		},
-	};
+			Name = name, // "Primary Ultranet Account"
+			Color = ColorHelper.CreateRandomGradientColor(),
+			Balance = balance,
+		};
+	}
 
-    public static Author Author1 => new()
+	public static Author Author1 => new()
 	{
 		BidStatus = BidStatus.None,
 		Name = "amazon.com",
@@ -60,13 +54,13 @@ internal static class DefaultDataMock
         Severity = severity
     };
 
-	public static Transaction CreateTransaction(
+	public static TransactionViewModel CreateTransaction(
 		TransactionStatus status = TransactionStatus.None,
 		int unt = 0, string name = null) => new()
 	{
 		Id = Guid.NewGuid(),
-		FromId = Common.GenerateUniqueID(6),
-		ToId = Common.GenerateUniqueID(6),
+		FromId = CommonHelper.GenerateUniqueID(6),
+		ToId = CommonHelper.GenerateUniqueID(6),
 		Status = status,
 		Unt = unt,
 		Name = name

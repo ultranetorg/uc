@@ -5,10 +5,10 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private CustomCollection<Emission> _emissions = new();
+    private CustomCollection<Models.Emission> _emissions = new();
 
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
     public UnfinishTransferViewModel(IServicesMockData service, ILogger<UnfinishTransferViewModel> logger) : base(logger)
     {
@@ -32,5 +32,6 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 	{
 		Emissions.Clear();
 		Emissions.AddRange(_service.Emissions);
+		Account = DefaultDataMock.CreateAccount();
 	}
 }

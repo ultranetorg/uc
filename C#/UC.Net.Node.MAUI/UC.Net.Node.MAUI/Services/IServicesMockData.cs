@@ -2,11 +2,11 @@
 
 public interface IServicesMockData
 {
-    public IList<Account> Accounts { get; set; }
+    public IList<AccountViewModel> Accounts { get; }
     public IList<Author> Authors { get; }
     public IList<Product> Products { get; }
-    public IEnumerable<Transaction> Transactions { get; }
+    public IList<TransactionViewModel> Transactions { get; }
     public IList<AccountColor> AccountColors { get; }
-    public IList<Emission> Emissions { get; }
+    public IList<Models.Emission> Emissions { get; }
     public IList<Notification> Notifications { get; }
 }

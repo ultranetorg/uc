@@ -2,13 +2,13 @@
 
 public interface IAccountsService
 {
-    Task<ObservableCollection<Account>> GetAllAsync();
+    Task<ObservableCollection<AccountViewModel>> GetAllAsync();
 
     Task<int> GetCountAsync();
 
-    Task<ObservableCollection<Account>> GetLastAsync(int lastAccountsCount);
+    Task<ObservableCollection<AccountViewModel>> GetLastAsync(int lastAccountsCount);
 
-    Task UpdateAsync([NotNull] Account account);
+    Task UpdateAsync([NotNull] AccountViewModel account);
 
     Task DeleteByAddressAsync([NotNull, NotEmpty] string address);
 }

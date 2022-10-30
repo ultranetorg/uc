@@ -12,7 +12,7 @@ public partial class BaseAccountViewModel : BaseViewModel
     private CustomCollection<Product> _products = new();
 
 	[ObservableProperty]
-    private Account _account;
+    private AccountViewModel _account; // TBR - need to be removed
 
 	[ObservableProperty]
     private int _position;
@@ -33,10 +33,7 @@ public partial class BaseAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async Task CloseAsync()
-    {
-        await Shell.Current.Navigation.PopModalAsync();
-    }
+    private async Task CloseAsync() => await Navigation.PopModalAsync();
 
 	[RelayCommand]
     private void Prev()

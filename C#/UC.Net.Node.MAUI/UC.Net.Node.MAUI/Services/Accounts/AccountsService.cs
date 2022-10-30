@@ -2,7 +2,7 @@
 
 public sealed class AccountsService : IAccountsService
 {
-    public Task<ObservableCollection<Account>> GetAllAsync()
+    public Task<ObservableCollection<AccountViewModel>> GetAllAsync()
     {
         throw new NotImplementedException();
     }
@@ -12,12 +12,12 @@ public sealed class AccountsService : IAccountsService
         throw new NotImplementedException();
     }
 
-    public Task<ObservableCollection<Account>> GetLastAsync(int lastAccountsCount)
+    public Task<ObservableCollection<AccountViewModel>> GetLastAsync(int lastAccountsCount)
     {
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync([NotNull] Account account)
+    public Task UpdateAsync([NotNull] AccountViewModel account)
     {
         throw new NotImplementedException();
     }

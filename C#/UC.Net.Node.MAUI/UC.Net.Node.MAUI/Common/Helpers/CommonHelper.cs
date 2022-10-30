@@ -2,7 +2,7 @@
 
 namespace UC.Net.Node.MAUI.Helpers;
 
-public static class Common
+public static class CommonHelper
 {
 	// TBR
     public static string GenerateUniqueID(int length)

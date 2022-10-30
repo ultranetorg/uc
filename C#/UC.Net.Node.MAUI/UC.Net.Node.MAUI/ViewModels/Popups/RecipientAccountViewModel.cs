@@ -7,10 +7,10 @@ public partial class RecipientAccountViewModel : BaseViewModel
     public RecipientAccountPopup Popup { get; set;}
 
 	[ObservableProperty]
-    private CustomCollection<Account> _accounts = new();
+    private CustomCollection<AccountViewModel> _accounts = new();
         
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
     public RecipientAccountViewModel(IServicesMockData service, ILogger<RecipientAccountViewModel> logger): base(logger)
     {
@@ -38,5 +38,6 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	{
 		Accounts.Clear();
 		Accounts.AddRange(_service.Accounts);
+		Account = DefaultDataMock.CreateAccount();
 	}
 }

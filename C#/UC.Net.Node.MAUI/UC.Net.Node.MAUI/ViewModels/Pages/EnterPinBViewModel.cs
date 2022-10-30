@@ -3,11 +3,17 @@
 public partial class EnterPinBViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
     public EnterPinBViewModel(ILogger<EnterPinBViewModel> logger) : base(logger)
     {
+		LoadData();
     }
+
+	public void LoadData()
+	{
+		Account = DefaultDataMock.CreateAccount();
+	}
 
     [RelayCommand]
     private async Task DeleteAsync()

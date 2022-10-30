@@ -3,13 +3,20 @@
 public partial class Send1ViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Account _sourceAccount = DefaultDataMock.Account1;
+    private AccountViewModel _sourceAccount;
 
 	[ObservableProperty]
-    private Account _recipientAccount = DefaultDataMock.Account2;
+    private AccountViewModel _recipientAccount;
 
     public Send1ViewModel(ILogger<Send1ViewModel> logger): base(logger)
 	{
+		LoadData();
+	}
+	
+	private void LoadData()
+	{
+		SourceAccount = DefaultDataMock.CreateAccount();
+		RecipientAccount = DefaultDataMock.CreateAccount();
 	}
     
 	[RelayCommand]

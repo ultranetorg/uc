@@ -1,10 +1,16 @@
 ﻿namespace UC.Net.Node.MAUI.ViewModels.Pages;
 
-public partial class StartViewModel : BaseWalletViewModel
+public partial class StartViewModel : BaseViewModel
 {
+	[ObservableProperty]
+    private AccountViewModel _account;
+
+	[ObservableProperty]
+    private Author _author = DefaultDataMock.Author1;
+
 	public StartViewModel(ILogger<StartViewModel> logger) : base(logger)
 	{
-		Account = DefaultDataMock.Account1;
+		Account = DefaultDataMock.CreateAccount();
 	}
 
 	[RelayCommand]

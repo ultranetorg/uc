@@ -6,7 +6,7 @@ public partial class SettingsViewModel : BaseViewModel
     private CustomCollection<string> _months;
     
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
     public SettingsViewModel(ILogger<SettingsViewModel> logger) : base(logger)
     {
@@ -28,5 +28,6 @@ public partial class SettingsViewModel : BaseViewModel
 	private void LoadData()
 	{
 		_months = DefaultDataMock.MonthList1;
+		Account = DefaultDataMock.CreateAccount();
 	}
 }

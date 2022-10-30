@@ -15,6 +15,7 @@ public static class Navigation
         }
     }
 
-	
+	internal static async Task PopModalAsync() => await Shell.Current.Navigation.PopModalAsync();
+
     internal static async Task GoToUpwardsAsync(string route) => await NavigateToAsync($"//{route}");
 }

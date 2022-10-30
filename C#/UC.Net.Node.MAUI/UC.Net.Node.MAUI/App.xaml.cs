@@ -1,5 +1,6 @@
 ﻿using Application = Microsoft.Maui.Controls.Application;
 using Microsoft.Maui.Handlers;
+using UC.Net.Node.MAUI.Constants;
 
 namespace UC.Net.Node.MAUI;
 
@@ -30,11 +31,10 @@ public partial class App : Application
 
 	private void InitializeRouting()
 	{
-        // Global Routes (Pages not in Shell XAML) Example
-        Routing.RegisterRoute(nameof(AccountDetailsPage), typeof(AccountDetailsPage));
-        Routing.RegisterRoute(nameof(AboutPage), typeof(AboutPage));
-
-        // Sub-Page Routes Example
-        // Routing.RegisterRoute(nameof(HelpPage), typeof(HelpPage));
+		Routing.RegisterRoute(ShellBaseRoutes.ACCOUNT_DETAILS, typeof(AccountDetailsPage));
+		Routing.RegisterRoute(ShellBaseRoutes.CREATE_ACCOUNT, typeof(CreateAccountPage));
+		Routing.RegisterRoute(ShellBaseRoutes.RESTORE_ACCOUNT, typeof(RestoreAccountPage));
+		Routing.RegisterRoute(ShellBaseRoutes.DELETE_ACCOUNT, typeof(DeleteAccountPage));
+		Routing.RegisterRoute(ShellBaseRoutes.ABOUT, typeof(AboutPage));
 	}
 }

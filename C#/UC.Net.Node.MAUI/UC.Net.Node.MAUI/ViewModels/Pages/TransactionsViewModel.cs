@@ -5,10 +5,10 @@ public partial class TransactionsViewModel : BaseTransactionsViewModel
 	private readonly ITransactionsService _service;
 
 	[ObservableProperty]
-    private Transaction _selectedItem;
+    private TransactionViewModel _selectedItem;
     
 	[ObservableProperty]
-    private CustomCollection<Transaction> _transactions = new();
+    private CustomCollection<TransactionViewModel> _transactions = new();
 
     public TransactionsViewModel(ITransactionsService service, ILogger<TransactionsViewModel> logger) : base(logger)
     {

@@ -8,7 +8,7 @@ public class Author
     public int CurrentBid { get; set; }
     public BidStatus BidStatus { get; set; }
     public string ActiveDue { get; internal set; }
-    public Account Account { get; set; }
+    public AccountViewModel Account { get; set; }
     public IList<Product> Products { get; set; } = new List<Product>();
 }
 

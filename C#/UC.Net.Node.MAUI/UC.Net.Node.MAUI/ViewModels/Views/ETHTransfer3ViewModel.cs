@@ -3,7 +3,15 @@
 public partial class ETHTransfer3ViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
-    public ETHTransfer3ViewModel(ILogger<ETHTransfer3ViewModel> logger) : base(logger){}
+    public ETHTransfer3ViewModel(ILogger<ETHTransfer3ViewModel> logger) : base(logger)
+	{
+		LoadData();
+	}
+	
+	private void LoadData()
+	{
+		Account = DefaultDataMock.CreateAccount();
+	}
 }

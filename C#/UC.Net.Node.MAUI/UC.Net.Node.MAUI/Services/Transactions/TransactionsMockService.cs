@@ -9,22 +9,22 @@ public class TransactionsMockService : ITransactionsService
         _data = data;
     }
 
-    public Task<CustomCollection<Transaction>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
+    public Task<CustomCollection<TransactionViewModel>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
     {
         Guard.IsNotNull(accountAddress, nameof(accountAddress));
         Guard.IsGreaterThan(lastTransactionsCount, 0, nameof(lastTransactionsCount));
 
-        IEnumerable<Transaction> lastTransactions = _data.Transactions
+        IEnumerable<TransactionViewModel> lastTransactions = _data.Transactions
             .Where(x => string.Equals(x.Account.Address, accountAddress, StringComparison.InvariantCultureIgnoreCase))
             .Take(lastTransactionsCount);
-        CustomCollection<Transaction> result = new(lastTransactions);
+        CustomCollection<TransactionViewModel> result = new(lastTransactions);
         return Task.FromResult(result);
     }
 
-    public Task<CustomCollection<Transaction>> GetLastAsync(int lastTransactionsCount)
+    public Task<CustomCollection<TransactionViewModel>> GetLastAsync(int lastTransactionsCount)
     {
-        IEnumerable<Transaction> lastTransactions = _data.Transactions.Take(lastTransactionsCount);
-        CustomCollection<Transaction> result = new(lastTransactions);
+        IEnumerable<TransactionViewModel> lastTransactions = _data.Transactions.Take(lastTransactionsCount);
+        CustomCollection<TransactionViewModel> result = new(lastTransactions);
         return Task.FromResult(result);
     }
 }

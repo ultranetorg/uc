@@ -2,15 +2,15 @@
 
 public partial class DeleteAccountPage : CustomPage
 {
-    public DeleteAccountPage()
-    {
-        InitializeComponent();
-        var vm = Ioc.Default.GetService<DeleteAccountViewModel>();
-		vm.Initialize(DefaultDataMock.Account1);
-		BindingContext = vm;
-    }
+  //  public DeleteAccountPage()
+  //  {
+  //      InitializeComponent();
+  //      var vm = Ioc.Default.GetService<DeleteAccountViewModel>();
+		//vm.Initialize(DefaultDataMock.Account1);
+		//BindingContext = vm;
+  //  }
 
-	public DeleteAccountPage(Account account)
+	public DeleteAccountPage(AccountViewModel account)
     {
         InitializeComponent();
         var vm = Ioc.Default.GetService<DeleteAccountViewModel>();
@@ -18,7 +18,7 @@ public partial class DeleteAccountPage : CustomPage
         BindingContext = vm;
     }
 
-	public DeleteAccountPage(Account account, DeleteAccountViewModel vm)
+	public DeleteAccountPage(AccountViewModel account, DeleteAccountViewModel vm)
     {
         InitializeComponent();
 		vm.Initialize(account);

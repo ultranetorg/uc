@@ -6,10 +6,10 @@ public partial class DashboardViewModel : BaseViewModel
 	private readonly IAccountsService _accountsService;
 
 	[ObservableProperty]
-    private CustomCollection<Account> _accounts = new();
+    private CustomCollection<AccountViewModel> _accounts = new();
 
 	[ObservableProperty]
-    private CustomCollection<Transaction> _transactions = new();
+    private CustomCollection<TransactionViewModel> _transactions = new();
 
     public DashboardViewModel(ITransactionsService transactionsService, IAccountsService accountsService, ILogger<DashboardViewModel> logger) : base(logger)
     {
@@ -43,10 +43,10 @@ public partial class DashboardViewModel : BaseViewModel
 		Accounts.Clear();
 		Transactions.Clear();
 
-		var wallets = await _accountsService.GetAllAsync();
+		var accounts = await _accountsService.GetAllAsync();
 		var transactions = await _transactionsService.GetLastAsync(3);
 
-		Accounts.AddRange(wallets.Count < 3 ? wallets : wallets.Take(3));
+		Accounts.AddRange(accounts.Count < 3 ? accounts : accounts.Take(3));
 		Transactions.AddRange(transactions);
 	}
 }

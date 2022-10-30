@@ -5,10 +5,10 @@ public partial class ETHTransfer2ViewModel : BaseViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private Account _account = DefaultDataMock.Account1;
+    private AccountViewModel _account;
 
 	[ObservableProperty]
-	private CustomCollection<Account> _accounts = new();
+	private CustomCollection<AccountViewModel> _accounts = new();
 
 	[ObservableProperty]
 	private AccountColor _selectedAccountColor;
@@ -23,7 +23,7 @@ public partial class ETHTransfer2ViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-	private void ItemTapped(Account account)
+	private void ItemTapped(AccountViewModel account)
 	{
 		//foreach (var item in Accounts)
 		//{
