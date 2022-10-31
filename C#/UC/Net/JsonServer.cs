@@ -258,7 +258,7 @@ namespace UC.Net
 
 					case DownloadStatusCall c:
 					{
-						respondjson(Core.GetDownloadStatus(c.Package));
+						respondjson(Core.GetDownloadStatus(c.Release));
 						break;
 					}
 				}

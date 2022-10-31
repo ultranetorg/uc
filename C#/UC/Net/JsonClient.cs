@@ -74,27 +74,29 @@ namespace UC.Net
 
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + ApiCall.NameOf(request.GetType()));
-
-			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
-
-			return HttpClient.Send(m, workflow.Cancellation.Token);
+			using(var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + ApiCall.NameOf(request.GetType())))
+			{
+				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
+	
+				return HttpClient.Send(m, workflow.Cancellation.Token);
+			}
 		}
 
 		public Rp Request<Rp>(ApiCall request, Workflow workflow)
 		{
-			var cr = Post(request, workflow);
-
-			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
-
-			try
+			using(var cr = Post(request, workflow))
 			{
-				return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
-			}
-			catch(Exception ex)
-			{
-				throw new ApiCallException("Response deserialization failed", ex);
+				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
+					throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
+
+				try
+				{
+					return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
+				}
+				catch(Exception ex)
+				{
+					throw new ApiCallException("Response deserialization failed", ex);
+				}
 			}
 		}
 		

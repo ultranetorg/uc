@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Nethereum.RLP;
 
 namespace UC.Net
 {
@@ -394,6 +395,112 @@ namespace UC.Net
 			//	DeclarePackage(new[]{new PackageAddress(release, Distributive.Complete)}, workflow);
 
 			//return o;
+		}
+
+		public void Unpack(ReleaseAddress release, string productsroot)
+		{
+			var dir = GetDirectory(release);
+
+			var c = Directory.EnumerateFiles(dir, $"*.{Cpkg}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
+																.OrderByDescending(i => i)
+																.SkipWhile(i => i > release.Version) /// skip younger
+																.FirstOrDefault();	/// find last available complete package
+			if(c != null) 
+			{
+				var incs = Directory.EnumerateFiles(dir, $"*.{Ipkg}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
+																		.OrderBy(i => i)
+																		.SkipWhile(i => i <= c)
+																		.TakeWhile(i => i <= release.Version); /// take all incremetals before complete
+				
+				var appv = @$"{release.Author}-{release.Product}-{release.Platform}{Path.DirectorySeparatorChar}{release.Version}";
+
+				var deps = new List<ReleaseAddress>();
+
+				void cunzip(Version v)
+				{
+					var r = new ReleaseAddress(release.Author, release.Product, release.Platform, v);
+
+					using(var s = new FileStream(ToPath(new PackageAddress(r, Distributive.Complete)), FileMode.Open))
+					{
+						using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
+						{
+							foreach(var e in arch.Entries)
+							{
+								var f = Path.Join(productsroot, appv, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+								Directory.CreateDirectory(Path.GetDirectoryName(f));
+								e.ExtractToFile(f, true);
+							}
+						}
+					}
+
+					var m = GetManifest(r);
+
+					foreach(var i in m.CompleteDependencies)
+					{
+						Unpack(i, productsroot);
+					}
+
+					deps.AddRange(m.CompleteDependencies);
+				}
+
+				cunzip(c);
+
+				void iunzip(Version v)
+				{
+					var r = new ReleaseAddress(release.Author, release.Product, release.Platform, v);
+
+					using(var s = new FileStream(ToPath(new PackageAddress(r, Distributive.Incremental)), FileMode.Open))
+					{
+						using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
+						{
+							foreach(var e in arch.Entries)
+							{
+								if(e.Name != Removals)
+								{
+									var f = Path.Join(productsroot, appv, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+									Directory.CreateDirectory(Path.GetDirectoryName(f));
+									e.ExtractToFile(f, true);
+								} 
+								else
+								{
+									using(var es = e.Open())
+									{
+										var sr = new StreamReader(es);
+
+										while(!sr.EndOfStream)
+										{
+											File.Delete(Path.Join(productsroot, sr.ReadLine()));
+										}
+									}
+								}
+							}
+						}
+					}
+
+					var m = GetManifest(r);
+
+					foreach(var i in m.AddedDependencies)
+					{
+						Unpack(i, productsroot);
+						deps.Add(i);
+					}
+
+					foreach(var i in m.RemovedDependencies)
+					{
+						deps.Remove(i);
+					}
+				}
+
+				foreach(var i in incs)
+				{
+					iunzip(i);
+				}
+
+				if(deps.Any())
+				{
+					File.WriteAllLines(Path.Join(productsroot, $"{appv}.{DependenciesExt}"), deps.Select(i => i.ToString()));
+				}
+			}
 		}
 	}
 }

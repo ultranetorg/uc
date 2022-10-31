@@ -15,7 +15,7 @@ namespace UC.Net
 
 		public class Job
 		{
-			public Peer				Peer;
+			public Peer				Seed;
 			public Task				Task;
 			public int				Piece = -1;
 			public long				Length => Piece * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
@@ -28,28 +28,31 @@ namespace UC.Net
 			public Job(Download download, Peer peer, int piece)
 			{
 				Download = download;
-				Peer = peer;
+				Seed = peer;
 				Piece = piece;
 
 				Task = Task.Run(() =>	
 								{
 									try
 									{
-										Download.Core.Connect(Peer, download.Workflow);
-												
-										while(Data.Length < Length)
+										Download.Core.Connect(Seed, download.Workflow);
+										
+										int e = 0;
+
+										while(Data.Position < Length)
 										{
-											for(int e=0; e<3; e++)
+											try
 											{
-												try
-												{
-													var d = Peer.DownloadPackage(Download.Package, Offset + Data.Length, Length - Data.Length).Data;
-													Data.Write(d, 0, d.Length);
+												var d = Seed.DownloadPackage(Download.Package, Offset + Data.Position, Length - Data.Position).Data;
+												Data.Write(d, (int)Data.Position, d.Length);
+												break;
+											}
+											catch(DistributedCallException)
+											{
+												e++;
+												
+												if(e > 3)
 													break;
-												}
-												catch(DistributedCallException)
-												{
-												}
 											}
 										}
 									}
@@ -71,28 +74,42 @@ namespace UC.Net
 
 		public enum HubStatus
 		{
-			Null, Useless
+			Null, Estimating, Useless
 		}
 
 		class Hub
 		{
 			public Peer					Peer;
 			public List<IPAddress>		Seeds = new();
-			public HubStatus			Status;
+			public HubStatus			Status = HubStatus.Estimating;
+
+			public Hub(Peer peer)
+			{
+				Peer = peer;
+			}
 		}
 
+		public ReleaseAddress				Release;
 		public PackageAddress				Package { get; protected set; }
 		public long							Length { get; protected set; }
 		public bool							Completed { get; protected set; }
 		public bool							Successful { get; protected set; }
-		public long							CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
-																- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
-																+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
+		public long							CompletedLength {
+																get
+																{
+																	lock(Lock)
+																	{
+																		return	CompletedPieces.Count * DefaultPieceLength 
+																				- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+																				+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
+																	}	
+																} 
+															}
 		Core								Core;
 		Workflow							Workflow;
 		List<Job>							Jobs = new();
 		List<Hub>							Hubs = new();
-		Dictionary<IPAddress, SeedStatus>	Seeders = new();
+		Dictionary<IPAddress, SeedStatus>	Seeds = new();
 		List<Download>						Dependencies = new();
 		byte[]								Hash;
 		int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
@@ -104,200 +121,206 @@ namespace UC.Net
 		public Download(Core core, ReleaseAddress release, Workflow workflow)
 		{
 			Core = core;
+			Release = release;
 			Workflow = workflow;
 
-			Task = Task.Run(() =>	{
-										var his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, false), workflow);
+			int hubsgoodmax = 8;
+
+			Task = Task.Run(() =>	
+							{
+								var his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, false), workflow);
 				
-										Job j;
+								Job j;
 
-										while(Core.Running)
+								while(Core.Running)
+								{
+									Thread.Sleep(1);
+									workflow.ThrowIfAborted();
+
+									Task[] tasks;
+									Hub hlast = null;
+
+									lock(Lock)
+									{
+										for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 										{
-											Thread.Sleep(1);
-											workflow.ThrowIfAborted();
-
-											Task[] tasks;
-
-											lock(Lock)
+											var p = Core.FindBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
+	
+											if(p != null)
 											{
-												for(int i = 0; i < 8 - Hubs.Count(i => i.Status == HubStatus.Null); i++)
-												{
-													var p = Core.FindBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
+												hlast = new Hub(p);
+												Hubs.Add(hlast);
 	
-													if(p != null)
-													{
-														var h = new Hub{Peer = p};
-														Hubs.Add(h);
-	
-														Task.Run(() =>	{
-																			try
-																			{
-																				var lp = Core.Call(h.Peer.IP, p => p.LocateRelease(release, 16), workflow);
-
-																				lock(Lock)
-																				{
-																					h.Seeds = lp.Seeders.ToList();
-
-																					foreach(var s in lp.Seeders)
-																					{
-																						if(!Seeders.ContainsKey(s))
-																							Seeders.Add(s, SeedStatus.Null);
-																					}
-																				}
-																			}
-																			catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
-																			{
-																			}
-																		},
-																		workflow.Cancellation.Token);
-													}
-													else
-														break;
-												}
-
-												if(Jobs.Count < (Length == 0 ? 1 : Math.Min(8, PiecesTotal - CompletedPieces.Count)))
-												{
-													var s = Seeders.FirstOrDefault(i => i.Value != SeedStatus.Bad && !Jobs.Any(j => j.Peer.IP.Equals(i.Key)));
-											
-													if(s.Key != null)
-													{
-														if(Manifest == null)
-														{
-															try
-															{
-																Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifests.First(), workflow);
-																Manifest.Release = release;
-
-																if(!Manifest.GetOrCalcHash().SequenceEqual(his.Registrations.First(i => i.Release == release).Manifest))
-																{
-																	Manifest = null;
-																	continue;
-																}
-															}
-															catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
-															{
-																Seeders[s.Key] = SeedStatus.Bad;
-																continue;
-															}
-															
-															Core.Filebase.DetermineDelta(his.Registrations, Manifest, out Distributive d, out List<ReleaseAddress> deps);
-
-															Package = new PackageAddress(release, d);
-
-															deps	= d == Distributive.Incremental ? deps : Manifest.CompleteDependencies.ToList();
-															Hash	= d == Distributive.Complete ? Manifest.CompleteHash : Manifest.IncrementalHash;
-															Length	= d == Distributive.Complete ? Manifest.CompleteLength : Manifest.IncrementalLength;
-								
-															lock(core.Lock)
-															{
-																foreach(var i in deps)
-																{
-																	if(!core.Downloads.Any(j => (ReleaseAddress)j.Package == i))
+												Task.Run(() =>	{
+																	try
 																	{
-																		Dependencies.Add(core.DownloadRelease(i, workflow));
+																		var lr = Core.Call(hlast.Peer.IP, p => p.LocateRelease(release, 16), workflow);
+
+																		lock(Lock)
+																		{
+																			hlast.Seeds = lr.Seeders.ToList();
+
+																			foreach(var s in lr.Seeders)
+																			{
+																				if(!Seeds.ContainsKey(s))
+																					Seeds.Add(s, SeedStatus.Null);
+																			}
+																		}
 																	}
-																}
-															}
-														}
-														
-														Add(Core.GetPeer(s.Key), Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.Piece == i)));
-													}
-													else
-													{
-														foreach(var h in Hubs.Where(i => i.Status == HubStatus.Null && i.Seeds.Any()))
-														{
-															if(h.Seeds.All(i => Seeders[i] == SeedStatus.Bad))
-															{
-																h.Status = HubStatus.Useless;
-															}
-														}
-													}
-												}
-									
-												tasks = Jobs.Select(i => i.Task).ToArray();
-
-												if(tasks.Length == 0)
-												{
-													continue;
-												}
+																	catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+																	{
+																	}
+																},
+																workflow.Cancellation.Token);
 											}
+										}
 
-											var ti = Task.WaitAny(tasks, workflow.Cancellation.Token);
-
-											lock(Lock)
-											{	
-												j = Jobs.Find(i => i.Task == tasks[ti]);
-										
-												Jobs.Remove(j);
-
-												if(j.Succeeded)
-												{
-													lock(Core.Lock)
-														Core.Filebase.WritePackage(Package, j.Offset, j.Data.ToArray());
+										if((Length == 0 ? 1 : (PiecesTotal - CompletedPieces.Count - Jobs.Count)) > 0 && Jobs.Count < 8)
+										{
+											var s = Seeds.FirstOrDefault(i => i.Value != SeedStatus.Bad && !Jobs.Any(j => j.Seed.IP.Equals(i.Key)));
 											
-													CompletedPieces.Add(j);
-
-													if(CompletedPieces.Count() == PiecesTotal)
+											if(s.Key != null)
+											{
+												if(Manifest == null)
+												{
+													try
 													{
-														Seeders[j.Peer.IP] = SeedStatus.Good;
+														Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifests.First(), workflow);
+														Manifest.Release = release;
 
-														if(Core.Filebase.GetHash(Package).SequenceEqual(Hash))
-														{	
-															Core.Filebase.AddManifest(release, Manifest);
-
-															Core.DeclarePackage(new[]{Package}, Workflow);
-
-															var hubs = Hubs.Where(h => Seeders.Any(s => s.Value == SeedStatus.Good && h.Seeds.Any(ip => ip.Equals(s.Key)))).Select(i => i.Peer);
-
-															foreach(var h in hubs)
-																h.HubRank++;
-
-															var seeds = CompletedPieces.Select(i => i.Peer);
-
-															foreach(var h in seeds)
-																h.SeedRank++;
-
-															his.Peer.ChainRank++;
-
-															Core.UpdatePeers(seeds.Union(hubs).Union(new[]{his.Peer}).Distinct());
-
-															while(Core.Running && Dependencies.Any(i => !i.Completed))
-															{
-																Thread.Sleep(1);
-																workflow.ThrowIfAborted();
-															}
-												
-															Successful = true;
-														}
-														else
+														if(!Manifest.GetOrCalcHash().SequenceEqual(his.Registrations.First(i => i.Release == release).Manifest))
 														{
-														///	throw new 
+															Manifest = null;
+															continue;
 														}
-
-														Completed = true;
-
-														return;
 													}
+													catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+													{
+														Seeds[s.Key] = SeedStatus.Bad;
+														continue;
+													}
+															
+													Core.Filebase.DetermineDelta(his.Registrations, Manifest, out Distributive d, out List<ReleaseAddress> deps);
 
-													///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
-													///	d.HubsSeeders[h].Add(s);
+													Package = new PackageAddress(release, d);
+
+													deps	= d == Distributive.Incremental ? deps : Manifest.CompleteDependencies.ToList();
+													Hash	= d == Distributive.Complete ? Manifest.CompleteHash : Manifest.IncrementalHash;
+													Length	= d == Distributive.Complete ? Manifest.CompleteLength : Manifest.IncrementalLength;
+								
+													lock(core.Lock)
+													{
+														foreach(var i in deps)
+														{
+															if(!core.Downloads.Any(j => j.Release == i))
+															{
+																Dependencies.Add(core.DownloadRelease(i, workflow));
+															}
+														}
+													}
 												}
-												else
-												{	
-													Seeders[j.Peer.IP] = SeedStatus.Bad;
+												
+												Jobs.Add(new Job(this, 
+																 Core.GetPeer(s.Key), 
+																 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.Piece == i) && !Jobs.Any(j => j.Piece == i))));
+											}
+											else
+											{
+												foreach(var h in Hubs.Where(i => i.Status == HubStatus.Estimating && i.Seeds.Any()))
+												{
+													if(h.Seeds.All(i => Seeds[i] == SeedStatus.Bad)) /// all seeds are bad
+													{
+														h.Status = HubStatus.Useless;
+													}
+												}
+
+												if(Seeds.All(i => i.Value == SeedStatus.Bad)) /// no good seeds found
+												{
+													if(Hubs.Count(i => i.Status == HubStatus.Estimating) < hubsgoodmax && hlast == null) /// no more hubs, total restart
+													{
+														Hubs.Clear();
+														Seeds.Clear();
+													}
 												}
 											}
 										}
-									},
-									workflow.Cancellation.Token);
-		}
+									
+										tasks = Jobs.Select(i => i.Task).ToArray();
 
-		public Job Add(Peer peer, int i)
-		{
-			var j = new Job(this, peer, i);
-			Jobs.Add(j);
+										if(tasks.Length == 0)
+										{
+											continue;
+										}
+									}
 
-			return j;
+									var ti = Task.WaitAny(tasks, workflow.Cancellation.Token);
+
+									lock(Lock)
+									{	
+										j = Jobs.Find(i => i.Task == tasks[ti]);
+										
+										Jobs.Remove(j);
+
+										if(j.Succeeded)
+										{
+											lock(Core.Lock)
+												Core.Filebase.WritePackage(Package, j.Offset, j.Data.ToArray());
+											
+											CompletedPieces.Add(j);
+
+											if(CompletedPieces.Count() == PiecesTotal)
+											{
+												Seeds[j.Seed.IP] = SeedStatus.Good;
+
+												if(Core.Filebase.GetHash(Package).SequenceEqual(Hash))
+												{	
+													Core.Filebase.AddManifest(release, Manifest);
+
+													Core.DeclarePackage(new[]{Package}, Workflow);
+
+													var hubs = Hubs.Where(h => Seeds.Any(s => s.Value == SeedStatus.Good && h.Seeds.Any(ip => ip.Equals(s.Key)))).Select(i => i.Peer);
+
+													foreach(var h in hubs)
+														h.HubRank++;
+
+													var seeds = CompletedPieces.Select(i => i.Seed);
+
+													foreach(var h in seeds)
+														h.SeedRank++;
+
+													his.Peer.ChainRank++;
+
+													Core.UpdatePeers(seeds.Union(hubs).Union(new[]{his.Peer}).Distinct());
+
+													while(Core.Running && Dependencies.Any(i => !i.Completed))
+													{
+														Thread.Sleep(1);
+														workflow.ThrowIfAborted();
+													}
+												
+													Successful = true;
+												}
+												else
+												{
+												///	throw new 
+												}
+
+												Completed = true;
+
+												return;
+											}
+
+											///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
+											///	d.HubsSeeders[h].Add(s);
+										}
+										else
+										{	
+											Seeds[j.Seed.IP] = SeedStatus.Bad;
+										}
+									}
+								}
+							},
+							workflow.Cancellation.Token);
 		}
 
 		//public Job AddCompleted(int i)

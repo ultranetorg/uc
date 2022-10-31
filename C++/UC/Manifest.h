@@ -13,7 +13,7 @@ namespace uc
 			CArray<CCompiledManifest *>		Dependencies;
 
 			UOS_RTTI
-			CCompiledManifest(CReleaseAddress release, CTonDocument & d);
+			CCompiledManifest(CReleaseAddress release);
 			~CCompiledManifest();
 	};
 }

@@ -83,7 +83,7 @@ namespace UC.Sun.FUI
 					foreach(var i in e.Item.Tag as List<Seeder>)
 					{
 						var r = Seeds.Items.Add(i.IP.ToString());
-						r.SubItems.Add((i.Distributives.HasFlag(Distributive.Complete) ? "c" : "") + (i.Distributives.HasFlag(Distributive.Complete) ? "i" : ""));
+						r.SubItems.Add((i.Distributives.HasFlag(Distributive.Complete) ? "c" : "") + (i.Distributives.HasFlag(Distributive.Incremental) ? "i" : ""));
 						r.SubItems.Add(i.Arrived.ToString(ChainTime.DateFormat));
 					}
 				}

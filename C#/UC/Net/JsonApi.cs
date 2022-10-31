@@ -99,6 +99,6 @@ namespace UC.Net
 
 	public class DownloadStatusCall : ApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ReleaseAddress	Release { get; set; }
 	}
 }

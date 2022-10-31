@@ -2020,24 +2020,24 @@ namespace UC.Net
 			}
 		}
 
-		public PackageStatus GetDownloadStatus(PackageAddress package)
+		public PackageStatus GetDownloadStatus(ReleaseAddress release)
 		{
+			Download d;
+
 			lock(Lock)
+				d = Downloads.Find(i => i.Release == release);
+
+			if(d != null)
 			{
-				var d = Downloads.Find(i => i.Package == package);
-
-				if(d != null)
-				{
-					return new PackageStatus{Length = d.Length, CompletedLength = d.CompletedLength};
-				}
-
-				if(Filebase.Exists(package))
-				{
-					return new PackageStatus{Length = Filebase.GetLength(package), CompletedLength = Filebase.GetLength(package)};
-				}
-
-				return new PackageStatus();
+				return new PackageStatus{Length = d.Length, CompletedLength = d.CompletedLength};
 			}
+
+			//if(Filebase.Exists(release))
+			//{
+			//	return new PackageStatus{Length = Filebase.GetLength(package), CompletedLength = Filebase.GetLength(package)};
+			//}
+
+			return new PackageStatus();
 		}
 
 		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow workflow)
@@ -2049,6 +2049,7 @@ namespace UC.Net
 
 			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0))
 			{
+				Thread.Sleep(1);
 				workflow.ThrowIfAborted();
 
 				Peer h = null;
@@ -2056,7 +2057,6 @@ namespace UC.Net
 				try
 				{
 					h = Connect(Role.Hub, hubs, workflow);
-					success++;
 				}
 				catch(ConnectionFailedException)
 				{
@@ -2064,7 +2064,16 @@ namespace UC.Net
 					continue;
 				}
 
-				h.DeclarePackage(packages);
+				try
+				{
+					h.DeclarePackage(packages);
+					success++;
+				}
+				catch(DistributedCallException)
+				{
+					failures++;
+					continue;
+				}
 
 				hubs.Add(h);
 
