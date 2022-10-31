@@ -50,7 +50,7 @@ namespace UC.Sun.CLI
 				{
 					var d = Core.DownloadRelease(ReleaseAddress.Parse(GetString("address")), Workflow);
 
-					while(!d.Completed)
+					while(!d.Successful)
 					{
 						Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length}");
 						Thread.Sleep(1000);

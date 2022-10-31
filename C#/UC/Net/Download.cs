@@ -9,6 +9,15 @@ using Nethereum.Contracts.QueryHandlers.MultiCall;
 
 namespace UC.Net
 {
+	public class DownloadStatus
+	{
+		public long		Length { get; set; }
+		public long		CompletedLength { get; set; }
+		public int		DependenciesCount { get; set; }
+		public bool		AllDependenciesFound { get; set; }
+		public int		DependenciesSuccessful { get; set; }
+	}
+
 	public class Download
 	{
 		public const long DefaultPieceLength = 65536;
@@ -92,21 +101,17 @@ namespace UC.Net
 		public ReleaseAddress				Release;
 		public PackageAddress				Package { get; protected set; }
 		public long							Length { get; protected set; }
-		public bool							Completed { get; protected set; }
-		public bool							Successful { get; protected set; }
-		public long							CompletedLength {
-																get
-																{
-																	lock(Lock)
-																	{
-																		return	CompletedPieces.Count * DefaultPieceLength 
-																				- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
-																				+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
-																	}	
-																} 
-															}
+		public bool							Successful => Downloaded && AllDependenciesFound && DependenciesCount == DependenciesSuccessful;
+		public long							CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
+																- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+																+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
+		public int							DependenciesCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesCount);
+		public bool							AllDependenciesFound => Manifest != null && Dependencies.All(i => i.AllDependenciesFound);
+		public int							DependenciesSuccessful => Dependencies.Count(i => i.Successful) + Dependencies.Sum(i => i.DependenciesSuccessful);
+
 		Core								Core;
 		Workflow							Workflow;
+		bool								Downloaded;
 		List<Job>							Jobs = new();
 		List<Hub>							Hubs = new();
 		Dictionary<IPAddress, SeedStatus>	Seeds = new();
@@ -292,22 +297,21 @@ namespace UC.Net
 
 													Core.UpdatePeers(seeds.Union(hubs).Union(new[]{his.Peer}).Distinct());
 
-													while(Core.Running && Dependencies.Any(i => !i.Completed))
-													{
-														Thread.Sleep(1);
-														workflow.ThrowIfAborted();
-													}
+													//while(Core.Running && Dependencies.Any(i => !i.Successful))
+													//{
+													//	Thread.Sleep(1);
+													//	workflow.ThrowIfAborted();
+													//}
 												
-													Successful = true;
+													Downloaded = true;
+													return;
 												}
 												else
 												{
-												///	throw new 
+													CompletedPieces.Clear();
+													Hubs.Clear();
+													Seeds.Clear();
 												}
-
-												Completed = true;
-
-												return;
 											}
 
 											///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder

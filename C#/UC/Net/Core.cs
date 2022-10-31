@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin.Secp256k1;
 using Nethereum.Signer;
 using Nethereum.Web3;
 using RocksDbSharp;
@@ -2020,7 +2021,7 @@ namespace UC.Net
 			}
 		}
 
-		public PackageStatus GetDownloadStatus(ReleaseAddress release)
+		public DownloadStatus GetDownloadStatus(ReleaseAddress release)
 		{
 			Download d;
 
@@ -2029,15 +2030,15 @@ namespace UC.Net
 
 			if(d != null)
 			{
-				return new PackageStatus{Length = d.Length, CompletedLength = d.CompletedLength};
+				return new DownloadStatus {	Length					= d.Length, 
+											CompletedLength			= d.CompletedLength,
+											DependenciesCount		= d.DependenciesCount,
+											AllDependenciesFound	= d.AllDependenciesFound,
+											//DependenciesCompleted	= d.DependenciesCompleted,
+											DependenciesSuccessful	= d.DependenciesSuccessful};
 			}
 
-			//if(Filebase.Exists(release))
-			//{
-			//	return new PackageStatus{Length = Filebase.GetLength(package), CompletedLength = Filebase.GetLength(package)};
-			//}
-
-			return new PackageStatus();
+			return new DownloadStatus();
 		}
 
 		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow workflow)

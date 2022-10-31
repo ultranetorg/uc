@@ -6,12 +6,6 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public class PackageStatus
-	{
-		public long Length { get; set; }
-		public long CompletedLength { get; set; }
-	}
-
 	public class PackageAddress : IBinarySerializable, IEquatable<PackageAddress>
 	{
 		ReleaseAddress			Release;
