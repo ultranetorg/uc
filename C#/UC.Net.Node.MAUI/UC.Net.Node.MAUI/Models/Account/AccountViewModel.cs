@@ -8,13 +8,16 @@ public class AccountViewModel
 
     public bool ShowOnDashboard { get; set; } = true;
 
-	public AccountEntry Entry { get; private set; }
+	public decimal Balance { get; set; }
 
-	public AccountViewModel(AccountEntry entry)
+	public Account Account { get; private set; }
+
+	public AccountViewModel(Account account)
 	{
-		Entry = entry;
+		Account = account;
 	}
 
+	// WBD
 	public AccountViewModel(string address)
 	{
 		Address = address;
@@ -22,18 +25,10 @@ public class AccountViewModel
 
 	public string Address { get; set; }
     // public string Address => Entry.Account.ToString();
-
-	public decimal Balance { get; set; }
-	//  public decimal Balance {
-	//	get => (decimal) Entry.Balance;
-	//	set => Entry.Balance = new Coin(value); 
-	//}
 	
     public IList<string> Authors { get; set; } = new List<string>();
-    //public List<string> Authors => Entry.Authors;
 	
     public HashSet<int> Transactions { get; set; } = new HashSet<int>();
-    // public HashSet<int> Transactions => Entry.Transactions;
 
 	// lets say 1 unts = $1 unless we can recieve rate
 	public string DisplayAmount => $"{Math.Round(Balance)} UNT (${Math.Round(Balance)})";

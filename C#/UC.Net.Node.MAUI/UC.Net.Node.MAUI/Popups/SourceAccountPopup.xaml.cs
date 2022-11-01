@@ -5,12 +5,12 @@ public partial class SourceAccountPopup : Popup
 	private static SourceAccountPopup popup;
 	public SourceAccountViewModel Vm => BindingContext as SourceAccountViewModel;
 
-    public SourceAccountPopup(SourceAccountViewModel vm)
+    public SourceAccountPopup()
     {
         InitializeComponent();
 		// TBR
-		vm.Popup = this;
-        BindingContext = vm;
+        BindingContext = Ioc.Default.GetService<SourceAccountViewModel>();
+		Vm.Popup = this;
     }
 
     public void Hide()
@@ -20,8 +20,8 @@ public partial class SourceAccountPopup : Popup
 
 	public static async Task<AccountViewModel> Show()
 	{
-		popup = new SourceAccountPopup(Ioc.Default.GetService<SourceAccountViewModel>());
-		await App.Current.MainPage.ShowPopupAsync(popup);
+		popup = new SourceAccountPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 		return popup.Vm.Account;
 	}
 }

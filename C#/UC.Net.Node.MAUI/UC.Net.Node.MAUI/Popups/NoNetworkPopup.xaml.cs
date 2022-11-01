@@ -8,7 +8,7 @@ public partial class NoNetworkPopup : Popup
     public NoNetworkPopup()
     {
         InitializeComponent();
-		Size = PopupSizeConstants.AutoCompleteControl;
+		// Size = PopupSizeConstants.AutoCompleteControl;
     }
 
     public void Hide()
@@ -20,6 +20,6 @@ public partial class NoNetworkPopup : Popup
 	public static async Task Show()
     {
         popup = new NoNetworkPopup();
-        await App.Current.MainPage.ShowPopupAsync(popup);
+        await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
     }
 }

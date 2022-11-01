@@ -20,6 +20,6 @@ public partial class DeleteAccountPopup : Popup
 	public static async Task Show(AccountViewModel account)
 	{
 		popup = new DeleteAccountPopup(account);
-		await App.Current.MainPage.ShowPopupAsync(popup);
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 	}
 } 

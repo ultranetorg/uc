@@ -18,6 +18,6 @@ public partial class NotificationPopup : Popup
 	public static async Task Show()
 	{
 		popup = new NotificationPopup();
-		await App.Current.MainPage.ShowPopupAsync(popup);
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 	}
 }

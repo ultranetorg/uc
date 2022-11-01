@@ -10,8 +10,8 @@ public partial class AlertPopup : Popup
         InitializeComponent();
 
         Message = message;
-		Size = PopupSizeConstants.AutoCompleteControl;
         BindingContext = this;
+		// Size = PopupSizeConstants.AutoCompleteControl;
     }
 
     public string Message { get; private set; }
@@ -24,7 +24,7 @@ public partial class AlertPopup : Popup
     public static async Task Show(string message)
     {
         popup = new AlertPopup(message);
-        await App.Current.MainPage.ShowPopupAsync(popup);
+        await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
     }
 
     private void CancelButtonClicked(object sender, EventArgs e)

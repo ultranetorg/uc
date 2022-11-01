@@ -62,7 +62,7 @@
         <ShellContent
             Title="{Binding Transfer.Title}"
             Icon="{AppThemeBinding Light=Transfer.Icon,Dark=Transfer.IconDark}"
-            ContentTemplate="{DataTemplate pages:TransactionsPage}" />
+            ContentTemplate="{DataTemplate pages:ETHTransferPage}" />
     </FlyoutItem>
     
     <FlyoutItem

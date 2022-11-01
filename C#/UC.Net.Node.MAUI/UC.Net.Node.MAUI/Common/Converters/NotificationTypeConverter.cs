@@ -4,8 +4,12 @@ namespace UC.Net.Node.MAUI.Converters;
 
 public class NotificationTypeConverter : IValueConverter
 {
+	// Need to place fonts and colors in the style resources
 	private const string _defaultFontFamily = "icomoon";
 	private const int _defaultFontSize = 40;
+	private Color _defaultColor1 = Color.FromArgb("#E03030");
+	private Color _defaultColor2 = Color.FromArgb("#E09A30");
+	private Color _defaultColor3 = Color.FromArgb("#53E030");
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -19,7 +23,7 @@ public class NotificationTypeConverter : IValueConverter
                 {
                     FontFamily = _defaultFontFamily,
                     Size = _defaultFontSize,
-                    Color = Color.FromArgb("#E03030"),
+                    Color = _defaultColor1,
                     Glyph = IconFont.ProductOperations
                 };
             case NotificationType.SystemEvent:
@@ -27,7 +31,7 @@ public class NotificationTypeConverter : IValueConverter
                 {
                     FontFamily = _defaultFontFamily,
                     Size = _defaultFontSize,
-                    Color = Color.FromArgb("#E09A30"),
+                    Color = _defaultColor2,
                     Glyph = IconFont.SystemEvent
                 };
             case NotificationType.AuthorOperations:
@@ -35,7 +39,7 @@ public class NotificationTypeConverter : IValueConverter
                 {
                     FontFamily = _defaultFontFamily,
                     Size = _defaultFontSize,
-                    Color = Color.FromArgb("#53E030"),
+                    Color = _defaultColor3,
                     Glyph = IconFont.AuthorOperations
                 };
             case NotificationType.TokenOperations:
@@ -43,7 +47,7 @@ public class NotificationTypeConverter : IValueConverter
                 {
                     FontFamily = _defaultFontFamily,
                     Size = _defaultFontSize,
-                    Color = Color.FromArgb("#E03030"),
+                    Color = _defaultColor1,
                     Glyph = IconFont.ProductOperations
                 };
             case NotificationType.Server:
@@ -51,7 +55,7 @@ public class NotificationTypeConverter : IValueConverter
                 {
                     FontFamily = _defaultFontFamily,
                     Size = _defaultFontSize,
-                    Color = Color.FromArgb("#53E030"),
+                    Color = _defaultColor3,
                     Glyph = IconFont.Server
                 };
             case NotificationType.Wallet:
@@ -59,7 +63,7 @@ public class NotificationTypeConverter : IValueConverter
                 {
                     FontFamily = _defaultFontFamily,
                     Size = _defaultFontSize,
-                    Color = Color.FromArgb("#53E030"),
+                    Color = _defaultColor3,
                     Glyph = IconFont.Wallet
                 };
         }

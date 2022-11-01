@@ -3,12 +3,13 @@
 public partial class RecipientAccountPopup : Popup
 {
 	private static RecipientAccountPopup popup;
+	public RecipientAccountViewModel Vm => BindingContext as RecipientAccountViewModel;
 
-    public RecipientAccountPopup(RecipientAccountViewModel vm)
+    public RecipientAccountPopup()
     {
         InitializeComponent();
-		vm.Popup = this;
-        BindingContext = vm;
+        BindingContext = Ioc.Default.GetService<RecipientAccountViewModel>();
+		Vm.Popup = this;
     }
 
     public void Hide()
@@ -18,7 +19,7 @@ public partial class RecipientAccountPopup : Popup
 
 	public static async Task Show()
 	{
-		popup = new RecipientAccountPopup(Ioc.Default.GetService<RecipientAccountViewModel>());
-		await App.Current.MainPage.ShowPopupAsync(popup);
+		popup = new RecipientAccountPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 	}
 }

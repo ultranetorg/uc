@@ -16,7 +16,7 @@
         <local:Layout />
     </ResourceDictionary.MergedDictionaries>
             
-    <converters:StatusToStyleConverter x:Key="StatusToStyleConverter" />
+    <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
     <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
     <converters:NotificationTypeConverter x:Key="NotificationTypeConverter" />
 

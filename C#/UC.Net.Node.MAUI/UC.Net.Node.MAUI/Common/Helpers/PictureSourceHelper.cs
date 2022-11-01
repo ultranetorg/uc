@@ -1,5 +1,6 @@
 ﻿namespace UC.Net.Node.MAUI.Helpers;
 
+// TO BE DELETED SOON
 public static class PictureSourceHelper
 {
     private static FileResult photo;
@@ -31,26 +32,6 @@ public static class PictureSourceHelper
         catch
         {
             await ToastHelper.ShowMessageAsync("Capturing pictures isn't supported");
-        }
-        return result;
-    }
-
-    public static async Task<byte[]> PathToBytes(string path)
-    {
-		byte[] result = null;
-        try
-        {
-            using (var stream = File.OpenWrite(path))
-            using (var newStream = new MemoryStream())
-            {
-                await stream.CopyToAsync(newStream);
-                result = newStream.ToArray();
-            }
-        }
-        catch(Exception ex)
-        {
-            await ToastHelper.ShowMessageAsync("Loading error");
-			ThrowHelper.ThrowInvalidOperationException("PathToBytes: Loading error", ex);
         }
         return result;
     }

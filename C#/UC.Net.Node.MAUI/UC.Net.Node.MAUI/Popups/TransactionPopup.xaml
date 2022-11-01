@@ -82,7 +82,7 @@
                     HeightRequest="18"
                     HorizontalOptions="End"
                     Opacity="0.7"
-                    Style="{Binding Transaction.Status, Converter={StaticResource StatusToStyleConverter}}"
+                    Style="{Binding Transaction.Status, Converter={StaticResource StatusToImageConverter}}"
                     VerticalOptions="Center"
                     WidthRequest="18" />
             </Grid>

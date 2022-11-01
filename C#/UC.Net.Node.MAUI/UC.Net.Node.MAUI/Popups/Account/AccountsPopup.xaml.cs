@@ -1,4 +1,5 @@
 ﻿using UC.Net.Node.MAUI.Constants;
+
 namespace UC.Net.Node.MAUI.Popups;
 
 public partial class AccountsPopup : Popup
@@ -8,7 +9,7 @@ public partial class AccountsPopup : Popup
     public AccountsPopup()
     {
         InitializeComponent();
-		Size = PopupSizeConstants.AutoCompleteControl;
+		// Size = PopupSizeConstants.AutoCompleteControl;
     }
 
     public void Hide()
@@ -19,6 +20,6 @@ public partial class AccountsPopup : Popup
     public static async Task Show()
     {
         popup = new AccountsPopup();
-        await App.Current.MainPage.ShowPopupAsync(popup);
+        await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
     }
 }

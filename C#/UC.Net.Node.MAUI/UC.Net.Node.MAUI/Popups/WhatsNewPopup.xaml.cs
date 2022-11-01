@@ -17,6 +17,6 @@ public partial class WhatsNewPopup : Popup
 	public static async Task Show()
 	{
 		popup = new WhatsNewPopup();
-		await App.Current.MainPage.ShowPopupAsync(popup);
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 	}
 }

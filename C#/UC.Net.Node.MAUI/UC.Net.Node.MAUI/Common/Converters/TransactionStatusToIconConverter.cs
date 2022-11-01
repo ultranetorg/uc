@@ -15,21 +15,18 @@ public class TransactionStatusToIconConverter : IValueConverter
 		FontImageSource imageSource = null;
 		var colorsDictionary = App.Current.Resources.MergedDictionaries.First();
 
-		if(imageSource == null)
+		switch ((TransactionStatus)value)
 		{
-			switch ((TransactionStatus)value)
-			{
-				case TransactionStatus.Pending:
-					// Color source will be changed
-					imageSource = new FontImageSource { Color = (Color)colorsDictionary["Purple"], Size = _defaultFontSize, Glyph = IconFont.Accounts, FontFamily = _defaultFontFamily };
-					break;
-				case TransactionStatus.Received:
-					imageSource = new FontImageSource { Color = (Color)colorsDictionary["Green"], Size = _defaultFontSize, Glyph = IconFont.Receive, FontFamily = _defaultFontFamily };
-					break;
-				case TransactionStatus.Sent:
-					imageSource = new FontImageSource { Color = (Color)colorsDictionary["Blue"], Size = _defaultFontSize, Glyph = IconFont.Send, FontFamily = _defaultFontFamily };
-					break;
-			}
+			case TransactionStatus.Pending:
+				// Color source will be changed
+				imageSource = new FontImageSource { Color = (Color)colorsDictionary["Purple"], Size = _defaultFontSize, Glyph = IconFont.Accounts, FontFamily = _defaultFontFamily };
+				break;
+			case TransactionStatus.Received:
+				imageSource = new FontImageSource { Color = (Color)colorsDictionary["Green"], Size = _defaultFontSize, Glyph = IconFont.Receive, FontFamily = _defaultFontFamily };
+				break;
+			case TransactionStatus.Sent:
+				imageSource = new FontImageSource { Color = (Color)colorsDictionary["Blue"], Size = _defaultFontSize, Glyph = IconFont.Send, FontFamily = _defaultFontFamily };
+				break;
 		}
 
         return imageSource;

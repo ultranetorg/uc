@@ -25,7 +25,7 @@ public partial class RecipientAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void ItemTapped(Wallet wallet)
+    private void ItemTapped(AccountViewModel account)
     {
         //foreach (var item in Accounts)
         //{

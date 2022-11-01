@@ -27,6 +27,6 @@ public partial class AccountOptionsPopup : Popup
 	public static async Task Show(AccountViewModel account)
 	{
 		popup = new AccountOptionsPopup(account);
-		await App.Current.MainPage.ShowPopupAsync(popup);
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 	}
 }

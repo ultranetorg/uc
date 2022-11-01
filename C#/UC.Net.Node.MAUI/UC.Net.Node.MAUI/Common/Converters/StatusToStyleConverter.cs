@@ -2,7 +2,7 @@
 
 namespace UC.Net.Node.MAUI.Converters;
 
-public class StatusToStyleConverter : IValueConverter
+public class StatusToImageConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
