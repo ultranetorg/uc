@@ -1,14 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.MakeBidPage"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
-    Title="Make a bid">
-    <cls:CustomPage.MainContent>
+    Title="Make a bid"
+    x:Name="page">
+    <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
@@ -28,16 +27,13 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:MakeBidStepOneView />
-                        <views:MakeBidStepTwoView />
+                        <views:MakeBid1View />
+                        <views:MakeBid2View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <StackLayout Grid.Row="2">
-                <Button Command="{Binding NextCommad}" Style="{StaticResource NextButton}" />
-                <Button Style="{StaticResource LableButton}" Text="Cancel" />
-            </StackLayout>
+            <controls:NextCancelButton Grid.Row="2" NextCommad="{Binding NextCommad}" />
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

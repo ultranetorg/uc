@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Net.Node.MAUI.Pages.CreateAccountPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
+    Title="Create account"
+    x:Name="page">
+    <!--<controls:CustomPage.LeftContent>
+        <ImageButton Opacity="0.5" HeightRequest="28"
+            Command="{Binding PrevCommand}"
+            IsVisible="{Binding Position, Converter={StaticResource IntToBoolConverter}}"
+            Style="{StaticResource Prev}" />
+    </controls:CustomPage.LeftContent>-->
+    <!--<controls:CustomPage.RightContent>
+        <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding CloseCommad}" Style="{StaticResource Close}" />
+    </controls:CustomPage.RightContent>-->
+    <controls:CustomPage.MainContent>
+        <Grid
+            Padding="{StaticResource PagePadding}"
+            RowDefinitions="*,Auto,Auto"
+            RowSpacing="30">
+            <CarouselView
+                Grid.Row="0"
+                HorizontalScrollBarVisibility="Never"
+                IndicatorView="indicator"
+                IsSwipeEnabled="False"
+                Loop="False"
+                PeekAreaInsets="0"
+                Position="{Binding Position}">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <ContentView Content="{Binding .}" />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.ItemsSource>
+                    <x:Array Type="{x:Type View}">
+                        <views:CreateAccount1View />
+                        <views:CreateAccount2View />
+                    </x:Array>
+                </CarouselView.ItemsSource>
+            </CarouselView>
+            <IndicatorView x:Name="indicator" Grid.Row="1" />
+            <Button 
+                Grid.Row="2"
+                Command="{Binding NextCommad}"
+                Style="{DynamicResource NextButton}" />
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

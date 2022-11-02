@@ -1,60 +1,23 @@
-﻿using UC.Net.Node.MAUI.Controls;
-using UC.Net.Node.MAUI.Models;
-using UC.Net.Node.MAUI.ViewModels;
-using Rg.Plugins.Popup.Exceptions;
-using Rg.Plugins.Popup.Extensions;
-using Rg.Plugins.Popup.Pages;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿namespace UC.Net.Node.MAUI.Popups;
 
-namespace UC.Net.Node.MAUI.Popups
+public partial class NotificationPopup : Popup
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class NotificationPopup : PopupPage
-    {
-        private static NotificationPopup popup;
-        NotificationViewModel viewModel;
-        public NotificationPopup()
-        {
-            InitializeComponent();
-           BindingContext=viewModel=new NotificationViewModel();
-        }
-       
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-        }
-        public async void Hide()
-        {
-            await Navigation.RemovePopupPageAsync(popup);
-        }
-        public static async Task Show()
-        {
-            popup = new NotificationPopup();
-            await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        }
+    private static NotificationPopup popup;
 
-
-    }
-    public class NotificationViewModel : BaseViewModel
+    public NotificationPopup()
     {
-        public NotificationViewModel()
-        {
-            
-        }
-        Notification _Notification= new Notification
-        {
-            Title = "Today at 16:00",
-            Body = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network",
-            Type = NotificationType.ProductOperations,
-            Severity = Severity.High
-        };
-        public Notification Notification
-        {
-            get { return _Notification; }
-            set { SetProperty(ref _Notification, value); }
-        }
+        InitializeComponent();
+        BindingContext = Ioc.Default.GetService<NotificationViewModel>();
     }
 
+    public void Hide()
+    {
+        Close();
+    }
+
+	public static async Task Show()
+	{
+		popup = new NotificationPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+	}
 }

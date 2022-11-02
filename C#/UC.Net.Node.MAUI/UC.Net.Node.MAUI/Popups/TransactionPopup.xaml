@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<pages:PopupPage
+<toolkit:Popup
     x:Class="UC.Net.Node.MAUI.Popups.TransactionPopup"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:pages="http://rotorgames.com"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
-    HasSystemPadding="{OnPlatform Android=True,
-                                  iOS=False}">
+    x:Name="page">
+    
+    <!--HasSystemPadding="{OnPlatform Android=True,
+                                iOS=False}"
     <pages:PopupPage.Animation>
         <pages:ScaleAnimation
             DurationIn="400"
@@ -21,9 +21,8 @@
             PositionOut="Bottom"
             ScaleIn="1.2"
             ScaleOut="0.8" />
-    </pages:PopupPage.Animation>
+    </pages:PopupPage.Animation>-->
     <Frame
-        x:Name="Mainframe"
         Margin="0,0,0,-20"
         Padding="20,8,20,50"
         BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
@@ -70,17 +69,8 @@
                 <Label Style="{StaticResource DashLabel}" Text="Hash" />
                 <Label Opacity="0.7" Text="{Binding Transaction.Hash}" />
             </StackLayout>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Date and time" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="{Binding Transaction.Date, StringFormat='{0: MM.DD.yyyy hh:mm'}" />
-            </Grid>
+            <controls:LabelPair Text1="Date and time" Text2="{Binding Transaction.Date, StringFormat='{0: MM.DD.yyyy hh:mm'}" />
+            
             <Grid ColumnDefinitions="*,*">
                 <Label
                     Grid.Column="0"
@@ -92,34 +82,16 @@
                     HeightRequest="18"
                     HorizontalOptions="End"
                     Opacity="0.7"
-                    Style="{Binding Transaction.Status, Converter={StaticResource StatusToStyleConverter}}"
+                    Style="{Binding Transaction.Status, Converter={StaticResource StatusToImageConverter}}"
                     VerticalOptions="Center"
                     WidthRequest="18" />
             </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="size" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="789 B" />
-            </Grid>
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Confirmations" />
-                <Label
-                    Grid.Column="1"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Text="0" />
-            </Grid>
+            
+            <controls:LabelPair Text1="Size" Text2="789 B" />
+            <controls:LabelPair Text1="Confirmations" Text2="0" />
+            
             <Button Style="{StaticResource CopyHashButton}" Text="Copy Transaction Hash" />
-            <Button Style="{StaticResource LableButton}" Text="Cancel" />
+            <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
         </StackLayout>
     </Frame>
-</pages:PopupPage>
+</toolkit:Popup>

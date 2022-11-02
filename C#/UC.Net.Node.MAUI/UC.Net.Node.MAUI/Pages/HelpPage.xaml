@@ -1,31 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.HelpPage"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     Title="Help">
-    <cls:CustomPage.RightContent>
-        <StackLayout>
-            <ImageButton
-                HorizontalOptions="End"
-                Style="{StaticResource Close}"
-                VerticalOptions="Center" />
-        </StackLayout>
-    </cls:CustomPage.RightContent>
-    <cls:CustomPage.MainContent>
+    <controls:CustomPage.MainContent>
         <Grid Padding="20,0" RowDefinitions="Auto,*">
-            <AbsoluteLayout Grid.Row="0">
-                <cls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+            <AbsoluteLayout Grid.Row="0" Margin="0,12">
+                <controls:BorderEntry
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All" />
                 <Image
                     Margin="10,0"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
                     HorizontalOptions="End"
-                    Style="{StaticResource SearchIcon}"
-                    VerticalOptions="Center" />
+                    VerticalOptions="Center"
+                    Style="{StaticResource SearchIcon}" />
             </AbsoluteLayout>
             <CollectionView
                 Grid.Row="1"
@@ -33,15 +25,13 @@
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout>
-                            <Grid Margin="0,8" ColumnDefinitions="16,*">
-                                <Image Grid.Column="0" Style="{StaticResource Rhombus}" />
-                                <Label Grid.Column="1" Text="{Binding .}" />
-                            </Grid>
-                        </StackLayout>
+                        <Grid Margin="0,8" ColumnDefinitions="16,*" ColumnSpacing="8">
+                            <Image Grid.Column="0" Style="{StaticResource Rhombus}" />
+                            <Label Grid.Column="1" Text="{Binding .}" />
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

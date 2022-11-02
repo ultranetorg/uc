@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary 
+    x:Class="UC.Net.Node.MAUI.Resources.Styles.Colors"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="Gray100">#E1E1E1</Color>
+    <Color x:Key="Gray200">#C8C8C8</Color>
+    <Color x:Key="Gray300">#ACACAC</Color>
+    <Color x:Key="Gray400">#919191</Color>
+    <Color x:Key="Gray500">#6E6E6E</Color>
+    <Color x:Key="Gray600">#404040</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="Gray950">#141414</Color>
+    <Color x:Key="Yellow100Accent">#F7B548</Color>
+    <Color x:Key="Yellow200Accent">#FFD590</Color>
+    <Color x:Key="Yellow300Accent">#FFE5B9</Color>
+    <Color x:Key="Cyan100Accent">#28C2D1</Color>
+    <Color x:Key="Cyan200Accent">#7BDDEF</Color>
+    <Color x:Key="Cyan300Accent">#C3F2F4</Color>
+    <Color x:Key="Blue100Accent">#3E8EED</Color>
+    <Color x:Key="Blue200Accent">#72ACF1</Color>
+    <Color x:Key="Blue300Accent">#A7CBF6</Color>
+    
+    <Color x:Key="Orange">#E09A30</Color>
+    <Color x:Key="Green">#7AE291</Color>
+    <Color x:Key="Blue">#408CFF</Color>
+    <Color x:Key="Purple">#9A4AFF</Color>
+    <Color x:Key="HigherColor">#6EBE67</Color>
+    <Color x:Key="LowerColor">#BE6767</Color>
+
+    <Color x:Key="Primary">#3DC1F2</Color>
+    <Color x:Key="PrimaryForLight">#65AFD6</Color>
+    <Color x:Key="PrimaryDarker">#1A2328</Color>
+    <Color x:Key="PrimaryDark">#1E5468</Color>
+    <Color x:Key="PrimaryDarkLighten">#1F3F51</Color>
+    <Color x:Key="PrimaryLightDarken">#F0FBFF</Color>
+    <Color x:Key="PrimaryLight">#F0F7F9</Color>
+    <Color x:Key="PrimaryLighter">#F4F9FB</Color>
+    <Color x:Key="Secondary">#18181B</Color>
+    <Color x:Key="Tertiary">#18181B</Color>
+    <Color x:Key="LightBackground">#FBFEFF</Color>
+    <Color x:Key="DarkBackground">#202222</Color>
+    <Color x:Key="Red">#c44242</Color>
+    <Color x:Key="DeleteRed">#E25757</Color>
+    <Color x:Key="DeleteBackGround">#362B2B</Color>
+    <Color x:Key="UnSelectedColorLight">#C9DFEC</Color>
+    <Color x:Key="UnSelectedColorDark">#2D3539</Color>
+    <Color x:Key="SelectedColorLight">#4DA0B9</Color>
+    <Color x:Key="SubTextColorLight">#738A93</Color>
+    <Color x:Key="SubTextColorDark">#C2C2C2</Color>
+    <Color x:Key="LightRed">#E6D7D7</Color>
+    
+    <Color x:Key="Error">#c44242</Color>
+    <Color x:Key="ErrorLight">#fdafaf</Color>
+
+    <Color x:Key="DarkThemeText">#F0F7F9</Color>
+    <Color x:Key="LightThemeText">#1A2328</Color>
+    <Color x:Key="LightGray">#ACACAC</Color>
+    
+    
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
+    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
+    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
+    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}"/>
+    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}"/>
+    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
+    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
+    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+    
+    <LinearGradientBrush x:Key="PartialWhite" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0.1" Color="Transparent" />
+        <GradientStop Offset="1.0" Color="{StaticResource Black}" />
+    </LinearGradientBrush>
+</ResourceDictionary>

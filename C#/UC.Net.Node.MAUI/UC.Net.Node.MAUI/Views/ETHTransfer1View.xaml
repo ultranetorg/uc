@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="UC.Net.Node.MAUI.Views.ETHTransfer1View"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+    <StackLayout Padding="{StaticResource PagePadding}" Spacing="20">
+        <StackLayout Spacing="20">
+            <StackLayout>
+                <Label FontSize="18" Text="Choose your Ethereum private key and transfer amount" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
+            </StackLayout>
+            <Label Style="{StaticResource DashLabel}" Text="Source Ethereum Account" />
+            <!--<xct:TabView
+                HeightRequest="220"
+                IsSwipeEnabled="False"
+                TabStripHeight="108"
+                TabStripPlacement="Top">
+                <xct:TabView.TabStripBackgroundView>
+                    <Frame HeightRequest="103" Style="{StaticResource Container}" />
+                </xct:TabView.TabStripBackgroundView>
+                <xct:TabViewItem Style="{StaticResource PrivateKey}">
+                    <Grid>
+                        <StackLayout Spacing="10" VerticalOptions="EndAndExpand">
+                            <Label Style="{StaticResource DashLabel}" Text="Private key" />
+                            <Label
+                                FontSize="13"
+                                Style="{StaticResource Regular}"
+                                Text="Please specify Ultranet account public key" />
+                            <controls:BorderEditor
+                                FontSize="12"
+                                Style="{StaticResource Medium}"
+                                Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
+                        </StackLayout>
+                    </Grid>
+                </xct:TabViewItem>
+                <xct:TabViewItem Style="{StaticResource FileKey}">
+                    <Grid>
+                        <StackLayout Spacing="10" VerticalOptions="EndAndExpand">
+                            <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
+                            <Label
+                                FontSize="13"
+                                Style="{StaticResource Regular}"
+                                Text="Please specify Ultranet account private key" />
+                            <Grid
+                                ColumnDefinitions="*,44"
+                                ColumnSpacing="8"
+                                HeightRequest="44">
+                                <controls:BorderEntry
+                                    Grid.Column="0"
+                                    BorderRadius="6"
+                                    IsReadOnly="True"
+                                    Text="File.file" />
+                                <Button
+                                    Grid.Column="1"
+                                    CornerRadius="6"
+                                    Text="..." />
+                            </Grid>
+                        </StackLayout>
+                    </Grid>
+                </xct:TabViewItem>
+            </xct:TabView>-->
+        </StackLayout>
+        <Grid
+            Margin="0,0,0,-30"
+            ColumnDefinitions="*,30,*"
+            VerticalOptions="EndAndExpand">
+            <StackLayout Grid.Column="0" Spacing="10">
+                <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
+                <AbsoluteLayout>
+                    <controls:BorderEntry
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        FontSize="24"
+                        RightPadding="35">
+                        <controls:BorderEntry.Behaviors>
+                            <xct:CharactersValidationBehavior
+                                x:Name="cb1"
+                                CharacterType="Letter"
+                                Flags="ValidateOnValueChanged"
+                                InvalidStyle="{StaticResource InvalidEntry}"
+                                MaximumCharacterTypeCount="30"
+                                MinimumCharacterTypeCount="1"
+                                ValidStyle="{StaticResource Valid}" />
+                        </controls:BorderEntry.Behaviors>
+                    </controls:BorderEntry>
+                    <Label
+                        Margin="10"
+                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        Style="{StaticResource UNTLabel}"
+                        Text="ETH" />
+                </AbsoluteLayout>
+                <StackLayout >
+                    <Label
+                        FontSize="12"
+                        IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                        Text="Validation text message"
+                        TextColor="{StaticResource Red}" />
+                </StackLayout>
+            </StackLayout>
+            <Image
+                Grid.Column="1"
+                Style="{StaticResource RightArrowIcon}"
+                VerticalOptions="Center" />
+            <StackLayout Grid.Column="2" Spacing="10">
+                <Label FontSize="13" Text="350 ETH available" />
+                <AbsoluteLayout>
+                    <controls:BorderEntry
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        FontSize="24"
+                        RightPadding="35">
+                        <controls:BorderEntry.Behaviors>
+                            <xct:CharactersValidationBehavior
+                                x:Name="cb2"
+                                CharacterType="Letter"
+                                Flags="ValidateOnValueChanged"
+                                InvalidStyle="{StaticResource InvalidEntry}"
+                                MaximumCharacterTypeCount="30"
+                                MinimumCharacterTypeCount="1"
+                                ValidStyle="{StaticResource Valid}" />
+                        </controls:BorderEntry.Behaviors>
+
+                    </controls:BorderEntry>
+                    <Label
+                        Margin="10"
+                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        Style="{StaticResource UNTLabel}"
+                        Text="UNT" />
+                </AbsoluteLayout>
+                <StackLayout>
+                    <Label
+                        FontSize="12"
+                        IsVisible="{Binding IsNotValid, Source={x:Reference cb2}}"
+                        Text="Validation text message"
+                        TextColor="{StaticResource Red}" />
+                </StackLayout>
+            </StackLayout>
+        </Grid>
+    </StackLayout>
+
+</ContentView>

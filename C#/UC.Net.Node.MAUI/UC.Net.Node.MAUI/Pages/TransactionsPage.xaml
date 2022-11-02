@@ -1,24 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.TransactionsPage"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
-    Title="Transactions">
-    <cls:CustomPage.RightContent>
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    Title="Transactions"
+    x:Name="page">
+    <!--<controls:CustomPage.RightContent>
         <StackLayout>
             <ImageButton
                 HorizontalOptions="End"
                 Style="{StaticResource Sort}"
                 VerticalOptions="Center" />
         </StackLayout>
-    </cls:CustomPage.RightContent>
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>-->
+    <controls:CustomPage.MainContent>
         <Grid Padding="20,0" RowDefinitions="Auto,*">
             <AbsoluteLayout Grid.Row="0">
-                <cls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+                <controls:BorderEntry
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All" />
                 <Image
                     Margin="10,0"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -29,8 +30,8 @@
             </AbsoluteLayout>
             <CollectionView
                 Grid.Row="1"
-                ItemsSource="{Binding Transactions}"
-                SelectionMode="None">
+                SelectionMode="None"
+                ItemsSource="{Binding Transactions}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout>
@@ -53,8 +54,8 @@
                                         Grid.Column="0"
                                         HeightRequest="30"
                                         HorizontalOptions="Center"
-                                        Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
                                         VerticalOptions="Center"
+                                        Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
                                         WidthRequest="30" />
                                     <Label
                                         Grid.Row="0"
@@ -82,7 +83,6 @@
                                         Opacity="0.4"
                                         Text="{Binding USD, StringFormat='${0}'}"
                                         VerticalOptions="Start" />
-
                                 </Grid>
                             </Frame>
                         </StackLayout>
@@ -90,5 +90,5 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

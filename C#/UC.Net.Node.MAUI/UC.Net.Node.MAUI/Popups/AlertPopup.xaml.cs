@@ -1,46 +1,34 @@
-﻿using Rg.Plugins.Popup.Extensions;
-using Rg.Plugins.Popup.Pages;
-using System;
-using System.Threading.Tasks;
-using Xamarin.Forms.Xaml;
+﻿using UC.Net.Node.MAUI.Constants;
+namespace UC.Net.Node.MAUI.Popups;
 
-namespace UC.Net.Node.MAUI.Popups
+public partial class AlertPopup : Popup
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class AlertPopup : PopupPage
+	private static AlertPopup popup;
+
+    public AlertPopup(string message)
     {
-       
-        public AlertPopup(string message)
-        {
-            InitializeComponent();
-            Message = message;
-            BindingContext = this;
-        }
-        public bool Result;
-        private static AlertPopup popup;
+        InitializeComponent();
 
-        public string Message { get; }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-        }
-        public async void Hide()
-        {
-            await Navigation.RemovePopupPageAsync(this);
-        }
-        public static async Task Show(string message)
-        {
-            popup = new AlertPopup(message);
-            await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        }
-
-        private void CancelButtonClicked(object sender, EventArgs e)
-        {
-            Hide();
-        }
-
-       
+        Message = message;
+        BindingContext = this;
+		// Size = PopupSizeConstants.AutoCompleteControl;
     }
-    
+
+    public string Message { get; private set; }
+
+    public void Hide()
+    {
+        Close();
+    }
+	
+    public static async Task Show(string message)
+    {
+        popup = new AlertPopup(message);
+        await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+    }
+
+    private void CancelButtonClicked(object sender, EventArgs e)
+    {
+        Hide();
+    }
 }

@@ -1,39 +1,25 @@
-﻿using UC.Net.Node.MAUI.Controls;
-using UC.Net.Node.MAUI.Models;
-using UC.Net.Node.MAUI.ViewModels;
-using Rg.Plugins.Popup.Exceptions;
-using Rg.Plugins.Popup.Extensions;
-using Rg.Plugins.Popup.Pages;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿using UC.Net.Node.MAUI.Constants;
+namespace UC.Net.Node.MAUI.Popups;
 
-namespace UC.Net.Node.MAUI.Popups
+public partial class NoNetworkPopup : Popup
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class NoNetworkPopup : PopupPage
+	private static NoNetworkPopup popup;
+
+    public NoNetworkPopup()
     {
-        private static NoNetworkPopup popup;
-        public NoNetworkPopup()
-        {
-            InitializeComponent();
-        }
-       
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-        }
-        public async void Hide()
-        {
-            await Navigation.RemovePopupPageAsync(popup);
-        }
-        public static async Task Show()
-        {
-            popup = new NoNetworkPopup();
-            await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        }
-
-
+        InitializeComponent();
+		// Size = PopupSizeConstants.AutoCompleteControl;
     }
 
+    public void Hide()
+    {
+        Close();
+    }
+	
+	// this will be static helper method
+	public static async Task Show()
+    {
+        popup = new NoNetworkPopup();
+        await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+    }
 }

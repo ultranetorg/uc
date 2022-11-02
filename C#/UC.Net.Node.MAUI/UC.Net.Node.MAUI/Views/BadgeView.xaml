@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <ContentView
     x:Class="UC.Net.Node.MAUI.Views.BadgeView"
-    xmlns="http://xamarin.com/schemas/2014/forms"
-     x:Name="Instance"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
-    
-
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="Instance">
 </ContentView>

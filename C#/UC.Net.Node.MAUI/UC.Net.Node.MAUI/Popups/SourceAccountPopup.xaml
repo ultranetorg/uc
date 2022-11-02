@@ -1,16 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<pages:PopupPage
+<toolkit:Popup
     x:Class="UC.Net.Node.MAUI.Popups.SourceAccountPopup"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:pages="http://rotorgames.com"
-    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
-    HasSystemPadding="{OnPlatform Android=True,
-                                  iOS=False}">
-    <pages:PopupPage.Animation>
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    x:Name="page">
+    <!--HasSystemPadding="{OnPlatform Android=True,
+                                iOS=False}"-->
+    <!--<pages:PopupPage.Animation>
         <pages:ScaleAnimation
             DurationIn="400"
             DurationOut="300"
@@ -21,9 +19,8 @@
             PositionOut="Bottom"
             ScaleIn="1.2"
             ScaleOut="0.8" />
-    </pages:PopupPage.Animation>
+    </pages:PopupPage.Animation>-->
     <Frame
-        x:Name="Mainframe"
         Margin="0,0,0,-20"
         Padding="0"
         BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
@@ -56,7 +53,7 @@
                 RowDefinitions="Auto,*"
                 RowSpacing="15">
                 <AbsoluteLayout Grid.Row="0" Padding="15">
-                    <cls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+                    <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
                     <Image
                         Margin="10,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -80,8 +77,6 @@
                                     Padding="0"
                                     CornerRadius="6">
                                     <Grid
-                                        xct:TouchEffect.Command="{Binding BindingContext.ItemTppedCommand, Source={Reference page}}"
-                                        xct:TouchEffect.CommandParameter="{Binding .}"
                                         ColumnDefinitions="*,Auto,10"
                                         RowDefinitions="Auto,Auto">
                                         <Grid.Triggers>
@@ -98,6 +93,11 @@
                                                 <Setter Property="BackgroundColor" Value="Transparent" />
                                             </DataTrigger>
                                         </Grid.Triggers>
+                                        <!--xct:TouchEffect.Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}"
+                                        xct:TouchEffect.CommandParameter="{Binding .}"-->
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
                                         <Label
                                             Grid.Row="0"
                                             Grid.Column="0"
@@ -133,9 +133,9 @@
                 <Button Command="{Binding CloseCommand}" Text="Continue" />
                 <Button
                     Command="{Binding CloseCommand}"
-                    Style="{StaticResource LableButton}"
+                    Style="{DynamicResource LabelButton}"
                     Text="Cancel" />
             </StackLayout>
         </Grid>
     </Frame>
-</pages:PopupPage>
+</toolkit:Popup>

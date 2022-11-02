@@ -1,44 +1,27 @@
-﻿using UC.Net.Node.MAUI.Models;
-using Rg.Plugins.Popup.Exceptions;
-using Rg.Plugins.Popup.Extensions;
-using Rg.Plugins.Popup.Pages;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿namespace UC.Net.Node.MAUI.Popups;
 
-namespace UC.Net.Node.MAUI.Popups
+public partial class TransactionPopup : Popup
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class TransactionPopup : PopupPage
+	private static TransactionPopup popup;
+    public TransactionViewModel Transaction { get; }
+    public AccountViewModel Account { get; }
+
+    public TransactionPopup(TransactionViewModel transaction)
     {
-        private static TransactionPopup popup;
-
-        public Transaction Transaction { get; }
-        public Wallet Wallet { get; }
-
-        public TransactionPopup(Transaction  transaction)
-        {
-            InitializeComponent();
-            Transaction = transaction;
-            Wallet = transaction.Wallet;
-            BindingContext = this;
-        }
-       
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-        }
-        public async void Hide()
-        {
-            await Navigation.RemovePopupPageAsync(popup);
-        }
-        public static async Task Show(Transaction transaction)
-        {
-            popup = new TransactionPopup(transaction);
-            await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        }
-
-
+        InitializeComponent();
+        Transaction = transaction;
+        Account = transaction.Account;
+        BindingContext = this;
     }
-    
+
+    public void Hide()
+    {
+	Close();
+    }
+
+	public static async Task Show(TransactionViewModel transaction)
+	{
+		popup = new TransactionPopup(transaction);
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+	}
 }

@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<pages:PopupPage
+<toolkit:Popup
     x:Class="UC.Net.Node.MAUI.Popups.NotificationPopup"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
-    xmlns:pages="http://rotorgames.com"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
-    HasSystemPadding="{OnPlatform Android=True,
-                                  iOS=False}">
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    x:Name="page">
+    
+    <!--HasSystemPadding="{OnPlatform Android=True,
+                                  iOS=False}"
     <pages:PopupPage.Animation>
         <pages:ScaleAnimation
             DurationIn="400"
@@ -21,9 +21,8 @@
             PositionOut="Bottom"
             ScaleIn="1.2"
             ScaleOut="0.8" />
-    </pages:PopupPage.Animation>
+    </pages:PopupPage.Animation>-->
     <Frame
-        x:Name="Mainframe"
         Margin="0,0,0,-20"
         Padding="20,8,20,50"
         BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
@@ -67,17 +66,9 @@
                         HorizontalOptions="Center"
                         Source="{Binding Notification.Type, Converter={StaticResource NotificationTypeConverter}}"
                         WidthRequest="35" />
-                    <Grid ColumnDefinitions="*,*">
-                        <Label
-                            Grid.Column="0"
-                            Style="{StaticResource DashLabel}"
-                            Text="Date" />
-                        <Label
-                            Grid.Column="1"
-                            HorizontalOptions="End"
-                            Opacity="0.7"
-                            Text="Today" />
-                    </Grid>
+                    
+                    <controls:LabelPair Text1="Date" Text2="Today" />
+                    
                     <Grid ColumnDefinitions="*,*">
                         <Label
                             Grid.Column="0"
@@ -104,7 +95,7 @@
                                         Binding="{Binding Severity}"
                                         TargetType="Frame"
                                         Value="{Static models:Severity.Mid}">
-                                        <Setter Property="Style" Value="{StaticResource OrangDot}" />
+                                        <Setter Property="Style" Value="{StaticResource OrangeDot}" />
                                     </DataTrigger>
                                     <DataTrigger
                                         Binding="{Binding Severity}"
@@ -132,4 +123,4 @@
             <Button Text="Mark as read" />
         </StackLayout>
     </Frame>
-</pages:PopupPage>
+</toolkit:Popup>

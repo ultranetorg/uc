@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<pages:PopupPage
+<toolkit:Popup
     x:Class="UC.Net.Node.MAUI.Popups.SelectAuthorPopup"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:pages="http://rotorgames.com"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
-    HasSystemPadding="{OnPlatform Android=True,
-                                  iOS=False}">
+    x:Name="page">
+    
+    <!--HasSystemPadding="{OnPlatform Android=True,
+                                iOS=False}"
     <pages:PopupPage.Animation>
         <pages:ScaleAnimation
             DurationIn="400"
@@ -21,9 +21,8 @@
             PositionOut="Bottom"
             ScaleIn="1.2"
             ScaleOut="0.8" />
-    </pages:PopupPage.Animation>
+    </pages:PopupPage.Animation>-->
     <Frame
-        x:Name="Mainframe"
         Margin="0,0,0,-20"
         Padding="0"
         BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
@@ -65,8 +64,6 @@
                                 Style="{StaticResource TransactionCard}">
                                 <Grid
                                     Padding="10,5"
-                                    xct:TouchEffect.Command="{Binding BindingContext.ItemTppedCommand, Source={Reference page}}"
-                                    xct:TouchEffect.CommandParameter="{Binding .}"
                                     ColumnDefinitions="*,Auto"
                                     RowDefinitions="Auto,Auto">
                                     <Label
@@ -87,6 +84,11 @@
                                         FontSize="10"
                                         Text="In 182 days"
                                         VerticalOptions="Center" />
+                                    <!--xct:TouchEffect.Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}"
+                                    xct:TouchEffect.CommandParameter="{Binding .}"-->
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
                                 </Grid>
                             </Frame>
                         </ViewCell>
@@ -98,9 +100,9 @@
                 <Button Command="{Binding CloseCommand}" Text="Continue" />
                 <Button
                     Command="{Binding CloseCommand}"
-                    Style="{StaticResource LableButton}"
+                    Style="{DynamicResource LabelButton}"
                     Text="Cancel" />
             </StackLayout>
         </Grid>
     </Frame>
-</pages:PopupPage>
+</toolkit:Popup>

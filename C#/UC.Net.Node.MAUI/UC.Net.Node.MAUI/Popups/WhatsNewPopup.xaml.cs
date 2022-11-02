@@ -1,39 +1,22 @@
-﻿using UC.Net.Node.MAUI.Models;
-using Rg.Plugins.Popup.Exceptions;
-using Rg.Plugins.Popup.Extensions;
-using Rg.Plugins.Popup.Pages;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿namespace UC.Net.Node.MAUI.Popups;
 
-namespace UC.Net.Node.MAUI.Popups
+public partial class WhatsNewPopup : Popup
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class WhatsNewPopup : PopupPage
+    private static WhatsNewPopup popup;
+
+    public WhatsNewPopup()
     {
-        private static WhatsNewPopup popup;
-
-        public WhatsNewPopup()
-        {
-            InitializeComponent();
-          
-        }
-       
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-        }
-        public async void Hide()
-        {
-            await Navigation.RemovePopupPageAsync(popup);
-        }
-        public static async Task Show()
-        {
-            popup = new WhatsNewPopup();
-            await App.Current.MainPage.Navigation.ShowPopupAsDialog(popup);
-        }
-
-
+        InitializeComponent();
     }
-    
+       
+    public void Hide()
+    {
+	Close();
+    }
+
+	public static async Task Show()
+	{
+		popup = new WhatsNewPopup();
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+	}
 }

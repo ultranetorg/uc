@@ -1,19 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.EnterPinPage"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models"
-    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    x:Name="page"
-    HasBackButton="False">
-    <cls:CustomPage.MainContent>
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    x:Name="page">
+    <controls:CustomPage.Resources>
+        <Style TargetType="Label" BasedOn="{StaticResource NumberLabel}">
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+        </Style>
+    </controls:CustomPage.Resources>
+    
+    <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="{StaticResource PagePadding}" Spacing="60">
                 <Label
                     FontSize="18"
-                    HorizontalOptions="Center"
                     Text=" Ultranet User Center" />
                 <Image HorizontalOptions="Center" Style="{StaticResource Logo2}" />
                 <Label
@@ -21,69 +24,15 @@
                     HorizontalOptions="Center"
                     Text="Enter PIN or use Fingerprint" />
                 <Grid VerticalOptions="EndAndExpand" RowSpacing="40" ColumnDefinitions="*,*,*" RowDefinitions="*,*,*,*">
-                    <Label
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="1"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="2"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="0"
-                        Grid.Column="2"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="3"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="4"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="1"
-                        Grid.Column="1"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="5"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="1"
-                        Grid.Column="2"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="6"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="7"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="2"
-                        Grid.Column="1"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="8"
-                        VerticalOptions="Center" />
-                    <Label
-                        Grid.Row="2"
-                        Grid.Column="2"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="9"
-                        VerticalOptions="Center" />
+                    <Label Grid.Row="0" Grid.Column="0" Text="1" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="2" />
+                    <Label Grid.Row="0" Grid.Column="2" Text="3" />
+                    <Label Grid.Row="1" Grid.Column="0" Text="4" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="5" />
+                    <Label Grid.Row="1" Grid.Column="2" Text="6" />
+                    <Label Grid.Row="2" Grid.Column="0" Text="7" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="8" />
+                    <Label Grid.Row="2" Grid.Column="2" Text="9" />
                     <ImageButton
                         Grid.Row="3"
                         Grid.Column="0"
@@ -93,13 +42,7 @@
                         Style="{StaticResource Backspace}"
                         VerticalOptions="Center"
                         WidthRequest="32" />
-                    <Label
-                        Grid.Row="3"
-                        Grid.Column="1"
-                        HorizontalOptions="Center"
-                        Style="{StaticResource NumberLabel}"
-                        Text="0"
-                        VerticalOptions="Center" />
+                    <Label Grid.Row="3" Grid.Column="1" Text="0" />
                     <ImageButton
                         Grid.Row="3"
                         Grid.Column="2"
@@ -112,5 +55,5 @@
                 </Grid>
             </StackLayout>
         </ScrollView>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

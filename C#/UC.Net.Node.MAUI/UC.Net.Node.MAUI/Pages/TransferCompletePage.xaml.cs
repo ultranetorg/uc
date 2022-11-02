@@ -1,77 +1,16 @@
-﻿using UC.Net.Node.MAUI.Controls;
-using UC.Net.Node.MAUI.Helpers;
-using UC.Net.Node.MAUI.Models;
-using UC.Net.Node.MAUI.Popups;
-using UC.Net.Node.MAUI.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
+﻿namespace UC.Net.Node.MAUI.Pages;
 
-namespace UC.Net.Node.MAUI.Pages
+public partial class TransferCompletePage : CustomPage
 {
-    public partial class TransferCompletePage : CustomPage
+    public TransferCompletePage()
     {
-        TransferCompleteViewModel viewModel;
-        public TransferCompletePage()
-        {
-            InitializeComponent();
-            BindingContext=viewModel=new TransferCompleteViewModel(this);
-        }
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            viewModel.OnAppearing();
-        }
+        InitializeComponent();
+        BindingContext = Ioc.Default.GetService<TransferCompleteViewModel>();
     }
-    public class TransferCompleteViewModel : BaseViewModel
+
+    public TransferCompletePage(TransferCompleteViewModel vm)
     {
-       
-        public TransferCompleteViewModel(Page page)
-        {
-            Page = page;           
-
-        }
-        public Command DeleteCommand
-        {
-            get => new Command(Delete);
-        }
-
-        private async void Delete()
-        {
-           await DeleteAccountPopup.Show(Wallet);
-        }
-        internal void OnAppearing()
-        {
-           
-        }
-
-        public Command TransactionsCommand
-        {
-            get => new Command(Transactions);
-        }
-
-        private async void Transactions()
-        {
-            await Page.Navigation.PushAsync(new TransactionsPage());
-        }
-        public Page Page { get; }
-        Wallet _Wallet = new Wallet
-        {
-            Id = Guid.NewGuid(),
-            Unts = 5005,
-            IconCode = "47F0",
-            Name = "Main ultranet wallet",
-            AccountColor = Color.FromHex("#6601e3"),
-        };
-        public Wallet Wallet
-        {
-            get { return _Wallet; }
-            set { SetProperty(ref _Wallet, value); }
-        }
-       
+        InitializeComponent();
+        BindingContext = vm;
     }
 }

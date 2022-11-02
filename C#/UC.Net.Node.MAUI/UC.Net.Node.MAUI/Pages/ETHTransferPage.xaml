@@ -1,20 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<cls:CustomPage
+<controls:CustomPage
     x:Class="UC.Net.Node.MAUI.Pages.ETHTransferPage"
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:cls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
     xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-    x:Name="page"
-    Title="ETH-UNT Transfer">
-    <cls:CustomPage.RightContent>
+    Title="ETH-UNT Transfer"
+    x:Name="page">
+    <!--<controls:CustomPage.RightContent>
         <ImageButton
             Command="{Binding OptionsCommad}"
             Opacity="0.5"
             Style="{StaticResource Dots}" />
-    </cls:CustomPage.RightContent>
-    <cls:CustomPage.MainContent>
+    </controls:CustomPage.RightContent>-->
+    <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto,Auto"
@@ -34,14 +33,13 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:ETHTransferStepOneView />
-                        <views:ETHTransferStepTwoView />
-                        <views:ETHTransferStepThreeView />
+                        <views:ETHTransfer1View />
+                        <views:ETHTransfer2View />
+                        <views:ETHTransfer3View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-
             <Grid
                 Grid.Row="2"
                 ColumnDefinitions="*,*"
@@ -61,7 +59,7 @@
                 <Button
                     Grid.Column="1"
                     Command="{Binding NextCommad}"
-                    Style="{StaticResource NextButton}" />
+                    Style="{DynamicResource NextButton}" />
             </Grid>
             <StackLayout Grid.Row="2" IsVisible="False">
                 <StackLayout.Triggers>
@@ -73,9 +71,8 @@
                     </DataTrigger>
                 </StackLayout.Triggers>
                 <Button Command="{Binding ConfirmCommand}" Style="{StaticResource ConfirmButton}" />
-                <Button Style="{StaticResource LableButton}" Text="Cancel" />
+                <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
             </StackLayout>
-
         </Grid>
-    </cls:CustomPage.MainContent>
-</cls:CustomPage>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

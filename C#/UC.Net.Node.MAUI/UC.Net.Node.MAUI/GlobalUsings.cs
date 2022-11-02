@@ -1,0 +1,20 @@
+﻿global using Microsoft.Extensions.Logging;
+global using System.Collections.ObjectModel;
+global using System.Diagnostics.CodeAnalysis;
+global using CommunityToolkit.Mvvm.ComponentModel;
+global using CommunityToolkit.Mvvm.DependencyInjection;
+global using CommunityToolkit.Mvvm.Input;
+global using CommunityToolkit.Maui.Views;
+global using CommunityToolkit.Diagnostics;
+
+// Project usings
+global using UC.Net.Node.MAUI.Models;
+global using UC.Net.Node.MAUI.ViewModels;
+global using UC.Net.Node.MAUI.ViewModels.Popups;
+global using UC.Net.Node.MAUI.ViewModels.Views;
+global using UC.Net.Node.MAUI.Helpers;
+global using UC.Net.Node.MAUI.Popups;
+global using UC.Net.Node.MAUI.Controls;
+global using UC.Net.Node.MAUI.Pages;
+global using UC.Net.Node.MAUI.Exceptions;
+global using UC.Net.Node.MAUI.Services;
