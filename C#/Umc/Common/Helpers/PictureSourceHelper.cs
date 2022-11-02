@@ -21,7 +21,7 @@ public static class PictureSourceHelper
 
 				if (photo != null)
 				{
-					var newFile = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+					var newFile = Path.Combine(Microsoft.Maui.Storage.FileSystem.CacheDirectory, photo.FileName);
 					using (var stream = await photo.OpenReadAsync())
 					using (var newStream = File.OpenWrite(newFile))
 						await stream.CopyToAsync(newStream);

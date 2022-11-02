@@ -6,16 +6,16 @@
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
 		<OutputType>Exe</OutputType>
-		<RootNamespace>UC.Net.Node.MAUI</RootNamespace>
+		<RootNamespace>UC.Umc</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Display name -->
-		<ApplicationTitle>UC.Net.Node.MAUI</ApplicationTitle>
+		<ApplicationTitle>Ultranet Mobile Console</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.uc.net.node.maui</ApplicationId>
+		<ApplicationId>uo.umc</ApplicationId>
 		<ApplicationIdGuid>E55F8A4B-9BC6-4389-9A27-2291AA155730</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -118,7 +118,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <ProjectReference Include="..\..\UC\UC.csproj" />
+	  <ProjectReference Include="..\UC\UC.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
