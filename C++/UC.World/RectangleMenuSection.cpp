@@ -49,8 +49,8 @@ CRectangleMenuSection::CRectangleMenuSection(CWorldLevel * w, CStyle * s, const 
 
 	UseClipping(EClipping::No, true);
 
-	auto m = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
-	Highlighter = new CVisual(&Level->Engine->EngineLevel, L"highlighter", m, BorderMaterial, CMatrix());
+	auto m = new CSolidRectangleMesh(Level->Engine->Level);
+	Highlighter = new CVisual(Level->Engine->Level, L"highlighter", m, BorderMaterial, CMatrix());
 	m->Free();
 }
 

@@ -22,8 +22,8 @@ namespace uc
 			uint										Build;
 			uint										Revision;
 			
-			bool 										operator == (CVersion &);
-			bool 										operator != (CVersion &);
+			bool 										operator == (CVersion const &) const;
+			bool 										operator != (CVersion const &) const;
 			bool 										operator < (CVersion &);
 			bool 										operator > (CVersion &);
 						

@@ -78,7 +78,7 @@ namespace uc
 				}
 				for(auto i : p->Many(L"Material"))
 				{
-					auto t = new CMaterial(&Level->Engine->EngineLevel, GetShader(i->Get<CString>(L"Shader")));
+					auto t = new CMaterial(Level->Engine->Level, GetShader(i->Get<CString>(L"Shader")));
 					t->Load(i, this);
 					Materials.AddNew(t);
 				}

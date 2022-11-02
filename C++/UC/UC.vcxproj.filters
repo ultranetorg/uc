@@ -10,9 +10,6 @@
     <Filter Include="I/O">
       <UniqueIdentifier>{fef29dd7-a12e-4bc9-bad1-acef526749ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="License">
-      <UniqueIdentifier>{0918e0ad-45f7-4ec8-b708-da9c7381f8f9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{60a38fce-ceda-4114-82a7-bfa3967340ef}</UniqueIdentifier>
     </Filter>
@@ -28,17 +25,14 @@
     <Filter Include="Math">
       <UniqueIdentifier>{59f8b776-ab40-4ba5-b7dc-3b4704c25ddc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Storage">
-      <UniqueIdentifier>{ce3a2fd4-acac-451e-943f-ef584aab68bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Ethereum">
-      <UniqueIdentifier>{6b57e1dc-099f-41cb-a1ad-e8835e94ac01}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Net">
       <UniqueIdentifier>{84b35116-7435-4365-8154-b7cfd069c6bc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DMS">
-      <UniqueIdentifier>{ac3c1456-5f88-463f-9715-6861cbfcb524}</UniqueIdentifier>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{ce3a2fd4-acac-451e-943f-ef584aab68bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sun">
+      <UniqueIdentifier>{c9318c50-80bc-4fac-b77a-3ac3a2f6eb21}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -76,9 +70,6 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="FileService.h">
-      <Filter>I/O</Filter>
-    </ClInclude>
-    <ClInclude Include="FileStream.h">
       <Filter>I/O</Filter>
     </ClInclude>
     <ClInclude Include="IFileService.h">
@@ -159,18 +150,6 @@
     <ClInclude Include="StaticArray.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="LicenseService.h">
-      <Filter>License</Filter>
-    </ClInclude>
-    <ClInclude Include="EmptyLicenseService.h">
-      <Filter>License</Filter>
-    </ClInclude>
-    <ClInclude Include="ILicenseService.h">
-      <Filter>License</Filter>
-    </ClInclude>
-    <ClInclude Include="License.h">
-      <Filter>License</Filter>
-    </ClInclude>
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Animation.h">
       <Filter>Math</Filter>
@@ -218,7 +197,7 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Guid.h" />
-    <ClInclude Include="NexusObject.h">
+    <ClInclude Include="InterObject.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="FastDelegate.h">
@@ -233,7 +212,7 @@
     <ClInclude Include="SerializableBuffer.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Protocol.h">
+    <ClInclude Include="Interface.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="Connection.h">
@@ -245,16 +224,7 @@
     <ClInclude Include="Xon.h">
       <Filter>Xon</Filter>
     </ClInclude>
-    <ClInclude Include="File.h">
-      <Filter>Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="Level2.h">
-      <Filter>Nexus</Filter>
-    </ClInclude>
-    <ClInclude Include="Directory.h">
-      <Filter>Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="IExecutorProtocol.h">
+    <ClInclude Include="ExecutorProtocol.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
@@ -331,11 +301,8 @@
     <ClInclude Include="Uxx.h">
       <Filter>Nexus</Filter>
     </ClInclude>
-    <ClInclude Include="IStorageProtocol.h">
-      <Filter>Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="Storage.h">
-      <Filter>Storage</Filter>
+    <ClInclude Include="LocalFileSystemProvider.h">
+      <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="Size.h">
       <Filter>Math</Filter>
@@ -355,16 +322,13 @@
     <ClInclude Include="PipeClient.h">
       <Filter>I/O</Filter>
     </ClInclude>
-    <ClInclude Include="Ethereum.h">
-      <Filter>Ethereum</Filter>
-    </ClInclude>
     <ClInclude Include="HttpRequest.h">
       <Filter>Net</Filter>
     </ClInclude>
     <ClInclude Include="HttpClient.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="Server.h">
+    <ClInclude Include="PersistentServer.h">
       <Filter>Nexus</Filter>
     </ClInclude>
     <ClInclude Include="XonValue.h">
@@ -373,15 +337,6 @@
     <ClInclude Include="Int64.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="SolidityValue.h">
-      <Filter>Ethereum</Filter>
-    </ClInclude>
-    <ClInclude Include="Fdn.h">
-      <Filter>DMS</Filter>
-    </ClInclude>
-    <ClInclude Include="Dms.h">
-      <Filter>DMS</Filter>
-    </ClInclude>
     <ClInclude Include="Polygon.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -389,11 +344,87 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="Path.h">
-      <Filter>Storage</Filter>
+      <Filter>FileSystem</Filter>
     </ClInclude>
     <ClInclude Include="Map.h" />
     <ClInclude Include="Os.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonClient.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="Manifest.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Hex.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplicationReleaseAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="RealizationAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="ProductAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentObject.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemProtocol.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemProviderProtocol.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemEntry.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemDirectory.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalFileStream.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ProductInfo.h" />
+    <ClInclude Include="SunClient.h">
+      <Filter>Sun</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplicationRelease.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="Identity.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerProcess.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryReader.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryWriter.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="Message.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="SunProtocol.h">
+      <Filter>Sun</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplicationAddress.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Nexus</Filter>
+    </ClInclude>
+    <ClInclude Include="InprocClient.h">
+      <Filter>Nexus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -419,9 +450,6 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="FileService.cpp">
-      <Filter>I/O</Filter>
-    </ClCompile>
-    <ClCompile Include="FileStream.cpp">
       <Filter>I/O</Filter>
     </ClCompile>
     <ClCompile Include="MemoryStream.cpp">
@@ -481,15 +509,6 @@
     <ClCompile Include="Plane.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="EmptyLicenseService.cpp">
-      <Filter>License</Filter>
-    </ClCompile>
-    <ClCompile Include="License.cpp">
-      <Filter>License</Filter>
-    </ClCompile>
-    <ClCompile Include="LicenseService.cpp">
-      <Filter>License</Filter>
-    </ClCompile>
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Config.cpp">
       <Filter>Xon</Filter>
@@ -527,18 +546,12 @@
     <ClCompile Include="Xon.cpp">
       <Filter>Xon</Filter>
     </ClCompile>
-    <ClCompile Include="NexusObject.cpp">
+    <ClCompile Include="InterObject.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="Shared.cpp" />
     <ClCompile Include="Url.cpp">
       <Filter>Nexus</Filter>
-    </ClCompile>
-    <ClCompile Include="File.cpp">
-      <Filter>Storage</Filter>
-    </ClCompile>
-    <ClCompile Include="Directory.cpp">
-      <Filter>Storage</Filter>
     </ClCompile>
     <ClCompile Include="Guid.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -598,8 +611,8 @@
     <ClCompile Include="Uxx.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
-    <ClCompile Include="Storage.cpp">
-      <Filter>Storage</Filter>
+    <ClCompile Include="LocalFileSystemProvider.cpp">
+      <Filter>FileSystem</Filter>
     </ClCompile>
     <ClCompile Include="Size.cpp">
       <Filter>Math</Filter>
@@ -610,10 +623,7 @@
     <ClCompile Include="Line.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Ethereum.cpp">
-      <Filter>Ethereum</Filter>
-    </ClCompile>
-    <ClCompile Include="Server.cpp">
+    <ClCompile Include="PersistentServer.cpp">
       <Filter>Nexus</Filter>
     </ClCompile>
     <ClCompile Include="HttpRequest.cpp">
@@ -628,15 +638,6 @@
     <ClCompile Include="DateTime.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="SolidityValue.cpp">
-      <Filter>Ethereum</Filter>
-    </ClCompile>
-    <ClCompile Include="Fdn.cpp">
-      <Filter>DMS</Filter>
-    </ClCompile>
-    <ClCompile Include="Dms.cpp">
-      <Filter>DMS</Filter>
-    </ClCompile>
     <ClCompile Include="Polygon.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -644,15 +645,65 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="Path.cpp">
-      <Filter>Storage</Filter>
+      <Filter>FileSystem</Filter>
     </ClCompile>
     <ClCompile Include="Os.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonClient.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="UC.cpp" />
+    <ClCompile Include="Server.cpp">
+      <Filter>Nexus</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Hex.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="ReleaseAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="ApplicationReleaseAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="RealizationAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="ProductAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="PersistentObject.cpp">
+      <Filter>Nexus</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystemDirectory.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalFileStream.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SunClient.cpp">
+      <Filter>Sun</Filter>
+    </ClCompile>
+    <ClCompile Include="ApplicationAddress.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>Nexus</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\lucon.ttf">
       <Filter>Resources</Filter>
+    </None>
+    <None Include="ReleaseAddress.h">
+      <Filter>Net</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

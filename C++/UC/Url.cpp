@@ -18,7 +18,7 @@ CUrl::CUrl(const CUrl & l, const CString & n, const CString & v) : CUrl(l)
 
 CUrl::CUrl(const CString & protocol, const CString & path)
 {
-	Protocol = protocol;
+	Scheme = protocol;
 	Path = path;
 }
 
@@ -29,21 +29,21 @@ CString & CUrl::operator[](const CString & p)
 
 bool CUrl::PathEquals(CUrl & u)
 {
-	return	Protocol == u.Protocol && Domain == u.Domain && Path == u.Path;
+	return	Scheme == u.Scheme && Domain == u.Domain && Path == u.Path;
 }
 
 bool CUrl::IsEmpty()
 {
-	return Protocol.empty() && Domain.empty() && Path.empty() && Query.empty();
+	return Scheme.empty() && Domain.empty() && Path.empty() && Query.empty();
 }
 
 CString CUrl::ToString() const
 {
 	CString e;
 
-	if(!Protocol.empty())
+	if(!Scheme.empty())
 	{
-		e += Protocol + L"://";
+		e += Scheme + L"://";
 	}
 
 	e += Domain;
@@ -68,8 +68,8 @@ CString CUrl::GetParamOrEmpty(const CString & p)
 
 bool CUrl::operator<(const CUrl & a) const
 {
-	if(Protocol != a.Protocol)
-		return Protocol < a.Protocol;
+	if(Scheme != a.Scheme)
+		return Scheme < a.Scheme;
 	else if(Domain != a.Domain)
 		return Domain < a.Domain;
 	else if(Path != a.Path)
@@ -181,7 +181,7 @@ CString CUrl::ToName()
 
 bool CUrl::operator!=(const CUrl & a)
 {
-	if(Protocol != a.Protocol || Path != a.Path)
+	if(Scheme != a.Scheme || Path != a.Path)
 	{
 		return true;
 	}
@@ -204,7 +204,7 @@ bool CUrl::operator!=(const CUrl & a)
 
 bool CUrl::operator==(const CUrl & a) const
 {
-	if(Protocol != a.Protocol || Path != a.Path)
+	if(Scheme != a.Scheme || Path != a.Path)
 	{
 		return false;
 	}
@@ -251,7 +251,7 @@ void CUrl::Write(std::wstring & s)
 
 void CUrl::Read(const std::wstring & addr)
 {
-	Read(addr, &Protocol, &Domain, &Path, &Query);
+	Read(addr, &Scheme, &Domain, &Path, &Query);
 }
 
 ISerializable * CUrl::Clone()

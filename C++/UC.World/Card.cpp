@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CCard::CCard(CWorld * l, const CString & name) : CRectangle(l, name)
+CCard::CCard(CWorldProtocol * l, const CString & name) : CRectangle(l, name)
 {
 	Level = l;
 

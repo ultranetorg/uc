@@ -36,7 +36,7 @@ namespace UC.Net
 
 		public List<Peer>								Members;
 		public List<Account>							Funds;
-		public List<Peer>								Hubs;
+		//public List<Peer>								Hubs;
 		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
 		public List<Account>							ConfirmedViolators;
 		public List<Account>							ConfirmedJoiners;
@@ -56,7 +56,7 @@ namespace UC.Net
 		public Dictionary<Account, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>			AffectedAuthors = new();
 		public Dictionary<ProductAddress, ProductEntry>	AffectedProducts = new(); /// needed to not load all producta with all releases when fetching an author
-		public HashSet<Round>							AffectedRounds = new();
+		//public HashSet<Round>							AffectedRounds = new();
 		public IEnumerable<Payload>						ExecutingPayloads;
 		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
 																								.SelectMany(i => i.Operations)
@@ -80,9 +80,9 @@ namespace UC.Net
 				var x = amount/a.Count();
 	
 				foreach(var i in a.Skip(1))
-					ChangeAccount(i).Balance += x;
+					AffectAccount(i).Balance += x;
 	
-				ChangeAccount(a.First()).Balance += amount - (x * (a.Count() - 1));
+				AffectAccount(a.First()).Balance += amount - (x * (a.Count() - 1));
 			}
 		}
 
@@ -97,13 +97,13 @@ namespace UC.Net
 				foreach(var i in a.Skip(1))
 				{
 					//RewardOrPay(i, x);
-					ChangeAccount(i).Balance += x;
+					AffectAccount(i).Balance += x;
 				}
 
 				var v = s - (x * (a.Count() - 1));
 				
 				//RewardOrPay(a.First(), v);
-				ChangeAccount(a.First()).Balance += v;
+				AffectAccount(a.First()).Balance += v;
 			}
 
 			if(b.Any())
@@ -114,12 +114,12 @@ namespace UC.Net
 				foreach(var i in b.Skip(1))
 				{
 					//RewardOrPay(i, x);
-					ChangeAccount(i).Balance += x;
+					AffectAccount(i).Balance += x;
 				}
 
 				var v = s - (x * (b.Count() - 1));
 				//RewardOrPay(b.First(), v);
-				ChangeAccount(b.First()).Balance += v;
+				AffectAccount(b.First()).Balance += v;
 			}
 		}
 		
@@ -150,7 +150,7 @@ namespace UC.Net
 // 
 // 		}
 
-		public AccountEntry ChangeAccount(Account account)
+		public AccountEntry AffectAccount(Account account)
 		{
 			if(AffectedAccounts.ContainsKey(account))
 				return AffectedAccounts[account];
@@ -165,7 +165,7 @@ namespace UC.Net
 			return AffectedAccounts[account];
 		}
 
-		public AuthorEntry ChangeAuthor(string name)
+		public AuthorEntry AffectAuthor(string name)
 		{
 			var e = FindAuthor(name);
 
@@ -185,7 +185,7 @@ namespace UC.Net
 			return Chain.Authors.Find(name, Id - 1);
 		}
 
-		public ProductEntry ChangeProduct(ProductAddress address)
+		public ProductEntry AffectProduct(ProductAddress address)
 		{
 			var e = FindProduct(address);
 

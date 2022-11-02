@@ -153,6 +153,7 @@ namespace UC
 					case XonToken.AttrValueBegin:
 					{
 						var a = new Xon(Serializator);
+						//a.Name = "";
 						n.Value = a;
 		
 						while(r.ReadNext() == XonToken.NodeBegin)

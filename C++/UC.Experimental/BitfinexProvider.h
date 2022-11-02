@@ -6,11 +6,11 @@ namespace uc
 	class CBitfinexProvider : public CTradeProvider, public virtual IType
 	{
 		public:
-			CLevel2 *							Level;
-			CHttpRequest *						Request;
+			CExperimentalLevel *	Level;
+			CHttpRequest *			Request;
 			
 			UOS_RTTI
-			CBitfinexProvider(CLevel2 * l)
+			CBitfinexProvider(CExperimentalLevel * l)
 			{
 				Name = L"Bitfinex";
 
@@ -28,7 +28,7 @@ namespace uc
 				Intervals[L"1M"]	= L"1 month";
 
 				Level = l;
-				Request = new CHttpRequest(Level, L"https://api.bitfinex.com/v2/tickers?symbols=ALL"); 
+				Request = new CHttpRequest(Level->Core, L"https://api.bitfinex.com/v2/tickers?symbols=ALL"); 
 				Request->Recieved =	[this]()
 									{
 										Markets.clear();
@@ -42,9 +42,9 @@ namespace uc
 										{
 											j = nlohmann::json::parse(t);
 										}
-										catch(nlohmann::detail::parse_error &)
+										catch(nlohmann::detail::parse_error & e)
 										{
-											Level->Log->ReportError(this, L"Json parse error: %s", Request->Url);
+											Level->Log->ReportError(this, L"Json parse error: %s", CString::FromAnsi(e.what()));
 											return;
 										}
 
@@ -52,13 +52,13 @@ namespace uc
 										{
 											CMarket & m = CMarket();
 										
-											for(auto i : j)
+											for(auto & i : j)
 											{
 												CString s;
 												
 												s = CString::FromAnsi(i[0].get<std::string>());
 	
-												CString n = s.substr(1, 3);
+												auto n = s.substr(1, 3);
 	
 												if(s[0] == 't')
 												{

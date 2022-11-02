@@ -14,9 +14,9 @@ namespace uc
 				Level = l;
 			
 				SetDirectories(MapRelative(L""));
-				SetDefaultInteractiveMaster(AREA_MAIN);
+				SetDefaultInteractiveMaster(CArea::Main);
 
-				SetTitle(Url.GetType());
+				SetTitle(Url.GetObjectClass());
 			}
 
 			~CEarth()

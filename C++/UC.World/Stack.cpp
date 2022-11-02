@@ -138,7 +138,7 @@ void CStack::Align()
 
 void CStack::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *, CElement *)> & load)
 {
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		auto wn = load(i, null);
 		AddNode(wn);
@@ -150,7 +150,7 @@ void CStack::LoadProperties(CStyle * s, CXon * n)
 {
 	__super::LoadProperties(s, n);
 
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		if(i->Name == L"Direction")	Direction = ToDirection(i->Get<CString>()); else
 		if(i->Name == L"XAlign")	XAlign = ToXAlign(i->Get<CString>()); else

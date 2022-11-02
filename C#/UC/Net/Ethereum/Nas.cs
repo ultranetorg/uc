@@ -18,15 +18,15 @@ namespace UC.Net
 {
 	public class Nas : INas
 	{
-		public const string ContractAddress = "0x72329af958b5679e0354ff12fb27ddbf34d37aca";
-		Settings Settings;
-		public Web3 Web3;
-		Log Log;
+		public const string							ContractAddress = "0x43958d38C348579362353E1B81Ef74B9f47B2310";
+		Settings									Settings;
+		public Web3									Web3;
+		Log											Log;
 
-		ContractHandler сontract;
-		Nethereum.Web3.Accounts.Account account;
-		static Dictionary<string, List<IPAddress>> Zones = new Dictionary<string, List<IPAddress>>();
-		static string creator;
+		ContractHandler								_Contract;
+		Nethereum.Web3.Accounts.Account				_Account;
+		static Dictionary<Zone, IPAddress[]>		Zones = new ();
+		static string								Creator;
 
 		public Nethereum.Signer.Chain Chain => (Chain)Enum.Parse(typeof(Chain), Settings.Nas.Chain);
 
@@ -34,19 +34,19 @@ namespace UC.Net
 		{
 			get
 			{
-				if(account == null)
+				if(_Account == null)
 				{
 					if(Settings.Secret?.NasWallet != null && Settings.Secret?.NasPassword != null)
 					{
-						account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secret.NasWallet), Settings.Secret.NasPassword);
+						_Account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secret.NasWallet), Settings.Secret.NasPassword);
 					}
 					else
 					{
-						account = new Nethereum.Web3.Accounts.Account(EthECKey.GenerateKey().GetPrivateKeyAsBytes());
+						_Account = new Nethereum.Web3.Accounts.Account(EthECKey.GenerateKey().GetPrivateKeyAsBytes());
 					}
 				}
 
-				return account;
+				return _Account;
 			}
 		}
 
@@ -54,13 +54,13 @@ namespace UC.Net
 		{
 			get
 			{
-				if(сontract == null)
+				if(_Contract == null)
 				{
 					Web3 = new Web3(Account, Settings.Nas.Provider);
-					сontract = Web3.Eth.GetContractHandler(ContractAddress);
+					_Contract = Web3.Eth.GetContractHandler(ContractAddress);
 				}
 
-				return сontract;
+				return _Contract;
 			}
 		}
 
@@ -68,12 +68,12 @@ namespace UC.Net
 		{
 			get
 			{
-				if(creator == null)
+				if(Creator == null)
 				{
 					var input = new CreatorFunction();
-					creator = Contract.QueryAsync<CreatorFunction, string>(input).Result;
+					Creator = Contract.QueryAsync<CreatorFunction, string>(input).Result;
 				}
-				return string.Compare(Account.Address, creator, true) == 0;
+				return string.Compare(Account.Address, Creator, true) == 0;
 			}
 		}
 
@@ -83,60 +83,85 @@ namespace UC.Net
 			Settings = s;
 		}
 
-		public List<IPAddress> GetInitials(string zone)
+		public IPAddress[] GetInitials(Zone zone)
 		{
-			if(zone == Zone.Localnet)
-			{
-				return Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] { 192, 168, 1, (byte)i })).ToList();
-			}
-
 			lock(Zones)
 			{
 				var ips = new List<IPAddress>();
 
 				if(!Zones.ContainsKey(zone))
 				{
-					var input = new GetZoneFunction { Name = Settings.Zone };
-					var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
-
-					foreach(var i in z.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+					try
 					{
-						if(!IPAddress.TryParse(i, out var ip))
+						var input = new GetZoneFunction{Name = zone.Name};
+						var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
+	
+						foreach(var i in z.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries))
 						{
-							try
+							if(!IPAddress.TryParse(i, out var ip))
 							{
-								var r = Dns.GetHostEntry(i);
-								ip = r.AddressList.First();
+								try
+								{
+									var r = Dns.GetHostEntry(i);
+									ip = r.AddressList.First();
+								}
+								catch(SocketException ex)
+								{
+									Log.ReportError(this, $"Can't DNS resolve - {i}", ex);
+									continue;
+								}
 							}
-							catch(SocketException ex)
-							{
-								Log.ReportError(this, $"Peer: {i} - {ex.Message}");
-								continue;
-							}
+	
+							ips.Add(ip);
 						}
 
-						ips.Add(ip);
+						Zones[zone] = ips.ToArray();
 					}
-
-					if(ips.Any())
+					catch(Exception ex) when (ex is not RequirementException)
 					{
-						Zones[zone] = ips;
+		  				try
+		  				{
+		 					new Uri(Settings.Nas.Provider);
+		  				}
+		  				catch(Exception)
+		  				{
+							ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to get intial nodes.", false);
+		  				}
+
 					}
 
-					return ips;
+					if(!ips.Any())
+					{
+						Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used.");
+						Zones[zone] = zone.Initials;
+					}
 				}
-				else
-				{
-					return Zones[zone];
-				}
+
+				return Zones[zone];
 			}
 		}
 
-		public async Task SetZone(string name, string nodes, IGasAsker asker)
+		public void ReportEthereumJsonAPIWarning(string message, bool aserror)
+		{
+			var s = new string[]{	message,
+									$"But it is not set or incorrect.",
+		 							$"It's located in {Path.Join(Settings.Profile, Settings.FileName)} -> Nas -> Provider",
+		 							$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"};
+
+			foreach(var i in s)
+			{
+				if(aserror)
+					Log.ReportError(this, i);
+				else
+					Log.ReportWarning(this, i);
+			}
+		}
+
+		public async Task SetZone(Zone zone, string nodes, IGasAsker asker)
 		{
 			var f = new SetZoneFunction
 			{
-				Name = name,
+				Name = zone.Name,
 				Nodes = nodes
 			};
 
@@ -161,11 +186,11 @@ namespace UC.Net
 			}
 		}
 
-		public async Task RemoveZone(string name, IGasAsker asker)
+		public async Task RemoveZone(Zone zone, IGasAsker asker)
 		{
 			var f = new RemoveZoneFunction
 			{
-				Name = name
+				Name = zone.Name
 			};
 
 			if(asker.Ask(Web3, Contract, Account.Address, f, null))
@@ -189,7 +214,7 @@ namespace UC.Net
 			}
 		}
 
-		public async Task Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Flowvizor vizor)
+		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow vizor)
 		{
 			var args = Emission.Serialize(signer, eid);
 
@@ -209,7 +234,7 @@ namespace UC.Net
 
 				vizor?.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
 
-				var receipt = await c.SendRequestAndWaitForReceiptAsync(rt, vizor.Cancellation);
+				var receipt = c.SendRequestAndWaitForReceiptAsync(rt, vizor.Cancellation).Result;
 
 				vizor?.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
 			}

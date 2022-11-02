@@ -28,7 +28,7 @@ ECardTitleMode uc::ToAvatarTitleMode(const CString & name)
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-CAvatar::CAvatar(CWorld * l, CServer * s, CString const & name) : CElement(l, name), CNexusObject(s, name)
+CAvatar::CAvatar(CWorldProtocol * l, CServer * s, CString const & name) : CElement(l, name), CPersistentObject(Scheme, s, name)
 {
 	World = l;
 }
@@ -42,7 +42,7 @@ void CAvatar::DetermineSize(CSize & smax, CSize & s)
 	throw CException(HERE, L"Not implemented");
 }
 
-CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name) : CAvatar(l, s, name)
+CStaticAvatar::CStaticAvatar(CWorldProtocol * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name) : CAvatar(l, s, name)
 {
 	LoadBasic(r, mhs, mts);
 	
@@ -55,13 +55,13 @@ CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CXon * r, IMeshStore * mhs
 
 	Express(L"Size", [size](auto){ return size; });
 
-	auto am = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	auto am = new CSolidRectangleMesh(l->Engine->Level);
 	am->Generate(0, 0, Size.W, Size.H);
 	Active->SetMesh(am);
 	am->Free();
 }
 
-CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CElement * e, const CString & name) : CAvatar(l, s, name)
+CStaticAvatar::CStaticAvatar(CWorldProtocol * l, CServer * s, CElement * e, const CString & name) : CAvatar(l, s, name)
 {
 	Name			= e->Name;
 	Enabled			= e->Enabled;
@@ -76,7 +76,7 @@ CStaticAvatar::CStaticAvatar(CWorld * l, CServer * s, CElement * e, const CStrin
 
 	Express(L"Size", [size](auto){ return size; });
 
-	auto am = new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	auto am = new CSolidRectangleMesh(l->Engine->Level);
 	am->Generate(0, 0, Size.W, Size.H);
 	Active->SetMesh(am);
 	am->Free();

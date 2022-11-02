@@ -22,39 +22,53 @@
 #include "EmailAccountEnvironment.h"
 #include "EmailWidget.h"
 
-
 using namespace uc;
 
-static CExperimentalServer * This = null;
+static CExperimentalServer * Server = null;
 
-CServer * StartUosServer(CLevel2 * l, CServerInfo * info)
+CServer * CreateUosServer(CNexus * l, CServerInstance * info)
 {
-	This = new CExperimentalServer(l, info);
-	return This;
+	Server = new CExperimentalServer(l, info);
+	return Server;
 }
 
-void StopUosServer()
+void DestroyUosServer(CServer *)
 {
-	delete This;
+	delete Server;
 }
 
-CExperimentalServer::CExperimentalServer(CLevel2 * l, CServerInfo * si) : CExperimentalLevel(l), CServer(l, si)
+CClient * CreateUosClient(CNexus * nexus, CClientInstance * instance)
 {
-	Server		= this;
-	Log			= l->Core->Supervisor->CreateLog(Url.Server);
-	Storage		= l->Nexus->Storage;
+	return new CExperimentalClient(nexus, instance, Server);
+}
+
+void DestroyUosClient(CClient * client)
+{
+	delete client;
+}
+
+CExperimentalServer::CExperimentalServer(CNexus * l, CServerInstance * si) : CPersistentServer(l, si)
+{
+	Server	= this;
+	Nexus	= Server->Nexus;
+	Core	= Nexus->Core;
+	Log		= l->Core->Supervisor->CreateLog(Instance->Name);
 }
 
 CExperimentalServer::~CExperimentalServer()
 {
 	while(auto i = Objects.Find([](auto j){ return j->Shared;  }))
 	{
-		DestroyObject(i);
+		DestroyObject(i, true);
+	}
+
+	if(ImageExtractor)
+	{
+		Nexus->Disconnect(ImageExtractor);
 	}
 
 	if(World)
 	{
-		World.Server->Disconnecting -= ThisHandler(OnDependencyDisconnecting);
 		Nexus->Disconnect(World);
 	}
 
@@ -62,73 +76,57 @@ CExperimentalServer::~CExperimentalServer()
 	delete Bitfinex;
 	delete Tradingview;
 	delete GeoStore;
+
+	if(Storage)
+	{
+		Nexus->Disconnect(Storage);
+	}
 }
 
-void CExperimentalServer::EstablishConnections()
+void CExperimentalServer::EstablishConnections(bool storage, bool world, bool imageextractor)
 {
-	if(!World)
-	{
-		World = Nexus->Connect(this, WORLD_PROTOCOL);
-		World.Server->Disconnecting += ThisHandler(OnDependencyDisconnecting);
-
-		Engine		= World->Engine;
-		Style		= World->Style->Clone();
-
+	if(!Bitfinex)
 		Bitfinex = new CBitfinexProvider(this);
+
+	if(!Tradingview)
 		Tradingview = new CTradingviewProvider(this);
+
+	if(storage && !Storage)
+	{
+		Storage = CPersistentServer::Storage = Nexus->Connect<CFileSystemProtocol>(Server->Instance->Release, CNexus::FileSystem0, [&]{ Nexus->Stop(Instance); });
 		GeoStore = new CGeoStore(this);
 	}
-}
 
-IProtocol * CExperimentalServer::Connect(CString const & prot)
-{
-	return this;
-}
-
-void CExperimentalServer::Disconnect(IProtocol * p)
-{
-}
-
-
-CNexusObject * CExperimentalServer::CreateObject(CString const & name)
-{
-	EstablishConnections();
-
-	CNexusObject * o = null;
-
-	auto type = name.substr(0, name.find(L'-'));
-
-	if(type == CCommander	::GetClassName())	o = new CCommander(this, name); else 
-	if(type == CBrowser		::GetClassName())	o = new CBrowser(this, name); else
-	if(type == CTradeHistory::GetClassName())	o = new CTradeHistory(this, name); else
-	if(type == CTradingview	::GetClassName())	o = new CTradingview(this, name); else
-	if(type == CEarth		::GetClassName())	o = new CEarth(this, name); else
-	if(type == CEmailAccount::GetClassName())	o = new CEmailAccount(this, name);  else
-	if(type == CEmail		::GetClassName())	o = new CEmail(this, name);  
-
-	return o;
-}
-
-void CExperimentalServer::OnDependencyDisconnecting(CServer * s, IProtocol * p, CString & pn)
-{
-	if(p == World && pn == WORLD_PROTOCOL)
+	if(world && !World)
 	{
-		Nexus->StopServer(this); // THE END
+		World = Nexus->Connect<CWorldProtocol>(Server->Instance->Release, CNexus::World0, [&]{ Nexus->Stop(Instance); });
+
+		Engine	= World->Engine;
+		Style	= World->Style->Clone();
+	}
+
+	if(imageextractor && !ImageExtractor)
+	{
+		ImageExtractor = Nexus->Connect<CImageExtractorProtocol>(Instance->Release, CNexus::Shell0, [&]{ Nexus->Stop(Instance); });
 	}
 }
 
-void CExperimentalServer::Start(EStartMode sm)
+void CExperimentalServer::UserStart()
 {
-	EstablishConnections();
+	EstablishConnections(true, true, false);
 
-	auto shell	= Nexus->Connect<CShell>(this, SHELL_PROTOCOL);
+	auto config = LoadGlobalDocument(Experimental_config);
 
-	auto main	= shell->FindField(CUol(shell.Server->Url, SHELL_FIELD_MAIN));
-	auto work	= shell->FindField(CUol(shell.Server->Url, SHELL_FIELD_WORK));
-	auto home	= shell->FindField(CUol(shell.Server->Url, SHELL_FIELD_HOME));
-
-	if(sm == EStartMode::Installing)
+	if(!config)
 	{
+		config = new CTonDocument();
+
+		auto shell	= Nexus->Connect<CShellProtocol>(Server->Instance->Release, CNexus::Shell0);
+	
+		auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_MAIN));
+		auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_WORK));
+		auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_HOME));
+
 		TCHAR szPath[MAX_PATH];
 		PWSTR ppath;
 	
@@ -137,7 +135,7 @@ void CExperimentalServer::Start(EStartMode sm)
 			if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
 			{
 				auto c = new CCommander(this, COMMANDER_AT_HOME_1);
-				c->SetRoot(Nexus->Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(szPath)));
+				c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(szPath)));
 				Server->RegisterObject(c, true);
 				c->Free();
 				
@@ -147,7 +145,7 @@ void CExperimentalServer::Start(EStartMode sm)
 			if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Downloads, 0, null, &ppath))) 
 			{
 				auto c = new CCommander(this, COMMANDER_AT_HOME_2);
-				c->SetRoot(Nexus->Storage->MapPath(UOS_MOUNT_LOCAL, CPath::Universalize(ppath)));
+				c->SetRoot(CPath::Join(CFileSystemProtocol::This, CPath::Universalize(ppath)));
 				Server->RegisterObject(c, true);
 				c->Free();
 		
@@ -238,15 +236,29 @@ void CExperimentalServer::Start(EStartMode sm)
 
 		if(home)
 		{
-			home->Add(CUol(Url, COMMANDER_1),			AVATAR_ICON2D);
-			home->Add(CUol(Url, BROWSER_1),				AVATAR_ICON2D);
-			home->Add(CUol(Url, EARTH_1),				AVATAR_ICON2D);
-			home->Add(CUol(L"", WORLD_SERVER, GROUP_1), AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1),	AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1),	AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1),		AVATAR_ICON2D);
+			home->Add(CUol(CWorldEntity::Scheme, World.Connection->Client->Instance->Name,	 GROUP_1),		AVATAR_ICON2D);
 		}
+
+		Nexus->Disconnect(shell);
+
+		auto f = Storage->WriteFile(MapUserGlobalPath(Experimental_config));
+		config->Save(&CXonTextWriter(f, true));
+		Storage->Close(f);
 	}
+
+	delete config;
 
 	if(World->Initializing)
 	{
+		auto shell	= Nexus->Connect<CShellProtocol>(Server->Instance->Release, CNexus::Shell0);
+
+		auto main	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Connection->Client->Instance->Name, SHELL_FIELD_MAIN));
+		//auto work	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_WORK));
+		//auto home	= shell->FindField(CUol(CWorldEntity::Scheme, shell.Server->Instance->Name, SHELL_FIELD_HOME));
+
 		if(World->Complexity == AVATAR_ENVIRONMENT)
 		{
 			auto de	= shell->FindFieldEnvironmentByEntity(main->Url);
@@ -261,7 +273,7 @@ void CExperimentalServer::Start(EStartMode sm)
 				CFieldItemElement * fiea = null;
 				CFieldItemElement * fieb = null;
 		
-				if(auto fia = main->FindByObject(CUol(Url, COMMANDER_AT_HOME_1)))
+				if(auto fia = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_1)))
 				{
 					fiea = def->Find(fia->Url);
 					fiea->SetMetrics(m);
@@ -270,7 +282,7 @@ void CExperimentalServer::Start(EStartMode sm)
 					//def->MoveAvatar(fiea->Avatar, CTransformation(def->IW - def->IW * 0.2f - m.FaceSize.W, def->IH * 0.2f, def->ItemZ));
 				}
 				
-				if(auto fib = main->FindByObject(CUol(Url, COMMANDER_AT_HOME_2)))
+				if(auto fib = main->FindByObject(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_AT_HOME_2)))
 				{
 					fieb = def->Find(fib->Url);
 					fieb->SetMetrics(m);
@@ -284,17 +296,17 @@ void CExperimentalServer::Start(EStartMode sm)
 		auto sp = new CShowParameters();
 		sp->PlaceOnBoard = true;
 		
-		auto c = World->OpenEntity(CUol(Url, COMMANDER_1), AREA_MAIN, sp);
-		auto b = World->OpenEntity(CUol(Url, BROWSER_1), AREA_MAIN, sp);
-		auto e = World->OpenEntity(CUol(Url, EARTH_1), AREA_MAIN, sp);
-		auto g = World->OpenEntity(CUol(L"", WORLD_SERVER, GROUP_1), AREA_MAIN, sp);
+		auto c = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, COMMANDER_1), CArea::Main, sp);
+		auto b = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, BROWSER_1), CArea::Main, sp);
+		auto e = World->OpenEntity(CUol(CWorldEntity::Scheme, Instance->Name, EARTH_1), CArea::Main, sp);
+		auto g = World->OpenEntity(CUol(CWorldEntity::Scheme, World.Connection->Client->Instance->Name, GROUP_1), CArea::Main, sp);
 
 		if(World->BackArea)
 		{
-			World->Show(c, AREA_BACKGROUND, null);
-			World->Show(b, AREA_BACKGROUND, null);
-			World->Show(e, AREA_BACKGROUND, null);
-			World->Show(g, AREA_BACKGROUND, null);
+			World->Show(c, CArea::Background, null);
+			World->Show(b, CArea::Background, null);
+			World->Show(e, CArea::Background, null);
+			World->Show(g, CArea::Background, null);
 		}
 		else
 		{
@@ -305,12 +317,43 @@ void CExperimentalServer::Start(EStartMode sm)
 		}
 
 		sp->Free();
+	
+		Nexus->Disconnect(shell);
 	}
-
-	Nexus->Disconnect(shell);
 }
-CNexusObject * CExperimentalServer::GetEntity(CUol & e)
+
+IProtocol * CExperimentalServer::Accept(CString const & prot)
 {
+	return this;
+}
+
+void CExperimentalServer::Break(IProtocol * p)
+{
+}
+
+CInterObject * CExperimentalServer::CreateObject(CString const & name)
+{
+	EstablishConnections(true, false, false);
+
+	CPersistentObject * o = null;
+
+	auto type = CUol::GetObjectClass(name);
+
+	if(type == CCommander	::GetClassName())	o = new CCommander(this, name); else 
+	if(type == CBrowser		::GetClassName())	o = new CBrowser(this, name); else
+	if(type == CTradeHistory::GetClassName())	o = new CTradeHistory(this, name); else
+	if(type == CTradingview	::GetClassName())	o = new CTradingview(this, name); else
+	if(type == CEarth		::GetClassName())	o = new CEarth(this, name); else
+	if(type == CEmailAccount::GetClassName())	o = new CEmailAccount(this, name);  else
+	if(type == CEmail		::GetClassName())	o = new CEmail(this, name);  
+
+	return o;
+}
+
+CInterObject * CExperimentalServer::GetEntity(CUol & e)
+{
+	EstablishConnections(true, false, false);
+
 	return Server->FindObject(e);
 }
 
@@ -320,85 +363,85 @@ CList<CUol> CExperimentalServer::GenerateSupportedAvatars(CUol & e, CString cons
 
 	auto p = CMap<CString, CString>{{L"entity", e.ToString()}, {L"type", type}};
 
-	if(e.GetType() == CCommander::GetClassName())
+	if(e.GetObjectClass() == CCommander::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CCommanderIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CCommanderWidget::GetClassName()), p)); else
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CCommanderEnvironment::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CCommanderIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CCommanderWidget::GetClassName()), p)); else
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CCommanderEnvironment::GetClassName()), p));
 	}
 
-	if(e.GetType() == CBrowser::GetClassName())
+	if(e.GetObjectClass() == CBrowser::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CBrowserIcon::GetClassName()), p)); else 
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CBrowserWidget::GetClassName()), p)); else
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CBrowserEnvironment::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBrowserIcon::GetClassName()), p)); else 
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBrowserWidget::GetClassName()), p)); else
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CBrowserEnvironment::GetClassName()), p));
 	}
 
-	if(e.GetType() == CTradeHistory::GetClassName())
+	if(e.GetObjectClass() == CTradeHistory::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CChartWidget::GetClassName()), p)); 
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CChartWidget::GetClassName()), p)); 
 		//if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate(CChartEnvironment::GetClassName())));
 	}
 
-	if(e.GetType() == CTradingview::GetClassName())
+	if(e.GetObjectClass() == CTradingview::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CTradingviewWidget::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CChartIcon::GetClassName()), p)); else
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CTradingviewWidget::GetClassName()), p));
 		//if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate(CTradingviewEnvironment::GetClassName())));
 	}
 
-	if(e.GetType() == CEarth::GetClassName())
+	if(e.GetObjectClass() == CEarth::GetClassName())
 	{
-		if(type == AVATAR_ICON2D)		l.push_back(CUol(Url, CGuid::Generate64(CEarthIcon::GetClassName()), p));
-		if(type == AVATAR_WIDGET)		l.push_back(CUol(Url, CGuid::Generate64(CEarthWidget::GetClassName()), p));
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CEarthEnvironment::GetClassName()), p));
+		if(type == AVATAR_ICON2D)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEarthIcon::GetClassName()), p));
+		if(type == AVATAR_WIDGET)		l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEarthWidget::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEarthEnvironment::GetClassName()), p));
 	}
 
-	if(e.GetType() == CEmailAccount::GetClassName())
+	if(e.GetObjectClass() == CEmailAccount::GetClassName())
 	{
-		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(Url, CGuid::Generate64(CEmailAccountEnvironment::GetClassName()), p));
+		if(type == AVATAR_ENVIRONMENT)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEmailAccountEnvironment::GetClassName()), p));
 	}
 	
-	if(e.GetType() == CEmail::GetClassName())
+	if(e.GetObjectClass() == CEmail::GetClassName())
 	{
-		if(type == AVATAR_WIDGET)	l.push_back(CUol(Url, CGuid::Generate64(CEmailWidget::GetClassName()), p));
+		if(type == AVATAR_WIDGET)	l.push_back(CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CEmailWidget::GetClassName()), p));
 	}
 
 	return l;
 }
 
-CAvatar * CExperimentalServer::CreateAvatar(CUol & u)
+CAvatar * CExperimentalServer::CreateAvatar(CUol & avatar)
 {
-	EstablishConnections();
+	EstablishConnections(true, true, true);
 
 	CAvatar * a = null;
 	
-	if(u.Server == Url.Server)
+	if(avatar.Scheme == CAvatar::Scheme && avatar.Server == Instance->Name)
 	{
-		if(u.GetType() == CCommanderIcon::GetClassName())			a = new CCommanderIcon(this, u.Object); else
-		if(u.GetType() == CCommanderEnvironment::GetClassName())	a = new CCommanderEnvironment(this, u.Object); else 
-		if(u.GetType() == CCommanderWidget::GetClassName())			a = new CCommanderWidget(this, u.Object); else 
+		if(avatar.GetObjectClass() == CCommanderIcon::GetClassName())			a = new CCommanderIcon(this, avatar.Object); else
+		if(avatar.GetObjectClass() == CCommanderEnvironment::GetClassName())	a = new CCommanderEnvironment(this, avatar.Object); else 
+		if(avatar.GetObjectClass() == CCommanderWidget::GetClassName())			a = new CCommanderWidget(this, avatar.Object); else 
 
-		if(u.GetType() == CBrowserIcon::GetClassName())				a = new CBrowserIcon(this, u.Object); else 
-		if(u.GetType() == CBrowserWidget::GetClassName())			a = new CBrowserWidget(this, u.Object); else 
-		if(u.GetType() == CBrowserEnvironment::GetClassName())		a = new CBrowserEnvironment(this, u.Object); else 
+		if(avatar.GetObjectClass() == CBrowserIcon::GetClassName())				a = new CBrowserIcon(this, avatar.Object); else 
+		if(avatar.GetObjectClass() == CBrowserWidget::GetClassName())			a = new CBrowserWidget(this, avatar.Object); else 
+		if(avatar.GetObjectClass() == CBrowserEnvironment::GetClassName())		a = new CBrowserEnvironment(this, avatar.Object); else 
 
-		if(u.GetType() == CChartIcon::GetClassName())				a = new CChartIcon(this, u.Object); else 
-		if(u.GetType() == CChartWidget::GetClassName())				a = new CChartWidget(this, u.Object); else 
-		if(u.GetType() == CTradingviewWidget::GetClassName())		a = new CTradingviewWidget(this, u.Object); else 
+		if(avatar.GetObjectClass() == CChartIcon::GetClassName())				a = new CChartIcon(this, avatar.Object); else 
+		if(avatar.GetObjectClass() == CChartWidget::GetClassName())				a = new CChartWidget(this, avatar.Object); else 
+		if(avatar.GetObjectClass() == CTradingviewWidget::GetClassName())		a = new CTradingviewWidget(this, avatar.Object); else 
 
-		if(u.GetType() == CEarthIcon::GetClassName())				a = new CEarthIcon(this, u.Object); else
-		if(u.GetType() == CEarthWidget::GetClassName())				a = new CEarthWidget(this, GeoStore, u.Object); else
-		if(u.GetType() == CEarthEnvironment::GetClassName())		a = new CEarthEnvironment(this, GeoStore, u.Object); 
+		if(avatar.GetObjectClass() == CEarthIcon::GetClassName())				a = new CEarthIcon(this, avatar.Object); else
+		if(avatar.GetObjectClass() == CEarthWidget::GetClassName())				a = new CEarthWidget(this, GeoStore, avatar.Object); else
+		if(avatar.GetObjectClass() == CEarthEnvironment::GetClassName())		a = new CEarthEnvironment(this, GeoStore, avatar.Object); 
 
-		if(u.GetType() == CEmailAccountEnvironment::GetClassName())	a = new CEmailAccountEnvironment(this, u.Object); else
-		if(u.GetType() == CEmailWidget::GetClassName())				a = new CEmailWidget(this, u.Object); 
+		if(avatar.GetObjectClass() == CEmailAccountEnvironment::GetClassName())	a = new CEmailAccountEnvironment(this, avatar.Object); else
+		if(avatar.GetObjectClass() == CEmailWidget::GetClassName())				a = new CEmailWidget(this, avatar.Object); 
 	}
 	
 	if(a)
 	{
-		a->Url = u;
+		a->Url = avatar;
 		Server->RegisterObject(a, false);
 		a->Free();
 	}
@@ -425,7 +468,7 @@ IMenuSection * CExperimentalServer::CreateNewMenu(CFieldElement * fe, CFloat3 & 
 												if(!list.empty())
 												{
 													auto c = new CCommander(this);
-													c->SetRoot(Nexus->Storage->NativeToUniversal(list.front()));
+													c->SetRoot(Storage->NativeToUniversal(list.front()));
 													Server->RegisterObject(c, true);
 													c->Free();
 			
@@ -541,89 +584,87 @@ CRefList<CMenuItem *> CExperimentalServer::CreateActions()
 {
 	CRefList<CMenuItem *> actions;
 
-	auto root = new CMenuItem(L"Experimental");
+	auto root = new CMenuItem(GetTitle());
 	
-	CUrl a = Server->Url;
-	a[L"Action"] = L"Create";
+	auto a = Instance->Name + L"{" + CExecutorProtocol::CreateDirective + L" ";
 
-	a[L"Class"] = CCommander::GetClassName();
 	root->Items.AddNew(new CMenuItem(L"Commander",	[this, a](auto args)
 													{
-														Nexus->Execute(a, sh_new<CShowParameters>(args, Style)); 
+														Core->Execute(a + L"class=" + CCommander::GetClassName() + L"}", sh_new<CShowParameters>(args, Style));
 													}));
 
-	a[L"Class"] = CBrowser::GetClassName();
 	root->Items.AddNew(new CMenuItem(L"Browser",	[this, a](auto args)
 													{
-														Nexus->Execute(a, sh_new<CShowParameters>(args, Style)); 
+														Core->Execute(a + L"class=" + CBrowser::GetClassName() + L"}", sh_new<CShowParameters>(args, Style)); 
 													}));
 
-	a[L"Class"] = CEarth::GetClassName();
-	root->Items.AddNew(new CMenuItem(L"Earth", [this, a](auto args){ Nexus->Execute(a, sh_new<CShowParameters>(args, Style)); }));
+	root->Items.AddNew(new CMenuItem(L"Earth",		[this, a](auto args)
+													{
+														Core->Execute(a + L"class=" + CEarth::GetClassName() + L"}", sh_new<CShowParameters>(args, Style)); 
+													}));
 
 	actions.AddNew(root);
 
 	return actions;
 }
 
-bool CExperimentalServer::CanExecute(const CUrq & u)
+void CExperimentalServer::Execute(CXon * command, CExecutionParameters * ep)
 {
-	return u.GetSystem() == Server->Url.Server;
-}
+	EstablishConnections(true, true, true);
 
-void CExperimentalServer::Execute(const CUrq & u, CExecutionParameters * ep)
-{
-	EstablishConnections();
+	auto f = command->Nodes.First();
 
-	if(CUol::IsValid(u))
+	if(f->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
 	{
-		World->OpenEntity(CUol(u), AREA_MAIN, dynamic_cast<CShowParameters *>(ep));
-	}
-	else if(u.Query.Contains(L"Action"))
-	{
-		if(u.Query(L"Action") == L"Create")
+		CUrl u(command->Get<CString>(CCore::UrlArgument));
+
+		if(u.Scheme == CWorldEntity::Scheme)
 		{
-			if(u.Query.Contains(L"Class", CTradeHistory::GetClassName()))
-			{
-				auto c = new CTradeHistory(this);
-				Server->RegisterObject(c, true);
-				c->Free();
+			World->OpenEntity(CUol(u), CArea::LastInteractive, dynamic_cast<CShowParameters *>(ep));
+		}
+	}
+	else if(f->Name == CExecutorProtocol::CreateDirective)
+	{
+		if(command->Get<CString>(L"class") == CTradeHistory::GetClassName())
+		{
+			auto c = new CTradeHistory(this);
+			Server->RegisterObject(c, true);
+			c->Free();
 				
-				World->OpenEntity(c->Url, AREA_MAIN, dynamic_cast<CShowParameters *>(ep));
-			}
+			World->OpenEntity(c->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
+		}
 
-			if(u.Query.Contains(L"Class", CCommander::GetClassName()))
-			{
-				auto c = new CCommander(this);
-				c->SetRoot(L"/");
-				Server->RegisterObject(c, true);
-				c->Free();
+		if(command->Get<CString>(L"class") == CCommander::GetClassName())
+		{
+			auto c = new CCommander(this);
+			c->SetRoot(L"/");
+			Server->RegisterObject(c, true);
+			c->Free();
 
-				World->OpenEntity(c->Url, AREA_MAIN, dynamic_cast<CShowParameters *>(ep));
-			}
+			World->OpenEntity(c->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
+		}
 
-			if(u.Query.Contains(L"Class", CBrowser::GetClassName()))
-			{
-				auto c = new CBrowser(this);
-				c->SetAddress(CUrl(UO_WEB_HOME));
-				Server->RegisterObject(c, true);
-				c->Free();
+		if(command->Get<CString>(L"class") == CBrowser::GetClassName())
+		{
+			auto c = new CBrowser(this);
+			c->SetAddress(CUrl(UO_WEB_HOME));
+			Server->RegisterObject(c, true);
+			c->Free();
 
-				World->OpenEntity(c->Url, AREA_MAIN, dynamic_cast<CShowParameters *>(ep));
-			}
+			World->OpenEntity(c->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
+		}
 
-			if(u.Query.Contains(L"Class", CEarth::GetClassName()))
-			{
-				auto d = new CEarth(this);
-				Server->RegisterObject(d, true);
-				d->Free();
+		if(command->Get<CString>(L"class") == CEarth::GetClassName())
+		{
+			auto d = new CEarth(this);
+			Server->RegisterObject(d, true);
+			d->Free();
 
-				World->OpenEntity(d->Url, AREA_MAIN, dynamic_cast<CShowParameters *>(ep));
-			}
+			World->OpenEntity(d->Url, CArea::Main, dynamic_cast<CShowParameters *>(ep));
 		}
 	}
 	else
-		Log->ReportError(this, L"Wrong command: %s", u.ToString());
+		Log->ReportError(this, L"Wrong command");
 }
 
 CElement * CExperimentalServer::CreateElement(CString const & name, CString const & type)

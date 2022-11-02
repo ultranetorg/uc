@@ -89,11 +89,11 @@ namespace UC.Net
 			return new AuthorEntry(Chain, Name)
 					{
 						Title = Title,
+						Owner = Owner,
 						FirstBidTime = FirstBidTime,
 						LastWinner = LastWinner,
 						LastBid = LastBid,
 						LastBidTime = LastBidTime,
-						Owner = Owner,
 						RegistrationTime = RegistrationTime,
 						Years = Years,
 						Obtained = Obtained,
@@ -113,8 +113,8 @@ namespace UC.Net
 				{
 					w.Write(FirstBidTime);
 					w.Write(LastWinner);
-					w.Write(LastBid);
 					w.Write(LastBidTime);
+					w.Write(LastBid);
 				}
 			}
 

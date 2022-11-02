@@ -56,7 +56,7 @@ namespace uc
 			{
 				if((arg->Control == EMouseControl::LeftButton || arg->Control == EMouseControl::MiddleButton) && arg->Event == EGraphEvent::Click)
 				{
-					Level->Nexus->Execute(Entity->Object.Url, sh_new<CShowParameters>(arg, Level->Style));
+					Level->Core->Open(Entity->Object.Url, sh_new<CShowParameters>(arg, Level->Style));
 					arg->StopPropagation = true;
 				}
 
@@ -83,7 +83,7 @@ namespace uc
 			{
 				if(arg->Event == EGraphEvent::Click)
 				{
-					Level->Nexus->Execute(Entity->Object.Url, sh_new<CShowParameters>(arg, Level->Style));
+					Level->Core->Open(Entity->Object.Url, sh_new<CShowParameters>(arg, Level->Style));
 					arg->StopPropagation = true;
 				}
 			}

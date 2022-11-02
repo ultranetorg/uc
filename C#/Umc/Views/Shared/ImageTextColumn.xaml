@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Grid 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Padding="0"
+    x:Name="Instance"
+    ColumnDefinitions="30,*"
+    x:Class="UC.Umc.Controls.ImageTextColumn">
+    <ImageButton
+        Grid.Column="0"
+        IsEnabled="{Binding IsEnabledImage, Source={x:Reference Instance}}"
+        Style="{StaticResource Check}" />
+    <Label
+        Grid.Column="1"
+        FontSize="13"
+        Style="{StaticResource SubText}"
+        Text="{Binding Text, Source={x:Reference Instance}}}"
+        VerticalOptions="Center" />
+</Grid>

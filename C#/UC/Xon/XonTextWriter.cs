@@ -15,7 +15,7 @@ namespace UC
 
 		public void Start()
 		{
-			BaseStream.Write(Encoding.GetPreamble());
+			//BaseStream.Write(Encoding.GetPreamble());
 		}
 
 		public void Finish()

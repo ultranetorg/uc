@@ -32,7 +32,7 @@ CStyle::CStyle(CEngine * e, CMaterialPool * p, IXonReader & r)
 						p->Set(consts[p->AsString()]);
 					}
 
-					for(auto i : p->Children)
+					for(auto i : p->Nodes)
 					{
 						compile(i);
 					}
@@ -91,9 +91,9 @@ CStyle * CStyle::Clone()
 			auto p = new CXon(a->Name);
 			p->Parent = parent;
 
-			for(auto i : a->Children)
+			for(auto i : a->Nodes)
 			{
-				p->Children.push_back(f(i, p));
+				p->Nodes.push_back(f(i, p));
 			}
 
 			for(auto i : a->Templates)
@@ -109,9 +109,9 @@ CStyle * CStyle::Clone()
 			return p;
 		};
 
-	for(auto i : Document->Children)
+	for(auto i : Document->Nodes)
 	{
-		style->Document->Children.push_back(f(i, style->Document));
+		style->Document->Nodes.push_back(f(i, style->Document));
 	}
 
 	for(auto & i : Meshes)

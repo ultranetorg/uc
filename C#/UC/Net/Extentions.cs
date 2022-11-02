@@ -103,11 +103,6 @@ namespace UC
 			return new Coin(r);
 		}
 
-		public static UC.Version ReadVersion(this BinaryReader r)
-		{
-			return Version.Read(r);
-		}
-
 		public static BigInteger ReadBigInteger(this BinaryReader r)
 		{
 			return new BigInteger(r.ReadBytes(r.ReadByte()));

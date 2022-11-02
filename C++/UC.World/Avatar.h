@@ -5,41 +5,45 @@
 
 namespace uc
 {
-	class CWorld;
-	class IAvatarProtocol;
+	class CWorldProtocol;
+	class CAvatarProtocol;
 	
-	class UOS_WORLD_LINKING CAvatar : public CElement, public CNexusObject 
+	class UOS_WORLD_LINKING CAvatar : public CElement, public CPersistentObject 
 	{
 		public:
-			CProtocolConnection<IAvatarProtocol>		Protocol;
-			CWorld *									World;
+			inline static const CString				Scheme = L"worldavatar";
+
+			CConnection<CAvatarProtocol>			Protocol;
+			CWorldProtocol *						World;
 
 			UOS_RTTI
-			CAvatar(CWorld * l, CServer * s, CString const & name); 
+			CAvatar(CWorldProtocol * l, CServer * s, CString const & name); 
 
-			using CNexusObject::Load;
+			using CPersistentObject::Load;
 
-			virtual void								SetEntity(CUol & e);
-			virtual void								DetermineSize(CSize & smax, CSize & s);
+			virtual void							SetEntity(CUol & e);
+			virtual void							DetermineSize(CSize & smax, CSize & s);
 	};
 	
 	class UOS_WORLD_LINKING CStaticAvatar : public CAvatar
 	{
 		public: 
 			UOS_RTTI
-			CStaticAvatar(CWorld * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name = CGuid::Generate64(GetClassName()));
-			CStaticAvatar(CWorld * l, CServer * s, CElement * e, const CString & name);
+			CStaticAvatar(CWorldProtocol * l, CServer * s, CXon * r, IMeshStore * mhs, IMaterialStore * mts, const CString & name = CGuid::Generate64(GetClassName()));
+			CStaticAvatar(CWorldProtocol * l, CServer * s, CElement * e, const CString & name);
 			virtual ~CStaticAvatar();
 	};
 
-	class IAvatarProtocol : public virtual IProtocol
+	class CAvatarProtocol : public virtual IProtocol
 	{
 		public:
-			virtual CNexusObject *						GetEntity(CUol & a)=0;
-			virtual CAvatar *							CreateAvatar(CUol & a)=0;
-			virtual CList<CUol>							GenerateSupportedAvatars(CUol & o, CString const & type)=0;
-			virtual void								DestroyAvatar(CAvatar * a) = 0;
+			inline static const CString				InterfaceName = L"Avatar1";
 
-			virtual ~IAvatarProtocol(){}
+			virtual CInterObject *					GetEntity(CUol & a)=0;
+			virtual CAvatar *						CreateAvatar(CUol & a)=0;
+			virtual CList<CUol>						GenerateSupportedAvatars(CUol & o, CString const & type)=0;
+			virtual void							DestroyAvatar(CAvatar * a) = 0;
+
+			virtual ~CAvatarProtocol(){}
 	};
 }

@@ -14,17 +14,17 @@ namespace uc
 			bool					IsDirectory;
 			CSize					FullArea;
 			CSize					LastImax;
-			IImageExtractor *		FileExtractor;
-			CString					Object;
+			CImageExtractorProtocol *		FileExtractor;
+			//CString					Object;
 			float					LastColumnW = 0.f;
 
 			UOS_RTTI
-			CFileItemElement(CExperimentalLevel * l, CStorageEntry * se, CMesh * m, IImageExtractor * fe) : CRectangle(l->World, GetClassName())
+			CFileItemElement(CExperimentalLevel * l, CString const & path, CString const & nameoverride, bool isdir, CMesh * m, CImageExtractorProtocol * fe) : CRectangle(l->World, GetClassName())
 			{
 				Level = l;
 				FileExtractor = fe;
 
-				Object = se->Path;
+				//Object = se->Path;
 
 				UseClipping(EClipping::Apply, false);
 
@@ -42,18 +42,18 @@ namespace uc
 				AddNode(Icon);
 
 
-				Path = se->Path;
-				IsDirectory = se->Type == CDirectory::GetClassName();
+				Path = path;
+				IsDirectory = isdir;
 
-				if(se->NameOverride != L"..")
+				if(nameoverride != L"..")
 				{
 					Text->SetText(CPath::GetName(Path));
 					Take();
-					FileExtractor->GetIconMaterial(this, (CUrl)Level->Storage->ToUol(se->Type, se->Path), 16)->Done =	[this](auto m)
-																														{
-																															Icon->Visual->SetMaterial(m); 
-																															Free();
-																														};
+					FileExtractor->GetIconMaterial(this, (CUrl)Level->Storage->ToUol(Path), 16)->Done =	[this](auto m)
+																										{
+																											Icon->Visual->SetMaterial(m); 
+																											Free();
+																										};
 				}
 				else
 				{

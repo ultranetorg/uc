@@ -150,7 +150,7 @@ void CMaterial::Load(CXon * r, IMaterialStore * st)
 	if(r->One(L"AlphaBlending"))
 		AlphaBlending = r->One(L"AlphaBlending")->AsBool();
 
-	for(auto i : r->Children)
+	for(auto i : r->Nodes)
 	{
 		if(dynamic_cast<CFloat *>(i->Value))
 		{

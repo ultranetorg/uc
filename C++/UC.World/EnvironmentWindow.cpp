@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CEnvironmentWindow::CEnvironmentWindow(CWorld * l, CServer * server, CStyle * s, const CString & name) : CModel(l, server, ELifespan::Permanent, name)
+CEnvironmentWindow::CEnvironmentWindow(CWorldProtocol * l, CServer * server, CStyle * s, const CString & name) : CModel(l, server, ELifespan::Permanent, name)
 {
 	Level = l;
 	Server = server;
@@ -36,7 +36,7 @@ void CEnvironmentWindow::SetEntity(CUol & e)
 	Entity->Destroying += ThisHandler(OnDependencyDestroying);
 }
 
-void CEnvironmentWindow::OnDependencyDestroying(CNexusObject * o)
+void CEnvironmentWindow::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity)
 	{
@@ -92,7 +92,7 @@ void CEnvironmentWindow::OnIconCursorMoved(CActive * r, CActive * s, CMouseArgs 
 
 void CEnvironmentWindow::LoadNested(CStyle * s, CXon * n, std::function<CElement *(CXon *, CElement *)> & load)
 {
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		auto c = load(i, null);
 		SetContent(c);
@@ -120,7 +120,7 @@ void CEnvironmentWindow::LoadProperties(CStyle * s, CXon * n)
 {
 	//__super::LoadProperties(s, n);
 
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		if(i->Name == L"Sizer")
 		{

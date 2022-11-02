@@ -37,7 +37,12 @@ namespace uc
 					p(i);
 				}
 			}
-			
+
+			bool Any()
+			{
+				return !empty();
+			}
+
 			template<class Pred> bool Has(const Pred p)
 			{
 				return std::find_if(begin(), end(), p) != end();
@@ -117,6 +122,15 @@ namespace uc
 			T & Last()
 			{
 				return !empty() ? back() : Default;
+			}
+
+			template<class Pred> T & Last(Pred p)
+			{
+				for(auto i = rbegin(); i != rend(); i++)
+					if(p(*i))
+						return *i;
+
+				return Default;
 			}
 
 			T & Previous(const T & e)
@@ -256,6 +270,14 @@ namespace uc
 				sort(p);
 			}
 
+			template<class Pred> CList<T> OrderBy(Pred p)
+			{
+				auto a = *this;
+				a.sort(p);
+
+				return a;
+			}
+
 			template<class Pred> CList<T> Where(Pred p)
 			{
 				CList<T> out;
@@ -310,13 +332,27 @@ namespace uc
 				return -1;
 			}
 
+			template<typename T, typename Pred> CArray<T> SelectArray(Pred p)
+			{
+				CArray<T> o(size());
+				auto j = 0;
+				
+				for(auto i : *this)
+				{
+					o[j++] = p(i);
+				}
+				return o;
+			}
+
 			template<typename T, typename Pred> CList<T> Select(Pred p)
 			{
 				CList<T> o;
+				
 				for(auto i : *this)
 				{
 					o.push_back(p(i));
 				}
+
 				return o;
 			}
 

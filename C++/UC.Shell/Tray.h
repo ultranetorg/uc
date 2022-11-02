@@ -6,13 +6,15 @@ namespace uc
 	class CTrayItem
 	{
 		public:
-			CString										Title;
-			CTexture *									Icon;
-			CEvent<CTrayItem *>							TitleChanged;
-			CEvent<CTrayItem *>							IconChanged;
-			CUrl										Url;
-			CEvent<CTrayItem *>							MarkedOld;
-			bool										Old = false;
+			auto static constexpr	Scheme = L"trayitem";
+
+			CString					Title;
+			CTexture *				Icon;
+			CEvent<CTrayItem *>		TitleChanged;
+			CEvent<CTrayItem *>		IconChanged;
+			CUrl					Url;
+			CEvent<CTrayItem *>		MarkedOld;
+			bool					Old = false;
 
 			CTrayItem(CShellLevel * l,CUol & u)
 			{
@@ -42,27 +44,28 @@ namespace uc
 			}
 	};
 
-	auto constexpr TRAY_PROTOCOL = L"Uos.Tray";
 
-	class ITray : public IProtocol
+	class CTrayProtocol : public IProtocol
 	{
 		public:
-			virtual	CTrayItem *							AddItem(CUol & u)=0;
-			virtual	void								RemoveItem(CTrayItem *)=0;
+			auto static constexpr	InterfaceName = L"Tray1";
 
-			virtual ~ITray(){}
+			virtual	CTrayItem *		AddItem(CUol & u)=0;
+			virtual	void			RemoveItem(CTrayItem *)=0;
+
+			virtual ~CTrayProtocol(){}
 	};
 
 
-	class CTray : public CWorldEntity, public ITray
+	class CTray : public CWorldEntity, public CTrayProtocol
 	{
 		public:
-			CShellLevel *								Level;
-			CList<CTrayItem *>							Items;
-			CEvent<CTrayItem *>							Added;
-			CEvent<CTrayItem *>							Removed;
+			CShellLevel *			Level;
+			CList<CTrayItem *>		Items;
+			CEvent<CTrayItem *>		Added;
+			CEvent<CTrayItem *>		Removed;
 
-			CTrayItem *									UpdateItem;
+			CTrayItem *				UpdateItem;
 			
 			UOS_RTTI
 			CTray(CShellLevel * l, CString const & name = CGuid::Generate64(GetClassName())) : CWorldEntity(l->Server, name)
@@ -71,19 +74,19 @@ namespace uc
 			
 				SetDirectories(MapRelative(L""));
 
-				auto i = AddItem(CUol(Url, CGuid::Generate64(L"Update")));
+				auto i = AddItem(CUol(CTrayItem::Scheme, Url.Server, CGuid::Generate64(L"Info")));
 				i->SetTitle(CString::Format(L"Profile: %s", Level->Core->Unid));
 				i->MarkOld();
 
-				UpdateItem = AddItem(CUol(Url, CGuid::Generate64(L"Update")));
-				UpdateItem->SetTitle(Level->Nexus->UpdateStatus);
-
-				Level->Nexus->UpdateStatusChanged += ThisHandler(UpdateStatusChanged);
+				/// UpdateItem = AddItem(CUol(Url, CGuid::Generate64(L"Update")));
+				/// UpdateItem->SetTitle(Level->Nexus->UpdateStatus);
+				///
+				/// Level->Nexus->UpdateStatusChanged += ThisHandler(UpdateStatusChanged);
 			}
 
 			~CTray()
 			{
-				Level->Nexus->UpdateStatusChanged -= ThisHandler(UpdateStatusChanged);
+				///Level->Nexus->UpdateStatusChanged -= ThisHandler(UpdateStatusChanged);
 
 				Save();
 
@@ -93,15 +96,15 @@ namespace uc
 				}
 			}
 
-			void UpdateStatusChanged()
-			{
-				UpdateItem->SetTitle(CString::Format(L"Updates found: %d", Level->Nexus->NewReleases.size()));
-
-				if(Level->Nexus->NewReleases.empty())
-				{
-					UpdateItem->MarkOld();
-				}
-			}
+			///	void UpdateStatusChanged()
+			///	{
+			///		UpdateItem->SetTitle(CString::Format(L"Updates found: %d", Level->Nexus->NewReleases.size()));
+			///
+			///		if(Level->Nexus->NewReleases.empty())
+			///		{
+			///			UpdateItem->MarkOld();
+			///		}
+			///	}
 
 			CTrayItem * AddItem(CUol & u) override
 			{

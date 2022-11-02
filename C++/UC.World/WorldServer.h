@@ -1,7 +1,7 @@
 #pragma once
 #include "World.h"
 #include "IWorldFriend.h"
-#include "IUwmProtocol.h"
+#include "IUwmServer.h"
 #include "CylindricalPositioning.h"
 #include "PolygonPositioning.h"
 #include "Sphere.h"
@@ -10,9 +10,12 @@ namespace uc
 {
 	class CMobileSkinModel;
 	
-	class CWorldServer : public CServer, public CWorld, public IExecutorProtocol, public IViewStore, public IUwmProtocol, public IAvatarProtocol
+	class CWorldServer : public CPersistentServer, public CWorldProtocol, public CExecutorProtocol, public IViewStore, public CUwmProtocol, public CAvatarProtocol
 	{
 		public:
+			using CWorldLevel::Storage;
+			using CWorldLevel::Nexus;
+
 			CList<CUnit *>								Units;
 			CList<CUnit *>								Showings;
 			CArray<CUnit *>								Movings;
@@ -26,6 +29,7 @@ namespace uc
 			
 			CTonDocument *								AreasConfig;
 			CConfig *									EngineConfig;
+			CTonDocument *								WorldConfig;
 			
 			CArray<CDragItem>							Drags;
 			CObject<CAvatar>							DragAllocation = null;
@@ -39,20 +43,24 @@ namespace uc
 			CList<CScreenRenderTarget *>				Targets;
 			CMap<CViewport *, CScreenRenderLayer *>		RenderLayers;
 			CMap<CViewport *, CActiveLayer *>			ActiveLayers;
-								   
+			
+			CUnit *										Logo;
+
 			int											ScreenshotId;
 
 			float										Z;
-			float										Fov;
-
+			
 			UOS_RTTI
-			CWorldServer(CLevel2 * l, CServerInfo * si);
+			CWorldServer(CNexus * l, CServerInstance * si);
 			~CWorldServer();
 
-			void										Start(EStartMode sm) override;
-			IProtocol *									Connect(CString const & pr) override;
-			void										Disconnect(IProtocol * c) override;
-			
+			void										UserStart() override;
+			IProtocol *									Accept(CString const & iface) override;
+			void										Break(IProtocol * iface) override;
+
+			void										EstablishConnections();
+			void										OnMountDisconnecting(CString const & name);
+
 			CGroup *									CreateGroup(CString const & name) override;
 
 			virtual void								InitializeViewports(){}
@@ -61,10 +69,7 @@ namespace uc
 			virtual void								InitializeAreas(){}
 			virtual void								InitializeModels(){}
 
-			void										Start();
-
-			virtual void								Execute(const CUrq & o, CExecutionParameters * p) override;
-			virtual bool								CanExecute(const CUrq & o) override;
+			virtual void								Execute(CXon * command, CExecutionParameters * parameters) override;
 
 			CUol										GenerateAvatar(CUol & entity, CString const & type) override;
 			CAvatar *									CreateAvatar(CUol & avatar, CString const & dir) override;
@@ -114,15 +119,41 @@ namespace uc
 			
 			virtual CView *								Get(const CString & name) override;
 			
-			CProtocolConnection<IAvatarProtocol>		FindAvatarSystem(CUol & e, CString const & type) override;
+			CConnection<CAvatarProtocol>				FindAvatarSystem(CUol & e, CString const & type) override;
 
 			virtual CElement *							CreateElement(CString const & name, CString const & type) override;
 
-			CNexusObject *								CreateObject(CString const & name) override;
+			CPersistentObject *							CreateObject(CString const & name) override;
 
-			virtual CNexusObject *						GetEntity(CUol & a) override;
+			virtual CInterObject *						GetEntity(CUol & a) override;
 			virtual CList<CUol>							GenerateSupportedAvatars(CUol & e, CString const & type) override;
 			virtual CAvatar *							CreateAvatar(CUol & o) override;
 	};
 
+	class CWorldClient : public CClient, public virtual IType
+	{
+		public:
+			CWorldServer * Server;
+
+			UOS_RTTI
+			CWorldClient(CNexus * nexus, CClientInstance * instance, CWorldServer * server) : CClient(instance)
+			{
+				Server = server;
+			}
+
+
+			virtual ~CWorldClient()
+			{
+			}
+
+			IProtocol * Connect(CString const & iface) override
+			{
+				return Server->Accept(iface);
+			}
+
+			void Disconnect(IProtocol * iface) override
+			{
+				Server->Break(iface);
+			}
+	};
 }

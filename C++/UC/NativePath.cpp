@@ -17,7 +17,7 @@ bool CNativePath::IsUNCServer(const CString & a)
 	return PathIsUNCServer(a.c_str()) == TRUE;
 }
 
-bool CNativePath::IsUNCServerShare (const CString & a)
+bool CNativePath::IsUNCServerShare(const CString & a)
 {
 	return PathIsUNCServerShare(a.c_str()) == TRUE;
 }
@@ -27,14 +27,18 @@ bool CNativePath::IsRoot(const CString & a)
 	return PathIsRoot(a.c_str()) != FALSE;
 }
 
-bool CNativePath::IsDirectory(const CString & a)
+bool CNativePath::IsDirectory(const CString & path)
 {
-	return PathIsDirectory(a.c_str()) != FALSE;
+	auto a = GetFileAttributes(path.data());
+
+	return (a != INVALID_FILE_ATTRIBUTES &&  (a & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-bool CNativePath::IsFile(const CString & a)
+bool CNativePath::IsFile(const CString & path)
 {
-	return PathFileExists(a.c_str()) && PathIsDirectory(a.c_str()) == FALSE;
+	auto a = GetFileAttributes(path.data());
+
+	return (a != INVALID_FILE_ATTRIBUTES &&  !(a & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 CString CNativePath::Join(const CString & a, const CString & b)
@@ -72,7 +76,7 @@ CString CNativePath::Join(const CString & a, const CString & b)
 		r.resize(r.size() - 1);
 	}
 
-	return r;
+	return Canonicalize(r);
 }
 
 CString CNativePath::Join(const CString & a, const CString & b, const CString & c)
@@ -113,6 +117,11 @@ CString CNativePath::GetFileNameBase(const CString & a)
 
 CString CNativePath::Canonicalize(const CString & a)
 {
+	if(a.empty())
+	{
+		return a;
+	}
+
 	wchar_t p[32768];
 	PathCanonicalize(p, a.c_str());
 	return p;
@@ -188,9 +197,9 @@ CString CNativePath::EscapeRegex(CString &regex)
 	r.SelfReplace(L")",	 L"\\)");
 	r.SelfReplace(L"[",	 L"\\[");
 	r.SelfReplace(L"]",	 L"\\]");
-	r.SelfReplace(L"*",	 L"\\*");
+	//r.SelfReplace(L"*",	 L"\\*");
 	r.SelfReplace(L"+",	 L"\\+");
-	r.SelfReplace(L"?",	 L"\\?");
+	//r.SelfReplace(L"?",	 L"\\?");
 	r.SelfReplace(L"/",	 L"\\/");
 
 	return r;
@@ -202,8 +211,8 @@ bool CNativePath::MatchWildcards(const CString &text, CString wildcardPattern, b
 	EscapeRegex(wildcardPattern);
 
 	// Convert chars '*?' back to their regex equivalents
-	boost::replace_all(wildcardPattern, L"\\?", L".");
-	boost::replace_all(wildcardPattern, L"\\*", L".*");
+	boost::replace_all(wildcardPattern, L"?", L".");
+	boost::replace_all(wildcardPattern, L"*", L".*");
 
 	std::wregex pattern(wildcardPattern, caseSensitive ? std::wregex::basic : std::wregex::icase);
 

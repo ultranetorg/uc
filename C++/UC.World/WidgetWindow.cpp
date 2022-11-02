@@ -3,7 +3,7 @@
 
 using namespace uc;
 
-CWidgetWindow::CWidgetWindow(CWorld * l, CServer * srv, CStyle * s, const CString & name) : CFieldableModel(l, srv, ELifespan::Permanent, name), Sizer(l)
+CWidgetWindow::CWidgetWindow(CWorldProtocol * l, CServer * srv, CStyle * s, const CString & name) : CFieldableModel(l, srv, ELifespan::Permanent, name), Sizer(l)
 {
 	World = l;
 	Style = s;
@@ -41,7 +41,7 @@ void CWidgetWindow::SetEntity(CUol & o)
 	Entity->Destroying += ThisHandler(OnDependencyDestroying);
 }
 
-void CWidgetWindow::OnDependencyDestroying(CNexusObject * o)
+void CWidgetWindow::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity)
 	{

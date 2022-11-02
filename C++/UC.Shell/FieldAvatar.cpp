@@ -26,8 +26,8 @@ CFieldAvatar::CFieldAvatar(CShellLevel * l, CString const & name) : CModel(l->Wo
 	AddNode(FieldElement);
 
 	Surface = new CFieldSurface(Level->World, L"Surface");
-	AMesh = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
-	VMesh = new CGridRectangleMesh(&Level->Engine->EngineLevel);
+	AMesh = new CSolidRectangleMesh(Level->Engine->Level);
+	VMesh = new CGridRectangleMesh(Level->Engine->Level);
 	Surface->Visual->SetMesh(VMesh);
 	Surface->Active->SetMesh(AMesh);
 	Surface->Express(L"P", [this]{ return CFloat6(4.f); });
@@ -76,7 +76,7 @@ void CFieldAvatar::SetEntity(CUol & e)
 	OnTitleChanged(Entity);
 }
 
-void CFieldAvatar::OnDependencyDestroying(CNexusObject * o)
+void CFieldAvatar::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && o == Entity)
 	{
@@ -229,7 +229,7 @@ void CFieldAvatar::OnMouse(CActive * r, CActive * s, CMouseArgs * arg)
 				Menu->Section->AddItem(L"Hide")->Clicked =  [this](auto, auto){ Level->World->Hide(Unit, null); };
 				Menu->Section->AddItem(L"Push")->Clicked =	[this, arg](auto, auto) mutable 
 															{ 
-																Level->World->Show(Unit, AREA_BACKGROUND, sh_new<CShowParameters>(arg, Level->Style));
+																Level->World->Show(Unit, CArea::Background, sh_new<CShowParameters>(arg, Level->Style));
 															};
 			}
 

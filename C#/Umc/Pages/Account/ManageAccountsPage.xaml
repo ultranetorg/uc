@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.ManageAccountsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    xmlns:views="clr-namespace:UC.Umc.Views.Shared"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    x:Name="page"
+    x:DataType="vm:ManageAccountsViewModel">
+    <Shell.TitleView>
+        <views:PageTitleActionView
+            Title="Manage Accounts"
+            IconSource="{AppThemeBinding Light='sort_light.png', Dark='sort_dark.png'}"
+            TitleStyle="{StaticResource TitleLabel}" />
+    </Shell.TitleView>
+    <controls:CustomPage.MainContent>
+        <Grid RowDefinitions="*,Auto">
+            <CollectionView
+                Grid.Row="0"
+                ItemsSource="{Binding Accounts}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:AccountViewModel">
+                        <StackLayout>
+                            <Border Margin="18,8" Style="{StaticResource AccountCardBorder}">
+                                <SwipeView>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems>
+                                            <SwipeItemView WidthRequest="85">
+                                                <ImageButton
+                                                    Padding="28"
+                                                    CornerRadius="0"
+                                                    HorizontalOptions="FillAndExpand"
+                                                    Style="{StaticResource Receive}"
+                                                    VerticalOptions="FillAndExpand" />
+                                            </SwipeItemView>
+                                            <SwipeItemView BackgroundColor="Transparent" WidthRequest="2" />
+                                            <SwipeItemView WidthRequest="85">
+                                                <ImageButton
+                                                    Padding="28"
+                                                    CornerRadius="0"
+                                                    HorizontalOptions="FillAndExpand"
+                                                    Style="{StaticResource Send}"
+                                                    VerticalOptions="FillAndExpand" />
+                                            </SwipeItemView>
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+                                    <Grid
+                                        Padding="14"
+                                        ColumnDefinitions="60,*,30"
+                                        ColumnSpacing="10"
+                                        RowDefinitions="20,20,20"
+                                        RowSpacing="0"
+                                        Style="{StaticResource AccountGrid}">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
+                                                CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                        <Border
+                                            Grid.Row="0"
+                                            Grid.RowSpan="3"
+                                            Grid.Column="0"
+                                            Background="{Binding Color}"
+                                            Style="{StaticResource AccountColorBorder}">
+                                            <Label
+                                                HorizontalOptions="Center"
+                                                Style="{StaticResource CodeLabel}"
+                                                Text="{Binding IconCode}"
+                                                FontSize="13"
+                                                FontAttributes="Bold"
+                                                VerticalOptions="Center" />
+                                        </Border>
+                                        <Label
+                                            Grid.Row="0"
+                                            Grid.Column="1"
+                                            FontSize="13"
+                                            Text="{Binding Name}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            VerticalOptions="Center">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Balance}" FontAttributes="Bold" />
+                                                    <Span Text=" " />
+                                                    <Span Style="{StaticResource Regular}" Text="UNT" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label
+                                            Grid.Row="2"
+                                            Grid.Column="1"
+                                            MaxLines="1"
+                                            Opacity="0.3"
+                                            Style="{StaticResource Light}"
+                                            Text="{Binding Address}"
+                                            VerticalOptions="Center" />
+                                        <ImageButton
+                                            Grid.RowSpan="3"
+                                            Grid.Column="2"
+                                            Padding="1"
+                                            Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource Dots}"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </SwipeView>
+                            </Border>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Border
+                Grid.Row="1"
+                Margin="0,0,0,-10"
+                AbsoluteLayout.LayoutBounds="1,1,1,-1"
+                AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
+                <StackLayout Padding="15">
+                    <Button Command="{Binding CreateCommand}" Text="Create" />
+                    <Button
+                        Command="{Binding RestoreCommand}"
+                        Style="{DynamicResource LabelButton}"
+                        Text="Restore account" />
+                </StackLayout>
+            </Border>
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

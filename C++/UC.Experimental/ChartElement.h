@@ -305,7 +305,7 @@ namespace uc
 				section->AddItem(s);
 				s->Free();
 
-				for(auto & i : Chart->MarketProvider->Markets)
+				for(auto & i : Chart->Provider->Markets)
 				{
 					auto m = new CRectangleSectionMenuItem(Level->World, Level->Style, i.Name);
 					s->Section->AddItem(m);
@@ -326,7 +326,7 @@ namespace uc
 				section->AddItem(s);
 				s->Free();
 
-				for(auto i : Chart->MarketProvider->Intervals)
+				for(auto i : Chart->Provider->Intervals)
 				{
 					s->Section->AddItem(i.second)->Clicked	=	[this, i](auto, auto mi)
 																{ 

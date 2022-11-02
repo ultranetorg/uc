@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -79,7 +80,7 @@ namespace UC.Net
 					return true;
 				}
 				case IBinarySerializable v:
-					writer.Write(v);
+					v.Write(writer);
 					return true;
 
 	 			case Operation v:
@@ -99,7 +100,14 @@ namespace UC.Net
 					return true;
 				}
 				case System.Collections.IEnumerable v:
-					writer.Write7BitEncodedInt((v as IEnumerable<object>).Count());
+
+					var n = 0;
+					foreach(var i in (System.Collections.IEnumerable)v)
+					{
+						n++;
+					}
+
+					writer.Write7BitEncodedInt(n);
 							
 					foreach(var j in v)
 					{
@@ -121,6 +129,9 @@ namespace UC.Net
 			{
 				if(i is ITypedBinarySerializable t)
 				{
+					if(t.TypeCode == 13)
+						writer=writer;
+					
 					writer.Write(t.TypeCode);
 				}
 
@@ -135,7 +146,12 @@ namespace UC.Net
 
 			for(int i=0; i<n; i++)
 			{
-				l[i] = fromtype(reader.ReadByte());
+				var t = reader.ReadByte();
+				
+				if(t == 13)
+					t=t;
+
+				l[i] = fromtype(t);
 
 				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
 				{
@@ -265,14 +281,15 @@ namespace UC.Net
 	
 					var n = reader.Read7BitEncodedInt();
 	
-					var l = ltype.GetConstructor(new System.Type[]{typeof(int)}).Invoke(new object[]{n}) as object[];
+					var l = ltype.GetConstructor(new System.Type[]{typeof(int)}).Invoke(new object[]{n});
 	
 					for(int i=0; i<n; i++)
 					{
 						if(DeserializeValue(reader, type.GetGenericArguments()[0], construct, out object v))
-							l[i] = v; 
+							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, v});
+							//l[i] = v; 
 						else
-							l[i] = Deserialize(reader, type.GetGenericArguments()[0], construct);
+							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, Deserialize(reader, type.GetGenericArguments()[0], construct)});
 					}
 
 					value = l;

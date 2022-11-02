@@ -5,12 +5,12 @@ namespace uc
 	class CCef : public CefApp, public CefBrowserProcessHandler, public CefRenderProcessHandler
 	{
 		public:
-			CLevel2 * Level;
-			CServer * Server;
+			CNexus * Nexus;
+			CPersistentServer * Server;
 
-			CCef(CLevel2 * l, CServer * s)
+			CCef(CNexus * l, CPersistentServer * s)
 			{
-				Level = l;
+				Nexus = l;
 				Server = s;
 			}
 
@@ -86,7 +86,7 @@ namespace uc
 			{
 				auto type = command_line->GetSwitchValue(L"type");
 
-				CefString s(Level->Nexus->Storage->UniversalToNative(Server->MapTmpPath(L"Browser/" + type.ToWString() + L".log"))); 
+				CefString s(Server->Storage->UniversalToNative(Server->MapUserLocalPath(L"Browser/" + type.ToWString() + L".log"))); 
 				
 				command_line->AppendSwitchWithValue("log-file", s);
 			}

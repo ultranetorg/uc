@@ -12,59 +12,33 @@ using System.Net;
 
 namespace UC.Net
 {
-	public class IPJsonConverter : JsonConverter<IPAddress>
-	{
-		public override IPAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			return IPAddress.Parse(reader.GetString());
-		}
-
-		public override void Write(Utf8JsonWriter writer, IPAddress value, JsonSerializerOptions options)
-		{
-			writer.WriteStringValue(value.ToString());
-		}
-	}
-
-	public class OperationAddress : IBinarySerializable
-	{
-		public Account	Account { get; set; }
-		public int		Id { get; set; }
-
-		public void Read(BinaryReader r)
-		{
-			Account = r.ReadAccount();
-			Id = r.Read7BitEncodedInt();
-		}
-
-		public void Write(BinaryWriter w)
-		{
-			w.Write(Account); 
-			w.Write7BitEncodedInt(Id);
-		}
-	}
-
-	public abstract class RpcCall
+	public abstract class ApiCall
 	{
 		public string			Version { get; set; }
 		public string			AccessKey { get; set; }
-
-		[JsonIgnore]
-		public abstract bool	Private { get; }
 
 		public static string NameOf<C>() => NameOf(typeof(C));
 		public static string NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
 	}
 
-	public class ExitCall : RpcCall
+	public class ExitCall : ApiCall
 	{
-		public override bool	Private => true;
-		public string			Reason { get; set; }
+		public string Reason { get; set; }
 	}
 
-	public class StatusCall : RpcCall
+	public class SettingsCall : ApiCall
 	{
-		public override bool	Private => false;
-		public int				Limit  { get; set; }
+	}
+
+	public class SettingsResponse
+	{
+		public string		ProfilePath {get; set;}
+		public Settings		Settings {get; set;}
+	}
+
+	public class StatusCall : ApiCall
+	{
+		public int Limit  { get; set; }
 	}
 
 	public class GetStatusResponse
@@ -73,43 +47,58 @@ namespace UC.Net
 		public IEnumerable<string>	Rounds {get; set;}
 		public IEnumerable<string>	InfoFields {get; set;}
 		public IEnumerable<string>	InfoValues {get; set;}
+		public IEnumerable<string>	Peers {get; set;}
 	}
 
-	public enum MassTransactionCommand
+	public class RunNodeCall : ApiCall
 	{
-		Start, Stop
 	}
 
-	public class RunNodeCall : RpcCall
+	public class AddWalletCall : ApiCall
 	{
-		public override bool	Private => true;
+		public Account	Account { get; set; }
+		public byte[]	Wallet { get; set; }
 	}
 
-	public class AddWalletCall : RpcCall
+	public class UnlockWalletCall : ApiCall
 	{
-		public override bool	Private => true;
-		public Account			Account {get; set;}
-		public byte[]			Wallet {get; set;}
+		public Account	Account { get; set; }
+		public string	Password { get; set; }
 	}
 
-	public class UnlockWalletCall : RpcCall
+	public class SetGeneratorCall : ApiCall
 	{
-		public override bool	Private => true;
-		public Account			Account {get; set;}
-		public string			Password {get; set;}
-	}
-
-	public class SetGeneratorCall : RpcCall
-	{
-		public override bool	Private => true;
 		public Account			Account {get; set;}
 	}
 
-	public class TransferUntCall : RpcCall
+	public class TransferUntCall : ApiCall
 	{
-		public override bool	Private => true;
-		public Account			From {get; set;}
-		public Account			To {get; set;}
-		public Coin				Amount {get; set;}
+		public Account	From { get; set; }
+		public Account	To { get; set; }
+		public Coin		Amount { get; set; }
+	}
+
+	public class QueryReleaseCall : ApiCall
+	{
+		public IEnumerable<ReleaseQuery>	Queries { get; set; }
+		public bool							Confirmed { get; set; }
+	}
+
+	public class DistributeReleaseCall : ApiCall
+	{
+		public ReleaseAddress	Release { get; set; }
+		public byte[]			Complete { get; set; }
+		public byte[]			Incremental { get; set; }
+		public byte[]			Manifest { get; set; }
+	}
+
+	public class DownloadReleaseCall : ApiCall
+	{
+		public ReleaseAddress	Release { get; set; }
+	}
+
+	public class DownloadStatusCall : ApiCall
+	{
+		public PackageAddress	Package { get; set; }
 	}
 }

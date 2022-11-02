@@ -12,12 +12,12 @@ CXon::CXon(const CString & name)
 
 CXon::CXon(CXon && d)
 {
-	Children = d.Children;
+	Nodes = d.Nodes;
 	Name = d.Name;
 	Value = d.Value;
 
 	d.Value = null;
-	d.Children.clear();
+	d.Nodes.clear();
 	d.Removed.clear();
 	d.Templates.clear();
 }
@@ -37,7 +37,7 @@ void CXon::Clear()
 	delete Value;
 	Value = null;
 
-	for(auto i : Children)
+	for(auto i : Nodes)
 	{
 		delete i;
 	}
@@ -53,7 +53,7 @@ void CXon::Clear()
 		}
 	}
 
-	Children.clear();
+	Nodes.clear();
 	Removed.clear();
 	Templates.clear();
 }
@@ -80,7 +80,7 @@ CXon * CXon::One(const CString & name)
 	auto i = nodes.begin();
 		
 	//auto p = One(*i);
-	auto p = Children.Find([i](auto j){ return j->Name == *i; });
+	auto p = Nodes.Find([i](auto j){ return j->Name == *i; });
 
 	if(p != null)
 	{
@@ -88,7 +88,7 @@ CXon * CXon::One(const CString & name)
 	
 		for(;i != nodes.end(); i++)
 		{
-			p = p->Children.Find([i](auto j){ return j->Name == *i; });
+			p = p->Nodes.Find([i](auto j){ return j->Name == *i; });
 			if(p == null)
 			{
 				return null;
@@ -96,6 +96,11 @@ CXon * CXon::One(const CString & name)
 		}
 	}
 	return p;	 
+}
+
+bool CXon::Any(const CString & name)
+{
+	return One(name) != null;
 }
 
 CArray<CXon *> CXon::Many(const CString & name)
@@ -113,7 +118,7 @@ CArray<CXon *> CXon::Many(const CString & name)
 		p = One(path);
 	}
 
-	for(auto i : p->Children)
+	for(auto i : p->Nodes)
 	{
 		if(i->Name == last)
 		{
@@ -139,7 +144,7 @@ CArray<CXon *> CXon::ManyOf(const CString & name)
 		p = One(parent);
 	}
 
-	for(auto i : p->Children)
+	for(auto i : p->Nodes)
 	{
 		if(i->Id == last)
 		{
@@ -186,7 +191,7 @@ CXon * CXon::GetOrAdd(const CString & name)
 void CXon::Add(CXon * p)
 {
 	p->Parent = this;
-	Children.push_back(p); 
+	Nodes.push_back(p); 
 }
 
 CXon * CXon::Add(const CString & name)
@@ -194,13 +199,13 @@ CXon * CXon::Add(const CString & name)
 	auto definition = Templates.Find([this, name](CXon * i){ return i->Name == name; });
 	auto n = definition ? definition->CloneInternal(this) : new CXon(name);
 	n->Parent = this;
-	Children.push_back(n); 
+	Nodes.push_back(n); 
 	return n; 
 }
 	
 void CXon::Remove(CXon * p)
 {
-	Children.Remove(p);
+	Nodes.Remove(p);
 
 	auto t = Templates.Find([p](CXon * i){ return i->Name == p->Name; });
 	if(t)
@@ -284,8 +289,8 @@ bool CXon::Equals(const CXon & a)
 		return false;
 	}
 
-	auto & ap = (a).Children;
-	auto & bp = Children;
+	auto & ap = (a).Nodes;
+	auto & bp = Nodes;
 
 	if(ap.size() == bp.size())
 	{
@@ -322,9 +327,9 @@ CXon * CXon::CloneInternal(CXon * parent)
 	auto p = new CXon(Name);
 	p->Parent = parent;
 
-	for(auto i : Children)
+	for(auto i : Nodes)
 	{
-		p->Children.push_back(i->CloneInternal(p));
+		p->Nodes.push_back(i->CloneInternal(p));
 	}
 
 	p->Templates = Templates;

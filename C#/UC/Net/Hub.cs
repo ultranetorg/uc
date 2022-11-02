@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,71 +10,74 @@ namespace UC.Net
 {
 	public class Seeder
 	{
-		public IPAddress	IP;
-		public DateTime		Arrived;
+		public IPAddress		IP;
+		public DateTime			Arrived;
+		public Distributive		Distributives;
 
 		public Seeder(IPAddress ip, DateTime arrived)
 		{
 			IP = ip;
 			Arrived = arrived;
 		}
-	}
 
- 	public class Package
- 	{
-		//public Peer				SearchInitiator;
-		public List<Seeder>	Seeders = new();
- 	}
+		public override string ToString()
+		{
+			return IP.ToString();
+		}
+	}
 
 	public class Hub
 	{
-		Core										Core;
-		public Dictionary<PackageAddress, Package>	Packages = new ();
-		public const int							SeedersPerPackageMax = 1000; /// (100_000 packages * 20) + (100_000 * 100 versions * 4) + (100_000 * 100 * 1000 seders * 4) ~= 40 gb
-		public const int							SeedersPerRequestMax = 256;
+		Core											Core;
+		public Dictionary<ReleaseAddress, List<Seeder>>	Releases = new ();
+		public const int								SeedersPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
+		public const int								SeedersPerRequestMax = 256;
 
 		public Hub(Core core)
 		{
 			Core = core;
 		}
 
-		Package GetPackage(PackageAddress package)
+		List<Seeder> GetSeeders(ReleaseAddress release)
 		{
- 			if(!Packages.ContainsKey(package))
- 				return Packages[package] = new();
+ 			if(!Releases.ContainsKey(release))
+ 				return Releases[release] = new();
  			else
- 				return Packages[package];
+ 				return Releases[release];
 		}
 
-		public void Declare(IPAddress seeder, IEnumerable<PackageAddress> packages)
+		public void Declare(IPAddress ip, IEnumerable<PackageAddress> packages)
 		{
 			foreach(var i in packages)
 			{
-				var p = GetPackage(i);
+				var ss = GetSeeders(i);
 	
-				var s = p.Seeders.Find(i => i.IP.Equals(seeder));
+				var s = ss.Find(i => i.IP.Equals(ip));
 
 				if(s == null)
 				{
-					p.Seeders.Add(new Seeder(seeder, DateTime.UtcNow));
+					s = new Seeder(ip, DateTime.UtcNow);
+					ss.Add(s);
 				} 
 				else
 				{
 					s.Arrived = DateTime.UtcNow;
 				}
+
+				s.Distributives |= i.Distributive;
 		
-				if(p.Seeders.Count > SeedersPerPackageMax)
+				if(ss.Count > SeedersPerPackageMax)
 				{
-					p.Seeders = p.Seeders.OrderByDescending(i => i.Arrived).ToList();
-					p.Seeders.RemoveRange(SeedersPerPackageMax, p.Seeders.Count - SeedersPerPackageMax);
+					ss = ss.OrderByDescending(i => i.Arrived).ToList();
+					ss.RemoveRange(SeedersPerPackageMax, ss.Count - SeedersPerPackageMax);
 				}
 			}
 		}
 
- 		public IPAddress[] Locate(LocatePackageRequest request)
+ 		public IPAddress[] Locate(LocateReleaseRequest request)
  		{
- 			if(Packages.ContainsKey(request.Package))
-	 			return Packages[request.Package].Seeders.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedersPerRequestMax)).Select(i => i.IP).ToArray();
+ 			if(Releases.ContainsKey(request.Release))
+	 			return Releases[request.Release].OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedersPerRequestMax)).Select(i => i.IP).ToArray();
  			else
  				return new IPAddress[0]; /// TODO: ask other hubs
  		}

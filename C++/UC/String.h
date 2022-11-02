@@ -76,6 +76,7 @@ namespace uc
 			UOS_LINKING CString						ReplaceLast(const CString &find_str, const CString &replace_str) const;
 			UOS_LINKING CString						Replace(const CString &find_str, const CString &replace_str) const;
 			UOS_LINKING CArray<CString>				Split(const wchar_t * s, bool compress = false) const;;
+			UOS_LINKING CArray<CString>				Split(wchar_t s, bool compress = false) const;;
 			UOS_LINKING CList<CString>				SplitToList(const wchar_t * s, bool compress = false) const;
 			UOS_LINKING int							Count();
 
@@ -156,6 +157,27 @@ namespace uc
 
 			#pragma warning(pop)
 
+			// trim from end of string (right)
+			inline CString TrimRight(const wchar_t * chars) const
+			{
+				auto o = *this;
+				o.erase(o.find_last_not_of(chars) + 1);
+				return o;
+			}
+
+			// trim from beginning of string (left)
+			inline CString TrimLeft(const wchar_t * chars) const
+			{
+				auto o = *this;
+				o.erase(0, o.find_first_not_of(chars));
+				return o;
+			}
+
+			// trim from both ends of string (right then left)
+			inline CString Trim(const wchar_t * chars) const
+			{
+				return TrimLeft(chars).TrimRight(chars);
+			}
 
 	};
 }

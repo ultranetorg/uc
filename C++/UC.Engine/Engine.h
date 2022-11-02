@@ -26,8 +26,7 @@ namespace uc
 	class UOS_ENGINE_LINKING CEngine : public IType, public IIdleWorker
 	{
 		public:
-			CLevel2 *									Level;
-			CEngineLevel								EngineLevel;
+			CEngineLevel *								Level;
 
 			CDiagnostic *								Diagnostic;
 			IPerformanceCounter *						PcUpdate;
@@ -46,7 +45,7 @@ namespace uc
 			std::mutex									Lock;
 
 			UOS_RTTI
-			CEngine(CLevel2 * l, CServer * una, CConfig * c);
+			CEngine(CPersistentServer * una, CConfig * c);
 			~CEngine();
 
 			void										Start();

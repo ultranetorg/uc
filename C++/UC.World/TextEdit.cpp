@@ -10,20 +10,20 @@ CTextEdit::CTextEdit(CWorldLevel * l, CStyle * s, const CString & name) : CRecta
 	UseCanvas(l->Engine->PipelineFactory->TextShader);
 	UseClipping(EClipping::Inherit, true);
 
-	auto m = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
-	auto mtl = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseColorShader);
+	auto m = new CSolidRectangleMesh(Level->Engine->Level);
+	auto mtl = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseColorShader);
 	mtl->Float4s[L"DiffuseColor"] = s->Get<CFloat4>(L"TextEdit/Caret/ColorA");
-	Caret = new CVisual(&Level->Engine->EngineLevel, L"Caret", m, mtl, CMatrix());
+	Caret = new CVisual(Level->Engine->Level, L"Caret", m, mtl, CMatrix());
 	//Caret->Clipping = EClipping::Apply;
 	m->Free();
 	mtl->Free();
 
 	Font	= s->GetFont(L"Text/Font");
 /*
-	//Mesh	= new CSolidRectangleMesh(&l->Engine->EngineLevel);
+	//Mesh	= new CSolidRectangleMesh(l->Engine->Level);
 	Texture = Level->Engine->TextureFactory->CreateTexture();
 		
-	mtl = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->TextShader);
+	mtl = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->TextShader);
 	mtl->Textures[L"DiffuseTexture"] = Texture;	
 	mtl->Samplers[L"DiffuseSampler"].SetFilter(ETextureFilter::Point, ETextureFilter::Point, ETextureFilter::Point);
 	mtl->Float4s[L"Color"] = s->Get<CFloat4>(L"TextEdit/Text/Color");
@@ -470,9 +470,9 @@ void CTextEdit::UpdateSelection()
 
 		for(int i = Selections.Size(); i < sb.y - sa.y + 1; i++)
 		{
-			auto m = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+			auto m = new CSolidRectangleMesh(Level->Engine->Level);
 					
-			auto v = new CVisual(&Level->Engine->EngineLevel, L"selection", m, Level->Materials->GetMaterial(L"0 0 1"), CMatrix());
+			auto v = new CVisual(Level->Engine->Level, L"selection", m, Level->Materials->GetMaterial(L"0 0 1"), CMatrix());
 			v->Clipping = EClipping::Apply;
 
 			Selections.Add(v);

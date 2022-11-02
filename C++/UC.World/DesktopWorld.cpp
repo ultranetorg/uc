@@ -3,9 +3,9 @@
 
 using namespace uc;
 
-CDesktopWorld::CDesktopWorld(CLevel2 * l, CServerInfo * si) : CWorldServer(l, si)
+CDesktopWorld::CDesktopWorld(CNexus * l, CServerInstance * si) : CWorldServer(l, si)
 {
-	Name = WORLD_DESKTOP;
+	CWorldCapabilities::Name = WORLD_DESKTOP;
 	Complexity = AVATAR_ENVIRONMENT;
 	Free3D = false;
 	FullScreen = false;
@@ -25,11 +25,10 @@ void CDesktopWorld::InitializeViewports()
 {
 	for(auto i : Targets)
 	{
-		Viewports.push_back(new CScreenViewport(&Engine->EngineLevel, i,	i->Size.W / Engine->ScreenEngine->Scaling.x, i->Size.H / Engine->ScreenEngine->Scaling.y, 
-																			0, 0,
-																			i->Size.W, i->Size.H,
-																			i->Screen->Rect.W, i->Screen->Rect.H
-																			));
+		Viewports.push_back(new CScreenViewport(Engine->Level, i,	i->Size.W / Engine->ScreenEngine->Scaling.x, i->Size.H / Engine->ScreenEngine->Scaling.y, 
+																	0, 0,
+																	i->Size.W, i->Size.H,
+																	i->Screen->Rect.W, i->Screen->Rect.H));
 	}
 
 	MainViewport = Viewports.front();
@@ -45,9 +44,9 @@ void CDesktopWorld::InitializeGraphs()
 
 void CDesktopWorld::InitializeView()
 {
-	MainView = new CWorldView(this, Engine, L"Main");
-	HudView = new CWorldView(this, Engine, L"Hud");
-	ThemeView = new CWorldView(this, Engine, L"Theme");
+	MainView = new CWorldView(this, L"Main");
+	HudView = new CWorldView(this, L"Hud");
+	ThemeView = new CWorldView(this, L"Theme");
 
 	//Z = MainView->GetCamera(MainViewport)->UnprojectZ(1, 1);
 	Z = 1000;
@@ -188,14 +187,14 @@ void CDesktopWorld::OnMouse(CActive * r, CActive * s, CMouseArgs * arg)
 					if(u->IsUnder(MainArea) || u->IsUnder(FieldArea))
 					{
 						p->Activate = true;
-						Show(u, AREA_BACKGROUND, p);
+						Show(u, CArea::Background, p);
 					}
 				}
 				if(arg->Control == EMouseControl::LeftButton)
 				{
 					if(BackArea->ContainsDescedant(u))
 					{
-						Show(u, AREA_LAST_INTERACTIVE, p);
+						Show(u, CArea::LastInteractive, p);
 					}
 				}
 
@@ -331,11 +330,11 @@ void CDesktopWorld::OnTouch(CActive * r, CActive * s, CTouchArgs * arg)
 				if((u->IsUnder(MainArea) || u->IsUnder(FieldArea)) && TouchStage == EWorldAction::Three)
 				{
 					p->Activate = true;
-					Show(u, AREA_BACKGROUND, p);
+					Show(u, CArea::Background, p);
 				}
 				else if(u->IsUnder(BackArea) && TouchStage == EWorldAction::One)
 				{
-					Show(u, AREA_LAST_INTERACTIVE, p);
+					Show(u, CArea::LastInteractive, p);
 				}
 			
 				TouchStage = EWorldAction::Null;

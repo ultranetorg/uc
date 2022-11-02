@@ -4,14 +4,16 @@
 
 using namespace uc;
 
-CEngine::CEngine(CLevel2 * l, CServer * s, CConfig * c) : Level(l), EngineLevel(*l)
+CEngine::CEngine(CPersistentServer * s, CConfig * c)
 {
 	ilInit();
 	ilEnable(IL_ORIGIN_SET);
 
-	EngineLevel.Server	= s;
-	EngineLevel.Config	= c;
-	EngineLevel.Log		= Level->Core->Supervisor->CreateLog(L"Engine");
+	Level = new CEngineLevel();
+	Level->Server	= s;
+	Level->Core		= s->Nexus->Core;
+	Level->Config	= c;
+	Level->Log		= Level->Core->Supervisor->CreateLog(L"Engine");
 	
 	Diagnostic		= Level->Core->Supervisor->CreateDiagnostics(L"Engine");
 	PcUpdate		= new CPerformanceCounter(L"Engine update");
@@ -22,24 +24,23 @@ CEngine::CEngine(CLevel2 * l, CServer * s, CConfig * c) : Level(l), EngineLevel(
 		EngineLevel.Log->ReportWarning(this, L"D3D_DEBUG_INFO enabled");
 	#endif*/
 
-
 	#ifdef UOS_ENGINE_DIRECT
-		DisplaySystem	= new CDirectSystem(&EngineLevel);
+		DisplaySystem	= new CDirectSystem(Level);
 	#elif defined UOS_ENGINE_VULKAN
-		DisplaySystem	= new CVulkanEngine(&EngineLevel);
+		DisplaySystem	= new CVulkanEngine(Level);
 	#endif
 
-	ScreenEngine		= new CScreenEngine(&EngineLevel, DisplaySystem);
+	ScreenEngine		= new CScreenEngine(Level, DisplaySystem);
 
-	InputSystem			= new CInputSystem(&EngineLevel, ScreenEngine);
+	InputSystem			= new CInputSystem(Level, ScreenEngine);
 
-	PipelineFactory		= new CDirectPipelineFactory(&EngineLevel, DisplaySystem);
-	MaterialFactory		= new CMaterialFactory(&EngineLevel, DisplaySystem, PipelineFactory);
-	TextureFactory		= new CTextureFactory(&EngineLevel, DisplaySystem);
-	FontFactory			= new CFontFactory(&EngineLevel, DisplaySystem, ScreenEngine);
+	PipelineFactory		= new CDirectPipelineFactory(Level, DisplaySystem);
+	MaterialFactory		= new CMaterialFactory(Level, DisplaySystem, PipelineFactory);
+	TextureFactory		= new CTextureFactory(Level, DisplaySystem);
+	FontFactory			= new CFontFactory(Level, DisplaySystem, ScreenEngine);
 
-	Renderer			= new CRenderer(&EngineLevel, DisplaySystem, PipelineFactory, MaterialFactory);
-	Interactor			= new CInteractor(&EngineLevel, ScreenEngine, InputSystem);
+	Renderer			= new CRenderer(Level, DisplaySystem, PipelineFactory, MaterialFactory);
+	Interactor			= new CInteractor(Level, ScreenEngine, InputSystem);
 }
 	
 CEngine::~CEngine()
@@ -57,6 +58,8 @@ CEngine::~CEngine()
 	delete InputSystem;
 
 	delete PcUpdate;
+
+	delete Level;
 }
 
 void CEngine::Start()
@@ -116,17 +119,17 @@ void CEngine::OnDiagnosticsUpdate(CDiagnosticUpdate & u)
 
 CMesh * CEngine::CreateMesh()
 {
-	return new CMesh(&EngineLevel);
+	return new CMesh(Level);
 }
 
 CVisual * CEngine::CreateVisual(const CString & name, CMesh * mesh, CMaterial * mtl, CMatrix const & m)
 {
-	return new CVisual(&EngineLevel, name, mesh, mtl, m);
+	return new CVisual(Level, name, mesh, mtl, m);
 }
 
 CActive * CEngine::CreateActive(const CString & name, CMesh * mesh, CMatrix const & m)
 {
-	auto a = new CActive(&EngineLevel, name);
+	auto a = new CActive(Level, name);
 	a->SetMesh(mesh);
 	a->SetMatrix(m);
 	return a;
@@ -134,12 +137,12 @@ CActive * CEngine::CreateActive(const CString & name, CMesh * mesh, CMatrix cons
 
 CVisualGraph * CEngine::CreateVisualGraph()
 {
-	return new CDirectVisualGraph(&EngineLevel, PipelineFactory);
+	return new CDirectVisualGraph(Level, PipelineFactory);
 }
 
 CVisualSpace * CEngine::CreateVisualSpace(const CString & n)
 {
-	return new CVisualSpace(&EngineLevel, n);
+	return new CVisualSpace(Level, n);
 }
 
 CActiveSpace * CEngine::CreateActiveSpace(const CString & n)

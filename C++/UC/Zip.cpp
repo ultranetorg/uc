@@ -235,12 +235,12 @@ CString CZipDirectory::GetUri(const CString & entrypath)
 	return CNativePath::Join(ZipPath, entrypath);
 }
 
-CStream * CZipDirectory::OpenWriteStream(const CString & entry)
+CStream * CZipDirectory::WriteFile(const CString & entry)
 {
 	return new CZipStream(this, entry);
 }
 
-CStream * CZipDirectory::OpenReadStream(const CString & entry)
+CStream * CZipDirectory::ReadFile(const CString & entry)
 {
 	return new CZipStream(this, entry);
 }
@@ -250,7 +250,7 @@ void CZipDirectory::Close(CStream * s)
 	delete s;
 }
 
-CList<CStorageEntry> uc::CZipDirectory::Enumerate(CString const & mask)
+CList<CFileSystemEntry> CZipDirectory::Enumerate(CString const & regex)
 {
 	unzFile z = unzOpen(ZipPath.ToAnsi().data());
 	if(z == null)
@@ -258,9 +258,11 @@ CList<CStorageEntry> uc::CZipDirectory::Enumerate(CString const & mask)
 		throw CException(HERE, CString::Format(L"Can`t open %s", ZipPath));
 	}
 
-	CList<CStorageEntry> files;
+	CList<CFileSystemEntry> files;
 
 	int e = unzGoToFirstFile(z);
+
+	std::wregex rx(regex);
 
 	while(e == UNZ_OK)
 	{
@@ -271,27 +273,28 @@ CList<CStorageEntry> uc::CZipDirectory::Enumerate(CString const & mask)
 
 		auto path = CString::FromAnsi(b);
 
-		if(CNativePath::MatchWildcards(path, mask, false))
-		{
-			CStorageEntry se;
-			se.Path = path; 
-			se.Type = (path.EndsWith(L"/") ? CDirectory::GetClassName() : CFile::GetClassName());
+		auto j = path.find(L'/', 1);
 
-			files.push_back(se);
+		if(j == path.length() - 1 || j == CString::npos) /// dir or file
+		{
+			if(std::regex_match(path, rx))
+			{
+				CFileSystemEntry se;
+				se.Name = CPath::GetName(path);
+				se.Type = path.EndsWith(L"/") ? CFileSystemEntry::Directory : CFileSystemEntry::File;
+	
+				files.push_back(se);
+			}
 		}
 
 		e = unzGoToNextFile(z);
 	}
+
 	unzClose(z);
 	return files;
 }
 
-uc::CList<uc::CFSRegexItem> uc::CZipDirectory::EnumerateByRegex(CString const & mask)
-{
-	throw CException(HERE, L"Not implemented");
-}
-
-void CZipDirectory::Delete()
+void CZipDirectory::Delete(CString const & path)
 {
 	throw CException(HERE, L"Not supported");
 }

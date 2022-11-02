@@ -12,7 +12,7 @@ CCefElement::CCefElement(CExperimentalLevel * l, CStyle * s, CString const & nam
 	
 	InnerMesh->GenerateUV(true);
 
-	auto m = new CMaterial(&Level->Engine->EngineLevel, Level->Engine->PipelineFactory->DiffuseTextureShader);
+	auto m = new CMaterial(Level->Engine->Level, Level->Engine->PipelineFactory->DiffuseTextureShader);
 	VInner->SetMaterial(m);
 	m->Free();
 	

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace UC.Net.Ethereum
 {
-	class ConsoleGasAsker : IGasAsker
+	public class ConsoleGasAsker : IGasAsker
 	{
 		public BigInteger Gas		{ get; protected set; }
 		public BigInteger GasPrice  { get; protected set; }

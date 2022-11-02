@@ -11,7 +11,7 @@ namespace uc
 			int			IconIndex;
 	};
 
-	class CImageExtractor : public IType, public IImageExtractor, public IIdleWorker
+	class CImageExtractor : public IType, public CImageExtractorProtocol, public IIdleWorker
 	{
 		public:
 			CMesh *										DefaultMesh;

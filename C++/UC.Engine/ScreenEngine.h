@@ -20,7 +20,7 @@ namespace uc
 			CFloat2										DpiScaling = {FLT_MIN, FLT_MIN};
 			float										RenderScaling = NAN;
 
-			static auto constexpr						RENDER_SCALING = L"ScreenEngine/RenderScaling";
+			const static inline CString					RENDER_SCALING = L"ScreenEngine/RenderScaling";
 
 			void										OnDiagnosticsUpdate(CDiagnosticUpdate & a);
 						

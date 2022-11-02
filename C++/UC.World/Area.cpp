@@ -261,7 +261,7 @@ void CArea::Save()
 {
 	CTonDocument d;
 	Save(&d);
-	auto f = Level->Storage->OpenWriteStream(Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, CPath::Join(Directory, GetClassName() + L".area")));
+	auto f = Level->Storage->WriteFile(CPath::Join(CFileSystemProtocol::UserGlobal, Directory, GetClassName() + L".area"));
 	d.Save(&CXonTextWriter(f));
 	Level->Storage->Close(f);
 }
@@ -290,7 +290,7 @@ void CArea::Save(CXon * x)
 
 void CArea::Load()
 {
-	auto s = Level->Storage->OpenReadStream(Level->Storage->MapPath(UOS_MOUNT_USER_GLOBAL, CPath::Join(Directory, GetClassName() + L".area")));
+	auto s = Level->Storage->ReadFile(CPath::Join(CFileSystemProtocol::UserGlobal, Directory, GetClassName() + L".area"));
 	Load(&CTonDocument(CXonTextReader(s)));
 	Level->Storage->Close(s);
 }
@@ -315,8 +315,8 @@ void CArea::Load(CXon * p)
 
 		CArea * a = null;
 				
-		if(CUol::GetObjectType(i->Id) == CArea::GetClassName())				a = new CArea(Level, i->Id); else
-		if(CUol::GetObjectType(i->Id) == CPositioningArea::GetClassName())	a = new CPositioningArea(Level, i->Id);
+		if(CUol::GetObjectClass(i->Id) == CArea::GetClassName())				a = new CArea(Level, i->Id); else
+		if(CUol::GetObjectClass(i->Id) == CPositioningArea::GetClassName())	a = new CPositioningArea(Level, i->Id);
 
 		if(a)
 		{

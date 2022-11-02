@@ -1,7 +1,6 @@
 #pragma once
 #include "IOs.h"
 #include "IType.h"
-#include "Uxx.h"
 
 namespace uc
 {
@@ -24,7 +23,7 @@ namespace uc
 			
 			static CString								GetEnvironmentValue(CString const & name);
 
-			static CList<CUrq>						ParseCommandLine(CString const & cmd);
+			void										Execute(CString const & command);
 
 			UOS_RTTI
 			COs();

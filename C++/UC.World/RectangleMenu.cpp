@@ -3,14 +3,14 @@
 
 using namespace uc;
 
-CRectangleMenu::CRectangleMenu(CWorld * w, CStyle * st, const CString & name) : CModel(w, w->Server, ELifespan::Visibility, name)
+CRectangleMenu::CRectangleMenu(CWorldProtocol * w, CStyle * st, const CString & name) : CModel(w, w->Server, ELifespan::Visibility, name)
 {
 	World = w;
 	Style = st;
 	Tags = {L"all"};
 	
 	
-	PreferedPlacement[AREA_TOP] = EPreferedPlacement::Exact;
+	PreferedPlacement[CArea::Top] = EPreferedPlacement::Exact;
 
 	Active->StateChanged					+= ThisHandler(OnStateModified);
 	Active->MouseEvent[EListen::NormalAll]	+= ThisHandler(OnMouse);
@@ -118,7 +118,7 @@ void CRectangleMenu::Open(CPick & pick, CSize const & size)
 	sf->Activate = true;
 
 	Unit = World->AllocateUnit(this);
-	World->Show(Unit, AREA_TOP, sf);
+	World->Show(Unit, CArea::Top, sf);
 
 	//auto s = pick.Camera->ProjectVertex(pick.GetWorldPosition());
 	//auto w = pick.Camera->Viewport->W;

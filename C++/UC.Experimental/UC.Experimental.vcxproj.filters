@@ -208,10 +208,13 @@
     <ClCompile Include="CefElement.cpp">
       <Filter>Browser</Filter>
     </ClCompile>
-    <ClCompile Include="Globe.cpp" />
     <ClCompile Include="CefClient.cpp">
       <Filter>Browser</Filter>
     </ClCompile>
+    <ClCompile Include="Globe.cpp">
+      <Filter>Earth</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentalLevel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">

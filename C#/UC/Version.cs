@@ -5,6 +5,8 @@ using System.Linq;
 using System.IO;
 using System;
 using UC.Net;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace UC
 {
@@ -40,20 +42,34 @@ namespace UC
 
 		public static Version Parse(string s)
 		{
-			var v = s.Split('.').Select(i => ushort.Parse(i)).ToArray();
-			return new Version{ Era = v[0], Generation = v[1], Release = v[2], Build = v[3] };
+			var c = s.Split('.').ToArray();
+
+			var v = new Version();
+
+			v.Era = ushort.Parse(c[0]);
+					
+			if(c.Length > 1)
+				v.Generation = ushort.Parse(c[1]);
+
+			if(c.Length > 2)
+				v.Release = ushort.Parse(c[2]);
+
+			if(c.Length > 3)
+				v.Build = ushort.Parse(c[3]);
+
+			return v;
 		}
 
-		public static Version Read(BinaryReader r)
-		{
-			return new Version
-					{	
-						Era = r.ReadUInt16(), 
-						Generation = r.ReadUInt16(), 
-						Release = r.ReadUInt16(), 
-						Build = r.ReadUInt16()
-					};
-		}
+// 		public static Version Read(BinaryReader r)
+// 		{
+// 			return new Version
+// 					{	
+// 						Era = r.ReadUInt16(), 
+// 						Generation = r.ReadUInt16(), 
+// 						Release = r.ReadUInt16(), 
+// 						Build = r.ReadUInt16()
+// 					};
+// 		}
 
 		public override bool Equals(object obj)
 		{
@@ -86,7 +102,7 @@ namespace UC
 				return 0;
 		}
 
-		void IBinarySerializable.Read(BinaryReader r)
+		public void Read(BinaryReader r)
 		{
 			Era = r.ReadUInt16();
 			Generation = r.ReadUInt16(); 
@@ -145,5 +161,28 @@ namespace UC
 		{
 			return !(left == right);
 		}
+
+		public static bool operator <= (Version a, Version b)
+		{
+			return a < b || a == b;
+		}
+
+		public static bool operator >= (Version a, Version b)
+		{
+			return a > b || a == b;
+		}
 	}
+
+ 	public class VersionJsonConverter : JsonConverter<Version>
+ 	{
+ 		public override Version Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+ 		{
+ 			return Version.Parse(reader.GetString());
+ 		}
+ 
+ 		public override void Write(Utf8JsonWriter writer, Version value, JsonSerializerOptions options)
+ 		{
+ 			writer.WriteStringValue(value.ToString());
+ 		}
+ 	}
 }

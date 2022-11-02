@@ -55,7 +55,7 @@ void CChartWidget::OnChanged()
 {
 }
 
-void CChartWidget::OnDependencyDestroying(CNexusObject * o)
+void CChartWidget::OnDependencyDestroying(CPersistentObject * o)
 {
 	if(o == Entity)
 	{

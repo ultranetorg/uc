@@ -18,9 +18,9 @@ namespace uc
 			CUnit *						Board = null;
 			CUnit *						Tray = null;
 
-			CMobileWorld(CLevel2 * l, CServerInfo * si) : CWorldServer(l, si) 
+			CMobileWorld(CNexus * l, CServerInstance * si) : CWorldServer(l, si) 
 			{
-				Name		= WORLD_MOBILE_EMULATION;
+				CWorldCapabilities::Name = WORLD_MOBILE_EMULATION;
 				Complexity	= AVATAR_WIDGET;
 				Free3D		= false;
 				FullScreen	= true;
@@ -39,10 +39,10 @@ namespace uc
 				auto s = Engine->ScreenEngine->PrimaryScreen;
 				auto t = Targets.Find([s](auto i){ return i->Screen = s; });
 				
-				SkinViewport = new CScreenViewport(&Engine->EngineLevel, t,	t->Size.W / Engine->ScreenEngine->Scaling.x, t->Size.H / Engine->ScreenEngine->Scaling.y, 
-																			0, 0,
-																			t->Size.W, t->Size.H,
-																			t->Screen->Rect.W, t->Screen->Rect.H);
+				SkinViewport = new CScreenViewport(Engine->Level, t,	t->Size.W / Engine->ScreenEngine->Scaling.x, t->Size.H / Engine->ScreenEngine->Scaling.y, 
+																		0, 0,
+																		t->Size.W, t->Size.H,
+																		(float)t->Screen->Rect.W, (float)t->Screen->Rect.H);
 
 				float x, y, w, h;
 				
@@ -61,12 +61,12 @@ namespace uc
 					y = 84.f;
 				}
 
-				MainViewport = new CScreenViewport(&Engine->EngineLevel, t,	w, h,
+				MainViewport = new CScreenViewport(Engine->Level, t,	w, h,
 																			x * Engine->ScreenEngine->Scaling.x,	y * Engine->ScreenEngine->Scaling.y,
 																			w * Engine->ScreenEngine->Scaling.x,	h * Engine->ScreenEngine->Scaling.y,
 																			w * Engine->ScreenEngine->DpiScaling.x,	h * Engine->ScreenEngine->DpiScaling.y);
 				SkinViewport->Tags = {L"Skin"};
-				MainViewport->Tags = {L"Apps", AREA_SERVICE_BACK, AREA_SERVICE_FRONT};
+				MainViewport->Tags = {L"Apps", CArea::ServiceBack, CArea::ServiceFront};
 
 				Viewports.push_back(SkinViewport);
 				Viewports.push_back(MainViewport);
@@ -82,10 +82,10 @@ namespace uc
 				auto sa = SkinViewport->W/SkinViewport->H;
 				auto fovs = 2.f * sa * atan((SkinViewport->W * 0.5f)/(sa * Z));
 
-				MainView	= new CWorldView(this, Engine, L"Main");
-				HudView		= new CWorldView(this, Engine, L"Hud");
-				ThemeView	= new CWorldView(this, Engine, L"Theme");
-				SkinView	= new CWorldView(this, Engine, L"Skin");
+				MainView	= new CWorldView(this, L"Main");
+				HudView		= new CWorldView(this, L"Hud");
+				ThemeView	= new CWorldView(this, L"Theme");
+				SkinView	= new CWorldView(this, L"Skin");
 
 				HudView->	AddCamera(MainViewport, fovm, 100, 1e4)->UseAffine();
 				MainView->	AddCamera(MainViewport, fovm, 100, 15000)->UseAffine();
@@ -119,8 +119,8 @@ namespace uc
 				ServiceBackArea->As<CPositioningArea>()->SetPositioning(Positioning);
 				ServiceFrontArea->As<CPositioningArea>()->SetPositioning(Positioning);
 				
-				Area->Match(AREA_SKIN)->As<CPositioningArea>()->SetPositioning(Positioning);
-				Area->Match(AREA_SKIN)->As<CPositioningArea>()->SetView(SkinView);
+				Area->Match(CArea::Skin)->As<CPositioningArea>()->SetPositioning(Positioning);
+				Area->Match(CArea::Skin)->As<CPositioningArea>()->SetView(SkinView);
 
 				for(auto i : Area->Areas)
 				{
@@ -139,7 +139,7 @@ namespace uc
 				Skin = new CMobileSkinModel(this);
 
 				auto a = AllocateUnit(Skin);
-				Show(a, AREA_SKIN, null);
+				Show(a, CArea::Skin, null);
 			}
 
 			CList<CUnit *> CollectHidings(CArea * a, CArea * master) override
@@ -309,15 +309,15 @@ namespace uc
 								}
 								else if(x > 0 && Components.Contains(WORLD_HISTORY))
 								{
-									History = OpenEntity(Components(WORLD_HISTORY), AREA_HUD, sf);
+									History = OpenEntity(Components(WORLD_HISTORY), CArea::Hud, sf);
 								}
 								else if(y > 0 && Components.Contains(WORLD_BOARD))
 								{
-									Board = OpenEntity(Components(WORLD_BOARD), AREA_HUD, sf);
+									Board = OpenEntity(Components(WORLD_BOARD), CArea::Hud, sf);
 								}
 								else if(y < 0 && Components.Contains(WORLD_TRAY))
 								{
-									Tray = OpenEntity(Components(WORLD_TRAY), AREA_HUD, sf);
+									Tray = OpenEntity(Components(WORLD_TRAY), CArea::Hud, sf);
 								}
 
 								sf->Free();

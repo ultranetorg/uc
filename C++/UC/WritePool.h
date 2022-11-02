@@ -2,7 +2,6 @@
 #include "IType.h"
 #include "IWriter.h"
 #include "NativePath.h"
-#include "Directory.h"
 
 namespace uc
 {
@@ -10,12 +9,7 @@ namespace uc
 	{
 		CString			SourcePath;
 		CString			DestinationPath;
-		bool			Added;
-		
-		CPoolFile()
-		{
-			Added = false;
-		}
+		bool			Added = false;
 	};
 
 	struct CRelocatedFile
@@ -24,21 +18,20 @@ namespace uc
 		CString			Path;
 	};
 
-
 	class UOS_LINKING CWritePool : public IType
 	{
 		public:
-			void										Add(const CString & dst, const CString & src, IWriterProgress * p);
-			void										RelocateSource(const CString & path);
-			bool										IsRelocated(const CString & src);
+			void					Add(const CString & dst, const CString & src, IWriterProgress * p);
+			void					RelocateSource(const CString & path);
+			bool					IsRelocated(const CString & src);
 
 			UOS_RTTI
-			CWritePool(IDirectory * d);
+			CWritePool(CString const & name);
 			~CWritePool();
 
 		private:
-			CList<CPoolFile>							Files;
-			CList<CRelocatedFile>						RelocatedFiles;
-			IDirectory *								Directory;
+			CList<CPoolFile>		Files;
+			CList<CRelocatedFile>	RelocatedFiles;
+			CString					Directory;
 	};
 }

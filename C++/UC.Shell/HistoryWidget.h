@@ -16,7 +16,7 @@ namespace uc
 			CHistoryWidget(CShellLevel * l, CString const & name = CGuid::Generate64(GetClassName()));
 			virtual ~CHistoryWidget();
 
-			void										OnDependencyDestroying(CNexusObject * o);
+			void										OnDependencyDestroying(CInterObject * o);
 
 			void										SetEntity(CUol & o) override;
 

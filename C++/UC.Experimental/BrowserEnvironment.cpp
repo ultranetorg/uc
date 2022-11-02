@@ -9,7 +9,7 @@ CBrowserEnvironment::CBrowserEnvironment(CExperimentalLevel * l, const CString &
 
 	Active->MouseEvent[EListen::NormalAll] += ThisHandler(OnMouse);
 
-	Load(l->Style, Server->MapPath(L"Browser.uwm"));
+	Load(l->Style, Server->MapReleasePath(L"Browser.uwm"));
 
 	BackButton		= One<CButton>(L"back");
 	ForwardButton	= One<CButton>(L"forward");

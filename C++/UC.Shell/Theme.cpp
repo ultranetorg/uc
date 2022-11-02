@@ -8,7 +8,7 @@ CTheme::CTheme(CShellLevel * l, CString const & name) : CWorldEntity(l->Server, 
 	Level = l;
 
 	SetDirectories(MapRelative(L""));
-	SetDefaultInteractiveMaster(AREA_THEME);
+	SetDefaultInteractiveMaster(CArea::Theme);
 }
 
 CTheme::~CTheme()
@@ -18,9 +18,8 @@ CTheme::~CTheme()
 		if(CPath::GetExtension(Source).ToLower() == L"vwm")
 			delete Directory;
 		else
-			Level->Storage->Close(dynamic_cast<CDirectory *>(Directory));
+			Level->Storage->Close(Directory);
 	}
-
 
 	Save();
 
@@ -53,7 +52,7 @@ void CTheme::SetSource(CString & o)
 	{
 		if(CPath::GetExtension(o).ToLower() == L"vwm")
 		{
-			auto s = Level->Storage->OpenReadStream(o);
+			auto s = Level->Storage->ReadFile(o);
 			Directory = new CZipDirectory(s, EFileMode::Open);
 			Level->Storage->Close(s);
 		}

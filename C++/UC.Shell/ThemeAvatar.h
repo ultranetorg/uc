@@ -19,7 +19,7 @@ namespace uc
 			~CThemeAvatar();
 
 			virtual void								SetEntity(CUol & e) override;
-			void										OnDependencyDestroying(CNexusObject *);
+			void										OnDependencyDestroying(CInterObject *);
 			virtual void								SaveInstance() override;
 			virtual void								LoadInstance() override;
 

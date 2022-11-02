@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="UC.Umc.Views.AuthorRegistration1View"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    x:Name="view">
+    <ScrollView>
+        <StackLayout Padding="5" Spacing="20">
+            <StackLayout>
+                <Label FontSize="18" Text="Choose your payment account and Author title" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="Your need specify your source, destination accounts and amount to transfer" />
+            </StackLayout>
+            <StackLayout>
+                <Label Style="{StaticResource DashLabel}" Text="Payment Account" />
+                <views:AccountView Grid.ColumnSpan="2" BindingContext="{Binding Wallet}">
+                    <views:AccountView.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                    </views:AccountView.GestureRecognizers>
+                </views:AccountView>
+            </StackLayout>
+            <StackLayout Grid.Column="0" Spacing="5">
+                <Label Style="{StaticResource DashLabel}" Text="Title" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="Please specify Author name. This name will be used like an application domain" />
+                <controls:BorderEntry Text="Title">
+                    <controls:BorderEntry.Behaviors>
+                        <toolkit:CharactersValidationBehavior
+                            x:Name="cb1"
+                            CharacterType="Letter"
+                            Flags="ValidateOnValueChanged"
+                            InvalidStyle="{StaticResource InvalidEntry}"
+                            MaximumCharacterTypeCount="30"
+                            MinimumCharacterTypeCount="1"
+                            ValidStyle="{StaticResource Valid}" />
+                    </controls:BorderEntry.Behaviors>
+                </controls:BorderEntry>
+                <StackLayout>
+                    <Label
+                        FontSize="12"
+                        IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                        Text="Validation text message"
+                        TextColor="{StaticResource Red}" />
+                </StackLayout>
+            </StackLayout>
+            <StackLayout Grid.Column="0" Spacing="5">
+                <Label Style="{StaticResource DashLabel}" Text="Name" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="Normalized Author name" />
+                <controls:BorderEntry Text="Name">
+                    <controls:BorderEntry.Behaviors>
+                        <toolkit:CharactersValidationBehavior
+                            x:Name="cb2"
+                            CharacterType="Letter"
+                            Flags="ValidateOnValueChanged"
+                            InvalidStyle="{StaticResource InvalidEntry}"
+                            MaximumCharacterTypeCount="30"
+                            MinimumCharacterTypeCount="1"
+                            ValidStyle="{StaticResource Valid}" />
+                    </controls:BorderEntry.Behaviors>
+                </controls:BorderEntry>
+                <StackLayout >
+                    <Label
+                        FontSize="12"
+                        IsVisible="{Binding IsNotValid, Source={x:Reference cb2}}"
+                        Text="Validation text message"
+                        TextColor="{StaticResource Red}" />
+                </StackLayout>
+            </StackLayout>
+            
+            <controls:LabelPair Text1="UNT amount" Text2="10 UNT ($15)" />
+        </StackLayout>
+    </ScrollView>
+</ContentView>

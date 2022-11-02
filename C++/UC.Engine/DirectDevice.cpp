@@ -357,13 +357,13 @@ void CDirectDevice::TakeScreenShot(CRenderTarget * st, CString & url)
 	
 	if(t)
 	{
-		auto s = Level->Nexus->Storage->OpenWriteStream(url);
+		auto s = Level->Server->Storage->WriteFile(url);
 	
 		auto img = SaveImage(t);
 
 		s->Write(img.data(), img.size());
 	
-		Level->Nexus->Storage->Close(s);
+		Level->Server->Storage->Close(s);
 		
 		t->Release();
 	

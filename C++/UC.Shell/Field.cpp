@@ -8,14 +8,14 @@ CFieldServer::CFieldServer(CShellLevel * l, CString const & name) : CField(l, na
 	Level = l;
 
 	SetDirectories(MapRelative(L""));
-	SetDefaultInteractiveMaster(AREA_FIELDS);
+	SetDefaultInteractiveMaster(CArea::Fields);
 }
 
 CFieldServer::~CFieldServer()
 {
 	Save();
 
-	Items.Do([this](auto i){ Level->Server->DestroyObject(i); });
+	Items.Do([this](auto i){ Level->Server->DestroyObject(i, true); });
 }
 
 void CFieldServer::SetTitle(CString const & name)
@@ -50,7 +50,7 @@ CObject<CFieldItem> CFieldServer::Add(CUol & e, CString const & complexity)
 	fi->Object = e;
 	Items.push_back(fi);
 
-	///CObject<CNexusObject> o = Level->Nexus->GetObject(e);
+	///CObject<CStorableObject> o = Level->Nexus->GetObject(e);
 	///if(!GlobalDirectory.IsEmpty() || !LocalDirectory.IsEmpty())
 	///{
 	///	fi->SetDirectories(CFileSystem::Join(CDirectory::GetClassName(), GlobalDirectory, fi->Url.Object), CFileSystem::Join(CDirectory::GetClassName(), LocalDirectory, fi->Url.Object));
@@ -69,7 +69,7 @@ void CFieldServer::Remove(CFieldItem * fi)
 	Items.remove(fi);
 
 	Level->Server->DeleteObject(fi);
-	///CObject<CNexusObject> o = Level->Nexus->GetObject(e);
+	///CObject<CStorableObject> o = Level->Nexus->GetObject(e);
 	///if(!GlobalDirectory.IsEmpty() || !LocalDirectory.IsEmpty())
 	///{
 	///	fi->SetDirectories(CFileSystem::Join(CDirectory::GetClassName(), GlobalDirectory, fi->Url.Object), CFileSystem::Join(CDirectory::GetClassName(), LocalDirectory, fi->Url.Object));

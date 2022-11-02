@@ -28,8 +28,6 @@ namespace uc
 	class CColumnFileList : public CRectangle
 	{
 		public:
-			CProtocolConnection<CImageExtractor>		FileExtractor;
-			
 			CString										Root;
 			
 			CArray<CFileListColumn *>					Columns;

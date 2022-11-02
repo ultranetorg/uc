@@ -21,7 +21,7 @@ namespace uc
 	{
 		public:
 			UOS_RTTI
-			CFieldableModel(CWorld * l, CServer * s, ELifespan life, CString const & name) : CModel(l, s, life, name)
+			CFieldableModel(CWorldProtocol * l, CServer * s, ELifespan life, CString const & name) : CModel(l, s, life, name)
 			{
 			}
 

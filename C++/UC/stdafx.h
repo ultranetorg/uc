@@ -39,11 +39,9 @@
 #include <Zip/contib/minizip/zip.h>
 #include <Zip/contib/minizip/unzip.h>
 
-#include <Ipfs/client.h>
-
-#include <Keccak/Keccak.h>
-
 #include <curl/curl.h>
+
+#include <nlohmann/json.hpp>
 
 #include <DirectXMath.h>
 #include <d2d1.h>
@@ -77,12 +75,7 @@
 
 #define  BOOST_ALL_DYN_LINK
 #include <boost/algorithm/string.hpp>
-#include <boost/multiprecision/cpp_int.hpp>
-
-namespace uc
-{
-	typedef boost::multiprecision::uint256_t			uint256;
-}
+//#include <boost/multiprecision/cpp_int.hpp>
 
 #ifdef _DEBUG
 	#define D3D_DEBUG_INFO

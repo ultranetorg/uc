@@ -8,8 +8,10 @@ namespace uc
 		public:
 			bool										IsWriteTypes = false;
 			CStream *									OutStream = null;
+			bool										Eol = true;
 
 			void										Write(CXon * s) override;
+			void										Write(std::wostringstream & s, CXon * n, int d);
 
 			CXonTextWriter();
 			CXonTextWriter(CStream * s)
@@ -23,8 +25,6 @@ namespace uc
 //			CXonTextWriter(bool writeTypes) : IsWriteTypes(writeTypes){}
 			~CXonTextWriter(){}
 
-		private:
-			void										Write(std::wostringstream & s, CXon * n, int d);
 	};
 
 	class UOS_LINKING CXonBinaryWriter : public IXonWriter

@@ -31,10 +31,10 @@ void CRectangle::UseInner()
 {
 	if(!InnerMesh)
 	{
-		InnerMesh = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+		InnerMesh = new CSolidRectangleMesh(Level->Engine->Level);
 	}
 	
-	VInner = new CVisual(&Level->Engine->EngineLevel, L"inner", null, null, CMatrix(0, 0, Z_STEP));
+	VInner = new CVisual(Level->Engine->Level, L"inner", null, null, CMatrix(0, 0, Z_STEP));
 	VInner->SetMesh(InnerMesh);
 	Visual->AddNode(VInner);
 }
@@ -54,7 +54,7 @@ void CRectangle::UseClipping(EClipping c, bool content)
 	{
 		if(!InnerMesh)
 		{
-			InnerMesh = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+			InnerMesh = new CSolidRectangleMesh(Level->Engine->Level);
 		}
 	
 		Visual->SetClipping(InnerMesh);
@@ -80,14 +80,14 @@ void CRectangle::ApplyBody()
 	{
 		if(!Visual->Mesh)
 		{
-			auto m = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+			auto m = new CSolidRectangleMesh(Level->Engine->Level);
 			Visual->SetMesh(m);
 			m->Free();
 		}
 
 		if(!Active->Mesh && EnableActiveBody)
 		{
-			auto m = new CSolidRectangleMesh(&Level->Engine->EngineLevel);
+			auto m = new CSolidRectangleMesh(Level->Engine->Level);
 			Active->SetMesh(m);
 			m->Free();
 		}
@@ -108,13 +108,13 @@ void CRectangle::ApplyBorder()
 	{
 		if(VBorder == null)
 		{
-			VBorder = new CVisual(&Level->Engine->EngineLevel, L"border", null, null, CMatrix());
+			VBorder = new CVisual(Level->Engine->Level, L"border", null, null, CMatrix());
 			//VBorder->Clipping = true;;
 			VBorder->SetMaterial(BorderMaterial);
 			VBorder->SetMatrix(CMatrix::Identity);
 			Visual->AddNode(VBorder);
 
-			auto m = new CFrameMesh(&Level->Engine->EngineLevel);
+			auto m = new CFrameMesh(Level->Engine->Level);
 			VBorder->SetMesh(m);
 			m->Free();
 		}
@@ -140,16 +140,16 @@ void CRectangle::LoadProperties(CStyle * s, CXon * n)
 {
 	__super::LoadProperties(s, n);
 	
-	for(auto i : n->Children)
+	for(auto i : n->Nodes)
 	{
 		if(i->Name == L"Background")
-			for(auto j : i->Children)
+			for(auto j : i->Nodes)
 			{
 				if(j->Name == L"Material")
 					Visual->SetMaterial(Level->Materials->GetMaterial(j->Get<CString>()));
 			}
 		else if(i->Name == L"Border")
-			for(auto j : i->Children)
+			for(auto j : i->Nodes)
 			{
 				if(j->Name == L"Material")
 					BorderMaterial = Level->Materials->GetMaterial(j->Get<CString>());

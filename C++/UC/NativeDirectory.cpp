@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "NativeDirectory.h"
-
+#include "Int32.h"
 
 using namespace uc;
 
@@ -36,6 +36,7 @@ void CNativeDirectory::Delete(CString const & src, bool premove)
 	if(premove)
 	{
 		auto rnd = s + CGuid::Generate64();
+
 		if(MoveFile((L"\\\\?\\" + s).data(), (L"\\\\?\\" + rnd).data()) == FALSE)
 		{
 			//throw CException(HERE, L"Unable to pre move: %s" + s);
@@ -136,13 +137,15 @@ void CNativeDirectory::Copy(CString const & src, CString const & dst)
 	FindClose(h);
 }
 
-CArray<CDirectoryEntry> CNativeDirectory::Find(CString const & dir, const CString & mask, EDirectoryFlag f)
+CList<CFileSystemEntry> CNativeDirectory::Enumerate(CString const & dir, const CString & regex, EDirectoryFlag f)
 {
-	CArray<CDirectoryEntry> files;
+	CList<CFileSystemEntry> files;
+
+	std::wregex rx(regex);
 
 	if(dir == L"\\")
 	{
-		PWSTR ppath;
+		PWSTR name;
 
 		IShellItem * m_currentBrowseLocationItem;
 		auto hr = ::SHGetKnownFolderItem(FOLDERID_ComputerFolder, static_cast<KNOWN_FOLDER_FLAG>(0), nullptr, IID_PPV_ARGS(&m_currentBrowseLocationItem));
@@ -165,13 +168,16 @@ CArray<CDirectoryEntry> CNativeDirectory::Find(CString const & dir, const CStrin
 
 				if(SUCCEEDED(hr))
 				{
-					hr = shellItem->GetDisplayName(SIGDN_FILESYSPATH, &ppath);
+					hr = shellItem->GetDisplayName(SIGDN_FILESYSPATH, &name);
 
-					if(ppath)
+					if(name)
 					{
-						files.push_back(CDirectoryEntry{f & AsPath?dir + ppath:ppath, FILE_ATTRIBUTE_DIRECTORY});
+						if(std::regex_match(CString(name), rx))
+						{
+							files.push_back(CFileSystemEntry(name, CFileSystemEntry::Directory));
+						}
 
-						CoTaskMemFree(ppath);
+						CoTaskMemFree(name);
 					}
 				}
 
@@ -183,17 +189,57 @@ CArray<CDirectoryEntry> CNativeDirectory::Find(CString const & dir, const CStrin
 	{
 		WIN32_FIND_DATA ffd;
 
-		HANDLE h = FindFirstFile(CNativePath::Join(L"\\\\?\\" + dir, mask).c_str(), &ffd);
-		BOOL r = (h != INVALID_HANDLE_VALUE);
+		auto h = FindFirstFile(CNativePath::Join(L"\\\\?\\" + dir, L"*").c_str(), &ffd);
+		auto r = (h != INVALID_HANDLE_VALUE);
+
+		auto ini = CNativePath::Join(L"\\\\?\\" + dir, L"desktop.ini");
+		auto hasini = CNativePath::IsFile(ini);
 
 		while(r)
 		{
-			if((f & SkipServiceElements) && (wcscmp(ffd.cFileName, L".")== 0 || wcscmp(ffd.cFileName, L"..")== 0));
+			if(wcscmp(ffd.cFileName, L".") == 0 || wcscmp(ffd.cFileName, L"..") == 0);
 			else if((f & SkipHidden)		&& ((ffd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0));
 			else if((f & FilesOnly)			&& ((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0));
 			else if((f & DirectoriesOnly)	&& ((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0));
-			else
-				files.push_back(CDirectoryEntry{f & AsPath ? dir + ffd.cFileName : ffd.cFileName, int(ffd.dwFileAttributes)});
+			else if(std::regex_match(CString(ffd.cFileName), rx))
+			{
+				CFileSystemEntry e(ffd.cFileName, ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? CFileSystemEntry::Directory : CFileSystemEntry::File);
+
+				if(hasini && e.Name.EndsWith(L".lnk"))
+				{
+					wchar_t b[1024];
+					GetPrivateProfileString(L"LocalizedFileNames", e.Name.data(), null, b, _countof(b), ini.data());
+
+					if(wcslen(b) > 0)
+					{
+						auto a = CString(b).Split(L",");
+
+						ExpandEnvironmentStrings(a[0].data()+1, b, _countof(b));
+
+						auto h = LoadLibraryEx(b, null, LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+
+						if(!h)
+						{
+							h = LoadLibraryEx(CString(b).Replace(L"Program Files (x86)", L"Program Files").data(), null, LOAD_LIBRARY_AS_IMAGE_RESOURCE); // stupid workaround
+						}
+
+						if(h)
+						{
+							int n = LoadString(h, abs(CInt32::Parse(a[1])), b, _countof(b));
+
+							if(n > 0)
+							{
+								e.NameOverride = b;
+							}
+
+							FreeLibrary(h);
+						}
+					}
+				}
+
+				files.push_back(e);
+			}
+
 			r = FindNextFile(h, &ffd);
 		}
 		FindClose(h);
@@ -209,11 +255,12 @@ bool CNativeDirectory::Exists(CString const & l)
 	return l == L"\\" || (dwAttrib != INVALID_FILE_ATTRIBUTES) && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY);	
 }
 
-void CNativeDirectory::CreateAll(const CString & path, bool tryUntilSuccess)
+void CNativeDirectory::CreateAll(const CString & path)
 {
 	auto parts = path.Split(L"\\");
 
 	CString s;
+
 	for(auto & i : parts)
 	{
 		s += i + L"\\";
@@ -230,14 +277,13 @@ void CNativeDirectory::CreateAll(const CString & path, bool tryUntilSuccess)
 	}
 }
 
-
 void CNativeDirectory::Clear(CString const & src)
 {
 	throw CException(HERE, L"Not tested");
 
 	WIN32_FIND_DATA ffd;
 
-	HANDLE h = FindFirstFile(CNativePath::Join(L"\\\\?\\" + src, L"\\*.*").c_str(), &ffd);
+	HANDLE h = FindFirstFile(CNativePath::Join(L"\\\\?\\" + src, L"\\*").c_str(), &ffd);
 	BOOL r = (h != INVALID_HANDLE_VALUE);
 
 	while(r)
@@ -255,5 +301,7 @@ void CNativeDirectory::Clear(CString const & src)
 
 		r = FindNextFile(h, &ffd);
 	}
+
 	FindClose(h);
 }
+

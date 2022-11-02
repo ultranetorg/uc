@@ -1,66 +1,83 @@
 #pragma once
-#include "Server.h"
-#include "Protocol.h"
+#include "Interface.h"
+#include "IType.h"
 
 namespace uc
 {
-	struct CConnection
+	class CClient;
+	struct CApplicationRelease;
+
+	class UOS_LINKING CClientConnection
 	{
-		//CNexus *			Nexus;
-		IType *				Who;
-		CServer *			Server;
-		IProtocol *			Protocol;
-		CString				ProtocolName;
+		public:
+			CApplicationRelease *	Who;
+			CClient *				Client;
+			IProtocol *				Protocol;
+			CString					ProtocolName;
+			std::function<void()>	OnDisconnecting;
 
-		CConnection()
-		{
-			Who = null;
-			Server = null;
-		}
-		CConnection(IType * who, CServer * r, IProtocol * p, CString const & pn)
-		{
-			Who = who;
-			Server = r;
-			Protocol = p;
-			ProtocolName = pn;
-		}
+			CClientConnection();
+			CClientConnection(CApplicationRelease * who, CClient * client, CString const & protocol, std::function<void()> ondisconnect);
 
-		void Clear()
-		{
-			Who = null;
-			Server = null;
-			Protocol = null;
-		}
+			void				Clear();
+			bool				operator! () const;
+			operator bool () const;
 
-		operator bool () const
-		{
-			return Server != null;
-		}
-
-		bool operator! () const
-		{
-			return Server == null;
-		}
-
-		template<class T> T * As()
-		{
-			return dynamic_cast<T *>(Protocol);
-		}
+			template<class T> T * As()
+			{
+				return dynamic_cast<T *>(Protocol);
+			}
 	};
 
-	template<class P> struct CProtocolConnection : public CConnection
+// 	class UOS_LINKING CServerConnection
+// 	{
+// 		public:
+// 			CApplicationRelease *	Who;
+// 			CClient *				Client;
+// 			IProtocol *				Protocol;
+// 			CString					ProtocolName;
+// 
+// 			CClientConnection();
+// 			CClientConnection(CApplicationRelease * who, CClient * client, CString const & protocol);
+// 
+// 			void				Clear();
+// 			bool				operator! () const;
+// 			operator bool () const;
+// 
+// 			template<class T> T * As()
+// 			{
+// 				return dynamic_cast<T *>(Protocol);
+// 			}
+// 	};
+
+	template<class P> struct CConnection
 	{
-		CProtocolConnection(){}
-		CProtocolConnection(CConnection & c) : CConnection(c){}
+		CClientConnection * Connection = null;
+
+		CConnection(){}
+		CConnection(CClientConnection * c)
+		{
+			Connection = c;
+		}
 
 		P * operator->()
 		{
-			return dynamic_cast<P *>(Protocol);
+			return dynamic_cast<P *>(Connection->Protocol);
 		}
 
 		operator P * () const
 		{
-			return dynamic_cast<P *>(Protocol);
+			return dynamic_cast<P *>(Connection->Protocol);
+		}
+
+		operator CClientConnection * () const
+		{
+			return Connection;
+		}
+
+		operator bool()
+		{
+			return Connection != null;
 		}
 	};
 

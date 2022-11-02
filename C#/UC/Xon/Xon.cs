@@ -92,22 +92,27 @@ namespace UC
 			return One(name) != null;
 		}
 
-		public Xon One(string name)
+		public Xon One(string path)
 		{
-			var nodes = name.Split(new char[]{ '/'}).ToArray();
+			var names = path.Split('/');
 
-			var i = nodes.GetEnumerator();
+			var i = names.GetEnumerator();
 			
 			i.MoveNext();
 
 			//auto p = One(*i);
-			var p = Nodes.FirstOrDefault(j => j.Name == i.Current as string);
+			var p = Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
+
+//Console.WriteLine("Nodes : " + string.Join(", " , Nodes));
+//Console.WriteLine("i.Current : " + Hex.ToHexString(Encoding.UTF8.GetBytes(i.Current as string)));
+//Console.WriteLine("Nodes.First().Name: " + Hex.ToHexString(Encoding.UTF8.GetBytes(Nodes.First().Name)));
+//Console.WriteLine("Nodes.First().Name == i.Current : " + (Nodes.First().Name == i.Current.ToString()));
 
 			if(p != null)
 			{
 				while(i.MoveNext())
 				{
-					p = p.Nodes.FirstOrDefault(j => j.Name == (i.Current as string));
+					p = p.Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
 					if(p == null)
 					{
 						return null;
@@ -196,10 +201,9 @@ namespace UC
 
 		public bool IsDifferenceDeleted { get => false; }
 
-		public string	GetString(string name) => One(name).String;
+		public string	GetString(string name) => One(name)?.String;
 		public int		GetInt32(string name) => One(name).Int;
 		public long		GetInt64(string name) => One(name).Long;
 		public O		Get<O>(string name) => Serializator.Get<O>(this, One(name).Value);
-			//public long		GetInt64(string name) => One(name).Value;
 	}
 }

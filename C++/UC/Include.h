@@ -7,8 +7,8 @@
 // Levels
 #include "Core.h"
 #include "Nexus.h"
-#include "EmptyLicenseService.h"
-#include "IExecutorProtocol.h"
+#include "PersistentServer.h"
+#include "ExecutorProtocol.h"
 #include "NativeWindow.h"
 
 // Math
@@ -40,3 +40,4 @@
 #include "DateTime.h"
 
 #include "WebInformer.h"
+#include "InprocClient.h"

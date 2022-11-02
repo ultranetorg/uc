@@ -1,36 +1,69 @@
 #include "StdAfx.h"
 #include "Core.h"
 #include "Mmc.h"
-#include "FileStream.h"
-#include "File.h"
+#include "LocalFileStream.h"
 #include "StaticArray.h"
+#include "Path.h"
+#include "Nexus.h"
 
 using namespace uc;
-using namespace std::experimental::filesystem;
 
-CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t * supervisor_folder, const wchar_t * root_from_exe, const wchar_t * coredir, CProductInfo & pi)
+CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar_t * supervisor_folder, const wchar_t * coredir, CProductInfo & pi)
 {
 	Supervisor			= s;
 	Core				= this;
 	CreationInstance	= instance;
 	Product				= pi;
 	Os					= new COs();
+	Commands			= new CTonDocument(CXonTextReader(command));
 
 	CoInitialize(NULL);
 
-	wchar_t p[32768];
+	wchar_t p[4096];
 	GetModuleFileNameW(CreationInstance, p, _countof(p));
 
-	SupervisorName		= supervisor_folder;
-	LaunchPath			= CNativePath::Canonicalize(p);
-	LaunchFolder		= CNativePath::GetDirectoryPath(LaunchPath);
-	RootPath			= CNativePath::Join(LaunchFolder, root_from_exe);
-	CorePath			= CNativePath::Join(RootPath, coredir);
-	DatabaseObject		= GetClassName() + L"/Database";
+	SupervisorName			= supervisor_folder;
+	CoreExePath				= CNativePath::Canonicalize(p);
+	LaunchDirectory			= CNativePath::GetDirectoryPath(CoreExePath);
+	CoreDirectory			= CNativePath::Join(LaunchDirectory, coredir);
+	DatabaseObject			= GetClassName() + L"/Database";
+	CurrentReleaseSubPath	= CPath::Universalize(CoreDirectory.Substring(CNativePath::GetDirectoryPath(CNativePath::GetDirectoryPath(CoreDirectory)).length() + 1));
 
 	auto hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, GetCurrentProcessId());
-	GetModuleFileNameEx(hProcess, LoadLibrary(L"UX.dll"), p, sizeof(p) / sizeof(TCHAR));
+	GetModuleFileNameEx(hProcess, LoadLibrary(L"UC.dll"), p, sizeof(p) / sizeof(TCHAR));
 	FrameworkDirectory = CNativePath::GetDirectoryPath(p);
+
+	auto cmd = Commands->One(GetClassName());
+
+	if(!cmd || cmd->Any(VersionAutoUpArgument) && cmd->Get<CBool>(VersionAutoUpArgument) == false)
+	{
+		auto versions = CNativeDirectory::Enumerate(CNativePath::Join(CoreDirectory, L".."), L"[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", EDirectoryFlag::DirectoriesOnly);
+		versions.Sort([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); });
+	
+		if(CVersion(versions.First().Name) > CVersion(CNativePath::GetDirectoryName(CoreDirectory)))
+		{
+			STARTUPINFO info = {sizeof(info)};
+			PROCESS_INFORMATION processInfo;
+	
+			auto exe = CoreExePath.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
+			auto dir = FrameworkDirectory.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
+	
+			wchar_t cmd[32768] = {};
+			wcscpy_s(cmd, _countof(cmd), (L"\"" + exe + L"\"").data());
+	
+			//SetDllDirectory(FrameworkDirectory.data());
+			//SetCurrentDirectory(FrameworkDirectory.data());
+	
+			if(CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, dir.data(), &info, &processInfo))
+			{
+				//auto e = GetLastError();
+				CloseHandle(processInfo.hProcess);
+				CloseHandle(processInfo.hThread);
+			}
+	
+			return;
+		}
+	}
 
 	Timings.TotalTicks			= 0;
 	Timings.MessageP1SCounter	= 0;
@@ -44,23 +77,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 	Log->ReportMessage(this, Product.ToString(L"NVSPB"));
 	Log->ReportMessage(this, L"OS: %s", Os->GetVersion().ToString());
 	Log->ReportMessage(this, L"User Admin?: %s", CSecurity().IsUserAdmin()? L"y" : L"n");
-	Log->ReportMessage(this, L"Root directory: %s", RootPath);
-
-	for(auto & i : COs::ParseCommandLine(cmd))
-	{
-		Commands.push_back(i);
-		Log->ReportMessage(this, L"Command: %s", i.ToString());
-	}
-
-	CString mode;
-
-	for(auto & i : FindStartCommands(CUsl(L"", L"Core")))
-	{
-		if(i.Query.Contains(L"Mode"))
-		{
-			mode = i.Query(L"Mode");
-		}
-	}
+	Log->ReportMessage(this, L"Core directory: %s", CoreDirectory);
 
 	HANDLE hAccessToken = NULL;
 
@@ -70,7 +87,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 		Os->SetPrivilege(hAccessToken, SE_CREATE_GLOBAL_NAME, TRUE);
 	}
 
-	DBConfig = new CTonDocument(CXonTextReader(&CFileStream(CNativePath::Join(CorePath, L"Database.xon"), EFileMode::Open)));
+	DBConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(CNativePath::Join(CoreDirectory, L"Database.xon"), EFileMode::Open)));
 	
 	auto modes = DBConfig->Many(L"Database");
 	CXon * xdb = null;
@@ -102,8 +119,8 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 	if(xdb)
 	{
 		UserPath		= ResolveConstants(xdb->Get<CString>(L"User"));
-		ServersPath		= ResolveConstants(xdb->Get<CString>(L"Servers"));
-		CommonPath		= ResolveConstants(xdb->Get<CString>(L"Common"));
+		SoftwarePath	= ResolveConstants(xdb->Get<CString>(L"Servers"));
+		RemapPath		= ResolveConstants(xdb->Get<CString>(L"Common"));
 	}
 	else
 		throw CException(HERE, L"Database config is incorrect");
@@ -115,7 +132,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	HInformation = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bufsize, fmname.c_str());
 
-	if(HInformation == NULL)
+	if(HInformation == null)
 	{
 		throw CLastErrorException(HERE, GetLastError(), L"Could not create file mapping: %s", fmname.c_str());
 	}
@@ -131,30 +148,31 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	if(status == ERROR_ALREADY_EXISTS)
 	{
-		if(mode == START_MODE_UNAP)
+		if(cmd)
 		{
-			CString c = CString::Join(Commands, [this](auto i){ return i.ToString(); }, L" ");;
-	
-			COPYDATASTRUCT cd;
-			cd.dwData = 0;
-			cd.lpData = (void *)c.data();
-			cd.cbData = DWORD(c.size()) * 2 + 2;
-	
-			auto e = SendMessage(info->Mmc, WM_COPYDATA, (WPARAM)0, (LPARAM)&cd);
-		
-			return;
-		}
-		else if(mode == START_MODE_RESTART)
-		{
-			do 
+			if(cmd->Any(RestartDirective))
 			{
-				HInformation = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bufsize, fmname.c_str());
-				
-				status = GetLastError();
-
-				Sleep(10);
+				do 
+				{
+					HInformation = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, bufsize, fmname.c_str());
+					
+					status = GetLastError();
+	
+					Sleep(10);
+				}
+				while(status != ERROR_SUCCESS);
 			}
-			while(status != ERROR_SUCCESS);
+			else
+			{
+				COPYDATASTRUCT cd = {};
+				cd.dwData = 0;
+				cd.lpData = command;
+				cd.cbData = (DWORD)(wcslen(command) + 1) * sizeof(*command);
+		
+				auto e = SendMessage(info->Mmc, WM_COPYDATA, (WPARAM)0, (LPARAM)&cd);
+			
+				return;
+			}
 		}
 		else
 			return;
@@ -166,7 +184,6 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 		Information->ProcessId = GetCurrentProcessId();
 		Information->MainThreadId = GetCurrentThreadId();
 	}
-
 
 	static int memory=0;
 	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPWSTR)&memory, &LocationInstance);
@@ -187,9 +204,8 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	Supervisor->StartWriting(SupervisorDirectory);
 	PCCycle =  new CPerformanceCounter();
-	
 
-	Os->RegisterUrlProtocol(UOS_OBJECT_PROTOCOL, FrameworkDirectory, LaunchPath + L" /" + GetClassName() + L"?Mode=" + START_MODE_UNAP);
+	Os->RegisterUrlProtocol(CliScheme, FrameworkDirectory, CoreExePath + L" {" + OpenDirective + L" " + UrlArgument + L"=\"%1\"}");
 
 	Log->ReportMessage(this, L"Supervisor directory: %s", Supervisor->Directory);
 	Log->ReportMessage(this, L"Database source:      %s", SourceDirectory);
@@ -197,9 +213,9 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 	Log->ReportMessage(this, L"Database work:        %s", WorkDirectory);
 
 	LoadParameters();
-	SetDllDirectory(LaunchFolder.data());
+	SetDllDirectory(LaunchDirectory.data());
 
-	for(auto i : Commands)
+	for(auto i : Commands->Nodes)
 	{
 		Execute(i, null);
 	}
@@ -208,19 +224,22 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * cmd, const wchar_t *
 
 	Initialized = true;
 
+	Nexus = new CNexus(this, Config);
+
 	Log->ReportMessage(this, L"-------------------------------- Core created --------------------------------");
 
+	Run();
 }
 	
 CCore::~CCore()
 {
-	delete Os;
-
 	if(Initialized)
 	{
+		delete Nexus;
+
 		delete Mmc;
 
-		Config->Save(&CXonTextWriter(&CFileStream(Core->MapToDatabase(UOS_MOUNT_USER_LOCAL L"\\Core.xon"), EFileMode::New), false), DefaultConfig);
+		Config->Save(&CXonTextWriter(&CLocalFileStream(Core->MapPath(ESystemPath::System, L"Core.xon"), EFileMode::New), false), DefaultConfig);
 
 		Supervisor->StopWriting();
 
@@ -243,18 +262,22 @@ CCore::~CCore()
 			PROCESS_INFORMATION processInfo;
 
 			wchar_t cmd[32768] = {};
-			wcscpy_s(cmd, _countof(cmd), (L"\"" + LaunchPath + L"\" " +  + L" /" + GetClassName() +  L"?Mode=" + START_MODE_RESTART + L" " + RestartCommand).data());
+			wcscpy_s(cmd, _countof(cmd), (L"\"" + CoreExePath + L"\" " + GetClassName() +  L"{" + RestartDirective + L"} " + RestartCommand).data());
 
 			SetDllDirectory(FrameworkDirectory.data());
 			SetCurrentDirectory(FrameworkDirectory.data());
 
-			if(!CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, FrameworkDirectory.data(), &info, &processInfo))
+			if(CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, FrameworkDirectory.data(), &info, &processInfo))
 			{
-				auto e = GetLastError();
+				//auto e = GetLastError();
+				CloseHandle(processInfo.hProcess);
+				CloseHandle(processInfo.hThread);
 			}
 		}
-		
 	}
+
+	delete Commands;
+	delete Os;
 }
 
 void CCore::InitializeUnid()
@@ -263,9 +286,9 @@ void CCore::InitializeUnid()
 
 	CString name;
 
-	for(auto i : CNativeDirectory::Find(CNativePath::GetDirectoryPath(UserPath), pattern + L"-*", EDirectoryFlag(DirectoriesOnly|SkipServiceElements)))
+	for(auto i : CNativeDirectory::Enumerate(CNativePath::GetDirectoryPath(UserPath), pattern + L"-.+", DirectoriesOnly))
 	{
-		name = i.Path;
+		name = i.Name;
 		break;
 	}
 	
@@ -277,7 +300,7 @@ void CCore::InitializeUnid()
 		Unid = CBase58::Encode(CGuid::New256());
 		#endif
 
-		CNativeDirectory::CreateAll(UserPath + L"-" + Unid, true);
+		CNativeDirectory::CreateAll(UserPath + L"-" + Unid);
 	}
 	else
 	{
@@ -286,12 +309,12 @@ void CCore::InitializeUnid()
 
 		Unid = (*words_begin)[1].str();
 
-		for(auto i : CNativeDirectory::Find(CNativePath::GetDirectoryPath(UserPath), name + L"\\*", EDirectoryFlag(DirectoriesOnly|SkipServiceElements)))
+		for(auto & i : CNativeDirectory::Enumerate(CNativePath::Join(CNativePath::GetDirectoryPath(UserPath), name), L".+", EDirectoryFlag(DirectoriesOnly)))
 		{
-			if(CInt32::Valid(i.Path))
+			if(CInt32::Valid(i.Name))
 			{
-				Commits.push_back(i.Path);
-				auto c = CInt32::Parse(i.Path);
+				Commits.push_back(i.Name);
+				auto c = CInt32::Parse(i.Name);
 				LastCommit = max(LastCommit, c);
 			}
 		}
@@ -302,7 +325,9 @@ void CCore::InitializeDatabase()
 {
 	auto fbase = UserPath + L"-" + Unid + L"\\%08d";
 
-	if(HasCommand(L"Action", L"Rollback") && LastCommit >= 0)
+	auto cmd = Commands->One(GetClassName());
+
+	if(cmd && cmd->Any(RollbackDirective) && LastCommit >= 0)
 	{
 		CNativeDirectory::Delete(CString::Format(fbase, LastCommit));
 		LastCommit--;
@@ -335,34 +360,34 @@ void CCore::InitializeDatabase()
 		auto workbasepath = CNativePath::Join(CNativePath::GetTmp(), workbasename);
 
 		WorkDirectory		= workbasepath + L"-" + CGuid::Generate64();
-		TmpDirectory		= workbasepath + L"-" + UOS_MOUNT_APP_TMP;
+		TmpDirectory		= workbasepath + L"-Tmp";
 		SupervisorDirectory = WorkDirectory + L"\\" + SupervisorName;
 
 		try
 		{
-			for(auto i : CNativeDirectory::Find(CNativePath::GetTmp(), workbasename + L"-*", EDirectoryFlag(EDirectoryFlag::AsPath|EDirectoryFlag::DirectoriesOnly)))
+			for(auto & i : CNativeDirectory::Enumerate(CNativePath::GetTmp(), workbasename + L"-.+", EDirectoryFlag::DirectoriesOnly))
 			{
-				if(i.Path != TmpDirectory)
+				auto p = CNativePath::Join(CNativePath::GetTmp(), i.Name);
+				
+				if(p != TmpDirectory)
 				{
-					CNativeDirectory::Delete(i.Path);
+					CNativeDirectory::Delete(p);
 				}
 			}
 
 			CNativeDirectory::Create(WorkDirectory);
 			CNativeDirectory::Create(TmpDirectory);
 			CNativeDirectory::Create(SupervisorDirectory);
-			CNativeDirectory::Create(WorkDirectory + L"\\" + UOS_MOUNT_USER_LOCAL);
-			CNativeDirectory::Create(WorkDirectory + L"\\" + UOS_MOUNT_USER_GLOBAL);
+ 			CNativeDirectory::Create(MapPath(ESystemPath::System, L""));
+			CNativeDirectory::Create(MapPath(ESystemPath::Users, L""));
 
 			if(CNativeDirectory::Exists(SourceDirectory))
 			{
-				CNativeDirectory::Copy(SourceDirectory + L"\\" + UOS_MOUNT_USER_LOCAL, WorkDirectory + L"\\" + UOS_MOUNT_USER_LOCAL);
-				CNativeDirectory::Copy(SourceDirectory + L"\\" + UOS_MOUNT_USER_GLOBAL, WorkDirectory + L"\\" + UOS_MOUNT_USER_GLOBAL);
+				CNativeDirectory::Copy(SourceDirectory, WorkDirectory);
 
 				if(DBConfig->Get<CString>(L"Increment") == L"n")
 				{
-					CNativeDirectory::Delete(DestinationDirectory + L"\\" + UOS_MOUNT_USER_LOCAL);
-					CNativeDirectory::Delete(DestinationDirectory + L"\\" + UOS_MOUNT_USER_GLOBAL);
+					CNativeDirectory::Clear(DestinationDirectory);
 				}
 			}
 		}
@@ -373,14 +398,13 @@ void CCore::InitializeDatabase()
 		}
 
 
-		auto c = MapToDatabase(UOS_MOUNT_USER_LOCAL L"\\Core.xon");
-	
-		auto d = GetPathTo(ESystemPath::Root, L"Core.xon");
-		DefaultConfig = new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)));
+		auto d = Resolve(MapPath(ESystemPath::Core, L"Core.xon"));
+		auto c = MapPath(ESystemPath::System, L"Core.xon");
+		DefaultConfig = new CTonDocument(CXonTextReader(&CLocalFileStream(d, EFileMode::Open)));
 	
 		if(CNativePath::IsFile(c))
 		{
-			Config = new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)), CXonTextReader(&CFileStream(c, EFileMode::Open)));
+			Config = new CTonDocument(CXonTextReader(&CLocalFileStream(d, EFileMode::Open)), CXonTextReader(&CLocalFileStream(c, EFileMode::Open)));
 	
 			if(Config->Get<CInt32>(L"Database/Version") == DBConfig->Get<CInt32>(L"Version"))
 			{
@@ -415,7 +439,7 @@ void CCore::InitializeDatabase()
 		}
 		else
 		{
-			Config = new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)));
+			Config = new CTonDocument(CXonTextReader(&CLocalFileStream(d, EFileMode::Open)));
 			Config->One(L"Database/Version")->Set(DBConfig->Get<CInt32>(L"Version"));
 			DatabaseInitialized = true;
 		}
@@ -423,16 +447,56 @@ void CCore::InitializeDatabase()
 	}
 }
 
+CString CCore::ResolveConstants(CString const & dir)
+{
+	CString userprofile;
+	TCHAR szPath[MAX_PATH];
+	
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
+	{
+		userprofile = CNativePath::Join(szPath, Product.AuthorAbbreviation + L"." + Product.Name);
+	}
+
+	CString o = dir;
+
+	o = o.Replace(L"{CoreDirectory}",		CoreDirectory);
+	o = o.Replace(L"{LocalUsername}",		Os->GetUserName());
+	o = o.Replace(L"{LocalUserProfile}",	userprofile);
+	o = o.Replace(L"\\\\",					L"\\");
+
+	return CNativePath::Canonicalize(o);
+}
+
+CString CCore::Resolve(CString const & orig)
+{
+	if(Core->RemapPath.empty())
+	{
+		return orig;
+	}
+
+	if(CNativePath::IsFile(orig))
+	{
+		return orig;
+	}
+
+	CString s;
+
+	auto r = MapPath(ESystemPath::RootRemapping, orig.Substring(SoftwarePath.length()));
+
+	return CNativePath::Canonicalize(r);
+}
+
+
 CTonDocument * CCore::CreateConfig(CString const & d, CString const & u)
 {
 	if(!u.empty() && CNativePath::IsFile(u))
 	{
-		return new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)), CXonTextReader(&CFileStream(u, EFileMode::Open)));
+		return new CTonDocument(CXonTextReader(&CLocalFileStream(d, EFileMode::Open)), CXonTextReader(&CLocalFileStream(u, EFileMode::Open)));
 	
 	}
 	else
 	{
-		return new CTonDocument(CXonTextReader(&CFileStream(d, EFileMode::Open)));
+		return new CTonDocument(CXonTextReader(&CLocalFileStream(d, EFileMode::Open)));
 	}
 }
 
@@ -441,18 +505,17 @@ void CCore::ShutdownDatabase()
 	if(CommitDatabase)
 	{
 		CNativeDirectory::Create(DestinationDirectory);
-		CNativeDirectory::Copy(WorkDirectory + L"\\" + UOS_MOUNT_USER_LOCAL, DestinationDirectory + L"\\" + UOS_MOUNT_USER_LOCAL);
-		CNativeDirectory::Copy(WorkDirectory + L"\\" + UOS_MOUNT_USER_GLOBAL, DestinationDirectory + L"\\" + UOS_MOUNT_USER_GLOBAL);
+		CNativeDirectory::Copy(WorkDirectory, DestinationDirectory);
 		
 		auto pattern = CNativePath::GetDirectoryName(UserPath);
 		
 		CArray<CString> dirs;
 
-		for(auto i : CNativeDirectory::Find(CNativePath::GetDirectoryPath(UserPath), pattern + L"-" + Unid + L"\\*", EDirectoryFlag(DirectoriesOnly|SkipServiceElements)))
+		for(auto i : CNativeDirectory::Enumerate(CNativePath::GetDirectoryPath(UserPath), pattern + L"-.+" + Unid + L"\\\\.+", DirectoriesOnly))
 		{
-			if(CInt32::Valid(i.Path))
+			if(CInt32::Valid(i.Name))
 			{
-				dirs.push_back(i.Path);
+				dirs.push_back(i.Name);
 			}
 		}
 
@@ -466,86 +529,85 @@ void CCore::ShutdownDatabase()
 			}
 		}
 
-		CFileStream s(DestinationDirectory + L"\\ok", EFileMode::New);
+		CLocalFileStream s(DestinationDirectory + L"\\ok", EFileMode::New);
 	}
 }
-
-CString CCore::ResolveConstants(CString const & dir)
-{
-	CString userprofile;
-	TCHAR szPath[MAX_PATH];
 	
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
-	{
-		userprofile = CNativePath::Join(szPath, Product.Name);
-	}
-
-
-	CString o = dir;
-
-	o = o.Replace(L"{RootDirectory}",		RootPath);
-	o = o.Replace(L"{LocalUsername}",		Os->GetUserName());
-	o = o.Replace(L"{LocalUserProfile}",	userprofile);
-	o = o.Replace(L"\\\\",					L"\\");
-
-	return CNativePath::Canonicalize(o);
-}
-	
-CString CCore::GetPathTo(ESystemPath folder, const CString & path)
+CString CCore::MapPath(ESystemPath folder, const CString & path)
 {
 	switch(folder)
 	{
-		case ESystemPath::Root:		return CNativePath::Join(RootPath, path);
-		case ESystemPath::Servers:	return ServersPath + path;
-		case ESystemPath::Common:	return CommonPath + path;
+		//case ESystemPath::Root:			 return CNativePath::Join(RootPath, path);
+		case ESystemPath::Core:				return CNativePath::Join(CoreDirectory, path);
+		case ESystemPath::RootRemapping:	return CNativePath::Join(RemapPath, path);
+		case ESystemPath::Software:			return CNativePath::Join(SoftwarePath, path);
+		case ESystemPath::Tmp:				return CNativePath::Join(TmpDirectory, path);
+		case ESystemPath::System:			return CNativePath::Join(WorkDirectory, L"System", path);
+		case ESystemPath::Users:			return CNativePath::Join(WorkDirectory, L"Users", path);
 	}
 
 	throw CException(HERE, L"Wrong folder type");
-}
-
-CString CCore::MapToDatabase(const CString & path)
-{
-	return CNativePath::Join(WorkDirectory, path);
-}
-
-CString CCore::MapToTmp(const CString & path)
-{
-	return CNativePath::Join(TmpDirectory, path);
 }
 
 void CCore::RegisterExecutor(ICommandExecutor * e)
 {
 	Executors.push_back(e);
 
-	for(auto i : Commands)
+	for(auto i : Commands->Nodes)
 	{
 		Execute(i, null);
 	}
 }
 
-void CCore::Execute(const CUrq & c, CExecutionParameters * p)
+void CCore::Open(CUrl const & object, CExecutionParameters * parameters)
 {
-	if(c.Path == DatabaseObject)
-	{
-		if(c.Query.Contains(L"Action", L"Clear"))
-		{
-			///if(CPath::IsDirectory(WorkFolder))
-			///{
-			///	CNativeDirectory::Delete(WorkFolder);
-			///	CreateDirectories(WorkFolder, true);
-			///}
-		}
-	}
-	else
-		for(auto j : Executors)
-		{
-			j->Execute(c, p);
-		}
+	CTonDocument d;
+
+	auto core = d.Add(L"");
+	core->Add(CCore::OpenDirective);
+	core->Add(CCore::UrlArgument)->Set(object.ToString());
+
+	Execute(core, parameters);
 }
 
-void CCore::AddRestartCommand(CUrl const & c)
+void CCore::Execute(CString const & command, CExecutionParameters * parameters)
 {
-	RestartCommand += c.ToString() + L" ";
+	auto & d = CTonDocument(CXonTextReader(command));
+
+	for(auto i : d.Nodes)
+	{
+		Execute(i, parameters);
+	}
+}
+
+void CCore::Execute(CXon * command, CExecutionParameters * parameters)
+{
+	if(command->Name.empty())
+	{
+		if(command->Nodes.First()->Name == CCore::OpenDirective && command->Any(CCore::UrlArgument))
+		{
+			auto u = command->Get<CString>(CCore::UrlArgument);
+
+			auto url = CUrl(u);
+
+			if(url.Scheme == CCore::CliScheme)
+			{
+				Execute(url.Path, parameters);
+
+				return;
+			}
+		}
+	}
+
+	for(auto j : Executors)
+	{
+		j->Execute(command, parameters);
+	}
+}
+
+void CCore::AddRestartCommand(CString const & c)
+{
+	RestartCommand += c + L" ";
 }
 
 void CCore::SetCommit(bool c)
@@ -661,7 +723,13 @@ void CCore::ProcessOther()
 void CCore::ProcessCopyData(COPYDATASTRUCT * cd)
 {
 	Log->ReportMessage(this, L"Instance message recieved: %s", cd->lpData);
-	Execute(CUrq((wchar_t *)cd->lpData), null);
+
+	CTonDocument d(CXonTextReader((wchar_t *)cd->lpData));
+	
+	for(auto i : d.Nodes)
+	{
+		Execute(i, null);
+	}
 }
 	
 void CCore::ProcessEvents(int i)
@@ -962,56 +1030,6 @@ void CCore::OnDiagnosticsUpdate(CDiagnosticUpdate & a)
 	{
 		Diagnostics->Add(L"%-30s   min: %10.f   max: %10.f   %d nps", i->Name, 1e6 * i->Min, 1e6 * i->Max, i->GetMeasures());
 	}
-}
-
-CList<CUrq> CCore::FindStartCommands(CUsl & s)
-{
-	CList<CUrq>	r;
-
-	for(auto & i : Commands)
-	{
-		if((i.Domain.empty() || i.Domain == s.Domain) && i.GetSystem() == s.Server)
-		{
-			r.push_back(i);
-		}
-	}
-
-	return r;
-}
-
-std::pair<const CString, CString> * CCore::FindStartCommand(CUsl & s, CString const & name)
-{
-	for(auto & i : Commands)
-	{
-		if((i.Domain.empty() || i.Domain == s.Domain) && i.GetSystem() == s.Server)
-		{
-			for(auto & j : i.Query)
-			{
-				if(j.first == name)
-				{
-					return &j;
-				}
-			}
-		}
-	}
-
-	return null;
-}
-
-
-bool CCore::HasCommand(CString const & name, CString const & val)
-{
-	auto cmds = FindStartCommands(CUsl(L"", L"Core"));
-
-	for(auto & i : cmds)
-	{
-		if(i.Query.Contains(name, val))
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 bool CCore::IsMainThread()

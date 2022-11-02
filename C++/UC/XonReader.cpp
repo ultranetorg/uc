@@ -47,111 +47,124 @@ EXonToken CXonTextReader::Read()
 EXonToken CXonTextReader::ReadNext()
 {
 	Next(C);
-	
-	if(*C)
+
+	switch(Current)
 	{
-		switch(Current)
-		{
-			case EXonToken::NodeEnd:
+		case EXonToken::NodeEnd:
+			if(*C == L'}') // after last child
 			{
-				if(*C == L'}') // after last child
-				{
-					bool t = Type.back();
-					Type.pop_back();
+				bool t = Type.back();
+				Type.pop_back();
 
-					Current = t ? EXonToken::AttrValueEnd : EXonToken::ChildrenEnd;
-					C++;
-				}
-				else // next child
-				{
-					Current = EXonToken::NodeBegin;
-				}
-				break;
+				Current = t ? EXonToken::AttrValueEnd : EXonToken::ChildrenEnd;
+				C++;
 			}
-			case EXonToken::NodeBegin:
+			else if(*C == 0)
+				Current = EXonToken::End;
+			else // next child
+				Current = EXonToken::NodeBegin;
+			break;
+		
+		case EXonToken::NodeBegin:
+			LastName.clear();
+			LastType.clear();
+
+			if(*C == L'=')
+			{
+				Current = EXonToken::NameEnd;
+			}
+			else if(*C == L'{')
+			{
+				Current = EXonToken::NameEnd;
+			}
+			else
 				Current = EXonToken::NameBegin;
-				break;
+			break;
 
-			case EXonToken::NameEnd:
-				if(*C == L'=')
-				{
-					C++;
-					Current = EXonToken::ValueBegin;
-				}
-				else if(*C == L'{')
-				{
-					C++;
-					Type.push_back(false);
-					Current = EXonToken::ChildrenBegin;
-				}
-				else
-					Current = EXonToken::NodeEnd;
-				break;
+		case EXonToken::NameBegin:
 
-			case EXonToken::ValueBegin:
-				if(*C == L'{')
-				{
-					C++;
-					Type.push_back(true);
-					Current = EXonToken::AttrValueBegin;
-				}
-				else
-					Current = EXonToken::SimpleValueBegin;
-				break;
-			
-			case EXonToken::AttrValueBegin:
-				if(*C == L'}')
-				{
-					C++;
-					Current = EXonToken::AttrValueEnd;
-				}
-				else
-				{
-					Current = EXonToken::NodeBegin;
-				}
-				break;
-			
-			case EXonToken::ChildrenBegin:
-				if(*C == L'}')
-				{
-					Current = EXonToken::ChildrenEnd;
-					C++;
-				}
-				else
-				{	
-					Current = EXonToken::NodeBegin;
-				}
-				break;
+			ReadName(LastName, LastType);
+			Current = EXonToken::NameEnd;
 
-			case EXonToken::ChildrenEnd:
-				Current = EXonToken::NodeEnd;
-				break;
+			break;
 
-			case EXonToken::AttrValueEnd:
-			case EXonToken::SimpleValueEnd:
-				Current = EXonToken::ValueEnd;
-				break;
-
-			case EXonToken::ValueEnd:
+		case EXonToken::NameEnd:
+			if(*C == L'=')
 			{
-				if(*C == L'{')
-				{
-					C++;
-					Type.push_back(false);
-					Current = EXonToken::ChildrenBegin;
-				}
-				else
-					Current = EXonToken::NodeEnd;
-				break;
+				C++;
+				Current = EXonToken::ValueBegin;
 			}
+			else if(*C == L'{')
+			{
+				C++;
+				Type.push_back(false);
+				Current = EXonToken::ChildrenBegin;
+			}
+			else if(*C == 0)
+				Current = EXonToken::End;
+			else
+				Current = EXonToken::NodeEnd;
+			break;
+
+		case EXonToken::ValueBegin:
+			if(*C == L'{')
+			{
+				C++;
+				Type.push_back(true);
+				Current = EXonToken::AttrValueBegin;
+			}
+			else if(*C == 0)
+				Current = EXonToken::End;
+			else
+				Current = EXonToken::SimpleValueBegin;
+			break;
+			
+		case EXonToken::AttrValueBegin:
+			if(*C == L'}')
+			{
+				C++;
+				Current = EXonToken::AttrValueEnd;
+			}
+			else if(*C == 0)
+				Current = EXonToken::End;
+			else
+				Current = EXonToken::NodeBegin;
+			break;
+			
+		case EXonToken::ChildrenBegin:
+			if(*C == L'}')
+			{
+				Current = EXonToken::ChildrenEnd;
+				C++;
+			}
+			else if(*C == 0)
+				Current = EXonToken::End;
+			else
+				Current = EXonToken::NodeBegin;
+			break;
+
+		case EXonToken::ChildrenEnd:
+			Current = EXonToken::NodeEnd;
+			break;
+
+		case EXonToken::AttrValueEnd:
+		case EXonToken::SimpleValueEnd:
+			Current = EXonToken::ValueEnd;
+			break;
+
+		case EXonToken::ValueEnd:
+		{
+			if(*C == L'{')
+			{
+				C++;
+				Type.push_back(false);
+				Current = EXonToken::ChildrenBegin;
+			}
+			else
+				Current = EXonToken::NodeEnd;
+			break;
 		}
 	}
-	else if(Current == EXonToken::ChildrenEnd)
-	{
-		Current = EXonToken::NodeEnd;
-	}
-	else
-		Current = EXonToken::End;
 
 	return Current;
 }
@@ -191,7 +204,6 @@ void CXonTextReader::ReadName(CString & name, CString & type)
 		{
 			if(*C == 0 || *C == L' ' || *C == L'\t' || *C == L'\r' || *C == L'\n' || *C == L'{' || *C == L'}' || *C == L'=')
 			{
-				Current = EXonToken::NameEnd;
 				return;
 			}
 			else if(*C == L'\"') // opening '
@@ -225,7 +237,6 @@ void CXonTextReader::ReadName(CString & name, CString & type)
 				}
 				else
 				{
-					Current = EXonToken::NameEnd;
 					break;
 				}
 			}
@@ -349,6 +360,9 @@ EXonToken CXonBinaryReader::ReadNext()
 		switch(Current)
 		{
 			case EXonToken::NodeBegin:
+				LastName.clear();
+				LastType.clear();
+
 				unsigned char f;
 				Stream->Read(&f, sizeof(f));
 				Flags.push_back(f);
@@ -368,6 +382,13 @@ EXonToken CXonBinaryReader::ReadNext()
 					Current = EXonToken::NodeBegin;
 
 				Flags.pop_back();
+				break;
+
+			case EXonToken::NameBegin:
+
+				ReadName(LastName, LastType);
+				Current = EXonToken::NameEnd;
+
 				break;
 
 			case EXonToken::NameEnd:
@@ -436,8 +457,6 @@ void CXonBinaryReader::ReadName(CString & name, CString & type)
 	{	
 		type = CString().GetTypeName();
 	}
-
-	Current = EXonToken::NameEnd;
 }
 
 void CXonBinaryReader::ReadValue(CXonSimpleValue * v)

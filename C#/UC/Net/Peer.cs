@@ -19,7 +19,7 @@ namespace UC.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Hello, Blocks, RoundsRequest, Rounds, Request, Response
+		Null, Hello, Blocks, Request, Response
 	}
 
 	public enum EstablishingStatus
@@ -38,7 +38,7 @@ namespace UC.Net
 		public int		LastConfirmedRound;
 	}
 
-	public class Peer : Nci
+	public class Peer : Dci
 	{
 		public IPAddress			IP {get; set;} 
 		public int					JoinedGeneratorsAt {get; set;}
@@ -61,10 +61,7 @@ namespace UC.Net
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
-		public int					HubHits;
-		public int					HubMisses;
-		//public List<PackageAddress>	HubMissedResources = new();
-		//public List<PackageAddress>	HubHitResources = new();
+		public int					ReachFailures;
 
 		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
@@ -72,7 +69,11 @@ namespace UC.Net
 		public List<Request>		InRequests = new();
 		public List<Request>		OutRequests = new();
 
-		public Role					Role;
+		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
+		public int					PeerRank = 0;
+		public int					ChainRank = 0;
+		public int					HubRank = 0;
+		public int					SeedRank = 0;
 
 		public Peer()
 		{
@@ -85,33 +86,53 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedGeneratorsAt}";
+			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedGeneratorsAt}, Cr={ChainRank}, Hr={HubRank}, Sr={SeedRank}";
 		}
  		
+		public int GetRank(Role role)
+		{
+			return role switch{	Role.Chain => ChainRank,
+								Role.Hub => HubRank,
+								Role.Seed => SeedRank,
+								_ => throw new IntegrityException("Wrong rank") };
+		}
+
   		public void SaveNode(BinaryWriter w)
   		{
   			w.Write7BitEncodedInt64(LastSeen.ToBinary());
-			w.Write7BitEncodedInt(HubHits);
-			w.Write7BitEncodedInt(HubMisses);
+			//w.Write7BitEncodedInt(HubHits);
+			//w.Write7BitEncodedInt(HubMisses);
+			w.Write(PeerRank);
+			w.Write(ChainRank);
+			w.Write(HubRank);
+			w.Write(SeedRank);
   		}
   
   		public void LoadNode(BinaryReader r)
   		{
   			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
-			HubHits = r.Read7BitEncodedInt();
-			HubMisses = r.Read7BitEncodedInt();
+			//HubHits = r.Read7BitEncodedInt();
+			//HubMisses = r.Read7BitEncodedInt();
+			PeerRank = r.ReadInt32();
+			ChainRank = r.ReadInt32();
+			HubRank = r.ReadInt32();
+			SeedRank = r.ReadInt32();
   		}
  
- 		public void WriteNode(BinaryWriter w)
+ 		public void WritePeer(BinaryWriter w)
  		{
  			w.Write(IP);
-			w.Write((byte)Role);
+			w.Write((byte)Roles);
  		}
  
- 		public void ReadNode(BinaryReader r)
+ 		public void ReadPeer(BinaryReader reader)
  		{
- 			IP = r.ReadIPAddress();
-			Role = (Role)r.ReadByte();
+ 			IP = reader.ReadIPAddress();
+			var r = (Role)reader.ReadByte();
+			ChainRank	= r.HasFlag(Role.Chain) ? 1 : 0;
+			HubRank		= r.HasFlag(Role.Hub) ? 1 : 0;
+			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
+
  		}
 		
   		public void WriteMember(BinaryWriter w)
@@ -195,8 +216,11 @@ namespace UC.Net
 		{
 			Core = core;
 			Client = client;
+			
 			Client.ReceiveTimeout = 0;
+			Client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Core.Timeout;
 
+			PeerRank++;
 			Status				= ConnectionStatus.OK;
 			Stream				= client.GetStream();
 			Writer				= new BinaryWriter(Stream);
@@ -204,8 +228,11 @@ namespace UC.Net
 			Lock				= lockk;
 			LastRound			= h.LastRound;
 			LastConfirmedRound	= h.LastConfirmedRound;
-			Role				= h.Roles;
-	
+			ChainRank			= h.Roles.HasFlag(Role.Chain) ? 1 : 0;
+			HubRank				= h.Roles.HasFlag(Role.Hub) ? 1 : 0;
+			SeedRank			= h.Roles.HasFlag(Role.Seed) ? 1 : 0;
+
+			core.UpdatePeers(new Peer[]{this});
 
 			ReadThread = new (() => { read(this); });
 			ReadThread.Name = $"{host} listening to {IP.GetAddressBytes()[3]}";
@@ -314,7 +341,7 @@ namespace UC.Net
 		{
 			try
 			{
-				var buf = new byte[Client.ReceiveBufferSize];
+				var buf = new byte[65636];
 
 				var p = new Packet();
 				var s = new MemoryStream();
@@ -370,21 +397,10 @@ namespace UC.Net
 			}
 		}
 
-		public void RequestRounds(Header h, int from, int to)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-			
-			w.Write7BitEncodedInt(from);
-			w.Write7BitEncodedInt(to);
-
-			Send(h, PacketType.RoundsRequest, s);
-		}
-
  		public override Rp Request<Rp>(Request rq) where Rp : class
  		{
 			if(!Established)
-				throw new RequirementException("Peer is not connectevd");
+				throw new ConnectionFailedException("Peer is not connected");
 
 			lock(OutRequests)
 			{	
@@ -400,18 +416,18 @@ namespace UC.Net
 					Out.Enqueue(p);
 			}
  
- 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : 15000))
+ 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : Core.Timeout))
  			{
-				if(rq.RecievedResponse == null)
+				if(rq.Response == null)
 					throw new OperationCanceledException();
 
- 				if(rq.RecievedResponse.Error == null)
-	 				return rq.RecievedResponse as Rp;
+ 				if(rq.Response.Error == null)
+	 				return rq.Response as Rp;
  				else
-					throw new RemoteCallException(rq.RecievedResponse);
+					throw new DistributedCallException(rq.Response);
  			}
 			else
- 				throw new TimeoutException($"Request {rq.GetType().Name} has timed out");
+ 				throw new DistributedCallException($"Timed out");
  		}
 	}
 }

@@ -3,14 +3,15 @@
 
 namespace uc
 {
-	struct CFieldItem : public CNexusObject
+	class CFieldItem : public CPersistentObject
 	{
 		public:
-			CUol				Object;
-			CString				Complexity;
+			const static inline CString		Scheme = L"fielditem";
+			CUol							Object;
+			CString							Complexity;
 
 			UOS_RTTI
-			CFieldItem(CServer * s, CString const & complexity, CString const & name = CGuid::Generate64(GetClassName())) : CNexusObject(s, name)
+			CFieldItem(CServer * server, CString const & complexity, CString const & name = CGuid::Generate64(GetClassName())) : CPersistentObject(Scheme, server, name)
 			{
 				Complexity = complexity;
 			}
@@ -48,7 +49,7 @@ namespace uc
 		public:
 			CShellLevel *								Level;
 			CList<CFieldItem *>							Items;
-			CEvent<CFieldItem *>							Added;
+			CEvent<CFieldItem *>						Added;
 
 			CFieldServer(CShellLevel * l, CString const & name = CGuid::Generate64(CField::GetClassName()));
 			virtual ~CFieldServer();

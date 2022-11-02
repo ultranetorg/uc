@@ -6,11 +6,11 @@ namespace uc
 	class CTradingviewProvider : public CTradeProvider, public virtual IType
 	{
 		public:
-			CLevel2 *							Level;
-			CList<CHttpRequest *>				Requests;
+			CExperimentalLevel *	Level;
+			CList<CHttpRequest *>	Requests;
 			
 			UOS_RTTI
-			CTradingviewProvider(CLevel2 * l)
+			CTradingviewProvider(CExperimentalLevel * l)
 			{
 				Level = l;
 				Name = L"TradingView";
@@ -49,9 +49,9 @@ namespace uc
 			void FetchSymbols(CString const & type, CString const & name)
 			{
 				Markets.push_back(CMarket{name});
-				CMarket * m = &Markets.back();
+				auto m = &Markets.back();
 
-				CHttpRequest * r = new CHttpRequest(Level, L"https://symbol-search.tradingview.com/symbol_search/?text=&exchange=&type=" + type + L"&hl=true&lang=en&domain=production");
+				auto r = new CHttpRequest(Level->Core, L"https://symbol-search.tradingview.com/symbol_search/?text=&exchange=&type=" + type + L"&hl=true&lang=en&domain=production");
 				r->Headers  = {	L"Host: symbol-search.tradingview.com",
 								L"Origin: https://www.tradingview.com",
 								L"Referer: https://www.tradingview.com/"};

@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    x:Class="UC.Umc.Resources.Styles.DefaultTheme"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+    xmlns:converters="clr-namespace:UC.Umc.Converters"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:local="clr-namespace:UC.Umc.Resources.Styles">
+    
+    <ResourceDictionary.MergedDictionaries>
+        <local:Colors />
+        <local:Controls />
+        <local:Templates />
+        <local:Layout />
+    </ResourceDictionary.MergedDictionaries>
+            
+    <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
+    <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
+    <converters:NotificationTypeConverter x:Key="NotificationTypeConverter" />
+
+    <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    <toolkit:IsListNotNullOrEmptyConverter x:Key="IsListNotNullOrEmptyConverter" />
+    <toolkit:IsNotNullConverter x:Key="IsNotNullConverter" />
+    <toolkit:IsStringNullOrWhiteSpaceConverter x:Key="IsStringNullOrWhiteSpace" />
+    <toolkit:IntToBoolConverter x:Key="IntToBoolConverter" />
+    <OnPlatform x:Key="UniPadding" x:TypeArguments="Thickness">
+        <OnPlatform.Platforms>
+            <On Platform="iOS" Value="0,30,0,0" />
+            <On Platform="Android" Value="0,2,0,0" />
+            <On Platform="UWP" Value="0" />
+        </OnPlatform.Platforms>
+    </OnPlatform>
+    <OnPlatform x:Key="SidePadding" x:TypeArguments="Thickness">
+        <OnPlatform.Platforms>
+            <On Platform="iOS" Value="30,0,0,0" />
+            <On Platform="Android" Value="15,0,0,0" />
+            <On Platform="UWP" Value="0" />
+        </OnPlatform.Platforms>
+    </OnPlatform>
+    <OnPlatform x:Key="LeftPadding" x:TypeArguments="Thickness">
+        <OnPlatform.Platforms>
+            <On Platform="iOS" Value="0,0,10,0" />
+            <On Platform="Android" Value="0" />
+            <On Platform="UWP" Value="0" />
+        </OnPlatform.Platforms>
+    </OnPlatform>
+    <OnPlatform x:Key="PagePadding" x:TypeArguments="Thickness">
+        <OnPlatform.Platforms>
+            <On Platform="iOS" Value="20,20,20,40" />
+            <On Platform="Android" Value="20" />
+        </OnPlatform.Platforms>
+    </OnPlatform>
+    <OnPlatform x:Key="PopupPadding" x:TypeArguments="Thickness">
+        <OnPlatform.Platforms>
+            <On Platform="iOS" Value="8,8,8,35" />
+            <On Platform="Android" Value="8,8,0,20" />
+            <On Platform="UWP" Value="8,8,8,20" />
+        </OnPlatform.Platforms>
+    </OnPlatform>
+</ResourceDictionary>

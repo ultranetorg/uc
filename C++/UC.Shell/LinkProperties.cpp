@@ -100,7 +100,7 @@ void CLinkProperties::SetEntity(CUol & e)
 
 	TitleEdit->SetText(Entity->Title);
 	TargetEdit->SetText(Entity->Target.ToString());
-	ExecutorEdit->SetText(Entity->Executor.ToString());
+	ExecutorEdit->SetText(Entity->Executor);
 }
 
 void CLinkProperties::SaveInstance()
@@ -112,7 +112,7 @@ void CLinkProperties::SaveInstance()
 	SaveGlobal(d, GetClassName() + L".xon");
 }
 
-void CLinkProperties::OnDependencyDestroying(CNexusObject * o)
+void CLinkProperties::OnDependencyDestroying(CInterObject * o)
 {
 	if(Entity && Entity == o)
 	{

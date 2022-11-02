@@ -7,7 +7,7 @@ CChartIcon::CChartIcon(CExperimentalLevel * l, CString const & name) : CIcon(l->
 {
 	Level = l;
 
-	SetContentFromImage(Server->MapPath(L"Chart-24x24.png"));
+	SetContentFromImage(Server->MapReleasePath(L"Chart-24x24.png"));
 }
 
 CChartIcon::~CChartIcon()

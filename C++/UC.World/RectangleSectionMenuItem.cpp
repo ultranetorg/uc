@@ -31,9 +31,9 @@ CRectangleSectionMenuItem::~CRectangleSectionMenuItem()
 	RemoveNode(Arrow);
 }
 
-CMesh * CRectangleSectionMenuItem::CreateArrowMesh(CWorldLevel * world)
+CMesh * CRectangleSectionMenuItem::CreateArrowMesh(CWorldLevel * level)
 {
-	auto m = new CMesh(&world->Engine->EngineLevel);
+	auto m = new CMesh(level->Engine->Level);
 
 	CArray<CFloat3> a(3);
 
