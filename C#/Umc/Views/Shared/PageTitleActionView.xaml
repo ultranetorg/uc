@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <shared:BasePageTitleView
-    x:Class="UC.Net.Node.MAUI.Views.Shared.PageTitleActionView"
+    x:Class="UC.Umc.Views.Shared.PageTitleActionView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:shared="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
+    xmlns:shared="clr-namespace:UC.Umc.Views.Shared"
     x:TypeArguments="shared:PageTitleActionView"
     x:Name="This">
     <FlexLayout

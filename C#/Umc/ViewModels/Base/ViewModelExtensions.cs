@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public static class ViewModelExtensions
 {

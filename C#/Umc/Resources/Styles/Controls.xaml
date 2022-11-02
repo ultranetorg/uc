@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ResourceDictionary 
-    x:Class="UC.Net.Node.MAUI.Resources.Styles.Controls"
+    x:Class="UC.Umc.Resources.Styles.Controls"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:converters="clr-namespace:CMSCOM.Converters"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models"
-    xmlns:local="clr-namespace:UC.Net.Node.MAUI.Resources.Styles">
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:fi="clr-namespace:UC.Umc.Models"
+    xmlns:local="clr-namespace:UC.Umc.Resources.Styles">
     
     <ResourceDictionary.MergedDictionaries>
         <local:Colors />

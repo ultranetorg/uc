@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Views.Shared;
+﻿namespace UC.Umc.Views.Shared;
 
 public partial class PageTitleNotificationsView : BasePageTitleView<PageTitleNotificationsView>
 {

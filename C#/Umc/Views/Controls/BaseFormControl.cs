@@ -6,7 +6,7 @@ using Microsoft.Maui.Controls.Compatibility.Platform.Android;
 #endif
 using Microsoft.Maui.Handlers;
 
-namespace UC.Net.Node.MAUI.Controls;
+namespace UC.Umc.Controls;
 
 public abstract class BaseFormControl<T, U> : ContentView
 {

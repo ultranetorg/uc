@@ -5,7 +5,7 @@
     Padding="0"
     x:Name="Instance"
     ColumnDefinitions="30,*"
-    x:Class="UC.Net.Node.MAUI.Controls.ImageTextColumn">
+    x:Class="UC.Umc.Controls.ImageTextColumn">
     <ImageButton
         Grid.Column="0"
         IsEnabled="{Binding IsEnabledImage, Source={x:Reference Instance}}"

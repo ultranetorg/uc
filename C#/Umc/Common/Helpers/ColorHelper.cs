@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Helpers;
+﻿namespace UC.Umc.Helpers;
 
 public static class ColorHelper
 {

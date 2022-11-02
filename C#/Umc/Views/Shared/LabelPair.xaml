@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Grid
-    x:Class="UC.Net.Node.MAUI.Controls.LabelPair"
+    x:Class="UC.Umc.Controls.LabelPair"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     ColumnDefinitions="2*,1*"

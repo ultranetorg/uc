@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Exceptions;
+﻿namespace UC.Umc.Exceptions;
 
 public class AccountNotFoundException : BaseException
 {

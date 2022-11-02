@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels.Views;
+﻿namespace UC.Umc.ViewModels.Views;
 
 public partial class Send1ViewModel : BaseViewModel
 {

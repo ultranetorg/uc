@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace UC.Net.Node.MAUI.Helpers;
+namespace UC.Umc.Helpers;
 
 public static class CommonHelper
 {

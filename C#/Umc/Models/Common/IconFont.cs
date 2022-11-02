@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Models;
+﻿namespace UC.Umc.Models;
 
 // TBR
 public static class IconFont

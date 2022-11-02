@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <controls:CustomPage
-    x:Class="UC.Net.Node.MAUI.Pages.TransferCompletePage"
+    x:Class="UC.Umc.Pages.TransferCompletePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:fi="clr-namespace:UC.Umc.Models"
     Title="Transfer sucessfully completed"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>

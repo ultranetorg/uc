@@ -3,7 +3,7 @@ using Android.Content.PM;
 using Android.OS;
 using Plugin.Fingerprint;
 
-namespace UC.Net.Node.MAUI;
+namespace UC.Umc;
 
 [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
 public class MainActivity : MauiAppCompatActivity

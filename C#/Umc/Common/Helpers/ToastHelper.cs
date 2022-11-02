@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 
-namespace UC.Net.Node.MAUI.Helpers;
+namespace UC.Umc.Helpers;
 
 /// <summary>
 /// Shows a timed alert at the bottom of the screen

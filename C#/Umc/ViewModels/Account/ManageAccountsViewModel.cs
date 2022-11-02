@@ -1,6 +1,6 @@
-﻿using UC.Net.Node.MAUI.Constants;
+﻿using UC.Umc.Constants;
 
-namespace UC.Net.Node.MAUI.ViewModels;
+namespace UC.Umc.ViewModels;
 
 public partial class ManageAccountsViewModel : BaseAccountViewModel
 {

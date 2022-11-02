@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI;
+﻿namespace UC.Umc;
 
 public partial class AppShell : Shell
 {

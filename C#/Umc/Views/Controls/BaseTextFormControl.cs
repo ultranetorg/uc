@@ -9,7 +9,7 @@ using System.Windows.Input;
 using Microsoft.Maui.Converters;
 using Microsoft.Maui.Handlers;
 
-namespace UC.Net.Node.MAUI.Controls;
+namespace UC.Umc.Controls;
 
 public abstract class BaseTextFormControl<T> : BaseFormControl<T, string>
 {

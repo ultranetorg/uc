@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell
-    x:Class="UC.Net.Node.MAUI.AppShell"
+    x:Class="UC.Umc.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:pages="clr-namespace:UC.Net.Node.MAUI.Pages"
-    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels"
-    xmlns:constants="clr-namespace:UC.Net.Node.MAUI.Constants"
+    xmlns:pages="clr-namespace:UC.Umc.Pages"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    xmlns:constants="clr-namespace:UC.Umc.Constants"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     ios:Page.UseSafeArea="True"
     x:DataType="vm:ShellViewModel"

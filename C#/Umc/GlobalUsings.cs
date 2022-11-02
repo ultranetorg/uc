@@ -8,13 +8,13 @@ global using CommunityToolkit.Maui.Views;
 global using CommunityToolkit.Diagnostics;
 
 // Project usings
-global using UC.Net.Node.MAUI.Models;
-global using UC.Net.Node.MAUI.ViewModels;
-global using UC.Net.Node.MAUI.ViewModels.Popups;
-global using UC.Net.Node.MAUI.ViewModels.Views;
-global using UC.Net.Node.MAUI.Helpers;
-global using UC.Net.Node.MAUI.Popups;
-global using UC.Net.Node.MAUI.Controls;
-global using UC.Net.Node.MAUI.Pages;
-global using UC.Net.Node.MAUI.Exceptions;
-global using UC.Net.Node.MAUI.Services;
+global using UC.Umc.Models;
+global using UC.Umc.ViewModels;
+global using UC.Umc.ViewModels.Popups;
+global using UC.Umc.ViewModels.Views;
+global using UC.Umc.Helpers;
+global using UC.Umc.Popups;
+global using UC.Umc.Controls;
+global using UC.Umc.Pages;
+global using UC.Umc.Exceptions;
+global using UC.Umc.Services;

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace UC.Net.Node.MAUI.Controls;
+namespace UC.Umc.Controls;
 
 public partial class NextCancelButton : StackLayout
 {

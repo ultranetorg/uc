@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
-    x:Class="UC.Net.Node.MAUI.Resources.Styles.DefaultTheme"
+    x:Class="UC.Umc.Resources.Styles.DefaultTheme"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
-    xmlns:converters="clr-namespace:UC.Net.Node.MAUI.Converters"
+    xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:local="clr-namespace:UC.Net.Node.MAUI.Resources.Styles">
+    xmlns:local="clr-namespace:UC.Umc.Resources.Styles">
     
     <ResourceDictionary.MergedDictionaries>
         <local:Colors />

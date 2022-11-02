@@ -1,5 +1,5 @@
-﻿using CreateAccountViewModel = UC.Net.Node.MAUI.ViewModels.Views.CreateAccountViewModel;
-namespace UC.Net.Node.MAUI.Views;
+﻿using CreateAccountViewModel = UC.Umc.ViewModels.Views.CreateAccountViewModel;
+namespace UC.Umc.Views;
 
 public partial class CreateAccount2View : ContentView
 {

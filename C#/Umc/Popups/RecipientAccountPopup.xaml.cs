@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Popups;
+﻿namespace UC.Umc.Popups;
 
 public partial class RecipientAccountPopup : Popup
 {

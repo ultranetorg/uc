@@ -1,6 +1,6 @@
 ﻿using System.Collections.Specialized;
 
-namespace UC.Net.Node.MAUI.Models;
+namespace UC.Umc.Models;
 
 public class CustomCollection<T> : ObservableCollection<T>
 {

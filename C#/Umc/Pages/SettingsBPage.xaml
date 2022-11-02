@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <controls:CustomPage
-    x:Class="UC.Net.Node.MAUI.Pages.SettingsBPage"
+    x:Class="UC.Umc.Pages.SettingsBPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:c1="http://schemas.grapecity.com/xf/2019/xaml"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
     Title="Settings"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>

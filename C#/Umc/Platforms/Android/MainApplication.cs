@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace UC.Net.Node.MAUI;
+namespace UC.Umc;
 
 [Application]
 public class MainApplication : MauiApplication

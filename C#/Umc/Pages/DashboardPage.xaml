@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <controls:CustomPage
-    x:Class="UC.Net.Node.MAUI.Pages.DashboardPage"
+    x:Class="UC.Umc.Pages.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:UC.Net.Node.MAUI.ViewModels"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
-    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views.Shared"
-    xmlns:models="clr-namespace:UC.Net.Node.MAUI.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views.Shared"
+    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:converters="clr-namespace:UC.Net.Node.MAUI.Converters"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:converters="clr-namespace:UC.Umc.Converters"
     ios:Page.UseSafeArea="True"
     x:DataType="vm:DashboardViewModel">
     

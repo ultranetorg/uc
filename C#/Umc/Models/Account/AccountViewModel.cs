@@ -1,16 +1,23 @@
-﻿namespace UC.Net.Node.MAUI.Models;
+﻿using UC.Net;
+
+namespace UC.Umc.Models;
 
 public class AccountViewModel
 {
-    public string Name { get; set; }
+    public string			Name { get; set; }
+    public GradientBrush	Color { get; set; }
+    public bool				ShowOnDashboard { get; set; } = true;
+	public decimal			Balance { get; set; }
+	public Account			Account { get; private set; }
+	public string			Address { get; set; }
+    // public string Address => Entry.Account.ToString();
+	
+    public IList<string>	Authors { get; set; } = new List<string>();
+    public HashSet<int>		Transactions { get; set; } = new HashSet<int>();
 
-    public GradientBrush Color { get; set; }
-
-    public bool ShowOnDashboard { get; set; } = true;
-
-	public decimal Balance { get; set; }
-
-	public Account Account { get; private set; }
+	// lets say 1 unts = $1 unless we can recieve rate
+	public string			DisplayAmount => $"{Math.Round(Balance)} UNT (${Math.Round(Balance)})";
+	public string			IconCode => Address?[2..6];
 
 	public AccountViewModel(Account account)
 	{
@@ -22,16 +29,4 @@ public class AccountViewModel
 	{
 		Address = address;
 	}
-
-	public string Address { get; set; }
-    // public string Address => Entry.Account.ToString();
-	
-    public IList<string> Authors { get; set; } = new List<string>();
-	
-    public HashSet<int> Transactions { get; set; } = new HashSet<int>();
-
-	// lets say 1 unts = $1 unless we can recieve rate
-	public string DisplayAmount => $"{Math.Round(Balance)} UNT (${Math.Round(Balance)})";
-
-	public string IconCode => Address?[2..6];
 }

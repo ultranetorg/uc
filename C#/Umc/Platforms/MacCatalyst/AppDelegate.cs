@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace UC.Net.Node.MAUI;
+namespace UC.Umc;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

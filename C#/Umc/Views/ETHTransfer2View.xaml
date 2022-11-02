@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <ContentView
-    x:Class="UC.Net.Node.MAUI.Views.ETHTransfer2View"
+    x:Class="UC.Umc.Views.ETHTransfer2View"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
+    xmlns:views="clr-namespace:UC.Umc.Views"
     x:Name="view">
     <StackLayout Padding="5" Spacing="30">
         <StackLayout>

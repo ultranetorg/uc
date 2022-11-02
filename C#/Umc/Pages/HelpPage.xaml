@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <controls:CustomPage
-    x:Class="UC.Net.Node.MAUI.Pages.HelpPage"
+    x:Class="UC.Umc.Pages.HelpPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
     Title="Help">
     <controls:CustomPage.MainContent>
         <Grid Padding="20,0" RowDefinitions="Auto,*">

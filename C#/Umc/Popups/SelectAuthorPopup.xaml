@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <toolkit:Popup
-    x:Class="UC.Net.Node.MAUI.Popups.SelectAuthorPopup"
+    x:Class="UC.Umc.Popups.SelectAuthorPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls"
-    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:views="clr-namespace:UC.Umc.Views"
     x:Name="page">
     
     <!--HasSystemPadding="{OnPlatform Android=True,

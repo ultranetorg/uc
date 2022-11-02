@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Constants;
+﻿namespace UC.Umc.Constants;
 
 internal static class ShellBaseRoutes
 {

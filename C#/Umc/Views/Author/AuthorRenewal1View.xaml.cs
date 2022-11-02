@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Views;
+﻿namespace UC.Umc.Views;
 
 public partial class AuthorRenewal1View : ContentView
 {

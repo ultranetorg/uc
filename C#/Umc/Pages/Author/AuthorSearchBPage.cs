@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Pages;
+﻿namespace UC.Umc.Pages;
 
 public partial class AuthorSearchBPage : CustomPage
 {

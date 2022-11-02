@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels.Popups;
+﻿namespace UC.Umc.ViewModels.Popups;
 
 public partial class NotificationViewModel : BaseViewModel
 {

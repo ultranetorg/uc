@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <ContentView
-    x:Class="UC.Net.Node.MAUI.Controls.EmptyView"
+    x:Class="UC.Umc.Controls.EmptyView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:fi="clr-namespace:UC.Net.Node.MAUI.Models"
+    xmlns:fi="clr-namespace:UC.Umc.Models"
     x:Name="emptyview">
     <StackLayout Spacing="10" VerticalOptions="CenterAndExpand">
         <Image

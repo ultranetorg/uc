@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 
-namespace UC.Net.Node.MAUI;
+namespace UC.Umc;
 
 public static class MauiProgram
 {

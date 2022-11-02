@@ -1,5 +1,5 @@
-﻿using UC.Net.Node.MAUI.Constants;
-namespace UC.Net.Node.MAUI.Popups;
+﻿using UC.Umc.Constants;
+namespace UC.Umc.Popups;
 
 public partial class AlertPopup : Popup
 {

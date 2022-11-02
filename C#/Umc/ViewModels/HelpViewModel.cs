@@ -1,4 +1,6 @@
-﻿namespace UC.Net.Node.MAUI.ViewModels;
+﻿using UC.Net;
+
+namespace UC.Umc.ViewModels;
 
 public partial class HelpViewModel : BaseTransactionsViewModel
 {

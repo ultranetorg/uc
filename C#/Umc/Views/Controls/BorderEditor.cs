@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace UC.Net.Node.MAUI.Controls;
+namespace UC.Umc.Controls;
 
 // Obsolete
 public class BorderEditor : Editor

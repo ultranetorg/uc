@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Services;
+﻿namespace UC.Umc.Services;
 
 public interface IProductsService
 {

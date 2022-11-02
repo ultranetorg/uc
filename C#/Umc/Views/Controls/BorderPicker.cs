@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Controls;
+﻿namespace UC.Umc.Controls;
 
 // Obsolete
 public class BorderPicker : Picker

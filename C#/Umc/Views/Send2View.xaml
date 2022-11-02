@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <ContentView
-    x:Class="UC.Net.Node.MAUI.Views.Send2View"
+    x:Class="UC.Umc.Views.Send2View"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:views="clr-namespace:UC.Net.Node.MAUI.Views"
-    xmlns:controls="clr-namespace:UC.Net.Node.MAUI.Controls">
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:controls="clr-namespace:UC.Umc.Controls">
     <StackLayout Spacing="20">
         <StackLayout Spacing="20">
             <StackLayout>

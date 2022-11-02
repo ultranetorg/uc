@@ -1,4 +1,4 @@
-﻿namespace UC.Net.Node.MAUI.Resources.Styles;
+﻿namespace UC.Umc.Resources.Styles;
 
 public partial class Colors : ResourceDictionary
 {

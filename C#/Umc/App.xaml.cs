@@ -1,8 +1,8 @@
 ﻿using Application = Microsoft.Maui.Controls.Application;
 using Microsoft.Maui.Handlers;
-using UC.Net.Node.MAUI.Constants;
+using UC.Umc.Constants;
 
-namespace UC.Net.Node.MAUI;
+namespace UC.Umc;
 
 public partial class App : Application
 {

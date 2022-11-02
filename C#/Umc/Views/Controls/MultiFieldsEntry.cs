@@ -1,5 +1,5 @@
 ﻿using static Microsoft.Maui.Controls.Compatibility.Grid;
-namespace UC.Net.Node.MAUI.Controls;
+namespace UC.Umc.Controls;
 
 public class MultiFieldsEntry : Grid
 {
