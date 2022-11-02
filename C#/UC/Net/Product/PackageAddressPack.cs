@@ -9,47 +9,47 @@ namespace UC.Net
 {
 	public class PackageAddressPack : IBinarySerializable
 	{
-		public IEnumerable<PackageAddress> Items;
+		public Dictionary<ReleaseAddress, Distributive> Items;
 
 		public PackageAddressPack()
 		{
 		}
 
-		public PackageAddressPack(IEnumerable<PackageAddress> packages)
+		public PackageAddressPack(Dictionary<ReleaseAddress, Distributive> packages)
 		{
 			Items = packages;
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			var ds = Items.GroupBy(i => i.Distributive);
+			var ds = Items.GroupBy(i => i.Value);
 			writer.Write7BitEncodedInt(ds.Count());
 
 			foreach(var d in ds)
 			{
 				writer.Write((byte)d.Key);
 
-				var aths = d.GroupBy(i => i.Author);
+				var aths = d.GroupBy(i => i.Key.Author);
 				writer.Write7BitEncodedInt(aths.Count());
 
 				foreach(var a in aths)
 				{
 					writer.WriteUtf8(a.Key);
 
-					var fs = a.GroupBy(i => i.Platform);
+					var fs = a.GroupBy(i => i.Key.Platform);
 					writer.Write7BitEncodedInt(fs.Count());
 
 					foreach(var f in fs)
 					{
 						writer.WriteUtf8(f.Key);
 
-						var ps = f.GroupBy(i => i.Product);
+						var ps = f.GroupBy(i => i.Key.Product);
 						writer.Write7BitEncodedInt(ps.Count());
 
 						foreach(var p in ps)
 						{
 							writer.WriteUtf8(p.Key);
-							writer.Write(p, i => i.Version.Write(writer));
+							writer.Write(p, i => i.Key.Version.Write(writer));
 						}
 					}
 				}
@@ -58,7 +58,7 @@ namespace UC.Net
 
 		public void Read(BinaryReader reader)
 		{
-			var list = new List<PackageAddress>();
+			var list = new Dictionary<ReleaseAddress, Distributive>();
 
 			var dn = reader.Read7BitEncodedInt();
 
@@ -80,7 +80,11 @@ namespace UC.Net
 						for(int l=0; l<pn; l++)
 						{
 							var p = reader.ReadUtf8();
-							list.AddRange(reader.ReadArray(() => new PackageAddress(a, p, f, reader.Read<Version>(), d)));
+
+							foreach(var v in reader.ReadArray<Version>())
+							{
+								list.Add(new ReleaseAddress(a, p, f, v), d);
+							}
 						}
 					}
 				}

@@ -50,11 +50,16 @@ namespace UC.Sun.CLI
 				{
 					var d = Core.DownloadRelease(ReleaseAddress.Parse(GetString("address")), Workflow);
 
-					while(!d.Successful)
+					if(d != null)
 					{
-						Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length}");
-						Thread.Sleep(1000);
-					}
+						while(!d.Successful)
+						{
+							Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length}");
+							Thread.Sleep(1000);
+						}
+					} 
+					else
+						Workflow.Log?.Report(this, $"Already downloaded");
 
 					return d;
 				}

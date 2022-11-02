@@ -234,17 +234,17 @@ namespace UC.Net
 
 					case DistributeReleaseCall c:
 					{
-						Core.Filebase.AddManifest(c.Release, c.Manifest);
+						Core.Filebase.AddRelease(c.Release, c.Manifest);
 
 						if(c.Complete != null)
 						{
-							Core.Filebase.WritePackage(new PackageAddress(c.Release, Distributive.Complete), 0, c.Complete);
-							Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
+							Core.Filebase.WritePackage(c.Release, Distributive.Complete, 0, c.Complete);
+							//Core.DeclareRelease(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
 						}
 						if(c.Incremental != null)
 						{
-							Core.Filebase.WritePackage(new PackageAddress(c.Release, Distributive.Incremental), 0, c.Incremental);
-							Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
+							Core.Filebase.WritePackage(c.Release, Distributive.Incremental, 0, c.Incremental);
+							//Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
 						}
 
 						break;
@@ -256,9 +256,9 @@ namespace UC.Net
 						break;
 					}
 
-					case DownloadStatusCall c:
+					case ReleaseStatusCall c:
 					{
-						respondjson(Core.GetDownloadStatus(c.Release));
+						respondjson(Core.GetReleaseInfo(c.Release));
 						break;
 					}
 				}

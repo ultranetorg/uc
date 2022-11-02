@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -100,7 +101,7 @@ namespace UC.Net
 					return true;
 				}
 				case System.Collections.IEnumerable v:
-
+				{
 					var n = 0;
 					foreach(var i in (System.Collections.IEnumerable)v)
 					{
@@ -115,6 +116,7 @@ namespace UC.Net
 							Serialize(writer, j);
 					}
 					return true;
+				}
 			}
 
 			return false;
@@ -147,9 +149,6 @@ namespace UC.Net
 			for(int i=0; i<n; i++)
 			{
 				var t = reader.ReadByte();
-				
-				if(t == 13)
-					t=t;
 
 				l[i] = fromtype(t);
 

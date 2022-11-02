@@ -11,11 +11,12 @@ namespace UC.Net
 {
 	public class DownloadStatus
 	{
-		public long		Length { get; set; }
-		public long		CompletedLength { get; set; }
-		public int		DependenciesCount { get; set; }
-		public bool		AllDependenciesFound { get; set; }
-		public int		DependenciesSuccessful { get; set; }
+		public Distributive	Distributive { get; set; }
+		public long			Length { get; set; }
+		public long			CompletedLength { get; set; }
+		public int			DependenciesCount { get; set; }
+		public bool			AllDependenciesFound { get; set; }
+		public int			DependenciesSuccessful { get; set; }
 	}
 
 	public class Download
@@ -52,7 +53,7 @@ namespace UC.Net
 										{
 											try
 											{
-												var d = Seed.DownloadPackage(Download.Package, Offset + Data.Position, Length - Data.Position).Data;
+												var d = Seed.DownloadRelease(Download.Release, Download.Distributive, Offset + Data.Position, Length - Data.Position).Data;
 												Data.Write(d, (int)Data.Position, d.Length);
 												break;
 											}
@@ -99,15 +100,16 @@ namespace UC.Net
 		}
 
 		public ReleaseAddress				Release;
-		public PackageAddress				Package { get; protected set; }
+		public Distributive					Distributive { get; protected set; }
 		public long							Length { get; protected set; }
-		public bool							Successful => Downloaded && AllDependenciesFound && DependenciesCount == DependenciesSuccessful;
+		public bool							Successful => Downloaded && AllDependenciesFound && DependenciesCount == DependenciesSuccessfulCount;
 		public long							CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
 																- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
 																+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
 		public int							DependenciesCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesCount);
 		public bool							AllDependenciesFound => Manifest != null && Dependencies.All(i => i.AllDependenciesFound);
-		public int							DependenciesSuccessful => Dependencies.Count(i => i.Successful) + Dependencies.Sum(i => i.DependenciesSuccessful);
+		public int							DependenciesSuccessfulCount => Dependencies.Count(i => i.Successful) + Dependencies.Sum(i => i.DependenciesSuccessfulCount);
+		public object						Lock = new object();
 
 		Core								Core;
 		Workflow							Workflow;
@@ -121,7 +123,6 @@ namespace UC.Net
 		List<Job>							CompletedPieces = new();
 		Manifest							Manifest;
 		Task								Task;
-		object								Lock = new object();
 
 		public Download(Core core, ReleaseAddress release, Workflow workflow)
 		{
@@ -137,7 +138,7 @@ namespace UC.Net
 				
 								Job j;
 
-								while(Core.Running)
+								while(true)
 								{
 									Thread.Sleep(1);
 									workflow.ThrowIfAborted();
@@ -175,6 +176,9 @@ namespace UC.Net
 																	catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
 																	{
 																	}
+																	catch(OperationCanceledException)
+																	{
+																	}
 																},
 																workflow.Cancellation.Token);
 											}
@@ -207,7 +211,7 @@ namespace UC.Net
 															
 													Core.Filebase.DetermineDelta(his.Registrations, Manifest, out Distributive d, out List<ReleaseAddress> deps);
 
-													Package = new PackageAddress(release, d);
+													Distributive = d;
 
 													deps	= d == Distributive.Incremental ? deps : Manifest.CompleteDependencies.ToList();
 													Hash	= d == Distributive.Complete ? Manifest.CompleteHash : Manifest.IncrementalHash;
@@ -219,7 +223,12 @@ namespace UC.Net
 														{
 															if(!core.Downloads.Any(j => j.Release == i))
 															{
-																Dependencies.Add(core.DownloadRelease(i, workflow));
+																var dd = core.DownloadRelease(i, workflow);
+																
+																if(dd != null)
+																{
+																	Dependencies.Add(dd);
+																}
 															}
 														}
 													}
@@ -269,7 +278,7 @@ namespace UC.Net
 										if(j.Succeeded)
 										{
 											lock(Core.Lock)
-												Core.Filebase.WritePackage(Package, j.Offset, j.Data.ToArray());
+												Core.Filebase.WritePackage(Release, Distributive, j.Offset, j.Data.ToArray());
 											
 											CompletedPieces.Add(j);
 
@@ -277,11 +286,11 @@ namespace UC.Net
 											{
 												Seeds[j.Seed.IP] = SeedStatus.Good;
 
-												if(Core.Filebase.GetHash(Package).SequenceEqual(Hash))
+												if(Core.Filebase.GetHash(Release, Distributive).SequenceEqual(Hash))
 												{	
-													Core.Filebase.AddManifest(release, Manifest);
+													Core.Filebase.AddRelease(Release, Manifest);
 
-													Core.DeclarePackage(new[]{Package}, Workflow);
+													//Core.DeclarePackage(new[]{Package}, Workflow);
 
 													var hubs = Hubs.Where(h => Seeds.Any(s => s.Value == SeedStatus.Good && h.Seeds.Any(ip => ip.Equals(s.Key)))).Select(i => i.Peer);
 
@@ -304,6 +313,10 @@ namespace UC.Net
 													//}
 												
 													Downloaded = true;
+
+													lock(Core.Lock)
+														Core.Downloads.Remove(this);
+
 													return;
 												}
 												else

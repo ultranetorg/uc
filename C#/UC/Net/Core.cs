@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using NBitcoin.Secp256k1;
 using Nethereum.Signer;
 using Nethereum.Web3;
+using Org.BouncyCastle.Asn1.X509;
 using RocksDbSharp;
 
 namespace UC.Net
@@ -53,7 +54,13 @@ namespace UC.Net
 		Seed	= 0b00000010,
 		Hub		= 0b00000100,
 	}
- 
+
+	public class ReleaseInfo
+	{
+		public Manifest			Manifest { get; set; }
+		public DownloadStatus	Download { get; set; }
+	}
+
 	public class Core : Dci
 	{
 		public System.Version							Version => Assembly.GetAssembly(GetType()).GetName().Version;
@@ -100,6 +107,7 @@ namespace UC.Net
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
 		Thread											SynchronizingThread;
+		Thread											DeclaringThread;
 
 		JsonServer										ApiServer;
 
@@ -638,15 +646,19 @@ namespace UC.Net
 			{
 				if(Filebase != null && !IsClient)
 				{
-					var ps = Filebase.GetAll();
-					
-					if(ps.Any())
-					{
-						Task.Run(() =>	{
-											DeclarePackage(ps, Workflow);
-											Workflow.Log?.Report(this, "Initial declaration completed");
-										});
-					}
+					DeclaringThread = new Thread(Declaring);
+					DeclaringThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Declaring";
+					DeclaringThread.Start();
+
+// 					var ps = Filebase.GetAll();
+// 					
+// 					if(ps.Any())
+// 					{
+// 						Task.Run(() =>	{
+// 											DeclarePackage(ps, Workflow);
+// 											Workflow.Log?.Report(this, "Initial declaration completed");
+// 										});
+// 					}
 				}
 
 				if(Chain != null)
@@ -960,60 +972,19 @@ namespace UC.Net
 							break;
 						}
 
-						//case PacketType.Rounds:
-						//{
-						//	Round[] rounds;
-						//
-						//	try
-						//	{
-						//		rounds = pk.Read(r => new Round(Chain));
-						//	}
-						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-						//	{
-						//		peer.Disconnect();
-						//		break;
-						//	}
-						//
-						//	break;
-						//}
-
-						//case PacketType.RoundsRequest:
-						//{
-						//	int from;
-						//	int to;
-						//
-						//	try
-						//	{
-						//		from	= reader.Read7BitEncodedInt();
-						//		to		= reader.Read7BitEncodedInt();
-						//	}
-						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-						//	{
-						//		peer.Disconnect();
-						//		break;
-						//	}
-						//
-						//	lock(Lock)
-						//	{
-						//		peer.Send(Packet.Create(PacketType.Rounds, rounds));
-						//	}
-						//		
-						//	break;
-						//}
-
  						case PacketType.Request:
  						{
 							Request[] requests;
 
  							try
  							{
-								requests = BinarySerializator.Deserialize(reader,	c => {
-																							var o = UC.Net.Request.FromType(Chain, (DistributedCall)c); 
-																							o.Peer = peer; 
-																							return o;
-																						},
-																					Constractor
-																					);
+								requests = BinarySerializator.Deserialize(	reader,	
+																			c => {
+																					var o = UC.Net.Request.FromType(Chain, (DistributedCall)c); 
+																					o.Peer = peer; 
+																					return o;
+																				},
+																			Constractor);
 
  							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
@@ -1701,6 +1672,57 @@ namespace UC.Net
 			}
 		}
 
+		void Declaring()
+		{
+			Workflow.Log?.Report(this, "Declaring started");
+
+			try
+			{
+				while(Running)
+				{
+					Thread.Sleep(1);
+					Workflow.ThrowIfAborted();
+
+					Release[] rs;
+					List<Peer> used;
+
+					lock(Lock)
+					{
+						rs = Filebase.Releases.Where(i => i.Hubs.Count < 8).ToArray();
+						used = rs.SelectMany(i => i.Hubs).Distinct().Where(h => rs.All(r => r.Hubs.Contains(h))).ToList();
+					}
+
+					if(rs.Any())
+					{
+						Call(	Role.Hub, 
+								p => {
+										lock(Lock)
+											rs = rs.Where(i => !i.Hubs.Contains(p)).ToArray();
+
+										p.DeclareRelease(rs.ToDictionary(i => i.Address, i => (i.Manifest.CompleteHash != null ? Distributive.Complete : 0) |
+																							  (i.Manifest.IncrementalHash != null ? Distributive.Incremental : 0)));
+												
+										lock(Lock)
+											foreach(var i in rs)
+												i.Hubs.Add(p);
+
+										used.Add(p);
+									},
+								Workflow,
+								used,
+								true);
+					}
+				}
+			}
+			catch(OperationCanceledException)
+			{
+			}
+			catch(Exception ex) when (!Debugger.IsAttached)
+			{
+				Stop(MethodBase.GetCurrentMethod(), ex);
+			}
+		}
+
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			if(!Chain.Members.Any(i => i.Generator == Generator))
@@ -1848,9 +1870,9 @@ namespace UC.Net
 			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
-		public R Call<R>(Role role, Func<Peer, R> call, Workflow workflow)
+		public R Call<R>(Role role, Func<Peer, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
 		{
-			var exclusions = new HashSet<Peer>();
+			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
 			Peer peer;
 				
@@ -1861,19 +1883,60 @@ namespace UC.Net
 	
 				lock(Lock)
 				{
-					peer = FindBestPeer(role, exclusions);
+					peer = FindBestPeer(role, excl);
 	
 					if(peer == null)
 						continue;
 				}
 
-				exclusions?.Add(peer);
+				excl?.Add(peer);
 
 				try
 				{
 					Connect(peer, workflow);
 
 					return call(peer);
+				}
+				catch(ConnectionFailedException)
+				{
+				}
+				catch(DistributedCallException)
+				{
+				}
+			}
+		}
+
+		public void Call(Role role, Action<Peer> call, Workflow workflow, IEnumerable<Peer> exclusions = null, bool exitifnomore = false)
+		{
+			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+
+			Peer peer;
+				
+			while(true)
+			{
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+	
+				lock(Lock)
+				{
+					peer = FindBestPeer(role, excl);
+	
+					if(peer == null)
+						if(exitifnomore)
+							return;
+						else
+							continue;
+				}
+
+				excl?.Add(peer);
+
+				try
+				{
+					Connect(peer, workflow);
+
+					call(peer);
+
+					break;
 				}
 				catch(ConnectionFailedException)
 				{
@@ -2009,11 +2072,14 @@ namespace UC.Net
 			return null;
 		}
 
-		public Download DownloadRelease(ReleaseAddress package, Workflow workflow)
+		public Download DownloadRelease(ReleaseAddress release, Workflow workflow)
 		{
 			lock(Lock)
 			{
-				var d = new Download(this, package, workflow);
+				if(Filebase.FindRelease(release) != null)
+					return null;
+
+				var d = new Download(this, release, workflow);
 	
 				Downloads.Add(d);
 		
@@ -2021,66 +2087,72 @@ namespace UC.Net
 			}
 		}
 
-		public DownloadStatus GetDownloadStatus(ReleaseAddress release)
+		public ReleaseInfo GetReleaseInfo(ReleaseAddress release)
 		{
+			var m = Filebase.FindRelease(release);
+			
+			if(m != null)
+			{
+				return new ReleaseInfo { Manifest = m.Manifest };
+			}
+
 			Download d;
 
-			lock(Lock)
-				d = Downloads.Find(i => i.Release == release);
+			d = Downloads.Find(i => i.Release == release);
 
 			if(d != null)
 			{
-				return new DownloadStatus {	Length					= d.Length, 
-											CompletedLength			= d.CompletedLength,
-											DependenciesCount		= d.DependenciesCount,
-											AllDependenciesFound	= d.AllDependenciesFound,
-											//DependenciesCompleted	= d.DependenciesCompleted,
-											DependenciesSuccessful	= d.DependenciesSuccessful};
+				return new () { Download = new () {	Distributive			= d.Distributive,
+													Length					= d.Length, 
+													CompletedLength			= d.CompletedLength,
+													DependenciesCount		= d.DependenciesCount,
+													AllDependenciesFound	= d.AllDependenciesFound,
+													DependenciesSuccessful	= d.DependenciesSuccessfulCount} };
 			}
 
-			return new DownloadStatus();
+			return new ReleaseInfo();
 		}
 
-		public void DeclarePackage(IEnumerable<PackageAddress> packages, Workflow workflow)
-		{
-			var hubs = new HashSet<Peer>();
-
-			int success = 0;
-			int failures = 0;
-
-			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0))
-			{
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
-
-				Peer h = null;
-
-				try
-				{
-					h = Connect(Role.Hub, hubs, workflow);
-				}
-				catch(ConnectionFailedException)
-				{
-					failures++;
-					continue;
-				}
-
-				try
-				{
-					h.DeclarePackage(packages);
-					success++;
-				}
-				catch(DistributedCallException)
-				{
-					failures++;
-					continue;
-				}
-
-				hubs.Add(h);
-
-				workflow?.Log?.Report(this, "Package declared", $"N={packages.Count()} Hub={h.IP}");
-			}
-		}
+//		public void DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages, Workflow workflow)
+//		{
+//			throw new NotImplementedException();
+//
+// 			var hubs = new HashSet<Peer>();
+// 
+// 			int success = 0;
+// 			int failures = 0;
+// 
+// 			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0))
+// 			{
+// 				Thread.Sleep(1);
+// 				workflow.ThrowIfAborted();
+// 
+// 				Peer h = null;
+// 
+// 				try
+// 				{
+// 					h = Connect(Role.Hub, hubs, workflow);
+// 				}
+// 				catch(ConnectionFailedException)
+// 				{
+// 					failures++;
+// 					continue;
+// 				}
+// 
+// 				try
+// 				{
+// 					h.DeclarePackage(packages);
+// 					success++;
+// 				}
+// 				catch(DistributedCallException)
+// 				{
+// 					failures++;
+// 					continue;
+// 				}
+// 
+// 				hubs.Add(h);
+// 			}
+//		}
 
 		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
 		{

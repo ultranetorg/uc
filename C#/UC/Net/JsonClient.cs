@@ -52,7 +52,6 @@ namespace UC.Net
 			Options.Converters.Add(new IPJsonConverter());
 			Options.Converters.Add(new ChainTimeJsonConverter());
 			Options.Converters.Add(new ReleaseAddressJsonConverter());
-			Options.Converters.Add(new PackageAddressJsonConverter());
 			Options.Converters.Add(new VersionJsonConverter());
 			Options.Converters.Add(new XonDocumentJsonConverter());
 		}

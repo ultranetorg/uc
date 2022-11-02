@@ -12,7 +12,7 @@ namespace UC.Net
 	public enum DistributedCall : byte
 	{
 		Null, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
-		QueryRelease, ReleaseHistory, DeclarePackage, LocateRelease, Manifest, DownloadPackage
+		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease
 	}
 
  	public class DistributedCallException : Exception
@@ -59,9 +59,9 @@ namespace UC.Net
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
 		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
-		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = new PackageAddressPack(packages)});
+		public DeclareReleaseResponse			DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages) => Request<DeclareReleaseResponse>(new DeclareReleaseRequest{Packages = new PackageAddressPack(packages)});
 		public ManifestResponse					GetManifest(ReleaseAddress packages) => Request<ManifestResponse>(new ManifestRequest{Releases = new[]{packages}});
-		public DownloadPackageResponse			DownloadPackage(PackageAddress package, long offset, long length) => Request<DownloadPackageResponse>(new DownloadPackageRequest{Package = package, Offset = offset, Length = length});
+		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress release, Distributive distributive, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Package = release, Distributive = distributive, Offset = offset, Length = length});
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
 
@@ -368,19 +368,19 @@ namespace UC.Net
 		//public IEnumerable<ReleaseAddress>	Dependencies { get; set; }
 	}
 
-	public class DeclarePackageRequest : Request
+	public class DeclareReleaseRequest : Request
 	{
 		public PackageAddressPack Packages { get; set; }
 
 		public override Response Execute(Core core)
 		{
-			core.Hub.Declare(Peer.IP, Packages.Items);
+			core.Hub.Add(Peer.IP, Packages.Items);
 
-			return new DeclarePackageResponse();
+			return new DeclareReleaseResponse();
 		}
 	}
 	
-	public class DeclarePackageResponse : Response
+	public class DeclareReleaseResponse : Response
 	{
 	}
 
@@ -416,7 +416,7 @@ namespace UC.Net
 				throw new RequirementException("Is not Filebase");
 			}
 
-			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.GetManifest(i)).ToArray()};
+			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.FindRelease(i)?.Manifest).ToArray()};
 		}
 	}
 	
@@ -425,9 +425,10 @@ namespace UC.Net
 		public IEnumerable<Manifest> Manifests { get; set; }
 	}
 
-	public class DownloadPackageRequest : Request
+	public class DownloadReleaseRequest : Request
 	{
-		public PackageAddress		Package { get; set; }
+		public ReleaseAddress		Package { get; set; }
+		public Distributive			Distributive { get; set; }
 		public long					Offset { get; set; }
 		public long					Length { get; set; }
 
@@ -438,11 +439,11 @@ namespace UC.Net
 				throw new RequirementException("Is not Filebase");
 			}
 
-			return new DownloadPackageResponse{Data = core.Filebase.ReadPackage(Package, Offset, Length)};
+			return new DownloadReleaseResponse{Data = core.Filebase.ReadPackage(Package, Distributive, Offset, Length)};
 		}
 	}
 
-	public class DownloadPackageResponse : Response
+	public class DownloadReleaseResponse : Response
 	{
 		public byte[] Data { get; set; }
 	}

@@ -97,7 +97,7 @@ namespace UC.Net
 		public ReleaseAddress	Release { get; set; }
 	}
 
-	public class DownloadStatusCall : ApiCall
+	public class ReleaseStatusCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }
 	}
