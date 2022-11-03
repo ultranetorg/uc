@@ -47,7 +47,7 @@ public class AccountsMockService : IAccountsService
         destination.Balance = source.Balance;
         destination.Color = source.Color;
         destination.Name = source.Name;
-        destination.ShowOnDashboard = source.ShowOnDashboard;
+        destination.HideOnDashboard = source.HideOnDashboard;
     }
 
     public Task DeleteByAddressAsync([NotEmpty, NotNull] string address)

@@ -6,11 +6,11 @@ public class AccountViewModel
 {
     public string			Name { get; set; }
     public GradientBrush	Color { get; set; }
-    public bool				ShowOnDashboard { get; set; } = true;
+    public bool				HideOnDashboard { get; set; }
 	public decimal			Balance { get; set; }
 	public Account			Account { get; private set; }
 	public string			Address { get; set; }
-    // public string Address => Entry.Account.ToString();
+    //public string			Address => Entry.Account.ToString();
 	
     public IList<string>	Authors { get; set; } = new List<string>();
     public HashSet<int>		Transactions { get; set; } = new HashSet<int>();
