@@ -256,7 +256,7 @@ namespace UC.Net
 						break;
 					}
 
-					case ReleaseStatusCall c:
+					case ReleaseInfoCall c:
 					{
 						respondjson(Core.GetReleaseInfo(c.Release));
 						break;

@@ -77,14 +77,10 @@ namespace UC.Net
 						Directory.EnumerateDirectories(a).SelectMany(p => 
 						Directory.EnumerateDirectories(p).SelectMany(r => 
 						Directory.EnumerateFiles(r, $"*.{ManifestExt}").Select(i =>	{
-																						return new Release(this, new ReleaseAddress(Path.GetFileName(a), 
-																																	Path.GetFileName(p), 
-																																	Path.GetFileName(r), 
-																																	Version.Parse(Path.GetFileNameWithoutExtension(i))))
-																												{ 
-// 																													Distributives = (File.Exists(i.Substring(0, i.LastIndexOf('.')) + "." + Cpkg) ? Distributive.Complete : 0) |
-// 																																	(File.Exists(i.Substring(0, i.LastIndexOf('.')) + "." + Ipkg) ? Distributive.Incremental : 0)
-																												};
+																						return new Release(this, new (	Path.GetFileName(a), 
+																														Path.GetFileName(p), 
+																														Path.GetFileName(r), 
+																														Version.Parse(Path.GetFileNameWithoutExtension(i))));
 																					})))).ToList();
 		}
 				
@@ -99,20 +95,6 @@ namespace UC.Net
 			Directory.CreateDirectory(p);
 			return p;
 		}
-
-		//public PackageAddress[] GetAll()
-		//{
-		//	return Directory.EnumerateDirectories(Root).SelectMany(a => 
-		//			Directory.EnumerateDirectories(a).SelectMany(p => 
-		//				Directory.EnumerateDirectories(p).SelectMany(r => 
-		//					Directory.EnumerateFiles(r, $"*").Select(i =>	{
-		//																		return new PackageAddress(	Path.GetFileName(a), 
-		//																									Path.GetFileName(p), 
-		//																									Path.GetFileName(r), 
-		//																									Version.Parse(Path.GetFileNameWithoutExtension(i)),
-		//																									Path.GetExtension(i)[1] == 'c' ? Distributive.Complete : Distributive.Incremental);
-		//																	})))).ToArray();
-		//}
 
 		public void AddRelease(ReleaseAddress release, Manifest manifest)
 		{

@@ -23,23 +23,23 @@ namespace UC.Net
 	{
 		public const long DefaultPieceLength = 65536;
 
-		public class Job
+		public class Piece
 		{
 			public Peer				Seed;
 			public Task				Task;
-			public int				Piece = -1;
-			public long				Length => Piece * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
-			public long				Offset => Piece * DefaultPieceLength;
+			public int				I = -1;
+			public long				Length => I * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
+			public long				Offset => I * DefaultPieceLength;
 			public MemoryStream		Data = new MemoryStream();
 			public bool				Succeeded => Data.Length == Length;
 			Download				Download;
 			Core					Core => Download.Core;
 
-			public Job(Download download, Peer peer, int piece)
+			public Piece(Download download, Peer peer, int piece)
 			{
 				Download = download;
 				Seed = peer;
-				Piece = piece;
+				I = piece;
 
 				Task = Task.Run(() =>	
 								{
@@ -104,8 +104,8 @@ namespace UC.Net
 		public long							Length { get; protected set; }
 		public bool							Successful => Downloaded && AllDependenciesFound && DependenciesCount == DependenciesSuccessfulCount;
 		public long							CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
-																- (CompletedPieces.Any(i => i.Piece == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
-																+ Jobs.Sum(i => i.Data != null ? i.Data.Length : 0);
+																- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+																+ Pieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 		public int							DependenciesCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesCount);
 		public bool							AllDependenciesFound => Manifest != null && Dependencies.All(i => i.AllDependenciesFound);
 		public int							DependenciesSuccessfulCount => Dependencies.Count(i => i.Successful) + Dependencies.Sum(i => i.DependenciesSuccessfulCount);
@@ -114,13 +114,13 @@ namespace UC.Net
 		Core								Core;
 		Workflow							Workflow;
 		bool								Downloaded;
-		List<Job>							Jobs = new();
+		List<Piece>							Pieces = new();
 		List<Hub>							Hubs = new();
 		Dictionary<IPAddress, SeedStatus>	Seeds = new();
 		List<Download>						Dependencies = new();
 		byte[]								Hash;
 		int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
-		List<Job>							CompletedPieces = new();
+		List<Piece>							CompletedPieces = new();
 		Manifest							Manifest;
 		Task								Task;
 
@@ -136,11 +136,10 @@ namespace UC.Net
 							{
 								var his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, false), workflow);
 				
-								Job j;
+								Piece j;
 
 								while(true)
 								{
-									Thread.Sleep(1);
 									workflow.ThrowIfAborted();
 
 									Task[] tasks;
@@ -184,9 +183,9 @@ namespace UC.Net
 											}
 										}
 
-										if((Length == 0 ? 1 : (PiecesTotal - CompletedPieces.Count - Jobs.Count)) > 0 && Jobs.Count < 8)
+										if((Length == 0 ? 1 : (PiecesTotal - CompletedPieces.Count - Pieces.Count)) > 0 && Pieces.Count < 8)
 										{
-											var s = Seeds.FirstOrDefault(i => i.Value != SeedStatus.Bad && !Jobs.Any(j => j.Seed.IP.Equals(i.Key)));
+											var s = Seeds.FirstOrDefault(i => i.Value != SeedStatus.Bad && !Pieces.Any(j => j.Seed.IP.Equals(i.Key)));
 											
 											if(s.Key != null)
 											{
@@ -234,12 +233,14 @@ namespace UC.Net
 													}
 												}
 												
-												Jobs.Add(new Job(this, 
+												Pieces.Add(new Piece(this, 
 																 Core.GetPeer(s.Key), 
-																 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.Piece == i) && !Jobs.Any(j => j.Piece == i))));
+																 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !Pieces.Any(j => j.I == i))));
 											}
 											else
 											{
+												Thread.Sleep(1);
+
 												foreach(var h in Hubs.Where(i => i.Status == HubStatus.Estimating && i.Seeds.Any()))
 												{
 													if(h.Seeds.All(i => Seeds[i] == SeedStatus.Bad)) /// all seeds are bad
@@ -259,7 +260,7 @@ namespace UC.Net
 											}
 										}
 									
-										tasks = Jobs.Select(i => i.Task).ToArray();
+										tasks = Pieces.Select(i => i.Task).ToArray();
 
 										if(tasks.Length == 0)
 										{
@@ -271,9 +272,9 @@ namespace UC.Net
 
 									lock(Lock)
 									{	
-										j = Jobs.Find(i => i.Task == tasks[ti]);
+										j = Pieces.Find(i => i.Task == tasks[ti]);
 										
-										Jobs.Remove(j);
+										Pieces.Remove(j);
 
 										if(j.Succeeded)
 										{
