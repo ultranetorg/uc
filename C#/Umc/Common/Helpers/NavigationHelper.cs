@@ -2,7 +2,7 @@
 
 public static class Navigation
 {
-    internal static async Task NavigateToAsync(ShellNavigationState state,
+    internal static async Task GoToAsync(ShellNavigationState state,
 		IDictionary<string, object> parameters = null)
     {
         if (parameters != null)
@@ -17,5 +17,5 @@ public static class Navigation
 
 	internal static async Task PopModalAsync() => await Shell.Current.Navigation.PopModalAsync();
 
-    internal static async Task GoToUpwardsAsync(string route) => await NavigateToAsync($"//{route}");
+    internal static async Task GoToUpwardsAsync(string route) => await GoToAsync($"//{route}");
 }

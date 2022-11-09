@@ -22,7 +22,7 @@ public abstract partial class BaseViewModel : ObservableValidator
     {
         try
         {
-			await Navigation.NavigateToAsync(state, parameters);
+			await Navigation.GoToAsync(state, parameters);
         }
         catch (Exception ex)
         {

@@ -11,21 +11,7 @@ public class AccountsMockService : IAccountsService
 
     public Task<ObservableCollection<AccountViewModel>> GetAllAsync()
     {
-        ObservableCollection<AccountViewModel> result = new (_data.Accounts);
-        return Task.FromResult(result);
-    }
-
-    public Task<int> GetCountAsync()
-    {
-        return Task.FromResult(_data.Accounts.Count);
-    }
-
-    public Task<ObservableCollection<AccountViewModel>> GetLastAsync(int lastAccountsCount)
-    {
-        Guard.IsGreaterThan(lastAccountsCount, 0, nameof(lastAccountsCount));
-
-        IEnumerable<AccountViewModel> lastAccounts = _data.Accounts.Take(lastAccountsCount);
-        ObservableCollection<AccountViewModel> result = new(lastAccounts);
+        var result = new ObservableCollection<AccountViewModel>(_data.Accounts);
         return Task.FromResult(result);
     }
 

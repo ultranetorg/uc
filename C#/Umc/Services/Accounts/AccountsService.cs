@@ -7,16 +7,6 @@ public sealed class AccountsService : IAccountsService
         throw new NotImplementedException();
     }
 
-    public Task<int> GetCountAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ObservableCollection<AccountViewModel>> GetLastAsync(int lastAccountsCount)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task UpdateAsync([NotNull] AccountViewModel account)
     {
         throw new NotImplementedException();

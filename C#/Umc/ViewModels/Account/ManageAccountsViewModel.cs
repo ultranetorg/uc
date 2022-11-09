@@ -29,8 +29,22 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async Task CreateAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.CREATE_ACCOUNT);
+    private async Task ReceiveAsync(AccountViewModel account)
+    {
+		// TODO
+		await Task.Delay(1);
+    }
 
 	[RelayCommand]
-    private async Task RestoreAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.RESTORE_ACCOUNT);
+    private async Task SendAsync(AccountViewModel account)
+    {
+		// TODO
+		await Task.Delay(1);
+    }
+
+	[RelayCommand]
+    private async Task CreateAsync() => await NavigateToAsync(ShellBaseRoutes.CREATE_ACCOUNT);
+
+	[RelayCommand]
+    private async Task RestoreAsync() => await NavigateToAsync(ShellBaseRoutes.RESTORE_ACCOUNT);
 }

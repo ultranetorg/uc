@@ -24,6 +24,7 @@
                 AbsoluteLayout.LayoutFlags="All"
                 Aspect="AspectFill"
                 HeightRequest="44"
+                Style="{Binding IconStyle}"
                 Source="{Binding IconSource}"
                 Command="{Binding TapCommand}"/>
         </AbsoluteLayout>
