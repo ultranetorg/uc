@@ -522,7 +522,7 @@ namespace UC.Net
 			return r.Unique.Count() >= Math.Max(1, max.Count() * 2/3) && r.Majority.Count() + (max.Count() - r.Unique.Count()) < Math.Max(1, max.Count() * 2/3);
 		}
 
-		public ChainTime CalculateTime(Round round, IEnumerable<Payload> votes)
+		public ChainTime CalculateTime(Round round, IEnumerable<Vote> votes)
 		{
  			if(round.Id == 0)
  			{
@@ -610,7 +610,11 @@ namespace UC.Net
 			if(!round.Parent.Confirmed && round.Id > LastGenesisRound)
 				return null;
 
-			var pp = round.Majority.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
+			var choice = round.Majority.OfType<Payload>();
+			var nonempties = choice.Where(i => i.SuccessfulTransactions.Any());
+
+			/// take only blocks with valid transactions or take first empty block 
+			var pp = (nonempties.Any() ? nonempties : choice.Take(1)).OrderBy(i => i.OrderingKey, new BytesComparer());
 			
 			var rr = new RoundReference();
 
@@ -620,7 +624,7 @@ namespace UC.Net
 			rr.Joiners		= round.ElectedJoiners.		Select(i => i.Prefix).OrderBy(i => i, new BytesComparer()).Take(rr.Leavers.Count + NewMembersPerRoundMax).ToList();
 			rr.FundLeavers	= round.ElectedFundLeavers.	Select(i => i.Prefix).ToList();
 			rr.FundJoiners	= round.ElectedFundJoiners.	Select(i => i.Prefix).ToList();
-			rr.Time			= CalculateTime(round, pp);
+			rr.Time			= CalculateTime(round, round.Majority);
 
 			return rr;
 		}
