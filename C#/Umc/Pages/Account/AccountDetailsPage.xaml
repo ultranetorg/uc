@@ -31,7 +31,7 @@
                 WidthRequest="34">
                 <ImageButton
                     BackgroundColor="{Binding Color}"
-                    Command="{Binding BindingContext.SelectColorCommand, Source={x:Reference page}}"
+                    Command="{Binding BindingContext.SetAccountColorCommand, Source={x:Reference page}}"
                     CommandParameter="{Binding .}"
                     BorderColor="Transparent"
                     CornerRadius="15"
@@ -99,7 +99,7 @@
                         <ImageButton
                             Grid.Column="1"
                             Style="{StaticResource Random}"
-                            Command="{Binding SelectRandomColorCommand}"
+                            Command="{Binding SetAccountColorCommand}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Grid>
@@ -127,6 +127,7 @@
                     <Label
                         FontSize="13"
                         Text="{Binding Account.DisplayAmount}" 
+                        FontAttributes="Bold"
                         Style="{StaticResource Medium}" />
                 </StackLayout>
                 

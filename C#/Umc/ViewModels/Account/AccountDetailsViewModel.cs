@@ -68,10 +68,10 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private void SelectRandomColor() => Background = ColorHelper.CreateRandomGradientColor();
-	
-	[RelayCommand]
-    private void SelectColor(AccountColor accountColor) => Background = ColorHelper.CreateGradientColor(accountColor.Color)
+    private void SetAccountColor(AccountColor accountColor) =>
+		Background = accountColor != null 
+			? ColorHelper.CreateGradientColor(accountColor.Color)
+			: ColorHelper.CreateRandomGradientColor();
 
 	private void LoadData()
 	{
