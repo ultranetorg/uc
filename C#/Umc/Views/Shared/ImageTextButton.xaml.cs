@@ -6,67 +6,25 @@ public partial class ImageTextButton : Grid
 	#region Bindable Properties
 	
 	public static readonly BindableProperty ImageProperty
-		= BindableProperty.Create(nameof(Image), typeof(ImageSource), typeof(ImageTextButton), null);
+		= BindableProperty.Create(nameof(Image), typeof(ImageSource), typeof(ImageTextButton));
 
 	public static readonly BindableProperty TextProperty
-		= BindableProperty.Create(nameof(Text), typeof(string), typeof(ImageTextButton), null);
-
-	public static readonly BindableProperty FontSizeProperty
-		= BindableProperty.Create(nameof(FontSize), typeof(double), typeof(ImageTextButton), 24.0);
-
-	public static readonly BindableProperty ImageHeightProperty
-		= BindableProperty.Create(nameof(ImageHeight), typeof(double), typeof(ImageTextButton), 24.0);
-
-	public static readonly BindableProperty ImageWidthProperty
-		= BindableProperty.Create(nameof(ImageWidth), typeof(double), typeof(ImageTextButton), 24.0);
-
-	public static readonly BindableProperty TextColorProperty
-		= BindableProperty.Create(nameof(TextColor), typeof(Color), typeof(ImageTextButton), Colors.Black);
-
-	public static readonly BindableProperty ImageColorProperty
-		= BindableProperty.Create(nameof(ImageColor), typeof(Color), typeof(ImageTextButton), null);
+		= BindableProperty.Create(nameof(Text), typeof(string), typeof(ImageTextButton));
 
 	public static readonly BindableProperty ImageSourceProperty
-		= BindableProperty.Create(nameof(ImageSource), typeof(string), typeof(ImageTextButton), null);
+		= BindableProperty.Create(nameof(ImageSource), typeof(string), typeof(ImageTextButton));
 
 	public static readonly BindableProperty ImageStyleProperty
-		= BindableProperty.Create(nameof(ImageStyle), typeof(Style), typeof(ImageTextButton), null);
+		= BindableProperty.Create(nameof(ImageStyle), typeof(Style), typeof(ImageTextButton));
 
 	public static readonly BindableProperty CommandProperty
-		= BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ImageTextButton), null);
+		= BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ImageTextButton));
 
 	public static readonly BindableProperty CommandParameterProperty
-		= BindableProperty.Create(nameof(CommandParameter), typeof(object), typeof(ImageTextButton), null);
+		= BindableProperty.Create(nameof(CommandParameter), typeof(object), typeof(ImageTextButton));
 
-	public Color ImageColor
-	{
-		get { return (Color)GetValue(ImageColorProperty); }
-		set { SetValue(ImageColorProperty, value); }
-	}
-
-	public Color TextColor
-	{
-		get { return (Color)GetValue(TextColorProperty); }
-		set { SetValue(TextColorProperty, value); }
-	}
-
-	public double ImageHeight
-	{
-		get { return (double)GetValue(ImageHeightProperty); }
-		set { SetValue(TextProperty, value); }
-	}
-
-	public double ImageWidth
-	{
-		get { return (double)GetValue(ImageWidthProperty); }
-		set { SetValue(TextProperty, value); }
-	}
-
-	public double FontSize
-	{
-		get { return (double)GetValue(FontSizeProperty); }
-		set { SetValue(TextProperty, value); }
-	}
+	public static readonly BindableProperty TintColorProperty
+		= BindableProperty.Create(nameof(TintColor), typeof(Color), typeof(ImageTextButton), Colors.Black);
 
 	public string Text
 	{
@@ -102,6 +60,12 @@ public partial class ImageTextButton : Grid
 	{
 		get { return (object)GetValue(CommandParameterProperty); }
 		set { SetValue(CommandParameterProperty, value); }
+	}
+
+	public Color TintColor
+	{
+		get { return (Color)GetValue(TintColorProperty); }
+		set { SetValue(TintColorProperty, value); }
 	}
 
 	#endregion Bindable Properties

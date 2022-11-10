@@ -98,7 +98,6 @@
         <Setter Property="WidthRequest" Value="80" />
         <Setter Property="Padding" Value="12" />
         <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryLight}}" />
     </Style>
     <Style x:Key="LogOut" TargetType="ImageButton">
         <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Logout}}" />

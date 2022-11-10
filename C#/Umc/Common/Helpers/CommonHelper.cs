@@ -32,4 +32,19 @@ public static class CommonHelper
         }
         return result;
     }
+
+    /// <summary>
+    /// Awaits <c>Task</c>. Exceptions are handled by <c>errorAction</c>
+    /// </summary>
+    public static async void AwaitTaskAsync(this Task task, Action<Exception> errorAction, bool configureAwait = true)
+    {
+        try
+        {
+            await task.ConfigureAwait(configureAwait);
+        }
+        catch (Exception ex)
+        {
+            errorAction?.Invoke(ex);
+        }
+    }
 }

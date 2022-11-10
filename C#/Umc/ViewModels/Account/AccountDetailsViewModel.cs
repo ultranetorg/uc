@@ -15,7 +15,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
 
 	[ObservableProperty]
-    public LinearGradientBrush _background;
+    public GradientBrush _background;
 
     public AccountDetailsViewModel(IServicesMockData service, ILogger<AccountDetailsViewModel> logger) : base(logger)
     {
@@ -23,9 +23,31 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		LoadData();
     }
 
-	// !NEXT STEPS TO DO:
-	// 1. retrieve account object from query parameter after redirecting from ManageAccountsPage
-	// 2. set background in model only in VM after submitting
+	// !TO DO: set background in model only in VM after submitting
+
+    public override void ApplyQueryAttributes(IDictionary<string, object> query)
+	{
+        try
+        {
+            InitializeLoading();
+
+            Account = (AccountViewModel)query[nameof(AccountDetailsPage)];
+			AccountName = Account.Name;
+			Background = Account.Color;
+#if DEBUG
+            _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
+#endif
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ApplyQueryAttributes Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+        finally
+        {
+            FinishLoading();
+        }
+	}
 
 	[RelayCommand]
     private async Task SendAsync()
@@ -46,7 +68,10 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private void SelectRandomColor() => Account.Color = ColorHelper.CreateRandomGradientColor();
+    private void SelectRandomColor() => Background = ColorHelper.CreateRandomGradientColor();
+	
+	[RelayCommand]
+    private void SelectColor(AccountColor accountColor) => Background = ColorHelper.CreateGradientColor(accountColor.Color)
 
 	private void LoadData()
 	{
@@ -57,9 +82,6 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		Authors.AddRange(_service.Authors);
 		Products.AddRange(_service.Products);
 		ColorsCollection.AddRange(_service.AccountColors);
-
-		// will be replaced from query parameter
-		AccountName = "Account Name";
 		
 		// TODO: add workflow object, the wallet is coming from api
 	}

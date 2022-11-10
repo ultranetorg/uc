@@ -20,7 +20,7 @@ public partial class StartViewModel : BaseViewModel
 		switch(int.Parse(commandParameter))
         {
             case 0:
-                await Shell.Current.Navigation.PushAsync(new AccountDetailsPage(Account, Ioc.Default.GetService<AccountDetailsViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new AccountDetailsPage(Account));
                 break;
             case 1:
                 await Shell.Current.Navigation.PushAsync(new AuthorsPage(Ioc.Default.GetService<AuthorsViewModel>()));

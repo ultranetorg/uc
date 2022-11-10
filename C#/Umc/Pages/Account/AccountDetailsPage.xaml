@@ -3,12 +3,12 @@
     x:Class="UC.Umc.Pages.AccountDetailsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:views="clr-namespace:UC.Umc.Views.Shared"
-    x:Name="page"
-    x:DataType="vm:AccountDetailsViewModel">
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:AccountDetailsViewModel"
+    x:Name="page">
     
     <Shell.TitleView>
         <views:PageTitleActionView
@@ -31,15 +31,14 @@
                 WidthRequest="34">
                 <ImageButton
                     BackgroundColor="{Binding Color}"
-                    BorderColor="{Binding BorderColor}"
-                    BorderWidth="2"
-                    Command="{Binding BindingContext.ColorTappedCommand, Source={x:Reference page}}"
+                    Command="{Binding BindingContext.SelectColorCommand, Source={x:Reference page}}"
                     CommandParameter="{Binding .}"
+                    BorderColor="Transparent"
                     CornerRadius="15"
                     HeightRequest="30"
+                    WidthRequest="30"
                     HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    WidthRequest="30" />
+                    VerticalOptions="Center" />
             </Frame>
         </DataTemplate>    
     </controls:CustomPage.Resources>
@@ -55,7 +54,7 @@
                         Grid.RowSpan="2"
                         Grid.Column="0"
                         Padding="0"
-                        Background="{Binding Account.Color}"
+                        Background="{Binding Background}"
                         CornerRadius="8"
                         HeightRequest="60"
                         VerticalOptions="Center"

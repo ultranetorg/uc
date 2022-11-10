@@ -29,6 +29,14 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
+    private async Task OpenDetailsAsync(AccountViewModel account) => 
+		await NavigateToAsync(ShellBaseRoutes.ACCOUNT_DETAILS, new Dictionary<string,object>()
+		{
+			// todo: move query key to constants
+			{ nameof(AccountDetailsPage), account }
+		});
+
+	[RelayCommand]
     private async Task ReceiveAsync(AccountViewModel account)
     {
 		// TODO

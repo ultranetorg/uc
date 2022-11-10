@@ -8,20 +8,26 @@ namespace UC.Umc.Helpers;
 /// </summary>
 internal static class ToastHelper
 {
-    public static async Task ShowMessageAsync(string text, ToastDuration duration = ToastDuration.Long,
-        double fontSize = 14)
+    public static Task ShowMessageAsync(string message,
+        ToastDuration duration = ToastDuration.Long,
+        double fontSize = 14,
+        string title = "Alert Message")
     {
-#if ANDROID
-        var toast = Toast.Make(text, duration, fontSize);
-        await toast.Show(new CancellationTokenSource().Token);
-#elif IOS
+#if IOS
         // Toast currently errors on iOS
-		await App.Current.MainPage.DisplayAlert(text, string.Empty, "Ok");
+		return App.Current.MainPage.DisplayAlert(title, message, "OK");
+#else
+        var toast = Toast.Make(message, duration, fontSize);
+        return toast.Show(new CancellationTokenSource().Token);
 #endif
     }
-    public static async Task ShowDefaultErrorMessageAsync(ToastDuration duration = ToastDuration.Short,
-        double fontSize = 14)
-    {
-        await ShowMessageAsync("Something went wrong", duration, fontSize);
-    }
+
+    public static Task ShowDefaultErrorMessageAsync(ToastDuration duration = ToastDuration.Short,
+        double fontSize = 14) => ShowMessageAsync("Something went wrong", duration, fontSize, "Unknown Error");
+
+
+    public static void ShowErrorMessage(ILogger logger, string message = "Something Went Wrong",
+        ToastDuration duration = ToastDuration.Short, double fontSize = 14, string title = "Error") =>
+        ShowMessageAsync(message, duration, fontSize, title)
+            .AwaitTaskAsync(e => logger.LogError(e, "ToastHelper Exception: {Ex}", e.Message), false);
 }

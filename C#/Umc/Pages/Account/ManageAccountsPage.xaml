@@ -41,7 +41,7 @@
                         Style="{StaticResource AccountGrid}">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer
-                                Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
+                                Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}"
                                 CommandParameter="{Binding .}" />
                         </Grid.GestureRecognizers>
                         <Border

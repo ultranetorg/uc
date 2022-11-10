@@ -3,6 +3,7 @@
     x:Class="UC.Umc.Controls.ImageTextButton"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Name="Instance"
     RowDefinitions="Auto,14"
     HorizontalOptions="CenterAndExpand"
@@ -14,7 +15,11 @@
         VerticalOptions="Center"
         Style="{Binding ImageStyle, Source={x:Reference Instance}}"
         Command="{Binding Command, Source={x:Reference Instance}}"
-        Source="{Binding ImageSource, Source={x:Reference Instance}}" />
+        Source="{Binding ImageSource, Source={x:Reference Instance}}">
+        <ImageButton.Behaviors>
+            <toolkit:IconTintColorBehavior TintColor="{Binding TintColor, Source={x:Reference Instance}}" />
+        </ImageButton.Behaviors>
+    </ImageButton>
 
     <Label
         Grid.Row="1"

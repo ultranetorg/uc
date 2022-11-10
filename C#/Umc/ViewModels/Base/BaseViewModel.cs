@@ -1,14 +1,17 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public abstract partial class BaseViewModel : ObservableValidator
+public abstract partial class BaseViewModel : ObservableValidator, IQueryAttributable
 {
 	protected readonly ILogger _logger;
 
 	[ObservableProperty]
-    private bool _isBusy = false;
+    private bool _isLoading = false;
 		
 	[ObservableProperty]
-    private bool _isLoadMore = false;
+    private bool _isLoaded = false;
+
+    [ObservableProperty]
+    private bool _isRefreshing;
 		
 	[ObservableProperty]
     private string _title = string.Empty;
@@ -17,6 +20,22 @@ public abstract partial class BaseViewModel : ObservableValidator
 	{
 		_logger = logger;
 	}
+
+    protected virtual void InitializeLoading()
+    {
+        IsLoading = true;
+        IsLoaded = false;
+    }
+
+    protected virtual void FinishLoading()
+    {
+        IsLoading = false;
+        IsRefreshing = false;
+    }
+
+    public virtual void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+    }
 
     protected async Task NavigateToAsync(ShellNavigationState state, IDictionary<string, object> parameters = null)
     {
