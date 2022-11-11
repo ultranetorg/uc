@@ -20,7 +20,7 @@
                 <views:AccountView BindingContext="{Binding Wallet}"/>
                 <StackLayout>
                     <Label Style="{StaticResource DashLabel}" Text="Private key" />
-                    <Frame  Style="{StaticResource Key=KeyFrame}">
+                    <Frame Style="{StaticResource Key=KeyFrame}">
                         <Label
                             FontSize="12"
                             Style="{StaticResource Medium}"

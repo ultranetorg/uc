@@ -1,4 +1,4 @@
-﻿namespace UC.Umc.Workflows;
+﻿namespace UC.Umc.Models;
 
 internal class RegisterAuthorWorkflow
 {

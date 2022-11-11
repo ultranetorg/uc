@@ -50,6 +50,19 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	}
 
 	[RelayCommand]
+    private void SetAccountColor(AccountColor accountColor) =>
+		Background = accountColor != null 
+			? ColorHelper.CreateGradientColor(accountColor.Color)
+			: ColorHelper.CreateRandomGradientColor();
+
+	[RelayCommand]
+    private async Task HideFromDashboardAsync()
+    {
+		// TODO
+		await Task.Delay(1);
+    }
+
+	[RelayCommand]
     private async Task SendAsync()
     {
         await Shell.Current.Navigation.PushAsync(new SendPage());
@@ -67,12 +80,6 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
         await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Account));
     }
 
-	[RelayCommand]
-    private void SetAccountColor(AccountColor accountColor) =>
-		Background = accountColor != null 
-			? ColorHelper.CreateGradientColor(accountColor.Color)
-			: ColorHelper.CreateRandomGradientColor();
-
 	private void LoadData()
 	{
 		Authors.Clear();
@@ -83,6 +90,6 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		Products.AddRange(_service.Products);
 		ColorsCollection.AddRange(_service.AccountColors);
 		
-		// TODO: add workflow object, the wallet is coming from api
+		// TODO: add form object, the account is coming from api
 	}
 }

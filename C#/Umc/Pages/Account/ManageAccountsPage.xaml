@@ -69,6 +69,7 @@
                             Grid.Column="1"
                             FontSize="12"
                             VerticalOptions="Center"
+                            FontAttributes="Bold"
                             Text="{Binding DisplayAmount}"/>
                         <Label
                             Grid.Row="2"

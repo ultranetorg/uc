@@ -20,8 +20,6 @@
             ScaleOut="0.8" />
     </pages:PopupPage.Animation>-->
     <Frame
-        Margin="0,0,0,-20"
-        Padding="20,8,20,50"
         BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
                                           Light={StaticResource LightBackground}}"
         CornerRadius="20"
@@ -33,7 +31,7 @@
             ColumnSpacing="12"
             HorizontalOptions="FillAndExpand"
             RowDefinitions="4,Auto,Auto,Auto,Auto,Auto"
-            RowSpacing="12">
+            RowSpacing="8">
             <Frame
                 Grid.Row="0"
                 Grid.ColumnSpan="2"

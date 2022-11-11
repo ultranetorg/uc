@@ -65,7 +65,22 @@ public partial class SwitchView : ContentView
 		CurrentColor = OffColor;
 	}
 
-	[RelayCommand]
+	private async void OnSwitchedAsync(object sender, EventArgs e)
+	{
+		await SwitchAsync();
+	}
+
+	private async void OnSizeChangedAsync(object sender, EventArgs e)
+	{
+		if (frame.Width > 0)
+		{
+			frame.WidthRequest = frame.Height * 2;
+			thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
+			thumb.HorizontalOptions = LayoutOptions.Start;
+			await SwitchAsync();
+		}
+	}
+
 	private async Task SwitchAsync()
 	{
 		if (!IsRunning)
@@ -84,17 +99,6 @@ public partial class SwitchView : ContentView
 			}
 			IsOn = !IsOn;
 			IsRunning = JustSet = false;
-		}
-	}
-
-	private async void Instance_SizeChanged(object sender, EventArgs e)
-	{
-		if (frame.Width > 0)
-		{
-			frame.WidthRequest = frame.Height * 2;
-			thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
-			thumb.HorizontalOptions = LayoutOptions.Start;
-			await SwitchAsync();
 		}
 	}
 }

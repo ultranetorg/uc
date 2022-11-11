@@ -1,6 +1,6 @@
-﻿namespace UC.Umc.Workflows;
+﻿namespace UC.Umc.Models;
 
-internal class RestoreAccountWorkflow
+public class RestoreAccountWorkflow
 {
     public string PublicKey { get; set; } = string.Empty;
     public string PrivateKey { get; set; } = string.Empty;

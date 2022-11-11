@@ -144,7 +144,8 @@
                     <controls:SwitchView
                         Grid.RowSpan="2"
                         Grid.Column="1"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center"
+                        Command="{Binding HideFromDashboardCommand}"/>
                 </Grid>
                 <Grid RowDefinitions="Auto,23">
                     <Label

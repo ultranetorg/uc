@@ -7,6 +7,21 @@ public sealed class AccountsService : IAccountsService
         throw new NotImplementedException();
     }
 
+	public Task<string> GetPrivateKeyAsync(string address)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task CreateAccountAsync(CreateAccountWorkflow workflow)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task RestoreAccountAsync(RestoreAccountWorkflow workflow)
+	{
+		throw new NotImplementedException();
+	}
+
     public Task UpdateAsync([NotNull] AccountViewModel account)
     {
         throw new NotImplementedException();
