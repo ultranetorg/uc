@@ -1,49 +1,49 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace UC.Net
 {
-	public class ReleaseEntry : IBinarySerializable
+	public class ReleaseEntry : TableEntry<ReleaseAddress>
 	{
-		public string				Platform;
-		public Version				Version;
-		public string				Channel; /// stable, beta, nightly, debug,...
-		public int					Rid;
-		//public List<ReleaseAddress>	MergedDependencies = new();
+		public override ReleaseAddress	Key => Address;
+		public override byte[]			ClusterKey =>  Encoding.UTF8.GetBytes(Address.Author).Take(ClusterKeyLength).ToArray();
 
-		public ReleaseEntry()
-		{
-		}
-
-		public ReleaseEntry(string platform, Version version, string channel, int rid)
-		{
-			Platform = platform;
-			Version = version;
-			Channel = channel;
-			Rid = rid;
-		}
+		public ReleaseAddress			Address;
+		public byte[]					Manifest;
+		public string					Channel; /// stable, beta, nightly, debug,...
 
 		public ReleaseEntry Clone()
 		{
-			return new ReleaseEntry(Platform, Version, Channel, Rid);
+			return	new() 
+					{ 
+						Address	= Address, 
+						Manifest = Manifest.Clone() as byte[],
+						Channel	= Channel
+					};
 		}
 
-		public void Read(BinaryReader r)
+		public override void Write(BinaryWriter w)
 		{
-			Platform = r.ReadUtf8();
-			Version = r.Read<Version>();
-			Channel = r.ReadUtf8();
-			Rid = r.Read7BitEncodedInt();
-			//MergedDependencies = r.ReadList<ReleaseAddress>();
-		}
-
-		public void Write(BinaryWriter w)
-		{
-			w.WriteUtf8(Platform);
-			w.Write(Version);
+			w.Write(Address);
+			w.Write(Manifest);
 			w.WriteUtf8(Channel);
-			w.Write7BitEncodedInt(Rid);
-			//w.Write(MergedDependencies);
+		}
+
+		public override void Read(BinaryReader r)
+		{
+			Address	= r.Read<ReleaseAddress>();
+			Manifest = r.ReadSha3();
+			Channel = r.ReadUtf8();
+		}
+
+		public override void WriteMore(BinaryWriter w)
+		{
+		}
+
+		public override void ReadMore(BinaryReader r)
+		{
 		}
 	}
 }

@@ -12,13 +12,13 @@ namespace UC.Net
 {
 	public class AccountTable : Table<AccountEntry, Account>
 	{
-		public AccountTable(Roundchain chain, ColumnFamilyHandle cfh) : base(chain, cfh)
+		public AccountTable(Roundchain chain) : base(chain)
 		{
 		}
 
-		protected override AccountEntry Create(Account account)
+		protected override AccountEntry Create()
 		{
-			return new AccountEntry(Chain, account);
+			return new AccountEntry(Chain);
 		}
 
 		protected override byte[] KeyToBytes(Account k)

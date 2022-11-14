@@ -9,13 +9,13 @@ namespace UC.Net
 {
 	public class AuthorTable : Table<AuthorEntry, string>
 	{
-		public AuthorTable(Roundchain chain, ColumnFamilyHandle cfh) : base(chain, cfh)
+		public AuthorTable(Roundchain chain) : base(chain)
 		{
 		}
 		
-		protected override AuthorEntry Create(string author)
+		protected override AuthorEntry Create()
 		{
-			return new AuthorEntry(Chain, author);
+			return new AuthorEntry(Chain);
 		}
 
 		protected override byte[] KeyToBytes(string key)
@@ -31,7 +31,7 @@ namespace UC.Net
  		
  			var e = FindEntry(name);
  		
- 			if(e != null && e.Obtained > ridmax)
+ 			if(e != null && e.ObtainedRid > ridmax)
  				throw new IntegrityException("maxrid works inside pool only");
  		
  			return e;
@@ -55,7 +55,7 @@ namespace UC.Net
 
 			if(e != null)
 				foreach(var a in e.Authors.Select(i => FindEntry(i)))
-					if(a.Obtained <= ridmax)
+					if(a.ObtainedRid <= ridmax)
 					{
 						if(!o.Contains(a.Name))
 						{	

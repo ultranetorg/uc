@@ -160,7 +160,7 @@ namespace UC.Net
 			if(e != null)
 				AffectedAccounts[account] = e.Clone();
 			else
-				AffectedAccounts[account] = new AccountEntry(Chain, account);
+				AffectedAccounts[account] = new AccountEntry(Chain){Account = account};
 
 			return AffectedAccounts[account];
 		}
@@ -172,7 +172,7 @@ namespace UC.Net
 			if(e != null)
 				AffectedAuthors[name] = e.Clone();
 			else
-				AffectedAuthors[name] = new AuthorEntry(Chain, name);
+				AffectedAuthors[name] = new AuthorEntry(Chain){Name = name};
 
 			return AffectedAuthors[name];
 		}
@@ -192,7 +192,7 @@ namespace UC.Net
 			if(e != null)
 				AffectedProducts[address] = e.Clone();
 			else
-				AffectedProducts[address] = new ProductEntry(address);
+				AffectedProducts[address] = new ProductEntry(){Address = address};
 
 			return AffectedProducts[address];
 		}

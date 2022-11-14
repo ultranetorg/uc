@@ -3,116 +3,204 @@ using System.Collections.Generic;
 using System.IO;
 using RocksDbSharp;
 using System;
+using System.Reflection;
+using Org.BouncyCastle.Utilities.Encoders;
+using Org.BouncyCastle.Utilities.Collections;
 
 namespace UC.Net
 {
-	public abstract class Table<E, K> where E : Entry<K>
+	public abstract class Table<E, K> where E : TableEntry<K>
 	{
-		protected List<E>				Entries = new();
-		protected Roundchain			Chain;
-		protected ColumnFamilyHandle	ColumnFamily;
-		protected RocksDb				Database;
-		const int						CacheLimit = 1000;
+		class Cluster
+		{
+			public ushort			Id;
+			public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
+			public static ushort	ToId(byte[] k) => (ushort)(((ushort)k[0])<<8 | k[1]);
+			public byte[]			Hash;
+			List<E>					_Entries;
+			Table<E, K>				Table;
 
-		protected abstract E			Create(K key);
+			public List<E>	Entries
+			{
+				get
+				{
+					if(_Entries == null)
+					{
+						var main = Table.Database.Get(ToBytes(Id), Table.MainColumn);
+
+						if(main != null)
+						{
+							var s = new MemoryStream(main);
+							var r = new BinaryReader(s);
+	
+							var a = r.ReadArray<E>(() => { 
+															var e = Table.Create();
+															e.Read(r);
+															return e;
+														 });
+					
+							s = new MemoryStream(Table.Database.Get(ToBytes(Id), Table.MoreColumn));
+							r = new BinaryReader(s);
+	
+							for(int i = 0; i < a.Length; i++)
+							{
+								a[i].ReadMore(r);
+							}
+	
+							_Entries = a.ToList();
+						}
+						else
+							_Entries = new ();
+					}
+
+					return _Entries;
+				}
+			}
+
+			public Cluster(Table<E, K> table, ushort id)
+			{
+				Table = table;
+				Id = id;
+			}
+
+			public void Save(WriteBatch batch)
+			{
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+
+				w.Write(Entries, i => i.Write(w));
+
+				var a = s.ToArray();
+
+				batch.Put(ToBytes(Id), Cryptography.Current.Hash(a), Table.HashColumn);
+				batch.Put(ToBytes(Id), a, Table.MainColumn);
+
+				s.Position = 0;
+
+				foreach(var i in Entries)
+					i.WriteMore(w);
+
+				batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
+			}
+
+			public override string ToString()
+			{
+				return $"{Id:X2}, Entries={{{(_Entries != null ? _Entries.Count.ToString() : "")}}}, Hash={(Hash != null ? Hex.ToHexString(Hash) : "")}";
+			}
+		}
+
+		const int						ClustersCacheLimit = 1000;
+
+		List<Cluster>					Clusters = new();
+		ColumnFamilyHandle				HashColumn;
+		ColumnFamilyHandle				MainColumn;
+		ColumnFamilyHandle				MoreColumn;
+		public static string			HashColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(HashColumn);
+		public static string			MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
+		public static string			MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
+		RocksDb							Database;
+		protected Roundchain			Chain;
+
+		protected abstract E			Create();
 		protected abstract byte[]		KeyToBytes(K k);
 
-		public Table(Roundchain chain, ColumnFamilyHandle cfh)
+		public Table(Roundchain chain)
 		{
 			Chain = chain;
 			Database = Chain.Database;
-			ColumnFamily = cfh;
+			HashColumn = Database.GetColumnFamily(HashColumnName);
+			MainColumn = Database.GetColumnFamily(MainColumnName);
+			MoreColumn = Database.GetColumnFamily(MoreColumnName);
+
+			using(var i = Database.NewIterator(HashColumn))
+			{
+				for(i.SeekToFirst(); i.Valid(); i.Next())
+				{
+	 				var c = new Cluster(this, Cluster.ToId(i.Key()));
+					c.Hash = i.Value();
+	 				Clusters.Add(c);
+				}
+			}
 		}
 
-		public E GetEntry(K key)
+// 		public E GetEntry(K key)
+// 		{
+// 			var e = FindEntry(key);
+// 		
+// 			if(e == null)
+// 			{
+// 				e = Create(key);
+// 				e.LastAccessed = DateTime.UtcNow;
+// 				Entries.Add(e);
+// 				Recycle();
+// 			} 
+// 		
+// 			return e;
+// 		}
+
+		Cluster GetCluster(ushort id)
 		{
-			var e = FindEntry(key);
-		
-			if(e == null)
-			{
-				e = Create(key);
-				e.LastAccessed = DateTime.UtcNow;
-				Entries.Add(e);
-				Recycle();
-			} 
-		
-			return e;
+			var c = Clusters.Find(i => i.Id == id);
+
+			if(c != null)
+				return c;
+
+			c = new Cluster(this, id);
+			Clusters.Add(c);
+
+			Recycle();
+
+			return c;
 		}
 
 		public E FindEntry(K key)
 		{
-			var e = Entries.Find(i => i.Key.Equals(key));
+			var bcid = KeyToBytes(key).Take(TableEntry<K>.ClusterKeyLength).ToArray();
+			var cid = Cluster.ToId(bcid);
 
-			if(e == null)
-			{
-				var d = Database.Get(KeyToBytes(key), ColumnFamily);
+			var c = Clusters.Find(i => i.Id == cid);
 
-				if(d != null)
-				{
-					e = Create(key);
-					e.Read(new BinaryReader(new MemoryStream(d)));
-					Entries.Add(e);
-				} 
-			}
+			if(c == null)
+				return null;
+
+			var e = c.Entries.Find(i => i.Key.Equals(key));
 
 			if(e != null)
 			{
 				e.LastAccessed = DateTime.UtcNow;
-				Recycle();
 			}
-			
+
 			return e;
 		}
 
 		void Recycle()
 		{
-			if(Entries.Count > CacheLimit)
+			if(Clusters.Count > ClustersCacheLimit)
 			{
-				foreach(var i in Entries.OrderByDescending(i => i.LastAccessed).Skip(CacheLimit))
+				foreach(var i in Clusters.OrderByDescending(i => i.Entries.Max(i => i.LastAccessed)).Skip(ClustersCacheLimit))
 				{
-					Entries.Remove(i);
+					Clusters.Remove(i);
 				}
 			}
 		}
 
-		public IEnumerable<Round> FindRounds(IEnumerable<int> rids)
-		{
-			return rids.Select(i => Chain.FindRound(i));
-		}
-
-// 		public void Update(Round round, WriteBatch batch)
-// 		{
-// 			var affected = new HashSet<E>();
-// 
-// 			foreach(var p in round.ConfirmedPayloads.AsEnumerable().Reverse())
-// 			{
-// 				Update(round, p, affected);
-// 
-// 				foreach(var t in p.SuccessfulTransactions.AsEnumerable().Reverse())
-// 				{
-// 					Update(round, t, affected);
-// 
-// 					foreach(var o in t.SuccessfulOperations.AsEnumerable().Reverse())
-// 						Update(round, o, affected);
-// 				}
-// 			}
-// 
-// 			Save(batch, affected);
-// 		}
-
 		public void Save(WriteBatch batch, IEnumerable<E> items)
 		{
+			var cs = new HashSet<Cluster>();
+
 			foreach(var i in items)
 			{
-				Entries.Remove(Entries.Find(e => e.Key.Equals(i.Key)));
-				Entries.Add(i);
+				var c = GetCluster(Cluster.ToId(i.ClusterKey));
 
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
+				c.Entries.Remove(c.Entries.Find(e => e.Key.Equals(i.Key)));
+				c.Entries.Add(i);
 
-				i.Write(w);
+				cs.Add(c);
+			}
 
-				batch.Put(KeyToBytes(i.Key), s.ToArray(), ColumnFamily);
+			foreach(var i in cs)
+			{
+				i.Save(batch);
 			}
 		}
 	}

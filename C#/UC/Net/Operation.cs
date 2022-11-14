@@ -570,7 +570,7 @@ namespace UC.Net
 
 
 				a = round.AffectAuthor(Author);
-				a.Obtained = round.Id;
+				a.ObtainedRid = round.Id;
 				a.Title = Title;
 				a.Owner = Signer;
 				a.RegistrationTime = round.Time;
@@ -629,7 +629,7 @@ namespace UC.Net
 			round.AffectAccount(Signer).Authors.Remove(Author);
 			round.AffectAccount(To).Authors.Add(Author);
 
-			round.AffectAuthor(Author).Obtained = round.Id;
+			round.AffectAuthor(Author).ObtainedRid = round.Id;
 			round.AffectAuthor(Author).Owner = To;
 		}
 	}

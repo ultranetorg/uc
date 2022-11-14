@@ -132,9 +132,21 @@ namespace UC.Net
 
 			int hubsgoodmax = 8;
 
-			Task = Task.Run(() =>	
+			Task = Task.Run(() =>
 							{
-								var his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, false), workflow);
+								ReleaseHistoryResponse his;
+
+								while(true)
+								{
+									workflow.ThrowIfAborted();
+
+									his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, false), workflow);
+
+									if(his.Registrations.Any(i => i.Release == release))
+										break;
+									else
+										Thread.Sleep(100);
+								}
 				
 								Piece j;
 

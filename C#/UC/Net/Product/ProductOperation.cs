@@ -26,7 +26,7 @@ namespace UC.Net
 		public ProductAddress	Address;
 		public string			Title;
 		public override string	Description => $"{Address} as {Title}";
-		public override bool	Valid => 0 < Address.Author.Length && 0 < Address.Product.Length;
+		public override bool	Valid => IsValid(Address.Product, Title);
 
 		public ProductRegistration()
 		{
@@ -65,25 +65,30 @@ namespace UC.Net
 				return;
 			}
 
-
 			if(!a.Products.Contains(Address.Product))
 			{
 				a = round.AffectAuthor(Address.Author);
-				///a.Rid = round.Id;
+
 				a.Products.Add(Address.Product);
+
+				var p = round.AffectProduct(Address);
+		
+				p.Title				= Title;
+				p.LastRegistration	= round.Id;
+			}
+			else
+			{
+				Error = "Product already registered";
+				return;
 			}
 			 
-			var p = round.AffectProduct(Address);
-		
-			p.Title				= Title;
-			p.LastRegistration	= round.Id;
 		}
 	}
 
 	public class RealizationRegistration : Operation
 	{
 		public RealizationAddress			Address;
-		public OsBinaryIdentifier[]			OSes;
+		public Osbi[]						OSes;
 		public override string				Description => $"{Address}";
 		public override bool				Valid => Address.Valid;
 
@@ -95,7 +100,7 @@ namespace UC.Net
 		{
 			base.Read(r);
 			Address	= r.Read<RealizationAddress>();
-			OSes	= r.ReadArray<OsBinaryIdentifier>();
+			OSes	= r.ReadArray<Osbi>();
 		}
 
 		public override void Write(BinaryWriter w)
@@ -115,17 +120,16 @@ namespace UC.Net
 				return;
 			}
 
-			//if(!a.Products.Contains(Address.Product))
-			//{
-			//	a = round.ChangeAuthor(Address.Author);
-			//	///a.Rid = round.Id;
-			//	a.Products.Add(Address.Product);
-			//}
+			if(!a.Products.Contains(Address.Product))
+			{
+				Error = "Product not found";
+				return;
+			}
 			 
 			var p = round.AffectProduct(Address);
 			
 			p.Realizations.RemoveAll(i => i.Name == Address.Platform);
-			p.Realizations.Add(new RealizationEntry{Name = Address.Platform, OSes = OSes});
+			p.Realizations.Add(new ProductEntryRealization{Name = Address.Platform, OSes = OSes});
 		}
 	}
 
@@ -330,7 +334,7 @@ namespace UC.Net
 			else
 				p = round.AffectProduct(Release);
 			
-			var e = new ReleaseEntry(Release.Platform, Release.Version, Channel, round.Id);
+			var e = new ProductEntryRelease(Release.Platform, Release.Version, Channel, round.Id);
 
 			//if(ce != null)
 			//{

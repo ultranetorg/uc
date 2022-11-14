@@ -1,29 +1,45 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace UC.Net
 {
-	public class RealizationEntry : IBinarySerializable
+	public class RealizationEntry : TableEntry<RealizationAddress>
 	{
-		public string					Name;
-		public OsBinaryIdentifier[]		OSes;
+		public override RealizationAddress	Key => Address;
+		public override byte[]				ClusterKey => Encoding.UTF8.GetBytes(Address.Author).Take(ClusterKeyLength).ToArray();
 
-		public void Read(BinaryReader r)
-		{
-			Name	= r.ReadUtf8();
-			OSes	= r.ReadArray<OsBinaryIdentifier>();
-		}
-
-		public void Write(BinaryWriter w)
-		{
-			w.WriteUtf8(Name);
-			w.Write(OSes);
-		}
+		public RealizationAddress			Address;
+		public Osbi[]						OSes;
 
 		public RealizationEntry Clone()
 		{
-			return new RealizationEntry{Name = Name, 
-										OSes = OSes.Clone() as OsBinaryIdentifier[]};
+			return	new()
+					{ 
+						Address	= Address, 
+						OSes	= OSes.ToArray()
+					};
+		}
+
+		public override void Write(BinaryWriter w)
+		{
+			w.Write(Address);
+			w.Write(OSes);
+		}
+
+		public override void Read(BinaryReader r)
+		{
+			Address	= r.Read<RealizationAddress>();
+			OSes	= r.ReadArray<Osbi>();
+		}
+
+		public override void WriteMore(BinaryWriter w)
+		{
+		}
+
+		public override void ReadMore(BinaryReader r)
+		{
 		}
 	}
 }

@@ -9,13 +9,13 @@ namespace UC.Net
 {
 	public class ProductTable : Table<ProductEntry, ProductAddress>
 	{
-		public ProductTable(Roundchain chain, ColumnFamilyHandle cfh) : base(chain, cfh)
+		public ProductTable(Roundchain chain) : base(chain)
 		{
 		}
 		
-		protected override ProductEntry Create(ProductAddress name)
+		protected override ProductEntry Create()
 		{
-			return new ProductEntry(name);
+			return new ProductEntry();
 		}
 
 		protected override byte[] KeyToBytes(ProductAddress key)

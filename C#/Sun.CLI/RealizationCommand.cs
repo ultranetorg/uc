@@ -32,7 +32,7 @@ namespace UC.Sun.CLI
 										{ 
 											Signer = GetPrivate("by", "password"), 
 											Address = RealizationAddress.Parse(GetString("address")),
-											OSes = Args.One("oses").Nodes.Select(i => OsBinaryIdentifier.Parse(i.Name)).ToArray()
+											OSes = Args.One("oses").Nodes.Select(i => Osbi.Parse(i.Name)).ToArray()
 										},
 										GetAwaitStage(), 
 										Workflow);

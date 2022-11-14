@@ -248,13 +248,19 @@ namespace UC.Net
 			
 			foreach(var i in new ColumnFamilies.Descriptor[]{
 																new (nameof(Peers), new ()),
-																new (nameof(Roundchain.Accounts), new ()),
-																new (nameof(Roundchain.Authors), new ()),
-																new (nameof(Roundchain.Products), new ()),
+																new (AccountTable.HashColumnName, new ()),
+																new (AccountTable.MainColumnName, new ()),
+																new (AccountTable.MoreColumnName, new ()),
+																new (AuthorTable.HashColumnName, new ()),
+																new (AuthorTable.MainColumnName, new ()),
+																new (AuthorTable.MoreColumnName, new ()),
+																new (ProductTable.HashColumnName, new ()),
+																new (ProductTable.MainColumnName, new ()),
+																new (ProductTable.MoreColumnName, new ()),
 																new (nameof(Roundchain.Rounds), new ()),
 																new (nameof(Roundchain.Funds), new ()),
 															})
-			cfamilies.Add(i);
+				cfamilies.Add(i);
 
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
 		}
@@ -1248,6 +1254,9 @@ namespace UC.Net
 				}
 				else
 				{
+if(Transactions.Any(i => i.Operations.Any(i => i is Emission)))
+	votes = votes;
+
 					var txs = Chain.CollectValidTransactions(Transactions	.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Pending) && i.RoundMax >= nar.Id)
 																			.GroupBy(i => i.Signer)
 																			.Select(i => i.First()), nar);

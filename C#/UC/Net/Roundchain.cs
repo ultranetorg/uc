@@ -118,9 +118,9 @@ namespace UC.Net
 		public Coin											LastSavedFactor		=> new Coin(Database.Get(FactorKey));
 		public Coin											LastSavedEmission	=> new Coin(Database.Get(EmissionKey));
 
-		public ColumnFamilyHandle							AccountsFamily	=> Database.GetColumnFamily(nameof(Accounts));
-		public ColumnFamilyHandle							AuthorsFamily	=> Database.GetColumnFamily(nameof(Authors));
-		public ColumnFamilyHandle							ProductsFamily	=> Database.GetColumnFamily(nameof(Products));
+		//public ColumnFamilyHandle							AccountsFamily	=> Database.GetColumnFamily(nameof(Accounts));
+		//public ColumnFamilyHandle							AuthorsFamily	=> Database.GetColumnFamily(nameof(Authors));
+		//public ColumnFamilyHandle							ProductsFamily	=> Database.GetColumnFamily(nameof(Products));
 		public ColumnFamilyHandle							RoundsFamily	=> Database.GetColumnFamily(nameof(Rounds));
 
 		public static int									GetValidityPeriod(int rid) => rid + Pitch;
@@ -133,9 +133,9 @@ namespace UC.Net
 
 			///GenerateFathers(256);
 
-			Accounts = new AccountTable(this, AccountsFamily);
-			Authors = new AuthorTable(this, AuthorsFamily);
-			Products = new ProductTable(this, ProductsFamily);
+			Accounts = new AccountTable(this);
+			Authors = new AuthorTable(this);
+			Products = new ProductTable(this);
 
 			if(LastSavedRound == null)
 			{
@@ -836,7 +836,7 @@ namespace UC.Net
 				//}
 
 				s.SetLength(0);
-				round.Save(w); /// may duplicate above if affected, not big deal
+				round.Save(w);
 				b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), RoundsFamily);
 
 				Database.Write(b);
@@ -939,9 +939,6 @@ namespace UC.Net
 		
 		public AccountInfo GetAccountInfo(Account account, bool confirmed)
 		{
-			if(account.ToString().StartsWith("0x3a6"))
-				confirmed = confirmed;
-
 			var rmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
 
 			var a = Accounts.Find(account, rmax.Id);
