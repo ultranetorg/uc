@@ -59,6 +59,8 @@ namespace UC.Net
 		public AccountTable									Accounts;
 		public AuthorTable									Authors;
 		public ProductTable									Products;
+		public RealizationTable								Realizations;
+		public ReleaseTable									Releases;
 		
 		public Log											Log;
 		public BlockDelegate								BlockAdded;
@@ -133,9 +135,11 @@ namespace UC.Net
 
 			///GenerateFathers(256);
 
-			Accounts = new AccountTable(this);
-			Authors = new AuthorTable(this);
-			Products = new ProductTable(this);
+			Accounts = new (this);
+			Authors = new (this);
+			Products = new (this);
+			Realizations = new (this);
+			Releases = new (this);
 
 			if(LastSavedRound == null)
 			{
@@ -643,6 +647,8 @@ namespace UC.Net
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
 			round.AffectedProducts.Clear();
+			round.AffectedRealizations.Clear();
+			round.AffectedReleases.Clear();
 
 			round.Emission	= round.Id == 0 ? 0						: (prev == LastSavedRound ?	LastSavedEmission	: prev.Emission);
 			round.WeiSpent	= round.Id == 0 ? 0						: (prev == LastSavedRound ?	LastSavedWeiSpent	: prev.WeiSpent);
@@ -818,6 +824,8 @@ namespace UC.Net
 				Accounts.Save(b, round.AffectedAccounts.Values);
 				Authors.Save(b, round.AffectedAuthors.Values);
 				Products.Save(b, round.AffectedProducts.Values);
+				Realizations.Save(b, round.AffectedRealizations.Values);
+				Releases.Save(b, round.AffectedReleases.Values);
 
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
@@ -845,6 +853,8 @@ namespace UC.Net
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
 			round.AffectedProducts.Clear();
+			round.AffectedRealizations.Clear();
+			round.AffectedReleases.Clear();
 			round.Members = null;
 			round.Funds = null;
 

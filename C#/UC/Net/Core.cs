@@ -257,6 +257,12 @@ namespace UC.Net
 																new (ProductTable.HashColumnName, new ()),
 																new (ProductTable.MainColumnName, new ()),
 																new (ProductTable.MoreColumnName, new ()),
+																new (RealizationTable.HashColumnName, new ()),
+																new (RealizationTable.MainColumnName, new ()),
+																new (RealizationTable.MoreColumnName, new ()),
+																new (ReleaseTable.HashColumnName, new ()),
+																new (ReleaseTable.MainColumnName, new ()),
+																new (ReleaseTable.MoreColumnName, new ()),
 																new (nameof(Roundchain.Rounds), new ()),
 																new (nameof(Roundchain.Funds), new ()),
 															})

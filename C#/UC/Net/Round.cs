@@ -10,58 +10,60 @@ namespace UC.Net
 {
 	public class Round : IBinarySerializable
 	{
-		public int										Id;
-		public int										ParentId => Id - Roundchain.Pitch;
-		public Round									Previous =>	Chain.FindRound(Id - 1);
-		public Round									Next =>	Chain.FindRound(Id + 1);
-		public Round									Parent => Chain.FindRound(ParentId);
+		public int												Id;
+		public int												ParentId => Id - Roundchain.Pitch;
+		public Round											Previous =>	Chain.FindRound(Id - 1);
+		public Round											Next =>	Chain.FindRound(Id + 1);
+		public Round											Parent => Chain.FindRound(ParentId);
 
-		public int										Try = 0;
-		public DateTime									FirstArrivalTime = DateTime.MaxValue;
-		public DateTime									LastAccessed = DateTime.UtcNow;
+		public int												Try = 0;
+		public DateTime											FirstArrivalTime = DateTime.MaxValue;
+		public DateTime											LastAccessed = DateTime.UtcNow;
 
-		public List<Block>								Blocks = new();
-		public IEnumerable<GeneratorJoinRequest>		JoinRequests	=> Blocks.OfType<GeneratorJoinRequest>();
-		public IEnumerable<Vote>						Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public IEnumerable<Payload>						Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
-		public IEnumerable<Account>						Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
-		public IEnumerable<Vote>						Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		public IEnumerable<Vote>						Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
+		public List<Block>										Blocks = new();
+		public IEnumerable<GeneratorJoinRequest>				JoinRequests	=> Blocks.OfType<GeneratorJoinRequest>();
+		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
+		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
+		public IEnumerable<Account>								Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
+		public IEnumerable<Vote>								Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Vote>								Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
-		public IEnumerable<Account>						ElectedViolators	=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>						ElectedJoiners		=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>						ElectedLeavers		=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>						ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
-		public IEnumerable<Account>						ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
+		public IEnumerable<Account>								ElectedViolators	=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<Account>								ElectedJoiners		=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<Account>								ElectedLeavers		=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
+		public IEnumerable<Account>								ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
+		public IEnumerable<Account>								ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
 
-		public List<Peer>								Members;
-		public List<Account>							Funds;
-		//public List<Peer>								Hubs;
-		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
-		public List<Account>							ConfirmedViolators;
-		public List<Account>							ConfirmedJoiners;
-		public List<Account>							ConfirmedLeavers;
-		public List<Account>							ConfirmedFundJoiners;
-		public List<Account>							ConfirmedFundLeavers;
+		public List<Peer>										Members;
+		public List<Account>									Funds;
+		//public List<Peer>										Hubs;
+		public IEnumerable<Payload>								ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
+		public List<Account>									ConfirmedViolators;
+		public List<Account>									ConfirmedJoiners;
+		public List<Account>									ConfirmedLeavers;
+		public List<Account>									ConfirmedFundJoiners;
+		public List<Account>									ConfirmedFundLeavers;
 
-		public bool										Voted = false;
-		public bool										Confirmed = false;
-		public byte[]									Hash;
+		public bool												Voted = false;
+		public bool												Confirmed = false;
+		public byte[]											Hash;
 
-		public ChainTime								Time;
-		public BigInteger								WeiSpent;
-		public Coin										Factor;
-		public Coin										Emission;
+		public ChainTime										Time;
+		public BigInteger										WeiSpent;
+		public Coin												Factor;
+		public Coin												Emission;
 
-		public Dictionary<Account, AccountEntry>		AffectedAccounts = new();
-		public Dictionary<string, AuthorEntry>			AffectedAuthors = new();
-		public Dictionary<ProductAddress, ProductEntry>	AffectedProducts = new(); /// needed to not load all producta with all releases when fetching an author
-		//public HashSet<Round>							AffectedRounds = new();
-		public IEnumerable<Payload>						ExecutingPayloads;
-		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
-																								.SelectMany(i => i.Operations)
-																								.Where(i => i.Executed);
-		public Roundchain								Chain;
+		public Dictionary<Account, AccountEntry>				AffectedAccounts = new();
+		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
+		public Dictionary<ProductAddress, ProductEntry>			AffectedProducts = new();
+		public Dictionary<RealizationAddress, RealizationEntry>	AffectedRealizations = new();
+		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
+		
+		public IEnumerable<Payload>								ExecutingPayloads;
+		public IEnumerable<Operation>							ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
+																										.SelectMany(i => i.Operations)
+																										.Where(i => i.Executed);
+		public Roundchain										Chain;
 		
 		public Round(Roundchain c)
 		{
@@ -185,6 +187,22 @@ namespace UC.Net
 			return Chain.Authors.Find(name, Id - 1);
 		}
 
+		public RealizationEntry FindRealization(RealizationAddress name)
+		{
+			if(AffectedRealizations.ContainsKey(name))
+				return AffectedRealizations[name];
+
+			return Chain.Realizations.Find(name, Id - 1);
+		}
+
+		public ReleaseEntry FindRelease(ReleaseAddress name)
+		{
+			if(AffectedReleases.ContainsKey(name))
+				return AffectedReleases[name];
+
+			return Chain.Releases.Find(name, Id - 1);
+		}
+
 		public ProductEntry AffectProduct(ProductAddress address)
 		{
 			var e = FindProduct(address);
@@ -195,6 +213,30 @@ namespace UC.Net
 				AffectedProducts[address] = new ProductEntry(){Address = address};
 
 			return AffectedProducts[address];
+		}
+
+		public RealizationEntry AffectRealization(RealizationAddress address)
+		{
+			var e = FindRealization(address);
+
+			if(e != null)
+				AffectedRealizations[address] = e.Clone();
+			else
+				AffectedRealizations[address] = new RealizationEntry(){Address = address};
+
+			return AffectedRealizations[address];
+		}
+
+		public ReleaseEntry AffectRelease(ReleaseAddress address)
+		{
+			var e = FindRelease(address);
+
+			if(e != null)
+				AffectedReleases[address] = e.Clone();
+			else
+				AffectedReleases[address] = new ReleaseEntry(){Address = address};
+
+			return AffectedReleases[address];
 		}
 
 		public ProductEntry FindProduct(ProductAddress address)

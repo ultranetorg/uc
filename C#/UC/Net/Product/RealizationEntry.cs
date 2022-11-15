@@ -13,12 +13,15 @@ namespace UC.Net
 		public RealizationAddress			Address;
 		public Osbi[]						OSes;
 
+		public int							LastRegistration = -1;
+
 		public RealizationEntry Clone()
 		{
 			return	new()
 					{ 
-						Address	= Address, 
-						OSes	= OSes.ToArray()
+						Address			= Address, 
+						OSes			= OSes.ToArray(),
+						LastRegistration = LastRegistration
 					};
 		}
 
@@ -36,10 +39,12 @@ namespace UC.Net
 
 		public override void WriteMore(BinaryWriter w)
 		{
+			w.Write7BitEncodedInt(LastRegistration);
 		}
 
 		public override void ReadMore(BinaryReader r)
 		{
+			LastRegistration = r.Read7BitEncodedInt();
 		}
 	}
 }

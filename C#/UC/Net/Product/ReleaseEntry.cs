@@ -14,13 +14,16 @@ namespace UC.Net
 		public byte[]					Manifest;
 		public string					Channel; /// stable, beta, nightly, debug,...
 
+		public int						LastRegistration = -1;
+
 		public ReleaseEntry Clone()
 		{
 			return	new() 
 					{ 
 						Address	= Address, 
 						Manifest = Manifest.Clone() as byte[],
-						Channel	= Channel
+						Channel	= Channel,
+						LastRegistration = LastRegistration
 					};
 		}
 
@@ -40,10 +43,12 @@ namespace UC.Net
 
 		public override void WriteMore(BinaryWriter w)
 		{
+			w.Write7BitEncodedInt(LastRegistration);
 		}
 
 		public override void ReadMore(BinaryReader r)
 		{
+			LastRegistration = r.Read7BitEncodedInt();
 		}
 	}
 }
