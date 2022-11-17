@@ -2,6 +2,8 @@
 
 public abstract partial class BaseViewModel : ObservableValidator, IQueryAttributable
 {
+	internal Popup Popup { get; set; }
+
 	protected readonly ILogger _logger;
 
     protected bool IsModalOpen { get; set; }
@@ -41,7 +43,16 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 
 	public async Task ShowPopup(Popup popup)
 	{
+		Popup = popup;;
 		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+	}
+
+	public void ClosePopup()
+	{
+		if(Popup != null)
+		{
+			Popup.Close();
+		}
 	}
 
     protected async Task OpenModalAsync<TModalPage>() where TModalPage : Page
