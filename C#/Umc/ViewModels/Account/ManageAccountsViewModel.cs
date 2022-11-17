@@ -23,14 +23,26 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
 
 	[RelayCommand]
     private async Task OpenOptionsAsync(AccountViewModel account)
-    {
-        if (account == null) return;
-        await AccountOptionsPopup.Show(account);
-    }
+	{
+		try
+		{
+			Guard.IsNotNull(account);
+
+			await ShowPopup(new AccountOptionsPopup(account));
+		}
+		catch(ArgumentException ex)
+		{
+			_logger.LogError("OpenOptionsAsync: Account cannot be null, Error: {Message}", ex.Message);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenOptionsAsync Error: {Message}", ex.Message);
+		}
+	}
 
 	[RelayCommand]
     private async Task OpenDetailsAsync(AccountViewModel account) => 
-		await NavigateToAsync(ShellBaseRoutes.ACCOUNT_DETAILS, new Dictionary<string,object>()
+		await Navigation.GoToAsync(ShellBaseRoutes.ACCOUNT_DETAILS, new Dictionary<string,object>()
 		{
 			// todo: move query key to constants
 			{ nameof(AccountDetailsPage), account }
@@ -51,8 +63,8 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async Task CreateAsync() => await NavigateToAsync(ShellBaseRoutes.CREATE_ACCOUNT);
+    private async Task CreateAsync() => await Navigation.GoToAsync(ShellBaseRoutes.CREATE_ACCOUNT);
 
 	[RelayCommand]
-    private async Task RestoreAsync() => await NavigateToAsync(ShellBaseRoutes.RESTORE_ACCOUNT);
+    private async Task RestoreAsync() => await Navigation.GoToAsync(ShellBaseRoutes.RESTORE_ACCOUNT);
 }

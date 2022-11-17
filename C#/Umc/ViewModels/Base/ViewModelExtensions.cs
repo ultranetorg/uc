@@ -142,6 +142,7 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient(sp => new SourceAccountViewModel(
 			Ioc.Default.GetService<IServicesMockData>(),
 			Ioc.Default.GetService<ILogger<SourceAccountViewModel>>()));
+		builder.Services.AddTransient(sp => new AccountOptionsViewModel());
 
 		#endregion
 

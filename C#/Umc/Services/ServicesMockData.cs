@@ -2,16 +2,19 @@
 
 public class ServicesMockData : IServicesMockData
 {
-    public IList<AccountViewModel> Accounts { get; private set; } = new List<AccountViewModel>();
+	private readonly ILogger<ServicesMockData> _logger;
+
+	public IList<AccountViewModel> Accounts { get; private set; } = new List<AccountViewModel>();
     public IList<Author> Authors { get; private set; } = new List<Author>();
     public IList<Product> Products { get; private set; } = new List<Product>();
     public IList<TransactionViewModel> Transactions { get; private set; } = new List<TransactionViewModel>();
 	public IList<AccountColor> AccountColors { get; private set; } = new List<AccountColor>();
-    public IList<Models.Emission> Emissions { get; private set; } = new List<Models.Emission>();
+    public IList<Emission> Emissions { get; private set; } = new List<Emission>();
     public IList<Notification> Notifications { get; private set; } = new List<Notification>();
 
-    public ServicesMockData()
+    public ServicesMockData(ILogger<ServicesMockData> logger)
 	{
+		_logger = logger;
 		InitializeMockData();
     }
 
@@ -220,10 +223,10 @@ public class ServicesMockData : IServicesMockData
 			AccountColors.Add(DefaultDataMock.CreateColor("#56d7de"));
 			AccountColors.Add(DefaultDataMock.CreateColor("#bb50dd"));
 
-			Emissions.Add(new Models.Emission { ETH = "100", Number = 1, UNT = "100" });
-			Emissions.Add(new Models.Emission { ETH = "1000", Number = 2, UNT = "1000" });
-			Emissions.Add(new Models.Emission { ETH = "10000", Number = 3, UNT = "10000" });
-			Emissions.Add(new Models.Emission { ETH = "100000", Number = 4, UNT = "10000" });
+			Emissions.Add(new Emission { ETH = "100", Number = 1, UNT = "100" });
+			Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });
+			Emissions.Add(new Emission { ETH = "10000", Number = 3, UNT = "10000" });
+			Emissions.Add(new Emission { ETH = "100000", Number = 4, UNT = "10000" });
 
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.ProductOperations));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.SystemEvent));
@@ -235,7 +238,7 @@ public class ServicesMockData : IServicesMockData
 		}
 		catch(Exception ex)
 		{
-			// TBD
+            _logger.LogError(ex, "InitializeMockData Exception: {Ex}", ex.Message);
 		}
 	}
 }

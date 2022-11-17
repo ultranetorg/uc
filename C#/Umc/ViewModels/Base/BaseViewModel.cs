@@ -4,6 +4,8 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 {
 	protected readonly ILogger _logger;
 
+    protected bool IsModalOpen { get; set; }
+
 	[ObservableProperty]
     private bool _isLoading = false;
 		
@@ -37,15 +39,23 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
     {
     }
 
-    protected async Task NavigateToAsync(ShellNavigationState state, IDictionary<string, object> parameters = null)
+	public async Task ShowPopup(Popup popup)
+	{
+		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+	}
+
+    protected async Task OpenModalAsync<TModalPage>() where TModalPage : Page
     {
         try
         {
-			await Navigation.GoToAsync(state, parameters);
+            IsModalOpen = true;
+            await Navigation.OpenModalAsync<TModalPage>();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "ShellNavigateTo Exception: {Ex}", ex.Message);
+            _logger.LogError(ex, "OpenModalAsync Error: {Ex}", ex.Message);
+            await ToastHelper.ShowDefaultErrorMessageAsync();
+            IsModalOpen = false;
         }
     }
 }

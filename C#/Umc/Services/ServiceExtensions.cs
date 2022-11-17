@@ -5,7 +5,7 @@ public static class ServiceExtensions
     public static MauiAppBuilder ConfigureServices(this MauiAppBuilder builder)
     {
 		// Services
-        builder.Services.AddSingleton<IServicesMockData, ServicesMockData>(sp => new ServicesMockData());
+        builder.Services.AddSingleton<IServicesMockData, ServicesMockData>(sp => new ServicesMockData(sp.GetService<ILogger<ServicesMockData>>()));
         builder.Services.AddSingleton<IAccountsService, AccountsMockService>(sp => new AccountsMockService(
 			Ioc.Default.GetService<IServicesMockData>()));
         builder.Services.AddSingleton<IAuthorsService, AuthorsMockService>(sp => new AuthorsMockService(

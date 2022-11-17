@@ -3,8 +3,14 @@
     x:Class="UC.Umc.Popups.AccountOptionsPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    x:Name="page">
+    xmlns:const="clr-namespace:UC.Umc.Constants"
+    xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    VerticalOptions="End"
+    x:Name="page"
+    Size="{x:Static const:PopupSizeConstants.AutoCompleteControl}"
+    x:DataType="vm:AccountOptionsViewModel">
     <!--HasSystemPadding="{OnPlatform Android=True,
                                 iOS=False}"-->
     <!--<pages:PopupPage.Animation>
@@ -19,63 +25,58 @@
             ScaleIn="1.2"
             ScaleOut="0.8" />
     </pages:PopupPage.Animation>-->
-    <Frame
+    <Grid
+        ColumnDefinitions="*,*"
+        ColumnSpacing="12"
+        RowDefinitions="4,*,*,*,*,*"
+        Padding="12"
+        RowSpacing="12"
         BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
-                                          Light={StaticResource LightBackground}}"
-        CornerRadius="20"
-        HasShadow="True"
-        HorizontalOptions="FillAndExpand"
-        VerticalOptions="EndAndExpand">
-        <Grid
-            ColumnDefinitions="*,*"
-            ColumnSpacing="12"
-            HorizontalOptions="FillAndExpand"
-            RowDefinitions="4,Auto,Auto,Auto,Auto,Auto"
-            RowSpacing="8">
-            <Frame
-                Grid.Row="0"
-                Grid.ColumnSpan="2"
-                HorizontalOptions="Center"
-                Style="{StaticResource PopupHandle}" />
-            <Button
-                Grid.Row="2"
-                Grid.ColumnSpan="2"
-                Text="Show private key" />
-            <Button
-                Grid.Row="3"
-                Grid.Column="0"
-                Style="{StaticResource DeleteButton}"
-                Text="Delete" />
-            <Button
-                Grid.Row="3"
-                Grid.Column="1"
-                Text="Backup" />
-            <Button
-                Grid.Row="4"
-                Grid.ColumnSpan="2"
-                Text="Hide from dashboard" />
-            <Frame
-                Grid.Row="5"
-                Grid.ColumnSpan="2"
+                                        Light={StaticResource LightBackground}}">
+        <Border
+            Grid.Row="0"
+            Grid.ColumnSpan="2"
+            HorizontalOptions="Center"
+            Style="{StaticResource PopupBorder}" />        
+
+        <Button
+            Grid.Row="2"
+            Grid.ColumnSpan="2"
+            Text="Show private key" />
+        <Button
+            Grid.Row="3"
+            Grid.Column="0"
+            Style="{StaticResource DeleteButton}"
+            Text="Delete" />
+        <Button
+            Grid.Row="3"
+            Grid.Column="1"
+            Text="Backup" />
+        <Button
+            Grid.Row="4"
+            Grid.ColumnSpan="2"
+            Text="Hide from dashboard" />
+        <Border
+            Grid.Row="5"
+            Grid.ColumnSpan="2"
+            Padding="0"
+            StrokeShape="RoundRectangle 20"
+            HeightRequest="48"
+            Clip="True">
+            <Grid
                 Padding="0"
-                CornerRadius="10"
-                HeightRequest="48"
-                IsClippedToBounds="True">
-                <Grid
-                    Padding="0"
-                    ColumnDefinitions="*,*"
-                    ColumnSpacing="2">
-                    <Button
-                        Grid.Column="0"
-                        CornerRadius="0"
-                        Text="Receive" />
-                    <Button
-                        Grid.Column="1"
-                        Command="{Binding SendCommand}"
-                        CornerRadius="0"
-                        Text="Send" />
-                </Grid>
-            </Frame>
-        </Grid>
-    </Frame>
+                ColumnDefinitions="*,*"
+                ColumnSpacing="2">
+                <Button
+                    Grid.Column="0"
+                    CornerRadius="0"
+                    Text="Receive" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding SendCommand}"
+                    CornerRadius="0"
+                    Text="Send" />
+            </Grid>
+        </Border>
+    </Grid>
 </toolkit:Popup>

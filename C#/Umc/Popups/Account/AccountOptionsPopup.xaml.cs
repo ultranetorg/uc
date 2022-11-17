@@ -3,30 +3,24 @@
 public partial class AccountOptionsPopup : Popup
 {
 	private static AccountOptionsPopup popup;
-	
-    public AccountViewModel Account { get; }
+
+	AccountOptionsViewModel Vm => BindingContext as AccountOptionsViewModel;
 
     public AccountOptionsPopup(AccountViewModel account)
     {
         InitializeComponent();
-        Account = account;
-        BindingContext = this;
+        BindingContext = Ioc.Default.GetService<AccountOptionsViewModel>();
+		Vm.Account = account;
     }
-
-	[RelayCommand]
-	private async Task Send()
-	{
-		await Shell.Current.Navigation.PushAsync(new SendPage());
-	}
-
-	public void Hide()
-	{
-		Close();
-	}
 
 	public static async Task Show(AccountViewModel account)
 	{
 		popup = new AccountOptionsPopup(account);
 		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+	}
+
+	public void Hide()
+	{
+		Close();
 	}
 }
