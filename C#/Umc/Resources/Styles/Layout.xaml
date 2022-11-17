@@ -162,10 +162,10 @@
     </Style>
     <Style x:Key="PopupBorder" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="Opacity" Value="0.3" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
-        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="HeightRequest" Value="8" />
         <Setter Property="WidthRequest" Value="40" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
 </ResourceDictionary>

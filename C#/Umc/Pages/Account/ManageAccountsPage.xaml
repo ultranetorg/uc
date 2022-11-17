@@ -76,6 +76,7 @@
                             Grid.Column="1"
                             MaxLines="1"
                             Opacity="0.3"
+                            FontSize="10"
                             Style="{StaticResource Light}"
                             Text="{Binding Address}"
                             VerticalOptions="Center" />

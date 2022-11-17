@@ -17,6 +17,6 @@ public static class PopupSizeConstants
         var displayWidth = DeviceDisplay.Current.MainDisplayInfo.Width;
 
         // examples for relative to screen sizes
-		AutoCompleteControl = new Size(0.9 * (displayWidth / displayDensity), 0.4 * (displayHeight / displayDensity));
+		AutoCompleteControl = new Size(0.9 * (displayWidth / displayDensity), 0.45 * (displayHeight / displayDensity));
 	}
 }
