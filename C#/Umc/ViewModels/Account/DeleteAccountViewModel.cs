@@ -14,7 +14,30 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
     public DeleteAccountViewModel(IServicesMockData service, ILogger<DeleteAccountViewModel> logger) : base(logger)
     {
 		_service = service;
+		Initialize();
     }
+
+    public override void ApplyQueryAttributes(IDictionary<string, object> query)
+	{
+        try
+        {
+            InitializeLoading();
+
+            Account = (AccountViewModel)query[nameof(AccountViewModel)];
+#if DEBUG
+            _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
+#endif
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ApplyQueryAttributes Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+        finally
+        {
+            FinishLoading();
+        }
+	}
 
     [RelayCommand]
     private async Task DeleteAsync()
@@ -22,9 +45,8 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
         await DeleteAccountPopup.Show(Account);
     }
 
-	internal void Initialize(AccountViewModel account)
+	private void Initialize()
 	{
-		Account = account;
 		Authors.Clear();
 		Products.Clear();
 

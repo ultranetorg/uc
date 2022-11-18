@@ -78,11 +78,15 @@
         <Button
             Grid.Row="2"
             Grid.ColumnSpan="2"
+            Command="{Binding ShowPrivateKeyCommand}"
+            CommandParameter="{Binding Account}"
             Text="Show private key" />
         <Button
             Grid.Row="3"
             Grid.Column="0"
             Style="{StaticResource DeleteButton}"
+            Command="{Binding DeleteCommand}"
+            CommandParameter="{Binding Account}"
             Text="Delete" />
         <Button
             Grid.Row="3"
@@ -108,6 +112,7 @@
                 <Button
                     Grid.Column="0"
                     CornerRadius="0"
+                    Command="{Binding SendCommand}"
                     Text="Receive" />
                 <Button
                     Grid.Column="1"

@@ -6,8 +6,6 @@ public partial class SelectAuthorViewModel : BaseViewModel
 
     public Author SelectedAuthor;
 
-    public SelectAuthorPopup Popup { get; set;}
-
 	[ObservableProperty]
 	private CustomCollection<Author> _authors = new();
 
@@ -24,10 +22,7 @@ public partial class SelectAuthorViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void Close()
-    {
-        Popup.Hide();
-    }
+    private void Close() => ClosePopup();
 	
 	public void Initialize()
 	{

@@ -47,7 +47,7 @@ public partial class StartViewModel : BaseViewModel
                 await Shell.Current.Navigation.PushAsync(new DashboardPage(Ioc.Default.GetService<DashboardViewModel>()));
                 break;
             case 7:
-                await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Account, Ioc.Default.GetService<DeleteAccountViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new DeleteAccountPage());
                 break;
             case 8:
                 await Shell.Current.Navigation.PushAsync(new ETHTransferPage(Ioc.Default.GetService<ETHTransferViewModel>()));
@@ -59,7 +59,7 @@ public partial class StartViewModel : BaseViewModel
                 await Shell.Current.Navigation.PushAsync(new ManageAccountsPage(Ioc.Default.GetService<ManageAccountsViewModel>()));
                 break;
             case 11:
-                await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Account, Ioc.Default.GetService<PrivateKeyViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new PrivateKeyPage());
                 break;
             case 12:
                 await Shell.Current.Navigation.PushAsync(new ProductSearchPage(Ioc.Default.GetService<ProductSearchViewModel>()));

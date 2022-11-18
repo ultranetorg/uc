@@ -10,9 +10,32 @@ public partial class AccountOptionsViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-	private async Task Send()
+	private async Task SendAsync()
 	{
-		await Shell.Current.Navigation.PushAsync(new SendPage());
+		// TODO: add account parameter
+		await Navigation.GoToAsync(nameof(SendPage));
+		ClosePopup();
+	}
+
+	[RelayCommand]
+	private async Task ShowPrivateKeyAsync(AccountViewModel account)
+	{
+		await Navigation.GoToAsync(nameof(PrivateKeyPage),
+			new Dictionary<string, object>()
+		{
+			{ nameof(AccountViewModel), account }
+		});
+		ClosePopup();
+	}
+
+	[RelayCommand]
+	private async Task DeleteAsync(AccountViewModel account)
+	{
+		await Navigation.GoToAsync(nameof(DeleteAccountPage),
+			new Dictionary<string, object>()
+		{
+			{ nameof(AccountViewModel), account }
+		});
 		ClosePopup();
 	}
 }

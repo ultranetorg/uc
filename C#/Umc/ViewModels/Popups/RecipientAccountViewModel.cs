@@ -4,8 +4,6 @@ public partial class RecipientAccountViewModel : BaseViewModel
 {
 	private readonly IServicesMockData _service;
 
-    public RecipientAccountPopup Popup { get; set;}
-
 	[ObservableProperty]
     private CustomCollection<AccountViewModel> _accounts = new();
         
@@ -19,10 +17,7 @@ public partial class RecipientAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void Close()
-    {
-        Popup.Hide();
-    }
+    private void Close() => ClosePopup();
 
 	[RelayCommand]
     private void ItemTapped(AccountViewModel account)

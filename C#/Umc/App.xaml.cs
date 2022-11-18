@@ -32,6 +32,7 @@ public partial class App : Application
 	private void InitializeRouting()
 	{
 		Routing.RegisterRoute(ShellBaseRoutes.ACCOUNT_DETAILS, typeof(AccountDetailsPage));
+		Routing.RegisterRoute(ShellBaseRoutes.PRIVATE_KEY, typeof(PrivateKeyPage));
 		Routing.RegisterRoute(ShellBaseRoutes.CREATE_ACCOUNT, typeof(CreateAccountPage));
 		Routing.RegisterRoute(ShellBaseRoutes.RESTORE_ACCOUNT, typeof(RestoreAccountPage));
 		Routing.RegisterRoute(ShellBaseRoutes.DELETE_ACCOUNT, typeof(DeleteAccountPage));

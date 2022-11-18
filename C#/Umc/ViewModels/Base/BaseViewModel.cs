@@ -43,7 +43,7 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 
 	public async Task ShowPopup(Popup popup)
 	{
-		Popup = popup;;
+		Popup = popup;
 		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
 	}
 

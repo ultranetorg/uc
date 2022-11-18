@@ -4,8 +4,6 @@ public partial class SourceAccountViewModel : BaseViewModel
 {
 	private readonly IServicesMockData _service;
 
-    public SourceAccountPopup Popup { get; set; }
-
 	[ObservableProperty]
     private AccountViewModel _account;
 
@@ -29,10 +27,7 @@ public partial class SourceAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void Close()
-    {
-        Popup.Hide();
-    }
+    private void Close() => ClosePopup();
 	
 	private void LoadData()
 	{

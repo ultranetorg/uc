@@ -45,7 +45,7 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
 		await Navigation.GoToAsync(ShellBaseRoutes.ACCOUNT_DETAILS, new Dictionary<string,object>()
 		{
 			// todo: move query key to constants
-			{ nameof(AccountDetailsPage), account }
+			{ nameof(AccountViewModel), account }
 		});
 
 	[RelayCommand]

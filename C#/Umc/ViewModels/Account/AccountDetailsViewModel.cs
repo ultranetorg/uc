@@ -31,7 +31,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
         {
             InitializeLoading();
 
-            Account = (AccountViewModel)query[nameof(AccountDetailsPage)];
+            Account = (AccountViewModel)query[nameof(AccountViewModel)];
 			AccountName = Account.Name;
 			Background = Account.Color;
 #if DEBUG
@@ -69,16 +69,20 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     }
 
 	[RelayCommand]
-    private async Task ShowKeyAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Account));
-    }
+    private async Task ShowKeyAsync() =>
+		await Navigation.GoToAsync(nameof(PrivateKeyPage),
+			new Dictionary<string, object>()
+		{
+			{ nameof(AccountViewModel), Account }
+		});
 
 	[RelayCommand]
-    private async Task DeleteAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Account));
-    }
+    private async Task DeleteAsync() =>
+		await Navigation.GoToAsync(nameof(DeleteAccountPage),
+			new Dictionary<string, object>()
+		{
+			{ nameof(AccountViewModel), Account }
+		});
 
 	private void LoadData()
 	{
