@@ -2,7 +2,7 @@
 
 namespace UC.Umc.ViewModels;
 
-public partial class ManageAccountsViewModel : BaseAccountViewModel
+public partial class ManageAccountsViewModel : BaseViewModel
 {
 	private readonly IAccountsService _service;
 
@@ -52,6 +52,7 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
 		await Navigation.GoToAsync(nameof(SendPage),
 			new Dictionary<string, object>()
 		{
+			{ QueryKeys.SOURCE_ACCOUNT, null },
 			{ QueryKeys.RECIPIENT_ACCOUNT, account }
 		});
 	
@@ -60,7 +61,8 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
 		await Navigation.GoToAsync(nameof(SendPage),
 			new Dictionary<string, object>()
 		{
-			{ QueryKeys.SOURCE_ACCOUNT, account }
+			{ QueryKeys.SOURCE_ACCOUNT, account },
+			{ QueryKeys.RECIPIENT_ACCOUNT, null }
 		});
 
 	[RelayCommand]

@@ -15,6 +15,7 @@ public partial class Send1ViewModel : BaseViewModel
 	
 	private void LoadData()
 	{
+		// Next step is to replace this with the query parameter
 		SourceAccount = DefaultDataMock.CreateAccount();
 		RecipientAccount = DefaultDataMock.CreateAccount();
 	}

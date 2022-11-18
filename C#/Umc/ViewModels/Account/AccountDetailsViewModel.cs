@@ -50,24 +50,12 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	}
 
 	[RelayCommand]
-    private void SetAccountColor(AccountColor accountColor) =>
-		Background = accountColor != null 
-			? ColorHelper.CreateGradientColor(accountColor.Color)
-			: ColorHelper.CreateRandomGradientColor();
-
-	[RelayCommand]
-    private async Task HideFromDashboardAsync()
-    {
-		// TODO
-		await Task.Delay(1);
-    }
-
-	[RelayCommand]
     private async Task SendAsync() =>
 		await Navigation.GoToAsync(nameof(SendPage),
 			new Dictionary<string, object>()
 		{
-			{ QueryKeys.SOURCE_ACCOUNT, Account }
+			{ QueryKeys.SOURCE_ACCOUNT, Account },
+			{ QueryKeys.RECIPIENT_ACCOUNT, null }
 		});
 
 	[RelayCommand]
@@ -75,6 +63,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		await Navigation.GoToAsync(nameof(SendPage),
 			new Dictionary<string, object>()
 		{
+			{ QueryKeys.SOURCE_ACCOUNT, null },
 			{ QueryKeys.RECIPIENT_ACCOUNT, Account }
 		});
 
@@ -93,6 +82,26 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		{
 			{ QueryKeys.ACCOUNT, Account }
 		});
+
+	[RelayCommand]
+    private void SetAccountColor(AccountColor accountColor) =>
+		Background = accountColor != null 
+			? ColorHelper.CreateGradientColor(accountColor.Color)
+			: ColorHelper.CreateRandomGradientColor();
+
+	[RelayCommand]
+    private async Task HideFromDashboardAsync()
+    {
+		// TODO
+		await Task.Delay(1);
+    }
+
+	[RelayCommand]
+    private async Task BackupAsync()
+    {
+		// TODO
+		await Task.Delay(1);
+    }
 
 	private void LoadData()
 	{

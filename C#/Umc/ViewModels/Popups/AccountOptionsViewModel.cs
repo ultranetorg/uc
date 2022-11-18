@@ -34,23 +34,23 @@ public partial class AccountOptionsViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-	private async Task ShowPrivateKeyAsync(AccountViewModel account)
+	private async Task ShowPrivateKeyAsync()
 	{
 		await Navigation.GoToAsync(nameof(PrivateKeyPage),
 			new Dictionary<string, object>()
 		{
-			{ QueryKeys.ACCOUNT, account }
+			{ QueryKeys.ACCOUNT, Account }
 		});
 		ClosePopup();
 	}
 
 	[RelayCommand]
-	private async Task DeleteAsync(AccountViewModel account)
+	private async Task DeleteAsync()
 	{
 		await Navigation.GoToAsync(nameof(DeleteAccountPage),
 			new Dictionary<string, object>()
 		{
-			{ QueryKeys.ACCOUNT, account }
+			{ QueryKeys.ACCOUNT, Account }
 		});
 		ClosePopup();
 	}

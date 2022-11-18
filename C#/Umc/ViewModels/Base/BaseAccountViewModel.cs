@@ -12,7 +12,7 @@ public abstract partial class BaseAccountViewModel : BaseViewModel
     private CustomCollection<Product> _products = new();
 
 	[ObservableProperty]
-    private AccountViewModel _account; // TBR - need to be removed
+    private AccountViewModel _account;
 
 	[ObservableProperty]
     private int _position;

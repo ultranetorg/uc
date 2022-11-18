@@ -25,6 +25,8 @@
             Margin="0,0,0,12"
             Style="{StaticResource PopupBorder}" />
         
+        <!-- todo: need to figure out how to make round corner for popups
+        for now it has white background which should be transparent -->
         <Border
             Grid.Row="1"
             Grid.ColumnSpan="2"
@@ -79,14 +81,12 @@
             Grid.Row="2"
             Grid.ColumnSpan="2"
             Command="{Binding ShowPrivateKeyCommand}"
-            CommandParameter="{Binding Account}"
             Text="Show private key" />
         <Button
             Grid.Row="3"
             Grid.Column="0"
             Style="{StaticResource DeleteButton}"
             Command="{Binding DeleteCommand}"
-            CommandParameter="{Binding Account}"
             Text="Delete" />
         <Button
             Grid.Row="3"
