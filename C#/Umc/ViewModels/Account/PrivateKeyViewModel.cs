@@ -21,7 +21,7 @@ public partial class PrivateKeyViewModel : BaseViewModel
         {
             InitializeLoading();
 
-            Account = (AccountViewModel)query[nameof(AccountViewModel)];
+            Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
 #if DEBUG
             _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
 #endif

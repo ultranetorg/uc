@@ -61,7 +61,7 @@
                     </Button.Triggers>
                 </Button>
                 <Button
-                    Command="{Binding CloseCommad, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}"
+                    Command="{Binding HidePopupCommad, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}"
                     Style="{DynamicResource LabelButton}" Text="Cancel" />
             </StackLayout>
         </Grid>

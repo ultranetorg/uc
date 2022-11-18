@@ -112,7 +112,7 @@
                 <Button
                     Grid.Column="0"
                     CornerRadius="0"
-                    Command="{Binding SendCommand}"
+                    Command="{Binding ReceiveCommand}"
                     Text="Receive" />
                 <Button
                     Grid.Column="1"

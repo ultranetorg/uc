@@ -12,8 +12,24 @@ public partial class AccountOptionsViewModel : BaseViewModel
 	[RelayCommand]
 	private async Task SendAsync()
 	{
-		// TODO: add account parameter
-		await Navigation.GoToAsync(nameof(SendPage));
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.SOURCE_ACCOUNT, Account },
+			{ QueryKeys.RECIPIENT_ACCOUNT, null }
+		});
+		ClosePopup();
+	}
+
+	[RelayCommand]
+	private async Task ReceiveAsync()
+	{
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.SOURCE_ACCOUNT, null },
+			{ QueryKeys.RECIPIENT_ACCOUNT, Account }
+		});
 		ClosePopup();
 	}
 
@@ -23,7 +39,7 @@ public partial class AccountOptionsViewModel : BaseViewModel
 		await Navigation.GoToAsync(nameof(PrivateKeyPage),
 			new Dictionary<string, object>()
 		{
-			{ nameof(AccountViewModel), account }
+			{ QueryKeys.ACCOUNT, account }
 		});
 		ClosePopup();
 	}
@@ -34,7 +50,7 @@ public partial class AccountOptionsViewModel : BaseViewModel
 		await Navigation.GoToAsync(nameof(DeleteAccountPage),
 			new Dictionary<string, object>()
 		{
-			{ nameof(AccountViewModel), account }
+			{ QueryKeys.ACCOUNT, account }
 		});
 		ClosePopup();
 	}

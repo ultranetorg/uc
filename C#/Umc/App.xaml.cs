@@ -1,6 +1,6 @@
 ﻿using Application = Microsoft.Maui.Controls.Application;
 using Microsoft.Maui.Handlers;
-using UC.Umc.Constants;
+
 
 namespace UC.Umc;
 
@@ -36,6 +36,7 @@ public partial class App : Application
 		Routing.RegisterRoute(ShellBaseRoutes.CREATE_ACCOUNT, typeof(CreateAccountPage));
 		Routing.RegisterRoute(ShellBaseRoutes.RESTORE_ACCOUNT, typeof(RestoreAccountPage));
 		Routing.RegisterRoute(ShellBaseRoutes.DELETE_ACCOUNT, typeof(DeleteAccountPage));
+		Routing.RegisterRoute(ShellBaseRoutes.SEND, typeof(SendPage));
 		Routing.RegisterRoute(ShellBaseRoutes.ABOUT, typeof(AboutPage));
 	}
 }

@@ -1,4 +1,4 @@
-﻿using UC.Umc.Constants;
+﻿
 
 namespace UC.Umc.ViewModels;
 
@@ -44,23 +44,24 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
     private async Task OpenDetailsAsync(AccountViewModel account) => 
 		await Navigation.GoToAsync(ShellBaseRoutes.ACCOUNT_DETAILS, new Dictionary<string,object>()
 		{
-			// todo: move query key to constants
-			{ nameof(AccountViewModel), account }
+			{ QueryKeys.ACCOUNT, account }
 		});
 
 	[RelayCommand]
-    private async Task ReceiveAsync(AccountViewModel account)
-    {
-		// TODO
-		await Task.Delay(1);
-    }
-
+    private async Task ReceiveAsync(AccountViewModel account) =>
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.RECIPIENT_ACCOUNT, account }
+		});
+	
 	[RelayCommand]
-    private async Task SendAsync(AccountViewModel account)
-    {
-		// TODO
-		await Task.Delay(1);
-    }
+    private async Task SendAsync(AccountViewModel account) =>
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.SOURCE_ACCOUNT, account }
+		});
 
 	[RelayCommand]
     private async Task CreateAsync() => await Navigation.GoToAsync(ShellBaseRoutes.CREATE_ACCOUNT);

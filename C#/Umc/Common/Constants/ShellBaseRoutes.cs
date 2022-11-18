@@ -17,4 +17,5 @@ internal static class ShellBaseRoutes
     public const string RESTORE_ACCOUNT = nameof(RestoreAccountPage);
     public const string DELETE_ACCOUNT = nameof(DeleteAccountPage);
     public const string PRIVATE_KEY = nameof(PrivateKeyPage);
+    public const string SEND = nameof(SendPage);
 }

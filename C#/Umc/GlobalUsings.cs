@@ -17,4 +17,5 @@ global using UC.Umc.Popups;
 global using UC.Umc.Controls;
 global using UC.Umc.Pages;
 global using UC.Umc.Exceptions;
+global using UC.Umc.Constants;
 global using UC.Umc.Services;
