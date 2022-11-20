@@ -4,8 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:UC.Umc.Views"
-    xmlns:controls="clr-namespace:UC.Umc.Controls">
-    <StackLayout Spacing="20">
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    x:Name="This">
+    <StackLayout Spacing="20" BindingContext="{x:Reference This}">
         <StackLayout Spacing="20">
             <StackLayout>
                 <Label FontSize="18" Text="Do you wish to send UNT tokens to another Ultranet account?" />
@@ -16,7 +17,7 @@
             </StackLayout>
             <StackLayout>
                 <Label Style="{StaticResource DashLabel}" Text="From" />
-                <views:AccountView BindingContext="{Binding SourceWallet}" />
+                <views:AccountView BindingContext="{Binding SourceAccount}" />
             </StackLayout>
             <StackLayout>
                 <Label Style="{StaticResource DashLabel}" Text="To" />
@@ -24,7 +25,7 @@
                     <Label
                         FontSize="12"
                         Style="{StaticResource Medium}"
-                        Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
+                        Text="{Binding RecipientAccount.Address}" />
                 </Frame>
             </StackLayout>
             <StackLayout Spacing="15">

@@ -6,9 +6,8 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
-    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Views"
-    x:DataType="vm:Send1ViewModel">
-    <ScrollView>
+    x:Name="This">
+    <ScrollView BindingContext="{x:Reference This}">
         <StackLayout Spacing="20">
             <StackLayout>
                 <Label FontSize="18" Text="Choose your source and destination accounts" />
@@ -23,9 +22,9 @@
                     FontSize="13"
                     Style="{StaticResource Regular}"
                     Text="Specify source Ultranet Account that will transfer moneys" />
-                <views:AccountView BindingContext="{Binding SourceAccount}" />
+                <views:AccountView Account="{Binding SourceAccount}" />
                 <StackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding SourceTappedCommand}" />
+                    <TapGestureRecognizer Command="{Binding SelectSourceAccount}" />
                 </StackLayout.GestureRecognizers>
             </StackLayout>
             <StackLayout>
@@ -34,9 +33,9 @@
                     FontSize="13"
                     Style="{StaticResource Regular}"
                     Text="Specify destination Ultranet Account that will receive moneys." />
-                <views:AccountView BindingContext="{Binding RecipientAccount}" />
+                <views:AccountView Account="{Binding RecipientAccount}" />
                 <StackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding RecipientTappedCommand}" />
+                    <TapGestureRecognizer Command="{Binding SelectRecipientAccount}" />
                 </StackLayout.GestureRecognizers>
             </StackLayout>
 

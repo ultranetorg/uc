@@ -170,10 +170,6 @@ public static class ViewModelExtensions
 			Ioc.Default.GetService<ILogger<MakeBid1ViewModel>>()));
 		builder.Services.AddTransient(sp => new MakeBid2ViewModel(
 			Ioc.Default.GetService<ILogger<MakeBid2ViewModel>>()));
-		builder.Services.AddTransient(sp => new Send1ViewModel(
-			Ioc.Default.GetService<ILogger<Send1ViewModel>>()));
-		builder.Services.AddTransient(sp => new Send2ViewModel(
-			Ioc.Default.GetService<ILogger<Send2ViewModel>>()));
 
 		#endregion
 

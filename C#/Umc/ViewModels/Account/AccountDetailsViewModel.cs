@@ -90,14 +90,14 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 			: ColorHelper.CreateRandomGradientColor();
 
 	[RelayCommand]
-    private async Task HideFromDashboardAsync()
+    private async Task BackupAsync()
     {
 		// TODO
 		await Task.Delay(1);
     }
 
 	[RelayCommand]
-    private async Task BackupAsync()
+    private async Task HideFromDashboardAsync()
     {
 		// TODO
 		await Task.Delay(1);

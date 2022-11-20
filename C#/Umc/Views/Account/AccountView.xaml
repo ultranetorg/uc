@@ -5,8 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:models="clr-namespace:UC.Umc.Models"
     x:Name="Page">
-    <Frame x:DataType="models:AccountViewModel" Style="{StaticResource AccountCard}">
+    <Frame
+        BindingContext="{x:Reference Page}"
+        Style="{StaticResource AccountCard}">
         <Grid
+            BindingContext="{Binding Account}"
             Padding="14"
             ColumnDefinitions="60,*"
             ColumnSpacing="10"
@@ -24,7 +27,7 @@
                 <Label
                     HorizontalOptions="Center"
                     Style="{StaticResource CodeLabel}"
-                    Text="{Binding IconCode, Source={x:Reference Page}}"
+                    Text="{Binding IconCode}"
                     VerticalOptions="Center" />
             </Frame>
             

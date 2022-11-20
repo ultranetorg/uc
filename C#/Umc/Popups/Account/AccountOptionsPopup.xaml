@@ -91,11 +91,13 @@
         <Button
             Grid.Row="3"
             Grid.Column="1"
-            Text="Backup" />
+            Text="Backup"
+            Command="{Binding BackupCommand}" />
         <Button
             Grid.Row="4"
             Grid.ColumnSpan="2"
-            Text="Hide from dashboard" />
+            Text="Hide from dashboard"
+            Command="{Binding HideFromDashboardCommand}" />
         <Border
             Grid.Row="5"
             Grid.ColumnSpan="2"
@@ -103,8 +105,7 @@
             StrokeShape="RoundRectangle 20"
             BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
                                             Light={StaticResource LightBackground}}"
-            HeightRequest="48"
-            Clip="True">
+            HeightRequest="48">
             <Grid
                 Padding="0"
                 ColumnDefinitions="*,*"

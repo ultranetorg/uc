@@ -2,13 +2,13 @@
 
 public partial class AccountView : ContentView
 {
-    public static readonly BindableProperty IconCodeProperty =
-		BindableProperty.Create(nameof(IconCode), typeof(string), typeof(BadgeView), string.Empty);
+    public static readonly BindableProperty AccountProperty =
+		BindableProperty.Create(nameof(Account), typeof(AccountViewModel), typeof(BadgeView));
 
-    public string IconCode
+    public AccountViewModel Account
     {
-        get { return (string)GetValue(IconCodeProperty); }
-        set { SetValue(IconCodeProperty, value); }
+        get { return (AccountViewModel)GetValue(AccountProperty); }
+        set { SetValue(AccountProperty, value); }
     }
 
     public AccountView()

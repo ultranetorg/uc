@@ -54,4 +54,18 @@ public partial class AccountOptionsViewModel : BaseViewModel
 		});
 		ClosePopup();
 	}
+
+	[RelayCommand]
+	private async Task BackupAsync()
+	{
+		// TODO
+		await Task.Delay(1);
+	}
+
+	[RelayCommand]
+	private async Task HideFromDashboardAsync()
+	{
+		// TODO
+		await Task.Delay(1);
+	}
 }

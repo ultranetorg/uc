@@ -9,7 +9,7 @@ public partial class SendViewModel : BaseViewModel
     private AccountViewModel _recipient;
 
 	[ObservableProperty]
-    private int _position;
+    private int _position = 0;
 
     public SendViewModel(ILogger<SendViewModel> logger) : base(logger)
     {
@@ -39,7 +39,17 @@ public partial class SendViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-    private void HidePopup() => ClosePopup();
+    private async Task CancelAsync()
+	{
+		if(Position == 1)
+		{
+			Position = 0;
+		}
+		else
+		{
+			await Navigation.PopAsync();
+		}
+	}
 
 	[RelayCommand]
     private async Task ConfirmAsync()
@@ -50,9 +60,24 @@ public partial class SendViewModel : BaseViewModel
 	[RelayCommand]
     private void Transfer()
     {
-        if (Position != 1) 
+        if (Position == 0) 
 		{
-			Position += 1;
-		} 
+			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
+			Position = 1;
+			Position = 0;
+			Position = 1;
+		}
+    }
+    
+	[RelayCommand]
+    private async Task SourceTapped()
+    {
+        await SourceAccountPopup.Show();
+    }
+
+	[RelayCommand]
+    private async Task RecipientTapped()
+    {
+        await RecipientAccountPopup.Show();
     }
 }
