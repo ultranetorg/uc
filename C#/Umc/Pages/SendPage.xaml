@@ -30,10 +30,10 @@
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
                         <views:Send1View
-                            SourceAccount="{Binding Source}"
-                            RecipientAccount="{Binding Recipient}"
-                            SelectSourceAccount="{Binding SourceTappedCommand}"
-                            SelectRecipientAccount="{Binding RecipientTappedCommand}" />
+                            SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
+                            RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}"
+                            SelectSourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=SourceTappedCommand}"
+                            SelectRecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=RecipientTappedCommand}" />
                         <views:Send2View
                             SourceAccount="{Binding Source}"
                             RecipientAccount="{Binding Recipient}" />
