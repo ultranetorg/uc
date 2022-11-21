@@ -68,7 +68,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		});
 
 	[RelayCommand]
-    private async Task ShowKeyAsync() =>
+    private async Task ShowPrivateKeyAsync() =>
 		await Navigation.GoToAsync(nameof(PrivateKeyPage),
 			new Dictionary<string, object>()
 		{

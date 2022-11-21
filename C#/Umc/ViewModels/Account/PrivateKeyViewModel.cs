@@ -38,8 +38,34 @@ public partial class PrivateKeyViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-    private async Task DeleteAsync()
+    private async Task CopyAsync()
     {
-        await DeleteAccountPopup.Show(Account);
+        try
+        {
+			await Clipboard.SetTextAsync(Account.Address);
+            await ToastHelper.ShowMessageAsync("Copied to clipboard");
+#if DEBUG
+            _logger.LogDebug("CopyAsync Address: {Address}", Account.Address);
+#endif
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CopyAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+    }
+
+	[RelayCommand]
+    private async Task CancelAsync()
+    {
+        try
+        {
+			await Navigation.PopAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CancelAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
     }
 }

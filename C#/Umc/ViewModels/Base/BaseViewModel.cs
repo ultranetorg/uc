@@ -54,19 +54,4 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 			Popup.Close();
 		}
 	}
-
-    protected async Task OpenModalAsync<TModalPage>() where TModalPage : Page
-    {
-        try
-        {
-            IsModalOpen = true;
-            await Navigation.OpenModalAsync<TModalPage>();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "OpenModalAsync Error: {Ex}", ex.Message);
-            await ToastHelper.ShowDefaultErrorMessageAsync();
-            IsModalOpen = false;
-        }
-    }
 }

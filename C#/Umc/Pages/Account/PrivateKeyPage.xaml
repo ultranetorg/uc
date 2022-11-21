@@ -5,7 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     Title="Show private key"
+    x:DataType="vm:PrivateKeyViewModel"
     x:Name="page">
     <controls:CustomPage.MainContent>
         <ScrollView>
@@ -17,14 +19,14 @@
                         Style="{StaticResource Regular}"
                         Text="This can lead to the loss of funds, domains and applications on the account" />
                 </StackLayout>
-                <views:AccountView BindingContext="{Binding Wallet}"/>
+                <views:AccountView BindingContext="{Binding Account}"/>
                 <StackLayout>
                     <Label Style="{StaticResource DashLabel}" Text="Private key" />
                     <Frame Style="{StaticResource Key=KeyFrame}">
                         <Label
                             FontSize="12"
                             Style="{StaticResource Medium}"
-                            Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
+                            Text="{Binding Account.Address}" />
                     </Frame>
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand">

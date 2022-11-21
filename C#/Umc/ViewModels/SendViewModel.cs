@@ -41,14 +41,22 @@ public partial class SendViewModel : BaseViewModel
 	[RelayCommand]
     private async Task CancelAsync()
 	{
-		if(Position == 1)
-		{
-			Position = 0;
-		}
-		else
-		{
-			await Navigation.PopAsync();
-		}
+        try
+        {
+			if(Position == 1)
+			{
+				Position = 0;
+			}
+			else
+			{
+				await Navigation.PopAsync();
+			}
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CancelAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
 	}
 
 	[RelayCommand]
