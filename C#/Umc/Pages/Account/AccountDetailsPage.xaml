@@ -19,14 +19,12 @@
     
     <controls:CustomPage.Resources>
         <DataTemplate x:Key="ColorsTemplate" x:DataType="models:AccountColor">
-            <Frame
+            <Border
                 Padding="0"
                 BackgroundColor="{Binding Color}"
-                CornerRadius="17"
-                HasShadow="False"
+                StrokeShape="RoundRectangle 16"
                 HeightRequest="34"
                 HorizontalOptions="Center"
-                IsClippedToBounds="True"
                 VerticalOptions="Center"
                 WidthRequest="34">
                 <ImageButton
@@ -39,7 +37,7 @@
                     WidthRequest="30"
                     HorizontalOptions="Center"
                     VerticalOptions="Center" />
-            </Frame>
+            </Border>
         </DataTemplate>    
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>

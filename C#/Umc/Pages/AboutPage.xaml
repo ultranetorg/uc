@@ -12,10 +12,10 @@
             Padding="30"
             Spacing="20"
             VerticalOptions="StartAndExpand">
-            <Frame
+            <Border
                 Grid.ColumnSpan="2"
                 HeightRequest="74"
-                Style="{StaticResource AccountCard}">
+                Style="{StaticResource AccountCardBorder}">
                 <Grid
                     Padding="20,1"
                     ColumnDefinitions="32,*"
@@ -43,7 +43,7 @@
                         Text="18 Dec 2028"
                         VerticalOptions="Center" />
                 </Grid>
-            </Frame>
+            </Border>
             <StackLayout>
                 <StackLayout>
                     <Grid ColumnDefinitions="*,25" RowDefinitions="18,15,8">

@@ -11,70 +11,72 @@
     x:DataType="vm:SendViewModel"
     Title="Send">
     <controls:CustomPage.MainContent>
-        <Grid 
-            Padding="{StaticResource PagePadding}"
-            RowDefinitions="*,20,Auto,Auto"
-            RowSpacing="10">
-            <CarouselView 
-                Grid.Row="0"
-                IndicatorView="indicator"
-                IsSwipeEnabled="False"
-                Loop="False"
-                PeekAreaInsets="0"
-                Position="{Binding Position}">
-                <CarouselView.ItemTemplate>
-                    <DataTemplate>
-                        <ContentView Content="{Binding .}" />
-                    </DataTemplate>
-                </CarouselView.ItemTemplate>
-                <CarouselView.ItemsSource>
-                    <x:Array Type="{x:Type View}">
-                        <views:Send1View
-                            SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
-                            RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}"
-                            SelectSourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=SourceTappedCommand}"
-                            SelectRecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=RecipientTappedCommand}" />
-                        <views:Send2View
-                            SourceAccount="{Binding Source}"
-                            RecipientAccount="{Binding Recipient}" />
-                    </x:Array>
-                </CarouselView.ItemsSource>
-            </CarouselView>
+        <ScrollView>
+            <Grid 
+                Padding="{StaticResource PagePadding}"
+                RowDefinitions="*,20,Auto,Auto"
+                RowSpacing="10">
+                <CarouselView 
+                    Grid.Row="0"
+                    IndicatorView="indicator"
+                    IsSwipeEnabled="False"
+                    Loop="False"
+                    PeekAreaInsets="0"
+                    Position="{Binding Position}">
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate>
+                            <ContentView Content="{Binding .}" />
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                    <CarouselView.ItemsSource>
+                        <x:Array Type="{x:Type View}">
+                            <views:Send1View
+                                SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
+                                RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}"
+                                SelectSourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=SourceTappedCommand}"
+                                SelectRecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=RecipientTappedCommand}" />
+                            <views:Send2View
+                                SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
+                                RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}" />
+                        </x:Array>
+                    </CarouselView.ItemsSource>
+                </CarouselView>
             
-            <!-- Will be visible when #9749 issue is fixed -->
-            <IndicatorView Grid.Row="1" x:Name="indicator" IsVisible="False" />
+                <!-- Will be visible when #9749 issue is fixed -->
+                <IndicatorView Grid.Row="1" x:Name="indicator" IsVisible="False" />
             
-            <StackLayout Grid.Row="2" >
-                <Button
-                    Text="Transfer"
-                    Command="{Binding TransferCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}">
-                    <Button.Triggers>
-                        <DataTrigger
-                            Binding="{Binding Position}"
-                            TargetType="Button"
-                            Value="1">
-                            <Setter Property="IsVisible" Value="False" />
-                        </DataTrigger>
-                    </Button.Triggers>
-                </Button>
-                <Button
-                    IsVisible="False"
-                    Command="{Binding ConfirmCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}"
-                    Style="{StaticResource ConfirmButton}" >
-                    <Button.Triggers>
-                        <DataTrigger
-                            Binding="{Binding Position}"
-                            TargetType="Button"
-                            Value="1">
-                            <Setter Property="IsVisible" Value="True" />
-                        </DataTrigger>
-                    </Button.Triggers>
-                </Button>
-                <Button
-                    Command="{Binding CancelCommand}"
-                    Style="{DynamicResource LabelButton}"
-                    Text="Cancel" />
-            </StackLayout>
-        </Grid>
+                <StackLayout Grid.Row="2" >
+                    <Button
+                        Text="Transfer"
+                        Command="{Binding TransferCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}">
+                        <Button.Triggers>
+                            <DataTrigger
+                                Binding="{Binding Position}"
+                                TargetType="Button"
+                                Value="1">
+                                <Setter Property="IsVisible" Value="False" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <Button
+                        IsVisible="False"
+                        Command="{Binding ConfirmCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}"
+                        Style="{StaticResource ConfirmButton}" >
+                        <Button.Triggers>
+                            <DataTrigger
+                                Binding="{Binding Position}"
+                                TargetType="Button"
+                                Value="1">
+                                <Setter Property="IsVisible" Value="True" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <Button
+                        Command="{Binding CancelCommand}"
+                        Style="{DynamicResource LabelButton}"
+                        Text="Cancel" />
+                </StackLayout>
+            </Grid>
+        </ScrollView>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>
