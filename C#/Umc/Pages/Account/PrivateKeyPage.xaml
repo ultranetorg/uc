@@ -10,8 +10,8 @@
     x:DataType="vm:PrivateKeyViewModel"
     x:Name="page">
     <controls:CustomPage.MainContent>
-        <ScrollView>
-            <StackLayout Padding="{StaticResource PagePadding}" Spacing="30">
+        <ScrollView Padding="{StaticResource PagePadding}">
+            <StackLayout Spacing="30">
                 <StackLayout>
                     <Label FontSize="18" Text="Never show and share your private key with other person!" />
                     <Label
@@ -19,7 +19,7 @@
                         Style="{StaticResource Regular}"
                         Text="This can lead to the loss of funds, domains and applications on the account" />
                 </StackLayout>
-                <views:AccountView BindingContext="{Binding Account}"/>
+                <views:AccountView Account="{Binding Account}"/>
                 <StackLayout>
                     <Label Style="{StaticResource DashLabel}" Text="Private key" />
                     <Frame Style="{StaticResource Key=KeyFrame}">
@@ -31,14 +31,12 @@
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand">
                     <Button
-                    Command="{Binding CopyCommand}"
-                    Text="Copy private key to clipboard"
-                     />
+                        Command="{Binding CopyCommand}"
+                        Text="Copy private key to clipboard" />
                     <Button
-                    Command="{Binding CancelCommand}"
-                    Style="{DynamicResource LabelButton}"
-                    Text="Cancel"
-                    />
+                        Command="{Binding CancelCommand}"
+                        Style="{DynamicResource LabelButton}"
+                        Text="Cancel" />
                 </StackLayout>
             </StackLayout>
         </ScrollView>

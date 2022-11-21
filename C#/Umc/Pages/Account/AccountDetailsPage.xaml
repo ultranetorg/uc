@@ -145,7 +145,7 @@
                         Grid.RowSpan="2"
                         Grid.Column="1"
                         VerticalOptions="Center"
-                        Command="{Binding HideFromDashboardCommand}"/>
+                        SwitchCommand="{Binding HideFromDashboardCommand, Source={x:RelativeSource AncestorType={x:Type vm:AccountDetailsViewModel}}}"/>
                 </Grid>
                 <Grid RowDefinitions="Auto,23">
                     <Label

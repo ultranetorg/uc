@@ -21,7 +21,7 @@
             CornerRadius="{Binding CornerRadius}"
             VerticalOptions="FillAndExpand" />
         <Frame.GestureRecognizers>
-            <TapGestureRecognizer Tapped="OnSwitchedAsync" Command="{Binding Command}" />
+            <TapGestureRecognizer Tapped="OnSwitchedAsync" Command="{Binding SwitchCommand}" />
         </Frame.GestureRecognizers>
     </Frame>
 </ContentView>

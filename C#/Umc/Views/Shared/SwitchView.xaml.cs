@@ -16,7 +16,7 @@ public partial class SwitchView : ContentView
 
 	public static readonly BindableProperty IsOnProperty = BindableProperty.Create(nameof(IsOn), typeof(bool), typeof(SwitchView), true);
 
-	public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(SwitchView), null);
+	public static readonly BindableProperty SwitchCommandProperty = BindableProperty.Create(nameof(SwitchCommand), typeof(ICommand), typeof(SwitchView));
 
 	public double CornerRadius
 	{
@@ -48,10 +48,10 @@ public partial class SwitchView : ContentView
 		set { SetValue(IsOnProperty, value); }
 	}
 
-	public ICommand Command
+	public ICommand SwitchCommand
 	{
-		get { return (ICommand)GetValue(CommandProperty); }
-		set { SetValue(CommandProperty, value); }
+		get { return (ICommand)GetValue(SwitchCommandProperty); }
+		set { SetValue(SwitchCommandProperty, value); }
 	}
 
 	public SwitchView()
