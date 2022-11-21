@@ -34,7 +34,7 @@
         <StackLayout>
             <Label Style="{StaticResource DashLabel}" Text="Author name" />
             <Label Opacity="0.7" Text="Normalized Author name" />
-            <Frame
+            <Border
                 Padding="10,0"
                 HeightRequest="44"
                 Style="{StaticResource KeyFrame}">
@@ -43,7 +43,7 @@
                     Style="{StaticResource Medium}"
                     Text="author"
                     VerticalOptions="Center" />
-            </Frame>
+            </Border>
         </StackLayout>
         <StackLayout Spacing="15">
             <controls:LabelPair Text1="Current bid" Text2="185 UNT ($104 100)" />

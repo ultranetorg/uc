@@ -11,25 +11,34 @@
     x:Name="page">
     <controls:CustomPage.MainContent>
         <ScrollView Padding="{StaticResource PagePadding}">
-            <StackLayout Spacing="30">
-                <StackLayout>
-                    <Label FontSize="18" Text="Never show and share your private key with other person!" />
+            <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="24">
+                <StackLayout Grid.Row="0">
+                    <Label
+                        FontSize="18"
+                        Text="Never show and share your private key with other person!" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
                         Text="This can lead to the loss of funds, domains and applications on the account" />
                 </StackLayout>
-                <views:AccountView Account="{Binding Account}"/>
-                <StackLayout>
-                    <Label Style="{StaticResource DashLabel}" Text="Private key" />
-                    <Frame Style="{StaticResource Key=KeyFrame}">
+                
+                <views:AccountView
+                    Grid.Row="1"
+                    Account="{Binding Account}"/>
+
+                <StackLayout Grid.Row="2">
+                    <Label
+                        Style="{StaticResource DashLabel}"
+                        Text="Private key" />
+                    <Border Style="{StaticResource KeyFrame}">
                         <Label
                             FontSize="12"
                             Style="{StaticResource Medium}"
                             Text="{Binding Account.Address}" />
-                    </Frame>
+                    </Border>
                 </StackLayout>
-                <StackLayout VerticalOptions="EndAndExpand">
+
+                <StackLayout Grid.Row="3" VerticalOptions="EndAndExpand">
                     <Button
                         Command="{Binding CopyCommand}"
                         Text="Copy private key to clipboard" />
@@ -38,7 +47,7 @@
                         Style="{DynamicResource LabelButton}"
                         Text="Cancel" />
                 </StackLayout>
-            </StackLayout>
+            </Grid>
         </ScrollView>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>
