@@ -119,7 +119,7 @@
                     <Button Command="{Binding CreateCommand}" Text="Create" />
                     <Button
                         Command="{Binding RestoreCommand}"
-                        Style="{DynamicResource LabelButton}"
+                        Style="{StaticResource LabelButton}"
                         Text="Restore account" />
                 </StackLayout>
             </Border>

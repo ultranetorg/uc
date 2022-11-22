@@ -47,30 +47,4 @@ public abstract partial class BaseAccountViewModel : BaseViewModel
         if (Position == 1) return;
         Position += 1;
     }
-
-    protected string GetControlErrorMessage(string nameOfControl)
-    {
-        var message = string.Empty;
-
-        try
-        {
-            if (HasErrors)
-            {
-                Guard.IsNotNullOrWhiteSpace(nameOfControl);
-
-                var errors = GetErrors(nameOfControl)?.Select(x => x.ErrorMessage).ToList();
-
-                if (errors.Count > 0)
-                {
-                    message = errors[0];
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "GetControlErrorMessage({Value}) - Error: {Ex} ", nameOfControl, ex.Message);
-        }
-
-        return message;
-    }
 }

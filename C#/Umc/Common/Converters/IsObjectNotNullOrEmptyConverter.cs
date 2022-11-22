@@ -2,7 +2,7 @@
 using System.Globalization;
 using CommunityToolkit.Maui.Converters;
 
-namespace CMSCOM.Converters;
+namespace UC.Umc.Converters;
 
 public class IsObjectNotNullOrEmptyConverter : BaseConverterOneWay<object, bool>
 {

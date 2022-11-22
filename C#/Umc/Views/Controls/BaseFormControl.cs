@@ -73,7 +73,6 @@ public abstract class BaseFormControl<T, U> : ContentView
             {
                 Resources[activeBorderStyle] = Resources["ValidBorderStyle"];
                 Resources[activeSpanStyle] = Resources["ValidTextStyle"];
-
                 if (!string.IsNullOrWhiteSpace(FormControlType))
                 {
                     Resources[activeControlStyle] = Resources[$"Valid{FormControlType}Style"];

@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:converters="clr-namespace:CMSCOM.Converters"
+    xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:fi="clr-namespace:UC.Umc.Models"
     xmlns:local="clr-namespace:UC.Umc.Resources.Styles">
@@ -711,6 +711,7 @@
 
     <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
     <converters:IsObjectNotNullOrEmptyConverter x:Key="IsObjectNotNullOrEmptyConverter" />
+    <converters:DecimalToStringConverter x:Key="DecimalToStringConverter" />
 
     <ControlTemplate x:Key="ControlOutline">
         <Grid RowDefinitions="6,4,4,4,20,4,16" RowSpacing="2">

@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.ViewModels;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace UC.Umc.ViewModels;
 
 public partial class SendViewModel : BaseViewModel
 {
@@ -10,6 +12,17 @@ public partial class SendViewModel : BaseViewModel
 
 	[ObservableProperty]
     private int _position = 0;
+
+	[ObservableProperty]
+	[NotifyDataErrorInfo]
+	[Required(ErrorMessage = "Required")]
+	[Range(1, int.MaxValue, ErrorMessage = "Limit has been exceeded")]
+	[NotifyPropertyChangedFor(nameof(Comission))]
+    private decimal _amount = 1;
+
+	public decimal Comission => Amount > 0 ? Amount/100 : 0;
+
+    public string AmountError => GetControlErrorMessage(nameof(Amount));
 
     public SendViewModel(ILogger<SendViewModel> logger) : base(logger)
     {

@@ -25,18 +25,6 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 		_logger = logger;
 	}
 
-    protected virtual void InitializeLoading()
-    {
-        IsLoading = true;
-        IsLoaded = false;
-    }
-
-    protected virtual void FinishLoading()
-    {
-        IsLoading = false;
-        IsRefreshing = false;
-    }
-
     public virtual void ApplyQueryAttributes(IDictionary<string, object> query)
     {
     }
@@ -54,4 +42,42 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 			Popup.Close();
 		}
 	}
+
+    protected virtual void InitializeLoading()
+    {
+        IsLoading = true;
+        IsLoaded = false;
+    }
+
+    protected virtual void FinishLoading()
+    {
+        IsLoading = false;
+        IsRefreshing = false;
+    }
+
+    protected string GetControlErrorMessage(string nameOfControl)
+    {
+        var message = string.Empty;
+
+        try
+        {
+            if (HasErrors)
+            {
+                Guard.IsNotNullOrWhiteSpace(nameOfControl);
+
+                var errors = GetErrors(nameOfControl)?.Select(x => x.ErrorMessage).ToList();
+
+                if (errors.Count > 0)
+                {
+                    message = errors[0];
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GetControlErrorMessage({Value}) - Error: {Ex} ", nameOfControl, ex.Message);
+        }
+
+        return message;
+    }
 }

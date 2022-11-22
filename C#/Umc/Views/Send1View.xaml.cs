@@ -16,6 +16,12 @@ public partial class Send1View : ContentView
     public static readonly BindableProperty SelectRecipientAccountProperty =
 		BindableProperty.Create(nameof(SelectRecipientAccount), typeof(ICommand), typeof(Send1View));
 
+    public static readonly BindableProperty AmountProperty =
+		BindableProperty.Create(nameof(Amount), typeof(decimal), typeof(Send1View));
+
+    public static readonly BindableProperty AmountErrorProperty =
+		BindableProperty.Create(nameof(AmountError), typeof(string), typeof(Send1View));
+
     public AccountViewModel SourceAccount
     {
         get { return (AccountViewModel)GetValue(SourceAccountProperty); }
@@ -40,8 +46,27 @@ public partial class Send1View : ContentView
         set { SetValue(SelectRecipientAccountProperty, value); }
     }
 
+    public decimal Amount
+    {
+        get { return (decimal)GetValue(AmountProperty); }
+        set { SetValue(AmountProperty, value); }
+    }
+
+    public string AmountError
+    {
+        get { return (string)GetValue(AmountErrorProperty); }
+        set { SetValue(AmountErrorProperty, value); }
+    }
+
     public Send1View()
     {
-        InitializeComponent();
+		try
+		{
+			InitializeComponent();
+		}
+		catch(Exception ex)
+		{
+
+		}
     }
 }

@@ -42,37 +42,28 @@
 
         <StackLayout Grid.Row="3" Spacing="10">
             <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
-            <AbsoluteLayout>
-                <controls:BorderEntry
-                    FontSize="24"
-                    HorizontalTextAlignment="End"
-                    Placeholder="10 000.00"
-                    RightPadding="45">
-                    <controls:BorderEntry.Behaviors>
-                        <toolkit:CharactersValidationBehavior
-                            x:Name="cb1"
-                            CharacterType="Letter"
-                            Flags="ValidateOnValueChanged"
-                            InvalidStyle="{StaticResource InvalidEntry}"
-                            MaximumCharacterTypeCount="30"
-                            MinimumCharacterTypeCount="1"
-                            ValidStyle="{StaticResource Valid}" />
-                    </controls:BorderEntry.Behaviors>
-                </controls:BorderEntry>
+            <AbsoluteLayout Margin="0,20">
+                <controls:FormNumericControl
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    ErrorMessage="{Binding AmountError}"
+                    Placeholder="Amount"
+                    Margin="0,0,8,0"
+                    Value="{Binding Amount}" />
                 <Label
-                    Margin="16,10"
+                    Margin="16"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
                     Style="{StaticResource UNTLabel}"
                     Text="ETH" />
             </AbsoluteLayout>
-            <StackLayout>
+            <!--<StackLayout>
                 <Label
                     FontSize="12"
-                    IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                    IsVisible="{Binding IsNotValid, Source={x:Reference amountCtrl}}"
                     Text="Validation text message"
                     TextColor="{StaticResource Red}" />
-            </StackLayout>
+            </StackLayout>-->
         </StackLayout>
     </Grid>
 </ContentView>
