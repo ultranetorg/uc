@@ -44,7 +44,7 @@ namespace UC.Sun.FUI
 					var li = Generators.Items.Add(i.Generator.ToString());
 
 					li.SubItems.Add(i.JoinedGeneratorsAt.ToString());
-					li.SubItems.Add(Chain != null ? Core.Chain.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString() : null);
+					li.SubItems.Add(Chain != null ? Core.Database.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString() : null);
 					li.SubItems.Add(i.IP.ToString());
 				}
 

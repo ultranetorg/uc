@@ -75,7 +75,7 @@ namespace UC.Net
 			}
 		}
 
-		public virtual void Execute(Roundchain chain, Round round)
+		public virtual void Execute(Database chain, Round round)
 		{
 		}
  
@@ -143,7 +143,7 @@ namespace UC.Net
 
 			WritePaid(w); 
 
-			return Roundchain.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 		
 		public static Coin CalculateFee(Coin factor, IEnumerable<Operation> operations)
@@ -155,7 +155,7 @@ namespace UC.Net
 									 	i.WritePaid(w); 
 									 });
 
-			return Roundchain.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
 	}
@@ -165,7 +165,7 @@ namespace UC.Net
 		public Coin				Bail;
 		public IPAddress		IP;
 		public override string	Description => $"{Bail} UNT";
-		public override bool Valid => Settings.Dev.DisableBailMin ? true : Bail >= Roundchain.BailMin;
+		public override bool Valid => Settings.Dev.DisableBailMin ? true : Bail >= Database.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -196,7 +196,7 @@ namespace UC.Net
 			w.Write(IP.GetAddressBytes());
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			var e = round.AffectAccount(Signer);
 
@@ -256,7 +256,7 @@ namespace UC.Net
 			w.Write7BitEncodedInt(Eid);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			Portion = Calculate(round.WeiSpent, round.Factor, Wei);
 			
@@ -367,7 +367,7 @@ namespace UC.Net
 			w.Write(Amount);
 		}
 
-		public override void  Execute(Roundchain chain, Round round)
+		public override void  Execute(Database chain, Round round)
 		{
 			round.AffectAccount(Signer).Balance -= Amount;
 			round.AffectAccount(To).Balance += Amount;
@@ -408,7 +408,7 @@ namespace UC.Net
 			w.Write(Bid);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			var a = round.AffectAuthor(Author);
 
@@ -536,7 +536,7 @@ namespace UC.Net
 			w.Write(Years);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 //			AuthorBid lb = null;
 
@@ -618,7 +618,7 @@ namespace UC.Net
 			w.Write(To);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			if(!round.AffectAccount(Signer).Authors.Contains(Author))
 			{

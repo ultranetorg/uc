@@ -21,7 +21,7 @@ namespace UC.Sun.FUI
 	{
 		protected readonly Core		Core;
 		protected readonly Vault	Vault;
-		protected Roundchain		Chain => Core.Chain;
+		protected Database		Chain => Core.Database;
 
 		public BaseControl()
 		{
@@ -86,7 +86,7 @@ namespace UC.Sun.FUI
 					b.SelectedIndex = 0;
 			}
 
-			Core.Chain.BlockAdded +=	b =>{
+			Core.Database.BlockAdded +=	b =>{
 													if(b is Payload p && p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is ProductRegistration)))
 													{
 														BeginInvoke((MethodInvoker)delegate{ fill(); });
@@ -114,7 +114,7 @@ namespace UC.Sun.FUI
 				filled?.Invoke();
 			}
 
-			Core.Chain.BlockAdded += b => {
+			Core.Database.BlockAdded += b => {
 													if(b is Payload p && (	p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorRegistration || o is AuthorTransfer)) ||
 																			p.Transactions.Any(i => !Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorTransfer at && Vault.Accounts.Contains(at.To))) 
 																			))

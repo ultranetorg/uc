@@ -3,13 +3,13 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>0.0.290.0</AssemblyVersion>
-    <FileVersion>0.0.290.0</FileVersion>
+    <AssemblyVersion>0.0.316.0</AssemblyVersion>
+    <FileVersion>0.0.316.0</FileVersion>
     <Company>Ultranet Organization</Company>
     <Product>Standard Ultranet Node (SUN) Server for UOS</Product>
     <Authors>Ultranet Organization</Authors>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
-    <Version>0.0.290.0</Version>
+    <Version>0.0.316.0</Version>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

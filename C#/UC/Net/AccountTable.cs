@@ -12,13 +12,13 @@ namespace UC.Net
 {
 	public class AccountTable : Table<AccountEntry, Account>
 	{
-		public AccountTable(Roundchain chain) : base(chain)
+		public AccountTable(Database chain) : base(chain)
 		{
 		}
 
 		protected override AccountEntry Create()
 		{
-			return new AccountEntry(Chain);
+			return new AccountEntry(Database);
 		}
 
 		protected override byte[] KeyToBytes(Account k)
@@ -34,7 +34,7 @@ namespace UC.Net
 			{
 				foreach(var i in e.Transactions.OrderByDescending(i => i))
 				{
-					var r = Chain.FindRound(i);
+					var r = Database.FindRound(i);
 
 					if(round_predicate != null && !round_predicate(r))
 						continue;
@@ -64,7 +64,7 @@ namespace UC.Net
 			{
 				foreach(var i in e.Transactions.OrderByDescending(i => i))
 				{
-					var r = Chain.FindRound(i);
+					var r = Database.FindRound(i);
 
 					if(round_predicate != null && !round_predicate(r))
 						continue;
@@ -126,26 +126,26 @@ namespace UC.Net
 
 		public Transaction FindLastTransaction(Account signer, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
-			return	Chain.FindLastPoolTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
+			return	Database.FindLastPoolTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
 					??
 					FindTransaction(signer, transaction_predicate, payload_predicate, round_predicate);
 		}
 
 		public IEnumerable<Transaction> FindLastTransactions(Account signer, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
-			return	Chain.FindLastPoolTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
+			return	Database.FindLastPoolTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
 					.Union(FindTransactions(signer, transaction_predicate, payload_predicate, round_predicate));
 		}
 
 		public IEnumerable<Transaction> SearchTransactions(Account signer, int skip = 0, int count = int.MaxValue)
 		{
-			var o = Chain.FindLastPoolTransactions(i => i.Signer == signer);
+			var o = Database.FindLastPoolTransactions(i => i.Signer == signer);
 
 			var e = FindEntry(signer);
 
 			if(e != null && e.Transactions != null)
 			{
-				o = o.Union(e.Transactions.SelectMany(r => Chain.FindRound(r).FindTransactions(t => t.Signer == signer))).Skip(skip).Take(count);
+				o = o.Union(e.Transactions.SelectMany(r => Database.FindRound(r).FindTransactions(t => t.Signer == signer))).Skip(skip).Take(count);
 			}
 
 			return o;
@@ -188,7 +188,7 @@ namespace UC.Net
 
 		public AccountEntry Find(Account account, int ridmax)
 		{
-			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
 				if(r.AffectedAccounts.ContainsKey(account))
 					return r.AffectedAccounts[account];
 

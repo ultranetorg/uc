@@ -27,7 +27,7 @@ namespace UC.Net
 		Workflow		Workflow => Core.Workflow;
 		Settings		Settings => Core.Settings;
 		Vault			Vault => Core.Vault;
-		Roundchain		Chain => Core.Chain;
+		Database		Chain => Core.Database;
 
 		public JsonServer(Core core)
 		{

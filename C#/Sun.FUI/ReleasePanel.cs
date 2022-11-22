@@ -38,7 +38,7 @@ namespace UC.Sun.FUI
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Release.Platform == Platform.Text))
+				foreach(var r in Core.Database.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Release.Platform == Platform.Text))
 				{
 					var i = new ListViewItem(r.Release.ToString());
 					

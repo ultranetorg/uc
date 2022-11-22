@@ -29,7 +29,7 @@ namespace UC.Sun.FUI
 
 				UpdateCandidateAccounts();
 
-				Bail.Coins = Roundchain.BailMin;
+				Bail.Coins = Database.BailMin;
 				IP.Text = Core.IP.ToString();
 			}
 		}
@@ -66,7 +66,7 @@ namespace UC.Sun.FUI
 			{
 				foreach(var i in Vault.Accounts)
 				{
-					foreach(var o in Core.Chain.Accounts.FindLastOperations<CandidacyDeclaration>(i))
+					foreach(var o in Core.Database.Accounts.FindLastOperations<CandidacyDeclaration>(i))
 					{
 						var r = new ListViewItem(o.Signer.ToString());
 						r.SubItems.Add(o.Transaction.Payload.RoundId.ToString()); 
@@ -75,7 +75,7 @@ namespace UC.Sun.FUI
 						Declarations.Items.Add(r);
 					}
 	
-					foreach(var b in Core.Chain.FindLastBlocks(j => j.Generator == i).OrderBy(i => i.RoundId))
+					foreach(var b in Core.Database.FindLastBlocks(j => j.Generator == i).OrderBy(i => i.RoundId))
 					{
 						var r = new ListViewItem(b.RoundId.ToString());
 						r.SubItems.Add(b.Type.ToString()); 

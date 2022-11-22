@@ -24,9 +24,9 @@ namespace UC.Net
 		public override Account			Key => Account;
 		public override byte[]			ClusterKey => ((byte[])Account).Take(ClusterKeyLength).ToArray();
 
-		Roundchain						Chain;
+		Database						Chain;
 
-		public AccountEntry(Roundchain chain)
+		public AccountEntry(Database chain)
 		{
 			Chain = chain;
 		}

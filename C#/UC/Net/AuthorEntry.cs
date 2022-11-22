@@ -27,11 +27,11 @@ namespace UC.Net
 		public int					ObtainedRid;
 		public List<string>			Products = new();
 
-		Roundchain					Chain;
+		Database					Chain;
 
 		public const int			LengthMaxForAuction = 4;
 
-		public AuthorEntry(Roundchain chain)
+		public AuthorEntry(Database chain)
 		{
 			Chain = chain;
 		}

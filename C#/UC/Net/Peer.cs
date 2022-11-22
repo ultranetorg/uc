@@ -264,7 +264,7 @@ namespace UC.Net
 														}
 														catch(Exception ex)// when(!Debugger.IsAttached)
 														{
-															rp = Response.FromType(core.Chain, i.Type);
+															rp = Response.FromType(core.Database, i.Type);
 															rp.Error = ex.Message;
 														}
 												

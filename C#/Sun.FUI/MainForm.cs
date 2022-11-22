@@ -33,7 +33,7 @@ namespace UC.Sun.FUI
 			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Core, core.Vault)};
 			navigator.Nodes.Add(accs);
 
-			if(core.Chain != null)
+			if(core.Database != null)
 			{
 				var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
 				navigator.Nodes.Add(txs);
@@ -117,7 +117,7 @@ namespace UC.Sun.FUI
 			lock(Core.Lock)
 			{
 				Text = "Ultranet Node"; //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += $"{(Core.Networking && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.Networking && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
+				Text += $"{(Core.Networking && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.Networking && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Database.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
 			}
 
 			foreach(var i in Controls)

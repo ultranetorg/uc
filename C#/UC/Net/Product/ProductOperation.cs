@@ -55,7 +55,7 @@ namespace UC.Net
 			w.WriteUtf8(Title);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			var a = round.FindAuthor(Address.Author);
 
@@ -110,7 +110,7 @@ namespace UC.Net
 			w.Write(OSes);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			var a = round.FindAuthor(Realization.Author);
 
@@ -254,7 +254,7 @@ namespace UC.Net
 			WritePaid(writer);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			var a = round.FindAuthor(Release.Author);
 

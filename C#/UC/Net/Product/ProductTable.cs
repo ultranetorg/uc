@@ -9,7 +9,7 @@ namespace UC.Net
 {
 	public class ProductTable : Table<ProductEntry, ProductAddress>
 	{
-		public ProductTable(Roundchain chain) : base(chain)
+		public ProductTable(Database chain) : base(chain)
 		{
 		}
 		
@@ -25,7 +25,7 @@ namespace UC.Net
 		
 		public ProductEntry Find(ProductAddress name, int ridmax)
 		{
-			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
 				if(r.AffectedProducts.ContainsKey(name))
 					return r.AffectedProducts[name];
 

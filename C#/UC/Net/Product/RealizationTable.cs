@@ -9,7 +9,7 @@ namespace UC.Net
 {
 	public class RealizationTable : Table<RealizationEntry, RealizationAddress>
 	{
-		public RealizationTable(Roundchain chain) : base(chain)
+		public RealizationTable(Database chain) : base(chain)
 		{
 		}
 		
@@ -25,7 +25,7 @@ namespace UC.Net
 		
 		public RealizationEntry Find(RealizationAddress name, int ridmax)
 		{
-			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
 				if(r.AffectedRealizations.ContainsKey(name))
 					return r.AffectedRealizations[name];
 

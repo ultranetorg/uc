@@ -23,9 +23,9 @@ namespace UC.Net
 		public Account				Generator { get; set; }
 
 		public byte					TypeCode => (byte)Type;
-		public int					ParentId  => RoundId - Roundchain.Pitch;
+		public int					ParentId  => RoundId - Database.Pitch;
 		public Round				Round;
-		protected Roundchain		Chain;
+		protected Database		Chain;
 		public virtual bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
 		public bool					Confirmed = false;
 		public byte[]				Hash;
@@ -34,7 +34,7 @@ namespace UC.Net
 
 		public BlockType			Type => Enum.Parse<BlockType>(GetType().Name);
 
-		public Block(Roundchain c)
+		public Block(Database c)
 		{
 			Chain = c;
 		}
@@ -46,11 +46,11 @@ namespace UC.Net
 					//$"Signature={(Signature != null ? Hex.ToHexString(Signature).Substring(0, 16) : "")}";
 		}
 
-		public static Block FromType(Roundchain chain, BlockType type)
+		public static Block FromType(Database chain, BlockType type)
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(Block).Namespace + "." + type).GetConstructor(new System.Type[]{typeof(Roundchain)}).Invoke(new object[]{chain}) as Block;
+				return Assembly.GetExecutingAssembly().GetType(typeof(Block).Namespace + "." + type).GetConstructor(new System.Type[]{typeof(Database)}).Invoke(new object[]{chain}) as Block;
 			}
 			catch(Exception ex)
 			{
@@ -102,7 +102,7 @@ namespace UC.Net
 		public IPAddress	IP;
 		public CandidacyDeclaration Declaration;
 
-		public GeneratorJoinRequest(Roundchain c) : base(c)
+		public GeneratorJoinRequest(Database c) : base(c)
 		{
 		}
 
@@ -149,7 +149,7 @@ namespace UC.Net
 		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
 		//public byte[]				PropositionsHash;
 
-		public Vote(Roundchain c) : base(c)
+		public Vote(Database c) : base(c)
 		{
 		}
 
@@ -234,7 +234,7 @@ namespace UC.Net
 			}
 		}
 
-		public Payload(Roundchain c) : base(c)
+		public Payload(Database c) : base(c)
 		{
 		}
 

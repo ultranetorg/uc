@@ -30,12 +30,12 @@ namespace UC.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					Core.Chain.BlockAdded += (b) => Round.Maximum = Core.Chain.LastNonEmptyRound.Id;
+					Core.Database.BlockAdded += (b) => Round.Maximum = Core.Database.LastNonEmptyRound.Id;
 
 					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
 					Round.Minimum = 0;
-					Round.Maximum = Core.Chain.LastNonEmptyRound.Id;
-					Round.Value = Core.Chain.LastNonEmptyRound.Id;
+					Round.Maximum = Core.Database.LastNonEmptyRound.Id;
+					Round.Value = Core.Database.LastNonEmptyRound.Id;
 				}
 			}
 		}
@@ -50,7 +50,7 @@ namespace UC.Sun.FUI
 
 			lock(Core.Lock)
 			{
-				var r =  Core.Chain.FindRound((int)Round.Value);
+				var r =  Core.Database.FindRound((int)Round.Value);
 
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.Time + "\n" + 

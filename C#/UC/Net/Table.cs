@@ -9,28 +9,38 @@ using Org.BouncyCastle.Utilities.Collections;
 
 namespace UC.Net
 {
+	public enum Tables
+	{
+		Null,
+		Accounts,
+		Authors,
+		Products,
+		Realizations,
+		Releases
+	}
+
 	public abstract class Table<E, K> where E : TableEntry<K>
 	{
-		class Cluster
+		public class Cluster
 		{
+			public int				Round;
 			public ushort			Id;
 			public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
 			public static ushort	ToId(byte[] k) => (ushort)(((ushort)k[0])<<8 | k[1]);
-			public byte[]			Hash;
+			public byte[]			Hash => Table.Engine.Get(ToBytes(Id), Table.HashColumn);
 			List<E>					_Entries;
 			Table<E, K>				Table;
+			byte[]					_Main;
 
-			public List<E>	Entries
+			public List<E> Entries
 			{
 				get
 				{
 					if(_Entries == null)
 					{
-						var main = Table.Database.Get(ToBytes(Id), Table.MainColumn);
-
-						if(main != null)
+						if(Main != null)
 						{
-							var s = new MemoryStream(main);
+							var s = new MemoryStream(Main);
 							var r = new BinaryReader(s);
 	
 							var a = r.ReadArray<E>(() => { 
@@ -39,7 +49,7 @@ namespace UC.Net
 															return e;
 														 });
 					
-							s = new MemoryStream(Table.Database.Get(ToBytes(Id), Table.MoreColumn));
+							s = new MemoryStream(Table.Engine.Get(ToBytes(Id), Table.MoreColumn));
 							r = new BinaryReader(s);
 	
 							for(int i = 0; i < a.Length; i++)
@@ -57,6 +67,19 @@ namespace UC.Net
 				}
 			}
 
+			public byte[] Main
+			{
+				get
+				{
+					if(_Main == null)
+					{
+						_Main = Table.Engine.Get(ToBytes(Id), Table.MainColumn);
+					}
+
+					return _Main;
+				}
+			}
+
 			public Cluster(Table<E, K> table, ushort id)
 			{
 				Table = table;
@@ -68,7 +91,7 @@ namespace UC.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 
-				w.Write(Entries, i => i.Write(w));
+				w.Write(Entries.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer()), i => i.Write(w));
 
 				var a = s.ToArray();
 
@@ -91,33 +114,34 @@ namespace UC.Net
 
 		const int						ClustersCacheLimit = 1000;
 
-		List<Cluster>					Clusters = new();
+		//public byte[]					Hash { get; protected set; } 
+		public List<Cluster>			Clusters = new();
 		ColumnFamilyHandle				HashColumn;
 		ColumnFamilyHandle				MainColumn;
 		ColumnFamilyHandle				MoreColumn;
 		public static string			HashColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(HashColumn);
 		public static string			MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
 		public static string			MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
-		RocksDb							Database;
-		protected Roundchain			Chain;
+		RocksDb							Engine;
+		protected Database				Database;
 
 		protected abstract E			Create();
 		protected abstract byte[]		KeyToBytes(K k);
 
-		public Table(Roundchain chain)
+		public Table(Database chain)
 		{
-			Chain = chain;
-			Database = Chain.Database;
-			HashColumn = Database.GetColumnFamily(HashColumnName);
-			MainColumn = Database.GetColumnFamily(MainColumnName);
-			MoreColumn = Database.GetColumnFamily(MoreColumnName);
+			Database = chain;
+			Engine = Database.Engine;
+			HashColumn = Engine.GetColumnFamily(HashColumnName);
+			MainColumn = Engine.GetColumnFamily(MainColumnName);
+			MoreColumn = Engine.GetColumnFamily(MoreColumnName);
 
-			using(var i = Database.NewIterator(HashColumn))
+			using(var i = Engine.NewIterator(HashColumn))
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
 	 				var c = new Cluster(this, Cluster.ToId(i.Key()));
-					c.Hash = i.Value();
+					//c.Hash = i.Value();
 	 				Clusters.Add(c);
 				}
 			}

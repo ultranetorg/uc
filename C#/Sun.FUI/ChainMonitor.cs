@@ -51,16 +51,16 @@ namespace UC.Sun.FUI
 		{
 			base.OnHandleCreated(e);
 
-			if(Core?.Chain != null)
-				Core.Chain.BlockAdded += OnBlockAdded;
+			if(Core?.Database != null)
+				Core.Database.BlockAdded += OnBlockAdded;
 		}
 
 		protected override void OnHandleDestroyed(EventArgs e)
 		{
 			base.OnHandleDestroyed(e);
 
-			if(Core?.Chain != null)
-				Core.Chain.BlockAdded -= OnBlockAdded;
+			if(Core?.Database != null)
+				Core.Database.BlockAdded -= OnBlockAdded;
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -71,7 +71,7 @@ namespace UC.Sun.FUI
 			{
 				e.Graphics.Clear(Color.White);
 
-				if(Core?.Chain != null)
+				if(Core?.Database != null)
 				{
 					lock(Core.Lock)
 					{
@@ -91,11 +91,11 @@ namespace UC.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var n = Math.Min(Height/s-1, Core.Chain.LastNonEmptyRound.Id + 1);
+							var n = Math.Min(Height/s-1, Core.Database.LastNonEmptyRound.Id + 1);
 							
-							for(int i = Core.Chain.LastNonEmptyRound.Id - n + 1; i <= Core.Chain.LastNonEmptyRound.Id; i++)
+							for(int i = Core.Database.LastNonEmptyRound.Id - n + 1; i <= Core.Database.LastNonEmptyRound.Id; i++)
 							{
-								var r = Core.Chain.FindRound(i);
+								var r = Core.Database.FindRound(i);
 								rounds.Add(r);
 	
 								if(uset)

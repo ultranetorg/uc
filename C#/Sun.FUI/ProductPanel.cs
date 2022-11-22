@@ -62,7 +62,7 @@ namespace UC.Sun.FUI
 				if(Author.SelectedItem == null)
 					throw new ArgumentException("Invalid author name. If you don't own any author yet then you need to register one first.");
 
-				var a = Core.Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue);
+				var a = Core.Database.Authors.Find(Author.SelectedItem as string, int.MaxValue);
 
 				Core.Enqueue(new ProductRegistration(	GetPrivate(a.Owner),
 														new ProductAddress(ProductName.Text, Author.SelectedItem as string),

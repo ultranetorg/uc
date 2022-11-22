@@ -9,14 +9,16 @@ using System.Reflection;
 
 namespace UC.Net
 {
-	public class ChainSettings
+	public class DatabaseSettings
 	{
-		public bool			Enabled;
+		public bool			Chain;
+		public bool			Base;
 		public int			PeersMin;
 
-		public ChainSettings(Xon x)
+		public DatabaseSettings(Xon x)
 		{
-			Enabled		= x.Has("Enabled");
+			Chain		= x.Has("Chain");
+			Base		= x.Has("Base");
 			PeersMin	= x.GetInt32("PeersMin");
 		}
 	}
@@ -153,7 +155,7 @@ namespace UC.Net
 		public HubSettings			Hub;
 		public ApiSettings			Api;
 		public FilebaseSettings		Filebase;
-		public ChainSettings		Chain;
+		public DatabaseSettings		Database;
 		public SecretSettings		Secret;
 
 		public List<Account>		ProposedFundables = new(){};
@@ -203,7 +205,7 @@ namespace UC.Net
 			Log			= doc.Has("Log");
 
 			Dev			= new (doc.One(nameof(Dev)));
-			Chain		= new (doc.One(nameof(Chain)));
+			Database	= new (doc.One(nameof(Database)));
 			Nas			= new (doc.One(nameof(Nas)));
 			Api			= new (doc.One(nameof(Api)), this);
 			Hub			= new (doc.One(nameof(Hub)));

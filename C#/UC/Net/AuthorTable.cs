@@ -9,13 +9,13 @@ namespace UC.Net
 {
 	public class AuthorTable : Table<AuthorEntry, string>
 	{
-		public AuthorTable(Roundchain chain) : base(chain)
+		public AuthorTable(Database chain) : base(chain)
 		{
 		}
 		
 		protected override AuthorEntry Create()
 		{
-			return new AuthorEntry(Chain);
+			return new AuthorEntry(Database);
 		}
 
 		protected override byte[] KeyToBytes(string key)
@@ -25,7 +25,7 @@ namespace UC.Net
 		
  		public AuthorEntry Find(string name, int ridmax)
  		{
- 			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
  				if(r.AffectedAuthors.ContainsKey(name))
  					return r.AffectedAuthors[name];
  		
@@ -41,7 +41,7 @@ namespace UC.Net
 		{
 			var o = new List<string>();
 
-			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
 				foreach(var a in r.AffectedAccounts)
 					if(a.Key == account)
 					{	
@@ -51,7 +51,7 @@ namespace UC.Net
 						yield break;
 					}
 
-			var e = Chain.Accounts.FindEntry(account);
+			var e = Database.Accounts.FindEntry(account);
 
 			if(e != null)
 				foreach(var a in e.Authors.Select(i => FindEntry(i)))
