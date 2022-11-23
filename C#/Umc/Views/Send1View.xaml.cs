@@ -60,13 +60,6 @@ public partial class Send1View : ContentView
 
     public Send1View()
     {
-		try
-		{
-			InitializeComponent();
-		}
-		catch(Exception ex)
-		{
-
-		}
+		InitializeComponent();
     }
 }

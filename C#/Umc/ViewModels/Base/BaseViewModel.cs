@@ -63,7 +63,7 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
         {
             if (HasErrors)
             {
-                Guard.IsNotNullOrWhiteSpace(nameOfControl);
+               Guard.IsNotNullOrWhiteSpace(nameOfControl);
 
                 var errors = GetErrors(nameOfControl)?.Select(x => x.ErrorMessage).ToList();
 

@@ -46,10 +46,10 @@
                 <controls:FormNumericControl
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
                     AbsoluteLayout.LayoutFlags="All"
-                    ErrorMessage="{Binding AmountError}"
+                    Value="{Binding Amount, Mode=TwoWay}"
+                    ErrorMessage="{Binding AmountError, Mode=TwoWay}"
                     Placeholder="Amount"
-                    Margin="0,0,8,0"
-                    Value="{Binding Amount}" />
+                    Margin="0,0,8,0" />
                 <Label
                     Margin="16"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"

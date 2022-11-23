@@ -16,7 +16,8 @@ public partial class SendViewModel : BaseViewModel
 	[ObservableProperty]
 	[NotifyDataErrorInfo]
 	[Required(ErrorMessage = "Required")]
-	[Range(1, int.MaxValue, ErrorMessage = "Limit has been exceeded")]
+	[Range(1, int.MaxValue, ErrorMessage = "Wrong Amount")]
+	[NotifyPropertyChangedFor(nameof(AmountError))]
 	[NotifyPropertyChangedFor(nameof(Comission))]
     private decimal _amount = 1;
 
@@ -77,7 +78,7 @@ public partial class SendViewModel : BaseViewModel
     {
         await Shell.Current.Navigation.PushAsync(new TransferCompletePage());
     }
-      
+    
 	[RelayCommand]
     private void Transfer()
     {
@@ -99,6 +100,6 @@ public partial class SendViewModel : BaseViewModel
 	[RelayCommand]
     private async Task RecipientTapped()
     {
-        await RecipientAccountPopup.Show();
-    }
+		await RecipientAccountPopup.Show();
+	}
 }

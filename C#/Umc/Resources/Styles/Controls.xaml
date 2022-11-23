@@ -711,7 +711,6 @@
 
     <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
     <converters:IsObjectNotNullOrEmptyConverter x:Key="IsObjectNotNullOrEmptyConverter" />
-    <converters:DecimalToStringConverter x:Key="DecimalToStringConverter" />
 
     <ControlTemplate x:Key="ControlOutline">
         <Grid RowDefinitions="6,4,4,4,20,4,16" RowSpacing="2">

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
-<controls:BaseTextFormControl
+<controls:BaseFormControl
     x:Class="UC.Umc.Controls.FormNumericControl"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -8,21 +8,20 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:converters="clr-namespace:UC.Umc.Converters"
     x:Name="This"
-    x:TypeArguments="controls:FormNumericControl"
+    x:TypeArguments="controls:FormNumericControl,x:Decimal"
     ControlTemplate="{DynamicResource ControlOutline}">
     
-    <controls:BaseTextFormControl.Resources>
+    <controls:BaseFormControl.Resources>
         <ResourceDictionary Source="/Resources/Styles/Controls.xaml" />
-    </controls:BaseTextFormControl.Resources>
+    </controls:BaseFormControl.Resources>
 
     <Entry
         BindingContext="{x:Reference This}"
         ClearButtonVisibility="{Binding ClearButtonVisibility}"
         IsEnabled="{Binding IsEnabled}"
-        IsReadOnly="{Binding IsReadOnly}"
         Placeholder="{Binding Placeholder}"
-        Style="{DynamicResource ActiveEntryStyle}"
-        Text="{Binding Value}"
+        Style="{StaticResource ActiveEntryStyle}"
+        Text="{Binding Value,Mode=TwoWay}"
         FontSize="18"
         Keyboard="Numeric"
         MaxLength="10">
@@ -38,4 +37,4 @@
                 IsNotValid="{Binding IsNotValid, Mode=OneWayToSource}" />
         </Entry.Behaviors>
     </Entry>
-</controls:BaseTextFormControl>
+</controls:BaseFormControl>
