@@ -14,7 +14,7 @@
         <ScrollView>
             <Grid 
                 Padding="{StaticResource PagePadding}"
-                RowDefinitions="*,20,Auto,Auto"
+                RowDefinitions="Auto,*,10,Auto"
                 RowSpacing="10">
                 <CarouselView 
                     Grid.Row="0"
@@ -31,8 +31,6 @@
                     <CarouselView.ItemsSource>
                         <x:Array Type="{x:Type View}">
                             <views:Send1View
-                                Amount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Amount, Mode=TwoWay}"
-                                AmountError="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=AmountError}"
                                 SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
                                 RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}"
                                 SelectSourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=SourceTappedCommand}"
@@ -45,36 +43,41 @@
                         </x:Array>
                     </CarouselView.ItemsSource>
                 </CarouselView>
-            
+
+                <StackLayout Grid.Row="1" IsVisible="{Binding FirstStep}">
+                    <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
+                    <AbsoluteLayout Margin="0,0,0,4">
+                        <controls:FormEntryControl
+                            AbsoluteLayout.LayoutBounds="0,1,1,1"
+                            AbsoluteLayout.LayoutFlags="All"
+                            Value="{Binding Amount}"
+                            ErrorMessage="{Binding AmountError}"
+                            Placeholder="Amount"
+                            MaxLength="8"
+                            Margin="0,0,8,0" />
+                        <Label
+                            Margin="16"
+                            AbsoluteLayout.LayoutBounds="1,2,-1,-1"
+                            AbsoluteLayout.LayoutFlags="PositionProportional"
+                            Style="{StaticResource UNTLabel}"
+                            Text="ETH" />
+                    </AbsoluteLayout>
+                </StackLayout>
+
                 <!-- Will be visible when #9749 issue is fixed -->
-                <IndicatorView Grid.Row="1" x:Name="indicator" IsVisible="False" />
+                <IndicatorView Grid.Row="2" x:Name="indicator" IsVisible="False" />
             
-                <StackLayout Grid.Row="2" >
+                <StackLayout Grid.Row="3">
                     <Button
                         Text="Transfer"
-                        Command="{Binding TransferCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}">
-                        <Button.Triggers>
-                            <DataTrigger
-                                Binding="{Binding Position}"
-                                TargetType="Button"
-                                Value="1">
-                                <Setter Property="IsVisible" Value="False" />
-                            </DataTrigger>
-                        </Button.Triggers>
-                    </Button>
+                        IsVisible="{Binding FirstStep}"
+                        Command="{Binding TransferCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}" />
+
                     <Button
-                        IsVisible="False"
+                        IsVisible="{Binding SecondStep}"
                         Command="{Binding ConfirmCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}"
-                        Style="{StaticResource ConfirmButton}" >
-                        <Button.Triggers>
-                            <DataTrigger
-                                Binding="{Binding Position}"
-                                TargetType="Button"
-                                Value="1">
-                                <Setter Property="IsVisible" Value="True" />
-                            </DataTrigger>
-                        </Button.Triggers>
-                    </Button>
+                        Style="{StaticResource ConfirmButton}" />
+
                     <Button
                         Command="{Binding CancelCommand}"
                         Style="{DynamicResource LabelButton}"

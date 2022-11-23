@@ -461,8 +461,9 @@
         x:Key="UNTLabel"
         ApplyToDerivedTypes="True"
         TargetType="Label">
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Dark=#1F3F51, Light=#B2CAD2}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource PrimaryDarkLighten}}" />
     </Style>
     <Style
         x:Key="DashLabel"

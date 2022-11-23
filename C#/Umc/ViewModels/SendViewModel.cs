@@ -5,27 +5,40 @@ namespace UC.Umc.ViewModels;
 public partial class SendViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private AccountViewModel _source;
+	private AccountViewModel _source;
 
 	[ObservableProperty]
-    private AccountViewModel _recipient;
+	private AccountViewModel _recipient;
 
 	[ObservableProperty]
-    private int _position = 0;
+	[NotifyPropertyChangedFor(nameof(FirstStep))]
+	[NotifyPropertyChangedFor(nameof(SecondStep))]
+	private int _position = 0;
 
 	[ObservableProperty]
 	[NotifyDataErrorInfo]
 	[Required(ErrorMessage = "Required")]
-	[Range(1, int.MaxValue, ErrorMessage = "Wrong Amount")]
+	[Range(1.0, int.MaxValue, ErrorMessage = "Wrong Amount")]
 	[NotifyPropertyChangedFor(nameof(AmountError))]
 	[NotifyPropertyChangedFor(nameof(Comission))]
-    private decimal _amount = 1;
+	private string _amount;
 
-	public decimal Comission => Amount > 0 ? Amount/100 : 0;
+	public decimal Comission 
+	{
+		get
+		{
+			decimal.TryParse(Amount, out decimal comission);
+			return comission > 0 ? comission / 100 : 0;
+		}
+	}
 
     public string AmountError => GetControlErrorMessage(nameof(Amount));
 
-    public SendViewModel(ILogger<SendViewModel> logger) : base(logger)
+	public bool FirstStep => Position == 0;
+
+	public bool SecondStep => Position == 1;
+
+	public SendViewModel(ILogger<SendViewModel> logger) : base(logger)
     {
     }
 

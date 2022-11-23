@@ -128,9 +128,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\Controls\FormNumericControl.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Views\Shared\CustomPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>

@@ -9,10 +9,10 @@ public partial class Send2View : ContentView
 		BindableProperty.Create(nameof(RecipientAccount), typeof(AccountViewModel), typeof(Send1View));
 
     public static readonly BindableProperty AmountProperty =
-		BindableProperty.Create(nameof(Amount), typeof(decimal), typeof(Send1View));
+		BindableProperty.Create(nameof(Amount), typeof(string), typeof(Send1View));
 
     public static readonly BindableProperty ComissionProperty =
-		BindableProperty.Create(nameof(Comission), typeof(decimal), typeof(Send1View));
+		BindableProperty.Create(nameof(Comission), typeof(string), typeof(Send1View));
 
     public AccountViewModel SourceAccount
     {
@@ -26,15 +26,15 @@ public partial class Send2View : ContentView
         set { SetValue(RecipientAccountProperty, value); }
     }
 
-    public decimal Amount
+    public string Amount
     {
-        get { return (decimal)GetValue(AmountProperty); }
+        get { return (string)GetValue(AmountProperty); }
         set { SetValue(AmountProperty, value); }
     }
 
-    public decimal Comission
+    public string Comission
     {
-        get { return (decimal)GetValue(ComissionProperty); }
+        get { return (string)GetValue(ComissionProperty); }
         set { SetValue(ComissionProperty, value); }
     }
 
