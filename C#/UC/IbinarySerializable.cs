@@ -12,4 +12,9 @@ namespace UC
 		void Read(BinaryReader r);
 		void Write(BinaryWriter w);
 	}
+
+	public interface ITypedBinarySerializable
+	{
+		byte TypeCode { get; }
+	}
 }

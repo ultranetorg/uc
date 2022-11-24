@@ -27,10 +27,23 @@ namespace UC.Net
 			public ushort			Id;
 			public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
 			public static ushort	ToId(byte[] k) => (ushort)(((ushort)k[0])<<8 | k[1]);
-			public byte[]			Hash => Table.Engine.Get(ToBytes(Id), Table.HashColumn);
+			byte[]					_Hash;
 			List<E>					_Entries;
 			Table<E, K>				Table;
 			byte[]					_Main;
+
+			public byte[] Hash
+			{
+				get
+				{
+					if(_Hash == null)
+					{
+						_Hash = Table.Engine.Get(ToBytes(Id), Table.HashColumn);
+					}
+
+					return _Hash;
+				}
+			}
 
 			public List<E> Entries
 			{
@@ -91,11 +104,13 @@ namespace UC.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 
-				w.Write(Entries.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer()), i => i.Write(w));
+				w.Write(Entries.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer()));
 
 				var a = s.ToArray();
 
-				batch.Put(ToBytes(Id), Cryptography.Current.Hash(a), Table.HashColumn);
+				_Hash = Cryptography.Current.Hash(a);
+
+				batch.Put(ToBytes(Id), _Hash, Table.HashColumn);
 				batch.Put(ToBytes(Id), a, Table.MainColumn);
 
 				s.Position = 0;

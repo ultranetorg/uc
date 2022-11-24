@@ -10,11 +10,6 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public interface ITypedBinarySerializable
-	{
-		byte TypeCode { get; }
-	}
-
 	public class BinarySerializator
 	{
 		public static void Serialize(BinaryWriter writer, object o)

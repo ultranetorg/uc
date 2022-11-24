@@ -21,7 +21,7 @@ namespace UC.Net
 		public DateTime											LastAccessed = DateTime.UtcNow;
 
 		public List<Block>										Blocks = new();
-		public IEnumerable<GeneratorJoinRequest>				JoinRequests	=> Blocks.OfType<GeneratorJoinRequest>();
+		//public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>();
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
 		public IEnumerable<Account>								Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
@@ -286,6 +286,7 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
+			w.Write(Id >= Database.TailLength ? Chain.Hash : Cryptography.ZeroHash);
 			w.Write(Id > 0 ? Previous.Hash : Cryptography.ZeroHash);
 
 			WriteConfirmed(w);

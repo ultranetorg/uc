@@ -5,7 +5,7 @@ using System.Text;
 
 namespace UC.Net
 {
-	public abstract class TableEntry<K>
+	public abstract class TableEntry<K> : IBinarySerializable
 	{
 		public const int		ClusterKeyLength = 2;
 		public DateTime			LastAccessed;

@@ -1109,7 +1109,7 @@ namespace UC.Net
 							{
 								if(confirmed && r.Confirmed)
 								{
-									foreach(var b in r.Blocks)
+									foreach(var b in r.Payloads)
 										b.Confirmed = true;
 		
 									Database.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
@@ -1182,23 +1182,23 @@ namespace UC.Net
 
 				var inrange = accepted.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer);
 
-				var joins = inrange.OfType<GeneratorJoinRequest>().Where(b => { 
-																		var d = Database.Accounts.FindLastOperation<CandidacyDeclaration>(b.Generator);
+				var joins = inrange.OfType<MembersJoinRequest>().Where(b => { 
+																				var d = Database.Accounts.FindLastOperation<CandidacyDeclaration>(b.Generator);
 														
-																		if(d == null)
-																			return false;
+																				if(d == null)
+																					return false;
 
-																		for(int i = b.RoundId; i > b.RoundId - Net.Database.Pitch; i--) /// not often than 1 request per [Pitch] rounds
-																			if(Database.GetRound(i).JoinRequests.Any(i => i.Generator == b.Generator))
-																				return false;
+																				for(int i = b.RoundId; i > b.RoundId - Net.Database.Pitch; i--) /// not more than 1 request per [Pitch] rounds
+																					if(Database.JoinRequests.Any(j => j.RoundId == i && j.Generator == b.Generator))
+																						return false;
 
-																		if(Database.GetRound(b.RoundId).JoinRequests.Count() < Net.Database.MembersMax) /// keep  maximum MembersMax requests per round
-																			return true;
+																				if(Database.JoinRequests.Count(j => j.RoundId == b.RoundId) < Net.Database.MembersMax) /// keep  maximum MembersMax requests per round
+																					return true;
 
-																		var min = Database.GetRound(b.RoundId).JoinRequests.Aggregate((i, j) => i.Declaration.Bail < j.Declaration.Bail ? i : j);
+																				var min = Database.JoinRequests.Where(i => i.RoundId == b.RoundId).Aggregate((i, j) => i.Declaration.Bail < j.Declaration.Bail ? i : j);
 														
-																		return min.Declaration.Bail < d.Bail; /// if a number of members are Max then accept only those requests that have a bail greater than the existing request with minimal bail
-																	});
+																				return min.Declaration.Bail < d.Bail; /// if a number of members are Max then accept only those requests that have a bail greater than the existing request with minimal bail
+																			});
 				Database.Add(joins);
 					
 				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.Members.Any(j => j.Generator == b.Generator) || 
@@ -1233,7 +1233,7 @@ namespace UC.Net
 		{
 			Statistics.Generating.Begin();
 
-			var votes = new List<Block>();
+			var blocks = new List<Block>();
 
 			if(Declaration != null)
 			{
@@ -1246,25 +1246,22 @@ namespace UC.Net
 						
 				if(voters.All(i => i.Generator != Generator))
 				{
-					var jr = Database.FindLastBlock(i => i is GeneratorJoinRequest && i.Generator == Generator);
+					var jr = Database.JoinRequests.Where(i => i.Generator == Generator).MaxBy(i => i.RoundId);
 	
 					if(jr == null || (Database.LastVotedRound.Id - jr.RoundId > Net.Database.Pitch * 2)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
-						var b = new GeneratorJoinRequest(Database)
+						var b = new MembersJoinRequest(Database)
 									{
 										RoundId		= nar.Id,
 										IP			= IP
-						};
+									};
 
-						votes.Add(b);
+						blocks.Add(b);
 					}
 				}
 				else
 				{
-if(Transactions.Any(i => i.Operations.Any(i => i is Emission)))
-	votes = votes;
-
-					var txs = Database.CollectValidTransactions(Transactions	.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Pending) && i.RoundMax >= nar.Id)
+					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Pending) && i.RoundMax >= nar.Id)
 																			.GroupBy(i => i.Signer)
 																			.Select(i => i.First()), nar);
 
@@ -1302,7 +1299,7 @@ if(Transactions.Any(i => i.Operations.Any(i => i is Emission)))
 								o.Placing = PlacingStage.Placed;
 						}
 						
-						votes.Add(b);
+						blocks.Add(b);
 					}
 					else
 					{
@@ -1336,7 +1333,7 @@ if(Transactions.Any(i => i.Operations.Any(i => i is Emission)))
 												FundLeavers	= new(),
 											};
 							
-									votes.Add(b);
+									blocks.Add(b);
 								}
 							}
 
@@ -1345,17 +1342,17 @@ if(Transactions.Any(i => i.Operations.Any(i => i is Emission)))
 					}
 				}
 
-				if(votes.Any())
+				if(blocks.Any())
 				{
-					foreach(var b in votes)
+					foreach(var b in blocks)
 					{
 						b.Sign(Generator as PrivateAccount);
 						Database.Add(b, b is Payload);
 					}
 
-					Broadcast(Packet.Create(PacketType.Blocks, votes));
+					Broadcast(Packet.Create(PacketType.Blocks, blocks));
 													
-					Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Type}({i.RoundId})")));
+					Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
 				}
 			}
 
@@ -1764,11 +1761,6 @@ if(Transactions.Any(i => i.Operations.Any(i => i is Emission)))
 			return accepted;
 		}
 		
- 		public void ProcessIncoming(IEnumerable<Request> messages)
- 		{
-
- 		}
-
 		void Broadcast(Packet packet, Peer skip = null)
 		{
 			if(packet != null)
