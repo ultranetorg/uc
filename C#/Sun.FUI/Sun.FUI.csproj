@@ -45,7 +45,7 @@
     <Compile Update="PublishPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Explorer.cs">
+    <Compile Update="ChainPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="TransactionsPanel.cs" />

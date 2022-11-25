@@ -81,7 +81,16 @@ namespace UC.Sun.FUI
 				Task.Run(() =>	{ 
 									try
 									{
-										var m = Core.Call(Role.Seed, p => p.GetManifest(r.Release).Manifests.First(), ManifestWorkflow);
+										var m = Core.Call(	Role.Seed, 
+															p =>{
+																	var m = p.GetManifest(r.Release).Manifests.First();
+																	
+																	if(m == null)
+																		throw new DistributedCallException("Not found");
+
+																	return m;
+																},
+															ManifestWorkflow);
 
 										BeginInvoke((MethodInvoker)delegate
 													{

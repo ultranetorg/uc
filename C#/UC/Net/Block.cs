@@ -61,7 +61,7 @@ namespace UC.Net
 			}
 		}
 
-		public byte[] CalculateHash()
+		public byte[] Hashify()
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -77,7 +77,7 @@ namespace UC.Net
 						
 		public void Sign(PrivateAccount generator)
 		{
-			Hash = CalculateHash();
+			Hash = Hashify();
 			Generator = generator;
 			Signature = Cryptography.Current.Sign(generator, Hash);
 		} 
@@ -116,7 +116,7 @@ namespace UC.Net
 			IP			= reader.ReadIPAddress();
 			Signature	= reader.ReadSignature();
 		
-			Hash		= CalculateHash();
+			Hash		= Hashify();
 			Generator	= Cryptography.Current.AccountFrom(Signature, Hash);
 		}
 	}
@@ -195,7 +195,7 @@ namespace UC.Net
 			FundJoiners	= reader.ReadAccounts();
 			FundLeavers	= reader.ReadAccounts();
 
-			Hash = CalculateHash();
+			Hash = Hashify();
 		}
 	}
 
@@ -296,7 +296,7 @@ namespace UC.Net
 												t.Read(r);
 												return t;
 											});
-			Hash = CalculateHash();
+			Hash = Hashify();
 		}
 	}
 }

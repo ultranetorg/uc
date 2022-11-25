@@ -1,7 +1,7 @@
 ﻿
 namespace UC.Sun.FUI
 {
-	partial class ExplorerPanel
+	partial class ChainPanel
 	{
 		/// <summary> 
 		/// Required designer variable.

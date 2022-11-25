@@ -22,8 +22,8 @@ namespace UC.Sun.FUI
 		bool						Mode = false;
 
 		static List<Coin[]>			stat;
-		Coin emission = 0;
-		BigInteger spent = 0;
+		Coin						emission = 0;
+		BigInteger					spent = 0;
 
 		public Core Core;
 
@@ -65,8 +65,6 @@ namespace UC.Sun.FUI
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			//base.OnPaint(e);
-
 			if(!Mode)
 			{
 				e.Graphics.Clear(Color.White);

@@ -36,19 +36,6 @@ namespace UC.Sun.CLI
 		   		case "new" : return New();
 				
 				case "import" : return Import();
-				
-				case "convertfathers" :
-					foreach(var i in Directory.EnumerateFiles(Settings.Secret.Fathers, "*.uwe"))
-					{
-						Cryptography.Current = new EthereumCryptography();
-						var a = PrivateAccount.Load(i, Settings.Secret.Password);
-						
-						Cryptography.Current = new NoCryptography();
-						a.Save(Path.Join(Settings.Secret.Fathers, Path.GetFileNameWithoutExtension(i)) + "." + Vault.NoCryptoWalletExtention, Settings.Secret.Password);
-						
-						Workflow?.Log?.Report(this, null, a.ToString());
-					}
-					return null;
 		   		
 				case "overview" :
 				{

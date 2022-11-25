@@ -12,6 +12,7 @@ namespace UC.Net
 	public enum Tables
 	{
 		Null,
+		State,
 		Accounts,
 		Authors,
 		Products,
@@ -25,25 +26,13 @@ namespace UC.Net
 		{
 			public int				Round;
 			public ushort			Id;
+			public int				MainLength;
 			public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
 			public static ushort	ToId(byte[] k) => (ushort)(((ushort)k[0])<<8 | k[1]);
-			byte[]					_Hash;
 			List<E>					_Entries;
 			Table<E, K>				Table;
 			byte[]					_Main;
-
-			public byte[] Hash
-			{
-				get
-				{
-					if(_Hash == null)
-					{
-						_Hash = Table.Engine.Get(ToBytes(Id), Table.HashColumn);
-					}
-
-					return _Hash;
-				}
-			}
+			public byte[]			Hash { get; protected set; }
 
 			public List<E> Entries
 			{
@@ -97,6 +86,16 @@ namespace UC.Net
 			{
 				Table = table;
 				Id = id;
+
+				var m = Table.Engine.Get(ToBytes(Id), Table.MetaColumn);
+
+				if(m != null)
+				{
+					var r = new BinaryReader(new MemoryStream(m));
+	
+					Hash = r.ReadSha3();
+					MainLength = r.Read7BitEncodedInt();
+				}
 			}
 
 			public void Save(WriteBatch batch)
@@ -106,12 +105,17 @@ namespace UC.Net
 
 				w.Write(Entries.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer()));
 
-				var a = s.ToArray();
+				_Main = s.ToArray();
 
-				_Hash = Cryptography.Current.Hash(a);
+				Hash = Cryptography.Current.Hash(_Main);
+				MainLength = _Main.Length;
+				
+				s.Position = 0;
+				w.Write(Hash);
+				w.Write7BitEncodedInt(_Main.Length);
 
-				batch.Put(ToBytes(Id), _Hash, Table.HashColumn);
-				batch.Put(ToBytes(Id), a, Table.MainColumn);
+				batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
+				batch.Put(ToBytes(Id), _Main,		Table.MainColumn);
 
 				s.Position = 0;
 
@@ -131,10 +135,10 @@ namespace UC.Net
 
 		//public byte[]					Hash { get; protected set; } 
 		public List<Cluster>			Clusters = new();
-		ColumnFamilyHandle				HashColumn;
+		ColumnFamilyHandle				MetaColumn;
 		ColumnFamilyHandle				MainColumn;
 		ColumnFamilyHandle				MoreColumn;
-		public static string			HashColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(HashColumn);
+		public static string			HashColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
 		public static string			MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
 		public static string			MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 		RocksDb							Engine;
@@ -147,11 +151,11 @@ namespace UC.Net
 		{
 			Database = chain;
 			Engine = Database.Engine;
-			HashColumn = Engine.GetColumnFamily(HashColumnName);
+			MetaColumn = Engine.GetColumnFamily(HashColumnName);
 			MainColumn = Engine.GetColumnFamily(MainColumnName);
 			MoreColumn = Engine.GetColumnFamily(MoreColumnName);
 
-			using(var i = Engine.NewIterator(HashColumn))
+			using(var i = Engine.NewIterator(MetaColumn))
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{

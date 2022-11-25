@@ -53,7 +53,7 @@ namespace UC.Sun.FUI
 				var pub = new TreeNode("Publish"){ Tag = new PublishPanel(Core, core.Vault) };				
 				navigator.Nodes.Add(pub);
 
-				var exp = new TreeNode("Explorer"){ Tag = new ExplorerPanel(Core, core.Vault) };
+				var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Core, core.Vault) };
 				navigator.Nodes.Add(exp);
 			}
 

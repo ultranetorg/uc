@@ -1271,7 +1271,7 @@ namespace UC.Net
 					{
 						var p = Database.FindRound(nar.ParentId);
 		
-						var rr = Database.Refer(p);
+						var rr = Database.ReferTo(p);
 
 						if(rr == null)
 							return;
@@ -1314,7 +1314,7 @@ namespace UC.Net
 								)
 							{
 								var p = Database.FindRound(r.ParentId);
-								var rr = Database.Refer(p);
+								var rr = Database.ReferTo(p);
 				
 								if(rr != null)
 								{
@@ -1880,7 +1880,7 @@ namespace UC.Net
 
 		public R Call<R>(Role role, Func<Peer, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
 		{
-			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
 			Peer peer;
 				
@@ -1891,13 +1891,13 @@ namespace UC.Net
 	
 				lock(Lock)
 				{
-					peer = FindBestPeer(role, excl);
+					peer = FindBestPeer(role, tried);
 	
 					if(peer == null)
 						continue;
 				}
 
-				excl?.Add(peer);
+				tried?.Add(peer);
 
 				try
 				{

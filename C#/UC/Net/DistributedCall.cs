@@ -198,11 +198,11 @@ namespace UC.Net
 					throw new RequirementException("Not synchronized");
 				else
 					return new StampResponse {	State			= core.Database.StateHash,
-												Accounts		= core.Database.Accounts.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Hash = i.Hash}).ToArray(),
-												Authors			= core.Database.Authors.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Hash = i.Hash}).ToArray(),
-												Products		= core.Database.Products.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Hash = i.Hash}).ToArray(),
-												Realizations	= core.Database.Realizations.	Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Hash = i.Hash}).ToArray(),
-												Releases		= core.Database.Releases.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Hash = i.Hash}).ToArray()};
+												Accounts		= core.Database.Accounts.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+												Authors			= core.Database.Authors.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+												Products		= core.Database.Products.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+												Realizations	= core.Database.Realizations.	Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+												Releases		= core.Database.Releases.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray()};
 		}
 	}
 
@@ -211,6 +211,7 @@ namespace UC.Net
 		public class Cluster
 		{
 			public ushort	Id;
+			public int		Length;
 			public byte[]	Hash;
 		}
 
@@ -236,14 +237,16 @@ namespace UC.Net
 
 			lock(core.Lock)
 			{
-				var m = Table switch{
-										Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
-										Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
-										Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
-										Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
-										Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
-										_ => throw new DistributedCallException("Unknown table")
-									};
+				var m = Table switch
+							  {
+								Tables.State		=> core.Database.State,
+								Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
+								Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
+								Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
+								Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
+								Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
+								_ => throw new DistributedCallException("Unknown table")
+							  };
 
 				if(m == null)
 					throw new DistributedCallException("Cluster not found");

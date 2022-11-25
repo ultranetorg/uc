@@ -11,9 +11,9 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Sun.FUI
 {
-	public partial class ExplorerPanel : MainPanel
+	public partial class ChainPanel : MainPanel
 	{
-		public ExplorerPanel(Core d, Vault vault) : base(d, vault)
+		public ChainPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -60,9 +60,7 @@ namespace UC.Sun.FUI
 									(r.ConfirmedViolators != null ? string.Join(", ", r.ConfirmedViolators) : null)
 									;
 
-				Blocks.Items.AddRange(	r.Payloads
-										.Union(
-										r.Blocks.Where(i => i is not Payload))
+				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i is Payload)
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());
@@ -74,16 +72,8 @@ namespace UC.Sun.FUI
 
 				if(Blocks.Items.Count > 0)
 				{
-					Blocks_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Blocks.Items[0], 0, true));
-
-					if(Transactions.Items.Count > 0)
-						Transactions_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Transactions.Items[0], 0, true));
-
-					if(Operations.Items.Count > 0)
-						Operations_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Operations.Items[0], 0, true));
+					Blocks.Items[0].Selected = true;
 				}
-
-
 			}
 		}
 
@@ -104,7 +94,8 @@ namespace UC.Sun.FUI
 																			 	return li;
 																			 }).ToArray());
 					if(Transactions.Items.Count > 0)
-						Transactions_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Transactions.Items[0], 0, true));				}
+						Transactions.Items[0].Selected = true;
+				}
 			}
 			else
 				Transactions.Items.Clear();
@@ -127,7 +118,7 @@ namespace UC.Sun.FUI
 																								return li;
 																							}).ToArray());
 					if(Operations.Items.Count > 0)
-						Operations_ItemSelectionChanged(null, new ListViewItemSelectionChangedEventArgs(Operations.Items[0], 0, true));
+						Operations.Items[0].Selected = true;
 				}
 			}
 		}

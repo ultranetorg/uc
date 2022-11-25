@@ -286,7 +286,7 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Id >= Database.TailLength ? Chain.Hash : Cryptography.ZeroHash);
+			//w.Write(Id >= Database.TailLength ? Chain.Hash : Cryptography.ZeroHash);
 			w.Write(Id > 0 ? Previous.Hash : Cryptography.ZeroHash);
 
 			WriteConfirmed(w);
