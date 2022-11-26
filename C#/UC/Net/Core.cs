@@ -249,19 +249,19 @@ namespace UC.Net
 			
 			foreach(var i in new ColumnFamilies.Descriptor[]{
 																new (nameof(Peers), new ()),
-																new (AccountTable.HashColumnName, new ()),
+																new (AccountTable.MetaColumnName, new ()),
 																new (AccountTable.MainColumnName, new ()),
 																new (AccountTable.MoreColumnName, new ()),
-																new (AuthorTable.HashColumnName, new ()),
+																new (AuthorTable.MetaColumnName, new ()),
 																new (AuthorTable.MainColumnName, new ()),
 																new (AuthorTable.MoreColumnName, new ()),
-																new (ProductTable.HashColumnName, new ()),
+																new (ProductTable.MetaColumnName, new ()),
 																new (ProductTable.MainColumnName, new ()),
 																new (ProductTable.MoreColumnName, new ()),
-																new (RealizationTable.HashColumnName, new ()),
+																new (RealizationTable.MetaColumnName, new ()),
 																new (RealizationTable.MainColumnName, new ()),
 																new (RealizationTable.MoreColumnName, new ()),
-																new (ReleaseTable.HashColumnName, new ()),
+																new (ReleaseTable.MetaColumnName, new ()),
 																new (ReleaseTable.MainColumnName, new ()),
 																new (ReleaseTable.MoreColumnName, new ()),
 																new (nameof(Net.Database.Rounds), new ()),
@@ -1813,11 +1813,15 @@ namespace UC.Net
 							peer.ReachFailures = 0;
 	
 							Members = cr.Members.ToList();
-								
+							
 							var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
 
 							if(c == null)
-								continue;
+							{
+								c = Members.FirstOrDefault();
+
+								Connect(c, workflow);
+							}
 			
 							c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
 

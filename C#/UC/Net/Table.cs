@@ -138,7 +138,7 @@ namespace UC.Net
 		ColumnFamilyHandle				MetaColumn;
 		ColumnFamilyHandle				MainColumn;
 		ColumnFamilyHandle				MoreColumn;
-		public static string			HashColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
+		public static string			MetaColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MetaColumn);
 		public static string			MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
 		public static string			MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 		RocksDb							Engine;
@@ -151,7 +151,7 @@ namespace UC.Net
 		{
 			Database = chain;
 			Engine = Database.Engine;
-			MetaColumn = Engine.GetColumnFamily(HashColumnName);
+			MetaColumn = Engine.GetColumnFamily(MetaColumnName);
 			MainColumn = Engine.GetColumnFamily(MainColumnName);
 			MoreColumn = Engine.GetColumnFamily(MoreColumnName);
 

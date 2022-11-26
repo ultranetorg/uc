@@ -33,7 +33,7 @@ namespace UC.Net
 		protected Database			Database;
 		public Round				Round;
 
-		protected abstract void		WriteForSigning(BinaryWriter w);
+		protected abstract void		HashWrite(BinaryWriter w);
 		public abstract	void		Write(BinaryWriter w);
 		public abstract	void		Read(BinaryReader r);
 
@@ -70,7 +70,7 @@ namespace UC.Net
 			w.Write(Database.Settings.Zone.Name);
 			w.Write7BitEncodedInt(RoundId);
 
-			WriteForSigning(w);
+			HashWrite(w);
 											
 			return Cryptography.Current.Hash(s.ToArray());
 		}
@@ -98,7 +98,7 @@ namespace UC.Net
 			return base.ToString() + ", IP=" + IP;
 		}
 
-		protected override void WriteForSigning(BinaryWriter w)
+		protected override void HashWrite(BinaryWriter w)
 		{
 			w.Write(IP);
 		}
@@ -148,7 +148,7 @@ namespace UC.Net
 			return base.ToString() + $", Parents={{{Reference.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
 		}
 
-		protected override void WriteForSigning(BinaryWriter writer)
+		protected override void HashWrite(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
@@ -245,9 +245,9 @@ namespace UC.Net
 			Transactions.Insert(0, t);
 		}
 				
-		protected override void WriteForSigning(BinaryWriter w)
+		protected override void HashWrite(BinaryWriter w)
 		{
-			base.WriteForSigning(w);
+			base.HashWrite(w);
 
 			foreach(var i in Transactions) 
 			{
@@ -257,14 +257,12 @@ namespace UC.Net
 
  		public void WriteConfirmed(BinaryWriter w)
  		{
-			//w.Write7BitEncodedInt64(TimeDelta);
 			w.Write(Generator);
  			w.Write(SuccessfulTransactions, i => i.WriteConfirmed(w));
  		}
  		
  		public void ReadConfirmed(BinaryReader r)
  		{
-			//TimeDelta = r.Read7BitEncodedInt64();
 			Generator = r.ReadAccount();
  			Transactions = r.ReadList(() =>	{
  												var t = new Transaction(Database.Settings)
@@ -280,7 +278,7 @@ namespace UC.Net
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
-			w.Write(Transactions);
+			w.Write(Transactions, t => t.WriteForBlock(w));
 		}
 
 		public override void Read(BinaryReader r)
@@ -289,11 +287,10 @@ namespace UC.Net
 			Transactions = r.ReadList(() =>	{
 												var t = new Transaction(Database.Settings)
 														{
-															Payload	 = this,
-															Generator	 = Generator
+															Payload	= this,
+															Generator = Generator
 														};
-
-												t.Read(r);
+												t.ReadForBlock(r);
 												return t;
 											});
 			Hash = Hashify();

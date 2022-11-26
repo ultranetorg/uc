@@ -70,9 +70,7 @@ namespace UC.Net
 			w.WriteUtf8(Settings.Zone.Name); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
-			w.Write(Operations, i => {
-										i.HashWrite(w);
-									 });
+			w.Write(Operations, i => i.HashWrite(w));
 		}
 
 		public void	WriteConfirmed(BinaryWriter w)
@@ -101,6 +99,7 @@ namespace UC.Net
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Signature);
+			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
 			w.Write(Operations, i => {
 										w.Write((byte)i.Type); 
@@ -109,6 +108,35 @@ namespace UC.Net
 		}
 
 		public void Read(BinaryReader r)
+		{
+			Signature	= r.ReadSignature();
+			Generator	= r.ReadAccount();
+			RoundMax	= r.Read7BitEncodedInt();
+			Operations	= r.ReadList(() => {
+												var o = Operation.FromType((Operations)r.ReadByte());
+												o.Signer = Signer;
+												o.Transaction = this;
+												o.Read(r); 
+												return o; 
+											});
+
+			Signer = Cryptography.Current.AccountFrom(Signature, this);
+
+			foreach(var i in Operations)
+				i.Signer = Signer;
+		}
+
+		public void WriteForBlock(BinaryWriter w)
+		{
+			w.Write(Signature);
+			w.Write7BitEncodedInt(RoundMax);
+			w.Write(Operations, i => {
+										w.Write((byte)i.Type); 
+										i.Write(w); 
+									 });
+		}
+
+		public void ReadForBlock(BinaryReader r)
 		{
 			Signature	= r.ReadSignature();
 			RoundMax	= r.Read7BitEncodedInt();
