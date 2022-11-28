@@ -2,21 +2,18 @@
 
 public static class ServiceExtensions
 {
-    public static MauiAppBuilder ConfigureServices(this MauiAppBuilder builder)
-    {
-		// Services
-        builder.Services.AddSingleton<IServicesMockData, ServicesMockData>(sp => new ServicesMockData(sp.GetService<ILogger<ServicesMockData>>()));
-        builder.Services.AddSingleton<IAccountsService, AccountsMockService>(sp => new AccountsMockService(
-			Ioc.Default.GetService<IServicesMockData>()));
-        builder.Services.AddSingleton<IAuthorsService, AuthorsMockService>(sp => new AuthorsMockService(
-			Ioc.Default.GetService<IServicesMockData>()));
-        builder.Services.AddSingleton<INotificationsService, NotificationsMockService>(sp => new NotificationsMockService(
-			Ioc.Default.GetService<IServicesMockData>()));
-        builder.Services.AddSingleton<IProductsService, ProductsMockService>(sp => new ProductsMockService(
-			Ioc.Default.GetService<IServicesMockData>()));
-        builder.Services.AddSingleton<ITransactionsService, TransactionsMockService>(sp => new TransactionsMockService(
-			Ioc.Default.GetService<IServicesMockData>()));
+	public static MauiAppBuilder ConfigureServices(this MauiAppBuilder builder)
+	{
+		Guard.IsNotNull(builder);
 
-        return builder;
-    }
+		// Services
+		builder.Services.AddSingleton<IServicesMockData, ServicesMockData>();
+		builder.Services.AddSingleton<IAccountsService, AccountsMockService>();
+		builder.Services.AddSingleton<IAuthorsService, AuthorsMockService>();
+		builder.Services.AddSingleton<INotificationsService, NotificationsMockService>();
+		builder.Services.AddSingleton<IProductsService, ProductsMockService>();
+		builder.Services.AddSingleton<ITransactionsService, TransactionsMockService>();
+
+		return builder;
+	}
 }
