@@ -45,7 +45,7 @@ namespace UC.Net
 
 	public abstract class Dci
 	{
-		public Account							Generator { get; set; }
+		//public Account							Generator { get; set; }
 		public int								Failures;
 
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
@@ -167,6 +167,8 @@ namespace UC.Net
 
 	public class NextRoundRequest : Request
 	{
+		public Account Generator;
+
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
@@ -174,7 +176,7 @@ namespace UC.Net
 					throw new RequirementException("Not synchronized");
 				else
 				{
-					var r = core.GetNextAvailableRound();
+					var r = core.GetNextAvailableRound(Generator);
 
 					if(r == null)
 						throw new DistributedCallException("Round not available");
@@ -279,15 +281,13 @@ namespace UC.Net
  						throw new RequirementException("Not synchronized");
  				}
  				else
- 				{
  					return new GetMembersResponse { Members = core.Members };
- 				}
 		}
 	}
 
 	public class GetMembersResponse : Response
 	{
-		public IEnumerable<Peer> Members {get; set;}
+		public IEnumerable<Member> Members {get; set;}
 	}
 	
 	public class LastOperationRequest : Request
@@ -322,17 +322,10 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
-				if(core.Synchronization != Synchronization.Synchronized || core.Generator == null)
+				if(core.Synchronization != Synchronization.Synchronized)
 					throw new RequirementException("Not synchronized");
 				else
 				{
- 					//var txs = new Packet(PacketType.Null, new MemoryStream(Data)).Read(r => {	return new Transaction(core.Settings)
- 					//																			{
- 					//																				Generator = core.Generator
- 					//																			};
- 					//																		});
-					//var acc = core.ProcessIncoming(txs);
-					
 					var acc = core.ProcessIncoming(Transactions);
 
 					return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)

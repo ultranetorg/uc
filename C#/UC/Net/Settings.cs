@@ -75,16 +75,52 @@ namespace UC.Net
 	{
 		public const string FileName = "Secrets.globals";
 
-		public string		Password;
-		public string		EmissionWallet;
-		public string		EmissionPassword;
+		public string			Password;
+		public string			EmissionWallet;
+		public string			EmissionPassword;
 
-		public string		NasWallet;
-		public string		NasPassword;
-		public string		NasProvider;
+		public string			NasWallet;
+		public string			NasPassword;
+		public string			NasProvider;
 
-		public string		Path;
-		public string		Fathers => System.IO.Path.Join(Path, "Fathers");	
+		public string			Path;
+		string					FathersPath => System.IO.Path.Join(Path, "Fathers");	
+		PrivateAccount[]		_Fathers;
+		PrivateAccount			_OrgAccount;
+		PrivateAccount			_GenAccount;
+
+		public PrivateAccount OrgAccount
+		{
+			get
+			{
+				if(_OrgAccount == null)
+					_OrgAccount = PrivateAccount.Load(System.IO.Path.Join(Path, "0xeeee974ab6b3e9533ee99f306460cfc24adcdae0." + Vault.NoCryptoWalletExtention), null);
+
+				return _OrgAccount;
+			}
+		}
+
+		public PrivateAccount GenAccount
+		{
+			get
+			{
+				if(_GenAccount == null)
+					_GenAccount = PrivateAccount.Load(System.IO.Path.Join(Path, "0xffff50e1605b6f302850694291eb0e688ef15677." + Vault.NoCryptoWalletExtention), null);
+
+				return _GenAccount;
+			}
+		}
+
+		public PrivateAccount[] Fathers
+		{
+			get
+			{
+				if(_Fathers == null)
+					_Fathers = Directory.EnumerateFiles(FathersPath, "*." + Vault.NoCryptoWalletExtention).Select(i => PrivateAccount.Load(i, null)).OrderBy(i => i).ToArray();
+
+				return _Fathers;
+			}
+		}
 
 		public SecretSettings(string path)
 		{
@@ -147,7 +183,7 @@ namespace UC.Net
 		public int					PeersMin;
 		public int					PeersInMax;
 		public IPAddress			IP = IPAddress.Any;
-		public string				Generator;
+		public PrivateAccount[]		Generators;
 		public string				Profile;
 
 		public static DevSettings	Dev;
@@ -201,7 +237,7 @@ namespace UC.Net
 			PeersInMax	= doc.GetInt32("PeersInMax");
 			Port		= doc.Has("Port") ? doc.GetInt32("Port") : Zone.Port;
 			IP			= IPAddress.Parse(doc.GetString("IP"));
-			Generator	= doc.Has("Generator") ? doc.GetString("Generator") : null;
+			Generators	= doc.Many("Generator").Select(i => PrivateAccount.Parse(i.Value as string)).ToArray();
 			Log			= doc.Has("Log");
 
 			Dev			= new (doc.One(nameof(Dev)));

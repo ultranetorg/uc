@@ -203,7 +203,7 @@ namespace UC.Net
 	{
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Any());
-		public byte[]					OrderingKey => Generator;
+		public byte[]					OrderingKey => Hash;
 
 		public bool						Confirmed = false;
 

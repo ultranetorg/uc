@@ -23,7 +23,7 @@ namespace UC.Net
 		public List<Block>										Blocks = new();
 		//public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>();
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
+		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
 		public IEnumerable<Account>								Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
 		public IEnumerable<Vote>								Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>								Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
@@ -34,7 +34,7 @@ namespace UC.Net
 		public IEnumerable<Account>								ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Database.MembersMax * 2 / 3);
 		public IEnumerable<Account>								ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Database.MembersMax * 2 / 3);
 
-		public List<Peer>										Members;
+		public List<Member>										Members;
 		public List<Account>									Funds;
 		//public List<Peer>										Hubs;
 		public IEnumerable<Payload>								ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
@@ -286,7 +286,7 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			//w.Write(Id >= Database.TailLength ? Chain.Hash : Cryptography.ZeroHash);
+			w.Write(Id >= Database.TailLength ? Chain.Hash : Cryptography.ZeroHash);
 			w.Write(Id > 0 ? Previous.Hash : Cryptography.ZeroHash);
 
 			WriteConfirmed(w);

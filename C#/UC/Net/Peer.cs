@@ -41,7 +41,7 @@ namespace UC.Net
 	public class Peer : Dci
 	{
 		public IPAddress			IP {get; set;} 
-		public int					JoinedGeneratorsAt {get; set;}
+		//public int					JoinedGeneratorsAt {get; set;}
 		
 		public int					LastRound;
 		public int					LastConfirmedRound;
@@ -86,7 +86,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedGeneratorsAt}, Cr={ChainRank}, Hr={HubRank}, Sr={SeedRank}";
+			return $"{IP}, {StatusDescription}, Cr={ChainRank}, Hr={HubRank}, Sr={SeedRank}";
 		}
  		
 		public int GetRank(Role role)
@@ -134,32 +134,6 @@ namespace UC.Net
 			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
 
  		}
-		
-  		public void WriteMember(BinaryWriter w)
- 		{
- 			w.Write(IP);
- 			w.Write(Generator);
-			w.Write7BitEncodedInt(JoinedGeneratorsAt);
- 		}
- 
- 		public void ReadMember(BinaryReader r)
- 		{
- 			IP = r.ReadIPAddress();
-			Generator = r.ReadAccount();
-			JoinedGeneratorsAt = r.Read7BitEncodedInt();
- 		}
-		
-//   		public void WriteHub(BinaryWriter w)
-//  		{
-//  			w.Write(IP);
-// 			w.Write7BitEncodedInt(JoinedHubsAt);
-//  		}
-//  
-//  		public void ReadHub(BinaryReader r)
-//  		{
-//  			IP = r.ReadIPAddress();
-// 			JoinedHubsAt = r.Read7BitEncodedInt();
-//  		}
 
 		public static void SendHello(TcpClient client, Hello h)
 		{

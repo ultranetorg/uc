@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -71,6 +72,8 @@ namespace UC.Net
 		public const int								OperationsQueueLimit = 1000;
 		const int										BalanceWidth = 24;
 
+		//public Account[]								Generators;
+
 		//public Log										Log;
 		public Workflow									Workflow;
 		public Vault									Vault;
@@ -85,7 +88,6 @@ namespace UC.Net
 		public Settings									Settings;
 		public Clock									Clock;
 
-		CandidacyDeclaration							Declaration;
 		public Guid										Nuid;
 		public IPAddress								IP = IPAddress.None;
 
@@ -100,7 +102,7 @@ namespace UC.Net
 		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
 		public List<IPAddress>							IgnoredIPs	= new();
 		public List<Block>								Cache		= new();
-		public List<Peer>								Members		= new();
+		public List<Member>								Members		= new();
 		public List<Download>							Downloads = new();
 
 		TcpListener										Listener;
@@ -122,12 +124,11 @@ namespace UC.Net
 		public IFeeAsker								FeeAsker;
 
 		public ColumnFamilyHandle						PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
-		//public ColumnFamilyHandle						ReleasesFamily => Database.GetColumnFamily(nameof(Releases));
 
 		readonly DbOptions								DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																							.SetCreateMissingColumnFamilies(true);
 		
-		Func<Type, object>								Constractor => t => t == typeof(Transaction) ? new Transaction(Settings){ Generator = Generator } : null;
+		Func<Type, object>								Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
 		
 		public string[][] Info
 		{
@@ -184,9 +185,12 @@ namespace UC.Net
 							f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
 						}
 						
-						foreach(var i in Net.Database.Fathers)
+						if(Settings.Secret != null)
 						{
-							f.Add($"Father"); v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true),BalanceWidth}");
+							foreach(var i in  Settings.Secret.Fathers)
+							{
+								f.Add($"Father"); v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true),BalanceWidth}");
+							}
 						}
 					}
 				}
@@ -365,14 +369,11 @@ namespace UC.Net
 			{
 				Database = new Database(Settings, Workflow?.Log, Nas, Vault, DatabaseEngine);
 		
-				Database.BlockAdded += b => {
-											if(Generator != null)
-												Declaration = Database.Accounts.FindLastOperation<CandidacyDeclaration>(Generator, null, null, null, r => r.Confirmed);
-					
-											ReachConsensus();
-										 };
+				Database.BlockAdded += b =>	{
+												ReachConsensus();
+											};
 		
-				if(Settings.Generator != null)
+				if(Settings.Generators.Any())
 				{
 		  			try
 		  			{
@@ -384,8 +385,7 @@ namespace UC.Net
 						return;
 		  			}
 
-					Generator = PrivateAccount.Parse(Settings.Generator);
-					Declaration = Database.Accounts.FindLastOperation<CandidacyDeclaration>(Generator);
+					//Generator = PrivateAccount.Parse(Settings.Generator);
 
 					VerifingThread = new Thread(Verifing);
 					VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
@@ -455,7 +455,7 @@ namespace UC.Net
 															}
 														}
 
-														if(Generator != null)
+														if(Settings.Generators.Any())
 														{
 															Generate();
 														}
@@ -476,11 +476,6 @@ namespace UC.Net
 									}
  								});
 			t.Start();
-
-// 			if(Abort != null && Abort())
-// 			{
-// 				throw new AbortException();
-// 			}
 		}
 
 		public void Stop(MethodBase methodBase, Exception ex)
@@ -662,16 +657,6 @@ namespace UC.Net
 					DeclaringThread = new Thread(Declaring);
 					DeclaringThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Declaring";
 					DeclaringThread.Start();
-
-// 					var ps = Filebase.GetAll();
-// 					
-// 					if(ps.Any())
-// 					{
-// 						Task.Run(() =>	{
-// 											DeclarePackage(ps, Workflow);
-// 											Workflow.Log?.Report(this, "Initial declaration completed");
-// 										});
-// 					}
 				}
 
 				if(Database != null)
@@ -1216,11 +1201,11 @@ namespace UC.Net
 
 		}
 
-		public Round GetNextAvailableRound()
+		public Round GetNextAvailableRound(Account generator)
 		{
 			var r = Database.GetRound(Database.LastVotedRound.Id + 1);
 
-			while(r.Blocks.Any(i => i.Generator == Generator))
+			while(r.Blocks.Any(i => i.Generator == generator))
 				r = Database.GetRound(r.Id + 1);
 	
 			if(r.Id > Database.LastVotedRound.Id + Net.Database.Pitch)
@@ -1235,27 +1220,28 @@ namespace UC.Net
 
 			var blocks = new List<Block>();
 
-			if(Declaration != null)
+			foreach(var g in Settings.Generators)
 			{
-				var nar = GetNextAvailableRound();
-
-				if(nar == null)
-					return;
-
-				var voters = Database.VotersFor(nar);
-						
-				if(voters.All(i => i.Generator != Generator))
-				{
-					var jr = Database.JoinRequests.Where(i => i.Generator == Generator).MaxBy(i => i.RoundId);
+				var nar = GetNextAvailableRound(g);
 	
+				if(nar == null)
+					continue;
+		
+				var voters = Database.VotersFor(nar);
+							
+				if(voters.All(i => i.Generator != g))
+				{
+					var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
+		
 					if(jr == null || (Database.LastVotedRound.Id - jr.RoundId > Net.Database.Pitch * 2)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
 						var b = new MembersJoinRequest(Database)
 									{
 										RoundId		= nar.Id,
-										IP			= IP
+										IP          = IP
 									};
-
+	
+						b.Sign(g);
 						blocks.Add(b);
 					}
 				}
@@ -1264,18 +1250,18 @@ namespace UC.Net
 					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Pending) && i.RoundMax >= nar.Id)
 																			.GroupBy(i => i.Signer)
 																			.Select(i => i.First()), nar);
-
-					var prev = Database.FindRound(nar.Id - 1).Votes.FirstOrDefault(i => i.Generator == Generator);
-
+	
+					var prev = Database.FindRound(nar.Id - 1).Votes.FirstOrDefault(i => i.Generator == g);
+	
 					if(txs.Any()) /// any pending foreign transactions or any our pending operations
 					{
 						var p = Database.FindRound(nar.ParentId);
-		
+			
 						var rr = Database.ReferTo(p);
-
+	
 						if(rr == null)
-							return;
-				
+							continue;
+					
 						var b = new Payload(Database)
 								{
 									RoundId		= nar.Id,
@@ -1285,40 +1271,41 @@ namespace UC.Net
 									TimeDelta	= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),
 									Joiners		= Database.ProposeJoiners(nar).ToList(),
-									Leavers		= Database.ProposeLeavers(nar, Generator).ToList(),
+									Leavers		= Database.ProposeLeavers(nar, g).ToList(),
 									FundJoiners	= new(),
 									FundLeavers	= new(),
 									//Propositions		= msgs
 								};
-				
+					
 						foreach(var i in txs)
 						{
 							(b as Payload).AddNext(i);
-
+	
 							foreach(var o in i.Operations)
 								o.Placing = PlacingStage.Placed;
 						}
-						
+							
+						b.Sign(g);
 						blocks.Add(b);
 					}
 					else
 					{
-						var r = Database.Rounds.LastOrDefault(i => !i.Confirmed && !i.Blocks.Any(j => j.Generator == Generator));
-
+						var r = Database.Rounds.LastOrDefault(i => !i.Confirmed && !i.Blocks.Any(j => j.Generator == g));
+	
 						while(r != null)
 						{
-
-							if(	Database.VotersFor(r).Any(i => i.Generator == Generator) &&			/// we must vote
-								!r.Votes.Any(i => i.Generator == Generator) &&						/// no our block or vote yet
+	
+							if(	Database.VotersFor(r).Any(i => i.Generator == g) &&			/// we must vote
+								!r.Votes.Any(i => i.Generator == g) &&						/// no our block or vote yet
 								r.Votes.OfType<Payload>().Any() 								/// has already some payloads from other members
 								)
 							{
 								var p = Database.FindRound(r.ParentId);
 								var rr = Database.ReferTo(p);
-				
+					
 								if(rr != null)
 								{
-
+	
 									var b = new Vote(Database)
 											{	
 												RoundId		= r.Id,
@@ -1328,32 +1315,32 @@ namespace UC.Net
 												TimeDelta	= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 												Violators	= p.Forkers.ToList(),
 												Joiners		= Database.ProposeJoiners(r).ToList(),
-												Leavers		= Database.ProposeLeavers(r, Generator).ToList(),
+												Leavers		= Database.ProposeLeavers(r, g).ToList(),
 												FundJoiners	= new(),
 												FundLeavers	= new(),
 											};
-							
+								
+									b.Sign(g);
 									blocks.Add(b);
 								}
 							}
-
+	
 							r = Database.FindRound(r.Id + 1);
 						}
 					}
 				}
+			}
 
-				if(blocks.Any())
+			if(blocks.Any())
+			{
+				foreach(var b in blocks)
 				{
-					foreach(var b in blocks)
-					{
-						b.Sign(Generator as PrivateAccount);
-						Database.Add(b, b is Payload);
-					}
-
-					Broadcast(Packet.Create(PacketType.Blocks, blocks));
-													
-					Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
+					Database.Add(b, b is Payload);
 				}
+
+				Broadcast(Packet.Create(PacketType.Blocks, blocks));
+													
+				Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
 			}
 
 			Statistics.Generating.End();
@@ -1368,7 +1355,7 @@ namespace UC.Net
 
 			Workflow.Log?.Report(this, "Delegating started");
 
-			Dci m = null;
+			MemberDci m = null;
 
 			while(Running)
 			{
@@ -1393,7 +1380,7 @@ namespace UC.Net
 
 					lock(Lock)
 					{
-						if(m == this && Synchronization != Synchronization.Synchronized)
+						if(m.Dci == this && Synchronization != Synchronization.Synchronized)
 							continue;
 
 						peers = Peers.ToArray();
@@ -1428,6 +1415,7 @@ namespace UC.Net
 									}
 									
 									Monitor.Enter(Lock);
+
 									Vault.OperationIds[g.Key] = o == null ? -1 : o.Id;
 								}
 
@@ -1452,11 +1440,10 @@ namespace UC.Net
 								if(accepted.Any(i => i.Account == o.Signer && i.Id == o.Id))
  									o.Delegation = DelegationStage.Delegated;
 
-								//o.FlowReport?.StageChanged();
 								o.FlowReport?.Log?.ReportWarning(this, $"Placing has been delegated to {m}");
 							}
 									
-						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {(m is Peer p ? p.IP : "Self")}");
+						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
 
 						Thread.Sleep(500); /// prevent any flooding
 					}
@@ -1738,13 +1725,10 @@ namespace UC.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(!Database.Members.Any(i => i.Generator == Generator))
+			if(!Settings.Generators.Any(g => Database.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
 				return new();
 
 			Statistics.TransactionsProcessing.Begin();
-
-			if(Generator == null) /// not ready to process external transactions
-				return new();
 
 			var accepted = txs.Where(i =>	!Transactions.Any(j => i.SignatureEquals(j)) && 
 											i.RoundMax > Database.LastConfirmedRound.Id && 
@@ -1776,11 +1760,11 @@ namespace UC.Net
 				}
 		}
 
-		public Dci ConnectToMember(Workflow workflow)
+		public MemberDci ConnectToMember(Workflow workflow)
 		{
-			if(Generator != null)
+			if(Settings.Generators.Any())
 			{
-				return this;
+				return new MemberDci(Settings.Generators.First(), this);
 			}
 
 			Peer peer;
@@ -1808,26 +1792,31 @@ namespace UC.Net
 					{
 						if(cr.Members.Any())
 						{
-							RememberPeers(cr.Members);
+							RememberPeers(cr.Members.SelectMany(i => i.IPs).Select(i => new Peer(i)));
 
 							peer.ReachFailures = 0;
 	
 							Members = cr.Members.ToList();
 							
-							var c = Connections.FirstOrDefault(i => Members.Any(j => i.IP.Equals(j.IP)));
-
-							if(c == null)
+							foreach(var i in Members)
 							{
-								c = Members.FirstOrDefault();
+								var c = Connections.FirstOrDefault(i => Members.SelectMany(i => i.IPs).Any(ip => i.IP.Equals(ip)));
 
-								Connect(c, workflow);
+								if(c != null)
+								{
+									Workflow.Log?.Report(this, "Member chosen", $"{i} {c}");
+									return new MemberDci(i.Generator, c);
+								}
 							}
-			
-							c.Generator = Members.Find(i => c.IP.Equals(i.IP)).Generator;
 
-							Workflow.Log?.Report(this, "Member chosen", c.ToString());
+							var m = Members.Random();
+							var ip = m.IPs.Random();
+							var p = GetPeer(ip);
+
+							Connect(p, workflow);
 		
-							return c;
+							Workflow.Log?.Report(this, "Member chosen", $"{m} {p}");
+							return new MemberDci(m.Generator, p);
 						}
 					}
 				}
@@ -2124,47 +2113,6 @@ namespace UC.Net
 
 			return new ReleaseInfo();
 		}
-
-//		public void DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages, Workflow workflow)
-//		{
-//			throw new NotImplementedException();
-//
-// 			var hubs = new HashSet<Peer>();
-// 
-// 			int success = 0;
-// 			int failures = 0;
-// 
-// 			while(success < 8 && success + failures < Peers.Count(i => i.GetRank(Role.Hub) > 0))
-// 			{
-// 				Thread.Sleep(1);
-// 				workflow.ThrowIfAborted();
-// 
-// 				Peer h = null;
-// 
-// 				try
-// 				{
-// 					h = Connect(Role.Hub, hubs, workflow);
-// 				}
-// 				catch(ConnectionFailedException)
-// 				{
-// 					failures++;
-// 					continue;
-// 				}
-// 
-// 				try
-// 				{
-// 					h.DeclarePackage(packages);
-// 					success++;
-// 				}
-// 				catch(DistributedCallException)
-// 				{
-// 					failures++;
-// 					continue;
-// 				}
-// 
-// 				hubs.Add(h);
-// 			}
-//		}
 
 		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
 		{

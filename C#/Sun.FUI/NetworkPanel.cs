@@ -39,13 +39,13 @@ namespace UC.Sun.FUI
 					r.Tag = i;
 				}
 
-				foreach(var i in (Chain != null ? Chain.Members : Core.Members).OrderBy(i => i.JoinedGeneratorsAt))
+				foreach(var i in (Chain != null ? Chain.Members : Core.Members).OrderBy(i => i.Generator))
 				{
 					var li = Generators.Items.Add(i.Generator.ToString());
 
-					li.SubItems.Add(i.JoinedGeneratorsAt.ToString());
+					li.SubItems.Add(i.JoinedAt.ToString());
 					li.SubItems.Add(Chain != null ? Core.Database.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString() : null);
-					li.SubItems.Add(i.IP.ToString());
+					li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 
 				foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))

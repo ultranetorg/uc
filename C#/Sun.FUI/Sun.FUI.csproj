@@ -17,6 +17,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SignAssembly>false</SignAssembly>
     <Description></Description>
+    <Title>Ultarnet Node</Title>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\uo-sun-dotnet\0.0.0.0</OutputPath>

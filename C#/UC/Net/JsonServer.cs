@@ -189,8 +189,8 @@ namespace UC.Net
 					case SetGeneratorCall e:
 						lock(Core.Lock)
 						{
-							Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
-							Workflow.Log?.Report(this, "Generator is set", e.Account.ToString());
+							Core.Settings.Generators = e.Generators.Select(i => Vault.GetPrivate(i)).ToArray();
+							Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
 						}
 						break;
 

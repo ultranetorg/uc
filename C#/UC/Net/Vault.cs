@@ -74,19 +74,19 @@ namespace UC.Net
 			return Accounts.Find(i => i == a) as PrivateAccount;
 		}
 
-		public PrivateAccount GetFather(Account a)
-		{
-			var f = Fathers.Find(i => i == a);
-
-			if(f != null)
-				return f;
-
-			f = new PrivateAccount(new EthECKey(File.ReadAllBytes(Path.Join(Settings.Secret.Fathers, a + "." + Vault.NoCryptoWalletExtention)), true));
-
-			Fathers.Add(f);
-
-			return f;
-		}
+// 		public PrivateAccount GetFather(Account a)
+// 		{
+// 			var f = Fathers.Find(i => i == a);
+// 
+// 			if(f != null)
+// 				return f;
+// 
+// 			f = new PrivateAccount(new EthECKey(File.ReadAllBytes(Path.Join(Settings.Secret.Fathers, a + "." + Vault.NoCryptoWalletExtention)), true));
+// 
+// 			Fathers.Add(f);
+// 
+// 			return f;
+// 		}
 
 		public string SaveAccount(PrivateAccount a, string password)
 		{
