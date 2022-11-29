@@ -9,10 +9,10 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-            .UseMauiCommunityToolkit()
-            .ConfigureEssentials()
-            .ConfigureServices()
-            .ConfigureViewModels()
+			.UseMauiCommunityToolkit()
+			.ConfigureEssentials()
+			.ConfigureServices()
+			.ConfigureViewModels()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -20,9 +20,9 @@ public static class MauiProgram
 			});
 
 #if DEBUG
-        builder.Services.AddLogging(configure =>
-            configure.AddDebug().SetMinimumLevel(LogLevel.Debug)
-        );
+		builder.Services.AddLogging(configure =>
+			configure.AddDebug().SetMinimumLevel(LogLevel.Debug)
+		);
 #endif
 
 		return builder.Build();

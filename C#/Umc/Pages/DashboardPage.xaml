@@ -29,7 +29,7 @@
                     Style="{StaticResource Regular}"
                     FontAttributes="Bold"
                     Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}"
-                    VerticalOptions="Center">              
+                    VerticalOptions="Center">
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span Text="{Binding Name, TargetNullValue='Name', FallbackValue='Name'}" FontAttributes="Bold" />

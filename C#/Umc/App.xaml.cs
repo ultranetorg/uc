@@ -10,7 +10,7 @@ public partial class App : Application
 	{
 		InitializeComponent();
 
-        Ioc.Default.ConfigureServices(provider);
+		Ioc.Default.ConfigureServices(provider);
 
 		MainPage = new AppShell();
 
@@ -20,14 +20,14 @@ public partial class App : Application
 
 		InitializeRouting();
 			
-        // Workaround for AnimatedModal not working on Android: https://github.com/dotnet/maui/issues/8062
-        WindowHandler.Mapper.ModifyMapping(nameof(IWindow.Content), OnWorkaround);
+		// Workaround for AnimatedModal not working on Android: https://github.com/dotnet/maui/issues/8062
+		WindowHandler.Mapper.ModifyMapping(nameof(IWindow.Content), OnWorkaround);
 	}
 
-    private void OnWorkaround(IWindowHandler arg1, IWindow arg2, Action<IElementHandler, IElement> arg3)
-    {
-        WindowHandler.MapContent(arg1, arg2);
-    }
+	private void OnWorkaround(IWindowHandler arg1, IWindow arg2, Action<IElementHandler, IElement> arg3)
+	{
+		WindowHandler.MapContent(arg1, arg2);
+	}
 
 	private void InitializeRouting()
 	{
