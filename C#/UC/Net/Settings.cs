@@ -230,9 +230,6 @@ namespace UC.Net
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
 
-//doc.Dump((n, l) => Console.WriteLine(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
-//Console.WriteLine(doc.Has("PeersMin"));
-
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
 			Port		= doc.Has("Port") ? doc.GetInt32("Port") : Zone.Port;

@@ -39,7 +39,7 @@ namespace UC.Sun.CLI
 		   		case "declare" : 
 					return Core.Enqueue(new CandidacyDeclaration(	GetPrivate("candidate", "password"), 
 																	Coin.ParseDecimal(GetString("bail")), 
-																	IPAddress.Parse(GetString("ip"))),
+																	GetString("ips").Split(' ').Select(i => IPAddress.Parse(i))),
 																	GetAwaitStage(), 
 																	Workflow);
 

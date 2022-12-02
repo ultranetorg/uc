@@ -154,6 +154,7 @@ namespace UC.Net
 				if(Database != null)
 				{
 					f.Add("Synchronization");		v.Add($"{Synchronization}");
+					f.Add("Size");					v.Add($"{Database.Size}");
 					f.Add("Members");				v.Add($"{Database.Members.Count}");
 					f.Add("Emission");				v.Add($"{Database.LastPayloadRound.Emission.ToHumanString()}");
 					f.Add("Cached Blocks");			v.Add($"{Cache.Count()}");
@@ -185,13 +186,13 @@ namespace UC.Net
 							f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
 						}
 						
-						if(Settings.Secret != null)
-						{
-							foreach(var i in  Settings.Secret.Fathers)
-							{
-								f.Add($"Father"); v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true),BalanceWidth}");
-							}
-						}
+// 						if(Settings.Secret != null)
+// 						{
+// 							foreach(var i in  Settings.Secret.Fathers)
+// 							{
+// 								f.Add($"Father"); v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true),BalanceWidth}");
+// 							}
+// 						}
 					}
 				}
 				else
@@ -1227,20 +1228,18 @@ namespace UC.Net
 				if(nar == null)
 					continue;
 		
-				var voters = Database.VotersFor(nar);
+				var members = Database.VotersFor(nar);
 							
-				if(voters.All(i => i.Generator != g))
+				if(members.All(i => i.Generator != g))
 				{
 					var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
 		
-					if(jr == null || (Database.LastVotedRound.Id - jr.RoundId > Net.Database.Pitch * 2)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
+					if(jr == null || (jr.RoundId + Database.Pitch * 2 < Database.LastConfirmedRound.Id)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
-						var b = new MembersJoinRequest(Database)
-									{
-										RoundId		= nar.Id,
-										IP          = IP
-									};
-	
+						var b = new MembersJoinRequest(Database){
+																	RoundId	= nar.Id,
+																	IP      = IP
+																};
 						b.Sign(g);
 						blocks.Add(b);
 					}
@@ -1398,8 +1397,6 @@ namespace UC.Net
 						{
 							foreach(var g in pendings.GroupBy(i => i.Signer))
 							{
-								int id = 1;
-
 								if(!Vault.OperationIds.ContainsKey(g.Key))
 								{
 									Operation o = null;
@@ -1408,7 +1405,7 @@ namespace UC.Net
 
 									try
 									{
-										o = m.GetLastOperation(g.Key, null).Operation;
+										o = m.GetLastOperation(g.Key, null, PlacingStage.Null).Operation;
 									}
 									catch(Exception) when(!Debugger.IsAttached)
 									{
@@ -1423,7 +1420,7 @@ namespace UC.Net
 
 								foreach(var o in g)
 								{
-									o.Id = Vault.OperationIds[g.Key] + id++;
+									o.Id = Vault.OperationIds[g.Key]++;
 									t.AddOperation(o);
 								}
 
@@ -1467,14 +1464,14 @@ namespace UC.Net
 									{
 										if(i.Placing == PlacingStage.Placed)
 										{
-											if(o.Placing == PlacingStage.Null)
-												Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
+											//if(o.Placing == PlacingStage.Null)
+											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 										}
 
 										if(i.Placing == PlacingStage.Confirmed)
 										{
-											if(o.Placing == PlacingStage.Null)
-												Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
+											//if(o.Placing == PlacingStage.Null)
+											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
 											o.Delegation = DelegationStage.Completed;
 											Operations.Remove(o);
@@ -1482,15 +1479,14 @@ namespace UC.Net
 	
 										if(i.Placing == PlacingStage.FailedOrNotFound)
 										{
-											if(o.Placing == PlacingStage.Null)
-												Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
+											//if(o.Placing == PlacingStage.Null)
+											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
 											o.Delegation = DelegationStage.Completed;
 											Operations.Remove(o);
 										}
 								
 										o.Placing = i.Placing;
-										//o.FlowReport?.StageChanged();
 									}
 								}
 							}
@@ -2027,7 +2023,7 @@ namespace UC.Net
 				lock(Lock)
 					l = Database.Accounts.FindLastOperation<Emission>(signer);
 			else
-				l = Connect(Role.Chain, null, workflow).GetLastOperation(signer, typeof(Emission).Name).Operation as Emission;
+				l = Connect(Role.Chain, null, workflow).GetLastOperation(signer, typeof(Emission).Name, PlacingStage.Null).Operation as Emission;
 			
 			var eid = l == null ? 0 : l.Eid + 1;
 

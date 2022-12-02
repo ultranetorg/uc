@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Text;
 using UC.Net;
 
-namespace UC
+namespace UC.Net
 {
 	public static class Extentions
 	{

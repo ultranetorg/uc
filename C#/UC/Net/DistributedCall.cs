@@ -51,7 +51,7 @@ namespace UC.Net
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
  
 		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
-		public LastOperationResponse			GetLastOperation(Account account, string oclasss) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss});
+		public LastOperationResponse			GetLastOperation(Account account, string oclasss, PlacingStage placing) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss, Placing = placing});
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
@@ -292,8 +292,9 @@ namespace UC.Net
 	
 	public class LastOperationRequest : Request
 	{
-		public Account	Account {get; set;}
-		public string	Class {get; set;}
+		public Account		Account {get; set;}
+		public string		Class {get; set;}
+		public PlacingStage	Placing {get; set;} /// Null means any
 
 		public override Response Execute(Core core)
 		{
@@ -302,7 +303,8 @@ namespace UC.Net
 					throw new RequirementException("Not synchronized");
 				else
 				{
-					var l = core.Database.Accounts.FindLastOperation(Account, i => Class == null || i.GetType().Name == Class);
+					var l = core.Database.Accounts.FindLastOperation(Account, i =>	(Class == null || i.GetType().Name == Class) && 
+																					(Placing == PlacingStage.Null || i.Placing == Placing));
 							
 					return new LastOperationResponse {Operation = l};
 				}

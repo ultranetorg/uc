@@ -68,54 +68,54 @@ namespace UC.Sun.FUI
 
 		public void OnReported(LogMessage m)
 		{
- 			var a =	new Action( () =>
- 								{
- 									if(Lines.Length > 1000)
+  			var a =	new Action( () =>
+  								{
+  									if(Lines.Length > 100)
+  									{
+  										int p = 0;
+  
+  										for(int i = 0; i < Lines.Length - 100; i++)
+  										{
+  											 p = Text.IndexOf(Environment.NewLine, p);
+  										}
+  
+  										Text = Text.Remove(0, p + Environment.NewLine.Length);
+  									}
+ 
+ 									AppendText(new string(' ', 4 * m.Log.Depth));
+  
+ 									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
+ 										AppendText("!!! " + m.Severity + " : ");
+ 
+  									if(ShowSender && m.Sender != null)
+ 										AppendText(m.Sender + " : ");
+ 
+ 									if(ShowSubject && m.Subject != null)
  									{
- 										int p = 0;
+ 										AppendText(m.Subject); 
  
- 										for(int i = 0; i < Lines.Length - 1000; i++)
- 										{
- 											 p = Text.IndexOf(Environment.NewLine, p);
- 										}
- 
- 										Text = Text.Remove(0, p + Environment.NewLine.Length);
+ 										if(m.Text != null)
+ 											AppendText(" : "); 
  									}
-
-									AppendText(new string(' ', 4 * m.Log.Depth));
+ 									
+ 									if(m.Text != null)
+ 										AppendText(m.Text[0] + Environment.NewLine);
+ 									else
+ 										AppendText(Environment.NewLine);
  
-									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
-										AppendText("!!! " + m.Severity + " : ");
-
- 									if(ShowSender && m.Sender != null)
-										AppendText(m.Sender + " : ");
-
-									if(ShowSubject && m.Subject != null)
-									{
-										AppendText(m.Subject); 
-
-										if(m.Text != null)
-											AppendText(" : "); 
-									}
-									
-									if(m.Text != null)
-										AppendText(m.Text[0] + Environment.NewLine);
-									else
-										AppendText(Environment.NewLine);
-
-									if(m.Text != null)
-									{
- 										foreach(var i in m.Text.Skip(1))
- 										{
- 											AppendText(new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
- 										}
-									}
- 								});
- 
- 			if(InvokeRequired)
- 				BeginInvoke(a);
- 			else
- 				a();
+ 									if(m.Text != null)
+ 									{
+  										foreach(var i in m.Text.Skip(1))
+  										{
+  											AppendText(new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
+  										}
+ 									}
+  								});
+  
+  			if(InvokeRequired)
+  				BeginInvoke(a);
+  			else
+  				a();
 		}
 	}
 }
