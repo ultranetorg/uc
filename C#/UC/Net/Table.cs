@@ -125,6 +125,20 @@ namespace UC.Net
 				batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
 			}
 
+			public void Write(BinaryWriter writer)
+			{
+				writer.Write(Main);
+			}
+
+			public void Read(BinaryReader reader)
+			{
+				_Entries = reader.ReadList<E>(() => { 
+														var e = Table.Create();
+														e.Read(reader);
+														return e;
+													});;
+			}
+
 			public override string ToString()
 			{
 				return $"{Id:X2}, Entries={{{(_Entries != null ? _Entries.Count.ToString() : "")}}}, Hash={(Hash != null ? Hex.ToHexString(Hash) : "")}";
@@ -146,6 +160,8 @@ namespace UC.Net
 
 		protected abstract E			Create();
 		protected abstract byte[]		KeyToBytes(K k);
+
+		public Tables					Type => Enum.Parse<Tables>(GetType().Name.Replace("Table", "s"));
 
 		public Table(Database chain)
 		{

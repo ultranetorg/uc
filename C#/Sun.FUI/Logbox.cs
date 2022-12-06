@@ -82,34 +82,36 @@ namespace UC.Sun.FUI
   										Text = Text.Remove(0, p + Environment.NewLine.Length);
   									}
  
- 									AppendText(new string(' ', 4 * m.Log.Depth));
+ 									var t = new string(' ', 4 * m.Log.Depth);
   
  									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
- 										AppendText("!!! " + m.Severity + " : ");
+ 										t += ("!!! " + m.Severity + " : ");
  
   									if(ShowSender && m.Sender != null)
- 										AppendText(m.Sender + " : ");
+ 										t += (m.Sender + " : ");
  
  									if(ShowSubject && m.Subject != null)
  									{
- 										AppendText(m.Subject); 
+ 										t += (m.Subject); 
  
  										if(m.Text != null)
- 											AppendText(" : "); 
+ 											t += (" : "); 
  									}
  									
  									if(m.Text != null)
- 										AppendText(m.Text[0] + Environment.NewLine);
+ 										t += (m.Text[0] + Environment.NewLine);
  									else
- 										AppendText(Environment.NewLine);
+ 										t += (Environment.NewLine);
  
  									if(m.Text != null)
  									{
   										foreach(var i in m.Text.Skip(1))
   										{
-  											AppendText(new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
+  											t += (new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
   										}
  									}
+
+									AppendText(t);
   								});
   
   			if(InvokeRequired)

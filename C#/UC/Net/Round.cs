@@ -281,13 +281,13 @@ namespace UC.Net
  			return o;
  		}
 
-		public void Seal()
+		public void Hashify(byte[] previous)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Id >= Database.TailLength ? Chain.Hash : Cryptography.ZeroHash);
-			w.Write(Id > 0 ? Previous.Hash : Cryptography.ZeroHash);
+			w.Write(Id >= Database.TailLength ? Chain.BaseHash : Cryptography.ZeroHash);
+			w.Write(previous);
 
 			WriteConfirmed(w);
 

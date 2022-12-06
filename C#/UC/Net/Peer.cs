@@ -69,9 +69,10 @@ namespace UC.Net
 		public List<Request>		InRequests = new();
 		public List<Request>		OutRequests = new();
 
-		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
+		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int					PeerRank = 0;
 		public int					ChainRank = 0;
+		public int					BaseRank = 0;
 		public int					HubRank = 0;
 		public int					SeedRank = 0;
 
@@ -91,10 +92,12 @@ namespace UC.Net
  		
 		public int GetRank(Role role)
 		{
-			return role switch{	Role.Chain => ChainRank,
-								Role.Hub => HubRank,
-								Role.Seed => SeedRank,
-								_ => throw new IntegrityException("Wrong rank") };
+			if(role.HasFlag(Role.Base)) return BaseRank;
+			if(role.HasFlag(Role.Chain)) return ChainRank;
+			if(role.HasFlag(Role.Hub)) return HubRank;
+			if(role.HasFlag(Role.Seed)) return SeedRank;
+
+			throw new IntegrityException("Wrong rank");
 		}
 
   		public void SaveNode(BinaryWriter w)
@@ -129,6 +132,7 @@ namespace UC.Net
  		{
  			IP = reader.ReadIPAddress();
 			var r = (Role)reader.ReadByte();
+			BaseRank	= r.HasFlag(Role.Base) ? 1 : 0;
 			ChainRank	= r.HasFlag(Role.Chain) ? 1 : 0;
 			HubRank		= r.HasFlag(Role.Hub) ? 1 : 0;
 			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
@@ -202,6 +206,7 @@ namespace UC.Net
 			Lock				= lockk;
 			LastRound			= h.LastRound;
 			LastConfirmedRound	= h.LastConfirmedRound;
+			BaseRank			= h.Roles.HasFlag(Role.Base) ? 1 : 0;
 			ChainRank			= h.Roles.HasFlag(Role.Chain) ? 1 : 0;
 			HubRank				= h.Roles.HasFlag(Role.Hub) ? 1 : 0;
 			SeedRank			= h.Roles.HasFlag(Role.Seed) ? 1 : 0;

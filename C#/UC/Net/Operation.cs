@@ -210,6 +210,9 @@ namespace UC.Net
 
 			if(e.BailStatus == BailStatus.Siezed) /// if was siezed than reset to OK status
 				e.BailStatus = BailStatus.OK;
+
+			e.CandidacyDeclarationRound = round.Id;
+			e.IPs = IPs;
 		}
 	}
 

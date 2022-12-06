@@ -71,7 +71,7 @@ namespace UC.Sun.CLI
 
 		   		case "overview" :
 				{
-					var i = Core.Connect(Role.Chain, null, Workflow).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
+					var i = Core.Connect(Role.Base, null, Workflow).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
 
 					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 

@@ -27,21 +27,10 @@ namespace UC.Net
 		{
 			switch(val)
 			{
-				case bool v:
-					writer.Write(v);
-					return true;
-
-				case int v:
-					writer.Write7BitEncodedInt(v);
-					return true;
-
-				case long v:
-					writer.Write7BitEncodedInt64(v);
-					return true;
-
-				case Coin v:
-					v.Write(writer);
-					return true;
+				case bool v :	writer.Write(v); return true;
+				case int v :	writer.Write7BitEncodedInt(v); return true;
+				case long v :	writer.Write7BitEncodedInt64(v); return true;
+				case Coin v :	v.Write(writer); return true;
 			}
 
 			if(type.IsEnum)

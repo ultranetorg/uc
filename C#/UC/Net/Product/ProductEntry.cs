@@ -8,7 +8,7 @@ namespace UC.Net
 {
 	public class ProductEntryRealization : IBinarySerializable
 	{
-		public string					Name;
+		public string		Name;
 		public Osbi[]		OSes;
 
 		public void Read(BinaryReader r)

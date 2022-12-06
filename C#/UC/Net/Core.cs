@@ -51,6 +51,7 @@ namespace UC.Net
 	[Flags]
 	public enum Role : uint
 	{
+		Null,
 		Chain	= 0b00000001,
 		Base	= 0b00000010,
 		Seed	= 0b00000100,
@@ -156,43 +157,45 @@ namespace UC.Net
 					f.Add("Synchronization");		v.Add($"{Synchronization}");
 					f.Add("Size");					v.Add($"{Database.Size}");
 					f.Add("Members");				v.Add($"{Database.Members.Count}");
-					f.Add("Emission");				v.Add($"{Database.LastPayloadRound.Emission.ToHumanString()}");
+					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
 					f.Add("Cached Blocks");			v.Add($"{Cache.Count()}");
 					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
-					f.Add("Last Non-Empty Round");	v.Add($"{Database.LastNonEmptyRound.Id}");
-					f.Add("Last Payload Round");	v.Add($"{Database.LastPayloadRound.Id}");
+					f.Add("Last Non-Empty Round");	v.Add($"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}");
+					f.Add("Last Payload Round");	v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}");
 					f.Add("Generating (μs)");		v.Add((Statistics.Generating.Avarage.Ticks/10).ToString());
 					f.Add("Consensing (μs)");		v.Add((Statistics.Consensing.Avarage.Ticks/10).ToString());
 					//f.Add("Delegating (μs)");		v.Add((Statistics.Delegating.Avarage.Ticks/10).ToString());
 					f.Add("Block Processing (μs)");	v.Add((Statistics.BlocksProcessing.Avarage.Ticks/10).ToString());
 					f.Add("Tx Processing (μs)");	v.Add((Statistics.TransactionsProcessing.Avarage.Ticks/10).ToString());
+					f.Add("NAS Eth Account");		v.Add($"{Nas.Account?.Address}");
 
-					string formatbalance(Account a, bool confirmed)
+					if(Synchronization == Synchronization.Synchronized)
 					{
-						return Database.GetAccountInfo(a, confirmed)?.Balance.ToHumanString();
-					}
-
-					foreach(var i in Vault.Accounts)
-					{
-						f.Add($"Account");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
-					}
-	
-					if(Settings.Dev.UI)
-					{
-						f.Add("NAS Eth Account");		v.Add($"{Nas.Account?.Address}");
-
-						foreach(var i in Database.Funds)
+						string formatbalance(Account a, bool confirmed)
 						{
-							f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
+							return Database.GetAccountInfo(a, confirmed)?.Balance.ToHumanString();
 						}
+	
+						foreach(var i in Vault.Accounts)
+						{
+							f.Add($"Account");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
+						}
+	
+						if(Settings.Dev.UI)
+						{
+							foreach(var i in Database.Funds)
+							{
+								f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
+							}
 						
-// 						if(Settings.Secret != null)
-// 						{
-// 							foreach(var i in  Settings.Secret.Fathers)
-// 							{
-// 								f.Add($"Father"); v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true),BalanceWidth}");
-// 							}
-// 						}
+	// 						if(Settings.Secret != null)
+	// 						{
+	// 							foreach(var i in  Settings.Secret.Fathers)
+	// 							{
+	// 								f.Add($"Father"); v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true),BalanceWidth}");
+	// 							}
+	// 						}
+						}
 					}
 				}
 				else
@@ -221,8 +224,8 @@ namespace UC.Net
 				{
 					h =	new Header
 						{ 
-							LastRound			= Database == null ? -1 : Database.LastNonEmptyRound.Id,
-							LastConfirmedRound	= Database == null ? -1 : Database.LastConfirmedRound.Id,
+							LastRound			= Database?.LastNonEmptyRound == null ? -1 : Database.LastNonEmptyRound.Id,
+							LastConfirmedRound	= Database?.LastConfirmedRound == null ? -1 : Database.LastConfirmedRound.Id,
 						};
 				}
 
@@ -366,7 +369,7 @@ namespace UC.Net
 				Filebase = new Filebase(Settings);
 			}
 
-			if(Settings.Database.Chain || Settings.Database.Base)
+			if(Settings.Database.Base || Settings.Database.Chain)
 			{
 				Database = new Database(Settings, Workflow?.Log, Nas, Vault, DatabaseEngine);
 		
@@ -444,7 +447,7 @@ namespace UC.Net
 												{
 													if(Synchronization == Synchronization.Synchronized)
 													{
-														var conns = Connections.Where(i => i.Roles.HasFlag(Role.Chain)).GroupBy(i => i.LastConfirmedRound).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
+														var conns = Connections.Where(i => i.Roles.HasFlag(Database.Roles)).GroupBy(i => i.LastConfirmedRound).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
 		
 														if(conns.Any())
 														{
@@ -651,7 +654,7 @@ namespace UC.Net
 
 			if(!MinimalPeersReached && 
 				Connections.Count() >= Settings.PeersMin && 
-				(Database == null || Connections.Count(i => i.Roles.HasFlag(Role.Chain)) >= Settings.Database.PeersMin))
+				(Database == null || Connections.Count(i => i.Roles.HasFlag(Database.Roles)) >= Settings.Database.PeersMin))
 			{
 				if(Filebase != null && !IsClient)
 				{
@@ -716,7 +719,10 @@ namespace UC.Net
 
 			var h = new Hello();
 
-			h.Roles					= (Database != null ? Role.Chain : 0) | (Filebase != null ? Role.Seed : 0) | (Hub != null ? Role.Hub : 0);
+			h.Roles					= (Settings.Database.Base ? Role.Base : 0) |
+									  (Settings.Database.Chain ? Role.Chain : 0) |
+									  (Settings.Filebase.Enabled ? Role.Seed : 0) |
+									  (Settings.Hub.Enabled ? Role.Hub : 0);
 			h.Versions				= Versions;
 			h.Zone					= Settings.Zone.Name;
 			h.IP					= ip;
@@ -1065,21 +1071,107 @@ namespace UC.Net
 
 		void Synchronizing()
 		{
-			int start = -1; 
+			int final = -1; 
 			int end = -1; 
+			int from = -1;
 	
 			var used = new HashSet<Peer>();
 	
-			var peer = Connect(Role.Chain, used, Workflow);
+			var peer = Connect(Database.Roles, used, Workflow);
 	
+			StampResponse stamp = null;
+
+			if(!Database.Roles.HasFlag(Role.Chain))
+			{
+				while(true)
+				{
+					Workflow.ThrowIfAborted();
+
+					try
+					{
+						stamp = peer.GetStamp();
+
+						var ts = peer.GetTablesStamp();
+
+						void download<E, K>(Table<E, K> t, IEnumerable<TablesStampResponse.Cluster> clusters) where E : TableEntry<K>
+						{
+							foreach(var i in clusters)
+							{
+								var c = t.Clusters.Find(j => j.Id == i.Id);
+
+								if(c == null || c.Hash.SequenceEqual(i.Hash))
+								{
+									var d = peer.DownloadTable(t.Type, (ushort)i.Id, 0, i.Length);
+
+									c = new Table<E, K>.Cluster(t, (ushort)i.Id);
+									
+									c.Read(new BinaryReader(new MemoryStream(d.Data)));
+							
+									t.Clusters.Add(c);
+								
+									using(var b = new WriteBatch())
+									{
+										c.Save(b);
+									}
+								}
+							}
+						}
+
+						download<AccountEntry, Account>(Database.Accounts, ts.Accounts);
+						download<AuthorEntry, string>(Database.Authors, ts.Authors);
+						download<ProductEntry, ProductAddress>(Database.Products, ts.Products);
+						download<RealizationEntry, RealizationAddress>(Database.Realizations, ts.Realizations);
+						download<ReleaseEntry, ReleaseAddress>(Database.Releases, ts.Releases);
+
+						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
+
+						var s = new MemoryStream(stamp.BaseState);
+						var rd = new BinaryReader(s);
+
+						rd.Read7BitEncodedInt();
+						r.Hash		 = rd.ReadSha3();
+						r.WeiSpent	 = rd.ReadBigInteger();
+						r.Factor	 = rd.ReadCoin();
+						r.Emission	 = rd.ReadCoin();
+						r.Members	 = rd.ReadList<Member>();
+						r.Funds		 = rd.ReadList<Account>();
+
+						Database.Members = r.Members;
+						Database.Funds = r.Funds;
+						Database.BaseState = stamp.BaseState;
+						Database.BaseHash = stamp.BaseHash;
+
+						Database.LastConfirmedRound = r;
+						Database.LastCommittedRound = r;
+
+						Database.LoadedRounds.Add(r.Id, r);
+
+						break;
+					}
+					catch(DistributedCallException)
+					{
+					}
+				}
+			}
+
 			while(true)
 			{
 				Workflow.ThrowIfAborted();
 
 				if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 				{	
-					var from = start != -1 ? start : (Database.LastConfirmedRound.Id + 1);
-					var to	 = end != -1 ? end : (from + Math.Min(peer.LastRound - from, Net.Database.Pitch));
+					if(final == -1)
+						if(Database.Roles.HasFlag(Role.Chain))
+							from = Database.LastConfirmedRound.Id + 1;
+						else
+							if(from == -1)
+								from = Math.Max(stamp.FirstTailRound, Database.LastConfirmedRound == null ? -1 : (Database.LastConfirmedRound.Id + 1));
+							else
+								from = Database.LastConfirmedRound.Id + 1;
+					else
+						from = final;
+
+					var to	= end != -1 ? end : (from + Math.Min(peer.LastRound - from, Net.Database.Pitch));
 				 	
 					if(from <= to)
 					{
@@ -1112,14 +1204,14 @@ namespace UC.Net
 									if(confirmed && !r.Confirmed)
 									{
 										confirmed	= false;
-										start		= rounds.Max(i => i.Id) + 1;
+										final		= rounds.Max(i => i.Id) + 1;
 										end			= peer.LastRound; 
 										Synchronization	= Synchronization.Synchronizing;
 									}
 	
 									if(!confirmed && r.Confirmed)
 									{
-					 					peer = Connect(Role.Chain, used, Workflow); /// unacceptable case, choose other chain peer
+					 					peer = Connect(Database.Roles, used, Workflow); /// unacceptable case, choose other chain peer
 										break;
 									}
 		
@@ -1137,6 +1229,9 @@ namespace UC.Net
 	
 			lock(Lock)
 			{
+				if(!Database.Roles.HasFlag(Role.Chain))
+					Database.Rounds.Remove(Database.Rounds.Last());
+
 				Database.Add(Cache.OrderBy(i => i.RoundId));
 				Cache.Clear();
 	
@@ -1158,11 +1253,21 @@ namespace UC.Net
 
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing)
 			{
+				if(IP.GetAddressBytes()[3] == 107)
+				{
+					accepted = accepted;
+				}
+
 				Cache.AddRange(accepted);
 			}
 
 			if(Synchronization == Synchronization.Synchronized)
 			{
+				if(IP.GetAddressBytes()[3] == 107)
+				{
+					accepted = accepted;
+				}
+
 				var notolder = Database.LastConfirmedRound.Id - Net.Database.Pitch;
 				var notnewer = Database.LastConfirmedRound.Id + Net.Database.Pitch * 2;
 
@@ -1209,7 +1314,7 @@ namespace UC.Net
 			while(r.Blocks.Any(i => i.Generator == generator))
 				r = Database.GetRound(r.Id + 1);
 	
-			if(r.Id > Database.LastVotedRound.Id + Net.Database.Pitch)
+			if(r.Id > Database.LastVotedRound.Id + Database.Pitch)
 				return null;
 
 			return r;
@@ -1726,8 +1831,8 @@ namespace UC.Net
 
 			Statistics.TransactionsProcessing.Begin();
 
-			var accepted = txs.Where(i =>	!Transactions.Any(j => i.SignatureEquals(j)) && 
-											i.RoundMax > Database.LastConfirmedRound.Id && 
+			var accepted = txs.Where(i =>	!Transactions.Any(j => i.SignatureEquals(j)) &&
+											i.RoundMax >= GetNextAvailableRound(i.Generator).Id &&
 											i.Valid).ToList();
 								
 			foreach(var i in accepted)
@@ -1748,7 +1853,7 @@ namespace UC.Net
 				{
 					if(packet.Type == PacketType.Blocks)
 					{
-						if(i.ChainRank > 0)
+						if(i.ChainRank > 0 || i.BaseRank > 0)
 							i.Send(packet);
 					}
 					else
@@ -2023,7 +2128,7 @@ namespace UC.Net
 				lock(Lock)
 					l = Database.Accounts.FindLastOperation<Emission>(signer);
 			else
-				l = Connect(Role.Chain, null, workflow).GetLastOperation(signer, typeof(Emission).Name, PlacingStage.Null).Operation as Emission;
+				l = Connect(Role.Base, null, workflow).GetLastOperation(signer, typeof(Emission).Name, PlacingStage.Null).Operation as Emission;
 			
 			var eid = l == null ? 0 : l.Eid + 1;
 
@@ -2112,7 +2217,7 @@ namespace UC.Net
 
 		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
 		{
-			var qlatest = Call(Role.Chain, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
+			var qlatest = Call(Role.Base, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
 			var previos = qlatest.Releases.FirstOrDefault()?.Registration.Release.Version;
 
 			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);

@@ -77,18 +77,8 @@ namespace UC.Net
 			if(RegistrationTime != ChainTime.Zero)
 			{
 				w.Write(Owner);
-				w.Write(Title);
+				w.WriteUtf8(Title);
 				w.Write(Years);
-			}
-		}
-
-		public override void WriteMore(BinaryWriter w)
-		{
-			w.Write7BitEncodedInt(ObtainedRid);
-
-			if(RegistrationTime != ChainTime.Zero)
-			{
-				w.Write(Products);
 			}
 		}
 
@@ -113,8 +103,18 @@ namespace UC.Net
 			if(RegistrationTime != ChainTime.Zero)
 			{
 				Owner	= r.ReadAccount();
-				Title	= r.ReadString();
+				Title	= r.ReadUtf8();
 				Years	= r.ReadByte();
+			}
+		}
+
+		public override void WriteMore(BinaryWriter w)
+		{
+			w.Write7BitEncodedInt(ObtainedRid);
+
+			if(RegistrationTime != ChainTime.Zero)
+			{
+				w.Write(Products);
 			}
 		}
 

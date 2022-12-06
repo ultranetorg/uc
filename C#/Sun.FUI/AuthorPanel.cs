@@ -46,7 +46,7 @@ namespace UC.Sun.FUI
 
 			try
 			{
-				var ai = Core.Connect(Role.Chain, null, new Workflow()).GetAuthorInfo(AuthorSearch.Text, false);
+				var ai = Core.Connect(Role.Base, null, new Workflow()).GetAuthorInfo(AuthorSearch.Text, false);
 	
 				if(ai.Xon != null)
 					ai.Xon.Dump((n, t) => 

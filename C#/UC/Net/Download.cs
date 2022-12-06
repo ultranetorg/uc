@@ -140,7 +140,7 @@ namespace UC.Net
 								{
 									workflow.ThrowIfAborted();
 
-									his = Core.Call(Role.Chain, c => c.GetReleaseHistory(release, false), workflow);
+									his = Core.Call(Role.Base, c => c.GetReleaseHistory(release, false), workflow);
 
 									if(his.Registrations.Any(i => i.Release == release))
 										break;

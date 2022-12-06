@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using Nethereum.Model;
 
 namespace UC.Net
@@ -14,7 +15,10 @@ namespace UC.Net
 	public class AccountEntry : TableEntry<Account>
 	{
 		public Account					Account;
+		public int						LastOperationId = -1;
 		public Coin						Balance;
+		public int						CandidacyDeclarationRound = -1;
+		public IPAddress[]				IPs = new IPAddress[]{};
 		public Coin						Bail;
 		public BailStatus				BailStatus;
 
@@ -34,9 +38,12 @@ namespace UC.Net
 		public AccountEntry Clone()
 		{
 			return new AccountEntry(Chain){	Account = Account,
+											LastOperationId = LastOperationId,
 											Authors = new List<string>(Authors),
 											Transactions = new HashSet<int>(Transactions),
 											Balance = Balance,
+											CandidacyDeclarationRound = CandidacyDeclarationRound,
+											IPs = IPs.ToArray(),
 											Bail = Bail,
 											BailStatus = BailStatus};
 		}
@@ -44,23 +51,37 @@ namespace UC.Net
 		public override void Write(BinaryWriter w)
 		{
 			w.Write(Account);
+			w.Write7BitEncodedInt(LastOperationId);
 			w.Write(Balance);
-			w.Write(Bail);
-			w.Write((byte)BailStatus);
+			w.Write7BitEncodedInt(CandidacyDeclarationRound);
+
+			if(CandidacyDeclarationRound != -1)
+			{
+				w.Write(IPs, i => w.Write(i.GetAddressBytes()));
+				w.Write(Bail);
+				w.Write((byte)BailStatus);
+			}
+		}
+
+		public override void Read(BinaryReader r)
+		{
+			Account						= r.ReadAccount();
+			LastOperationId				= r.Read7BitEncodedInt();
+			Balance						= r.ReadCoin();
+			CandidacyDeclarationRound	= r.Read7BitEncodedInt();
+
+			if(CandidacyDeclarationRound != -1)
+			{
+				IPs			= r.ReadArray(() => new IPAddress(r.ReadBytes(4)));
+				Bail		= r.ReadCoin();
+				BailStatus	= (BailStatus)r.ReadByte();
+			}
 		}
 
 		public override void WriteMore(BinaryWriter w)
 		{
 			w.Write(Transactions);
 			w.Write(Authors, i => w.WriteUtf8(i));
-		}
-
-		public override void Read(BinaryReader r)
-		{
-			Account		= r.ReadAccount();
-			Balance		= r.ReadCoin();
-			Bail		= r.ReadCoin();
-			BailStatus	= (BailStatus)r.ReadByte();
 		}
 
 		public override void ReadMore(BinaryReader r)

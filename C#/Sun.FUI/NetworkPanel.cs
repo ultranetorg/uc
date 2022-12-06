@@ -33,6 +33,7 @@ namespace UC.Sun.FUI
 					r.SubItems.Add(i.Retries.ToString());
 					r.SubItems.Add(i.PeerRank.ToString());
 					r.SubItems.Add(i.GetRank(Role.Chain).ToString());
+					r.SubItems.Add(i.GetRank(Role.Base).ToString());
 					r.SubItems.Add(i.GetRank(Role.Hub).ToString());
 					r.SubItems.Add(i.GetRank(Role.Seed).ToString());
 					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));

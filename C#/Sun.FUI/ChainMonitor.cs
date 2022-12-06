@@ -73,6 +73,9 @@ namespace UC.Sun.FUI
 				{
 					lock(Core.Lock)
 					{
+						if(!Core.Database.Rounds.Any())
+							return;
+
 						var s = 8;
 						var b = 2;
 						var showt = true;

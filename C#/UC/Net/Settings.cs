@@ -9,20 +9,6 @@ using System.Reflection;
 
 namespace UC.Net
 {
-	public class DatabaseSettings
-	{
-		public bool			Chain;
-		public bool			Base;
-		public int			PeersMin;
-
-		public DatabaseSettings(Xon x)
-		{
-			Chain		= x.Has("Chain");
-			Base		= x.Has("Base");
-			PeersMin	= x.GetInt32("PeersMin");
-		}
-	}
-
 	public class NasSettings
 	{
 		public string		Chain;
@@ -32,6 +18,20 @@ namespace UC.Net
 		{
 			Chain = x.GetString("Chain");
 			Provider = x.GetString("Provider");
+		}
+	}
+
+	public class DatabaseSettings
+	{
+		public bool			Base;
+		public bool			Chain;
+		public int			PeersMin;
+
+		public DatabaseSettings(Xon x)
+		{
+			Chain		= x.Has("Chain");
+			Base		= x.Has("Base");
+			PeersMin	= x.GetInt32("PeersMin");
 		}
 	}
 

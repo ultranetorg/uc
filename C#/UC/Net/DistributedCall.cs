@@ -13,7 +13,7 @@ namespace UC.Net
 	{
 		Null, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
-		Stamp
+		Stamp, TablesStamp, DownloadTable
 	}
 
  	public class DistributedCallException : Exception
@@ -50,6 +50,9 @@ namespace UC.Net
 
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
  
+		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
+		public TablesStampResponse				GetTablesStamp() => Request<TablesStampResponse>(new TablesStampRequest());
+		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
 		public LastOperationResponse			GetLastOperation(Account account, string oclasss, PlacingStage placing) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss, Placing = placing});
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
@@ -157,11 +160,11 @@ namespace UC.Net
 		{
 			var rd = new BinaryReader(new MemoryStream(Rounds));
 
-			return rd.ReadArray<Round>(() =>	{
-													var r = new Round(chain);
-													r.Read(rd);
-													return r;
-												});
+			return rd.ReadArray<Round>(() =>{
+												var r = new Round(chain);
+												r.Read(rd);
+												return r;
+											});
 		}
 	}
 
@@ -198,26 +201,53 @@ namespace UC.Net
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new RequirementException("Not synchronized");
+				if(core.Database.BaseState == null)
+					throw new RequirementException("Too early");
 				else
-					return new StampResponse {	State			= core.Database.StateHash,
-												Accounts		= core.Database.Accounts.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
-												Authors			= core.Database.Authors.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
-												Products		= core.Database.Products.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
-												Realizations	= core.Database.Realizations.	Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
-												Releases		= core.Database.Releases.		Clusters.Select(i => new StampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray()};
+					return new StampResponse {	BaseState				= core.Database.BaseState,
+												BaseHash				= core.Database.BaseHash,
+												LastCommitedRoundHash	= core.Database.LastCommittedRound.Hash,
+												FirstTailRound			= core.Database.Rounds.Last().Id,
+												LastTailRound			= core.Database.Rounds.First().Id};
 		}
 	}
 
 	public class StampResponse : Response
 	{
+		public byte[]	BaseState  { get; set; }
+		public byte[]	BaseHash  { get; set; }
+		public int		FirstTailRound { get; set; }
+		public int		LastTailRound { get; set; }
+		public byte[]	LastCommitedRoundHash { get; set; }
+	}
+
+	public class TablesStampRequest : Request
+	{
+		public override Response Execute(Core core)
+		{
+			lock(core.Lock)
+				if(core.Synchronization != Synchronization.Synchronized)
+					throw new RequirementException("Not synchronized");
+				if(core.Database.BaseState == null)
+					throw new RequirementException("Too early");
+				else
+					return new TablesStampResponse { Accounts		= core.Database.Accounts.		Clusters.Select(i => new TablesStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+													 Authors		= core.Database.Authors.		Clusters.Select(i => new TablesStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+													 Products		= core.Database.Products.		Clusters.Select(i => new TablesStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+													 Realizations	= core.Database.Realizations.	Clusters.Select(i => new TablesStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray(),
+													 Releases		= core.Database.Releases.		Clusters.Select(i => new TablesStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash}).ToArray()};
+		}
+	}
+
+	public class TablesStampResponse : Response
+	{
 		public class Cluster
 		{
-			public ushort	Id;
-			public int		Length;
-			public byte[]	Hash;
+			public int		Id { get; set; }
+			public int		Length { get; set; }
+			public byte[]	Hash { get; set; }
 		}
 
-		public byte[]					State  { get; set; }
 		public IEnumerable<Cluster>		Accounts { get; set; }
 		public IEnumerable<Cluster>		Authors { get; set; }
 		public IEnumerable<Cluster>		Products { get; set; }
@@ -225,29 +255,29 @@ namespace UC.Net
 		public IEnumerable<Cluster>		Releases { get; set; }
 	}
 
-	public class DownloadClusterRequest : Request
+	public class DownloadTableRequest : Request
 	{
 		public Tables	Table { get; set; }
-		public ushort	ClusterId { get; set; }
+		public int		ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
 
 		public override Response Execute(Core core)
 		{
-			if(core.Database == null)
-				throw new RequirementException("Is not Chain");
-
 			lock(core.Lock)
 			{
+				if(core.Database == null)
+					throw new RequirementException("Is not Chain");
+
 				var m = Table switch
 							  {
-								Tables.State		=> core.Database.State,
-								Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
-								Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
-								Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
-								Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
-								Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
-								_ => throw new DistributedCallException("Unknown table")
+									Tables.State		=> core.Database.BaseState,
+									Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									_ => throw new DistributedCallException("Unknown table")
 							  };
 
 				if(m == null)
@@ -258,12 +288,12 @@ namespace UC.Net
 	
 				s.Position = Offset;
 	
-				return new DownloadClusterResponse{Data = r.ReadBytes((int)Length)};
+				return new DownloadTableResponse{Data = r.ReadBytes((int)Length)};
 			}
 		}
 	}
 
-	public class DownloadClusterResponse : Response
+	public class DownloadTableResponse : Response
 	{
 		public byte[] Data { get; set; }
 	}
