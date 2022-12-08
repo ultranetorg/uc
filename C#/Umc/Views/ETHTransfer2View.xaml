@@ -54,12 +54,12 @@
                     </DataTrigger>
                 </Image.Triggers>
             </Image>
-            <Frame
+            <Border
                 Grid.Row="1"
                 Grid.ColumnSpan="2"
                 HorizontalOptions="FillAndExpand"
                 IsVisible="{Binding AccountsShown}"
-                Style="{StaticResource AccountCard}"
+                Style="{StaticResource AccountCardBorder}"
                 VerticalOptions="FillAndExpand">
                 <ListView ItemsSource="{Binding Wallets}">
                     <ListView.ItemTemplate>
@@ -115,7 +115,7 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-            </Frame>
+            </Border>
         </Grid>
     </StackLayout>
 </ContentView>

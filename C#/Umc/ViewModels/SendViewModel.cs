@@ -107,12 +107,22 @@ public partial class SendViewModel : BaseViewModel
 	[RelayCommand]
     private async Task SourceTapped()
     {
-        await SourceAccountPopup.Show();
-    }
+		var popup = new SourceAccountPopup();
+		await ShowPopup(popup);
+		if (popup?.Vm?.Account != null)
+		{
+			Source = popup.Vm.Account;
+		}
+	}
 
 	[RelayCommand]
     private async Task RecipientTapped()
-    {
-		await RecipientAccountPopup.Show();
+	{
+		var popup = new RecipientAccountPopup();
+		await ShowPopup(popup);
+		if (popup?.Vm?.Account != null)
+		{
+			Recipient = popup.Vm.Account;
+		}
 	}
 }

@@ -16,7 +16,7 @@
             <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryLight}}" />
         </Style>
         <DataTemplate x:Key="AccountCard" x:DataType="models:AccountViewModel">
-            <Border Margin="18,8" Style="{StaticResource AccountCardBorder}">
+            <Border Margin="16,6" Style="{StaticResource AccountCardBorder}">
                 <SwipeView>
                     <SwipeView.RightItems>
                         <!-- when the bug is fixed this will be replaced with SwipeItemView
@@ -33,9 +33,9 @@
                         </SwipeItems>
                     </SwipeView.RightItems>
                     <Grid
-                        Padding="14"
+                        Padding="12"
                         ColumnDefinitions="60,*,30"
-                        ColumnSpacing="10"
+                        ColumnSpacing="8"
                         RowDefinitions="20,20,20"
                         RowSpacing="0"
                         Style="{StaticResource AccountGrid}">

@@ -18,11 +18,12 @@ public partial class AuthorRenewalViewModel : BaseAccountViewModel
 
     [RelayCommand]
     private async Task SelectAccountAsync()
-    {
-        var account = await SourceAccountPopup.Show();
-        if (account != null)
+	{
+		var popup = new SourceAccountPopup();
+		await ShowPopup(popup);
+        if (popup?.Vm?.Account != null)
 		{
-			// Account = account;
+			Account = popup.Vm.Account;
 		}
     }
 }

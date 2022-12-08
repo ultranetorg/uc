@@ -5,9 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:models="clr-namespace:UC.Umc.Models"
     x:Name="Page">
-    <Frame
+    <Border
         BindingContext="{x:Reference Page}"
-        Style="{StaticResource AccountCard}">
+        Style="{StaticResource AccountCardBorder}">
         <Grid
             BindingContext="{Binding Account}"
             Padding="14"
@@ -17,19 +17,19 @@
             RowDefinitions="20,20,20"
             RowSpacing="0">
             
-            <Frame
+            <Border
                 Grid.Row="0"
                 Grid.RowSpan="3"
                 Grid.Column="0"
                 Background="{Binding Color}"
                 HorizontalOptions="Center"
-                Style="{StaticResource AccountColor}">
+                Style="{StaticResource AccountColorBorder}">
                 <Label
                     HorizontalOptions="Center"
                     Style="{StaticResource CodeLabel}"
                     Text="{Binding IconCode}"
                     VerticalOptions="Center" />
-            </Frame>
+            </Border>
             
             <Label
                 Grid.Row="0"
@@ -52,6 +52,6 @@
                 Style="{StaticResource Light}"
                 Text="{Binding Address}" />
         </Grid>
-    </Frame>
+    </Border>
 
 </ContentView>

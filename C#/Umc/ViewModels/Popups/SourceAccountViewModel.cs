@@ -19,12 +19,12 @@ public partial class SourceAccountViewModel : BaseViewModel
 	[RelayCommand]
     private void ItemTapped(AccountViewModel account)
     {
-        //foreach (var item in Accounts)
-        //{
-        //    item.IsSelected = false;
-        //}
-        //wallet.IsSelected = true;
-    }
+		foreach (var item in Accounts)
+		{
+			item.IsSelected = false;
+		}
+		account.IsSelected = true;
+	}
 
 	[RelayCommand]
     private void Close() => ClosePopup();

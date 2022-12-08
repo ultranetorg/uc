@@ -18,6 +18,7 @@ public class AccountViewModel
 	// lets say 1 unts = $1 unless we can recieve rate
 	public string			DisplayAmount => $"{Math.Round(Balance)} UNT (${Math.Round(Balance)})";
 	public string			IconCode => Address?[2..6];
+	public bool				IsSelected { get; set; }
 
 	public AccountViewModel(Account account)
 	{

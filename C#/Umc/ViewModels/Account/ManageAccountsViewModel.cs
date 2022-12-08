@@ -1,6 +1,4 @@
-﻿
-
-namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public partial class ManageAccountsViewModel : BaseViewModel
 {

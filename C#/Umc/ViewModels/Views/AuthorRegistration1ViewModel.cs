@@ -2,17 +2,21 @@
 
 public partial class AuthorRegistration1ViewModel : BaseViewModel
 {
-    public AuthorRegistration1ViewModel(ILogger<AuthorRegistration1ViewModel> logger): base(logger)
+	[ObservableProperty]
+	private AccountViewModel _account;
+
+	public AuthorRegistration1ViewModel(ILogger<AuthorRegistration1ViewModel> logger): base(logger)
 	{
 	}
 
     [RelayCommand]
     private async Task SelectAccountAsync()
-    {
-        var account = await SourceAccountPopup.Show();
-        if (account != null)
+	{
+		var popup = new SourceAccountPopup();
+		await ShowPopup(popup);
+		if (popup?.Vm?.Account != null)
 		{
-			// Account = account;
+			Account = popup.Vm.Account;
 		}
-    }
+	}
 }

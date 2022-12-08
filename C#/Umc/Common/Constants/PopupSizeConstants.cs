@@ -4,10 +4,10 @@ public static class PopupSizeConstants
 {
     // public static Size Small;
 
-    // public static Size Medium;
-    public static Size AutoCompleteControl;
+    public static Size Medium;
+	public static Size Large;
 
-    static PopupSizeConstants()
+	static PopupSizeConstants()
 	{
         // examples for fixed sizes
 		// Small = new Size(300, 300);
@@ -16,7 +16,8 @@ public static class PopupSizeConstants
         var displayHeight = DeviceDisplay.Current.MainDisplayInfo.Height;
         var displayWidth = DeviceDisplay.Current.MainDisplayInfo.Width;
 
-        // examples for relative to screen sizes
-		AutoCompleteControl = new Size(0.9 * (displayWidth / displayDensity), 0.45 * (displayHeight / displayDensity));
+		// examples for relative to screen sizes
+		Medium = new Size(displayWidth / displayDensity, 0.45 * (displayHeight / displayDensity));
+		Large = new Size(displayWidth / displayDensity, 0.7 * (displayHeight / displayDensity));
 	}
 }

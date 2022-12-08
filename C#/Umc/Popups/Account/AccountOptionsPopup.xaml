@@ -7,120 +7,123 @@
     xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent"
+    Size="{x:Static const:PopupSizeConstants.Medium}"
     VerticalOptions="End"
     x:Name="page"
-    Size="{x:Static const:PopupSizeConstants.AutoCompleteControl}"
     x:DataType="vm:AccountOptionsViewModel">
-    <Grid
-        ColumnDefinitions="*,*"
-        ColumnSpacing="12"
-        RowDefinitions="12,1.5*,*,*,*,*"
-        Padding="12"
-        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
-                                        Light={StaticResource LightBackground}}">
-        <Border
-            Grid.Row="0"
-            Grid.ColumnSpan="2"
-            HorizontalOptions="Center"
-            Margin="0,0,0,12"
-            Style="{StaticResource PopupBorder}" />
-        
-        <!-- todo: need to figure out how to make round corner for popups
-        for now it has white background which should be transparent -->
-        <Border
-            Grid.Row="1"
-            Grid.ColumnSpan="2"
-            Margin="0,8"
-            Style="{StaticResource AccountCardBorder}">
-            <Grid
-                Padding="12"
-                ColumnDefinitions="60,*"
-                ColumnSpacing="8"
-                RowDefinitions="16,16,16"
-                RowSpacing="2"
-                Style="{StaticResource AccountGrid}">
-                <Border
-                    Grid.Row="0"
-                    Grid.RowSpan="3"
-                    Grid.Column="0"
-                    Background="{Binding Account.Color}"
-                    Style="{StaticResource AccountColorBorder}">
-                    <Label
-                        HorizontalOptions="Center"
-                        Style="{StaticResource CodeLabel}"
-                        Text="{Binding Account.IconCode}"
-                        FontSize="13"
-                        FontAttributes="Bold"
-                        VerticalOptions="Center" />
-                </Border>
-                <Label
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    FontSize="12"
-                    Text="{Binding Account.Name}"
-                    VerticalOptions="Center" />
-                <Label
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    FontSize="11"
-                    VerticalOptions="Center"
-                    FontAttributes="Bold"
-                    Text="{Binding Account.DisplayAmount}"/>
-                <Label
-                    Grid.Row="2"
-                    Grid.Column="1"
-                    MaxLines="1"
-                    Opacity="0.3"
-                    Style="{StaticResource Light}"
-                    FontSize="10"
-                    Text="{Binding Account.Address}"
-                    VerticalOptions="Center" />
-            </Grid>
-        </Border>
-        <Button
-            Grid.Row="2"
-            Grid.ColumnSpan="2"
-            Command="{Binding ShowPrivateKeyCommand}"
-            Text="Show private key" />
-        <Button
-            Grid.Row="3"
-            Grid.Column="0"
-            Style="{StaticResource DeleteButton}"
-            Command="{Binding DeleteCommand}"
-            Text="Delete" />
-        <Button
-            Grid.Row="3"
-            Grid.Column="1"
-            Text="Backup"
-            Command="{Binding BackupCommand}" />
-        <Button
-            Grid.Row="4"
-            Grid.ColumnSpan="2"
-            Text="Hide from dashboard"
-            Command="{Binding HideFromDashboardCommand}" />
-        <Border
-            Grid.Row="5"
-            Grid.ColumnSpan="2"
-            Padding="0"
-            StrokeShape="RoundRectangle 20"
+    <Border Style="{StaticResource AccountCardBorder}">
+        <Grid
+            ColumnDefinitions="*,*"
+            ColumnSpacing="12"
+            RowDefinitions="12,1.5*,*,*,*,*"
+            Padding="24,16"
             BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
-                                            Light={StaticResource LightBackground}}"
-            HeightRequest="48">
-            <Grid
+                                            Light={StaticResource LightBackground}}">
+            <Border
+                Grid.Row="0"
+                Grid.ColumnSpan="2"
+                HorizontalOptions="Center"
+                Margin="0,0,0,12"
+                Style="{StaticResource PopupBorder}" />
+        
+            <!-- todo: need to figure out how to make round corner for popups
+            for now it has white background which should be transparent -->
+            <Border
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Margin="0,8"
+                Style="{StaticResource AccountCardBorder}">
+                <Grid
+                    Padding="12"
+                    ColumnDefinitions="60,*"
+                    ColumnSpacing="8"
+                    RowDefinitions="16,16,16"
+                    RowSpacing="2"
+                    Style="{StaticResource AccountGrid}">
+                    <Border
+                        Grid.Row="0"
+                        Grid.RowSpan="3"
+                        Grid.Column="0"
+                        Background="{Binding Account.Color}"
+                        Style="{StaticResource AccountColorBorder}">
+                        <Label
+                            HorizontalOptions="Center"
+                            Style="{StaticResource CodeLabel}"
+                            Text="{Binding Account.IconCode}"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        FontSize="12"
+                        Text="{Binding Account.Name}"
+                        VerticalOptions="Center" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        FontSize="11"
+                        VerticalOptions="Center"
+                        FontAttributes="Bold"
+                        Text="{Binding Account.DisplayAmount}"/>
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        MaxLines="1"
+                        Opacity="0.3"
+                        Style="{StaticResource Light}"
+                        FontSize="10"
+                        Text="{Binding Account.Address}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+            <Button
+                Grid.Row="2"
+                Grid.ColumnSpan="2"
+                Command="{Binding ShowPrivateKeyCommand}"
+                Text="Show private key" />
+            <Button
+                Grid.Row="3"
+                Grid.Column="0"
+                Style="{StaticResource DeleteButton}"
+                Command="{Binding DeleteCommand}"
+                Text="Delete" />
+            <Button
+                Grid.Row="3"
+                Grid.Column="1"
+                Text="Backup"
+                Command="{Binding BackupCommand}" />
+            <Button
+                Grid.Row="4"
+                Grid.ColumnSpan="2"
+                Text="Hide from dashboard"
+                Command="{Binding HideFromDashboardCommand}" />
+            <Border
+                Grid.Row="5"
+                Grid.ColumnSpan="2"
                 Padding="0"
-                ColumnDefinitions="*,*"
-                ColumnSpacing="2">
-                <Button
-                    Grid.Column="0"
-                    CornerRadius="0"
-                    Command="{Binding ReceiveCommand}"
-                    Text="Receive" />
-                <Button
-                    Grid.Column="1"
-                    Command="{Binding SendCommand}"
-                    CornerRadius="0"
-                    Text="Send" />
-            </Grid>
-        </Border>
-    </Grid>
+                StrokeShape="RoundRectangle 20"
+                BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
+                                                Light={StaticResource LightBackground}}"
+                HeightRequest="48">
+                <Grid
+                    Padding="0"
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="2">
+                    <Button
+                        Grid.Column="0"
+                        CornerRadius="0"
+                        Command="{Binding ReceiveCommand}"
+                        Text="Receive" />
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding SendCommand}"
+                        CornerRadius="0"
+                        Text="Send" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </toolkit:Popup>
