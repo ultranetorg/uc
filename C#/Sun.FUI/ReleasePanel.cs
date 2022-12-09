@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nethereum.Contracts;
 using Org.BouncyCastle.Utilities.Encoders;
 using UC.Net;
 
@@ -83,10 +84,10 @@ namespace UC.Sun.FUI
 									{
 										var m = Core.Call(	Role.Seed, 
 															p =>{
-																	var m = p.GetManifest(r.Release).Manifests.First();
+																	var m = p.GetManifest(r.Release).Manifests.FirstOrDefault();
 																	
 																	if(m == null)
-																		throw new DistributedCallException("Not found");
+																		throw new DistributedCallException(UC.Net.Error.Null);
 
 																	return m;
 																},

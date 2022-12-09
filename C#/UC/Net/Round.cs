@@ -37,7 +37,7 @@ namespace UC.Net
 		public List<Member>										Members;
 		public List<Account>									Funds;
 		//public List<Peer>										Hubs;
-		public IEnumerable<Payload>								ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
+		public List<Payload>									ConfirmedPayloads;
 		public List<Account>									ConfirmedViolators;
 		public List<Account>									ConfirmedJoiners;
 		public List<Account>									ConfirmedLeavers;
@@ -59,10 +59,10 @@ namespace UC.Net
 		public Dictionary<RealizationAddress, RealizationEntry>	AffectedRealizations = new();
 		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
 		
-		public IEnumerable<Payload>								ExecutingPayloads;
-		public IEnumerable<Operation>							ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
-																										.SelectMany(i => i.Operations)
-																										.Where(i => i.Executed);
+		//public List<Payload>									ExecutingPayloads;
+		//public IEnumerable<Operation>							ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
+		//																								.SelectMany(i => i.Operations)
+		//																								.Where(i => i.Executed);
 		public Database										Chain;
 		
 		public Round(Database c)

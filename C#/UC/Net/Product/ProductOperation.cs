@@ -134,7 +134,7 @@ namespace UC.Net
 			var r = round.AffectRealization(Realization);
 
 			r.OSes = OSes;
-			r.LastRegistration = round.Id;
+			r.LastRegistrationRid = round.Id;
 		}
 	}
 

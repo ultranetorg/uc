@@ -241,10 +241,15 @@ namespace UC.Net
 															//rp = core.Respond(this, i);
 															//rp.Status = ResponseStatus.OK;
 														}
-														catch(Exception ex)// when(!Debugger.IsAttached)
+														catch(DistributedCallException ex)// when(!Debugger.IsAttached)
 														{
 															rp = Response.FromType(core.Database, i.Type);
-															rp.Error = ex.Message;
+															rp.Error = ex.Error;
+														}
+														catch(Exception)// when(!Debugger.IsAttached)
+														{
+															rp = Response.FromType(core.Database, i.Type);
+															rp.Error = Error.Internal;
 														}
 												
 													rp.Id = i.Id;
@@ -400,13 +405,13 @@ namespace UC.Net
 				if(rq.Response == null)
 					throw new OperationCanceledException();
 
- 				if(rq.Response.Error == null)
+ 				if(rq.Response.Error == Error.Null)
 	 				return rq.Response as Rp;
  				else
-					throw new DistributedCallException(rq.Response);
+					throw new DistributedCallException(rq.Response.Error);
  			}
 			else
- 				throw new DistributedCallException($"Timed out");
+ 				throw new ConnectionFailedException($"Timed out");
  		}
 	}
 }

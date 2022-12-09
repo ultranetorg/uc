@@ -16,13 +16,32 @@ namespace UC.Net
 		Stamp, TablesStamp, DownloadTable
 	}
 
+	public enum Error
+	{
+		Null,
+		Internal,
+		NotHub,
+		NotSeed,
+		NotSynchronized,
+		AccountNotFound,
+		ProductNotFound,
+		ClusterNotFound,
+		RoundNotAvailable,
+		AllNodesFailed,
+		UnknownTable,
+	}
+
  	public class DistributedCallException : Exception
  	{
-		public Response	Response;
+		//public Response	Response;
+		public Error Error;
 
- 		public DistributedCallException(Response response) : base(response.Error){}
-		public DistributedCallException(string message) : base(message){}
-		public DistributedCallException(string message, Exception ex) : base(message, ex){}
+ 		public DistributedCallException(Error erorr) : base(erorr.ToString())
+		{
+			Error = erorr;
+		}
+		//public DistributedCallException(string message) : base(message){}
+		//public DistributedCallException(string message, Exception ex) : base(message, ex){}
  	}
 
 	public class OperationAddress : IBinarySerializable
@@ -115,10 +134,10 @@ namespace UC.Net
 
 	public abstract class Response : ITypedBinarySerializable
 	{
-		public byte[]			Id {get; set;}
-		public string			Error {get; set;}
-		public bool				Final {get; set;} = true;
-		public Peer				Peer;
+		public byte[]				Id {get; set;}
+		public Error	Error {get; set;}
+		public bool					Final {get; set;} = true;
+		public Peer					Peer;
 
 		public byte				TypeCode => (byte)Type;
 		public DistributedCall	Type => Enum.Parse<DistributedCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
@@ -176,13 +195,13 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
 				{
 					var r = core.GetNextAvailableRound(Generator);
 
 					if(r == null)
-						throw new DistributedCallException("Round not available");
+						throw new DistributedCallException(Error.RoundNotAvailable);
 
 					return new NextRoundResponse {NextRoundId = r.Id};
 				}
@@ -200,7 +219,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				if(core.Database.BaseState == null)
 					throw new RequirementException("Too early");
 				else
@@ -227,7 +246,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				if(core.Database.BaseState == null)
 					throw new RequirementException("Too early");
 				else
@@ -277,11 +296,11 @@ namespace UC.Net
 									Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									_ => throw new DistributedCallException("Unknown table")
+									_ => throw new DistributedCallException(Error.UnknownTable)
 							  };
 
 				if(m == null)
-					throw new DistributedCallException("Cluster not found");
+					throw new DistributedCallException(Error.ClusterNotFound);
 	
 				var s = new MemoryStream(m);
 				var r = new BinaryReader(s);
@@ -308,7 +327,7 @@ namespace UC.Net
  					if(core.Synchronization == Synchronization.Synchronized)
  						return new GetMembersResponse { Members = core.Database.Members };
  					else
- 						throw new RequirementException("Not synchronized");
+ 						throw new DistributedCallException(Error.NotSynchronized);
  				}
  				else
  					return new GetMembersResponse { Members = core.Members };
@@ -330,7 +349,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
 				{
 					var l = core.Database.Accounts.FindLastOperation(Account, i =>	(Class == null || i.GetType().Name == Class) && 
@@ -355,7 +374,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
 				{
 					var acc = core.ProcessIncoming(Transactions);
@@ -380,7 +399,7 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
 				{
 					return	new GetOperationStatusResponse
@@ -414,16 +433,23 @@ namespace UC.Net
 
 	public class AccountInfoRequest : Request
 	{
-		public bool				Confirmed {get; set;}
-		public Account			Account {get; set;}
+		public bool			Confirmed {get; set;}
+		public Account		Account {get; set;}
 
 		public override Response Execute(Core core)
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
- 					return new AccountInfoResponse{ Info = core.Database.GetAccountInfo(Account, Confirmed) };
+				{
+					var ai = core.Database.GetAccountInfo(Account, Confirmed);
+
+					if(ai == null)
+						throw new DistributedCallException(Error.AccountNotFound);
+
+ 					return new AccountInfoResponse{Info = ai};
+				}
 		}
 	}
 
@@ -441,7 +467,7 @@ namespace UC.Net
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
  					return new AuthorInfoResponse{Xon = core.Database.GetAuthorInfo(Name, Confirmed, new XonTypedBinaryValueSerializator())};
 		}
@@ -461,7 +487,7 @@ namespace UC.Net
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
  					return new QueryReleaseResponse {Releases = Queries.Select(i => core.Database.QueryRelease(i, Confirmed))};
 		}
@@ -503,7 +529,7 @@ namespace UC.Net
 		{
 			if(core.Hub == null)
 			{
-				throw new RequirementException("Is not Hub");
+				throw new DistributedCallException(Error.NotHub);
 			}
 
 			return new LocateReleaseResponse {Seeders = core.Hub.Locate(this)};
@@ -523,7 +549,7 @@ namespace UC.Net
 		{
 			if(core.Filebase == null)
 			{
-				throw new RequirementException("Is not Filebase");
+				throw new DistributedCallException(Error.NotSeed);
 			}
 
 			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.FindRelease(i)?.Manifest).ToArray()};
@@ -546,7 +572,7 @@ namespace UC.Net
 		{
 			if(core.Filebase == null)
 			{
-				throw new RequirementException("Is not Filebase");
+				throw new DistributedCallException(Error.NotSeed);
 			}
 
 			return new DownloadReleaseResponse{Data = core.Filebase.ReadPackage(Package, Distributive, Offset, Length)};
@@ -565,13 +591,32 @@ namespace UC.Net
 
 		public override Response Execute(Core core)
 		{
-			return core.Database.GetReleaseHistory(Realization, Confirmed);
+			var db = core.Database;
+
+			var rmax = Confirmed ? db.LastConfirmedRound : db.LastPayloadRound;
+				
+			var p = db.Products.Find(Realization, rmax.Id);
+			
+			if(p != null)
+			{
+				var ms = new List<ReleaseRegistration>();
+
+				foreach(var r in p.Releases)
+				{
+					var rr = db.FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Release == Realization && i.Release.Version == r.Version);
+					//var re = FindRound(r.Rid).FindProduct(query).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
+					ms.Add(rr);
+				}
+
+				return new ReleaseHistoryResponse{Releases = ms};
+			}
+			else
+				throw new DistributedCallException(Error.ProductNotFound);
 		}
 	}
 	
 	public class ReleaseHistoryResponse : Response
 	{
-		public IEnumerable<ReleaseRegistration> Registrations { get; set; }
+		public IEnumerable<ReleaseRegistration> Releases { get; set; }
 	}
-
 }

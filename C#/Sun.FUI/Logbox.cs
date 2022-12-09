@@ -70,18 +70,6 @@ namespace UC.Sun.FUI
 		{
   			var a =	new Action( () =>
   								{
-  									if(Lines.Length > 100)
-  									{
-  										int p = 0;
-  
-  										for(int i = 0; i < Lines.Length - 100; i++)
-  										{
-  											 p = Text.IndexOf(Environment.NewLine, p);
-  										}
-  
-  										Text = Text.Remove(0, p + Environment.NewLine.Length);
-  									}
- 
  									var t = new string(' ', 4 * m.Log.Depth);
   
  									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
@@ -112,6 +100,11 @@ namespace UC.Sun.FUI
  									}
 
 									AppendText(t);
+
+  									if(Lines.Length > 100 && Lines.Length > 1100)
+  									{
+										Lines = Lines.Skip(1000).ToArray();
+  									}
   								});
   
   			if(InvokeRequired)

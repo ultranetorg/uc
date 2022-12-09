@@ -31,7 +31,7 @@ namespace UC.Net
 
 			var e = FindEntry(name);
 
-			if(e != null && e.LastRegistration > ridmax)
+			if(e != null && e.LastRegistrationRid > ridmax)
 				throw new IntegrityException("maxrid works inside pool only");
 
 			return e;

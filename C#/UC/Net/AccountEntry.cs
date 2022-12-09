@@ -39,13 +39,14 @@ namespace UC.Net
 		{
 			return new AccountEntry(Chain){	Account = Account,
 											LastOperationId = LastOperationId,
-											Authors = new List<string>(Authors),
-											Transactions = new HashSet<int>(Transactions),
 											Balance = Balance,
 											CandidacyDeclarationRound = CandidacyDeclarationRound,
 											IPs = IPs.ToArray(),
 											Bail = Bail,
-											BailStatus = BailStatus};
+											BailStatus = BailStatus,
+											Authors = new List<string>(Authors),
+											Transactions = new HashSet<int>(Transactions)
+											};
 		}
 
 		public override void Write(BinaryWriter w)
@@ -57,7 +58,7 @@ namespace UC.Net
 
 			if(CandidacyDeclarationRound != -1)
 			{
-				w.Write(IPs, i => w.Write(i.GetAddressBytes()));
+				w.Write(IPs, i => w.Write(i));
 				w.Write(Bail);
 				w.Write((byte)BailStatus);
 			}
@@ -72,7 +73,7 @@ namespace UC.Net
 
 			if(CandidacyDeclarationRound != -1)
 			{
-				IPs			= r.ReadArray(() => new IPAddress(r.ReadBytes(4)));
+				IPs			= r.ReadArray(() => r.ReadIPAddress());
 				Bail		= r.ReadCoin();
 				BailStatus	= (BailStatus)r.ReadByte();
 			}
@@ -90,20 +91,20 @@ namespace UC.Net
 			Authors			= r.ReadList(() => r.ReadUtf8());
 		}
 
-		public O ExeFindOperation<O>(Round executing, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null) where O : Operation
-		{
-			return	(	executing.ExecutedOperations.FirstOrDefault(i =>	i.Signer == Account && 
-																			(i.Successful && i is O o && (op == null || op(o))) &&
-																			(pp == null || pp(i.Transaction.Payload)) && 
-																			(tp == null || tp(i.Transaction)))
-						??
-						Chain.Accounts.FindLastOperation<O>(Account,	o => o.Successful && (op == null || op(o)), 
-																		tp, 
-																		p => (!p.Round.Confirmed || p.Confirmed) && (pp == null || pp(p)), /// if round is confirmed then take confirmed blocks only
-																		r => r.Id < executing.Id)
-					)
-					as O;
-		}
+// 		public O ExeFindOperation<O>(Round executing, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null) where O : Operation
+// 		{
+// 			return	(	executing.ExecutedOperations.FirstOrDefault(i =>	i.Signer == Account && 
+// 																			(i.Successful && i is O o && (op == null || op(o))) &&
+// 																			(pp == null || pp(i.Transaction.Payload)) && 
+// 																			(tp == null || tp(i.Transaction)))
+// 						??
+// 						Chain.Accounts.FindLastOperation<O>(Account,	o => o.Successful && (op == null || op(o)), 
+// 																		tp, 
+// 																		p => (!p.Round.Confirmed || p.Confirmed) && (pp == null || pp(p)), /// if round is confirmed then take confirmed blocks only
+// 																		r => r.Id < executing.Id)
+// 					)
+// 					as O;
+// 		}
 
 	}
 }

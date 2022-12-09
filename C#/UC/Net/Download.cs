@@ -142,7 +142,7 @@ namespace UC.Net
 
 									his = Core.Call(Role.Base, c => c.GetReleaseHistory(release, false), workflow);
 
-									if(his.Registrations.Any(i => i.Release == release))
+									if(his.Releases.Any(i => i.Release == release))
 										break;
 									else
 										Thread.Sleep(100);
@@ -208,7 +208,7 @@ namespace UC.Net
 														Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifests.First(), workflow);
 														Manifest.Release = release;
 
-														if(!Manifest.GetOrCalcHash().SequenceEqual(his.Registrations.First(i => i.Release == release).Manifest))
+														if(!Manifest.GetOrCalcHash().SequenceEqual(his.Releases.First(i => i.Release == release).Manifest))
 														{
 															Manifest = null;
 															continue;
@@ -220,7 +220,7 @@ namespace UC.Net
 														continue;
 													}
 															
-													Core.Filebase.DetermineDelta(his.Registrations, Manifest, out Distributive d, out List<ReleaseAddress> deps);
+													Core.Filebase.DetermineDelta(his.Releases, Manifest, out Distributive d, out List<ReleaseAddress> deps);
 
 													Distributive = d;
 

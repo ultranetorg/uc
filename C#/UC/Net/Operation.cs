@@ -53,6 +53,10 @@ namespace UC.Net
 		public abstract bool	Valid {get;}
 		public bool				Executed; 
 
+		#if DEBUG
+		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
+		#endif
+
 		public const string		Rejected = "Rejected";
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		SignerDoesNotOwnTheAuthor = "The signer does not own the Author";
@@ -87,11 +91,17 @@ namespace UC.Net
 		public virtual void Read(BinaryReader r)
 		{
 			Id = r.Read7BitEncodedInt();
+#if DEBUG
+			__ExpectedPlacing = (PlacingStage)r.ReadByte();
+#endif
 		}
 
 		public virtual void Write(BinaryWriter w)
 		{
 			w.Write7BitEncodedInt(Id);
+#if DEBUG
+			w.Write((byte)__ExpectedPlacing);
+#endif
 		}
 
 		public virtual void HashWrite(BinaryWriter w)
@@ -200,10 +210,10 @@ namespace UC.Net
 		{
 			var e = round.AffectAccount(Signer);
 
-			var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
+			//var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
 
-			if(prev != null && e.BailStatus == BailStatus.OK) /// first, add existing if not previously Siezed
-				e.Balance += prev.Bail;
+			if(e.BailStatus == BailStatus.OK) /// first, add existing if not previously Siezed
+				e.Balance += e.Bail;
 
 			e.Balance -= Bail; /// then, subtract a new bail
 			e.Bail += Bail;

@@ -1311,7 +1311,7 @@ namespace UC.Net
 		{
 			var r = Database.GetRound(Database.LastVotedRound.Id + 1);
 
-			while(r.Blocks.Any(i => i.Generator == generator))
+			while(r.Blocks.Any(i => i is Vote v && i.Generator == generator && v.Try == r.Try))
 				r = Database.GetRound(r.Id + 1);
 	
 			if(r.Id > Database.LastVotedRound.Id + Database.Pitch)
@@ -1359,7 +1359,7 @@ namespace UC.Net
 	
 					if(txs.Any()) /// any pending foreign transactions or any our pending operations
 					{
-						var p = Database.FindRound(nar.ParentId);
+						var p = nar.Parent;
 			
 						var rr = Database.ReferTo(p);
 	
@@ -1404,7 +1404,7 @@ namespace UC.Net
 								r.Votes.OfType<Payload>().Any() 								/// has already some payloads from other members
 								)
 							{
-								var p = Database.FindRound(r.ParentId);
+								var p = r.Parent;
 								var rr = Database.ReferTo(p);
 					
 								if(rr != null)
@@ -1504,28 +1504,28 @@ namespace UC.Net
 							{
 								if(!Vault.OperationIds.ContainsKey(g.Key))
 								{
-									Operation o = null;
-
 									Monitor.Exit(Lock);
 
 									try
 									{
-										o = m.GetLastOperation(g.Key, null, PlacingStage.Null).Operation;
+										Vault.OperationIds[g.Key] = m.GetAccountInfo(g.Key, false).Info.LastOperationId;
+									}
+									catch(DistributedCallException ex) when(ex.Error == Error.AccountNotFound)
+									{
+										Vault.OperationIds[g.Key] = -1;
 									}
 									catch(Exception) when(!Debugger.IsAttached)
 									{
 									}
 									
 									Monitor.Enter(Lock);
-
-									Vault.OperationIds[g.Key] = o == null ? -1 : o.Id;
 								}
 
 								var t = new Transaction(Settings, g.Key as PrivateAccount);
 
 								foreach(var o in g)
 								{
-									o.Id = Vault.OperationIds[g.Key]++;
+									o.Id = ++Vault.OperationIds[g.Key];
 									t.AddOperation(o);
 								}
 
@@ -1658,7 +1658,7 @@ namespace UC.Net
 					var prevs = Database.Rounds.Where(i => i.Id < p.Id).ToList();
 					var sequential = prevs.Zip(prevs.Skip(1), (x, y) => x.Id == y.Id + 1).All(x => x);
 					
-					var c = r;
+					var v = r;
 	
 					if(prevs.All(i => i.Confirmed) && sequential)
 					{
@@ -1677,9 +1677,9 @@ namespace UC.Net
 							}
 			
 							p = Database.FindRound(p.Id + 1);
-							c = p != null ? Database.FindRound(p.Id + Net.Database.Pitch) : null;
+							v = p != null ? Database.FindRound(p.Id + Net.Database.Pitch) : null;
 						}
-						while(p != null && c != null && !p.Confirmed && c.Voted);
+						while(p != null && !p.Confirmed && v != null && v.Voted);
 					}
 				}
 									
@@ -1704,6 +1704,9 @@ namespace UC.Net
 		
 		public Operation Enqueue(Operation operation, PlacingStage waitstage, Workflow workflow)
 		{
+#if DEBUG
+			operation.__ExpectedPlacing = waitstage;
+#endif
 			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
 			{
 				lock(Lock)
@@ -2076,7 +2079,7 @@ namespace UC.Net
 				}
 			}
 
-			throw new DistributedCallException("No valid nodes found");
+			throw new DistributedCallException(Error.AllNodesFailed);
 		}
 
 		public void Connect(Peer peer, Workflow workflow)
@@ -2135,6 +2138,7 @@ namespace UC.Net
 			Nas.Emit(a, wei, signer, GasAsker, eid, workflow);		
 						
 			var o = new Emission(signer, wei, eid);
+
 
 			//flow?.SetOperation(o);
 						

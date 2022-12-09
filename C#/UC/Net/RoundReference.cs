@@ -11,19 +11,16 @@ namespace UC.Net
 	public class RoundReference : IEquatable<RoundReference>
 	{
 		public const byte		PrefixLength = 4;
-		public static readonly	RoundReference Empty = new RoundReference {
-																			//BaseHash = Cryptography.ZeroHash,
+		public static readonly	RoundReference Empty = new RoundReference {	Parent = Cryptography.ZeroHash,
 																			Payloads = new(), 
-																			Violators = new(), 
 																			Joiners = new(), 
 																			Leavers = new(), 
+																			Violators = new(), 
 																			FundJoiners = new(), 
-																			FundLeavers = new(),
-																		  };
-
-		//public byte[]			BaseHash;
-		public List<byte[]>		Payloads;
+																			FundLeavers = new() };
+		public byte[]			Parent;
 		public ChainTime		Time;
+		public List<byte[]>		Payloads;
 		public List<byte[]>		Joiners;
 		public List<byte[]>		Leavers;
 		public List<byte[]>		Violators;
@@ -38,7 +35,6 @@ namespace UC.Net
 		public void Write(BinaryWriter w)
 		{
 			#if DEBUG
-			//if(BaseHash.Length != Cryptography.HashSize)		throw new IntegrityException("Wrong BaseHash length");
 			if(Payloads.Any(i => i.Length != PrefixLength))		throw new IntegrityException("Wrong Payloads Prefix length");
 			if(Violators.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong Violators Prefix length");
 			if(Joiners.Any(i => i.Length != PrefixLength))		throw new IntegrityException("Wrong HubJoiners Prefix length");
@@ -47,7 +43,7 @@ namespace UC.Net
 			if(FundLeavers.Any(i => i.Length != PrefixLength))	throw new IntegrityException("Wrong FundableRevocations Prefix length");
 			#endif
 
-			//w.Write(BaseHash);
+			w.Write(Parent);
 			w.Write(Time);
 			w.Write(Payloads,		i => w.Write(i));
 			w.Write(Violators,		i => w.Write(i));
@@ -59,7 +55,7 @@ namespace UC.Net
 
 		public void Read(BinaryReader r)
 		{
-			//BaseHash	= r.ReadSha3();
+			Parent		= r.ReadSha3();
 			Time		= r.ReadTime();
 			Payloads	= r.ReadList(() => r.ReadBytes(PrefixLength));
 			Violators	= r.ReadList(() => r.ReadBytes(PrefixLength));
@@ -76,7 +72,7 @@ namespace UC.Net
 
 		public override int GetHashCode()
 		{
-			return	//BaseHash[0].GetHashCode() ^
+			return Parent[0] ^
 					Time.Ticks.GetHashCode() ^
 					Payloads.Count.GetHashCode() ^ 
 					Violators.Count.GetHashCode() ^ 
@@ -88,8 +84,8 @@ namespace UC.Net
 
 		public bool Equals(RoundReference o)
 		{
-			return	Time == o.Time &&
-					//BaseHash	.SequenceEqual(o.BaseHash) &&
+			return	Parent.SequenceEqual(o.Parent) &&
+					Time == o.Time &&
 					Payloads	.SequenceEqual(o.Payloads,		new BytesEqualityComparer()) &&
 					Violators	.SequenceEqual(o.Violators,		new BytesEqualityComparer()) &&
 					Joiners		.SequenceEqual(o.Joiners,		new BytesEqualityComparer()) &&

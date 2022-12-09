@@ -40,13 +40,33 @@ namespace UC.Sun.FUI
 			}
 		}
 
+		void LoadTransactions(IEnumerable<Transaction> transactions)
+		{
+			Transactions.Items.AddRange(transactions.Select((i) => {
+																		var li = new ListViewItem(i.Signer.ToString());
+																		li.Tag = i;
+																		//li.SubItems.Add(i.Id.ToString());
+																		li.SubItems.Add(i.SuccessfulOperations.Count().ToString());
+																		return li;
+																	}).ToArray());
+		}
+
+		void LoadOperations(IEnumerable<Operation> operations)
+		{
+			Operations.Items.AddRange(operations.Select((i) =>	{
+																	var li = new ListViewItem(i.Id.ToString());
+																	li.Tag = i;
+																	li.SubItems.Add(i.ToString());
+																	li.SubItems.Add(i.Error);
+																	return li;
+																}).ToArray());
+		}
+
 		private void numericUpDown1_ValueChanged(object sender, EventArgs e)
 		{
 			Blocks.Items.Clear();
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
-			//Releases.Items.Clear();
-			Operation.Text = null;
 
 			lock(Core.Lock)
 			{
@@ -70,10 +90,8 @@ namespace UC.Sun.FUI
 											return li;
 										}).ToArray());
 
-				if(Blocks.Items.Count > 0)
-				{
-					Blocks.Items[0].Selected = true;
-				}
+				LoadTransactions(r.Payloads.SelectMany(i => i.Transactions));
+				LoadOperations(r.Payloads.SelectMany(i => i.Transactions.SelectMany(i => i.Operations)));
 			}
 		}
 
@@ -86,15 +104,8 @@ namespace UC.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					Transactions.Items.AddRange(p.Transactions.Select((i) => {
-																			 	var li = new ListViewItem(i.Signer.ToString());
-																			 	li.Tag = i;
-																			 	//li.SubItems.Add(i.Id.ToString());
-																			 	li.SubItems.Add(i.SuccessfulOperations.Count().ToString());
-																			 	return li;
-																			 }).ToArray());
-					if(Transactions.Items.Count > 0)
-						Transactions.Items[0].Selected = true;
+					LoadTransactions(p.Transactions);
+					LoadOperations(p.Transactions.SelectMany(i => i.Operations));
 				}
 			}
 			else
@@ -109,32 +120,8 @@ namespace UC.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
-																							{
-																								var li = new ListViewItem(i.Id.ToString());
-																								li.Tag = i;
-																								li.SubItems.Add(i.ToString());
-																								li.SubItems.Add(i.Error);
-																								return li;
-																							}).ToArray());
-					if(Operations.Items.Count > 0)
-						Operations.Items[0].Selected = true;
+					LoadOperations((e.Item.Tag as Transaction).Operations);
 				}
-			}
-		}
-
-		private void Operations_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
-		{
-			Operation.Text = null;
-	
-			if(e.IsSelected)
-			{
-				//if(e.Item.Tag is ReleaseRegistration m)
-				//{
-				//	m.Manifest.ToXon(new XonTextValueSerializator()).Dump((n, l) => Operation.Text += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
-				//}
-				//else
-					Operation.Text = (e.Item.Tag as Operation).ToString();
 			}
 		}
 	}
