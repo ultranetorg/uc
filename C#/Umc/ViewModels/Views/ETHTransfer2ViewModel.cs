@@ -25,11 +25,11 @@ public partial class ETHTransfer2ViewModel : BaseViewModel
 	[RelayCommand]
 	private void ItemTapped(AccountViewModel account)
 	{
-		//foreach (var item in Accounts)
-		//{
-		//	item.IsSelected = false;
-		//}
-		//wallet.IsSelected = true;
+		foreach (var item in Accounts)
+		{
+			item.IsSelected = false;
+		}
+		Account.IsSelected = true;
 	}
 
 	[RelayCommand]

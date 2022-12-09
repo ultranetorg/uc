@@ -15,8 +15,9 @@ public class AccountViewModel
     public IList<string>	Authors { get; set; } = new List<string>();
     public HashSet<int>		Transactions { get; set; } = new HashSet<int>();
 
+	public decimal			RoundedBalance => Math.Round(Balance);
 	// lets say 1 unts = $1 unless we can recieve rate
-	public string			DisplayAmount => $"{Math.Round(Balance)} UNT (${Math.Round(Balance)})";
+	public string			DisplayAmount => $"{RoundedBalance} UNT (${RoundedBalance})";
 	public string			IconCode => Address?[2..6];
 	public bool				IsSelected { get; set; }
 

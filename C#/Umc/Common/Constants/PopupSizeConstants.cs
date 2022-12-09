@@ -18,6 +18,6 @@ public static class PopupSizeConstants
 
 		// examples for relative to screen sizes
 		Medium = new Size(displayWidth / displayDensity, 0.45 * (displayHeight / displayDensity));
-		Large = new Size(displayWidth / displayDensity, 0.7 * (displayHeight / displayDensity));
+		Large = new Size(displayWidth / displayDensity, 0.8 * (displayHeight / displayDensity));
 	}
 }

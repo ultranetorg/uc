@@ -33,18 +33,23 @@ public abstract partial class BaseAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async Task CloseAsync() => await Navigation.PopModalAsync();
+	protected async Task CloseAsync() => await Navigation.PopModalAsync();
 
 	[RelayCommand]
-    private void Prev()
-    {
-        Position -= 1;
-    }
+	protected void Prev()
+	{
+		if (Position > 0)
+		{
+			Position -= 1;
+		}
+	}
 
 	[RelayCommand]
-    private void Next()
+    protected void Next()
     {
-        if (Position == 1) return;
-        Position += 1;
+        if (Position < 1)
+		{
+			Position += 1;
+		}
     }
 }

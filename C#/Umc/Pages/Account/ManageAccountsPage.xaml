@@ -16,7 +16,7 @@
             <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryLight}}" />
         </Style>
         <DataTemplate x:Key="AccountCard" x:DataType="models:AccountViewModel">
-            <Border Margin="16,6" Style="{StaticResource AccountCardBorder}">
+            <Border Margin="16,4" Style="{StaticResource AccountCardBorder}">
                 <SwipeView>
                     <SwipeView.RightItems>
                         <!-- when the bug is fixed this will be replaced with SwipeItemView
@@ -95,10 +95,11 @@
     </controls:CustomPage.Resources>
     
     <Shell.TitleView>
+        <!-- account_sort.png ?-->
         <views:PageTitleActionView
             Title="Manage Accounts"
-            IconSource="account_sort"
-            IconStyle="{StaticResource HintedImageButtonInverted}"
+            IconRightSource="account_sort"
+            IconRightStyle="{StaticResource HintedImageButtonInverted}"
             TitleStyle="{StaticResource TitleLabel}" />
     </Shell.TitleView>
     

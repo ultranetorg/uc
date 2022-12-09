@@ -8,23 +8,14 @@
     xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:local="clr-namespace:UC.Umc.Resources.Styles">
-    
+
     <ResourceDictionary.MergedDictionaries>
         <local:Colors />
         <local:Controls />
         <local:Templates />
         <local:Layout />
     </ResourceDictionary.MergedDictionaries>
-            
-    <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
-    <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
-    <converters:NotificationTypeConverter x:Key="NotificationTypeConverter" />
-
-    <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
-    <toolkit:IsListNotNullOrEmptyConverter x:Key="IsListNotNullOrEmptyConverter" />
-    <toolkit:IsNotNullConverter x:Key="IsNotNullConverter" />
-    <toolkit:IsStringNullOrWhiteSpaceConverter x:Key="IsStringNullOrWhiteSpace" />
-    <toolkit:IntToBoolConverter x:Key="IntToBoolConverter" />
+    
     <OnPlatform x:Key="UniPadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>
             <On Platform="iOS" Value="0,30,0,0" />

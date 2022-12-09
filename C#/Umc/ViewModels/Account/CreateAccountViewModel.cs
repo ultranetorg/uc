@@ -10,12 +10,13 @@ public partial class CreateAccountPageViewModel : BaseAccountViewModel
     public CreateAccountPageViewModel(IServicesMockData service, ILogger<CreateAccountPageViewModel> logger) : base(logger)
     {
 		_service = service;
-		LoadData();
     }
 
-	private void LoadData()
+	internal async Task InitializeAsync()
 	{
 		ColorsCollection.Clear();
 		ColorsCollection.AddRange(_service.AccountColors);
+
+		await Task.Delay(1);
 	}
 }

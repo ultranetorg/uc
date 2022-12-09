@@ -18,7 +18,7 @@
         <Grid
             HorizontalOptions="FillAndExpand"
             RowDefinitions="Auto,Auto,Auto"
-            RowSpacing="16">
+            RowSpacing="4">
             <Grid
                 Grid.Row="0"
                 RowDefinitions="24,Auto"
@@ -37,9 +37,11 @@
             <Grid
                 Grid.Row="1"
                 RowDefinitions="Auto,*"
-                RowSpacing="16">
-                <AbsoluteLayout Grid.Row="0" Padding="16">
-                    <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+                RowSpacing="8"> 
+                <AbsoluteLayout MaximumHeightRequest="120" MaximumWidthRequest="80" Grid.Row="0" Padding="16">
+                    <controls:FormEntryControl
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All" />
                     <Image
                         Margin="12,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -52,20 +54,20 @@
                     Grid.Row="1"
                     SelectedItem="{Binding Account}"
                     SelectionMode="Single"
-                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource Gray200}}"
-                    HeightRequest="350"
+                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray900}, Light={StaticResource Gray200}}"
+                    HeightRequest="400"
                     ItemsSource="{Binding Accounts}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:AccountViewModel">
                             <ViewCell>
                                 <Border
-                                    Margin="16,12"
-                                    Padding="4,12"
+                                    Margin="12,4"
                                     BackgroundColor="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}"
                                     StrokeShape="RoundRectangle 6">
                                     <Grid
-                                        ColumnDefinitions="*,Auto,10"
-                                        ColumnSpacing="4"
+                                        ColumnDefinitions="*,Auto,12"
+                                        ColumnSpacing="8"
+                                        Padding="4,8"
                                         RowDefinitions="Auto,Auto">
                                         <Grid.Triggers>
                                             <DataTrigger
@@ -105,14 +107,16 @@
                                             Grid.Column="1"
                                             FontSize="12"
                                             FontAttributes="Bold"
-                                            Text="{Binding Balance, StringFormat='{0} UNT'}"
+                                            Text="{Binding RoundedBalance, StringFormat='{0} UNT'}"
                                             VerticalOptions="Center" />
-                                        <StackLayout
+                                        <Border
                                             Grid.RowSpan="2"
                                             Grid.Column="2"
-                                            Margin="0"
-                                            WidthRequest="12"
-                                            BackgroundColor="{Binding Color}" />
+                                            StrokeShape="RoundRectangle 0,20,0,20"
+                                            Margin="0,-12,-6,-12"
+                                            HeightRequest="60"
+                                            WidthRequest="18"
+                                            Background="{Binding Color}" />
                                     </Grid>
                                 </Border>
                             </ViewCell>
@@ -120,7 +124,7 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </Grid>
-            <StackLayout Grid.Row="2" Padding="16">
+            <StackLayout Grid.Row="2" Padding="16,8">
                 <Button Command="{Binding CloseCommand}" Text="Continue" />
                 <Button
                     Command="{Binding CloseCommand}"
