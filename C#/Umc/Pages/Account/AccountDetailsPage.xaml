@@ -13,9 +13,9 @@
     <Shell.TitleView>
         <views:PageTitleActionView
             Title="Account Details"
-            IconRightSource="delete_button.png"
             TitleStyle="{StaticResource TitleLabel}"
-            TapRightCommand="{Binding DeleteCommand}" />
+            IconSource="delete_button.png"
+            TapCommand="{Binding DeleteCommand}" />
     </Shell.TitleView>
     
     <controls:CustomPage.Resources>

@@ -5,38 +5,21 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:shared="clr-namespace:UC.Umc.Views.Shared"
-    xmlns:converters="clr-namespace:UC.Umc.Converters"
     x:TypeArguments="shared:PageTitleActionView"
     x:Name="This">
-    <shared:BasePageTitleView.Resources>
-        <converters:IsObjectNotNullOrEmptyConverter x:Key="IsObjectNotNullOrEmptyConverter" />
-    </shared:BasePageTitleView.Resources>
     <FlexLayout
         AlignItems="Center"
         BindingContext="{x:Reference This}"
         Direction="Row"
-        JustifyContent="SpaceBetween"
+        JustifyContent="SpaceEvenly"
         Margin="12,2">
-        <AbsoluteLayout
-            IsVisible="{Binding IconLeftSource, Converter={x:StaticResource IsObjectNotNullOrEmptyConverter}}"
-            HeightRequest="40"
-            WidthRequest="40">
-            <ImageButton
-                AbsoluteLayout.LayoutBounds="0,0,1,1"
-                AbsoluteLayout.LayoutFlags="All"
-                Aspect="AspectFill"
-                HeightRequest="44"
-                Style="{Binding IconLeftStyle}"
-                Source="{Binding IconLeftSource}"
-                Command="{Binding TapLeftCommand}"/>
-        </AbsoluteLayout>
         <Label
             FontFamily="sans-serif-semiBold"
             Style="{Binding TitleStyle}"
             TextColor="{StaticResource PrimaryLight}"
             Text="{Binding Title}" />
         <AbsoluteLayout
-            IsVisible="{Binding IconRightSource, Converter={x:StaticResource IsObjectNotNullOrEmptyConverter}}"
+            IsVisible="{Binding IconSource}"
             HeightRequest="40"
             WidthRequest="40">
             <ImageButton
@@ -44,9 +27,9 @@
                 AbsoluteLayout.LayoutFlags="All"
                 Aspect="AspectFill"
                 HeightRequest="44"
-                Style="{Binding IconRightStyle}"
-                Source="{Binding IconRightSource}"
-                Command="{Binding TapRightCommand}"/>
+                Style="{Binding IconStyle}"
+                Source="{Binding IconSource}"
+                Command="{Binding TapCommand}"/>
         </AbsoluteLayout>
     </FlexLayout>
 </shared:BasePageTitleView>

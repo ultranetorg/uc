@@ -4,6 +4,8 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:RestoreAccountViewModel"
     Title="Restore account"
     x:Name="page">
     <controls:CustomPage.MainContent>
@@ -80,7 +82,7 @@
                 </StackLayout>
             </StackLayout>
             <Button
-                Command="{Binding ImportCommad}"
+                Command="{Binding ImportCommand}"
                 Text="Import"
                 VerticalOptions="EndAndExpand" />
         </StackLayout>

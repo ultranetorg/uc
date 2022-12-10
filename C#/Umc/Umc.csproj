@@ -87,6 +87,7 @@
 	  <None Remove="Resources\Images\authors_light.svg" />
 	  <None Remove="Resources\Images\bell_dark.svg" />
 	  <None Remove="Resources\Images\bell_light.svg" />
+	  <None Remove="Resources\Images\close.svg" />
 	  <None Remove="Resources\Images\dashboard_outline.svg" />
 	  <None Remove="Resources\Images\help_dark.svg" />
 	  <None Remove="Resources\Images\help_light.svg" />

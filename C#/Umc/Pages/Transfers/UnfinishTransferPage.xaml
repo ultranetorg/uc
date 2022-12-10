@@ -8,7 +8,7 @@
     Title="ETH-UNT Transfer"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>
-        <ImageButton HeightRequest="28" Command="{Binding CloseCommad}" Style="{StaticResource Close}" />
+        <ImageButton HeightRequest="28" Command="{Binding CloseCommand}" Style="{StaticResource Close}" />
     </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <ScrollView>

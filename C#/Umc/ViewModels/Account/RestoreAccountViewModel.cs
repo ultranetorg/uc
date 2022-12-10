@@ -7,18 +7,25 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
     public RestoreAccountViewModel(IServicesMockData service, ILogger<RestoreAccountViewModel> logger) : base(logger)
     {
 		_service = service;
-		LoadData();
     }
 
 	[RelayCommand]
     private async Task ClosePageAsync()
     {
         await Shell.Current.Navigation.PopAsync();
-    }
+	}
 
-	private void LoadData()
+	[RelayCommand]
+	private async Task ImportAsync()
+	{
+		await Shell.Current.Navigation.PopAsync();
+	}
+
+	internal async Task InitializeAsync()
 	{
 		ColorsCollection.Clear();
 		ColorsCollection.AddRange(_service.AccountColors);
+
+		await Task.Delay(1);
 	}
 }

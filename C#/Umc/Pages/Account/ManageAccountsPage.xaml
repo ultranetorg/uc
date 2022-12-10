@@ -98,9 +98,9 @@
         <!-- account_sort.png ?-->
         <views:PageTitleActionView
             Title="Manage Accounts"
-            IconRightSource="account_sort"
-            IconRightStyle="{StaticResource HintedImageButtonInverted}"
-            TitleStyle="{StaticResource TitleLabel}" />
+            TitleStyle="{StaticResource TitleLabel}"
+            IconSource="account_sort"
+            IconStyle="{StaticResource HintedImageButtonInverted}" />
     </Shell.TitleView>
     
     <controls:CustomPage.MainContent>

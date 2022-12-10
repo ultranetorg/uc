@@ -14,7 +14,7 @@
             Style="{StaticResource Prev}" />
     </controls:CustomPage.LeftContent>-->
     <!--<controls:CustomPage.RightContent>
-        <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding ClosePageCommad}" Style="{StaticResource Close}" />
+        <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding ClosePageCommand}" Style="{StaticResource Close}" />
     </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <Grid
@@ -42,7 +42,7 @@
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommad="{Binding NextCommad}" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

@@ -15,12 +15,9 @@
         <sharedViews:PageTitleActionView
             Title="Manage Accounts"
             TitleStyle="{StaticResource TitleLabel}"
-            IconLeftSource="previous.png"
-            IconLeftStyle="{StaticResource Prev}"
-            IconRightSource="close.png"
-            IconRightStyle="{StaticResource Close}"
-            TapLeftCommand="{Binding PrevCommand}"
-            TapRightCommand="{Binding CloseCommad}" />
+            IconSource="close.png"
+            IconStyle="{StaticResource Close}"
+            TapCommand="{Binding CloseCommand}" />
     </Shell.TitleView>
     
     <controls:CustomPage.MainContent>

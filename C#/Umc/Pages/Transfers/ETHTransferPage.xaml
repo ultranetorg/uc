@@ -9,7 +9,7 @@
     x:Name="page">
     <!--<controls:CustomPage.RightContent>
         <ImageButton
-            Command="{Binding OptionsCommad}"
+            Command="{Binding OptionsCommand}"
             Opacity="0.5"
             Style="{StaticResource Dots}" />
     </controls:CustomPage.RightContent>-->
@@ -54,11 +54,11 @@
                 </Grid.Triggers>
                 <Button
                     Grid.Column="0"
-                    Command="{Binding PrevCommad}"
+                    Command="{Binding PrevCommand}"
                     Style="{StaticResource PrevButton}" />
                 <Button
                     Grid.Column="1"
-                    Command="{Binding NextCommad}"
+                    Command="{Binding NextCommand}"
                     Style="{DynamicResource NextButton}" />
             </Grid>
             <StackLayout Grid.Row="2" IsVisible="False">

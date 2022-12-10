@@ -2,7 +2,9 @@
 
 public partial class RestoreAccountPage : CustomPage
 {
-    public RestoreAccountPage()
+	RestoreAccountViewModel Vm => BindingContext as RestoreAccountViewModel;
+
+	public RestoreAccountPage()
     {
         InitializeComponent();
         BindingContext = Ioc.Default.GetService<RestoreAccountViewModel>();
@@ -12,5 +14,11 @@ public partial class RestoreAccountPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
-    }
+	}
+
+	protected override async void OnAppearing()
+	{
+		base.OnAppearing();
+		await Vm.InitializeAsync();
+	}
 }

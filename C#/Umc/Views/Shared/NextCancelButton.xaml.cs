@@ -4,12 +4,12 @@ namespace UC.Umc.Controls;
 
 public partial class NextCancelButton : StackLayout
 {
-	public static readonly BindableProperty NextCommadProperty = BindableProperty.Create(nameof(NextCommad), typeof(ICommand), typeof(NextCancelButton), null);
+	public static readonly BindableProperty NextCommandProperty = BindableProperty.Create(nameof(NextCommand), typeof(ICommand), typeof(NextCancelButton), null);
 
-	public ICommand NextCommad
+	public ICommand NextCommand
 	{
-		get { return (ICommand)GetValue(NextCommadProperty); }
-		set { SetValue(NextCommadProperty, value); }
+		get { return (ICommand)GetValue(NextCommandProperty); }
+		set { SetValue(NextCommandProperty, value); }
 	}
 
 	public NextCancelButton()
