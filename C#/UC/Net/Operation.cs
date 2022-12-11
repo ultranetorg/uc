@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Model;
 using Nethereum.Util;
@@ -47,17 +48,18 @@ namespace UC.Net
 		public Transaction		Transaction;
 		public DelegationStage	Delegation;
 		public PlacingStage		Placing;
-		public bool				Successful => Executed && Error == null;
 		public Workflow			FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
-		public bool				Executed; 
+		//public bool				Executed; 
+		//public bool				Successful;
 
 		#if DEBUG
 		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
 		#endif
 
 		public const string		Rejected = "Rejected";
+		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		SignerDoesNotOwnTheAuthor = "The signer does not own the Author";
 
@@ -175,7 +177,7 @@ namespace UC.Net
 		public Coin				Bail;
 		public IPAddress[]		IPs;
 		public override string	Description => $"{Bail} UNT";
-		public override bool Valid => Settings.Dev.DisableBailMin ? true : Bail >= Database.BailMin;
+		public override bool	Valid => Settings.Dev.DisableBailMin ? true : Bail >= Database.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -469,7 +471,7 @@ namespace UC.Net
 
 				if(a.Owner != null)
 				{
-					round.AffectAccount(a.Owner).Authors.Remove(Author);
+					//round.AffectAccount(a.Owner).Authors.Remove(Author);
 					a.Owner = null;
 				}
 
@@ -484,7 +486,7 @@ namespace UC.Net
 				a.LastBid = Bid;
 				a.LastBidTime = round.Time;
 				a.LastWinner = Signer;
-				a.Products.Clear();
+				///a.Products.Clear();  Should we?
 			
 				return;
 			}
@@ -551,9 +553,9 @@ namespace UC.Net
 
 		public override void Execute(Database chain, Round round)
 		{
-//			AuthorBid lb = null;
+			//			AuthorBid lb = null;
 
-			var a = round.FindAuthor(Author);
+			var a = chain.Authors.Find(Author, round.Id);
 
 // 			if(Exclusive)
 // 			{
@@ -576,18 +578,17 @@ namespace UC.Net
 					if(Exclusive) /// distribite winner bid, one time
 						round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
 
-					round.AffectAccount(Signer).Authors.Add(Author);
+					//round.AffectAccount(Signer).Authors.Add(Author);
 				}
 
 				var cost = GetCost(round, Years);
 
-
 				a = round.AffectAuthor(Author);
-				a.ObtainedRid = round.Id;
-				a.Title = Title;
-				a.Owner = Signer;
-				a.RegistrationTime = round.Time;
-				a.Years = Years;
+				//a.ObtainedRid		= round.Id;
+				a.Title				= Title;
+				a.Owner				= Signer;
+				a.RegistrationTime	= round.Time;
+				a.Years				= Years;
 
 				round.AffectAccount(Signer).Balance -= cost;
 				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
@@ -633,19 +634,17 @@ namespace UC.Net
 
 		public override void Execute(Database chain, Round round)
 		{
-			if(!round.AffectAccount(Signer).Authors.Contains(Author))
+			if(chain.Authors.Find(Author, round.Id).Owner != Signer)
 			{
 				Error = SignerDoesNotOwnTheAuthor;
 				return;
 			}
 
-			round.AffectAccount(Signer).Authors.Remove(Author);
-			round.AffectAccount(To).Authors.Add(Author);
+			//round.AffectAccount(Signer).Authors.Remove(Author);
+			//round.AffectAccount(To).Authors.Add(Author);
 
-			round.AffectAuthor(Author).ObtainedRid = round.Id;
+			//round.AffectAuthor(Author).ObtainedRid = round.Id;
 			round.AffectAuthor(Author).Owner = To;
 		}
 	}
-
-
 }

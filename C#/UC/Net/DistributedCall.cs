@@ -20,6 +20,8 @@ namespace UC.Net
 	{
 		Null,
 		Internal,
+		NotChain,
+		NotBase,
 		NotHub,
 		NotSeed,
 		NotSynchronized,
@@ -73,7 +75,7 @@ namespace UC.Net
 		public TablesStampResponse				GetTablesStamp() => Request<TablesStampResponse>(new TablesStampRequest());
 		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
-		public LastOperationResponse			GetLastOperation(Account account, string oclasss, PlacingStage placing) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss, Placing = placing});
+		//public LastOperationResponse			GetLastOperation(Account account, string oclasss, PlacingStage placing) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss, Placing = placing});
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
@@ -339,31 +341,31 @@ namespace UC.Net
 		public IEnumerable<Member> Members {get; set;}
 	}
 	
-	public class LastOperationRequest : Request
-	{
-		public Account		Account {get; set;}
-		public string		Class {get; set;}
-		public PlacingStage	Placing {get; set;} /// Null means any
-
-		public override Response Execute(Core core)
-		{
-			lock(core.Lock)
-				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
-				else
-				{
-					var l = core.Database.Accounts.FindLastOperation(Account, i =>	(Class == null || i.GetType().Name == Class) && 
-																					(Placing == PlacingStage.Null || i.Placing == Placing));
-							
-					return new LastOperationResponse {Operation = l};
-				}
-		}
-	}
-
-	public class LastOperationResponse : Response
-	{
-		public Operation Operation {get; set;}
-	}
+// 	public class LastOperationRequest : Request
+// 	{
+// 		public Account		Account {get; set;}
+// 		public string		Class {get; set;}
+// 		public PlacingStage	Placing {get; set;} /// Null means any
+// 
+// 		public override Response Execute(Core core)
+// 		{
+// 			lock(core.Lock)
+// 				if(core.Synchronization != Synchronization.Synchronized)
+// 					throw new DistributedCallException(Error.NotSynchronized);
+// 				else
+// 				{
+// 					var l = core.Database.Accounts.FindLastOperation(Account, i =>	(Class == null || i.GetType().Name == Class) && 
+// 																					(Placing == PlacingStage.Null || i.Placing == Placing));
+// 							
+// 					return new LastOperationResponse {Operation = l};
+// 				}
+// 		}
+// 	}
+//
+// 	public class LastOperationResponse : Response
+// 	{
+// 		public Operation Operation {get; set;}
+// 	}
 
 	public class DelegateTransactionsRequest : Request
 	{
@@ -398,13 +400,14 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
+				if(!core.Settings.Database.Chain)
+					throw new DistributedCallException(Error.NotChain);
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new DistributedCallException(Error.NotSynchronized);
 				else
 				{
 					return	new GetOperationStatusResponse
 							{
-								//LastConfirmedRound = core.Chain.LastConfirmedRound.Id,
 								Operations = Operations.Select(o => new {	A = o,
 																			B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
 																									.SelectMany(t => t.Operations)

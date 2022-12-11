@@ -294,7 +294,7 @@ namespace UC.Net
 
 					//jr0.Read(new BinaryReader(new MemoryStream(Genesises.Find(i => i.Zone == Settings.Zone && i.Crypto.GetType() == Cryptography.Current.GetType()).JoinRequest.HexToByteArray())));
 	
-					if(!Rounds.All(i => i.Payloads.All(i => i.Transactions.All(i => i.Operations.All(i => i.Successful)))))
+					if(!Rounds.All(i => i.Payloads.All(i => i.Transactions.All(i => i.Operations.All(i => i.Error == null)))))
 					{
 						throw new IntegrityException("Genesis construction failed");
 					}
@@ -354,7 +354,7 @@ namespace UC.Net
 	 					if(ir.Payloads.Any())
 						{
 							ir.Time = CalculateTime(ir, ir.Payloads);
-							Execute(ir, ir.Payloads, null, 0);
+							Execute(ir, ir.Payloads, null);
 						}
 	 					else
 	 						break;
@@ -370,7 +370,7 @@ namespace UC.Net
 
 			if(b is MembersJoinRequest jr)
 			{
-				jr.Declaration = Accounts.FindLastOperation<CandidacyDeclaration>(jr.Generator);
+				//jr.Bail = Accounts.Find(jr.Generator, b.RoundId - Pitch).Bail;
 				JoinRequests.Add(jr);
 			}
 	
@@ -469,20 +469,18 @@ namespace UC.Net
 			return Members.Where(i => i.JoinedAt < r.Id);
 		}
 
-		public IEnumerable<MembersJoinRequest> JoinersFor(Round round)
-		{
-			return JoinRequests.Where(i => i.RoundId == round.ParentId).Select(jr =>{
-																						var d = Accounts.FindLastOperation<CandidacyDeclaration>(jr.Generator, rp: r => r.Confirmed && r.Id <= round.ParentId - Pitch);
-																						return new{jr = jr, d = d};
-																					})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
-																		.Where(i => i.d != null && i.d.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin))
-																		.OrderByDescending(i => i.d.Bail)
-																		.Select(i => i.jr);
-		}
-
 		public IEnumerable<Account> ProposeJoiners(Round round)
 		{
-			var joiners = JoinersFor(round);
+			var o = JoinRequests.Where(i => i.RoundId == round.ParentId)
+								.Select(jr =>{
+												var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
+												return new{jr = jr, a = a};
+											})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
+								.Where(i => i.a != null && 
+											i.a.CandidacyDeclarationRound <= round.ParentId - Pitch && 
+											i.a.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin))
+								.OrderByDescending(i => i.a.Bail)
+								.Select(i => i.jr);
 
 			var n = Members.Count < MembersMax ? MembersMax - Members.Count : MembersRotation;
 
@@ -491,27 +489,23 @@ namespace UC.Net
 			//				return d != null && d.Transaction.Payload.RoundId <= round.Id - Pitch*2 && d.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin); 
 			//			})
 
-			return joiners.Take(n).Select(i => i.Generator);
+			return o.Take(n).Select(i => i.Generator);
 		}
 
 		public IEnumerable<Account> ProposeLeavers(Round round, Account generator)
 		{
-			var joiners = JoinersFor(round);
+			var joiners = ProposeJoiners(round);
 
-			var o = VotersFor(round).Where(i =>	i.JoinedAt < round.ParentId &&
-												Rounds.Count(r =>	round.ParentId <= r.Id && r.Id < round.Id &&					/// in previous Pitch number of rounds
-																	r.Blocks.Any(b => b.Generator == i.Generator)) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
-												!Enumerable.Range(round.Id - Pitch + 1, Pitch - 1).Select(i => FindRound(i)).Any(r => r.Votes.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator))) /// not yet reported in prev [Pitch-1] rounds
-											)	
-												
-									.Select(i => i.Generator);
+			var leavers = VotersFor(round).Where(i =>	i.JoinedAt < round.ParentId &&
+														Rounds.Count(r =>	round.ParentId <= r.Id && r.Id < round.Id &&					/// in previous Pitch number of rounds
+																			r.Votes.Any(b => b.Generator == i.Generator)) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
+														!Enumerable.Range(round.Id - Pitch + 1, Pitch - 1).Select(i => FindRound(i)).Any(r => r.Votes.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator)))) /// not yet reported in prev [Pitch-1] rounds
+											.Select(i => i.Generator);
 
-			IEnumerable<Account> leavers;
-
-			if(!o.Any() && Members.Count == MembersMax && joiners.Any())
-				leavers = Members.OrderByDescending(i => i.JoinedAt).ThenBy(i => i.Generator).Take(joiners.Take(MembersRotation).Count()).Select(i => i.Generator);
-			else
-				leavers = o;
+			//if(!o.Any() && Members.Count == MembersMax && joiners.Any())
+			//	leavers = Members.OrderByDescending(i => i.JoinedAt).ThenBy(i => i.Generator).Take(joiners.Take(MembersRotation).Count()).Select(i => i.Generator);
+			//else
+			//	leavers = o;
 
 			return leavers;
 		}
@@ -627,35 +621,34 @@ namespace UC.Net
 			return rr;
 		}
 
-		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> forkers, byte stage)
+		public void Execute(Round round, IEnumerable<Payload> payloads, IEnumerable<Account> forkers)
 		{
 			var prev = round.Previous;
 				
 			if(round.Id != 0 && prev == null)
 				return;
 
-			round.Emission			= round.Id == 0 ? 0						:  prev.Emission;
-			round.WeiSpent			= round.Id == 0 ? 0						:  prev.WeiSpent;
-			round.Factor			= round.Id == 0 ? Emission.FactorStart	:  prev.Factor;
-			round.Members			= Members.ToList();
-			round.Funds				= Funds.ToList();
+			foreach(var b in payloads)
+				foreach(var t in b.Transactions)
+					foreach(var o in t.Operations)
+					{
+						//o.Successful = false;
+						o.Error = null;
+					}
+
+			start: 
+
+			round.Emission	= round.Id == 0 ? 0						:  prev.Emission;
+			round.WeiSpent	= round.Id == 0 ? 0						:  prev.WeiSpent;
+			round.Factor	= round.Id == 0 ? Emission.FactorStart	:  prev.Factor;
+			round.Members	= Members.ToList();
+			round.Funds		= Funds.ToList();
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
 			round.AffectedProducts.Clear();
 			round.AffectedRealizations.Clear();
 			round.AffectedReleases.Clear();
-
-
-			foreach(var b in payloads)
-				foreach(var t in b.Transactions)
-					foreach(var o in t.Operations)
-					{
-						o.Executed = false;
-						
-						if(stage == 0)
-							o.Error = null;
-					}
 
 			foreach(var b in payloads.AsEnumerable().Reverse())
 			{
@@ -665,50 +658,42 @@ namespace UC.Net
 
 					foreach(var o in t.Operations.AsEnumerable().Reverse())
 					{
-						if(stage == 1 && o.Error != null)
+						if(o.Error != null)
 							continue;
 
 						var s = round.AffectAccount(t.Signer);
 					
 						if(o.Id <= s.LastOperationId)
 						{
-							if(stage == 1)
-								throw new IntegrityException("Must be no errors");
-
-							foreach(var i in t.Operations.AsEnumerable().Reverse().SkipWhile(i => i != o))
-								o.Error = "Not sequential";
-
-							break;
+							o.Error = Operation.NotSequential;
+							goto start;
 						}
 						
 						o.Execute(this, round);
-						o.Executed = true;
 
-						if(o.Error == null)
-						{
-							var f = o.CalculateFee(round.Factor);
+						if(o.Error != null)
+							goto start;
+
+						var f = o.CalculateFee(round.Factor);
 	
-							if(s.Balance - f >= 0)
-							{
-								fee += f;
-								s.Balance -= f;
-								s.LastOperationId = o.Id;
-							}
-							else
-							{
-								if(stage == 1)
-									throw new IntegrityException("Must be no errors");
-
-								o.Error = Operation.NotEnoughUNT;
-							}
+						if(s.Balance - f < 0)
+						{
+							o.Error = Operation.NotEnoughUNT;
+							goto start;
 						}
-						else if(stage == 1)
-							throw new IntegrityException("Must be no errors");
+
+						fee += f;
+						s.Balance -= f;
+						s.LastOperationId = o.Id;
 					}
 						
 					if(t.SuccessfulOperations.Any())
 					{
-						round.AffectAccount(t.Signer).Transactions.Add(round.Id);
+						if(Settings.Database.Chain)
+						{
+							round.AffectAccount(t.Signer).Transactions.Add(round.Id);
+						}
+
 						round.Distribute(fee, new[]{b.Generator}, 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 					}
 				}
@@ -781,15 +766,14 @@ namespace UC.Net
 
 			round.Confirmed = true;
 
-			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators, 0);
-			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators, 1);
+			Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators);
 			
 			foreach(var b in round.Payloads)
 				foreach(var t in b.Transactions)
 				{	
 					foreach(var o in t.Operations)
 					{	
-						o.Placing = (b.Confirmed && o.Successful) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+						o.Placing = (b.Confirmed && o.Error == null) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
 
 						if(o.__ExpectedPlacing != PlacingStage.Null && o.Placing != o.__ExpectedPlacing)
 						{
@@ -797,7 +781,7 @@ namespace UC.Net
 						}
 					}
 
-					t.Operations.RemoveAll(i => !i.Successful);
+					t.Operations.RemoveAll(i => i.Error != null);
 				}
 
 			Members.AddRange(round.ConfirmedJoiners	.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRound <= round.Id - Pitch * 3)
@@ -999,13 +983,13 @@ namespace UC.Net
 
 				i.Balance			= a.Balance;
 				i.LastOperationId	= a.LastOperationId;
-				i.Authors			= a.Authors;
+				//i.Authors			= a.Authors;
 
 				if(Settings.Database.Chain)
 				{
 					//var t = Accounts.FindLastOperation(account, i => i.Successful, null, null, r => r.Id <= rmax.Id);
 
-					i.Operations = Accounts.FindLastOperations<Operation>(account, null, null, null, r => r.Id <= rmax.Id).Take(10).Reverse().Select(i => new AccountOperationInfo(i)).ToList();
+					//i.Operations = Accounts.FindLastOperations<Operation>(account, null, null, null, r => r.Id <= rmax.Id).Take(10).Reverse().Select(i => new AccountOperationInfo(i)).ToList();
 				}
 
 				return i;

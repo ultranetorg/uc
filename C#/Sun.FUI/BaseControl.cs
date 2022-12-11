@@ -35,17 +35,19 @@ namespace UC.Sun.FUI
 
 		public IEnumerable<AuthorEntry> FindAuthors(Account account)
 		{
-			return Chain.Authors.Find(account, Chain.LastConfirmedRound.Id);
+			/// TODO: too slow
+			return Chain.Authors.Where(i => i.Owner == account);
 		}
 
 		public IEnumerable<ProductModel> FindProducts(Account account)
 		{
-			return Chain.Authors.Find(account, Chain.LastConfirmedRound.Id)
-						.SelectMany(a => Chain.Authors.Find(a.Name, Chain.LastConfirmedRound.Id).Products.Select(i =>	new ProductModel
-																														{
-																															Product = Chain.FindProduct(new ProductAddress(a.Name, i),  Chain.LastConfirmedRound.Id),
-																															Author	= a
-																														}));
+			/// TODO: too slow
+			return Chain.Authors.Where(i => i.Owner == account)
+								.SelectMany(a => Chain.Products.Where(i => i.Address.Author == a.Name).Select(p =>	new ProductModel
+																													{
+																														Product = p,
+																														Author	= a
+																													}));
 		}
 
 		protected void FillAccounts(ComboBox b)

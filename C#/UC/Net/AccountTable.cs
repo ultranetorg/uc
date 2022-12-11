@@ -185,20 +185,16 @@ namespace UC.Net
 						yield return o;
 		}
 
-
 		public AccountEntry Find(Account account, int ridmax)
 		{
+			if(0 < ridmax && ridmax < Database.Rounds.Last().Id - 1) /// by -1 we treat the whole Base as a round before Last
+				throw new IntegrityException("maxrid works inside pool only");
+
 			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
 				if(r.AffectedAccounts.ContainsKey(account))
 					return r.AffectedAccounts[account];
 
-			var e = FindEntry(account);
-			
-			if(e != null && e.Transactions.Any() && ridmax < e.Transactions.Max())
-				throw new IntegrityException("maxrid works inside pool only");
-
-			return e;
+			return FindEntry(account);
 		}
-
 	}
 }

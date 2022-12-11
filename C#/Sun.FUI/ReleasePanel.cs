@@ -118,7 +118,8 @@ namespace UC.Sun.FUI
 
 			if(Author.SelectedItem != null)
 			{
-				foreach(var p in Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue).Products)
+				/// TODO: too slow
+				foreach(var p in Chain.Products.Where(i => i.Address.Author == Author.SelectedItem as string).Select(i => i.Address.Product))
 					Product.Items.Add(p);
 				
 				if(Product.Items.Count > 0)

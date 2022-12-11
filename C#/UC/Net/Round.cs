@@ -169,7 +169,7 @@ namespace UC.Net
 
 		public AuthorEntry AffectAuthor(string name)
 		{
-			var e = FindAuthor(name);
+			var e = Chain.Authors.Find(name, Id);
 
 			if(e != null)
 				AffectedAuthors[name] = e.Clone();
@@ -179,27 +179,27 @@ namespace UC.Net
 			return AffectedAuthors[name];
 		}
 
-		public AuthorEntry FindAuthor(string name)
-		{
-			if(AffectedAuthors.ContainsKey(name))
-				return AffectedAuthors[name];
-
-			return Chain.Authors.Find(name, Id - 1);
-		}
-
+		//public AuthorEntry FindAuthor(string name)
+		//{
+		//	if(AffectedAuthors.ContainsKey(name))
+		//		return AffectedAuthors[name];
+		//
+		//	return Chain.Authors.Find(name, Id - 1);
+		//}
+		//
 		public RealizationEntry FindRealization(RealizationAddress name)
 		{
 			if(AffectedRealizations.ContainsKey(name))
 				return AffectedRealizations[name];
-
+		
 			return Chain.Realizations.Find(name, Id - 1);
 		}
-
+		
 		public ReleaseEntry FindRelease(ReleaseAddress name)
 		{
 			if(AffectedReleases.ContainsKey(name))
 				return AffectedReleases[name];
-
+		
 			return Chain.Releases.Find(name, Id - 1);
 		}
 

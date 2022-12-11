@@ -36,19 +36,11 @@
     <ProjectReference Include="..\UC\UC.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="MembershipPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="MembershipPanel.cs" />
     <Compile Update="AuthorPanel.cs" />
-    <Compile Update="HubPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="PublishPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="ChainPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="HubPanel.cs" />
+    <Compile Update="PublishPanel.cs" />
+    <Compile Update="ChainPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ProductPanel.cs" />
     <Compile Update="ReleasePanel.cs" />

@@ -24,8 +24,8 @@ namespace UC.Net
 		public Coin					LastBid;
 		public ChainTime			LastBidTime;
 
-		public int					ObtainedRid;
-		public List<string>			Products = new();
+		//public int					ObtainedRid;
+		//public List<string>		Products = new();
 
 		Database					Chain;
 
@@ -51,8 +51,8 @@ namespace UC.Net
 						LastBidTime = LastBidTime,
 						RegistrationTime = RegistrationTime,
 						Years = Years,
-						ObtainedRid = ObtainedRid,
-						Products = new List<string>(Products)
+						//ObtainedRid = ObtainedRid,
+						//Products = new List<string>(Products)
 					};
 		}
 
@@ -110,22 +110,22 @@ namespace UC.Net
 
 		public override void WriteMore(BinaryWriter w)
 		{
-			w.Write7BitEncodedInt(ObtainedRid);
+			//w.Write7BitEncodedInt(ObtainedRid);
 
-			if(RegistrationTime != ChainTime.Zero)
-			{
-				w.Write(Products);
-			}
+			//if(RegistrationTime != ChainTime.Zero)
+			//{
+			//	w.Write(Products);
+			//}
 		}
 
 		public override void ReadMore(BinaryReader r)
 		{
-			ObtainedRid = r.Read7BitEncodedInt();
+			//ObtainedRid = r.Read7BitEncodedInt();
 
-			if(RegistrationTime != ChainTime.Zero)
-			{
-				Products = r.ReadStings();
-			}
+			//if(RegistrationTime != ChainTime.Zero)
+			//{
+			//	Products = r.ReadStings();
+			//}
 		}
 
 		public XonDocument ToXon(IXonValueSerializator serializator)
@@ -153,7 +153,7 @@ namespace UC.Net
 				p.Add("Title").Value = Title;
 				p.Add("RegistrationTime").Value = RegistrationTime;
 				p.Add("Years").Value = Years;
-				p.Add("Products").Value = string.Join(", ", Products);
+				//p.Add("Products").Value = string.Join(", ", Products);
 			}
 
 			return d;

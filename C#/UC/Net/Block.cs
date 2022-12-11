@@ -85,9 +85,9 @@ namespace UC.Net
 
 	public class MembersJoinRequest : Block
 	{
-		public IPAddress			IP;
-
-		public CandidacyDeclaration Declaration;
+		public IPAddress	IP;
+		
+		//public Coin			Bail;
 
 		public MembersJoinRequest(Database c) : base(c)
 		{

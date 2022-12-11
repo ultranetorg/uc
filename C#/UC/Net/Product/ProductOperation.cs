@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using NativeImport;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Model;
@@ -57,7 +58,7 @@ namespace UC.Net
 
 		public override void Execute(Database chain, Round round)
 		{
-			var a = round.FindAuthor(Address.Author);
+			var a = chain.Authors.Find(Address.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -65,23 +66,20 @@ namespace UC.Net
 				return;
 			}
 
-			if(!a.Products.Contains(Address.Product))
-			{
-				a = round.AffectAuthor(Address.Author);
-
-				a.Products.Add(Address.Product);
-
-				var p = round.AffectProduct(Address);
-		
-				p.Title				= Title;
-				p.LastRegistration	= round.Id;
-			}
-			else
+			if(chain.Products.Find(Address, round.Id) != null)
 			{
 				Error = "Product already registered";
 				return;
 			}
 			 
+			a = round.AffectAuthor(Address.Author);
+
+			//a.Products.Add(Address.Product);
+
+			var p = round.AffectProduct(Address);
+		
+			p.Title				= Title;
+			p.LastRegistration	= round.Id;
 		}
 	}
 
@@ -112,7 +110,7 @@ namespace UC.Net
 
 		public override void Execute(Database chain, Round round)
 		{
-			var a = round.FindAuthor(Realization.Author);
+			var a = chain.Authors.Find(Realization.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -120,7 +118,7 @@ namespace UC.Net
 				return;
 			}
 
-			if(!a.Products.Contains(Realization.Product))
+			if(chain.Products.Find(Realization, round.Id) == null)
 			{
 				Error = "Product not found";
 				return;
@@ -256,7 +254,7 @@ namespace UC.Net
 
 		public override void Execute(Database chain, Round round)
 		{
-			var a = round.FindAuthor(Release.Author);
+			var a = chain.Authors.Find(Release.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -264,7 +262,7 @@ namespace UC.Net
 				return;
 			}
 
-			if(!a.Products.Contains(Release.Product))
+			if(chain.Products.Find(Release, round.Id) == null)
 			{
 				Error = "Product not found";
 				return;

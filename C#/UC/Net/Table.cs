@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using Org.BouncyCastle.Utilities.Encoders;
 using Org.BouncyCastle.Utilities.Collections;
+using System.Collections;
 
 namespace UC.Net
 {
@@ -20,7 +21,7 @@ namespace UC.Net
 		Releases
 	}
 
-	public abstract class Table<E, K> where E : TableEntry<K>
+	public abstract class Table<E, K> : IEnumerable<E> where E : TableEntry<K>
 	{
 		public class Cluster
 		{
@@ -181,6 +182,55 @@ namespace UC.Net
 				}
 			}
 		}
+
+		public class Enumerator : IEnumerator<E>
+		{
+			public E Current => Entity.Current;
+			object IEnumerator.Current => Entity.Current;
+
+			IEnumerator<Cluster>	Cluster;
+			IEnumerator<E>			Entity;
+			Table<E, K>				Table;
+
+			public Enumerator(Table<E, K> table)
+			{
+				Table = table;
+			}
+
+			public void Dispose()
+			{
+				Cluster.Dispose();
+				Entity.Dispose();
+			}
+
+			public bool MoveNext()
+			{
+				var e = Entity.MoveNext();
+				
+				if(!e)
+				{
+					return Cluster.MoveNext();
+				}
+				
+				return true;
+			}
+
+			public void Reset()
+			{
+				Cluster = Table.Clusters.GetEnumerator();
+				Entity = Cluster.Current.Entries.GetEnumerator();
+			}
+		}
+
+		public IEnumerator<E> GetEnumerator()
+		{
+			return new Enumerator(this);
+		}
+
+ 		IEnumerator IEnumerable.GetEnumerator()
+ 		{
+ 			return new Enumerator(this);
+ 		}
 
 // 		public E GetEntry(K key)
 // 		{

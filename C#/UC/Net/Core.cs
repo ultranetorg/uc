@@ -1113,6 +1113,8 @@ namespace UC.Net
 									{
 										c.Save(b);
 									}
+
+									Workflow.Log?.Report(this, "Cluster downloaded", $"{t.GetType().Name} {c.Id}");
 								}
 							}
 						}
@@ -1253,42 +1255,33 @@ namespace UC.Net
 
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing)
 			{
-				if(IP.GetAddressBytes()[3] == 107)
-				{
-					accepted = accepted;
-				}
-
 				Cache.AddRange(accepted);
 			}
 
 			if(Synchronization == Synchronization.Synchronized)
 			{
-				if(IP.GetAddressBytes()[3] == 107)
-				{
-					accepted = accepted;
-				}
-
 				var notolder = Database.LastConfirmedRound.Id - Net.Database.Pitch;
 				var notnewer = Database.LastConfirmedRound.Id + Net.Database.Pitch * 2;
 
 				var inrange = accepted.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer);
 
 				var joins = inrange.OfType<MembersJoinRequest>().Where(b => { 
-																				var d = Database.Accounts.FindLastOperation<CandidacyDeclaration>(b.Generator);
-														
-																				if(d == null)
-																					return false;
-
 																				for(int i = b.RoundId; i > b.RoundId - Net.Database.Pitch; i--) /// not more than 1 request per [Pitch] rounds
 																					if(Database.JoinRequests.Any(j => j.RoundId == i && j.Generator == b.Generator))
 																						return false;
 
-																				if(Database.JoinRequests.Count(j => j.RoundId == b.RoundId) < Net.Database.MembersMax) /// keep  maximum MembersMax requests per round
-																					return true;
+																				//var r = Database.JoinRequests.Where(i => i.RoundId == b.RoundId);
+																				//
+																				//if(r.Count() < Net.Database.MembersMax) /// keep maximum MembersMax requests per round
+																				//	return true;
+																				//
+																				//var min = r.Min(i => i.Bail);
+																				//
+																				//var a = Database.Accounts.Find(b.Generator, b.RoundId - Database.Pitch);
+																				//
+																				//return a != null && min < a.Bail; /// Selection of richest : if the number of members are Max then accept only those requests that have a bail greater than the existing request with minimal bail
 
-																				var min = Database.JoinRequests.Where(i => i.RoundId == b.RoundId).Aggregate((i, j) => i.Declaration.Bail < j.Declaration.Bail ? i : j);
-														
-																				return min.Declaration.Bail < d.Bail; /// if a number of members are Max then accept only those requests that have a bail greater than the existing request with minimal bail
+																				return true;
 																			});
 				Database.Add(joins);
 					
@@ -1341,10 +1334,8 @@ namespace UC.Net
 		
 					if(jr == null || (jr.RoundId + Database.Pitch * 2 < Database.LastConfirmedRound.Id)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
-						var b = new MembersJoinRequest(Database){
-																	RoundId	= nar.Id,
-																	IP      = IP
-																};
+						var b = new MembersJoinRequest(Database){	RoundId	= nar.Id,
+																	IP      = IP};
 						b.Sign(g);
 						blocks.Add(b);
 					}
@@ -1547,7 +1538,7 @@ namespace UC.Net
 									
 						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
 
-						Thread.Sleep(500); /// prevent any flooding
+						Thread.Sleep(200); /// prevent any flooding
 					}
 
 					lock(Lock)
@@ -1555,7 +1546,7 @@ namespace UC.Net
 	
 					if(delegated.Any())
 					{
-						var rp = m.GetOperationStatus(delegated.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}).ToArray());
+						var rp = Call(Role.Chain, p => p.GetOperationStatus(delegated.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id})), Workflow);
 							
 						if(rp != null)
 						{
@@ -2125,15 +2116,19 @@ namespace UC.Net
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, PlacingStage awaitstage, Workflow workflow)
 		{
-			Emission l;
-
-			if(Database != null)
-				lock(Lock)
-					l = Database.Accounts.FindLastOperation<Emission>(signer);
-			else
-				l = Connect(Role.Base, null, workflow).GetLastOperation(signer, typeof(Emission).Name, PlacingStage.Null).Operation as Emission;
+			var	l = Call(Role.Base, p =>{
+											try
+											{
+												return p.GetAccountInfo(signer, true);
+											}
+											catch(DistributedCallException ex) when (ex.Error == Error.AccountNotFound)
+											{
+												return new AccountInfoResponse();
+											}
+										}, 
+										workflow);
 			
-			var eid = l == null ? 0 : l.Eid + 1;
+			var eid = l.Info == null ? 0 : l.Info.LastEmissionId + 1;
 
 			Nas.Emit(a, wei, signer, GasAsker, eid, workflow);		
 						
@@ -2158,8 +2153,19 @@ namespace UC.Net
 		{
 			lock(Lock)
 			{
-				var l = Database.Accounts.FindLastOperation<Emission>(signer);
-				var eid = l == null ? 0 : l.Eid + 1;
+			var	l = Call(Role.Base, p =>{
+											try
+											{
+												return p.GetAccountInfo(signer, true);
+											}
+											catch(DistributedCallException ex) when (ex.Error == Error.AccountNotFound)
+											{
+												return new AccountInfoResponse();
+											}
+										}, 
+										workflow);
+			
+			var eid = l.Info == null ? 0 : l.Info.LastEmissionId + 1;
 
 				var wei = Nas.FinishEmission(signer, eid);
 
