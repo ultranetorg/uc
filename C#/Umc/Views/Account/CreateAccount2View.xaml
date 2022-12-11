@@ -4,7 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Views"
     xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="vm:CreateAccountViewModel"
     x:Name="view">
     <StackLayout Padding="5" Spacing="30">
         <StackLayout>
@@ -15,7 +18,7 @@
                 Text="Choose desired Account name and color" />
         </StackLayout>
         <StackLayout Margin="0,0,0,-12" Spacing="8">
-            <controls:BorderEntry Placeholder="Account name" Text="{Binding Wallet.Name}">
+            <controls:BorderEntry Placeholder="Account name" Text="{Binding Account.Name}">
                 <controls:BorderEntry.Behaviors>
                     <xct:CharactersValidationBehavior
                         x:Name="cb"
@@ -37,13 +40,13 @@
             </StackLayout>
         </StackLayout>
         <Label Style="{StaticResource SubText}" Text="Please specify account name, for example: payment account, auction account, verification account etc." />
-        <Frame
+        <Border
             Grid.Row="0"
             Grid.RowSpan="2"
             Grid.Column="0"
             Padding="0"
             Background="{Binding SelectedAccountColor.Color}"
-            CornerRadius="17"
+            StrokeShape="RoundRectangle 16"
             HeightRequest="120"
             HorizontalOptions="CenterAndExpand"
             VerticalOptions="Center"
@@ -54,8 +57,8 @@
                 Style="{StaticResource CodeLabel}"
                 Text="ABCD"
                 VerticalOptions="Center" />
-        </Frame>
-        <CollectionView HeightRequest="45" ItemsSource="{Binding Colors}">
+        </Border>
+        <CollectionView HeightRequest="45" ItemsSource="{Binding ColorsCollection}">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
             </CollectionView.ItemsLayout>
@@ -72,22 +75,18 @@
                 </StackLayout>
             </CollectionView.Header>
             <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout>
-                        <Frame
+                <DataTemplate x:DataType="models:AccountColor">
+                    <Grid>
+                        <Border
                             Padding="0"
                             BackgroundColor="{Binding Color}"
-                            CornerRadius="22"
-                            HasShadow="False"
+                            StrokeShape="RoundRectangle 24"
                             HeightRequest="44"
                             HorizontalOptions="Center"
-                            IsClippedToBounds="True"
                             VerticalOptions="Center"
                             WidthRequest="44">
                             <ImageButton
                                 BackgroundColor="{Binding Color}"
-                                BorderColor="{Binding BorderColor}"
-                                BorderWidth="2"
                                 Command="{Binding BindingContext.ColorTappedCommand, Source={x:Reference view}}"
                                 CommandParameter="{Binding .}"
                                 CornerRadius="20"
@@ -95,8 +94,8 @@
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
                                 WidthRequest="40" />
-                        </Frame>
-                    </StackLayout>
+                        </Border>
+                    </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

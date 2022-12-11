@@ -3,22 +3,26 @@
     x:Class="UC.Umc.Pages.DeleteAccountPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:constants="clr-namespace:UC.Umc.Common.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:DeleteAccountViewModel"
     Title="Delete Account"
     x:Name="page">
     <controls:CustomPage.MainContent>
-        <ScrollView>
-            <StackLayout Padding="{StaticResource PagePadding}" Spacing="30">
+        <ScrollView Padding="{StaticResource PagePadding}">
+            <StackLayout Spacing="30">
                 <StackLayout>
-                    <Label FontSize="18" Text="This account has non zero balance. Do you wish to delete it?" />
+                    <Label FontSize="18" Text="{x:Static constants:TextResources.DELETEACCOUNT_WARNING1}" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="If you have not backuped it or not exported, all moneys, domains and programs will be lost" />
+                        Text="{x:Static constants:TextResources.DELETEACCOUNT_WARNING2}" />
                 </StackLayout>
-                <views:AccountView BindingContext="{Binding Wallet}"/>
-                <Grid RowDefinitions="Auto,23">
+                <views:AccountView Margin="0,8" Account="{Binding Account}"/>
+                <Grid RowDefinitions="Auto,24">
                     <Label
                         Grid.Row="0"
                         Style="{StaticResource DashLabel}"
@@ -32,23 +36,23 @@
                             Orientation="Horizontal"
                             Spacing="10">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Frame
+                                <DataTemplate x:DataType="models:Author">
+                                    <Border
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
+                                        Style="{StaticResource ButtonBorder}"
                                         VerticalOptions="Center">
                                         <Label
                                             Style="{StaticResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
-                                    </Frame>
+                                    </Border>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
                     </ScrollView>
                 </Grid>
-                <Grid RowDefinitions="Auto,23">
+                <Grid RowDefinitions="Auto,24">
                     <Label
                         Grid.Row="0"
                         Style="{StaticResource DashLabel}"
@@ -58,18 +62,18 @@
                             <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:Product">
                                 <StackLayout>
-                                    <Frame
+                                    <Border
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
+                                        Style="{StaticResource ButtonBorder}"
                                         VerticalOptions="Center">
                                         <Label
                                             Style="{StaticResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
-                                    </Frame>
+                                    </Border>
                                 </StackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -91,7 +95,6 @@
                     Text="Delete"
                     VerticalOptions="EndAndExpand" />
             </StackLayout>
-
         </ScrollView>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

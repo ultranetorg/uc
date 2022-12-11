@@ -3,48 +3,39 @@
     x:Class="UC.Umc.Popups.DeleteAccountPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent"
+    Size="{x:Static const:PopupSizeConstants.Medium}"
+    VerticalOptions="End"
     x:Name="page">
-    <!--HasSystemPadding="{OnPlatform Android=True,
-                                iOS=False}"
-    <pages:PopupPage.Animation>
-        <pages:ScaleAnimation
-            DurationIn="400"
-            DurationOut="300"
-            EasingIn="SinOut"
-            EasingOut="SinIn"
-            HasBackgroundAnimation="False"
-            PositionIn="Bottom"
-            PositionOut="Bottom"
-            ScaleIn="1.2"
-            ScaleOut="0.8" />
-    </pages:PopupPage.Animation>-->
-    <Frame
+    <Border
         Margin="0,0,0,-20"
         Padding="20,8,20,50"
-        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
-                                          Light={StaticResource LightBackground}}"
-        CornerRadius="20"
-        HasShadow="True"
+        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}"
+        StrokeShape="RoundRectangle 20"
         HorizontalOptions="FillAndExpand"
         VerticalOptions="EndAndExpand">
         <Grid
             HorizontalOptions="FillAndExpand"
             RowDefinitions="4,Auto,Auto,Auto,Auto,Auto"
             RowSpacing="15">
-            <Frame
+            <Border
                 Grid.Row="0"
                 HorizontalOptions="CenterAndExpand"
-                Style="{StaticResource PopupHandle}" />
+                Style="{StaticResource PopupHandleBorder}" />
             <Label
                 Grid.Row="1"
                 FontSize="18"
                 HorizontalOptions="Center"
                 Text="Delete confirmation" />
 
-            <views:AccountView BindingContext="{Binding Account}" Grid.Row="2" />
+            <views:AccountView Margin="0,8" Account="{Binding Account}" Grid.Row="2" />
+            
             <StackLayout Grid.Row="3">
                 <Label Style="{StaticResource SubText}" Text="If you wish to delete account please specify next text" />
                 <AbsoluteLayout HeightRequest="55">
@@ -66,6 +57,7 @@
                         VerticalOptions="CenterAndExpand" />
                 </AbsoluteLayout>
             </StackLayout>
+            
             <controls:BorderEntry
                 Grid.Row="4"
                 Text="0x07-47f0" />
@@ -77,10 +69,14 @@
                 ColumnSpacing="12">
                 <Button
                     Grid.Column="0"
+                    Command="{Binding CloseCommand}"
                     Style="{StaticResource DeleteButton}"
                     Text="Delete" />
-                <Button Grid.Column="1" Text="Cancel" />
+                <Button
+                    Grid.Column="1"
+                    Command="{Binding CloseCommand}"
+                    Text="Cancel" />
             </Grid>
         </Grid>
-    </Frame>
+    </Border>
 </toolkit:Popup>

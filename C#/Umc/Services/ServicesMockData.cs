@@ -217,11 +217,11 @@ public class ServicesMockData : IServicesMockData
 			#endregion Accounts
 		
 			AccountColors.Add(DefaultDataMock.CreateColor("#6601e3", Shell.Current.BackgroundColor));
-			AccountColors.Add(DefaultDataMock.CreateColor("#3765f4"));
-			AccountColors.Add(DefaultDataMock.CreateColor("#ba918c"));
-			AccountColors.Add(DefaultDataMock.CreateColor("#d56a48"));
-			AccountColors.Add(DefaultDataMock.CreateColor("#56d7de"));
-			AccountColors.Add(DefaultDataMock.CreateColor("#bb50dd"));
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 
 			Emissions.Add(new Emission { ETH = "100", Number = 1, UNT = "100" });
 			Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });

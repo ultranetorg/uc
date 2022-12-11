@@ -37,10 +37,7 @@ public abstract partial class BaseViewModel : ObservableValidator, IQueryAttribu
 
 	public void ClosePopup()
 	{
-		if(Popup != null)
-		{
-			Popup.Close();
-		}
+		Popup?.Close();
 	}
 
     protected virtual void InitializeLoading()

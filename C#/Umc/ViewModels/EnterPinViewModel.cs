@@ -17,9 +17,9 @@ public partial class EnterPinViewModel : BaseViewModel
 
 	[RelayCommand]
     private async Task DeleteAsync()
-    {
-        await DeleteAccountPopup.Show(Account);
-    }
+	{
+		await ShowPopup(new DeleteAccountPopup(Account));
+	}
 
 	[RelayCommand]
     private async Task TransactionsAsync()

@@ -11,7 +11,7 @@
         AlignItems="Center"
         BindingContext="{x:Reference This}"
         Direction="Row"
-        JustifyContent="SpaceEvenly"
+        JustifyContent="SpaceBetween"
         Margin="12,2">
         <Label
             FontFamily="sans-serif-semiBold"

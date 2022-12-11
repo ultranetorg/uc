@@ -42,8 +42,18 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
     [RelayCommand]
     private async Task DeleteAsync()
     {
-        await DeleteAccountPopup.Show(Account);
-    }
+		try
+		{
+			await ShowPopup(new DeleteAccountPopup(Account));
+			await Navigation.PopAsync();
+			await ToastHelper.ShowMessageAsync("Successfully deleted!");
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "DeleteAsync Exception: {Ex}", ex.Message);
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+		}
+	}
 
 	private void Initialize()
 	{

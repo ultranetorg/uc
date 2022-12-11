@@ -46,6 +46,8 @@ internal static class DefaultDataMock
 
 	public static AccountColor CreateColor(string argb, Color border = null) => new() { Color = Color.FromArgb(argb), BorderColor = border ?? Colors.Transparent };
 
+	public static AccountColor CreateRandomColor() => CreateColor(ColorHelper.GetRandomColor().ToArgbHex());
+
 	public static Notification CreateNotification(Severity severity, NotificationType type) => new()
 	{
         Title = _defaultNotificationTitle,

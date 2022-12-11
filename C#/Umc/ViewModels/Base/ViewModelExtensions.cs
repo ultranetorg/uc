@@ -84,12 +84,13 @@ public static class ViewModelExtensions
 		#region Popups
 
 		// Transient ViewModels
+		builder.Services.AddTransient<AccountOptionsViewModel>();
+		builder.Services.AddTransient<DeleteAccountPopupViewModel>();
 		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();
 		builder.Services.AddTransient<RecipientAccountViewModel>();
 		builder.Services.AddTransient<SelectAuthorViewModel>();
 		builder.Services.AddTransient<SourceAccountViewModel>();
-		builder.Services.AddTransient<AccountOptionsViewModel>();
 
 		#endregion
 

@@ -2,24 +2,13 @@
 
 public partial class DeleteAccountPopup : Popup
 {
-    private static DeleteAccountPopup popup;
-	public AccountViewModel Account { get; }
+	DeleteAccountPopupViewModel Vm => BindingContext as DeleteAccountPopupViewModel;
 
-    public DeleteAccountPopup(AccountViewModel account)
+	public DeleteAccountPopup(AccountViewModel account)
     {
         InitializeComponent();
-		Account = account;
-		BindingContext = this;
-    }
-
-    public void Hide()
-    {
-		Close();
-    }
-
-	public static async Task Show(AccountViewModel account)
-	{
-		popup = new DeleteAccountPopup(account);
-		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
+		BindingContext = Ioc.Default.GetService<DeleteAccountPopupViewModel>();
+		Vm.Account = account;
+		Vm.Popup = this;
 	}
 } 

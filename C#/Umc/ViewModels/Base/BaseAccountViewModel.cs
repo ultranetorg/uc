@@ -20,17 +20,6 @@ public abstract partial class BaseAccountViewModel : BaseViewModel
 	protected BaseAccountViewModel(ILogger logger): base(logger)
 	{
 	}
-	
-	[RelayCommand]
-    private void ColorTapped(AccountColor accountColor)
-    {
-        foreach (var item in ColorsCollection)
-        {
-            item.BorderColor = Colors.Transparent;
-        }
-        accountColor.BorderColor = Shell.Current.BackgroundColor;
-        Account.Color = ColorHelper.CreateGradientColor(accountColor.Color);
-    }
 
 	[RelayCommand]
 	protected async Task CloseAsync() => await Navigation.PopModalAsync();

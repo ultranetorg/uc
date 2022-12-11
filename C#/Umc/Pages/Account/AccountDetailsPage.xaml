@@ -48,13 +48,13 @@
                     ColumnDefinitions="64,*,Auto"
                     ColumnSpacing="20"
                     RowDefinitions="32,40">
-                    <Frame
+                    <Border
                         Grid.Row="0"
                         Grid.RowSpan="2"
                         Grid.Column="0"
                         Padding="0"
                         Background="{Binding Background}"
-                        CornerRadius="8"
+                        StrokeShape="RoundRectangle 8"
                         HeightRequest="60"
                         VerticalOptions="Center"
                         WidthRequest="60">
@@ -63,7 +63,7 @@
                             TextColor="{StaticResource PrimaryLight}"
                             Text="{Binding Account.IconCode}"
                             VerticalOptions="Center" />
-                    </Frame>
+                    </Border>
                     <Label
                         Grid.Row="0"
                         Grid.Column="1"
@@ -161,16 +161,16 @@
                             Spacing="10">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:Author">
-                                    <Frame
+                                    <Border
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
+                                        Style="{StaticResource ButtonBorder}"
                                         VerticalOptions="Center">
                                         <Label
                                             Style="{StaticResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
-                                    </Frame>
+                                    </Border>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
@@ -188,16 +188,16 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Product">
                                 <StackLayout>
-                                    <Frame
+                                    <Border
                                         HeightRequest="22"
                                         HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
+                                        Style="{StaticResource ButtonBorder}"
                                         VerticalOptions="Center">
                                         <Label
                                             Style="{StaticResource ButtonLabel}"
                                             Text="{Binding Name}"
                                             VerticalOptions="Center" />
-                                    </Frame>
+                                    </Border>
                                 </StackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>

@@ -5,23 +5,35 @@ public partial class CreateAccountViewModel : BaseAccountViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    AccountColor _selectedAccountColor;
+    private AccountColor _selectedAccountColor;
 
     public CreateAccountViewModel(IServicesMockData service, ILogger<CreateAccountViewModel> logger) : base(logger)
     {
 		_service = service;
 		LoadData();
-    }
+	}
+
+	[RelayCommand]
+	private void ColorTapped(AccountColor accountColor)
+	{
+		foreach (var item in ColorsCollection)
+		{
+			item.BorderColor = Colors.Transparent;
+		}
+		accountColor.BorderColor = Shell.Current.BackgroundColor;
+		Account.Color = ColorHelper.CreateGradientColor(accountColor.Color);
+		SelectedAccountColor = accountColor;
+	}
 
 	[RelayCommand]
     private void Randomize()
     {
-        ColorTappedCommand.Execute(ColorsCollection[new Random().Next(0, ColorsCollection.Count)]);
+        ColorTapped(DefaultDataMock.CreateRandomColor());
     }
 
 	private void LoadData()
 	{
-		// TODO: refactoring, get background color from resources
+		Account = DefaultDataMock.CreateAccount("Test");
 		ColorsCollection.Clear();
 		ColorsCollection.AddRange(_service.AccountColors);
         SelectedAccountColor = ColorsCollection.First();
