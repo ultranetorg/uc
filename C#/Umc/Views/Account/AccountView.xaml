@@ -7,7 +7,7 @@
     x:Name="Page">
     <Border
         BindingContext="{x:Reference Page}"
-        Style="{StaticResource AccountCardBorder}">
+        Style="{Binding BorderStyle}">
         <Grid
             BindingContext="{Binding Account}"
             Padding="14"

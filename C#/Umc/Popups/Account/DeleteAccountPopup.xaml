@@ -13,17 +13,12 @@
     Size="{x:Static const:PopupSizeConstants.Medium}"
     VerticalOptions="End"
     x:Name="page">
-    <Border
-        Margin="0,0,0,-20"
-        Padding="20,8,20,50"
-        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}"
-        StrokeShape="RoundRectangle 20"
-        HorizontalOptions="FillAndExpand"
-        VerticalOptions="EndAndExpand">
+    <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             HorizontalOptions="FillAndExpand"
-            RowDefinitions="4,Auto,Auto,Auto,Auto,Auto"
-            RowSpacing="15">
+            RowDefinitions="12,Auto,Auto,Auto,Auto,Auto"
+            Padding="12,4"
+            RowSpacing="10">
             <Border
                 Grid.Row="0"
                 HorizontalOptions="CenterAndExpand"
@@ -34,15 +29,15 @@
                 HorizontalOptions="Center"
                 Text="Delete confirmation" />
 
-            <views:AccountView Margin="0,8" Account="{Binding Account}" Grid.Row="2" />
+            <views:AccountView BorderStyle="{StaticResource AccountCardBorderDark}" Margin="0,8" Account="{Binding Account}" Grid.Row="2" />
             
-            <StackLayout Grid.Row="3">
+            <StackLayout Grid.Row="3" Spacing="4">
                 <Label Style="{StaticResource SubText}" Text="If you wish to delete account please specify next text" />
                 <AbsoluteLayout HeightRequest="55">
                     <Rectangle Opacity="0.3"
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
-                        Stroke="{StaticResource LighRed}"
+                        Stroke="{StaticResource DeleteRed}"
                         StrokeDashArray="4,4,4,4"
                         StrokeDashOffset="9"
                         StrokeThickness="1.1"
@@ -64,7 +59,7 @@
 
             <Grid
                 Grid.Row="5"
-                Margin="0,20,0,0"
+                Margin="0,8,0,0"
                 ColumnDefinitions="*,*"
                 ColumnSpacing="12">
                 <Button

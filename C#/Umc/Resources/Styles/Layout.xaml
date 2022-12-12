@@ -143,8 +143,11 @@
     </Style>
     <Style x:Key="AccountCardBorder" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}" />
+    </Style>
+    <Style x:Key="AccountCardBorderDark" BaseResourceKey="AccountCardBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
     <Style x:Key="AccountColorBorder" TargetType="Border">
         <Setter Property="Padding" Value="0" />
@@ -156,8 +159,8 @@
         <Setter Property="Padding" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 20" />
         <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="HeightRequest" Value="8" />
-        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="HeightRequest" Value="6" />
+        <Setter Property="WidthRequest" Value="48" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
     <Style x:Key="KeyFrame" TargetType="Border">
