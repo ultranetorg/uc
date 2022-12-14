@@ -22,7 +22,10 @@
                 FontSize="13"
                 Style="{StaticResource Regular}"
                 Text="Specify source Ultranet Account that will transfer moneys" />
-            <views:AccountView Margin="0,8" Account="{Binding SourceAccount}" />
+            <views:AccountView
+                BorderStyle="{StaticResource AccountBorder}"
+                Margin="0,8"
+                Account="{Binding SourceAccount}" />
             <StackLayout.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding SelectSourceAccount}" />
             </StackLayout.GestureRecognizers>
@@ -34,7 +37,10 @@
                 FontSize="13"
                 Style="{StaticResource Regular}"
                 Text="Specify destination Ultranet Account that will receive moneys." />
-            <views:AccountView Margin="0,8" Account="{Binding RecipientAccount}" />
+            <views:AccountView
+                BorderStyle="{StaticResource AccountBorder}"
+                Margin="0,8"
+                Account="{Binding RecipientAccount}" />
             <StackLayout.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding SelectRecipientAccount}" />
             </StackLayout.GestureRecognizers>

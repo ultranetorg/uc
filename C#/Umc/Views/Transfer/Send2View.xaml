@@ -17,7 +17,9 @@
             
         <StackLayout Grid.Row="1">
             <Label Style="{StaticResource DashLabel}" Text="From" />
-            <views:AccountView Account="{Binding SourceAccount}" />
+            <views:AccountView
+                BorderStyle="{StaticResource AccountBorder}"
+                Account="{Binding SourceAccount}" />
         </StackLayout>
             
         <StackLayout Grid.Row="2">

@@ -21,7 +21,10 @@
                         Style="{StaticResource Regular}"
                         Text="{x:Static constants:TextResources.DELETEACCOUNT_WARNING2}" />
                 </StackLayout>
-                <views:AccountView BorderStyle="{StaticResource AccountCardBorder}" Margin="0,8" Account="{Binding Account}"/>
+                <views:AccountView
+                    BorderStyle="{StaticResource AccountCardBorder}"
+                    Margin="0,8"
+                    Account="{Binding Account}"/>
                 <Grid RowDefinitions="Auto,24">
                     <Label
                         Grid.Row="0"

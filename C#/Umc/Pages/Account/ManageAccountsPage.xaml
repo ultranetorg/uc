@@ -113,7 +113,8 @@
             </CollectionView>
             <Border
                 Grid.Row="1"
-                Margin="0,0,0,-10"
+                Margin="0,0,0,-12"
+                BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}"
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
                 <StackLayout Padding="15">

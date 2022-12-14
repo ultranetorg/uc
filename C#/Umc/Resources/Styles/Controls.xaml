@@ -640,6 +640,9 @@
     <Style x:Key="InvalidBorderStyle" TargetType="Border">
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource Error}}" />
     </Style>
+    <Style x:Key="AccountBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
+    </Style>
 
     <Style
         x:Key="ValidEditorStyle"

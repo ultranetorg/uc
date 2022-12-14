@@ -15,8 +15,12 @@ public static class MauiProgram
 			.ConfigureViewModels()
 			.ConfigureFonts(fonts =>
 			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+				fonts.AddFont("Montserrat-Bold.ttf", "Bold");
+				fonts.AddFont("Montserrat-SemiBold.ttf", "SemiBold");
+				fonts.AddFont("Montserrat-Light.ttf", "Light");
+				fonts.AddFont("Montserrat-Italic.ttf", "Italic");
+				fonts.AddFont("Montserrat-Medium.ttf", "Medium");
+				fonts.AddFont("Montserrat-Regular.ttf", "Regular");
 			});
 
 #if DEBUG

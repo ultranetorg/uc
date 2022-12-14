@@ -25,6 +25,7 @@
                 
                 <views:AccountView
                     Grid.Row="1"
+                    BorderStyle="{StaticResource AccountBorder}"
                     Account="{Binding Account}"/>
 
                 <StackLayout Grid.Row="2">
