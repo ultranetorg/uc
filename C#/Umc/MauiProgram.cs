@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using Sharpnado.Tabs;
 
 namespace UC.Umc;
 
@@ -21,7 +22,8 @@ public static class MauiProgram
 				fonts.AddFont("Montserrat-Italic.ttf", "Italic");
 				fonts.AddFont("Montserrat-Medium.ttf", "Medium");
 				fonts.AddFont("Montserrat-Regular.ttf", "Regular");
-			});
+			})
+			.UseSharpnadoTabs(false, true);
 
 #if DEBUG
 		builder.Services.AddLogging(configure =>

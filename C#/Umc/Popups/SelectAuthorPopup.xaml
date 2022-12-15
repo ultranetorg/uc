@@ -7,26 +7,10 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
     x:Name="page">
-    
-    <!--HasSystemPadding="{OnPlatform Android=True,
-                                iOS=False}"
-    <pages:PopupPage.Animation>
-        <pages:ScaleAnimation
-            DurationIn="400"
-            DurationOut="300"
-            EasingIn="SinOut"
-            EasingOut="SinIn"
-            HasBackgroundAnimation="False"
-            PositionIn="Bottom"
-            PositionOut="Bottom"
-            ScaleIn="1.2"
-            ScaleOut="0.8" />
-    </pages:PopupPage.Animation>-->
     <Frame
         Margin="0,0,0,-20"
         Padding="0"
-        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
-                                          Light={StaticResource LightBackground}}"
+        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}"
         CornerRadius="20"
         HasShadow="True"
         HorizontalOptions="FillAndExpand"

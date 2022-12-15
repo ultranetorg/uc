@@ -1,7 +1,6 @@
 ﻿using Application = Microsoft.Maui.Controls.Application;
 using Microsoft.Maui.Handlers;
 
-
 namespace UC.Umc;
 
 public partial class App : Application
@@ -13,10 +12,8 @@ public partial class App : Application
 		Ioc.Default.ConfigureServices(provider);
 
 		MainPage = new AppShell();
-
-		GlobalAppTheme.Theme = AppTheme.Dark;
 		
-		GlobalAppTheme.SetTheme();
+		SetTheme();
 
 		InitializeRouting();
 			
@@ -27,6 +24,12 @@ public partial class App : Application
 	private void OnWorkaround(IWindowHandler arg1, IWindow arg2, Action<IElementHandler, IElement> arg3)
 	{
 		WindowHandler.MapContent(arg1, arg2);
+	}
+
+	private void SetTheme()
+	{
+		GlobalAppTheme.Theme = AppTheme.Dark;
+		GlobalAppTheme.SetTheme();
 	}
 
 	private void InitializeRouting()

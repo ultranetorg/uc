@@ -17,7 +17,7 @@
             <StackLayout Padding="{StaticResource PagePadding}" Spacing="60">
                 <Label
                     FontSize="18"
-                    Text=" Ultranet User Center" />
+                    Text="Ultranet User Center" />
                 <Image HorizontalOptions="Center" Style="{StaticResource Logo2}" />
                 <Label
                     FontSize="12"

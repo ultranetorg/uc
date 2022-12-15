@@ -12,6 +12,15 @@
     BackgroundColor="{StaticResource Secondary}">
 
     <FlyoutItem
+        Title="{Binding Authors.Title}"
+        Route="{Static constants:ShellBaseRoutes.AUTHORS}">
+        <ShellContent
+            Title="{Binding Authors.Title}"
+            Icon="{AppThemeBinding Light=Authors.Icon,Dark=Authors.IconDark}"
+            ContentTemplate="{DataTemplate pages:AuthorsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
         Title="{Binding Dashboard.Title}"
         Route="{Static constants:ShellBaseRoutes.DASHBOARD}">
         <ShellContent 
@@ -27,15 +36,6 @@
             Title="{Binding Accounts.Title}"
             Icon="{AppThemeBinding Light=Accounts.Icon,Dark=Accounts.IconDark}"
             ContentTemplate="{DataTemplate pages:ManageAccountsPage}" />
-    </FlyoutItem>
-    
-    <FlyoutItem
-        Title="{Binding Authors.Title}"
-        Route="{Static constants:ShellBaseRoutes.AUTHORS}">
-        <ShellContent
-            Title="{Binding Authors.Title}"
-            Icon="{AppThemeBinding Light=Authors.Icon,Dark=Authors.IconDark}"
-            ContentTemplate="{DataTemplate pages:AuthorsPage}" />
     </FlyoutItem>
     
     <FlyoutItem
