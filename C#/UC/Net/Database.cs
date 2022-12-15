@@ -716,6 +716,33 @@ namespace UC.Net
 			}
 		}
 
+		public void Hashify()
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+	
+			w.Write7BitEncodedInt(LastCommittedRound.Id);
+			w.Write(LastCommittedRound.Hash);
+			w.Write(LastCommittedRound.WeiSpent);
+			w.Write(LastCommittedRound.Factor);
+			w.Write(LastCommittedRound.Emission);
+			w.Write(LastCommittedRound.Members.OrderBy(i => i.Generator, new BytesComparer()));
+			w.Write(LastCommittedRound.Funds.OrderBy(i => i, new BytesComparer()));
+	
+			BaseState = s.ToArray();
+		
+			BaseHash = Cryptography.Current.Hash(BaseState);
+	
+			//if(tail.First().Id != 0) 
+			{
+				foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))		BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Value));
+				foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Value));
+				foreach(var i in Products.SuperClusters.OrderBy(i => i.Key))		BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Value));
+				foreach(var i in Realizations.SuperClusters.OrderBy(i => i.Key))	BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Value));
+				foreach(var i in Releases.SuperClusters.OrderBy(i => i.Key))		BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Value));
+			}
+		}
+
 		public void Confirm(Round round, bool skipconsensus)
 		{
 			if(Settings.Database.Chain || !Settings.Database.Chain && round.Id % TailLength != 0)
@@ -806,61 +833,32 @@ namespace UC.Net
 
 				if(Rounds.Count(i => i.Id < round.Id) >= TailLength)
 				{
-					//if()
+					var tail = Rounds.AsEnumerable().Reverse().Take(TailLength);
+	
+					foreach(var i in tail)
 					{
-						var tail = Rounds.AsEnumerable().Reverse().Take(TailLength);
+						Accounts	.Save(b, i.AffectedAccounts.Values);
+						Authors		.Save(b, i.AffectedAuthors.Values);
+						Products	.Save(b, i.AffectedProducts.Values);
+						Realizations.Save(b, i.AffectedRealizations.Values);
+						Releases	.Save(b, i.AffectedReleases.Values);
+					}
 	
-						foreach(var i in tail)
-						{
-							Accounts	.Save(b, i.AffectedAccounts.Values);
-							Authors		.Save(b, i.AffectedAuthors.Values);
-							Products	.Save(b, i.AffectedProducts.Values);
-							Realizations.Save(b, i.AffectedRealizations.Values);
-							Releases	.Save(b, i.AffectedReleases.Values);
-						}
+					LastCommittedRound = tail.Last();
 	
-						LastCommittedRound = tail.Last();
-	
-						var s = new MemoryStream();
-						var w = new BinaryWriter(s);
-	
-						w.Write7BitEncodedInt(LastCommittedRound.Id);
-						w.Write(LastCommittedRound.Hash);
-						w.Write(LastCommittedRound.WeiSpent);
-						w.Write(LastCommittedRound.Factor);
-						w.Write(LastCommittedRound.Emission);
-						w.Write(LastCommittedRound.Members);
-						w.Write(LastCommittedRound.Funds);
-	
-						BaseState = s.ToArray();
-						//BaseStateHash = Cryptography.Current.Hash(BaseState);
-	
-						b.Put(BaseStateKey, BaseState);
-	
-						BaseHash = Cryptography.Current.Hash(BaseState);
-	
-						if(tail.First().Id != 0) 
-						{
-							foreach(var i in Accounts.Clusters.OrderBy(i => i.Id))		BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Hash));
-							foreach(var i in Authors.Clusters.OrderBy(i => i.Id))		BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Hash));
-							foreach(var i in Products.Clusters.OrderBy(i => i.Id))		BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Hash));
-							foreach(var i in Realizations.Clusters.OrderBy(i => i.Id))	BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Hash));
-							foreach(var i in Releases.Clusters.OrderBy(i => i.Id))		BaseHash = Cryptography.Current.Hash(Bytes.Xor(BaseHash, i.Hash));
-						}
+					Hashify();
 									
-						b.Put(BaseHashKey, BaseHash);
-	
-						//var olds = Rounds.GetRange(Rounds.IndexOf(LastCommittedRound),  Rounds.Count - Rounds.IndexOf(LastCommittedRound));
-						
-						foreach(var i in tail)
+					b.Put(BaseStateKey, BaseState);
+					b.Put(BaseHashKey, BaseHash);
+
+					foreach(var i in tail)
+					{
+						if(!LoadedRounds.ContainsKey(i.Id))
 						{
-							if(!LoadedRounds.ContainsKey(i.Id))
-							{
-								LoadedRounds.Add(i.Id, i);
-							}
-							
-							Rounds.Remove(i);
+							LoadedRounds.Add(i.Id, i);
 						}
+							
+						Rounds.Remove(i);
 					}
 				}
 

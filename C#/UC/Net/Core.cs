@@ -1081,7 +1081,7 @@ namespace UC.Net
 	
 			StampResponse stamp = null;
 
-			if(!Database.Roles.HasFlag(Role.Chain))
+			if(Database.Roles.HasFlag(Role.Base) && !Database.Roles.HasFlag(Role.Chain))
 			{
 				while(true)
 				{
@@ -1091,44 +1091,76 @@ namespace UC.Net
 					{
 						stamp = peer.GetStamp();
 
-						var ts = peer.GetTablesStamp();
-
-						void download<E, K>(Table<E, K> t, IEnumerable<TablesStampResponse.Cluster> clusters) where E : TableEntry<K>
+						void download<E, K>(Table<E, K> t) where E : TableEntry<K>
 						{
-							foreach(var i in clusters)
+							var ts = peer.GetTableStamp(t.Type, (t.Type switch
+																		{ 
+																			Tables.Accounts		=> stamp.Accounts.Where(i =>{
+																																var c = Database.Accounts.SuperClusters.ContainsKey(i.Id);
+																																return !c || !Database.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															}),
+																			Tables.Authors		=> stamp.Authors.Where(i =>	{
+																																var c = Database.Authors.SuperClusters.ContainsKey(i.Id);
+																																return !c || !Database.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															}),
+																			Tables.Products		=> stamp.Products.Where(i =>{
+																																var c = Database.Products.SuperClusters.ContainsKey(i.Id);
+																																return !c || !Database.Products.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															}),
+																			Tables.Realizations => stamp.Realizations.Where(i =>
+																															{
+																																var c = Database.Realizations.SuperClusters.ContainsKey(i.Id);
+																																return !c || !Database.Realizations.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															}),
+																			Tables.Releases		=> stamp.Releases.Where(i =>{
+																																var c = Database.Releases.SuperClusters.ContainsKey(i.Id);
+																																return !c || !Database.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															})
+																		}
+																).Select(i => i.Id).ToArray());
+
+							foreach(var i in ts.Clusters)
 							{
 								var c = t.Clusters.Find(j => j.Id == i.Id);
 
-								if(c == null || c.Hash.SequenceEqual(i.Hash))
+								if(c == null || !c.Hash.SequenceEqual(i.Hash))
 								{
-									var d = peer.DownloadTable(t.Type, (ushort)i.Id, 0, i.Length);
+									if(c == null)
+									{
+										c = new Table<E, K>.Cluster(t, (ushort)i.Id);
+										t.Clusters.Add(c);
+									}
 
-									c = new Table<E, K>.Cluster(t, (ushort)i.Id);
+									var d = peer.DownloadTable(t.Type, (ushort)i.Id, 0, i.Length);
 									
 									c.Read(new BinaryReader(new MemoryStream(d.Data)));
-							
-									t.Clusters.Add(c);
 								
 									using(var b = new WriteBatch())
 									{
 										c.Save(b);
+
+										if(!c.Hash.SequenceEqual(i.Hash))
+										{
+											throw new SynchronizationException();
+										}
 									}
 
 									Workflow.Log?.Report(this, "Cluster downloaded", $"{t.GetType().Name} {c.Id}");
 								}
 							}
+
+							t.CalculateSuperClusters();
 						}
 
-						download<AccountEntry, Account>(Database.Accounts, ts.Accounts);
-						download<AuthorEntry, string>(Database.Authors, ts.Authors);
-						download<ProductEntry, ProductAddress>(Database.Products, ts.Products);
-						download<RealizationEntry, RealizationAddress>(Database.Realizations, ts.Realizations);
-						download<ReleaseEntry, ReleaseAddress>(Database.Releases, ts.Releases);
+						download<AccountEntry, Account>(Database.Accounts);
+						download<AuthorEntry, string>(Database.Authors);
+						download<ProductEntry, ProductAddress>(Database.Products);
+						download<RealizationEntry, RealizationAddress>(Database.Realizations);
+						download<ReleaseEntry, ReleaseAddress>(Database.Releases);
 
 						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
 
-						var s = new MemoryStream(stamp.BaseState);
-						var rd = new BinaryReader(s);
+						var rd = new BinaryReader(new MemoryStream(stamp.BaseState));
 
 						rd.Read7BitEncodedInt();
 						r.Hash		 = rd.ReadSha3();
@@ -1138,19 +1170,26 @@ namespace UC.Net
 						r.Members	 = rd.ReadList<Member>();
 						r.Funds		 = rd.ReadList<Account>();
 
-						Database.Members = r.Members;
-						Database.Funds = r.Funds;
-						Database.BaseState = stamp.BaseState;
-						Database.BaseHash = stamp.BaseHash;
+						Database.BaseState	= stamp.BaseState;
+						//Database.BaseHash	= stamp.BaseHash;
+						Database.Members	= r.Members;
+						Database.Funds		= r.Funds;
 
 						Database.LastConfirmedRound = r;
 						Database.LastCommittedRound = r;
 
-						Database.LoadedRounds.Add(r.Id, r);
+						Database.Hashify();
 
-						break;
+						if(peer.GetStamp().BaseHash.SequenceEqual(Database.BaseHash))
+						{
+							Database.LoadedRounds.Add(r.Id, r);
+							break;
+						}
 					}
 					catch(DistributedCallException)
+					{
+					}
+					catch(SynchronizationException)
 					{
 					}
 				}

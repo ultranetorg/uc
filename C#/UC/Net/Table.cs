@@ -13,7 +13,7 @@ namespace UC.Net
 	public enum Tables
 	{
 		Null,
-		State,
+		//State,
 		Accounts,
 		Authors,
 		Products,
@@ -147,8 +147,9 @@ namespace UC.Net
 		}
 
 		const int						ClustersCacheLimit = 1000;
+		public Tables					Type => Enum.Parse<Tables>(GetType().Name.Replace("Table", "s"));
 
-		//public byte[]					Hash { get; protected set; } 
+		public Dictionary<byte, byte[]> SuperClusters = new();
 		public List<Cluster>			Clusters = new();
 		ColumnFamilyHandle				MetaColumn;
 		ColumnFamilyHandle				MainColumn;
@@ -161,8 +162,6 @@ namespace UC.Net
 
 		protected abstract E			Create();
 		protected abstract byte[]		KeyToBytes(K k);
-
-		public Tables					Type => Enum.Parse<Tables>(GetType().Name.Replace("Table", "s"));
 
 		public Table(Database chain)
 		{
@@ -181,6 +180,36 @@ namespace UC.Net
 	 				Clusters.Add(c);
 				}
 			}
+
+			if(Clusters.Any())
+			{
+				CalculateSuperClusters();
+			}
+		}
+
+		public void CalculateSuperClusters()
+		{
+			if(!Clusters.Any())
+				return;
+
+			var ocs = Clusters.OrderBy(i => i.Id);
+
+			byte b = (byte)(ocs.First().Id >> 8);
+			byte[] h = ocs.First().Hash;
+
+			foreach(var i in ocs.Skip(1))
+			{
+				if(b != i.Id >> 8)
+				{
+					SuperClusters[b] = h;
+					b = (byte)(i.Id >> 8);
+					h = i.Hash;
+				}
+				else
+					h = Cryptography.Current.Hash(Bytes.Xor(h, i.Hash));
+			}
+
+			SuperClusters[b] = h;
 		}
 
 		public class Enumerator : IEnumerator<E>
@@ -295,6 +324,9 @@ namespace UC.Net
 
 		public void Save(WriteBatch batch, IEnumerable<E> items)
 		{
+			if(!items.Any())
+				return;
+
 			var cs = new HashSet<Cluster>();
 
 			foreach(var i in items)
@@ -311,6 +343,8 @@ namespace UC.Net
 			{
 				i.Save(batch);
 			}
+
+			CalculateSuperClusters();
 		}
 	}
 }

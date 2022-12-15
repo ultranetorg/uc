@@ -28,6 +28,7 @@ namespace UC.Net
 			switch(val)
 			{
 				case bool v :	writer.Write(v); return true;
+				case byte v :	writer.Write(v); return true;
 				case int v :	writer.Write7BitEncodedInt(v); return true;
 				case long v :	writer.Write7BitEncodedInt64(v); return true;
 				case Coin v :	v.Write(writer); return true;
@@ -179,6 +180,12 @@ namespace UC.Net
 			if(typeof(bool) == type)			
 			{
 				value = reader.ReadBoolean();
+				return true;
+			}
+			else 
+			if(typeof(byte) == type)
+			{	
+				value = reader.ReadByte();
 				return true;
 			}
 			else 
