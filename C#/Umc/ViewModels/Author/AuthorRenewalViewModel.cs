@@ -21,7 +21,7 @@ public partial class AuthorRenewalViewModel : BaseAccountViewModel
 	{
 		var popup = new SourceAccountPopup();
 		await ShowPopup(popup);
-        if (popup?.Vm?.Account != null)
+		if (popup?.Vm?.Account != null)
 		{
 			Account = popup.Vm.Account;
 		}

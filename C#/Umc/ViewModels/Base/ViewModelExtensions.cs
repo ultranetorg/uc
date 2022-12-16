@@ -99,8 +99,7 @@ public static class ViewModelExtensions
 		// Transient ViewModels
 		builder.Services.AddTransient<AuthorRegistration1ViewModel>();
 		builder.Services.AddTransient<AuthorRegistrationViewModel>();
-		builder.Services.AddTransient<AuthorRenewal1ViewModel>();
-		builder.Services.AddTransient<AuthorRenewal2ViewModel>();
+		builder.Services.AddTransient<AuthorRenewalViewModel>();
 		builder.Services.AddTransient<CreateAccountViewModel>();
 		builder.Services.AddTransient<ETHTransfer2ViewModel>();
 		builder.Services.AddTransient<ETHTransfer3ViewModel>();

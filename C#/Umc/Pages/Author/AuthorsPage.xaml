@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views.Shared"
     Title="Authors"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>
@@ -21,6 +22,13 @@
                 VerticalOptions="Center" />
         </Grid>
     </controls:CustomPage.RightContent>-->
+    <Shell.TitleView>
+        <views:PageTitleActionView
+            Title="Authors"
+            TitleStyle="{StaticResource TitleLabel}"
+            IconSource="account_sort"
+            IconStyle="{StaticResource Dots}" />
+    </Shell.TitleView>
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="30,*" RowSpacing="4" Margin="24,12">
             <CollectionView ItemsSource="{Binding AuthorsFilter}">
