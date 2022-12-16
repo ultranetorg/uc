@@ -49,9 +49,8 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout>
-                            <Frame
-                                Margin="0,5,0,5"
-                                HasShadow="False"
+                            <Border
+                                Margin="0,5"
                                 Style="{StaticResource TransactionCard}">
                                 <Grid
                                     Padding="5"
@@ -98,7 +97,7 @@
                                         Text="{Binding USD, StringFormat='${0}'}"
                                         VerticalOptions="Start" />
                                 </Grid>
-                            </Frame>
+                            </Border>
                         </StackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
