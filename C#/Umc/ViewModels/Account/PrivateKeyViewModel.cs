@@ -3,7 +3,7 @@
 public partial class PrivateKeyViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    private CustomCollection<Author> _authors = new();
+    private CustomCollection<AuthorViewModel> _authors = new();
 
 	[ObservableProperty]
     private CustomCollection<Product> _products = new();

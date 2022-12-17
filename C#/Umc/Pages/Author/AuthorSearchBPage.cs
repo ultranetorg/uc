@@ -6,11 +6,11 @@ public partial class AuthorSearchBPage : CustomPage
     {
         InitializeComponent();
         var vm = Ioc.Default.GetService<AuthorSearchBViewModel>();
-		vm.Author = new Author();
+		vm.Author = new AuthorViewModel();
         BindingContext = vm;
     }
 
-    public AuthorSearchBPage(Author author, AuthorSearchBViewModel vm)
+    public AuthorSearchBPage(AuthorViewModel author, AuthorSearchBViewModel vm)
     {
         InitializeComponent();
 		vm.Author = author;

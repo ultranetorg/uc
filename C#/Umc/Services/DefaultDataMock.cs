@@ -32,7 +32,7 @@ internal static class DefaultDataMock
 		};
 	}
 
-	public static Author Author1 => new()
+	public static AuthorViewModel Author1 => new()
 	{
 		BidStatus = BidStatus.None,
 		Name = "amazon.com",

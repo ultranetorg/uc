@@ -12,7 +12,7 @@ public partial class AuthorSearchPViewModel : BaseAuthorViewModel
         {
             InitializeLoading();
 
-            Author = (Author)query[QueryKeys.AUTHOR];
+            Author = (AuthorViewModel)query[QueryKeys.AUTHOR];
 #if DEBUG
             _logger.LogDebug("ApplyQueryAttributes Author: {Author}", Author);
 #endif

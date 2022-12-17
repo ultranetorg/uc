@@ -6,7 +6,7 @@ public partial class StartViewModel : BaseViewModel
     private AccountViewModel _account;
 
 	[ObservableProperty]
-    private Author _author = DefaultDataMock.Author1;
+    private AuthorViewModel _author = DefaultDataMock.Author1;
 
 	public StartViewModel(ILogger<StartViewModel> logger) : base(logger)
 	{

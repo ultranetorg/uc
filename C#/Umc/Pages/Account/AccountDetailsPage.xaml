@@ -160,7 +160,7 @@
                             Orientation="Horizontal"
                             Spacing="10">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:Author">
+                                <DataTemplate x:DataType="models:AuthorViewModel">
                                     <Border
                                         HeightRequest="22"
                                         HorizontalOptions="Start"

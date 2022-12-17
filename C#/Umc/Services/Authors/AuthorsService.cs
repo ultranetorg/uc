@@ -2,13 +2,33 @@
 
 public sealed class AuthorsService : IAuthorsService
 {
-    public Task<int> GetCountAsync()
-    {
-        throw new NotImplementedException();
-    }
+	public Task<ObservableCollection<AuthorViewModel>> GetAccountAuthorsAsync()
+	{
+		throw new NotImplementedException();
+	}
 
-    public Task<ObservableCollection<Author>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
+	public Task<ObservableCollection<AuthorViewModel>> GetAuctionAuthorsAsync()
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task MakeBidAsync(AuthorViewModel author, decimal amount)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task RegisterAuthorAsync(AuthorViewModel author)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task RenewAuthorAsync(AuthorViewModel author)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync()
+	{
+		throw new NotImplementedException();
+	}
 }

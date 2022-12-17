@@ -4,10 +4,10 @@ public partial class SelectAuthorViewModel : BaseViewModel
 {
 	private readonly IAuthorsService _service;
 
-    public Author SelectedAuthor;
+    public AuthorViewModel SelectedAuthor;
 
 	[ObservableProperty]
-	private CustomCollection<Author> _authors = new();
+	private CustomCollection<AuthorViewModel> _authors = new();
 
     public SelectAuthorViewModel(IAuthorsService service, ILogger<SelectAuthorViewModel> logger) : base(logger)
     {
@@ -16,7 +16,7 @@ public partial class SelectAuthorViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void ItemTapped(Author Author)
+    private void ItemTapped(AuthorViewModel Author)
     {
         SelectedAuthor = Author;
     }
@@ -26,7 +26,7 @@ public partial class SelectAuthorViewModel : BaseViewModel
 	
 	public void Initialize()
 	{
-		var authors = Task.Run(async () => await _service.GetAllAsync()).Result;
+		var authors = _service.GetAccountAuthorsAsync().Result;
 		Authors.AddRange(authors);
 	}
 }

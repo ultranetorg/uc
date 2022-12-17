@@ -5,7 +5,7 @@ public class ServicesMockData : IServicesMockData
 	private readonly ILogger<ServicesMockData> _logger;
 
 	public IList<AccountViewModel> Accounts { get; private set; } = new List<AccountViewModel>();
-    public IList<Author> Authors { get; private set; } = new List<Author>();
+    public IList<AuthorViewModel> Authors { get; private set; } = new List<AuthorViewModel>();
     public IList<Product> Products { get; private set; } = new List<Product>();
     public IList<TransactionViewModel> Transactions { get; private set; } = new List<TransactionViewModel>();
 	public IList<AccountColor> AccountColors { get; private set; } = new List<AccountColor>();
@@ -51,7 +51,7 @@ public class ServicesMockData : IServicesMockData
 
 			#region Authors
 
-			Author author1 = new()
+			AuthorViewModel author1 = new()
 			{
 				Name = "microsoft",
 				Title = "Microsoft",
@@ -66,7 +66,7 @@ public class ServicesMockData : IServicesMockData
 					product5,
 				},
 			};
-			Author author2 = new()
+			AuthorViewModel author2 = new()
 			{
 				Name = "alphabet",
 				Title = "Alphabet",
@@ -77,7 +77,7 @@ public class ServicesMockData : IServicesMockData
 					product6,
 				},
 			};
-			Author author3 = new()
+			AuthorViewModel author3 = new()
 			{
 				Name = "amazonlimited",
 				Title = "Amazon Limited",
@@ -89,7 +89,7 @@ public class ServicesMockData : IServicesMockData
 					product8,
 				},
 			};
-			Author author4 = new()
+			AuthorViewModel author4 = new()
 			{
 				Name = "spacex",
 				Title = "Space X",
@@ -97,7 +97,7 @@ public class ServicesMockData : IServicesMockData
 				BidStatus = BidStatus.Lower,
 			};
 
-			Author author5 = new()
+			AuthorViewModel author5 = new()
 			{
 				Name = "gate500",
 				Title = "Gate 500",

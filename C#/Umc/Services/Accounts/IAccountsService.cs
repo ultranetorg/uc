@@ -6,9 +6,9 @@ public interface IAccountsService
 
     Task<string> GetPrivateKeyAsync(string address);
 
-	Task CreateAccountAsync(CreateAccountWorkflow workflow);
+	Task CreateAccountAsync(AccountViewModel account);
 
-	Task RestoreAccountAsync(RestoreAccountWorkflow workflow);
+	Task RestoreAccountAsync(AccountViewModel account);
 
 	// hide from dashboard?
     Task UpdateAsync([NotNull] AccountViewModel account);

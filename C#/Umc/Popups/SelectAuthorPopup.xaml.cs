@@ -18,7 +18,7 @@ public partial class SelectAuthorPopup : Popup
 		Close();
     }
 
-	public static async Task<Author> Show()
+	public static async Task<AuthorViewModel> Show()
 	{
 		popup = new SelectAuthorPopup();
 		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);

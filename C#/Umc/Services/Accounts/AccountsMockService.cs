@@ -20,12 +20,12 @@ public class AccountsMockService : IAccountsService
 		throw new NotImplementedException();
 	}
 
-	public Task CreateAccountAsync(CreateAccountWorkflow workflow)
+	public Task CreateAccountAsync(AccountViewModel account)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task RestoreAccountAsync(RestoreAccountWorkflow workflow)
+	public Task RestoreAccountAsync(AccountViewModel account)
 	{
 		throw new NotImplementedException();
 	}

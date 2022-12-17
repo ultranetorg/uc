@@ -2,14 +2,14 @@
 
 public partial class AuthorSearchPage : CustomPage
 {
-    public AuthorSearchPage(Author author, AuthorSearchPViewModel vm)
+    public AuthorSearchPage(AuthorViewModel author, AuthorSearchPViewModel vm)
     {
         InitializeComponent();
 		vm.Author = author;
         BindingContext = vm;
     }
 
-    public AuthorSearchPage(Author author)
+    public AuthorSearchPage(AuthorViewModel author)
     {
         InitializeComponent();
 		var vm = Ioc.Default.GetService<AuthorSearchPViewModel>();
@@ -21,7 +21,7 @@ public partial class AuthorSearchPage : CustomPage
 	{
         InitializeComponent();
 		var vm = Ioc.Default.GetService<AuthorSearchPViewModel>();
-		vm.Author = new Author();
+		vm.Author = new AuthorViewModel();
         BindingContext = vm;
 	}
 }

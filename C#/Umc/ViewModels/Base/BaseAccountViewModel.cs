@@ -6,7 +6,7 @@ public abstract partial class BaseAccountViewModel : BaseViewModel
     private CustomCollection<AccountColor> _colorsCollection = new();
 	
 	[ObservableProperty]
-    private CustomCollection<Author> _authors = new();
+    private CustomCollection<AuthorViewModel> _authors = new();
 	
 	[ObservableProperty]
     private CustomCollection<Product> _products = new();

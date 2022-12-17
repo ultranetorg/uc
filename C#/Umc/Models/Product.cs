@@ -8,7 +8,7 @@ public class Product
     public string Abbr { get; internal set; }
     public Color Color { get; internal set; }
 
-    public Author Author { get; set; }
+    public AuthorViewModel Author { get; set; }
 
 	public Product()
 	{

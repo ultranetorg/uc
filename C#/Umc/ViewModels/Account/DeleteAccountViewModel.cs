@@ -6,7 +6,7 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private CustomCollection<Author> _authors = new();
+    private CustomCollection<AuthorViewModel> _authors = new();
 
 	[ObservableProperty]
     private CustomCollection<Product> _products = new();

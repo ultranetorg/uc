@@ -2,7 +2,15 @@
 
 public interface IAuthorsService
 {
-    Task<int> GetCountAsync();
+    Task<ObservableCollection<AuthorViewModel>> GetAccountAuthorsAsync();
 
-    Task<ObservableCollection<Author>> GetAllAsync();
+    Task<ObservableCollection<AuthorViewModel>> GetAuctionAuthorsAsync();
+
+    Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync();
+
+	Task RegisterAuthorAsync(AuthorViewModel author);
+
+	Task RenewAuthorAsync(AuthorViewModel author);
+
+	Task MakeBidAsync(AuthorViewModel author, decimal amount);
 }

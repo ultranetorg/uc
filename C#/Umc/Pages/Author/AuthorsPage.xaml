@@ -15,14 +15,10 @@
                 HorizontalOptions="End"
                 Style="{StaticResource Dots}"
                 VerticalOptions="Center" />
-            <ImageButton
-                Grid.Column="0"
-                HorizontalOptions="End"
-                Style="{StaticResource Sort}"
-                VerticalOptions="Center" />
         </Grid>
     </controls:CustomPage.RightContent>-->
     <Shell.TitleView>
+        <!--Need to rewrite it using svg icon or make as a new shared component-->
         <views:PageTitleActionView
             Title="Authors"
             TitleStyle="{StaticResource TitleLabel}"

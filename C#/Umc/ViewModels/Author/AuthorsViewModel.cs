@@ -5,10 +5,10 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	private readonly IAuthorsService _service;
 
 	[ObservableProperty]
-    private Author _selectedItem;
+    private AuthorViewModel _selectedItem;
 
 	[ObservableProperty]
-    private CustomCollection<Author> _authors = new();
+    private CustomCollection<AuthorViewModel> _authors = new();
 
 	[ObservableProperty]
     private CustomCollection<string> _authorsFilter = new();
@@ -19,7 +19,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     }
 	
 	[RelayCommand]
-    private async Task AuthorTappedAsync(Author author) =>
+    private async Task AuthorTappedAsync(AuthorViewModel author) =>
 		await Navigation.GoToAsync(nameof(AuthorSearchPage),
 			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, author }});
 	
@@ -30,7 +30,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     private async Task MakeBidAsync() => await Navigation.GoToAsync(ShellBaseRoutes.MAKE_BID);
 
 	[RelayCommand]
-    private async Task OpenAuthorOptionsAsync(Author author)
+    private async Task OpenAuthorOptionsAsync(AuthorViewModel author)
     {
         // await AccountOptionsPopup.Show(author);
 		await Task.Delay(10);
@@ -41,7 +41,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
         AuthorsFilter = DefaultDataMock.DefaultFilter;
 		
 		Authors.Clear();
-		var authors = await _service.GetAllAsync();
+		var authors = await _service.GetAccountAuthorsAsync();
 		Authors.AddRange(authors);
 	}
 }

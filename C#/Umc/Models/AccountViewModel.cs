@@ -4,13 +4,14 @@ namespace UC.Umc.Models;
 
 public class AccountViewModel
 {
+	protected Account	_account;
+
     public string			Name { get; set; }
     public GradientBrush	Color { get; set; }
     public bool				HideOnDashboard { get; set; }
 	public decimal			Balance { get; set; }
-	public Account			Account { get; private set; }
 	public string			Address { get; set; }
-    //public string			Address => Entry.Account.ToString();
+    //public string			Address => _account.ToString();
 	
     public IList<string>	Authors { get; set; } = new List<string>();
     public HashSet<int>		Transactions { get; set; } = new HashSet<int>();
@@ -23,7 +24,7 @@ public class AccountViewModel
 
 	public AccountViewModel(Account account)
 	{
-		Account = account;
+		_account = account;
 	}
 
 	// WBD
