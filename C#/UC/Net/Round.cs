@@ -18,7 +18,7 @@ namespace UC.Net
 
 		public int												Try = 0;
 		public DateTime											FirstArrivalTime = DateTime.MaxValue;
-		public DateTime											LastAccessed = DateTime.UtcNow;
+		//public DateTime											LastAccessed = DateTime.UtcNow;
 
 		public List<Block>										Blocks = new();
 		//public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>();
@@ -286,7 +286,7 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Id >= Database.TailLength ? Chain.BaseHash : Cryptography.ZeroHash);
+			w.Write(Chain.BaseHash);
 			w.Write(previous);
 
 			WriteConfirmed(w);
@@ -298,11 +298,11 @@ namespace UC.Net
 		{
 			writer.Write(Time);
 			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
-			writer.Write(ConfirmedViolators);
-			writer.Write(ConfirmedJoiners);
-			writer.Write(ConfirmedLeavers);
-			writer.Write(ConfirmedFundJoiners);
-			writer.Write(ConfirmedFundLeavers);
+			writer.Write(ConfirmedViolators.OrderBy(i => i));
+			writer.Write(ConfirmedJoiners.OrderBy(i => i));
+			writer.Write(ConfirmedLeavers.OrderBy(i => i));
+			writer.Write(ConfirmedFundJoiners.OrderBy(i => i));
+			writer.Write(ConfirmedFundLeavers.OrderBy(i => i));
 		}
 
 		void ReadConfirmed(BinaryReader reader)
@@ -319,6 +319,7 @@ namespace UC.Net
 													return b as Block;
 												});
 	
+			ConfirmedPayloads		= Blocks.Cast<Payload>().ToList();
 			ConfirmedViolators		= reader.ReadList<Account>();
 			ConfirmedJoiners		= reader.ReadList<Account>();
 			ConfirmedLeavers		= reader.ReadList<Account>();
@@ -331,13 +332,16 @@ namespace UC.Net
 			w.Write7BitEncodedInt(Id);
 			w.Write(Confirmed);
 			
+
 			if(Confirmed)
 			{
+#if DEBUG
+				w.Write(Hash);
+#endif
 				WriteConfirmed(w);
 			} 
 			else
 			{
-				w.Write(Voted);
 				w.Write(Blocks, i => {
 										w.Write(i.TypeCode); 
 										i.Write(w); 
@@ -352,11 +356,13 @@ namespace UC.Net
 			
 			if(Confirmed)
 			{
+#if DEBUG
+				Hash = r.ReadSha3();
+#endif
 				ReadConfirmed(r);
 			} 
 			else
 			{
-				Voted	= r.ReadBoolean();
 				Blocks	= r.ReadList(() =>	{
 												var b = Block.FromType(Chain, (BlockType)r.ReadByte());
 												b.RoundId = Id;

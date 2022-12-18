@@ -24,9 +24,6 @@ namespace UC.Net
 		public Coin					LastBid;
 		public ChainTime			LastBidTime;
 
-		//public int					ObtainedRid;
-		//public List<string>		Products = new();
-
 		Database					Chain;
 
 		public const int			LengthMaxForAuction = 4;
@@ -45,14 +42,12 @@ namespace UC.Net
 						Name = Name,
 						Title = Title,
 						Owner = Owner,
+						Years = Years,
+						RegistrationTime = RegistrationTime,
 						FirstBidTime = FirstBidTime,
 						LastWinner = LastWinner,
 						LastBid = LastBid,
-						LastBidTime = LastBidTime,
-						RegistrationTime = RegistrationTime,
-						Years = Years,
-						//ObtainedRid = ObtainedRid,
-						//Products = new List<string>(Products)
+						LastBidTime = LastBidTime
 					};
 		}
 
@@ -161,14 +156,14 @@ namespace UC.Net
 
 		public bool IsOngoingAuction(Round executing)
 		{
-			ChainTime sinceauction() => executing.Time - FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
+			var sinceauction = executing.Time - FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
 
-			bool expired = (Owner == null && sinceauction() > ChainTime.FromYears(2) ||																			/// winner has not registered during 2 year since auction start, restart the auction
+			bool expired = (Owner == null && sinceauction > ChainTime.FromYears(2) ||																			/// winner has not registered during 2 year since auction start, restart the auction
 							Owner != null && executing.Time - RegistrationTime > ChainTime.FromYears(Years));	/// winner has not renewed, restart the auction
 
  			if(!expired)
  			{
-	 			return sinceauction() < ChainTime.FromYears(1);
+	 			return sinceauction < ChainTime.FromYears(1);
  			} 
  			else
  			{

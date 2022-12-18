@@ -51,7 +51,7 @@ namespace UC.Sun.FUI
 										{
 											t = Core.Connect(Role.Base, null, new Workflow()).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
 										}
-										catch(ApiCallException)
+										catch(DistributedCallException)
 										{
 											t = "...";
 										}
@@ -79,7 +79,7 @@ namespace UC.Sun.FUI
 									{
 										t = Core.Connect(Role.Base, null, new Workflow()).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
 									}
-									catch(ApiCallException)
+									catch(DistributedCallException)
 									{
 										t = "...";
 									}

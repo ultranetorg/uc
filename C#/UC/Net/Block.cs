@@ -164,7 +164,7 @@ namespace UC.Net
 		public override void Write(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(RoundId);
-			writer.Write(Generator);						/// needed to hash transactions
+			writer.Write(Generator);
 			writer.Write(Signature);
 
 			writer.Write7BitEncodedInt(Try);

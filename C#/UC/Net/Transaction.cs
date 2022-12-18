@@ -70,7 +70,7 @@ namespace UC.Net
 			w.WriteUtf8(Settings.Zone.Name); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
-			w.Write(Operations, i => i.HashWrite(w));
+			w.Write(Operations, i => i.Write(w));
 		}
 
 		public void	WriteConfirmed(BinaryWriter w)
@@ -78,7 +78,7 @@ namespace UC.Net
 			w.Write(Signer);
 			w.Write(SuccessfulOperations, i =>	{ 
 													w.Write((byte)i.Type); 
-													i.WriteConfirmed(w); 
+													i.Write(w); 
 												});
 		}
 		
@@ -90,7 +90,7 @@ namespace UC.Net
 												o.Placing		= PlacingStage.Confirmed;
 												o.Signer		= Signer;
 												o.Transaction	= this;
-												o.ReadConfirmed(r); 
+												o.Read(r); 
 												return o; 
 											});
 		}

@@ -104,23 +104,25 @@ namespace UC.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 
-				w.Write(Entries.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer()));
+				var entities = Entries/*.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer())*/;
+
+				w.Write(entities);
 
 				_Main = s.ToArray();
+				batch.Put(ToBytes(Id), _Main,		Table.MainColumn);
 
 				Hash = Cryptography.Current.Hash(_Main);
 				MainLength = _Main.Length;
 				
-				s.Position = 0;
+				s.SetLength(0);
 				w.Write(Hash);
 				w.Write7BitEncodedInt(_Main.Length);
 
 				batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
-				batch.Put(ToBytes(Id), _Main,		Table.MainColumn);
 
-				s.Position = 0;
+				s.SetLength(0);
 
-				foreach(var i in Entries)
+				foreach(var i in entities)
 					i.WriteMore(w);
 
 				batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
@@ -224,6 +226,13 @@ namespace UC.Net
 			public Enumerator(Table<E, K> table)
 			{
 				Table = table;
+
+				Cluster = Table.Clusters.GetEnumerator();
+				
+				if(Cluster.Current != null)
+				{
+					Entity = Cluster.Current.Entries.GetEnumerator();
+				}
 			}
 
 			public void Dispose()
@@ -286,7 +295,7 @@ namespace UC.Net
 			c = new Cluster(this, id);
 			Clusters.Add(c);
 
-			Recycle();
+			//Recycle();
 
 			return c;
 		}
@@ -313,23 +322,23 @@ namespace UC.Net
 
 		void Recycle()
 		{
-			if(Clusters.Count > ClustersCacheLimit)
-			{
-				foreach(var i in Clusters.OrderByDescending(i => i.Entries.Max(i => i.LastAccessed)).Skip(ClustersCacheLimit))
-				{
-					Clusters.Remove(i);
-				}
-			}
+			//if(Clusters.Count > ClustersCacheLimit)
+			//{
+			//	foreach(var i in Clusters.OrderByDescending(i => i.Entries.Max(i => i.LastAccessed)).Skip(ClustersCacheLimit))
+			//	{
+			//		Clusters.Remove(i);
+			//	}
+			//}
 		}
 
-		public void Save(WriteBatch batch, IEnumerable<E> items)
+		public void Save(WriteBatch batch, IEnumerable<E> entities)
 		{
-			if(!items.Any())
+			if(!entities.Any())
 				return;
 
 			var cs = new HashSet<Cluster>();
 
-			foreach(var i in items)
+			foreach(var i in entities)
 			{
 				var c = GetCluster(Cluster.ToId(i.ClusterKey));
 

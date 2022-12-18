@@ -40,18 +40,14 @@ namespace UC.Net
 			Title		= title;
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Address	= r.Read<ProductAddress>();
 			Title	= r.ReadUtf8();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(Address);
 			w.WriteUtf8(Title);
 		}
@@ -94,16 +90,14 @@ namespace UC.Net
 		{
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
 			Realization	= r.Read<RealizationAddress>();
 			OSes		= r.ReadArray<Osbi>();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
 			w.Write(Realization);
 			w.Write(OSes);
 		}
@@ -136,6 +130,7 @@ namespace UC.Net
 		}
 	}
 
+/*
 	public class ProductControl : Operation
 	{
 		enum Change
@@ -168,7 +163,7 @@ namespace UC.Net
 		public void				RemovePublisher(Account publisher)	=> Actions[Change.RemovePublisher] = publisher;
 		public void				SetStatus(bool active)				=> Actions[Change.SetStatus] = active;
 
-		public override void Read(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader r)
 		{
 			base.Read(r);
 
@@ -185,7 +180,7 @@ namespace UC.Net
 											});
 		}
 
-		public override void Write(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter w)
 		{
 			base.Write(w);
 
@@ -201,7 +196,7 @@ namespace UC.Net
 										}
 									});
 		}
-	}
+	}*/
 
 	public class ReleaseRegistration : Operation
 	{
@@ -224,32 +219,18 @@ namespace UC.Net
 			Manifest = manifest;
 		}
 
-		public override void HashWrite(BinaryWriter writer)
+		protected override void ReadConfirmed(BinaryReader reader)
 		{
-			writer.Write(Release);
-			writer.Write(Manifest);
-			writer.WriteUtf8(Channel);
-		}
-
-		public override void WritePaid(BinaryWriter writer)
-		{
-			writer.Write(Release);
-			writer.Write(Manifest);
-			writer.WriteUtf8(Channel);
-		}
-
-		public override void Read(BinaryReader reader)
-		{
-			base.Read(reader);
 			Release = reader.Read<ReleaseAddress>();
 			Manifest = reader.ReadSha3();
 			Channel = reader.ReadUtf8();
 		}
 
-		public override void Write(BinaryWriter writer)
+		protected override void WriteConfirmed(BinaryWriter writer)
 		{
-			base.Write(writer);
-			WritePaid(writer);
+			writer.Write(Release);
+			writer.Write(Manifest);
+			writer.WriteUtf8(Channel);
 		}
 
 		public override void Execute(Database chain, Round round)

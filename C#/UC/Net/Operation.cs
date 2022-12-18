@@ -68,6 +68,10 @@ namespace UC.Net
 		public Operation()
 		{
 		}
+		
+		public abstract void Execute(Database chain, Round round);
+		protected abstract void WriteConfirmed(BinaryWriter w);
+		protected abstract void ReadConfirmed(BinaryReader r);
 
 		public static Operation FromType(Operations type)
 		{
@@ -80,51 +84,30 @@ namespace UC.Net
 				throw new IntegrityException($"Wrong {nameof(Operation)} type", ex);
 			}
 		}
-
-		public virtual void Execute(Database chain, Round round)
-		{
-		}
- 
+		 
 		public override string ToString()
 		{
 			return $"{Type}, Id={Id}, {Delegation}, {Placing}, " + Description + $", Error={Error}";
 		}
 
-		public virtual void Read(BinaryReader r)
+		public void Read(BinaryReader reader)
 		{
-			Id = r.Read7BitEncodedInt();
+			Id = reader.Read7BitEncodedInt();
+
+			ReadConfirmed(reader);
 #if DEBUG
-			__ExpectedPlacing = (PlacingStage)r.ReadByte();
+			//__ExpectedPlacing = (PlacingStage)r.ReadByte();
 #endif
 		}
 
-		public virtual void Write(BinaryWriter w)
+		public void Write(BinaryWriter writer)
 		{
-			w.Write7BitEncodedInt(Id);
+			writer.Write7BitEncodedInt(Id);
+			
+			WriteConfirmed(writer);
 #if DEBUG
-			w.Write((byte)__ExpectedPlacing);
+			//w.Write((byte)__ExpectedPlacing);
 #endif
-		}
-
-		public virtual void HashWrite(BinaryWriter w)
-		{
-			Write(w);
-		}
-
-		public virtual void WritePaid(BinaryWriter w)
-		{
-			Write(w);
-		}
-
-		public virtual void WriteConfirmed(BinaryWriter w)
-		{
-			Write(w);
-		}
-
-		public virtual void ReadConfirmed(BinaryReader r)
-		{
-			Placing = PlacingStage.Confirmed;
-			Read(r);
 		}
 
 		public static bool IsValid(string author, string title)
@@ -153,7 +136,7 @@ namespace UC.Net
 			var s = new MemoryStream(); 
 			var w = new BinaryWriter(s);
 
-			WritePaid(w); 
+			WriteConfirmed(w); 
 
 			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
@@ -164,7 +147,7 @@ namespace UC.Net
 			var w = new BinaryWriter(s);
 
 			w.Write(operations, i => {
-									 	i.WritePaid(w); 
+									 	i.WriteConfirmed(w); 
 									 });
 
 			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
@@ -192,18 +175,14 @@ namespace UC.Net
 			IPs = ips.ToArray();
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Bail = r.ReadCoin();
 			IPs	 = r.ReadArray(() => new IPAddress(r.ReadBytes(4)));
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(Bail);
 			w.Write(IPs, i => w.Write(i.GetAddressBytes()));
 		}
@@ -255,18 +234,14 @@ namespace UC.Net
 
 		public override bool Valid => 0 < Wei && 0 <= Eid;
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Wei	= r.ReadBigInteger();
 			Eid	= r.Read7BitEncodedInt();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(Wei);
 			w.Write7BitEncodedInt(Eid);
 		}
@@ -346,9 +321,10 @@ namespace UC.Net
 
 	public class UntTransfer : Operation
 	{
-		public Account		To;
-		public Coin			Amount;
-		public override string Description => $"{Amount} UNT -> {To}";
+		public Account			To;
+		public Coin				Amount;
+		public override string	Description => $"{Amount} UNT -> {To}";
+		public override bool	Valid => 0 <= Amount;
 
 		public UntTransfer()
 		{
@@ -364,20 +340,14 @@ namespace UC.Net
 			Amount = amount;
 		}
 
-		public override bool Valid => 0 <= Amount;
-
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			To		= r.ReadAccount();
 			Amount	= r.ReadCoin();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(To);
 			w.Write(Amount);
 		}
@@ -407,18 +377,14 @@ namespace UC.Net
 			Bid = bid;
 		}
 		
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Author	= r.ReadUtf8();
 			Bid		= r.ReadCoin();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.WriteUtf8(Author);
 			w.Write(Bid);
 		}
@@ -533,19 +499,15 @@ namespace UC.Net
 			Years = years;
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Author	= r.ReadUtf8();
 			Title	= r.ReadUtf8();
 			Years	= r.ReadByte();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Title);
 			w.Write(Years);
@@ -616,18 +578,14 @@ namespace UC.Net
 			To = to;
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Author	= r.ReadUtf8();
 			To		= r.ReadAccount();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.WriteUtf8(Author);
 			w.Write(To);
 		}

@@ -32,19 +32,30 @@ namespace UC.Net
 		Disconnected = 0, OK, Failed, Disconnecting
 	}
 
-	public class Header
-	{
-		public int		LastRound;
-		public int		LastConfirmedRound;
-	}
+	//public class Header : IBinarySerializable
+	//{
+	//	public int		LastNonEmptyRound;
+	//	public int		LastConfirmedRound;
+	//	public byte[]	BaseHash;
+	//
+	//	public void Read(BinaryReader reader)
+	//	{
+	//		LastNonEmptyRound	= reader.Read7BitEncodedInt();
+	//		LastConfirmedRound	= reader.Read7BitEncodedInt();
+	//		BaseHash			= reader.ReadSha3();
+	//	}
+	//
+	//	public void Write(BinaryWriter writer)
+	//	{
+	//		writer.Write7BitEncodedInt(LastNonEmptyRound);
+	//		writer.Write7BitEncodedInt(LastConfirmedRound);
+	//		writer.Write(BaseHash);
+	//	}
+	//}
 
 	public class Peer : Dci
 	{
 		public IPAddress			IP {get; set;} 
-		//public int					JoinedGeneratorsAt {get; set;}
-		
-		public int					LastRound;
-		public int					LastConfirmedRound;
 
 		public EstablishingStatus	InStatus = EstablishingStatus.Null;
 		public EstablishingStatus	OutStatus = EstablishingStatus.Null;
@@ -204,8 +215,6 @@ namespace UC.Net
 			Writer				= new BinaryWriter(Stream);
 			LastSeen			= DateTime.UtcNow;
 			Lock				= lockk;
-			LastRound			= h.LastRound;
-			LastConfirmedRound	= h.LastConfirmedRound;
 			BaseRank			= h.Roles.HasFlag(Role.Base) ? 1 : 0;
 			ChainRank			= h.Roles.HasFlag(Role.Chain) ? 1 : 0;
 			HubRank				= h.Roles.HasFlag(Role.Hub) ? 1 : 0;
@@ -284,10 +293,7 @@ namespace UC.Net
 										{
 											try
 											{
-												var h = core.Header;
-
-								 				Writer.Write7BitEncodedInt(h.LastRound);
-								 				Writer.Write7BitEncodedInt(h.LastConfirmedRound);
+								 				//Writer.Write(core.Header);
 								 				Writer.Write((byte)p.Type);
 								 
 								 				if(p.Data != null)
@@ -331,8 +337,6 @@ namespace UC.Net
 				var s = new MemoryStream();
 				var r = new BinaryReader(Stream);
 	
-				LastRound			= r.Read7BitEncodedInt();
-				LastConfirmedRound	= r.Read7BitEncodedInt();
 				p.Type				= (PacketType)r.ReadByte();
 				var ndata			= r.Read7BitEncodedInt64();
 	
@@ -368,7 +372,7 @@ namespace UC.Net
 			}
 		}
 
-		public void Send(Header h, PacketType type, MemoryStream data)
+		public void Send(PacketType type, MemoryStream data)
 		{
 			var rq = new Packet();
 			//rq.Header = h;

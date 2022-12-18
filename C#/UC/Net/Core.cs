@@ -104,7 +104,7 @@ namespace UC.Net
 		public List<IPAddress>							IgnoredIPs	= new();
 		public List<Block>								Cache		= new();
 		public List<Member>								Members		= new();
-		public List<Download>							Downloads = new();
+		public List<Download>							Downloads	= new();
 
 		TcpListener										Listener;
 		Thread											ListeningThread;
@@ -214,24 +214,25 @@ namespace UC.Net
 			}
 		}
 		
-		public Header Header
-		{
-			get
-			{
-				Header h;
-
-				lock(Lock)
-				{
-					h =	new Header
-						{ 
-							LastRound			= Database?.LastNonEmptyRound == null ? -1 : Database.LastNonEmptyRound.Id,
-							LastConfirmedRound	= Database?.LastConfirmedRound == null ? -1 : Database.LastConfirmedRound.Id,
-						};
-				}
-
-				return h;
-			}
-		}
+		//public Header Header
+		//{
+		//	get
+		//	{
+		//		Header h;
+		//
+		//		lock(Lock)
+		//		{
+		//			h =	new Header
+		//				{ 
+		//					LastNonEmptyRound	= Database?.LastNonEmptyRound == null ? -1 : Database.LastNonEmptyRound.Id,
+		//					LastConfirmedRound	= Database?.LastConfirmedRound == null ? -1 : Database.LastConfirmedRound.Id,
+		//					BaseHash			= Database?.BaseHash == null ? Cryptography.ZeroHash : Database.BaseHash
+		//				};
+		//		}
+		//
+		//		return h;
+		//	}
+		//}
 
 		public Core(Settings settings, string exedirectory, Log log)
 		{
@@ -447,18 +448,19 @@ namespace UC.Net
 												{
 													if(Synchronization == Synchronization.Synchronized)
 													{
-														var conns = Connections.Where(i => i.Roles.HasFlag(Database.Roles)).GroupBy(i => i.LastConfirmedRound).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
-		
-														if(conns.Any())
-														{
-															var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
-							
-															if(max.Key - Database.LastConfirmedRound.Id > Net.Database.Pitch) /// we are late, force to resync
-															{
-																 StartSynchronization();
-															}
-														}
-
+														/// TODO: Rethink
+														///var conns = Connections.Where(i => i.Roles.HasFlag(Database.Roles)).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
+														///
+														///if(conns.Any())
+														///{
+														///	var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
+														///
+														///	if(max.Key - Database.LastConfirmedRound.Id > Net.Database.Pitch) /// we are late, force to resync
+														///	{
+														///		 StartSynchronization();
+														///	}
+														///}
+														///
 														if(Settings.Generators.Any())
 														{
 															Generate();
@@ -728,8 +730,8 @@ namespace UC.Net
 			h.IP					= ip;
 			h.Nuid					= Nuid;
 			h.Peers					= peers;
-			h.LastRound				= Header.LastRound;
-			h.LastConfirmedRound	= Header.LastConfirmedRound; 
+			//h.LastRound				= Header.LastNonEmptyRound;
+			//h.LastConfirmedRound	= Header.LastConfirmedRound; 
 			
 			return h;
 		}
@@ -1071,26 +1073,30 @@ namespace UC.Net
 
 		void Synchronizing()
 		{
-			int final = -1; 
-			int end = -1; 
-			int from = -1;
-	
 			var used = new HashSet<Peer>();
-	
-			var peer = Connect(Database.Roles, used, Workflow);
 	
 			StampResponse stamp = null;
 
-			if(Database.Roles.HasFlag(Role.Base) && !Database.Roles.HasFlag(Role.Chain))
+			while(true)
 			{
-				while(true)
+				try
 				{
-					Workflow.ThrowIfAborted();
+					int final = -1; 
+					//int end = -1; 
+					int from = -1;
 
-					try
+					Database.LoadedRounds.Clear();
+
+					var peer = Connect(Database.Roles, used, Workflow);
+
+					if(Database.Roles.HasFlag(Role.Base) && !Database.Roles.HasFlag(Role.Chain))
 					{
-						stamp = peer.GetStamp();
+						Workflow.ThrowIfAborted();
 
+						Database.Rounds.Clear();
+		
+						stamp = peer.GetStamp();
+		
 						void download<E, K>(Table<E, K> t) where E : TableEntry<K>
 						{
 							var ts = peer.GetTableStamp(t.Type, (t.Type switch
@@ -1118,11 +1124,11 @@ namespace UC.Net
 																															})
 																		}
 																).Select(i => i.Id).ToArray());
-
+		
 							foreach(var i in ts.Clusters)
 							{
 								var c = t.Clusters.Find(j => j.Id == i.Id);
-
+		
 								if(c == null || !c.Hash.SequenceEqual(i.Hash))
 								{
 									if(c == null)
@@ -1130,157 +1136,171 @@ namespace UC.Net
 										c = new Table<E, K>.Cluster(t, (ushort)i.Id);
 										t.Clusters.Add(c);
 									}
-
+		
 									var d = peer.DownloadTable(t.Type, (ushort)i.Id, 0, i.Length);
-									
+											
 									c.Read(new BinaryReader(new MemoryStream(d.Data)));
-								
+										
 									using(var b = new WriteBatch())
 									{
 										c.Save(b);
-
+		
 										if(!c.Hash.SequenceEqual(i.Hash))
 										{
 											throw new SynchronizationException();
 										}
+									
+										Database.Engine.Write(b);
 									}
-
+		
 									Workflow.Log?.Report(this, "Cluster downloaded", $"{t.GetType().Name} {c.Id}");
 								}
 							}
-
+		
 							t.CalculateSuperClusters();
 						}
-
+		
 						download<AccountEntry, Account>(Database.Accounts);
 						download<AuthorEntry, string>(Database.Authors);
 						download<ProductEntry, ProductAddress>(Database.Products);
 						download<RealizationEntry, RealizationAddress>(Database.Realizations);
 						download<ReleaseEntry, ReleaseAddress>(Database.Releases);
-
+		
 						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
-
+		
 						var rd = new BinaryReader(new MemoryStream(stamp.BaseState));
-
+		
 						rd.Read7BitEncodedInt();
-						r.Hash		 = rd.ReadSha3();
-						r.WeiSpent	 = rd.ReadBigInteger();
-						r.Factor	 = rd.ReadCoin();
-						r.Emission	 = rd.ReadCoin();
-						r.Members	 = rd.ReadList<Member>();
-						r.Funds		 = rd.ReadList<Account>();
-
+						r.Hash		= rd.ReadSha3();
+						r.Time		= rd.ReadTime();
+						r.WeiSpent	= rd.ReadBigInteger();
+						r.Factor	= rd.ReadCoin();
+						r.Emission	= rd.ReadCoin();
+						r.Members	= rd.ReadList<Member>();
+						r.Funds		= rd.ReadList<Account>();
+		
 						Database.BaseState	= stamp.BaseState;
-						//Database.BaseHash	= stamp.BaseHash;
 						Database.Members	= r.Members;
 						Database.Funds		= r.Funds;
-
+		
 						Database.LastConfirmedRound = r;
 						Database.LastCommittedRound = r;
-
+		
 						Database.Hashify();
-
+		
 						if(peer.GetStamp().BaseHash.SequenceEqual(Database.BaseHash))
-						{
 							Database.LoadedRounds.Add(r.Id, r);
-							break;
-						}
-					}
-					catch(DistributedCallException)
-					{
-					}
-					catch(SynchronizationException)
-					{
-					}
-				}
-			}
-
-			while(true)
-			{
-				Workflow.ThrowIfAborted();
-
-				if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
-				{	
-					if(final == -1)
-						if(Database.Roles.HasFlag(Role.Chain))
-							from = Database.LastConfirmedRound.Id + 1;
 						else
-							if(from == -1)
-								from = Math.Max(stamp.FirstTailRound, Database.LastConfirmedRound == null ? -1 : (Database.LastConfirmedRound.Id + 1));
-							else
-								from = Database.LastConfirmedRound.Id + 1;
-					else
-						from = final;
-
-					var to	= end != -1 ? end : (from + Math.Min(peer.LastRound - from, Net.Database.Pitch));
-				 	
-					if(from <= to)
+							throw new SynchronizationException();
+					}
+		
+					while(true)
 					{
-						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
-	
-						var rounds = rp.Read(Database);
-							
+						Workflow.ThrowIfAborted();
+		
 						lock(Lock)
-						{
-							bool confirmed = true;
+							if(final == -1)
+								if(Database.Roles.HasFlag(Role.Chain))
+									from = Database.LastConfirmedRound.Id + 1;
+								else
+									if(from == -1)
+										from = Math.Max(stamp.FirstTailRound, Database.LastConfirmedRound == null ? -1 : (Database.LastConfirmedRound.Id + 1));
+									else
+										from = Database.LastConfirmedRound.Id + 1;
+							else
+								from = final;
 		
-							foreach(var r in rounds.OrderBy(i => i.Id))
+						var to =/* end != -1 ? end :*/ (from + Database.Pitch);
+		
+						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
+						 	
+						lock(Lock)
+							if(from < rp.LastNonEmptyRound)
 							{
-								if(confirmed && r.Confirmed)
+								var rounds = rp.Read(Database);
+									
+								bool confirmed = true;
+				
+								foreach(var r in rounds.OrderBy(i => i.Id))
 								{
-									foreach(var b in r.Payloads)
-										b.Confirmed = true;
-		
-									Database.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
-									Database.Rounds.Add(r);
-									Database.Rounds = Database.Rounds.OrderByDescending(i => i.Id).ToList();
+									if(confirmed && r.Confirmed)
+									{
+										foreach(var p in r.Payloads)
+										{
+											p.Confirmed = true;
 
-									r.Confirmed = false;
-									Database.Confirm(r, true);
+											foreach(var t in p.Transactions)
+												foreach(var o in t.Operations)
+													o.Placing = PlacingStage.Placed;
+										}
+				
+										Database.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
+										Database.Rounds.Add(r);
+										Database.Rounds = Database.Rounds.OrderByDescending(i => i.Id).ToList();
+		
+										var h = r.Hash;
+										r.Confirmed = false;
+										Database.Confirm(r, true);
+#if DEBUG
+										if(!r.Hash.SequenceEqual(h))
+										{
+											throw new SynchronizationException();
+										}
+#endif
+										Cache.RemoveAll(i => i.RoundId <= r.Id);
+									}
+									else
+									{
+										if(confirmed && !r.Confirmed)
+										{
+											confirmed	= false;
+											final		= rounds.Max(i => i.Id) + 1;
+											//end			= rp.LastNonEmptyRound; 
+											Synchronization	= Synchronization.Synchronizing;
+										}
+			
+										if(!confirmed && r.Confirmed)
+										{
+							 				throw new SynchronizationException();
+										}
+				
+										ProcessIncoming(r.Blocks, null);
+									}
+								}
 										
-									Cache.RemoveAll(i => i.RoundId <= r.Id);
+								Workflow.Log?.Report(this, "Rounds received", $"{from}..{to}");
+							}
+							else
+								if(Database.BaseHash.SequenceEqual(rp.BaseHash))
+								{
+// 									if(!Database.Roles.HasFlag(Role.Chain))
+// 										Database.Rounds.Remove(Database.Rounds.Last());
+
+									Database.Add(Cache.OrderBy(i => i.RoundId));
+									Cache.Clear();
+	
+									Synchronization = Synchronization.Synchronized;
+									SynchronizingThread = null;
+	
+									Workflow.Log?.Report(this, "Syncing finished");
+
+									return;
 								}
 								else
-								{
-									if(confirmed && !r.Confirmed)
-									{
-										confirmed	= false;
-										final		= rounds.Max(i => i.Id) + 1;
-										end			= peer.LastRound; 
-										Synchronization	= Synchronization.Synchronizing;
-									}
-	
-									if(!confirmed && r.Confirmed)
-									{
-					 					peer = Connect(Database.Roles, used, Workflow); /// unacceptable case, choose other chain peer
-										break;
-									}
-		
-									ProcessIncoming(r.Blocks, null);
-								}
-							}
-								
-							Workflow.Log?.Report(this, "Rounds received", $"{from}..{to}");
-						}
+									throw new SynchronizationException();
 					}
-					else
-						break;
+				}
+				catch(DistributedCallException)
+				{
+				}
+				catch(SynchronizationException)
+				{
+				}
+				catch(OperationCanceledException)
+				{
+					return;
 				}
 			}
-	
-			lock(Lock)
-			{
-				if(!Database.Roles.HasFlag(Role.Chain))
-					Database.Rounds.Remove(Database.Rounds.Last());
-
-				Database.Add(Cache.OrderBy(i => i.RoundId));
-				Cache.Clear();
-	
-				Synchronization = Synchronization.Synchronized;
-				SynchronizingThread = null;
-			}
-	
-			Workflow.Log?.Report(this, "Syncing finished");
 		}
 
 		public void ProcessIncoming(IEnumerable<Block> blocks, Peer peer)
@@ -1349,6 +1369,9 @@ namespace UC.Net
 			if(r.Id > Database.LastVotedRound.Id + Database.Pitch)
 				return null;
 
+			if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to a downloaded round since its blocks have no hashes
+				return null;
+
 			return r;
 		}
 
@@ -1357,6 +1380,11 @@ namespace UC.Net
 			Statistics.Generating.Begin();
 
 			var blocks = new List<Block>();
+
+			if(Thread.CurrentThread.Name == "100 Main")
+			{
+				blocks = blocks;
+			}
 
 			foreach(var g in Settings.Generators)
 			{
@@ -1371,7 +1399,7 @@ namespace UC.Net
 				{
 					var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
 		
-					if(jr == null || (jr.RoundId + Database.Pitch * 2 < Database.LastConfirmedRound.Id)) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
+					if(jr == null || nar.Id - jr.RoundId > Database.Pitch * 2) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
 						var b = new MembersJoinRequest(Database){	RoundId	= nar.Id,
 																	IP      = IP};
@@ -1493,6 +1521,13 @@ namespace UC.Net
 
 			while(Running)
 			{
+
+			if(IP.GetAddressBytes()[3] == 100)
+			{
+				IP=IP;
+			}
+
+
 				Thread.Sleep(1);
 				Workflow.ThrowIfAborted();
 
@@ -1859,6 +1894,11 @@ namespace UC.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
+			if(IP.GetAddressBytes()[3] == 100)
+			{
+				IP=IP;
+			}
+
 			if(!Settings.Generators.Any(g => Database.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
 				return new();
 
@@ -1986,7 +2026,10 @@ namespace UC.Net
 					peer = FindBestPeer(role, exclusions);
 	
 					if(peer == null)
+					{
+						exclusions.Clear();
 						continue;
+					}
 				}
 
 				exclusions?.Add(peer);

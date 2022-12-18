@@ -171,13 +171,19 @@ namespace UC.Net
 			
 			w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Database.FindRound(i)).Where(i => i != null), i => i.Write(w));
 			
-			return new DownloadRoundsResponse{Rounds = s.ToArray()};
+			return new DownloadRoundsResponse {	LastNonEmptyRound	= core.Database.LastNonEmptyRound.Id,
+												LastConfirmedRound	= core.Database.LastConfirmedRound.Id,
+												BaseHash			= core.Database.BaseHash,
+												Rounds				= s.ToArray()};
 		}
 	}
 
 	public class DownloadRoundsResponse : Response
 	{
-		public byte[] Rounds { get; set; }
+		public int		LastNonEmptyRound { get; set; }
+		public int		LastConfirmedRound { get; set; }
+		public byte[]	BaseHash{ get; set; }
+		public byte[]	Rounds { get; set; }
 
 		public Round[] Read(Database chain)
 		{

@@ -16,12 +16,6 @@ namespace UC.Sun.FUI
 		public ChainPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
-
-			/*
-			foreach(DataGridViewColumn i in members.Columns)
-			{
-				i.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			}*/
 		}
 
 		public override void Open(bool first)
@@ -30,10 +24,20 @@ namespace UC.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					Core.Database.BlockAdded += (b) => Round.Maximum = Core.Database.LastNonEmptyRound.Id;
+					Core.Database.BlockAdded += (b) =>
+												{
+													BeginInvoke((MethodInvoker)delegate
+																{ 
+																	lock(Core.Lock)
+																	{
+																		Round.Minimum = Core.Settings.Database.Chain ? 0 : Core.Database.Rounds.Last().Id;
+																		Round.Maximum = Core.Database.LastNonEmptyRound.Id; 
+																	}
+																});
+												};
 
 					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
-					Round.Minimum = 0;
+					Round.Minimum = Core.Settings.Database.Chain ? 0 : Core.Database.Rounds.Last().Id;
 					Round.Maximum = Core.Database.LastNonEmptyRound.Id;
 					Round.Value = Core.Database.LastNonEmptyRound.Id;
 				}

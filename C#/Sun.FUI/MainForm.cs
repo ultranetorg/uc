@@ -49,9 +49,6 @@ namespace UC.Sun.FUI
 	
 				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Core, core.Vault) };				
 				navigator.Nodes.Add(rel);
-	
-				var pub = new TreeNode("Publish"){ Tag = new PublishPanel(Core, core.Vault) };				
-				navigator.Nodes.Add(pub);
 
 				var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Core, core.Vault) };
 				navigator.Nodes.Add(exp);
