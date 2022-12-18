@@ -186,7 +186,7 @@
                             <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Product">
+                            <DataTemplate x:DataType="models:ProductViewModel">
                                 <StackLayout>
                                     <Border
                                         HeightRequest="22"

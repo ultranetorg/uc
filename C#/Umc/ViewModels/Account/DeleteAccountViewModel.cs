@@ -9,7 +9,7 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
     private CustomCollection<AuthorViewModel> _authors = new();
 
 	[ObservableProperty]
-    private CustomCollection<Product> _products = new();
+    private CustomCollection<ProductViewModel> _products = new();
 
     public DeleteAccountViewModel(IServicesMockData service, ILogger<DeleteAccountViewModel> logger) : base(logger)
     {

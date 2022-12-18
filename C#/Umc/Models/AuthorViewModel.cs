@@ -6,15 +6,15 @@ public class AuthorViewModel
 {
 	protected AuthorEntry _entry;
 
-    public int					Id { get; internal set; }
-    public string				Name { get; internal set; } // => _entry.Name;
-    public string				Title { get; internal set; } // => _entry.Title;
-    public decimal				CurrentBid { get; internal set; } // => _entry.LastBid;
-    public BidStatus			BidStatus { get; internal set; }
-    public string				ActiveDue { get; internal set; }
+    public int						Id { get; internal set; }
+    public string					Name { get; internal set; } // => _entry.Name;
+    public string					Title { get; internal set; } // => _entry.Title;
+    public decimal					CurrentBid { get; internal set; } // => _entry.LastBid;
+    public BidStatus				BidStatus { get; internal set; }
+    public string					ActiveDue { get; internal set; }
 
-    public AccountViewModel		Account { get; internal set; }
-    public IList<Product>		Products = new List<Product>();
+    public AccountViewModel			Account { get; internal set; }
+    public IList<ProductViewModel>	Products = new List<ProductViewModel>();
 
 	public AuthorViewModel()
 	{

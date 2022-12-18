@@ -5,10 +5,10 @@ public partial class ProductsBViewModel : BaseTransactionsViewModel
 	private readonly IProductsService _service;
 
 	[ObservableProperty]
-    private Product _selectedItem;
+    private ProductViewModel _selectedItem;
 
 	[ObservableProperty]
-    private CustomCollection<Product> _products = new();
+    private CustomCollection<ProductViewModel> _products = new();
 
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();

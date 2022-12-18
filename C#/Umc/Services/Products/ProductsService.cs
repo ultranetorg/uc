@@ -2,7 +2,7 @@
 
 public class ProductsService : IProductsService
 {
-    public Task<Product> FindByAccountAddressAsync([NotEmpty, NotNull] string accountAddress)
+    public Task<ProductViewModel> FindByAccountAddressAsync([NotEmpty, NotNull] string accountAddress)
     {
         throw new NotImplementedException();
     }
@@ -12,7 +12,7 @@ public class ProductsService : IProductsService
         throw new NotImplementedException();
     }
 
-    public Task<ObservableCollection<Product>> GetAllAsync()
+    public Task<ObservableCollection<ProductViewModel>> GetAllAsync()
     {
         throw new NotImplementedException();
     }

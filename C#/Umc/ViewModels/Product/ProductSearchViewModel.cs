@@ -4,7 +4,7 @@ public partial class ProductSearchViewModel : BaseTransactionsViewModel
 {
 	private readonly IProductsService _service;
 	[ObservableProperty]
-    private CustomCollection<Product> _products = new();
+    private CustomCollection<ProductViewModel> _products = new();
     
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();

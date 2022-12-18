@@ -9,11 +9,11 @@ public class ProductsMockService : IProductsService
         _data = data;
     }
 
-    public Task<Product> FindByAccountAddressAsync([NotEmpty, NotNull] string accountAddress)
+    public Task<ProductViewModel> FindByAccountAddressAsync([NotEmpty, NotNull] string accountAddress)
     {
         Guard.IsNotNullOrEmpty(accountAddress, nameof(accountAddress));
 
-        Product result = _data.Products.FirstOrDefault(x => x.Author.Account.Address == accountAddress);
+        ProductViewModel result = _data.Products.FirstOrDefault(x => x.Author.Account.Address == accountAddress);
         return Task.FromResult(result);
     }
 
@@ -23,9 +23,9 @@ public class ProductsMockService : IProductsService
         return Task.FromResult(result);
     }
 
-    public Task<ObservableCollection<Product>> GetAllAsync()
+    public Task<ObservableCollection<ProductViewModel>> GetAllAsync()
     {
-        ObservableCollection<Product> result = new(_data.Products);
+        ObservableCollection<ProductViewModel> result = new(_data.Products);
         return Task.FromResult(result);
     }
 }

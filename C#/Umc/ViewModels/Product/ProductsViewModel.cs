@@ -5,10 +5,10 @@ public partial class ProductsViewModel : BaseTransactionsViewModel
 	private readonly IProductsService _service;
 
 	[ObservableProperty]
-    private Product _selectedItem;
+    private ProductViewModel _selectedItem;
         
 	[ObservableProperty]
-    private CustomCollection<Product> _products = new();
+    private CustomCollection<ProductViewModel> _products = new();
     
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();
@@ -19,7 +19,7 @@ public partial class ProductsViewModel : BaseTransactionsViewModel
     }
 
 	[RelayCommand]
-    private async Task OpenProductOptionsAsync(Product product)
+    private async Task OpenProductOptionsAsync(ProductViewModel product)
     {
         // await AccountOptionsPopup.Show(author);
 		await Task.Delay(10);

@@ -6,7 +6,7 @@ public class ServicesMockData : IServicesMockData
 
 	public IList<AccountViewModel> Accounts { get; private set; } = new List<AccountViewModel>();
     public IList<AuthorViewModel> Authors { get; private set; } = new List<AuthorViewModel>();
-    public IList<Product> Products { get; private set; } = new List<Product>();
+    public IList<ProductViewModel> Products { get; private set; } = new List<ProductViewModel>();
     public IList<TransactionViewModel> Transactions { get; private set; } = new List<TransactionViewModel>();
 	public IList<AccountColor> AccountColors { get; private set; } = new List<AccountColor>();
     public IList<Emission> Emissions { get; private set; } = new List<Emission>();
@@ -24,17 +24,17 @@ public class ServicesMockData : IServicesMockData
 		{
 			#region Products
 
-			Product product1 = new("Windows", "Microsoft");
-			Product product2 = new("Office", "Microsoft");
-			Product product3 = new("Visual Studio Code", "Microsoft");
-			Product product4 = new("Outlook 365", "Microsoft");
-			Product product5 = new("Paint", "Microsoft");
-			Product product6 = new("Google Search", "Alphabet");
-			Product product7 = new("AWS", "Amazon");
-			Product product8 = new("Warehouse", "Space X");
-			Product product9 = new("Gate Defender 3", "Gate 500");
+			ProductViewModel product1 = new("Windows", "Microsoft");
+			ProductViewModel product2 = new("Office", "Microsoft");
+			ProductViewModel product3 = new("Visual Studio Code", "Microsoft");
+			ProductViewModel product4 = new("Outlook 365", "Microsoft");
+			ProductViewModel product5 = new("Paint", "Microsoft");
+			ProductViewModel product6 = new("Google Search", "Alphabet");
+			ProductViewModel product7 = new("AWS", "Amazon");
+			ProductViewModel product8 = new("Warehouse", "Space X");
+			ProductViewModel product9 = new("Gate Defender 3", "Gate 500");
 
-			Products = new List<Product>()
+			Products = new List<ProductViewModel>()
 			{
 				product1,
 				product2,
@@ -57,7 +57,7 @@ public class ServicesMockData : IServicesMockData
 				Title = "Microsoft",
 				ActiveDue = "01/02/2023",
 				BidStatus = BidStatus.Higher,
-				Products = new List<Product>
+				Products = new List<ProductViewModel>
 				{
 					product1,
 					product2,
@@ -72,7 +72,7 @@ public class ServicesMockData : IServicesMockData
 				Title = "Alphabet",
 				ActiveDue = "01/03/2023",
 				BidStatus = BidStatus.Lower,
-				Products = new List<Product>
+				Products = new List<ProductViewModel>
 				{
 					product6,
 				},
@@ -83,7 +83,7 @@ public class ServicesMockData : IServicesMockData
 				Title = "Amazon Limited",
 				ActiveDue = "01/03/2024",
 				BidStatus = BidStatus.Higher,
-				Products = new List<Product>
+				Products = new List<ProductViewModel>
 				{
 					product7,
 					product8,
@@ -103,7 +103,7 @@ public class ServicesMockData : IServicesMockData
 				Title = "Gate 500",
 				ActiveDue = "01/09/2023",
 				BidStatus = BidStatus.Lower,
-				Products = new List<Product>
+				Products = new List<ProductViewModel>
 				{
 					product9,
 				},

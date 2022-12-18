@@ -17,7 +17,7 @@ public abstract partial class BaseTransactionsViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void ItemTappedEmptyAsync(Product Product)
+    private void ItemTappedEmptyAsync(ProductViewModel Product)
     {
 		// TBD
     }

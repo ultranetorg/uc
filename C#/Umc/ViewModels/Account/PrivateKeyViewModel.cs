@@ -6,7 +6,7 @@ public partial class PrivateKeyViewModel : BaseViewModel
     private CustomCollection<AuthorViewModel> _authors = new();
 
 	[ObservableProperty]
-    private CustomCollection<Product> _products = new();
+    private CustomCollection<ProductViewModel> _products = new();
 	
 	[ObservableProperty]
     private AccountViewModel _account;
