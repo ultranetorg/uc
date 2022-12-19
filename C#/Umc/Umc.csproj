@@ -167,6 +167,9 @@
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Shared\PageTitleContextView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Shared\SwitchView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
@@ -458,6 +461,12 @@
 	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Views\Shared\PageTitleContextView.xaml.cs">
+	    <DependentUpon>PageTitleContextView.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
