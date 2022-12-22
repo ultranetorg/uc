@@ -67,8 +67,6 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<SettingsViewModel>();
 
-		builder.Services.AddTransient<StartViewModel>();
-
 		builder.Services.AddTransient<TransferCompleteViewModel>();
 
 		builder.Services.AddTransient<UnfinishTransferViewModel>();

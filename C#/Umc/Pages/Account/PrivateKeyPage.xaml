@@ -7,7 +7,7 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    Title="Show private key"
+    Title="Private Key"
     x:DataType="vm:PrivateKeyViewModel"
     x:Name="page">
     <controls:CustomPage.MainContent>

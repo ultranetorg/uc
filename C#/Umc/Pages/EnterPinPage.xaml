@@ -4,7 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    Title="Enter Pin"
     x:Name="page">
+    
     <controls:CustomPage.Resources>
         <Style TargetType="Label" BasedOn="{StaticResource NumberLabel}">
             <Setter Property="HorizontalOptions" Value="Center"/>

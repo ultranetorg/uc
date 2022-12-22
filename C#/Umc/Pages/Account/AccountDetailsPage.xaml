@@ -7,6 +7,7 @@
     xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:views="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    Title="Account Details"
     x:DataType="vm:AccountDetailsViewModel"
     x:Name="page">
     

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
-    Title="Make a bid"
+    Title="Make Bid"
     x:Name="page">
     <controls:CustomPage.MainContent>
         <Grid

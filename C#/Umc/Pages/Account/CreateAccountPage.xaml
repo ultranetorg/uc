@@ -8,7 +8,7 @@
     xmlns:sharedViews="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:CreateAccountPageViewModel"
-    Title="Create account"
+    Title="Create Account"
     x:Name="page">
     <Shell.TitleView>
         <sharedViews:PageTitleActionView

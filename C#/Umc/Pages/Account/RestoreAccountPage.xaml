@@ -6,7 +6,7 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:RestoreAccountViewModel"
-    Title="Restore account"
+    Title="Restore Account"
     x:Name="page">
     <controls:CustomPage.MainContent>
         <Grid Padding="{StaticResource PagePadding}">

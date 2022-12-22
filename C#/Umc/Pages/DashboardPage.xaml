@@ -11,6 +11,7 @@
     xmlns:views="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     ios:Page.UseSafeArea="True"
+    Title="Ultranet User Center"
     x:DataType="vm:DashboardViewModel">
     
     <controls:CustomPage.Resources>
