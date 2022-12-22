@@ -1,16 +1,16 @@
 ﻿namespace UC.Umc.Pages;
 
-public partial class AuthorSearchBPage : CustomPage
+public partial class AuthorDetailsBPage : CustomPage
 {
-    public AuthorSearchBPage()
+    public AuthorDetailsBPage()
     {
         InitializeComponent();
-        var vm = Ioc.Default.GetService<AuthorSearchBViewModel>();
+        var vm = Ioc.Default.GetService<AuthorDetailsBViewModel>();
 		vm.Author = new AuthorViewModel();
         BindingContext = vm;
     }
 
-    public AuthorSearchBPage(AuthorViewModel author, AuthorSearchBViewModel vm)
+    public AuthorDetailsBPage(AuthorViewModel author, AuthorDetailsBViewModel vm)
     {
         InitializeComponent();
 		vm.Author = author;

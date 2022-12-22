@@ -135,11 +135,6 @@
                         Text="Authors" />
                     <controls:ImageTextButton
                         Grid.Row="0"
-                        Grid.Column="2"
-                        ImageSource="auctions.png"
-                        Text="Auctions" />
-                    <controls:ImageTextButton
-                        Grid.Row="0"
                         Grid.Column="3"
                         Command="{Binding ProductsExcuteCommand}"
                         ImageSource="products.png"

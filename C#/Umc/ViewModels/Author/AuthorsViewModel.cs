@@ -19,18 +19,24 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     }
 	
 	[RelayCommand]
-    private async Task AuthorTappedAsync(AuthorViewModel author) =>
-		await Navigation.GoToAsync(nameof(AuthorSearchPage),
+    private async Task SearchAuthorAsync(AuthorViewModel author) =>
+		await Navigation.GoToAsync(nameof(AuthorDetailsPage),
 			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, author }});
 	
 	[RelayCommand]
-    private async Task TransferAuthorAsync() => await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_REGISTRATION);
+    private async Task RegisterAuthorAsync() => await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_REGISTRATION);
 	
 	[RelayCommand]
     private async Task MakeBidAsync() => await Navigation.GoToAsync(ShellBaseRoutes.MAKE_BID);
 
 	[RelayCommand]
-    private async Task OpenAuthorOptionsAsync(AuthorViewModel author)
+	private async Task SortAuthorsAsync()
+    {
+		await Task.Delay(10);
+    }
+
+	[RelayCommand]
+    private async Task TransferAuthorAsync()
     {
         // await AccountOptionsPopup.Show(author);
 		await Task.Delay(10);

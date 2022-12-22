@@ -1,24 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <controls:CustomPage
-    x:Class="UC.Umc.Pages.AuthorSearchPage"
+    x:Class="UC.Umc.Pages.AuthorDetailsCPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     Title="Authors"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>
-        <Grid ColumnDefinitions="Auto,Auto">
-            <ImageButton
-                Grid.Column="1"
-                HorizontalOptions="End"
-                Style="{StaticResource Dots}"
-                VerticalOptions="Center" />
-            <ImageButton
-                Grid.Column="0"
-                HorizontalOptions="End"
-                Style="{StaticResource Sort}"
-                VerticalOptions="Center" />
-        </Grid>
+        <ImageButton
+            Grid.Column="0"
+            HorizontalOptions="End"
+            Style="{StaticResource Sort}"
+            VerticalOptions="Center" />
     </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <ScrollView>
@@ -75,11 +68,6 @@
                             HorizontalOptions="End"
                             Text="{Binding Author.ActiveDue}" />
                     </Grid>
-                </StackLayout>
-                <StackLayout VerticalOptions="EndAndExpand">
-                    <Button
-                        Command="{Binding RegisterCommand}"
-                        Text="Register" />
                 </StackLayout>
             </StackLayout>
         </ScrollView>

@@ -1,8 +1,8 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class AuthorSearchBViewModel : BaseAuthorViewModel
+public partial class AuthorDetailsBViewModel : BaseAuthorViewModel
 {
-    public AuthorSearchBViewModel(ILogger<AuthorSearchBViewModel> logger) : base(logger)
+    public AuthorDetailsBViewModel(ILogger<AuthorDetailsBViewModel> logger) : base(logger)
     {
     }
 }

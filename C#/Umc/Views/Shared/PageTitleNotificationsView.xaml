@@ -13,7 +13,7 @@
         Direction="Row"
         JustifyContent="SpaceBetween">
         <Label
-            FontFamily="sans-serif-semiBold"
+            FontFamily="SemiBold"
             Style="{Binding TitleStyle}"
             TextColor="{StaticResource PrimaryLight}"
             Text="{Binding Title}" />

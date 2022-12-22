@@ -187,15 +187,15 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorSearchBPage.xaml">
+	  <MauiXaml Update="Pages\Author\AuthorDetailsBPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorSearchCPage.xaml">
+	  <MauiXaml Update="Pages\Author\AuthorDetailsCPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorSearchPage.xaml">
+	  <MauiXaml Update="Pages\Author\AuthorDetailsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

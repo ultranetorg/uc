@@ -14,7 +14,7 @@
         JustifyContent="SpaceBetween"
         Margin="12,2">
         <Label
-            FontFamily="sans-serif-semiBold"
+            FontFamily="SemiBold"
             Style="{Binding TitleStyle}"
             TextColor="{StaticResource PrimaryLight}"
             Text="{Binding Title}" />

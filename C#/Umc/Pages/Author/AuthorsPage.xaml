@@ -6,6 +6,8 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:views="clr-namespace:UC.Umc.Views.Shared"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:AuthorsViewModel"
     Title="Authors"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>
@@ -52,16 +54,16 @@
                 ItemsSource="{Binding Authors}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame
+                    <DataTemplate x:DataType="models:AuthorViewModel">
+                        <Border
                             Margin="0,8"
                             Padding="1"
                             HeightRequest="60"
-                            Style="{StaticResource AccountCard}">
-                            <Frame.Triggers>
+                            Style="{StaticResource AccountCardBorder}">
+                            <Border.Triggers>
                                 <DataTrigger
                                     Binding="{Binding BidStatus}"
-                                    TargetType="Frame"
+                                    TargetType="Border"
                                     Value="{Static models:BidStatus.Higher}">
                                     <Setter Property="Background">
                                         <Setter.Value>
@@ -74,7 +76,7 @@
                                 </DataTrigger>
                                 <DataTrigger
                                     Binding="{Binding BidStatus}"
-                                    TargetType="Frame"
+                                    TargetType="Border"
                                     Value="{Static models:BidStatus.Lower}">
                                     <Setter Property="Background">
                                         <Setter.Value>
@@ -85,9 +87,9 @@
                                         </Setter.Value>
                                     </Setter>
                                 </DataTrigger>
-                            </Frame.Triggers>
+                            </Border.Triggers>
 
-                            <Frame Style="{StaticResource AccountCard}">
+                            <Border Style="{StaticResource AccountCardBorder}">
                                 <SwipeView>
                                     <SwipeView.RightItems>
                                         <SwipeItems>
@@ -124,7 +126,7 @@
                                                 <ImageButton
                                                     Padding="15"
                                                     CornerRadius="0"
-                                                    Command="{Binding TransferAuthorCommand}"
+                                                    Command="{Binding TransferAuthorCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
                                                     HorizontalOptions="FillAndExpand"
                                                     Style="{StaticResource TransferAuthor}"
                                                     VerticalOptions="FillAndExpand" />
@@ -142,7 +144,7 @@
                                                 <ImageButton
                                                     Padding="15"
                                                     CornerRadius="0"
-                                                    Command="{Binding MakeBidCommand}"
+                                                    Command="{Binding MakeBidCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
                                                     HorizontalOptions="FillAndExpand"
                                                     Style="{StaticResource Bid}"
                                                     VerticalOptions="FillAndExpand" />
@@ -163,9 +165,6 @@
                                         ColumnSpacing="10"
                                         RowDefinitions="*,*"
                                         Style="{StaticResource AccountGrid}">
-                                        <!--<Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding AuthorTappedCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
-                                        </Grid.GestureRecognizers>-->
                                         <Label
                                             Grid.Row="0"
                                             Grid.Column="0"
@@ -229,8 +228,8 @@
                                             VerticalOptions="Center" />
                                     </Grid>
                                 </SwipeView>
-                            </Frame>
-                        </Frame>
+                            </Border>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

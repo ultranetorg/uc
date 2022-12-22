@@ -26,13 +26,13 @@ public partial class StartViewModel : BaseViewModel
                 await Shell.Current.Navigation.PushAsync(new AuthorsPage(Ioc.Default.GetService<AuthorsViewModel>()));
                 break;
             case 2:
-                await Shell.Current.Navigation.PushAsync(new AuthorSearchPage(Author, Ioc.Default.GetService<AuthorSearchPViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new AuthorDetailsPage(Author, Ioc.Default.GetService<AuthorDetailsPViewModel>()));
                 break;
             case 19:
-                await Shell.Current.Navigation.PushAsync(new AuthorSearchBPage(Author, Ioc.Default.GetService<AuthorSearchBViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new AuthorDetailsBPage(Author, Ioc.Default.GetService<AuthorDetailsBViewModel>()));
                 break;
             case 20:
-                await Shell.Current.Navigation.PushAsync(new AuthorSearchCPage(Author, Ioc.Default.GetService<AuthorSearchCViewModel>()));
+                await Shell.Current.Navigation.PushAsync(new AuthorDetailsCPage(Author, Ioc.Default.GetService<AuthorDetailsCViewModel>()));
                 break;
             case 3:
                 await Shell.Current.Navigation.PushAsync(new AuthorRegistrationPage(Ioc.Default.GetService<AuthorRegistrationViewModel>()));
