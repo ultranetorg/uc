@@ -19,14 +19,14 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net
 {
-	public enum DelegationStage
-	{
-		Null, Pending, Delegated, Completed
-	}
+// 	public enum DelegationStage
+// 	{
+// 		Null, Pending, Delegated, Completed
+// 	}
 
 	public enum PlacingStage
 	{
-		Null, Accepted, Pending, Placed, Confirmed, FailedOrNotFound
+		Null, PendingDelegation, Accepted, Verified, Placed, Confirmed, FailedOrNotFound
 	}
 
 	public struct Portion
@@ -46,7 +46,7 @@ namespace UC.Net
 		public string			Error;
 		public Account			Signer { get; set; }
 		public Transaction		Transaction;
-		public DelegationStage	Delegation;
+		//public DelegationStage	Delegation;
 		public PlacingStage		Placing;
 		public Workflow			FlowReport;
 		public abstract string	Description { get; }
@@ -87,7 +87,7 @@ namespace UC.Net
 		 
 		public override string ToString()
 		{
-			return $"{Type}, Id={Id}, {Delegation}, {Placing}, " + Description + $", Error={Error}";
+			return $"{Type}, Id={Id}, {Placing}, " + Description + $", Error={Error}";
 		}
 
 		public void Read(BinaryReader reader)

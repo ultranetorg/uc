@@ -144,12 +144,11 @@ namespace UC.Net
 				f.Add("IP(Reported):Port");			v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
 				//f.Add($"Generator{(Nci != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Nci?.Generator)}");
 				f.Add("Operations");				v.Add($"{Operations.Count}");
-				f.Add("    Pending");				v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Pending)}");
-				f.Add("    Delegated");				v.Add($"{Operations.Count(i => i.Delegation == DelegationStage.Delegated)}");
-				f.Add("       Accepted");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}");
-				f.Add("       Pending");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Pending)}");
-				f.Add("       Placed");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Placed)}");
-				f.Add("       Confirmed");			v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
+				f.Add("    Pending Delegation");	v.Add($"{Operations.Count(i => i.Placing == PlacingStage.PendingDelegation)}");
+				f.Add("    Accepted");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}");
+				f.Add("    Pending Placement");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Verified)}");
+				f.Add("    Placed");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Placed)}");
+				f.Add("    Confirmed");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
 				f.Add("Peers in/out/min/known");	v.Add($"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}");
 				
 				if(Database != null)
@@ -1409,7 +1408,7 @@ namespace UC.Net
 				}
 				else
 				{
-					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Pending) && i.RoundMax >= nar.Id)
+					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Verified) && i.RoundMax >= nar.Id)
 																			.GroupBy(i => i.Signer)
 																			.Select(i => i.First()), nar);
 	
@@ -1513,7 +1512,7 @@ namespace UC.Net
 			Peer[]						peers;
 			Operation[]					pendings;
 			bool						ready;
-			IEnumerable<Operation>		delegated;
+			IEnumerable<Operation>		accepted;
 
 			Workflow.Log?.Report(this, "Delegating started");
 
@@ -1553,8 +1552,8 @@ namespace UC.Net
 							continue;
 
 						peers = Peers.ToArray();
-						pendings = Operations.Where(i => i.Delegation == DelegationStage.Pending).ToArray();
-						ready = pendings.Any() && !Operations.Any(i => i.Delegation == DelegationStage.Delegated && i.Placing == PlacingStage.Null);
+						pendings = Operations.Where(i => i.Placing == PlacingStage.PendingDelegation).ToArray();
+						ready = pendings.Any() && !Operations.Any(i => i.Placing == PlacingStage.Accepted);
 					}
 
 					if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
@@ -1599,28 +1598,28 @@ namespace UC.Net
 							}
 						}
 	
-						var accepted = m.DelegateTransactions(txs).Accepted;
+						var accs = m.DelegateTransactions(txs).Accepted;
 	
 						lock(Lock)
 							foreach(var o in txs.SelectMany(i => i.Operations))
 							{
-								if(accepted.Any(i => i.Account == o.Signer && i.Id == o.Id))
- 									o.Delegation = DelegationStage.Delegated;
+								if(accs.Any(i => i.Account == o.Signer && i.Id == o.Id))
+ 									o.Placing = PlacingStage.Accepted;
 
 								o.FlowReport?.Log?.ReportWarning(this, $"Placing has been delegated to {m}");
 							}
 									
-						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accepted.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accepted.Count()} tx(s) -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
+						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accs.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accs.Count()} tx(s) -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
 
-						Thread.Sleep(200); /// prevent any flooding
+						Thread.Sleep(200); /// prevent flooding
 					}
 
 					lock(Lock)
-						delegated = Operations.Where(i => i.Delegation == DelegationStage.Delegated).ToArray();
+						accepted = Operations.Where(i => i.Placing == PlacingStage.Accepted || i.Placing == PlacingStage.Placed).ToArray();
 	
-					if(delegated.Any())
+					if(accepted.Any())
 					{
-						var rp = Call(Role.Chain, p => p.GetOperationStatus(delegated.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id})), Workflow);
+						var rp = Call(Role.Chain, p => p.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id})), Workflow);
 							
 						if(rp != null)
 						{
@@ -1628,7 +1627,7 @@ namespace UC.Net
 							{
 								foreach(var i in rp.Operations)
 								{
-									var o = delegated.First(d => d.Signer == i.Account && d.Id == i.Id);
+									var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
 																		
 									if(o.Placing != i.Placing)
 									{
@@ -1643,7 +1642,6 @@ namespace UC.Net
 											//if(o.Placing == PlacingStage.Null)
 											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
-											o.Delegation = DelegationStage.Completed;
 											Operations.Remove(o);
 										}
 	
@@ -1652,7 +1650,6 @@ namespace UC.Net
 											//if(o.Placing == PlacingStage.Null)
 											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
-											o.Delegation = DelegationStage.Completed;
 											Operations.Remove(o);
 										}
 								
@@ -1708,9 +1705,9 @@ namespace UC.Net
 					}
 					else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15)))
 					{
-						foreach(var i in Transactions.OfType<Transaction>().Where(i => i.Payload.RoundId == r.Id).SelectMany(i => i.Operations))
+						foreach(var i in Transactions.Where(i => i.Payload.RoundId == r.Id).SelectMany(i => i.Operations))
 						{
-							i.Placing = PlacingStage.Pending;
+							i.Placing = PlacingStage.Verified;
 						}
 
 						r.FirstArrivalTime = DateTime.MaxValue;
@@ -1758,7 +1755,7 @@ namespace UC.Net
 		{
 			if(Operations.Count <= OperationsQueueLimit)
 			{
-				o.Delegation = DelegationStage.Pending;
+				o.Placing = PlacingStage.PendingDelegation;
 				Operations.Add(o);
 			} 
 			else
@@ -1829,7 +1826,7 @@ namespace UC.Net
 									}
 								}
 								
-								o.Placing = PlacingStage.Pending;
+								o.Placing = PlacingStage.Verified;
 							}
 						}
 					}
