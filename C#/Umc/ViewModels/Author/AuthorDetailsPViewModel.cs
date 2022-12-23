@@ -27,4 +27,9 @@ public partial class AuthorDetailsPViewModel : BaseAuthorViewModel
             FinishLoading();
         }
 	}
+
+	[RelayCommand]
+	private async Task RegisterAsync() =>
+		await Navigation.GoToAsync(nameof(AuthorRegistrationPage),
+			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, Author }});
 }

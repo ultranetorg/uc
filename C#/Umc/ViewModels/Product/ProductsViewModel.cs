@@ -29,6 +29,6 @@ public partial class ProductsViewModel : BaseTransactionsViewModel
 	{
 		var products = await _service.GetAllAsync();
 		Products.AddRange(products);
-        ProductsFilter = DefaultDataMock.DefaultFilter;
+        ProductsFilter = DefaultDataMock.ProductsFilter;
 	}
 }

@@ -57,65 +57,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Fonts\icomoon.ttf" />
-	  <None Remove="Resources\Fonts\MaterialIcons.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Black.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-BlackItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Bold.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-BoldItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraBold.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraBoldItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraLight.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraLightItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Italic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Light.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-LightItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Medium.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-MediumItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Regular.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-SemiBold.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-SemiBoldItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Thin.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ThinItalic.ttf" />
-	  <None Remove="Resources\Images\accounts_dark.svg" />
-	  <None Remove="Resources\Images\accounts_light.svg" />
-	  <None Remove="Resources\Images\account\account_receive.svg" />
-	  <None Remove="Resources\Images\account\account_send.svg" />
-	  <None Remove="Resources\Images\auctions_dark.svg" />
-	  <None Remove="Resources\Images\auctions_light.svg" />
-	  <None Remove="Resources\Images\authors_dark.svg" />
-	  <None Remove="Resources\Images\authors_light.svg" />
-	  <None Remove="Resources\Images\bell_dark.svg" />
-	  <None Remove="Resources\Images\bell_light.svg" />
-	  <None Remove="Resources\Images\close.svg" />
-	  <None Remove="Resources\Images\dashboard_outline.svg" />
-	  <None Remove="Resources\Images\help_dark.svg" />
-	  <None Remove="Resources\Images\help_light.svg" />
-	  <None Remove="Resources\Images\icon.svg" />
-	  <None Remove="Resources\Images\icon_night.svg" />
-	  <None Remove="Resources\Images\network_dark.svg" />
-	  <None Remove="Resources\Images\network_light.svg" />
-	  <None Remove="Resources\Images\products_dark.svg" />
-	  <None Remove="Resources\Images\products_light.svg" />
-	  <None Remove="Resources\Images\random_dark.svg" />
-	  <None Remove="Resources\Images\random_light.svg" />
-	  <None Remove="Resources\Images\search_dark.svg" />
-	  <None Remove="Resources\Images\search_light.svg" />
-	  <None Remove="Resources\Images\sort_dark.svg" />
-	  <None Remove="Resources\Images\sort_light.svg" />
-	  <None Remove="Resources\Images\transactions_dark.svg" />
-	  <None Remove="Resources\Images\transactions_light.svg" />
-	  <None Remove="Resources\Images\transfer_dark.svg" />
-	  <None Remove="Resources\Images\transfer_light.svg" />
-	  <None Remove="Resources\Images\ts_done_dark.svg" />
-	  <None Remove="Resources\Images\ts_done_light.svg" />
-	  <None Remove="Resources\Images\ts_failed_dark.svg" />
-	  <None Remove="Resources\Images\ts_failed_light.svg" />
-	  <None Remove="Resources\Images\ts_pending_dark.svg" />
-	  <None Remove="Resources\Images\ts_pending_light.svg" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.3.0" />
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
@@ -438,8 +379,12 @@
 	  <MauiImage Include="Resources\Images\account\account_send.svg" />
 	  <MauiImage Include="Resources\Images\account\account_receive.svg" />
 	  <MauiImage Include="Resources\Images\account\account_sort.svg" />
+	  <MauiImage Include="Resources\Images\author\author_free.svg" />
+	  <MauiImage Include="Resources\Images\author\author_personal.svg" />
+	  <MauiImage Include="Resources\Images\author\author_reserved.svg" />
+	  <MauiImage Include="Resources\Images\author\author_watch.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\accounts.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\auctions.svg" />
+	  <MauiImage Include="Resources\Images\author\author_auction.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\authors.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\dashboard_outline.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\help.svg" />

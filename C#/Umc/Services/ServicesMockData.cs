@@ -63,7 +63,6 @@ public class ServicesMockData : IServicesMockData
 					product2,
 					product3,
 					product4,
-					product5,
 				},
 			};
 			AuthorViewModel author2 = new()
@@ -102,10 +101,22 @@ public class ServicesMockData : IServicesMockData
 				Name = "gate500",
 				Title = "Gate 500",
 				ActiveDue = "01/09/2023",
-				BidStatus = BidStatus.Lower,
+				BidStatus = BidStatus.None,
 				Products = new List<ProductViewModel>
 				{
 					product9,
+				},
+			};
+
+			AuthorViewModel author6 = new()
+			{
+				Name = "Test",
+				Title = "Test",
+				ActiveDue = "01/09/2023",
+				BidStatus = BidStatus.None,
+				Products = new List<ProductViewModel>
+				{
+					product5
 				},
 			};
 
@@ -113,10 +124,10 @@ public class ServicesMockData : IServicesMockData
 			product2.Author = author1;
 			product3.Author = author1;
 			product4.Author = author1;
-			product5.Author = author1;
+			product5.Author = author2;
 			product6.Author = author2;
 			product7.Author = author3;
-			product8.Author = author3;
+			product8.Author = author4;
 			product9.Author = author5;
 
 			Authors.Add(author1);

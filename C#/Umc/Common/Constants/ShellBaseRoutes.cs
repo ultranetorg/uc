@@ -18,6 +18,7 @@ internal static class ShellBaseRoutes
     public const string AUTHOR_DETAILS = nameof(AuthorDetailsPage);
     public const string AUTHOR_REGISTRATION = nameof(AuthorRegistrationPage);
     public const string AUTHOR_RENEWAL = nameof(AuthorRenewalPage);
+	// public const string AUTHOR_TRANSFER =nameof(AuthorTransferPage);
     public const string MAKE_BID = nameof(MakeBidPage);
     public const string PRODUCTS = nameof(ProductsPage); // or ProductsBPage?
     public const string PRODUCTS_SEARCH = nameof(ProductSearchPage);
@@ -37,12 +38,12 @@ internal static class ShellBaseRoutes
 		Routing.RegisterRoute(AUTHOR_DETAILS, typeof(AuthorDetailsPage));
 		Routing.RegisterRoute(AUTHOR_REGISTRATION, typeof(AuthorRegistrationPage));
 		Routing.RegisterRoute(AUTHOR_RENEWAL, typeof(AuthorRenewalPage));
+		//Routing.RegisterRoute(AUTHOR_TRANSFER, typeof(AuthorTransferPage));
 		Routing.RegisterRoute(MAKE_BID, typeof(MakeBidPage));
 		Routing.RegisterRoute(PRODUCTS_SEARCH, typeof(ProductSearchPage));
 
 		Routing.RegisterRoute(SEND, typeof(SendPage));
 
 		Routing.RegisterRoute(ABOUT, typeof(AboutPage));
-
 	}
 }

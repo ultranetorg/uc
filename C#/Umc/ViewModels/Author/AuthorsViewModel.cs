@@ -19,7 +19,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     }
 	
 	[RelayCommand]
-    private async Task SearchAuthorAsync(AuthorViewModel author) =>
+    private async Task OpenAuthorDetailsAsync(AuthorViewModel author) =>
 		await Navigation.GoToAsync(nameof(AuthorDetailsPage),
 			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, author }});
 	
@@ -44,7 +44,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 
 	public async Task InitializeAsync()
 	{
-        AuthorsFilter = DefaultDataMock.DefaultFilter;
+        AuthorsFilter = DefaultDataMock.AuthorsFilter;
 		
 		Authors.Clear();
 		var authors = await _service.GetAccountAuthorsAsync();

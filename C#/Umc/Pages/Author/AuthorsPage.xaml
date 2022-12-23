@@ -5,31 +5,46 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:AuthorsViewModel"
     Title="Authors"
     x:Name="page">
-    <!--<controls:CustomPage.RightContent>
-        <Grid ColumnDefinitions="Auto,Auto">
-            <ImageButton
-                Grid.Column="1"
-                HorizontalOptions="End"
-                Style="{StaticResource Dots}"
-                VerticalOptions="Center" />
-        </Grid>
-    </controls:CustomPage.RightContent>-->
-    <Shell.TitleView>
-        <!--Need to rewrite it using svg icon or make as a new shared component-->
-        <views:PageTitleActionView
-            Title="Authors"
-            TitleStyle="{StaticResource TitleLabel}"
-            IconSource="account_sort"
-            IconStyle="{StaticResource Dots}" />
-    </Shell.TitleView>
+    
+    <!-- Search Handler --> 
+    
     <controls:CustomPage.MainContent>
-        <Grid RowDefinitions="30,*" RowSpacing="4" Margin="24,12">
-            <CollectionView ItemsSource="{Binding AuthorsFilter}">
+        <Grid RowDefinitions="40,32,*" RowSpacing="4" Margin="16,0,16,4">       
+            <FlexLayout
+                Grid.Row="0"
+                AlignItems="Center"
+                Direction="Row"
+                JustifyContent="SpaceBetween"
+                Margin="8,4">
+                <Label
+                    FontFamily="SemiBold"
+                    Style="{StaticResource TitleLabel}"
+                    TextColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}"
+                    Text="Search Entry" />
+                <AbsoluteLayout
+                    HeightRequest="40"
+                    WidthRequest="40">
+                    <ImageButton
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        Aspect="AspectFill"
+                        HeightRequest="44"
+                        Source="account_sort"
+                        Command="{Binding SortAuthorsCommand}"/>
+                </AbsoluteLayout>
+                <!--<Entry>
+                    <Entry.Behaviors>
+                        <toolkit:EventToCommandBehavior EventName="Completed" />
+                    </Entry.Behaviors>
+                </Entry>-->
+            </FlexLayout>
+            <CollectionView Grid.Row="1" ItemsSource="{Binding AuthorsFilter}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                 </CollectionView.ItemsLayout>
@@ -50,14 +65,13 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
             <CollectionView
-                Grid.Row="1"
+                Grid.Row="2"
                 ItemsSource="{Binding Authors}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:AuthorViewModel">
                         <Border
-                            Margin="0,8"
-                            Padding="1"
+                            Margin="0,4"
                             HeightRequest="60"
                             Style="{StaticResource AccountCardBorder}">
                             <Border.Triggers>
@@ -222,7 +236,7 @@
                                             Grid.RowSpan="2"
                                             Grid.Column="2"
                                             Padding="1"
-                                            Command="{Binding OpenAuthorOptionsCommand, Source={x:Reference page}}"
+                                            Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
                                             CommandParameter="{Binding .}"
                                             Style="{StaticResource Dots}"
                                             VerticalOptions="Center" />
