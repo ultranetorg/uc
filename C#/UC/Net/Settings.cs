@@ -149,6 +149,7 @@ namespace UC.Net
 		public bool				DisableBidMin;
 		public bool				DisableTimeouts;
 		public bool				ThrowOnCorrupted;
+		public int				TailLength = 100;
 
 		public bool				Any => Fields.Any(i => (bool)i.GetValue(this));
 		IEnumerable<FieldInfo>	Fields => GetType().GetFields().Where(i => i.FieldType == typeof(bool));

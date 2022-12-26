@@ -95,12 +95,10 @@ namespace UC.Net
 	public abstract class Request : ITypedBinarySerializable
 	{
 		public byte[]					Id {get; set;}
-
 		public byte						TypeCode => (byte)Type;
 		public Peer						Peer;
 		public ManualResetEvent			Event;
 		public Response					Response;
-		//public bool						Sent;
 		public Action					Process;
 
 		public const int				IdLength = 8;
@@ -138,10 +136,10 @@ namespace UC.Net
 
 	public abstract class Response : ITypedBinarySerializable
 	{
-		public byte[]				Id {get; set;}
-		public Error	Error {get; set;}
-		public bool					Final {get; set;} = true;
-		public Peer					Peer;
+		public byte[]			Id { get; set; }
+		public Error			Error { get; set; }
+		public bool				Final { get; set; } = true;
+		public Peer				Peer;
 
 		public byte				TypeCode => (byte)Type;
 		public DistributedCall	Type => Enum.Parse<DistributedCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));

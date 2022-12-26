@@ -41,7 +41,7 @@ namespace UC.Net
 		public const int					MembersMax = 1024;
 		public const int					NewMembersPerRoundMax = 1;
 		public const int					MembersRotation = 32;
-		public const int					TailLength = 100;
+		public static int					TailLength => Settings.Dev != null ? Settings.Dev.TailLength : 1000;
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			BailMin = 1000;
 		public static readonly Coin			FeePerByte = new Coin(0.000001);
