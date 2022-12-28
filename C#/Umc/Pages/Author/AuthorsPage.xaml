@@ -16,9 +16,12 @@
         <Grid RowDefinitions="48,32,*" RowSpacing="4" Margin="16,0,16,4">       
             <Grid
                 Grid.Row="0"
-                ColumnDefinitions="3*,*"
+                ColumnDefinitions="4*,*"
                 Margin="8,4">
-                <AbsoluteLayout MaximumHeightRequest="120" MaximumWidthRequest="80" Grid.Row="0" Padding="16">
+                <AbsoluteLayout
+                    HeightRequest="60"
+                    WidthRequest="290"
+                    Grid.Row="0">
                     <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All" />
@@ -31,6 +34,7 @@
                         VerticalOptions="Center" />
                 </AbsoluteLayout>
                 <AbsoluteLayout
+                    HorizontalOptions="End"
                     Grid.Column="1"
                     HeightRequest="40"
                     WidthRequest="40">
