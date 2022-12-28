@@ -26,6 +26,11 @@ public class AuthorViewModel
 	}
 }
 
+public enum AuthorStatus
+{
+	Auction, Watched, Owned, Free, Reserved, Hidden
+}
+
 public enum BidStatus
 {
     None, Higher, Lower

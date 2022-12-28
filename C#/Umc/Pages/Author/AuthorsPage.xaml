@@ -12,7 +12,13 @@
     Title="Authors"
     x:Name="page">
     
-    <!-- Search Handler --> 
+    <Shell.SearchHandler>
+        <controls:AuthorSearchHandler
+            IsSearchEnabled="{Binding IsLoaded}"
+            ItemsSource="{Binding Authors}"
+            Placeholder="Search by Authors"
+            ShowsResults="true" />
+    </Shell.SearchHandler>
     
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="40,32,*" RowSpacing="4" Margin="16,0,16,4">       
