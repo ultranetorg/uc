@@ -10,6 +10,7 @@ public class AuthorViewModel
     public string					Name { get; internal set; } // => _entry.Name;
     public string					Title { get; internal set; } // => _entry.Title;
     public decimal					CurrentBid { get; internal set; } // => _entry.LastBid;
+    public AuthorStatus				Status { get; internal set; }
     public BidStatus				BidStatus { get; internal set; }
     public string					ActiveDue { get; internal set; }
 

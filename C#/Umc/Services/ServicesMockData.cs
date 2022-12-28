@@ -56,6 +56,7 @@ public class ServicesMockData : IServicesMockData
 				Name = "microsoft",
 				Title = "Microsoft",
 				ActiveDue = "01/02/2023",
+				Status = AuthorStatus.Auction,
 				BidStatus = BidStatus.Higher,
 				Products = new List<ProductViewModel>
 				{
@@ -70,6 +71,7 @@ public class ServicesMockData : IServicesMockData
 				Name = "alphabet",
 				Title = "Alphabet",
 				ActiveDue = "01/03/2023",
+				Status = AuthorStatus.Auction,
 				BidStatus = BidStatus.Lower,
 				Products = new List<ProductViewModel>
 				{
@@ -81,7 +83,7 @@ public class ServicesMockData : IServicesMockData
 				Name = "amazonlimited",
 				Title = "Amazon Limited",
 				ActiveDue = "01/03/2024",
-				BidStatus = BidStatus.Higher,
+				Status = AuthorStatus.Watched,
 				Products = new List<ProductViewModel>
 				{
 					product7,
@@ -92,8 +94,8 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "spacex",
 				Title = "Space X",
+				Status = AuthorStatus.Owned,
 				ActiveDue = "01/09/2023",
-				BidStatus = BidStatus.Lower,
 			};
 
 			AuthorViewModel author5 = new()
@@ -101,7 +103,7 @@ public class ServicesMockData : IServicesMockData
 				Name = "gate500",
 				Title = "Gate 500",
 				ActiveDue = "01/09/2023",
-				BidStatus = BidStatus.None,
+				Status = AuthorStatus.Reserved,
 				Products = new List<ProductViewModel>
 				{
 					product9,
@@ -113,7 +115,7 @@ public class ServicesMockData : IServicesMockData
 				Name = "Test",
 				Title = "Test",
 				ActiveDue = "01/09/2023",
-				BidStatus = BidStatus.None,
+				Status = AuthorStatus.Free,
 				Products = new List<ProductViewModel>
 				{
 					product5
@@ -135,6 +137,7 @@ public class ServicesMockData : IServicesMockData
 			Authors.Add(author3);
 			Authors.Add(author4);
 			Authors.Add(author5);
+			Authors.Add(author6);
 
 			#endregion Authors
 
