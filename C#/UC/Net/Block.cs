@@ -18,6 +18,58 @@ namespace UC.Net
 		MembersJoinRequest = 1, Vote = 2, Payload = 3
 	}
 
+	public class BlockPiece : IBinarySerializable
+	{
+		public int		RoundId { get; set; }
+		public int		Piece { get; set; }
+		public int		PiecesTotal { get; set; }
+		public byte[]	Signature { get; set; }
+		public byte[]	Data { get; set; }
+
+		public Account	Generator { get; protected set; }
+		public DateTime	Time;
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write7BitEncodedInt(Piece);
+			writer.Write7BitEncodedInt(PiecesTotal);
+			writer.Write7BitEncodedInt(Data.Length);
+			writer.Write(Data);
+			writer.Write(Signature);
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			RoundId		= reader.Read7BitEncodedInt();
+			Piece		= reader.Read7BitEncodedInt();
+			PiecesTotal	= reader.Read7BitEncodedInt();
+			Data		= reader.ReadBytes(reader.Read7BitEncodedInt());
+			Signature	= reader.ReadSignature();
+
+			Generator = Cryptography.Current.AccountFrom(Signature, Hashify());
+		}
+
+		public byte[] Hashify()
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write7BitEncodedInt(RoundId);
+			w.Write7BitEncodedInt(Piece);
+			w.Write7BitEncodedInt(PiecesTotal);
+			w.Write(Data);
+
+			return Cryptography.Current.Hash(s.ToArray());
+		}
+
+		public void Sign(PrivateAccount generator)
+		{
+			Generator = generator;
+			Signature = Cryptography.Current.Sign(generator, Hashify());
+		} 
+	}
+
 	public abstract class Block : ITypedBinarySerializable, IBinarySerializable
 	{
 		public virtual bool			Valid => true;

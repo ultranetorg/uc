@@ -5,13 +5,15 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Security;
+using static UC.Net.Download;
 
 namespace UC.Net
 {
 	public enum DistributedCall : byte
 	{
-		Null, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
+		Null, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable
 	}
@@ -100,6 +102,7 @@ namespace UC.Net
 		public ManualResetEvent			Event;
 		public Response					Response;
 		public Action					Process;
+		public virtual bool				WaitResponse { get; protected set; } = true;
 
 		public const int				IdLength = 8;
 		static readonly SecureRandom	Random = new SecureRandom();
@@ -154,6 +157,75 @@ namespace UC.Net
 			{
 				throw new IntegrityException($"Wrong {nameof(Response)} type", ex);
 			}
+		}
+	}
+
+	public class UploadBlocksPiecesRequest : Request
+	{
+		public IEnumerable<BlockPiece>	Pieces { get; set; }
+		public override bool			WaitResponse => false;
+
+		public override Response Execute(Core core)
+		{
+			void broadcast(IEnumerable<BlockPiece> pieces)
+			{
+				foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer))
+				{
+					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
+				}
+			}
+
+			lock(core.Lock)
+			{
+				if(core.Settings.Database.Base)
+				{
+					var accepted = new List<BlockPiece>();
+
+					var notolder = core.Database.LastConfirmedRound.Id - Net.Database.Pitch;
+					var notnewer = core.Database.LastConfirmedRound.Id + Net.Database.Pitch * 2;
+	
+					foreach(var p in Pieces.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer))
+					{
+						var r = core.Database.GetRound(p.RoundId);
+	
+						if(!r.BlockPieces.Any(i => i.Signature.SequenceEqual(p.Signature)))
+						{
+							accepted.Add(p);
+							r.BlockPieces.Add(p);
+	
+							if(r.BlockPieces.Count(i => i.Generator == p.Generator) == p.PiecesTotal)
+							{
+								var s = new MemoryStream();
+								var w = new BinaryWriter(s);
+	
+								foreach(var i in r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece))
+								{
+									s.Write(i.Data);
+								}
+	
+								s.Position = 0;
+								var rd = new BinaryReader(s);
+	
+								var b = Block.FromType(core.Database, (BlockType)rd.ReadByte());
+								b.Read(rd);
+	
+								core.ProcessIncoming(new Block[] {b}, null);
+	
+							}
+						}
+					}
+
+					if(accepted.Any())
+						if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Synchronizing || core.Synchronization == Synchronization.Synchronized) /// Null and Synchronizing needed for Dev purposes
+						{
+							broadcast(accepted);
+						}
+				}
+				else
+					throw new DistributedCallException(Error.NotBase);
+			}
+
+			return null; 
 		}
 	}
 

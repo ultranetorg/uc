@@ -19,7 +19,7 @@ namespace UC.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Hello, Blocks, Request, Response
+		Null, Hello, /*Blocks, */Request, Response
 	}
 
 	public enum EstablishingStatus
@@ -241,28 +241,41 @@ namespace UC.Net
 											
 												foreach(var i in InRequests.ToArray())
 												{
-													Response rp;
-												
-													lock(core.Lock)
-														try
-														{
-															rp = i.Execute(core);
-															//rp = core.Respond(this, i);
-															//rp.Status = ResponseStatus.OK;
-														}
-														catch(DistributedCallException ex)// when(!Debugger.IsAttached)
-														{
-															rp = Response.FromType(core.Database, i.Type);
-															rp.Error = ex.Error;
-														}
-														catch(Exception)// when(!Debugger.IsAttached)
-														{
-															rp = Response.FromType(core.Database, i.Type);
-															rp.Error = Error.Internal;
-														}
-												
-													rp.Id = i.Id;
-													responses.Add(rp);
+													if(i.WaitResponse)
+													{
+														Response rp;
+													
+														lock(core.Lock)
+															try
+															{
+																rp = i.Execute(core);
+															}
+															catch(DistributedCallException ex)// when(!Debugger.IsAttached)
+															{
+																rp = Response.FromType(core.Database, i.Type);
+																rp.Error = ex.Error;
+															}
+															catch(Exception)// when(!Debugger.IsAttached)
+															{
+																rp = Response.FromType(core.Database, i.Type);
+																rp.Error = Error.Internal;
+															}
+													
+														rp.Id = i.Id;
+														responses.Add(rp);
+													} 
+													else
+													{
+														lock(core.Lock)
+															try
+															{
+																i.Execute(core);
+															}
+															catch(Exception)// when(!Debugger.IsAttached)
+															{
+															}
+													}
+
 													InRequests.Remove(i);
 												}
 
@@ -398,24 +411,30 @@ namespace UC.Net
 				BinarySerializator.Serialize(new BinaryWriter(s), new[]{rq});
 				p.Data = s;
 
-				OutRequests.Add(rq);
+				if(rq.WaitResponse)
+					OutRequests.Add(rq);
 												
 				lock(Out)
 					Out.Enqueue(p);
 			}
  
- 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : Core.Timeout))
+ 			if(rq.WaitResponse)
  			{
-				if(rq.Response == null)
-					throw new OperationCanceledException();
-
- 				if(rq.Response.Error == Error.Null)
-	 				return rq.Response as Rp;
- 				else
-					throw new DistributedCallException(rq.Response.Error);
+	 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : Core.Timeout))
+	 			{
+					if(rq.Response == null)
+						throw new OperationCanceledException();
+	
+	 				if(rq.Response.Error == Error.Null)
+		 				return rq.Response as Rp;
+	 				else
+						throw new DistributedCallException(rq.Response.Error);
+	 			}
+				else
+	 				throw new ConnectionFailedException($"Timed out");
  			}
 			else
- 				throw new ConnectionFailedException($"Timed out");
+				return null;
  		}
 	}
 }

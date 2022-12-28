@@ -19,6 +19,7 @@ using Nethereum.Signer;
 using Nethereum.Web3;
 using Org.BouncyCastle.Asn1.X509;
 using RocksDbSharp;
+using static UC.Net.Download;
 
 namespace UC.Net
 {
@@ -102,7 +103,8 @@ namespace UC.Net
 		public List<Peer>								Peers		= new();
 		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
 		public List<IPAddress>							IgnoredIPs	= new();
-		public List<Block>								Cache		= new();
+		public List<Block>								BlockCache	= new();
+		public List<BlockPiece>							BlockPieceCache	= new();
 		public List<Member>								Members		= new();
 		public List<Download>							Downloads	= new();
 
@@ -157,7 +159,7 @@ namespace UC.Net
 					f.Add("Size");					v.Add($"{Database.Size}");
 					f.Add("Members");				v.Add($"{Database.Members.Count}");
 					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
-					f.Add("Cached Blocks");			v.Add($"{Cache.Count()}");
+					f.Add("Cached Blocks");			v.Add($"{BlockCache.Count()}");
 					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
 					f.Add("Last Non-Empty Round");	v.Add($"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}");
 					f.Add("Last Payload Round");	v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}");
@@ -956,27 +958,27 @@ namespace UC.Net
 
 					switch(pk.Type)
 					{
-						case PacketType.Blocks:
-						{
-							IEnumerable<Block> blocks;
-										
-							try
-							{
-								blocks = pk.Read((r, c) => Block.FromType(Database, (BlockType)c));
-							}
-							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-							{
-								peer.Disconnect();
-								break;
-							}
-		
-							lock(Lock)
-							{
-								ProcessIncoming(blocks, peer);
-							}
-	
-							break;
-						}
+						//case PacketType.Blocks:
+						//{
+						//	IEnumerable<Block> blocks;
+						//				
+						//	try
+						//	{
+						//		blocks = pk.Read((r, c) => Block.FromType(Database, (BlockType)c));
+						//	}
+						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+						//	{
+						//		peer.Disconnect();
+						//		break;
+						//	}
+						//
+						//	lock(Lock)
+						//	{
+						//		ProcessIncoming(blocks, peer);
+						//	}
+						//
+						//	break;
+						//}
 
  						case PacketType.Request:
  						{
@@ -1246,7 +1248,7 @@ namespace UC.Net
 											throw new SynchronizationException();
 										}
 #endif
-										Cache.RemoveAll(i => i.RoundId <= r.Id);
+										BlockCache.RemoveAll(i => i.RoundId <= r.Id);
 									}
 									else
 									{
@@ -1275,8 +1277,8 @@ namespace UC.Net
 // 									if(!Database.Roles.HasFlag(Role.Chain))
 // 										Database.Rounds.Remove(Database.Rounds.Last());
 
-									Database.Add(Cache.OrderBy(i => i.RoundId));
-									Cache.Clear();
+									Database.Add(BlockCache.OrderBy(i => i.RoundId));
+									BlockCache.Clear();
 	
 									Synchronization = Synchronization.Synchronized;
 									SynchronizingThread = null;
@@ -1306,14 +1308,14 @@ namespace UC.Net
 		{
 			Statistics.BlocksProcessing.Begin();
 
-			var accepted = blocks.Where(b => Cache.All(i => !i.Signature.SequenceEqual(b.Signature)) && Database.Verify(b)).ToArray(); /// !ToArray cause will be added to Chain below
+			var accepted = blocks.Where(b => BlockCache.All(i => !i.Signature.SequenceEqual(b.Signature)) && Database.Verify(b)).ToArray(); /// !ToArray cause will be added to Chain below
 
 			if(!accepted.Any())
 				return;
 
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing)
 			{
-				Cache.AddRange(accepted);
+				BlockCache.AddRange(accepted);
 			}
 
 			if(Synchronization == Synchronization.Synchronized)
@@ -1345,17 +1347,10 @@ namespace UC.Net
 					
 				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.Members.Any(j => j.Generator == b.Generator) || 
 																	 (Database.Rounds.Any(r => r.Members == null ? false : r.Members.Any(m => m.Generator == b.Generator)))));
-
 				Database.Add(votes);
 			}
 
-			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing || Synchronization == Synchronization.Synchronized) /// Null and Synchronizing needed for Dev purposes
-			{
-				Broadcast(Packet.Create(PacketType.Blocks, accepted), peer);
-			}
-
 			Statistics.BlocksProcessing.End();
-
 		}
 
 		public Round GetNextAvailableRound(Account generator)
@@ -1379,11 +1374,6 @@ namespace UC.Net
 			Statistics.Generating.Begin();
 
 			var blocks = new List<Block>();
-
-			if(Thread.CurrentThread.Name == "100 Main")
-			{
-				blocks = blocks;
-			}
 
 			foreach(var g in Settings.Generators)
 			{
@@ -1441,6 +1431,11 @@ namespace UC.Net
 						foreach(var i in txs)
 						{
 							(b as Payload).AddNext(i);
+
+							/// TODO: limit size
+							///if()
+							//{
+							//}
 	
 							foreach(var o in i.Operations)
 								o.Placing = PlacingStage.Placed;
@@ -1499,7 +1494,61 @@ namespace UC.Net
 					Database.Add(b, b is Payload);
 				}
 
-				Broadcast(Packet.Create(PacketType.Blocks, blocks));
+				var pieces = new List<BlockPiece>();
+
+				foreach(var b in blocks)
+				{
+					var s = new MemoryStream();
+					var w = new BinaryWriter(s);
+
+					w.Write(b.TypeCode);
+					b.Write(w);
+
+					s.Position = 0;
+					var r = new BinaryReader(s);
+
+					var n = Connections.Count()/*.Count(i => i.ChainRank > 0 || i.BaseRank > 0)*/;
+
+					for(int i = 0; i < n; i++)
+					{
+						var p = new BlockPiece{	RoundId = b.RoundId,
+												PiecesTotal = n,
+												Piece = i,
+												Data = r.ReadBytes((int)s.Length/n + (i < n-1 ? 0 : (int)s.Length % n))};
+
+						p.Sign(b.Generator as PrivateAccount);
+
+						pieces.Add(p);
+					}
+				}
+
+ 				var c = Connections.Where(i => i.BaseRank > 0).GetEnumerator();
+ 				var d = new Dictionary<Peer, List<BlockPiece>>();
+ 
+ 				foreach(var i in pieces)
+ 				{
+ 					if(!c.MoveNext())
+ 					{
+ 						c = Connections.Where(i => i.BaseRank > 0).GetEnumerator(); /// go to the beginning
+ 						c.MoveNext();
+ 					}
+ 
+ 					if(!d.ContainsKey(c.Current))
+ 						d[c.Current] = new();
+ 
+ 					d[c.Current].Add(i);
+ 				}
+
+				foreach(var i in d)
+				{
+					i.Key.Request<object>(new UploadBlocksPiecesRequest{Pieces = i.Value});
+				}
+
+//				foreach(var i in Connections.Where(i => i.BaseRank > 0))
+//				{
+//					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
+//				}
+
 													
 				Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
 			}
@@ -1520,13 +1569,6 @@ namespace UC.Net
 
 			while(Running)
 			{
-
-			if(IP.GetAddressBytes()[3] == 100)
-			{
-				IP=IP;
-			}
-
-
 				Thread.Sleep(1);
 				Workflow.ThrowIfAborted();
 
@@ -1891,11 +1933,6 @@ namespace UC.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(IP.GetAddressBytes()[3] == 100)
-			{
-				IP=IP;
-			}
-
 			if(!Settings.Generators.Any(g => Database.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
 				return new();
 
@@ -1914,21 +1951,6 @@ namespace UC.Net
 			Statistics.TransactionsProcessing.End();
 
 			return accepted;
-		}
-		
-		void Broadcast(Packet packet, Peer skip = null)
-		{
-			if(packet != null)
-				foreach(var i in Connections.Where(j => j != skip))
-				{
-					if(packet.Type == PacketType.Blocks)
-					{
-						if(i.ChainRank > 0 || i.BaseRank > 0)
-							i.Send(packet);
-					}
-					else
-						i.Send(packet);
-				}
 		}
 
 		public MemberDci ConnectToMember(Workflow workflow)

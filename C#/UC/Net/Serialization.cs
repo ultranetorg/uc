@@ -116,9 +116,6 @@ namespace UC.Net
 			{
 				if(i is ITypedBinarySerializable t)
 				{
-					if(t.TypeCode == 13)
-						writer=writer;
-					
 					writer.Write(t.TypeCode);
 				}
 
@@ -137,7 +134,7 @@ namespace UC.Net
 
 				l[i] = fromtype(t);
 
-				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 				{
 					if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 						p.SetValue(l[i], val);
@@ -164,7 +161,7 @@ namespace UC.Net
 			if(o == null)
 				o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
 
-			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
 				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 					p.SetValue(o, val);

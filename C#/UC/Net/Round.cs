@@ -20,6 +20,8 @@ namespace UC.Net
 		public DateTime											FirstArrivalTime = DateTime.MaxValue;
 		//public DateTime											LastAccessed = DateTime.UtcNow;
 
+		public List<BlockPiece>									BlockPieces = new();
+
 		public List<Block>										Blocks = new();
 		//public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>();
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
@@ -63,7 +65,7 @@ namespace UC.Net
 		//public IEnumerable<Operation>							ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
 		//																								.SelectMany(i => i.Operations)
 		//																								.Where(i => i.Executed);
-		public Database										Chain;
+		public Database											Chain;
 		
 		public Round(Database c)
 		{
