@@ -120,7 +120,7 @@
                 <Grid
                     Margin="-12,0"
                     ColumnDefinitions="*,*,*,*"
-                    RowDefinitions="Auto,Auto,Auto"
+                    RowDefinitions="Auto,Auto"
                     RowSpacing="4">
                     <controls:ImageTextButton
                         Grid.Row="0"
@@ -136,36 +136,36 @@
                         Text="Authors" />
                     <controls:ImageTextButton
                         Grid.Row="0"
-                        Grid.Column="3"
+                        Grid.Column="2"
                         Command="{Binding ProductsExcuteCommand}"
                         ImageSource="products.png"
                         Text="Products" />
                     <controls:ImageTextButton
-                        Grid.Row="1"
-                        Grid.Column="0"
+                        Grid.Row="0"
+                        Grid.Column="3"
                         Command="{Binding TransactionsExcuteCommand}"
                         ImageSource="transactions.png"
                         Text="Transactions" />
                     <controls:ImageTextButton
                         Grid.Row="1"
-                        Grid.Column="1"
+                        Grid.Column="0"
                         ImageSource="search.png"
                         Text="Search" />
                     <controls:ImageTextButton
                         Grid.Row="1"
-                        Grid.Column="2"
+                        Grid.Column="1"
                         Command="{Binding NetworkExcuteCommand}"
                         ImageSource="network.png"
                         Text="Network" />
                     <controls:ImageTextButton
                         Grid.Row="1"
-                        Grid.Column="3"
+                        Grid.Column="2"
                         Command="{Binding ETHTransferExcuteCommand}"
                         ImageSource="transfer.png"
                         Text="ETH-UNT Transfer" />
                     <controls:ImageTextButton
-                        Grid.Row="2"
-                        Grid.Column="0"
+                        Grid.Row="1"
+                        Grid.Column="3"
                         Command="{Binding HelpExcuteCommand}"
                         ImageSource="help.png"
                         Text="Help" />

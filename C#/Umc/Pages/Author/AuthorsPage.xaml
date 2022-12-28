@@ -12,28 +12,26 @@
     Title="Authors"
     x:Name="page">
     
-    <Shell.SearchHandler>
-        <controls:AuthorSearchHandler
-            IsSearchEnabled="{Binding IsLoaded}"
-            ItemsSource="{Binding Authors}"
-            Placeholder="Search by Authors"
-            ShowsResults="true" />
-    </Shell.SearchHandler>
-    
     <controls:CustomPage.MainContent>
-        <Grid RowDefinitions="40,32,*" RowSpacing="4" Margin="16,0,16,4">       
-            <FlexLayout
+        <Grid RowDefinitions="48,32,*" RowSpacing="4" Margin="16,0,16,4">       
+            <Grid
                 Grid.Row="0"
-                AlignItems="Center"
-                Direction="Row"
-                JustifyContent="SpaceBetween"
+                ColumnDefinitions="3*,*"
                 Margin="8,4">
-                <Label
-                    FontFamily="SemiBold"
-                    Style="{StaticResource TitleLabel}"
-                    TextColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}"
-                    Text="Search Entry" />
+                <AbsoluteLayout MaximumHeightRequest="120" MaximumWidthRequest="80" Grid.Row="0" Padding="16">
+                    <controls:FormEntryControl
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All" />
+                    <Image
+                        Margin="12,0"
+                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        HorizontalOptions="End"
+                        Style="{StaticResource SearchIcon}"
+                        VerticalOptions="Center" />
+                </AbsoluteLayout>
                 <AbsoluteLayout
+                    Grid.Column="1"
                     HeightRequest="40"
                     WidthRequest="40">
                     <ImageButton
@@ -49,7 +47,7 @@
                         <toolkit:EventToCommandBehavior EventName="Completed" />
                     </Entry.Behaviors>
                 </Entry>-->
-            </FlexLayout>
+            </Grid>
             <CollectionView Grid.Row="1" ItemsSource="{Binding AuthorsFilter}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />

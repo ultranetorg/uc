@@ -1,8 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿namespace UC.Umc.ViewModels;
 
-namespace UC.Umc.ViewModels;
-
-public partial class AuthorsViewModel : BaseTransactionsViewModel, IRecipient<AuthorsSearchMessage>
+public partial class AuthorsViewModel : BaseTransactionsViewModel
 {
 	private readonly IAuthorsService _service;
 
@@ -19,13 +17,13 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel, IRecipient<Au
     {
 		_service = service;
     }
-
-    public void Receive(AuthorsSearchMessage message)
+	
+	[RelayCommand]
+    public void FilterAuthorsAsync()
     {
-#if DEBUG
-        _logger.LogDebug("Filter Message Received. Filter: {filter}", message.Value);
-#endif
-        // To Filtering, Loading, Await
+        _logger.LogDebug("Filter Authors");
+
+        // Filtering, Loading
     }
 	
 	[RelayCommand]
