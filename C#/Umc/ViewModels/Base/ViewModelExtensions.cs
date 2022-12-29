@@ -79,6 +79,7 @@ public static class ViewModelExtensions
 
 		// Transient ViewModels
 		builder.Services.AddTransient<AccountOptionsViewModel>();
+		builder.Services.AddTransient<AuthorOptionsViewModel>();
 		builder.Services.AddTransient<DeleteAccountPopupViewModel>();
 		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();

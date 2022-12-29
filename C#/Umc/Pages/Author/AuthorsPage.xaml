@@ -52,11 +52,6 @@
                         Source="account_sort"
                         Command="{Binding SortAuthorsCommand}"/>
                 </AbsoluteLayout>
-                <!--<Entry>
-                    <Entry.Behaviors>
-                        <toolkit:EventToCommandBehavior EventName="Completed" />
-                    </Entry.Behaviors>
-                </Entry>-->
             </Grid>
             <CollectionView Grid.Row="1" ItemsSource="{Binding AuthorsFilter}">
                 <CollectionView.ItemsLayout>
@@ -138,29 +133,22 @@
                                         FontSize="13"
                                         Text="{Binding Name}" />
                                     <Label
-                                        Grid.Row="1"
-                                        Grid.Column="2"
-                                        FontSize="10"
-                                        Text="{Binding ActiveDue,TargetNullValue='Active due: N/A'}"
-                                        VerticalOptions="End" />
-                                    <Label
                                         Grid.Row="0"
                                         Grid.Column="2"
                                         FontSize="10"
+                                        Text="{Binding DisplayLine1}"
                                         VerticalOptions="Center">
                                         <Label.Triggers>
                                             <DataTrigger
                                                 Binding="{Binding BidStatus}"
                                                 TargetType="Label"
                                                 Value="{Static models:BidStatus.Higher}">
-                                                <Setter Property="Text" Value="You have higher bid" />
                                                 <Setter Property="TextColor" Value="{StaticResource HigherColor}" />
                                             </DataTrigger>
                                             <DataTrigger
                                                 Binding="{Binding BidStatus}"
                                                 TargetType="Label"
                                                 Value="{Static models:BidStatus.Lower}">
-                                                <Setter Property="Text" Value="You are not leading" />
                                                 <Setter Property="TextColor" Value="{StaticResource LowerColor}" />
                                             </DataTrigger>
                                         </Label.Triggers>
@@ -169,30 +157,19 @@
                                         Grid.Row="1"
                                         Grid.Column="2"
                                         FontSize="10"
-                                        VerticalOptions="Center">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="Current bid " />
-                                                <Span FontAttributes="Bold" Text="{Binding CurrentBid, StringFormat='{0} UNT'}" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                        <Label.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding CurrentBid}"
-                                                TargetType="Label"
-                                                Value="0">
-                                                <Setter Property="IsVisible" Value="False" />
-                                            </DataTrigger>
-                                        </Label.Triggers>
-                                    </Label>
+                                        Text="{Binding DisplayLine2}"
+                                        VerticalOptions="Center" />
                                     <ImageButton
                                         Grid.RowSpan="2"
                                         Grid.Column="3"
                                         Padding="1"
-                                        Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
-                                        CommandParameter="{Binding .}"
                                         Style="{StaticResource Dots}"
                                         VerticalOptions="Center" />
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
+                                            CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
                                 </Grid>
                             </Border>
                         </Border>

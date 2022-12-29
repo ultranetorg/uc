@@ -24,7 +24,7 @@ public class AuthorViewModel
 			switch(Status)
 			{
 				case AuthorStatus.Auction:
-					return BidStatus.ToString();
+					return BidStatus == BidStatus.Higher ? "You have higher bid" : "You are not leading";
 				case AuthorStatus.Watched:
 					return $"Current bid: {CurrentBid}";
 				case AuthorStatus.Owned:
