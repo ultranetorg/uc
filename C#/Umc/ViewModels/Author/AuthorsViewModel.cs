@@ -5,6 +5,9 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	private readonly IAuthorsService _service;
 
 	[ObservableProperty]
+    private string _filter;
+
+	[ObservableProperty]
     private AuthorViewModel _selectedItem;
 
 	[ObservableProperty]

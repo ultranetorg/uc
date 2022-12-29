@@ -29,7 +29,8 @@
                     Grid.Row="0">
                     <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
-                        AbsoluteLayout.LayoutFlags="All" />
+                        AbsoluteLayout.LayoutFlags="All"
+                        Value="{Binding Filter, Mode=TwoWay}"/>
                     <Image
                         Margin="12,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -117,152 +118,82 @@
                             </Border.Triggers>
 
                             <Border Style="{StaticResource AccountCardBorder}">
-                                <SwipeView>
-                                    <SwipeView.RightItems>
-                                        <SwipeItems>
-                                            <SwipeItemView IsVisible="False" WidthRequest="85">
-                                                <ImageButton
-                                                    Padding="15"
-                                                    CornerRadius="0"
-                                                    HorizontalOptions="FillAndExpand"
-                                                    Style="{StaticResource Hide}"
-                                                    VerticalOptions="FillAndExpand" />
-                                                <SwipeItemView.Triggers>
-                                                    <DataTrigger
-                                                        Binding="{Binding BidStatus}"
-                                                        TargetType="SwipeItemView"
-                                                        Value="{Static models:BidStatus.None}">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                </SwipeItemView.Triggers>
-                                            </SwipeItemView>
-                                            <SwipeItemView
-                                                BackgroundColor="Transparent"
-                                                IsVisible="False"
-                                                WidthRequest="2">
-                                                <SwipeItemView.Triggers>
-                                                    <DataTrigger
-                                                        Binding="{Binding BidStatus}"
-                                                        TargetType="SwipeItemView"
-                                                        Value="{Static models:BidStatus.None}">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                </SwipeItemView.Triggers>
-                                            </SwipeItemView>
-                                            <SwipeItemView IsVisible="False" WidthRequest="85">
-                                                <ImageButton
-                                                    Padding="15"
-                                                    CornerRadius="0"
-                                                    Command="{Binding TransferAuthorCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
-                                                    HorizontalOptions="FillAndExpand"
-                                                    Style="{StaticResource TransferAuthor}"
-                                                    VerticalOptions="FillAndExpand" />
-                                                <SwipeItemView.Triggers>
-                                                    <DataTrigger
-                                                        Binding="{Binding BidStatus}"
-                                                        TargetType="SwipeItemView"
-                                                        Value="{Static models:BidStatus.None}">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                </SwipeItemView.Triggers>
-                                            </SwipeItemView>
-
-                                            <SwipeItemView WidthRequest="85">
-                                                <ImageButton
-                                                    Padding="15"
-                                                    CornerRadius="0"
-                                                    Command="{Binding MakeBidCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
-                                                    HorizontalOptions="FillAndExpand"
-                                                    Style="{StaticResource Bid}"
-                                                    VerticalOptions="FillAndExpand" />
-                                                <SwipeItemView.Triggers>
-                                                    <DataTrigger
-                                                        Binding="{Binding BidStatus}"
-                                                        TargetType="SwipeItemView"
-                                                        Value="{Static models:BidStatus.None}">
-                                                        <Setter Property="IsVisible" Value="False" />
-                                                    </DataTrigger>
-                                                </SwipeItemView.Triggers>
-                                            </SwipeItemView>
-                                        </SwipeItems>
-                                    </SwipeView.RightItems>
-                                    <Grid
-                                        Padding="14"
-                                        ColumnDefinitions="*,2*,2*,30"
-                                        ColumnSpacing="10"
-                                        RowDefinitions="*,*"
-                                        Style="{StaticResource AccountGrid}">
-                                        <Image
-                                            Grid.Column="0"
-                                            Grid.RowSpan="2"
-                                            Source="{Binding Status, Converter={StaticResource AuthorToImageConverter}}">
-                                            <Image.Behaviors>
-                                                <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
-                                            </Image.Behaviors>
-                                        </Image>
-                                        <Label
-                                            Grid.Row="0"
-                                            Grid.Column="1"
-                                            FontSize="13"
-                                            Text="{Binding Name}" />
-                                        <Label
-                                            Grid.Row="1"
-                                            Grid.Column="2"
-                                            FontSize="10"
-                                            Text="{Binding ActiveDue,TargetNullValue='Active due: N/A'}"
-                                            VerticalOptions="End" />
-                                        <Label
-                                            Grid.Row="0"
-                                            Grid.Column="2"
-                                            FontSize="10"
-                                            VerticalOptions="Center">
-                                            <Label.Triggers>
-                                                <DataTrigger
-                                                    Binding="{Binding BidStatus}"
-                                                    TargetType="Label"
-                                                    Value="{Static models:BidStatus.Higher}">
-                                                    <Setter Property="Text" Value="You have higher bid" />
-                                                    <Setter Property="TextColor" Value="{StaticResource HigherColor}" />
-                                                </DataTrigger>
-                                                <DataTrigger
-                                                    Binding="{Binding BidStatus}"
-                                                    TargetType="Label"
-                                                    Value="{Static models:BidStatus.Lower}">
-                                                    <Setter Property="Text" Value="You are not leading" />
-                                                    <Setter Property="TextColor" Value="{StaticResource LowerColor}" />
-                                                </DataTrigger>
-                                            </Label.Triggers>
-                                        </Label>
-                                        <Label
-                                            Grid.Row="1"
-                                            Grid.Column="2"
-                                            FontSize="10"
-                                            VerticalOptions="Center">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="Current bid " />
-                                                    <Span FontAttributes="Bold" Text="{Binding CurrentBid, StringFormat='{0} UNT'}" />
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                            <Label.Triggers>
-                                                <DataTrigger
-                                                    Binding="{Binding CurrentBid}"
-                                                    TargetType="Label"
-                                                    Value="0">
-                                                    <Setter Property="IsVisible" Value="False" />
-                                                </DataTrigger>
-                                            </Label.Triggers>
-                                        </Label>
-                                        <ImageButton
-                                            Grid.RowSpan="2"
-                                            Grid.Column="3"
-                                            Padding="1"
-                                            Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
-                                            CommandParameter="{Binding .}"
-                                            Style="{StaticResource Dots}"
-                                            VerticalOptions="Center" />
-                                    </Grid>
-                                </SwipeView>
+                                <Grid
+                                    Padding="14"
+                                    ColumnDefinitions="*,2*,2*,30"
+                                    ColumnSpacing="10"
+                                    RowDefinitions="*,*"
+                                    Style="{StaticResource AccountGrid}">
+                                    <Image
+                                        Grid.Column="0"
+                                        Grid.RowSpan="2"
+                                        Source="{Binding Status, Converter={StaticResource AuthorToImageConverter}}">
+                                        <Image.Behaviors>
+                                            <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        FontSize="13"
+                                        Text="{Binding Name}" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        FontSize="10"
+                                        Text="{Binding ActiveDue,TargetNullValue='Active due: N/A'}"
+                                        VerticalOptions="End" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="2"
+                                        FontSize="10"
+                                        VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding BidStatus}"
+                                                TargetType="Label"
+                                                Value="{Static models:BidStatus.Higher}">
+                                                <Setter Property="Text" Value="You have higher bid" />
+                                                <Setter Property="TextColor" Value="{StaticResource HigherColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding BidStatus}"
+                                                TargetType="Label"
+                                                Value="{Static models:BidStatus.Lower}">
+                                                <Setter Property="Text" Value="You are not leading" />
+                                                <Setter Property="TextColor" Value="{StaticResource LowerColor}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        FontSize="10"
+                                        VerticalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Current bid " />
+                                                <Span FontAttributes="Bold" Text="{Binding CurrentBid, StringFormat='{0} UNT'}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding CurrentBid}"
+                                                TargetType="Label"
+                                                Value="0">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <ImageButton
+                                        Grid.RowSpan="2"
+                                        Grid.Column="3"
+                                        Padding="1"
+                                        Command="{Binding OpenAuthorDetailsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
+                                        CommandParameter="{Binding .}"
+                                        Style="{StaticResource Dots}"
+                                        VerticalOptions="Center" />
+                                </Grid>
                             </Border>
                         </Border>
                     </DataTemplate>

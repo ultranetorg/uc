@@ -35,11 +35,7 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<RestoreAccountViewModel>();
 
-		builder.Services.AddTransient<AuthorDetailsBViewModel>();
-
-		builder.Services.AddTransient<AuthorDetailsCViewModel>();
-
-		builder.Services.AddTransient<AuthorDetailsPViewModel>();
+		builder.Services.AddTransient<AuthorDetailsViewModel>();
 
 		builder.Services.AddTransient<CreateAccountPageViewModel>();
 

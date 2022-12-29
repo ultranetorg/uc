@@ -5,19 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    x:DataType="vm:AuthorDetailsPViewModel"
+    x:DataType="vm:AuthorDetailsViewModel"
     Title="Author Details"
     x:Name="page">
-    <!--<controls:CustomPage.RightContent>
-        <ImageButton
-            Grid.Column="0"
-            HorizontalOptions="End"
-            Style="{StaticResource Sort}"
-            VerticalOptions="Center" />
-    </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <ScrollView>
-            <StackLayout Padding="{StaticResource PagePadding}" Spacing="30">
+            <StackLayout Padding="{StaticResource PagePadding}" Spacing="32">
                 <AbsoluteLayout Grid.Row="0">
                     <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
                     <Image
@@ -28,7 +21,7 @@
                         Style="{StaticResource SearchIcon}"
                         VerticalOptions="Center" />
                 </AbsoluteLayout>
-                <StackLayout Spacing="15">
+                <StackLayout Spacing="16">
                     <Label FontSize="14" Text="Microsoft (microsoft)" />
                     <Grid ColumnDefinitions="Auto,*">
                         <Label

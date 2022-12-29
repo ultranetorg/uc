@@ -2,7 +2,7 @@
 
 public partial class AuthorDetailsPage : CustomPage
 {
-    public AuthorDetailsPage(AuthorViewModel author, AuthorDetailsPViewModel vm)
+    public AuthorDetailsPage(AuthorViewModel author, AuthorDetailsViewModel vm)
     {
         InitializeComponent();
 		vm.Author = author;
@@ -12,7 +12,7 @@ public partial class AuthorDetailsPage : CustomPage
     public AuthorDetailsPage(AuthorViewModel author)
     {
         InitializeComponent();
-		var vm = Ioc.Default.GetService<AuthorDetailsPViewModel>();
+		var vm = Ioc.Default.GetService<AuthorDetailsViewModel>();
 		vm.Author = author;
         BindingContext = vm;
     }
@@ -20,7 +20,7 @@ public partial class AuthorDetailsPage : CustomPage
 	public AuthorDetailsPage()
 	{
         InitializeComponent();
-		var vm = Ioc.Default.GetService<AuthorDetailsPViewModel>();
+		var vm = Ioc.Default.GetService<AuthorDetailsViewModel>();
 		vm.Author = new AuthorViewModel();
         BindingContext = vm;
 	}

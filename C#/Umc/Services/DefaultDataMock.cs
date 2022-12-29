@@ -4,7 +4,7 @@ internal static class DefaultDataMock
 {
 	static string _defaultNotificationBody = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network";
 	static string _defaultNotificationTitle = "Today at 16:00";
-	static string _defaultAuthorDue = "Active due: 07/07/2022 (in 182 days)";
+	static string _defaultAuthorDue = "07/07/2022 (in 182 days)";
 
 	//public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M) 
 	//{
