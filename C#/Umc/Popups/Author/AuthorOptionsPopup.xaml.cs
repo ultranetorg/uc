@@ -2,13 +2,13 @@
 
 public partial class AuthorOptionsPopup : Popup
 {
-	AccountOptionsViewModel Vm => BindingContext as AccountOptionsViewModel;
+	AuthorOptionsViewModel Vm => BindingContext as AuthorOptionsViewModel;
 
-    public AuthorOptionsPopup(AccountViewModel author)
+    public AuthorOptionsPopup(AuthorViewModel author)
     {
         InitializeComponent();
-        BindingContext = Ioc.Default.GetService<AccountOptionsViewModel>();
-		Vm.Account = author;
+        BindingContext = Ioc.Default.GetService<AuthorOptionsViewModel>();
+		Vm.Author = author;
 		Vm.Popup = this;
     }
 }

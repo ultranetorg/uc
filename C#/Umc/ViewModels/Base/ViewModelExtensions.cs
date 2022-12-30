@@ -77,7 +77,6 @@ public static class ViewModelExtensions
 
 		#region Popups
 
-		// Transient ViewModels
 		builder.Services.AddTransient<AccountOptionsViewModel>();
 		builder.Services.AddTransient<AuthorOptionsViewModel>();
 		builder.Services.AddTransient<DeleteAccountPopupViewModel>();
@@ -91,7 +90,6 @@ public static class ViewModelExtensions
 
 		#region Views
 
-		// Transient ViewModels
 		builder.Services.AddTransient<AuthorRegistration1ViewModel>();
 		builder.Services.AddTransient<AuthorRegistrationViewModel>();
 		builder.Services.AddTransient<AuthorRenewalViewModel>();

@@ -30,17 +30,20 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     }
 
 	[RelayCommand]
-    private async Task OpenOptionsAsync(AccountViewModel account)
+    private async Task OpenOptionsAsync(AuthorViewModel author)
 	{
 		try
 		{
-			Guard.IsNotNull(account);
+			Guard.IsNotNull(author);
 
-			await ShowPopup(new AccountOptionsPopup(account));
+			if (author.Status != AuthorStatus.Reserved)
+			{
+				await ShowPopup(new AuthorOptionsPopup(author));
+			}
 		}
 		catch(ArgumentException ex)
 		{
-			_logger.LogError("OpenOptionsAsync: Account cannot be null, Error: {Message}", ex.Message);
+			_logger.LogError("OpenOptionsAsync: Author cannot be null, Error: {Message}", ex.Message);
 		}
 		catch (Exception ex)
 		{
@@ -52,23 +55,10 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     private async Task OpenAuthorDetailsAsync(AuthorViewModel author) =>
 		await Navigation.GoToAsync(nameof(AuthorDetailsPage),
 			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, author }});
-	
-	[RelayCommand]
-    private async Task RegisterAuthorAsync() => await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_REGISTRATION);
-	
-	[RelayCommand]
-    private async Task MakeBidAsync() => await Navigation.GoToAsync(ShellBaseRoutes.MAKE_BID);
 
 	[RelayCommand]
 	private async Task SortAuthorsAsync()
     {
-		await Task.Delay(10);
-    }
-
-	[RelayCommand]
-    private async Task TransferAuthorAsync()
-    {
-        // await AccountOptionsPopup.Show(author);
 		await Task.Delay(10);
     }
 

@@ -9,15 +9,15 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Color="Transparent"
-    Size="{x:Static const:PopupSizeConstants.Medium}"
+    Size="{x:Static const:PopupSizeConstants.Small}"
     VerticalOptions="End"
     x:Name="page"
-    x:DataType="vm:AccountOptionsViewModel">
+    x:DataType="vm:AuthorOptionsViewModel">
     <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             ColumnDefinitions="*,*"
             ColumnSpacing="12"
-            RowDefinitions="12,Auto,Auto,Auto,Auto,Auto"
+            RowDefinitions="12,Auto"
             RowSpacing="10"
             Padding="24,16"
             BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}">
@@ -25,47 +25,40 @@
                 Grid.Row="0"
                 Grid.ColumnSpan="2"
                 HorizontalOptions="CenterAndExpand"
-                Margin="0,0,0,12"
+                Margin="0,0,0,8"
                 Style="{StaticResource PopupHandleBorder}" />
-
-            <views:AccountView
-                Grid.Row="1"
-                Grid.ColumnSpan="2"
-                Margin="0,4"
-                BorderStyle="{StaticResource AccountCardBorderDark}"
-                Account="{Binding Account}" />
             
             <Button
-                Grid.Row="2"
-                Grid.ColumnSpan="2"
-                Command="{Binding ShowPrivateKeyCommand}"
-                Text="Show private key" />
-            <Button
-                Grid.Row="3"
+                Grid.Row="1"
                 Grid.Column="0"
+                IsVisible="{Binding IsOwned}"
+                Command="{Binding RenewAuthorCommand}"
+                Text="Renew" />
+            <Button
+                Grid.Row="1"
+                Grid.Column="1"
+                IsVisible="{Binding IsOwned}"
+                Command="{Binding TransferAuthorCommand}"
                 Style="{StaticResource DeleteButton}"
-                Command="{Binding DeleteCommand}"
-                Text="Delete" />
+                Text="Transfer" />
             <Button
-                Grid.Row="3"
-                Grid.Column="1"
-                Text="Backup"
-                Command="{Binding BackupCommand}" />
-            <Button
-                Grid.Row="4"
+                Grid.Row="1"
                 Grid.ColumnSpan="2"
-                Text="Hide from dashboard"
-                Command="{Binding HideFromDashboardCommand}" />
+                IsVisible="{Binding CanRegister}"
+                Command="{Binding RegisterAuthorCommand}"
+                Text="Register" />
             <Button
-                Grid.Row="5"
+                Grid.Row="1"
                 Grid.Column="0"
-                Command="{Binding ReceiveCommand}"
-                Text="Receive" />
+                IsVisible="{Binding IsOnAuction}"
+                Command="{Binding WatchAuthorCommand}"
+                Text="{Binding WatchAuthorText}" />
             <Button
-                Grid.Row="5"
+                Grid.Row="1"
                 Grid.Column="1"
-                Command="{Binding SendCommand}"
-                Text="Send" />
+                Text="Make a bid"
+                IsVisible="{Binding IsOnAuction}"
+                Command="{Binding MakeBidCommand}" />
         </Grid>
     </Border>
 </toolkit:Popup>

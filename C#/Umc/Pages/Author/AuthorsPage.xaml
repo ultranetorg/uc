@@ -163,6 +163,8 @@
                                         Grid.RowSpan="2"
                                         Grid.Column="3"
                                         Padding="1"
+                                        Command="{Binding OpenOptionsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
+                                        CommandParameter="{Binding .}"
                                         Style="{StaticResource Dots}"
                                         VerticalOptions="Center" />
                                     <Grid.GestureRecognizers>
