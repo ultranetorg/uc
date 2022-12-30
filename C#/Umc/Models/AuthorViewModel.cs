@@ -9,43 +9,53 @@ public class AuthorViewModel
     public int						Id { get; internal set; }
     public string					Name { get; internal set; } // => _entry.Name;
     public string					Title { get; internal set; } // => _entry.Title;
-    public decimal					CurrentBid { get; internal set; } // => _entry.LastBid;
+    public string					Owner { get; internal set; } // => _entry.Owner;
     public AuthorStatus				Status { get; internal set; }
+    public DateTime					ExpirationDate { get; internal set; }
+
+    public decimal					CurrentBid { get; internal set; } // => _entry.LastBid;
+    public string					MaximumBidBy { get; internal set; } // => _entry.MaximumBidBy;
+    public DateTime					AuctionEndDate { get; internal set; } // => _entry.MaximumBidBy;
     public BidStatus				BidStatus { get; internal set; }
-    public string					ActiveDue { get; internal set; }
-    public int						DaysLeft { get; internal set; }
 
     public AccountViewModel			Account { get; internal set; }
     public IList<ProductViewModel>	Products = new List<ProductViewModel>();
 
-	public string					DisplayLine1 {
+	#region Display
+
+	public string					ActiveDue => $"{ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} days)";
+	public string					AuctionDue => $"{AuctionEndDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(AuctionEndDate)} days)";
+
+	public string DisplayLine1
+	{
 		get
 		{
-			switch(Status)
+			switch (Status)
 			{
 				case AuthorStatus.Auction:
 					return BidStatus == BidStatus.Higher ? "You have higher bid" : "You are not leading";
 				case AuthorStatus.Watched:
 					return $"Current bid: {CurrentBid}";
 				case AuthorStatus.Owned:
-					return $"Expires in: {ActiveDue}";
+					return $"Expires in: {ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} days)";
 				case AuthorStatus.Reserved:
-					return $"Expires in: {ActiveDue}";
+					return $"Expires in: {ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} days)";
 				default:
 					return string.Empty;
 			}
 		}
 	}
 
-	public string					DisplayLine2 {
+	public string DisplayLine2
+	{
 		get
 		{
-			switch(Status)
+			switch (Status)
 			{
 				case AuthorStatus.Auction:
-					return $"Days left: {DaysLeft}";
+					return $"Days left: {CommonHelper.GetDaysLeft(ExpirationDate)}";
 				case AuthorStatus.Watched:
-					return $"Days left: {DaysLeft}";
+					return $"Days left: {CommonHelper.GetDaysLeft(ExpirationDate)}";
 				case AuthorStatus.Owned:
 					return Title;
 				case AuthorStatus.Reserved:
@@ -55,6 +65,8 @@ public class AuthorViewModel
 			}
 		}
 	}
+
+	#endregion Display
 
 	public AuthorViewModel()
 	{

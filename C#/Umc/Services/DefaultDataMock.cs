@@ -4,7 +4,6 @@ internal static class DefaultDataMock
 {
 	static string _defaultNotificationBody = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network";
 	static string _defaultNotificationTitle = "Today at 16:00";
-	static string _defaultAuthorDue = "07/07/2022 (in 182 days)";
 
 	//public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M) 
 	//{
@@ -36,7 +35,7 @@ internal static class DefaultDataMock
 	{
 		BidStatus = BidStatus.None,
 		Name = "amazon.com",
-		ActiveDue = _defaultAuthorDue
+		ExpirationDate = new DateTime(2022, 7, 7)
 	};
 
 	public static CustomCollection<string> AuthorsFilter = new() { "All", "My Own", "Auction", "Watched", "Hidden", "Shown", "Outdated" };

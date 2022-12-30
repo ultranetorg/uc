@@ -4,6 +4,8 @@ namespace UC.Umc.Helpers;
 
 public static class CommonHelper
 {
+	public static int GetDaysLeft(DateTime date) => (int)date.TimeOfDay.Subtract(DateTime.Now.TimeOfDay).TotalDays;
+
 	// WBD
     public static string GenerateUniqueID(int length)
     {

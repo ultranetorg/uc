@@ -2,6 +2,9 @@
 
 public partial class AuthorDetailsViewModel : BaseAuthorViewModel
 {
+
+    public bool? IsNotFree => Author?.Status != AuthorStatus.Free;
+
     public AuthorDetailsViewModel(ILogger<AuthorDetailsViewModel> logger) : base(logger)
     {
     }
@@ -27,9 +30,4 @@ public partial class AuthorDetailsViewModel : BaseAuthorViewModel
             FinishLoading();
         }
 	}
-
-	[RelayCommand]
-	private async Task RegisterAsync() =>
-		await Navigation.GoToAsync(nameof(AuthorRegistrationPage),
-			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, Author }});
 }

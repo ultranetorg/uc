@@ -55,10 +55,9 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "microsoft",
 				Title = "Microsoft",
-				ActiveDue = "01/02/2024",
+				ExpirationDate = new DateTime(2024, 2, 1),
 				Status = AuthorStatus.Auction,
 				BidStatus = BidStatus.Higher,
-				DaysLeft = 11,
 				Products = new List<ProductViewModel>
 				{
 					product1,
@@ -71,10 +70,9 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "alphabet",
 				Title = "Alphabet",
-				ActiveDue = "01/03/2024",
+				ExpirationDate = new DateTime(2024, 3, 1),
 				Status = AuthorStatus.Auction,
 				BidStatus = BidStatus.Lower,
-				DaysLeft = 17,
 				Products = new List<ProductViewModel>
 				{
 					product6,
@@ -84,9 +82,8 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "amazonlimited",
 				Title = "Amazon Limited",
-				ActiveDue = "01/03/2024",
+				ExpirationDate = new DateTime(2024, 3, 1),
 				Status = AuthorStatus.Watched,
-				DaysLeft = 23,
 				Products = new List<ProductViewModel>
 				{
 					product7,
@@ -98,14 +95,14 @@ public class ServicesMockData : IServicesMockData
 				Name = "spacex",
 				Title = "Space X",
 				Status = AuthorStatus.Owned,
-				ActiveDue = "01/09/2024",
+				ExpirationDate = new DateTime(2024, 9, 1),
 			};
 
 			AuthorViewModel author5 = new()
 			{
 				Name = "gate500",
 				Title = "Gate 500",
-				ActiveDue = "01/09/2024",
+				ExpirationDate = new DateTime(2024, 9, 1),
 				Status = AuthorStatus.Reserved,
 				Products = new List<ProductViewModel>
 				{
@@ -117,7 +114,7 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "Test",
 				Title = "Test",
-				ActiveDue = "01/09/2023",
+				ExpirationDate = new DateTime(2023, 9, 1),
 				Status = AuthorStatus.Free,
 				Products = new List<ProductViewModel>
 				{
