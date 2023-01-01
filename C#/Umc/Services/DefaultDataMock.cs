@@ -56,10 +56,12 @@ internal static class DefaultDataMock
     };
 
 	public static TransactionViewModel CreateTransaction(
+		AccountViewModel account,
 		TransactionStatus status = TransactionStatus.None,
 		int unt = 0, string name = null) => new()
 	{
 		Id = Guid.NewGuid(),
+		Account = account,
 		FromId = CommonHelper.GenerateUniqueID(6),
 		ToId = CommonHelper.GenerateUniqueID(6),
 		Status = status,

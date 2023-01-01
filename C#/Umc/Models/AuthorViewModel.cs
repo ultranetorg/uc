@@ -20,9 +20,11 @@ public class AuthorViewModel
 
     public AccountViewModel			Account { get; internal set; }
     public IList<ProductViewModel>	Products = new List<ProductViewModel>();
+	public IList<Bid>				BidsHistory = new List<Bid>();
 
 	#region Display
 
+	public bool						IsHidden { get; internal set; }
 	public string					ActiveDue => $"{ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} days)";
 	public string					AuctionDue => $"{AuctionEndDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(AuctionEndDate)} days)";
 
@@ -37,9 +39,9 @@ public class AuthorViewModel
 				case AuthorStatus.Watched:
 					return $"Current bid: {CurrentBid}";
 				case AuthorStatus.Owned:
-					return $"Expires in: {ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} days)";
+					return $"Expires in: {ActiveDue}";
 				case AuthorStatus.Reserved:
-					return $"Expires in: {ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} days)";
+					return $"Expires in: {ActiveDue}";
 				default:
 					return string.Empty;
 			}
@@ -76,6 +78,13 @@ public class AuthorViewModel
 	{
 		_entry = entry;
 	}
+}
+
+public class Bid
+{
+    public decimal			Amount { get; internal set; }
+    public DateTime			Date { get; internal set; }
+    public string			BidBy { get; internal set; }
 }
 
 public enum AuthorStatus

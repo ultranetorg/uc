@@ -22,6 +22,57 @@ public class ServicesMockData : IServicesMockData
 	{
 		try
 		{
+			#region Accounts
+
+			AccountViewModel account1 = DefaultDataMock.CreateAccount("Main Ultranet Account", 5005.0094M);
+			AccountViewModel account2 = DefaultDataMock.CreateAccount("Primary Ultranet Account", 102.5124M);
+			AccountViewModel account3 = DefaultDataMock.CreateAccount("Secondary Ultranet Account", 2.982258m);
+			AccountViewModel account4 = DefaultDataMock.CreateAccount("Account for Payments", 65.61161m);
+			AccountViewModel account5 = DefaultDataMock.CreateAccount("Accounts for Fees", 0.94707m);
+			AccountViewModel account6 = DefaultDataMock.CreateAccount("Money for bet", 84.4341m);
+			AccountViewModel account7 = DefaultDataMock.CreateAccount("Test account 1", 0);
+			AccountViewModel account8 = DefaultDataMock.CreateAccount("Test account 2", 10M);
+			AccountViewModel account9 = DefaultDataMock.CreateAccount("Test account 3", 0);
+			AccountViewModel account10 = DefaultDataMock.CreateAccount("Test account 4", 120M);
+			AccountViewModel account11 = DefaultDataMock.CreateAccount("Test account 5");
+
+			Accounts.Add(account1);
+			Accounts.Add(account2);
+			Accounts.Add(account3);
+			Accounts.Add(account4);
+			Accounts.Add(account5);
+			Accounts.Add(account6);
+			Accounts.Add(account7);
+			Accounts.Add(account8);
+			Accounts.Add(account9);
+			Accounts.Add(account10);
+			Accounts.Add(account11);
+
+			#endregion Accounts
+
+			#region Transactions
+
+			Transactions.Add(DefaultDataMock.CreateTransaction(account1, TransactionStatus.Pending, 50, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account1, TransactionStatus.Received, 100, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account1, TransactionStatus.Failed, 234, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account2, TransactionStatus.Sent, 10, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account2, TransactionStatus.None, 5290, "UNT Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account3));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account3));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account4, TransactionStatus.Sent));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account4, TransactionStatus.Received));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account5, TransactionStatus.Failed));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account5, TransactionStatus.Received, 50));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account5, TransactionStatus.Received, 100));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account5, TransactionStatus.Received, 500));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account6, TransactionStatus.Pending, 200));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account6, TransactionStatus.Pending, 1100));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account6, TransactionStatus.Pending, 1100, "Transfer"));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account6));
+			Transactions.Add(DefaultDataMock.CreateTransaction(account6));
+
+			#endregion Transactions
+
 			#region Products
 
 			ProductViewModel product1 = new("Windows", "Microsoft");
@@ -34,30 +85,65 @@ public class ServicesMockData : IServicesMockData
 			ProductViewModel product8 = new("Warehouse", "Space X");
 			ProductViewModel product9 = new("Gate Defender 3", "Gate 500");
 
-			Products = new List<ProductViewModel>()
-			{
-				product1,
-				product2,
-				product3,
-				product4,
-				product5,
-				product6,
-				product7,
-				product8,
-				product9,
-			};
+			Products.Add(product1);
+			Products.Add(product2);
+			Products.Add(product3);
+			Products.Add(product4);
+			Products.Add(product5);
+			Products.Add(product6);
+			Products.Add(product7);
+			Products.Add(product8);
+			Products.Add(product9);
 
 			#endregion Products
 
 			#region Authors
 
+			var bids = new List<Bid>()
+			{
+				new()
+				{
+					Amount = 599,
+					Date = new DateTime(1/1/2023),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 399,
+					Date = new DateTime(1/1/2023),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 199,
+					Date = new DateTime(1/1/2023),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 99,
+					Date = new DateTime(1/1/2023),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 9,
+					Date = new DateTime(1/1/2023),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				}
+			};
+
 			AuthorViewModel author1 = new()
 			{
 				Name = "microsoft",
 				Title = "Microsoft",
-				ExpirationDate = new DateTime(2024, 2, 1),
+				AuctionEndDate = new DateTime(2024, 2, 1),
 				Status = AuthorStatus.Auction,
 				BidStatus = BidStatus.Higher,
+				CurrentBid = 1000m,
+				MaximumBidBy = "0x63FaC9201494f0bd17B9892B9f",
+				Account = account1,
+				BidsHistory = bids,
 				Products = new List<ProductViewModel>
 				{
 					product1,
@@ -70,9 +156,13 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "alphabet",
 				Title = "Alphabet",
-				ExpirationDate = new DateTime(2024, 3, 1),
+				Account = account1,
+				AuctionEndDate = new DateTime(2024, 3, 1),
 				Status = AuthorStatus.Auction,
 				BidStatus = BidStatus.Lower,
+				CurrentBid = 1000m,
+				BidsHistory = bids,
+				MaximumBidBy = "0x63FaC9201494f0bd17B9892B9f",
 				Products = new List<ProductViewModel>
 				{
 					product6,
@@ -82,8 +172,11 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "amazonlimited",
 				Title = "Amazon Limited",
-				ExpirationDate = new DateTime(2024, 3, 1),
+				Account = account2,
+				AuctionEndDate = new DateTime(2024, 3, 1),
 				Status = AuthorStatus.Watched,
+				CurrentBid = 9m,
+				MaximumBidBy = "0x63FaC9201494f0bd17B9892B9f",
 				Products = new List<ProductViewModel>
 				{
 					product7,
@@ -94,6 +187,8 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "spacex",
 				Title = "Space X",
+				Account = account5,
+				Owner = "0x71C7656EC7ab88b098defB751B7401B5f6d76F",
 				Status = AuthorStatus.Owned,
 				ExpirationDate = new DateTime(2024, 9, 1),
 			};
@@ -102,6 +197,8 @@ public class ServicesMockData : IServicesMockData
 			{
 				Name = "gate500",
 				Title = "Gate 500",
+				Account = account6,
+				Owner = "0x71C7656EC7ab88b098defB751B7401B5f6d76F",
 				ExpirationDate = new DateTime(2024, 9, 1),
 				Status = AuthorStatus.Reserved,
 				Products = new List<ProductViewModel>
@@ -109,17 +206,12 @@ public class ServicesMockData : IServicesMockData
 					product9,
 				},
 			};
+			author3.BidsHistory.Add(bids.Last());
 
 			AuthorViewModel author6 = new()
 			{
 				Name = "Test",
-				Title = "Test",
-				ExpirationDate = new DateTime(2023, 9, 1),
 				Status = AuthorStatus.Free,
-				Products = new List<ProductViewModel>
-				{
-					product5
-				},
 			};
 
 			product1.Author = author1;
@@ -140,95 +232,6 @@ public class ServicesMockData : IServicesMockData
 			Authors.Add(author6);
 
 			#endregion Authors
-
-			#region Accounts
-			
-			TransactionViewModel transaction1 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 50, "UNT Transfer");
-			TransactionViewModel transaction2 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 100, "UNT Transfer");
-			TransactionViewModel transaction3 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed, 234, "UNT Transfer");
-			TransactionViewModel transaction4 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent, 10, "UNT Transfer");
-			TransactionViewModel transaction5 = DefaultDataMock.CreateTransaction(TransactionStatus.None, 5290, "UNT Transfer");
-			TransactionViewModel transaction6 = DefaultDataMock.CreateTransaction();
-			TransactionViewModel transaction7 = DefaultDataMock.CreateTransaction();
-			TransactionViewModel transaction8 = DefaultDataMock.CreateTransaction(TransactionStatus.Sent);
-			TransactionViewModel transaction9 = DefaultDataMock.CreateTransaction(TransactionStatus.Received);
-			TransactionViewModel transaction10 = DefaultDataMock.CreateTransaction(TransactionStatus.Failed);
-			TransactionViewModel transaction11 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 50);
-			TransactionViewModel transaction12 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 100);
-			TransactionViewModel transaction13 = DefaultDataMock.CreateTransaction(TransactionStatus.Received, 500);
-			TransactionViewModel transaction14 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 200);
-			TransactionViewModel transaction15 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 1100);
-			TransactionViewModel transaction16 = DefaultDataMock.CreateTransaction(TransactionStatus.Pending, 1100, "Transfer");
-			TransactionViewModel transaction17 = DefaultDataMock.CreateTransaction();
-			TransactionViewModel transaction18 = DefaultDataMock.CreateTransaction();
-
-			Transactions.Add(transaction1);
-			Transactions.Add(transaction2);
-			Transactions.Add(transaction3);
-			Transactions.Add(transaction4);
-			Transactions.Add(transaction5);
-			Transactions.Add(transaction6);
-			Transactions.Add(transaction7);
-
-			AccountViewModel account1 = DefaultDataMock.CreateAccount("Main Ultranet Account", 5005.0094M);
-			AccountViewModel account2 = DefaultDataMock.CreateAccount("Primary Ultranet Account", 102.5124M);
-			AccountViewModel account3 = DefaultDataMock.CreateAccount("Secondary Ultranet Account", 2.982258m);
-			AccountViewModel account4 = DefaultDataMock.CreateAccount("Account for Payments", 65.61161m);
-			AccountViewModel account5 = DefaultDataMock.CreateAccount("Accounts for Fees", 0.94707m);
-			AccountViewModel account6 = DefaultDataMock.CreateAccount("Money for bet", 84.4341m);
-			AccountViewModel account7 = DefaultDataMock.CreateAccount("Test account 1", 0);
-			AccountViewModel account8 = DefaultDataMock.CreateAccount("Test account 2", 10M);
-			AccountViewModel account9 = DefaultDataMock.CreateAccount("Test account 3", 0);
-			AccountViewModel account10 = DefaultDataMock.CreateAccount("Test account 4", 120M);
-			AccountViewModel account11 = DefaultDataMock.CreateAccount("Test account 5");
-
-			author1.Account = account1;
-			author2.Account = account1;
-			transaction1.Account = account1;
-			transaction2.Account = account1;
-			transaction3.Account = account1;
-			transaction4.Account = account1;
-			transaction5.Account = account1;
-
-			author3.Account = account2;
-			transaction6.Account = account2;
-			transaction7.Account = account2;
-
-			transaction6.Account = account3;
-			transaction7.Account = account3;
-
-			transaction8.Account = account4;
-			transaction9.Account = account4;
-
-			author4.Account = account5;
-			transaction10.Account = account5;
-			transaction11.Account = account5;
-			transaction12.Account = account5;
-			transaction13.Account = account5;
-
-			author5.Account = account6;
-			transaction14.Account = account6;
-			transaction15.Account = account6;
-			transaction16.Account = account6;
-			transaction17.Account = account6;
-			transaction18.Account = account6;
-
-			Accounts = new List<AccountViewModel>
-			{
-				account1,
-				account2,
-				account3,
-				account4,
-				account5,
-				account6,
-				account7,
-				account8,
-				account9,
-				account10,
-				account11,
-			};
-
-			#endregion Accounts
 		
 			AccountColors.Add(DefaultDataMock.CreateColor("#6601e3", Shell.Current.BackgroundColor));
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());

@@ -40,7 +40,33 @@
                     HorizontalOptions="Center"
                     VerticalOptions="Center" />
             </Border>
-        </DataTemplate>    
+        </DataTemplate>
+        <DataTemplate x:Key="AuthorsTemplate" x:DataType="models:AuthorViewModel">
+            <Border
+                HeightRequest="22"
+                HorizontalOptions="Start"
+                Style="{StaticResource ButtonBorder}"
+                VerticalOptions="Center">
+                <Label
+                    Style="{StaticResource ButtonLabel}"
+                    Text="{Binding Name}"
+                    VerticalOptions="Center" />
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ProductsTemplate" x:DataType="models:ProductViewModel">
+            <StackLayout>
+                <Border
+                    HeightRequest="22"
+                    HorizontalOptions="Start"
+                    Style="{StaticResource ButtonBorder}"
+                    VerticalOptions="Center">
+                    <Label
+                        Style="{StaticResource ButtonLabel}"
+                        Text="{Binding Name}"
+                        VerticalOptions="Center" />
+                </Border>
+            </StackLayout>
+        </DataTemplate>
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
         <ScrollView>
@@ -158,23 +184,9 @@
                         Orientation="Horizontal">
                         <StackLayout
                             BindableLayout.ItemsSource="{Binding Authors}"
+                            BindableLayout.ItemTemplate="{StaticResource AuthorsTemplate}"
                             Orientation="Horizontal"
-                            Spacing="10">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:AuthorViewModel">
-                                    <Border
-                                        HeightRequest="22"
-                                        HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonBorder}"
-                                        VerticalOptions="Center">
-                                        <Label
-                                            Style="{StaticResource ButtonLabel}"
-                                            Text="{Binding Name}"
-                                            VerticalOptions="Center" />
-                                    </Border>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </StackLayout>
+                            Spacing="10" />
                     </ScrollView>
                 </Grid>
                 <Grid RowDefinitions="Auto,23">
@@ -182,26 +194,13 @@
                         Grid.Row="0"
                         Style="{StaticResource DashLabel}"
                         Text="Products" />
-                    <CollectionView Grid.Row="1" ItemsSource="{Binding Products}">
+                    <CollectionView
+                        Grid.Row="1"
+                        ItemTemplate="{StaticResource ProductsTemplate}"
+                        ItemsSource="{Binding Products}">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                         </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:ProductViewModel">
-                                <StackLayout>
-                                    <Border
-                                        HeightRequest="22"
-                                        HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonBorder}"
-                                        VerticalOptions="Center">
-                                        <Label
-                                            Style="{StaticResource ButtonLabel}"
-                                            Text="{Binding Name}"
-                                            VerticalOptions="Center" />
-                                    </Border>
-                                </StackLayout>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
                         <CollectionView.Footer>
                             <StackLayout Padding="{StaticResource SidePadding}">
                                 <Label

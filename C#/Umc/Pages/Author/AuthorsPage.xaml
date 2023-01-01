@@ -18,7 +18,7 @@
     </controls:CustomPage.Resources>
     
     <controls:CustomPage.MainContent>
-        <Grid RowDefinitions="48,32,*" RowSpacing="4" Margin="16,0,16,4">       
+        <Grid RowDefinitions="48,40,*" RowSpacing="4" Margin="16,0,16,4">       
             <Grid
                 Grid.Row="0"
                 ColumnDefinitions="4*,*"
@@ -53,7 +53,10 @@
                         Command="{Binding SortAuthorsCommand}"/>
                 </AbsoluteLayout>
             </Grid>
-            <CollectionView Grid.Row="1" ItemsSource="{Binding AuthorsFilter}">
+            <CollectionView
+                ItemSizingStrategy="MeasureAllItems"
+                Grid.Row="1"
+                ItemsSource="{Binding AuthorsFilter}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                 </CollectionView.ItemsLayout>

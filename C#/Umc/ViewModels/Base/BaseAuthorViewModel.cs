@@ -4,18 +4,21 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 {
 	[ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRegister))]
-    [NotifyPropertyChangedFor(nameof(IsOwned))]
+    [NotifyPropertyChangedFor(nameof(IsMyProduct))]
     [NotifyPropertyChangedFor(nameof(IsOnAuction))]
     [NotifyPropertyChangedFor(nameof(WatchAuthorText))]
+    [NotifyPropertyChangedFor(nameof(HasOwner))]
     public AuthorViewModel _author;
 
     public bool? CanRegister => Author?.Status == AuthorStatus.Free;
 
-    public bool? IsOwned => Author?.Status == AuthorStatus.Owned;
+    public bool? IsMyProduct => Author?.Status == AuthorStatus.Owned;
 
     public bool? IsOnAuction => Author?.Status == AuthorStatus.Auction || Author?.Status == AuthorStatus.Watched;
 
     public string WatchAuthorText => Author?.Status == AuthorStatus.Watched ? "Unwatch" : "Watch";
+
+    public bool? HasOwner => Author?.Status == AuthorStatus.Owned || Author?.Status == AuthorStatus.Reserved;
 
 
 	protected BaseAuthorViewModel(ILogger logger) : base(logger)
