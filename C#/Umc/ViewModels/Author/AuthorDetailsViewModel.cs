@@ -6,6 +6,9 @@ public partial class AuthorDetailsViewModel : BaseAuthorViewModel
 	
 	[ObservableProperty]
     private CustomCollection<ProductViewModel> _products = new();
+	
+	[ObservableProperty]
+    private CustomCollection<Bid> _bidsHistory = new();
 
     public AuthorDetailsViewModel(IServicesMockData service, ILogger<AuthorDetailsViewModel> logger) : base(logger)
     {
@@ -38,8 +41,10 @@ public partial class AuthorDetailsViewModel : BaseAuthorViewModel
 	private void LoadData()
 	{
 		Products.Clear();
+		BidsHistory.Clear();
 
 		Products.AddRange(_service.Products);
+		BidsHistory.AddRange(_service.BidsHistory);
 		
 		// TODO: add form object, the account is coming from api
 	}

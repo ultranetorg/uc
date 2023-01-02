@@ -11,6 +11,7 @@ public class ServicesMockData : IServicesMockData
 	public IList<AccountColor> AccountColors { get; private set; } = new List<AccountColor>();
     public IList<Emission> Emissions { get; private set; } = new List<Emission>();
     public IList<Notification> Notifications { get; private set; } = new List<Notification>();
+    public IList<Bid> BidsHistory { get; private set; } = new List<Bid>();
 
     public ServicesMockData(ILogger<ServicesMockData> logger)
 	{
@@ -97,41 +98,45 @@ public class ServicesMockData : IServicesMockData
 
 			#endregion Products
 
-			#region Authors
+			#region Bids History
 
-			var bids = new List<Bid>()
+			BidsHistory = new List<Bid>()
 			{
 				new()
 				{
 					Amount = 599,
-					Date = new DateTime(1/1/2023),
+					Date = new DateTime(2023,1,1),
 					BidBy = "0x63FaC9201494f0bd17B9892B9f"
 				},
 				new()
 				{
 					Amount = 399,
-					Date = new DateTime(1/1/2023),
+					Date = new DateTime(2023,1,1),
 					BidBy = "0x63FaC9201494f0bd17B9892B9f"
 				},
 				new()
 				{
 					Amount = 199,
-					Date = new DateTime(1/1/2023),
+					Date = new DateTime(2023,1,1),
 					BidBy = "0x63FaC9201494f0bd17B9892B9f"
 				},
 				new()
 				{
 					Amount = 99,
-					Date = new DateTime(1/1/2023),
+					Date = new DateTime(2023,1,1),
 					BidBy = "0x63FaC9201494f0bd17B9892B9f"
 				},
 				new()
 				{
 					Amount = 9,
-					Date = new DateTime(1/1/2023),
+					Date = new DateTime(2023,1,1),
 					BidBy = "0x63FaC9201494f0bd17B9892B9f"
 				}
 			};
+
+			#endregion Bids History
+
+			#region Authors
 
 			AuthorViewModel author1 = new()
 			{
@@ -143,7 +148,6 @@ public class ServicesMockData : IServicesMockData
 				CurrentBid = 1000m,
 				MaximumBidBy = "0x63FaC9201494f0bd17B9892B9f",
 				Account = account1,
-				BidsHistory = bids,
 				Products = new List<ProductViewModel>
 				{
 					product1,
@@ -161,7 +165,6 @@ public class ServicesMockData : IServicesMockData
 				Status = AuthorStatus.Auction,
 				BidStatus = BidStatus.Lower,
 				CurrentBid = 1000m,
-				BidsHistory = bids,
 				MaximumBidBy = "0x63FaC9201494f0bd17B9892B9f",
 				Products = new List<ProductViewModel>
 				{
@@ -206,7 +209,6 @@ public class ServicesMockData : IServicesMockData
 					product9,
 				},
 			};
-			author3.BidsHistory.Add(bids.Last());
 
 			AuthorViewModel author6 = new()
 			{

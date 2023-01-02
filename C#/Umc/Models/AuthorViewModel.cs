@@ -55,9 +55,9 @@ public class AuthorViewModel
 			switch (Status)
 			{
 				case AuthorStatus.Auction:
-					return $"Days left: {CommonHelper.GetDaysLeft(ExpirationDate)}";
+					return $"Days left: {CommonHelper.GetDaysLeft(AuctionEndDate)}";
 				case AuthorStatus.Watched:
-					return $"Days left: {CommonHelper.GetDaysLeft(ExpirationDate)}";
+					return $"Days left: {CommonHelper.GetDaysLeft(AuctionEndDate)}";
 				case AuthorStatus.Owned:
 					return Title;
 				case AuthorStatus.Reserved:

@@ -9,4 +9,5 @@ public interface IServicesMockData
     public IList<AccountColor> AccountColors { get; }
     public IList<Emission> Emissions { get; }
     public IList<Notification> Notifications { get; }
+    public IList<Bid> BidsHistory { get; }
 }

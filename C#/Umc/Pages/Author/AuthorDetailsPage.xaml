@@ -27,9 +27,9 @@
         </DataTemplate>
         <DataTemplate x:Key="BidsTemplate" x:DataType="models:Bid">
             <Grid ColumnDefinitions="*,*,2*">
-                <Label Grid.Column="0" Text="{Binding Amount}" />
-                <Label Grid.Column="1" Text="{Binding Date}" />
-                <Label Grid.Column="2" Text="{Binding BidBy}" />
+                <Label Grid.Column="0" Text="{Binding Amount}" Style="{StaticResource DashLabelValue}" />
+                <Label Grid.Column="1" Text="{Binding Date}" Style="{StaticResource DashLabelValue}" />
+                <Label Grid.Column="2" Text="{Binding BidBy}" Style="{StaticResource DashLabelValue}" TextDecorations="Underline" />
             </Grid>
         </DataTemplate>
     </controls:CustomPage.Resources>
@@ -90,15 +90,15 @@
                             SwitchCommand="{Binding HideFromDashboardCommand, Source={x:RelativeSource AncestorType={x:Type vm:AuthorDetailsViewModel}}}"/>
                     </Grid>
                     
-                    <Grid IsVisible="{Binding IsOnAuction}" ColumnDefinitions="*,*,2*">
-                        <Label Grid.Column="0" Text="Amount" />
-                        <Label Grid.Column="1" Text="Date" />
-                        <Label Grid.Column="2" Text="Bid by" />
-                        <VerticalStackLayout
-                            Grid.ColumnSpan="3"
-                            BindableLayout.ItemTemplate="{StaticResource BidsTemplate}"
-                            BindableLayout.ItemsSource="{Binding Author.BidsHistory}" />
+                    <Grid IsVisible="{Binding IsOnAuction}" ColumnDefinitions="*,*,2*" Padding="0,0,8,0">
+                        <Label Grid.Column="0" Text="Amount" Style="{StaticResource DashLabel}" />
+                        <Label Grid.Column="1" Text="Date" Style="{StaticResource DashLabel}" />
+                        <Label Grid.Column="2" Text="Bid by" HorizontalTextAlignment="End" Style="{StaticResource DashLabel}" />
                     </Grid>
+                    <VerticalStackLayout
+                        IsVisible="{Binding IsOnAuction}"
+                        BindableLayout.ItemTemplate="{StaticResource BidsTemplate}"
+                        BindableLayout.ItemsSource="{Binding BidsHistory}" />
                     
                 </StackLayout>
                 <StackLayout Spacing="12" VerticalOptions="EndAndExpand">

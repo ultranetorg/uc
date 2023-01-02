@@ -1,4 +1,4 @@
-﻿using System.Collections.Specialized;
+﻿using System.Diagnostics;
 
 namespace UC.Umc.Models;
 
@@ -25,8 +25,9 @@ public class CustomCollection<T> : ObservableCollection<T>
 				Add(item);
 			}
         }
-        catch // Exception ex
+        catch(Exception ex)
         {
+			Debug.WriteLine(ex);
         }
     }
 }
