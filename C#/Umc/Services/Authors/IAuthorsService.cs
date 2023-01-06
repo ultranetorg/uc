@@ -4,9 +4,9 @@ public interface IAuthorsService
 {
     Task<ObservableCollection<AuthorViewModel>> GetAccountAuthorsAsync();
 
-    Task<ObservableCollection<AuthorViewModel>> GetAuctionAuthorsAsync();
+    Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync(string search);
 
-    Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync();
+    Task<ObservableCollection<AuthorViewModel>> FilterAuthorsAsync(AuthorStatus status);
 
 	Task RegisterAuthorAsync(AuthorViewModel author);
 

@@ -7,7 +7,12 @@ public sealed class AuthorsService : IAuthorsService
 		throw new NotImplementedException();
 	}
 
-	public Task<ObservableCollection<AuthorViewModel>> GetAuctionAuthorsAsync()
+	public Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync(string search)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<ObservableCollection<AuthorViewModel>> FilterAuthorsAsync(AuthorStatus status)
 	{
 		throw new NotImplementedException();
 	}
@@ -23,11 +28,6 @@ public sealed class AuthorsService : IAuthorsService
 	}
 
 	public Task RenewAuthorAsync(AuthorViewModel author)
-	{
-		throw new NotImplementedException();
-	}
-
-	public Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync()
 	{
 		throw new NotImplementedException();
 	}

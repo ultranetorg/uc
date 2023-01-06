@@ -38,7 +38,7 @@ internal static class DefaultDataMock
 		ExpirationDate = new DateTime(2022, 7, 7)
 	};
 
-	public static CustomCollection<string> AuthorsFilter = new() { "All", "My Own", "Auction", "Watched", "Hidden", "Shown", "Outdated" };
+	public static CustomCollection<string> AuthorsFilter = new() { "All", "Owned", "Auction", "Watched", "Hidden", "Free", "Reserved" }; //"Shown", "Outdated"
 	public static CustomCollection<string> ProductsFilter = new() { "Recent", "By author" };
 
 	public static CustomCollection<string> MonthList1 = new() { "April", "May", "June", "July", "Augest", "Spetemper", "November" };

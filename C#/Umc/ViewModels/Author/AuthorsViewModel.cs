@@ -5,7 +5,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	private readonly IAuthorsService _service;
 
 	[ObservableProperty]
-    private string _filter;
+    private string _search;
 
 	[ObservableProperty]
     private AuthorViewModel _selectedItem;
@@ -22,11 +22,60 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     }
 	
 	[RelayCommand]
-    public void FilterAuthorsAsync()
+    public async Task SearchAuthorsAsync()
     {
-        _logger.LogDebug("Filter Authors");
+		try
+		{
+			Guard.IsNotNull(Search);
 
-        // Filtering, Loading
+			InitializeLoading();
+
+			// Search authors
+			var authors = await _service.SearchAuthorsAsync(Search);
+
+			Authors.Clear();
+			Authors.AddRange(authors);
+			
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("SearchAuthorsAsync Error: {Message}", ex.Message);
+		}
+    }
+	
+	[RelayCommand]
+    public async Task FilterAuthorsAsync(string status)
+    {
+		try
+		{
+			Guard.IsNotNull(status);
+
+			InitializeLoading();
+
+			// Filter authors
+			ObservableCollection<AuthorViewModel> authors;
+			if (status != string.Empty && status != "All")
+			{
+				var authorStatus = (AuthorStatus)Enum.Parse(typeof(AuthorStatus), status);
+				authors = await _service.FilterAuthorsAsync(authorStatus);
+			}
+			else
+			{
+				authors = await _service.GetAccountAuthorsAsync();
+			}
+			
+			Authors.Clear();
+			Authors.AddRange(authors);
+			
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("SearchAuthorsAsync Error: {Message}", ex.Message);
+		}
     }
 
 	[RelayCommand]
@@ -65,11 +114,12 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	public async Task InitializeAsync()
 	{
         AuthorsFilter = DefaultDataMock.AuthorsFilter;
+		InitializeLoading();
 		
 		Authors.Clear();
 		var authors = await _service.GetAccountAuthorsAsync();
 		Authors.AddRange(authors);
-
-		IsLoaded = true;
+		
+		FinishLoading();
 	}
 }
