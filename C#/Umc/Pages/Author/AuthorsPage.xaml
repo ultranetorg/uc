@@ -31,7 +31,7 @@
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
                         TextChanged="{Binding SearchAuthorsCommand}"
-                        Value="{Binding Search, Mode=TwoWay}"/>
+                        Value="{Binding Filter, Mode=TwoWay}"/>
                     <Image
                         Margin="12,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"

@@ -5,7 +5,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	private readonly IAuthorsService _service;
 
 	[ObservableProperty]
-    private string _search;
+    private string _filter;
 
 	[ObservableProperty]
     private AuthorViewModel _selectedItem;
@@ -26,12 +26,12 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
     {
 		try
 		{
-			Guard.IsNotNull(Search);
+			Guard.IsNotNull(Filter);
 
 			InitializeLoading();
 
 			// Search authors
-			var authors = await _service.SearchAuthorsAsync(Search);
+			var authors = await _service.SearchAuthorsAsync(Filter);
 
 			Authors.Clear();
 			Authors.AddRange(authors);
@@ -108,6 +108,7 @@ public partial class AuthorsViewModel : BaseTransactionsViewModel
 	[RelayCommand]
 	private async Task SortAuthorsAsync()
     {
+		// Authors.OrderBy(x => x.Name);
 		await Task.Delay(10);
     }
 
