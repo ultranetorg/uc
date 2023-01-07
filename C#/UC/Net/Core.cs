@@ -1445,6 +1445,8 @@ namespace UC.Net
 	
 							foreach(var o in i.Operations)
 								o.Placing = PlacingStage.Placed;
+
+							Transactions.Remove(i);
 						}
 							
 						b.Sign(g);
@@ -1473,8 +1475,37 @@ namespace UC.Net
 								
 						b.Sign(g);
 						blocks.Add(b);
-						
 					}
+
+					while(Database.VoterOf(r.Previous).Any(i => i.Generator == g) && !r.Previous.Votes.Any(i => i.Generator == g))
+					{
+						r = r.Previous;
+
+						var rr = Database.ReferTo(p);
+					
+						if(rr == null)
+							continue;
+	
+						prev = r.Previous.Votes.FirstOrDefault(i => i.Generator == g);
+
+						var b = new Vote(Database)
+								{	
+									RoundId		= r.Id,
+									Try			= r.Try,
+									Reference	= rr,
+									Time		= Clock.Now,
+									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
+									Violators	= p.Forkers.ToList(),
+									Joiners		= Database.ProposeJoiners(r).ToList(),
+									Leavers		= Database.ProposeLeavers(r, g).ToList(),
+									FundJoiners	= new(),
+									FundLeavers	= new(),
+								};
+								
+						b.Sign(g);
+						blocks.Add(b);
+					}
+
 				}
 			}
 
@@ -1590,7 +1621,6 @@ namespace UC.Net
 
 		void Delegating()
 		{
-			Peer[]						peers;
 			Operation[]					pendings;
 			bool						ready;
 			IEnumerable<Operation>		accepted;
@@ -1625,7 +1655,6 @@ namespace UC.Net
 						if(m.Dci == this && Synchronization != Synchronization.Synchronized)
 							continue;
 
-						peers = Peers.ToArray();
 						pendings = Operations.Where(i => i.Placing == PlacingStage.PendingDelegation).ToArray();
 						ready = pendings.Any() && !Operations.Any(i => i.Placing == PlacingStage.Accepted);
 					}
@@ -1667,7 +1696,7 @@ namespace UC.Net
 									t.AddOperation(o);
 								}
 
-								t.Sign(m.Generator, Net.Database.GetValidityPeriod(rmax));
+								t.Sign(m.Generator, Database.GetValidityPeriod(rmax));
 								txs.Add(t);
 							}
 						}
@@ -1693,7 +1722,7 @@ namespace UC.Net
 	
 					if(accepted.Any())
 					{
-						var rp = Call(Role.Chain, p => p.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id})), Workflow);
+						var rp = m.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}));
 							
 						lock(Lock)
 						{
@@ -1714,6 +1743,7 @@ namespace UC.Net
 										//if(o.Placing == PlacingStage.Null)
 										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
+										o.Placing = i.Placing;
 										Operations.Remove(o);
 									}
 	
@@ -1722,10 +1752,10 @@ namespace UC.Net
 										//if(o.Placing == PlacingStage.Null)
 										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
+										o.Placing = i.Placing;
 										Operations.Remove(o);
 									}
 								
-									o.Placing = i.Placing;
 								}
 							}
 						}

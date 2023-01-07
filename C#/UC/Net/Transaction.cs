@@ -62,7 +62,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"Signature={(Signature != null ? Hex.ToHexString(Signature).Substring(0, 8) : "")}, RoundMax={RoundMax}";
+			return $"Operations={{{Operations.Count}}}, Signer={Signer}, RoundMax={RoundMax}";
 		}
 
 		public void HashWrite(BinaryWriter w)
@@ -137,6 +137,7 @@ namespace UC.Net
 
 		public void ReadForBlock(BinaryReader r)
 		{
+
 			Signature	= r.ReadSignature();
 			RoundMax	= r.Read7BitEncodedInt();
 			Operations	= r.ReadList(() => {
