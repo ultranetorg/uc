@@ -79,9 +79,9 @@ namespace UC.Sun.FUI
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.Time + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
-									(r.ConfirmedJoiners != null ? string.Join(", ", r.ConfirmedJoiners) : null) + "\n" +
-									(r.ConfirmedLeavers != null ? string.Join(", ", r.ConfirmedLeavers) : null) + "\n" +
-									(r.ConfirmedViolators != null ? string.Join(", ", r.ConfirmedViolators) : null)
+									string.Join(", ", r.ConfirmedJoiners) + "\n" +
+									string.Join(", ", r.ConfirmedLeavers) + "\n" +
+									string.Join(", ", r.ConfirmedViolators)
 									;
 
 				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i is Payload)

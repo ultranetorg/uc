@@ -85,6 +85,8 @@ namespace UC.Sun.FUI
 						int nmaxid = 0;
 						int nmemebers = 0;
 						int njrs = 0;
+						int nj = 0;
+						int nl = 0;
 						int ndate = 0;
 	
 						var f = "";
@@ -104,6 +106,8 @@ namespace UC.Sun.FUI
 								{
 									nmaxid = Math.Max(nmaxid.ToString().Length, i.ToString().Length);
 									njrs = Math.Max(njrs, Core.Database.JoinRequests.Count(j => j.RoundId == i).ToString().Length);
+									nj = Math.Max(nj, r.ConfirmedJoiners.Count.ToString().Length);
+									nl = Math.Max(nj, r.ConfirmedLeavers.Count.ToString().Length);
 		
 									if(r != null)
 										nmemebers = Math.Max(nmemebers, (r.Members != null ? r.Members.Count.ToString().Length : 0));
@@ -115,11 +119,11 @@ namespace UC.Sun.FUI
 		
 							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nmaxid}}} {{1,{nmemebers}}} {{2,{njrs}}} {{3}}{{4}} {{5,{ndate}}}";
+							f  = $"{{0,{nmaxid}}} {{1,{nmemebers}}} {{2,{njrs}}} {{3,{nj}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}}";
 
 							if(rounds.Count() > 0)
 							{
-								var w = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
+								var w = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
 			
 								if(w + members.Count() * s < ClientSize.Width)
 								{
@@ -166,6 +170,8 @@ namespace UC.Sun.FUI
 																r.Id, 
 																r.Members != null ? r.Members.Count : 0, 
 																Core.Database.JoinRequests.Count(j => j.RoundId == r.Id),
+																r.ConfirmedJoiners.Count,
+																r.ConfirmedLeavers.Count,
 																r.Voted ? "v" : " ",
 																r.Confirmed ? "c" : " ",
 																r.Time);

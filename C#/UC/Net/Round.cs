@@ -27,7 +27,7 @@ namespace UC.Net
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
 		public IEnumerable<Account>								Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
-		public IEnumerable<Vote>								Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Vote>								Unique			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>								Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
 		public IEnumerable<Account>								ElectedViolators	=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
@@ -40,11 +40,11 @@ namespace UC.Net
 		public List<Account>									Funds;
 		//public List<Peer>										Hubs;
 		public List<Payload>									ConfirmedPayloads;
-		public List<Account>									ConfirmedViolators;
-		public List<Account>									ConfirmedJoiners;
-		public List<Account>									ConfirmedLeavers;
-		public List<Account>									ConfirmedFundJoiners;
-		public List<Account>									ConfirmedFundLeavers;
+		public List<Account>									ConfirmedViolators = new();
+		public List<Account>									ConfirmedJoiners = new();
+		public List<Account>									ConfirmedLeavers = new();
+		public List<Account>									ConfirmedFundJoiners = new();
+		public List<Account>									ConfirmedFundLeavers = new();
 
 		public bool												Voted = false;
 		public bool												Confirmed = false;
@@ -74,7 +74,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks={Blocks.Count}, Payloads={Payloads.Count()}, Members={Members?.Count}, Time={Time.ToString()}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Blocks={Blocks.Count}, Payloads={Payloads.Count()}, Members={Members?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<Account> a)

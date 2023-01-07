@@ -193,7 +193,9 @@ namespace UC.Net
 							accepted.Add(p);
 							r.BlockPieces.Add(p);
 	
-							if(r.BlockPieces.Count(i => i.Generator == p.Generator) == p.PiecesTotal)
+							var ps = r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece);
+
+							if(ps.Count() == p.PiecesTotal && ps.Zip(ps.Skip(1), (x, y) => x.Piece + 1 == y.Piece).All(x => x))
 							{
 								var s = new MemoryStream();
 								var w = new BinaryWriter(s);
@@ -274,17 +276,16 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
+			{
+				if(!core.Settings.Database.Base)
+					throw new DistributedCallException(Error.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new DistributedCallException(Error.NotSynchronized);
-				else
-				{
-					var r = core.GetNextAvailableRound(Generator);
 
-					if(r == null)
-						throw new DistributedCallException(Error.RoundNotAvailable);
-
-					return new NextRoundResponse {NextRoundId = r.Id};
-				}
+				var r = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
+				
+				return new NextRoundResponse {NextRoundId = r};
+			}
 		}
 	}
 

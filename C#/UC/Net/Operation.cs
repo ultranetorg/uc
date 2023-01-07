@@ -96,7 +96,7 @@ namespace UC.Net
 
 			ReadConfirmed(reader);
 #if DEBUG
-			//__ExpectedPlacing = (PlacingStage)r.ReadByte();
+			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
 #endif
 		}
 
@@ -106,7 +106,7 @@ namespace UC.Net
 			
 			WriteConfirmed(writer);
 #if DEBUG
-			//w.Write((byte)__ExpectedPlacing);
+			writer.Write((byte)__ExpectedPlacing);
 #endif
 		}
 

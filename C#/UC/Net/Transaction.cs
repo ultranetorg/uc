@@ -49,7 +49,7 @@ namespace UC.Net
 			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, this);
 		}
 
-		public bool SignatureEquals(Transaction t)
+		public bool EqualBySignature(Transaction t)
 		{
 			return Signature != null && t.Signature != null && Signature.SequenceEqual(t.Signature);
 		}

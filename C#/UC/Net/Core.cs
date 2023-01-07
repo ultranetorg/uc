@@ -375,9 +375,7 @@ namespace UC.Net
 			{
 				Database = new Database(Settings, Workflow?.Log, Nas, Vault, DatabaseEngine);
 		
-				Database.BlockAdded += b =>	{
-												ReachConsensus();
-											};
+				Database.BlockAdded += b =>	ReachConsensus();
 		
 				if(Settings.Generators.Any())
 				{
@@ -1353,21 +1351,30 @@ namespace UC.Net
 			Statistics.BlocksProcessing.End();
 		}
 
-		public Round GetNextAvailableRound(Account generator)
-		{
-			var r = Database.GetRound(Database.LastVotedRound.Id + 1);
 
-			while(r.Blocks.Any(i => i is Vote v && i.Generator == generator && v.Try == r.Try))
-				r = Database.GetRound(r.Id + 1);
-	
-			if(r.Id > Database.LastVotedRound.Id + Database.Pitch)
-				return null;
-
-			if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to a downloaded round since its blocks have no hashes
-				return null;
-
-			return r;
-		}
+//		public Round NeedToVote(Account generator)
+//		{
+// 			var r = Database.GetRound(Database.LastVotedRound.Id + 1);
+// 
+// 			while(r.Blocks.Any(i => i is Vote v && i.Generator == generator && v.Try == r.Try))
+// 				r = Database.GetRound(r.Id + 1);
+// 	
+// 			if(r.Id > Database.LastVotedRound.Id + Database.Pitch)
+//				return null;
+//
+//			var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
+//
+//			if(r.Votes.Any(i => i.Generator == generator))
+//				return null;
+//
+// 			//if(Enumerable.Range(Database.LastConfirmedRound.Id + 1, Database.Pitch).Any(i => !Database.GetRound(i).Voted))
+// 			//	return null;
+//
+//			if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to a downloaded round since its blocks have no hashes
+//				return null;
+//
+//			return r;
+//		}
 
 		void Generate()
 		{
@@ -1377,20 +1384,13 @@ namespace UC.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				var nar = GetNextAvailableRound(g);
-	
-				if(nar == null)
-					continue;
-		
-				var members = Database.VotersFor(nar);
-							
-				if(members.All(i => i.Generator != g))
+				if(!Database.VoterOf(Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch)).Any(i => i.Generator == g))
 				{
 					var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
 		
-					if(jr == null || nar.Id - jr.RoundId > Database.Pitch * 2) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
+					if(jr == null || jr.RoundId + Database.Pitch * 3 <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
-						var b = new MembersJoinRequest(Database){	RoundId	= nar.Id,
+						var b = new MembersJoinRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
 																	IP      = IP};
 						b.Sign(g);
 						blocks.Add(b);
@@ -1398,16 +1398,23 @@ namespace UC.Net
 				}
 				else
 				{
-					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Verified) && i.RoundMax >= nar.Id)
+					var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
+
+					if(r.Votes.Any(i => i.Generator == g))
+						continue;
+
+					if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to downloaded rounds since its blocks have no hashes
+						continue;
+
+					var txs = Database.CollectValidTransactions(Transactions.Where(i => r.Id <= i.RoundMax && i.Operations.All(i => i.Placing == PlacingStage.Verified))
 																			.GroupBy(i => i.Signer)
-																			.Select(i => i.First()), nar);
-	
-					var prev = Database.FindRound(nar.Id - 1).Votes.FirstOrDefault(i => i.Generator == g);
+																			.Select(i => i.First()), r).ToArray();
+
+					var prev = r.Previous.Votes.FirstOrDefault(i => i.Generator == g);
+					var p = r.Parent;
 	
 					if(txs.Any()) /// any pending foreign transactions or any our pending operations
 					{
-						var p = nar.Parent;
-			
 						var rr = Database.ReferTo(p);
 	
 						if(rr == null)
@@ -1415,22 +1422,21 @@ namespace UC.Net
 					
 						var b = new Payload(Database)
 								{
-									RoundId		= nar.Id,
-									Try			= nar.Try,
+									RoundId		= r.Id,
+									Try			= r.Try,
 									Reference	= rr,
 									Time		= Clock.Now,
-									TimeDelta	= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
+									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),
-									Joiners		= Database.ProposeJoiners(nar).ToList(),
-									Leavers		= Database.ProposeLeavers(nar, g).ToList(),
+									Joiners		= Database.ProposeJoiners(r).ToList(),
+									Leavers		= Database.ProposeLeavers(r, g).ToList(),
 									FundJoiners	= new(),
 									FundLeavers	= new(),
-									//Propositions		= msgs
 								};
 					
 						foreach(var i in txs)
 						{
-							(b as Payload).AddNext(i);
+							b.AddNext(i);
 
 							/// TODO: limit size
 							///if()
@@ -1444,45 +1450,30 @@ namespace UC.Net
 						b.Sign(g);
 						blocks.Add(b);
 					}
-					else
+					else if(Database.Rounds.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 					{
-						var r = Database.Rounds.LastOrDefault(i => !i.Confirmed && !i.Blocks.Any(j => j.Generator == g));
-	
-						while(r != null)
-						{
-	
-							if(	Database.VotersFor(r).Any(i => i.Generator == g) &&			/// we must vote
-								!r.Votes.Any(i => i.Generator == g) &&						/// no our block or vote yet
-								r.Votes.OfType<Payload>().Any() 								/// has already some payloads from other members
-								)
-							{
-								var p = r.Parent;
-								var rr = Database.ReferTo(p);
+						var rr = Database.ReferTo(p);
 					
-								if(rr != null)
-								{
+						if(rr == null)
+							continue;
 	
-									var b = new Vote(Database)
-											{	
-												RoundId		= r.Id,
-												Try			= r.Try,
-												Reference	= rr,
-												Time		= Clock.Now,
-												TimeDelta	= prev == null ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
-												Violators	= p.Forkers.ToList(),
-												Joiners		= Database.ProposeJoiners(r).ToList(),
-												Leavers		= Database.ProposeLeavers(r, g).ToList(),
-												FundJoiners	= new(),
-												FundLeavers	= new(),
-											};
+						var b = new Vote(Database)
+								{	
+									RoundId		= r.Id,
+									Try			= r.Try,
+									Reference	= rr,
+									Time		= Clock.Now,
+									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
+									Violators	= p.Forkers.ToList(),
+									Joiners		= Database.ProposeJoiners(r).ToList(),
+									Leavers		= Database.ProposeLeavers(r, g).ToList(),
+									FundJoiners	= new(),
+									FundLeavers	= new(),
+								};
 								
-									b.Sign(g);
-									blocks.Add(b);
-								}
-							}
-	
-							r = Database.FindRound(r.Id + 1);
-						}
+						b.Sign(g);
+						blocks.Add(b);
+						
 					}
 				}
 			}
@@ -1548,12 +1539,53 @@ namespace UC.Net
 //				{
 //					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
 //				}
-
 													
 				Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
 			}
 
 			Statistics.Generating.End();
+		}
+
+		void ReachConsensus()
+		{
+			if(Synchronization != Synchronization.Synchronized)
+				return;
+
+			Statistics.Consensing.Begin();
+
+			var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
+	
+			if(!r.Voted)
+			{
+				if(Database.QuorumReached(r))
+				{
+					r.Voted = true;
+
+					Database.Confirm(r.Parent, false);
+
+					if(r.Parent.Confirmed)
+					{
+						Transactions.RemoveAll(t => t.RoundMax <= r.Parent.Id);
+					}
+					else
+					{
+						StartSynchronization();
+						return;
+					}
+				}
+				else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15)))
+				{
+					foreach(var i in Transactions.Where(i => i.Payload.RoundId == r.Id).SelectMany(i => i.Operations))
+					{
+						i.Placing = PlacingStage.Verified;
+					}
+
+					r.FirstArrivalTime = DateTime.MaxValue;
+					r.Try++;
+				}
+			}
+
+			Statistics.Consensing.End();
 		}
 
 		void Delegating()
@@ -1657,46 +1689,43 @@ namespace UC.Net
 					}
 
 					lock(Lock)
-						accepted = Operations.Where(i => i.Placing == PlacingStage.Accepted || i.Placing == PlacingStage.Placed).ToArray();
+						accepted = Operations.Where(i => i.Placing == PlacingStage.Accepted).ToArray();
 	
 					if(accepted.Any())
 					{
 						var rp = Call(Role.Chain, p => p.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id})), Workflow);
 							
-						if(rp != null)
+						lock(Lock)
 						{
-							lock(Lock)
+							foreach(var i in rp.Operations)
 							{
-								foreach(var i in rp.Operations)
-								{
-									var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
+								var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
 																		
-									if(o.Placing != i.Placing)
+								if(o.Placing != i.Placing)
+								{
+									if(i.Placing == PlacingStage.Placed)
 									{
-										if(i.Placing == PlacingStage.Placed)
-										{
-											//if(o.Placing == PlacingStage.Null)
-											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-										}
-
-										if(i.Placing == PlacingStage.Confirmed)
-										{
-											//if(o.Placing == PlacingStage.Null)
-											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-
-											Operations.Remove(o);
-										}
-	
-										if(i.Placing == PlacingStage.FailedOrNotFound)
-										{
-											//if(o.Placing == PlacingStage.Null)
-											//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-
-											Operations.Remove(o);
-										}
-								
-										o.Placing = i.Placing;
+										//if(o.Placing == PlacingStage.Null)
+										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 									}
+
+									if(i.Placing == PlacingStage.Confirmed)
+									{
+										//if(o.Placing == PlacingStage.Null)
+										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
+
+										Operations.Remove(o);
+									}
+	
+									if(i.Placing == PlacingStage.FailedOrNotFound)
+									{
+										//if(o.Placing == PlacingStage.Null)
+										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
+
+										Operations.Remove(o);
+									}
+								
+									o.Placing = i.Placing;
 								}
 							}
 						}
@@ -1724,73 +1753,6 @@ namespace UC.Net
 					Stop(MethodBase.GetCurrentMethod(), ex);
 				}
 			}
-		}
-
-		void ReachConsensus()
-		{
-			if(Synchronization != Synchronization.Synchronized)
-				return;
-
-			Statistics.Consensing.Begin();
-
-			var r = Database.Rounds.LastOrDefault(i => !i.Voted);
-	
-			while(r != null)
-			{
-				var p = Database.FindRound(r.ParentId);
-					
-				if(!r.Voted)
-				{
-					if(Database.QuorumReached(r))
-					{
-						r.Voted = true;
-					}
-					else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15)))
-					{
-						foreach(var i in Transactions.Where(i => i.Payload.RoundId == r.Id).SelectMany(i => i.Operations))
-						{
-							i.Placing = PlacingStage.Verified;
-						}
-
-						r.FirstArrivalTime = DateTime.MaxValue;
-						r.Try++;
-					}
-				}
-					
-				if(r.Voted && p != null && !p.Confirmed)
-				{
-					var prevs = Database.Rounds.Where(i => i.Id < p.Id).ToList();
-					var sequential = prevs.Zip(prevs.Skip(1), (x, y) => x.Id == y.Id + 1).All(x => x);
-					
-					var v = r;
-	
-					if(prevs.All(i => i.Confirmed) && sequential)
-					{
-						do
-						{
-							Database.Confirm(p, false);
-
-							if(p.Confirmed)
-							{
-								Transactions.RemoveAll(t => t.RoundMax <= p.Id);
-							}
-							else
-							{
-								StartSynchronization();
-								return;
-							}
-			
-							p = Database.FindRound(p.Id + 1);
-							v = p != null ? Database.FindRound(p.Id + Net.Database.Pitch) : null;
-						}
-						while(p != null && !p.Confirmed && v != null && v.Voted);
-					}
-				}
-									
-				r = Database.FindRound(r.Id + 1);
-			}
-
-			Statistics.Consensing.End();
 		}
 
 		void Enqueue(Operation o)
@@ -1833,6 +1795,7 @@ namespace UC.Net
 				while(Running)
 				{
 					Thread.Sleep(1);
+					Workflow.ThrowIfAborted();
 
 					lock(Lock)
 					{
@@ -1877,6 +1840,9 @@ namespace UC.Net
 			catch(Exception ex) when (!Debugger.IsAttached)
 			{
 				Stop(MethodBase.GetCurrentMethod(), ex);
+			}
+			catch(OperationCanceledException)
+			{
 			}
 		}
 
@@ -1938,8 +1904,9 @@ namespace UC.Net
 
 			Statistics.TransactionsProcessing.Begin();
 
-			var accepted = txs.Where(i =>	!Transactions.Any(j => i.SignatureEquals(j)) &&
-											i.RoundMax >= GetNextAvailableRound(i.Generator).Id &&
+			var accepted = txs.Where(i =>	!Transactions.Any(j => i.EqualBySignature(j)) &&
+											i.RoundMax > Database.LastConfirmedRound.Id &&
+											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid).ToList();
 								
 			foreach(var i in accepted)
