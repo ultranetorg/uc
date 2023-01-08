@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.Maui;
-using UC.Umc.ViewModels.Author;
-
-namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public static class ViewModelExtensions
 {

@@ -24,6 +24,7 @@ public partial class SourceAccountViewModel : BaseViewModel
 			item.IsSelected = false;
 		}
 		account.IsSelected = true;
+		Account = account;
 	}
 
 	[RelayCommand]

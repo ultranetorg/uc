@@ -44,7 +44,7 @@
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextCommand}" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

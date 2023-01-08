@@ -33,13 +33,4 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
             FinishLoading();
         }
 	}
-
-	[RelayCommand]
-	protected void Prev()
-	{
-		if (Position > 0)
-		{
-			Position -= 1;
-		}
-	}
 }

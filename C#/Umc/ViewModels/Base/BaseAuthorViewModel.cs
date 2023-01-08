@@ -69,13 +69,12 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 	[RelayCommand]
     private async Task TransferAuthorAsync()
     {
-		await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_REGISTRATION,
+		await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_TRANSFER,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Author }
 		});
 		ClosePopup();
-		await Task.Delay(10);
     }
 
 	[RelayCommand]
@@ -121,6 +120,15 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 		{
 			await Navigation.PopAsync();
 			await ToastHelper.ShowMessageAsync("Successfully created!");
+		}
+	}
+
+	[RelayCommand]
+	protected void Prev()
+	{
+		if (Position > 0)
+		{
+			Position -= 1;
 		}
 	}
 }

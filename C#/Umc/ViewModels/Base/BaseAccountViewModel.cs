@@ -22,6 +22,9 @@ public abstract partial class BaseAccountViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
+	protected async Task CloseAsync() => await Navigation.PopModalAsync();
+
+	[RelayCommand]
 	protected void Prev()
 	{
 		if (Position > 0)

@@ -3,10 +3,11 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    x:Class="UC.Umc.Pages.Author.AuthorTransferPage"
+    x:Class="UC.Umc.Pages.AuthorTransferPage"
     x:DataType="vm:AuthorDetailsViewModel"
     Title="Transfer author">
     
@@ -30,7 +31,9 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <StackLayout Padding="5" Spacing="30">
+                        <StackLayout
+                            Padding="5"
+                            Spacing="30">
                                 <StackLayout>
                                     <Label FontSize="18" Text="Choose your Author and destination Account" />
                                     <Label
@@ -42,25 +45,26 @@
                                     <Label Style="{StaticResource DashLabel}" Text="Transfer Author" />
                                     <Grid ColumnDefinitions="*,35" RowSpacing="-10">
                                         <Border
+                                            BindingContext="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Author}"
                                             Grid.ColumnSpan="2"
                                             HeightRequest="60"
                                             Style="{StaticResource AccountCardBorder}">
-                                            <Grid RowDefinitions="Auto,Auto">
+                                            <Grid RowDefinitions="Auto,Auto" x:DataType="models:AuthorViewModel">
                                                 <Label
                                                     Grid.Row="0"
                                                     Grid.Column="0"
                                                     FontSize="13"
-                                                    Text="{Binding Author.Name}"
+                                                    Text="{Binding Name}"
                                                     VerticalOptions="Center" />
                                                 <Label
                                                     Grid.Row="1"
                                                     Grid.Column="0"
                                                     FontSize="10"
-                                                    Text="{Binding Author.ActiveDue}"
+                                                    Text="{Binding ActiveDue}"
                                                     VerticalOptions="Center" />
                                             </Grid>
                                             <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding SelectAuthorCommand}" />
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=SelectAuthorCommand}" />
                                             </Border.GestureRecognizers>
                                         </Border>
                                         <Image
@@ -75,16 +79,16 @@
                                     <Label Style="{StaticResource DashLabel}" Text="Pay from Account" />
                                     <Grid ColumnDefinitions="*,35" RowSpacing="-10">
                                         <views:AccountView 
-                                            IsVisible="{Binding IsMyAuthor}"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsMyAuthor}"
                                             Grid.ColumnSpan="2"
-                                            Account="{Binding Account}">
+                                            Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}">
                                             <views:AccountView.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=SelectAccountCommand}" />
                                             </views:AccountView.GestureRecognizers>
                                         </views:AccountView>
                                         <Label
-                                            IsVisible="{Binding IsReservedAuthor}"
-                                            Text="{Binding Account.Address}"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsReservedAuthor}"
+                                            Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account.Address}"
                                             Grid.ColumnSpan="2" />
                                         <Image
                                             Grid.Column="1"
@@ -137,7 +141,7 @@
                                 </StackLayout>
                                 <StackLayout>
                                     <Label Style="{StaticResource DashLabel}" Text="From Account" />
-                                    <views:AccountView Grid.ColumnSpan="2" BindingContext="{Binding Wallet}">
+                                    <views:AccountView Grid.ColumnSpan="2" BindingContext="{Binding Account}">
                                         <views:AccountView.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
                                         </views:AccountView.GestureRecognizers>
@@ -148,7 +152,7 @@
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextCommand}" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 
