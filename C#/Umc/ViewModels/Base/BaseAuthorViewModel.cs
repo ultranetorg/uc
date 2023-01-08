@@ -4,15 +4,23 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 {
 	[ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRegister))]
-    [NotifyPropertyChangedFor(nameof(IsMyProduct))]
+    [NotifyPropertyChangedFor(nameof(IsMyAuthor))]
     [NotifyPropertyChangedFor(nameof(IsOnAuction))]
     [NotifyPropertyChangedFor(nameof(WatchAuthorText))]
     [NotifyPropertyChangedFor(nameof(HasOwner))]
     public AuthorViewModel _author;
 
+	[ObservableProperty]
+    private AccountViewModel _account;
+
+	[ObservableProperty]
+    private int _position;
+
     public bool? CanRegister => Author?.Status == AuthorStatus.Free;
 
-    public bool? IsMyProduct => Author?.Status == AuthorStatus.Owned;
+    public bool? IsMyAuthor => Author?.Status == AuthorStatus.Owned;
+
+    public bool? IsReservedAuthor => Author?.Status == AuthorStatus.Reserved;
 
     public bool? IsOnAuction => Author?.Status == AuthorStatus.Auction || Author?.Status == AuthorStatus.Watched;
 
@@ -61,13 +69,12 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 	[RelayCommand]
     private async Task TransferAuthorAsync()
     {
-		// need to add transfer page
-		//await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_REGISTRATION,
-		//	new Dictionary<string, object>()
-		//{
-		//	{ QueryKeys.AUTHOR, Author }
-		//});
-		//ClosePopup();
+		await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_REGISTRATION,
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.AUTHOR, Author }
+		});
+		ClosePopup();
 		await Task.Delay(10);
     }
 
@@ -77,4 +84,43 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 		// watch / unwatch
 		await Task.Delay(10);
     }
+
+    [RelayCommand]
+    private async Task SelectAuthorAsync()
+    {
+        var popup = new SelectAuthorPopup();
+		await ShowPopup(popup);
+		if (popup?.Vm?.SelectedAuthor != null)
+		{
+			Author = popup.Vm.SelectedAuthor;
+		}
+    }
+
+    [RelayCommand]
+    private async Task SelectAccountAsync()
+	{
+		var popup = new SourceAccountPopup();
+		await ShowPopup(popup);
+		if (popup?.Vm?.Account != null)
+		{
+			Account = popup.Vm.Account;
+		}
+    }
+
+	[RelayCommand]
+	private async Task NextWorkaroundAsync()
+	{
+		if (Position == 0)
+		{
+			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
+			Position = 1;
+			Position = 0;
+			Position = 1;
+		}
+		else
+		{
+			await Navigation.PopAsync();
+			await ToastHelper.ShowMessageAsync("Successfully created!");
+		}
+	}
 }

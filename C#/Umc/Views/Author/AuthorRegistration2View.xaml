@@ -8,7 +8,7 @@
     x:Name="view">
     <StackLayout Padding="5" Spacing="30">
         <StackLayout>
-            <Label FontSize="18" Text="Do you confirm registration  of this author?" />
+            <Label FontSize="18" Text="Do you confirm registration of this author?" />
             <Label
                 FontSize="13"
                 Style="{StaticResource Regular}"

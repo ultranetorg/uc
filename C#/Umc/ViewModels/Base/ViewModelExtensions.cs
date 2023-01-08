@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using UC.Umc.ViewModels.Author;
 
 namespace UC.Umc.ViewModels;
 
@@ -12,9 +13,9 @@ public static class ViewModelExtensions
 		// Singleton ViewModels
 		builder.Services.AddSingleton<ShellViewModel>();
 
-		builder.Services.AddSingleton<ManageAccountsViewModel>();
-
 		builder.Services.AddSingleton<DashboardViewModel>();
+
+		builder.Services.AddSingleton<ManageAccountsViewModel>();
 
 		builder.Services.AddSingleton<AuthorsViewModel>();
 
@@ -27,45 +28,47 @@ public static class ViewModelExtensions
 		// Transient ViewModels
 		builder.Services.AddTransient<AccountDetailsViewModel>();
 
+		builder.Services.AddTransient<PrivateKeyViewModel>();
+
+		builder.Services.AddTransient<CreateAccountPageViewModel>();
+
+		builder.Services.AddTransient<RestoreAccountViewModel>();
+
+		builder.Services.AddTransient<DeleteAccountViewModel>();
+
+		builder.Services.AddTransient<AuthorDetailsViewModel>();
+
 		builder.Services.AddTransient<AuthorRegistrationViewModel>();
 
 		builder.Services.AddTransient<AuthorRenewalViewModel>();
 
-		builder.Services.AddTransient<DeleteAccountViewModel>();
+		builder.Services.AddTransient<AuthorTransferViewModel>();
 
-		builder.Services.AddTransient<RestoreAccountViewModel>();
+		builder.Services.AddTransient<MakeBidViewModel>();
 
-		builder.Services.AddTransient<AuthorDetailsViewModel>();
+		builder.Services.AddTransient<ProductsViewModel>();
 
-		builder.Services.AddTransient<CreateAccountPageViewModel>();
+		builder.Services.AddTransient<ProductsBViewModel>();
+
+		builder.Services.AddTransient<SendViewModel>();
+
+		builder.Services.AddTransient<ETHTransferViewModel>();
+
+		builder.Services.AddTransient<TransferCompleteViewModel>();
+
+		builder.Services.AddTransient<UnfinishTransferViewModel>();
 
 		builder.Services.AddTransient<EnterPinBViewModel>();
 
 		builder.Services.AddTransient<EnterPinViewModel>();
 
-		builder.Services.AddTransient<ETHTransferViewModel>();
-
 		builder.Services.AddTransient<HelpDetailsViewModel>();
 
-		builder.Services.AddTransient<MakeBidViewModel>();
-
 		builder.Services.AddTransient<NetworkViewModel>();
-
-		builder.Services.AddTransient<PrivateKeyViewModel>();
-
-		builder.Services.AddTransient<ProductsBViewModel>();
-
-		builder.Services.AddTransient<ProductsViewModel>();
-
-		builder.Services.AddTransient<SendViewModel>();
 
 		builder.Services.AddTransient<SettingsBViewModel>();
 
 		builder.Services.AddTransient<SettingsViewModel>();
-
-		builder.Services.AddTransient<TransferCompleteViewModel>();
-
-		builder.Services.AddTransient<UnfinishTransferViewModel>();
 
 		builder.Services.AddTransient<AboutViewModel>();
 
@@ -78,26 +81,26 @@ public static class ViewModelExtensions
 		#region Popups
 
 		builder.Services.AddTransient<AccountOptionsViewModel>();
-		builder.Services.AddTransient<AuthorOptionsViewModel>();
 		builder.Services.AddTransient<DeleteAccountPopupViewModel>();
+		builder.Services.AddTransient<SourceAccountViewModel>();
+		builder.Services.AddTransient<RecipientAccountViewModel>();
+		builder.Services.AddTransient<AuthorOptionsViewModel>();
+		builder.Services.AddTransient<SelectAuthorViewModel>();
 		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();
-		builder.Services.AddTransient<RecipientAccountViewModel>();
-		builder.Services.AddTransient<SelectAuthorViewModel>();
-		builder.Services.AddTransient<SourceAccountViewModel>();
 
 		#endregion
 
 		#region Views
-
+		
+		builder.Services.AddTransient<CreateAccountViewModel>();
 		builder.Services.AddTransient<AuthorRegistration1ViewModel>();
 		builder.Services.AddTransient<AuthorRegistrationViewModel>();
 		builder.Services.AddTransient<AuthorRenewalViewModel>();
-		builder.Services.AddTransient<CreateAccountViewModel>();
-		builder.Services.AddTransient<ETHTransfer2ViewModel>();
-		builder.Services.AddTransient<ETHTransfer3ViewModel>();
 		builder.Services.AddTransient<MakeBid1ViewModel>();
 		builder.Services.AddTransient<MakeBid2ViewModel>();
+		builder.Services.AddTransient<ETHTransfer2ViewModel>();
+		builder.Services.AddTransient<ETHTransfer3ViewModel>();
 
 		#endregion
 

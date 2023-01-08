@@ -35,15 +35,6 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
 	}
 
 	[RelayCommand]
-    protected void Next()
-    {
-        if (Position < 1)
-		{
-			Position += 1;
-		}
-    }
-
-	[RelayCommand]
 	protected void Prev()
 	{
 		if (Position > 0)
@@ -51,10 +42,4 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
 			Position -= 1;
 		}
 	}
-
-	[RelayCommand]
-    private async Task ClosePageAsync()
-    {
-        await Shell.Current.Navigation.PopAsync();
-    }
 }

@@ -73,7 +73,7 @@
                     <controls:LabelPair IsVisible="{Binding IsOnAuction}" Text1="Maximum bid by" Text2="{Binding Author.MaximumBidBy}" />
                     <controls:LabelPair IsVisible="{Binding IsOnAuction}" Text1="Auction ends" Text2="{Binding Author.AuctionDue}" />
                     
-                    <Grid IsVisible="{Binding IsMyProduct}" ColumnDefinitions="*,48" RowDefinitions="24,16">
+                    <Grid IsVisible="{Binding IsMyAuthor}" ColumnDefinitions="*,48" RowDefinitions="24,16">
                         <Label
                             Grid.Row="0"
                             Style="{StaticResource DashLabel}"
@@ -105,13 +105,13 @@
                     <Button
                         Grid.Row="1"
                         Grid.Column="0"
-                        IsVisible="{Binding IsMyProduct}"
+                        IsVisible="{Binding IsMyAuthor}"
                         Command="{Binding RenewAuthorCommand}"
                         Text="Renew" />
                     <Button
                         Grid.Row="1"
                         Grid.Column="1"
-                        IsVisible="{Binding IsMyProduct}"
+                        IsVisible="{Binding IsMyAuthor}"
                         Command="{Binding TransferAuthorCommand}"
                         Style="{StaticResource DeleteButton}"
                         Text="Transfer" />
