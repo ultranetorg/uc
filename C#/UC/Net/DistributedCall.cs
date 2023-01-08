@@ -173,46 +173,71 @@ namespace UC.Net
 				{
 					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
 				}
+
+ 				//var c = core.Connections.Where(i => i.BaseRank > 0 && i != Peer).GetEnumerator();
+ 				//var d = new Dictionary<Peer, List<BlockPiece>>();
+ 				//
+ 				//foreach(var i in pieces)
+ 				//{
+ 				//	if(!c.MoveNext())
+ 				//	{
+ 				//		c = core.Connections.Where(i => i.BaseRank > 0 && i != Peer).GetEnumerator(); /// go to the beginning
+ 				//		c.MoveNext();
+ 				//	}
+ 				//
+ 				//	if(!d.ContainsKey(c.Current))
+ 				//		d[c.Current] = new();
+ 				//
+ 				//	d[c.Current].Add(i);
+ 				//}
+				//
+				//foreach(var i in d)
+				//{
+				//	i.Key.Request<object>(new UploadBlocksPiecesRequest{Pieces = i.Value});
+				//}
 			}
 
 			lock(core.Lock)
 			{
-				if(core.Settings.Database.Base)
-				{
-					var accepted = new List<BlockPiece>();
+				if(!core.Settings.Database.Base)
+					throw new DistributedCallException(Error.NotBase);
+				
+				var accepted = new List<BlockPiece>();
 
+				if(core.Database.LastConfirmedRound != null)
+				{
 					var notolder = core.Database.LastConfirmedRound.Id - Net.Database.Pitch;
 					var notnewer = core.Database.LastConfirmedRound.Id + Net.Database.Pitch * 2;
-	
+		
 					foreach(var p in Pieces.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer))
 					{
 						var r = core.Database.GetRound(p.RoundId);
-	
+		
 						if(!r.BlockPieces.Any(i => i.Signature.SequenceEqual(p.Signature)))
 						{
 							accepted.Add(p);
 							r.BlockPieces.Add(p);
-	
+		
 							var ps = r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece);
-
+	
 							if(ps.Count() == p.PiecesTotal && ps.Zip(ps.Skip(1), (x, y) => x.Piece + 1 == y.Piece).All(x => x))
 							{
 								var s = new MemoryStream();
 								var w = new BinaryWriter(s);
-	
+		
 								foreach(var i in r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece))
 								{
 									s.Write(i.Data);
 								}
-	
+		
 								s.Position = 0;
 								var rd = new BinaryReader(s);
-	
+		
 								var b = Block.FromType(core.Database, (BlockType)rd.ReadByte());
 								b.Read(rd);
-	
+		
 								core.ProcessIncoming(new Block[] {b}, null);
-	
+		
 							}
 						}
 					}
@@ -222,9 +247,13 @@ namespace UC.Net
 						{
 							broadcast(accepted);
 						}
-				}
+				} 
 				else
-					throw new DistributedCallException(Error.NotBase);
+				{
+					accepted.AddRange(Pieces);
+					broadcast(accepted);
+				}
+
 			}
 
 			return null; 
@@ -238,15 +267,18 @@ namespace UC.Net
 		
 		public override Response Execute(Core core)
 		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			lock(core.Lock)
+			{
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
 			
-			w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Database.FindRound(i)).Where(i => i != null), i => i.Write(w));
+				w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Database.FindRound(i)).Where(i => i != null), i => i.Write(w));
 			
-			return new DownloadRoundsResponse {	LastNonEmptyRound	= core.Database.LastNonEmptyRound.Id,
-												LastConfirmedRound	= core.Database.LastConfirmedRound.Id,
-												BaseHash			= core.Database.BaseHash,
-												Rounds				= s.ToArray()};
+				return new DownloadRoundsResponse {	LastNonEmptyRound	= core.Database.LastNonEmptyRound.Id,
+													LastConfirmedRound	= core.Database.LastConfirmedRound.Id,
+													BaseHash			= core.Database.BaseHash,
+													Rounds				= s.ToArray()};
+			}
 		}
 	}
 
@@ -299,21 +331,23 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
+			{
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new DistributedCallException(Error.NotSynchronized);
 				if(core.Database.BaseState == null)
 					throw new DistributedCallException(Error.TooEearly);
-				else
-					return new StampResponse {	BaseState				= core.Database.BaseState,
-												BaseHash				= core.Database.BaseHash,
-												LastCommitedRoundHash	= core.Database.LastCommittedRound.Hash,
-												FirstTailRound			= core.Database.Rounds.Last().Id,
-												LastTailRound			= core.Database.Rounds.First().Id,
-												Accounts				= core.Database.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-												Authors					= core.Database.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-												Products				= core.Database.Products.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-												Realizations			= core.Database.Realizations.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-												Releases				= core.Database.Releases.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
+
+				return new StampResponse {	BaseState				= core.Database.BaseState,
+											BaseHash				= core.Database.BaseHash,
+											LastCommitedRoundHash	= core.Database.LastCommittedRound.Hash,
+											FirstTailRound			= core.Database.Rounds.Last().Id,
+											LastTailRound			= core.Database.Rounds.First().Id,
+											Accounts				= core.Database.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Authors					= core.Database.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Products				= core.Database.Products.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Realizations			= core.Database.Realizations.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Releases				= core.Database.Releases.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
+			}
 		}
 	}
 
@@ -345,21 +379,23 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
+			{
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new DistributedCallException(Error.NotSynchronized);
 				if(core.Database.BaseState == null)
 					throw new DistributedCallException(Error.TooEearly);
-				else
-					switch(Table)
-					{
-						case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Accounts		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-						case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Authors		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-						case Tables.Products	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Products		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-						case Tables.Realizations: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Realizations	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-						case Tables.Releases	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Releases		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-						default:
-							throw new DistributedCallException(Error.InvalidRequest);
-					}
+
+				switch(Table)
+				{
+					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Accounts		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Authors		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Products	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Products		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Realizations: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Realizations	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Releases	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Releases		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					default:
+						throw new DistributedCallException(Error.InvalidRequest);
+				}
+			}
 		}
 	}
 
@@ -498,25 +534,25 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
+			{
 				if(!core.Settings.Database.Chain)
 					throw new DistributedCallException(Error.NotChain);
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new DistributedCallException(Error.NotSynchronized);
-				else
-				{
-					return	new GetOperationStatusResponse
-							{
-								Operations = Operations.Select(o => new {	A = o,
-																			B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
-																									.SelectMany(t => t.Operations)
-																									.FirstOrDefault(i => i.Id == o.Id)
-																			?? 
-																			core.Database.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
-														.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
-																											Id			= i.A.Id,
-																											Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
-							};
-				}
+	
+				return	new GetOperationStatusResponse
+						{
+							Operations = Operations.Select(o => new {	A = o,
+																		B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
+																								.SelectMany(t => t.Operations)
+																								.FirstOrDefault(i => i.Id == o.Id)
+																		?? 
+																		core.Database.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
+													.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
+																										Id			= i.A.Id,
+																										Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
+						};
+			}
 		}
 	}
 
