@@ -74,7 +74,7 @@
                                                 Binding="{Binding IsSelected}"
                                                 TargetType="Grid"
                                                 Value="True">
-                                                <Setter Property="BackgroundColor" Value="{Binding Color}" />
+                                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource White}}" />
                                             </DataTrigger>
                                             <DataTrigger
                                                 Binding="{Binding IsSelected}"

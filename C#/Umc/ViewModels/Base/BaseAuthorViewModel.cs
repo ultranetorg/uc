@@ -87,22 +87,36 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
     [RelayCommand]
     private async Task SelectAuthorAsync()
     {
-        var popup = new SelectAuthorPopup();
-		await ShowPopup(popup);
-		if (popup?.Vm?.SelectedAuthor != null)
+		try
 		{
-			Author = popup.Vm.SelectedAuthor;
+			var popup = new SelectAuthorPopup();
+			await ShowPopup(popup);
+			if (popup?.Vm?.SelectedAuthor != null)
+			{
+				Author = popup.Vm.SelectedAuthor;
+			}
+		}
+		catch (Exception ex)
+		{
+            _logger.LogError(ex, "SelectAuthorAsync Exception: {Ex}", ex.Message);
 		}
     }
 
     [RelayCommand]
     private async Task SelectAccountAsync()
 	{
-		var popup = new SourceAccountPopup();
-		await ShowPopup(popup);
-		if (popup?.Vm?.Account != null)
+		try
 		{
-			Account = popup.Vm.Account;
+			var popup = new SourceAccountPopup();
+			await ShowPopup(popup);
+			if (popup?.Vm?.Account != null)
+			{
+				Account = popup.Vm.Account;
+			}
+		}
+		catch (Exception ex)
+		{
+            _logger.LogError(ex, "SelectAccountAsync Exception: {Ex}", ex.Message);
 		}
     }
 

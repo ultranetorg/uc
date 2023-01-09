@@ -31,123 +31,106 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <StackLayout
-                            Padding="5"
-                            Spacing="30">
-                                <StackLayout>
-                                    <Label FontSize="18" Text="Choose your Author and destination Account" />
-                                    <Label
-                                        FontSize="13"
-                                        Style="{StaticResource Regular}"
-                                        Text="You need to specify your source, destination accounts and amount to transfer." />
-                                </StackLayout>
-                                <StackLayout>
-                                    <Label Style="{StaticResource DashLabel}" Text="Transfer Author" />
-                                    <Grid ColumnDefinitions="*,35" RowSpacing="-10">
-                                        <Border
-                                            BindingContext="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Author}"
-                                            Grid.ColumnSpan="2"
-                                            HeightRequest="60"
-                                            Style="{StaticResource AccountCardBorder}">
-                                            <Grid RowDefinitions="Auto,Auto" x:DataType="models:AuthorViewModel">
-                                                <Label
-                                                    Grid.Row="0"
-                                                    Grid.Column="0"
-                                                    FontSize="13"
-                                                    Text="{Binding Name}"
-                                                    VerticalOptions="Center" />
-                                                <Label
-                                                    Grid.Row="1"
-                                                    Grid.Column="0"
-                                                    FontSize="10"
-                                                    Text="{Binding ActiveDue}"
-                                                    VerticalOptions="Center" />
-                                            </Grid>
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=SelectAuthorCommand}" />
-                                            </Border.GestureRecognizers>
-                                        </Border>
-                                        <Image
-                                            Grid.Column="1"
-                                            HorizontalOptions="Center"
-                                            InputTransparent="True"
-                                            Style="{StaticResource BottomArrowsIcon}"
-                                            VerticalOptions="Center" />
-                                    </Grid>
-                                </StackLayout>
-                                <StackLayout>
-                                    <Label Style="{StaticResource DashLabel}" Text="Pay from Account" />
-                                    <Grid ColumnDefinitions="*,35" RowSpacing="-10">
-                                        <views:AccountView 
-                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsMyAuthor}"
-                                            Grid.ColumnSpan="2"
-                                            Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}">
-                                            <views:AccountView.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=SelectAccountCommand}" />
-                                            </views:AccountView.GestureRecognizers>
-                                        </views:AccountView>
-                                        <Label
-                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsReservedAuthor}"
-                                            Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account.Address}"
-                                            Grid.ColumnSpan="2" />
-                                        <Image
-                                            Grid.Column="1"
-                                            HorizontalOptions="Center"
-                                            InputTransparent="True"
-                                            Style="{StaticResource BottomArrowsIcon}"
-                                            VerticalOptions="Center" />
-                                    </Grid>
-                                </StackLayout>
-                                <StackLayout Spacing="15">
-                                    <Grid ColumnDefinitions="*,*">
-                                        <Label
-                                            Grid.Column="0"
-                                            Style="{StaticResource DashLabel}"
-                                            Text="Renewal period"
-                                            VerticalOptions="Center" />
-                                        <controls:BorderEntry
-                                            Grid.Column="1"
-                                            FontSize="24"
-                                            RightPadding="35">
-                                            <controls:BorderEntry.Behaviors>
-                                                <toolkit:CharactersValidationBehavior
-                                                    x:Name="cb2"
-                                                    CharacterType="Letter"
-                                                    Flags="ValidateOnValueChanged"
-                                                    InvalidStyle="{StaticResource InvalidEntry}"
-                                                    MaximumCharacterTypeCount="30"
-                                                    MinimumCharacterTypeCount="1"
-                                                    ValidStyle="{StaticResource Valid}" />
-                                            </controls:BorderEntry.Behaviors>
-                                        </controls:BorderEntry>
-                                    </Grid>
-                                    <controls:LabelPair Text1="Estimated end date" Text2="01/10/2033" />
-                                    <controls:LabelPair Text1="Estimated comission" Text2="10 UNT ($15)" />
-                                </StackLayout>
+                        <!--Step #1-->
+                        <StackLayout Spacing="24">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Choose your Author and destination Account" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="You need to specify your source, destination accounts and amount to transfer." />
                             </StackLayout>
-                        
-                            <StackLayout Padding="5" Spacing="30">
-                                <StackLayout>
-                                    <Label FontSize="18" Text="Do you confirm the transfer of this author?" />
-                                    <Label
-                                        FontSize="13"
-                                        Style="{StaticResource Regular}"
-                                        Text="Clicking 'Confirm' button, transfer will start" />
-                                </StackLayout>
-                                <StackLayout Spacing="20">
-                                    <controls:LabelPair Text1="Registering Author:" Text2="Ultranet ORG" />
-                                    <controls:LabelPair Text1="With name:" Text2="ultranetorg" />
-                                    <controls:LabelPair Text1="With price:" Text2="500 UNT ($220)" />
-                                </StackLayout>
-                                <StackLayout>
-                                    <Label Style="{StaticResource DashLabel}" Text="From Account" />
-                                    <views:AccountView Grid.ColumnSpan="2" BindingContext="{Binding Account}">
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Transfer Author" />
+                                <Grid ColumnDefinitions="*,36" RowSpacing="-8">
+                                    <Border
+                                        BindingContext="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Author}"
+                                        Grid.ColumnSpan="2"
+                                        HeightRequest="60"
+                                        Style="{StaticResource AccountCardBorder}">
+                                        <Grid 
+                                            Margin="8"
+                                            RowDefinitions="Auto,Auto"
+                                            x:DataType="models:AuthorViewModel">
+                                            <Label
+                                                Grid.Row="0"
+                                                Grid.Column="0"
+                                                FontSize="13"
+                                                Text="{Binding Name}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Row="1"
+                                                Grid.Column="0"
+                                                FontSize="10"
+                                                Text="{Binding ActiveDue}"
+                                                VerticalOptions="Center" />
+                                        </Grid>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=SelectAuthorCommand}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                    <Image
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Style="{StaticResource BottomArrowsIcon}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Pay from Account" />
+                                <Grid ColumnDefinitions="*,36" RowSpacing="-8">
+                                    <views:AccountView 
+                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsMyAuthor}"
+                                        BorderStyle="{StaticResource AccountBorder}"
+                                        Grid.ColumnSpan="2"
+                                        Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}">
                                         <views:AccountView.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=SelectAccountCommand}" />
                                         </views:AccountView.GestureRecognizers>
                                     </views:AccountView>
-                                </StackLayout>
+                                    <Label
+                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsReservedAuthor}"
+                                        Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account.Address}"
+                                        Grid.ColumnSpan="2" />
+                                    <Image
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Style="{StaticResource BottomArrowsIcon}"
+                                        VerticalOptions="Center" />
+                                </Grid>
                             </StackLayout>
+                            
+                            <controls:LabelPair
+                                Text1="Estimated comission"
+                                Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Comission}" />
+                        </StackLayout>
+                        
+                        <!--Step #2-->
+                        <StackLayout Padding="5" Spacing="30">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Do you confirm the transfer of this author?" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Clicking 'Confirm' button, transfer will start" />
+                            </StackLayout>
+                            <StackLayout Spacing="20">
+                                <controls:LabelPair Text1="Transfering Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account.Name}" />
+                                <controls:LabelPair Text1="With comission:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Comission}" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="To Account" />
+                                <views:AccountView
+                                    Grid.ColumnSpan="2"
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}">
+                                    <views:AccountView.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                                    </views:AccountView.GestureRecognizers>
+                                </views:AccountView>
+                            </StackLayout>
+                        </StackLayout>
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
