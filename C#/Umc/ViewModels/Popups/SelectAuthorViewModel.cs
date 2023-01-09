@@ -2,17 +2,17 @@
 
 public partial class SelectAuthorViewModel : BaseViewModel
 {
-	private readonly IAuthorsService _service;
+	private readonly IServicesMockData _service;
 
     public AuthorViewModel SelectedAuthor;
 
 	[ObservableProperty]
 	private CustomCollection<AuthorViewModel> _authors = new();
 
-    public SelectAuthorViewModel(IAuthorsService service, ILogger<SelectAuthorViewModel> logger) : base(logger)
+    public SelectAuthorViewModel(IServicesMockData service, ILogger<SelectAuthorViewModel> logger) : base(logger)
     {
-		Initialize();
 		_service = service;
+		LoadData();
     }
 
 	[RelayCommand]
@@ -24,9 +24,9 @@ public partial class SelectAuthorViewModel : BaseViewModel
 	[RelayCommand]
     private void Close() => ClosePopup();
 	
-	public void Initialize()
+	public void LoadData()
 	{
-		var authors = _service.GetAccountAuthorsAsync().Result;
-		Authors.AddRange(authors);
+		Authors.Clear();
+		Authors.AddRange(_service.Authors);
 	}
 }
