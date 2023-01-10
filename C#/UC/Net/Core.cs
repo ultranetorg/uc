@@ -753,7 +753,7 @@ namespace UC.Net
 					}
 					catch(SocketException ex) 
 					{
-						Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
+						//Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -776,7 +776,7 @@ namespace UC.Net
 					}
 					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Send/Wait Hello; {ex.Message}" );
+						//Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Send/Wait Hello; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -784,7 +784,7 @@ namespace UC.Net
 					{
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", "It's me");
+							//Workflow.Log?.Report(this, "Establishing failed", "It's me");
 							Peers.Remove(peer);
 							client.Close();
 							return;
@@ -798,7 +798,7 @@ namespace UC.Net
 	
 						if(peer.Established)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
+							//Workflow.Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
 							client.Close();
 							return;
 						}
@@ -874,7 +874,7 @@ namespace UC.Net
 					{
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", "It's me");
+							//Workflow.Log?.Report(this, "Establishing failed", "It's me");
 							Peers.Remove(peer);
 							client.Close();
 							return;
@@ -882,7 +882,7 @@ namespace UC.Net
 
 						if(peer != null && peer.Established)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; Already established" );
+							//Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; Already established" );
 							client.Close();
 							return;
 						}
@@ -899,7 +899,7 @@ namespace UC.Net
 						}
 						catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; SendHello; {ex.Message}");
+							//Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; SendHello; {ex.Message}");
 							goto failed;
 						}
 	
@@ -1406,7 +1406,8 @@ namespace UC.Net
 					if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to downloaded rounds since its blocks have no hashes
 						continue;
 
-					var txs = Database.CollectValidTransactions(Transactions.Where(i => r.Id <= i.RoundMax && i.Operations.All(i => i.Placing == PlacingStage.Verified))
+					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
+					var txs = Database.CollectValidTransactions(Transactions.Where(i => r.Id <= i.RoundMax && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified))
 																			.GroupBy(i => i.Signer)
 																			.Select(i => i.First()), r).ToArray();
 
@@ -1434,19 +1435,24 @@ namespace UC.Net
 									FundLeavers	= new(),
 								};
 					
+						var s = new MemoryStream(); 
+						var w = new BinaryWriter(s);
+						b.Sign(g);
+						b.Write(w);
+
 						foreach(var i in txs)
 						{
-							b.AddNext(i);
+							i.WriteForBlock(w);
 
-							/// TODO: limit size
-							///if()
-							//{
-							//}
+							if(s.Position > Block.SizeMax)
+								break;
+
+							b.AddNext(i);
 	
 							foreach(var o in i.Operations)
 								o.Placing = PlacingStage.Placed;
 
-							Transactions.Remove(i);
+							//Transactions.Remove(i); /// required because in Database.Confirm operations and transactions may be deleted
 						}
 							
 						b.Sign(g);
@@ -1656,7 +1662,7 @@ namespace UC.Net
 							continue;
 
 						pendings = Operations.Where(i => i.Placing == PlacingStage.PendingDelegation).ToArray();
-						ready = pendings.Any() && !Operations.Any(i => i.Placing == PlacingStage.Accepted);
+						ready = pendings.Any() && !Operations.Any(i => i.Placing >= PlacingStage.Accepted);
 					}
 
 					if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
@@ -1718,7 +1724,7 @@ namespace UC.Net
 					}
 
 					lock(Lock)
-						accepted = Operations.Where(i => i.Placing == PlacingStage.Accepted).ToArray();
+						accepted = Operations.Where(i => i.Placing >= PlacingStage.Accepted).ToArray();
 	
 					if(accepted.Any())
 					{
@@ -1732,6 +1738,8 @@ namespace UC.Net
 																		
 								if(o.Placing != i.Placing)
 								{
+									o.Placing = i.Placing;
+
 									if(i.Placing == PlacingStage.Placed)
 									{
 										//if(o.Placing == PlacingStage.Null)
@@ -1743,7 +1751,6 @@ namespace UC.Net
 										//if(o.Placing == PlacingStage.Null)
 										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
-										o.Placing = i.Placing;
 										Operations.Remove(o);
 									}
 	
@@ -1752,7 +1759,6 @@ namespace UC.Net
 										//if(o.Placing == PlacingStage.Null)
 										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
 
-										o.Placing = i.Placing;
 										Operations.Remove(o);
 									}
 								

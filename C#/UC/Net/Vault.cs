@@ -14,7 +14,7 @@ namespace UC.Net
 	{
 		public const string					EthereumWalletExtention = "uwe";
 		public const string					NoCryptoWalletExtention = "uwnc";
-		public string						WalletExt => Cryptography.Current is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
+		public static string				WalletExt => Cryptography.Current is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
 
 		Settings							Settings;
 		Log									Log;

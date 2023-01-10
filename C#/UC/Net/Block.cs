@@ -72,6 +72,8 @@ namespace UC.Net
 
 	public abstract class Block : ITypedBinarySerializable, IBinarySerializable
 	{
+		public const int			SizeMax = 65536;
+
 		public virtual bool			Valid => true;
 
 		public int					RoundId { get; set; }

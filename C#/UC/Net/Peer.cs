@@ -267,13 +267,13 @@ namespace UC.Net
 													else
 													{
 														lock(core.Lock)
-															try
-															{
+															//try
+															//{
 																i.Execute(core);
-															}
-															catch(Exception)// when(!Debugger.IsAttached)
-															{
-															}
+															//}
+															//catch(Exception)// when(!Debugger.IsAttached)
+															//{
+															//}
 													}
 
 													InRequests.Remove(i);

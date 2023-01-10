@@ -165,101 +165,119 @@ namespace UC.Net
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
-				switch(call)
+				object execute(ApiCall call)
 				{
-					case SettingsCall c:
-						respondjson(new SettingsResponse{	ProfilePath  = Core.Settings.Profile, 
-															Settings = Core.Settings}); /// TODO: serialize
-						break;
-
-					case RunNodeCall e:
-						Core.RunNode();
-						break;
-
-					case AddWalletCall e:
-						lock(Core.Lock)
-							Vault.AddWallet(e.Account, e.Wallet);
-						break;
-
-					case UnlockWalletCall e:
-						lock(Core.Lock)
-							Vault.Unlock(e.Account, e.Password);
-						break;
+					switch(call)
+					{
+						case SettingsCall c:
+							return new SettingsResponse{ProfilePath  = Core.Settings.Profile, 
+														Settings = Core.Settings}; /// TODO: serialize
 	
-					case SetGeneratorCall e:
-						lock(Core.Lock)
-						{
-							Core.Settings.Generators = e.Generators.Select(i => Vault.GetPrivate(i)).ToArray();
-							Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
-						}
-						break;
-
-					case TransferUntCall e:
-
-						PrivateAccount  pa;
-							
-						lock(Core.Lock)
-						{
-							pa = Vault.GetPrivate(e.From);
-						}
-
-						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, null));
-						Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
-						break;
+						case RunNodeCall e:
+							Core.RunNode();
+							break;
 	
-					case StatusCall s:
-						lock(Core.Lock)
-							respondjson(new GetStatusResponse {	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
+						case AddWalletCall e:
+							lock(Core.Lock)
+								Vault.AddWallet(e.Account, e.Wallet);
+							break;
+	
+						case UnlockWalletCall e:
+							lock(Core.Lock)
+								Vault.Unlock(e.Account, e.Password);
+							break;
+		
+						case SetGeneratorCall e:
+							lock(Core.Lock)
+							{
+								Core.Settings.Generators = e.Generators.Select(i => Vault.GetPrivate(i)).ToList();
+								Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
+							}
+							break;
+	
+						case TransferUntCall e:
+	
+							PrivateAccount  pa;
+								
+							lock(Core.Lock)
+							{
+								pa = Vault.GetPrivate(e.From);
+							}
+	
+							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
+
+							return Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, null);
+		
+						case StatusCall s:
+							lock(Core.Lock)
+								return new GetStatusResponse{	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
 																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
 																InfoValues	= Core.Info[1].Take(s.Limit), 
-																Peers		= Core.Peers.Select(i => $"{i.IP} S={i.Status} In={i.InStatus} Out={i.OutStatus} F={i.Failures}")
-																});
-						break;
-							
-					case ExitCall e:
-						rp.Close();
-						Core.Stop("Json Api call");
-						return;
+																Peers		= Core.Peers.Select(i => $"{i.IP} S={i.Status} In={i.InStatus} Out={i.OutStatus} F={i.Failures}")};
+								
+						case ExitCall e:
+							rp.Close();
+							Core.Stop("Json Api call");
+							break;
+	
+						case QueryReleaseCall c:
+						{
+							return Core.QueryRelease(c.Queries, c.Confirmed);
+						}
+	
+						case DistributeReleaseCall c:
+						{
+							Core.Filebase.AddRelease(c.Release, c.Manifest);
+	
+							if(c.Complete != null)
+							{
+								Core.Filebase.WritePackage(c.Release, Distributive.Complete, 0, c.Complete);
+								//Core.DeclareRelease(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
+							}
+							if(c.Incremental != null)
+							{
+								Core.Filebase.WritePackage(c.Release, Distributive.Incremental, 0, c.Incremental);
+								//Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
+							}
+	
+							break;
+						}
+	
+						case DownloadReleaseCall c:
+						{
+							Core.DownloadRelease(c.Release, new Workflow());
+							break;
+						}
+	
+						case ReleaseInfoCall c:
+						{
+							return Core.GetReleaseInfo(c.Release);
+						}
+					}
 
-					case QueryReleaseCall c:
+					return null;
+				}
+
+				if(call is BatchCall c)
+				{ 
+					var rs = new List<dynamic>();
+
+					foreach(var i in c.Calls)
 					{
-						//var a = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout));
-						var r = Core.QueryRelease(c.Queries, c.Confirmed);
+						t = Type.GetType(GetType().Namespace + "." + i.Name + "Call");
+						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonClient.Options) as ApiCall));
+					}
 
+					respondjson(rs);
+				}
+				else
+				{
+					var r = execute(call);
+
+					if(r != null)
+					{
 						respondjson(r);
-
-						break;
-					}
-
-					case DistributeReleaseCall c:
-					{
-						Core.Filebase.AddRelease(c.Release, c.Manifest);
-
-						if(c.Complete != null)
-						{
-							Core.Filebase.WritePackage(c.Release, Distributive.Complete, 0, c.Complete);
-							//Core.DeclareRelease(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
-						}
-						if(c.Incremental != null)
-						{
-							Core.Filebase.WritePackage(c.Release, Distributive.Incremental, 0, c.Incremental);
-							//Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
-						}
-
-						break;
-					}
-
-					case DownloadReleaseCall c:
-					{
-						Core.DownloadRelease(c.Release, new Workflow());
-						break;
-					}
-
-					case ReleaseInfoCall c:
-					{
-						respondjson(Core.GetReleaseInfo(c.Release));
-						break;
 					}
 				}
 			}
