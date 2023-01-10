@@ -9,7 +9,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
-    Size="{x:Static const:PopupSizeConstants.Medium}"
+    Size="{x:Static const:PopupSizeConstants.ExtraMedium}"
     Color="Transparent"
     VerticalOptions="End"
     x:Name="page">
@@ -22,10 +22,10 @@
                 Grid.Row="0"
                 RowDefinitions="24,Auto"
                 RowSpacing="16">
-                <Frame
+                <Border
                     Grid.Row="0"
                     HorizontalOptions="CenterAndExpand"
-                    Style="{StaticResource PopupHandle}"
+                    Style="{StaticResource PopupHandleBorder}"
                     VerticalOptions="Center" />
                 <Label
                     Grid.Row="1"
@@ -33,9 +33,10 @@
                     HorizontalOptions="Center"
                     Text="Selecet author to transfer" />
             </Grid>
+            
             <ListView
                 Grid.Row="1"
-                HeightRequest="400"
+                HeightRequest="300"
                 ItemsSource="{Binding Authors}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -75,14 +76,12 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-
-            <StackLayout Grid.Row="2" Padding="16">
-                <Button Command="{Binding CloseCommand}" Text="Continue" />
-                <Button
-                    Command="{Binding CloseCommand}"
-                    Style="{DynamicResource LabelButton}"
-                    Text="Cancel" />
-            </StackLayout>
+            
+            <Button
+                Grid.Row="2"
+                Margin="16"
+                Command="{Binding CloseCommand}"
+                Text="Confirm" />
         </Grid>
     </Border>
 </toolkit:Popup>
