@@ -27,6 +27,7 @@ public partial class SelectAuthorViewModel : BaseViewModel
 	public void LoadData()
 	{
 		Authors.Clear();
-		Authors.AddRange(_service.Authors);
+		var ownAuthors = _service.Authors.Where(x => x.Status == AuthorStatus.Owned).ToList();
+		Authors.AddRange(ownAuthors);
 	}
 }

@@ -216,10 +216,16 @@ public class ServicesMockData : IServicesMockData
 				Status = AuthorStatus.Free,
 			};
 
+			AuthorViewModel author7 = new()
+			{
+				Name = "Test Own",
+				Status = AuthorStatus.Owned,
+			};
+
 			product1.Author = author1;
 			product2.Author = author1;
 			product3.Author = author1;
-			product4.Author = author1;
+			product4.Author = author7;
 			product5.Author = author2;
 			product6.Author = author2;
 			product7.Author = author3;
@@ -232,9 +238,10 @@ public class ServicesMockData : IServicesMockData
 			Authors.Add(author4);
 			Authors.Add(author5);
 			Authors.Add(author6);
+			Authors.Add(author7);
 
 			#endregion Authors
-		
+
 			AccountColors.Add(DefaultDataMock.CreateColor("#6601e3", Shell.Current.BackgroundColor));
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());

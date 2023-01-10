@@ -124,13 +124,11 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </Grid>
-            <StackLayout Grid.Row="2" Padding="16,8">
-                <Button Command="{Binding CloseCommand}" Text="Continue" />
-                <Button
-                    Command="{Binding CloseCommand}"
-                    Style="{StaticResource LabelButton}"
-                    Text="Cancel" />
-            </StackLayout>
+            <Button
+                Grid.Row="2"
+                Margin="16,8"
+                Command="{Binding CloseCommand}"
+                Text="Confirm" />
         </Grid>
     </Border>
 </toolkit:Popup>

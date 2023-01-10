@@ -31,7 +31,7 @@
                     Grid.Row="1"
                     FontSize="18"
                     HorizontalOptions="Center"
-                    Text="Selecet author to transfer" />
+                    Text="Select author to transfer" />
             </Grid>
             
             <ListView
@@ -79,7 +79,7 @@
             
             <Button
                 Grid.Row="2"
-                Margin="16"
+                Margin="16,8"
                 Command="{Binding CloseCommand}"
                 Text="Confirm" />
         </Grid>

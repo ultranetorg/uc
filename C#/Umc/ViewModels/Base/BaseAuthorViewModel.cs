@@ -8,7 +8,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
     [NotifyPropertyChangedFor(nameof(IsOnAuction))]
     [NotifyPropertyChangedFor(nameof(WatchAuthorText))]
     [NotifyPropertyChangedFor(nameof(HasOwner))]
-    public AuthorViewModel _author;
+    private AuthorViewModel _author;
 
 	[ObservableProperty]
     private AccountViewModel _account;
@@ -91,7 +91,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 		{
 			var popup = new SelectAuthorPopup();
 			await ShowPopup(popup);
-			if (popup?.Vm?.SelectedAuthor != null)
+			if (popup.Vm?.SelectedAuthor != null)
 			{
 				Author = popup.Vm.SelectedAuthor;
 			}
@@ -109,7 +109,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 		{
 			var popup = new SourceAccountPopup();
 			await ShowPopup(popup);
-			if (popup?.Vm?.Account != null)
+			if (popup.Vm?.Account != null)
 			{
 				Account = popup.Vm.Account;
 			}
