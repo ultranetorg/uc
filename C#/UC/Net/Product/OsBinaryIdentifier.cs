@@ -3,7 +3,7 @@ using System.IO;
 
 namespace UC.Net
 {
-	public class OsBinaryIdentifier : IBinarySerializable
+	public class Osbi : IBinarySerializable
 	{
 		public byte Familty;
 		public byte Name;
@@ -26,9 +26,9 @@ namespace UC.Net
 			w.Write(Architecture);
 		}
 
-		public static OsBinaryIdentifier Parse(string text)
+		public static Osbi Parse(string text)
 		{
-			var o = new OsBinaryIdentifier();
+			var o = new Osbi();
 
 			var f = text.IndexOf(".");
 			o.Familty = byte.Parse(text.Substring(0, f));

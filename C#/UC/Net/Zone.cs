@@ -8,15 +8,17 @@ namespace UC.Net
 	{
 		public readonly string Name;
 		public readonly string EtheterumNetwork;
+		public const int 		GeneratorsPerIP = 8;
 
-		public static readonly Zone Localnet = new Zone("Localnet",				"Goerli"){Initials = Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToArray()};
-		public static readonly Zone Testnet1 = new Zone(TestnetPrefix + "1",	"Goerli"){Initials = new string[]{	"78.47.204.100", 
-																												"78.47.214.161",
-																												"78.47.214.166",
-																												"78.47.214.170",
-																												"78.47.214.171",
-																												"78.47.198.218",
-																												"78.47.205.229"}.Select(i => IPAddress.Parse(i)).ToArray()};
+		public static readonly Zone Localnet = new Zone("Localnet",				"Goerli"){Initials = Enumerable.Range(100, 8).Select(i => new IPAddress(new byte[]{192, 168, 1, (byte)i})).ToArray()};
+		public static readonly Zone Testnet1 = new Zone(TestnetPrefix + "1",	"Goerli"){Initials = new string[]{	"168.119.54.200",
+																													"78.47.204.100", 
+																													"78.47.214.161",
+																													"78.47.214.166",
+																													"78.47.214.170",
+																													"78.47.214.171",
+																													"78.47.198.218",
+																													"78.47.205.229"}.Select(i => IPAddress.Parse(i)).ToArray()};
 
 		public static readonly Zone Mainnet	= new Zone("Mainnet", "Mainnet");
 		public static readonly Zone[]	All = {Localnet, Testnet1, Mainnet};

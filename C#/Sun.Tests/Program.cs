@@ -8,7 +8,7 @@ using Nethereum.Util;
 using Nethereum.Web3;
 using RocksDbSharp;
 
-namespace UC.Net.Node.Tests
+namespace Tests
 {
 	class Program
 	{

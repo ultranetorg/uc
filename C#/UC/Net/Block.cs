@@ -8,35 +8,92 @@ using System.Net;
 using Org.BouncyCastle.Utilities.Encoders;
 using System.Diagnostics;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Reflection.PortableExecutable;
 
 namespace UC.Net
 {
 	public enum BlockType : byte
 	{
-		GeneratorJoinRequest = 1, Vote = 2, Payload = 3
+		MembersJoinRequest = 1, Vote = 2, Payload = 3
+	}
+
+	public class BlockPiece : IBinarySerializable
+	{
+		public int		RoundId { get; set; }
+		public int		Piece { get; set; }
+		public int		PiecesTotal { get; set; }
+		public byte[]	Signature { get; set; }
+		public byte[]	Data { get; set; }
+
+		public Account	Generator { get; protected set; }
+		public DateTime	Time;
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write7BitEncodedInt(Piece);
+			writer.Write7BitEncodedInt(PiecesTotal);
+			writer.Write7BitEncodedInt(Data.Length);
+			writer.Write(Data);
+			writer.Write(Signature);
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			RoundId		= reader.Read7BitEncodedInt();
+			Piece		= reader.Read7BitEncodedInt();
+			PiecesTotal	= reader.Read7BitEncodedInt();
+			Data		= reader.ReadBytes(reader.Read7BitEncodedInt());
+			Signature	= reader.ReadSignature();
+
+			Generator = Cryptography.Current.AccountFrom(Signature, Hashify());
+		}
+
+		public byte[] Hashify()
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write7BitEncodedInt(RoundId);
+			w.Write7BitEncodedInt(Piece);
+			w.Write7BitEncodedInt(PiecesTotal);
+			w.Write(Data);
+
+			return Cryptography.Current.Hash(s.ToArray());
+		}
+
+		public void Sign(PrivateAccount generator)
+		{
+			Generator = generator;
+			Signature = Cryptography.Current.Sign(generator, Hashify());
+		} 
 	}
 
 	public abstract class Block : ITypedBinarySerializable, IBinarySerializable
 	{
-		public int					RoundId { get; set; }
-		public byte[]				Signature;
-		public Account				Generator { get; set; }
+		public const int			SizeMax = 65536;
 
-		public byte					TypeCode => (byte)Type;
-		public int					ParentId  => RoundId - Roundchain.Pitch;
-		public Round				Round;
-		protected Roundchain		Chain;
-		public virtual bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
-		public bool					Confirmed = false;
+		public virtual bool			Valid => true;
+
+		public int					RoundId { get; set; }
+		public Account				Generator { get; protected set; }
+		public byte[]				Signature;
 		public byte[]				Hash;
 
-		protected abstract void		WriteForSigning(BinaryWriter w);
-
 		public BlockType			Type => Enum.Parse<BlockType>(GetType().Name);
+		public byte					TypeCode => (byte)Type;
+		public int					ParentId => RoundId - Database.Pitch;
+		protected Database			Database;
+		public Round				Round;
 
-		public Block(Roundchain c)
+		protected abstract void		HashWrite(BinaryWriter w);
+		public abstract	void		Write(BinaryWriter w);
+		public abstract	void		Read(BinaryReader r);
+
+		public Block(Database database)
 		{
-			Chain = c;
+			Database = database;
 		}
 
 		public override string ToString()
@@ -46,11 +103,11 @@ namespace UC.Net
 					//$"Signature={(Signature != null ? Hex.ToHexString(Signature).Substring(0, 16) : "")}";
 		}
 
-		public static Block FromType(Roundchain chain, BlockType type)
+		public static Block FromType(Database chain, BlockType type)
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(Block).Namespace + "." + type).GetConstructor(new System.Type[]{typeof(Roundchain)}).Invoke(new object[]{chain}) as Block;
+				return Assembly.GetExecutingAssembly().GetType(typeof(Block).Namespace + "." + type).GetConstructor(new System.Type[]{typeof(Database)}).Invoke(new object[]{chain}) as Block;
 			}
 			catch(Exception ex)
 			{
@@ -58,51 +115,35 @@ namespace UC.Net
 			}
 		}
 
-		public byte[] CalculateHash()
+		public byte[] Hashify()
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write((byte)Type);
-			w.Write(Chain.Settings.Zone.Name);
+			w.Write(TypeCode);
+			w.Write(Database.Settings.Zone.Name);
 			w.Write7BitEncodedInt(RoundId);
 
-			WriteForSigning(w);
+			HashWrite(w);
 											
 			return Cryptography.Current.Hash(s.ToArray());
 		}
-
+						
 		public void Sign(PrivateAccount generator)
 		{
-			Hash = CalculateHash();
+			Hash = Hashify();
 			Generator = generator;
 			Signature = Cryptography.Current.Sign(generator, Hash);
 		} 
-
-		public virtual void Write(BinaryWriter w)
-		{
-			if(Signature.Length != Cryptography.SignatureSize)
-				throw new IntegrityException("Wrong Signature length");
-
-			w.Write7BitEncodedInt(RoundId);
-			w.Write(Generator);						/// needed to hash transactions
-			w.Write(Signature);
-		}
-
-		public virtual void Read(BinaryReader r)
-		{
-			RoundId		= r.Read7BitEncodedInt();
-			Generator	= r.ReadAccount();	
-			Signature	= r.ReadSignature();
-		}
 	}
 
-	public class GeneratorJoinRequest : Block
+	public class MembersJoinRequest : Block
 	{
 		public IPAddress	IP;
-		public CandidacyDeclaration Declaration;
+		
+		//public Coin			Bail;
 
-		public GeneratorJoinRequest(Roundchain c) : base(c)
+		public MembersJoinRequest(Database c) : base(c)
 		{
 		}
 
@@ -111,32 +152,35 @@ namespace UC.Net
 			return base.ToString() + ", IP=" + IP;
 		}
 
-		protected override void WriteForSigning(BinaryWriter w)
+		protected override void HashWrite(BinaryWriter w)
 		{
 			w.Write(IP);
 		}
 
-		public override void Write(BinaryWriter w)
+		public override void Write(BinaryWriter writer)
 		{
-			base.Write(w);
-
-			w.Write(IP);
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write(IP);
+			writer.Write(Signature);
 		}
 
-		public override void Read(BinaryReader r)
+		public override void Read(BinaryReader reader)
 		{
-			base.Read(r);
-
-			IP = r.ReadIPAddress();
+			RoundId		= reader.Read7BitEncodedInt();
+			IP			= reader.ReadIPAddress();
+			Signature	= reader.ReadSignature();
 		
-			Hash = CalculateHash();
+			Hash		= Hashify();
+			Generator	= Cryptography.Current.AccountFrom(Signature, Hash);
 		}
 	}
-	
+
 	public class Vote : Block
 	{
-		public int					Try; /// TODO: revote if consensus not reached
+		public override bool		Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
 		public DateTime				Time;
+
+		public int					Try; /// TODO: revote if consensus not reached
 		public long					TimeDelta;
 		public RoundReference		Reference;
 		public List<Account>		Violators = new();
@@ -149,7 +193,7 @@ namespace UC.Net
 		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
 		//public byte[]				PropositionsHash;
 
-		public Vote(Roundchain c) : base(c)
+		public Vote(Database c) : base(c)
 		{
 		}
 
@@ -158,7 +202,7 @@ namespace UC.Net
 			return base.ToString() + $", Parents={{{Reference.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
 		}
 
-		protected override void WriteForSigning(BinaryWriter writer)
+		protected override void HashWrite(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
@@ -173,7 +217,9 @@ namespace UC.Net
 
 		public override void Write(BinaryWriter writer)
 		{
-			base.Write(writer);
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write(Generator);
+			writer.Write(Signature);
 
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
@@ -188,11 +234,13 @@ namespace UC.Net
 
 		public override void Read(BinaryReader reader)
 		{
-			base.Read(reader);
+			RoundId		= reader.Read7BitEncodedInt();
+			Generator	= reader.ReadAccount();	
+			Signature	= reader.ReadSignature();
 
-			Try = reader.Read7BitEncodedInt();
-			TimeDelta = reader.Read7BitEncodedInt64();
-			Reference = new RoundReference();
+			Try			= reader.Read7BitEncodedInt();
+			TimeDelta	= reader.Read7BitEncodedInt64();
+			Reference	= new RoundReference();
 			Reference.Read(reader);
 
 			Violators	= reader.ReadAccounts();
@@ -201,7 +249,7 @@ namespace UC.Net
 			FundJoiners	= reader.ReadAccounts();
 			FundLeavers	= reader.ReadAccounts();
 
-			Hash = CalculateHash();
+			Hash = Hashify();
 		}
 	}
 
@@ -209,7 +257,9 @@ namespace UC.Net
 	{
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Any());
-		public byte[]					OrderingKey => Generator;
+		public byte[]					OrderingKey => Hash;
+
+		public bool						Confirmed = false;
 
 		public override bool Valid
 		{
@@ -234,7 +284,7 @@ namespace UC.Net
 			}
 		}
 
-		public Payload(Roundchain c) : base(c)
+		public Payload(Database c) : base(c)
 		{
 		}
 
@@ -249,9 +299,9 @@ namespace UC.Net
 			Transactions.Insert(0, t);
 		}
 				
-		protected override void WriteForSigning(BinaryWriter w)
+		protected override void HashWrite(BinaryWriter w)
 		{
-			base.WriteForSigning(w);
+			base.HashWrite(w);
 
 			foreach(var i in Transactions) 
 			{
@@ -261,17 +311,15 @@ namespace UC.Net
 
  		public void WriteConfirmed(BinaryWriter w)
  		{
-			//w.Write7BitEncodedInt64(TimeDelta);
 			w.Write(Generator);
  			w.Write(SuccessfulTransactions, i => i.WriteConfirmed(w));
  		}
  		
  		public void ReadConfirmed(BinaryReader r)
  		{
-			//TimeDelta = r.Read7BitEncodedInt64();
 			Generator = r.ReadAccount();
  			Transactions = r.ReadList(() =>	{
- 												var t = new Transaction(Chain.Settings)
+ 												var t = new Transaction(Database.Settings)
 														{ 
 															Payload = this, 
 															Generator = Generator
@@ -284,23 +332,22 @@ namespace UC.Net
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
-			w.Write(Transactions);
+			w.Write(Transactions, t => t.WriteForBlock(w));
 		}
 
 		public override void Read(BinaryReader r)
 		{
 			base.Read(r);
 			Transactions = r.ReadList(() =>	{
-												var t = new Transaction(Chain.Settings)
+												var t = new Transaction(Database.Settings)
 														{
-															Payload	 = this,
-															Generator	 = Generator
+															Payload	= this,
+															Generator = Generator
 														};
-
-												t.Read(r);
+												t.ReadForBlock(r);
 												return t;
 											});
-			Hash = CalculateHash();
+			Hash = Hashify();
 		}
 	}
 }

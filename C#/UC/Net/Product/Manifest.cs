@@ -9,20 +9,18 @@ namespace UC.Net
 {
 	public class Manifest : IBinarySerializable
 	{
-		public ReleaseAddress		Release;
-		//public string				Channel;		/// stable, beta, nightly, debug,...
-		public byte[]				CompleteHash;
-		public long					CompleteLength;
-		public ReleaseAddress[]		CompleteDependencies;
+		public ReleaseAddress		Release  { get; set; }
+		public byte[]				CompleteHash {get; set; }
+		public long					CompleteLength {get; set; }
+		public ReleaseAddress[]		CompleteDependencies {get; set; }
 
-		public byte[]				IncrementalHash;
-		public long					IncrementalLength;
-		public Version				IncrementalMinimalVersion;
-		public ReleaseAddress[]		AddedDependencies;
-		public ReleaseAddress[]		RemovedDependencies;
+		public byte[]				IncrementalHash {get; set; }
+		public long					IncrementalLength {get; set; }
+		public Version				IncrementalMinimalVersion {get; set; }
+		public ReleaseAddress[]		AddedDependencies {get; set; }
+		public ReleaseAddress[]		RemovedDependencies {get; set; }
 
  		byte[]						Hash;
-// 		public bool					Archived;
 
 		public Manifest()
 		{

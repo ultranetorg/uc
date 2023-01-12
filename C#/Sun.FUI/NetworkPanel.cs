@@ -33,19 +33,20 @@ namespace UC.Sun.FUI
 					r.SubItems.Add(i.Retries.ToString());
 					r.SubItems.Add(i.PeerRank.ToString());
 					r.SubItems.Add(i.GetRank(Role.Chain).ToString());
+					r.SubItems.Add(i.GetRank(Role.Base).ToString());
 					r.SubItems.Add(i.GetRank(Role.Hub).ToString());
 					r.SubItems.Add(i.GetRank(Role.Seed).ToString());
 					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));
 					r.Tag = i;
 				}
 
-				foreach(var i in (Chain != null ? Chain.Members : Core.Members).OrderBy(i => i.JoinedGeneratorsAt))
+				foreach(var i in (Chain != null ? Chain.Members : Core.Members).OrderBy(i => i.Generator))
 				{
 					var li = Generators.Items.Add(i.Generator.ToString());
 
-					li.SubItems.Add(i.JoinedGeneratorsAt.ToString());
-					li.SubItems.Add(Chain != null ? Core.Chain.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString() : null);
-					li.SubItems.Add(i.IP.ToString());
+					li.SubItems.Add(i.JoinedAt.ToString());
+					li.SubItems.Add(Chain != null ? Core.Database.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString() : null);
+					li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 
 				foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))

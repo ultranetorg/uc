@@ -6,7 +6,7 @@
 
 using namespace uc;
 
-CCompiledManifest::CCompiledManifest(CReleaseAddress release, CTonDocument & xon)
+CCompiledManifest::CCompiledManifest(CReleaseAddress release)
 {
 
 	Address					= release;

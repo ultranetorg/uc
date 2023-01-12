@@ -1,7 +1,7 @@
 ﻿
 namespace UC.Sun.FUI
 {
-	partial class ExplorerPanel
+	partial class ChainPanel
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -47,8 +47,6 @@ namespace UC.Sun.FUI
 			this.Round = new System.Windows.Forms.NumericUpDown();
 			this.InfoFields = new System.Windows.Forms.Label();
 			this.InfoValues = new System.Windows.Forms.Label();
-			this.Operation = new System.Windows.Forms.TextBox();
-			this.label5 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.Round)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -59,11 +57,10 @@ namespace UC.Sun.FUI
             this.columnHeader6,
             this.columnHeader5});
 			this.Blocks.FullRowSelect = true;
-			this.Blocks.HideSelection = false;
 			this.Blocks.Location = new System.Drawing.Point(0, 286);
 			this.Blocks.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Blocks.Name = "Blocks";
-			this.Blocks.Size = new System.Drawing.Size(446, 572);
+			this.Blocks.Size = new System.Drawing.Size(937, 572);
 			this.Blocks.TabIndex = 21;
 			this.Blocks.UseCompatibleStateImageBehavior = false;
 			this.Blocks.View = System.Windows.Forms.View.Details;
@@ -81,7 +78,7 @@ namespace UC.Sun.FUI
 			// columnHeader5
 			// 
 			this.columnHeader5.Text = "By";
-			this.columnHeader5.Width = 150;
+			this.columnHeader5.Width = 280;
 			// 
 			// Transactions
 			// 
@@ -89,11 +86,10 @@ namespace UC.Sun.FUI
             this.columnHeader3,
             this.columnHeader7});
 			this.Transactions.FullRowSelect = true;
-			this.Transactions.HideSelection = false;
-			this.Transactions.Location = new System.Drawing.Point(472, 286);
+			this.Transactions.Location = new System.Drawing.Point(982, 286);
 			this.Transactions.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Transactions.Name = "Transactions";
-			this.Transactions.Size = new System.Drawing.Size(602, 572);
+			this.Transactions.Size = new System.Drawing.Size(920, 572);
 			this.Transactions.TabIndex = 22;
 			this.Transactions.UseCompatibleStateImageBehavior = false;
 			this.Transactions.View = System.Windows.Forms.View.Details;
@@ -102,7 +98,7 @@ namespace UC.Sun.FUI
 			// columnHeader3
 			// 
 			this.columnHeader3.Text = "Signer";
-			this.columnHeader3.Width = 150;
+			this.columnHeader3.Width = 280;
 			// 
 			// columnHeader7
 			// 
@@ -112,22 +108,21 @@ namespace UC.Sun.FUI
 			// 
 			// Operations
 			// 
-			this.Operations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.Operations.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader8,
             this.columnHeader1,
             this.columnHeader4});
 			this.Operations.FullRowSelect = true;
-			this.Operations.HideSelection = false;
-			this.Operations.Location = new System.Drawing.Point(1105, 286);
+			this.Operations.Location = new System.Drawing.Point(0, 956);
 			this.Operations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Operations.Name = "Operations";
-			this.Operations.Size = new System.Drawing.Size(797, 572);
+			this.Operations.Size = new System.Drawing.Size(1902, 682);
 			this.Operations.TabIndex = 23;
 			this.Operations.UseCompatibleStateImageBehavior = false;
 			this.Operations.View = System.Windows.Forms.View.Details;
-			this.Operations.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.Operations_ItemSelectionChanged);
 			// 
 			// columnHeader8
 			// 
@@ -136,7 +131,7 @@ namespace UC.Sun.FUI
 			// columnHeader1
 			// 
 			this.columnHeader1.Text = "Operation";
-			this.columnHeader1.Width = 280;
+			this.columnHeader1.Width = 500;
 			// 
 			// columnHeader4
 			// 
@@ -158,7 +153,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(0, 239);
+			this.label1.Location = new System.Drawing.Point(17, 239);
 			this.label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(84, 27);
@@ -169,7 +164,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label2.Location = new System.Drawing.Point(472, 239);
+			this.label2.Location = new System.Drawing.Point(1001, 239);
 			this.label2.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(153, 27);
@@ -180,7 +175,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label3.Location = new System.Drawing.Point(1101, 239);
+			this.label3.Location = new System.Drawing.Point(17, 897);
 			this.label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(134, 27);
@@ -218,37 +213,12 @@ namespace UC.Sun.FUI
 			this.InfoValues.TabIndex = 24;
 			this.InfoValues.Text = "Round";
 			// 
-			// Operation
-			// 
-			this.Operation.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Operation.Location = new System.Drawing.Point(0, 940);
-			this.Operation.Multiline = true;
-			this.Operation.Name = "Operation";
-			this.Operation.ReadOnly = true;
-			this.Operation.Size = new System.Drawing.Size(1902, 698);
-			this.Operation.TabIndex = 27;
-			// 
-			// label5
-			// 
-			this.label5.AutoSize = true;
-			this.label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label5.Location = new System.Drawing.Point(0, 891);
-			this.label5.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(206, 27);
-			this.label5.TabIndex = 24;
-			this.label5.Text = "Operation Details";
-			// 
-			// ExplorerPanel
+			// ChainPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.Operation);
 			this.Controls.Add(this.Round);
 			this.Controls.Add(this.label3);
-			this.Controls.Add(this.label5);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.InfoValues);
@@ -258,7 +228,7 @@ namespace UC.Sun.FUI
 			this.Controls.Add(this.Transactions);
 			this.Controls.Add(this.Blocks);
 			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Name = "ExplorerPanel";
+			this.Name = "ChainPanel";
 			this.Size = new System.Drawing.Size(1902, 1638);
 			((System.ComponentModel.ISupportInitialize)(this.Round)).EndInit();
 			this.ResumeLayout(false);
@@ -282,8 +252,6 @@ namespace UC.Sun.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader7;
 		private System.Windows.Forms.Label InfoFields;
 		private System.Windows.Forms.Label InfoValues;
-		private System.Windows.Forms.TextBox Operation;
-		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ColumnHeader columnHeader8;
 		private System.Windows.Forms.ColumnHeader columnHeader4;
 		private System.Windows.Forms.ColumnHeader columnHeader6;

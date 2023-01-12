@@ -68,54 +68,49 @@ namespace UC.Sun.FUI
 
 		public void OnReported(LogMessage m)
 		{
- 			var a =	new Action( () =>
- 								{
- 									if(Lines.Length > 1000)
+  			var a =	new Action( () =>
+  								{
+ 									var t = new string(' ', 4 * m.Log.Depth);
+  
+ 									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
+ 										t += ("!!! " + m.Severity + " : ");
+ 
+  									if(ShowSender && m.Sender != null)
+ 										t += (m.Sender + " : ");
+ 
+ 									if(ShowSubject && m.Subject != null)
  									{
- 										int p = 0;
+ 										t += (m.Subject); 
  
- 										for(int i = 0; i < Lines.Length - 1000; i++)
- 										{
- 											 p = Text.IndexOf(Environment.NewLine, p);
- 										}
+ 										if(m.Text != null)
+ 											t += (" : "); 
+ 									}
+ 									
+ 									if(m.Text != null)
+ 										t += (m.Text[0] + Environment.NewLine);
+ 									else
+ 										t += (Environment.NewLine);
  
- 										Text = Text.Remove(0, p + Environment.NewLine.Length);
+ 									if(m.Text != null)
+ 									{
+  										foreach(var i in m.Text.Skip(1))
+  										{
+  											t += (new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
+  										}
  									}
 
-									AppendText(new string(' ', 4 * m.Log.Depth));
- 
-									if(m.Severity != UC.Log.Severity.Info)
-										AppendText("!!! " + m.Severity + " : ");
+									AppendText(t);
 
- 									if(ShowSender && m.Sender != null)
-										AppendText(m.Sender + " : ");
-
-									if(ShowSubject && m.Subject != null)
-									{
-										AppendText(m.Subject); 
-
-										if(m.Text != null)
-											AppendText(" : "); 
-									}
-									
-									if(m.Text != null)
-										AppendText(m.Text[0] + Environment.NewLine);
-									else
-										AppendText(Environment.NewLine);
-
-									if(m.Text != null)
-									{
- 										foreach(var i in m.Text.Skip(1))
- 										{
- 											AppendText(new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
- 										}
-									}
- 								});
- 
- 			if(InvokeRequired)
- 				BeginInvoke(a);
- 			else
- 				a();
+  									if(Lines.Length > 100 && Lines.Length > 1100)
+  									{
+										Lines = Lines.Skip(1000).ToArray();
+  									}
+  								});
+  
+  			if(InvokeRequired)
+  				BeginInvoke(a);
+  			else
+  				a();
 		}
 	}
 }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Model;
 using Nethereum.Util;
@@ -18,14 +19,14 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net
 {
-	public enum DelegationStage
-	{
-		Null, Pending, Delegated, Completed
-	}
+// 	public enum DelegationStage
+// 	{
+// 		Null, Pending, Delegated, Completed
+// 	}
 
 	public enum PlacingStage
 	{
-		Null, Accepted, Pending, Placed, Confirmed, FailedOrNotFound
+		Null, PendingDelegation, Accepted, Verified, Placed, Confirmed, FailedOrNotFound
 	}
 
 	public struct Portion
@@ -45,15 +46,20 @@ namespace UC.Net
 		public string			Error;
 		public Account			Signer { get; set; }
 		public Transaction		Transaction;
-		public DelegationStage	Delegation;
+		//public DelegationStage	Delegation;
 		public PlacingStage		Placing;
-		public bool				Successful => Executed && Error == null;
 		public Workflow			FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
-		public bool				Executed; 
+		//public bool				Executed; 
+		//public bool				Successful;
+
+		#if DEBUG
+		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
+		#endif
 
 		public const string		Rejected = "Rejected";
+		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		SignerDoesNotOwnTheAuthor = "The signer does not own the Author";
 
@@ -62,6 +68,10 @@ namespace UC.Net
 		public Operation()
 		{
 		}
+		
+		public abstract void Execute(Database chain, Round round);
+		protected abstract void WriteConfirmed(BinaryWriter w);
+		protected abstract void ReadConfirmed(BinaryReader r);
 
 		public static Operation FromType(Operations type)
 		{
@@ -74,45 +84,30 @@ namespace UC.Net
 				throw new IntegrityException($"Wrong {nameof(Operation)} type", ex);
 			}
 		}
-
-		public virtual void Execute(Roundchain chain, Round round)
-		{
-		}
- 
+		 
 		public override string ToString()
 		{
-			return $"{Type}, Id={Id}, {Delegation}, {Placing}, " + Description + $", Error={Error}";
+			return $"{Type}, Id={Id}, {Placing}, " + Description + $", Error={Error}";
 		}
 
-		public virtual void Read(BinaryReader r)
+		public void Read(BinaryReader reader)
 		{
-			Id = r.Read7BitEncodedInt();
+			Id = reader.Read7BitEncodedInt();
+
+			ReadConfirmed(reader);
+#if DEBUG
+			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
+#endif
 		}
 
-		public virtual void Write(BinaryWriter w)
+		public void Write(BinaryWriter writer)
 		{
-			w.Write7BitEncodedInt(Id);
-		}
-
-		public virtual void HashWrite(BinaryWriter w)
-		{
-			Write(w);
-		}
-
-		public virtual void WritePaid(BinaryWriter w)
-		{
-			Write(w);
-		}
-
-		public virtual void WriteConfirmed(BinaryWriter w)
-		{
-			Write(w);
-		}
-
-		public virtual void ReadConfirmed(BinaryReader r)
-		{
-			Placing = PlacingStage.Confirmed;
-			Read(r);
+			writer.Write7BitEncodedInt(Id);
+			
+			WriteConfirmed(writer);
+#if DEBUG
+			writer.Write((byte)__ExpectedPlacing);
+#endif
 		}
 
 		public static bool IsValid(string author, string title)
@@ -141,9 +136,9 @@ namespace UC.Net
 			var s = new MemoryStream(); 
 			var w = new BinaryWriter(s);
 
-			WritePaid(w); 
+			WriteConfirmed(w); 
 
-			return Roundchain.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 		
 		public static Coin CalculateFee(Coin factor, IEnumerable<Operation> operations)
@@ -152,10 +147,10 @@ namespace UC.Net
 			var w = new BinaryWriter(s);
 
 			w.Write(operations, i => {
-									 	i.WritePaid(w); 
+									 	i.WriteConfirmed(w); 
 									 });
 
-			return Roundchain.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
 	}
@@ -163,53 +158,52 @@ namespace UC.Net
 	public class CandidacyDeclaration : Operation
 	{
 		public Coin				Bail;
-		public IPAddress		IP;
+		public IPAddress[]		IPs;
 		public override string	Description => $"{Bail} UNT";
-		public override bool Valid => Settings.Dev.DisableBailMin ? true : Bail >= Roundchain.BailMin;
+		public override bool	Valid => Settings.Dev.DisableBailMin ? true : Bail >= Database.BailMin;
 		
 		public CandidacyDeclaration()
 		{
 		}
 
-		public CandidacyDeclaration(PrivateAccount signer, Coin bail, IPAddress ip)
+		public CandidacyDeclaration(PrivateAccount signer, Coin bail, IEnumerable<IPAddress> ips)
 		{
 			//if(!Settings.Dev.DisableBailMin && bail < Roundchain.BailMin)	throw new RequirementException("The bail must be greater than or equal to BailMin");
 
 			Signer = signer;
 			Bail = bail;
-			IP = ip;
+			IPs = ips.ToArray();
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
-			Bail	= r.ReadCoin();
-			IP		= new IPAddress(r.ReadBytes(4));
+			Bail = r.ReadCoin();
+			IPs	 = r.ReadArray(() => new IPAddress(r.ReadBytes(4)));
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(Bail);
-			w.Write(IP.GetAddressBytes());
+			w.Write(IPs, i => w.Write(i.GetAddressBytes()));
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			var e = round.AffectAccount(Signer);
 
-			var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
+			//var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
 
-			if(prev != null && e.BailStatus == BailStatus.OK) /// first, add existing if not previously Siezed
-				e.Balance += prev.Bail;
+			if(e.BailStatus == BailStatus.OK) /// first, add existing if not previously Siezed
+				e.Balance += e.Bail;
 
 			e.Balance -= Bail; /// then, subtract a new bail
 			e.Bail += Bail;
 
 			if(e.BailStatus == BailStatus.Siezed) /// if was siezed than reset to OK status
 				e.BailStatus = BailStatus.OK;
+
+			e.CandidacyDeclarationRound = round.Id;
+			e.IPs = IPs;
 		}
 	}
 
@@ -240,23 +234,19 @@ namespace UC.Net
 
 		public override bool Valid => 0 < Wei && 0 <= Eid;
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Wei	= r.ReadBigInteger();
 			Eid	= r.Read7BitEncodedInt();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(Wei);
 			w.Write7BitEncodedInt(Eid);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			Portion = Calculate(round.WeiSpent, round.Factor, Wei);
 			
@@ -331,9 +321,10 @@ namespace UC.Net
 
 	public class UntTransfer : Operation
 	{
-		public Account		To;
-		public Coin			Amount;
-		public override string Description => $"{Amount} UNT -> {To}";
+		public Account			To;
+		public Coin				Amount;
+		public override string	Description => $"{Amount} UNT -> {To}";
+		public override bool	Valid => 0 <= Amount;
 
 		public UntTransfer()
 		{
@@ -349,25 +340,19 @@ namespace UC.Net
 			Amount = amount;
 		}
 
-		public override bool Valid => 0 <= Amount;
-
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			To		= r.ReadAccount();
 			Amount	= r.ReadCoin();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(To);
 			w.Write(Amount);
 		}
 
-		public override void  Execute(Roundchain chain, Round round)
+		public override void  Execute(Database chain, Round round)
 		{
 			round.AffectAccount(Signer).Balance -= Amount;
 			round.AffectAccount(To).Balance += Amount;
@@ -392,23 +377,19 @@ namespace UC.Net
 			Bid = bid;
 		}
 		
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Author	= r.ReadUtf8();
 			Bid		= r.ReadCoin();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.WriteUtf8(Author);
 			w.Write(Bid);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
 			var a = round.AffectAuthor(Author);
 
@@ -456,7 +437,7 @@ namespace UC.Net
 
 				if(a.Owner != null)
 				{
-					round.AffectAccount(a.Owner).Authors.Remove(Author);
+					//round.AffectAccount(a.Owner).Authors.Remove(Author);
 					a.Owner = null;
 				}
 
@@ -471,7 +452,7 @@ namespace UC.Net
 				a.LastBid = Bid;
 				a.LastBidTime = round.Time;
 				a.LastWinner = Signer;
-				a.Products.Clear();
+				///a.Products.Clear();  Should we?
 			
 				return;
 			}
@@ -518,29 +499,25 @@ namespace UC.Net
 			Years = years;
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Author	= r.ReadUtf8();
 			Title	= r.ReadUtf8();
 			Years	= r.ReadByte();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Title);
 			w.Write(Years);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-//			AuthorBid lb = null;
+			//			AuthorBid lb = null;
 
-			var a = round.FindAuthor(Author);
+			var a = chain.Authors.Find(Author, round.Id);
 
 // 			if(Exclusive)
 // 			{
@@ -563,18 +540,17 @@ namespace UC.Net
 					if(Exclusive) /// distribite winner bid, one time
 						round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
 
-					round.AffectAccount(Signer).Authors.Add(Author);
+					//round.AffectAccount(Signer).Authors.Add(Author);
 				}
 
 				var cost = GetCost(round, Years);
 
-
 				a = round.AffectAuthor(Author);
-				a.Obtained = round.Id;
-				a.Title = Title;
-				a.Owner = Signer;
-				a.RegistrationTime = round.Time;
-				a.Years = Years;
+				//a.ObtainedRid		= round.Id;
+				a.Title				= Title;
+				a.Owner				= Signer;
+				a.RegistrationTime	= round.Time;
+				a.Years				= Years;
 
 				round.AffectAccount(Signer).Balance -= cost;
 				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
@@ -602,37 +578,31 @@ namespace UC.Net
 			To = to;
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Author	= r.ReadUtf8();
 			To		= r.ReadAccount();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.WriteUtf8(Author);
 			w.Write(To);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-			if(!round.AffectAccount(Signer).Authors.Contains(Author))
+			if(chain.Authors.Find(Author, round.Id).Owner != Signer)
 			{
 				Error = SignerDoesNotOwnTheAuthor;
 				return;
 			}
 
-			round.AffectAccount(Signer).Authors.Remove(Author);
-			round.AffectAccount(To).Authors.Add(Author);
+			//round.AffectAccount(Signer).Authors.Remove(Author);
+			//round.AffectAccount(To).Authors.Add(Author);
 
-			round.AffectAuthor(Author).Obtained = round.Id;
+			//round.AffectAuthor(Author).ObtainedRid = round.Id;
 			round.AffectAuthor(Author).Owner = To;
 		}
 	}
-
-
 }

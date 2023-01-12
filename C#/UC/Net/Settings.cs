@@ -6,21 +6,10 @@ using System.Net;
 using System.Text;
 using Nethereum.Util;
 using System.Reflection;
+using Nethereum.Signer;
 
 namespace UC.Net
 {
-	public class ChainSettings
-	{
-		public bool			Enabled;
-		public int			PeersMin;
-
-		public ChainSettings(Xon x)
-		{
-			Enabled		= x.Has("Enabled");
-			PeersMin	= x.GetInt32("PeersMin");
-		}
-	}
-
 	public class NasSettings
 	{
 		public string		Chain;
@@ -30,6 +19,20 @@ namespace UC.Net
 		{
 			Chain = x.GetString("Chain");
 			Provider = x.GetString("Provider");
+		}
+	}
+
+	public class DatabaseSettings
+	{
+		public bool			Base;
+		public bool			Chain;
+		public int			PeersMin;
+
+		public DatabaseSettings(Xon x)
+		{
+			Base		= x.Has("Base");
+			Chain		= x.Has("Chain");
+			PeersMin	= x.GetInt32("PeersMin");
 		}
 	}
 
@@ -73,16 +76,65 @@ namespace UC.Net
 	{
 		public const string FileName = "Secrets.globals";
 
-		public string		Password;
-		public string		EmissionWallet;
-		public string		EmissionPassword;
+		public string			Password;
+		public string			EmissionWallet;
+		public string			EmissionPassword;
 
-		public string		NasWallet;
-		public string		NasPassword;
-		public string		NasProvider;
+		public string			NasWallet;
+		public string			NasPassword;
+		public string			NasProvider;
 
-		public string		Path;
-		public string		Fathers => System.IO.Path.Join(Path, "Fathers");	
+		public string			Path;
+		string					FathersPath => System.IO.Path.Join(Path, "Fathers");	
+		PrivateAccount[]		_Fathers;
+		PrivateAccount			_OrgAccount;
+		PrivateAccount			_GenAccount;
+
+		public static readonly Account Org = Account.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
+		public static readonly Account Gen = Account.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
+		public static readonly Account Father0 = Account.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
+
+		public PrivateAccount OrgAccount
+		{
+			get
+			{
+				if(_OrgAccount == null)
+				{
+					var c = new NoCryptography();
+					_OrgAccount = PrivateAccount.Load(c, System.IO.Path.Join(Path, "0xeeee974ab6b3e9533ee99f306460cfc24adcdae0." + Vault.NoCryptoWalletExtention), null);
+				}
+
+				return _OrgAccount;
+			}
+		}
+
+		public PrivateAccount GenAccount
+		{
+			get
+			{
+				if(_GenAccount == null)
+				{ 
+					var c = new NoCryptography();
+					_GenAccount = PrivateAccount.Load(c, System.IO.Path.Join(Path, "0xffff50e1605b6f302850694291eb0e688ef15677." + Vault.NoCryptoWalletExtention), null);
+				}
+
+				return _GenAccount;
+			}
+		}
+
+		public PrivateAccount[] Fathers
+		{
+			get
+			{
+				if(_Fathers == null)
+				{
+					var c = new NoCryptography();
+					_Fathers = Directory.EnumerateFiles(FathersPath, "*." + Vault.NoCryptoWalletExtention).Select(i => PrivateAccount.Load(c , i, null)).OrderBy(i => i).ToArray();
+				}
+
+				return _Fathers;
+			}
+		}
 
 		public SecretSettings(string path)
 		{
@@ -111,6 +163,7 @@ namespace UC.Net
 		public bool				DisableBidMin;
 		public bool				DisableTimeouts;
 		public bool				ThrowOnCorrupted;
+		public int				TailLength = 100;
 
 		public bool				Any => Fields.Any(i => (bool)i.GetValue(this));
 		IEnumerable<FieldInfo>	Fields => GetType().GetFields().Where(i => i.FieldType == typeof(bool));
@@ -145,7 +198,7 @@ namespace UC.Net
 		public int					PeersMin;
 		public int					PeersInMax;
 		public IPAddress			IP = IPAddress.Any;
-		public string				Generator;
+		public List<PrivateAccount>	Generators;
 		public string				Profile;
 
 		public static DevSettings	Dev;
@@ -153,7 +206,7 @@ namespace UC.Net
 		public HubSettings			Hub;
 		public ApiSettings			Api;
 		public FilebaseSettings		Filebase;
-		public ChainSettings		Chain;
+		public DatabaseSettings		Database;
 		public SecretSettings		Secret;
 
 		public List<Account>		ProposedFundables = new(){};
@@ -192,27 +245,24 @@ namespace UC.Net
 
 			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
 
-//doc.Dump((n, l) => Console.WriteLine(new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
-//Console.WriteLine(doc.Has("PeersMin"));
-
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
 			Port		= doc.Has("Port") ? doc.GetInt32("Port") : Zone.Port;
 			IP			= IPAddress.Parse(doc.GetString("IP"));
-			Generator	= doc.Has("Generator") ? doc.GetString("Generator") : null;
+			Generators	= doc.Many("Generator").Select(i => PrivateAccount.Parse(i.Value as string)).ToList();
 			Log			= doc.Has("Log");
 
 			Dev			= new (doc.One(nameof(Dev)));
-			Chain		= new (doc.One(nameof(Chain)));
+			Database	= new (doc.One(nameof(Database)));
 			Nas			= new (doc.One(nameof(Nas)));
 			Api			= new (doc.One(nameof(Api)), this);
 			Hub			= new (doc.One(nameof(Hub)));
 			Filebase	= new (doc.One(nameof(Filebase)));
 
-			if(doc.Has("Secrets") && File.Exists(doc.GetString("Secrets")))
-			{
-				LoadSecrets(doc.GetString("Secrets"));
-			}
+// 			if(doc.Has("Secrets") && File.Exists(doc.GetString("Secrets")))
+// 			{
+// 				LoadSecrets(doc.GetString("Secrets"));
+// 			}
 						
 			if(boot.Secrets != null)	LoadSecrets(boot.Secrets);
 		}

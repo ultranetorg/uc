@@ -9,6 +9,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Net;
+using System.Collections;
 
 namespace UC.Net
 {
@@ -19,6 +20,25 @@ namespace UC.Net
 
 		public static string NameOf<C>() => NameOf(typeof(C));
 		public static string NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
+	}
+
+	public class BatchCall : ApiCall
+	{
+		public class Item
+		{
+			public string Name { get; set; }
+			public dynamic Call { get; set; }
+		}
+
+		public IEnumerable<Item> Calls { get; set; }
+
+		public void Add(ApiCall call)
+		{
+			if(Calls == null)
+				Calls = new List<Item>();
+
+			(Calls as List<Item>).Add(new Item {Name = call.GetType().Name.Remove(call.GetType().Name.IndexOf("Call")), Call = call});
+		}
 	}
 
 	public class ExitCall : ApiCall
@@ -68,7 +88,7 @@ namespace UC.Net
 
 	public class SetGeneratorCall : ApiCall
 	{
-		public Account			Account {get; set;}
+		public IEnumerable<Account>	 Generators {get; set;}
 	}
 
 	public class TransferUntCall : ApiCall
@@ -97,8 +117,8 @@ namespace UC.Net
 		public ReleaseAddress	Release { get; set; }
 	}
 
-	public class DownloadStatusCall : ApiCall
+	public class ReleaseInfoCall : ApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ReleaseAddress	Release { get; set; }
 	}
 }

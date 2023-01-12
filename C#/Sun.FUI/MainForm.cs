@@ -33,13 +33,13 @@ namespace UC.Sun.FUI
 			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Core, core.Vault)};
 			navigator.Nodes.Add(accs);
 
-			if(core.Chain != null)
+			if(core.Database != null)
 			{
 				var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
 				navigator.Nodes.Add(txs);
 	
-				var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, core.Vault) };
-				navigator.Nodes.Add(memb);
+				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, core.Vault) };
+				///navigator.Nodes.Add(memb);
 	
 				var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Core, core.Vault) };
 				navigator.Nodes.Add(auth);
@@ -49,11 +49,8 @@ namespace UC.Sun.FUI
 	
 				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Core, core.Vault) };				
 				navigator.Nodes.Add(rel);
-	
-				var pub = new TreeNode("Publish"){ Tag = new PublishPanel(Core, core.Vault) };				
-				navigator.Nodes.Add(pub);
 
-				var exp = new TreeNode("Explorer"){ Tag = new ExplorerPanel(Core, core.Vault) };
+				var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Core, core.Vault) };
 				navigator.Nodes.Add(exp);
 			}
 
@@ -116,8 +113,13 @@ namespace UC.Sun.FUI
 		{
 			lock(Core.Lock)
 			{
-				Text = "Ultranet Node"; //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += $"{(Core.Networking && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.Networking && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
+				var gens =  Core.Settings.Generators.Where(i => Core.Database.Members.Any(j => j.Generator == i));
+
+				Text = "Ultranet Node"; //System.Reflection.Assembly.GetEntryAssembly().ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
+				Text += $"{(Core.Networking && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}" +
+						$"{(Core.Networking && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - " +
+						$"{Core.Synchronization}" +
+						$"{(gens.Any() ? $" - {gens.Count()} members" : "")}";
 			}
 
 			foreach(var i in Controls)

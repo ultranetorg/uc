@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,11 +10,6 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public interface ITypedBinarySerializable
-	{
-		byte TypeCode { get; }
-	}
-
 	public class BinarySerializator
 	{
 		public static void Serialize(BinaryWriter writer, object o)
@@ -31,21 +27,11 @@ namespace UC.Net
 		{
 			switch(val)
 			{
-				case bool v:
-					writer.Write(v);
-					return true;
-
-				case int v:
-					writer.Write7BitEncodedInt(v);
-					return true;
-
-				case long v:
-					writer.Write7BitEncodedInt64(v);
-					return true;
-
-				case Coin v:
-					v.Write(writer);
-					return true;
+				case bool v :	writer.Write(v); return true;
+				case byte v :	writer.Write(v); return true;
+				case int v :	writer.Write7BitEncodedInt(v); return true;
+				case long v :	writer.Write7BitEncodedInt64(v); return true;
+				case Coin v :	v.Write(writer); return true;
 			}
 
 			if(type.IsEnum)
@@ -100,7 +86,7 @@ namespace UC.Net
 					return true;
 				}
 				case System.Collections.IEnumerable v:
-
+				{
 					var n = 0;
 					foreach(var i in (System.Collections.IEnumerable)v)
 					{
@@ -115,6 +101,7 @@ namespace UC.Net
 							Serialize(writer, j);
 					}
 					return true;
+				}
 			}
 
 			return false;
@@ -129,9 +116,6 @@ namespace UC.Net
 			{
 				if(i is ITypedBinarySerializable t)
 				{
-					if(t.TypeCode == 13)
-						writer=writer;
-					
 					writer.Write(t.TypeCode);
 				}
 
@@ -147,13 +131,10 @@ namespace UC.Net
 			for(int i=0; i<n; i++)
 			{
 				var t = reader.ReadByte();
-				
-				if(t == 13)
-					t=t;
 
 				l[i] = fromtype(t);
 
-				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 				{
 					if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 						p.SetValue(l[i], val);
@@ -180,7 +161,7 @@ namespace UC.Net
 			if(o == null)
 				o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
 
-			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
 				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 					p.SetValue(o, val);
@@ -196,6 +177,12 @@ namespace UC.Net
 			if(typeof(bool) == type)			
 			{
 				value = reader.ReadBoolean();
+				return true;
+			}
+			else 
+			if(typeof(byte) == type)
+			{	
+				value = reader.ReadByte();
 				return true;
 			}
 			else 

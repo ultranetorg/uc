@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using NativeImport;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Model;
@@ -26,7 +27,7 @@ namespace UC.Net
 		public ProductAddress	Address;
 		public string			Title;
 		public override string	Description => $"{Address} as {Title}";
-		public override bool	Valid => 0 < Address.Author.Length && 0 < Address.Product.Length;
+		public override bool	Valid => IsValid(Address.Product, Title);
 
 		public ProductRegistration()
 		{
@@ -39,25 +40,21 @@ namespace UC.Net
 			Title		= title;
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Address	= r.Read<ProductAddress>();
 			Title	= r.ReadUtf8();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(Address);
 			w.WriteUtf8(Title);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-			var a = round.FindAuthor(Address.Author);
+			var a = chain.Authors.Find(Address.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -65,14 +62,16 @@ namespace UC.Net
 				return;
 			}
 
-
-			if(!a.Products.Contains(Address.Product))
+			if(chain.Products.Find(Address, round.Id) != null)
 			{
-				a = round.AffectAuthor(Address.Author);
-				///a.Rid = round.Id;
-				a.Products.Add(Address.Product);
+				Error = "Product already registered";
+				return;
 			}
 			 
+			a = round.AffectAuthor(Address.Author);
+
+			//a.Products.Add(Address.Product);
+
 			var p = round.AffectProduct(Address);
 		
 			p.Title				= Title;
@@ -82,32 +81,30 @@ namespace UC.Net
 
 	public class RealizationRegistration : Operation
 	{
-		public RealizationAddress			Address;
-		public OsBinaryIdentifier[]			OSes;
-		public override string				Description => $"{Address}";
-		public override bool				Valid => Address.Valid;
+		public RealizationAddress			Realization;
+		public Osbi[]						OSes;
+		public override string				Description => $"{Realization}";
+		public override bool				Valid => Realization.Valid;
 
 		public RealizationRegistration()
 		{
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-			Address	= r.Read<RealizationAddress>();
-			OSes	= r.ReadArray<OsBinaryIdentifier>();
+			Realization	= r.Read<RealizationAddress>();
+			OSes		= r.ReadArray<Osbi>();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-			w.Write(Address);
+			w.Write(Realization);
 			w.Write(OSes);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-			var a = round.FindAuthor(Address.Author);
+			var a = chain.Authors.Find(Realization.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -115,20 +112,25 @@ namespace UC.Net
 				return;
 			}
 
-			//if(!a.Products.Contains(Address.Product))
-			//{
-			//	a = round.ChangeAuthor(Address.Author);
-			//	///a.Rid = round.Id;
-			//	a.Products.Add(Address.Product);
-			//}
+			if(chain.Products.Find(Realization, round.Id) == null)
+			{
+				Error = "Product not found";
+				return;
+			}
 			 
-			var p = round.AffectProduct(Address);
+			var p = round.AffectProduct(Realization);
 			
-			p.Realizations.RemoveAll(i => i.Name == Address.Platform);
-			p.Realizations.Add(new RealizationEntry{Name = Address.Platform, OSes = OSes});
+			p.Realizations.RemoveAll(i => i.Name == Realization.Platform);
+			p.Realizations.Add(new ProductEntryRealization{Name = Realization.Platform, OSes = OSes});
+
+			var r = round.AffectRealization(Realization);
+
+			r.OSes = OSes;
+			r.LastRegistrationRid = round.Id;
 		}
 	}
 
+/*
 	public class ProductControl : Operation
 	{
 		enum Change
@@ -161,7 +163,7 @@ namespace UC.Net
 		public void				RemovePublisher(Account publisher)	=> Actions[Change.RemovePublisher] = publisher;
 		public void				SetStatus(bool active)				=> Actions[Change.SetStatus] = active;
 
-		public override void Read(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader r)
 		{
 			base.Read(r);
 
@@ -178,7 +180,7 @@ namespace UC.Net
 											});
 		}
 
-		public override void Write(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter w)
 		{
 			base.Write(w);
 
@@ -194,7 +196,7 @@ namespace UC.Net
 										}
 									});
 		}
-	}
+	}*/
 
 	public class ReleaseRegistration : Operation
 	{
@@ -217,40 +219,23 @@ namespace UC.Net
 			Manifest = manifest;
 		}
 
-		public override void HashWrite(BinaryWriter writer)
+		protected override void ReadConfirmed(BinaryReader reader)
 		{
-			writer.Write(Release);
-			writer.Write(Manifest);
-			writer.WriteUtf8(Channel);
-		}
-
-		public override void WritePaid(BinaryWriter writer)
-		{
-			writer.Write(Release);
-			writer.Write(Manifest);
-			writer.WriteUtf8(Channel);
-		}
-
-		public override void Read(BinaryReader reader)
-		{
-			base.Read(reader);
 			Release = reader.Read<ReleaseAddress>();
 			Manifest = reader.ReadSha3();
 			Channel = reader.ReadUtf8();
 		}
 
-		public override void Write(BinaryWriter writer)
+		protected override void WriteConfirmed(BinaryWriter writer)
 		{
-			base.Write(writer);
-			WritePaid(writer);
+			writer.Write(Release);
+			writer.Write(Manifest);
+			writer.WriteUtf8(Channel);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-			//if(Manifest.Archived)
-			//	return;
-
-			var a = round.FindAuthor(Release.Author);
+			var a = chain.Authors.Find(Release.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -258,7 +243,7 @@ namespace UC.Net
 				return;
 			}
 
-			if(!a.Products.Contains(Release.Product))
+			if(chain.Products.Find(Release, round.Id) == null)
 			{
 				Error = "Product not found";
 				return;
@@ -277,49 +262,13 @@ namespace UC.Net
 				return;
 			}
 
-// 			bool checkrlz(ReleaseAddress d)
-// 			{
-// 				var a = round.FindAuthor(d.Author);
-// 				
-// 				if(a == null)
-// 					return false;
-// 
-// 				if(!a.Products.Contains(d.Product))
-// 					return false;
-// 			
-// 				var p = round.FindProduct(d);
-// 
-// 				if(p == null)
-// 					throw new IntegrityException("ProductEntry not found");
-// 
-// 				var z = p.Realizations.Find(i => i.Name == d.Platform);
-// 				
-// 				if(z == null)
-// 					return false;
-// 
-// 				var r = p.Releases.Where(i => i.Platform == d.Platform && i.Version == d.Version);
-// 
-// 				return r != null;
-// 			}
-	
 			var ce = p.Releases.Where(i => i.Platform == Release.Platform).MaxBy(i => i.Version);
 					
 			if(ce != null)
 			{
 				if(ce.Version < Release.Version)
 				{
-				//	var prev = chain.FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Manifest.Address.Author == Manifest.Address.Author && 
-				//																				m.Manifest.Address.Product == Manifest.Address.Product && 
-				//																				m.Manifest.Address.Platform == Manifest.Address.Platform && 
-				//																				m.Manifest.Channel == Manifest.Channel);
-				//	if(prev == null)
-				//		throw new IntegrityException("No ReleaseRegistration found");
-				//	
 					p = round.AffectProduct(Release);
-				//
-				//	prev.Manifest.Archived = true;
-				//	round.AffectedRounds.Add(prev.Transaction.Payload.Round);
-				//	p.Releases.Remove(r);
 				} 
 				else
 				{
@@ -330,20 +279,15 @@ namespace UC.Net
 			else
 				p = round.AffectProduct(Release);
 			
-			var e = new ReleaseEntry(Release.Platform, Release.Version, Channel, round.Id);
-
-			//if(ce != null)
-			//{
-			//	e.MergedDependencies = new List<ReleaseAddress>(ce.MergedDependencies);
-			//}
-			//
-			//foreach(var i in Manifest.AddedCoreDependencies)
-			//	e.MergedDependencies.Add(i);
-			//
-			//foreach(var i in Manifest.RemovedCoreDependencies)
-			//	e.MergedDependencies.Remove(i);
+			var e = new ProductEntryRelease(Release.Platform, Release.Version, Channel, round.Id);
 
 			p.Releases.Add(e);
+
+			var r = round.AffectRelease(Release);
+
+			r.Manifest = Manifest;
+			r.Channel = Channel;
+			r.LastRegistration = round.Id;
 		}
 	}
 }

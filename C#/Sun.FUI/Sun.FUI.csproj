@@ -6,8 +6,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Sun.FUI</AssemblyName>
     <RootNamespace>UC.Sun.FUI</RootNamespace>
-    <AssemblyVersion>0.0.551.0</AssemblyVersion>
-    <Version>0.0.551</Version>
+    <AssemblyVersion>0.0.552.0</AssemblyVersion>
+    <Version>0.0.552</Version>
     <Company>uo</Company>
     <Authors>uo</Authors>
     <Product>Standard Ultranet Node (SUN) with Forms UI</Product>
@@ -17,6 +17,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SignAssembly>false</SignAssembly>
     <Description></Description>
+    <Title>Ultarnet Node</Title>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\uo-sun-dotnet\0.0.0.0</OutputPath>
@@ -29,25 +30,16 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Nethereum.Web3" Version="4.6.1" />
+    <PackageReference Include="Nethereum.Web3" Version="4.12.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UC\UC.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="MembershipPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="MembershipPanel.cs" />
     <Compile Update="AuthorPanel.cs" />
-    <Compile Update="HubPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="PublishPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Explorer.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="HubPanel.cs" />
+    <Compile Update="ChainPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ProductPanel.cs" />
     <Compile Update="ReleasePanel.cs" />

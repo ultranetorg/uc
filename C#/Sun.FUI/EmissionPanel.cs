@@ -116,9 +116,9 @@ namespace UC.Sun.FUI
 
 			lock(Core.Lock)
 			{
-				if(Core.Chain != null)
+				if(Core.Database != null)
 				{
-					estimated.Text = Emission.Calculate(Core.Chain.LastConfirmedRound.WeiSpent, Core.Chain.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
+					estimated.Text = Emission.Calculate(Core.Database.LastConfirmedRound.WeiSpent, Core.Database.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
 				}
 			}
 		}

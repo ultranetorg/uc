@@ -15,6 +15,7 @@ namespace UC.Net
 		const int							Divider = 10_000;
 		public const string					DateFormat = "yyyy-MM-dd H:mm:ss:fff";
 
+		public static readonly ChainTime	Zero = new ChainTime(0);
 		public static readonly ChainTime	Empty = new ChainTime(-1);
 
 		public static ChainTime				operator-  (ChainTime a, ChainTime b) => new ChainTime(a.Ticks - b.Ticks);

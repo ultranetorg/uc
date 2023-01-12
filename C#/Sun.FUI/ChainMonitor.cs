@@ -22,8 +22,8 @@ namespace UC.Sun.FUI
 		bool						Mode = false;
 
 		static List<Coin[]>			stat;
-		Coin emission = 0;
-		BigInteger spent = 0;
+		Coin						emission = 0;
+		BigInteger					spent = 0;
 
 		public Core Core;
 
@@ -51,39 +51,43 @@ namespace UC.Sun.FUI
 		{
 			base.OnHandleCreated(e);
 
-			if(Core?.Chain != null)
-				Core.Chain.BlockAdded += OnBlockAdded;
+			if(Core?.Database != null)
+				Core.Database.BlockAdded += OnBlockAdded;
 		}
 
 		protected override void OnHandleDestroyed(EventArgs e)
 		{
 			base.OnHandleDestroyed(e);
 
-			if(Core?.Chain != null)
-				Core.Chain.BlockAdded -= OnBlockAdded;
+			if(Core?.Database != null)
+				Core.Database.BlockAdded -= OnBlockAdded;
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			//base.OnPaint(e);
-
 			if(!Mode)
 			{
 				e.Graphics.Clear(Color.White);
 
-				if(Core?.Chain != null)
+				if(Core?.Database != null)
 				{
 					lock(Core.Lock)
 					{
+						if(!Core.Database.Rounds.Any())
+							return;
+
 						var s = 8;
 						var b = 2;
-						var uset = true;
+						var showt = true;
 	
 						var rounds = new List<Round>();
 	
 						int nmaxid = 0;
-						int nmaxvoters = 0;
-						int nmaxdate = 0;
+						int nmemebers = 0;
+						int njrs = 0;
+						int nj = 0;
+						int nl = 0;
+						int ndate = 0;
 	
 						var f = "";
 
@@ -91,36 +95,35 @@ namespace UC.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var n = Math.Min(Height/s-1, Core.Chain.LastNonEmptyRound.Id + 1);
+							var n = Math.Min(Height/s-1, Core.Database.LastNonEmptyRound.Id + 1);
 							
-							for(int i = Core.Chain.LastNonEmptyRound.Id - n + 1; i <= Core.Chain.LastNonEmptyRound.Id; i++)
+							for(int i = Core.Database.LastNonEmptyRound.Id - n + 1; i <= Core.Database.LastNonEmptyRound.Id; i++)
 							{
-								var r = Core.Chain.FindRound(i);
+								var r = Core.Database.FindRound(i);
 								rounds.Add(r);
 	
-								if(uset)
+								if(showt)
 								{
 									nmaxid = Math.Max(nmaxid.ToString().Length, i.ToString().Length);
+									njrs = Math.Max(njrs, Core.Database.JoinRequests.Count(j => j.RoundId == i).ToString().Length);
+									nj = Math.Max(nj, r.ConfirmedJoiners.Count.ToString().Length);
+									nl = Math.Max(nj, r.ConfirmedLeavers.Count.ToString().Length);
 		
 									if(r != null)
-									{
-										nmaxvoters = Math.Max(nmaxvoters, (r.Members != null ? r.Members.Count.ToString().Length : 0));
-									}
+										nmemebers = Math.Max(nmemebers, (r.Members != null ? r.Members.Count.ToString().Length : 0));
 
 									if(r != null)
-									{
-										nmaxdate = Math.Max(nmaxdate, r.Time.ToString().Length);
-									}
+										ndate = Math.Max(ndate, r.Time.ToString().Length);
 								}
 							}
 		
 							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nmaxid}}} {{1,{nmaxvoters}}} {{2}}{{3}} {{4,{nmaxdate}}}";
+							f  = $"{{0,{nmaxid}}} {{1,{nmemebers}}} {{2,{njrs}}} {{3,{nj}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}}";
 
 							if(rounds.Count() > 0)
 							{
-								var w = uset ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0), Font).Width : 0;
+								var w = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
 			
 								if(w + members.Count() * s < ClientSize.Width)
 								{
@@ -132,7 +135,7 @@ namespace UC.Sun.FUI
 									b /= 2;
 	
 									if(s < 8)
-										uset = false;
+										showt = false;
 								}
 							}
 							else
@@ -161,11 +164,19 @@ namespace UC.Sun.FUI
 								{
 									var x = 0;
 									
-									if(uset)
+									if(showt)
 									{
-										var t = string.Format(f, r.Id, r.Members != null ? r.Members.Count : 0, r.Voted ? "v" : " ", r.Confirmed ? "c" : " ", r.Time);
+										var t = string.Format(	f, 
+																r.Id, 
+																r.Members != null ? r.Members.Count : 0, 
+																Core.Database.JoinRequests.Count(j => j.RoundId == r.Id),
+																r.ConfirmedJoiners.Count,
+																r.ConfirmedLeavers.Count,
+																r.Voted ? "v" : " ",
+																r.Confirmed ? "c" : " ",
+																r.Time);
 										
-										x += (int)e.Graphics.MeasureString(t.Replace(' ', '_'), Font).Width;
+										x += (int)e.Graphics.MeasureString(t, Font, int.MaxValue).Width;
 										e.Graphics.DrawString(t, Font, System.Drawing.Brushes.Black, 0, y-1);
 									}
 			

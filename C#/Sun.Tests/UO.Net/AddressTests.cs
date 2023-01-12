@@ -19,11 +19,6 @@ namespace UC.Net.Tests
 				Assert.True(p.ContainsKey(ReleaseAddress.Parse("a/p/p/0.0.0.0")));
 				Assert.False(p.ContainsKey(ReleaseAddress.Parse("a/p/p/0.0.0.1")));
 			}
-			{
-				var p = new Dictionary<PackageAddress, object>(){{PackageAddress.Parse("a/p/p/0.0.0.0/c"), null}};
-				Assert.True(p.ContainsKey(PackageAddress.Parse("a/p/p/0.0.0.0/c")));
-				Assert.False(p.ContainsKey(PackageAddress.Parse("a/p/p/0.0.0.0/i")));
-			}
 		}
 
 		//[Theory]

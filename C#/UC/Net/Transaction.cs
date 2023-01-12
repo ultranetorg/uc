@@ -11,7 +11,7 @@ namespace UC.Net
 	public class Transaction : IBinarySerializable, IHashable
 	{
 		public List<Operation>			Operations = new ();
-		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Successful);
+		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
 		
 		public Payload					Payload;
 		public Account					Generator;
@@ -49,7 +49,7 @@ namespace UC.Net
 			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, this);
 		}
 
-		public bool SignatureEquals(Transaction t)
+		public bool EqualBySignature(Transaction t)
 		{
 			return Signature != null && t.Signature != null && Signature.SequenceEqual(t.Signature);
 		}
@@ -62,7 +62,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"Signature={(Signature != null ? Hex.ToHexString(Signature).Substring(0, 8) : "")}, RoundMax={RoundMax}";
+			return $"Operations={{{Operations.Count}}}, Signer={Signer}, RoundMax={RoundMax}";
 		}
 
 		public void HashWrite(BinaryWriter w)
@@ -70,9 +70,7 @@ namespace UC.Net
 			w.WriteUtf8(Settings.Zone.Name); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
-			w.Write(Operations, i => {
-										i.HashWrite(w);
-									 });
+			w.Write(Operations, i => i.Write(w));
 		}
 
 		public void	WriteConfirmed(BinaryWriter w)
@@ -80,7 +78,7 @@ namespace UC.Net
 			w.Write(Signer);
 			w.Write(SuccessfulOperations, i =>	{ 
 													w.Write((byte)i.Type); 
-													i.WriteConfirmed(w); 
+													i.Write(w); 
 												});
 		}
 		
@@ -90,10 +88,9 @@ namespace UC.Net
 			Operations	= r.ReadList(() => {
 												var o = Operation.FromType((Operations)r.ReadByte());
 												o.Placing		= PlacingStage.Confirmed;
-												o.Executed		= true;	
 												o.Signer		= Signer;
 												o.Transaction	= this;
-												o.ReadConfirmed(r); 
+												o.Read(r); 
 												return o; 
 											});
 		}
@@ -101,6 +98,7 @@ namespace UC.Net
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Signature);
+			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
 			w.Write(Operations, i => {
 										w.Write((byte)i.Type); 
@@ -110,6 +108,36 @@ namespace UC.Net
 
 		public void Read(BinaryReader r)
 		{
+			Signature	= r.ReadSignature();
+			Generator	= r.ReadAccount();
+			RoundMax	= r.Read7BitEncodedInt();
+			Operations	= r.ReadList(() => {
+												var o = Operation.FromType((Operations)r.ReadByte());
+												o.Signer = Signer;
+												o.Transaction = this;
+												o.Read(r); 
+												return o; 
+											});
+
+			Signer = Cryptography.Current.AccountFrom(Signature, this);
+
+			foreach(var i in Operations)
+				i.Signer = Signer;
+		}
+
+		public void WriteForBlock(BinaryWriter w)
+		{
+			w.Write(Signature);
+			w.Write7BitEncodedInt(RoundMax);
+			w.Write(Operations, i => {
+										w.Write((byte)i.Type); 
+										i.Write(w); 
+									 });
+		}
+
+		public void ReadForBlock(BinaryReader r)
+		{
+
 			Signature	= r.ReadSignature();
 			RoundMax	= r.Read7BitEncodedInt();
 			Operations	= r.ReadList(() => {

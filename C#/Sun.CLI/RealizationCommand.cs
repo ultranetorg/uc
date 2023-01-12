@@ -31,8 +31,8 @@ namespace UC.Sun.CLI
 					return Core.Enqueue(new RealizationRegistration
 										{ 
 											Signer = GetPrivate("by", "password"), 
-											Address = RealizationAddress.Parse(GetString("address")),
-											OSes = Args.One("oses").Nodes.Select(i => OsBinaryIdentifier.Parse(i.Name)).ToArray()
+											Realization = RealizationAddress.Parse(GetString("address")),
+											OSes = Args.One("oses").Nodes.Select(i => Osbi.Parse(i.Name)).ToArray()
 										},
 										GetAwaitStage(), 
 										Workflow);

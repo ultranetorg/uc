@@ -19,7 +19,7 @@ namespace UC.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Hello, Blocks, Request, Response
+		Null, Hello, /*Blocks, */Request, Response
 	}
 
 	public enum EstablishingStatus
@@ -32,19 +32,30 @@ namespace UC.Net
 		Disconnected = 0, OK, Failed, Disconnecting
 	}
 
-	public class Header
-	{
-		public int		LastRound;
-		public int		LastConfirmedRound;
-	}
+	//public class Header : IBinarySerializable
+	//{
+	//	public int		LastNonEmptyRound;
+	//	public int		LastConfirmedRound;
+	//	public byte[]	BaseHash;
+	//
+	//	public void Read(BinaryReader reader)
+	//	{
+	//		LastNonEmptyRound	= reader.Read7BitEncodedInt();
+	//		LastConfirmedRound	= reader.Read7BitEncodedInt();
+	//		BaseHash			= reader.ReadSha3();
+	//	}
+	//
+	//	public void Write(BinaryWriter writer)
+	//	{
+	//		writer.Write7BitEncodedInt(LastNonEmptyRound);
+	//		writer.Write7BitEncodedInt(LastConfirmedRound);
+	//		writer.Write(BaseHash);
+	//	}
+	//}
 
 	public class Peer : Dci
 	{
 		public IPAddress			IP {get; set;} 
-		public int					JoinedGeneratorsAt {get; set;}
-		
-		public int					LastRound;
-		public int					LastConfirmedRound;
 
 		public EstablishingStatus	InStatus = EstablishingStatus.Null;
 		public EstablishingStatus	OutStatus = EstablishingStatus.Null;
@@ -69,9 +80,10 @@ namespace UC.Net
 		public List<Request>		InRequests = new();
 		public List<Request>		OutRequests = new();
 
-		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
+		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int					PeerRank = 0;
 		public int					ChainRank = 0;
+		public int					BaseRank = 0;
 		public int					HubRank = 0;
 		public int					SeedRank = 0;
 
@@ -86,15 +98,17 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}, Generator={Generator}, JoinedAt={JoinedGeneratorsAt}, Cr={ChainRank}, Hr={HubRank}, Sr={SeedRank}";
+			return $"{IP}, {StatusDescription}, Cr={ChainRank}, Hr={HubRank}, Sr={SeedRank}";
 		}
  		
 		public int GetRank(Role role)
 		{
-			return role switch{	Role.Chain => ChainRank,
-								Role.Hub => HubRank,
-								Role.Seed => SeedRank,
-								_ => throw new IntegrityException("Wrong rank") };
+			if(role.HasFlag(Role.Base)) return BaseRank;
+			if(role.HasFlag(Role.Chain)) return ChainRank;
+			if(role.HasFlag(Role.Hub)) return HubRank;
+			if(role.HasFlag(Role.Seed)) return SeedRank;
+
+			throw new IntegrityException("Wrong rank");
 		}
 
   		public void SaveNode(BinaryWriter w)
@@ -129,37 +143,12 @@ namespace UC.Net
  		{
  			IP = reader.ReadIPAddress();
 			var r = (Role)reader.ReadByte();
+			BaseRank	= r.HasFlag(Role.Base) ? 1 : 0;
 			ChainRank	= r.HasFlag(Role.Chain) ? 1 : 0;
 			HubRank		= r.HasFlag(Role.Hub) ? 1 : 0;
 			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
 
  		}
-		
-  		public void WriteMember(BinaryWriter w)
- 		{
- 			w.Write(IP);
- 			w.Write(Generator);
-			w.Write7BitEncodedInt(JoinedGeneratorsAt);
- 		}
- 
- 		public void ReadMember(BinaryReader r)
- 		{
- 			IP = r.ReadIPAddress();
-			Generator = r.ReadAccount();
-			JoinedGeneratorsAt = r.Read7BitEncodedInt();
- 		}
-		
-//   		public void WriteHub(BinaryWriter w)
-//  		{
-//  			w.Write(IP);
-// 			w.Write7BitEncodedInt(JoinedHubsAt);
-//  		}
-//  
-//  		public void ReadHub(BinaryReader r)
-//  		{
-//  			IP = r.ReadIPAddress();
-// 			JoinedHubsAt = r.Read7BitEncodedInt();
-//  		}
 
 		public static void SendHello(TcpClient client, Hello h)
 		{
@@ -226,8 +215,7 @@ namespace UC.Net
 			Writer				= new BinaryWriter(Stream);
 			LastSeen			= DateTime.UtcNow;
 			Lock				= lockk;
-			LastRound			= h.LastRound;
-			LastConfirmedRound	= h.LastConfirmedRound;
+			BaseRank			= h.Roles.HasFlag(Role.Base) ? 1 : 0;
 			ChainRank			= h.Roles.HasFlag(Role.Chain) ? 1 : 0;
 			HubRank				= h.Roles.HasFlag(Role.Hub) ? 1 : 0;
 			SeedRank			= h.Roles.HasFlag(Role.Seed) ? 1 : 0;
@@ -253,23 +241,41 @@ namespace UC.Net
 											
 												foreach(var i in InRequests.ToArray())
 												{
-													Response rp;
-												
-													lock(core.Lock)
-														try
-														{
-															rp = i.Execute(core);
-															//rp = core.Respond(this, i);
-															//rp.Status = ResponseStatus.OK;
-														}
-														catch(Exception ex)// when(!Debugger.IsAttached)
-														{
-															rp = Response.FromType(core.Chain, i.Type);
-															rp.Error = ex.Message;
-														}
-												
-													rp.Id = i.Id;
-													responses.Add(rp);
+													if(i.WaitResponse)
+													{
+														Response rp;
+													
+														lock(core.Lock)
+															try
+															{
+																rp = i.Execute(core);
+															}
+															catch(DistributedCallException ex)// when(!Debugger.IsAttached)
+															{
+																rp = Response.FromType(core.Database, i.Type);
+																rp.Error = ex.Error;
+															}
+															catch(Exception)// when(!Debugger.IsAttached)
+															{
+																rp = Response.FromType(core.Database, i.Type);
+																rp.Error = Error.Internal;
+															}
+													
+														rp.Id = i.Id;
+														responses.Add(rp);
+													} 
+													else
+													{
+														lock(core.Lock)
+															try
+															{
+																i.Execute(core);
+															}
+															catch(Exception) when(!Debugger.IsAttached)
+															{
+															}
+													}
+
 													InRequests.Remove(i);
 												}
 
@@ -300,10 +306,7 @@ namespace UC.Net
 										{
 											try
 											{
-												var h = core.Header;
-
-								 				Writer.Write7BitEncodedInt(h.LastRound);
-								 				Writer.Write7BitEncodedInt(h.LastConfirmedRound);
+								 				//Writer.Write(core.Header);
 								 				Writer.Write((byte)p.Type);
 								 
 								 				if(p.Data != null)
@@ -347,8 +350,6 @@ namespace UC.Net
 				var s = new MemoryStream();
 				var r = new BinaryReader(Stream);
 	
-				LastRound			= r.Read7BitEncodedInt();
-				LastConfirmedRound	= r.Read7BitEncodedInt();
 				p.Type				= (PacketType)r.ReadByte();
 				var ndata			= r.Read7BitEncodedInt64();
 	
@@ -384,7 +385,7 @@ namespace UC.Net
 			}
 		}
 
-		public void Send(Header h, PacketType type, MemoryStream data)
+		public void Send(PacketType type, MemoryStream data)
 		{
 			var rq = new Packet();
 			//rq.Header = h;
@@ -410,24 +411,30 @@ namespace UC.Net
 				BinarySerializator.Serialize(new BinaryWriter(s), new[]{rq});
 				p.Data = s;
 
-				OutRequests.Add(rq);
+				if(rq.WaitResponse)
+					OutRequests.Add(rq);
 												
 				lock(Out)
 					Out.Enqueue(p);
 			}
  
- 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : Core.Timeout))
+ 			if(rq.WaitResponse)
  			{
-				if(rq.Response == null)
-					throw new OperationCanceledException();
-
- 				if(rq.Response.Error == null)
-	 				return rq.Response as Rp;
- 				else
-					throw new DistributedCallException(rq.Response);
+	 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : Core.Timeout))
+	 			{
+					if(rq.Response == null)
+						throw new OperationCanceledException();
+	
+	 				if(rq.Response.Error == Error.Null)
+		 				return rq.Response as Rp;
+	 				else
+						throw new DistributedCallException(rq.Response.Error);
+	 			}
+				else
+	 				throw new ConnectionFailedException($"Timed out");
  			}
 			else
- 				throw new DistributedCallException($"Timed out");
+				return null;
  		}
 	}
 }

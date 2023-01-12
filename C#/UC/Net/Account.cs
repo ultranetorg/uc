@@ -38,6 +38,11 @@ namespace UC.Net
 			return new PrivateAccount(new EthECKey(privatekay));
 		}
 
+		public static PrivateAccount Load(Cryptography cryptography, string path, string password)
+		{
+			return new PrivateAccount(new EthECKey(cryptography.Decrypt(File.ReadAllBytes(path), password), true));
+		}
+
 		public static PrivateAccount Load(string path, string password)
 		{
 			return new PrivateAccount(new EthECKey(Cryptography.Current.Decrypt(File.ReadAllBytes(path), password), true));

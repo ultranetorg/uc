@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nethereum.Contracts;
 using Org.BouncyCastle.Utilities.Encoders;
 using UC.Net;
 
@@ -38,7 +39,7 @@ namespace UC.Sun.FUI
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Release.Platform == Platform.Text))
+				foreach(var r in Core.Database.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Release.Platform == Platform.Text))
 				{
 					var i = new ListViewItem(r.Release.ToString());
 					
@@ -81,7 +82,16 @@ namespace UC.Sun.FUI
 				Task.Run(() =>	{ 
 									try
 									{
-										var m = Core.Call(Role.Seed, p => p.GetManifest(r.Release).Manifests.First(), ManifestWorkflow);
+										var m = Core.Call(	Role.Seed, 
+															p =>{
+																	var m = p.GetManifest(r.Release).Manifests.FirstOrDefault();
+																	
+																	if(m == null)
+																		throw new DistributedCallException(UC.Net.Error.Null);
+
+																	return m;
+																},
+															ManifestWorkflow);
 
 										BeginInvoke((MethodInvoker)delegate
 													{
@@ -108,7 +118,8 @@ namespace UC.Sun.FUI
 
 			if(Author.SelectedItem != null)
 			{
-				foreach(var p in Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue).Products)
+				/// TODO: too slow
+				foreach(var p in Chain.Products.Where(i => i.Address.Author == Author.SelectedItem as string).Select(i => i.Address.Product))
 					Product.Items.Add(p);
 				
 				if(Product.Items.Count > 0)

@@ -179,21 +179,20 @@ CApplicationRelease * CNexus::LoadRelease(CApplicationReleaseAddress & address, 
 
 						if(!r)
 						{
-							auto deps = Core->Resolve(MapPathToRealization(a, a.Version.ToString() + L".mm"));
+							r = new CCompiledManifest(a);
+
+							auto deps = Core->Resolve(MapPathToRealization(a, a.Version.ToString() + L".dependencies"));
 
 							if(CNativePath::IsFile(deps))
 							{
 								auto & m = CTonDocument(CXonTextReader(&CLocalFileStream(deps, EFileMode::Open)));
 	
-								r = new CCompiledManifest(a, m);
 	
-								if(auto d = m.One(L"Dependencies"))
-								{
-									r->Dependencies = d->Nodes.SelectArray<CCompiledManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
-								}
+								r->Dependencies = m.Nodes.SelectArray<CCompiledManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
 							
-								Manifests.AddBack(r);
 							}
+
+							Manifests.AddBack(r);
 						}
 
 						return r;

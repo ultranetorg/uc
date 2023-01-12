@@ -46,11 +46,11 @@ namespace UC.Net
  				return Releases[release];
 		}
 
-		public void Declare(IPAddress ip, IEnumerable<PackageAddress> packages)
+		public void Add(IPAddress ip, Dictionary<ReleaseAddress, Distributive> packages)
 		{
 			foreach(var i in packages)
 			{
-				var ss = GetSeeders(i);
+				var ss = GetSeeders(i.Key);
 	
 				var s = ss.Find(i => i.IP.Equals(ip));
 
@@ -64,7 +64,7 @@ namespace UC.Net
 					s.Arrived = DateTime.UtcNow;
 				}
 
-				s.Distributives |= i.Distributive;
+				s.Distributives = i.Value;
 		
 				if(ss.Count > SeedersPerPackageMax)
 				{

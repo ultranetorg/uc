@@ -5,23 +5,49 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Security;
+using static UC.Net.Download;
 
 namespace UC.Net
 {
 	public enum DistributedCall : byte
 	{
-		Null, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
-		QueryRelease, ReleaseHistory, DeclarePackage, LocateRelease, Manifest, DownloadPackage
+		Null, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
+		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
+		Stamp, TableStamp, DownloadTable
+	}
+
+	public enum Error
+	{
+		Null,
+		Internal,
+		InvalidRequest,
+		NotChain,
+		NotBase,
+		NotHub,
+		NotSeed,
+		NotSynchronized,
+		TooEearly,
+		AccountNotFound,
+		ProductNotFound,
+		ClusterNotFound,
+		RoundNotAvailable,
+		AllNodesFailed,
+		UnknownTable,
 	}
 
  	public class DistributedCallException : Exception
  	{
-		public Response	Response;
+		//public Response	Response;
+		public Error Error;
 
- 		public DistributedCallException(Response response) : base(response.Error){}
-		public DistributedCallException(string message) : base(message){}
-		public DistributedCallException(string message, Exception ex) : base(message, ex){}
+ 		public DistributedCallException(Error erorr) : base(erorr.ToString())
+		{
+			Error = erorr;
+		}
+		//public DistributedCallException(string message) : base(message){}
+		//public DistributedCallException(string message, Exception ex) : base(message, ex){}
  	}
 
 	public class OperationAddress : IBinarySerializable
@@ -44,13 +70,16 @@ namespace UC.Net
 
 	public abstract class Dci
 	{
-		public Account							Generator { get; set; }
+		//public Account							Generator { get; set; }
 		public int								Failures;
 
  		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
  
+		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
+		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
+		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
-		public LastOperationResponse			GetLastOperation(Account account, string oclasss) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss});
+		//public LastOperationResponse			GetLastOperation(Account account, string oclasss, PlacingStage placing) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss, Placing = placing});
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
@@ -59,27 +88,26 @@ namespace UC.Net
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
 		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
-		public DeclarePackageResponse			DeclarePackage(IEnumerable<PackageAddress> packages) => Request<DeclarePackageResponse>(new DeclarePackageRequest{Packages = new PackageAddressPack(packages)});
+		public DeclareReleaseResponse			DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages) => Request<DeclareReleaseResponse>(new DeclareReleaseRequest{Packages = new PackageAddressPack(packages)});
 		public ManifestResponse					GetManifest(ReleaseAddress packages) => Request<ManifestResponse>(new ManifestRequest{Releases = new[]{packages}});
-		public DownloadPackageResponse			DownloadPackage(PackageAddress package, long offset, long length) => Request<DownloadPackageResponse>(new DownloadPackageRequest{Package = package, Offset = offset, Length = length});
+		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress release, Distributive distributive, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Package = release, Distributive = distributive, Offset = offset, Length = length});
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
 
 	public abstract class Request : ITypedBinarySerializable
 	{
 		public byte[]					Id {get; set;}
-
 		public byte						TypeCode => (byte)Type;
 		public Peer						Peer;
 		public ManualResetEvent			Event;
 		public Response					Response;
-		//public bool						Sent;
 		public Action					Process;
+		public virtual bool				WaitResponse { get; protected set; } = true;
 
 		public const int				IdLength = 8;
 		static readonly SecureRandom	Random = new SecureRandom();
 
-		public static Request FromType(Roundchain chaim, DistributedCall type)
+		public static Request FromType(Database chaim, DistributedCall type)
 		{
 			try
 			{
@@ -111,15 +139,15 @@ namespace UC.Net
 
 	public abstract class Response : ITypedBinarySerializable
 	{
-		public byte[]			Id {get; set;}
-		public string			Error {get; set;}
-		public bool				Final {get; set;} = true;
+		public byte[]			Id { get; set; }
+		public Error			Error { get; set; }
+		public bool				Final { get; set; } = true;
 		public Peer				Peer;
 
 		public byte				TypeCode => (byte)Type;
 		public DistributedCall	Type => Enum.Parse<DistributedCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
 
-		public static Response FromType(Roundchain chaim, DistributedCall type)
+		public static Response FromType(Database chaim, DistributedCall type)
 		{
 			try
 			{
@@ -132,6 +160,106 @@ namespace UC.Net
 		}
 	}
 
+	public class UploadBlocksPiecesRequest : Request
+	{
+		public IEnumerable<BlockPiece>	Pieces { get; set; }
+		public override bool			WaitResponse => false;
+
+		public override Response Execute(Core core)
+		{
+			void broadcast(IEnumerable<BlockPiece> pieces)
+			{
+				foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer))
+				{
+					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
+				}
+
+ 				//var c = core.Connections.Where(i => i.BaseRank > 0 && i != Peer).GetEnumerator();
+ 				//var d = new Dictionary<Peer, List<BlockPiece>>();
+ 				//
+ 				//foreach(var i in pieces)
+ 				//{
+ 				//	if(!c.MoveNext())
+ 				//	{
+ 				//		c = core.Connections.Where(i => i.BaseRank > 0 && i != Peer).GetEnumerator(); /// go to the beginning
+ 				//		c.MoveNext();
+ 				//	}
+ 				//
+ 				//	if(!d.ContainsKey(c.Current))
+ 				//		d[c.Current] = new();
+ 				//
+ 				//	d[c.Current].Add(i);
+ 				//}
+				//
+				//foreach(var i in d)
+				//{
+				//	i.Key.Request<object>(new UploadBlocksPiecesRequest{Pieces = i.Value});
+				//}
+			}
+
+			lock(core.Lock)
+			{
+				if(!core.Settings.Database.Base)
+					throw new DistributedCallException(Error.NotBase);
+				
+				var accepted = new List<BlockPiece>();
+
+				if(core.Database.LastConfirmedRound != null)
+				{
+					var notolder = core.Database.LastConfirmedRound.Id - Net.Database.Pitch;
+					var notnewer = core.Database.LastConfirmedRound.Id + Net.Database.Pitch * 2;
+		
+					foreach(var p in Pieces.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer))
+					{
+						var r = core.Database.GetRound(p.RoundId);
+		
+						if(!r.BlockPieces.Any(i => i.Signature.SequenceEqual(p.Signature)))
+						{
+							accepted.Add(p);
+							r.BlockPieces.Add(p);
+		
+							var ps = r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece);
+	
+							if(ps.Count() == p.PiecesTotal && ps.Zip(ps.Skip(1), (x, y) => x.Piece + 1 == y.Piece).All(x => x))
+							{
+								var s = new MemoryStream();
+								var w = new BinaryWriter(s);
+		
+								foreach(var i in r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece))
+								{
+									s.Write(i.Data);
+								}
+		
+								s.Position = 0;
+								var rd = new BinaryReader(s);
+		
+								var b = Block.FromType(core.Database, (BlockType)rd.ReadByte());
+								b.Read(rd);
+		
+								core.ProcessIncoming(new Block[] {b}, null);
+		
+							}
+						}
+					}
+
+					if(accepted.Any())
+						if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Synchronizing || core.Synchronization == Synchronization.Synchronized) /// Null and Synchronizing needed for Dev purposes
+						{
+							broadcast(accepted);
+						}
+				} 
+				else
+				{
+					accepted.AddRange(Pieces);
+					broadcast(accepted);
+				}
+
+			}
+
+			return null; 
+		}
+	}
+
 	public class DownloadRoundsRequest : Request
 	{
 		public int From { get; set; }
@@ -139,95 +267,239 @@ namespace UC.Net
 		
 		public override Response Execute(Core core)
 		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			lock(core.Lock)
+			{
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
 			
-			w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Chain.FindRound(i)).Where(i => i != null),  i => i.Write(w));
+				w.Write(Enumerable.Range(From, To - From + 1).Select(i => core.Database.FindRound(i)).Where(i => i != null), i => i.Write(w));
 			
-			return new DownloadRoundsResponse{Rounds = s.ToArray()};
+				return new DownloadRoundsResponse {	LastNonEmptyRound	= core.Database.LastNonEmptyRound.Id,
+													LastConfirmedRound	= core.Database.LastConfirmedRound.Id,
+													BaseHash			= core.Database.BaseHash,
+													Rounds				= s.ToArray()};
+			}
 		}
 	}
 
 	public class DownloadRoundsResponse : Response
 	{
-		public byte[] Rounds { get; set; }
+		public int		LastNonEmptyRound { get; set; }
+		public int		LastConfirmedRound { get; set; }
+		public byte[]	BaseHash{ get; set; }
+		public byte[]	Rounds { get; set; }
 
-		public Round[] Read(Roundchain chain)
+		public Round[] Read(Database chain)
 		{
 			var rd = new BinaryReader(new MemoryStream(Rounds));
 
-			return rd.ReadArray<Round>(() =>	{
-													var r = new Round(chain);
-													r.Read(rd);
-													return r;
-												});
+			return rd.ReadArray<Round>(() =>{
+												var r = new Round(chain);
+												r.Read(rd);
+												return r;
+											});
 		}
 	}
 
 	public class NextRoundRequest : Request
 	{
+		public Account Generator;
+
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
+			{
+				if(!core.Settings.Database.Base)
+					throw new DistributedCallException(Error.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
-				else
-					return new NextRoundResponse {NextRoundId = core.GetNextAvailableRound().Id};
+					throw new DistributedCallException(Error.NotSynchronized);
+
+				var r = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
+				
+				return new NextRoundResponse {NextRoundId = r};
+			}
 		}
 	}
 
 	public class NextRoundResponse : Response
 	{
-		public int NextRoundId { get;set; }
+		public int NextRoundId { get; set; }
 	}
 
+	public class StampRequest : Request
+	{
+		public override Response Execute(Core core)
+		{
+			lock(core.Lock)
+			{
+				if(core.Synchronization != Synchronization.Synchronized)
+					throw new DistributedCallException(Error.NotSynchronized);
+				if(core.Database.BaseState == null)
+					throw new DistributedCallException(Error.TooEearly);
+
+				return new StampResponse {	BaseState				= core.Database.BaseState,
+											BaseHash				= core.Database.BaseHash,
+											LastCommitedRoundHash	= core.Database.LastCommittedRound.Hash,
+											FirstTailRound			= core.Database.Rounds.Last().Id,
+											LastTailRound			= core.Database.Rounds.First().Id,
+											Accounts				= core.Database.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Authors					= core.Database.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Products				= core.Database.Products.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Realizations			= core.Database.Realizations.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Releases				= core.Database.Releases.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
+			}
+		}
+	}
+
+	public class StampResponse : Response
+	{
+		public class SuperCluster
+		{
+			public byte		Id { get; set; }
+			public byte[]	Hash { get; set; }
+		}
+
+		public byte[]						BaseState { get; set; }
+		public byte[]						BaseHash { get; set; }
+		public int							FirstTailRound { get; set; }
+		public int							LastTailRound { get; set; }
+		public byte[]						LastCommitedRoundHash { get; set; }
+		public IEnumerable<SuperCluster>	Accounts { get; set; }
+		public IEnumerable<SuperCluster>	Authors { get; set; }
+		public IEnumerable<SuperCluster>	Products { get; set; }
+		public IEnumerable<SuperCluster>	Realizations { get; set; }
+		public IEnumerable<SuperCluster>	Releases { get; set; }
+	}
+
+	public class TableStampRequest : Request
+	{
+		public Tables	Table { get; set; }
+		public byte[]	SuperClusters { get; set; }
+
+		public override Response Execute(Core core)
+		{
+			lock(core.Lock)
+			{
+				if(core.Synchronization != Synchronization.Synchronized)
+					throw new DistributedCallException(Error.NotSynchronized);
+				if(core.Database.BaseState == null)
+					throw new DistributedCallException(Error.TooEearly);
+
+				switch(Table)
+				{
+					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Accounts		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Authors		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Products	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Products		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Realizations: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Realizations	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Releases	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Releases		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					default:
+						throw new DistributedCallException(Error.InvalidRequest);
+				}
+			}
+		}
+	}
+
+	public class TableStampResponse : Response
+	{
+		public class Cluster
+		{
+			public int		Id { get; set; }
+			public int		Length { get; set; }
+			public byte[]	Hash { get; set; }
+		}
+	
+		public IEnumerable<Cluster>	Clusters { get; set; }
+	}
+
+	public class DownloadTableRequest : Request
+	{
+		public Tables	Table { get; set; }
+		public int		ClusterId { get; set; }
+		public long		Offset { get; set; }
+		public long		Length { get; set; }
+
+		public override Response Execute(Core core)
+		{
+			lock(core.Lock)
+			{
+				if(core.Database == null || !core.Database.Settings.Database.Base)
+					throw new DistributedCallException(Error.NotBase);
+
+				var m = Table switch
+							  {
+									Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									_ => throw new DistributedCallException(Error.InvalidRequest)
+							  };
+
+				if(m == null)
+					throw new DistributedCallException(Error.ClusterNotFound);
+	
+				var s = new MemoryStream(m);
+				var r = new BinaryReader(s);
+	
+				s.Position = Offset;
+	
+				return new DownloadTableResponse{Data = r.ReadBytes((int)Length)};
+			}
+		}
+	}
+
+	public class DownloadTableResponse : Response
+	{
+		public byte[] Data { get; set; }
+	}
+	
 	public class GetMembersRequest : Request
 	{
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
- 				if(core.Chain != null)
+ 				if(core.Database != null)
  				{
  					if(core.Synchronization == Synchronization.Synchronized)
- 						return new GetMembersResponse { Members = core.Chain.Members };
+ 						return new GetMembersResponse { Members = core.Database.Members };
  					else
- 						throw new RequirementException("Not synchronized");
+ 						throw new DistributedCallException(Error.NotSynchronized);
  				}
  				else
- 				{
  					return new GetMembersResponse { Members = core.Members };
- 				}
 		}
 	}
 
 	public class GetMembersResponse : Response
 	{
-		public IEnumerable<Peer> Members {get; set;}
+		public IEnumerable<Member> Members {get; set;}
 	}
 	
-	public class LastOperationRequest : Request
-	{
-		public Account	Account {get; set;}
-		public string	Class {get; set;}
-
-		public override Response Execute(Core core)
-		{
-			lock(core.Lock)
-				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
-				else
-				{
-					var l = core.Chain.Accounts.FindLastOperation(Account, i => Class == null || i.GetType().Name == Class);
-							
-					return new LastOperationResponse {Operation = l};
-				}
-		}
-	}
-
-	public class LastOperationResponse : Response
-	{
-		public Operation Operation {get; set;}
-	}
+// 	public class LastOperationRequest : Request
+// 	{
+// 		public Account		Account {get; set;}
+// 		public string		Class {get; set;}
+// 		public PlacingStage	Placing {get; set;} /// Null means any
+// 
+// 		public override Response Execute(Core core)
+// 		{
+// 			lock(core.Lock)
+// 				if(core.Synchronization != Synchronization.Synchronized)
+// 					throw new DistributedCallException(Error.NotSynchronized);
+// 				else
+// 				{
+// 					var l = core.Database.Accounts.FindLastOperation(Account, i =>	(Class == null || i.GetType().Name == Class) && 
+// 																					(Placing == PlacingStage.Null || i.Placing == Placing));
+// 							
+// 					return new LastOperationResponse {Operation = l};
+// 				}
+// 		}
+// 	}
+//
+// 	public class LastOperationResponse : Response
+// 	{
+// 		public Operation Operation {get; set;}
+// 	}
 
 	public class DelegateTransactionsRequest : Request
 	{
@@ -237,17 +509,10 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
-				if(core.Synchronization != Synchronization.Synchronized || core.Generator == null)
-					throw new RequirementException("Not synchronized");
+				if(core.Synchronization != Synchronization.Synchronized)
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
 				{
- 					//var txs = new Packet(PacketType.Null, new MemoryStream(Data)).Read(r => {	return new Transaction(core.Settings)
- 					//																			{
- 					//																				Generator = core.Generator
- 					//																			};
- 					//																		});
-					//var acc = core.ProcessIncoming(txs);
-					
 					var acc = core.ProcessIncoming(Transactions);
 
 					return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
@@ -269,24 +534,25 @@ namespace UC.Net
 		public override Response Execute(Core core)
 		{
 			lock(core.Lock)
+			{
+				if(!core.Settings.Database.Chain)
+					throw new DistributedCallException(Error.NotChain);
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
-				else
-				{
-					return	new GetOperationStatusResponse
-							{
-								//LastConfirmedRound = core.Chain.LastConfirmedRound.Id,
-								Operations = Operations.Select(o => new {	A = o,
-																			B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
-																									.SelectMany(t => t.Operations)
-																									.FirstOrDefault(i => i.Id == o.Id)
-																			?? 
-																			core.Chain.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
-														.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
-																											Id			= i.A.Id,
-																											Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
-							};
-				}
+					throw new DistributedCallException(Error.NotSynchronized);
+	
+				return	new GetOperationStatusResponse
+						{
+							Operations = Operations.Select(o => new {	A = o,
+																		B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
+																								.SelectMany(t => t.Operations)
+																								.FirstOrDefault(i => i.Id == o.Id)
+																		?? 
+																		core.Database.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
+													.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
+																										Id			= i.A.Id,
+																										Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
+						};
+			}
 		}
 	}
 
@@ -304,16 +570,23 @@ namespace UC.Net
 
 	public class AccountInfoRequest : Request
 	{
-		public bool				Confirmed {get; set;}
-		public Account			Account {get; set;}
+		public bool			Confirmed {get; set;}
+		public Account		Account {get; set;}
 
 		public override Response Execute(Core core)
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
- 					return new AccountInfoResponse{ Info = core.Chain.GetAccountInfo(Account, Confirmed) };
+				{
+					var ai = core.Database.GetAccountInfo(Account, Confirmed);
+
+					if(ai == null)
+						throw new DistributedCallException(Error.AccountNotFound);
+
+ 					return new AccountInfoResponse{Info = ai};
+				}
 		}
 	}
 
@@ -331,9 +604,9 @@ namespace UC.Net
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
- 					return new AuthorInfoResponse{Xon = core.Chain.GetAuthorInfo(Name, Confirmed, new XonTypedBinaryValueSerializator())};
+ 					return new AuthorInfoResponse{Xon = core.Database.GetAuthorInfo(Name, Confirmed, new XonTypedBinaryValueSerializator())};
 		}
 	}
 
@@ -351,15 +624,15 @@ namespace UC.Net
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RequirementException("Not synchronized");
+					throw new DistributedCallException(Error.NotSynchronized);
 				else
- 					return new QueryReleaseResponse {Results = Queries.Select(i => core.Chain.QueryRelease(i, Confirmed))};
+ 					return new QueryReleaseResponse {Releases = Queries.Select(i => core.Database.QueryRelease(i, Confirmed))};
 		}
 	}
 	
 	public class QueryReleaseResponse : Response
 	{
-		public IEnumerable<QueryReleaseResult> Results { get; set; }
+		public IEnumerable<QueryReleaseResult> Releases { get; set; }
 	}
 
 	public class QueryReleaseResult
@@ -368,19 +641,19 @@ namespace UC.Net
 		//public IEnumerable<ReleaseAddress>	Dependencies { get; set; }
 	}
 
-	public class DeclarePackageRequest : Request
+	public class DeclareReleaseRequest : Request
 	{
 		public PackageAddressPack Packages { get; set; }
 
 		public override Response Execute(Core core)
 		{
-			core.Hub.Declare(Peer.IP, Packages.Items);
+			core.Hub.Add(Peer.IP, Packages.Items);
 
-			return new DeclarePackageResponse();
+			return new DeclareReleaseResponse();
 		}
 	}
 	
-	public class DeclarePackageResponse : Response
+	public class DeclareReleaseResponse : Response
 	{
 	}
 
@@ -393,7 +666,7 @@ namespace UC.Net
 		{
 			if(core.Hub == null)
 			{
-				throw new RequirementException("Is not Hub");
+				throw new DistributedCallException(Error.NotHub);
 			}
 
 			return new LocateReleaseResponse {Seeders = core.Hub.Locate(this)};
@@ -413,10 +686,10 @@ namespace UC.Net
 		{
 			if(core.Filebase == null)
 			{
-				throw new RequirementException("Is not Filebase");
+				throw new DistributedCallException(Error.NotSeed);
 			}
 
-			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.GetManifest(i)).ToArray()};
+			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.FindRelease(i)?.Manifest).ToArray()};
 		}
 	}
 	
@@ -425,9 +698,10 @@ namespace UC.Net
 		public IEnumerable<Manifest> Manifests { get; set; }
 	}
 
-	public class DownloadPackageRequest : Request
+	public class DownloadReleaseRequest : Request
 	{
-		public PackageAddress		Package { get; set; }
+		public ReleaseAddress		Package { get; set; }
+		public Distributive			Distributive { get; set; }
 		public long					Offset { get; set; }
 		public long					Length { get; set; }
 
@@ -435,14 +709,14 @@ namespace UC.Net
 		{
 			if(core.Filebase == null)
 			{
-				throw new RequirementException("Is not Filebase");
+				throw new DistributedCallException(Error.NotSeed);
 			}
 
-			return new DownloadPackageResponse{Data = core.Filebase.ReadPackage(Package, Offset, Length)};
+			return new DownloadReleaseResponse{Data = core.Filebase.ReadPackage(Package, Distributive, Offset, Length)};
 		}
 	}
 
-	public class DownloadPackageResponse : Response
+	public class DownloadReleaseResponse : Response
 	{
 		public byte[] Data { get; set; }
 	}
@@ -454,13 +728,32 @@ namespace UC.Net
 
 		public override Response Execute(Core core)
 		{
-			return core.Chain.GetReleaseHistory(Realization, Confirmed);
+			var db = core.Database;
+
+			var rmax = Confirmed ? db.LastConfirmedRound : db.LastPayloadRound;
+				
+			var p = db.Products.Find(Realization, rmax.Id);
+			
+			if(p != null)
+			{
+				var ms = new List<ReleaseRegistration>();
+
+				foreach(var r in p.Releases)
+				{
+					var rr = db.FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Release == Realization && i.Release.Version == r.Version);
+					//var re = FindRound(r.Rid).FindProduct(query).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
+					ms.Add(rr);
+				}
+
+				return new ReleaseHistoryResponse{Releases = ms};
+			}
+			else
+				throw new DistributedCallException(Error.ProductNotFound);
 		}
 	}
 	
 	public class ReleaseHistoryResponse : Response
 	{
-		public IEnumerable<ReleaseRegistration> Registrations { get; set; }
+		public IEnumerable<ReleaseRegistration> Releases { get; set; }
 	}
-
 }

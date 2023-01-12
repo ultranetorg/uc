@@ -7,10 +7,15 @@ using System.Numerics;
 using System.Text;
 using UC.Net;
 
-namespace UC
+namespace UC.Net
 {
 	public static class Extentions
 	{
+		public static T Random<T>(this IEnumerable<T> e)
+		{
+			return e.OrderBy(i => Guid.NewGuid()).First();
+		}
+
 		public static bool Contains(this Exception e, Func<Exception, bool> p)
 		{
 			if(p(e))

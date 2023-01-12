@@ -39,15 +39,10 @@ namespace UC.Sun.CLI
 				case "add" :
 				{
 					Core.Filebase.AddRelease(	ReleaseAddress.Parse(GetString("address")), 
-												//GetString("channel"),
+												Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
 												GetString("sources").Split(','), 
 												GetString("dependsdirectory"), 
-												//GetPrivate("by", "password"),
-												//GetStringOrEmpty("cdependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-												//GetStringOrEmpty("idependencies").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => ReleaseAddress.Parse(i)),
-												//GetAwaitStage(),
 												Workflow);
-
 					return null;
 				}
 
@@ -55,20 +50,25 @@ namespace UC.Sun.CLI
 				{
 					var d = Core.DownloadRelease(ReleaseAddress.Parse(GetString("address")), Workflow);
 
-					while(!d.Completed)
+					if(d != null)
 					{
-						Workflow.Log?.Report(this, $"{d.CompletedLength + d.Jobs.Sum(i => i.Data != null ? i.Data.Length : 0)}/{d.Length}");
-						Thread.Sleep(1000);
-					}
+						while(!d.Successful)
+						{
+							Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length}");
+							Thread.Sleep(1000);
+						}
+					} 
+					else
+						Workflow.Log?.Report(this, $"Already downloaded");
 
 					return d;
 				}
 
 		   		case "status" :
 				{
-					var r = Core.Connect(Role.Chain, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
+					var r = Core.Connect(Role.Base, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
 
-					var i = r.Results.First();
+					var i = r.Releases.First();
 
 					if(i != null)
 					{

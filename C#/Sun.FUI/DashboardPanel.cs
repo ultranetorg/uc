@@ -52,7 +52,7 @@ namespace UC.Sun.FUI
 		{
 			if(source.SelectedItem is Account a)
 			{
-				amount.Coins = Core.Chain.Accounts.Find(a, Core.Chain.LastConfirmedRound.Id).Balance;
+				amount.Coins = Core.Database.Accounts.Find(a, Core.Database.LastConfirmedRound.Id).Balance;
 			}
 		}
 

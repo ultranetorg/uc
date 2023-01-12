@@ -30,6 +30,7 @@ namespace UC.Net
 	{
 		public Coin									Balance {get; set;}
 		public int									LastOperationId {get; set;}
+		public int									LastEmissionId {get; set;}
 		public IEnumerable<string>					Authors {get; set;}
 		public IEnumerable<AccountOperationInfo>	Operations {get; set;}
 
@@ -74,7 +75,7 @@ namespace UC.Net
 			var root = new Item();
 
 			root.Add("Balance",				Balance);
-			root.Add("Last Transaction Id",	LastOperationId);
+			//root.Add("Last Transaction Id",	LastOperationId);
 			
 			if(Authors != null)
 			{
