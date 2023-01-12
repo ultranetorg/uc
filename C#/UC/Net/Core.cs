@@ -1996,7 +1996,7 @@ namespace UC.Net
 							
 							foreach(var i in Members)
 							{
-								var c = Connections.FirstOrDefault(i => Members.SelectMany(i => i.IPs).Any(ip => i.IP.Equals(ip)));
+								var c = Connections.FirstOrDefault(j => i.IPs.Any(ip => j.IP.Equals(ip)));
 
 								if(c != null)
 								{
