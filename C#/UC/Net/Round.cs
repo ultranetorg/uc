@@ -334,7 +334,6 @@ namespace UC.Net
 			w.Write7BitEncodedInt(Id);
 			w.Write(Confirmed);
 			
-
 			if(Confirmed)
 			{
 #if DEBUG

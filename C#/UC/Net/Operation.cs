@@ -158,7 +158,6 @@ namespace UC.Net
 	public class CandidacyDeclaration : Operation
 	{
 		public Coin				Bail;
-		public IPAddress[]		IPs;
 		public override string	Description => $"{Bail} UNT";
 		public override bool	Valid => Settings.Dev.DisableBailMin ? true : Bail >= Database.BailMin;
 		
@@ -166,25 +165,22 @@ namespace UC.Net
 		{
 		}
 
-		public CandidacyDeclaration(PrivateAccount signer, Coin bail, IEnumerable<IPAddress> ips)
+		public CandidacyDeclaration(PrivateAccount signer, Coin bail)
 		{
 			//if(!Settings.Dev.DisableBailMin && bail < Roundchain.BailMin)	throw new RequirementException("The bail must be greater than or equal to BailMin");
 
 			Signer = signer;
 			Bail = bail;
-			IPs = ips.ToArray();
 		}
 
 		protected override void ReadConfirmed(BinaryReader r)
 		{
 			Bail = r.ReadCoin();
-			IPs	 = r.ReadArray(() => new IPAddress(r.ReadBytes(4)));
 		}
 
 		protected override void WriteConfirmed(BinaryWriter w)
 		{
 			w.Write(Bail);
-			w.Write(IPs, i => w.Write(i.GetAddressBytes()));
 		}
 
 		public override void Execute(Database chain, Round round)
@@ -203,7 +199,6 @@ namespace UC.Net
 				e.BailStatus = BailStatus.OK;
 
 			e.CandidacyDeclarationRound = round.Id;
-			e.IPs = IPs;
 		}
 	}
 

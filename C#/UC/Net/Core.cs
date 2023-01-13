@@ -1391,7 +1391,7 @@ namespace UC.Net
 					if(jr == null || jr.RoundId + Database.Pitch * 3 <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
 						var b = new MembersJoinRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
-																	IP      = IP};
+																	IPs     = new [] {IP}};
 						b.Sign(g);
 						blocks.Add(b);
 					}

@@ -139,7 +139,7 @@ namespace UC.Net
 
 	public class MembersJoinRequest : Block
 	{
-		public IPAddress	IP;
+		public IPAddress[]		IPs;
 		
 		//public Coin			Bail;
 
@@ -149,25 +149,26 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return base.ToString() + ", IP=" + IP;
+			return base.ToString() + ", IP=" + string.Join(',', IPs as IEnumerable<IPAddress>);
 		}
 
-		protected override void HashWrite(BinaryWriter w)
+		protected override void HashWrite(BinaryWriter writer)
 		{
-			w.Write(IP);
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write(IPs, i => writer.Write(i));
 		}
 
 		public override void Write(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(RoundId);
-			writer.Write(IP);
+			writer.Write(IPs, i => writer.Write(i));
 			writer.Write(Signature);
 		}
 
 		public override void Read(BinaryReader reader)
 		{
 			RoundId		= reader.Read7BitEncodedInt();
-			IP			= reader.ReadIPAddress();
+			IPs			= reader.ReadArray(() => reader.ReadIPAddress());
 			Signature	= reader.ReadSignature();
 		
 			Hash		= Hashify();
