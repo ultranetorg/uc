@@ -5,6 +5,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using System.Net;
+using Nethereum.Signer;
 
 namespace UC.Net
 {
@@ -12,9 +13,9 @@ namespace UC.Net
 	{
 		public int												Id;
 		public int												ParentId => Id - Database.Pitch;
-		public Round											Previous =>	Chain.FindRound(Id - 1);
-		public Round											Next =>	Chain.FindRound(Id + 1);
-		public Round											Parent => Chain.FindRound(ParentId);
+		public Round											Previous =>	Database.FindRound(Id - 1);
+		public Round											Next =>	Database.FindRound(Id + 1);
+		public Round											Parent => Database.FindRound(ParentId);
 
 		public int												Try = 0;
 		public DateTime											FirstArrivalTime = DateTime.MaxValue;
@@ -23,7 +24,7 @@ namespace UC.Net
 		public List<BlockPiece>									BlockPieces = new();
 
 		public List<Block>										Blocks = new();
-		//public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>();
+		public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>();
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
 		public IEnumerable<Account>								Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
@@ -41,7 +42,7 @@ namespace UC.Net
 		//public List<Peer>										Hubs;
 		public List<Payload>									ConfirmedPayloads;
 		public List<Account>									ConfirmedViolators = new();
-		public List<Account>									ConfirmedJoiners = new();
+		public List<Member>										ConfirmedJoiners = new();
 		public List<Account>									ConfirmedLeavers = new();
 		public List<Account>									ConfirmedFundJoiners = new();
 		public List<Account>									ConfirmedFundLeavers = new();
@@ -65,11 +66,11 @@ namespace UC.Net
 		//public IEnumerable<Operation>							ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
 		//																								.SelectMany(i => i.Operations)
 		//																								.Where(i => i.Executed);
-		public Database											Chain;
+		public Database											Database;
 		
 		public Round(Database c)
 		{
-			Chain = c;
+			Database = c;
 		}
 
 		public override string ToString()
@@ -159,24 +160,24 @@ namespace UC.Net
 			if(AffectedAccounts.ContainsKey(account))
 				return AffectedAccounts[account];
 
-			var e = Chain.Accounts.Find(account, Id - 1);
+			var e = Database.Accounts.Find(account, Id - 1);
 
 			if(e != null)
 				AffectedAccounts[account] = e.Clone();
 			else
-				AffectedAccounts[account] = new AccountEntry(Chain){Account = account};
+				AffectedAccounts[account] = new AccountEntry(Database){Account = account};
 
 			return AffectedAccounts[account];
 		}
 
 		public AuthorEntry AffectAuthor(string name)
 		{
-			var e = Chain.Authors.Find(name, Id);
+			var e = Database.Authors.Find(name, Id);
 
 			if(e != null)
 				AffectedAuthors[name] = e.Clone();
 			else
-				AffectedAuthors[name] = new AuthorEntry(Chain){Name = name};
+				AffectedAuthors[name] = new AuthorEntry(Database){Name = name};
 
 			return AffectedAuthors[name];
 		}
@@ -194,7 +195,7 @@ namespace UC.Net
 			if(AffectedRealizations.ContainsKey(name))
 				return AffectedRealizations[name];
 		
-			return Chain.Realizations.Find(name, Id - 1);
+			return Database.Realizations.Find(name, Id - 1);
 		}
 		
 		public ReleaseEntry FindRelease(ReleaseAddress name)
@@ -202,7 +203,7 @@ namespace UC.Net
 			if(AffectedReleases.ContainsKey(name))
 				return AffectedReleases[name];
 		
-			return Chain.Releases.Find(name, Id - 1);
+			return Database.Releases.Find(name, Id - 1);
 		}
 
 		public ProductEntry AffectProduct(ProductAddress address)
@@ -246,7 +247,7 @@ namespace UC.Net
 			if(AffectedProducts.ContainsKey(address))
 				return AffectedProducts[address];
 
-			return Chain.FindProduct(address, Id - 1);
+			return Database.FindProduct(address, Id - 1);
 		}
 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
@@ -288,7 +289,7 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Chain.BaseHash);
+			w.Write(Database.BaseHash);
 			w.Write(previous);
 
 			WriteConfirmed(w);
@@ -301,7 +302,7 @@ namespace UC.Net
 			writer.Write(Time);
 			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
 			writer.Write(ConfirmedViolators.OrderBy(i => i));
-			writer.Write(ConfirmedJoiners.OrderBy(i => i));
+			writer.Write(ConfirmedJoiners.OrderBy(i => i.Generator), i => { writer.Write(i.Generator); writer.Write(i.IPs, i => writer.Write(i)); });
 			writer.Write(ConfirmedLeavers.OrderBy(i => i));
 			writer.Write(ConfirmedFundJoiners.OrderBy(i => i));
 			writer.Write(ConfirmedFundLeavers.OrderBy(i => i));
@@ -311,7 +312,7 @@ namespace UC.Net
 		{
 			Time		= reader.ReadTime();
 			Blocks		= reader.ReadList(() =>	{	
-													var b = new Payload(Chain);											
+													var b = new Payload(Database);											
 													b.RoundId = Id;
 													b.Round = this;
 													b.Confirmed = true;
@@ -323,7 +324,7 @@ namespace UC.Net
 	
 			ConfirmedPayloads		= Blocks.Cast<Payload>().ToList();
 			ConfirmedViolators		= reader.ReadList<Account>();
-			ConfirmedJoiners		= reader.ReadList<Account>();
+			ConfirmedJoiners		= reader.ReadList<Member>(() => new Member {Generator = reader.ReadAccount(), IPs = reader.ReadArray<IPAddress>(() => reader.ReadIPAddress())});
 			ConfirmedLeavers		= reader.ReadList<Account>();
 			ConfirmedFundJoiners	= reader.ReadList<Account>();
 			ConfirmedFundLeavers	= reader.ReadList<Account>();
@@ -340,6 +341,7 @@ namespace UC.Net
 				w.Write(Hash);
 #endif
 				WriteConfirmed(w);
+				w.Write(JoinRequests, i => i.Write(w));
 			} 
 			else
 			{
@@ -361,11 +363,18 @@ namespace UC.Net
 				Hash = r.ReadSha3();
 #endif
 				ReadConfirmed(r);
+				Blocks.AddRange(r.ReadArray(() =>	{
+														var b = new MembersJoinRequest(Database);
+														b.RoundId = Id;
+														b.Round = this;
+														b.Read(r);
+														return b;
+													}));
 			} 
 			else
 			{
 				Blocks	= r.ReadList(() =>	{
-												var b = Block.FromType(Chain, (BlockType)r.ReadByte());
+												var b = Block.FromType(Database, (BlockType)r.ReadByte());
 												b.RoundId = Id;
 												b.Round = this;
 												b.Read(r);

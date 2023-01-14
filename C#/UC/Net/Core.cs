@@ -1325,7 +1325,7 @@ namespace UC.Net
 
 				var joins = inrange.OfType<MembersJoinRequest>().Where(b => { 
 																				for(int i = b.RoundId; i > b.RoundId - Net.Database.Pitch; i--) /// not more than 1 request per [Pitch] rounds
-																					if(Database.JoinRequests.Any(j => j.RoundId == i && j.Generator == b.Generator))
+																					if(Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == b.Generator))
 																						return false;
 
 																				//var r = Database.JoinRequests.Where(i => i.RoundId == b.RoundId);
@@ -1386,9 +1386,11 @@ namespace UC.Net
 			{
 				if(!Database.VoterOf(Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch)).Any(i => i.Generator == g))
 				{
-					var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
+					var jr = Database.FindLastBlock(i => i is MembersJoinRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as MembersJoinRequest;
+
+					//var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
 		
-					if(jr == null || jr.RoundId + Database.Pitch * 3 <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
+					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
 						var b = new MembersJoinRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
 																	IPs     = new [] {IP}};

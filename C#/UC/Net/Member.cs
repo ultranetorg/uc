@@ -32,7 +32,6 @@ namespace UC.Net
 		{
 			return $"Generator={Generator}, JoinedAt={JoinedAt}, IPs={{{IPs.Length}}}";
 		}
-
 	}
 
 	public class MemberDci : Dci

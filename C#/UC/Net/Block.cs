@@ -140,8 +140,6 @@ namespace UC.Net
 	public class MembersJoinRequest : Block
 	{
 		public IPAddress[]		IPs;
-		
-		//public Coin			Bail;
 
 		public MembersJoinRequest(Database c) : base(c)
 		{

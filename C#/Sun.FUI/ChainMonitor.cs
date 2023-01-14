@@ -105,7 +105,7 @@ namespace UC.Sun.FUI
 								if(showt)
 								{
 									nmaxid = Math.Max(nmaxid.ToString().Length, i.ToString().Length);
-									njrs = Math.Max(njrs, Core.Database.JoinRequests.Count(j => j.RoundId == i).ToString().Length);
+									njrs = Math.Max(njrs, r.JoinRequests.Count().ToString().Length);
 									nj = Math.Max(nj, r.ConfirmedJoiners.Count.ToString().Length);
 									nl = Math.Max(nj, r.ConfirmedLeavers.Count.ToString().Length);
 		
@@ -169,7 +169,7 @@ namespace UC.Sun.FUI
 										var t = string.Format(	f, 
 																r.Id, 
 																r.Members != null ? r.Members.Count : 0, 
-																Core.Database.JoinRequests.Count(j => j.RoundId == r.Id),
+																r.JoinRequests.Count(),
 																r.ConfirmedJoiners.Count,
 																r.ConfirmedLeavers.Count,
 																r.Voted ? "v" : " ",
