@@ -19,11 +19,6 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net
 {
-// 	public enum DelegationStage
-// 	{
-// 		Null, Pending, Delegated, Completed
-// 	}
-
 	public enum PlacingStage
 	{
 		Null, PendingDelegation, Accepted, Verified, Placed, Confirmed, FailedOrNotFound
@@ -46,17 +41,14 @@ namespace UC.Net
 		public string			Error;
 		public Account			Signer { get; set; }
 		public Transaction		Transaction;
-		//public DelegationStage	Delegation;
 		public PlacingStage		Placing;
 		public Workflow			FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
-		//public bool				Executed; 
-		//public bool				Successful;
 
-		#if DEBUG
+#if DEBUG
 		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
-		#endif
+#endif
 
 		public const string		Rejected = "Rejected";
 		public const string		NotSequential = "Not sequential";
