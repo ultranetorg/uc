@@ -6,6 +6,8 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:AuthorRenewalViewModel"
     Title="Author Registration"
     x:Name="page">
     <controls:CustomPage.MainContent>
@@ -28,6 +30,7 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
+                        <!--Step #1-->
                         <StackLayout Padding="5" Spacing="30">
                                 <StackLayout>
                                     <Label FontSize="18" Text="Choose renewal period" />
@@ -39,28 +42,28 @@
                                 <StackLayout>
                                     <Label Style="{StaticResource DashLabel}" Text="Author to renew" />
                                     <Grid ColumnDefinitions="*,35" RowSpacing="-10">
-                                        <Frame
+                                        <Border
                                             Grid.ColumnSpan="2"
                                             HeightRequest="60"
-                                            Style="{StaticResource AccountCard}">
+                                            Style="{StaticResource AccountCardBorder}">
                                             <Grid RowDefinitions="Auto,Auto">
                                                 <Label
                                                     Grid.Row="0"
                                                     Grid.Column="0"
                                                     FontSize="13"
-                                                    Text="{Binding Author.Name}"
+                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Author.Name}"
                                                     VerticalOptions="Center" />
                                                 <Label
                                                     Grid.Row="1"
                                                     Grid.Column="0"
                                                     FontSize="10"
-                                                    Text="{Binding Author.ActiveDue}"
+                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Author.ActiveDue}"
                                                     VerticalOptions="Center" />
                                             </Grid>
-                                            <Frame.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding SelectAuthorCommand}" />
-                                            </Frame.GestureRecognizers>
-                                        </Frame>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=SelectAuthorCommand}" />
+                                            </Border.GestureRecognizers>
+                                        </Border>
                                         <Image
                                             Grid.Column="1"
                                             HorizontalOptions="Center"
@@ -72,9 +75,12 @@
                                 <StackLayout>
                                     <Label Style="{StaticResource DashLabel}" Text="Pay from Account" />
                                     <Grid ColumnDefinitions="*,35" RowSpacing="-10">
-                                        <views:AccountView Grid.ColumnSpan="2" BindingContext="{Binding Wallet}">
+                                        <views:AccountView
+                                            Grid.ColumnSpan="2"
+                                            BorderStyle="{StaticResource AccountCardBorderDark}"
+                                            Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Account}">
                                             <views:AccountView.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=SelectAccountCommand}" />
                                             </views:AccountView.GestureRecognizers>
                                         </views:AccountView>
                                         <Image
@@ -93,6 +99,8 @@
                                             Text="Renewal period"
                                             VerticalOptions="Center" />
                                         <controls:BorderEntry
+                                            Keyboard="Numeric"
+                                            Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Period}"
                                             Grid.Column="1"
                                             FontSize="24"
                                             RightPadding="35">
@@ -108,17 +116,18 @@
                                             </controls:BorderEntry.Behaviors>
                                         </controls:BorderEntry>
                                     </Grid>
-                                    <controls:LabelPair Text1="Estimated end date" Text2="01/10/2033" />
+                                    <controls:LabelPair Text1="Estimated end date" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=EstimatedDate}" />
                                     <controls:LabelPair Text1="Estimated comission" Text2="10 UNT ($15)" />
                                 </StackLayout>
                             </StackLayout>
                         
+                        <!--Step #2-->
                         <views:AuthorRegistration2View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextCommand}" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>
