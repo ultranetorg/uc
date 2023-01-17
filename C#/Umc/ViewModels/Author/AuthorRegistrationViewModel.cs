@@ -3,10 +3,15 @@
 public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
 {
 	[ObservableProperty]
-    private AccountColor _selectedAccountColor;
+    [NotifyPropertyChangedFor(nameof(Name))]
+	private string _title = string.Empty;
 
 	[ObservableProperty]
-    private int _position;
+	private string _comission = "10 UNT ($15)"; // todo: comission calculation
+
+	public string Name => Title == null
+		? string.Empty
+		: string.Join("", Title.ToLower().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
 
     public AuthorRegistrationViewModel(ILogger<AuthorRegistrationViewModel> logger) : base(logger)
     {
@@ -18,9 +23,9 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
         {
             InitializeLoading();
 
-            Author = (AuthorViewModel)query[QueryKeys.AUTHOR];
+            Title = ((AuthorViewModel)query[QueryKeys.AUTHOR]).Title;
 #if DEBUG
-            _logger.LogDebug("ApplyQueryAttributes Author: {Author}", Author);
+            _logger.LogDebug("ApplyQueryAttributes Title: {Title}", Title);
 #endif
         }
         catch (Exception ex)

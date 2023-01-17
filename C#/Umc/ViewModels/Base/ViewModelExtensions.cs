@@ -91,7 +91,6 @@ public static class ViewModelExtensions
 		#region Views
 		
 		builder.Services.AddTransient<CreateAccountViewModel>();
-		builder.Services.AddTransient<AuthorRegistration1ViewModel>();
 		builder.Services.AddTransient<AuthorRegistrationViewModel>();
 		builder.Services.AddTransient<AuthorRenewalViewModel>();
 		builder.Services.AddTransient<MakeBid1ViewModel>();
