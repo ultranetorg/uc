@@ -4,7 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:MakeBidViewModel"
     Title="Make Bid"
     x:Name="page">
     <controls:CustomPage.MainContent>
@@ -27,13 +30,96 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:MakeBid1View />
-                        <views:MakeBid2View />
+                        <!--Step #1-->
+                        <StackLayout Padding="5" Spacing="30">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Make your bid" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Make your bid. Your bid should be higher than current bid in order to win Auction" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Payment Account" />
+                                <Grid ColumnDefinitions="*,35" RowSpacing="-10">
+                                    <views:AccountView Grid.ColumnSpan="2" Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}">
+                                        <views:AccountView.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=SelectAccountCommand}" />
+                                        </views:AccountView.GestureRecognizers>
+                                    </views:AccountView>
+                                    <Image
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Style="{StaticResource BottomArrowsIcon}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Author name" />
+                                <Label Opacity="0.7" Text="Normalized Author name" />
+                                <Border
+                                    Padding="10,0"
+                                    HeightRequest="44"
+                                    Style="{StaticResource KeyFrame}">
+                                    <Label
+                                        FontSize="12"
+                                        Style="{StaticResource Medium}"
+                                        Text="author"
+                                        VerticalOptions="Center" />
+                                </Border>
+                            </StackLayout>
+                            <StackLayout Spacing="15">
+                                <controls:LabelPair Text1="Current bid" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=CurrentBid}" />
+            
+                                <StackLayout Grid.Column="0" Spacing="10">
+                                    <Label Style="{StaticResource DashLabel}" Text="Your bid" />
+                                    <AbsoluteLayout>
+                                        <controls:BorderEntry
+                                            AbsoluteLayout.LayoutBounds="0,1,1,1"
+                                            AbsoluteLayout.LayoutFlags="All"
+                                            FontSize="24"
+                                            HeightRequest="60"
+                                            HorizontalTextAlignment="End"
+                                            Placeholder="10 000.00"
+                                            RightPadding="45">
+                                            <controls:BorderEntry.Behaviors>
+                                                <toolkit:CharactersValidationBehavior
+                                                    x:Name="cb1"
+                                                    CharacterType="Letter"
+                                                    Flags="ValidateOnValueChanged"
+                                                    InvalidStyle="{StaticResource InvalidEntry}"
+                                                    MaximumCharacterTypeCount="30"
+                                                    MinimumCharacterTypeCount="1"
+                                                    ValidStyle="{StaticResource Valid}" />
+                                            </controls:BorderEntry.Behaviors>
+
+                                        </controls:BorderEntry>
+                                        <Label
+                                            Margin="10,10"
+                                            AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                                            AbsoluteLayout.LayoutFlags="PositionProportional"
+                                            Style="{StaticResource UNTLabel}"
+                                            Text="UNT" />
+                                    </AbsoluteLayout>
+                                    <StackLayout >
+                                        <Label
+                                            FontSize="12"
+                                            IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                                            Text="Validation text message"
+                                            TextColor="{StaticResource Red}" />
+                                    </StackLayout>
+                                </StackLayout>
+                            </StackLayout>
+                        </StackLayout>
+                        
+                        <!--Step #2-->
+                        <StackLayout />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextCommand}" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

@@ -7,7 +7,7 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
 	private string _title = string.Empty;
 
 	[ObservableProperty]
-	private string _comission = "10 UNT ($15)"; // todo: comission calculation
+	private string _commission = "10 UNT ($15)"; // todo: commission calculation
 
 	public string Name => Title == null
 		? string.Empty
