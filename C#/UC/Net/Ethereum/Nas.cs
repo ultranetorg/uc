@@ -28,8 +28,6 @@ namespace UC.Net
 		static Dictionary<Zone, IPAddress[]>		Zones = new ();
 		static string								Creator;
 
-		public Nethereum.Signer.Chain Chain => (Chain)Enum.Parse(typeof(Chain), Settings.Nas.Chain);
-
 		public Nethereum.Web3.Accounts.Account Account
 		{
 			get

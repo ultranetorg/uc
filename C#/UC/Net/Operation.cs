@@ -46,9 +46,7 @@ namespace UC.Net
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
 
-#if DEBUG
 		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
-#endif
 
 		public const string		Rejected = "Rejected";
 		public const string		NotSequential = "Not sequential";
@@ -87,9 +85,8 @@ namespace UC.Net
 			Id = reader.Read7BitEncodedInt();
 
 			ReadConfirmed(reader);
-#if DEBUG
+
 			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
-#endif
 		}
 
 		public void Write(BinaryWriter writer)
@@ -97,9 +94,8 @@ namespace UC.Net
 			writer.Write7BitEncodedInt(Id);
 			
 			WriteConfirmed(writer);
-#if DEBUG
+
 			writer.Write((byte)__ExpectedPlacing);
-#endif
 		}
 
 		public static bool IsValid(string author, string title)

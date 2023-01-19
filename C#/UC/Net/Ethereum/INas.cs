@@ -10,7 +10,6 @@ namespace UC.Net
 	public interface INas
 	{
 		Nethereum.Web3.Accounts.Account Account { get; }
-		Chain							Chain { get; }
 		bool							IsAdministrator { get; }
 
 		bool							CheckEmission(Emission e);

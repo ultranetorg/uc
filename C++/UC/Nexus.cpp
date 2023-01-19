@@ -103,7 +103,7 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 		i->Instance->UserStart();
 	}
 
-	Core->Log->ReportMessage(this, L"Nexus created");
+	Core->Log->ReportMessage(this, L"Started");
 	Core->LevelCreated(2, this);	
 	Core->RegisterExecutor(this);
 }

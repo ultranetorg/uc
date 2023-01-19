@@ -44,6 +44,10 @@ namespace UC.Sun.FUI
 			}
 		}
 
+		public override void Close()
+		{
+		}
+
 		void LoadTransactions(IEnumerable<Transaction> transactions)
 		{
 			Transactions.Items.AddRange(transactions.Select((i) => {

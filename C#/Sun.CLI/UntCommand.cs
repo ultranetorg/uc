@@ -54,7 +54,7 @@ namespace UC.Sun.CLI
 
 					if(Args.Has("from/key"))
 					{
-						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Enum.Parse<Chain>(Settings.Nas.Chain));
+						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Settings.Zone.EtheterumNetwork);
 					}
 					else
 					{
@@ -74,7 +74,7 @@ namespace UC.Sun.CLI
 
 						from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
 																				p, 
-																				new BigInteger((int)Enum.Parse(typeof(Chain), Settings.Nas.Chain)));
+																				new BigInteger((int)Settings.Zone.EtheterumNetwork));
 					}
 
 					return Core.Emit(	from,

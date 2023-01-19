@@ -22,6 +22,7 @@ namespace UC.Net
 	{
 		Null,
 		Internal,
+		Timeout,
 		InvalidRequest,
 		NotChain,
 		NotBase,
@@ -105,7 +106,6 @@ namespace UC.Net
 		public virtual bool				WaitResponse { get; protected set; } = true;
 
 		public const int				IdLength = 8;
-		static readonly SecureRandom	Random = new SecureRandom();
 
 		public static Request FromType(Database chaim, DistributedCall type)
 		{
@@ -130,7 +130,7 @@ namespace UC.Net
 		public Request()
 		{
 			Id = new byte[IdLength];
-			Random.NextBytes(Id);
+			Cryptography.Random.NextBytes(Id);
 			Event = new ManualResetEvent(false);
 		}
 
@@ -169,32 +169,15 @@ namespace UC.Net
 		{
 			void broadcast(IEnumerable<BlockPiece> pieces)
 			{
-				foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer))
+				if(!pieces.Any())
+				{
+					return;
+				}
+
+				foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer).OrderBy(i => Guid.NewGuid()))
 				{
 					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
 				}
-
- 				//var c = core.Connections.Where(i => i.BaseRank > 0 && i != Peer).GetEnumerator();
- 				//var d = new Dictionary<Peer, List<BlockPiece>>();
- 				//
- 				//foreach(var i in pieces)
- 				//{
- 				//	if(!c.MoveNext())
- 				//	{
- 				//		c = core.Connections.Where(i => i.BaseRank > 0 && i != Peer).GetEnumerator(); /// go to the beginning
- 				//		c.MoveNext();
- 				//	}
- 				//
- 				//	if(!d.ContainsKey(c.Current))
- 				//		d[c.Current] = new();
- 				//
- 				//	d[c.Current].Add(i);
- 				//}
-				//
-				//foreach(var i in d)
-				//{
-				//	i.Key.Request<object>(new UploadBlocksPiecesRequest{Pieces = i.Value});
-				//}
 			}
 
 			lock(core.Lock)
@@ -204,56 +187,75 @@ namespace UC.Net
 				
 				var accepted = new List<BlockPiece>();
 
-				if(core.Database.LastConfirmedRound != null)
+				if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Downloading || core.Synchronization == Synchronization.Synchronizing)
 				{
-					var notolder = core.Database.LastConfirmedRound.Id - Net.Database.Pitch;
-					var notnewer = core.Database.LastConfirmedRound.Id + Net.Database.Pitch * 2;
-		
-					foreach(var p in Pieces.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer))
-					{
-						var r = core.Database.GetRound(p.RoundId);
-		
-						if(!r.BlockPieces.Any(i => i.Signature.SequenceEqual(p.Signature)))
-						{
-							accepted.Add(p);
-							r.BlockPieces.Add(p);
-		
-							var ps = r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece);
-	
-							if(ps.Count() == p.PiecesTotal && ps.Zip(ps.Skip(1), (x, y) => x.Piece + 1 == y.Piece).All(x => x))
-							{
-								var s = new MemoryStream();
-								var w = new BinaryWriter(s);
-		
-								foreach(var i in r.BlockPieces.Where(i => i.Generator == p.Generator).OrderBy(i => i.Piece))
-								{
-									s.Write(i.Data);
-								}
-		
-								s.Position = 0;
-								var rd = new BinaryReader(s);
-		
-								var b = Block.FromType(core.Database, (BlockType)rd.ReadByte());
-								b.Read(rd);
-		
-								core.ProcessIncoming(new Block[] {b}, null);
-		
-							}
-						}
-					}
+					var a = Pieces.Where(p => !core.SyncBlockCache.Any(i => i.Signature.SequenceEqual(p.Signature))).ToArray(); /// !ToArray cause will be added to Chain below
 
-					if(accepted.Any())
-						if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Synchronizing || core.Synchronization == Synchronization.Synchronized) /// Null and Synchronizing needed for Dev purposes
-						{
-							broadcast(accepted);
-						}
-				} 
-				else
-				{
-					accepted.AddRange(Pieces);
-					broadcast(accepted);
+					if(a.Any())
+					{
+						core.SyncBlockCache.AddRange(a);
+						accepted.AddRange(a);
+					}
 				}
 
+				if(core.Synchronization == Synchronization.Synchronized)
+				{
+					var notolder = core.Database.LastConfirmedRound.Id - Database.Pitch;
+					var notnewer = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
+
+					foreach(var p in Pieces)
+					{
+						if(Cryptography.Current.AccountFrom(p.Signature, p.Hashify()) != p.Generator)
+						{
+							continue;
+						}
+
+						if(notolder <= p.RoundId && p.RoundId <= notnewer)
+						{
+							var r = core.Database.GetRound(p.RoundId);
+				
+							var pp = r.BlockPieces.Find(i => i.Signature.SequenceEqual(p.Signature));
+
+							if(pp == null)
+							{
+								accepted.Add(p);
+								r.BlockPieces.Add(p);
+				
+								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Guid.SequenceEqual(p.Guid)).OrderBy(i => i.Piece);
+			
+								if(ps.Count() == p.PiecesTotal && ps.Zip(ps.Skip(1), (x, y) => x.Piece + 1 == y.Piece).All(x => x))
+								{
+									var s = new MemoryStream();
+									var w = new BinaryWriter(s);
+				
+									foreach(var i in ps)
+									{
+										s.Write(i.Data);
+									}
+				
+									s.Position = 0;
+									var rd = new BinaryReader(s);
+				
+									var b = Block.FromType(core.Database, (BlockType)rd.ReadByte());
+									b.Read(rd);
+				
+									core.ProcessIncoming(new Block[] {b}, null);
+		
+									//r.BlockPieces.RemoveAll(i => ps.Contains(i));
+								}
+							}
+							else
+								if(pp.Peer != null && pp.Peer != Peer)
+									pp.Distributed = true;
+						}
+						//else
+						//{
+ 						//	accepted.Add(p);
+						//}
+					}
+				}
+
+				broadcast(accepted);
 			}
 
 			return null; 
@@ -515,7 +517,7 @@ namespace UC.Net
 				{
 					var acc = core.ProcessIncoming(Transactions);
 
-					return new DelegateTransactionsResponse {Accepted = acc.SelectMany(i => i.Operations)
+					return new DelegateTransactionsResponse {Accepted = acc	.SelectMany(i => i.Operations)
 																			.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
 																			.ToList()};
 				}
@@ -669,7 +671,7 @@ namespace UC.Net
 				throw new DistributedCallException(Error.NotHub);
 			}
 
-			return new LocateReleaseResponse {Seeders = core.Hub.Locate(this)};
+			return new LocateReleaseResponse {Seeders = core.Hub.Locate(this)}; 
 		}
 	}
 	
