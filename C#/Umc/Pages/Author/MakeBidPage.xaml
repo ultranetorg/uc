@@ -74,7 +74,9 @@
                                 </Border>
                             </StackLayout>
                             <StackLayout Spacing="15">
-                                <controls:LabelPair Text1="Current bid" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.CurrentBid}" />
+                                <controls:LabelPair
+                                    Text1="Current bid"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.CurrentBid, StringFormat='{0} UNT'}" />
             
                                 <StackLayout Grid.Column="0" Spacing="10">
                                     <Label Style="{StaticResource DashLabel}" Text="Your bid" />
@@ -116,7 +118,7 @@
                                 <Label Style="{StaticResource DashLabel}" Text="From Account" />
                                 <views:AccountView
                                     Grid.ColumnSpan="2"
-                                    Account="{Binding Account}"
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}"
                                     BorderStyle="{StaticResource AccountCardBorder}">
                                     <views:AccountView.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
