@@ -66,12 +66,12 @@ namespace uc
 	class UOS_LINKING CCore : public IType, public CLevel1, public ILevel
 	{
 		public:
-			static const inline CString					RestartDirective		= L"restart";
-			static const inline CString					RollbackDirective		= L"rollback";
-			static const inline CString					OpenDirective			= L"open";
-			static const inline CString					UrlArgument				= L"url";
-			static const inline CString					VersionAutoUpArgument	= L"versionautoup";
-			static const inline CString					CliScheme				= L"uoscli";
+			static const inline CString					RestartDirective			= L"restart";
+			static const inline CString					RollbackDirective			= L"rollback";
+			static const inline CString					OpenDirective				= L"open";
+			static const inline CString					UrlArgument					= L"url";
+			static const inline CString					VersionAutoUpArgument		= L"versionautoup";
+			static const inline CString					CliScheme					= L"uoscli";
 
 			CString										Unid;
 			CEvent<>									Processed;

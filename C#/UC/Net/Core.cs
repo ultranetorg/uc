@@ -1623,7 +1623,7 @@ namespace UC.Net
 				{
 					r.Voted = true;
 
-					/// Check our peices that are not come back from other peer, if any - force broadcast them
+					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
 					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peer != null && !i.Distributed).ToArray();
 					
 					if(notcomebacks.Any())
