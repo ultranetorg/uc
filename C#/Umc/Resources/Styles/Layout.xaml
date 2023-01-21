@@ -163,7 +163,7 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
     <Style x:Key="KeyFrame" TargetType="Border">
-        <Setter Property="Padding" Value="15,10,15,10" />
+        <Setter Property="Padding" Value="15,10" />
         <Setter Property="StrokeShape" Value="RoundRectangle 6" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarker}, Light={StaticResource PrimaryLight}}" />
     </Style>

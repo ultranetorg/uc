@@ -4,6 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="UC.Umc.Controls.NextCancelButton"
     x:Name="Instance">
-    <Button Command="{Binding NextCommand, Source={x:Reference Instance}}" Style="{DynamicResource NextButton}" />
-    <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
+    <Button Command="{Binding NextCommand, Source={x:Reference Instance}}" Style="{StaticResource NextButton}" />
+    <Button Style="{StaticResource LabelButton}" Text="Cancel" />
 </StackLayout>

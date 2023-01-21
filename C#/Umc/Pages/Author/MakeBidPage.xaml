@@ -42,7 +42,11 @@
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="Payment Account" />
                                 <Grid ColumnDefinitions="*,35" RowSpacing="-10">
-                                    <views:AccountView Grid.ColumnSpan="2" Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}">
+                                    <views:AccountView
+                                        Grid.ColumnSpan="2"
+                                        Margin="0,4"
+                                        Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}"
+                                        BorderStyle="{StaticResource AccountCardBorderDark}">
                                         <views:AccountView.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=SelectAccountCommand}" />
                                         </views:AccountView.GestureRecognizers>
@@ -70,45 +74,26 @@
                                 </Border>
                             </StackLayout>
                             <StackLayout Spacing="15">
-                                <controls:LabelPair Text1="Current bid" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=CurrentBid}" />
+                                <controls:LabelPair Text1="Current bid" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.CurrentBid}" />
             
                                 <StackLayout Grid.Column="0" Spacing="10">
                                     <Label Style="{StaticResource DashLabel}" Text="Your bid" />
-                                    <AbsoluteLayout>
-                                        <controls:BorderEntry
+                                    <AbsoluteLayout Margin="0,0,0,4">
+                                        <controls:FormEntryControl
                                             AbsoluteLayout.LayoutBounds="0,1,1,1"
                                             AbsoluteLayout.LayoutFlags="All"
-                                            FontSize="24"
-                                            HeightRequest="60"
-                                            HorizontalTextAlignment="End"
-                                            Placeholder="10 000.00"
-                                            RightPadding="45">
-                                            <controls:BorderEntry.Behaviors>
-                                                <toolkit:CharactersValidationBehavior
-                                                    x:Name="cb1"
-                                                    CharacterType="Letter"
-                                                    Flags="ValidateOnValueChanged"
-                                                    InvalidStyle="{StaticResource InvalidEntry}"
-                                                    MaximumCharacterTypeCount="30"
-                                                    MinimumCharacterTypeCount="1"
-                                                    ValidStyle="{StaticResource Valid}" />
-                                            </controls:BorderEntry.Behaviors>
-
-                                        </controls:BorderEntry>
+                                            Value="{Binding Amount}"
+                                            ErrorMessage="{Binding AmountError}"
+                                            Placeholder="Amount"
+                                            MaxLength="8"
+                                            Margin="0,0,8,0" />
                                         <Label
-                                            Margin="10,10"
-                                            AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                                            Margin="16"
+                                            AbsoluteLayout.LayoutBounds="1,2,-1,-1"
                                             AbsoluteLayout.LayoutFlags="PositionProportional"
                                             Style="{StaticResource UNTLabel}"
-                                            Text="UNT" />
+                                            Text="ETH" />
                                     </AbsoluteLayout>
-                                    <StackLayout >
-                                        <Label
-                                            FontSize="12"
-                                            IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
-                                            Text="Validation text message"
-                                            TextColor="{StaticResource Red}" />
-                                    </StackLayout>
                                 </StackLayout>
                             </StackLayout>
                         </StackLayout>

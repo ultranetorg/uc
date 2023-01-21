@@ -2,11 +2,13 @@
 
 namespace UC.Umc.Models;
 
-public class AccountViewModel
+public partial class AccountViewModel : ObservableObject
 {
-	protected Account	_account;
+	[ObservableProperty]
+	private bool			_isSelected;
+	protected Account		_account;
 
-    public string			Name { get; set; }
+	public string			Name { get; set; }
     public GradientBrush	Color { get; set; }
     public bool				HideOnDashboard { get; set; }
 	public decimal			Balance { get; set; }
@@ -20,7 +22,6 @@ public class AccountViewModel
 	// lets say 1 unts = $1 unless we can recieve rate
 	public string			DisplayAmount => $"{RoundedBalance} UNT (${RoundedBalance})";
 	public string			IconCode => Address?[2..6];
-	public bool				IsSelected { get; set; }
 
 	public AccountViewModel(Account account)
 	{
