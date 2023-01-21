@@ -4,6 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:ProductsViewModel"
     Title="My Products"
     x:Name="page">
     <controls:CustomPage.MainContent>
@@ -13,8 +16,8 @@
                 ItemsSource="{Binding Products}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Margin="18,8,18,8" Style="{StaticResource AccountCard}">
+                    <DataTemplate x:DataType="models:ProductViewModel">
+                        <Border Margin="18,8" Style="{StaticResource AccountCardBorder}">
                             <SwipeView>
                                 <SwipeView.RightItems>
                                     <SwipeItems>
@@ -62,21 +65,20 @@
                                         VerticalOptions="Center" />
                                 </Grid>
                             </SwipeView>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <Frame
+            <Border
                 Grid.Row="1"
                 Margin="0,0,0,-20"
                 Padding="0,0,0,30"
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
-                AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
-                HasShadow="True">
+                AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
                 <StackLayout Padding="15">
                     <Button Command="{Binding RegisterProductCommand}" Text="Register Product" />
                 </StackLayout>
-            </Frame>
+            </Border>
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

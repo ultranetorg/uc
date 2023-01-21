@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductsViewModel : BaseTransactionsViewModel
+public partial class ProductsViewModel : BaseViewModel
 {
 	private readonly IProductsService _service;
 
@@ -23,7 +23,14 @@ public partial class ProductsViewModel : BaseTransactionsViewModel
     {
         // await AccountOptionsPopup.Show(author);
 		await Task.Delay(10);
-    }
+	}
+
+	[RelayCommand]
+	private async Task RegisterProductAsync(ProductViewModel product)
+	{
+		// await AccountOptionsPopup.Show(author);
+		await Task.Delay(10);
+	}
 
 	internal async Task InitializeAsync()
 	{

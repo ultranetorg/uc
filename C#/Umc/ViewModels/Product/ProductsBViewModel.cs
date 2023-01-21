@@ -16,7 +16,14 @@ public partial class ProductsBViewModel : BaseTransactionsViewModel
     public ProductsBViewModel(IProductsService service, ILogger<ProductsBViewModel> logger) : base(logger)
     {
 		_service = service;
-    }
+	}
+
+	[RelayCommand]
+	private async Task RegisterProductAsync(ProductViewModel product)
+	{
+		// await AccountOptionsPopup.Show(author);
+		await Task.Delay(10);
+	}
 
 	internal async Task InitializeAsync()
 	{

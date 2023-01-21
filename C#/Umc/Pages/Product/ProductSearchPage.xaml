@@ -4,6 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:ProductSearchViewModel"
     Title="Product Search"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>
@@ -70,7 +73,7 @@
                             Grid.ColumnSpan="3"
                             BindableLayout.ItemsSource="{Binding Products}">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:ProductViewModel">
                                     <controls:LabelPair Text1="{Binding Name}" Text2="{Binding Owner}" />
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>

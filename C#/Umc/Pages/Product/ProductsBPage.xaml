@@ -4,6 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:ProductsBViewModel"
     Title="My Products"
     x:Name="page">
     <controls:CustomPage.MainContent>
@@ -13,9 +16,9 @@
                 ItemsSource="{Binding Products}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:ProductViewModel">
                         <StackLayout>
-                            <Frame Margin="18,8,18,8" Style="{StaticResource AccountCard}">
+                            <Border Margin="18,8,18,8" Style="{StaticResource AccountCardBorder}">
                                 <SwipeView>
                                     <SwipeView.RightItems>
                                         <SwipeItems>
@@ -57,7 +60,7 @@
                                             FontSize="24"
                                             HorizontalOptions="Center"
                                             VerticalOptions="Center"
-                                            Text="{Binding Initl}"
+                                            Text="{Binding Initial}"
                                             TextColor="{Binding Color}" />
                                         <Label
                                             Grid.Row="0"
@@ -82,7 +85,7 @@
                                             VerticalOptions="Center" />
                                     </Grid>
                                 </SwipeView>
-                            </Frame>
+                            </Border>
                         </StackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

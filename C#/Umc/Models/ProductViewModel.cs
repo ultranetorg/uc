@@ -14,6 +14,8 @@ public class ProductViewModel
 
     public AuthorViewModel Author { get; set; }
 
+	public char? Initial => Name?.FirstOrDefault();
+
 	public ProductViewModel()
 	{
 	}
