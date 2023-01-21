@@ -61,7 +61,7 @@
                             </StackLayout>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="Author name" />
-                                <Label Opacity="0.7" Text="Normalized Author name" />
+                                <Label Opacity="0.7" Text="Normalized author's name" />
                                 <Border
                                     Padding="10,0"
                                     HeightRequest="44"
@@ -69,7 +69,7 @@
                                     <Label
                                         FontSize="12"
                                         Style="{StaticResource Medium}"
-                                        Text="author"
+                                        Text="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Name}"
                                         VerticalOptions="Center" />
                                 </Border>
                             </StackLayout>
@@ -82,8 +82,8 @@
                                         <controls:FormEntryControl
                                             AbsoluteLayout.LayoutBounds="0,1,1,1"
                                             AbsoluteLayout.LayoutFlags="All"
-                                            Value="{Binding Amount}"
-                                            ErrorMessage="{Binding AmountError}"
+                                            Value="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Amount}"
+                                            ErrorMessage="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=AmountError}"
                                             Placeholder="Amount"
                                             MaxLength="8"
                                             Margin="0,0,8,0" />
@@ -99,7 +99,31 @@
                         </StackLayout>
                         
                         <!--Step #2-->
-                        <StackLayout />
+                        <StackLayout Padding="4" Spacing="30">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Do you confirm a bid?" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Click 'Confirm' button to confirm the bid" />
+                            </StackLayout>
+                            <StackLayout Spacing="20">
+                                <controls:LabelPair Text1="Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Title}" />
+                                <controls:LabelPair Text1="With name:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Name}" />
+                                <controls:LabelPair Text1="With price:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Amount, StringFormat='{0} UNT'}" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="From Account" />
+                                <views:AccountView
+                                    Grid.ColumnSpan="2"
+                                    Account="{Binding Account}"
+                                    BorderStyle="{StaticResource AccountCardBorder}">
+                                    <views:AccountView.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                                    </views:AccountView.GestureRecognizers>
+                                </views:AccountView>
+                            </StackLayout>
+                        </StackLayout>
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

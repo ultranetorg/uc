@@ -9,17 +9,7 @@ public partial class MakeBidViewModel : BaseAuthorViewModel
 	[Required(ErrorMessage = "Required")]
 	[Range(1.0, int.MaxValue, ErrorMessage = "Wrong Amount")]
 	[NotifyPropertyChangedFor(nameof(AmountError))]
-	[NotifyPropertyChangedFor(nameof(Comission))]
 	private string _amount;
-
-	public decimal Comission
-	{
-		get
-		{
-			decimal.TryParse(Amount, out decimal comission);
-			return comission > 0 ? comission / 100 : 0;
-		}
-	}
 
 	public string AmountError => GetControlErrorMessage(nameof(Amount));
 

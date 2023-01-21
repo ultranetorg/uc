@@ -20,15 +20,15 @@ public partial class SendViewModel : BaseViewModel
 	[Required(ErrorMessage = "Required")]
 	[Range(1.0, int.MaxValue, ErrorMessage = "Wrong Amount")]
 	[NotifyPropertyChangedFor(nameof(AmountError))]
-	[NotifyPropertyChangedFor(nameof(Comission))]
+	[NotifyPropertyChangedFor(nameof(Commission))]
 	private string _amount;
 
-	public decimal Comission 
+	public decimal Commission 
 	{
 		get
 		{
-			decimal.TryParse(Amount, out decimal comission);
-			return comission > 0 ? comission / 100 : 0;
+			decimal.TryParse(Amount, out decimal commission);
+			return commission > 0 ? commission / 100 : 0;
 		}
 	}
 
@@ -93,19 +93,7 @@ public partial class SendViewModel : BaseViewModel
     }
     
 	[RelayCommand]
-    private void Transfer()
-    {
-        if (Position == 0) 
-		{
-			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
-			Position = 1;
-			Position = 0;
-			Position = 1;
-		}
-    }
-    
-	[RelayCommand]
-    private async Task SourceTapped()
+    private async Task SourceTappedAsync()
     {
 		var popup = new SourceAccountPopup();
 		await ShowPopup(popup);
@@ -116,7 +104,7 @@ public partial class SendViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-    private async Task RecipientTapped()
+    private async Task RecipientTappedAsync()
 	{
 		var popup = new RecipientAccountPopup();
 		await ShowPopup(popup);
@@ -125,4 +113,16 @@ public partial class SendViewModel : BaseViewModel
 			Recipient = popup.Vm.Account;
 		}
 	}
+    
+	[RelayCommand]
+    private void Transfer()
+    {
+        if (Position == 0) 
+		{
+			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
+			Position = 1;
+			Position = 0;
+			Position = 1;
+		}
+    }
 }
