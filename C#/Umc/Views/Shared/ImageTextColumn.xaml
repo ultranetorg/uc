@@ -2,10 +2,10 @@
 <Grid 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Padding="0"
     x:Name="Instance"
-    ColumnDefinitions="30,*"
-    x:Class="UC.Umc.Controls.ImageTextColumn">
+    x:Class="UC.Umc.Controls.ImageTextColumn"
+    Padding="0"
+    ColumnDefinitions="30,*">
     <ImageButton
         Grid.Column="0"
         IsEnabled="{Binding IsEnabledImage, Source={x:Reference Instance}}"

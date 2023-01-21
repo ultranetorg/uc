@@ -73,7 +73,7 @@
 	  <MauiXaml Update="Pages\Author\AuthorTransferPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Author\AuthorOptionsPopup.xaml">
+	  <MauiXaml Update="Popups\AuthorOptionsPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Shared\CustomPage.xaml">
@@ -93,7 +93,7 @@
 	  <MauiXaml Update="Views\Controls\FormTimePickerControl.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\ImageTextButton.xaml">
+	  <MauiXaml Update="Views\Controls\ImageTextButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
@@ -103,22 +103,22 @@
 	  <MauiXaml Update="Views\Shared\LabelPair.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\MainPageButton.xaml">
+	  <MauiXaml Update="Views\Controls\MainPageButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\NextCancelButton.xaml">
+	  <MauiXaml Update="Views\Controls\NextCancelButton.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Controls\RattingBar.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\SwitchView.xaml">
+	  <MauiXaml Update="Views\Controls\SwitchView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\AboutPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\AboutPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -146,7 +146,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\DashboardPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\DashboardPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -154,23 +154,23 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\EnterPinBPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\EnterPinBPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\EnterPinPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\EnterPinPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transfers\ETHTransferPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\ETHTransferPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\HelpDetailsPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\HelpDetailsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\HelpPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\HelpPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -182,7 +182,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\NetworkPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\NetworkPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -190,15 +190,15 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductsBPage.xaml">
+	  <MauiXaml Update="Pages\Author\ProductsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductSearchPage.xaml">
+	  <MauiXaml Update="Pages\Author\ProductSearchPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductsPage.xaml">
+	  <MauiXaml Update="Pages\Author\ProductsListPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -206,43 +206,39 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transfers\SendPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\SendPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\SettingsBPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\SettingsBPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\SettingsPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\SettingsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transfers\TransactionsBPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\TransactionsBPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transfers\TransactionsPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\TransactionsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transfers\TransferCompletePage.xaml">
+	  <MauiXaml Update="Pages\Transactions\TransferCompletePage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transfers\UnfinishTransferPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\UnfinishTransferPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\WhatsNewPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\WhatsNewPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Account\AccountOptionsPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\Account\AccountsPopup.xaml">
+	  <MauiXaml Update="Popups\AccountOptionsPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -254,7 +250,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Account\DeleteAccountPopup.xaml">
+	  <MauiXaml Update="Popups\DeleteAccountPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -270,19 +266,19 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Transfer\RecipientAccountPopup.xaml">
+	  <MauiXaml Update="Popups\RecipientAccountPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Author\SelectAuthorPopup.xaml">
+	  <MauiXaml Update="Popups\SelectAuthorPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Transfer\SourceAccountPopup.xaml">
+	  <MauiXaml Update="Popups\SourceAccountPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Transfer\TransactionPopup.xaml">
+	  <MauiXaml Update="Popups\TransactionPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -325,23 +321,23 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Transfer\ETHTransfer1View.xaml">
+	  <MauiXaml Update="Views\ETHTransfer1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Transfer\ETHTransfer3View.xaml">
+	  <MauiXaml Update="Views\ETHTransfer3View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Transfer\ETHTransfer2View.xaml">
+	  <MauiXaml Update="Views\ETHTransfer2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Transfer\Send1View.xaml">
+	  <MauiXaml Update="Views\Send1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Transfer\Send2View.xaml">
+	  <MauiXaml Update="Views\Send2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -385,6 +381,15 @@
 	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Pages\Author\ProductsPage.xaml.cs">
+	    <DependentUpon>ProductsPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Author\ProductsListPage.xaml.cs">
+	    <DependentUpon>ProductsListPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">

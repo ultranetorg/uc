@@ -21,36 +21,54 @@
                             <SwipeView>
                                 <SwipeView.RightItems>
                                     <SwipeItems>
-                                        <SwipeItemView WidthRequest="83">
+                                        <SwipeItemView WidthRequest="84">
                                             <ImageButton
-                                                Padding="15"
+                                                Padding="16"
                                                 CornerRadius="0"
                                                 HorizontalOptions="FillAndExpand"
-                                                Style="{StaticResource TransferProduct}"
-                                                VerticalOptions="FillAndExpand" />
+                                                VerticalOptions="FillAndExpand"
+                                                Style="{StaticResource TransferProduct}" />
                                         </SwipeItemView>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <Grid
                                     Padding="10,5"
-                                    ColumnDefinitions="*,Auto,30"
-                                    ColumnSpacing="10"
+                                    ColumnDefinitions="50,*,30"
+                                    ColumnSpacing="20"
                                     HeightRequest="50"
                                     RowDefinitions="25,25"
                                     RowSpacing="0"
                                     Style="{StaticResource AccountGrid}">
                                     <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding ItemTappedEmptyCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
+                                    <Border
+                                        Grid.Row="0"
+                                        Grid.RowSpan="2"
+                                        Grid.Column="0"
+                                        Margin="-10,-5,0,-10"
+                                        BackgroundColor="{Binding Color}"
+                                        Opacity="0.3"
+                                        VerticalOptions="FillAndExpand" />
                                     <Label
                                         Grid.Row="0"
+                                        Grid.RowSpan="2"
                                         Grid.Column="0"
+                                        Margin="-10,-5,0,-10"
+                                        FontSize="24"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        Text="{Binding Initial}"
+                                        TextColor="{Binding Color}" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="1"
                                         FontSize="13"
                                         Text="{Binding Name}"
                                         VerticalOptions="End" />
                                     <Label
                                         Grid.Row="1"
-                                        Grid.Column="0"
+                                        Grid.Column="1"
                                         FontSize="10"
                                         Text="{Binding Owner}"
                                         VerticalOptions="Start" />
@@ -59,7 +77,7 @@
                                         Grid.RowSpan="2"
                                         Grid.Column="2"
                                         Padding="1"
-                                        Command="{Binding OpenOptionsCommand, Source={x:Reference page}}"
+                                        Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}"
                                         CommandParameter="{Binding .}"
                                         Style="{StaticResource Dots}"
                                         VerticalOptions="Center" />
@@ -69,10 +87,12 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            
             <Border
                 Grid.Row="1"
                 Margin="0,0,0,-20"
                 Padding="0,0,0,30"
+                BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}"
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
                 <StackLayout Padding="15">

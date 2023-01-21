@@ -10,14 +10,14 @@
     ios:Page.UseSafeArea="True"
     x:DataType="vm:ShellViewModel"
     BackgroundColor="{StaticResource Secondary}">
-
+    
     <FlyoutItem
-        Title="{Binding Authors.Title}"
-        Route="{Static constants:ShellBaseRoutes.AUTHORS}">
+        Title="{Binding Products.Title}"
+        Route="{Static constants:ShellBaseRoutes.PRODUCTS}">
         <ShellContent
-            Title="{Binding Authors.Title}"
-            Icon="{AppThemeBinding Light=Authors.Icon,Dark=Authors.IconDark}"
-            ContentTemplate="{DataTemplate pages:AuthorsPage}" />
+            Title="{Binding Products.Title}"
+            Icon="{AppThemeBinding Light=Products.Icon,Dark=Products.IconDark}"
+            ContentTemplate="{DataTemplate pages:ProductsPage}" />
     </FlyoutItem>
 
     <FlyoutItem
@@ -37,14 +37,14 @@
             Icon="{AppThemeBinding Light=Accounts.Icon,Dark=Accounts.IconDark}"
             ContentTemplate="{DataTemplate pages:ManageAccountsPage}" />
     </FlyoutItem>
-    
+
     <FlyoutItem
-        Title="{Binding Products.Title}"
-        Route="{Static constants:ShellBaseRoutes.PRODUCTS}">
+        Title="{Binding Authors.Title}"
+        Route="{Static constants:ShellBaseRoutes.AUTHORS}">
         <ShellContent
-            Title="{Binding Products.Title}"
-            Icon="{AppThemeBinding Light=Products.Icon,Dark=Products.IconDark}"
-            ContentTemplate="{DataTemplate pages:ProductsPage}" />
+            Title="{Binding Authors.Title}"
+            Icon="{AppThemeBinding Light=Authors.Icon,Dark=Authors.IconDark}"
+            ContentTemplate="{DataTemplate pages:AuthorsPage}" />
     </FlyoutItem>
     
     <FlyoutItem

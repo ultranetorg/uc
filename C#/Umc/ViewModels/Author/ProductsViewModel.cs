@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductsBViewModel : BaseTransactionsViewModel
+public partial class ProductsViewModel : BaseViewModel
 {
 	private readonly IProductsService _service;
 
@@ -13,9 +13,16 @@ public partial class ProductsBViewModel : BaseTransactionsViewModel
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();
 
-    public ProductsBViewModel(IProductsService service, ILogger<ProductsBViewModel> logger) : base(logger)
+    public ProductsViewModel(IProductsService service, ILogger<ProductsViewModel> logger) : base(logger)
     {
 		_service = service;
+	}
+
+	[RelayCommand]
+    private async Task OpenProductOptionsAsync(ProductViewModel product)
+    {
+        // await AccountOptionsPopup.Show(author);
+		await Task.Delay(10);
 	}
 
 	[RelayCommand]

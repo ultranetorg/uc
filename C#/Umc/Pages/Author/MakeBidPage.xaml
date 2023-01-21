@@ -44,7 +44,6 @@
                                 <Grid ColumnDefinitions="*,35" RowSpacing="-10">
                                     <views:AccountView
                                         Grid.ColumnSpan="2"
-                                        Margin="0,4"
                                         Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}"
                                         BorderStyle="{StaticResource AccountCardBorderDark}">
                                         <views:AccountView.GestureRecognizers>

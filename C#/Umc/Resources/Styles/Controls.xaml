@@ -578,18 +578,7 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="Medium" />
     </Style>
-
-    <Style ApplyToDerivedTypes="True" TargetType="controls:BorderPicker">
-        <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="BorderWidth" Value="1" />
-        <Setter Property="BorderRadius" Value="6" />
-        <Setter Property="FillColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryForLight}}" />
-        <Setter Property="HeightRequest" Value="44" />
-        <Setter Property="TitleColor" Value="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
-        <Setter Property="FontFamily" Value="Medium" />
-    </Style>
+    
     <Style
         x:Key="EntryPicker"
         ApplyToDerivedTypes="True"

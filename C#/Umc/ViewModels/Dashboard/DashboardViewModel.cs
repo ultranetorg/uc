@@ -24,7 +24,7 @@ public partial class DashboardViewModel : BaseViewModel
     public async Task AuthorsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(AuthorsPage));
 
 	[RelayCommand]
-    public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(ProductsPage));
+    public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(ProductsListPage));
 	
 	[RelayCommand]
     public async Task ETHTransferExcuteAsync() => await Navigation.GoToUpwardsAsync(nameof(ETHTransferPage));

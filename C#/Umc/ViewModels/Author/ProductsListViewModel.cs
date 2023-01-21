@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductsViewModel : BaseViewModel
+public partial class ProductsListViewModel : BaseViewModel
 {
 	private readonly IProductsService _service;
 
@@ -13,7 +13,7 @@ public partial class ProductsViewModel : BaseViewModel
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();
 
-    public ProductsViewModel(IProductsService service, ILogger<ProductsViewModel> logger) : base(logger)
+    public ProductsListViewModel(IProductsService service, ILogger<ProductsListViewModel> logger) : base(logger)
     {
 		_service = service;
     }
