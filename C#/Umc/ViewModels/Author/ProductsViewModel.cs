@@ -21,12 +21,31 @@ public partial class ProductsViewModel : BaseViewModel
 	[RelayCommand]
     private async Task OpenProductOptionsAsync(ProductViewModel product)
     {
-        // await AccountOptionsPopup.Show(author);
-		await Task.Delay(10);
+		try
+		{
+			Guard.IsNotNull(product);
+
+			await ShowPopup(new ProductOptionsPopup(product));
+		}
+		catch(ArgumentException ex)
+		{
+			_logger.LogError("OpenOptionsAsync: Product cannot be null, Error: {Message}", ex.Message);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenOptionsAsync Error: {Message}", ex.Message);
+		}
 	}
 
 	[RelayCommand]
 	private async Task RegisterProductAsync(ProductViewModel product)
+	{
+		// await AccountOptionsPopup.Show(author);
+		await Task.Delay(10);
+	}
+
+	[RelayCommand]
+	private async Task TransferProductAsync(ProductViewModel product)
 	{
 		// await AccountOptionsPopup.Show(author);
 		await Task.Delay(10);

@@ -73,6 +73,9 @@
 	  <MauiXaml Update="Pages\Author\AuthorTransferPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Popups\ProductOptionsPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Popups\AuthorOptionsPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -381,15 +384,6 @@
 	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Pages\Author\ProductsPage.xaml.cs">
-	    <DependentUpon>ProductsPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Author\ProductsListPage.xaml.cs">
-	    <DependentUpon>ProductsListPage.xaml</DependentUpon>
-	  </Compile>
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">

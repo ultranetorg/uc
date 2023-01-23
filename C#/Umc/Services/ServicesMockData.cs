@@ -76,15 +76,15 @@ public class ServicesMockData : IServicesMockData
 
 			#region Products
 
-			ProductViewModel product1 = new("Windows", "Microsoft");
-			ProductViewModel product2 = new("Office", "Microsoft");
-			ProductViewModel product3 = new("Visual Studio Code", "Microsoft");
-			ProductViewModel product4 = new("Outlook 365", "Microsoft");
-			ProductViewModel product5 = new("Paint", "Microsoft");
-			ProductViewModel product6 = new("Google Search", "Alphabet");
-			ProductViewModel product7 = new("AWS", "Amazon");
-			ProductViewModel product8 = new("Warehouse", "Space X");
-			ProductViewModel product9 = new("Gate Defender 3", "Gate 500");
+			ProductViewModel product1 = new("Windows", "Microsoft", ColorHelper.GetRandomColor());
+			ProductViewModel product2 = new("Office", "Microsoft", ColorHelper.GetRandomColor());
+			ProductViewModel product3 = new("Visual Studio Code", "Microsoft", ColorHelper.GetRandomColor());
+			ProductViewModel product4 = new("Outlook 365", "Microsoft", ColorHelper.GetRandomColor());
+			ProductViewModel product5 = new("Paint", "Microsoft", ColorHelper.GetRandomColor());
+			ProductViewModel product6 = new("Google Search", "Alphabet", ColorHelper.GetRandomColor());
+			ProductViewModel product7 = new("AWS", "Amazon", ColorHelper.GetRandomColor());
+			ProductViewModel product8 = new("Warehouse", "Space X", ColorHelper.GetRandomColor());
+			ProductViewModel product9 = new("Gate Defender 3", "Gate 500", ColorHelper.GetRandomColor());
 
 			Products.Add(product1);
 			Products.Add(product2);

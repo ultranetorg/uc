@@ -11,78 +11,61 @@
     x:Name="page">
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
-            <CollectionView
-                Grid.Row="0"
-                ItemsSource="{Binding Products}"
-                SelectionMode="None">
+            <CollectionView Grid.Row="0" ItemsSource="{Binding Products}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:ProductViewModel">
-                        <Border Margin="18,8" Style="{StaticResource AccountCardBorder}">
-                            <SwipeView>
-                                <SwipeView.RightItems>
-                                    <SwipeItems>
-                                        <SwipeItemView WidthRequest="84">
-                                            <ImageButton
-                                                Padding="16"
-                                                CornerRadius="0"
-                                                HorizontalOptions="FillAndExpand"
-                                                VerticalOptions="FillAndExpand"
-                                                Style="{StaticResource TransferProduct}" />
-                                        </SwipeItemView>
-                                    </SwipeItems>
-                                </SwipeView.RightItems>
-                                <Grid
-                                    Padding="10,5"
-                                    ColumnDefinitions="50,*,30"
-                                    ColumnSpacing="20"
-                                    HeightRequest="50"
-                                    RowDefinitions="25,25"
-                                    RowSpacing="0"
-                                    Style="{StaticResource AccountGrid}">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
-                                    </Grid.GestureRecognizers>
-                                    <Border
-                                        Grid.Row="0"
-                                        Grid.RowSpan="2"
-                                        Grid.Column="0"
-                                        Margin="-10,-5,0,-10"
-                                        BackgroundColor="{Binding Color}"
-                                        Opacity="0.3"
-                                        VerticalOptions="FillAndExpand" />
-                                    <Label
-                                        Grid.Row="0"
-                                        Grid.RowSpan="2"
-                                        Grid.Column="0"
-                                        Margin="-10,-5,0,-10"
-                                        FontSize="24"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center"
-                                        Text="{Binding Initial}"
-                                        TextColor="{Binding Color}" />
-                                    <Label
-                                        Grid.Row="0"
-                                        Grid.Column="1"
-                                        FontSize="13"
-                                        Text="{Binding Name}"
-                                        VerticalOptions="End" />
-                                    <Label
-                                        Grid.Row="1"
-                                        Grid.Column="1"
-                                        FontSize="10"
-                                        Text="{Binding Owner}"
-                                        VerticalOptions="Start" />
-                                    <ImageButton
-                                        Grid.Row="0"
-                                        Grid.RowSpan="2"
-                                        Grid.Column="2"
-                                        Padding="1"
-                                        Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}"
-                                        CommandParameter="{Binding .}"
-                                        Style="{StaticResource Dots}"
-                                        VerticalOptions="Center" />
-                                </Grid>
-                            </SwipeView>
+                        <Border Margin="16,8" Style="{StaticResource AccountCardBorder}">
+                            <Grid
+                                Padding="12,4"
+                                ColumnDefinitions="52,*,32"
+                                ColumnSpacing="24"
+                                HeightRequest="52"
+                                RowDefinitions="24,24"
+                                RowSpacing="0"
+                                Style="{StaticResource AccountGrid}">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                                <Border
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="0"
+                                    Margin="-10,-5,0,-10"
+                                    BackgroundColor="{Binding Color}"
+                                    Opacity="0.3"
+                                    VerticalOptions="FillAndExpand" />
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="0"
+                                    Margin="-8,0,0,0"
+                                    FontSize="24"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    Text="{Binding Abbr}"
+                                    TextColor="{Binding Color}" />
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    FontSize="13"
+                                    Text="{Binding Name}"
+                                    VerticalOptions="End" />
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    FontSize="10"
+                                    Text="{Binding Owner}"
+                                    VerticalOptions="Start" />
+                                <ImageButton
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="2"
+                                    Padding="1"
+                                    Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}"
+                                    CommandParameter="{Binding .}"
+                                    Style="{StaticResource Dots}"
+                                    VerticalOptions="Center" />
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
@@ -90,8 +73,8 @@
             
             <Border
                 Grid.Row="1"
-                Margin="0,0,0,-20"
-                Padding="0,0,0,30"
+                Margin="0,0,0,-24"
+                Padding="0,0,0,32"
                 BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}"
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">

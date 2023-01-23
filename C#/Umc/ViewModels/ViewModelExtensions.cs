@@ -85,6 +85,7 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<SelectAuthorViewModel>();
 		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();
+		builder.Services.AddTransient<ProductOptionsViewModel>();
 
 		#endregion
 

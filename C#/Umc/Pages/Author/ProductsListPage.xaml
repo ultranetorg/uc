@@ -18,53 +18,39 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:ProductViewModel">
                         <Border Margin="18,8" Style="{StaticResource AccountCardBorder}">
-                            <SwipeView>
-                                <SwipeView.RightItems>
-                                    <SwipeItems>
-                                        <SwipeItemView WidthRequest="83">
-                                            <ImageButton
-                                                Padding="15"
-                                                CornerRadius="0"
-                                                HorizontalOptions="FillAndExpand"
-                                                Style="{StaticResource TransferProduct}"
-                                                VerticalOptions="FillAndExpand" />
-                                        </SwipeItemView>
-                                    </SwipeItems>
-                                </SwipeView.RightItems>
-                                <Grid
-                                    Padding="10,5"
-                                    ColumnDefinitions="*,Auto,30"
-                                    ColumnSpacing="10"
-                                    HeightRequest="50"
-                                    RowDefinitions="25,25"
-                                    RowSpacing="0"
-                                    Style="{StaticResource AccountGrid}">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedEmptyCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
-                                    </Grid.GestureRecognizers>
-                                    <Label
-                                        Grid.Row="0"
-                                        Grid.Column="0"
-                                        FontSize="13"
-                                        Text="{Binding Name}"
-                                        VerticalOptions="End" />
-                                    <Label
-                                        Grid.Row="1"
-                                        Grid.Column="0"
-                                        FontSize="10"
-                                        Text="{Binding Owner}"
-                                        VerticalOptions="Start" />
-                                    <ImageButton
-                                        Grid.Row="0"
-                                        Grid.RowSpan="2"
-                                        Grid.Column="2"
-                                        Padding="1"
-                                        Command="{Binding BindingContext.OpenOptionsCommand, Source={x:Reference page}}"
-                                        CommandParameter="{Binding .}"
-                                        Style="{StaticResource Dots}"
-                                        VerticalOptions="Center" />
-                                </Grid>
-                            </SwipeView>
+                            <Grid
+                                Padding="10,5"
+                                ColumnDefinitions="*,Auto,30"
+                                ColumnSpacing="10"
+                                HeightRequest="50"
+                                RowDefinitions="25,25"
+                                RowSpacing="0"
+                                Style="{StaticResource AccountGrid}">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    FontSize="13"
+                                    Text="{Binding Name}"
+                                    VerticalOptions="End" />
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    FontSize="10"
+                                    Text="{Binding Owner}"
+                                    VerticalOptions="Start" />
+                                <ImageButton
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="2"
+                                    Padding="1"
+                                    Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}"
+                                    CommandParameter="{Binding .}"
+                                    Style="{StaticResource Dots}"
+                                    VerticalOptions="Center" />
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
