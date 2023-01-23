@@ -20,7 +20,7 @@ namespace UC.Sun.FUI
 
 			monitor.Core	= d;
 
-			d.Started += c =>	{
+			d.MainStarted += c =>	{
 									if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
 										Core.Database.BlockAdded +=  monitor.OnBlockAdded;
 								};

@@ -228,35 +228,42 @@ namespace UC.Net
 				Table = table;
 
 				Cluster = Table.Clusters.GetEnumerator();
-				
-				if(Cluster.Current != null)
-				{
-					Entity = Cluster.Current.Entries.GetEnumerator();
-				}
 			}
 
 			public void Dispose()
 			{
-				Cluster.Dispose();
-				Entity.Dispose();
+				Cluster?.Dispose();
+				Entity?.Dispose();
 			}
 
 			public bool MoveNext()
 			{
-				var e = Entity.MoveNext();
-				
-				if(!e)
-				{
-					return Cluster.MoveNext();
-				}
-				
-				return true;
+				start: 
+					if(Entity == null)
+					{
+						if(Cluster.MoveNext())
+						{
+							Entity = Cluster.Current.Entries.GetEnumerator();
+						}
+						else
+							return false;
+					}
+
+					if(Entity.MoveNext())
+					{
+						return true;
+					}
+					else
+					{
+						Entity = null;
+						goto start;
+					}
 			}
 
 			public void Reset()
 			{
+				Entity = null;
 				Cluster = Table.Clusters.GetEnumerator();
-				Entity = Cluster.Current.Entries.GetEnumerator();
 			}
 		}
 

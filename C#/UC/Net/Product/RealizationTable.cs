@@ -25,7 +25,7 @@ namespace UC.Net
 		
 		public RealizationEntry Find(RealizationAddress name, int ridmax)
 		{
-			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedRealizations.ContainsKey(name))
 					return r.AffectedRealizations[name];
 

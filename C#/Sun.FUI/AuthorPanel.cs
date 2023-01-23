@@ -118,7 +118,7 @@ namespace UC.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					Cost.Coins = AuthorRegistration.GetCost(Chain.LastConfirmedRound, (byte)Years.Value);
+					Cost.Coins = AuthorRegistration.GetCost(Database.LastConfirmedRound, (byte)Years.Value);
 				}
 			}
 			else
@@ -151,10 +151,10 @@ namespace UC.Sun.FUI
 
 			if(AuthorEntry.IsExclusive(AuctionAuthor.Text))
 			{
-				var a = Chain.Authors.Find(AuctionAuthor.Text, Chain.LastConfirmedRound.Id);
+				var a = Database.Authors.Find(AuctionAuthor.Text, Database.LastConfirmedRound.Id);
 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
 
-				if(a != null && !a.IsOngoingAuction(Chain.LastConfirmedRound))
+				if(a != null && !a.IsOngoingAuction(Database.LastConfirmedRound))
 				{
 					AuctionStatus.Text = $"Auction is over";
 				}
@@ -176,7 +176,7 @@ namespace UC.Sun.FUI
 				if(string.IsNullOrWhiteSpace(TransferingAuthor.Text))
 					throw new ArgumentException("The author is not selected");
 
-				var a = Chain.Authors.Find(TransferingAuthor.Text, int.MaxValue);
+				var a = Database.Authors.Find(TransferingAuthor.Text, int.MaxValue);
 
 				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), TransferingAuthor.Text, Account.Parse(NewOwner.Text)), PlacingStage.Null, null);
 			}

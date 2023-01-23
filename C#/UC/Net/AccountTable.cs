@@ -84,62 +84,22 @@ namespace UC.Net
 			}
 		}
 
-
-/*
-		public O FindLastOperation<O>(Account account, int ridmax) where O : Operation
-		{
-			var e = FindEntry(account);
-
-			if(e != null)
-			{
-				foreach(var r in e.Transactions.Where(rid => rid <= ridmax).OrderByDescending(i => i).Select(i => Chain.FindRound(i)))
-				{
-					var o = r.FindOperation<O>(i => i.Signer == account);
-					
-					if(o != null)
-					{
-						return o;
-					}
-				}
-			}
-
-			return null;
-		}
-
-		public IEnumerable<O> FindLastOperations<O>(Account account, int ridmax) where O : Operation
-		{
-			var e = FindEntry(account);
-
-			if(e != null)
-			{
-				foreach(var r in e.Transactions.Where(rid => rid <= ridmax).OrderByDescending(i => i).Select(i => Chain.FindRound(i)))
-				{
-					var o = r.FindOperation<O>(i => i.Signer == account);
-					
-					if(o != null)
-					{
-						yield return o;
-					}
-				}
-			}
-		}*/
-
 		public Transaction FindLastTransaction(Account signer, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
-			return	Database.FindLastPoolTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
+			return	Database.FindLastTailTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
 					??
 					FindTransaction(signer, transaction_predicate, payload_predicate, round_predicate);
 		}
 
 		public IEnumerable<Transaction> FindLastTransactions(Account signer, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
-			return	Database.FindLastPoolTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
+			return	Database.FindLastTailTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
 					.Union(FindTransactions(signer, transaction_predicate, payload_predicate, round_predicate));
 		}
 
 		public IEnumerable<Transaction> SearchTransactions(Account signer, int skip = 0, int count = int.MaxValue)
 		{
-			var o = Database.FindLastPoolTransactions(i => i.Signer == signer);
+			var o = Database.FindLastTailTransactions(i => i.Signer == signer);
 
 			var e = FindEntry(signer);
 
@@ -150,12 +110,6 @@ namespace UC.Net
 
 			return o;
 		}
-
-// 		public int GetNextTransactionId(Account account)
-// 		{
-// 			var t = FindLastTransaction(account, i => i.Successful);
-// 			return t == null ? 0 : t.Id + 1;
-// 		}
 
 		public Operation FindLastOperation(Account signer, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null, Func<Round, bool> rp = null)
 		{
@@ -187,10 +141,10 @@ namespace UC.Net
 
 		public AccountEntry Find(Account account, int ridmax)
 		{
-			if(0 < ridmax && ridmax < Database.Rounds.Last().Id - 1) /// by -1 we treat the whole Base as a round before Last
+			if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1) /// by -1 we treat the whole Base as a round before Last
 				throw new IntegrityException("maxrid works inside pool only");
 
-			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedAccounts.ContainsKey(account))
 					return r.AffectedAccounts[account];
 

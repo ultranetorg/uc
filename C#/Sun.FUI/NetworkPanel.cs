@@ -40,12 +40,12 @@ namespace UC.Sun.FUI
 					r.Tag = i;
 				}
 
-				foreach(var i in (Chain != null ? Chain.Members : Core.Members).OrderBy(i => i.Generator))
+				foreach(var i in (Database != null ? Database.Members : Core.Members).OrderBy(i => i.Generator))
 				{
 					var li = Generators.Items.Add(i.Generator.ToString());
 
 					li.SubItems.Add(i.JoinedAt.ToString());
-					li.SubItems.Add(Chain != null ? Core.Database.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString() : null);
+					li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Generator, int.MaxValue).Bail.ToHumanString() : null);
 					li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 
@@ -57,9 +57,9 @@ namespace UC.Sun.FUI
 					Hubs.Items.Add(li);
 				}
 
-				if(Chain != null)
+				if(Database != null)
 				{
-					foreach(var i in Chain.Funds.OrderBy(i => i))
+					foreach(var i in Database.Funds.OrderBy(i => i))
 					{
 						var li = new ListViewItem(i.ToString());
 						Funds.Items.Add(li);

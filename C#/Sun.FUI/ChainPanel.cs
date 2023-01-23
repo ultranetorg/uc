@@ -30,14 +30,14 @@ namespace UC.Sun.FUI
 																{ 
 																	lock(Core.Lock)
 																	{
-																		Round.Minimum = Core.Settings.Database.Chain ? 0 : Core.Database.Rounds.Last().Id;
+																		Round.Minimum = Core.Settings.Database.Chain ? 0 : Core.Database.Tail.Last().Id;
 																		Round.Maximum = Core.Database.LastNonEmptyRound.Id; 
 																	}
 																});
 												};
 
 					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
-					Round.Minimum = Core.Settings.Database.Chain ? 0 : Core.Database.Rounds.Last().Id;
+					Round.Minimum = Core.Settings.Database.Chain ? 0 : Core.Database.Tail.Last().Id;
 					Round.Maximum = Core.Database.LastNonEmptyRound.Id;
 					Round.Value = Core.Database.LastNonEmptyRound.Id;
 				}

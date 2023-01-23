@@ -331,9 +331,9 @@ namespace UC.Net
 											Thread.Sleep(1);
 									}
 								}
-								catch(Exception ex) when(!Debugger.IsAttached)
+								catch(Exception) when(!Debugger.IsAttached)
 								{
-									core.Stop(MethodBase.GetCurrentMethod(), ex);
+									Disconnect();
 								}
 							});
 	

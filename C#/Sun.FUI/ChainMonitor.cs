@@ -67,7 +67,7 @@ namespace UC.Sun.FUI
 				{
 					lock(Core.Lock)
 					{
-						if(!Core.Database.Rounds.Any())
+						if(!Core.Database.Tail.Any())
 							return;
 
 						var s = 8;
@@ -96,7 +96,7 @@ namespace UC.Sun.FUI
 								var r = Core.Database.FindRound(i);
 								rounds.Add(r);
 	
-								if(showt)
+								if(showt && r != null)
 								{
 									nid = Math.Max(nid, i.ToString().Length);
 									njrs = Math.Max(njrs, r.JoinRequests.Count().ToString().Length);

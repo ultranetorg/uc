@@ -111,7 +111,7 @@ namespace UC.Net
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(GetMembersRequest).Namespace + "." + type + nameof(Request)).GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as Request;
+				return Assembly.GetExecutingAssembly().GetType(typeof(Request).Namespace + "." + type + nameof(Request)).GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as Request;
 			}
 			catch(Exception ex)
 			{
@@ -151,7 +151,7 @@ namespace UC.Net
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(GetMembersRequest).Namespace + "." + type + nameof(Response)).GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as Response;
+				return Assembly.GetExecutingAssembly().GetType(typeof(Response).Namespace + "." + type + nameof(Response)).GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as Response;
 			}
 			catch(Exception ex)
 			{
@@ -271,6 +271,12 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 			{
+				if(!core.Settings.Database.Base)
+					throw new DistributedCallException(Error.NotBase);
+
+				if(core.Database.LastNonEmptyRound == null)
+					throw new DistributedCallException(Error.TooEearly);
+
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 			
@@ -342,8 +348,8 @@ namespace UC.Net
 				return new StampResponse {	BaseState				= core.Database.BaseState,
 											BaseHash				= core.Database.BaseHash,
 											LastCommitedRoundHash	= core.Database.LastCommittedRound.Hash,
-											FirstTailRound			= core.Database.Rounds.Last().Id,
-											LastTailRound			= core.Database.Rounds.First().Id,
+											FirstTailRound			= core.Database.Tail.Last().Id,
+											LastTailRound			= core.Database.Tail.First().Id,
 											Accounts				= core.Database.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
 											Authors					= core.Database.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
 											Products				= core.Database.Products.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
@@ -545,14 +551,14 @@ namespace UC.Net
 				return	new GetOperationStatusResponse
 						{
 							Operations = Operations.Select(o => new {	A = o,
-																		B = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
-																								.SelectMany(t => t.Operations)
-																								.FirstOrDefault(i => i.Id == o.Id)
+																		O = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
+																							 .SelectMany(t => t.Operations)
+																							 .FirstOrDefault(i => i.Id == o.Id)
 																		?? 
 																		core.Database.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
 													.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
 																										Id			= i.A.Id,
-																										Placing		= i.B == null ? PlacingStage.FailedOrNotFound : i.B.Placing}).ToArray()
+																										Placing		= i.O == null ? PlacingStage.FailedOrNotFound : i.O.Placing}).ToArray()
 						};
 			}
 		}

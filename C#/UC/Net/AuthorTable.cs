@@ -25,10 +25,10 @@ namespace UC.Net
 		
  		public AuthorEntry Find(string name, int ridmax)
  		{
-			if(0 < ridmax && ridmax < Database.Rounds.Last().Id)
+			if(0 < ridmax && ridmax < Database.Tail.Last().Id)
 				throw new IntegrityException("maxrid works inside pool only");
 
- 			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
  				if(r.AffectedAuthors.ContainsKey(name))
  					return r.AffectedAuthors[name];
  		
