@@ -17,6 +17,7 @@ public partial class ProductOptionsViewModel : BaseViewModel
 		//{
 		//	{ QueryKeys.AUTHOR, Product }
 		//});
+		await Task.Delay(10);
 		ClosePopup();
 	}
 }

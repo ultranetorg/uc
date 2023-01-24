@@ -2,18 +2,23 @@
 
 public class ProductsService : IProductsService
 {
-    public Task<ProductViewModel> FindByAccountAddressAsync([NotEmpty, NotNull] string accountAddress)
-    {
-        throw new NotImplementedException();
-    }
+	public Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync()
+	{
+		throw new NotImplementedException();
+	}
 
-    public Task<int> GetCountAsync()
-    {
-        throw new NotImplementedException();
-    }
+	public Task<ObservableCollection<ProductViewModel>> GetAuthorProductsAsync(string authorName)
+	{
+		throw new NotImplementedException();
+	}
 
-    public Task<ObservableCollection<ProductViewModel>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
+	public Task<ObservableCollection<ProductViewModel>> SortProductsAsync(string sortBy)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search)
+	{
+		throw new NotImplementedException();
+	}
 }

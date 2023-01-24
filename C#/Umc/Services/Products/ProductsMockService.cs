@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.Services;
+﻿using System.Globalization;
+
+namespace UC.Umc.Services;
 
 public class ProductsMockService : IProductsService
 {
@@ -9,23 +11,22 @@ public class ProductsMockService : IProductsService
         _data = data;
     }
 
-    public Task<ProductViewModel> FindByAccountAddressAsync([NotEmpty, NotNull] string accountAddress)
-    {
-        Guard.IsNotNullOrEmpty(accountAddress, nameof(accountAddress));
+	public Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync() =>
+		Task.FromResult(new ObservableCollection<ProductViewModel>(_data.Products.ToList()));
 
-        ProductViewModel result = _data.Products.FirstOrDefault(x => x.Author.Account.Address == accountAddress);
-        return Task.FromResult(result);
-    }
+	public Task<ObservableCollection<ProductViewModel>> GetAuthorProductsAsync(string authorName) =>
+		Task.FromResult(new ObservableCollection<ProductViewModel>(_data.Products.Where(x => x.Author.Name == authorName)));
 
-    public Task<int> GetCountAsync()
-    {
-        int result = _data.Products.Count;
-        return Task.FromResult(result);
-    }
+	public Task<ObservableCollection<ProductViewModel>> SortProductsAsync(string sortBy)
+	{
+		var products = _data.Products.AsQueryable().OrderBy(sortBy);
+		return Task.FromResult(new ObservableCollection<ProductViewModel>(products.ToList()));
+	}
 
-    public Task<ObservableCollection<ProductViewModel>> GetAllAsync()
+    public Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search)
     {
-        ObservableCollection<ProductViewModel> result = new(_data.Products);
+		var items = _data.Products.Where(x => x.Name.Contains(search)).ToList();
+        var result = new ObservableCollection<ProductViewModel>(items);
         return Task.FromResult(result);
     }
 }

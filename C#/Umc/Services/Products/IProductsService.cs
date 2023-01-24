@@ -2,9 +2,11 @@
 
 public interface IProductsService
 {
-    Task<ProductViewModel> FindByAccountAddressAsync([NotNull, NotEmpty] string accountAddress);
+    Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync();
 
-    Task<int> GetCountAsync();
+    Task<ObservableCollection<ProductViewModel>> GetAuthorProductsAsync(string authorName);
 
-    Task<ObservableCollection<ProductViewModel>> GetAllAsync();
+    Task<ObservableCollection<ProductViewModel>> SortProductsAsync(string sortBy);
+
+    Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search);
 }

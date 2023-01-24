@@ -76,15 +76,15 @@ public class ServicesMockData : IServicesMockData
 
 			#region Products
 
-			ProductViewModel product1 = new("Windows", "Microsoft", ColorHelper.GetRandomColor());
-			ProductViewModel product2 = new("Office", "Microsoft", ColorHelper.GetRandomColor());
-			ProductViewModel product3 = new("Visual Studio Code", "Microsoft", ColorHelper.GetRandomColor());
-			ProductViewModel product4 = new("Outlook 365", "Microsoft", ColorHelper.GetRandomColor());
-			ProductViewModel product5 = new("Paint", "Microsoft", ColorHelper.GetRandomColor());
-			ProductViewModel product6 = new("Google Search", "Alphabet", ColorHelper.GetRandomColor());
-			ProductViewModel product7 = new("AWS", "Amazon", ColorHelper.GetRandomColor());
-			ProductViewModel product8 = new("Warehouse", "Space X", ColorHelper.GetRandomColor());
-			ProductViewModel product9 = new("Gate Defender 3", "Gate 500", ColorHelper.GetRandomColor());
+			ProductViewModel product1 = new("Windows", "Microsoft", ColorHelper.GetRandomColor(), "1.0.1");
+			ProductViewModel product2 = new("Office", "Microsoft", ColorHelper.GetRandomColor(), "1.0.2");
+			ProductViewModel product3 = new("Visual Studio Code", "Microsoft", ColorHelper.GetRandomColor(), "1.0.3");
+			ProductViewModel product4 = new("Outlook 365", "Microsoft", ColorHelper.GetRandomColor(), "1.0.4");
+			ProductViewModel product5 = new("Paint", "Microsoft", ColorHelper.GetRandomColor(), "4.7.0-preview");
+			ProductViewModel product6 = new("Google Search", "Alphabet", ColorHelper.GetRandomColor(), "2.0.1");
+			ProductViewModel product7 = new("AWS", "Amazon", ColorHelper.GetRandomColor(), "12.2.0 beta");
+			ProductViewModel product8 = new("Warehouse", "Space X", ColorHelper.GetRandomColor(), "0.0.1");
+			ProductViewModel product9 = new("Gate Defender 3", "Gate 500", ColorHelper.GetRandomColor(), "1.0.9");
 
 			Products.Add(product1);
 			Products.Add(product2);

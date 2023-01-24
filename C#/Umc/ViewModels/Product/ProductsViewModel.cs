@@ -53,7 +53,7 @@ public partial class ProductsViewModel : BaseViewModel
 
 	internal async Task InitializeAsync()
 	{
-		var products = await _service.GetAllAsync();
+		var products = await _service.GetAllProductsAsync();
 		Products.AddRange(products);
         ProductsFilter = DefaultDataMock.ProductsFilter;
 	}
