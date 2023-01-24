@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public class RoundReference : IEquatable<RoundReference>
+	public class RoundReference : IEquatable<RoundReference>, IBinarySerializable
 	{
 		public const byte		PrefixLength = 4;
 		public static readonly	RoundReference Empty = new RoundReference {	Parent = Cryptography.ZeroHash,

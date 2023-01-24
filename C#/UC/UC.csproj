@@ -7,12 +7,12 @@
     <Company>uo</Company>
     <Authors>uo</Authors>
     <Product>Framework</Product>
-    <AssemblyVersion>0.0.584.0</AssemblyVersion>
-    <FileVersion>0.0.584.0</FileVersion>
+    <AssemblyVersion>0.0.604.0</AssemblyVersion>
+    <FileVersion>0.0.604.0</FileVersion>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <Version>0.0.584</Version>
+    <Version>0.0.604</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\dotnet\</OutputPath>

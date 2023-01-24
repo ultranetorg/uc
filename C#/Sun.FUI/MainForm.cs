@@ -16,7 +16,7 @@ namespace UC.Sun.FUI
 	public partial class MainForm : Form
 	{
 		public readonly Core		Core;
-		readonly Timer					Timer = new Timer();
+		readonly Timer				Timer = new Timer();
 
 		public MainForm(Core core)
 		{
@@ -26,7 +26,21 @@ namespace UC.Sun.FUI
 
 			MinimumSize = Size;
 			Core = core;
+			Core.MainStarted += c =>{ 	
+										BeginInvoke((MethodInvoker) delegate
+													{ 
+														LoadUI(core);
+													});
+									};
 
+			if(core.MainThread != null)
+			{
+				LoadUI(core);
+			}
+		}
+
+		void LoadUI(Core core)
+		{
 			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Core, core.Vault)};
 			navigator.Nodes.Add(dashboard);
 
@@ -35,9 +49,15 @@ namespace UC.Sun.FUI
 
 			if(core.Database != null)
 			{
-				var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
-				navigator.Nodes.Add(txs);
-	
+				if(core.Settings.Database.Chain)
+				{
+					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
+					navigator.Nodes.Add(txs);
+
+					var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Core, core.Vault) };
+					navigator.Nodes.Add(exp);
+				}
+
 				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, core.Vault) };
 				///navigator.Nodes.Add(memb);
 	
@@ -49,9 +69,6 @@ namespace UC.Sun.FUI
 	
 				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Core, core.Vault) };				
 				navigator.Nodes.Add(rel);
-
-				var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Core, core.Vault) };
-				navigator.Nodes.Add(exp);
 			}
 
 			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Core, core.Vault) };
@@ -61,31 +78,22 @@ namespace UC.Sun.FUI
 			nodes.Expand();
 			navigator.Nodes.Add(nodes);
 
-			{
-				//if(core.Chain != null)
-				//{
-				//	var members = new TreeNode("Members"){ Tag = new NetworkPanel(Core, core.Vault)};
-				//	nodes.Nodes.Add(members);
-				//}
-
-				if(Settings.Dev.UI)
-				{
-					var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
-					nodes.Nodes.Add(initials);
-				}
- 
-// 				var ipfs = new TreeNode("IPFS"){  };
-// 				nodes.Nodes.Add(ipfs);
-			}
-
 			if(Core.Hub != null)
 			{
 				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Core, core.Vault) };
 				navigator.Nodes.Add(hub);
 			}
 
-			var apps = new TreeNode("Applications"){ Tag = new ApplicationsPanel(Core, core.Vault) };
-			navigator.Nodes.Add(apps);
+			//var apps = new TreeNode("Files"){ Tag = new ApplicationsPanel(Core, core.Vault) };
+			//navigator.Nodes.Add(apps);
+
+			if(Settings.Dev.UI)
+			{
+				var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
+				nodes.Nodes.Add(initials);
+			}
+
+			navigator.SelectedNode = dashboard;
 		}
 
 		protected override void OnHandleCreated(EventArgs e)
@@ -113,13 +121,9 @@ namespace UC.Sun.FUI
 		{
 			lock(Core.Lock)
 			{
-				var gens =  Core.Settings.Generators.Where(i => Core.Database.Members.Any(j => j.Generator == i));
 
-				Text = "Ultranet Node"; //System.Reflection.Assembly.GetEntryAssembly().ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += $"{(Core.Networking && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}" +
-						$"{(Core.Networking && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - " +
-						$"{Core.Synchronization}" +
-						$"{(gens.Any() ? $" - {gens.Count()} members" : "")}";
+				Text = "Ultranet Node - "; //System.Reflection.Assembly.GetEntryAssembly().ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
+				Text += Core;
 			}
 
 			foreach(var i in Controls)

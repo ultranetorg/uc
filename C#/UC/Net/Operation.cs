@@ -19,11 +19,6 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net
 {
-// 	public enum DelegationStage
-// 	{
-// 		Null, Pending, Delegated, Completed
-// 	}
-
 	public enum PlacingStage
 	{
 		Null, PendingDelegation, Accepted, Verified, Placed, Confirmed, FailedOrNotFound
@@ -46,17 +41,12 @@ namespace UC.Net
 		public string			Error;
 		public Account			Signer { get; set; }
 		public Transaction		Transaction;
-		//public DelegationStage	Delegation;
 		public PlacingStage		Placing;
 		public Workflow			FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
-		//public bool				Executed; 
-		//public bool				Successful;
 
-		#if DEBUG
 		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
-		#endif
 
 		public const string		Rejected = "Rejected";
 		public const string		NotSequential = "Not sequential";
@@ -77,7 +67,7 @@ namespace UC.Net
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(GetMembersRequest).Namespace + "." + type).GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as Operation;
+				return Assembly.GetExecutingAssembly().GetType(typeof(Operation).Namespace + "." + type).GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as Operation;
 			}
 			catch(Exception ex)
 			{
@@ -95,9 +85,8 @@ namespace UC.Net
 			Id = reader.Read7BitEncodedInt();
 
 			ReadConfirmed(reader);
-#if DEBUG
+
 			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
-#endif
 		}
 
 		public void Write(BinaryWriter writer)
@@ -105,9 +94,8 @@ namespace UC.Net
 			writer.Write7BitEncodedInt(Id);
 			
 			WriteConfirmed(writer);
-#if DEBUG
+
 			writer.Write((byte)__ExpectedPlacing);
-#endif
 		}
 
 		public static bool IsValid(string author, string title)
@@ -158,7 +146,6 @@ namespace UC.Net
 	public class CandidacyDeclaration : Operation
 	{
 		public Coin				Bail;
-		public IPAddress[]		IPs;
 		public override string	Description => $"{Bail} UNT";
 		public override bool	Valid => Settings.Dev.DisableBailMin ? true : Bail >= Database.BailMin;
 		
@@ -166,25 +153,22 @@ namespace UC.Net
 		{
 		}
 
-		public CandidacyDeclaration(PrivateAccount signer, Coin bail, IEnumerable<IPAddress> ips)
+		public CandidacyDeclaration(PrivateAccount signer, Coin bail)
 		{
 			//if(!Settings.Dev.DisableBailMin && bail < Roundchain.BailMin)	throw new RequirementException("The bail must be greater than or equal to BailMin");
 
 			Signer = signer;
 			Bail = bail;
-			IPs = ips.ToArray();
 		}
 
 		protected override void ReadConfirmed(BinaryReader r)
 		{
 			Bail = r.ReadCoin();
-			IPs	 = r.ReadArray(() => new IPAddress(r.ReadBytes(4)));
 		}
 
 		protected override void WriteConfirmed(BinaryWriter w)
 		{
 			w.Write(Bail);
-			w.Write(IPs, i => w.Write(i.GetAddressBytes()));
 		}
 
 		public override void Execute(Database chain, Round round)
@@ -203,7 +187,6 @@ namespace UC.Net
 				e.BailStatus = BailStatus.OK;
 
 			e.CandidacyDeclarationRound = round.Id;
-			e.IPs = IPs;
 		}
 	}
 

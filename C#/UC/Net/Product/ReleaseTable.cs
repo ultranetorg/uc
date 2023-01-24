@@ -21,7 +21,7 @@ namespace UC.Net
 		
 		public ReleaseEntry Find(ReleaseAddress name, int ridmax)
 		{
-			foreach(var r in Database.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedReleases.ContainsKey(name))
 					return r.AffectedReleases[name];
 

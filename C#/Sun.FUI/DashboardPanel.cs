@@ -19,10 +19,18 @@ namespace UC.Sun.FUI
 			InitializeComponent();
 
 			monitor.Core	= d;
+
+			d.MainStarted += c =>	{
+									if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
+										Core.Database.BlockAdded +=  monitor.OnBlockAdded;
+								};
 		}
 
 		public override void Open(bool first)
 		{
+			if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
+				Core.Database.BlockAdded +=  monitor.OnBlockAdded;
+
 			if(first)
 			{
 				logbox.Log = Core.Workflow.Log;
@@ -33,6 +41,14 @@ namespace UC.Sun.FUI
 				if(destination.Items.Count > 1)
 					destination.SelectedIndex = 1;
 			}
+		}
+
+		public override void Close()
+		{
+			base.Close();
+
+			if(Core.Database != null)
+				Core.Database.BlockAdded -= monitor.OnBlockAdded;
 		}
 
 		public override void PeriodicalRefresh()

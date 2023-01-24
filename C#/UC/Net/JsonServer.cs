@@ -211,7 +211,7 @@ namespace UC.Net
 						case StatusCall s:
 							lock(Core.Lock)
 								return new GetStatusResponse{	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
-																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
+																Rounds		= Chain.Tail.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
 																InfoValues	= Core.Info[1].Take(s.Limit), 
 																Peers		= Core.Peers.Select(i => $"{i.IP} S={i.Status} In={i.InStatus} Out={i.OutStatus} F={i.Failures}")};

@@ -19,7 +19,7 @@ namespace UC.Net
 		public Coin						Balance;
 		public int						LastEmissionId = -1;
 		public int						CandidacyDeclarationRound = -1;
-		public IPAddress[]				IPs = new IPAddress[]{};
+		//public IPAddress[]				IPs = new IPAddress[]{};
 		public Coin						Bail;
 		public BailStatus				BailStatus;
 
@@ -61,7 +61,6 @@ namespace UC.Net
 											LastEmissionId = LastEmissionId,
 											Balance = Balance,
 											CandidacyDeclarationRound = CandidacyDeclarationRound,
-											IPs = IPs.ToArray(),
 											Bail = Bail,
 											BailStatus = BailStatus,
 											//_Authors = new List<string>(Authors),
@@ -78,7 +77,6 @@ namespace UC.Net
 
 			if(CandidacyDeclarationRound != -1)
 			{
-				w.Write(IPs, i => w.Write(i));
 				w.Write(Bail);
 				w.Write((byte)BailStatus);
 			}
@@ -94,7 +92,6 @@ namespace UC.Net
 
 			if(CandidacyDeclarationRound != -1)
 			{
-				IPs			= r.ReadArray(() => r.ReadIPAddress());
 				Bail		= r.ReadCoin();
 				BailStatus	= (BailStatus)r.ReadByte();
 			}

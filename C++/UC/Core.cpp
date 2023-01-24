@@ -35,7 +35,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 
 	auto cmd = Commands->One(GetClassName());
 
-	if(!cmd || cmd->Any(VersionAutoUpArgument) && cmd->Get<CBool>(VersionAutoUpArgument) == false)
+	if(!cmd || !cmd->Any(VersionAutoUpArgument))
 	{
 		auto versions = CNativeDirectory::Enumerate(CNativePath::Join(CoreDirectory, L".."), L"[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", EDirectoryFlag::DirectoriesOnly);
 		versions.Sort([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); });
@@ -43,22 +43,22 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 		if(CVersion(versions.First().Name) > CVersion(CNativePath::GetDirectoryName(CoreDirectory)))
 		{
 			STARTUPINFO info = {sizeof(info)};
-			PROCESS_INFORMATION processInfo;
+			PROCESS_INFORMATION pi;
 	
 			auto exe = CoreExePath.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
 			auto dir = FrameworkDirectory.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
 	
-			wchar_t cmd[32768] = {};
-			wcscpy_s(cmd, _countof(cmd), (L"\"" + exe + L"\"").data());
+			wchar_t c[4096] = {};
+			wcscpy_s(c, _countof(c), (L"\"" + exe + L"\" " + command).data());
 	
 			//SetDllDirectory(FrameworkDirectory.data());
 			//SetCurrentDirectory(FrameworkDirectory.data());
 	
-			if(CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, dir.data(), &info, &processInfo))
+			if(CreateProcess(null, c, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, dir.data(), &info, &pi))
 			{
 				//auto e = GetLastError();
-				CloseHandle(processInfo.hProcess);
-				CloseHandle(processInfo.hThread);
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
 			}
 	
 			return;

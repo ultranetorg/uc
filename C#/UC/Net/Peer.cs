@@ -257,6 +257,7 @@ namespace UC.Net
 															}
 															catch(Exception)// when(!Debugger.IsAttached)
 															{
+																//Core?.Workflow?.Log.ReportError(this, "Distributed Call Execution", ex);
 																rp = Response.FromType(core.Database, i.Type);
 																rp.Error = Error.Internal;
 															}
@@ -330,9 +331,9 @@ namespace UC.Net
 											Thread.Sleep(1);
 									}
 								}
-								catch(Exception ex) when(!Debugger.IsAttached)
+								catch(Exception) when(!Debugger.IsAttached)
 								{
-									core.Stop(MethodBase.GetCurrentMethod(), ex);
+									Disconnect();
 								}
 							});
 	
@@ -413,7 +414,7 @@ namespace UC.Net
 
 				if(rq.WaitResponse)
 					OutRequests.Add(rq);
-												
+				
 				lock(Out)
 					Out.Enqueue(p);
 			}
@@ -431,7 +432,7 @@ namespace UC.Net
 						throw new DistributedCallException(rq.Response.Error);
 	 			}
 				else
-	 				throw new ConnectionFailedException($"Timed out");
+	 				throw new DistributedCallException(Error.Timeout);
  			}
 			else
 				return null;

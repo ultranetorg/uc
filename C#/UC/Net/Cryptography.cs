@@ -10,6 +10,7 @@ using Nethereum.Util;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace UC.Net
 {
@@ -26,6 +27,8 @@ namespace UC.Net
 		public abstract Account				AccountFrom(byte[] signature, byte[] hash);
 		public abstract byte[]				Encrypt(EthECKey key, string password);
 		public abstract byte[]				Decrypt(byte[] input, string password);
+
+		public static readonly SecureRandom	Random = new SecureRandom();
 
 		public byte[] Hash(byte[] data)
 		{

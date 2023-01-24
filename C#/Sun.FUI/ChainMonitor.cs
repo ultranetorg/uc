@@ -42,7 +42,7 @@ namespace UC.Sun.FUI
 			Invalidate();
 		}
 
-		void OnBlockAdded(Block b)
+		public void OnBlockAdded(Block b)
 		{
 			BeginInvoke((MethodInvoker)delegate{ Invalidate(); });
 		}
@@ -50,17 +50,11 @@ namespace UC.Sun.FUI
 		protected override void OnHandleCreated(EventArgs e)
 		{
 			base.OnHandleCreated(e);
-
-			if(Core?.Database != null)
-				Core.Database.BlockAdded += OnBlockAdded;
 		}
 
 		protected override void OnHandleDestroyed(EventArgs e)
 		{
 			base.OnHandleDestroyed(e);
-
-			if(Core?.Database != null)
-				Core.Database.BlockAdded -= OnBlockAdded;
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -73,7 +67,7 @@ namespace UC.Sun.FUI
 				{
 					lock(Core.Lock)
 					{
-						if(!Core.Database.Rounds.Any())
+						if(!Core.Database.Tail.Any())
 							return;
 
 						var s = 8;
@@ -82,7 +76,7 @@ namespace UC.Sun.FUI
 	
 						var rounds = new List<Round>();
 	
-						int nmaxid = 0;
+						int nid = 0;
 						int nmemebers = 0;
 						int njrs = 0;
 						int nj = 0;
@@ -102,15 +96,15 @@ namespace UC.Sun.FUI
 								var r = Core.Database.FindRound(i);
 								rounds.Add(r);
 	
-								if(showt)
+								if(showt && r != null)
 								{
-									nmaxid = Math.Max(nmaxid.ToString().Length, i.ToString().Length);
-									njrs = Math.Max(njrs, Core.Database.JoinRequests.Count(j => j.RoundId == i).ToString().Length);
+									nid = Math.Max(nid, i.ToString().Length);
+									njrs = Math.Max(njrs, r.JoinRequests.Count().ToString().Length);
 									nj = Math.Max(nj, r.ConfirmedJoiners.Count.ToString().Length);
 									nl = Math.Max(nj, r.ConfirmedLeavers.Count.ToString().Length);
 		
 									if(r != null)
-										nmemebers = Math.Max(nmemebers, (r.Members != null ? r.Members.Count.ToString().Length : 0));
+										nmemebers = Math.Max(nmemebers, r.Members.Count.ToString().Length);
 
 									if(r != null)
 										ndate = Math.Max(ndate, r.Time.ToString().Length);
@@ -119,7 +113,7 @@ namespace UC.Sun.FUI
 		
 							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nmaxid}}} {{1,{nmemebers}}} {{2,{njrs}}} {{3,{nj}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}}";
+							f  = $"{{0,{nid}}} {{1,{nmemebers}}} {{2,{njrs}}} {{3,{nj}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}}";
 
 							if(rounds.Count() > 0)
 							{
@@ -168,8 +162,8 @@ namespace UC.Sun.FUI
 									{
 										var t = string.Format(	f, 
 																r.Id, 
-																r.Members != null ? r.Members.Count : 0, 
-																Core.Database.JoinRequests.Count(j => j.RoundId == r.Id),
+																r.Members.Count, 
+																r.JoinRequests.Count(),
 																r.ConfirmedJoiners.Count,
 																r.ConfirmedLeavers.Count,
 																r.Voted ? "v" : " ",
@@ -187,8 +181,8 @@ namespace UC.Sun.FUI
 										if(block != null)
 										{
 											if(block.Type == BlockType.Payload)		e.Graphics.FillRectangle(Brushes[m], x, y, s, s); else
-											if(block.Type == BlockType.Vote)		e.Graphics.FillRectangle(Brushes[m], x+s/4, y+s/4, s/2, s/2); else
-																					e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3);
+											if(block.Type == BlockType.Vote)		e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3); else
+																					e.Graphics.FillRectangle(Brushes[m], x+s/4, y+s/4, s/2, s/2);
 										}
 			
 										x += s;

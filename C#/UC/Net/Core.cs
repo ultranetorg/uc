@@ -74,9 +74,6 @@ namespace UC.Net
 		public const int								OperationsQueueLimit = 1000;
 		const int										BalanceWidth = 24;
 
-		//public Account[]								Generators;
-
-		//public Log										Log;
 		public Workflow									Workflow;
 		public Vault									Vault;
 		public INas										Nas;
@@ -84,8 +81,8 @@ namespace UC.Net
 		public Filebase									Filebase;
 		public Hub										Hub;
 		RocksDb											DatabaseEngine;
-		public bool										Networking => DelegatingThread != null;
-		public bool										IsClient => Networking && ListeningThread == null;
+		//public bool										Networking => ;
+		public bool										IsClient => ListeningThread == null;
 		public object									Lock = new();
 		public Settings									Settings;
 		public Clock									Clock;
@@ -103,12 +100,11 @@ namespace UC.Net
 		public List<Peer>								Peers		= new();
 		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
 		public List<IPAddress>							IgnoredIPs	= new();
-		public List<Block>								BlockCache	= new();
-		public List<BlockPiece>							BlockPieceCache	= new();
 		public List<Member>								Members		= new();
 		public List<Download>							Downloads	= new();
 
 		TcpListener										Listener;
+		public Thread									MainThread;
 		Thread											ListeningThread;
 		Thread											DelegatingThread;
 		Thread											VerifingThread;
@@ -121,10 +117,13 @@ namespace UC.Net
 		public Synchronization							_Synchronization = Synchronization.Null;
 		public Synchronization							Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate								SynchronizationChanged;
-		//DateTime										SyncRequested;
+		public List<BlockPiece>							SyncBlockCache	= new();
 
 		public IGasAsker								GasAsker; 
 		public IFeeAsker								FeeAsker;
+
+		public CoreDelegate								MainStarted;
+		public CoreDelegate								ApiStarted;
 
 		public ColumnFamilyHandle						PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
 
@@ -159,7 +158,7 @@ namespace UC.Net
 					f.Add("Size");					v.Add($"{Database.Size}");
 					f.Add("Members");				v.Add($"{Database.Members.Count}");
 					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
-					f.Add("Cached Blocks");			v.Add($"{BlockCache.Count()}");
+					f.Add("Cached Blocks");			v.Add($"{SyncBlockCache.Count()}");
 					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
 					f.Add("Last Non-Empty Round");	v.Add($"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}");
 					f.Add("Last Payload Round");	v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}");
@@ -250,7 +249,7 @@ namespace UC.Net
 			Workflow?.Log?.Report(this, $"Zone: {Settings.Zone.Name}");
 			Workflow?.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
-			if(Settings.Dev.Any)
+			if(Settings.Dev != null)
 				Workflow?.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
 			Vault = new Vault(Settings, Workflow?.Log);
@@ -258,24 +257,23 @@ namespace UC.Net
 			var cfamilies = new ColumnFamilies();
 			
 			foreach(var i in new ColumnFamilies.Descriptor[]{
-																new (nameof(Peers), new ()),
-																new (AccountTable.MetaColumnName, new ()),
-																new (AccountTable.MainColumnName, new ()),
-																new (AccountTable.MoreColumnName, new ()),
-																new (AuthorTable.MetaColumnName, new ()),
-																new (AuthorTable.MainColumnName, new ()),
-																new (AuthorTable.MoreColumnName, new ()),
-																new (ProductTable.MetaColumnName, new ()),
-																new (ProductTable.MainColumnName, new ()),
-																new (ProductTable.MoreColumnName, new ()),
-																new (RealizationTable.MetaColumnName, new ()),
-																new (RealizationTable.MainColumnName, new ()),
-																new (RealizationTable.MoreColumnName, new ()),
-																new (ReleaseTable.MetaColumnName, new ()),
-																new (ReleaseTable.MainColumnName, new ()),
-																new (ReleaseTable.MoreColumnName, new ()),
-																new (nameof(Net.Database.Rounds), new ()),
-																new (nameof(Net.Database.Funds), new ()),
+																new (nameof(Peers),						new ()),
+																new (AccountTable.MetaColumnName,		new ()),
+																new (AccountTable.MainColumnName,		new ()),
+																new (AccountTable.MoreColumnName,		new ()),
+																new (AuthorTable.MetaColumnName,		new ()),
+																new (AuthorTable.MainColumnName,		new ()),
+																new (AuthorTable.MoreColumnName,		new ()),
+																new (ProductTable.MetaColumnName,		new ()),
+																new (ProductTable.MainColumnName,		new ()),
+																new (ProductTable.MoreColumnName,		new ()),
+																new (RealizationTable.MetaColumnName,	new ()),
+																new (RealizationTable.MainColumnName,	new ()),
+																new (RealizationTable.MoreColumnName,	new ()),
+																new (ReleaseTable.MetaColumnName,		new ()),
+																new (ReleaseTable.MainColumnName,		new ()),
+																new (ReleaseTable.MoreColumnName,		new ()),
+																new (Database.ChainFamilyName,			new ()),
 															})
 				cfamilies.Add(i);
 
@@ -284,7 +282,13 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{Settings.IP} {Connections.Count()}/{Settings.PeersMin} {Synchronization}";
+			var gens = Database != null ? Settings.Generators.Where(i => Database.Members.Any(j => j.Generator == i)) : new PrivateAccount[0];
+
+			return	$"{(Settings.Database.Base ? "B" : "")}{(Settings.Database.Chain ? "C" : "")}{(Settings.Hub.Enabled ? "H" : "")}{(Settings.Filebase.Enabled ? "S" : "")}" +
+					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
+					$"{(!IP.Equals(IPAddress.None) ? " - " + IP : "")}" +
+					$" - {Synchronization}" +
+					(Database != null ? $" - {gens.Count()}/{Database.Members.Count()} members" : "");
 		}
 
 		public void RunApi()
@@ -299,6 +303,8 @@ namespace UC.Net
 			{
 				ApiServer = new JsonServer(this);
 			}
+		
+			ApiStarted?.Invoke(this);
 		}
 
 		public void RunClient()
@@ -311,44 +317,34 @@ namespace UC.Net
 			}
 
 			LoadPeers();
+										
+ 			MainThread = new Thread(() =>
+ 									{ 
+										Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
 
-			DelegatingThread = new Thread(() => { 
-													try
-													{
-														Delegating();
-													}
-													catch(OperationCanceledException)
-													{
-													}
-												});
-			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
-			DelegatingThread.Start();
-								
- 			var t = new Thread(	() =>
- 								{ 
-									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
-
-									try
-									{
-										while(Running)
+										try
 										{
-											lock(Lock)
+											while(Running)
 											{
-												if(!Running)
-													break;
+												lock(Lock)
+												{
+													if(!Running)
+														break;
 
-												ProcessConnectivity();
-											}
+													ProcessConnectivity();
+												}
 	
-											Thread.Sleep(1);
+												Thread.Sleep(1);
+											}
 										}
-									}
-									catch(Exception ex) when (!Debugger.IsAttached)
-									{
-										Stop(MethodBase.GetCurrentMethod(), ex);
-									}
- 								});
-			t.Start();
+										catch(Exception ex) when (!Debugger.IsAttached)
+										{
+											Stop(MethodBase.GetCurrentMethod(), ex);
+										}
+ 									});
+			MainThread.Start();
+
+			MainStarted?.Invoke(this);
 
 			while(!MinimalPeersReached)
 			{
@@ -373,7 +369,7 @@ namespace UC.Net
 
 			if(Settings.Database.Base || Settings.Database.Chain)
 			{
-				Database = new Database(Settings, Workflow?.Log, Nas, Vault, DatabaseEngine);
+				Database = new Database(Settings, Workflow?.Log, Vault, DatabaseEngine);
 		
 				Database.BlockAdded += b =>	ReachConsensus();
 		
@@ -415,72 +411,61 @@ namespace UC.Net
 			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
 			ListeningThread.Start();
 
-			DelegatingThread = new Thread(() =>	{ 
-													try
-													{
-														Delegating();
-													}
-													catch(OperationCanceledException)
-													{
-													}
-												});
-			DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
-			DelegatingThread.Start();
+ 			MainThread = new Thread(() =>
+ 									{ 
+										Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
 
-					
- 			var t = new Thread(	() =>
- 								{ 
-									Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
-
-									try
-									{
-										while(Running)
+										try
 										{
-											lock(Lock)
+											while(Running)
 											{
-												if(!Running)
-													break;
-
-												ProcessConnectivity();
-												
-												if(Database != null)
+												lock(Lock)
 												{
-													if(Synchronization == Synchronization.Synchronized)
+													if(!Running)
+														break;
+
+													ProcessConnectivity();
+												
+													if(Database != null)
 													{
-														/// TODO: Rethink
-														///var conns = Connections.Where(i => i.Roles.HasFlag(Database.Roles)).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
-														///
-														///if(conns.Any())
-														///{
-														///	var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
-														///
-														///	if(max.Key - Database.LastConfirmedRound.Id > Net.Database.Pitch) /// we are late, force to resync
-														///	{
-														///		 StartSynchronization();
-														///	}
-														///}
-														///
-														if(Settings.Generators.Any())
+														if(Synchronization == Synchronization.Synchronized)
 														{
-															Generate();
+															/// TODO: Rethink
+															///var conns = Connections.Where(i => i.Roles.HasFlag(Database.Roles)).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
+															///
+															///if(conns.Any())
+															///{
+															///	var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
+															///
+															///	if(max.Key - Database.LastConfirmedRound.Id > Net.Database.Pitch) /// we are late, force to resync
+															///	{
+															///		 StartSynchronization();
+															///	}
+															///}
+															///
+															if(Settings.Generators.Any())
+															{
+																Generate();
+															}
 														}
 													}
 												}
-											}
 	
-											Thread.Sleep(1);
+												Thread.Sleep(1);
+											}
 										}
-									}
-									catch(OperationCanceledException)
-									{
-										Stop("Canceled");
-									}
-									catch(Exception ex) when (!Debugger.IsAttached)
-									{
-										Stop(MethodBase.GetCurrentMethod(), ex);
-									}
- 								});
-			t.Start();
+										catch(OperationCanceledException)
+										{
+											Stop("Canceled");
+										}
+										catch(Exception ex) when (!Debugger.IsAttached)
+										{
+											Stop(MethodBase.GetCurrentMethod(), ex);
+										}
+ 									});
+			MainThread.Start();
+
+			MainStarted?.Invoke(this);
 		}
 
 		public void Stop(MethodBase methodBase, Exception ex)
@@ -657,6 +642,20 @@ namespace UC.Net
 				Connections.Count() >= Settings.PeersMin && 
 				(Database == null || Connections.Count(i => i.Roles.HasFlag(Database.Roles)) >= Settings.Database.PeersMin))
 			{
+				DelegatingThread = new Thread(() => { 
+														try
+														{
+															Delegating();
+														}
+														catch(OperationCanceledException)
+														{
+														}
+													});
+
+				DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
+				DelegatingThread.Start();
+
+
 				if(Filebase != null && !IsClient)
 				{
 					DeclaringThread = new Thread(Declaring);
@@ -1080,6 +1079,9 @@ namespace UC.Net
 			{
 				try
 				{
+					Thread.Sleep(1000);
+					Workflow.ThrowIfAborted();
+
 					int final = -1; 
 					//int end = -1; 
 					int from = -1;
@@ -1092,7 +1094,7 @@ namespace UC.Net
 					{
 						Workflow.ThrowIfAborted();
 
-						Database.Rounds.Clear();
+						Database.Tail.Clear();
 		
 						stamp = peer.GetStamp();
 		
@@ -1216,6 +1218,8 @@ namespace UC.Net
 						lock(Lock)
 							if(from < rp.LastNonEmptyRound)
 							{
+								SyncBlockCache.RemoveAll(i => i.RoundId < rp.LastConfirmedRound + 1 - Database.Pitch);
+
 								var rounds = rp.Read(Database);
 									
 								bool confirmed = true;
@@ -1233,28 +1237,27 @@ namespace UC.Net
 													o.Placing = PlacingStage.Placed;
 										}
 				
-										Database.Rounds.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
-										Database.Rounds.Add(r);
-										Database.Rounds = Database.Rounds.OrderByDescending(i => i.Id).ToList();
+										Database.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
+										Database.Tail.Add(r);
+										Database.Tail = Database.Tail.OrderByDescending(i => i.Id).ToList();
 		
-										var h = r.Hash;
+//										var h = r.Hash;
 										r.Confirmed = false;
 										Database.Confirm(r, true);
-#if DEBUG
-										if(!r.Hash.SequenceEqual(h))
-										{
-											throw new SynchronizationException();
-										}
-#endif
-										BlockCache.RemoveAll(i => i.RoundId <= r.Id);
+//#if DEBUG
+//										if(!r.Hash.SequenceEqual(h))
+//										{
+//											throw new SynchronizationException();
+//										}
+//#endif
 									}
 									else
 									{
 										if(confirmed && !r.Confirmed)
 										{
-											confirmed	= false;
-											final		= rounds.Max(i => i.Id) + 1;
-											//end			= rp.LastNonEmptyRound; 
+											confirmed		= false;
+											final			= rounds.Max(i => i.Id) + 1;
+											//end			= rp.LastNonEmptyRound;
 											Synchronization	= Synchronization.Synchronizing;
 										}
 			
@@ -1263,6 +1266,10 @@ namespace UC.Net
 							 				throw new SynchronizationException();
 										}
 				
+										var rq = new UploadBlocksPiecesRequest();
+										rq.Pieces = r.BlockPieces;
+										rq.Execute(this);
+
 										ProcessIncoming(r.Blocks, null);
 									}
 								}
@@ -1275,10 +1282,17 @@ namespace UC.Net
 // 									if(!Database.Roles.HasFlag(Role.Chain))
 // 										Database.Rounds.Remove(Database.Rounds.Last());
 
-									Database.Add(BlockCache.OrderBy(i => i.RoundId));
-									BlockCache.Clear();
-	
 									Synchronization = Synchronization.Synchronized;
+
+									var rq = new UploadBlocksPiecesRequest();
+									rq.Pieces = SyncBlockCache.OrderBy(i => i.RoundId);
+									rq.Execute(this);
+									
+									SyncBlockCache.Clear();
+
+									//Database.Add(BlockCache.OrderBy(i => i.RoundId));
+									//BlockCache.Clear();
+	
 									SynchronizingThread = null;
 	
 									Workflow.Log?.Report(this, "Syncing finished");
@@ -1295,6 +1309,9 @@ namespace UC.Net
 				catch(SynchronizationException)
 				{
 				}
+				catch(ConnectionFailedException)
+				{
+				}
 				catch(OperationCanceledException)
 				{
 					return;
@@ -1306,26 +1323,26 @@ namespace UC.Net
 		{
 			Statistics.BlocksProcessing.Begin();
 
-			var accepted = blocks.Where(b => BlockCache.All(i => !i.Signature.SequenceEqual(b.Signature)) && Database.Verify(b)).ToArray(); /// !ToArray cause will be added to Chain below
-
-			if(!accepted.Any())
-				return;
-
-			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing)
-			{
-				BlockCache.AddRange(accepted);
-			}
+ 			var accepted = blocks.Where(b => /*BlockCache.All(i => !i.Signature.SequenceEqual(b.Signature)) &&*/ Database.Verify(b)).ToArray(); /// !ToArray cause will be added to Chain below
+// 
+// 			if(!accepted.Any())
+// 				return;
+// 
+// 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing)
+// 			{
+// 				BlockCache.AddRange(accepted);
+// 			}
 
 			if(Synchronization == Synchronization.Synchronized)
 			{
-				var notolder = Database.LastConfirmedRound.Id - Net.Database.Pitch;
-				var notnewer = Database.LastConfirmedRound.Id + Net.Database.Pitch * 2;
+				var notolder = Database.LastConfirmedRound.Id - Database.Pitch;
+				var notnewer = Database.LastConfirmedRound.Id + Database.Pitch * 2;
 
 				var inrange = accepted.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer);
 
 				var joins = inrange.OfType<MembersJoinRequest>().Where(b => { 
 																				for(int i = b.RoundId; i > b.RoundId - Net.Database.Pitch; i--) /// not more than 1 request per [Pitch] rounds
-																					if(Database.JoinRequests.Any(j => j.RoundId == i && j.Generator == b.Generator))
+																					if(Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == b.Generator))
 																						return false;
 
 																				//var r = Database.JoinRequests.Where(i => i.RoundId == b.RoundId);
@@ -1344,7 +1361,7 @@ namespace UC.Net
 				Database.Add(joins);
 					
 				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.Members.Any(j => j.Generator == b.Generator) || 
-																	 (Database.Rounds.Any(r => r.Members == null ? false : r.Members.Any(m => m.Generator == b.Generator)))));
+																	 (Database.Tail.Any(r => r.Members.Any(m => m.Generator == b.Generator)))));
 				Database.Add(votes);
 			}
 
@@ -1386,12 +1403,14 @@ namespace UC.Net
 			{
 				if(!Database.VoterOf(Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch)).Any(i => i.Generator == g))
 				{
-					var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
+					var jr = Database.FindLastBlock(i => i is MembersJoinRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as MembersJoinRequest;
+
+					//var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
 		
-					if(jr == null || jr.RoundId + Database.Pitch * 3 <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
+					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
 						var b = new MembersJoinRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
-																	IP      = IP};
+																	IPs     = new [] {IP}};
 						b.Sign(g);
 						blocks.Add(b);
 					}
@@ -1458,7 +1477,7 @@ namespace UC.Net
 						b.Sign(g);
 						blocks.Add(b);
 					}
-					else if(Database.Rounds.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+					else if(Database.Tail.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 					{
 						var rr = Database.ReferTo(p);
 					
@@ -1537,9 +1556,13 @@ namespace UC.Net
 
 					var n = Connections.Count()/*.Count(i => i.ChainRank > 0 || i.BaseRank > 0)*/;
 
+					var guid = new byte[BlockPiece.GuidLength];
+					Cryptography.Random.NextBytes(guid);
+
 					for(int i = 0; i < n; i++)
 					{
-						var p = new BlockPiece{	RoundId = b.RoundId,
+						var p = new BlockPiece{	Guid = guid,
+												RoundId = b.RoundId,
 												PiecesTotal = n,
 												Piece = i,
 												Data = r.ReadBytes((int)s.Length/n + (i < n-1 ? 0 : (int)s.Length % n))};
@@ -1547,35 +1570,39 @@ namespace UC.Net
 						p.Sign(b.Generator as PrivateAccount);
 
 						pieces.Add(p);
+						Database.GetRound(b.RoundId).BlockPieces.Add(p);
 					}
 				}
 
- 				var c = Connections.Where(i => i.BaseRank > 0).GetEnumerator();
- 				var d = new Dictionary<Peer, List<BlockPiece>>();
+ 				var c = Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()).GetEnumerator();
+ 				//var d = new Dictionary<Peer, List<BlockPiece>>();
  
  				foreach(var i in pieces)
  				{
  					if(!c.MoveNext())
  					{
- 						c = Connections.Where(i => i.BaseRank > 0).GetEnumerator(); /// go to the beginning
+ 						c = Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()).GetEnumerator(); /// go to the beginning
  						c.MoveNext();
  					}
  
- 					if(!d.ContainsKey(c.Current))
- 						d[c.Current] = new();
- 
- 					d[c.Current].Add(i);
+					i.Peer = c.Current;
+ 					//if(!d.ContainsKey(c.Current))
+ 					//	d[c.Current] = new();
+ 					//
+ 					//d[c.Current].Add(i);
  				}
 
-				foreach(var i in d)
+				/// LESS RELIABLE
+				foreach(var i in pieces.GroupBy(i => i.Peer))
 				{
-					i.Key.Request<object>(new UploadBlocksPiecesRequest{Pieces = i.Value});
+					i.Key.Request<object>(new UploadBlocksPiecesRequest{Pieces = i});
 				}
 
-//				foreach(var i in Connections.Where(i => i.BaseRank > 0))
-//				{
-//					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
-//				}
+				/// ALL FOR ALL
+				///foreach(var i in Connections.Where(i => i.BaseRank > 0))
+				///{
+				///	i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
+				///}
 													
 				Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
 			}
@@ -1597,6 +1624,17 @@ namespace UC.Net
 				if(Database.QuorumReached(r))
 				{
 					r.Voted = true;
+
+					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
+					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peer != null && !i.Distributed).ToArray();
+					
+					if(notcomebacks.Any())
+					{
+						foreach(var i in Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()))
+						{
+							i.Request<object>(new UploadBlocksPiecesRequest{Pieces = notcomebacks});
+						}
+					}
 
 					Database.Confirm(r.Parent, false);
 
@@ -1806,9 +1844,8 @@ namespace UC.Net
 		
 		public Operation Enqueue(Operation operation, PlacingStage waitstage, Workflow workflow)
 		{
-#if DEBUG
 			operation.__ExpectedPlacing = waitstage;
-#endif
+
 			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
 			{
 				lock(Lock)
@@ -1967,15 +2004,24 @@ namespace UC.Net
 				
 			while(true)
 			{
-				Thread.Sleep(1);
+				Thread.Sleep(100);
 				workflow.ThrowIfAborted();
 	
 				lock(Lock)
 				{
 					peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
-	
+
 					if(peer == null)
+					{
+						Thread.Sleep(1000);
 						continue;
+					}
+
+// 					if(DateTime.UtcNow - peer.LastTry < TimeSpan.FromMilliseconds(1000))
+// 					{
+// 						Thread.Sleep(1000);
+// 						continue;
+// 					}
 				}
 	
 				try
@@ -2013,6 +2059,8 @@ namespace UC.Net
 		
 							Workflow.Log?.Report(this, "Member chosen", $"{m} {p}");
 							return new MemberDci(m.Generator, p);
+//return new MemberDci(Members.First().Generator,  peer = Peers.First(i => i.IP.GetAddressBytes()[3] == 101));	
+
 						}
 					}
 				}
@@ -2022,7 +2070,7 @@ namespace UC.Net
 				}
 			}
 	
-			throw new ConnectionFailedException("Aborted, timeour of overall abort");
+			throw new ConnectionFailedException("Aborted, timeout or overall abort");
 		}
 
 		public Peer FindBestPeer(Role role, HashSet<Peer> exclusions)
@@ -2049,7 +2097,7 @@ namespace UC.Net
 	
 					if(peer == null)
 					{
-						exclusions.Clear();
+						exclusions?.Clear();
 						continue;
 					}
 				}

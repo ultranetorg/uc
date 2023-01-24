@@ -12,12 +12,12 @@ namespace UC.Net
 {
 	public class NasSettings
 	{
-		public string		Chain;
+		//public string		Chain;
 		public string		Provider;
 
 		public NasSettings(Xon x)
 		{
-			Chain = x.GetString("Chain");
+			//Chain = x.GetString("Chain");
 			Provider = x.GetString("Provider");
 		}
 	}
@@ -163,10 +163,14 @@ namespace UC.Net
 		public bool				DisableBidMin;
 		public bool				DisableTimeouts;
 		public bool				ThrowOnCorrupted;
-		public int				TailLength = 100;
+		public bool				TailLength100;
 
 		public bool				Any => Fields.Any(i => (bool)i.GetValue(this));
 		IEnumerable<FieldInfo>	Fields => GetType().GetFields().Where(i => i.FieldType == typeof(bool));
+
+		public DevSettings()
+		{
+		}
 
 		public DevSettings(Xon x)
 		{

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Reflection.PortableExecutable;
+using System.Xml.Linq;
 
 namespace UC.Net
 {
@@ -20,17 +21,21 @@ namespace UC.Net
 
 	public class BlockPiece : IBinarySerializable
 	{
-		public int		RoundId { get; set; }
-		public int		Piece { get; set; }
-		public int		PiecesTotal { get; set; }
-		public byte[]	Signature { get; set; }
-		public byte[]	Data { get; set; }
+		public byte[]		Guid { get; set; }
+		public int			RoundId { get; set; }
+		public int			Piece { get; set; }
+		public int			PiecesTotal { get; set; }
+		public byte[]		Signature { get; set; }
+		public byte[]		Data { get; set; }
 
-		public Account	Generator { get; protected set; }
-		public DateTime	Time;
+		public Peer			Peer;
+		public bool			Distributed;
+		public Account		Generator { get; protected set; }
+		public const int	GuidLength = 8;
 
 		public void Write(BinaryWriter writer)
 		{
+			writer.Write(Guid);
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Piece);
 			writer.Write7BitEncodedInt(PiecesTotal);
@@ -41,6 +46,7 @@ namespace UC.Net
 
 		public void Read(BinaryReader reader)
 		{
+			Guid		= reader.ReadBytes(GuidLength);
 			RoundId		= reader.Read7BitEncodedInt();
 			Piece		= reader.Read7BitEncodedInt();
 			PiecesTotal	= reader.Read7BitEncodedInt();
@@ -55,6 +61,7 @@ namespace UC.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
+			w.Write(Guid);
 			w.Write7BitEncodedInt(RoundId);
 			w.Write7BitEncodedInt(Piece);
 			w.Write7BitEncodedInt(PiecesTotal);
@@ -131,17 +138,15 @@ namespace UC.Net
 						
 		public void Sign(PrivateAccount generator)
 		{
-			Hash = Hashify();
 			Generator = generator;
+			Hash = Hashify();
 			Signature = Cryptography.Current.Sign(generator, Hash);
 		} 
 	}
 
 	public class MembersJoinRequest : Block
 	{
-		public IPAddress	IP;
-		
-		//public Coin			Bail;
+		public IPAddress[]		IPs;
 
 		public MembersJoinRequest(Database c) : base(c)
 		{
@@ -149,25 +154,26 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return base.ToString() + ", IP=" + IP;
+			return base.ToString() + ", IP=" + string.Join(',', IPs as IEnumerable<IPAddress>);
 		}
 
-		protected override void HashWrite(BinaryWriter w)
+		protected override void HashWrite(BinaryWriter writer)
 		{
-			w.Write(IP);
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write(IPs, i => writer.Write(i));
 		}
 
 		public override void Write(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(RoundId);
-			writer.Write(IP);
+			writer.Write(IPs, i => writer.Write(i));
 			writer.Write(Signature);
 		}
 
 		public override void Read(BinaryReader reader)
 		{
 			RoundId		= reader.Read7BitEncodedInt();
-			IP			= reader.ReadIPAddress();
+			IPs			= reader.ReadArray(() => reader.ReadIPAddress());
 			Signature	= reader.ReadSignature();
 		
 			Hash		= Hashify();
@@ -206,50 +212,58 @@ namespace UC.Net
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			Reference.WriteHashable(writer);
+			writer.Write(Reference);
 
-			writer.Write(Violators);
 			writer.Write(Joiners);
 			writer.Write(Leavers);
+			writer.Write(Violators);
+			writer.Write(FundJoiners);
+			writer.Write(FundLeavers);
+		}
+
+		protected void WriteVote(BinaryWriter writer)
+		{
+			writer.Write(Signature);
+
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write7BitEncodedInt(Try);
+			writer.Write7BitEncodedInt64(TimeDelta);
+			writer.Write(Reference);
+
+			writer.Write(Joiners);
+			writer.Write(Leavers);
+			writer.Write(Violators);
 			writer.Write(FundJoiners);
 			writer.Write(FundLeavers);
 		}
 
 		public override void Write(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt(RoundId);
-			writer.Write(Generator);
-			writer.Write(Signature);
+			WriteVote(writer);
+		}
 
-			writer.Write7BitEncodedInt(Try);
-			writer.Write7BitEncodedInt64(TimeDelta);
-			Reference.Write(writer);
+		protected void ReadVote(BinaryReader reader)
+		{
+			Signature	= reader.ReadSignature();
 
-			writer.Write(Violators);
-			writer.Write(Joiners);
-			writer.Write(Leavers);
-			writer.Write(FundJoiners);
-			writer.Write(FundLeavers);
+			RoundId		= reader.Read7BitEncodedInt();
+			Try			= reader.Read7BitEncodedInt();
+			TimeDelta	= reader.Read7BitEncodedInt64();
+			Reference	= reader.Read<RoundReference>();
+
+			Joiners		= reader.ReadAccounts();
+			Leavers		= reader.ReadAccounts();
+			Violators	= reader.ReadAccounts();
+			FundJoiners	= reader.ReadAccounts();
+			FundLeavers	= reader.ReadAccounts();
 		}
 
 		public override void Read(BinaryReader reader)
 		{
-			RoundId		= reader.Read7BitEncodedInt();
-			Generator	= reader.ReadAccount();	
-			Signature	= reader.ReadSignature();
-
-			Try			= reader.Read7BitEncodedInt();
-			TimeDelta	= reader.Read7BitEncodedInt64();
-			Reference	= new RoundReference();
-			Reference.Read(reader);
-
-			Violators	= reader.ReadAccounts();
-			Joiners		= reader.ReadAccounts();
-			Leavers		= reader.ReadAccounts();
-			FundJoiners	= reader.ReadAccounts();
-			FundLeavers	= reader.ReadAccounts();
+			ReadVote(reader);
 
 			Hash = Hashify();
+			Generator = Cryptography.Current.AccountFrom(Signature, Hash);
 		}
 	}
 
@@ -299,14 +313,41 @@ namespace UC.Net
 			Transactions.Insert(0, t);
 		}
 				
-		protected override void HashWrite(BinaryWriter w)
+		protected override void HashWrite(BinaryWriter writer)
 		{
-			base.HashWrite(w);
+			writer.Write(Generator); /// needed to read check transactions' signatures in Payload
+
+			base.HashWrite(writer);
 
 			foreach(var i in Transactions) 
 			{
-				w.Write(i.Signature);
+				writer.Write(i.Signature);
 			}
+		}
+
+		public override void Write(BinaryWriter writer)
+		{
+			WriteVote(writer);
+
+			writer.Write(Generator); /// needed to read check transactions' signatures in Payload
+			writer.Write(Transactions, t => t.WriteForBlock(writer));
+		}
+
+		public override void Read(BinaryReader reader)
+		{
+			ReadVote(reader);
+
+			Generator = reader.ReadAccount();	
+			Transactions = reader.ReadList(() =>	{
+														var t = new Transaction(Database.Settings)
+																{
+																	Payload	= this,
+																	Generator = Generator
+																};
+														t.ReadForBlock(reader);
+														return t;
+													});
+			Hash = Hashify();
 		}
 
  		public void WriteConfirmed(BinaryWriter w)
@@ -328,26 +369,5 @@ namespace UC.Net
  												return t;
  											});
  		}
-
-		public override void Write(BinaryWriter w)
-		{
-			base.Write(w);
-			w.Write(Transactions, t => t.WriteForBlock(w));
-		}
-
-		public override void Read(BinaryReader r)
-		{
-			base.Read(r);
-			Transactions = r.ReadList(() =>	{
-												var t = new Transaction(Database.Settings)
-														{
-															Payload	= this,
-															Generator = Generator
-														};
-												t.ReadForBlock(r);
-												return t;
-											});
-			Hash = Hashify();
-		}
 	}
 }

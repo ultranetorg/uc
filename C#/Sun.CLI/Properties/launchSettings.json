@@ -6,7 +6,7 @@
     },
     "run node": {
       "commandName": "Project",
-      "commandLineArgs": "run node api ~secrets=a:\\uo"
+      "commandLineArgs": "run node api secrets=a:\\uo"
     },
     "release publish": {
       "commandName": "Project",
