@@ -19,6 +19,15 @@
             Icon="{AppThemeBinding Light=Products.Icon,Dark=Products.IconDark}"
             ContentTemplate="{DataTemplate pages:ProductsPage}" />
     </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Search.Title}"
+        Route="{Static constants:ShellBaseRoutes.PRODUCTS_SEARCH}">
+        <ShellContent
+            Title="{Binding Search.Title}"
+            Icon="{AppThemeBinding Light=Search.Icon,Dark=Search.IconDark}"
+            ContentTemplate="{DataTemplate pages:ProductSearchPage}" />
+    </FlyoutItem>
 
     <FlyoutItem
         Title="{Binding Dashboard.Title}"

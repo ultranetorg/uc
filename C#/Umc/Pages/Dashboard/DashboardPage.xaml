@@ -149,6 +149,7 @@
                     <controls:ImageTextButton
                         Grid.Row="1"
                         Grid.Column="0"
+                        Command="{Binding SearchExcuteCommand}"
                         ImageSource="search.png"
                         Text="Search" />
                     <controls:ImageTextButton

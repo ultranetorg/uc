@@ -9,24 +9,19 @@
     x:DataType="vm:ProductSearchViewModel"
     Title="Product Search"
     x:Name="page">
-    <!--<controls:CustomPage.RightContent>
-        <StackLayout>
-            <ImageButton
-                HorizontalOptions="End"
-                Style="{StaticResource Close}"
-                VerticalOptions="Center" />
-        </StackLayout>
-    </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="Auto,*"
-            RowSpacing="30">
-            <Grid Grid.Row="0" RowDefinitions="Auto,30">
+            RowSpacing="32">
+            <Grid
+                Grid.Row="0"
+                RowDefinitions="Auto,32"
+                RowSpacing="16">
                 <AbsoluteLayout Grid.Row="0">
                     <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
                     <Image
-                        Margin="10,0"
+                        Margin="12,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                         AbsoluteLayout.LayoutFlags="PositionProportional"
                         HorizontalOptions="End"
@@ -35,27 +30,27 @@
                 </AbsoluteLayout>
                 <CollectionView Grid.Row="1" ItemsSource="{Binding ProductsFilter}">
                     <CollectionView.ItemsLayout>
-                        <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
+                        <LinearItemsLayout ItemSpacing="12" Orientation="Horizontal" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame
-                                HeightRequest="29"
+                            <Border
+                                HeightRequest="32"
                                 HorizontalOptions="Start"
-                                Style="{StaticResource ButtonFrame}"
+                                Style="{StaticResource ButtonBorder}"
                                 VerticalOptions="Center">
                                 <Label
                                     FontSize="11"
                                     Style="{StaticResource ButtonLabel}"
                                     Text="{Binding .}"
                                     VerticalOptions="Center" />
-                            </Frame>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </Grid>
             <StackLayout Grid.Row="1">
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+                <Grid ColumnDefinitions="2*,1*" Margin="8,0" RowDefinitions="Auto,*">
                     <Label
                         Grid.Column="0"
                         Style="{StaticResource DashLabel}"
@@ -66,7 +61,7 @@
                         Style="{StaticResource DashLabel}"
                         Text="Author" />
                 </Grid>
-                <Frame Grid.Row="2" Style="{StaticResource SquareFrame}">
+                <Border Grid.Row="2" Style="{StaticResource SquareBorder}">
                     <ScrollView>
                         <StackLayout
                             Grid.Row="1"
@@ -74,12 +69,25 @@
                             BindableLayout.ItemsSource="{Binding Products}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:ProductViewModel">
-                                    <controls:LabelPair Text1="{Binding Name}" Text2="{Binding Owner}" />
+                                    <Grid ColumnDefinitions="2*,1*">
+                                        <Label
+                                            Grid.Column="0"
+                                            FontSize="12"
+                                            Style="{StaticResource DashLabel}"
+                                            Text="{Binding Name}" />
+                                        <Label
+                                            Grid.Column="1"
+                                            HorizontalOptions="Start"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            Style="{StaticResource DashLabelValue}"
+                                            Text="{Binding Owner}" />
+                                    </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
                     </ScrollView>
-                </Frame>
+                </Border>
             </StackLayout>
         </Grid>
     </controls:CustomPage.MainContent>

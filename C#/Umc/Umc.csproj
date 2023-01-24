@@ -193,15 +193,15 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\ProductsPage.xaml">
+	  <MauiXaml Update="Pages\Product\ProductsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\ProductSearchPage.xaml">
+	  <MauiXaml Update="Pages\Product\ProductSearchPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\ProductsListPage.xaml">
+	  <MauiXaml Update="Pages\Product\ProductsListPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
