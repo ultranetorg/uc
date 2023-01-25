@@ -39,7 +39,7 @@ internal static class DefaultDataMock
 	};
 
 	public static CustomCollection<string> AuthorsFilter = new() { "All", "Owned", "Auction", "Watched", "Hidden", "Free", "Reserved" }; //"Shown", "Outdated"
-	public static CustomCollection<string> ProductsFilter = new() { "Recent", "By author" };
+	public static CustomCollection<string> ProductsFilter = new() { "Name", "Version", "Author", "Recent" };
 
 	public static CustomCollection<string> MonthList1 = new() { "April", "May", "June", "July", "Augest", "Spetemper", "November" };
 

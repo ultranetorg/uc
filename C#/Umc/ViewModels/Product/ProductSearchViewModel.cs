@@ -52,9 +52,10 @@ public partial class ProductSearchViewModel : BaseTransactionsViewModel
 
 			// Sort products
 			var products = await _service.GetAllProductsAsync();
-			var ordered = products.AsQueryable().OrderBy(x => sortBy == "By Authors"
-				? x.Author.Name : sortBy == "By Version"
-				? x.Version : x.Name);
+			var ordered = products.AsQueryable().OrderBy(x => sortBy == "Author"
+				? x.Owner : sortBy == "Version"
+				? x.Version : sortBy == "Name"
+				? x.Name : null);
 			
 			Products.Clear();
 			Products.AddRange(ordered);
@@ -70,8 +71,21 @@ public partial class ProductSearchViewModel : BaseTransactionsViewModel
 
 	internal async Task InitializeAsync()
 	{
-		var products = await _service.GetAllProductsAsync();
-		Products.AddRange(products);
-        ProductsFilter = DefaultDataMock.ProductsFilter;
+		try
+		{
+			InitializeLoading();
+
+			var products = await _service.GetAllProductsAsync();
+			Products.Clear();
+			Products.AddRange(products);
+			ProductsFilter = DefaultDataMock.ProductsFilter;
+
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("InitializeAsync Error: {Message}", ex.Message);
+		}
 	}
 }

@@ -17,7 +17,7 @@ public class ProductsMockService : IProductsService
 
     public Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search)
     {
-		var items = _data.Products.Where(x => x.Name.Contains(search)).ToList();
+		var items = _data.Products.Where(x => x.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToList();
         var result = new ObservableCollection<ProductViewModel>(items);
         return Task.FromResult(result);
     }
