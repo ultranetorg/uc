@@ -12,11 +12,6 @@ public class ProductsService : IProductsService
 		throw new NotImplementedException();
 	}
 
-	public Task<ObservableCollection<ProductViewModel>> SortProductsAsync(string sortBy)
-	{
-		throw new NotImplementedException();
-	}
-
 	public Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search)
 	{
 		throw new NotImplementedException();

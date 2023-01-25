@@ -42,10 +42,30 @@ public partial class ProductSearchViewModel : BaseTransactionsViewModel
     }
 
 	[RelayCommand]
-	private async Task SortProductsAsync()
+	private async Task SortProductsAsync(string sortBy)
     {
-		// Products.OrderBy(x => x.Name);
-		await Task.Delay(10);
+		try
+		{
+			Guard.IsNotNullOrEmpty(sortBy);
+
+			InitializeLoading();
+
+			// Sort products
+			var products = await _service.GetAllProductsAsync();
+			var ordered = products.AsQueryable().OrderBy(x => sortBy == "By Authors"
+				? x.Author.Name : sortBy == "By Version"
+				? x.Version : x.Name);
+			
+			Products.Clear();
+			Products.AddRange(ordered);
+			
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("SortProductsAsync Error: {Message}", ex.Message);
+		}
     }
 
 	internal async Task InitializeAsync()

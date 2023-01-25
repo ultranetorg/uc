@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace UC.Umc.Services;
+﻿namespace UC.Umc.Services;
 
 public class ProductsMockService : IProductsService
 {
@@ -16,12 +14,6 @@ public class ProductsMockService : IProductsService
 
 	public Task<ObservableCollection<ProductViewModel>> GetAuthorProductsAsync(string authorName) =>
 		Task.FromResult(new ObservableCollection<ProductViewModel>(_data.Products.Where(x => x.Author.Name == authorName)));
-
-	public Task<ObservableCollection<ProductViewModel>> SortProductsAsync(string sortBy)
-	{
-		var products = _data.Products.AsQueryable().OrderBy(sortBy);
-		return Task.FromResult(new ObservableCollection<ProductViewModel>(products.ToList()));
-	}
 
     public Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search)
     {
