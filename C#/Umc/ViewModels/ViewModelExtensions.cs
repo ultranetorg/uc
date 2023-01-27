@@ -47,6 +47,10 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<ProductsViewModel>();
 
+		builder.Services.AddTransient<ProductTransferViewModel>();
+
+		builder.Services.AddTransient<ProductRegistrationViewModel>();
+
 		builder.Services.AddTransient<SendViewModel>();
 
 		builder.Services.AddTransient<ETHTransferViewModel>();

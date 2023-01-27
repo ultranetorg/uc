@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.ProductRegistrationPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:ProductRegistrationViewModel"
+    Title="Product Registration"
+    x:Name="page">
+    <controls:CustomPage.MainContent>
+        <Grid
+            Padding="{StaticResource PagePadding}"
+            RowDefinitions="*,Auto,Auto"
+            RowSpacing="30">
+            <CarouselView
+                Grid.Row="0"
+                HorizontalScrollBarVisibility="Never"
+                IndicatorView="indicator"
+                IsSwipeEnabled="False"
+                Loop="False"
+                PeekAreaInsets="0"
+                Position="{Binding Position}">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <ContentView Content="{Binding .}" />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.ItemsSource>
+                    <x:Array Type="{x:Type View}">
+                        <!--Step #1-->
+                        <ScrollView>
+                            <StackLayout Padding="5" Spacing="20">
+                                <StackLayout>
+                                    <Label FontSize="18" Text="Choose your payment account and Product title" />
+                                    <Label
+                                        FontSize="13"
+                                        Style="{StaticResource Regular}"
+                                        Text="Your need specify your source, destination accounts and amount to transfer" />
+                                </StackLayout>
+                                <StackLayout>
+                                    <Label Style="{StaticResource DashLabel}" Text="Payment Account" />
+                                    <views:AccountView
+                                        Grid.ColumnSpan="2"
+                                        Margin="0,4"
+                                        Account="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductRegistrationViewModel}}, Path=Account}"
+                                        BorderStyle="{StaticResource AccountCardBorderDark}" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductRegistrationViewModel}}, Path=SelectAccountCommand}" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+                                <StackLayout Grid.Column="0" Spacing="5">
+                                    <Label Style="{StaticResource DashLabel}" Text="Title" />
+                                    <Label
+                                        FontSize="13"
+                                        Style="{StaticResource Regular}"
+                                        Text="Please specify Product name. This name will be used like an application domain" />
+                                    <controls:BorderEntry Text="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductRegistrationViewModel}}, Path=Title, Mode=TwoWay}">
+                                        <controls:BorderEntry.Behaviors>
+                                            <toolkit:CharactersValidationBehavior
+                                                x:Name="cb1"
+                                                CharacterType="Letter"
+                                                Flags="ValidateOnValueChanged"
+                                                InvalidStyle="{StaticResource InvalidEntry}"
+                                                MaximumCharacterTypeCount="30"
+                                                MinimumCharacterTypeCount="1"
+                                                ValidStyle="{StaticResource Valid}" />
+                                        </controls:BorderEntry.Behaviors>
+                                    </controls:BorderEntry>
+                                    <StackLayout>
+                                        <Label
+                                            FontSize="12"
+                                            IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                                            Text="Validation text message"
+                                            TextColor="{StaticResource Red}" />
+                                    </StackLayout>
+                                </StackLayout>
+                                <StackLayout Grid.Column="0" Spacing="5">
+                                    <controls:LabelPair
+                                        Style="{StaticResource DashLabel}"
+                                        Text1="Name"
+                                        Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductRegistrationViewModel}}, Path=Name}" />
+                                    <Label
+                                        FontSize="13"
+                                        Style="{StaticResource Regular}"
+                                        Text="Normalized Product name" />
+                                </StackLayout>
+            
+                                <controls:LabelPair
+                                    Text1="UNT amount"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductRegistrationViewModel}}, Path=Commission}" />
+                            </StackLayout>
+                        </ScrollView>
+                        
+                        <!--Step #2-->
+                        <views:AuthorRegistration2View />
+                    </x:Array>
+                </CarouselView.ItemsSource>
+            </CarouselView>
+            <IndicatorView x:Name="indicator" Grid.Row="1" />
+            <controls:NextCancelButton
+                Grid.Row="2"
+                NextCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductRegistrationViewModel}}, Path=NextWorkaroundCommand}" />
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>
