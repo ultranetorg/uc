@@ -90,12 +90,28 @@
             
                                 <controls:LabelPair
                                     Text1="UNT amount"
-                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Comission}" />
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Commission}" />
                             </StackLayout>
                         </ScrollView>
                         
                         <!--Step #2-->
-                        <views:AuthorRegistration2View />
+                        <StackLayout Padding="5" Spacing="30">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Do you confirm registration of this author?" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Clicking 'Confirm' button, registration will start" />
+                            </StackLayout>
+                            <StackLayout Spacing="20">
+                                <controls:LabelPair Text1="Registering Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Title}" />
+                                <controls:LabelPair Text1="With price:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Commission}" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="From Account" />
+                                <views:AccountView Grid.ColumnSpan="2" BindingContext="{Binding  Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Account}"/>
+                            </StackLayout>
+                        </StackLayout>
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>

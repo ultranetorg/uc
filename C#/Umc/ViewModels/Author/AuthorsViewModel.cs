@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class AuthorsViewModel : BaseTransactionsViewModel
+public partial class AuthorsViewModel : BaseViewModel
 {
 	private readonly IAuthorsService _service;
 

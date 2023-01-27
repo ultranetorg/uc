@@ -8,7 +8,7 @@
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:Class="UC.Umc.Pages.AuthorTransferPage"
-    x:DataType="vm:AuthorDetailsViewModel"
+    x:DataType="vm:AuthorTransferViewModel"
     Title="Transfer author">
     
     <controls:CustomPage.MainContent>
@@ -38,7 +38,7 @@
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="You need to specify your source, destination accounts and amount to transfer." />
+                                    Text="You need to specify your author and destination account to transfer." />
                             </StackLayout>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="Transfer Author" />
@@ -78,7 +78,7 @@
                                 </Grid>
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Pay from Account" />
+                                <Label Style="{StaticResource DashLabel}" Text="Account" />
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <views:AccountView 
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsMyAuthor}"
@@ -103,8 +103,8 @@
                             </StackLayout>
                             
                             <controls:LabelPair
-                                Text1="Estimated comission"
-                                Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Comission}" />
+                                Text1="Estimated commission"
+                                Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Commission}" />
                         </StackLayout>
                         
                         <!--Step #2-->
@@ -124,11 +124,7 @@
                                 <Label Style="{StaticResource DashLabel}" Text="To Account" />
                                 <views:AccountView
                                     Grid.ColumnSpan="2"
-                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}">
-                                    <views:AccountView.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
-                                    </views:AccountView.GestureRecognizers>
-                                </views:AccountView>
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}"/>
                             </StackLayout>
                         </StackLayout>
                     </x:Array>
