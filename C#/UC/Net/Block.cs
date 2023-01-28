@@ -330,7 +330,7 @@ namespace UC.Net
 			WriteVote(writer);
 
 			writer.Write(Generator); /// needed to read check transactions' signatures in Payload
-			writer.Write(Transactions, t => t.WriteForBlock(writer));
+			writer.Write(Transactions, t => t.WriteUnconfirmed(writer));
 		}
 
 		public override void Read(BinaryReader reader)
@@ -344,7 +344,7 @@ namespace UC.Net
 																	Payload	= this,
 																	Generator = Generator
 																};
-														t.ReadForBlock(reader);
+														t.ReadUnconfirmed(reader);
 														return t;
 													});
 			Hash = Hashify();

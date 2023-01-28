@@ -283,7 +283,7 @@ namespace UC.Net
 		public override string ToString()
 		{
 			var gens = Database != null ? Settings.Generators.Where(i => Database.Members.Any(j => j.Generator == i)) : new PrivateAccount[0];
-
+	
 			return	$"{(Settings.Database.Base ? "B" : "")}{(Settings.Database.Chain ? "C" : "")}{(Settings.Hub.Enabled ? "H" : "")}{(Settings.Filebase.Enabled ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? " - " + IP : "")}" +
@@ -1092,8 +1092,6 @@ namespace UC.Net
 
 					if(Database.Roles.HasFlag(Role.Base) && !Database.Roles.HasFlag(Role.Chain))
 					{
-						Workflow.ThrowIfAborted();
-
 						Database.Tail.Clear();
 		
 						stamp = peer.GetStamp();
@@ -1197,6 +1195,7 @@ namespace UC.Net
 		
 					while(true)
 					{
+						Thread.Sleep(1);
 						Workflow.ThrowIfAborted();
 		
 						lock(Lock)
@@ -1461,7 +1460,7 @@ namespace UC.Net
 
 						foreach(var i in txs)
 						{
-							i.WriteForBlock(w);
+							i.WriteUnconfirmed(w);
 
 							if(s.Position > Block.SizeMax)
 								break;

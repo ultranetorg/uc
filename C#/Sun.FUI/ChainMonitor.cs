@@ -47,16 +47,6 @@ namespace UC.Sun.FUI
 			BeginInvoke((MethodInvoker)delegate{ Invalidate(); });
 		}
 
-		protected override void OnHandleCreated(EventArgs e)
-		{
-			base.OnHandleCreated(e);
-		}
-
-		protected override void OnHandleDestroyed(EventArgs e)
-		{
-			base.OnHandleDestroyed(e);
-		}
-
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			if(!Mode)

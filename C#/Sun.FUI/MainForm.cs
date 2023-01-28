@@ -121,9 +121,7 @@ namespace UC.Sun.FUI
 		{
 			lock(Core.Lock)
 			{
-
-				Text = "Ultranet Node - "; //System.Reflection.Assembly.GetEntryAssembly().ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += Core;
+				Text = $"Ultranet Node - {Core}";
 			}
 
 			foreach(var i in Controls)

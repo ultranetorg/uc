@@ -351,8 +351,8 @@ namespace UC.Net
 				var s = new MemoryStream();
 				var r = new BinaryReader(Stream);
 	
-				p.Type				= (PacketType)r.ReadByte();
-				var ndata			= r.Read7BitEncodedInt64();
+				p.Type		= (PacketType)r.ReadByte();
+				var ndata	= r.Read7BitEncodedInt64();
 	
 				if(ndata > 0)
 				{

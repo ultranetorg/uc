@@ -73,27 +73,34 @@ namespace UC.Net
 			w.Write(Operations, i => i.Write(w));
 		}
 
-		public void	WriteConfirmed(BinaryWriter w)
-		{
-			w.Write(Signer);
-			w.Write(SuccessfulOperations, i =>	{ 
-													w.Write((byte)i.Type); 
-													i.Write(w); 
-												});
-		}
-		
-		public void	ReadConfirmed(BinaryReader r)
-		{
-			Signer		= r.ReadAccount();
-			Operations	= r.ReadList(() => {
-												var o = Operation.FromType((Operations)r.ReadByte());
-												o.Placing		= PlacingStage.Confirmed;
-												o.Signer		= Signer;
-												o.Transaction	= this;
-												o.Read(r); 
-												return o; 
-											});
-		}
+ 		public void	WriteConfirmed(BinaryWriter w)
+ 		{
+			w.Write(Signature);
+			w.Write7BitEncodedInt(RoundMax);
+			w.Write(Operations, i => {
+										w.Write((byte)i.Type); 
+										i.Write(w); 
+									 });
+ 		}
+ 		
+ 		public void	ReadConfirmed(BinaryReader r)
+ 		{
+			Signature	= r.ReadSignature();
+			RoundMax	= r.Read7BitEncodedInt();
+ 			Operations	= r.ReadList(() => {
+ 												var o = Operation.FromType((Operations)r.ReadByte());
+ 												o.Placing		= PlacingStage.Confirmed;
+ 												//o.Signer		= Signer;
+ 												o.Transaction	= this;
+ 												o.Read(r); 
+ 												return o; 
+ 											});
+			
+			Signer = Cryptography.Current.AccountFrom(Signature, this);
+
+			foreach(var i in Operations)
+				i.Signer = Signer;
+ 		}
 
 		public void Write(BinaryWriter w)
 		{
@@ -113,7 +120,7 @@ namespace UC.Net
 			RoundMax	= r.Read7BitEncodedInt();
 			Operations	= r.ReadList(() => {
 												var o = Operation.FromType((Operations)r.ReadByte());
-												o.Signer = Signer;
+												//o.Signer = Signer;
 												o.Transaction = this;
 												o.Read(r); 
 												return o; 
@@ -125,7 +132,7 @@ namespace UC.Net
 				i.Signer = Signer;
 		}
 
-		public void WriteForBlock(BinaryWriter w)
+		public void WriteUnconfirmed(BinaryWriter w)
 		{
 			w.Write(Signature);
 			w.Write7BitEncodedInt(RoundMax);
@@ -135,7 +142,7 @@ namespace UC.Net
 									 });
 		}
 
-		public void ReadForBlock(BinaryReader r)
+		public void ReadUnconfirmed(BinaryReader r)
 		{
 
 			Signature	= r.ReadSignature();
