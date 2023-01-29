@@ -270,7 +270,7 @@ namespace UC.Net
 	public class Payload : Vote
 	{
 		public List<Transaction>		Transactions = new();
-		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Any());
+		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Count() == i.Operations.Count);
 		public byte[]					OrderingKey => Hash;
 
 		public bool						Confirmed = false;

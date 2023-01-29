@@ -199,17 +199,18 @@ namespace UC.Sun.FUI
 			this.InfoFields.Location = new System.Drawing.Point(404, 32);
 			this.InfoFields.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.InfoFields.Name = "InfoFields";
-			this.InfoFields.Size = new System.Drawing.Size(126, 162);
+			this.InfoFields.Size = new System.Drawing.Size(112, 189);
 			this.InfoFields.TabIndex = 24;
-			this.InfoFields.Text = "State :\r\nTime :\r\nHash :\r\nJoiners :\r\nLeavers :\r\nViolators :";
+			this.InfoFields.Text = "State\r\nTime\r\nHash\r\nPayloads\r\nJoiners\r\nLeavers\r\nViolators";
 			// 
 			// InfoValues
 			// 
 			this.InfoValues.AutoSize = true;
-			this.InfoValues.Location = new System.Drawing.Point(544, 28);
+			this.InfoValues.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			this.InfoValues.Location = new System.Drawing.Point(530, 32);
 			this.InfoValues.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.InfoValues.Name = "InfoValues";
-			this.InfoValues.Size = new System.Drawing.Size(83, 32);
+			this.InfoValues.Size = new System.Drawing.Size(74, 27);
 			this.InfoValues.TabIndex = 24;
 			this.InfoValues.Text = "Round";
 			// 

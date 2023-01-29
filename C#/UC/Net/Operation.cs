@@ -500,6 +500,11 @@ namespace UC.Net
 		{
 			//			AuthorBid lb = null;
 
+			if(Author == "abc" && Id== 3)
+			{
+				int i = 0;
+			}
+
 			var a = chain.Authors.Find(Author, round.Id);
 
 // 			if(Exclusive)
@@ -512,10 +517,10 @@ namespace UC.Net
 			ChainTime sinceauction() => round.Time - a.FirstBidTime;
 			ChainTime sincelastreg() => round.Time - a.RegistrationTime;
 						
-			if(	a == null && !Exclusive ||																																			/// available
-				a != null && !Exclusive && sincelastreg() > ChainTime.FromYears(a.Years)							||																				/// not renewed
-				a != null && Exclusive && a.LastWinner == Signer && a.Owner == null && ChainTime.FromYears(1) < sinceauction() && sinceauction() < ChainTime.FromYears(2) ||	/// auction is over and a winner can register the author during 1 year
-				a != null && a.Owner == Signer && sincelastreg() < ChainTime.FromYears(a.Years) 																		/// renew
+			if(	a == null && !Exclusive ||																																	/// available
+				a != null && !Exclusive && sincelastreg() > ChainTime.FromYears(a.Years) ||																					/// not renewed
+				a != null && Exclusive && a.LastWinner == Signer && a.Owner == null && ChainTime.FromYears(1) < sinceauction() && sinceauction() < ChainTime.FromYears(2) ||/// auction is over and a winner can register the author during 1 year
+				a != null && a.Owner == Signer && sincelastreg() < ChainTime.FromYears(a.Years) 																			/// renew
 			   )	
 			{
 				if(a?.Owner == null)

@@ -8,7 +8,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net
 {
-	public class Transaction : IBinarySerializable, IHashable
+	public class Transaction : IBinarySerializable
 	{
 		public List<Operation>			Operations = new ();
 		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
@@ -46,7 +46,7 @@ namespace UC.Net
 		{
 			Generator	= member;
 			RoundMax	= rmax;
-			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, this);
+			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)
@@ -65,12 +65,17 @@ namespace UC.Net
 			return $"Operations={{{Operations.Count}}}, Signer={Signer}, RoundMax={RoundMax}";
 		}
 
-		public void HashWrite(BinaryWriter w)
+		public byte[] Hashify()
 		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
 			w.WriteUtf8(Settings.Zone.Name); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
 			w.Write(Operations, i => i.Write(w));
+
+			return Cryptography.Current.Hash(s.ToArray());
 		}
 
  		public void	WriteConfirmed(BinaryWriter w)
@@ -96,7 +101,7 @@ namespace UC.Net
  												return o; 
  											});
 			
-			Signer = Cryptography.Current.AccountFrom(Signature, this);
+			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;
@@ -126,7 +131,7 @@ namespace UC.Net
 												return o; 
 											});
 
-			Signer = Cryptography.Current.AccountFrom(Signature, this);
+			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;
@@ -155,7 +160,7 @@ namespace UC.Net
 												return o; 
 											});
 
-			Signer = Cryptography.Current.AccountFrom(Signature, this);
+			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;

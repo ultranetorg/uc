@@ -35,15 +35,10 @@ namespace UC.Net
 			return Sha3Keccack.Current.CalculateHash(data);
 		}
 
-		public byte[] Hash(IHashable hashable)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			hashable.HashWrite(w);
-
-			return Sha3Keccack.Current.CalculateHash(s.ToArray());
-		}
+// 		public byte[] Hash(byte[] data)
+// 		{
+// 			return Sha3Keccack.Current.CalculateHash(data);
+// 		}
 
 		public virtual bool Valid(byte[] signature, byte[] hash, Account a)
 		{
@@ -54,27 +49,6 @@ namespace UC.Net
 		{
 			var b = BitConverter.GetBytes(n);
 			return BitConverter.IsLittleEndian ? b : b.Reverse().ToArray();
-		}
-
-		public byte[] Sign(PrivateAccount signer, IHashable hashable)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			hashable.HashWrite(w);
-
-			return Current.Sign(signer, Current.Hash(s.ToArray()));
-		}
-
-		
-		public Account AccountFrom(byte[] signature, IHashable hashable)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			hashable.HashWrite(w);
-
-			return AccountFrom(signature, Current.Hash(s.ToArray()));
 		}
 	}
 
