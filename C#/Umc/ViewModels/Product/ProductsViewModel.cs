@@ -38,18 +38,9 @@ public partial class ProductsViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-	private async Task RegisterProductAsync(ProductViewModel product)
-	{
-		// await AccountOptionsPopup.Show(author);
-		await Task.Delay(10);
-	}
-
-	[RelayCommand]
-	private async Task TransferProductAsync(ProductViewModel product)
-	{
-		// await AccountOptionsPopup.Show(author);
-		await Task.Delay(10);
-	}
+	private async Task RegisterProductAsync(ProductViewModel product) =>
+		await Navigation.GoToAsync(nameof(ProductRegistrationPage),
+			new Dictionary<string, object>() { { QueryKeys.PRODUCT, product } });
 
 	internal async Task InitializeAsync()
 	{

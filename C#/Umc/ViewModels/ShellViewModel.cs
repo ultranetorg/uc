@@ -54,7 +54,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "products_light.png",
 			IconDark = "products_dark.png",
 			TargetType = typeof(ProductSearchPage),
-			Route = ShellBaseRoutes.PRODUCTS_SEARCH
+			Route = ShellBaseRoutes.PRODUCT_SEARCH
 		};
 		Transactions = new AppSection()
 		{

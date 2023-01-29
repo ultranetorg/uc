@@ -9,6 +9,9 @@ public partial class ProductRegistrationViewModel : BaseViewModel
 	private string _commission = "10 UNT ($15)"; // todo: commission calculation
 
 	[ObservableProperty]
+	private AccountViewModel _account;
+
+	[ObservableProperty]
     private int _position;
 
     public ProductRegistrationViewModel(ILogger<ProductRegistrationViewModel> logger) : base(logger)

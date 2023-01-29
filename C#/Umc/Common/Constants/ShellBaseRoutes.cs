@@ -21,26 +21,11 @@ internal static class ShellBaseRoutes
 	public const string AUTHOR_TRANSFER = nameof(AuthorTransferPage);
     public const string MAKE_BID = nameof(MakeBidPage);
     public const string PRODUCTS = nameof(ProductsPage);
-    public const string PRODUCTS_SEARCH = nameof(ProductSearchPage);
+    public const string PRODUCT_SEARCH = nameof(ProductSearchPage);
+	public const string PRODUCT_REGISTRATION = nameof(ProductRegistrationPage);
+	public const string PRODUCT_TRANSFER = nameof(ProductTransferPage);
 
-    public const string SEND = nameof(SendPage);
+	public const string SEND = nameof(SendPage);
 	public const string TRANSACTIONS = nameof(TransactionsPage);
     public const string TRANSFER = nameof(ETHTransferPage);
-	
-	internal static void InitializeRouting()
-	{
-		Routing.RegisterRoute(ACCOUNT_DETAILS, typeof(AccountDetailsPage));
-		Routing.RegisterRoute(CREATE_ACCOUNT, typeof(CreateAccountPage));
-		Routing.RegisterRoute(RESTORE_ACCOUNT, typeof(RestoreAccountPage));
-		Routing.RegisterRoute(DELETE_ACCOUNT, typeof(DeleteAccountPage));
-		Routing.RegisterRoute(PRIVATE_KEY, typeof(PrivateKeyPage));
-		Routing.RegisterRoute(AUTHOR_DETAILS, typeof(AuthorDetailsPage));
-		Routing.RegisterRoute(AUTHOR_REGISTRATION, typeof(AuthorRegistrationPage));
-		Routing.RegisterRoute(AUTHOR_RENEWAL, typeof(AuthorRenewalPage));
-		Routing.RegisterRoute(AUTHOR_TRANSFER, typeof(AuthorTransferPage));
-		Routing.RegisterRoute(MAKE_BID, typeof(MakeBidPage));
-		Routing.RegisterRoute(PRODUCTS_SEARCH, typeof(ProductSearchPage));
-		Routing.RegisterRoute(SEND, typeof(SendPage));
-		Routing.RegisterRoute(ABOUT, typeof(AboutPage));
-	}
 }

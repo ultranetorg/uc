@@ -34,11 +34,11 @@
                         <!--Step #1-->
                         <StackLayout Spacing="24">
                             <StackLayout>
-                                <Label FontSize="18" Text="Choose your Product and destination Author" />
+                                <Label FontSize="18" Text="Choose your Product and destination account" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="You need to specify your product and destination author to transfer." />
+                                    Text="You need to specify your product and destination account to transfer." />
                             </StackLayout>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="Transfer Product" />
@@ -59,34 +59,39 @@
                                                 Text="{Binding Name}"
                                                 VerticalOptions="Center" />
                                         </Grid>
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=SelectProductCommand}" />
-                                        </Border.GestureRecognizers>
                                     </Border>
-                                    <Image
-                                        Grid.Column="1"
-                                        HorizontalOptions="Center"
-                                        InputTransparent="True"
-                                        Style="{StaticResource BottomArrowsIcon}"
-                                        VerticalOptions="Center" />
                                 </Grid>
                             </StackLayout>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="Author" />
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
-                                    <views:AccountView 
-                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=IsMyProduct}"
-                                        BorderStyle="{StaticResource AccountBorder}"
+                                    <Border
+                                        BindingContext="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Author}"
                                         Grid.ColumnSpan="2"
-                                        Account="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Account}">
-                                        <views:AccountView.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=SelectAccountCommand}" />
-                                        </views:AccountView.GestureRecognizers>
-                                    </views:AccountView>
-                                    <Label
-                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=IsReservedProduct}"
-                                        Text="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Account.Address}"
-                                        Grid.ColumnSpan="2" />
+                                        HeightRequest="60"
+                                        Style="{StaticResource AccountCardBorder}">
+                                        <!--IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=IsMyProduct}"-->
+                                        <Grid 
+                                            Margin="8"
+                                            RowDefinitions="Auto,Auto"
+                                            x:DataType="models:AuthorViewModel">
+                                            <Label
+                                                Grid.Row="0"
+                                                Grid.Column="0"
+                                                FontSize="13"
+                                                Text="{Binding Name}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Row="1"
+                                                Grid.Column="0"
+                                                FontSize="10"
+                                                Text="{Binding ActiveDue}"
+                                                VerticalOptions="Center" />
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=SelectAuthorCommand}" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </Border>
                                     <Image
                                         Grid.Column="1"
                                         HorizontalOptions="Center"
@@ -115,7 +120,7 @@
                                 <controls:LabelPair Text1="With comission:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Comission}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="To Author" />
+                                <Label Style="{StaticResource DashLabel}" Text="To Account" />
                                 <views:AccountView
                                     Grid.ColumnSpan="2"
                                     Account="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Account}" />

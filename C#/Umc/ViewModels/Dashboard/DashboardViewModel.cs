@@ -27,13 +27,13 @@ public partial class DashboardViewModel : BaseViewModel
     public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.PRODUCTS);
 
 	[RelayCommand]
-    public async Task SearchExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.PRODUCTS_SEARCH);
-	
+    public async Task SearchExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.PRODUCT_SEARCH);
+
+	[RelayCommand]
+	public async Task TransactionsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSACTIONS);
+
 	[RelayCommand]
     public async Task ETHTransferExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSFER);
-	
-	[RelayCommand]
-    public async Task TransactionsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSACTIONS);
 	
 	[RelayCommand]
     public async Task NetworkExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.NETWORK);

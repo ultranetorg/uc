@@ -41,6 +41,24 @@ public partial class ProductTransferViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
+	private async Task SelectAuthorAsync()
+	{
+		try
+		{
+			var popup = new SelectAuthorPopup();
+			await ShowPopup(popup);
+			if (popup.Vm?.SelectedAuthor != null)
+			{
+				Author = popup.Vm.SelectedAuthor;
+			}
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "SelectAuthorAsync Exception: {Ex}", ex.Message);
+		}
+	}
+
+	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
 		if (Position == 0)

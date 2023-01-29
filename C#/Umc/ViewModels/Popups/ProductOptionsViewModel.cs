@@ -12,11 +12,8 @@ public partial class ProductOptionsViewModel : BaseViewModel
 	[RelayCommand]
 	private async Task TransferProductAsync()
 	{
-		//await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_TRANSFER,
-		//	new Dictionary<string, object>()
-		//{
-		//	{ QueryKeys.AUTHOR, Product }
-		//});
+		await Navigation.GoToAsync(nameof(ProductTransferPage),
+			new Dictionary<string, object>() { { QueryKeys.PRODUCT, Product } });
 		await Task.Delay(10);
 		ClosePopup();
 	}
