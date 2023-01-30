@@ -57,7 +57,7 @@ namespace UC.Net
 												Data.Write(d, (int)Data.Position, d.Length);
 												break;
 											}
-											catch(DistributedCallException)
+											catch(RdcException)
 											{
 												e++;
 												
@@ -184,7 +184,7 @@ namespace UC.Net
 																			}
 																		}
 																	}
-																	catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+																	catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
 																	{
 																	}
 																	catch(OperationCanceledException)
@@ -214,7 +214,7 @@ namespace UC.Net
 															continue;
 														}
 													}
-													catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+													catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
 													{
 														Seeds[s.Key] = SeedStatus.Bad;
 														continue;

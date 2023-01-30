@@ -53,7 +53,7 @@ namespace UC.Net
 	//	}
 	//}
 
-	public class Peer : Dci
+	public class Peer : RdcInterface
 	{
 		public IPAddress			IP {get; set;} 
 
@@ -77,8 +77,8 @@ namespace UC.Net
 		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
 
-		public List<Request>		InRequests = new();
-		public List<Request>		OutRequests = new();
+		public List<RdcRequest>		InRequests = new();
+		public List<RdcRequest>		OutRequests = new();
 
 		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int					PeerRank = 0;
@@ -237,29 +237,29 @@ namespace UC.Net
 										lock(InRequests)
 											if(InRequests.Any())
 											{	
-												var responses = new List<Response>();
+												var responses = new List<RdcResponse>();
 											
 												foreach(var i in InRequests.ToArray())
 												{
 													if(i.WaitResponse)
 													{
-														Response rp;
+														RdcResponse rp;
 													
 														lock(core.Lock)
 															try
 															{
 																rp = i.Execute(core);
 															}
-															catch(DistributedCallException ex)// when(!Debugger.IsAttached)
+															catch(RdcException ex)// when(!Debugger.IsAttached)
 															{
-																rp = Response.FromType(core.Database, i.Type);
+																rp = RdcResponse.FromType(core.Database, i.Type);
 																rp.Error = ex.Error;
 															}
 															catch(Exception)// when(!Debugger.IsAttached)
 															{
 																//Core?.Workflow?.Log.ReportError(this, "Distributed Call Execution", ex);
-																rp = Response.FromType(core.Database, i.Type);
-																rp.Error = Error.Internal;
+																rp = RdcResponse.FromType(core.Database, i.Type);
+																rp.Error = RdcError.Internal;
 															}
 													
 														rp.Id = i.Id;
@@ -399,7 +399,7 @@ namespace UC.Net
 			}
 		}
 
- 		public override Rp Request<Rp>(Request rq) where Rp : class
+ 		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
  		{
 			if(!Established)
 				throw new ConnectionFailedException("Peer is not connected");
@@ -426,13 +426,13 @@ namespace UC.Net
 					if(rq.Response == null)
 						throw new OperationCanceledException();
 	
-	 				if(rq.Response.Error == Error.Null)
+	 				if(rq.Response.Error == RdcError.Null)
 		 				return rq.Response as Rp;
 	 				else
-						throw new DistributedCallException(rq.Response.Error);
+						throw new RdcException(rq.Response.Error);
 	 			}
 				else
-	 				throw new DistributedCallException(Error.Timeout);
+	 				throw new RdcException(RdcError.Timeout);
  			}
 			else
 				return null;

@@ -65,7 +65,7 @@ namespace UC.Net
 		public DownloadStatus	Download { get; set; }
 	}
 
-	public class Core : Dci
+	public class Core : RdcInterface
 	{
 		public System.Version							Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]					Versions = {1};
@@ -979,13 +979,13 @@ namespace UC.Net
 
  						case PacketType.Request:
  						{
-							Request[] requests;
+							RdcRequest[] requests;
 
  							try
  							{
 								requests = BinarySerializator.Deserialize(	reader,	
 																			c => {
-																					var o = UC.Net.Request.FromType(Database, (DistributedCall)c); 
+																					var o = UC.Net.RdcRequest.FromType(Database, (Rdc)c); 
 																					o.Peer = peer; 
 																					return o;
 																				},
@@ -1006,13 +1006,13 @@ namespace UC.Net
 
 						case PacketType.Response:
  						{
-							Response[] responses;
+							RdcResponse[] responses;
 							
 							try
  							{
 								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
 								responses = BinarySerializator.Deserialize(	reader,
-																			t => UC.Net.Response.FromType(Database, (DistributedCall)t), 
+																			t => UC.Net.RdcResponse.FromType(Database, (Rdc)t), 
 																			Constractor
 																			);
 							}
@@ -1302,7 +1302,7 @@ namespace UC.Net
 									throw new SynchronizationException();
 					}
 				}
-				catch(DistributedCallException)
+				catch(RdcException)
 				{
 				}
 				catch(SynchronizationException)
@@ -1720,7 +1720,7 @@ namespace UC.Net
 									{
 										Vault.OperationIds[g.Key] = m.GetAccountInfo(g.Key, false).Info.LastOperationId;
 									}
-									catch(DistributedCallException ex) when(ex.Error == Error.AccountNotFound)
+									catch(RdcException ex) when(ex.Error == RdcError.AccountNotFound)
 									{
 										Vault.OperationIds[g.Key] = -1;
 									}
@@ -1806,7 +1806,7 @@ namespace UC.Net
 
 					Statistics.Delegating.End();
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
 				{
 					Workflow.Log?.ReportWarning(this, "Delegation", $"Member={m}", ex);
 
@@ -2063,7 +2063,7 @@ namespace UC.Net
 						}
 					}
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is DistributedCallException)
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is RdcException)
 				{
 					peer.ReachFailures++;
 				}
@@ -2147,7 +2147,7 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(DistributedCallException)
+				catch(RdcException)
 				{
 				}
 			}
@@ -2188,7 +2188,7 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(DistributedCallException)
+				catch(RdcException)
 				{
 				}
 			}
@@ -2216,12 +2216,12 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(DistributedCallException)
+				catch(RdcException)
 				{
 				}
 			}
 
-			throw new DistributedCallException(Error.AllNodesFailed);
+			throw new RdcException(RdcError.AllNodesFailed);
 		}
 
 		public void Connect(Peer peer, Workflow workflow)
@@ -2272,7 +2272,7 @@ namespace UC.Net
 											{
 												return p.GetAccountInfo(signer, true);
 											}
-											catch(DistributedCallException ex) when (ex.Error == Error.AccountNotFound)
+											catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
 											{
 												return new AccountInfoResponse();
 											}
@@ -2309,7 +2309,7 @@ namespace UC.Net
 											{
 												return p.GetAccountInfo(signer, true);
 											}
-											catch(DistributedCallException ex) when (ex.Error == Error.AccountNotFound)
+											catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
 											{
 												return new AccountInfoResponse();
 											}
@@ -2384,14 +2384,14 @@ namespace UC.Net
 			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
 		}
 
-		public override Rp Request<Rp>(Request rq) where Rp : class
+		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
   		{
 			if(rq.Peer == null) /// self call, cloning needed
 			{
 				var s = new MemoryStream();
 				BinarySerializator.Serialize(new(s), rq); 
 				s.Position = 0;
-				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constractor) as Request;
+				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constractor) as RdcRequest;
 			}
 
  			return rq.Execute(this) as Rp;

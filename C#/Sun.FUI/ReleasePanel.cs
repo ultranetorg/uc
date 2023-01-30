@@ -87,7 +87,7 @@ namespace UC.Sun.FUI
 																	var m = p.GetManifest(r.Release).Manifests.FirstOrDefault();
 																	
 																	if(m == null)
-																		throw new DistributedCallException(UC.Net.Error.Null);
+																		throw new RdcException(UC.Net.RdcError.Null);
 
 																	return m;
 																},

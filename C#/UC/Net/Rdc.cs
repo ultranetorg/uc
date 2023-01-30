@@ -7,18 +7,17 @@ using System.Reflection;
 using System.Threading;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Security;
-using static UC.Net.Download;
 
 namespace UC.Net
 {
-	public enum DistributedCall : byte
+	public enum Rdc : byte
 	{
 		Null, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable
 	}
 
-	public enum Error
+	public enum RdcError
 	{
 		Null,
 		Internal,
@@ -38,17 +37,14 @@ namespace UC.Net
 		UnknownTable,
 	}
 
- 	public class DistributedCallException : Exception
+ 	public class RdcException : Exception
  	{
-		//public Response	Response;
-		public Error Error;
+		public RdcError Error;
 
- 		public DistributedCallException(Error erorr) : base(erorr.ToString())
+ 		public RdcException(RdcError erorr) : base(erorr.ToString())
 		{
 			Error = erorr;
 		}
-		//public DistributedCallException(string message) : base(message){}
-		//public DistributedCallException(string message, Exception ex) : base(message, ex){}
  	}
 
 	public class OperationAddress : IBinarySerializable
@@ -69,18 +65,16 @@ namespace UC.Net
 		}
 	}
 
-	public abstract class Dci
+	public abstract class RdcInterface
 	{
-		//public Account							Generator { get; set; }
 		public int								Failures;
 
- 		public abstract Rp						Request<Rp>(Request rq) where Rp : class;
+ 		public abstract Rp						Request<Rp>(RdcRequest rq) where Rp : class;
  
 		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
 		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
-		//public LastOperationResponse			GetLastOperation(Account account, string oclasss, PlacingStage placing) => Request<LastOperationResponse>(new LastOperationRequest{Account = account, Class = oclasss, Placing = placing});
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
@@ -95,77 +89,77 @@ namespace UC.Net
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
 
-	public abstract class Request : ITypedBinarySerializable
+	public abstract class RdcRequest : ITypedBinarySerializable
 	{
 		public byte[]					Id {get; set;}
 		public byte						TypeCode => (byte)Type;
 		public Peer						Peer;
 		public ManualResetEvent			Event;
-		public Response					Response;
+		public RdcResponse				Response;
 		public Action					Process;
 		public virtual bool				WaitResponse { get; protected set; } = true;
 
 		public const int				IdLength = 8;
 
-		public static Request FromType(Database chaim, DistributedCall type)
+		public static RdcRequest FromType(Database chaim, Rdc type)
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(Request).Namespace + "." + type + nameof(Request)).GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as Request;
+				return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as RdcRequest;
 			}
 			catch(Exception ex)
 			{
-				throw new IntegrityException($"Wrong {nameof(Request)} type", ex);
+				throw new IntegrityException($"Wrong {nameof(RdcRequest)} type", ex);
 			}
 		}
 
-		public DistributedCall Type
+		public Rdc Type
 		{
 			get
 			{
-				return Enum.Parse<DistributedCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Request))));
+				return Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Request")));
 			}
 		}
 
-		public Request()
+		public RdcRequest()
 		{
 			Id = new byte[IdLength];
 			Cryptography.Random.NextBytes(Id);
 			Event = new ManualResetEvent(false);
 		}
 
-		public abstract Response Execute(Core core);
+		public abstract RdcResponse Execute(Core core);
 	}
 
-	public abstract class Response : ITypedBinarySerializable
+	public abstract class RdcResponse : ITypedBinarySerializable
 	{
-		public byte[]			Id { get; set; }
-		public Error			Error { get; set; }
-		public bool				Final { get; set; } = true;
-		public Peer				Peer;
+		public byte[]	Id { get; set; }
+		public RdcError	Error { get; set; }
+		public bool		Final { get; set; } = true;
+		public Peer		Peer;
 
-		public byte				TypeCode => (byte)Type;
-		public DistributedCall	Type => Enum.Parse<DistributedCall>(GetType().Name.Remove(GetType().Name.IndexOf(nameof(Response))));
+		public byte		TypeCode => (byte)Type;
+		public Rdc		Type => Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 
-		public static Response FromType(Database chaim, DistributedCall type)
+		public static RdcResponse FromType(Database chaim, Rdc type)
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(Response).Namespace + "." + type + nameof(Response)).GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as Response;
+				return Assembly.GetExecutingAssembly().GetType(typeof(RdcResponse).Namespace + "." + type + "Response").GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as RdcResponse;
 			}
 			catch(Exception ex)
 			{
-				throw new IntegrityException($"Wrong {nameof(Response)} type", ex);
+				throw new IntegrityException($"Wrong {nameof(RdcResponse)} type", ex);
 			}
 		}
 	}
 
-	public class UploadBlocksPiecesRequest : Request
+	public class UploadBlocksPiecesRequest : RdcRequest
 	{
 		public IEnumerable<BlockPiece>	Pieces { get; set; }
 		public override bool			WaitResponse => false;
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			void broadcast(IEnumerable<BlockPiece> pieces)
 			{
@@ -183,7 +177,7 @@ namespace UC.Net
 			lock(core.Lock)
 			{
 				if(!core.Settings.Database.Base)
-					throw new DistributedCallException(Error.NotBase);
+					throw new RdcException(RdcError.NotBase);
 				
 				var accepted = new List<BlockPiece>();
 
@@ -262,20 +256,20 @@ namespace UC.Net
 		}
 	}
 
-	public class DownloadRoundsRequest : Request
+	public class DownloadRoundsRequest : RdcRequest
 	{
 		public int From { get; set; }
 		public int To { get; set; }
 		
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
 			{
 				if(!core.Settings.Database.Base)
-					throw new DistributedCallException(Error.NotBase);
+					throw new RdcException(RdcError.NotBase);
 
 				if(core.Database.LastNonEmptyRound == null)
-					throw new DistributedCallException(Error.TooEearly);
+					throw new RdcException(RdcError.TooEearly);
 
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
@@ -290,7 +284,7 @@ namespace UC.Net
 		}
 	}
 
-	public class DownloadRoundsResponse : Response
+	public class DownloadRoundsResponse : RdcResponse
 	{
 		public int		LastNonEmptyRound { get; set; }
 		public int		LastConfirmedRound { get; set; }
@@ -309,18 +303,18 @@ namespace UC.Net
 		}
 	}
 
-	public class NextRoundRequest : Request
+	public class NextRoundRequest : RdcRequest
 	{
 		public Account Generator;
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
 			{
 				if(!core.Settings.Database.Base)
-					throw new DistributedCallException(Error.NotBase);
+					throw new RdcException(RdcError.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 
 				var r = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
 				
@@ -329,21 +323,21 @@ namespace UC.Net
 		}
 	}
 
-	public class NextRoundResponse : Response
+	public class NextRoundResponse : RdcResponse
 	{
 		public int NextRoundId { get; set; }
 	}
 
-	public class StampRequest : Request
+	public class StampRequest : RdcRequest
 	{
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
 			{
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 				if(core.Database.BaseState == null)
-					throw new DistributedCallException(Error.TooEearly);
+					throw new RdcException(RdcError.TooEearly);
 
 				return new StampResponse {	BaseState				= core.Database.BaseState,
 											BaseHash				= core.Database.BaseHash,
@@ -359,7 +353,7 @@ namespace UC.Net
 		}
 	}
 
-	public class StampResponse : Response
+	public class StampResponse : RdcResponse
 	{
 		public class SuperCluster
 		{
@@ -379,19 +373,19 @@ namespace UC.Net
 		public IEnumerable<SuperCluster>	Releases { get; set; }
 	}
 
-	public class TableStampRequest : Request
+	public class TableStampRequest : RdcRequest
 	{
 		public Tables	Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
 			{
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 				if(core.Database.BaseState == null)
-					throw new DistributedCallException(Error.TooEearly);
+					throw new RdcException(RdcError.TooEearly);
 
 				switch(Table)
 				{
@@ -401,13 +395,13 @@ namespace UC.Net
 					case Tables.Realizations: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Realizations	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Releases	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Releases		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					default:
-						throw new DistributedCallException(Error.InvalidRequest);
+						throw new RdcException(RdcError.InvalidRequest);
 				}
 			}
 		}
 	}
 
-	public class TableStampResponse : Response
+	public class TableStampResponse : RdcResponse
 	{
 		public class Cluster
 		{
@@ -419,19 +413,19 @@ namespace UC.Net
 		public IEnumerable<Cluster>	Clusters { get; set; }
 	}
 
-	public class DownloadTableRequest : Request
+	public class DownloadTableRequest : RdcRequest
 	{
 		public Tables	Table { get; set; }
 		public int		ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
 			{
 				if(core.Database == null || !core.Database.Settings.Database.Base)
-					throw new DistributedCallException(Error.NotBase);
+					throw new RdcException(RdcError.NotBase);
 
 				var m = Table switch
 							  {
@@ -440,11 +434,11 @@ namespace UC.Net
 									Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									_ => throw new DistributedCallException(Error.InvalidRequest)
+									_ => throw new RdcException(RdcError.InvalidRequest)
 							  };
 
 				if(m == null)
-					throw new DistributedCallException(Error.ClusterNotFound);
+					throw new RdcException(RdcError.ClusterNotFound);
 	
 				var s = new MemoryStream(m);
 				var r = new BinaryReader(s);
@@ -456,14 +450,14 @@ namespace UC.Net
 		}
 	}
 
-	public class DownloadTableResponse : Response
+	public class DownloadTableResponse : RdcResponse
 	{
 		public byte[] Data { get; set; }
 	}
 	
-	public class GetMembersRequest : Request
+	public class GetMembersRequest : RdcRequest
 	{
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
  				if(core.Database != null)
@@ -471,14 +465,14 @@ namespace UC.Net
  					if(core.Synchronization == Synchronization.Synchronized)
  						return new GetMembersResponse { Members = core.Database.Members };
  					else
- 						throw new DistributedCallException(Error.NotSynchronized);
+ 						throw new RdcException(RdcError.NotSynchronized);
  				}
  				else
  					return new GetMembersResponse { Members = core.Members };
 		}
 	}
 
-	public class GetMembersResponse : Response
+	public class GetMembersResponse : RdcResponse
 	{
 		public IEnumerable<Member> Members {get; set;}
 	}
@@ -509,16 +503,16 @@ namespace UC.Net
 // 		public Operation Operation {get; set;}
 // 	}
 
-	public class DelegateTransactionsRequest : Request
+	public class DelegateTransactionsRequest : RdcRequest
 	{
 //		public byte[]					Data {get; set;}
 		public IEnumerable<Transaction>	Transactions {get; set;}
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 				else
 				{
 					var acc = core.ProcessIncoming(Transactions);
@@ -530,23 +524,23 @@ namespace UC.Net
 		}
 	}
 
-	public class DelegateTransactionsResponse : Response
+	public class DelegateTransactionsResponse : RdcResponse
 	{
 		public IEnumerable<OperationAddress> Accepted { get; set; }
 	}
 
-	public class GetOperationStatusRequest : Request
+	public class GetOperationStatusRequest : RdcRequest
 	{
 		public IEnumerable<OperationAddress>	Operations { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			lock(core.Lock)
 			{
 				if(!core.Settings.Database.Chain)
-					throw new DistributedCallException(Error.NotChain);
+					throw new RdcException(RdcError.NotChain);
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 	
 				return	new GetOperationStatusResponse
 						{
@@ -564,7 +558,7 @@ namespace UC.Net
 		}
 	}
 
-	public class GetOperationStatusResponse : Response
+	public class GetOperationStatusResponse : RdcResponse
 	{
 		public class Item
 		{
@@ -576,69 +570,69 @@ namespace UC.Net
 		public IEnumerable<Item> Operations { get; set; }
 	}
 
-	public class AccountInfoRequest : Request
+	public class AccountInfoRequest : RdcRequest
 	{
 		public bool			Confirmed {get; set;}
 		public Account		Account {get; set;}
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 				else
 				{
 					var ai = core.Database.GetAccountInfo(Account, Confirmed);
 
 					if(ai == null)
-						throw new DistributedCallException(Error.AccountNotFound);
+						throw new RdcException(RdcError.AccountNotFound);
 
  					return new AccountInfoResponse{Info = ai};
 				}
 		}
 	}
 
-	public class AccountInfoResponse : Response
+	public class AccountInfoResponse : RdcResponse
 	{
 		public AccountInfo Info {get; set;}
 	}
 
-	public class AuthorInfoRequest : Request
+	public class AuthorInfoRequest : RdcRequest
 	{
 		public bool				Confirmed {get; set;}
 		public string			Name {get; set;}
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 				else
  					return new AuthorInfoResponse{Xon = core.Database.GetAuthorInfo(Name, Confirmed, new XonTypedBinaryValueSerializator())};
 		}
 	}
 
-	public class AuthorInfoResponse : Response
+	public class AuthorInfoResponse : RdcResponse
 	{
 		public XonDocument Xon {get; set;}
 	}
 
-	public class QueryReleaseRequest : Request
+	public class QueryReleaseRequest : RdcRequest
 	{
 		public IEnumerable<ReleaseQuery>	Queries { get; set; }
 		public bool							Confirmed { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
  			lock(core.Lock)
  				if(core.Synchronization != Synchronization.Synchronized)
-					throw new DistributedCallException(Error.NotSynchronized);
+					throw new RdcException(RdcError.NotSynchronized);
 				else
  					return new QueryReleaseResponse {Releases = Queries.Select(i => core.Database.QueryRelease(i, Confirmed))};
 		}
 	}
 	
-	public class QueryReleaseResponse : Response
+	public class QueryReleaseResponse : RdcResponse
 	{
 		public IEnumerable<QueryReleaseResult> Releases { get; set; }
 	}
@@ -649,11 +643,11 @@ namespace UC.Net
 		//public IEnumerable<ReleaseAddress>	Dependencies { get; set; }
 	}
 
-	public class DeclareReleaseRequest : Request
+	public class DeclareReleaseRequest : RdcRequest
 	{
 		public PackageAddressPack Packages { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			core.Hub.Add(Peer.IP, Packages.Items);
 
@@ -661,80 +655,80 @@ namespace UC.Net
 		}
 	}
 	
-	public class DeclareReleaseResponse : Response
+	public class DeclareReleaseResponse : RdcResponse
 	{
 	}
 
-	public class LocateReleaseRequest : Request
+	public class LocateReleaseRequest : RdcRequest
 	{
 		public ReleaseAddress	Release { get; set; }
 		public int				Count { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			if(core.Hub == null)
 			{
-				throw new DistributedCallException(Error.NotHub);
+				throw new RdcException(RdcError.NotHub);
 			}
 
 			return new LocateReleaseResponse {Seeders = core.Hub.Locate(this)}; 
 		}
 	}
 	
-	public class LocateReleaseResponse : Response
+	public class LocateReleaseResponse : RdcResponse
 	{
 		public IEnumerable<IPAddress>	Seeders { get; set; }
 	}
 
-	public class ManifestRequest : Request
+	public class ManifestRequest : RdcRequest
 	{
 		public IEnumerable<ReleaseAddress>	Releases { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			if(core.Filebase == null)
 			{
-				throw new DistributedCallException(Error.NotSeed);
+				throw new RdcException(RdcError.NotSeed);
 			}
 
 			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.FindRelease(i)?.Manifest).ToArray()};
 		}
 	}
 	
-	public class ManifestResponse : Response
+	public class ManifestResponse : RdcResponse
 	{
 		public IEnumerable<Manifest> Manifests { get; set; }
 	}
 
-	public class DownloadReleaseRequest : Request
+	public class DownloadReleaseRequest : RdcRequest
 	{
 		public ReleaseAddress		Package { get; set; }
 		public Distributive			Distributive { get; set; }
 		public long					Offset { get; set; }
 		public long					Length { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			if(core.Filebase == null)
 			{
-				throw new DistributedCallException(Error.NotSeed);
+				throw new RdcException(RdcError.NotSeed);
 			}
 
 			return new DownloadReleaseResponse{Data = core.Filebase.ReadPackage(Package, Distributive, Offset, Length)};
 		}
 	}
 
-	public class DownloadReleaseResponse : Response
+	public class DownloadReleaseResponse : RdcResponse
 	{
 		public byte[] Data { get; set; }
 	}
 
-	public class ReleaseHistoryRequest : Request
+	public class ReleaseHistoryRequest : RdcRequest
 	{
 		public RealizationAddress	Realization { get; set; }
 		public bool					Confirmed { get; set; }
 
-		public override Response Execute(Core core)
+		public override RdcResponse Execute(Core core)
 		{
 			var db = core.Database;
 
@@ -756,11 +750,11 @@ namespace UC.Net
 				return new ReleaseHistoryResponse{Releases = ms};
 			}
 			else
-				throw new DistributedCallException(Error.ProductNotFound);
+				throw new RdcException(RdcError.ProductNotFound);
 		}
 	}
 	
-	public class ReleaseHistoryResponse : Response
+	public class ReleaseHistoryResponse : RdcResponse
 	{
 		public IEnumerable<ReleaseRegistration> Releases { get; set; }
 	}
