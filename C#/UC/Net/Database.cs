@@ -53,8 +53,8 @@ namespace UC.Net
 
 		public List<Round>					Tail = new();
 		public Dictionary<int, Round>		LoadedRounds = new();
-		public List<Member>					Members	= new();
-		public List<Account>				Funds = new();
+		//public List<Member>					Members	= new();
+		//public List<Account>				Funds = new();
 
 		public RocksDb						Engine;
 		public byte[]						BaseState;
@@ -118,8 +118,8 @@ namespace UC.Net
 				LastCommittedRound.WeiSpent	= r.ReadBigInteger();
 				LastCommittedRound.Factor	= r.ReadCoin();
 				LastCommittedRound.Emission	= r.ReadCoin();
-				LastCommittedRound.Members	= Members = r.ReadList<Member>();
-				LastCommittedRound.Funds	= Funds = r.ReadList<Account>();
+				LastCommittedRound.Members	= r.ReadList<Member>();
+				LastCommittedRound.Funds	= r.ReadList<Account>();
 
 				LoadedRounds.Add(LastCommittedRound.Id, LastCommittedRound);
 
@@ -499,7 +499,7 @@ namespace UC.Net
 
 		public IEnumerable<Member> VoterOf(Round r)
 		{
-			return Members.Where(i => i.JoinedAt < r.Id);
+			return FindRound(r.Id - Pitch - 1).Members/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
 		public bool QuorumReached(Round r)
@@ -594,10 +594,10 @@ namespace UC.Net
 		public IEnumerable<Account> ProposeJoiners(Round round)
 		{
 
-			var o = round.Parent.JoinRequests.Select(jr =>{
-															var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
-															return new {jr = jr, a = a};
-														})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
+			var o = round.Parent.JoinRequests.Select(jr =>	{
+																var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
+																return new {jr = jr, a = a};
+															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
 											.Where(i => i.a != null && 
 														i.a.CandidacyDeclarationRound <= round.Id - Pitch * 2 &&  /// 2 = declared, requested
 														i.a.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin))
@@ -605,7 +605,7 @@ namespace UC.Net
 											.ThenBy(i => i.a.Account)
 											.Select(i => i.jr);
 
-			var n = Math.Min(MembersMax - Members.Count, o.Count());
+			var n = Math.Min(MembersMax - VoterOf(round).Count(), o.Count());
 
 			//.Where(i =>	{ 
 			//				var d = Accounts.FindLastOperation<CandidacyDeclaration>(i, null, null, null, r => r.Id <= round.Id);
@@ -644,10 +644,12 @@ namespace UC.Net
 			//if(!round.Payloads.Any())
 			//	return null;
 
-			round.Time = CalculateTime(round, round.Unique);
-			Execute(round, round.Payloads, null);
+			var payloads = round.Majority.OfType<Payload>();
 
-			var payloads = round.Majority.OfType<Payload>().Where(i => i.SuccessfulTransactions.Any()).OrderBy(i => i.OrderingKey, new BytesComparer());
+			round.Time = CalculateTime(round, payloads);
+			Execute(round, payloads, round.Forkers);
+
+			payloads = payloads.Where(i => i.SuccessfulTransactions.Any()).OrderBy(i => i.OrderingKey, new BytesComparer());
 			//var nonempties = choice.Where(i => i.SuccessfulTransactions.Any());
 
 			/// take only blocks with valid transactions or take first empty block 
@@ -847,20 +849,19 @@ namespace UC.Net
 
 			//round.Blocks.RemoveAll(b => b is Payload p && !p.Transactions.Any());
 
-			Members.AddRange(round.ConfirmedJoiners	.Where(i => Accounts.Find(i.Generator, round.Id).CandidacyDeclarationRound <= round.Id - Pitch * 2)
-													.Select(i => new Member {Generator = i.Generator, IPs = i.IPs, JoinedAt = round.Id + Pitch}));
+	 		//round.Members = round.Previous.Members.ToList();
+			round.Members.AddRange(round.ConfirmedJoiners	.Where(i => Accounts.Find(i.Generator, round.Id).CandidacyDeclarationRound <= round.Id - Pitch * 2)
+															.Select(i => new Member {Generator = i.Generator, IPs = i.IPs, JoinedAt = round.Id + Pitch}));
 	
-			Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Generator && o.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
-			Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Generator) && round.AffectedAccounts[i.Generator].Bail < (Settings.Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
-			Members.RemoveAll(i => round.ConfirmedLeavers.Contains(i.Generator));
-			Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Generator));
-	 		round.Members = Members.ToList();
+			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Generator && o.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
+			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Generator) && round.AffectedAccounts[i.Generator].Bail < (Settings.Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
+			round.Members.RemoveAll(i => round.ConfirmedLeavers.Contains(i.Generator));
+			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Generator));
 	
 			if(round.Id <= LastGenesisRound || round.Factor == Emission.FactorEnd) /// Funds reorganization only after emission is over
 			{
-				Funds.AddRange(round.ConfirmedFundJoiners);
-				Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
-	 			round.Funds	= Funds.ToList();
+				round.Funds.AddRange(round.ConfirmedFundJoiners);
+				round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
 			}
 
 			using(var b = new WriteBatch())
@@ -889,8 +890,8 @@ namespace UC.Net
 					w.Write(LastCommittedRound.WeiSpent);
 					w.Write(LastCommittedRound.Factor);
 					w.Write(LastCommittedRound.Emission);
-					w.Write(Members.OrderBy(i => i.Generator));
-					w.Write(Funds.OrderBy(i => i));
+					w.Write(LastCommittedRound.Members.OrderBy(i => i.Generator));
+					w.Write(LastCommittedRound.Funds.OrderBy(i => i));
 	
 					BaseState = s.ToArray();
 

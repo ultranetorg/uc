@@ -463,7 +463,7 @@ namespace UC.Net
  				if(core.Database != null)
  				{
  					if(core.Synchronization == Synchronization.Synchronized)
- 						return new GetMembersResponse { Members = core.Database.Members };
+ 						return new GetMembersResponse { Members = core.Database.LastConfirmedRound.Members };
  					else
  						throw new RdcException(RdcError.NotSynchronized);
  				}
@@ -649,7 +649,7 @@ namespace UC.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-			core.Hub.Add(Peer.IP, Packages.Items);
+			core.Seedbase.Add(Peer.IP, Packages.Items);
 
 			return new DeclareReleaseResponse();
 		}
@@ -666,12 +666,12 @@ namespace UC.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-			if(core.Hub == null)
+			if(core.Seedbase == null)
 			{
 				throw new RdcException(RdcError.NotHub);
 			}
 
-			return new LocateReleaseResponse {Seeders = core.Hub.Locate(this)}; 
+			return new LocateReleaseResponse {Seeders = core.Seedbase.Locate(this)}; 
 		}
 	}
 	

@@ -67,70 +67,67 @@ namespace UC.Net
 
 	public class Core : RdcInterface
 	{
-		public System.Version							Version => Assembly.GetAssembly(GetType()).GetName().Version;
-		public static readonly int[]					Versions = {1};
-		public const string								FailureExt = "failure";
-		public const int								Timeout = 5000;
-		public const int								OperationsQueueLimit = 1000;
-		const int										BalanceWidth = 24;
+		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
+		public static readonly int[]	Versions = {1};
+		public const string				FailureExt = "failure";
+		public const int				Timeout = 5000;
+		public const int				OperationsQueueLimit = 1000;
+		const int						BalanceWidth = 24;
 
-		public Workflow									Workflow;
-		public Vault									Vault;
-		public INas										Nas;
-		public Database									Database;
-		public Filebase									Filebase;
-		public Hub										Hub;
-		RocksDb											DatabaseEngine;
-		//public bool										Networking => ;
-		public bool										IsClient => ListeningThread == null;
-		public object									Lock = new();
-		public Settings									Settings;
-		public Clock									Clock;
+		public Workflow					Workflow;
+		JsonServer						ApiServer;
+		public Vault					Vault;
+		public INas						Nas;
+		public Database					Database;
+		public Filebase					Filebase;
+		public Seedbase					Seedbase;
+		public bool						IsClient => ListeningThread == null;
+		public object					Lock = new();
+		public Settings					Settings;
+		public Clock					Clock;
 
-		public Guid										Nuid;
-		public IPAddress								IP = IPAddress.None;
+		RocksDb							DatabaseEngine;
+		public ColumnFamilyHandle		PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
+		readonly DbOptions				DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
+																			.SetCreateMissingColumnFamilies(true);
 
-		public Statistics								PrevStatistics = new();
-		public Statistics								Statistics = new();
+		public Guid						Nuid;
+		public IPAddress				IP = IPAddress.None;
 
-		public List<Transaction>						Transactions = new();
-		public List<Operation>							Operations	= new();
+		public Statistics				PrevStatistics = new();
+		public Statistics				Statistics = new();
 
-		bool											MinimalPeersReached;
-		public List<Peer>								Peers		= new();
-		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
-		public List<IPAddress>							IgnoredIPs	= new();
-		public List<Member>								Members		= new();
-		public List<Download>							Downloads	= new();
+		public List<Transaction>		Transactions = new();
+		public List<Operation>			Operations	= new();
 
-		TcpListener										Listener;
-		public Thread									MainThread;
-		Thread											ListeningThread;
-		Thread											DelegatingThread;
-		Thread											VerifingThread;
-		Thread											SynchronizingThread;
-		Thread											DeclaringThread;
+		bool							MinimalPeersReached;
+		public List<Peer>				Peers		= new();
+		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Established);
+		public List<IPAddress>			IgnoredIPs	= new();
+		public List<Member>				Members		= new();
+		public List<Download>			Downloads	= new();
 
-		JsonServer										ApiServer;
+		TcpListener						Listener;
+		public Thread					MainThread;
+		Thread							ListeningThread;
+		Thread							DelegatingThread;
+		Thread							VerifingThread;
+		Thread							SynchronizingThread;
+		Thread							DeclaringThread;
 
-		public bool										Running { get; protected set; } = true;
-		public Synchronization							_Synchronization = Synchronization.Null;
-		public Synchronization							Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
-		public CoreDelegate								SynchronizationChanged;
-		public List<BlockPiece>							SyncBlockCache	= new();
+		public bool						Running { get; protected set; } = true;
+		public Synchronization			_Synchronization = Synchronization.Null;
+		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
+		public CoreDelegate				SynchronizationChanged;
+		public List<BlockPiece>			SyncBlockCache	= new();
 
-		public IGasAsker								GasAsker; 
-		public IFeeAsker								FeeAsker;
+		public IGasAsker				GasAsker; 
+		public IFeeAsker				FeeAsker;
 
-		public CoreDelegate								MainStarted;
-		public CoreDelegate								ApiStarted;
-
-		public ColumnFamilyHandle						PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
-
-		readonly DbOptions								DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
-																							.SetCreateMissingColumnFamilies(true);
+		public CoreDelegate				MainStarted;
+		public CoreDelegate				ApiStarted;
 		
-		Func<Type, object>								Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
+		Func<Type, object>				Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
 		
 		public string[][] Info
 		{
@@ -156,7 +153,7 @@ namespace UC.Net
 				{
 					f.Add("Synchronization");		v.Add($"{Synchronization}");
 					f.Add("Size");					v.Add($"{Database.Size}");
-					f.Add("Members");				v.Add($"{Database.Members.Count}");
+					f.Add("Members");				v.Add($"{Database?.LastConfirmedRound?.Members.Count}");
 					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
 					f.Add("Cached Blocks");			v.Add($"{SyncBlockCache.Count()}");
 					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
@@ -183,7 +180,7 @@ namespace UC.Net
 	
 						if(Settings.Dev.UI)
 						{
-							foreach(var i in Database.Funds)
+							foreach(var i in Database.LastConfirmedRound.Funds)
 							{
 								f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
 							}
@@ -282,13 +279,13 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			var gens = Database != null ? Settings.Generators.Where(i => Database.Members.Any(j => j.Generator == i)) : new PrivateAccount[0];
+			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Members.Any(j => j.Generator == i)) : new PrivateAccount[0];
 	
 			return	$"{(Settings.Database.Base ? "B" : "")}{(Settings.Database.Chain ? "C" : "")}{(Settings.Hub.Enabled ? "H" : "")}{(Settings.Filebase.Enabled ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? " - " + IP : "")}" +
 					$" - {Synchronization}" +
-					(Database != null ? $" - {gens.Count()}/{Database.Members.Count()} members" : "");
+					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Members.Count()} members" : "");
 		}
 
 		public void RunApi()
@@ -359,7 +356,7 @@ namespace UC.Net
 
 			if(Settings.Hub.Enabled)
 			{
-				Hub = new Hub(this);
+				Seedbase = new Seedbase(this);
 			}
 
 			if(Settings.Filebase.Enabled)
@@ -1079,7 +1076,7 @@ namespace UC.Net
 			{
 				try
 				{
-					Thread.Sleep(1000);
+					Thread.Sleep(1);
 					Workflow.ThrowIfAborted();
 
 					int final = -1; 
@@ -1179,8 +1176,8 @@ namespace UC.Net
 						r.Funds		= rd.ReadList<Account>();
 		
 						Database.BaseState	= stamp.BaseState;
-						Database.Members	= r.Members;
-						Database.Funds		= r.Funds;
+						//Database.Members	= r.Members;
+						//Database.Funds		= r.Funds;
 		
 						Database.LastConfirmedRound = r;
 						Database.LastCommittedRound = r;
@@ -1210,12 +1207,12 @@ namespace UC.Net
 							else
 								from = final;
 		
-						var to =/* end != -1 ? end :*/ (from + Database.Pitch);
+						var to = from + Database.Pitch;
 		
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
 						 	
 						lock(Lock)
-							if(from < rp.LastNonEmptyRound)
+							if(from <= rp.LastNonEmptyRound)
 							{
 								SyncBlockCache.RemoveAll(i => i.RoundId < rp.LastConfirmedRound + 1 - Database.Pitch);
 
@@ -1240,7 +1237,6 @@ namespace UC.Net
 										Database.Tail.Add(r);
 										Database.Tail = Database.Tail.OrderByDescending(i => i.Id).ToList();
 		
-//										var h = r.Hash;
 										r.Confirmed = false;
 										Database.Confirm(r, true);
 //#if DEBUG
@@ -1359,8 +1355,8 @@ namespace UC.Net
 																			});
 				Database.Add(joins);
 					
-				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.Members.Any(j => j.Generator == b.Generator) || 
-																	 (Database.Tail.Any(r => r.Members.Any(m => m.Generator == b.Generator)))));
+				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.LastConfirmedRound.Members.Any(i => i.Generator == b.Generator) || 
+																	 (Database.Tail.Any(r => r.Members.Any(i => i.Generator == b.Generator)))));
 				Database.Add(votes);
 			}
 
@@ -1971,7 +1967,7 @@ namespace UC.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(!Settings.Generators.Any(g => Database.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
+			if(!Settings.Generators.Any(g => Database.LastConfirmedRound.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
 				return new();
 
 			Statistics.TransactionsProcessing.Begin();

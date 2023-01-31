@@ -78,7 +78,7 @@ namespace UC.Sun.FUI
 			nodes.Expand();
 			navigator.Nodes.Add(nodes);
 
-			if(Core.Hub != null)
+			if(Core.Seedbase != null)
 			{
 				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Core, core.Vault) };
 				navigator.Nodes.Add(hub);
