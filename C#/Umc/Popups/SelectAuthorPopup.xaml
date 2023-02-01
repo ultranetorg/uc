@@ -12,7 +12,8 @@
     Size="{x:Static const:PopupSizeConstants.ExtraMedium}"
     Color="Transparent"
     VerticalOptions="End"
-    x:Name="page">
+    x:Name="page"
+    x:DataType="vm:SelectAuthorViewModel">
     <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             HorizontalOptions="FillAndExpand"
@@ -39,7 +40,7 @@
                 HeightRequest="300"
                 ItemsSource="{Binding Authors}">
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:AuthorViewModel">
                         <ViewCell>
                             <Border
                                 Margin="16,4"
@@ -47,29 +48,34 @@
                                 Style="{StaticResource TransactionCard}">
                                 <Grid
                                     Padding="12,4"
-                                    ColumnDefinitions="*,Auto"
-                                    RowDefinitions="Auto,Auto">
+                                    ColumnDefinitions="*,Auto">
                                     <Label
-                                        Grid.RowSpan="2"
                                         Grid.Column="0"
                                         Text="{Binding Name}"
                                         VerticalOptions="Center" />
                                     <Label
-                                        Grid.Row="0"
                                         Grid.Column="1"
                                         FontAttributes="Bold"
                                         FontSize="10"
-                                        Text="07/07/2022"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Row="1"
-                                        Grid.Column="1"
-                                        FontSize="10"
-                                        Text="In 182 days"
+                                        Text="{Binding ActiveDue}"
                                         VerticalOptions="Center" />
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
+                                    <Grid.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Grid"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray600}, Light={StaticResource White}}" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Grid"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                        </DataTrigger>
+                                    </Grid.Triggers>
                                 </Grid>
                             </Border>
                         </ViewCell>

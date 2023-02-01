@@ -136,7 +136,9 @@
                             </StackLayout>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="From Account" />
-                                <views:AccountView Grid.ColumnSpan="2" BindingContext="{Binding  Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Account}"/>
+                                <views:AccountView
+                                    BorderStyle="{StaticResource AccountCardBorder}"
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Account}"/>
                             </StackLayout>
                         </StackLayout>
                     </x:Array>

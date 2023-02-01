@@ -18,6 +18,24 @@ public partial class ProductRegistrationViewModel : BaseViewModel
     {
     }
 
+    [RelayCommand]
+    private async Task SelectAccountAsync()
+	{
+		try
+		{
+			var popup = new SourceAccountPopup();
+			await ShowPopup(popup);
+			if (popup.Vm?.Account != null)
+			{
+				Account = popup.Vm.Account;
+			}
+		}
+		catch (Exception ex)
+		{
+            _logger.LogError(ex, "SelectAccountAsync Exception: {Ex}", ex.Message);
+		}
+    }
+
 	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
@@ -31,7 +49,7 @@ public partial class ProductRegistrationViewModel : BaseViewModel
 		else
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully created!");
+			await ToastHelper.ShowMessageAsync("Successfully registered!");
 		}
 	}
 

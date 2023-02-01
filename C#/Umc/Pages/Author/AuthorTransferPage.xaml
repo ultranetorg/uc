@@ -123,7 +123,7 @@
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="To Account" />
                                 <views:AccountView
-                                    Grid.ColumnSpan="2"
+                                    BorderStyle="{StaticResource AccountCardBorder}"
                                     Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}"/>
                             </StackLayout>
                         </StackLayout>

@@ -71,7 +71,7 @@ public partial class ProductTransferViewModel : BaseViewModel
 		else
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully created!");
+			await ToastHelper.ShowMessageAsync("Successfully transfered!");
 		}
 	}
 

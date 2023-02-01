@@ -2,9 +2,11 @@
 
 namespace UC.Umc.Models;
 
-public class AuthorViewModel
+public partial class AuthorViewModel : ObservableObject
 {
-	protected AuthorEntry _entry;
+	[ObservableProperty]
+	private bool					_isSelected;
+	protected AuthorEntry			_entry;
 
     public int						Id { get; internal set; }
     public string					Name { get; internal set; } // => _entry.Name;

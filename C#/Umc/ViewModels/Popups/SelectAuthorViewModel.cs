@@ -16,9 +16,14 @@ public partial class SelectAuthorViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private void ItemTapped(AuthorViewModel Author)
+    private void ItemTapped(AuthorViewModel author)
     {
-        SelectedAuthor = Author;
+		foreach (var item in Authors)
+		{
+			item.IsSelected = false;
+		}
+		author.IsSelected = true;
+		SelectedAuthor = author;
     }
 
 	[RelayCommand]
