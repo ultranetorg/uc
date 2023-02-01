@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace UC
 {
@@ -64,9 +65,9 @@ namespace UC
 			return l;
 		}
 
-		protected void Report(object sender, string subject, Severity severity, string[] a)
+		protected void Report(object sender, string subject, Severity severity,  IEnumerable<string> a)
 		{
-			var m = new LogMessage{Log = this, Severity = severity, Sender = sender, Subject = subject, Text = a};
+			var m = new LogMessage{Log = this, Severity = severity, Sender = sender, Subject = subject, Text = a?.ToArray()};
 
 			var r = this;
 			
@@ -110,7 +111,7 @@ namespace UC
 			Report(sender, subject, Severity.Info, new[] {a, b, c});
 		}
 
-		public void Report(object sender, string subject, string[] a)
+		public void Report(object sender, string subject, IEnumerable<string> a)
 		{
 			Report(sender, subject, Severity.Info, a);
 		}

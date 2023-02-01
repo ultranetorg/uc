@@ -59,7 +59,7 @@ namespace UC.Sun.FUI
 
 				if(Database?.LastConfirmedRound != null)
 				{
-					foreach(var i in Database.LastCommittedRound.Funds.OrderBy(i => i))
+					foreach(var i in Database.LastConfirmedRound.Funds.OrderBy(i => i))
 					{
 						var li = new ListViewItem(i.ToString());
 						Funds.Items.Add(li);

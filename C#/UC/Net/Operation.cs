@@ -42,7 +42,7 @@ namespace UC.Net
 		public Account			Signer { get; set; }
 		public Transaction		Transaction;
 		public PlacingStage		Placing;
-		public Workflow			FlowReport;
+		//public Workflow			FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
 

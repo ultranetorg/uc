@@ -27,7 +27,7 @@ namespace UC.Net
 		Workflow		Workflow => Core.Workflow;
 		Settings		Settings => Core.Settings;
 		Vault			Vault => Core.Vault;
-		Database		Chain => Core.Database;
+		Database		Database => Core.Database;
 
 		public JsonServer(Core core)
 		{
@@ -195,7 +195,7 @@ namespace UC.Net
 							}
 							break;
 	
-						case TransferUntCall e:
+						case UntTransferCall e:
 	
 							PrivateAccount  pa;
 								
@@ -206,12 +206,12 @@ namespace UC.Net
 	
 							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 
-							return Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, null);
+							return Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, new Workflow());
 		
 						case StatusCall s:
 							lock(Core.Lock)
 								return new GetStatusResponse{	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
-																Rounds		= Chain.Tail.Take(s.Limit).Reverse().Select(i => i.ToString()), 
+																Rounds		= Database?.Tail.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
 																InfoValues	= Core.Info[1].Take(s.Limit), 
 																Peers		= Core.Peers.Select(i => $"{i.IP} S={i.Status} In={i.InStatus} Out={i.OutStatus} F={i.Failures}")};

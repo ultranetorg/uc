@@ -91,7 +91,7 @@ namespace UC.Net
 		public IEnumerable<Account>	 Generators {get; set;}
 	}
 
-	public class TransferUntCall : ApiCall
+	public class UntTransferCall : ApiCall
 	{
 		public Account	From { get; set; }
 		public Account	To { get; set; }

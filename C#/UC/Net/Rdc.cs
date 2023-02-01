@@ -517,16 +517,14 @@ namespace UC.Net
 				{
 					var acc = core.ProcessIncoming(Transactions);
 
-					return new DelegateTransactionsResponse {Accepted = acc	.SelectMany(i => i.Operations)
-																			.Select(i => new OperationAddress {Account = i.Signer, Id = i.Id})
-																			.ToList()};
+					return new DelegateTransactionsResponse {Accepted = acc.Select(i => i.Signature).ToList()};
 				}
 		}
 	}
 
 	public class DelegateTransactionsResponse : RdcResponse
 	{
-		public IEnumerable<OperationAddress> Accepted { get; set; }
+		public IEnumerable<byte[]> Accepted { get; set; }
 	}
 
 	public class GetOperationStatusRequest : RdcRequest

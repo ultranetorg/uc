@@ -153,7 +153,7 @@ namespace UC.Net
 				{
 					f.Add("Synchronization");		v.Add($"{Synchronization}");
 					f.Add("Size");					v.Add($"{Database.Size}");
-					f.Add("Members");				v.Add($"{Database?.LastConfirmedRound?.Members.Count}");
+					f.Add("Members");				v.Add($"{Database.LastConfirmedRound?.Members.Count}");
 					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
 					f.Add("Cached Blocks");			v.Add($"{SyncBlockCache.Count()}");
 					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
@@ -1740,20 +1740,30 @@ namespace UC.Net
 							}
 						}
 	
-						var accs = m.DelegateTransactions(txs).Accepted;
+						var atxs = m.DelegateTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i)));
 	
 						lock(Lock)
-							foreach(var o in txs.SelectMany(i => i.Operations))
+							foreach(var o in atxs.SelectMany(i => i.Operations))
 							{
-								if(accs.Any(i => i.Account == o.Signer && i.Id == o.Id))
- 									o.Placing = PlacingStage.Accepted;
-
-								o.FlowReport?.Log?.ReportWarning(this, $"Placing has been delegated to {m}");
+								o.Placing = PlacingStage.Accepted;
 							}
-									
-						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accs.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accs.Count()} tx(s) -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
+						
+						if(atxs.Sum(i => i.Operations.Count) <= 1)
+						{
+							var msgs = new List<string>{};
+	
+							foreach(var i in atxs.SelectMany(i => i.Operations))
+							{
+								msgs.Add(i.ToString());
+							}
+	
+							Workflow.Log?.Report(this, "Operations delegated", msgs);
+						} 
+						else
+						{
+							Workflow.Log?.Report(this, "Operation delegated", $"{atxs.First().Operations.First()} -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
+						}
 
-						Thread.Sleep(200); /// prevent flooding
 					}
 
 					lock(Lock)
@@ -1773,28 +1783,10 @@ namespace UC.Net
 								{
 									o.Placing = i.Placing;
 
-									if(i.Placing == PlacingStage.Placed)
+									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
 									{
-										//if(o.Placing == PlacingStage.Null)
-										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-									}
-
-									if(i.Placing == PlacingStage.Confirmed)
-									{
-										//if(o.Placing == PlacingStage.Null)
-										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-
 										Operations.Remove(o);
 									}
-	
-									if(i.Placing == PlacingStage.FailedOrNotFound)
-									{
-										//if(o.Placing == PlacingStage.Null)
-										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-
-										Operations.Remove(o);
-									}
-								
 								}
 							}
 						}
