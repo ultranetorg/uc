@@ -29,7 +29,7 @@ namespace UC.Net
 		public byte[]		Data { get; set; }
 
 		public Peer			Peer;
-		public bool			Distributed;
+		public bool			Broadcasted;
 		public Account		Generator { get; protected set; }
 		public const int	GuidLength = 8;
 

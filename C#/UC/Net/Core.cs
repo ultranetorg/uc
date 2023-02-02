@@ -1581,10 +1581,6 @@ namespace UC.Net
  					}
  
 					i.Peer = c.Current;
- 					//if(!d.ContainsKey(c.Current))
- 					//	d[c.Current] = new();
- 					//
- 					//d[c.Current].Add(i);
  				}
 
 				/// LESS RELIABLE
@@ -1621,7 +1617,7 @@ namespace UC.Net
 					r.Voted = true;
 
 					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
-					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peer != null && !i.Distributed).ToArray();
+					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peer != null && !i.Broadcasted).ToArray();
 					
 					if(notcomebacks.Any())
 					{
@@ -1748,20 +1744,23 @@ namespace UC.Net
 								o.Placing = PlacingStage.Accepted;
 							}
 						
-						if(atxs.Sum(i => i.Operations.Count) <= 1)
+						if(atxs.Any())
 						{
-							var msgs = new List<string>{};
-	
-							foreach(var i in atxs.SelectMany(i => i.Operations))
+							if(atxs.Sum(i => i.Operations.Count) <= 1)
 							{
-								msgs.Add(i.ToString());
+								var msgs = new List<string>{};
+		
+								foreach(var i in atxs.SelectMany(i => i.Operations))
+								{
+									msgs.Add(i.ToString());
+								}
+		
+								Workflow.Log?.Report(this, "Operations delegated", msgs);
+							} 
+							else
+							{
+								Workflow.Log?.Report(this, "Operation delegated", $"{atxs.First().Operations.First()} -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
 							}
-	
-							Workflow.Log?.Report(this, "Operations delegated", msgs);
-						} 
-						else
-						{
-							Workflow.Log?.Report(this, "Operation delegated", $"{atxs.First().Operations.First()} -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
 						}
 
 					}

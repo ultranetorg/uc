@@ -240,7 +240,7 @@ namespace UC.Net
 							}
 							else
 								if(pp.Peer != null && pp.Peer != Peer)
-									pp.Distributed = true;
+									pp.Broadcasted = true;
 						}
 						//else
 						//{
