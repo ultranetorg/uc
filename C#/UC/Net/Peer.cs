@@ -318,7 +318,7 @@ namespace UC.Net
 								 				else
 								 					Writer.Write7BitEncodedInt64(0);
 
-												Writer.Flush();
+												//Writer.Flush();
 											}
 											catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
 											{

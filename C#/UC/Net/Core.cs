@@ -1076,7 +1076,7 @@ namespace UC.Net
 			{
 				try
 				{
-					Thread.Sleep(1);
+					Thread.Sleep(1000);
 					Workflow.ThrowIfAborted();
 
 					int final = -1; 
@@ -1671,14 +1671,7 @@ namespace UC.Net
 
 				if(m == null)
 				{	
-					try
-					{
-						m = ConnectToMember(Workflow);
-					}
-					catch(ConnectionFailedException)
-					{
-						continue;
-					}
+					m = ConnectToMember(Workflow);
 				}
 
 				try
@@ -2002,12 +1995,6 @@ namespace UC.Net
 						Thread.Sleep(1000);
 						continue;
 					}
-
-// 					if(DateTime.UtcNow - peer.LastTry < TimeSpan.FromMilliseconds(1000))
-// 					{
-// 						Thread.Sleep(1000);
-// 						continue;
-// 					}
 				}
 	
 				try
@@ -2044,9 +2031,8 @@ namespace UC.Net
 							Connect(p, workflow);
 		
 							Workflow.Log?.Report(this, "Member chosen", $"{m} {p}");
-							return new MemberDci(m.Generator, p);
-//return new MemberDci(Members.First().Generator,  peer = Peers.First(i => i.IP.GetAddressBytes()[3] == 101));	
 
+							return new MemberDci(m.Generator, p);
 						}
 					}
 				}
@@ -2228,6 +2214,7 @@ namespace UC.Net
 
 			while(true)
 			{
+				Thread.Sleep(1);
 				workflow.ThrowIfAborted();
 
 				lock(Lock)
@@ -2239,11 +2226,7 @@ namespace UC.Net
 				if(!Settings.Dev.DisableTimeouts)
 					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
 						throw new ConnectionFailedException("Timed out");
-
-				Thread.Sleep(1);
 			}
-
-			//throw new ConnectionFailedException("Overall abort or timeout");
 		}
 
 
