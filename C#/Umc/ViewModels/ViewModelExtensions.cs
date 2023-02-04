@@ -16,7 +16,7 @@ public static class ViewModelExtensions
 
 		builder.Services.AddSingleton<AuthorsViewModel>();
 
-		builder.Services.AddSingleton<ProductSearchViewModel>();
+		builder.Services.AddSingleton<ProductsViewModel>();
 
 		builder.Services.AddSingleton<TransactionsBViewModel>();
 
@@ -45,7 +45,7 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<ProductsListViewModel>();
 
-		builder.Services.AddTransient<ProductsViewModel>();
+		builder.Services.AddTransient<ProductSearchViewModel>();
 
 		builder.Services.AddTransient<ProductTransferViewModel>();
 
@@ -87,6 +87,7 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<RecipientAccountViewModel>();
 		builder.Services.AddTransient<AuthorOptionsViewModel>();
 		builder.Services.AddTransient<SelectAuthorViewModel>();
+		builder.Services.AddTransient<TransactionDetailsViewModel>();
 		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();
 		builder.Services.AddTransient<ProductOptionsViewModel>();

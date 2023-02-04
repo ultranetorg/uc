@@ -16,6 +16,8 @@ public class TransactionViewModel
 	// lets say 1 unts = $1 unless we can recieve rate
     public decimal				USD => Unt;
 	public string				DisplayDetails => $"{Unt}, {FromId} -> {ToId}";
+	public string				DisplayUSD => $"${USD}";
+	public string				DisplayUNT => $"{Unt} UNT";
 
 	public TransactionViewModel()
 	{

@@ -7,9 +7,7 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
     x:Name="page">
-    
-    <!--HasSystemPadding="{OnPlatform Android=True,
-                                iOS=False}"
+    <!--HasSystemPadding="{OnPlatform Android=True,iOS=False}"
     <pages:PopupPage.Animation>
         <pages:ScaleAnimation
             DurationIn="400"

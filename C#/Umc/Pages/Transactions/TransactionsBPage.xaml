@@ -4,72 +4,70 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:converters="clr-namespace:UC.Umc.Converters"
+    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:TransactionsBViewModel"
     Title="Transactions"
     x:Name="page">
-    <!--<controls:CustomPage.RightContent>
-        <StackLayout>
-            <ImageButton
-                HorizontalOptions="End"
-                Style="{StaticResource Sort}"
-                VerticalOptions="Center" />
-        </StackLayout>
-    </controls:CustomPage.RightContent>-->
+    <controls:CustomPage.Resources>
+        <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
+    </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
-        <Grid Padding="20,0" RowDefinitions="Auto,*">
+        <Grid Padding="16,0" RowDefinitions="Auto,*">
             <AbsoluteLayout Grid.Row="0">
                 <views:AccountView AbsoluteLayout.LayoutBounds="0,1,1,1"
-                    AbsoluteLayout.LayoutFlags="All" BindingContext="{Binding Wallet}" />
+                    AbsoluteLayout.LayoutFlags="All" Account="{Binding Account}" />
                 <Image
-                    Margin="10,0"
+                    Margin="12,0"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
                     HorizontalOptions="End"
                     Style="{StaticResource BottomArrowsIcon}"
                     VerticalOptions="Center" />
                 <ImageButton
-                    Margin="-10"
+                    Margin="-12"
                     AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
-                    Style="{StaticResource Cancel}" HeightRequest="24" WidthRequest="24" CornerRadius="12" 
+                    Style="{StaticResource Cancel}" HeightRequest="24" WidthRequest="24" CornerRadius="12"
                     VerticalOptions="Center" />
             </AbsoluteLayout>
             <CollectionView
                 Grid.Row="1"
                 IsGrouped="True"
-                ItemsSource="{Binding Transactions}"
-                SelectionMode="None">
-                <CollectionView.GroupHeaderTemplate>
+                ItemsSource="{Binding Transactions}">
+                <!--<CollectionView.GroupHeaderTemplate>
                     <DataTemplate>
                         <StackLayout>
-                            <Button Padding="-10" CornerRadius="13" HeightRequest="26" FontSize="11" HorizontalOptions="CenterAndExpand" Text="{Binding Head}"/>
+                            <Button Padding="-12" CornerRadius="12" HeightRequest="24" FontSize="11" HorizontalOptions="CenterAndExpand" Text="{Binding Head}"/>
                         </StackLayout>
                     </DataTemplate>
-                </CollectionView.GroupHeaderTemplate>
+                </CollectionView.GroupHeaderTemplate>-->
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:TransactionViewModel">
                         <StackLayout>
                             <Border
-                                Margin="0,5"
+                                Margin="0,4"
                                 Style="{StaticResource TransactionCard}">
                                 <Grid
-                                    Padding="5"
+                                    Padding="4"
                                     ColumnDefinitions="56,*,Auto"
-                                    ColumnSpacing="15"
+                                    ColumnSpacing="16"
                                     HeightRequest="56"
-                                    RowDefinitions="27,27"
-                                    RowSpacing="6">
+                                    RowDefinitions="32,32"
+                                    RowSpacing="8">
                                     <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
                                     <Image
                                         Grid.RowSpan="2"
                                         Grid.Column="0"
-                                        HeightRequest="30"
+                                        HeightRequest="32"
                                         HorizontalOptions="Center"
                                         Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
                                         VerticalOptions="Center"
-                                        WidthRequest="30" />
+                                        WidthRequest="32" />
                                     <Label
                                         Grid.Row="0"
                                         Grid.Column="1"
@@ -87,14 +85,14 @@
                                         Grid.Row="0"
                                         Grid.Column="2"
                                         FontSize="11"
-                                        Text="{Binding Unt, StringFormat='{0} UNT'}"
+                                        Text="{Binding DisplayUNT}"
                                         VerticalOptions="End" />
                                     <Label
                                         Grid.Row="1"
                                         Grid.Column="2"
                                         FontSize="10"
                                         Opacity="0.4"
-                                        Text="{Binding USD, StringFormat='${0}'}"
+                                        Text="{Binding DisplayUSD}"
                                         VerticalOptions="Start" />
                                 </Grid>
                             </Border>

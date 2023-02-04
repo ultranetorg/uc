@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class TransactionsBViewModel : BaseTransactionsViewModel
+public partial class TransactionsBViewModel : BaseViewModel
 {
 	private readonly ITransactionsService _service;
 
@@ -26,5 +26,24 @@ public partial class TransactionsBViewModel : BaseTransactionsViewModel
 
 		Transactions.Add(TransactionsThisWeek);
 		Transactions.Add(TransactionsLastWeek);
+	}
+
+	[RelayCommand]
+    private async Task OpenDetailsAsync(TransactionViewModel transaction)
+	{
+		try
+		{
+			Guard.IsNotNull(transaction);
+
+			await ShowPopup(new TransactionPopup(transaction));
+		}
+		catch(ArgumentException ex)
+		{
+			_logger.LogError("OpenDetailsAsync: Transaction cannot be null, Error: {Message}", ex.Message);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenDetailsAsync Error: {Message}", ex.Message);
+		}
 	}
 }

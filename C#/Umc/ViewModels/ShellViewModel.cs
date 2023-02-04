@@ -8,7 +8,7 @@ public partial class ShellViewModel : ObservableObject
 	public AppSection Accounts { get; set; }
 	public AppSection Authors { get; set; }
 	public AppSection Products { get; set; }
-	public AppSection Search { get; set; }
+	public AppSection ProductsSearch { get; set; }
 	public AppSection Transactions { get; set; }
 	public AppSection Transfer { get; set; }
 	public AppSection Network { get; set; }
@@ -48,9 +48,9 @@ public partial class ShellViewModel : ObservableObject
 			TargetType = typeof(ProductsPage),
 			Route = ShellBaseRoutes.PRODUCTS
 		};
-		Search = new AppSection()
+		ProductsSearch = new AppSection()
 		{
-			Title = nameof(Search),
+			Title = "Products Search",
 			Icon = "products_light.png",
 			IconDark = "products_dark.png",
 			TargetType = typeof(ProductSearchPage),

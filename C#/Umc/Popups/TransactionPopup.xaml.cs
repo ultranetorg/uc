@@ -2,26 +2,14 @@
 
 public partial class TransactionPopup : Popup
 {
-	private static TransactionPopup popup;
-    public TransactionViewModel Transaction { get; }
-    public AccountViewModel Account { get; }
+	TransactionDetailsViewModel Vm => BindingContext as TransactionDetailsViewModel;
 
     public TransactionPopup(TransactionViewModel transaction)
     {
         InitializeComponent();
-        Transaction = transaction;
-        Account = transaction.Account;
-        BindingContext = this;
+        BindingContext = Ioc.Default.GetService<TransactionDetailsViewModel>();
+        Vm.Transaction = transaction;
+        Vm.Account = transaction.Account;
+		Vm.Popup = this;
     }
-
-    public void Hide()
-    {
-	Close();
-    }
-
-	public static async Task Show(TransactionViewModel transaction)
-	{
-		popup = new TransactionPopup(transaction);
-		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
-	}
 }

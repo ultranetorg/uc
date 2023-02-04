@@ -2,7 +2,7 @@
 
 namespace UC.Umc.ViewModels;
 
-public partial class HelpViewModel : BaseTransactionsViewModel
+public partial class HelpViewModel : BaseViewModel
 {
 	[ObservableProperty]
     private Transaction _selectedItem ;

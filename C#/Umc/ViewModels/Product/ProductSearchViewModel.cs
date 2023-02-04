@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductSearchViewModel : BaseTransactionsViewModel
+public partial class ProductSearchViewModel : BaseViewModel
 {
 	private readonly IProductsService _service;
 	[ObservableProperty]
