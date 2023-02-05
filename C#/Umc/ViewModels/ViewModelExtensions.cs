@@ -18,7 +18,7 @@ public static class ViewModelExtensions
 
 		builder.Services.AddSingleton<ProductsViewModel>();
 
-		builder.Services.AddSingleton<TransactionsBViewModel>();
+		builder.Services.AddSingleton<TransactionsViewModel>();
 
 		builder.Services.AddSingleton<TransactionsViewModel>();
 

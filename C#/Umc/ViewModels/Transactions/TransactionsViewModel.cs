@@ -5,10 +5,13 @@ public partial class TransactionsViewModel : BaseViewModel
 	private readonly ITransactionsService _service;
 
 	[ObservableProperty]
-    private TransactionViewModel _selectedItem;
-    
-	[ObservableProperty]
     private CustomCollection<TransactionViewModel> _transactions = new();
+
+	[ObservableProperty]
+    private TransactionViewModel _selectedItem;
+
+	[ObservableProperty]
+    private AccountViewModel _account;
 
     public TransactionsViewModel(ITransactionsService service, ILogger<TransactionsViewModel> logger) : base(logger)
     {
@@ -17,9 +20,8 @@ public partial class TransactionsViewModel : BaseViewModel
 
 	internal async Task InitializeAsync()
 	{
-		Transactions.Clear();
-
 		var transactions = await _service.GetLastAsync(20);
+		Transactions.Clear();
 		Transactions.AddRange(transactions);
 	}
 

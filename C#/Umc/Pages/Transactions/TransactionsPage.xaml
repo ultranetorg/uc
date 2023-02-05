@@ -6,6 +6,7 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:TransactionsViewModel"
     Title="Transactions"
@@ -14,8 +15,8 @@
         <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
-        <Grid Padding="16,0" RowDefinitions="Auto,*">
-            <AbsoluteLayout Grid.Row="0">
+        <Grid Padding="16,0" RowDefinitions="Auto,Auto,*">
+            <AbsoluteLayout>
                 <controls:BorderEntry
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
                     AbsoluteLayout.LayoutFlags="All" />
@@ -27,8 +28,26 @@
                     Style="{StaticResource SearchIcon}"
                     VerticalOptions="Center" />
             </AbsoluteLayout>
+            <AbsoluteLayout Grid.Row="1">
+                <views:AccountView AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All" Account="{Binding Account}" />
+                <Image
+                    Margin="12,0"
+                    AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    HorizontalOptions="End"
+                    Style="{StaticResource BottomArrowsIcon}"
+                    VerticalOptions="Center" />
+                <ImageButton
+                    Margin="-12"
+                    AbsoluteLayout.LayoutBounds="1,0,-1,-1"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    Style="{StaticResource Cancel}" HeightRequest="24" WidthRequest="24" CornerRadius="12"
+                    VerticalOptions="Center" />
+            </AbsoluteLayout>
             <CollectionView
-                Grid.Row="1"
+                Grid.Row="2"
+                IsGrouped="True"
                 ItemsSource="{Binding Transactions}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:TransactionViewModel">
@@ -51,8 +70,8 @@
                                         Grid.Column="0"
                                         HeightRequest="32"
                                         HorizontalOptions="Center"
-                                        VerticalOptions="Center"
                                         Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
+                                        VerticalOptions="Center"
                                         WidthRequest="32" />
                                     <Label
                                         Grid.Row="0"

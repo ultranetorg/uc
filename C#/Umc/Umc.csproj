@@ -227,10 +227,6 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Transactions\TransactionsBPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Pages\Transactions\TransactionsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
@@ -386,6 +382,12 @@
 	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Pages\Transactions\TransactionsPage.xaml.cs">
+	    <DependentUpon>TransactionsPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
