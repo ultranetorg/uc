@@ -384,12 +384,6 @@
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Compile Update="Pages\Transactions\TransactionsPage.xaml.cs">
-	    <DependentUpon>TransactionsPage.xaml</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<OutputType>WinExe</OutputType>
 		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>

@@ -15,8 +15,8 @@
         <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
-        <Grid Padding="16,0" RowDefinitions="Auto,Auto,*">
-            <AbsoluteLayout>
+        <Grid Padding="16,0" RowSpacing="12" RowDefinitions="24,96,*">
+            <AbsoluteLayout Grid.Row="0">
                 <controls:BorderEntry
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
                     AbsoluteLayout.LayoutFlags="All" />
@@ -29,8 +29,15 @@
                     VerticalOptions="Center" />
             </AbsoluteLayout>
             <AbsoluteLayout Grid.Row="1">
-                <views:AccountView AbsoluteLayout.LayoutBounds="0,1,1,1"
-                    AbsoluteLayout.LayoutFlags="All" Account="{Binding Account}" />
+                <views:AccountView
+                    BorderStyle="{StaticResource AccountCardBorderDark}"
+                    AbsoluteLayout.LayoutBounds="0,1,1,1"
+                    AbsoluteLayout.LayoutFlags="All"
+                    Account="{Binding Account}">
+                    <views:AccountView.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                    </views:AccountView.GestureRecognizers>
+                </views:AccountView>
                 <Image
                     Margin="12,0"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -47,32 +54,30 @@
             </AbsoluteLayout>
             <CollectionView
                 Grid.Row="2"
-                IsGrouped="True"
                 ItemsSource="{Binding Transactions}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:TransactionViewModel">
                         <StackLayout>
                             <Border
                                 Margin="0,4"
+                                Padding="0,0,8,0"
                                 Style="{StaticResource TransactionCard}">
                                 <Grid
-                                    Padding="4"
-                                    ColumnDefinitions="56,*,Auto"
+                                    ColumnDefinitions="56,2*,*"
                                     ColumnSpacing="16"
-                                    HeightRequest="56"
                                     RowDefinitions="32,32"
-                                    RowSpacing="8">
+                                    RowSpacing="4">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
                                     <Image
                                         Grid.RowSpan="2"
                                         Grid.Column="0"
-                                        HeightRequest="32"
+                                        HeightRequest="24"
                                         HorizontalOptions="Center"
                                         Source="{Binding Status, Converter={StaticResource TransactionStatusToIconConverter}}"
                                         VerticalOptions="Center"
-                                        WidthRequest="32" />
+                                        WidthRequest="24" />
                                     <Label
                                         Grid.Row="0"
                                         Grid.Column="1"
@@ -91,6 +96,7 @@
                                         Grid.Column="2"
                                         FontSize="11"
                                         Text="{Binding DisplayUNT}"
+                                        HorizontalOptions="End"
                                         VerticalOptions="End" />
                                     <Label
                                         Grid.Row="1"
@@ -98,6 +104,7 @@
                                         FontSize="10"
                                         Opacity="0.4"
                                         Text="{Binding DisplayUSD}"
+                                        HorizontalOptions="End"
                                         VerticalOptions="Start" />
                                 </Grid>
                             </Border>

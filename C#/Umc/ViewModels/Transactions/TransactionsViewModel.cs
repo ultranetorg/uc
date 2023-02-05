@@ -25,6 +25,24 @@ public partial class TransactionsViewModel : BaseViewModel
 		Transactions.AddRange(transactions);
 	}
 
+    [RelayCommand]
+    private async Task SelectAccountAsync()
+	{
+		try
+		{
+			var popup = new SourceAccountPopup();
+			await ShowPopup(popup);
+			if (popup.Vm?.Account != null)
+			{
+				Account = popup.Vm.Account;
+			}
+		}
+		catch (Exception ex)
+		{
+            _logger.LogError(ex, "SelectAccountAsync Exception: {Ex}", ex.Message);
+		}
+    }
+
 	[RelayCommand]
     private async Task OpenDetailsAsync(TransactionViewModel transaction)
 	{
