@@ -167,7 +167,7 @@ namespace UC.Net
 									{
 										RoundId		= 0,
 										TimeDelta	= 0,
-										Reference	= RoundReference.Empty,
+										Consensus	= Consensus.Empty,
 									};
 
 						var t = new Transaction(Settings, Settings.Secret.OrgAccount);
@@ -222,7 +222,7 @@ namespace UC.Net
 									{
 										RoundId		= i,
 										TimeDelta	= i == 1 ? ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1) : 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										Reference	= RoundReference.Empty,
+										Consensus	= Consensus.Empty,
 									};
 	
 							if(i == 1)
@@ -249,7 +249,7 @@ namespace UC.Net
 									{
 										RoundId		= i,
 										TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										Reference	= ReferTo(p)
+										Consensus	= ProposeConsensus(p)
 									};
 
 							if(i == jr.RoundId)
@@ -269,7 +269,7 @@ namespace UC.Net
 										{
 											RoundId		= i,
 											TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-											Reference	= ReferTo(p)
+											Consensus	= ProposeConsensus(p)
 										};
 	
 								v.Sign(Settings.Secret.Fathers[0]);
@@ -593,7 +593,6 @@ namespace UC.Net
 
 		public IEnumerable<Account> ProposeJoiners(Round round)
 		{
-
 			var o = round.Parent.JoinRequests.Select(jr =>	{
 																var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
 																return new {jr = jr, a = a};
@@ -607,11 +606,6 @@ namespace UC.Net
 
 			var n = Math.Min(MembersMax - VoterOf(round).Count(), o.Count());
 
-			//.Where(i =>	{ 
-			//				var d = Accounts.FindLastOperation<CandidacyDeclaration>(i, null, null, null, r => r.Id <= round.Id);
-			//				return d != null && d.Transaction.Payload.RoundId <= round.Id - Pitch*2 && d.Bail >= (Settings.Dev != null && Settings.Dev.DisableBailMin ? 0 : BailMin); 
-			//			})
-
 			return o.Take(n).Select(i => i.Generator);
 		}
 
@@ -621,19 +615,14 @@ namespace UC.Net
 
 			var leavers = VoterOf(round).Where(i =>	i.JoinedAt < round.ParentId &&
 													Tail.Count(r =>	round.ParentId <= r.Id && r.Id < round.Id &&					/// in previous Pitch number of rounds
-																		r.Votes.Any(b => b.Generator == i.Generator)) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
+																	r.Votes.Any(b => b.Generator == i.Generator)) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
 													!Enumerable.Range(round.ParentId + 1, Pitch - 1).Select(i => FindRound(i)).Any(r => r.Votes.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator)))) /// not yet reported in prev [Pitch-1] rounds
 										.Select(i => i.Generator);
-
-			//if(!o.Any() && Members.Count == MembersMax && joiners.Any())
-			//	leavers = Members.OrderByDescending(i => i.JoinedAt).ThenBy(i => i.Generator).Take(joiners.Take(MembersRotation).Count()).Select(i => i.Generator);
-			//else
-			//	leavers = o;
 
 			return leavers;
 		}
 
-		public RoundReference ReferTo(Round round)
+		public Consensus ProposeConsensus(Round round)
 		{
 			//if(round.Id < Pitch)
 			//	return RoundReference.Empty;
@@ -655,7 +644,7 @@ namespace UC.Net
 			/// take only blocks with valid transactions or take first empty block 
 			///var pp = (payloads);
 			
-			var rr = new RoundReference();
+			var rr = new Consensus();
 
 			rr.Parent		= (round.Id >= Pitch ? round.Parent.Hash : Cryptography.ZeroHash);
 			rr.Payloads		= payloads.					Select(i => i.Prefix).ToList();
@@ -801,9 +790,9 @@ namespace UC.Net
 					i.Confirmed = false;
 	
 				var child = FindRound(round.Id + Pitch);
-				var rf = child.Majority.First().Reference;
+				var c = child.Majority.First().Consensus;
 	 	
- 				foreach(var pf in rf.Payloads)
+ 				foreach(var pf in c.Payloads)
  				{
  					var b = round.Unique.OfType<Payload>().FirstOrDefault(i => pf.SequenceEqual(i.Prefix));
  	
@@ -813,13 +802,13 @@ namespace UC.Net
  						return;
  				}
 
-				round.Time					= rf.Time;
+				round.Time					= c.Time;
 				round.ConfirmedPayloads		= round.Payloads.Where(i => i.Confirmed).OrderBy(i => i.OrderingKey, new BytesComparer()).ToList();
-				round.ConfirmedJoiners		= confirm(rf.Joiners,		i => i.Joiners,		i => i.Prefix).Select(i => new Member{Generator = i, IPs = round.Parent.JoinRequests.First(q => q.Generator == i).IPs}).ToList();
-				round.ConfirmedLeavers		= confirm(rf.Leavers,		i => i.Leavers,		i => i.Prefix);
-				round.ConfirmedViolators	= confirm(rf.Violators,		i => i.Violators,	i => i.Prefix);
-				round.ConfirmedFundJoiners	= confirm(rf.FundJoiners,	i => i.FundJoiners, i => i.Prefix);
-				round.ConfirmedFundLeavers	= confirm(rf.FundLeavers,	i => i.FundLeavers, i => i.Prefix);
+				round.ConfirmedJoiners		= confirm(c.Joiners,		i => i.Joiners,		i => i.Prefix).Select(i => new Member{Generator = i, IPs = round.Parent.JoinRequests.First(q => q.Generator == i).IPs}).ToList();
+				round.ConfirmedLeavers		= confirm(c.Leavers,		i => i.Leavers,		i => i.Prefix);
+				round.ConfirmedViolators	= confirm(c.Violators,		i => i.Violators,	i => i.Prefix);
+				round.ConfirmedFundJoiners	= confirm(c.FundJoiners,	i => i.FundJoiners, i => i.Prefix);
+				round.ConfirmedFundLeavers	= confirm(c.FundLeavers,	i => i.FundLeavers, i => i.Prefix);
 			}
 			else
 				round.ConfirmedPayloads		= round.Payloads.ToList();

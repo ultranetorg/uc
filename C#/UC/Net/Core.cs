@@ -1430,16 +1430,12 @@ namespace UC.Net
 	
 					if(txs.Any()) /// any pending foreign transactions or any our pending operations
 					{
-						var rr = Database.ReferTo(p);
-	
-						if(rr == null)
-							continue;
 					
 						var b = new Payload(Database)
 								{
 									RoundId		= r.Id,
 									Try			= r.Try,
-									Reference	= rr,
+									Consensus	= Database.ProposeConsensus(p),
 									Time		= Clock.Now,
 									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),
@@ -1474,16 +1470,11 @@ namespace UC.Net
 					}
 					else if(Database.Tail.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 					{
-						var rr = Database.ReferTo(p);
-					
-						if(rr == null)
-							continue;
-	
 						var b = new Vote(Database)
 								{	
 									RoundId		= r.Id,
 									Try			= r.Try,
-									Reference	= rr,
+									Consensus	= Database.ProposeConsensus(p),
 									Time		= Clock.Now,
 									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),
@@ -1501,18 +1492,13 @@ namespace UC.Net
 					{
 						r = r.Previous;
 
-						var rr = Database.ReferTo(p);
-					
-						if(rr == null)
-							continue;
-	
 						prev = r.Previous.Votes.FirstOrDefault(i => i.Generator == g);
 
 						var b = new Vote(Database)
 								{	
 									RoundId		= r.Id,
 									Try			= r.Try,
-									Reference	= rr,
+									Consensus	= Database.ProposeConsensus(p),
 									Time		= Clock.Now,
 									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),

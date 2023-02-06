@@ -69,7 +69,7 @@ namespace UC.Net
 		public const int		Length = 20;
 		protected byte[]		Bytes;
 		public static readonly	Account Zero = new Account(new byte[Length]);
-		public byte[]			Prefix => Bytes.Take(RoundReference.PrefixLength).ToArray();
+		public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
 
 		public static implicit operator byte[] (Account d) => d.Bytes;
 		

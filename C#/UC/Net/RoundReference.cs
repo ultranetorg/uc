@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public class RoundReference : IEquatable<RoundReference>, IBinarySerializable
+	public class Consensus : IEquatable<Consensus>, IBinarySerializable
 	{
 		public const byte		PrefixLength = 4;
-		public static readonly	RoundReference Empty = new RoundReference {	Parent = Cryptography.ZeroHash,
+		public static readonly	Consensus Empty = new Consensus {	Parent = Cryptography.ZeroHash,
 																			Payloads = new(), 
 																			Joiners = new(), 
 																			Leavers = new(), 
@@ -67,7 +67,7 @@ namespace UC.Net
 
 		public override bool Equals(object obj)
 		{
-			return Equals(obj as RoundReference);
+			return Equals(obj as Consensus);
 		}
 
 		public override int GetHashCode()
@@ -82,7 +82,7 @@ namespace UC.Net
 					FundLeavers.Count.GetHashCode();
 		}
 
-		public bool Equals(RoundReference o)
+		public bool Equals(Consensus o)
 		{
 			return	Parent.SequenceEqual(o.Parent) &&
 					Time == o.Time &&

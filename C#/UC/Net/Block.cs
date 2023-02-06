@@ -188,7 +188,7 @@ namespace UC.Net
 
 		public int					Try; /// TODO: revote if consensus not reached
 		public long					TimeDelta;
-		public RoundReference		Reference;
+		public Consensus			Consensus;
 		public List<Account>		Violators = new();
 		public List<Account>		Joiners = new();
 		public List<Account>		Leavers = new();
@@ -196,7 +196,7 @@ namespace UC.Net
 		public List<Account>		FundLeavers = new();
 		//public List<Proposition>	Propositions = new();
 
-		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
+		public byte[]				Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
 		//public byte[]				PropositionsHash;
 
 		public Vote(Database c) : base(c)
@@ -205,14 +205,14 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return base.ToString() + $", Parents={{{Reference.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
+			return base.ToString() + $", Parents={{{Consensus.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
 		}
 
 		protected override void HashWrite(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Reference);
+			writer.Write(Consensus);
 
 			writer.Write(Joiners);
 			writer.Write(Leavers);
@@ -228,7 +228,7 @@ namespace UC.Net
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Reference);
+			writer.Write(Consensus);
 
 			writer.Write(Joiners);
 			writer.Write(Leavers);
@@ -249,7 +249,7 @@ namespace UC.Net
 			RoundId		= reader.Read7BitEncodedInt();
 			Try			= reader.Read7BitEncodedInt();
 			TimeDelta	= reader.Read7BitEncodedInt64();
-			Reference	= reader.Read<RoundReference>();
+			Consensus	= reader.Read<Consensus>();
 
 			Joiners		= reader.ReadAccounts();
 			Leavers		= reader.ReadAccounts();

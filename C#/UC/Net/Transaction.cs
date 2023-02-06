@@ -21,7 +21,7 @@ namespace UC.Net
 		public Account					Signer;
 		public Settings					Settings;
 
-		public byte[]					Prefix => Signature.Take(RoundReference.PrefixLength).ToArray();
+		public byte[]					Prefix => Signature.Take(Consensus.PrefixLength).ToArray();
 
 		public bool Valid
 		{
