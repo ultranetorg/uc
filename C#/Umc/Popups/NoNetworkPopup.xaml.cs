@@ -8,7 +8,7 @@ public partial class NoNetworkPopup : Popup
     public NoNetworkPopup()
     {
         InitializeComponent();
-		// Size = PopupSizeConstants.AutoCompleteControl;
+		// Size = SizeConstants.AutoCompleteControl;
     }
 
     public void Hide()

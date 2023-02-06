@@ -1,13 +1,18 @@
 ﻿namespace UC.Umc.Constants;
 
-public static class PopupSizeConstants
+public static class SizeConstants
 {
     public readonly static Size Small;
     public readonly static Size Medium;
 	public readonly static Size ExtraMedium;
+	public readonly static Size LargeSmaller;
 	public readonly static Size Large;
 
-	static PopupSizeConstants()
+	public readonly static int SizePerPageMin = 10;
+	public readonly static int SizePerPageMed = 25;
+	public readonly static int SizePerPageMax = 50;
+
+	static SizeConstants()
 	{
         // examples for fixed sizes
 		// Fixed = new Size(300, 300);
@@ -20,6 +25,8 @@ public static class PopupSizeConstants
 		Small = new Size(displayWidth / displayDensity, 0.15 * (displayHeight / displayDensity));
 		Medium = new Size(displayWidth / displayDensity, 0.45 * (displayHeight / displayDensity));
 		ExtraMedium = new Size(displayWidth / displayDensity, 0.60 * (displayHeight / displayDensity));
+		LargeSmaller = new Size(displayWidth / displayDensity, 0.70 * (displayHeight / displayDensity));
 		Large = new Size(displayWidth / displayDensity, 0.8 * (displayHeight / displayDensity));
 	}
 }
+

@@ -10,7 +10,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Color="Transparent"
-    Size="{x:Static const:PopupSizeConstants.Medium}"
+    Size="{x:Static const:SizeConstants.Medium}"
     VerticalOptions="End"
     x:Name="page">
     <Border Style="{StaticResource AccountCardBorder}">

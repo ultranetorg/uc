@@ -2,29 +2,24 @@
 
 public class TransactionsMockService : ITransactionsService
 {
-    private readonly IServicesMockData _data;
+    private readonly IServicesMockData _service;
 
     public TransactionsMockService(IServicesMockData data)
     {
-        _data = data;
+        _service = data;
     }
 
-    public Task<CustomCollection<TransactionViewModel>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
+    public Task<CustomCollection<TransactionViewModel>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount = 10)
     {
         Guard.IsNotNull(accountAddress, nameof(accountAddress));
-        Guard.IsGreaterThan(lastTransactionsCount, 0, nameof(lastTransactionsCount));
 
-        IEnumerable<TransactionViewModel> lastTransactions = _data.Transactions
+        var lastTransactions = _service.Transactions
             .Where(x => string.Equals(x.Account.Address, accountAddress, StringComparison.InvariantCultureIgnoreCase))
-            .Take(lastTransactionsCount);
-        CustomCollection<TransactionViewModel> result = new(lastTransactions);
-        return Task.FromResult(result);
+            .Take(lastTransactionsCount > 10 ? lastTransactionsCount : SizeConstants.SizePerPageMin);
+        return Task.FromResult(new CustomCollection<TransactionViewModel>(lastTransactions));
     }
 
-    public Task<CustomCollection<TransactionViewModel>> GetLastAsync(int lastTransactionsCount)
-    {
-        IEnumerable<TransactionViewModel> lastTransactions = _data.Transactions.Take(lastTransactionsCount);
-        CustomCollection<TransactionViewModel> result = new(lastTransactions);
-        return Task.FromResult(result);
-    }
+    public Task<CustomCollection<TransactionViewModel>> GetLastAsync(int lastTransactionsCount = 10) =>
+		Task.FromResult(new CustomCollection<TransactionViewModel>(_service.Transactions.Take(
+			lastTransactionsCount > 10 ? lastTransactionsCount : SizeConstants.SizePerPageMin)));
 }

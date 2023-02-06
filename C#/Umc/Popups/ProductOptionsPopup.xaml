@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Color="Transparent"
-    Size="{x:Static const:PopupSizeConstants.Small}"
+    Size="{x:Static const:SizeConstants.Small}"
     VerticalOptions="End"
     x:Name="page"
     x:DataType="vm:ProductOptionsViewModel">

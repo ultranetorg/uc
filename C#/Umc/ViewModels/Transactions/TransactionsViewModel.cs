@@ -20,9 +20,7 @@ public partial class TransactionsViewModel : BaseViewModel
 
 	internal async Task InitializeAsync()
 	{
-		var transactions = await _service.GetLastAsync(20);
-		Transactions.Clear();
-		Transactions.AddRange(transactions);
+		Transactions = await _service.GetLastAsync(SizeConstants.SizePerPageMed);
 	}
 
     [RelayCommand]
@@ -35,11 +33,25 @@ public partial class TransactionsViewModel : BaseViewModel
 			if (popup.Vm?.Account != null)
 			{
 				Account = popup.Vm.Account;
+				Transactions = await _service.GetLastForAccountAsync(Account.Address, SizeConstants.SizePerPageMed);
 			}
 		}
 		catch (Exception ex)
 		{
             _logger.LogError(ex, "SelectAccountAsync Exception: {Ex}", ex.Message);
+		}
+    }
+
+    [RelayCommand]
+    private void ResetAccount()
+	{
+		try
+		{
+			Account = null;
+		}
+		catch (Exception ex)
+		{
+            _logger.LogError(ex, "ResetAccount Exception: {Ex}", ex.Message);
 		}
     }
 

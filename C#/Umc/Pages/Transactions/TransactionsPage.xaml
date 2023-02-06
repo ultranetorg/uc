@@ -15,7 +15,7 @@
         <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
-        <Grid Padding="16,0" RowSpacing="12" RowDefinitions="24,96,*">
+        <Grid Padding="16,4" RowSpacing="12" RowDefinitions="24,96,*">
             <AbsoluteLayout Grid.Row="0">
                 <controls:BorderEntry
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
@@ -49,7 +49,8 @@
                     Margin="-12"
                     AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
-                    Style="{StaticResource Cancel}" HeightRequest="24" WidthRequest="24" CornerRadius="12"
+                    Style="{StaticResource Cancel}" HeightRequest="36" WidthRequest="36" CornerRadius="12"
+                    Command="{Binding ResetAccountCommand}"
                     VerticalOptions="Center" />
             </AbsoluteLayout>
             <CollectionView
@@ -82,6 +83,7 @@
                                         Grid.Row="0"
                                         Grid.Column="1"
                                         FontSize="11"
+                                        FontAttributes="Bold"
                                         Text="{Binding Name}"
                                         VerticalOptions="End" />
                                     <Label
@@ -95,6 +97,7 @@
                                         Grid.Row="0"
                                         Grid.Column="2"
                                         FontSize="11"
+                                        FontAttributes="Bold"
                                         Text="{Binding DisplayUNT}"
                                         HorizontalOptions="End"
                                         VerticalOptions="End" />
