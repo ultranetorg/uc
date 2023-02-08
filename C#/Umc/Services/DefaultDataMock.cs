@@ -2,8 +2,8 @@
 
 internal static class DefaultDataMock
 {
-	static string _defaultNotificationBody = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network";
-	static string _defaultNotificationTitle = "Today at 16:00";
+	private static readonly string _defaultNotificationBody = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network";
+	private static readonly string _defaultNotificationTitle = "Today at 16:00";
 
 	//public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M) 
 	//{
@@ -21,15 +21,14 @@ internal static class DefaultDataMock
 	//	};
 	//}
 
-	public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M)
-	{
-		return new AccountViewModel("0x72329af958b5679e0354ff12fb27ddbf34d37aca")
+	public static AccountViewModel CreateAccount(
+		string name = "Main Ultranet Account", decimal balance = 100M) =>
+		new($"0x{CommonHelper.GenerateUniqueID(42)}")
 		{
-			Name = name, // "Primary Ultranet Account"
+			Name = name,
 			Color = ColorHelper.CreateRandomGradientColor(),
 			Balance = balance,
 		};
-	}
 
 	public static AuthorViewModel Author1 => new()
 	{
@@ -58,14 +57,17 @@ internal static class DefaultDataMock
 	public static TransactionViewModel CreateTransaction(
 		AccountViewModel account,
 		TransactionStatus status = TransactionStatus.None,
-		int unt = 0, string name = null) => new()
+		int unt = 0, string name = null, DateTime? date = null) => new()
 	{
-		Id = Guid.NewGuid(),
+		Hash = $"0x{CommonHelper.GenerateUniqueID(42)}",
 		Account = account,
 		FromId = CommonHelper.GenerateUniqueID(6),
 		ToId = CommonHelper.GenerateUniqueID(6),
 		Status = status,
 		Unt = unt,
-		Name = name
+		Name = name,
+		Date = date ?? DateTime.UtcNow,
+		Size = "789B",
+		Confirmations = 0
 	};
 }

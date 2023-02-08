@@ -3,11 +3,29 @@
 public partial class TransactionDetailsViewModel : BaseViewModel
 {
 	[ObservableProperty]
-    public TransactionViewModel _transaction;
+    private TransactionViewModel _transaction;
 	[ObservableProperty]
-    public AccountViewModel _account;
+    private AccountViewModel _account;
 
 	public TransactionDetailsViewModel(ILogger<TransactionDetailsViewModel> logger) : base(logger)
 	{
+	}
+
+	[RelayCommand]
+	private async Task CopyHashAsync()
+	{
+        try
+        {
+			await Clipboard.SetTextAsync(Transaction.Hash);
+            await ToastHelper.ShowMessageAsync("Copied to clipboard");
+#if DEBUG
+            _logger.LogDebug("CopyHashAsync Address: {Address}", Transaction.Hash);
+#endif
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CopyHashAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
 	}
 }

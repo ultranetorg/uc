@@ -2,16 +2,16 @@
 
 public class AccountsMockService : IAccountsService
 {
-    private readonly IServicesMockData _data;
+    private readonly IServicesMockData _service;
 
     public AccountsMockService(IServicesMockData mockServiceData)
     {
-        _data = mockServiceData;
+        _service = mockServiceData;
     }
 
     public Task<ObservableCollection<AccountViewModel>> GetAllAsync()
     {
-        var result = new ObservableCollection<AccountViewModel>(_data.Accounts);
+        var result = new ObservableCollection<AccountViewModel>(_service.Accounts);
         return Task.FromResult(result);
     }
 
@@ -35,7 +35,7 @@ public class AccountsMockService : IAccountsService
         Guard.IsNotNull(account, nameof(account));
 
         AccountViewModel accountForUpdate =
-            _data.Accounts.FirstOrDefault(x =>
+            _service.Accounts.FirstOrDefault(x =>
                 string.Equals(x.Address, account.Address, StringComparison.InvariantCultureIgnoreCase));
         Guard.IsNotNull(accountForUpdate);
         UpdateAccount(accountForUpdate, account);
@@ -55,11 +55,11 @@ public class AccountsMockService : IAccountsService
     {
         Guard.IsNotNullOrEmpty(address, nameof(address));
 
-		var account = _data.Accounts.FirstOrDefault(x => string.Equals(x.Address, address, StringComparison.InvariantCultureIgnoreCase));
+		var account = _service.Accounts.FirstOrDefault(x => string.Equals(x.Address, address, StringComparison.InvariantCultureIgnoreCase));
 
         Guard.IsNotNull(account);
 
-        _data.Accounts.Remove(account);
+        _service.Accounts.Remove(account);
 
         return Task.CompletedTask;
     }

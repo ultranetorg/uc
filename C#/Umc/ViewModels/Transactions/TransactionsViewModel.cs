@@ -8,7 +8,7 @@ public partial class TransactionsViewModel : BaseViewModel
     private CustomCollection<TransactionViewModel> _transactions = new();
 
 	[ObservableProperty]
-    private TransactionViewModel _selectedItem;
+    private string _filter;
 
 	[ObservableProperty]
     private AccountViewModel _account;
@@ -20,8 +20,32 @@ public partial class TransactionsViewModel : BaseViewModel
 
 	internal async Task InitializeAsync()
 	{
-		Transactions = await _service.GetLastAsync(SizeConstants.SizePerPageMed);
+		Transactions = await _service.ListTransactionsAsync(null, null, SizeConstants.SizePerPageMed);
 	}
+	
+	[RelayCommand]
+    public async Task SearchTransactionsAsync()
+    {
+		try
+		{
+			Guard.IsNotNull(Filter);
+
+			InitializeLoading();
+
+			// Search transactions
+			var transactions = await _service.ListTransactionsAsync(Account?.Address, Filter, SizeConstants.SizePerPageMed);
+
+			Transactions.Clear();
+			Transactions.AddRange(transactions);
+			
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("SearchTransactionsAsync Error: {Message}", ex.Message);
+		}
+    }
 
     [RelayCommand]
     private async Task SelectAccountAsync()
@@ -33,7 +57,7 @@ public partial class TransactionsViewModel : BaseViewModel
 			if (popup.Vm?.Account != null)
 			{
 				Account = popup.Vm.Account;
-				Transactions = await _service.GetLastForAccountAsync(Account.Address, SizeConstants.SizePerPageMed);
+				Transactions = await _service.ListTransactionsAsync(Account.Address, Filter, SizeConstants.SizePerPageMed);
 			}
 		}
 		catch (Exception ex)
@@ -43,11 +67,12 @@ public partial class TransactionsViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void ResetAccount()
+    private async Task ResetAccountAsync()
 	{
 		try
 		{
 			Account = null;
+			await InitializeAsync();
 		}
 		catch (Exception ex)
 		{

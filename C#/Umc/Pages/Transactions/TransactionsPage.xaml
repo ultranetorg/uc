@@ -15,11 +15,13 @@
         <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
-        <Grid Padding="16,4" RowSpacing="12" RowDefinitions="24,96,*">
+        <Grid Padding="16,8" RowDefinitions="64,96,*">
             <AbsoluteLayout Grid.Row="0">
-                <controls:BorderEntry
+                <controls:FormEntryControl
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
-                    AbsoluteLayout.LayoutFlags="All" />
+                    AbsoluteLayout.LayoutFlags="All"
+                    TextChanged="{Binding SearchTransactionsCommand}"
+                    Value="{Binding Filter, Mode=TwoWay}"/>
                 <Image
                     Margin="12,0"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
@@ -28,7 +30,7 @@
                     Style="{StaticResource SearchIcon}"
                     VerticalOptions="Center" />
             </AbsoluteLayout>
-            <AbsoluteLayout Grid.Row="1">
+            <AbsoluteLayout Margin="0,0,0,8" Grid.Row="1">
                 <views:AccountView
                     BorderStyle="{StaticResource AccountCardBorderDark}"
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
@@ -64,7 +66,7 @@
                                 Padding="0,0,8,0"
                                 Style="{StaticResource TransactionCard}">
                                 <Grid
-                                    ColumnDefinitions="56,2*,*"
+                                    ColumnDefinitions="56,3*,*"
                                     ColumnSpacing="16"
                                     RowDefinitions="32,32"
                                     RowSpacing="4">

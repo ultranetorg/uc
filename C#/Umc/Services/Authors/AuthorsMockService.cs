@@ -2,26 +2,26 @@
 
 public class AuthorsMockService : IAuthorsService
 {
-    private readonly IServicesMockData _data;
+    private readonly IServicesMockData _service;
 
     public AuthorsMockService(IServicesMockData mockServiceData)
     {
-        _data = mockServiceData;
+        _service = mockServiceData;
     }
 
     public Task<ObservableCollection<AuthorViewModel>> GetAccountAuthorsAsync() =>
-		Task.FromResult(new ObservableCollection<AuthorViewModel>(_data.Authors));
+		Task.FromResult(new ObservableCollection<AuthorViewModel>(_service.Authors));
 
     public Task<ObservableCollection<AuthorViewModel>> SearchAuthorsAsync(string search)
     {
-		var items = _data.Authors.Where(x => x.Name.Contains(search)).ToList();
+		var items = _service.Authors.Where(x => x.Name.Contains(search)).ToList();
         var result = new ObservableCollection<AuthorViewModel>(items);
         return Task.FromResult(result);
     }
 
     public Task<ObservableCollection<AuthorViewModel>> FilterAuthorsAsync(AuthorStatus status) =>
 		Task.FromResult(new ObservableCollection<AuthorViewModel>(
-			_data.Authors.Where(x => x.Status == status)));
+			_service.Authors.Where(x => x.Status == status)));
 
 	public Task RegisterAuthorAsync(AuthorViewModel author)
 	{

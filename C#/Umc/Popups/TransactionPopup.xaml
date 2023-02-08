@@ -10,46 +10,29 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Color="Transparent"
-    Size="{x:Static const:SizeConstants.LargeSmaller}"
+    Size="{x:Static const:SizeConstants.ExtraMedium}"
     VerticalOptions="End"
     x:Name="page"
     x:DataType="vm:TransactionDetailsViewModel">
     <Border
         Padding="24,12"
         Style="{StaticResource AccountCardBorder}">
-        <StackLayout HorizontalOptions="FillAndExpand" Spacing="16">
-            <Grid RowDefinitions="12,Auto" RowSpacing="16">
+        <StackLayout HorizontalOptions="Fill" Spacing="16">
+            <Grid RowDefinitions="12,Auto,24" RowSpacing="16">
                 <Border
                     Grid.Row="0"
-                    Grid.ColumnSpan="2"
-                    HorizontalOptions="CenterAndExpand"
-                    Margin="0,0,0,8"
+                    HorizontalOptions="Center"
                     Style="{StaticResource PopupHandleBorder}" />
                 <Label
                     Grid.Row="1"
                     FontSize="18"
                     HorizontalOptions="Center"
                     Text="Transaction" />
-            </Grid>
-            <Grid
-                ColumnDefinitions="56,*,Auto"
-                ColumnSpacing="15"
-                HeightRequest="56"
-                RowDefinitions="24,24">
-                <Image
-                    Grid.RowSpan="2"
-                    Grid.Column="0"
-                    HeightRequest="30"
-                    HorizontalOptions="Center"
-                    Source="{Binding Transaction.Status, Converter={StaticResource TransactionStatusToIconConverter}}"
-                    VerticalOptions="Center"
-                    WidthRequest="30" />
                 <Label
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    FontSize="11"
-                    Text="Register ultranetorg author from 0xAABB...EEFF (this is my primary account) account"
-                    VerticalOptions="End" />
+                    Grid.Row="2"
+                    FontSize="12"
+                    HorizontalOptions="Center"
+                    Text="{Binding Transaction.Name}" />
             </Grid>
             <views:AccountView
                 Grid.Row="2"
@@ -57,31 +40,14 @@
                 BorderStyle="{StaticResource AccountCardBorderDark}" />
             <StackLayout>
                 <Label Style="{StaticResource DashLabel}" Text="Hash" />
-                <Label Opacity="0.7" Text="{Binding Transaction.Hash}" />
+                <Label Opacity="0.7" Text="{Binding Transaction.Hash}" FontSize="11" />
             </StackLayout>
-            <controls:LabelPair Text1="Date and time" Text2="{Binding Transaction.Date, StringFormat='{0: MM.DD.yyyy hh:mm'}" />
+            <controls:LabelPair Text1="Date and time" Text2="{Binding Transaction.Date, StringFormat='{0:MM/dd/yyyy hh:mm}'}" />
+            <controls:LabelPair Text1="Status" Text2="{Binding Transaction.DisplayStatus}" />
+            <controls:LabelPair Text1="Size" Text2="{Binding Transaction.Size}" />
+            <controls:LabelPair Text1="Confirmations" Text2="{Binding Transaction.Confirmations}" />
             
-            <Grid ColumnDefinitions="*,*">
-                <Label
-                    Grid.Column="0"
-                    Style="{StaticResource DashLabel}"
-                    Text="Status" />
-                <ImageButton
-                    Grid.Column="1"
-                    Padding="2"
-                    HeightRequest="18"
-                    HorizontalOptions="End"
-                    Opacity="0.7"
-                    Style="{Binding Transaction.Status, Converter={StaticResource StatusToImageConverter}}"
-                    VerticalOptions="Center"
-                    WidthRequest="18" />
-            </Grid>
-            
-            <controls:LabelPair Text1="Size" Text2="789 B" />
-            <controls:LabelPair Text1="Confirmations" Text2="0" />
-            
-            <Button Style="{StaticResource CopyHashButton}" Text="Copy Transaction Hash" />
-            <Button Style="{StaticResource LabelButton}" Text="Cancel" />
+            <Button Style="{StaticResource CopyHashButton}" Text="Copy Transaction Hash" Command="{Binding CopyHashCommand}"/>
         </StackLayout>
     </Border>
 </toolkit:Popup>

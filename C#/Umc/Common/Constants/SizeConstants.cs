@@ -5,7 +5,6 @@ public static class SizeConstants
     public readonly static Size Small;
     public readonly static Size Medium;
 	public readonly static Size ExtraMedium;
-	public readonly static Size LargeSmaller;
 	public readonly static Size Large;
 
 	public readonly static int SizePerPageMin = 10;
@@ -25,7 +24,6 @@ public static class SizeConstants
 		Small = new Size(displayWidth / displayDensity, 0.15 * (displayHeight / displayDensity));
 		Medium = new Size(displayWidth / displayDensity, 0.45 * (displayHeight / displayDensity));
 		ExtraMedium = new Size(displayWidth / displayDensity, 0.60 * (displayHeight / displayDensity));
-		LargeSmaller = new Size(displayWidth / displayDensity, 0.70 * (displayHeight / displayDensity));
 		Large = new Size(displayWidth / displayDensity, 0.8 * (displayHeight / displayDensity));
 	}
 }

@@ -9,17 +9,20 @@ public class TransactionsMockService : ITransactionsService
         _service = data;
     }
 
-    public Task<CustomCollection<TransactionViewModel>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount = 10)
+    public Task<CustomCollection<TransactionViewModel>> ListTransactionsAsync(string accountAddress, string search, int count)
     {
-        Guard.IsNotNull(accountAddress, nameof(accountAddress));
+		var transactions = _service.Transactions;
 
-        var lastTransactions = _service.Transactions
-            .Where(x => string.Equals(x.Account.Address, accountAddress, StringComparison.InvariantCultureIgnoreCase))
-            .Take(lastTransactionsCount > 10 ? lastTransactionsCount : SizeConstants.SizePerPageMin);
-        return Task.FromResult(new CustomCollection<TransactionViewModel>(lastTransactions));
+		if (!string.IsNullOrEmpty(accountAddress))
+		{
+			transactions = transactions.Where(x => string.Equals(x.Account.Address, accountAddress, StringComparison.InvariantCultureIgnoreCase)).ToList();
+		}
+		if (!string.IsNullOrEmpty(search))
+		{
+			transactions = transactions.Where(x => x.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToList();
+		}
+
+        return Task.FromResult(new CustomCollection<TransactionViewModel>(
+			transactions.OrderByDescending(x => x.Date).Take(count > 1 ? count : SizeConstants.SizePerPageMed)));
     }
-
-    public Task<CustomCollection<TransactionViewModel>> GetLastAsync(int lastTransactionsCount = 10) =>
-		Task.FromResult(new CustomCollection<TransactionViewModel>(_service.Transactions.Take(
-			lastTransactionsCount > 10 ? lastTransactionsCount : SizeConstants.SizePerPageMin)));
 }
