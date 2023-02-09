@@ -111,8 +111,8 @@ namespace UC.Sun.FUI
 			
 			if(f.ShowDialog() == DialogResult.OK)
 			{
-				var acc = PrivateAccount.Create();
-				Vault.SaveAccount(acc, f.Password);
+				var acc = AccountKey.Create();
+				Vault.SaveWallet(acc, f.Password);
 				
 				AddRow(acc);
 			}
@@ -122,7 +122,7 @@ namespace UC.Sun.FUI
 		{
 			if(MessageBox.Show(this, $"Are you sure you want to delete {CurrentAccout} account?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 			{
-				Vault.DeleteAccount(CurrentAccout);
+				Vault.DeleteWallet(CurrentAccout);
 				accounts.Items.Remove(accounts.SelectedItems[0]);
 			}
 		}

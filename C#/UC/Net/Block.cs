@@ -70,7 +70,7 @@ namespace UC.Net
 			return Cryptography.Current.Hash(s.ToArray());
 		}
 
-		public void Sign(PrivateAccount generator)
+		public void Sign(AccountKey generator)
 		{
 			Generator = generator;
 			Signature = Cryptography.Current.Sign(generator, Hashify());
@@ -136,7 +136,7 @@ namespace UC.Net
 			return Cryptography.Current.Hash(s.ToArray());
 		}
 						
-		public void Sign(PrivateAccount generator)
+		public void Sign(AccountKey generator)
 		{
 			Generator = generator;
 			Hash = Hashify();

@@ -153,7 +153,7 @@ namespace UC.Net
 		{
 		}
 
-		public CandidacyDeclaration(PrivateAccount signer, Coin bail)
+		public CandidacyDeclaration(AccountKey signer, Coin bail)
 		{
 			//if(!Settings.Dev.DisableBailMin && bail < Roundchain.BailMin)	throw new RequirementException("The bail must be greater than or equal to BailMin");
 
@@ -208,7 +208,7 @@ namespace UC.Net
 		{
 		}
 
-		public Emission(PrivateAccount signer, BigInteger wei, int eid)
+		public Emission(AccountKey signer, BigInteger wei, int eid)
 		{
 			Signer = signer;
 			Wei = wei;
@@ -313,7 +313,7 @@ namespace UC.Net
 		{
 		}
 
-		public UntTransfer(PrivateAccount signer, Account to, Coin amount)
+		public UntTransfer(AccountKey signer, Account to, Coin amount)
 		{
 			if(signer == null)	throw new RequirementException("Source account is null or invalid");
 			if(to == null)		throw new RequirementException("Destination account is null or invalid");
@@ -353,7 +353,7 @@ namespace UC.Net
 		{
 		}
 
-		public AuthorBid(PrivateAccount signer, string name, Coin bid)
+		public AuthorBid(AccountKey signer, string name, Coin bid)
 		{
 			Signer = signer;
 			Author = name;
@@ -471,7 +471,7 @@ namespace UC.Net
 		{
 		}
 
-		public AuthorRegistration(PrivateAccount signer, string author, string title, byte years)
+		public AuthorRegistration(AccountKey signer, string author, string title, byte years)
 		{
 			if(!Operation.IsValid(author, title))
 				throw new ArgumentException("Invalid Author name/title");
@@ -559,7 +559,7 @@ namespace UC.Net
 		{
 		}
 
-		public AuthorTransfer(PrivateAccount signer, string name, Account to)
+		public AuthorTransfer(AccountKey signer, string name, Account to)
 		{
 			Signer = signer;
 			Author = name;

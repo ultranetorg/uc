@@ -36,7 +36,7 @@ namespace UC.Net
  			Settings = settings;
  		}
 
-		public Transaction(Settings settings, PrivateAccount signer)
+		public Transaction(Settings settings, AccountKey signer)
 		{
 			Settings	= settings;
 			Signer		= signer;
@@ -46,7 +46,7 @@ namespace UC.Net
 		{
 			Generator	= member;
 			RoundMax	= rmax;
-			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, Hashify());
+			Signature	= Cryptography.Current.Sign(Signer as AccountKey, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)

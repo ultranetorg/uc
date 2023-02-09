@@ -13,7 +13,7 @@ namespace UC.Net
 		bool							IsAdministrator { get; }
 
 		bool							CheckEmission(Emission e);
-		void							Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, PrivateAccount signer, IGasAsker gasAsker, int eid, Workflow flowcontrol = null);
+		void							Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, AccountKey signer, IGasAsker gasAsker, int eid, Workflow flowcontrol = null);
 		BigInteger						FinishEmission(Account account, int eid);
 		IPAddress[]						GetInitials(Zone zone);
 		Task							RemoveZone(Zone zone, IGasAsker asker);

@@ -165,9 +165,9 @@ namespace UC.Sun.FUI
 			MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
-		public PrivateAccount GetPrivate(Account account)
+		public AccountKey GetPrivate(Account account)
 		{
-			var p = Vault.GetPrivate(account);
+			var p = Vault.GetKey(account);
 			
 			if(p != null)
 			{

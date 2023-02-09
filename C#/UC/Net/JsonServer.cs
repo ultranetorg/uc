@@ -190,18 +190,18 @@ namespace UC.Net
 						case SetGeneratorCall e:
 							lock(Core.Lock)
 							{
-								Core.Settings.Generators = e.Generators.Select(i => Vault.GetPrivate(i)).ToList();
+								Core.Settings.Generators = e.Generators.Select(i => Vault.GetKey(i)).ToList();
 								Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
 							}
 							break;
 	
 						case UntTransferCall e:
 	
-							PrivateAccount  pa;
+							AccountKey  pa;
 								
 							lock(Core.Lock)
 							{
-								pa = Vault.GetPrivate(e.From);
+								pa = Vault.GetKey(e.From);
 							}
 	
 							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");

@@ -279,7 +279,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Members.Any(j => j.Generator == i)) : new PrivateAccount[0];
+			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Members.Any(j => j.Generator == i)) : new AccountKey[0];
 	
 			return	$"{(Settings.Database.Base ? "B" : "")}{(Settings.Database.Chain ? "C" : "")}{(Settings.Hub.Enabled ? "H" : "")}{(Settings.Filebase.Enabled ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
@@ -1548,7 +1548,7 @@ namespace UC.Net
 												Piece = i,
 												Data = r.ReadBytes((int)s.Length/n + (i < n-1 ? 0 : (int)s.Length % n))};
 
-						p.Sign(b.Generator as PrivateAccount);
+						p.Sign(b.Generator as AccountKey);
 
 						pieces.Add(p);
 						Database.GetRound(b.RoundId).BlockPieces.Add(p);
@@ -1598,7 +1598,7 @@ namespace UC.Net
 	
 			if(!r.Voted)
 			{
-				if(Database.QuorumReached(r))
+				if(Database.QuorumReached(r) && r.Parent != null)
 				{
 					r.Voted = true;
 
@@ -1702,7 +1702,7 @@ namespace UC.Net
 									Monitor.Enter(Lock);
 								}
 
-								var t = new Transaction(Settings, g.Key as PrivateAccount);
+								var t = new Transaction(Settings, g.Key as AccountKey);
 
 								foreach(var o in g)
 								{
@@ -1811,7 +1811,7 @@ namespace UC.Net
 		{
 			operation.__ExpectedPlacing = waitstage;
 
-			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
+			if(FeeAsker.Ask(this, operation.Signer as AccountKey, operation))
 			{
 				lock(Lock)
 				 	Enqueue(operation);
@@ -2221,7 +2221,7 @@ namespace UC.Net
 			return Database != null ? Operation.CalculateFee(Database.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
-		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, PlacingStage awaitstage, Workflow workflow)
+		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)
 		{
 			var	l = Call(Role.Base, p =>{
 											try
@@ -2256,7 +2256,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Emission FinishTransfer(PrivateAccount signer, Workflow workflow = null)
+		public Emission FinishTransfer(AccountKey signer, Workflow workflow = null)
 		{
 			lock(Lock)
 			{

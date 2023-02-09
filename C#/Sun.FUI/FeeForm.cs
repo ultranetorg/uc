@@ -33,7 +33,7 @@ namespace UC.Sun.FUI
 			Close();
 		}
 
-		public bool Ask(Core core, PrivateAccount account, Operation operation)
+		public bool Ask(Core core, AccountKey account, Operation operation)
 		{
 			from.Text = account.ToString();
 			

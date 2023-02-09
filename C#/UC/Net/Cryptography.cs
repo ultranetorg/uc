@@ -23,7 +23,7 @@ namespace UC.Net
 		public static readonly byte[]		ZeroSignature = new byte[SignatureSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		public static readonly byte[]		ZeroHash = new byte[HashSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-		public abstract byte[]				Sign(PrivateAccount pk, byte[] hash);
+		public abstract byte[]				Sign(AccountKey pk, byte[] hash);
 		public abstract Account				AccountFrom(byte[] signature, byte[] hash);
 		public abstract byte[]				Encrypt(EthECKey key, string password);
 		public abstract byte[]				Decrypt(byte[] input, string password);
@@ -54,7 +54,7 @@ namespace UC.Net
 
 	public class NoCryptography : Cryptography
 	{
-		public override byte[] Sign(PrivateAccount k, byte[] h)
+		public override byte[] Sign(AccountKey k, byte[] h)
 		{
 			var s = new byte[SignatureSize];
 	
@@ -114,7 +114,7 @@ namespace UC.Net
 			service = new KeyStoreService();
 		}
 
-		public override byte[] Sign(PrivateAccount k, byte[] h)
+		public override byte[] Sign(AccountKey k, byte[] h)
 		{
 			var sig = k.Key.SignAndCalculateV(h);
 	

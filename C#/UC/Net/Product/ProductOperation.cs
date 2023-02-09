@@ -33,7 +33,7 @@ namespace UC.Net
 		{
 		}
 
-		public ProductRegistration(PrivateAccount signer, ProductAddress name, string title)
+		public ProductRegistration(AccountKey signer, ProductAddress name, string title)
 		{
 			Signer		= signer;
 			Address		= name;
@@ -211,7 +211,7 @@ namespace UC.Net
 		{
 		}
 
-		public ReleaseRegistration(PrivateAccount signer, ReleaseAddress release, string channel, byte[] manifest)
+		public ReleaseRegistration(AccountKey signer, ReleaseAddress release, string channel, byte[] manifest)
 		{
 			Signer	= signer;
 			Release = release;

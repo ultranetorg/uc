@@ -8,7 +8,7 @@ namespace UC.Net
 {
 	public interface IFeeAsker
 	{
-		bool Ask(Core core, PrivateAccount account, Operation operation);
+		bool Ask(Core core, AccountKey account, Operation operation);
 	}
 
 	public class SilentFeeAsker : IFeeAsker
@@ -17,7 +17,7 @@ namespace UC.Net
 		{
 		}
 
-		public bool Ask(Core core, PrivateAccount account, Operation operation)
+		public bool Ask(Core core, AccountKey account, Operation operation)
 		{
 			return true;
 		}

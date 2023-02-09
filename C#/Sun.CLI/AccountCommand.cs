@@ -53,7 +53,7 @@ namespace UC.Sun.CLI
 			}
 		}
 
-		public PrivateAccount New()
+		public AccountKey New()
 		{
 			var c = Console.ForegroundColor;
 									
@@ -116,23 +116,23 @@ namespace UC.Sun.CLI
 			}
 					
 
-			var acc = PrivateAccount.Create();
+			var acc = AccountKey.Create();
 
 			Workflow.Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Core.Vault.SaveAccount(acc, p);
+			Core.Vault.SaveWallet(acc, p);
 
 			return acc;
 		}
 
-		PrivateAccount Import() /// from private key
+		AccountKey Import() /// from private key
 		{
 			var c = Console.ForegroundColor;
 									
 			string p = null;
 			string pc = null;
 
-			var acc = PrivateAccount.Parse(GetString("privatekey"));
+			var acc = AccountKey.Parse(GetString("privatekey"));
 
 			if(Core.Vault.Accounts.Contains(acc))
 			{
@@ -188,7 +188,7 @@ namespace UC.Sun.CLI
 
 			Workflow.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Core.Vault.SaveAccount(acc, p);
+			Core.Vault.SaveWallet(acc, p);
 
 			return acc;
 		}
