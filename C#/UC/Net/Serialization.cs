@@ -14,7 +14,7 @@ namespace UC.Net
 	{
 		public static void Serialize(BinaryWriter writer, object o)
 		{
-			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
 				var val = i.GetValue(o);
 
@@ -171,6 +171,23 @@ namespace UC.Net
 
 			return o;
 		}
+
+
+		public static object Deserialize(BinaryReader reader, Func<byte, object> fromtype, Func<Type, object> construct)
+		{
+			var o = fromtype(reader.ReadByte());
+
+			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+			{
+				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
+					p.SetValue(o, val);
+				else
+					p.SetValue(o, Deserialize(reader, p.PropertyType, construct));
+			}
+
+			return o;
+		}
+
 
 		static bool DeserializeValue(BinaryReader reader, Type type, Func<Type, object> construct, out object value)
 		{

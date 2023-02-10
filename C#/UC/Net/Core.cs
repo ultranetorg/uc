@@ -127,7 +127,7 @@ namespace UC.Net
 		public CoreDelegate				MainStarted;
 		public CoreDelegate				ApiStarted;
 		
-		Func<Type, object>				Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
+		internal Func<Type, object>		Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
 		
 		public string[][] Info
 		{
@@ -802,7 +802,7 @@ namespace UC.Net
 						RememberPeers(h.Peers);
 	
 						peer.OutStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+						peer.Start(this, client, h, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 							
 						Workflow.Log?.Report(this, "Connected to", $"{peer}");
 	
@@ -908,7 +908,7 @@ namespace UC.Net
 						RememberPeers(h.Peers.Append(peer));
 	
 						peer.InStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+						peer.Start(this, client, h, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 			
 						Workflow.Log?.Report(this, "Accepted from", $"{peer}");
 	
@@ -926,129 +926,6 @@ namespace UC.Net
 				{
 					Stop(MethodBase.GetCurrentMethod(), ex);
 				}
-			}
-		}
-
-		void Listening(Peer peer)
-		{
-	 		try
-	 		{
-				while(peer.Established)
-				{
-					var pk = peer.Read();
-
-					if(pk == null)
-					{
-						lock(Lock)
-							peer.Status = ConnectionStatus.Failed;
-						return;
-					}
-
-					lock(Lock)
-						if(!Running || !peer.Established)
-							return;
-					
-					var reader = new BinaryReader(pk.Data); 
-
-					switch(pk.Type)
-					{
-						//case PacketType.Blocks:
-						//{
-						//	IEnumerable<Block> blocks;
-						//				
-						//	try
-						//	{
-						//		blocks = pk.Read((r, c) => Block.FromType(Database, (BlockType)c));
-						//	}
-						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-						//	{
-						//		peer.Disconnect();
-						//		break;
-						//	}
-						//
-						//	lock(Lock)
-						//	{
-						//		ProcessIncoming(blocks, peer);
-						//	}
-						//
-						//	break;
-						//}
-
- 						case PacketType.Request:
- 						{
-							RdcRequest[] requests;
-
- 							try
- 							{
-								requests = BinarySerializator.Deserialize(	reader,	
-																			c => {
-																					var o = UC.Net.RdcRequest.FromType(Database, (Rdc)c); 
-																					o.Peer = peer; 
-																					return o;
-																				},
-																			Constractor);
-
- 							}
- 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
- 							{
- 								peer.Disconnect();
- 								break;
- 							}
-
-							lock(peer.InRequests)
- 								peer.InRequests.AddRange(requests);
- 	
- 							break;
- 						}
-
-						case PacketType.Response:
- 						{
-							RdcResponse[] responses;
-							
-							try
- 							{
-								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
-								responses = BinarySerializator.Deserialize(	reader,
-																			t => UC.Net.RdcResponse.FromType(Database, (Rdc)t), 
-																			Constractor
-																			);
-							}
- 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
- 							{
- 								peer.Disconnect();
- 								break;
- 							}
-
-							lock(peer.OutRequests)
-								foreach(var rp in responses)
-								{
-									var rq = peer.OutRequests.Find(j => j.Id.SequenceEqual(rp.Id));
-
-									if(rq != null)
-									{
-										rp.Peer = peer;
-										rq.Response = rp;
-										rq.Event.Set();
- 									
-										if(rp.Final)
-										{
-											peer.OutRequests.Remove(rq);
-										}
-									}
-								}
-							break;
-						}
-
-						default:
-							Workflow.Log?.ReportError(this, $"Wrong packet type {pk.Type}");
-							peer.Status = ConnectionStatus.Failed;
-							return;
-					}
-				}
-	 		}
-			catch(Exception) when (!Debugger.IsAttached)
-			{
-				peer.Disconnect();
 			}
 		}
 
