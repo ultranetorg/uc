@@ -27,10 +27,8 @@ namespace UC.Sun.FUI
 		{
 			if(first)
 			{
-				BindAuthors(AuthorSearch);
 				BindAccounts(RegisrationSigner);
 				BindAccounts(AuctionSigner);
-				BindAuthors(TransferingAuthor);
 		
 				AuthorTitle_TextChanged(null, null);
 
@@ -46,21 +44,58 @@ namespace UC.Sun.FUI
 
 			try
 			{
-				var ai = Core.Connect(Role.Base, null, new Workflow()).GetAuthorInfo(AuthorSearch.Text, false);
+				var a = Core.Connect(Role.Base, null, Core.Workflow).GetAuthorInfo(AuthorSearch.Text).Entry;
+
+				Registration.Visible	= false;
+				Auction.Visible			= false;
+				Transfering.Visible		= false;
 	
-				if(ai.Xon != null)
-					ai.Xon.Dump((n, t) => 
-								{
-									Fields.Text += new string(' ', t * 3) + n.Name + "\n";
-									Values.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\n";
-								});
+				if(a != null)
+				{	
+					a.ToXon(new XonTextValueSerializator()).Dump((n, t) => 
+																 {
+																	Fields.Text += new string(' ', t * 3) + n.Name + "\n";
+																	Values.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\n";
+																 });
+
+					if(a.Owner == null)
+					{ 
+						if(AuthorEntry.IsExclusive(AuthorSearch.Text))
+						{
+							Switch(Auction);
+						} 
+						else
+						{
+							Switch(Registration);
+						}
+					}
+					else if(Core.Vault.Accounts.Any(i => i == a.Owner))
+					{
+						Switch(Transfering);
+					}
+				}
 				else 
+				{
 					Fields.Text = "Not found";
+
+					if(AuthorEntry.IsExclusive(AuthorSearch.Text))
+						Switch(Auction);
+					else
+						Switch(Registration);
+				}
 			}
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				ShowException("Falied", ex);
 			}
+		}
+
+		void Switch(GroupBox group)
+		{
+					//= 
+
+			group.Location = Registration.Location;
+			group.Visible = true;
 		}
 
 		private void AuthorSearch_KeyDown(object sender, KeyEventArgs e)
@@ -106,7 +141,7 @@ namespace UC.Sun.FUI
 		{
 			if(AuthorTitle.Text.Length > 0)
 			{
-				AuthorName.Text = Operation.TitleToName(AuthorTitle.Text);
+				AuthorSearch.Text = Operation.TitleToName(AuthorTitle.Text);
 			}
 		}
 
@@ -114,7 +149,7 @@ namespace UC.Sun.FUI
 		{
 			RegistrationStatus.Text = null;
 
-			if(!AuthorEntry.IsExclusive(AuthorName.Text))
+			if(!AuthorEntry.IsExclusive(AuthorSearch.Text))
 			{
 				lock(Core.Lock)
 				{
@@ -129,7 +164,7 @@ namespace UC.Sun.FUI
 		{
 			try
 			{
-				if(!Operation.IsValid(AuthorName.Text, AuthorTitle.Text))
+				if(!Operation.IsValid(AuthorSearch.Text, AuthorTitle.Text))
 					throw new ArgumentException("Invalid author name");
 
 				var a = GetPrivate(RegisrationSigner.SelectedItem as Account);
@@ -137,7 +172,7 @@ namespace UC.Sun.FUI
 				if(a == null)
 					return;
 
-				Core.Enqueue(new AuthorRegistration(a, AuthorName.Text, AuthorTitle.Text, (byte)Years.Value), PlacingStage.Null, null);
+				Core.Enqueue(new AuthorRegistration(a, AuthorSearch.Text, AuthorTitle.Text, (byte)Years.Value), PlacingStage.Null, null);
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{
@@ -149,9 +184,9 @@ namespace UC.Sun.FUI
 		{
 			AuctionStatus.Text = null;
 
-			if(AuthorEntry.IsExclusive(AuctionAuthor.Text))
+			if(AuthorEntry.IsExclusive(AuthorSearch.Text))
 			{
-				var a = Database.Authors.Find(AuctionAuthor.Text, Database.LastConfirmedRound.Id);
+				var a = Database.Authors.Find(AuthorSearch.Text, Database.LastConfirmedRound.Id);
 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
 
 				if(a != null && !a.IsOngoingAuction(Database.LastConfirmedRound))
@@ -160,9 +195,9 @@ namespace UC.Sun.FUI
 				}
 				else
 				{
-					Bid.Coins = a?.LastWinner != null ? a.LastBid : AuthorBid.GetMinCost(AuctionAuthor.Text);
+					Bid.Coins = a?.LastWinner != null ? a.LastBid : AuthorBid.GetMinCost(AuthorSearch.Text);
 					AuctionStatus.Text = $"Ongoing auction: " + (a?.LastWinner != null ? $"more than {a.LastBid}" : 
-																						 $"minimum {AuthorBid.GetMinCost(AuctionAuthor.Text)}") + " UNT required";
+																						 $"minimum {AuthorBid.GetMinCost(AuthorSearch.Text)}") + " UNT required";
 				}
 			}
 			else
@@ -173,12 +208,12 @@ namespace UC.Sun.FUI
 		{
 			try
 			{
-				if(string.IsNullOrWhiteSpace(TransferingAuthor.Text))
+				if(string.IsNullOrWhiteSpace(AuthorSearch.Text))
 					throw new ArgumentException("The author is not selected");
 
-				var a = Database.Authors.Find(TransferingAuthor.Text, int.MaxValue);
+				var a = Database.Authors.Find(AuthorSearch.Text, int.MaxValue);
 
-				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), TransferingAuthor.Text, Account.Parse(NewOwner.Text)), PlacingStage.Null, null);
+				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), AuthorSearch.Text, Account.Parse(NewOwner.Text)), PlacingStage.Null, null);
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{
@@ -190,12 +225,21 @@ namespace UC.Sun.FUI
 		{
 			try
 			{
+				var log = new Log();
+				log.Report(this, "Initiated");
+
 				var s = GetPrivate(AuctionSigner.SelectedItem as Account);
 
 				if(s == null)
 					return;
 
-				Core.Enqueue(new AuthorBid(s, AuctionAuthor.Text, Bid.Coins), PlacingStage.Null, null);
+				var v = new Workflow(log);
+
+				var f = new FlowControlForm(Core, v);
+				f.StartPosition = FormStartPosition.CenterParent;
+				f.Show(ParentForm);
+
+				Core.Enqueue(new AuthorBid(s, AuthorSearch.Text, Bid.Coins), PlacingStage.Null, v);
 			}
 			catch(Exception ex)
 			{

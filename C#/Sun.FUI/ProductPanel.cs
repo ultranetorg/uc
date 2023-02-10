@@ -23,8 +23,7 @@ namespace UC.Sun.FUI
 			{
 				BindAccounts(SearchAccount);
 				BindAccounts(PublisherAccount);
-				BindAuthors(Author);
-		
+				
 				registeringProduct_TextChanged(null, null);
 			}
 		}

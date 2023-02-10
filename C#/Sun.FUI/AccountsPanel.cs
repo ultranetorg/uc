@@ -49,11 +49,11 @@ namespace UC.Sun.FUI
 	
 										try
 										{
-											t = Core.Connect(Role.Base, null, new Workflow()).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
+											t = Core.Call(Role.Base, p => p.GetAccountInfo(i.Tag as Account, true), Core.Workflow).Info?.Balance.ToHumanString(); 
 										}
-										catch(RdcException)
+										catch(OperationCanceledException)
 										{
-											t = "...";
+											return;
 										}
 	
 										Invoke(	(MethodInvoker) delegate
@@ -64,34 +64,6 @@ namespace UC.Sun.FUI
 									});
 				}
 			}
-	
-			foreach(ListViewItem i in accounts.Items)
-			{
-				if(!(bool)i.SubItems[2].Tag)
-				{
-					i.SubItems[2].Tag = true;
-	
-					Task.Run(	() =>
-								{
-									string t;
-									
-									try
-									{
-										t = Core.Connect(Role.Base, null, new Workflow()).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
-									}
-									catch(RdcException)
-									{
-										t = "...";
-									}
-										
-									Invoke(	(MethodInvoker) delegate
-											{
-												i.SubItems[2].Text = t; 
-												i.SubItems[2].Tag = false;
-											});
-								});
-				}
-			}
 		}
 
 		void AddRow(Account a)
@@ -99,7 +71,6 @@ namespace UC.Sun.FUI
 			var r = new ListViewItem(a.ToString());
 			r.Tag = a;
 
-			r.SubItems.Add("...").Tag = false;
 			r.SubItems.Add("...").Tag = false;
 
 			accounts.Items.Add(r);

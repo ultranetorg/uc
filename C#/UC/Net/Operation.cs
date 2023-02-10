@@ -100,7 +100,7 @@ namespace UC.Net
 
 		public static bool IsValid(string author, string title)
 		{
-			if(author.Length == 0)
+			if(author.Length < 2)
 				return false;
 
 			var r = new Regex(@"^[a-z0-9_]+$");

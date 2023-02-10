@@ -21,11 +21,6 @@ namespace UC.Sun.FUI
 		{
 			if(first)
 			{
-				BindAuthors(Author, () => 
-									{ 
-										Author.Text = null;
-										Author.SelectedIndex = -1;
-									});
 			}
 		}
 

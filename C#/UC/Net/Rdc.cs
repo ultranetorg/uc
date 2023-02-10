@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using NativeImport;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Security;
 
@@ -78,7 +79,7 @@ namespace UC.Net
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
-		public AuthorInfoResponse				GetAuthorInfo(string author, bool confirmed) => Request<AuthorInfoResponse>(new AuthorInfoRequest{Name = author, Confirmed = confirmed });
+		public AuthorInfoResponse				GetAuthorInfo(string author) => Request<AuthorInfoResponse>(new AuthorInfoRequest{Name = author});
 		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{Account = account, Confirmed = confirmed});
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
@@ -597,22 +598,23 @@ namespace UC.Net
 
 	public class AuthorInfoRequest : RdcRequest
 	{
-		public bool				Confirmed {get; set;}
 		public string			Name {get; set;}
 
 		public override RdcResponse Execute(Core core)
 		{
  			lock(core.Lock)
- 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
-				else
- 					return new AuthorInfoResponse{Xon = core.Database.GetAuthorInfo(Name, Confirmed, new XonTypedBinaryValueSerializator())};
+			{	
+				if(!core.Database.Settings.Database.Base)					throw new RdcException(RdcError.NotBase);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+
+				return new AuthorInfoResponse{Entry = core.Database.Authors.Find(Name, core.Database.LastConfirmedRound.Id)};
+			}
 		}
 	}
 
 	public class AuthorInfoResponse : RdcResponse
 	{
-		public XonDocument Xon {get; set;}
+		public AuthorEntry Entry {get; set;}
 	}
 
 	public class QueryReleaseRequest : RdcRequest

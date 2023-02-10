@@ -2044,7 +2044,7 @@ namespace UC.Net
 		{
 			Peer peer;
 				
-			while(Running)
+			while(true)
 			{
 				Thread.Sleep(1);
 				workflow.ThrowIfAborted();

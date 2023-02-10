@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Nethereum.Signer;
 
 namespace UC.Net
 {
@@ -37,6 +39,11 @@ namespace UC.Net
 		public override string ToString()
 		{
 			return (new DateTime(Ticks * Divider)).ToString(DateFormat);
+		}
+
+		public static ChainTime Parse(string v)
+		{
+			return new ChainTime(DateTime.ParseExact(v, DateFormat, CultureInfo.InvariantCulture).Ticks / Divider);
 		}
 
 		public override bool Equals(object o)
