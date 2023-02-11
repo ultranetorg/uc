@@ -4,12 +4,13 @@ namespace UC.Umc.Models;
 
 public partial class AccountViewModel : ObservableObject
 {
+	protected Account		_account;
 	[ObservableProperty]
 	private bool			_isSelected;
-	protected Account		_account;
+	[ObservableProperty]
+    public GradientBrush	_color;
 
 	public string			Name { get; set; }
-    public GradientBrush	Color { get; set; }
     public bool				HideOnDashboard { get; set; }
 	public decimal			Balance { get; set; }
 	public string			Address { get; set; }
@@ -21,7 +22,8 @@ public partial class AccountViewModel : ObservableObject
 	public decimal			RoundedBalance => Math.Round(Balance);
 	// lets say 1 unts = $1 unless we can recieve rate
 	public string			DisplayAmount => $"{RoundedBalance} UNT (${RoundedBalance})";
-	public string			IconCode => Address?[2..6];
+	public bool				ShowAmount { get; set; } = true;
+	public string			IconCode => string.IsNullOrEmpty(Address) ? string.Empty : Address?[2..6];
 
 	public AccountViewModel(Account account)
 	{

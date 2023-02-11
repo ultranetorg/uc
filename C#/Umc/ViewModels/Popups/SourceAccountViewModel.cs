@@ -4,11 +4,14 @@ public partial class SourceAccountViewModel : BaseViewModel
 {
 	private readonly IServicesMockData _service;
 
+	 // selected account
 	[ObservableProperty]
     private AccountViewModel _account;
 
 	[ObservableProperty]
     private CustomCollection<AccountViewModel> _accounts = new();
+
+	public bool AllAccountsEnabled { get; set; }
 
     public SourceAccountViewModel(IServicesMockData service, ILogger<SourceAccountViewModel> logger) : base(logger)
     {
@@ -32,9 +35,13 @@ public partial class SourceAccountViewModel : BaseViewModel
 	
 	private void LoadData()
 	{
-		Accounts.Clear();
-		Accounts.AddRange(_service.Accounts);
+		Accounts = new(_service.Accounts);
+	}
 
-		Account = DefaultDataMock.CreateAccount();
+	public void AddAllOption()
+	{
+		AllAccountsEnabled = true;
+		Accounts = new(Accounts.Prepend(DefaultDataMock.AllAccountOption));
+		Account = DefaultDataMock.AllAccountOption;
 	}
 }

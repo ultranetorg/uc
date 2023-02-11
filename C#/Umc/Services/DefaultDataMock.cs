@@ -4,6 +4,13 @@ internal static class DefaultDataMock
 {
 	private static readonly string _defaultNotificationBody = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network";
 	private static readonly string _defaultNotificationTitle = "Today at 16:00";
+	private static readonly AccountViewModel _allAccountsOption = new(string.Empty)
+	{
+		Name = "All Accounts",
+		Color = ColorHelper.CreateGradientColor(Colors.DarkGrey),
+		Balance = 0,
+		ShowAmount = false
+	};
 
 	//public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M) 
 	//{
@@ -29,6 +36,8 @@ internal static class DefaultDataMock
 			Color = ColorHelper.CreateRandomGradientColor(),
 			Balance = balance,
 		};
+
+	public static AccountViewModel AllAccountOption => _allAccountsOption;
 
 	public static AuthorViewModel Author1 => new()
 	{

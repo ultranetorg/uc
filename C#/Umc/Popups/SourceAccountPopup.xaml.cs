@@ -10,4 +10,12 @@ public partial class SourceAccountPopup : Popup
         BindingContext = Ioc.Default.GetService<SourceAccountViewModel>();
 		Vm.Popup = this;
     }
+
+    public SourceAccountPopup(bool addAllOption = false)
+    {
+        InitializeComponent();
+        BindingContext = Ioc.Default.GetService<SourceAccountViewModel>();
+		Vm.Popup = this;
+		if (addAllOption) Vm.AddAllOption();
+    }
 }

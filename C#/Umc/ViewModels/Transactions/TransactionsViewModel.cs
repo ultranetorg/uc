@@ -20,7 +20,15 @@ public partial class TransactionsViewModel : BaseViewModel
 
 	internal async Task InitializeAsync()
 	{
-		Transactions = await _service.ListTransactionsAsync(null, null, SizeConstants.SizePerPageMed);
+		try
+		{
+			Account = DefaultDataMock.AllAccountOption;
+			Transactions = await _service.ListTransactionsAsync(null, null, SizeConstants.SizePerPageMed);
+		}
+		catch (Exception ex)
+		{
+            _logger.LogError(ex, "InitializeAsync Exception: {Ex}", ex.Message);
+		}
 	}
 	
 	[RelayCommand]
@@ -52,7 +60,7 @@ public partial class TransactionsViewModel : BaseViewModel
 	{
 		try
 		{
-			var popup = new SourceAccountPopup();
+			var popup = new SourceAccountPopup(true);
 			await ShowPopup(popup);
 			if (popup.Vm?.Account != null)
 			{
@@ -71,7 +79,6 @@ public partial class TransactionsViewModel : BaseViewModel
 	{
 		try
 		{
-			Account = null;
 			await InitializeAsync();
 		}
 		catch (Exception ex)

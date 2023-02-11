@@ -40,7 +40,7 @@
                 BorderStyle="{StaticResource AccountCardBorderDark}" />
             <StackLayout>
                 <Label Style="{StaticResource DashLabel}" Text="Hash" />
-                <Label Opacity="0.7" Text="{Binding Transaction.Hash}" FontSize="11" />
+                <Label Style="{StaticResource DashLabelValue}" Text="{Binding Transaction.Hash}" FontSize="11" />
             </StackLayout>
             <controls:LabelPair Text1="Date and time" Text2="{Binding Transaction.Date, StringFormat='{0:MM/dd/yyyy hh:mm}'}" />
             <controls:LabelPair Text1="Status" Text2="{Binding Transaction.DisplayStatus}" />
