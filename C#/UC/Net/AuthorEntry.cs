@@ -26,7 +26,8 @@ namespace UC.Net
 
 		Database					Chain;
 
-		public const int			LengthMaxForAuction = 4;
+		public const int			ExclusiveLengthMax = 4;
+		public const int			NameLengthMin = 2;
 
 		public AuthorEntry()
 		{
@@ -37,7 +38,8 @@ namespace UC.Net
 			Chain = chain;
 		}
 
-		public static bool IsExclusive(string name) => name.Length <= LengthMaxForAuction; 
+		public static bool IsValid(string name) => name.Length >= NameLengthMin; 
+		public static bool IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
 
 		public AuthorEntry Clone()
 		{
