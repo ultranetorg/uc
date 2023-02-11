@@ -66,15 +66,14 @@ namespace UC.Sun.FUI
 			// 
 			// Transfering
 			// 
-			this.Transfering.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.Transfering.Controls.Add(this.transfer);
 			this.Transfering.Controls.Add(this.label5);
 			this.Transfering.Controls.Add(this.NewOwner);
-			this.Transfering.Location = new System.Drawing.Point(963, 781);
+			this.Transfering.Location = new System.Drawing.Point(1170, 761);
 			this.Transfering.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Transfering.Name = "Transfering";
 			this.Transfering.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Transfering.Size = new System.Drawing.Size(873, 623);
+			this.Transfering.Size = new System.Drawing.Size(1144, 344);
 			this.Transfering.TabIndex = 4;
 			this.Transfering.TabStop = false;
 			this.Transfering.Text = "Transfer Author to other Account";
@@ -82,20 +81,20 @@ namespace UC.Sun.FUI
 			// 
 			// transfer
 			// 
-			this.transfer.Location = new System.Drawing.Point(527, 267);
+			this.transfer.Location = new System.Drawing.Point(639, 190);
 			this.transfer.Margin = new System.Windows.Forms.Padding(13, 30, 13, 15);
 			this.transfer.Name = "transfer";
 			this.transfer.Size = new System.Drawing.Size(308, 58);
 			this.transfer.TabIndex = 9;
 			this.transfer.Text = "Transfer";
 			this.transfer.UseVisualStyleBackColor = true;
-			this.transfer.Click += new System.EventHandler(this.transfer_Click);
+			this.transfer.Click += new System.EventHandler(this.Transfer_Click);
 			// 
 			// label5
 			// 
 			this.label5.AutoSize = true;
 			this.label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label5.Location = new System.Drawing.Point(41, 116);
+			this.label5.Location = new System.Drawing.Point(155, 113);
 			this.label5.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(255, 27);
@@ -104,7 +103,7 @@ namespace UC.Sun.FUI
 			// 
 			// NewOwner
 			// 
-			this.NewOwner.Location = new System.Drawing.Point(316, 109);
+			this.NewOwner.Location = new System.Drawing.Point(430, 106);
 			this.NewOwner.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.NewOwner.Name = "NewOwner";
 			this.NewOwner.Size = new System.Drawing.Size(517, 39);
@@ -112,7 +111,6 @@ namespace UC.Sun.FUI
 			// 
 			// Registration
 			// 
-			this.Registration.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.Registration.Controls.Add(this.Cost);
 			this.Registration.Controls.Add(this.Years);
 			this.Registration.Controls.Add(this.register);
@@ -123,11 +121,11 @@ namespace UC.Sun.FUI
 			this.Registration.Controls.Add(this.label4);
 			this.Registration.Controls.Add(this.RegisrationSigner);
 			this.Registration.Controls.Add(this.AuthorTitle);
-			this.Registration.Location = new System.Drawing.Point(988, 113);
+			this.Registration.Location = new System.Drawing.Point(0, 749);
 			this.Registration.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Registration.Name = "Registration";
 			this.Registration.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Registration.Size = new System.Drawing.Size(873, 621);
+			this.Registration.Size = new System.Drawing.Size(1144, 621);
 			this.Registration.TabIndex = 19;
 			this.Registration.TabStop = false;
 			this.Registration.Text = "Register a new Author";
@@ -135,7 +133,7 @@ namespace UC.Sun.FUI
 			// 
 			// Cost
 			// 
-			this.Cost.Location = new System.Drawing.Point(316, 344);
+			this.Cost.Location = new System.Drawing.Point(383, 344);
 			this.Cost.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Cost.Name = "Cost";
 			this.Cost.ReadOnly = true;
@@ -146,7 +144,7 @@ namespace UC.Sun.FUI
 			// 
 			// Years
 			// 
-			this.Years.Location = new System.Drawing.Point(316, 263);
+			this.Years.Location = new System.Drawing.Point(383, 263);
 			this.Years.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Years.Maximum = new decimal(new int[] {
             256,
@@ -172,20 +170,20 @@ namespace UC.Sun.FUI
 			// 
 			// register
 			// 
-			this.register.Location = new System.Drawing.Point(527, 514);
+			this.register.Location = new System.Drawing.Point(594, 514);
 			this.register.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.register.Name = "register";
 			this.register.Size = new System.Drawing.Size(308, 58);
 			this.register.TabIndex = 9;
 			this.register.Text = "Register";
 			this.register.UseVisualStyleBackColor = true;
-			this.register.Click += new System.EventHandler(this.register_Click);
+			this.register.Click += new System.EventHandler(this.Register_Click);
 			// 
 			// RegistrationStatus
 			// 
 			this.RegistrationStatus.AutoSize = true;
 			this.RegistrationStatus.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.RegistrationStatus.Location = new System.Drawing.Point(39, 514);
+			this.RegistrationStatus.Location = new System.Drawing.Point(106, 514);
 			this.RegistrationStatus.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.RegistrationStatus.MaximumSize = new System.Drawing.Size(596, 0);
 			this.RegistrationStatus.Name = "RegistrationStatus";
@@ -198,7 +196,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label7.AutoSize = true;
 			this.label7.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label7.Location = new System.Drawing.Point(222, 269);
+			this.label7.Location = new System.Drawing.Point(289, 269);
 			this.label7.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(74, 27);
@@ -209,7 +207,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label2.AutoSize = true;
 			this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label2.Location = new System.Drawing.Point(101, 351);
+			this.label2.Location = new System.Drawing.Point(168, 351);
 			this.label2.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(195, 27);
@@ -220,7 +218,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label9.AutoSize = true;
 			this.label9.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label9.Location = new System.Drawing.Point(153, 180);
+			this.label9.Location = new System.Drawing.Point(220, 180);
 			this.label9.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(143, 27);
@@ -231,7 +229,7 @@ namespace UC.Sun.FUI
 			// 
 			this.label4.AutoSize = true;
 			this.label4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label4.Location = new System.Drawing.Point(101, 99);
+			this.label4.Location = new System.Drawing.Point(168, 99);
 			this.label4.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(199, 27);
@@ -242,7 +240,7 @@ namespace UC.Sun.FUI
 			// 
 			this.RegisrationSigner.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.RegisrationSigner.FormattingEnabled = true;
-			this.RegisrationSigner.Location = new System.Drawing.Point(316, 92);
+			this.RegisrationSigner.Location = new System.Drawing.Point(383, 92);
 			this.RegisrationSigner.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.RegisrationSigner.Name = "RegisrationSigner";
 			this.RegisrationSigner.Size = new System.Drawing.Size(517, 40);
@@ -250,7 +248,7 @@ namespace UC.Sun.FUI
 			// 
 			// AuthorTitle
 			// 
-			this.AuthorTitle.Location = new System.Drawing.Point(316, 173);
+			this.AuthorTitle.Location = new System.Drawing.Point(383, 173);
 			this.AuthorTitle.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.AuthorTitle.Name = "AuthorTitle";
 			this.AuthorTitle.Size = new System.Drawing.Size(517, 39);
@@ -259,18 +257,17 @@ namespace UC.Sun.FUI
 			// 
 			// Auction
 			// 
-			this.Auction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.Auction.Controls.Add(this.Bid);
 			this.Auction.Controls.Add(this.MakeBid);
 			this.Auction.Controls.Add(this.label11);
 			this.Auction.Controls.Add(this.AuctionStatus);
 			this.Auction.Controls.Add(this.label14);
 			this.Auction.Controls.Add(this.AuctionSigner);
-			this.Auction.Location = new System.Drawing.Point(35, 766);
+			this.Auction.Location = new System.Drawing.Point(1170, 119);
 			this.Auction.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Auction.Name = "Auction";
 			this.Auction.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Auction.Size = new System.Drawing.Size(873, 621);
+			this.Auction.Size = new System.Drawing.Size(1144, 493);
 			this.Auction.TabIndex = 19;
 			this.Auction.TabStop = false;
 			this.Auction.Text = "Auction for Names with 4 and less Letters Long";
@@ -288,7 +285,7 @@ namespace UC.Sun.FUI
 			// 
 			// MakeBid
 			// 
-			this.MakeBid.Location = new System.Drawing.Point(527, 319);
+			this.MakeBid.Location = new System.Drawing.Point(525, 371);
 			this.MakeBid.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.MakeBid.Name = "MakeBid";
 			this.MakeBid.Size = new System.Drawing.Size(308, 58);
@@ -312,7 +309,7 @@ namespace UC.Sun.FUI
 			// 
 			this.AuctionStatus.AutoSize = true;
 			this.AuctionStatus.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.AuctionStatus.Location = new System.Drawing.Point(39, 296);
+			this.AuctionStatus.Location = new System.Drawing.Point(316, 263);
 			this.AuctionStatus.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.AuctionStatus.MaximumSize = new System.Drawing.Size(433, 0);
 			this.AuctionStatus.Name = "AuctionStatus";
@@ -328,9 +325,9 @@ namespace UC.Sun.FUI
 			this.label14.Location = new System.Drawing.Point(97, 99);
 			this.label14.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label14.Name = "label14";
-			this.label14.Size = new System.Drawing.Size(199, 27);
+			this.label14.Size = new System.Drawing.Size(198, 27);
 			this.label14.TabIndex = 8;
-			this.label14.Text = "Owner\'s Account";
+			this.label14.Text = "Bidder\'s Account";
 			// 
 			// AuctionSigner
 			// 
@@ -344,16 +341,13 @@ namespace UC.Sun.FUI
 			// 
 			// groupBox2
 			// 
-			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox2.Controls.Add(this.Fields);
 			this.groupBox2.Controls.Add(this.Values);
-			this.groupBox2.Location = new System.Drawing.Point(0, 113);
+			this.groupBox2.Location = new System.Drawing.Point(0, 119);
 			this.groupBox2.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.groupBox2.Size = new System.Drawing.Size(962, 623);
+			this.groupBox2.Size = new System.Drawing.Size(1144, 613);
 			this.groupBox2.TabIndex = 4;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Author Info";
@@ -426,7 +420,7 @@ namespace UC.Sun.FUI
 			this.Controls.Add(this.Transfering);
 			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Name = "AuthorPanel";
-			this.Size = new System.Drawing.Size(1902, 1638);
+			this.Size = new System.Drawing.Size(2388, 1638);
 			this.Transfering.ResumeLayout(false);
 			this.Transfering.PerformLayout();
 			this.Registration.ResumeLayout(false);

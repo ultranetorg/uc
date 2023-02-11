@@ -31,6 +31,11 @@ namespace UC.Net
 
 		public string						ToString(string format) => Ticks >= 0 ? (new DateTime(Ticks * Divider)).ToString(format) : "~";
 
+		public ChainTime()
+		{
+			Ticks = -1;
+		}
+
 		public ChainTime(long t)
 		{
 			Ticks = t;

@@ -13,7 +13,7 @@ namespace UC.Net
 {
 	public enum Rdc : byte
 	{
-		Null, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, AuthorInfo, AccountInfo, 
+		Null, Time, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, Author, AccountInfo, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable
 	}
@@ -72,6 +72,7 @@ namespace UC.Net
 
  		public abstract Rp						Request<Rp>(RdcRequest rq) where Rp : class;
  
+		public TimeResponse						GetTime() => Request<TimeResponse>(new TimeRequest());
 		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
 		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
@@ -79,7 +80,7 @@ namespace UC.Net
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
-		public AuthorInfoResponse				GetAuthorInfo(string author) => Request<AuthorInfoResponse>(new AuthorInfoRequest{Name = author});
+		public AuthorResponse				GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
 		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{Account = account, Confirmed = confirmed});
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
@@ -153,6 +154,25 @@ namespace UC.Net
 				throw new IntegrityException($"Wrong {nameof(RdcResponse)} type", ex);
 			}
 		}
+	}
+
+	public class TimeRequest : RdcRequest
+	{
+		public override RdcResponse Execute(Core core)
+		{
+			lock(core.Lock)
+			{
+				if(!core.Settings.Database.Base)							throw new RdcException(RdcError.NotBase);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				
+				return new TimeResponse {Time = core.Database.LastConfirmedRound.Time};
+			}
+		}
+	}
+
+	public class TimeResponse : RdcResponse
+	{
+		public ChainTime Time { get; set; }
 	}
 
 	public class UploadBlocksPiecesRequest : RdcRequest
@@ -312,10 +332,8 @@ namespace UC.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Database.Base)
-					throw new RdcException(RdcError.NotBase);
-				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
+				if(!core.Settings.Database.Base)							throw new RdcException(RdcError.NotBase);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
 				var r = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
 				
@@ -478,35 +496,8 @@ namespace UC.Net
 		public IEnumerable<Member> Members {get; set;}
 	}
 	
-// 	public class LastOperationRequest : Request
-// 	{
-// 		public Account		Account {get; set;}
-// 		public string		Class {get; set;}
-// 		public PlacingStage	Placing {get; set;} /// Null means any
-// 
-// 		public override Response Execute(Core core)
-// 		{
-// 			lock(core.Lock)
-// 				if(core.Synchronization != Synchronization.Synchronized)
-// 					throw new DistributedCallException(Error.NotSynchronized);
-// 				else
-// 				{
-// 					var l = core.Database.Accounts.FindLastOperation(Account, i =>	(Class == null || i.GetType().Name == Class) && 
-// 																					(Placing == PlacingStage.Null || i.Placing == Placing));
-// 							
-// 					return new LastOperationResponse {Operation = l};
-// 				}
-// 		}
-// 	}
-//
-// 	public class LastOperationResponse : Response
-// 	{
-// 		public Operation Operation {get; set;}
-// 	}
-
 	public class DelegateTransactionsRequest : RdcRequest
 	{
-//		public byte[]					Data {get; set;}
 		public IEnumerable<Transaction>	Transactions {get; set;}
 
 		public override RdcResponse Execute(Core core)
@@ -596,23 +587,24 @@ namespace UC.Net
 		public AccountInfo Info {get; set;}
 	}
 
-	public class AuthorInfoRequest : RdcRequest
+	public class AuthorRequest : RdcRequest
 	{
-		public string			Name {get; set;}
+		public string Name {get; set;}
 
 		public override RdcResponse Execute(Core core)
 		{
  			lock(core.Lock)
 			{	
+				if(!AuthorEntry.IsValid(Name))								throw new RdcException(RdcError.InvalidRequest);
 				if(!core.Database.Settings.Database.Base)					throw new RdcException(RdcError.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
-				return new AuthorInfoResponse{Entry = core.Database.Authors.Find(Name, core.Database.LastConfirmedRound.Id)};
+				return new AuthorResponse{Entry = core.Database.Authors.Find(Name, core.Database.LastConfirmedRound.Id)};
 			}
 		}
 	}
 
-	public class AuthorInfoResponse : RdcResponse
+	public class AuthorResponse : RdcResponse
 	{
 		public AuthorEntry Entry {get; set;}
 	}

@@ -1983,9 +1983,9 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(RdcException)
-				{
-				}
+// 				catch(RdcException)
+// 				{
+// 				}
 			}
 		}
 

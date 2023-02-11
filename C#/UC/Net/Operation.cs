@@ -416,17 +416,13 @@ namespace UC.Net
  			} 
  			else
  			{
-				//var lr = a.FindRegistration(round);
-
 				if(a.Owner != null)
 				{
-					//round.AffectAccount(a.Owner).Authors.Remove(Author);
 					a.Owner = null;
 				}
 
 				/// dont refund previous winner
 
-				//var wb = a.FindLastBid(round);
 				round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
 
 				round.AffectAccount(Signer).Balance -= Bid;
@@ -435,12 +431,34 @@ namespace UC.Net
 				a.LastBid = Bid;
 				a.LastBidTime = round.Time;
 				a.LastWinner = Signer;
-				///a.Products.Clear();  Should we?
 			
 				return;
 			}
 
 			Error = "Bid too low or auction is over";
+		}
+
+		public static bool CanBid(AuthorEntry author, ChainTime time)
+		{
+			if(author == null)
+				return true;
+
+			ChainTime sinceauction() => time - author.FirstBidTime;
+
+			bool expired = author.LastWinner != null && (	author.Owner == null && sinceauction() > ChainTime.FromYears(2) ||		/// winner has not registered during 2 year since auction start, restart the auction
+															author.Owner != null && time - author.RegistrationTime > ChainTime.FromYears(author.Years));	/// is not renewed by owner, restart the auction
+
+ 			if(!expired)
+ 			{
+	 			if(author.LastWinner == null || sinceauction() < ChainTime.FromYears(1))
+	 			{
+					return true;
+	 			}
+ 			} 
+ 			else
+				return true;
+
+			return false;
 		}
 
 		public static Coin GetMinCost(string name)
@@ -498,21 +516,7 @@ namespace UC.Net
 
 		public override void Execute(Database chain, Round round)
 		{
-			//			AuthorBid lb = null;
-
-			if(Author == "abc" && Id== 3)
-			{
-				int i = 0;
-			}
-
 			var a = chain.Authors.Find(Author, round.Id);
-
-// 			if(Exclusive)
-// 			{
-// 				lb = a?.FindLastBid(round);
-// 			}
-// 
-// 			var lr = a?.FindRegistration(round);
 
 			ChainTime sinceauction() => round.Time - a.FirstBidTime;
 			ChainTime sincelastreg() => round.Time - a.RegistrationTime;
@@ -545,6 +549,18 @@ namespace UC.Net
 			}
 			else
 				Error = "Failed";
+		}
+
+		public static bool CanRegister(string name, AuthorEntry a, ChainTime time, IEnumerable<Account> accounts)
+		{
+			ChainTime sinceauction() => time - a.FirstBidTime;
+			ChainTime sincelastreg() => time - a.RegistrationTime;
+						
+			return	a == null && !AuthorEntry.IsExclusive(name) ||																																	/// available
+					a != null && !AuthorEntry.IsExclusive(name) && sincelastreg() > ChainTime.FromYears(a.Years) ||																					/// not renewed
+					a != null && AuthorEntry.IsExclusive(name) && accounts.Contains(a.LastWinner) && a.Owner == null && ChainTime.FromYears(1) < sinceauction() && sinceauction() < ChainTime.FromYears(2) ||/// auction is over and a winner can register the author during 1 year
+					a != null && accounts.Contains(a.Owner) && sincelastreg() < ChainTime.FromYears(a.Years); 																			/// renew
+			   	
 		}
 	}
 
