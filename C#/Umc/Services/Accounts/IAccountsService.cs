@@ -2,7 +2,9 @@
 
 public interface IAccountsService
 {
-    Task<ObservableCollection<AccountViewModel>> GetAllAsync();
+    List<AccountViewModel> ListAllAccounts();
+
+    Task<List<AccountViewModel>> ListAccountsAsync(string filter = null, bool addAllOptions = false);
 
     Task<string> GetPrivateKeyAsync(string address);
 

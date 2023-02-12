@@ -14,9 +14,8 @@ public partial class ManageAccountsViewModel : BaseViewModel
 	
 	public async Task InitializeAsync()
 	{
-		Accounts.Clear();
-		var accounts = await _service.GetAllAsync();
-		Accounts.AddRange(accounts);
+		var accounts = await _service.ListAccountsAsync();
+		Accounts = new(accounts);
 	}
 
 	[RelayCommand]

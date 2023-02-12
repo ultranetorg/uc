@@ -46,10 +46,10 @@ public partial class DashboardViewModel : BaseViewModel
 		Accounts.Clear();
 		Transactions.Clear();
 
-		var accounts = await _accountsService.GetAllAsync();
+		var accounts = await _accountsService.ListAccountsAsync();
 		var transactions = await _transactionsService.ListTransactionsAsync(null, null, 3);
 
-		Accounts.AddRange(accounts.Count < 3 ? accounts : accounts.Take(3));
+		Accounts = new(accounts.Count < 3 ? accounts : accounts.Take(3));
 		Transactions.AddRange(transactions);
 	}
 }

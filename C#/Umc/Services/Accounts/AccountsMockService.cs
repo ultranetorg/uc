@@ -9,10 +9,23 @@ public class AccountsMockService : IAccountsService
         _service = mockServiceData;
     }
 
-    public Task<ObservableCollection<AccountViewModel>> GetAllAsync()
+    public List<AccountViewModel> ListAllAccounts() => new(_service.Accounts);
+
+    public Task<List<AccountViewModel>> ListAccountsAsync(string filter = null, bool addAllOptions = false)
     {
-        var result = new ObservableCollection<AccountViewModel>(_service.Accounts);
-        return Task.FromResult(result);
+		var accounts = _service.Accounts;
+		if (addAllOptions)
+		{
+			accounts = accounts.Prepend(DefaultDataMock.AllAccountOption).ToList();
+		}
+		if (!string.IsNullOrEmpty(filter))
+		{
+			accounts = accounts.Where(x =>
+				x.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+				x.Address.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		}
+        return Task.FromResult(accounts.ToList());
     }
 
 	public Task<string> GetPrivateKeyAsync(string address)

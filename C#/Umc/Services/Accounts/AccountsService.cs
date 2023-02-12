@@ -2,7 +2,12 @@
 
 public sealed class AccountsService : IAccountsService
 {
-    public Task<ObservableCollection<AccountViewModel>> GetAllAsync()
+    public List<AccountViewModel> ListAllAccounts()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<AccountViewModel>> ListAccountsAsync(string filter, bool addAllOptions = false)
     {
         throw new NotImplementedException();
     }
