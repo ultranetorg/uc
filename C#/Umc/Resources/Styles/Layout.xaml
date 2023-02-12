@@ -169,9 +169,9 @@
     </Style>
     <Style x:Key="PopupHandleBorder" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="Opacity" Value="0.3" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
-        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="Opacity" Value="0.1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="HeightRequest" Value="8" />
         <Setter Property="WidthRequest" Value="40" />
         <Setter Property="BackgroundColor" Value="{StaticResource Gray100}" />
     </Style>
