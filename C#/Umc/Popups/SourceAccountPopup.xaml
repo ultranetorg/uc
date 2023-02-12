@@ -41,9 +41,7 @@
                 <AbsoluteLayout MaximumHeightRequest="120" MaximumWidthRequest="80" Grid.Row="0" Padding="16">
                     <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
-                        AbsoluteLayout.LayoutFlags="All"
-                        TextChanged="{Binding FilterAccountsCommand}"
-                        Value="{Binding Filter, Mode=TwoWay}" />
+                        AbsoluteLayout.LayoutFlags="All" />
                     <Image
                         Margin="12,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
