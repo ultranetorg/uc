@@ -14,56 +14,43 @@
                     Style="{StaticResource Regular}"
                     Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
             </StackLayout>
+            
             <Label Style="{StaticResource DashLabel}" Text="Source Ethereum Account" />
-            <!--<xct:TabView
-                HeightRequest="220"
-                IsSwipeEnabled="False"
-                TabStripHeight="108"
-                TabStripPlacement="Top">
-                <xct:TabView.TabStripBackgroundView>
-                    <Frame HeightRequest="103" Style="{StaticResource Container}" />
-                </xct:TabView.TabStripBackgroundView>
-                <xct:TabViewItem Style="{StaticResource PrivateKey}">
-                    <Grid>
-                        <StackLayout Spacing="10" VerticalOptions="EndAndExpand">
-                            <Label Style="{StaticResource DashLabel}" Text="Private key" />
-                            <Label
-                                FontSize="13"
-                                Style="{StaticResource Regular}"
-                                Text="Please specify Ultranet account public key" />
-                            <controls:BorderEditor
-                                FontSize="12"
-                                Style="{StaticResource Medium}"
-                                Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
-                        </StackLayout>
-                    </Grid>
-                </xct:TabViewItem>
-                <xct:TabViewItem Style="{StaticResource FileKey}">
-                    <Grid>
-                        <StackLayout Spacing="10" VerticalOptions="EndAndExpand">
-                            <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
-                            <Label
-                                FontSize="13"
-                                Style="{StaticResource Regular}"
-                                Text="Please specify Ultranet account private key" />
-                            <Grid
-                                ColumnDefinitions="*,44"
-                                ColumnSpacing="8"
-                                HeightRequest="44">
-                                <controls:BorderEntry
-                                    Grid.Column="0"
-                                    BorderRadius="6"
-                                    IsReadOnly="True"
-                                    Text="File.file" />
-                                <Button
-                                    Grid.Column="1"
-                                    CornerRadius="6"
-                                    Text="..." />
-                            </Grid>
-                        </StackLayout>
-                    </Grid>
-                </xct:TabViewItem>
-            </xct:TabView>-->
+            <controls:SelectPrivateKey />
+
+            <StackLayout IsVisible="True" Spacing="10" VerticalOptions="EndAndExpand">
+                <Label Style="{StaticResource DashLabel}" Text="Private key" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="Please specify Ultranet account public key" />
+                <controls:BorderEditor
+                    FontSize="12"
+                    Style="{StaticResource Medium}"
+                    Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
+            </StackLayout>
+            
+            <StackLayout IsVisible="False" Spacing="10" VerticalOptions="EndAndExpand">
+                <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
+                <Label
+                    FontSize="13"
+                    Style="{StaticResource Regular}"
+                    Text="Please specify Ultranet account private key" />
+                <Grid
+                    ColumnDefinitions="*,44"
+                    ColumnSpacing="8"
+                    HeightRequest="44">
+                    <controls:BorderEntry
+                        Grid.Column="0"
+                        BorderRadius="6"
+                        IsReadOnly="True"
+                        Text="File.file" />
+                    <Button
+                        Grid.Column="1"
+                        CornerRadius="6"
+                        Text="..." />
+                </Grid>
+            </StackLayout>
         </StackLayout>
         <Grid
             Margin="0,0,0,-30"
