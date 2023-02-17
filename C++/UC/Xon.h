@@ -82,7 +82,7 @@ namespace uc
 
 			bool										IsAncestor(CXon * ancestor);
 
-			virtual CXon *								CloneInternal(CXon * parent);
+			virtual CXon *								Clone(CXon * parent);
 
 			void										Add(CXon * p);
 			CXon *										Add(const CString & name);

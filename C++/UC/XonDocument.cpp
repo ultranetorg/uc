@@ -29,7 +29,7 @@ CXonDocument::CXonDocument(CXonDocument const & d)
 {
 	for(auto i : d.Nodes)
 	{
-		Nodes.push_back(i->CloneInternal(this));
+		Nodes.push_back(i->Clone(this));
 	}
 
 	Name = d.Name;
@@ -99,7 +99,7 @@ CXon * CXonDocument::Load(IXonReader & r, CXon * parent, CXon * tparent)
 							auto c = n->Nodes.Find([i](auto j){ return j->Name == i->Name; });
 							if(!c)
 							{
-								n->Nodes.push_back(i->CloneInternal(n));
+								n->Nodes.push_back(i->Clone(n));
 							}
 						}
 					}
@@ -233,7 +233,7 @@ void CXonDocument::Merge(CXon * dnode, CXon * cnode)
 			}
 			else // use template
 			{
-				t = t->CloneInternal(dnode);
+				t = t->Clone(dnode);
 				clone = true;
 			}
 		}
