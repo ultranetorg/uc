@@ -32,7 +32,7 @@
                     <Label
                         Style="{StaticResource DashLabel}"
                         Text="Private key" />
-                    <Border Style="{StaticResource KeyFrame}">
+                    <Border Style="{StaticResource KeyBorder}">
                         <Label
                             FontSize="12"
                             Style="{StaticResource Medium}"

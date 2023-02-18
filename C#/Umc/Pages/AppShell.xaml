@@ -10,14 +10,14 @@
     ios:Page.UseSafeArea="True"
     x:DataType="vm:ShellViewModel"
     BackgroundColor="{StaticResource Secondary}">
-
+    
     <FlyoutItem
-        Title="{Binding Transactions.Title}"
-        Route="{Static constants:ShellBaseRoutes.TRANSACTIONS}">
+        Title="{Binding Accounts.Title}"
+        Route="{Static constants:ShellBaseRoutes.ACCOUNTS}">
         <ShellContent
-            Title="{Binding Transactions.Title}"
-            Icon="{AppThemeBinding Light=Transactions.Icon,Dark=Transactions.IconDark}"
-            ContentTemplate="{DataTemplate pages:TransactionsPage}" />
+            Title="{Binding Accounts.Title}"
+            Icon="{AppThemeBinding Light=Accounts.Icon,Dark=Accounts.IconDark}"
+            ContentTemplate="{DataTemplate pages:ManageAccountsPage}" />
     </FlyoutItem>
     
     <FlyoutItem
@@ -36,15 +36,6 @@
             Title="{Binding Dashboard.Title}"
             Icon="{AppThemeBinding Light=Dashboard.Icon,Dark=Dashboard.IconDark}"
             ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </FlyoutItem>
-    
-    <FlyoutItem
-        Title="{Binding Accounts.Title}"
-        Route="{Static constants:ShellBaseRoutes.ACCOUNTS}">
-        <ShellContent
-            Title="{Binding Accounts.Title}"
-            Icon="{AppThemeBinding Light=Accounts.Icon,Dark=Accounts.IconDark}"
-            ContentTemplate="{DataTemplate pages:ManageAccountsPage}" />
     </FlyoutItem>
 
     <FlyoutItem
@@ -72,6 +63,15 @@
             Title="{Binding ProductsSearch.Title}"
             Icon="{AppThemeBinding Light=ProductsSearch.Icon,Dark=ProductsSearch.IconDark}"
             ContentTemplate="{DataTemplate pages:ProductSearchPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="{Binding Transactions.Title}"
+        Route="{Static constants:ShellBaseRoutes.TRANSACTIONS}">
+        <ShellContent
+            Title="{Binding Transactions.Title}"
+            Icon="{AppThemeBinding Light=Transactions.Icon,Dark=Transactions.IconDark}"
+            ContentTemplate="{DataTemplate pages:TransactionsPage}" />
     </FlyoutItem>
     
     <FlyoutItem

@@ -64,7 +64,7 @@
                                 <Border
                                     Padding="10,0"
                                     HeightRequest="44"
-                                    Style="{StaticResource KeyFrame}">
+                                    Style="{StaticResource KeyBorder}">
                                     <Label
                                         FontSize="12"
                                         Style="{StaticResource Medium}"

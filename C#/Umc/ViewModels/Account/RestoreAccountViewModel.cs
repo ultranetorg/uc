@@ -4,10 +4,29 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 {
 	private readonly IServicesMockData _service;
 
+	[ObservableProperty]
+	private bool _isPrivateKey;
+
+	[ObservableProperty]
+	private bool _isFilePath = true;
+
+	[ObservableProperty]
+	private string _privateKey;
+
+	[ObservableProperty]
+	private string _walletFilePath;
+
     public RestoreAccountViewModel(IServicesMockData service, ILogger<RestoreAccountViewModel> logger) : base(logger)
     {
 		_service = service;
     }
+
+	[RelayCommand]
+	private void ChangeKeySource()
+	{
+		IsPrivateKey = !IsPrivateKey;
+		IsFilePath = !IsFilePath;
+	}
 
 	[RelayCommand]
     private async Task ClosePageAsync()

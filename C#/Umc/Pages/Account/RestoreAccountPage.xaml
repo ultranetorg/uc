@@ -8,72 +8,77 @@
     x:DataType="vm:RestoreAccountViewModel"
     Title="Restore Account"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
-        <Grid Padding="{StaticResource PagePadding}">
+        <StackLayout Spacing="20" Padding="{StaticResource PagePadding}">
             <StackLayout Spacing="20">
-                <StackLayout Spacing="20">
-                    <StackLayout>
-                        <Label FontSize="18" Text="Choose private key" />
-                        <Label
-                            FontSize="13"
-                            Style="{StaticResource Regular}"
-                            Text="Choose private key for account" />
-                    </StackLayout>
-                    <controls:SelectPrivateKey />
+                <StackLayout>
+                    <Label FontSize="18" Text="Choose private key" />
+                    <Label
+                        FontSize="13"
+                        Style="{StaticResource Regular}"
+                        Text="Choose private key for account" />
+                </StackLayout>
+                
+                <controls:SelectPrivateKey
+                    IsPrivateKey="{Binding IsPrivateKey}"
+                    IsWalletPath="{Binding IsFilePath}"
+                    SelectionChangedCommand="{Binding ChangeKeySourceCommand}" />
                     
-                    <StackLayout IsVisible="True" Spacing="10" VerticalOptions="EndAndExpand">
-                        <Label Style="{StaticResource DashLabel}" Text="Private key" />
+                <StackLayout
+                    IsVisible="{Binding IsPrivateKey}"
+                    Spacing="10"
+                    VerticalOptions="End">
+                    <Label Style="{StaticResource DashLabel}" Text="Private key" />
+                    <Label
+                        FontSize="13"
+                        Style="{StaticResource Regular}"
+                        Text="Please specify Ultranet account public key" />
+                    <controls:FormEntryControl HeightRequest="44" Value="{Binding PrivateKey}" />
+                </StackLayout>
+                    
+                <StackLayout
+                    IsVisible="{Binding IsFilePath}"
+                    Spacing="10"
+                    VerticalOptions="End">
+                    <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
+                    <Label
+                        FontSize="13"
+                        Style="{StaticResource Regular}"
+                        Text="Please specify Ultranet account private key" />
+                    <Grid
+                        ColumnDefinitions="*,44"
+                        ColumnSpacing="8"
+                        HeightRequest="44">
+                        <controls:FormEntryControl
+                            Grid.Column="0"
+                            IsReadOnly="True"
+                            Value="{Binding WalletFilePath}" />
+                        <Button
+                            Grid.Column="1"
+                            Margin="0,16,0,0"
+                            CornerRadius="12"
+                            Text="..." />
+                    </Grid>
+                </StackLayout>
+                <StackLayout Spacing="10">
+                    <Label Style="{StaticResource DashLabel}" Text="Public key" />
+                    <Label
+                        FontSize="13"
+                        Style="{StaticResource Regular}"
+                        Text="Please specify Ultranet account public key" />
+                    <Border Style="{StaticResource KeyBorder}">
                         <Label
-                            FontSize="13"
-                            Style="{StaticResource Regular}"
-                            Text="Please specify Ultranet account public key" />
-                        <controls:BorderEditor
                             FontSize="12"
                             Style="{StaticResource Medium}"
-                            Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
-                    </StackLayout>
-                    
-                    <StackLayout IsVisible="False" Spacing="10" VerticalOptions="EndAndExpand">
-                        <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
-                        <Label
-                            FontSize="13"
-                            Style="{StaticResource Regular}"
-                            Text="Please specify Ultranet account private key" />
-                        <Grid
-                            ColumnDefinitions="*,44"
-                            ColumnSpacing="8"
-                            HeightRequest="44">
-                            <controls:BorderEntry
-                                Grid.Column="0"
-                                BorderRadius="6"
-                                IsReadOnly="True"
-                                Text="File.file" />
-                            <Button
-                                Grid.Column="1"
-                                CornerRadius="6"
-                                Text="..." />
-                        </Grid>
-                    </StackLayout>
-                    <StackLayout Spacing="10">
-                        <Label Style="{StaticResource DashLabel}" Text="Public key" />
-                        <Label
-                            FontSize="13"
-                            Style="{StaticResource Regular}"
-                            Text="Please specify Ultranet account public key" />
-                        <Border Style="{StaticResource KeyFrame}">
-                            <Label
-                                FontSize="12"
-                                Style="{StaticResource Medium}"
-                                Text="{Binding Account.Address}" />
-                        </Border>
-                    </StackLayout>
+                            Text="{Binding Account.Address}" />
+                    </Border>
                 </StackLayout>
-                <Button
-                    Command="{Binding ImportCommand}"
-                    Text="Import"
-                    VerticalOptions="EndAndExpand" />
             </StackLayout>
-
-        </Grid>
+            <Button
+                Command="{Binding ImportCommand}"
+                Text="Import"
+                VerticalOptions="EndAndExpand" />
+        </StackLayout>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

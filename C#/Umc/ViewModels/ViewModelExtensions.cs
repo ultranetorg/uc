@@ -101,6 +101,7 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<AuthorRenewalViewModel>();
 		builder.Services.AddTransient<MakeBid1ViewModel>();
 		builder.Services.AddTransient<MakeBid2ViewModel>();
+		builder.Services.AddTransient<ETHTransfer1ViewModel>();
 		builder.Services.AddTransient<ETHTransfer2ViewModel>();
 		builder.Services.AddTransient<ETHTransfer3ViewModel>();
 
