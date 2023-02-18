@@ -112,7 +112,5 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		Authors.AddRange(_service.Authors);
 		Products.AddRange(_service.Products);
 		ColorsCollection.AddRange(_service.AccountColors);
-		
-		// TODO: add form object, the account is coming from api
 	}
 }
