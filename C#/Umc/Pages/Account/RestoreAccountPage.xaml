@@ -33,7 +33,7 @@
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="Please specify Ultranet account public key" />
+                        Text="Please specify Ultranet account private key" />
                     <controls:FormEntryControl HeightRequest="44" Value="{Binding PrivateKey}" />
                 </StackLayout>
                     

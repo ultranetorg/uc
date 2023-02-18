@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
-    xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ETHTransfer1ViewModel">
     <StackLayout Padding="{StaticResource PagePadding}" Spacing="20">
@@ -27,22 +27,19 @@
             <StackLayout
                 IsVisible="{Binding IsPrivateKey}"
                 Spacing="10"
-                VerticalOptions="EndAndExpand">
+                VerticalOptions="End">
                 <Label Style="{StaticResource DashLabel}" Text="Private key" />
                 <Label
                     FontSize="13"
                     Style="{StaticResource Regular}"
-                    Text="Please specify Ultranet account public key" />
-                <controls:BorderEditor
-                    FontSize="12"
-                    Style="{StaticResource Medium}"
-                    Text="8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f" />
+                    Text="Please specify Ultranet account private key" />
+                <controls:FormEntryControl HeightRequest="44" Value="{Binding PrivateKey}" />
             </StackLayout>
-            
+                    
             <StackLayout
-                IsVisible="{Binding IsPrivateKey}"
+                IsVisible="{Binding IsFilePath}"
                 Spacing="10"
-                VerticalOptions="EndAndExpand">
+                VerticalOptions="End">
                 <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
                 <Label
                     FontSize="13"
@@ -52,32 +49,31 @@
                     ColumnDefinitions="*,44"
                     ColumnSpacing="8"
                     HeightRequest="44">
-                    <controls:BorderEntry
+                    <controls:FormEntryControl
                         Grid.Column="0"
-                        BorderRadius="6"
                         IsReadOnly="True"
-                        Text="File.file" />
+                        Value="{Binding WalletFilePath}" />
                     <Button
                         Grid.Column="1"
-                        CornerRadius="6"
+                        Margin="0,16,0,0"
+                        CornerRadius="12"
                         Text="..." />
                 </Grid>
             </StackLayout>
         </StackLayout>
+        
         <Grid
-            Margin="0,0,0,-30"
-            ColumnDefinitions="*,30,*"
+            ColumnDefinitions="*,36,*"
             VerticalOptions="EndAndExpand">
             <StackLayout Grid.Column="0" Spacing="10">
                 <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
                 <AbsoluteLayout>
-                    <controls:BorderEntry
+                    <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
-                        FontSize="24"
-                        RightPadding="35">
-                        <controls:BorderEntry.Behaviors>
-                            <xct:CharactersValidationBehavior
+                        Margin="0,-8,0,0">
+                        <controls:FormEntryControl.Behaviors>
+                            <toolkit:CharactersValidationBehavior
                                 x:Name="cb1"
                                 CharacterType="Letter"
                                 Flags="ValidateOnValueChanged"
@@ -85,10 +81,10 @@
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1"
                                 ValidStyle="{StaticResource Valid}" />
-                        </controls:BorderEntry.Behaviors>
-                    </controls:BorderEntry>
+                        </controls:FormEntryControl.Behaviors>
+                    </controls:FormEntryControl>
                     <Label
-                        Margin="10"
+                        Margin="8"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                         AbsoluteLayout.LayoutFlags="PositionProportional"
                         Style="{StaticResource UNTLabel}"
@@ -105,17 +101,20 @@
             <Image
                 Grid.Column="1"
                 Style="{StaticResource RightArrowIcon}"
-                VerticalOptions="Center" />
+                Margin="0,20,0,0">
+                <Image.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+                </Image.Behaviors>
+            </Image>
             <StackLayout Grid.Column="2" Spacing="10">
-                <Label FontSize="13" Text="350 ETH available" />
+                <Label Style="{StaticResource DashLabelValue}" Text="350 ETH available" />
                 <AbsoluteLayout>
-                    <controls:BorderEntry
+                    <controls:FormEntryControl
+                        Margin="0,-8,0,0"
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
-                        AbsoluteLayout.LayoutFlags="All"
-                        FontSize="24"
-                        RightPadding="35">
-                        <controls:BorderEntry.Behaviors>
-                            <xct:CharactersValidationBehavior
+                        AbsoluteLayout.LayoutFlags="All">
+                        <controls:FormEntryControl.Behaviors>
+                            <toolkit:CharactersValidationBehavior
                                 x:Name="cb2"
                                 CharacterType="Letter"
                                 Flags="ValidateOnValueChanged"
@@ -123,11 +122,10 @@
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1"
                                 ValidStyle="{StaticResource Valid}" />
-                        </controls:BorderEntry.Behaviors>
-
-                    </controls:BorderEntry>
+                        </controls:FormEntryControl.Behaviors>
+                    </controls:FormEntryControl>
                     <Label
-                        Margin="10"
+                        Margin="8"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                         AbsoluteLayout.LayoutFlags="PositionProportional"
                         Style="{StaticResource UNTLabel}"
