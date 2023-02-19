@@ -80,7 +80,8 @@ public static class ViewModelExtensions
 		#endregion Pages
 
 		#region Popups
-
+		
+		builder.Services.AddTransient<AccountColorViewModel>();
 		builder.Services.AddTransient<AccountOptionsViewModel>();
 		builder.Services.AddTransient<DeleteAccountPopupViewModel>();
 		builder.Services.AddTransient<SourceAccountViewModel>();

@@ -3,6 +3,7 @@
 public static class SizeConstants
 {
     public readonly static Size Small;
+    public readonly static Size PreMedium;
     public readonly static Size Medium;
 	public readonly static Size ExtraMedium;
 	public readonly static Size Large;
@@ -22,6 +23,7 @@ public static class SizeConstants
 
 		// examples for relative to screen sizes
 		Small = new Size(displayWidth / displayDensity, 0.15 * (displayHeight / displayDensity));
+		PreMedium = new Size(displayWidth / displayDensity, 0.30 * (displayHeight / displayDensity));
 		Medium = new Size(displayWidth / displayDensity, 0.45 * (displayHeight / displayDensity));
 		ExtraMedium = new Size(displayWidth / displayDensity, 0.60 * (displayHeight / displayDensity));
 		Large = new Size(displayWidth / displayDensity, 0.8 * (displayHeight / displayDensity));

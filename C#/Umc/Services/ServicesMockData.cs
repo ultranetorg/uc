@@ -248,6 +248,11 @@ public class ServicesMockData : IServicesMockData
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
+			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 
 			Emissions.Add(new Emission { ETH = "100", Number = 1, UNT = "100" });
 			Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });
