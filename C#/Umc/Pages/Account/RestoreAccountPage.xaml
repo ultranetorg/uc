@@ -54,7 +54,7 @@
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
                         <StackLayout Spacing="20">
-                            <StackLayout Spacing="20">
+                            <StackLayout Spacing="16">
                                 <StackLayout>
                                     <Label FontSize="18" Text="Choose private key" />
                                     <Label
@@ -119,45 +119,14 @@
                                 </StackLayout>
                             </StackLayout>
                         </StackLayout>
-                        <StackLayout>
-                            <Grid
-                                ColumnDefinitions="*,Auto"
-                                ColumnSpacing="20"
-                                RowDefinitions="32,40">
+                        <StackLayout Spacing="16">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Choose account name and color" />
                                 <Label
-                                    Style="{StaticResource DashLabel}"
-                                    Text="Account color"
-                                    VerticalOptions="Center"
-                                    FontAttributes="Bold" />
-                                <ScrollView
-                                    Grid.Row="1"
-                                    HorizontalScrollBarVisibility="Never"
-                                    Orientation="Horizontal">
-                                    <StackLayout
-                                        Padding="4"
-                                        Orientation="Horizontal"
-                                        Spacing="12"
-                                        BindableLayout.ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=ColorsCollection}"
-                                        BindableLayout.ItemTemplate="{StaticResource ColorsCollection}" />
-                                </ScrollView>
-                                <Grid
-                                    Grid.Column="1"
-                                    ColumnDefinitions="64,24"
-                                    ColumnSpacing="0">
-                                    <Label
-                                        Grid.Column="0"
-                                        Text="Random"
-                                        TextColor="{StaticResource PrimaryDark}"
-                                        VerticalOptions="Center"
-                                        FontAttributes="Bold" />
-                                    <ImageButton
-                                        Grid.Column="1"
-                                        Style="{StaticResource Random}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=SetAccountColorCommand}"
-                                        VerticalOptions="Center" />
-                                </Grid>
-                            </Grid>
-                
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Choose desired Account name and color" />
+                            </StackLayout>
                             <controls:FormEntryControl
                                 Placeholder="Account Name"
                                 Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=AccountName}"
@@ -165,6 +134,31 @@
                                 Margin="0,8,0,0"
                                 MaxLength="30"
                                 MinLength="1" />
+
+                            <Label
+                                FontSize="13"
+                                Style="{StaticResource Regular}"
+                                Text="Choose desired Account name and color" />
+                            <Grid ColumnDefinitions="*,3*">
+                                <Border
+                                    Grid.Column="0"
+                                    Padding="0"
+                                    Background="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=Background}"
+                                    StrokeShape="RoundRectangle 8"
+                                    HeightRequest="60"
+                                    VerticalOptions="Center"
+                                    WidthRequest="60">
+                                    <Label
+                                        HorizontalOptions="Center"
+                                        TextColor="{StaticResource PrimaryLight}"
+                                        Text="0x123"
+                                        VerticalOptions="Center" />
+                                </Border>
+                                 <Button
+                                    Grid.Column="1"
+                                    Text="Select Account Color"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=OpenAccountColorPopupCommand}" />
+                            </Grid>
                         </StackLayout>
                     </x:Array>
                 </CarouselView.ItemsSource>

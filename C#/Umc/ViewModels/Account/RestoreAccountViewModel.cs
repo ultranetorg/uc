@@ -4,8 +4,6 @@ namespace UC.Umc.ViewModels;
 
 public partial class RestoreAccountViewModel : BaseAccountViewModel
 {
-	private readonly IServicesMockData _service;
-
 	[ObservableProperty]
 	private bool _isPrivateKey;
 
@@ -18,9 +16,6 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 	[ObservableProperty]
 	private string _walletFilePath;
 
-	[ObservableProperty]
-    public GradientBrush _background;
-
     [ObservableProperty]
     [NotifyDataErrorInfo]
     [Required(ErrorMessage = "Required")]
@@ -29,9 +24,11 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 
     public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
 
-    public RestoreAccountViewModel(IServicesMockData service, ILogger<RestoreAccountViewModel> logger) : base(logger)
+	[ObservableProperty]
+    public GradientBrush _background;
+
+    public RestoreAccountViewModel(ILogger<RestoreAccountViewModel> logger) : base(logger)
     {
-		_service = service;
     }
 
 	[RelayCommand]
@@ -48,37 +45,50 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 	}
 
 	[RelayCommand]
-    private void SetAccountColor(AccountColor accountColor) =>
-		Background = accountColor != null 
-			? ColorHelper.CreateGradientColor(accountColor.Color)
-			: ColorHelper.CreateRandomGradientColor();
+    private async Task OpenAccountColorPopupAsync()
+	{
+		try
+		{
+			var popup = new AccountColorPopup();
+			await ShowPopup(popup);
+			
+			if (popup.Vm?.Background != null)
+			{
+				Background = popup.Vm.Background;
+			}
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenAccountColorPopupAsync Error: {Message}", ex.Message);
+		}
+	}
 
 	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
-		if (Position == 0)
+		try
 		{
-			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
-			Position = 1;
-			Position = 0;
-			Position = 1;
+			if (Position == 0)
+			{
+				// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
+				Position = 1;
+				Position = 0;
+				Position = 1;
+			}
+			else if (Position == 1)
+			{
+				Position = 2;
+			}
+			else
+			{
+				await Navigation.PopAsync();
+				await ToastHelper.ShowMessageAsync("Successfully created!");
+			}
 		}
-		else if (Position == 1)
+		catch (Exception ex)
 		{
-			Position = 2;
+			_logger.LogError("NextWorkaroundAsync Error: {Message}", ex.Message);
 		}
-		else
-		{
-			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully created!");
-		}
-	}
-
-	internal async Task InitializeAsync()
-	{
-		ColorsCollection.Clear();
-		ColorsCollection.AddRange(_service.AccountColors);
-
-		await Task.Delay(1);
+		
 	}
 }
