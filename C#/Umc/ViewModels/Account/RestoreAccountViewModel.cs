@@ -5,16 +5,22 @@ namespace UC.Umc.ViewModels;
 public partial class RestoreAccountViewModel : BaseAccountViewModel
 {
 	[ObservableProperty]
-	private bool _isPrivateKey;
+	private bool _isPrivateKey = true;
 
 	[ObservableProperty]
-	private bool _isFilePath = true;
+	private bool _isFilePath;
+
+	[ObservableProperty]
+	private bool _showFilePassword;
 
 	[ObservableProperty]
 	private string _privateKey;
 
 	[ObservableProperty]
 	private string _walletFilePath;
+
+	[ObservableProperty]
+	private string _walletFilePassword;
 
     [ObservableProperty]
     [NotifyDataErrorInfo]
@@ -64,6 +70,20 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 	}
 
 	[RelayCommand]
+    private async Task OpenFilePickerAsync()
+	{
+		try
+		{
+			WalletFilePath = await CommonHelper.GetPathToWalletAsync();
+			ShowFilePassword = !string.IsNullOrEmpty(WalletFilePath);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenFilePickerAsync Error: {Message}", ex.Message);
+		}
+	}
+
+	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
 		try
@@ -75,14 +95,10 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 				Position = 0;
 				Position = 1;
 			}
-			else if (Position == 1)
-			{
-				Position = 2;
-			}
 			else
 			{
 				await Navigation.PopAsync();
-				await ToastHelper.ShowMessageAsync("Successfully created!");
+				await ToastHelper.ShowMessageAsync("Successfully restored!");
 			}
 		}
 		catch (Exception ex)

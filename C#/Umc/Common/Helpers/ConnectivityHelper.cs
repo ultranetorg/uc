@@ -1,5 +1,6 @@
 ﻿namespace UC.Umc.Helpers;
 
+// to be replaced
 public static class ConnectivityHelper
 {
     public static async Task<bool> Check()

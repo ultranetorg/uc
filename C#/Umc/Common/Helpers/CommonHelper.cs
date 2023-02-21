@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.Maui.Storage;
+using System.Security.Cryptography;
 
 namespace UC.Umc.Helpers;
 
@@ -36,6 +37,30 @@ public static class CommonHelper
         }
         return result;
     }
+
+	public static async Task<string> GetPathToWalletAsync()
+	{
+		try
+		{
+			var result = await FilePicker.Default.PickAsync(new()
+			{
+				PickerTitle = "Please select a wallet file"
+			});
+			if (result == null || result.FileName.EndsWith("eth", StringComparison.OrdinalIgnoreCase))
+			{
+				throw new FileNotFoundException();
+			}
+
+			return result?.FullPath ?? string.Empty;
+		}
+		catch (Exception ex)
+		{
+            await ToastHelper.ShowMessageAsync("Something went error");
+			ThrowHelper.ThrowInvalidOperationException("GetPathToWalletAsync: Loading error", ex);
+		}
+
+		return null;
+	}
 
     /// <summary>
     /// Awaits <c>Task</c>. Exceptions are handled by <c>errorAction</c>
