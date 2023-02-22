@@ -46,7 +46,8 @@ public static class CommonHelper
 			{
 				PickerTitle = "Please select a wallet file"
 			});
-			if (result == null || result.FileName.EndsWith("eth", StringComparison.OrdinalIgnoreCase))
+
+			if (result == null)
 			{
 				throw new FileNotFoundException();
 			}

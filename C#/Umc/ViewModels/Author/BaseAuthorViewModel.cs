@@ -133,7 +133,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 		else
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Success");
+			await ToastHelper.ShowMessageAsync("Success!");
 		}
 	}
 

@@ -8,7 +8,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ETHTransfer1ViewModel">
     <StackLayout Padding="{StaticResource PagePadding}" Spacing="20">
-        <StackLayout Spacing="20">
+        <StackLayout Spacing="16">
             <StackLayout>
                 <Label FontSize="18" Text="Choose your Ethereum private key and transfer amount" />
                 <Label
@@ -26,7 +26,7 @@
 
             <StackLayout
                 IsVisible="{Binding IsPrivateKey}"
-                Spacing="10"
+                Spacing="8"
                 VerticalOptions="End">
                 <Label Style="{StaticResource DashLabel}" Text="Private key" />
                 <Label
@@ -38,7 +38,7 @@
                     
             <StackLayout
                 IsVisible="{Binding IsFilePath}"
-                Spacing="10"
+                Spacing="8"
                 VerticalOptions="End">
                 <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
                 <Label
@@ -57,20 +57,27 @@
                         Grid.Column="1"
                         Margin="0,16,0,0"
                         CornerRadius="12"
+                        Command="{Binding OpenFilePickerCommand}"
                         Text="..." />
                 </Grid>
+                <controls:FormEntryControl
+                    HeightRequest="44"
+                    Placeholder="Please specify a file password"
+                    IsVisible="{Binding ShowFilePassword}"
+                    Value="{Binding WalletFilePassword}" />
             </StackLayout>
         </StackLayout>
         
         <Grid
             ColumnDefinitions="*,36,*"
             VerticalOptions="EndAndExpand">
-            <StackLayout Grid.Column="0" Spacing="10">
+            <StackLayout Grid.Column="0" Spacing="8">
                 <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
                 <AbsoluteLayout>
                     <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
+                        Value="{Binding EthAmount}"
                         Margin="0,-8,0,0">
                         <controls:FormEntryControl.Behaviors>
                             <toolkit:CharactersValidationBehavior
@@ -84,7 +91,7 @@
                         </controls:FormEntryControl.Behaviors>
                     </controls:FormEntryControl>
                     <Label
-                        Margin="8"
+                        Margin="8,12,12,8"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                         AbsoluteLayout.LayoutFlags="PositionProportional"
                         Style="{StaticResource UNTLabel}"
@@ -106,12 +113,14 @@
                     <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
                 </Image.Behaviors>
             </Image>
-            <StackLayout Grid.Column="2" Spacing="10">
+            <StackLayout Grid.Column="2" Spacing="8">
                 <Label Style="{StaticResource DashLabelValue}" Text="350 ETH available" />
                 <AbsoluteLayout>
                     <controls:FormEntryControl
                         Margin="0,-8,0,0"
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        IsReadOnly="True"
+                        Value="{Binding UsdAmount}"
                         AbsoluteLayout.LayoutFlags="All">
                         <controls:FormEntryControl.Behaviors>
                             <toolkit:CharactersValidationBehavior
@@ -125,7 +134,7 @@
                         </controls:FormEntryControl.Behaviors>
                     </controls:FormEntryControl>
                     <Label
-                        Margin="8"
+                        Margin="8,12,12,8"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                         AbsoluteLayout.LayoutFlags="PositionProportional"
                         Style="{StaticResource UNTLabel}"
