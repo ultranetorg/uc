@@ -1,39 +1,41 @@
-﻿namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels.Views;
 
-public partial class CreateAccountPageViewModel : BaseAccountViewModel
+public partial class CreateAccountViewModel : BaseAccountViewModel
 {
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
     private AccountColor _selectedAccountColor;
 
-    public CreateAccountPageViewModel(IServicesMockData service, ILogger<CreateAccountPageViewModel> logger) : base(logger)
+    public CreateAccountViewModel(IServicesMockData service, ILogger<CreateAccountViewModel> logger) : base(logger)
     {
 		_service = service;
-    }
-
-	internal async Task InitializeAsync()
-	{
-		ColorsCollection.Clear();
-		ColorsCollection.AddRange(_service.AccountColors);
-
-		await Task.Delay(1);
+		LoadData();
 	}
 
 	[RelayCommand]
-	private async Task NextWorkaroundAsync()
+	private void ColorTapped(AccountColor accountColor)
 	{
-		if (Position == 0)
+		foreach (var item in ColorsCollection)
 		{
-			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
-			Position = 1;
-			Position = 0;
-			Position = 1;
+			item.BorderColor = Colors.Transparent;
 		}
-		else
-		{
-			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully created!");
-		}
+		accountColor.BorderColor = Shell.Current.BackgroundColor;
+		Account.Color = ColorHelper.CreateGradientColor(accountColor.Color);
+		SelectedAccountColor = accountColor;
+	}
+
+	[RelayCommand]
+    private void Randomize()
+    {
+        ColorTapped(DefaultDataMock.CreateRandomColor());
+    }
+
+	private void LoadData()
+	{
+		Account = DefaultDataMock.CreateAccount("Test");
+		ColorsCollection.Clear();
+		ColorsCollection.AddRange(_service.AccountColors);
+        SelectedAccountColor = ColorsCollection.First();
 	}
 }

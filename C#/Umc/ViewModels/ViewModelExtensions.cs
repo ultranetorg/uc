@@ -28,6 +28,8 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<PrivateKeyViewModel>();
 
 		builder.Services.AddTransient<CreateAccountPageViewModel>();
+		
+		builder.Services.AddTransient<CreateAccountViewModel>();
 
 		builder.Services.AddTransient<RestoreAccountViewModel>();
 
@@ -92,19 +94,6 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();
 		builder.Services.AddTransient<ProductOptionsViewModel>();
-
-		#endregion
-
-		#region Views
-		
-		builder.Services.AddTransient<CreateAccountViewModel>();
-		builder.Services.AddTransient<AuthorRegistrationViewModel>();
-		builder.Services.AddTransient<AuthorRenewalViewModel>();
-		builder.Services.AddTransient<MakeBid1ViewModel>();
-		builder.Services.AddTransient<MakeBid2ViewModel>();
-		builder.Services.AddTransient<ETHTransfer1ViewModel>();
-		builder.Services.AddTransient<ETHTransfer2ViewModel>();
-		builder.Services.AddTransient<ETHTransfer3ViewModel>();
 
 		#endregion
 

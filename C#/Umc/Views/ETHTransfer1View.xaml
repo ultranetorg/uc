@@ -6,7 +6,7 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    x:DataType="vm:ETHTransfer1ViewModel">
+    x:Name="view">
     <StackLayout Padding="{StaticResource PagePadding}" Spacing="20">
         <StackLayout Spacing="16">
             <StackLayout>
@@ -20,12 +20,12 @@
             <Label Style="{StaticResource DashLabel}" Text="Source Ethereum Account" />
                 
             <controls:SelectPrivateKey
-                IsPrivateKey="{Binding IsPrivateKey}"
-                IsWalletPath="{Binding IsFilePath}"
-                SelectionChangedCommand="{Binding ChangeKeySourceCommand}" />
+                IsPrivateKey="{Binding IsPrivateKey, Source={x:Reference view}}"
+                IsWalletPath="{Binding IsFilePath, Source={x:Reference view}}"
+                SelectionChangedCommand="{Binding ChangeKeySourceCommand, Source={x:Reference view}}" />
 
             <StackLayout
-                IsVisible="{Binding IsPrivateKey}"
+                IsVisible="{Binding IsPrivateKey, Source={x:Reference view}}"
                 Spacing="8"
                 VerticalOptions="End">
                 <Label Style="{StaticResource DashLabel}" Text="Private key" />
@@ -33,11 +33,11 @@
                     FontSize="13"
                     Style="{StaticResource Regular}"
                     Text="Please specify Ultranet account private key" />
-                <controls:FormEntryControl HeightRequest="44" Value="{Binding PrivateKey}" />
+                <controls:FormEntryControl HeightRequest="44" Value="{Binding PrivateKey, Source={x:Reference view}}" />
             </StackLayout>
                     
             <StackLayout
-                IsVisible="{Binding IsFilePath}"
+                IsVisible="{Binding IsFilePath, Source={x:Reference view}}"
                 Spacing="8"
                 VerticalOptions="End">
                 <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
@@ -52,19 +52,19 @@
                     <controls:FormEntryControl
                         Grid.Column="0"
                         IsReadOnly="True"
-                        Value="{Binding WalletFilePath}" />
+                        Value="{Binding WalletFilePath, Source={x:Reference view}}" />
                     <Button
                         Grid.Column="1"
                         Margin="0,16,0,0"
                         CornerRadius="12"
-                        Command="{Binding OpenFilePickerCommand}"
+                        Command="{Binding OpenFilePickerCommand, Source={x:Reference view}}"
                         Text="..." />
                 </Grid>
                 <controls:FormEntryControl
                     HeightRequest="44"
                     Placeholder="Please specify a file password"
-                    IsVisible="{Binding ShowFilePassword}"
-                    Value="{Binding WalletFilePassword}" />
+                    IsVisible="{Binding ShowFilePassword, Source={x:Reference view}}"
+                    Value="{Binding WalletFilePassword, Source={x:Reference view}}" />
             </StackLayout>
         </StackLayout>
         
@@ -77,7 +77,7 @@
                     <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
-                        Value="{Binding EthAmount}"
+                        Value="{Binding EthAmount, Source={x:Reference view}}"
                         Margin="0,-8,0,0">
                         <controls:FormEntryControl.Behaviors>
                             <toolkit:CharactersValidationBehavior
@@ -120,7 +120,7 @@
                         Margin="0,-8,0,0"
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         IsReadOnly="True"
-                        Value="{Binding UsdAmount}"
+                        Value="{Binding UntAmount, Source={x:Reference view}}"
                         AbsoluteLayout.LayoutFlags="All">
                         <controls:FormEntryControl.Behaviors>
                             <toolkit:CharactersValidationBehavior

@@ -4,7 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
-    xmlns:views="clr-namespace:UC.Umc.Views">
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:Name="view">
     <StackLayout Padding="5" Spacing="25">
         <StackLayout>
             <Label FontSize="18" Text="Confirm Transfer" />
@@ -28,12 +30,14 @@
         </Grid>
         <StackLayout>
             <Label Style="{StaticResource DashLabel}" Text="To destination Ultranet Account" />
-            <views:AccountView BindingContext="{Binding Wallet}"/>
+            <views:AccountView
+                Account="{Binding Account, Source={x:Reference view}}"
+                BorderStyle="{StaticResource AccountBorder}" />
         </StackLayout>
         <StackLayout Spacing="10">
             <controls:LabelPair Text1="UNT amount" Text2="22355 UNT" />
             <controls:LabelPair Text1="ETH comission" Text2="1 ETH" />
-            <controls:LabelPair Text1="ETH comission" Text2="12 UNT" />
+            <controls:LabelPair Text1="UNT comission" Text2="12 UNT" />
         </StackLayout>
     </StackLayout>
 </ContentView>

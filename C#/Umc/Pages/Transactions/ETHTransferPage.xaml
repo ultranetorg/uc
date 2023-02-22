@@ -5,6 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:ETHTransferViewModel"
     Title="ETH-UNT Transfer"
     x:Name="page">
     <!--<controls:CustomPage.RightContent>
@@ -33,9 +35,21 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <views:ETHTransfer1View />
-                        <views:ETHTransfer2View />
-                        <views:ETHTransfer3View />
+                        <views:ETHTransfer1View
+                            IsPrivateKey="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=IsPrivateKey}"
+                            IsFilePath="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=IsFilePath}"
+                            ShowFilePassword="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=ShowFilePassword}"
+                            PrivateKey="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=PrivateKey}"
+                            WalletFilePath="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=WalletFilePath}"
+                            WalletFilePassword="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=WalletFilePassword}"
+                            EthAmount="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=EthAmount}"
+                            UntAmount="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=UntAmount}"
+                            ChangeKeySourceCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=ChangeKeySourceCommand}"
+                            OpenFilePickerCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=OpenFilePickerCommand}" />
+                        <views:ETHTransfer2View
+                            Account="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=Account}"
+                            SelectAccountCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=ShowAccountsPopupCommand}"/>
+                        <views:ETHTransfer3View Account="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=Account}" />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
@@ -58,8 +72,8 @@
                     Style="{StaticResource PrevButton}" />
                 <Button
                     Grid.Column="1"
-                    Command="{Binding NextCommand}"
-                    Style="{DynamicResource NextButton}" />
+                    Command="{Binding NextWorkaroundCommand}"
+                    Style="{StaticResource NextButton}" />
             </Grid>
             <StackLayout Grid.Row="2" IsVisible="False">
                 <StackLayout.Triggers>
@@ -71,7 +85,7 @@
                     </DataTrigger>
                 </StackLayout.Triggers>
                 <Button Command="{Binding ConfirmCommand}" Style="{StaticResource ConfirmButton}" />
-                <Button Style="{DynamicResource LabelButton}" Text="Cancel" />
+                <Button Style="{StaticResource LabelButton}" Text="Cancel" />
             </StackLayout>
         </Grid>
     </controls:CustomPage.MainContent>
