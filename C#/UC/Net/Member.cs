@@ -36,8 +36,8 @@ namespace UC.Net
 
 	public class MemberDci : RdcInterface
 	{
-		public Account		Generator { get; protected set; }
-		public RdcInterface			Dci { get; protected set; }
+		public Account			Generator { get; protected set; }
+		public RdcInterface		Dci { get; protected set; }
 
 		public MemberDci(Account generator, RdcInterface dci)
 		{

@@ -220,7 +220,7 @@ namespace UC.Net
 														continue;
 													}
 															
-													Core.Filebase.DetermineDelta(his.Releases, Manifest, out Distributive d, out List<ReleaseAddress> deps);
+													Core.Filebase.DetermineDelta(his.Releases, Manifest, out Distributive d, out List<Dependency> deps);
 
 													Distributive = d;
 
@@ -232,9 +232,9 @@ namespace UC.Net
 													{
 														foreach(var i in deps)
 														{
-															if(!core.Downloads.Any(j => j.Release == i))
+															if(!core.Downloads.Any(j => j.Release == i.Release))
 															{
-																var dd = core.DownloadRelease(i, workflow);
+																var dd = core.DownloadRelease(i.Release, workflow);
 																
 																if(dd != null)
 																{

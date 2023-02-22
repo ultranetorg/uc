@@ -778,6 +778,18 @@ namespace UC.Net
 	
 					lock(Lock)
 					{
+						if(!h.Versions.Any(i => Versions.Contains(i)))
+						{
+							client.Close();
+							return;
+						}
+
+						if(h.Zone != Settings.Zone.Name)
+						{
+							client.Close();
+							return;
+						}
+
 						if(h.Nuid == Nuid)
 						{
 							//Workflow.Log?.Report(this, "Establishing failed", "It's me");
@@ -868,6 +880,18 @@ namespace UC.Net
 				
 					lock(Lock)
 					{
+						if(!h.Versions.Any(i => Versions.Contains(i)))
+						{
+							client.Close();
+							return;
+						}
+
+						if(h.Zone != Settings.Zone.Name)
+						{
+							client.Close();
+							return;
+						}
+
 						if(h.Nuid == Nuid)
 						{
 							//Workflow.Log?.Report(this, "Establishing failed", "It's me");
