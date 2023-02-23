@@ -14,26 +14,32 @@ namespace UC.Net
 		public override string		Key => Name;
 		public override byte[]		ClusterKey => Encoding.UTF8.GetBytes(Name).Take(ClusterKeyLength).ToArray();
 
-		public string				Name;
-		public string				Title;
-		public Account				Owner;
-		public byte					Years;
-		public ChainTime			RegistrationTime;
-		public ChainTime			FirstBidTime;
-		public Account				LastWinner;
-		public Coin					LastBid;
-		public ChainTime			LastBidTime;
+		public string				Name { get; set; }
+		public string				Title { get; set; }
+		public Account				Owner { get; set; }
+		public byte					Years { get; set; }
+		public ChainTime			RegistrationTime { get; set; } = ChainTime.Empty;
+		public ChainTime			FirstBidTime { get; set; } = ChainTime.Empty;
+		public Account				LastWinner { get; set; }
+		public Coin					LastBid { get; set; }
+		public ChainTime			LastBidTime { get; set; }
 
 		Database					Chain;
 
-		public const int			LengthMaxForAuction = 4;
+		public const int			ExclusiveLengthMax = 4;
+		public const int			NameLengthMin = 2;
+
+		public AuthorEntry()
+		{
+		}
 
 		public AuthorEntry(Database chain)
 		{
 			Chain = chain;
 		}
 
-		public static bool IsExclusive(string name) => name.Length <= LengthMaxForAuction; 
+		public static bool IsValid(string name) => name.Length >= NameLengthMin; 
+		public static bool IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
 
 		public AuthorEntry Clone()
 		{
@@ -59,7 +65,7 @@ namespace UC.Net
 			{
 				w.Write(FirstBidTime);
 
-				if(FirstBidTime != ChainTime.Zero)
+				if(FirstBidTime != ChainTime.Empty)
 				{
 					w.Write(LastWinner);
 					w.Write(LastBidTime);
@@ -69,7 +75,7 @@ namespace UC.Net
 
 			w.Write(RegistrationTime);
 
-			if(RegistrationTime != ChainTime.Zero)
+			if(RegistrationTime != ChainTime.Empty)
 			{
 				w.Write(Owner);
 				w.WriteUtf8(Title);
@@ -85,7 +91,7 @@ namespace UC.Net
 			{
 				FirstBidTime = r.ReadTime();
 
-				if(FirstBidTime != ChainTime.Zero)
+				if(FirstBidTime != ChainTime.Empty)
 				{
 					LastWinner	 = r.ReadAccount();
 					LastBidTime	 = r.ReadTime();
@@ -95,7 +101,7 @@ namespace UC.Net
 
 			RegistrationTime = r.ReadTime();
 
-			if(RegistrationTime != ChainTime.Zero)
+			if(RegistrationTime != ChainTime.Empty)
 			{
 				Owner	= r.ReadAccount();
 				Title	= r.ReadUtf8();
@@ -148,7 +154,6 @@ namespace UC.Net
 				p.Add("Title").Value = Title;
 				p.Add("RegistrationTime").Value = RegistrationTime;
 				p.Add("Years").Value = Years;
-				//p.Add("Products").Value = string.Join(", ", Products);
 			}
 
 			return d;

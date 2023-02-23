@@ -14,12 +14,13 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
 namespace UC.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Hello, /*Blocks, */Request, Response
+		Null, /*Hello, Blocks, */Request, Response
 	}
 
 	public enum EstablishingStatus
@@ -53,7 +54,7 @@ namespace UC.Net
 	//	}
 	//}
 
-	public class Peer : Dci
+	public class Peer : RdcInterface
 	{
 		public IPAddress			IP {get; set;} 
 
@@ -64,10 +65,11 @@ namespace UC.Net
 		public TcpClient			Client;
 		NetworkStream				Stream;
 		BinaryWriter				Writer;
+		BinaryReader				Reader;
 		object						Lock;
 		Thread						ReadThread;
 		Thread						WriteThread;
-		Queue<Packet>				Out = new();
+		List<ITypedBinarySerializable>				Out = new();
 
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
@@ -77,8 +79,8 @@ namespace UC.Net
 		public bool					Established => Client != null && Client.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
 
-		public List<Request>		InRequests = new();
-		public List<Request>		OutRequests = new();
+		public List<RdcRequest>		InRequests = new();
+		public List<RdcRequest>		OutRequests = new();
 
 		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int					PeerRank = 0;
@@ -201,7 +203,7 @@ namespace UC.Net
 			}
 		}
 
-		public void Start(Core core, TcpClient client, Hello h, Action<Peer> read, object lockk, string host)
+		public void Start(Core core, TcpClient client, Hello h, object lockk, string host)
 		{
 			Core = core;
 			Client = client;
@@ -213,6 +215,7 @@ namespace UC.Net
 			Status				= ConnectionStatus.OK;
 			Stream				= client.GetStream();
 			Writer				= new BinaryWriter(Stream);
+			Reader				= new BinaryReader(Stream);
 			LastSeen			= DateTime.UtcNow;
 			Lock				= lockk;
 			BaseRank			= h.Roles.HasFlag(Role.Base) ? 1 : 0;
@@ -222,7 +225,7 @@ namespace UC.Net
 
 			core.UpdatePeers(new Peer[]{this});
 
-			ReadThread = new (() => { read(this); });
+			ReadThread = new (() => Listening());
 			ReadThread.Name = $"{host} listening to {IP.GetAddressBytes()[3]}";
 			ReadThread.Start();
 	
@@ -232,38 +235,38 @@ namespace UC.Net
 								{
 									while(core.Running && Established)
 									{
-										Packet p = null;
-											
+										Thread.Sleep(1);
+
 										lock(InRequests)
 											if(InRequests.Any())
 											{	
-												var responses = new List<Response>();
-											
 												foreach(var i in InRequests.ToArray())
 												{
 													if(i.WaitResponse)
 													{
-														Response rp;
+														RdcResponse rp;
 													
 														lock(core.Lock)
 															try
 															{
 																rp = i.Execute(core);
 															}
-															catch(DistributedCallException ex)// when(!Debugger.IsAttached)
+															catch(RdcException ex)// when(!Debugger.IsAttached)
 															{
-																rp = Response.FromType(core.Database, i.Type);
+																rp = RdcResponse.FromType(core.Database, i.Type);
 																rp.Error = ex.Error;
 															}
 															catch(Exception)// when(!Debugger.IsAttached)
 															{
 																//Core?.Workflow?.Log.ReportError(this, "Distributed Call Execution", ex);
-																rp = Response.FromType(core.Database, i.Type);
-																rp.Error = Error.Internal;
+																rp = RdcResponse.FromType(core.Database, i.Type);
+																rp.Error = RdcError.Internal;
 															}
 													
 														rp.Id = i.Id;
-														responses.Add(rp);
+														
+	 													lock(Out)
+															Out.Add(rp);
 													} 
 													else
 													{
@@ -279,56 +282,38 @@ namespace UC.Net
 
 													InRequests.Remove(i);
 												}
-
-												if(responses.Any())
-												{
-													p = new Packet();
-													//p.Header = core.Header;
-													p.Type = PacketType.Response;
-													//p.Data = Core.Write(responses);
-													var s = new MemoryStream();
-													BinarySerializator.Serialize(new BinaryWriter(s), responses);
-													p.Data = s;
-
-													lock(Out)
-														Out.Enqueue(p);
-												}
 											}
 
-										p = null;
 	
-										lock(Out)
-											if(Out.Count > 0)
-											{
-												p = Out.Dequeue();
-											}
-	
-										if(p != null)
+										try
 										{
-											try
+											lock(Out)
 											{
-								 				//Writer.Write(core.Header);
-								 				Writer.Write((byte)p.Type);
-								 
-								 				if(p.Data != null)
-								 				{
-								 					Writer.Write7BitEncodedInt64(p.Data.Length);
-													p.Data.WriteTo(Stream);
-								 				}
-								 				else
-								 					Writer.Write7BitEncodedInt64(0);
+												foreach(var i in Out)
+												{
+													if(i is RdcRequest)
+								 						Writer.Write((byte)PacketType.Request);
+													else if(i is RdcResponse)
+								 						Writer.Write((byte)PacketType.Response);
+													else
+														throw new IntegrityException("Wrong packet to write");
 
-												Writer.Flush();
-											}
-											catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
-											{
-												lock(Lock)
-								 					if(Status != ConnectionStatus.Disconnecting)
-								 						Status = ConnectionStatus.Failed;
+													Writer.Write(i.TypeCode);
+
+													BinarySerializator.Serialize(Writer, i);
+												}
+
+												Out.Clear();
 											}
 										}
-										else
-											Thread.Sleep(1);
+										catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
+										{
+											lock(Lock)
+								 				if(Status != ConnectionStatus.Disconnecting)
+								 					Status = ConnectionStatus.Failed;
+
+											break;
+										}
 									}
 								}
 								catch(Exception) when(!Debugger.IsAttached)
@@ -341,82 +326,184 @@ namespace UC.Net
 			WriteThread.Start();
 		}
 
-		public Packet Read()
+		void Listening()
 		{
-			try
-			{
-				var buf = new byte[65636];
-
-				var p = new Packet();
-				var s = new MemoryStream();
-				var r = new BinaryReader(Stream);
-	
-				p.Type				= (PacketType)r.ReadByte();
-				var ndata			= r.Read7BitEncodedInt64();
-	
-				if(ndata > 0)
+	 		try
+	 		{
+				while(Established)
 				{
-					while(s.Length < ndata)
+					var pk = (PacketType)Reader.ReadByte();
+
+					//if(pk == null)
+					//{
+					//	lock(Lock)
+					//		peer.Status = ConnectionStatus.Failed;
+					//	return;
+					//}
+
+					lock(Lock)
+						if(!Core.Running || !Established)
+							return;
+					
+					switch(pk)
 					{
-						var n = Stream.Read(buf, 0, Math.Min(buf.Length, (int)(ndata - s.Length)));
-						s.Write(buf, 0, n);
+ 						case PacketType.Request:
+ 						{
+							RdcRequest rq;
+
+ 							try
+ 							{
+								rq = BinarySerializator.Deserialize(Reader,	
+																	t => {
+																			var o = UC.Net.RdcRequest.FromType(Core.Database, (Rdc)t); 
+																			o.Peer = this; 
+																			return o as object;
+																	},
+																	Core.Constractor) as RdcRequest;
+
+ 							}
+ 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+ 							{
+ 								Disconnect();
+ 								break;
+ 							}
+
+							lock(InRequests)
+ 								InRequests.Add(rq);
+ 	
+ 							break;
+ 						}
+
+						case PacketType.Response:
+ 						{
+							RdcResponse rp;
+							
+							try
+ 							{
+								rp = BinarySerializator.Deserialize(Reader,	
+																	t => UC.Net.RdcResponse.FromType(Core.Database, (Rdc)t) as object, 
+																	Core.Constractor) as RdcResponse;
+							}
+ 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+ 							{
+ 								Disconnect();
+ 								break;
+ 							}
+
+							lock(OutRequests)
+								//foreach(var rp in responses)
+								{
+									var rq = OutRequests.Find(j => j.Id.SequenceEqual(rp.Id));
+
+									if(rq != null)
+									{
+										rp.Peer = this;
+										rq.Response = rp;
+										rq.Event.Set();
+ 									
+										if(rp.Final)
+										{
+											OutRequests.Remove(rq);
+										}
+									}
+								}
+							break;
+						}
+
+						default:
+							Core.Workflow.Log?.ReportError(this, $"Wrong packet type {pk}");
+							Status = ConnectionStatus.Failed;
+							return;
 					}
-						
-					s.Position = 0;
-					p.Data = s;
 				}
-			
-				return p;
-			}
+	 		}
 			catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
 			{
 				lock(Lock)
 					if(Status != ConnectionStatus.Disconnecting)
 						Status = ConnectionStatus.Failed;
 			}
-
-			return null;
-		}
-
-		public void Send(Packet packet)
-		{
-			lock(Out)
+			catch(Exception) when (!Debugger.IsAttached)
 			{
-				Out.Enqueue(packet);
+				Disconnect();
 			}
-		}
+		}	
+// 		public PacketType Read()
+// 		{
+// 			try
+// 			{
+// 				//var buf = new byte[65636];
+// 
+// 				//var p = new Packet();
+// 				//var s = new MemoryStream();
+// 				var r = new BinaryReader(Stream);
+// 	
+// 				return (PacketType)r.ReadByte();
+// 				//var ndata	= r.Read7BitEncodedInt64();
+// 				//
+// 				//if(ndata > 0)
+// 				//{
+// 				//	while(s.Length < ndata)
+// 				//	{
+// 				//		var n = Stream.Read(buf, 0, Math.Min(buf.Length, (int)(ndata - s.Length)));
+// 				//		s.Write(buf, 0, n);
+// 				//	}
+// 				//		
+// 				//	s.Position = 0;
+// 				//	p.Data = s;
+// 				//}
+// 				//
+// 				//return p;
+// 			}
+// 			catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
+// 			{
+// 				lock(Lock)
+// 					if(Status != ConnectionStatus.Disconnecting)
+// 						Status = ConnectionStatus.Failed;
+// 			}
+// 
+// 			//return null;
+// 		}
 
-		public void Send(PacketType type, MemoryStream data)
-		{
-			var rq = new Packet();
-			//rq.Header = h;
-			rq.Type = type;
-			rq.Data = data;
+// 		public void Send(RdcRequest packet)
+// 		{
+// 			lock(Out)
+// 			{
+// 				Out.Add(packet);
+// 			}
+// 		}
+// 
+// 		public void Send(object packet)
+// 		{
+// // 			var rq = new Packet();
+// // 			//rq.Header = h;
+// // 			rq.Type = type;
+// // 			rq.Data = data;
+// 
+// 			lock(Out)
+// 			{
+// 				Out.Enqueue(packet);
+// 			}
+// 		}
 
-			lock(Out)
-			{
-				Out.Enqueue(rq);
-			}
-		}
-
- 		public override Rp Request<Rp>(Request rq) where Rp : class
+ 		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
  		{
 			if(!Established)
 				throw new ConnectionFailedException("Peer is not connected");
 
 			lock(OutRequests)
 			{	
-				var p = new Packet();
-				p.Type = PacketType.Request;
-				var s = new MemoryStream();
-				BinarySerializator.Serialize(new BinaryWriter(s), new[]{rq});
-				p.Data = s;
+				//var p = new Packet();
+				//p.Type = PacketType.Request;
+				//var s = new MemoryStream();
+				//BinarySerializator.Serialize(new BinaryWriter(s), new[]{rq});
+				//p.Data = s;
 
 				if(rq.WaitResponse)
 					OutRequests.Add(rq);
 				
 				lock(Out)
-					Out.Enqueue(p);
+					Out.Add(rq);
 			}
  
  			if(rq.WaitResponse)
@@ -426,13 +513,13 @@ namespace UC.Net
 					if(rq.Response == null)
 						throw new OperationCanceledException();
 	
-	 				if(rq.Response.Error == Error.Null)
+	 				if(rq.Response.Error == RdcError.Null)
 		 				return rq.Response as Rp;
 	 				else
-						throw new DistributedCallException(rq.Response.Error);
+						throw new RdcException(rq.Response.Error);
 	 			}
 				else
-	 				throw new DistributedCallException(Error.Timeout);
+	 				throw new RdcException(RdcError.Timeout);
  			}
 			else
 				return null;

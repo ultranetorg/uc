@@ -7,44 +7,104 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
+	public enum DependencyType
+	{
+		Critical, Deferred
+	}
+
+	public class Dependency : IBinarySerializable, IEquatable<Dependency>
+	{
+		public DependencyType Type;
+		public ReleaseAddress Release;
+
+		internal static Dependency From(Xon i)
+		{
+			var d = new Dependency();
+			
+			d.Type = Enum.Parse<DependencyType>(i.Name);
+			d.Release = ReleaseAddress.Parse(i.String);
+
+			return d;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as Dependency);
+		}
+
+		public bool Equals(Dependency other)
+		{
+			return other is not null &&
+				   Type == other.Type &&
+				   EqualityComparer<ReleaseAddress>.Default.Equals(Release, other.Release);
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Type, Release);
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			Release = reader.Read<ReleaseAddress>();
+			Type = (DependencyType)reader.ReadByte();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(Release);
+			writer.Write((byte)Type);
+		}
+
+		public static bool operator ==(Dependency left, Dependency right)
+		{
+			return EqualityComparer<Dependency>.Default.Equals(left, right);
+		}
+
+		public static bool operator !=(Dependency left, Dependency right)
+		{
+			return !(left == right);
+		}
+	}	
+
 	public class Manifest : IBinarySerializable
 	{
-		public ReleaseAddress		Release  { get; set; }
-		public byte[]				CompleteHash {get; set; }
-		public long					CompleteLength {get; set; }
-		public ReleaseAddress[]		CompleteDependencies {get; set; }
+		public ReleaseAddress	Release  { get; set; }
+		public byte[]			CompleteHash {get; set; }
+		public long				CompleteLength {get; set; }
+		public Dependency[]		CompleteDependencies {get; set; }
 
-		public byte[]				IncrementalHash {get; set; }
-		public long					IncrementalLength {get; set; }
-		public Version				IncrementalMinimalVersion {get; set; }
-		public ReleaseAddress[]		AddedDependencies {get; set; }
-		public ReleaseAddress[]		RemovedDependencies {get; set; }
+		public byte[]			IncrementalHash {get; set; }
+		public long				IncrementalLength {get; set; }
+		public Version			IncrementalMinimalVersion {get; set; }
+		public Dependency[]		AddedDependencies {get; set; }
+		public Dependency[]		RemovedDependencies {get; set; }
 
- 		byte[]						Hash;
+ 		byte[]					Hash;
 
 		public Manifest()
 		{
 		}
 
-		public Manifest(byte[]						completehash,
-						long						completelength,
-						IEnumerable<ReleaseAddress>	completecoredependencies,
-						byte[]						incrementalhash,
-						long						incrementallength,
-						Version						incrementalminimalversion,
-						IEnumerable<ReleaseAddress>	addedcoredependencies,
-						IEnumerable<ReleaseAddress>	removedcoredependencies)
+		public Manifest(byte[]					completehash,
+						long					completelength,
+						IEnumerable<Dependency>	completecoredependencies,
+						byte[]					incrementalhash,
+						long					incrementallength,
+						Version					incrementalminimalversion,
+						IEnumerable<Dependency>	addedcoredependencies,
+						IEnumerable<Dependency>	removedcoredependencies)
 		{
 			CompleteHash				= completehash;
 			CompleteLength				= completelength;
-			CompleteDependencies		= completecoredependencies?.ToArray() ?? new ReleaseAddress[]{};
+			CompleteDependencies		= completecoredependencies?.ToArray() ?? new Dependency[]{};
 			
 			IncrementalHash				= incrementalhash;
 			IncrementalLength			= incrementallength;
 			IncrementalMinimalVersion	= incrementalminimalversion;
 
-			AddedDependencies		= addedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
-			RemovedDependencies		= removedcoredependencies?.ToArray() ?? new ReleaseAddress[]{};
+			AddedDependencies		= addedcoredependencies?.ToArray() ?? new Dependency[]{};
+			RemovedDependencies		= removedcoredependencies?.ToArray() ?? new Dependency[]{};
 		}
 
 		public XonDocument ToXon(IXonValueSerializator serializator)
@@ -144,7 +204,7 @@ namespace UC.Net
 			{
 				CompleteHash = r.ReadSha3();
 				CompleteLength = r.Read7BitEncodedInt64();
-				CompleteDependencies = r.ReadArray<ReleaseAddress>();
+				CompleteDependencies = r.ReadArray<Dependency>();
 			}
 
 			if(r.ReadBoolean())
@@ -152,8 +212,8 @@ namespace UC.Net
 				IncrementalHash = r.ReadSha3();
 				IncrementalLength = r.Read7BitEncodedInt64();
 				IncrementalMinimalVersion = r.Read<Version>();
-				AddedDependencies = r.ReadArray<ReleaseAddress>();
-				RemovedDependencies = r.ReadArray<ReleaseAddress>();
+				AddedDependencies = r.ReadArray<Dependency>();
+				RemovedDependencies = r.ReadArray<Dependency>();
 			}
 		}
 	}

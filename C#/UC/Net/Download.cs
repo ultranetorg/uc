@@ -57,7 +57,7 @@ namespace UC.Net
 												Data.Write(d, (int)Data.Position, d.Length);
 												break;
 											}
-											catch(DistributedCallException)
+											catch(RdcException)
 											{
 												e++;
 												
@@ -184,7 +184,7 @@ namespace UC.Net
 																			}
 																		}
 																	}
-																	catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+																	catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
 																	{
 																	}
 																	catch(OperationCanceledException)
@@ -214,13 +214,13 @@ namespace UC.Net
 															continue;
 														}
 													}
-													catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+													catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
 													{
 														Seeds[s.Key] = SeedStatus.Bad;
 														continue;
 													}
 															
-													Core.Filebase.DetermineDelta(his.Releases, Manifest, out Distributive d, out List<ReleaseAddress> deps);
+													Core.Filebase.DetermineDelta(his.Releases, Manifest, out Distributive d, out List<Dependency> deps);
 
 													Distributive = d;
 
@@ -232,9 +232,9 @@ namespace UC.Net
 													{
 														foreach(var i in deps)
 														{
-															if(!core.Downloads.Any(j => j.Release == i))
+															if(!core.Downloads.Any(j => j.Release == i.Release))
 															{
-																var dd = core.DownloadRelease(i, workflow);
+																var dd = core.DownloadRelease(i.Release, workflow);
 																
 																if(dd != null)
 																{

@@ -99,61 +99,61 @@ namespace UC.Sun.FUI
 			filled?.Invoke();
 		}
 
-		public void BindProducts(ComboBox b)
-		{
-			void fill()
-			{
-				b.Items.Clear();
-	
-				lock(Core.Lock)
-				{
-					foreach(var a in Vault.Accounts)
-						foreach(var p in FindProducts(a))
-							b.Items.Add(p.Product);
-				}
-	
-				if(b.Items.Count > 0)
-					b.SelectedIndex = 0;
-			}
-
-			Core.Database.BlockAdded +=	b =>{
-												if(b is Payload p && p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is ProductRegistration)))
-												{
-													BeginInvoke((MethodInvoker)delegate{ fill(); });
-												}
-											};
-			fill();
-		}
-
-		public void BindAuthors(ComboBox b, Action filled = null)
-		{
-			void fill()
-			{
-				b.Items.Clear();
-	
-				lock(Core.Lock)
-				{
-					foreach(var i in Vault.Accounts)
-						foreach(var p in FindAuthors(i))
-							b.Items.Add(p.Name);
-				}
-	
-				if(b.Items.Count > 0)
-					b.SelectedIndex = 0;
-			
-				filled?.Invoke();
-			}
-
-			Core.Database.BlockAdded += b => {
-													if(b is Payload p && (	p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorRegistration || o is AuthorTransfer)) ||
-																			p.Transactions.Any(i => !Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorTransfer at && Vault.Accounts.Contains(at.To))) 
-																			))
-													{
-														BeginInvoke((MethodInvoker)delegate{ fill(); });
-													}
-												};
-			fill();
-		}
+// 		public void BindProducts(ComboBox b)
+// 		{
+// 			void fill()
+// 			{
+// 				b.Items.Clear();
+// 	
+// 				lock(Core.Lock)
+// 				{
+// 					foreach(var a in Vault.Accounts)
+// 						foreach(var p in FindProducts(a))
+// 							b.Items.Add(p.Product);
+// 				}
+// 	
+// 				if(b.Items.Count > 0)
+// 					b.SelectedIndex = 0;
+// 			}
+// 
+// 			Core.Database.BlockAdded +=	b =>{
+// 												if(b is Payload p && p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is ProductRegistration)))
+// 												{
+// 													BeginInvoke((MethodInvoker)delegate{ fill(); });
+// 												}
+// 											};
+// 			fill();
+// 		}
+ 
+// 		public void BindAuthors(ComboBox b, Action filled = null)
+// 		{
+// 			void fill()
+// 			{
+// 				b.Items.Clear();
+// 	
+// 				lock(Core.Lock)
+// 				{
+// 					foreach(var i in Vault.Accounts)
+// 						foreach(var p in FindAuthors(i))
+// 							b.Items.Add(p.Name);
+// 				}
+// 	
+// 				if(b.Items.Count > 0)
+// 					b.SelectedIndex = 0;
+// 			
+// 				filled?.Invoke();
+// 			}
+// 
+// 			Core.Database.BlockAdded += b => {
+// 													if(b is Payload p && (	p.Transactions.Any(i => Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorRegistration || o is AuthorTransfer)) ||
+// 																			p.Transactions.Any(i => !Vault.Accounts.Contains(i.Signer) && i.Operations.Any(o => o is AuthorTransfer at && Vault.Accounts.Contains(at.To))) 
+// 																			))
+// 													{
+// 														BeginInvoke((MethodInvoker)delegate{ fill(); });
+// 													}
+// 												};
+// 			fill();
+// 		}
 
 		public void ShowException(string message, Exception ex)
 		{
@@ -165,9 +165,9 @@ namespace UC.Sun.FUI
 			MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
-		public PrivateAccount GetPrivate(Account account)
+		public AccountKey GetPrivate(Account account)
 		{
-			var p = Vault.GetPrivate(account);
+			var p = Vault.GetKey(account);
 			
 			if(p != null)
 			{

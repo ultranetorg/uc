@@ -65,72 +65,69 @@ namespace UC.Net
 		public DownloadStatus	Download { get; set; }
 	}
 
-	public class Core : Dci
+	public class Core : RdcInterface
 	{
-		public System.Version							Version => Assembly.GetAssembly(GetType()).GetName().Version;
-		public static readonly int[]					Versions = {1};
-		public const string								FailureExt = "failure";
-		public const int								Timeout = 5000;
-		public const int								OperationsQueueLimit = 1000;
-		const int										BalanceWidth = 24;
+		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
+		public static readonly int[]	Versions = {1};
+		public const string				FailureExt = "failure";
+		public const int				Timeout = 5000;
+		public const int				OperationsQueueLimit = 1000;
+		const int						BalanceWidth = 24;
 
-		public Workflow									Workflow;
-		public Vault									Vault;
-		public INas										Nas;
-		public Database									Database;
-		public Filebase									Filebase;
-		public Hub										Hub;
-		RocksDb											DatabaseEngine;
-		//public bool										Networking => ;
-		public bool										IsClient => ListeningThread == null;
-		public object									Lock = new();
-		public Settings									Settings;
-		public Clock									Clock;
+		public Workflow					Workflow;
+		JsonServer						ApiServer;
+		public Vault					Vault;
+		public INas						Nas;
+		public Database					Database;
+		public Filebase					Filebase;
+		public Seedbase					Seedbase;
+		public bool						IsClient => ListeningThread == null;
+		public object					Lock = new();
+		public Settings					Settings;
+		public Clock					Clock;
 
-		public Guid										Nuid;
-		public IPAddress								IP = IPAddress.None;
+		RocksDb							DatabaseEngine;
+		public ColumnFamilyHandle		PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
+		readonly DbOptions				DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
+																			.SetCreateMissingColumnFamilies(true);
 
-		public Statistics								PrevStatistics = new();
-		public Statistics								Statistics = new();
+		public Guid						Nuid;
+		public IPAddress				IP = IPAddress.None;
 
-		public List<Transaction>						Transactions = new();
-		public List<Operation>							Operations	= new();
+		public Statistics				PrevStatistics = new();
+		public Statistics				Statistics = new();
 
-		bool											MinimalPeersReached;
-		public List<Peer>								Peers		= new();
-		public IEnumerable<Peer>						Connections	=> Peers.Where(i => i.Established);
-		public List<IPAddress>							IgnoredIPs	= new();
-		public List<Member>								Members		= new();
-		public List<Download>							Downloads	= new();
+		public List<Transaction>		Transactions = new();
+		public List<Operation>			Operations	= new();
 
-		TcpListener										Listener;
-		public Thread									MainThread;
-		Thread											ListeningThread;
-		Thread											DelegatingThread;
-		Thread											VerifingThread;
-		Thread											SynchronizingThread;
-		Thread											DeclaringThread;
+		bool							MinimalPeersReached;
+		public List<Peer>				Peers		= new();
+		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Established);
+		public List<IPAddress>			IgnoredIPs	= new();
+		public List<Member>				Members		= new();
+		public List<Download>			Downloads	= new();
 
-		JsonServer										ApiServer;
+		TcpListener						Listener;
+		public Thread					MainThread;
+		Thread							ListeningThread;
+		Thread							DelegatingThread;
+		Thread							VerifingThread;
+		Thread							SynchronizingThread;
+		Thread							DeclaringThread;
 
-		public bool										Running { get; protected set; } = true;
-		public Synchronization							_Synchronization = Synchronization.Null;
-		public Synchronization							Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
-		public CoreDelegate								SynchronizationChanged;
-		public List<BlockPiece>							SyncBlockCache	= new();
+		public bool						Running { get; protected set; } = true;
+		public Synchronization			_Synchronization = Synchronization.Null;
+		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
+		public CoreDelegate				SynchronizationChanged;
+		public List<BlockPiece>			SyncBlockCache	= new();
 
-		public IGasAsker								GasAsker; 
-		public IFeeAsker								FeeAsker;
+		public IGasAsker				GasAsker; 
+		public IFeeAsker				FeeAsker;
 
-		public CoreDelegate								MainStarted;
-		public CoreDelegate								ApiStarted;
-
-		public ColumnFamilyHandle						PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
-
-		readonly DbOptions								DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
-																							.SetCreateMissingColumnFamilies(true);
+		public CoreDelegate				MainStarted;
+		public CoreDelegate				ApiStarted;
 		
-		Func<Type, object>								Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
+		internal Func<Type, object>		Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
 		
 		public string[][] Info
 		{
@@ -156,7 +153,7 @@ namespace UC.Net
 				{
 					f.Add("Synchronization");		v.Add($"{Synchronization}");
 					f.Add("Size");					v.Add($"{Database.Size}");
-					f.Add("Members");				v.Add($"{Database.Members.Count}");
+					f.Add("Members");				v.Add($"{Database.LastConfirmedRound?.Members.Count}");
 					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
 					f.Add("Cached Blocks");			v.Add($"{SyncBlockCache.Count()}");
 					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
@@ -183,7 +180,7 @@ namespace UC.Net
 	
 						if(Settings.Dev.UI)
 						{
-							foreach(var i in Database.Funds)
+							foreach(var i in Database.LastConfirmedRound.Funds)
 							{
 								f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
 							}
@@ -282,13 +279,13 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			var gens = Database != null ? Settings.Generators.Where(i => Database.Members.Any(j => j.Generator == i)) : new PrivateAccount[0];
-
+			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Members.Any(j => j.Generator == i)) : new AccountKey[0];
+	
 			return	$"{(Settings.Database.Base ? "B" : "")}{(Settings.Database.Chain ? "C" : "")}{(Settings.Hub.Enabled ? "H" : "")}{(Settings.Filebase.Enabled ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? " - " + IP : "")}" +
 					$" - {Synchronization}" +
-					(Database != null ? $" - {gens.Count()}/{Database.Members.Count()} members" : "");
+					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Members.Count()} members" : "");
 		}
 
 		public void RunApi()
@@ -359,7 +356,7 @@ namespace UC.Net
 
 			if(Settings.Hub.Enabled)
 			{
-				Hub = new Hub(this);
+				Seedbase = new Seedbase(this);
 			}
 
 			if(Settings.Filebase.Enabled)
@@ -781,6 +778,18 @@ namespace UC.Net
 	
 					lock(Lock)
 					{
+						if(!h.Versions.Any(i => Versions.Contains(i)))
+						{
+							client.Close();
+							return;
+						}
+
+						if(h.Zone != Settings.Zone.Name)
+						{
+							client.Close();
+							return;
+						}
+
 						if(h.Nuid == Nuid)
 						{
 							//Workflow.Log?.Report(this, "Establishing failed", "It's me");
@@ -805,7 +814,7 @@ namespace UC.Net
 						RememberPeers(h.Peers);
 	
 						peer.OutStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+						peer.Start(this, client, h, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 							
 						Workflow.Log?.Report(this, "Connected to", $"{peer}");
 	
@@ -871,6 +880,18 @@ namespace UC.Net
 				
 					lock(Lock)
 					{
+						if(!h.Versions.Any(i => Versions.Contains(i)))
+						{
+							client.Close();
+							return;
+						}
+
+						if(h.Zone != Settings.Zone.Name)
+						{
+							client.Close();
+							return;
+						}
+
 						if(h.Nuid == Nuid)
 						{
 							//Workflow.Log?.Report(this, "Establishing failed", "It's me");
@@ -911,7 +932,7 @@ namespace UC.Net
 						RememberPeers(h.Peers.Append(peer));
 	
 						peer.InStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Listening, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+						peer.Start(this, client, h, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 			
 						Workflow.Log?.Report(this, "Accepted from", $"{peer}");
 	
@@ -929,129 +950,6 @@ namespace UC.Net
 				{
 					Stop(MethodBase.GetCurrentMethod(), ex);
 				}
-			}
-		}
-
-		void Listening(Peer peer)
-		{
-	 		try
-	 		{
-				while(peer.Established)
-				{
-					var pk = peer.Read();
-
-					if(pk == null)
-					{
-						lock(Lock)
-							peer.Status = ConnectionStatus.Failed;
-						return;
-					}
-
-					lock(Lock)
-						if(!Running || !peer.Established)
-							return;
-					
-					var reader = new BinaryReader(pk.Data); 
-
-					switch(pk.Type)
-					{
-						//case PacketType.Blocks:
-						//{
-						//	IEnumerable<Block> blocks;
-						//				
-						//	try
-						//	{
-						//		blocks = pk.Read((r, c) => Block.FromType(Database, (BlockType)c));
-						//	}
-						//	catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
-						//	{
-						//		peer.Disconnect();
-						//		break;
-						//	}
-						//
-						//	lock(Lock)
-						//	{
-						//		ProcessIncoming(blocks, peer);
-						//	}
-						//
-						//	break;
-						//}
-
- 						case PacketType.Request:
- 						{
-							Request[] requests;
-
- 							try
- 							{
-								requests = BinarySerializator.Deserialize(	reader,	
-																			c => {
-																					var o = UC.Net.Request.FromType(Database, (DistributedCall)c); 
-																					o.Peer = peer; 
-																					return o;
-																				},
-																			Constractor);
-
- 							}
- 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
- 							{
- 								peer.Disconnect();
- 								break;
- 							}
-
-							lock(peer.InRequests)
- 								peer.InRequests.AddRange(requests);
- 	
- 							break;
- 						}
-
-						case PacketType.Response:
- 						{
-							Response[] responses;
-							
-							try
- 							{
-								//responses = Read(pk.Data, (r, t) => Response.FromType(Chain, (RpcType)t));
-								responses = BinarySerializator.Deserialize(	reader,
-																			t => UC.Net.Response.FromType(Database, (DistributedCall)t), 
-																			Constractor
-																			);
-							}
- 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
- 							{
- 								peer.Disconnect();
- 								break;
- 							}
-
-							lock(peer.OutRequests)
-								foreach(var rp in responses)
-								{
-									var rq = peer.OutRequests.Find(j => j.Id.SequenceEqual(rp.Id));
-
-									if(rq != null)
-									{
-										rp.Peer = peer;
-										rq.Response = rp;
-										rq.Event.Set();
- 									
-										if(rp.Final)
-										{
-											peer.OutRequests.Remove(rq);
-										}
-									}
-								}
-							break;
-						}
-
-						default:
-							Workflow.Log?.ReportError(this, $"Wrong packet type {pk.Type}");
-							peer.Status = ConnectionStatus.Failed;
-							return;
-					}
-				}
-	 		}
-			catch(Exception) when (!Debugger.IsAttached)
-			{
-				peer.Disconnect();
 			}
 		}
 
@@ -1092,8 +990,6 @@ namespace UC.Net
 
 					if(Database.Roles.HasFlag(Role.Base) && !Database.Roles.HasFlag(Role.Chain))
 					{
-						Workflow.ThrowIfAborted();
-
 						Database.Tail.Clear();
 		
 						stamp = peer.GetStamp();
@@ -1181,8 +1077,8 @@ namespace UC.Net
 						r.Funds		= rd.ReadList<Account>();
 		
 						Database.BaseState	= stamp.BaseState;
-						Database.Members	= r.Members;
-						Database.Funds		= r.Funds;
+						//Database.Members	= r.Members;
+						//Database.Funds		= r.Funds;
 		
 						Database.LastConfirmedRound = r;
 						Database.LastCommittedRound = r;
@@ -1197,6 +1093,7 @@ namespace UC.Net
 		
 					while(true)
 					{
+						Thread.Sleep(1);
 						Workflow.ThrowIfAborted();
 		
 						lock(Lock)
@@ -1211,12 +1108,12 @@ namespace UC.Net
 							else
 								from = final;
 		
-						var to =/* end != -1 ? end :*/ (from + Database.Pitch);
+						var to = from + Database.Pitch;
 		
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
 						 	
 						lock(Lock)
-							if(from < rp.LastNonEmptyRound)
+							if(from <= rp.LastNonEmptyRound)
 							{
 								SyncBlockCache.RemoveAll(i => i.RoundId < rp.LastConfirmedRound + 1 - Database.Pitch);
 
@@ -1241,7 +1138,6 @@ namespace UC.Net
 										Database.Tail.Add(r);
 										Database.Tail = Database.Tail.OrderByDescending(i => i.Id).ToList();
 		
-//										var h = r.Hash;
 										r.Confirmed = false;
 										Database.Confirm(r, true);
 //#if DEBUG
@@ -1303,7 +1199,7 @@ namespace UC.Net
 									throw new SynchronizationException();
 					}
 				}
-				catch(DistributedCallException)
+				catch(RdcException)
 				{
 				}
 				catch(SynchronizationException)
@@ -1360,8 +1256,8 @@ namespace UC.Net
 																			});
 				Database.Add(joins);
 					
-				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.Members.Any(j => j.Generator == b.Generator) || 
-																	 (Database.Tail.Any(r => r.Members.Any(m => m.Generator == b.Generator)))));
+				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.LastConfirmedRound.Members.Any(i => i.Generator == b.Generator) || 
+																	 (Database.Tail.Any(r => r.Members.Any(i => i.Generator == b.Generator)))));
 				Database.Add(votes);
 			}
 
@@ -1435,16 +1331,12 @@ namespace UC.Net
 	
 					if(txs.Any()) /// any pending foreign transactions or any our pending operations
 					{
-						var rr = Database.ReferTo(p);
-	
-						if(rr == null)
-							continue;
 					
 						var b = new Payload(Database)
 								{
 									RoundId		= r.Id,
 									Try			= r.Try,
-									Reference	= rr,
+									Consensus	= Database.ProposeConsensus(p),
 									Time		= Clock.Now,
 									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),
@@ -1461,7 +1353,7 @@ namespace UC.Net
 
 						foreach(var i in txs)
 						{
-							i.WriteForBlock(w);
+							i.WriteUnconfirmed(w);
 
 							if(s.Position > Block.SizeMax)
 								break;
@@ -1479,16 +1371,11 @@ namespace UC.Net
 					}
 					else if(Database.Tail.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 					{
-						var rr = Database.ReferTo(p);
-					
-						if(rr == null)
-							continue;
-	
 						var b = new Vote(Database)
 								{	
 									RoundId		= r.Id,
 									Try			= r.Try,
-									Reference	= rr,
+									Consensus	= Database.ProposeConsensus(p),
 									Time		= Clock.Now,
 									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),
@@ -1506,18 +1393,13 @@ namespace UC.Net
 					{
 						r = r.Previous;
 
-						var rr = Database.ReferTo(p);
-					
-						if(rr == null)
-							continue;
-	
 						prev = r.Previous.Votes.FirstOrDefault(i => i.Generator == g);
 
 						var b = new Vote(Database)
 								{	
 									RoundId		= r.Id,
 									Try			= r.Try,
-									Reference	= rr,
+									Consensus	= Database.ProposeConsensus(p),
 									Time		= Clock.Now,
 									TimeDelta	= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
 									Violators	= p.Forkers.ToList(),
@@ -1567,7 +1449,7 @@ namespace UC.Net
 												Piece = i,
 												Data = r.ReadBytes((int)s.Length/n + (i < n-1 ? 0 : (int)s.Length % n))};
 
-						p.Sign(b.Generator as PrivateAccount);
+						p.Sign(b.Generator as AccountKey);
 
 						pieces.Add(p);
 						Database.GetRound(b.RoundId).BlockPieces.Add(p);
@@ -1586,10 +1468,6 @@ namespace UC.Net
  					}
  
 					i.Peer = c.Current;
- 					//if(!d.ContainsKey(c.Current))
- 					//	d[c.Current] = new();
- 					//
- 					//d[c.Current].Add(i);
  				}
 
 				/// LESS RELIABLE
@@ -1621,12 +1499,12 @@ namespace UC.Net
 	
 			if(!r.Voted)
 			{
-				if(Database.QuorumReached(r))
+				if(Database.QuorumReached(r) && r.Parent != null)
 				{
 					r.Voted = true;
 
 					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
-					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peer != null && !i.Distributed).ToArray();
+					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peer != null && !i.Broadcasted).ToArray();
 					
 					if(notcomebacks.Any())
 					{
@@ -1680,14 +1558,7 @@ namespace UC.Net
 
 				if(m == null)
 				{	
-					try
-					{
-						m = ConnectToMember(Workflow);
-					}
-					catch(ConnectionFailedException)
-					{
-						continue;
-					}
+					m = ConnectToMember(Workflow);
 				}
 
 				try
@@ -1721,7 +1592,7 @@ namespace UC.Net
 									{
 										Vault.OperationIds[g.Key] = m.GetAccountInfo(g.Key, false).Info.LastOperationId;
 									}
-									catch(DistributedCallException ex) when(ex.Error == Error.AccountNotFound)
+									catch(RdcException ex) when(ex.Error == RdcError.AccountNotFound)
 									{
 										Vault.OperationIds[g.Key] = -1;
 									}
@@ -1732,7 +1603,7 @@ namespace UC.Net
 									Monitor.Enter(Lock);
 								}
 
-								var t = new Transaction(Settings, g.Key as PrivateAccount);
+								var t = new Transaction(Settings, g.Key as AccountKey);
 
 								foreach(var o in g)
 								{
@@ -1745,20 +1616,33 @@ namespace UC.Net
 							}
 						}
 	
-						var accs = m.DelegateTransactions(txs).Accepted;
+						var atxs = m.DelegateTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i)));
 	
 						lock(Lock)
-							foreach(var o in txs.SelectMany(i => i.Operations))
+							foreach(var o in atxs.SelectMany(i => i.Operations))
 							{
-								if(accs.Any(i => i.Account == o.Signer && i.Id == o.Id))
- 									o.Placing = PlacingStage.Accepted;
-
-								o.FlowReport?.Log?.ReportWarning(this, $"Placing has been delegated to {m}");
+								o.Placing = PlacingStage.Accepted;
 							}
-									
-						Workflow.Log?.Report(this, "Operation(s) delegated", $"{txs.Sum(i => i.Operations.Count(o => accs.Any(i => i.Account == o.Signer && i.Id == o.Id)))} op(s) in {accs.Count()} tx(s) -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
+						
+						if(atxs.Any())
+						{
+							if(atxs.Sum(i => i.Operations.Count) <= 1)
+							{
+								var msgs = new List<string>{};
+		
+								foreach(var i in atxs.SelectMany(i => i.Operations))
+								{
+									msgs.Add(i.ToString());
+								}
+		
+								Workflow.Log?.Report(this, "Operations delegated", msgs);
+							} 
+							else
+							{
+								Workflow.Log?.Report(this, "Operation delegated", $"{atxs.First().Operations.First()} -> {m.Generator} {(m.Dci is Peer p ? p.IP : "Self")}");
+							}
+						}
 
-						Thread.Sleep(200); /// prevent flooding
 					}
 
 					lock(Lock)
@@ -1778,28 +1662,10 @@ namespace UC.Net
 								{
 									o.Placing = i.Placing;
 
-									if(i.Placing == PlacingStage.Placed)
+									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
 									{
-										//if(o.Placing == PlacingStage.Null)
-										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-									}
-
-									if(i.Placing == PlacingStage.Confirmed)
-									{
-										//if(o.Placing == PlacingStage.Null)
-										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-
 										Operations.Remove(o);
 									}
-	
-									if(i.Placing == PlacingStage.FailedOrNotFound)
-									{
-										//if(o.Placing == PlacingStage.Null)
-										//	Vault.OperationIds[o.Signer] = Math.Max(o.Id, Vault.OperationIds[o.Signer]);
-
-										Operations.Remove(o);
-									}
-								
 								}
 							}
 						}
@@ -1807,7 +1673,7 @@ namespace UC.Net
 
 					Statistics.Delegating.End();
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is DistributedCallException)
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
 				{
 					Workflow.Log?.ReportWarning(this, "Delegation", $"Member={m}", ex);
 
@@ -1846,7 +1712,7 @@ namespace UC.Net
 		{
 			operation.__ExpectedPlacing = waitstage;
 
-			if(FeeAsker.Ask(this, operation.Signer as PrivateAccount, operation))
+			if(FeeAsker.Ask(this, operation.Signer as AccountKey, operation))
 			{
 				lock(Lock)
 				 	Enqueue(operation);
@@ -1972,7 +1838,7 @@ namespace UC.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(!Settings.Generators.Any(g => Database.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
+			if(!Settings.Generators.Any(g => Database.LastConfirmedRound.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
 				return new();
 
 			Statistics.TransactionsProcessing.Begin();
@@ -2016,12 +1882,6 @@ namespace UC.Net
 						Thread.Sleep(1000);
 						continue;
 					}
-
-// 					if(DateTime.UtcNow - peer.LastTry < TimeSpan.FromMilliseconds(1000))
-// 					{
-// 						Thread.Sleep(1000);
-// 						continue;
-// 					}
 				}
 	
 				try
@@ -2058,13 +1918,12 @@ namespace UC.Net
 							Connect(p, workflow);
 		
 							Workflow.Log?.Report(this, "Member chosen", $"{m} {p}");
-							return new MemberDci(m.Generator, p);
-//return new MemberDci(Members.First().Generator,  peer = Peers.First(i => i.IP.GetAddressBytes()[3] == 101));	
 
+							return new MemberDci(m.Generator, p);
 						}
 					}
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is DistributedCallException)
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is RdcException)
 				{
 					peer.ReachFailures++;
 				}
@@ -2086,7 +1945,7 @@ namespace UC.Net
 		{
 			Peer peer;
 				
-			while(Running)
+			while(true)
 			{
 				Thread.Sleep(1);
 				workflow.ThrowIfAborted();
@@ -2148,9 +2007,9 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(DistributedCallException)
-				{
-				}
+// 				catch(RdcException)
+// 				{
+// 				}
 			}
 		}
 
@@ -2189,7 +2048,7 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(DistributedCallException)
+				catch(RdcException)
 				{
 				}
 			}
@@ -2217,12 +2076,12 @@ namespace UC.Net
 				catch(ConnectionFailedException)
 				{
 				}
-				catch(DistributedCallException)
+				catch(RdcException)
 				{
 				}
 			}
 
-			throw new DistributedCallException(Error.AllNodesFailed);
+			throw new RdcException(RdcError.AllNodesFailed);
 		}
 
 		public void Connect(Peer peer, Workflow workflow)
@@ -2242,6 +2101,7 @@ namespace UC.Net
 
 			while(true)
 			{
+				Thread.Sleep(1);
 				workflow.ThrowIfAborted();
 
 				lock(Lock)
@@ -2253,11 +2113,7 @@ namespace UC.Net
 				if(!Settings.Dev.DisableTimeouts)
 					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
 						throw new ConnectionFailedException("Timed out");
-
-				Thread.Sleep(1);
 			}
-
-			//throw new ConnectionFailedException("Overall abort or timeout");
 		}
 
 
@@ -2266,14 +2122,14 @@ namespace UC.Net
 			return Database != null ? Operation.CalculateFee(Database.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
-		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, PrivateAccount signer, PlacingStage awaitstage, Workflow workflow)
+		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)
 		{
 			var	l = Call(Role.Base, p =>{
 											try
 											{
 												return p.GetAccountInfo(signer, true);
 											}
-											catch(DistributedCallException ex) when (ex.Error == Error.AccountNotFound)
+											catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
 											{
 												return new AccountInfoResponse();
 											}
@@ -2301,7 +2157,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Emission FinishTransfer(PrivateAccount signer, Workflow workflow = null)
+		public Emission FinishTransfer(AccountKey signer, Workflow workflow = null)
 		{
 			lock(Lock)
 			{
@@ -2310,7 +2166,7 @@ namespace UC.Net
 											{
 												return p.GetAccountInfo(signer, true);
 											}
-											catch(DistributedCallException ex) when (ex.Error == Error.AccountNotFound)
+											catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
 											{
 												return new AccountInfoResponse();
 											}
@@ -2385,14 +2241,14 @@ namespace UC.Net
 			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
 		}
 
-		public override Rp Request<Rp>(Request rq) where Rp : class
+		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
   		{
 			if(rq.Peer == null) /// self call, cloning needed
 			{
 				var s = new MemoryStream();
 				BinarySerializator.Serialize(new(s), rq); 
 				s.Position = 0;
-				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constractor) as Request;
+				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constractor) as RdcRequest;
 			}
 
  			return rq.Execute(this) as Rp;

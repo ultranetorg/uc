@@ -24,12 +24,12 @@ namespace UC.Net
 		public List<BlockPiece>									BlockPieces = new();
 
 		public List<Block>										Blocks = new();
-		public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>();
+		public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
 		public IEnumerable<Account>								Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
 		public IEnumerable<Vote>								Unique			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		public IEnumerable<Vote>								Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
+		public IEnumerable<Vote>								Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Consensus).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
 		public IEnumerable<Account>								ElectedJoiners		=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Previous.Members.Count * 2 / 3);
 		public IEnumerable<Account>								ElectedLeavers		=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Previous.Members.Count * 2 / 3);

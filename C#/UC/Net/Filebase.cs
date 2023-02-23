@@ -256,7 +256,7 @@ namespace UC.Net
 			return File.Exists(ToPath(release, distributive));
 		}
 
-		public void DetermineDelta(IEnumerable<ReleaseRegistration> history, Manifest manifest, out Distributive distributive, out List<ReleaseAddress> dependencies)
+		public void DetermineDelta(IEnumerable<ReleaseRegistration> history, Manifest manifest, out Distributive distributive, out List<Dependency> dependencies)
 		{
 			dependencies = new();
 
@@ -386,16 +386,20 @@ namespace UC.Net
 
 			var vs = Directory.EnumerateFiles(dependsdirectory, $"*.{DependenciesExt}").Select(i => UC.Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i < release.Version).OrderBy(i => i);
 
-			IEnumerable<ReleaseAddress> acd = null;
-			IEnumerable<ReleaseAddress> rcd = null;
+			IEnumerable<Dependency> acd = null;
+			IEnumerable<Dependency> rcd = null;
 
 			var f = Path.Join(dependsdirectory, $"{release.Version.EGRB}.{DependenciesExt}");
 			
-			var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
+			//var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
+			var deps = File.Exists(f) ? new XonDocument(new XonTextReader(File.ReadAllText(f)), new XonTextValueSerializator()).Nodes.Select(i => Dependency.From(i))
+									  : new Dependency[]{};
+
 			
 			if(vs.Any())
 			{
-				var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}")).Select(i => ReleaseAddress.Parse(i));
+				//var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}")).Select(i => ReleaseAddress.Parse(i));
+				var lastdeps = new XonDocument(new XonTextReader(File.ReadAllText(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}"))), new XonTextValueSerializator()).Nodes.Select(i => Dependency.From(i));
 		
 				acd = deps.Where(i => !lastdeps.Contains(i));
 				rcd = lastdeps.Where(i => !deps.Contains(i));
@@ -440,7 +444,7 @@ namespace UC.Net
 				
 				var appv = @$"{release.Author}-{release.Product}-{release.Platform}{Path.DirectorySeparatorChar}{release.Version}";
 
-				var deps = new List<ReleaseAddress>();
+				var deps = new List<Dependency>();
 
 				void cunzip(Version v)
 				{
@@ -463,7 +467,7 @@ namespace UC.Net
 
 					foreach(var i in m.Manifest.CompleteDependencies)
 					{
-						Unpack(i, productsroot);
+						Unpack(i.Release, productsroot);
 					}
 
 					deps.AddRange(m.Manifest.CompleteDependencies);
@@ -507,7 +511,7 @@ namespace UC.Net
 
 					foreach(var i in m.Manifest.AddedDependencies)
 					{
-						Unpack(i, productsroot);
+						Unpack(i.Release, productsroot);
 						deps.Add(i);
 					}
 
@@ -524,7 +528,13 @@ namespace UC.Net
 
 				if(deps.Any())
 				{
-					File.WriteAllLines(Path.Join(productsroot, $"{appv}.{DependenciesExt}"), deps.Select(i => i.ToString()));
+					//File.WriteAllLines(Path.Join(productsroot, $"{appv}.{DependenciesExt}"), deps.Select(i => i.ToString()));
+					using(var s = File.Create(Path.Join(productsroot, $"{appv}.{DependenciesExt}")))
+					{
+						var d = new XonDocument(new XonTextValueSerializator());
+						d.Nodes.AddRange(deps.Select(i => new Xon(d.Serializator){ Name = i.Type.ToString(), Value = i.Release.ToString() }));
+						d.Save(new XonTextWriter(s, Encoding.UTF8));
+					}
 				}
 			}
 		}

@@ -158,7 +158,7 @@ namespace UC.Sun.FUI
 			this.amount.Name = "amount";
 			this.amount.Size = new System.Drawing.Size(240, 39);
 			this.amount.TabIndex = 8;
-			this.amount.Text = "1.000";
+			this.amount.Text = "0.001";
 			this.amount.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// send

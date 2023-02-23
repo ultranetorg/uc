@@ -60,7 +60,7 @@ namespace UC.Sun.FUI
 	
 			lock(Core.Lock)
 			{
-				foreach(var i in Core.Hub.Releases)
+				foreach(var i in Core.Seedbase.Releases)
 				{
 					var r = Packages.Items.Add(i.Key.Author);
 					r.SubItems.Add(i.Key.Product);
@@ -80,7 +80,7 @@ namespace UC.Sun.FUI
 	
 				lock(Core.Lock)
 				{
-					foreach(var i in e.Item.Tag as List<Seeder>)
+					foreach(var i in e.Item.Tag as List<Seed>)
 					{
 						var r = Seeds.Items.Add(i.IP.ToString());
 						r.SubItems.Add((i.Distributives.HasFlag(Distributive.Complete) ? "c" : "") + (i.Distributives.HasFlag(Distributive.Incremental) ? "i" : ""));

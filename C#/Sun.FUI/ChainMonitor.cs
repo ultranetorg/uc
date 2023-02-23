@@ -44,17 +44,8 @@ namespace UC.Sun.FUI
 
 		public void OnBlockAdded(Block b)
 		{
-			BeginInvoke((MethodInvoker)delegate{ Invalidate(); });
-		}
-
-		protected override void OnHandleCreated(EventArgs e)
-		{
-			base.OnHandleCreated(e);
-		}
-
-		protected override void OnHandleDestroyed(EventArgs e)
-		{
-			base.OnHandleDestroyed(e);
+			Invalidate(); 
+			//BeginInvoke((MethodInvoker)delegate{ Invalidate(); });
 		}
 
 		protected override void OnPaint(PaintEventArgs e)

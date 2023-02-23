@@ -83,7 +83,7 @@ namespace UC.Sun.CLI
 				return string.Empty;
 		}
 
-		protected PrivateAccount GetPrivate(string walletarg, string passwordarg)
+		protected AccountKey GetPrivate(string walletarg, string passwordarg)
 		{
 			string p = null;
 			

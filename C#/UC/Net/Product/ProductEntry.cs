@@ -105,17 +105,17 @@ namespace UC.Net
 			w.WriteUtf8(Title);
 		}
 
+		public override void Read(BinaryReader r)
+		{
+			Address		= r.Read<ProductAddress>();
+			Title		= r.ReadUtf8();
+		}
+
 		public override void WriteMore(BinaryWriter w)
 		{
 			w.Write7BitEncodedInt(LastRegistration);
 			w.Write(Releases);
 			w.Write(Realizations);
-		}
-
-		public override void Read(BinaryReader r)
-		{
-			Address		= r.Read<ProductAddress>();
-			Title		= r.ReadUtf8();
 		}
 
 		public override void ReadMore(BinaryReader r)

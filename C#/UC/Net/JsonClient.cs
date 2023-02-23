@@ -63,7 +63,7 @@ namespace UC.Net
 			Key = apikey;
 		}
 
-		public UntTransfer			Send(TransferUntCall call, Workflow workflow) => Request<UntTransfer>(call, workflow);
+		public UntTransfer			Send(UntTransferCall call, Workflow workflow) => Request<UntTransfer>(call, workflow);
 		public GetStatusResponse	Send(StatusCall call, Workflow workflow) => Request<GetStatusResponse>(call, workflow);
 
 		HttpResponseMessage Post(ApiCall request, Workflow workflow) 

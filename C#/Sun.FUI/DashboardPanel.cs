@@ -20,16 +20,16 @@ namespace UC.Sun.FUI
 
 			monitor.Core	= d;
 
-			d.MainStarted += c =>	{
-									if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
-										Core.Database.BlockAdded +=  monitor.OnBlockAdded;
-								};
+			//d.MainStarted += c =>	{
+			//							if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
+			//								Core.Database.BlockAdded +=  monitor.OnBlockAdded;
+			//						};
 		}
 
 		public override void Open(bool first)
 		{
-			if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
-				Core.Database.BlockAdded +=  monitor.OnBlockAdded;
+			//if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
+			//	Core.Database.BlockAdded +=  monitor.OnBlockAdded;
 
 			if(first)
 			{
@@ -47,8 +47,8 @@ namespace UC.Sun.FUI
 		{
 			base.Close();
 
-			if(Core.Database != null)
-				Core.Database.BlockAdded -= monitor.OnBlockAdded;
+			//if(Core.Database != null)
+			//	Core.Database.BlockAdded -= monitor.OnBlockAdded;
 		}
 
 		public override void PeriodicalRefresh()
@@ -62,6 +62,8 @@ namespace UC.Sun.FUI
 
 			fields.Text = string.Join('\n', i[0]);
 			values.Text = string.Join('\n', i[1]);
+		
+			 monitor.OnBlockAdded(null);
 		}
 
 		private void all_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

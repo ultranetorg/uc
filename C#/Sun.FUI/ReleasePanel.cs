@@ -21,11 +21,6 @@ namespace UC.Sun.FUI
 		{
 			if(first)
 			{
-				BindAuthors(Author, () => 
-									{ 
-										Author.Text = null;
-										Author.SelectedIndex = -1;
-									});
 			}
 		}
 
@@ -87,7 +82,7 @@ namespace UC.Sun.FUI
 																	var m = p.GetManifest(r.Release).Manifests.FirstOrDefault();
 																	
 																	if(m == null)
-																		throw new DistributedCallException(UC.Net.Error.Null);
+																		throw new RdcException(UC.Net.RdcError.Null);
 
 																	return m;
 																},

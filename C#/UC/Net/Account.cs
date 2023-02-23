@@ -11,12 +11,12 @@ using System.Text.Json;
 
 namespace UC.Net
 {
-	public class PrivateAccount : Account
+	public class AccountKey : Account
 	{
 		[JsonIgnore]
 		public EthECKey		Key { get; protected set; }
 
-		public PrivateAccount(EthECKey k)
+		public AccountKey(EthECKey k)
 		{
 			Key = k;
 
@@ -28,29 +28,29 @@ namespace UC.Net
 				throw new IntegrityException("Bytes.Length != Length");
 		}
 	
-		public static PrivateAccount Create()
+		public static AccountKey Create()
 		{
-			return new PrivateAccount(EthECKey.GenerateKey());
+			return new AccountKey(EthECKey.GenerateKey());
 		}
 
-		public new static PrivateAccount Parse(string privatekay)
+		public new static AccountKey Parse(string privatekay)
 		{
-			return new PrivateAccount(new EthECKey(privatekay));
+			return new AccountKey(new EthECKey(privatekay));
 		}
 
-		public static PrivateAccount Load(Cryptography cryptography, string path, string password)
+		public static AccountKey Load(Cryptography cryptography, string path, string password)
 		{
-			return new PrivateAccount(new EthECKey(cryptography.Decrypt(File.ReadAllBytes(path), password), true));
+			return new AccountKey(new EthECKey(cryptography.Decrypt(File.ReadAllBytes(path), password), true));
 		}
 
-		public static PrivateAccount Load(string path, string password)
+		public static AccountKey Load(string path, string password)
 		{
-			return new PrivateAccount(new EthECKey(Cryptography.Current.Decrypt(File.ReadAllBytes(path), password), true));
+			return new AccountKey(new EthECKey(Cryptography.Current.Decrypt(File.ReadAllBytes(path), password), true));
 		}
 
-		public static PrivateAccount Load(byte[] wallet, string password)
+		public static AccountKey Load(byte[] wallet, string password)
 		{
-			return new PrivateAccount(new EthECKey(Cryptography.Current.Decrypt(wallet, password), true));
+			return new AccountKey(new EthECKey(Cryptography.Current.Decrypt(wallet, password), true));
 		}
 
 		public void Save(string path, string password)
@@ -69,7 +69,7 @@ namespace UC.Net
 		public const int		Length = 20;
 		protected byte[]		Bytes;
 		public static readonly	Account Zero = new Account(new byte[Length]);
-		public byte[]			Prefix => Bytes.Take(RoundReference.PrefixLength).ToArray();
+		public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
 
 		public static implicit operator byte[] (Account d) => d.Bytes;
 		

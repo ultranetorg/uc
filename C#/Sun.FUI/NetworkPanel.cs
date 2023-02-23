@@ -40,7 +40,7 @@ namespace UC.Sun.FUI
 					r.Tag = i;
 				}
 
-				foreach(var i in (Database != null ? Database.Members : Core.Members).OrderBy(i => i.Generator))
+				foreach(var i in (Database != null ? Database.LastConfirmedRound.Members : Core.Members).OrderBy(i => i.Generator))
 				{
 					var li = Generators.Items.Add(i.Generator.ToString());
 
@@ -57,9 +57,9 @@ namespace UC.Sun.FUI
 					Hubs.Items.Add(li);
 				}
 
-				if(Database != null)
+				if(Database?.LastConfirmedRound != null)
 				{
-					foreach(var i in Database.Funds.OrderBy(i => i))
+					foreach(var i in Database.LastConfirmedRound.Funds.OrderBy(i => i))
 					{
 						var li = new ListViewItem(i.ToString());
 						Funds.Items.Add(li);

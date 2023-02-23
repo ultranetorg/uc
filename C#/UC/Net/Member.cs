@@ -34,18 +34,18 @@ namespace UC.Net
 		}
 	}
 
-	public class MemberDci : Dci
+	public class MemberDci : RdcInterface
 	{
-		public Account		Generator { get; protected set; }
-		public Dci			Dci { get; protected set; }
+		public Account			Generator { get; protected set; }
+		public RdcInterface		Dci { get; protected set; }
 
-		public MemberDci(Account generator, Dci dci)
+		public MemberDci(Account generator, RdcInterface dci)
 		{
 			Generator = generator;
 			Dci = dci;
 		}
 
-		public override Rp Request<Rp>(Request rq)
+		public override Rp Request<Rp>(RdcRequest rq)
 		{
 			return Dci.Request<Rp>(rq);
 		}

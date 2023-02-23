@@ -71,11 +71,11 @@ namespace UC.Sun.CLI
 
 		   		case "overview" :
 				{
-					var i = Core.Connect(Role.Base, null, Workflow).GetAuthorInfo(GetString("name"), Args.Has("confirmed"));
+					var i = Core.Connect(Role.Base, null, Workflow).GetAuthorInfo(GetString("name"));
 
 					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 
-					Dump(i.Xon);
+					Dump(i.Entry.ToXon(new XonTextValueSerializator()));
 										
 					return null;
 				}

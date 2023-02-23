@@ -43,7 +43,7 @@ CNexus::CNexus(CCore * l, CXonDocument * config)
 
 								if(!s->Command)
 								{
-									s->Command = i->Any(L"Command") ? i->One(L"Command")->CloneInternal(null) : null;
+									s->Command = i->Any(L"Command") ? i->One(L"Command")->Clone(null) : null;
 								}
 			
 								Instantiate(s);
@@ -236,7 +236,7 @@ CServerInstance * CNexus::AddServer(CApplicationReleaseAddress & address, CStrin
 	s->Name			= instance;
 	s->Release		= r;
 	s->Identity		= Identity;
-	s->Command		= command ? command->CloneInternal(null) : null;
+	s->Command		= command ? command->Clone(null) : null;
 	s->Registration	= registration;
 	//s->Initialized	= registration ? registration->Any(L"Initialized") : false;
 

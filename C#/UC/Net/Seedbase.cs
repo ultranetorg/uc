@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public class Seeder
+	public class Seed
 	{
 		public IPAddress		IP;
 		public DateTime			Arrived;
 		public Distributive		Distributives;
 
-		public Seeder(IPAddress ip, DateTime arrived)
+		public Seed(IPAddress ip, DateTime arrived)
 		{
 			IP = ip;
 			Arrived = arrived;
@@ -26,19 +26,19 @@ namespace UC.Net
 		}
 	}
 
-	public class Hub
+	public class Seedbase
 	{
 		Core											Core;
-		public Dictionary<ReleaseAddress, List<Seeder>>	Releases = new ();
+		public Dictionary<ReleaseAddress, List<Seed>>	Releases = new ();
 		public const int								SeedersPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
 		public const int								SeedersPerRequestMax = 256;
 
-		public Hub(Core core)
+		public Seedbase(Core core)
 		{
 			Core = core;
 		}
 
-		List<Seeder> GetSeeders(ReleaseAddress release)
+		List<Seed> GetSeeders(ReleaseAddress release)
 		{
  			if(!Releases.ContainsKey(release))
  				return Releases[release] = new();
@@ -56,7 +56,7 @@ namespace UC.Net
 
 				if(s == null)
 				{
-					s = new Seeder(ip, DateTime.UtcNow);
+					s = new Seed(ip, DateTime.UtcNow);
 					ss.Add(s);
 				} 
 				else

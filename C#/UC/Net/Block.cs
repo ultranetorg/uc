@@ -29,7 +29,7 @@ namespace UC.Net
 		public byte[]		Data { get; set; }
 
 		public Peer			Peer;
-		public bool			Distributed;
+		public bool			Broadcasted;
 		public Account		Generator { get; protected set; }
 		public const int	GuidLength = 8;
 
@@ -70,7 +70,7 @@ namespace UC.Net
 			return Cryptography.Current.Hash(s.ToArray());
 		}
 
-		public void Sign(PrivateAccount generator)
+		public void Sign(AccountKey generator)
 		{
 			Generator = generator;
 			Signature = Cryptography.Current.Sign(generator, Hashify());
@@ -136,7 +136,7 @@ namespace UC.Net
 			return Cryptography.Current.Hash(s.ToArray());
 		}
 						
-		public void Sign(PrivateAccount generator)
+		public void Sign(AccountKey generator)
 		{
 			Generator = generator;
 			Hash = Hashify();
@@ -188,7 +188,7 @@ namespace UC.Net
 
 		public int					Try; /// TODO: revote if consensus not reached
 		public long					TimeDelta;
-		public RoundReference		Reference;
+		public Consensus			Consensus;
 		public List<Account>		Violators = new();
 		public List<Account>		Joiners = new();
 		public List<Account>		Leavers = new();
@@ -196,7 +196,7 @@ namespace UC.Net
 		public List<Account>		FundLeavers = new();
 		//public List<Proposition>	Propositions = new();
 
-		public byte[]				Prefix => Hash.Take(RoundReference.PrefixLength).ToArray();
+		public byte[]				Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
 		//public byte[]				PropositionsHash;
 
 		public Vote(Database c) : base(c)
@@ -205,14 +205,14 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return base.ToString() + $", Parents={{{Reference.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
+			return base.ToString() + $", Parents={{{Consensus.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
 		}
 
 		protected override void HashWrite(BinaryWriter writer)
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Reference);
+			writer.Write(Consensus);
 
 			writer.Write(Joiners);
 			writer.Write(Leavers);
@@ -228,7 +228,7 @@ namespace UC.Net
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Reference);
+			writer.Write(Consensus);
 
 			writer.Write(Joiners);
 			writer.Write(Leavers);
@@ -249,7 +249,7 @@ namespace UC.Net
 			RoundId		= reader.Read7BitEncodedInt();
 			Try			= reader.Read7BitEncodedInt();
 			TimeDelta	= reader.Read7BitEncodedInt64();
-			Reference	= reader.Read<RoundReference>();
+			Consensus	= reader.Read<Consensus>();
 
 			Joiners		= reader.ReadAccounts();
 			Leavers		= reader.ReadAccounts();
@@ -270,7 +270,7 @@ namespace UC.Net
 	public class Payload : Vote
 	{
 		public List<Transaction>		Transactions = new();
-		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Any());
+		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Count() == i.Operations.Count);
 		public byte[]					OrderingKey => Hash;
 
 		public bool						Confirmed = false;
@@ -330,7 +330,7 @@ namespace UC.Net
 			WriteVote(writer);
 
 			writer.Write(Generator); /// needed to read check transactions' signatures in Payload
-			writer.Write(Transactions, t => t.WriteForBlock(writer));
+			writer.Write(Transactions, t => t.WriteUnconfirmed(writer));
 		}
 
 		public override void Read(BinaryReader reader)
@@ -344,7 +344,7 @@ namespace UC.Net
 																	Payload	= this,
 																	Generator = Generator
 																};
-														t.ReadForBlock(reader);
+														t.ReadUnconfirmed(reader);
 														return t;
 													});
 			Hash = Hashify();

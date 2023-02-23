@@ -8,7 +8,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace UC.Net
 {
-	public class Transaction : IBinarySerializable, IHashable
+	public class Transaction : IBinarySerializable
 	{
 		public List<Operation>			Operations = new ();
 		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
@@ -21,7 +21,7 @@ namespace UC.Net
 		public Account					Signer;
 		public Settings					Settings;
 
-		public byte[]					Prefix => Signature.Take(RoundReference.PrefixLength).ToArray();
+		public byte[]					Prefix => Signature.Take(Consensus.PrefixLength).ToArray();
 
 		public bool Valid
 		{
@@ -36,7 +36,7 @@ namespace UC.Net
  			Settings = settings;
  		}
 
-		public Transaction(Settings settings, PrivateAccount signer)
+		public Transaction(Settings settings, AccountKey signer)
 		{
 			Settings	= settings;
 			Signer		= signer;
@@ -46,7 +46,7 @@ namespace UC.Net
 		{
 			Generator	= member;
 			RoundMax	= rmax;
-			Signature	= Cryptography.Current.Sign(Signer as PrivateAccount, this);
+			Signature	= Cryptography.Current.Sign(Signer as AccountKey, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)
@@ -65,35 +65,47 @@ namespace UC.Net
 			return $"Operations={{{Operations.Count}}}, Signer={Signer}, RoundMax={RoundMax}";
 		}
 
-		public void HashWrite(BinaryWriter w)
+		public byte[] Hashify()
 		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
 			w.WriteUtf8(Settings.Zone.Name); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
 			w.Write(Operations, i => i.Write(w));
+
+			return Cryptography.Current.Hash(s.ToArray());
 		}
 
-		public void	WriteConfirmed(BinaryWriter w)
-		{
-			w.Write(Signer);
-			w.Write(SuccessfulOperations, i =>	{ 
-													w.Write((byte)i.Type); 
-													i.Write(w); 
-												});
-		}
-		
-		public void	ReadConfirmed(BinaryReader r)
-		{
-			Signer		= r.ReadAccount();
-			Operations	= r.ReadList(() => {
-												var o = Operation.FromType((Operations)r.ReadByte());
-												o.Placing		= PlacingStage.Confirmed;
-												o.Signer		= Signer;
-												o.Transaction	= this;
-												o.Read(r); 
-												return o; 
-											});
-		}
+ 		public void	WriteConfirmed(BinaryWriter w)
+ 		{
+			w.Write(Signature);
+			w.Write7BitEncodedInt(RoundMax);
+			w.Write(Operations, i => {
+										w.Write((byte)i.Type); 
+										i.Write(w); 
+									 });
+ 		}
+ 		
+ 		public void	ReadConfirmed(BinaryReader r)
+ 		{
+			Signature	= r.ReadSignature();
+			RoundMax	= r.Read7BitEncodedInt();
+ 			Operations	= r.ReadList(() => {
+ 												var o = Operation.FromType((Operations)r.ReadByte());
+ 												o.Placing		= PlacingStage.Confirmed;
+ 												//o.Signer		= Signer;
+ 												o.Transaction	= this;
+ 												o.Read(r); 
+ 												return o; 
+ 											});
+			
+			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
+
+			foreach(var i in Operations)
+				i.Signer = Signer;
+ 		}
 
 		public void Write(BinaryWriter w)
 		{
@@ -113,19 +125,19 @@ namespace UC.Net
 			RoundMax	= r.Read7BitEncodedInt();
 			Operations	= r.ReadList(() => {
 												var o = Operation.FromType((Operations)r.ReadByte());
-												o.Signer = Signer;
+												//o.Signer = Signer;
 												o.Transaction = this;
 												o.Read(r); 
 												return o; 
 											});
 
-			Signer = Cryptography.Current.AccountFrom(Signature, this);
+			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;
 		}
 
-		public void WriteForBlock(BinaryWriter w)
+		public void WriteUnconfirmed(BinaryWriter w)
 		{
 			w.Write(Signature);
 			w.Write7BitEncodedInt(RoundMax);
@@ -135,7 +147,7 @@ namespace UC.Net
 									 });
 		}
 
-		public void ReadForBlock(BinaryReader r)
+		public void ReadUnconfirmed(BinaryReader r)
 		{
 
 			Signature	= r.ReadSignature();
@@ -148,7 +160,7 @@ namespace UC.Net
 												return o; 
 											});
 
-			Signer = Cryptography.Current.AccountFrom(Signature, this);
+			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;
