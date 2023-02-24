@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.ViewModels;
+﻿using UC.Umc.Pages;
+
+namespace UC.Umc.ViewModels;
 
 public partial class ETHTransferViewModel : BaseAccountViewModel
 {
@@ -89,7 +91,7 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 			else
 			{
 				await Navigation.PopAsync();
-				await ToastHelper.ShowMessageAsync("Successfully restored!");
+				await ToastHelper.ShowMessageAsync("Successfully transfered!");
 			}
 
 			var account = Account;
@@ -100,6 +102,12 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 		}
 		
 	}
+
+	[RelayCommand]
+    private async Task UnfinishedTransfersAsync()
+    {
+        await Shell.Current.Navigation.PushAsync(new UnfinishTransferPage());
+    }
 
 	[RelayCommand]
     private async Task ConfirmAsync()

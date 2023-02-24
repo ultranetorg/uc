@@ -82,7 +82,7 @@
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <views:AccountView 
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsMyAuthor}"
-                                        BorderStyle="{StaticResource AccountBorder}"
+                                        BorderStyle="{StaticResource AccountCardBorder}"
                                         Grid.ColumnSpan="2"
                                         Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}">
                                         <views:AccountView.GestureRecognizers>
