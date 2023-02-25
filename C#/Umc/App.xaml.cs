@@ -48,6 +48,8 @@ public partial class App : Application
 		Routing.RegisterRoute(ShellBaseRoutes.MAKE_BID, typeof(MakeBidPage));
 		Routing.RegisterRoute(ShellBaseRoutes.PRODUCT_SEARCH, typeof(ProductSearchPage));
 		Routing.RegisterRoute(ShellBaseRoutes.SEND, typeof(SendPage));
+		Routing.RegisterRoute(ShellBaseRoutes.COMPLETED_TRANSFERS, typeof(TransferCompletePage));
+		Routing.RegisterRoute(ShellBaseRoutes.UNFINISHED_TRANSFERS, typeof(UnfinishTransferPage));
 		Routing.RegisterRoute(ShellBaseRoutes.ABOUT, typeof(AboutPage));
 	}
 }

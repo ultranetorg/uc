@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.Constants;
+﻿using UC.Umc.Pages;
+
+namespace UC.Umc.Constants;
 
 internal static class ShellBaseRoutes
 {
@@ -28,4 +30,6 @@ internal static class ShellBaseRoutes
 	public const string SEND = nameof(SendPage);
 	public const string TRANSACTIONS = nameof(TransactionsPage);
     public const string TRANSFER = nameof(ETHTransferPage);
+	public const string COMPLETED_TRANSFERS = nameof(TransferCompletePage);
+	public const string UNFINISHED_TRANSFERS = nameof(UnfinishTransferPage);
 }

@@ -104,14 +104,28 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	}
 
 	[RelayCommand]
-    private async Task UnfinishedTransfersAsync()
+    private async Task OpenOptionsPopupAsync()
     {
-        await Shell.Current.Navigation.PushAsync(new UnfinishTransferPage());
+		try
+		{
+			await ShowPopup(new TransferOptionsPopup());
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenOptionsPopupAsync Error: {Message}", ex.Message);
+		}
     }
 
 	[RelayCommand]
     private async Task ConfirmAsync()
     {
-        await Shell.Current.Navigation.PushAsync(new TransferCompletePage());
+		try
+		{
+			await Navigation.GoToAsync(nameof(TransferCompletePage));
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("ConfirmAsync Error: {Message}", ex.Message);
+		}
     }
 }

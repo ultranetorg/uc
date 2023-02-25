@@ -12,9 +12,15 @@ public partial class ProductOptionsViewModel : BaseViewModel
 	[RelayCommand]
 	private async Task TransferProductAsync()
 	{
-		await Navigation.GoToAsync(nameof(ProductTransferPage),
-			new Dictionary<string, object>() { { QueryKeys.PRODUCT, Product } });
-		await Task.Delay(10);
-		ClosePopup();
+		try
+		{
+			await Navigation.GoToAsync(nameof(ProductTransferPage),
+				new Dictionary<string, object>() { { QueryKeys.PRODUCT, Product } });
+			ClosePopup();
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("TransferProductAsync Error: {Message}", ex.Message);
+		}
 	}
 }

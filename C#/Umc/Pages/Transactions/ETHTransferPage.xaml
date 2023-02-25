@@ -34,7 +34,7 @@
                     Opacity="0.5"
                     HeightRequest="44"
                     Source="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Dots}}"
-                    Command="{Binding UnfinishedTransfersCommand}" />
+                    Command="{Binding OpenOptionsPopupCommand}" />
             </AbsoluteLayout>
         </FlexLayout>
     </Shell.TitleView>
@@ -43,7 +43,7 @@
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="16">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
@@ -59,7 +59,7 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-                        <StackLayout Spacing="20">
+                        <StackLayout Spacing="24">
                             <StackLayout Spacing="16">
                                 <StackLayout>
                                     <Label FontSize="18" Text="Choose your Ethereum private key and transfer amount" />
@@ -275,7 +275,7 @@
             <Grid
                 Grid.Row="2"
                 ColumnDefinitions="*,*"
-                ColumnSpacing="15">
+                ColumnSpacing="16">
                 <Grid.Triggers>
                     <DataTrigger
                         Binding="{Binding Position}"
@@ -294,6 +294,11 @@
                     Style="{StaticResource NextButton}" />
             </Grid>
             <StackLayout Grid.Row="2" IsVisible="False">
+                <Button Command="{Binding ConfirmCommand}" Style="{StaticResource ConfirmButton}" />
+                <Button
+                    Style="{StaticResource LabelButton}"
+                    Command="{Binding PrevCommand}"
+                    Text="Cancel" />
                 <StackLayout.Triggers>
                     <DataTrigger
                         Binding="{Binding Position}"
@@ -302,8 +307,6 @@
                         <Setter Property="IsVisible" Value="True" />
                     </DataTrigger>
                 </StackLayout.Triggers>
-                <Button Command="{Binding ConfirmCommand}" Style="{StaticResource ConfirmButton}" />
-                <Button Style="{StaticResource LabelButton}" Text="Cancel" />
             </StackLayout>
         </Grid>
     </controls:CustomPage.MainContent>

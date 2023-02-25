@@ -94,6 +94,7 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();
 		builder.Services.AddTransient<ProductOptionsViewModel>();
+		builder.Services.AddTransient<TransferOptionsViewModel>();
 
 		#endregion
 
