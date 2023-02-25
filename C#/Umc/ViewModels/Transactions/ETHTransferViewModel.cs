@@ -1,6 +1,4 @@
-﻿using UC.Umc.Pages;
-
-namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public partial class ETHTransferViewModel : BaseAccountViewModel
 {
@@ -24,9 +22,13 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(UntAmount))]
+	[NotifyPropertyChangedFor(nameof(EthCommission))]
+	[NotifyPropertyChangedFor(nameof(UntCommission))]
 	private decimal _ethAmount;
 
-	public decimal UntAmount => EthAmount;
+	public decimal UntAmount => EthAmount * 10;
+	public decimal EthCommission => (EthAmount + 1) / 100;
+	public decimal UntCommission => (EthAmount + 1) / 10;
 
     public ETHTransferViewModel(ILogger<ETHTransferViewModel> logger) : base(logger)
     {

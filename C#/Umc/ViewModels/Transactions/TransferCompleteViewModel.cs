@@ -5,6 +5,16 @@ public partial class TransferCompleteViewModel : BaseViewModel
 	[ObservableProperty]
     private AccountViewModel _account;
 
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(UntComission))]
+	[NotifyPropertyChangedFor(nameof(EthComission))]
+	private decimal _untAmount = 112;
+
+	public decimal UntComission => (UntAmount + 1) / 10;
+	public decimal EthComission => (UntAmount + 1) / 100;
+
+	public string TransactionDate => "10/15/2021 19:24";
+
     public TransferCompleteViewModel(ILogger<TransferCompleteViewModel> logger) : base(logger)
     {
 		LoadData();

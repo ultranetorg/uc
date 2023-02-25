@@ -5,10 +5,16 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
-    private CustomCollection<Models.Emission> _emissions = new();
+    private AccountViewModel _account;
 
 	[ObservableProperty]
-    private AccountViewModel _account;
+    private CustomCollection<Emission> _emissions = new();
+
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(UntAmount))]
+	private decimal _ethAmount = 112;
+
+	public decimal UntAmount => EthAmount * 10;
 
     public UnfinishTransferViewModel(IServicesMockData service, ILogger<UnfinishTransferViewModel> logger) : base(logger)
     {

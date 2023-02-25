@@ -150,11 +150,11 @@
                                             Text="ETH" />
                                     </AbsoluteLayout>
                                     <StackLayout >
-                                        <Label
+                                        <!--<Label
                                             FontSize="12"
                                             IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
                                             Text="Validation text message"
-                                            TextColor="{StaticResource Red}" />
+                                            TextColor="{StaticResource Red}" />-->
                                     </StackLayout>
                                 </StackLayout>
                                 <Image
@@ -193,11 +193,11 @@
                                             Text="UNT" />
                                     </AbsoluteLayout>
                                     <StackLayout>
-                                        <Label
+                                        <!--<Label
                                             FontSize="12"
                                             IsVisible="{Binding IsNotValid, Source={x:Reference cb2}}"
                                             Text="Validation text message"
-                                            TextColor="{StaticResource Red}" />
+                                            TextColor="{StaticResource Red}" />-->
                                     </StackLayout>
                                 </StackLayout>
                             </Grid>
@@ -254,7 +254,7 @@
                                 <Label Grid.Column="0" Text="Ethereum amount to transfer" />
                                 <Label
                                     Grid.Column="1"
-                                    Text="345 ETH" />
+                                    Text="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=EthAmount, StringFormat='{0} ETH'}" />
                             </Grid>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="To destination Ultranet Account" />
@@ -263,9 +263,9 @@
                                     BorderStyle="{StaticResource AccountBorder}" />
                             </StackLayout>
                             <StackLayout Spacing="10">
-                                <controls:LabelPair Text1="UNT amount" Text2="22355 UNT" />
-                                <controls:LabelPair Text1="ETH comission" Text2="1 ETH" />
-                                <controls:LabelPair Text1="UNT comission" Text2="12 UNT" />
+                                <controls:LabelPair Text1="UNT amount" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=UntAmount, StringFormat='{0} UNT'}" />
+                                <controls:LabelPair Text1="ETH comission" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=EthCommission, StringFormat='{0} ETH'}" />
+                                <controls:LabelPair Text1="UNT comission" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=UntCommission, StringFormat='{0} UNT'}" />
                             </StackLayout>
                         </StackLayout>
                     </x:Array>
@@ -294,7 +294,7 @@
                     Style="{StaticResource NextButton}" />
             </Grid>
             <StackLayout Grid.Row="2" IsVisible="False">
-                <Button Command="{Binding ConfirmCommand}" Style="{StaticResource ConfirmButton}" />
+                <Button Command="{Binding ConfirmCommand}" Text="Confirm" />
                 <Button
                     Style="{StaticResource LabelButton}"
                     Command="{Binding PrevCommand}"
