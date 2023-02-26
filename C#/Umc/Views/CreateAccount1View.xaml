@@ -15,8 +15,8 @@
                 Style="{StaticResource Regular}"
                 Text="Use strong password for account" />
         </StackLayout>
-        <controls:BorderEntry IsPassword="True" Text="{Binding Password}">
-            <controls:BorderEntry.Behaviors>
+        <controls:FormEntryControl IsPassword="True" Value="{Binding Password}" TextChanged="{Binding TextChangedCommand}">
+            <controls:FormEntryControl.Behaviors>
                 <toolkit:MultiValidationBehavior>
                     <toolkit:TextValidationBehavior MinimumLength="8" />
                     <toolkit:CharactersValidationBehavior CharacterType="Digit" MinimumCharacterTypeCount="1" />
@@ -25,8 +25,8 @@
                     <toolkit:CharactersValidationBehavior CharacterType="NonAlphanumericSymbol" MinimumCharacterTypeCount="1" />
                     <toolkit:CharactersValidationBehavior CharacterType="Whitespace" MaximumCharacterTypeCount="0" />
                 </toolkit:MultiValidationBehavior>
-            </controls:BorderEntry.Behaviors>
-        </controls:BorderEntry>
+            </controls:FormEntryControl.Behaviors>
+        </controls:FormEntryControl>
         <Button
             Margin="0,-8,0,0"
             Style="{StaticResource RandomizeButton}"
@@ -36,27 +36,10 @@
             Style="{StaticResource Regular}"
             Text="Characteristics of strong passwords" />
         <StackLayout>
-            <Grid ColumnDefinitions="32,*">
-                <ImageButton Grid.Column="0" Style="{StaticResource Check}">
-                    <ImageButton.Behaviors>
-                        <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource UnSelectedColorLight}}" />
-                    </ImageButton.Behaviors>
-                    <ImageButton.Triggers>
-                        <DataTrigger TargetType="ImageButton" Binding="{Binding CharCountDone}" Value="True">
-                            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{StaticResource Primary}" />
-                        </DataTrigger>
-                    </ImageButton.Triggers>
-                </ImageButton>
-                <Label
-                    Grid.Column="1"
-                    FontSize="13"
-                    Style="{StaticResource SubText}"
-                    Text="At least 8 characters - the more characters the better"
-                    VerticalOptions="Center" />
-            </Grid>
-            <controls:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="True"/>
-            <controls:ImageTextColumn Text="A mixture of letters and numbers" IsEnabledImage="True"/>
-            <controls:ImageTextColumn Text="Inclusion of at least one special character e.g !@#" IsEnabledImage="False"/>
+            <controls:ImageTextColumn Text="At least 8 characters - the more characters the better" IsEnabledImage="{Binding CharCountDone}"/>
+            <controls:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="{Binding BothCasesDone}"/>
+            <controls:ImageTextColumn Text="A mixture of letters and numbers" IsEnabledImage="{Binding NumbersIncluded}"/>
+            <controls:ImageTextColumn Text="Inclusion of at least one special character e.g !@#" IsEnabledImage="{Binding SpecialCharacterIncluded}"/>
         </StackLayout>
     </StackLayout>
 </ContentView>

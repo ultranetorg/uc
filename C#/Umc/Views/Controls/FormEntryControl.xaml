@@ -19,6 +19,7 @@
         FontSize="14"
         IsEnabled="{Binding IsEnabled}"
         IsReadOnly="{Binding IsReadOnly}"
+        IsPassword="{Binding IsPassword}"
         IsTextPredictionEnabled="{Binding IsTextPredictionEnabled}"
         Keyboard="{Binding Keyboard}"
         MaxLength="{Binding MaxLength}"

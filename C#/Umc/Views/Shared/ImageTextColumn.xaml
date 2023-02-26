@@ -15,5 +15,11 @@
         FontSize="13"
         Style="{StaticResource SubText}"
         Text="{Binding Text, Source={x:Reference Instance}}}"
-        VerticalOptions="Center" />
+        VerticalOptions="Center">
+        <Label.Triggers>
+            <DataTrigger TargetType="Label" Binding="{Binding IsEnabledImage, Source={x:Reference Instance}}" Value="True">
+                <Setter Property="TextColor" Value="{StaticResource Primary}" />
+            </DataTrigger>
+        </Label.Triggers>
+    </Label>
 </Grid>

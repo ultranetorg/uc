@@ -1,7 +1,8 @@
 ﻿namespace UC.Umc.Common.Constants;
 
-public class TextResources
+public class TextConstants
 {
+	public const string SPECIAL_CHARACTERS = @"%!@#$%^&*()?/>.<,:;'\|}]{[_~`+=-" + "\"";
 	public const string PRIVATEKEY_WARNING1 = "Never show and share your private key with other person!";
 	public const string PRIVATEKEY_WARNING2 = "This can lead to the loss of funds, domains and applications on the account";
 

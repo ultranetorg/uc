@@ -16,11 +16,11 @@
                 <StackLayout Grid.Row="0">
                     <Label
                         FontSize="18"
-                        Text="{x:Static constants:TextResources.PRIVATEKEY_WARNING1}" />
+                        Text="{x:Static constants:TextConstants.PRIVATEKEY_WARNING1}" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="{x:Static constants:TextResources.PRIVATEKEY_WARNING2}" />
+                        Text="{x:Static constants:TextConstants.PRIVATEKEY_WARNING2}" />
                 </StackLayout>
                 
                 <views:AccountView

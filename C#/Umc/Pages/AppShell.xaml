@@ -12,15 +12,6 @@
     BackgroundColor="{StaticResource Secondary}">
     
     <FlyoutItem
-        Title="{Binding Transfer.Title}"
-        Route="{Static constants:ShellBaseRoutes.TRANSFER}">
-        <ShellContent
-            Title="{Binding Transfer.Title}"
-            Icon="{AppThemeBinding Light=Transfer.Icon,Dark=Transfer.IconDark}"
-            ContentTemplate="{DataTemplate pages:ETHTransferPage}" />
-    </FlyoutItem>
-    
-    <FlyoutItem
         Title="{Binding Accounts.Title}"
         Route="{Static constants:ShellBaseRoutes.ACCOUNTS}">
         <ShellContent
@@ -72,6 +63,15 @@
             Title="{Binding Transactions.Title}"
             Icon="{AppThemeBinding Light=Transactions.Icon,Dark=Transactions.IconDark}"
             ContentTemplate="{DataTemplate pages:TransactionsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Transfer.Title}"
+        Route="{Static constants:ShellBaseRoutes.TRANSFER}">
+        <ShellContent
+            Title="{Binding Transfer.Title}"
+            Icon="{AppThemeBinding Light=Transfer.Icon,Dark=Transfer.IconDark}"
+            ContentTemplate="{DataTemplate pages:ETHTransferPage}" />
     </FlyoutItem>
     
     <FlyoutItem

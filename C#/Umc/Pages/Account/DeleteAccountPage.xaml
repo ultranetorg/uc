@@ -15,11 +15,11 @@
         <ScrollView Padding="{StaticResource PagePadding}">
             <StackLayout Spacing="30">
                 <StackLayout>
-                    <Label FontSize="18" Text="{x:Static constants:TextResources.DELETEACCOUNT_WARNING1}" />
+                    <Label FontSize="18" Text="{x:Static constants:TextConstants.DELETEACCOUNT_WARNING1}" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="{x:Static constants:TextResources.DELETEACCOUNT_WARNING2}" />
+                        Text="{x:Static constants:TextConstants.DELETEACCOUNT_WARNING2}" />
                 </StackLayout>
                 <views:AccountView
                     BorderStyle="{StaticResource AccountCardBorder}"
