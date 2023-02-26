@@ -8,4 +8,5 @@ public static class QueryKeys
     public const string AUTHOR = "AUTHOR_MODEL";
     public const string PRODUCT = "PRODUCT_MODEL";
     public const string UNT_AMOUNT = "UNT_AMOUNT";
+    public const string ETH_AMOUNT = "ETH_AMOUNT";
 }

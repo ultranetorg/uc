@@ -27,6 +27,7 @@ public partial class TransferCompleteViewModel : BaseViewModel
             Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
             UntAmount = (decimal)query[QueryKeys.UNT_AMOUNT];
 #if DEBUG
+            _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
             _logger.LogDebug("ApplyQueryAttributes UntAmount: {UntAmount}", UntAmount);
 #endif
         }

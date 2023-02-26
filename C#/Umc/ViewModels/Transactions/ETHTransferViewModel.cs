@@ -34,6 +34,30 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
     {
     }
 
+    public override void ApplyQueryAttributes(IDictionary<string, object> query)
+	{
+        try
+        {
+            InitializeLoading();
+
+			Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
+			EthAmount = (decimal)query[QueryKeys.ETH_AMOUNT];
+#if DEBUG
+			_logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
+			_logger.LogDebug("ApplyQueryAttributes EthAmount: {EthAmount}", Account);
+#endif
+		}
+		catch (Exception ex)
+        {
+            _logger.LogError(ex, "ApplyQueryAttributes Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+        finally
+        {
+            FinishLoading();
+        }
+	}
+
 	[RelayCommand]
 	private void ChangeKeySource()
 	{

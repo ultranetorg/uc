@@ -51,7 +51,7 @@
                     </StackLayout>
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand">
-                    <Button Command="{Binding TransactionsCommand}" Text="Transfer" />
+                    <Button Command="{Binding TransferCommand}" Text="Transfer" />
                     <Button Command="{Binding CancelCommand}" Style="{DynamicResource LabelButton}" Text="Cancel" />
                 </StackLayout>
             </StackLayout>

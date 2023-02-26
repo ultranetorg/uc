@@ -18,5 +18,6 @@ public static class Navigation
     public static Task PopModalAsync(bool isAnimated = true) =>
         MainThread.InvokeOnMainThreadAsync(() => Shell.Current.Navigation.PopModalAsync(isAnimated));
 
-    internal static async Task GoToUpwardsAsync(string route) => await GoToAsync($"//{route}");
+    internal static async Task GoToUpwardsAsync(string route, IDictionary<string, object> parameters = null) =>
+		await GoToAsync($"//{route}", parameters);
 }
