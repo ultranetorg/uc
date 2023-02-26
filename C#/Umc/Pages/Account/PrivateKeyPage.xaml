@@ -16,11 +16,11 @@
                 <StackLayout Grid.Row="0">
                     <Label
                         FontSize="18"
-                        Text="{x:Static constants:TextConstants.PRIVATEKEY_WARNING1}" />
+                        Text="Never show and share your private key with other person!" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="{x:Static constants:TextConstants.PRIVATEKEY_WARNING2}" />
+                        Text="This can lead to the loss of funds, domains and applications on the account" />
                 </StackLayout>
                 
                 <views:AccountView

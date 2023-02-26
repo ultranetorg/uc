@@ -89,7 +89,7 @@ public partial class SendViewModel : BaseViewModel
 	[RelayCommand]
     private async Task ConfirmAsync()
     {
-        await Shell.Current.Navigation.PushAsync(new TransferCompletePage());
+        await Navigation.GoToAsync(ShellBaseRoutes.COMPLETED_TRANSFERS);
     }
     
 	[RelayCommand]

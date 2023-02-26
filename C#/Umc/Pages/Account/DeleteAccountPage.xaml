@@ -13,13 +13,13 @@
     x:Name="page">
     <controls:CustomPage.MainContent>
         <ScrollView Padding="{StaticResource PagePadding}">
-            <StackLayout Spacing="30">
+            <StackLayout Spacing="32">
                 <StackLayout>
-                    <Label FontSize="18" Text="{x:Static constants:TextConstants.DELETEACCOUNT_WARNING1}" />
+                    <Label FontSize="18" Text="This account has non zero balance. Do you wish to delete it?" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="{x:Static constants:TextConstants.DELETEACCOUNT_WARNING2}" />
+                        Text="If you have not backuped it or not exported, all moneys, domains and programs will be lost" />
                 </StackLayout>
                 <views:AccountView
                     BorderStyle="{StaticResource AccountCardBorder}"

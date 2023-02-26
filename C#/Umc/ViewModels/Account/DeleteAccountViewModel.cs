@@ -14,7 +14,7 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
     public DeleteAccountViewModel(IServicesMockData service, ILogger<DeleteAccountViewModel> logger) : base(logger)
     {
 		_service = service;
-		Initialize();
+		LoadData();
     }
 
     public override void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -55,7 +55,7 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
 		}
 	}
 
-	private void Initialize()
+	private void LoadData()
 	{
 		Authors.Clear();
 		Products.Clear();

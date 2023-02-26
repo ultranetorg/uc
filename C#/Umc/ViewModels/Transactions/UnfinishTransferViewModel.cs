@@ -12,7 +12,7 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(UntAmount))]
-	private decimal _ethAmount = 112;
+	private decimal _ethAmount;
 
 	public decimal UntAmount => EthAmount * 10;
 
@@ -25,13 +25,13 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 	[RelayCommand]
     private async Task TransactionsAsync()
     {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
+        await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSACTIONS);
     }
 
 	[RelayCommand]
     private async Task CancelAsync()
     {
-        await Shell.Current.Navigation.PopAsync();
+        await Navigation.PopAsync();
     }
 
 	private void Initialize()
@@ -39,5 +39,6 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 		Emissions.Clear();
 		Emissions.AddRange(_service.Emissions);
 		Account = DefaultDataMock.CreateAccount();
+		EthAmount = new Random().Next(1, 100);
 	}
 }

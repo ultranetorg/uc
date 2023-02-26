@@ -123,7 +123,11 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
     {
 		try
 		{
-			await Navigation.GoToAsync(nameof(TransferCompletePage));
+			await Navigation.GoToAsync(ShellBaseRoutes.COMPLETED_TRANSFERS, new Dictionary<string, object>()
+			{
+				{QueryKeys.ACCOUNT, Account},
+				{QueryKeys.UNT_AMOUNT, UntAmount }
+			});
 		}
 		catch (Exception ex)
 		{

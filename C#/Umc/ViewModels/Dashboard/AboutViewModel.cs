@@ -9,7 +9,7 @@ public partial class AboutViewModel : BaseViewModel
 	[RelayCommand]
     private async Task CancelAsync()
     {
-        await Shell.Current.Navigation.PopAsync();
+        await Navigation.PopAsync();
     }
 	
 	[RelayCommand]

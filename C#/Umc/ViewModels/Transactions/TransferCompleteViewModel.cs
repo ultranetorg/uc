@@ -8,32 +8,49 @@ public partial class TransferCompleteViewModel : BaseViewModel
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(UntComission))]
 	[NotifyPropertyChangedFor(nameof(EthComission))]
-	private decimal _untAmount = 112;
+	private decimal _untAmount;
 
 	public decimal UntComission => (UntAmount + 1) / 10;
 	public decimal EthComission => (UntAmount + 1) / 100;
-
 	public string TransactionDate => "10/15/2021 19:24";
 
     public TransferCompleteViewModel(ILogger<TransferCompleteViewModel> logger) : base(logger)
     {
-		LoadData();
     }
 
-	private void LoadData()
+    public override void ApplyQueryAttributes(IDictionary<string, object> query)
 	{
-		Account = DefaultDataMock.CreateAccount();
+        try
+        {
+            InitializeLoading();
+			
+            Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
+            UntAmount = (decimal)query[QueryKeys.UNT_AMOUNT];
+#if DEBUG
+            _logger.LogDebug("ApplyQueryAttributes UntAmount: {UntAmount}", UntAmount);
+#endif
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ApplyQueryAttributes Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+        finally
+        {
+            FinishLoading();
+        }
 	}
 	
 	[RelayCommand]
     private async Task TransactionsAsync()
     {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
+		try
+		{
+			await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSACTIONS);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("TransactionsAsync Error: {Message}", ex.Message);
+		}
     }
-
-	[RelayCommand]
-    private async Task DeleteAsync()
-	{
-		await ShowPopup(new DeleteAccountPopup(Account));
-	}
 }
