@@ -30,9 +30,6 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 
     public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
 
-	[ObservableProperty]
-    public GradientBrush _background;
-
     public RestoreAccountViewModel(ILogger<RestoreAccountViewModel> logger) : base(logger)
     {
     }
@@ -42,31 +39,6 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 	{
 		IsPrivateKey = !IsPrivateKey;
 		IsFilePath = !IsFilePath;
-	}
-
-	[RelayCommand]
-    private async Task ClosePageAsync()
-    {
-        await Shell.Current.Navigation.PopAsync();
-	}
-
-	[RelayCommand]
-    private async Task OpenAccountColorPopupAsync()
-	{
-		try
-		{
-			var popup = new AccountColorPopup();
-			await ShowPopup(popup);
-			
-			if (popup.Vm?.Background != null)
-			{
-				Background = popup.Vm.Background;
-			}
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError("OpenAccountColorPopupAsync Error: {Message}", ex.Message);
-		}
 	}
 
 	[RelayCommand]
@@ -105,6 +77,5 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 		{
 			_logger.LogError("NextWorkaroundAsync Error: {Message}", ex.Message);
 		}
-		
 	}
 }

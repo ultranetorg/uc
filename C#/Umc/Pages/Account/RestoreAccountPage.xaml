@@ -5,34 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:RestoreAccountViewModel"
     Title="Restore Account"
     x:Name="page">
-    <controls:CustomPage.Resources>
-        <DataTemplate x:Key="ColorsCollection" x:DataType="models:AccountColor">
-            <Border
-                Padding="0"
-                Background="{Binding Color}"
-                StrokeShape="RoundRectangle 16"
-                HeightRequest="34"
-                HorizontalOptions="Center"
-                VerticalOptions="Center"
-                WidthRequest="34">
-                <ImageButton
-                    Background="{Binding Color}"
-                    Command="{Binding BindingContext.SetAccountColorCommand, Source={x:Reference page}}"
-                    CommandParameter="{Binding .}"
-                    BorderColor="Transparent"
-                    CornerRadius="15"
-                    HeightRequest="30"
-                    WidthRequest="30"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center" />
-            </Border>
-        </DataTemplate>
-    </controls:CustomPage.Resources>
-    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
@@ -53,6 +30,7 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
+                        <!--Step #1-->
                         <StackLayout Spacing="16">
                             <StackLayout>
                                 <Label FontSize="18" Text="Choose private key" />
@@ -109,6 +87,7 @@
                                     IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=ShowFilePassword}"
                                     Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=WalletFilePassword}" />
                             </StackLayout>
+                            
                             <StackLayout Spacing="10">
                                 <Label Style="{StaticResource DashLabel}" Text="Public key" />
                                 <Label
@@ -123,47 +102,9 @@
                                 </Border>
                             </StackLayout>
                         </StackLayout>
-                        <StackLayout Spacing="16">
-                            <StackLayout>
-                                <Label FontSize="18" Text="Choose account name and color" />
-                                <Label
-                                    FontSize="13"
-                                    Style="{StaticResource Regular}"
-                                    Text="Choose desired Account name and color" />
-                            </StackLayout>
-                            <controls:FormEntryControl
-                                Placeholder="Account Name"
-                                Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=AccountName}"
-                                ErrorMessage="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=AccountNameError}"
-                                Margin="0,8,0,0"
-                                MaxLength="30"
-                                MinLength="1" />
-
-                            <Label
-                                FontSize="13"
-                                Style="{StaticResource Regular}"
-                                Text="Choose desired Account name and color" />
-                            <Grid ColumnDefinitions="*,3*">
-                                <Border
-                                    Grid.Column="0"
-                                    Padding="0"
-                                    Background="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=Background}"
-                                    StrokeShape="RoundRectangle 8"
-                                    HeightRequest="60"
-                                    VerticalOptions="Center"
-                                    WidthRequest="60">
-                                    <Label
-                                        HorizontalOptions="Center"
-                                        TextColor="{StaticResource PrimaryLight}"
-                                        Text="0x123"
-                                        VerticalOptions="Center" />
-                                </Border>
-                                 <Button
-                                    Grid.Column="1"
-                                    Text="Select Account Color"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=OpenAccountColorPopupCommand}" />
-                            </Grid>
-                        </StackLayout>
+                        
+                        <!--Step #2-->
+                        <views:CreateAccount2View />
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
