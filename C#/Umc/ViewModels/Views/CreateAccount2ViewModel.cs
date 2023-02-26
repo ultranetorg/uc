@@ -1,13 +1,13 @@
 ﻿namespace UC.Umc.ViewModels.Views;
 
-public partial class CreateAccountViewModel : BaseAccountViewModel
+public partial class CreateAccount2ViewModel : BaseAccountViewModel
 {
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
     private AccountColor _selectedAccountColor;
 
-    public CreateAccountViewModel(IServicesMockData service, ILogger<CreateAccountViewModel> logger) : base(logger)
+    public CreateAccount2ViewModel(IServicesMockData service, ILogger<CreateAccount2ViewModel> logger) : base(logger)
     {
 		_service = service;
 		LoadData();

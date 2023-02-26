@@ -4,8 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
-    xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
-    <StackLayout Padding="5" Spacing="30">
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Views"
+    x:DataType="vm:CreateAccount1ViewModel">
+    <StackLayout Padding="4" Spacing="32">
         <StackLayout>
             <Label FontSize="18" Text="Choose account password" />
             <Label
@@ -13,26 +15,38 @@
                 Style="{StaticResource Regular}"
                 Text="Use strong password for account" />
         </StackLayout>
-        <controls:BorderEntry IsPassword="True" Text="password">
+        <controls:BorderEntry IsPassword="True" Text="{Binding Password}">
             <controls:BorderEntry.Behaviors>
-                <xct:MultiValidationBehavior>
-                    <xct:TextValidationBehavior MinimumLength="8" />
-                    <xct:CharactersValidationBehavior CharacterType="Digit" MinimumCharacterTypeCount="1" />
-                    <xct:CharactersValidationBehavior CharacterType="LowercaseLetter" MinimumCharacterTypeCount="1" />
-                    <xct:CharactersValidationBehavior CharacterType="UppercaseLetter" MinimumCharacterTypeCount="1" />
-                    <xct:CharactersValidationBehavior CharacterType="NonAlphanumericSymbol" MinimumCharacterTypeCount="1" />
-                    <xct:CharactersValidationBehavior CharacterType="Whitespace" MaximumCharacterTypeCount="0" />
-                </xct:MultiValidationBehavior>
+                <toolkit:MultiValidationBehavior>
+                    <toolkit:TextValidationBehavior MinimumLength="8" />
+                    <toolkit:CharactersValidationBehavior CharacterType="Digit" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="LowercaseLetter" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="UppercaseLetter" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="NonAlphanumericSymbol" MinimumCharacterTypeCount="1" />
+                    <toolkit:CharactersValidationBehavior CharacterType="Whitespace" MaximumCharacterTypeCount="0" />
+                </toolkit:MultiValidationBehavior>
             </controls:BorderEntry.Behaviors>
         </controls:BorderEntry>
-        <Button Margin="0,-10,0,0" Style="{StaticResource RandomizeButton}" />
+        <Button
+            Margin="0,-8,0,0"
+            Style="{StaticResource RandomizeButton}"
+            Command="{Binding RandomizeCommand}" />
         <Label
             FontSize="13"
             Style="{StaticResource Regular}"
             Text="Characteristics of strong passwords" />
         <StackLayout>
-            <Grid ColumnDefinitions="30,*">
-                <ImageButton Grid.Column="0" Style="{StaticResource Check}" />
+            <Grid ColumnDefinitions="32,*">
+                <ImageButton Grid.Column="0" Style="{StaticResource Check}">
+                    <ImageButton.Behaviors>
+                        <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource UnSelectedColorLight}}" />
+                    </ImageButton.Behaviors>
+                    <ImageButton.Triggers>
+                        <DataTrigger TargetType="ImageButton" Binding="{Binding CharCountDone}" Value="True">
+                            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{StaticResource Primary}" />
+                        </DataTrigger>
+                    </ImageButton.Triggers>
+                </ImageButton>
                 <Label
                     Grid.Column="1"
                     FontSize="13"
@@ -40,9 +54,9 @@
                     Text="At least 8 characters - the more characters the better"
                     VerticalOptions="Center" />
             </Grid>
-            <controls:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="False"/>
+            <controls:ImageTextColumn Text="A mixture of both uppercase and lowercase" IsEnabledImage="True"/>
             <controls:ImageTextColumn Text="A mixture of letters and numbers" IsEnabledImage="True"/>
-            <controls:ImageTextColumn Text="Inclusion of  at least one special character e.g !@#" IsEnabledImage="False"/>
+            <controls:ImageTextColumn Text="Inclusion of at least one special character e.g !@#" IsEnabledImage="False"/>
         </StackLayout>
     </StackLayout>
 </ContentView>

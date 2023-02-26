@@ -1,4 +1,4 @@
-﻿using CreateAccountViewModel = UC.Umc.ViewModels.Views.CreateAccountViewModel;
+﻿using CreateAccount2ViewModel = UC.Umc.ViewModels.Views.CreateAccount2ViewModel;
 namespace UC.Umc.Views;
 
 public partial class CreateAccount2View : ContentView
@@ -6,10 +6,10 @@ public partial class CreateAccount2View : ContentView
     public CreateAccount2View()
     {
         InitializeComponent();
-        BindingContext = Ioc.Default.GetService<CreateAccountViewModel>();
+        BindingContext = Ioc.Default.GetService<CreateAccount2ViewModel>();
     }
 
-    public CreateAccount2View(CreateAccountViewModel vm)
+    public CreateAccount2View(CreateAccount2ViewModel vm)
     {
         InitializeComponent();
         BindingContext = vm;

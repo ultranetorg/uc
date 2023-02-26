@@ -10,20 +10,11 @@
     x:DataType="vm:CreateAccountPageViewModel"
     Title="Create Account"
     x:Name="page">
-    <Shell.TitleView>
-        <sharedViews:PageTitleActionView
-            Title="Manage Accounts"
-            TitleStyle="{StaticResource TitleLabel}"
-            IconSource="close.png"
-            IconStyle="{StaticResource Close}"
-            TapCommand="{Binding CloseCommand}" />
-    </Shell.TitleView>
-    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="32">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"

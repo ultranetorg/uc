@@ -30,7 +30,7 @@ internal static class DefaultDataMock
 
 	public static AccountViewModel CreateAccount(
 		string name = "Main Ultranet Account", decimal balance = 100M) =>
-		new($"0x{CommonHelper.GenerateUniqueID(42)}")
+		new($"0x{CommonHelper.GenerateUniqueId(42)}")
 		{
 			Name = name,
 			Color = ColorHelper.CreateRandomGradientColor(),
@@ -68,10 +68,10 @@ internal static class DefaultDataMock
 		TransactionStatus status = TransactionStatus.None,
 		int unt = 0, string name = null, DateTime? date = null) => new()
 	{
-		Hash = $"0x{CommonHelper.GenerateUniqueID(42)}",
+		Hash = $"0x{CommonHelper.GenerateUniqueId(42)}",
 		Account = account,
-		FromId = CommonHelper.GenerateUniqueID(6),
-		ToId = CommonHelper.GenerateUniqueID(6),
+		FromId = CommonHelper.GenerateUniqueId(6),
+		ToId = CommonHelper.GenerateUniqueId(6),
 		Status = status,
 		Unt = unt,
 		Name = name,

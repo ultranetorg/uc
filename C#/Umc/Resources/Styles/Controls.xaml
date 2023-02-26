@@ -140,12 +140,15 @@
     </Style>
     <Style x:Key="Check" TargetType="ImageButton">
         <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Done}}" />
-        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{StaticResource Primary}" />
+        <!--<Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{StaticResource Primary}" />
         <Style.Triggers>
+            <Trigger TargetType="ImageButton" Property="IsEnabled" Value="True">
+                <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{StaticResource Primary}" />
+            </Trigger>
             <Trigger TargetType="ImageButton" Property="IsEnabled" Value="False">
                 <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource UnSelectedColorLight}}" />
             </Trigger>
-        </Style.Triggers>
+        </Style.Triggers>-->
     </Style>
     <Style x:Key="Cancel" TargetType="ImageButton">
         <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Close}}" />

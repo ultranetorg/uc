@@ -1,5 +1,4 @@
-﻿using Microsoft.Maui.Storage;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace UC.Umc.Helpers;
 
@@ -10,7 +9,7 @@ public static class CommonHelper
 		: (int)(new TimeSpan(date.Ticks - DateTime.Now.Ticks).TotalDays);
 
 	// WBD
-    public static string GenerateUniqueID(int length)
+    public static string GenerateUniqueId(int length)
     {
         int sufficientBufferSizeInBytes = (length * 6 + 7) / 8;
         var buffer = new byte[sufficientBufferSizeInBytes];
