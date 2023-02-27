@@ -12,7 +12,6 @@
     <ResourceDictionary.MergedDictionaries>
         <local:Colors />
         <local:Controls />
-        <local:Templates />
         <local:Layout />
     </ResourceDictionary.MergedDictionaries>
     

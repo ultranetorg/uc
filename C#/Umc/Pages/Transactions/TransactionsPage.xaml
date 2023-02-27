@@ -70,9 +70,6 @@
                                     ColumnSpacing="16"
                                     RowDefinitions="32,32"
                                     RowSpacing="4">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
-                                    </Grid.GestureRecognizers>
                                     <Image
                                         Grid.RowSpan="2"
                                         Grid.Column="0"
@@ -111,6 +108,9 @@
                                         Text="{Binding DisplayUSD}"
                                         HorizontalOptions="End"
                                         VerticalOptions="Start" />
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
                                 </Grid>
                             </Border>
                         </StackLayout>

@@ -10,6 +10,15 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	[ObservableProperty]
     private AccountViewModel _account;
 
+	[ObservableProperty]
+	private bool _isLocal = true;
+
+	[ObservableProperty]
+	private bool _isExternal;
+
+	[ObservableProperty]
+	private bool _isQrCode;
+
     public RecipientAccountViewModel(IServicesMockData service, ILogger<RecipientAccountViewModel> logger): base(logger)
     {
 		_service = service;
