@@ -13,7 +13,7 @@ namespace UC.Net
 		readonly static BigInteger			One = 1_000_000_000_000_000_000;
 
 		public readonly static Coin			Zero = new Coin();
-		internal BigInteger					Attos;
+		public BigInteger					Attos;
 
 		Coin(BigInteger a)
 		{

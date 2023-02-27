@@ -58,18 +58,18 @@ namespace UC.Sun.CLI
 				if(!cmd.Nodes.Any())
 					return;
 
-				string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+				//string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 				Func<Core> getcore =	() =>
 										{
 											if(Core == null)
 											{
-												Core = new Core(Settings, dir, Log)	{
-																						Clock = new RealTimeClock(),
-																						Nas = new Nas(Settings, Log),
-																						GasAsker = new SilentGasAsker(Log),
-																						FeeAsker = new SilentFeeAsker()
-																					};
+												Core = new Core(Settings, exedir, Log)	{
+																							Clock = new RealTimeClock(),
+																							Nas = new Nas(Settings, Log),
+																							GasAsker = new SilentGasAsker(Log),
+																							FeeAsker = new SilentFeeAsker()
+																						};
 											}
 
 											return Core;
@@ -80,12 +80,12 @@ namespace UC.Sun.CLI
 										{
 											if(Core == null)
 											{
-												Core = new Core(Settings, dir, Log)	{
-																						Clock = new RealTimeClock(),
-																						Nas = new Nas(Settings, Log),
-																						GasAsker = new SilentGasAsker(Log),
-																						FeeAsker = new SilentFeeAsker()
-																					};
+												Core = new Core(Settings, exedir, Log)	{
+																							Clock = new RealTimeClock(),
+																							Nas = new Nas(Settings, Log),
+																							GasAsker = new SilentGasAsker(Log),
+																							FeeAsker = new SilentFeeAsker()
+																						};
 
 												Core.RunClient();
 											}
