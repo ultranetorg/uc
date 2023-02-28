@@ -26,6 +26,30 @@ public partial class RecipientAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
+    private void ChangeToLocalSource()
+	{
+		IsLocal = true;
+		IsExternal = false;
+		IsQrCode = false;
+	}
+
+	[RelayCommand]
+    private void ChangeToExternalSource()
+	{
+		IsLocal = false;
+		IsExternal = true;
+		IsQrCode = false;
+	}
+
+	[RelayCommand]
+    private void ChangeToQrCodeSource()
+	{
+		IsLocal = false;
+		IsExternal = false;
+		IsQrCode = true;
+	}
+
+	[RelayCommand]
     private void Close() => ClosePopup();
 
 	[RelayCommand]

@@ -178,6 +178,6 @@
     <Style x:Key="ContainerBorder" TargetType="Border">
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource LightBackground}}" />
-        <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource LightBackground}}" />
     </Style>
 </ResourceDictionary>

@@ -17,12 +17,12 @@
     <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             HorizontalOptions="FillAndExpand"
-            RowDefinitions="Auto,Auto,Auto"
-            RowSpacing="15">
+            RowDefinitions="Auto,Auto,Auto,Auto"
+            RowSpacing="16">
             <Grid
                 Grid.Row="0"
-                RowDefinitions="25,Auto"
-                RowSpacing="15">
+                RowDefinitions="24,Auto"
+                RowSpacing="16">
                 <Border
                     Grid.Row="0"
                     HorizontalOptions="CenterAndExpand"
@@ -34,27 +34,112 @@
                     HorizontalOptions="Center"
                     Text="Recipient Account" />
             </Grid>
-            <!--Tabs Template: 
-            <StackLayout>
-                <Frame
-                    Margin="2"
-                    Padding="5"
-                    BackgroundColor="{TemplateBinding CurrentBadgeBackgroundColor}"
-                    CornerRadius="10"
-                    HasShadow="False"
-                    HeightRequest="34">
-                    <Grid VerticalOptions="CenterAndExpand">
-                        <Label
-                            FontSize="13"
-                            HorizontalOptions="Center"
-                            Text="{TemplateBinding Text}"
-                            TextColor="{TemplateBinding CurrentTextColor}" />
-                    </Grid>
-                </Frame>
-            </StackLayout>-->
+            
+            <!--Tab Switch-->
+            <Border
+                Grid.Row="1"
+                Margin="8"
+                Style="{StaticResource ContainerBorder}"
+                BackgroundColor="Transparent">
+                <Grid Margin="4" ColumnDefinitions="*,*,*">
+                    <Border
+                        Style="{StaticResource ContainerBorder}"
+                        Stroke="Transparent"
+                        HeightRequest="32">
+                        <Grid>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Text="Local"
+                                TextColor="{TemplateBinding CurrentTextColor}" />
+                            <Grid.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsLocal}"
+                                    TargetType="Grid"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource PrimaryForLight}}" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding IsLocal}"
+                                    TargetType="Grid"
+                                    Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeToLocalSourceCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border
+                        Grid.Column="1"
+                        Style="{StaticResource ContainerBorder}"
+                        Stroke="Transparent"
+                        HeightRequest="32">
+                        <Grid>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Text="External"
+                                TextColor="{TemplateBinding CurrentTextColor}" />
+                            <Grid.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsExternal}"
+                                    TargetType="Grid"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource PrimaryForLight}}" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding IsExternal}"
+                                    TargetType="Grid"
+                                    Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeToExternalSourceCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border
+                        Grid.Column="2"
+                        Style="{StaticResource ContainerBorder}"
+                        Stroke="Transparent"
+                        HeightRequest="32">
+                        <Grid>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Text="QR Code"
+                                TextColor="{TemplateBinding CurrentTextColor}" />
+                            <Grid.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsQrCode}"
+                                    TargetType="Grid"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource PrimaryForLight}}" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding IsQrCode}"
+                                    TargetType="Grid"
+                                    Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeToQrCodeSourceCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+            </Border>
             
             <!--Tab #1: Local-->
             <Grid
+                Grid.Row="2"
                 IsVisible="{Binding IsLocal}"
                 Margin="16,64,0,0"
                 RowDefinitions="Auto,*"
@@ -136,6 +221,7 @@
             
             <!--Tab #2: External-->
             <StackLayout
+                Grid.Row="2"
                 IsVisible="{Binding IsExternal}"
                 Padding="16,64,16,0"
                 Spacing="20"
@@ -172,6 +258,7 @@
             
             <!--Tab #3: QR Code-->
             <Grid
+                Grid.Row="2"
                 IsVisible="{Binding IsQrCode}"
                 Padding="16,64,32,0"
                 RowDefinitions="Auto,Auto"
@@ -222,7 +309,8 @@
                     </StackLayout>
                 </StackLayout>
             </Grid>
-            <StackLayout Grid.Row="2" Padding="15">
+                
+            <StackLayout Grid.Row="3" Padding="16">
                 <Button Command="{Binding CloseCommand}" Text="Continue" />
                 <Button
                     Command="{Binding CloseCommand}"
