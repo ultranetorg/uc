@@ -2,7 +2,7 @@
 
 public partial class RecipientAccountViewModel : BaseViewModel
 {
-	private readonly IServicesMockData _service;
+	private readonly IAccountsService _service;
 
 	[ObservableProperty]
     private CustomCollection<AccountViewModel> _accounts = new();
@@ -19,7 +19,10 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	[ObservableProperty]
 	private bool _isQrCode;
 
-    public RecipientAccountViewModel(IServicesMockData service, ILogger<RecipientAccountViewModel> logger): base(logger)
+	[ObservableProperty]
+    private string _filter;
+
+    public RecipientAccountViewModel(IAccountsService service, ILogger<RecipientAccountViewModel> logger): base(logger)
     {
 		_service = service;
 		LoadData();
@@ -48,6 +51,37 @@ public partial class RecipientAccountViewModel : BaseViewModel
 		IsExternal = false;
 		IsQrCode = true;
 	}
+	
+	[RelayCommand]
+    public async Task FilterAccountsAsync()
+    {
+		try
+		{
+			Guard.IsNotNull(Filter);
+			InitializeLoading();
+
+			// Search accounts
+			var filteredList = await _service.ListAccountsAsync(Filter);
+			Accounts.Clear();
+			Accounts.AddRange(filteredList);
+
+			if (Account != null)
+			{
+				foreach (var item in Accounts)
+				{
+					item.IsSelected = false;
+				}
+				Account = null;
+			}
+			
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("FilterAccountsAsync Error: {Message}", ex.Message);
+		}
+    }
 
 	[RelayCommand]
     private void Close() => ClosePopup();
@@ -55,17 +89,24 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	[RelayCommand]
     private void ItemTapped(AccountViewModel account)
     {
-        //foreach (var item in Accounts)
-        //{
-        //    item.IsSelected = false;
-        //}
-        //wallet.IsSelected = true;
+		try
+		{
+			foreach (var item in Accounts)
+			{
+				item.IsSelected = false;
+			}
+			account.IsSelected = true;
+			Account = account;
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("ItemTapped Error: {Message}", ex.Message);
+		}
     }
 	
 	private void LoadData()
 	{
-		Accounts.Clear();
-		Accounts.AddRange(_service.Accounts);
-		Account = DefaultDataMock.CreateAccount();
+		Accounts = new(_service.ListAllAccounts());
 	}
 }

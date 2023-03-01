@@ -10,7 +10,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     x:DataType="vm:RecipientAccountViewModel"
     CanBeDismissedByTappingOutsideOfPopup="True"
-    Size="{x:Static const:SizeConstants.Large}"
+    Size="{x:Static const:SizeConstants.Max}"
     Color="Transparent"
     VerticalOptions="End"
     x:Name="page">
@@ -18,11 +18,11 @@
         <Grid
             HorizontalOptions="FillAndExpand"
             RowDefinitions="Auto,Auto,Auto,Auto"
-            RowSpacing="16">
+            RowSpacing="8">
             <Grid
                 Grid.Row="0"
                 RowDefinitions="24,Auto"
-                RowSpacing="16">
+                RowSpacing="8">
                 <Border
                     Grid.Row="0"
                     HorizontalOptions="CenterAndExpand"
@@ -141,14 +141,17 @@
             <Grid
                 Grid.Row="2"
                 IsVisible="{Binding IsLocal}"
-                Margin="16,64,0,0"
                 RowDefinitions="Auto,*"
-                RowSpacing="16"
+                RowSpacing="8"
                 VerticalOptions="EndAndExpand">
-                <AbsoluteLayout Grid.Row="0" Padding="15">
-                    <controls:BorderEntry AbsoluteLayout.LayoutBounds="0,1,1,1" AbsoluteLayout.LayoutFlags="All" />
+                <AbsoluteLayout MaximumHeightRequest="120" MaximumWidthRequest="80" Grid.Row="0" Padding="16">
+                    <controls:FormEntryControl
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        TextChanged="{Binding FilterAccountsCommand}"
+                        Value="{Binding Filter, Mode=TwoWay}" />
                     <Image
-                        Margin="10,0"
+                        Margin="12,0"
                         AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                         AbsoluteLayout.LayoutFlags="PositionProportional"
                         HorizontalOptions="End"
@@ -158,17 +161,20 @@
                 <ListView
                     Grid.Row="1"
                     BackgroundColor="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource PrimaryLight}}"
-                    HeightRequest="350"
+                    HeightRequest="400"
+                    SelectionMode="None"
                     ItemsSource="{Binding Accounts}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:AccountViewModel">
                             <ViewCell>
                                 <Border
-                                    Margin="15,5,15,5"
-                                    Padding="0"
+                                    Margin="12,4"
+                                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}"
                                     StrokeShape="RoundRectangle 6">
                                     <Grid
-                                        ColumnDefinitions="*,Auto,10"
+                                        ColumnDefinitions="*,Auto,12"
+                                        ColumnSpacing="8"
+                                        Padding="4,8"
                                         RowDefinitions="Auto,Auto">
                                         <Label
                                             Grid.Row="0"
@@ -192,7 +198,7 @@
                                         <StackLayout
                                             Grid.RowSpan="2"
                                             Grid.Column="2"
-                                            Margin="0,-5,0,-5"
+                                            Margin="0,-4"
                                             BackgroundColor="{Binding Color}" />
                                         <Grid.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
