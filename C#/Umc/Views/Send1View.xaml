@@ -23,7 +23,7 @@
                 Style="{StaticResource Regular}"
                 Text="Specify source Ultranet Account that will transfer moneys" />
             <views:AccountView
-                BorderStyle="{StaticResource AccountBorder}"
+                BorderStyle="{StaticResource AccountCardBorderDark}"
                 Margin="0,8"
                 Account="{Binding SourceAccount}" />
             <StackLayout.GestureRecognizers>
@@ -38,7 +38,7 @@
                 Style="{StaticResource Regular}"
                 Text="Specify destination Ultranet Account that will receive moneys." />
             <views:AccountView
-                BorderStyle="{StaticResource AccountBorder}"
+                BorderStyle="{StaticResource AccountCardBorderDark}"
                 Margin="0,8"
                 Account="{Binding RecipientAccount}" />
             <StackLayout.GestureRecognizers>

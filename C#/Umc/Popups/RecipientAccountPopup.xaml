@@ -179,29 +179,36 @@
                                         <Label
                                             Grid.Row="0"
                                             Grid.Column="0"
-                                            Margin="10,5,0,0"
+                                            Margin="10,4,0,0"
                                             FontSize="12"
                                             Text="{Binding Name}" />
                                         <Label
                                             Grid.Row="1"
                                             Grid.Column="0"
-                                            Margin="10,0,0,5"
-                                            FontSize="10"
-                                            Style="{StaticResource UNTLabel}"
+                                            Margin="10,0,0,4"
+                                            FontSize="8"
+                                            FontAttributes="None"
+                                            TextColor="{AppThemeBinding Dark={StaticResource Gray500}, Light={StaticResource Gray200}}"
                                             Text="{Binding Address}" />
                                         <Label
                                             Grid.RowSpan="2"
                                             Grid.Column="1"
                                             FontSize="12"
+                                            FontAttributes="Bold"
                                             Text="{Binding RoundedBalance, StringFormat='{0} UNT'}"
                                             VerticalOptions="Center" />
-                                        <StackLayout
+                                        <Border
                                             Grid.RowSpan="2"
                                             Grid.Column="2"
-                                            Margin="0,-4"
-                                            BackgroundColor="{Binding Color}" />
+                                            StrokeShape="RoundRectangle 0,20"
+                                            Margin="0,-12,-6,-12"
+                                            HeightRequest="60"
+                                            WidthRequest="18"
+                                            Background="{Binding Color}" />
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={Reference page}}" CommandParameter="{Binding .}" />
+                                            <TapGestureRecognizer
+                                                Command="{Binding ItemTappedCommand, Source={RelativeSource AncestorType={x:Type vm:RecipientAccountViewModel}}}"
+                                                CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
                                         <Grid.Triggers>
                                             <DataTrigger
