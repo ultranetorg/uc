@@ -62,7 +62,8 @@
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0-rc.2.22472.3" />
 	  <PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
-	  <PackageReference Include="Sharpnado.Tabs.Maui" Version="3.0.1" />
+	  <PackageReference Include="ZXing.Net.Maui" Version="0.2.0-preview.2" />
+	  <PackageReference Include="ZXing.Net.Maui.Controls" Version="0.2.0-preview.2" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -368,6 +369,24 @@
 	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
+	  <PackageReference Include="ZXing.Net.Maui">
+	    <Version>0.3.0-preview.1</Version>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android'">
+	  <PackageReference Include="ZXing.Net.Maui">
+	    <Version>0.3.0-preview.1</Version>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows10.0.19041.0'">
+	  <PackageReference Include="ZXing.Net.Maui">
+	    <Version>0.3.0-preview.1</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">

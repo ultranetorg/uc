@@ -8,6 +8,7 @@
     xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
     x:DataType="vm:RecipientAccountViewModel"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Size="{x:Static const:SizeConstants.Max}"
@@ -236,8 +237,8 @@
             <StackLayout
                 Grid.Row="2"
                 IsVisible="{Binding IsExternal}"
-                Padding="16,64,16,0"
-                Spacing="20"
+                Padding="16,32,16,0"
+                Spacing="16"
                 VerticalOptions="EndAndExpand">
                 <StackLayout>
                     <Label Text="Recipient UNT address" />
@@ -247,8 +248,8 @@
                         Text="Please specify Ethereum account private key" />
                 </StackLayout>
                 <StackLayout Spacing="8">
-                    <controls:BorderEntry Placeholder="Account name" Text="0x63FaC9201494f0bd17B9892B9fae4d52fe3BD377">
-                            <controls:BorderEntry.Behaviors>
+                    <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
+                            <controls:FormEntryControl.Behaviors>
                                 <toolkit:CharactersValidationBehavior
                                     x:Name="cb"
                                     CharacterType="Letter"
@@ -257,8 +258,8 @@
                                     MaximumCharacterTypeCount="30"
                                     MinimumCharacterTypeCount="1"
                                     ValidStyle="{StaticResource Valid}" />
-                            </controls:BorderEntry.Behaviors>
-                    </controls:BorderEntry>
+                            </controls:FormEntryControl.Behaviors>
+                    </controls:FormEntryControl>
                     <StackLayout >
                         <Label
                             FontSize="12"
@@ -282,27 +283,17 @@
                     Padding="0"
                     HorizontalOptions="Fill"
                     VerticalOptions="Fill">
-                    <!--<Border.Triggers>
-                        <DataTrigger
-                            Binding="{Binding SelectedIndex, Source={Reference tv}}"
-                            TargetType="Frame"
-                            Value="2">
-                            <Setter Property="HeightRequest" Value="323" />
-                        </DataTrigger>
-                        <DataTrigger
-                            Binding="{Binding SelectedIndex, Source={Reference tv}}"
-                            TargetType="Frame"
-                            Value="1">
-                            <Setter Property="HeightRequest" Value="0" />
-                        </DataTrigger>
-                    </Border.Triggers>-->
                     <!-- xmlns:zxing="clr-namespace:ZXing.Net.Mobile.Forms;assembly=ZXing.Net.Mobile.Forms"-->
-                    <!--<zxing:ZXingScannerView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />-->
+                    <!--<zxing:ZXingScannerView  HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />-->
+                    <zxing:CameraBarcodeReaderView
+                        HorizontalOptions="FillAndExpand"
+                        VerticalOptions="FillAndExpand"
+                        BarcodesDetected="cameraBarcodeReaderView_BarcodesDetected" />
                 </Border>
                 <StackLayout Grid.Row="1" Spacing="8">
                     <Label Text="Recipient UNT address" />
-                    <controls:BorderEntry Placeholder="Account name" Text="0x63FaC9201494f0bd17B9892B9fae4d52fe3BD377">
-                        <controls:BorderEntry.Behaviors>
+                    <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
+                        <controls:FormEntryControl.Behaviors>
                             <toolkit:CharactersValidationBehavior
                                 x:Name="cb1"
                                 CharacterType="Letter"
@@ -311,8 +302,8 @@
                                 MaximumCharacterTypeCount="30"
                                 MinimumCharacterTypeCount="1"
                                 ValidStyle="{StaticResource Valid}" />
-                        </controls:BorderEntry.Behaviors>
-                    </controls:BorderEntry>
+                        </controls:FormEntryControl.Behaviors>
+                    </controls:FormEntryControl>
                     <StackLayout>
                         <Label
                             FontSize="12"

@@ -10,4 +10,9 @@ public partial class RecipientAccountPopup : Popup
         BindingContext = Ioc.Default.GetService<RecipientAccountViewModel>();
 		Vm.Popup = this;
     }
+
+	private void cameraBarcodeReaderView_BarcodesDetected(object sender, ZXing.Net.Maui.BarcodeDetectionEventArgs e)
+	{
+		//
+	}
 }

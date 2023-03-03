@@ -22,6 +22,9 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	[ObservableProperty]
     private string _filter;
 
+	[ObservableProperty]
+	private string externalAccount;
+
     public RecipientAccountViewModel(IAccountsService service, ILogger<RecipientAccountViewModel> logger): base(logger)
     {
 		_service = service;
