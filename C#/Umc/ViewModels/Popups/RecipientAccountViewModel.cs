@@ -5,10 +5,10 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	private readonly IAccountsService _service;
 
 	[ObservableProperty]
-    private CustomCollection<AccountViewModel> _accounts = new();
-        
-	[ObservableProperty]
     private AccountViewModel _account;
+
+	[ObservableProperty]
+    private CustomCollection<AccountViewModel> _accounts = new();
 
 	[ObservableProperty]
 	private bool _isLocal = true;

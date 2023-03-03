@@ -4,7 +4,6 @@ public partial class SourceAccountViewModel : BaseViewModel
 {
 	private readonly IAccountsService _service;
 
-	 // selected account
 	[ObservableProperty]
     private AccountViewModel _account;
 

@@ -161,7 +161,8 @@
                 </AbsoluteLayout>
                 <ListView
                     Grid.Row="1"
-                    BackgroundColor="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource PrimaryLight}}"
+                    SelectedItem="{Binding Account}"
+                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray900}, Light={StaticResource Gray200}}"
                     HeightRequest="400"
                     SelectionMode="None"
                     ItemsSource="{Binding Accounts}">
@@ -216,7 +217,7 @@
                                                 Binding="{Binding IsSelected}"
                                                 TargetType="Grid"
                                                 Value="True">
-                                                <Setter Property="BackgroundColor" Value="{Binding Color}" />
+                                                <Setter Property="Background" Value="{Binding Color}" />
                                             </DataTrigger>
                                             <DataTrigger
                                                 Binding="{Binding IsSelected}"
@@ -237,8 +238,8 @@
             <StackLayout
                 Grid.Row="2"
                 IsVisible="{Binding IsExternal}"
-                Padding="16,32,16,0"
-                Spacing="16"
+                Padding="16,64,16,0"
+                Spacing="40"
                 VerticalOptions="EndAndExpand">
                 <StackLayout>
                     <Label Text="Recipient UNT address" />
@@ -247,7 +248,7 @@
                         Style="{StaticResource Regular}"
                         Text="Please specify Ethereum account private key" />
                 </StackLayout>
-                <StackLayout Spacing="8">
+                <StackLayout Spacing="24">
                     <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
                             <controls:FormEntryControl.Behaviors>
                                 <toolkit:CharactersValidationBehavior
@@ -260,7 +261,7 @@
                                     ValidStyle="{StaticResource Valid}" />
                             </controls:FormEntryControl.Behaviors>
                     </controls:FormEntryControl>
-                    <StackLayout >
+                    <StackLayout>
                         <Label
                             FontSize="12"
                             IsVisible="{Binding IsNotValid, Source={x:Reference cb}}"
@@ -274,17 +275,15 @@
             <Grid
                 Grid.Row="2"
                 IsVisible="{Binding IsQrCode}"
-                Padding="16,64,32,0"
+                Padding="16,32,32,0"
                 RowDefinitions="Auto,Auto"
-                RowSpacing="20"
+                RowSpacing="16"
                 VerticalOptions="EndAndExpand">
                 <Border
                     Grid.Row="0"
                     Padding="0"
                     HorizontalOptions="Fill"
                     VerticalOptions="Fill">
-                    <!-- xmlns:zxing="clr-namespace:ZXing.Net.Mobile.Forms;assembly=ZXing.Net.Mobile.Forms"-->
-                    <!--<zxing:ZXingScannerView  HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />-->
                     <zxing:CameraBarcodeReaderView
                         HorizontalOptions="FillAndExpand"
                         VerticalOptions="FillAndExpand"
@@ -314,7 +313,7 @@
                 </StackLayout>
             </Grid>
                 
-            <StackLayout Grid.Row="3" Padding="16">
+            <StackLayout Grid.Row="3" Padding="16" VerticalOptions="EndAndExpand">
                 <Button Command="{Binding CloseCommand}" Text="Continue" />
                 <Button
                     Command="{Binding CloseCommand}"
