@@ -142,7 +142,7 @@ namespace UC.Net
 
 			var s = System.IO.Path.Join(path, FileName);
 
-			var d = new XonDocument(new XonTextReader(File.ReadAllText(s)), XonTextValueSerializator.Default);
+			var d = new XonDocument(File.ReadAllText(s));
 				
 			Password	= d.GetString("Password");
 
@@ -191,7 +191,7 @@ namespace UC.Net
 
 	public class Settings
 	{
-		public const string			FileName = "Settings.xon";
+		public const string			FileName = "Node.xon";
 
 		string						Path; 
 
@@ -202,7 +202,7 @@ namespace UC.Net
 		public int					PeersMin;
 		public int					PeersInMax;
 		public IPAddress			IP = IPAddress.Any;
-		public List<AccountKey>	Generators;
+		public List<AccountKey>		Generators;
 		public string				Profile;
 
 		public static DevSettings	Dev;
@@ -213,7 +213,7 @@ namespace UC.Net
 		public DatabaseSettings		Database;
 		public SecretSettings		Secret;
 
-		public List<Account>		ProposedFundables = new(){};
+		public List<Account>		ProposedFunds = new(){};
 
 		public Cryptography Cryptography
 		{
@@ -247,7 +247,7 @@ namespace UC.Net
 			Profile = boot.Profile;
 			Zone	= Zone.All.First(i => i.Name == boot.Zone);
 
-			var doc = new XonDocument(new XonTextReader(File.ReadAllText(Path)), XonTextValueSerializator.Default);
+			var doc = new XonDocument(File.ReadAllText(Path));
 
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using System.Xml.Linq;
 using NativeImport;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Security;
@@ -722,27 +723,34 @@ namespace UC.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-			var db = core.Database;
 
-			var rmax = Confirmed ? db.LastConfirmedRound : db.LastPayloadRound;
-				
-			var p = db.Products.Find(Realization, rmax.Id);
-			
-			if(p != null)
+ 			lock(core.Lock)
 			{
-				var ms = new List<ReleaseRegistration>();
+				if(!core.Database.Settings.Database.Chain)					throw new RdcException(RdcError.NotChain);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
-				foreach(var r in p.Releases)
+				var db = core.Database;
+
+				var rmax = Confirmed ? db.LastConfirmedRound : db.LastPayloadRound;
+				
+				var p = db.Products.Find(Realization, rmax.Id);
+			
+				if(p != null)
 				{
-					var rr = db.FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Release == Realization && i.Release.Version == r.Version);
-					//var re = FindRound(r.Rid).FindProduct(query).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
-					ms.Add(rr);
-				}
+					var ms = new List<ReleaseRegistration>();
 
-				return new ReleaseHistoryResponse{Releases = ms};
+					foreach(var r in p.Releases)
+					{
+						var rr = db.FindRound(r.Rid).FindOperation<ReleaseRegistration>(i => i.Release == Realization && i.Release.Version == r.Version);
+						//var re = FindRound(r.Rid).FindProduct(query).Releases.Find(i => i.Platform == query.Platform && i.Version == query.Version);
+						ms.Add(rr);
+					}
+
+					return new ReleaseHistoryResponse{Releases = ms};
+				}
+				else
+					throw new RdcException(RdcError.ProductNotFound);
 			}
-			else
-				throw new RdcException(RdcError.ProductNotFound);
 		}
 	}
 	

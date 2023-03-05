@@ -106,7 +106,6 @@ namespace UC.Net
 			}
 
 			Releases.Add(new Release(this, release, manifest));
-			//manifest.ToXon(new XonTextValueSerializator()).Save(new XonTextWriter(File.OpenWrite(p), Encoding.UTF8));
 		}
 
 		public void AddRelease(ReleaseAddress release, byte[] manifest)
@@ -256,6 +255,22 @@ namespace UC.Net
 			return File.Exists(ToPath(release, distributive));
 		}
 
+		public bool ExistsRecursively(ReleaseAddress release)
+		{
+			var r = FindRelease(release);
+
+			if(r == null)
+				return false;
+
+			foreach(var i in r.Manifest.CompleteDependencies)
+			{
+				if(i.Type == DependencyType.Critical && !ExistsRecursively(i.Release))
+					return false;
+			}
+
+			return true;
+		}
+
 		public void DetermineDelta(IEnumerable<ReleaseRegistration> history, Manifest manifest, out Distributive distributive, out List<Dependency> dependencies)
 		{
 			dependencies = new();
@@ -392,14 +407,14 @@ namespace UC.Net
 			var f = Path.Join(dependsdirectory, $"{release.Version.EGRB}.{DependenciesExt}");
 			
 			//var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
-			var deps = File.Exists(f) ? new XonDocument(new XonTextReader(File.ReadAllText(f)), new XonTextValueSerializator()).Nodes.Select(i => Dependency.From(i))
+			var deps = File.Exists(f) ? new XonDocument(File.ReadAllText(f)).Nodes.Select(i => Dependency.From(i))
 									  : new Dependency[]{};
 
 			
 			if(vs.Any())
 			{
 				//var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}")).Select(i => ReleaseAddress.Parse(i));
-				var lastdeps = new XonDocument(new XonTextReader(File.ReadAllText(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}"))), new XonTextValueSerializator()).Nodes.Select(i => Dependency.From(i));
+				var lastdeps = new XonDocument(File.ReadAllText(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}"))).Nodes.Select(i => Dependency.From(i));
 		
 				acd = deps.Where(i => !lastdeps.Contains(i));
 				rcd = lastdeps.Where(i => !deps.Contains(i));
@@ -427,7 +442,7 @@ namespace UC.Net
 			//return o;
 		}
 
-		public void Unpack(ReleaseAddress release, string productsroot)
+		public void Unpack(ReleaseAddress release, string productsroot, bool overwrite = false)
 		{
 			var dir = GetDirectory(release);
 
@@ -442,7 +457,7 @@ namespace UC.Net
 																		.SkipWhile(i => i <= c)
 																		.TakeWhile(i => i <= release.Version); /// take all incremetals before complete
 				
-				var appv = @$"{release.Author}-{release.Product}-{release.Platform}{Path.DirectorySeparatorChar}{release.Version}";
+				var aprr = @$"{release.Author}-{release.Product}-{release.Platform}{Path.DirectorySeparatorChar}{release.Version}";
 
 				var deps = new List<Dependency>();
 
@@ -456,9 +471,13 @@ namespace UC.Net
 						{
 							foreach(var e in arch.Entries)
 							{
-								var f = Path.Join(productsroot, appv, e.FullName.Replace('/', Path.DirectorySeparatorChar));
-								Directory.CreateDirectory(Path.GetDirectoryName(f));
-								e.ExtractToFile(f, true);
+								var f = Path.Join(productsroot, aprr, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+								
+								if(!File.Exists(f) || overwrite)
+								{
+									Directory.CreateDirectory(Path.GetDirectoryName(f));
+									e.ExtractToFile(f, true);
+								}
 							}
 						}
 					}
@@ -487,9 +506,13 @@ namespace UC.Net
 							{
 								if(e.Name != Removals)
 								{
-									var f = Path.Join(productsroot, appv, e.FullName.Replace('/', Path.DirectorySeparatorChar));
-									Directory.CreateDirectory(Path.GetDirectoryName(f));
-									e.ExtractToFile(f, true);
+									var f = Path.Join(productsroot, aprr, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+									
+									if(!File.Exists(f) || overwrite)
+									{
+										Directory.CreateDirectory(Path.GetDirectoryName(f));
+										e.ExtractToFile(f, true);
+									}
 								} 
 								else
 								{
@@ -528,12 +551,16 @@ namespace UC.Net
 
 				if(deps.Any())
 				{
-					//File.WriteAllLines(Path.Join(productsroot, $"{appv}.{DependenciesExt}"), deps.Select(i => i.ToString()));
-					using(var s = File.Create(Path.Join(productsroot, $"{appv}.{DependenciesExt}")))
+					var f = Path.Join(productsroot, $"{aprr}.{DependenciesExt}");
+					
+					if(!File.Exists(f) || overwrite)
 					{
-						var d = new XonDocument(new XonTextValueSerializator());
-						d.Nodes.AddRange(deps.Select(i => new Xon(d.Serializator){ Name = i.Type.ToString(), Value = i.Release.ToString() }));
-						d.Save(new XonTextWriter(s, Encoding.UTF8));
+						using(var s = File.Create(f))
+						{
+							var d = new XonDocument(new XonTextValueSerializator());
+							d.Nodes.AddRange(deps.Select(i => new Xon(d.Serializator){ Name = i.Type.ToString(), Value = i.Release.ToString() }));
+							d.Save(new XonTextWriter(s, Encoding.UTF8));
+						}
 					}
 				}
 			}

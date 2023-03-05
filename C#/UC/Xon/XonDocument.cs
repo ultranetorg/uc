@@ -18,6 +18,11 @@ namespace UC
 		public XonDocument(IXonValueSerializator serializator) : base(serializator)
 		{
 		}
+
+		public XonDocument(string text) : base(XonTextValueSerializator.Default)
+		{
+			Load(null, new XonTextReader(text));
+		}
 		
 		public XonDocument(IXonReader r, IXonValueSerializator serializator) : base(serializator)
 		{
@@ -217,7 +222,7 @@ namespace UC
 	{
 		public override XonDocument Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return new XonDocument(new XonTextReader(reader.GetString()), XonTextValueSerializator.Default);
+			return new XonDocument(reader.GetString());
 		}
 
 		public override void Write(Utf8JsonWriter writer, XonDocument value, JsonSerializerOptions options)
