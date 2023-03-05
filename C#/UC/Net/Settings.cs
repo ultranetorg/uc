@@ -191,7 +191,7 @@ namespace UC.Net
 
 	public class Settings
 	{
-		public const string			FileName = "Node.xon";
+		public const string			FileName = "Sun.settings";
 
 		string						Path; 
 
