@@ -9,22 +9,43 @@ namespace UC.Net
 {
 	public enum DependencyType
 	{
-		Critical, Deferred
+		Null, Critical, Deferred
+	}
+
+	public enum DependencyFlag : byte
+	{
+		Null, SideBySide
 	}
 
 	public class Dependency : IBinarySerializable, IEquatable<Dependency>
 	{
 		public DependencyType Type;
+		public DependencyFlag Flags;
 		public ReleaseAddress Release;
 
 		internal static Dependency From(Xon i)
 		{
 			var d = new Dependency();
 			
-			d.Type = Enum.Parse<DependencyType>(i.Name);
-			d.Release = ReleaseAddress.Parse(i.String);
+			d.Release	= ReleaseAddress.Parse(i.String);
+			d.Type		= Enum.Parse<DependencyType>(i.Name);
+			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.Null;
 
 			return d;
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			Release = reader.Read<ReleaseAddress>();
+			Type = (DependencyType)reader.ReadByte();
+			Flags = (DependencyFlag)reader.ReadByte();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(Release);
+			writer.Write((byte)Type);
+			writer.Write((byte)Flags);
 		}
 
 		public override bool Equals(object obj)
@@ -36,24 +57,13 @@ namespace UC.Net
 		{
 			return other is not null &&
 				   Type == other.Type &&
+				   Flags == other.Flags &&
 				   EqualityComparer<ReleaseAddress>.Default.Equals(Release, other.Release);
 		}
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Type, Release);
-		}
-
-		public void Read(BinaryReader reader)
-		{
-			Release = reader.Read<ReleaseAddress>();
-			Type = (DependencyType)reader.ReadByte();
-		}
-
-		public void Write(BinaryWriter writer)
-		{
-			writer.Write(Release);
-			writer.Write((byte)Type);
+			return HashCode.Combine(Type, Flags, Release);
 		}
 
 		public static bool operator ==(Dependency left, Dependency right)

@@ -47,7 +47,7 @@ namespace UC.Sun.CLI
 				{
 					p += ";" + MapPath(a);
 
-					foreach(var i in Core.Filebase.FindRelease(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical))
+					foreach(var i in Core.Filebase.FindRelease(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
 					{
 						p += ";" + setenv(i.Release, p);
 					}
