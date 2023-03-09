@@ -10,14 +10,14 @@
     ios:Page.UseSafeArea="True"
     x:DataType="vm:ShellViewModel"
     BackgroundColor="{StaticResource Secondary}">
-    
+
     <FlyoutItem
-        Title="{Binding Transfer.Title}"
-        Route="{Static constants:ShellBaseRoutes.TRANSFER}">
-        <ShellContent
-            Title="{Binding Transfer.Title}"
-            Icon="{AppThemeBinding Light=Transfer.Icon,Dark=Transfer.IconDark}"
-            ContentTemplate="{DataTemplate pages:ETHTransferPage}" />
+        Title="{Binding Dashboard.Title}"
+        Route="{Static constants:ShellBaseRoutes.DASHBOARD}">
+        <ShellContent 
+            Title="{Binding Dashboard.Title}"
+            Icon="{AppThemeBinding Light=Dashboard.Icon,Dark=Dashboard.IconDark}"
+            ContentTemplate="{DataTemplate pages:DashboardPage}" />
     </FlyoutItem>
     
     <FlyoutItem
@@ -27,15 +27,6 @@
             Title="{Binding Accounts.Title}"
             Icon="{AppThemeBinding Light=Accounts.Icon,Dark=Accounts.IconDark}"
             ContentTemplate="{DataTemplate pages:ManageAccountsPage}" />
-    </FlyoutItem>
-
-    <FlyoutItem
-        Title="{Binding Dashboard.Title}"
-        Route="{Static constants:ShellBaseRoutes.DASHBOARD}">
-        <ShellContent 
-            Title="{Binding Dashboard.Title}"
-            Icon="{AppThemeBinding Light=Dashboard.Icon,Dark=Dashboard.IconDark}"
-            ContentTemplate="{DataTemplate pages:DashboardPage}" />
     </FlyoutItem>
 
     <FlyoutItem
@@ -72,6 +63,15 @@
             Title="{Binding Transactions.Title}"
             Icon="{AppThemeBinding Light=Transactions.Icon,Dark=Transactions.IconDark}"
             ContentTemplate="{DataTemplate pages:TransactionsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Transfer.Title}"
+        Route="{Static constants:ShellBaseRoutes.TRANSFER}">
+        <ShellContent
+            Title="{Binding Transfer.Title}"
+            Icon="{AppThemeBinding Light=Transfer.Icon,Dark=Transfer.IconDark}"
+            ContentTemplate="{DataTemplate pages:ETHTransferPage}" />
     </FlyoutItem>
     
     <FlyoutItem

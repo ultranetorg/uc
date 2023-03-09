@@ -83,95 +83,98 @@
     
     <controls:CustomPage.MainContent>
         <ScrollView>
-            <StackLayout Padding="15,0,15,40">
-                <Label
-                    FontSize="12"
-                    FontAttributes="Bold"
-                    Style="{StaticResource DashLabel}"
-                    Margin="0,8"
-                    Text="Accounts" />
-                <Border Style="{StaticResource SquareBorder}">
-                    <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding Accounts}"
-                        BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
-                        Spacing="5" />
-                </Border>
-                
-                <Label
-                    FontSize="12"
-                    Style="{StaticResource DashLabel}"
-                    Text="Transactions"
-                    FontAttributes="Bold"
-                    Margin="0,8" />
-                
-                <Border Style="{StaticResource SquareBorder}">
-                    <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding Transactions}"
-                        BindableLayout.ItemTemplate="{StaticResource TransactionTemplate}" />
-                </Border>
-                <StackLayout Padding="8">
-                    <controls:LabelPair Text1="Accounts" Text2="10" />
-                    <controls:LabelPair Text1="Auctions (outbinded)" Text2="0 (0)" />
-                    <controls:LabelPair Text1="Auctions (renewal needed)" Text2="2 (0)" />
-                    <controls:LabelPair Text1="Products" Text2="4" />
-                    <controls:LabelPair Text1="Releases (total/clean/compromised)" Text2="346/300/2" />
-                    <controls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
-                </StackLayout>
-                <Grid
-                    Margin="-12,0"
-                    ColumnDefinitions="*,*,*,*"
-                    RowDefinitions="Auto,Auto"
-                    RowSpacing="4">
-                    <controls:ImageTextButton
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        Command="{Binding AccountsExcuteCommand}"
-                        ImageSource="accounts.png"
+            <Grid Padding="{StaticResource PagePadding}">
+                <StackLayout>
+                    <Label
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        Style="{StaticResource DashLabel}"
+                        Margin="0,8"
                         Text="Accounts" />
-                    <controls:ImageTextButton
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        Command="{Binding AuthorsExcuteCommand}"
-                        ImageSource="authors.png"
-                        Text="Authors" />
-                    <controls:ImageTextButton
-                        Grid.Row="0"
-                        Grid.Column="2"
-                        Command="{Binding ProductsExcuteCommand}"
-                        ImageSource="products.png"
-                        Text="Products" />
-                    <controls:ImageTextButton
-                        Grid.Row="0"
-                        Grid.Column="3"
-                        Command="{Binding TransactionsExcuteCommand}"
-                        ImageSource="transactions.png"
-                        Text="Transactions" />
-                    <controls:ImageTextButton
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        Command="{Binding SearchExcuteCommand}"
-                        ImageSource="search.png"
-                        Text="Search" />
-                    <controls:ImageTextButton
-                        Grid.Row="1"
-                        Grid.Column="1"
-                        Command="{Binding NetworkExcuteCommand}"
-                        ImageSource="network.png"
-                        Text="Network" />
-                    <controls:ImageTextButton
-                        Grid.Row="1"
-                        Grid.Column="2"
-                        Command="{Binding ETHTransferExcuteCommand}"
-                        ImageSource="transfer.png"
-                        Text="ETH-UNT Transfer" />
-                    <controls:ImageTextButton
-                        Grid.Row="1"
-                        Grid.Column="3"
-                        Command="{Binding HelpExcuteCommand}"
-                        ImageSource="help.png"
-                        Text="Help" />
-                </Grid>
-            </StackLayout>
+                    <Border Style="{StaticResource SquareBorder}">
+                        <VerticalStackLayout
+                            BindableLayout.ItemsSource="{Binding Accounts}"
+                            BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
+                            Spacing="5" />
+                    </Border>
+                
+                    <Label
+                        FontSize="12"
+                        Style="{StaticResource DashLabel}"
+                        Text="Transactions"
+                        FontAttributes="Bold"
+                        Margin="0,8" />
+                
+                    <Border Style="{StaticResource SquareBorder}">
+                        <VerticalStackLayout
+                            BindableLayout.ItemsSource="{Binding Transactions}"
+                            BindableLayout.ItemTemplate="{StaticResource TransactionTemplate}" />
+                    </Border>
+                    <StackLayout Padding="8">
+                        <controls:LabelPair Text1="Accounts" Text2="{Binding NumberOfAccounts}" />
+                        <controls:LabelPair Text1="Auctions (outbidded)" Text2="{Binding AuctionsOutbidded}" />
+                        <controls:LabelPair Text1="Authors (renewal needed)" Text2="{Binding AuthorsRenewal}" />
+                        <controls:LabelPair Text1="Products" Text2="{Binding NumberOfProducts}" />
+                        <controls:LabelPair Text1="Releases (total/clean/compromised)" Text2="346/300/2" />
+                        <controls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
+                    </StackLayout>
+                    <Grid
+                        Margin="-12,0"
+                        ColumnDefinitions="*,*,*,*"
+                        RowDefinitions="Auto,Auto"
+                        RowSpacing="4">
+                        <controls:ImageTextButton
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Command="{Binding AccountsExcuteCommand}"
+                            ImageSource="accounts.png"
+                            Text="Accounts" />
+                        <controls:ImageTextButton
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Command="{Binding AuthorsExcuteCommand}"
+                            ImageSource="authors.png"
+                            Text="Authors" />
+                        <controls:ImageTextButton
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Command="{Binding ProductsExcuteCommand}"
+                            ImageSource="products.png"
+                            Text="Products" />
+                        <controls:ImageTextButton
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            Command="{Binding TransactionsExcuteCommand}"
+                            ImageSource="transactions.png"
+                            Text="Transactions" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Command="{Binding SearchExcuteCommand}"
+                            ImageSource="search.png"
+                            Text="Search" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Command="{Binding NetworkExcuteCommand}"
+                            ImageSource="network.png"
+                            Text="Network" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Command="{Binding ETHTransferExcuteCommand}"
+                            ImageSource="transfer.png"
+                            Text="ETH-UNT Transfer" />
+                        <controls:ImageTextButton
+                            Grid.Row="1"
+                            Grid.Column="3"
+                            Command="{Binding HelpExcuteCommand}"
+                            ImageSource="help.png"
+                            Text="Help" />
+                    </Grid>
+                </StackLayout>
+                
+            </Grid>
         </ScrollView>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>
