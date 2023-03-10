@@ -30,8 +30,8 @@ namespace UC.Sun.Application
 				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
 					File.Delete(i);
 					
-				var b = new XonDocument(new XonTextReader(File.ReadAllText(Path.Combine(exedir, "Boot.xon"))), XonTextValueSerializator.Default);
-				var cmd = new XonDocument(new XonTextReader(string.Join(' ', Environment.GetCommandLineArgs().Skip(1))), XonTextValueSerializator.Default);
+				var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, "Boot.xon")));
+				var cmd = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 				var boot = new BootArguments(b, cmd);
 
 				Settings = new Settings(exedir, boot);

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoLibraryA", "DemoLibrary
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoComponent", "DemoComponent\DemoComponent.csproj", "{A39CF84F-2D8E-49A0-87E8-405BC281200D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoLibraryAA", "DemoLibraryAA\DemoLibraryAA.csproj", "{6F5ED1B3-7F5F-4980-B318-E2E9E17DFA05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoLibraryAA", "DemoLibraryAA\DemoLibraryAA.csproj", "{6F5ED1B3-7F5F-4980-B318-E2E9E17DFA05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
