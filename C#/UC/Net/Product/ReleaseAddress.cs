@@ -5,13 +5,21 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public class ReleaseAddress : RealizationAddress, IEquatable<ReleaseAddress>
+	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>  
 	{
+		RealizationAddress		Realization;
+		public string			Author => Realization.Author;
+		public string			Product => Realization.Product;
+		public string			Platform => Realization.Platform;
 		public Version			Version { get; set; }
-		public override bool	Valid => base.Valid;
+		public bool				Valid => Realization.Valid;
 
-		public ReleaseAddress(string author, string product, string platform, Version version) : base(author, product, platform)
+		public static implicit operator RealizationAddress(ReleaseAddress d) => d.Realization;
+		public static implicit operator ProductAddress(ReleaseAddress d) => d.Realization;
+
+		public ReleaseAddress(string author, string product, string platform, Version version)
 		{
+			Realization = new(author, product, platform);
 			Version = version;
 		}
 
@@ -21,7 +29,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{base.ToString()}/{Version}";
+			return $"{Realization}/{Version}";
 		}
 
 		public override bool Equals(object o)
@@ -31,15 +39,25 @@ namespace UC.Net
 
 		public bool Equals(ReleaseAddress o)
 		{
-			return base.Equals(this) && Version.Equals(o.Version);
+			return Realization.Equals(o.Realization) && Version == o.Version;
 		}
 
  		public override int GetHashCode()
  		{
- 			return base.GetHashCode(); /// don't change this!
+ 			return Realization.GetHashCode();
  		}
 
-		public new static ReleaseAddress Parse(string v)
+		public static bool operator ==(ReleaseAddress left, ReleaseAddress right)
+		{
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(ReleaseAddress left, ReleaseAddress right)
+		{
+			return !(left == right);
+		}
+
+		public static ReleaseAddress Parse(string v)
 		{
 			var s = v.Split('/');
 			var a = new ReleaseAddress();
@@ -47,22 +65,24 @@ namespace UC.Net
 			return a;
 		}
 		
-		public override void Parse(string[] s)
+		public void Parse(string[] s)
 		{
-			base.Parse(s);
+			Realization = new();
+			Realization.Parse(s);
 			Version = Version.Parse(s[3]);
 		}
 
-		public override void Write(BinaryWriter w)
+		public void Write(BinaryWriter w)
 		{
-			base.Write(w);
+			Realization.Write(w);
 			w.Write(Version);
 		}
 
-		public override void Read(BinaryReader r)
+		public void Read(BinaryReader r)
 		{
-			base.Read(r);
-			Version = r.ReadVersion();
+			Realization = new();
+			Realization.Read(r);
+			Version = r.Read<Version>();
 		}
 	}
 

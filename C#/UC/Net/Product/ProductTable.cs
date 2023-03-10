@@ -9,13 +9,13 @@ namespace UC.Net
 {
 	public class ProductTable : Table<ProductEntry, ProductAddress>
 	{
-		public ProductTable(Roundchain chain, ColumnFamilyHandle cfh) : base(chain, cfh)
+		public ProductTable(Database chain) : base(chain)
 		{
 		}
 		
-		protected override ProductEntry Create(ProductAddress name)
+		protected override ProductEntry Create()
 		{
-			return new ProductEntry(name);
+			return new ProductEntry();
 		}
 
 		protected override byte[] KeyToBytes(ProductAddress key)
@@ -25,7 +25,7 @@ namespace UC.Net
 		
 		public ProductEntry Find(ProductAddress name, int ridmax)
 		{
-			foreach(var r in Chain.Rounds.Where(i => i.Id <= ridmax))
+			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedProducts.ContainsKey(name))
 					return r.AffectedProducts[name];
 

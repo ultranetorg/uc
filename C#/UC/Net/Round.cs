@@ -5,72 +5,77 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using System.Net;
+using Nethereum.Signer;
 
 namespace UC.Net
 {
 	public class Round : IBinarySerializable
 	{
-		public int										Id;
-		public int										ParentId => Id - Roundchain.Pitch;
-		public Round									Previous =>	Chain.FindRound(Id - 1);
-		public Round									Next =>	Chain.FindRound(Id + 1);
-		public Round									Parent => Chain.FindRound(ParentId);
+		public int												Id;
+		public int												ParentId => Id - Database.Pitch;
+		public Round											Previous =>	Database.FindRound(Id - 1);
+		public Round											Next =>	Database.FindRound(Id + 1);
+		public Round											Parent => Database.FindRound(ParentId);
 
-		public int										Try = 0;
-		public DateTime									FirstArrivalTime = DateTime.MaxValue;
-		public DateTime									LastAccessed = DateTime.UtcNow;
+		public int												Try = 0;
+		public DateTime											FirstArrivalTime = DateTime.MaxValue;
+		//public DateTime											LastAccessed = DateTime.UtcNow;
 
-		public List<Block>								Blocks = new();
-		public IEnumerable<GeneratorJoinRequest>		JoinRequests	=> Blocks.OfType<GeneratorJoinRequest>();
-		public IEnumerable<Vote>						Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public IEnumerable<Payload>						Payloads		=> Votes.OfType<Payload>().OrderBy(i => i.OrderingKey, new BytesComparer());
-		public IEnumerable<Account>						Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
-		public IEnumerable<Vote>						Unique			=> Votes.OfType<Vote>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		public IEnumerable<Vote>						Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
+		public List<BlockPiece>									BlockPieces = new();
 
-		public IEnumerable<Account>						ElectedViolators	=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>						ElectedJoiners		=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>						ElectedLeavers		=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Majority.Count() * 2 / 3);
-		public IEnumerable<Account>						ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Roundchain.MembersMax * 2 / 3);
-		public IEnumerable<Account>						ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Roundchain.MembersMax * 2 / 3);
+		public List<Block>										Blocks = new();
+		public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
+		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
+		public IEnumerable<Account>								Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
+		public IEnumerable<Vote>								Unique			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Vote>								Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Consensus).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
-		public List<Peer>								Members;
-		public List<Account>							Funds;
-		public List<Peer>								Hubs;
-		public IEnumerable<Payload>						ConfirmedPayloads => Payloads.Where(i => i.Confirmed);
-		public List<Account>							ConfirmedViolators;
-		public List<Account>							ConfirmedJoiners;
-		public List<Account>							ConfirmedLeavers;
-		public List<Account>							ConfirmedFundJoiners;
-		public List<Account>							ConfirmedFundLeavers;
+		public IEnumerable<Account>								ElectedJoiners		=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Previous.Members.Count * 2 / 3);
+		public IEnumerable<Account>								ElectedLeavers		=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Previous.Members.Count * 2 / 3);
+		public IEnumerable<Account>								ElectedViolators	=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Previous.Members.Count * 2 / 3);
+		public IEnumerable<Account>								ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Database.MembersMax * 2 / 3);
+		public IEnumerable<Account>								ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Database.MembersMax * 2 / 3);
 
-		public bool										Voted = false;
-		public bool										Confirmed = false;
-		public byte[]									Hash;
+		public List<Member>										Members = new();
+		public List<Account>									Funds = new();
+		//public List<Peer>										Hubs;
+		public List<Payload>									ConfirmedPayloads;
+		public List<Account>									ConfirmedViolators = new();
+		public List<Member>										ConfirmedJoiners = new();
+		public List<Account>									ConfirmedLeavers = new();
+		public List<Account>									ConfirmedFundJoiners = new();
+		public List<Account>									ConfirmedFundLeavers = new();
 
-		public ChainTime								Time;
-		public BigInteger								WeiSpent;
-		public Coin										Factor;
-		public Coin										Emission;
+		public bool												Voted = false;
+		public bool												Confirmed = false;
+		public byte[]											Hash;
 
-		public Dictionary<Account, AccountEntry>		AffectedAccounts = new();
-		public Dictionary<string, AuthorEntry>			AffectedAuthors = new();
-		public Dictionary<ProductAddress, ProductEntry>	AffectedProducts = new(); /// needed to not load all producta with all releases when fetching an author
-		public HashSet<Round>							AffectedRounds = new();
-		public IEnumerable<Payload>						ExecutingPayloads;
-		public IEnumerable<Operation>					ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
-																								.SelectMany(i => i.Operations)
-																								.Where(i => i.Executed);
-		public Roundchain								Chain;
+		public ChainTime										Time;
+		public BigInteger										WeiSpent;
+		public Coin												Factor;
+		public Coin												Emission;
+
+		public Dictionary<Account, AccountEntry>				AffectedAccounts = new();
+		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
+		public Dictionary<ProductAddress, ProductEntry>			AffectedProducts = new();
+		public Dictionary<RealizationAddress, RealizationEntry>	AffectedRealizations = new();
+		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
 		
-		public Round(Roundchain c)
+		//public List<Payload>									ExecutingPayloads;
+		//public IEnumerable<Operation>							ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
+		//																								.SelectMany(i => i.Operations)
+		//																								.Where(i => i.Executed);
+		public Database											Database;
+		
+		public Round(Database c)
 		{
-			Chain = c;
+			Database = c;
 		}
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks={Blocks.Count}, Payloads={Payloads.Count()}, Members={Members?.Count}, Time={Time.ToString()}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Blocks={Blocks.Count}, Payloads={Payloads.Count()}, Members={Members?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<Account> a)
@@ -80,9 +85,9 @@ namespace UC.Net
 				var x = amount/a.Count();
 	
 				foreach(var i in a.Skip(1))
-					ChangeAccount(i).Balance += x;
+					AffectAccount(i).Balance += x;
 	
-				ChangeAccount(a.First()).Balance += amount - (x * (a.Count() - 1));
+				AffectAccount(a.First()).Balance += amount - (x * (a.Count() - 1));
 			}
 		}
 
@@ -97,13 +102,13 @@ namespace UC.Net
 				foreach(var i in a.Skip(1))
 				{
 					//RewardOrPay(i, x);
-					ChangeAccount(i).Balance += x;
+					AffectAccount(i).Balance += x;
 				}
 
 				var v = s - (x * (a.Count() - 1));
 				
 				//RewardOrPay(a.First(), v);
-				ChangeAccount(a.First()).Balance += v;
+				AffectAccount(a.First()).Balance += v;
 			}
 
 			if(b.Any())
@@ -114,12 +119,12 @@ namespace UC.Net
 				foreach(var i in b.Skip(1))
 				{
 					//RewardOrPay(i, x);
-					ChangeAccount(i).Balance += x;
+					AffectAccount(i).Balance += x;
 				}
 
 				var v = s - (x * (b.Count() - 1));
 				//RewardOrPay(b.First(), v);
-				ChangeAccount(b.First()).Balance += v;
+				AffectAccount(b.First()).Balance += v;
 			}
 		}
 		
@@ -150,51 +155,91 @@ namespace UC.Net
 // 
 // 		}
 
-		public AccountEntry ChangeAccount(Account account)
+		public AccountEntry AffectAccount(Account account)
 		{
 			if(AffectedAccounts.ContainsKey(account))
 				return AffectedAccounts[account];
 
-			var e = Chain.Accounts.Find(account, Id - 1);
+			var e = Database.Accounts.Find(account, Id - 1);
 
 			if(e != null)
 				AffectedAccounts[account] = e.Clone();
 			else
-				AffectedAccounts[account] = new AccountEntry(Chain, account);
+				AffectedAccounts[account] = new AccountEntry(Database){Account = account};
 
 			return AffectedAccounts[account];
 		}
 
-		public AuthorEntry ChangeAuthor(string name)
+		public AuthorEntry AffectAuthor(string name)
 		{
-			var e = FindAuthor(name);
+			var e = Database.Authors.Find(name, Id);
 
 			if(e != null)
 				AffectedAuthors[name] = e.Clone();
 			else
-				AffectedAuthors[name] = new AuthorEntry(Chain, name);
+				AffectedAuthors[name] = new AuthorEntry(Database){Name = name};
 
 			return AffectedAuthors[name];
 		}
 
-		public AuthorEntry FindAuthor(string name)
+		//public AuthorEntry FindAuthor(string name)
+		//{
+		//	if(AffectedAuthors.ContainsKey(name))
+		//		return AffectedAuthors[name];
+		//
+		//	return Chain.Authors.Find(name, Id - 1);
+		//}
+		//
+		public RealizationEntry FindRealization(RealizationAddress name)
 		{
-			if(AffectedAuthors.ContainsKey(name))
-				return AffectedAuthors[name];
-
-			return Chain.Authors.Find(name, Id - 1);
+			if(AffectedRealizations.ContainsKey(name))
+				return AffectedRealizations[name];
+		
+			return Database.Realizations.Find(name, Id - 1);
+		}
+		
+		public ReleaseEntry FindRelease(ReleaseAddress name)
+		{
+			if(AffectedReleases.ContainsKey(name))
+				return AffectedReleases[name];
+		
+			return Database.Releases.Find(name, Id - 1);
 		}
 
-		public ProductEntry ChangeProduct(ProductAddress address)
+		public ProductEntry AffectProduct(ProductAddress address)
 		{
 			var e = FindProduct(address);
 
 			if(e != null)
 				AffectedProducts[address] = e.Clone();
 			else
-				AffectedProducts[address] = new ProductEntry(address);
+				AffectedProducts[address] = new ProductEntry(){Address = address};
 
 			return AffectedProducts[address];
+		}
+
+		public RealizationEntry AffectRealization(RealizationAddress address)
+		{
+			var e = FindRealization(address);
+
+			if(e != null)
+				AffectedRealizations[address] = e.Clone();
+			else
+				AffectedRealizations[address] = new RealizationEntry(){Address = address};
+
+			return AffectedRealizations[address];
+		}
+
+		public ReleaseEntry AffectRelease(ReleaseAddress address)
+		{
+			var e = FindRelease(address);
+
+			if(e != null)
+				AffectedReleases[address] = e.Clone();
+			else
+				AffectedReleases[address] = new ReleaseEntry(){Address = address};
+
+			return AffectedReleases[address];
 		}
 
 		public ProductEntry FindProduct(ProductAddress address)
@@ -202,7 +247,7 @@ namespace UC.Net
 			if(AffectedProducts.ContainsKey(address))
 				return AffectedProducts[address];
 
-			return Chain.FindProduct(address, Id - 1);
+			return Database.FindProduct(address, Id - 1);
 		}
 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
@@ -239,12 +284,13 @@ namespace UC.Net
  			return o;
  		}
 
-		public void Seal()
+		public void Hashify(byte[] previous)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Id > 0 ? Previous.Hash : Cryptography.ZeroHash);
+			w.Write(Database.BaseHash);
+			w.Write(previous);
 
 			WriteConfirmed(w);
 
@@ -255,18 +301,18 @@ namespace UC.Net
 		{
 			writer.Write(Time);
 			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
-			writer.Write(ConfirmedViolators);
-			writer.Write(ConfirmedJoiners);
-			writer.Write(ConfirmedLeavers);
-			writer.Write(ConfirmedFundJoiners);
-			writer.Write(ConfirmedFundLeavers);
+			writer.Write(ConfirmedViolators.OrderBy(i => i));
+			writer.Write(ConfirmedJoiners.OrderBy(i => i.Generator), i => { writer.Write(i.Generator); writer.Write(i.IPs, i => writer.Write(i)); });
+			writer.Write(ConfirmedLeavers.OrderBy(i => i));
+			writer.Write(ConfirmedFundJoiners.OrderBy(i => i));
+			writer.Write(ConfirmedFundLeavers.OrderBy(i => i));
 		}
 
 		void ReadConfirmed(BinaryReader reader)
 		{
 			Time		= reader.ReadTime();
 			Blocks		= reader.ReadList(() =>	{	
-													var b = new Payload(Chain);											
+													var b = new Payload(Database);											
 													b.RoundId = Id;
 													b.Round = this;
 													b.Confirmed = true;
@@ -276,8 +322,9 @@ namespace UC.Net
 													return b as Block;
 												});
 	
+			ConfirmedPayloads		= Blocks.Cast<Payload>().ToList();
 			ConfirmedViolators		= reader.ReadList<Account>();
-			ConfirmedJoiners		= reader.ReadList<Account>();
+			ConfirmedJoiners		= reader.ReadList<Member>(() => new Member {Generator = reader.ReadAccount(), IPs = reader.ReadArray<IPAddress>(() => reader.ReadIPAddress())});
 			ConfirmedLeavers		= reader.ReadList<Account>();
 			ConfirmedFundJoiners	= reader.ReadList<Account>();
 			ConfirmedFundLeavers	= reader.ReadList<Account>();
@@ -290,15 +337,19 @@ namespace UC.Net
 			
 			if(Confirmed)
 			{
+// #if DEBUG
+// 				w.Write(Hash);
+// #endif
 				WriteConfirmed(w);
+				w.Write(JoinRequests, i => i.Write(w));
 			} 
 			else
 			{
-				w.Write(Voted);
 				w.Write(Blocks, i => {
 										w.Write(i.TypeCode); 
 										i.Write(w); 
 									 });
+				w.Write(BlockPieces);
 			}
 		}
 
@@ -309,18 +360,28 @@ namespace UC.Net
 			
 			if(Confirmed)
 			{
+// #if DEBUG
+// 				Hash = r.ReadSha3();
+// #endif
 				ReadConfirmed(r);
+				Blocks.AddRange(r.ReadArray(() =>	{
+														var b = new MembersJoinRequest(Database);
+														b.RoundId = Id;
+														b.Round = this;
+														b.Read(r);
+														return b;
+													}));
 			} 
 			else
 			{
-				Voted	= r.ReadBoolean();
 				Blocks	= r.ReadList(() =>	{
-												var b = Block.FromType(Chain, (BlockType)r.ReadByte());
+												var b = Block.FromType(Database, (BlockType)r.ReadByte());
 												b.RoundId = Id;
 												b.Round = this;
 												b.Read(r);
 												return b;
 											});
+				BlockPieces = r.ReadList<BlockPiece>();
 			}
 		}
 

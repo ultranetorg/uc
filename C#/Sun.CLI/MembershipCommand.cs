@@ -8,8 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Util;
 using Nethereum.Web3;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: membership declare
@@ -36,9 +37,12 @@ namespace UC.Net.Node.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "declare" : 
-					return Send(() => Node.Enqueue(new CandidacyDeclaration(	GetPrivate("candidate", "password"), 
-																				Coin.ParseDecimal(GetString("bail")), 
-																				IPAddress.Parse(GetString("ip")))));
+					return Core.Enqueue(new CandidacyDeclaration(	GetPrivate("candidate", "password"), 
+																	Coin.ParseDecimal(GetString("bail"))), 
+																	//GetString("ips").Split(' ').Select(i => IPAddress.Parse(i))),
+																	GetAwaitStage(), 
+																	Workflow);
+
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

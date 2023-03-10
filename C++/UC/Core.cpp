@@ -35,7 +35,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 
 	auto cmd = Commands->One(GetClassName());
 
-	if(!cmd || cmd->Any(VersionAutoUpArgument) && cmd->Get<CBool>(VersionAutoUpArgument) == false)
+	if(!cmd || !cmd->Any(VersionAutoUpArgument))
 	{
 		auto versions = CNativeDirectory::Enumerate(CNativePath::Join(CoreDirectory, L".."), L"[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", EDirectoryFlag::DirectoriesOnly);
 		versions.Sort([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); });
@@ -43,22 +43,22 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 		if(CVersion(versions.First().Name) > CVersion(CNativePath::GetDirectoryName(CoreDirectory)))
 		{
 			STARTUPINFO info = {sizeof(info)};
-			PROCESS_INFORMATION processInfo;
+			PROCESS_INFORMATION pi;
 	
 			auto exe = CoreExePath.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
 			auto dir = FrameworkDirectory.Replace(CNativePath::GetDirectoryName(CoreDirectory), versions.First().Name);
 	
-			wchar_t cmd[32768] = {};
-			wcscpy_s(cmd, _countof(cmd), (L"\"" + exe + L"\"").data());
+			wchar_t c[4096] = {};
+			wcscpy_s(c, _countof(c), (L"\"" + exe + L"\" " + command).data());
 	
 			//SetDllDirectory(FrameworkDirectory.data());
 			//SetCurrentDirectory(FrameworkDirectory.data());
 	
-			if(CreateProcess(null, cmd, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, dir.data(), &info, &processInfo))
+			if(CreateProcess(null, c, null, null, true, /*IsDebuggerPresent() ? DEBUG_PROCESS : 0*/0, null, dir.data(), &info, &pi))
 			{
 				//auto e = GetLastError();
-				CloseHandle(processInfo.hProcess);
-				CloseHandle(processInfo.hThread);
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
 			}
 	
 			return;
@@ -148,9 +148,9 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 
 	if(status == ERROR_ALREADY_EXISTS)
 	{
-		if(Commands && Commands->Nodes.Any())
+		if(cmd)
 		{
-			if(Commands->Nodes.First()->Name == RestartDirective)
+			if(cmd->Any(RestartDirective))
 			{
 				do 
 				{
@@ -325,7 +325,9 @@ void CCore::InitializeDatabase()
 {
 	auto fbase = UserPath + L"-" + Unid + L"\\%08d";
 
-	if(Commands->Any(L"Action/Rollback") && LastCommit >= 0)
+	auto cmd = Commands->One(GetClassName());
+
+	if(cmd && cmd->Any(RollbackDirective) && LastCommit >= 0)
 	{
 		CNativeDirectory::Delete(CString::Format(fbase, LastCommit));
 		LastCommit--;
@@ -445,6 +447,26 @@ void CCore::InitializeDatabase()
 	}
 }
 
+CString CCore::ResolveConstants(CString const & dir)
+{
+	CString userprofile;
+	TCHAR szPath[MAX_PATH];
+	
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
+	{
+		userprofile = CNativePath::Join(szPath, Product.AuthorAbbreviation + L"." + Product.Name);
+	}
+
+	CString o = dir;
+
+	o = o.Replace(L"{CoreDirectory}",		CoreDirectory);
+	o = o.Replace(L"{LocalUsername}",		Os->GetUserName());
+	o = o.Replace(L"{LocalUserProfile}",	userprofile);
+	o = o.Replace(L"\\\\",					L"\\");
+
+	return CNativePath::Canonicalize(o);
+}
+
 CString CCore::Resolve(CString const & orig)
 {
 	if(Core->RemapPath.empty())
@@ -509,26 +531,6 @@ void CCore::ShutdownDatabase()
 
 		CLocalFileStream s(DestinationDirectory + L"\\ok", EFileMode::New);
 	}
-}
-
-CString CCore::ResolveConstants(CString const & dir)
-{
-	CString userprofile;
-	TCHAR szPath[MAX_PATH];
-	
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, szPath))) 
-	{
-		userprofile = CNativePath::Join(szPath, Product.Name);
-	}
-
-	CString o = dir;
-
-	o = o.Replace(L"{CoreDirectory}",		CoreDirectory);
-	o = o.Replace(L"{LocalUsername}",		Os->GetUserName());
-	o = o.Replace(L"{LocalUserProfile}",	userprofile);
-	o = o.Replace(L"\\\\",					L"\\");
-
-	return CNativePath::Canonicalize(o);
 }
 	
 CString CCore::MapPath(ESystemPath folder, const CString & path)

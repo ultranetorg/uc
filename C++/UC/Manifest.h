@@ -5,26 +5,15 @@
 
 namespace uc
 {
-	class CManifest : virtual public IType
+	class CCompiledManifest : virtual public IType
 	{
 		public:
-			CReleaseAddress			Address;
-			CString					Channel;
-			CVersion				PreviousVersion;
-
-			long long				CompleteSize;
-			CArray<byte>			CompleteHash;
-			CArray<CManifest *>		CompleteDependencies;
-
-			long long				IncrementalSize;
-			CArray<byte>			IncrementalHash;
-			CVersion				IncrementalMinimalVersion;
-			CArray<CManifest *>		IncrementalDependencies;
-
-			unsigned char			Hash[32];
+			CReleaseAddress					Address;
+			CString							Channel;
+			CArray<CCompiledManifest *>		Dependencies;
 
 			UOS_RTTI
-			CManifest(CReleaseAddress release, CTonDocument & d);
-			~CManifest();
+			CCompiledManifest(CReleaseAddress release);
+			~CCompiledManifest();
 	};
 }

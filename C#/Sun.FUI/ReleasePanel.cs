@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nethereum.Contracts;
+using Org.BouncyCastle.Utilities.Encoders;
+using UC.Net;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class ReleasePanel : MainPanel
 	{
+		Workflow ManifestWorkflow;
+
 		public ReleasePanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
@@ -15,24 +21,6 @@ namespace UC.Net.Node.FUI
 		{
 			if(first)
 			{
-				BindAuthors(Author, () => 
-									{ 
-										Author.Text = null;
-										Author.SelectedIndex = -1;
-									});
-			}
-		}
-
-		private void releases_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			if(Releases.SelectedItems.Count > 0)
-			{
-				var r = Releases.SelectedItems[0].Tag as ReleaseRegistration;
-				///manifest.Text = r.Manifest;
-			}
-			else
-			{
-				manifest.Text = null;
 			}
 		}
 
@@ -41,20 +29,21 @@ namespace UC.Net.Node.FUI
 			try
 			{
 				Releases.Items.Clear();
+				manifest.Text = null;
 	
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				//foreach(var r in Core.Chain.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Platform == Platform.Text))
-				//{
-				//	var i = new ListViewItem(r.Version.ToString());
-				//	
-				//	i.Tag = r;
-				//	i.SubItems.Add(r.Platform);
-				//	i.SubItems.Add(r.Manifest);
-				//
-				//	Releases.Items.Add(i);
-				//}
+				foreach(var r in Core.Database.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Release.Platform == Platform.Text))
+				{
+					var i = new ListViewItem(r.Release.ToString());
+					
+					i.Tag = r;
+					i.SubItems.Add(Hex.ToHexString(r.Manifest));
+					i.SubItems.Add(r.Channel);
+				
+					Releases.Items.Add(i);
+				}
 	
 				if(Releases.Items.Count == 0)
 				{
@@ -65,6 +54,49 @@ namespace UC.Net.Node.FUI
 			catch(Exception ex)
 			{
 				ShowError(ex.Message);
+			}
+		}
+
+		private void releases_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			manifest.Text = null;
+		
+			if(Releases.SelectedItems.Count > 0)
+			{
+				var r = Releases.SelectedItems[0].Tag as ReleaseRegistration;
+
+				if(ManifestWorkflow != null)
+				{
+					ManifestWorkflow.Abort();
+				}
+
+				ManifestWorkflow = new Workflow();
+
+				manifest.Text = "Downloading ...";
+
+				Task.Run(() =>	{ 
+									try
+									{
+										var m = Core.Call(	Role.Seed, 
+															p =>{
+																	var m = p.GetManifest(r.Release).Manifests.FirstOrDefault();
+																	
+																	if(m == null)
+																		throw new RdcException(UC.Net.RdcError.Null);
+
+																	return m;
+																},
+															ManifestWorkflow);
+
+										BeginInvoke((MethodInvoker)delegate
+													{
+														manifest.Text = Dump(m.ToXon(new XonTextValueSerializator()));
+													});
+									}
+									catch(OperationCanceledException)
+									{
+									}
+								});
 			}
 		}
 
@@ -81,7 +113,8 @@ namespace UC.Net.Node.FUI
 
 			if(Author.SelectedItem != null)
 			{
-				foreach(var p in Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue).Products)
+				/// TODO: too slow
+				foreach(var p in Database.Products.Where(i => i.Address.Author == Author.SelectedItem as string).Select(i => i.Address.Product))
 					Product.Items.Add(p);
 				
 				if(Product.Items.Count > 0)

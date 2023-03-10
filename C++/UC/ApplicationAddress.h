@@ -3,13 +3,13 @@
 
 namespace uc
 {
-	class UOS_LINKING CApplicationAddress : public CRealizationAddress
+	class UOS_LINKING CApplicationAddress : public CProductAddress
 	{
 		public:
 			CString						Application;
 
 			CApplicationAddress();
-			CApplicationAddress(CString const & author, CString const & product, CString const & platform, CString const & application);
+			CApplicationAddress(CString const & author, CString const & product, CString const & application);
 
 			bool						Empty();
 			static CApplicationAddress	Parse(CString const & text);

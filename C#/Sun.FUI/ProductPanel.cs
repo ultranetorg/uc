@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class ProductPanel : MainPanel
 	{
@@ -23,8 +23,7 @@ namespace UC.Net.Node.FUI
 			{
 				BindAccounts(SearchAccount);
 				BindAccounts(PublisherAccount);
-				BindAuthors(Author);
-		
+				
 				registeringProduct_TextChanged(null, null);
 			}
 		}
@@ -35,7 +34,7 @@ namespace UC.Net.Node.FUI
 			{
 				products.Items.Clear();
 				
-				foreach(var ar in FindProducts(Account.Parse(SearchAccount.Text.ToString())))
+				foreach(var ar in FindProducts(Account.Parse(SearchAccount.Text)))
 				{
 					var i = new ListViewItem(ar.Product.Address.Product);
 					i.Tag = ar;
@@ -62,11 +61,13 @@ namespace UC.Net.Node.FUI
 				if(Author.SelectedItem == null)
 					throw new ArgumentException("Invalid author name. If you don't own any author yet then you need to register one first.");
 
-				var a = Core.Chain.Authors.Find(Author.SelectedItem as string, int.MaxValue);
+				var a = Core.Database.Authors.Find(Author.SelectedItem as string, int.MaxValue);
 
 				Core.Enqueue(new ProductRegistration(	GetPrivate(a.Owner),
 														new ProductAddress(ProductName.Text, Author.SelectedItem as string),
-														ProductTitle.Text));
+														ProductTitle.Text),
+														PlacingStage.Null,
+														null);
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{

@@ -60,16 +60,16 @@ namespace UC
 			return v;
 		}
 
-		public static Version Read(BinaryReader r)
-		{
-			return new Version
-					{	
-						Era = r.ReadUInt16(), 
-						Generation = r.ReadUInt16(), 
-						Release = r.ReadUInt16(), 
-						Build = r.ReadUInt16()
-					};
-		}
+// 		public static Version Read(BinaryReader r)
+// 		{
+// 			return new Version
+// 					{	
+// 						Era = r.ReadUInt16(), 
+// 						Generation = r.ReadUInt16(), 
+// 						Release = r.ReadUInt16(), 
+// 						Build = r.ReadUInt16()
+// 					};
+// 		}
 
 		public override bool Equals(object obj)
 		{
@@ -102,7 +102,7 @@ namespace UC
 				return 0;
 		}
 
-		void IBinarySerializable.Read(BinaryReader r)
+		public void Read(BinaryReader r)
 		{
 			Era = r.ReadUInt16();
 			Generation = r.ReadUInt16(); 
@@ -160,6 +160,16 @@ namespace UC
 		public static bool operator !=(Version left, Version right)
 		{
 			return !(left == right);
+		}
+
+		public static bool operator <= (Version a, Version b)
+		{
+			return a < b || a == b;
+		}
+
+		public static bool operator >= (Version a, Version b)
+		{
+			return a > b || a == b;
 		}
 	}
 

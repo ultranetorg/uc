@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class NetworkPanel : MainPanel
 	{
@@ -31,20 +31,22 @@ namespace UC.Net.Node.FUI
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
 					r.SubItems.Add(i.Retries.ToString());
+					r.SubItems.Add(i.PeerRank.ToString());
 					r.SubItems.Add(i.GetRank(Role.Chain).ToString());
+					r.SubItems.Add(i.GetRank(Role.Base).ToString());
 					r.SubItems.Add(i.GetRank(Role.Hub).ToString());
 					r.SubItems.Add(i.GetRank(Role.Seed).ToString());
 					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));
 					r.Tag = i;
 				}
 
-				foreach(var i in (Chain != null ? Chain.Members : Core.Members).OrderBy(i => i.JoinedGeneratorsAt))
+				foreach(var i in (Database != null ? Database.LastConfirmedRound.Members : Core.Members).OrderBy(i => i.Generator))
 				{
 					var li = Generators.Items.Add(i.Generator.ToString());
 
-					li.SubItems.Add(i.JoinedGeneratorsAt.ToString());
-					li.SubItems.Add(Chain != null ? Core.Chain.Accounts.FindLastOperation<CandidacyDeclaration>(i.Generator).Bail.ToHumanString() : null);
-					li.SubItems.Add(i.IP.ToString());
+					li.SubItems.Add(i.JoinedAt.ToString());
+					li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Generator, int.MaxValue).Bail.ToHumanString() : null);
+					li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 
 				foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
@@ -55,9 +57,9 @@ namespace UC.Net.Node.FUI
 					Hubs.Items.Add(li);
 				}
 
-				if(Chain != null)
+				if(Database?.LastConfirmedRound != null)
 				{
-					foreach(var i in Chain.Funds.OrderBy(i => i))
+					foreach(var i in Database.LastConfirmedRound.Funds.OrderBy(i => i))
 					{
 						var li = new ListViewItem(i.ToString());
 						Funds.Items.Add(li);

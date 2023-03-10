@@ -24,10 +24,10 @@ namespace UC.Net
 		HttpListener	Listener;
 		Thread			Thread;
 
-		Log				Log  => Core.Log;
+		Workflow		Workflow => Core.Workflow;
 		Settings		Settings => Core.Settings;
 		Vault			Vault => Core.Vault;
-		Roundchain		Chain => Core.Chain;
+		Database		Database => Core.Database;
 
 		public JsonServer(Core core)
 		{
@@ -45,10 +45,10 @@ namespace UC.Net
 										{
 											Listener.Prefixes.Add(s);
 										}
-	
+
 										Listener.Start();
 				
-										Log?.Report(this, "Listening started", prefixes[0]);
+										Workflow.Log?.Report(this, "Listening started", prefixes[0]);
 		
 										while(Core.Running)
 										{
@@ -109,35 +109,32 @@ namespace UC.Net
 															catch(InvalidOperationException)
 															{
 															}
+															catch(HttpListenerException)
+															{
+															}
 														}
 	
 			void respondjson(dynamic t){
-											try
-											{
-												var output = rp.OutputStream;
-												var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonClient.Options));
+											var output = rp.OutputStream;
+											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonClient.Options));
 							
-												rp.ContentType = "text/json" ;
-												rp.ContentLength64 = buffer.Length;
+											rp.ContentType = "text/json" ;
+											rp.ContentLength64 = buffer.Length;
 
-												output.Write(buffer, 0, buffer.Length);
-											}
-											catch(InvalidOperationException)
-											{
-											}
-									}
-
-			void respondbinary(byte[] t){
-											try
-											{
-												rp.ContentType = "application/octet-stream";
-						
-												rp.OutputStream.Write(t, 0, t.Length);
-											}
-											catch(InvalidOperationException)
-											{
-											}
+											output.Write(buffer, 0, buffer.Length);
 										}
+
+// 			void respondbinary(byte[] t){
+// 											try
+// 											{
+// 												rp.ContentType = "application/octet-stream";
+// 						
+// 												rp.OutputStream.Write(t, 0, t.Length);
+// 											}
+// 											catch(InvalidOperationException)
+// 											{
+// 											}
+// 										}
 	
 			if(rq.ContentType == null || !rq.HasEntityBody)
 				return;
@@ -168,78 +165,119 @@ namespace UC.Net
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
-				switch(call)
+				object execute(ApiCall call)
 				{
-					case SettingsCall c:
-						respondjson(new SettingsResponse{	ProfilePath  = Core.Settings.Profile, 
-															Settings = Core.Settings}); /// TODO: serialize
-						break;
-
-					case RunNodeCall e:
-						Core.RunNode();
-						break;
-
-					case AddWalletCall e:
-						lock(Core.Lock)
-							Vault.AddWallet(e.Account, e.Wallet);
-						break;
-
-					case UnlockWalletCall e:
-						lock(Core.Lock)
-							Vault.Unlock(e.Account, e.Password);
-						break;
+					switch(call)
+					{
+						case SettingsCall c:
+							return new SettingsResponse{ProfilePath  = Core.Settings.Profile, 
+														Settings = Core.Settings}; /// TODO: serialize
 	
-					case SetGeneratorCall e:
-						lock(Core.Lock)
-						{
-							Core.Settings.Generator = Vault.GetPrivate(e.Account).Key.GetPrivateKey();
-							Log?.Report(this, "Generator is set", e.Account.ToString());
-						}
-						break;
-
-					case TransferUntCall e:
-
-						PrivateAccount  pa;
-							
-						lock(Core.Lock)
-						{
-							pa = Vault.GetPrivate(e.From);
-						}
-
-						respondjson(Core.Enqueue(new UntTransfer(pa, e.To, e.Amount)));
-						Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
-						break;
+						case RunNodeCall e:
+							Core.RunNode();
+							break;
 	
-					case StatusCall s:
-						lock(Core.Lock)
-							respondjson(new GetStatusResponse {	Log			= Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
-																Rounds		= Chain.Rounds.Take(s.Limit).Reverse().Select(i => i.ToString()), 
+						case AddWalletCall e:
+							lock(Core.Lock)
+								Vault.AddWallet(e.Account, e.Wallet);
+							break;
+	
+						case UnlockWalletCall e:
+							lock(Core.Lock)
+								Vault.Unlock(e.Account, e.Password);
+							break;
+		
+						case SetGeneratorCall e:
+							lock(Core.Lock)
+							{
+								Core.Settings.Generators = e.Generators.Select(i => Vault.GetKey(i)).ToList();
+								Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
+							}
+							break;
+	
+						case UntTransferCall e:
+	
+							AccountKey  pa;
+								
+							lock(Core.Lock)
+							{
+								pa = Vault.GetKey(e.From);
+							}
+	
+							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
+
+							return Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, new Workflow());
+		
+						case StatusCall s:
+							lock(Core.Lock)
+								return new GetStatusResponse{	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
+																Rounds		= Database?.Tail.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
-																InfoValues	= Core.Info[1].Take(s.Limit) });
-						break;
-							
-					case ExitCall e:
-						rp.Close();
-						Core.Stop("RPC call");
-						return;
-
-					case QueryReleaseCall c:
-					{
-						var a = Core.Connect(Role.Chain, null, new Workflow(Core.Timeout));
-						var r = Core.QueryRelease(c.Queries, c.Confirmed);
-
-						respondjson(new QueryReleaseResult{Manifests = r.Manifests});
-						break;
+																InfoValues	= Core.Info[1].Take(s.Limit), 
+																Peers		= Core.Peers.Select(i => $"{i.IP} S={i.Status} In={i.InStatus} Out={i.OutStatus} F={i.Failures}")};
+								
+						case ExitCall e:
+							rp.Close();
+							Core.Stop("Json Api call");
+							break;
+	
+						case QueryReleaseCall c:
+						{
+							return Core.QueryRelease(c.Queries, c.Confirmed);
+						}
+	
+						case DistributeReleaseCall c:
+						{
+							Core.Filebase.AddRelease(c.Release, c.Manifest);
+	
+							if(c.Complete != null)
+							{
+								Core.Filebase.WritePackage(c.Release, Distributive.Complete, 0, c.Complete);
+								//Core.DeclareRelease(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
+							}
+							if(c.Incremental != null)
+							{
+								Core.Filebase.WritePackage(c.Release, Distributive.Incremental, 0, c.Incremental);
+								//Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
+							}
+	
+							break;
+						}
+	
+						case DownloadReleaseCall c:
+						{
+							Core.DownloadRelease(c.Release, new Workflow());
+							break;
+						}
+	
+						case ReleaseInfoCall c:
+						{
+							return Core.GetReleaseInfo(c.Release);
+						}
 					}
-					case DownloadPackageCall c:
+
+					return null;
+				}
+
+				if(call is BatchCall c)
+				{ 
+					var rs = new List<dynamic>();
+
+					foreach(var i in c.Calls)
 					{
-						Core.DownloadPackage(c.Package, new Workflow(null, new CancellationTokenSource()));
-						break;
+						t = Type.GetType(GetType().Namespace + "." + i.Name + "Call");
+						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonClient.Options) as ApiCall));
 					}
-					case DownloadStatusCall c:
+
+					respondjson(rs);
+				}
+				else
+				{
+					var r = execute(call);
+
+					if(r != null)
 					{
-						respondjson(Core.GetDownloadStatus(c.Package));
-						break;
+						respondjson(r);
 					}
 				}
 			}

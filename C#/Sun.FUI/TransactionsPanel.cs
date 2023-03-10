@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class TransactionsPanel : MainPanel
 	{
@@ -79,7 +79,7 @@ namespace UC.Net.Node.FUI
 				{
 					var a = Net.Account.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Core.Chain.Accounts.SearchTransactions(a).OrderByDescending(i => i.Operations.Max(o => o.Id));
+					var txs = Core.Database.Accounts.SearchTransactions(a).OrderByDescending(i => i.Operations.Any() ? i.Operations.Max(o => o.Id) : 0);
 	
 					foreach(var i in txs)
 					{

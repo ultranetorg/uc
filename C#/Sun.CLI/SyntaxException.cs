@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	public class SyntaxException : Exception
 	{

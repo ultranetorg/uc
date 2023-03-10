@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class FlowControlForm
 	{
@@ -29,7 +29,7 @@ namespace UC.Net.Node.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.Logview = new UC.Net.Node.Logbox();
+			this.Logview = new UC.Sun.FUI.Logbox();
 			this.Abort = new System.Windows.Forms.Button();
 			this.Exit = new System.Windows.Forms.Button();
 			this.SuspendLayout();

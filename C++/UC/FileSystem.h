@@ -23,7 +23,6 @@ namespace uc
 			CFileSystem(CNexus * l, CServerInstance * info);
 			~CFileSystem();
 
-			void								UserStart() override;
 			IProtocol *							Accept(CString const & pr) override;
 			void								Break(IProtocol * c) override;
 

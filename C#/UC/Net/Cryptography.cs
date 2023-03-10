@@ -10,6 +10,7 @@ using Nethereum.Util;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace UC.Net
 {
@@ -22,25 +23,22 @@ namespace UC.Net
 		public static readonly byte[]		ZeroSignature = new byte[SignatureSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		public static readonly byte[]		ZeroHash = new byte[HashSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-		public abstract byte[]				Sign(PrivateAccount pk, byte[] hash);
+		public abstract byte[]				Sign(AccountKey pk, byte[] hash);
 		public abstract Account				AccountFrom(byte[] signature, byte[] hash);
 		public abstract byte[]				Encrypt(EthECKey key, string password);
 		public abstract byte[]				Decrypt(byte[] input, string password);
+
+		public static readonly SecureRandom	Random = new SecureRandom();
 
 		public byte[] Hash(byte[] data)
 		{
 			return Sha3Keccack.Current.CalculateHash(data);
 		}
 
-		public byte[] Hash(IHashable hashable)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			hashable.HashWrite(w);
-
-			return Sha3Keccack.Current.CalculateHash(s.ToArray());
-		}
+// 		public byte[] Hash(byte[] data)
+// 		{
+// 			return Sha3Keccack.Current.CalculateHash(data);
+// 		}
 
 		public virtual bool Valid(byte[] signature, byte[] hash, Account a)
 		{
@@ -52,32 +50,11 @@ namespace UC.Net
 			var b = BitConverter.GetBytes(n);
 			return BitConverter.IsLittleEndian ? b : b.Reverse().ToArray();
 		}
-
-		public byte[] Sign(PrivateAccount signer, IHashable hashable)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			hashable.HashWrite(w);
-
-			return Current.Sign(signer, Current.Hash(s.ToArray()));
-		}
-
-		
-		public Account AccountFrom(byte[] signature, IHashable hashable)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			hashable.HashWrite(w);
-
-			return AccountFrom(signature, Current.Hash(s.ToArray()));
-		}
 	}
 
 	public class NoCryptography : Cryptography
 	{
-		public override byte[] Sign(PrivateAccount k, byte[] h)
+		public override byte[] Sign(AccountKey k, byte[] h)
 		{
 			var s = new byte[SignatureSize];
 	
@@ -137,7 +114,7 @@ namespace UC.Net
 			service = new KeyStoreService();
 		}
 
-		public override byte[] Sign(PrivateAccount k, byte[] h)
+		public override byte[] Sign(AccountKey k, byte[] h)
 		{
 			var sig = k.Key.SignAndCalculateV(h);
 	

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using Nethereum.Model;
 
 namespace UC.Net
 {
@@ -10,68 +12,115 @@ namespace UC.Net
 		Null, OK, Siezed
 	}
 
-	public class AccountEntry : Entry<Account>
+	public class AccountEntry : TableEntry<Account>
 	{
 		public Account					Account;
-		public List<string>				Authors = new();
-		///public Dictionary<string, int>	Products = new();
-		public HashSet<int>				Transactions = new();
+		public int						LastOperationId = -1;
 		public Coin						Balance;
+		public int						LastEmissionId = -1;
+		public int						CandidacyDeclarationRound = -1;
+		//public IPAddress[]				IPs = new IPAddress[]{};
 		public Coin						Bail;
 		public BailStatus				BailStatus;
 
-		public override Account			Key => Account;
-		Roundchain						Chain;
+		public HashSet<int>				Transactions = new();
+// 		List<string>					_Authors;
+// 		
+// 		public List<string>	Authors
+// 		{
+// 			get
+// 			{
+// 				if(_Authors == null)
+// 				{
+// 					_Authors = new();
+// 
+// 					foreach(var c in Chain.Authors.Clusters)
+// 						foreach(var e in c.Entries)
+// 							if(e.Owner == Account)
+// 								_Authors.Add(e.Name);
+// 				}
+// 				
+// 				return _Authors;
+// 			}
+// 		}
 
-		public AccountEntry(Roundchain chain, Account a)
+		public override Account			Key => Account;
+		public override byte[]			ClusterKey => ((byte[])Account).Take(ClusterKeyLength).ToArray();
+
+		Database						Chain;
+
+		public AccountEntry(Database chain)
 		{
 			Chain = chain;
-			Account = a;
 		}
 
 		public AccountEntry Clone()
 		{
-			return new AccountEntry(Chain, Account){	Authors = new List<string>(Authors),
-														Transactions = new HashSet<int>(Transactions),
-														Balance = Balance,
-														Bail = Bail,
-														BailStatus = BailStatus,
-													};
+			return new AccountEntry(Chain){	Account = Account,
+											LastOperationId = LastOperationId,
+											LastEmissionId = LastEmissionId,
+											Balance = Balance,
+											CandidacyDeclarationRound = CandidacyDeclarationRound,
+											Bail = Bail,
+											BailStatus = BailStatus,
+											//_Authors = new List<string>(Authors),
+											Transactions = Chain.Settings.Database.Chain ? new HashSet<int>(Transactions) : null};
 		}
 
 		public override void Write(BinaryWriter w)
 		{
-			w.Write(Transactions);
-			w.Write(Authors, i => w.WriteUtf8(i));
+			w.Write(Account);
+			w.Write7BitEncodedInt(LastOperationId);
+			w.Write7BitEncodedInt(LastEmissionId);
 			w.Write(Balance);
-			w.Write(Bail);
-			w.Write((byte)BailStatus);
+			w.Write7BitEncodedInt(CandidacyDeclarationRound);
+
+			if(CandidacyDeclarationRound != -1)
+			{
+				w.Write(Bail);
+				w.Write((byte)BailStatus);
+			}
 		}
 
 		public override void Read(BinaryReader r)
 		{
-			Transactions	= r.ReadHashSet(() => r.Read7BitEncodedInt());
-			Authors			= r.ReadList(() => r.ReadUtf8());
-			Balance			= r.ReadCoin();
-			Bail			= r.ReadCoin();
-			BailStatus		= (BailStatus)r.ReadByte();
+			Account						= r.ReadAccount();
+			LastOperationId				= r.Read7BitEncodedInt();
+			LastEmissionId				= r.Read7BitEncodedInt();
+			Balance						= r.ReadCoin();
+			CandidacyDeclarationRound	= r.Read7BitEncodedInt();
+
+			if(CandidacyDeclarationRound != -1)
+			{
+				Bail		= r.ReadCoin();
+				BailStatus	= (BailStatus)r.ReadByte();
+			}
 		}
 
-		public O FindOperation<O>(Round executing, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null) where O : Operation
+		public override void WriteMore(BinaryWriter w)
 		{
-			return	(	executing.ExecutedOperations.FirstOrDefault(i =>	i.Signer == Account && 
-																			i is O &&
-																			(pp == null || pp(i.Transaction.Payload)) && 
-																			(tp == null || tp(i.Transaction)) && 
-																			(op == null || op(i)))
-						??
-						Chain.Accounts.FindLastOperation<O>(Account, o =>	o.Successful && (op == null || op(o)), 
-																			tp, 
-																			p => (!p.Round.Confirmed || p.Confirmed) && (pp == null || pp(p)), /// if round is confirmed than take confirmed blocks only
-																			r => r.Id < executing.Id)
-					)
-					as O;
+			if(Chain.Settings.Database.Chain)
+			{
+				w.Write(Transactions);
+			}
+			//w.Write(_Authors != null);
+			//
+			//if(_Authors != null)
+			//{
+			//	w.Write(_Authors, i => w.WriteUtf8(i));
+			//}
 		}
 
+		public override void ReadMore(BinaryReader r)
+		{
+			if(Chain.Settings.Database.Chain)
+			{
+				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
+			}
+			//if(r.ReadBoolean())
+			//{
+			//	_Authors = r.ReadList(() => r.ReadUtf8());
+			//}
+		}
 	}
 }

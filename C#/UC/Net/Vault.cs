@@ -14,14 +14,13 @@ namespace UC.Net
 	{
 		public const string					EthereumWalletExtention = "uwe";
 		public const string					NoCryptoWalletExtention = "uwnc";
-		public string						WalletExt => Cryptography.Current is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
+		public static string				WalletExt => Cryptography.Current is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
 
 		Settings							Settings;
 		Log									Log;
 		public Dictionary<Account, byte[]>	Wallets = new();
 		public List<Account>				Accounts = new();
 		public Dictionary<Account, int>		OperationIds = new();
- 		List<PrivateAccount>				Fathers = new();
 
 		public event Action					AccountsChanged;						
 
@@ -56,39 +55,25 @@ namespace UC.Net
 			Log?.Report(this, "Wallet added", account.ToString());
 		}
 
-		public PrivateAccount Unlock(Account a, string password)
+		public AccountKey Unlock(Account a, string password)
 		{
-			var p = PrivateAccount.Load(Wallets[a], password);
+			var p = AccountKey.Load(Wallets[a], password);
 
 			var i = Accounts.IndexOf(a);
 			Accounts.Remove(a);
 			Accounts.Insert(i, p);
 
-			Log?.Report(this, "Account unlocked", a.ToString());
+			Log?.Report(this, "Wallet unlocked", a.ToString());
 
 			return p;
 		}
 
-		public PrivateAccount GetPrivate(Account a)
+		public AccountKey GetKey(Account a)
 		{
-			return Accounts.Find(i => i == a) as PrivateAccount;
+			return Accounts.Find(i => i == a) as AccountKey;
 		}
 
-		public PrivateAccount GetFather(Account a)
-		{
-			var f = Fathers.Find(i => i == a);
-
-			if(f != null)
-				return f;
-
-			f = new PrivateAccount(new EthECKey(File.ReadAllBytes(Path.Join(Settings.Secret.Fathers, a + "." + Vault.NoCryptoWalletExtention)), true));
-
-			Fathers.Add(f);
-
-			return f;
-		}
-
-		public string SaveAccount(PrivateAccount a, string password)
+		public string SaveWallet(AccountKey a, string password)
 		{
 			AddWallet(a, a.Save(password));
 
@@ -103,7 +88,7 @@ namespace UC.Net
 			return path;
 		}
 
-		public void DeleteAccount(Account a)
+		public void DeleteWallet(Account a)
 		{
 			File.Delete(Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt));
 

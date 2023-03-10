@@ -4,7 +4,7 @@ using Org.BouncyCastle.Crypto;
 using System;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class DashboardPanel : MainPanel
 	{
@@ -19,13 +19,21 @@ namespace UC.Net.Node.FUI
 			InitializeComponent();
 
 			monitor.Core	= d;
+
+			//d.MainStarted += c =>	{
+			//							if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
+			//								Core.Database.BlockAdded +=  monitor.OnBlockAdded;
+			//						};
 		}
 
 		public override void Open(bool first)
 		{
+			//if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
+			//	Core.Database.BlockAdded +=  monitor.OnBlockAdded;
+
 			if(first)
 			{
-				logbox.Log = Core.Log;
+				logbox.Log = Core.Workflow.Log;
 
 				BindAccounts(source);
 				BindAccounts(destination);
@@ -33,6 +41,14 @@ namespace UC.Net.Node.FUI
 				if(destination.Items.Count > 1)
 					destination.SelectedIndex = 1;
 			}
+		}
+
+		public override void Close()
+		{
+			base.Close();
+
+			//if(Core.Database != null)
+			//	Core.Database.BlockAdded -= monitor.OnBlockAdded;
 		}
 
 		public override void PeriodicalRefresh()
@@ -46,13 +62,15 @@ namespace UC.Net.Node.FUI
 
 			fields.Text = string.Join('\n', i[0]);
 			values.Text = string.Join('\n', i[1]);
+		
+			 monitor.OnBlockAdded(null);
 		}
 
 		private void all_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			if(source.SelectedItem is Account a)
 			{
-				amount.Coins = Core.Chain.Accounts.Find(a, Core.Chain.LastConfirmedRound.Id).Balance;
+				amount.Coins = Core.Database.Accounts.Find(a, Core.Database.LastConfirmedRound.Id).Balance;
 			}
 		}
 
@@ -69,9 +87,7 @@ namespace UC.Net.Node.FUI
 			{
 				try
 				{
-					Core.Enqueue(new UntTransfer(	signer,
-														Account.Parse(destination.Text),
-														amount.Coins));
+					Core.Enqueue(new UntTransfer(signer, Account.Parse(destination.Text), amount.Coins), PlacingStage.Null, new Workflow());
 				}
 				catch(RequirementException ex)
 				{

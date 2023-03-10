@@ -7,10 +7,15 @@ using System.Numerics;
 using System.Text;
 using UC.Net;
 
-namespace UC
+namespace UC.Net
 {
 	public static class Extentions
 	{
+		public static T Random<T>(this IEnumerable<T> e)
+		{
+			return e.OrderBy(i => Guid.NewGuid()).First();
+		}
+
 		public static bool Contains(this Exception e, Func<Exception, bool> p)
 		{
 			if(p(e))
@@ -101,11 +106,6 @@ namespace UC
 		public static Coin ReadCoin(this BinaryReader r)
 		{
 			return new Coin(r);
-		}
-
-		public static UC.Version ReadVersion(this BinaryReader r)
-		{
-			return Version.Read(r);
 		}
 
 		public static BigInteger ReadBigInteger(this BinaryReader r)

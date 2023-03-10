@@ -8,15 +8,17 @@ using System.Linq;
 using System.Windows.Forms;
 using UC;
 using System.Threading.Tasks;
+using System.Reflection.Emit;
 
-namespace UC.Net.Node
+namespace UC.Sun.FUI
 {
-	public partial class Logbox : TextBox
+	public partial class Logbox : TextBox, ILogView
 	{
 		Log log;
 
 		public bool ShowSender { get;set; } = false;
 		public bool ShowSubject { get;set; } = true;
+		public int BufferWidth => MaxLength;
 
 		public Log Log 
 		{
@@ -66,55 +68,49 @@ namespace UC.Net.Node
 
 		public void OnReported(LogMessage m)
 		{
- 			var a =	new Action( () =>
- 								{
- 									if(Lines.Length > 1000)
+  			var a =	new Action( () =>
+  								{
+ 									var t = new string(' ', 4 * m.Log.Depth);
+  
+ 									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
+ 										t += ("!!! " + m.Severity + " : ");
+ 
+  									if(ShowSender && m.Sender != null)
+ 										t += (m.Sender + " : ");
+ 
+ 									if(ShowSubject && m.Subject != null)
  									{
- 										int p = 0;
+ 										t += (m.Subject); 
  
- 										for(int i = 0; i < Lines.Length - 1000; i++)
- 										{
- 											 p = Text.IndexOf(Environment.NewLine, p);
- 										}
- 
- 										Text = Text.Remove(0, p + Environment.NewLine.Length);
+ 										if(m.Text != null)
+ 											t += (" : "); 
  									}
+ 									
+ 									if(m.Text != null)
+ 										t += (m.Text[0] + Environment.NewLine);
+ 									else
+ 										t += (Environment.NewLine);
  
-									if(m.Severity != UC.Log.Severity.Info)
-										AppendText("!!! " + m.Severity + " : ");
+ 									if(m.Text != null)
+ 									{
+  										foreach(var i in m.Text.Skip(1))
+  										{
+  											t += (new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
+  										}
+ 									}
 
- 									if(ShowSender && m.Sender != null)
-										AppendText(m.Sender + " : ");
+									AppendText(t);
 
-									if(ShowSubject && m.Subject != null)
-									{
-										AppendText(m.Subject); 
-
-										if(m.Text != null)
-											AppendText(" : "); 
-									}
-
-									if(m.Text != null)
-									{
-										AppendText(m.Text[0]);
-									}
-
-									AppendText(Environment.NewLine);
-
-									if(m.Text != null)
-									{
- 										foreach(var i in m.Text.Skip(1))
- 										{
- 											AppendText(new string(' ', 4) + i + Environment.NewLine);
- 										}
-									 }
-
- 								});
- 
- 			if(InvokeRequired)
- 				BeginInvoke(a);
- 			else
- 				a();
+  									if(Lines.Length > 100 && Lines.Length > 1100)
+  									{
+										Lines = Lines.Skip(1000).ToArray();
+  									}
+  								});
+  
+  			if(InvokeRequired)
+  				BeginInvoke(a);
+  			else
+  				a();
 		}
 	}
 }

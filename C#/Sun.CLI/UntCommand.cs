@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using Nethereum.Signer;
 using Nethereum.Util;
 using Nethereum.Web3;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage: unt emit from {
@@ -53,7 +54,7 @@ namespace UC.Net.Node.CLI
 
 					if(Args.Has("from/key"))
 					{
-						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Enum.Parse<Chain>(Settings.Nas.Chain));
+						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Settings.Zone.EtheterumNetwork);
 					}
 					else
 					{
@@ -73,20 +74,24 @@ namespace UC.Net.Node.CLI
 
 						from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
 																				p, 
-																				new BigInteger((int)Enum.Parse(typeof(Chain), Settings.Nas.Chain)));
+																				new BigInteger((int)Settings.Zone.EtheterumNetwork));
 					}
 
-					return Send(() => Node.Emit(	from,
-													Web3.Convert.ToWei(GetString("amount")),
-													GetPrivate("to/account", "to/password"), 
-													Workflow).Result);
+					return Core.Emit(	from,
+										Web3.Convert.ToWei(GetString("amount")),
+										GetPrivate("to/account", "to/password"), 
+										GetAwaitStage(),
+										Workflow);
 				}
 
 		   		case "transfer" : 
 				{
-					return Send(() => Node.Enqueue(new UntTransfer(	GetPrivate("from/account", "from/password"), 
-																		Account.Parse(GetString("to")), 
-																		Coin.ParseDecimal(GetString("amount")))));
+					return Core.Enqueue(new UntTransfer(GetPrivate("from/account", "from/password"), 
+														Account.Parse(GetString("to")), 
+														Coin.ParseDecimal(GetString("amount"))),
+														GetAwaitStage(), 
+														Workflow);
+
 				}
 
 				default:

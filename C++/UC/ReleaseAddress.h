@@ -7,15 +7,15 @@ namespace uc
 	class UOS_LINKING CReleaseAddress : public CRealizationAddress
 	{
 		public:
-			CVersion									Version;
+			CVersion					Version;
 
 			CReleaseAddress();
 			CReleaseAddress(CString const & author, CString const & product, CString const & platform, CVersion & version);
 
-			static CReleaseAddress						Parse(CString const & text);
+			static CReleaseAddress		Parse(CString const & text);
 			
-			bool										operator==(const CReleaseAddress & a) const;
-			bool										operator!=(const CReleaseAddress & a) const;
-			CString										ToString();
+			bool						operator==(const CReleaseAddress & a) const;
+			bool						operator!=(const CReleaseAddress & a) const;
+			CString						ToString();
 	};
 }

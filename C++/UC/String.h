@@ -76,6 +76,7 @@ namespace uc
 			UOS_LINKING CString						ReplaceLast(const CString &find_str, const CString &replace_str) const;
 			UOS_LINKING CString						Replace(const CString &find_str, const CString &replace_str) const;
 			UOS_LINKING CArray<CString>				Split(const wchar_t * s, bool compress = false) const;;
+			UOS_LINKING CArray<CString>				Split(wchar_t s, bool compress = false) const;;
 			UOS_LINKING CList<CString>				SplitToList(const wchar_t * s, bool compress = false) const;
 			UOS_LINKING int							Count();
 

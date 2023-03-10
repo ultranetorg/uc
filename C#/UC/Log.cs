@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace UC
 {
@@ -12,13 +13,15 @@ namespace UC
 		public string		Subject;
 		public Log.Severity Severity;
 		public string[]		Text;
+		public Log			Log;
 
 		public override string ToString()
 		{
 			return	$"{(Severity != UC.Log.Severity.Info ? ("!!! " + Severity + " : ") : null)}" +
 					$"{(Sender != null ? Sender.GetType().Name + " : " : null)}" +
-					$"{(Subject != null ? Subject + " : " : null)}" +
-					$"{(Text != null ? string.Join("; ", Text) : null)}";
+					$"{(Subject != null ? Subject : null)}" +
+					(Subject != null && Text != null ? " : " : null) +
+					$"{(Text != null ?  string.Join("; ", Text) : null)}";
 		}
 	}
 
@@ -26,33 +29,66 @@ namespace UC
 	{
 		public enum Severity
 		{
-			Null, Info, Warning, Error
+			Null, Info, Warning, Error, SubLog
 		}
 
 		public List<LogMessage>		Messages = new List<LogMessage>();
 		public ReportedDelegate		Reported;
-		public Stream				Stream{ set { Writer = new StreamWriter(value); }  }
+		public Stream				Stream { set { Writer = new StreamWriter(value); } }
 		public TextWriter			Writer;
+		public Log					Parent;
+		string						Name;
 
-		protected void Report(object sender, string subject, Severity severity, string[] a)
+		public int Depth
 		{
-			var m = new LogMessage {Severity = severity, Sender = sender, Subject = subject, Text = a};
-			
-			lock(Messages)
+			get
 			{
-				Messages.Add(m);
+				var r = this;
+				int d = 0;
+			
+				while(r.Parent != null)
+				{
+					r = r.Parent;
+					d++;
+				}
+
+				return d;
+			}
+		}
+
+		public Log SubLog(string name)
+		{
+			Report(null, name, Severity.SubLog, null);
+
+			var l = new Log{Name = name, Parent = this};
+
+			return l;
+		}
+
+		protected void Report(object sender, string subject, Severity severity,  IEnumerable<string> a)
+		{
+			var m = new LogMessage{Log = this, Severity = severity, Sender = sender, Subject = subject, Text = a?.ToArray()};
+
+			var r = this;
+			
+			while(r.Parent != null)
+				r = r.Parent;
+			
+			lock(r.Messages)
+			{
+				r.Messages.Add(m);
 	
-				if(Messages.Count > 1000)
-					Messages.RemoveRange(0, Messages.Count - 1000);
+				if(r.Messages.Count > 1000)
+					r.Messages.RemoveRange(0, r.Messages.Count - 1000);
 			}
 
-			if(Writer != null)
+			if(r.Writer != null)
 			{
-				Writer.WriteLine(m.ToString());
-				Writer.Flush();
+				r.Writer.WriteLine(m.ToString());
+				r.Writer.Flush();
 			}
-					
-			Reported?.Invoke(m);
+			
+			r.Reported?.Invoke(m);
 		}
 
 		public void Report(object sender, string subject)
@@ -75,7 +111,7 @@ namespace UC
 			Report(sender, subject, Severity.Info, new[] {a, b, c});
 		}
 
-		public void Report(object sender, string subject, string[] a)
+		public void Report(object sender, string subject, IEnumerable<string> a)
 		{
 			Report(sender, subject, Severity.Info, a);
 		}
@@ -92,23 +128,21 @@ namespace UC
 
 		public void ReportWarning(object sender, string subject, string message, Exception ex)
 		{
-			var t = new List<string>();
+			var t = new List<string>(){message};
+
+			var e = ex;
+
+			while(e != null)
+			{
+				t.Add(e.Message);
+				e = e.InnerException;
+			}
 
 			if(ex is AggregateException a)
 			{
 				foreach(var i in a.InnerExceptions)
 				{
 					t.Add(i.Message);
-				}
-			}
-			else
-			{
-				var e = ex;
-				
-				while(e != null)
-				{
-					t.Add(e.Message);
-					e = e.InnerException;
 				}
 			}
 			
@@ -117,7 +151,15 @@ namespace UC
 
 		public void ReportError(object sender, string message, Exception ex)
 		{
-			var t = new List<string>();
+			var t = new List<string>(){message};
+
+			var e = ex;
+
+			while(e != null)
+			{
+				t.Add(e.Message);
+				e = e.InnerException;
+			}
 
 			if(ex is AggregateException a)
 			{
@@ -126,16 +168,7 @@ namespace UC
 					t.Add(i.Message);
 				}
 			}
-			else
-			{
-				var e = ex;
-				
-				while(e != null)
-				{
-					t.Add(e.Message);
-					e = e.InnerException;
-				}
-			}
+
 			
 			Report(sender, null, Severity.Error, t.ToArray());
 		}

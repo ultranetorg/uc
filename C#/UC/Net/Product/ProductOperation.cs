@@ -8,13 +8,17 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+using NativeImport;
+using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Model;
 using Nethereum.Util;
 using Nethereum.Web3.Accounts;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
+using UC.Net;
 
 namespace UC.Net
 {
@@ -23,38 +27,34 @@ namespace UC.Net
 		public ProductAddress	Address;
 		public string			Title;
 		public override string	Description => $"{Address} as {Title}";
-		public override bool	Valid => 0 < Address.Author.Length && 0 < Address.Product.Length;
+		public override bool	Valid => IsValid(Address.Product, Title);
 
 		public ProductRegistration()
 		{
 		}
 
-		public ProductRegistration(PrivateAccount signer, ProductAddress name, string title)
+		public ProductRegistration(AccountKey signer, ProductAddress name, string title)
 		{
 			Signer		= signer;
 			Address		= name;
 			Title		= title;
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-
 			Address	= r.Read<ProductAddress>();
 			Title	= r.ReadUtf8();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-
 			w.Write(Address);
 			w.WriteUtf8(Title);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-			var a = round.FindAuthor(Address.Author);
+			var a = chain.Authors.Find(Address.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -62,15 +62,17 @@ namespace UC.Net
 				return;
 			}
 
-
-			if(!a.Products.Contains(Address.Product))
+			if(chain.Products.Find(Address, round.Id) != null)
 			{
-				a = round.ChangeAuthor(Address.Author);
-				///a.Rid = round.Id;
-				a.Products.Add(Address.Product);
+				Error = "Product already registered";
+				return;
 			}
 			 
-			var p = round.ChangeProduct(Address);
+			a = round.AffectAuthor(Address.Author);
+
+			//a.Products.Add(Address.Product);
+
+			var p = round.AffectProduct(Address);
 		
 			p.Title				= Title;
 			p.LastRegistration	= round.Id;
@@ -79,32 +81,30 @@ namespace UC.Net
 
 	public class RealizationRegistration : Operation
 	{
-		public RealizationAddress			Address;
-		public OsBinaryIdentifier[]			OSes;
-		public override string				Description => $"{Address}";
-		public override bool				Valid => Address.Valid;
+		public RealizationAddress			Realization;
+		public Osbi[]						OSes;
+		public override string				Description => $"{Realization}";
+		public override bool				Valid => Realization.Valid;
 
 		public RealizationRegistration()
 		{
 		}
 
-		public override void Read(BinaryReader r)
+		protected override void ReadConfirmed(BinaryReader r)
 		{
-			base.Read(r);
-			Address	= r.Read<RealizationAddress>();
-			OSes	= r.ReadArray<OsBinaryIdentifier>();
+			Realization	= r.Read<RealizationAddress>();
+			OSes		= r.ReadArray<Osbi>();
 		}
 
-		public override void Write(BinaryWriter w)
+		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			base.Write(w);
-			w.Write(Address);
+			w.Write(Realization);
 			w.Write(OSes);
 		}
 
-		public override void Execute(Roundchain chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-			var a = round.FindAuthor(Address.Author);
+			var a = chain.Authors.Find(Realization.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -112,20 +112,25 @@ namespace UC.Net
 				return;
 			}
 
-			//if(!a.Products.Contains(Address.Product))
-			//{
-			//	a = round.ChangeAuthor(Address.Author);
-			//	///a.Rid = round.Id;
-			//	a.Products.Add(Address.Product);
-			//}
+			if(chain.Products.Find(Realization, round.Id) == null)
+			{
+				Error = "Product not found";
+				return;
+			}
 			 
-			var p = round.ChangeProduct(Address);
+			var p = round.AffectProduct(Realization);
 			
-			p.Realizations.RemoveAll(i => i.Name == Address.Platform);
-			p.Realizations.Add(new RealizationEntry{Name = Address.Platform, OSes = OSes});
+			p.Realizations.RemoveAll(i => i.Name == Realization.Platform);
+			p.Realizations.Add(new ProductEntryRealization{Name = Realization.Platform, OSes = OSes});
+
+			var r = round.AffectRealization(Realization);
+
+			r.OSes = OSes;
+			r.LastRegistrationRid = round.Id;
 		}
 	}
 
+/*
 	public class ProductControl : Operation
 	{
 		enum Change
@@ -158,7 +163,7 @@ namespace UC.Net
 		public void				RemovePublisher(Account publisher)	=> Actions[Change.RemovePublisher] = publisher;
 		public void				SetStatus(bool active)				=> Actions[Change.SetStatus] = active;
 
-		public override void Read(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader r)
 		{
 			base.Read(r);
 
@@ -175,7 +180,7 @@ namespace UC.Net
 											});
 		}
 
-		public override void Write(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter w)
 		{
 			base.Write(w);
 
@@ -191,218 +196,46 @@ namespace UC.Net
 										}
 									});
 		}
-	}
+	}*/
 
-	public class ReleaseRegistration : Operation, IBinarySerializable
+	public class ReleaseRegistration : Operation
 	{
-		public ReleaseAddress		Address;
-		public string				Channel;		/// stable, beta, nightly, debug,...
-		public Version				PreviousVersion;
-		public byte[]				CompleteHash;
-		public long					CompleteSize;
-		public ReleaseAddress[]		CompleteDependencies;
-		public Version				IncrementalMinimalVersion;
-		public byte[]				IncrementalHash;
-		public long					IncrementalSize;
-		public ReleaseAddress[]		IncrementalDependencies;
+		public ReleaseAddress		Release { get; set; }
+		public byte[]				Manifest { get; set; }
+		public string				Channel { get; set; }
 
-		public override bool		Valid => Address.Valid;
-		public override string		Description => $"{Address}/{Channel}";
-
-		byte[]						Hash;
-		bool						Archived;
-
-		public const string			CompleteSizeField = "CompleteSize";
-		public const string			CompleteHashField = "CompleteHash";
-		public const string			IncrementalSizeField = "IncrementalSize";
-		public const string			IncrementalHashField = "IncrementalHash";
+		public override bool		Valid => true;
+		public override string		Description => $"{Release} {Channel} {Hex.ToHexString(Manifest)}";
 
 		public ReleaseRegistration()
 		{
 		}
 
-		public ReleaseRegistration(	PrivateAccount				signer, 
-									ReleaseAddress				address, 
-									string						channel, 
-									Version						previous, 
-									long						completesize,
-									byte[]						completehash,
-									IEnumerable<ReleaseAddress>	completedependencies, 
-									Version						incrementalminimalversion, 
-									long						incrementalsize,
-									byte[]						incrementalhash,
-									IEnumerable<ReleaseAddress>	incrementaldependencies)
+		public ReleaseRegistration(AccountKey signer, ReleaseAddress release, string channel, byte[] manifest)
 		{
 			Signer	= signer;
-			Address = address;
+			Release = release;
 			Channel = channel;
-			PreviousVersion = previous;
-			
-			CompleteSize			= completesize;
-			CompleteHash			= completehash;
-			CompleteDependencies	= completedependencies.ToArray();
-			
-			IncrementalMinimalVersion	= incrementalminimalversion;
-			IncrementalHash				= incrementalhash;
-			IncrementalSize				= incrementalsize;
-			IncrementalDependencies		= incrementaldependencies.ToArray();
+			Manifest = manifest;
 		}
 
-		public XonDocument ToXon(IXonValueSerializator serializator)
+		protected override void ReadConfirmed(BinaryReader reader)
 		{
-			var d = new XonDocument(serializator);
-
-			d.Add("Address").Value = Address;
-			d.Add("Channel").Value = Channel;
-			d.Add("PreviousVersion").Value = PreviousVersion;
-	
-			if(!Archived)
-			{
-				d.Add(CompleteHashField).Value = CompleteHash;
-				d.Add(CompleteSizeField).Value = CompleteSize;
-	
-				if(CompleteDependencies.Any())
-				{
-					var cd = d.Add("CompleteDependencies");
-					foreach(var i in CompleteDependencies)
-					{
-						cd.Add(i.ToString());
-					}
-				}
-	
-				if(IncrementalSize > 0)
-				{
-					d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
-					d.Add(IncrementalHashField).Value = IncrementalHash;
-					d.Add(IncrementalSizeField).Value = IncrementalSize;
-		
-					if(IncrementalDependencies.Any())
-					{
-						var id = d.Add("IncrementalDependencies");
-						foreach(var i in IncrementalDependencies)
-						{
-							id.Add(i.ToString());
-						}
-					}
-				}
-			}
-
-			d.Add("Hash").Value = Hash;
-
-			return d;		
+			Release = reader.Read<ReleaseAddress>();
+			Manifest = reader.ReadSha3();
+			Channel = reader.ReadUtf8();
 		}
 
-		public byte[] GetOrCalcHash()
+		protected override void WriteConfirmed(BinaryWriter writer)
 		{
-			if(Hash != null)
-			{
-				return Hash;
-			}
-
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-	
-			w.Write(Address);
-			w.WriteUtf8(Channel);
-			w.Write(PreviousVersion);
-			w.Write(CompleteHash);
-			w.Write7BitEncodedInt64(CompleteSize);
-			w.Write(CompleteDependencies);
-			
-			w.Write7BitEncodedInt64(IncrementalSize);
-
-			if(IncrementalSize > 0)
-			{
-				w.Write(IncrementalMinimalVersion);
-				w.Write(IncrementalHash);
-				w.Write(IncrementalDependencies);
-			}
-				
-			Hash = Cryptography.Current.Hash(s.ToArray());
-		
-			return Hash;
+			writer.Write(Release);
+			writer.Write(Manifest);
+			writer.WriteUtf8(Channel);
 		}
 
-		public override void HashWrite(BinaryWriter writer)
+		public override void Execute(Database chain, Round round)
 		{
-			writer.Write(GetOrCalcHash());
-		}
-
-		public override void WritePaid(BinaryWriter w)
-		{
-			w.Write(GetOrCalcHash());
-		}
-
-		public override void Read(BinaryReader r)
-		{
-			base.Read(r);
-
-			Address = r.Read<ReleaseAddress>();
-			Channel = r.ReadUtf8();
-			PreviousVersion = r.ReadVersion();
-
-			Archived = r.ReadBoolean();
-
-			if(Archived)
-			{
-				Hash = r.ReadSha3();
-			} 
-			else
-			{
-				CompleteSize = r.Read7BitEncodedInt64();
-				CompleteHash = r.ReadSha3();
-				CompleteDependencies = r.ReadArray<ReleaseAddress>();
-
-				IncrementalSize = r.Read7BitEncodedInt64();
-				
-				if(IncrementalSize > 0)
-				{
-					IncrementalMinimalVersion = r.ReadVersion();
-					IncrementalHash = r.ReadSha3();
-					IncrementalDependencies = r.ReadArray<ReleaseAddress>();
-				}
-
-				Hash = GetOrCalcHash();
-			}
-		}
-
-		public override void Write(BinaryWriter w)
-		{
-			base.Write(w);
-
-			w.Write(Address);
-			w.WriteUtf8(Channel);
-			w.Write(PreviousVersion);
-
-			w.Write(Archived);
-
-			if(Archived)
-			{
-				w.Write(GetOrCalcHash());
-			} 
-			else
-			{
-				w.Write7BitEncodedInt64(CompleteSize);
-				w.Write(CompleteHash);
-				w.Write(CompleteDependencies);
-			
-				w.Write7BitEncodedInt64(IncrementalSize);
-
-				if(IncrementalSize > 0)
-				{
-					w.Write(IncrementalMinimalVersion);
-					w.Write(IncrementalHash);
-					w.Write(IncrementalDependencies);
-				}
-			}
-		}
-
-		public override void Execute(Roundchain chain, Round round)
-		{
-			if(Archived)
-				return;
-
-			var a = round.FindAuthor(Address.Author);
+			var a = chain.Authors.Find(Release.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -410,44 +243,32 @@ namespace UC.Net
 				return;
 			}
 
-			if(!a.Products.Contains(Address.Product))
+			if(chain.Products.Find(Release, round.Id) == null)
 			{
-				Error = "Product is not registered";
+				Error = "Product not found";
 				return;
 			}
  
-			var p = round.FindProduct(Address);
+			var p = round.FindProduct(Release);
 
 			if(p == null)
-				throw new IntegrityException("Product not found");
+				throw new IntegrityException("ProductEntry not found");
 			
-			var z = p.Realizations.Find(i => i.Name == Address.Platform);
+			var z = p.Realizations.Find(i => i.Name == Release.Platform);
 
 			if(z == null)
 			{
 				Error = "Realization not found";
 				return;
 			}
-	
-			var r = p.Releases.FirstOrDefault(i => i.Platform == Address.Platform && i.Channel == Channel);
+
+			var ce = p.Releases.Where(i => i.Platform == Release.Platform).MaxBy(i => i.Version);
 					
-			if(r != null)
+			if(ce != null)
 			{
-				if(r.Version < Address.Version)
+				if(ce.Version < Release.Version)
 				{
-					var prev = chain.FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	m.Address.Author == Address.Author && 
-																								m.Address.Product == Address.Product && 
-																								m.Address.Platform == Address.Platform && 
-																								m.Channel == Channel);
-					if(prev == null)
-						throw new IntegrityException("No ReleaseRegistration found");
-					
-					p = round.ChangeProduct(Address);
-
-					prev.Archived = true;
-					round.AffectedRounds.Add(prev.Transaction.Payload.Round);
-					p.Releases.Remove(r);
-
+					p = round.AffectProduct(Release);
 				} 
 				else
 				{
@@ -456,13 +277,17 @@ namespace UC.Net
 				}
 			}
 			else
-				p = round.ChangeProduct(Address);
+				p = round.AffectProduct(Release);
+			
+			var e = new ProductEntryRelease(Release.Platform, Release.Version, Channel, round.Id);
 
+			p.Releases.Add(e);
 
-			//var rls = round.GetReleases(round.Id);
-			//rls.Add(this);
+			var r = round.AffectRelease(Release);
 
-			p.Releases.Add(new ReleaseEntry(Address.Platform, Address.Version, Channel, round.Id));
+			r.Manifest = Manifest;
+			r.Channel = Channel;
+			r.LastRegistration = round.Id;
 		}
 	}
 }

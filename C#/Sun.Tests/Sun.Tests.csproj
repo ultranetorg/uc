@@ -9,7 +9,7 @@
 
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
 
-    <StartupObject>UC.Net.Node.Tests.Program</StartupObject>
+    <StartupObject>Tests.Program</StartupObject>
 
     <ApplicationIcon />
 

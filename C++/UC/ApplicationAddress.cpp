@@ -7,7 +7,7 @@ CApplicationAddress::CApplicationAddress()
 {
 }
 
-CApplicationAddress::CApplicationAddress(CString const & author, CString const & product, CString const & platform, CString const & application) : CRealizationAddress(author, product, platform)
+CApplicationAddress::CApplicationAddress(CString const & author, CString const & product, CString const & application) : CProductAddress(author, product)
 {
 	Application = application;
 }
@@ -25,18 +25,18 @@ bool CApplicationAddress::operator != (const CApplicationAddress & u) const
 
 CString CApplicationAddress::ToString()
 {
-	return __super::ToString() + L"/" + Application;
+	return __super::ToString() + Separator + Application;
 }
 
 CApplicationAddress CApplicationAddress::Parse(CString const & text)
 {
-	auto c = text.Split(L"/");
+	auto c = text.Split(Separator);
 
-	return CApplicationAddress(c[0], c[1], c[2], c[4]);
+	return CApplicationAddress(c[0], c[1], c[2]);
 }
 
 bool CApplicationAddress::Empty()
 {
-	return Author.empty() && Product.empty() && Platform.empty() && Application.empty();
+	return Author.empty() && Product.empty() && Application.empty();
 }
 

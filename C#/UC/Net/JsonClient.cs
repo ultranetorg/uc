@@ -52,7 +52,6 @@ namespace UC.Net
 			Options.Converters.Add(new IPJsonConverter());
 			Options.Converters.Add(new ChainTimeJsonConverter());
 			Options.Converters.Add(new ReleaseAddressJsonConverter());
-			Options.Converters.Add(new PackageAddressJsonConverter());
 			Options.Converters.Add(new VersionJsonConverter());
 			Options.Converters.Add(new XonDocumentJsonConverter());
 		}
@@ -64,43 +63,45 @@ namespace UC.Net
 			Key = apikey;
 		}
 
-		public UntTransfer			Send(TransferUntCall call, CancellationToken cancellation = default) => Request<UntTransfer>(call, cancellation );
-		public GetStatusResponse	Send(StatusCall call, CancellationToken cancellation = default) => Request<GetStatusResponse>(call, cancellation);
+		public UntTransfer			Send(UntTransferCall call, Workflow workflow) => Request<UntTransfer>(call, workflow);
+		public GetStatusResponse	Send(StatusCall call, Workflow workflow) => Request<GetStatusResponse>(call, workflow);
 
-		HttpResponseMessage Post(ApiCall request, CancellationToken cancellation = default) 
+		HttpResponseMessage Post(ApiCall request, Workflow workflow) 
 		{
 			request.Version = Core.Versions.First().ToString();
 			request.AccessKey = Key;
 
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + ApiCall.NameOf(request.GetType()));
-
-			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
-
-			return HttpClient.Send(m, cancellation);
+			using(var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + ApiCall.NameOf(request.GetType())))
+			{
+				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
+	
+				return HttpClient.Send(m, workflow.Cancellation.Token);
+			}
 		}
 
-		public Rp Request<Rp>(ApiCall request, CancellationToken cancellation = default)
+		public Rp Request<Rp>(ApiCall request, Workflow workflow)
 		{
-			var cr = Post(request, cancellation);
-
-			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
-
-			try
+			using(var cr = Post(request, workflow))
 			{
-				return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
-			}
-			catch(Exception ex)
-			{
-				throw new ApiCallException("Response deserialization failed", ex);
+				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
+					throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
+
+				try
+				{
+					return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
+				}
+				catch(Exception ex)
+				{
+					throw new ApiCallException("Response deserialization failed", ex);
+				}
 			}
 		}
 		
-		public void SendOnly(ApiCall request, CancellationToken cancellation = default)
+		public void SendOnly(ApiCall request, Workflow workflow)
 		{
-			var cr = Post(request, cancellation);
+			var cr = Post(request, workflow);
 			
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);

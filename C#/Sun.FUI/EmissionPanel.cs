@@ -15,7 +15,7 @@ using Nethereum.Web3;
 using Org.BouncyCastle.Math;
 using System.Threading;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class EmissionPanel : MainPanel
 	{
@@ -28,7 +28,7 @@ namespace UC.Net.Node.FUI
 
 			walletChoice.Checked = true;
 
-			DestLabel.Text += $"\n({Core.Nas.Chain} Network)";
+			DestLabel.Text += $"\n({Core.Settings.Zone.EtheterumNetwork} Network)";
 		}
 
 		public override void Open(bool first)
@@ -116,14 +116,14 @@ namespace UC.Net.Node.FUI
 
 			lock(Core.Lock)
 			{
-				if(Core.Chain != null)
+				if(Core.Database != null)
 				{
-					estimated.Text = Emission.Calculate(Core.Chain.LastConfirmedRound.WeiSpent, Core.Chain.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
+					estimated.Text = Emission.Calculate(Core.Database.LastConfirmedRound.WeiSpent, Core.Database.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
 				}
 			}
 		}
 
-	 	async private void transfer_Click(object sender, EventArgs e)
+	 	private void transfer_Click(object sender, EventArgs e)
 		{
 			transfergroup.Enabled = false;
 			finishgroup.Enabled = false;
@@ -149,12 +149,12 @@ namespace UC.Net.Node.FUI
 	
 					if(password != null)
 					{
-						a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Core.Nas.Chain));
+						a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Core.Settings.Zone.EtheterumNetwork));
 					}
 				}
 				else if(privatekeyChoice.Checked)
 				{
-					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), Core.Nas.Chain);
+					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), Core.Settings.Zone.EtheterumNetwork);
 				}
 
 				if(a != null)
@@ -169,7 +169,7 @@ namespace UC.Net.Node.FUI
 						f.StartPosition = FormStartPosition.CenterParent;
 						f.Show(ParentForm);
 
-						await Core.Emit(a, eth.Wei, k, v);
+						Core.Emit(a, eth.Wei, k, PlacingStage.Null, v);
 					}
 				}
 			}

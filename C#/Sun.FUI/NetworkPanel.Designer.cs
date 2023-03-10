@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class NetworkPanel
 	{
@@ -47,10 +47,12 @@ namespace UC.Net.Node.FUI
 			this.columnHeader13 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader14 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader15 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader10 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader11 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeaderCR = new System.Windows.Forms.ColumnHeader();
+			this.columnHeaderHR = new System.Windows.Forms.ColumnHeader();
+			this.columnHeaderSR = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader16 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeaderBR = new System.Windows.Forms.ColumnHeader();
 			this.SuspendLayout();
 			// 
 			// Generators
@@ -62,7 +64,6 @@ namespace UC.Net.Node.FUI
             this.columnHeader3,
             this.columnHeader2});
 			this.Generators.FullRowSelect = true;
-			this.Generators.HideSelection = false;
 			this.Generators.Location = new System.Drawing.Point(0, 860);
 			this.Generators.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Generators.Name = "Generators";
@@ -126,7 +127,6 @@ namespace UC.Net.Node.FUI
             this.columnHeader5,
             this.columnHeader6});
 			this.Hubs.FullRowSelect = true;
-			this.Hubs.HideSelection = false;
 			this.Hubs.Location = new System.Drawing.Point(984, 860);
 			this.Hubs.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Hubs.Name = "Hubs";
@@ -165,7 +165,6 @@ namespace UC.Net.Node.FUI
 			this.Funds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader9});
 			this.Funds.FullRowSelect = true;
-			this.Funds.HideSelection = false;
 			this.Funds.Location = new System.Drawing.Point(984, 1280);
 			this.Funds.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Funds.Name = "Funds";
@@ -200,12 +199,13 @@ namespace UC.Net.Node.FUI
             this.columnHeader13,
             this.columnHeader14,
             this.columnHeader15,
-            this.columnHeader7,
-            this.columnHeader8,
-            this.columnHeader10,
+            this.columnHeader11,
+            this.columnHeaderCR,
+            this.columnHeaderBR,
+            this.columnHeaderHR,
+            this.columnHeaderSR,
             this.columnHeader16});
 			this.Peers.FullRowSelect = true;
-			this.Peers.HideSelection = false;
 			this.Peers.Location = new System.Drawing.Point(0, 83);
 			this.Peers.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Peers.Name = "Peers";
@@ -228,31 +228,43 @@ namespace UC.Net.Node.FUI
 			// columnHeader15
 			// 
 			this.columnHeader15.Text = "Retries";
-			this.columnHeader15.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.columnHeader15.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.columnHeader15.Width = 75;
 			// 
-			// columnHeader7
+			// columnHeader11
 			// 
-			this.columnHeader7.Text = "Chain Rank";
-			this.columnHeader7.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader7.Width = 100;
+			this.columnHeader11.Text = "Peer Rank";
+			this.columnHeader11.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.columnHeader11.Width = 100;
 			// 
-			// columnHeader8
+			// columnHeaderCR
 			// 
-			this.columnHeader8.Text = "Hub Rank";
-			this.columnHeader8.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader8.Width = 100;
+			this.columnHeaderCR.Text = "Chain Rank";
+			this.columnHeaderCR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.columnHeaderCR.Width = 100;
 			// 
-			// columnHeader10
+			// columnHeaderHR
 			// 
-			this.columnHeader10.Text = "Seed Rank";
-			this.columnHeader10.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader10.Width = 100;
+			this.columnHeaderHR.Text = "Hub Rank";
+			this.columnHeaderHR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.columnHeaderHR.Width = 100;
+			// 
+			// columnHeaderSR
+			// 
+			this.columnHeaderSR.Text = "Seed Rank";
+			this.columnHeaderSR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.columnHeaderSR.Width = 100;
 			// 
 			// columnHeader16
 			// 
 			this.columnHeader16.Text = "Last Seen";
 			this.columnHeader16.Width = 150;
+			// 
+			// columnHeaderBR
+			// 
+			this.columnHeaderBR.Text = "Base Rank";
+			this.columnHeaderBR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.columnHeaderBR.Width = 100;
 			// 
 			// NetworkPanel
 			// 
@@ -294,9 +306,11 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader14;
 		private System.Windows.Forms.ColumnHeader columnHeader15;
 		private System.Windows.Forms.ColumnHeader columnHeader16;
-		private System.Windows.Forms.ColumnHeader columnHeader7;
+		private System.Windows.Forms.ColumnHeader columnHeaderCR;
 		private System.Windows.Forms.ColumnHeader columnHeader6;
-		private System.Windows.Forms.ColumnHeader columnHeader8;
-		private System.Windows.Forms.ColumnHeader columnHeader10;
+		private System.Windows.Forms.ColumnHeader columnHeaderHR;
+		private System.Windows.Forms.ColumnHeader columnHeaderSR;
+		private System.Windows.Forms.ColumnHeader columnHeader11;
+		private System.Windows.Forms.ColumnHeader columnHeaderBR;
 	}
 }

@@ -19,7 +19,7 @@ namespace uc
 	{
 		CApplicationReleaseAddress		Address;
 		HINSTANCE						Module;
-		CManifest *						Manifest = null;
+		CCompiledManifest *						Manifest = null;
 		CXonDocument *					Registry = null;
 
 		~CApplicationRelease()

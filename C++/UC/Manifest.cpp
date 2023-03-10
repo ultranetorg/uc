@@ -6,15 +6,11 @@
 
 using namespace uc;
 
-CManifest::CManifest(CReleaseAddress release, CTonDocument & xon)
+CCompiledManifest::CCompiledManifest(CReleaseAddress release)
 {
 
 	Address					= release;
-	Channel					= xon.Get<CString>(L"Channel");
-	PreviousVersion			= CVersion(xon.Get<CString>(L"PreviousVersion"));
-
-	CompleteSize			= xon.Get<CInt64>(L"CompleteSize");
-	CompleteHash			= CHex::ToBytes(xon.Get<CString>(L"CompleteHash"));
+	//Channel					= xon.Get<CString>(L"Channel");
 
 	//if(auto d = xon.One(L"CompleteDependencies"))
 	//{
@@ -22,7 +18,7 @@ CManifest::CManifest(CReleaseAddress release, CTonDocument & xon)
 	//}
 }
 
-CManifest::~CManifest()
+CCompiledManifest::~CCompiledManifest()
 {
 
 }

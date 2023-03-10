@@ -14,8 +14,6 @@ namespace UC.Net
 		public string			Zone;
 		public IPAddress		IP;
 		public Peer[]			Peers;
-		public int				LastRound;
-		public int				LastConfirmedRound;
 
 		public void Write(BinaryWriter w)
 		{
@@ -25,10 +23,7 @@ namespace UC.Net
 			w.Write(IP.GetAddressBytes());
 			w.Write(Nuid.ToByteArray());
 			w.Write(Peers, i => i.WritePeer(w));
-			w.Write7BitEncodedInt(LastRound);
-			w.Write7BitEncodedInt(LastConfirmedRound);
 		}
-
 
 		public void Read(BinaryReader r)
 		{
@@ -38,8 +33,6 @@ namespace UC.Net
 			IP					= new IPAddress(r.ReadBytes(4));
 			Nuid				= new Guid(r.ReadBytes(16));
 			Peers				= r.ReadArray<Peer>(() => {var p = new Peer(); p.ReadPeer(r); return p;});
-			LastRound			= r.Read7BitEncodedInt();
-			LastConfirmedRound	= r.Read7BitEncodedInt();
 		}
 	}
 }

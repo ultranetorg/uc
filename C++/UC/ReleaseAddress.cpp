@@ -25,12 +25,12 @@ bool CReleaseAddress::operator != (const CReleaseAddress & u) const
 
 CString CReleaseAddress::ToString()
 {
-	return __super::ToString() + L"/" + Version.ToString();
+	return __super::ToString() + Separator + Version.ToString();
 }
 
 CReleaseAddress CReleaseAddress::Parse(CString const & text)
 {
-	auto & c = text.Split(L"/");
+	auto & c = text.Split(Separator);
 
 	return CReleaseAddress(c[0], c[1], c[2], CVersion(c[3]));
 }

@@ -197,7 +197,7 @@ void CXon::Add(CXon * p)
 CXon * CXon::Add(const CString & name)
 {	
 	auto definition = Templates.Find([this, name](CXon * i){ return i->Name == name; });
-	auto n = definition ? definition->CloneInternal(this) : new CXon(name);
+	auto n = definition ? definition->Clone(this) : new CXon(name);
 	n->Parent = this;
 	Nodes.push_back(n); 
 	return n; 
@@ -322,14 +322,14 @@ void CXon::Set(CXonValue * v)
 	Value = v->Clone();
 }
 	
-CXon * CXon::CloneInternal(CXon * parent)
+CXon * CXon::Clone(CXon * parent)
 {
 	auto p = new CXon(Name);
 	p->Parent = parent;
 
 	for(auto i : Nodes)
 	{
-		p->Nodes.push_back(i->CloneInternal(p));
+		p->Nodes.push_back(i->Clone(p));
 	}
 
 	p->Templates = Templates;
@@ -344,5 +344,5 @@ CXon * CXon::CloneInternal(CXon * parent)
 CXonValue * CXon::Clone()
 {
 	//throw CException(HERE, L"Not implemented");
-	return CloneInternal(null);
+	return Clone(null);
 }

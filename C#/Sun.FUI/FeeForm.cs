@@ -10,7 +10,7 @@ using System.Numerics;
 using System.Windows.Forms;
 using UC.Net;
 
-namespace UC.Net.Node
+namespace UC.Sun.FUI
 {
 	public partial class FeeForm : Form, IFeeAsker
 	{
@@ -33,7 +33,7 @@ namespace UC.Net.Node
 			Close();
 		}
 
-		public bool Ask(Core core, PrivateAccount account, Operation operation)
+		public bool Ask(Core core, AccountKey account, Operation operation)
 		{
 			from.Text = account.ToString();
 			

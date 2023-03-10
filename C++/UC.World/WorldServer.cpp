@@ -416,44 +416,44 @@ CPersistentObject * CWorldServer::CreateObject(CString const & name)
 
 CUol CWorldServer::GenerateAvatar(CUol & entity, CString const & type)
 {
-	CList<CUol> avs;
+	auto p = Nexus->Connect<CAvatarProtocol>(Instance->Release, entity.Server);
 
-	auto protocol = Nexus->Connect<CAvatarProtocol>(Instance->Release, entity.Server);
-
-	CUol avatar;
+	CUol uol;
 	CAvatar * a = null;
 
-	if(protocol)
+	if(p)
 	{
-		avs = protocol->GenerateSupportedAvatars(entity, type);
+		auto & avs = p->GenerateSupportedAvatars(entity, type);
+		
 		if(!avs.empty())
 		{
-			avatar = avs.front();
+			uol = avs.front();
 		}
 	}
 	else
 	{
 		for(auto & i : Nexus->ConnectMany<CAvatarProtocol>(Instance->Release))
 		{
-			avs = i->GenerateSupportedAvatars(entity, type);
+			auto & avs = i->GenerateSupportedAvatars(entity, type);
+			
 			if(!avs.empty())
 			{
-				protocol = i;
-				avatar = avs.front();
+				p = i;
+				uol = avs.front();
 				break;
 			}
 		}
 	}
 
-	if(avatar.IsEmpty())
+	if(uol.IsEmpty())
 	{
-		auto p = CMap<CString, CString>{{L"entity", entity.ToString()}, {L"type", type}};
+		auto args = CMap<CString, CString>{{L"entity", entity.ToString()}, {L"type", type}};
 		
-		if(type == AVATAR_ICON2D)	avatar = CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CDefaultIcon::GetClassName()), p);
+		if(type == AVATAR_ICON2D)	uol = CUol(CAvatar::Scheme, Instance->Name, CGuid::Generate64(CDefaultIcon::GetClassName()), args);
 	}
 
 	
-	return avatar;
+	return uol;
 }
 
 CAvatar * CWorldServer::CreateAvatar(CUol & avatar, CString const & dir)

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Nethereum.Signer;
 
 namespace UC.Net
 {
@@ -15,6 +17,7 @@ namespace UC.Net
 		const int							Divider = 10_000;
 		public const string					DateFormat = "yyyy-MM-dd H:mm:ss:fff";
 
+		public static readonly ChainTime	Zero = new ChainTime(0);
 		public static readonly ChainTime	Empty = new ChainTime(-1);
 
 		public static ChainTime				operator-  (ChainTime a, ChainTime b) => new ChainTime(a.Ticks - b.Ticks);
@@ -28,6 +31,11 @@ namespace UC.Net
 
 		public string						ToString(string format) => Ticks >= 0 ? (new DateTime(Ticks * Divider)).ToString(format) : "~";
 
+		public ChainTime()
+		{
+			Ticks = -1;
+		}
+
 		public ChainTime(long t)
 		{
 			Ticks = t;
@@ -36,6 +44,11 @@ namespace UC.Net
 		public override string ToString()
 		{
 			return (new DateTime(Ticks * Divider)).ToString(DateFormat);
+		}
+
+		public static ChainTime Parse(string v)
+		{
+			return new ChainTime(DateTime.ParseExact(v, DateFormat, CultureInfo.InvariantCulture).Ticks / Divider);
 		}
 
 		public override bool Equals(object o)

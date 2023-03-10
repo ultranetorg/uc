@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using UC.Net;
 using System.Linq;
 
-namespace UC.Net.Node
+namespace UC.Sun.FUI
 {
 	public partial class PasswordForm : Form, IPasswordAsker
 	{

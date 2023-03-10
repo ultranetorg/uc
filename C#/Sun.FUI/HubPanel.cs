@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class HubPanel : MainPanel
 	{
@@ -60,13 +60,13 @@ namespace UC.Net.Node.FUI
 	
 			lock(Core.Lock)
 			{
-				foreach(var i in Core.Hub.Packages)
+				foreach(var i in Core.Seedbase.Releases)
 				{
 					var r = Packages.Items.Add(i.Key.Author);
 					r.SubItems.Add(i.Key.Product);
 					r.SubItems.Add(i.Key.Platform);
 					r.SubItems.Add(i.Key.Version.ToString());
-					r.SubItems.Add(i.Key.Distribution.ToString());
+					//r.SubItems.Add(i.Key.Distributives.ToString());
 					r.Tag = i.Value;
 				}
 			}
@@ -80,9 +80,10 @@ namespace UC.Net.Node.FUI
 	
 				lock(Core.Lock)
 				{
-					foreach(var i in (e.Item.Tag as Package).Seeders)
+					foreach(var i in e.Item.Tag as List<Seed>)
 					{
 						var r = Seeds.Items.Add(i.IP.ToString());
+						r.SubItems.Add((i.Distributives.HasFlag(Distributive.Complete) ? "c" : "") + (i.Distributives.HasFlag(Distributive.Incremental) ? "i" : ""));
 						r.SubItems.Add(i.Arrived.ToString(ChainTime.DateFormat));
 					}
 				}

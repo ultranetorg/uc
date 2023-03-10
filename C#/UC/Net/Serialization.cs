@@ -1,23 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace UC.Net
 {
-	public interface ITypedBinarySerializable
-	{
-		byte TypeCode { get; }
-	}
-
 	public class BinarySerializator
 	{
 		public static void Serialize(BinaryWriter writer, object o)
 		{
-			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
 				var val = i.GetValue(o);
 
@@ -30,21 +27,11 @@ namespace UC.Net
 		{
 			switch(val)
 			{
-				case bool v:
-					writer.Write(v);
-					return true;
-
-				case int v:
-					writer.Write7BitEncodedInt(v);
-					return true;
-
-				case long v:
-					writer.Write7BitEncodedInt64(v);
-					return true;
-
-				case Coin v:
-					v.Write(writer);
-					return true;
+				case bool v :	writer.Write(v); return true;
+				case byte v :	writer.Write(v); return true;
+				case int v :	writer.Write7BitEncodedInt(v); return true;
+				case long v :	writer.Write7BitEncodedInt64(v); return true;
+				case Coin v :	v.Write(writer); return true;
 			}
 
 			if(type.IsEnum)
@@ -79,7 +66,7 @@ namespace UC.Net
 					return true;
 				}
 				case IBinarySerializable v:
-					writer.Write(v);
+					v.Write(writer);
 					return true;
 
 	 			case Operation v:
@@ -99,7 +86,14 @@ namespace UC.Net
 					return true;
 				}
 				case System.Collections.IEnumerable v:
-					writer.Write7BitEncodedInt((v as IEnumerable<object>).Count());
+				{
+					var n = 0;
+					foreach(var i in (System.Collections.IEnumerable)v)
+					{
+						n++;
+					}
+
+					writer.Write7BitEncodedInt(n);
 							
 					foreach(var j in v)
 					{
@@ -107,6 +101,7 @@ namespace UC.Net
 							Serialize(writer, j);
 					}
 					return true;
+				}
 			}
 
 			return false;
@@ -135,9 +130,11 @@ namespace UC.Net
 
 			for(int i=0; i<n; i++)
 			{
-				l[i] = fromtype(reader.ReadByte());
+				var t = reader.ReadByte();
 
-				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+				l[i] = fromtype(t);
+
+				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 				{
 					if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 						p.SetValue(l[i], val);
@@ -164,7 +161,7 @@ namespace UC.Net
 			if(o == null)
 				o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
 
-			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite))
+			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
 				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
 					p.SetValue(o, val);
@@ -175,11 +172,34 @@ namespace UC.Net
 			return o;
 		}
 
+
+		public static object Deserialize(BinaryReader reader, Func<byte, object> fromtype, Func<Type, object> construct)
+		{
+			var o = fromtype(reader.ReadByte());
+
+			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+			{
+				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
+					p.SetValue(o, val);
+				else
+					p.SetValue(o, Deserialize(reader, p.PropertyType, construct));
+			}
+
+			return o;
+		}
+
+
 		static bool DeserializeValue(BinaryReader reader, Type type, Func<Type, object> construct, out object value)
 		{
 			if(typeof(bool) == type)			
 			{
 				value = reader.ReadBoolean();
+				return true;
+			}
+			else 
+			if(typeof(byte) == type)
+			{	
+				value = reader.ReadByte();
 				return true;
 			}
 			else 
@@ -265,14 +285,15 @@ namespace UC.Net
 	
 					var n = reader.Read7BitEncodedInt();
 	
-					var l = ltype.GetConstructor(new System.Type[]{typeof(int)}).Invoke(new object[]{n}) as object[];
+					var l = ltype.GetConstructor(new System.Type[]{typeof(int)}).Invoke(new object[]{n});
 	
 					for(int i=0; i<n; i++)
 					{
 						if(DeserializeValue(reader, type.GetGenericArguments()[0], construct, out object v))
-							l[i] = v; 
+							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, v});
+							//l[i] = v; 
 						else
-							l[i] = Deserialize(reader, type.GetGenericArguments()[0], construct);
+							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, Deserialize(reader, type.GetGenericArguments()[0], construct)});
 					}
 
 					value = l;

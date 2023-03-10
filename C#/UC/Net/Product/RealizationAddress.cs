@@ -31,7 +31,7 @@ namespace UC.Net
 
 		public bool Equals(RealizationAddress o)
 		{
-			return base.Equals(this) && Platform.Equals(o.Platform);
+			return base.Equals(o) && Platform.Equals(o.Platform);
 		}
 
  		public override int GetHashCode()

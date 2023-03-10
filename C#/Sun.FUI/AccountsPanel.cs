@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Nethereum.KeyStore.Crypto;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class AccountsPanel : MainPanel
 	{
@@ -44,58 +44,24 @@ namespace UC.Net.Node.FUI
 				{
 					i.SubItems[1].Tag = true;
 	
-					Task.Run(	() =>
-								{
-									string t;
+					Task.Run(() =>	{
+										string t;
 	
-									try
-									{
-										t = Core.Connect(Role.Chain, null, new Workflow(5 * 1000)).GetAccountInfo(i.Tag as Account, true).Info?.Balance.ToHumanString(); 
-									}
-									catch(ApiCallException)
-									{
-										t = "...";
-									}
+										try
+										{
+											t = Core.Call(Role.Base, p => p.GetAccountInfo(i.Tag as Account, true), Core.Workflow).Info?.Balance.ToHumanString(); 
+										}
+										catch(OperationCanceledException)
+										{
+											return;
+										}
 	
-									Invoke(	(MethodInvoker) delegate
-											{
-												i.SubItems[1].Text = t; 
-												i.SubItems[1].Tag = false;
-											});
-								});
-				}
-			}
-	
-			foreach(ListViewItem i in accounts.Items)
-			{
-				if(!(bool)i.SubItems[2].Tag)
-				{
-					i.SubItems[2].Tag = true;
-	
-					Task.Run(	() =>
-								{
-									string t;
-									var c = new CancellationTokenSource(30 * 1000);
-	
-									try
-									{
-										t = Core.Connect(Role.Chain, null, new Workflow(5 * 1000)).GetAccountInfo(i.Tag as Account, false).Info?.Balance.ToHumanString(); 
-									}
-									catch(ApiCallException)
-									{
-										t = "...";
-									}
-									finally
-									{
-										c.Dispose();
-									}
-	
-									Invoke(	(MethodInvoker) delegate
-											{
-												i.SubItems[2].Text = t; 
-												i.SubItems[2].Tag = false;
-											});
-								});
+										Invoke(	(MethodInvoker) delegate
+												{
+													i.SubItems[1].Text = t; 
+													i.SubItems[1].Tag = false;
+												});
+									});
 				}
 			}
 		}
@@ -105,7 +71,6 @@ namespace UC.Net.Node.FUI
 			var r = new ListViewItem(a.ToString());
 			r.Tag = a;
 
-			r.SubItems.Add("...").Tag = false;
 			r.SubItems.Add("...").Tag = false;
 
 			accounts.Items.Add(r);
@@ -117,8 +82,8 @@ namespace UC.Net.Node.FUI
 			
 			if(f.ShowDialog() == DialogResult.OK)
 			{
-				var acc = PrivateAccount.Create();
-				Vault.SaveAccount(acc, f.Password);
+				var acc = AccountKey.Create();
+				Vault.SaveWallet(acc, f.Password);
 				
 				AddRow(acc);
 			}
@@ -128,7 +93,7 @@ namespace UC.Net.Node.FUI
 		{
 			if(MessageBox.Show(this, $"Are you sure you want to delete {CurrentAccout} account?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 			{
-				Vault.DeleteAccount(CurrentAccout);
+				Vault.DeleteWallet(CurrentAccout);
 				accounts.Items.Remove(accounts.SelectedItems[0]);
 			}
 		}

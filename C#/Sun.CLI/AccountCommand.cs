@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Nethereum.Signer;
+using UC.Net;
 
-namespace UC.Net.Node.CLI
+namespace UC.Sun.CLI
 {
 	/// <summary>
 	/// Usage:	account new
@@ -35,25 +36,14 @@ namespace UC.Net.Node.CLI
 		   		case "new" : return New();
 				
 				case "import" : return Import();
-				
-				case "convertfathers" :
-					foreach(var i in Directory.EnumerateFiles(Settings.Secret.Fathers, "*.uwe"))
-					{
-						Cryptography.Current = new EthereumCryptography();
-						var a = PrivateAccount.Load(i, Settings.Secret.Password);
-						Cryptography.Current = new NoCryptography();
-						a.Save(Path.Join(Settings.Secret.Fathers, Path.GetFileNameWithoutExtension(i)) + "." + Vault.NoCryptoWalletExtention, Settings.Secret.Password);
-						Workflow.Log?.Report(this, null, a.ToString());
-					}
-					return null;
 		   		
 				case "overview" :
 				{
-					var i = Node.Connect(Role.Chain, null, Workflow).GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
+					var i = Core.Connect(Role.Base, null, Workflow).GetAccountInfo(Account.Parse(GetString("address")), Args.Has("confirmed"));
 					
-					Workflow.Log?.Report(this, "Account", GetString("address") + " :");
+					Workflow?.Log?.Report(this, "Account", GetString("address") + " :");
 
-					i.Info.Dump((d, m, n, v) => Workflow.Log?.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
+					i.Info.Dump((d, m, n, v) => Workflow?.Log?.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
 
 					return null;
 				}
@@ -63,7 +53,7 @@ namespace UC.Net.Node.CLI
 			}
 		}
 
-		public PrivateAccount New()
+		public AccountKey New()
 		{
 			var c = Console.ForegroundColor;
 									
@@ -126,23 +116,23 @@ namespace UC.Net.Node.CLI
 			}
 					
 
-			var acc = PrivateAccount.Create();
+			var acc = AccountKey.Create();
 
 			Workflow.Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Core.Vault.SaveAccount(acc, p);
+			Core.Vault.SaveWallet(acc, p);
 
 			return acc;
 		}
 
-		PrivateAccount Import() /// from private key
+		AccountKey Import() /// from private key
 		{
 			var c = Console.ForegroundColor;
 									
 			string p = null;
 			string pc = null;
 
-			var acc = PrivateAccount.Parse(GetString("privatekey"));
+			var acc = AccountKey.Parse(GetString("privatekey"));
 
 			if(Core.Vault.Accounts.Contains(acc))
 			{
@@ -198,7 +188,7 @@ namespace UC.Net.Node.CLI
 
 			Workflow.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Core.Vault.SaveAccount(acc, p);
+			Core.Vault.SaveWallet(acc, p);
 
 			return acc;
 		}

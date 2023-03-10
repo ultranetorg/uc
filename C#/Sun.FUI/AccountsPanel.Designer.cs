@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class AccountsPanel
 	{
@@ -38,7 +38,6 @@ namespace UC.Net.Node.FUI
 			this.accounts = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
 			this.groupBox2.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -125,10 +124,8 @@ namespace UC.Net.Node.FUI
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.accounts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3});
+            this.columnHeader2});
 			this.accounts.FullRowSelect = true;
-			this.accounts.HideSelection = false;
 			this.accounts.Location = new System.Drawing.Point(0, 0);
 			this.accounts.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.accounts.Name = "accounts";
@@ -148,12 +145,6 @@ namespace UC.Net.Node.FUI
 			this.columnHeader2.Text = "Balance";
 			this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.columnHeader2.Width = 200;
-			// 
-			// columnHeader3
-			// 
-			this.columnHeader3.Text = "Balance (Unconfirmed)";
-			this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader3.Width = 200;
 			// 
 			// AccountsPanel
 			// 
@@ -179,6 +170,5 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.Button CopyAddress;
-		private System.Windows.Forms.ColumnHeader columnHeader3;
 	}
 }

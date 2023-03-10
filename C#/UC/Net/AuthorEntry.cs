@@ -4,155 +4,129 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Nethereum.Model;
 using RocksDbSharp;
 
 namespace UC.Net
 {
-
-// 	public class Product : IBinarySerializable
-// 	{
-// 		public string			Name;
-// 		public string			Title;
-// 		public List<Release>	Releases;
-// 		public int				LastRegistration = -1;
-// 
-// 		public Product(string name)
-// 		{
-// 			Name = name;
-// 		}
-// 
-// 		public Product()
-// 		{
-// 		}
-// 
-// 		public Product Clone()
-// 		{
-// 			return	new Product(Name)
-// 					{ 
-// 						Name = Name,
-// 						Title = Title, 
-// 						Releases = Releases.Select(i => i.Clone()).ToList(),
-// 						LastRegistration = LastRegistration,
-// 					};
-// 		}
-// 
-// 		public void Write(BinaryWriter w)
-// 		{
-// 			w.Write(Name);
-// 			w.Write(Title);
-// 			w.Write7BitEncodedInt(LastRegistration);
-// 			w.Write(Releases);
-// 		}
-// 
-// 		public void Read(BinaryReader r)
-// 		{
-// 			Name				= r.ReadUtf8();
-// 			Title				= r.ReadUtf8();
-// 			LastRegistration	= r.Read7BitEncodedInt();
-// 			Releases			= r.ReadList<Release>();
-// 		}
-// 	}
-
-	public class AuthorEntry : Entry<string>
+	public class AuthorEntry : TableEntry<string>
 	{
-		public string				Name;
-		public string				Title;
-		//public int					FirstBid = -1;
-		//public int					LastBid = -1;
-		//public int					LastRegistration = -1;
-		//public int					LastTransfer = -1;
-		public List<string>			Products = new();
-		public ChainTime			FirstBidTime;
-		public Account				LastWinner;
-		public Coin					LastBid;
-		public ChainTime			LastBidTime;
-		public Account				Owner;
-		public ChainTime			RegistrationTime;
-		public byte					Years;
-		public int					Obtained;
-
 		public override string		Key => Name;
-		Roundchain					Chain;
+		public override byte[]		ClusterKey => Encoding.UTF8.GetBytes(Name).Take(ClusterKeyLength).ToArray();
 
-		public const int			LengthMaxForAuction = 4;
+		public string				Name { get; set; }
+		public string				Title { get; set; }
+		public Account				Owner { get; set; }
+		public byte					Years { get; set; }
+		public ChainTime			RegistrationTime { get; set; } = ChainTime.Empty;
+		public ChainTime			FirstBidTime { get; set; } = ChainTime.Empty;
+		public Account				LastWinner { get; set; }
+		public Coin					LastBid { get; set; }
+		public ChainTime			LastBidTime { get; set; }
 
-		public static bool			IsExclusive(string name) => name.Length <= LengthMaxForAuction; 
+		Database					Chain;
 
-		public AuthorEntry(Roundchain chain, string name)
+		public const int			ExclusiveLengthMax = 4;
+		public const int			NameLengthMin = 2;
+
+		public AuthorEntry()
+		{
+		}
+
+		public AuthorEntry(Database chain)
 		{
 			Chain = chain;
-			Name = name;
 		}
+
+		public static bool IsValid(string name) => name.Length >= NameLengthMin; 
+		public static bool IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
 
 		public AuthorEntry Clone()
 		{
-			return new AuthorEntry(Chain, Name)
+			return new AuthorEntry(Chain)
 					{
+						Name = Name,
 						Title = Title,
+						Owner = Owner,
+						Years = Years,
+						RegistrationTime = RegistrationTime,
 						FirstBidTime = FirstBidTime,
 						LastWinner = LastWinner,
 						LastBid = LastBid,
-						LastBidTime = LastBidTime,
-						Owner = Owner,
-						RegistrationTime = RegistrationTime,
-						Years = Years,
-						Obtained = Obtained,
-						Products = new List<string>(Products)
+						LastBidTime = LastBidTime
 					};
 		}
 
 		public override void Write(BinaryWriter w)
 		{
-			w.Write7BitEncodedInt(Obtained);
+			w.WriteUtf8(Name);
 
 			if(IsExclusive(Name))
 			{
-				w.Write(LastWinner != null);
+				w.Write(FirstBidTime);
 
-				if(LastWinner != null)
+				if(FirstBidTime != ChainTime.Empty)
 				{
-					w.Write(FirstBidTime);
 					w.Write(LastWinner);
-					w.Write(LastBid);
 					w.Write(LastBidTime);
+					w.Write(LastBid);
 				}
 			}
 
-			w.Write(Owner != null);
+			w.Write(RegistrationTime);
 
-			if(Owner != null)
+			if(RegistrationTime != ChainTime.Empty)
 			{
 				w.Write(Owner);
-				w.Write(Title);
-				w.Write(RegistrationTime);
+				w.WriteUtf8(Title);
 				w.Write(Years);
-				w.Write(Products);
 			}
 		}
 
 		public override void Read(BinaryReader r)
 		{
-			Obtained = r.Read7BitEncodedInt();
+			Name = r.ReadUtf8();
 
 			if(IsExclusive(Name))
 			{
-				if(r.ReadBoolean())
+				FirstBidTime = r.ReadTime();
+
+				if(FirstBidTime != ChainTime.Empty)
 				{
-					FirstBidTime = r.ReadTime();
 					LastWinner	 = r.ReadAccount();
 					LastBidTime	 = r.ReadTime();
 					LastBid		 = r.ReadCoin();
 				}
 			}
 
-			if(r.ReadBoolean())
+			RegistrationTime = r.ReadTime();
+
+			if(RegistrationTime != ChainTime.Empty)
 			{
-				Owner			 = r.ReadAccount();
-				Title			 = r.ReadString();
-				RegistrationTime = r.ReadTime();
-				Years			 = r.ReadByte();
-				Products		 = r.ReadStings();
+				Owner	= r.ReadAccount();
+				Title	= r.ReadUtf8();
+				Years	= r.ReadByte();
 			}
+		}
+
+		public override void WriteMore(BinaryWriter w)
+		{
+			//w.Write7BitEncodedInt(ObtainedRid);
+
+			//if(RegistrationTime != ChainTime.Zero)
+			//{
+			//	w.Write(Products);
+			//}
+		}
+
+		public override void ReadMore(BinaryReader r)
+		{
+			//ObtainedRid = r.Read7BitEncodedInt();
+
+			//if(RegistrationTime != ChainTime.Zero)
+			//{
+			//	Products = r.ReadStings();
+			//}
 		}
 
 		public XonDocument ToXon(IXonValueSerializator serializator)
@@ -180,89 +154,21 @@ namespace UC.Net
 				p.Add("Title").Value = Title;
 				p.Add("RegistrationTime").Value = RegistrationTime;
 				p.Add("Years").Value = Years;
-				p.Add("Products").Value = string.Join(", ", Products);
 			}
 
 			return d;
 		}
 
-// 		public AuthorBid FindFirstBid(Round executing)
-// 		{
-// 			if(FirstBid != -1)
-// 			{
-// 				foreach(var b in Chain.FindRound(FirstBid).Payloads.AsEnumerable().Reverse())
-// 					foreach(var t in b.SuccessfulTransactions.AsEnumerable().Reverse())
-// 						foreach(var o in t.SuccessfulOperations.OfType<AuthorBid>().Reverse())
-// 							if(o.Author == Name)
-// 								return o;
-// 
-// 				throw new IntegrityException("AuthorBid operation not found");
-// 			}
-// 
-// 			foreach(var r in Chain.Rounds.Where(i => i.Id < executing.Id).Reverse())
-// 				foreach(var b in (r.Confirmed ? r.ConfirmedPayloads : r.Payloads).AsEnumerable().Reverse())
-// 					foreach(var t in b.SuccessfulTransactions.AsEnumerable().Reverse())
-// 						foreach(var o in t.SuccessfulOperations.AsEnumerable().Reverse())
-// 							if(o is AuthorBid ab && ab.Author == Name)
-// 								return ab;
-// 
-// 			return executing.ExecutedOperations.Reverse().OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name);
-// 		}
-// 
-// 		public AuthorBid FindLastBid(Round executing)
-// 		{
-// 			return	executing.ExecutedOperations.OfType<AuthorBid>().FirstOrDefault(i => i.Author == Name)
-// 					??
-// 					Chain.FindLastPoolOperation<AuthorBid>(o => o.Author == Name && o.Successful, 
-// 																null, 
-// 																p => !p.Round.Confirmed || p.Confirmed, 
-// 																r => r.Id < executing.Id)
-// 					??
-// 					(LastBid != -1 ? Chain.FindRound(LastBid).FindOperation<AuthorBid>(i => i.Author == Name) : null);
-// 		}
-// 
-// 		public AuthorRegistration FindRegistration(Round executing)
-// 		{
-// 			return	executing.ExecutedOperations.OfType<AuthorRegistration>().FirstOrDefault(i => i.Author == Name)
-// 					??
-// 					Chain.FindLastPoolOperation<AuthorRegistration>(o => o.Author == Name && o.Successful, 
-// 																	null, 
-// 																	p => !p.Round.Confirmed || p.Confirmed, 
-// 																	r => r.Id < executing.Id)
-// 					??
-// 					(LastRegistration != -1 ? Chain.FindRound(LastRegistration).FindOperation<AuthorRegistration>(i => i.Author == Name) : null);
-// 		}
-
-// 		public AuthorTransfer FindTransfer(Round executing)
-// 		{
-// 			return	executing.ExecutedOperations.OfType<AuthorTransfer>().FirstOrDefault(i => i.Author == Name)
-// 					??
-// 					Chain.FindLastPoolOperation<AuthorTransfer>(o => o.Author == Name && o.Successful, 
-// 																null, 
-// 																p => !p.Round.Confirmed || p.Confirmed, 
-// 																r => r.Id < executing.Id)
-// 					??
-// 					(LastTransfer != -1 ? Chain.FindRound(LastTransfer).FindOperation<AuthorTransfer>(i => i.Author == Name) : null);
-// 		}
-
-// 		public Account FindOwner(Round executing)
-// 		{
-// 			var r = FindRegistration(executing);
-// 			var t = FindTransfer(executing);
-// 		
-// 			return t == null ? r?.Signer : t?.To;
-// 		}
-
 		public bool IsOngoingAuction(Round executing)
 		{
-			ChainTime sinceauction() => executing.Time - FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
+			var sinceauction = executing.Time - FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
 
-			bool expired = (Owner == null && sinceauction() > ChainTime.FromYears(2) ||																			/// winner has not registered during 2 year since auction start, restart the auction
+			bool expired = (Owner == null && sinceauction > ChainTime.FromYears(2) ||																			/// winner has not registered during 2 year since auction start, restart the auction
 							Owner != null && executing.Time - RegistrationTime > ChainTime.FromYears(Years));	/// winner has not renewed, restart the auction
 
  			if(!expired)
  			{
-	 			return sinceauction() < ChainTime.FromYears(1);
+	 			return sinceauction < ChainTime.FromYears(1);
  			} 
  			else
  			{

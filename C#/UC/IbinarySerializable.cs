@@ -9,7 +9,12 @@ namespace UC
 {
 	public interface IBinarySerializable
 	{
-		void Read(BinaryReader r);
-		void Write(BinaryWriter w);
+		void Read(BinaryReader reader);
+		void Write(BinaryWriter writer);
+	}
+
+	public interface ITypedBinarySerializable
+	{
+		byte TypeCode { get; }
 	}
 }

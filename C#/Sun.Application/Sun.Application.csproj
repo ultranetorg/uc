@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyVersion>0.0.365.0</AssemblyVersion>
+    <FileVersion>0.0.365.0</FileVersion>
+    <Company>Ultranet Organization</Company>
+    <Product>Standard Ultranet Node (SUN) Server for UOS</Product>
+    <Authors>Ultranet Organization</Authors>
+    <PackageProjectUrl>{HOME}</PackageProjectUrl>
+    <Version>0.0.365.0</Version>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <AnalysisLevel>none</AnalysisLevel>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AssemblyName>Sun.Application</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\_Debug\uo-sun-uosdotnet\0.0.0.0</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\_Release\uo-sun-uosdotnet\0.0.0.0</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UC\UC.csproj" />
+  </ItemGroup>
+</Project>

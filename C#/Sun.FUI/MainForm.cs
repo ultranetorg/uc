@@ -11,12 +11,12 @@ using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	public partial class MainForm : Form
 	{
 		public readonly Core		Core;
-		readonly Timer					Timer = new Timer();
+		readonly Timer				Timer = new Timer();
 
 		public MainForm(Core core)
 		{
@@ -26,20 +26,40 @@ namespace UC.Net.Node.FUI
 
 			MinimumSize = Size;
 			Core = core;
+			Core.MainStarted += c =>{ 	
+										BeginInvoke((MethodInvoker) delegate
+													{ 
+														LoadUI(core);
+													});
+									};
 
+			if(core.MainThread != null)
+			{
+				LoadUI(core);
+			}
+		}
+
+		void LoadUI(Core core)
+		{
 			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Core, core.Vault)};
 			navigator.Nodes.Add(dashboard);
 
 			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Core, core.Vault)};
 			navigator.Nodes.Add(accs);
 
-			if(core.Chain != null)
+			if(core.Database != null)
 			{
-				var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
-				navigator.Nodes.Add(txs);
-	
-				var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, core.Vault) };
-				navigator.Nodes.Add(memb);
+				if(core.Settings.Database.Chain)
+				{
+					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
+					navigator.Nodes.Add(txs);
+
+					var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Core, core.Vault) };
+					navigator.Nodes.Add(exp);
+				}
+
+				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, core.Vault) };
+				///navigator.Nodes.Add(memb);
 	
 				var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Core, core.Vault) };
 				navigator.Nodes.Add(auth);
@@ -49,12 +69,6 @@ namespace UC.Net.Node.FUI
 	
 				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Core, core.Vault) };				
 				navigator.Nodes.Add(rel);
-	
-				var pub = new TreeNode("Publish"){ Tag = new PublishPanel(Core, core.Vault) };				
-				navigator.Nodes.Add(pub);
-
-				var exp = new TreeNode("Explorer"){ Tag = new ExplorerPanel(Core, core.Vault) };
-				navigator.Nodes.Add(exp);
 			}
 
 			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Core, core.Vault) };
@@ -64,31 +78,22 @@ namespace UC.Net.Node.FUI
 			nodes.Expand();
 			navigator.Nodes.Add(nodes);
 
-			{
-				//if(core.Chain != null)
-				//{
-				//	var members = new TreeNode("Members"){ Tag = new NetworkPanel(Core, core.Vault)};
-				//	nodes.Nodes.Add(members);
-				//}
-
-				if(Settings.Dev.UI)
-				{
-					var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
-					nodes.Nodes.Add(initials);
-				}
- 
-// 				var ipfs = new TreeNode("IPFS"){  };
-// 				nodes.Nodes.Add(ipfs);
-			}
-
-			if(Core.Hub != null)
+			if(Core.Seedbase != null)
 			{
 				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Core, core.Vault) };
 				navigator.Nodes.Add(hub);
 			}
 
-			var apps = new TreeNode("Applications"){ Tag = new ApplicationsPanel(Core, core.Vault) };
-			navigator.Nodes.Add(apps);
+			//var apps = new TreeNode("Files"){ Tag = new ApplicationsPanel(Core, core.Vault) };
+			//navigator.Nodes.Add(apps);
+
+			if(Settings.Dev.UI)
+			{
+				var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
+				nodes.Nodes.Add(initials);
+			}
+
+			navigator.SelectedNode = dashboard;
 		}
 
 		protected override void OnHandleCreated(EventArgs e)
@@ -116,8 +121,7 @@ namespace UC.Net.Node.FUI
 		{
 			lock(Core.Lock)
 			{
-				Text = "Ultranet Node"; //System.Reflection.Assembly.GetAssembly(GetType()).ManifestModule.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType == typeof(AssemblyProductAttribute)).ConstructorArguments[0].Value.ToString();
-				Text += $"{(Core.IsNodee && Core.Connections.Count() < Core.Settings.PeersMin ? " - Low Peers" : "")}{(Core.IsNodee && Core.IP != IPAddress.None ? " - " + Core.IP : "")} - {Core.Synchronization}{(Core.Generator != null && Core.Chain.Members.Any(i => i.Generator == Core.Generator) ? $" - {Core.Generator}" : "")}";
+				Text = $"Ultranet Node - {Core}";
 			}
 
 			foreach(var i in Controls)

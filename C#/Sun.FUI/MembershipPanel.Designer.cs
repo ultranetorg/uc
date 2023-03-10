@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Net.Node.FUI
+namespace UC.Sun.FUI
 {
 	partial class MembershipPanel
 	{
@@ -37,7 +37,7 @@ namespace UC.Net.Node.FUI
 			this.label4 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
-			this.Bail = new UC.Net.Node.FUI.CoinEdit();
+			this.Bail = new UC.Sun.FUI.CoinEdit();
 			this.Declarations = new System.Windows.Forms.ListView();
 			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
@@ -48,7 +48,6 @@ namespace UC.Net.Node.FUI
 			this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.CurrentCandidate = new System.Windows.Forms.TextBox();
 			this.NewCandidate = new System.Windows.Forms.ComboBox();
 			this.Deactivate = new System.Windows.Forms.Button();
 			this.Activate = new System.Windows.Forms.Button();
@@ -69,29 +68,29 @@ namespace UC.Net.Node.FUI
 			this.groupBox1.Controls.Add(this.label6);
 			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Controls.Add(this.Bail);
-			this.groupBox1.Location = new System.Drawing.Point(0, 523);
-			this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.groupBox1.Location = new System.Drawing.Point(0, 1116);
+			this.groupBox1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox1.Size = new System.Drawing.Size(481, 245);
+			this.groupBox1.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.groupBox1.Size = new System.Drawing.Size(893, 523);
 			this.groupBox1.TabIndex = 3;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Declare Candidacy";
 			// 
 			// IP
 			// 
-			this.IP.Location = new System.Drawing.Point(161, 138);
-			this.IP.Margin = new System.Windows.Forms.Padding(7);
+			this.IP.Location = new System.Drawing.Point(299, 294);
+			this.IP.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.IP.Name = "IP";
-			this.IP.Size = new System.Drawing.Size(91, 23);
+			this.IP.Size = new System.Drawing.Size(166, 39);
 			this.IP.TabIndex = 6;
 			// 
 			// Declare
 			// 
-			this.Declare.Location = new System.Drawing.Point(304, 180);
-			this.Declare.Margin = new System.Windows.Forms.Padding(9);
+			this.Declare.Location = new System.Drawing.Point(565, 384);
+			this.Declare.Margin = new System.Windows.Forms.Padding(17, 19, 17, 19);
 			this.Declare.Name = "Declare";
-			this.Declare.Size = new System.Drawing.Size(137, 28);
+			this.Declare.Size = new System.Drawing.Size(254, 60);
 			this.Declare.TabIndex = 1;
 			this.Declare.Text = "Declare Candidacy";
 			this.Declare.UseVisualStyleBackColor = true;
@@ -101,20 +100,20 @@ namespace UC.Net.Node.FUI
 			// 
 			this.Candidates.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.Candidates.FormattingEnabled = true;
-			this.Candidates.Location = new System.Drawing.Point(161, 39);
-			this.Candidates.Margin = new System.Windows.Forms.Padding(7);
+			this.Candidates.Location = new System.Drawing.Point(299, 83);
+			this.Candidates.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Candidates.Name = "Candidates";
-			this.Candidates.Size = new System.Drawing.Size(280, 23);
+			this.Candidates.Size = new System.Drawing.Size(517, 40);
 			this.Candidates.TabIndex = 5;
 			// 
 			// label3
 			// 
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label3.Location = new System.Drawing.Point(28, 43);
-			this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label3.Location = new System.Drawing.Point(52, 92);
+			this.label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(122, 13);
+			this.label3.Size = new System.Drawing.Size(237, 27);
 			this.label3.TabIndex = 4;
 			this.label3.Text = "Candidate\'s Account";
 			// 
@@ -122,10 +121,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label4.AutoSize = true;
 			this.label4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label4.Location = new System.Drawing.Point(131, 142);
-			this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label4.Location = new System.Drawing.Point(243, 303);
+			this.label4.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(19, 13);
+			this.label4.Size = new System.Drawing.Size(37, 27);
 			this.label4.TabIndex = 4;
 			this.label4.Text = "IP";
 			// 
@@ -133,10 +132,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label6.AutoSize = true;
 			this.label6.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.label6.Location = new System.Drawing.Point(161, 107);
-			this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label6.Location = new System.Drawing.Point(299, 228);
+			this.label6.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(209, 13);
+			this.label6.Size = new System.Drawing.Size(420, 27);
 			this.label6.TabIndex = 4;
 			this.label6.Text = "(Set to 0 to withdraw existing declaration)";
 			// 
@@ -144,19 +143,19 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(88, 81);
-			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label1.Location = new System.Drawing.Point(163, 173);
+			this.label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(62, 13);
+			this.label1.Size = new System.Drawing.Size(126, 27);
 			this.label1.TabIndex = 4;
 			this.label1.Text = "Bail (UNT)";
 			// 
 			// Bail
 			// 
-			this.Bail.Location = new System.Drawing.Point(161, 77);
-			this.Bail.Margin = new System.Windows.Forms.Padding(7);
+			this.Bail.Location = new System.Drawing.Point(299, 164);
+			this.Bail.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Bail.Name = "Bail";
-			this.Bail.Size = new System.Drawing.Size(91, 23);
+			this.Bail.Size = new System.Drawing.Size(166, 39);
 			this.Bail.TabIndex = 3;
 			this.Bail.Text = "0.000000";
 			this.Bail.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -170,11 +169,10 @@ namespace UC.Net.Node.FUI
             this.columnHeader1,
             this.columnHeader2});
 			this.Declarations.FullRowSelect = true;
-			this.Declarations.HideSelection = false;
 			this.Declarations.Location = new System.Drawing.Point(0, 0);
-			this.Declarations.Margin = new System.Windows.Forms.Padding(7);
+			this.Declarations.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Declarations.Name = "Declarations";
-			this.Declarations.Size = new System.Drawing.Size(537, 516);
+			this.Declarations.Size = new System.Drawing.Size(994, 1096);
 			this.Declarations.TabIndex = 5;
 			this.Declarations.UseCompatibleStateImageBehavior = false;
 			this.Declarations.View = System.Windows.Forms.View.Details;
@@ -207,11 +205,10 @@ namespace UC.Net.Node.FUI
             this.columnHeader4,
             this.columnHeader5});
 			this.Blocks.FullRowSelect = true;
-			this.Blocks.HideSelection = false;
-			this.Blocks.Location = new System.Drawing.Point(551, 0);
-			this.Blocks.Margin = new System.Windows.Forms.Padding(7);
+			this.Blocks.Location = new System.Drawing.Point(1023, 0);
+			this.Blocks.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.Blocks.Name = "Blocks";
-			this.Blocks.Size = new System.Drawing.Size(473, 516);
+			this.Blocks.Size = new System.Drawing.Size(875, 1096);
 			this.Blocks.TabIndex = 6;
 			this.Blocks.UseCompatibleStateImageBehavior = false;
 			this.Blocks.View = System.Windows.Forms.View.Details;
@@ -242,47 +239,36 @@ namespace UC.Net.Node.FUI
 			// groupBox2
 			// 
 			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.groupBox2.Controls.Add(this.CurrentCandidate);
 			this.groupBox2.Controls.Add(this.NewCandidate);
 			this.groupBox2.Controls.Add(this.Deactivate);
 			this.groupBox2.Controls.Add(this.Activate);
 			this.groupBox2.Controls.Add(this.label7);
 			this.groupBox2.Controls.Add(this.label5);
-			this.groupBox2.Location = new System.Drawing.Point(489, 526);
-			this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.groupBox2.Location = new System.Drawing.Point(908, 1122);
+			this.groupBox2.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.groupBox2.Size = new System.Drawing.Size(535, 242);
+			this.groupBox2.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			this.groupBox2.Size = new System.Drawing.Size(994, 516);
 			this.groupBox2.TabIndex = 3;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Active Candidate";
-			// 
-			// CurrentCandidate
-			// 
-			this.CurrentCandidate.Location = new System.Drawing.Point(85, 36);
-			this.CurrentCandidate.Margin = new System.Windows.Forms.Padding(7);
-			this.CurrentCandidate.Name = "CurrentCandidate";
-			this.CurrentCandidate.ReadOnly = true;
-			this.CurrentCandidate.Size = new System.Drawing.Size(280, 23);
-			this.CurrentCandidate.TabIndex = 6;
-			this.CurrentCandidate.Text = "0x6553462c56a7e31583166fcc3fd39cd26a02ba22";
 			// 
 			// NewCandidate
 			// 
 			this.NewCandidate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.NewCandidate.FormattingEnabled = true;
-			this.NewCandidate.Location = new System.Drawing.Point(85, 74);
-			this.NewCandidate.Margin = new System.Windows.Forms.Padding(7);
+			this.NewCandidate.Location = new System.Drawing.Point(158, 286);
+			this.NewCandidate.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
 			this.NewCandidate.Name = "NewCandidate";
-			this.NewCandidate.Size = new System.Drawing.Size(280, 23);
+			this.NewCandidate.Size = new System.Drawing.Size(517, 40);
 			this.NewCandidate.TabIndex = 5;
 			// 
 			// Deactivate
 			// 
-			this.Deactivate.Location = new System.Drawing.Point(381, 32);
-			this.Deactivate.Margin = new System.Windows.Forms.Padding(9);
+			this.Deactivate.Location = new System.Drawing.Point(708, 68);
+			this.Deactivate.Margin = new System.Windows.Forms.Padding(17, 19, 17, 19);
 			this.Deactivate.Name = "Deactivate";
-			this.Deactivate.Size = new System.Drawing.Size(140, 28);
+			this.Deactivate.Size = new System.Drawing.Size(260, 60);
 			this.Deactivate.TabIndex = 1;
 			this.Deactivate.Text = "Deactivate";
 			this.Deactivate.UseVisualStyleBackColor = true;
@@ -290,10 +276,10 @@ namespace UC.Net.Node.FUI
 			// 
 			// Activate
 			// 
-			this.Activate.Location = new System.Drawing.Point(381, 70);
-			this.Activate.Margin = new System.Windows.Forms.Padding(9);
+			this.Activate.Location = new System.Drawing.Point(708, 277);
+			this.Activate.Margin = new System.Windows.Forms.Padding(17, 19, 17, 19);
 			this.Activate.Name = "Activate";
-			this.Activate.Size = new System.Drawing.Size(140, 28);
+			this.Activate.Size = new System.Drawing.Size(260, 60);
 			this.Activate.TabIndex = 1;
 			this.Activate.Text = "Activate";
 			this.Activate.UseVisualStyleBackColor = true;
@@ -303,10 +289,10 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label7.AutoSize = true;
 			this.label7.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label7.Location = new System.Drawing.Point(24, 40);
-			this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label7.Location = new System.Drawing.Point(45, 85);
+			this.label7.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(50, 13);
+			this.label7.Size = new System.Drawing.Size(97, 27);
 			this.label7.TabIndex = 4;
 			this.label7.Text = "Current";
 			// 
@@ -314,24 +300,24 @@ namespace UC.Net.Node.FUI
 			// 
 			this.label5.AutoSize = true;
 			this.label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label5.Location = new System.Drawing.Point(44, 77);
-			this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label5.Location = new System.Drawing.Point(82, 292);
+			this.label5.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(30, 13);
+			this.label5.Size = new System.Drawing.Size(62, 27);
 			this.label5.TabIndex = 4;
 			this.label5.Text = "New";
 			// 
 			// MembershipPanel
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.Blocks);
 			this.Controls.Add(this.Declarations);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			this.Name = "MembershipPanel";
-			this.Size = new System.Drawing.Size(1024, 768);
+			this.Size = new System.Drawing.Size(1902, 1638);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			this.groupBox2.ResumeLayout(false);
@@ -364,7 +350,6 @@ namespace UC.Net.Node.FUI
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.Button Activate;
 		private System.Windows.Forms.Button Deactivate;
-		private System.Windows.Forms.TextBox CurrentCandidate;
 		private System.Windows.Forms.Label label7;
 	}
 }
