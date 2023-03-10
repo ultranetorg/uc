@@ -1,3 +1,6 @@
+using System.Reflection;
+using System;
+
 namespace DemoApplication
 {
 	public partial class Form1 : Form
@@ -5,6 +8,12 @@ namespace DemoApplication
 		public Form1()
 		{
 			InitializeComponent();
+
+			//AppDomain.CurrentDomain.ExecuteAssembly()
+
+			//AppDomainSetup.ApplicationBase = Path.Combine(AppDomainSetup.ApplicationBase, "..\\..");
+			//var myAssembly = Assembly.LoadFrom(Path.Join(appDir, "Component.dll"));
+
 		}
 	}
 }

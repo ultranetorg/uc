@@ -144,7 +144,7 @@ namespace UC.Net
 
 			var d = new XonDocument(File.ReadAllText(s));
 				
-			Password	= d.GetString("Password");
+			Password		= d.GetString("Password");
 
 			NasWallet		= d.GetString("NasWallet");
 			NasPassword		= d.GetString("NasPassword");
