@@ -2,21 +2,12 @@
 
 public partial class WhatsNewPopup : Popup
 {
-    private static WhatsNewPopup popup;
+	WhatsNewPopupViewModel Vm => BindingContext as WhatsNewPopupViewModel;
 
     public WhatsNewPopup()
     {
         InitializeComponent();
+		BindingContext = Ioc.Default.GetService<WhatsNewPopupViewModel>();
+		Vm.Popup = this;
     }
-       
-    public void Hide()
-    {
-	Close();
-    }
-
-	public static async Task Show()
-	{
-		popup = new WhatsNewPopup();
-		await App.Current.MainPage.ShowPopupAsync(popup).ConfigureAwait(false);
-	}
 }

@@ -4,107 +4,23 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:WhatsNewViewModel"
     Title="What's New">
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
-            <StackLayout
+            <views:UpdatesList 
                 Grid.Row="0"
-                Padding="30"
-                Spacing="20"
-                VerticalOptions="StartAndExpand">
-                <Border
-                    Grid.ColumnSpan="2"
-                    HeightRequest="74"
-                    Style="{StaticResource AccountCardBorderDark}">
-                    <Grid
-                        Padding="20,0"
-                        RowDefinitions="Auto,Auto"
-                        VerticalOptions="Center">
-                        <Label
-                            Grid.Row="0"
-                            Grid.Column="0"
-                            FontSize="14"
-                            Text="UUC version 1.23.4567"
-                            VerticalOptions="Center" />
-                        <Label
-                            Grid.Row="1"
-                            Grid.Column="0"
-                            FontSize="12"
-                            Opacity="0.6"
-                            Text="18 Dec 2024"
-                            VerticalOptions="Center" />
-                    </Grid>
-                </Border>
-                <StackLayout>
-                    <Border
-                        BackgroundColor="{StaticResource Green}"
-                        StrokeShape="RoundRectangle 8"
-                        HeightRequest="32"
-                        HorizontalOptions="Start"
-                        WidthRequest="72">
-                        <Label
-                            HorizontalOptions="Center"
-                            Text="Added"
-                            TextColor="White"
-                            VerticalOptions="Center" />
-                    </Border>
-                    <StackLayout Margin="0,4" Spacing="4">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                    <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
-                                    <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                        <BindableLayout.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>The term was coined by Antoine Destutt de Tracy</x:String>
-                                <x:String>And philosopher, who conceived it in 1796</x:String>
-                                <x:String>To develop a rational system of ideas to oppose the</x:String>
-                            </x:Array>
-                        </BindableLayout.ItemsSource>
-                    </StackLayout>
-                </StackLayout>
-                <StackLayout>
-                    <Border
-                        Padding="0"
-                        BackgroundColor="{StaticResource BlueLight}"
-                        StrokeShape="RoundRectangle 8"
-                        HeightRequest="32"
-                        HorizontalOptions="Start"
-                        WidthRequest="72">
-                        <Label
-                            HorizontalOptions="Center"
-                            Text="Fixed"
-                            TextColor="White"
-                            VerticalOptions="Center" />
-                    </Border>
-                    <StackLayout Margin="0,4" Spacing="4">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                    <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
-                                    <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                        <BindableLayout.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>The sensations that people experience as they interact with the material world</x:String>
-                                <x:String>Cted to the terroristic phase of the revolution</x:String>
-                                <x:String>Extending the vocabulary beyond what the general reader already possessed</x:String>
-                            </x:Array>
-                        </BindableLayout.ItemsSource>
-                    </StackLayout>
-                </StackLayout>
-            </StackLayout>
-
-            <StackLayout Padding="16" Grid.Row="1">
-                <Button Command="{Binding CancelCommand}" Text="Close" />
-            </StackLayout>
+                Padding="32"
+                VerticalOptions="StartAndExpand"
+                AddedList="{Binding AddedList}"
+                FixedList="{Binding FixedList}"  />
+            <Button
+                Grid.Row="1"
+                Margin="16"
+                Command="{Binding CancelCommand}"
+                Text="Close" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

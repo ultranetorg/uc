@@ -79,4 +79,18 @@ internal static class DefaultDataMock
 		Size = "789B",
 		Confirmations = 0
 	};
+
+	public static List<string> AddedList = new()
+	{
+		"The term was coined by Antoine Destutt de Tracy",
+		"And philosopher, who conceived it in 1796",
+		"To develop a rational system of ideas to oppose the"
+	};
+
+	public static List<string> FixedList = new()
+	{
+		"The sensations that people experience as they interact with the material world",
+		"Cted to the terroristic phase of the revolution",
+		"Extending the vocabulary beyond what the general reader already possessed"
+	};
 }
