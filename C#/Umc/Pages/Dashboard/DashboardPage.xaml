@@ -121,35 +121,30 @@
                     <Grid
                         Margin="-12,0"
                         ColumnDefinitions="*,*,*,*"
-                        RowDefinitions="Auto,Auto"
-                        RowSpacing="4">
+                        ColumnSpacing="0"
+                        RowDefinitions="Auto,Auto,Auto"
+                        RowSpacing="0">
                         <controls:ImageTextButton
-                            Grid.Row="0"
-                            Grid.Column="0"
                             Command="{Binding AccountsExcuteCommand}"
                             ImageSource="accounts.png"
                             Text="Accounts" />
                         <controls:ImageTextButton
-                            Grid.Row="0"
                             Grid.Column="1"
                             Command="{Binding AuthorsExcuteCommand}"
                             ImageSource="authors.png"
                             Text="Authors" />
                         <controls:ImageTextButton
-                            Grid.Row="0"
                             Grid.Column="2"
                             Command="{Binding ProductsExcuteCommand}"
                             ImageSource="products.png"
                             Text="Products" />
                         <controls:ImageTextButton
-                            Grid.Row="0"
                             Grid.Column="3"
                             Command="{Binding TransactionsExcuteCommand}"
                             ImageSource="transactions.png"
                             Text="Transactions" />
                         <controls:ImageTextButton
                             Grid.Row="1"
-                            Grid.Column="0"
                             Command="{Binding SearchExcuteCommand}"
                             ImageSource="search.png"
                             Text="Search" />
@@ -171,9 +166,25 @@
                             Command="{Binding HelpExcuteCommand}"
                             ImageSource="help.png"
                             Text="Help" />
+                        <controls:ImageTextButton
+                            Grid.Row="2"
+                            Command="{Binding WhatsNewExcuteCommand}"
+                            ImageSource="updates.png"
+                            Text="What's New" />
+                        <controls:ImageTextButton
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Command="{Binding SettingsExcuteCommand}"
+                            ImageSource="settings.png"
+                            Text="Settings" />
+                        <controls:ImageTextButton
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            Command="{Binding AboutExcuteCommand}"
+                            ImageSource="info.png"
+                            Text="About" />
                     </Grid>
                 </StackLayout>
-                
             </Grid>
         </ScrollView>
     </controls:CustomPage.MainContent>

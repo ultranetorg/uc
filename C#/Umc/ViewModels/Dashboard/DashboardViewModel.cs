@@ -61,7 +61,16 @@ public partial class DashboardViewModel : BaseViewModel
     public async Task NetworkExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.NETWORK);
 	
 	[RelayCommand]
+    public async Task SettingsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.SETTINGS);
+	
+	[RelayCommand]
     public async Task HelpExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.HELP);
+	
+	[RelayCommand]
+    public async Task AboutExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.ABOUT);
+	
+	[RelayCommand]
+    public async Task WhatsNewExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.WHATS_NEW);
 
 	internal async Task InitializeAsync()
 	{

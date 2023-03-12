@@ -5,10 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Name="Instance"
-    RowDefinitions="Auto,14"
-    HorizontalOptions="CenterAndExpand"
-    VerticalOptions="CenterAndExpand"
-    Padding="0">
+    RowDefinitions="Auto,18"
+    RowSpacing="0">
     <ImageButton
         Grid.Row="0"
         HorizontalOptions="Center"
@@ -24,8 +22,8 @@
     <Label
         Grid.Row="1"
         FontSize="11"
+        Margin="0,-8,0,0"
         VerticalOptions="Center"
-        HorizontalOptions="FillAndExpand"
         HorizontalTextAlignment="Center"
         Style="{StaticResource Medium}"
         Text="{Binding Text, Source={x:Reference Instance}}" />

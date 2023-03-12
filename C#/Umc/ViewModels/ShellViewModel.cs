@@ -12,6 +12,7 @@ public partial class ShellViewModel : ObservableObject
 	public AppSection Transactions { get; set; }
 	public AppSection Transfer { get; set; }
 	public AppSection Network { get; set; }
+	public AppSection Settings { get; set; }
 	public AppSection Help { get; set; }
 	public AppSection About { get; set; }
 	public AppSection WhatsNew { get; set; }
@@ -81,6 +82,14 @@ public partial class ShellViewModel : ObservableObject
 			IconDark = "network_dark.png",
 			TargetType = typeof(NetworkPage),
 			Route = ShellBaseRoutes.NETWORK
+		};
+		Settings = new AppSection()
+		{
+			Title = nameof(Settings),
+			Icon = "settings.png",
+			IconDark = "settings.png",
+			TargetType = typeof(SettingsPage),
+			Route = ShellBaseRoutes.SETTINGS
 		};
 		Help = new AppSection()
 		{

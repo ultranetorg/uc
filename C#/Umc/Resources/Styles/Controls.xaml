@@ -279,107 +279,107 @@
     <!--#endregion Image Buttons -->
 
     <!--#region Images -->
-        <Style x:Key="SearchIcon" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Search}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#4E7B89, Light=#A0C1CC}" />
-            <Setter Property="HeightRequest" Value="20" />
-            <Setter Property="WidthRequest" Value="20" />
-        </Style>
-        <Style x:Key="RightArrowIcon" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowRight}}" />
-            <Setter Property="HeightRequest" Value="32" />
-            <Setter Property="WidthRequest" Value="32" />
-        </Style>
-        <Style x:Key="Rhombus" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Rhombus}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDarkLighten}}" />
-            <Setter Property="HeightRequest" Value="16" />
-            <Setter Property="WidthRequest" Value="16" />
-        </Style>
-        <Style x:Key="TopArrowIcon" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowTop}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#ffffff, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="22" />
-            <Setter Property="WidthRequest" Value="22" />
-        </Style>
-        <Style x:Key="BottomArrowIcon" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowBottom}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#ffffff, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="22" />
-            <Setter Property="WidthRequest" Value="22" />
-        </Style>
+    <Style x:Key="SearchIcon" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Search}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#4E7B89, Light=#A0C1CC}" />
+        <Setter Property="HeightRequest" Value="20" />
+        <Setter Property="WidthRequest" Value="20" />
+    </Style>
+    <Style x:Key="RightArrowIcon" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowRight}}" />
+        <Setter Property="HeightRequest" Value="32" />
+        <Setter Property="WidthRequest" Value="32" />
+    </Style>
+    <Style x:Key="Rhombus" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Rhombus}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDarkLighten}}" />
+        <Setter Property="HeightRequest" Value="16" />
+        <Setter Property="WidthRequest" Value="16" />
+    </Style>
+    <Style x:Key="TopArrowIcon" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowTop}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#ffffff, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="22" />
+        <Setter Property="WidthRequest" Value="22" />
+    </Style>
+    <Style x:Key="BottomArrowIcon" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowBottom}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#ffffff, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="22" />
+        <Setter Property="WidthRequest" Value="22" />
+    </Style>
 
-        <Style x:Key="Logo2" TargetType="Image">
-            <Setter Property="Source" Value="{AppThemeBinding Dark='logo2_dark.png', Light='logo2_light.png'}" />
-            <Setter Property="HeightRequest" Value="120" />
-            <Setter Property="WidthRequest" Value="120" />
-        </Style>
-        <Style x:Key="Logo" TargetType="Image">
-            <Setter Property="Source" Value="{AppThemeBinding Dark='icon_dark.png', Light='icon_Light.png'}" />
-            <Setter Property="HeightRequest" Value="120" />
-            <Setter Property="WidthRequest" Value="120" />
-        </Style>
-        <Style x:Key="Logo3" TargetType="Image">
-            <Setter Property="Source" Value="icon_dark.png" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="120" />
-            <Setter Property="WidthRequest" Value="120" />
-        </Style>
-        <Style x:Key="NoNetwork" TargetType="Image">
-            <Setter Property="Source" Value="NoNetwork.png" />
-            <Setter Property="HeightRequest" Value="48" />
-            <Setter Property="WidthRequest" Value="48" />
-        </Style>
-        <Style x:Key="AccountsLogo" TargetType="Image">
-            <Setter Property="Source" Value="accounts.png" />
-            <Setter Property="HeightRequest" Value="48" />
-            <Setter Property="WidthRequest" Value="48" />
-        </Style>
+    <Style x:Key="Logo2" TargetType="Image">
+        <Setter Property="Source" Value="{AppThemeBinding Dark='logo2_dark.png', Light='logo2_light.png'}" />
+        <Setter Property="HeightRequest" Value="120" />
+        <Setter Property="WidthRequest" Value="120" />
+    </Style>
+    <Style x:Key="Logo" TargetType="Image">
+        <Setter Property="Source" Value="{AppThemeBinding Dark='icon_dark.png', Light='icon_light.png'}" />
+        <Setter Property="HeightRequest" Value="120" />
+        <Setter Property="WidthRequest" Value="120" />
+    </Style>
+    <Style x:Key="Logo3" TargetType="Image">
+        <Setter Property="Source" Value="icon_dark.png" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="120" />
+        <Setter Property="WidthRequest" Value="120" />
+    </Style>
+    <Style x:Key="NoNetwork" TargetType="Image">
+        <Setter Property="Source" Value="NoNetwork.png" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="WidthRequest" Value="48" />
+    </Style>
+    <Style x:Key="AccountsLogo" TargetType="Image">
+        <Setter Property="Source" Value="accounts.png" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="WidthRequest" Value="48" />
+    </Style>
 
-        <Style x:Key="Globe" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Network}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="18" />
-            <Setter Property="WidthRequest" Value="18" />
-            <Setter Property="Opacity" Value="0.5" />
-        </Style>
+    <Style x:Key="Globe" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Network}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="18" />
+        <Setter Property="WidthRequest" Value="18" />
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
 
-        <Style x:Key="Star" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Star}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="18" />
-            <Setter Property="WidthRequest" Value="18" />
-            <Setter Property="Opacity" Value="0.5" />
+    <Style x:Key="Star" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Star}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="18" />
+        <Setter Property="WidthRequest" Value="18" />
+        <Setter Property="Opacity" Value="0.5" />
 
-        </Style>
-        <Style x:Key="Twitter" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Twitter}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="18" />
-            <Setter Property="WidthRequest" Value="18" />
-            <Setter Property="Opacity" Value="0.5" />
+    </Style>
+    <Style x:Key="Twitter" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Twitter}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="18" />
+        <Setter Property="WidthRequest" Value="18" />
+        <Setter Property="Opacity" Value="0.5" />
 
-        </Style>
-        <Style x:Key="Telegram" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Telegram}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="18" />
-            <Setter Property="WidthRequest" Value="18" />
-            <Setter Property="Opacity" Value="0.5" />
-        </Style>
-        <Style x:Key="Mail" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Mail}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="18" />
-            <Setter Property="WidthRequest" Value="18" />
-            <Setter Property="Opacity" Value="0.5" />
-        </Style>
-        <Style x:Key="BottomArrowsIcon" TargetType="Image">
-            <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowsBottom}}" />
-            <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#ffffff, Light={StaticResource PrimaryDark}}" />
-            <Setter Property="HeightRequest" Value="22" />
-            <Setter Property="WidthRequest" Value="22" />
-        </Style>
+    </Style>
+    <Style x:Key="Telegram" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Telegram}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="18" />
+        <Setter Property="WidthRequest" Value="18" />
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+    <Style x:Key="Mail" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Mail}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="18" />
+        <Setter Property="WidthRequest" Value="18" />
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+    <Style x:Key="BottomArrowsIcon" TargetType="Image">
+        <Setter Property="Source" Value="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.ArrowsBottom}}" />
+        <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark=#ffffff, Light={StaticResource PrimaryDark}}" />
+        <Setter Property="HeightRequest" Value="22" />
+        <Setter Property="WidthRequest" Value="22" />
+    </Style>
     <!--#endregion Images -->
 
     <!--#region Labels -->

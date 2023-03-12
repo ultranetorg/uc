@@ -84,6 +84,15 @@
     </FlyoutItem>
     
     <FlyoutItem
+        Title="{Binding Settings.Title}"
+        Route="{Static constants:ShellBaseRoutes.SETTINGS}">
+        <ShellContent
+            Title="{Binding Settings.Title}"
+            Icon="{AppThemeBinding Light=Settings.Icon,Dark=Settings.IconDark}"
+            ContentTemplate="{DataTemplate pages:SettingsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
         Title="{Binding Help.Title}"
         Route="{Static constants:ShellBaseRoutes.HELP}">
         <ShellContent
