@@ -6,6 +6,13 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     x:Name="page"
     Title="About">
+    <controls:CustomPage.Resources>
+        <Style x:Key="DetailsGrid" TargetType="Grid">
+            <Setter Property="ColumnDefinitions" Value="*,24" />
+            <Setter Property="RowDefinitions" Value="24,16,8" />
+        </Style>
+    </controls:CustomPage.Resources>
+    
     <controls:CustomPage.MainContent>
         <StackLayout
             Grid.Row="0"
@@ -15,11 +22,11 @@
             <Border
                 Grid.ColumnSpan="2"
                 HeightRequest="74"
-                Style="{StaticResource AccountCardBorder}">
+                Style="{StaticResource AccountCardBorderDark}">
                 <Grid
-                    Padding="20,1"
+                    Padding="20,4"
                     ColumnDefinitions="32,*"
-                    ColumnSpacing="20"
+                    ColumnSpacing="24"
                     RowDefinitions="Auto,Auto"
                     VerticalOptions="Center">
                     <Image
@@ -27,26 +34,27 @@
                         Grid.Column="0"
                         HeightRequest="32"
                         Style="{StaticResource Logo3}"
+                        Source="logo3_dark.png"
                         VerticalOptions="Center"
                         WidthRequest="32" />
                     <Label
                         Grid.Row="0"
                         Grid.Column="1"
                         FontSize="14"
-                        Text="UUC version 1.23.4567"
+                        Text="Ultranet User Center"
                         VerticalOptions="Center" />
                     <Label
                         Grid.Row="1"
                         Grid.Column="1"
                         FontSize="12"
                         Opacity="0.6"
-                        Text="18 Dec 2028"
+                        Text="1.0.1 build 6941"
                         VerticalOptions="Center" />
                 </Grid>
             </Border>
             <StackLayout>
                 <StackLayout>
-                    <Grid ColumnDefinitions="*,25" RowDefinitions="18,15,8">
+                    <Grid Style="{StaticResource DetailsGrid}">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
@@ -71,7 +79,7 @@
                             Style="{StaticResource StackSperator}"
                             VerticalOptions="End" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,25" RowDefinitions="18,15,8">
+                    <Grid Style="{StaticResource DetailsGrid}">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
@@ -84,7 +92,7 @@
                             Grid.Column="0"
                             FontSize="12"
                             Opacity="0.6"
-                            Text="Rate our application in Google Play"
+                            Text="Rate our application in App Store"
                             VerticalOptions="Start" />
                         <Image
                             Grid.RowSpan="2"
@@ -96,7 +104,7 @@
                             Style="{StaticResource StackSperator}"
                             VerticalOptions="End" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,25" RowDefinitions="18,15,8">
+                    <Grid Style="{StaticResource DetailsGrid}">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
@@ -121,7 +129,7 @@
                             Style="{StaticResource StackSperator}"
                             VerticalOptions="End" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,25" RowDefinitions="18,15,8">
+                    <Grid Style="{StaticResource DetailsGrid}">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
@@ -146,7 +154,7 @@
                             Style="{StaticResource StackSperator}"
                             VerticalOptions="End" />
                     </Grid>
-                    <Grid ColumnDefinitions="*,25" RowDefinitions="18,15,8">
+                    <Grid Style="{StaticResource DetailsGrid}">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
@@ -171,10 +179,7 @@
                             Style="{StaticResource StackSperator}"
                             VerticalOptions="End" />
                     </Grid>
-                    <Grid
-                        ColumnDefinitions="*,25"
-                        RowDefinitions="18,15,8"
-                        RowSpacing="8">
+                    <Grid Style="{StaticResource DetailsGrid}" RowSpacing="8">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"

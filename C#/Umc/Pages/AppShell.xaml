@@ -83,26 +83,19 @@
             ContentTemplate="{DataTemplate pages:NetworkPage}" />
     </FlyoutItem>
     
-    <FlyoutItem
+    <ShellContent
         Title="{Binding Help.Title}"
-        Route="{Static constants:ShellBaseRoutes.HELP}">
-        <ShellContent
-            Title="{Binding Help.Title}"
-            Icon="{AppThemeBinding Light=Help.Icon,Dark=Help.IconDark}"
-            ContentTemplate="{DataTemplate pages:HelpPage}" />
-    </FlyoutItem>
+        Icon="{AppThemeBinding Light=Help.Icon,Dark=Help.IconDark}"
+        ContentTemplate="{DataTemplate pages:HelpPage}" />
+
+    <ShellContent 
+        Title="{Binding About.Title}"
+        Icon="{AppThemeBinding Light=About.Icon,Dark=About.IconDark}"
+        ContentTemplate="{DataTemplate pages:AboutPage}" />
+    
     
     <!--All other routes-->
     <ShellItem FlyoutItemIsVisible="False" Route="LoginPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="TransfersPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="AuctionsPage">
-        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
-    </ShellItem>
-    <ShellItem FlyoutItemIsVisible="False" Route="SearchPage">
         <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
     </ShellItem>
 </Shell>

@@ -315,12 +315,12 @@
             <Setter Property="WidthRequest" Value="120" />
         </Style>
         <Style x:Key="Logo" TargetType="Image">
-            <Setter Property="Source" Value="{AppThemeBinding Dark='icon_night.png', Light='icon.png'}" />
+            <Setter Property="Source" Value="{AppThemeBinding Dark='icon_dark.png', Light='icon_Light.png'}" />
             <Setter Property="HeightRequest" Value="120" />
             <Setter Property="WidthRequest" Value="120" />
         </Style>
         <Style x:Key="Logo3" TargetType="Image">
-            <Setter Property="Source" Value="icon_night.png" />
+            <Setter Property="Source" Value="icon_dark.png" />
             <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
             <Setter Property="HeightRequest" Value="120" />
             <Setter Property="WidthRequest" Value="120" />

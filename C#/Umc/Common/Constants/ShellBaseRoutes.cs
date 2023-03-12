@@ -1,13 +1,14 @@
-﻿using UC.Umc.Pages;
-
-namespace UC.Umc.Constants;
+﻿namespace UC.Umc.Constants;
 
 internal static class ShellBaseRoutes
 {
     public const string DASHBOARD = nameof(DashboardPage);
+    public const string ENTER_PINCODE = nameof(EnterPinPage);
     public const string NETWORK = nameof(NetworkPage);
     public const string HELP = nameof(HelpPage);
     public const string ABOUT = nameof(AboutPage);
+    public const string WHATS_NEW = nameof(WhatsNewPage);
+    public const string SETTINGS = nameof(SettingsPage);
 	
     public const string ACCOUNTS = nameof(ManageAccountsPage);
     public const string ACCOUNT_DETAILS = nameof(AccountDetailsPage);
