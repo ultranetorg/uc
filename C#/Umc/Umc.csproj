@@ -57,7 +57,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Images\info.svg" />
+	  <None Remove="Resources\Images\dashboard\info.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -362,6 +362,7 @@
 	  <MauiImage Include="Resources\Images\dashboard\authors.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\dashboard_outline.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\help.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\info.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\network.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\products.svg" />
 	  <MauiImage Include="Resources\Images\dashboard\search.svg" />

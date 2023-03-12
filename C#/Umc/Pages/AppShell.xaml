@@ -83,16 +83,31 @@
             ContentTemplate="{DataTemplate pages:NetworkPage}" />
     </FlyoutItem>
     
-    <ShellContent
+    <FlyoutItem
         Title="{Binding Help.Title}"
-        Icon="{AppThemeBinding Light=Help.Icon,Dark=Help.IconDark}"
-        ContentTemplate="{DataTemplate pages:HelpPage}" />
+        Route="{Static constants:ShellBaseRoutes.HELP}">
+        <ShellContent
+            Title="{Binding Help.Title}"
+            Icon="{AppThemeBinding Light=Help.Icon,Dark=Help.IconDark}"
+            ContentTemplate="{DataTemplate pages:HelpPage}" />
+    </FlyoutItem>
 
-    <ShellContent 
+    <FlyoutItem
         Title="{Binding About.Title}"
-        Icon="{AppThemeBinding Light=About.Icon,Dark=About.IconDark}"
-        ContentTemplate="{DataTemplate pages:AboutPage}" />
-    
+        Route="{Static constants:ShellBaseRoutes.ABOUT}">
+        <ShellContent 
+            Title="{Binding About.Title}"
+            Icon="{AppThemeBinding Light=About.Icon,Dark=About.IconDark}"
+            ContentTemplate="{DataTemplate pages:AboutPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="{Binding WhatsNew.Title}"
+        Route="{Static constants:ShellBaseRoutes.WHATS_NEW}">
+        <ShellContent 
+            Title="{Binding WhatsNew.Title}"
+            ContentTemplate="{DataTemplate pages:WhatsNewPage}" />
+    </FlyoutItem>
     
     <!--All other routes-->
     <ShellItem FlyoutItemIsVisible="False" Route="LoginPage">

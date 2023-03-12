@@ -4,7 +4,8 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
-    x:Name="page"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:AboutViewModel"
     Title="About">
     <controls:CustomPage.Resources>
         <Style x:Key="DetailsGrid" TargetType="Grid">

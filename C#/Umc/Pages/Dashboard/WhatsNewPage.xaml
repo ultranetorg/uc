@@ -4,8 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
-    Title="What's New"
-    x:Name="page">
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:WhatsNewViewModel"
+    Title="What's New">
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <StackLayout
@@ -13,10 +14,10 @@
                 Padding="30"
                 Spacing="20"
                 VerticalOptions="StartAndExpand">
-                <Frame
+                <Border
                     Grid.ColumnSpan="2"
                     HeightRequest="74"
-                    Style="{StaticResource AccountCard}">
+                    Style="{StaticResource AccountCardBorderDark}">
                     <Grid
                         Padding="20,0"
                         RowDefinitions="Auto,Auto"
@@ -32,30 +33,29 @@
                             Grid.Column="0"
                             FontSize="12"
                             Opacity="0.6"
-                            Text="18 Dec 2028"
+                            Text="18 Dec 2024"
                             VerticalOptions="Center" />
                     </Grid>
-                </Frame>
+                </Border>
                 <StackLayout>
-                    <Frame
-                        Padding="0"
-                        BackgroundColor="#62D260"
-                        CornerRadius="8"
-                        HeightRequest="31"
+                    <Border
+                        BackgroundColor="{StaticResource Green}"
+                        StrokeShape="RoundRectangle 8"
+                        HeightRequest="32"
                         HorizontalOptions="Start"
-                        WidthRequest="75">
+                        WidthRequest="72">
                         <Label
                             HorizontalOptions="Center"
                             Text="Added"
                             TextColor="White"
                             VerticalOptions="Center" />
-                    </Frame>
-                    <StackLayout Spacing="5">
+                    </Border>
+                    <StackLayout Margin="0,4" Spacing="4">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                     <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
-                                    <Label Grid.Column="1" FontSize="13" Text="{Binding .}"/>
+                                    <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
                                 </Grid>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
@@ -69,25 +69,25 @@
                     </StackLayout>
                 </StackLayout>
                 <StackLayout>
-                    <Frame
+                    <Border
                         Padding="0"
-                        BackgroundColor="#3DC1F2"
-                        CornerRadius="8"
-                        HeightRequest="31"
+                        BackgroundColor="{StaticResource BlueLight}"
+                        StrokeShape="RoundRectangle 8"
+                        HeightRequest="32"
                         HorizontalOptions="Start"
-                        WidthRequest="75">
+                        WidthRequest="72">
                         <Label
                             HorizontalOptions="Center"
                             Text="Fixed"
                             TextColor="White"
                             VerticalOptions="Center" />
-                    </Frame>
-                    <StackLayout Spacing="5">
+                    </Border>
+                    <StackLayout Margin="0,4" Spacing="4">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                     <Label VerticalOptions="Start" Grid.Column="0" FontSize="15" Text="."/>
-                                    <Label Grid.Column="1" FontSize="13" Text="{Binding .}"/>
+                                    <Label Grid.Column="1" Padding="0,4" FontSize="13" Text="{Binding .}"/>
                                 </Grid>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
@@ -102,17 +102,9 @@
                 </StackLayout>
             </StackLayout>
 
-            <Frame
-                Grid.Row="1"
-                Margin="0,0,0,-20"
-                Padding="0,0,0,30"
-                AbsoluteLayout.LayoutBounds="1,1,1,-1"
-                AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
-                HasShadow="True">
-                <StackLayout Padding="15">
-                    <Button Command="{Binding RegisterProductCommand}" Text="Close" />
-                </StackLayout>
-            </Frame>
+            <StackLayout Padding="16" Grid.Row="1">
+                <Button Command="{Binding CancelCommand}" Text="Close" />
+            </StackLayout>
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

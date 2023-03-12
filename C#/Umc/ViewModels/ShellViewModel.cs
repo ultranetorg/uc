@@ -14,6 +14,7 @@ public partial class ShellViewModel : ObservableObject
 	public AppSection Network { get; set; }
 	public AppSection Help { get; set; }
 	public AppSection About { get; set; }
+	public AppSection WhatsNew { get; set; }
 
 	public ShellViewModel()
 	{
@@ -92,10 +93,18 @@ public partial class ShellViewModel : ObservableObject
 		About = new AppSection()
 		{
 			Title = nameof(About),
-			Icon = "info.png",
-			IconDark = "info.png",
+			Icon = "info_light.png",
+			IconDark = "info_dark.png",
 			TargetType = typeof(AboutPage),
 			Route = ShellBaseRoutes.ABOUT
+		};
+		WhatsNew = new AppSection()
+		{
+			Title = "Whats New",
+			Icon = "info_light.png",
+			IconDark = "info_dark.png",
+			TargetType = typeof(WhatsNewPage),
+			Route = ShellBaseRoutes.WHATS_NEW
 		};
 	}
 }

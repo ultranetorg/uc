@@ -9,12 +9,7 @@ public partial class AboutViewModel : BaseViewModel
 	[RelayCommand]
     private async Task CancelAsync()
     {
-        await Navigation.PopAsync();
-    }
-	
-	[RelayCommand]
-    private async Task TransactionsAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
+		// Some action, e.g. opening the browser
+        await Task.Delay(10);
     }
 }
