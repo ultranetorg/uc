@@ -4,32 +4,57 @@ namespace UC.Umc.ViewModels;
 
 public partial class HelpViewModel : BaseViewModel
 {
+	private readonly IServicesMockData _service;
+
 	[ObservableProperty]
     private Transaction _selectedItem ;
 
 	[ObservableProperty]
     private CustomCollection<string> _helps = new();
 
-    public HelpViewModel(ILogger<HelpViewModel> logger) : base(logger)
+	[ObservableProperty]
+    private string _filter;
+
+    public HelpViewModel(IServicesMockData service, ILogger<HelpViewModel> logger) : base(logger)
     {
-		Initialize();
+		_service = service;
+		LoadData();
     }
 
-	private void Initialize()
+	[RelayCommand]
+    private async Task OpenDetailsAsync()
+    {
+		// need to pass question id through the query
+        await Navigation.GoToAsync(Routes.HELP_DETAILS);
+    }
+	
+	[RelayCommand]
+    public async Task SearchHelpsAsync()
+    {
+		try
+		{
+			Guard.IsNotNull(Filter);
+
+			InitializeLoading();
+
+			// Search help questions
+			var helps = _service.HelpQuestions.Where(x => x.Contains(Filter));
+
+			await Task.Delay(10);
+			
+			Helps = new(helps);
+			
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("SearchHelpsAsync Error: {Message}", ex.Message);
+		}
+    }
+
+	private void LoadData()
 	{
-		Helps.Clear();
-        Helps.Add(Properties.Resources.HelpLine1);
-        Helps.Add(Properties.Resources.HelpLine2);
-        Helps.Add(Properties.Resources.HelpLine3);
-        Helps.Add(Properties.Resources.HelpLine4);
-        Helps.Add(Properties.Resources.HelpLine5);
-        Helps.Add(Properties.Resources.HelpLine6);
-        Helps.Add(Properties.Resources.HelpLine7);
-        Helps.Add(Properties.Resources.HelpLine8);
-        Helps.Add(Properties.Resources.HelpLine9);
-        Helps.Add(Properties.Resources.HelpLine10);
-        Helps.Add(Properties.Resources.HelpLine11);
-        Helps.Add(Properties.Resources.HelpLine12);
-        Helps.Add(Properties.Resources.HelpLine13);
+		Helps = new(_service.HelpQuestions);
 	}
 }

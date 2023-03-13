@@ -147,7 +147,7 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
     {
 		try
 		{
-			await Navigation.GoToAsync(ShellBaseRoutes.COMPLETED_TRANSFERS, new Dictionary<string, object>()
+			await Navigation.GoToAsync(Routes.COMPLETED_TRANSFERS, new Dictionary<string, object>()
 			{
 				{QueryKeys.ACCOUNT, Account},
 				{QueryKeys.UNT_AMOUNT, UntAmount }

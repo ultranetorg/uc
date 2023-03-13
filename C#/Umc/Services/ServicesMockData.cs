@@ -12,6 +12,7 @@ public class ServicesMockData : IServicesMockData
     public IList<Emission> Emissions { get; private set; } = new List<Emission>();
     public IList<Notification> Notifications { get; private set; } = new List<Notification>();
     public IList<Bid> BidsHistory { get; private set; } = new List<Bid>();
+    public IList<string> HelpQuestions  { get; private set; } = new List<string>();
 
     public ServicesMockData(ILogger<ServicesMockData> logger)
 	{
@@ -266,6 +267,20 @@ public class ServicesMockData : IServicesMockData
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.Server));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Mid, NotificationType.Wallet));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.Server));
+			
+			HelpQuestions.Add(Properties.Resources.HelpLine1);
+			HelpQuestions.Add(Properties.Resources.HelpLine2);
+			HelpQuestions.Add(Properties.Resources.HelpLine3);
+			HelpQuestions.Add(Properties.Resources.HelpLine4);
+			HelpQuestions.Add(Properties.Resources.HelpLine5);
+			HelpQuestions.Add(Properties.Resources.HelpLine6);
+			HelpQuestions.Add(Properties.Resources.HelpLine7);
+			HelpQuestions.Add(Properties.Resources.HelpLine8);
+			HelpQuestions.Add(Properties.Resources.HelpLine9);
+			HelpQuestions.Add(Properties.Resources.HelpLine10);
+			HelpQuestions.Add(Properties.Resources.HelpLine11);
+			HelpQuestions.Add(Properties.Resources.HelpLine12);
+			HelpQuestions.Add(Properties.Resources.HelpLine13);
 		}
 		catch(Exception ex)
 		{

@@ -4,20 +4,25 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:HelpViewModel"
     Title="Help">
     <controls:CustomPage.MainContent>
-        <Grid Padding="20,0" RowDefinitions="Auto,*">
+        <Grid Padding="16,0" RowDefinitions="Auto,*">
             <AbsoluteLayout Grid.Row="0" Margin="0,12">
-                <controls:BorderEntry
+                <controls:FormEntryControl
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
-                    AbsoluteLayout.LayoutFlags="All" />
+                    AbsoluteLayout.LayoutFlags="All"
+                    TextChanged="{Binding SearchHelpsCommand}"
+                    Value="{Binding Filter, Mode=TwoWay}"/>
                 <Image
-                    Margin="10,0"
+                    Margin="20"
                     AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
                     HorizontalOptions="End"
-                    VerticalOptions="Center"
-                    Style="{StaticResource SearchIcon}" />
+                    Style="{StaticResource SearchIcon}"
+                    VerticalOptions="Center" />
             </AbsoluteLayout>
             <CollectionView
                 Grid.Row="1"
@@ -26,8 +31,15 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="0,8" ColumnDefinitions="16,*" ColumnSpacing="8">
-                            <Image Grid.Column="0" Style="{StaticResource Rhombus}" />
+                            <Image Grid.Column="0" Style="{StaticResource Rhombus}">
+                                <Image.Behaviors>
+                                    <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDarkLighten}}"/>
+                                </Image.Behaviors>
+                            </Image>
                             <Label Grid.Column="1" Text="{Binding .}" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HelpViewModel}}, Path=OpenDetailsCommand}" />
+                            </Grid.GestureRecognizers>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

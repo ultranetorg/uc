@@ -25,7 +25,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "dashboard_outline.png",
 			IconDark = string.Empty,
 			TargetType = typeof(DashboardPage),
-			Route = ShellBaseRoutes.DASHBOARD
+			Route = Routes.DASHBOARD
 		};
 		Accounts = new AppSection()
 		{
@@ -33,7 +33,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "accounts_light.png",
 			IconDark = "accounts_dark.png",
 			TargetType = typeof(ManageAccountsPage),
-			Route = ShellBaseRoutes.ACCOUNTS
+			Route = Routes.ACCOUNTS
 		};
 		Authors = new AppSection()
 		{
@@ -41,7 +41,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "authors_light.png",
 			IconDark = "authors_dark.png",
 			TargetType = typeof(AuthorsPage),
-			Route = ShellBaseRoutes.AUTHORS
+			Route = Routes.AUTHORS
 		};
 		Products = new AppSection()
 		{
@@ -49,7 +49,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "products_light.png",
 			IconDark = "products_dark.png",
 			TargetType = typeof(ProductsPage),
-			Route = ShellBaseRoutes.PRODUCTS
+			Route = Routes.PRODUCTS
 		};
 		ProductsSearch = new AppSection()
 		{
@@ -57,7 +57,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "products_light.png",
 			IconDark = "products_dark.png",
 			TargetType = typeof(ProductSearchPage),
-			Route = ShellBaseRoutes.PRODUCT_SEARCH
+			Route = Routes.PRODUCT_SEARCH
 		};
 		Transactions = new AppSection()
 		{
@@ -65,7 +65,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "transactions_light.png",
 			IconDark = "transactions_dark.png",
 			TargetType = typeof(TransactionsPage),
-			Route = ShellBaseRoutes.TRANSACTIONS
+			Route = Routes.TRANSACTIONS
 		};
 		Transfer = new AppSection()
 		{
@@ -73,7 +73,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "transfer_light.png",
 			IconDark = "transfer_dark.png",
 			TargetType = typeof(ETHTransferPage),
-			Route = ShellBaseRoutes.TRANSFER
+			Route = Routes.TRANSFER
 		};
 		Network = new AppSection()
 		{
@@ -81,7 +81,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "network_light.png",
 			IconDark = "network_dark.png",
 			TargetType = typeof(NetworkPage),
-			Route = ShellBaseRoutes.NETWORK
+			Route = Routes.NETWORK
 		};
 		Settings = new AppSection()
 		{
@@ -89,7 +89,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "settings.png",
 			IconDark = "settings.png",
 			TargetType = typeof(SettingsPage),
-			Route = ShellBaseRoutes.SETTINGS
+			Route = Routes.SETTINGS
 		};
 		Help = new AppSection()
 		{
@@ -97,7 +97,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "help_light.png",
 			IconDark = "help_dark.png",
 			TargetType = typeof(HelpPage),
-			Route = ShellBaseRoutes.HELP
+			Route = Routes.HELP
 		};
 		About = new AppSection()
 		{
@@ -105,7 +105,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "info_light.png",
 			IconDark = "info_dark.png",
 			TargetType = typeof(AboutPage),
-			Route = ShellBaseRoutes.ABOUT
+			Route = Routes.ABOUT
 		};
 		WhatsNew = new AppSection()
 		{
@@ -113,7 +113,7 @@ public partial class ShellViewModel : ObservableObject
 			Icon = "info_light.png",
 			IconDark = "info_dark.png",
 			TargetType = typeof(WhatsNewPage),
-			Route = ShellBaseRoutes.WHATS_NEW
+			Route = Routes.WHATS_NEW
 		};
 	}
 }

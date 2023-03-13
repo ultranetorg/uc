@@ -25,7 +25,7 @@ public partial class UnfinishTransferViewModel : BaseViewModel
 	[RelayCommand]
     private async Task TransferAsync()
     {
-        await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSFER, new Dictionary<string, object>()
+        await Navigation.GoToUpwardsAsync(Routes.TRANSFER, new Dictionary<string, object>()
 		{
 			{QueryKeys.ACCOUNT, Account},
 			{QueryKeys.ETH_AMOUNT, EthAmount}

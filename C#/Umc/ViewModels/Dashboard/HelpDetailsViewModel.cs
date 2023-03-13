@@ -2,31 +2,48 @@
 
 public partial class HelpDetailsViewModel : BaseViewModel
 {
-	public string HelpQuestionExample { get; set; }
-	public string HelpAnswerExample1 { get; set; }
-	public string HelpAnswerExample2 { get; set; }
+	public HelpInfo HelpDetails { get; set; }
 
     public HelpDetailsViewModel(ILogger<HelpDetailsViewModel> logger) : base(logger)
     {
 		InitializeAsync();
     }
 
-	private void InitializeAsync()
+    public override void ApplyQueryAttributes(IDictionary<string, object> query)
 	{
-		HelpQuestionExample = Properties.Resources.HelpQuestion1;
-		HelpAnswerExample1 = Properties.Resources.HelpAnswer1;
-		HelpAnswerExample2 = Properties.Resources.HelpAnswer2;
+        try
+        {
+            InitializeLoading();
+
+//            HelpDetails = (HelpInfo)query[QueryKeys.HELP_INFO];
+//#if DEBUG
+//            _logger.LogDebug("ApplyQueryAttributes HelpInfo: {HelpInfo}", HelpDetails);
+//#endif
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ApplyQueryAttributes Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+        finally
+        {
+            FinishLoading();
+        }
 	}
 
 	[RelayCommand]
     private async Task CancelAsync()
     {
-        await Shell.Current.Navigation.PopAsync();
+        await Navigation.PopAsync();
     }
 
-	[RelayCommand]
-    private async Task TransactionsAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
-    }  
+	private void InitializeAsync()
+	{
+		HelpDetails = new HelpInfo()
+		{
+			Question = Properties.Resources.HelpQuestion1,
+			Answer = Properties.Resources.HelpAnswer1,
+			Prompt = Properties.Resources.HelpAnswer2
+		};
+	} 
 }

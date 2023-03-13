@@ -6,6 +6,7 @@ public static class QueryKeys
     public const string SOURCE_ACCOUNT = "SOURCE_ACCOUNT";
     public const string RECIPIENT_ACCOUNT = "RECIPIENT_ACCOUNT";
     public const string AUTHOR = "AUTHOR_MODEL";
+    public const string HELP_INFO = "HELP_INFO";
     public const string PRODUCT = "PRODUCT_MODEL";
     public const string UNT_AMOUNT = "UNT_AMOUNT";
     public const string ETH_AMOUNT = "ETH_AMOUNT";

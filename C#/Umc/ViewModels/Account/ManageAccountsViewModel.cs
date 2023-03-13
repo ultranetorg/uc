@@ -39,7 +39,7 @@ public partial class ManageAccountsViewModel : BaseViewModel
 
 	[RelayCommand]
     private async Task OpenDetailsAsync(AccountViewModel account) => 
-		await Navigation.GoToAsync(ShellBaseRoutes.ACCOUNT_DETAILS, new Dictionary<string,object>()
+		await Navigation.GoToAsync(Routes.ACCOUNT_DETAILS, new Dictionary<string,object>()
 		{
 			{ QueryKeys.ACCOUNT, account }
 		});
@@ -63,8 +63,8 @@ public partial class ManageAccountsViewModel : BaseViewModel
 		});
 
 	[RelayCommand]
-    private async Task CreateAsync() => await Navigation.GoToAsync(ShellBaseRoutes.CREATE_ACCOUNT);
+    private async Task CreateAsync() => await Navigation.GoToAsync(Routes.CREATE_ACCOUNT);
 
 	[RelayCommand]
-    private async Task RestoreAsync() => await Navigation.GoToAsync(ShellBaseRoutes.RESTORE_ACCOUNT);
+    private async Task RestoreAsync() => await Navigation.GoToAsync(Routes.RESTORE_ACCOUNT);
 }

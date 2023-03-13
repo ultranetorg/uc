@@ -47,7 +47,7 @@ public partial class TransferCompleteViewModel : BaseViewModel
     {
 		try
 		{
-			await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSACTIONS);
+			await Navigation.GoToUpwardsAsync(Routes.TRANSACTIONS);
 		}
 		catch (Exception ex)
 		{

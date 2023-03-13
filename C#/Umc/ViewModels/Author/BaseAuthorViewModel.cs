@@ -36,7 +36,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 	[RelayCommand]
 	private async Task RenewAuthorAsync()
 	{
-		await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_RENEWAL,
+		await Navigation.GoToAsync(Routes.AUTHOR_RENEWAL,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Author }
@@ -47,7 +47,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 	[RelayCommand]
     private async Task RegisterAuthorAsync()
 	{
-		await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_REGISTRATION,
+		await Navigation.GoToAsync(Routes.AUTHOR_REGISTRATION,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Author }
@@ -58,7 +58,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 	[RelayCommand]
     private async Task MakeBidAsync()
 	{
-		await Navigation.GoToAsync(ShellBaseRoutes.MAKE_BID,
+		await Navigation.GoToAsync(Routes.MAKE_BID,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Author }
@@ -69,7 +69,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
 	[RelayCommand]
     private async Task TransferAuthorAsync()
     {
-		await Navigation.GoToAsync(ShellBaseRoutes.AUTHOR_TRANSFER,
+		await Navigation.GoToAsync(Routes.AUTHOR_TRANSFER,
 			new Dictionary<string, object>()
 		{
 			{ QueryKeys.AUTHOR, Author }

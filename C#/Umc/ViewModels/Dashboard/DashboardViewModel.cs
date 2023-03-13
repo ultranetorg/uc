@@ -40,37 +40,37 @@ public partial class DashboardViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    public async Task AccountsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.ACCOUNTS);
+    public async Task AccountsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.ACCOUNTS);
 
 	[RelayCommand]
-    public async Task AuthorsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.AUTHORS);
+    public async Task AuthorsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.AUTHORS);
 
 	[RelayCommand]
-    public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.PRODUCTS);
+    public async Task ProductsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.PRODUCTS);
 
 	[RelayCommand]
-    public async Task SearchExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.PRODUCT_SEARCH);
+    public async Task SearchExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.PRODUCT_SEARCH);
 
 	[RelayCommand]
-	public async Task TransactionsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSACTIONS);
+	public async Task TransactionsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.TRANSACTIONS);
 
 	[RelayCommand]
-    public async Task ETHTransferExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.TRANSFER);
+    public async Task ETHTransferExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.TRANSFER);
 	
 	[RelayCommand]
-    public async Task NetworkExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.NETWORK);
+    public async Task NetworkExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.NETWORK);
 	
 	[RelayCommand]
-    public async Task SettingsExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.SETTINGS);
+    public async Task SettingsExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.SETTINGS);
 	
 	[RelayCommand]
-    public async Task HelpExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.HELP);
+    public async Task HelpExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.HELP);
 	
 	[RelayCommand]
-    public async Task AboutExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.ABOUT);
+    public async Task AboutExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.ABOUT);
 	
 	[RelayCommand]
-    public async Task WhatsNewExcuteAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.WHATS_NEW);
+    public async Task WhatsNewExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.WHATS_NEW);
 
 	internal async Task InitializeAsync()
 	{
