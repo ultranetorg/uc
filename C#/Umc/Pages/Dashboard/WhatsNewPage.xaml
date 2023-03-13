@@ -11,16 +11,16 @@
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <views:UpdatesList 
-                Grid.Row="0"
                 Padding="32"
                 VerticalOptions="StartAndExpand"
                 AddedList="{Binding AddedList}"
-                FixedList="{Binding FixedList}"  />
-            <Button
-                Grid.Row="1"
-                Margin="16"
-                Command="{Binding CancelCommand}"
-                Text="Close" />
+                FixedList="{Binding FixedList}" />
+            <Border Grid.Row="1" Style="{StaticResource AccountCardBorder}">
+                <Button
+                    Margin="16"
+                    Command="{Binding CancelCommand}"
+                    Text="Close" />
+            </Border>
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

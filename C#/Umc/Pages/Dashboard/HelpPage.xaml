@@ -9,7 +9,7 @@
     x:DataType="vm:HelpViewModel"
     Title="Help">
     <controls:CustomPage.MainContent>
-        <Grid Padding="16,0" RowDefinitions="Auto,*">
+        <Grid RowDefinitions="Auto,*,80" Padding="16,0">
             <AbsoluteLayout Grid.Row="0" Margin="0,12">
                 <controls:FormEntryControl
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
@@ -44,6 +44,11 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            
+            <Border Grid.Row="2" Margin="16" Style="{StaticResource AccountCardBorder}">
+                <Button Command="{Binding CancelCommand}" Text="Close" />
+            </Border>
+
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

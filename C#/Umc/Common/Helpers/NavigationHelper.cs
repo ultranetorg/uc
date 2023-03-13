@@ -15,6 +15,8 @@ public static class Navigation
 
     public static Task PopAsync() => MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
 
+    public static async Task BackToDashboardAsync() => await GoToAsync($"//{Routes.DASHBOARD}");
+
     public static Task PopModalAsync(bool isAnimated = true) =>
         MainThread.InvokeOnMainThreadAsync(() => Shell.Current.Navigation.PopModalAsync(isAnimated));
 

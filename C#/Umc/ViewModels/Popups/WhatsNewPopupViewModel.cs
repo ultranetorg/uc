@@ -12,8 +12,5 @@ public partial class WhatsNewPopupViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async Task ContinueAsync()
-    {
-        await Navigation.PopAsync();
-    }
+    private async Task ContinueAsync() => await Navigation.BackToDashboardAsync();
 }

@@ -10,15 +10,6 @@
     ios:Page.UseSafeArea="True"
     x:DataType="vm:ShellViewModel"
     BackgroundColor="{StaticResource Secondary}">
-    
-    <FlyoutItem
-        Title="{Binding Help.Title}"
-        Route="{Static constants:Routes.HELP}">
-        <ShellContent
-            Title="{Binding Help.Title}"
-            Icon="{AppThemeBinding Light=Help.Icon,Dark=Help.IconDark}"
-            ContentTemplate="{DataTemplate pages:HelpPage}" />
-    </FlyoutItem>
 
     <FlyoutItem
         Title="{Binding Dashboard.Title}"
@@ -102,20 +93,29 @@
     </FlyoutItem>
 
     <FlyoutItem
+        Title="{Binding WhatsNew.Title}"
+        Route="{Static constants:Routes.WHATS_NEW}">
+        <ShellContent 
+            Title="{Binding WhatsNew.Title}"
+            ContentTemplate="{DataTemplate pages:WhatsNewPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Help.Title}"
+        Route="{Static constants:Routes.HELP}">
+        <ShellContent
+            Title="{Binding Help.Title}"
+            Icon="{AppThemeBinding Light=Help.Icon,Dark=Help.IconDark}"
+            ContentTemplate="{DataTemplate pages:HelpPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
         Title="{Binding About.Title}"
         Route="{Static constants:Routes.ABOUT}">
         <ShellContent 
             Title="{Binding About.Title}"
             Icon="{AppThemeBinding Light=About.Icon,Dark=About.IconDark}"
             ContentTemplate="{DataTemplate pages:AboutPage}" />
-    </FlyoutItem>
-
-    <FlyoutItem
-        Title="{Binding WhatsNew.Title}"
-        Route="{Static constants:Routes.WHATS_NEW}">
-        <ShellContent 
-            Title="{Binding WhatsNew.Title}"
-            ContentTemplate="{DataTemplate pages:WhatsNewPage}" />
     </FlyoutItem>
     
     <!--All other routes-->

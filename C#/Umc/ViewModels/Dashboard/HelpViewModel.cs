@@ -22,6 +22,9 @@ public partial class HelpViewModel : BaseViewModel
     }
 
 	[RelayCommand]
+    private async Task CancelAsync() => await Navigation.BackToDashboardAsync();
+
+	[RelayCommand]
     private async Task OpenDetailsAsync()
     {
 		// need to pass question id through the query

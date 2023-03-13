@@ -12,8 +12,5 @@ public partial class WhatsNewViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async Task CancelAsync()
-    {
-        await Navigation.PopAsync();
-    }
+    private async Task CancelAsync() => await Navigation.BackToDashboardAsync();
 }
