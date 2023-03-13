@@ -1,5 +1,4 @@
-﻿
-namespace UC.Umc.Popups;
+﻿namespace UC.Umc.Popups;
 
 public partial class NoNetworkPopup : Popup
 {

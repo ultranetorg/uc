@@ -51,6 +51,15 @@ internal static class DefaultDataMock
 
 	public static CustomCollection<string> MonthList1 = new() { "April", "May", "June", "July", "Augest", "Spetemper", "November" };
 
+	public static NetworkInfo NetworkInfo = new()
+	{
+		NodesCount = 381,
+		ActiveUsers = 94,
+		Bandwidth = "180 TH/s",
+		LastBlockDate = DateTime.UtcNow,
+		RoundNumber = "36017"
+	};
+
 	public static AccountColor CreateColor(string argb, Color border = null) => new() { Color = Color.FromArgb(argb), BorderColor = border ?? Colors.Transparent };
 
 	public static AccountColor CreateRandomColor() => CreateColor(ColorHelper.GetRandomColor().ToArgbHex());
