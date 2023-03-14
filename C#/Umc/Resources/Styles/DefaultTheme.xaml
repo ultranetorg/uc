@@ -8,23 +8,13 @@
     xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:local="clr-namespace:UC.Umc.Resources.Styles">
-    
+
     <ResourceDictionary.MergedDictionaries>
         <local:Colors />
         <local:Controls />
-        <local:Templates />
         <local:Layout />
     </ResourceDictionary.MergedDictionaries>
-            
-    <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
-    <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
-    <converters:NotificationTypeConverter x:Key="NotificationTypeConverter" />
-
-    <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
-    <toolkit:IsListNotNullOrEmptyConverter x:Key="IsListNotNullOrEmptyConverter" />
-    <toolkit:IsNotNullConverter x:Key="IsNotNullConverter" />
-    <toolkit:IsStringNullOrWhiteSpaceConverter x:Key="IsStringNullOrWhiteSpace" />
-    <toolkit:IntToBoolConverter x:Key="IntToBoolConverter" />
+    
     <OnPlatform x:Key="UniPadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>
             <On Platform="iOS" Value="0,30,0,0" />
@@ -48,15 +38,15 @@
     </OnPlatform>
     <OnPlatform x:Key="PagePadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>
-            <On Platform="iOS" Value="20,20,20,40" />
-            <On Platform="Android" Value="20" />
+            <On Platform="iOS" Value="16,16,16,24" />
+            <On Platform="Android" Value="16,8" />
         </OnPlatform.Platforms>
     </OnPlatform>
     <OnPlatform x:Key="PopupPadding" x:TypeArguments="Thickness">
         <OnPlatform.Platforms>
-            <On Platform="iOS" Value="8,8,8,35" />
-            <On Platform="Android" Value="8,8,0,20" />
-            <On Platform="UWP" Value="8,8,8,20" />
+            <On Platform="iOS" Value="8,8,8,15" />
+            <On Platform="Android" Value="8,8,0,10" />
+            <On Platform="UWP" Value="8,8,8,10" />
         </OnPlatform.Platforms>
     </OnPlatform>
 </ResourceDictionary>

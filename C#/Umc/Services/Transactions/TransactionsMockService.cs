@@ -2,29 +2,27 @@
 
 public class TransactionsMockService : ITransactionsService
 {
-    private readonly IServicesMockData _data;
+    private readonly IServicesMockData _service;
 
     public TransactionsMockService(IServicesMockData data)
     {
-        _data = data;
+        _service = data;
     }
 
-    public Task<CustomCollection<TransactionViewModel>> GetLastForAccountAsync(string accountAddress, int lastTransactionsCount)
+    public Task<CustomCollection<TransactionViewModel>> ListTransactionsAsync(string accountAddress, string search, int count)
     {
-        Guard.IsNotNull(accountAddress, nameof(accountAddress));
-        Guard.IsGreaterThan(lastTransactionsCount, 0, nameof(lastTransactionsCount));
+		var transactions = _service.Transactions;
 
-        IEnumerable<TransactionViewModel> lastTransactions = _data.Transactions
-            .Where(x => string.Equals(x.Account.Address, accountAddress, StringComparison.InvariantCultureIgnoreCase))
-            .Take(lastTransactionsCount);
-        CustomCollection<TransactionViewModel> result = new(lastTransactions);
-        return Task.FromResult(result);
-    }
+		if (!string.IsNullOrEmpty(accountAddress))
+		{
+			transactions = transactions.Where(x => string.Equals(x.Account.Address, accountAddress, StringComparison.InvariantCultureIgnoreCase)).ToList();
+		}
+		if (!string.IsNullOrEmpty(search))
+		{
+			transactions = transactions.Where(x => x.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToList();
+		}
 
-    public Task<CustomCollection<TransactionViewModel>> GetLastAsync(int lastTransactionsCount)
-    {
-        IEnumerable<TransactionViewModel> lastTransactions = _data.Transactions.Take(lastTransactionsCount);
-        CustomCollection<TransactionViewModel> result = new(lastTransactions);
-        return Task.FromResult(result);
+        return Task.FromResult(new CustomCollection<TransactionViewModel>(
+			transactions.OrderByDescending(x => x.Date).Take(count > 1 ? count : SizeConstants.SizePerPageMed)));
     }
 }

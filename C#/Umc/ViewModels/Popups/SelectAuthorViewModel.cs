@@ -2,36 +2,37 @@
 
 public partial class SelectAuthorViewModel : BaseViewModel
 {
-	private readonly IAuthorsService _service;
+	private readonly IServicesMockData _service;
 
-    public Author SelectedAuthor;
-
-    public SelectAuthorPopup Popup { get; set;}
+    public AuthorViewModel SelectedAuthor;
 
 	[ObservableProperty]
-	private CustomCollection<Author> _authors = new();
+	private CustomCollection<AuthorViewModel> _authors = new();
 
-    public SelectAuthorViewModel(IAuthorsService service, ILogger<SelectAuthorViewModel> logger) : base(logger)
+    public SelectAuthorViewModel(IServicesMockData service, ILogger<SelectAuthorViewModel> logger) : base(logger)
     {
-		Initialize();
 		_service = service;
+		LoadData();
     }
 
 	[RelayCommand]
-    private void ItemTapped(Author Author)
+    private void ItemTapped(AuthorViewModel author)
     {
-        SelectedAuthor = Author;
+		foreach (var item in Authors)
+		{
+			item.IsSelected = false;
+		}
+		author.IsSelected = true;
+		SelectedAuthor = author;
     }
 
 	[RelayCommand]
-    private void Close()
-    {
-        Popup.Hide();
-    }
+    private void Close() => ClosePopup();
 	
-	public void Initialize()
+	public void LoadData()
 	{
-		var authors = Task.Run(async () => await _service.GetAllAsync()).Result;
-		Authors.AddRange(authors);
+		Authors.Clear();
+		var ownAuthors = _service.Authors.Where(x => x.Status == AuthorStatus.Owned).ToList();
+		Authors.AddRange(ownAuthors);
 	}
 }

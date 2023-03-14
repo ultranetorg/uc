@@ -22,10 +22,16 @@ public class TransactionStatusToIconConverter : IValueConverter
 				imageSource = new FontImageSource { Color = (Color)colorsDictionary["Purple"], Size = _defaultFontSize, Glyph = IconFont.Accounts, FontFamily = _defaultFontFamily };
 				break;
 			case TransactionStatus.Received:
-				imageSource = new FontImageSource { Color = (Color)colorsDictionary["Green"], Size = _defaultFontSize, Glyph = IconFont.Receive, FontFamily = _defaultFontFamily };
+				imageSource = new FontImageSource { Color = (Color)colorsDictionary["HigherColor"], Size = _defaultFontSize, Glyph = IconFont.Receive, FontFamily = _defaultFontFamily };
 				break;
 			case TransactionStatus.Sent:
 				imageSource = new FontImageSource { Color = (Color)colorsDictionary["Blue"], Size = _defaultFontSize, Glyph = IconFont.Send, FontFamily = _defaultFontFamily };
+				break;
+			case TransactionStatus.Failed:
+				imageSource = new FontImageSource { Color = (Color)colorsDictionary["LowerColor"], Size = _defaultFontSize, Glyph = IconFont.RemoveFromList, FontFamily = _defaultFontFamily };
+				break;
+			case TransactionStatus.None:
+				imageSource = new FontImageSource { Color = (Color)colorsDictionary["LightGray"], Size = _defaultFontSize, Glyph = IconFont.DotsHorizontal, FontFamily = _defaultFontFamily };
 				break;
 		}
 

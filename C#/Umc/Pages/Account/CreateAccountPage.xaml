@@ -5,22 +5,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
-    Title="Create account"
+    xmlns:sharedViews="clr-namespace:UC.Umc.Views.Shared"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:CreateAccountPageViewModel"
+    Title="Create Account"
     x:Name="page">
-    <!--<controls:CustomPage.LeftContent>
-        <ImageButton Opacity="0.5" HeightRequest="28"
-            Command="{Binding PrevCommand}"
-            IsVisible="{Binding Position, Converter={StaticResource IntToBoolConverter}}"
-            Style="{StaticResource Prev}" />
-    </controls:CustomPage.LeftContent>-->
-    <!--<controls:CustomPage.RightContent>
-        <ImageButton Opacity="0.5" HeightRequest="28" Command="{Binding CloseCommad}" Style="{StaticResource Close}" />
-    </controls:CustomPage.RightContent>-->
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="32">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
@@ -44,8 +38,8 @@
             <IndicatorView x:Name="indicator" Grid.Row="1" />
             <Button 
                 Grid.Row="2"
-                Command="{Binding NextCommad}"
-                Style="{DynamicResource NextButton}" />
+                Command="{Binding NextWorkaroundCommand}"
+                Style="{StaticResource NextButton}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

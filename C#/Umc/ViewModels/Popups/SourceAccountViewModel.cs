@@ -2,9 +2,7 @@
 
 public partial class SourceAccountViewModel : BaseViewModel
 {
-	private readonly IServicesMockData _service;
-
-    public SourceAccountPopup Popup { get; set; }
+	private readonly IAccountsService _service;
 
 	[ObservableProperty]
     private AccountViewModel _account;
@@ -12,33 +10,79 @@ public partial class SourceAccountViewModel : BaseViewModel
 	[ObservableProperty]
     private CustomCollection<AccountViewModel> _accounts = new();
 
-    public SourceAccountViewModel(IServicesMockData service, ILogger<SourceAccountViewModel> logger) : base(logger)
+	[ObservableProperty]
+    private string _filter;
+
+	public bool AllAccountsEnabled { get; set; }
+
+    public SourceAccountViewModel(IAccountsService service, ILogger<SourceAccountViewModel> logger) : base(logger)
     {
 		_service = service;
 		LoadData();
+    }
+	
+	[RelayCommand]
+    public async Task FilterAccountsAsync()
+    {
+		try
+		{
+			Guard.IsNotNull(Filter);
+			InitializeLoading();
+
+			// Search accounts
+			var filteredList = await _service.ListAccountsAsync(Filter, AllAccountsEnabled);
+			Accounts.Clear();
+			Accounts.AddRange(filteredList);
+
+			if (Account != null)
+			{
+				foreach (var item in Accounts)
+				{
+					item.IsSelected = false;
+				}
+				Account = null;
+			}
+			
+			FinishLoading();
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("FilterAccountsAsync Error: {Message}", ex.Message);
+		}
     }
 
 	[RelayCommand]
     private void ItemTapped(AccountViewModel account)
     {
-        //foreach (var item in Accounts)
-        //{
-        //    item.IsSelected = false;
-        //}
-        //wallet.IsSelected = true;
-    }
+		try
+		{
+			foreach (var item in Accounts)
+			{
+				item.IsSelected = false;
+			}
+			account.IsSelected = true;
+			Account = account;
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("ItemTapped Error: {Message}", ex.Message);
+		}
+	}
 
 	[RelayCommand]
-    private void Close()
-    {
-        Popup.Hide();
-    }
+    private void Close() => ClosePopup();
 	
 	private void LoadData()
 	{
-		Accounts.Clear();
-		Accounts.AddRange(_service.Accounts);
+		Accounts = new(_service.ListAllAccounts());
+	}
 
-		Account = DefaultDataMock.CreateAccount();
+	public void AddAllOption()
+	{
+		AllAccountsEnabled = true;
+		Accounts = new(Accounts.Prepend(DefaultDataMock.AllAccountOption));
+		Account = DefaultDataMock.AllAccountOption;
 	}
 }

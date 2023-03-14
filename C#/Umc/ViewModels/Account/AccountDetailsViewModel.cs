@@ -15,7 +15,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
     public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
 
 	[ObservableProperty]
-    public LinearGradientBrush _background;
+    public GradientBrush _background;
 
     public AccountDetailsViewModel(IServicesMockData service, ILogger<AccountDetailsViewModel> logger) : base(logger)
     {
@@ -23,30 +23,85 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		LoadData();
     }
 
-	// !NEXT STEPS TO DO:
-	// 1. retrieve account object from query parameter after redirecting from ManageAccountsPage
-	// 2. set background in model only in VM after submitting
+	// !TO DO: set background in model only in VM after submitting
+
+    public override void ApplyQueryAttributes(IDictionary<string, object> query)
+	{
+        try
+        {
+            InitializeLoading();
+
+            Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
+			AccountName = Account.Name;
+			Background = Account.Color;
+#if DEBUG
+            _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
+#endif
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ApplyQueryAttributes Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
+        finally
+        {
+            FinishLoading();
+        }
+	}
 
 	[RelayCommand]
-    private async Task SendAsync()
+    private async Task SendAsync() =>
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.SOURCE_ACCOUNT, Account },
+			{ QueryKeys.RECIPIENT_ACCOUNT, null }
+		});
+
+	[RelayCommand]
+    private async Task ReceiveAsync() =>
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.SOURCE_ACCOUNT, null },
+			{ QueryKeys.RECIPIENT_ACCOUNT, Account }
+		});
+
+	[RelayCommand]
+    private async Task ShowPrivateKeyAsync() =>
+		await Navigation.GoToAsync(nameof(PrivateKeyPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.ACCOUNT, Account }
+		});
+
+	[RelayCommand]
+    private async Task DeleteAsync() =>
+		await Navigation.GoToAsync(nameof(DeleteAccountPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.ACCOUNT, Account }
+		});
+
+	[RelayCommand]
+    private void SetAccountColor(AccountColor accountColor) =>
+		Background = accountColor != null 
+			? ColorHelper.CreateGradientColor(accountColor.Color)
+			: ColorHelper.CreateRandomGradientColor();
+
+	[RelayCommand]
+    private async Task BackupAsync()
     {
-        await Shell.Current.Navigation.PushAsync(new SendPage());
+		// TODO
+		await Task.Delay(1);
     }
 
 	[RelayCommand]
-    private async Task ShowKeyAsync()
+    private async Task HideFromDashboardAsync()
     {
-        await Shell.Current.Navigation.PushAsync(new PrivateKeyPage(Account));
+		// TODO
+		await Task.Delay(1);
     }
-
-	[RelayCommand]
-    private async Task DeleteAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new DeleteAccountPage(Account));
-    }
-
-	[RelayCommand]
-    private void SelectRandomColor() => Account.Color = ColorHelper.CreateRandomGradientColor();
 
 	private void LoadData()
 	{
@@ -57,10 +112,5 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 		Authors.AddRange(_service.Authors);
 		Products.AddRange(_service.Products);
 		ColorsCollection.AddRange(_service.AccountColors);
-
-		// will be replaced from query parameter
-		AccountName = "Account Name";
-		
-		// TODO: add workflow object, the wallet is coming from api
 	}
 }

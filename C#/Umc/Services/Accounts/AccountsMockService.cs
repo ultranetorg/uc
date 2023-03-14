@@ -2,39 +2,53 @@
 
 public class AccountsMockService : IAccountsService
 {
-    private readonly IServicesMockData _data;
+    private readonly IServicesMockData _service;
 
     public AccountsMockService(IServicesMockData mockServiceData)
     {
-        _data = mockServiceData;
+        _service = mockServiceData;
     }
 
-    public Task<ObservableCollection<AccountViewModel>> GetAllAsync()
+    public List<AccountViewModel> ListAllAccounts() => new(_service.Accounts);
+
+    public Task<List<AccountViewModel>> ListAccountsAsync(string filter = null, bool addAllOptions = false)
     {
-        ObservableCollection<AccountViewModel> result = new (_data.Accounts);
-        return Task.FromResult(result);
+		var accounts = _service.Accounts;
+		if (addAllOptions)
+		{
+			accounts = accounts.Prepend(DefaultDataMock.AllAccountOption).ToList();
+		}
+		if (!string.IsNullOrEmpty(filter))
+		{
+			accounts = accounts.Where(x =>
+				x.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+				x.Address.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		}
+        return Task.FromResult(accounts.ToList());
     }
 
-    public Task<int> GetCountAsync()
-    {
-        return Task.FromResult(_data.Accounts.Count);
-    }
+	public Task<string> GetPrivateKeyAsync(string address)
+	{
+		throw new NotImplementedException();
+	}
 
-    public Task<ObservableCollection<AccountViewModel>> GetLastAsync(int lastAccountsCount)
-    {
-        Guard.IsGreaterThan(lastAccountsCount, 0, nameof(lastAccountsCount));
+	public Task CreateAccountAsync(AccountViewModel account)
+	{
+		throw new NotImplementedException();
+	}
 
-        IEnumerable<AccountViewModel> lastAccounts = _data.Accounts.Take(lastAccountsCount);
-        ObservableCollection<AccountViewModel> result = new(lastAccounts);
-        return Task.FromResult(result);
-    }
+	public Task RestoreAccountAsync(AccountViewModel account)
+	{
+		throw new NotImplementedException();
+	}
 
     public Task UpdateAsync([NotNull] AccountViewModel account)
     {
         Guard.IsNotNull(account, nameof(account));
 
         AccountViewModel accountForUpdate =
-            _data.Accounts.FirstOrDefault(x =>
+            _service.Accounts.FirstOrDefault(x =>
                 string.Equals(x.Address, account.Address, StringComparison.InvariantCultureIgnoreCase));
         Guard.IsNotNull(accountForUpdate);
         UpdateAccount(accountForUpdate, account);
@@ -47,18 +61,18 @@ public class AccountsMockService : IAccountsService
         destination.Balance = source.Balance;
         destination.Color = source.Color;
         destination.Name = source.Name;
-        destination.ShowOnDashboard = source.ShowOnDashboard;
+        destination.HideOnDashboard = source.HideOnDashboard;
     }
 
     public Task DeleteByAddressAsync([NotEmpty, NotNull] string address)
     {
         Guard.IsNotNullOrEmpty(address, nameof(address));
 
-		var account = _data.Accounts.FirstOrDefault(x => string.Equals(x.Address, address, StringComparison.InvariantCultureIgnoreCase));
+		var account = _service.Accounts.FirstOrDefault(x => string.Equals(x.Address, address, StringComparison.InvariantCultureIgnoreCase));
 
         Guard.IsNotNull(account);
 
-        _data.Accounts.Remove(account);
+        _service.Accounts.Remove(account);
 
         return Task.CompletedTask;
     }

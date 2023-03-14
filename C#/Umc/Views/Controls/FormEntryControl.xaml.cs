@@ -16,6 +16,9 @@ public sealed partial class FormEntryControl : BaseTextFormControl<FormEntryCont
     public static readonly BindableProperty MaxLengthProperty =
         BindableProperty.Create(nameof(MaxLength), typeof(int), typeof(FormEntryControl), DEFAULT_MAX_LENGTH);
 
+    public static readonly BindableProperty IsPasswordProperty =
+        BindableProperty.Create(nameof(IsPassword), typeof(bool), typeof(FormEntryControl));
+
     public ClearButtonVisibility ClearButtonVisibility
     {
         get => (ClearButtonVisibility)GetValue(ClearButtonVisibilityProperty);
@@ -32,6 +35,12 @@ public sealed partial class FormEntryControl : BaseTextFormControl<FormEntryCont
     {
         get => (int)GetValue(MaxLengthProperty);
         set => SetValue(MaxLengthProperty, value);
+    }
+
+    public bool IsPassword
+    {
+        get => (bool)GetValue(IsPasswordProperty);
+        set => SetValue(IsPasswordProperty, value);
     }
 
     protected override string FormControlType => nameof(Entry);

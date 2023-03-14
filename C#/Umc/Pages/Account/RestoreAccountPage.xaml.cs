@@ -2,7 +2,7 @@
 
 public partial class RestoreAccountPage : CustomPage
 {
-    public RestoreAccountPage()
+	public RestoreAccountPage()
     {
         InitializeComponent();
         BindingContext = Ioc.Default.GetService<RestoreAccountViewModel>();
@@ -12,5 +12,5 @@ public partial class RestoreAccountPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
-    }
+	}
 }

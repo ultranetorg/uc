@@ -1,8 +1,6 @@
-﻿using UC.Umc.Constants;
+﻿namespace UC.Umc.ViewModels;
 
-namespace UC.Umc.ViewModels;
-
-public partial class ManageAccountsViewModel : BaseAccountViewModel
+public partial class ManageAccountsViewModel : BaseViewModel
 {
 	private readonly IAccountsService _service;
 
@@ -16,21 +14,57 @@ public partial class ManageAccountsViewModel : BaseAccountViewModel
 	
 	public async Task InitializeAsync()
 	{
-		Accounts.Clear();
-		var accounts = await _service.GetAllAsync();
-		Accounts.AddRange(accounts);
+		var accounts = await _service.ListAccountsAsync();
+		Accounts = new(accounts);
 	}
 
 	[RelayCommand]
     private async Task OpenOptionsAsync(AccountViewModel account)
-    {
-        if (account == null) return;
-        await AccountOptionsPopup.Show(account);
-    }
+	{
+		try
+		{
+			Guard.IsNotNull(account);
+
+			await ShowPopup(new AccountOptionsPopup(account));
+		}
+		catch(ArgumentException ex)
+		{
+			_logger.LogError("OpenOptionsAsync: Account cannot be null, Error: {Message}", ex.Message);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenOptionsAsync Error: {Message}", ex.Message);
+		}
+	}
 
 	[RelayCommand]
-    private async Task CreateAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.CREATE_ACCOUNT);
+    private async Task OpenDetailsAsync(AccountViewModel account) => 
+		await Navigation.GoToAsync(Routes.ACCOUNT_DETAILS, new Dictionary<string,object>()
+		{
+			{ QueryKeys.ACCOUNT, account }
+		});
 
 	[RelayCommand]
-    private async Task RestoreAsync() => await Navigation.GoToUpwardsAsync(ShellBaseRoutes.RESTORE_ACCOUNT);
+    private async Task ReceiveAsync(AccountViewModel account) =>
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.SOURCE_ACCOUNT, null },
+			{ QueryKeys.RECIPIENT_ACCOUNT, account }
+		});
+	
+	[RelayCommand]
+    private async Task SendAsync(AccountViewModel account) =>
+		await Navigation.GoToAsync(nameof(SendPage),
+			new Dictionary<string, object>()
+		{
+			{ QueryKeys.SOURCE_ACCOUNT, account },
+			{ QueryKeys.RECIPIENT_ACCOUNT, null }
+		});
+
+	[RelayCommand]
+    private async Task CreateAsync() => await Navigation.GoToAsync(Routes.CREATE_ACCOUNT);
+
+	[RelayCommand]
+    private async Task RestoreAsync() => await Navigation.GoToAsync(Routes.RESTORE_ACCOUNT);
 }

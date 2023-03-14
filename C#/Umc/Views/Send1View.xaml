@@ -5,76 +5,45 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
-    xmlns:views="clr-namespace:UC.Umc.Views">
-    <ScrollView>
-        <StackLayout Spacing="20">
-            <StackLayout>
-                <Label FontSize="18" Text="Choose your source and destination accounts" />
-                <Label
-                    FontSize="13"
-                    Style="{StaticResource Regular}"
-                    Text="Your need specify your source, destination accounts and amount to transfer" />
-            </StackLayout>
-            <StackLayout>
-                <Label Style="{StaticResource DashLabel}" Text="Source Account" />
-                <Label
-                    FontSize="13"
-                    Style="{StaticResource Regular}"
-                    Text="Specify source Ultranet Account that will transfer moneys" />
-                <views:AccountView BindingContext="{Binding SourceWallet}" />
-                <StackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding SourceTappedCommand}" />
-                </StackLayout.GestureRecognizers>
-            </StackLayout>
-            <StackLayout>
-                <Label Style="{StaticResource DashLabel}" Text="Recipient Account" />
-                <Label
-                    FontSize="13"
-                    Style="{StaticResource Regular}"
-                    Text="Specify destination Ultranet Account that will receive moneys." />
-                <views:AccountView BindingContext="{Binding RecipientWallet}" />
-                <StackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding RecipientTappedCommand}" />
-                </StackLayout.GestureRecognizers>
-            </StackLayout>
-
-            <StackLayout Grid.Column="0" Spacing="10">
-                <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
-                <AbsoluteLayout>
-                    <controls:BorderEntry
-                        AbsoluteLayout.LayoutBounds="0,1,1,1"
-                        AbsoluteLayout.LayoutFlags="All"
-                        FontSize="24"
-                        HorizontalTextAlignment="End"
-                        Placeholder="10 000.00"
-                        RightPadding="45">
-                        <controls:BorderEntry.Behaviors>
-                            <toolkit:CharactersValidationBehavior
-                                x:Name="cb1"
-                                CharacterType="Letter"
-                                Flags="ValidateOnValueChanged"
-                                InvalidStyle="{StaticResource InvalidEntry}"
-                                MaximumCharacterTypeCount="30"
-                                MinimumCharacterTypeCount="1"
-                                ValidStyle="{StaticResource Valid}" />
-                        </controls:BorderEntry.Behaviors>
-
-                    </controls:BorderEntry>
-                    <Label
-                        Margin="10,10"
-                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
-                        AbsoluteLayout.LayoutFlags="PositionProportional"
-                        Style="{StaticResource UNTLabel}"
-                        Text="ETH" />
-                </AbsoluteLayout>
-                <StackLayout>
-                    <Label
-                        FontSize="12"
-                        IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
-                        Text="Validation text message"
-                        TextColor="{StaticResource Red}" />
-                </StackLayout>
-            </StackLayout>
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    x:Name="This">
+    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="16" BindingContext="{x:Reference This}">
+        <StackLayout Grid.Row="0">
+            <Label FontSize="18" Text="Choose your source and destination accounts" />
+            <Label
+                FontSize="13"
+                Style="{StaticResource Regular}"
+                Text="Your need specify your source, destination accounts and amount to transfer" />
         </StackLayout>
-    </ScrollView>
+            
+        <StackLayout Grid.Row="1">
+            <Label Style="{StaticResource DashLabel}" Text="Source Account" />
+            <Label
+                FontSize="13"
+                Style="{StaticResource Regular}"
+                Text="Specify source Ultranet Account that will transfer moneys" />
+            <views:AccountView
+                BorderStyle="{StaticResource AccountCardBorderDark}"
+                Margin="0,8"
+                Account="{Binding SourceAccount}" />
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding SelectSourceAccount}" />
+            </StackLayout.GestureRecognizers>
+        </StackLayout>
+            
+        <StackLayout Grid.Row="2">
+            <Label Style="{StaticResource DashLabel}" Text="Recipient Account" />
+            <Label
+                FontSize="13"
+                Style="{StaticResource Regular}"
+                Text="Specify destination Ultranet Account that will receive moneys." />
+            <views:AccountView
+                BorderStyle="{StaticResource AccountCardBorderDark}"
+                Margin="0,8"
+                Account="{Binding RecipientAccount}" />
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding SelectRecipientAccount}" />
+            </StackLayout.GestureRecognizers>
+        </StackLayout>
+    </Grid>
 </ContentView>

@@ -1,5 +1,4 @@
-﻿using UC.Umc.Constants;
-namespace UC.Umc.Popups;
+﻿namespace UC.Umc.Popups;
 
 public partial class NoNetworkPopup : Popup
 {
@@ -8,7 +7,7 @@ public partial class NoNetworkPopup : Popup
     public NoNetworkPopup()
     {
         InitializeComponent();
-		// Size = PopupSizeConstants.AutoCompleteControl;
+		// Size = SizeConstants.AutoCompleteControl;
     }
 
     public void Hide()

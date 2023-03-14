@@ -1,34 +1,51 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductsViewModel : BaseTransactionsViewModel
+public partial class ProductsViewModel : BaseViewModel
 {
 	private readonly IProductsService _service;
 
 	[ObservableProperty]
-    private Product _selectedItem;
-        
+    private ProductViewModel _selectedItem;
+
 	[ObservableProperty]
-    private CustomCollection<Product> _products = new();
-    
+    private CustomCollection<ProductViewModel> _products = new();
+
 	[ObservableProperty]
     private CustomCollection<string> _productsFilter = new();
 
     public ProductsViewModel(IProductsService service, ILogger<ProductsViewModel> logger) : base(logger)
     {
 		_service = service;
-    }
+	}
 
 	[RelayCommand]
-    private async Task OpenProductOptionsAsync(Product product)
+    private async Task OpenProductOptionsAsync(ProductViewModel product)
     {
-        // await AccountOptionsPopup.Show(author);
-		await Task.Delay(10);
-    }
+		try
+		{
+			Guard.IsNotNull(product);
+
+			await ShowPopup(new ProductOptionsPopup(product));
+		}
+		catch(ArgumentException ex)
+		{
+			_logger.LogError("OpenOptionsAsync: Product cannot be null, Error: {Message}", ex.Message);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("OpenOptionsAsync Error: {Message}", ex.Message);
+		}
+	}
+
+	[RelayCommand]
+	private async Task RegisterProductAsync(ProductViewModel product) =>
+		await Navigation.GoToAsync(nameof(ProductRegistrationPage),
+			new Dictionary<string, object>() { { QueryKeys.PRODUCT, product } });
 
 	internal async Task InitializeAsync()
 	{
-		var products = await _service.GetAllAsync();
+		var products = await _service.GetAllProductsAsync();
 		Products.AddRange(products);
-        ProductsFilter = DefaultDataMock.DefaultFilter;
+        ProductsFilter = DefaultDataMock.ProductsFilter;
 	}
 }

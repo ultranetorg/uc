@@ -3,45 +3,70 @@
     x:Class="UC.Umc.Pages.AccountDetailsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:views="clr-namespace:UC.Umc.Views.Shared"
-    x:Name="page"
-    x:DataType="vm:AccountDetailsViewModel">
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    Title="Account Details"
+    x:DataType="vm:AccountDetailsViewModel"
+    x:Name="page">
     
     <Shell.TitleView>
         <views:PageTitleActionView
             Title="Account Details"
+            TitleStyle="{StaticResource TitleLabel}"
             IconSource="delete_button.png"
-            TitleStyle="{StaticResource TitleLabel}" />
+            TapCommand="{Binding DeleteCommand}" />
     </Shell.TitleView>
     
     <controls:CustomPage.Resources>
         <DataTemplate x:Key="ColorsTemplate" x:DataType="models:AccountColor">
-            <Frame
+            <Border
                 Padding="0"
                 BackgroundColor="{Binding Color}"
-                CornerRadius="17"
-                HasShadow="False"
+                StrokeShape="RoundRectangle 16"
                 HeightRequest="34"
                 HorizontalOptions="Center"
-                IsClippedToBounds="True"
                 VerticalOptions="Center"
                 WidthRequest="34">
                 <ImageButton
                     BackgroundColor="{Binding Color}"
-                    BorderColor="{Binding BorderColor}"
-                    BorderWidth="2"
-                    Command="{Binding BindingContext.ColorTappedCommand, Source={x:Reference page}}"
+                    Command="{Binding BindingContext.SetAccountColorCommand, Source={x:Reference page}}"
                     CommandParameter="{Binding .}"
+                    BorderColor="Transparent"
                     CornerRadius="15"
                     HeightRequest="30"
+                    WidthRequest="30"
                     HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    WidthRequest="30" />
-            </Frame>
-        </DataTemplate>    
+                    VerticalOptions="Center" />
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="AuthorsTemplate" x:DataType="models:AuthorViewModel">
+            <Border
+                HeightRequest="22"
+                HorizontalOptions="Start"
+                Style="{StaticResource ButtonBorder}"
+                VerticalOptions="Center">
+                <Label
+                    Style="{StaticResource ButtonLabel}"
+                    Text="{Binding Name}"
+                    VerticalOptions="Center" />
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ProductsTemplate" x:DataType="models:ProductViewModel">
+            <StackLayout>
+                <Border
+                    HeightRequest="22"
+                    HorizontalOptions="Start"
+                    Style="{StaticResource ButtonBorder}"
+                    VerticalOptions="Center">
+                    <Label
+                        Style="{StaticResource ButtonLabel}"
+                        Text="{Binding Name}"
+                        VerticalOptions="Center" />
+                </Border>
+            </StackLayout>
+        </DataTemplate>
     </controls:CustomPage.Resources>
     <controls:CustomPage.MainContent>
         <ScrollView>
@@ -50,13 +75,13 @@
                     ColumnDefinitions="64,*,Auto"
                     ColumnSpacing="20"
                     RowDefinitions="32,40">
-                    <Frame
+                    <Border
                         Grid.Row="0"
                         Grid.RowSpan="2"
                         Grid.Column="0"
                         Padding="0"
-                        Background="{Binding Account.Color}"
-                        CornerRadius="8"
+                        Background="{Binding Background}"
+                        StrokeShape="RoundRectangle 8"
                         HeightRequest="60"
                         VerticalOptions="Center"
                         WidthRequest="60">
@@ -65,7 +90,7 @@
                             TextColor="{StaticResource PrimaryLight}"
                             Text="{Binding Account.IconCode}"
                             VerticalOptions="Center" />
-                    </Frame>
+                    </Border>
                     <Label
                         Grid.Row="0"
                         Grid.Column="1"
@@ -100,7 +125,7 @@
                         <ImageButton
                             Grid.Column="1"
                             Style="{StaticResource Random}"
-                            Command="{Binding SelectRandomColorCommand}"
+                            Command="{Binding SetAccountColorCommand}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Grid>
@@ -128,6 +153,7 @@
                     <Label
                         FontSize="13"
                         Text="{Binding Account.DisplayAmount}" 
+                        FontAttributes="Bold"
                         Style="{StaticResource Medium}" />
                 </StackLayout>
                 
@@ -144,7 +170,8 @@
                     <controls:SwitchView
                         Grid.RowSpan="2"
                         Grid.Column="1"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center"
+                        SwitchCommand="{Binding HideFromDashboardCommand, Source={x:RelativeSource AncestorType={x:Type vm:AccountDetailsViewModel}}}"/>
                 </Grid>
                 <Grid RowDefinitions="Auto,23">
                     <Label
@@ -157,23 +184,9 @@
                         Orientation="Horizontal">
                         <StackLayout
                             BindableLayout.ItemsSource="{Binding Authors}"
+                            BindableLayout.ItemTemplate="{StaticResource AuthorsTemplate}"
                             Orientation="Horizontal"
-                            Spacing="10">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:Author">
-                                    <Frame
-                                        HeightRequest="22"
-                                        HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
-                                        VerticalOptions="Center">
-                                        <Label
-                                            Style="{StaticResource ButtonLabel}"
-                                            Text="{Binding Name}"
-                                            VerticalOptions="Center" />
-                                    </Frame>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </StackLayout>
+                            Spacing="10" />
                     </ScrollView>
                 </Grid>
                 <Grid RowDefinitions="Auto,23">
@@ -181,26 +194,13 @@
                         Grid.Row="0"
                         Style="{StaticResource DashLabel}"
                         Text="Products" />
-                    <CollectionView Grid.Row="1" ItemsSource="{Binding Products}">
+                    <CollectionView
+                        Grid.Row="1"
+                        ItemTemplate="{StaticResource ProductsTemplate}"
+                        ItemsSource="{Binding Products}">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
                         </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Product">
-                                <StackLayout>
-                                    <Frame
-                                        HeightRequest="22"
-                                        HorizontalOptions="Start"
-                                        Style="{StaticResource ButtonFrame}"
-                                        VerticalOptions="Center">
-                                        <Label
-                                            Style="{StaticResource ButtonLabel}"
-                                            Text="{Binding Name}"
-                                            VerticalOptions="Center" />
-                                    </Frame>
-                                </StackLayout>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
                         <CollectionView.Footer>
                             <StackLayout Padding="{StaticResource SidePadding}">
                                 <Label
@@ -225,16 +225,18 @@
                     <Button
                         Grid.Row="1"
                         Grid.ColumnSpan="2"
-                        Command="{Binding ShowKeyCommand}"
+                        Command="{Binding ShowPrivateKeyCommand}"
                         Text="Show private key" />
                     <Button
                         Grid.Row="2"
                         Grid.Column="0"
-                        Text="Receive" />
+                        Text="Receive"
+                        Command="{Binding ReceiveCommand}" />
                     <Button
                         Grid.Row="2"
                         Grid.Column="1"
-                        Text="Send" Command="{Binding SendCommand}"/>
+                        Text="Send"
+                        Command="{Binding SendCommand}" />
                 </Grid>
             </StackLayout>
         </ScrollView>

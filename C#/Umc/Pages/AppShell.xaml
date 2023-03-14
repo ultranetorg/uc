@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="UC.Umc.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:UC.Umc.Pages"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    xmlns:constants="clr-namespace:UC.Umc.Constants"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    ios:Page.UseSafeArea="True"
+    x:DataType="vm:ShellViewModel"
+    BackgroundColor="{StaticResource Secondary}">
+
+    <FlyoutItem
+        Title="{Binding Dashboard.Title}"
+        Route="{Static constants:Routes.DASHBOARD}">
+        <ShellContent 
+            Title="{Binding Dashboard.Title}"
+            Icon="{AppThemeBinding Light=Dashboard.Icon,Dark=Dashboard.IconDark}"
+            ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Accounts.Title}"
+        Route="{Static constants:Routes.ACCOUNTS}">
+        <ShellContent
+            Title="{Binding Accounts.Title}"
+            Icon="{AppThemeBinding Light=Accounts.Icon,Dark=Accounts.IconDark}"
+            ContentTemplate="{DataTemplate pages:ManageAccountsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="{Binding Authors.Title}"
+        Route="{Static constants:Routes.AUTHORS}">
+        <ShellContent
+            Title="{Binding Authors.Title}"
+            Icon="{AppThemeBinding Light=Authors.Icon,Dark=Authors.IconDark}"
+            ContentTemplate="{DataTemplate pages:AuthorsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Products.Title}"
+        Route="{Static constants:Routes.PRODUCTS}">
+        <ShellContent
+            Title="{Binding Products.Title}"
+            Icon="{AppThemeBinding Light=Products.Icon,Dark=Products.IconDark}"
+            ContentTemplate="{DataTemplate pages:ProductsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="{Binding ProductsSearch.Title}"
+        Route="{Static constants:Routes.PRODUCT_SEARCH}">
+        <ShellContent
+            Title="{Binding ProductsSearch.Title}"
+            Icon="{AppThemeBinding Light=ProductsSearch.Icon,Dark=ProductsSearch.IconDark}"
+            ContentTemplate="{DataTemplate pages:ProductSearchPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="{Binding Transactions.Title}"
+        Route="{Static constants:Routes.TRANSACTIONS}">
+        <ShellContent
+            Title="{Binding Transactions.Title}"
+            Icon="{AppThemeBinding Light=Transactions.Icon,Dark=Transactions.IconDark}"
+            ContentTemplate="{DataTemplate pages:TransactionsPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Transfer.Title}"
+        Route="{Static constants:Routes.TRANSFER}">
+        <ShellContent
+            Title="{Binding Transfer.Title}"
+            Icon="{AppThemeBinding Light=Transfer.Icon,Dark=Transfer.IconDark}"
+            ContentTemplate="{DataTemplate pages:ETHTransferPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Network.Title}"
+        Route="{Static constants:Routes.NETWORK}">
+        <ShellContent
+            Title="{Binding Network.Title}"
+            Icon="{AppThemeBinding Light=Network.Icon,Dark=Network.IconDark}"
+            ContentTemplate="{DataTemplate pages:NetworkPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Settings.Title}"
+        Route="{Static constants:Routes.SETTINGS}">
+        <ShellContent
+            Title="{Binding Settings.Title}"
+            Icon="{AppThemeBinding Light=Settings.Icon,Dark=Settings.IconDark}"
+            ContentTemplate="{DataTemplate pages:SettingsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="{Binding WhatsNew.Title}"
+        Route="{Static constants:Routes.WHATS_NEW}">
+        <ShellContent 
+            Title="{Binding WhatsNew.Title}"
+            ContentTemplate="{DataTemplate pages:WhatsNewPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="{Binding Help.Title}"
+        Route="{Static constants:Routes.HELP}">
+        <ShellContent
+            Title="{Binding Help.Title}"
+            Icon="{AppThemeBinding Light=Help.Icon,Dark=Help.IconDark}"
+            ContentTemplate="{DataTemplate pages:HelpPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="{Binding About.Title}"
+        Route="{Static constants:Routes.ABOUT}">
+        <ShellContent 
+            Title="{Binding About.Title}"
+            Icon="{AppThemeBinding Light=About.Icon,Dark=About.IconDark}"
+            ContentTemplate="{DataTemplate pages:AboutPage}" />
+    </FlyoutItem>
+    
+    <!--All other routes-->
+    <ShellItem FlyoutItemIsVisible="False" Route="LoginPage">
+        <ShellContent ContentTemplate="{DataTemplate pages:DashboardPage}" />
+    </ShellItem>
+</Shell>

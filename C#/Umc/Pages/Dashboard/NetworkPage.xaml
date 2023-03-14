@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.NetworkPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:NetworkViewModel"
+    Title="Network">
+    <controls:CustomPage.MainContent>
+        <Grid RowDefinitions="*,Auto">
+            <StackLayout Padding="32" Spacing="16">
+                <controls:LabelPair Text1="Nodes count" Text2="{Binding NetworkInfo.NodesCount}" />
+                <controls:LabelPair Text1="Number of active users" Text2="{Binding NetworkInfo.ActiveUsers}" />
+                <controls:LabelPair Text1="Bandwidth" Text2="{Binding NetworkInfo.Bandwidth}" />
+                <controls:LabelPair Text1="Last block date" Text2="{Binding NetworkInfo.DisplayBlockDate}" />
+                <controls:LabelPair Text1="Round number" Text2="{Binding NetworkInfo.RoundNumber}" />
+                <controls:LabelPair Text1="Current time" Text2="{Binding CurrentTime}" />
+            </StackLayout>
+            <Border Grid.Row="1" Padding="16" Style="{StaticResource AccountCardBorder}">
+                <Button Command="{Binding CancelCommand}" Text="Close" />
+            </Border>
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

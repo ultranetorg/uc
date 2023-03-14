@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.UnfinishTransferPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:UnfinishTransferViewModel"
+    Title="Unfinished Transfer"
+    x:Name="page">
+    <controls:CustomPage.MainContent>
+        <ScrollView>
+            <StackLayout Padding="{StaticResource PagePadding}" Spacing="32">
+                <Label FontSize="18" Text="Detected unfinished transfer" />
+                <StackLayout>
+                    <Label Style="{StaticResource DashLabel}" Text="Last transfer destination account" />
+                    <views:AccountView
+                        Account="{Binding Account}"
+                        BorderStyle="{StaticResource AccountCardBorderDark}"/>
+                </StackLayout>
+                <StackLayout Spacing="16">
+                    <controls:LabelPair Text1="Total ETH" Text2="{Binding EthAmount, StringFormat='{0} ETH'}" />
+                    <controls:LabelPair Text1="Estimated UNT" Text2="{Binding UntAmount, StringFormat='{0} UNT'}" />
+                    
+                    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*,*">
+                        <Label
+                            Grid.Column="0"
+                            Style="{StaticResource DashLabel}"
+                            Text="Emission #" />
+                        <Label
+                            Grid.Column="1" HorizontalOptions="End"
+                            Style="{StaticResource DashLabel}"
+                            Text="ETH" />
+                        <Label
+                            Grid.Column="2" HorizontalOptions="End"
+                            Style="{StaticResource DashLabel}"
+                            Text="UNT" />
+                    </Grid>
+                    <StackLayout BindableLayout.ItemsSource="{Binding Emissions}" Grid.ColumnSpan="3" Grid.Row="1">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:Emission">
+                                <Grid ColumnDefinitions="*,*,*">
+                                    <Label Grid.Column="0" Text="{Binding Number}" />
+                                    <Label Grid.Column="1" HorizontalOptions="End" Text="{Binding ETH}" />
+                                    <Label Grid.Column="2" HorizontalOptions="End" Text="{Binding UNT}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout VerticalOptions="EndAndExpand">
+                    <Button Command="{Binding TransferCommand}" Text="Transfer" />
+                    <Button Command="{Binding CancelCommand}" Style="{DynamicResource LabelButton}" Text="Cancel" />
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.WhatsNewPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:WhatsNewViewModel"
+    Title="What's New">
+    <controls:CustomPage.MainContent>
+        <Grid RowDefinitions="*,Auto">
+            <views:UpdatesList 
+                Padding="32"
+                VerticalOptions="StartAndExpand"
+                AddedList="{Binding AddedList}"
+                FixedList="{Binding FixedList}" />
+            <Border Grid.Row="1" Style="{StaticResource AccountCardBorder}">
+                <Button
+                    Margin="16"
+                    Command="{Binding CancelCommand}"
+                    Text="Close" />
+            </Border>
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

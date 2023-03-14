@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net6.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net6.0-maccatalyst;net7.0-ios;net7.0-android</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
 		<OutputType>Exe</OutputType>
@@ -22,8 +22,8 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-ios'">14.2</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-android'">31.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net7.0-ios'">14.3</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net7.0-android'">31.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
@@ -48,73 +48,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Fonts\icomoon.ttf" />
-	  <None Remove="Resources\Fonts\MaterialIcons.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Black.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-BlackItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Bold.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-BoldItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraBold.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraBoldItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraLight.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ExtraLightItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Italic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Light.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-LightItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Medium.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-MediumItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Regular.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-SemiBold.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-SemiBoldItalic.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-Thin.ttf" />
-	  <None Remove="Resources\Fonts\Montserrat-ThinItalic.ttf" />
-	  <None Remove="Resources\Images\accounts_dark.svg" />
-	  <None Remove="Resources\Images\accounts_light.svg" />
-	  <None Remove="Resources\Images\auctions_dark.svg" />
-	  <None Remove="Resources\Images\auctions_light.svg" />
-	  <None Remove="Resources\Images\authors_dark.svg" />
-	  <None Remove="Resources\Images\authors_light.svg" />
-	  <None Remove="Resources\Images\bell_dark.svg" />
-	  <None Remove="Resources\Images\bell_light.svg" />
-	  <None Remove="Resources\Images\dashboard_outline.svg" />
-	  <None Remove="Resources\Images\delete_button.svg" />
-	  <None Remove="Resources\Images\help_dark.svg" />
-	  <None Remove="Resources\Images\help_light.svg" />
-	  <None Remove="Resources\Images\icon.svg" />
-	  <None Remove="Resources\Images\icon_night.svg" />
-	  <None Remove="Resources\Images\network_dark.svg" />
-	  <None Remove="Resources\Images\network_light.svg" />
-	  <None Remove="Resources\Images\products_dark.svg" />
-	  <None Remove="Resources\Images\products_light.svg" />
-	  <None Remove="Resources\Images\random_dark.svg" />
-	  <None Remove="Resources\Images\random_light.svg" />
-	  <None Remove="Resources\Images\search_dark.svg" />
-	  <None Remove="Resources\Images\search_light.svg" />
-	  <None Remove="Resources\Images\sort_dark.svg" />
-	  <None Remove="Resources\Images\sort_light.svg" />
-	  <None Remove="Resources\Images\transactions_dark.svg" />
-	  <None Remove="Resources\Images\transactions_light.svg" />
-	  <None Remove="Resources\Images\transfer_dark.svg" />
-	  <None Remove="Resources\Images\transfer_light.svg" />
-	  <None Remove="Resources\Images\ts_done_dark.svg" />
-	  <None Remove="Resources\Images\ts_done_light.svg" />
-	  <None Remove="Resources\Images\ts_failed_dark.svg" />
-	  <None Remove="Resources\Images\ts_failed_light.svg" />
-	  <None Remove="Resources\Images\ts_pending_dark.svg" />
-	  <None Remove="Resources\Images\ts_pending_light.svg" />
+	  <AndroidResource Remove="Resources\Splash\**" />
+	  <Compile Remove="Resources\Splash\**" />
+	  <EmbeddedResource Remove="Resources\Splash\**" />
+	  <MauiCss Remove="Resources\Splash\**" />
+	  <MauiXaml Remove="Resources\Splash\**" />
+	  <None Remove="Resources\Splash\**" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
-	  <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
+	  <PackageReference Include="CommunityToolkit.Maui" Version="1.3.0" />
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0-preview.7.22375.6" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0-preview.7.22375.6" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0-rc.2.22472.3" />
 	  <PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
-	</ItemGroup>
-	
-	<ItemGroup>
-		<Folder Include="Resources\Splash\" />
+	  <PackageReference Include="ZXing.Net.Maui" Version="0.2.0-preview.2" />
+	  <PackageReference Include="ZXing.Net.Maui.Controls" Version="0.2.0-preview.2" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -122,11 +71,28 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\Shared\CustomPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator></Generator>
+	  <MauiXaml Update="Pages\Author\AuthorTransferPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\EmptyView.xaml">
+	  <MauiXaml Update="Pages\Product\ProductRegistrationPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Product\ProductTransferPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\AccountColorPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\TransferOptionsPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\ProductOptionsPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Popups\AuthorOptionsPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\CustomPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
@@ -139,32 +105,32 @@
 	  <MauiXaml Update="Views\Controls\FormTimePickerControl.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\ImageTextButton.xaml">
+	  <MauiXaml Update="Views\Controls\ImageTextButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\ImageTextColumn.xaml">
+	  <MauiXaml Update="Views\ImageTextColumn.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\LabelPair.xaml">
+	  <MauiXaml Update="Views\LabelPair.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\MainPageButton.xaml">
+	  <MauiXaml Update="Views\Controls\MainPageButton.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\NextCancelButton.xaml">
+	  <MauiXaml Update="Views\Controls\NextCancelButton.xaml">
 	    <Generator></Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Controls\RattingBar.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\SwitchView.xaml">
+	  <MauiXaml Update="Views\Controls\SwitchView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator></Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\AboutPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\AboutPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -180,15 +146,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorSearchBPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorSearchCPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Author\AuthorSearchPage.xaml">
+	  <MauiXaml Update="Pages\Author\AuthorDetailsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -200,7 +158,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\DashboardPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\DashboardPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -208,27 +166,27 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\EnterPinBPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\EnterPinBPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\EnterPinPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\EnterPinPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\ETHTransferPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\ETHTransferPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\HelpDetailsPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\HelpDetailsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\HelpPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\HelpPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\MakeBidPage.xaml">
+	  <MauiXaml Update="Pages\Author\MakeBidPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -236,7 +194,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\NetworkPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\NetworkPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -244,7 +202,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductsBPage.xaml">
+	  <MauiXaml Update="Pages\Product\ProductsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -252,7 +210,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Product\ProductsPage.xaml">
+	  <MauiXaml Update="Pages\Product\ProductsListPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -260,47 +218,35 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\SendPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\SendPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\SettingsBPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\SettingsBPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\SettingsPage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\SettingsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\StartPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\TransactionsPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\TransactionsBPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\TransferCompletePage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\TransactionsPage.xaml">
+	  <MauiXaml Update="Pages\Transactions\UnfinishTransferPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\TransferCompletePage.xaml">
+	  <MauiXaml Update="Pages\Dashboard\WhatsNewPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\UnfinishTransferPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\WhatsNewPage.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\Account\AccountOptionsPopup.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Popups\Account\AccountsPopup.xaml">
+	  <MauiXaml Update="Popups\AccountOptionsPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -312,7 +258,7 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Popups\Account\DeleteAccountPopup.xaml">
+	  <MauiXaml Update="Popups\DeleteAccountPopup.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -360,58 +306,15 @@
 	  <MauiXaml Update="Resources\Styles\Layout.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Resources\Styles\Templates.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Account\AccountView.xaml">
+	  <MauiXaml Update="Views\AccountView.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Author\AuthorRenewal1View.xaml">
+	  <MauiXaml Update="Views\CreateAccount1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Author\AuthorRenewal2View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Author\AuthorRegistration1View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Author\AuthorRegistration2View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\BadgeView.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Account\CreateAccount1View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Account\CreateAccount2View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ETHTransfer1View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ETHTransfer3View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ETHTransfer2View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\MakeBid1View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\MakeBid2View.xaml">
+	  <MauiXaml Update="Views\CreateAccount2View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -423,221 +326,18 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\PageTitleActionView.xaml">
+	  <MauiXaml Update="Views\PageTitleActionView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\PageTitleNotificationsView.xaml">
+	  <MauiXaml Update="Views\PageTitleNotificationsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Views\Shared\CustomPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Shared\EmptyView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Shared\ImageTextButton.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Shared\MainPageButton.xaml.cs">
-	    <DependentUpon>MainPageButton.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Controls\RattingBar.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Shared\SwitchView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\AboutPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Account\AccountDetailsPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Author\AuthorRegistrationPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Author\AuthorRenewalPage.xaml.cs">
-	    <DependentUpon>AuthorRenewalPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Author\AuthorsPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Account\CreateAccountPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\DashboardPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Account\DeleteAccountPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\EnterPinBPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\EnterPinPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\ETHTransferPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\HelpDetailsPage.xaml.cs">
-	    <DependentUpon>HelpDetailsPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\HelpPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\MakeBidPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Account\ManageAccountsPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\NetworkPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Account\PrivateKeyPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Product\ProductsBPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Product\ProductSearchPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Product\ProductsPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\Account\RestoreAccountPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\SendPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\SettingsBPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\SettingsPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\StartPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\TransactionsBPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\TransactionsPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\TransferCompletePage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\UnfinishTransferPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Pages\WhatsNewPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\Account\AccountOptionsPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\Account\AccountsPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\AlertPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\CreatePinPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\Account\DeleteAccountPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\NoNetworkPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\NotificationPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\NotificationsPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\RecipientAccountPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\SelectAuthorPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\SourceAccountPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\TransactionPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Popups\WhatsNewPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Account\AccountView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Author\AuthorRenewal1View.xaml.cs">
-	    <DependentUpon>AuthorRenewal1View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Author\AuthorRenewal2View.xaml.cs">
-	    <DependentUpon>AuthorRenewal2View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Author\AuthorRegistration1View.xaml.cs">
-	    <DependentUpon>AuthorRegistration1View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Author\AuthorRegistration2View.xaml.cs">
-	    <DependentUpon>AuthorRegistration2View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\BadgeView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Account\CreateAccount1View.xaml.cs">
-	    <DependentUpon>CreateAccount1View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Account\CreateAccount2View.xaml.cs">
-	    <DependentUpon>CreateAccount2View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\ETHTransfer1View.xaml.cs">
-	    <DependentUpon>ETHTransfer1View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\ETHTransfer3View.xaml.cs">
-	    <DependentUpon>ETHTransfer3View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\ETHTransfer2View.xaml.cs">
-	    <DependentUpon>ETHTransfer2View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\MakeBid1View.xaml.cs">
-	    <DependentUpon>MakeBid1View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\MakeBid2View.xaml.cs">
-	    <DependentUpon>MakeBid2View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Send1View.xaml.cs">
-	    <DependentUpon>Send1View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Send2View.xaml.cs">
-	    <DependentUpon>Send2View.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Shared\BasePageTitleView.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Shared\PageTitleActionView.xaml.cs">
-	    <DependentUpon>PageTitleActionView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Shared\PageTitleNotificationsView.xaml.cs">
-	    <DependentUpon>PageTitleNotificationsView.xaml</DependentUpon>
-	  </Compile>
+	  <MauiXaml Update="Views\Controls\SelectPrivateKey.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\UpdatesList.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -645,6 +345,36 @@
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiImage Include="Resources\Images\account\random.svg" />
+	  <MauiImage Include="Resources\Images\account\account_send.svg" />
+	  <MauiImage Include="Resources\Images\account\account_receive.svg" />
+	  <MauiImage Include="Resources\Images\account\account_sort.svg" />
+	  <MauiImage Include="Resources\Images\author\author_free.svg" />
+	  <MauiImage Include="Resources\Images\author\author_personal.svg" />
+	  <MauiImage Include="Resources\Images\author\author_reserved.svg" />
+	  <MauiImage Include="Resources\Images\author\author_watch.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\accounts.svg" />
+	  <MauiImage Include="Resources\Images\author\author_auction.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\authors.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\dashboard_outline.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\help.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\info.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\network.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\products.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\search.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\settings.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\transactions.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\transfer.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\ts_done_dark.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\ts_done_light.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\ts_failed_dark.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
+	  <MauiImage Include="Resources\Images\dashboard\updates.svg" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">

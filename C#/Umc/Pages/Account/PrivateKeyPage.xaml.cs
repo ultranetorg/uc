@@ -2,26 +2,15 @@
 
 public partial class PrivateKeyPage : CustomPage
 {
-  //  public PrivateKeyPage()
-  //  {
-  //      InitializeComponent();
-		//var vm = Ioc.Default.GetService<PrivateKeyViewModel>();
-		//vm.Account = DefaultDataMock.Account1;
-  //      BindingContext = vm;
-  //  }
-
-    public PrivateKeyPage(AccountViewModel account)
+    public PrivateKeyPage()
     {
         InitializeComponent();
-		var vm = Ioc.Default.GetService<PrivateKeyViewModel>();
-		vm.Account = account;
-        BindingContext = vm;
+        BindingContext = Ioc.Default.GetService<PrivateKeyViewModel>();
     }
 
-    public PrivateKeyPage(AccountViewModel account, PrivateKeyViewModel vm)
+    public PrivateKeyPage(PrivateKeyViewModel vm)
     {
         InitializeComponent();
-		vm.Account = account;
         BindingContext = vm;
     }
 }

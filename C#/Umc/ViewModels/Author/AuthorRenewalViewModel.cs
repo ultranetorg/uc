@@ -1,28 +1,16 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class AuthorRenewalViewModel : BaseAccountViewModel
+public partial class AuthorRenewalViewModel : BaseAuthorViewModel
 {
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(EstimatedDate))]
+	private string _period = "1";
+
+	public string EstimatedDate => string.IsNullOrWhiteSpace(Period)
+		? string.Empty
+		: DateTime.UtcNow.AddDays(int.Parse(Period)).ToShortDateString();
+
     public AuthorRenewalViewModel(ILogger<AuthorRenewalViewModel> logger) : base(logger)
     {
-    }
-
-    [RelayCommand]
-    private async Task SelectAuthorAsync()
-    {
-        var author = await SelectAuthorPopup.Show();
-        if (author != null)
-		{
-			// Author = author;
-		}
-    }
-
-    [RelayCommand]
-    private async Task SelectAccountAsync()
-    {
-        var account = await SourceAccountPopup.Show();
-        if (account != null)
-		{
-			// Account = account;
-		}
     }
 }
