@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="UC.Umc.Popups.RecipientAccountPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:const="clr-namespace:UC.Umc.Constants"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+    x:DataType="vm:RecipientAccountViewModel"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Size="{x:Static const:SizeConstants.Max}"
+    Color="Transparent"
+    VerticalOptions="End"
+    x:Name="page">
+    <Border Style="{StaticResource AccountCardBorder}">
+        <Grid
+            HorizontalOptions="FillAndExpand"
+            RowDefinitions="Auto,Auto,Auto,Auto"
+            RowSpacing="8">
+            <Grid
+                Grid.Row="0"
+                RowDefinitions="24,Auto"
+                RowSpacing="8">
+                <Border
+                    Grid.Row="0"
+                    HorizontalOptions="CenterAndExpand"
+                    Style="{StaticResource PopupHandleBorder}"
+                    VerticalOptions="Center" />
+                <Label
+                    Grid.Row="1"
+                    FontSize="18"
+                    HorizontalOptions="Center"
+                    Text="Recipient Account" />
+            </Grid>
+            
+            <!--Tab Switch-->
+            <Border
+                Grid.Row="1"
+                Margin="8"
+                Style="{StaticResource ContainerBorder}"
+                BackgroundColor="Transparent">
+                <Grid Margin="4" ColumnDefinitions="*,*,*">
+                    <Border
+                        Style="{StaticResource ContainerBorder}"
+                        Stroke="Transparent"
+                        HeightRequest="32">
+                        <Grid>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Text="Local"
+                                TextColor="{TemplateBinding CurrentTextColor}" />
+                            <Grid.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsLocal}"
+                                    TargetType="Grid"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource PrimaryForLight}}" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding IsLocal}"
+                                    TargetType="Grid"
+                                    Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeToLocalSourceCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border
+                        Grid.Column="1"
+                        Style="{StaticResource ContainerBorder}"
+                        Stroke="Transparent"
+                        HeightRequest="32">
+                        <Grid>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Text="External"
+                                TextColor="{TemplateBinding CurrentTextColor}" />
+                            <Grid.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsExternal}"
+                                    TargetType="Grid"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource PrimaryForLight}}" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding IsExternal}"
+                                    TargetType="Grid"
+                                    Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeToExternalSourceCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border
+                        Grid.Column="2"
+                        Style="{StaticResource ContainerBorder}"
+                        Stroke="Transparent"
+                        HeightRequest="32">
+                        <Grid>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Text="QR Code"
+                                TextColor="{TemplateBinding CurrentTextColor}" />
+                            <Grid.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsQrCode}"
+                                    TargetType="Grid"
+                                    Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource PrimaryForLight}}" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding IsQrCode}"
+                                    TargetType="Grid"
+                                    Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeToQrCodeSourceCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+            </Border>
+            
+            <!--Tab #1: Local-->
+            <Grid
+                Grid.Row="2"
+                IsVisible="{Binding IsLocal}"
+                RowDefinitions="Auto,*"
+                RowSpacing="8"
+                VerticalOptions="EndAndExpand">
+                <AbsoluteLayout MaximumHeightRequest="120" MaximumWidthRequest="80" Grid.Row="0" Padding="16">
+                    <controls:FormEntryControl
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        TextChanged="{Binding FilterAccountsCommand}"
+                        Value="{Binding Filter, Mode=TwoWay}" />
+                    <Image
+                        Margin="12,0"
+                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        HorizontalOptions="End"
+                        Style="{StaticResource SearchIcon}"
+                        VerticalOptions="Center" />
+                </AbsoluteLayout>
+                <ListView
+                    Grid.Row="1"
+                    SelectedItem="{Binding Account}"
+                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray900}, Light={StaticResource Gray200}}"
+                    HeightRequest="400"
+                    SelectionMode="None"
+                    ItemsSource="{Binding Accounts}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:AccountViewModel">
+                            <ViewCell>
+                                <Border
+                                    Margin="12,4"
+                                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Grid
+                                        ColumnDefinitions="*,Auto,12"
+                                        ColumnSpacing="8"
+                                        Padding="4,8"
+                                        RowDefinitions="Auto,Auto">
+                                        <Label
+                                            Grid.Row="0"
+                                            Grid.Column="0"
+                                            Margin="10,4,0,0"
+                                            FontSize="12"
+                                            Text="{Binding Name}" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.Column="0"
+                                            Margin="10,0,0,4"
+                                            FontSize="8"
+                                            FontAttributes="None"
+                                            TextColor="{AppThemeBinding Dark={StaticResource Gray500}, Light={StaticResource Gray200}}"
+                                            Text="{Binding Address}" />
+                                        <Label
+                                            Grid.RowSpan="2"
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            Text="{Binding RoundedBalance, StringFormat='{0} UNT'}"
+                                            VerticalOptions="Center" />
+                                        <Border
+                                            Grid.RowSpan="2"
+                                            Grid.Column="2"
+                                            StrokeShape="RoundRectangle 0,20"
+                                            Margin="0,-12,-6,-12"
+                                            HeightRequest="60"
+                                            WidthRequest="18"
+                                            Background="{Binding Color}" />
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding ItemTappedCommand, Source={RelativeSource AncestorType={x:Type vm:RecipientAccountViewModel}}}"
+                                                CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                        <Grid.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Grid"
+                                                Value="True">
+                                                <Setter Property="Background" Value="{Binding Color}" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsSelected}"
+                                                TargetType="Grid"
+                                                Value="False">
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                            </DataTrigger>
+                                        </Grid.Triggers>
+                                    </Grid>
+                                </Border>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+            
+            <!--Tab #2: External-->
+            <StackLayout
+                Grid.Row="2"
+                IsVisible="{Binding IsExternal}"
+                Padding="16,64,16,0"
+                Spacing="40"
+                VerticalOptions="EndAndExpand">
+                <StackLayout>
+                    <Label Text="Recipient UNT address" />
+                    <Label
+                        FontSize="13"
+                        Style="{StaticResource Regular}"
+                        Text="Please specify Ethereum account private key" />
+                </StackLayout>
+                <StackLayout Spacing="24">
+                    <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
+                            <controls:FormEntryControl.Behaviors>
+                                <toolkit:CharactersValidationBehavior
+                                    x:Name="cb"
+                                    CharacterType="Letter"
+                                    Flags="ValidateOnValueChanged"
+                                    InvalidStyle="{StaticResource InvalidEntry}"
+                                    MaximumCharacterTypeCount="30"
+                                    MinimumCharacterTypeCount="1"
+                                    ValidStyle="{StaticResource Valid}" />
+                            </controls:FormEntryControl.Behaviors>
+                    </controls:FormEntryControl>
+                    <StackLayout>
+                        <Label
+                            FontSize="12"
+                            IsVisible="{Binding IsNotValid, Source={x:Reference cb}}"
+                            Text="Validation text message"
+                            TextColor="{StaticResource Red}" />
+                    </StackLayout>
+                </StackLayout>
+            </StackLayout>
+            
+            <!--Tab #3: QR Code-->
+            <Grid
+                Grid.Row="2"
+                IsVisible="{Binding IsQrCode}"
+                Padding="16,32,32,0"
+                RowDefinitions="Auto,Auto"
+                RowSpacing="16"
+                VerticalOptions="EndAndExpand">
+                <Border
+                    Grid.Row="0"
+                    Padding="0"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill">
+                    <zxing:CameraBarcodeReaderView
+                        HorizontalOptions="FillAndExpand"
+                        VerticalOptions="FillAndExpand"
+                        BarcodesDetected="cameraBarcodeReaderView_BarcodesDetected" />
+                </Border>
+                <StackLayout Grid.Row="1" Spacing="8">
+                    <Label Text="Recipient UNT address" />
+                    <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
+                        <controls:FormEntryControl.Behaviors>
+                            <toolkit:CharactersValidationBehavior
+                                x:Name="cb1"
+                                CharacterType="Letter"
+                                Flags="ValidateOnValueChanged"
+                                InvalidStyle="{StaticResource InvalidEntry}"
+                                MaximumCharacterTypeCount="30"
+                                MinimumCharacterTypeCount="1"
+                                ValidStyle="{StaticResource Valid}" />
+                        </controls:FormEntryControl.Behaviors>
+                    </controls:FormEntryControl>
+                    <StackLayout>
+                        <Label
+                            FontSize="12"
+                            IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                            Text="Validation text message"
+                            TextColor="{StaticResource Red}" />
+                    </StackLayout>
+                </StackLayout>
+            </Grid>
+                
+            <StackLayout Grid.Row="3" Padding="16" VerticalOptions="EndAndExpand">
+                <Button Command="{Binding CloseCommand}" Text="Continue" />
+                <Button
+                    Command="{Binding CloseCommand}"
+                    Style="{DynamicResource LabelButton}"
+                    Text="Cancel" />
+            </StackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup>

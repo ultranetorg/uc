@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.ProductSearchPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:ProductSearchViewModel"
+    Title="Product Search"
+    x:Name="page">
+    <controls:CustomPage.MainContent>
+        <Grid
+            Padding="{StaticResource PagePadding}"
+            RowDefinitions="Auto,*"
+            RowSpacing="32">
+            <Grid
+                Grid.Row="0"
+                RowDefinitions="Auto,32">
+                <AbsoluteLayout Grid.Row="0">
+                    <controls:FormEntryControl
+                        AbsoluteLayout.LayoutBounds="0,1,1,1"
+                        AbsoluteLayout.LayoutFlags="All"
+                        TextChanged="{Binding SearchProductsCommand}"
+                        Value="{Binding Filter, Mode=TwoWay}"/>
+                    <Image
+                        Margin="20"
+                        AbsoluteLayout.LayoutBounds="1,0.5,-1,-1"
+                        AbsoluteLayout.LayoutFlags="PositionProportional"
+                        HorizontalOptions="End"
+                        Style="{StaticResource SearchIcon}"
+                        VerticalOptions="Center" />
+                </AbsoluteLayout>
+                <CollectionView Grid.Row="1" ItemsSource="{Binding ProductsFilter}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout ItemSpacing="12" Orientation="Horizontal" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                HeightRequest="32"
+                                HorizontalOptions="Start"
+                                Style="{StaticResource ButtonBorder}"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontSize="11"
+                                    Style="{StaticResource ButtonLabel}"
+                                    Text="{Binding .}"
+                                    VerticalOptions="Center" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding SortProductsCommand, Source={RelativeSource AncestorType={x:Type vm:ProductSearchViewModel}}}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+            <StackLayout Grid.Row="1">
+                <Grid ColumnDefinitions="2*,1*,1*" Margin="8,0" RowDefinitions="Auto,*">
+                    <Label
+                        Grid.Column="0"
+                        Style="{StaticResource DashLabel}"
+                        Text="Product">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding SortProductsCommand}"
+                                CommandParameter="Name" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label
+                        Grid.Column="1"
+                        HorizontalOptions="Start"
+                        Style="{StaticResource DashLabel}"
+                        Text="Author">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding SortProductsCommand}"
+                                CommandParameter="Author" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label
+                        Grid.Column="2"
+                        HorizontalOptions="End"
+                        Style="{StaticResource DashLabel}"
+                        Text="Version">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding SortProductsCommand}"
+                                CommandParameter="Version" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+                <Border Grid.Row="2" Style="{StaticResource SquareBorder}">
+                    <ScrollView>
+                        <StackLayout
+                            Grid.Row="1"
+                            Grid.ColumnSpan="3"
+                            BindableLayout.ItemsSource="{Binding Products}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ProductViewModel">
+                                    <Grid ColumnDefinitions="2*,1*,1*">
+                                        <Label
+                                            Grid.Column="0"
+                                            FontSize="12"
+                                            Style="{StaticResource DashLabel}"
+                                            Text="{Binding Name}" />
+                                        <Label
+                                            Grid.Column="1"
+                                            HorizontalOptions="Start"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            Style="{StaticResource DashLabelValue}"
+                                            Text="{Binding Owner}" />
+                                        <Label
+                                            Grid.Column="2"
+                                            HorizontalOptions="End"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            Style="{StaticResource DashLabelValue}"
+                                            Text="{Binding Version}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </StackLayout>
+                    </ScrollView>
+                </Border>
+            </StackLayout>
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

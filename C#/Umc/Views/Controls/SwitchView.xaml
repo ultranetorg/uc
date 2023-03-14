@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="UC.Umc.Controls.SwitchView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="instance"
+    BackgroundColor="Transparent"
+    HorizontalOptions="Center"
+    SizeChanged="OnSizeChangedAsync"
+    BindingContext="{x:Reference instance}">
+    <Frame
+        x:Name="frame"
+        Padding="4"
+        BackgroundColor="Transparent"
+        BorderColor="{Binding CurrentColor}"
+        CornerRadius="{Binding CornerRadius}"
+        HasShadow="False">
+        <BoxView
+            x:Name="thumb"
+            BackgroundColor="{Binding CurrentColor}"
+            CornerRadius="{Binding CornerRadius}"
+            VerticalOptions="FillAndExpand" />
+        <Frame.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnSwitchedAsync" Command="{Binding SwitchCommand}" />
+        </Frame.GestureRecognizers>
+    </Frame>
+</ContentView>

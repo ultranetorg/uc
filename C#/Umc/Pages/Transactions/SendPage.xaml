@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.SendPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:Name="page"
+    x:DataType="vm:SendViewModel"
+    Title="Send">
+    <controls:CustomPage.MainContent>
+        <ScrollView>
+            <Grid 
+                Padding="{StaticResource PagePadding}"
+                RowDefinitions="Auto,*,10,Auto"
+                RowSpacing="10">
+                <CarouselView 
+                    Grid.Row="0"
+                    IndicatorView="indicator"
+                    IsSwipeEnabled="False"
+                    Loop="False"
+                    PeekAreaInsets="0"
+                    Position="{Binding Position}">
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate>
+                            <ContentView Content="{Binding .}" />
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                    <CarouselView.ItemsSource>
+                        <x:Array Type="{x:Type View}">
+                            <views:Send1View
+                                SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
+                                RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}"
+                                SelectSourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=SourceTappedCommand}"
+                                SelectRecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=RecipientTappedCommand}" />
+                            <views:Send2View
+                                Amount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Amount, Mode=TwoWay}"
+                                Comission="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Comission}"
+                                SourceAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Source}"
+                                RecipientAccount="{Binding Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}, Path=Recipient}" />
+                        </x:Array>
+                    </CarouselView.ItemsSource>
+                </CarouselView>
+
+                <StackLayout Grid.Row="1" IsVisible="{Binding FirstStep}">
+                    <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
+                    <AbsoluteLayout Margin="0,0,0,4">
+                        <controls:FormEntryControl
+                            AbsoluteLayout.LayoutBounds="0,1,1,1"
+                            AbsoluteLayout.LayoutFlags="All"
+                            Value="{Binding Amount}"
+                            ErrorMessage="{Binding AmountError}"
+                            Placeholder="Amount"
+                            MaxLength="8"
+                            Margin="0,0,8,0" />
+                        <Label
+                            Margin="16"
+                            AbsoluteLayout.LayoutBounds="1,2,-1,-1"
+                            AbsoluteLayout.LayoutFlags="PositionProportional"
+                            Style="{StaticResource UNTLabel}"
+                            Text="ETH" />
+                    </AbsoluteLayout>
+                </StackLayout>
+
+                <!-- Will be visible when #9749 issue is fixed -->
+                <IndicatorView Grid.Row="2" x:Name="indicator" IsVisible="False" />
+            
+                <StackLayout Grid.Row="3">
+                    <Button
+                        Text="Transfer"
+                        IsVisible="{Binding FirstStep}"
+                        Command="{Binding TransferCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}" />
+
+                    <Button
+                        IsVisible="{Binding SecondStep}"
+                        Command="{Binding ConfirmCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}"
+                        Style="{StaticResource ConfirmButton}" />
+
+                    <Button
+                        Command="{Binding CancelCommand}"
+                        Style="{DynamicResource LabelButton}"
+                        Text="Cancel" />
+                </StackLayout>
+            </Grid>
+        </ScrollView>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

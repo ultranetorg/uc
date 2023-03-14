@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.MakeBidPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:MakeBidViewModel"
+    Title="Make Bid"
+    x:Name="page">
+    <controls:CustomPage.MainContent>
+        <Grid
+            Padding="{StaticResource PagePadding}"
+            RowDefinitions="*,Auto,Auto"
+            RowSpacing="30">
+            <CarouselView
+                Grid.Row="0"
+                HorizontalScrollBarVisibility="Never"
+                IndicatorView="indicator"
+                IsSwipeEnabled="False"
+                Loop="False"
+                PeekAreaInsets="0"
+                Position="{Binding Position}">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <ContentView Content="{Binding .}" />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.ItemsSource>
+                    <x:Array Type="{x:Type View}">
+                        <!--Step #1-->
+                        <StackLayout Padding="5" Spacing="30">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Make your bid" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Make your bid. Your bid should be higher than current bid in order to win Auction" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Payment Account" />
+                                <Grid ColumnDefinitions="*,35" RowSpacing="-10">
+                                    <views:AccountView
+                                        Grid.ColumnSpan="2"
+                                        Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}"
+                                        BorderStyle="{StaticResource AccountCardBorderDark}">
+                                        <views:AccountView.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=SelectAccountCommand}" />
+                                        </views:AccountView.GestureRecognizers>
+                                    </views:AccountView>
+                                    <Image
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Style="{StaticResource BottomArrowsIcon}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="Author name" />
+                                <Label Opacity="0.7" Text="Normalized author's name" />
+                                <Border
+                                    Padding="10,0"
+                                    HeightRequest="44"
+                                    Style="{StaticResource KeyBorder}">
+                                    <Label
+                                        FontSize="12"
+                                        Style="{StaticResource Medium}"
+                                        Text="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Name}"
+                                        VerticalOptions="Center" />
+                                </Border>
+                            </StackLayout>
+                            <StackLayout Spacing="15">
+                                <controls:LabelPair
+                                    Text1="Current bid"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.CurrentBid, StringFormat='{0} UNT'}" />
+            
+                                <StackLayout Grid.Column="0" Spacing="10">
+                                    <Label Style="{StaticResource DashLabel}" Text="Your bid" />
+                                    <AbsoluteLayout Margin="0,0,0,4">
+                                        <controls:FormEntryControl
+                                            AbsoluteLayout.LayoutBounds="0,1,1,1"
+                                            AbsoluteLayout.LayoutFlags="All"
+                                            Value="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Amount}"
+                                            ErrorMessage="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=AmountError}"
+                                            Placeholder="Amount"
+                                            MaxLength="8"
+                                            Margin="0,0,8,0" />
+                                        <Label
+                                            Margin="16"
+                                            AbsoluteLayout.LayoutBounds="1,2,-1,-1"
+                                            AbsoluteLayout.LayoutFlags="PositionProportional"
+                                            Style="{StaticResource UNTLabel}"
+                                            Text="ETH" />
+                                    </AbsoluteLayout>
+                                </StackLayout>
+                            </StackLayout>
+                        </StackLayout>
+                        
+                        <!--Step #2-->
+                        <StackLayout Padding="4" Spacing="30">
+                            <StackLayout>
+                                <Label FontSize="18" Text="Do you confirm a bid?" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="Click 'Confirm' button to confirm the bid" />
+                            </StackLayout>
+                            <StackLayout Spacing="20">
+                                <controls:LabelPair Text1="Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Title}" />
+                                <controls:LabelPair Text1="With name:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Name}" />
+                                <controls:LabelPair Text1="With price:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Amount, StringFormat='{0} UNT'}" />
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="From Account" />
+                                <views:AccountView
+                                    Grid.ColumnSpan="2"
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}"
+                                    BorderStyle="{StaticResource AccountCardBorder}">
+                                    <views:AccountView.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectAccountCommand}" />
+                                    </views:AccountView.GestureRecognizers>
+                                </views:AccountView>
+                            </StackLayout>
+                        </StackLayout>
+                    </x:Array>
+                </CarouselView.ItemsSource>
+            </CarouselView>
+            <IndicatorView x:Name="indicator" Grid.Row="1" />
+            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
+        </Grid>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

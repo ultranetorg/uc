@@ -1,0 +1,21 @@
+﻿global using Microsoft.Extensions.Logging;
+global using System.Collections.ObjectModel;
+global using System.Diagnostics.CodeAnalysis;
+global using CommunityToolkit.Mvvm.ComponentModel;
+global using CommunityToolkit.Mvvm.DependencyInjection;
+global using CommunityToolkit.Mvvm.Input;
+global using CommunityToolkit.Maui.Views;
+global using CommunityToolkit.Diagnostics;
+
+// Project usings
+global using UC.Umc.Models;
+global using UC.Umc.ViewModels;
+global using UC.Umc.ViewModels.Popups;
+global using UC.Umc.ViewModels.Views;
+global using UC.Umc.Helpers;
+global using UC.Umc.Popups;
+global using UC.Umc.Controls;
+global using UC.Umc.Pages;
+global using UC.Umc.Exceptions;
+global using UC.Umc.Constants;
+global using UC.Umc.Services;

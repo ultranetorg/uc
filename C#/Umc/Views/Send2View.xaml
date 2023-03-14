@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="UC.Umc.Views.Send2View"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    x:Name="This">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="20" BindingContext="{x:Reference This}">
+        <StackLayout Grid.Row="0">
+            <Label FontSize="18" Text="Do you wish to send UNT tokens to another Ultranet account?" />
+            <Label
+                FontSize="13"
+                Style="{StaticResource Regular}"
+                Text="Clicking 'Confirm' button, transaction will start" />
+        </StackLayout>
+            
+        <StackLayout Grid.Row="1">
+            <Label Style="{StaticResource DashLabel}" Text="From" />
+            <views:AccountView
+                BorderStyle="{StaticResource AccountBorder}"
+                Account="{Binding SourceAccount}" />
+        </StackLayout>
+            
+        <StackLayout Grid.Row="2">
+            <Label Style="{StaticResource DashLabel}" Text="To" />
+            <Border Padding="24" Style="{StaticResource AccountCardBorder}">
+                <Label
+                    FontSize="12"
+                    Style="{StaticResource Medium}"
+                    Text="{Binding RecipientAccount.Address}" />
+            </Border>
+        </StackLayout>
+            
+        <StackLayout Grid.Row="3" Spacing="15">
+            <controls:LabelPair Text1="Amount" Text2="{Binding Amount, StringFormat='{0} UNT'}" />
+            <controls:LabelPair Text1="Comission" Text2="{Binding Comission, StringFormat='{0} UNT'}" />
+        </StackLayout>
+    </Grid>
+</ContentView>
