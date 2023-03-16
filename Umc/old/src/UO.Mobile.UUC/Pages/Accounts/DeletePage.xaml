@@ -1,0 +1,47 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:r="clr-namespace:UO.Mobile.UUC.Resources"
+             x:Class="UO.Mobile.UUC.Pages.Accounts.DeletePage"
+             BackgroundColor="{AppThemeBinding Light={StaticResource LightBackgroundColor}, Dark={StaticResource DarkBackgroundColor}}">
+
+    <ScrollView Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
+        <StackLayout>
+            <Label 
+                Text="{x:Static r:Strings.Accounts_Delete_Title}"
+                Grid.Row="0"
+                SemanticProperties.HeadingLevel="Level1"
+                FontSize="32"
+                HorizontalOptions="Center" />
+
+            <Label
+                Text="{x:Static r:Strings.Accounts_Delete_NonZeroBalanceLabel}"
+                Grid.Row="0"
+                SemanticProperties.HeadingLevel="Level1"
+                FontSize="32"
+                HorizontalOptions="Center" />
+            <Label
+                Text="{x:Static r:Strings.Accounts_Delete_NonZeroBalance2Label}"
+                Grid.Row="0"
+                SemanticProperties.HeadingLevel="Level1"
+                FontSize="32"
+                HorizontalOptions="Center" />
+
+            <Label
+                Text="{x:Static r:Strings.AuthorsLabel}"
+                Grid.Row="0"
+                SemanticProperties.HeadingLevel="Level1"
+                FontSize="32"
+                HorizontalOptions="Center" />
+
+            <Label
+                Text="{x:Static r:Strings.ProductsLabel}"
+                Grid.Row="0"
+                SemanticProperties.HeadingLevel="Level1"
+                FontSize="32"
+                HorizontalOptions="Center" />
+
+            <Button Text="{x:Static r:Strings.DeleteText}"
+                    Command="{Binding DeleteCommand}" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

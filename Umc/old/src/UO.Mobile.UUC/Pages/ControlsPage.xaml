@@ -1,0 +1,43 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UO.Mobile.UUC.Pages.ControlsPage"
+             xmlns:c="clr-namespace:UO.Mobile.UUC.Controls"
+             BackgroundColor="{AppThemeBinding Light={StaticResource LightBackgroundColor}, Dark={StaticResource DarkBackgroundColor}}">
+
+    <ScrollView Padding="{OnPlatform Android='20', Default='30'}">
+        <StackLayout>
+
+            <Label Text="Controls Page"
+                   SemanticProperties.HeadingLevel="Level1"
+                   FontSize="32"
+                   HorizontalOptions="Center" />
+
+            <Label Text="Button" />
+            <Button CornerRadius="10" HeightRequest="50" Text="This is button" FontSize="13" BorderColor="Aqua" />
+
+            <Label Text="Entry" />
+            <Entry Placeholder="Test" FontSize="13" />
+
+            <Label Text="Account" />
+            <Frame BorderColor="LightGray"
+                   CornerRadius="12"
+                   HeightRequest="50"
+                   WidthRequest="50"
+                   Grid.Row="6">
+                <Frame.Background>
+                    <LinearGradientBrush StartPoint="0,0"
+                                         EndPoint="1,1">
+                        <GradientStop Color="#4900E3" />
+                        <GradientStop Color="#8D00E3" />
+                    </LinearGradientBrush>
+                </Frame.Background>
+            </Frame>
+
+            <Label Text="AccountView" />
+            <c:Account />
+
+            <Label Text="ApplicationCard" />
+            <c:ApplicationCard LogoSource="logo.svg" ApplicationName="Ultranet User Center" Version="1.0.1 build 6941" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

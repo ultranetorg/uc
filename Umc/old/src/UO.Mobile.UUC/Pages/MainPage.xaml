@@ -1,0 +1,150 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UO.Mobile.UUC.Pages.MainPage"
+             xmlns:p="clr-namespace:UO.Mobile.UUC.Pages"
+             BackgroundColor="{AppThemeBinding Light={StaticResource LightBackgroundColor}, Dark={StaticResource DarkBackgroundColor}}">
+
+    <ScrollView Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
+        <StackLayout>
+            <Label Text="Notifications count:" FontSize="Medium" />
+            <Label Text="{Binding NotificationsCount}" FontSize="Medium" />
+
+            <!--
+            <Label Text="Accounts:" FontSize="Medium" />
+            <ListView BackgroundColor="AliceBlue"
+                      x:Name="accountsList"
+                      Margin="10,0"
+                      ItemsSource="{Binding Accounts}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Padding="0,5">
+                                <Label Text="{Binding Name}" />
+                                <Label Text="{Binding Address}" />
+                                <Label Text="{Binding Balance}" />
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Label Text="Transactions:" FontSize="Medium" />
+            <ListView BackgroundColor="BlueViolet"
+                      x:Name="transactionsList"
+                      Margin="10,0"
+                      ItemsSource="{Binding Transactions}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Padding="0,5">
+                                <Label Text="{Binding Id}" />
+                                <Label Text="{Binding Status}" />
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            -->
+
+            <Label Text="Accounts count:" FontSize="Medium" />
+            <Label Text="{Binding AccountsCount}" FontSize="Medium" />
+            <Label Text="Auctions count:" FontSize="Medium" />
+            <Label Text="{Binding AuctionsCount}" FontSize="Medium" />
+            <Label Text="Outbinded auctions count:" FontSize="Medium" />
+            <Label Text="{Binding OutbindedAuctionsCount}" FontSize="Medium" />
+            <Label Text="Authors count:" FontSize="Medium" />
+            <Label Text="{Binding AuthorsCount}" FontSize="Medium" />
+            <Label Text="Renewal needed authors count:" FontSize="Medium" />
+            <Label Text="{Binding RenewalNeededAuthorsCount}" FontSize="Medium" />
+            <Label Text="Products count:" FontSize="Medium" />
+            <Label Text="{Binding ProductsCount}" FontSize="Medium" />
+            <Label Text="Total releases count:" FontSize="Medium" />
+            <Label Text="{Binding TotalReleasesCount}" FontSize="Medium" />
+            <Label Text="Clean releases count:" FontSize="Medium" />
+            <Label Text="{Binding CleanReleasesCount}" FontSize="Medium" />
+            <Label Text="Compromised releases count:" FontSize="Medium" />
+            <Label Text="{Binding CompomisedReleasesCount}" FontSize="Medium" />
+            <Label Text="Last release name:" FontSize="Medium" />
+            <Label Text="{Binding LastReleaseName}" FontSize="Medium" />
+
+            <Grid RowSpacing="10"
+                  ColumnSpacing="10"
+                  Margin="20,30,20,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="70" />
+                    <RowDefinition Height="70" />
+                    <RowDefinition Height="70" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Button Text="Accounts"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:Accounts.AccountsPage}"
+                    BackgroundColor="LightSteelBlue" />
+                <Button Text="Authors"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:Authors.AuthorsPage}"
+                    Grid.Column="1"
+                    BackgroundColor="LightSkyBlue" />
+                <Button Text="Products"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:Products.ProductsPage}"
+                    Grid.Column="2"
+                    BackgroundColor="DarkSlateBlue" />
+                <Button Text="Transactions"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:TransactionsPage}"
+                    Grid.Column="3"
+                    BackgroundColor="CornflowerBlue" />
+
+                <Button Text="Search"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:SearchPage}"
+                    Grid.Row="1"
+                    BackgroundColor="DeepSkyBlue" />
+                <Button Text="Network"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:NetworkPage}"
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    BackgroundColor="LightBlue" />
+                <Button Text="UNT Emission"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:EmissionPage}"
+                    Grid.Column="2"
+                    Grid.Row="1"
+                    BackgroundColor="RoyalBlue" />
+                <Button Text="Help"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:HelpPage}"
+                    Grid.Row="1"
+                    Grid.Column="3"
+                    BackgroundColor="LightSteelBlue" />
+                <Button Text="About"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:AboutPage}"
+                    Grid.Row="2"
+                    BackgroundColor="LightSteelBlue" />
+
+                <Button Text="Settings"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:SettingsPage}"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    BackgroundColor="LightSteelBlue" />
+
+                <Button Text="Controls"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Type p:ControlsPage}"
+                    Grid.Row="2"
+                    Grid.Column="3"
+                    BackgroundColor="PaleVioletRed" />
+            </Grid>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

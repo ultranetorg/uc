@@ -14,8 +14,10 @@
 **/Resources/*.aps
 
 packages/
-C#/packages/
 
-C++/Libs/*/_*
-!C++/Libs/Cef/_*
-!C++/Libs/curl/_*
+Libs/*/_*
+!Libs/Cef/_*
+!Libs/curl/_*
+
+
+Umc/Debug/

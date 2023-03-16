@@ -1,0 +1,29 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UO.Mobile.UUC.Pages.NetworkPage"
+             BackgroundColor="{AppThemeBinding Light={StaticResource LightBackgroundColor}, Dark={StaticResource DarkBackgroundColor}}">
+
+    <ScrollView Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
+        <StackLayout>
+            <Label 
+                Text="NetworkPage"
+                Grid.Row="0"
+                SemanticProperties.HeadingLevel="Level1"
+                FontSize="32"
+                HorizontalOptions="Center" />
+
+            <Label Text="Nodes count:" />
+            <Label Text="{Binding NodesCount, Mode=OneWay}" />
+            <Label Text="Number of active users:" />
+            <Label Text="{Binding ActiveUsersCount, Mode=OneWay}" />
+            <Label Text="Bandwidth:" />
+            <Label Text="{Binding Bandwidth, Mode=OneWay}" />
+            <Label Text="Last block date:" />
+            <Label Text="{Binding LastBlockDateTime, Mode=OneWay}" />
+            <Label Text="Round number:" />
+            <Label Text="{Binding RoundNumber, Mode=OneWay}" />
+            <Label Text="Current time:" />
+            <Label Text="{Binding CurrentDateTime, Mode=OneWay}" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

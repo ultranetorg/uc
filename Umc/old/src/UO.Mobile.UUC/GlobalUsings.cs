@@ -1,0 +1,14 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Collections.ObjectModel;
+global using System.ComponentModel;
+global using System.Diagnostics.CodeAnalysis;
+global using System.Linq;
+global using System.Reflection;
+global using System.Runtime.CompilerServices;
+global using System.Threading.Tasks;
+global using System.Windows.Input;
+global using Ardalis.GuardClauses;
+global using Microsoft.Maui;
+global using Microsoft.Maui.Controls;
+global using Microsoft.Maui.Graphics;

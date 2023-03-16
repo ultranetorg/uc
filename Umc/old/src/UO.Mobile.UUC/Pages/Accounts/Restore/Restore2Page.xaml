@@ -1,0 +1,26 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UO.Mobile.UUC.Pages.Accounts.Restore.Restore2Page"
+             BackgroundColor="{AppThemeBinding Light={StaticResource LightBackgroundColor}, Dark={StaticResource DarkBackgroundColor}}">
+
+    <ScrollView Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
+        <Grid RowSpacing="25" RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+            <Label 
+                Text="Restore 2 Page"
+                Grid.Row="0"
+                SemanticProperties.HeadingLevel="Level1"
+                FontSize="32"
+                HorizontalOptions="Center" />
+
+            <Button Grid.Row="1"
+                    Text="Cancel"
+                    Command="{Binding CancelCommand}"
+                    BackgroundColor="BlueViolet" />
+            <Button Grid.Row="2"
+                    Text="Confirm"
+                    Command="{Binding ConfirmCommand}"
+                    BackgroundColor="BlueViolet" />
+        </Grid>
+    </ScrollView>
+</ContentPage>

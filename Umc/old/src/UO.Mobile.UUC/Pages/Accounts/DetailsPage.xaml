@@ -1,0 +1,19 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:r="clr-namespace:UO.Mobile.UUC.Resources"
+             x:Class="UO.Mobile.UUC.Pages.Accounts.DetailsPage"
+             BackgroundColor="{AppThemeBinding Light={StaticResource LightBackgroundColor}, Dark={StaticResource DarkBackgroundColor}}">
+
+    <ScrollView Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
+        <StackLayout>
+            <Label Text="{x:Static r:Strings.AccountLabel}" FontSize="13" />
+            <Label Text="{Binding Account.Address}" FontSize="13" />
+
+            <Label Text="{x:Static r:Strings.NameLabel}" FontSize="13" />
+            <Entry Placeholder="Account name" Text="{Binding Account.Name}" />
+
+            <Label Text="{x:Static r:Strings.BalanceLabel}" FontSize="13" />
+            <Label Text="{Binding Account.Balance}" FontSize="13" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

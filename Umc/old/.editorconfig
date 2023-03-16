@@ -1,0 +1,16 @@
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+indent_size = 4
+
+# 4 space indentation
+[*.{cs,xaml}]
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{csproj}]
+indent_size = 4
+indent_style = tab

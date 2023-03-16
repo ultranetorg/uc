@@ -1,0 +1,41 @@
+﻿<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UO.Mobile.UUC.Controls.ApplicationCard"
+             x:Name="selfMediaElementView">
+  <ContentView.Content>
+      <Frame CornerRadius="10"
+             Padding="20,21,20,21"
+             HeightRequest="74"
+             VerticalOptions="FillAndExpand"
+             HasShadow="False"
+             BackgroundColor="Bisque">
+          <Grid VerticalOptions="FillAndExpand">
+              <Grid.RowDefinitions>
+                  <RowDefinition Height="*" />
+                  <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="32" />
+                  <ColumnDefinition Width="20" />
+                  <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              
+              <Image Source="{Binding LogoSource, Source={x:Reference selfMediaElementView}}"
+                     Aspect="AspectFill"
+                     HorizontalOptions="Center"
+                     Grid.RowSpan="2" />
+                <BoxView
+                 Grid.Column="2"
+                 Color="Purple" />
+                <BoxView Grid.Row="2"
+                 Grid.Column="2"
+                 Color="Red" />
+                <Label Text="{Binding ApplicationName, Source={x:Reference selfMediaElementView}}"
+                       Grid.Column="2" />
+                <Label Text="{Binding Version, Source={x:Reference selfMediaElementView}}"
+                       Grid.Row="2"
+                       Grid.Column="2" />
+            </Grid>
+      </Frame>
+  </ContentView.Content>
+</ContentView>

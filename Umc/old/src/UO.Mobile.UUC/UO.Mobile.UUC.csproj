@@ -1,0 +1,148 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net6.0-ios;net6.0-android;net6.0-maccatalyst</TargetFrameworks>
+		<!-- <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows')) and '$(MSBuildRuntimeType)' == 'Full'">$(TargetFrameworks);net6.0-windows10.0.19041</TargetFrameworks> -->
+		<OutputType>Exe</OutputType>
+		<RootNamespace>UO.Mobile.UUC</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
+		<CodeAnalysisRuleSet>..\..\rulesets\StyleCop.ruleset</CodeAnalysisRuleSet>
+
+		<!-- Display name -->
+		<ApplicationTitle>UO.Mobile.UUC</ApplicationTitle>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.companyname.UO.Mobile.UUC</ApplicationId>
+
+		<!-- Versions -->
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<!-- Required for C# Hot Reload -->
+		<UseInterpreter Condition="'$(Configuration)' == 'Debug'">True</UseInterpreter>
+
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-ios'">14.2</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-maccatalyst'">14.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.18362.0</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiImage Include="Resources\appicon.svg" ForegroundFile="Resources\appiconfg.svg" IsAppIcon="true" Color="#512BD4" />
+
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\appiconfg.svg" Color="#512BD4" />
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+		<!-- Required - WinUI does not yet have buildTransitive for everything -->
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0-experimental1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.Foundation" Version="1.0.0-experimental1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="1.0.0-experimental1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.0.0-experimental1" NoWarn="NU1701" />
+		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.0.26-experimental1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Ardalis.GuardClauses" Version="3.3.0" />
+		<PackageReference Include="Autofac" Version="6.3.0" />
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="8.30.0.37606">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+			<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\UC\UC.csproj" />
+		<ProjectReference Include="..\UO.Mobile.Common\UO.Mobile.Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Pages\Accounts\Create\Create3Page.xaml.cs">
+	    <DependentUpon>Create3Page.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Accounts\Create\Create1Page.xaml.cs">
+	    <DependentUpon>Create1Page.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Accounts\DetailsPage.xaml.cs">
+	    <DependentUpon>DetailsPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Accounts\Restore\Restore2Page.xaml.cs">
+	    <DependentUpon>Restore2Page.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Accounts\Restore\Restore1Page.xaml.cs">
+	    <DependentUpon>Restore1Page.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Authors\Register\Register1Page.xaml.cs">
+	    <DependentUpon>Register1Page.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Authors\Register\Register2Page.xaml.cs">
+	    <DependentUpon>Register2Page.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\EmissionPage.xaml.cs">
+	    <DependentUpon>EmissionPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Resources\Strings.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Strings.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Resources\Strings.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Controls\Account.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Accounts\Create\Create3Page.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Accounts\Restore\Restore2Page.xaml">
+	    <SubType>Designer</SubType>
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Accounts\Restore\Restore1Page.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Authors\Register\Register1Page.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Authors\Register\Register2Page.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Products\RegisterPage.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Pages\Accounts\Delete\" />
+	  <Folder Include="Pages\Authors\MakeBid\" />
+	  <Folder Include="Pages\Authors\Transfer\" />
+	  <Folder Include="Services\Authors\" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
+		<OutputType>WinExe</OutputType>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	</PropertyGroup>
+
+</Project>

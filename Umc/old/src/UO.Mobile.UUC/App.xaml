@@ -1,0 +1,45 @@
+﻿<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:windows="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.WindowsSpecific;assembly=Microsoft.Maui.Controls"
+             xmlns:local="clr-namespace:UO.Mobile.UUC"
+             x:Class="UO.Mobile.UUC.App"
+             windows:Application.ImageDirectory="Assets">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <!-- Light colors -->
+            <Color x:Key="LightPrimaryColor">#65afd6</Color>
+
+            <Color x:Key="LightBackgroundColor">#f0f7f9</Color>
+            <Color x:Key="LightSurfaceColor">#fbfeff</Color>
+
+            <Color x:Key="LightOnPrimaryColor">#ffffff</Color>
+            <Color x:Key="LightOnSurfaceColor">#1e5468</Color>
+
+             <!-- Dark colors -->
+            <Color x:Key="DarkPrimaryColor">#512bdf</Color>
+
+            <Color x:Key="DarkBackgroundColor">#18181b</Color>
+            <Color x:Key="DarkSurfaceColor">#202222</Color>
+
+            <Color x:Key="DarkOnPrimaryColor">#3dc1f2</Color>
+            <Color x:Key="DarkOnSurfaceColor">#e8e8e8</Color>
+
+            <Style TargetType="Label">
+                <Setter Property="TextColor"
+                        Value="{AppThemeBinding Light={StaticResource LightOnSurfaceColor}, Dark={StaticResource DarkOnSurfaceColor}}" />
+                <Setter Property="FontFamily" Value="MontserratSemiBold" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor"
+                        Value="{AppThemeBinding Light={StaticResource LightPrimaryColor}, Dark={StaticResource DarkPrimaryColor}}" />
+                <Setter Property="FontFamily" Value="Montserrat" />
+                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="TextColor"
+                        Value="{AppThemeBinding Light={StaticResource LightOnPrimaryColor}, Dark={StaticResource DarkOnPrimaryColor}}" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
