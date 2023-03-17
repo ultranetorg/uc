@@ -23,6 +23,6 @@
     <OutputPath>..\..\..\_Release\uo-sun-uosdotnet\0.0.0.0</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UC\UC.csproj" />
+    <ProjectReference Include="..\..\Uccs\Uccs\Uccs.csproj" />
   </ItemGroup>
 </Project>

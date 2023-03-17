@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UC\UC.csproj" />
+    <ProjectReference Include="..\..\Uccs\Uccs\Uccs.csproj" />
   </ItemGroup>
 
 </Project>

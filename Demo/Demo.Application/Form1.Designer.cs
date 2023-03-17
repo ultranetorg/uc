@@ -1,4 +1,4 @@
-﻿namespace DemoApplication
+﻿namespace Uccs.Demo.Application
 {
 	partial class Form1
 	{

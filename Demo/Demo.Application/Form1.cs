@@ -1,7 +1,7 @@
 using System.Reflection;
 using System;
 
-namespace DemoApplication
+namespace Uccs.Demo.Application
 {
 	public partial class Form1 : Form
 	{
