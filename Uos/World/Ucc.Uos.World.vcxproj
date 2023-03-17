@@ -60,7 +60,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;WORLD_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Libs;..\..\Libs\Zip;..\..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
@@ -73,7 +73,7 @@
       <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
-      <AdditionalLibraryDirectories>..\Libs\Boost</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\Boost</AdditionalLibraryDirectories>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
@@ -89,7 +89,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WORLD_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Libs;..\..\Libs\Zip;..\..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -104,7 +104,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
-      <AdditionalLibraryDirectories>..\Libs\Boost</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\Boost</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <EnableUAC>false</EnableUAC>
@@ -242,17 +242,11 @@
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UC.Engine\UC.Engine.vcxproj">
-      <Project>{696e2929-dfba-4648-97d0-17247f4063ad}</Project>
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\UC\UC.vcxproj">
+    <ProjectReference Include="..\..\Ucc\Ucc\Ucc.vcxproj">
       <Project>{9505d95f-fbb9-4365-9d27-be5d96f75a9b}</Project>
-      <Private>false</Private>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\Engine\Ucc.Uos.Engine.vcxproj">
+      <Project>{696e2929-dfba-4648-97d0-17247f4063ad}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

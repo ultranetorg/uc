@@ -60,7 +60,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ZLIB_WINAPI;UC_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Libs;..\..\Libs\Zip;..\..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
@@ -72,7 +72,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>shlwapi.lib;Version.lib;DbgHelp.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\Boost;..\..\Libs\Zip\_winx64-$(Configuration);..\..\Libs\curl\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <ProgramDatabaseFile>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).pdb</ProgramDatabaseFile>
       <AdditionalOptions>/EXPORT:CreateUosServer /EXPORT:DestroyUosServer /EXPORT:CreateUosClient /EXPORT:DestroyUosClient</AdditionalOptions>
@@ -91,7 +91,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_WINAPI;UC_EXPORT_DLL;PROJECT_TARGET_FILENAME=L"$(TargetFileName)";PROJECT_TARGET_PLATFORM=L"Winx64";PROJECT_CONFIGURATION=L"$(Configuration)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libs;..\Libs\Zip;..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Libs;..\..\Libs\Zip;..\..\Libs\nlohmann\Include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -103,7 +103,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\Libs\Boost;..\Libs\Zip\_winx64-$(Configuration);..\Libs\curl\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\Boost;..\..\Libs\Zip\_winx64-$(Configuration);..\..\Libs\curl\_winx64-$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>shlwapi.lib;Version.lib;DbgHelp.lib;zlib.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(G_Tmp)\winx64-$(Configuration)-$(ProjectName).lib</ImportLibrary>
       <OptimizeReferences>true</OptimizeReferences>

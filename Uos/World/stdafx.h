@@ -1,7 +1,7 @@
 #pragma once
 #include "targetver.h"
 
-#include "../UC.Engine/Include.h"
+#include "../Engine/Include.h"
 
 #ifdef WORLD_EXPORT_DLL
 	#define UOS_WORLD_LINKING __declspec(dllexport)

@@ -7,7 +7,7 @@
 #include <manipulations.h>
 #include <ocidl.h>
 
-#include "../UC/Include.h"
+#include "../../Ucc/Ucc/Include.h"
 
 #include <shellscalingapi.h>
 #include <dxgi.h>

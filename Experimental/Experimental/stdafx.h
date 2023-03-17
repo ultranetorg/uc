@@ -12,7 +12,7 @@
 #include <vmime/vmime/vmime.hpp>
 #include <vmime/vmime/platforms/posix/posixHandler.hpp>
 
-#include "../UC.Shell/Include.h"
+#include "../../Shell/Shell/Include.h"
 
 namespace uc
 {
