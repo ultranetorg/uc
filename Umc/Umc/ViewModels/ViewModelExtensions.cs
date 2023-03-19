@@ -71,8 +71,6 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<NetworkViewModel>();
 
-		builder.Services.AddTransient<SettingsBViewModel>();
-
 		builder.Services.AddTransient<SettingsViewModel>();
 
 		builder.Services.AddTransient<AboutViewModel>();

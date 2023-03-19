@@ -14,16 +14,7 @@ public partial class SettingsViewModel : BaseViewModel
     }
 
 	[RelayCommand]
-    private async Task TransactionsAsync()
-    {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
-    }
-
-	[RelayCommand]
-    private async Task CancelAsync()
-    {
-        await Shell.Current.Navigation.PopAsync();
-    }
+    private async Task CancelAsync() => await Navigation.BackToDashboardAsync();
 
 	private void LoadData()
 	{
