@@ -13,13 +13,13 @@ namespace UC
 	public class Version : IEquatable<Version>, IComparable, IBinarySerializable
 	{
 		public ushort Era;
-		public ushort Generation;
-		public ushort Release;
-		public ushort Build;
+		public ushort Upgrade;
+		public ushort Bugfix;
+		public ushort Revision;
 
-		public string EG => $"{Era}.{Generation}";
-		public string EGR => EG + $".{Release}";
-		public string EGRB => EGR + $".{Build}";
+		public string AB => $"{Era}.{Upgrade}";
+		public string ABC => AB + $".{Bugfix}";
+		public string ABCD => ABC + $".{Revision}";
 
 		public readonly static Version Zero = new Version(0, 0, 0, 0);
 
@@ -27,17 +27,17 @@ namespace UC
 		{
 		}
 
-		public Version(ushort era, ushort release, ushort revision, ushort build)
+		public Version(ushort era, ushort upgrade, ushort bugfix, ushort revision)
 		{
 			Era = era;
-			Generation = release;
-			Release = revision;
-			Build = build;
+			Upgrade = upgrade;
+			Bugfix = bugfix;
+			Revision = revision;
 		}
 
 		public override string ToString()
 		{
-			return $"{Era}.{Generation}.{Release}.{Build}";
+			return $"{Era}.{Upgrade}.{Bugfix}.{Revision}";
 		}
 
 		public static Version Parse(string s)
@@ -49,13 +49,13 @@ namespace UC
 			v.Era = ushort.Parse(c[0]);
 					
 			if(c.Length > 1)
-				v.Generation = ushort.Parse(c[1]);
+				v.Upgrade = ushort.Parse(c[1]);
 
 			if(c.Length > 2)
-				v.Release = ushort.Parse(c[2]);
+				v.Bugfix = ushort.Parse(c[2]);
 
 			if(c.Length > 3)
-				v.Build = ushort.Parse(c[3]);
+				v.Revision = ushort.Parse(c[3]);
 
 			return v;
 		}
@@ -80,14 +80,14 @@ namespace UC
 		{
 			return other != null &&
 				   Era == other.Era &&
-				   Generation == other.Generation &&
-				   Release == other.Release &&
-				   Build == other.Build;
+				   Upgrade == other.Upgrade &&
+				   Bugfix == other.Bugfix &&
+				   Revision == other.Revision;
 		}
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Era, Generation, Release, Build);
+			return HashCode.Combine(Era, Upgrade, Bugfix, Revision);
 		}
 
 		public int CompareTo(object obj)
@@ -105,17 +105,17 @@ namespace UC
 		public void Read(BinaryReader r)
 		{
 			Era = r.ReadUInt16();
-			Generation = r.ReadUInt16(); 
-			Release = r.ReadUInt16();
-			Build = r.ReadUInt16();
+			Upgrade = r.ReadUInt16(); 
+			Bugfix = r.ReadUInt16();
+			Revision = r.ReadUInt16();
 		}
 
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Era);
-			w.Write(Generation);
-			w.Write(Release);
-			w.Write(Build);
+			w.Write(Upgrade);
+			w.Write(Bugfix);
+			w.Write(Revision);
 		}
 
 		public static bool operator < (Version a, Version b)
@@ -123,13 +123,13 @@ namespace UC
 			if(a.Era < b.Era)
 				return true;
 
-			if(a.Generation < b.Generation)
+			if(a.Upgrade < b.Upgrade)
 				return true;
 
-			if(a.Release < b.Release)
+			if(a.Bugfix < b.Bugfix)
 				return true;
 
-			if(a.Build < b.Build)
+			if(a.Revision < b.Revision)
 				return true;
 
 			return false;
@@ -140,13 +140,13 @@ namespace UC
 			if(a.Era > b.Era)
 				return true;
 
-			if(a.Generation > b.Generation)
+			if(a.Upgrade > b.Upgrade)
 				return true;
 
-			if(a.Release > b.Release)
+			if(a.Bugfix > b.Bugfix)
 				return true;
 
-			if(a.Build > b.Build)
+			if(a.Revision > b.Revision)
 				return true;
 
 			return false;

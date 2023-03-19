@@ -106,7 +106,7 @@ namespace UC.Net
 
 	public class DistributeReleaseCall : ApiCall
 	{
-		public ReleaseAddress	Release { get; set; }
+		public VersionAddress	Release { get; set; }
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
@@ -114,11 +114,11 @@ namespace UC.Net
 
 	public class DownloadReleaseCall : ApiCall
 	{
-		public ReleaseAddress	Release { get; set; }
+		public VersionAddress	Release { get; set; }
 	}
 
 	public class ReleaseInfoCall : ApiCall
 	{
-		public ReleaseAddress	Release { get; set; }
+		public VersionAddress	Release { get; set; }
 	}
 }

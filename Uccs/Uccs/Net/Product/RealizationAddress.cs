@@ -7,12 +7,12 @@ namespace UC.Net
 {
 	public class RealizationAddress : ProductAddress, IEquatable<RealizationAddress>
 	{
-		public string			Platform { get; set; }
-		public override bool	Valid => !string.IsNullOrWhiteSpace(Platform);
+		public string			Realization { get; set; }
+		public override bool	Valid => !string.IsNullOrWhiteSpace(Realization);
 
 		public RealizationAddress(string author, string product, string platform) : base(author, product)
 		{
-			Platform = platform;
+			Realization = platform;
 		}
 
 		public RealizationAddress()
@@ -21,7 +21,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{base.ToString()}/{Platform}";
+			return $"{base.ToString()}/{Realization}";
 		}
 
 		public override bool Equals(object o)
@@ -31,7 +31,7 @@ namespace UC.Net
 
 		public bool Equals(RealizationAddress o)
 		{
-			return base.Equals(o) && Platform.Equals(o.Platform);
+			return base.Equals(o) && Realization.Equals(o.Realization);
 		}
 
  		public override int GetHashCode()
@@ -50,19 +50,19 @@ namespace UC.Net
 		public override void Parse(string[] s)
 		{
 			base.Parse(s);
-			Platform = s[2];
+			Realization = s[2];
 		}
 
 		public override void Write(BinaryWriter w)
 		{
 			base.Write(w);
-			w.WriteUtf8(Platform);
+			w.WriteUtf8(Realization);
 		}
 
 		public override void Read(BinaryReader r)
 		{
 			base.Read(r);
-			Platform = r.ReadUtf8();
+			Realization = r.ReadUtf8();
 		}
 	}
 

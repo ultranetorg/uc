@@ -3,7 +3,7 @@ using System.Text;
 
 namespace UC.Net
 {
-	public class ReleaseTable : Table<ReleaseEntry, ReleaseAddress>
+	public class ReleaseTable : Table<ReleaseEntry, VersionAddress>
 	{
 		public ReleaseTable(Database chain) : base(chain)
 		{
@@ -14,12 +14,12 @@ namespace UC.Net
 			return new ReleaseEntry();
 		}
 
-		protected override byte[] KeyToBytes(ReleaseAddress key)
+		protected override byte[] KeyToBytes(VersionAddress key)
 		{
 			return Encoding.UTF8.GetBytes(key.ToString());
 		}
 		
-		public ReleaseEntry Find(ReleaseAddress name, int ridmax)
+		public ReleaseEntry Find(VersionAddress name, int ridmax)
 		{
 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedReleases.ContainsKey(name))

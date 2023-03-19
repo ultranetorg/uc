@@ -21,18 +21,18 @@ namespace UC
 			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 		}
 
-		public ReleaseAddress ReleaseFromAssembly(string path)
+		public VersionAddress ReleaseFromAssembly(string path)
 		{
 			var x = path.Substring(ProductsPath.Length).Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
 
 			var apr = x[0].Split('-');
 
-			return new ReleaseAddress(apr[0], apr[1], apr[2], Version.Parse(x[1]));
+			return new VersionAddress(apr[0], apr[1], apr[2], Version.Parse(x[1]));
 		}
 
-		public string MapReleasePath(ReleaseAddress release)
+		public string MapReleasePath(VersionAddress release)
 		{
-			return Path.Join(ProductsPath, $"{release.Author}-{release.Product}-{release.Platform}", release.Version.EGRB);
+			return Path.Join(ProductsPath, $"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABCD);
 		}
 
 		Assembly AssemblyResolve(object sender, ResolveEventArgs args)

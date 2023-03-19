@@ -344,13 +344,13 @@ namespace UC.Net
 			MainStarted?.Invoke(this);
 
 			//if(waitconnections)
-			//{
-			//	while(!MinimalPeersReached)
-			//	{
-			//		Workflow.ThrowIfAborted();
-			//		Thread.Sleep(1);
-			//	}
-			//}
+			{
+				while(!MinimalPeersReached)
+				{
+					Workflow.ThrowIfAborted();
+					Thread.Sleep(1);
+				}
+			}
 		}
 
 		public void RunNode()
@@ -1065,7 +1065,7 @@ namespace UC.Net
 						download<AuthorEntry, string>(Database.Authors);
 						download<ProductEntry, ProductAddress>(Database.Products);
 						download<RealizationEntry, RealizationAddress>(Database.Realizations);
-						download<ReleaseEntry, ReleaseAddress>(Database.Releases);
+						download<ReleaseEntry, VersionAddress>(Database.Releases);
 		
 						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
 		
@@ -2196,7 +2196,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Download DownloadRelease(ReleaseAddress release, Workflow workflow)
+		public Download DownloadRelease(VersionAddress release, Workflow workflow)
 		{
 			lock(Lock)
 			{
@@ -2211,7 +2211,7 @@ namespace UC.Net
 			}
 		}
 
-		public ReleaseInfo GetReleaseInfo(ReleaseAddress release)
+		public ReleaseInfo GetReleaseInfo(VersionAddress release)
 		{
 			var m = Filebase.FindRelease(release);
 			
@@ -2237,7 +2237,7 @@ namespace UC.Net
 			return new ReleaseInfo();
 		}
 
-		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
+		public void AddRelease(VersionAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
 		{
 			var qlatest = Call(Role.Base, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
 			var previos = qlatest.Releases.FirstOrDefault()?.Registration.Release.Version;

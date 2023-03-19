@@ -120,8 +120,8 @@ namespace UC.Net
 			 
 			var p = round.AffectProduct(Realization);
 			
-			p.Realizations.RemoveAll(i => i.Name == Realization.Platform);
-			p.Realizations.Add(new ProductEntryRealization{Name = Realization.Platform, OSes = OSes});
+			p.Realizations.RemoveAll(i => i.Name == Realization.Realization);
+			p.Realizations.Add(new ProductEntryRealization{Name = Realization.Realization, OSes = OSes});
 
 			var r = round.AffectRealization(Realization);
 
@@ -200,7 +200,7 @@ namespace UC.Net
 
 	public class ReleaseRegistration : Operation
 	{
-		public ReleaseAddress		Release { get; set; }
+		public VersionAddress		Release { get; set; }
 		public byte[]				Manifest { get; set; }
 		public string				Channel { get; set; }
 
@@ -211,7 +211,7 @@ namespace UC.Net
 		{
 		}
 
-		public ReleaseRegistration(AccountKey signer, ReleaseAddress release, string channel, byte[] manifest)
+		public ReleaseRegistration(AccountKey signer, VersionAddress release, string channel, byte[] manifest)
 		{
 			Signer	= signer;
 			Release = release;
@@ -221,7 +221,7 @@ namespace UC.Net
 
 		protected override void ReadConfirmed(BinaryReader reader)
 		{
-			Release = reader.Read<ReleaseAddress>();
+			Release = reader.Read<VersionAddress>();
 			Manifest = reader.ReadSha3();
 			Channel = reader.ReadUtf8();
 		}
@@ -254,7 +254,7 @@ namespace UC.Net
 			if(p == null)
 				throw new IntegrityException("ProductEntry not found");
 			
-			var z = p.Realizations.Find(i => i.Name == Release.Platform);
+			var z = p.Realizations.Find(i => i.Name == Release.Realization);
 
 			if(z == null)
 			{
@@ -262,7 +262,7 @@ namespace UC.Net
 				return;
 			}
 
-			var ce = p.Releases.Where(i => i.Platform == Release.Platform).MaxBy(i => i.Version);
+			var ce = p.Releases.Where(i => i.Platform == Release.Realization).MaxBy(i => i.Version);
 					
 			if(ce != null)
 			{
@@ -279,7 +279,7 @@ namespace UC.Net
 			else
 				p = round.AffectProduct(Release);
 			
-			var e = new ProductEntryRelease(Release.Platform, Release.Version, Channel, round.Id);
+			var e = new ProductEntryRelease(Release.Realization, Release.Version, Channel, round.Id);
 
 			p.Releases.Add(e);
 

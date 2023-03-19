@@ -85,10 +85,10 @@ namespace UC.Net
 		public AccountInfoResponse				GetAccountInfo(Account account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{Account = account, Confirmed = confirmed});
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
-		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
-		public DeclareReleaseResponse			DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages) => Request<DeclareReleaseResponse>(new DeclareReleaseRequest{Packages = new PackageAddressPack(packages)});
-		public ManifestResponse					GetManifest(ReleaseAddress packages) => Request<ManifestResponse>(new ManifestRequest{Releases = new[]{packages}});
-		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress release, Distributive distributive, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Package = release, Distributive = distributive, Offset = offset, Length = length});
+		public LocateReleaseResponse			LocateRelease(VersionAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
+		public DeclareReleaseResponse			DeclareRelease(Dictionary<VersionAddress, Distributive> packages) => Request<DeclareReleaseResponse>(new DeclareReleaseRequest{Packages = new PackageAddressPack(packages)});
+		public ManifestResponse					GetManifest(VersionAddress packages) => Request<ManifestResponse>(new ManifestRequest{Releases = new[]{packages}});
+		public DownloadReleaseResponse			DownloadRelease(VersionAddress release, Distributive distributive, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Package = release, Distributive = distributive, Offset = offset, Length = length});
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
 
@@ -654,7 +654,7 @@ namespace UC.Net
 
 	public class LocateReleaseRequest : RdcRequest
 	{
-		public ReleaseAddress	Release { get; set; }
+		public VersionAddress	Release { get; set; }
 		public int				Count { get; set; }
 
 		public override RdcResponse Execute(Core core)
@@ -675,7 +675,7 @@ namespace UC.Net
 
 	public class ManifestRequest : RdcRequest
 	{
-		public IEnumerable<ReleaseAddress>	Releases { get; set; }
+		public IEnumerable<VersionAddress>	Releases { get; set; }
 
 		public override RdcResponse Execute(Core core)
 		{
@@ -695,7 +695,7 @@ namespace UC.Net
 
 	public class DownloadReleaseRequest : RdcRequest
 	{
-		public ReleaseAddress		Package { get; set; }
+		public VersionAddress		Package { get; set; }
 		public Distributive			Distributive { get; set; }
 		public long					Offset { get; set; }
 		public long					Length { get; set; }

@@ -5,95 +5,95 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>  
+	public class VersionAddress : IBinarySerializable, IEquatable<VersionAddress>  
 	{
-		RealizationAddress		Realization;
-		public string			Author => Realization.Author;
-		public string			Product => Realization.Product;
-		public string			Platform => Realization.Platform;
+		RealizationAddress		R;
+		public string			Author => R.Author;
+		public string			Product => R.Product;
+		public string			Realization => R.Realization;
 		public Version			Version { get; set; }
-		public bool				Valid => Realization.Valid;
+		public bool				Valid => R.Valid;
 
-		public static implicit operator RealizationAddress(ReleaseAddress d) => d.Realization;
-		public static implicit operator ProductAddress(ReleaseAddress d) => d.Realization;
+		public static implicit operator RealizationAddress(VersionAddress d) => d.R;
+		public static implicit operator ProductAddress(VersionAddress d) => d.R;
 
-		public ReleaseAddress(string author, string product, string platform, Version version)
+		public VersionAddress(string author, string product, string platform, Version version)
 		{
-			Realization = new(author, product, platform);
+			R = new(author, product, platform);
 			Version = version;
 		}
 
-		public ReleaseAddress()
+		public VersionAddress()
 		{
 		}
 
 		public override string ToString()
 		{
-			return $"{Realization}/{Version}";
+			return $"{R}/{Version}";
 		}
 
 		public override bool Equals(object o)
 		{
-			return o is ReleaseAddress a && Equals(a);
+			return o is VersionAddress a && Equals(a);
 		}
 
-		public bool Equals(ReleaseAddress o)
+		public bool Equals(VersionAddress o)
 		{
-			return Realization.Equals(o.Realization) && Version == o.Version;
+			return R.Equals(o.R) && Version == o.Version;
 		}
 
  		public override int GetHashCode()
  		{
- 			return Realization.GetHashCode();
+ 			return R.GetHashCode();
  		}
 
-		public static bool operator ==(ReleaseAddress left, ReleaseAddress right)
+		public static bool operator ==(VersionAddress left, VersionAddress right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(ReleaseAddress left, ReleaseAddress right)
+		public static bool operator !=(VersionAddress left, VersionAddress right)
 		{
 			return !(left == right);
 		}
 
-		public static ReleaseAddress Parse(string v)
+		public static VersionAddress Parse(string v)
 		{
 			var s = v.Split('/');
-			var a = new ReleaseAddress();
+			var a = new VersionAddress();
 			a.Parse(s);
 			return a;
 		}
 		
 		public void Parse(string[] s)
 		{
-			Realization = new();
-			Realization.Parse(s);
+			R = new();
+			R.Parse(s);
 			Version = Version.Parse(s[3]);
 		}
 
 		public void Write(BinaryWriter w)
 		{
-			Realization.Write(w);
+			R.Write(w);
 			w.Write(Version);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Realization = new();
-			Realization.Read(r);
+			R = new();
+			R.Read(r);
 			Version = r.Read<Version>();
 		}
 	}
 
-	public class ReleaseAddressJsonConverter : JsonConverter<ReleaseAddress>
+	public class ReleaseAddressJsonConverter : JsonConverter<VersionAddress>
 	{
-		public override ReleaseAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override VersionAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return ReleaseAddress.Parse(reader.GetString());
+			return VersionAddress.Parse(reader.GetString());
 		}
 
-		public override void Write(Utf8JsonWriter writer, ReleaseAddress value, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, VersionAddress value, JsonSerializerOptions options)
 		{
 			writer.WriteStringValue(value.ToString());
 		}

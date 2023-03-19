@@ -21,13 +21,13 @@ namespace UC.Net
 	{
 		public DependencyType Type;
 		public DependencyFlag Flags;
-		public ReleaseAddress Release;
+		public VersionAddress Release;
 
 		internal static Dependency From(Xon i)
 		{
 			var d = new Dependency();
 			
-			d.Release	= ReleaseAddress.Parse(i.String);
+			d.Release	= VersionAddress.Parse(i.String);
 			d.Type		= Enum.Parse<DependencyType>(i.Name);
 			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.Null;
 
@@ -36,7 +36,7 @@ namespace UC.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Release = reader.Read<ReleaseAddress>();
+			Release = reader.Read<VersionAddress>();
 			Type = (DependencyType)reader.ReadByte();
 			Flags = (DependencyFlag)reader.ReadByte();
 		}
@@ -58,7 +58,7 @@ namespace UC.Net
 			return other is not null &&
 				   Type == other.Type &&
 				   Flags == other.Flags &&
-				   EqualityComparer<ReleaseAddress>.Default.Equals(Release, other.Release);
+				   EqualityComparer<VersionAddress>.Default.Equals(Release, other.Release);
 		}
 
 		public override int GetHashCode()
@@ -79,7 +79,7 @@ namespace UC.Net
 
 	public class Manifest : IBinarySerializable
 	{
-		public ReleaseAddress			Release  { get; set; }
+		public VersionAddress			Release  { get; set; }
 		public byte[]					CompleteHash {get; set; }
 		public long						CompleteLength {get; set; }
 		public Dependency[]				CompleteDependencies {get; set; }

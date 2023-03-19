@@ -99,7 +99,7 @@ namespace UC.Net
 			}
 		}
 
-		public ReleaseAddress				Release;
+		public VersionAddress				Release;
 		public Distributive					Distributive { get; protected set; }
 		public long							Length { get; protected set; }
 		public bool							Successful => Downloaded && AllDependenciesFound && DependenciesCount == DependenciesSuccessfulCount;
@@ -124,7 +124,7 @@ namespace UC.Net
 		Manifest							Manifest;
 		Task								Task;
 
-		public Download(Core core, ReleaseAddress release, Workflow workflow)
+		public Download(Core core, VersionAddress release, Workflow workflow)
 		{
 			Core = core;
 			Release = release;
