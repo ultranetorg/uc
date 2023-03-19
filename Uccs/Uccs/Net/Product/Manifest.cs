@@ -79,18 +79,19 @@ namespace UC.Net
 
 	public class Manifest : IBinarySerializable
 	{
-		public ReleaseAddress	Release  { get; set; }
-		public byte[]			CompleteHash {get; set; }
-		public long				CompleteLength {get; set; }
-		public Dependency[]		CompleteDependencies {get; set; }
+		public ReleaseAddress			Release  { get; set; }
+		public byte[]					CompleteHash {get; set; }
+		public long						CompleteLength {get; set; }
+		public Dependency[]				CompleteDependencies {get; set; }
+		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
 
-		public byte[]			IncrementalHash {get; set; }
-		public long				IncrementalLength {get; set; }
-		public Version			IncrementalMinimalVersion {get; set; }
-		public Dependency[]		AddedDependencies {get; set; }
-		public Dependency[]		RemovedDependencies {get; set; }
+		public byte[]					IncrementalHash {get; set; }
+		public long						IncrementalLength {get; set; }
+		public Version					IncrementalMinimalVersion {get; set; }
+		public Dependency[]				AddedDependencies {get; set; }
+		public Dependency[]				RemovedDependencies {get; set; }
 
- 		byte[]					Hash;
+ 		byte[]							Hash;
 
 		public Manifest()
 		{

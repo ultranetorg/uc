@@ -156,7 +156,7 @@ namespace UC.Net
 
 				var call = JsonSerializer.Deserialize(json, t, JsonClient.Options) as ApiCall;
 
-				if(string.IsNullOrWhiteSpace(Settings.Api.AccessKey) || call.AccessKey != Settings.Api.AccessKey)
+				if(!string.IsNullOrWhiteSpace(Settings.Api.AccessKey) && call.AccessKey != Settings.Api.AccessKey)
 				{
 					rp.StatusCode = (int)HttpStatusCode.Unauthorized;
 					rp.Close();
@@ -170,8 +170,8 @@ namespace UC.Net
 					switch(call)
 					{
 						case SettingsCall c:
-							return new SettingsResponse{ProfilePath  = Core.Settings.Profile, 
-														Settings = Core.Settings}; /// TODO: serialize
+							return new SettingsResponse {ProfilePath	= Core.Settings.Profile, 
+														 Settings		= Core.Settings}; /// TODO: serialize
 	
 						case RunNodeCall e:
 							Core.RunNode();

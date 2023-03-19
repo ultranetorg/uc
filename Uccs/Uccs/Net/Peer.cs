@@ -218,10 +218,10 @@ namespace UC.Net
 			Reader				= new BinaryReader(Stream);
 			LastSeen			= DateTime.UtcNow;
 			Lock				= lockk;
-			BaseRank			= h.Roles.HasFlag(Role.Base) ? 1 : 0;
-			ChainRank			= h.Roles.HasFlag(Role.Chain) ? 1 : 0;
-			HubRank				= h.Roles.HasFlag(Role.Hub) ? 1 : 0;
-			SeedRank			= h.Roles.HasFlag(Role.Seed) ? 1 : 0;
+			BaseRank			= h.Roles.HasFlag(Role.Base)	? 1 : 0;
+			ChainRank			= h.Roles.HasFlag(Role.Chain)	? 1 : 0;
+			HubRank				= h.Roles.HasFlag(Role.Hub)		? 1 : 0;
+			SeedRank			= h.Roles.HasFlag(Role.Seed)	? 1 : 0;
 
 			core.UpdatePeers(new Peer[]{this});
 

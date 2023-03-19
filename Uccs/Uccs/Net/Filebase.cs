@@ -67,9 +67,9 @@ namespace UC.Net
 		string					Root;
 		public List<Release>	Releases = new();
 
-		public Filebase(Settings settings)
+		public Filebase(string path)
 		{
-			Root = System.IO.Path.Join(settings.Profile, "Filebase");
+			Root = path;
 
 			Directory.CreateDirectory(Root);
 

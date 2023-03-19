@@ -76,7 +76,7 @@ namespace UC.Sun.CLI
 										};
 
 
-				Func<Core> getclient =	() =>
+				Func<Core> getuser =	() =>
 										{
 											if(Core == null)
 											{
@@ -87,7 +87,7 @@ namespace UC.Sun.CLI
 																							FeeAsker = new SilentFeeAsker()
 																						};
 
-												Core.RunClient();
+												Core.RunUser();
 											}
 
 											return Core;
@@ -102,14 +102,14 @@ namespace UC.Sun.CLI
 				switch(t)
 				{
 					case RunCommand.Keyword:			c = new RunCommand(Settings, Log, getcore, cmd); break;
-					case HostCommand.Keyword:			c = new HostCommand(Settings, Log, getclient, cmd); break;
-					case AccountCommand.Keyword:		c = new AccountCommand(Settings, Log, getclient, cmd); break;
-					case UntCommand.Keyword:			c = new UntCommand(Settings, Log, getclient, cmd); break;
-					case MembershipCommand.Keyword:		c = new MembershipCommand(Settings, Log, getclient, cmd); break;
-					case AuthorCommand.Keyword:			c = new AuthorCommand(Settings, Log, getclient, cmd); break;
-					case ProductCommand.Keyword:		c = new ProductCommand(Settings, Log, getclient, cmd); break;
-					case RealizationCommand.Keyword:	c = new RealizationCommand(Settings, Log, getclient, cmd); break;
-					case ReleaseCommand.Keyword:		c = new ReleaseCommand(Settings, Log, getclient, cmd); break;
+					case HostCommand.Keyword:			c = new HostCommand(Settings, Log, getuser, cmd); break;
+					case AccountCommand.Keyword:		c = new AccountCommand(Settings, Log, getuser, cmd); break;
+					case UntCommand.Keyword:			c = new UntCommand(Settings, Log, getuser, cmd); break;
+					case MembershipCommand.Keyword:		c = new MembershipCommand(Settings, Log, getuser, cmd); break;
+					case AuthorCommand.Keyword:			c = new AuthorCommand(Settings, Log, getuser, cmd); break;
+					case ProductCommand.Keyword:		c = new ProductCommand(Settings, Log, getuser, cmd); break;
+					case RealizationCommand.Keyword:	c = new RealizationCommand(Settings, Log, getuser, cmd); break;
+					case ReleaseCommand.Keyword:		c = new ReleaseCommand(Settings, Log, getuser, cmd); break;
 				}
 
 				c?.Execute();

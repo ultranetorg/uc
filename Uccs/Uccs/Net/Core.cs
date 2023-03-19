@@ -304,13 +304,13 @@ namespace UC.Net
 			ApiStarted?.Invoke(this);
 		}
 
-		public void RunClient()
+		public void RunUser()
 		{
 			Nuid = Guid.NewGuid();
 
 			if(Settings.Filebase.Enabled)
 			{
-				Filebase = new Filebase(Settings);
+				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name));
 			}
 
 			LoadPeers();
@@ -343,11 +343,14 @@ namespace UC.Net
 
 			MainStarted?.Invoke(this);
 
-			while(!MinimalPeersReached)
-			{
-				Workflow.ThrowIfAborted();
-				Thread.Sleep(1);
-			}
+			//if(waitconnections)
+			//{
+			//	while(!MinimalPeersReached)
+			//	{
+			//		Workflow.ThrowIfAborted();
+			//		Thread.Sleep(1);
+			//	}
+			//}
 		}
 
 		public void RunNode()
@@ -361,7 +364,7 @@ namespace UC.Net
 
 			if(Settings.Filebase.Enabled)
 			{
-				Filebase = new Filebase(Settings);
+				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name));
 			}
 
 			if(Settings.Database.Base || Settings.Database.Chain)
@@ -1018,7 +1021,8 @@ namespace UC.Net
 																			Tables.Releases		=> stamp.Releases.Where(i =>{
 																																var c = Database.Releases.SuperClusters.ContainsKey(i.Id);
 																																return !c || !Database.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																															})
+																															}),
+																			_ => throw new SynchronizationException()
 																		}
 																).Select(i => i.Id).ToArray());
 		

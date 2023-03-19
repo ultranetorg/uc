@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace UC.Net
+{
+	public class Client
+	{
+		public Filebase		Filebase;
+		public JsonClient	JsonClient;
+		HttpClient			Http = new HttpClient();
+
+		public Client(string server, string key, Zone zone)
+		{
+			JsonClient = new JsonClient(Http, server, zone, key);
+
+			var s = JsonClient.Request<SettingsResponse>(new SettingsCall(), new Workflow());
+
+			Filebase = new Filebase(Path.Join(s.ProfilePath, nameof(Filebase)));
+		}
+	}
+}
