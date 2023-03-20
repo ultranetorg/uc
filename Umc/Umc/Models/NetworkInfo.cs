@@ -8,5 +8,5 @@ public class NetworkInfo
 	public DateTime LastBlockDate { get; set; }
 	public string RoundNumber { get; set; }
 
-	public string DisplayBlockDate => LastBlockDate.ToString("dd MMM yyyy HH:mm");
+	public string DisplayBlockDate => CommonHelper.GetFormattedDate(LastBlockDate);
 }

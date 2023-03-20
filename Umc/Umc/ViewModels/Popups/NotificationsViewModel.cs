@@ -15,7 +15,6 @@ public partial class NotificationsViewModel : BaseViewModel
 	
 	public void Initialize()
 	{
-		var notifications = Task.Run(async () => await _service.GetAllAsync()).Result;
-		Notifications.AddRange(notifications);
+		Notifications = _service.GetAll();
 	}
 }

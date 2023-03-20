@@ -20,8 +20,6 @@ public static class ViewModelExtensions
 
 		builder.Services.AddSingleton<TransactionsViewModel>();
 
-		builder.Services.AddSingleton<TransactionsViewModel>();
-
 		// Transient ViewModels
 		builder.Services.AddTransient<AccountDetailsViewModel>();
 

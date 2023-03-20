@@ -1,11 +1,11 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class EnterPinViewModel : BaseViewModel
+public partial class EnterPinViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private AccountViewModel _account;
 
-    public EnterPinViewModel(ILogger<EnterPinViewModel> logger) : base(logger)
+    public EnterPinViewModel(INotificationsService notificationService, ILogger<EnterPinViewModel> logger) : base(notificationService, logger)
     {
 		LoadData();
     }

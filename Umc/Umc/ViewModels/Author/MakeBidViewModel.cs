@@ -13,7 +13,7 @@ public partial class MakeBidViewModel : BaseAuthorViewModel
 
 	public string AmountError => GetControlErrorMessage(nameof(Amount));
 
-	public MakeBidViewModel(ILogger<MakeBidViewModel> logger) : base(logger)
+	public MakeBidViewModel(INotificationsService notificationService, ILogger<MakeBidViewModel> logger) : base(notificationService, logger)
     {
 	}
 

@@ -7,6 +7,7 @@ public partial class AuthorViewModel : ObservableObject
 	[ObservableProperty]
 	private bool					_isSelected;
 	protected AuthorEntry			_entry;
+    public AccountViewModel			Account { get; internal set; }
 
     public int						Id { get; internal set; }
     public string					Name { get; internal set; } // => _entry.Name;
@@ -19,8 +20,6 @@ public partial class AuthorViewModel : ObservableObject
     public string					MaximumBidBy { get; internal set; } // => _entry.MaximumBidBy;
     public DateTime					AuctionEndDate { get; internal set; } // => _entry.MaximumBidBy;
     public BidStatus				BidStatus { get; internal set; }
-
-    public AccountViewModel			Account { get; internal set; }
     public IList<ProductViewModel>	Products = new List<ProductViewModel>();
 	public IList<Bid>				BidsHistory = new List<Bid>();
 

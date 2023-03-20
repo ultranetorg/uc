@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductRegistrationViewModel : BaseViewModel
+public partial class ProductRegistrationViewModel : BasePageViewModel
 {
 	[ObservableProperty]
 	private string _name = string.Empty;
@@ -14,7 +14,7 @@ public partial class ProductRegistrationViewModel : BaseViewModel
 	[ObservableProperty]
     private int _position;
 
-    public ProductRegistrationViewModel(ILogger<ProductRegistrationViewModel> logger) : base(logger)
+    public ProductRegistrationViewModel(INotificationsService notificationService, ILogger<ProductRegistrationViewModel> logger) : base(notificationService, logger)
     {
     }
 

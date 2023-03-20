@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class TransferCompleteViewModel : BaseViewModel
+public partial class TransferCompleteViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private AccountViewModel _account;
@@ -14,7 +14,8 @@ public partial class TransferCompleteViewModel : BaseViewModel
 	public decimal EthComission => (UntAmount + 1) / 100;
 	public string TransactionDate => "10/15/2021 19:24";
 
-    public TransferCompleteViewModel(ILogger<TransferCompleteViewModel> logger) : base(logger)
+    public TransferCompleteViewModel(INotificationsService notificationService,
+		ILogger<TransferCompleteViewModel> logger) : base(notificationService, logger)
     {
     }
 

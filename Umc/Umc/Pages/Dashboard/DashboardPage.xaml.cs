@@ -19,7 +19,6 @@ public partial class DashboardPage : CustomPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
         await Vm.InitializeAsync();
     }
 }

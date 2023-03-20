@@ -1,10 +1,10 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class HelpDetailsViewModel : BaseViewModel
+public partial class HelpDetailsViewModel : BasePageViewModel
 {
 	public HelpInfo HelpDetails { get; set; }
 
-    public HelpDetailsViewModel(ILogger<HelpDetailsViewModel> logger) : base(logger)
+    public HelpDetailsViewModel(INotificationsService notificationService, ILogger<HelpDetailsViewModel> logger) : base(notificationService, logger)
     {
 		InitializeAsync();
     }

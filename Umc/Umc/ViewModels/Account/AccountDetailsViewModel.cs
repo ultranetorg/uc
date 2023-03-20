@@ -17,7 +17,8 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	[ObservableProperty]
     public GradientBrush _background;
 
-    public AccountDetailsViewModel(IServicesMockData service, ILogger<AccountDetailsViewModel> logger) : base(logger)
+    public AccountDetailsViewModel(INotificationsService notificationService, IServicesMockData service,
+		ILogger<AccountDetailsViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
 		LoadData();

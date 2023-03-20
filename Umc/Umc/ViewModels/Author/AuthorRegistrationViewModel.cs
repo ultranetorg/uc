@@ -13,7 +13,8 @@ public partial class AuthorRegistrationViewModel : BaseAuthorViewModel
 		? string.Empty
 		: string.Join("", Title.ToLower().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
 
-    public AuthorRegistrationViewModel(ILogger<AuthorRegistrationViewModel> logger) : base(logger)
+    public AuthorRegistrationViewModel(INotificationsService notificationService,
+		ILogger<AuthorRegistrationViewModel> logger) : base(notificationService, logger)
     {
     }
 

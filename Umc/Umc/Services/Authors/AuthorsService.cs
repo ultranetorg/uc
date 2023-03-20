@@ -2,7 +2,12 @@
 
 public sealed class AuthorsService : IAuthorsService
 {
-	public Task<ObservableCollection<AuthorViewModel>> GetAccountAuthorsAsync()
+	public Task<ObservableCollection<AuthorViewModel>> GetAuthorsAsync()
+	{
+		throw new NotImplementedException();
+	}
+
+	public CustomCollection<AuthorViewModel> GetAccountAuthors(string account)
 	{
 		throw new NotImplementedException();
 	}

@@ -4,6 +4,9 @@ namespace UC.Umc.Helpers;
 
 public static class CommonHelper
 {
+	public static string GetTodayDate => GetFormattedDate(DateTime.UtcNow);
+	public static string GetFormattedDate(DateTime date) => date.ToString("dd MMM yyyy HH:mm");
+
 	public static int GetDaysLeft(DateTime date) =>
 		date == default ? 0
 		: (int)(new TimeSpan(date.Ticks - DateTime.Now.Ticks).TotalDays);

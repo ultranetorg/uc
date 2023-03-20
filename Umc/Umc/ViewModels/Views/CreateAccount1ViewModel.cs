@@ -19,7 +19,7 @@ public partial class CreateAccount1ViewModel : BaseAccountViewModel
 	[ObservableProperty]
     private bool _specialCharacterIncluded;
 
-    public CreateAccount1ViewModel(ILogger<CreateAccount1ViewModel> logger) : base(logger)
+    public CreateAccount1ViewModel(INotificationsService notificationService, ILogger<CreateAccount1ViewModel> logger) : base(notificationService, logger)
     {
 	}
 

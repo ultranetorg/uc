@@ -27,7 +27,6 @@
                 HorizontalOptions="CenterAndExpand"
                 Margin="0,0,0,8"
                 Style="{StaticResource PopupHandleBorder}" />
-            
             <Button
                 Grid.Row="1"
                 Grid.Column="0"

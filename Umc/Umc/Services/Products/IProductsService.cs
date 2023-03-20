@@ -2,9 +2,9 @@
 
 public interface IProductsService
 {
-    Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync();
+    CustomCollection<ProductViewModel> GetAccountProducts(string account);
 
-    Task<ObservableCollection<ProductViewModel>> GetAuthorProductsAsync(string authorName);
+    Task<ObservableCollection<ProductViewModel>> GetAllProductsAsync();
 
     Task<ObservableCollection<ProductViewModel>> SearchProductsAsync(string search);
 }

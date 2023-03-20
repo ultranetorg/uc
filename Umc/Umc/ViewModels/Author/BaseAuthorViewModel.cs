@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public abstract partial class BaseAuthorViewModel : BaseViewModel
+public abstract partial class BaseAuthorViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRegister))]
@@ -29,7 +29,7 @@ public abstract partial class BaseAuthorViewModel : BaseViewModel
     public bool? HasOwner => Author?.Status == AuthorStatus.Owned || Author?.Status == AuthorStatus.Reserved;
 
 
-	protected BaseAuthorViewModel(ILogger logger) : base(logger)
+	protected BaseAuthorViewModel(INotificationsService notificationService, ILogger logger) : base(notificationService, logger)
 	{
 	}
 

@@ -10,7 +10,8 @@ public partial class AuthorRenewalViewModel : BaseAuthorViewModel
 		? string.Empty
 		: DateTime.UtcNow.AddDays(int.Parse(Period)).ToShortDateString();
 
-    public AuthorRenewalViewModel(ILogger<AuthorRenewalViewModel> logger) : base(logger)
+    public AuthorRenewalViewModel(INotificationsService notificationService,
+		ILogger<AuthorRenewalViewModel> logger) : base(notificationService, logger)
     {
     }
 }

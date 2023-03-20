@@ -2,7 +2,7 @@
 
 public partial class AuthorOptionsViewModel : BaseAuthorViewModel
 {
-	public AuthorOptionsViewModel(ILogger<AuthorOptionsViewModel> logger) : base(logger)
+	public AuthorOptionsViewModel(INotificationsService notificationService, ILogger<AuthorOptionsViewModel> logger) : base(notificationService, logger)
 	{
 	}
 }

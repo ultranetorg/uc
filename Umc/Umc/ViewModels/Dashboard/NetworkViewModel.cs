@@ -1,13 +1,14 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class NetworkViewModel : BaseViewModel
+public partial class NetworkViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private NetworkInfo _networkInfo = DefaultDataMock.NetworkInfo;
 
-    public string CurrentTime => DateTime.UtcNow.ToString("dd MMM yyyy HH:mm");
+    public string CurrentTime => CommonHelper.GetTodayDate;
 
-    public NetworkViewModel(ILogger<NetworkViewModel> logger) : base(logger)
+    public NetworkViewModel(INotificationsService notificationService,
+		ILogger<NetworkViewModel> logger) : base(notificationService, logger)
     {
     }
 

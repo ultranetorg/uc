@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductTransferViewModel : BaseViewModel
+public partial class ProductTransferViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private AuthorViewModel _author;
@@ -14,7 +14,7 @@ public partial class ProductTransferViewModel : BaseViewModel
 	[ObservableProperty]
     private int _position;
 
-    public ProductTransferViewModel(ILogger<ProductTransferViewModel> logger) : base(logger)
+    public ProductTransferViewModel(INotificationsService notificationService, ILogger<ProductTransferViewModel> logger) : base(notificationService, logger)
     {
     }
 

@@ -30,7 +30,7 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 
     public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
 
-    public RestoreAccountViewModel(ILogger<RestoreAccountViewModel> logger) : base(logger)
+    public RestoreAccountViewModel(INotificationsService notificationService, ILogger<RestoreAccountViewModel> logger) : base(notificationService, logger)
     {
     }
 

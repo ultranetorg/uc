@@ -7,7 +7,8 @@ public partial class CreateAccount2ViewModel : BaseAccountViewModel
 	[ObservableProperty]
     private AccountColor _selectedAccountColor;
 
-    public CreateAccount2ViewModel(IServicesMockData service, ILogger<CreateAccount2ViewModel> logger) : base(logger)
+    public CreateAccount2ViewModel(INotificationsService notificationService, IServicesMockData service,
+		ILogger<CreateAccount2ViewModel> logger) : base(notificationService,logger)
     {
 		_service = service;
 		LoadData();

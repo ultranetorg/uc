@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ProductSearchViewModel : BaseViewModel
+public partial class ProductSearchViewModel : BasePageViewModel
 {
 	private readonly IProductsService _service;
 	[ObservableProperty]
@@ -12,7 +12,8 @@ public partial class ProductSearchViewModel : BaseViewModel
 	[ObservableProperty]
     private string _filter;
 
-    public ProductSearchViewModel(IProductsService service, ILogger<ProductSearchViewModel> logger) : base(logger)
+    public ProductSearchViewModel(INotificationsService notificationService, IProductsService service,
+		ILogger<ProductSearchViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
     }

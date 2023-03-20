@@ -77,15 +77,16 @@ public class ServicesMockData : IServicesMockData
 
 			#region Products
 
-			ProductViewModel product1 = new("Windows", "Microsoft", ColorHelper.GetRandomColor(), "1.0.1");
-			ProductViewModel product2 = new("Office", "Microsoft", ColorHelper.GetRandomColor(), "1.0.2");
-			ProductViewModel product3 = new("Visual Studio Code", "Microsoft", ColorHelper.GetRandomColor(), "1.0.3");
-			ProductViewModel product4 = new("Outlook 365", "Microsoft", ColorHelper.GetRandomColor(), "4.4 (LTS)");
-			ProductViewModel product5 = new("Paint", "Microsoft", ColorHelper.GetRandomColor(), "0.7-preview");
-			ProductViewModel product6 = new("Google Search", "Alphabet", ColorHelper.GetRandomColor(), "2.0.1");
-			ProductViewModel product7 = new("AWS", "Amazon", ColorHelper.GetRandomColor(), "12.2.0 beta");
-			ProductViewModel product8 = new("Warehouse", "Space X", ColorHelper.GetRandomColor(), "0.1-alpha");
-			ProductViewModel product9 = new("Gate Defender 3", "Gate 500", ColorHelper.GetRandomColor(), "1.0.9");
+			ProductViewModel product1 = new("Windows", "Microsoft", ColorHelper.GetRandomColor(), "1.0.1", account1);
+			ProductViewModel product2 = new("Office", "Microsoft", ColorHelper.GetRandomColor(), "1.0.2", account1);
+			ProductViewModel product3 = new("Visual Studio Code", "Microsoft", ColorHelper.GetRandomColor(), "1.0.3", account2);
+			ProductViewModel product4 = new("Outlook 365", "Microsoft", ColorHelper.GetRandomColor(), "4.4 (LTS)", account2);
+			ProductViewModel product5 = new("Paint", "Microsoft", ColorHelper.GetRandomColor(), "0.7-preview", account3);
+			ProductViewModel product6 = new("Google Search", "Alphabet", ColorHelper.GetRandomColor(), "2.0.1", account3);
+			ProductViewModel product7 = new("AWS", "Amazon", ColorHelper.GetRandomColor(), "12.2.0 beta", account4);
+			ProductViewModel product8 = new("Warehouse", "Space X", ColorHelper.GetRandomColor(), "0.1-alpha", account5);
+			ProductViewModel product9 = new("Gate Defender 3", "Gate 500", ColorHelper.GetRandomColor(), "1.0.9", account6);
+			ProductViewModel product10 = new("Pate 4", "Pate 520", ColorHelper.GetRandomColor(), "2.0.9", account7);
 
 			Products.Add(product1);
 			Products.Add(product2);
@@ -96,6 +97,7 @@ public class ServicesMockData : IServicesMockData
 			Products.Add(product7);
 			Products.Add(product8);
 			Products.Add(product9);
+			Products.Add(product10);
 
 			#endregion Products
 
@@ -195,6 +197,10 @@ public class ServicesMockData : IServicesMockData
 				Owner = "0x71C7656EC7ab88b098defB751B7401B5f6d76F",
 				Status = AuthorStatus.Owned,
 				ExpirationDate = new DateTime(2024, 9, 1),
+				Products = new List<ProductViewModel>
+				{
+					product9,
+				},
 			};
 
 			AuthorViewModel author5 = new()
@@ -207,31 +213,34 @@ public class ServicesMockData : IServicesMockData
 				Status = AuthorStatus.Reserved,
 				Products = new List<ProductViewModel>
 				{
-					product9,
+					product10,
 				},
 			};
 
 			AuthorViewModel author6 = new()
 			{
 				Name = "Test",
+				Account = account7,
 				Status = AuthorStatus.Free,
 			};
 
 			AuthorViewModel author7 = new()
 			{
 				Name = "Test Own",
+				Account = account8,
 				Status = AuthorStatus.Owned,
 			};
 
 			product1.Author = author1;
 			product2.Author = author1;
-			product3.Author = author1;
-			product4.Author = author7;
-			product5.Author = author2;
-			product6.Author = author2;
-			product7.Author = author3;
+			product3.Author = author2;
+			product4.Author = author2;
+			product5.Author = author3;
+			product6.Author = author3;
+			product7.Author = author4;
 			product8.Author = author4;
 			product9.Author = author5;
+			product10.Author = author5;
 
 			Authors.Add(author1);
 			Authors.Add(author2);

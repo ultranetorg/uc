@@ -1,13 +1,14 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class ManageAccountsViewModel : BaseViewModel
+public partial class ManageAccountsViewModel : BasePageViewModel
 {
 	private readonly IAccountsService _service;
 
 	[ObservableProperty]
     private CustomCollection<AccountViewModel> _accounts = new();
 
-    public ManageAccountsViewModel(IAccountsService service, ILogger<ManageAccountsViewModel> logger) : base(logger)
+    public ManageAccountsViewModel(INotificationsService notificationService, IAccountsService service,
+		ILogger<ManageAccountsViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
     }

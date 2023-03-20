@@ -2,7 +2,7 @@
 
 namespace UC.Umc.ViewModels;
 
-public partial class HelpViewModel : BaseViewModel
+public partial class HelpViewModel : BasePageViewModel
 {
 	private readonly IServicesMockData _service;
 
@@ -15,7 +15,8 @@ public partial class HelpViewModel : BaseViewModel
 	[ObservableProperty]
     private string _filter;
 
-    public HelpViewModel(IServicesMockData service, ILogger<HelpViewModel> logger) : base(logger)
+    public HelpViewModel(INotificationsService notificationService, IServicesMockData service,
+		ILogger<HelpViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
 		LoadData();

@@ -1,8 +1,8 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class AboutViewModel : BaseViewModel
+public partial class AboutViewModel : BasePageViewModel
 {
-    public AboutViewModel(ILogger<AboutViewModel> logger) : base(logger)
+    public AboutViewModel(INotificationsService notificationService, ILogger<AboutViewModel> logger) : base(notificationService, logger)
     {
     }
 

@@ -30,7 +30,7 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	public decimal EthCommission => (EthAmount + 1) / 100;
 	public decimal UntCommission => (EthAmount + 1) / 10;
 
-    public ETHTransferViewModel(ILogger<ETHTransferViewModel> logger) : base(logger)
+    public ETHTransferViewModel(INotificationsService notificationService, ILogger<ETHTransferViewModel> logger) : base(notificationService, logger)
     {
     }
 

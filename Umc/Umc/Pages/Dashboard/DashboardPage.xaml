@@ -77,6 +77,8 @@
     
     <Shell.TitleView>
         <views:PageTitleNotificationsView
+            NotificationsCount="{Binding NotificationsCount}"
+            MaxSeverity="{Binding NotificationsSeverity}"
             Title="Ultranet User Center"
             TitleStyle="{StaticResource TitleLabel}" />
     </Shell.TitleView>

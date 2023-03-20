@@ -7,7 +7,8 @@ public partial class CreateAccountPageViewModel : BaseAccountViewModel
 	[ObservableProperty]
     private AccountColor _selectedAccountColor;
 
-    public CreateAccountPageViewModel(IServicesMockData service, ILogger<CreateAccountPageViewModel> logger) : base(logger)
+    public CreateAccountPageViewModel(INotificationsService notificationService, IServicesMockData service,
+		ILogger<CreateAccountPageViewModel> logger) : base(notificationService, logger)
     {
 		_service = service;
     }

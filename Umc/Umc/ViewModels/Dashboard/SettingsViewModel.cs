@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.ViewModels;
 
-public partial class SettingsViewModel : BaseViewModel
+public partial class SettingsViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private CustomCollection<string> _months;
@@ -8,7 +8,7 @@ public partial class SettingsViewModel : BaseViewModel
 	[ObservableProperty]
     private AccountViewModel _account;
 
-    public SettingsViewModel(ILogger<SettingsViewModel> logger) : base(logger)
+    public SettingsViewModel(INotificationsService notificationService, ILogger<SettingsViewModel> logger) : base(notificationService, logger)
     {
 		LoadData();
     }
