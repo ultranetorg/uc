@@ -1,3 +1,4 @@
+using System.Reflection;
 using UC;
 using UC.Net;
 
@@ -5,6 +6,8 @@ namespace Uccs.Demo.Application
 {
 	public static class Program
 	{
+		static Nexus? Nexus;
+
 		/// <summary>
 		///  The main entry point for the application.
 		/// </summary>
@@ -21,8 +24,31 @@ namespace Uccs.Demo.Application
 
 		public static void SimulateMain(string productspath)
 		{
-			new Nexus(productspath, Zone.Localnet);
+			Nexus = new Nexus(productspath, Zone.Localnet);
+			
 			var f = new Form1();
+
+
+			Task.Run(() =>
+					 {
+						 var v = ReleaseAddress.Parse("uo/democomponent/dotnet/0.0.0.0");
+						
+						 Nexus.GetRelease(v, new Workflow());
+
+						f.BeginInvoke(new Action(	() =>
+													{
+														var a = Assembly.LoadFile(Path.Join(Nexus.MapReleasePath(v), "Uccs.Demo.Component.dll"));
+														var ct = a.GetType("DemoComponent.ComponentControl");
+														var c = ct.GetConstructor(new Type[]{}).Invoke(null) as UserControl;
+
+														c.Location = f.pictureBox1.Location;
+														c.Size = f.pictureBox1.Size;
+
+														f.Controls.Remove(f.pictureBox1);
+														f.Controls.Add(c);
+													}));
+					 });
+
 			f.Show();
 		}
 	}

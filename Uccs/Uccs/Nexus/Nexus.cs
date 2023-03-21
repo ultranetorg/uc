@@ -17,20 +17,25 @@ namespace UC
 		public Nexus(string productspath, Zone zone)
 		{
 			ProductsPath = productspath;
-			Sun = new Client("192.168.1.107", null, zone);
+			Sun = new Client("192.168.1.107", null, zone, ProductsPath);
 			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 		}
 
-		public VersionAddress ReleaseFromAssembly(string path)
+		public ReleaseAddress ReleaseFromAssembly(string path)
 		{
 			var x = path.Substring(ProductsPath.Length).Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
 
 			var apr = x[0].Split('-');
 
-			return new VersionAddress(apr[0], apr[1], apr[2], Version.Parse(x[1]));
+			return new ReleaseAddress(apr[0], apr[1], apr[2], Version.Parse(x[1]));
 		}
 
-		public string MapReleasePath(VersionAddress release)
+		public static string VersionToRelative(ReleaseAddress release)
+		{
+			return Path.Join($"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABCD);
+		}
+
+		public string MapReleasePath(ReleaseAddress release)
 		{
 			return Path.Join(ProductsPath, $"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABCD);
 		}
@@ -52,6 +57,11 @@ namespace UC
 			}
 
 			return null;
+		}
+
+		public void GetRelease(ReleaseAddress version, Workflow workflow)
+		{
+			Sun.GetRelease(version, workflow);
 		}
 	}
 }

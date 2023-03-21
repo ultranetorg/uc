@@ -30,7 +30,7 @@ namespace UC.Sun.CLI
 
 				case "declare" : 
 					return Core.Enqueue(new ReleaseRegistration(GetPrivate("by", "password"), 
-																VersionAddress.Parse(GetString("address")),
+																ReleaseAddress.Parse(GetString("address")),
 																GetString("channel"),
 																GetHexBytes("hash")),
 										GetAwaitStage(), 
@@ -38,7 +38,7 @@ namespace UC.Sun.CLI
 
 				case "add" :
 				{
-					Core.Filebase.AddRelease(	VersionAddress.Parse(GetString("address")), 
+					Core.Filebase.AddRelease(	ReleaseAddress.Parse(GetString("address")), 
 												Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
 												GetString("sources").Split(','), 
 												GetString("dependsdirectory"), 
@@ -48,7 +48,7 @@ namespace UC.Sun.CLI
 
 				case "download" :
 				{
-					var d = Core.DownloadRelease(VersionAddress.Parse(GetString("address")), Workflow);
+					var d = Core.DownloadRelease(ReleaseAddress.Parse(GetString("address")), Workflow);
 
 					if(d != null)
 					{

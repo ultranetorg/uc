@@ -36,8 +36,8 @@ namespace UC.Net
 
 		public string Platform
 		{ 
-			set { Realization.Realization = value; } 
-			get { return Realization.Realization; } 
+			set { Realization.Name = value; } 
+			get { return Realization.Name; } 
 		}
 
 		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string channel)
@@ -50,7 +50,7 @@ namespace UC.Net
 
 		public ReleaseQuery(RealizationAddress realization, Version version, VersionQuery versionQuery, string channel)
 		{
-			Realization = new(realization.Author, realization.Product, realization.Realization);
+			Realization = new(realization.Author, realization.Product, realization.Name);
 			Version = version;
 			VersionQuery = versionQuery;
 			Channel = channel;
@@ -83,7 +83,7 @@ namespace UC.Net
  			Channel = s[5];
  		}
 
-		public bool Match(VersionAddress address)
+		public bool Match(ReleaseAddress address)
 		{
 			throw new NotImplementedException();
 		}

@@ -37,9 +37,9 @@
 			controlaa1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			controlaa1.BackgroundImageLayout = ImageLayout.None;
 			controlaa1.BorderStyle = BorderStyle.FixedSingle;
-			controlaa1.Location = new Point(104, 149);
+			controlaa1.Location = new Point(42, 65);
 			controlaa1.Name = "controlaa1";
-			controlaa1.Size = new Size(578, 368);
+			controlaa1.Size = new Size(346, 351);
 			controlaa1.TabIndex = 0;
 			// 
 			// label1
@@ -59,7 +59,7 @@
 			Controls.Add(label1);
 			Controls.Add(controlaa1);
 			Name = "UserControlA";
-			Size = new Size(993, 1176);
+			Size = new Size(955, 1160);
 			ResumeLayout(false);
 			PerformLayout();
 		}

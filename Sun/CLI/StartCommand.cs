@@ -17,15 +17,14 @@ namespace UC.Sun.CLI
 		{
 		}
 
-		string MapPath(VersionAddress r)
+		string MapPath(ReleaseAddress r)
 		{
-			return Path.Join(GetString("products") ?? ProductsDirectory, $"{r.Author}-{r.Product}-{r.Realization}", r.Version.ABCD);
+			return Path.Join(Settings.ProductsPath, $"{r.Author}-{r.Product}-{r.Realization}", r.Version.ABCD);
 		}
-
 
 		public override object Execute()
 		{
-			var r = VersionAddress.Parse(GetString("application"));
+			var r = ReleaseAddress.Parse(GetString("application"));
 
 			if(!Core.Filebase.ExistsRecursively(r))
 			{
@@ -37,13 +36,13 @@ namespace UC.Sun.CLI
 				}
 			}
 			
-			Core.Filebase.Unpack(r, GetString("products") ?? ProductsDirectory);
+			Core.Filebase.Unpack(r);
 			
 			var f = Directory.EnumerateFiles(MapPath(r), "*.start").FirstOrDefault();
 			
 			if(f != null)
 			{
-				string setenv(VersionAddress a, string p)
+				string setenv(ReleaseAddress a, string p)
 				{
 					p += ";" + MapPath(a);
 

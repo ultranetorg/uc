@@ -60,7 +60,7 @@ namespace UC.Net
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
 		public Dictionary<ProductAddress, ProductEntry>			AffectedProducts = new();
 		public Dictionary<RealizationAddress, RealizationEntry>	AffectedRealizations = new();
-		public Dictionary<VersionAddress, ReleaseEntry>			AffectedReleases = new();
+		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
 		
 		//public List<Payload>									ExecutingPayloads;
 		//public IEnumerable<Operation>							ExecutedOperations => ExecutingPayloads	.SelectMany(i => i.Transactions)
@@ -198,7 +198,7 @@ namespace UC.Net
 			return Database.Realizations.Find(name, Id - 1);
 		}
 		
-		public ReleaseEntry FindRelease(VersionAddress name)
+		public ReleaseEntry FindRelease(ReleaseAddress name)
 		{
 			if(AffectedReleases.ContainsKey(name))
 				return AffectedReleases[name];
@@ -230,7 +230,7 @@ namespace UC.Net
 			return AffectedRealizations[address];
 		}
 
-		public ReleaseEntry AffectRelease(VersionAddress address)
+		public ReleaseEntry AffectRelease(ReleaseAddress address)
 		{
 			var e = FindRelease(address);
 

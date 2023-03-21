@@ -29,7 +29,7 @@ namespace UC.Net
 	public class Seedbase
 	{
 		Core											Core;
-		public Dictionary<VersionAddress, List<Seed>>	Releases = new ();
+		public Dictionary<ReleaseAddress, List<Seed>>	Releases = new ();
 		public const int								SeedersPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
 		public const int								SeedersPerRequestMax = 256;
 
@@ -38,7 +38,7 @@ namespace UC.Net
 			Core = core;
 		}
 
-		List<Seed> GetSeeders(VersionAddress release)
+		List<Seed> GetSeeders(ReleaseAddress release)
 		{
  			if(!Releases.ContainsKey(release))
  				return Releases[release] = new();
@@ -46,7 +46,7 @@ namespace UC.Net
  				return Releases[release];
 		}
 
-		public void Add(IPAddress ip, Dictionary<VersionAddress, Distributive> packages)
+		public void Add(IPAddress ip, Dictionary<ReleaseAddress, Distributive> packages)
 		{
 			foreach(var i in packages)
 			{

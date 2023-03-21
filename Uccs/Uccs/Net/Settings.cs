@@ -196,7 +196,7 @@ namespace UC.Net
 		string						Path; 
 
 		public readonly int			Port;
-		public readonly Zone		Zone;
+		public Zone					Zone;
 	
 		public bool					Log;
 		public int					PeersMin;
@@ -204,6 +204,7 @@ namespace UC.Net
 		public IPAddress			IP = IPAddress.Any;
 		public List<AccountKey>		Generators;
 		public string				Profile;
+		public string				ProductsPath;
 
 		public static DevSettings	Dev;
 		public NasSettings			Nas;
@@ -271,7 +272,7 @@ namespace UC.Net
 			if(boot.Secrets != null)	LoadSecrets(boot.Secrets);
 		}
 
-		void LoadSecrets(string path)
+		public void LoadSecrets(string path)
 		{
 			Secret = new SecretSettings(path);
 		}

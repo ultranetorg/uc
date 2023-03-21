@@ -120,8 +120,8 @@ namespace UC.Net
 			 
 			var p = round.AffectProduct(Realization);
 			
-			p.Realizations.RemoveAll(i => i.Name == Realization.Realization);
-			p.Realizations.Add(new ProductEntryRealization{Name = Realization.Realization, OSes = OSes});
+			p.Realizations.RemoveAll(i => i.Name == Realization.Name);
+			p.Realizations.Add(new ProductEntryRealization{Name = Realization.Name, OSes = OSes});
 
 			var r = round.AffectRealization(Realization);
 
@@ -200,7 +200,7 @@ namespace UC.Net
 
 	public class ReleaseRegistration : Operation
 	{
-		public VersionAddress		Release { get; set; }
+		public ReleaseAddress		Release { get; set; }
 		public byte[]				Manifest { get; set; }
 		public string				Channel { get; set; }
 
@@ -211,7 +211,7 @@ namespace UC.Net
 		{
 		}
 
-		public ReleaseRegistration(AccountKey signer, VersionAddress release, string channel, byte[] manifest)
+		public ReleaseRegistration(AccountKey signer, ReleaseAddress release, string channel, byte[] manifest)
 		{
 			Signer	= signer;
 			Release = release;
@@ -221,7 +221,7 @@ namespace UC.Net
 
 		protected override void ReadConfirmed(BinaryReader reader)
 		{
-			Release = reader.Read<VersionAddress>();
+			Release = reader.Read<ReleaseAddress>();
 			Manifest = reader.ReadSha3();
 			Channel = reader.ReadUtf8();
 		}

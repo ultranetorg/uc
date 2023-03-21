@@ -310,11 +310,11 @@ namespace UC.Net
 
 			if(Settings.Filebase.Enabled)
 			{
-				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name));
+				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), Settings.ProductsPath);
 			}
 
 			LoadPeers();
-										
+			
  			MainThread = new Thread(() =>
  									{ 
 										Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
@@ -344,13 +344,13 @@ namespace UC.Net
 			MainStarted?.Invoke(this);
 
 			//if(waitconnections)
-			{
-				while(!MinimalPeersReached)
-				{
-					Workflow.ThrowIfAborted();
-					Thread.Sleep(1);
-				}
-			}
+// 			{
+// 				while(!MinimalPeersReached)
+// 				{
+// 					Workflow.ThrowIfAborted();
+// 					Thread.Sleep(1);
+// 				}
+// 			}
 		}
 
 		public void RunNode()
@@ -364,7 +364,7 @@ namespace UC.Net
 
 			if(Settings.Filebase.Enabled)
 			{
-				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name));
+				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), Settings.ProductsPath);
 			}
 
 			if(Settings.Database.Base || Settings.Database.Chain)
@@ -1065,7 +1065,7 @@ namespace UC.Net
 						download<AuthorEntry, string>(Database.Authors);
 						download<ProductEntry, ProductAddress>(Database.Products);
 						download<RealizationEntry, RealizationAddress>(Database.Realizations);
-						download<ReleaseEntry, VersionAddress>(Database.Releases);
+						download<ReleaseEntry, ReleaseAddress>(Database.Releases);
 		
 						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
 		
@@ -2196,7 +2196,7 @@ namespace UC.Net
 			return null;
 		}
 
-		public Download DownloadRelease(VersionAddress release, Workflow workflow)
+		public Download DownloadRelease(ReleaseAddress release, Workflow workflow)
 		{
 			lock(Lock)
 			{
@@ -2211,18 +2211,16 @@ namespace UC.Net
 			}
 		}
 
-		public ReleaseInfo GetReleaseInfo(VersionAddress release)
+		public ReleaseInfo GetReleaseInfo(ReleaseAddress release)
 		{
 			var m = Filebase.FindRelease(release);
 			
 			if(m != null)
 			{
-				return new ReleaseInfo { Manifest = m.Manifest };
+				return new ReleaseInfo {Manifest = m.Manifest};
 			}
 
-			Download d;
-
-			d = Downloads.Find(i => i.Release == release);
+			var d = Downloads.Find(i => i.Release == release);
 
 			if(d != null)
 			{
@@ -2237,12 +2235,46 @@ namespace UC.Net
 			return new ReleaseInfo();
 		}
 
-		public void AddRelease(VersionAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
+		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
 		{
 			var qlatest = Call(Role.Base, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
 			var previos = qlatest.Releases.FirstOrDefault()?.Registration.Release.Version;
 
 			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
+		}
+
+		public void GetRelease(ReleaseAddress version, Workflow workflow)
+		{
+			Task.Run(() =>	{ 
+								lock(Lock)
+								{
+									if(!Filebase.ExistsRecursively(version))
+									{
+										var d = DownloadRelease(version, Workflow);
+	
+										while(Downloads.Contains(d))
+										{
+											try
+											{
+												Workflow.ThrowIfAborted();
+											}
+											catch(OperationCanceledException)
+											{
+												return;
+											}
+
+											Monitor.Exit(Lock);
+											{
+												Thread.Sleep(100);
+											}
+											Monitor.Enter(Lock);
+										}
+									}
+				
+									Filebase.Unpack(version);
+								}
+							})
+							.Wait();
 		}
 
 		public override Rp Request<Rp>(RdcRequest rq) where Rp : class

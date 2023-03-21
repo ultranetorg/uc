@@ -56,19 +56,16 @@ namespace UC.Net
 			Options.Converters.Add(new XonDocumentJsonConverter());
 		}
 
-		public JsonClient(HttpClient http, string server, Zone zone, string apikey)
+		public JsonClient(HttpClient http, string server, Zone zone, string accesskey)
 		{
 			HttpClient = http;
 			Address = $"http://{server}:{zone.JsonPort}";
-			Key = apikey;
+			Key = accesskey;
 		}
 
-		public UntTransfer			Send(UntTransferCall call, Workflow workflow) => Request<UntTransfer>(call, workflow);
-		public GetStatusResponse	Send(StatusCall call, Workflow workflow) => Request<GetStatusResponse>(call, workflow);
-
-		HttpResponseMessage Post(ApiCall request, Workflow workflow) 
+		HttpResponseMessage Send(ApiCall request, Workflow workflow) 
 		{
-			request.Version = Core.Versions.First().ToString();
+			request.ProtocolVersion = Core.Versions.First().ToString();
 			request.AccessKey = Key;
 
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
@@ -83,7 +80,7 @@ namespace UC.Net
 
 		public Rp Request<Rp>(ApiCall request, Workflow workflow)
 		{
-			using(var cr = Post(request, workflow))
+			using(var cr = Send(request, workflow))
 			{
 				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 					throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
@@ -99,9 +96,9 @@ namespace UC.Net
 			}
 		}
 		
-		public void SendOnly(ApiCall request, Workflow workflow)
+		public void Post(ApiCall request, Workflow workflow)
 		{
-			var cr = Post(request, workflow);
+			var cr = Send(request, workflow);
 			
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);

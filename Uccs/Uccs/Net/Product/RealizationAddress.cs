@@ -5,14 +5,31 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public class RealizationAddress : ProductAddress, IEquatable<RealizationAddress>
+	public class RealizationAddress : IEquatable<RealizationAddress>, IBinarySerializable
 	{
-		public string			Realization { get; set; }
-		public override bool	Valid => !string.IsNullOrWhiteSpace(Realization);
+		ProductAddress	P = new ();
+		public string	Author { set => P.Author = value; get => P.Author; }
+		public string	Product { set => P.Product = value; get => P.Product; }
+		public string	Name { get; set; }
+		public bool		Valid => !string.IsNullOrWhiteSpace(Name);
 
-		public RealizationAddress(string author, string product, string platform) : base(author, product)
+		public static implicit operator ProductAddress(RealizationAddress d) => d.P;
+
+		public static bool operator ==(RealizationAddress left, RealizationAddress right)
 		{
-			Realization = platform;
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(RealizationAddress left, RealizationAddress right)
+		{
+			return !(left == right);
+		}
+
+		public RealizationAddress(string author, string product, string name)
+		{
+			P.Author = author;
+			P.Product = product;
+			Name = name;
 		}
 
 		public RealizationAddress()
@@ -21,7 +38,7 @@ namespace UC.Net
 
 		public override string ToString()
 		{
-			return $"{base.ToString()}/{Realization}";
+			return $"{P}/{Name}";
 		}
 
 		public override bool Equals(object o)
@@ -31,15 +48,15 @@ namespace UC.Net
 
 		public bool Equals(RealizationAddress o)
 		{
-			return base.Equals(o) && Realization.Equals(o.Realization);
+			return P.Equals(o.P) && Name.Equals(o.Name);
 		}
 
  		public override int GetHashCode()
  		{
- 			return base.GetHashCode(); /// don't change this!
+ 			return P.GetHashCode(); /// don't change this!
  		}
 
-		public new static RealizationAddress Parse(string v)
+		public static RealizationAddress Parse(string v)
 		{
 			var s = v.Split('/');
 			var a = new RealizationAddress();
@@ -47,22 +64,25 @@ namespace UC.Net
 			return a;
 		}
 		
-		public override void Parse(string[] s)
+		public void Parse(string[] s)
 		{
-			base.Parse(s);
-			Realization = s[2];
+			P.Author = s[0];
+			P.Product = s[1];
+			Name = s[2];
 		}
 
-		public override void Write(BinaryWriter w)
+		public void Write(BinaryWriter w)
 		{
-			base.Write(w);
-			w.WriteUtf8(Realization);
+			w.WriteUtf8(P.Author);
+			w.WriteUtf8(P.Product);
+			w.WriteUtf8(Name);
 		}
 
-		public override void Read(BinaryReader r)
+		public void Read(BinaryReader r)
 		{
-			base.Read(r);
-			Realization = r.ReadUtf8();
+			P.Author	= r.ReadUtf8();
+			P.Product	= r.ReadUtf8();
+			Name		= r.ReadUtf8();
 		}
 	}
 

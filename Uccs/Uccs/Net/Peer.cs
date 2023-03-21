@@ -508,7 +508,7 @@ namespace UC.Net
  
  			if(rq.WaitResponse)
  			{
-	 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : Core.Timeout))
+	 			if(rq.Event.WaitOne(Timeout.Infinite))
 	 			{
 					if(rq.Response == null)
 						throw new OperationCanceledException();

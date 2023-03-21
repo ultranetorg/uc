@@ -12,7 +12,7 @@ namespace UC.Net
 {
 	public class Release
 	{
-		public VersionAddress	Address;
+		public ReleaseAddress	Address;
 		public List<Peer>		Hubs = new();
 		Filebase				Filebase;
 		Manifest				_Manifest;
@@ -35,13 +35,13 @@ namespace UC.Net
 			}
 		}
 
-		public Release(Filebase filebase, VersionAddress address)
+		public Release(Filebase filebase, ReleaseAddress address)
 		{
 			Filebase = filebase;
 			Address = address;
 		}
 
-		public Release(Filebase filebase, VersionAddress address, Manifest manifest)
+		public Release(Filebase filebase, ReleaseAddress address, Manifest manifest)
 		{
 			Filebase = filebase;
 			Address = address;
@@ -64,16 +64,19 @@ namespace UC.Net
 		public const string		Renamings = ".renamings"; /// TODO
 		public const long		PieceMaxLength = 64 * 1024;
 
-		string					Root;
+		string					ReleasesPath;
+		string					ProductsPath;
 		public List<Release>	Releases = new();
 
-		public Filebase(string path)
+		public Filebase(string releasespath, string productspath)
 		{
-			Root = path;
+			ReleasesPath = releasespath;
+			ProductsPath = productspath;
 
-			Directory.CreateDirectory(Root);
+			Directory.CreateDirectory(ReleasesPath);
+			Directory.CreateDirectory(ProductsPath);
 
-			Releases =	Directory.EnumerateDirectories(Root).SelectMany(a => 
+			Releases =	Directory.EnumerateDirectories(ReleasesPath).SelectMany(a => 
 						Directory.EnumerateDirectories(a).SelectMany(p => 
 						Directory.EnumerateDirectories(p).SelectMany(r => 
 						Directory.EnumerateFiles(r, $"*.{ManifestExt}").Select(i =>	{
@@ -84,19 +87,19 @@ namespace UC.Net
 																					})))).ToList();
 		}
 				
-		string ToPath(VersionAddress package, Distributive distributive)
+		string ToPath(ReleaseAddress package, Distributive distributive)
 		{
-			return Path.Join(Root, package.Author, package.Product, package.Realization, $"{package.Version}.{(distributive == Distributive.Complete ? Cpkg : Ipkg)}");
+			return Path.Join(ReleasesPath, package.Author, package.Product, package.Realization, $"{package.Version}.{(distributive == Distributive.Complete ? Cpkg : Ipkg)}");
 		}
 
-		internal string GetDirectory(VersionAddress release)
+		internal string GetDirectory(ReleaseAddress release)
 		{
-			var p = Path.Join(Root, release.Author, release.Product, release.Realization);
+			var p = Path.Join(ReleasesPath, release.Author, release.Product, release.Realization);
 			Directory.CreateDirectory(p);
 			return p;
 		}
 
-		public void AddRelease(VersionAddress release, Manifest manifest)
+		public void AddRelease(ReleaseAddress release, Manifest manifest)
 		{
 			var p = Path.Join(GetDirectory(release), release.Version + $".{ManifestExt}");
 
@@ -108,7 +111,7 @@ namespace UC.Net
 			Releases.Add(new Release(this, release, manifest));
 		}
 
-		public void AddRelease(VersionAddress release, byte[] manifest)
+		public void AddRelease(ReleaseAddress release, byte[] manifest)
 		{
 			var p = Path.Join(GetDirectory(release), release.Version + $".{ManifestExt}");
 
@@ -117,7 +120,7 @@ namespace UC.Net
 			Releases.Add(new Release(this, release));
 		}
 
-		public Release FindRelease(VersionAddress release)
+		public Release FindRelease(ReleaseAddress release)
 		{
 			var r = Releases.Find(i => i.Address == release);
 
@@ -138,14 +141,14 @@ namespace UC.Net
 			return null;
 		}
 
-		public byte[] ReadManifest(VersionAddress release)
+		public byte[] ReadManifest(ReleaseAddress release)
 		{
 			var p = Path.Join(GetDirectory(release), release.Version + $".{ManifestExt}");
 
 			return File.ReadAllBytes(p);
 		}
 
-		public string Add(VersionAddress release, Distributive distribution, IDictionary<string, string> files, IEnumerable<string> removals, Workflow workflow)
+		public string Add(ReleaseAddress release, Distributive distribution, IDictionary<string, string> files, IEnumerable<string> removals, Workflow workflow)
 		{
 			var zpath = Path.Join(GetDirectory(release), $"{release.Version}.{(distribution == Distributive.Complete ? Cpkg : Ipkg)}");
 
@@ -175,7 +178,7 @@ namespace UC.Net
 			return zpath;
 		}
 		
-		public string AddIncremental(VersionAddress release, Version previous, IDictionary<string, string> files, out Version minimal, Workflow workflow)
+		public string AddIncremental(ReleaseAddress release, Version previous, IDictionary<string, string> files, out Version minimal, Workflow workflow)
 		{
 			var rems = new List<string>();
 			var incs = new Dictionary<string, string>();
@@ -250,12 +253,12 @@ namespace UC.Net
 			return Add(release, Distributive.Incremental, incs, rems, workflow);
 		}
 
-		public bool Exists(VersionAddress release, Distributive distributive)
+		public bool Exists(ReleaseAddress release, Distributive distributive)
 		{
 			return File.Exists(ToPath(release, distributive));
 		}
 
-		public bool ExistsRecursively(VersionAddress release)
+		public bool ExistsRecursively(ReleaseAddress release)
 		{
 			var r = FindRelease(release);
 
@@ -317,7 +320,7 @@ namespace UC.Net
 			distributive = Distributive.Complete;
 		}
 
-		public byte[] ReadPackage(VersionAddress release, Distributive distributive, long offset, long length)
+		public byte[] ReadPackage(ReleaseAddress release, Distributive distributive, long offset, long length)
 		{
 			using(var s = new FileStream(ToPath(release, distributive), FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
@@ -331,22 +334,22 @@ namespace UC.Net
 			}
 		}
 
-		public byte[] ReadPackage(VersionAddress release, Distributive distributive)
+		public byte[] ReadPackage(ReleaseAddress release, Distributive distributive)
 		{
 			return File.ReadAllBytes(ToPath(release, distributive));
 		}
 
-		public byte[] GetHash(VersionAddress release, Distributive distributive)
+		public byte[] GetHash(ReleaseAddress release, Distributive distributive)
 		{
 			return Cryptography.Current.Hash(File.ReadAllBytes(ToPath(release, distributive)));
 		}
 
-		public long GetLength(VersionAddress release, Distributive distributive)
+		public long GetLength(ReleaseAddress release, Distributive distributive)
 		{
 			return Exists(release, distributive) ? new FileInfo(ToPath(release, distributive)).Length : 0;
 		}
 
-		public void WritePackage(VersionAddress release, Distributive distributive, long offset, byte[] data)
+		public void WritePackage(ReleaseAddress release, Distributive distributive, long offset, byte[] data)
 		{
 			GetDirectory(release);
 
@@ -357,7 +360,7 @@ namespace UC.Net
 			}
 		}
 
-		public void AddRelease(VersionAddress release, Version latestdeclared, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
+		public void AddRelease(ReleaseAddress release, Version latestdeclared, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 
@@ -442,7 +445,7 @@ namespace UC.Net
 			//return o;
 		}
 
-		public void Unpack(VersionAddress release, string productsroot, bool overwrite = false)
+		public void Unpack(ReleaseAddress release, bool overwrite = false)
 		{
 			var dir = GetDirectory(release);
 
@@ -457,13 +460,13 @@ namespace UC.Net
 																		.SkipWhile(i => i <= c)
 																		.TakeWhile(i => i <= release.Version); /// take all incremetals before complete
 				
-				var aprr = @$"{release.Author}-{release.Product}-{release.Realization}{Path.DirectorySeparatorChar}{release.Version}";
+				var aprv = @$"{release.Author}-{release.Product}-{release.Realization}{Path.DirectorySeparatorChar}{release.Version}";
 
 				var deps = new List<Dependency>();
 
 				void cunzip(Version v)
 				{
-					var r = new VersionAddress(release.Author, release.Product, release.Realization, v);
+					var r = new ReleaseAddress(release.Author, release.Product, release.Realization, v);
 
 					using(var s = new FileStream(ToPath(r, Distributive.Complete), FileMode.Open))
 					{
@@ -471,7 +474,7 @@ namespace UC.Net
 						{
 							foreach(var e in arch.Entries)
 							{
-								var f = Path.Join(productsroot, aprr, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+								var f = Path.Join(ProductsPath, aprv, e.FullName.Replace('/', Path.DirectorySeparatorChar));
 								
 								if(!File.Exists(f) || overwrite)
 								{
@@ -486,7 +489,7 @@ namespace UC.Net
 
 					foreach(var i in m.Manifest.CompleteDependencies)
 					{
-						Unpack(i.Release, productsroot);
+						Unpack(i.Release);
 					}
 
 					deps.AddRange(m.Manifest.CompleteDependencies);
@@ -496,7 +499,7 @@ namespace UC.Net
 
 				void iunzip(Version v)
 				{
-					var r = new VersionAddress(release.Author, release.Product, release.Realization, v);
+					var r = new ReleaseAddress(release.Author, release.Product, release.Realization, v);
 
 					using(var s = new FileStream(ToPath(r, Distributive.Incremental), FileMode.Open))
 					{
@@ -506,7 +509,7 @@ namespace UC.Net
 							{
 								if(e.Name != Removals)
 								{
-									var f = Path.Join(productsroot, aprr, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+									var f = Path.Join(ProductsPath, aprv, e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									
 									if(!File.Exists(f) || overwrite)
 									{
@@ -522,7 +525,7 @@ namespace UC.Net
 
 										while(!sr.EndOfStream)
 										{
-											File.Delete(Path.Join(productsroot, sr.ReadLine()));
+											File.Delete(Path.Join(ProductsPath, sr.ReadLine()));
 										}
 									}
 								}
@@ -534,7 +537,7 @@ namespace UC.Net
 
 					foreach(var i in m.Manifest.AddedDependencies)
 					{
-						Unpack(i.Release, productsroot);
+						Unpack(i.Release);
 						deps.Add(i);
 					}
 
@@ -551,7 +554,7 @@ namespace UC.Net
 
 				if(deps.Any())
 				{
-					var f = Path.Join(productsroot, $"{aprr}.{DependenciesExt}");
+					var f = Path.Join(ProductsPath, $"{aprv}.{DependenciesExt}");
 					
 					if(!File.Exists(f) || overwrite)
 					{

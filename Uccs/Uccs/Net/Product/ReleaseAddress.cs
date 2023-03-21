@@ -5,25 +5,25 @@ using System.Text.Json.Serialization;
 
 namespace UC.Net
 {
-	public class VersionAddress : IBinarySerializable, IEquatable<VersionAddress>  
+	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>  
 	{
-		RealizationAddress		R;
+		RealizationAddress		R; /// to disable implicit conversion
 		public string			Author => R.Author;
 		public string			Product => R.Product;
-		public string			Realization => R.Realization;
+		public string			Realization => R.Name;
 		public Version			Version { get; set; }
 		public bool				Valid => R.Valid;
 
-		public static implicit operator RealizationAddress(VersionAddress d) => d.R;
-		public static implicit operator ProductAddress(VersionAddress d) => d.R;
+		public static implicit operator RealizationAddress(ReleaseAddress d) => d.R;
+		public static implicit operator ProductAddress(ReleaseAddress d) => (ProductAddress)d.R;
 
-		public VersionAddress(string author, string product, string platform, Version version)
+		public ReleaseAddress(string author, string product, string platform, Version version)
 		{
 			R = new(author, product, platform);
 			Version = version;
 		}
 
-		public VersionAddress()
+		public ReleaseAddress()
 		{
 		}
 
@@ -34,10 +34,10 @@ namespace UC.Net
 
 		public override bool Equals(object o)
 		{
-			return o is VersionAddress a && Equals(a);
+			return o is ReleaseAddress a && Equals(a);
 		}
 
-		public bool Equals(VersionAddress o)
+		public bool Equals(ReleaseAddress o)
 		{
 			return R.Equals(o.R) && Version == o.Version;
 		}
@@ -47,20 +47,20 @@ namespace UC.Net
  			return R.GetHashCode();
  		}
 
-		public static bool operator ==(VersionAddress left, VersionAddress right)
+		public static bool operator ==(ReleaseAddress left, ReleaseAddress right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(VersionAddress left, VersionAddress right)
+		public static bool operator !=(ReleaseAddress left, ReleaseAddress right)
 		{
 			return !(left == right);
 		}
 
-		public static VersionAddress Parse(string v)
+		public static ReleaseAddress Parse(string v)
 		{
 			var s = v.Split('/');
-			var a = new VersionAddress();
+			var a = new ReleaseAddress();
 			a.Parse(s);
 			return a;
 		}
@@ -86,14 +86,14 @@ namespace UC.Net
 		}
 	}
 
-	public class ReleaseAddressJsonConverter : JsonConverter<VersionAddress>
+	public class ReleaseAddressJsonConverter : JsonConverter<ReleaseAddress>
 	{
-		public override VersionAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override ReleaseAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return VersionAddress.Parse(reader.GetString());
+			return ReleaseAddress.Parse(reader.GetString());
 		}
 
-		public override void Write(Utf8JsonWriter writer, VersionAddress value, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, ReleaseAddress value, JsonSerializerOptions options)
 		{
 			writer.WriteStringValue(value.ToString());
 		}

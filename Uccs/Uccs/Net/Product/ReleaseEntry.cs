@@ -5,12 +5,12 @@ using System.Text;
 
 namespace UC.Net
 {
-	public class ReleaseEntry : TableEntry<VersionAddress>
+	public class ReleaseEntry : TableEntry<ReleaseAddress>
 	{
-		public override VersionAddress	Key => Address;
+		public override ReleaseAddress	Key => Address;
 		public override byte[]			ClusterKey =>  Encoding.UTF8.GetBytes(Address.Author).Take(ClusterKeyLength).ToArray();
 
-		public VersionAddress			Address;
+		public ReleaseAddress			Address;
 		public byte[]					Manifest;
 		public string					Channel; /// stable, beta, nightly, debug,...
 
@@ -36,7 +36,7 @@ namespace UC.Net
 
 		public override void Read(BinaryReader r)
 		{
-			Address	= r.Read<VersionAddress>();
+			Address	= r.Read<ReleaseAddress>();
 			Manifest = r.ReadSha3();
 			Channel = r.ReadUtf8();
 		}

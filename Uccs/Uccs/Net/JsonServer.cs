@@ -246,13 +246,19 @@ namespace UC.Net
 	
 						case DownloadReleaseCall c:
 						{
-							Core.DownloadRelease(c.Release, new Workflow());
+							Core.DownloadRelease(c.Release, Workflow);
 							break;
 						}
 	
 						case ReleaseInfoCall c:
 						{
 							return Core.GetReleaseInfo(c.Release);
+						}
+
+						case GetReleaseCall c:
+						{
+							Core.GetRelease(c.Version, Workflow);
+							break;
 						}
 					}
 

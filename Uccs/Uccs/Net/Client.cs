@@ -14,13 +14,18 @@ namespace UC.Net
 		public JsonClient	JsonClient;
 		HttpClient			Http = new HttpClient();
 
-		public Client(string server, string key, Zone zone)
+		public Client(string server, string key, Zone zone, string productspath)
 		{
 			JsonClient = new JsonClient(Http, server, zone, key);
 
 			var s = JsonClient.Request<SettingsResponse>(new SettingsCall(), new Workflow());
 
-			Filebase = new Filebase(Path.Join(s.ProfilePath, nameof(Filebase)));
+			Filebase = new Filebase(Path.Join(s.ProfilePath, nameof(Filebase)), productspath);
+		}
+
+		public void GetRelease(ReleaseAddress version, Workflow workflow)
+		{
+			JsonClient.Post(new GetReleaseCall {Version = version}, workflow);
 		}
 	}
 }

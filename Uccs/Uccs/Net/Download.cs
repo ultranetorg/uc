@@ -99,7 +99,7 @@ namespace UC.Net
 			}
 		}
 
-		public VersionAddress				Release;
+		public ReleaseAddress				Release;
 		public Distributive					Distributive { get; protected set; }
 		public long							Length { get; protected set; }
 		public bool							Successful => Downloaded && AllDependenciesFound && DependenciesCount == DependenciesSuccessfulCount;
@@ -124,7 +124,7 @@ namespace UC.Net
 		Manifest							Manifest;
 		Task								Task;
 
-		public Download(Core core, VersionAddress release, Workflow workflow)
+		public Download(Core core, ReleaseAddress release, Workflow workflow)
 		{
 			Core = core;
 			Release = release;
@@ -246,8 +246,8 @@ namespace UC.Net
 												}
 												
 												Pieces.Add(new Piece(this, 
-																 Core.GetPeer(s.Key), 
-																 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !Pieces.Any(j => j.I == i))));
+																	 Core.GetPeer(s.Key), 
+																	 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !Pieces.Any(j => j.I == i))));
 											}
 											else
 											{

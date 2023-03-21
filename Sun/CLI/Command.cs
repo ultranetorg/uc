@@ -13,7 +13,7 @@ namespace UC.Sun.CLI
 {
 	public abstract class Command
 	{
-		public string			ProductsDirectory => Path.Join(Assembly.GetEntryAssembly().Location, "..");
+		//public string			ProductsDirectory => Path.Join(Assembly.GetEntryAssembly().Location, "..");
 		protected Settings		Settings; 
 		protected Xon			Args;
 		protected Core			Core => GetCore();

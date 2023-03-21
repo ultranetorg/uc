@@ -15,7 +15,7 @@ namespace UC.Net
 {
 	public abstract class ApiCall
 	{
-		public string			Version { get; set; }
+		public string			ProtocolVersion { get; set; }
 		public string			AccessKey { get; set; }
 
 		public static string NameOf<C>() => NameOf(typeof(C));
@@ -106,7 +106,7 @@ namespace UC.Net
 
 	public class DistributeReleaseCall : ApiCall
 	{
-		public VersionAddress	Release { get; set; }
+		public ReleaseAddress	Release { get; set; }
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
@@ -114,11 +114,16 @@ namespace UC.Net
 
 	public class DownloadReleaseCall : ApiCall
 	{
-		public VersionAddress	Release { get; set; }
+		public ReleaseAddress	Release { get; set; }
 	}
 
 	public class ReleaseInfoCall : ApiCall
 	{
-		public VersionAddress	Release { get; set; }
+		public ReleaseAddress	Release { get; set; }
+	}
+
+	public class GetReleaseCall : ApiCall
+	{
+		public ReleaseAddress	Version { get; set; }
 	}
 }
