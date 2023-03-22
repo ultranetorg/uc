@@ -4,9 +4,13 @@
     x:Class="UC.Umc.Views.Shared.PageTitleNotificationsView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:enums="clr-namespace:UC.Umc.Enums"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:shared="clr-namespace:UC.Umc.Views.Shared"
     x:Name="This"
     x:TypeArguments="shared:PageTitleNotificationsView">
+    
     <FlexLayout
         AlignItems="Center"
         BindingContext="{x:Reference This}"
@@ -18,12 +22,12 @@
             TextColor="{StaticResource PrimaryLight}"
             Text="{Binding Title}" />
         <HorizontalStackLayout Margin="0,2,10,0">            
-            <AbsoluteLayout HeightRequest="40" WidthRequest="40">
+            <AbsoluteLayout HeightRequest="36" WidthRequest="36">
                 <ImageButton
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
                     AbsoluteLayout.LayoutFlags="All"
                     Aspect="AspectFill"
-                    HeightRequest="48"
+                    HeightRequest="44"
                     Source="bell_dark.png"/>
                 <Border
                     AbsoluteLayout.LayoutBounds="1,0,-1,-1"
@@ -40,25 +44,30 @@
                         FontSize="12"
                         FontAttributes="Bold" />
                     <Border.Triggers>
-                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="2">
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.Low}">
                             <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
                         </DataTrigger>
-                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="1">
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.Mid}">
                             <Setter Property="BackgroundColor" Value="{StaticResource Yellow200Accent}" />
                         </DataTrigger>
-                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="0">
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.High}">
                             <Setter Property="BackgroundColor" Value="{StaticResource LowerColor}" />
                         </DataTrigger>
                     </Border.Triggers>
                 </Border>
             </AbsoluteLayout> 
-            <AbsoluteLayout HeightRequest="40" WidthRequest="40">
+            <AbsoluteLayout HeightRequest="36" WidthRequest="36">
                 <ImageButton
                     AbsoluteLayout.LayoutBounds="0,1,1,1"
                     AbsoluteLayout.LayoutFlags="All"
                     Aspect="AspectFill"
-                    HeightRequest="48"
-                    Source="bell_dark.png"/>
+                    HeightRequest="40"
+                    Margin="2"
+                    Source="{Binding ConnectionIcon}">
+                    <ImageButton.Behaviors>
+                        <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
+                    </ImageButton.Behaviors>
+                </ImageButton>
             </AbsoluteLayout> 
         </HorizontalStackLayout>
     </FlexLayout>

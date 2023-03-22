@@ -17,6 +17,7 @@
     <controls:CustomPage.Resources>
         <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrWhiteSpace" />
         <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
+        <converters:ConnectionToImageConverter x:Key="ConnectionToImageConverter" />
         <Style TargetType="controls:ImageTextButton">
             <Setter Property="TintColor" Value="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource Primary}}" />
             <Setter Property="ImageStyle" Value="{StaticResource DashBoard}" />
@@ -79,6 +80,7 @@
         <views:PageTitleNotificationsView
             NotificationsCount="{Binding NotificationsCount}"
             MaxSeverity="{Binding NotificationsSeverity}"
+            ConnectionIcon="{Binding ConnectionState, Converter={StaticResource ConnectionToImageConverter}}"
             Title="Ultranet User Center"
             TitleStyle="{StaticResource TitleLabel}" />
     </Shell.TitleView>

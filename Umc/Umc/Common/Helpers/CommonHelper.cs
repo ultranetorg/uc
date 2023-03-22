@@ -11,6 +11,8 @@ public static class CommonHelper
 		date == default ? 0
 		: (int)(new TimeSpan(date.Ticks - DateTime.Now.Ticks).TotalDays);
 
+    public static NetworkAccess CheckConnectivity() => Connectivity.Current.NetworkAccess;
+
 	// WBD
     public static string GenerateUniqueId(int length)
     {
