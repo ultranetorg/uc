@@ -26,12 +26,3 @@ public class TransactionViewModel
 		Date = DateTime.Now;
 	}
 }
-
-public enum TransactionStatus
-{
-	None,
-    Pending,
-	Sent,
-	Received,
-	Failed,
-}

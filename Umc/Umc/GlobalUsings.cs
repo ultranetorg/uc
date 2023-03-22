@@ -9,6 +9,7 @@ global using CommunityToolkit.Diagnostics;
 
 // Project usings
 global using UC.Umc.Models;
+global using UC.Umc.Enums;
 global using UC.Umc.ViewModels;
 global using UC.Umc.ViewModels.Popups;
 global using UC.Umc.ViewModels.Views;

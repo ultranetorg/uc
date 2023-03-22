@@ -11,7 +11,7 @@ public abstract partial class BasePageViewModel : BaseViewModel, IQueryAttributa
     private int _notificationsCount;
 	
 	[ObservableProperty]
-    private Severity _notificationsSeverity;
+    private int _notificationsSeverity;
 
 	protected BasePageViewModel(INotificationsService notificationService, ILogger logger) : base(logger)
 	{
@@ -26,6 +26,6 @@ public abstract partial class BasePageViewModel : BaseViewModel, IQueryAttributa
 	protected void LoadNotificationsData()
 	{
 		NotificationsCount = _notificationService.GetCount();
-		NotificationsSeverity = _notificationService.GetMaxSeverity();
+		NotificationsSeverity = (int)_notificationService.GetMaxSeverity();
 	}
 }

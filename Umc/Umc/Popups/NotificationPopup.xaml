@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:enums="clr-namespace:UC.Umc.Enums"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     x:Name="page">
     
@@ -88,19 +88,19 @@
                                     <DataTrigger
                                         Binding="{Binding Notification.Severity}"
                                         TargetType="Frame"
-                                        Value="{Static models:Severity.High}">
+                                        Value="{Static enums:Severity.High}">
                                         <Setter Property="Style" Value="{StaticResource RedDot}" />
                                     </DataTrigger>
                                     <DataTrigger
                                         Binding="{Binding Severity}"
                                         TargetType="Frame"
-                                        Value="{Static models:Severity.Mid}">
+                                        Value="{Static enums:Severity.Mid}">
                                         <Setter Property="Style" Value="{StaticResource OrangeDot}" />
                                     </DataTrigger>
                                     <DataTrigger
                                         Binding="{Binding Severity}"
                                         TargetType="Frame"
-                                        Value="{Static models:Severity.Low}">
+                                        Value="{Static enums:Severity.Low}">
                                         <Setter Property="Style" Value="{StaticResource GreenDot}" />
                                     </DataTrigger>
                                 </Frame.Triggers>

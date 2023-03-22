@@ -39,6 +39,17 @@
                         TextColor="White"
                         FontSize="12"
                         FontAttributes="Bold" />
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="2">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="1">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Yellow200Accent}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="0">
+                            <Setter Property="BackgroundColor" Value="{StaticResource LowerColor}" />
+                        </DataTrigger>
+                    </Border.Triggers>
                 </Border>
             </AbsoluteLayout> 
             <AbsoluteLayout HeightRequest="40" WidthRequest="40">

@@ -88,13 +88,3 @@ public class Bid
     public DateTime			Date { get; internal set; }
     public string			BidBy { get; internal set; }
 }
-
-public enum AuthorStatus
-{
-	Auction, Watched, Owned, Free, Reserved, Hidden
-}
-
-public enum BidStatus
-{
-    None, Higher, Lower
-}
