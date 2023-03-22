@@ -10,6 +10,7 @@
     Title="Private Key"
     x:DataType="vm:PrivateKeyViewModel"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <ScrollView Padding="{StaticResource PagePadding}">
             <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="24">

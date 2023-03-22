@@ -10,6 +10,7 @@
     x:DataType="vm:CreateAccountPageViewModel"
     Title="Create Account"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"

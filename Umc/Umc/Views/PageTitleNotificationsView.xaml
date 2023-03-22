@@ -11,6 +11,10 @@
     x:Name="This"
     x:TypeArguments="shared:PageTitleNotificationsView">
     
+    <ContentView.Resources>
+        <converters:ConnectionToImageConverter x:Key="ConnectionToImageConverter" />
+    </ContentView.Resources>
+    
     <FlexLayout
         AlignItems="Center"
         BindingContext="{x:Reference This}"
@@ -63,7 +67,7 @@
                     Aspect="AspectFill"
                     HeightRequest="40"
                     Margin="2"
-                    Source="{Binding ConnectionIcon}">
+                    Source="{Binding ConnectionState, Converter={StaticResource ConnectionToImageConverter}}">
                     <ImageButton.Behaviors>
                         <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource PrimaryLight}, Light={StaticResource PrimaryDark}}" />
                     </ImageButton.Behaviors>

@@ -10,6 +10,7 @@
     x:Name="page"
     x:DataType="vm:SendViewModel"
     Title="Send">
+    
     <controls:CustomPage.MainContent>
         <ScrollView>
             <Grid 

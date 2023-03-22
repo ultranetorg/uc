@@ -8,8 +8,8 @@ public partial class PageTitleNotificationsView : BasePageTitleView<PageTitleNot
     public static readonly BindableProperty MaxSeverityProperty =
         BindableProperty.Create(nameof(MaxSeverity), typeof(Severity), typeof(PageTitleNotificationsView));
 
-    public static readonly BindableProperty ConnectionIconProperty =
-        BindableProperty.Create(nameof(ConnectionIcon), typeof(string), typeof(PageTitleNotificationsView));
+    public static readonly BindableProperty ConnectionStateProperty =
+        BindableProperty.Create(nameof(ConnectionState), typeof(NetworkAccess), typeof(PageTitleNotificationsView));
 
     public int NotificationsCount
     {
@@ -23,10 +23,10 @@ public partial class PageTitleNotificationsView : BasePageTitleView<PageTitleNot
         set => SetValue(MaxSeverityProperty, value);
     }
 
-    public string ConnectionIcon
+    public NetworkAccess ConnectionState
     {
-        get => (string)GetValue(ConnectionIconProperty);
-        set => SetValue(ConnectionIconProperty, value);
+        get => (NetworkAccess)GetValue(ConnectionStateProperty);
+        set => SetValue(ConnectionStateProperty, value);
     }
 
     public PageTitleNotificationsView()

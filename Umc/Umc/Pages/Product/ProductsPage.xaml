@@ -7,8 +7,9 @@
     xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ProductsViewModel"
-    Title="My Products"
+    Title="Products"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <CollectionView Grid.Row="0" ItemsSource="{Binding Products}">

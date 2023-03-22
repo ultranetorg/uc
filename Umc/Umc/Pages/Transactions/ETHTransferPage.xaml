@@ -7,13 +7,12 @@
     xmlns:fi="clr-namespace:UC.Umc.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
-    xmlns:sharedViews="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ETHTransferViewModel"
     Title="ETH-UNT Transfer"
     x:Name="page">
     
-    <Shell.TitleView>
+    <!--<Shell.TitleView>
         <FlexLayout
             AlignItems="Center"
             Direction="Row"
@@ -37,7 +36,7 @@
                     Command="{Binding OpenOptionsPopupCommand}" />
             </AbsoluteLayout>
         </FlexLayout>
-    </Shell.TitleView>
+    </Shell.TitleView>-->
     
     <controls:CustomPage.MainContent>
         <Grid

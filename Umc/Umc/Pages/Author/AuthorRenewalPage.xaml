@@ -10,6 +10,7 @@
     x:DataType="vm:AuthorRenewalViewModel"
     Title="Author Registration"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"

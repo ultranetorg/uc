@@ -9,6 +9,7 @@
     x:DataType="vm:ProductSearchViewModel"
     Title="Product Search"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"

@@ -10,6 +10,7 @@
     x:DataType="vm:ProductRegistrationViewModel"
     Title="Product Registration"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"

@@ -8,6 +8,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:HelpViewModel"
     Title="Help">
+    
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="Auto,*,80" Padding="16,0">
             <AbsoluteLayout Grid.Row="0" Margin="0,12">

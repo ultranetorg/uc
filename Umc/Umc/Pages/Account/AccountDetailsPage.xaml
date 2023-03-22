@@ -11,13 +11,13 @@
     x:DataType="vm:AccountDetailsViewModel"
     x:Name="page">
     
-    <Shell.TitleView>
+    <!--<Shell.TitleView>
         <views:PageTitleActionView
             Title="Account Details"
             TitleStyle="{StaticResource TitleLabel}"
             IconSource="delete_button.png"
             TapCommand="{Binding DeleteCommand}" />
-    </Shell.TitleView>
+    </Shell.TitleView>-->
     
     <controls:CustomPage.Resources>
         <DataTemplate x:Key="ColorsTemplate" x:DataType="models:AccountColor">

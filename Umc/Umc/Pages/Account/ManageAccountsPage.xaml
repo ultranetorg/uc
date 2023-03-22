@@ -8,7 +8,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    Title="Manage Accounts"
+    Title="Accounts"
     x:DataType="vm:ManageAccountsViewModel"
     x:Name="page">
     <controls:CustomPage.Resources>
@@ -95,14 +95,14 @@
         </DataTemplate>
     </controls:CustomPage.Resources>
     
-    <Shell.TitleView>
-        <!-- account_sort.png ?-->
+    <!--<Shell.TitleView>
+        --><!-- account_sort.png ?--><!--
         <views:PageTitleActionView
             Title="Manage Accounts"
             TitleStyle="{StaticResource TitleLabel}"
             IconSource="account_sort"
             IconStyle="{StaticResource HintedImageButtonInverted}" />
-    </Shell.TitleView>
+    </Shell.TitleView>-->
     
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">

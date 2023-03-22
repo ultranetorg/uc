@@ -9,6 +9,7 @@
     x:DataType="vm:ProductsListViewModel"
     Title="My Products"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <CollectionView

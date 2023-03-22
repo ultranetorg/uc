@@ -11,9 +11,11 @@
     x:DataType="vm:TransactionsViewModel"
     Title="Transactions"
     x:Name="page">
+    
     <controls:CustomPage.Resources>
         <converters:TransactionStatusToIconConverter x:Key="TransactionStatusToIconConverter" />
     </controls:CustomPage.Resources>
+    
     <controls:CustomPage.MainContent>
         <Grid Padding="16,8" RowDefinitions="64,96,*">
             <AbsoluteLayout Grid.Row="0">

@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:Class="UC.Umc.Pages.AuthorTransferPage"
     x:DataType="vm:AuthorTransferViewModel"
-    Title="Transfer author">
+    Title="Transfer Author">
     
     <controls:CustomPage.MainContent>
         <Grid

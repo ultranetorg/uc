@@ -7,6 +7,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:AboutViewModel"
     Title="About">
+    
     <controls:CustomPage.Resources>
         <Style x:Key="DetailsGrid" TargetType="Grid">
             <Setter Property="ColumnDefinitions" Value="*,24" />

@@ -8,6 +8,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:WhatsNewViewModel"
     Title="What's New">
+    
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <views:UpdatesList 

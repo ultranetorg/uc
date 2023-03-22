@@ -9,6 +9,7 @@
     x:DataType="vm:SettingsViewModel"
     Title="Settings"
     x:Name="page">
+    
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
