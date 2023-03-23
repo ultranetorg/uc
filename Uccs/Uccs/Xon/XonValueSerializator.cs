@@ -38,7 +38,7 @@ namespace UC
 			if(v.GetType() == typeof(ReleaseAddress))	return v.ToString();
 			if(v.GetType() == typeof(Version))			return v.ToString();
 			if(v.GetType() == typeof(IPAddress))		return v.ToString();
-			if(v.GetType() == typeof(Account))			return v.ToString();
+			if(v.GetType() == typeof(AccountAddress))			return v.ToString();
 			if(v.GetType() == typeof(ChainTime))		return v.ToString();
 			if(v.GetType() == typeof(Coin))				return ((Coin)v).ToHumanString();
 

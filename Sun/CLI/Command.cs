@@ -99,7 +99,7 @@ namespace UC.Sun.CLI
 				p = a.Password; 
 			}
 
-			return Core.Vault.Unlock(Account.Parse(GetString(walletarg)), p);
+			return Core.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
 		}
 
 		protected void Wait(Func<bool> waitiftrue)

@@ -100,7 +100,7 @@ namespace UC.Sun.FUI
 			var v = Nethereum.Util.AddressUtil.Current.IsValidAddressLength(source.Text) && 
 					source.Text.IsHex() && 
 					eth.Wei > 0 && 
-					destination.SelectedItem != null && Vault.Accounts.Any(i => i == destination.SelectedItem as Account);
+					destination.SelectedItem != null && Vault.Accounts.Any(i => i == destination.SelectedItem as AccountAddress);
 
 			transfer.Enabled = v;
 		}
@@ -159,7 +159,7 @@ namespace UC.Sun.FUI
 
 				if(a != null)
 				{
-					var k = GetPrivate(destination.SelectedItem as Account);
+					var k = GetPrivate(destination.SelectedItem as AccountAddress);
 						
 					if(k != null)
 					{
@@ -192,7 +192,7 @@ namespace UC.Sun.FUI
 
 			try
 			{
-				Core.FinishTransfer(GetPrivate(Unfinished.SelectedItems[0].Tag as Account));
+				Core.FinishTransfer(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress));
 
 				transfergroup.Enabled = true;
 				finishgroup.Enabled = true;

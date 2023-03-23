@@ -39,7 +39,7 @@ namespace Uccs.Demo.Application
 													{
 														var a = Assembly.LoadFile(Path.Join(Nexus.MapReleasePath(v), "Uccs.Demo.Component.dll"));
 														var ct = a.GetType("DemoComponent.ComponentControl");
-														var c = ct.GetConstructor(new Type[]{}).Invoke(null) as UserControl;
+														var c = ct?.GetConstructor(new Type[]{})?.Invoke(null) as UserControl;
 
 														c.Location = f.pictureBox1.Location;
 														c.Size = f.pictureBox1.Size;

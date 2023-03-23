@@ -101,7 +101,7 @@ namespace UC.Sun.FUI
 			base.OnHandleCreated(e);
 
 			Timer.Tick += RefreshInfo;
-			Timer.Interval = 500;
+			Timer.Interval = 1000;
 			Timer.Start();
 		}
 

@@ -1,0 +1,129 @@
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Net.Http;
+using System.Text;
+using System.IO;
+using System.Threading.Tasks;
+using System.Net;
+using System.Collections;
+
+namespace UC.Net
+{
+	public abstract class ApiCall
+	{
+		public string			ProtocolVersion { get; set; }
+		public string			AccessKey { get; set; }
+
+		public static string NameOf<C>() => NameOf(typeof(C));
+		public static string NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
+	}
+
+	public class BatchCall : ApiCall
+	{
+		public class Item
+		{
+			public string Name { get; set; }
+			public dynamic Call { get; set; }
+		}
+
+		public IEnumerable<Item> Calls { get; set; }
+
+		public void Add(ApiCall call)
+		{
+			if(Calls == null)
+				Calls = new List<Item>();
+
+			(Calls as List<Item>).Add(new Item {Name = call.GetType().Name.Remove(call.GetType().Name.IndexOf("Call")), Call = call});
+		}
+	}
+
+	public class ExitCall : ApiCall
+	{
+		public string Reason { get; set; }
+	}
+
+	public class SettingsCall : ApiCall
+	{
+	}
+
+	public class SettingsResponse
+	{
+		public string		ProfilePath {get; set;}
+		public Settings		Settings {get; set;}
+	}
+
+	public class StatusCall : ApiCall
+	{
+		public int Limit  { get; set; }
+	}
+
+	public class GetStatusResponse
+	{
+		public IEnumerable<string>	Log {get; set;}
+		public IEnumerable<string>	Rounds {get; set;}
+		public IEnumerable<string>	InfoFields {get; set;}
+		public IEnumerable<string>	InfoValues {get; set;}
+		public IEnumerable<string>	Peers {get; set;}
+	}
+
+	public class RunNodeCall : ApiCall
+	{
+	}
+
+	public class AddWalletCall : ApiCall
+	{
+		public AccountAddress	Account { get; set; }
+		public byte[]	Wallet { get; set; }
+	}
+
+	public class UnlockWalletCall : ApiCall
+	{
+		public AccountAddress	Account { get; set; }
+		public string	Password { get; set; }
+	}
+
+	public class SetGeneratorCall : ApiCall
+	{
+		public IEnumerable<AccountAddress>	 Generators {get; set;}
+	}
+
+	public class UntTransferCall : ApiCall
+	{
+		public AccountAddress	From { get; set; }
+		public AccountAddress	To { get; set; }
+		public Coin		Amount { get; set; }
+	}
+
+	public class QueryReleaseCall : ApiCall
+	{
+		public IEnumerable<ReleaseQuery>	Queries { get; set; }
+		public bool							Confirmed { get; set; }
+	}
+
+	public class DistributeReleaseCall : ApiCall
+	{
+		public ReleaseAddress	Release { get; set; }
+		public byte[]			Complete { get; set; }
+		public byte[]			Incremental { get; set; }
+		public byte[]			Manifest { get; set; }
+	}
+
+	public class DownloadReleaseCall : ApiCall
+	{
+		public ReleaseAddress	Release { get; set; }
+	}
+
+	public class ReleaseInfoCall : ApiCall
+	{
+		public ReleaseAddress	Release { get; set; }
+	}
+
+	public class GetReleaseCall : ApiCall
+	{
+		public ReleaseAddress	Version { get; set; }
+	}
+}

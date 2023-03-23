@@ -34,7 +34,7 @@ namespace UC.Sun.FUI
 			{
 				products.Items.Clear();
 				
-				foreach(var ar in FindProducts(Account.Parse(SearchAccount.Text)))
+				foreach(var ar in FindProducts(AccountAddress.Parse(SearchAccount.Text)))
 				{
 					var i = new ListViewItem(ar.Product.Address.Product);
 					i.Tag = ar;

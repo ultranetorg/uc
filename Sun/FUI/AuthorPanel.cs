@@ -170,7 +170,7 @@ namespace UC.Sun.FUI
 				if(!Operation.IsValid(AuthorSearch.Text, AuthorTitle.Text))
 					throw new ArgumentException("Invalid author name");
 
-				var a = GetPrivate(RegisrationSigner.SelectedItem as Account);
+				var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
 
 				if(a == null)
 					return;
@@ -216,7 +216,7 @@ namespace UC.Sun.FUI
 
 				var a = Database.Authors.Find(AuthorSearch.Text, int.MaxValue);
 
-				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), AuthorSearch.Text, Account.Parse(NewOwner.Text)), PlacingStage.Null, new Workflow());
+				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), AuthorSearch.Text, AccountAddress.Parse(NewOwner.Text)), PlacingStage.Null, new Workflow());
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{
@@ -228,7 +228,7 @@ namespace UC.Sun.FUI
 		{
 			try
 			{
-				var s = GetPrivate(AuctionSigner.SelectedItem as Account);
+				var s = GetPrivate(AuctionSigner.SelectedItem as AccountAddress);
 
 				if(s == null)
 					return;

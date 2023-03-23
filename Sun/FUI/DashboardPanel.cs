@@ -68,7 +68,7 @@ namespace UC.Sun.FUI
 
 		private void all_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			if(source.SelectedItem is Account a)
+			if(source.SelectedItem is AccountAddress a)
 			{
 				amount.Coins = Core.Database.Accounts.Find(a, Core.Database.LastConfirmedRound.Id).Balance;
 			}
@@ -81,13 +81,13 @@ namespace UC.Sun.FUI
 
 		private void send_Click(object sender, EventArgs e)
 		{
-			var signer = GetPrivate(source.SelectedItem as Account);
+			var signer = GetPrivate(source.SelectedItem as AccountAddress);
 
 			if(signer != null)
 			{
 				try
 				{
-					Core.Enqueue(new UntTransfer(signer, Account.Parse(destination.Text), amount.Coins), PlacingStage.Null, new Workflow());
+					Core.Enqueue(new UntTransfer(signer, AccountAddress.Parse(destination.Text), amount.Coins), PlacingStage.Null, new Workflow());
 				}
 				catch(RequirementException ex)
 				{

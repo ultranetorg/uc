@@ -77,7 +77,7 @@ namespace UC.Sun.FUI
 	
 				lock(Core.Lock)
 				{
-					var a = Net.Account.Parse(Account.Text);
+					var a = Net.AccountAddress.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
 					var txs = Core.Database.Accounts.SearchTransactions(a).OrderByDescending(i => i.Operations.Any() ? i.Operations.Max(o => o.Id) : 0);
 	

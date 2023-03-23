@@ -17,8 +17,8 @@ namespace UC.Sun.FUI
 {
 	public partial class ChainMonitor : UserControl
 	{
-		Dictionary<Account, Brush>	Brushes = new Dictionary<Account, Brush>();
-		Dictionary<Account, Pen>	Pens = new Dictionary<Account, Pen>();
+		Dictionary<AccountAddress, Brush>	Brushes = new Dictionary<AccountAddress, Brush>();
+		Dictionary<AccountAddress, Pen>	Pens = new Dictionary<AccountAddress, Pen>();
 		bool						Mode = false;
 
 		static List<Coin[]>			stat;

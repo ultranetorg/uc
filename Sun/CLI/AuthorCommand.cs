@@ -65,7 +65,7 @@ namespace UC.Sun.CLI
 		   		case "transfer" : 
 					return Core.Enqueue(new AuthorTransfer(	GetPrivate("from", "password"), 
 															GetString("name"),
-															Account.Parse(GetString("to"))),
+															AccountAddress.Parse(GetString("to"))),
 															GetAwaitStage(), 
 															Workflow);
 

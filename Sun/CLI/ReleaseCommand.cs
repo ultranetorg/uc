@@ -72,9 +72,9 @@ namespace UC.Sun.CLI
 
 					if(i != null)
 					{
-						Workflow.Log?.Report(this, null, "   " + i.Registration.Release.ToString());
-						Workflow.Log?.Report(this, null, "   " + i.Registration.Channel);
-						Workflow.Log?.Report(this, null, "   " + Hex.ToHexString(i.Registration.Manifest));
+						Workflow.Log?.Report(this, null, "   " + i.Address.ToString());
+						Workflow.Log?.Report(this, null, "   " + i.Channel);
+						Workflow.Log?.Report(this, null, "   " + Hex.ToHexString(i.Manifest));
 					}
 					else
 						Workflow.Log?.Report(this, null, "Not found");

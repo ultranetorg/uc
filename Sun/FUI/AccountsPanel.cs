@@ -15,7 +15,7 @@ namespace UC.Sun.FUI
 {
 	public partial class AccountsPanel : MainPanel
 	{
-		public Account CurrentAccout => accounts.SelectedItems[0]?.Tag as Account;
+		public AccountAddress CurrentAccout => accounts.SelectedItems[0]?.Tag as AccountAddress;
 
 		public AccountsPanel(Core d, Vault vault) : base(d, vault)
 		{
@@ -49,9 +49,9 @@ namespace UC.Sun.FUI
 	
 										try
 										{
-											t = Core.Call(Role.Base, p => p.GetAccountInfo(i.Tag as Account, true), Core.Workflow).Info?.Balance.ToHumanString(); 
+											t = Core.Call(Role.Base, p => p.GetAccountInfo(i.Tag as AccountAddress, true), Core.Workflow).Info?.Balance.ToHumanString(); 
 										}
-										catch(OperationCanceledException)
+										catch(RdcException)
 										{
 											return;
 										}
@@ -66,7 +66,7 @@ namespace UC.Sun.FUI
 			}
 		}
 
-		void AddRow(Account a)
+		void AddRow(AccountAddress a)
 		{
 			var r = new ListViewItem(a.ToString());
 			r.Tag = a;

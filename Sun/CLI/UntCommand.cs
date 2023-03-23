@@ -87,7 +87,7 @@ namespace UC.Sun.CLI
 		   		case "transfer" : 
 				{
 					return Core.Enqueue(new UntTransfer(GetPrivate("from/account", "from/password"), 
-														Account.Parse(GetString("to")), 
+														AccountAddress.Parse(GetString("to")), 
 														Coin.ParseDecimal(GetString("amount"))),
 														GetAwaitStage(), 
 														Workflow);

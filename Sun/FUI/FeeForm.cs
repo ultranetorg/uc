@@ -39,7 +39,7 @@ namespace UC.Sun.FUI
 			
 			var t = new Transaction(core.Settings, account);
 			t.AddOperation(operation);
-			t.Sign(new Account(Nethereum.Signer.EthECKey.GenerateKey()), 0);
+			t.Sign(new AccountAddress(Nethereum.Signer.EthECKey.GenerateKey()), 0);
 
 			var f = core.EstimateFee(t.Operations);
 

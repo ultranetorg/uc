@@ -34,9 +34,9 @@ namespace UC.Sun.FUI
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				foreach(var r in Core.Database.FindReleases(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Release.Realization == Platform.Text))
+				foreach(var r in Core.Database.Releases.Where(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Address.Realization == Platform.Text, Core.Database.LastConfirmedRound.Id))
 				{
-					var i = new ListViewItem(r.Release.ToString());
+					var i = new ListViewItem(r.Address.ToString());
 					
 					i.Tag = r;
 					i.SubItems.Add(Hex.ToHexString(r.Manifest));

@@ -33,7 +33,7 @@ namespace UC.Sun.FUI
 			Vault = v;
 		}
 
-		public IEnumerable<AuthorEntry> FindAuthors(Account owner)
+		public IEnumerable<AuthorEntry> FindAuthors(AccountAddress owner)
 		{
 			var o = new List<AuthorEntry>();
 			
@@ -50,7 +50,7 @@ namespace UC.Sun.FUI
 			return o;
 		}
 
-		public IEnumerable<ProductModel> FindProducts(Account owner)
+		public IEnumerable<ProductModel> FindProducts(AccountAddress owner)
 		{
 			var o = new List<ProductModel>();
 			
@@ -165,7 +165,7 @@ namespace UC.Sun.FUI
 			MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
-		public AccountKey GetPrivate(Account account)
+		public AccountKey GetPrivate(AccountAddress account)
 		{
 			var p = Vault.GetKey(account);
 			
