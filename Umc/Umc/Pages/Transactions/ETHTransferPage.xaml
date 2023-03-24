@@ -24,7 +24,7 @@
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
-            RowDefinitions="*,Auto,Auto,Auto"
+            RowDefinitions="*,Auto,Auto"
             RowSpacing="16">
             <CarouselView
                 HorizontalScrollBarVisibility="Never"
@@ -263,6 +263,7 @@
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
             <Grid
+                VerticalOptions="EndAndExpand"
                 Grid.Row="2"
                 ColumnDefinitions="*,*"
                 ColumnSpacing="16">
@@ -284,6 +285,7 @@
                     Style="{StaticResource NextButton}" />
             </Grid>
             <StackLayout
+                VerticalOptions="EndAndExpand"
                 Grid.Row="2"
                 IsVisible="False">
                 <StackLayout.Triggers>
@@ -296,7 +298,6 @@
                 </StackLayout.Triggers>
                 <Button Command="{Binding ConfirmCommand}" Text="Confirm" />
                 <Button
-                    Margin="0,4,0,-8"
                     Style="{StaticResource LabelButton}"
                     Command="{Binding PrevCommand}"
                     Text="Cancel" />
