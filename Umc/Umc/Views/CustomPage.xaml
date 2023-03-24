@@ -12,6 +12,7 @@
         <views:PageTitleActionView
             NotificationsCount="{Binding NotificationsCount}"
             MaxSeverity="{Binding NotificationsSeverity}"
+            NotificationsCommand="{Binding OpenNotificationsCommand}"
             ConnectionState="{Binding ConnectionState}"
             Title="{Binding Title, Source={x:Reference Instance}}"
             TitleStyle="{StaticResource TitleLabel}" />

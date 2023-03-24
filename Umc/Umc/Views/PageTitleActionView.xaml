@@ -49,7 +49,8 @@
                     AbsoluteLayout.LayoutFlags="All"
                     Aspect="AspectFill"
                     HeightRequest="44"
-                    Source="bell_dark.png"/>
+                    Source="bell_dark.png"
+                    Command="{Binding NotificationsCommand}" />
                 <Border
                     AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
@@ -65,13 +66,13 @@
                         FontSize="12"
                         FontAttributes="Bold" />
                     <Border.Triggers>
-                        <DataTrigger TargetType="Border" Binding="{Binding NotificationsSeverity}" Value="{Static enums:Severity.Low}">
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.Low}">
                             <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
                         </DataTrigger>
-                        <DataTrigger TargetType="Border" Binding="{Binding NotificationsSeverity}" Value="{Static enums:Severity.Mid}">
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.Mid}">
                             <Setter Property="BackgroundColor" Value="{StaticResource Yellow200Accent}" />
                         </DataTrigger>
-                        <DataTrigger TargetType="Border" Binding="{Binding NotificationsSeverity}" Value="{Static enums:Severity.High}">
+                        <DataTrigger TargetType="Border" Binding="{Binding MaxSeverity}" Value="{Static enums:Severity.High}">
                             <Setter Property="BackgroundColor" Value="{StaticResource LowerColor}" />
                         </DataTrigger>
                     </Border.Triggers>

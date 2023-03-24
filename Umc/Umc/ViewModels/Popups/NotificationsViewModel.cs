@@ -17,4 +17,7 @@ public partial class NotificationsViewModel : BaseViewModel
 	{
 		Notifications = _service.GetAll();
 	}
+
+	[RelayCommand]
+	private void Close() => ClosePopup();
 }

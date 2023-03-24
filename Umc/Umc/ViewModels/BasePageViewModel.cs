@@ -26,6 +26,20 @@ public abstract partial class BasePageViewModel : BaseViewModel, IQueryAttributa
     {
     }
 
+    [RelayCommand]
+    protected async Task OpenNotificationsAsync()
+    {
+		try
+		{
+			await ShowPopup(new NotificationsPopup());
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "OpenNotificationsAsync Exception: {Ex}", ex.Message);
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+		}
+	}
+
 	protected void LoadNotificationsData()
 	{
 		NotificationsCount = _notificationService.GetCount();

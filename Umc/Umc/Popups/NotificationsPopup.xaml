@@ -3,41 +3,26 @@
     x:Class="UC.Umc.Popups.NotificationsPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:enums="clr-namespace:UC.Umc.Enums"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:UC.Umc.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    x:DataType="vm:NotificationsViewModel"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent"
+    Size="{x:Static const:SizeConstants.Large}"
+    VerticalOptions="End"
     x:Name="page">
-    
-    <!--HasSystemPadding="{OnPlatform Android=True,
-                                  iOS=False}"
-    <pages:PopupPage.Animation>
-        <pages:ScaleAnimation
-            DurationIn="400"
-            DurationOut="300"
-            EasingIn="SinOut"
-            EasingOut="SinIn"
-            HasBackgroundAnimation="False"
-            PositionIn="Bottom"
-            PositionOut="Bottom"
-            ScaleIn="1.2"
-            ScaleOut="0.8" />
-    </pages:PopupPage.Animation>-->
-    <Frame
-        Margin="0,0,0,-20"
-        Padding="20,8,20,50"
-        BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary},
-                                          Light={StaticResource LightBackground}}"
-        CornerRadius="20"
-        HasShadow="True"
-        HeightRequest="600"
-        HorizontalOptions="FillAndExpand"
-        VerticalOptions="EndAndExpand">
-        <StackLayout HorizontalOptions="FillAndExpand" Spacing="15">
-            <Grid RowDefinitions="20,Auto,*" RowSpacing="15">
-                <Frame
+    <Border Style="{StaticResource AccountCardBorder}">
+        <StackLayout HorizontalOptions="FillAndExpand" Spacing="16">
+            <Grid RowDefinitions="20,Auto,*" RowSpacing="16">
+                <Border
                     Grid.Row="0"
                     HorizontalOptions="CenterAndExpand"
-                    Style="{StaticResource PopupHandle}"
-                    VerticalOptions="Center" />
+                    Margin="0,0,0,8"
+                    Style="{StaticResource PopupHandleBorder}" />
                 <Grid
                     Grid.Row="1"
                     ColumnDefinitions="*,Auto"
@@ -58,7 +43,7 @@
                     ItemsSource="{Binding Notifications}"
                     SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:Notification">
                             <StackLayout Padding="0,8,0,8">
                                 <SwipeView BackgroundColor="Transparent">
                                     <SwipeView.RightItems>
@@ -115,28 +100,28 @@
                                                 FontSize="13"
                                                 Text="{Binding Title}"
                                                 VerticalOptions="Center" />
-                                            <Frame HorizontalOptions="Start" VerticalOptions="Center">
-                                                <Frame.Triggers>
+                                            <Border HorizontalOptions="Start" VerticalOptions="Center">
+                                                <Border.Triggers>
                                                     <DataTrigger
                                                         Binding="{Binding Severity}"
-                                                        TargetType="Frame"
+                                                        TargetType="Border"
                                                         Value="{Static enums:Severity.High}">
                                                         <Setter Property="Style" Value="{StaticResource RedDot}" />
                                                     </DataTrigger>
                                                     <DataTrigger
                                                         Binding="{Binding Severity}"
-                                                        TargetType="Frame"
+                                                        TargetType="Border"
                                                         Value="{Static enums:Severity.Mid}">
                                                         <Setter Property="Style" Value="{StaticResource OrangeDot}" />
                                                     </DataTrigger>
                                                     <DataTrigger
                                                         Binding="{Binding Severity}"
-                                                        TargetType="Frame"
+                                                        TargetType="Border"
                                                         Value="{Static enums:Severity.Low}">
                                                         <Setter Property="Style" Value="{StaticResource GreenDot}" />
                                                     </DataTrigger>
-                                                </Frame.Triggers>
-                                            </Frame>
+                                                </Border.Triggers>
+                                            </Border>
                                         </StackLayout>
                                         <Label
                                             Grid.Row="1"
@@ -161,7 +146,8 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </Grid>
-            <Button Text="Close" />
+            
+            <Button Text="Close" Command="{Binding CloseCommand}" />
         </StackLayout>
-    </Frame>
+    </Border>
 </toolkit:Popup>

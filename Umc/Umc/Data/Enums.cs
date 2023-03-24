@@ -29,9 +29,9 @@ public enum NotificationType
 
 public enum Severity
 {
-    High,
+	Low,
 	Mid,
-	Low
+    High
 }
 
 public enum TransactionStatus
