@@ -46,14 +46,14 @@
                     <Border
                         Style="{StaticResource ContainerBorder}"
                         Stroke="Transparent"
-                        HeightRequest="32">
+                        HeightRequest="36">
                         <Grid>
                             <Label
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
                                 Text="Local"
-                                TextColor="{TemplateBinding CurrentTextColor}" />
+                                TextColor="{StaticResource Primary}" />
                             <Grid.Triggers>
                                 <DataTrigger
                                     Binding="{Binding IsLocal}"
@@ -77,14 +77,14 @@
                         Grid.Column="1"
                         Style="{StaticResource ContainerBorder}"
                         Stroke="Transparent"
-                        HeightRequest="32">
+                        HeightRequest="36">
                         <Grid>
                             <Label
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
                                 Text="External"
-                                TextColor="{TemplateBinding CurrentTextColor}" />
+                                TextColor="{StaticResource Primary}"/>
                             <Grid.Triggers>
                                 <DataTrigger
                                     Binding="{Binding IsExternal}"
@@ -108,14 +108,14 @@
                         Grid.Column="2"
                         Style="{StaticResource ContainerBorder}"
                         Stroke="Transparent"
-                        HeightRequest="32">
+                        HeightRequest="36">
                         <Grid>
                             <Label
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
                                 Text="QR Code"
-                                TextColor="{TemplateBinding CurrentTextColor}" />
+                                TextColor="{StaticResource Primary}" />
                             <Grid.Triggers>
                                 <DataTrigger
                                     Binding="{Binding IsQrCode}"

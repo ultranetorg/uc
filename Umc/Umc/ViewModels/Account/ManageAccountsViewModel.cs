@@ -20,25 +20,6 @@ public partial class ManageAccountsViewModel : BasePageViewModel
 	}
 
 	[RelayCommand]
-    private async Task OpenOptionsAsync(AccountViewModel account)
-	{
-		try
-		{
-			Guard.IsNotNull(account);
-
-			await ShowPopup(new AccountOptionsPopup(account));
-		}
-		catch(ArgumentException ex)
-		{
-			_logger.LogError("OpenOptionsAsync: Account cannot be null, Error: {Message}", ex.Message);
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError("OpenOptionsAsync Error: {Message}", ex.Message);
-		}
-	}
-
-	[RelayCommand]
     private async Task OpenDetailsAsync(AccountViewModel account) => 
 		await Navigation.GoToAsync(Routes.ACCOUNT_DETAILS, new Dictionary<string,object>()
 		{

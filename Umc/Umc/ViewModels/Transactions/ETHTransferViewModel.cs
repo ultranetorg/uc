@@ -3,6 +3,9 @@
 public partial class ETHTransferViewModel : BaseAccountViewModel
 {
 	[ObservableProperty]
+	private bool _needToFinishTransfer = true;
+
+	[ObservableProperty]
 	private bool _isPrivateKey = true;
 
 	[ObservableProperty]

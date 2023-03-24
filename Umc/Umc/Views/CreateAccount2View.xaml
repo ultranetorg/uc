@@ -6,7 +6,7 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:CreateAccount2ViewModel"
     x:Name="view">
     <StackLayout Padding="4" Spacing="32">

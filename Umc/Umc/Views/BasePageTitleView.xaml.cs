@@ -1,4 +1,4 @@
-﻿namespace UC.Umc.Views.Shared;
+﻿namespace UC.Umc.Views;
 
 public class BasePageTitleView<TView> : ContentView
 {

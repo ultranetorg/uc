@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Views"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:CreateAccount1ViewModel">
     <StackLayout Padding="4" Spacing="32">
         <StackLayout>

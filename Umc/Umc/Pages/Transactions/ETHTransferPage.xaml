@@ -12,31 +12,14 @@
     Title="ETH-UNT Transfer"
     x:Name="page">
     
-    <!--<Shell.TitleView>
-        <FlexLayout
-            AlignItems="Center"
-            Direction="Row"
-            JustifyContent="SpaceBetween"
-            Margin="12,2">
-            <Label
-                FontFamily="SemiBold"
-                Style="{StaticResource TitleLabel}"
-                TextColor="{StaticResource PrimaryLight}"
-                Text="ETH-UNT Transfer" />
-            <AbsoluteLayout
-                HeightRequest="40"
-                WidthRequest="40">
-                <ImageButton
-                    AbsoluteLayout.LayoutBounds="0,1,1,1"
-                    AbsoluteLayout.LayoutFlags="All"
-                    Aspect="AspectFill"
-                    Opacity="0.5"
-                    HeightRequest="44"
-                    Source="{FontImage Size=35, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Dots}}"
-                    Command="{Binding OpenOptionsPopupCommand}" />
-            </AbsoluteLayout>
-        </FlexLayout>
-    </Shell.TitleView>-->
+    <Shell.TitleView>
+        <views:PageTitleActionView
+            NotificationsCount="{Binding NotificationsCount}"
+            MaxSeverity="{Binding NotificationsSeverity}"
+            ConnectionState="{Binding ConnectionState}"
+            Title="{Binding Title, Source={x:Reference Instance}}"
+            TitleStyle="{StaticResource TitleLabel}" />
+    </Shell.TitleView>
     
     <controls:CustomPage.MainContent>
         <Grid
@@ -44,7 +27,6 @@
             RowDefinitions="*,Auto,Auto,Auto"
             RowSpacing="16">
             <CarouselView
-                Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
                 IndicatorView="indicator"
                 IsSwipeEnabled="False"
@@ -59,6 +41,15 @@
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
                         <StackLayout Spacing="24">
+                            <Label
+                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=NeedToFinishTransfer}"
+                                Text="Finish Incomplete Transfer"
+                                TextColor="{StaticResource LowerColor}"
+                                HorizontalOptions="End">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=OpenOptionsPopupCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
                             <StackLayout Spacing="16">
                                 <StackLayout>
                                     <Label FontSize="18" Text="Choose your Ethereum private key and transfer amount" />
@@ -148,12 +139,12 @@
                                             Style="{StaticResource UNTLabel}"
                                             Text="ETH" />
                                     </AbsoluteLayout>
-                                    <StackLayout >
-                                        <!--<Label
-                                            FontSize="12"
-                                            IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
-                                            Text="Validation text message"
-                                            TextColor="{StaticResource Red}" />-->
+                                    <StackLayout>
+                                    <!--<Label
+                                        FontSize="12"
+                                        IsVisible="{Binding IsNotValid, Source={x:Reference cb1}}"
+                                        Text="Validation text message"
+                                        TextColor="{StaticResource Red}" />-->
                                     </StackLayout>
                                 </StackLayout>
                                 <Image
@@ -192,11 +183,11 @@
                                             Text="UNT" />
                                     </AbsoluteLayout>
                                     <StackLayout>
-                                        <!--<Label
-                                            FontSize="12"
-                                            IsVisible="{Binding IsNotValid, Source={x:Reference cb2}}"
-                                            Text="Validation text message"
-                                            TextColor="{StaticResource Red}" />-->
+                                    <!--<Label
+                                        FontSize="12"
+                                        IsVisible="{Binding IsNotValid, Source={x:Reference cb2}}"
+                                        Text="Validation text message"
+                                        TextColor="{StaticResource Red}" />-->
                                     </StackLayout>
                                 </StackLayout>
                             </Grid>
@@ -292,12 +283,9 @@
                     Command="{Binding NextWorkaroundCommand}"
                     Style="{StaticResource NextButton}" />
             </Grid>
-            <StackLayout Grid.Row="2" IsVisible="False">
-                <Button Command="{Binding ConfirmCommand}" Text="Confirm" />
-                <Button
-                    Style="{StaticResource LabelButton}"
-                    Command="{Binding PrevCommand}"
-                    Text="Cancel" />
+            <StackLayout
+                Grid.Row="2"
+                IsVisible="False">
                 <StackLayout.Triggers>
                     <DataTrigger
                         Binding="{Binding Position}"
@@ -306,6 +294,12 @@
                         <Setter Property="IsVisible" Value="True" />
                     </DataTrigger>
                 </StackLayout.Triggers>
+                <Button Command="{Binding ConfirmCommand}" Text="Confirm" />
+                <Button
+                    Margin="0,4,0,-8"
+                    Style="{StaticResource LabelButton}"
+                    Command="{Binding PrevCommand}"
+                    Text="Cancel" />
             </StackLayout>
         </Grid>
     </controls:CustomPage.MainContent>
