@@ -40,6 +40,10 @@
 		
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Include="Resources\Images\account\*" />
+		<MauiImage Include="Resources\Images\author\*" />
+		<MauiImage Include="Resources\Images\dashboard\*" />
+		<MauiImage Include="Resources\Images\notifications\*" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -323,36 +327,6 @@
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiImage Include="Resources\Images\account\random.svg" />
-	  <MauiImage Include="Resources\Images\account\account_send.svg" />
-	  <MauiImage Include="Resources\Images\account\account_receive.svg" />
-	  <MauiImage Include="Resources\Images\account\account_sort.svg" />
-	  <MauiImage Include="Resources\Images\author\author_free.svg" />
-	  <MauiImage Include="Resources\Images\author\author_personal.svg" />
-	  <MauiImage Include="Resources\Images\author\author_reserved.svg" />
-	  <MauiImage Include="Resources\Images\author\author_watch.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\accounts.svg" />
-	  <MauiImage Include="Resources\Images\author\author_auction.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\authors.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\dashboard_outline.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\help.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\info.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\network.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\products.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\search.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\settings.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\transactions.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\transfer.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_done_dark.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_done_light.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_failed_dark.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_failed_light.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_pending_dark.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\ts_pending_light.svg" />
-	  <MauiImage Include="Resources\Images\dashboard\updates.svg" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">

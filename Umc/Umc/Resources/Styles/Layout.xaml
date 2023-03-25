@@ -19,8 +19,8 @@
     </Style>
     <Style x:Key="StackSperator" TargetType="StackLayout">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark=White, Light={StaticResource Secondary}}" />
-        <Setter Property="HeightRequest" Value="0.4" />
-        <Setter Property="Opacity" Value="0.3" />
+        <Setter Property="HeightRequest" Value="0.2" />
+        <Setter Property="Opacity" Value="0.1" />
     </Style>
     <Style x:Key="stacklayoutStyle" TargetType="StackLayout">
         <Setter Property="VisualStateManager.VisualStateGroups">
@@ -46,23 +46,23 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}" />
         <Setter Property="Visual" Value="Material" />
     </Style>
-    <Style x:Key="RedDot" TargetType="Frame">
+    <Style x:Key="RedDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{StaticResource Red}" />
         <Setter Property="HeightRequest" Value="6" />
         <Setter Property="WidthRequest" Value="6" />
     </Style>
-    <Style x:Key="GreenDot" TargetType="Frame">
+    <Style x:Key="GreenDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
         <Setter Property="HeightRequest" Value="6" />
         <Setter Property="WidthRequest" Value="6" />
     </Style>
-    <Style x:Key="OranegDot" TargetType="Frame">
+    <Style x:Key="OrangeDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{StaticResource Orange}" />
         <Setter Property="HeightRequest" Value="6" />
         <Setter Property="WidthRequest" Value="6" />
