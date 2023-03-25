@@ -1,12 +1,13 @@
 using System.Reflection;
 using UC;
 using UC.Net;
+using UC.Uos;
 
 namespace Uccs.Demo.Application
 {
 	public static class Program
 	{
-		static Nexus? Nexus;
+		static UC.Uos.Application? Application;
 
 		/// <summary>
 		///  The main entry point for the application.
@@ -14,7 +15,7 @@ namespace Uccs.Demo.Application
 		[STAThread]
 		public static void Main()
 		{
-			new Nexus(null, Zone.Localnet);
+			Application = new UC.Uos.Application();
 
 			// To customize application configuration such as set high DPI settings or default font,
 			// see https://aka.ms/applicationconfiguration.
@@ -22,22 +23,22 @@ namespace Uccs.Demo.Application
 			System.Windows.Forms.Application.Run(new Form1());
 		}
 
-		public static void SimulateMain(string productspath)
+		public static void SimulateMain()
 		{
-			Nexus = new Nexus(productspath, Zone.Localnet);
+			Application = new UC.Uos.Application();
 			
 			var f = new Form1();
 
 
 			Task.Run(() =>
 					 {
-						 var v = ReleaseAddress.Parse("uo/democomponent/dotnet/0.0.0");
+						var v = ReleaseAddress.Parse("uo/democomponent/dotnet/0.0.0");
 						
-						 Nexus.GetRelease(v, new Workflow());
+						Application.GetRelease(v, new Workflow());
 
 						f.BeginInvoke(new Action(	() =>
 													{
-														var a = Assembly.LoadFile(Path.Join(Nexus.MapReleasePath(v), "Uccs.Demo.Component.dll"));
+														var a = Assembly.LoadFile(Path.Join(Application.MapReleasePath(v), "Uccs.Demo.Component.dll"));
 														var ct = a.GetType("DemoComponent.ComponentControl");
 														var c = ct?.GetConstructor(new Type[]{})?.Invoke(null) as UserControl;
 
