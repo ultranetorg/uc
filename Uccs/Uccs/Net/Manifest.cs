@@ -14,7 +14,9 @@ namespace UC.Net
 
 	public enum DependencyFlag : byte
 	{
-		Null, SideBySide
+		Null, 
+		SideBySide			= 0b0000_0001, 
+		AutoUpdateAllowed	= 0b0000_0010
 	}
 
 	public class Dependency : IBinarySerializable, IEquatable<Dependency>
@@ -30,6 +32,7 @@ namespace UC.Net
 			d.Release	= ReleaseAddress.Parse(i.String);
 			d.Type		= Enum.Parse<DependencyType>(i.Name);
 			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.Null;
+			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.Null;
 
 			return d;
 		}

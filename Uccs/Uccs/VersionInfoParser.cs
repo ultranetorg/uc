@@ -547,7 +547,7 @@ namespace UC
 				ushort major = ReadUInt16();
 				ushort revision = ReadUInt16();
 				ushort build = ReadUInt16();
-				return new Version(major, minor, build, revision);
+				return new Version(major, minor, build);
 			}
 
 			internal string ReadString()

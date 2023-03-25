@@ -407,7 +407,7 @@ namespace UC.Net
 			IEnumerable<Dependency> acd = null;
 			IEnumerable<Dependency> rcd = null;
 
-			var f = Path.Join(dependsdirectory, $"{release.Version.ABCD}.{DependenciesExt}");
+			var f = Path.Join(dependsdirectory, $"{release.Version.ABC}.{DependenciesExt}");
 			
 			//var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
 			var deps = File.Exists(f) ? new XonDocument(File.ReadAllText(f)).Nodes.Select(i => Dependency.From(i))

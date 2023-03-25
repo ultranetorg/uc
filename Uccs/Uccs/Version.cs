@@ -12,50 +12,49 @@ namespace UC
 {
 	public class Version : IEquatable<Version>, IComparable, IBinarySerializable
 	{
-		public ushort Era;
-		public ushort Upgrade;
-		public ushort Bugfix;
-		public ushort Revision;
+		public int Era;
+		public int Upgrade; /// for dependencies ebabled for updating can go up only
+		public int Bugfix; /// for dependencies ebabled for updating can go up and down
 
 		public string AB => $"{Era}.{Upgrade}";
 		public string ABC => AB + $".{Bugfix}";
-		public string ABCD => ABC + $".{Revision}";
 
-		public readonly static Version Zero = new Version(0, 0, 0, 0);
+		public readonly static Version Zero = new Version(0, 0, 0);
 
 		public Version()
 		{
 		}
 
-		public Version(ushort era, ushort upgrade, ushort bugfix, ushort revision)
+		public Version(int era, int upgrade, int bugfix)
 		{
 			Era = era;
 			Upgrade = upgrade;
 			Bugfix = bugfix;
-			Revision = revision;
 		}
 
 		public override string ToString()
 		{
-			return $"{Era}.{Upgrade}.{Bugfix}.{Revision}";
+			return $"{Era}.{Upgrade}.{Bugfix}";
 		}
 
 		public static Version Parse(string s)
 		{
 			var c = s.Split('.').ToArray();
 
+			if(c.Length > 3)
+			{
+				throw new ArgumentException();
+			}
+
 			var v = new Version();
 
-			v.Era = ushort.Parse(c[0]);
+			v.Era = int.Parse(c[0]);
 					
 			if(c.Length > 1)
-				v.Upgrade = ushort.Parse(c[1]);
+				v.Upgrade = int.Parse(c[1]);
 
 			if(c.Length > 2)
-				v.Bugfix = ushort.Parse(c[2]);
-
-			if(c.Length > 3)
-				v.Revision = ushort.Parse(c[3]);
+				v.Bugfix = int.Parse(c[2]);
 
 			return v;
 		}
@@ -81,13 +80,12 @@ namespace UC
 			return other != null &&
 				   Era == other.Era &&
 				   Upgrade == other.Upgrade &&
-				   Bugfix == other.Bugfix &&
-				   Revision == other.Revision;
+				   Bugfix == other.Bugfix;
 		}
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Era, Upgrade, Bugfix, Revision);
+			return HashCode.Combine(Era, Upgrade, Bugfix);
 		}
 
 		public int CompareTo(object obj)
@@ -104,18 +102,16 @@ namespace UC
 
 		public void Read(BinaryReader r)
 		{
-			Era = r.ReadUInt16();
-			Upgrade = r.ReadUInt16(); 
-			Bugfix = r.ReadUInt16();
-			Revision = r.ReadUInt16();
+			Era = r.Read7BitEncodedInt();
+			Upgrade = r.Read7BitEncodedInt(); 
+			Bugfix = r.Read7BitEncodedInt();
 		}
 
 		public void Write(BinaryWriter w)
 		{
-			w.Write(Era);
-			w.Write(Upgrade);
-			w.Write(Bugfix);
-			w.Write(Revision);
+			w.Write7BitEncodedInt(Era);
+			w.Write7BitEncodedInt(Upgrade);
+			w.Write7BitEncodedInt(Bugfix);
 		}
 
 		public static bool operator < (Version a, Version b)
@@ -127,9 +123,6 @@ namespace UC
 				return true;
 
 			if(a.Bugfix < b.Bugfix)
-				return true;
-
-			if(a.Revision < b.Revision)
 				return true;
 
 			return false;
@@ -144,9 +137,6 @@ namespace UC
 				return true;
 
 			if(a.Bugfix > b.Bugfix)
-				return true;
-
-			if(a.Revision > b.Revision)
 				return true;
 
 			return false;

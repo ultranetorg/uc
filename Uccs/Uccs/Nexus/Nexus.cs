@@ -32,12 +32,12 @@ namespace UC
 
 		public static string VersionToRelative(ReleaseAddress release)
 		{
-			return Path.Join($"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABCD);
+			return Path.Join($"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABC);
 		}
 
 		public string MapReleasePath(ReleaseAddress release)
 		{
-			return Path.Join(ProductsPath, $"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABCD);
+			return Path.Join(ProductsPath, $"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABC);
 		}
 
 		Assembly AssemblyResolve(object sender, ResolveEventArgs args)

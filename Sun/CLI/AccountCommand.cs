@@ -43,7 +43,7 @@ namespace UC.Sun.CLI
 					
 					Workflow?.Log?.Report(this, "Account", GetString("address") + " :");
 
-					i.Info.Dump((d, m, n, v) => Workflow?.Log?.Report(this, null, "    " + new string(' ', d*4) + string.Format($"{{0,-{m - d*4}}}", n) + (v != null ? (" : " + v) : "")));
+					Dump(i.Account.ToXon());
 
 					return null;
 				}

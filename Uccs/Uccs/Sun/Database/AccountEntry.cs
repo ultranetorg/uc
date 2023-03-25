@@ -9,17 +9,25 @@ namespace UC.Net
 {
 	public enum BailStatus
 	{
-		Null, OK, Siezed
+		Null, Active, Siezed
 	}
 
 	public class AccountEntry : Account, ITableEntry<AccountAddress>
 	{
+		public int						LastOperationId = -1;
+		public int						LastEmissionId = -1;
+		public int						CandidacyDeclarationRid = -1;
+
 		public HashSet<int>				Transactions = new();
 
 		public AccountAddress			Key => Address;
 		public byte[]					GetClusterKey(int n) => ((byte[])Address).Take(n).ToArray();
 
 		Database						Chain;
+
+		public AccountEntry()
+		{
+		}
 
 		public AccountEntry(Database chain)
 		{
@@ -38,9 +46,28 @@ namespace UC.Net
 											Transactions = Chain.Settings.Database.Chain ? new HashSet<int>(Transactions) : null};
 		}
 
+		public override void Write(BinaryWriter writer)
+		{
+			base.Write(writer);
+
+			writer.Write7BitEncodedInt(LastOperationId);
+			writer.Write7BitEncodedInt(LastEmissionId);
+			writer.Write7BitEncodedInt(CandidacyDeclarationRid);
+		}
+
+		public override void Read(BinaryReader reader)
+		{
+			base.Read(reader);
+
+			LastOperationId				= reader.Read7BitEncodedInt();
+			LastEmissionId				= reader.Read7BitEncodedInt();
+			CandidacyDeclarationRid		= reader.Read7BitEncodedInt();
+		}
+
 		public void WriteMain(BinaryWriter w)
 		{
 			Write(w);
+
 		}
 
 		public void ReadMain(BinaryReader r)
@@ -73,5 +100,21 @@ namespace UC.Net
 			//	_Authors = r.ReadList(() => r.ReadUtf8());
 			//}
 		}
+
+		public XonDocument ToXon()
+		{
+			var d = new XonDocument(new XonTextValueSerializator());
+
+			d.Add("Address").Value					= Address;
+			d.Add("LastOperationId").Value			= LastOperationId;
+			d.Add("Balance").Value					= Balance;
+			d.Add("LastEmissionId").Value			= LastEmissionId;
+			d.Add("CandidacyDeclarationRid").Value	= CandidacyDeclarationRid;
+			d.Add("Bail").Value						= Bail;
+			d.Add("BailStatus").Value				= BailStatus;
+
+			return d;
+		}
+
 	}
 }

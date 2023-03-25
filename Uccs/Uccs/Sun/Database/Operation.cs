@@ -177,14 +177,14 @@ namespace UC.Net
 
 			//var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
 
-			if(e.BailStatus == BailStatus.OK) /// first, add existing if not previously Siezed
+			if(e.BailStatus == BailStatus.Active) /// first, add existing if not previously Siezed
 				e.Balance += e.Bail;
 
 			e.Balance -= Bail; /// then, subtract a new bail
 			e.Bail += Bail;
 
 			if(e.BailStatus == BailStatus.Siezed) /// if was siezed than reset to OK status
-				e.BailStatus = BailStatus.OK;
+				e.BailStatus = BailStatus.Active;
 
 			e.CandidacyDeclarationRid = round.Id;
 		}

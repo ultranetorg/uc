@@ -14,7 +14,7 @@ namespace UC.Net
 {
 	public enum Rdc : byte
 	{
-		Null, Time, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, Author, AccountInfo, 
+		Null, Time, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, Author, Account, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable
 	}
@@ -81,8 +81,8 @@ namespace UC.Net
 		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
-		public AuthorResponse				GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
-		public AccountInfoResponse				GetAccountInfo(AccountAddress account, bool confirmed) => Request<AccountInfoResponse>(new AccountInfoRequest{Account = account, Confirmed = confirmed});
+		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
+		public AccountResponse					GetAccountInfo(AccountAddress account, bool confirmed) => Request<AccountResponse>(new AccountRequest{Account = account});
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
 		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
@@ -550,7 +550,7 @@ namespace UC.Net
 	{
 		public class Item
 		{
-			public AccountAddress			Account { get; set; }
+			public AccountAddress	Account { get; set; }
 			public int				Id { get; set; }
 			public PlacingStage		Placing { get; set; }
 		}
@@ -558,31 +558,30 @@ namespace UC.Net
 		public IEnumerable<Item> Operations { get; set; }
 	}
 
-	public class AccountInfoRequest : RdcRequest
+	public class AccountRequest : RdcRequest
 	{
-		public bool			Confirmed {get; set;}
 		public AccountAddress		Account {get; set;}
 
 		public override RdcResponse Execute(Core core)
 		{
  			lock(core.Lock)
- 				if(core.Synchronization != Synchronization.Synchronized)
+			{
+	 			if(core.Synchronization != Synchronization.Synchronized)
 					throw new RdcException(RdcError.NotSynchronized);
-				else
-				{
-					var ai = core.Database.GetAccountInfo(Account, Confirmed);
 
-					if(ai == null)
-						throw new RdcException(RdcError.AccountNotFound);
+				var ai = core.Database.Accounts.Find(Account, core.Database.LastConfirmedRound.Id);
 
- 					return new AccountInfoResponse{Info = ai};
-				}
+				if(ai == null)
+					throw new RdcException(RdcError.AccountNotFound);
+
+ 				return new AccountResponse{Account = ai};
+			}
 		}
 	}
 
-	public class AccountInfoResponse : RdcResponse
+	public class AccountResponse : RdcResponse
 	{
-		public AccountInfo Info {get; set;}
+		public AccountEntry Account {get; set;}
 	}
 
 	public class AuthorRequest : RdcRequest

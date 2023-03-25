@@ -1011,45 +1011,7 @@ namespace UC.Net
 						yield return b;
 		}
 
-		//public IEnumerable<ReleaseRegistration> FindReleases(string author, string product, Func<ReleaseRegistration, bool> f, int maxrid = int.MaxValue)
-		//{
-		//	var p = FindProduct(new ProductAddress(author, product), maxrid);
-		//
-		//	if(p == null)
-		//		yield break;
-		//
-		//	foreach(var r in p.Releases.Where(i => i.Rid <= maxrid).Select(i => FindRound(i.Rid).FindOperation<ReleaseRegistration>(o => o.Release.Author == author && o.Release.Product == product && o.Release.Version == i.Version)))
-		//		yield return r;
-		//}
-		
-		public AccountInfo GetAccountInfo(AccountAddress account, bool confirmed)
-		{
-			var rmax = confirmed ? LastConfirmedRound : LastNonEmptyRound;
 
-			var a = Accounts.Find(account, rmax.Id);
-
-			if(a != null)
-			{
-				var i = new AccountInfo();
-
-
-				i.Balance			= a.Balance;
-				i.LastOperationId	= a.LastOperationId;
-				//i.Authors			= a.Authors;
-
-				if(Settings.Database.Chain)
-				{
-					//var t = Accounts.FindLastOperation(account, i => i.Successful, null, null, r => r.Id <= rmax.Id);
-
-					//i.Operations = Accounts.FindLastOperations<Operation>(account, null, null, null, r => r.Id <= rmax.Id).Take(10).Reverse().Select(i => new AccountOperationInfo(i)).ToList();
-				}
-
-				return i;
-			}
-
-			return null;
-		}
-				
 		public Release QueryRelease(ReleaseQuery query)
 		{
 			if(query.VersionQuery == VersionQuery.Latest)

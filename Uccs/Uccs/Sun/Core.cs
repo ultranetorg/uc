@@ -168,30 +168,22 @@ namespace UC.Net
 
 					if(Synchronization == Synchronization.Synchronized)
 					{
-						string formatbalance(AccountAddress a, bool confirmed)
+						string formatbalance(AccountAddress a)
 						{
-							return Database.GetAccountInfo(a, confirmed)?.Balance.ToHumanString();
+							return Database.Accounts.Find(a, Database.LastConfirmedRound.Id)?.Balance.ToHumanString();
 						}
 	
 						foreach(var i in Vault.Accounts)
 						{
-							f.Add($"Account");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
+							f.Add($"Account");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}");
 						}
 	
 						if(Settings.Dev.UI)
 						{
 							foreach(var i in Database.LastConfirmedRound.Funds)
 							{
-								f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true), BalanceWidth}");
+								f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}");
 							}
-						
-	// 						if(Settings.Secret != null)
-	// 						{
-	// 							foreach(var i in  Settings.Secret.Fathers)
-	// 							{
-	// 								f.Add($"Father"); v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i, true),BalanceWidth}");
-	// 							}
-	// 						}
 						}
 					}
 				}
@@ -642,18 +634,25 @@ namespace UC.Net
 				Connections.Count() >= Settings.PeersMin && 
 				(Database == null || Connections.Count(i => i.Roles.HasFlag(Database.Roles)) >= Settings.Database.PeersMin))
 			{
-				DelegatingThread = new Thread(() => { 
-														try
-														{
-															Delegating();
-														}
-														catch(OperationCanceledException)
-														{
-														}
-													});
-
-				DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
-				DelegatingThread.Start();
+				//if(DelegatingThread == null)
+				//{
+				//	DelegatingThread = new Thread(() => { 
+				//											try
+				//											{
+				//												Delegating();
+				//											}
+				//											catch(OperationCanceledException)
+				//											{
+				//											}
+				//											catch(Exception ex) when (!Debugger.IsAttached)
+				//											{
+				//												Stop(MethodBase.GetCurrentMethod(), ex);
+				//											}
+				//										});
+				//
+				//	DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
+				//	DelegatingThread.Start();
+				//}
 
 
 				if(Filebase != null && !IsClient)
@@ -1452,7 +1451,7 @@ namespace UC.Net
 					s.Position = 0;
 					var r = new BinaryReader(s);
 
-					var n = Connections.Count()/*.Count(i => i.ChainRank > 0 || i.BaseRank > 0)*/;
+					var n = Settings.PeersMin;
 
 					var guid = new byte[BlockPiece.GuidLength];
 					Cryptography.Random.NextBytes(guid);
@@ -1572,6 +1571,15 @@ namespace UC.Net
 				Thread.Sleep(1);
 				Workflow.ThrowIfAborted();
 
+				lock(Lock)
+				{
+					if(!Operations.Any())
+					{
+						DelegatingThread = null;
+						return;
+					}
+				}
+				
 				if(m == null)
 				{	
 					m = ConnectToMember(Workflow);
@@ -1606,7 +1614,7 @@ namespace UC.Net
 
 									try
 									{
-										Vault.OperationIds[g.Key] = m.GetAccountInfo(g.Key, false).Info.LastOperationId;
+										Vault.OperationIds[g.Key] = m.GetAccountInfo(g.Key, false).Account.LastOperationId;
 									}
 									catch(RdcException ex) when(ex.Error == RdcError.AccountNotFound)
 									{
@@ -1700,14 +1708,6 @@ namespace UC.Net
 
 					Thread.Sleep(500); /// prevent any flooding
 				}
-				catch(OperationCanceledException)
-				{
-					break;
-				}
-				catch(Exception ex) when (!Debugger.IsAttached)
-				{
-					Stop(MethodBase.GetCurrentMethod(), ex);
-				}
 			}
 		}
 
@@ -1715,6 +1715,26 @@ namespace UC.Net
 		{
 			if(Operations.Count <= OperationsQueueLimit)
 			{
+				if(DelegatingThread == null)
+				{
+					DelegatingThread = new Thread(() => { 
+															try
+															{
+																Delegating();
+															}
+															catch(OperationCanceledException)
+															{
+															}
+															catch(Exception ex) when (!Debugger.IsAttached)
+															{
+																Stop(MethodBase.GetCurrentMethod(), ex);
+															}
+														});
+
+					DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
+					DelegatingThread.Start();
+				}
+
 				o.Placing = PlacingStage.PendingDelegation;
 				Operations.Add(o);
 			} 
@@ -2147,12 +2167,12 @@ namespace UC.Net
 											}
 											catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
 											{
-												return new AccountInfoResponse();
+												return new AccountResponse();
 											}
 										}, 
 										workflow);
 			
-			var eid = l.Info == null ? 0 : l.Info.LastEmissionId + 1;
+			var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
 
 			Nas.Emit(a, wei, signer, GasAsker, eid, workflow);		
 						
@@ -2177,19 +2197,19 @@ namespace UC.Net
 		{
 			lock(Lock)
 			{
-			var	l = Call(Role.Base, p =>{
-											try
-											{
-												return p.GetAccountInfo(signer, true);
-											}
-											catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
-											{
-												return new AccountInfoResponse();
-											}
-										}, 
-										workflow);
+				var	l = Call(Role.Base, p =>{
+												try
+												{
+													return p.GetAccountInfo(signer, true);
+												}
+												catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
+												{
+													return new AccountResponse();
+												}
+											}, 
+											workflow);
 			
-			var eid = l.Info == null ? 0 : l.Info.LastEmissionId + 1;
+				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
 
 				var wei = Nas.FinishEmission(signer, eid);
 

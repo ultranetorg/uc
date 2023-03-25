@@ -19,7 +19,7 @@ namespace UC.Sun.CLI
 
 		string MapPath(ReleaseAddress r)
 		{
-			return Path.Join(Settings.ProductsPath, $"{r.Author}-{r.Product}-{r.Realization}", r.Version.ABCD);
+			return Path.Join(Settings.ProductsPath, $"{r.Author}-{r.Product}-{r.Realization}", r.Version.ABC);
 		}
 
 		public override object Execute()

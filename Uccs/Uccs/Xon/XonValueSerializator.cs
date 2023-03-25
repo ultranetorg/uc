@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Utilities.Encoders;
@@ -30,6 +31,11 @@ namespace UC
 
 		public object Set(Xon node, object v)
 		{
+			if(v == null)
+			{
+				return null;
+			}
+
 			if(v.GetType() == typeof(string))			return v;
 			if(v.GetType() == typeof(byte))				return v.ToString();
 			if(v.GetType() == typeof(int))				return v.ToString();
@@ -38,9 +44,10 @@ namespace UC
 			if(v.GetType() == typeof(ReleaseAddress))	return v.ToString();
 			if(v.GetType() == typeof(Version))			return v.ToString();
 			if(v.GetType() == typeof(IPAddress))		return v.ToString();
-			if(v.GetType() == typeof(AccountAddress))			return v.ToString();
+			if(v.GetType() == typeof(AccountAddress))	return v.ToString();
 			if(v.GetType() == typeof(ChainTime))		return v.ToString();
 			if(v.GetType() == typeof(Coin))				return ((Coin)v).ToHumanString();
+			if(v.GetType().IsEnum)						return v.ToString();
 
 			throw new NotSupportedException();
 		}
@@ -59,6 +66,7 @@ namespace UC
 			if(typeof(O) == typeof(IPAddress))		return (O)(object)IPAddress.Parse(v);
 			if(typeof(O) == typeof(ChainTime))		return (O)(object)ChainTime.Parse(v);
 			if(typeof(O) == typeof(Coin))			return (O)(object)Coin.ParseDecimal(v);
+			if(typeof(O).IsEnum)					Enum.Parse(v.GetType(), v); 
 
 			throw new NotSupportedException();
 		}

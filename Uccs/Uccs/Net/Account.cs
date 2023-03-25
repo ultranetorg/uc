@@ -11,40 +11,33 @@ namespace UC.Net
 	public class Account : IBinarySerializable
 	{
 		public AccountAddress			Address;
-		public int						LastOperationId = -1;
 		public Coin						Balance;
-		public int						LastEmissionId = -1;
-		public int						CandidacyDeclarationRid = -1;
 		public Coin						Bail;
 		public BailStatus				BailStatus;
 
-		public void Write(BinaryWriter w)
+		public virtual void Write(BinaryWriter w)
 		{
 			w.Write(Address);
-			w.Write7BitEncodedInt(LastOperationId);
-			w.Write7BitEncodedInt(LastEmissionId);
 			w.Write(Balance);
-			w.Write7BitEncodedInt(CandidacyDeclarationRid);
 
-			if(CandidacyDeclarationRid != -1)
+			w.Write((byte)BailStatus);
+			
+			if(BailStatus != BailStatus.Null)
 			{
 				w.Write(Bail);
-				w.Write((byte)BailStatus);
 			}
 		}
 
-		public void Read(BinaryReader r)
+		public virtual void Read(BinaryReader r)
 		{
-			Address						= r.ReadAccount();
-			LastOperationId				= r.Read7BitEncodedInt();
-			LastEmissionId				= r.Read7BitEncodedInt();
-			Balance						= r.ReadCoin();
-			CandidacyDeclarationRid		= r.Read7BitEncodedInt();
+			Address		= r.ReadAccount();
+			Balance		= r.ReadCoin();
 
-			if(CandidacyDeclarationRid != -1)
+			BailStatus	= (BailStatus)r.ReadByte();
+
+			if(BailStatus != BailStatus.Null)
 			{
 				Bail		= r.ReadCoin();
-				BailStatus	= (BailStatus)r.ReadByte();
 			}
 		}
 	}

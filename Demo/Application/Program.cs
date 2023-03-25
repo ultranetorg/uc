@@ -31,7 +31,7 @@ namespace Uccs.Demo.Application
 
 			Task.Run(() =>
 					 {
-						 var v = ReleaseAddress.Parse("uo/democomponent/dotnet/0.0.0.0");
+						 var v = ReleaseAddress.Parse("uo/democomponent/dotnet/0.0.0");
 						
 						 Nexus.GetRelease(v, new Workflow());
 

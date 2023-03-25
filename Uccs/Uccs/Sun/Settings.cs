@@ -143,7 +143,7 @@ namespace UC.Net
 			var s = System.IO.Path.Join(path, FileName);
 
 			var d = new XonDocument(File.ReadAllText(s));
-				
+			
 			Password		= d.GetString("Password");
 
 			NasWallet		= d.GetString("NasWallet");
