@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UC
+namespace Uccs
 {
 	public class XonTextWriter : StreamWriter, IXonWriter 
 	{

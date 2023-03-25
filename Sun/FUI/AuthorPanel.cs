@@ -9,9 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class AuthorPanel : MainPanel
 	{

@@ -17,7 +17,7 @@ using Nethereum.Web3.Accounts;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public enum PlacingStage
 	{

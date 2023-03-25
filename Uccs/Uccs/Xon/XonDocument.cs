@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace UC
+namespace Uccs
 {
 	public class XonDocument : Xon
 	{

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class FlowControlForm : Form
 	{

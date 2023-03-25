@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	partial class DashboardPanel
 	{
@@ -29,14 +29,14 @@ namespace UC.Sun.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.logbox = new UC.Sun.FUI.Logbox();
+			this.logbox = new Uccs.Sun.FUI.Logbox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.fields = new System.Windows.Forms.Label();
 			this.values = new System.Windows.Forms.Label();
-			this.monitor = new UC.Sun.FUI.ChainMonitor();
+			this.monitor = new Uccs.Sun.FUI.ChainMonitor();
 			this.sendgroup = new System.Windows.Forms.GroupBox();
-			this.amount = new UC.Sun.FUI.CoinEdit();
+			this.amount = new Uccs.Sun.FUI.CoinEdit();
 			this.send = new System.Windows.Forms.Button();
 			this.all = new System.Windows.Forms.LinkLabel();
 			this.source = new System.Windows.Forms.ComboBox();

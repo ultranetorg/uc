@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.CLI
+namespace Uccs.Sun.CLI
 {
 	class ConsolePasswordAsker : IPasswordAsker
 	{

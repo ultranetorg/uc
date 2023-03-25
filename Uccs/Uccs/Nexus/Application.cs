@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Uos
+namespace Uccs.Uos
 {
 	public class Application
 	{

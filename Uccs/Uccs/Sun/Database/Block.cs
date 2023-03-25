@@ -12,7 +12,7 @@ using System.Reflection.Emit;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public enum BlockType : byte
 	{

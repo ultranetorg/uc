@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class ChainPanel : MainPanel
 	{

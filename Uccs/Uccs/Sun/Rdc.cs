@@ -10,7 +10,7 @@ using NativeImport;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Security;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public enum Rdc : byte
 	{

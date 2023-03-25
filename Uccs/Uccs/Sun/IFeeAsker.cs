@@ -4,7 +4,7 @@ using Nethereum.Web3;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public interface IFeeAsker
 	{

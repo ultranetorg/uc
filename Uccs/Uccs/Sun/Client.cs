@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Client
 	{

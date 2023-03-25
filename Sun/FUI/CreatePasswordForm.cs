@@ -5,9 +5,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 using System.Windows.Forms;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class CreatePasswordForm : Form
 	{

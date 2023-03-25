@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class RealizationTable : Table<RealizationEntry, RealizationAddress>
 	{

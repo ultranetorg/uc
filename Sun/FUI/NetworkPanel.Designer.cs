@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	partial class NetworkPanel
 	{

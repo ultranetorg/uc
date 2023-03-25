@@ -1,4 +1,4 @@
-﻿namespace UC.Sun.FUI
+﻿namespace Uccs.Sun.FUI
 {
 	partial class PasswordForm
 	{
@@ -89,7 +89,7 @@
 			// 
 			// pictureBox1
 			// 
-			this.pictureBox1.Image = global::UC.Sun.FUI.Properties.Resources.Golden_key_icon_svg;
+			this.pictureBox1.Image = global::Uccs.Sun.FUI.Properties.Resources.Golden_key_icon_svg;
 			this.pictureBox1.Location = new System.Drawing.Point(12, 13);
 			this.pictureBox1.Name = "pictureBox1";
 			this.pictureBox1.Size = new System.Drawing.Size(80, 88);

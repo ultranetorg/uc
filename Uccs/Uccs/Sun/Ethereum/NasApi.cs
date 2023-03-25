@@ -10,7 +10,7 @@ using Nethereum.Contracts.CQS;
 using Nethereum.Contracts;
 using System.Threading;
 
-namespace UC.Net
+namespace Uccs.Net
 {
     public partial class FindTransferFunction : FindTransferFunctionBase { }
 

@@ -8,7 +8,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using Org.BouncyCastle.Utilities.Collections;
 using System.Collections;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public enum Tables
 	{

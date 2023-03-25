@@ -7,7 +7,7 @@ using System.Text;
 using System.Net;
 using Nethereum.Signer;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Round : IBinarySerializable
 	{

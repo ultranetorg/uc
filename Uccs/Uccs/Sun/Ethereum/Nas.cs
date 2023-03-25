@@ -12,9 +12,9 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using UC;
+using Uccs;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Nas : INas
 	{

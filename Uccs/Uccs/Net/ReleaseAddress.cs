@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>  
 	{

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class ProductTable : Table<ProductEntry, ProductAddress>
 	{

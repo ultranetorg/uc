@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.CLI
+namespace Uccs.Sun.CLI
 {
 	/// <summary>
 	/// Usage: product register 

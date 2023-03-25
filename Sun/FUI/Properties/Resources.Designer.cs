@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace UC.Sun.FUI.Properties {
+namespace Uccs.Sun.FUI.Properties {
     using System;
     
     

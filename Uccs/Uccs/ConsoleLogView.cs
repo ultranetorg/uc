@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
-using static UC.Log;
+using static Uccs.Log;
 
-namespace UC
+namespace Uccs
 {
 	public interface ILogView
 	{

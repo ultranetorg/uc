@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using RocksDbSharp;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class AuthorTable : Table<AuthorEntry, string>
 	{

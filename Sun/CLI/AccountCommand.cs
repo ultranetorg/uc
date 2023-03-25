@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Nethereum.Signer;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.CLI
+namespace Uccs.Sun.CLI
 {
 	/// <summary>
 	/// Usage:	account new

@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	partial class MembershipPanel
 	{
@@ -37,7 +37,7 @@ namespace UC.Sun.FUI
 			this.label4 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
-			this.Bail = new UC.Sun.FUI.CoinEdit();
+			this.Bail = new Uccs.Sun.FUI.CoinEdit();
 			this.Declarations = new System.Windows.Forms.ListView();
 			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();

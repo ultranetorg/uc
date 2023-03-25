@@ -7,7 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Nethereum.Util;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public class CoinEdit : TextBox
 	{

@@ -1,7 +1,7 @@
 ﻿using NativeImport;
 using System.IO;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Osbi : IBinarySerializable
 	{

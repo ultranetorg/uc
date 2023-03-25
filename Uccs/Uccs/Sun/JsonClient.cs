@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Threading;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class ApiCallException : Exception
 	{

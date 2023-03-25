@@ -7,9 +7,9 @@ using System.IO;
 using System.Threading;
 using System;
 using Org.BouncyCastle.Utilities.Encoders;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.CLI
+namespace Uccs.Sun.CLI
 {
 	public abstract class Command
 	{

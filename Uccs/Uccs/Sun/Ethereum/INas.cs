@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Signer;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public interface INas
 	{

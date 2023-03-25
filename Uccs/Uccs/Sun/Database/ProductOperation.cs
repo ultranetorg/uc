@@ -18,9 +18,9 @@ using Nethereum.Util;
 using Nethereum.Web3.Accounts;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class ProductRegistration : Operation
 	{

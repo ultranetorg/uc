@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Nethereum.Signer;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public struct ChainTime : IBinarySerializable
 	{

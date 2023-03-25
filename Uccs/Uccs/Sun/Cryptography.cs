@@ -12,7 +12,7 @@ using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public abstract class Cryptography
 	{

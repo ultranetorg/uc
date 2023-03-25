@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Nethereum.Contracts;
 using Org.BouncyCastle.Utilities.Encoders;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class ReleasePanel : MainPanel
 	{
@@ -82,7 +82,7 @@ namespace UC.Sun.FUI
 																	var m = p.GetManifest(r.Release).Manifests.FirstOrDefault();
 																	
 																	if(m == null)
-																		throw new RdcException(UC.Net.RdcError.Null);
+																		throw new RdcException(Uccs.Net.RdcError.Null);
 
 																	return m;
 																},

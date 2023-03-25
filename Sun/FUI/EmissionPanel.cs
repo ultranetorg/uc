@@ -15,7 +15,7 @@ using Nethereum.Web3;
 using Org.BouncyCastle.Math;
 using System.Threading;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class EmissionPanel : MainPanel
 	{

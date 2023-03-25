@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Org.BouncyCastle.Utilities.Encoders;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.CLI
+namespace Uccs.Sun.CLI
 {
 	/// <summary>
 	/// Usage: realization register

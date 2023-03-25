@@ -4,7 +4,7 @@ using Org.BouncyCastle.Crypto;
 using System;
 using System.Windows.Forms;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class DashboardPanel : MainPanel
 	{

@@ -8,7 +8,7 @@ using Nethereum.Model;
 using Nethereum.Signer;
 using Org.BouncyCastle.Crypto;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Vault
 	{

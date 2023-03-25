@@ -6,11 +6,11 @@ using System.Data;
 using System.Text;
 using System.Linq;
 using System.Windows.Forms;
-using UC;
+using Uccs;
 using System.Threading.Tasks;
 using System.Reflection.Emit;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class Logbox : TextBox, ILogView
 	{
@@ -72,7 +72,7 @@ namespace UC.Sun.FUI
   								{
  									var t = new string(' ', 4 * m.Log.Depth);
   
- 									if(m.Severity != UC.Log.Severity.Info && m.Severity != UC.Log.Severity.SubLog)
+ 									if(m.Severity != Uccs.Log.Severity.Info && m.Severity != Uccs.Log.Severity.SubLog)
  										t += ("!!! " + m.Severity + " : ");
  
   									if(ShowSender && m.Sender != null)

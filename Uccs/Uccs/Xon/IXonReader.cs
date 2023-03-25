@@ -1,4 +1,4 @@
-﻿namespace UC
+﻿namespace Uccs
 {
 	public interface IXonReader
 	{

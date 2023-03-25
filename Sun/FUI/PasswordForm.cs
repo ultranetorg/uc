@@ -6,10 +6,10 @@ using System;
 using System.IO;
 using System.Numerics;
 using System.Windows.Forms;
-using UC.Net;
+using Uccs.Net;
 using System.Linq;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class PasswordForm : Form, IPasswordAsker
 	{

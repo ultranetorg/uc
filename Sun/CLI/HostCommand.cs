@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.CLI
+namespace Uccs.Sun.CLI
 {
 	internal class HostCommand : Command
 	{

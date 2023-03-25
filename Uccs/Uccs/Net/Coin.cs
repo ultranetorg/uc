@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public struct Coin : IComparable, IComparable<Coin>, IEquatable<Coin>, IBinarySerializable
 	{

@@ -1,5 +1,5 @@
 ﻿
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	partial class EmissionPanel
 	{
@@ -31,7 +31,7 @@ namespace UC.Sun.FUI
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EmissionPanel));
 			this.transfergroup = new System.Windows.Forms.GroupBox();
-			this.eth = new UC.Sun.FUI.CoinEdit();
+			this.eth = new Uccs.Sun.FUI.CoinEdit();
 			this.privatekeyChoice = new System.Windows.Forms.RadioButton();
 			this.walletChoice = new System.Windows.Forms.RadioButton();
 			this.label8 = new System.Windows.Forms.Label();

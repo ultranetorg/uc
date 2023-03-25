@@ -16,7 +16,7 @@ using System.Net.Http;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public enum PacketType : byte
 	{
@@ -355,7 +355,7 @@ namespace UC.Net
  							{
 								rq = BinarySerializator.Deserialize(Reader,	
 																	t => {
-																			var o = UC.Net.RdcRequest.FromType(Core.Database, (Rdc)t); 
+																			var o = Uccs.Net.RdcRequest.FromType(Core.Database, (Rdc)t); 
 																			o.Peer = this; 
 																			return o as object;
 																	},
@@ -381,7 +381,7 @@ namespace UC.Net
 							try
  							{
 								rp = BinarySerializator.Deserialize(Reader,	
-																	t => UC.Net.RdcResponse.FromType(Core.Database, (Rdc)t) as object, 
+																	t => Uccs.Net.RdcResponse.FromType(Core.Database, (Rdc)t) as object, 
 																	Core.Constractor) as RdcResponse;
 							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)

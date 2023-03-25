@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public interface ITableEntry<K>
 	{

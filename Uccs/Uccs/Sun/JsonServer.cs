@@ -16,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class JsonServer
 	{
@@ -210,7 +210,7 @@ namespace UC.Net
 		
 						case StatusCall s:
 							lock(Core.Lock)
-								return new GetStatusResponse{	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
+								return new StatusResponse{	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
 																Rounds		= Database?.Tail.Take(s.Limit).Reverse().Select(i => i.ToString()), 
 																InfoFields	= Core.Info[0].Take(s.Limit), 
 																InfoValues	= Core.Info[1].Take(s.Limit), 

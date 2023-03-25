@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace UC
+namespace Uccs
 {
 	public delegate void ReportedDelegate(LogMessage s);
 
@@ -17,7 +17,7 @@ namespace UC
 
 		public override string ToString()
 		{
-			return	$"{(Severity != UC.Log.Severity.Info ? ("!!! " + Severity + " : ") : null)}" +
+			return	$"{(Severity != Uccs.Log.Severity.Info ? ("!!! " + Severity + " : ") : null)}" +
 					$"{(Sender != null ? Sender.GetType().Name + " : " : null)}" +
 					$"{(Subject != null ? Subject : null)}" +
 					(Subject != null && Text != null ? " : " : null) +

@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatable<AccountAddress>, IBinarySerializable
 	{

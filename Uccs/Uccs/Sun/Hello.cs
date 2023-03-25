@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Hello
 	{

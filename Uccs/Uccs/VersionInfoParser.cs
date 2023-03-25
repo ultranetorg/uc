@@ -3,7 +3,7 @@ using System.Text;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
-namespace UC
+namespace Uccs
 {
 	public class ParseInfo
 	{

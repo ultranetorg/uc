@@ -8,7 +8,7 @@ using RocksDbSharp;
 using Nethereum.Signer;
 using System.Diagnostics;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class AccountTable : Table<AccountEntry, AccountAddress>
 	{

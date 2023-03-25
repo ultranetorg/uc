@@ -8,7 +8,7 @@ using Nethereum.Util;
 using System.Reflection;
 using Nethereum.Signer;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class NasSettings
 	{
@@ -220,9 +220,9 @@ namespace UC.Net
 		{
 			get
 			{
-				if(Zone == UC.Net.Zone.Localnet)
+				if(Zone == Uccs.Net.Zone.Localnet)
 					return new NoCryptography();
-				else if(Zone == UC.Net.Zone.Mainnet || Zone.IsTest)
+				else if(Zone == Uccs.Net.Zone.Mainnet || Zone.IsTest)
 					return new EthereumCryptography();
 				else
 					throw new IntegrityException("Unknown zone");

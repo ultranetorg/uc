@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.Application
+namespace Uccs.Sun.Application
 {
 	internal enum MessageType
 	{

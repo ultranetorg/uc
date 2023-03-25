@@ -1,4 +1,4 @@
-﻿namespace UC.Sun.FUI
+﻿namespace Uccs.Sun.FUI
 {
 	partial class MainForm
 	{

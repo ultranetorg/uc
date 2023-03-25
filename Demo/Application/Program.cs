@@ -1,13 +1,13 @@
 using System.Reflection;
-using UC;
-using UC.Net;
-using UC.Uos;
+using Uccs;
+using Uccs.Net;
+using Uccs.Uos;
 
 namespace Uccs.Demo.Application
 {
 	public static class Program
 	{
-		static UC.Uos.Application? Application;
+		static Uccs.Uos.Application? Application;
 
 		/// <summary>
 		///  The main entry point for the application.
@@ -15,7 +15,7 @@ namespace Uccs.Demo.Application
 		[STAThread]
 		public static void Main()
 		{
-			Application = new UC.Uos.Application();
+			Application = new Uccs.Uos.Application();
 
 			// To customize application configuration such as set high DPI settings or default font,
 			// see https://aka.ms/applicationconfiguration.
@@ -25,7 +25,7 @@ namespace Uccs.Demo.Application
 
 		public static void SimulateMain()
 		{
-			Application = new UC.Uos.Application();
+			Application = new Uccs.Uos.Application();
 			
 			var f = new Form1();
 

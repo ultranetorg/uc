@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace UC
+namespace Uccs
 {
 	public class StringEnum<T>
 	{

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Linq;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.CLI
+namespace Uccs.Sun.CLI
 {
 	public class StartCommand : Command
 	{

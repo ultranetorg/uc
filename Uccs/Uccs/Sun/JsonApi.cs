@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Collections;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public abstract class ApiCall
 	{
@@ -61,7 +61,7 @@ namespace UC.Net
 		public int Limit  { get; set; }
 	}
 
-	public class GetStatusResponse
+	public class StatusResponse
 	{
 		public IEnumerable<string>	Log {get; set;}
 		public IEnumerable<string>	Rounds {get; set;}

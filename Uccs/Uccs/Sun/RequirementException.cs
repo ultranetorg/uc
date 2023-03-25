@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class RequirementException : Exception
 	{

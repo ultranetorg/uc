@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC
+namespace Uccs
 {
     public class XonBinaryReader : IXonReader
     {

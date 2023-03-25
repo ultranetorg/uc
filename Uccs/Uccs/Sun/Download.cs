@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Contracts.QueryHandlers.MultiCall;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class DownloadStatus
 	{

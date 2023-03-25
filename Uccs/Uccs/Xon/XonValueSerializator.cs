@@ -8,9 +8,9 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Utilities.Encoders;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC
+namespace Uccs
 {
 	public interface IXonValueSerializator
 	{

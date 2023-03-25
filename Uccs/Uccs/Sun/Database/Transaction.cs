@@ -6,7 +6,7 @@ using System.Numerics;
 using Nethereum.Signer;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Transaction : IBinarySerializable
 	{

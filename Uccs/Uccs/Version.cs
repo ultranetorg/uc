@@ -4,11 +4,11 @@ using System.Text;
 using System.Linq;
 using System.IO;
 using System;
-using UC.Net;
+using Uccs.Net;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
-namespace UC
+namespace Uccs
 {
 	public class Version : IEquatable<Version>, IComparable, IBinarySerializable
 	{

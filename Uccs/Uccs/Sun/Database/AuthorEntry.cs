@@ -7,7 +7,7 @@ using System.Text;
 using Nethereum.Model;
 using RocksDbSharp;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class AuthorEntry : Author, ITableEntry<string>
 	{

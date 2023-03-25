@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Nethereum.RLP;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class FilebaseRelease
 	{
@@ -402,7 +402,7 @@ namespace UC.Net
 				ipkg = AddIncremental(release, latestdeclared, files, out minimal, workflow);
 			}
 
-			var vs = Directory.EnumerateFiles(dependsdirectory, $"*.{DependenciesExt}").Select(i => UC.Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i < release.Version).OrderBy(i => i);
+			var vs = Directory.EnumerateFiles(dependsdirectory, $"*.{DependenciesExt}").Select(i => Uccs.Version.Parse(Path.GetFileNameWithoutExtension(i))).Where(i => i < release.Version).OrderBy(i => i);
 
 			IEnumerable<Dependency> acd = null;
 			IEnumerable<Dependency> rcd = null;

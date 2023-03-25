@@ -19,9 +19,9 @@ using Nethereum.Signer;
 using Nethereum.Web3;
 using Org.BouncyCastle.Asn1.X509;
 using RocksDbSharp;
-using static UC.Net.Download;
+using static Uccs.Net.Download;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public delegate void VoidDelegate();
  	public delegate void CoreDelegate(Core d);
@@ -1271,7 +1271,7 @@ namespace UC.Net
 																			});
 				Database.Add(joins);
 					
-				var votes = inrange.Where(b => b is UC.Net.Vote v && (Database.LastConfirmedRound.Members.Any(i => i.Generator == b.Generator) || 
+				var votes = inrange.Where(b => b is Uccs.Net.Vote v && (Database.LastConfirmedRound.Members.Any(i => i.Generator == b.Generator) || 
 																	 (Database.Tail.Any(r => r.Members.Any(i => i.Generator == b.Generator)))));
 				Database.Add(votes);
 			}

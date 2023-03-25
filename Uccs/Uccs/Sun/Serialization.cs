@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class BinarySerializator
 	{

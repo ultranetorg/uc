@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class HubException : Exception
 	{

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Author : IBinarySerializable
 	{

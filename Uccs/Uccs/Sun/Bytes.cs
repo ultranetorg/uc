@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UC.Net
+namespace Uccs.Net
 {
     public class BytesComparer : IComparer<byte[]>
     {

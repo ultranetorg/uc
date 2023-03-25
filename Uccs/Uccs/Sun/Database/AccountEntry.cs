@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using Nethereum.Model;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public enum BailStatus
 	{

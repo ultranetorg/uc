@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Text;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public static class Extentions
 	{

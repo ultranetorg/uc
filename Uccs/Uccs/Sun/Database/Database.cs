@@ -22,7 +22,7 @@ using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public delegate void BlockDelegate(Block b);
 

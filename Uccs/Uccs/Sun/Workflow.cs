@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class Workflow
 	{

@@ -5,9 +5,9 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using UC.Net;
+using Uccs.Net;
 
-namespace UC.Sun.Application
+namespace Uccs.Sun.Application
 {
 	class Program
 	{

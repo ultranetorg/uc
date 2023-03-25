@@ -13,7 +13,7 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Cms;
 using System.Runtime.Intrinsics.X86;
 
-namespace UC.Sun.FUI
+namespace Uccs.Sun.FUI
 {
 	public partial class ChainMonitor : UserControl
 	{

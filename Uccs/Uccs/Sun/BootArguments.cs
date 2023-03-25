@@ -7,7 +7,7 @@ using System.Text;
 using Nethereum.Util;
 using System.Reflection;
 
-namespace UC.Net
+namespace Uccs.Net
 {
 	public class BootArguments
 	{
