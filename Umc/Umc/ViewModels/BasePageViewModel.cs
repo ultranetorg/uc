@@ -26,19 +26,8 @@ public abstract partial class BasePageViewModel : BaseViewModel, IQueryAttributa
     {
     }
 
-    [RelayCommand]
-    protected async Task OpenNotificationsAsync()
-    {
-		try
-		{
-			await ShowPopup(new NotificationsPopup());
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "OpenNotificationsAsync Exception: {Ex}", ex.Message);
-			await ToastHelper.ShowDefaultErrorMessageAsync();
-		}
-	}
+	[RelayCommand]
+    public async Task OpenNotificationsAsync() => await Navigation.GoToAsync(Routes.NOTIFICATIONS);
 
 	protected void LoadNotificationsData()
 	{

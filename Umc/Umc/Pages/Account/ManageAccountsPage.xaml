@@ -6,7 +6,6 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:views="clr-namespace:UC.Umc.Views.Shared"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ManageAccountsViewModel"
     Title="Accounts"

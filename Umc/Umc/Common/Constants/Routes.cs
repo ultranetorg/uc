@@ -10,6 +10,7 @@ internal static class Routes
     public const string ABOUT = nameof(AboutPage);
     public const string WHATS_NEW = nameof(WhatsNewPage);
     public const string SETTINGS = nameof(SettingsPage);
+    public const string NOTIFICATIONS = nameof(NotificationsPage);
 	
     public const string ACCOUNTS = nameof(ManageAccountsPage);
     public const string ACCOUNT_DETAILS = nameof(AccountDetailsPage);

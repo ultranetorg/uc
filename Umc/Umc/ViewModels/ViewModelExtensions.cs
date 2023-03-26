@@ -77,6 +77,8 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<WhatsNewViewModel>();
 
+		builder.Services.AddTransient<NotificationsViewModel>();
+
 		#endregion Pages
 
 		#region Popups
@@ -87,7 +89,6 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<AuthorOptionsViewModel>();
 		builder.Services.AddTransient<SelectAuthorViewModel>();
 		builder.Services.AddTransient<TransactionDetailsViewModel>();
-		builder.Services.AddTransient<NotificationsViewModel>();
 		builder.Services.AddTransient<NotificationViewModel>();
 		builder.Services.AddTransient<ProductOptionsViewModel>();
 		builder.Services.AddTransient<TransferOptionsViewModel>();

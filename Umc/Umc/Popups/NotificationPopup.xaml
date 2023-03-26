@@ -11,7 +11,7 @@
     x:DataType="vm:NotificationViewModel"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Color="Transparent"
-    Size="{x:Static const:SizeConstants.Large}"
+    Size="{x:Static const:SizeConstants.Medium}"
     VerticalOptions="End"
     x:Name="page">
     <Border Style="{StaticResource AccountCardBorder}">
@@ -19,36 +19,23 @@
             Padding="24,16"
             HorizontalOptions="Fill"
             Spacing="16">
-            <Grid RowDefinitions="20,Auto,*" RowSpacing="16">
+            <Grid RowDefinitions="24,24,*" RowSpacing="16">
                 <Border
                     Grid.Row="0"
                     VerticalOptions="Center"
                     Margin="0,0,0,8"
                     Style="{StaticResource PopupHandleBorder}" />
-                <Grid
+                <Label
                     Grid.Row="1"
-                    ColumnDefinitions="*,*,*"
-                    VerticalOptions="Center">
-                    <Label
-                        Grid.Column="1"
-                        FontSize="18"
-                        Text="Notification"
-                        VerticalOptions="Center" />
-                    <ImageButton
-                        Grid.Column="0"
-                        HeightRequest="28"
-                        HorizontalOptions="Start"
-                        Opacity="0.4"
-                        Style="{StaticResource ArrowLeft}"
-                        VerticalOptions="Center"
-                        WidthRequest="28" />
-                </Grid>
+                    FontSize="18"
+                    Text="Notification"
+                    VerticalOptions="Center" />
                 <StackLayout Grid.Row="2" Spacing="10">
                     <Image
                         Grid.RowSpan="2"
                         Aspect="AspectFill"
-                        HeightRequest="32"
-                        WidthRequest="32"
+                        HeightRequest="40"
+                        WidthRequest="40"
                         HorizontalOptions="Center"
                         VerticalOptions="Center">
                         <Image.Triggers>
@@ -102,7 +89,7 @@
                             Grid.Column="1"
                             HorizontalOptions="EndAndExpand"
                             Orientation="Horizontal"
-                            Spacing="5">
+                            Spacing="4">
                             <Label
                                 FontSize="13"
                                 Text="{Binding Notification.Severity}"

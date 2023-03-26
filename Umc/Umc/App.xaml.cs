@@ -50,7 +50,7 @@ public partial class App : Application
 		Routing.RegisterRoute(Routes.SEND, typeof(SendPage));
 		Routing.RegisterRoute(Routes.COMPLETED_TRANSFERS, typeof(TransferCompletePage));
 		Routing.RegisterRoute(Routes.UNFINISHED_TRANSFERS, typeof(UnfinishTransferPage));
-		Routing.RegisterRoute(Routes.ABOUT, typeof(AboutPage));
 		Routing.RegisterRoute(Routes.HELP_DETAILS, typeof(HelpDetailsPage));
+		Routing.RegisterRoute(Routes.NOTIFICATIONS, typeof(NotificationsPage));
 	}
 }

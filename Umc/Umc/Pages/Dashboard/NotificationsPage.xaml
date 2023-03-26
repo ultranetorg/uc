@@ -1,55 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<toolkit:Popup
-    x:Class="UC.Umc.Popups.NotificationsPopup"
+<controls:CustomPage
+    x:Class="UC.Umc.Pages.NotificationsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:const="clr-namespace:UC.Umc.Constants"
+    xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:enums="clr-namespace:UC.Umc.Enums"
     xmlns:models="clr-namespace:UC.Umc.Models"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:views="clr-namespace:UC.Umc.Views"
-    xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:NotificationsViewModel"
-    CanBeDismissedByTappingOutsideOfPopup="True"
-    Color="Transparent"
-    Size="{x:Static const:SizeConstants.Large}"
-    VerticalOptions="End"
+    Title="Notifications"
     x:Name="page">
     
-    <Border Style="{StaticResource AccountCardBorder}">
+    <controls:CustomPage.MainContent>
         <Grid
-            RowDefinitions="20,Auto,*,40"
-            RowSpacing="16"
             Padding="24,16"
             BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}">
-            <Border
-                Grid.Row="0"
-                HorizontalOptions="CenterAndExpand"
-                Margin="0,0,0,8"
-                Style="{StaticResource PopupHandleBorder}" />
-            <Grid
-                Grid.Row="1"
-                ColumnDefinitions="*,Auto"
-                VerticalOptions="Center">
-                <Label
-                    Grid.Column="0"
-                    FontSize="18"
-                    Text="Notifications"
-                    VerticalOptions="Center" />
-                <ImageButton
-                    Grid.Column="1"
-                    HorizontalOptions="EndAndExpand"
-                    Style="{StaticResource Dots}"
-                    VerticalOptions="Center" />
-            </Grid>
             <CollectionView
-                Grid.Row="2"
+                Grid.Row="1"
                 ItemsSource="{Binding Notifications}"
                 VerticalScrollBarVisibility="Always"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Notification">
-                        <StackLayout Padding="0,8">
+                        <StackLayout>
                             <SwipeView BackgroundColor="Transparent">
                                 <SwipeView.LeftItems>
                                     <SwipeItems>
@@ -67,11 +40,11 @@
                                 <Grid
                                     Padding="0,4"
                                     ColumnDefinitions="56,*,32"
-                                    ColumnSpacing="10"
+                                    ColumnSpacing="8"
                                     RowDefinitions="24,24"
                                     RowSpacing="0">
                                     <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.ItemTappedCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
                                     <Image
                                         Grid.RowSpan="2"
@@ -157,7 +130,6 @@
                                         Text="{Binding Body}"
                                         VerticalOptions="Start" />
                                     <ImageButton
-                                        Grid.Row="0"
                                         Grid.RowSpan="2"
                                         Grid.Column="2"
                                         Command="{Binding BindingContext.OptionsCommand, Source={x:Reference page}}"
@@ -171,8 +143,6 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            
-            <Button Grid.Row="3" Text="Close" Command="{Binding CloseCommand}" />
         </Grid>
-    </Border>
-</toolkit:Popup>
+    </controls:CustomPage.MainContent>
+</controls:CustomPage>

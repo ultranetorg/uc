@@ -1,6 +1,6 @@
-﻿namespace UC.Umc.ViewModels.Popups;
+﻿namespace UC.Umc.ViewModels;
 
-public partial class NotificationsViewModel : BaseViewModel
+public partial class NotificationsViewModel : BasePageViewModel
 {
 	private readonly INotificationsService _service;
 
@@ -11,7 +11,7 @@ public partial class NotificationsViewModel : BaseViewModel
     private CustomCollection<Notification> _notifications = new();
 
 
-	public NotificationsViewModel(INotificationsService service, ILogger<NotificationsViewModel> logger): base(logger)
+	public NotificationsViewModel(INotificationsService service, ILogger<NotificationsViewModel> logger): base(service, logger)
     {
 		_service = service;
 		Initialize();
@@ -23,14 +23,13 @@ public partial class NotificationsViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-	private void Close() => ClosePopup();
-
-	[RelayCommand]
 	private async Task OpenDetailsAsync(Notification item)
     {
 		try
 		{
-			NotificationDetails = item;
+			Guard.IsNotNull(item);
+
+			await ShowPopup(new NotificationPopup(item));
 		}
 		catch (Exception ex)
 		{
