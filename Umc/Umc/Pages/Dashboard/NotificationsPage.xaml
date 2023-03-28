@@ -28,15 +28,22 @@
                                     <SwipeItems>
                                         <SwipeItemView BackgroundColor="Transparent" WidthRequest="80">
                                             <ImageButton
-                                                Padding="16"
-                                                BackgroundColor="Transparent"
-                                                CornerRadius="0"
-                                                HorizontalOptions="FillAndExpand"
-                                                Style="{StaticResource Read}"
-                                                VerticalOptions="FillAndExpand" />
+                                                Source="notif_read.png"
+                                                Command="{Binding BindingContext.MarkAsReadCommand, Source={x:Reference page}}"
+                                                CommandParameter="{Binding .}"/>
                                         </SwipeItemView>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItemView BackgroundColor="Transparent" WidthRequest="80">
+                                            <ImageButton
+                                                Source="notif_read.png"
+                                                Command="{Binding BindingContext.MarkAsReadCommand, Source={x:Reference page}}"
+                                                CommandParameter="{Binding .}"/>
+                                        </SwipeItemView>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
                                 <Grid
                                     Padding="0,4"
                                     ColumnDefinitions="56,*,32"
@@ -99,7 +106,22 @@
                                         <Label
                                             FontSize="13"
                                             Text="{Binding Title}"
-                                            VerticalOptions="Center" />
+                                            VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsRead}"
+                                                    TargetType="Label"
+                                                    Value="True">
+                                                    <Setter Property="Opacity" Value="0.4" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding IsRead}"
+                                                    TargetType="Label"
+                                                    Value="False">
+                                                    <Setter Property="Opacity" Value="1" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
                                         <Border HorizontalOptions="Start" VerticalOptions="Center">
                                             <Border.Triggers>
                                                 <DataTrigger
@@ -128,7 +150,22 @@
                                         Grid.Column="1"
                                         FontSize="10"
                                         Text="{Binding Body}"
-                                        VerticalOptions="Start" />
+                                        VerticalOptions="Start">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsRead}"
+                                                TargetType="Label"
+                                                Value="True">
+                                                <Setter Property="Opacity" Value="0.4" />
+                                            </DataTrigger>
+                                            <DataTrigger
+                                                Binding="{Binding IsRead}"
+                                                TargetType="Label"
+                                                Value="False">
+                                                <Setter Property="Opacity" Value="1" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <ImageButton
                                         Grid.RowSpan="2"
                                         Grid.Column="2"

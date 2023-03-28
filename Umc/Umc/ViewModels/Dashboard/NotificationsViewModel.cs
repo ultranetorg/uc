@@ -30,6 +30,24 @@ public partial class NotificationsViewModel : BasePageViewModel
 			Guard.IsNotNull(item);
 
 			await ShowPopup(new NotificationPopup(item));
+			
+			item.IsRead = true;
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "OpenDetailsAsync Exception: {Ex}", ex.Message);
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+		}
+	}
+
+	[RelayCommand]
+	private async Task MarkAsReadAsync(Notification item)
+    {
+		try
+		{
+			item.IsRead = !item.IsRead;
+
+			await Task.Delay(10);
 		}
 		catch (Exception ex)
 		{
