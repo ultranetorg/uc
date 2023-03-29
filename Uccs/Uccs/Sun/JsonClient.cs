@@ -103,5 +103,21 @@ namespace Uccs.Net
 			if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new ApiCallException(cr.StatusCode.ToString() + " " + cr.Content.ReadAsStringAsync().Result);
 		}
+
+		public SettingsResponse GetSettings(Workflow workflow)
+		{
+			return Request<SettingsResponse>(new SettingsCall {}, workflow);
+		}
+
+		public void GetRelease(ReleaseAddress version, Workflow workflow)
+		{
+			Post(new GetReleaseCall {Version = version}, workflow);
+		}
+
+		public ReleaseStatus GetReleaseStatus(ReleaseAddress release, Workflow workflow)
+		{
+			return Request<ReleaseStatus>(new ReleaseStatusCall {Release = release}, workflow);
+		}
+
 	}
 }

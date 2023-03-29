@@ -32,7 +32,7 @@ namespace uc
 				if(i == L'I')
 					o += Name;
 				if(i == L'V')
-					o += Version.ToStringERB();
+					o += Version.ToString();
 				if(i == L'S')
 					o += Stage;
 				if(i == L'P')

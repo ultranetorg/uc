@@ -83,7 +83,7 @@ namespace Uccs.Sun.FUI
 			if(f.ShowDialog() == DialogResult.OK)
 			{
 				var acc = AccountKey.Create();
-				Vault.SaveWallet(acc, f.Password);
+				Vault.AddWallet(acc, f.Password);
 				
 				AddRow(acc);
 			}

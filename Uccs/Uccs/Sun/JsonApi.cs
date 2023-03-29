@@ -117,7 +117,7 @@ namespace Uccs.Net
 		public ReleaseAddress	Release { get; set; }
 	}
 
-	public class ReleaseInfoCall : ApiCall
+	public class ReleaseStatusCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }
 	}

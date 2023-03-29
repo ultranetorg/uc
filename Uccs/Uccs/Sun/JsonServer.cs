@@ -39,7 +39,7 @@ namespace Uccs.Net
 									{
 										Listener = new HttpListener();
 	
-										var prefixes = new string[] {$"http://{(Settings.IP.ToString() != "0.0.0" ? Settings.IP.ToString() : "+")}:{Settings.Zone.JsonPort}/"};
+										var prefixes = new string[] {$"http://{(Settings.IP != IPAddress.Any ? Settings.IP.ToString() : "+")}:{Settings.Zone.JsonPort}/"};
 			
 										foreach(string s in prefixes)
 										{
@@ -250,9 +250,9 @@ namespace Uccs.Net
 							break;
 						}
 	
-						case ReleaseInfoCall c:
+						case ReleaseStatusCall c:
 						{
-							return Core.GetReleaseInfo(c.Release);
+							return Core.GetReleaseStatus(c.Release);
 						}
 
 						case GetReleaseCall c:

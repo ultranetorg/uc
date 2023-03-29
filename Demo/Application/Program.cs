@@ -34,11 +34,20 @@ namespace Uccs.Demo.Application
 					 {
 						var v = ReleaseAddress.Parse("uo/democomponent/dotnet/0.0.0");
 						
-						Application.GetRelease(v, new Workflow());
+						Application.Nexus.Sun.GetRelease(v, new Workflow());
+
+						ReleaseStatus s = null;
+
+						do
+						{
+							Thread.Sleep(1);
+							s = Application.Nexus.Sun.GetReleaseStatus(v, new Workflow());
+						}
+						while(s.Manifest == null);
 
 						f.BeginInvoke(new Action(	() =>
 													{
-														var a = Assembly.LoadFile(Path.Join(Application.MapReleasePath(v), "Uccs.Demo.Component.dll"));
+														var a = Assembly.LoadFile(Path.Join(Application.Nexus.MapReleasePath(v), "Uccs.Demo.Component.dll"));
 														var ct = a.GetType("DemoComponent.ComponentControl");
 														var c = ct?.GetConstructor(new Type[]{})?.Invoke(null) as UserControl;
 

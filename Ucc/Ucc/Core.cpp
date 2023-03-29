@@ -37,7 +37,7 @@ CCore::CCore(CSupervisor * s, HINSTANCE instance, wchar_t * command, const wchar
 
 	if(!cmd || !cmd->Any(VersionAutoUpArgument))
 	{
-		auto versions = CNativeDirectory::Enumerate(CNativePath::Join(CoreDirectory, L".."), L"[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", EDirectoryFlag::DirectoriesOnly);
+		auto versions = CNativeDirectory::Enumerate(CNativePath::Join(CoreDirectory, L".."), L"[0-9]+\\.[0-9]+\\.[0-9]+", EDirectoryFlag::DirectoriesOnly);
 		versions.Sort([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); });
 	
 		if(CVersion(versions.First().Name) > CVersion(CNativePath::GetDirectoryName(CoreDirectory)))

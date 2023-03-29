@@ -45,5 +45,15 @@ namespace Uccs.Net
 				throw new OperationCanceledException(Cancellation.Token);
 			}
 		}
+
+		public void	Wait(int timeout)
+		{
+			if(Cancellation.Token.IsCancellationRequested)
+			{
+				throw new OperationCanceledException(Cancellation.Token);
+			}
+			else
+				Thread.Sleep(timeout);
+		}
 	}
 }

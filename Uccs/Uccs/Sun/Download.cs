@@ -102,13 +102,13 @@ namespace Uccs.Net
 		public ReleaseAddress				Release;
 		public Distributive					Distributive { get; protected set; }
 		public long							Length { get; protected set; }
-		public bool							Successful => Downloaded && AllDependenciesFound && DependenciesCount == DependenciesSuccessfulCount;
+		public bool							Succeeded => Downloaded && DependenciesFound && DependenciesCount == DependenciesSucceeded;
 		public long							CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
 																- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
 																+ Pieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 		public int							DependenciesCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesCount);
-		public bool							AllDependenciesFound => Manifest != null && Dependencies.All(i => i.AllDependenciesFound);
-		public int							DependenciesSuccessfulCount => Dependencies.Count(i => i.Successful) + Dependencies.Sum(i => i.DependenciesSuccessfulCount);
+		public bool							DependenciesFound => Manifest != null && Dependencies.All(i => i.DependenciesFound);
+		public int							DependenciesSucceeded => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesSucceeded);
 		public object						Lock = new object();
 
 		Core								Core;
@@ -232,14 +232,11 @@ namespace Uccs.Net
 													{
 														foreach(var i in deps)
 														{
-															if(!core.Downloads.Any(j => j.Release == i.Release))
-															{
-																var dd = core.DownloadRelease(i.Release, workflow);
+															var dd = core.DownloadRelease(i.Release, workflow);
 																
-																if(dd != null)
-																{
-																	Dependencies.Add(dd);
-																}
+															if(dd != null)
+															{
+																Dependencies.Add(dd);
 															}
 														}
 													}

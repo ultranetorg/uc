@@ -52,7 +52,7 @@ namespace Uccs.Sun.CLI
 
 					if(d != null)
 					{
-						while(!d.Successful)
+						while(!d.Succeeded)
 						{
 							Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length}");
 							Thread.Sleep(1000);

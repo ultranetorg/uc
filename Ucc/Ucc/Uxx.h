@@ -8,7 +8,7 @@ namespace uc
 	/// {protocol=worldentity server=Experimental class=UC.Experimental.Commander id=4444444444444444444444444444444}
 	/// {protocol=worldentity class=UC.Experimental.Commander id=4444444444444444444444444444444}
 	/// 
-	/// worldentity://127.0.0.1/uc/experimental/winx64/0.0.0.0/Experimental/Experimental0/UC.Experimental.Commander/4444444444444444444444444444444
+	/// worldentity://127.0.0.1/uc/experimental/winx64/0.0.0/Experimental/Experimental0/UC.Experimental.Commander/4444444444444444444444444444444
 	/// worldentity://///////UC.Experimental.Commander/4444444444444444444444444444444
 	///	worldentity:///UC.Experimental.Browser/4444444444444444444444444444444
 	///	worldentity:///UC.Experimental.Earth/4444444444444444444444444444444

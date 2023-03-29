@@ -59,7 +59,7 @@ namespace Uccs.Net
 		Hub		= 0b00001000,
 	}
 
-	public class ReleaseInfo
+	public class ReleaseStatus
 	{
 		public Manifest			Manifest { get; set; }
 		public DownloadStatus	Download { get; set; }
@@ -356,7 +356,7 @@ namespace Uccs.Net
 
 			if(Settings.Filebase.Enabled)
 			{
-				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), Settings.ProductsPath);
+				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), System.IO.Path.Join(Settings.Profile, "Products"));
 			}
 
 			if(Settings.Database.Base || Settings.Database.Chain)
@@ -737,7 +737,7 @@ namespace Uccs.Net
 		{
 			peer.OutStatus = EstablishingStatus.Initiated;
 
-			var t = new Thread(a =>
+			void f()
 			{
 				try
 				{
@@ -833,8 +833,9 @@ namespace Uccs.Net
 				{
 					Stop(MethodBase.GetCurrentMethod(), ex);
 				}
-			});
+			}
 			
+			var t = new Thread(f);
 			t.Name = Settings.IP.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
 			t.Start();
 						
@@ -2235,44 +2236,16 @@ namespace Uccs.Net
 				if(Filebase.FindRelease(release) != null)
 					return null;
 
-				var d = new Download(this, release, workflow);
-	
-				Downloads.Add(d);
-		
+				var d = Downloads.Find(j => j.Release == release);
+				
+				if(d == null)
+				{
+					d = new Download(this, release, workflow);
+					Downloads.Add(d);
+				}
+
 				return d;
 			}
-		}
-
-		public ReleaseInfo GetReleaseInfo(ReleaseAddress release)
-		{
-			var m = Filebase.FindRelease(release);
-			
-			if(m != null)
-			{
-				return new ReleaseInfo {Manifest = m.Manifest};
-			}
-
-			var d = Downloads.Find(i => i.Release == release);
-
-			if(d != null)
-			{
-				return new () { Download = new () {	Distributive			= d.Distributive,
-													Length					= d.Length, 
-													CompletedLength			= d.CompletedLength,
-													DependenciesCount		= d.DependenciesCount,
-													AllDependenciesFound	= d.AllDependenciesFound,
-													DependenciesSuccessful	= d.DependenciesSuccessfulCount} };
-			}
-
-			return new ReleaseInfo();
-		}
-
-		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
-		{
-			var qlatest = Call(Role.Base, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
-			var previos = qlatest.Releases.FirstOrDefault()?.Address.Version;
-
-			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
 		}
 
 		public void GetRelease(ReleaseAddress version, Workflow workflow)
@@ -2282,7 +2255,7 @@ namespace Uccs.Net
 								{
 									if(!Filebase.ExistsRecursively(version))
 									{
-										var d = DownloadRelease(version, Workflow);
+										var d = DownloadRelease(version, workflow);
 	
 										while(Downloads.Contains(d))
 										{
@@ -2305,8 +2278,39 @@ namespace Uccs.Net
 				
 									Filebase.Unpack(version);
 								}
-							})
-							.Wait();
+							});
+		}
+
+		public ReleaseStatus GetReleaseStatus(ReleaseAddress release)
+		{
+			var m = Filebase.FindRelease(release);
+			
+			if(m != null)
+			{
+				return new ReleaseStatus {Manifest = m.Manifest};
+			}
+
+			var d = Downloads.Find(i => i.Release == release);
+
+			if(d != null)
+			{
+				return new () { Download = new () {	Distributive			= d.Distributive,
+													Length					= d.Length, 
+													CompletedLength			= d.CompletedLength,
+													DependenciesCount		= d.DependenciesCount,
+													AllDependenciesFound	= d.DependenciesFound,
+													DependenciesSuccessful	= d.DependenciesSucceeded} };
+			}
+
+			return new ReleaseStatus();
+		}
+
+		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
+		{
+			var qlatest = Call(Role.Base, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
+			var previos = qlatest.Releases.FirstOrDefault()?.Address.Version;
+
+			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
 		}
 
 		public override Rp Request<Rp>(RdcRequest rq) where Rp : class

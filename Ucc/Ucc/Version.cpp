@@ -9,7 +9,6 @@ CVersion::CVersion()
 	Era			= 0;
 	Release		= 0;
 	Build		= 0;
-	Revision	= 0;
 }
 
 CVersion::CVersion(const CString & v)
@@ -21,16 +20,13 @@ CVersion::CVersion(const CString & v)
 	s>>Release;
 	s.ignore(v.size(), L'.');
 	s>>Build;
-	s.ignore(v.size(), L'.');
-	s>>Revision;
 }
 
-CVersion::CVersion(uint e, uint r, uint b, uint rv)
+CVersion::CVersion(uint e, uint r, uint b)
 {
 	Era			= e;
 	Release		= r;
 	Build		= b;
-	Revision	= rv;
 }
 
 CVersion::~CVersion(void)
@@ -38,11 +34,6 @@ CVersion::~CVersion(void)
 }
 
 CString CVersion::ToString()
-{
-	return CString::Format(L"%d.%d.%d.%d", Era, Release, Build, Revision);
-}
-
-CString CVersion::ToStringERB()
 {
 	return CString::Format(L"%d.%d.%d", Era, Release, Build);
 }
@@ -65,7 +56,6 @@ CVersion CVersion::FromModule(HMODULE m)
 		v.Era		= HIWORD(vi->dwFileVersionMS);
 		v.Release	= LOWORD(vi->dwFileVersionMS);
 		v.Build		= HIWORD(vi->dwFileVersionLS);
-		v.Revision	= LOWORD(vi->dwFileVersionLS);
 
 		free(p);
 	}
@@ -88,7 +78,6 @@ CVersion CVersion::FromFile(const CString & path)
 		v.Era		= HIWORD(vi->dwFileVersionMS);
 		v.Release	= LOWORD(vi->dwFileVersionMS);
 		v.Build		= HIWORD(vi->dwFileVersionLS);
-		v.Revision	= LOWORD(vi->dwFileVersionLS);
 
 		free(p);
 	}
@@ -129,7 +118,7 @@ CString CVersion::GetStringInfo(const CString & path, const CString & v)
 
 bool CVersion::operator==(CVersion const & v) const 
 {
-	return Era==v.Era && Release==v.Release && Build==v.Build && Revision==v.Revision;
+	return Era == v.Era && Release == v.Release && Build == v.Build;
 }
 
 bool CVersion::operator!=(CVersion const & v) const 
@@ -149,9 +138,6 @@ bool CVersion::operator > (CVersion & v)
 	if(Build > v.Build)	return true;
 	if(Build < v.Build)	return false;
 
-	if(Revision > v.Revision)	return true;
-	if(Revision < v.Revision)	return false;
-
 	return false;
 }
 
@@ -165,9 +151,6 @@ bool CVersion::operator < (CVersion & v)
 
 	if(Build < v.Build)	return true;
 	if(Build > v.Build)	return false;
-
-	if(Revision < v.Revision)	return true;
-	if(Revision > v.Revision)	return false;
 
 	return false;
 }
@@ -196,5 +179,5 @@ bool CVersion::IsGreaterOrEqER(const CVersion & v)
 
 CVersion CVersion::GetFrameworkVerision()
 {
-	return CVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_BUILDNO, VERSION_EXTEND);
+	return CVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_BUILDNO);
 }

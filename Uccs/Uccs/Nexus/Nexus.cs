@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 using Uccs.Net;
 
 namespace Uccs.Uos
 {
-
 	public class Nexus
 	{
 		public const string BootProductsPath	= "Uos.Nexus.ProductsPath";
@@ -17,10 +17,11 @@ namespace Uccs.Uos
 
 		public Nexus(string productspath, string sunaddress, string sunapikey, Zone zone)
 		{
-			Environment.SetEnvironmentVariable(BootProductsPath.ToString(), productspath);
-			Environment.SetEnvironmentVariable(BootSunAddress.ToString(),	sunaddress);
-			Environment.SetEnvironmentVariable(BootSunApiKey.ToString(),	sunapikey);
-			Environment.SetEnvironmentVariable(BootZone.ToString(),			zone.Name);
+			Environment.SetEnvironmentVariable(BootProductsPath,productspath);
+			Environment.SetEnvironmentVariable(BootSunAddress,	sunaddress);
+			Environment.SetEnvironmentVariable(BootSunApiKey,	sunapikey);
+			Environment.SetEnvironmentVariable(BootZone,		zone.Name);
 		}
-	}
+
+    }
 }
