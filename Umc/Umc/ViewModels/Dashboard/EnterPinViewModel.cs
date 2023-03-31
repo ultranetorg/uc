@@ -2,28 +2,86 @@
 
 public partial class EnterPinViewModel : BasePageViewModel
 {
-	[ObservableProperty]
-    private AccountViewModel _account;
+	private AuthService _authService;
 
-    public EnterPinViewModel(INotificationsService notificationService, ILogger<EnterPinViewModel> logger) : base(notificationService, logger)
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(ShowBiometric))]
+	[NotifyPropertyChangedFor(nameof(ShowLogin))]
+    private string _pincode = string.Empty;
+
+    public bool ShowBiometric => !(Pincode.Length > 0);
+    public bool ShowLogin => Pincode.Length > 0;
+
+    public EnterPinViewModel(AuthService authService, INotificationsService notificationService, ILogger<EnterPinViewModel> logger) : base(notificationService, logger)
     {
-		LoadData();
+		_authService = authService;
     }
 
-	private void LoadData()
+	[RelayCommand]
+    private void EnterPincode(string number)
 	{
-		Account = DefaultDataMock.CreateAccount();
+		try
+		{
+			if (Pincode.Length < 4)
+			{
+				Pincode+=number;
+			}
+		}
+        catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("BiometricLoginAsync Error: {Message}", ex.Message);
+		}
 	}
 
 	[RelayCommand]
-    private async Task DeleteAsync()
+    private async Task LoginAsync()
 	{
-		await ShowPopup(new DeleteAccountPopup(Account));
+		try
+		{
+			if (Pincode.Length == 4)
+			{
+				// log in
+				var result = await _authService.LoginAsync(Pincode);
+
+				if (result)
+				{
+					await Navigation.GoToUpwardsAsync(nameof(DashboardPage));
+				}
+			}
+		}
+        catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger, "Invalid Pincode");
+			_logger.LogError("BiometricLoginAsync Error: {Message}", ex.Message);
+		}
 	}
 
 	[RelayCommand]
-    private async Task TransactionsAsync()
+    private void RemoveNumber()
     {
-        await Shell.Current.Navigation.PushAsync(new TransactionsPage());
+		if (Pincode.Length != 0)
+		{
+			Pincode = Pincode.Remove(Pincode.Length - 1);
+		}
+    }
+
+	[RelayCommand]
+    private async Task BiometricLoginAsync()
+    {
+		try
+		{
+			var biometric = await _authService.CheckBiometricsAsync();
+
+			if (biometric == CheckBiometricsResult.Authenticated)
+			{
+				await Navigation.GoToUpwardsAsync(nameof(DashboardPage));
+			}
+		}
+        catch (Exception ex)
+		{
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+			_logger.LogError("BiometricLoginAsync Error: {Message}", ex.Message);
+		}
     }
 }

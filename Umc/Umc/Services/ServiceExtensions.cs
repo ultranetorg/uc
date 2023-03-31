@@ -13,6 +13,7 @@ public static class ServiceExtensions
 		builder.Services.AddSingleton<INotificationsService, NotificationsMockService>();
 		builder.Services.AddSingleton<IProductsService, ProductsMockService>();
 		builder.Services.AddSingleton<ITransactionsService, TransactionsMockService>();
+		builder.Services.AddSingleton<AuthService>();
 
 		return builder;
 	}

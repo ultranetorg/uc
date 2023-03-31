@@ -61,8 +61,6 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<UnfinishTransferViewModel>();
 
-		builder.Services.AddTransient<EnterPinBViewModel>();
-
 		builder.Services.AddTransient<EnterPinViewModel>();
 
 		builder.Services.AddTransient<HelpDetailsViewModel>();

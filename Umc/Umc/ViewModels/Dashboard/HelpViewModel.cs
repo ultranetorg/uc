@@ -52,7 +52,7 @@ public partial class HelpViewModel : BasePageViewModel
 		}
 		catch (Exception ex)
 		{
-			ToastHelper.ShowErrorMessage(_logger);
+			await ToastHelper.ShowDefaultErrorMessageAsync();
 			_logger.LogError("SearchHelpsAsync Error: {Message}", ex.Message);
 		}
     }

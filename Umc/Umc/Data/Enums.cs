@@ -1,5 +1,12 @@
 ﻿namespace UC.Umc.Enums;
 
+public enum CheckBiometricsResult
+{
+    Disabled = 0,
+    NotAuthenticated = 1,
+    Authenticated = 2
+}
+
 public enum AuthorStatus
 {
 	Auction,

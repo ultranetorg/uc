@@ -4,6 +4,8 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:vm="clr-namespace:UC.Umc.ViewModels"
+    x:DataType="vm:EnterPinViewModel"
     Title="Enter Pin"
     x:Name="page">
     
@@ -26,16 +28,58 @@
                     HorizontalOptions="Center"
                     Text="Enter PIN or use Fingerprint" />
                 <Grid VerticalOptions="EndAndExpand" RowSpacing="40" ColumnDefinitions="*,*,*" RowDefinitions="*,*,*,*">
-                    <Label Grid.Row="0" Grid.Column="0" Text="1" />
-                    <Label Grid.Row="0" Grid.Column="1" Text="2" />
-                    <Label Grid.Row="0" Grid.Column="2" Text="3" />
-                    <Label Grid.Row="1" Grid.Column="0" Text="4" />
-                    <Label Grid.Row="1" Grid.Column="1" Text="5" />
-                    <Label Grid.Row="1" Grid.Column="2" Text="6" />
-                    <Label Grid.Row="2" Grid.Column="0" Text="7" />
-                    <Label Grid.Row="2" Grid.Column="1" Text="8" />
-                    <Label Grid.Row="2" Grid.Column="2" Text="9" />
-                    <ImageButton
+					<Label Grid.Column="0" Text="1">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="1" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Column="1" Text="2">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="2" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Column="2" Text="3" >
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="3" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Row="1" Grid.Column="0" Text="4" >
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="4" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Row="1" Grid.Column="1" Text="5">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="5" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Row="1" Grid.Column="2" Text="6">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="6" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Row="2" Grid.Column="0" Text="7">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="7" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Row="2" Grid.Column="1" Text="8">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="8" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Row="2" Grid.Column="2" Text="9">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="9" />
+						</Label.GestureRecognizers>
+					</Label>
+					<Label Grid.Row="3" Grid.Column="1" Text="0">
+						<Label.GestureRecognizers>
+							<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="10" />
+						</Label.GestureRecognizers>
+					</Label>
+					
+					<ImageButton
                         Grid.Row="3"
                         Grid.Column="0"
                         Padding="1"
@@ -43,9 +87,11 @@
                         HorizontalOptions="Center"
                         Style="{StaticResource Backspace}"
                         VerticalOptions="Center"
-                        WidthRequest="32" />
-                    <Label Grid.Row="3" Grid.Column="1" Text="0" />
+                        WidthRequest="32"
+						Command="{Binding RemoveNumberCommand}" />
+					
                     <ImageButton
+						IsVisible="{Binding ShowLogin}"
                         Grid.Row="3"
                         Grid.Column="2"
                         Padding="1"
@@ -53,7 +99,20 @@
                         HorizontalOptions="Center"
                         Style="{StaticResource LogOut}"
                         VerticalOptions="Center"
-                        WidthRequest="32" />
+                        WidthRequest="32"
+						Command="{Binding LoginCommand}" />
+
+					<ImageButton
+						IsVisible="{Binding ShowBiometric}"
+                        Grid.Row="3"
+                        Grid.Column="2"
+                        Padding="1"
+                        HeightRequest="32"
+                        HorizontalOptions="Center"
+                        Style="{StaticResource Fingerprint}"
+                        VerticalOptions="Center"
+                        WidthRequest="32"
+						Command="{Binding BiometricLoginCommand}" />
                 </Grid>
             </StackLayout>
         </ScrollView>
