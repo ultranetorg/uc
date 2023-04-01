@@ -91,6 +91,7 @@ public static class ViewModelExtensions
 		builder.Services.AddTransient<ProductOptionsViewModel>();
 		builder.Services.AddTransient<TransferOptionsViewModel>();
 		builder.Services.AddTransient<WhatsNewPopupViewModel>();
+		builder.Services.AddTransient<CreatePinViewModel>();
 
 		#endregion
 

@@ -2,6 +2,8 @@
 
 public partial class EnterPinPage : CustomPage
 {
+	EnterPinViewModel Vm => BindingContext as EnterPinViewModel;
+
     public EnterPinPage()
     {
         InitializeComponent();
@@ -12,5 +14,17 @@ public partial class EnterPinPage : CustomPage
     {
         InitializeComponent();
         BindingContext = vm;
+    }
+    
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+		// temporary 
+        if (DefaultDataMock.NeedToCreatePincode)
+        {
+			// if pin not set open create pin popup
+            await Vm.InitializeAsync();
+        }
     }
 }

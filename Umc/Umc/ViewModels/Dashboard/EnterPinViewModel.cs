@@ -17,6 +17,20 @@ public partial class EnterPinViewModel : BasePageViewModel
 		_authService = authService;
     }
 
+	public async Task InitializeAsync()
+	{
+		try
+		{
+			await ShowPopup(new CreatePinPopup());
+			await ToastHelper.ShowMessageAsync("Pin was created");
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "InitializeAsync Exception: {Ex}", ex.Message);
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+		}
+	}
+
 	[RelayCommand]
     private void EnterPincode(string number)
 	{
