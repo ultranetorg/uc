@@ -14,11 +14,11 @@ namespace Uccs.Net
 		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
 		
 		public Payload					Payload;
-		public AccountAddress					Generator;
+		public AccountAddress			Generator;
 		public int						RoundMax;
 		public byte[]					Signature;
 		
-		public AccountAddress					Signer;
+		public AccountAddress			Signer;
 		public Settings					Settings;
 
 		public byte[]					Prefix => Signature.Take(Consensus.PrefixLength).ToArray();

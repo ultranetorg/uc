@@ -196,7 +196,7 @@ namespace Uccs.Net
 		string						Path; 
 
 		public readonly int			Port;
-		public Zone					Zone;
+		public readonly Zone		Zone;
 	
 		public bool					Log;
 		public int					PeersMin;

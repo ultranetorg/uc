@@ -409,14 +409,11 @@ namespace Uccs.Net
 
 			var f = Path.Join(dependsdirectory, $"{release.Version.ABC}.{DependenciesExt}");
 			
-			//var deps = File.Exists(f) ? File.ReadLines(f).Select(i => ReleaseAddress.Parse(i)) : new ReleaseAddress[]{};
 			var deps = File.Exists(f) ? new XonDocument(File.ReadAllText(f)).Nodes.Select(i => Dependency.From(i))
 									  : new Dependency[]{};
 
-			
 			if(vs.Any())
 			{
-				//var lastdeps = File.ReadLines(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}")).Select(i => ReleaseAddress.Parse(i));
 				var lastdeps = new XonDocument(File.ReadAllText(Path.Join(dependsdirectory, $"{vs.Last()}.{DependenciesExt}"))).Nodes.Select(i => Dependency.From(i));
 		
 				acd = deps.Where(i => !lastdeps.Contains(i));
@@ -435,14 +432,6 @@ namespace Uccs.Net
 									rcd);
 
 			AddRelease(release, m);
-
-
-			//if(ipkg != null)
-			//	DeclarePackage(new[]{new PackageAddress(release, Distributive.Complete), new PackageAddress(release, Distributive.Incremental)}, workflow);
-			//else
-			//	DeclarePackage(new[]{new PackageAddress(release, Distributive.Complete)}, workflow);
-
-			//return o;
 		}
 
 		public void Unpack(ReleaseAddress release, bool overwrite = false)

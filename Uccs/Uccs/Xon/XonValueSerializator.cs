@@ -81,7 +81,7 @@ namespace Uccs
 			switch(v)
 			{
 				case byte[] x:	return x;
-				case byte x:	return BitConverter.GetBytes(x);
+				case byte x:	return new byte[] {x};
 				case int x:		return BitConverter.GetBytes(x);
 				case short x:	return BitConverter.GetBytes(x);
 				case long x:	return BitConverter.GetBytes(x);
