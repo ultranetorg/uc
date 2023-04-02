@@ -52,6 +52,16 @@ namespace Uccs.Sun.CLI
 					}
 					return null;
 
+				case "listen" :
+					var Listener = new TcpListener(IPAddress.Parse(GetString("ip")), int.Parse(GetString("port")));
+					Listener.Start();
+
+					Workflow.Log?.Report(this, null, $"Listening...");
+
+					Listener.AcceptTcpClient();
+
+					return null;
+
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

@@ -39,7 +39,7 @@ namespace Uccs.Net
 									{
 										Listener = new HttpListener();
 	
-										var prefixes = new string[] {$"http://{(Settings.IP != IPAddress.Any ? Settings.IP.ToString() : "+")}:{Settings.Zone.JsonPort}/"};
+										var prefixes = new string[] {$"http://{(!Settings.IP.Equals(IPAddress.Any) ? Settings.IP.ToString() : "+")}:{Settings.Zone.JsonPort}/"};
 			
 										foreach(string s in prefixes)
 										{

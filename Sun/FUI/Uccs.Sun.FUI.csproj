@@ -5,7 +5,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Sun.FUI</AssemblyName>
-    <RootNamespace>UC.Sun.FUI</RootNamespace>
+    <RootNamespace>Uccs.Sun.FUI</RootNamespace>
     <AssemblyVersion>0.0.556.0</AssemblyVersion>
     <Version>0.0.556</Version>
     <Company>uo</Company>

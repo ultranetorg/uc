@@ -675,10 +675,11 @@ namespace Uccs.Net
 		{
 			try
 			{
+				Workflow?.Log?.Report(this, "Listening starting", $"{Settings.IP}:{Settings.Port}");
+
 				Listener = new TcpListener(Settings.IP, Settings.Port);
 				Listener.Start();
 	
-				Workflow?.Log?.Report(this, "Listening started", $"{Settings.IP}:{Settings.Port}");
 
 				while(Running)
 				{
@@ -1760,6 +1761,35 @@ namespace Uccs.Net
 			}
 			else
 				return null;
+		}
+		
+		public void Enqueue(IEnumerable<Operation> operations, PlacingStage waitstage, Workflow workflow)
+		{
+			lock(Lock)
+				foreach(var i in operations)
+				{
+					i.__ExpectedPlacing = waitstage;
+
+					if(FeeAsker.Ask(this, i.Signer as AccountKey, i))
+					{
+				 		Enqueue(i);
+					}
+				}
+
+			while(true)
+			{ 
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+
+				switch(waitstage)
+				{
+					case PlacingStage.Null :				return;
+					case PlacingStage.Accepted :			if(operations.All(o => o.Placing >= PlacingStage.Accepted))			return; else break;
+					case PlacingStage.Placed :				if(operations.All(o => o.Placing >= PlacingStage.Placed))			return; else break;
+					case PlacingStage.Confirmed :			if(operations.All(o => o.Placing == PlacingStage.Confirmed))		return; else break;
+					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Placing == PlacingStage.FailedOrNotFound)) return; else break;
+				}
+			}
 		}
 
 		void Verifing()
