@@ -819,7 +819,7 @@ namespace Uccs.Net
 						peer.OutStatus = EstablishingStatus.Succeeded;
 						peer.Start(this, client, h, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
 							
-						Workflow.Log?.Report(this, "Connected to", $"{peer}");
+						Workflow.Log?.Report(this, "Connected", $"to {peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
 						return;
 					}
