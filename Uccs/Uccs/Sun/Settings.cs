@@ -15,6 +15,10 @@ namespace Uccs.Net
 		//public string		Chain;
 		public string		Provider;
 
+		public NasSettings()
+		{
+		}
+
 		public NasSettings(Xon x)
 		{
 			//Chain = x.GetString("Chain");
@@ -28,6 +32,10 @@ namespace Uccs.Net
 		public bool			Chain;
 		public int			PeersMin;
 
+		public DatabaseSettings()
+		{
+		}
+
 		public DatabaseSettings(Xon x)
 		{
 			Base		= x.Has("Base");
@@ -40,6 +48,10 @@ namespace Uccs.Net
 	{
 		public bool Enabled;
 
+		public HubSettings()
+		{
+		}
+
 		public HubSettings(Xon x)
 		{
 			Enabled = x.Has("Enabled");
@@ -49,6 +61,10 @@ namespace Uccs.Net
 	public class FilebaseSettings
 	{
 		public bool Enabled;
+
+		public FilebaseSettings()
+		{
+		}
 
 		public FilebaseSettings(Xon x)
 		{
@@ -63,6 +79,10 @@ namespace Uccs.Net
 		public string	AccessKey;
 		Settings		Main;
 
+		public ApiSettings()
+		{
+		}
+
 		public ApiSettings(Xon x, Settings main)
 		{
 			Main		= main;
@@ -74,7 +94,10 @@ namespace Uccs.Net
 
 	public class SecretSettings
 	{
-		public const string FileName = "Secrets.globals";
+		public const string		FileName = "Secrets.globals";
+		public static readonly	AccountAddress Org = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
+		public static readonly	AccountAddress Gen = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
+		public static readonly	AccountAddress Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
 
 		public string			Password;
 		public string			EmissionWallet;
@@ -86,13 +109,9 @@ namespace Uccs.Net
 
 		public string			Path;
 		string					FathersPath => System.IO.Path.Join(Path, "Fathers");	
-		AccountKey[]		_Fathers;
-		AccountKey			_OrgAccount;
-		AccountKey			_GenAccount;
-
-		public static readonly AccountAddress Org = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
-		public static readonly AccountAddress Gen = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
-		public static readonly AccountAddress Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
+		AccountKey[]			_Fathers;
+		AccountKey				_OrgAccount;
+		AccountKey				_GenAccount;
 
 		public AccountKey OrgAccount
 		{
@@ -191,28 +210,28 @@ namespace Uccs.Net
 
 	public class Settings
 	{
-		public const string			FileName = "Sun.settings";
+		public const string				FileName = "Sun.settings";
 
-		string						Path; 
+		string							Path; 
 
-		public readonly int			Port;
-		public readonly Zone		Zone;
+		public readonly int				Port;
+		public readonly Zone			Zone;
 	
-		public bool					Log;
-		public int					PeersMin;
-		public int					PeersInMax;
-		public IPAddress			IP = IPAddress.Any;
-		public List<AccountKey>		Generators;
-		public string				Profile;
-		public string				ProductsPath;
+		public bool						Log;
+		public int						PeersMin;
+		public int						PeersInMax;
+		public IPAddress				IP = IPAddress.Any;
+		public List<AccountKey>			Generators;
+		public string					Profile;
+		public string					ProductsPath;
 
-		public static DevSettings	Dev;
-		public NasSettings			Nas;
-		public HubSettings			Hub;
-		public ApiSettings			Api;
-		public FilebaseSettings		Filebase;
-		public DatabaseSettings		Database;
-		public SecretSettings		Secret;
+		public static DevSettings		Dev;
+		public NasSettings				Nas;
+		public HubSettings				Hub;
+		public ApiSettings				Api;
+		public FilebaseSettings			Filebase;
+		public DatabaseSettings			Database;
+		public SecretSettings			Secret;
 
 		public List<AccountAddress>		ProposedFunds = new(){};
 
@@ -264,12 +283,25 @@ namespace Uccs.Net
 			Hub			= new (doc.One(nameof(Hub)));
 			Filebase	= new (doc.One(nameof(Filebase)));
 
-// 			if(doc.Has("Secrets") && File.Exists(doc.GetString("Secrets")))
-// 			{
-// 				LoadSecrets(doc.GetString("Secrets"));
-// 			}
-						
-			if(boot.Secrets != null)	LoadSecrets(boot.Secrets);
+			if(boot.Secrets != null)	
+				LoadSecrets(boot.Secrets);
+		}
+
+		public Settings(string profile, Zone zone)
+		{
+			Directory.CreateDirectory(profile);
+
+			Profile		= profile;
+			Zone		= zone;
+			Port		= Zone.Port;
+			IP			= IPAddress.Loopback;
+
+			Dev			= new ();
+			Database	= new ();
+			Nas			= new ();
+			Api			= new ();
+			Hub			= new ();
+			Filebase	= new ();
 		}
 
 		public void LoadSecrets(string path)

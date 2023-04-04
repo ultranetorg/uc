@@ -6,14 +6,14 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	internal class HostCommand : Command
+	internal class DevCommand : Command
 	{
-		public const string Keyword = "host";
+		public const string Keyword = "dev";
 
 		/// <summary>
 		/// Usage:	host ping ip=IP[:PORT]
 		/// </summary>
-		public HostCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
+		public DevCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
 		{
 		}
 

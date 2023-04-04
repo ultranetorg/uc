@@ -18,6 +18,8 @@ namespace Uccs.Sun.CLI
 			if(ConsoleSupported)
 				Workflow.Log?.ReportWarning(this, "Pressing any key stops the node");
 
+			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Log.txt"), FileMode.Create);
+
 			if(Args.Has("api"))
 				Core.RunApi();
 

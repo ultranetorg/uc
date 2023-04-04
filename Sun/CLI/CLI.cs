@@ -48,9 +48,7 @@ namespace Uccs.Sun.CLI
 				var boot = new BootArguments(b, cmd);
 
 				Settings = new Settings(exedir, boot);
-				
-				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
-				
+								
 				if(File.Exists(Settings.Profile))
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
@@ -102,7 +100,7 @@ namespace Uccs.Sun.CLI
 				switch(t)
 				{
 					case RunCommand.Keyword:			c = new RunCommand(Settings, Log, getcore, cmd); break;
-					case HostCommand.Keyword:			c = new HostCommand(Settings, Log, getuser, cmd); break;
+					case DevCommand.Keyword:			c = new DevCommand(Settings, Log, getuser, cmd); break;
 					case AccountCommand.Keyword:		c = new AccountCommand(Settings, Log, getuser, cmd); break;
 					case UntCommand.Keyword:			c = new UntCommand(Settings, Log, getuser, cmd); break;
 					case MembershipCommand.Keyword:		c = new MembershipCommand(Settings, Log, getuser, cmd); break;
