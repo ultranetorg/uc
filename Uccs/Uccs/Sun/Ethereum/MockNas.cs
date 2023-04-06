@@ -30,11 +30,6 @@ namespace Uccs.Net
 			throw new NotImplementedException();
 		}
 
-		public IPAddress[] GetInitials(Zone zone)
-		{
-			return zone.Initials ?? throw new NotSupportedException();
-		}
-
 		public string GetZone(Zone zone)
 		{
 			throw new NotImplementedException();

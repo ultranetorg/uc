@@ -223,7 +223,7 @@ namespace Uccs.Net
 		//	}
 		//}
 
-		public Core(Settings settings, string exedirectory, Log log)
+		public Core(Settings settings, Log log)
 		{
 			Settings = settings;
 			Cryptography.Current = settings.Cryptography;
@@ -532,21 +532,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				while(Running)
-				{
-					var initials = Nas.GetInitials(Settings.Zone);
-
-					if(initials.Any())
-					{
-						RememberPeers(initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
-
-						Workflow?.Log?.Report(this, "Initial nodes retrieved", initials.Length.ToString());
-						break;
-					}
-					else
-						throw new RequirementException($"No initial peers found for zone '{Settings.Zone}'");
-
-				}
+				RememberPeers(Settings.Zone.Initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
 			}
 		}
 

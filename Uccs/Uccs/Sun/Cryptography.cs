@@ -24,7 +24,7 @@ namespace Uccs.Net
 		public static readonly byte[]		ZeroHash = new byte[HashSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 		public abstract byte[]				Sign(AccountKey pk, byte[] hash);
-		public abstract AccountAddress				AccountFrom(byte[] signature, byte[] hash);
+		public abstract AccountAddress		AccountFrom(byte[] signature, byte[] hash);
 		public abstract byte[]				Encrypt(EthECKey key, string password);
 		public abstract byte[]				Decrypt(byte[] input, string password);
 

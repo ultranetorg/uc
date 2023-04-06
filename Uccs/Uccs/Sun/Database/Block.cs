@@ -183,21 +183,21 @@ namespace Uccs.Net
 
 	public class Vote : Block
 	{
-		public override bool		Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
-		public DateTime				Time;
+		public override bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
+		public DateTime					Time;
 
-		public int					Try; /// TODO: revote if consensus not reached
-		public long					TimeDelta;
-		public Consensus			Consensus;
+		public int						Try; /// TODO: revote if consensus not reached
+		public long						TimeDelta;
+		public Consensus				Consensus;
 		public List<AccountAddress>		Violators = new();
 		public List<AccountAddress>		Joiners = new();
 		public List<AccountAddress>		Leavers = new();
 		public List<AccountAddress>		FundJoiners = new();
 		public List<AccountAddress>		FundLeavers = new();
-		//public List<Proposition>	Propositions = new();
+		//public List<Proposition>		Propositions = new();
 
-		public byte[]				Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
-		//public byte[]				PropositionsHash;
+		public byte[]					Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
+		//public byte[]					PropositionsHash;
 
 		public Vote(Database c) : base(c)
 		{

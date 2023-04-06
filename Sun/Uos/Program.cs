@@ -42,7 +42,7 @@ namespace Uccs.Sun.Application
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
 
-				Core =	new Core(Settings, exedir, Log)
+				Core =	new Core(Settings, Log)
 						{
 							Clock = new RealTimeClock(), 
 							Nas = new Nas(Settings, Log), 

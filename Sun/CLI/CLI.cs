@@ -62,7 +62,7 @@ namespace Uccs.Sun.CLI
 										{
 											if(Core == null)
 											{
-												Core = new Core(Settings, exedir, Log)	{
+												Core = new Core(Settings, Log)	{
 																							Clock = new RealTimeClock(),
 																							Nas = new Nas(Settings, Log),
 																							GasAsker = new SilentGasAsker(Log),
@@ -78,7 +78,7 @@ namespace Uccs.Sun.CLI
 										{
 											if(Core == null)
 											{
-												Core = new Core(Settings, exedir, Log)	{
+												Core = new Core(Settings, Log)	{
 																							Clock = new RealTimeClock(),
 																							Nas = new Nas(Settings, Log),
 																							GasAsker = new SilentGasAsker(Log),

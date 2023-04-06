@@ -36,7 +36,7 @@ namespace Uccs.Sun.FUI
 				var settings = new Settings(exedir, boot);
 
 				var log = new Log();
-				var core =	new Core(settings, exedir, log)
+				var core =	new Core(settings, log)
 							{
 								Clock = new RealTimeClock(), 
 								Nas = new Nas(settings, log), 

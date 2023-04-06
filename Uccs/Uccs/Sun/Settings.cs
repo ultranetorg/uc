@@ -220,8 +220,8 @@ namespace Uccs.Net
 		public bool						Log;
 		public int						PeersMin;
 		public int						PeersInMax;
-		public IPAddress				IP = IPAddress.Any;
-		public List<AccountKey>			Generators;
+		public IPAddress				IP;
+		public List<AccountKey>			Generators = new();
 		public string					Profile;
 		public string					ProductsPath;
 

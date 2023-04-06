@@ -73,27 +73,27 @@ namespace Uccs.Sun.FUI
 
 		private void ReloadDefaultNodes()
 		{
-			if(!loading)
-			{
-				loading = true;
-
-				manage.Enabled = false;
-				nodes.Enabled = false;
-				nodes.Text = "Loading....";
-	
-				Task.Run(	() =>
-							{
-								Invoke( (MethodInvoker)delegate()
-										{
-											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ByName(zone.SelectedItem as string)).Select(i => i as object));
-						
-											manage.Enabled = true;
-											nodes.Enabled = true;
-											loading = false;
-										});
-							});
-
-			}
+// 			if(!loading)
+// 			{
+// 				loading = true;
+// 
+// 				manage.Enabled = false;
+// 				nodes.Enabled = false;
+// 				nodes.Text = "Loading....";
+// 	
+// 				Task.Run(	() =>
+// 							{
+// 								Invoke( (MethodInvoker)delegate()
+// 										{
+// 											nodes.Text = string.Join("\r\n", Core.Nas.GetInitials(Zone.ByName(zone.SelectedItem as string)).Select(i => i as object));
+// 						
+// 											manage.Enabled = true;
+// 											nodes.Enabled = true;
+// 											loading = false;
+// 										});
+// 							});
+// 
+// 			}
 		}
 
 		private void zone_SelectedIndexChanged(object sender, EventArgs e)
