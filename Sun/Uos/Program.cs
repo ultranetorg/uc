@@ -30,9 +30,7 @@ namespace Uccs.Sun.Application
 				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
 					File.Delete(i);
 					
-				var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, "Boot.xon")));
-				var cmd = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
-				var boot = new BootArguments(b, cmd);
+				var boot = new Boot(exedir);
 
 				Settings = new Settings(exedir, boot);
 
@@ -42,7 +40,7 @@ namespace Uccs.Sun.Application
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
 
-				Core =	new Core(Settings, Log)
+				Core =	new Core(boot.Zone, Settings, Log)
 						{
 							Clock = new RealTimeClock(), 
 							Nas = new Nas(Settings, Log), 

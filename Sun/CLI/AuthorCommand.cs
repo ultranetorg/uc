@@ -38,7 +38,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "author";
 
-		public AuthorCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
+		public AuthorCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
 		{
 		}
 

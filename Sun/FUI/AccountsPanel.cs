@@ -120,7 +120,7 @@ namespace Uccs.Sun.FUI
 			var f = new SaveFileDialog();
 
 			f.FileName = CurrentAccout.ToString();
-			f.DefaultExt = Vault.WalletExt;
+			f.DefaultExt = Vault.WalletExt(Core.Zone.Cryptography);
 
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{

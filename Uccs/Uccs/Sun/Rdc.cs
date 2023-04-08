@@ -221,7 +221,7 @@ namespace Uccs.Net
 
 					foreach(var p in Pieces)
 					{
-						if(Cryptography.Current.AccountFrom(p.Signature, p.Hashify()) != p.Generator)
+						if(core.Zone.Cryptography.AccountFrom(p.Signature, p.Hashify()) != p.Generator)
 						{
 							continue;
 						}
@@ -230,16 +230,16 @@ namespace Uccs.Net
 						{
 							var r = core.Database.GetRound(p.RoundId);
 				
-							var pp = r.BlockPieces.Find(i => i.Signature.SequenceEqual(p.Signature));
+							var ep = r.BlockPieces.Find(i => i.Signature.SequenceEqual(p.Signature));
 
-							if(pp == null)
+							if(ep == null)
 							{
 								accepted.Add(p);
 								r.BlockPieces.Add(p);
 				
-								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Guid.SequenceEqual(p.Guid)).OrderBy(i => i.Piece);
+								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Guid.SequenceEqual(p.Guid)).OrderBy(i => i.Index);
 			
-								if(ps.Count() == p.PiecesTotal && ps.Zip(ps.Skip(1), (x, y) => x.Piece + 1 == y.Piece).All(x => x))
+								if(ps.Count() == p.Total && ps.Zip(ps.Skip(1), (x, y) => x.Index + 1 == y.Index).All(x => x))
 								{
 									var s = new MemoryStream();
 									var w = new BinaryWriter(s);
@@ -261,8 +261,8 @@ namespace Uccs.Net
 								}
 							}
 							else
-								if(pp.Peer != null && pp.Peer != Peer)
-									pp.Broadcasted = true;
+								if(ep.Peer != null && ep.Peer != Peer)
+									ep.Broadcasted = true;
 						}
 						//else
 						//{
@@ -441,7 +441,7 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(core.Database == null || !core.Database.Settings.Database.Base)
+				if(core.Database == null || !core.Database.Settings.Base)
 					throw new RdcException(RdcError.NotBase);
 
 				var m = Table switch
@@ -593,7 +593,7 @@ namespace Uccs.Net
  			lock(core.Lock)
 			{	
 				if(!AuthorEntry.IsValid(Name))								throw new RdcException(RdcError.InvalidRequest);
-				if(!core.Database.Settings.Database.Base)					throw new RdcException(RdcError.NotBase);
+				if(!core.Database.Settings.Base)							throw new RdcException(RdcError.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
 				return new AuthorResponse{Entry = core.Database.Authors.Find(Name, core.Database.LastConfirmedRound.Id)};
@@ -719,7 +719,7 @@ namespace Uccs.Net
 
  			lock(core.Lock)
 			{
-				if(!core.Database.Settings.Database.Chain)					throw new RdcException(RdcError.NotChain);
+				if(!core.Database.Settings.Chain)							throw new RdcException(RdcError.NotChain);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
 				var db = core.Database;

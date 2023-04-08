@@ -152,24 +152,19 @@ namespace Uccs.Net
 			return new AccountKey(new EthECKey(cryptography.Decrypt(File.ReadAllBytes(path), password), true));
 		}
 
-		public static AccountKey Load(string path, string password)
+		public static AccountKey Load(Cryptography cryptography, byte[] wallet, string password)
 		{
-			return new AccountKey(new EthECKey(Cryptography.Current.Decrypt(File.ReadAllBytes(path), password), true));
+			return new AccountKey(new EthECKey(cryptography.Decrypt(wallet, password), true));
 		}
 
-		public static AccountKey Load(byte[] wallet, string password)
+		public void Save(Cryptography cryptography, string path, string password)
 		{
-			return new AccountKey(new EthECKey(Cryptography.Current.Decrypt(wallet, password), true));
+			File.WriteAllBytes(path, cryptography.Encrypt(Key, password));
 		}
 
-		public void Save(string path, string password)
+		public byte[] Save(Cryptography cryptography, string password)
 		{
-			File.WriteAllBytes(path, Cryptography.Current.Encrypt(Key, password));
-		}
-
-		public byte[] Save(string password)
-		{
-			return Cryptography.Current.Encrypt(Key, password);
+			return cryptography.Encrypt(Key, password);
 		}
 	}	
 

@@ -9,7 +9,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "run";
 
-		public RunCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
+		public RunCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
 		{
 		}
 

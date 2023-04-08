@@ -22,7 +22,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "account";
 
-		public AccountCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
+		public AccountCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
 		{
 		}
 

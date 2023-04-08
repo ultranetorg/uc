@@ -29,21 +29,18 @@ namespace Uccs.Sun.FUI
 			{
 				var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, "Boot.xon")));
-				var cmd = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
-				var boot = new BootArguments(b, cmd);
+				var boot = new Boot(exedir);
 
 				var settings = new Settings(exedir, boot);
 
 				var log = new Log();
-				var core =	new Core(settings, log)
+				var core =	new Core(boot.Zone, settings, log)
 							{
 								Clock = new RealTimeClock(), 
 								Nas = new Nas(settings, log), 
 								GasAsker = new EthereumFeeForm(), 
-								FeeAsker = new FeeForm(settings)
+								FeeAsker = new FeeForm(boot.Zone)
 							}; 
-
 
 				core.RunApi();
 				core.RunNode();

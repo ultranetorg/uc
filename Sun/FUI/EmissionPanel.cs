@@ -28,7 +28,7 @@ namespace Uccs.Sun.FUI
 
 			walletChoice.Checked = true;
 
-			DestLabel.Text += $"\n({Core.Settings.Zone.EtheterumNetwork} Network)";
+			DestLabel.Text += $"\n({Core.Zone.EthereumNetwork} Network)";
 		}
 
 		public override void Open(bool first)
@@ -149,12 +149,12 @@ namespace Uccs.Sun.FUI
 	
 					if(password != null)
 					{
-						a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Core.Settings.Zone.EtheterumNetwork));
+						a = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(browse.Text), password, new System.Numerics.BigInteger((int)Core.Zone.EthereumNetwork));
 					}
 				}
 				else if(privatekeyChoice.Checked)
 				{
-					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), Core.Settings.Zone.EtheterumNetwork);
+					a = new Nethereum.Web3.Accounts.Account(new EthECKey(privatekey.Text), Core.Zone.EthereumNetwork);
 				}
 
 				if(a != null)

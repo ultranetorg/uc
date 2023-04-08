@@ -4,24 +4,23 @@ using System.Text;
 
 namespace Uccs
 {
-	public class OS : StringEnum<OS>
+	public enum OperatingSystemFamily
 	{
-		public const string Windows	= "Windows";
-		public const string Linux	= "Linux";
-		public const string MacOS	= "macOS";
-		public const string Android	= "Android";
-		public const string iOS		= "iOS";
-		public const string Uos		= "Uos";
+		Unix	= 1,
+		Windows	= 2,
+		MacOS	= 3,
+		Android	= 4,
+		iOS		= 5,
+		Uos		= 6,
 	}
 
-	public class Architecture : StringEnum<OS>
+	public enum Architecture
 	{
-		public const string X86		= "x86";
-		public const string X64		= "x64";
-		public const string IA64	= "ia64";
-		public const string Arm		= "arm";
-		public const string Arm64	= "arm64";
-		public const string CLR		= "clr";
+		X86	= 1,
+		X64 = 2,
+		IA64 = 3,
+		ARM = 4,
+		ARM64 = 5,
 	}
 
 // 	public class Platform : IEquatable<Platform>

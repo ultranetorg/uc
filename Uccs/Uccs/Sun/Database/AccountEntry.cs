@@ -43,7 +43,7 @@ namespace Uccs.Net
 											CandidacyDeclarationRid = CandidacyDeclarationRid,
 											Bail = Bail,
 											BailStatus = BailStatus,
-											Transactions = Chain.Settings.Database.Chain ? new HashSet<int>(Transactions) : null};
+											Transactions = Chain.Settings.Chain ? new HashSet<int>(Transactions) : null};
 		}
 
 		public override void Write(BinaryWriter writer)
@@ -77,7 +77,7 @@ namespace Uccs.Net
 
 		public void WriteMore(BinaryWriter w)
 		{
-			if(Chain.Settings.Database.Chain)
+			if(Chain.Settings.Chain)
 			{
 				w.Write(Transactions);
 			}
@@ -91,7 +91,7 @@ namespace Uccs.Net
 
 		public void ReadMore(BinaryReader r)
 		{
-			if(Chain.Settings.Database.Chain)
+			if(Chain.Settings.Chain)
 			{
 				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
 			}

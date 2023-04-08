@@ -1,16 +1,9 @@
-﻿using Nethereum.Signer;
-using Nethereum.Util;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
-using Org.BouncyCastle.Utilities.Encoders;
-using System.Diagnostics;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Reflection.PortableExecutable;
-using System.Xml.Linq;
 
 namespace Uccs.Net
 {
@@ -23,8 +16,8 @@ namespace Uccs.Net
 	{
 		public byte[]			Guid { get; set; }
 		public int				RoundId { get; set; }
-		public int				Piece { get; set; }
-		public int				PiecesTotal { get; set; }
+		public int				Index { get; set; }
+		public int				Total { get; set; }
 		public byte[]			Signature { get; set; }
 		public byte[]			Data { get; set; }
 
@@ -33,12 +26,19 @@ namespace Uccs.Net
 		public AccountAddress	Generator { get; protected set; }
 		public const int		GuidLength = 8;
 
+		Zone					Zone;
+
+		public BlockPiece(Zone zone)
+		{
+			Zone = zone;
+		}
+
 		public void Write(BinaryWriter writer)
 		{
 			writer.Write(Guid);
 			writer.Write7BitEncodedInt(RoundId);
-			writer.Write7BitEncodedInt(Piece);
-			writer.Write7BitEncodedInt(PiecesTotal);
+			writer.Write7BitEncodedInt(Index);
+			writer.Write7BitEncodedInt(Total);
 			writer.Write7BitEncodedInt(Data.Length);
 			writer.Write(Data);
 			writer.Write(Signature);
@@ -48,12 +48,12 @@ namespace Uccs.Net
 		{
 			Guid		= reader.ReadBytes(GuidLength);
 			RoundId		= reader.Read7BitEncodedInt();
-			Piece		= reader.Read7BitEncodedInt();
-			PiecesTotal	= reader.Read7BitEncodedInt();
+			Index		= reader.Read7BitEncodedInt();
+			Total		= reader.Read7BitEncodedInt();
 			Data		= reader.ReadBytes(reader.Read7BitEncodedInt());
 			Signature	= reader.ReadSignature();
 
-			Generator = Cryptography.Current.AccountFrom(Signature, Hashify());
+			Generator = Zone.Cryptography.AccountFrom(Signature, Hashify());
 		}
 
 		public byte[] Hashify()
@@ -63,17 +63,17 @@ namespace Uccs.Net
 
 			w.Write(Guid);
 			w.Write7BitEncodedInt(RoundId);
-			w.Write7BitEncodedInt(Piece);
-			w.Write7BitEncodedInt(PiecesTotal);
+			w.Write7BitEncodedInt(Index);
+			w.Write7BitEncodedInt(Total);
 			w.Write(Data);
 
-			return Cryptography.Current.Hash(s.ToArray());
+			return Zone.Cryptography.Hash(s.ToArray());
 		}
 
 		public void Sign(AccountKey generator)
 		{
 			Generator = generator;
-			Signature = Cryptography.Current.Sign(generator, Hashify());
+			Signature = Zone.Cryptography.Sign(generator, Hashify());
 		} 
 	}
 
@@ -128,19 +128,19 @@ namespace Uccs.Net
 			var w = new BinaryWriter(s);
 
 			w.Write(TypeCode);
-			w.Write(Database.Settings.Zone.Name);
+			w.Write(Database.Zone.Name);
 			w.Write7BitEncodedInt(RoundId);
 
 			HashWrite(w);
 											
-			return Cryptography.Current.Hash(s.ToArray());
+			return Database.Zone.Cryptography.Hash(s.ToArray());
 		}
 						
 		public void Sign(AccountKey generator)
 		{
 			Generator = generator;
 			Hash = Hashify();
-			Signature = Cryptography.Current.Sign(generator, Hash);
+			Signature = Database.Zone.Cryptography.Sign(generator, Hash);
 		} 
 	}
 
@@ -177,13 +177,13 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 		
 			Hash		= Hashify();
-			Generator	= Cryptography.Current.AccountFrom(Signature, Hash);
+			Generator	= Database.Zone.Cryptography.AccountFrom(Signature, Hash);
 		}
 	}
 
 	public class Vote : Block
 	{
-		public override bool			Valid => RoundId > 0 && Cryptography.Current.Valid(Signature, Hash, Generator);
+		public override bool			Valid => RoundId > 0 && Database.Zone.Cryptography.Valid(Signature, Hash, Generator);
 		public DateTime					Time;
 
 		public int						Try; /// TODO: revote if consensus not reached
@@ -263,7 +263,7 @@ namespace Uccs.Net
 			ReadVote(reader);
 
 			Hash = Hashify();
-			Generator = Cryptography.Current.AccountFrom(Signature, Hash);
+			Generator = Database.Zone.Cryptography.AccountFrom(Signature, Hash);
 		}
 	}
 
@@ -339,10 +339,10 @@ namespace Uccs.Net
 
 			Generator = reader.ReadAccount();	
 			Transactions = reader.ReadList(() =>	{
-														var t = new Transaction(Database.Settings)
+														var t = new Transaction(Database.Zone)
 																{
-																	Payload	= this,
-																	Generator = Generator
+																	Payload		= this,
+																	Generator	= Generator
 																};
 														t.ReadUnconfirmed(reader);
 														return t;
@@ -360,7 +360,7 @@ namespace Uccs.Net
  		{
 			Generator = r.ReadAccount();
  			Transactions = r.ReadList(() =>	{
- 												var t = new Transaction(Database.Settings)
+ 												var t = new Transaction(Database.Zone)
 														{ 
 															Payload = this, 
 															Generator = Generator

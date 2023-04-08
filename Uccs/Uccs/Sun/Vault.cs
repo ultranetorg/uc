@@ -12,26 +12,28 @@ namespace Uccs.Net
 {
 	public class Vault
 	{
-		public const string					EthereumWalletExtention = "uwe";
-		public const string					NoCryptoWalletExtention = "uwnc";
-		public static string				WalletExt => Cryptography.Current is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
+		public const string							EthereumWalletExtention = "uwe";
+		public const string							NoCryptoWalletExtention = "uwnc";
+		public static string						WalletExt(Cryptography c) => c is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
 
-		Settings							Settings;
-		Log									Log;
+		Zone										Zone;
+		Settings									Settings;
+		Log											Log;
 		public Dictionary<AccountAddress, byte[]>	Wallets = new();
-		public List<AccountAddress>				Accounts = new();
+		public List<AccountAddress>					Accounts = new();
 		public Dictionary<AccountAddress, int>		OperationIds = new();
 
-		public event Action					AccountsChanged;						
+		public event Action							AccountsChanged;						
 
-		public readonly static string[]		PasswordWarning = {	"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
-																"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
-																"Use a mix of characters. The more you mix up letters (upper-case and lower-case), numbers, and symbols, the more potent your password is, and the harder it is for a brute force attack to crack it.",
-																"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
-																"Don’t use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
+		public readonly static string[]				PasswordWarning = {	"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
+																		"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
+																		"Use a mix of characters. The more you mix up letters (upper-case and lower-case), numbers, and symbols, the more potent your password is, and the harder it is for a brute force attack to crack it.",
+																		"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
+																		"Don’t use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
 
-		public Vault(Settings settings, Log log)
+		public Vault(Zone zone, Settings settings, Log log)
 		{
+			Zone = zone;
 			Settings = settings;
 			Log		 = log;
 
@@ -39,7 +41,7 @@ namespace Uccs.Net
 
 			if(Directory.Exists(Settings.Profile))
 			{
-				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt))
+				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt(Zone.Cryptography)))
 				{
 					Wallets[AccountAddress.Parse(Path.GetFileNameWithoutExtension(i))] = File.ReadAllBytes(i);
 					Accounts.Add(AccountAddress.Parse(Path.GetFileNameWithoutExtension(i)));
@@ -57,7 +59,7 @@ namespace Uccs.Net
 
 		public AccountKey Unlock(AccountAddress a, string password)
 		{
-			var p = AccountKey.Load(Wallets[a], password);
+			var p = AccountKey.Load(Zone.Cryptography, Wallets[a], password);
 
 			var i = Accounts.IndexOf(a);
 			Accounts.Remove(a);
@@ -75,11 +77,11 @@ namespace Uccs.Net
 
 		public string AddWallet(AccountKey a, string password)
 		{
-			AddWallet(a, a.Save(password));
+			AddWallet(a, a.Save(Zone.Cryptography, password));
 
 			var path = Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt);
 
-			a.Save(path, password);
+			a.Save(Zone.Cryptography, path, password);
 
 			Log?.Report(this, "Wallet saved", path);
 

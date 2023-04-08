@@ -15,7 +15,7 @@ namespace Uccs.Uos
 		public string ProductsPath;	
 		public string SunAddress; 		
 		public string SunApiKey;
-		public string Zone;
+		public Zone Zone;
 
 		public Filebase		Filebase;
 		public JsonClient	Sun;
@@ -26,13 +26,13 @@ namespace Uccs.Uos
 			ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
 			SunAddress		= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
 			SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
-			Zone			=	Environment.GetEnvironmentVariable(Nexus.BootZone);
+			Zone			=	null;//Environment.GetEnvironmentVariable(Nexus.BootZone);
 
-			Sun = new JsonClient(Http, SunAddress, Uccs.Net.Zone.ByName(Zone), SunApiKey);
+			Sun = new JsonClient(Http, SunAddress, Zone, SunApiKey);
 
 			var s = Sun.GetSettings(new Workflow());
 
-			Filebase = new Filebase(Path.Join(s.ProfilePath, nameof(Filebase)), ProductsPath);
+			Filebase = new Filebase(Zone, Path.Join(s.ProfilePath, nameof(Filebase)), ProductsPath);
 		}
 
 		string MapPath(ReleaseAddress r)

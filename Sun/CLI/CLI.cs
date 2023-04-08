@@ -43,9 +43,7 @@ namespace Uccs.Sun.CLI
 				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
 					File.Delete(i);
 					
-				var b = new XonDocument(File.ReadAllText(Path.Combine(exedir, "Boot.xon")));
-				var cmd = new XonDocument(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
-				var boot = new BootArguments(b, cmd);
+				var boot = new Boot(exedir);
 
 				Settings = new Settings(exedir, boot);
 								
@@ -53,61 +51,61 @@ namespace Uccs.Sun.CLI
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
 						File.Delete(i);
 
-				if(!cmd.Nodes.Any())
+				if(!boot.Commnand.Nodes.Any())
 					return;
 
 				//string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				Func<Core> getcore =	() =>
-										{
-											if(Core == null)
-											{
-												Core = new Core(Settings, Log)	{
-																							Clock = new RealTimeClock(),
-																							Nas = new Nas(Settings, Log),
-																							GasAsker = new SilentGasAsker(Log),
-																							FeeAsker = new SilentFeeAsker()
-																						};
-											}
+				Func<Core> getcore = () =>	{
+												if(Core == null)
+												{
+													Core =	new Core(boot.Zone, Settings, Log)	
+															{
+																Clock = new RealTimeClock(),
+																Nas = new Nas(Settings, Log),
+																GasAsker = new SilentGasAsker(Log),
+																FeeAsker = new SilentFeeAsker()
+															};
+												}
 
-											return Core;
-										};
+												return Core;
+											};
 
 
-				Func<Core> getuser =	() =>
-										{
-											if(Core == null)
-											{
-												Core = new Core(Settings, Log)	{
-																							Clock = new RealTimeClock(),
-																							Nas = new Nas(Settings, Log),
-																							GasAsker = new SilentGasAsker(Log),
-																							FeeAsker = new SilentFeeAsker()
-																						};
+				Func<Core> getuser = () =>	{
+												if(Core == null)
+												{
+													Core =	new Core(boot.Zone, Settings, Log)	
+															{
+																Clock = new RealTimeClock(),
+																Nas = new Nas(Settings, Log),
+																GasAsker = new SilentGasAsker(Log),
+																FeeAsker = new SilentFeeAsker()
+															};
 
-												Core.RunUser();
-											}
+													Core.RunUser();
+												}
 
-											return Core;
-										};
+												return Core;
+											};
 				
 				Command c = null;
 
-				var t = cmd.Nodes.First().Name;
+				var t = boot.Commnand.Nodes.First().Name;
 
-				cmd.Nodes.RemoveAt(0);
+				boot.Commnand.Nodes.RemoveAt(0);
 
 				switch(t)
 				{
-					case RunCommand.Keyword:			c = new RunCommand(Settings, Log, getcore, cmd); break;
-					case DevCommand.Keyword:			c = new DevCommand(Settings, Log, getuser, cmd); break;
-					case AccountCommand.Keyword:		c = new AccountCommand(Settings, Log, getuser, cmd); break;
-					case UntCommand.Keyword:			c = new UntCommand(Settings, Log, getuser, cmd); break;
-					case MembershipCommand.Keyword:		c = new MembershipCommand(Settings, Log, getuser, cmd); break;
-					case AuthorCommand.Keyword:			c = new AuthorCommand(Settings, Log, getuser, cmd); break;
-					case ProductCommand.Keyword:		c = new ProductCommand(Settings, Log, getuser, cmd); break;
-					case RealizationCommand.Keyword:	c = new RealizationCommand(Settings, Log, getuser, cmd); break;
-					case ReleaseCommand.Keyword:		c = new ReleaseCommand(Settings, Log, getuser, cmd); break;
+					case RunCommand.Keyword:			c = new RunCommand(boot.Zone, Settings, Log, getcore, boot.Commnand); break;
+					case DevCommand.Keyword:			c = new DevCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case AccountCommand.Keyword:		c = new AccountCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case UntCommand.Keyword:			c = new UntCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case MembershipCommand.Keyword:		c = new MembershipCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case AuthorCommand.Keyword:			c = new AuthorCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case ProductCommand.Keyword:		c = new ProductCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case RealizationCommand.Keyword:	c = new RealizationCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case ReleaseCommand.Keyword:		c = new ReleaseCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 				}
 
 				c?.Execute();

@@ -16,7 +16,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "release";
 
-		public ReleaseCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
+		public ReleaseCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
 		{
 		}
 

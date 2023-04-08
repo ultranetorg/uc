@@ -14,11 +14,11 @@ namespace Uccs.Sun.FUI
 {
 	public partial class FeeForm : Form, IFeeAsker
 	{
-		Settings Settings;
+		Zone Zone;
 
-		public FeeForm(Settings d)
+		public FeeForm(Zone zone)
 		{
-			Settings = d;
+			Zone = zone;
 
 			InitializeComponent();
 		}
@@ -37,7 +37,7 @@ namespace Uccs.Sun.FUI
 		{
 			from.Text = account.ToString();
 			
-			var t = new Transaction(core.Settings, account);
+			var t = new Transaction(Zone, account);
 			t.AddOperation(operation);
 			t.Sign(new AccountAddress(Nethereum.Signer.EthECKey.GenerateKey()), 0);
 

@@ -214,8 +214,8 @@ namespace Uccs.Net
 
 		string							Path; 
 
-		public readonly int				Port;
-		public readonly Zone			Zone;
+		//public readonly int				Port;
+		//public readonly Zone			Zone;
 	
 		public bool						Log;
 		public int						PeersMin;
@@ -235,24 +235,24 @@ namespace Uccs.Net
 
 		public List<AccountAddress>		ProposedFunds = new(){};
 
-		public Cryptography Cryptography
-		{
-			get
-			{
-				if(Zone == Uccs.Net.Zone.Localnet)
-					return new NoCryptography();
-				else if(Zone == Uccs.Net.Zone.Mainnet || Zone.IsTest)
-					return new EthereumCryptography();
-				else
-					throw new IntegrityException("Unknown zone");
-			}
-		}
+// 		public Cryptography Cryptography
+// 		{
+// 			get
+// 			{
+// 				if(Zone == Uccs.Net.Zone.Localnet)
+// 					return new NoCryptography();
+// 				else if(Zone == Uccs.Net.Zone.Mainnet || Zone.IsTest)
+// 					return new EthereumCryptography();
+// 				else
+// 					throw new IntegrityException("Unknown zone");
+// 			}
+// 		}
 
 		public Settings()
 		{
 		}
 
-		public Settings(string exedir, BootArguments boot)
+		public Settings(string exedir, Boot boot)
 		{
 			Directory.CreateDirectory(boot.Profile);
 
@@ -265,13 +265,13 @@ namespace Uccs.Net
 			}
 
 			Profile = boot.Profile;
-			Zone	= Zone.All.First(i => i.Name == boot.Zone);
+			//Zone	= Zone.All.First(i => i.Name == boot.Zone);
 
 			var doc = new XonDocument(File.ReadAllText(Path));
 
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
-			Port		= doc.Has("Port") ? doc.GetInt32("Port") : Zone.Port;
+			//Port		= doc.GetInt32("Port");
 			IP			= IPAddress.Parse(doc.GetString("IP"));
 			Generators	= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log			= doc.Has("Log");
@@ -292,8 +292,8 @@ namespace Uccs.Net
 			Directory.CreateDirectory(profile);
 
 			Profile		= profile;
-			Zone		= zone;
-			Port		= Zone.Port;
+			//Zone		= zone;
+			//Port		= Zone.Port;
 			IP			= IPAddress.Loopback;
 
 			Dev			= new ();

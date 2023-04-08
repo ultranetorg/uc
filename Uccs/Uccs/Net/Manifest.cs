@@ -83,24 +83,27 @@ namespace Uccs.Net
 	public class Manifest : IBinarySerializable
 	{
 		public ReleaseAddress			Release  { get; set; }
-		public byte[]					CompleteHash {get; set; }
-		public long						CompleteLength {get; set; }
-		public Dependency[]				CompleteDependencies {get; set; }
+		public byte[]					CompleteHash { get; set; }
+		public long						CompleteLength { get; set; }
+		public Dependency[]				CompleteDependencies { get; set; }
 		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
 
-		public byte[]					IncrementalHash {get; set; }
-		public long						IncrementalLength {get; set; }
-		public Version					IncrementalMinimalVersion {get; set; }
-		public Dependency[]				AddedDependencies {get; set; }
-		public Dependency[]				RemovedDependencies {get; set; }
+		public byte[]					IncrementalHash { get; set; }
+		public long						IncrementalLength { get; set; }
+		public Version					IncrementalMinimalVersion { get; set; }
+		public Dependency[]				AddedDependencies { get; set; }
+		public Dependency[]				RemovedDependencies { get; set; }
 
  		byte[]							Hash;
+		public Zone						Zone;
 
-		public Manifest()
+		public Manifest(Zone zone)
 		{
+			Zone = zone;
 		}
 
-		public Manifest(byte[]					completehash,
+		public Manifest(Zone					zone,
+						byte[]					completehash,
 						long					completelength,
 						IEnumerable<Dependency>	completecoredependencies,
 						byte[]					incrementalhash,
@@ -109,6 +112,7 @@ namespace Uccs.Net
 						IEnumerable<Dependency>	addedcoredependencies,
 						IEnumerable<Dependency>	removedcoredependencies)
 		{
+			Zone						= zone;
 			CompleteHash				= completehash;
 			CompleteLength				= completelength;
 			CompleteDependencies		= completecoredependencies?.ToArray() ?? new Dependency[]{};
@@ -183,7 +187,7 @@ namespace Uccs.Net
  	
 			Write(w);
 				
- 			Hash = Cryptography.Current.Hash(s.ToArray());
+ 			Hash = Zone.Cryptography.Hash(s.ToArray());
  		
  			return Hash;
  		}

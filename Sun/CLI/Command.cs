@@ -20,6 +20,7 @@ namespace Uccs.Sun.CLI
 		protected Func<Core>	GetCore;
 		public static bool		ConsoleSupported { get; protected set; }
 		public Workflow			Workflow { get; }
+		public Zone				Zone;
 
 		public abstract object Execute();
 
@@ -36,8 +37,9 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		protected Command(Settings settings, Log log, Func<Core> getcore, Xon args)
+		protected Command(Zone zone, Settings settings, Log log, Func<Core> getcore, Xon args)
 		{
+			Zone = zone;
 			Settings = settings;
 			GetCore = getcore;
 			Args = args;

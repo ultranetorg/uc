@@ -19,7 +19,7 @@ namespace Uccs.Net
 		public byte[]					Signature;
 		
 		public AccountAddress			Signer;
-		public Settings					Settings;
+		public Zone						Zone;
 
 		public byte[]					Prefix => Signature.Take(Consensus.PrefixLength).ToArray();
 
@@ -31,22 +31,22 @@ namespace Uccs.Net
 			}
 		}
 
- 		public Transaction(Settings settings)
+ 		public Transaction(Zone zone)
  		{
- 			Settings = settings;
+ 			Zone = zone;
  		}
 
-		public Transaction(Settings settings, AccountKey signer)
+		public Transaction(Zone zone, AccountKey signer)
 		{
-			Settings	= settings;
-			Signer		= signer;
+			Zone	= zone;
+			Signer	= signer;
 		}
 
 		public void Sign(AccountAddress member, int rmax)
 		{
 			Generator	= member;
 			RoundMax	= rmax;
-			Signature	= Cryptography.Current.Sign(Signer as AccountKey, Hashify());
+			Signature	= Zone.Cryptography.Sign(Signer as AccountKey, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)
@@ -70,12 +70,12 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.WriteUtf8(Settings.Zone.Name); 
+			w.WriteUtf8(Zone.Name); 
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundMax);
 			w.Write(Operations, i => i.Write(w));
 
-			return Cryptography.Current.Hash(s.ToArray());
+			return Zone.Cryptography.Hash(s.ToArray());
 		}
 
  		public void	WriteConfirmed(BinaryWriter w)
@@ -101,7 +101,7 @@ namespace Uccs.Net
  												return o; 
  											});
 			
-			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
+			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;
@@ -131,7 +131,7 @@ namespace Uccs.Net
 												return o; 
 											});
 
-			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
+			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;
@@ -160,7 +160,7 @@ namespace Uccs.Net
 												return o; 
 											});
 
-			Signer = Cryptography.Current.AccountFrom(Signature, Hashify());
+			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
 
 			foreach(var i in Operations)
 				i.Signer = Signer;

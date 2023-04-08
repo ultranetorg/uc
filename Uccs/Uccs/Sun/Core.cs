@@ -74,6 +74,8 @@ namespace Uccs.Net
 		public const int				OperationsQueueLimit = 1000;
 		const int						BalanceWidth = 24;
 
+		public Zone						Zone;
+		public Settings					Settings;
 		public Workflow					Workflow;
 		JsonServer						ApiServer;
 		public Vault					Vault;
@@ -83,7 +85,6 @@ namespace Uccs.Net
 		public Seedbase					Seedbase;
 		public bool						IsClient => ListeningThread == null;
 		public object					Lock = new();
-		public Settings					Settings;
 		public Clock					Clock;
 
 		RocksDb							DatabaseEngine;
@@ -127,8 +128,6 @@ namespace Uccs.Net
 		public CoreDelegate				MainStarted;
 		public CoreDelegate				ApiStarted;
 		
-		internal Func<Type, object>		Constractor => t => t == typeof(Transaction) ? new Transaction(Settings) : null;
-		
 		public string[][] Info
 		{
 			get
@@ -137,9 +136,9 @@ namespace Uccs.Net
 				List<string> v = new(); 
 															
 				f.Add("Version");					v.Add(Version.ToString());
-				f.Add("Zone");						v.Add(Settings.Zone.Name);
+				f.Add("Zone");						v.Add(Zone.Name);
 				f.Add("Profile");					v.Add(Settings.Profile);
-				f.Add("IP(Reported):Port");			v.Add($"{Settings.IP} ({IP}) : {Settings.Port}");
+				f.Add("IP(Reported):Port");			v.Add($"{Settings.IP} ({IP}) : {Zone.Port}");
 				//f.Add($"Generator{(Nci != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Nci?.Generator)}");
 				f.Add("Operations");				v.Add($"{Operations.Count}");
 				f.Add("    Pending Delegation");	v.Add($"{Operations.Count(i => i.Placing == PlacingStage.PendingDelegation)}");
@@ -223,10 +222,11 @@ namespace Uccs.Net
 		//	}
 		//}
 
-		public Core(Settings settings, Log log)
+		public Core(Zone zone, Settings settings, Log log)
 		{
+			Zone = zone;
 			Settings = settings;
-			Cryptography.Current = settings.Cryptography;
+			//Cryptography.Current = settings.Cryptography;
 
 			Workflow = new Workflow(log);
 
@@ -235,13 +235,13 @@ namespace Uccs.Net
 			Workflow?.Log?.Report(this, $"Ultranet Node/Client {Version}");
 			Workflow?.Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Workflow?.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-			Workflow?.Log?.Report(this, $"Zone: {Settings.Zone.Name}");
+			Workflow?.Log?.Report(this, $"Zone: {Zone.Name}");
 			Workflow?.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
 			if(Settings.Dev != null)
 				Workflow?.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
-			Vault = new Vault(Settings, Workflow?.Log);
+			Vault = new Vault(Zone, Settings, Workflow?.Log);
 
 			var cfamilies = new ColumnFamilies();
 			
@@ -280,6 +280,15 @@ namespace Uccs.Net
 					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Members.Count()} members" : "");
 		}
 
+		public object Constract(Type t)
+		{
+			if(t == typeof(Transaction)) return new Transaction(Zone);
+			if(t == typeof(BlockPiece)) return new BlockPiece(Zone);
+			if(t == typeof(Manifest)) return new Manifest(Zone);
+
+			return null;
+		}
+
 		public void RunApi()
 		{
 			if(!HttpListener.IsSupported)
@@ -302,7 +311,7 @@ namespace Uccs.Net
 
 			if(Settings.Filebase.Enabled)
 			{
-				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), Settings.ProductsPath);
+				Filebase = new Filebase(Zone, System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), Settings.ProductsPath);
 			}
 
 			LoadPeers();
@@ -356,12 +365,12 @@ namespace Uccs.Net
 
 			if(Settings.Filebase.Enabled)
 			{
-				Filebase = new Filebase(System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), System.IO.Path.Join(Settings.Profile, "Products"));
+				Filebase = new Filebase(Zone, System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), System.IO.Path.Join(Settings.Profile, "Products"));
 			}
 
 			if(Settings.Database.Base || Settings.Database.Chain)
 			{
-				Database = new Database(Settings, Workflow?.Log, Vault, DatabaseEngine);
+				Database = new Database(Zone, Settings.Database, Settings.Dev, Settings.Secret, Workflow?.Log, Vault, DatabaseEngine);
 		
 				Database.BlockAdded += b =>	ReachConsensus();
 		
@@ -532,7 +541,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				RememberPeers(Settings.Zone.Initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
+				RememberPeers(Zone.Initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
 			}
 		}
 
@@ -661,9 +670,9 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Workflow?.Log?.Report(this, "Listening starting", $"{Settings.IP}:{Settings.Port}");
+				Workflow?.Log?.Report(this, "Listening starting", $"{Settings.IP}:{Zone.Port}");
 
-				Listener = new TcpListener(Settings.IP, Settings.Port);
+				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();
 	
 
@@ -710,7 +719,7 @@ namespace Uccs.Net
 									  (Settings.Filebase.Enabled ? Role.Seed : 0) |
 									  (Settings.Hub.Enabled ? Role.Hub : 0);
 			h.Versions				= Versions;
-			h.Zone					= Settings.Zone.Name;
+			h.Zone					= Zone.Name;
 			h.IP					= ip;
 			h.Nuid					= Nuid;
 			h.Peers					= peers;
@@ -734,7 +743,7 @@ namespace Uccs.Net
 					{
 						client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
 						//client.ReceiveTimeout = Timeout;
-						client.Connect(peer.IP, Settings.Port);
+						client.Connect(peer.IP, Zone.Port);
 					}
 					catch(SocketException ex) 
 					{
@@ -773,7 +782,7 @@ namespace Uccs.Net
 							return;
 						}
 
-						if(h.Zone != Settings.Zone.Name)
+						if(h.Zone != Zone.Name)
 						{
 							client.Close();
 							return;
@@ -876,7 +885,7 @@ namespace Uccs.Net
 							return;
 						}
 
-						if(h.Zone != Settings.Zone.Name)
+						if(h.Zone != Zone.Name)
 						{
 							client.Close();
 							return;
@@ -1446,11 +1455,11 @@ namespace Uccs.Net
 
 					for(int i = 0; i < n; i++)
 					{
-						var p = new BlockPiece{	Guid = guid,
-												RoundId = b.RoundId,
-												PiecesTotal = n,
-												Piece = i,
-												Data = r.ReadBytes((int)s.Length/n + (i < n-1 ? 0 : (int)s.Length % n))};
+						var p = new BlockPiece(Zone){	Guid = guid,
+														RoundId = b.RoundId,
+														Total = n,
+														Index = i,
+														Data = r.ReadBytes((int)s.Length/n + (i < n-1 ? 0 : (int)s.Length % n))};
 
 						p.Sign(b.Generator as AccountKey);
 
@@ -1615,7 +1624,7 @@ namespace Uccs.Net
 									Monitor.Enter(Lock);
 								}
 
-								var t = new Transaction(Settings, g.Key as AccountKey);
+								var t = new Transaction(Zone, g.Key as AccountKey);
 
 								foreach(var o in g)
 								{
@@ -1846,8 +1855,7 @@ namespace Uccs.Net
 			{
 				while(Running)
 				{
-					Thread.Sleep(1);
-					Workflow.ThrowIfAborted();
+					Workflow.Wait(1);
 
 					FilebaseRelease[] rs;
 					List<Peer> used;
@@ -2336,7 +2344,7 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				BinarySerializator.Serialize(new(s), rq); 
 				s.Position = 0;
-				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constractor) as RdcRequest;
+				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constract) as RdcRequest;
 			}
 
  			return rq.Execute(this) as Rp;

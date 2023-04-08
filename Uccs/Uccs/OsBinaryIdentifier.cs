@@ -12,10 +12,10 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader r)
 		{
-			Familty = r.ReadByte();
-			Name = r.ReadByte();
-			Version = r.ReadByte();
-			Architecture = r.ReadByte();
+			Familty			= r.ReadByte();
+			Name			= r.ReadByte();
+			Version			= r.ReadByte();
+			Architecture	= r.ReadByte();
 		}
 
 		public void Write(BinaryWriter w)

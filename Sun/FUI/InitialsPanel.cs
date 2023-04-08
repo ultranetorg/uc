@@ -26,12 +26,12 @@ namespace Uccs.Sun.FUI
 
 			zone.Items.Clear();
 
-			foreach(var i in  Zone.All.Select(i => i.Name))
+			foreach(var i in  Zone.Official.Select(i => i.Name))
 			{
 				zone.Items.Add(i);
 			}
 
-			zone.SelectedItem = Core.Settings.Zone.Name;
+			zone.SelectedItem = Core.Zone.Name;
 
 			//ReloadDefaultNodes();
 		}
@@ -43,7 +43,7 @@ namespace Uccs.Sun.FUI
 				manage.Enabled = false;
 				nodes.Enabled = false;
 
-				await Core.Nas.SetZone(Zone.ByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
+				await Core.Nas.SetZone(Zone.OfficialByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
@@ -60,7 +60,7 @@ namespace Uccs.Sun.FUI
 			{
 				manage.Enabled = false;
 
-				await Core.Nas.RemoveZone(Zone.ByName(zone.SelectedItem as string), new EthereumFeeForm());
+				await Core.Nas.RemoveZone(Zone.OfficialByName(zone.SelectedItem as string), new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 

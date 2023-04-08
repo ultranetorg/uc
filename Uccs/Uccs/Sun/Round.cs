@@ -289,7 +289,7 @@ namespace Uccs.Net
 
 			WriteConfirmed(w);
 
-			Hash = Cryptography.Current.Hash(s.ToArray());
+			Hash = Database.Zone.Cryptography.Hash(s.ToArray());
 		}
 
 		void WriteConfirmed(BinaryWriter writer)
@@ -376,7 +376,11 @@ namespace Uccs.Net
 												b.Read(r);
 												return b;
 											});
-				BlockPieces = r.ReadList<BlockPiece>();
+				BlockPieces = r.ReadList(() =>	{
+													var p = new BlockPiece(Database.Zone);
+													p.Read(r);
+													return p;
+												});
 			}
 		}
 

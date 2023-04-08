@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "unt";
 
-		public UntCommand(Settings settings, Log log, Func<Core> core, Xon args) : base(settings, log, core, args)
+		public UntCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
 		{
 		}
 
@@ -54,7 +54,7 @@ namespace Uccs.Sun.CLI
 
 					if(Args.Has("from/key"))
 					{
-						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Settings.Zone.EtheterumNetwork);
+						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Zone.EthereumNetwork);
 					}
 					else
 					{
@@ -74,7 +74,7 @@ namespace Uccs.Sun.CLI
 
 						from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
 																				p, 
-																				new BigInteger((int)Settings.Zone.EtheterumNetwork));
+																				new BigInteger((int)Zone.EthereumNetwork));
 					}
 
 					return Core.Emit(	from,

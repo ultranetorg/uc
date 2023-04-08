@@ -16,7 +16,7 @@ namespace Uccs.Net
 {
 	public abstract class Cryptography
 	{
-		public static Cryptography			Current;
+		//public static Cryptography			Current;
 
 		public const int					SignatureSize = 65;
 		public const int					HashSize = 32;

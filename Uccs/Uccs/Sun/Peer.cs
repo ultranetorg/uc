@@ -359,7 +359,7 @@ namespace Uccs.Net
 																			o.Peer = this; 
 																			return o as object;
 																	},
-																	Core.Constractor) as RdcRequest;
+																	Core.Constract) as RdcRequest;
 
  							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
@@ -382,7 +382,7 @@ namespace Uccs.Net
  							{
 								rp = BinarySerializator.Deserialize(Reader,	
 																	t => Uccs.Net.RdcResponse.FromType(Core.Database, (Rdc)t) as object, 
-																	Core.Constractor) as RdcResponse;
+																	Core.Constract) as RdcResponse;
 							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
  							{

@@ -23,7 +23,7 @@ namespace Uccs.Net
 			{
 				if(_Manifest == null)
 				{
-					_Manifest = new Manifest{Release = Address};
+					_Manifest = new Manifest(Filebase.Zone){Release = Address};
 	
 					using(var s = File.OpenRead(Path.Join(Filebase.GetDirectory(Address), Address.Version + $".{Filebase.ManifestExt}")))
 					{
@@ -67,9 +67,12 @@ namespace Uccs.Net
 		string							ReleasesPath;
 		string							ProductsPath;
 		public List<FilebaseRelease>	Releases = new();
+		public Zone						Zone;
 
-		public Filebase(string releasespath, string productspath)
+		public Filebase(Zone zone, string releasespath, string productspath)
 		{
+			Zone = zone;
+
 			ReleasesPath = releasespath;
 			ProductsPath = productspath;
 
@@ -341,7 +344,7 @@ namespace Uccs.Net
 
 		public byte[] GetHash(ReleaseAddress release, Distributive distributive)
 		{
-			return Cryptography.Current.Hash(File.ReadAllBytes(ToPath(release, distributive)));
+			return Zone.Cryptography.Hash(File.ReadAllBytes(ToPath(release, distributive)));
 		}
 
 		public long GetLength(ReleaseAddress release, Distributive distributive)
@@ -422,10 +425,11 @@ namespace Uccs.Net
 			else
 				acd = deps;
 
-			var m = new Manifest(	Cryptography.Current.Hash(File.ReadAllBytes(cpkg)),
+			var m = new Manifest(	Zone,
+									Zone.Cryptography.Hash(File.ReadAllBytes(cpkg)),
 									new FileInfo(cpkg).Length,
 									deps,
-									ipkg != null ? Cryptography.Current.Hash(File.ReadAllBytes(ipkg)) : null,
+									ipkg != null ? Zone.Cryptography.Hash(File.ReadAllBytes(ipkg)) : null,
 									ipkg != null ? new FileInfo(ipkg).Length : 0,
 									minimal,
 									acd,
