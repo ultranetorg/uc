@@ -119,15 +119,22 @@ namespace Uccs.Net
 		{
 			return Regex.Matches(title, @"[a-zA-Z0-9_]+").Aggregate(string.Empty, (a,m) => a += m.Value).ToLower();
 		}
-		
-		public Coin CalculateFee(Coin factor)
+
+		public int CalculateSize()
 		{
-			var s = new MemoryStream(); 
+			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			WriteConfirmed(w); 
+			WriteConfirmed(w);
 
-			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return (int)s.Length;
+		}
+
+		public Coin CalculateFee(Coin factor)
+		{
+			int size = CalculateSize();
+
+			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
 		}
 		
 		public static Coin CalculateFee(Coin factor, IEnumerable<Operation> operations)
