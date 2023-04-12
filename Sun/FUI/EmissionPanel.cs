@@ -116,7 +116,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Core.Lock)
 			{
-				if(Core.Database != null)
+				if(Core.Database?.LastConfirmedRound != null)
 				{
 					estimated.Text = Emission.Calculate(Core.Database.LastConfirmedRound.WeiSpent, Core.Database.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
 				}

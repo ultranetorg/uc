@@ -6,18 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>0.0.166.0</AssemblyVersion>
-    <FileVersion>0.0.166.0</FileVersion>
+    <AssemblyVersion>0.0.174.0</AssemblyVersion>
+    <FileVersion>0.0.174.0</FileVersion>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uo-democomponent-dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uo.democomponent-uo.dotnet\0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uo-democomponent-dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Release\uo.democomponent-uo.dotnet\0.0.0</OutputPath>
     <Optimize>True</Optimize>
   </PropertyGroup>
 </Project>

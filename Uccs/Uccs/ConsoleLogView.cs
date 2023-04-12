@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
-using static Uccs.Log;
 
 namespace Uccs
 {
@@ -14,11 +12,11 @@ namespace Uccs
 
 	public class ConsoleLogView : ILogView
 	{
-		Log Log;
-		object Lock = new();
-		public bool ShowSender { get;set; } = false;
-		public bool ShowSubject { get;set; } = false;
-		public int BufferWidth => Console.BufferWidth;
+		Log				Log;
+		object			Lock = new();
+		public bool		ShowSender { get;set; } = false;
+		public bool		ShowSubject { get;set; } = false;
+		public int		BufferWidth => Console.BufferWidth;
 
 		public ConsoleLogView(Log log, bool showsender, bool showsubject)
 		{
@@ -93,23 +91,5 @@ namespace Uccs
 				Console.ForegroundColor = prev;
 			}
 		}
-// 
-// 		public void Report(string text)
-// 		{
-// 			foreach(var t in text.Split(new char [] {'\n'}))
-// 			{
-// 				var p = 0;
-// 
-// 				while(p < t.Length)
-// 				{
-// 					var c = Math.Min(t.Length - p, BufferWidth - 4);
-// 					Console.WriteLine(t.Substring(p, c));
-// 					p += c;
-// 				}
-// 
-// 				Console.WriteLine();
-// 			}
-// 
-// 		}
 	}
 }

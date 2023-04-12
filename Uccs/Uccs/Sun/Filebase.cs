@@ -53,7 +53,7 @@ namespace Uccs.Net
 			return Address.ToString();
 		}
 	}
-
+	
 	public class Filebase
 	{
 		public const string		Ipkg = "ipkg";
@@ -64,40 +64,46 @@ namespace Uccs.Net
 		public const string		Renamings = ".renamings"; /// TODO
 		public const long		PieceMaxLength = 64 * 1024;
 
-		string							ReleasesPath;
+		string							PackagesPath;
 		string							ProductsPath;
 		public List<FilebaseRelease>	Releases = new();
 		public Zone						Zone;
 
-		public Filebase(Zone zone, string releasespath, string productspath)
+		public Filebase(Zone zone, string packagespath, string productspath)
 		{
 			Zone = zone;
 
-			ReleasesPath = releasespath;
+			PackagesPath = packagespath;
 			ProductsPath = productspath;
 
-			Directory.CreateDirectory(ReleasesPath);
+			Directory.CreateDirectory(PackagesPath);
 			Directory.CreateDirectory(ProductsPath);
 
-			Releases =	Directory.EnumerateDirectories(ReleasesPath).SelectMany(a => 
-						Directory.EnumerateDirectories(a).SelectMany(p => 
-						Directory.EnumerateDirectories(p).SelectMany(r => 
+			Releases =	Directory.EnumerateDirectories(PackagesPath).SelectMany(r => 
 						Directory.EnumerateFiles(r, $"*.{ManifestExt}").Select(i =>	{
-																						return new FilebaseRelease(this, new (	Path.GetFileName(a), 
-																																Path.GetFileName(p), 
-																																Path.GetFileName(r), 
+																						return new FilebaseRelease(this, new (	RealizationAddress.Parse(Path.GetFileName(r).Replace('-', '/')),
 																																Version.Parse(Path.GetFileNameWithoutExtension(i))));
-																					})))).ToList();
+																					})).ToList();
 		}
-				
-		string ToPath(ReleaseAddress package, Distributive distributive)
+
+		public static string ToRelative(RealizationAddress realization)
 		{
-			return Path.Join(ReleasesPath, package.Author, package.Product, package.Realization, $"{package.Version}.{(distributive == Distributive.Complete ? Cpkg : Ipkg)}");
+			return @$"{realization.Product}-{realization.Platform}";
+		}
+		
+		public static string ToRelative(ReleaseAddress release)
+		{
+			return @$"{ToRelative(release)}{Path.DirectorySeparatorChar}{release.Version}";
+		}
+
+		string ToPath(ReleaseAddress release, Distributive distributive)
+		{
+			return Path.Join(PackagesPath, ToRelative(release.Realization), $"{release.Version}.{(distributive == Distributive.Complete ? Cpkg : Ipkg)}");
 		}
 
 		internal string GetDirectory(ReleaseAddress release)
 		{
-			var p = Path.Join(ReleasesPath, release.Author, release.Product, release.Realization);
+			var p = Path.Join(PackagesPath, ToRelative(release.Realization));
 			Directory.CreateDirectory(p);
 			return p;
 		}
@@ -453,13 +459,13 @@ namespace Uccs.Net
 																		.SkipWhile(i => i <= c)
 																		.TakeWhile(i => i <= release.Version); /// take all incremetals before complete
 				
-				var aprv = @$"{release.Author}-{release.Product}-{release.Realization}{Path.DirectorySeparatorChar}{release.Version}";
+				var aprv = @$"{release.Product}-{release.Platform}{Path.DirectorySeparatorChar}{release.Version}";
 
 				var deps = new List<Dependency>();
 
 				void cunzip(Version v)
 				{
-					var r = new ReleaseAddress(release.Author, release.Product, release.Realization, v);
+					var r = new ReleaseAddress(release.Product, release.Platform, v);
 
 					using(var s = new FileStream(ToPath(r, Distributive.Complete), FileMode.Open))
 					{
@@ -492,7 +498,7 @@ namespace Uccs.Net
 
 				void iunzip(Version v)
 				{
-					var r = new ReleaseAddress(release.Author, release.Product, release.Realization, v);
+					var r = new ReleaseAddress(release.Product, release.Platform, v);
 
 					using(var s = new FileStream(ToPath(r, Distributive.Incremental), FileMode.Open))
 					{

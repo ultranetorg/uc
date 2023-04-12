@@ -116,11 +116,11 @@ namespace Uccs.Net
 		Thread							SynchronizingThread;
 		Thread							DeclaringThread;
 
-		public bool						Running { get; protected set; } = true;
+		//public bool						Running { get; protected set; } = true;
 		public Synchronization			_Synchronization = Synchronization.Null;
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate				SynchronizationChanged;
-		public List<BlockPiece>			SyncBlockCache	= new();
+		public Dictionary<int, List<BlockPiece>> SyncBlockCache	= new();
 
 		public IGasAsker				GasAsker; 
 		public IFeeAsker				FeeAsker;
@@ -154,7 +154,7 @@ namespace Uccs.Net
 					f.Add("Size");					v.Add($"{Database.Size}");
 					f.Add("Members");				v.Add($"{Database.LastConfirmedRound?.Members.Count}");
 					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
-					f.Add("Cached Blocks");			v.Add($"{SyncBlockCache.Count()}");
+					f.Add("Cached Block Pieces");	v.Add($"{SyncBlockCache.Sum(i => i.Value.Count)}");
 					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
 					f.Add("Last Non-Empty Round");	v.Add($"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}");
 					f.Add("Last Payload Round");	v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}");
@@ -256,9 +256,9 @@ namespace Uccs.Net
 																new (ProductTable.MetaColumnName,		new ()),
 																new (ProductTable.MainColumnName,		new ()),
 																new (ProductTable.MoreColumnName,		new ()),
-																new (RealizationTable.MetaColumnName,	new ()),
-																new (RealizationTable.MainColumnName,	new ()),
-																new (RealizationTable.MoreColumnName,	new ()),
+																new (PlatformTable.MetaColumnName,	new ()),
+																new (PlatformTable.MainColumnName,	new ()),
+																new (PlatformTable.MoreColumnName,	new ()),
 																new (ReleaseTable.MetaColumnName,		new ()),
 																new (ReleaseTable.MainColumnName,		new ()),
 																new (ReleaseTable.MoreColumnName,		new ()),
@@ -322,13 +322,10 @@ namespace Uccs.Net
 
 										try
 										{
-											while(Running)
+											while(!Workflow.IsAborted)
 											{
 												lock(Lock)
 												{
-													if(!Running)
-														break;
-
 													ProcessConnectivity();
 												}
 	
@@ -418,13 +415,10 @@ namespace Uccs.Net
 
 										try
 										{
-											while(Running)
+											while(!Workflow.IsAborted)
 											{
 												lock(Lock)
 												{
-													if(!Running)
-														break;
-
 													ProcessConnectivity();
 												
 													if(Database != null)
@@ -483,10 +477,9 @@ namespace Uccs.Net
 
 		public void Stop(string message)
 		{
-			if(!Running)
+			if(Workflow.IsAborted)
 				return;
 
-			Running = false;
 			Workflow.Abort();
 			Listener?.Stop();
 			ApiServer?.Stop();
@@ -622,7 +615,7 @@ namespace Uccs.Net
 				OutboundConnect(p);
 			}
 
-			foreach(var i in Peers.Where(i => i.Client != null && i.Status == ConnectionStatus.Failed))
+			foreach(var i in Peers.Where(i => i.Tcp != null && i.Status == ConnectionStatus.Failed))
 				i.Disconnect();
 
 			if(!MinimalPeersReached && 
@@ -675,8 +668,7 @@ namespace Uccs.Net
 				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();
 	
-
-				while(Running)
+				while(!Workflow.IsAborted)
 				{
 					var client = Listener.AcceptTcpClient();
 	
@@ -812,7 +804,7 @@ namespace Uccs.Net
 						RememberPeers(h.Peers);
 	
 						peer.OutStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}");
 							
 						Workflow.Log?.Report(this, "Connected", $"to {peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
@@ -931,7 +923,7 @@ namespace Uccs.Net
 						RememberPeers(h.Peers.Append(peer));
 	
 						peer.InStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, Lock, $"{Settings.IP.GetAddressBytes()[3]}");
+						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}");
 			
 						Workflow.Log?.Report(this, "Accepted from", $"{peer}");
 	
@@ -972,12 +964,11 @@ namespace Uccs.Net
 	
 			StampResponse stamp = null;
 
-			while(true)
+			while(!Workflow.IsAborted)
 			{
 				try
 				{
 					Thread.Sleep(1000);
-					Workflow.ThrowIfAborted();
 
 					int final = -1; 
 					//int end = -1; 
@@ -997,27 +988,26 @@ namespace Uccs.Net
 						{
 							var ts = peer.GetTableStamp(t.Type, (t.Type switch
 																		{ 
-																			Tables.Accounts		=> stamp.Accounts.Where(i =>{
-																																var c = Database.Accounts.SuperClusters.ContainsKey(i.Id);
-																																return !c || !Database.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																															}),
-																			Tables.Authors		=> stamp.Authors.Where(i =>	{
-																																var c = Database.Authors.SuperClusters.ContainsKey(i.Id);
-																																return !c || !Database.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																															}),
-																			Tables.Products		=> stamp.Products.Where(i =>{
-																																var c = Database.Products.SuperClusters.ContainsKey(i.Id);
-																																return !c || !Database.Products.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																															}),
-																			Tables.Realizations => stamp.Realizations.Where(i =>
-																															{
-																																var c = Database.Realizations.SuperClusters.ContainsKey(i.Id);
-																																return !c || !Database.Realizations.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																															}),
-																			Tables.Releases		=> stamp.Releases.Where(i =>{
-																																var c = Database.Releases.SuperClusters.ContainsKey(i.Id);
-																																return !c || !Database.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																															}),
+																			Tables.Accounts	=> stamp.Accounts.Where(i => {
+																															var c = Database.Accounts.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Database.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																														 }),
+																			Tables.Authors	=> stamp.Authors.Where(i =>	{
+																															var c = Database.Authors.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Database.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																														}),
+																			Tables.Products	=> stamp.Products.Where(i => {
+																															var c = Database.Products.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Database.Products.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																														 }),
+																			Tables.Platforms=> stamp.Platforms.Where(i => {
+																															var c = Database.Platforms.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Database.Platforms.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																														  }),
+																			Tables.Releases	=> stamp.Releases.Where(i => {
+																															var c = Database.Releases.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Database.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																														 }),
 																			_ => throw new SynchronizationException()
 																		}
 																).Select(i => i.Id).ToArray());
@@ -1060,7 +1050,7 @@ namespace Uccs.Net
 						download<AccountEntry,	AccountAddress>(Database.Accounts);
 						download<AuthorEntry, string>(Database.Authors);
 						download<ProductEntry, ProductAddress>(Database.Products);
-						download<RealizationEntry, RealizationAddress>(Database.Realizations);
+						download<PlatformEntry, PlatformAddress>(Database.Platforms);
 						download<ReleaseEntry, ReleaseAddress>(Database.Releases);
 		
 						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
@@ -1086,19 +1076,7 @@ namespace Uccs.Net
 						Database.Hashify();
 		
 						if(peer.GetStamp().BaseHash.SequenceEqual(Database.BaseHash))
-						{
-// 							foreach(var i in Database.Releases)
-// 							{
-// 								var p = Database.Products.AsEnumerable().First(j => j.Address == i.Address);
-// 
-// 								if(p != null)
-// 								{
-// 									p.Releases.Add(new ProductEntryRelease { });
-// 								}
-// 							}
- 
  							Database.LoadedRounds.Add(r.Id, r);
-						}
 						else
 							throw new SynchronizationException();
 					}
@@ -1127,7 +1105,13 @@ namespace Uccs.Net
 						lock(Lock)
 							if(from <= rp.LastNonEmptyRound)
 							{
-								SyncBlockCache.RemoveAll(i => i.RoundId < rp.LastConfirmedRound + 1 - Database.Pitch);
+								foreach(var i in SyncBlockCache.Keys)
+								{
+									if(i < rp.LastConfirmedRound + 1 - Database.Pitch)
+									{
+										SyncBlockCache.Remove(i);
+									}
+								}
 
 								var rounds = rp.Read(Database);
 									
@@ -1174,9 +1158,12 @@ namespace Uccs.Net
 							 				throw new SynchronizationException();
 										}
 				
-										var rq = new UploadBlocksPiecesRequest();
-										rq.Pieces = r.BlockPieces;
-										rq.Execute(this);
+										if(r.BlockPieces.Any())
+										{
+											var rq = new BlocksPiecesRequest();
+											rq.Pieces = r.BlockPieces;
+											rq.Execute(this);
+										}
 
 										ProcessIncoming(r.Blocks, null);
 									}
@@ -1192,8 +1179,8 @@ namespace Uccs.Net
 
 									Synchronization = Synchronization.Synchronized;
 
-									var rq = new UploadBlocksPiecesRequest();
-									rq.Pieces = SyncBlockCache.OrderBy(i => i.RoundId);
+									var rq = new BlocksPiecesRequest();
+									rq.Pieces = SyncBlockCache.OrderBy(i => i.Key).SelectMany(i => i.Value);
 									rq.Execute(this);
 									
 									SyncBlockCache.Clear();
@@ -1232,14 +1219,6 @@ namespace Uccs.Net
 			Statistics.BlocksProcessing.Begin();
 
  			var accepted = blocks.Where(b => /*BlockCache.All(i => !i.Signature.SequenceEqual(b.Signature)) &&*/ Database.Verify(b)).ToArray(); /// !ToArray cause will be added to Chain below
-// 
-// 			if(!accepted.Any())
-// 				return;
-// 
-// 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Synchronizing)
-// 			{
-// 				BlockCache.AddRange(accepted);
-// 			}
 
 			if(Synchronization == Synchronization.Synchronized)
 			{
@@ -1253,17 +1232,6 @@ namespace Uccs.Net
 																					if(Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == b.Generator))
 																						return false;
 
-																				//var r = Database.JoinRequests.Where(i => i.RoundId == b.RoundId);
-																				//
-																				//if(r.Count() < Net.Database.MembersMax) /// keep maximum MembersMax requests per round
-																				//	return true;
-																				//
-																				//var min = r.Min(i => i.Bail);
-																				//
-																				//var a = Database.Accounts.Find(b.Generator, b.RoundId - Database.Pitch);
-																				//
-																				//return a != null && min < a.Bail; /// Selection of richest : if the number of members are Max then accept only those requests that have a bail greater than the existing request with minimal bail
-
 																				return true;
 																			});
 				Database.Add(joins);
@@ -1275,31 +1243,6 @@ namespace Uccs.Net
 
 			Statistics.BlocksProcessing.End();
 		}
-
-
-//		public Round NeedToVote(Account generator)
-//		{
-// 			var r = Database.GetRound(Database.LastVotedRound.Id + 1);
-// 
-// 			while(r.Blocks.Any(i => i is Vote v && i.Generator == generator && v.Try == r.Try))
-// 				r = Database.GetRound(r.Id + 1);
-// 	
-// 			if(r.Id > Database.LastVotedRound.Id + Database.Pitch)
-//				return null;
-//
-//			var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
-//
-//			if(r.Votes.Any(i => i.Generator == generator))
-//				return null;
-//
-// 			//if(Enumerable.Range(Database.LastConfirmedRound.Id + 1, Database.Pitch).Any(i => !Database.GetRound(i).Voted))
-// 			//	return null;
-//
-//			if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to a downloaded round since its blocks have no hashes
-//				return null;
-//
-//			return r;
-//		}
 
 		void Generate()
 		{
@@ -1365,7 +1308,7 @@ namespace Uccs.Net
 
 						foreach(var i in txs)
 						{
-							i.WriteUnconfirmed(w);
+							i.WriteAsPartOfBlock(w);
 
 							if(s.Position > Block.SizeMax)
 								break;
@@ -1437,6 +1380,9 @@ namespace Uccs.Net
 
 				var pieces = new List<BlockPiece>();
 
+				var npieces = 4;
+				var ppp = 3; // peers per peice
+
 				foreach(var b in blocks)
 				{
 					var s = new MemoryStream();
@@ -1448,18 +1394,16 @@ namespace Uccs.Net
 					s.Position = 0;
 					var r = new BinaryReader(s);
 
-					var n = Settings.PeersMin;
-
 					var guid = new byte[BlockPiece.GuidLength];
 					Cryptography.Random.NextBytes(guid);
 
-					for(int i = 0; i < n; i++)
+					for(int i = 0; i < npieces; i++)
 					{
 						var p = new BlockPiece(Zone){	Guid = guid,
 														RoundId = b.RoundId,
-														Total = n,
+														Total = npieces,
 														Index = i,
-														Data = r.ReadBytes((int)s.Length/n + (i < n-1 ? 0 : (int)s.Length % n))};
+														Data = r.ReadBytes((int)s.Length/npieces + (i < npieces-1 ? 0 : (int)s.Length % npieces))};
 
 						p.Sign(b.Generator as AccountKey);
 
@@ -1468,24 +1412,30 @@ namespace Uccs.Net
 					}
 				}
 
- 				var c = Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()).GetEnumerator();
- 				//var d = new Dictionary<Peer, List<BlockPiece>>();
+				IEnumerator<Peer> start() => Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()).GetEnumerator();
+
+ 				var c = start();
  
  				foreach(var i in pieces)
  				{
- 					if(!c.MoveNext())
- 					{
- 						c = Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()).GetEnumerator(); /// go to the beginning
- 						c.MoveNext();
- 					}
- 
-					i.Peer = c.Current;
+					i.Peers = new();   
+
+					for(int j = 0; j < ppp; j++)
+					{
+ 						if(!c.MoveNext())
+ 						{
+ 							c = start(); /// go to the beginning
+ 							c.MoveNext();
+ 						}
+
+						i.Peers.Add(c.Current);
+					}
  				}
 
 				/// LESS RELIABLE
-				foreach(var i in pieces.GroupBy(i => i.Peer))
+				foreach(var i in pieces.SelectMany(i => i.Peers).Distinct())
 				{
-					i.Key.Request<object>(new UploadBlocksPiecesRequest{Pieces = i});
+					i.Request<object>(new BlocksPiecesRequest{Pieces = pieces.Where(x => x.Peers.Contains(i))});
 				}
 
 				/// ALL FOR ALL
@@ -1494,7 +1444,7 @@ namespace Uccs.Net
 				///	i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
 				///}
 													
-				Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
+				/// Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
 			}
 
 			Statistics.Generating.End();
@@ -1516,13 +1466,13 @@ namespace Uccs.Net
 					r.Voted = true;
 
 					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
-					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peer != null && !i.Broadcasted).ToArray();
+					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peers != null && !i.Broadcasted).ToArray();
 					
 					if(notcomebacks.Any())
 					{
 						foreach(var i in Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()))
 						{
-							i.Request<object>(new UploadBlocksPiecesRequest{Pieces = notcomebacks});
+							i.Request<object>(new BlocksPiecesRequest{Pieces = notcomebacks});
 						}
 					}
 
@@ -1540,7 +1490,7 @@ namespace Uccs.Net
 				}
 				else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15)))
 				{
-					foreach(var i in Transactions.Where(i => i.Payload.RoundId == r.Id).SelectMany(i => i.Operations))
+					foreach(var i in Transactions.Where(i => i.Payload != null && i.Payload.RoundId >= r.Id).SelectMany(i => i.Operations))
 					{
 						i.Placing = PlacingStage.Verified;
 					}
@@ -1563,10 +1513,9 @@ namespace Uccs.Net
 
 			MemberRdi m = null;
 
-			while(Running)
+			while(!Workflow.IsAborted)
 			{
 				Thread.Sleep(1);
-				Workflow.ThrowIfAborted();
 
 				lock(Lock)
 				{
@@ -1787,16 +1736,33 @@ namespace Uccs.Net
 			}
 		}
 
+		void Await(Operation o, PlacingStage s, Workflow workflow)
+		{
+			while(true)
+			{ 
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+
+				switch(s)
+				{
+					case PlacingStage.Null :				return;
+					case PlacingStage.Accepted :			if(o.Placing >= PlacingStage.Accepted) return; else break;
+					case PlacingStage.Placed :				if(o.Placing >= PlacingStage.Placed) return; else break;
+					case PlacingStage.Confirmed :			if(o.Placing == PlacingStage.Confirmed) return; else break;
+					case PlacingStage.FailedOrNotFound :	if(o.Placing == PlacingStage.FailedOrNotFound) return; else break;
+				}
+			}
+		}
+
 		void Verifing()
 		{
 			Workflow.Log?.Report(this, "Verifing started");
 
 			try
 			{
-				while(Running)
+				while(!Workflow.IsAborted)
 				{
 					Thread.Sleep(1);
-					Workflow.ThrowIfAborted();
 
 					lock(Lock)
 					{
@@ -1853,7 +1819,7 @@ namespace Uccs.Net
 
 			try
 			{
-				while(Running)
+				while(!Workflow.IsAborted)
 				{
 					Workflow.Wait(1);
 
@@ -2331,7 +2297,7 @@ namespace Uccs.Net
 
 		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
 		{
-			var qlatest = Call(Role.Base, p => p.QueryRelease(release, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
+			var qlatest = Call(Role.Base, p => p.QueryRelease(release.Realization, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
 			var previos = qlatest.Releases.FirstOrDefault()?.Address.Version;
 
 			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
@@ -2349,23 +2315,5 @@ namespace Uccs.Net
 
  			return rq.Execute(this) as Rp;
  		}
-
-		void Await(Operation o, PlacingStage s, Workflow workflow)
-		{
-			while(true)
-			{ 
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
-
-				switch(s)
-				{
-					case PlacingStage.Null :				return;
-					case PlacingStage.Accepted :			if(o.Placing >= PlacingStage.Accepted) return; else break;
-					case PlacingStage.Placed :				if(o.Placing >= PlacingStage.Placed) return; else break;
-					case PlacingStage.Confirmed :			if(o.Placing == PlacingStage.Confirmed) return; else break;
-					case PlacingStage.FailedOrNotFound :	if(o.Placing == PlacingStage.FailedOrNotFound) return; else break;
-				}
-			}
-		}
 	}
 }

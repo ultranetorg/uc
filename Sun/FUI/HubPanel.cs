@@ -62,9 +62,9 @@ namespace Uccs.Sun.FUI
 			{
 				foreach(var i in Core.Seedbase.Releases)
 				{
-					var r = Packages.Items.Add(i.Key.Author);
-					r.SubItems.Add(i.Key.Product);
-					r.SubItems.Add(i.Key.Realization);
+					var r = Packages.Items.Add(i.Key.Product.Author);
+					r.SubItems.Add(i.Key.Product.Name);
+					r.SubItems.Add(i.Key.Platform.ToString());
 					r.SubItems.Add(i.Key.Version.ToString());
 					//r.SubItems.Add(i.Key.Distributives.ToString());
 					r.Tag = i.Value;

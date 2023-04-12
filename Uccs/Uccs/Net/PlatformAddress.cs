@@ -3,34 +3,34 @@ using System.IO;
 
 namespace Uccs.Net
 {
-	public class ProductAddress : IEquatable<ProductAddress>, IBinarySerializable
+	public class PlatformAddress : IEquatable<PlatformAddress>, IBinarySerializable
 	{
 		public string Author { get; set; }
 		public string Name { get; set; }
 
 		public virtual bool Valid => !string.IsNullOrWhiteSpace(Author)  && !string.IsNullOrWhiteSpace(Name);
 
-		public ProductAddress(string author, string product)
+		public PlatformAddress(string author, string product)
 		{
 			Author = author;
 			Name = product;
 		}
 
-		public ProductAddress()
+		public PlatformAddress()
 		{
 		}
 
 		public override string ToString()
 		{
-			return Author + "." + Name;
+			return Author + '.' + Name;
 		}
 
 		public override bool Equals(object obj)
 		{
-			return obj is ProductAddress address && Equals(address);
+			return obj is PlatformAddress address && Equals(address);
 		}
 
-		public bool Equals(ProductAddress other)
+		public bool Equals(PlatformAddress other)
 		{
 			return Author == other.Author && Name == other.Name;
 		}
@@ -46,19 +46,19 @@ namespace Uccs.Net
 			Name = s[1];
 		}
 
-		public static ProductAddress Parse(string v)
+		public static PlatformAddress Parse(string v)
 		{
-			var a = new ProductAddress();
+			var a = new PlatformAddress();
 			a.Parse(v.Split('.'));
 			return a;
 		}
 
-		public static bool operator ==(ProductAddress left, ProductAddress right)
+		public static bool operator ==(PlatformAddress left, PlatformAddress right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(ProductAddress left, ProductAddress right)
+		public static bool operator !=(PlatformAddress left, PlatformAddress right)
 		{
 			return !(left == right);
 		}

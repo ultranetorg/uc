@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
@@ -12,7 +13,7 @@ namespace Uccs.Net
 		MembersJoinRequest = 1, Vote = 2, Payload = 3
 	}
 
-	public class BlockPiece : IBinarySerializable
+	public class BlockPiece : IBinarySerializable, IEquatable<BlockPiece>
 	{
 		public byte[]			Guid { get; set; }
 		public int				RoundId { get; set; }
@@ -21,7 +22,7 @@ namespace Uccs.Net
 		public byte[]			Signature { get; set; }
 		public byte[]			Data { get; set; }
 
-		public Peer				Peer;
+		public List<Peer>		Peers;
 		public bool				Broadcasted;
 		public AccountAddress	Generator { get; protected set; }
 		public const int		GuidLength = 8;
@@ -74,7 +75,27 @@ namespace Uccs.Net
 		{
 			Generator = generator;
 			Signature = Zone.Cryptography.Sign(generator, Hashify());
-		} 
+		}
+
+		public override string ToString()
+		{
+			return $"{RoundId}, {Index}/{Total}, {Hex.ToHexString(Generator)}, Broadcasted={Broadcasted}";
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as BlockPiece);
+		}
+
+		public bool Equals(BlockPiece other)
+		{
+			return other is not null && Signature.SequenceEqual(other.Signature);
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Signature);
+		}
 	}
 
 	public abstract class Block : ITypedBinarySerializable, IBinarySerializable
@@ -330,7 +351,7 @@ namespace Uccs.Net
 			WriteVote(writer);
 
 			writer.Write(Generator); /// needed to read check transactions' signatures in Payload
-			writer.Write(Transactions, t => t.WriteUnconfirmed(writer));
+			writer.Write(Transactions, t => t.WriteAsPartOfBlock(writer));
 		}
 
 		public override void Read(BinaryReader reader)
@@ -344,7 +365,7 @@ namespace Uccs.Net
 																	Payload		= this,
 																	Generator	= Generator
 																};
-														t.ReadUnconfirmed(reader);
+														t.ReadAsPartOfBlock(reader);
 														return t;
 													});
 			Hash = Hashify();
@@ -353,7 +374,7 @@ namespace Uccs.Net
  		public void WriteConfirmed(BinaryWriter w)
  		{
 			w.Write(Generator);
- 			w.Write(SuccessfulTransactions, i => i.WriteConfirmed(w));
+ 			w.Write(SuccessfulTransactions, i => i.WriteAsPartOfBlock(w));
  		}
  		
  		public void ReadConfirmed(BinaryReader r)
@@ -365,7 +386,7 @@ namespace Uccs.Net
 															Payload = this, 
 															Generator = Generator
 														};
- 												t.ReadConfirmed(r);
+ 												t.ReadAsPartOfBlock(r);
  												return t;
  											});
  		}

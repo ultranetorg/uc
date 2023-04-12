@@ -27,7 +27,7 @@ namespace Uccs.Net
 		public ProductAddress	Address;
 		public string			Title;
 		public override string	Description => $"{Address} as {Title}";
-		public override bool	Valid => IsValid(Address.Product, Title);
+		public override bool	Valid => IsValid(Address.Name, Title);
 
 		public ProductRegistration()
 		{
@@ -78,32 +78,32 @@ namespace Uccs.Net
 		}
 	}
 
-	public class RealizationRegistration : Operation
+	public class PlatformRegistration : Operation
 	{
-		public RealizationAddress			Realization;
+		public PlatformAddress				Platform;
 		public Osbi[]						OSes;
-		public override string				Description => $"{Realization}";
-		public override bool				Valid => Realization.Valid;
+		public override string				Description => $"{Platform}";
+		public override bool				Valid => Platform.Valid;
 
-		public RealizationRegistration()
+		public PlatformRegistration()
 		{
 		}
 
 		protected override void ReadConfirmed(BinaryReader r)
 		{
-			Realization	= r.Read<RealizationAddress>();
+			Platform	= r.Read<PlatformAddress>();
 			OSes		= r.ReadArray<Osbi>();
 		}
 
 		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			w.Write(Realization);
+			w.Write(Platform);
 			w.Write(OSes);
 		}
 
 		public override void Execute(Database chain, Round round)
 		{
-			var a = chain.Authors.Find(Realization.Author, round.Id);
+			var a = chain.Authors.Find(Platform.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -111,18 +111,25 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(chain.Products.Find(Realization, round.Id) == null)
+			if(chain.Platforms.Find(Platform, round.Id) != null)
 			{
-				Error = "Product not found";
+				Error = AlreadyExists;
 				return;
 			}
+
+// 
+// 			if(chain.Products.Find(Platform.Product, round.Id) == null)
+// 			{
+// 				Error = "Product not found";
+// 				return;
+// 			}
 			 
-			var p = round.AffectProduct(Realization);
+			//var p = round.AffectProduct(Platform.Product);
 			
 			//p.Realizations.RemoveAll(i => i.Name == Realization.Name);
 			//p.Realizations.Add(new ProductEntryRealization{Name = Realization.Name, OSes = OSes});
 
-			var r = round.AffectRealization(Realization);
+			var r = round.AffectPlatform(Platform);
 
 			r.OSes = OSes;
 		}
@@ -233,7 +240,7 @@ namespace Uccs.Net
 
 		public override void Execute(Database chain, Round round)
 		{
-			var a = chain.Authors.Find(Release.Author, round.Id);
+			var a = chain.Authors.Find(Release.Product.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -241,9 +248,15 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(chain.Realizations.Find(Release, round.Id) == null)
+			if(chain.Products.Find(Release.Product, round.Id) == null)
 			{
-				Error = "Product or Realization not found";
+				Error = "Product not found";
+				return;
+			}
+
+			if(chain.Platforms.Find(Release.Platform, round.Id) == null)
+			{
+				Error = "Platfrom not found";
 				return;
 			}
 
@@ -267,7 +280,7 @@ namespace Uccs.Net
 // 				return;
 // 			}
 
-			var ce = chain.Releases.Where(Release.Author, Release.Product, i => i.Address.Realization == Release.Realization, round.Id).MaxBy(i => i.Address.Version);
+			var ce = chain.Releases.Where(Release.Product.Author, Release.Product.Name, i => i.Address.Platform == Release.Platform, round.Id).MaxBy(i => i.Address.Version);
 					
 			if(ce != null && ce.Address.Version >= Release.Version)
 			{

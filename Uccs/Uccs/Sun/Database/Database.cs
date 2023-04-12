@@ -62,13 +62,13 @@ namespace Uccs.Net
 		public AccountTable					Accounts;
 		public AuthorTable					Authors;
 		public ProductTable					Products;
-		public RealizationTable				Realizations;
+		public PlatformTable				Platforms;
 		public ReleaseTable					Releases;
 		public int							Size => BaseState == null ? 0 : (BaseState.Length + 
 																			Accounts.Clusters.Sum(i => i.MainLength) +
 																			Authors.Clusters.Sum(i => i.MainLength) +
 																			Products.Clusters.Sum(i => i.MainLength) +
-																			Realizations.Clusters.Sum(i => i.MainLength) +
+																			Platforms.Clusters.Sum(i => i.MainLength) +
 																			Releases.Clusters.Sum(i => i.MainLength));
 		public Log							Log;
 		public BlockDelegate				BlockAdded;
@@ -94,7 +94,7 @@ namespace Uccs.Net
 			Accounts = new (this);
 			Authors = new (this);
 			Products = new (this);
-			Realizations = new (this);
+			Platforms = new (this);
 			Releases = new (this);
 
 			BaseState = Engine.Get(BaseStateKey);
@@ -670,7 +670,7 @@ namespace Uccs.Net
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
 			round.AffectedProducts.Clear();
-			round.AffectedRealizations.Clear();
+			round.AffectedPlatforms.Clear();
 			round.AffectedReleases.Clear();
 
 			foreach(var b in payloads.AsEnumerable().Reverse())
@@ -749,7 +749,7 @@ namespace Uccs.Net
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Products.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Realizations.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Platforms.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Releases.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
@@ -847,7 +847,7 @@ namespace Uccs.Net
 						Accounts	.Save(b, i.AffectedAccounts.Values);
 						Authors		.Save(b, i.AffectedAuthors.Values);
 						Products	.Save(b, i.AffectedProducts.Values);
-						Realizations.Save(b, i.AffectedRealizations.Values);
+						Platforms.Save(b, i.AffectedPlatforms.Values);
 						Releases	.Save(b, i.AffectedReleases.Values);
 					}
 
@@ -1002,7 +1002,7 @@ namespace Uccs.Net
 		{
 			if(query.VersionQuery == VersionQuery.Latest)
 			{
-				var p = Products.Find(query.Realization, LastConfirmedRound.Id);
+				var p = Products.Find(query.Realization.Product, LastConfirmedRound.Id);
 	
 				if(p != null)
 				{
@@ -1016,9 +1016,9 @@ namespace Uccs.Net
 					//	return new QueryReleaseResult{Registration = rr};
 					//}
 
-					return Releases.Where(	query.Realization.Author, 
-											query.Realization.Product, 
-											i => i.Address.Realization == query.Realization.Name, 
+					return Releases.Where(	query.Realization.Product.Author, 
+											query.Realization.Product.Name, 
+											i => i.Address.Platform == query.Realization.Platform, 
 											LastConfirmedRound.Id)
 									.MaxBy(i => i.Address.Version);
 
@@ -1029,7 +1029,7 @@ namespace Uccs.Net
 
 			if(query.VersionQuery == VersionQuery.Exact)
 			{
-				var p = Products.Find(query.Realization, LastConfirmedRound.Id);
+				var p = Products.Find(query.Realization.Product, LastConfirmedRound.Id);
 	
 				if(p != null)
 				{
@@ -1045,7 +1045,7 @@ namespace Uccs.Net
 
 					var r = query.Realization;
 
-					return Releases.Find(new ReleaseAddress(r.Author, r.Product, r.Name, query.Version), LastConfirmedRound.Id);
+					return Releases.Find(new ReleaseAddress(r.Product, r.Platform, query.Version), LastConfirmedRound.Id);
 				}
 
 				return null;

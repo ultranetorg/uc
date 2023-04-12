@@ -8,7 +8,7 @@ namespace Uccs.Net
 	public class ReleaseEntry : Release, ITableEntry<ReleaseAddress>
 	{
 		public ReleaseAddress	Key => Address;
-		public byte[]			GetClusterKey(int n) =>  Encoding.UTF8.GetBytes(Address.Author).Take(n).ToArray();
+		public byte[]			GetClusterKey(int n) =>  Encoding.UTF8.GetBytes(Address.Product.Author).Take(n).ToArray();
 
 		public ReleaseEntry Clone()
 		{

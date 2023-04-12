@@ -66,7 +66,7 @@ namespace Uccs.Sun.CLI
 
 		   		case "status" :
 				{
-					var r = Core.Connect(Role.Base, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(GetString("query"))}, Args.Has("confirmed"));
+					var r = Core.Connect(Role.Base, null, Workflow).QueryRelease(new []{ReleaseQuery.Parse(Args)}, Args.Has("confirmed"));
 
 					var i = r.Releases.First();
 

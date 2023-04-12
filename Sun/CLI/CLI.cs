@@ -104,7 +104,7 @@ namespace Uccs.Sun.CLI
 					case MembershipCommand.Keyword:		c = new MembershipCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 					case AuthorCommand.Keyword:			c = new AuthorCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 					case ProductCommand.Keyword:		c = new ProductCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case RealizationCommand.Keyword:	c = new RealizationCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case PlatformCommand.Keyword:	c = new PlatformCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 					case ReleaseCommand.Keyword:		c = new ReleaseCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 				}
 

@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Uccs.Net
 {
-	public class RealizationEntry : Realization, ITableEntry<RealizationAddress>
+	public class PlatformEntry : Platform, ITableEntry<PlatformAddress>
 	{
-		public RealizationAddress		Key => Address;
-		public byte[]					GetClusterKey(int n) => Encoding.UTF8.GetBytes(Address.Author).Take(n).ToArray();
+		public PlatformAddress		Key => Address;
+		public byte[]				GetClusterKey(int n) => Encoding.UTF8.GetBytes(Address.Author).Take(n).ToArray();
 
-		public RealizationEntry Clone()
+		public PlatformEntry Clone()
 		{
 			return	new()
 					{ 

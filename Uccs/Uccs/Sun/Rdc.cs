@@ -9,12 +9,13 @@ using System.Xml.Linq;
 using NativeImport;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Security;
+using static Uccs.Net.Download;
 
 namespace Uccs.Net
 {
 	public enum Rdc : byte
 	{
-		Null, Time, UploadBlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, Author, Account, 
+		Null, Time, BlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, Author, Account, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable
 	}
@@ -92,17 +93,21 @@ namespace Uccs.Net
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
 
-	public abstract class RdcRequest : ITypedBinarySerializable
+	public abstract class RdcPacket : ITypedBinarySerializable
 	{
-		public byte[]					Id {get; set;}
-		public byte						TypeCode => (byte)Type;
-		public Peer						Peer;
+		public int			Id {get; set;}
+		public Peer			Peer;
+
+		public abstract byte TypeCode { get; }
+	}
+
+	public abstract class RdcRequest : RdcPacket
+	{
+		public override byte			TypeCode => (byte)Type;
 		public ManualResetEvent			Event;
 		public RdcResponse				Response;
 		public Action					Process;
 		public virtual bool				WaitResponse { get; protected set; } = true;
-
-		public const int				IdLength = 8;
 
 		public static RdcRequest FromType(Database chaim, Rdc type)
 		{
@@ -126,23 +131,17 @@ namespace Uccs.Net
 
 		public RdcRequest()
 		{
-			Id = new byte[IdLength];
-			Cryptography.Random.NextBytes(Id);
 			Event = new ManualResetEvent(false);
 		}
 
 		public abstract RdcResponse Execute(Core core);
 	}
 
-	public abstract class RdcResponse : ITypedBinarySerializable
+	public abstract class RdcResponse : RdcPacket
 	{
-		public byte[]	Id { get; set; }
-		public RdcError	Error { get; set; }
-		public bool		Final { get; set; } = true;
-		public Peer		Peer;
-
-		public byte		TypeCode => (byte)Type;
-		public Rdc		Type => Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
+		public RdcError			Error { get; set; }
+		public override byte	TypeCode => (byte)Type;
+		public Rdc				Type => Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 
 		public static RdcResponse FromType(Database chaim, Rdc type)
 		{
@@ -176,45 +175,51 @@ namespace Uccs.Net
 		public ChainTime Time { get; set; }
 	}
 
-	public class UploadBlocksPiecesRequest : RdcRequest
+	public class BlocksPiecesRequest : RdcRequest
 	{
 		public IEnumerable<BlockPiece>	Pieces { get; set; }
 		public override bool			WaitResponse => false;
 
 		public override RdcResponse Execute(Core core)
 		{
-			void broadcast(IEnumerable<BlockPiece> pieces)
-			{
-				if(!pieces.Any())
-				{
-					return;
-				}
-
-				foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer).OrderBy(i => Guid.NewGuid()))
-				{
-					i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
-				}
-			}
+			var accepted = new List<BlockPiece>();
 
 			lock(core.Lock)
 			{
 				if(!core.Settings.Database.Base)
 					throw new RdcException(RdcError.NotBase);
-				
-				var accepted = new List<BlockPiece>();
 
 				if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Downloading || core.Synchronization == Synchronization.Synchronizing)
 				{
-					var a = Pieces.Where(p => !core.SyncBlockCache.Any(i => i.Signature.SequenceEqual(p.Signature))).ToArray(); /// !ToArray cause will be added to Chain below
-
-					if(a.Any())
+ 					var min = core.SyncBlockCache.Any() ? core.SyncBlockCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+ 
+					foreach(var i in Pieces)
 					{
-						core.SyncBlockCache.AddRange(a);
-						accepted.AddRange(a);
-					}
-				}
+						if(i.RoundId < min || (core.SyncBlockCache.ContainsKey(i.RoundId) && core.SyncBlockCache[i.RoundId].Contains(i)))
+						{
+							continue;
+						}
 
-				if(core.Synchronization == Synchronization.Synchronized)
+						List<BlockPiece> l;
+						
+						if(!core.SyncBlockCache.TryGetValue(i.RoundId, out l))
+						{
+							l = core.SyncBlockCache[i.RoundId] = new();
+						}
+
+						l.Add(i);
+	 					accepted.Add(i);
+ 					}
+					
+					foreach(var i in core.SyncBlockCache.Keys)
+					{
+						if(i < min)
+						{
+							core.SyncBlockCache.Remove(i);
+						}
+					}					
+				}
+				else if(core.Synchronization == Synchronization.Synchronized)
 				{
 					var notolder = core.Database.LastConfirmedRound.Id - Database.Pitch;
 					var notnewer = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
@@ -230,14 +235,14 @@ namespace Uccs.Net
 						{
 							var r = core.Database.GetRound(p.RoundId);
 				
-							var ep = r.BlockPieces.Find(i => i.Signature.SequenceEqual(p.Signature));
+							var ep = r.BlockPieces.Find(i => i.Equals(p));
 
 							if(ep == null)
 							{
 								accepted.Add(p);
 								r.BlockPieces.Add(p);
 				
-								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Guid.SequenceEqual(p.Guid)).OrderBy(i => i.Index);
+								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator /*&& i.Guid.SequenceEqual(p.Guid)*/).OrderBy(i => i.Index);
 			
 								if(ps.Count() == p.Total && ps.Zip(ps.Skip(1), (x, y) => x.Index + 1 == y.Index).All(x => x))
 								{
@@ -261,17 +266,23 @@ namespace Uccs.Net
 								}
 							}
 							else
-								if(ep.Peer != null && ep.Peer != Peer)
+								if(ep.Peers != null && !ep.Peers.Contains(Peer))
 									ep.Broadcasted = true;
 						}
 						//else
 						//{
- 						//	accepted.Add(p);
+						//	accepted.Add(p);
 						//}
 					}
 				}
+			}
 
-				broadcast(accepted);
+			if(accepted.Any())
+			{
+				foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer).OrderBy(i => Guid.NewGuid()))
+				{
+					i.Request<object>(new BlocksPiecesRequest{Pieces = accepted});
+				}
 			}
 
 			return null; 
@@ -351,21 +362,20 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
-				if(core.Database.BaseState == null)
-					throw new RdcException(RdcError.TooEearly);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				if(core.Database.BaseState == null)							throw new RdcException(RdcError.TooEearly);
 
-				return new StampResponse {	BaseState				= core.Database.BaseState,
+				var r = new StampResponse {	BaseState				= core.Database.BaseState,
 											BaseHash				= core.Database.BaseHash,
 											LastCommitedRoundHash	= core.Database.LastCommittedRound.Hash,
 											FirstTailRound			= core.Database.Tail.Last().Id,
 											LastTailRound			= core.Database.Tail.First().Id,
-											Accounts				= core.Database.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Authors					= core.Database.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Products				= core.Database.Products.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Realizations			= core.Database.Realizations.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Releases				= core.Database.Releases.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
+											Accounts				= core.Database.Accounts.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Authors					= core.Database.Authors.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Products				= core.Database.Products.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Platforms				= core.Database.Platforms.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Releases				= core.Database.Releases.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
+				return r;
 			}
 		}
 	}
@@ -386,7 +396,7 @@ namespace Uccs.Net
 		public IEnumerable<SuperCluster>	Accounts { get; set; }
 		public IEnumerable<SuperCluster>	Authors { get; set; }
 		public IEnumerable<SuperCluster>	Products { get; set; }
-		public IEnumerable<SuperCluster>	Realizations { get; set; }
+		public IEnumerable<SuperCluster>	Platforms { get; set; }
 		public IEnumerable<SuperCluster>	Releases { get; set; }
 	}
 
@@ -399,17 +409,15 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
-				if(core.Database.BaseState == null)
-					throw new RdcException(RdcError.TooEearly);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				if(core.Database.BaseState == null)							throw new RdcException(RdcError.TooEearly);
 
 				switch(Table)
 				{
 					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Accounts		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Authors		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Products	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Products		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Realizations: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Realizations	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Platforms	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Platforms	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Releases	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Releases		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					default:
 						throw new RdcException(RdcError.InvalidRequest);
@@ -449,7 +457,7 @@ namespace Uccs.Net
 									Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Realizations => core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Platforms	=> core.Database.Platforms.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									_ => throw new RdcException(RdcError.InvalidRequest)
 							  };
@@ -716,7 +724,6 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-
  			lock(core.Lock)
 			{
 				if(!core.Database.Settings.Chain)							throw new RdcException(RdcError.NotChain);
@@ -724,9 +731,9 @@ namespace Uccs.Net
 
 				var db = core.Database;
 				
-				return new ReleaseHistoryResponse {Releases = db.Releases.Where(Realization.Author, 
-																				Realization.Product, 
-																				i => i.Address.Realization == Realization.Name, 
+				return new ReleaseHistoryResponse {Releases = db.Releases.Where(Realization.Product.Author, 
+																				Realization.Product.Name, 
+																				i => i.Address.Platform == Realization.Platform, 
 																				db.LastConfirmedRound.Id).ToArray()};
 			}
 		}

@@ -50,7 +50,7 @@ namespace Uccs.Net
 				
 										Workflow.Log?.Report(this, "Listening started", prefixes[0]);
 		
-										while(Core.Running)
+										while(!Workflow.IsAborted)
 										{
 											ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
 										}

@@ -29,21 +29,21 @@ namespace Uccs.Net
 			{
 				writer.Write((byte)d.Key);
 
-				var aths = d.GroupBy(i => i.Key.Author);
+				var aths = d.GroupBy(i => i.Key.Product.Author);
 				writer.Write7BitEncodedInt(aths.Count());
 
 				foreach(var a in aths)
 				{
 					writer.WriteUtf8(a.Key);
 
-					var fs = a.GroupBy(i => i.Key.Realization);
+					var fs = a.GroupBy(i => i.Key.Platform);
 					writer.Write7BitEncodedInt(fs.Count());
 
 					foreach(var f in fs)
 					{
-						writer.WriteUtf8(f.Key);
+						f.Key.Write(writer);
 
-						var ps = f.GroupBy(i => i.Key.Product);
+						var ps = f.GroupBy(i => i.Key.Product.Name);
 						writer.Write7BitEncodedInt(ps.Count());
 
 						foreach(var p in ps)
@@ -74,7 +74,7 @@ namespace Uccs.Net
 
 					for(int k=0; k<fn; k++)
 					{
-						var f = reader.ReadUtf8();
+						var f = reader.Read<PlatformAddress>();
 						var pn = reader.Read7BitEncodedInt();
 
 						for(int l=0; l<pn; l++)
@@ -83,7 +83,7 @@ namespace Uccs.Net
 
 							foreach(var v in reader.ReadArray<Version>())
 							{
-								list.Add(new ReleaseAddress(a, p, f, v), d);
+								list.Add(new ReleaseAddress(a, p, f.Author, f.Name, v), d);
 							}
 						}
 					}

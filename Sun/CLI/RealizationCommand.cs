@@ -12,11 +12,11 @@ namespace Uccs.Sun.CLI
 	///							product = PRODUCT 
 	///							oses = OBIs - {windows.10.*.x64}
 	/// </summary>
-	public class RealizationCommand : Command
+	public class PlatformCommand : Command
 	{
-		public const string Keyword = "realization";
+		public const string Keyword = "platform";
 
-		public RealizationCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public PlatformCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
 		{
 		}
 
@@ -28,10 +28,10 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 				case "register" : 
-					return Core.Enqueue(new RealizationRegistration
+					return Core.Enqueue(new PlatformRegistration
 										{ 
 											Signer = GetPrivate("by", "password"), 
-											Realization = RealizationAddress.Parse(GetString("address")),
+											Platform = PlatformAddress.Parse(GetString("address")),
 											OSes = Args.One("oses").Nodes.Select(i => Osbi.Parse(i.Name)).ToArray()
 										},
 										GetAwaitStage(), 

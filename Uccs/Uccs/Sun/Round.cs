@@ -57,7 +57,7 @@ namespace Uccs.Net
 		public Dictionary<AccountAddress, AccountEntry>			AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
 		public Dictionary<ProductAddress, ProductEntry>			AffectedProducts = new();
-		public Dictionary<RealizationAddress, RealizationEntry>	AffectedRealizations = new();
+		public Dictionary<PlatformAddress, PlatformEntry>		AffectedPlatforms = new();
 		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
 		
 		public Database											Database;
@@ -193,12 +193,12 @@ namespace Uccs.Net
 			return Database.Products.Find(address, Id - 1);
 		}
 
-		public RealizationEntry FindRealization(RealizationAddress name)
+		public PlatformEntry FindPlatform(PlatformAddress name)
 		{
-			if(AffectedRealizations.ContainsKey(name))
-				return AffectedRealizations[name];
+			if(AffectedPlatforms.ContainsKey(name))
+				return AffectedPlatforms[name];
 		
-			return Database.Realizations.Find(name, Id - 1);
+			return Database.Platforms.Find(name, Id - 1);
 		}
 		
 		public ReleaseEntry FindRelease(ReleaseAddress name)
@@ -221,16 +221,16 @@ namespace Uccs.Net
 			return AffectedProducts[address];
 		}
 
-		public RealizationEntry AffectRealization(RealizationAddress address)
+		public PlatformEntry AffectPlatform(PlatformAddress address)
 		{
-			var e = FindRealization(address);
+			var e = FindPlatform(address);
 
 			if(e != null)
-				AffectedRealizations[address] = e.Clone();
+				AffectedPlatforms[address] = e.Clone();
 			else
-				AffectedRealizations[address] = new RealizationEntry(){Address = address};
+				AffectedPlatforms[address] = new PlatformEntry(){Address = address};
 
-			return AffectedRealizations[address];
+			return AffectedPlatforms[address];
 		}
 
 		public ReleaseEntry AffectRelease(ReleaseAddress address)
@@ -336,7 +336,7 @@ namespace Uccs.Net
 // 				w.Write(Hash);
 // #endif
 				WriteConfirmed(w);
-				w.Write(JoinRequests, i => i.Write(w));
+				w.Write(JoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
 			} 
 			else
 			{

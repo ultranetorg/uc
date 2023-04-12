@@ -79,7 +79,7 @@ namespace Uccs.Net
 		{
 			AddWallet(a, a.Save(Zone.Cryptography, password));
 
-			var path = Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt);
+			var path = Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt(Zone.Cryptography));
 
 			a.Save(Zone.Cryptography, path, password);
 
@@ -92,7 +92,7 @@ namespace Uccs.Net
 
 		public void DeleteWallet(AccountAddress a)
 		{
-			File.Delete(Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt));
+			File.Delete(Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt(Zone.Cryptography)));
 
 			Accounts.Remove(a);
 

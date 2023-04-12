@@ -36,7 +36,7 @@ namespace Uccs.Sun.FUI
 				
 				foreach(var ar in FindProducts(AccountAddress.Parse(SearchAccount.Text)))
 				{
-					var i = new ListViewItem(ar.Product.Address.Product);
+					var i = new ListViewItem(ar.Product.Address.Name);
 					i.Tag = ar;
 					i.SubItems.Add(ar.Product.Title);
 					i.SubItems.Add(ar.Author.Name);

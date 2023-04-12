@@ -68,6 +68,7 @@ namespace Uccs.Sun.FUI
 						var rounds = new List<Round>();
 	
 						int nid = 0;
+						int np = 0;
 						int nmemebers = 0;
 						int njrs = 0;
 						int nj = 0;
@@ -89,22 +90,31 @@ namespace Uccs.Sun.FUI
 	
 								if(showt && r != null)
 								{
-									nid = Math.Max(nid, i.ToString().Length);
-									njrs = Math.Max(njrs, r.JoinRequests.Count().ToString().Length);
-									nj = Math.Max(nj, r.ConfirmedJoiners.Count.ToString().Length);
-									nl = Math.Max(nj, r.ConfirmedLeavers.Count.ToString().Length);
+									nid = Math.Max(nid, i);
+									np = Math.Max(np, r.BlockPieces.Count);
+									njrs = Math.Max(njrs, r.JoinRequests.Count());
+									nj = Math.Max(nj, r.ConfirmedJoiners.Count);
+									nl = Math.Max(nj, r.ConfirmedLeavers.Count);
 		
 									if(r != null)
-										nmemebers = Math.Max(nmemebers, r.Members.Count.ToString().Length);
+										nmemebers = Math.Max(nmemebers, r.Members.Count);
 
 									if(r != null)
 										ndate = Math.Max(ndate, r.Time.ToString().Length);
 								}
 							}
+
+							nid = nid.ToString().Length;
+							np = np.ToString().Length;
+							njrs = njrs.ToString().Length;
+							nj = nj.ToString().Length;
+							nl = nl.ToString().Length;
+							nmemebers = nmemebers.ToString().Length;
+							ndate = ndate.ToString().Length;
 		
 							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nid}}} {{1,{nmemebers}}} {{2,{njrs}}} {{3,{nj}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}}";
+							f  = $"{{0,{nid}}} {{1,{np}}} {{2,{nmemebers}}} {{3,{njrs}}} {{4,{nj}}} {{5,{nl}}} {{6}}{{7}} {{8,{ndate}}}";
 
 							if(rounds.Count() > 0)
 							{
@@ -153,6 +163,7 @@ namespace Uccs.Sun.FUI
 									{
 										var t = string.Format(	f, 
 																r.Id, 
+																r.BlockPieces.Count,
 																r.Members.Count, 
 																r.JoinRequests.Count(),
 																r.ConfirmedJoiners.Count,

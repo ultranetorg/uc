@@ -78,7 +78,7 @@ namespace Uccs.Net
 			return Zone.Cryptography.Hash(s.ToArray());
 		}
 
- 		public void	WriteConfirmed(BinaryWriter w)
+ 		public void	WriteAsPartOfBlock(BinaryWriter w)
  		{
 			w.Write(Signature);
 			w.Write7BitEncodedInt(RoundMax);
@@ -88,14 +88,13 @@ namespace Uccs.Net
 									 });
  		}
  		
- 		public void	ReadConfirmed(BinaryReader r)
+ 		public void	ReadAsPartOfBlock(BinaryReader r)
  		{
 			Signature	= r.ReadSignature();
 			RoundMax	= r.Read7BitEncodedInt();
  			Operations	= r.ReadList(() => {
  												var o = Operation.FromType((Operations)r.ReadByte());
- 												o.Placing		= PlacingStage.Confirmed;
- 												//o.Signer		= Signer;
+ 												//o.Placing		= PlacingStage.Confirmed;
  												o.Transaction	= this;
  												o.Read(r); 
  												return o; 
@@ -125,7 +124,6 @@ namespace Uccs.Net
 			RoundMax	= r.Read7BitEncodedInt();
 			Operations	= r.ReadList(() => {
 												var o = Operation.FromType((Operations)r.ReadByte());
-												//o.Signer = Signer;
 												o.Transaction = this;
 												o.Read(r); 
 												return o; 
@@ -137,33 +135,31 @@ namespace Uccs.Net
 				i.Signer = Signer;
 		}
 
-		public void WriteUnconfirmed(BinaryWriter w)
-		{
-			w.Write(Signature);
-			w.Write7BitEncodedInt(RoundMax);
-			w.Write(Operations, i => {
-										w.Write((byte)i.Type); 
-										i.Write(w); 
-									 });
-		}
-
-		public void ReadUnconfirmed(BinaryReader r)
-		{
-
-			Signature	= r.ReadSignature();
-			RoundMax	= r.Read7BitEncodedInt();
-			Operations	= r.ReadList(() => {
-												var o = Operation.FromType((Operations)r.ReadByte());
-												o.Signer = Signer;
-												o.Transaction = this;
-												o.Read(r); 
-												return o; 
-											});
-
-			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
-
-			foreach(var i in Operations)
-				i.Signer = Signer;
-		}
+// 		public void WriteUnconfirmed(BinaryWriter w)
+// 		{
+// 			w.Write(Signature);
+// 			w.Write7BitEncodedInt(RoundMax);
+// 			w.Write(Operations, i => {
+// 										w.Write((byte)i.Type); 
+// 										i.Write(w); 
+// 									 });
+// 		}
+// 
+// 		public void ReadUnconfirmed(BinaryReader r)
+// 		{
+// 			Signature	= r.ReadSignature();
+// 			RoundMax	= r.Read7BitEncodedInt();
+// 			Operations	= r.ReadList(() => {
+// 												var o = Operation.FromType((Operations)r.ReadByte());
+// 												o.Transaction = this;
+// 												o.Read(r); 
+// 												return o; 
+// 											});
+// 
+// 			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
+// 
+// 			foreach(var i in Operations)
+// 				i.Signer = Signer;
+// 		}
 	}
 }

@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Uccs.Net
 {
-	public class Realization : IBinarySerializable
+	public class Platform : IBinarySerializable
 	{
-		public RealizationAddress		Address;
-		public Osbi[]					OSes;
+		public PlatformAddress	Address;
+		public Osbi[]			OSes;
 
 		public void Write(BinaryWriter w)
 		{
@@ -18,9 +18,8 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader r)
 		{
-			Address	= r.Read<RealizationAddress>();
+			Address	= r.Read<PlatformAddress>();
 			OSes	= r.ReadArray<Osbi>();
 		}
-
 	}
 }

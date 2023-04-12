@@ -34,7 +34,7 @@ namespace Uccs.Sun.FUI
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				foreach(var r in Core.Database.Releases.Where(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Address.Realization == Platform.Text, Core.Database.LastConfirmedRound.Id))
+				foreach(var r in Core.Database.Releases.Where(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Address.Platform.ToString() == Platform.Text, Core.Database.LastConfirmedRound.Id))
 				{
 					var i = new ListViewItem(r.Address.ToString());
 					
@@ -114,7 +114,7 @@ namespace Uccs.Sun.FUI
 			if(Author.SelectedItem != null)
 			{
 				/// TODO: too slow
-				foreach(var p in Database.Products.Where(i => i.Address.Author == Author.SelectedItem as string).Select(i => i.Address.Product))
+				foreach(var p in Database.Products.Where(i => i.Address.Author == Author.SelectedItem as string).Select(i => i.Address.Name))
 					Product.Items.Add(p);
 				
 				if(Product.Items.Count > 0)

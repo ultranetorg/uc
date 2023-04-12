@@ -32,7 +32,7 @@ namespace Uccs.Net
 
 	public enum Operations
 	{
-		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, RealizationRegistration , ReleaseRegistration 
+		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, PlatformRegistration , ReleaseRegistration 
 	}
 
 	public abstract class Operation
@@ -49,6 +49,7 @@ namespace Uccs.Net
 		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
 
 		public const string		Rejected = "Rejected";
+		public const string		AlreadyExists = "Alreadt exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		SignerDoesNotOwnTheAuthor = "The signer does not own the Author";
@@ -134,9 +135,10 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(operations, i => {
-									 	i.WriteConfirmed(w); 
-									 });
+			foreach(var i in operations)
+			{
+			 	i.WriteConfirmed(w); 
+			}
 
 			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}

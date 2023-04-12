@@ -7,29 +7,32 @@ namespace Uccs.Net
 {
 	public class RealizationAddress : IEquatable<RealizationAddress>, IBinarySerializable
 	{
-		ProductAddress	P = new ();
-		public string	Author { set => P.Author = value; get => P.Author; }
-		public string	Product { set => P.Product = value; get => P.Product; }
-		public string	Name { get; set; }
-		public bool		Valid => !string.IsNullOrWhiteSpace(Name);
+		public ProductAddress	Product { get; set; }
+		//public string			Author { set => ProductAddres.Author = value; get => ProductAddres.Author; }
+		//public string			Product { set => ProductAddres.Product = value; get => ProductAddres.Product; }
+		public PlatformAddress	Platform { get; set; }
+		public bool				Valid => throw new NotImplementedException();
 
-		public static implicit operator ProductAddress(RealizationAddress d) => d.P;
+		//public static implicit	operator ProductAddress(RealizationAddress d) => d.Product;
+		public static bool		operator ==(RealizationAddress left, RealizationAddress right) => left.Equals(right);
+		public static bool		operator !=(RealizationAddress left, RealizationAddress right) => !(left == right);
 
-		public static bool operator ==(RealizationAddress left, RealizationAddress right)
+		public RealizationAddress(string author, string product, string platformauthor, string platformname)
 		{
-			return left.Equals(right);
+			Product = new (author, product);
+			Platform = new (platformauthor, platformname);
 		}
 
-		public static bool operator !=(RealizationAddress left, RealizationAddress right)
+		public RealizationAddress(string author, string product, PlatformAddress platform)
 		{
-			return !(left == right);
+			Product = new(author, product);
+			Platform = platform;
 		}
 
-		public RealizationAddress(string author, string product, string name)
+		public RealizationAddress(ProductAddress product, PlatformAddress platform)
 		{
-			P.Author = author;
-			P.Product = product;
-			Name = name;
+			Product = product;
+			Platform = platform;
 		}
 
 		public RealizationAddress()
@@ -38,7 +41,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{P}/{Name}";
+			return $"{Product}/{Platform}";
 		}
 
 		public override bool Equals(object o)
@@ -48,12 +51,12 @@ namespace Uccs.Net
 
 		public bool Equals(RealizationAddress o)
 		{
-			return P.Equals(o.P) && Name.Equals(o.Name);
+			return Product.Equals(o.Product) && Platform.Equals(o.Platform);
 		}
 
  		public override int GetHashCode()
  		{
- 			return P.GetHashCode(); /// don't change this!
+ 			return Product.GetHashCode(); /// don't change this!
  		}
 
 		public static RealizationAddress Parse(string v)
@@ -66,23 +69,27 @@ namespace Uccs.Net
 		
 		public void Parse(string[] s)
 		{
-			P.Author = s[0];
-			P.Product = s[1];
-			Name = s[2];
+			Product	 = ProductAddress.Parse(s[0]);
+			Platform = PlatformAddress.Parse(s[1]);
 		}
 
 		public void Write(BinaryWriter w)
 		{
-			w.WriteUtf8(P.Author);
-			w.WriteUtf8(P.Product);
-			w.WriteUtf8(Name);
+			w.WriteUtf8(Product.Author);
+			w.WriteUtf8(Product.Name);
+			w.WriteUtf8(Platform.Author);
+			w.WriteUtf8(Platform.Name);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			P.Author	= r.ReadUtf8();
-			P.Product	= r.ReadUtf8();
-			Name		= r.ReadUtf8();
+			Product = new ();
+			Platform = new ();
+
+			Product.Author	= r.ReadUtf8();
+			Product.Name	= r.ReadUtf8();
+			Platform.Author	= r.ReadUtf8();
+			Platform.Name	= r.ReadUtf8();
 		}
 	}
 

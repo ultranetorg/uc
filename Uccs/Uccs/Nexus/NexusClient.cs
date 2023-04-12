@@ -37,7 +37,7 @@ namespace Uccs.Uos
 
 		string MapPath(ReleaseAddress r)
 		{
-			return Path.Join(ProductsPath, $"{r.Author}-{r.Product}-{r.Realization}", r.Version.ABC);
+			return Path.Join(ProductsPath, $"{r.Product}-{r.Platform}", r.Version.ABC);
 		}
 
 		public ReleaseAddress ReleaseFromAssembly(string path)
@@ -46,17 +46,20 @@ namespace Uccs.Uos
 
 			var apr = x[0].Split('-');
 
-			return new ReleaseAddress(apr[0], apr[1], apr[2], Version.Parse(x[1]));
+			var p = apr[0].Split('.');
+			var pf = apr[1].Split('.');
+
+			return new ReleaseAddress(p[0], p[1], pf[0], pf[1], Version.Parse(x[1]));
 		}
 
-		public static string VersionToRelative(ReleaseAddress release)
+		public static string ReleaseToRelative(ReleaseAddress release)
 		{
-			return Path.Join($"{release.Author}-{release.Product}-{release.Realization}", release.Version.ABC);
+			return Path.Join($"{release.Product}-{release.Platform}", release.Version.ABC);
 		}
 
 		public string MapReleasePath(ReleaseAddress release)
 		{
-			return Path.Join(ProductsPath, VersionToRelative(release));
+			return Path.Join(ProductsPath, ReleaseToRelative(release));
 		}
 
 		public void Start(Uri address, Workflow workflow)

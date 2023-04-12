@@ -5,21 +5,43 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
+	/// <summary>
+	///  uo-app-ms.dotnet7-0.0.0
+	///  ultranet://testnet1/uo.app/ms.dotnet7/0.0.0
+	/// </summary>
+
 	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>  
 	{
-		RealizationAddress		R; /// to disable implicit conversion
-		public string			Author => R.Author;
-		public string			Product => R.Product;
-		public string			Realization => R.Name;
-		public Version			Version { get; set; }
-		public bool				Valid => R.Valid;
+		public RealizationAddress	Realization; /// to disable implicit conversion
+		public ProductAddress		Product => Realization.Product;
+		public PlatformAddress		Platform => Realization.Platform;
+		public Version				Version { get; set; }
+		public bool					Valid => Realization.Valid;
 
-		public static implicit operator RealizationAddress(ReleaseAddress d) => d.R;
-		public static implicit operator ProductAddress(ReleaseAddress d) => (ProductAddress)d.R;
+		//public static implicit operator RealizationAddress(ReleaseAddress d) => d.R;
+		//public static implicit operator ProductAddress(ReleaseAddress d) => d.R.Product;
 
-		public ReleaseAddress(string author, string product, string platform, Version version)
+		public ReleaseAddress(string author, string product, string platformauthor, string platformname, Version version)
 		{
-			R = new(author, product, platform);
+			Realization = new(author, product, platformauthor, platformname);
+			Version = version;
+		}
+
+		public ReleaseAddress(string author, string product, PlatformAddress platform, Version version)
+		{
+			Realization = new(author, product, platform);
+			Version = version;
+		}
+
+		public ReleaseAddress(ProductAddress product, PlatformAddress platform, Version version)
+		{
+			Realization = new(product, platform);
+			Version = version;
+		}
+
+		public ReleaseAddress(RealizationAddress realization, Version version)
+		{
+			Realization = realization;
 			Version = version;
 		}
 
@@ -29,7 +51,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{R}/{Version}";
+			return $"{Realization}/{Version}";
 		}
 
 		public override bool Equals(object o)
@@ -39,12 +61,12 @@ namespace Uccs.Net
 
 		public bool Equals(ReleaseAddress o)
 		{
-			return R.Equals(o.R) && Version == o.Version;
+			return Realization.Equals(o.Realization) && Version == o.Version;
 		}
 
  		public override int GetHashCode()
  		{
- 			return R.GetHashCode();
+ 			return Realization.GetHashCode();
  		}
 
 		public static bool operator ==(ReleaseAddress left, ReleaseAddress right)
@@ -67,21 +89,21 @@ namespace Uccs.Net
 		
 		public void Parse(string[] s)
 		{
-			R = new();
-			R.Parse(s);
-			Version = Version.Parse(s[3]);
+			Realization = new();
+			Realization.Parse(s);
+			Version = Version.Parse(s[2]);
 		}
 
 		public void Write(BinaryWriter w)
 		{
-			R.Write(w);
+			Realization.Write(w);
 			w.Write(Version);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			R = new();
-			R.Read(r);
+			Realization = new();
+			Realization.Read(r);
 			Version = r.Read<Version>();
 		}
 	}

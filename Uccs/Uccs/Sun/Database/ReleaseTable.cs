@@ -40,10 +40,10 @@ namespace Uccs.Net
 		{
 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				foreach(var i in r.AffectedReleases)
-					if(i.Key.Author == author && i.Key.Product == product && predicate(i.Value))
+					if(i.Key.Product.Author == author && i.Key.Product.Name == product && predicate(i.Value))
 						yield return i.Value;
 
-			var bcid = KeyToBytes(new ReleaseAddress(author, product, "", Version.Zero)).Take(ClustersKeyLength).ToArray();
+			var bcid = KeyToBytes(new ReleaseAddress(author, product, null, null, Version.Zero)).Take(ClustersKeyLength).ToArray();
 			var cid = Cluster.ToId(bcid);
 		
 			var c = Clusters.Find(i => i.Id == cid);
@@ -52,7 +52,7 @@ namespace Uccs.Net
 				yield break;
 		
 			foreach(var i in c.Entries)
-				if(i.Key.Author == author && i.Key.Product == product && predicate(i))
+				if(i.Key.Product.Author == author && i.Key.Product.Name == product && predicate(i))
 					yield return i;
 		}
 	}
