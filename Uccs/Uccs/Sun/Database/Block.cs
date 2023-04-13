@@ -15,7 +15,7 @@ namespace Uccs.Net
 
 	public class BlockPiece : IBinarySerializable, IEquatable<BlockPiece>
 	{
-		public byte[]			Guid { get; set; }
+		public int				Try { get; set; }
 		public int				RoundId { get; set; }
 		public int				Index { get; set; }
 		public int				Total { get; set; }
@@ -36,8 +36,8 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(Guid);
 			writer.Write7BitEncodedInt(RoundId);
+			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt(Index);
 			writer.Write7BitEncodedInt(Total);
 			writer.Write7BitEncodedInt(Data.Length);
@@ -47,8 +47,8 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Guid		= reader.ReadBytes(GuidLength);
 			RoundId		= reader.Read7BitEncodedInt();
+			Try			= reader.Read7BitEncodedInt();
 			Index		= reader.Read7BitEncodedInt();
 			Total		= reader.Read7BitEncodedInt();
 			Data		= reader.ReadBytes(reader.Read7BitEncodedInt());
@@ -62,8 +62,8 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Guid);
 			w.Write7BitEncodedInt(RoundId);
+			w.Write7BitEncodedInt(Try);
 			w.Write7BitEncodedInt(Index);
 			w.Write7BitEncodedInt(Total);
 			w.Write(Data);

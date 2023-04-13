@@ -205,7 +205,7 @@ namespace Uccs.Net
 												{
 													try
 													{
-														Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifests.First(), workflow);
+														Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifest, workflow);
 														Manifest.Release = release;
 
 														if(!Manifest.GetOrCalcHash().SequenceEqual(his.Releases.First(i => i.Address == release).Manifest))

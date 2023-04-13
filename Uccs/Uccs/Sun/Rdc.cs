@@ -88,7 +88,7 @@ namespace Uccs.Net
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
 		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
 		public DeclareReleaseResponse			DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages) => Request<DeclareReleaseResponse>(new DeclareReleaseRequest{Packages = new PackageAddressPack(packages)});
-		public ManifestResponse					GetManifest(ReleaseAddress packages) => Request<ManifestResponse>(new ManifestRequest{Releases = new[]{packages}});
+		public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
 		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress release, Distributive distributive, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Package = release, Distributive = distributive, Offset = offset, Length = length});
 		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
 	}
@@ -242,7 +242,7 @@ namespace Uccs.Net
 								accepted.Add(p);
 								r.BlockPieces.Add(p);
 				
-								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator /*&& i.Guid.SequenceEqual(p.Guid)*/).OrderBy(i => i.Index);
+								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Try == p.Try /*&& i.Guid.SequenceEqual(p.Guid)*/).OrderBy(i => i.Index);
 			
 								if(ps.Count() == p.Total && ps.Zip(ps.Skip(1), (x, y) => x.Index + 1 == y.Index).All(x => x))
 								{
@@ -670,22 +670,20 @@ namespace Uccs.Net
 
 	public class ManifestRequest : RdcRequest
 	{
-		public IEnumerable<ReleaseAddress>	Releases { get; set; }
+		public ReleaseAddress	Release { get; set; }
 
 		public override RdcResponse Execute(Core core)
 		{
 			if(core.Filebase == null)
-			{
 				throw new RdcException(RdcError.NotSeed);
-			}
 
-			return new ManifestResponse{Manifests = Releases.Select(i => core.Filebase.FindRelease(i)?.Manifest).ToArray()};
+			return new ManifestResponse{Manifest = core.Filebase.FindRelease(Release)?.Manifest};
 		}
 	}
 	
 	public class ManifestResponse : RdcResponse
 	{
-		public IEnumerable<Manifest> Manifests { get; set; }
+		public Manifest Manifest { get; set; }
 	}
 
 	public class DownloadReleaseRequest : RdcRequest

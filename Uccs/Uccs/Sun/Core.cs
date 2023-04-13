@@ -1399,7 +1399,7 @@ namespace Uccs.Net
 
 					for(int i = 0; i < npieces; i++)
 					{
-						var p = new BlockPiece(Zone){	Guid = guid,
+						var p = new BlockPiece(Zone){	Try = b is Vote v ? v.Try : 0,
 														RoundId = b.RoundId,
 														Total = npieces,
 														Index = i,

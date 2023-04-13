@@ -79,7 +79,7 @@ namespace Uccs.Sun.FUI
 									{
 										var m = Core.Call(	Role.Seed, 
 															p =>{
-																	var m = p.GetManifest(r.Release).Manifests.FirstOrDefault();
+																	var m = p.GetManifest(r.Release).Manifest;
 																	
 																	if(m == null)
 																		throw new RdcException(Uccs.Net.RdcError.Null);
