@@ -174,7 +174,7 @@ namespace Uccs.Sun.FUI
 				return p;
 			}
 
-			var pa = new PasswordForm(Core.Settings.Secret?.Password);
+			var pa = new PasswordForm(Core.Settings.Secrets?.Password);
 
 			if(pa.Ask($"A password required to access {account} account"))
 			{

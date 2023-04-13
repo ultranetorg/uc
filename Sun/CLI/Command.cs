@@ -92,8 +92,8 @@ namespace Uccs.Sun.CLI
 			
 			if(Args.Has(passwordarg))
 				p = GetString(passwordarg);
-			else if(Settings.Secret != null)	
-				p = Settings.Secret.Password;
+			else if(Settings.Secrets != null)	
+				p = Settings.Secrets.Password;
 			else
 			{
 				var a = new ConsolePasswordAsker();

@@ -29,7 +29,13 @@ namespace Uccs.Net
 
 			Load(b, Commnand);
 
-			if(Path.IsPathRooted(ZonePath))
+			var z = Zone.OfficialByName(ZonePath);
+
+			if(z != null)
+			{
+				Zone = z;
+			}
+			else if(Path.IsPathRooted(ZonePath))
 			{
 				Zone = new Zone();
 				Zone.Load(ZonePath);
@@ -45,7 +51,10 @@ namespace Uccs.Net
 				}
 			}
 
-			Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone.Name);
+			if(Profile == null)
+			{
+				Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone.Name);
+			}
 		}
 
 		public void Load(Xon boot, Xon cmd)

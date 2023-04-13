@@ -231,7 +231,7 @@ namespace Uccs.Net
 		public ApiSettings				Api;
 		public FilebaseSettings			Filebase;
 		public DatabaseSettings			Database;
-		public SecretSettings			Secret;
+		public SecretSettings			Secrets;
 
 		public List<AccountAddress>		ProposedFunds = new(){};
 
@@ -306,7 +306,7 @@ namespace Uccs.Net
 
 		public void LoadSecrets(string path)
 		{
-			Secret = new SecretSettings(path);
+			Secrets = new SecretSettings(path);
 		}
 
 		public XonDocument Save()
@@ -346,7 +346,7 @@ namespace Uccs.Net
 
 			foreach(var i in GetType().GetFields().Where(i => !i.IsInitOnly && !i.IsLiteral))
 			{
-				if(i.Name == nameof(Profile) || i.Name == nameof(Secret))
+				if(i.Name == nameof(Profile) || i.Name == nameof(Secrets))
 					continue;
 
 				save(doc, i.Name, i.FieldType, i.GetValue(this));

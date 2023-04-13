@@ -34,9 +34,9 @@ namespace Uccs.Net
 			{
 				if(_Account == null)
 				{
-					if(Settings.Secret?.NasWallet != null && Settings.Secret?.NasPassword != null)
+					if(Settings.Secrets?.NasWallet != null && Settings.Secrets?.NasPassword != null)
 					{
-						_Account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secret.NasWallet), Settings.Secret.NasPassword);
+						_Account = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(Settings.Secrets.NasWallet), Settings.Secrets.NasPassword);
 					}
 					else
 					{

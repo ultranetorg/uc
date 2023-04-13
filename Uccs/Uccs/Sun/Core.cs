@@ -87,7 +87,7 @@ namespace Uccs.Net
 		public object					Lock = new();
 		public Clock					Clock;
 
-		RocksDb							DatabaseEngine;
+		public RocksDb					DatabaseEngine;
 		public ColumnFamilyHandle		PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
 		readonly DbOptions				DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																			.SetCreateMissingColumnFamilies(true);
@@ -246,23 +246,23 @@ namespace Uccs.Net
 			var cfamilies = new ColumnFamilies();
 			
 			foreach(var i in new ColumnFamilies.Descriptor[]{
-																new (nameof(Peers),						new ()),
-																new (AccountTable.MetaColumnName,		new ()),
-																new (AccountTable.MainColumnName,		new ()),
-																new (AccountTable.MoreColumnName,		new ()),
-																new (AuthorTable.MetaColumnName,		new ()),
-																new (AuthorTable.MainColumnName,		new ()),
-																new (AuthorTable.MoreColumnName,		new ()),
-																new (ProductTable.MetaColumnName,		new ()),
-																new (ProductTable.MainColumnName,		new ()),
-																new (ProductTable.MoreColumnName,		new ()),
+																new (nameof(Peers),					new ()),
+																new (AccountTable.MetaColumnName,	new ()),
+																new (AccountTable.MainColumnName,	new ()),
+																new (AccountTable.MoreColumnName,	new ()),
+																new (AuthorTable.MetaColumnName,	new ()),
+																new (AuthorTable.MainColumnName,	new ()),
+																new (AuthorTable.MoreColumnName,	new ()),
+																new (ProductTable.MetaColumnName,	new ()),
+																new (ProductTable.MainColumnName,	new ()),
+																new (ProductTable.MoreColumnName,	new ()),
 																new (PlatformTable.MetaColumnName,	new ()),
 																new (PlatformTable.MainColumnName,	new ()),
 																new (PlatformTable.MoreColumnName,	new ()),
-																new (ReleaseTable.MetaColumnName,		new ()),
-																new (ReleaseTable.MainColumnName,		new ()),
-																new (ReleaseTable.MoreColumnName,		new ()),
-																new (Database.ChainFamilyName,			new ()),
+																new (ReleaseTable.MetaColumnName,	new ()),
+																new (ReleaseTable.MainColumnName,	new ()),
+																new (ReleaseTable.MoreColumnName,	new ()),
+																new (Database.ChainFamilyName,		new ()),
 															})
 				cfamilies.Add(i);
 
@@ -367,7 +367,7 @@ namespace Uccs.Net
 
 			if(Settings.Database.Base || Settings.Database.Chain)
 			{
-				Database = new Database(Zone, Settings.Database, Settings.Dev, Settings.Secret, Workflow?.Log, Vault, DatabaseEngine);
+				Database = new Database(Zone, Settings.Database, Settings.Dev, Settings.Secrets, Workflow?.Log, Vault, DatabaseEngine);
 		
 				Database.BlockAdded += b =>	ReachConsensus();
 		

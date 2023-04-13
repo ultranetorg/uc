@@ -261,27 +261,21 @@ namespace Uccs.Net
 									b.Read(rd);
 				
 									core.ProcessIncoming(new Block[] {b}, null);
-		
-									//r.BlockPieces.RemoveAll(i => ps.Contains(i));
 								}
 							}
 							else
 								if(ep.Peers != null && !ep.Peers.Contains(Peer))
 									ep.Broadcasted = true;
 						}
-						//else
-						//{
-						//	accepted.Add(p);
-						//}
 					}
 				}
-			}
 
-			if(accepted.Any())
-			{
-				foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer).OrderBy(i => Guid.NewGuid()))
+				if(accepted.Any())
 				{
-					i.Request<object>(new BlocksPiecesRequest{Pieces = accepted});
+					foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer).OrderBy(i => Guid.NewGuid()))
+					{
+						i.Request<object>(new BlocksPiecesRequest{Pieces = accepted});
+					}
 				}
 			}
 

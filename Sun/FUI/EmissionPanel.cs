@@ -23,8 +23,8 @@ namespace Uccs.Sun.FUI
 		{
 			InitializeComponent();
 
-			if(Core.Settings.Secret?.EmissionWallet != null)
-				browse.Text = Core.Settings.Secret.EmissionWallet;
+			if(Core.Settings.Secrets?.EmissionWallet != null)
+				browse.Text = Core.Settings.Secrets.EmissionWallet;
 
 			walletChoice.Checked = true;
 
@@ -137,11 +137,11 @@ namespace Uccs.Sun.FUI
 			{
 				if(walletChoice.Checked)
 				{
-					string password = Core.Settings.Secret?.EmissionPassword;
+					string password = Core.Settings.Secrets?.EmissionPassword;
 	
 					if(password == null)
 					{
-						var f = new PasswordForm(Core.Settings.Secret?.Password);
+						var f = new PasswordForm(Core.Settings.Secrets?.Password);
 					
 						if(f.Ask(browse.Text))
 							password = f.Password;

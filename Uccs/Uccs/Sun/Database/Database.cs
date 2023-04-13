@@ -130,154 +130,17 @@ namespace Uccs.Net
 				{
 					Tail.Clear();
 
-					//var ips = Zone.Initials;
-	
 					if(Dev.GenerateGenesis)
 					{
-						var s = new MemoryStream();
-						var w = new BinaryWriter(s);
-
-						void write(int rid)
-						{
-							var r = FindRound(rid);
-							r.ConfirmedPayloads = r.Payloads.ToList();
-							r.Hashify(r.Id > 0 ? FindRound(rid - 1).Hash : Cryptography.ZeroHash);
-							r.Write(w);
-						}
-	
-						var jr = new MembersJoinRequest(this)
-									{
-										RoundId	= Pitch,
-										IPs		= new [] {Zone.GenesisIP}
-									};
-// 
- 						jr.Sign(secrets.Fathers[0]);
-// 						jr.Write(w);
-
-						var b0 = new Payload(this)
-									{
-										RoundId		= 0,
-										TimeDelta	= 1,
-										Consensus	= Consensus.Empty,
-									};
-
-						var t = new Transaction(Zone, secrets.OrgAccount);
-						t.AddOperation(new Emission(secrets.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
-						t.AddOperation(new AuthorBid(secrets.OrgAccount, "uo", 1){ Id = 1 });
-						t.Sign(secrets.GenAccount, 0);
-						b0.AddNext(t);
-						
-						void emmit(Dictionary<AccountAddress, AccountEntry> accs)
-						{
-							foreach(var f in secrets.Fathers)
-							{
-								var t = new Transaction(Zone, f);
-								t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
-									
-								if(accs != null)
-								{
-									t.AddOperation(new CandidacyDeclaration(f, accs[f].Balance - 1){ Id = 1 });
-								}
-
-								t.Sign(secrets.GenAccount, 0);
-	
-								b0.AddNext(t);
-							}
-
-							b0.Sign(secrets.GenAccount);
-							Add(b0, true);
-						}
-						
-						emmit(null);
-
-						Execute(Tail.First(), Tail.First().Payloads, null);
-						var accs = Tail.First().AffectedAccounts;
-						Tail.Clear();
-						b0.Transactions.Clear();
-						b0.AddNext(t);
-
-						emmit(accs);
-
-						b0.FundJoiners.Add(secrets.OrgAccount);
-	
-						write(0);
-						
-						for(int i = 1; i < Pitch; i++)
-						{
-							var b = new Payload(this)
-									{
-										RoundId		= i,
-										TimeDelta	= i == 1 ? ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1) : 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										Consensus	= Consensus.Empty,
-									};
-	
-							if(i == 1)
-							{
-								t = new Transaction(Zone, secrets.OrgAccount);
-								t.AddOperation(new AuthorRegistration(secrets.OrgAccount, "uo", "UO", 255){ Id = 2 });
-								t.Sign(secrets.GenAccount, i);
-								b.AddNext(t);
-							}
-								
-							b.Sign(secrets.GenAccount);
-							Add(b, false);
-	
-							write(i);
-						}
-	
-						Add(jr, false);
-
-						for(int i = Pitch; i <= LastGenesisRound; i++)
-						{
-							var p = GetRound(i - Pitch);
-	
-							var b = new Vote(this)
-									{
-										RoundId		= i,
-										TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										Consensus	= ProposeConsensus(p)
-									};
-
-							if(i == jr.RoundId)
-							{
-								Add(jr, false);
-							}
-		
-							if(i == Pitch * 2)
-								b.Joiners.Add(secrets.Fathers[0]);
-	
-							b.Sign(secrets.GenAccount);
-							Add(b, false);
-	
-							if(i > LastGenesisRound - Pitch)
-							{
-								var v = new Vote(this)
-										{
-											RoundId		= i,
-											TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-											Consensus	= ProposeConsensus(p)
-										};
-	
-								v.Sign(secrets.Fathers[0]);
-								Add(v, false);
-							}
-
-							write(i);
-						}
-						
-						var g = s.ToArray().ToHex();
+						var g = CreateGenesis(secrets);
 						
 						if(g != Zone.Genesis)
 							throw new IntegrityException("Genesis update needed");
 						
 						Tail.Clear();
-						//JoinRequests.Clear();
 					}
 	
  					var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
-// 
-// 					var jr0 = new MembersJoinRequest(this);
-// 					jr0.Read(rd);
 						
 					for(int i = 0; i <= LastGenesisRound; i++)
 					{
@@ -302,9 +165,6 @@ namespace Uccs.Net
 						if(i <= LastGenesisRound - Pitch)
 							Confirm(r, true);
 					}
-
-
-					//jr0.Read(new BinaryReader(new MemoryStream(Genesises.Find(i => i.Zone == Zone.Current && i.Crypto.GetType() == Cryptography.Current.GetType()).JoinRequest.HexToByteArray())));
 	
 					if(Tail.Any(i => i.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null)))))
 					{
@@ -319,15 +179,6 @@ namespace Uccs.Net
 
 					var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-// 					w.Write(round.Time);
-// 					w.Write(round.WeiSpent);
-// 					w.Write(round.Factor);
-// 					w.Write(round.Emission);
-// 					w.Write(Members);
-// 					w.Write(Funds);
-
-					//LastConfirmedRound			= FindRound();
-
 					for(int i = lcr.Id - lcr.Id % TailLength; i <= lcr.Id; i++)
 					{
 						var r = FindRound(i);
@@ -337,18 +188,144 @@ namespace Uccs.Net
 						r.Confirmed = false;
 						Confirm(r, true);
 					}
-
-					//lcr.Time		= rd.ReadTime();
-					//lcr.WeiSpent	= rd.ReadBigInteger();
-					//lcr.Factor		= rd.ReadCoin();
-					//lcr.Emission	= rd.ReadCoin();
-					//Members			= rd.ReadList<Member>();
-					//Funds			= rd.ReadList<Account>();
-
-					//Members = LastConfirmedRound.Members;
-					//Funds = LastConfirmedRound.Funds;
 				}
 			}
+		}
+
+		public string CreateGenesis(SecretSettings secrets)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			void write(int rid)
+			{
+				var r = FindRound(rid);
+				r.ConfirmedPayloads = r.Payloads.ToList();
+				r.Hashify(r.Id > 0 ? FindRound(rid - 1).Hash : Cryptography.ZeroHash);
+				r.Write(w);
+			}
+	
+			var jr = new MembersJoinRequest(this)
+						{
+							RoundId	= Pitch,
+							IPs		= new [] {Zone.GenesisIP}
+						};
+// 
+ 			jr.Sign(secrets.Fathers[0]);
+// 						jr.Write(w);
+
+			var b0 = new Payload(this)
+						{
+							RoundId		= 0,
+							TimeDelta	= 1,
+							Consensus	= Consensus.Empty,
+						};
+
+			var t = new Transaction(Zone, secrets.OrgAccount);
+			t.AddOperation(new Emission(secrets.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
+			t.AddOperation(new AuthorBid(secrets.OrgAccount, "uo", 1){ Id = 1 });
+			t.Sign(secrets.GenAccount, 0);
+			b0.AddNext(t);
+						
+			void emmit(Dictionary<AccountAddress, AccountEntry> accs)
+			{
+				foreach(var f in secrets.Fathers)
+				{
+					var t = new Transaction(Zone, f);
+					t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
+									
+					if(accs != null)
+					{
+						t.AddOperation(new CandidacyDeclaration(f, accs[f].Balance - 1){ Id = 1 });
+					}
+
+					t.Sign(secrets.GenAccount, 0);
+	
+					b0.AddNext(t);
+				}
+
+				b0.Sign(secrets.GenAccount);
+				Add(b0, true);
+			}
+						
+			emmit(null);
+
+			Execute(Tail.First(), Tail.First().Payloads, null);
+			var accs = Tail.First().AffectedAccounts;
+			Tail.Clear();
+			b0.Transactions.Clear();
+			b0.AddNext(t);
+
+			emmit(accs);
+
+			b0.FundJoiners.Add(secrets.OrgAccount);
+	
+			write(0);
+						
+			for(int i = 1; i < Pitch; i++)
+			{
+				var b = new Payload(this)
+						{
+							RoundId		= i,
+							TimeDelta	= i == 1 ? ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1) : 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+							Consensus	= Consensus.Empty,
+						};
+	
+				if(i == 1)
+				{
+					t = new Transaction(Zone, secrets.OrgAccount);
+					t.AddOperation(new AuthorRegistration(secrets.OrgAccount, "uo", "UO", 255){ Id = 2 });
+					t.Sign(secrets.GenAccount, i);
+					b.AddNext(t);
+				}
+								
+				b.Sign(secrets.GenAccount);
+				Add(b, false);
+	
+				write(i);
+			}
+	
+			Add(jr, false);
+
+			for(int i = Pitch; i <= LastGenesisRound; i++)
+			{
+				var p = GetRound(i - Pitch);
+	
+				var b = new Vote(this)
+						{
+							RoundId		= i,
+							TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+							Consensus	= ProposeConsensus(p)
+						};
+
+				if(i == jr.RoundId)
+				{
+					Add(jr, false);
+				}
+		
+				if(i == Pitch * 2)
+					b.Joiners.Add(secrets.Fathers[0]);
+	
+				b.Sign(secrets.GenAccount);
+				Add(b, false);
+	
+				if(i > LastGenesisRound - Pitch)
+				{
+					var v = new Vote(this)
+							{
+								RoundId		= i,
+								TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+								Consensus	= ProposeConsensus(p)
+							};
+	
+					v.Sign(secrets.Fathers[0]);
+					Add(v, false);
+				}
+
+				write(i);
+			}
+						
+			return s.ToArray().ToHex();
 		}
 
 		public void Add(Block b, bool execute = true)

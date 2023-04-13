@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "with secrets": {
+    "empty": {
       "commandName": "Project",
-      "commandLineArgs": "secrets=a:\\uo",
+      "commandLineArgs": "empty",
       "remoteDebugEnabled": false,
       "remoteDebugMachine": "MVM1",
       "authenticationMode": "Windows"
