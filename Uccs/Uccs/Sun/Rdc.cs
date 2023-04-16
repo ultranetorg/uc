@@ -15,7 +15,7 @@ namespace Uccs.Net
 {
 	public enum Rdc : byte
 	{
-		Null, Time, BlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, DelegateTransactions, GetOperationStatus, Author, Account, 
+		Null, Time, BlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable
 	}
@@ -53,7 +53,7 @@ namespace Uccs.Net
 	public class OperationAddress : IBinarySerializable
 	{
 		public AccountAddress	Account { get; set; }
-		public int		Id { get; set; }
+		public int				Id { get; set; }
 
 		public void Read(BinaryReader r)
 		{
@@ -79,7 +79,7 @@ namespace Uccs.Net
 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
 		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
-		public DelegateTransactionsResponse		DelegateTransactions(IEnumerable<Transaction> transactions) => Request<DelegateTransactionsResponse>(new DelegateTransactionsRequest{Transactions = transactions});
+		public SendTransactionsResponse			SendTransactions(IEnumerable<Transaction> transactions) => Request<SendTransactionsResponse>(new SendTransactionsRequest{Transactions = transactions});
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public GetMembersResponse				GetMembers() => Request<GetMembersResponse>(new GetMembersRequest());
 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
@@ -496,7 +496,7 @@ namespace Uccs.Net
 		public IEnumerable<Member> Members {get; set;}
 	}
 	
-	public class DelegateTransactionsRequest : RdcRequest
+	public class SendTransactionsRequest : RdcRequest
 	{
 		public IEnumerable<Transaction>	Transactions {get; set;}
 
@@ -509,12 +509,12 @@ namespace Uccs.Net
 				{
 					var acc = core.ProcessIncoming(Transactions);
 
-					return new DelegateTransactionsResponse {Accepted = acc.Select(i => i.Signature).ToList()};
+					return new SendTransactionsResponse {Accepted = acc.Select(i => i.Signature).ToList()};
 				}
 		}
 	}
 
-	public class DelegateTransactionsResponse : RdcResponse
+	public class SendTransactionsResponse : RdcResponse
 	{
 		public IEnumerable<byte[]> Accepted { get; set; }
 	}

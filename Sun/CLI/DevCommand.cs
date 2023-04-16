@@ -10,9 +10,6 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "dev";
 
-		/// <summary>
-		/// Usage:	host ping ip=IP[:PORT]
-		/// </summary>
 		public DevCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
 		{
 		}
@@ -25,6 +22,7 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 				case "ping": 
+				{
 					string host = GetString("ip");
 
 					var s = host.Split(':');
@@ -51,7 +49,7 @@ namespace Uccs.Sun.CLI
 						}
 					}
 					return null;
-
+				}
 				case "listen" :
 					var Listener = new TcpListener(IPAddress.Parse(GetString("ip")), int.Parse(GetString("port")));
 					Listener.Start();
@@ -61,6 +59,34 @@ namespace Uccs.Sun.CLI
 					Listener.AcceptTcpClient();
 
 					return null;
+
+				case "signingtest" :
+				{
+					var t = DateTime.Now;
+
+					var c = new EthereumCryptography();
+
+					var a = AccountKey.Create();
+
+					var h = c.Hash(BitConverter.GetBytes(t.Ticks));
+					int n = 0;
+
+					while(!Workflow.IsAborted)
+					{
+						var s = c.Sign(a, h);
+				
+						n++;
+
+						if(DateTime.Now - t > TimeSpan.FromSeconds(1))
+						{
+							Workflow.Log.Report(this, null, $"Signs per second: {n}");
+
+							t = DateTime.Now;
+							n = 0;
+						}
+					}
+					return null;
+				}
 
 				default:
 					throw new SyntaxException("Unknown operation");;

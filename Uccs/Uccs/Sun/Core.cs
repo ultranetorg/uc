@@ -111,7 +111,7 @@ namespace Uccs.Net
 		TcpListener						Listener;
 		public Thread					MainThread;
 		Thread							ListeningThread;
-		Thread							DelegatingThread;
+		Thread							TransactingThread;
 		Thread							VerifingThread;
 		Thread							SynchronizingThread;
 		Thread							DeclaringThread;
@@ -491,7 +491,7 @@ namespace Uccs.Net
 			}
 
 			ListeningThread?.Join();
-			DelegatingThread?.Join();
+			TransactingThread?.Join();
 
 			DatabaseEngine?.Dispose();
 
@@ -1503,7 +1503,7 @@ namespace Uccs.Net
 			Statistics.Consensing.End();
 		}
 
-		void Delegating()
+		void Transacting()
 		{
 			Operation[]					pendings;
 			bool						ready;
@@ -1521,7 +1521,7 @@ namespace Uccs.Net
 				{
 					if(!Operations.Any())
 					{
-						DelegatingThread = null;
+						TransactingThread = null;
 						return;
 					}
 				}
@@ -1586,7 +1586,7 @@ namespace Uccs.Net
 							}
 						}
 	
-						var atxs = m.DelegateTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i)));
+						var atxs = m.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i)));
 	
 						lock(Lock)
 							foreach(var o in atxs.SelectMany(i => i.Operations))
@@ -1661,12 +1661,12 @@ namespace Uccs.Net
 		{
 			if(Operations.Count <= OperationsQueueLimit)
 			{
-				if(DelegatingThread == null)
+				if(TransactingThread == null)
 				{
-					DelegatingThread = new Thread(() => { 
+					TransactingThread = new Thread(() => { 
 															try
 															{
-																Delegating();
+																Transacting();
 															}
 															catch(OperationCanceledException)
 															{
@@ -1677,8 +1677,8 @@ namespace Uccs.Net
 															}
 														});
 
-					DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
-					DelegatingThread.Start();
+					TransactingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Transacting";
+					TransactingThread.Start();
 				}
 
 				o.Placing = PlacingStage.PendingDelegation;
