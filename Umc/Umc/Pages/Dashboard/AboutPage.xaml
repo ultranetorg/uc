@@ -32,8 +32,7 @@
                             Grid.RowSpan="2"
                             Grid.Column="0"
                             HeightRequest="32"
-                            Style="{StaticResource Logo3}"
-                            Source="logo3_dark.png"
+                            Style="{StaticResource Logo4}"
                             VerticalOptions="Center"
                             WidthRequest="32" />
                         <Label
@@ -76,7 +75,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -101,7 +101,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -126,7 +127,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -151,7 +153,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}">
                             <Label
@@ -176,7 +179,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,12,0,0" />
                         </Grid>
                         <Grid Style="{StaticResource DetailsGrid}" RowSpacing="8">
                             <Label
@@ -197,7 +201,8 @@
                                 Grid.Row="2"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource StackSperator}"
-                                VerticalOptions="End" />
+                                VerticalOptions="End"
+								Margin="0,4,0,0" />
                         </Grid>
                         <Label
                             Grid.Row="0"

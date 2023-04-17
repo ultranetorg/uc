@@ -324,6 +324,19 @@
 	  </EmbeddedResource>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Include="Resources\Images\logo\logo0_dark.svg" />
+	  <MauiImage Include="Resources\Images\logo\logo0_dark.svg" />
+	  <None Include="Resources\Images\logo\logo1_dark.svg" />
+	  <MauiImage Include="Resources\Images\logo\logo1_dark.svg" />
+	  <None Include="Resources\Images\logo\logo2_dark.svg" />
+	  <MauiImage Include="Resources\Images\logo\logo2_dark.svg" />
+	  <None Include="Resources\Images\logo\logo3_dark.svg" />
+	  <MauiImage Include="Resources\Images\logo\logo3_dark.svg" />
+	  <None Include="Resources\Images\logo\logo4_dark.svg" />
+	  <MauiImage Include="Resources\Images\logo\logo4_dark.svg" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<OutputType>WinExe</OutputType>
 		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>

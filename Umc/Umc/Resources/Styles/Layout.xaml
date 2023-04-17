@@ -21,7 +21,7 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark=White, Light={StaticResource Secondary}}" />
         <Setter Property="HeightRequest" Value="0.4" />
         <Setter Property="Opacity" Value="0.2" />
-        <Setter Property="Margin" Value="0,4,0,12" />
+        <Setter Property="Margin" Value="0,12" />
     </Style>
     <Style x:Key="stacklayoutStyle" TargetType="StackLayout">
         <Setter Property="VisualStateManager.VisualStateGroups">

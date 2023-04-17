@@ -308,23 +308,36 @@
         <Setter Property="HeightRequest" Value="22" />
         <Setter Property="WidthRequest" Value="22" />
     </Style>
-
+    <Style x:Key="Logo" TargetType="Image">
+        <Setter Property="HeightRequest" Value="172" />
+        <Setter Property="WidthRequest" Value="172" />
+    </Style>
+    <Style x:Key="Logo1" TargetType="Image">
+        <Setter Property="Source" Value="{AppThemeBinding Dark='logo1_dark.png', Light='logo1_light.png'}" />
+        <Setter Property="HeightRequest" Value="120" />
+        <Setter Property="WidthRequest" Value="120" />
+    </Style>
     <Style x:Key="Logo2" TargetType="Image">
         <Setter Property="Source" Value="{AppThemeBinding Dark='logo2_dark.png', Light='logo2_light.png'}" />
         <Setter Property="HeightRequest" Value="120" />
         <Setter Property="WidthRequest" Value="120" />
     </Style>
-    <Style x:Key="Logo" TargetType="Image">
-        <Setter Property="Source" Value="{AppThemeBinding Dark='icon_dark.png', Light='icon_light.png'}" />
+    <Style x:Key="Logo3" TargetType="Image">
+        <Setter Property="Source" Value="{AppThemeBinding Dark='logo3_dark.png', Light='logo3_light.png'}" />
         <Setter Property="HeightRequest" Value="120" />
         <Setter Property="WidthRequest" Value="120" />
     </Style>
-    <Style x:Key="Logo3" TargetType="Image">
+    <Style x:Key="Logo4" TargetType="Image">
+        <Setter Property="Source" Value="{AppThemeBinding Dark='logo4_dark.png', Light='logo4_light.png'}" />
+        <Setter Property="HeightRequest" Value="120" />
+        <Setter Property="WidthRequest" Value="120" />
+    </Style>
+    <!--<Style x:Key="Logo3" TargetType="Image">
         <Setter Property="Source" Value="icon_dark.png" />
         <Setter Property="toolkit:IconTintColorBehavior.TintColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
         <Setter Property="HeightRequest" Value="120" />
         <Setter Property="WidthRequest" Value="120" />
-    </Style>
+    </Style>-->
     <Style x:Key="NoNetwork" TargetType="Image">
         <Setter Property="Source" Value="NoNetwork.png" />
         <Setter Property="HeightRequest" Value="48" />

@@ -7,9 +7,11 @@ public partial class EnterPinViewModel : BasePageViewModel
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(ShowBiometric))]
 	[NotifyPropertyChangedFor(nameof(ShowLogin))]
-    private string _pincode = string.Empty;
+	[NotifyPropertyChangedFor(nameof(Logo))]
+	private string _pincode = string.Empty;
 
-    public bool ShowBiometric => !(Pincode.Length > 0);
+	public string Logo => $"logo{Pincode.Length}_dark.png";
+	public bool ShowBiometric => !(Pincode.Length > 0);
     public bool ShowLogin => Pincode.Length > 0;
 
     public EnterPinViewModel(AuthService authService, INotificationsService notificationService, ILogger<EnterPinViewModel> logger) : base(notificationService, logger)
@@ -44,7 +46,7 @@ public partial class EnterPinViewModel : BasePageViewModel
         catch (Exception ex)
 		{
 			ToastHelper.ShowErrorMessage(_logger);
-			_logger.LogError("BiometricLoginAsync Error: {Message}", ex.Message);
+			_logger.LogError("EnterPincode Error: {Message}", ex.Message);
 		}
 	}
 

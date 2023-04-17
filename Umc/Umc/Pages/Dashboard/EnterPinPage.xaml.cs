@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.Pages;
 
-public partial class EnterPinPage : CustomPage
+public partial class EnterPinPage : ContentPage
 {
 	EnterPinViewModel Vm => BindingContext as EnterPinViewModel;
 
@@ -21,7 +21,7 @@ public partial class EnterPinPage : CustomPage
         base.OnAppearing();
 
 		// temporary 
-        if (DefaultDataMock.NeedToCreatePincode)
+        if (!DefaultDataMock.NeedToCreatePincode)
         {
 			// if pin not set open create pin popup
             await Vm.InitializeAsync();

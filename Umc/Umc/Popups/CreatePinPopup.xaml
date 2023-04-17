@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+
 <toolkit:Popup
     x:Class="UC.Umc.Popups.CreatePinPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -13,15 +14,14 @@
     VerticalOptions="End"
     x:Name="page">
 	<Border Style="{StaticResource AccountCardBorder}">
-        <StackLayout Spacing="60">
+        <StackLayout Spacing="40">
             <Grid
                 Grid.Row="0"
                 RowDefinitions="25,Auto"
-                RowSpacing="15">
+                RowSpacing="16">
 				<Border
                     Grid.Row="0"
                     VerticalOptions="Center"
-                    Margin="0,0,0,8"
                     Style="{StaticResource PopupHandleBorder}" />
                 <Label
                     Grid.Row="1"
@@ -33,100 +33,145 @@
 				FontSize="18"
                 HorizontalOptions="Center"
 				Text="Ultranet User Center" />
-			<Image HorizontalOptions="Center" Style="{StaticResource Logo2}" />
+			<Image
+				HorizontalOptions="Center"
+			    Style="{StaticResource Logo}"
+			    Source="{Binding Logo}" />
             <Grid
                 ColumnDefinitions="*,*,*"
                 RowDefinitions="*,*,*,*"
-                RowSpacing="40"
+                RowSpacing="32"
                 VerticalOptions="EndAndExpand">
                 <Label
                     Grid.Row="0"
                     Grid.Column="0"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="1"
-                    VerticalOptions="Center" />
+                    Text="1">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="1" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="0"
                     Grid.Column="1"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="2"
-                    VerticalOptions="Center" />
+                    Text="2">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="2" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="0"
                     Grid.Column="2"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="3"
-                    VerticalOptions="Center" />
+                    Text="3">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="3" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="1"
                     Grid.Column="0"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="4"
-                    VerticalOptions="Center" />
+                    Text="4">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="4" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="1"
                     Grid.Column="1"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="5"
-                    VerticalOptions="Center" />
+                    Text="5">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="5" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="1"
                     Grid.Column="2"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="6"
-                    VerticalOptions="Center" />
+                    Text="6">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="6" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="2"
                     Grid.Column="0"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="7"
-                    VerticalOptions="Center" />
+                    Text="7">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="7" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="2"
                     Grid.Column="1"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="8"
-                    VerticalOptions="Center" />
+                    Text="8">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="8" />
+					</Label.GestureRecognizers>
+				</Label>
                 <Label
                     Grid.Row="2"
                     Grid.Column="2"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="9"
-                    VerticalOptions="Center" />
+                    Text="9">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="9" />
+					</Label.GestureRecognizers>
+				</Label>
                 <ImageButton
                     Grid.Row="3"
                     Grid.Column="0"
                     Padding="1"
                     HeightRequest="32"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource Backspace}"
-                    VerticalOptions="Center"
-                    WidthRequest="32" />
+                    WidthRequest="32"
+					Command="{Binding RemoveNumberCommand}" />
                 <Label
                     Grid.Row="3"
                     Grid.Column="1"
                     HorizontalOptions="Center"
+                    VerticalOptions="Center"
                     Style="{StaticResource NumberLabel}"
-                    Text="0"
-                    VerticalOptions="Center" />
+                    Text="0">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="0" />
+					</Label.GestureRecognizers>
+				</Label>
                 <ImageButton
                     Grid.Row="3"
                     Grid.Column="2"
                     Padding="1"
                     HeightRequest="32"
                     HorizontalOptions="Center"
-                    Style="{StaticResource LogOut}"
                     VerticalOptions="Center"
-                    WidthRequest="32" />
+                    Style="{StaticResource LogOut}"
+                    WidthRequest="32"
+					Command="{Binding SubmitCommand}" />
             </Grid>
         </StackLayout>
     </Border>
