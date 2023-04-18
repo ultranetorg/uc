@@ -5,6 +5,8 @@ namespace UC.Umc.ViewModels.Popups;
 
 public partial class CreatePinViewModel : BaseViewModel
 {
+	private AuthService _authService;
+
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(ShowLogin))]
 	[NotifyPropertyChangedFor(nameof(Logo))]
@@ -13,8 +15,9 @@ public partial class CreatePinViewModel : BaseViewModel
 	public string Logo => $"logo{Pincode.Length}_dark.png";
 	public bool ShowLogin => Pincode.Length > 0;
 
-	public CreatePinViewModel(ILogger<CreatePinViewModel> logger) : base(logger)
+	public CreatePinViewModel(AuthService authService, ILogger<CreatePinViewModel> logger) : base(logger)
 	{
+		_authService = authService;
 	}
 
 	[RelayCommand]
@@ -39,9 +42,11 @@ public partial class CreatePinViewModel : BaseViewModel
 	{
 		try
 		{
-			await UserSecureStore.SetUserDataAsync(TextConstants.PINCODE_KEY, Pincode, _logger);
-
-			ClosePopup();
+			if (Pincode.Length == 4)
+			{
+				await _authService.CreatePincodeAsync(Pincode);
+				ClosePopup();
+			}
 		}
 		catch (Exception ex)
 		{

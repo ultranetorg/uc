@@ -44,6 +44,7 @@
 		<MauiImage Include="Resources\Images\author\*" />
 		<MauiImage Include="Resources\Images\dashboard\*" />
 		<MauiImage Include="Resources\Images\notifications\*" />
+		<MauiImage Include="Resources\Images\logo\*" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -322,19 +323,6 @@
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Resources\Images\logo\logo0_dark.svg" />
-	  <MauiImage Include="Resources\Images\logo\logo0_dark.svg" />
-	  <None Include="Resources\Images\logo\logo1_dark.svg" />
-	  <MauiImage Include="Resources\Images\logo\logo1_dark.svg" />
-	  <None Include="Resources\Images\logo\logo2_dark.svg" />
-	  <MauiImage Include="Resources\Images\logo\logo2_dark.svg" />
-	  <None Include="Resources\Images\logo\logo3_dark.svg" />
-	  <MauiImage Include="Resources\Images\logo\logo3_dark.svg" />
-	  <None Include="Resources\Images\logo\logo4_dark.svg" />
-	  <MauiImage Include="Resources\Images\logo\logo4_dark.svg" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">

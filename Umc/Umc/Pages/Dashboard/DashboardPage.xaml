@@ -47,7 +47,7 @@
                     WidthRequest="23" />
             </Grid>
         </DataTemplate>
-        <DataTemplate x:DataType="models:AccountViewModel" x:Key="WalletTemplate">
+        <DataTemplate x:DataType="models:AccountViewModel" x:Key="AccountTemplate">
             <Grid ColumnDefinitions="*,2*,*" ColumnSpacing="20">
                 <Label
                     Grid.Column="0"
@@ -69,7 +69,8 @@
                     Style="{StaticResource Regular}"
                     VerticalOptions="Center"
                     FontAttributes="Bold"
-                    Text="{Binding DisplayAmount}"/>
+					HorizontalTextAlignment="End"
+                    Text="{Binding DisplayAmountShort}"/>
             </Grid>
         </DataTemplate>
     </controls:CustomPage.Resources>
@@ -87,7 +88,7 @@
                     <Border Style="{StaticResource SquareBorder}">
                         <VerticalStackLayout
                             BindableLayout.ItemsSource="{Binding Accounts}"
-                            BindableLayout.ItemTemplate="{StaticResource WalletTemplate}"
+                            BindableLayout.ItemTemplate="{StaticResource AccountTemplate}"
                             Spacing="5" />
                     </Border>
                 
@@ -176,6 +177,12 @@
                             Command="{Binding AboutExcuteCommand}"
                             ImageSource="info.png"
                             Text="About" />
+						<controls:ImageTextButton
+                            Grid.Row="3"
+                            Grid.Column="3"
+                            Command="{Binding LockOutCommand}"
+                            ImageSource="lockout.png"
+                            Text="Lock Out" />
                     </Grid>
                 </StackLayout>
             </Grid>

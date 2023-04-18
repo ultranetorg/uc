@@ -27,12 +27,33 @@ public class AuthService
 		{
 			var pin = await UserSecureStore.GetDataAsync(TextConstants.PINCODE_KEY);
 
+			// ask to input pincode again (TBD)
+            await UserSecureStore.SetUserDataAsync(TextConstants.LAST_LOGIN, DateTime.Now.ToShortTimeString(), _logger);
+
 			return !string.IsNullOrEmpty(pincode) && pincode == pin;
 		}
         catch (Exception ex)
         {
             _logger.LogError(ex, "LoginAsync Error: {Ex}", ex.Message);
 			return false;
+        }
+	}
+	
+	// Creates pincode
+	public async Task CreatePincodeAsync(string pincode)
+	{
+		try
+		{
+			await UserSecureStore.SetUserDataAsync(TextConstants.PINCODE_KEY, pincode, _logger);
+
+			// after a while we will ask to change pincode (TBD)
+			await UserSecureStore.SetUserDataAsync(TextConstants.PINCODE_SET, DateTime.Today.ToShortDateString(), _logger);
+
+			await ToastHelper.ShowMessageAsync("Pin was created");
+		}
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CreatePincodeAsync Error: {Ex}", ex.Message);
         }
 	}
 

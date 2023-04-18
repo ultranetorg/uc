@@ -72,6 +72,9 @@ public partial class DashboardViewModel : BasePageViewModel
 	
 	[RelayCommand]
     public async Task WhatsNewExcuteAsync() => await Navigation.GoToUpwardsAsync(Routes.WHATS_NEW);
+	
+	[RelayCommand]
+    public async Task LockOutAsync() => await Navigation.GoToUpwardsAsync(Routes.ENTER_PINCODE);
 
 	internal async Task InitializeAsync()
 	{

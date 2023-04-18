@@ -32,56 +32,66 @@
 				TextColor="{StaticResource PrimaryLight}"
                 Text="Enter PIN or use Fingerprint" />
             <Grid VerticalOptions="EndAndExpand" RowSpacing="40" ColumnDefinitions="*,*,*" RowDefinitions="*,*,*,*">
-				<Label Grid.Column="0" Text="1">
-					<Label.GestureRecognizers>
+				<Border BackgroundColor="Transparent" Grid.Column="0">
+					<Label Text="1" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="1" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Column="1" Text="2">
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Column="1">
+					<Label Text="2" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="2" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Column="2" Text="3" >
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Column="2">
+					<Label Text="3" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="3" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Row="1" Grid.Column="0" Text="4" >
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Row="1" Grid.Column="0">
+					<Label Text="4" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="4" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Row="1" Grid.Column="1" Text="5">
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Row="1" Grid.Column="1">
+					<Label Text="5" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="5" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Row="1" Grid.Column="2" Text="6">
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Row="1" Grid.Column="2">
+					<Label Text="6" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="6" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Row="2" Grid.Column="0" Text="7">
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Row="2" Grid.Column="0">
+					<Label Text="7" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="7" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Row="2" Grid.Column="1" Text="8">
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Row="2" Grid.Column="1">
+					<Label Text="8" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="8" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Row="2" Grid.Column="2" Text="9">
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Row="2" Grid.Column="2">
+					<Label Text="9" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="9" />
-					</Label.GestureRecognizers>
-				</Label>
-				<Label Grid.Row="3" Grid.Column="1" Text="0">
-					<Label.GestureRecognizers>
+					</Border.GestureRecognizers>
+				</Border>
+				<Border BackgroundColor="Transparent" Grid.Row="3" Grid.Column="1">
+					<Label Text="0" />
+					<Border.GestureRecognizers>
 						<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="10" />
-					</Label.GestureRecognizers>
-				</Label>
+					</Border.GestureRecognizers>
+				</Border>
 					
 				<ImageButton
                     Grid.Row="3"

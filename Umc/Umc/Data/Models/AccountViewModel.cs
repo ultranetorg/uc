@@ -22,6 +22,7 @@ public partial class AccountViewModel : ObservableObject
 	public decimal			RoundedBalance => Math.Round(Balance);
 	// lets say 1 unts = $1 unless we can recieve rate
 	public string			DisplayAmount => $"{RoundedBalance} UNT (${RoundedBalance})";
+	public string			DisplayAmountShort => $"{RoundedBalance} UNT";
 	public bool				ShowAmount { get; set; } = true;
 	public string			IconCode => string.IsNullOrEmpty(Address) ? string.Empty : Address?[2..6];
 

@@ -32,7 +32,6 @@ public partial class EnterPinViewModel : BasePageViewModel
 			if (string.IsNullOrEmpty(pin) || pin.Length != 4)
 			{
 				await ShowPopup(new CreatePinPopup());
-				await ToastHelper.ShowMessageAsync("Pin was created");
 			}
 		}
 		catch (Exception ex)
