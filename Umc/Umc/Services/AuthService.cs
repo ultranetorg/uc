@@ -1,5 +1,7 @@
 ﻿using Plugin.Fingerprint;
 using Plugin.Fingerprint.Abstractions;
+using UC.Umc.Common.Constants;
+using UC.Umc.Common.Helpers;
 
 namespace UC.Umc.Services;
 
@@ -17,15 +19,15 @@ public class AuthService
 	{
 		_logger = logger;
 	}
-
+	
+	// Performs pincode check
 	public async Task<bool> LoginAsync(string pincode)
 	{
 		try
 		{
-			// perform pincode check
-			await Task.Delay(10);
+			var pin = await UserSecureStore.GetDataAsync(TextConstants.PINCODE_KEY);
 
-			return !string.IsNullOrEmpty(pincode) && pincode == "1111";
+			return !string.IsNullOrEmpty(pincode) && pincode == pin;
 		}
         catch (Exception ex)
         {
@@ -34,7 +36,7 @@ public class AuthService
         }
 	}
 
-    public async Task<CheckBiometricsResult> CheckBiometricsAsync()
+	public async Task<CheckBiometricsResult> CheckBiometricsAsync()
     {
         try
         {

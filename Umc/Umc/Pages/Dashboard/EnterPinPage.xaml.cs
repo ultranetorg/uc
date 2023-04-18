@@ -19,12 +19,6 @@ public partial class EnterPinPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-		// temporary 
-        if (!DefaultDataMock.NeedToCreatePincode)
-        {
-			// if pin not set open create pin popup
-            await Vm.InitializeAsync();
-        }
+        await Vm.InitializeAsync();
     }
 }

@@ -1,19 +1,17 @@
 ﻿namespace UC.Umc.Common.Helpers;
 
 /// <summary>
-///  Gets and Sets User Token in Secure Storage
+///  Gets and Sets User Data in Secure Storage
 /// </summary>
 internal static class UserSecureStore
 {
-    private const string TOKEN_KEY = "bearer_token";
-
-    internal static async Task SetUserDataAsync(string token, ILogger logger)
+    internal static async Task SetUserDataAsync(string key, string value, ILogger logger)
     {
-        Guard.IsNotNullOrEmpty(token);
+        Guard.IsNotNullOrEmpty(value);
 
         try
         {
-            await SecureStorage.Default.SetAsync(TOKEN_KEY, token);
+            await SecureStorage.Default.SetAsync(key, value);
         }
         catch (Exception ex)
         {
@@ -21,35 +19,35 @@ internal static class UserSecureStore
              * Docs state it's best to remove the setting if an error is thrown
              * Docs: https://docs.microsoft.com/en-us/dotnet/maui/platform-integration/storage/secure-storage?tabs=android#use-secure-storage
              */
-            RemoveToken();
+            RemoveData(key);
             logger.LogError(ex, "SetUserDataAsync Exception: {Ex}", ex.Message);
             ThrowHelper.ThrowInvalidOperationException("Failed to Save Token to SecureStorage", ex);
         }
     }
 
-    internal static async Task<string> GetTokenAsync()
+    internal static async Task<string> GetDataAsync(string key)
     {
-        var token = string.Empty;
+		string token;
 
         try
         {
-            token = await SecureStorage.Default.GetAsync(TOKEN_KEY);
+            token = await SecureStorage.Default.GetAsync(key);
         }
         catch
         {
-            /*
+			/*
              * Docs state it's best to remove the setting if an error is thrown
              * Docs: https://docs.microsoft.com/en-us/dotnet/maui/platform-integration/storage/secure-storage?tabs=android#use-secure-storage
              */
-            RemoveToken();
+			RemoveData(key);
             throw;
         }
 
         return token;
     }
 
-    internal static void RemoveToken()
+    internal static void RemoveData(string key)
     {
-        SecureStorage.Default.Remove(TOKEN_KEY);
+        SecureStorage.Default.Remove(key);
     }
 }

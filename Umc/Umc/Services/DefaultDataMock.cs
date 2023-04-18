@@ -60,8 +60,6 @@ internal static class DefaultDataMock
 		RoundNumber = "36017"
 	};
 
-	public static bool NeedToCreatePincode = false;
-
 	public static AccountColor CreateColor(string argb, Color border = null) => new() { Color = Color.FromArgb(argb), BorderColor = border ?? Colors.Transparent };
 
 	public static AccountColor CreateRandomColor() => CreateColor(ColorHelper.GetRandomColor().ToArgbHex());

@@ -1,4 +1,7 @@
-﻿namespace UC.Umc.ViewModels.Popups;
+﻿using UC.Umc.Common.Constants;
+using UC.Umc.Common.Helpers;
+
+namespace UC.Umc.ViewModels.Popups;
 
 public partial class CreatePinViewModel : BaseViewModel
 {
@@ -32,7 +35,20 @@ public partial class CreatePinViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-	private void Submit() => ClosePopup();
+	private async Task SubmitAsync()
+	{
+		try
+		{
+			await UserSecureStore.SetUserDataAsync(TextConstants.PINCODE_KEY, Pincode, _logger);
+
+			ClosePopup();
+		}
+		catch (Exception ex)
+		{
+			await ToastHelper.ShowDefaultErrorMessageAsync();
+			_logger.LogError("SubmitAsync Error: {Message}", ex.Message);
+		}
+	}
 
 	[RelayCommand]
 	private void RemoveNumber()

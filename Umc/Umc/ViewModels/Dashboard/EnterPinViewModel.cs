@@ -1,4 +1,7 @@
-﻿namespace UC.Umc.ViewModels;
+﻿using UC.Umc.Common.Constants;
+using UC.Umc.Common.Helpers;
+
+namespace UC.Umc.ViewModels;
 
 public partial class EnterPinViewModel : BasePageViewModel
 {
@@ -19,12 +22,18 @@ public partial class EnterPinViewModel : BasePageViewModel
 		_authService = authService;
     }
 
+	// If pin not set opens CreatePinPopup
 	public async Task InitializeAsync()
 	{
 		try
 		{
-			await ShowPopup(new CreatePinPopup());
-			await ToastHelper.ShowMessageAsync("Pin was created");
+			var pin = await UserSecureStore.GetDataAsync(TextConstants.PINCODE_KEY);
+
+			if (string.IsNullOrEmpty(pin) || pin.Length != 4)
+			{
+				await ShowPopup(new CreatePinPopup());
+				await ToastHelper.ShowMessageAsync("Pin was created");
+			}
 		}
 		catch (Exception ex)
 		{
