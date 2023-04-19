@@ -205,7 +205,7 @@ namespace Uccs.Net
 				r.Write(w);
 			}
 	
-			var jr = new MembersJoinRequest(this)
+			var jr = new JoinMembersRequest(this)
 						{
 							RoundId	= Pitch,
 							IPs		= new [] {Zone.GenesisIP}
@@ -245,7 +245,7 @@ namespace Uccs.Net
 				}
 
 				b0.Sign(secrets.GenAccount);
-				Add(b0, true);
+				Add(b0);
 			}
 						
 			emmit(null);
@@ -280,12 +280,12 @@ namespace Uccs.Net
 				}
 								
 				b.Sign(secrets.GenAccount);
-				Add(b, false);
+				Add(b);
 	
 				write(i);
 			}
 	
-			Add(jr, false);
+			Add(jr);
 
 			for(int i = Pitch; i <= LastGenesisRound; i++)
 			{
@@ -300,14 +300,14 @@ namespace Uccs.Net
 
 				if(i == jr.RoundId)
 				{
-					Add(jr, false);
+					Add(jr);
 				}
 		
 				if(i == Pitch * 2)
 					b.Joiners.Add(secrets.Fathers[0]);
 	
 				b.Sign(secrets.GenAccount);
-				Add(b, false);
+				Add(b);
 	
 				if(i > LastGenesisRound - Pitch)
 				{
@@ -319,7 +319,7 @@ namespace Uccs.Net
 							};
 	
 					v.Sign(secrets.Fathers[0]);
-					Add(v, false);
+					Add(v);
 				}
 
 				write(i);
@@ -328,7 +328,7 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
-		public void Add(Block b, bool execute = true)
+		public void Add(Block b)
 		{
 			var r = GetRound(b.RoundId);
 
@@ -379,22 +379,6 @@ namespace Uccs.Net
 			{
 				Add(i);
 			}
-		}
-
-		public bool Verify(Block b)
-		{
-			if(LastConfirmedRound != null && b.RoundId <= LastConfirmedRound.Id)
-				return false;
-
-			var r = FindRound(b.RoundId);
-	
-			if(r != null && r.Blocks.Any(i => i.Signature.SequenceEqual(b.Signature)))
-				return false;
-
-			//if(JoinRequests.Any(i => i.Signature.SequenceEqual(b.Signature)))
-			//	return false;
-		
-			return b.Valid;
 		}
 
 		public Round GetRound(int rid)
@@ -807,7 +791,7 @@ namespace Uccs.Net
 			round.Members.RemoveAll(i => round.ConfirmedLeavers.Contains(i.Generator));
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Generator));
 	
-			if(round.Id <= LastGenesisRound || round.Factor == Emission.FactorEnd) /// Funds reorganization only after emission is over
+			//if(round.Id <= LastGenesisRound || round.Factor == Emission.FactorEnd) /// Funds reorganization only after emission is over
 			{
 				round.Funds.AddRange(round.ConfirmedFundJoiners);
 				round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
@@ -824,7 +808,7 @@ namespace Uccs.Net
 						Accounts	.Save(b, i.AffectedAccounts.Values);
 						Authors		.Save(b, i.AffectedAuthors.Values);
 						Products	.Save(b, i.AffectedProducts.Values);
-						Platforms.Save(b, i.AffectedPlatforms.Values);
+						Platforms	.Save(b, i.AffectedPlatforms.Values);
 						Releases	.Save(b, i.AffectedReleases.Values);
 					}
 

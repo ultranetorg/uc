@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Net;
 using System.Collections;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Uccs.Net
 {
@@ -56,18 +57,61 @@ namespace Uccs.Net
 		public Settings		Settings {get; set;}
 	}
 
-	public class StatusCall : ApiCall
+	public class LogCall : ApiCall
 	{
-		public int Limit  { get; set; }
+		public int		Limit  { get; set; }
 	}
 
-	public class StatusResponse
+	public class LogResponse
 	{
-		public IEnumerable<string>	Log {get; set;}
-		public IEnumerable<string>	Rounds {get; set;}
-		public IEnumerable<string>	InfoFields {get; set;}
-		public IEnumerable<string>	InfoValues {get; set;}
-		public IEnumerable<string>	Peers {get; set;}
+		public IEnumerable<string> Log {get; set;}
+	}
+
+	public class PeersCall : ApiCall
+	{
+		public int		Limit  { get; set; }
+	}
+
+	public class PeersResponse
+	{
+		public IEnumerable<string> Peers {get; set;}
+	}
+
+	public class SummaryCall : ApiCall
+	{
+		public int		Limit  { get; set; }
+	}
+
+	public class SummaryResponse
+	{
+		public IEnumerable<string[]> Summary {get; set;}
+	}
+
+	public class RoundsCall : ApiCall
+	{
+		public int		Limit  { get; set; }
+	}
+
+	public class RoundsResponse
+	{
+		public class Round
+		{
+			public class Block
+			{
+				public string		Generator {get; set;}
+				public BlockType	Type {get; set;}
+			}
+
+			public int						Id {get; set;}
+			public int						Members {get; set;}
+			public int						Pieces {get; set;}
+			public bool						Voted {get; set;}
+			public bool						Confirmed {get; set;}
+			public ChainTime				Time {get; set;}
+			public IEnumerable<Block>		Blocks {get; set;}
+		}
+
+		public IEnumerable<Round> Rounds {get; set;}
 	}
 
 	public class RunNodeCall : ApiCall

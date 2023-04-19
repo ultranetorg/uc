@@ -10,7 +10,7 @@ namespace Uccs.Net
 {
 	public enum BlockType : byte
 	{
-		MembersJoinRequest = 1, Vote = 2, Payload = 3
+		JoinMembersRequest = 1, Vote = 2, Payload = 3
 	}
 
 	public class BlockPiece : IBinarySerializable, IEquatable<BlockPiece>
@@ -25,7 +25,7 @@ namespace Uccs.Net
 		public List<Peer>		Peers;
 		public bool				Broadcasted;
 		public AccountAddress	Generator { get; protected set; }
-		public const int		GuidLength = 8;
+		//public const int		GuidLength = 8;
 
 		Zone					Zone;
 
@@ -165,11 +165,11 @@ namespace Uccs.Net
 		} 
 	}
 
-	public class MembersJoinRequest : Block
+	public class JoinMembersRequest : Block
 	{
 		public IPAddress[]		IPs;
 
-		public MembersJoinRequest(Database c) : base(c)
+		public JoinMembersRequest(Database c) : base(c)
 		{
 		}
 
@@ -204,7 +204,7 @@ namespace Uccs.Net
 
 	public class Vote : Block
 	{
-		public override bool			Valid => RoundId > 0 && Database.Zone.Cryptography.Valid(Signature, Hash, Generator);
+		public override bool			Valid => RoundId > 0;
 		public DateTime					Time;
 
 		public int						Try; /// TODO: revote if consensus not reached

@@ -45,7 +45,7 @@ namespace Uccs.Net
 		{
 			Options = new JsonSerializerOptions{};
 
-			Options.IgnoreReadOnlyProperties = true;
+			Options.IgnoreReadOnlyProperties = false;
 
 			Options.Converters.Add(new CoinJsonConverter());
 			Options.Converters.Add(new AccountJsonConverter());

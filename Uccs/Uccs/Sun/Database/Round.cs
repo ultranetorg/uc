@@ -23,7 +23,7 @@ namespace Uccs.Net
 		public List<BlockPiece>									BlockPieces = new();
 
 		public List<Block>										Blocks = new();
-		public IEnumerable<MembersJoinRequest>					JoinRequests	=> Blocks.OfType<MembersJoinRequest>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<JoinMembersRequest>					JoinRequests	=> Blocks.OfType<JoinMembersRequest>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
 		public IEnumerable<AccountAddress>						Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
@@ -69,7 +69,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks(V/P)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}), Pieces={BlockPieces.Count}, Members={Members?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}/{JoinRequests.Count()}), Pieces={BlockPieces.Count}, Members={Members?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)
@@ -360,7 +360,7 @@ namespace Uccs.Net
 // #endif
 				ReadConfirmed(r);
 				Blocks.AddRange(r.ReadArray(() =>	{
-														var b = new MembersJoinRequest(Database);
+														var b = new JoinMembersRequest(Database);
 														b.RoundId = Id;
 														b.Round = this;
 														b.Read(r);

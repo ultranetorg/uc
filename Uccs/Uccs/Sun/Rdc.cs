@@ -242,7 +242,7 @@ namespace Uccs.Net
 								accepted.Add(p);
 								r.BlockPieces.Add(p);
 				
-								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Try == p.Try /*&& i.Guid.SequenceEqual(p.Guid)*/).OrderBy(i => i.Index);
+								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Try == p.Try).OrderBy(i => i.Index);
 			
 								if(ps.Count() == p.Total && ps.Zip(ps.Skip(1), (x, y) => x.Index + 1 == y.Index).All(x => x))
 								{
@@ -272,7 +272,7 @@ namespace Uccs.Net
 
 				if(accepted.Any())
 				{
-					foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer).OrderBy(i => Guid.NewGuid()))
+					foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer))
 					{
 						i.Request<object>(new BlocksPiecesRequest{Pieces = accepted});
 					}

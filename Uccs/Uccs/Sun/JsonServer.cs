@@ -208,14 +208,41 @@ namespace Uccs.Net
 
 							return Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, new Workflow());
 		
-						case StatusCall s:
+						case LogCall s:
 							lock(Core.Lock)
-								return new StatusResponse{	Log			= Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()), 
-																Rounds		= Database?.Tail.Take(s.Limit).Reverse().Select(i => i.ToString()), 
-																InfoFields	= Core.Info[0].Take(s.Limit), 
-																InfoValues	= Core.Info[1].Take(s.Limit), 
-																Peers		= Core.Peers.Select(i => $"{i.IP} S={i.Status} In={i.InStatus} Out={i.OutStatus} F={i.Failures}")};
-								
+							{
+								return new LogResponse{Log = Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()) }; 
+							}
+
+						case SummaryCall s:
+							lock(Core.Lock)
+							{
+								return new SummaryResponse{Summary = Core.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}) }; 
+							}
+
+						case PeersCall s:
+							lock(Core.Lock)
+							{
+								return new PeersResponse{Peers = Core.Peers.TakeLast(s.Limit).Select(i => i.ToString()) }; 
+							}
+							
+						case RoundsCall s:
+							lock(Core.Lock)
+							{
+								return new RoundsResponse{Rounds = Database?.Tail.Take(s.Limit)
+																				.Reverse()
+																				.Select(i => new RoundsResponse.Round
+																							{
+																								Id = i.Id, 
+																								Members = i.Members.Count,
+																								Pieces = i.BlockPieces.Count,
+																								Voted = i.Voted,
+																								Confirmed = i.Confirmed,
+																								Time = i.Time,
+																								Blocks = i.Blocks.Select(i => new RoundsResponse.Round.Block {Generator = i.Generator.ToString(), Type = i.Type}),
+																							})}; 
+							}
+
 						case ExitCall e:
 							rp.Close();
 							Core.Stop("Json Api call");

@@ -18,6 +18,7 @@ using NBitcoin.Secp256k1;
 using Nethereum.Signer;
 using Nethereum.Web3;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 using static Uccs.Net.Download;
 
@@ -128,42 +129,40 @@ namespace Uccs.Net
 		public CoreDelegate				MainStarted;
 		public CoreDelegate				ApiStarted;
 		
-		public string[][] Info
+		public List<KeyValuePair<string, string>> Summary
 		{
 			get
 			{
-				List<string> f = new();
-				List<string> v = new(); 
+				List<KeyValuePair<string, string>> f = new();
 															
-				f.Add("Version");					v.Add(Version.ToString());
-				f.Add("Zone");						v.Add(Zone.Name);
-				f.Add("Profile");					v.Add(Settings.Profile);
-				f.Add("IP(Reported):Port");			v.Add($"{Settings.IP} ({IP}) : {Zone.Port}");
-				//f.Add($"Generator{(Nci != null ? " (delegation)" : "")}");	v.Add($"{(Generator ?? Nci?.Generator)}");
-				f.Add("Operations");				v.Add($"{Operations.Count}");
-				f.Add("    Pending Delegation");	v.Add($"{Operations.Count(i => i.Placing == PlacingStage.PendingDelegation)}");
-				f.Add("    Accepted");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}");
-				f.Add("    Pending Placement");		v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Verified)}");
-				f.Add("    Placed");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Placed)}");
-				f.Add("    Confirmed");				v.Add($"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}");
-				f.Add("Peers in/out/min/known");	v.Add($"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}");
+				f.Add(new ("Version",					Version.ToString()));
+				f.Add(new ("Zone",						Zone.Name));
+				f.Add(new ("Profile",					Settings.Profile));
+				f.Add(new ("IP(Reported):Port",			$"{Settings.IP} ({IP}) : {Zone.Port}"));
+				f.Add(new ("Operations",				$"{Operations.Count}"));
+				f.Add(new ("    Pending Delegation",	$"{Operations.Count(i => i.Placing == PlacingStage.PendingDelegation)}"));
+				f.Add(new ("    Accepted",				$"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}"));
+				f.Add(new ("    Pending Placement",		$"{Operations.Count(i => i.Placing == PlacingStage.Verified)}"));
+				f.Add(new ("    Placed",				$"{Operations.Count(i => i.Placing == PlacingStage.Placed)}"));
+				f.Add(new ("    Confirmed",				$"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}"));
+				f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
 				
 				if(Database != null)
 				{
-					f.Add("Synchronization");		v.Add($"{Synchronization}");
-					f.Add("Size");					v.Add($"{Database.Size}");
-					f.Add("Members");				v.Add($"{Database.LastConfirmedRound?.Members.Count}");
-					f.Add("Emission");				v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}");
-					f.Add("Cached Block Pieces");	v.Add($"{SyncBlockCache.Sum(i => i.Value.Count)}");
-					f.Add("Cached Rounds");			v.Add($"{Database.LoadedRounds.Count()}");
-					f.Add("Last Non-Empty Round");	v.Add($"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}");
-					f.Add("Last Payload Round");	v.Add($"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}");
-					f.Add("Generating (μs)");		v.Add((Statistics.Generating.Avarage.Ticks/10).ToString());
-					f.Add("Consensing (μs)");		v.Add((Statistics.Consensing.Avarage.Ticks/10).ToString());
-					//f.Add("Delegating (μs)");		v.Add((Statistics.Delegating.Avarage.Ticks/10).ToString());
-					f.Add("Block Processing (μs)");	v.Add((Statistics.BlocksProcessing.Avarage.Ticks/10).ToString());
-					f.Add("Tx Processing (μs)");	v.Add((Statistics.TransactionsProcessing.Avarage.Ticks/10).ToString());
-					f.Add("NAS Eth Account");		v.Add($"{Nas.Account?.Address}");
+					f.Add(new ("Synchronization",		$"{Synchronization}"));
+					f.Add(new ("Size",					$"{Database.Size}"));
+					f.Add(new ("Members",				$"{Database.LastConfirmedRound?.Members.Count}"));
+					f.Add(new ("Emission",				$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}"));
+					f.Add(new ("Cached Block Pieces",	$"{SyncBlockCache.Sum(i => i.Value.Count)}"));
+					f.Add(new ("Cached Rounds",			$"{Database.LoadedRounds.Count()}"));
+					f.Add(new ("Last Non-Empty Round",	$"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}"));
+					f.Add(new ("Last Payload Round",	$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}"));
+					f.Add(new ("Generating (μs)",		(Statistics.Generating.Avarage.Ticks/10).ToString()));
+					f.Add(new ("Consensing (μs)",		(Statistics.Consensing.Avarage.Ticks/10).ToString()));
+					//f.Adnew (d("Delegating (μs)",		(Statistics.Delegating.Avarage.Ticks/10).ToString()));
+					f.Add(new ("Block Processing (μs)",	(Statistics.BlocksProcessing.Avarage.Ticks/10).ToString()));
+					f.Add(new ("Tx Processing (μs)",	(Statistics.TransactionsProcessing.Avarage.Ticks/10).ToString()));
+					f.Add(new ("NAS Eth Account",		$"{Nas.Account?.Address}"));
 
 					if(Synchronization == Synchronization.Synchronized)
 					{
@@ -174,31 +173,31 @@ namespace Uccs.Net
 	
 						foreach(var i in Vault.Accounts)
 						{
-							f.Add($"Account");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}");
+							f.Add(new ($"Account", $"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}"));
 						}
 	
 						if(Settings.Dev.UI)
 						{
 							foreach(var i in Database.LastConfirmedRound.Funds)
 							{
-								f.Add($"Fundable");	v.Add($"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}");
+								f.Add(new ($"Fundable", $"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}"));
 							}
 						}
 					}
 				}
 				else
 				{
-					f.Add("Members (retrieved)");	v.Add($"{Members.Count}");
+					f.Add(new ("Members (retrieved)", $"{Members.Count}"));
 
 					foreach(var i in Vault.Accounts)
 					{
-						f.Add($"Account"); v.Add($"{i}");
+						f.Add(new ($"Account", $"{i}"));
 					}
 				}
 
 				Statistics.Reset();
 		
-				return new [] {f.ToArray(), v.ToArray()};
+				return f;
 			}
 		}
 		
@@ -925,7 +924,7 @@ namespace Uccs.Net
 						peer.InStatus = EstablishingStatus.Succeeded;
 						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}");
 			
-						Workflow.Log?.Report(this, "Accepted from", $"{peer}");
+						Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
 						return;
 					}
@@ -1145,7 +1144,7 @@ namespace Uccs.Net
 									}
 									else
 									{
-										if(confirmed && !r.Confirmed)
+										if(confirmed)
 										{
 											confirmed		= false;
 											final			= rounds.Max(i => i.Id) + 1;
@@ -1153,7 +1152,7 @@ namespace Uccs.Net
 											Synchronization	= Synchronization.Synchronizing;
 										}
 			
-										if(!confirmed && r.Confirmed)
+										if(r.Confirmed)
 										{
 							 				throw new SynchronizationException();
 										}
@@ -1169,33 +1168,26 @@ namespace Uccs.Net
 									}
 								}
 										
-								Workflow.Log?.Report(this, "Rounds received", $"{from}..{to}");
+								Workflow.Log?.Report(this, "Rounds received", $"{rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
+							}
+							else if(Database.BaseHash.SequenceEqual(rp.BaseHash))
+							{
+								Synchronization = Synchronization.Synchronized;
+
+								var rq = new BlocksPiecesRequest();
+								rq.Pieces = SyncBlockCache.OrderBy(i => i.Key).SelectMany(i => i.Value).ToArray();
+								rq.Execute(this);
+									
+								SyncBlockCache.Clear();
+	
+								SynchronizingThread = null;
+	
+								Workflow.Log?.Report(this, "Syncing finished");
+
+								return;
 							}
 							else
-								if(Database.BaseHash.SequenceEqual(rp.BaseHash))
-								{
-// 									if(!Database.Roles.HasFlag(Role.Chain))
-// 										Database.Rounds.Remove(Database.Rounds.Last());
-
-									Synchronization = Synchronization.Synchronized;
-
-									var rq = new BlocksPiecesRequest();
-									rq.Pieces = SyncBlockCache.OrderBy(i => i.Key).SelectMany(i => i.Value);
-									rq.Execute(this);
-									
-									SyncBlockCache.Clear();
-
-									//Database.Add(BlockCache.OrderBy(i => i.RoundId));
-									//BlockCache.Clear();
-	
-									SynchronizingThread = null;
-	
-									Workflow.Log?.Report(this, "Syncing finished");
-
-									return;
-								}
-								else
-									throw new SynchronizationException();
+								throw new SynchronizationException();
 					}
 				}
 				catch(RdcException)
@@ -1218,17 +1210,28 @@ namespace Uccs.Net
 		{
 			Statistics.BlocksProcessing.Begin();
 
- 			var accepted = blocks.Where(b => /*BlockCache.All(i => !i.Signature.SequenceEqual(b.Signature)) &&*/ Database.Verify(b)).ToArray(); /// !ToArray cause will be added to Chain below
+ 			var verified = blocks.Where(b =>{
+												//if(LastConfirmedRound != null && b.RoundId <= LastConfirmedRound.Id)
+												//	return false;
+
+												var r = Database.FindRound(b.RoundId);
+	
+												if(r != null && !r.Confirmed && r.Blocks.Any(i => i.Signature.SequenceEqual(b.Signature)))
+													return false;
+
+												return b.Valid && Zone.Cryptography.Valid(b.Signature, b.Hash, b.Generator);
+
+											}).ToArray(); /// !ToArray cause will be added to Chain below
+
+			if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
+			{
+				Database.Add(verified);
+			}
 
 			if(Synchronization == Synchronization.Synchronized)
 			{
-				var notolder = Database.LastConfirmedRound.Id - Database.Pitch;
-				var notnewer = Database.LastConfirmedRound.Id + Database.Pitch * 2;
-
-				var inrange = accepted.Where(b => notolder <= b.RoundId && b.RoundId <= notnewer);
-
-				var joins = inrange.OfType<MembersJoinRequest>().Where(b => { 
-																				for(int i = b.RoundId; i > b.RoundId - Net.Database.Pitch; i--) /// not more than 1 request per [Pitch] rounds
+				var joins = verified.OfType<JoinMembersRequest>().Where(b => { 
+																				for(int i = b.RoundId; i > b.RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
 																					if(Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == b.Generator))
 																						return false;
 
@@ -1236,8 +1239,8 @@ namespace Uccs.Net
 																			});
 				Database.Add(joins);
 					
-				var votes = inrange.Where(b => b is Uccs.Net.Vote v && (Database.LastConfirmedRound.Members.Any(i => i.Generator == b.Generator) || 
-																	 (Database.Tail.Any(r => r.Members.Any(i => i.Generator == b.Generator)))));
+				var votes = verified.OfType<Vote>().Where(b => b.RoundId > Database.LastConfirmedRound.Id && Database.LastConfirmedRound.Members.Any(i => i.Generator == b.Generator));
+				
 				Database.Add(votes);
 			}
 
@@ -1254,13 +1257,13 @@ namespace Uccs.Net
 			{
 				if(!Database.VoterOf(Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch)).Any(i => i.Generator == g))
 				{
-					var jr = Database.FindLastBlock(i => i is MembersJoinRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as MembersJoinRequest;
+					var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
 					//var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
 		
 					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
 					{
-						var b = new MembersJoinRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
+						var b = new JoinMembersRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
 																	IPs     = new [] {IP}};
 						b.Sign(g);
 						blocks.Add(b);
@@ -1375,7 +1378,7 @@ namespace Uccs.Net
 			{
 				foreach(var b in blocks)
 				{
-					Database.Add(b, b is Payload);
+					Database.Add(b);
 				}
 
 				var pieces = new List<BlockPiece>();
@@ -1394,8 +1397,8 @@ namespace Uccs.Net
 					s.Position = 0;
 					var r = new BinaryReader(s);
 
-					var guid = new byte[BlockPiece.GuidLength];
-					Cryptography.Random.NextBytes(guid);
+					//var guid = new byte[BlockPiece.GuidLength];
+					//Cryptography.Random.NextBytes(guid);
 
 					for(int i = 0; i < npieces; i++)
 					{
@@ -1435,7 +1438,7 @@ namespace Uccs.Net
 				/// LESS RELIABLE
 				foreach(var i in pieces.SelectMany(i => i.Peers).Distinct())
 				{
-					i.Request<object>(new BlocksPiecesRequest{Pieces = pieces.Where(x => x.Peers.Contains(i))});
+					i.Request<object>(new BlocksPiecesRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
 				}
 
 				/// ALL FOR ALL
@@ -1444,7 +1447,7 @@ namespace Uccs.Net
 				///	i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
 				///}
 													
-				/// Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}({i.RoundId})")));
+				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}-{Hex.ToHexString(i.Generator.Prefix)}-{i.RoundId}")));
 			}
 
 			Statistics.Generating.End();
@@ -1605,11 +1608,11 @@ namespace Uccs.Net
 									msgs.Add(i.ToString());
 								}
 		
-								Workflow.Log?.Report(this, "Operations delegated", msgs);
+								Workflow.Log?.Report(this, "Operations sent", msgs);
 							} 
 							else
 							{
-								Workflow.Log?.Report(this, "Operation delegated", $"{atxs.First().Operations.First()} -> {m.Generator} {(m.Rdi is Peer p ? p.IP : "Self")}");
+								Workflow.Log?.Report(this, "Operation sent", $"{atxs.First().Operations.First()} -> {m.Generator} {(m.Rdi is Peer p ? p.IP : "Self")}");
 							}
 						}
 

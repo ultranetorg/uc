@@ -53,15 +53,15 @@ namespace Uccs.Sun.FUI
 
 		public override void PeriodicalRefresh()
 		{
-			string[][] i;
+			List<KeyValuePair<string, string>> i;
 
 			lock(Core.Lock)
 			{
-				i = Core.Info;
+				i = Core.Summary;
 			}
 
-			fields.Text = string.Join('\n', i[0]);
-			values.Text = string.Join('\n', i[1]);
+			fields.Text = string.Join('\n', i.Select(j => j.Key));
+			values.Text = string.Join('\n', i.Select(j => j.Value));
 		
 			 monitor.OnBlockAdded(null);
 		}
