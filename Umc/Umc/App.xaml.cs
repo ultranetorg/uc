@@ -15,6 +15,9 @@ public partial class App : Application
 		
 		SetTheme();
 
+		// uncomment to test create pincode popup
+		Common.Helpers.UserSecureStore.RemoveData(Common.Constants.TextConstants.PINCODE_KEY);
+
 		InitializeRouting();
 			
 		// Workaround for AnimatedModal not working on Android: https://github.com/dotnet/maui/issues/8062

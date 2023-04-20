@@ -1,7 +1,4 @@
-﻿using UC.Umc.Common.Constants;
-using UC.Umc.Common.Helpers;
-
-namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public partial class EnterPinViewModel : BasePageViewModel
 {
@@ -27,9 +24,9 @@ public partial class EnterPinViewModel : BasePageViewModel
 	{
 		try
 		{
-			var pin = await UserSecureStore.GetDataAsync(TextConstants.PINCODE_KEY);
+			var pin = await _authService.CheckIfPincodeIsSetAsync();
 
-			if (string.IsNullOrEmpty(pin) || pin.Length != 4)
+			if (!pin)
 			{
 				await ShowPopup(new CreatePinPopup());
 			}

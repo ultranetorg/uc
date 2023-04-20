@@ -1,7 +1,4 @@
-﻿using UC.Umc.Common.Constants;
-using UC.Umc.Common.Helpers;
-
-namespace UC.Umc.ViewModels.Popups;
+﻿namespace UC.Umc.ViewModels.Popups;
 
 public partial class CreatePinViewModel : BaseViewModel
 {

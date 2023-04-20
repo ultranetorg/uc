@@ -10,10 +10,10 @@ public class AuthService
     private readonly ILogger _logger;
 
     /// <summary>
-    /// Allows User to use pin instead of Biometrics. Only supported on iOS and MacCatalyst
+    /// Allows User to use pin instead of Biometrics. Only supported on iOS and WinUI
     /// </summary>
-    private static bool AllowAlternativeAuthentication => DeviceInfo.Current.Platform == DevicePlatform.iOS ||
-                                                          DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
+    private static bool AllowAlternativeAuthentication => DeviceInfo.Current.Platform != DevicePlatform.iOS &&
+                                                          DeviceInfo.Current.Platform != DevicePlatform.WinUI;
 
 	public AuthService(ILogger<AuthService> logger)
 	{
@@ -90,11 +90,26 @@ public class AuthService
         }
     }
 
+    public async Task<bool> CheckIfPincodeIsSetAsync()
+    {
+        try
+        {
+			var pin = await UserSecureStore.GetDataAsync(TextConstants.PINCODE_KEY);
+
+			return !string.IsNullOrEmpty(pin) && pin.Length == 4;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "CheckIfPincodeIsSetAsync Error: {Ex}", ex.Message);
+            return false;
+        }
+    }
+
     private async Task<bool> IsBiometricAuthenticationActiveAsync()
     {
         try
         {
-            return await CrossFingerprint.Current.IsAvailableAsync(AllowAlternativeAuthentication);
+            return await CrossFingerprint.Current.IsAvailableAsync();
         }
         catch (Exception ex)
         {
