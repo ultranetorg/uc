@@ -335,7 +335,7 @@ namespace Uccs.Net
 			b.Round = r;
 
 			r.Blocks.Add(b);
-			r.Blocks = r.Blocks.OrderBy(i => i is Payload p ? p.OrderingKey : new byte[] {}, new BytesComparer()).ToList();
+			//r.Blocks = r.Blocks.OrderBy(i => i is Payload p ? p.OrderingKey : new byte[] {}, new BytesComparer()).ToList();
 	
 			if(b is Payload p)
 			{
@@ -444,14 +444,14 @@ namespace Uccs.Net
 			}
 		}
 
-		public IEnumerable<Member> VoterOf(Round r)
+		public IEnumerable<Member> VoterOf(int rid)
 		{
-			return FindRound(r.Id - Pitch - 1).Members/*.Where(i => i.JoinedAt < r.Id)*/;
+			return FindRound(rid - Pitch - 1).Members/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
 		public bool QuorumReached(Round r)
 		{
-			var members = VoterOf(r).Select(i => i.Generator);
+			var members = VoterOf(r.Id).Select(i => i.Generator);
 
 			var n = r.Majority.Count(i => members.Contains(i.Generator));
 			
@@ -465,7 +465,7 @@ namespace Uccs.Net
 
 		public bool QuorumFailed(Round r)
 		{
-			var max = VoterOf(r).Select(i => i.Generator);
+			var max = VoterOf(r.Id).Select(i => i.Generator);
 
 			return r.Unique.Count() >= Math.Max(1, max.Count() * 2/3) && r.Majority.Count() + (max.Count() - r.Unique.Count()) < Math.Max(1, max.Count() * 2/3);
 		}
@@ -551,7 +551,7 @@ namespace Uccs.Net
 											.ThenBy(i => i.a.Address)
 											.Select(i => i.jr);
 
-			var n = Math.Min(MembersMax - VoterOf(round).Count(), o.Count());
+			var n = Math.Min(MembersMax - VoterOf(round.Id).Count(), o.Count());
 
 			return o.Take(n).Select(i => i.Generator);
 		}
@@ -560,11 +560,12 @@ namespace Uccs.Net
 		{
 			var joiners = ProposeJoiners(round);
 
-			var leavers = VoterOf(round).Where(i =>	i.JoinedAt < round.ParentId &&
-													Tail.Count(r =>	round.ParentId <= r.Id && r.Id < round.Id &&					/// in previous Pitch number of rounds
-																	r.Votes.Any(b => b.Generator == i.Generator)) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
-													!Enumerable.Range(round.ParentId + 1, Pitch - 1).Select(i => FindRound(i)).Any(r => r.Votes.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator)))) /// not yet reported in prev [Pitch-1] rounds
-										.Select(i => i.Generator);
+			var leavers = VoterOf(round.Id).Where(i =>	i.ActivatedAt <= round.ParentId &&
+														Tail.Count(r =>	round.ParentId <= r.Id && r.Id < round.Id &&					/// in previous Pitch number of rounds
+																		r.Votes.Any(b => b.Generator == i.Generator)
+																	) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
+														!Enumerable.Range(round.ParentId + 1, Pitch - 1).Select(i => FindRound(i)).Any(r => r.Votes.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator)))) /// not yet reported in prev [Pitch-1] rounds
+											.Select(i => i.Generator);
 
 			return leavers;
 		}
@@ -784,7 +785,7 @@ namespace Uccs.Net
 			}
 
 			round.Members.AddRange(round.ConfirmedJoiners	.Where(i => Accounts.Find(i.Generator, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)
-															.Select(i => new Member {Generator = i.Generator, IPs = i.IPs, JoinedAt = round.Id + Pitch}));
+															.Select(i => new Member {Generator = i.Generator, IPs = i.IPs, ActivatedAt = round.Id + Pitch + 1}));
 	
 			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Generator && o.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
 			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Generator) && round.AffectedAccounts[i.Generator].Bail < (Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)

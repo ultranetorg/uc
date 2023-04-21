@@ -8,6 +8,7 @@ using System.Threading;
 using System.Xml.Linq;
 using NativeImport;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 using static Uccs.Net.Download;
 
@@ -221,52 +222,63 @@ namespace Uccs.Net
 				}
 				else if(core.Synchronization == Synchronization.Synchronized)
 				{
-					var notolder = core.Database.LastConfirmedRound.Id - Database.Pitch;
-					var notnewer = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
+					//var notolder = core.Database.LastConfirmedRound.Id - Database.Pitch;
+					//var notnewer = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
 
-					foreach(var p in Pieces)
+					var good = Pieces.Where(p => { 
+													if(p.Type == BlockType.JoinMembersRequest)
+													{
+														for(int i = p.RoundId; i > p.RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
+															if(core.Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == p.Generator))
+																return false;
+													}
+													else
+													{
+														if(p.RoundId <= core.Database.LastConfirmedRound.Id /*|| core.Database.VoterOf(p.RoundId).All(j => j.Generator != p.Generator)*/)
+															return false;
+													}
+
+													return true;
+												}).ToArray();
+
+					foreach(var p in good)
 					{
-						if(core.Zone.Cryptography.AccountFrom(p.Signature, p.Hashify()) != p.Generator)
-						{
-							continue;
-						}
-
-						if(notolder <= p.RoundId && p.RoundId <= notnewer)
-						{
-							var r = core.Database.GetRound(p.RoundId);
+						var r = core.Database.GetRound(p.RoundId);
 				
-							var ep = r.BlockPieces.Find(i => i.Equals(p));
+						var ep = r.BlockPieces.Find(i => i.Equals(p));
 
-							if(ep == null)
-							{
-								accepted.Add(p);
-								r.BlockPieces.Add(p);
+						if(ep == null)
+						{
+							accepted.Add(p);
+							r.BlockPieces.Add(p);
 				
-								var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Try == p.Try).OrderBy(i => i.Index);
+							var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Try == p.Try).OrderBy(i => i.Index);
 			
-								if(ps.Count() == p.Total && ps.Zip(ps.Skip(1), (x, y) => x.Index + 1 == y.Index).All(x => x))
+							if(ps.Count() == p.Total && ps.Zip(ps.Skip(1), (x, y) => x.Index + 1 == y.Index).All(x => x))
+							{
+								var s = new MemoryStream();
+								var w = new BinaryWriter(s);
+				
+								foreach(var i in ps)
 								{
-									var s = new MemoryStream();
-									var w = new BinaryWriter(s);
-				
-									foreach(var i in ps)
-									{
-										s.Write(i.Data);
-									}
-				
-									s.Position = 0;
-									var rd = new BinaryReader(s);
-				
-									var b = Block.FromType(core.Database, (BlockType)rd.ReadByte());
-									b.Read(rd);
-				
-									core.ProcessIncoming(new Block[] {b}, null);
+									s.Write(i.Data);
 								}
+				
+								s.Position = 0;
+								var rd = new BinaryReader(s);
+				
+								var b = Block.FromType(core.Database, p.Type);
+								b.Read(rd);
+
+								if(b.Generator != p.Generator)
+									continue;
+				
+								core.ProcessIncoming(new Block[] {b});
 							}
-							else
-								if(ep.Peers != null && !ep.Peers.Contains(Peer))
-									ep.Broadcasted = true;
 						}
+						else
+							if(ep.Peers != null && !ep.Peers.Contains(Peer))
+								ep.Broadcasted = true;
 					}
 				}
 

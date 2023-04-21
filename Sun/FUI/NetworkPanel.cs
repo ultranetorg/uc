@@ -44,7 +44,7 @@ namespace Uccs.Sun.FUI
 				{
 					var li = Generators.Items.Add(i.Generator.ToString());
 
-					li.SubItems.Add(i.JoinedAt.ToString());
+					li.SubItems.Add(i.ActivatedAt.ToString());
 					li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Generator, int.MaxValue).Bail.ToHumanString() : null);
 					li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}

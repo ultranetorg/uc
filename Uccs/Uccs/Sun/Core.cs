@@ -673,7 +673,7 @@ namespace Uccs.Net
 	
 					lock(Lock)
 					{
-						if(Connections.Count() < Settings.PeersInMax)
+						if(!Workflow.IsAborted && Connections.Count() < Settings.PeersInMax)
 							InboundConnect(client);
 						else
 							client.Close();
@@ -870,6 +870,9 @@ namespace Uccs.Net
 				
 					lock(Lock)
 					{
+						if(Workflow.IsAborted)
+							return;
+
 						if(!h.Versions.Any(i => Versions.Contains(i)))
 						{
 							client.Close();
@@ -1164,7 +1167,7 @@ namespace Uccs.Net
 											rq.Execute(this);
 										}
 
-										ProcessIncoming(r.Blocks, null);
+										ProcessIncoming(r.Blocks);
 									}
 								}
 										
@@ -1206,9 +1209,10 @@ namespace Uccs.Net
 			}
 		}
 
-		public void ProcessIncoming(IEnumerable<Block> blocks, Peer peer)
+		public void ProcessIncoming(IEnumerable<Block> blocks)
 		{
 			Statistics.BlocksProcessing.Begin();
+
 
  			var verified = blocks.Where(b =>{
 												//if(LastConfirmedRound != null && b.RoundId <= LastConfirmedRound.Id)
@@ -1230,18 +1234,18 @@ namespace Uccs.Net
 
 			if(Synchronization == Synchronization.Synchronized)
 			{
-				var joins = verified.OfType<JoinMembersRequest>().Where(b => { 
-																				for(int i = b.RoundId; i > b.RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
-																					if(Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == b.Generator))
-																						return false;
-
-																				return true;
-																			});
-				Database.Add(joins);
-					
-				var votes = verified.OfType<Vote>().Where(b => b.RoundId > Database.LastConfirmedRound.Id && Database.LastConfirmedRound.Members.Any(i => i.Generator == b.Generator));
+				//var joins = verified.OfType<JoinMembersRequest>().Where(b => { 
+				//																for(int i = b.RoundId; i > b.RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
+				//																	if(Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == b.Generator))
+				//																		return false;
+				//
+				//																return true;
+				//															}).ToArray();
+				//Database.Add(joins);
+				//	
+				//var votes = verified.OfType<Vote>().Where(i => i.RoundId > Database.LastConfirmedRound.Id && Database.VoterOf(i.RoundId).Any(j => j.Generator == i.Generator)).ToArray();
 				
-				Database.Add(votes);
+				Database.Add(verified);
 			}
 
 			Statistics.BlocksProcessing.End();
@@ -1255,13 +1259,13 @@ namespace Uccs.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				if(!Database.VoterOf(Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch)).Any(i => i.Generator == g))
+				if(!Database.VoterOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch).Any(i => i.Generator == g))
 				{
 					var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
 					//var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
 		
-					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id) /// to be elected we need to wait [Pitch] rounds for voting and [Pitch] rounds to confirm votes
+					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id)
 					{
 						var b = new JoinMembersRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
 																	IPs     = new [] {IP}};
@@ -1347,7 +1351,7 @@ namespace Uccs.Net
 						blocks.Add(b);
 					}
 
-					while(Database.VoterOf(r.Previous).Any(i => i.Generator == g) && !r.Previous.Votes.Any(i => i.Generator == g))
+					while(Database.VoterOf(r.Previous.Id).Any(i => i.Generator == g) && !r.Previous.Votes.Any(i => i.Generator == g))
 					{
 						r = r.Previous;
 
@@ -1391,7 +1395,7 @@ namespace Uccs.Net
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
 
-					w.Write(b.TypeCode);
+					//w.Write(b.TypeCode);
 					b.Write(w);
 
 					s.Position = 0;
@@ -1402,7 +1406,8 @@ namespace Uccs.Net
 
 					for(int i = 0; i < npieces; i++)
 					{
-						var p = new BlockPiece(Zone){	Try = b is Vote v ? v.Try : 0,
+						var p = new BlockPiece(Zone){	Type = b.Type,
+														Try = b is Vote v ? v.Try : 0,
 														RoundId = b.RoundId,
 														Total = npieces,
 														Index = i,

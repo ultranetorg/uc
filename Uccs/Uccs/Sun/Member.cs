@@ -12,25 +12,25 @@ namespace Uccs.Net
 	{
 		public AccountAddress		Generator { get; set; }
 		public IPAddress[]			IPs { get; set; }
-		public int					JoinedAt { get; set; }
+		public int					ActivatedAt { get; set; }
 	
   		public void Write(BinaryWriter w)
  		{
  			w.Write(Generator);
-			w.Write7BitEncodedInt(JoinedAt);
+			w.Write7BitEncodedInt(ActivatedAt);
  			w.Write(IPs, i => w.Write(i));
  		}
  
  		public void Read(BinaryReader r)
  		{
-			Generator	= r.ReadAccount();
- 			JoinedAt	= r.Read7BitEncodedInt();
- 			IPs			= r.ReadArray(() => r.ReadIPAddress());
+			Generator		= r.ReadAccount();
+ 			ActivatedAt	= r.Read7BitEncodedInt();
+ 			IPs				= r.ReadArray(() => r.ReadIPAddress());
 		}
 
 		public override string ToString()
 		{
-			return $"Generator={Generator}, JoinedAt={JoinedAt}, IPs={{{IPs.Length}}}";
+			return $"Generator={Generator}, JoinedAt={ActivatedAt}, IPs={{{IPs.Length}}}";
 		}
 	}
 

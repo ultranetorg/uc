@@ -15,6 +15,7 @@ namespace Uccs.Net
 
 	public class BlockPiece : IBinarySerializable, IEquatable<BlockPiece>
 	{
+		public BlockType		Type { get; set; }
 		public int				Try { get; set; }
 		public int				RoundId { get; set; }
 		public int				Index { get; set; }
@@ -36,6 +37,7 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
+			writer.Write((byte)Type);
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt(Index);
@@ -47,6 +49,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
+			Type		= (BlockType)reader.ReadByte();
 			RoundId		= reader.Read7BitEncodedInt();
 			Try			= reader.Read7BitEncodedInt();
 			Index		= reader.Read7BitEncodedInt();
@@ -62,6 +65,7 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
+			w.Write((byte)Type);
 			w.Write7BitEncodedInt(RoundId);
 			w.Write7BitEncodedInt(Try);
 			w.Write7BitEncodedInt(Index);
@@ -149,7 +153,7 @@ namespace Uccs.Net
 			var w = new BinaryWriter(s);
 
 			w.Write(TypeCode);
-			w.Write(Database.Zone.Name);
+			w.WriteUtf8(Database.Zone.Name);
 			w.Write7BitEncodedInt(RoundId);
 
 			HashWrite(w);
@@ -292,7 +296,7 @@ namespace Uccs.Net
 	{
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Count() == i.Operations.Count);
-		public byte[]					OrderingKey => Hash;
+		public byte[]					OrderingKey => Generator;
 
 		public bool						Confirmed = false;
 
