@@ -96,7 +96,7 @@ namespace Uccs.Sun.FUI
 									nj = Math.Max(nj, r.ConfirmedJoiners.Count);
 									nl = Math.Max(nj, r.ConfirmedLeavers.Count);
 		
-									if(r != null)
+									if(r?.Members != null)
 										nmemebers = Math.Max(nmemebers, r.Members.Count);
 
 									if(r != null)

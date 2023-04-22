@@ -499,7 +499,7 @@ namespace Uccs.Net
  						throw new RdcException(RdcError.NotSynchronized);
  				}
  				else
- 					return new GetMembersResponse { Members = core.Members };
+ 					return new GetMembersResponse {Members = core.Members};
 		}
 	}
 

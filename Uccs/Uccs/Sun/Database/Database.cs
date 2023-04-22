@@ -142,18 +142,18 @@ namespace Uccs.Net
 	
  					var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
 						
-					for(int i = 0; i <= LastGenesisRound; i++)
+					for(int i = 0; i <= 24; i++)
 					{
 						var r = new Round(this);
 						r.Read(rd);
 						r.Voted = true;
 		
 						Tail.Insert(0, r);
-				
-						if(i == Pitch * 2)
+						
+						if(i == 16)
 						{
-							r.ConfirmedJoiners.Add(new Member {Generator = SecretSettings.Father0, IPs = new [] {Zone.GenesisIP}});
-							r.ConfirmedFundJoiners.Add(SecretSettings.Org);
+							r.ConfirmedJoiners.Add(new Member {Generator = Zone.Father0, IPs = new [] {Zone.GenesisIP}});
+							r.ConfirmedFundJoiners.Add(Zone.Org);
 						}
 	
 						foreach(var p in r.Payloads)
@@ -162,8 +162,10 @@ namespace Uccs.Net
 						if(r.Id > 0)
 							r.Time = CalculateTime(r, r.Unique);
 	
-						if(i <= LastGenesisRound - Pitch)
+						if(i <= 16)
+						{
 							Confirm(r, true);
+						}
 					}
 	
 					if(Tail.Any(i => i.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null)))))
@@ -205,15 +207,6 @@ namespace Uccs.Net
 				r.Write(w);
 			}
 	
-			var jr = new JoinMembersRequest(this)
-						{
-							RoundId	= Pitch,
-							IPs		= new [] {Zone.GenesisIP}
-						};
-// 
- 			jr.Sign(secrets.Fathers[0]);
-// 						jr.Write(w);
-
 			var b0 = new Payload(this)
 						{
 							RoundId		= 0,
@@ -261,66 +254,39 @@ namespace Uccs.Net
 			b0.FundJoiners.Add(secrets.OrgAccount);
 	
 			write(0);
-						
-			for(int i = 1; i < Pitch; i++)
-			{
-				var b = new Payload(this)
-						{
-							RoundId		= i,
-							TimeDelta	= i == 1 ? ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1) : 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-							Consensus	= Consensus.Empty,
-						};
-	
-				if(i == 1)
-				{
-					t = new Transaction(Zone, secrets.OrgAccount);
-					t.AddOperation(new AuthorRegistration(secrets.OrgAccount, "uo", "UO", 255){ Id = 2 });
-					t.Sign(secrets.GenAccount, i);
-					b.AddNext(t);
-				}
-								
-				b.Sign(secrets.GenAccount);
-				Add(b);
-	
-				write(i);
-			}
-	
-			Add(jr);
+			
+			/// UO Autor
 
-			for(int i = Pitch; i <= LastGenesisRound; i++)
-			{
-				var p = GetRound(i - Pitch);
+			var b1 = new Payload(this)
+					{
+						RoundId		= 1,
+						TimeDelta	= ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1),  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+						Consensus	= Consensus.Empty,
+					};
 	
+			t = new Transaction(Zone, secrets.OrgAccount);
+			t.AddOperation(new AuthorRegistration(secrets.OrgAccount, "uo", "UO", 255){ Id = 2 });
+			t.Sign(secrets.GenAccount, 1);
+			b1.AddNext(t);
+								
+			b1.Sign(secrets.GenAccount);
+			Add(b1);
+			write(1);
+	
+			for(int i = 2; i <= 24; i++)
+			{
 				var b = new Vote(this)
 						{
 							RoundId		= i,
 							TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-							Consensus	= ProposeConsensus(p)
+							Consensus	= i < 8 ? Consensus.Empty : ProposeConsensus(GetRound(i - Pitch))
 						};
-
-				if(i == jr.RoundId)
-				{
-					Add(jr);
-				}
 		
-				if(i == Pitch * 2)
-					b.Joiners.Add(secrets.Fathers[0]);
+				if(i == 16)
+					b.Joiners.Add(Zone.Father0);
 	
 				b.Sign(secrets.GenAccount);
 				Add(b);
-	
-				if(i > LastGenesisRound - Pitch)
-				{
-					var v = new Vote(this)
-							{
-								RoundId		= i,
-								TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-								Consensus	= ProposeConsensus(p)
-							};
-	
-					v.Sign(secrets.Fathers[0]);
-					Add(v);
-				}
 
 				write(i);
 			}
@@ -444,7 +410,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public IEnumerable<Member> VoterOf(int rid)
+		public List<Member> VoterOf(int rid)
 		{
 			return FindRound(rid - Pitch - 1).Members/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
@@ -566,7 +532,6 @@ namespace Uccs.Net
 																	) < Pitch * 2/3 &&	/// sent less than 2/3 of required blocks
 														!Enumerable.Range(round.ParentId + 1, Pitch - 1).Select(i => FindRound(i)).Any(r => r.Votes.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator)))) /// not yet reported in prev [Pitch-1] rounds
 											.Select(i => i.Generator);
-
 			return leavers;
 		}
 
@@ -583,7 +548,7 @@ namespace Uccs.Net
 
 			var payloads = round.Majority.OfType<Payload>();
 
-			round.Time = CalculateTime(round, payloads);
+			round.Time = CalculateTime(round, round.Majority);
 			Execute(round, payloads, round.Forkers);
 
 			payloads = payloads.Where(i => i.SuccessfulTransactions.Any()).OrderBy(i => i.OrderingKey, new BytesComparer());

@@ -17,6 +17,10 @@ namespace Uccs.Net
 		public IPAddress		GenesisIP;
 		public IPAddress[]		Initials;
 
+		public AccountAddress	Org = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
+		public AccountAddress	Gen = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
+		public AccountAddress	Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
+
 		public ushort Port	{
 								get
 								{

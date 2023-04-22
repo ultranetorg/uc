@@ -1267,8 +1267,11 @@ namespace Uccs.Net
 		
 					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id)
 					{
-						var b = new JoinMembersRequest(Database){	RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
-																	IPs     = new [] {IP}};
+						var b = new JoinMembersRequest(Database)
+								{	
+									RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
+									IPs     = new [] {IP}
+								};
 						b.Sign(g);
 						blocks.Add(b);
 					}
