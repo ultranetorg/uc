@@ -225,16 +225,20 @@ namespace Uccs.Net
 					//var notolder = core.Database.LastConfirmedRound.Id - Database.Pitch;
 					//var notnewer = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
 
+					var d = core.Database;
+
 					var good = Pieces.Where(p => { 
+
+
 													if(p.Type == BlockType.JoinMembersRequest)
 													{
 														for(int i = p.RoundId; i > p.RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
-															if(core.Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == p.Generator))
+															if(d.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == p.Generator))
 																return false;
 													}
 													else
 													{
-														if(p.RoundId <= core.Database.LastConfirmedRound.Id /*|| core.Database.VoterOf(p.RoundId).All(j => j.Generator != p.Generator)*/)
+														if(p.RoundId <= d.LastConfirmedRound.Id || d.LastConfirmedRound.Id + Database.Pitch * 2 < p.RoundId)
 															return false;
 													}
 
