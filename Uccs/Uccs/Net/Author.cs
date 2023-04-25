@@ -14,7 +14,7 @@ namespace Uccs.Net
 		public string				Title { get; set; }
 		public AccountAddress		Owner { get; set; }
 		public byte					Years { get; set; }
-		public ChainTime			RegistrationTime { get; set; } = ChainTime.Empty;
+		public ChainTime			RegistrationTime { get; set; }
 		public ChainTime			FirstBidTime { get; set; } = ChainTime.Empty;
 		public AccountAddress		LastWinner { get; set; }
 		public Coin					LastBid { get; set; }
@@ -26,21 +26,23 @@ namespace Uccs.Net
 
 			if(IsExclusive(Name))
 			{
-				w.Write(FirstBidTime);
+				w.Write(LastWinner != null);
 
-				if(FirstBidTime != ChainTime.Empty)
+				if(LastWinner != null)
 				{
+					w.Write(FirstBidTime);
 					w.Write(LastWinner);
 					w.Write(LastBidTime);
 					w.Write(LastBid);
 				}
 			}
 
-			w.Write(RegistrationTime);
+			w.Write(Owner != null);
 
-			if(RegistrationTime != ChainTime.Empty)
+			if(Owner != null)
 			{
 				w.Write(Owner);
+				w.Write(RegistrationTime);
 				w.WriteUtf8(Title);
 				w.Write(Years);
 			}
@@ -52,23 +54,21 @@ namespace Uccs.Net
 
 			if(IsExclusive(Name))
 			{
-				FirstBidTime = r.ReadTime();
-
-				if(FirstBidTime != ChainTime.Empty)
+				if(r.ReadBoolean())
 				{
+					FirstBidTime = r.ReadTime();
 					LastWinner	 = r.ReadAccount();
 					LastBidTime	 = r.ReadTime();
 					LastBid		 = r.ReadCoin();
 				}
 			}
 
-			RegistrationTime = r.ReadTime();
-
-			if(RegistrationTime != ChainTime.Empty)
+			if(r.ReadBoolean())
 			{
-				Owner	= r.ReadAccount();
-				Title	= r.ReadUtf8();
-				Years	= r.ReadByte();
+				Owner				= r.ReadAccount();
+				RegistrationTime	= r.ReadTime();
+				Title				= r.ReadUtf8();
+				Years				= r.ReadByte();
 			}
 		}
 	}

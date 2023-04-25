@@ -398,10 +398,10 @@ namespace Uccs.Net
 					{
 						round.AffectAccount(Signer).Balance -= Bid;
 						
-						a.FirstBidTime = round.Time;
-						a.LastBid = Bid;
-						a.LastBidTime = round.Time;
-						a.LastWinner = Signer;
+						a.FirstBidTime	= round.Time;
+						a.LastBid		= Bid;
+						a.LastBidTime	= round.Time;
+						a.LastWinner	= Signer;
 						
 						return;
 					}
@@ -414,9 +414,9 @@ namespace Uccs.Net
 							round.AffectAccount(a.LastWinner).Balance += a.LastBid;
 							round.AffectAccount(Signer).Balance -= Bid;
 							
-							a.LastBid = Bid;
-							a.LastBidTime = round.Time;
-							a.LastWinner = Signer;
+							a.LastBid		= Bid;
+							a.LastBidTime	= round.Time;
+							a.LastWinner	= Signer;
 				
 							return;
 						}
@@ -436,10 +436,10 @@ namespace Uccs.Net
 
 				round.AffectAccount(Signer).Balance -= Bid;
 				
-				a.FirstBidTime = round.Time;
-				a.LastBid = Bid;
-				a.LastBidTime = round.Time;
-				a.LastWinner = Signer;
+				a.FirstBidTime	= round.Time;
+				a.LastBid		= Bid;
+				a.LastBidTime	= round.Time;
+				a.LastWinner	= Signer;
 			
 				return;
 			}
