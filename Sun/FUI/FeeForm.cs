@@ -37,9 +37,9 @@ namespace Uccs.Sun.FUI
 		{
 			from.Text = account.ToString();
 			
-			var t = new Transaction(Zone, account);
+			var t = new Transaction(Zone);
 			t.AddOperation(operation);
-			t.Sign(new AccountAddress(Nethereum.Signer.EthECKey.GenerateKey()), 0);
+			t.Sign(account, new AccountAddress(Nethereum.Signer.EthECKey.GenerateKey()), 0);
 
 			var f = core.EstimateFee(t.Operations);
 

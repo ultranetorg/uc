@@ -16,7 +16,8 @@ namespace Uccs.Net
 {
 	public abstract class Cryptography
 	{
-		//public static Cryptography			Current;
+		public static readonly Cryptography	No = new NoCryptography();
+		public static readonly Cryptography	Ethereum = new EthereumCryptography();
 
 		public const int					SignatureSize = 65;
 		public const int					HashSize = 32;
@@ -29,6 +30,10 @@ namespace Uccs.Net
 		public abstract byte[]				Decrypt(byte[] input, string password);
 
 		public static readonly SecureRandom	Random = new SecureRandom();
+
+		protected Cryptography()
+		{
+		}
 
 		public byte[] Hash(byte[] data)
 		{

@@ -105,52 +105,6 @@ namespace Uccs.Net
 		public string			NasProvider;
 
 		public string			Path;
-		string					FathersPath => System.IO.Path.Join(Path, "Fathers");	
-		AccountKey[]			_Fathers;
-		AccountKey				_OrgAccount;
-		AccountKey				_GenAccount;
-
-		public AccountKey OrgAccount
-		{
-			get
-			{
-				if(_OrgAccount == null)
-				{
-					var c = new NoCryptography();
-					_OrgAccount = AccountKey.Load(c, System.IO.Path.Join(Path, "0xeeee974ab6b3e9533ee99f306460cfc24adcdae0." + Vault.NoCryptoWalletExtention), null);
-				}
-
-				return _OrgAccount;
-			}
-		}
-
-		public AccountKey GenAccount
-		{
-			get
-			{
-				if(_GenAccount == null)
-				{ 
-					var c = new NoCryptography();
-					_GenAccount = AccountKey.Load(c, System.IO.Path.Join(Path, "0xffff50e1605b6f302850694291eb0e688ef15677." + Vault.NoCryptoWalletExtention), null);
-				}
-
-				return _GenAccount;
-			}
-		}
-
-		public AccountKey[] Fathers
-		{
-			get
-			{
-				if(_Fathers == null)
-				{
-					var c = new NoCryptography();
-					_Fathers = Directory.EnumerateFiles(FathersPath, "*." + Vault.NoCryptoWalletExtention).Select(i => AccountKey.Load(c , i, null)).OrderBy(i => i).ToArray();
-				}
-
-				return _Fathers;
-			}
-		}
 
 		public SecretSettings(string path)
 		{
@@ -174,7 +128,6 @@ namespace Uccs.Net
 	public class DevSettings
 	{
 		public bool				UI;
-		public bool				GenerateGenesis;
 		public bool				DisableBailMin;
 		public bool				DisableBidMin;
 		public bool				DisableTimeouts;

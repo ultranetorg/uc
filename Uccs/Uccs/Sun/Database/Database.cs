@@ -83,7 +83,7 @@ namespace Uccs.Net
 
 		public static int					GetValidityPeriod(int rid) => rid + Pitch;
 
-		public Database(Zone zone, DatabaseSettings settings, DevSettings dev, SecretSettings secrets, Log log, Vault vault, RocksDb engine)
+		public Database(Zone zone, DatabaseSettings settings, DevSettings dev, Log log, RocksDb engine)
 		{
 			Zone = zone;
 			Settings = settings;
@@ -129,16 +129,6 @@ namespace Uccs.Net
 				if(chainstate == null || !Engine.Get(GenesisKey).SequenceEqual(Zone.Genesis.HexToByteArray()))
 				{
 					Tail.Clear();
-
-					if(Dev.GenerateGenesis)
-					{
-						var g = CreateGenesis(secrets);
-						
-						if(g != Zone.Genesis)
-							throw new IntegrityException("Genesis update needed");
-						
-						Tail.Clear();
-					}
 	
  					var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
 						
@@ -153,7 +143,7 @@ namespace Uccs.Net
 						if(i == 16)
 						{
 							r.ConfirmedJoiners.Add(new Member {Generator = Zone.Father0, IPs = new [] {Zone.GenesisIP}});
-							r.ConfirmedFundJoiners.Add(Zone.Org);
+							r.ConfirmedFundJoiners.Add(Zone.OrgAccount);
 						}
 	
 						foreach(var p in r.Payloads)
@@ -194,7 +184,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public string CreateGenesis(SecretSettings secrets)
+		public string CreateGenesis(AccountKey gen, AccountKey org, AccountKey[] fathers)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -214,17 +204,17 @@ namespace Uccs.Net
 							Consensus	= Consensus.Empty,
 						};
 
-			var t = new Transaction(Zone, secrets.OrgAccount);
-			t.AddOperation(new Emission(secrets.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
-			t.AddOperation(new AuthorBid(secrets.OrgAccount, "uo", 1){ Id = 1 });
-			t.Sign(secrets.GenAccount, 0);
+			var t = new Transaction(Zone);
+			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
+			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", 1){ Id = 1 });
+			t.Sign(org, gen, 0);
 			b0.AddNext(t);
 						
 			void emmit(Dictionary<AccountAddress, AccountEntry> accs)
 			{
-				foreach(var f in secrets.Fathers)
+				foreach(var f in fathers.OrderBy(j => j))
 				{
-					var t = new Transaction(Zone, f);
+					var t = new Transaction(Zone);
 					t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
 									
 					if(accs != null)
@@ -232,12 +222,12 @@ namespace Uccs.Net
 						t.AddOperation(new CandidacyDeclaration(f, accs[f].Balance - 1){ Id = 1 });
 					}
 
-					t.Sign(secrets.GenAccount, 0);
+					t.Sign(f, gen, 0);
 	
 					b0.AddNext(t);
 				}
 
-				b0.Sign(secrets.GenAccount);
+				b0.Sign(gen);
 				Add(b0);
 			}
 						
@@ -251,7 +241,7 @@ namespace Uccs.Net
 
 			emmit(accs);
 
-			b0.FundJoiners.Add(secrets.OrgAccount);
+			b0.FundJoiners.Add(Zone.OrgAccount);
 	
 			write(0);
 			
@@ -264,12 +254,12 @@ namespace Uccs.Net
 						Consensus	= Consensus.Empty,
 					};
 	
-			t = new Transaction(Zone, secrets.OrgAccount);
-			t.AddOperation(new AuthorRegistration(secrets.OrgAccount, "uo", "UO", 255){ Id = 2 });
-			t.Sign(secrets.GenAccount, 1);
+			t = new Transaction(Zone);
+			t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255){ Id = 2 });
+			t.Sign(org, gen, 1);
 			b1.AddNext(t);
-								
-			b1.Sign(secrets.GenAccount);
+			
+			b1.Sign(gen);
 			Add(b1);
 			write(1);
 	
@@ -285,7 +275,7 @@ namespace Uccs.Net
 				if(i == 16)
 					b.Joiners.Add(Zone.Father0);
 	
-				b.Sign(secrets.GenAccount);
+				b.Sign(gen);
 				Add(b);
 
 				write(i);

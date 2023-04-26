@@ -221,6 +221,7 @@ namespace Uccs.Net
 		//	}
 		//}
 
+
 		public Core(Zone zone, Settings settings, Log log)
 		{
 			Zone = zone;
@@ -366,7 +367,7 @@ namespace Uccs.Net
 
 			if(Settings.Database.Base || Settings.Database.Chain)
 			{
-				Database = new Database(Zone, Settings.Database, Settings.Dev, Settings.Secrets, Workflow?.Log, Vault, DatabaseEngine);
+				Database = new Database(Zone, Settings.Database, Settings.Dev, Workflow?.Log, DatabaseEngine);
 		
 				Database.BlockAdded += b =>	ReachConsensus();
 		
@@ -1584,7 +1585,7 @@ namespace Uccs.Net
 									Monitor.Enter(Lock);
 								}
 
-								var t = new Transaction(Zone, g.Key as AccountKey);
+								var t = new Transaction(Zone);
 
 								foreach(var o in g)
 								{
@@ -1592,7 +1593,7 @@ namespace Uccs.Net
 									t.AddOperation(o);
 								}
 
-								t.Sign(m.Generator, Database.GetValidityPeriod(rmax));
+								t.Sign(Vault.GetKey(g.Key), m.Generator, Database.GetValidityPeriod(rmax));
 								txs.Add(t);
 							}
 						}

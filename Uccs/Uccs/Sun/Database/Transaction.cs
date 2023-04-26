@@ -36,17 +36,12 @@ namespace Uccs.Net
  			Zone = zone;
  		}
 
-		public Transaction(Zone zone, AccountKey signer)
+		public void Sign(AccountKey signer, AccountAddress member, int rmax)
 		{
-			Zone	= zone;
-			Signer	= signer;
-		}
-
-		public void Sign(AccountAddress member, int rmax)
-		{
+			Signer		= signer;
 			Generator	= member;
 			RoundMax	= rmax;
-			Signature	= Zone.Cryptography.Sign(Signer as AccountKey, Hashify());
+			Signature	= Zone.Cryptography.Sign(signer, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)

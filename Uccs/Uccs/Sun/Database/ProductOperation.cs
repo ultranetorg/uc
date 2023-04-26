@@ -33,7 +33,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ProductRegistration(AccountKey signer, ProductAddress name, string title)
+		public ProductRegistration(AccountAddress signer, ProductAddress name, string title)
 		{
 			Signer		= signer;
 			Address		= name;
@@ -216,7 +216,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ReleaseRegistration(AccountKey signer, ReleaseAddress release, string channel, byte[] manifest)
+		public ReleaseRegistration(AccountAddress signer, ReleaseAddress release, string channel, byte[] manifest)
 		{
 			Signer	= signer;
 			Release = release;

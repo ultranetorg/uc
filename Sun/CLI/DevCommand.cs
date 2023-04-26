@@ -64,7 +64,7 @@ namespace Uccs.Sun.CLI
 				{
 					var t = DateTime.Now;
 
-					var c = new EthereumCryptography();
+					var c = Cryptography.Ethereum;
 
 					var a = AccountKey.Create();
 

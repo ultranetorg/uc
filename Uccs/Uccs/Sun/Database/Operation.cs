@@ -217,7 +217,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public Emission(AccountKey signer, BigInteger wei, int eid)
+		public Emission(AccountAddress signer, BigInteger wei, int eid)
 		{
 			Signer = signer;
 			Wei = wei;
@@ -362,7 +362,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public AuthorBid(AccountKey signer, string name, Coin bid)
+		public AuthorBid(AccountAddress signer, string name, Coin bid)
 		{
 			Signer = signer;
 			Author = name;
