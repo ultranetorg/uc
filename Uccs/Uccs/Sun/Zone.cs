@@ -16,6 +16,7 @@ namespace Uccs.Net
 		public string			Genesis;
 		public IPAddress		GenesisIP;
 		public IPAddress[]		Initials;
+		public ZoneCreation		Creation;
 
 		public AccountAddress	OrgAccount = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
 		public AccountAddress	GenAccount = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
@@ -36,56 +37,6 @@ namespace Uccs.Net
  		public static readonly Zone		Testnet1 = new Testnet1();
 		public static readonly Zone		Mainnet	= null;
 		public static readonly Zone[]	Official = {Testnet1, Mainnet};
-
-
-		public class Father
-		{
-			string			PathWithoutExtention;
-			AccountKey		_Key;
-			byte[]			_NoCryptographyWallet;
-			byte[]			_EthereumCryptographyWallet;
-
-			public AccountKey Key
-			{
-				get
-				{
-					if(_Key == null)
-						_Key = AccountKey.Load(Cryptography.No, System.IO.Path.Join(PathWithoutExtention + "." + Vault.NoCryptoWalletExtention), null);
-
-					return _Key;
-				}
-			}
-
-			public Father(string path)
-			{
-				PathWithoutExtention = path;
-			}
-
-			public byte[] GetWallet(Cryptography cryptography)
-			{
-				if(cryptography == Cryptography.No)
-				{
-					if(_NoCryptographyWallet == null)
-						_NoCryptographyWallet = File.ReadAllBytes(System.IO.Path.Join(PathWithoutExtention + "." + Vault.NoCryptoWalletExtention));
-
-					return _NoCryptographyWallet;
-				}
-				
-				if(cryptography == Cryptography.Ethereum)
-				{
-					if(_EthereumCryptographyWallet == null)
-						_EthereumCryptographyWallet = File.ReadAllBytes(System.IO.Path.Join(PathWithoutExtention + "." + Vault.EthereumWalletExtention));
-
-					return _EthereumCryptographyWallet;
-				}
-
-				throw new ArgumentException();
-			}
-		}
-
-		public Father			Gen;
-		public Father			Org;
-		public Father[]			Fathers;
 
 		public Zone()
 		{
