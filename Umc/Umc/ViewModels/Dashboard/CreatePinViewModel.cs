@@ -1,4 +1,4 @@
-﻿namespace UC.Umc.ViewModels.Popups;
+﻿namespace UC.Umc.ViewModels;
 
 public partial class CreatePinViewModel : BaseViewModel
 {
@@ -42,7 +42,7 @@ public partial class CreatePinViewModel : BaseViewModel
 			if (Pincode.Length == 4)
 			{
 				await _authService.CreatePincodeAsync(Pincode);
-				ClosePopup();
+				await Navigation.PopAsync();
 			}
 		}
 		catch (Exception ex)

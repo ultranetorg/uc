@@ -4,6 +4,7 @@ internal static class Routes
 {
     public const string DASHBOARD = nameof(DashboardPage);
     public const string ENTER_PINCODE = nameof(EnterPinPage);
+    public const string CREATE_PINCODE = nameof(CreatePinPage);
     public const string NETWORK = nameof(NetworkPage);
     public const string HELP = nameof(HelpPage);
     public const string HELP_DETAILS = nameof(HelpDetailsPage);

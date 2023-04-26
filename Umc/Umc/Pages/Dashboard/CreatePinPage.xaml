@@ -1,14 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+
 <ContentPage
-    x:Class="UC.Umc.Pages.EnterPinPage"
+    x:Class="UC.Umc.Pages.CreatePinPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:const="clr-namespace:UC.Umc.Constants"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    x:DataType="vm:EnterPinViewModel"
-    Title="Enter Pin"
-    Shell.NavBarIsVisible="False"
-    Shell.TabBarIsVisible="False"
+    x:DataType="vm:CreatePinViewModel"
     x:Name="page">
 
 	<ContentPage.Resources>
@@ -17,24 +16,26 @@
             <Setter Property="VerticalOptions" Value="Center"/>
         </Style>
     </ContentPage.Resources>
-    
+	
     <StackLayout Padding="{StaticResource PagePadding}" Spacing="72">
-        <Label
-            FontSize="18"
-			Margin="0,32,0,0"
-			TextColor="{StaticResource PrimaryLight}"
-            Text="Ultranet User Center" />
-        <Image HorizontalOptions="Center" Style="{StaticResource Logo}" Source="{Binding Logo}" />
-        <Label
-            FontSize="13"
+		<Label
+			FontSize="18"
             HorizontalOptions="Center"
-			TextColor="{StaticResource PrimaryLight}"
-            Text="Enter PIN or use Fingerprint" />
+			Text="Ultranet User Center" />
+		<Image
+			HorizontalOptions="Center"
+			Style="{StaticResource Logo}"
+			Source="{Binding Logo}" />
+        <Label
+            Grid.Row="1"
+            FontSize="18"
+            HorizontalOptions="Center"
+            Text="Create a PIN" />
         <Grid
-			VerticalOptions="EndAndExpand"
-			RowSpacing="40"
-			ColumnDefinitions="*,*,*"
-			RowDefinitions="*,*,*,*">
+            ColumnDefinitions="*,*,*"
+            RowDefinitions="*,*,*,*"
+            RowSpacing="40"
+            VerticalOptions="EndAndExpand">
 			<Border BackgroundColor="Transparent" Grid.Column="0">
 				<Label Text="1" />
 				<Border.GestureRecognizers>
@@ -95,41 +96,27 @@
 					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="10" />
 				</Border.GestureRecognizers>
 			</Border>
-					
-			<ImageButton
+				
+            <ImageButton
                 Grid.Row="3"
                 Grid.Column="0"
                 Padding="1"
                 HeightRequest="32"
                 HorizontalOptions="Center"
-                Style="{StaticResource Backspace}"
                 VerticalOptions="Center"
+                Style="{StaticResource Backspace}"
                 WidthRequest="32"
 				Command="{Binding RemoveNumberCommand}" />
-					
             <ImageButton
-				IsVisible="{Binding ShowLogin}"
                 Grid.Row="3"
                 Grid.Column="2"
                 Padding="1"
                 HeightRequest="32"
                 HorizontalOptions="Center"
+                VerticalOptions="Center"
                 Style="{StaticResource LogOut}"
-                VerticalOptions="Center"
                 WidthRequest="32"
-				Command="{Binding LoginCommand}" />
-
-			<ImageButton
-				IsVisible="{Binding ShowBiometric}"
-                Grid.Row="3"
-                Grid.Column="2"
-                Padding="1"
-                HeightRequest="32"
-                HorizontalOptions="Center"
-                Style="{StaticResource Fingerprint}"
-                VerticalOptions="Center"
-                WidthRequest="32"
-				Command="{Binding BiometricLoginCommand}" />
+				Command="{Binding SubmitCommand}" />
         </Grid>
     </StackLayout>
 </ContentPage>

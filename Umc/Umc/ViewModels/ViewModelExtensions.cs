@@ -63,6 +63,8 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<EnterPinViewModel>();
 
+		builder.Services.AddTransient<CreatePinViewModel>();
+
 		builder.Services.AddTransient<HelpDetailsViewModel>();
 
 		builder.Services.AddTransient<NetworkViewModel>();
@@ -82,16 +84,24 @@ public static class ViewModelExtensions
 		#region Popups
 		
 		builder.Services.AddTransient<DeleteAccountPopupViewModel>();
+
 		builder.Services.AddTransient<SourceAccountViewModel>();
+
 		builder.Services.AddTransient<RecipientAccountViewModel>();
+
 		builder.Services.AddTransient<AuthorOptionsViewModel>();
+
 		builder.Services.AddTransient<SelectAuthorViewModel>();
+
 		builder.Services.AddTransient<TransactionDetailsViewModel>();
+
 		builder.Services.AddTransient<NotificationViewModel>();
+
 		builder.Services.AddTransient<ProductOptionsViewModel>();
+
 		builder.Services.AddTransient<TransferOptionsViewModel>();
+
 		builder.Services.AddTransient<WhatsNewPopupViewModel>();
-		builder.Services.AddTransient<CreatePinViewModel>();
 
 		#endregion
 

@@ -19,7 +19,7 @@ public partial class EnterPinViewModel : BasePageViewModel
 		_authService = authService;
     }
 
-	// If pin not set opens CreatePinPopup
+	// If pin not set opens CreatePinPage
 	public async Task InitializeAsync()
 	{
 		try
@@ -28,7 +28,7 @@ public partial class EnterPinViewModel : BasePageViewModel
 
 			if (!pin)
 			{
-				await ShowPopup(new CreatePinPopup());
+				await Navigation.GoToAsync(Routes.CREATE_PINCODE);
 			}
 		}
 		catch (Exception ex)

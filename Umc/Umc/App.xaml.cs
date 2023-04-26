@@ -16,7 +16,7 @@ public partial class App : Application
 		SetTheme();
 
 		// uncomment to test create pincode popup
-		Common.Helpers.UserSecureStore.RemoveData(Common.Constants.TextConstants.PINCODE_KEY);
+		// UserSecureStore.RemoveData(TextConstants.PINCODE_KEY);
 
 		InitializeRouting();
 			
@@ -55,5 +55,6 @@ public partial class App : Application
 		Routing.RegisterRoute(Routes.UNFINISHED_TRANSFERS, typeof(UnfinishTransferPage));
 		Routing.RegisterRoute(Routes.HELP_DETAILS, typeof(HelpDetailsPage));
 		Routing.RegisterRoute(Routes.NOTIFICATIONS, typeof(NotificationsPage));
+		Routing.RegisterRoute(Routes.CREATE_PINCODE, typeof(CreatePinPage));
 	}
 }
