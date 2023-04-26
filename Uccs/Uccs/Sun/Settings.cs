@@ -100,8 +100,6 @@ namespace Uccs.Net
 		public string			EmissionWallet;
 		public string			EmissionPassword;
 
-		public string			NasWallet;
-		public string			NasPassword;
 		public string			NasProvider;
 
 		public string			Path;
@@ -116,8 +114,6 @@ namespace Uccs.Net
 			
 			Password		= d.GetString("Password");
 
-			NasWallet		= d.GetString("NasWallet");
-			NasPassword		= d.GetString("NasPassword");
 			NasProvider		= d.GetString("NasProvider");
 
 			EmissionWallet	 = d.GetString("EmissionWallet");

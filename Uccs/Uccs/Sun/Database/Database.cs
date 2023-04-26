@@ -255,7 +255,7 @@ namespace Uccs.Net
 					};
 	
 			t = new Transaction(Zone);
-			t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255){ Id = 2 });
+			t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255){Id = 2});
 			t.Sign(org, gen, 1);
 			b1.AddNext(t);
 			
