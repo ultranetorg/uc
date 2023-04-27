@@ -45,8 +45,6 @@ public static class ViewModelExtensions
 
 		builder.Services.AddTransient<MakeBidViewModel>();
 
-		builder.Services.AddTransient<ProductsListViewModel>();
-
 		builder.Services.AddTransient<ProductSearchViewModel>();
 
 		builder.Services.AddTransient<ProductTransferViewModel>();

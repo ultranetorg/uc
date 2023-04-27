@@ -35,3 +35,11 @@ public class ProductViewModel
 		Account = account;
 	}
 }
+
+public partial class FilterOption :  ObservableObject
+{
+	[ObservableProperty]
+	private bool _isSelected;
+
+	public string Name { get; set; }
+}

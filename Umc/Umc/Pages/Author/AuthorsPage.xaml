@@ -20,13 +20,11 @@
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="48,40,*" RowSpacing="4" Margin="16,0,16,4">       
             <Grid
-                Grid.Row="0"
                 ColumnDefinitions="4*,*"
                 Margin="8,4">
                 <AbsoluteLayout
                     HeightRequest="60"
-                    WidthRequest="290"
-                    Grid.Row="0">
+                    WidthRequest="296">
                     <controls:FormEntryControl
                         AbsoluteLayout.LayoutBounds="0,1,1,1"
                         AbsoluteLayout.LayoutFlags="All"
@@ -55,11 +53,11 @@
                 </AbsoluteLayout>
             </Grid>
             <CollectionView
-                ItemSizingStrategy="MeasureAllItems"
                 Grid.Row="1"
-                ItemsSource="{Binding AuthorsFilter}">
+                ItemsSource="{Binding AuthorsFilter}"
+                ItemSizingStrategy="MeasureAllItems">
                 <CollectionView.ItemsLayout>
-                    <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
+                    <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
@@ -124,12 +122,11 @@
                             <Border Style="{StaticResource AccountCardBorder}">
                                 <Grid
                                     Padding="14"
-                                    ColumnDefinitions="*,2*,2*,30"
-                                    ColumnSpacing="10"
+                                    ColumnDefinitions="*,2*,2*,32"
+                                    ColumnSpacing="8"
                                     RowDefinitions="*,*"
                                     Style="{StaticResource AccountGrid}">
                                     <Image
-                                        Grid.Column="0"
                                         Grid.RowSpan="2"
                                         Source="{Binding Status, Converter={StaticResource AuthorToImageConverter}}">
                                         <Image.Behaviors>
@@ -137,12 +134,10 @@
                                         </Image.Behaviors>
                                     </Image>
                                     <Label
-                                        Grid.Row="0"
                                         Grid.Column="1"
                                         FontSize="13"
                                         Text="{Binding Name}" />
                                     <Label
-                                        Grid.Row="0"
                                         Grid.Column="2"
                                         FontSize="10"
                                         Text="{Binding DisplayLine1}"
@@ -171,7 +166,7 @@
                                     <ImageButton
                                         Grid.RowSpan="2"
                                         Grid.Column="3"
-                                        Padding="1"
+                                        Padding="2"
                                         Command="{Binding OpenOptionsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
                                         CommandParameter="{Binding .}"
                                         Style="{StaticResource Dots}"

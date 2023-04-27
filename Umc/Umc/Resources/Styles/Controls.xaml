@@ -501,7 +501,7 @@
         x:Key="ButtonLabel"
         ApplyToDerivedTypes="True"
         TargetType="Label">
-        <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDarker}, Default={StaticResource PrimaryDarker}}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDarker}}" />
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontFamily" Value="Medium" />
     </Style>

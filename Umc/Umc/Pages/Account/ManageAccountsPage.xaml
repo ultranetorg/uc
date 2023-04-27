@@ -14,15 +14,14 @@
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <CollectionView
-                Grid.Row="0"
                 ItemsSource="{Binding Accounts}"
-                SelectionMode="None">
+                ItemSizingStrategy="MeasureAllItems">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:AccountViewModel">
                         <Border Margin="16,4" Style="{StaticResource AccountCardBorder}">
                             <Grid
                                 Padding="12"
-                                ColumnDefinitions="60,*,30"
+                                ColumnDefinitions="64,*,32"
                                 ColumnSpacing="8"
                                 RowDefinitions="20,20,20"
                                 RowSpacing="0"
@@ -33,9 +32,7 @@
                                         CommandParameter="{Binding .}" />
                                 </Grid.GestureRecognizers>
                                 <Border
-                                    Grid.Row="0"
                                     Grid.RowSpan="3"
-                                    Grid.Column="0"
                                     Background="{Binding Color}"
                                     Style="{StaticResource AccountColorBorder}">
                                     <Label
@@ -47,7 +44,6 @@
                                         VerticalOptions="Center" />
                                 </Border>
                                 <Label
-                                    Grid.Row="0"
                                     Grid.Column="1"
                                     FontSize="13"
                                     Text="{Binding Name}"

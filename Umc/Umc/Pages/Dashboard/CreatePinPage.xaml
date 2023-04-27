@@ -17,7 +17,7 @@
         </Style>
     </ContentPage.Resources>
 	
-    <StackLayout Padding="{StaticResource PagePadding}" Spacing="72">
+    <StackLayout Padding="{StaticResource PagePadding}" Spacing="64">
 		<Label
 			FontSize="18"
             HorizontalOptions="Center"
@@ -102,20 +102,20 @@
                 Grid.Column="0"
                 Padding="1"
                 HeightRequest="32"
+                WidthRequest="32"
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
                 Style="{StaticResource Backspace}"
-                WidthRequest="32"
 				Command="{Binding RemoveNumberCommand}" />
             <ImageButton
                 Grid.Row="3"
                 Grid.Column="2"
                 Padding="1"
                 HeightRequest="32"
+                WidthRequest="32"
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
                 Style="{StaticResource LogOut}"
-                WidthRequest="32"
 				Command="{Binding SubmitCommand}" />
         </Grid>
     </StackLayout>

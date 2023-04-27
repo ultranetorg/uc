@@ -12,13 +12,13 @@
     
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
-            <CollectionView Grid.Row="0" ItemsSource="{Binding Products}">
+            <CollectionView ItemsSource="{Binding Products}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:ProductViewModel">
                         <Border Margin="16,8" Style="{StaticResource AccountCardBorder}">
                             <Grid
                                 Padding="12,4"
-                                ColumnDefinitions="52,*,32"
+                                ColumnDefinitions="56,*,32"
                                 ColumnSpacing="24"
                                 HeightRequest="52"
                                 RowDefinitions="24,24"
@@ -28,17 +28,13 @@
                                     <TapGestureRecognizer Command="{Binding BindingContext.OpenProductOptionsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
                                 </Grid.GestureRecognizers>
                                 <Border
-                                    Grid.Row="0"
                                     Grid.RowSpan="2"
-                                    Grid.Column="0"
-                                    Margin="-10,-5,0,-10"
+                                    Margin="-12,-4,0,0"
                                     BackgroundColor="{Binding Color}"
                                     Opacity="0.3"
                                     VerticalOptions="FillAndExpand" />
                                 <Label
-                                    Grid.Row="0"
                                     Grid.RowSpan="2"
-                                    Grid.Column="0"
                                     Margin="-8,0,0,0"
                                     FontSize="24"
                                     HorizontalOptions="Center"
@@ -46,19 +42,19 @@
                                     Text="{Binding Abbr}"
                                     TextColor="{Binding Color}" />
                                 <Label
-                                    Grid.Row="0"
                                     Grid.Column="1"
+                                    Margin="8,0,0,0"
                                     FontSize="13"
                                     Text="{Binding Name}"
                                     VerticalOptions="End" />
                                 <Label
                                     Grid.Row="1"
                                     Grid.Column="1"
+                                    Margin="8,0,0,0"
                                     FontSize="10"
                                     Text="{Binding Owner}"
                                     VerticalOptions="Start" />
                                 <ImageButton
-                                    Grid.Row="0"
                                     Grid.RowSpan="2"
                                     Grid.Column="2"
                                     Padding="1"
