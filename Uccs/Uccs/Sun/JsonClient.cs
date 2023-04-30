@@ -91,7 +91,7 @@ namespace Uccs.Net
 				}
 				catch(Exception ex)
 				{
-					throw new ApiCallException("Response deserialization failed", ex);
+					throw new ApiCallException(ex.ToString());
 				}
 			}
 		}

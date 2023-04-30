@@ -57,7 +57,7 @@ namespace Uccs.Net
 		public Settings		Settings {get; set;}
 	}
 
-	public class LogCall : ApiCall
+	public class LogReportCall : ApiCall
 	{
 		public int		Limit  { get; set; }
 	}
@@ -67,7 +67,7 @@ namespace Uccs.Net
 		public IEnumerable<string> Log {get; set;}
 	}
 
-	public class PeersCall : ApiCall
+	public class PeersReportCall : ApiCall
 	{
 		public int		Limit  { get; set; }
 	}
@@ -77,7 +77,7 @@ namespace Uccs.Net
 		public IEnumerable<string> Peers {get; set;}
 	}
 
-	public class SummaryCall : ApiCall
+	public class SummaryReportCall : ApiCall
 	{
 		public int		Limit  { get; set; }
 	}
@@ -87,21 +87,21 @@ namespace Uccs.Net
 		public IEnumerable<string[]> Summary {get; set;}
 	}
 
-	public class RoundsCall : ApiCall
+	public class ChainReportCall : ApiCall
 	{
 		public int		Limit  { get; set; }
 	}
 
-	public class RoundsResponse
+	public class ChainReportResponse
 	{
+		public class Block
+		{
+			public string		Generator {get; set;}
+			public BlockType	Type {get; set;}
+		}
+
 		public class Round
 		{
-			public class Block
-			{
-				public string		Generator {get; set;}
-				public BlockType	Type {get; set;}
-			}
-
 			public int						Id {get; set;}
 			public int						Members {get; set;}
 			public int						Pieces {get; set;}
@@ -112,6 +112,29 @@ namespace Uccs.Net
 		}
 
 		public IEnumerable<Round> Rounds {get; set;}
+	}
+
+	public class PiecesReportCall : ApiCall
+	{
+		public int		RoundId  { get; set; }
+		public int		Limit  { get; set; }
+	}
+
+	public class PiecesReportResponse
+	{
+		public class Piece
+		{
+			public BlockType		Type { get; set; }
+			public int				Try { get; set; }
+			public int				RoundId { get; set; }
+			public int				Index { get; set; }
+			public int				Total { get; set; }
+			public byte[]			Signature { get; set; }
+			public int				DataLength { get; set; }
+			public AccountAddress	Generator { get; set; }
+		}
+
+		public IEnumerable<Piece> Pieces {get; set;}
 	}
 
 	public class RunNodeCall : ApiCall
@@ -148,7 +171,7 @@ namespace Uccs.Net
 		public bool							Confirmed { get; set; }
 	}
 
-	public class DistributeReleaseCall : ApiCall
+	public class AddReleaseCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }
 		public byte[]			Complete { get; set; }

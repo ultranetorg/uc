@@ -31,17 +31,21 @@ namespace Uccs.Net
 	{
 		public PerformanceMeter Consensing = new();
 		public PerformanceMeter Generating = new();
-		public PerformanceMeter Delegating = new();
-		public PerformanceMeter BlocksProcessing = new();
-		public PerformanceMeter TransactionsProcessing = new();
+		public PerformanceMeter Transacting = new();
+		public PerformanceMeter Verifying = new();
+		public PerformanceMeter Declaring = new();
+		public PerformanceMeter Sending = new();
+		public PerformanceMeter Reading = new();
 
 		public void Reset()
 		{
 			Consensing.Reset();
 			Generating.Reset();
-			Delegating.Reset();
-			BlocksProcessing.Reset();
-			TransactionsProcessing.Reset();
+			Transacting.Reset();
+			Verifying.Reset();
+			Declaring.Reset();
+			Sending.Reset();
+			Reading.Reset();
 		}
 	}
 
@@ -105,6 +109,7 @@ namespace Uccs.Net
 		bool							MinimalPeersReached;
 		public List<Peer>				Peers		= new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Established);
+		public Peer[]					BaseConnections = new Peer[0];
 		public List<IPAddress>			IgnoredIPs	= new();
 		public List<Member>				Members		= new();
 		public List<Download>			Downloads	= new();
@@ -159,10 +164,11 @@ namespace Uccs.Net
 					f.Add(new ("Last Payload Round",	$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}"));
 					f.Add(new ("Generating (μs)",		(Statistics.Generating.Avarage.Ticks/10).ToString()));
 					f.Add(new ("Consensing (μs)",		(Statistics.Consensing.Avarage.Ticks/10).ToString()));
-					//f.Adnew (d("Delegating (μs)",		(Statistics.Delegating.Avarage.Ticks/10).ToString()));
-					f.Add(new ("Block Processing (μs)",	(Statistics.BlocksProcessing.Avarage.Ticks/10).ToString()));
-					f.Add(new ("Tx Processing (μs)",	(Statistics.TransactionsProcessing.Avarage.Ticks/10).ToString()));
-					f.Add(new ("NAS Eth Account",		$"{Nas.Account?.Address}"));
+					f.Add(new ("Transacting (μs)",		(Statistics.Transacting.Avarage.Ticks/10).ToString()));
+					f.Add(new ("Verifying (μs)",		(Statistics.Verifying.Avarage.Ticks/10).ToString()));
+					f.Add(new ("Declaring (μs)",		(Statistics.Declaring.Avarage.Ticks/10).ToString()));
+					f.Add(new ("Sending (μs)",			(Statistics.Sending.Avarage.Ticks/10).ToString()));
+					f.Add(new ("Reading (μs)",			(Statistics.Reading.Avarage.Ticks/10).ToString()));
 
 					if(Synchronization == Synchronization.Synchronized)
 					{
@@ -238,7 +244,7 @@ namespace Uccs.Net
 			Workflow?.Log?.Report(this, $"Zone: {Zone.Name}");
 			Workflow?.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
-			if(Settings.Dev != null)
+			if(Settings.Dev != null && Settings.Dev.Any)
 				Workflow?.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
 			Vault = new Vault(Zone, Settings, Workflow?.Log);
@@ -1212,9 +1218,6 @@ namespace Uccs.Net
 
 		public void ProcessIncoming(IEnumerable<Block> blocks)
 		{
-			Statistics.BlocksProcessing.Begin();
-
-
  			var verified = blocks.Where(b =>{
 												//if(LastConfirmedRound != null && b.RoundId <= LastConfirmedRound.Id)
 												//	return false;
@@ -1248,8 +1251,6 @@ namespace Uccs.Net
 				
 				Database.Add(verified);
 			}
-
-			Statistics.BlocksProcessing.End();
 		}
 
 		void Generate()
@@ -1378,7 +1379,6 @@ namespace Uccs.Net
 						b.Sign(g);
 						blocks.Add(b);
 					}
-
 				}
 			}
 
@@ -1391,7 +1391,7 @@ namespace Uccs.Net
 
 				var pieces = new List<BlockPiece>();
 
-				var npieces = 4;
+				var npieces = 1;
 				var ppp = 3; // peers per peice
 
 				foreach(var b in blocks)
@@ -1424,7 +1424,13 @@ namespace Uccs.Net
 					}
 				}
 
-				IEnumerator<Peer> start() => Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()).GetEnumerator();
+				
+				if(BaseConnections.Count(i => i.Established) < Settings.Database.PeersMin)
+				{
+					BaseConnections = Connect(Role.Base, Settings.Database.PeersMin, Workflow);
+				}
+
+				IEnumerator<Peer> start() => BaseConnections.AsEnumerable().GetEnumerator();
 
  				var c = start();
  
@@ -1500,7 +1506,7 @@ namespace Uccs.Net
 						return;
 					}
 				}
-				else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromSeconds(15)))
+				else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
 				{
 					foreach(var i in Transactions.Where(i => i.Payload != null && i.Payload.RoundId >= r.Id).SelectMany(i => i.Operations))
 					{
@@ -1545,7 +1551,7 @@ namespace Uccs.Net
 
 				try
 				{
-					Statistics.Delegating.Begin();
+					Statistics.Transacting.Begin();
 
 					lock(Lock)
 					{
@@ -1653,7 +1659,7 @@ namespace Uccs.Net
 						}
 					}
 
-					Statistics.Delegating.End();
+					Statistics.Transacting.End();
 				}
 				catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
 				{
@@ -1776,6 +1782,8 @@ namespace Uccs.Net
 				{
 					Thread.Sleep(1);
 
+					Statistics.Verifying.Begin();
+
 					lock(Lock)
 					{
 						foreach(var t in Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Accepted)).ToArray())
@@ -1814,6 +1822,8 @@ namespace Uccs.Net
 							}
 						}
 					}
+
+					Statistics.Verifying.End();
 				}
 			}
 			catch(Exception ex) when (!Debugger.IsAttached)
@@ -1833,7 +1843,8 @@ namespace Uccs.Net
 			{
 				while(!Workflow.IsAborted)
 				{
-					Workflow.Wait(1);
+					Workflow.Wait(100);
+					Statistics.Declaring.Begin();
 
 					FilebaseRelease[] rs;
 					List<Peer> used;
@@ -1865,6 +1876,9 @@ namespace Uccs.Net
 								true);
 					}
 				}
+
+				Statistics.Declaring.End();
+
 			}
 			catch(OperationCanceledException)
 			{
@@ -1880,8 +1894,6 @@ namespace Uccs.Net
 			if(!Settings.Generators.Any(g => Database.LastConfirmedRound.Members.Any(m => g == m.Generator))) /// not ready to process external transactions
 				return new();
 
-			Statistics.TransactionsProcessing.Begin();
-
 			var accepted = txs.Where(i =>	!Transactions.Any(j => i.EqualBySignature(j)) &&
 											i.RoundMax > Database.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
@@ -1892,8 +1904,6 @@ namespace Uccs.Net
 					o.Placing = PlacingStage.Accepted;
 
 			Transactions.AddRange(accepted);
-
-			Statistics.TransactionsProcessing.End();
 
 			return accepted;
 		}
@@ -2010,6 +2020,44 @@ namespace Uccs.Net
 				}
 				catch(ConnectionFailedException)
 				{
+				}
+			}
+
+			throw new ConnectionFailedException("Aborted, overall abort or timeout");
+		}
+
+		public Peer[] Connect(Role role, int n, Workflow workflow)
+		{
+			var peers = new HashSet<Peer>();
+				
+			while(!workflow.IsAborted)
+			{
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+	
+				lock(Lock)
+				{
+					var p = FindBestPeer(role, peers);
+	
+					if(p != null)
+					{
+					
+						try
+						{
+							Connect(p, workflow);
+						}
+						catch(ConnectionFailedException)
+						{
+							continue;
+						}
+
+						peers.Add(p);
+
+						if(peers.Count == n)
+						{
+							return peers.ToArray();
+						}
+					}
 				}
 			}
 

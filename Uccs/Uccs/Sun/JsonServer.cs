@@ -9,12 +9,15 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Utilities.Encoders;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static Uccs.Net.ChainReportResponse;
 
 namespace Uccs.Net
 {
@@ -96,15 +99,14 @@ namespace Uccs.Net
 			void responderror(string t, int code = 599)	{
 															try
 															{
-																rp.StatusCode = code;
 
-																var output = rp.OutputStream;
 																var buffer = Encoding.UTF8.GetBytes(t);
 							
+																rp.StatusCode = code;
 																rp.ContentType = "text/plain" ;
 																rp.ContentLength64 = buffer.Length;
 
-																output.Write(buffer, 0, buffer.Length);
+																rp.OutputStream.Write(buffer, 0, buffer.Length);
 															}
 															catch(InvalidOperationException)
 															{
@@ -170,11 +172,17 @@ namespace Uccs.Net
 					switch(call)
 					{
 						case SettingsCall c:
-							return new SettingsResponse {ProfilePath	= Core.Settings.Profile, 
-														 Settings		= Core.Settings}; /// TODO: serialize
+							lock(Core.Lock)
+								return new SettingsResponse {ProfilePath	= Core.Settings.Profile, 
+															 Settings		= Core.Settings}; /// TODO: serialize
 	
 						case RunNodeCall e:
 							Core.RunNode();
+							break;
+
+						case ExitCall e:
+							rp.Close();
+							Core.Stop("Json Api call");
 							break;
 	
 						case AddWalletCall e:
@@ -189,108 +197,106 @@ namespace Uccs.Net
 		
 						case SetGeneratorCall e:
 							lock(Core.Lock)
-							{
 								Core.Settings.Generators = e.Generators.Select(i => Vault.GetKey(i)).ToList();
-								Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
-							}
+							
+							Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
 							break;
 	
 						case UntTransferCall e:
-	
+							
 							AccountKey  pa;
 								
 							lock(Core.Lock)
 							{
 								pa = Vault.GetKey(e.From);
 							}
-	
-							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 
+							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
 							return Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, new Workflow());
 		
-						case LogCall s:
-							lock(Core.Lock)
-							{
-								return new LogResponse{Log = Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()) }; 
-							}
+						case LogReportCall s:
+							return new LogResponse{Log = Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()).ToArray() }; 
 
-						case SummaryCall s:
+						case SummaryReportCall s:
 							lock(Core.Lock)
-							{
-								return new SummaryResponse{Summary = Core.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}) }; 
-							}
+								return new SummaryResponse{Summary = Core.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 
-						case PeersCall s:
-							lock(Core.Lock)
-							{
-								return new PeersResponse{Peers = Core.Peers.TakeLast(s.Limit).Select(i => i.ToString()) }; 
-							}
+						case PeersReportCall s:
+							return new PeersResponse{Peers = Core.Peers.TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
 							
-						case RoundsCall s:
+						case ChainReportCall s:
 							lock(Core.Lock)
-							{
-								return new RoundsResponse{Rounds = Database?.Tail.Take(s.Limit)
-																				.Reverse()
-																				.Select(i => new RoundsResponse.Round
-																							{
-																								Id = i.Id, 
-																								Members = i.Members.Count,
-																								Pieces = i.BlockPieces.Count,
-																								Voted = i.Voted,
-																								Confirmed = i.Confirmed,
-																								Time = i.Time,
-																								Blocks = i.Blocks.Select(i => new RoundsResponse.Round.Block {Generator = i.Generator.ToString(), Type = i.Type}),
-																							})}; 
-							}
-
-						case ExitCall e:
-							rp.Close();
-							Core.Stop("Json Api call");
-							break;
+								return new ChainReportResponse{Rounds = Database?.Tail	.Take(s.Limit)
+																						.Reverse()
+																						.Select(i => new ChainReportResponse.Round
+																									{
+																										Id = i.Id, 
+																										Members = i.Members.Count,
+																										Pieces = i.BlockPieces.Count,
+																										Voted = i.Voted,
+																										Confirmed = i.Confirmed,
+																										Time = i.Time,
+																										Blocks = i.Blocks.Select(i => new ChainReportResponse.Block {Generator = i.Generator.ToString(), Type = i.Type}),
+																									})
+																						.ToArray()}; 
+							
+						case PiecesReportCall s:
+							lock(Core.Lock)
+								return new PiecesReportResponse{Pieces = Database?	.FindRound(s.RoundId)?.BlockPieces
+																					.OrderBy(i => i.Generator)
+																					.Take(s.Limit)
+																					.Select(i => new PiecesReportResponse.Piece
+																					{
+																						Type = i.Type,
+																						Try = i.Try,
+																						RoundId = i.RoundId,
+																						Index = i.Index,
+																						Total = i.Total,
+																						Signature = i.Signature,
+																						DataLength = i.Data.Length,
+																						Generator = i.Generator
+																					})
+																					.ToArray()}; 
 	
 						case QueryReleaseCall c:
-						{
-							return Core.QueryRelease(c.Queries, c.Confirmed);
-						}
+							lock(Core.Lock)
+								return Core.QueryRelease(c.Queries, c.Confirmed);
 	
-						case DistributeReleaseCall c:
-						{
-							Core.Filebase.AddRelease(c.Release, c.Manifest);
-	
-							if(c.Complete != null)
+						case AddReleaseCall c:
+							lock(Core.Lock)
 							{
-								Core.Filebase.WritePackage(c.Release, Distributive.Complete, 0, c.Complete);
-								//Core.DeclareRelease(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Complete)}, new Workflow());
-							}
-							if(c.Incremental != null)
-							{
-								Core.Filebase.WritePackage(c.Release, Distributive.Incremental, 0, c.Incremental);
-								//Core.DeclarePackage(new PackageAddress[]{new PackageAddress(c.Release, Distributive.Incremental)}, new Workflow());
+								Core.Filebase.AddRelease(c.Release, c.Manifest);
+			
+								if(c.Complete != null)
+								{
+									Core.Filebase.WritePackage(c.Release, Distributive.Complete, 0, c.Complete);
+								}
+								if(c.Incremental != null)
+								{
+									Core.Filebase.WritePackage(c.Release, Distributive.Incremental, 0, c.Incremental);
+								}
 							}
 	
 							break;
-						}
 	
 						case DownloadReleaseCall c:
-						{
-							Core.DownloadRelease(c.Release, Workflow);
+							lock(Core.Lock)
+								Core.DownloadRelease(c.Release, Workflow);
 							break;
-						}
 	
 						case ReleaseStatusCall c:
-						{
-							return Core.GetReleaseStatus(c.Release);
-						}
+							lock(Core.Lock)
+								return Core.GetReleaseStatus(c.Release);
 
 						case GetReleaseCall c:
-						{
-							Core.GetRelease(c.Version, Workflow);
+							lock(Core.Lock)
+								Core.GetRelease(c.Version, Workflow);
 							break;
-						}
 					}
 
 					return null;
 				}
+
 
 				if(call is BatchCall c)
 				{ 
@@ -302,15 +308,17 @@ namespace Uccs.Net
 						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonClient.Options) as ApiCall));
 					}
 
-					respondjson(rs);
+					lock(Core.Lock)
+						respondjson(rs);
 				}
 				else
 				{
 					var r = execute(call);
-
+	
 					if(r != null)
 					{
-						respondjson(r);
+						lock(Core.Lock)
+							respondjson(r);
 					}
 				}
 			}

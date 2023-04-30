@@ -217,6 +217,7 @@ namespace Uccs.Net
 				while(!Core.Workflow.IsAborted && Established)
 				{
 					Thread.Sleep(1);
+					Core.Statistics.Sending.Begin();
 
 					RdcRequest[] ins;
 
@@ -297,6 +298,8 @@ namespace Uccs.Net
 
 						break;
 					}
+
+					Core.Statistics.Sending.End();
 				}
 			}
 			catch(Exception) when(!Debugger.IsAttached)
@@ -317,6 +320,8 @@ namespace Uccs.Net
 						if(Core.Workflow.IsAborted || !Established)
 							return;
 					
+					Core.Statistics.Reading.Begin();
+
 					switch(pk)
 					{
  						case PacketType.Request:
@@ -387,6 +392,8 @@ namespace Uccs.Net
 							Status = ConnectionStatus.Failed;
 							return;
 					}
+
+					Core.Statistics.Reading.End();
 				}
 	 		}
 			catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
