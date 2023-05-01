@@ -75,7 +75,7 @@
                                     <controls:FormEntryControl
                                         Grid.Column="0"
                                         IsReadOnly="True"
-                                        Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=WalletFilePath}" />
+                                        Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=WalletPath}" />
                                     <Button
                                         Grid.Column="1"
                                         Margin="0,16,0,0"
@@ -86,8 +86,8 @@
                                 <controls:FormEntryControl
                                     HeightRequest="44"
                                     Placeholder="Please specify a file password"
-                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=ShowFilePassword}"
-                                    Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=WalletFilePassword}" />
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=ShowPassword}"
+                                    Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=WalletPassword}" />
                             </StackLayout>
                             
                             <StackLayout Spacing="10">

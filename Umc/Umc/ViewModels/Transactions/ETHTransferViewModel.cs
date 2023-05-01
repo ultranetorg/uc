@@ -12,16 +12,16 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	private bool _isFilePath;
 
 	[ObservableProperty]
-	private bool _showFilePassword;
+	private bool _showPassword;
 
 	[ObservableProperty]
 	private string _privateKey;
 
 	[ObservableProperty]
-	private string _walletFilePath;
+	private string _walletPath;
 
 	[ObservableProperty]
-	private string _walletFilePassword;
+	private string _walletPassword;
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(UntAmount))]
@@ -73,8 +73,8 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	{
 		try
 		{
-			WalletFilePath = await CommonHelper.GetPathToWalletAsync();
-			ShowFilePassword = !string.IsNullOrEmpty(WalletFilePath);
+			WalletPath = await CommonHelper.GetPathToWalletAsync();
+			ShowPassword = !string.IsNullOrEmpty(WalletPath);
 		}
 		catch (Exception ex)
 		{
@@ -106,18 +106,21 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	{
 		try
 		{
-			if (Position == 0)
+			var isValidStep = EthAmount > 0 && (IsPrivateKey && !string.IsNullOrEmpty(PrivateKey))
+				|| (IsFilePath && !string.IsNullOrEmpty(WalletPath) && !string.IsNullOrEmpty(WalletPassword));
+
+			if (Position == 0 && isValidStep)
 			{
 				// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
 				Position = 1;
 				Position = 0;
 				Position = 1;
 			}
-			else if (Position == 1)
+			else if (Position == 1 && Account != null)
 			{
 				Position = 2;
 			}
-			else
+			else if (Position == 2)
 			{
 				await Navigation.PopAsync();
 				await ToastHelper.ShowMessageAsync("Successfully transfered!");

@@ -71,7 +71,7 @@ public partial class SendViewModel : BasePageViewModel
 	{
         try
         {
-			if(Position == 1)
+			if (Position == 1)
 			{
 				Position = 0;
 			}
@@ -90,7 +90,11 @@ public partial class SendViewModel : BasePageViewModel
 	[RelayCommand]
     private async Task ConfirmAsync()
     {
-        await Navigation.GoToAsync(Routes.COMPLETED_TRANSFERS);
+        await Navigation.GoToAsync(Routes.COMPLETED_TRANSFERS, new Dictionary<string, object>()
+		{
+			{QueryKeys.ACCOUNT, Recipient},
+			{QueryKeys.UNT_AMOUNT, decimal.Parse(Amount) }
+		});
     }
     
 	[RelayCommand]
@@ -118,7 +122,9 @@ public partial class SendViewModel : BasePageViewModel
 	[RelayCommand]
     private void Transfer()
     {
-        if (Position == 0) 
+		var isValid = Source != null && Recipient != null && !string.IsNullOrEmpty(Amount);
+
+        if (Position == 0 && isValid) 
 		{
 			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
 			Position = 1;

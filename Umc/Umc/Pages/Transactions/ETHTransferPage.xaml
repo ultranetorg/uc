@@ -40,6 +40,7 @@
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
+						<!--Step #1-->
                         <StackLayout Spacing="24">
                             <Label
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=NeedToFinishTransfer}"
@@ -192,6 +193,8 @@
                                 </StackLayout>
                             </Grid>
                         </StackLayout>
+
+						<!--Step #2-->
                         <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
                                 <Label FontSize="18" Text="Select Ultranet Account" />

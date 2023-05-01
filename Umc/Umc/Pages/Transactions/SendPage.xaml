@@ -7,8 +7,8 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    x:Name="page"
     x:DataType="vm:SendViewModel"
+    x:Name="page"
     Title="Send">
     
     <controls:CustomPage.MainContent>
@@ -65,8 +65,7 @@
                     </AbsoluteLayout>
                 </StackLayout>
 
-                <!-- Will be visible when #9749 issue is fixed -->
-                <IndicatorView Grid.Row="2" x:Name="indicator" IsVisible="False" />
+                <IndicatorView Grid.Row="2" x:Name="indicator" />
             
                 <StackLayout Grid.Row="3">
                     <Button

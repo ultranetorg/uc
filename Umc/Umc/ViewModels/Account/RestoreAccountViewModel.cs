@@ -9,7 +9,7 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 	private bool _isFilePath;
 
 	[ObservableProperty]
-	private bool _showFilePassword;
+	private bool _showPassword;
 
 	[ObservableProperty]
 	private string _privateKey;
@@ -37,7 +37,7 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 		try
 		{
 			WalletPath = await CommonHelper.GetPathToWalletAsync();
-			ShowFilePassword = !string.IsNullOrEmpty(WalletPath);
+			ShowPassword = !string.IsNullOrEmpty(WalletPath);
 		}
 		catch (Exception ex)
 		{
