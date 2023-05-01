@@ -286,14 +286,10 @@
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccount1View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\CreateAccount2View.xaml">
-	    <SubType>Designer</SubType>
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+	<MauiXaml Update="Views\CreateAccount2View.xaml">
+		<SubType>Designer</SubType>
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
 	  <MauiXaml Update="Views\Send1View.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>

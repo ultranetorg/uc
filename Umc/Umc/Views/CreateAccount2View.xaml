@@ -29,9 +29,8 @@
                         MinimumCharacterTypeCount="1"
                         ValidStyle="{StaticResource Valid}" />
                 </controls:BorderEntry.Behaviors>
-
             </controls:BorderEntry>
-            <StackLayout >
+            <StackLayout>
                 <Label
                     FontSize="12"
                     IsVisible="{Binding IsNotValid, Source={x:Reference cb}}"

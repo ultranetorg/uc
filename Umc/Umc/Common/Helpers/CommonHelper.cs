@@ -4,6 +4,10 @@ namespace UC.Umc.Helpers;
 
 public static class CommonHelper
 {
+	public static readonly int LENGTH_HASH = 42;
+	public static readonly int LENGTH_TRANSACTION = 6;
+	public static readonly int LENGTH_ACCOUNT = 8;
+
 	public static string GetTodayDate => GetFormattedDate(DateTime.UtcNow);
 	public static string GetFormattedDate(DateTime date) => date.ToString("dd MMM yyyy HH:mm");
 

@@ -16,5 +16,15 @@ public partial class DeleteAccountPopupViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
+	private async Task DeleteAsync()
+	{
+		if (TextInput != null && TextInput == TextToConfirm)
+		{
+			ClosePopup();
+			await ToastHelper.ShowMessageAsync("Successfully deleted!");
+		}
+	}
+
+	[RelayCommand]
 	private void Close() => ClosePopup();
 }

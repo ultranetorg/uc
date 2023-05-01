@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.ViewModels;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace UC.Umc.ViewModels;
 
 public partial class CreateAccount2ViewModel : BaseAccountViewModel
 {
@@ -6,6 +8,14 @@ public partial class CreateAccount2ViewModel : BaseAccountViewModel
 
 	[ObservableProperty]
     private AccountColor _selectedAccountColor;
+
+	[ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Required")]
+    [NotifyPropertyChangedFor(nameof(AccountNameError))]
+    private string _accountName;
+
+    public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
 
     public CreateAccount2ViewModel(INotificationsService notificationService, IServicesMockData service,
 		ILogger<CreateAccount2ViewModel> logger) : base(notificationService,logger)
@@ -34,9 +44,8 @@ public partial class CreateAccount2ViewModel : BaseAccountViewModel
 
 	private void LoadData()
 	{
-		Account = DefaultDataMock.CreateAccount("Test");
-		ColorsCollection.Clear();
-		ColorsCollection.AddRange(_service.AccountColors);
+		Account = DefaultDataMock.CreateAccount("Test Account");
+		ColorsCollection = new CustomCollection<AccountColor>(_service.AccountColors);
         SelectedAccountColor = ColorsCollection.First();
 	}
 }
