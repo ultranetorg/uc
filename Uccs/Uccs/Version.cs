@@ -41,11 +41,6 @@ namespace Uccs
 		{
 			var c = s.Split('.').ToArray();
 
-			if(c.Length > 3)
-			{
-				throw new ArgumentException();
-			}
-
 			var v = new Version();
 
 			v.Era = int.Parse(c[0]);

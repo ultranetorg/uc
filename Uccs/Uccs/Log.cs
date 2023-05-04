@@ -91,6 +91,11 @@ namespace Uccs
 			r.Reported?.Invoke(m);
 		}
 
+		public void Report(string a)
+		{
+			Report(null, null, Severity.Warning, new[]{a});
+		}
+
 		public void Report(object sender, string subject)
 		{
 			Report(sender, subject, Severity.Info, null);
@@ -121,9 +126,19 @@ namespace Uccs
 			Report(sender, null, Severity.Error, new[]{ a });
 		}
 
+		public void ReportError(string a)
+		{
+			Report(null, null, Severity.Error, new[]{ a });
+		}
+
 		public void ReportWarning(object sender, string a)
 		{
 			Report(sender, null, Severity.Warning, new[]{a});
+		}
+
+		public void ReportWarning(string a)
+		{
+			Report(null, null, Severity.Warning, new[]{a});
 		}
 
 		public void ReportWarning(object sender, string subject, string message, Exception ex)

@@ -25,7 +25,7 @@ namespace Uccs.Net
 				{
 					_Manifest = new Manifest(Filebase.Zone){Release = Address};
 	
-					using(var s = File.OpenRead(Path.Join(Filebase.GetDirectory(Address), Address.Version + $".{Filebase.ManifestExt}")))
+					using(var s = File.OpenRead(Path.Join(Filebase.GetDirectory(Address, false), Address.Version + $".{Filebase.ManifestExt}")))
 					{
 						_Manifest.Read(new BinaryReader(s));
 					}
@@ -62,7 +62,7 @@ namespace Uccs.Net
 		public const string		Removals = ".removals";
 		public const string		DependenciesExt = "dependencies";
 		public const string		Renamings = ".renamings"; /// TODO
-		public const long		PieceMaxLength = 64 * 1024;
+		public const long		PieceMaxLength = 512 * 1024;
 
 		string							PackagesPath;
 		string							ProductsPath;
@@ -101,16 +101,18 @@ namespace Uccs.Net
 			return Path.Join(PackagesPath, ToRelative(release.Realization), $"{release.Version}.{(distributive == Distributive.Complete ? Cpkg : Ipkg)}");
 		}
 
-		internal string GetDirectory(ReleaseAddress release)
+		internal string GetDirectory(ReleaseAddress release, bool create)
 		{
 			var p = Path.Join(PackagesPath, ToRelative(release.Realization));
-			Directory.CreateDirectory(p);
+
+			if(create)
+				Directory.CreateDirectory(p);
 			return p;
 		}
 
 		public void AddRelease(ReleaseAddress release, Manifest manifest)
 		{
-			var p = Path.Join(GetDirectory(release), release.Version + $".{ManifestExt}");
+			var p = Path.Join(GetDirectory(release, true), release.Version + $".{ManifestExt}");
 
 			using(var s = File.OpenWrite(p))
 			{
@@ -122,7 +124,7 @@ namespace Uccs.Net
 
 		public void AddRelease(ReleaseAddress release, byte[] manifest)
 		{
-			var p = Path.Join(GetDirectory(release), release.Version + $".{ManifestExt}");
+			var p = Path.Join(GetDirectory(release, true), release.Version + $".{ManifestExt}");
 
 			File.WriteAllBytes(p, manifest);
 
@@ -136,7 +138,7 @@ namespace Uccs.Net
 			if(r != null)
 				return r;
 
-			var p = Path.Join(GetDirectory(release), release.Version + $".{ManifestExt}");
+			var p = Path.Join(GetDirectory(release, false), release.Version + $".{ManifestExt}");
 
 			if(File.Exists(p))
 			{
@@ -152,14 +154,14 @@ namespace Uccs.Net
 
 		public byte[] ReadManifest(ReleaseAddress release)
 		{
-			var p = Path.Join(GetDirectory(release), release.Version + $".{ManifestExt}");
+			var p = Path.Join(GetDirectory(release, false), release.Version + $".{ManifestExt}");
 
 			return File.ReadAllBytes(p);
 		}
 
 		public string Add(ReleaseAddress release, Distributive distribution, IDictionary<string, string> files, IEnumerable<string> removals, Workflow workflow)
 		{
-			var zpath = Path.Join(GetDirectory(release), $"{release.Version}.{(distribution == Distributive.Complete ? Cpkg : Ipkg)}");
+			var zpath = Path.Join(GetDirectory(release, true), $"{release.Version}.{(distribution == Distributive.Complete ? Cpkg : Ipkg)}");
 
 			using(var z = new FileStream(zpath, FileMode.Create))
 			{
@@ -193,7 +195,7 @@ namespace Uccs.Net
 			var incs = new Dictionary<string, string>();
 			var olds = new List<string>();
 
-			var rlz = GetDirectory(release);
+			var rlz = GetDirectory(release, true);
 
 			using(var s = new FileStream(Path.Join(rlz, $"{previous}.{Cpkg}"), FileMode.Open))
 			{
@@ -287,7 +289,7 @@ namespace Uccs.Net
 		{
 			dependencies = new();
 
-			var dir = GetDirectory(manifest.Release);
+			var dir = GetDirectory(manifest.Release, false);
 
 			if(Directory.Exists(dir))
 			{
@@ -360,7 +362,7 @@ namespace Uccs.Net
 
 		public void WritePackage(ReleaseAddress release, Distributive distributive, long offset, byte[] data)
 		{
-			GetDirectory(release);
+			GetDirectory(release, true);
 
 			using(var s = new FileStream(ToPath(release, distributive), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
 			{
@@ -446,7 +448,7 @@ namespace Uccs.Net
 
 		public void Unpack(ReleaseAddress release, bool overwrite = false)
 		{
-			var dir = GetDirectory(release);
+			var dir = GetDirectory(release, false);
 
 			var c = Directory.EnumerateFiles(dir, $"*.{Cpkg}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
 																.OrderByDescending(i => i)

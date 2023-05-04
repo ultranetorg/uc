@@ -109,9 +109,9 @@ namespace Uccs.Net
 			return Request<SettingsResponse>(new SettingsCall {}, workflow);
 		}
 
-		public void GetRelease(ReleaseAddress version, Workflow workflow)
+		public void GetRelease(ReleaseAddress release, Workflow workflow)
 		{
-			Post(new GetReleaseCall {Version = version}, workflow);
+			Post(new GetReleaseCall {Release = release}, workflow);
 		}
 
 		public ReleaseStatus GetReleaseStatus(ReleaseAddress release, Workflow workflow)

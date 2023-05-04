@@ -91,7 +91,7 @@ namespace Uccs.Net
 		public DeclareReleaseResponse			DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages) => Request<DeclareReleaseResponse>(new DeclareReleaseRequest{Packages = new PackageAddressPack(packages)});
 		public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
 		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress release, Distributive distributive, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Package = release, Distributive = distributive, Offset = offset, Length = length});
-		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization, bool confirmed) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization, Confirmed = confirmed});
+		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
 	}
 
 	public abstract class RdcPacket : ITypedBinarySerializable
@@ -163,7 +163,7 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Database.Base)							throw new RdcException(RdcError.NotBase);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 				
 				return new TimeResponse {Time = core.Database.LastConfirmedRound.Time};
@@ -187,8 +187,7 @@ namespace Uccs.Net
 
 			lock(core.Lock)
 			{
-				if(!core.Settings.Database.Base)
-					throw new RdcException(RdcError.NotBase);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
 
 				if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Downloading || core.Synchronization == Synchronization.Synchronizing)
 				{
@@ -308,7 +307,7 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Database.Base)			throw new RdcException(RdcError.NotBase);
+				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcException(RdcError.NotBase);
 				if(core.Database.LastNonEmptyRound == null)	throw new RdcException(RdcError.TooEearly);
 
 				var s = new MemoryStream();
@@ -351,7 +350,7 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Database.Base)							throw new RdcException(RdcError.NotBase);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
 				var r = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
@@ -459,9 +458,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(core.Database == null || !core.Database.Settings.Base)
-					throw new RdcException(RdcError.NotBase);
-
+				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcException(RdcError.NotBase);
+				
 				var m = Table switch
 							  {
 									Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
@@ -543,10 +541,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Database.Chain)
-					throw new RdcException(RdcError.NotChain);
-				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
+				if(!core.Settings.Roles.HasFlag(Role.Chain))				throw new RdcException(RdcError.NotChain);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 	
 				return	new GetOperationStatusResponse
 						{
@@ -611,7 +607,7 @@ namespace Uccs.Net
  			lock(core.Lock)
 			{	
 				if(!AuthorEntry.IsValid(Name))								throw new RdcException(RdcError.InvalidRequest);
-				if(!core.Database.Settings.Base)							throw new RdcException(RdcError.NotBase);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
 				return new AuthorResponse{Entry = core.Database.Authors.Find(Name, core.Database.LastConfirmedRound.Id)};
@@ -728,13 +724,12 @@ namespace Uccs.Net
 	public class ReleaseHistoryRequest : RdcRequest
 	{
 		public RealizationAddress	Realization { get; set; }
-		public bool					Confirmed { get; set; }
 
 		public override RdcResponse Execute(Core core)
 		{
  			lock(core.Lock)
 			{
-				if(!core.Database.Settings.Chain)							throw new RdcException(RdcError.NotChain);
+				if(!core.Settings.Roles.HasFlag(Role.Chain))				throw new RdcException(RdcError.NotChain);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
 
 				var db = core.Database;

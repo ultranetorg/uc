@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Uccs.Net
 {
@@ -21,9 +22,9 @@ namespace Uccs.Net
 
 	public class Dependency : IBinarySerializable, IEquatable<Dependency>
 	{
-		public DependencyType Type;
-		public DependencyFlag Flags;
-		public ReleaseAddress Release;
+		public DependencyType Type { get; set; }
+		public DependencyFlag Flags { get; set; }
+		public ReleaseAddress Release { get; set; }
 
 		internal static Dependency From(Xon i)
 		{
@@ -82,10 +83,12 @@ namespace Uccs.Net
 
 	public class Manifest : IBinarySerializable
 	{
-		public ReleaseAddress			Release  { get; set; }
+		public ReleaseAddress			Release { get; set; }
 		public byte[]					CompleteHash { get; set; }
 		public long						CompleteLength { get; set; }
 		public Dependency[]				CompleteDependencies { get; set; }
+
+		[JsonIgnore]
 		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
 
 		public byte[]					IncrementalHash { get; set; }
@@ -96,6 +99,10 @@ namespace Uccs.Net
 
  		byte[]							Hash;
 		public Zone						Zone;
+
+		public Manifest()
+		{
+		}
 
 		public Manifest(Zone zone)
 		{

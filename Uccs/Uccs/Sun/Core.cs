@@ -66,8 +66,9 @@ namespace Uccs.Net
 
 	public class ReleaseStatus
 	{
+		public bool				ExistsRecursively { get; set; }
 		public Manifest			Manifest { get; set; }
-		public DownloadStatus	Download { get; set; }
+		public DownloadReport	Download { get; set; }
 	}
 
 	public class Core : RdcInterface
@@ -279,7 +280,7 @@ namespace Uccs.Net
 		{
 			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Members.Any(j => j.Generator == i)) : new AccountKey[0];
 	
-			return	$"{(Settings.Database.Base ? "B" : "")}{(Settings.Database.Chain ? "C" : "")}{(Settings.Hub.Enabled ? "H" : "")}{(Settings.Filebase.Enabled ? "S" : "")}" +
+			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}{(Settings.Roles.HasFlag(Role.Hub) ? "H" : "")}{(Settings.Roles.HasFlag(Role.Seed) ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? " - " + IP : "")}" +
 					$" - {Synchronization}" +
@@ -315,7 +316,7 @@ namespace Uccs.Net
 		{
 			Nuid = Guid.NewGuid();
 
-			if(Settings.Filebase.Enabled)
+			if(Settings.Roles.HasFlag(Role.Seed))
 			{
 				Filebase = new Filebase(Zone, System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), Settings.ProductsPath);
 			}
@@ -361,19 +362,19 @@ namespace Uccs.Net
 		{
 			Nuid = Guid.NewGuid();
 
-			if(Settings.Hub.Enabled)
+			if(Settings.Roles.HasFlag(Role.Hub))
 			{
 				Seedbase = new Seedbase(this);
 			}
 
-			if(Settings.Filebase.Enabled)
+			if(Settings.Roles.HasFlag(Role.Seed))
 			{
 				Filebase = new Filebase(Zone, System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), System.IO.Path.Join(Settings.Profile, "Products"));
 			}
 
-			if(Settings.Database.Base || Settings.Database.Chain)
+			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
 			{
-				Database = new Database(Zone, Settings.Database, Settings.Dev, Workflow?.Log, DatabaseEngine);
+				Database = new Database(Zone, Settings.Roles, Settings.Database, Settings.Dev, Workflow?.Log, DatabaseEngine);
 		
 				Database.BlockAdded += b =>	ReachConsensus();
 		
@@ -587,20 +588,17 @@ namespace Uccs.Net
 
 		public void UpdatePeers(IEnumerable<Peer> peers)
 		{
-			lock(Lock)
+			using(var b = new WriteBatch())
 			{
-				using(var b = new WriteBatch())
+				foreach(var i in peers)
 				{
-					foreach(var i in peers)
-					{
-						var s = new MemoryStream();
-						var w = new BinaryWriter(s);
-						i.SaveNode(w);
-						b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
-					}
-	
-					DatabaseEngine.Write(b);
+					var s = new MemoryStream();
+					var w = new BinaryWriter(s);
+					i.SaveNode(w);
+					b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
 				}
+	
+				DatabaseEngine.Write(b);
 			}
 		}
 
@@ -712,15 +710,12 @@ namespace Uccs.Net
 
 			var h = new Hello();
 
-			h.Roles					= (Settings.Database.Base ? Role.Base : 0) |
-									  (Settings.Database.Chain ? Role.Chain : 0) |
-									  (Settings.Filebase.Enabled ? Role.Seed : 0) |
-									  (Settings.Hub.Enabled ? Role.Hub : 0);
-			h.Versions				= Versions;
-			h.Zone					= Zone.Name;
-			h.IP					= ip;
-			h.Nuid					= Nuid;
-			h.Peers					= peers;
+			h.Roles		= Settings.Roles;
+			h.Versions	= Versions;
+			h.Zone		= Zone.Name;
+			h.IP		= ip;
+			h.Nuid		= Nuid;
+			h.Peers		= peers;
 			//h.LastRound				= Header.LastNonEmptyRound;
 			//h.LastConfirmedRound	= Header.LastConfirmedRound; 
 			
@@ -985,7 +980,7 @@ namespace Uccs.Net
 
 					Database.LoadedRounds.Clear();
 
-					var peer = Connect(Database.Roles, used, Workflow);
+					var peer = Connect(Database.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
 
 					if(Database.Roles.HasFlag(Role.Base) && !Database.Roles.HasFlag(Role.Chain))
 					{
@@ -1983,11 +1978,13 @@ namespace Uccs.Net
 
 		public Peer FindBestPeer(Role role, HashSet<Peer> exclusions)
 		{
-			lock(Lock)
-				return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established)
-																												.ThenBy(i => i.ReachFailures)
-																												.ThenByDescending(i => i.GetRank(role))
-																												.FirstOrDefault();
+			if(BitOperations.PopCount((uint)role) > 1)
+				throw new ArgumentException();
+
+			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established)
+																											.ThenBy(i => i.GetRank(role))
+																											.ThenByDescending(i => i.ReachFailures)
+																											.FirstOrDefault();
 		}
 
 		public Peer Connect(Role role, HashSet<Peer> exclusions, Workflow workflow)
@@ -2298,64 +2295,73 @@ namespace Uccs.Net
 			}
 		}
 
-		public void GetRelease(ReleaseAddress version, Workflow workflow)
+		public void GetRelease(ReleaseAddress release, Workflow workflow)
 		{
 			Task.Run(() =>	{ 
-								lock(Lock)
+								try
 								{
-									if(!Filebase.ExistsRecursively(version))
+									lock(Lock)
 									{
-										var d = DownloadRelease(version, workflow);
-	
-										while(Downloads.Contains(d))
+										if(!Filebase.ExistsRecursively(release))
 										{
-											try
+											var d = DownloadRelease(release, workflow);
+		
+											while(!workflow.IsAborted && Downloads.Contains(d))
 											{
-												Workflow.ThrowIfAborted();
+												Monitor.Exit(Lock);
+												{
+													Thread.Sleep(100);
+												}
+												Monitor.Enter(Lock);
 											}
-											catch(OperationCanceledException)
-											{
-												return;
-											}
-
-											Monitor.Exit(Lock);
-											{
-												Thread.Sleep(100);
-											}
-											Monitor.Enter(Lock);
 										}
+					
+										Filebase.Unpack(release);
 									}
-				
-									Filebase.Unpack(version);
+								}
+								catch(OperationCanceledException)
+								{
 								}
 							});
 		}
 
-		public ReleaseStatus GetReleaseStatus(ReleaseAddress release)
+		public ReleaseStatus GetReleaseStatus(ReleaseAddress release, int limit)
 		{
-			var m = Filebase.FindRelease(release);
-			
-			if(m != null)
+			var s = new ReleaseStatus();
+
+			lock(Lock)
+				s.ExistsRecursively = Filebase.ExistsRecursively(release);
+
+			if(s.ExistsRecursively)
 			{
-				return new ReleaseStatus {Manifest = m.Manifest};
+				lock(Lock)
+					s.Manifest = Filebase.FindRelease(release).Manifest;
+			}
+			else
+			{
+				Download d ;
+				
+				lock(Lock)
+					d = Downloads.Find(i => i.Release == release);
+
+				if(d != null)
+				{
+					lock(d.Lock)
+					{
+						s.Download = new () {	Distributive			= d.Distributive,
+												Length					= d.Length, 
+												CompletedLength			= d.CompletedLength,
+												DependenciesRecursive	= d.DependenciesRecursive.Select(i => new DownloadReport.Dependency {Release = i.Release, Exists = Filebase.FindRelease(i.Release) != null}).ToArray(),
+												Hubs					= d.Hubs.Take(limit).Select(i => new DownloadReport.Hub { IP = i.Peer.IP, Seeds = i.Seeds.Take(limit), Status = i.Status }).ToArray(),
+												Seeds					= d.Seeds.Take(limit).Select(i => new DownloadReport.Seed { IP = i.Key, Status = i.Value }).ToArray() };
+					}
+				}
 			}
 
-			var d = Downloads.Find(i => i.Release == release);
-
-			if(d != null)
-			{
-				return new () { Download = new () {	Distributive			= d.Distributive,
-													Length					= d.Length, 
-													CompletedLength			= d.CompletedLength,
-													DependenciesCount		= d.DependenciesCount,
-													AllDependenciesFound	= d.DependenciesFound,
-													DependenciesSuccessful	= d.DependenciesSucceeded} };
-			}
-
-			return new ReleaseStatus();
+			return s;
 		}
 
-		public void AddRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
+		public void PackRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
 		{
 			var qlatest = Call(Role.Base, p => p.QueryRelease(release.Realization, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
 			var previos = qlatest.Releases.FirstOrDefault()?.Address.Version;

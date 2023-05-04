@@ -144,7 +144,7 @@ namespace Uccs.Net
 	public class AddWalletCall : ApiCall
 	{
 		public AccountAddress	Account { get; set; }
-		public byte[]	Wallet { get; set; }
+		public byte[]			Wallet { get; set; }
 	}
 
 	public class UnlockWalletCall : ApiCall
@@ -162,7 +162,7 @@ namespace Uccs.Net
 	{
 		public AccountAddress	From { get; set; }
 		public AccountAddress	To { get; set; }
-		public Coin		Amount { get; set; }
+		public Coin				Amount { get; set; }
 	}
 
 	public class QueryReleaseCall : ApiCall
@@ -179,18 +179,19 @@ namespace Uccs.Net
 		public byte[]			Manifest { get; set; }
 	}
 
-	public class DownloadReleaseCall : ApiCall
-	{
-		public ReleaseAddress	Release { get; set; }
-	}
+	//public class DownloadReleaseCall : ApiCall
+	//{
+	//	public ReleaseAddress	Release { get; set; }
+	//}
 
 	public class ReleaseStatusCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }
+		public int				Limit  { get; set; }
 	}
 
 	public class GetReleaseCall : ApiCall
 	{
-		public ReleaseAddress	Version { get; set; }
+		public ReleaseAddress	Release { get; set; }
 	}
 }

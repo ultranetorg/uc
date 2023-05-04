@@ -175,7 +175,6 @@ namespace Uccs.Net
 							lock(Core.Lock)
 								return new SettingsResponse {ProfilePath	= Core.Settings.Profile, 
 															 Settings		= Core.Settings}; /// TODO: serialize
-	
 						case RunNodeCall e:
 							Core.RunNode();
 							break;
@@ -279,18 +278,18 @@ namespace Uccs.Net
 	
 							break;
 	
-						case DownloadReleaseCall c:
-							lock(Core.Lock)
-								Core.DownloadRelease(c.Release, Workflow);
-							break;
+						//case DownloadReleaseCall c:
+						//	lock(Core.Lock)
+						//		Core.DownloadRelease(c.Release, Workflow);
+						//	break;
 	
 						case ReleaseStatusCall c:
-							lock(Core.Lock)
-								return Core.GetReleaseStatus(c.Release);
+							///lock(Core.Lock)
+							return Core.GetReleaseStatus(c.Release, c.Limit);
 
 						case GetReleaseCall c:
 							lock(Core.Lock)
-								Core.GetRelease(c.Version, Workflow);
+								Core.GetRelease(c.Release, Workflow);
 							break;
 					}
 

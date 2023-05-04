@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -29,7 +30,6 @@ namespace Uccs.Net
 	public class Database
 	{
 		//public ZoneGenesis					Genesis => Genesises.Find(i => i.Zone == Zone.Current && i.Crypto.GetType() == Cryptography.Current.GetType());
-
 		public const int					Pitch = 8;
 		public const int					LastGenesisRound = Pitch * 3;
 		public const int					MembersMin = 7;
@@ -44,7 +44,7 @@ namespace Uccs.Net
 		public Zone							Zone;
 		public DatabaseSettings				Settings;
 		DevSettings							Dev;
-		public Role							Roles => (Settings.Base ? Role.Base : 0) | (Settings.Chain ? Role.Chain : 0);
+		public Role							Roles;
 
 		public List<Round>					Tail = new();
 		public Dictionary<int, Round>		LoadedRounds = new();
@@ -83,8 +83,9 @@ namespace Uccs.Net
 
 		public static int					GetValidityPeriod(int rid) => rid + Pitch;
 
-		public Database(Zone zone, DatabaseSettings settings, DevSettings dev, Log log, RocksDb engine)
+		public Database(Zone zone, Role roles, DatabaseSettings settings, DevSettings dev, Log log, RocksDb engine)
 		{
+			Roles = roles&(Role.Base|Role.Chain);
 			Zone = zone;
 			Settings = settings;
 			Dev = dev;
@@ -122,7 +123,7 @@ namespace Uccs.Net
 				}
 			}
 
-			if(Settings.Chain)
+			if(Roles.HasFlag(Role.Chain))
 			{
 				var chainstate = Engine.Get(ChainStateKey);
 
@@ -632,7 +633,7 @@ namespace Uccs.Net
 						
 					if(t.SuccessfulOperations.Count() == t.Operations.Count)
 					{
-						if(Settings.Chain)
+						if(Roles.HasFlag(Role.Chain))
 						{
 							round.AffectAccount(t.Signer).Transactions.Add(round.Id);
 						}
@@ -804,7 +805,7 @@ namespace Uccs.Net
 
 				round.Hashify(round.Id > 0 ? round.Previous.Hash : Cryptography.ZeroHash); /// depends on BaseHash 
 
-				if(Settings.Chain)
+				if(Roles.HasFlag(Role.Chain))
 				{
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);

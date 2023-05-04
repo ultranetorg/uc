@@ -5,23 +5,114 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic;
 using Nethereum.Contracts.QueryHandlers.MultiCall;
+using static Uccs.Net.DownloadReport;
 
 namespace Uccs.Net
 {
-	public class DownloadStatus
+	public enum SeedStatus
 	{
-		public Distributive	Distributive { get; set; }
-		public long			Length { get; set; }
-		public long			CompletedLength { get; set; }
-		public int			DependenciesCount { get; set; }
-		public bool			AllDependenciesFound { get; set; }
-		public int			DependenciesSuccessful { get; set; }
+		Null, Good, Bad
+	}
+
+	public enum HubStatus
+	{
+		Null, Estimating, Bad
+	}
+
+	public class Hub
+	{
+		public Peer					Peer;
+		public List<IPAddress>		Seeds = new();
+		public HubStatus			Status = HubStatus.Estimating;
+		Download					Download;
+		public DateTime				Called;
+		public bool					Refreshing =false;
+
+		public Hub(Download download, Peer peer)
+		{
+			Download = download;
+			Peer = peer;
+
+			Refresh();
+		}
+
+		public void Refresh()
+		{
+			if(Refreshing)
+				return;
+			else
+				Refreshing = true;
+
+			Called = DateTime.UtcNow;
+
+			Task.Run(() =>	{
+
+								try
+								{
+									var lr = Download.Core.Call(Peer.IP, p => p.LocateRelease(Download.Release, 16), Download.Workflow);
+
+									lock(Download.Lock)
+									{
+										Download.Workflow.Log.Report(this, "Hub gives seeds", $"for {Download.Release}, {string.Join(", ", lr.Seeders.Take(8).Select(i => i.ToString()))}");
+
+										Seeds = lr.Seeders.ToList();
+
+										foreach(var s in lr.Seeders)
+										{
+											if(!Download.Seeds.ContainsKey(s))
+												Download.Seeds.Add(s, SeedStatus.Null);
+										}
+									}
+
+									Called = DateTime.UtcNow;
+								}
+								catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
+								{
+								}
+								catch(OperationCanceledException)
+								{
+								}
+
+								Refreshing = false;
+							}, 
+							Download.Workflow.Cancellation.Token);
+		}
+	}
+
+	public class DownloadReport
+	{
+		public class Dependency
+		{
+			public ReleaseAddress	Release { get; set; }
+			public bool				Exists { get; set; }
+		}
+
+		public class Seed
+		{
+			public IPAddress	IP { get; set; }
+			public SeedStatus	Status { get; set; }
+		}
+
+		public class Hub
+		{
+			public IPAddress				IP { get; set; }
+			public HubStatus				Status { get; set; }
+			public IEnumerable<IPAddress>	Seeds { get; set; }
+		}
+
+		public Distributive				Distributive { get; set; }
+		public long						Length { get; set; }
+		public long						CompletedLength { get; set; }
+		public IEnumerable<Dependency>	DependenciesRecursive { get; set; }
+		public IEnumerable<Hub>			Hubs { get; set; }
+		public IEnumerable<Seed>		Seeds { get; set; }
 	}
 
 	public class Download
 	{
-		public const long DefaultPieceLength = 65536;
+		public const long DefaultPieceLength = 512 * 1024;
 
 		public class Piece
 		{
@@ -54,8 +145,7 @@ namespace Uccs.Net
 											try
 											{
 												var d = Seed.DownloadRelease(Download.Release, Download.Distributive, Offset + Data.Position, Length - Data.Position).Data;
-												Data.Write(d, (int)Data.Position, d.Length);
-												break;
+												Data.Write(d, 0, d.Length);
 											}
 											catch(RdcException)
 											{
@@ -77,52 +167,31 @@ namespace Uccs.Net
 				}
 		}
 
-		public enum SeedStatus
-		{
-			Null, Good, Bad
-		}
+		public ReleaseAddress						Release;
+		public Distributive							Distributive { get; protected set; }
+		public long									Length { get; protected set; }
+		public bool									Succeeded => Downloaded && DependenciesRecursiveFound && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
+		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
+																		- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+																		+ CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
+		public int									DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
+		public bool									DependenciesRecursiveFound => Manifest != null && Dependencies.All(i => i.DependenciesRecursiveFound);
+		public int									DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
+		public object								Lock = new object();
 
-		public enum HubStatus
-		{
-			Null, Estimating, Useless
-		}
-
-		class Hub
-		{
-			public Peer					Peer;
-			public List<IPAddress>		Seeds = new();
-			public HubStatus			Status = HubStatus.Estimating;
-
-			public Hub(Peer peer)
-			{
-				Peer = peer;
-			}
-		}
-
-		public ReleaseAddress				Release;
-		public Distributive					Distributive { get; protected set; }
-		public long							Length { get; protected set; }
-		public bool							Succeeded => Downloaded && DependenciesFound && DependenciesCount == DependenciesSucceeded;
-		public long							CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
-																- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
-																+ Pieces.Sum(i => i.Data != null ? i.Data.Length : 0);
-		public int							DependenciesCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesCount);
-		public bool							DependenciesFound => Manifest != null && Dependencies.All(i => i.DependenciesFound);
-		public int							DependenciesSucceeded => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesSucceeded);
-		public object						Lock = new object();
-
-		Core								Core;
-		Workflow							Workflow;
-		bool								Downloaded;
-		List<Piece>							Pieces = new();
-		List<Hub>							Hubs = new();
-		Dictionary<IPAddress, SeedStatus>	Seeds = new();
-		List<Download>						Dependencies = new();
-		byte[]								Hash;
-		int									PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
-		List<Piece>							CompletedPieces = new();
-		Manifest							Manifest;
-		Task								Task;
+		internal Core								Core;
+		internal Workflow							Workflow;
+		bool										Downloaded;
+		List<Piece>									CurrentPieces = new();
+		List<Piece>									CompletedPieces = new();
+		public List<Hub>							Hubs = new();
+		public Dictionary<IPAddress, SeedStatus>	Seeds = new();
+		public List<Download>						Dependencies = new();
+		public IEnumerable<Download>				DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Release);
+		byte[]										Hash;
+		int											PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
+		Manifest									Manifest;
+		Task										Task;
 
 		public Download(Core core, ReleaseAddress release, Workflow workflow)
 		{
@@ -134,15 +203,13 @@ namespace Uccs.Net
 
 			Task = Task.Run(() =>
 							{
-								ReleaseHistoryResponse his;
+								ReleaseHistoryResponse his = null;
 
-								while(true)
+								while(!workflow.IsAborted)
 								{
-									workflow.ThrowIfAborted();
+									his = Core.Call(Role.Base, c => c.GetReleaseHistory(release.Realization), workflow);
 
-									his = Core.Call(Role.Base, c => c.GetReleaseHistory(release.Realization, false), workflow);
-
-									if(his.Releases.Any(i => i.Address == release))
+									if(his.Releases.Any(i => i.Address == Release))
 										break;
 									else
 										Thread.Sleep(100);
@@ -150,10 +217,8 @@ namespace Uccs.Net
 				
 								Piece j;
 
-								while(true)
+								while(!workflow.IsAborted)
 								{
-									workflow.ThrowIfAborted();
-
 									Task[] tasks;
 									Hub hlast = null;
 
@@ -161,43 +226,27 @@ namespace Uccs.Net
 									{
 										for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 										{
-											var p = Core.FindBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
+											var h = Core.FindBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
 	
-											if(p != null)
+											if(h != null)
 											{
-												hlast = new Hub(p);
+												Workflow.Log.Report(this, "Hub found", $"for {release}, {h}");
+
+												hlast = new Hub(this, h);
 												Hubs.Add(hlast);
-	
-												Task.Run(() =>	{
-																	try
-																	{
-																		var lr = Core.Call(hlast.Peer.IP, p => p.LocateRelease(release, 16), workflow);
-
-																		lock(Lock)
-																		{
-																			hlast.Seeds = lr.Seeders.ToList();
-
-																			foreach(var s in lr.Seeders)
-																			{
-																				if(!Seeds.ContainsKey(s))
-																					Seeds.Add(s, SeedStatus.Null);
-																			}
-																		}
-																	}
-																	catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
-																	{
-																	}
-																	catch(OperationCanceledException)
-																	{
-																	}
-																},
-																workflow.Cancellation.Token);
 											}
+											else
+												break;
 										}
 
-										if((Length == 0 ? 1 : (PiecesTotal - CompletedPieces.Count - Pieces.Count)) > 0 && Pieces.Count < 8)
+										foreach(var i in Hubs.Where(i => i.Seeds.Count < 16 && DateTime.UtcNow - i.Called > TimeSpan.FromSeconds(5)))
 										{
-											var s = Seeds.FirstOrDefault(i => i.Value != SeedStatus.Bad && !Pieces.Any(j => j.Seed.IP.Equals(i.Key)));
+											i.Refresh();
+										}
+
+										if(Length == 0 || (PiecesTotal - CompletedPieces.Count - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
+										{
+											var s = Seeds.FirstOrDefault(i => i.Value != SeedStatus.Bad && !CurrentPieces.Any(j => j.Seed.IP.Equals(i.Key)));
 											
 											if(s.Key != null)
 											{
@@ -242,34 +291,34 @@ namespace Uccs.Net
 													}
 												}
 												
-												Pieces.Add(new Piece(this, 
+												CurrentPieces.Add(new Piece(this, 
 																	 Core.GetPeer(s.Key), 
-																	 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !Pieces.Any(j => j.I == i))));
+																	 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
 											}
 											else
 											{
-												Thread.Sleep(1);
-
-												foreach(var h in Hubs.Where(i => i.Status == HubStatus.Estimating && i.Seeds.Any()))
-												{
-													if(h.Seeds.All(i => Seeds[i] == SeedStatus.Bad)) /// all seeds are bad
-													{
-														h.Status = HubStatus.Useless;
-													}
-												}
-
-												if(Seeds.All(i => i.Value == SeedStatus.Bad)) /// no good seeds found
-												{
-													if(Hubs.Count(i => i.Status == HubStatus.Estimating) < hubsgoodmax && hlast == null) /// no more hubs, total restart
-													{
-														Hubs.Clear();
-														Seeds.Clear();
-													}
-												}
+												//Thread.Sleep(1);
+												//
+												//foreach(var h in Hubs.Where(i => i.Status == HubStatus.Estimating && i.Seeds.Any()))
+												//{
+												//	if(h.Seeds.All(i => Seeds[i] == SeedStatus.Bad)) /// all seeds are bad
+												//	{
+												//		h.Status = HubStatus.Bad;
+												//	}
+												//}
+												//
+												//if(Seeds.Any() && Seeds.All(i => i.Value == SeedStatus.Bad)) /// no good seeds found
+												//{
+												//	if(Hubs.Count(i => i.Status == HubStatus.Estimating) < hubsgoodmax && hlast == null) /// no more hubs, total restart
+												//	{
+												//		//Hubs.Clear();
+												//		//Seeds.Clear();
+												//	}
+												//}
 											}
 										}
 									
-										tasks = Pieces.Select(i => i.Task).ToArray();
+										tasks = CurrentPieces.Select(i => i.Task).ToArray();
 
 										if(tasks.Length == 0)
 										{
@@ -281,12 +330,14 @@ namespace Uccs.Net
 
 									lock(Lock)
 									{	
-										j = Pieces.Find(i => i.Task == tasks[ti]);
+										j = CurrentPieces.Find(i => i.Task == tasks[ti]);
 										
-										Pieces.Remove(j);
+										CurrentPieces.Remove(j);
 
 										if(j.Succeeded)
 										{
+											Seeds[j.Seed.IP] = SeedStatus.Good;
+
 											lock(Core.Lock)
 												Core.Filebase.WritePackage(Release, Distributive, j.Offset, j.Data.ToArray());
 											
@@ -294,47 +345,18 @@ namespace Uccs.Net
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
-												Seeds[j.Seed.IP] = SeedStatus.Good;
-
-												if(Core.Filebase.GetHash(Release, Distributive).SequenceEqual(Hash))
-												{	
-													Core.Filebase.AddRelease(Release, Manifest);
-
-													//Core.DeclarePackage(new[]{Package}, Workflow);
-
-													var hubs = Hubs.Where(h => Seeds.Any(s => s.Value == SeedStatus.Good && h.Seeds.Any(ip => ip.Equals(s.Key)))).Select(i => i.Peer);
-
-													foreach(var h in hubs)
-														h.HubRank++;
-
-													var seeds = CompletedPieces.Select(i => i.Seed);
-
-													foreach(var h in seeds)
-														h.SeedRank++;
-
-													his.Peer.ChainRank++;
-
-													Core.UpdatePeers(seeds.Union(hubs).Union(new[]{his.Peer}).Distinct());
-
-													//while(Core.Running && Dependencies.Any(i => !i.Successful))
-													//{
-													//	Thread.Sleep(1);
-													//	workflow.ThrowIfAborted();
-													//}
-												
-													Downloaded = true;
-
-													lock(Core.Lock)
-														Core.Downloads.Remove(this);
-
-													return;
-												}
-												else
-												{
-													CompletedPieces.Clear();
-													Hubs.Clear();
-													Seeds.Clear();
-												}
+												lock(Core.Lock)
+													if(Core.Filebase.GetHash(Release, Distributive).SequenceEqual(Hash))
+													{	
+														goto end;
+													}
+													else
+													{
+														CurrentPieces.Clear();
+														CompletedPieces.Clear();
+														Hubs.Clear();
+														Seeds.Clear();
+													}
 											}
 
 											///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
@@ -346,8 +368,38 @@ namespace Uccs.Net
 										}
 									}
 								}
+
+							end:
+
+								lock(Core.Lock)
+								{
+									Core.Filebase.AddRelease(Release, Manifest);
+
+									var hubs = Hubs.Where(h => Seeds.Any(s => s.Value == SeedStatus.Good && h.Seeds.Any(ip => ip.Equals(s.Key)))).Select(i => i.Peer);
+
+									foreach(var h in hubs)
+										h.HubRank++;
+
+									var seeds = CompletedPieces.Select(i => i.Seed);
+
+									foreach(var h in seeds)
+										h.SeedRank++;
+
+									his.Peer.ChainRank++;
+
+									Core.UpdatePeers(seeds.Union(hubs).Union(new[]{his.Peer}).Distinct());
+									Core.Downloads.Remove(this);
+
+									Downloaded = true;
+								}
+									
 							},
 							workflow.Cancellation.Token);
+		}
+
+		public override string ToString()
+		{
+			return Release.ToString();
 		}
 
 		//public Job AddCompleted(int i)

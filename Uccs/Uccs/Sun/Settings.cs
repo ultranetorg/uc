@@ -28,8 +28,6 @@ namespace Uccs.Net
 
 	public class DatabaseSettings
 	{
-		public bool			Base;
-		public bool			Chain;
 		public int			PeersMin;
 
 		public DatabaseSettings()
@@ -38,37 +36,29 @@ namespace Uccs.Net
 
 		public DatabaseSettings(Xon x)
 		{
-			Base		= x.Has("Base");
-			Chain		= x.Has("Chain");
 			PeersMin	= x.GetInt32("PeersMin");
 		}
 	}
 
 	public class HubSettings
 	{
-		public bool Enabled;
-
 		public HubSettings()
 		{
 		}
 
 		public HubSettings(Xon x)
 		{
-			Enabled = x.Has("Enabled");
 		}
 	}
 
 	public class FilebaseSettings
 	{
-		public bool Enabled;
-
 		public FilebaseSettings()
 		{
 		}
 
 		public FilebaseSettings(Xon x)
 		{
-			Enabled = x.Has("Enabled");
 		}
 	}
 
@@ -163,6 +153,7 @@ namespace Uccs.Net
 		//public readonly int				Port;
 		//public readonly Zone			Zone;
 	
+		public Role						Roles;
 		public bool						Log;
 		public int						PeersMin;
 		public int						PeersInMax;
@@ -215,6 +206,7 @@ namespace Uccs.Net
 
 			var doc = new XonDocument(File.ReadAllText(Path));
 
+			Roles		= Enum.Parse<Role>(doc.GetString("Roles"));
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
 			//Port		= doc.GetInt32("Port");

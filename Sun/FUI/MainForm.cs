@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 
 			if(core.Database != null)
 			{
-				if(core.Settings.Database.Chain)
+				if(core.Settings.Roles.HasFlag(Role.Chain))
 				{
 					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
 					navigator.Nodes.Add(txs);
