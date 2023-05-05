@@ -99,12 +99,12 @@
                                             Style="{StaticResource DashLabel}"
                                             Text="Renewal period"
                                             VerticalOptions="Center" />
-                                        <controls:BorderEntry
+										<controls:BorderEntry
+                                            HorizontalOptions="End"
                                             Keyboard="Numeric"
                                             Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Period}"
                                             Grid.Column="1"
-                                            FontSize="24"
-                                            RightPadding="35">
+                                            FontSize="13">
                                             <controls:BorderEntry.Behaviors>
                                                 <toolkit:CharactersValidationBehavior
                                                     x:Name="cb2"
