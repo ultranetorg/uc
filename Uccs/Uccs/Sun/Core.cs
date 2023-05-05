@@ -1209,10 +1209,10 @@ namespace Uccs.Net
 
 												var r = Database.FindRound(b.RoundId);
 	
-												if(r != null && !r.Confirmed && r.Blocks.Any(i => i.Signature.SequenceEqual(b.Signature)))
+												if(r != null && !r.Confirmed && r.Blocks.Any(i => i.Hash.SequenceEqual(b.Hash)))
 													return false;
 
-												return b.Valid && Zone.Cryptography.Valid(b.Signature, b.Hash, b.Generator);
+												return b.Valid/* && Zone.Cryptography.Valid(b.Signature, b.Hash, b.Generator)*/;
 
 											}).ToArray(); /// !ToArray cause will be added to Chain below
 

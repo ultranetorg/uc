@@ -110,7 +110,7 @@ namespace Uccs.Net
 
 		public int					RoundId { get; set; }
 		public AccountAddress		Generator { get; protected set; }
-		public byte[]				Signature;
+		//public byte[]				Signature;
 		public byte[]				Hash;
 
 		public BlockType			Type => Enum.Parse<BlockType>(GetType().Name);
@@ -165,7 +165,7 @@ namespace Uccs.Net
 		{
 			Generator = generator;
 			Hash = Hashify();
-			Signature = Database.Zone.Cryptography.Sign(generator, Hash);
+			//Signature = Database.Zone.Cryptography.Sign(generator, Hash);
 		} 
 	}
 
@@ -184,25 +184,25 @@ namespace Uccs.Net
 
 		protected override void HashWrite(BinaryWriter writer)
 		{
+			writer.Write(Generator);
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write(IPs, i => writer.Write(i));
 		}
 
 		public override void Write(BinaryWriter writer)
 		{
+			writer.Write(Generator);
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write(IPs, i => writer.Write(i));
-			writer.Write(Signature);
 		}
 
 		public override void Read(BinaryReader reader)
 		{
+			Generator	= reader.ReadAccount();
 			RoundId		= reader.Read7BitEncodedInt();
 			IPs			= reader.ReadArray(() => reader.ReadIPAddress());
-			Signature	= reader.ReadSignature();
 		
 			Hash		= Hashify();
-			Generator	= Database.Zone.Cryptography.AccountFrom(Signature, Hash);
 		}
 	}
 
@@ -235,6 +235,9 @@ namespace Uccs.Net
 
 		protected override void HashWrite(BinaryWriter writer)
 		{
+			writer.Write(Generator);
+			
+			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
 			writer.Write(Consensus);
@@ -248,7 +251,7 @@ namespace Uccs.Net
 
 		protected void WriteVote(BinaryWriter writer)
 		{
-			writer.Write(Signature);
+			writer.Write(Generator);
 
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
@@ -269,7 +272,7 @@ namespace Uccs.Net
 
 		protected void ReadVote(BinaryReader reader)
 		{
-			Signature	= reader.ReadSignature();
+			Generator	= reader.ReadAccount();
 
 			RoundId		= reader.Read7BitEncodedInt();
 			Try			= reader.Read7BitEncodedInt();
@@ -288,7 +291,7 @@ namespace Uccs.Net
 			ReadVote(reader);
 
 			Hash = Hashify();
-			Generator = Database.Zone.Cryptography.AccountFrom(Signature, Hash);
+			//Generator = Database.Zone.Cryptography.AccountFrom(Signature, Hash);
 		}
 	}
 
@@ -340,7 +343,7 @@ namespace Uccs.Net
 				
 		protected override void HashWrite(BinaryWriter writer)
 		{
-			writer.Write(Generator); /// needed to read check transactions' signatures in Payload
+			//writer.Write(Generator); /// needed to read check transactions' signatures in Payload
 
 			base.HashWrite(writer);
 
@@ -354,7 +357,7 @@ namespace Uccs.Net
 		{
 			WriteVote(writer);
 
-			writer.Write(Generator); /// needed to read check transactions' signatures in Payload
+			//writer.Write(Generator); /// needed to read check transactions' signatures in Payload
 			writer.Write(Transactions, t => t.WriteAsPartOfBlock(writer));
 		}
 
@@ -362,7 +365,7 @@ namespace Uccs.Net
 		{
 			ReadVote(reader);
 
-			Generator = reader.ReadAccount();	
+			//Generator = reader.ReadAccount();	
 			Transactions = reader.ReadList(() =>	{
 														var t = new Transaction(Database.Zone)
 																{
