@@ -1,21 +1,10 @@
-﻿using Org.BouncyCastle.Utilities.Encoders;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Nethereum.Util;
-using Nethereum.Signer;
-using System.Reflection;
-using System.Diagnostics;
-using System.Net.Http;
-using System.Text.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections;
 
 namespace Uccs.Net
 {
@@ -67,8 +56,13 @@ namespace Uccs.Net
 		public int					BaseRank = 0;
 		public int					HubRank = 0;
 		public int					SeedRank = 0;
+
+		public Dictionary<Role, DateTime>	LastFailure;
 		
 		int							IdCounter = 0;
+		public bool					Fresh;
+
+		AutoResetEvent				SendSignal = new AutoResetEvent(true);
 
 		public Peer()
 		{
@@ -156,6 +150,8 @@ namespace Uccs.Net
 				else
 					return;
 
+				SendSignal.Set();
+
 				foreach(var i in OutRequests)
 					i.Event.Set();
 
@@ -216,42 +212,49 @@ namespace Uccs.Net
 			{
 				while(!Core.Workflow.IsAborted && Established)
 				{
-					Thread.Sleep(1);
 					Core.Statistics.Sending.Begin();
-
+	
 					RdcRequest[] ins;
-
+	
 					lock(InRequests)
 					{
 						ins = InRequests.ToArray();
 						InRequests.Clear();
 					}
-						
+							
 					foreach(var i in ins)
 					{
 						if(i.WaitResponse)
 						{
 							RdcResponse rp;
-													
+														
 							try
 							{
 								rp = i.Execute(Core);
+								rp.Result = RdcResult.Success;
 							}
-							catch(RdcException ex)// when(!Debugger.IsAttached)
+							catch(RdcNodeException ex)
 							{
 								rp = RdcResponse.FromType(Core.Database, i.Type);
-								rp.Error = ex.Error;
+								rp.Result = RdcResult.NodeException;
+								rp.Error = (byte)ex.Error;
+							}
+							catch(RdcEntityException ex)
+							{
+								rp = RdcResponse.FromType(Core.Database, i.Type);
+								rp.Result = RdcResult.EntityException;
+								rp.Error = (byte)ex.Error;
 							}
 							catch(Exception)// when(!Debugger.IsAttached)
 							{
-								//Core?.Workflow?.Log.ReportError(this, "Distributed Call Execution", ex);
 								rp = RdcResponse.FromType(Core.Database, i.Type);
-								rp.Error = RdcError.Internal;
+								rp.Result = RdcResult.NodeException;
+								rp.Error = (byte)RdcNodeError.Internal;
 							}
-													
-							rp.Id = i.Id;
 														
-	 						lock(Out)
+							rp.Id = i.Id;
+															
+		 					lock(Out)
 								Out.Enqueue(rp);
 						}
 						else
@@ -265,17 +268,17 @@ namespace Uccs.Net
 							}
 						}
 					}
-	
+		
 					try
 					{
 						RdcPacket[] outs;
-
+	
 						lock(Out)
 						{
 							outs = Out.ToArray();
 							Out.Clear();
 						}
-
+	
 						foreach(var i in outs)
 						{
 							if(i is RdcRequest)
@@ -284,9 +287,9 @@ namespace Uccs.Net
 								Writer.Write((byte)PacketType.Response);
 							else
 								throw new IntegrityException("Wrong packet to write");
-
+	
 							Writer.Write(i.TypeCode);
-
+	
 							BinarySerializator.Serialize(Writer, i);
 						}
 					}
@@ -295,11 +298,13 @@ namespace Uccs.Net
 						lock(Core.Lock)
 							if(Status != ConnectionStatus.Disconnecting)
 								Status = ConnectionStatus.Failed;
-
+	
 						break;
 					}
-
+	
 					Core.Statistics.Sending.End();
+									
+					SendSignal.WaitOne();
 				}
 			}
 			catch(Exception) when(!Debugger.IsAttached)
@@ -347,6 +352,9 @@ namespace Uccs.Net
 							lock(InRequests)
  								InRequests.Add(rq);
  	
+							//lock(SendSignal)
+								SendSignal.Set();
+
 							//Core.Workflow.Log?.Report(this, pk.ToString(), $"{rq.Type} {rq.Id} {IP}");
 
  							break;
@@ -421,21 +429,27 @@ namespace Uccs.Net
 
 			lock(Out)
 				Out.Enqueue(rq);
- 
+
+			SendSignal.Set();
+
  			if(rq.WaitResponse)
  			{
-	 			if(rq.Event.WaitOne(Timeout.Infinite)) 
+	 			if(rq.Event.WaitOne(30*1000)) 
 	 			{
 					if(rq.Response == null)
 						throw new OperationCanceledException();
 	
-	 				if(rq.Response.Error == RdcError.Null)
+	 				if(rq.Response.Result == RdcResult.Success)
 		 				return rq.Response as Rp;
-	 				else
-						throw new RdcException(rq.Response.Error);
-	 			}
+	 				else if(rq.Response.Result == RdcResult.NodeException)
+						throw new RdcNodeException((RdcNodeError)rq.Response.Error);
+	 				else if(rq.Response.Result == RdcResult.EntityException)
+						throw new RdcEntityException((RdcEntityError)rq.Response.Error);
+					else
+						throw new RdcNodeException(RdcNodeError.Integrity);
+ 				}
 				else
-	 				throw new RdcException(RdcError.Timeout);
+	 				throw new RdcNodeException(RdcNodeError.Timeout);
  			}
 			else
 				return null;

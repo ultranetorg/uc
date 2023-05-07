@@ -82,7 +82,7 @@ namespace Uccs.Sun.FUI
 																	var m = p.GetManifest(r.Release).Manifest;
 																	
 																	if(m == null)
-																		throw new RdcException(Uccs.Net.RdcError.Null);
+																		throw new RdcEntityException(RdcEntityError.Null);
 
 																	return m;
 																},

@@ -221,7 +221,7 @@ namespace Uccs.Net
 								return new SummaryResponse{Summary = Core.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 
 						case PeersReportCall s:
-							return new PeersResponse{Peers = Core.Peers.TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
+							return new PeersResponse{Peers = Core.Peers.OrderByDescending(i => i.Established).TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
 							
 						case ChainReportCall s:
 							lock(Core.Lock)

@@ -36,7 +36,10 @@ namespace Uccs.Net
 
 			if(type.IsEnum)
 			{
-				writer.Write7BitEncodedInt((int)val);
+				if(Enum.GetUnderlyingType(type) == typeof(byte))
+					writer.Write((byte)val);
+				else
+					writer.Write7BitEncodedInt((int)val);
 				return true;
 			}
 
@@ -225,7 +228,11 @@ namespace Uccs.Net
 			else
 			if(type.IsEnum)
 			{
-				value = Enum.ToObject(type, reader.Read7BitEncodedInt()); 
+				if(Enum.GetUnderlyingType(type) == typeof(byte))
+					value = Enum.ToObject(type, reader.ReadByte()); 
+				else
+					value = Enum.ToObject(type, reader.Read7BitEncodedInt()); 
+				
 				return true;
 			}
 

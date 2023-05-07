@@ -51,7 +51,7 @@ namespace Uccs.Sun.FUI
 										{
 											t = Core.Call(Role.Base, p => p.GetAccountInfo(i.Tag as AccountAddress, true), Core.Workflow).Account.Balance.ToHumanString(); 
 										}
-										catch(RdcException)
+										catch(Exception)
 										{
 											return;
 										}

@@ -11,74 +11,9 @@ using static Uccs.Net.DownloadReport;
 
 namespace Uccs.Net
 {
-	public enum SeedStatus
-	{
-		Null, Good, Bad
-	}
-
 	public enum HubStatus
 	{
 		Null, Estimating, Bad
-	}
-
-	public class Hub
-	{
-		public Peer					Peer;
-		public List<IPAddress>		Seeds = new();
-		public HubStatus			Status = HubStatus.Estimating;
-		Download					Download;
-		public DateTime				Called;
-		public bool					Refreshing =false;
-
-		public Hub(Download download, Peer peer)
-		{
-			Download = download;
-			Peer = peer;
-
-			Refresh();
-		}
-
-		public void Refresh()
-		{
-			if(Refreshing)
-				return;
-			else
-				Refreshing = true;
-
-			Called = DateTime.UtcNow;
-
-			Task.Run(() =>	{
-
-								try
-								{
-									var lr = Download.Core.Call(Peer.IP, p => p.LocateRelease(Download.Release, 16), Download.Workflow);
-
-									lock(Download.Lock)
-									{
-										Download.Workflow.Log.Report(this, "Hub gives seeds", $"for {Download.Release}, {string.Join(", ", lr.Seeders.Take(8).Select(i => i.ToString()))}");
-
-										Seeds = lr.Seeders.ToList();
-
-										foreach(var s in lr.Seeders)
-										{
-											if(!Download.Seeds.ContainsKey(s))
-												Download.Seeds.Add(s, SeedStatus.Null);
-										}
-									}
-
-									Called = DateTime.UtcNow;
-								}
-								catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
-								{
-								}
-								catch(OperationCanceledException)
-								{
-								}
-
-								Refreshing = false;
-							}, 
-							Download.Workflow.Cancellation.Token);
-		}
 	}
 
 	public class DownloadReport
@@ -92,7 +27,8 @@ namespace Uccs.Net
 		public class Seed
 		{
 			public IPAddress	IP { get; set; }
-			public SeedStatus	Status { get; set; }
+			public int			Failures { get; set; }
+			public int			Succeses { get; set; }
 		}
 
 		public class Hub
@@ -114,9 +50,65 @@ namespace Uccs.Net
 	{
 		public const long DefaultPieceLength = 512 * 1024;
 
+		public class Hub
+		{
+			public Peer					Peer;
+			public Seed[]				Seeds = new Seed[]{};
+			public HubStatus			Status = HubStatus.Estimating;
+			Download					Download;
+			public DateTime				Called;
+			public bool					Refreshing =false;
+
+			public Hub(Download download, Peer peer)
+			{
+				Download = download;
+				Peer = peer;
+
+				Refresh();
+			}
+
+			public void Refresh()
+			{
+				if(Refreshing)
+					return;
+				else
+					Refreshing = true;
+
+				Called = DateTime.UtcNow;
+
+				Task.Run(() =>	{
+
+									try
+									{
+										var lr = Download.Core.Call(Peer.IP, p => p.LocateRelease(Download.Release, 16), Download.Workflow);
+
+										lock(Download.Lock)
+										{
+											Download.Workflow.Log.Report(this, "Hub gives seeds", $"for {Download.Release}, {string.Join(", ", lr.Seeders.Take(8).Select(i => i.ToString()))}");
+
+											Seeds = lr.Seeders.Where(i => !Download.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
+
+											Download.Seeds.AddRange(Seeds);
+										}
+
+										Called = DateTime.UtcNow;
+									}
+									catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcNodeException || ex is RdcEntityException)
+									{
+									}
+									catch(OperationCanceledException)
+									{
+									}
+
+									Refreshing = false;
+								}, 
+								Download.Workflow.Cancellation.Token);
+			}
+		}
+
 		public class Piece
 		{
-			public Peer				Seed;
+			public Seed				Seed;
 			public Task				Task;
 			public int				I = -1;
 			public long				Length => I * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
@@ -126,45 +118,38 @@ namespace Uccs.Net
 			Download				Download;
 			Core					Core => Download.Core;
 
-			public Piece(Download download, Peer peer, int piece)
+			public Piece(Download download, Seed peer, int piece)
 			{
 				Download = download;
 				Seed = peer;
 				I = piece;
 
-				Task = Task.Run(() =>	
-								{
-									try
-									{
-										Download.Core.Connect(Seed, download.Workflow);
-										
-										int e = 0;
-
-										while(Data.Position < Length)
-										{
+				Task = Task.Run(() =>	{
 											try
 											{
-												var d = Seed.DownloadRelease(Download.Release, Download.Distributive, Offset + Data.Position, Length - Data.Position).Data;
-												Data.Write(d, 0, d.Length);
+												Download.Core.Connect(Seed.Peer, download.Workflow);
+
+												while(Data.Position < Length)
+												{
+													var d = Seed.Peer.DownloadRelease(Download.Release, Download.Distributive, Offset + Data.Position, Length - Data.Position).Data;
+													Data.Write(d, 0, d.Length);
+												}
 											}
-											catch(RdcException)
+											catch(Exception ex) when(ex is ConnectionFailedException || ex is OperationCanceledException || ex is RdcNodeException || ex is RdcEntityException)
 											{
-												e++;
-												
-												if(e > 3)
-													break;
 											}
-										}
-									}
-									catch(ConnectionFailedException)
-									{
-									}
-									catch(OperationCanceledException)
-									{
-									}
-								}, 
-								Download.Workflow.Cancellation.Token);
+										}, 
+										Download.Workflow.Cancellation.Token);
 				}
+		}
+
+		public class Seed
+		{
+			public IPAddress	IP;
+			public Peer			Peer;
+			public DateTime		Failed;
+			public int			Failures;
+			public int			Succeses;
 		}
 
 		public ReleaseAddress						Release;
@@ -185,7 +170,7 @@ namespace Uccs.Net
 		List<Piece>									CurrentPieces = new();
 		List<Piece>									CompletedPieces = new();
 		public List<Hub>							Hubs = new();
-		public Dictionary<IPAddress, SeedStatus>	Seeds = new();
+		public List<Seed>							Seeds = new();
 		public List<Download>						Dependencies = new();
 		public IEnumerable<Download>				DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Release);
 		byte[]										Hash;
@@ -239,22 +224,30 @@ namespace Uccs.Net
 												break;
 										}
 
-										foreach(var i in Hubs.Where(i => i.Seeds.Count < 16 && DateTime.UtcNow - i.Called > TimeSpan.FromSeconds(5)))
+										foreach(var i in Hubs.Where(i => i.Seeds.Length < 16 && DateTime.UtcNow - i.Called > TimeSpan.FromSeconds(5)))
 										{
 											i.Refresh();
 										}
 
 										if(Length == 0 || (PiecesTotal - CompletedPieces.Count - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
 										{
-											var s = Seeds.FirstOrDefault(i => i.Value != SeedStatus.Bad && !CurrentPieces.Any(j => j.Seed.IP.Equals(i.Key)));
+											var s = Seeds.OrderBy(i => i.Peer == null).FirstOrDefault(i =>	i.Peer == null ||  /// new candidate
+																											i.Peer != null && i.Failed == DateTime.MinValue || /// succeeded previously
+																											(DateTime.UtcNow - i.Failed) > TimeSpan.FromSeconds(5)  &&  /// bad node
+																											CurrentPieces.All(j => j.Seed != i));
 											
-											if(s.Key != null)
+											if(s != null)
 											{
+												if(s.Peer == null)
+												{
+													s.Peer = core.GetPeer(s.IP);
+												}
+
 												if(Manifest == null)
 												{
 													try
 													{
-														Manifest = core.Call(s.Key, p => p.GetManifest(release).Manifest, workflow);
+														Manifest = core.Call(s.Peer.IP, p => p.GetManifest(release).Manifest, workflow);
 														Manifest.Release = release;
 
 														if(!Manifest.GetOrCalcHash().SequenceEqual(his.Releases.First(i => i.Address == release).Manifest))
@@ -263,9 +256,9 @@ namespace Uccs.Net
 															continue;
 														}
 													}
-													catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
+													catch(Exception ex) when(ex is ConnectionFailedException || ex is RdcNodeException || ex is RdcEntityException)
 													{
-														Seeds[s.Key] = SeedStatus.Bad;
+														s.Failed = DateTime.UtcNow;
 														continue;
 													}
 															
@@ -291,9 +284,7 @@ namespace Uccs.Net
 													}
 												}
 												
-												CurrentPieces.Add(new Piece(this, 
-																	 Core.GetPeer(s.Key), 
-																	 Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
+												CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
 											}
 											else
 											{
@@ -336,7 +327,8 @@ namespace Uccs.Net
 
 										if(j.Succeeded)
 										{
-											Seeds[j.Seed.IP] = SeedStatus.Good;
+											j.Seed.Failures++;
+											j.Seed.Failed = DateTime.MinValue;
 
 											lock(Core.Lock)
 												Core.Filebase.WritePackage(Release, Distributive, j.Offset, j.Data.ToArray());
@@ -364,7 +356,8 @@ namespace Uccs.Net
 										}
 										else
 										{	
-											Seeds[j.Seed.IP] = SeedStatus.Bad;
+											j.Seed.Succeses++;
+											j.Seed.Failed = DateTime.UtcNow;
 										}
 									}
 								}
@@ -375,17 +368,17 @@ namespace Uccs.Net
 								{
 									Core.Filebase.AddRelease(Release, Manifest);
 
-									var hubs = Hubs.Where(h => Seeds.Any(s => s.Value == SeedStatus.Good && h.Seeds.Any(ip => ip.Equals(s.Key)))).Select(i => i.Peer);
+									var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).Select(i => i.Peer);
 
 									foreach(var h in hubs)
 										h.HubRank++;
 
-									var seeds = CompletedPieces.Select(i => i.Seed);
+									var seeds = CompletedPieces.Select(i => i.Seed.Peer);
 
 									foreach(var h in seeds)
 										h.SeedRank++;
 
-									his.Peer.ChainRank++;
+									his.Peer.BaseRank++;
 
 									Core.UpdatePeers(seeds.Union(hubs).Union(new[]{his.Peer}).Distinct());
 									Core.Downloads.Remove(this);

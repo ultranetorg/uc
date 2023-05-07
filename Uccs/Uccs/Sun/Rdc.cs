@@ -16,36 +16,56 @@ namespace Uccs.Net
 {
 	public enum Rdc : byte
 	{
-		Null, Time, BlocksPieces, DownloadRounds, GetMembers, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
+		Null, Time, PeersBroadcast, BlocksBroadcast, DownloadRounds, GetMembers, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable
 	}
 
-	public enum RdcError
+	public enum RdcResult : byte
+	{
+		Null, Success, NodeException, EntityException
+	}
+
+	public enum RdcNodeError : byte
 	{
 		Null,
+		Integrity,
 		Internal,
 		Timeout,
-		InvalidRequest,
 		NotChain,
 		NotBase,
 		NotHub,
 		NotSeed,
 		NotSynchronized,
 		TooEearly,
+		AllNodesFailed,
+	}
+
+	public enum RdcEntityError : byte
+	{
+		Null,
+		InvalidRequest,
 		AccountNotFound,
 		ProductNotFound,
 		ClusterNotFound,
 		RoundNotAvailable,
-		AllNodesFailed,
-		UnknownTable,
 	}
 
- 	public class RdcException : Exception
+ 	public class RdcNodeException : Exception
  	{
-		public RdcError Error;
+		public RdcNodeError Error;
 
- 		public RdcException(RdcError erorr) : base(erorr.ToString())
+ 		public RdcNodeException(RdcNodeError erorr) : base(erorr.ToString())
+		{
+			Error = erorr;
+		}
+ 	}
+
+ 	public class RdcEntityException : Exception
+ 	{
+		public RdcEntityError Error;
+
+ 		public RdcEntityException(RdcEntityError erorr) : base(erorr.ToString())
 		{
 			Error = erorr;
 		}
@@ -140,9 +160,10 @@ namespace Uccs.Net
 
 	public abstract class RdcResponse : RdcPacket
 	{
-		public RdcError			Error { get; set; }
 		public override byte	TypeCode => (byte)Type;
 		public Rdc				Type => Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
+		public RdcResult		Result { get; set; }
+		public byte				Error { get; set; }
 
 		public static RdcResponse FromType(Database chaim, Rdc type)
 		{
@@ -163,8 +184,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 				
 				return new TimeResponse {Time = core.Database.LastConfirmedRound.Time};
 			}
@@ -176,7 +197,31 @@ namespace Uccs.Net
 		public ChainTime Time { get; set; }
 	}
 
-	public class BlocksPiecesRequest : RdcRequest
+	public class PeersBroadcastRequest : RdcRequest
+	{
+		public IEnumerable<Peer>	Peers { get; set; }
+		public override bool		WaitResponse => false;
+
+		public override RdcResponse Execute(Core core)
+		{
+			lock(core.Lock)
+			{
+				var newfresh = core.RefreshPeers(Peers).ToArray();
+	
+				if(newfresh.Any())
+				{
+					foreach(var i in core.Connections.Where(i => i != Peer))
+					{
+						i.Request<object>(new PeersBroadcastRequest{Peers = newfresh});
+					}
+				}
+			}
+
+			return null;
+		}
+	}
+
+	public class BlocksBroadcastRequest : RdcRequest
 	{
 		public IEnumerable<BlockPiece>	Pieces { get; set; }
 		public override bool			WaitResponse => false;
@@ -187,7 +232,7 @@ namespace Uccs.Net
 
 			lock(core.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
 
 				if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Downloading || core.Synchronization == Synchronization.Synchronizing)
 				{
@@ -289,7 +334,7 @@ namespace Uccs.Net
 				{
 					foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer))
 					{
-						i.Request<object>(new BlocksPiecesRequest{Pieces = accepted});
+						i.Request<object>(new BlocksBroadcastRequest{Pieces = accepted});
 					}
 				}
 			}
@@ -307,8 +352,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcException(RdcError.NotBase);
-				if(core.Database.LastNonEmptyRound == null)	throw new RdcException(RdcError.TooEearly);
+				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
+				if(core.Database.LastNonEmptyRound == null)	throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
@@ -350,8 +395,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
 				var r = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
 				
@@ -371,8 +416,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
-				if(core.Database.BaseState == null)							throw new RdcException(RdcError.TooEearly);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
+				if(core.Database.BaseState == null)							throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				var r = new StampResponse {	BaseState				= core.Database.BaseState,
 											BaseHash				= core.Database.BaseHash,
@@ -418,8 +463,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
-				if(core.Database.BaseState == null)							throw new RdcException(RdcError.TooEearly);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
+				if(core.Database.BaseState == null)							throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				switch(Table)
 				{
@@ -429,7 +474,7 @@ namespace Uccs.Net
 					case Tables.Platforms	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Platforms	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Releases	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Releases		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					default:
-						throw new RdcException(RdcError.InvalidRequest);
+						throw new RdcEntityException(RdcEntityError.InvalidRequest);
 				}
 			}
 		}
@@ -458,7 +503,7 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcException(RdcError.NotBase);
+				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
 				
 				var m = Table switch
 							  {
@@ -467,11 +512,11 @@ namespace Uccs.Net
 									Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Platforms	=> core.Database.Platforms.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									_ => throw new RdcException(RdcError.InvalidRequest)
+									_ => throw new RdcEntityException(RdcEntityError.InvalidRequest)
 							  };
 
 				if(m == null)
-					throw new RdcException(RdcError.ClusterNotFound);
+					throw new RdcEntityException(RdcEntityError.ClusterNotFound);
 	
 				var s = new MemoryStream(m);
 				var r = new BinaryReader(s);
@@ -498,7 +543,7 @@ namespace Uccs.Net
  					if(core.Synchronization == Synchronization.Synchronized)
  						return new GetMembersResponse { Members = core.Database.LastConfirmedRound.Members };
  					else
- 						throw new RdcException(RdcError.NotSynchronized);
+ 						throw new  RdcNodeException(RdcNodeError.NotSynchronized);
  				}
  				else
  					return new GetMembersResponse {Members = core.Members};
@@ -518,7 +563,7 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
+					throw new  RdcNodeException(RdcNodeError.NotSynchronized);
 				else
 				{
 					var acc = core.ProcessIncoming(Transactions);
@@ -541,8 +586,8 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Chain))				throw new RdcException(RdcError.NotChain);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				if(!core.Settings.Roles.HasFlag(Role.Chain))				throw new RdcNodeException(RdcNodeError.NotChain);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 	
 				return	new GetOperationStatusResponse
 						{
@@ -581,12 +626,12 @@ namespace Uccs.Net
  			lock(core.Lock)
 			{
 	 			if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
+					throw new  RdcNodeException(RdcNodeError.NotSynchronized);
 
 				var ai = core.Database.Accounts.Find(Account, core.Database.LastConfirmedRound.Id);
 
 				if(ai == null)
-					throw new RdcException(RdcError.AccountNotFound);
+					throw new RdcEntityException(RdcEntityError.AccountNotFound);
 
  				return new AccountResponse{Account = ai};
 			}
@@ -606,9 +651,9 @@ namespace Uccs.Net
 		{
  			lock(core.Lock)
 			{	
-				if(!AuthorEntry.IsValid(Name))								throw new RdcException(RdcError.InvalidRequest);
-				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcException(RdcError.NotBase);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				if(!AuthorEntry.IsValid(Name))								throw new RdcEntityException(RdcEntityError.InvalidRequest);
+				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
 				return new AuthorResponse{Entry = core.Database.Authors.Find(Name, core.Database.LastConfirmedRound.Id)};
 			}
@@ -630,7 +675,7 @@ namespace Uccs.Net
  			lock(core.Lock)
 			{	
 				if(core.Synchronization != Synchronization.Synchronized)
-					throw new RdcException(RdcError.NotSynchronized);
+					throw new RdcNodeException(RdcNodeError.NotSynchronized);
  				
 				return new QueryReleaseResponse {Releases = Queries.Select(i => core.Database.QueryRelease(i)).ToArray()};
 			}
@@ -648,8 +693,7 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-			if(core.Seedbase == null)
-				throw new RdcException(RdcError.NotHub);
+			if(core.Seedbase == null) throw new RdcNodeException(RdcNodeError.NotHub);
 
 			core.Seedbase.Add(Peer.IP, Packages.Items);
 
@@ -668,8 +712,7 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-			if(core.Seedbase == null)
-				throw new RdcException(RdcError.NotHub);
+			if(core.Seedbase == null) throw new RdcNodeException(RdcNodeError.NotHub);
 
 			return new LocateReleaseResponse {Seeders = core.Seedbase.Locate(this)}; 
 		}
@@ -686,8 +729,7 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-			if(core.Filebase == null)
-				throw new RdcException(RdcError.NotSeed);
+			if(core.Filebase == null) throw new RdcNodeException(RdcNodeError.NotSeed);
 
 			return new ManifestResponse{Manifest = core.Filebase.FindRelease(Release)?.Manifest};
 		}
@@ -707,10 +749,7 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Core core)
 		{
-			if(core.Filebase == null)
-			{
-				throw new RdcException(RdcError.NotSeed);
-			}
+			if(core.Filebase == null) throw new RdcNodeException(RdcNodeError.NotSeed);
 
 			return new DownloadReleaseResponse{Data = core.Filebase.ReadPackage(Package, Distributive, Offset, Length)};
 		}
@@ -729,8 +768,8 @@ namespace Uccs.Net
 		{
  			lock(core.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Chain))				throw new RdcException(RdcError.NotChain);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcException(RdcError.NotSynchronized);
+				if(!core.Settings.Roles.HasFlag(Role.Chain))				throw new RdcNodeException(RdcNodeError.NotChain);
+				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
 				var db = core.Database;
 				

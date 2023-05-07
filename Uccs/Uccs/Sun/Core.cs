@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -520,6 +521,7 @@ namespace Uccs.Net
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
 	 				var p = new Peer(new IPAddress(i.Key()));
+					p.Fresh = false;
 	 				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
 	 				Peers.Add(p);
 				}
@@ -531,48 +533,9 @@ namespace Uccs.Net
 			}
 			else
 			{
-				RememberPeers(Zone.Initials.Select(i => new Peer(i){LastSeen = DateTime.UtcNow}));
-			}
-		}
+				Peers = Zone.Initials.Select(i => new Peer(i) {Fresh = false, LastSeen = DateTime.MinValue}).ToList();
 
-		public void RememberPeers(IEnumerable<Peer> peers)
-		{
-			lock(Lock)
-			{
-				var tosave = new List<Peer>();
-													
-				foreach(var i in peers)
-				{
-					var p = Peers.Find(j => j.IP.Equals(i.IP));
-					
-					if(p == null)
-					{
-						Peers.Add(i);
-						tosave.Add(i);
-					}
-					else
-					{
-						bool c = p.ChainRank == 0 && i.ChainRank > 0;
-						bool h = p.HubRank == 0 && i.HubRank > 0;
-						bool s = p.SeedRank == 0 && i.SeedRank > 0;
-
-						if(c || h || s)
-						{
-							if(c)
-								p.ChainRank = 1;
-
-							if(h)
-								p.HubRank = 1;
-
-							if(s)
-								p.SeedRank = 1;
-						
-							tosave.Add(p);
-						}
-					}
-				}
-	
-				UpdatePeers(tosave.Where(i => !i.IP.Equals(IP)));
+				UpdatePeers(Peers);
 			}
 		}
 
@@ -592,16 +555,61 @@ namespace Uccs.Net
 			}
 		}
 
+		public List<Peer> RefreshPeers(IEnumerable<Peer> peers)
+		{
+			lock(Lock)
+			{
+				var toupdate = new List<Peer>();
+													
+				foreach(var i in peers.Where(i => !i.IP.Equals(IP)))
+				{
+					var p = Peers.Find(j => j.IP.Equals(i.IP));
+					
+					if(p == null)
+					{
+						i.Fresh = true;
+						
+						Peers.Add(i);
+						toupdate.Add(i);
+					}
+					else
+					{
+						p.Fresh = true;
+
+						bool b = p.BaseRank == 0 && i.BaseRank > 0;
+						bool c = p.ChainRank == 0 && i.ChainRank > 0;
+						bool h = p.HubRank == 0 && i.HubRank > 0;
+						bool s = p.SeedRank == 0 && i.SeedRank > 0;
+
+						if(b || c || h || s)
+						{
+							if(b) p.BaseRank = 1;
+							if(c) p.ChainRank = 1;
+							if(h) p.HubRank = 1;
+							if(s) p.SeedRank = 1;
+						
+							toupdate.Add(p);
+						}
+					}
+				}
+	
+				UpdatePeers(toupdate);
+
+				return toupdate;
+			}
+		}
+
 		void ProcessConnectivity()
 		{
 			var needed = Settings.PeersMin - Peers.Count(i => i.Established || i.InStatus == EstablishingStatus.Initiated || i.OutStatus == EstablishingStatus.Initiated);
 		
-			foreach(var p in Peers	.Where(m =>	(m.InStatus == EstablishingStatus.Null || m.InStatus == EstablishingStatus.Failed) &&
-												(m.OutStatus == EstablishingStatus.Null || m.OutStatus == EstablishingStatus.Failed) && 
-												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-									.OrderBy(i => i.Retries)
-									.ThenByDescending(i => i.PeerRank)
-									.Take(needed))
+			foreach(var p in Zone.ChoosePeers(Peers.Where(m =>	(m.InStatus == EstablishingStatus.Null || m.InStatus == EstablishingStatus.Failed) &&
+																(m.OutStatus == EstablishingStatus.Null || m.OutStatus == EstablishingStatus.Failed) && 
+																DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
+												    .OrderByDescending(i => i.PeerRank)
+												    .ThenBy(i => i.Retries),
+											  needed)
+								.Take(needed))
 			{
 				p.LastTry = DateTime.UtcNow;
 				p.Retries++;
@@ -616,27 +624,6 @@ namespace Uccs.Net
 				Connections.Count() >= Settings.PeersMin && 
 				(Database == null || Connections.Count(i => i.Roles.HasFlag(Database.Roles)) >= Settings.Database.PeersMin))
 			{
-				//if(DelegatingThread == null)
-				//{
-				//	DelegatingThread = new Thread(() => { 
-				//											try
-				//											{
-				//												Delegating();
-				//											}
-				//											catch(OperationCanceledException)
-				//											{
-				//											}
-				//											catch(Exception ex) when (!Debugger.IsAttached)
-				//											{
-				//												Stop(MethodBase.GetCurrentMethod(), ex);
-				//											}
-				//										});
-				//
-				//	DelegatingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Delegating";
-				//	DelegatingThread.Start();
-				//}
-
-
 				if(Filebase != null && !IsClient)
 				{
 					DeclaringThread = new Thread(Declaring);
@@ -650,6 +637,11 @@ namespace Uccs.Net
 				}
 
 				MinimalPeersReached = true;
+
+				foreach(var c in Connections)
+				{
+					c.Request<object>(new PeersBroadcastRequest {Peers = Connections.Where(i => i != c).ToArray()});
+				}
 			}
 		}
 
@@ -695,7 +687,7 @@ namespace Uccs.Net
 		
 			lock(Lock)
 			{
-				peers = Peers.ToArray();
+				peers = Peers.Where(i => i.Fresh).ToArray();
 			}
 
 			var h = new Hello();
@@ -706,8 +698,6 @@ namespace Uccs.Net
 			h.IP		= ip;
 			h.Nuid		= Nuid;
 			h.Peers		= peers;
-			//h.LastRound				= Header.LastNonEmptyRound;
-			//h.LastConfirmedRound	= Header.LastConfirmedRound; 
 			
 			return h;
 		}
@@ -728,7 +718,7 @@ namespace Uccs.Net
 						//client.ReceiveTimeout = Timeout;
 						client.Connect(peer.IP, Zone.Port);
 					}
-					catch(SocketException ex) 
+					catch(SocketException) 
 					{
 						//Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
 						goto failed;
@@ -751,7 +741,7 @@ namespace Uccs.Net
 						Peer.SendHello(client, CreateHello(peer.IP));
 						h = Peer.WaitHello(client);
 					}
-					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
+					catch(Exception)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
 						//Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Send/Wait Hello; {ex.Message}" );
 						goto failed;
@@ -792,7 +782,7 @@ namespace Uccs.Net
 							return;
 						}
 	
-						RememberPeers(h.Peers);
+						RefreshPeers(h.Peers.Append(peer));
 	
 						peer.OutStatus = EstablishingStatus.Succeeded;
 						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}");
@@ -913,8 +903,8 @@ namespace Uccs.Net
 							peer = new Peer(ip);
 							Peers.Add(peer);
 						}
-									
-						RememberPeers(h.Peers.Append(peer));
+
+						RefreshPeers(h.Peers.Append(peer));
 	
 						peer.InStatus = EstablishingStatus.Succeeded;
 						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}");
@@ -1154,7 +1144,7 @@ namespace Uccs.Net
 				
 										if(r.BlockPieces.Any())
 										{
-											var rq = new BlocksPiecesRequest();
+											var rq = new BlocksBroadcastRequest();
 											rq.Pieces = r.BlockPieces;
 											rq.Execute(this);
 										}
@@ -1169,7 +1159,7 @@ namespace Uccs.Net
 							{
 								Synchronization = Synchronization.Synchronized;
 
-								var rq = new BlocksPiecesRequest();
+								var rq = new BlocksBroadcastRequest();
 								rq.Pieces = SyncBlockCache.OrderBy(i => i.Key).SelectMany(i => i.Value).ToArray();
 								rq.Execute(this);
 									
@@ -1185,7 +1175,10 @@ namespace Uccs.Net
 								throw new SynchronizationException();
 					}
 				}
-				catch(RdcException)
+				catch(RdcNodeException)
+				{
+				}
+				catch(RdcEntityException)
 				{
 				}
 				catch(SynchronizationException)
@@ -1438,7 +1431,7 @@ namespace Uccs.Net
 				/// LESS RELIABLE
 				foreach(var i in pieces.SelectMany(i => i.Peers).Distinct())
 				{
-					i.Request<object>(new BlocksPiecesRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
+					i.Request<object>(new BlocksBroadcastRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
 				}
 
 				/// ALL FOR ALL
@@ -1475,7 +1468,7 @@ namespace Uccs.Net
 					{
 						foreach(var i in Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()))
 						{
-							i.Request<object>(new BlocksPiecesRequest{Pieces = notcomebacks});
+							i.Request<object>(new BlocksBroadcastRequest{Pieces = notcomebacks});
 						}
 					}
 
@@ -1565,7 +1558,7 @@ namespace Uccs.Net
 									{
 										Vault.OperationIds[g.Key] = m.GetAccountInfo(g.Key, false).Account.LastOperationId;
 									}
-									catch(RdcException ex) when(ex.Error == RdcError.AccountNotFound)
+									catch(RdcEntityException ex) when(ex.Error == RdcEntityError.AccountNotFound)
 									{
 										Vault.OperationIds[g.Key] = -1;
 									}
@@ -1646,7 +1639,7 @@ namespace Uccs.Net
 
 					Statistics.Transacting.End();
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcException)
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcEntityException || ex is RdcNodeException)
 				{
 					Workflow.Log?.ReportWarning(this, "Delegation", $"Member={m}", ex);
 
@@ -1843,26 +1836,29 @@ namespace Uccs.Net
 					if(rs.Any())
 					{
 						Call(	Role.Hub, 
-								p => {
+								h => {
 										lock(Lock)
-											rs = rs.Where(i => !i.Hubs.Contains(p)).ToArray();
+										{
+											rs = rs.Where(i => !i.Hubs.Contains(h)).ToArray();
+											used.Add(h);
+										}
+																				
+										h.DeclareRelease(rs.ToDictionary(i => i.Address, i => (Filebase.Exists(i.Address, Distributive.Complete) ? Distributive.Complete : 0) |
+																							  (Filebase.Exists(i.Address, Distributive.Incremental) ? Distributive.Incremental : 0)));
 
-										p.DeclareRelease(rs.ToDictionary(i => i.Address, i => (i.Manifest.CompleteHash != null ? Distributive.Complete : 0) |
-																							  (i.Manifest.IncrementalHash != null ? Distributive.Incremental : 0)));
-												
 										lock(Lock)
+										{
 											foreach(var i in rs)
-												i.Hubs.Add(p);
-
-										used.Add(p);
+												i.Hubs.Add(h);
+										}
 									},
 								Workflow,
 								used,
 								true);
 					}
+				
+					Statistics.Declaring.End();
 				}
-
-				Statistics.Declaring.End();
 
 			}
 			catch(OperationCanceledException)
@@ -1928,7 +1924,7 @@ namespace Uccs.Net
 					{
 						if(cr.Members.Any())
 						{
-							RememberPeers(cr.Members.SelectMany(i => i.IPs).Select(i => new Peer(i)));
+							//RememberPeers(cr.Members.SelectMany(i => i.IPs).Select(i => new Peer(i)));
 
 							peer.ReachFailures = 0;
 	
@@ -1957,7 +1953,7 @@ namespace Uccs.Net
 						}
 					}
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is RdcException)
+				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is RdcNodeException)
 				{
 					peer.ReachFailures++;
 				}
@@ -2051,113 +2047,6 @@ namespace Uccs.Net
 			throw new ConnectionFailedException("Aborted, overall abort or timeout");
 		}
 
-		public R Call<R>(Role role, Func<Peer, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
-		{
-			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
-
-			Peer peer;
-				
-			while(true)
-			{
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
-	
-				lock(Lock)
-				{
-					peer = FindBestPeer(role, tried);
-	
-					if(peer == null)
-						continue;
-				}
-
-				tried?.Add(peer);
-
-				try
-				{
-					Connect(peer, workflow);
-
-					return call(peer);
-				}
-				catch(ConnectionFailedException)
-				{
-				}
-// 				catch(RdcException)
-// 				{
-// 				}
-			}
-		}
-
-		public void Call(Role role, Action<Peer> call, Workflow workflow, IEnumerable<Peer> exclusions = null, bool exitifnomore = false)
-		{
-			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
-
-			Peer peer;
-				
-			while(true)
-			{
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
-	
-				lock(Lock)
-				{
-					peer = FindBestPeer(role, excl);
-	
-					if(peer == null)
-						if(exitifnomore)
-							return;
-						else
-							continue;
-				}
-
-				excl?.Add(peer);
-
-				try
-				{
-					Connect(peer, workflow);
-
-					call(peer);
-
-					break;
-				}
-				catch(ConnectionFailedException)
-				{
-				}
-				catch(RdcException)
-				{
-				}
-			}
-		}
-
-		public R Call<R>(IPAddress ip, Func<Peer, R> call, Workflow workflow)
-		{
-			Peer p;
-				
-			p = GetPeer(ip);
-
-			Connect(p, workflow);
-
-			return call(p);
-		}
-
-		public R Call<R>(IEnumerable<IPAddress> any, Func<Peer, R> call, Workflow workflow)
-		{
-			foreach(var i in any)
-			{
-				try
-				{
-					return Call(i, call, workflow);
-				}
-				catch(ConnectionFailedException)
-				{
-				}
-				catch(RdcException)
-				{
-				}
-			}
-
-			throw new RdcException(RdcError.AllNodesFailed);
-		}
-
 		public void Connect(Peer peer, Workflow workflow)
 		{
 			lock(Lock)
@@ -2173,7 +2062,7 @@ namespace Uccs.Net
 
 			var t = DateTime.Now;
 
-			while(true)
+			while(!workflow.IsAborted)
 			{
 				Thread.Sleep(1);
 				workflow.ThrowIfAborted();
@@ -2191,6 +2080,123 @@ namespace Uccs.Net
 		}
 
 
+		public R Call<R>(Role role, Func<Peer, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
+		{
+			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+
+			Peer p;
+				
+			while(!workflow.IsAborted)
+			{
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+	
+				lock(Lock)
+				{
+					p = FindBestPeer(role, tried);
+	
+					if(p == null)
+					{
+						tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+						continue;
+					}
+				}
+
+				tried?.Add(p);
+
+				try
+				{
+					Connect(p, workflow);
+
+					return call(p);
+				}
+				catch(ConnectionFailedException)
+				{
+					p.LastFailure[role] = DateTime.UtcNow;
+				}
+ 				catch(RdcNodeException)
+ 				{
+					p.LastFailure[role] = DateTime.UtcNow;
+ 				}
+			}
+
+			throw new OperationCanceledException();
+		}
+
+		public void Call(Role role, Action<Peer> call, Workflow workflow, IEnumerable<Peer> exclusions = null, bool exitifnomore = false)
+		{
+			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+
+			Peer p;
+				
+			while(!workflow.IsAborted)
+			{
+				Thread.Sleep(1);
+				workflow.ThrowIfAborted();
+	
+				lock(Lock)
+				{
+					p = FindBestPeer(role, excl);
+	
+					if(p == null)
+						if(exitifnomore)
+							return;
+						else
+							continue;
+				}
+
+				excl?.Add(p);
+
+				try
+				{
+					Connect(p, workflow);
+
+					call(p);
+
+					break;
+				}
+				catch(ConnectionFailedException)
+				{
+					p.LastFailure[role] = DateTime.UtcNow;
+				}
+				catch(RdcNodeException)
+				{
+					p.LastFailure[role] = DateTime.UtcNow;
+				}
+			}
+		}
+
+		public R Call<R>(IPAddress ip, Func<Peer, R> call, Workflow workflow)
+		{
+			Peer p;
+				
+			p = GetPeer(ip);
+
+			Connect(p, workflow);
+
+			return call(p);
+		}
+
+/*
+		public R Call<R>(IEnumerable<IPAddress> any, Func<Peer, R> call, Workflow workflow)
+		{
+			foreach(var i in any)
+			{
+				try
+				{
+					return Call(i, call, workflow);
+				}
+				catch(ConnectionFailedException)
+				{
+				}
+				catch(RdcException)
+				{
+				}
+			}
+
+			throw new RdcException(RdcError.AllNodesFailed);
+		}*/
+
 		public Coin EstimateFee(IEnumerable<Operation> operations)
 		{
 			return Database != null ? Operation.CalculateFee(Database.LastConfirmedRound.Factor, operations) : Coin.Zero;
@@ -2203,7 +2209,7 @@ namespace Uccs.Net
 											{
 												return p.GetAccountInfo(signer, true);
 											}
-											catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
+											catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
 											{
 												return new AccountResponse();
 											}
@@ -2240,7 +2246,7 @@ namespace Uccs.Net
 												{
 													return p.GetAccountInfo(signer, true);
 												}
-												catch(RdcException ex) when (ex.Error == RdcError.AccountNotFound)
+												catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
 												{
 													return new AccountResponse();
 												}
@@ -2342,8 +2348,8 @@ namespace Uccs.Net
 												Length					= d.Length, 
 												CompletedLength			= d.CompletedLength,
 												DependenciesRecursive	= d.DependenciesRecursive.Select(i => new DownloadReport.Dependency {Release = i.Release, Exists = Filebase.FindRelease(i.Release) != null}).ToArray(),
-												Hubs					= d.Hubs.Take(limit).Select(i => new DownloadReport.Hub { IP = i.Peer.IP, Seeds = i.Seeds.Take(limit), Status = i.Status }).ToArray(),
-												Seeds					= d.Seeds.Take(limit).Select(i => new DownloadReport.Seed { IP = i.Key, Status = i.Value }).ToArray() };
+												Hubs					= d.Hubs.Take(limit).Select(i => new DownloadReport.Hub { IP = i.Peer.IP, Seeds = i.Seeds.Take(limit).Select(i => i.IP), Status = i.Status }).ToArray(),
+												Seeds					= d.Seeds.Take(limit).Select(i => new DownloadReport.Seed { IP = i.IP, Succeses = i.Succeses, Failures = i.Failures }).ToArray() };
 					}
 				}
 			}

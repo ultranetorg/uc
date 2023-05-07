@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -76,6 +77,11 @@ namespace Uccs.Net
 			EthereumNetwork	= Enum.Parse<Chain>(d.GetString("EthereumNetwork"));
 			GenesisIP		= IPAddress.Parse(d.GetString("GenesisIP"));
 			Initials		= d.GetString("Initials").Split(' ').Select(i => IPAddress.Parse(i)).ToArray();
+		}
+
+		public virtual IEnumerable<Peer> ChoosePeers(IEnumerable<Peer> peers, int needed)
+		{
+			return peers;
 		}
 	}
 }

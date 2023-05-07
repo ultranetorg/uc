@@ -32,7 +32,7 @@ namespace Uccs.Net
 			Zone				= r.ReadUtf8();
 			IP					= new IPAddress(r.ReadBytes(4));
 			Nuid				= new Guid(r.ReadBytes(16));
-			Peers				= r.ReadArray<Peer>(() => {var p = new Peer(); p.ReadPeer(r); return p;});
+			Peers				= r.ReadArray<Peer>(() => {var p = new Peer(){Fresh = true}; p.ReadPeer(r); return p;});
 		}
 	}
 }

@@ -80,9 +80,9 @@ namespace Uccs.Sun.FUI
 					Switch(Transfering);
 
 			}
-			catch(RdcException ex)
+			catch(Exception ex)
 			{
-				Fields.Text = "Error : " + ex.Error.ToString();
+				Fields.Text = "Error : " + ex.Message;
 			}
 		}
 
