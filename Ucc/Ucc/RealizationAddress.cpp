@@ -24,13 +24,14 @@ bool CRealizationAddress::operator != (const CRealizationAddress & u) const
 
 CString CRealizationAddress::ToString()
 {
-	return CProductAddress::ToString() + Separator + Platform;
+	return CProductAddress::ToString() + SlashSeparator + Platform;
 }
 
 CRealizationAddress CRealizationAddress::Parse(CString const & text)
 {
-	auto c = text.Split(Separator);
+	auto & c = text.Split(SlashSeparator);
+	auto & p = c[0].Split(DotSeparator);
 
-	return CRealizationAddress(c[0], c[1], c[2]);
+	return CRealizationAddress(p[0], p[1], c[1]);
 }
 

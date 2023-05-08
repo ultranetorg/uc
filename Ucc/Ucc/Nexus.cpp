@@ -147,7 +147,7 @@ CString CNexus::MapPathToRealization(CRealizationAddress & release, CString cons
 {
 	auto & r = release;
 
-	return Core->MapPath(ESystemPath::Software, CNativePath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, path));
+	return Core->MapPath(ESystemPath::Software, CNativePath::Join(r.Author + CProductAddress::DotSeparator + r.Product + L"-" + r.Platform, path));
 }
 
 CString CNexus::MapPathToRelease(CReleaseAddress & release, CString const & path)
@@ -155,15 +155,28 @@ CString CNexus::MapPathToRelease(CReleaseAddress & release, CString const & path
 	return MapPathToRealization(release, CNativePath::Join(release.Version.ToString(), path));
 }
 
+CReleaseAddress CNexus::ParseReleaseAddress(CString const & realization, CString const & version)
+{
+	auto c = realization.Split(L"-");
+	auto p = c[0].Split(CProductAddress::DotSeparator);
+	return CReleaseAddress(p[0], p[1], c[1], CVersion(version));
+}
+
+CApplicationReleaseAddress CNexus::ParseApplicationReleaseAddress(CString const & realization, CString const & version, CString const & app)
+{
+	auto c = realization.Split(L"-");
+	auto p = c[0].Split(CProductAddress::DotSeparator);
+	return CApplicationReleaseAddress(p[0], p[1], c[1], CVersion(version), app);
+}
+
 CList<CReleaseAddress> CNexus::GetLatestReleases()
 {
 	CList<CReleaseAddress> r;
 
-	for(auto & rlz : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, L".")), L".+-.+-.+", DirectoriesOnly))
+	for(auto & rlz : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, L".")), L"..+\..+-.+", DirectoriesOnly))
 		for(auto & v : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, rlz.Name)), L".*", DirectoriesOnly).OrderBy([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); }))
 		{
-			auto a = rlz.Name.Split(L"-");
-			r.push_back(CReleaseAddress(a[0], a[1], a[2], CVersion(v.Name)));
+			r.push_back(ParseReleaseAddress(rlz.Name, v.Name));
 		}
 
 	return r;
@@ -186,10 +199,8 @@ CApplicationRelease * CNexus::LoadRelease(CApplicationReleaseAddress & address, 
 							if(CNativePath::IsFile(deps))
 							{
 								auto & m = CTonDocument(CXonTextReader(&CLocalFileStream(deps, EFileMode::Open)));
-	
-	
-								r->Dependencies = m.Nodes.SelectArray<CCompiledManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->Name)); });
-							
+		
+								r->Dependencies = m.Nodes.SelectArray<CCompiledManifest *>([&](auto i){ return loadmanifest(CReleaseAddress::Parse(i->AsString())); });
 							}
 
 							Manifests.AddBack(r);
@@ -556,12 +567,11 @@ CClientConnection * CNexus::Connect(CApplicationRelease * who, CString const & s
 	if(!c)
 	{
 		//auto r = ClientReleases.Find([&](auto i){ return i->Registry->One(L"Interfaces")->Any(iface); });
-		for(auto & rlz : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, L".")), L".+-.+-.+", DirectoriesOnly))
+		for(auto & rlz : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, L".")), L".+\..+-.+", DirectoriesOnly))
 			for(auto & v : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, rlz.Name)), L".*", DirectoriesOnly).OrderBy([](auto & a, auto & b){ return CVersion(a.Name) > CVersion(b.Name); }))
 				for(auto & cl : CNativeDirectory::Enumerate(Core->Resolve(Core->MapPath(ESystemPath::Software, CNativePath::Join(rlz.Name, v.Name))), L".+\\.client", FilesOnly))
 				{
-					auto a = rlz.Name.Split(L"-");
-					auto r = LoadRelease(CApplicationReleaseAddress(a[0], a[1], a[2], CVersion(v.Name), CNativePath::GetFileNameBase(cl.Name)), false);
+					auto r = LoadRelease(ParseApplicationReleaseAddress(rlz.Name, v.Name, CNativePath::GetFileNameBase(cl.Name)), false);
 
 					if(r->Registry->One(L"Implementer")->Any(iface))
 					{

@@ -25,14 +25,15 @@ bool CApplicationReleaseAddress::operator != (const CApplicationReleaseAddress &
 
 CString CApplicationReleaseAddress::ToString()
 {
-	return __super::ToString() + Separator + Application;
+	return __super::ToString() + SlashSeparator + Application;
 }
 
 CApplicationReleaseAddress CApplicationReleaseAddress::Parse(CString const & text)
 {
-	auto c = text.Split(Separator);
+	auto & c = text.Split(SlashSeparator);
+	auto & p = c[0].Split(DotSeparator);
 
-	return CApplicationReleaseAddress(c[0], c[1], c[2], CVersion(c[3]), c[4]);
+	return CApplicationReleaseAddress(p[0], p[1], c[1], CVersion(c[2]), c[3]);
 }
 
 bool CApplicationReleaseAddress::Empty()

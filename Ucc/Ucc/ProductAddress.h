@@ -8,7 +8,8 @@ namespace uc
 		public:
 			CString					Author;
 			CString					Product;
-			const static wchar_t	Separator = L'/';
+			const static wchar_t	SlashSeparator = L'/';
+			const static wchar_t	DotSeparator = L'.';
 
 			CProductAddress();
 			CProductAddress(CString const & author, CString const & product);

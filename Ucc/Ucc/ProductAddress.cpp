@@ -26,12 +26,12 @@ bool CProductAddress::operator != (const CProductAddress & u) const
 
 CString CProductAddress::ToString()
 {
-	return Author + Separator + Product;
+	return Author + DotSeparator + Product;
 }
 
 CProductAddress CProductAddress::Parse(CString const & text)
 {
-	auto & c = text.Split(Separator);
+	auto & c = text.Split(SlashSeparator);
 
 	return CProductAddress(c[0], c[1]);
 }

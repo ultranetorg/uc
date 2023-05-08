@@ -128,7 +128,7 @@ CString CFileSystem::UniversalToNative(CString const & path)
 
 		auto & l = sep != CString::npos ? lpath.Substring(sep + 1) : L"";
 		auto & r = Nexus->Servers.Find([&](auto i){ return i->Name == s; })->Release->Address;
-		p = Nexus->Core->Resolve(Nexus->Core->MapPath(ESystemPath::Software, CPath::Nativize(CPath::Join(r.Author + L"-" + r.Product + L"-" + r.Platform, r.Version.ToString(), l))));
+		p = Nexus->Core->Resolve(Nexus->Core->MapPath(ESystemPath::Software, CPath::Nativize(CPath::Join(r.Author + CProductAddress::DotSeparator + r.Product + L"-" + r.Platform, r.Version.ToString(), l))));
 	}
 	else if(mount == CFileSystemProtocol::System)
 	{

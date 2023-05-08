@@ -64,6 +64,8 @@ namespace uc
 
 			CList<CReleaseAddress>						GetLatestReleases();
 			CString										MapPathToRelease(CReleaseAddress & release, CString const & path);
+			CReleaseAddress								ParseReleaseAddress(CString const & realization, CString const & version);
+			CApplicationReleaseAddress					ParseApplicationReleaseAddress(CString const & realization, CString const & version, CString const & app);
 			CString										MapPathToRealization(CRealizationAddress & release, CString const & path = CString());
 
 			CMap<CString, CXon *>						QueryRegistry(CString const & path);

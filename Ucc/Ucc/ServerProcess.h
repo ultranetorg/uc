@@ -28,12 +28,17 @@ namespace uc
 				PROCESS_INFORMATION processInfo;
 
 				std::wostringstream s;
-				CXonTextWriter w;
-				w.Eol = false;
 
-				for(auto i : Instance->Command->Nodes)
+				CXonTextWriter w;
+				
+				if(Instance->Command)
 				{
-					w.Write(s, i, 0);
+					w.Eol = false;
+	
+					for(auto i : Instance->Command->Nodes)
+					{
+						w.Write(s, i, 0);
+					}
 				}
 
 				wchar_t cmd[32768] = {};

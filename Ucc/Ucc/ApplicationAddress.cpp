@@ -25,14 +25,15 @@ bool CApplicationAddress::operator != (const CApplicationAddress & u) const
 
 CString CApplicationAddress::ToString()
 {
-	return __super::ToString() + Separator + Application;
+	return __super::ToString() + SlashSeparator + Application;
 }
 
 CApplicationAddress CApplicationAddress::Parse(CString const & text)
 {
-	auto c = text.Split(Separator);
+	auto & c = text.Split(SlashSeparator);
+	auto & p = c[0].Split(DotSeparator);
 
-	return CApplicationAddress(c[0], c[1], c[2]);
+	return CApplicationAddress(p[0], p[1], c[2]);
 }
 
 bool CApplicationAddress::Empty()
