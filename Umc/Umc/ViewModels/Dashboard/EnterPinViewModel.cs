@@ -24,6 +24,9 @@ public partial class EnterPinViewModel : BasePageViewModel
 	{
 		try
 		{
+			// DEBUG
+			// await Navigation.GoToUpwardsAsync(nameof(DashboardPage));
+
 			var pin = await _authService.CheckIfPincodeIsSetAsync();
 
 			if (!pin)

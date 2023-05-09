@@ -27,7 +27,9 @@ public class CustomCollection<T> : ObservableCollection<T>
         }
         catch(Exception ex)
         {
+#if DEBUG
 			Debug.WriteLine(ex);
+#endif
         }
     }
 }

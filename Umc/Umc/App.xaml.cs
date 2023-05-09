@@ -19,20 +19,12 @@ public partial class App : Application
 		// UserSecureStore.RemoveData(TextConstants.PINCODE_KEY);
 
 		InitializeRouting();
-			
-		// Workaround for AnimatedModal not working on Android: https://github.com/dotnet/maui/issues/8062
-		WindowHandler.Mapper.ModifyMapping(nameof(IWindow.Content), OnWorkaround);
 	}
 
 	private static void SetTheme()
 	{
 		GlobalAppTheme.Theme = AppTheme.Dark;
 		GlobalAppTheme.SetTheme();
-	}
-
-	private void OnWorkaround(IWindowHandler arg1, IWindow arg2, Action<IElementHandler, IElement> arg3)
-	{
-		WindowHandler.MapContent(arg1, arg2);
 	}
 
 	private static void InitializeRouting()
