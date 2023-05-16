@@ -110,7 +110,7 @@ namespace Uccs.Net
 				LastCommittedRound.WeiSpent	= r.ReadBigInteger();
 				LastCommittedRound.Factor	= r.ReadCoin();
 				LastCommittedRound.Emission	= r.ReadCoin();
-				LastCommittedRound.Members	= r.ReadList<Member>();
+				LastCommittedRound.Members	= r.Read<Member>(m => m.ReadForBase(r)).ToList();
 				LastCommittedRound.Funds	= r.ReadList<AccountAddress>();
 
 				LoadedRounds.Add(LastCommittedRound.Id, LastCommittedRound);
@@ -143,7 +143,7 @@ namespace Uccs.Net
 						
 						if(i == 16)
 						{
-							r.ConfirmedJoiners.Add(new Member {Generator = Zone.Father0, IPs = new [] {Zone.GenesisIP}});
+							r.ConfirmedJoiners.Add(new Member {Generator = Zone.Father0});
 							r.ConfirmedFundJoiners.Add(Zone.OrgAccount);
 						}
 	
@@ -497,7 +497,7 @@ namespace Uccs.Net
 
 		public IEnumerable<AccountAddress> ProposeJoiners(Round round)
 		{
-			var o = round.Parent.JoinRequests.Select(jr =>	{
+			var o = round.Parent.JoinMembersRequests.Select(jr =>	{
 																var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
 																return new {jr = jr, a = a};
 															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
@@ -667,7 +667,7 @@ namespace Uccs.Net
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Products.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Platforms.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Platforms.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Releases.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
@@ -708,7 +708,7 @@ namespace Uccs.Net
 
 				round.Time					= c.Time;
 				round.ConfirmedPayloads		= round.Payloads.Where(i => i.Confirmed).OrderBy(i => i.OrderingKey, new BytesComparer()).ToList();
-				round.ConfirmedJoiners		= confirm(c.Joiners,		i => i.Joiners,		i => i.Prefix).Select(i => new Member{Generator = i, IPs = round.Parent.JoinRequests.First(q => q.Generator == i).IPs}).ToList();
+				round.ConfirmedJoiners		= confirm(c.Joiners,		i => i.Joiners,		i => i.Prefix).Select(i => new Member{Generator = i}).ToList();
 				round.ConfirmedLeavers		= confirm(c.Leavers,		i => i.Leavers,		i => i.Prefix);
 				round.ConfirmedViolators	= confirm(c.Violators,		i => i.Violators,	i => i.Prefix);
 				round.ConfirmedFundJoiners	= confirm(c.FundJoiners,	i => i.FundJoiners, i => i.Prefix);
@@ -741,7 +741,7 @@ namespace Uccs.Net
 			}
 
 			round.Members.AddRange(round.ConfirmedJoiners	.Where(i => Accounts.Find(i.Generator, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)
-															.Select(i => new Member {Generator = i.Generator, IPs = i.IPs, ActivatedAt = round.Id + Pitch + 1}));
+															.Select(i => new Member {Generator = i.Generator, ActivatedAt = round.Id + Pitch + 1}));
 	
 			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Generator && o.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
 			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Generator) && round.AffectedAccounts[i.Generator].Bail < (Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
@@ -780,7 +780,7 @@ namespace Uccs.Net
 					w.Write(LastCommittedRound.WeiSpent);
 					w.Write(LastCommittedRound.Factor);
 					w.Write(LastCommittedRound.Emission);
-					w.Write(LastCommittedRound.Members.OrderBy(i => i.Generator));
+					w.Write(LastCommittedRound.Members.OrderBy(i => i.Generator), i => i.WriteForBase(w));
 					w.Write(LastCommittedRound.Funds.OrderBy(i => i));
 	
 					BaseState = s.ToArray();

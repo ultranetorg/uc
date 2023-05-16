@@ -48,6 +48,54 @@ namespace Uccs.Sun.FUI
 			//BeginInvoke((MethodInvoker)delegate{ Invalidate(); });
 		}
 
+		public int IntLength(long n)
+		{
+			if (n >= 0)
+			{
+				if (n < 10L) return 1;
+				if (n < 100L) return 2;
+				if (n < 1000L) return 3;
+				if (n < 10000L) return 4;
+				if (n < 100000L) return 5;
+				if (n < 1000000L) return 6;
+				if (n < 10000000L) return 7;
+				if (n < 100000000L) return 8;
+				if (n < 1000000000L) return 9;
+				if (n < 10000000000L) return 10;
+				if (n < 100000000000L) return 11;
+				if (n < 1000000000000L) return 12;
+				if (n < 10000000000000L) return 13;
+				if (n < 100000000000000L) return 14;
+				if (n < 1000000000000000L) return 15;
+				if (n < 10000000000000000L) return 16;
+				if (n < 100000000000000000L) return 17;
+				if (n < 1000000000000000000L) return 18;
+				return 19;
+			}
+			else
+			{
+				if (n > -10L) return 2;
+				if (n > -100L) return 3;
+				if (n > -1000L) return 4;
+				if (n > -10000L) return 5;
+				if (n > -100000L) return 6;
+				if (n > -1000000L) return 7;
+				if (n > -10000000L) return 8;
+				if (n > -100000000L) return 9;
+				if (n > -1000000000L) return 10;
+				if (n > -10000000000L) return 11;
+				if (n > -100000000000L) return 12;
+				if (n > -1000000000000L) return 13;
+				if (n > -10000000000000L) return 14;
+				if (n > -100000000000000L) return 15;
+				if (n > -1000000000000000L) return 16;
+				if (n > -10000000000000000L) return 17;
+				if (n > -100000000000000000L) return 18;
+				if (n > -1000000000000000000L) return 19;
+				return 20;
+			}
+    }
+
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			if(!Mode)
@@ -69,7 +117,7 @@ namespace Uccs.Sun.FUI
 	
 						int nid = 0;
 						int np = 0;
-						int nmemebers = 0;
+						int nm = 0;
 						int njrs = 0;
 						int nj = 0;
 						int nl = 0;
@@ -77,13 +125,22 @@ namespace Uccs.Sun.FUI
 	
 						var f = "";
 
+						IEnumerable<AccountAddress> generators = null;
+
 						do 
 						{
 							rounds.Clear();
 	
-							var n = Math.Min(Height/s-1, Core.Database.LastNonEmptyRound.Id + 1);
+							var last = Core.Database.Tail.FirstOrDefault(i => i.Blocks.Any() || i.JoinMembersRequests.Any());
+
+							if(last == null)
+							{
+								return;
+							}
+
+							var n = Math.Min(Height/s - 1, last.Id + 1);
 							
-							for(int i = Core.Database.LastNonEmptyRound.Id - n + 1; i <= Core.Database.LastNonEmptyRound.Id; i++)
+							for(int i = last.Id - n + 1; i <= last.Id; i++)
 							{
 								var r = Core.Database.FindRound(i);
 								rounds.Add(r);
@@ -92,35 +149,37 @@ namespace Uccs.Sun.FUI
 								{
 									nid = Math.Max(nid, i);
 									np = Math.Max(np, r.BlockPieces.Count);
-									njrs = Math.Max(njrs, r.JoinRequests.Count());
+									njrs = Math.Max(njrs, r.JoinMembersRequests.Count());
 									nj = Math.Max(nj, r.ConfirmedJoiners.Count);
 									nl = Math.Max(nj, r.ConfirmedLeavers.Count);
 		
 									if(r?.Members != null)
-										nmemebers = Math.Max(nmemebers, r.Members.Count);
+										nm = Math.Max(nm, r.Members.Count);
 
 									if(r != null)
 										ndate = Math.Max(ndate, r.Time.ToString().Length);
 								}
 							}
 
-							nid = nid.ToString().Length;
-							np = np.ToString().Length;
-							njrs = njrs.ToString().Length;
-							nj = nj.ToString().Length;
-							nl = nl.ToString().Length;
-							nmemebers = nmemebers.ToString().Length;
-							ndate = ndate.ToString().Length;
+							nid		= IntLength(nid);
+							np		= IntLength(np);
+							njrs	= IntLength(njrs);
+							nj		= IntLength(nj);
+							nl		= IntLength(nl);
+							nm		= IntLength(nm);
+							ndate	= IntLength(ndate);
 		
-							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
+							var mems = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator));
+							var joins = rounds.Where(i => i != null).SelectMany(i => i.JoinMembersRequests.Select(b => b.Generator));
+							generators = mems.Union(joins).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nid}}} {{1,{np}}} {{2,{nmemebers}}} {{3,{njrs}}} {{4,{nj}}} {{5,{nl}}} {{6}}{{7}} {{8,{ndate}}}";
+							f  = $"{{0,{nid}}} {{1,{np}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nj}}} {{5,{nl}}} {{6}}{{7}} {{8,{ndate}}}";
 
 							if(rounds.Count() > 0)
 							{
-								var w = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
+								var t = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
 			
-								if(w + members.Count() * s < ClientSize.Width)
+								if(t + generators.Count() * s < ClientSize.Width)
 								{
 									break;
 								}
@@ -141,10 +200,8 @@ namespace Uccs.Sun.FUI
 						if(rounds.Count() > 0)
 						{
 							int y = 0;
-	
-							var members = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator)).Distinct().OrderBy(i => i);
 							
-							foreach(var i in members)
+							foreach(var i in generators)
 							{
 								if(!Brushes.ContainsKey(i))
 								{
@@ -165,7 +222,7 @@ namespace Uccs.Sun.FUI
 																r.Id, 
 																r.BlockPieces.Count,
 																r.Members.Count, 
-																r.JoinRequests.Count(),
+																r.JoinMembersRequests.Count(),
 																r.ConfirmedJoiners.Count,
 																r.ConfirmedLeavers.Count,
 																r.Voted ? "v" : " ",
@@ -176,17 +233,23 @@ namespace Uccs.Sun.FUI
 										e.Graphics.DrawString(t, Font, System.Drawing.Brushes.Black, 0, y-1);
 									}
 			
-									foreach(var m in members)
+									foreach(var m in generators)
 									{
-										var block = r.Blocks.FirstOrDefault(i => i.Generator == m);
+										var bk = r.Blocks.FirstOrDefault(i => i.Generator == m);
 		
-										if(block != null)
+										if(bk != null)
 										{
-											if(block.Type == BlockType.Payload)		e.Graphics.FillRectangle(Brushes[m], x, y, s, s); else
-											if(block.Type == BlockType.Vote)		e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3); else
-																					e.Graphics.FillRectangle(Brushes[m], x+s/4, y+s/4, s/2, s/2);
+											if(bk.Type == BlockType.Payload)	e.Graphics.FillRectangle(Brushes[m], x, y, s, s); else
+											if(bk.Type == BlockType.Vote)		e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3);
 										}
-			
+
+										var jr = r.JoinMembersRequests.FirstOrDefault(i => i.Generator == m);
+
+										if(jr != null)
+										{
+											e.Graphics.FillRectangle(Brushes[m], x+s/4, y+s/4, s/2, s/2);
+										}
+										
 										x += s;
 									}
 								}

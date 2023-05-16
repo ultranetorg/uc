@@ -211,7 +211,7 @@ namespace Uccs.Net
 									{
 										for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 										{
-											var h = Core.FindBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
+											var h = Core.ChooseBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
 	
 											if(h != null)
 											{

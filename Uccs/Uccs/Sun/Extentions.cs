@@ -13,7 +13,12 @@ namespace Uccs.Net
 	{
 		public static T Random<T>(this IEnumerable<T> e)
 		{
-			return e.OrderBy(i => Guid.NewGuid()).First();
+			return e.OrderByRandom().First();
+		}
+
+		public static IEnumerable<T> OrderByRandom<T>(this IEnumerable<T> e)
+		{
+			return e.OrderBy(i => Guid.NewGuid());
 		}
 
 		public static bool Contains(this Exception e, Func<Exception, bool> p)
@@ -191,6 +196,34 @@ namespace Uccs.Net
 			}
 
 			return o;
+		}
+
+		public static IEnumerable<T> Read<T>(this BinaryReader r, Action<T> read)  where T : new()
+		{
+			var o = new List<T>();
+
+			var n = r.Read7BitEncodedInt();
+			
+			for(int i = 0; i < n; i++)
+			{
+				var e = new T();
+				read(e);
+				yield return e;
+			}
+		}
+
+		public static IEnumerable<T> Read<T>(this BinaryReader r, Func<T> create, Action<T> read)
+		{
+			var o = new List<T>();
+
+			var n = r.Read7BitEncodedInt();
+			
+			for(int i = 0; i < n; i++)
+			{
+				var e = create();
+				read(e);
+				yield return e;
+			}
 		}
 
 		public static HashSet<T> ReadHashSet<T>(this BinaryReader r, Func<T> a)

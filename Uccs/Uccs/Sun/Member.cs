@@ -8,29 +8,57 @@ using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
-	public class Member : IBinarySerializable
+	public class Member
 	{
 		public AccountAddress		Generator { get; set; }
-		public IPAddress[]			IPs { get; set; }
-		public int					ActivatedAt { get; set; }
+		public IPAddress[]			IPs { get; set; } = new IPAddress[0];
+		//public ChainTime			OnlineSince { get; set; }
+		public int					ActivatedAt;
+		public List<IPAddress>		Proxies = new ();
 	
-  		public void Write(BinaryWriter w)
+  		public void WriteConfirmed(BinaryWriter w)
+ 		{
+ 			w.Write(Generator);
+			//w.Write7BitEncodedInt(ActivatedAt);
+ 			//w.Write(IPs, i => w.Write(i));
+ 		}
+ 
+ 		public void ReadConfirmed(BinaryReader r)
+ 		{
+			Generator	= r.ReadAccount();
+ 			//ActivatedAt	= r.Read7BitEncodedInt();
+ 			//IPs		= r.ReadArray(() => r.ReadIPAddress());
+		}
+	
+  		public void WriteForBase(BinaryWriter w)
  		{
  			w.Write(Generator);
 			w.Write7BitEncodedInt(ActivatedAt);
+ 			//w.Write(IPs, i => w.Write(i));
+ 		}
+ 
+ 		public void ReadForBase(BinaryReader r)
+ 		{
+			Generator	= r.ReadAccount();
+ 			ActivatedAt	= r.Read7BitEncodedInt();
+ 			//IPs		= r.ReadArray(() => r.ReadIPAddress());
+		}
+	
+  		public void WriteForSharing(BinaryWriter w)
+ 		{
+ 			w.Write(Generator);
  			w.Write(IPs, i => w.Write(i));
  		}
  
- 		public void Read(BinaryReader r)
+ 		public void ReadForSharing(BinaryReader r)
  		{
-			Generator		= r.ReadAccount();
- 			ActivatedAt	= r.Read7BitEncodedInt();
- 			IPs				= r.ReadArray(() => r.ReadIPAddress());
+			Generator	= r.ReadAccount();
+			IPs			= r.ReadArray(() => r.ReadIPAddress());
 		}
 
 		public override string ToString()
 		{
-			return $"Generator={Generator}, JoinedAt={ActivatedAt}, IPs={{{IPs.Length}}}";
+			return $"Generator={Generator}, ActivatedAt={ActivatedAt}}}";
 		}
 	}
 
@@ -48,6 +76,11 @@ namespace Uccs.Net
 		public override Rp Request<Rp>(RdcRequest rq)
 		{
 			return Rdi.Request<Rp>(rq);
+		}
+
+		public override void Send(RdcRequest rq)
+		{
+			Rdi.Send(rq);
 		}
 	}
 }

@@ -57,7 +57,7 @@ namespace Uccs.Net
 		public int					HubRank = 0;
 		public int					SeedRank = 0;
 
-		public Dictionary<Role, DateTime>	LastFailure;
+		public Dictionary<Role, DateTime>	LastFailure = new();
 		
 		int							IdCounter = 0;
 		public bool					Fresh;
@@ -415,6 +415,20 @@ namespace Uccs.Net
 				Disconnect();
 			}
 		}	
+
+ 		public override void Send(RdcRequest rq)
+ 		{
+			if(!Established)
+				throw new ConnectionFailedException("Peer is not connected");
+
+			rq.Id = IdCounter++;
+
+			lock(Out)
+				Out.Enqueue(rq);
+
+			SendSignal.Set();
+ 		}
+
 
  		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
  		{

@@ -40,7 +40,7 @@ namespace Uccs.Sun.FUI
 					r.Tag = i;
 				}
 
-				foreach(var i in (Database?.LastCommittedRound != null ? Database.LastConfirmedRound.Members : Core.Members).OrderBy(i => i.Generator))
+				foreach(var i in Core.Members.OrderBy(i => i.Generator))
 				{
 					var li = Generators.Items.Add(i.Generator.ToString());
 

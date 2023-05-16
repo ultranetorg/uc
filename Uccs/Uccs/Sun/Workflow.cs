@@ -8,6 +8,7 @@ namespace Uccs.Net
 		public CancellationTokenSource	Cancellation { get; }
 		public Log						Log { get; }
 		public bool						IsAborted => Cancellation.IsCancellationRequested;
+		public bool						Active => !IsAborted;
 
 		public Workflow()
 		{

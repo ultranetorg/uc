@@ -23,7 +23,8 @@ namespace Uccs.Net
 		public List<BlockPiece>									BlockPieces = new();
 
 		public List<Block>										Blocks = new();
-		public IEnumerable<JoinMembersRequest>					JoinRequests	=> Blocks.OfType<JoinMembersRequest>().GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public List<GeneratorJoinBroadcastRequest>				JoinMembersRequests = new();
+		public List<HubJoinBroadcastRequest>					JoinHubsRequests = new();
 		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
 		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
 		public IEnumerable<AccountAddress>						Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
@@ -69,7 +70,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}/{JoinRequests.Count()}), Pieces={BlockPieces.Count}, Members={Members?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}/{JoinMembersRequests.Count()}), Pieces={BlockPieces.Count}, Members={Members?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)
@@ -297,7 +298,7 @@ namespace Uccs.Net
 			writer.Write(Time);
 			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
 			writer.Write(ConfirmedViolators.OrderBy(i => i));
-			writer.Write(ConfirmedJoiners.OrderBy(i => i.Generator), i => { writer.Write(i.Generator); writer.Write(i.IPs, i => writer.Write(i)); });
+			writer.Write(ConfirmedJoiners.OrderBy(i => i.Generator), i => i.WriteConfirmed(writer));
 			writer.Write(ConfirmedLeavers.OrderBy(i => i));
 			writer.Write(ConfirmedFundJoiners.OrderBy(i => i));
 			writer.Write(ConfirmedFundLeavers.OrderBy(i => i));
@@ -319,7 +320,7 @@ namespace Uccs.Net
 	
 			ConfirmedPayloads		= Blocks.Cast<Payload>().ToList();
 			ConfirmedViolators		= reader.ReadList<AccountAddress>();
-			ConfirmedJoiners		= reader.ReadList<Member>(() => new Member {Generator = reader.ReadAccount(), IPs = reader.ReadArray<IPAddress>(() => reader.ReadIPAddress())});
+			ConfirmedJoiners		= reader.Read<Member>(i => i.ReadConfirmed(reader)).ToList();
 			ConfirmedLeavers		= reader.ReadList<AccountAddress>();
 			ConfirmedFundJoiners	= reader.ReadList<AccountAddress>();
 			ConfirmedFundLeavers	= reader.ReadList<AccountAddress>();
@@ -336,13 +337,13 @@ namespace Uccs.Net
 // 				w.Write(Hash);
 // #endif
 				WriteConfirmed(w);
-				w.Write(JoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
+				w.Write(JoinMembersRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
 			} 
 			else
 			{
 				w.Write(Blocks, i => {
 										w.Write(i.TypeCode); 
-										i.Write(w); 
+										i.WriteForRound(w); 
 									 });
 				w.Write(BlockPieces);
 			}
@@ -359,13 +360,12 @@ namespace Uccs.Net
 // 				Hash = r.ReadSha3();
 // #endif
 				ReadConfirmed(r);
-				Blocks.AddRange(r.ReadArray(() =>	{
-														var b = new JoinMembersRequest(Database);
-														b.RoundId = Id;
-														b.Round = this;
-														b.Read(r);
-														return b;
-													}));
+				JoinMembersRequests.AddRange(r.ReadArray(() =>	{
+															var b = new GeneratorJoinBroadcastRequest();
+															b.RoundId = Id;
+															b.Read(r, Database.Zone);
+															return b;
+														}));
 			} 
 			else
 			{
@@ -373,7 +373,7 @@ namespace Uccs.Net
 												var b = Block.FromType(Database, (BlockType)r.ReadByte());
 												b.RoundId = Id;
 												b.Round = this;
-												b.Read(r);
+												b.ReadForRound(r);
 												return b;
 											});
 				BlockPieces = r.ReadList(() =>	{

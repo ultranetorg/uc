@@ -10,7 +10,7 @@ namespace Uccs.Net
 {
 	public enum BlockType : byte
 	{
-		JoinMembersRequest = 1, Vote = 2, Payload = 3
+		Nnull = 0, Vote = 2, Payload = 3
 	}
 
 	public class BlockPiece : IBinarySerializable, IEquatable<BlockPiece>
@@ -102,14 +102,14 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class Block : ITypedBinarySerializable, IBinarySerializable
+	public abstract class Block : ITypedBinarySerializable//, IBinarySerializable
 	{
 		public const int			SizeMax = 65536;
 
 		public virtual bool			Valid => true;
 
 		public int					RoundId { get; set; }
-		public AccountAddress		Generator { get; protected set; }
+		public AccountAddress		Generator { get; set; }
 		//public byte[]				Signature;
 		public byte[]				Hash;
 
@@ -120,8 +120,10 @@ namespace Uccs.Net
 		public Round				Round;
 
 		protected abstract void		HashWrite(BinaryWriter w);
-		public abstract	void		Write(BinaryWriter w);
-		public abstract	void		Read(BinaryReader r);
+		public abstract	void		WriteForPiece(BinaryWriter w);
+		public abstract	void		ReadForPiece(BinaryReader r);
+		public abstract	void		WriteForRound(BinaryWriter w);
+		public abstract	void		ReadForRound(BinaryReader r);
 
 		public Block(Database database)
 		{
@@ -169,43 +171,6 @@ namespace Uccs.Net
 		} 
 	}
 
-	public class JoinMembersRequest : Block
-	{
-		public IPAddress[]		IPs;
-
-		public JoinMembersRequest(Database c) : base(c)
-		{
-		}
-
-		public override string ToString()
-		{
-			return base.ToString() + ", IP=" + string.Join(',', IPs as IEnumerable<IPAddress>);
-		}
-
-		protected override void HashWrite(BinaryWriter writer)
-		{
-			writer.Write(Generator);
-			writer.Write7BitEncodedInt(RoundId);
-			writer.Write(IPs, i => writer.Write(i));
-		}
-
-		public override void Write(BinaryWriter writer)
-		{
-			writer.Write(Generator);
-			writer.Write7BitEncodedInt(RoundId);
-			writer.Write(IPs, i => writer.Write(i));
-		}
-
-		public override void Read(BinaryReader reader)
-		{
-			Generator	= reader.ReadAccount();
-			RoundId		= reader.Read7BitEncodedInt();
-			IPs			= reader.ReadArray(() => reader.ReadIPAddress());
-		
-			Hash		= Hashify();
-		}
-	}
-
 	public class Vote : Block
 	{
 		public override bool			Valid => RoundId > 0;
@@ -251,7 +216,7 @@ namespace Uccs.Net
 
 		protected void WriteVote(BinaryWriter writer)
 		{
-			writer.Write(Generator);
+			//writer.Write(Generator);
 
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
@@ -265,14 +230,9 @@ namespace Uccs.Net
 			writer.Write(FundLeavers);
 		}
 
-		public override void Write(BinaryWriter writer)
-		{
-			WriteVote(writer);
-		}
-
 		protected void ReadVote(BinaryReader reader)
 		{
-			Generator	= reader.ReadAccount();
+			//Generator	= reader.ReadAccount();
 
 			RoundId		= reader.Read7BitEncodedInt();
 			Try			= reader.Read7BitEncodedInt();
@@ -286,8 +246,30 @@ namespace Uccs.Net
 			FundLeavers	= reader.ReadAccounts();
 		}
 
-		public override void Read(BinaryReader reader)
+		public override void WriteForPiece(BinaryWriter writer)
 		{
+			WriteVote(writer);
+		}
+
+		public override void ReadForPiece(BinaryReader reader)
+		{
+			ReadVote(reader);
+
+			Hash = Hashify();
+			//Generator = Database.Zone.Cryptography.AccountFrom(Signature, Hash);
+		}
+
+		public override void WriteForRound(BinaryWriter writer)
+		{
+			writer.Write(Generator);
+
+			WriteVote(writer);
+		}
+
+		public override void ReadForRound(BinaryReader reader)
+		{
+			Generator	= reader.ReadAccount();
+
 			ReadVote(reader);
 
 			Hash = Hashify();
@@ -353,19 +335,44 @@ namespace Uccs.Net
 			}
 		}
 
-		public override void Write(BinaryWriter writer)
+		public override void WriteForPiece(BinaryWriter writer)
 		{
 			WriteVote(writer);
 
-			//writer.Write(Generator); /// needed to read check transactions' signatures in Payload
 			writer.Write(Transactions, t => t.WriteAsPartOfBlock(writer));
 		}
 
-		public override void Read(BinaryReader reader)
+		public override void ReadForPiece(BinaryReader reader)
 		{
 			ReadVote(reader);
 
-			//Generator = reader.ReadAccount();	
+			Transactions = reader.ReadList(() =>	{
+														var t = new Transaction(Database.Zone)
+																{
+																	Payload		= this,
+																	Generator	= Generator
+																};
+														t.ReadAsPartOfBlock(reader);
+														return t;
+													});
+			Hash = Hashify();
+		}
+
+		public override void WriteForRound(BinaryWriter writer)
+		{
+			writer.Write(Generator);
+			
+			WriteVote(writer);
+
+			writer.Write(Transactions, t => t.WriteAsPartOfBlock(writer));
+		}
+
+		public override void ReadForRound(BinaryReader reader)
+		{
+			Generator = reader.ReadAccount();
+
+			ReadVote(reader);
+
 			Transactions = reader.ReadList(() =>	{
 														var t = new Transaction(Database.Zone)
 																{

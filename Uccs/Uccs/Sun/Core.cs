@@ -10,8 +10,11 @@ using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.ABI.EIP712;
+using Nethereum.Model;
 using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
+using static Uccs.Net.ChainReportResponse;
 
 namespace Uccs.Net
 {
@@ -62,6 +65,12 @@ namespace Uccs.Net
 		public DownloadReport	Download { get; set; }
 	}
 
+	//public class OnlineMember
+	//{
+	//	public AccountAddress			Generator { get; set; }
+	//	public IEnumerable<IPAddress>	IPs { get; set; }
+	//}
+
 	public class Core : RdcInterface
 	{
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
@@ -99,12 +108,13 @@ namespace Uccs.Net
 		public List<Operation>			Operations	= new();
 
 		bool							MinimalPeersReached;
+		bool							OnlineBroadcasted;
 		public List<Peer>				Peers		= new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Established);
 		public Peer[]					BaseConnections = new Peer[0];
 		public List<IPAddress>			IgnoredIPs	= new();
-		public List<Member>				Members		= new();
-		public List<Download>			Downloads	= new();
+		public List<Download>			Downloads = new();
+		public List<Member>				Members = new();
 
 		TcpListener						Listener;
 		public Thread					MainThread;
@@ -118,7 +128,15 @@ namespace Uccs.Net
 		public Synchronization			_Synchronization = Synchronization.Null;
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate				SynchronizationChanged;
-		public Dictionary<int, List<BlockPiece>> SyncBlockCache	= new();
+		
+		public class SyncRound
+		{
+			public List<BlockPiece>						Blocks = new();
+			public List<GeneratorJoinBroadcastRequest>	MemberJoins = new();
+			public List<HubJoinBroadcastRequest>		HubJoins = new();
+		}
+		
+		public Dictionary<int, SyncRound>	SyncCache	= new();
 
 		public IGasAsker				GasAsker; 
 		public IFeeAsker				FeeAsker;
@@ -150,7 +168,7 @@ namespace Uccs.Net
 					f.Add(new ("Size",					$"{Database.Size}"));
 					f.Add(new ("Members",				$"{Database.LastConfirmedRound?.Members.Count}"));
 					f.Add(new ("Emission",				$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}"));
-					f.Add(new ("Cached Block Pieces",	$"{SyncBlockCache.Sum(i => i.Value.Count)}"));
+					f.Add(new ("SyncCache Blocks",		$"{SyncCache.Sum(i => i.Value.Blocks.Count)}"));
 					f.Add(new ("Cached Rounds",			$"{Database.LoadedRounds.Count()}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}"));
 					f.Add(new ("Last Payload Round",	$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}"));
@@ -185,7 +203,7 @@ namespace Uccs.Net
 				}
 				else
 				{
-					f.Add(new ("Members (retrieved)", $"{Members.Count}"));
+					//f.Add(new ("Members (retrieved)", $"{Members.Count}"));
 
 					foreach(var i in Vault.Accounts)
 					{
@@ -367,6 +385,11 @@ namespace Uccs.Net
 			{
 				Database = new Database(Zone, Settings.Roles, Settings.Database, Settings.Dev, Workflow?.Log, DatabaseEngine);
 		
+				//if(Database.LastConfirmedRound != null && Database.LastConfirmedRound.Members.FirstOrDefault().Generator == Zone.Father0)
+				//{
+				//	Members = new List<OnlineMember>{ new() {Generator = Zone.Father0, IPs = new[] {Zone.GenesisIP}}};
+				//}
+
 				Database.BlockAdded += b =>	ReachConsensus();
 		
 				if(Settings.Generators.Any())
@@ -640,7 +663,7 @@ namespace Uccs.Net
 
 				foreach(var c in Connections)
 				{
-					c.Request<object>(new PeersBroadcastRequest {Peers = Connections.Where(i => i != c).ToArray()});
+					c.Send(new PeersBroadcastRequest {Peers = Connections.Where(i => i != c).ToArray()});
 				}
 			}
 		}
@@ -692,12 +715,13 @@ namespace Uccs.Net
 
 			var h = new Hello();
 
-			h.Roles		= Settings.Roles;
-			h.Versions	= Versions;
-			h.Zone		= Zone.Name;
-			h.IP		= ip;
-			h.Nuid		= Nuid;
-			h.Peers		= peers;
+			h.Roles			= Settings.Roles;
+			h.Versions		= Versions;
+			h.Zone			= Zone.Name;
+			h.IP			= ip;
+			h.Nuid			= Nuid;
+			h.Peers			= peers;
+			h.Generators	= Members;
 			
 			return h;
 		}
@@ -780,6 +804,15 @@ namespace Uccs.Net
 							//Workflow.Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
 							client.Close();
 							return;
+						}
+
+						foreach(var i in h.Generators)
+						{
+							if(!Members.Any(j => j.Generator == i.Generator))
+							{
+								i.Proxies.Add(peer.IP);
+								Members.Add(i);
+							}
 						}
 	
 						RefreshPeers(h.Peers.Append(peer));
@@ -902,6 +935,15 @@ namespace Uccs.Net
 						{
 							peer = new Peer(ip);
 							Peers.Add(peer);
+						}
+
+						foreach(var i in h.Generators)
+						{
+							if(!Members.Any(j => j.Generator == i.Generator))
+							{
+								i.Proxies.Add(peer.IP);
+								Members.Add(i);
+							}
 						}
 
 						RefreshPeers(h.Peers.Append(peer));
@@ -1047,7 +1089,7 @@ namespace Uccs.Net
 						r.WeiSpent	= rd.ReadBigInteger();
 						r.Factor	= rd.ReadCoin();
 						r.Emission	= rd.ReadCoin();
-						r.Members	= rd.ReadList<Member>();
+						r.Members	= rd.Read<Member>(m => m.ReadForBase(rd)).ToList();
 						r.Funds		= rd.ReadList<AccountAddress>();
 		
 						Database.BaseState	= stamp.BaseState;
@@ -1063,9 +1105,11 @@ namespace Uccs.Net
  							Database.LoadedRounds.Add(r.Id, r);
 						else
 							throw new SynchronizationException();
+
+						//Members = r.Members.Select(i => new OnlineMember {Generator = i.Generator, IPs = new IPAddress[]{} }).ToList();
 					}
 		
-					while(true)
+					while(!Workflow.IsAborted)
 					{
 						Thread.Sleep(1);
 						Workflow.ThrowIfAborted();
@@ -1089,11 +1133,11 @@ namespace Uccs.Net
 						lock(Lock)
 							if(from <= rp.LastNonEmptyRound)
 							{
-								foreach(var i in SyncBlockCache.Keys)
+								foreach(var i in SyncCache.Keys)
 								{
 									if(i < rp.LastConfirmedRound + 1 - Database.Pitch)
 									{
-										SyncBlockCache.Remove(i);
+										SyncCache.Remove(i);
 									}
 								}
 
@@ -1119,7 +1163,7 @@ namespace Uccs.Net
 										Database.Tail = Database.Tail.OrderByDescending(i => i.Id).ToList();
 		
 										r.Confirmed = false;
-										Database.Confirm(r, true);
+										Confirm(r, true);
 //#if DEBUG
 //										if(!r.Hash.SequenceEqual(h))
 //										{
@@ -1142,14 +1186,18 @@ namespace Uccs.Net
 							 				throw new SynchronizationException();
 										}
 				
+										var rq = new BlocksBroadcastRequest();
+
 										if(r.BlockPieces.Any())
 										{
-											var rq = new BlocksBroadcastRequest();
 											rq.Pieces = r.BlockPieces;
 											rq.Execute(this);
 										}
 
-										ProcessIncoming(r.Blocks);
+										foreach(var i in r.JoinMembersRequests)
+										{
+											i.Execute(this);
+										}
 									}
 								}
 										
@@ -1159,11 +1207,19 @@ namespace Uccs.Net
 							{
 								Synchronization = Synchronization.Synchronized;
 
-								var rq = new BlocksBroadcastRequest();
-								rq.Pieces = SyncBlockCache.OrderBy(i => i.Key).SelectMany(i => i.Value).ToArray();
-								rq.Execute(this);
+								foreach(var i in SyncCache.OrderBy(i => i.Key))
+								{
+									foreach(var jr in i.Value.MemberJoins)
+									{
+										jr.Execute(this);
+									}
+
+									var rq = new BlocksBroadcastRequest();
+									rq.Pieces = i.Value.Blocks;
+									rq.Execute(this);
+								}
 									
-								SyncBlockCache.Clear();
+								SyncCache.Clear();
 	
 								SynchronizingThread = null;
 	
@@ -1241,23 +1297,67 @@ namespace Uccs.Net
 			{
 				if(!Database.VoterOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch).Any(i => i.Generator == g))
 				{
-					var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
+					///var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
-					//var jr = Database.JoinRequests.Where(i => i.Generator == g).MaxBy(i => i.RoundId);
-		
+					GeneratorJoinBroadcastRequest jr = null;
+
+					for(int i = Database.LastNonEmptyRound.Id; i >= Database.LastConfirmedRound.Id - Database.Pitch; i--)
+					{
+						var r = Database.FindRound(i);
+
+						if(r != null)
+						{
+							jr = r.JoinMembersRequests.Find(j => j.Generator == g);
+							
+							if(jr != null)
+								break;
+						}
+					}
+
 					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id)
 					{
-						var b = new JoinMembersRequest(Database)
-								{	
-									RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
-									IPs     = new [] {IP}
-								};
-						b.Sign(g);
-						blocks.Add(b);
+						jr = new GeneratorJoinBroadcastRequest()
+							{	
+								RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
+								//IPs  = new [] {IP}
+							};
+						
+						jr.Sign(Zone, g);
+						
+						Database.GetRound(jr.RoundId).JoinMembersRequests.Add(jr);
+						//blocks.Add(b);
+
+						//if(BaseConnections.Count(i => i.Established) < Settings.Database.PeersMin)
+						//{
+						//	BaseConnections = Connect(Role.Base, Settings.Database.PeersMin, Workflow);
+						//}
+
+						foreach(var i in Connections)
+						{
+							var bjr = new GeneratorJoinBroadcastRequest {RoundId = jr.RoundId, Signature = jr.Signature};
+
+							i.Send(bjr);
+						}
 					}
 				}
 				else
 				{
+					if(!OnlineBroadcasted)
+					{
+						OnlineBroadcasted = true;
+
+						if(!Database.VoterOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch - 1).Any(i => i.Generator == g)) /// first round for block generation
+						{
+							foreach(var i in Connections)
+							{
+								var gobr = new GeneratorOnlineBroadcastRequest {Account = g, IPs = new IPAddress[] {IP}}; 
+								gobr.Sign(Zone, g);
+
+								i.Send(gobr);
+							}
+						}
+					}
+
 					var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
 
 					if(r.Votes.Any(i => i.Generator == g))
@@ -1294,7 +1394,7 @@ namespace Uccs.Net
 						var s = new MemoryStream(); 
 						var w = new BinaryWriter(s);
 						b.Sign(g);
-						b.Write(w);
+						b.WriteForPiece(w);
 
 						foreach(var i in txs)
 						{
@@ -1378,7 +1478,7 @@ namespace Uccs.Net
 					var w = new BinaryWriter(s);
 
 					//w.Write(b.TypeCode);
-					b.Write(w);
+					b.WriteForPiece(w);
 
 					s.Position = 0;
 					var r = new BinaryReader(s);
@@ -1431,7 +1531,7 @@ namespace Uccs.Net
 				/// LESS RELIABLE
 				foreach(var i in pieces.SelectMany(i => i.Peers).Distinct())
 				{
-					i.Request<object>(new BlocksBroadcastRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
+					i.Send(new BlocksBroadcastRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
 				}
 
 				/// ALL FOR ALL
@@ -1444,6 +1544,23 @@ namespace Uccs.Net
 			}
 
 			Statistics.Generating.End();
+		}
+
+		void Confirm(Round r, bool confirmed)
+		{
+			Database.Confirm(r, confirmed);
+
+			if(r.Confirmed)
+			{
+				Transactions.RemoveAll(t => t.RoundMax <= r.Id);
+
+				//Members.AddRange(r.ConfirmedJoiners.Select(i => new OnlineMember {Generator = i.Generator, IPs = r.Parent.JoinMembersRequests.First(jr => jr.Generator == i.Generator).IPs}));
+				//Members.RemoveAll(i => r.ConfirmedLeavers.Any(j => j == i.Generator));
+			}
+			else
+			{
+				throw new SynchronizationException();
+			}
 		}
 
 		void ReachConsensus()
@@ -1468,21 +1585,12 @@ namespace Uccs.Net
 					{
 						foreach(var i in Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()))
 						{
-							i.Request<object>(new BlocksBroadcastRequest{Pieces = notcomebacks});
+							i.Send(new BlocksBroadcastRequest{Pieces = notcomebacks});
 						}
 					}
 
-					Database.Confirm(r.Parent, false);
+					Confirm(r.Parent, false);
 
-					if(r.Parent.Confirmed)
-					{
-						Transactions.RemoveAll(t => t.RoundMax <= r.Parent.Id);
-					}
-					else
-					{
-						StartSynchronization();
-						return;
-					}
 				}
 				else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
 				{
@@ -1896,40 +2004,20 @@ namespace Uccs.Net
 				return new MemberRdi(Settings.Generators.First(), this);
 			}
 
-			Peer peer;
-				
-			while(true)
+			while(workflow.Active)
 			{
-				Thread.Sleep(100);
-				workflow.ThrowIfAborted();
-	
-				lock(Lock)
-				{
-					peer = Peers.OrderByDescending(i => i.Established).ThenBy(i => i.ReachFailures).FirstOrDefault();
-
-					if(peer == null)
-					{
-						Thread.Sleep(1000);
-						continue;
-					}
-				}
-	
 				try
 				{
-					Connect(peer, workflow);
-
-					var cr = peer.GetMembers();
+					var cr = Call<MembersResponse>(Role.Base, i => i.GetMembers(), workflow);
 	
 					lock(Lock)
 					{
 						if(cr.Members.Any())
 						{
-							//RememberPeers(cr.Members.SelectMany(i => i.IPs).Select(i => new Peer(i)));
+							var members = cr.Members.ToList();
 
-							peer.ReachFailures = 0;
-	
-							Members = cr.Members.ToList();
-							
+							Members.RemoveAll(i => !members.Contains(i.Generator));
+
 							foreach(var i in Members)
 							{
 								var c = Connections.FirstOrDefault(j => i.IPs.Any(ip => j.IP.Equals(ip)));
@@ -1941,28 +2029,29 @@ namespace Uccs.Net
 								}
 							}
 
-							var m = Members.Random();
-							var ip = m.IPs.Random();
-							var p = GetPeer(ip);
+							foreach(var i in Members.Where(i => i.IPs.Any()).OrderByRandom())
+							{
+								var ip = i.IPs.Random();
+								var p = GetPeer(ip);
 
-							Connect(p, workflow);
-		
-							Workflow.Log?.Report(this, "Member chosen", $"{m} {p}");
+								Connect(p, workflow);
 
-							return new MemberRdi(m.Generator, p);
+								Workflow.Log?.Report(this, "Member chosen", $"{i} {p}");
+
+								return new MemberRdi(i.Generator, p);
+							}
 						}
 					}
 				}
 				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is RdcNodeException)
 				{
-					peer.ReachFailures++;
 				}
 			}
 	
 			throw new ConnectionFailedException("Aborted, timeout or overall abort");
 		}
 
-		public Peer FindBestPeer(Role role, HashSet<Peer> exclusions)
+		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
 		{
 			if(BitOperations.PopCount((uint)role) > 1)
 				throw new ArgumentException();
@@ -1984,7 +2073,7 @@ namespace Uccs.Net
 	
 				lock(Lock)
 				{
-					peer = FindBestPeer(role, exclusions);
+					peer = ChooseBestPeer(role, exclusions);
 	
 					if(peer == null)
 					{
@@ -2020,7 +2109,7 @@ namespace Uccs.Net
 	
 				lock(Lock)
 				{
-					var p = FindBestPeer(role, peers);
+					var p = ChooseBestPeer(role, peers);
 	
 					if(p != null)
 					{
@@ -2093,7 +2182,7 @@ namespace Uccs.Net
 	
 				lock(Lock)
 				{
-					p = FindBestPeer(role, tried);
+					p = ChooseBestPeer(role, tried);
 	
 					if(p == null)
 					{
@@ -2136,7 +2225,7 @@ namespace Uccs.Net
 	
 				lock(Lock)
 				{
-					p = FindBestPeer(role, excl);
+					p = ChooseBestPeer(role, excl);
 	
 					if(p == null)
 						if(exitifnomore)
@@ -2376,6 +2465,19 @@ namespace Uccs.Net
 			}
 
  			return rq.Execute(this) as Rp;
+ 		}
+
+		public override void Send(RdcRequest rq)
+  		{
+			if(rq.Peer == null) /// self call, cloning needed
+			{
+				var s = new MemoryStream();
+				BinarySerializator.Serialize(new(s), rq); 
+				s.Position = 0;
+				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constract) as RdcRequest;
+			}
+
+ 			rq.Execute(this);
  		}
 	}
 }
