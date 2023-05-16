@@ -93,7 +93,7 @@
 			<Border BackgroundColor="Transparent" Grid.Row="3" Grid.Column="1">
 				<Label Text="0" />
 				<Border.GestureRecognizers>
-					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="10" />
+					<TapGestureRecognizer Command="{Binding EnterPincodeCommand}" CommandParameter="0" />
 				</Border.GestureRecognizers>
 			</Border>
 				
