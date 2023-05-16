@@ -14,7 +14,6 @@
     ios:Page.UseSafeArea="True">
     
     <controls:CustomPage.Resources>
-        <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrWhiteSpace" />
         <converters:StatusToImageConverter x:Key="StatusToImageConverter" />
         <Style TargetType="controls:ImageTextButton">
             <Setter Property="TintColor" Value="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource Primary}}" />
