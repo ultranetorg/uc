@@ -40,6 +40,9 @@
     <Compile Update="AuthorPanel.cs" />
     <Compile Update="HubPanel.cs" />
     <Compile Update="ChainPanel.cs" />
+    <Compile Update="GeneratorsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ProductPanel.cs" />
     <Compile Update="ReleasePanel.cs" />

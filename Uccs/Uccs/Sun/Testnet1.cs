@@ -26,61 +26,46 @@ namespace Uccs
 										new (new byte[] { 78,  47, 214, 171}),
 										new (new byte[] { 78,  47, 198, 218}),
 										new (new byte[] { 78,  47, 205, 229}),
-																			
 										new (new byte[] {179,  43, 154, 144}),
 										new (new byte[] {179,  43, 154, 145}),
 										new (new byte[] {179,  43, 154, 150}),
 										new (new byte[] {179,  43, 154, 155}),
 										new (new byte[] {179,  43, 154, 162}),
-																			
-										new (new byte[] {45,  159, 250, 254}),
-										new (new byte[] {77,   91,  75,  32}),
-										new (new byte[] {77,   91,  75,  34}),
-										new (new byte[] {77,   91,  75, 225}),
-																			
+										new (new byte[] { 45,  159, 250, 25}),
+										new (new byte[] { 77,  91,  75,  32}),
+										new (new byte[] { 77,  91,  75,  34}),
+										new (new byte[] { 77,  91,  75, 225}),
 										new (new byte[] {138, 124, 180,  13}),
 										new (new byte[] {138, 124, 180, 164}),
 										new (new byte[] {138, 124, 180, 239}),
 										new (new byte[] {141,  98, 168, 191}),
-																			
 										new (new byte[] {146,  19, 106, 139}),
 										new (new byte[] {146,  19, 106, 140}),
 										new (new byte[] {146,  19, 106, 141}),
 										new (new byte[] {146,  19, 106, 142}),
-																			
-										new (new byte[] { 74, 119, 193, 189}),
-										new (new byte[] { 74, 119, 193, 220}),
-										new (new byte[] { 74, 119, 193, 227}),
-										new (new byte[] {185,  74, 222,  22}),
-																			
 										new (new byte[] { 37, 235,  49, 245}),
 										new (new byte[] {151, 236,  24,  51}),
 										new (new byte[] {192,  71, 218,  23}),
 										new (new byte[] {151, 236,  24, 177}),
-																			
 										new (new byte[] { 89,  31, 120,  33}),
 										new (new byte[] { 91, 132,  93, 211}),
 										new (new byte[] { 89,  31, 120, 113}),
 										new (new byte[] { 89,  31, 120, 224}),
-																			
 										new (new byte[] {103, 214,  71,  29}),
 										new (new byte[] {103, 214,  71,  32}),
 										new (new byte[] {103, 214,  71,  30}),
-																			
 										new (new byte[] {  5,  42, 221, 109}),
 										new (new byte[] {  5,  42, 221,  11}),
 										new (new byte[] {  5,  42, 221, 110}),
 										new (new byte[] {  5,  42, 221, 111}),
 										new (new byte[] {  5,  42, 221, 113}),
 										new (new byte[] {  5,  42, 221, 114}),
-																			
 										new (new byte[] { 15, 235, 153, 179}),
 										new (new byte[] { 15, 235, 153, 180}),
 										new (new byte[] { 15, 235, 153, 188}),
 										new (new byte[] { 15, 235, 153, 189}),
 										new (new byte[] { 15, 235, 153, 190}),
 										new (new byte[] { 15, 235, 153, 191}),
-																			
 										new (new byte[] {195,  20,  17,  70}),
 										new (new byte[] {195,  20,  17, 238}),
 										new (new byte[] {195,  20,  17, 133}),
@@ -89,15 +74,15 @@ namespace Uccs
 										new (new byte[] {195,  20,  17, 164}),
 										new (new byte[] {195,  20,  17, 118}),
 										new (new byte[] {195,  20,  17, 114}),
-																			
-										new (new byte[] {139,  99, 184, 243}),
-										new (new byte[] {139,  99, 140, 184}),
-										new (new byte[] { 51, 161, 157, 208}),
-										new (new byte[] { 51, 161, 164,  70}),
-										new (new byte[] { 51, 161, 164, 170}),
-										new (new byte[] { 51, 161, 157, 217}),
-										new (new byte[] { 51, 161, 157, 222}),
-										new (new byte[] { 51, 161, 164,  75})};
+										new (new byte[] { 41, 77,  143, 118}),
+										new (new byte[] { 41, 77,  143, 119}),
+										new (new byte[] { 41, 77,  143, 120}),
+										new (new byte[] { 41, 77,  143, 121}),
+										new (new byte[] { 88, 119, 169,  77}),
+										new (new byte[] { 88, 119, 170, 163}),
+										new (new byte[] { 88, 119, 169,  94}),
+										new (new byte[] { 88, 119, 169,  97}),
+										};
 		}
 
 		public override IEnumerable<Peer> ChoosePeers(IEnumerable<Peer> peers, int needed)

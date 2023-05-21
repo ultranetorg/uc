@@ -7,12 +7,12 @@
     <Company>uo</Company>
     <Authors>uo</Authors>
     <Product>Framework</Product>
-    <AssemblyVersion>0.0.971.0</AssemblyVersion>
-    <FileVersion>0.0.971.0</FileVersion>
+    <AssemblyVersion>0.0.980.0</AssemblyVersion>
+    <FileVersion>0.0.980.0</FileVersion>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <Version>0.0.971</Version>
+    <Version>0.0.980</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\_Debug\dotnet\</OutputPath>
@@ -26,7 +26,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Nethereum.Web3" Version="4.14.0" />
-    <PackageReference Include="RocksDB" Version="8.1.1.37791" />
+    <PackageReference Include="RocksDB" Version="8.1.1.38647" />
     <PackageReference Include="System.Json" Version="4.7.1" />
   </ItemGroup>
 </Project>

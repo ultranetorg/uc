@@ -92,15 +92,17 @@ namespace Uccs.Net
 
 		public string			NasProvider;
 
-		public string			Path;
+		string			Path;
+
+		public SecretSettings()
+		{
+		}
 
 		public SecretSettings(string path)
 		{
 			Path = path;
 
-			var s = System.IO.Path.Join(path, FileName);
-
-			var d = new XonDocument(File.ReadAllText(s));
+			var d = new XonDocument(File.ReadAllText(path));
 			
 			Password		= d.GetString("Password");
 

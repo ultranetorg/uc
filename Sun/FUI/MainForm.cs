@@ -74,9 +74,12 @@ namespace Uccs.Sun.FUI
 			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Core, core.Vault) };
 			navigator.Nodes.Add(transfer);
 
-			var nodes = new TreeNode("Network"){ Tag = new NetworkPanel(Core, core.Vault) };
-			nodes.Expand();
-			navigator.Nodes.Add(nodes);
+			var net = new TreeNode("Network"){ Tag = new NetworkPanel(Core, core.Vault) };
+			net.Expand();
+			navigator.Nodes.Add(net);
+			
+			var gens = new TreeNode("Generators"){ Tag = new GeneratorsPanel(Core, core.Vault) };				
+			net.Nodes.Add(gens);
 
 			if(Core.Seedbase != null)
 			{
@@ -90,7 +93,7 @@ namespace Uccs.Sun.FUI
 			if(Settings.Dev.UI)
 			{
 				var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
-				nodes.Nodes.Add(initials);
+				net.Nodes.Add(initials);
 			}
 
 			navigator.SelectedNode = dashboard;

@@ -679,14 +679,17 @@ namespace Uccs.Net
 	
 				while(!Workflow.IsAborted)
 				{
-					var client = Listener.AcceptTcpClient();
+					var c = Listener.AcceptTcpClient();
+
+					if(Workflow.IsAborted)
+						return;
 	
 					lock(Lock)
 					{
 						if(!Workflow.IsAborted && Connections.Count() < Settings.PeersInMax)
-							InboundConnect(client);
+							InboundConnect(c);
 						else
-							client.Close();
+							c.Close();
 					}
 				}
 			}
