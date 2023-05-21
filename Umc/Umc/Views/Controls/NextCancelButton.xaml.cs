@@ -11,6 +11,13 @@ public partial class NextCancelButton : StackLayout
 		get { return (ICommand)GetValue(NextCommandProperty); }
 		set { SetValue(NextCommandProperty, value); }
 	}
+	public static readonly BindableProperty CancelCommandProperty = BindableProperty.Create(nameof(CancelCommand), typeof(ICommand), typeof(NextCancelButton), null);
+
+	public ICommand CancelCommand
+	{
+		get { return (ICommand)GetValue(CancelCommandProperty); }
+		set { SetValue(CancelCommandProperty, value); }
+	}
 
 	public NextCancelButton()
 	{

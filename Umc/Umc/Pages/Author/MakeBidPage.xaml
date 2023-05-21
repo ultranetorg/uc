@@ -15,7 +15,7 @@
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="32">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
@@ -32,7 +32,7 @@
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
                         <!--Step #1-->
-                        <StackLayout Padding="5" Spacing="30">
+                        <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
                                 <Label FontSize="18" Text="Make your bid" />
                                 <Label
@@ -42,7 +42,7 @@
                             </StackLayout>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="Payment Account" />
-                                <Grid ColumnDefinitions="*,35" RowSpacing="-10">
+                                <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <views:AccountView
                                         Grid.ColumnSpan="2"
                                         Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}"
@@ -63,7 +63,7 @@
                                 <Label Style="{StaticResource DashLabel}" Text="Author name" />
                                 <Label Opacity="0.7" Text="Normalized author's name" />
                                 <Border
-                                    Padding="10,0"
+                                    Padding="8,0"
                                     HeightRequest="44"
                                     Style="{StaticResource KeyBorder}">
                                     <Label
@@ -73,12 +73,12 @@
                                         VerticalOptions="Center" />
                                 </Border>
                             </StackLayout>
-                            <StackLayout Spacing="15">
+                            <StackLayout Spacing="16">
                                 <controls:LabelPair
                                     Text1="Current bid"
                                     Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.CurrentBid, StringFormat='{0} UNT'}" />
             
-                                <StackLayout Grid.Column="0" Spacing="10">
+                                <StackLayout Grid.Column="0" Spacing="8">
                                     <Label Style="{StaticResource DashLabel}" Text="Your bid" />
                                     <AbsoluteLayout Margin="0,0,0,4">
                                         <controls:FormEntryControl
@@ -101,7 +101,7 @@
                         </StackLayout>
                         
                         <!--Step #2-->
-                        <StackLayout Padding="4" Spacing="30">
+                        <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
                                 <Label FontSize="18" Text="Do you confirm a bid?" />
                                 <Label
@@ -130,7 +130,10 @@
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
+            <controls:NextCancelButton
+				Grid.Row="2"
+				NextCommand="{Binding NextWorkaroundNewCommand}"
+				CancelCommand="{Binding CancelCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

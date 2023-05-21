@@ -72,11 +72,15 @@ public partial class EnterPinViewModel : BasePageViewModel
 				{
 					await Navigation.GoToUpwardsAsync(nameof(DashboardPage));
 				}
+				else
+				{
+					ToastHelper.ShowErrorMessage(_logger, "Invalid Pincode");
+				}
 			}
 		}
         catch (Exception ex)
 		{
-			ToastHelper.ShowErrorMessage(_logger, "Invalid Pincode");
+			await ToastHelper.ShowDefaultErrorMessageAsync();
 			_logger.LogError("BiometricLoginAsync Error: {Message}", ex.Message);
 		}
 	}

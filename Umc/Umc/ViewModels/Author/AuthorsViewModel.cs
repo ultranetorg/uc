@@ -88,7 +88,9 @@ public partial class AuthorsViewModel : BasePageViewModel
 
 			if (author.Status != AuthorStatus.Reserved)
 			{
-				await ShowPopup(new AuthorOptionsPopup(author));
+				var popup = new AuthorOptionsPopup(author);
+				popup.Vm.WatchState = author.Status == AuthorStatus.Watched;
+				await ShowPopup(popup);
 			}
 		}
 		catch(ArgumentException ex)

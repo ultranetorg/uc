@@ -5,5 +5,5 @@
     x:Class="UC.Umc.Controls.NextCancelButton"
     x:Name="Instance">
     <Button Command="{Binding NextCommand, Source={x:Reference Instance}}" Style="{StaticResource NextButton}" />
-    <Button Style="{StaticResource LabelButton}" Text="Cancel" />
+    <Button Command="{Binding CancelCommand, Source={x:Reference Instance}}" Style="{StaticResource LabelButton}" Text="Cancel" />
 </StackLayout>
