@@ -8,14 +8,14 @@
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:AuthorRenewalViewModel"
-    Title="Author Registration"
+    Title="Author Renewal"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="32">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
@@ -32,7 +32,7 @@
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
                         <!--Step #1-->
-                        <StackLayout Padding="5" Spacing="30">
+                        <StackLayout Padding="4" Spacing="32">
                                 <StackLayout>
                                     <Label FontSize="18" Text="Choose renewal period" />
                                     <Label
@@ -42,7 +42,7 @@
                                 </StackLayout>
                                 <StackLayout>
                                     <Label Style="{StaticResource DashLabel}" Text="Author to renew" />
-                                    <Grid ColumnDefinitions="*,35" RowSpacing="-10">
+                                    <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                         <Border
                                             Grid.ColumnSpan="2"
                                             HeightRequest="60"
@@ -75,7 +75,7 @@
                                 </StackLayout>
                                 <StackLayout>
                                     <Label Style="{StaticResource DashLabel}" Text="Pay from Account" />
-                                    <Grid ColumnDefinitions="*,35" RowSpacing="-10">
+                                    <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                         <views:AccountView
                                             Grid.ColumnSpan="2"
                                             BorderStyle="{StaticResource AccountCardBorderDark}"
@@ -92,7 +92,7 @@
                                             VerticalOptions="Center" />
                                     </Grid>
                                 </StackLayout>
-                                <StackLayout Spacing="15">
+                                <StackLayout Spacing="16">
                                     <Grid ColumnDefinitions="*,*">
                                         <Label
                                             Grid.Column="0"
@@ -123,7 +123,7 @@
                             </StackLayout>
                         
                         <!--Step #2-->
-                        <StackLayout Padding="5" Spacing="30">
+                        <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
                                 <Label FontSize="18" Text="Do you confirm renewal of this author?" />
                                 <Label
@@ -132,21 +132,25 @@
                                     Text="Clicking 'Confirm' button, renewal will start" />
                             </StackLayout>
                             <StackLayout Spacing="20">
-                                <controls:LabelPair Text1="Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Title}" />
-                                <controls:LabelPair Text1="With price:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Commission}" />
+                                <controls:LabelPair Text1="Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Author.Title}" />
+                                <controls:LabelPair Text1="With price:" Text2="10 UNT ($15)" />
+								<controls:LabelPair Text1="Period:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Period}" />
                             </StackLayout>
                             <StackLayout>
                                 <Label Style="{StaticResource DashLabel}" Text="From Account" />
                                 <views:AccountView
                                     BorderStyle="{StaticResource AccountCardBorder}"
-                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=Account}"/>
+                                    Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Account}"/>
                             </StackLayout>
                         </StackLayout>
                     </x:Array>
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
+            <controls:NextCancelButton
+				Grid.Row="2"
+				NextCommand="{Binding NextWorkaroundNewCommand}"
+				CancelCommand="{Binding CancelCommand}"  />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

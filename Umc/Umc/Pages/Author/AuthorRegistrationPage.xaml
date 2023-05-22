@@ -15,7 +15,7 @@
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="32">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
@@ -33,7 +33,7 @@
                     <x:Array Type="{x:Type View}">
                         <!--Step #1-->
                         <ScrollView>
-                            <StackLayout Padding="5" Spacing="20">
+                            <StackLayout Padding="4" Spacing="20">
                                 <StackLayout>
                                     <Label FontSize="18" Text="Choose your payment account and Author title" />
                                     <Label
@@ -52,7 +52,7 @@
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=SelectAccountCommand}" />
                                     </StackLayout.GestureRecognizers>
                                 </StackLayout>
-                                <StackLayout Grid.Column="0" Spacing="5">
+                                <StackLayout Grid.Column="0" Spacing="4">
                                     <Label Style="{StaticResource DashLabel}" Text="Title" />
                                     <Label
                                         FontSize="13"
@@ -78,7 +78,7 @@
                                             TextColor="{StaticResource Red}" />
                                     </StackLayout>
                                 </StackLayout>
-                                <StackLayout Grid.Column="0" Spacing="5">
+                                <StackLayout Grid.Column="0" Spacing="4">
                                     <controls:LabelPair
                                         Style="{StaticResource DashLabel}"
                                         Text1="Name"
@@ -96,7 +96,7 @@
                         </ScrollView>
                         
                         <!--Step #2-->
-                        <StackLayout Padding="5" Spacing="30">
+                        <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
                                 <Label FontSize="18" Text="Do you confirm registration of this author?" />
                                 <Label
@@ -121,7 +121,8 @@
             <IndicatorView x:Name="indicator" Grid.Row="1" />
             <controls:NextCancelButton
                 Grid.Row="2"
-                NextCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRegistrationViewModel}}, Path=NextWorkaroundCommand}" />
+				NextCommand="{Binding NextWorkaroundNewCommand}"
+				CancelCommand="{Binding CancelCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>
