@@ -27,7 +27,7 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	[NotifyPropertyChangedFor(nameof(UntAmount))]
 	[NotifyPropertyChangedFor(nameof(EthCommission))]
 	[NotifyPropertyChangedFor(nameof(UntCommission))]
-	private decimal _ethAmount;
+	private decimal _ethAmount = 10;
 
 	public decimal UntAmount => EthAmount * 10;
 	public decimal EthCommission => (EthAmount + 1) / 100;
@@ -125,8 +125,6 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 				await Navigation.PopAsync();
 				await ToastHelper.ShowMessageAsync("Successfully transfered!");
 			}
-
-			var account = Account;
 		}
 		catch (Exception ex)
 		{

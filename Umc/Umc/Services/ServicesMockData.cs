@@ -101,44 +101,6 @@ public class ServicesMockData : IServicesMockData
 
 			#endregion Products
 
-			#region Bids History
-
-			BidsHistory = new List<Bid>()
-			{
-				new()
-				{
-					Amount = 599,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 399,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 199,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 99,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				},
-				new()
-				{
-					Amount = 9,
-					Date = new DateTime(2023,1,1),
-					BidBy = "0x63FaC9201494f0bd17B9892B9f"
-				}
-			};
-
-			#endregion Bids History
-
 			#region Authors
 
 			AuthorViewModel author1 = new()
@@ -252,6 +214,46 @@ public class ServicesMockData : IServicesMockData
 
 			#endregion Authors
 
+			#region Bids History
+
+			BidsHistory = new List<Bid>()
+			{
+				new()
+				{
+					Amount = 599,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 399,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 199,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 99,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				},
+				new()
+				{
+					Amount = 9,
+					Date = new DateTime(2023,1,1),
+					BidBy = "0x63FaC9201494f0bd17B9892B9f"
+				}
+			};
+
+			#endregion Bids History
+
+			#region Account Colors
+
 			AccountColors.Add(DefaultDataMock.CreateColor("#6601e3", Shell.Current.BackgroundColor));
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
@@ -264,10 +266,18 @@ public class ServicesMockData : IServicesMockData
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 			AccountColors.Add(DefaultDataMock.CreateRandomColor());
 
+			#endregion Account Colors
+
+			#region Emission
+
 			Emissions.Add(new Emission { ETH = "100", Number = 1, UNT = "100" });
 			Emissions.Add(new Emission { ETH = "1000", Number = 2, UNT = "1000" });
 			Emissions.Add(new Emission { ETH = "10000", Number = 3, UNT = "10000" });
 			Emissions.Add(new Emission { ETH = "100000", Number = 4, UNT = "10000" });
+
+			#endregion Emission
+
+			#region Notifications
 
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.ProductOperations));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.SystemEvent));
@@ -276,7 +286,11 @@ public class ServicesMockData : IServicesMockData
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Low, NotificationType.Server));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.Mid, NotificationType.Wallet));
 			Notifications.Add(DefaultDataMock.CreateNotification(Severity.High, NotificationType.Server));
-			
+
+			#endregion Notifications
+
+			#region Help Questions
+
 			HelpQuestions.Add(Properties.Resources.HelpLine1);
 			HelpQuestions.Add(Properties.Resources.HelpLine2);
 			HelpQuestions.Add(Properties.Resources.HelpLine3);
@@ -290,6 +304,8 @@ public class ServicesMockData : IServicesMockData
 			HelpQuestions.Add(Properties.Resources.HelpLine11);
 			HelpQuestions.Add(Properties.Resources.HelpLine12);
 			HelpQuestions.Add(Properties.Resources.HelpLine13);
+
+			#endregion Help Questions
 		}
 		catch(Exception ex)
 		{

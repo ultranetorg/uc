@@ -61,14 +61,16 @@ public partial class ProductTransferViewModel : BasePageViewModel
 	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
-		if (Position == 0)
+		var isValid = Author != null && Product != null && !string.IsNullOrEmpty(Commission);
+
+		if (Position == 0 && isValid)
 		{
 			// Workaround for this bug: https://github.com/dotnet/maui/issues/9749
 			Position = 1;
 			Position = 0;
 			Position = 1;
 		}
-		else
+		else if (Position == 1)
 		{
 			await Navigation.PopAsync();
 			await ToastHelper.ShowMessageAsync("Successfully transfered!");
@@ -76,11 +78,15 @@ public partial class ProductTransferViewModel : BasePageViewModel
 	}
 
 	[RelayCommand]
-	protected void Prev()
+	protected async Task PrevAsync()
 	{
 		if (Position > 0)
 		{
 			Position -= 1;
+		}
+		else
+		{
+			await Navigation.PopAsync();
 		}
 	}
 }

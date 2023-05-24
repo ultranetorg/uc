@@ -20,7 +20,7 @@
             <StackLayout Spacing="16">
                 <Border
                     Grid.ColumnSpan="2"
-                    HeightRequest="74"
+                    HeightRequest="72"
                     Style="{StaticResource AccountCardBorderDark}">
                     <Grid
                         Padding="20,4"
@@ -46,7 +46,7 @@
                             Grid.Column="1"
                             FontSize="12"
                             Opacity="0.6"
-                            Text="1.0.1 build 6941"
+                            Text="2.0.1 build 6941"
                             VerticalOptions="Center" />
                     </Grid>
                 </Border>

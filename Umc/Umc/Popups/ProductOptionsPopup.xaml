@@ -15,7 +15,7 @@
     <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             RowDefinitions="12,Auto"
-            RowSpacing="10"
+            RowSpacing="8"
             Padding="24,16"
             BackgroundColor="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}">
             <Border

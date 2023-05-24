@@ -15,7 +15,7 @@
         <Grid
             Padding="{StaticResource PagePadding}"
             RowDefinitions="*,Auto,Auto"
-            RowSpacing="30">
+            RowSpacing="32">
             <CarouselView
                 Grid.Row="0"
                 HorizontalScrollBarVisibility="Never"
@@ -124,7 +124,10 @@
                 </CarouselView.ItemsSource>
             </CarouselView>
             <IndicatorView x:Name="indicator" Grid.Row="1" />
-            <controls:NextCancelButton Grid.Row="2" NextCommand="{Binding NextWorkaroundCommand}" />
+            <controls:NextCancelButton
+				Grid.Row="2"
+				NextCommand="{Binding NextWorkaroundCommand}"
+				CancelCommand="{Binding PrevCommand}" />
         </Grid>
     </controls:CustomPage.MainContent>
 

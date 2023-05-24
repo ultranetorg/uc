@@ -18,8 +18,8 @@
             <ScrollView>
                 <StackLayout Spacing="24">
                     <Grid
-                        ColumnDefinitions="*,46"
-                        ColumnSpacing="50"
+                        ColumnDefinitions="*,48"
+                        ColumnSpacing="48"
                         RowDefinitions="Auto,Auto"
                         RowSpacing="4">
                         <Label
@@ -40,8 +40,8 @@
                     </Grid>
                     <StackLayout Style="{StaticResource StackLine}" />
                     <Grid
-                        ColumnDefinitions="*,46"
-                        ColumnSpacing="50"
+                        ColumnDefinitions="*,48"
+                        ColumnSpacing="48"
                         RowDefinitions="Auto,Auto"
                         RowSpacing="1">
                         <Label
@@ -62,8 +62,8 @@
                     </Grid>
                     <StackLayout Style="{StaticResource StackLine}" />
                     <Grid
-                        ColumnDefinitions="*,46"
-                        ColumnSpacing="50"
+                        ColumnDefinitions="*,48"
+                        ColumnSpacing="48"
                         RowDefinitions="Auto,Auto"
                         RowSpacing="1">
                         <Label
@@ -86,8 +86,8 @@
                     <StackLayout>
                         <Label Style="{StaticResource DashLabel}" Text="Enable secure sign in" />
                         <Grid
-                            ColumnDefinitions="*,35"
-                            RowDefinitions="44,Auto"
+                            ColumnDefinitions="*,36"
+                            RowDefinitions="48,Auto"
                             RowSpacing="-3">
                             <controls:BorderEntry
                                 x:Name="picker"

@@ -9,6 +9,7 @@
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:TransferCompleteViewModel"
     Title="Transfer Сompleted"
+	EnableBackButton="False"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -39,9 +40,7 @@
                 <controls:LabelPair Text1="Transaction date and time" Text2="{Binding TransactionDate}" />
             </StackLayout>
 
-            <StackLayout VerticalOptions="EndAndExpand">
-                <Button Command="{Binding TransactionsCommand}" Text="Transactions" />
-            </StackLayout>
+            <Button Margin="8" VerticalOptions="EndAndExpand" Command="{Binding TransactionsCommand}" Text="Transactions" />
         </StackLayout>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>
