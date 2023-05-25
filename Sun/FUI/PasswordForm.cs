@@ -41,14 +41,14 @@ namespace Uccs.Sun.FUI
 			if(ShowDialog() == DialogResult.OK)
 			{
 				return true;
-			} 
+			}
 			else
 			{
 				return false;
 			}
 		}
 
-		public void	ShowError(string message)
+		public void ShowError(string message)
 		{
 			MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}

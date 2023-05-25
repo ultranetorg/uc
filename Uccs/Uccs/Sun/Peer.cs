@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
@@ -30,25 +31,15 @@ namespace Uccs.Net
 		public EstablishingStatus	InStatus = EstablishingStatus.Null;
 		public EstablishingStatus	OutStatus = EstablishingStatus.Null;
 		public ConnectionStatus		Status = ConnectionStatus.Disconnected;
-		Core						Core;
 		public TcpClient			Tcp;
-		NetworkStream				Stream;
-		BinaryWriter				Writer;
-		BinaryReader				Reader;
-		Thread						ReadThread;
-		Thread						WriteThread;
-		Queue<RdcPacket>			Out = new();
 
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
-		public int					ReachFailures;
+		//public int					ReachFailures;
 
 		public bool					Established => Tcp != null && Tcp.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
-
-		public List<RdcRequest>		InRequests = new();
-		public List<RdcRequest>		OutRequests = new();
 
 		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int					PeerRank = 0;
@@ -58,11 +49,20 @@ namespace Uccs.Net
 		public int					SeedRank = 0;
 
 		public Dictionary<Role, DateTime>	LastFailure = new();
+
+		Core						Core;
+		NetworkStream				Stream;
+		BinaryWriter				Writer;
+		BinaryReader				Reader;
+		Thread						ReadThread;
+		Thread						WriteThread;
+		Queue<RdcPacket>			Outs = new();
+		public List<RdcRequest>			InRequests = new();
+		List<RdcRequest>			OutRequests = new();
+		AutoResetEvent				SendSignal = new AutoResetEvent(true);
 		
 		int							IdCounter = 0;
 		public bool					Fresh;
-
-		AutoResetEvent				SendSignal = new AutoResetEvent(true);
 
 		public Peer()
 		{
@@ -210,7 +210,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				while(!Core.Workflow.IsAborted && Established)
+				while(Core.Workflow.Active && Established)
 				{
 					Core.Statistics.Sending.Begin();
 	
@@ -224,59 +224,74 @@ namespace Uccs.Net
 							
 					foreach(var i in ins)
 					{
-						if(i.WaitResponse)
+						void execute()
 						{
-							RdcResponse rp;
-														
-							try
+							if(i.WaitResponse)
 							{
-								rp = i.Execute(Core);
-								rp.Result = RdcResult.Success;
+								RdcResponse r;
+
+								try
+								{
+									r = i.Execute(Core);
+									r.Result = RdcResult.Success;
+								}
+								catch(RdcNodeException ex)
+								{
+									r = RdcResponse.FromType(i.Type);
+									r.Result = RdcResult.NodeException;
+									r.Error = (byte)ex.Error;
+								}
+								catch(RdcEntityException ex)
+								{
+									r = RdcResponse.FromType(i.Type);
+									r.Result = RdcResult.EntityException;
+									r.Error = (byte)ex.Error;
+								}
+								catch(Exception)// when(!Debugger.IsAttached)
+								{
+									r = RdcResponse.FromType(i.Type);
+									r.Result = RdcResult.NodeException;
+									r.Error = (byte)RdcNodeError.Internal;
+								}
+
+								r.Id = i.Id;
+
+								lock(Outs)
+									Outs.Enqueue(r);
 							}
-							catch(RdcNodeException ex)
+							else
 							{
-								rp = RdcResponse.FromType(Core.Database, i.Type);
-								rp.Result = RdcResult.NodeException;
-								rp.Error = (byte)ex.Error;
+								try
+								{
+									i.Execute(Core);
+								}
+								catch(Exception) when(!Debugger.IsAttached)
+								{
+								}
 							}
-							catch(RdcEntityException ex)
-							{
-								rp = RdcResponse.FromType(Core.Database, i.Type);
-								rp.Result = RdcResult.EntityException;
-								rp.Error = (byte)ex.Error;
-							}
-							catch(Exception)// when(!Debugger.IsAttached)
-							{
-								rp = RdcResponse.FromType(Core.Database, i.Type);
-								rp.Result = RdcResult.NodeException;
-								rp.Error = (byte)RdcNodeError.Internal;
-							}
-														
-							rp.Id = i.Id;
-															
-		 					lock(Out)
-								Out.Enqueue(rp);
+						}
+
+						if(i is ProxyRequest px)
+						{
+							Task.Run(() =>	{
+												execute();
+												SendSignal.Set();
+											});
 						}
 						else
 						{
-							try
-							{
-								i.Execute(Core);
-							}
-							catch(Exception) when(!Debugger.IsAttached)
-							{
-							}
+							execute();
 						}
 					}
-		
+
 					try
 					{
 						RdcPacket[] outs;
 	
-						lock(Out)
+						lock(Outs)
 						{
-							outs = Out.ToArray();
-							Out.Clear();
+							outs = Outs.ToArray();
+							Outs.Clear();
 						}
 	
 						foreach(var i in outs)
@@ -287,8 +302,6 @@ namespace Uccs.Net
 								Writer.Write((byte)PacketType.Response);
 							else
 								throw new IntegrityException("Wrong packet to write");
-	
-							Writer.Write(i.TypeCode);
 	
 							BinarySerializator.Serialize(Writer, i);
 						}
@@ -309,7 +322,7 @@ namespace Uccs.Net
 			}
 			catch(Exception) when(!Debugger.IsAttached)
 			{
-				Disconnect();
+				Status = ConnectionStatus.Failed;
 			}
 		}
 
@@ -335,13 +348,10 @@ namespace Uccs.Net
 
  							try
  							{
-								rq = BinarySerializator.Deserialize(Reader,	
-																	t =>{
-																			var o = RdcRequest.FromType(Core.Database, (Rdc)t); 
-																			o.Peer = this; 
-																			return o as object;
-																		},
-																	Core.Constract) as RdcRequest;
+								rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Core.Constract,i =>	{
+																												if(i is RdcRequest r) 
+																													r.Peer = this;
+																											});
  							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
  							{
@@ -352,10 +362,7 @@ namespace Uccs.Net
 							lock(InRequests)
  								InRequests.Add(rq);
  	
-							//lock(SendSignal)
-								SendSignal.Set();
-
-							//Core.Workflow.Log?.Report(this, pk.ToString(), $"{rq.Type} {rq.Id} {IP}");
+							SendSignal.Set();
 
  							break;
  						}
@@ -366,9 +373,7 @@ namespace Uccs.Net
 							
 							try
  							{
-								rp = BinarySerializator.Deserialize(Reader,	
-																	t => RdcResponse.FromType(Core.Database, (Rdc)t) as object, 
-																	Core.Constract) as RdcResponse;
+								rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Core.Constract, i => {});
 							}
  							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
  							{
@@ -389,8 +394,6 @@ namespace Uccs.Net
 									OutRequests.Remove(rq);
 								}
 							}
-
-							//Core.Workflow.Log?.Report(this, pk.ToString(), $"{rp.Type} {rp.Id} {IP}");
 
 							break;
 						}
@@ -423,8 +426,8 @@ namespace Uccs.Net
 
 			rq.Id = IdCounter++;
 
-			lock(Out)
-				Out.Enqueue(rq);
+			lock(Outs)
+				Outs.Enqueue(rq);
 
 			SendSignal.Set();
  		}
@@ -441,14 +444,14 @@ namespace Uccs.Net
 				lock(OutRequests)
 					OutRequests.Add(rq);
 
-			lock(Out)
-				Out.Enqueue(rq);
+			lock(Outs)
+				Outs.Enqueue(rq);
 
 			SendSignal.Set();
 
  			if(rq.WaitResponse)
  			{
-	 			if(rq.Event.WaitOne(30*1000)) 
+	 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
 	 			{
 					if(rq.Response == null)
 						throw new OperationCanceledException();

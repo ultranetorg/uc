@@ -39,7 +39,7 @@ namespace Uccs.Sun.CLI
 		   		
 				case "overview" :
 				{
-					var i = Core.Connect(Role.Base, null, Workflow).GetAccountInfo(AccountAddress.Parse(GetString("address")), Args.Has("confirmed"));
+					var i = Core.Connect(Role.Base, null, Workflow).GetAccountInfo(AccountAddress.Parse(GetString("address")));
 					
 					Workflow?.Log?.Report(this, "Account", GetString("address") + " :");
 

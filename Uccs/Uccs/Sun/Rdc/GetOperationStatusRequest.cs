@@ -16,6 +16,7 @@ namespace Uccs.Net
 	
 				return	new GetOperationStatusResponse
 						{
+							LastConfirmedRoundId = core.Database.LastConfirmedRound.Id,
 							Operations = Operations.Select(o => new {	A = o,
 																		O = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
 																							 .SelectMany(t => t.Operations)
@@ -39,6 +40,7 @@ namespace Uccs.Net
 			public PlacingStage		Placing { get; set; }
 		}
 
-		public IEnumerable<Item> Operations { get; set; }
+		public int					LastConfirmedRoundId { get; set; }
+		public IEnumerable<Item>	Operations { get; set; }
 	}
 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,11 @@ namespace Uccs.Net
 	{
 		public static void Serialize(BinaryWriter writer, object o)
 		{
+			if(o is ITypedBinarySerializable t)
+			{
+				writer.Write(t.TypeCode);
+			}
+
 			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
 				var val = i.GetValue(o);
@@ -117,116 +123,116 @@ namespace Uccs.Net
 	
 			foreach(var i in many)
 			{
-				if(i is ITypedBinarySerializable t)
-				{
-					writer.Write(t.TypeCode);
-				}
-
 				Serialize(writer, i);
 			}
 		}
 
-		public static O[] Deserialize<O>(BinaryReader reader, Func<int, O> fromtype, Func<Type, object> construct) where O : ITypedBinarySerializable
+// 		public static object Deserialize(BinaryReader reader, Type type, Func<Type, object> construct)
+// 		{
+// 			object o = null;
+// 
+// 			if(construct != null)
+// 				o = construct(type);
+// 
+// 			if(o == null)
+// 				o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
+// 
+// 			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+// 			{
+// 				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
+// 					p.SetValue(o, val);
+// 				else
+// 					p.SetValue(o, Deserialize(reader, p.PropertyType, construct));
+// 			}
+// 
+// 			return o;
+// 		}
+
+		static object Construct(BinaryReader reader, Type type, Func<Type, byte, object> construct, Action<object> initialize)
+		{
+			object o;
+
+			if(type.GetInterfaces().Contains(typeof(ITypedBinarySerializable)))
+				o = construct(type, reader.ReadByte());
+			else
+				o = construct(type, 0) ?? type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
+
+			initialize?.Invoke(o);
+
+			return o;
+		}
+
+		public static O Deserialize<O>(BinaryReader reader, Func<Type, byte, object> construct, Action<object> initialize = null) where O : class
+		{
+			return Deserialize(reader, typeof(O), construct, initialize) as O;
+		}
+
+		public static object Deserialize(BinaryReader reader, Type type, Func<Type, byte, object> construct, Action<object> initialize = null)
+		{
+			var o = Construct(reader, type, construct, initialize);
+
+			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+			{
+				if(DeserializeValue(reader, p.PropertyType, construct, initialize, out object val))
+					p.SetValue(o, val);
+				else
+					p.SetValue(o, Deserialize(reader, p.PropertyType, construct, initialize));
+			}
+
+			return o;
+		}
+
+		public static O[] DeserializeMany<O>(BinaryReader reader, Func<Type, byte, object> construct, Action<object> initialize = null) where O : ITypedBinarySerializable
 		{
 			var n = reader.Read7BitEncodedInt();
 			var l = new O[n];
 
 			for(int i=0; i<n; i++)
 			{
-				var t = reader.ReadByte();
-
-				l[i] = fromtype(t);
+				var o = Construct(reader,  typeof(O), construct, initialize);
 
 				foreach(var p in l[i].GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 				{
-					if(DeserializeValue(reader, p.PropertyType, construct, out object val))
+					if(DeserializeValue(reader, p.PropertyType, construct, initialize, out object val))
 						p.SetValue(l[i], val);
 					else
-						p.SetValue(l[i], Deserialize(reader, p.PropertyType, construct));
+						p.SetValue(l[i], Deserialize(reader, p.PropertyType, construct, initialize));
 				}
 			}
 
 			return l;
 		}
 
-		public static O Deserialize<O>(BinaryReader reader, Func<Type, object> construct) where O : class
-		{
-			return Deserialize(reader, typeof(O), construct) as O;
-		}
-
-		public static object Deserialize(BinaryReader reader, Type type, Func<Type, object> construct)
-		{
-			object o = null;
-
-			if(construct != null)
-				o = construct(type);
-
-			if(o == null)
-				o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
-
-			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
-			{
-				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
-					p.SetValue(o, val);
-				else
-					p.SetValue(o, Deserialize(reader, p.PropertyType, construct));
-			}
-
-			return o;
-		}
-
-
-		public static object Deserialize(BinaryReader reader, Func<byte, object> fromtype, Func<Type, object> construct)
-		{
-			var o = fromtype(reader.ReadByte());
-
-			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
-			{
-				if(DeserializeValue(reader, p.PropertyType, construct, out object val))
-					p.SetValue(o, val);
-				else
-					p.SetValue(o, Deserialize(reader, p.PropertyType, construct));
-			}
-
-			return o;
-		}
-
-
-		static bool DeserializeValue(BinaryReader reader, Type type, Func<Type, object> construct, out object value)
+		static bool DeserializeValue(BinaryReader reader, Type type, Func<Type, byte, object> construct, Action<object> initialize, out object value)
 		{
 			if(typeof(bool) == type)			
 			{
 				value = reader.ReadBoolean();
 				return true;
 			}
-			else 
-			if(typeof(byte) == type)
+			else if(typeof(byte) == type)
 			{	
 				value = reader.ReadByte();
 				return true;
 			}
-			else 
-			if(typeof(int) == type)
+			else if(typeof(int) == type)
 			{	
 				value = reader.Read7BitEncodedInt(); 
 				return true;
 			}
-			else 
-			if(typeof(long) == type)		
+			else if(typeof(long) == type)		
 			{
 				value = reader.Read7BitEncodedInt64(); 
 				return true;
 			}
-			else 
-			if(typeof(Coin) == type)
+			else if(typeof(Coin) == type)
 			{
 				var c = new Coin(); 
 				c.Read(reader);
 				value = c;
 				return true;
 			}
-			else
-			if(type.IsEnum)
+			else if(type.IsEnum)
 			{
 				if(Enum.GetUnderlyingType(type) == typeof(byte))
 					value = Enum.ToObject(type, reader.ReadByte()); 
@@ -273,13 +279,7 @@ namespace Uccs.Net
 				else
 				if(type.GetInterfaces().Any(i => i == typeof(IBinarySerializable))) 
 				{
-					object o = null;
-
-					if(construct != null)
-						o = construct(type);
-
-					if(o == null)
-						o = type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
+					var o = Construct(reader, type, construct, initialize);
 					
 					(o as IBinarySerializable).Read(reader);
 					value = o;
@@ -296,7 +296,7 @@ namespace Uccs.Net
 	
 					for(int i=0; i<n; i++)
 					{
-						if(DeserializeValue(reader, type.GetGenericArguments()[0], construct, out object v))
+						if(DeserializeValue(reader, type.GetGenericArguments()[0], construct, initialize, out object v))
 							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, v});
 							//l[i] = v; 
 						else

@@ -8,7 +8,7 @@ namespace Uccs.Net
 {
 	public class GeneratorOnlineBroadcastRequest : RdcRequest
 	{
-		//public ChainTime				Time { get; set; }
+		public ChainTime				Time { get; set; }
 		public IEnumerable<IPAddress>	IPs { get; set; } 
 		public byte[]					Signature { get; set; }
 
@@ -43,7 +43,7 @@ namespace Uccs.Net
 							return null;
 					}
 
-					m  = new Member{Generator = Account};
+					m = new Member{Generator = Account};
 					core.Members.Add(m)	;
 				}
 
@@ -54,21 +54,16 @@ namespace Uccs.Net
 						m.IPs = IPs.ToArray();
 		
 						foreach(var i in core.Connections.Where(i => i != Peer))
-							i.Send(new GeneratorOnlineBroadcastRequest {IPs = IPs, Signature = Signature});
+							i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
 					}
 				}
-				else
+				else if(m.Proxy == null || m.OnlineSince < Time)
 				{
-					if(m.Proxies.Count == 0)
-					{
-						foreach(var i in core.Connections.Where(i => i != Peer))
-							i.Send(new GeneratorOnlineBroadcastRequest {IPs = IPs, Signature = Signature});
-					}
-
-					if(!m.Proxies.Contains(Peer.IP))
-					{
-						m.Proxies.Add(Peer.IP);
-					}
+					foreach(var i in core.Connections.Where(i => i != Peer))
+						i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
+				
+					m.Proxy = Peer;
+					m.OnlineSince = Time;
 				}
 
 				return null;

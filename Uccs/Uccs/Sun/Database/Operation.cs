@@ -35,7 +35,7 @@ namespace Uccs.Net
 		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, PlatformRegistration , ReleaseRegistration 
 	}
 
-	public abstract class Operation
+	public abstract class Operation// : ITypedBinarySerializable
 	{
 		public int				Id;
 		public string			Error;

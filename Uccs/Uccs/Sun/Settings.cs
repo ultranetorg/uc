@@ -92,7 +92,7 @@ namespace Uccs.Net
 
 		public string			NasProvider;
 
-		string			Path;
+		string					Path;
 
 		public SecretSettings()
 		{
@@ -151,15 +151,13 @@ namespace Uccs.Net
 		public const string				FileName = "Sun.settings";
 
 		string							Path; 
-
-		//public readonly int				Port;
-		//public readonly Zone			Zone;
 	
 		public Role						Roles;
 		public bool						Log;
 		public int						PeersMin;
 		public int						PeersInMax;
 		public IPAddress				IP;
+		public bool						PublishIPs = false;
 		public List<AccountKey>			Generators = new();
 		public string					Profile;
 		public string					ProductsPath;
@@ -173,19 +171,6 @@ namespace Uccs.Net
 		public SecretSettings			Secrets;
 
 		public List<AccountAddress>		ProposedFunds = new(){};
-
-// 		public Cryptography Cryptography
-// 		{
-// 			get
-// 			{
-// 				if(Zone == Uccs.Net.Zone.Localnet)
-// 					return new NoCryptography();
-// 				else if(Zone == Uccs.Net.Zone.Mainnet || Zone.IsTest)
-// 					return new EthereumCryptography();
-// 				else
-// 					throw new IntegrityException("Unknown zone");
-// 			}
-// 		}
 
 		public Settings()
 		{
@@ -204,14 +189,12 @@ namespace Uccs.Net
 			}
 
 			Profile = boot.Profile;
-			//Zone	= Zone.All.First(i => i.Name == boot.Zone);
 
 			var doc = new XonDocument(File.ReadAllText(Path));
 
 			Roles		= Enum.Parse<Role>(doc.GetString("Roles"));
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
-			//Port		= doc.GetInt32("Port");
 			IP			= IPAddress.Parse(doc.GetString("IP"));
 			Generators	= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log			= doc.Has("Log");
@@ -232,8 +215,6 @@ namespace Uccs.Net
 			Directory.CreateDirectory(profile);
 
 			Profile		= profile;
-			//Zone		= zone;
-			//Port		= Zone.Port;
 			IP			= IPAddress.Loopback;
 
 			Dev			= new ();

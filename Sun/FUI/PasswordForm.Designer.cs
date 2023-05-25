@@ -28,100 +28,104 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.cancel = new System.Windows.Forms.Button();
-			this.password = new System.Windows.Forms.TextBox();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.ok = new System.Windows.Forms.Button();
-			this.info = new System.Windows.Forms.Label();
-			this.pictureBox1 = new System.Windows.Forms.PictureBox();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-			this.SuspendLayout();
+			cancel = new System.Windows.Forms.Button();
+			password = new System.Windows.Forms.TextBox();
+			groupBox1 = new System.Windows.Forms.GroupBox();
+			ok = new System.Windows.Forms.Button();
+			info = new System.Windows.Forms.Label();
+			pictureBox1 = new System.Windows.Forms.PictureBox();
+			((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+			SuspendLayout();
 			// 
 			// cancel
 			// 
-			this.cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancel.Location = new System.Drawing.Point(273, 136);
-			this.cancel.Margin = new System.Windows.Forms.Padding(8);
-			this.cancel.Name = "cancel";
-			this.cancel.Size = new System.Drawing.Size(80, 24);
-			this.cancel.TabIndex = 3;
-			this.cancel.Text = "Cancel";
-			this.cancel.UseVisualStyleBackColor = true;
-			this.cancel.Click += new System.EventHandler(this.cancel_Click);
+			cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			cancel.Location = new System.Drawing.Point(592, 335);
+			cancel.Margin = new System.Windows.Forms.Padding(17, 20, 17, 20);
+			cancel.Name = "cancel";
+			cancel.Size = new System.Drawing.Size(173, 59);
+			cancel.TabIndex = 3;
+			cancel.Text = "Cancel";
+			cancel.UseVisualStyleBackColor = true;
+			cancel.Click += cancel_Click;
 			// 
 			// password
 			// 
-			this.password.Location = new System.Drawing.Point(98, 80);
-			this.password.Name = "password";
-			this.password.PasswordChar = '*';
-			this.password.Size = new System.Drawing.Size(255, 21);
-			this.password.TabIndex = 1;
+			password.Location = new System.Drawing.Point(212, 197);
+			password.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			password.Name = "password";
+			password.PasswordChar = '*';
+			password.Size = new System.Drawing.Size(548, 39);
+			password.TabIndex = 1;
 			// 
 			// groupBox1
 			// 
-			this.groupBox1.Location = new System.Drawing.Point(12, 112);
-			this.groupBox1.Margin = new System.Windows.Forms.Padding(8);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(341, 8);
-			this.groupBox1.TabIndex = 5;
-			this.groupBox1.TabStop = false;
+			groupBox1.Location = new System.Drawing.Point(26, 276);
+			groupBox1.Margin = new System.Windows.Forms.Padding(17, 20, 17, 20);
+			groupBox1.Name = "groupBox1";
+			groupBox1.Padding = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			groupBox1.Size = new System.Drawing.Size(739, 20);
+			groupBox1.TabIndex = 5;
+			groupBox1.TabStop = false;
 			// 
 			// ok
 			// 
-			this.ok.Location = new System.Drawing.Point(175, 136);
-			this.ok.Margin = new System.Windows.Forms.Padding(8);
-			this.ok.Name = "ok";
-			this.ok.Size = new System.Drawing.Size(80, 24);
-			this.ok.TabIndex = 3;
-			this.ok.Text = "OK";
-			this.ok.UseVisualStyleBackColor = true;
-			this.ok.Click += new System.EventHandler(this.ok_Click);
+			ok.Location = new System.Drawing.Point(379, 335);
+			ok.Margin = new System.Windows.Forms.Padding(17, 20, 17, 20);
+			ok.Name = "ok";
+			ok.Size = new System.Drawing.Size(173, 59);
+			ok.TabIndex = 3;
+			ok.Text = "OK";
+			ok.UseVisualStyleBackColor = true;
+			ok.Click += ok_Click;
 			// 
 			// info
 			// 
-			this.info.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.info.Location = new System.Drawing.Point(98, 13);
-			this.info.Name = "info";
-			this.info.Size = new System.Drawing.Size(255, 59);
-			this.info.TabIndex = 4;
-			this.info.Text = "0x3405034759347598347953495349";
-			this.info.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			info.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			info.Location = new System.Drawing.Point(212, 32);
+			info.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+			info.Name = "info";
+			info.Size = new System.Drawing.Size(548, 142);
+			info.TabIndex = 4;
+			info.Text = "0x3405034759347598347953495349";
+			info.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// pictureBox1
 			// 
-			this.pictureBox1.Image = global::Uccs.Sun.FUI.Properties.Resources.Golden_key_icon_svg;
-			this.pictureBox1.Location = new System.Drawing.Point(12, 13);
-			this.pictureBox1.Name = "pictureBox1";
-			this.pictureBox1.Size = new System.Drawing.Size(80, 88);
-			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.pictureBox1.TabIndex = 6;
-			this.pictureBox1.TabStop = false;
+			pictureBox1.Image = Properties.Resources.Golden_key_icon_svg;
+			pictureBox1.Location = new System.Drawing.Point(26, 32);
+			pictureBox1.Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			pictureBox1.Name = "pictureBox1";
+			pictureBox1.Size = new System.Drawing.Size(173, 217);
+			pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			pictureBox1.TabIndex = 6;
+			pictureBox1.TabStop = false;
 			// 
 			// PasswordForm
 			// 
-			this.AcceptButton = this.ok;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.AutoSize = true;
-			this.CancelButton = this.cancel;
-			this.ClientSize = new System.Drawing.Size(373, 179);
-			this.ControlBox = false;
-			this.Controls.Add(this.pictureBox1);
-			this.Controls.Add(this.groupBox1);
-			this.Controls.Add(this.password);
-			this.Controls.Add(this.info);
-			this.Controls.Add(this.ok);
-			this.Controls.Add(this.cancel);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-			this.Name = "PasswordForm";
-			this.Padding = new System.Windows.Forms.Padding(0, 0, 0, 8);
-			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Password Required";
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-			this.ResumeLayout(false);
-			this.PerformLayout();
-
+			AcceptButton = ok;
+			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoSize = true;
+			CancelButton = cancel;
+			ClientSize = new System.Drawing.Size(808, 441);
+			ControlBox = false;
+			Controls.Add(pictureBox1);
+			Controls.Add(groupBox1);
+			Controls.Add(password);
+			Controls.Add(info);
+			Controls.Add(ok);
+			Controls.Add(cancel);
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			Margin = new System.Windows.Forms.Padding(6, 7, 6, 7);
+			Name = "PasswordForm";
+			Padding = new System.Windows.Forms.Padding(0, 0, 0, 20);
+			SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "Password Required";
+			((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion

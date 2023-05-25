@@ -102,13 +102,14 @@ namespace Uccs.Net
 
 		public class Round
 		{
-			public int						Id {get; set;}
-			public int						Members {get; set;}
-			public int						Pieces {get; set;}
-			public bool						Voted {get; set;}
-			public bool						Confirmed {get; set;}
-			public ChainTime				Time {get; set;}
-			public IEnumerable<Block>		Blocks {get; set;}
+			public int							Id {get; set;}
+			public int							Members {get; set;}
+			public int							Pieces {get; set;}
+			public bool							Voted {get; set;}
+			public bool							Confirmed {get; set;}
+			public ChainTime					Time {get; set;}
+			public IEnumerable<Block>			Blocks {get; set;}
+			public IEnumerable<AccountAddress>	JoinRequests {get; set;}
 		}
 
 		public IEnumerable<Round> Rounds {get; set;}

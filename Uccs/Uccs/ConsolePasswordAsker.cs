@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Uccs.Net;
 
-namespace Uccs.Sun.CLI
+namespace Uccs
 {
-	class ConsolePasswordAsker : IPasswordAsker
+	public class ConsolePasswordAsker : IPasswordAsker
 	{
 		public string Password { get; protected set; }
 

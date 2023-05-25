@@ -297,7 +297,7 @@ namespace Uccs.Net
 
 				foreach(var i in Transactions)
 				{
-					if(i.RoundMax < RoundId)
+					if(i.Expiration < RoundId)
 						return false;
 
 					if(!i.Valid)

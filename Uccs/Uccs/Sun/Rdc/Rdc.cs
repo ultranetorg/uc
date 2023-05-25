@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -18,9 +19,11 @@ namespace Uccs.Net
 {
 	public enum Rdc : byte
 	{
-		Null, GeneratorJoinBroadcast, GeneratorOnlineBroadcast, Time, PeersBroadcast, BlocksBroadcast, DownloadRounds, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
+		Null, 
+		Proxy, 
+		GeneratorJoinBroadcast, GeneratorOnlineBroadcast, PeersBroadcast, BlocksBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
-		Stamp, TableStamp, DownloadTable
+		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
 
 	public enum RdcResult : byte
@@ -41,6 +44,8 @@ namespace Uccs.Net
 		NotSynchronized,
 		TooEearly,
 		AllNodesFailed,
+		NotOnlineYet,
+		CircularRoute,
 	}
 
 	public enum RdcEntityError : byte
@@ -107,7 +112,7 @@ namespace Uccs.Net
 		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
-		public AccountResponse					GetAccountInfo(AccountAddress account, bool confirmed) => Request<AccountResponse>(new AccountRequest{Account = account});
+		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
 		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
 		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
 		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
@@ -133,7 +138,7 @@ namespace Uccs.Net
 		public Action					Process;
 		public virtual bool				WaitResponse { get; protected set; } = true;
 
-		public static RdcRequest FromType(Database chaim, Rdc type)
+		public static RdcRequest FromType(Rdc type)
 		{
 			try
 			{
@@ -168,7 +173,7 @@ namespace Uccs.Net
 		public RdcResult		Result { get; set; }
 		public byte				Error { get; set; }
 
-		public static RdcResponse FromType(Database chaim, Rdc type)
+		public static RdcResponse FromType(Rdc type)
 		{
 			try
 			{
@@ -181,4 +186,57 @@ namespace Uccs.Net
 		}
 	}
 
+	public class ProxyRequest : RdcRequest
+	{
+		public byte[]			Guid { get; set; }
+		public AccountAddress	Destination { get; set; }
+		public RdcRequest		Request { get; set; }
+		public override	bool	WaitResponse => Request.WaitResponse;
+
+		public override RdcResponse Execute(Core core)
+		{
+			lock(core.Lock)
+			{
+				if(core.Connections.Any(i => i.InRequests.OfType<ProxyRequest>().Any(j => j.Destination == Destination && j.Guid == Guid)))
+					throw new RdcNodeException(RdcNodeError.CircularRoute);
+			}
+
+			if(core.Settings.Generators.Contains(Destination))
+			{
+				return new ProxyResponse {Response = Request.Execute(core)};
+			}
+			else
+			{
+				Member m;
+
+				lock(core.Lock)
+				{
+					m = core.Members.Find(i => i.Generator == Destination);
+				}
+
+				if(m?.Proxy != null)
+				{
+					core.Connect(m.Proxy, core.Workflow);
+			
+					return new ProxyResponse {Response = m.Proxy.Request<ProxyResponse>(new ProxyRequest {Guid = Guid, Destination = Destination, Request = Request}).Response};
+				}
+			}
+
+			throw new RdcNodeException(RdcNodeError.NotOnlineYet);
+		}
+	}
+
+	public class ProxyResponse : RdcResponse
+	{
+		public RdcResponse Response { get; set; }
+	}
+
 }
+
+// any
+// {
+// 	#/windows/x64|x86|arm64/10+.1+.0
+// 	#/ubuntu/x64|x86|arm64/10+.1+.0
+// }
+// 
+// microsoft/windows/x64|x86|arm64/10+.1+.0

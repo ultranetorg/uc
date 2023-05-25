@@ -15,7 +15,7 @@ namespace Uccs.Net
 		
 		public Payload					Payload;
 		public AccountAddress			Generator;
-		public int						RoundMax;
+		public int						Expiration;
 		public byte[]					Signature;
 		
 		public AccountAddress			Signer;
@@ -36,11 +36,11 @@ namespace Uccs.Net
  			Zone = zone;
  		}
 
-		public void Sign(AccountKey signer, AccountAddress member, int rmax)
+		public void Sign(AccountKey signer, AccountAddress member, int expiration)
 		{
 			Signer		= signer;
 			Generator	= member;
-			RoundMax	= rmax;
+			Expiration	= expiration;
 			Signature	= Zone.Cryptography.Sign(signer, Hashify());
 		}
 
@@ -57,7 +57,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Operations={{{Operations.Count}}}, Signer={Signer}, RoundMax={RoundMax}";
+			return $"Operations={{{Operations.Count}}}, Signer={Signer}, Expiration={Expiration}";
 		}
 
 		public byte[] Hashify()
@@ -67,7 +67,7 @@ namespace Uccs.Net
 
 			w.WriteUtf8(Zone.Name); 
 			w.Write(Generator);
-			w.Write7BitEncodedInt(RoundMax);
+			w.Write7BitEncodedInt(Expiration);
 			w.Write(Operations, i => i.Write(w));
 
 			return Zone.Cryptography.Hash(s.ToArray());
@@ -76,7 +76,7 @@ namespace Uccs.Net
  		public void	WriteAsPartOfBlock(BinaryWriter w)
  		{
 			w.Write(Signature);
-			w.Write7BitEncodedInt(RoundMax);
+			w.Write7BitEncodedInt(Expiration);
 			w.Write(Operations, i => {
 										w.Write((byte)i.Type); 
 										i.Write(w); 
@@ -86,7 +86,7 @@ namespace Uccs.Net
  		public void	ReadAsPartOfBlock(BinaryReader r)
  		{
 			Signature	= r.ReadSignature();
-			RoundMax	= r.Read7BitEncodedInt();
+			Expiration	= r.Read7BitEncodedInt();
  			Operations	= r.ReadList(() => {
  												var o = Operation.FromType((Operations)r.ReadByte());
  												//o.Placing		= PlacingStage.Confirmed;
@@ -105,7 +105,7 @@ namespace Uccs.Net
 		{
 			w.Write(Signature);
 			w.Write(Generator);
-			w.Write7BitEncodedInt(RoundMax);
+			w.Write7BitEncodedInt(Expiration);
 			w.Write(Operations, i => {
 										w.Write((byte)i.Type); 
 										i.Write(w); 
@@ -116,7 +116,7 @@ namespace Uccs.Net
 		{
 			Signature	= r.ReadSignature();
 			Generator	= r.ReadAccount();
-			RoundMax	= r.Read7BitEncodedInt();
+			Expiration	= r.Read7BitEncodedInt();
 			Operations	= r.ReadList(() => {
 												var o = Operation.FromType((Operations)r.ReadByte());
 												o.Transaction = this;

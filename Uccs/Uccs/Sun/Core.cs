@@ -111,7 +111,20 @@ namespace Uccs.Net
 		bool							OnlineBroadcasted;
 		public List<Peer>				Peers		= new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Established);
-		public Peer[]					BaseConnections = new Peer[0];
+		public Peer[]					_Bases = new Peer[0];
+		public IEnumerable<Peer>		Bases
+										{
+											get
+											{
+												if(_Bases.Count(i => i.Established) < Settings.Database.PeersMin)
+												{
+													_Bases = Connect(Role.Base, Settings.Database.PeersMin, Workflow);
+												}
+
+												return _Bases;
+											}
+										}
+
 		public List<IPAddress>			IgnoredIPs	= new();
 		public List<Download>			Downloads = new();
 		public List<Member>				Members = new();
@@ -296,11 +309,13 @@ namespace Uccs.Net
 					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Members.Count()} members" : "");
 		}
 
-		public object Constract(Type t)
+		public object Constract(Type t, byte b)
 		{
 			if(t == typeof(Transaction)) return new Transaction(Zone);
 			if(t == typeof(BlockPiece)) return new BlockPiece(Zone);
 			if(t == typeof(Manifest)) return new Manifest(Zone);
+			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
+			if(t == typeof(RdcResponse)) return RdcResponse.FromType((Rdc)b); 
 
 			return null;
 		}
@@ -813,7 +828,8 @@ namespace Uccs.Net
 						{
 							if(!Members.Any(j => j.Generator == i.Generator))
 							{
-								i.Proxies.Add(peer.IP);
+								i.OnlineSince = ChainTime.Zero;
+								i.Proxy = peer;
 								Members.Add(i);
 							}
 						}
@@ -944,7 +960,8 @@ namespace Uccs.Net
 						{
 							if(!Members.Any(j => j.Generator == i.Generator))
 							{
-								i.Proxies.Add(peer.IP);
+								i.OnlineSince = ChainTime.Zero;
+								i.Proxy = peer;
 								Members.Add(i);
 							}
 						}
@@ -1353,10 +1370,16 @@ namespace Uccs.Net
 						{
 							foreach(var i in Connections)
 							{
-								var gobr = new GeneratorOnlineBroadcastRequest {Account = g, IPs = new IPAddress[] {IP}}; 
-								gobr.Sign(Zone, g);
+								var go = new GeneratorOnlineBroadcastRequest {Account = g, Time = Database.LastConfirmedRound.Time}; 
 
-								i.Send(gobr);
+								if(Settings.PublishIPs)
+									go.IPs = new IPAddress[] {IP};
+								else
+									go.IPs = new IPAddress[] {};
+
+								go.Sign(Zone, g);
+
+								i.Send(go);
 							}
 						}
 					}
@@ -1370,7 +1393,7 @@ namespace Uccs.Net
 						continue;
 
 					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
-					var txs = Database.CollectValidTransactions(Transactions.Where(i => r.Id <= i.RoundMax && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified))
+					var txs = Database.CollectValidTransactions(Transactions.Where(i => r.Id <= i.Expiration && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified))
 																			.GroupBy(i => i.Signer)
 																			.Select(i => i.First()), r).ToArray();
 
@@ -1505,13 +1528,7 @@ namespace Uccs.Net
 					}
 				}
 
-				
-				if(BaseConnections.Count(i => i.Established) < Settings.Database.PeersMin)
-				{
-					BaseConnections = Connect(Role.Base, Settings.Database.PeersMin, Workflow);
-				}
-
-				IEnumerator<Peer> start() => BaseConnections.AsEnumerable().GetEnumerator();
+				IEnumerator<Peer> start() => Bases.GetEnumerator();
 
  				var c = start();
  
@@ -1555,7 +1572,7 @@ namespace Uccs.Net
 
 			if(r.Confirmed)
 			{
-				Transactions.RemoveAll(t => t.RoundMax <= r.Id);
+				Transactions.RemoveAll(t => t.Expiration <= r.Id);
 
 				//Members.AddRange(r.ConfirmedJoiners.Select(i => new OnlineMember {Generator = i.Generator, IPs = r.Parent.JoinMembersRequests.First(jr => jr.Generator == i.Generator).IPs}));
 				//Members.RemoveAll(i => r.ConfirmedLeavers.Any(j => j == i.Generator));
@@ -1618,7 +1635,8 @@ namespace Uccs.Net
 
 			Workflow.Log?.Report(this, "Delegating started");
 
-			MemberRdi m = null;
+			RdcInterface rdi = null;
+			AccountAddress m = null;
 
 			while(!Workflow.IsAborted)
 			{
@@ -1633,134 +1651,224 @@ namespace Uccs.Net
 					}
 				}
 				
-				if(m == null)
-				{	
-					m = ConnectToMember(Workflow);
-				}
+			chooserdi:
 
-				try
+				if(rdi == null)
 				{
-					Statistics.Transacting.Begin();
-
-					lock(Lock)
+					if(Settings.Generators.Any())
 					{
-						if(m.Rdi == this && Synchronization != Synchronization.Synchronized)
-							continue;
-
-						pendings = Operations.Where(i => i.Placing == PlacingStage.PendingDelegation).ToArray();
-						ready = pendings.Any() && !Operations.Any(i => i.Placing >= PlacingStage.Accepted);
+						m = Settings.Generators.First();
+						rdi = this;
 					}
-
-					if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
-					{
-						var txs = new List<Transaction>();
-
-						var rmax = m.GetNextRound().NextRoundId;
-
-						lock(Lock)
+					else
+					{ 
+						while(Workflow.Active)
 						{
-							foreach(var g in pendings.GroupBy(i => i.Signer))
+							var cr = Call<MembersResponse>(Role.Base, i => i.GetMembers(), Workflow);
+	
+							if(!cr.Members.Any())
+								continue;
+
+							lock(Lock)
 							{
-								if(!Vault.OperationIds.ContainsKey(g.Key))
+								var members = cr.Members.ToArray();
+
+								Members.RemoveAll(i => !members.Contains(i.Generator));
+																										
+								foreach(var i in Members.OrderByRandom()) /// look for public IP in connections
 								{
-									Monitor.Exit(Lock);
+									var p = Connections.FirstOrDefault(j => i.IPs.Any(ip => j.IP.Equals(ip)));
+
+									if(p != null)
+									{
+										rdi = p;
+										m = i.Generator;
+										Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
+										break;
+									}
+								}
+
+								if(rdi != null)
+									break;
+
+								foreach(var i in Members.Where(i => i.IPs.Any()).OrderByRandom()) /// try by public IP address
+								{
+									var ip = i.IPs.Random();
+									var p = GetPeer(ip);
 
 									try
 									{
-										Vault.OperationIds[g.Key] = m.GetAccountInfo(g.Key, false).Account.LastOperationId;
+										Connect(p, Workflow);
+										rdi = p;
+										m = i.Generator;
+										Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
+										break;
 									}
-									catch(RdcEntityException ex) when(ex.Error == RdcEntityError.AccountNotFound)
+									catch(ConnectionFailedException)
 									{
-										Vault.OperationIds[g.Key] = -1;
 									}
-									catch(Exception) when(!Debugger.IsAttached)
+								}
+
+								if(rdi != null)
+									break;
+
+								foreach(var i in Members.OrderByRandom()) /// look for a Proxy in connections
+								{
+									var p = Connections.FirstOrDefault(j => i.Proxy == j);
+
+									if(p != null)
 									{
+										try
+										{
+											Connect(p, Workflow);
+											m = i.Generator;
+											rdi = new ProxyRdi(m, p);
+											Workflow.Log?.Report(this, "Generator proxy connection established", $"{i} {p}");
+											break;
+										}
+										catch(Exception)
+										{
+										}
 									}
+								}
+
+								if(rdi != null)
+									break;
 									
-									Monitor.Enter(Lock);
-								}
-
-								var t = new Transaction(Zone);
-
-								foreach(var o in g)
+								foreach(var i in Members.OrderByRandom())
 								{
-									o.Id = ++Vault.OperationIds[g.Key];
-									t.AddOperation(o);
+									try
+									{
+										var p = GetPeer(i.IPs.Random());
+										Connect(p, Workflow);
+										m = i.Generator;
+										rdi = new ProxyRdi(m, p);
+										Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {p}");
+										break;
+									}
+									catch(Exception)
+									{
+									}
 								}
 
-								t.Sign(Vault.GetKey(g.Key), m.Generator, Database.GetValidityPeriod(rmax));
-								txs.Add(t);
+								if(rdi != null)
+									break;
 							}
 						}
-	
-						var atxs = m.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i)));
-	
-						lock(Lock)
-							foreach(var o in atxs.SelectMany(i => i.Operations))
-							{
-								o.Placing = PlacingStage.Accepted;
-							}
-						
-						if(atxs.Any())
-						{
-							if(atxs.Sum(i => i.Operations.Count) <= 1)
-							{
-								var msgs = new List<string>{};
-		
-								foreach(var i in atxs.SelectMany(i => i.Operations))
-								{
-									msgs.Add(i.ToString());
-								}
-		
-								Workflow.Log?.Report(this, "Operations sent", msgs);
-							} 
-							else
-							{
-								Workflow.Log?.Report(this, "Operation sent", $"{atxs.First().Operations.First()} -> {m.Generator} {(m.Rdi is Peer p ? p.IP : "Self")}");
-							}
-						}
-
 					}
+				}
+
+
+				Statistics.Transacting.Begin();
+
+				lock(Lock)
+				{
+					if(rdi == this && Synchronization != Synchronization.Synchronized)
+						continue;
+
+					pendings = Operations.Where(i => i.Placing == PlacingStage.PendingDelegation).ToArray();
+					ready = pendings.Any() && !Operations.Any(i => i.Placing >= PlacingStage.Accepted);
+				}
+
+				if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
+				{
+					var txs = new List<Transaction>();
+
+					var rmax = Call<NextRoundResponse>(Role.Base, i => i.GetNextRound(), Workflow).NextRoundId;
 
 					lock(Lock)
-						accepted = Operations.Where(i => i.Placing >= PlacingStage.Accepted).ToArray();
-	
-					if(accepted.Any())
 					{
-						var rp = m.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}));
-							
-						lock(Lock)
+						foreach(var g in pendings.GroupBy(i => i.Signer))
 						{
-							foreach(var i in rp.Operations)
+							if(!Vault.OperationIds.ContainsKey(g.Key))
 							{
-								var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
-																		
-								if(o.Placing != i.Placing)
-								{
-									o.Placing = i.Placing;
+								Monitor.Exit(Lock);
 
-									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
-									{
-										Operations.Remove(o);
-									}
+								try
+								{
+									Vault.OperationIds[g.Key] = Call<AccountResponse>(Role.Base, i => i.GetAccountInfo(g.Key), Workflow).Account.LastOperationId;
+								}
+								catch(RdcEntityException ex) when(ex.Error == RdcEntityError.AccountNotFound)
+								{
+									Vault.OperationIds[g.Key] = -1;
+								}
+								catch(Exception) when(!Debugger.IsAttached)
+								{
+								}
+									
+								Monitor.Enter(Lock);
+							}
+
+							var t = new Transaction(Zone);
+
+							foreach(var o in g)
+							{
+								o.Id = ++Vault.OperationIds[g.Key];
+								t.AddOperation(o);
+							}
+
+							t.Sign(Vault.GetKey(g.Key), m, Database.GetValidityPeriod(rmax));
+							txs.Add(t);
+						}
+					}
+	
+					IEnumerable<Transaction> atxs = null;
+
+					try
+					{
+						atxs = rdi.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i)));
+					}
+					catch(RdcNodeException)
+					{
+						rdi = null;
+						goto chooserdi;
+					}
+	
+					lock(Lock)
+						foreach(var o in atxs.SelectMany(i => i.Operations))
+							o.Placing = PlacingStage.Accepted;
+						
+					if(atxs.Any())
+					{
+						if(atxs.Sum(i => i.Operations.Count) <= 1)
+						{
+							Workflow.Log?.Report(this, "Operations sent", atxs.SelectMany(i => i.Operations).Select(i => i.ToString()));
+						} 
+						else
+						{
+							Workflow.Log?.Report(this, "Operation sent", $"{atxs.First().Operations.First()} -> {m} {rdi}");
+						}
+					}
+
+				}
+
+				lock(Lock)
+					accepted = Operations.Where(i => i.Placing >= PlacingStage.Accepted).ToArray();
+	
+				if(accepted.Any())
+				{
+					var rp = rdi.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}));
+							
+					lock(Lock)
+					{
+						foreach(var i in rp.Operations)
+						{
+							var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
+																		
+							if(o.Placing != i.Placing)
+							{
+								o.Placing = i.Placing;
+
+								if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
+								{
+									Operations.Remove(o);
 								}
 							}
 						}
 					}
-
-					Statistics.Transacting.End();
 				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcEntityException || ex is RdcNodeException)
-				{
-					Workflow.Log?.ReportWarning(this, "Delegation", $"Member={m}", ex);
 
-					if(m.Failures < 3)
-						m.Failures++;
-					else
-						m = null;
-
-					Thread.Sleep(500); /// prevent any flooding
-				}
+				Statistics.Transacting.End();
 			}
 		}
 
@@ -1987,7 +2095,7 @@ namespace Uccs.Net
 				return new();
 
 			var accepted = txs.Where(i =>	!Transactions.Any(j => i.EqualBySignature(j)) &&
-											i.RoundMax > Database.LastConfirmedRound.Id &&
+											i.Expiration > Database.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid).ToList();
 								
@@ -2000,60 +2108,6 @@ namespace Uccs.Net
 			return accepted;
 		}
 
-		public MemberRdi ConnectToMember(Workflow workflow)
-		{
-			if(Settings.Generators.Any())
-			{
-				return new MemberRdi(Settings.Generators.First(), this);
-			}
-
-			while(workflow.Active)
-			{
-				try
-				{
-					var cr = Call<MembersResponse>(Role.Base, i => i.GetMembers(), workflow);
-	
-					lock(Lock)
-					{
-						if(cr.Members.Any())
-						{
-							var members = cr.Members.ToList();
-
-							Members.RemoveAll(i => !members.Contains(i.Generator));
-
-							foreach(var i in Members)
-							{
-								var c = Connections.FirstOrDefault(j => i.IPs.Any(ip => j.IP.Equals(ip)));
-
-								if(c != null)
-								{
-									Workflow.Log?.Report(this, "Member chosen", $"{i} {c}");
-									return new MemberRdi(i.Generator, c);
-								}
-							}
-
-							foreach(var i in Members.Where(i => i.IPs.Any()).OrderByRandom())
-							{
-								var ip = i.IPs.Random();
-								var p = GetPeer(ip);
-
-								Connect(p, workflow);
-
-								Workflow.Log?.Report(this, "Member chosen", $"{i} {p}");
-
-								return new MemberRdi(i.Generator, p);
-							}
-						}
-					}
-				}
-				catch(Exception ex) when (ex is ConnectionFailedException || ex is AggregateException || ex is RdcNodeException)
-				{
-				}
-			}
-	
-			throw new ConnectionFailedException("Aborted, timeout or overall abort");
-		}
-
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
 		{
 			if(BitOperations.PopCount((uint)role) > 1)
@@ -2061,7 +2115,7 @@ namespace Uccs.Net
 
 			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established)
 																											.ThenBy(i => i.GetRank(role))
-																											.ThenByDescending(i => i.ReachFailures)
+																											//.ThenByDescending(i => i.ReachFailures)
 																											.FirstOrDefault();
 		}
 
@@ -2299,7 +2353,7 @@ namespace Uccs.Net
 			var	l = Call(Role.Base, p =>{
 											try
 											{
-												return p.GetAccountInfo(signer, true);
+												return p.GetAccountInfo(signer);
 											}
 											catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
 											{
@@ -2336,7 +2390,7 @@ namespace Uccs.Net
 				var	l = Call(Role.Base, p =>{
 												try
 												{
-													return p.GetAccountInfo(signer, true);
+													return p.GetAccountInfo(signer);
 												}
 												catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
 												{
@@ -2464,7 +2518,7 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				BinarySerializator.Serialize(new(s), rq); 
 				s.Position = 0;
-				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constract) as RdcRequest;
+				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
 			}
 
  			return rq.Execute(this) as Rp;
@@ -2477,7 +2531,7 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				BinarySerializator.Serialize(new(s), rq); 
 				s.Position = 0;
-				rq = BinarySerializator.Deserialize(new(s), rq.GetType(), Constract) as RdcRequest;
+				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
 			}
 
  			rq.Execute(this);

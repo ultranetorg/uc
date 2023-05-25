@@ -71,9 +71,9 @@ namespace Uccs.Sun.FUI
 						var li = IPs.Items.Add(i.ToString());
 					}
 
-					foreach(var i in (e.Item.Tag as Member).Proxies)
+					//foreach(var i in (e.Item.Tag as Member).Proxies)
 					{
-						var li = Proxies.Items.Add(i.ToString());
+						var li = Proxies.Items.Add((e.Item.Tag as Member).Proxy?.ToString());
 					}
 				}
 			}

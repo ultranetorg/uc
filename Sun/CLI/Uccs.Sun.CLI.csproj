@@ -3,13 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
-    <AssemblyVersion>0.0.979.0</AssemblyVersion>
-    <FileVersion>0.0.979.0</FileVersion>
+    <AssemblyVersion>0.0.985.0</AssemblyVersion>
+    <FileVersion>0.0.985.0</FileVersion>
     <Company>uo</Company>
     <Product>Standard Ultranet Node (SUN) with Command Line UI</Product>
     <Authors>uo</Authors>
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
-    <Version>0.0.979</Version>
+    <Version>0.0.985</Version>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

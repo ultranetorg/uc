@@ -236,6 +236,7 @@ namespace Uccs.Net
 																										Confirmed = i.Confirmed,
 																										Time = i.Time,
 																										Blocks = i.Blocks.Select(i => new ChainReportResponse.Block {Generator = i.Generator.ToString(), Type = i.Type}),
+																										JoinRequests = i.JoinMembersRequests.Select(i => i.Generator)
 																									})
 																						.ToArray()}; 
 							

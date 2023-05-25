@@ -9,7 +9,7 @@
  			lock(core.Lock)
 			{
 	 			if(core.Synchronization != Synchronization.Synchronized)
-					throw new  RdcNodeException(RdcNodeError.NotSynchronized);
+					throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
 				var ai = core.Database.Accounts.Find(Account, core.Database.LastConfirmedRound.Id);
 

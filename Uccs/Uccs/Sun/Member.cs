@@ -12,9 +12,9 @@ namespace Uccs.Net
 	{
 		public AccountAddress		Generator { get; set; }
 		public IPAddress[]			IPs { get; set; } = new IPAddress[0];
-		//public ChainTime			OnlineSince { get; set; }
+		public ChainTime			OnlineSince = ChainTime.Zero;
 		public int					ActivatedAt;
-		public List<IPAddress>		Proxies = new ();
+		public Peer         		Proxy;
 	
   		public void WriteConfirmed(BinaryWriter w)
  		{
@@ -58,29 +58,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Generator={Generator}, ActivatedAt={ActivatedAt}}}";
-		}
-	}
-
-	public class MemberRdi : RdcInterface
-	{
-		public AccountAddress	Generator { get; protected set; }
-		public RdcInterface		Rdi { get; protected set; }
-
-		public MemberRdi(AccountAddress generator, RdcInterface rdi)
-		{
-			Generator = generator;
-			Rdi = rdi;
-		}
-
-		public override Rp Request<Rp>(RdcRequest rq)
-		{
-			return Rdi.Request<Rp>(rq);
-		}
-
-		public override void Send(RdcRequest rq)
-		{
-			Rdi.Send(rq);
+			return $"Generator={Generator}, ActivatedAt={ActivatedAt}";
 		}
 	}
 }
