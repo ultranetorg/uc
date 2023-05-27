@@ -4,8 +4,7 @@ namespace UC.Umc.Controls;
 
 public sealed partial class FormTimePickerControl : BaseFormControl<FormTimePickerControl, TimeSpan>
 {
-    public static readonly BindableProperty FormatProperty =
-        BindableProperty.Create(nameof(Format), typeof(string), typeof(FormTimePickerControl), "t");
+    public static readonly BindableProperty FormatProperty = BindableProperty.Create(nameof(Format), typeof(string), typeof(FormTimePickerControl), "t");
 
     public string Format
     {

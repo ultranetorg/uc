@@ -77,7 +77,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	[RelayCommand]
     private async Task HideFromDashboardAsync()
     {
-		// TODO
+		// TODO: hide from dashboard
 		await Task.Delay(1);
     }
 
@@ -92,7 +92,7 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	[RelayCommand]
     private async Task BackupAsync()
     {
-		// TODO
+		// TODO: backup
 		await Task.Delay(1);
     }
 

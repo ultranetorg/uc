@@ -2,7 +2,7 @@
 
 public partial class CreatePinViewModel : BaseViewModel
 {
-	private AuthService _authService;
+	private readonly AuthService _authService;
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(ShowLogin))]

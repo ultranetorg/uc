@@ -2,11 +2,9 @@
 
 public partial class AccountView : ContentView
 {
-    public static readonly BindableProperty AccountProperty =
-		BindableProperty.Create(nameof(Account), typeof(AccountViewModel), typeof(AccountView));
+    public static readonly BindableProperty AccountProperty = BindableProperty.Create(nameof(Account), typeof(AccountViewModel), typeof(AccountView));
 
-	public static readonly BindableProperty BorderStyleProperty =
-		BindableProperty.Create(nameof(BorderStyle), typeof(Style), typeof(AccountView));
+	public static readonly BindableProperty BorderStyleProperty = BindableProperty.Create(nameof(BorderStyle), typeof(Style), typeof(AccountView));
 
 	public AccountViewModel Account
     {

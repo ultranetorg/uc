@@ -4,7 +4,7 @@ public partial class AuthorRenewalViewModel : BaseAuthorViewModel
 {
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(EstimatedDate))]
-	private string _period = "1";
+	private string _period = "10"; // TODO: replace with time span
 
 	public string EstimatedDate => string.IsNullOrWhiteSpace(Period)
 		? string.Empty

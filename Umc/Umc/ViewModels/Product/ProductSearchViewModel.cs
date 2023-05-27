@@ -3,6 +3,7 @@
 public partial class ProductSearchViewModel : BasePageViewModel
 {
 	private readonly IProductsService _service;
+
 	[ObservableProperty]
     private CustomCollection<ProductViewModel> _products = new();
     
@@ -83,8 +84,7 @@ public partial class ProductSearchViewModel : BasePageViewModel
 			Products.Clear();
 			Products.AddRange(products);
 			ProductsFilter = new CustomCollection<FilterOption>(
-				DefaultDataMock.ProductsFilter.Select(
-					f => new FilterOption { Name = f, IsSelected = false }));
+				DefaultDataMock.ProductsFilter.Select(f => new FilterOption { Name = f, IsSelected = false }));
 
 			FinishLoading();
 		}

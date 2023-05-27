@@ -8,11 +8,4 @@ public partial class AboutViewModel : BasePageViewModel
 
 	[RelayCommand]
     private async Task CancelAsync() => await Navigation.BackToDashboardAsync();
-
-	[RelayCommand]
-    private async Task SomeActionAsync()
-    {
-		// Some action, e.g. opening the browser
-        await Task.Delay(10);
-    }
 }

@@ -726,8 +726,7 @@
                 Grid.RowSpan="4"
                 Padding="8,0,8,0"
                 FontSize="12"
-                IsVisible="{TemplateBinding Value,
-                                            Converter={StaticResource IsObjectNotNullOrEmptyConverter}}">
+                IsVisible="{TemplateBinding Value, Converter={StaticResource IsObjectNotNullOrEmptyConverter}}">
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Style="{DynamicResource ActiveSpanStyle}" Text="  " />
@@ -740,8 +739,7 @@
                 Grid.Row="5"
                 Grid.RowSpan="2"
                 Padding="16,2,16,0"
-                IsVisible="{TemplateBinding ErrorMessage,
-                                            Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
+                IsVisible="{TemplateBinding ErrorMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
                 Style="{StaticResource InvalidLabelStyle}"
                 Text="{TemplateBinding ErrorMessage}" />
         </Grid>

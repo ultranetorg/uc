@@ -39,7 +39,9 @@ public partial class ProductRegistrationViewModel : BasePageViewModel
 	[RelayCommand]
 	private async Task NextWorkaroundAsync()
 	{
-		var isValid = Account != null && !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Commission);
+		var isValid = Account != null
+			&& !string.IsNullOrEmpty(Name)
+			&& !string.IsNullOrEmpty(Commission);
 
 		if (Position == 0 && isValid)
 		{

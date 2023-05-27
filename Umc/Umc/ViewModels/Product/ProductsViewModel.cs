@@ -41,7 +41,11 @@ public partial class ProductsViewModel : BasePageViewModel
 	[RelayCommand]
 	private async Task RegisterProductAsync(ProductViewModel product) =>
 		await Navigation.GoToAsync(nameof(ProductRegistrationPage),
-			new Dictionary<string, object>() { { QueryKeys.PRODUCT, product } });
+			new Dictionary<string, object>() {
+				{
+					QueryKeys.PRODUCT, product
+				}
+			});
 
 	internal async Task InitializeAsync()
 	{

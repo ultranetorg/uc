@@ -4,6 +4,7 @@ public partial class WhatsNewViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private List<string> _addedList = DefaultDataMock.AddedList;
+
 	[ObservableProperty]
     private List<string> _fixedList = DefaultDataMock.FixedList;
 

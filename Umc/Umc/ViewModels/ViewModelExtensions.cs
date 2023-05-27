@@ -2,7 +2,6 @@
 
 public static class ViewModelExtensions
 {
-	// Preliminary - to be reworked
 	public static MauiAppBuilder ConfigureViewModels(this MauiAppBuilder builder)
 	{
 		#region Pages

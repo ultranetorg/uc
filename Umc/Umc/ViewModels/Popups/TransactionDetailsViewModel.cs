@@ -4,6 +4,7 @@ public partial class TransactionDetailsViewModel : BaseViewModel
 {
 	[ObservableProperty]
     private TransactionViewModel _transaction;
+
 	[ObservableProperty]
     private AccountViewModel _account;
 

@@ -2,17 +2,13 @@
 
 public partial class Send2View : ContentView
 {
-    public static readonly BindableProperty SourceAccountProperty =
-		BindableProperty.Create(nameof(SourceAccount), typeof(AccountViewModel), typeof(Send1View));
+    public static readonly BindableProperty SourceAccountProperty = BindableProperty.Create(nameof(SourceAccount), typeof(AccountViewModel), typeof(Send1View));
 
-    public static readonly BindableProperty RecipientAccountProperty =
-		BindableProperty.Create(nameof(RecipientAccount), typeof(AccountViewModel), typeof(Send1View));
+    public static readonly BindableProperty RecipientAccountProperty = BindableProperty.Create(nameof(RecipientAccount), typeof(AccountViewModel), typeof(Send1View));
 
-    public static readonly BindableProperty AmountProperty =
-		BindableProperty.Create(nameof(Amount), typeof(string), typeof(Send1View));
+    public static readonly BindableProperty AmountProperty = BindableProperty.Create(nameof(Amount), typeof(string), typeof(Send1View));
 
-    public static readonly BindableProperty ComissionProperty =
-		BindableProperty.Create(nameof(Comission), typeof(string), typeof(Send1View));
+    public static readonly BindableProperty ComissionProperty = BindableProperty.Create(nameof(Comission), typeof(string), typeof(Send1View));
 
     public AccountViewModel SourceAccount
     {

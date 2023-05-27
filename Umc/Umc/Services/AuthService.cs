@@ -61,10 +61,10 @@ public class AuthService
     {
         try
         {
-//#if DEBUG
-//            return CheckBiometricsResult.Authenticated;
-//#endif
-            var biometricsAvailable = await IsBiometricAuthenticationActiveAsync();
+#if DEBUG
+			return CheckBiometricsResult.Authenticated;
+#endif
+			var biometricsAvailable = await IsBiometricAuthenticationActiveAsync();
 
             if (!biometricsAvailable)
             {

@@ -10,7 +10,7 @@ public class ProductViewModel
     public AccountViewModel		Account { get; internal set; }
 
     public int					Id { get; protected set; }
-    public string				Name { get; set; } // _entry.Title
+    public string				Name { get; set; }
     public string				Owner { get; internal set; }
     public string				Version { get; internal set; }
     public Color				Color { get; internal set; }

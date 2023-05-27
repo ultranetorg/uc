@@ -12,22 +12,6 @@ internal static class DefaultDataMock
 		ShowAmount = false
 	};
 
-	//public static AccountViewModel CreateAccount(string name = "Main Ultranet Account", decimal balance = 100M) 
-	//{
-	//	var settings = new Settings();
-	//	var log = new Log();
-	//	var vault = new Vault(settings, log);
-	//	var round = new Roundchain(settings, log, null, vault, null);
-	//	var acc = new Account(Nethereum.Signer.EthECKey.GenerateKey());
-	//	var entry = new AccountEntry(round, acc);
-	//	entry.Balance = new Coin(balance);
-	//	return new AccountViewModel(entry)
-	//	{
-	//		Name = name, // "Primary Ultranet Account"
-	//		Color = ColorHelper.CreateRandomGradientColor(),
-	//	};
-	//}
-
 	public static AccountViewModel CreateAccount(
 		string name = "Main Ultranet Account", decimal balance = 100M) =>
 		new($"0x{CommonHelper.GenerateUniqueId(CommonHelper.LENGTH_HASH)}")

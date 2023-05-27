@@ -80,7 +80,7 @@ public abstract partial class BaseAuthorViewModel : BasePageViewModel
 	[RelayCommand]
     private async Task WatchAuthorAsync()
     {
-		// watch / unwatch
+		// TODO: watch / unwatch
 		await Task.Delay(10);
     }
 
