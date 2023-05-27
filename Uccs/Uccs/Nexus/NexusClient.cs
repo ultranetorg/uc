@@ -37,7 +37,7 @@ namespace Uccs.Uos
 
 		string MapPath(ReleaseAddress r)
 		{
-			return Path.Join(ProductsPath, $"{r.Product}-{r.Platform}", r.Version.ABC);
+			return Path.Join(ProductsPath, $"{r.Product}-{r.Realization}", r.Version.ABC);
 		}
 
 		public ReleaseAddress ReleaseFromAssembly(string path)
@@ -45,16 +45,14 @@ namespace Uccs.Uos
 			var x = path.Substring(ProductsPath.Length).Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
 
 			var apr = x[0].Split('-');
-
 			var p = apr[0].Split('.');
-			var pf = apr[1].Split('.');
 
-			return new ReleaseAddress(p[0], p[1], pf[0], pf[1], Version.Parse(x[1]));
+			return new ReleaseAddress(p[0], p[1], p[2], Version.Parse(x[1]));
 		}
 
 		public static string ReleaseToRelative(ReleaseAddress release)
 		{
-			return Path.Join($"{release.Product}-{release.Platform}", release.Version.ABC);
+			return Path.Join($"{release.Product}-{release.Realization}", release.Version.ABC);
 		}
 
 		public string MapReleasePath(ReleaseAddress release)

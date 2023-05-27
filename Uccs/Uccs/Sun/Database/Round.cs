@@ -58,7 +58,7 @@ namespace Uccs.Net
 		public Dictionary<AccountAddress, AccountEntry>			AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
 		public Dictionary<ProductAddress, ProductEntry>			AffectedProducts = new();
-		public Dictionary<PlatformAddress, PlatformEntry>		AffectedPlatforms = new();
+		public Dictionary<RealizationAddress, RealizationEntry>	AffectedPlatforms = new();
 		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
 		
 		public Database											Database;
@@ -194,12 +194,12 @@ namespace Uccs.Net
 			return Database.Products.Find(address, Id - 1);
 		}
 
-		public PlatformEntry FindPlatform(PlatformAddress name)
+		public RealizationEntry FindPlatform(RealizationAddress name)
 		{
 			if(AffectedPlatforms.ContainsKey(name))
 				return AffectedPlatforms[name];
 		
-			return Database.Platforms.Find(name, Id - 1);
+			return Database.Realizations.Find(name, Id - 1);
 		}
 		
 		public ReleaseEntry FindRelease(ReleaseAddress name)
@@ -222,14 +222,14 @@ namespace Uccs.Net
 			return AffectedProducts[address];
 		}
 
-		public PlatformEntry AffectPlatform(PlatformAddress address)
+		public RealizationEntry AffectPlatform(RealizationAddress address)
 		{
 			var e = FindPlatform(address);
 
 			if(e != null)
 				AffectedPlatforms[address] = e.Clone();
 			else
-				AffectedPlatforms[address] = new PlatformEntry(){Address = address};
+				AffectedPlatforms[address] = new RealizationEntry{Address = address};
 
 			return AffectedPlatforms[address];
 		}

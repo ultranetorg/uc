@@ -17,11 +17,11 @@ namespace Uccs.Net
 											LastCommitedRoundHash	= core.Database.LastCommittedRound.Hash,
 											FirstTailRound			= core.Database.Tail.Last().Id,
 											LastTailRound			= core.Database.Tail.First().Id,
-											Accounts				= core.Database.Accounts.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Authors					= core.Database.Authors.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Products				= core.Database.Products.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Platforms				= core.Database.Platforms.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Releases				= core.Database.Releases.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
+											Accounts				= core.Database.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Authors					= core.Database.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Products				= core.Database.Products.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Realizations			= core.Database.Realizations.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Releases				= core.Database.Releases.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
 				return r;
 			}
 		}
@@ -43,7 +43,7 @@ namespace Uccs.Net
 		public IEnumerable<SuperCluster>	Accounts { get; set; }
 		public IEnumerable<SuperCluster>	Authors { get; set; }
 		public IEnumerable<SuperCluster>	Products { get; set; }
-		public IEnumerable<SuperCluster>	Platforms { get; set; }
+		public IEnumerable<SuperCluster>	Realizations { get; set; }
 		public IEnumerable<SuperCluster>	Releases { get; set; }
 	}
 

@@ -12,28 +12,18 @@ namespace Uccs.Net
 
 	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>  
 	{
-		public RealizationAddress	Realization; /// to disable implicit conversion
-		public ProductAddress		Product => Realization.Product;
-		public PlatformAddress		Platform => Realization.Platform;
+		public RealizationAddress	Realization { get; set; }
 		public Version				Version { get; set; }
+		public ProductAddress		Product => Realization.Product;
 		public bool					Valid => Realization.Valid;
 
-		//public static implicit operator RealizationAddress(ReleaseAddress d) => d.R;
-		//public static implicit operator ProductAddress(ReleaseAddress d) => d.R.Product;
-
-		public ReleaseAddress(string author, string product, string platformauthor, string platformname, Version version)
-		{
-			Realization = new(author, product, platformauthor, platformname);
-			Version = version;
-		}
-
-		public ReleaseAddress(string author, string product, PlatformAddress platform, Version version)
+		public ReleaseAddress(string author, string product, string platform, Version version)
 		{
 			Realization = new(author, product, platform);
 			Version = version;
 		}
 
-		public ReleaseAddress(ProductAddress product, PlatformAddress platform, Version version)
+		public ReleaseAddress(ProductAddress product, string platform, Version version)
 		{
 			Realization = new(product, platform);
 			Version = version;
@@ -91,7 +81,7 @@ namespace Uccs.Net
 		{
 			Realization = new();
 			Realization.Parse(s);
-			Version = Version.Parse(s[2]);
+			Version = Version.Parse(s[3]);
 		}
 
 		public void Write(BinaryWriter w)

@@ -197,7 +197,10 @@ namespace Uccs.Net
 		{
 			lock(core.Lock)
 			{
-				if(core.Connections.Any(i => i.InRequests.OfType<ProxyRequest>().Any(j => j.Destination == Destination && j.Guid == Guid)))
+				if(core.Connections.Any(i =>{
+												lock(i.InRequests) 
+													return i.InRequests.OfType<ProxyRequest>().Any(j => j.Destination == Destination && j.Guid == Guid);
+											}))
 					throw new RdcNodeException(RdcNodeError.CircularRoute);
 			}
 

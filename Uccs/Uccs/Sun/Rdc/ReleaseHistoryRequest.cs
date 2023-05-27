@@ -18,7 +18,7 @@ namespace Uccs.Net
 				
 				return new ReleaseHistoryResponse {Releases = db.Releases.Where(Realization.Product.Author, 
 																				Realization.Product.Name, 
-																				i => i.Address.Platform == Realization.Platform, 
+																				i => i.Address.Realization.Name == Realization.Name, 
 																				db.LastConfirmedRound.Id).ToArray()};
 			}
 		}

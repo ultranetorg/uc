@@ -34,7 +34,7 @@ namespace Uccs.Sun.FUI
 				if(string.IsNullOrWhiteSpace(Author.Text))
 					return;
 	
-				foreach(var r in Core.Database.Releases.Where(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Address.Platform.ToString() == Platform.Text, Core.Database.LastConfirmedRound.Id))
+				foreach(var r in Core.Database.Releases.Where(Author.Text, Product.Text, i => string.IsNullOrWhiteSpace(Platform.Text) || i.Address.Realization.Name == Platform.Text, Core.Database.LastConfirmedRound.Id))
 				{
 					var i = new ListViewItem(r.Address.ToString());
 					

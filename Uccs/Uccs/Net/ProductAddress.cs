@@ -22,7 +22,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return Author + "." + Name;
+			return Author + "/" + Name;
 		}
 
 		public override bool Equals(object obj)
@@ -49,7 +49,7 @@ namespace Uccs.Net
 		public static ProductAddress Parse(string v)
 		{
 			var a = new ProductAddress();
-			a.Parse(v.Split('.'));
+			a.Parse(v.Split('/'));
 			return a;
 		}
 

@@ -5,19 +5,19 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>0.0.455.0</AssemblyVersion>
-    <FileVersion>0.0.455.0</FileVersion>
+    <AssemblyVersion>0.0.459.0</AssemblyVersion>
+    <FileVersion>0.0.459.0</FileVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uo.demolibraryaa-uo.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uo-demolibraryaa-dotnet\0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uo.demolibraryaa-uo.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Release\uo-demolibraryaa-dotnet\0.0.0</OutputPath>
     <Optimize>True</Optimize>
   </PropertyGroup>
 </Project>

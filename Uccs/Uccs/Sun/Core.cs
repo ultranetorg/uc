@@ -52,10 +52,11 @@ namespace Uccs.Net
 	public enum Role : uint
 	{
 		Null,
-		Chain	= 0b00000001,
-		Base	= 0b00000010,
-		Seed	= 0b00000100,
-		Hub		= 0b00001000,
+		Base		= 0b00000001,
+		Chain		= 0b00000011,
+		Hub			= 0b00000101,
+		Analyzer	= 0b00001001,
+		Seed		= 0b00010000,
 	}
 
 	public class ReleaseStatus
@@ -285,9 +286,9 @@ namespace Uccs.Net
 																new (ProductTable.MetaColumnName,	new ()),
 																new (ProductTable.MainColumnName,	new ()),
 																new (ProductTable.MoreColumnName,	new ()),
-																new (PlatformTable.MetaColumnName,	new ()),
-																new (PlatformTable.MainColumnName,	new ()),
-																new (PlatformTable.MoreColumnName,	new ()),
+																new (RealizationTable.MetaColumnName,	new ()),
+																new (RealizationTable.MainColumnName,	new ()),
+																new (RealizationTable.MoreColumnName,	new ()),
 																new (ReleaseTable.MetaColumnName,	new ()),
 																new (ReleaseTable.MainColumnName,	new ()),
 																new (ReleaseTable.MoreColumnName,	new ()),
@@ -1046,10 +1047,10 @@ namespace Uccs.Net
 																															var c = Database.Products.SuperClusters.ContainsKey(i.Id);
 																															return !c || !Database.Products.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														 }),
-																			Tables.Platforms=> stamp.Platforms.Where(i => {
-																															var c = Database.Platforms.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Database.Platforms.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																														  }),
+																			Tables.Realizations => stamp.Realizations.Where(i => {
+																																	var c = Database.Realizations.SuperClusters.ContainsKey(i.Id);
+																																	return !c || !Database.Realizations.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																																  }),
 																			Tables.Releases	=> stamp.Releases.Where(i => {
 																															var c = Database.Releases.SuperClusters.ContainsKey(i.Id);
 																															return !c || !Database.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
@@ -1096,7 +1097,7 @@ namespace Uccs.Net
 						download<AccountEntry,	AccountAddress>(Database.Accounts);
 						download<AuthorEntry, string>(Database.Authors);
 						download<ProductEntry, ProductAddress>(Database.Products);
-						download<PlatformEntry, PlatformAddress>(Database.Platforms);
+						download<RealizationEntry, RealizationAddress>(Database.Realizations);
 						download<ReleaseEntry, ReleaseAddress>(Database.Releases);
 		
 						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
@@ -2110,9 +2111,6 @@ namespace Uccs.Net
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
 		{
-			if(BitOperations.PopCount((uint)role) > 1)
-				throw new ArgumentException();
-
 			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established)
 																											.ThenBy(i => i.GetRank(role))
 																											//.ThenByDescending(i => i.ReachFailures)

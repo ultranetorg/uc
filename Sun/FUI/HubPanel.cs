@@ -64,7 +64,7 @@ namespace Uccs.Sun.FUI
 				{
 					var r = Packages.Items.Add(i.Key.Product.Author);
 					r.SubItems.Add(i.Key.Product.Name);
-					r.SubItems.Add(i.Key.Platform.ToString());
+					r.SubItems.Add(i.Key.Realization.Name.ToString());
 					r.SubItems.Add(i.Key.Version.ToString());
 					//r.SubItems.Add(i.Key.Distributives.ToString());
 					r.Tag = i.Value;

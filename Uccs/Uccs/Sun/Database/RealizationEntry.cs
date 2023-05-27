@@ -1,21 +1,20 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace Uccs.Net
 {
-	public class PlatformEntry : Platform, ITableEntry<PlatformAddress>
+	public class RealizationEntry : Realization, ITableEntry<RealizationAddress>
 	{
-		public PlatformAddress		Key => Address;
-		public byte[]				GetClusterKey(int n) => Encoding.UTF8.GetBytes(Address.Author).Take(n).ToArray();
+		public RealizationAddress	Key => Address;
+		public byte[]				GetClusterKey(int n) => Encoding.UTF8.GetBytes(Address.Product.Author).Take(n).ToArray();
 
-		public PlatformEntry Clone()
+		public RealizationEntry Clone()
 		{
 			return	new()
 					{ 
 						Address			= Address, 
-						OSes			= OSes.ToArray(),
+						//OSes			= OSes.ToArray(),
 					};
 		}
 		

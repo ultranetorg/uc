@@ -8,19 +8,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>0.0.457.0</AssemblyVersion>
-    <FileVersion>0.0.457.0</FileVersion>
+    <AssemblyVersion>0.0.461.0</AssemblyVersion>
+    <FileVersion>0.0.461.0</FileVersion>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\_Debug\uo.demoapplication-uo.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Debug\uo-demoapplication-dotnet\0.0.0</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\_Release\uo.demoapplication-uo.dotnet\0.0.0</OutputPath>
+    <OutputPath>..\..\..\_Release\uo-demoapplication-dotnet\0.0.0</OutputPath>
     <Optimize>True</Optimize>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>

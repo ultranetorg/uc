@@ -16,7 +16,7 @@ namespace Uccs.Net
 		Accounts,
 		Authors,
 		Products,
-		Platforms,
+		Realizations,
 		Releases
 	}
 

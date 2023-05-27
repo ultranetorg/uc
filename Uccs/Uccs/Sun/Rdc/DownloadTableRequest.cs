@@ -20,7 +20,7 @@ namespace Uccs.Net
 									Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Products		=> core.Database.Products.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Platforms	=> core.Database.Platforms.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Realizations	=> core.Database.Realizations.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Releases		=> core.Database.Releases.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									_ => throw new RdcEntityException(RdcEntityError.InvalidRequest)
 							  };

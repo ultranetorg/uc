@@ -31,8 +31,8 @@ namespace Uccs.Sun.CLI
 					return Core.Enqueue(new PlatformRegistration
 										{ 
 											Signer = GetPrivate("by", "password"), 
-											Platform = PlatformAddress.Parse(GetString("address")),
-											OSes = Args.One("oses").Nodes.Select(i => Osbi.Parse(i.Name)).ToArray()
+											Platform = RealizationAddress.Parse(GetString("address")),
+											//OSes = Args.One("oses").Nodes.Select(i => Osbi.Parse(i.Name)).ToArray()
 										},
 										GetAwaitStage(), 
 										Workflow);

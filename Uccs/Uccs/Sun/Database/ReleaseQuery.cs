@@ -40,9 +40,9 @@ namespace Uccs.Net
 // 			get { return Realization.Name; } 
 // 		}
 
-		public ReleaseQuery(string author, string product, string platformauthor, string platformname, Version version, VersionQuery versionQuery, string channel)
+		public ReleaseQuery(string author, string product, string platform, Version version, VersionQuery versionQuery, string channel)
 		{
-			Realization = new (author, product, platformauthor, platformname);
+			Realization = new (author, product, platform);
 			Version = version;
 			VersionQuery = versionQuery;
 			Channel = channel;

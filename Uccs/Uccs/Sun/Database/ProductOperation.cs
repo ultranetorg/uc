@@ -80,10 +80,10 @@ namespace Uccs.Net
 
 	public class PlatformRegistration : Operation
 	{
-		public PlatformAddress				Platform;
-		public Osbi[]						OSes;
+		public RealizationAddress			Platform;
+		//public Osbi[]						OSes;
 		public override string				Description => $"{Platform}";
-		public override bool				Valid => Platform.Valid;
+		public override bool				Valid => true;
 
 		public PlatformRegistration()
 		{
@@ -91,19 +91,19 @@ namespace Uccs.Net
 
 		protected override void ReadConfirmed(BinaryReader r)
 		{
-			Platform	= r.Read<PlatformAddress>();
-			OSes		= r.ReadArray<Osbi>();
+			Platform	= r.Read<RealizationAddress>();
+			//OSes		= r.ReadArray<Osbi>();
 		}
 
 		protected override void WriteConfirmed(BinaryWriter w)
 		{
 			w.Write(Platform);
-			w.Write(OSes);
+			//w.Write(OSes);
 		}
 
 		public override void Execute(Database chain, Round round)
 		{
-			var a = chain.Authors.Find(Platform.Author, round.Id);
+			var a = chain.Authors.Find(Platform.Product.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
@@ -111,11 +111,12 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(chain.Platforms.Find(Platform, round.Id) != null)
+			if(chain.Products.Find(Platform.Product, round.Id) == null)
 			{
-				Error = AlreadyExists;
+				Error = "Product not found";
 				return;
 			}
+
 
 // 
 // 			if(chain.Products.Find(Platform.Product, round.Id) == null)
@@ -131,7 +132,7 @@ namespace Uccs.Net
 
 			var r = round.AffectPlatform(Platform);
 
-			r.OSes = OSes;
+			//r.OSes = OSes;
 		}
 	}
 
@@ -254,9 +255,9 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(chain.Platforms.Find(Release.Platform, round.Id) == null)
+			if(chain.Realizations.Find(Release.Realization, round.Id) == null)
 			{
-				Error = "Platfrom not found";
+				Error = "Realization not found";
 				return;
 			}
 
@@ -280,7 +281,7 @@ namespace Uccs.Net
 // 				return;
 // 			}
 
-			var ce = chain.Releases.Where(Release.Product.Author, Release.Product.Name, i => i.Address.Platform == Release.Platform, round.Id).MaxBy(i => i.Address.Version);
+			var ce = chain.Releases.Where(Release.Product.Author, Release.Product.Name, i => i.Address.Realization.Name == Release.Realization.Name, round.Id).MaxBy(i => i.Address.Version);
 					
 			if(ce != null && ce.Address.Version >= Release.Version)
 			{

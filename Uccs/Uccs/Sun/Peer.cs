@@ -80,10 +80,10 @@ namespace Uccs.Net
  		
 		public int GetRank(Role role)
 		{
-			if(role.HasFlag(Role.Base)) return BaseRank;
-			if(role.HasFlag(Role.Chain)) return ChainRank;
-			if(role.HasFlag(Role.Hub)) return HubRank;
-			if(role.HasFlag(Role.Seed)) return SeedRank;
+			if(role == Role.Base) return BaseRank;
+			if(role == Role.Chain) return ChainRank;
+			if(role == Role.Hub) return HubRank;
+			if(role == Role.Seed) return SeedRank;
 
 			throw new IntegrityException("Wrong rank");
 		}
@@ -247,7 +247,7 @@ namespace Uccs.Net
 									r.Result = RdcResult.EntityException;
 									r.Error = (byte)ex.Error;
 								}
-								catch(Exception)// when(!Debugger.IsAttached)
+								catch(Exception) when(!Debugger.IsAttached)
 								{
 									r = RdcResponse.FromType(i.Type);
 									r.Result = RdcResult.NodeException;

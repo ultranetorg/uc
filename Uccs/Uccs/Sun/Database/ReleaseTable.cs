@@ -43,7 +43,7 @@ namespace Uccs.Net
 					if(i.Key.Product.Author == author && i.Key.Product.Name == product && predicate(i.Value))
 						yield return i.Value;
 
-			var bcid = KeyToBytes(new ReleaseAddress(author, product, null, null, Version.Zero)).Take(ClustersKeyLength).ToArray();
+			var bcid = KeyToBytes(new ReleaseAddress(author, product, null, Version.Zero)).Take(ClustersKeyLength).ToArray();
 			var cid = Cluster.ToId(bcid);
 		
 			var c = Clusters.Find(i => i.Id == cid);

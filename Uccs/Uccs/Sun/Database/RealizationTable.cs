@@ -3,23 +3,23 @@ using System.Text;
 
 namespace Uccs.Net
 {
-	public class PlatformTable : Table<PlatformEntry, PlatformAddress>
+	public class RealizationTable : Table<RealizationEntry, RealizationAddress>
 	{
-		public PlatformTable(Database chain) : base(chain)
+		public RealizationTable(Database chain) : base(chain)
 		{
 		}
 		
-		protected override PlatformEntry Create()
+		protected override RealizationEntry Create()
 		{
-			return new PlatformEntry();
+			return new RealizationEntry();
 		}
 
-		protected override byte[] KeyToBytes(PlatformAddress key)
+		protected override byte[] KeyToBytes(RealizationAddress key)
 		{
 			return Encoding.UTF8.GetBytes(key.ToString());
 		}
 		
-		public PlatformEntry Find(PlatformAddress name, int ridmax)
+		public RealizationEntry Find(RealizationAddress name, int ridmax)
 		{
 			if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 				throw new IntegrityException("maxrid works inside pool only");

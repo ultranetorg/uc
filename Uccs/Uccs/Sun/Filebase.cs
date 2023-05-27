@@ -88,7 +88,7 @@ namespace Uccs.Net
 
 		public static string ToRelative(RealizationAddress realization)
 		{
-			return @$"{realization.Product}-{realization.Platform}";
+			return @$"{realization.Product.Author}-{realization.Product.Name}-{realization.Name}";
 		}
 		
 		public static string ToRelative(ReleaseAddress release)
@@ -461,13 +461,13 @@ namespace Uccs.Net
 																		.SkipWhile(i => i <= c)
 																		.TakeWhile(i => i <= release.Version); /// take all incremetals before complete
 				
-				var aprv = @$"{release.Product}-{release.Platform}{Path.DirectorySeparatorChar}{release.Version}";
+				var aprv = @$"{release.Product}-{release.Realization.Name}{Path.DirectorySeparatorChar}{release.Version}";
 
 				var deps = new List<Dependency>();
 
 				void cunzip(Version v)
 				{
-					var r = new ReleaseAddress(release.Product, release.Platform, v);
+					var r = new ReleaseAddress(release.Product, release.Realization.Name, v);
 
 					using(var s = new FileStream(ToPath(r, Distributive.Complete), FileMode.Open))
 					{
@@ -500,7 +500,7 @@ namespace Uccs.Net
 
 				void iunzip(Version v)
 				{
-					var r = new ReleaseAddress(release.Product, release.Platform, v);
+					var r = new ReleaseAddress(release.Product, release.Realization.Name, v);
 
 					using(var s = new FileStream(ToPath(r, Distributive.Incremental), FileMode.Open))
 					{

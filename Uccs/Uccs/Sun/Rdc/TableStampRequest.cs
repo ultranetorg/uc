@@ -20,7 +20,7 @@ namespace Uccs.Net
 					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Accounts		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Authors		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Products	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Products		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Platforms	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Platforms	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Realizations: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Realizations	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					case Tables.Releases	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Database.Releases		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 					default:
 						throw new RdcEntityException(RdcEntityError.InvalidRequest);
