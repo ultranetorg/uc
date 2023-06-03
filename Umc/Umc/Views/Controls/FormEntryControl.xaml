@@ -9,9 +9,6 @@
     x:Name="This"
     x:TypeArguments="controls:FormEntryControl"
     ControlTemplate="{DynamicResource ControlOutline}">
-    <controls:BaseTextFormControl.Resources>
-        <ResourceDictionary Source="/Resources/Styles/Controls.xaml" />
-    </controls:BaseTextFormControl.Resources>
 
     <Entry
         BindingContext="{x:Reference This}"

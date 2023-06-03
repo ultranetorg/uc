@@ -172,18 +172,18 @@
 	<MauiXaml Update="Views\PageTitleActionView.xaml">
 		<Generator>MSBuild:Compile</Generator>
 	</MauiXaml>
+	<MauiXaml Update="Views\Controls\FormDatePickerControl.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Views\Controls\FormEntryControl.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<MauiXaml Update="Views\Controls\FormTimePickerControl.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
 	  <MauiXaml Update="Views\CustomPage.xaml">
 	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\FormDatePickerControl.xaml">
-	    <Generator></Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\FormEntryControl.xaml">
-	    <Generator></Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\Controls\FormTimePickerControl.xaml">
-	    <Generator></Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Controls\ImageTextButton.xaml">
 	    <SubType>Designer</SubType>

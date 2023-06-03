@@ -6,7 +6,7 @@
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     Shell.NavBarIsVisible="{Binding EnableBackButton, Source={x:Reference Instance}}"
-    Shell.TabBarIsVisible="{Binding EnableBackButton, Source={x:Reference Instance}}"
+    Shell.TabBarIsVisible="False"
     x:DataType="vm:BasePageViewModel"
     x:Name="Instance">
     

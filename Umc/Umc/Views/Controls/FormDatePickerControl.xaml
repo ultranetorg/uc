@@ -9,9 +9,6 @@
     x:Name="This"
     x:TypeArguments="controls:FormDatePickerControl, system:DateTime"
     ControlTemplate="{StaticResource ControlOutline}">
-    <controls:BaseFormControl.Resources>
-        <ResourceDictionary Source="/Resources/Styles/Controls.xaml" />
-    </controls:BaseFormControl.Resources>
 
     <DatePicker
         BindingContext="{x:Reference This}"

@@ -9,9 +9,6 @@
     x:Name="This"
     x:TypeArguments="controls:FormTimePickerControl, system:TimeSpan"
     ControlTemplate="{StaticResource ControlOutline}">
-    <controls:BaseFormControl.Resources>
-        <ResourceDictionary Source="/Resources/Styles/Controls.xaml" />
-    </controls:BaseFormControl.Resources>
 
     <TimePicker
         BindingContext="{x:Reference This}"
