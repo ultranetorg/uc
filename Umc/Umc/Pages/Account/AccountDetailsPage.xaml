@@ -17,25 +17,25 @@
                 Padding="0"
                 BackgroundColor="{Binding Color}"
                 StrokeShape="RoundRectangle 16"
-                HeightRequest="34"
+                HeightRequest="36"
+                WidthRequest="36"
                 HorizontalOptions="Center"
-                VerticalOptions="Center"
-                WidthRequest="34">
+                VerticalOptions="Center">
                 <ImageButton
                     BackgroundColor="{Binding Color}"
                     Command="{Binding BindingContext.SetAccountColorCommand, Source={x:Reference page}}"
                     CommandParameter="{Binding .}"
                     BorderColor="Transparent"
-                    CornerRadius="15"
-                    HeightRequest="30"
-                    WidthRequest="30"
+                    CornerRadius="16"
+                    HeightRequest="32"
+                    WidthRequest="32"
                     HorizontalOptions="Center"
                     VerticalOptions="Center" />
             </Border>
         </DataTemplate>
         <DataTemplate x:Key="AuthorsTemplate" x:DataType="models:AuthorViewModel">
             <Border
-                HeightRequest="22"
+                HeightRequest="20"
                 HorizontalOptions="Start"
                 Style="{StaticResource ButtonBorder}"
                 VerticalOptions="Center">
@@ -48,7 +48,7 @@
         <DataTemplate x:Key="ProductsTemplate" x:DataType="models:ProductViewModel">
             <StackLayout>
                 <Border
-                    HeightRequest="22"
+                    HeightRequest="20"
                     HorizontalOptions="Start"
                     Style="{StaticResource ButtonBorder}"
                     VerticalOptions="Center">
@@ -105,7 +105,7 @@
                 <Grid
                     Grid.Row="0"
                     Grid.Column="2"
-                    ColumnDefinitions="65,25"
+                    ColumnDefinitions="64,24"
                     ColumnSpacing="0">
                     <Label
                         Grid.Column="0"
@@ -162,7 +162,7 @@
                     VerticalOptions="Center"
                     SwitchCommand="{Binding HideFromDashboardCommand, Source={x:RelativeSource AncestorType={x:Type vm:AccountDetailsViewModel}}}"/>
             </Grid>
-            <Grid RowDefinitions="Auto,23">
+            <Grid RowDefinitions="Auto,24">
                 <Label
                     Grid.Row="0"
                     Style="{StaticResource DashLabel}"
@@ -178,7 +178,7 @@
                         Spacing="10" />
                 </ScrollView>
             </Grid>
-            <Grid RowDefinitions="Auto,23">
+            <Grid RowDefinitions="Auto,24">
                 <Label
                     Grid.Row="0"
                     Style="{StaticResource DashLabel}"
