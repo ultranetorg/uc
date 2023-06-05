@@ -76,7 +76,6 @@ public partial class SourceAccountViewModel : BaseViewModel
 	
 	private void LoadData()
 	{
-		Account = null;
 		Accounts = new(_service.ListAllAccounts());
 	}
 

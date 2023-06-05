@@ -43,6 +43,7 @@
                             </StackLayout>
                             <controls:FormEntryControl
 								IsPassword="True"
+                                MaxLength="16"
 								Value="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=Password}"
 								TextChanged="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=TextChangedCommand}">
                                 <controls:FormEntryControl.Behaviors>

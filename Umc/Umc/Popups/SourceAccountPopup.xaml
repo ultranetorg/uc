@@ -64,7 +64,7 @@
                             <ViewCell>
                                 <Border
                                     Margin="12,4"
-                                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}"
+                                    Background="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}"
                                     StrokeShape="RoundRectangle 6">
                                     <Grid
                                         ColumnDefinitions="*,Auto,12"
@@ -105,21 +105,21 @@
                                                 Command="{Binding ItemTappedCommand, Source={RelativeSource AncestorType={x:Type vm:SourceAccountViewModel}}}"
                                                 CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
-                                        <Grid.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding IsSelected}"
-                                                TargetType="Grid"
-                                                Value="True">
-                                                <Setter Property="Background" Value="{Binding Color}" />
-                                            </DataTrigger>
-                                            <DataTrigger
-                                                Binding="{Binding IsSelected}"
-                                                TargetType="Grid"
-                                                Value="False">
-                                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                            </DataTrigger>
-                                        </Grid.Triggers>
                                     </Grid>
+                                    <Border.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="True">
+                                            <Setter Property="Background" Value="{Binding Color}" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                 </Border>
                             </ViewCell>
                         </DataTemplate>

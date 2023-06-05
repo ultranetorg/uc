@@ -162,7 +162,7 @@
                 <ListView
                     Grid.Row="1"
                     SelectedItem="{Binding Account}"
-                    BackgroundColor="{AppThemeBinding Dark={StaticResource Gray900}, Light={StaticResource Gray200}}"
+                    Background="{AppThemeBinding Dark={StaticResource Gray900}, Light={StaticResource Gray200}}"
                     HeightRequest="400"
                     SelectionMode="None"
                     ItemsSource="{Binding Accounts}">
@@ -212,21 +212,21 @@
                                                 Command="{Binding ItemTappedCommand, Source={RelativeSource AncestorType={x:Type vm:RecipientAccountViewModel}}}"
                                                 CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
-                                        <Grid.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding IsSelected}"
-                                                TargetType="Grid"
-                                                Value="True">
-                                                <Setter Property="Background" Value="{Binding Color}" />
-                                            </DataTrigger>
-                                            <DataTrigger
-                                                Binding="{Binding IsSelected}"
-                                                TargetType="Grid"
-                                                Value="False">
-                                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                            </DataTrigger>
-                                        </Grid.Triggers>
                                     </Grid>
+                                    <Border.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="True">
+                                            <Setter Property="Background" Value="{Binding Color}" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Border"
+                                            Value="False">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource Gray100}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                 </Border>
                             </ViewCell>
                         </DataTemplate>

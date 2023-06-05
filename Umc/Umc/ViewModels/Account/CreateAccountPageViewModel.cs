@@ -42,7 +42,7 @@ public partial class CreateAccountPageViewModel : BaseAccountViewModel
     {
 		if (!string.IsNullOrEmpty(Password))
 		{
-			CharCountDone = Password.Length >= 8 && Password.Length <= 14;
+			CharCountDone = Password.Length >= 8 && Password.Length <= 16;
 			BothCasesDone = Password.Any(char.IsUpper) && Password.Any(char.IsLower);
 			NumbersIncluded = Password.Any(char.IsNumber);
 
