@@ -1,23 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Numerics;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
-using Org.BouncyCastle.Utilities.Encoders;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static Uccs.Net.ChainReportResponse;
 
 namespace Uccs.Net
 {
@@ -42,7 +33,7 @@ namespace Uccs.Net
 									{
 										Listener = new HttpListener();
 	
-										var prefixes = new string[] {$"http://{Settings.IP}:{Core.Zone.JsonPort}/"};
+										var prefixes = new string[] {$"http://{(Settings.IP.Equals(IPAddress.Any) ? "+" : Settings.IP)}:{Core.Zone.JsonPort}/"};
 			
 										foreach(string s in prefixes)
 										{

@@ -761,7 +761,7 @@ namespace Uccs.Net
 						//client.ReceiveTimeout = Timeout;
 						client.Connect(peer.IP, Zone.Port);
 					}
-					catch(SocketException) 
+					catch(SocketException ex) 
 					{
 						//Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
 						goto failed;
