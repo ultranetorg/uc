@@ -181,13 +181,13 @@
                                         <Label
                                             Grid.Row="0"
                                             Grid.Column="0"
-                                            Margin="10,4,0,0"
+                                            Margin="8,4,0,0"
                                             FontSize="12"
                                             Text="{Binding Name}" />
                                         <Label
                                             Grid.Row="1"
                                             Grid.Column="0"
-                                            Margin="10,0,0,4"
+                                            Margin="8,0,0,4"
                                             FontSize="8"
                                             FontAttributes="None"
                                             TextColor="{AppThemeBinding Dark={StaticResource Gray500}, Light={StaticResource Gray200}}"
@@ -203,7 +203,7 @@
                                             Grid.RowSpan="2"
                                             Grid.Column="2"
                                             StrokeShape="RoundRectangle 0,20"
-                                            Margin="0,-12,-6,-12"
+                                            Margin="0,-12,-8,-12"
                                             HeightRequest="60"
                                             WidthRequest="18"
                                             Background="{Binding Color}" />
@@ -285,6 +285,7 @@
                     HorizontalOptions="Fill"
                     VerticalOptions="Fill">
                     <zxing:CameraBarcodeReaderView
+                        IsEnabled="{Binding IsQrCode}"
                         HorizontalOptions="FillAndExpand"
                         VerticalOptions="FillAndExpand"
                         BarcodesDetected="cameraBarcodeReaderView_BarcodesDetected" />

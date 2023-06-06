@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
+﻿using CommunityToolkit.Maui.Core;
 
 namespace UC.Umc.Helpers;
 
@@ -13,12 +12,12 @@ internal static class ToastHelper
         double fontSize = 14,
         string title = "Alert Message")
     {
-#if IOS
+#if ANDROID
+        var toast = CommunityToolkit.Maui.Alerts.Toast.Make(message, duration, fontSize);
+        return toast.Show(new CancellationTokenSource().Token);
+#elif IOS
         // Toast currently errors on iOS
 		return App.Current.MainPage.DisplayAlert(title, message, "OK");
-#else
-        var toast = Toast.Make(message, duration, fontSize);
-        return toast.Show(new CancellationTokenSource().Token);
 #endif
     }
 

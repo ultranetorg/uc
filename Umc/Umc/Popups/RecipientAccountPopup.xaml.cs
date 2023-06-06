@@ -13,8 +13,8 @@ public partial class RecipientAccountPopup : Popup
 		Vm.Popup = this;
     }
 
-	private void cameraBarcodeReaderView_BarcodesDetected(object sender, BarcodeDetectionEventArgs e)
+	private async void cameraBarcodeReaderView_BarcodesDetected(object sender, BarcodeDetectionEventArgs e)
 	{
-		//
+		await Vm.BarcodeDetectedCommand.ExecuteAsync(null);
 	}
 }

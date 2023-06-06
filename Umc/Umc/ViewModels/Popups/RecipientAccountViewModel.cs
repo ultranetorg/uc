@@ -87,6 +87,20 @@ public partial class RecipientAccountViewModel : BaseViewModel
     }
 
 	[RelayCommand]
+    private async Task BarcodeDetectedAsync()
+	{
+		try
+		{
+			await ToastHelper.ShowMessageAsync("Barcode was detected!");
+		}
+		catch (Exception ex)
+		{
+			ToastHelper.ShowErrorMessage(_logger);
+			_logger.LogError("BarcodeDetectedAsync Error: {Message}", ex.Message);
+		}
+	}
+
+	[RelayCommand]
     private void Close() => ClosePopup();
 
 	[RelayCommand]
