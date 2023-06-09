@@ -72,7 +72,13 @@ public partial class SourceAccountViewModel : BaseViewModel
 	}
 
 	[RelayCommand]
-    private void Close() => ClosePopup();
+    private void Confirm()
+	{
+		if (Account != null)
+		{
+			ClosePopup();
+		}
+	}
 	
 	private void LoadData()
 	{

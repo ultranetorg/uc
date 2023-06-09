@@ -14,6 +14,17 @@
     
     <controls:CustomPage.MainContent>
         <StackLayout Padding="{StaticResource PagePadding}" Spacing="32">
+            <Label
+                FontSize="17"
+                Margin="0,16"
+                HorizontalTextAlignment="Center"
+                Text="Transfer successfully completed" />
+            <Image
+                HeightRequest="64"
+                Margin="0,32"
+                HorizontalOptions="Center"
+                Source="{FontImage Size=304, Color={StaticResource Primary}, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Done}}"
+                VerticalOptions="Center" />
             <StackLayout>
                 <Label Style="{StaticResource DashLabel}" Text="Transfering from Ethereum account" />
                 <Label
@@ -27,14 +38,8 @@
                     Account="{Binding Account}"
                     BorderStyle="{StaticResource AccountCardBorderDark}" />
             </StackLayout>
-            <Image
-                HeightRequest="64"
-                Margin="0,32"
-                HorizontalOptions="Center"
-                Source="{FontImage Size=304, Color={StaticResource Primary}, FontFamily=icomoon, Glyph={x:Static fi:IconFont.Done}}"
-                VerticalOptions="Center" />
             <StackLayout Spacing="8">
-                <controls:LabelPair Text1="You will receive" Text2="{Binding UntAmount}" />
+                <controls:LabelPair Text1="You will receive" Text2="{Binding UntAmount, StringFormat='{0} UNT'}" />
                 <controls:LabelPair Text1="You have paid ETH comission" Text2="{Binding EthComission, StringFormat='{0} ETH'}" />
                 <controls:LabelPair Text1="You have paid UNT comission" Text2="{Binding UntComission, StringFormat='{0} UNT'}" />
                 <controls:LabelPair Text1="Transaction date and time" Text2="{Binding TransactionDate}" />

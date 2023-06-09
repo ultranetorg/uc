@@ -13,9 +13,9 @@
         Text="{Binding Text1, Source={x:Reference Instance}}" />
     <Label
         Grid.Column="1"
-        HorizontalOptions="End"
         FontSize="12"
-        FontAttributes="Bold"
         Style="{StaticResource DashLabelValue}"
+        FontAttributes="Bold"
+        HorizontalOptions="End"
         Text="{Binding Text2, Source={x:Reference Instance}}" />
 </Grid>
