@@ -42,6 +42,7 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
         try
         {
             InitializeLoading();
+			ClearFields();
 
 			Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
 			EthAmount = (decimal)query[QueryKeys.ETH_AMOUNT];
@@ -81,6 +82,19 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 			_logger.LogError("OpenFilePickerAsync Error: {Message}", ex.Message);
 		}
 	}
+	
+	[RelayCommand]
+	private async Task OpenUnfinishedTransferPageAsync()
+	{
+		try
+		{
+			await Navigation.GoToAsync(nameof(UnfinishTransferPage));
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError("TransferProductAsync Error: {Message}", ex.Message);
+		}
+	}
 
 	[RelayCommand]
 	private async Task ShowAccountsPopupAsync()
@@ -102,7 +116,7 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	}
 
 	[RelayCommand]
-	private async Task NextWorkaroundAsync()
+	private void NextWorkaround()
 	{
 		try
 		{
@@ -120,31 +134,12 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 			{
 				Position = 2;
 			}
-			else if (Position == 2)
-			{
-				await Navigation.PopAsync();
-				await ToastHelper.ShowMessageAsync("Successfully transfered!");
-			}
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError("NextWorkaroundAsync Error: {Message}", ex.Message);
 		}
-		
 	}
-
-	[RelayCommand]
-    private async Task OpenOptionsPopupAsync()
-    {
-		try
-		{
-			await ShowPopup(new TransferOptionsPopup());
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError("OpenOptionsPopupAsync Error: {Message}", ex.Message);
-		}
-    }
 
 	[RelayCommand]
     private async Task ConfirmAsync()
@@ -154,12 +149,27 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 			await Navigation.GoToAsync(Routes.COMPLETED_TRANSFERS, new Dictionary<string, object>()
 			{
 				{QueryKeys.ACCOUNT, Account},
-				{QueryKeys.UNT_AMOUNT, UntAmount }
+				{QueryKeys.UNT_AMOUNT, UntAmount },
+				{QueryKeys.SOURCE_ACCOUNT, PrivateKey ?? WalletPath }
 			});
+
+			ClearFields();
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError("ConfirmAsync Error: {Message}", ex.Message);
 		}
     }
+
+	private void ClearFields()
+	{
+		Position = 0;
+		Account = null;
+		EthAmount = 10;
+		IsPrivateKey = true;
+		IsFilePath = false;
+		PrivateKey = string.Empty;
+		WalletPath = string.Empty;
+		WalletPassword = string.Empty;
+	}
 }

@@ -30,7 +30,7 @@
                 <Label
                     FontSize="13"
                     Style="{StaticResource Regular}"
-                    Text="{Binding Account.Address}" />
+                    Text="{Binding SourceAccount}" />
             </StackLayout>
             <StackLayout>
                 <Label Style="{StaticResource DashLabel}" Text="To Ultranet Account" />

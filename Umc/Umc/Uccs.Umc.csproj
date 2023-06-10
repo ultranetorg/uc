@@ -181,9 +181,6 @@
 	<MauiXaml Update="Popups\TransactionPopup.xaml">
 		<Generator>MSBuild:Compile</Generator>
 	</MauiXaml>
-	<MauiXaml Update="Popups\TransferOptionsPopup.xaml">
-		<Generator>MSBuild:Compile</Generator>
-	</MauiXaml>
 	<MauiXaml Update="Views\PageTitleActionView.xaml">
 		<Generator>MSBuild:Compile</Generator>
 	</MauiXaml>

@@ -4,6 +4,8 @@ public partial class TransferCompleteViewModel : BasePageViewModel
 {
 	[ObservableProperty]
     private AccountViewModel _account;
+	[ObservableProperty]
+    private string _sourceAccount;
 
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(UntComission))]
@@ -27,6 +29,7 @@ public partial class TransferCompleteViewModel : BasePageViewModel
 			
             Account = (AccountViewModel)query[QueryKeys.ACCOUNT];
             UntAmount = (decimal)query[QueryKeys.UNT_AMOUNT];
+            SourceAccount = (string)query[QueryKeys.SOURCE_ACCOUNT];
 #if DEBUG
             _logger.LogDebug("ApplyQueryAttributes Account: {Account}", Account);
             _logger.LogDebug("ApplyQueryAttributes UntAmount: {UntAmount}", UntAmount);
@@ -48,7 +51,7 @@ public partial class TransferCompleteViewModel : BasePageViewModel
     {
 		try
 		{
-			await Navigation.GoToUpwardsAsync(Routes.TRANSACTIONS);
+			await Navigation.GoToTransactionsAsync();
 		}
 		catch (Exception ex)
 		{

@@ -48,7 +48,7 @@
                                 TextColor="{StaticResource LowerColor}"
                                 HorizontalOptions="End">
                                 <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=OpenOptionsPopupCommand}" />
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=OpenUnfinishedTransferPageCommand}" />
                                 </Label.GestureRecognizers>
                             </Label>
                             <StackLayout Spacing="16">
