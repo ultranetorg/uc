@@ -18,7 +18,7 @@ namespace Uccs
 			string p = "";
 
 			Console.WriteLine();
-			Console.WriteLine($"A password required to access {account} account");
+			Console.WriteLine($"A password required to access {account}");
 
 			do 
 			{
