@@ -1,26 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Numerics;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Nethereum.ABI.Util;
-using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Model;
-using Nethereum.RPC.Accounts;
-using Nethereum.Signer;
 using Nethereum.Util;
 using Nethereum.Web3;
-using Nethereum.Web3.Accounts;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -156,6 +143,11 @@ namespace Uccs.Net
 						if(i <= 16)
 						{
 							Confirm(r, true);
+
+							if(i == 16)
+							{
+								r.Members[0].IPs = new IPAddress[] {zone.GenesisIP};
+							}
 						}
 					}
 	
@@ -293,7 +285,7 @@ namespace Uccs.Net
 
 			r.Blocks.Add(b);
 			//r.Blocks = r.Blocks.OrderBy(i => i is Payload p ? p.OrderingKey : new byte[] {}, new BytesComparer()).ToList();
-	
+				
 			if(b is Payload p)
 			{
 				foreach(var t in p.Transactions)

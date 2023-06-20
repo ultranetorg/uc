@@ -157,7 +157,7 @@ namespace Uccs.Net
 		public int						PeersMin;
 		public int						PeersInMax;
 		public IPAddress				IP;
-		public bool						PublishIPs = false;
+		public bool						Anonymous = false;
 		public List<AccountKey>			Generators = new();
 		public string					Profile;
 		public string					ProductsPath;
@@ -193,6 +193,7 @@ namespace Uccs.Net
 			var doc = new XonDocument(File.ReadAllText(Path));
 
 			Roles		= Enum.Parse<Role>(doc.GetString("Roles"));
+			Anonymous	= doc.Has("Anonymous");
 			PeersMin	= doc.GetInt32("PeersMin");
 			PeersInMax	= doc.GetInt32("PeersInMax");
 			IP			= IPAddress.Parse(doc.GetString("IP"));

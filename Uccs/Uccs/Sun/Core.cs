@@ -128,7 +128,7 @@ namespace Uccs.Net
 
 		public List<IPAddress>			IgnoredIPs	= new();
 		public List<Download>			Downloads = new();
-		public List<Member>				Members = new();
+		//public List<Member>				Members = new();
 
 		TcpListener						Listener;
 		public Thread					MainThread;
@@ -740,7 +740,7 @@ namespace Uccs.Net
 			h.IP			= ip;
 			h.Nuid			= Nuid;
 			h.Peers			= peers;
-			h.Generators	= Members;
+			//h.Generators	= Members;
 			
 			return h;
 		}
@@ -825,15 +825,15 @@ namespace Uccs.Net
 							return;
 						}
 
-						foreach(var i in h.Generators)
-						{
-							if(!Members.Any(j => j.Generator == i.Generator))
-							{
-								i.OnlineSince = ChainTime.Zero;
-								i.Proxy = peer;
-								Members.Add(i);
-							}
-						}
+						//foreach(var i in h.Generators)
+						//{
+						//	if(!Members.Any(j => j.Generator == i.Generator))
+						//	{
+						//		i.OnlineSince = ChainTime.Zero;
+						//		i.Proxy = peer;
+						//		Members.Add(i);
+						//	}
+						//}
 	
 						RefreshPeers(h.Peers.Append(peer));
 	
@@ -957,15 +957,15 @@ namespace Uccs.Net
 							Peers.Add(peer);
 						}
 
-						foreach(var i in h.Generators)
-						{
-							if(!Members.Any(j => j.Generator == i.Generator))
-							{
-								i.OnlineSince = ChainTime.Zero;
-								i.Proxy = peer;
-								Members.Add(i);
-							}
-						}
+						//foreach(var i in h.Generators)
+						//{
+						//	if(!Members.Any(j => j.Generator == i.Generator))
+						//	{
+						//		i.OnlineSince = ChainTime.Zero;
+						//		i.Proxy = peer;
+						//		Members.Add(i);
+						//	}
+						//}
 
 						RefreshPeers(h.Peers.Append(peer));
 	
@@ -1206,11 +1206,11 @@ namespace Uccs.Net
 										{
 							 				throw new SynchronizationException();
 										}
-				
-										var rq = new BlocksBroadcastRequest();
 
 										if(r.BlockPieces.Any())
 										{
+											var rq = new GeneratorBroadcastRequest();
+
 											rq.Pieces = r.BlockPieces;
 											rq.Execute(this);
 										}
@@ -1235,7 +1235,7 @@ namespace Uccs.Net
 										jr.Execute(this);
 									}
 
-									var rq = new BlocksBroadcastRequest();
+									var rq = new GeneratorBroadcastRequest();
 									rq.Pieces = i.Value.Blocks;
 									rq.Execute(this);
 								}
@@ -1271,7 +1271,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public void ProcessIncoming(IEnumerable<Block> blocks)
+		public IEnumerable<Block> ProcessIncoming(IEnumerable<Block> blocks)
 		{
  			var verified = blocks.Where(b =>{
 												//if(LastConfirmedRound != null && b.RoundId <= LastConfirmedRound.Id)
@@ -1306,6 +1306,8 @@ namespace Uccs.Net
 				
 				Database.Add(verified);
 			}
+
+			return verified;
 		}
 
 		void Generate()
@@ -1363,27 +1365,27 @@ namespace Uccs.Net
 				}
 				else
 				{
-					if(!OnlineBroadcasted)
-					{
-						OnlineBroadcasted = true;
-
-						if(!Database.VoterOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch - 1).Any(i => i.Generator == g)) /// first round for block generation
-						{
-							foreach(var i in Connections)
-							{
-								var go = new GeneratorOnlineBroadcastRequest {Account = g, Time = Database.LastConfirmedRound.Time}; 
-
-								if(Settings.PublishIPs)
-									go.IPs = new IPAddress[] {IP};
-								else
-									go.IPs = new IPAddress[] {};
-
-								go.Sign(Zone, g);
-
-								i.Send(go);
-							}
-						}
-					}
+// 					if(!OnlineBroadcasted)
+// 					{
+// 						OnlineBroadcasted = true;
+// 
+// 						if(!Database.VoterOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch - 1).Any(i => i.Generator == g)) /// first round for block generation
+// 						{
+// 							foreach(var i in Connections)
+// 							{
+// 								var go = new GeneratorOnlineBroadcastRequest {Account = g, Time = Database.LastConfirmedRound.Time}; 
+// 
+// 								if(Settings.PublishIPs)
+// 									go.IPs = new IPAddress[] {IP};
+// 								else
+// 									go.IPs = new IPAddress[] {};
+// 
+// 								go.Sign(Zone, g);
+// 
+// 								i.Send(go);
+// 							}
+// 						}
+// 					}
 
 					var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
 
@@ -1416,6 +1418,7 @@ namespace Uccs.Net
 									Leavers		= Database.ProposeLeavers(r, g).ToList(),
 									FundJoiners	= new(),
 									FundLeavers	= new(),
+									IPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP}
 								};
 					
 						var s = new MemoryStream(); 
@@ -1437,7 +1440,7 @@ namespace Uccs.Net
 
 							//Transactions.Remove(i); /// required because in Database.Confirm operations and transactions may be deleted
 						}
-							
+						
 						b.Sign(g);
 						blocks.Add(b);
 					}
@@ -1455,6 +1458,7 @@ namespace Uccs.Net
 									Leavers		= Database.ProposeLeavers(r, g).ToList(),
 									FundJoiners	= new(),
 									FundLeavers	= new(),
+									IPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP}
 								};
 								
 						b.Sign(g);
@@ -1479,6 +1483,7 @@ namespace Uccs.Net
 									Leavers		= Database.ProposeLeavers(r, g).ToList(),
 									FundJoiners	= new(),
 									FundLeavers	= new(),
+									IPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP}
 								};
 								
 						b.Sign(g);
@@ -1552,7 +1557,7 @@ namespace Uccs.Net
 				/// LESS RELIABLE
 				foreach(var i in pieces.SelectMany(i => i.Peers).Distinct())
 				{
-					i.Send(new BlocksBroadcastRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
+					i.Send(new GeneratorBroadcastRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
 				}
 
 				/// ALL FOR ALL
@@ -1606,7 +1611,7 @@ namespace Uccs.Net
 					{
 						foreach(var i in Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()))
 						{
-							i.Send(new BlocksBroadcastRequest{Pieces = notcomebacks});
+							i.Send(new GeneratorBroadcastRequest{Pieces = notcomebacks});
 						}
 					}
 
@@ -1672,11 +1677,11 @@ namespace Uccs.Net
 
 							lock(Lock)
 							{
-								var members = cr.Members.ToArray();
+								var members = cr.Members;
 
-								Members.RemoveAll(i => !members.Contains(i.Generator));
+								//Members.RemoveAll(i => !members.Contains(i.Generator));
 																										
-								foreach(var i in Members.OrderByRandom()) /// look for public IP in connections
+								foreach(var i in members.OrderByRandom()) /// look for public IP in connections
 								{
 									var p = Connections.FirstOrDefault(j => i.IPs.Any(ip => j.IP.Equals(ip)));
 
@@ -1692,7 +1697,7 @@ namespace Uccs.Net
 								if(rdi != null)
 									break;
 
-								foreach(var i in Members.Where(i => i.IPs.Any()).OrderByRandom()) /// try by public IP address
+								foreach(var i in members.Where(i => i.IPs.Any()).OrderByRandom()) /// try by public IP address
 								{
 									var ip = i.IPs.Random();
 									var p = GetPeer(ip);
@@ -1713,7 +1718,7 @@ namespace Uccs.Net
 								if(rdi != null)
 									break;
 
-								foreach(var i in Members.OrderByRandom()) /// look for a Proxy in connections
+								foreach(var i in members.OrderByRandom()) /// look for a Proxy in connections
 								{
 									var p = Connections.FirstOrDefault(j => i.Proxy == j);
 
@@ -1736,7 +1741,7 @@ namespace Uccs.Net
 								if(rdi != null)
 									break;
 									
-								foreach(var i in Members.OrderByRandom())
+								foreach(var i in members.OrderByRandom())
 								{
 									try
 									{

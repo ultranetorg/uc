@@ -1,16 +1,74 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using Org.BouncyCastle.Crypto;
 
 namespace Uccs.Net
 {
-	public class BlocksBroadcastRequest : RdcRequest
+	public class GeneratorBroadcastRequest : RdcRequest
 	{
+		public class Block
+		{
+			public AccountAddress	Generator;
+			public int				RoundId;
+			public byte[]			Hash;
+		}
+
 		public IEnumerable<BlockPiece>	Pieces { get; set; }
+		//public ChainTime				Time { get; set; }
+		//public byte[]					Signature { get; set; }
+
 		public override bool			WaitResponse => false;
+
+		//public AccountAddress			Account;
 
 		public override RdcResponse Execute(Core core)
 		{
+///			if(Account == null)
+///			{
+///				Account = core.Zone.Cryptography.AccountFrom(Signature, Hashify(core.Zone));
+///			}
+
+///			lock(core.Lock)
+///			{
+///				var m = core.Members.Find(i => i.Generator == Account);
+///
+///				if(m == null)
+///				{
+///					if(core.Settings.Roles.HasFlag(Role.Base))
+///					{
+///						if(core.Synchronization == Synchronization.Synchronized && !core.Database.LastConfirmedRound.Members.Any(i => i.Generator == Account))
+///							return null;
+///					}
+///
+///					m = new Member{Generator = Account};
+///					core.Members.Add(m)	;
+///				}
+///
+///				if(IPs.Any())
+///				{
+///					if(!m.IPs.SequenceEqual(IPs))
+///					{
+///						m.IPs = IPs.ToArray();
+///		
+///						//foreach(var i in core.Connections.Where(i => i != Peer))
+///						//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
+///					}
+///				}
+///				else if(m.Proxy == null || m.OnlineSince < Time)
+///				{
+///					//foreach(var i in core.Connections.Where(i => i != Peer))
+///					//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
+///				
+///					m.Proxy = Peer;
+///					m.OnlineSince = Time;
+///				}
+///
+///				return null;
+///			}
+
+
 			var accepted = new List<BlockPiece>();
 
 			lock(core.Lock)
@@ -106,6 +164,14 @@ namespace Uccs.Net
 								//	continue;
 				
 								core.ProcessIncoming(new Block[] {b});
+
+								var m = core.Database.LastConfirmedRound.Members.Find(i => i.Generator == b.Generator);
+	
+								if(m != null)
+								{
+									m.IPs = b.IPs.ToArray();
+									m.Proxy = Peer;
+								}
 							}
 						}
 						else
@@ -118,12 +184,46 @@ namespace Uccs.Net
 				{
 					foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer))
 					{
-						i.Send(new BlocksBroadcastRequest{Pieces = accepted});
+						i.Send(new GeneratorBroadcastRequest{Pieces = accepted});
 					}
 				}
 			}
 
 			return null; 
 		}
+				
+//		public byte[] Hashify(Zone zone)
+//		{
+//			var s = new MemoryStream();
+//			var w = new BinaryWriter(s);
+//			//writer.Write(Generator);
+//
+//			//w.Write(Time);
+//			w.Write(IPs, i => w.Write(i));
+//
+//			return zone.Cryptography.Hash(s.ToArray());
+//		}
+//		
+//		public void Write(BinaryWriter writer)
+//		{
+//			//writer.Write(Time);
+//			writer.Write(IPs, i => writer.Write(i));
+//			writer.Write(Signature);
+//		}
+//		
+//		public void Read(BinaryReader reader, Zone zone)
+//		{
+//			//Time		= reader.ReadTime();
+//			IPs			= reader.ReadArray(() => reader.ReadIPAddress());
+//			Signature	= reader.ReadSignature();
+//		
+//			Account = zone.Cryptography.AccountFrom(Signature, Hashify(zone));
+//		}
+//		
+//		public void Sign(Zone zone, AccountKey generator)
+//		{
+//			Account = generator;
+//			Signature = zone.Cryptography.Sign(generator, Hashify(zone));
+//		}
 	}
 }

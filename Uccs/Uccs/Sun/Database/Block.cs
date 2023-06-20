@@ -104,26 +104,26 @@ namespace Uccs.Net
 
 	public abstract class Block : ITypedBinarySerializable//, IBinarySerializable
 	{
-		public const int			SizeMax = 65536;
+		public const int				SizeMax = 65536;
 
-		public virtual bool			Valid => true;
+		public virtual bool				Valid => true;
 
-		public int					RoundId { get; set; }
-		public AccountAddress		Generator { get; set; }
-		//public byte[]				Signature;
-		public byte[]				Hash;
+		public int						RoundId { get; set; }
+		public AccountAddress			Generator { get; set; }
+		public IEnumerable<IPAddress>	IPs { get; set; } 
+		//public byte[]					Signature;
+		public byte[]					Hash;
 
-		public BlockType			Type => Enum.Parse<BlockType>(GetType().Name);
-		public byte					TypeCode => (byte)Type;
-		public int					ParentId => RoundId - Database.Pitch;
-		protected Database			Database;
-		public Round				Round;
+		public BlockType				Type => Enum.Parse<BlockType>(GetType().Name);
+		public byte						TypeCode => (byte)Type;
+		public int						ParentId => RoundId - Database.Pitch;
+		protected Database				Database;
+		public Round					Round;
 
-		protected abstract void		HashWrite(BinaryWriter w);
-		public abstract	void		WriteForPiece(BinaryWriter w);
-		public abstract	void		ReadForPiece(BinaryReader r);
-		public abstract	void		WriteForRound(BinaryWriter w);
-		public abstract	void		ReadForRound(BinaryReader r);
+
+		protected abstract void			Hashify(BinaryWriter w);
+		public abstract	void			WriteForRound(BinaryWriter w);
+		public abstract	void			ReadForRound(BinaryReader r);
 
 		public Block(Database database)
 		{
@@ -148,6 +148,16 @@ namespace Uccs.Net
 				throw new IntegrityException($"Wrong {nameof(Block)} type", ex);
 			}
 		}
+		
+		public virtual void WriteForPiece(BinaryWriter writer)
+		{
+			writer.Write(IPs, i => writer.Write(i));
+		}
+		
+		public virtual void ReadForPiece(BinaryReader reader)
+		{
+			IPs	= reader.ReadArray(() => reader.ReadIPAddress());
+		}
 
 		public byte[] Hashify()
 		{
@@ -157,8 +167,9 @@ namespace Uccs.Net
 			w.Write(TypeCode);
 			w.WriteUtf8(Database.Zone.Name);
 			w.Write7BitEncodedInt(RoundId);
-
-			HashWrite(w);
+			w.Write(IPs, i => w.Write(i));
+			
+			Hashify(w);
 											
 			return Database.Zone.Cryptography.Hash(s.ToArray());
 		}
@@ -184,10 +195,8 @@ namespace Uccs.Net
 		public List<AccountAddress>		Leavers = new();
 		public List<AccountAddress>		FundJoiners = new();
 		public List<AccountAddress>		FundLeavers = new();
-		//public List<Proposition>		Propositions = new();
 
 		public byte[]					Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
-		//public byte[]					PropositionsHash;
 
 		public Vote(Database c) : base(c)
 		{
@@ -198,7 +207,7 @@ namespace Uccs.Net
 			return base.ToString() + $", Parents={{{Consensus.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
 		}
 
-		protected override void HashWrite(BinaryWriter writer)
+		protected override void Hashify(BinaryWriter writer)
 		{
 			writer.Write(Generator);
 			
@@ -216,8 +225,6 @@ namespace Uccs.Net
 
 		protected void WriteVote(BinaryWriter writer)
 		{
-			//writer.Write(Generator);
-
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
@@ -232,8 +239,6 @@ namespace Uccs.Net
 
 		protected void ReadVote(BinaryReader reader)
 		{
-			//Generator	= reader.ReadAccount();
-
 			RoundId		= reader.Read7BitEncodedInt();
 			Try			= reader.Read7BitEncodedInt();
 			TimeDelta	= reader.Read7BitEncodedInt64();
@@ -248,15 +253,18 @@ namespace Uccs.Net
 
 		public override void WriteForPiece(BinaryWriter writer)
 		{
+			base.WriteForPiece(writer);
+
 			WriteVote(writer);
 		}
 
 		public override void ReadForPiece(BinaryReader reader)
 		{
+			base.ReadForPiece(reader);
+
 			ReadVote(reader);
 
 			Hash = Hashify();
-			//Generator = Database.Zone.Cryptography.AccountFrom(Signature, Hash);
 		}
 
 		public override void WriteForRound(BinaryWriter writer)
@@ -268,12 +276,11 @@ namespace Uccs.Net
 
 		public override void ReadForRound(BinaryReader reader)
 		{
-			Generator	= reader.ReadAccount();
+			Generator = reader.ReadAccount();
 
 			ReadVote(reader);
 
 			Hash = Hashify();
-			//Generator = Database.Zone.Cryptography.AccountFrom(Signature, Hash);
 		}
 	}
 
@@ -323,11 +330,11 @@ namespace Uccs.Net
 			Transactions.Insert(0, t);
 		}
 				
-		protected override void HashWrite(BinaryWriter writer)
+		protected override void Hashify(BinaryWriter writer)
 		{
 			//writer.Write(Generator); /// needed to read check transactions' signatures in Payload
 
-			base.HashWrite(writer);
+			base.Hashify(writer);
 
 			foreach(var i in Transactions) 
 			{
@@ -337,6 +344,8 @@ namespace Uccs.Net
 
 		public override void WriteForPiece(BinaryWriter writer)
 		{
+			base.WriteForPiece(writer);
+
 			WriteVote(writer);
 
 			writer.Write(Transactions, t => t.WriteAsPartOfBlock(writer));
@@ -344,6 +353,8 @@ namespace Uccs.Net
 
 		public override void ReadForPiece(BinaryReader reader)
 		{
+			base.ReadForPiece(reader);
+
 			ReadVote(reader);
 
 			Transactions = reader.ReadList(() =>	{

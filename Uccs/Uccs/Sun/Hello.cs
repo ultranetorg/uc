@@ -15,7 +15,7 @@ namespace Uccs.Net
 		public string						Zone;
 		public IPAddress					IP;
 		public Peer[]						Peers;
-		public IEnumerable<Member>			Generators = new Member[]{};
+		//public IEnumerable<Member>			Generators = new Member[]{};
 
 		public void Write(BinaryWriter w)
 		{
@@ -25,7 +25,7 @@ namespace Uccs.Net
 			w.Write(IP.GetAddressBytes());
 			w.Write(Nuid.ToByteArray());
 			w.Write(Peers, i => i.WritePeer(w));
-			w.Write(Generators, i => i.WriteForSharing(w));
+			//w.Write(Generators, i => i.WriteForSharing(w));
 		}
 
 		public void Read(BinaryReader r)
@@ -39,7 +39,7 @@ namespace Uccs.Net
 														i.Fresh = true; 
 														i.ReadPeer(r);
 													}).ToArray();
-			Generators			= r.Read<Member>(i => i.ReadForSharing(r));
+			//Generators			= r.Read<Member>(i => i.ReadForSharing(r));
 		}
 	}
 }

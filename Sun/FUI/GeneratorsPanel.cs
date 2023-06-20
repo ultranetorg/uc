@@ -12,9 +12,13 @@ namespace Uccs.Sun.FUI
 {
 	public partial class GeneratorsPanel : MainPanel
 	{
+		Font Bold;
+
 		public GeneratorsPanel(Core d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
+
+			Bold = new Font(Font, FontStyle.Bold);
 		}
 
 		public override void Open(bool first)
@@ -23,16 +27,24 @@ namespace Uccs.Sun.FUI
 			Generators.Items.Clear();
 			Proxies.Items.Clear();
 
-			lock(Core.Lock)
+			if(Core.Database?.LastConfirmedRound != null)
 			{
-				foreach(var i in Core.Members.OrderBy(i => i.Generator))
+				lock(Core.Lock)
 				{
-					var li = Generators.Items.Add(i.Generator.ToString());
-
-					li.Tag = i;
-					li.SubItems.Add(i.ActivatedAt.ToString());
-					li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Generator, int.MaxValue).Bail.ToHumanString() : null);
-					//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
+					foreach(var i in Core.Database.LastConfirmedRound.Members.OrderBy(i => i.Generator))
+					{
+						var li = Generators.Items.Add(i.Generator.ToString());
+	
+						if(Core.Settings.Generators.Contains(i.Generator))
+						{
+							li.Font = Bold;
+						}
+	
+						li.Tag = i;
+						li.SubItems.Add(i.ActivatedAt.ToString());
+						li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Generator, int.MaxValue).Bail.ToHumanString() : null);
+						//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
+					}
 				}
 			}
 		}

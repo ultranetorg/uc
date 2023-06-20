@@ -21,7 +21,7 @@ namespace Uccs.Net
 	{
 		Null, 
 		Proxy, 
-		GeneratorJoinBroadcast, GeneratorOnlineBroadcast, PeersBroadcast, BlocksBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
+		GeneratorJoinBroadcast, GeneratorBroadcast, PeersBroadcast, BlocksBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
 		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
@@ -195,6 +195,9 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Core core)
 		{
+			if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
+			if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+
 			lock(core.Lock)
 			{
 				if(core.Connections.Any(i =>{
@@ -214,7 +217,7 @@ namespace Uccs.Net
 
 				lock(core.Lock)
 				{
-					m = core.Members.Find(i => i.Generator == Destination);
+					m = core.Database.LastConfirmedRound.Members.Find(i => i.Generator == Destination);
 				}
 
 				if(m?.Proxy != null)

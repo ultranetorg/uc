@@ -10,11 +10,11 @@ namespace Uccs.Net
 {
 	public class Member
 	{
-		public AccountAddress		Generator { get; set; }
-		public IPAddress[]			IPs { get; set; } = new IPAddress[0];
-		public ChainTime			OnlineSince = ChainTime.Zero;
-		public int					ActivatedAt;
-		public Peer         		Proxy;
+		public AccountAddress			Generator { get; set; }
+		public IEnumerable<IPAddress>	IPs { get; set; } = new IPAddress[0];
+		//public ChainTime				OnlineSince = ChainTime.Zero;
+		public int						ActivatedAt;
+		public Peer         			Proxy;
 	
   		public void WriteConfirmed(BinaryWriter w)
  		{
@@ -44,17 +44,17 @@ namespace Uccs.Net
  			//IPs		= r.ReadArray(() => r.ReadIPAddress());
 		}
 	
-  		public void WriteForSharing(BinaryWriter w)
- 		{
- 			w.Write(Generator);
- 			w.Write(IPs, i => w.Write(i));
- 		}
- 
- 		public void ReadForSharing(BinaryReader r)
- 		{
-			Generator	= r.ReadAccount();
-			IPs			= r.ReadArray(() => r.ReadIPAddress());
-		}
+//   		public void WriteForSharing(BinaryWriter w)
+//  		{
+//  			w.Write(Generator);
+//  			w.Write(IPs, i => w.Write(i));
+//  		}
+//  
+//  		public void ReadForSharing(BinaryReader r)
+//  		{
+// 			Generator	= r.ReadAccount();
+// 			IPs			= r.ReadArray(() => r.ReadIPAddress());
+// 		}
 
 		public override string ToString()
 		{
