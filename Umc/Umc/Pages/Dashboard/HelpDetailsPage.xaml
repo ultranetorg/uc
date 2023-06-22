@@ -17,7 +17,7 @@
                         Style="{StaticResource DashLabel}"
                         Text="{Binding HelpDetails.Question}" />
                     <Label Margin="0,4" Text="{Binding HelpDetails.Answer}" />
-                    <Label Text="{Binding HelpDetails.Prompt}" />
+                    <Label Text="{Binding HelpDetails.Answer}" />
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand" Spacing="12">
                     <Label

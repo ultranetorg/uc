@@ -22,14 +22,14 @@ namespace UC.Umc.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class Dashboard_Strings {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal Dashboard_Strings() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace UC.Umc.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("UC.Umc.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("UC.Umc.Properties.Dashboard_Strings", typeof(Dashboard_Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,155 +61,236 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Main ultranet wallet.
+        ///   Looks up a localized string similar to Press and hold the search bar. Tap the three dots icon More then Settings. Turn Search Box Effects on or off. .
         /// </summary>
-        internal static string DefaultWalletName {
+        internal static string HelpAnswer_1 {
             get {
-                return ResourceManager.GetString("DefaultWalletName", resourceCulture);
+                return ResourceManager.GetString("HelpAnswer_1", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Press and hold the search bar. Tap the three dots icon More then Settings. Turn Search Box Effects on or off. .
+        ///   Looks up a localized string similar to Text.
         /// </summary>
-        internal static string HelpAnswer1 {
+        internal static string HelpAnswer_10 {
             get {
-                return ResourceManager.GetString("HelpAnswer1", resourceCulture);
+                return ResourceManager.GetString("HelpAnswer_10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_11 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_12 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_13 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_13", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The following icons are located in the upper right corner of the screen or in the quick settings panel. To see their names and descriptions, swipe down twice from the top of the screen..
         /// </summary>
-        internal static string HelpAnswer2 {
+        internal static string HelpAnswer_2 {
             get {
-                return ResourceManager.GetString("HelpAnswer2", resourceCulture);
+                return ResourceManager.GetString("HelpAnswer_2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_3 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_4 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_5 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_6 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_7 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_8 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text.
+        /// </summary>
+        internal static string HelpAnswer_9 {
+            get {
+                return ResourceManager.GetString("HelpAnswer_9", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
-        internal static string HelpLine1 {
+        internal static string HelpQuestion_1 {
             get {
-                return ResourceManager.GetString("HelpLine1", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_1", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to quickly change Android phone settings.
         /// </summary>
-        internal static string HelpLine10 {
+        internal static string HelpQuestion_10 {
             get {
-                return ResourceManager.GetString("HelpLine10", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_10", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
         /// </summary>
-        internal static string HelpLine11 {
+        internal static string HelpQuestion_11 {
             get {
-                return ResourceManager.GetString("HelpLine11", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_11", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The quick settings panel makes it easy to navigate and customize options.
         /// </summary>
-        internal static string HelpLine12 {
+        internal static string HelpQuestion_12 {
             get {
-                return ResourceManager.GetString("HelpLine12", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_12", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
-        internal static string HelpLine13 {
+        internal static string HelpQuestion_13 {
             get {
-                return ResourceManager.GetString("HelpLine13", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_13", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to quickly change Android phone settings.
         /// </summary>
-        internal static string HelpLine2 {
+        internal static string HelpQuestion_2 {
             get {
-                return ResourceManager.GetString("HelpLine2", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_2", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
         /// </summary>
-        internal static string HelpLine3 {
+        internal static string HelpQuestion_3 {
             get {
-                return ResourceManager.GetString("HelpLine3", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_3", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The quick settings panel makes it easy to navigate and customize options.
         /// </summary>
-        internal static string HelpLine4 {
+        internal static string HelpQuestion_4 {
             get {
-                return ResourceManager.GetString("HelpLine4", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_4", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
-        internal static string HelpLine5 {
+        internal static string HelpQuestion_5 {
             get {
-                return ResourceManager.GetString("HelpLine5", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_5", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to quickly change Android phone settings.
         /// </summary>
-        internal static string HelpLine6 {
+        internal static string HelpQuestion_6 {
             get {
-                return ResourceManager.GetString("HelpLine6", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_6", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
         /// </summary>
-        internal static string HelpLine7 {
+        internal static string HelpQuestion_7 {
             get {
-                return ResourceManager.GetString("HelpLine7", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_7", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The quick settings panel makes it easy to navigate and customize options.
         /// </summary>
-        internal static string HelpLine8 {
+        internal static string HelpQuestion_8 {
             get {
-                return ResourceManager.GetString("HelpLine8", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_8", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to How to turn animation on or off in the search bar.
         /// </summary>
-        internal static string HelpLine9 {
+        internal static string HelpQuestion_9 {
             get {
-                return ResourceManager.GetString("HelpLine9", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to How to understand which settings the icons correspond to the following icons are located in the upper right corner of the screen or in the quick settings panel.
-        /// </summary>
-        internal static string HelpQuestion1 {
-            get {
-                return ResourceManager.GetString("HelpQuestion1", resourceCulture);
+                return ResourceManager.GetString("HelpQuestion_9", resourceCulture);
             }
         }
     }

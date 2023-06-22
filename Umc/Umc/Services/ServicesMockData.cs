@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.Services;
+﻿using UC.Umc.Common.Helpers;
+
+namespace UC.Umc.Services;
 
 public class ServicesMockData : IServicesMockData
 {
@@ -12,7 +14,7 @@ public class ServicesMockData : IServicesMockData
     public IList<Emission> Emissions { get; private set; } = new List<Emission>();
     public IList<Notification> Notifications { get; private set; } = new List<Notification>();
     public IList<Bid> BidsHistory { get; private set; } = new List<Bid>();
-    public IList<string> HelpQuestions  { get; private set; } = new List<string>();
+    public IList<HelpInfo> HelpQuestions  { get; private set; } = new List<HelpInfo>();
 
     public ServicesMockData(ILogger<ServicesMockData> logger)
 	{
@@ -291,19 +293,10 @@ public class ServicesMockData : IServicesMockData
 
 			#region Help Questions
 
-			HelpQuestions.Add(Properties.Resources.HelpLine1);
-			HelpQuestions.Add(Properties.Resources.HelpLine2);
-			HelpQuestions.Add(Properties.Resources.HelpLine3);
-			HelpQuestions.Add(Properties.Resources.HelpLine4);
-			HelpQuestions.Add(Properties.Resources.HelpLine5);
-			HelpQuestions.Add(Properties.Resources.HelpLine6);
-			HelpQuestions.Add(Properties.Resources.HelpLine7);
-			HelpQuestions.Add(Properties.Resources.HelpLine8);
-			HelpQuestions.Add(Properties.Resources.HelpLine9);
-			HelpQuestions.Add(Properties.Resources.HelpLine10);
-			HelpQuestions.Add(Properties.Resources.HelpLine11);
-			HelpQuestions.Add(Properties.Resources.HelpLine12);
-			HelpQuestions.Add(Properties.Resources.HelpLine13);
+			for(int i = 1; i <= 13; i++)
+			{
+				HelpQuestions.Add(ResourceHelper.GetHelpInfo(i));
+			}
 
 			#endregion Help Questions
 		}

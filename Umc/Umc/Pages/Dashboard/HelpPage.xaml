@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:HelpViewModel"
@@ -30,16 +31,18 @@
                 ItemsSource="{Binding Helps}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="{x:Type models:HelpInfo}">
                         <Grid Margin="0,8" ColumnDefinitions="16,*" ColumnSpacing="8">
                             <Image Grid.Column="0" Style="{StaticResource Rhombus}">
                                 <Image.Behaviors>
                                     <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDarkLighten}}"/>
                                 </Image.Behaviors>
                             </Image>
-                            <Label Grid.Column="1" Text="{Binding .}" />
+                            <Label Grid.Column="1" Text="{Binding Question}" />
                             <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HelpViewModel}}, Path=OpenDetailsCommand}" />
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HelpViewModel}}, Path=OpenDetailsCommand}"
+                                    CommandParameter="{Binding .}" />
                             </Grid.GestureRecognizers>
                         </Grid>
                     </DataTemplate>
@@ -49,7 +52,6 @@
             <Border Grid.Row="2" Margin="16" Style="{StaticResource AccountCardBorder}">
                 <Button Command="{Binding CancelCommand}" Text="Close" />
             </Border>
-
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>

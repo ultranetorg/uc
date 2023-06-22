@@ -1,5 +1,4 @@
 ﻿using Application = Microsoft.Maui.Controls.Application;
-using Microsoft.Maui.Handlers;
 
 namespace UC.Umc;
 

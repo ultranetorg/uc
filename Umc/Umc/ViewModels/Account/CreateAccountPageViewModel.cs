@@ -34,7 +34,7 @@ public partial class CreateAccountPageViewModel : BaseAccountViewModel
 	[RelayCommand]
     private void Randomize()
     {
-        Password = CommonHelper.GenerateUniqueId(CommonHelper.LENGTH_ACCOUNT);
+        Password = CommonHelper.GenerateUniqueId(CommonConstants.LENGTH_ACCOUNT);
     }
 
 	[RelayCommand]
@@ -47,7 +47,7 @@ public partial class CreateAccountPageViewModel : BaseAccountViewModel
 			NumbersIncluded = Password.Any(char.IsNumber);
 
 			SpecialCharacterIncluded = false;
-			foreach (char ch in TextConstants.SPECIAL_CHARACTERS)
+			foreach (char ch in CommonConstants.SPECIAL_CHARACTERS)
 			{
 				if (Password.Contains(ch))
 				{

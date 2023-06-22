@@ -25,10 +25,10 @@ public class AuthService
 	{
 		try
 		{
-			var pin = await UserSecureStore.GetDataAsync(TextConstants.PINCODE_KEY);
+			var pin = await UserSecureStore.GetDataAsync(CommonConstants.PINCODE_KEY);
 
 			// ask to input pincode again (TBD)
-            await UserSecureStore.SetUserDataAsync(TextConstants.LAST_LOGIN, DateTime.Now.ToShortTimeString(), _logger);
+            await UserSecureStore.SetUserDataAsync(CommonConstants.LAST_LOGIN, DateTime.Now.ToShortTimeString(), _logger);
 
 			return !string.IsNullOrEmpty(pincode) && pincode == pin;
 		}
@@ -44,10 +44,10 @@ public class AuthService
 	{
 		try
 		{
-			await UserSecureStore.SetUserDataAsync(TextConstants.PINCODE_KEY, pincode, _logger);
+			await UserSecureStore.SetUserDataAsync(CommonConstants.PINCODE_KEY, pincode, _logger);
 
 			// after a while we will ask to change pincode (TBD)
-			await UserSecureStore.SetUserDataAsync(TextConstants.PINCODE_SET, DateTime.Today.ToShortDateString(), _logger);
+			await UserSecureStore.SetUserDataAsync(CommonConstants.PINCODE_SET, DateTime.Today.ToShortDateString(), _logger);
 
 			await ToastHelper.ShowMessageAsync("Pin was created");
 		}
@@ -94,7 +94,7 @@ public class AuthService
     {
         try
         {
-			var pin = await UserSecureStore.GetDataAsync(TextConstants.PINCODE_KEY);
+			var pin = await UserSecureStore.GetDataAsync(CommonConstants.PINCODE_KEY);
 
 			return !string.IsNullOrEmpty(pin) && pin.Length == 4;
         }

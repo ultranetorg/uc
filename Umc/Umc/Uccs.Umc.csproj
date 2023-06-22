@@ -56,6 +56,54 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Update="Properties\Dashboard_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Dashboard_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Dashboard_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Dashboard_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Account_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Account_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Account_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Account_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Author_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Author_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Author_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Author_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Product_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Product_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Product_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Product_Strings.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\Transaction_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Transaction_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Transaction_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Transaction_Strings.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.3.0" />
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
@@ -252,13 +300,6 @@
 	  <MauiXaml Update="Views\UpdatesList.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
