@@ -4,22 +4,23 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:NetworkViewModel"
-    Title="Network">
+    Title="{x:Static resx:Dashboard_Strings.Network_Title}">
     
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <StackLayout Padding="32" Spacing="16">
-                <controls:LabelPair Text1="Nodes count" Text2="{Binding NetworkInfo.NodesCount}" />
-                <controls:LabelPair Text1="Number of active users" Text2="{Binding NetworkInfo.ActiveUsers}" />
-                <controls:LabelPair Text1="Bandwidth" Text2="{Binding NetworkInfo.Bandwidth}" />
-                <controls:LabelPair Text1="Last block date" Text2="{Binding NetworkInfo.DisplayBlockDate}" />
-                <controls:LabelPair Text1="Round number" Text2="{Binding NetworkInfo.RoundNumber}" />
-                <controls:LabelPair Text1="Current time" Text2="{Binding CurrentTime}" />
+                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_NodesCount}" Text2="{Binding NetworkInfo.NodesCount}" />
+                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_ActiveUsers}" Text2="{Binding NetworkInfo.ActiveUsers}" />
+                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_Bandwidth}" Text2="{Binding NetworkInfo.Bandwidth}" />
+                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_LastBlockDate}" Text2="{Binding NetworkInfo.DisplayBlockDate}" />
+                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_RoundNumber}" Text2="{Binding NetworkInfo.RoundNumber}" />
+                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_CurrentTime}" Text2="{Binding CurrentTime}" />
             </StackLayout>
             <Border Grid.Row="1" Padding="16" Style="{StaticResource AccountCardBorder}">
-                <Button Command="{Binding CancelCommand}" Text="Close" />
+                <Button Command="{Binding CancelCommand}" Text="{x:Static resx:Dashboard_Strings.Button_Close}" />
             </Border>
         </Grid>
     </controls:CustomPage.MainContent>

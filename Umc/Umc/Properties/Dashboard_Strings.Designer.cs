@@ -61,6 +61,195 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bug bounty program.
+        /// </summary>
+        internal static string About_BugBounty {
+            get {
+                return ResourceManager.GetString("About_BugBounty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read about our Bug Bounty program.
+        /// </summary>
+        internal static string About_BugBounty2 {
+            get {
+                return ResourceManager.GetString("About_BugBounty2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Privacy and terms.
+        /// </summary>
+        internal static string About_PrivacyTerms {
+            get {
+                return ResourceManager.GetString("About_PrivacyTerms", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rate the application.
+        /// </summary>
+        internal static string About_RateApp {
+            get {
+                return ResourceManager.GetString("About_RateApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rate our application in App Store.
+        /// </summary>
+        internal static string About_RateApp2 {
+            get {
+                return ResourceManager.GetString("About_RateApp2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send feedback.
+        /// </summary>
+        internal static string About_SendFeedback {
+            get {
+                return ResourceManager.GetString("About_SendFeedback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Share your feedback with us.
+        /// </summary>
+        internal static string About_SendFeedback2 {
+            get {
+                return ResourceManager.GetString("About_SendFeedback2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ultranet on Telegram.
+        /// </summary>
+        internal static string About_Telegram {
+            get {
+                return ResourceManager.GetString("About_Telegram", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Join us in Telegram.
+        /// </summary>
+        internal static string About_Telegram2 {
+            get {
+                return ResourceManager.GetString("About_Telegram2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        internal static string About_Title {
+            get {
+                return ResourceManager.GetString("About_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ultranet on Twitter.
+        /// </summary>
+        internal static string About_Twitter {
+            get {
+                return ResourceManager.GetString("About_Twitter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Join us in Twitter.
+        /// </summary>
+        internal static string About_Twitter2 {
+            get {
+                return ResourceManager.GetString("About_Twitter2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accounts.
+        /// </summary>
+        internal static string Accounts_Title {
+            get {
+                return ResourceManager.GetString("Accounts_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authors.
+        /// </summary>
+        internal static string Authors_Title {
+            get {
+                return ResourceManager.GetString("Authors_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string Button_Close {
+            get {
+                return ResourceManager.GetString("Button_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create a PIN.
+        /// </summary>
+        internal static string CreatePin_Heading {
+            get {
+                return ResourceManager.GetString("CreatePin_Heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lock Out.
+        /// </summary>
+        internal static string Dashboard_LockOut {
+            get {
+                return ResourceManager.GetString("Dashboard_LockOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        internal static string Dashboard_Search {
+            get {
+                return ResourceManager.GetString("Dashboard_Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter PIN or use Fingerprint.
+        /// </summary>
+        internal static string EnterPin_Heading {
+            get {
+                return ResourceManager.GetString("EnterPin_Heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter Pin.
+        /// </summary>
+        internal static string EnterPin_Title {
+            get {
+                return ResourceManager.GetString("EnterPin_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Help.
+        /// </summary>
+        internal static string Help_Title {
+            get {
+                return ResourceManager.GetString("Help_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press and hold the search bar. Tap the three dots icon More then Settings. Turn Search Box Effects on or off. .
         /// </summary>
         internal static string HelpAnswer_1 {
@@ -291,6 +480,168 @@ namespace UC.Umc.Properties {
         internal static string HelpQuestion_9 {
             get {
                 return ResourceManager.GetString("HelpQuestion_9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Number of active users.
+        /// </summary>
+        internal static string Network_ActiveUsers {
+            get {
+                return ResourceManager.GetString("Network_ActiveUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bandwidth.
+        /// </summary>
+        internal static string Network_Bandwidth {
+            get {
+                return ResourceManager.GetString("Network_Bandwidth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current time.
+        /// </summary>
+        internal static string Network_CurrentTime {
+            get {
+                return ResourceManager.GetString("Network_CurrentTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last block date.
+        /// </summary>
+        internal static string Network_LastBlockDate {
+            get {
+                return ResourceManager.GetString("Network_LastBlockDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nodes count.
+        /// </summary>
+        internal static string Network_NodesCount {
+            get {
+                return ResourceManager.GetString("Network_NodesCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Round number.
+        /// </summary>
+        internal static string Network_RoundNumber {
+            get {
+                return ResourceManager.GetString("Network_RoundNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Network.
+        /// </summary>
+        internal static string Network_Title {
+            get {
+                return ResourceManager.GetString("Network_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Notifications.
+        /// </summary>
+        internal static string Notifications_Title {
+            get {
+                return ResourceManager.GetString("Notifications_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Products.
+        /// </summary>
+        internal static string Products_Title {
+            get {
+                return ResourceManager.GetString("Products_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Block app.
+        /// </summary>
+        internal static string Settings_Block {
+            get {
+                return ResourceManager.GetString("Settings_Block", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to After blocking, the application will become not available for download.
+        /// </summary>
+        internal static string Settings_Block2 {
+            get {
+                return ResourceManager.GetString("Settings_Block2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Displaying hints.
+        /// </summary>
+        internal static string Settings_Hints {
+            get {
+                return ResourceManager.GetString("Settings_Hints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable secure sign in.
+        /// </summary>
+        internal static string Settings_SignIn {
+            get {
+                return ResourceManager.GetString("Settings_SignIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string Settings_Title {
+            get {
+                return ResourceManager.GetString("Settings_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transactions.
+        /// </summary>
+        internal static string Transactions_Title {
+            get {
+                return ResourceManager.GetString("Transactions_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ETH-UNT Transfer.
+        /// </summary>
+        internal static string Transfers_Title {
+            get {
+                return ResourceManager.GetString("Transfers_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ultranet User Center.
+        /// </summary>
+        internal static string Ultranet_App_Name {
+            get {
+                return ResourceManager.GetString("Ultranet_App_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What&apos;s New.
+        /// </summary>
+        internal static string WhatsNew_Title {
+            get {
+                return ResourceManager.GetString("WhatsNew_Title", resourceCulture);
             }
         }
     }

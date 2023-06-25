@@ -4,9 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:EnterPinViewModel"
-    Title="Enter Pin"
+    Title="{x:Static resx:Dashboard_Strings.EnterPin_Title}"
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False"
     x:Name="page">
@@ -23,13 +24,13 @@
             FontSize="18"
 			Margin="0,32,0,0"
 			TextColor="{StaticResource PrimaryLight}"
-            Text="Ultranet User Center" />
+            Text="{x:Static resx:Dashboard_Strings.Ultranet_App_Name}" />
         <Image HorizontalOptions="Center" Style="{StaticResource Logo}" Source="{Binding Logo}" />
         <Label
             FontSize="13"
             HorizontalOptions="Center"
 			TextColor="{StaticResource PrimaryLight}"
-            Text="Enter PIN or use Fingerprint" />
+            Text="{x:Static resx:Dashboard_Strings.EnterPin_Heading}" />
         <Grid
 			VerticalOptions="EndAndExpand"
 			RowSpacing="40"

@@ -5,6 +5,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:const="clr-namespace:UC.Umc.Constants"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     Shell.NavBarIsVisible="False"
@@ -23,7 +24,7 @@
 		<Label
 			FontSize="18"
             HorizontalOptions="Center"
-			Text="Ultranet User Center" />
+			Text="{x:Static resx:Dashboard_Strings.Ultranet_App_Name}" />
 		<Image
 			HorizontalOptions="Center"
 			Style="{StaticResource Logo}"
@@ -32,7 +33,7 @@
             Grid.Row="1"
             FontSize="18"
             HorizontalOptions="Center"
-            Text="Create a PIN" />
+            Text="{x:Static resx:Dashboard_Strings.CreatePin_Heading}" />
         <Grid
             ColumnDefinitions="*,*,*"
             RowDefinitions="*,*,*,*"

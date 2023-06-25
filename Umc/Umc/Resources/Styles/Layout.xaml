@@ -75,13 +75,6 @@
         <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light=#DDEAEE}" />
         <Setter Property="HasShadow" Value="False" />
     </Style>
-    <Style x:Key="ComboBox" TargetType="Frame">
-        <Setter Property="Padding" Value="2" />
-        <Setter Property="CornerRadius" Value="1" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryForLight}}" />
-        <Setter Property="HasShadow" Value="False" />
-    </Style>
     <Style x:Key="PopupHandle" TargetType="Frame">
         <Setter Property="Padding" Value="0" />
         <Setter Property="Opacity" Value="0.3" />
@@ -180,5 +173,11 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 8" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Gray950}, Light={StaticResource LightBackground}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource LightBackground}}" />
+    </Style>
+    <Style x:Key="ComboBox" TargetType="Border">
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryForLight}}" />
     </Style>
 </ResourceDictionary>

@@ -7,10 +7,11 @@
     xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    Title="Ultranet User Center"
     x:DataType="vm:DashboardViewModel"
+    Title="{x:Static resx:Dashboard_Strings.Ultranet_App_Name}"
     ios:Page.UseSafeArea="True">
     
     <controls:CustomPage.Resources>
@@ -81,7 +82,7 @@
                         FontAttributes="Bold"
                         Style="{StaticResource DashLabel}"
                         Margin="0,8"
-                        Text="Accounts" />
+                        Text="{x:Static resx:Dashboard_Strings.Accounts_Title}" />
                     <Border Style="{StaticResource SquareBorder}">
                         <VerticalStackLayout
                             BindableLayout.ItemsSource="{Binding Accounts}"
@@ -92,7 +93,7 @@
                     <Label
                         FontSize="12"
                         Style="{StaticResource DashLabel}"
-                        Text="Transactions"
+                        Text="{x:Static resx:Dashboard_Strings.Transactions_Title}"
                         FontAttributes="Bold"
                         Margin="0,8" />
                 
@@ -118,68 +119,68 @@
                         <controls:ImageTextButton
                             Command="{Binding AccountsExcuteCommand}"
                             ImageSource="accounts.png"
-                            Text="Accounts" />
+                            Text="{x:Static resx:Dashboard_Strings.Accounts_Title}" />
                         <controls:ImageTextButton
                             Grid.Column="1"
                             Command="{Binding AuthorsExcuteCommand}"
                             ImageSource="authors.png"
-                            Text="Authors" />
+                            Text="{x:Static resx:Dashboard_Strings.Authors_Title}" />
                         <controls:ImageTextButton
                             Grid.Column="2"
                             Command="{Binding ProductsExcuteCommand}"
                             ImageSource="products.png"
-                            Text="Products" />
+                            Text="{x:Static resx:Dashboard_Strings.Products_Title}" />
                         <controls:ImageTextButton
                             Grid.Column="3"
                             Command="{Binding TransactionsExcuteCommand}"
                             ImageSource="transactions.png"
-                            Text="Transactions" />
+                            Text="{x:Static resx:Dashboard_Strings.Transactions_Title}" />
                         <controls:ImageTextButton
                             Grid.Row="1"
                             Command="{Binding SearchExcuteCommand}"
                             ImageSource="search.png"
-                            Text="Search" />
+                            Text="{x:Static resx:Dashboard_Strings.Dashboard_Search}" />
                         <controls:ImageTextButton
                             Grid.Row="1"
                             Grid.Column="1"
                             Command="{Binding NetworkExcuteCommand}"
                             ImageSource="network.png"
-                            Text="Network" />
+                            Text="{x:Static resx:Dashboard_Strings.Network_Title}" />
                         <controls:ImageTextButton
                             Grid.Row="1"
                             Grid.Column="2"
                             Command="{Binding ETHTransferExcuteCommand}"
                             ImageSource="transfer.png"
-                            Text="ETH-UNT Transfer" />
+                            Text="{x:Static resx:Dashboard_Strings.Transfers_Title}" />
                         <controls:ImageTextButton
                             Grid.Row="1"
                             Grid.Column="3"
                             Command="{Binding HelpExcuteCommand}"
                             ImageSource="help.png"
-                            Text="Help" />
+                            Text="{x:Static resx:Dashboard_Strings.Help_Title}" />
                         <controls:ImageTextButton
                             Grid.Row="2"
                             Command="{Binding WhatsNewExcuteCommand}"
                             ImageSource="updates.png"
-                            Text="What's New" />
+                            Text="{x:Static resx:Dashboard_Strings.WhatsNew_Title}" />
                         <controls:ImageTextButton
                             Grid.Row="2"
                             Grid.Column="1"
                             Command="{Binding SettingsExcuteCommand}"
                             ImageSource="settings.png"
-                            Text="Settings" />
+                            Text="{x:Static resx:Dashboard_Strings.Settings_Title}" />
                         <controls:ImageTextButton
                             Grid.Row="2"
                             Grid.Column="2"
                             Command="{Binding AboutExcuteCommand}"
                             ImageSource="info.png"
-                            Text="About" />
+                            Text="{x:Static resx:Dashboard_Strings.About_Title}" />
 						<controls:ImageTextButton
                             Grid.Row="3"
                             Grid.Column="3"
                             Command="{Binding LockOutCommand}"
                             ImageSource="lockout.png"
-                            Text="Lock Out" />
+                            Text="{x:Static resx:Dashboard_Strings.Dashboard_LockOut}" />
                     </Grid>
                 </StackLayout>
             </Grid>

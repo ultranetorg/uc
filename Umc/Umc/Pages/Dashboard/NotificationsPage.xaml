@@ -6,9 +6,10 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:enums="clr-namespace:UC.Umc.Enums"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:NotificationsViewModel"
-    Title="Notifications"
+    Title="{x:Static resx:Dashboard_Strings.Notifications_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>

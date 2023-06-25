@@ -4,9 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:HelpDetailsViewModel"
-    Title="Help">
+    Title="{x:Static resx:Dashboard_Strings.Help_Title}">
     
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
@@ -26,7 +27,6 @@
                     <Label FontSize="12" Text="How to add apps, shortcuts and widgets to your home screen" />
                     <Label FontSize="12" Text="How to add, move or remove a home screen" />
                     <Label FontSize="12" Text="An introduction to navigating an Android phone" />
-                    <Label FontSize="12" Text="How to find, open and close apps on an Android device" />
                     <Label FontSize="12" Text="How to find, open and close apps on an Android device" />
                 </StackLayout>
             </StackLayout>

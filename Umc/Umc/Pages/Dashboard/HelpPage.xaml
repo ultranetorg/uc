@@ -5,10 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:HelpViewModel"
-    Title="Help">
+    Title="{x:Static resx:Dashboard_Strings.Help_Title}">
     
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="Auto,*,80" Padding="16,0">

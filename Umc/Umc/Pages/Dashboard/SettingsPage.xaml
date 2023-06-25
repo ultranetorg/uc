@@ -5,9 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:c1="http://schemas.grapecity.com/xf/2019/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:SettingsViewModel"
-    Title="Settings"
+    Title="{x:Static resx:Dashboard_Strings.Settings_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -26,13 +27,13 @@
                             Grid.Row="0"
                             Grid.Column="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Block app" />
+                            Text="{x:Static resx:Dashboard_Strings.Settings_Block}" />
                         <Label
                             Grid.Row="1"
                             Grid.Column="0"
                             FontSize="13"
                             Style="{StaticResource Regular}"
-                            Text="After blocking, the application will become not available for download" />
+                            Text="{x:Static resx:Dashboard_Strings.Settings_Block2}" />
                         <controls:SwitchView
                             Grid.RowSpan="2"
                             Grid.Column="1"
@@ -43,18 +44,18 @@
                         ColumnDefinitions="*,48"
                         ColumnSpacing="48"
                         RowDefinitions="Auto,Auto"
-                        RowSpacing="1">
+                        RowSpacing="4">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Displaying hints" />
+                            Text="{x:Static resx:Dashboard_Strings.Settings_Hints}" />
                         <Label
                             Grid.Row="1"
                             Grid.Column="0"
                             FontSize="13"
                             Style="{StaticResource Regular}"
-                            Text="After blocking, the application will become not available for download" />
+                            Text="{x:Static resx:Dashboard_Strings.Settings_Block2}" />
                         <controls:SwitchView
                             Grid.RowSpan="2"
                             Grid.Column="1"
@@ -65,18 +66,18 @@
                         ColumnDefinitions="*,48"
                         ColumnSpacing="48"
                         RowDefinitions="Auto,Auto"
-                        RowSpacing="1">
+                        RowSpacing="4">
                         <Label
                             Grid.Row="0"
                             Grid.Column="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Enable secure sign in" />
+                            Text="{x:Static resx:Dashboard_Strings.Settings_SignIn}" />
                         <Label
                             Grid.Row="1"
                             Grid.Column="0"
                             FontSize="13"
                             Style="{StaticResource Regular}"
-                            Text="After blocking, the application will become not available for download" />
+                            Text="{x:Static resx:Dashboard_Strings.Settings_Block2}" />
                         <controls:SwitchView
                             Grid.RowSpan="2"
                             Grid.Column="1"
@@ -84,7 +85,7 @@
                     </Grid>
                     <StackLayout Style="{StaticResource StackLine}" />
                     <StackLayout>
-                        <Label Style="{StaticResource DashLabel}" Text="Enable secure sign in" />
+                        <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Dashboard_Strings.Settings_SignIn}" />
                         <Grid
                             ColumnDefinitions="*,36"
                             RowDefinitions="48,Auto"
@@ -135,24 +136,24 @@
                                     </DataTrigger>
                                 </Image.Triggers>
                             </Image>
-                            <Frame
+                            <Border
                                 Grid.Row="1"
                                 Grid.ColumnSpan="2"
                                 Style="{StaticResource ComboBox}">
-                                <Frame.Triggers>
+                                <Border.Triggers>
                                     <DataTrigger
                                         Binding="{Binding IsFocused, Source={Reference picker}}"
-                                        TargetType="Frame"
+                                        TargetType="Border"
                                         Value="True">
                                         <Setter Property="IsVisible" Value="True" />
                                     </DataTrigger>
                                     <DataTrigger
                                         Binding="{Binding IsFocused, Source={Reference picker}}"
-                                        TargetType="Frame"
+                                        TargetType="Border"
                                         Value="False">
                                         <Setter Property="IsVisible" Value="False" />
                                     </DataTrigger>
-                                </Frame.Triggers>
+                                </Border.Triggers>
                                 <CollectionView
                                     x:Name="pickerList"
                                     HeightRequest="200"
@@ -170,7 +171,7 @@
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>
                                 </CollectionView>
-                            </Frame>
+                            </Border>
                         </Grid>
                     </StackLayout>
                 </StackLayout>
@@ -180,7 +181,7 @@
                 Grid.Row="1"
                 VerticalOptions="End"
                 Command="{Binding CancelCommand}"
-                Text="Close" />
+                Text="{x:Static resx:Dashboard_Strings.Button_Close}" />
         </Grid>
     </controls:CustomPage.MainContent>
 </controls:CustomPage>
