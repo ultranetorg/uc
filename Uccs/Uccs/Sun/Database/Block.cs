@@ -24,11 +24,22 @@ namespace Uccs.Net
 		public byte[]			Data { get; set; }
 
 		public List<Peer>		Peers;
-		public bool				Broadcasted;
-		public AccountAddress	Generator { get; protected set; }
-		//public const int		GuidLength = 8;
-
+		public bool				BroadcastConfirmed;
 		Zone					Zone;
+		AccountAddress			_Generator;
+
+		public AccountAddress	Generator
+		{ 
+			get
+			{
+				if(_Generator == null)
+				{
+					_Generator = Zone.Cryptography.AccountFrom(Signature, Hashify());
+				}
+
+				return _Generator;
+			}
+		}
 
 		public BlockPiece(Zone zone)
 		{
@@ -56,8 +67,6 @@ namespace Uccs.Net
 			Total		= reader.Read7BitEncodedInt();
 			Data		= reader.ReadBytes(reader.Read7BitEncodedInt());
 			Signature	= reader.ReadSignature();
-
-			Generator = Zone.Cryptography.AccountFrom(Signature, Hashify());
 		}
 
 		public byte[] Hashify()
@@ -77,13 +86,13 @@ namespace Uccs.Net
 
 		public void Sign(AccountKey generator)
 		{
-			Generator = generator;
+			_Generator = generator;
 			Signature = Zone.Cryptography.Sign(generator, Hashify());
 		}
 
 		public override string ToString()
 		{
-			return $"{RoundId}, {Index}/{Total}, {Hex.ToHexString(Generator)}, Broadcasted={Broadcasted}";
+			return $"{RoundId}, {Index}/{Total}, {Hex.ToHexString(Generator)}, BroadcastConfirmed={BroadcastConfirmed}";
 		}
 
 		public override bool Equals(object obj)
@@ -184,108 +193,25 @@ namespace Uccs.Net
 
 	public class Vote : Block
 	{
-		public override bool			Valid => RoundId > 0;
 		public DateTime					Time;
 
 		public int						Try; /// TODO: revote if consensus not reached
 		public long						TimeDelta;
-		public Consensus				Consensus;
-		public List<AccountAddress>		Violators = new();
-		public List<AccountAddress>		Joiners = new();
-		public List<AccountAddress>		Leavers = new();
+		public Consensus				Reference;
+		public List<AccountAddress>		GeneratorJoiners = new();
+		public List<AccountAddress>		GeneratorLeavers = new();
+		public List<AccountAddress>		HubJoiners = new();
+		public List<AccountAddress>		HubLeavers = new();
+		public List<AccountAddress>		AnalyzerJoiners = new();
+		public List<AccountAddress>		AnalyzerLeavers = new();
 		public List<AccountAddress>		FundJoiners = new();
 		public List<AccountAddress>		FundLeavers = new();
+		public List<AccountAddress>		Violators = new();
+		public List<ReleaseAddress>		CleanReleases = new();
+		public List<ReleaseAddress>		InfectedReleases = new();
 
 		public byte[]					Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
 
-		public Vote(Database c) : base(c)
-		{
-		}
-
-		public override string ToString()
-		{
-			return base.ToString() + $", Parents={{{Consensus.Payloads.Count}}}, Violators={{{Violators.Count}}}, Joiners={{{Joiners.Count}}}, Leavers={{{Leavers.Count}}}, TimeDelta={TimeDelta}";
-		}
-
-		protected override void Hashify(BinaryWriter writer)
-		{
-			writer.Write(Generator);
-			
-			writer.Write7BitEncodedInt(RoundId);
-			writer.Write7BitEncodedInt(Try);
-			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Consensus);
-
-			writer.Write(Joiners);
-			writer.Write(Leavers);
-			writer.Write(Violators);
-			writer.Write(FundJoiners);
-			writer.Write(FundLeavers);
-		}
-
-		protected void WriteVote(BinaryWriter writer)
-		{
-			writer.Write7BitEncodedInt(RoundId);
-			writer.Write7BitEncodedInt(Try);
-			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Consensus);
-
-			writer.Write(Joiners);
-			writer.Write(Leavers);
-			writer.Write(Violators);
-			writer.Write(FundJoiners);
-			writer.Write(FundLeavers);
-		}
-
-		protected void ReadVote(BinaryReader reader)
-		{
-			RoundId		= reader.Read7BitEncodedInt();
-			Try			= reader.Read7BitEncodedInt();
-			TimeDelta	= reader.Read7BitEncodedInt64();
-			Consensus	= reader.Read<Consensus>();
-
-			Joiners		= reader.ReadAccounts();
-			Leavers		= reader.ReadAccounts();
-			Violators	= reader.ReadAccounts();
-			FundJoiners	= reader.ReadAccounts();
-			FundLeavers	= reader.ReadAccounts();
-		}
-
-		public override void WriteForPiece(BinaryWriter writer)
-		{
-			base.WriteForPiece(writer);
-
-			WriteVote(writer);
-		}
-
-		public override void ReadForPiece(BinaryReader reader)
-		{
-			base.ReadForPiece(reader);
-
-			ReadVote(reader);
-
-			Hash = Hashify();
-		}
-
-		public override void WriteForRound(BinaryWriter writer)
-		{
-			writer.Write(Generator);
-
-			WriteVote(writer);
-		}
-
-		public override void ReadForRound(BinaryReader reader)
-		{
-			Generator = reader.ReadAccount();
-
-			ReadVote(reader);
-
-			Hash = Hashify();
-		}
-	}
-
-	public class Payload : Vote
-	{
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Count() == i.Operations.Count);
 		public byte[]					OrderingKey => Generator;
@@ -315,26 +241,41 @@ namespace Uccs.Net
 			}
 		}
 
-		public Payload(Database c) : base(c)
+		public Vote(Database c) : base(c)
 		{
 		}
 
 		public override string ToString()
 		{
-			return base.ToString() + $", Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+			return base.ToString() + $", Parents={{{Reference.Payloads.Count}}}, Violators={{{Violators.Count}}}, GJoiners={{{GeneratorJoiners.Count}}}, GLeavers={{{GeneratorLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
 		}
 
 		public void AddNext(Transaction t)
 		{
-			t.Payload = this;
+			t.Block = this;
 			Transactions.Insert(0, t);
 		}
-				
+
 		protected override void Hashify(BinaryWriter writer)
 		{
-			//writer.Write(Generator); /// needed to read check transactions' signatures in Payload
+			writer.Write(Generator);
+			
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write7BitEncodedInt(Try);
+			writer.Write7BitEncodedInt64(TimeDelta);
+			writer.Write(Reference);
 
-			base.Hashify(writer);
+			writer.Write(GeneratorJoiners);
+			writer.Write(GeneratorLeavers);
+			writer.Write(HubJoiners);
+			writer.Write(HubLeavers);
+			writer.Write(AnalyzerJoiners);
+			writer.Write(AnalyzerLeavers);
+			writer.Write(FundJoiners);
+			writer.Write(FundLeavers);
+			writer.Write(Violators);
+			writer.Write(CleanReleases);
+			writer.Write(InfectedReleases);
 
 			foreach(var i in Transactions) 
 			{
@@ -342,57 +283,81 @@ namespace Uccs.Net
 			}
 		}
 
-		public override void WriteForPiece(BinaryWriter writer)
+		protected void WriteVote(BinaryWriter writer)
 		{
-			base.WriteForPiece(writer);
+			writer.Write7BitEncodedInt(RoundId);
+			writer.Write7BitEncodedInt(Try);
+			writer.Write7BitEncodedInt64(TimeDelta);
+			writer.Write(Reference);
 
-			WriteVote(writer);
+			writer.Write(GeneratorJoiners);
+			writer.Write(GeneratorLeavers);
+			writer.Write(HubJoiners);
+			writer.Write(HubLeavers);
+			writer.Write(AnalyzerJoiners);
+			writer.Write(AnalyzerLeavers);
+			writer.Write(FundJoiners);
+			writer.Write(FundLeavers);
+			writer.Write(Violators);
+			writer.Write(CleanReleases);
+			writer.Write(InfectedReleases);
 
 			writer.Write(Transactions, t => t.WriteAsPartOfBlock(writer));
 		}
 
-		public override void ReadForPiece(BinaryReader reader)
+		protected void ReadVote(BinaryReader reader)
 		{
-			base.ReadForPiece(reader);
+			RoundId		= reader.Read7BitEncodedInt();
+			Try			= reader.Read7BitEncodedInt();
+			TimeDelta	= reader.Read7BitEncodedInt64();
+			Reference	= reader.Read<Consensus>();
 
-			ReadVote(reader);
+			GeneratorJoiners	= reader.ReadAccounts();
+			GeneratorLeavers	= reader.ReadAccounts();
+			HubJoiners			= reader.ReadAccounts();
+			HubLeavers			= reader.ReadAccounts();
+			AnalyzerJoiners		= reader.ReadAccounts();
+			AnalyzerLeavers		= reader.ReadAccounts();
+			FundJoiners			= reader.ReadAccounts();
+			FundLeavers			= reader.ReadAccounts();
+			Violators			= reader.ReadAccounts();
+			CleanReleases		= reader.ReadList<ReleaseAddress>();
+			InfectedReleases	= reader.ReadList<ReleaseAddress>();
 
 			Transactions = reader.ReadList(() =>	{
 														var t = new Transaction(Database.Zone)
 																{
-																	Payload		= this,
+																	Block		= this,
 																	Generator	= Generator
 																};
 														t.ReadAsPartOfBlock(reader);
 														return t;
 													});
+		}
+
+		public override void WriteForPiece(BinaryWriter writer)
+		{
+			base.WriteForPiece(writer);
+			WriteVote(writer);
+		}
+
+		public override void ReadForPiece(BinaryReader reader)
+		{
+			base.ReadForPiece(reader);
+			ReadVote(reader);
 			Hash = Hashify();
 		}
 
 		public override void WriteForRound(BinaryWriter writer)
 		{
 			writer.Write(Generator);
-			
 			WriteVote(writer);
-
-			writer.Write(Transactions, t => t.WriteAsPartOfBlock(writer));
 		}
 
 		public override void ReadForRound(BinaryReader reader)
 		{
 			Generator = reader.ReadAccount();
-
 			ReadVote(reader);
-
-			Transactions = reader.ReadList(() =>	{
-														var t = new Transaction(Database.Zone)
-																{
-																	Payload		= this,
-																	Generator	= Generator
-																};
-														t.ReadAsPartOfBlock(reader);
-														return t;
-													});
 			Hash = Hashify();
 		}
 
@@ -408,7 +373,7 @@ namespace Uccs.Net
  			Transactions = r.ReadList(() =>	{
  												var t = new Transaction(Database.Zone)
 														{ 
-															Payload = this, 
+															Block = this, 
 															Generator = Generator
 														};
  												t.ReadAsPartOfBlock(r);
@@ -416,4 +381,54 @@ namespace Uccs.Net
  											});
  		}
 	}
+
+/*
+	public class Payload : Vote
+	{
+
+		public Payload(Database c) : base(c)
+		{
+		}
+				
+		protected override void Hashify(BinaryWriter writer)
+		{
+			//writer.Write(Generator); /// needed to read check transactions' signatures in Payload
+
+			base.Hashify(writer);
+
+		}
+
+		public override void WriteForPiece(BinaryWriter writer)
+		{
+			base.WriteForPiece(writer);
+
+			WriteVote(writer);
+
+		}
+
+		public override void ReadForPiece(BinaryReader reader)
+		{
+			base.ReadForPiece(reader);
+
+			ReadVote(reader);
+
+		}
+
+		public override void WriteForRound(BinaryWriter writer)
+		{
+			writer.Write(Generator);
+			
+			WriteVote(writer);
+
+		}
+
+		public override void ReadForRound(BinaryReader reader)
+		{
+			Generator = reader.ReadAccount();
+
+			ReadVote(reader);
+
+		}
+	}*/
+
 }

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class GeneratorJoinBroadcastRequest : RdcRequest
+	public class GeneratorJoinRequest : RdcRequest
 	{
 		//public IEnumerable<IPAddress>	IPs { get; set; }
 		public int						RoundId { get; set; }
@@ -12,7 +12,7 @@ namespace Uccs.Net
 		public AccountAddress			Generator;
 		public override bool			WaitResponse => false;
 
-		public GeneratorJoinBroadcastRequest()
+		public GeneratorJoinRequest()
 		{
 		}
 
@@ -40,7 +40,7 @@ namespace Uccs.Net
 				{
 	 				var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
 	 
-					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].MemberJoins.Any(i => i.Generator == Generator)))
+					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].GeneratorJoins.Any(i => i.Generator == Generator)))
 					{
 						return null;
 					}
@@ -52,7 +52,7 @@ namespace Uccs.Net
 						l = core.SyncCache[RoundId] = new();
 					}
 	
-					l.MemberJoins.Add(this);
+					l.GeneratorJoins.Add(this);
 						
 					foreach(var i in core.SyncCache.Keys)
 					{
@@ -67,7 +67,7 @@ namespace Uccs.Net
 					var d = core.Database;
 	
 					for(int i = RoundId; i > RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
-						if(d.FindRound(i) is Round r && r.JoinMembersRequests.Any(j => j.Generator == Generator))
+						if(d.FindRound(i) is Round r && r.GeneratorJoinRequests.Any(j => j.Generator == Generator))
 							return null;
 
 					var a = core.Database.Accounts.Find(Generator, core.Database.LastConfirmedRound.Id);
@@ -75,12 +75,12 @@ namespace Uccs.Net
 					if(a == null || a.Bail == 0 /*|| a.BailStatus != BailStatus.Active*/)
 						return null;
 									
-					core.Database.GetRound(RoundId).JoinMembersRequests.Add(this);
+					core.Database.GetRound(RoundId).GeneratorJoinRequests.Add(this);
 				}
 	
 				foreach(var i in core.Connections.Where(i => i != Peer))
 				{
-					i.Send(new GeneratorJoinBroadcastRequest {RoundId = RoundId, Signature = Signature});
+					i.Send(new GeneratorJoinRequest {RoundId = RoundId, Signature = Signature});
 				}
 			}
 	

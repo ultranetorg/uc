@@ -1,20 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
-	public class GeneratorBroadcastRequest : RdcRequest
+	public class GeneratorVoxRequest : RdcRequest
 	{
-		public class Block
-		{
-			public AccountAddress	Generator;
-			public int				RoundId;
-			public byte[]			Hash;
-		}
-
 		public IEnumerable<BlockPiece>	Pieces { get; set; }
 		//public ChainTime				Time { get; set; }
 		//public byte[]					Signature { get; set; }
@@ -162,10 +154,12 @@ namespace Uccs.Net
 
 								//if(b.Generator != p.Generator)
 								//	continue;
+
+								///core.Workflow?.Log.Report(this, "Block received ", $"{Hex.ToHexString(b.Generator.Prefix)}-{b.RoundId}");
 				
 								core.ProcessIncoming(new Block[] {b});
 
-								var m = core.Database.LastConfirmedRound.Members.Find(i => i.Generator == b.Generator);
+								var m = core.Database.LastConfirmedRound.Generators.Find(i => i.Account == b.Generator);
 	
 								if(m != null)
 								{
@@ -174,17 +168,16 @@ namespace Uccs.Net
 								}
 							}
 						}
-						else
-							if(ep.Peers != null && !ep.Peers.Contains(Peer))
-								ep.Broadcasted = true;
+						else if(ep.Peers != null && !ep.Peers.Contains(Peer))
+							ep.BroadcastConfirmed = true;
 					}
 				}
 
 				if(accepted.Any())
 				{
-					foreach(var i in core.Connections.Where(i => i.BaseRank > 0 && i != Peer))
+					foreach(var i in core.Bases.Where(i => i != Peer))
 					{
-						i.Send(new GeneratorBroadcastRequest{Pieces = accepted});
+						i.Send(new GeneratorVoxRequest{Pieces = accepted});
 					}
 				}
 			}

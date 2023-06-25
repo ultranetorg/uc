@@ -40,12 +40,12 @@ namespace Uccs.Sun.FUI
 					r.Tag = i;
 				}
 
-				foreach(var i in Core.Database.LastConfirmedRound.Members.OrderBy(i => i.Generator))
+				foreach(var i in Core.Database.LastConfirmedRound.Generators.OrderBy(i => i.Account))
 				{
-					var li = Generators.Items.Add(i.Generator.ToString());
+					var li = Generators.Items.Add(i.Account.ToString());
 
-					li.SubItems.Add(i.ActivatedAt.ToString());
-					li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Generator, int.MaxValue).Bail.ToHumanString() : null);
+					li.SubItems.Add(i.JoinedAt.ToString());
+					li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
 					li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 

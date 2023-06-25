@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class HubJoinBroadcastRequest : RdcRequest
+	public class AnalyzerJoinRequest : RdcRequest
 	{
 		public int				RoundId { get; set; }
 		public byte[]			Signature { get; set; }
@@ -11,7 +11,7 @@ namespace Uccs.Net
 		public AccountAddress	Account;
 		public override bool	WaitResponse => false;
 
-		public HubJoinBroadcastRequest()
+		public AnalyzerJoinRequest()
 		{
 		}
 
@@ -28,7 +28,7 @@ namespace Uccs.Net
 				{
 	 				var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
 	 
-					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].HubJoins.Any(i => i.Account == Account)))
+					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].AnalyzerJoins.Any(i => i.Account == Account)))
 					{
 						return null;
 					}
@@ -40,7 +40,7 @@ namespace Uccs.Net
 						r = core.SyncCache[RoundId] = new();
 					}
 	
-					r.HubJoins.Add(this);
+					r.AnalyzerJoins.Add(this);
 					
 					foreach(var i in core.SyncCache.Keys)
 					{
@@ -55,15 +55,15 @@ namespace Uccs.Net
 					var d = core.Database;
 	
 					for(int i = RoundId; i > RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
-						if(d.FindRound(i) is Round r && r.JoinHubsRequests.Any(j => j.Account == Account))
+						if(d.FindRound(i) is Round r && r.AnalyzerJoinRequests.Any(j => j.Account == Account))
 							return null;
 				
-					core.Database.GetRound(RoundId).JoinHubsRequests.Add(this);
+					core.Database.GetRound(RoundId).AnalyzerJoinRequests.Add(this);
 				}
 	
 				foreach(var i in core.Connections.Where(i => i != Peer))
 				{
-					i.Send(new HubJoinBroadcastRequest {RoundId = RoundId, Signature = Signature});
+					i.Send(new AnalyzerJoinRequest {RoundId = RoundId, Signature = Signature});
 				}
 			}
 	

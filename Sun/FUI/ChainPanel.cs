@@ -84,12 +84,12 @@ namespace Uccs.Sun.FUI
 									r.Time + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
 									(r.ConfirmedPayloads != null ? r.ConfirmedPayloads.Count.ToString() : 0) + "\n" +
-									(r.ConfirmedJoiners.Count) + "\n" +
-									(r.ConfirmedLeavers.Count) + "\n" +
+									(r.ConfirmedGeneratorJoiners.Count) + "\n" +
+									(r.ConfirmedGeneratorLeavers.Count) + "\n" +
 									(r.ConfirmedViolators.Count)
 									;
 
-				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i is Payload)
+				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i.Transactions.Any())
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());
@@ -109,7 +109,7 @@ namespace Uccs.Sun.FUI
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
 
-			if(e.IsSelected && e.Item.Tag is Payload p)
+			if(e.IsSelected && e.Item.Tag is Vote p)
 			{
 				lock(Core.Lock)
 				{

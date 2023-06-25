@@ -221,13 +221,13 @@ namespace Uccs.Net
 																						.Select(i => new ChainReportResponse.Round
 																									{
 																										Id = i.Id, 
-																										Members = i.Members.Count,
+																										Members = i.Generators.Count,
 																										Pieces = i.BlockPieces.Count,
 																										Voted = i.Voted,
 																										Confirmed = i.Confirmed,
 																										Time = i.Time,
 																										Blocks = i.Blocks.Select(i => new ChainReportResponse.Block {Generator = i.Generator.ToString(), Type = i.Type}),
-																										JoinRequests = i.JoinMembersRequests.Select(i => i.Generator)
+																										JoinRequests = i.GeneratorJoinRequests.Select(i => i.Generator)
 																									})
 																						.ToArray()}; 
 							

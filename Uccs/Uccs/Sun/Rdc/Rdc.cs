@@ -21,8 +21,9 @@ namespace Uccs.Net
 	{
 		Null, 
 		Proxy, 
-		GeneratorJoinBroadcast, GeneratorBroadcast, PeersBroadcast, BlocksBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Author, Account, 
-		QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
+		AnalyzerJoin, AnalyzerVox, GeneratorJoin, GeneratorVox, HubJoin, HubVox,
+		PeersBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Account, 
+		Author, QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
 
@@ -213,11 +214,11 @@ namespace Uccs.Net
 			}
 			else
 			{
-				Member m;
+				Generator m;
 
 				lock(core.Lock)
 				{
-					m = core.Database.LastConfirmedRound.Members.Find(i => i.Generator == Destination);
+					m = core.Database.LastConfirmedRound.Generators.Find(i => i.Account == Destination);
 				}
 
 				if(m?.Proxy != null)

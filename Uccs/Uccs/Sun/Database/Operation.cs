@@ -432,7 +432,7 @@ namespace Uccs.Net
 
 				/// dont refund previous winner
 
-				round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
+				round.Distribute(a.LastBid, round.Generators.Select(i => i.Account), 1, round.Funds, 1);
 
 				round.AffectAccount(Signer).Balance -= Bid;
 				
@@ -539,7 +539,7 @@ namespace Uccs.Net
 				if(a?.Owner == null)
 				{
 					if(Exclusive) /// distribite winner bid, one time
-						round.Distribute(a.LastBid, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
+						round.Distribute(a.LastBid, round.Generators.Select(i => i.Account), 1, round.Funds, 1);
 
 					//round.AffectAccount(Signer).Authors.Add(Author);
 				}
@@ -554,7 +554,7 @@ namespace Uccs.Net
 				a.Years				= Years;
 
 				round.AffectAccount(Signer).Balance -= cost;
-				round.Distribute(cost, round.Members.Select(i => i.Generator), 1, round.Funds, 1);
+				round.Distribute(cost, round.Generators.Select(i => i.Account), 1, round.Funds, 1);
 			}
 			else
 				Error = "Failed";

@@ -23,28 +23,32 @@ namespace Uccs.Net
 		public List<BlockPiece>									BlockPieces = new();
 
 		public List<Block>										Blocks = new();
-		public List<GeneratorJoinBroadcastRequest>				JoinMembersRequests = new();
-		public List<HubJoinBroadcastRequest>					JoinHubsRequests = new();
-		public IEnumerable<Vote>								Votes			=> Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public IEnumerable<Payload>								Payloads		=> Votes.OfType<Payload>();
-		public IEnumerable<AccountAddress>						Forkers			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
-		public IEnumerable<Vote>								Unique			=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		public IEnumerable<Vote>								Majority		=> Unique.Any() ? Unique.GroupBy(i => i.Consensus).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
+		public List<GeneratorJoinRequest>						GeneratorJoinRequests = new();
+		public List<HubJoinRequest>								HubJoinRequests = new();
+		public List<AnalyzerJoinRequest>						AnalyzerJoinRequests = new();
+		public IEnumerable<Vote>								Votes => Blocks.OfType<Vote>().Where(i => i.Try == Try);
+		public List<HubVoxRequest>								HubVoxes = new();
+		public List<AnalyzerVoxRequest>							AnalyzerVoxes = new();
+		public IEnumerable<Vote>								Payloads	=> Votes.Where(i => i.Transactions.Any());
+		public IEnumerable<AccountAddress>						Forkers		=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
+		public IEnumerable<Vote>								Unique		=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Vote>								Majority	=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
-		public IEnumerable<AccountAddress>						ElectedJoiners		=> Majority.SelectMany(i => i.Joiners).Distinct().Where(j => Majority.Count(b => b.Joiners.Contains(j)) >= Database.VoterOf(Id).Count * 2 / 3);
-		public IEnumerable<AccountAddress>						ElectedLeavers		=> Majority.SelectMany(i => i.Leavers).Distinct().Where(l => Majority.Count(b => b.Leavers.Contains(l)) >= Database.VoterOf(Id).Count * 2 / 3);
-		public IEnumerable<AccountAddress>						ElectedViolators	=> Majority.SelectMany(i => i.Violators).Distinct().Where(v => Majority.Count(b => b.Violators.Contains(v)) >= Database.VoterOf(Id).Count * 2 / 3);
-		public IEnumerable<AccountAddress>						ElectedFundJoiners	=> Majority.SelectMany(i => i.FundJoiners).Distinct().Where(j => Majority.Count(b => b.FundJoiners.Contains(j)) >= Database.MembersMax * 2 / 3);
-		public IEnumerable<AccountAddress>						ElectedFundLeavers	=> Majority.SelectMany(i => i.FundLeavers).Distinct().Where(l => Majority.Count(b => b.FundLeavers.Contains(l)) >= Database.MembersMax * 2 / 3);
-
-		public List<Member>										Members = new();
+		public List<Generator>									Generators = new();
+		public List<Hub>										Hubs = new();
+		public List<Analyzer>									Analyzers = new();
 		public List<AccountAddress>								Funds = new();
-		public List<Payload>									ConfirmedPayloads;
-		public List<AccountAddress>								ConfirmedViolators = new();
-		public List<Member>										ConfirmedJoiners = new();
-		public List<AccountAddress>								ConfirmedLeavers = new();
+
+		public List<Vote>										ConfirmedPayloads;
+		public List<Generator>									ConfirmedGeneratorJoiners = new();
+		public List<AccountAddress>								ConfirmedGeneratorLeavers = new();
+		public List<Hub>										ConfirmedHubJoiners = new();
+		public List<AccountAddress>								ConfirmedHubLeavers = new();
+		public List<Analyzer>									ConfirmedAnalyzerJoiners = new();
+		public List<AccountAddress>								ConfirmedAnalyzerLeavers = new();
 		public List<AccountAddress>								ConfirmedFundJoiners = new();
 		public List<AccountAddress>								ConfirmedFundLeavers = new();
+		public List<AccountAddress>								ConfirmedViolators = new();
 
 		public bool												Voted = false;
 		public bool												Confirmed = false;
@@ -70,7 +74,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}/{JoinMembersRequests.Count()}), Pieces={BlockPieces.Count}, Members={Members?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}/{GeneratorJoinRequests.Count()}), Pieces={BlockPieces.Count}, Generators={Generators?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)
@@ -297,18 +301,22 @@ namespace Uccs.Net
 		{
 			writer.Write(Time);
 			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
-			writer.Write(ConfirmedViolators.OrderBy(i => i));
-			writer.Write(ConfirmedJoiners.OrderBy(i => i.Generator), i => i.WriteConfirmed(writer));
-			writer.Write(ConfirmedLeavers.OrderBy(i => i));
+			writer.Write(ConfirmedGeneratorJoiners.OrderBy(i => i.Account), i => i.WriteConfirmed(writer));
+			writer.Write(ConfirmedGeneratorLeavers.OrderBy(i => i));
+			writer.Write(ConfirmedHubJoiners.OrderBy(i => i.Account), i => i.WriteConfirmed(writer));
+			writer.Write(ConfirmedHubLeavers.OrderBy(i => i));
+			writer.Write(ConfirmedAnalyzerJoiners.OrderBy(i => i.Account), i => i.WriteConfirmed(writer));
+			writer.Write(ConfirmedAnalyzerLeavers.OrderBy(i => i));
 			writer.Write(ConfirmedFundJoiners.OrderBy(i => i));
 			writer.Write(ConfirmedFundLeavers.OrderBy(i => i));
+			writer.Write(ConfirmedViolators.OrderBy(i => i));
 		}
 
 		void ReadConfirmed(BinaryReader reader)
 		{
 			Time		= reader.ReadTime();
 			Blocks		= reader.ReadList(() =>	{	
-													var b = new Payload(Database);											
+													var b = new Vote(Database);											
 													b.RoundId = Id;
 													b.Round = this;
 													b.Confirmed = true;
@@ -318,12 +326,16 @@ namespace Uccs.Net
 													return b as Block;
 												});
 	
-			ConfirmedPayloads		= Blocks.Cast<Payload>().ToList();
-			ConfirmedViolators		= reader.ReadList<AccountAddress>();
-			ConfirmedJoiners		= reader.Read<Member>(i => i.ReadConfirmed(reader)).ToList();
-			ConfirmedLeavers		= reader.ReadList<AccountAddress>();
-			ConfirmedFundJoiners	= reader.ReadList<AccountAddress>();
-			ConfirmedFundLeavers	= reader.ReadList<AccountAddress>();
+			ConfirmedPayloads			= Blocks.Cast<Vote>().ToList();
+			ConfirmedGeneratorJoiners	= reader.Read<Generator>(i => i.ReadConfirmed(reader)).ToList();
+			ConfirmedGeneratorLeavers	= reader.ReadList<AccountAddress>();
+			ConfirmedHubJoiners			= reader.Read<Hub>(i => i.ReadConfirmed(reader)).ToList();
+			ConfirmedHubLeavers			= reader.ReadList<AccountAddress>();
+			ConfirmedAnalyzerJoiners	= reader.Read<Analyzer>(i => i.ReadConfirmed(reader)).ToList();
+			ConfirmedAnalyzerLeavers	= reader.ReadList<AccountAddress>();
+			ConfirmedFundJoiners		= reader.ReadList<AccountAddress>();
+			ConfirmedFundLeavers		= reader.ReadList<AccountAddress>();
+			ConfirmedViolators			= reader.ReadList<AccountAddress>();
 		}
 
 		public void Write(BinaryWriter w)
@@ -337,7 +349,7 @@ namespace Uccs.Net
 // 				w.Write(Hash);
 // #endif
 				WriteConfirmed(w);
-				w.Write(JoinMembersRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
+				w.Write(GeneratorJoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
 			} 
 			else
 			{
@@ -360,12 +372,12 @@ namespace Uccs.Net
 // 				Hash = r.ReadSha3();
 // #endif
 				ReadConfirmed(r);
-				JoinMembersRequests.AddRange(r.ReadArray(() =>	{
-															var b = new GeneratorJoinBroadcastRequest();
-															b.RoundId = Id;
-															b.Read(r, Database.Zone);
-															return b;
-														}));
+				GeneratorJoinRequests.AddRange(r.ReadArray(() =>	{
+																		var b = new GeneratorJoinRequest();
+																		b.RoundId = Id;
+																		b.Read(r, Database.Zone);
+																		return b;
+																	}));
 			} 
 			else
 			{

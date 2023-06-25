@@ -31,18 +31,18 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					foreach(var i in Core.Database.LastConfirmedRound.Members.OrderBy(i => i.Generator))
+					foreach(var i in Core.Database.LastConfirmedRound.Generators.OrderBy(i => i.Account))
 					{
-						var li = Generators.Items.Add(i.Generator.ToString());
+						var li = Generators.Items.Add(i.Account.ToString());
 	
-						if(Core.Settings.Generators.Contains(i.Generator))
+						if(Core.Settings.Generators.Contains(i.Account))
 						{
 							li.Font = Bold;
 						}
 	
 						li.Tag = i;
-						li.SubItems.Add(i.ActivatedAt.ToString());
-						li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Generator, int.MaxValue).Bail.ToHumanString() : null);
+						li.SubItems.Add(i.JoinedAt.ToString());
+						li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
 						//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 					}
 				}
@@ -78,14 +78,14 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					foreach(var i in (e.Item.Tag as Member).IPs)
+					foreach(var i in (e.Item.Tag as Generator).IPs)
 					{
 						var li = IPs.Items.Add(i.ToString());
 					}
 
 					//foreach(var i in (e.Item.Tag as Member).Proxies)
 					{
-						var li = Proxies.Items.Add((e.Item.Tag as Member).Proxy?.ToString());
+						var li = Proxies.Items.Add((e.Item.Tag as Generator).Proxy?.ToString());
 					}
 				}
 			}

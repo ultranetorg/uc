@@ -8,6 +8,7 @@ namespace Uccs.Net
 	{
 		public ProductAddress	Address;
 		public string			Title;
+		public string			Mime;
 		public override string	Description => $"{Address} as {Title}";
 		public override bool	Valid => IsValid(Address.Name, Title);
 

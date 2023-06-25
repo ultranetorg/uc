@@ -15,13 +15,13 @@ namespace Uccs.Net
 			{
 				if(core.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
 			
-				return new MembersResponse {Members = core.Database.LastConfirmedRound.Members};
+				return new MembersResponse {Members = core.Database.LastConfirmedRound.Generators};
 			}
 		}
 	}
 
 	public class MembersResponse : RdcResponse
 	{
-		public IEnumerable<Member> Members {get; set;}
+		public IEnumerable<Generator> Members {get; set;}
 	}
 }

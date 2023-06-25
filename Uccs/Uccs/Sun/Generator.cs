@@ -8,39 +8,39 @@ using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
-	public class Member
+	public class Generator
 	{
-		public AccountAddress			Generator { get; set; }
+		public AccountAddress			Account { get; set; }
 		public IEnumerable<IPAddress>	IPs { get; set; } = new IPAddress[0];
 		//public ChainTime				OnlineSince = ChainTime.Zero;
-		public int						ActivatedAt;
+		public int						JoinedAt;
 		public Peer         			Proxy;
 	
   		public void WriteConfirmed(BinaryWriter w)
  		{
- 			w.Write(Generator);
+ 			w.Write(Account);
 			//w.Write7BitEncodedInt(ActivatedAt);
  			//w.Write(IPs, i => w.Write(i));
  		}
  
  		public void ReadConfirmed(BinaryReader r)
  		{
-			Generator	= r.ReadAccount();
+			Account	= r.ReadAccount();
  			//ActivatedAt	= r.Read7BitEncodedInt();
  			//IPs		= r.ReadArray(() => r.ReadIPAddress());
 		}
 	
   		public void WriteForBase(BinaryWriter w)
  		{
- 			w.Write(Generator);
-			w.Write7BitEncodedInt(ActivatedAt);
+ 			w.Write(Account);
+			w.Write7BitEncodedInt(JoinedAt);
  			//w.Write(IPs, i => w.Write(i));
  		}
  
  		public void ReadForBase(BinaryReader r)
  		{
-			Generator	= r.ReadAccount();
- 			ActivatedAt	= r.Read7BitEncodedInt();
+			Account	= r.ReadAccount();
+ 			JoinedAt	= r.Read7BitEncodedInt();
  			//IPs		= r.ReadArray(() => r.ReadIPAddress());
 		}
 	
@@ -58,7 +58,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Generator={Generator}, ActivatedAt={ActivatedAt}";
+			return $"Generator={Account}, ActivatedAt={JoinedAt}";
 		}
 	}
 }

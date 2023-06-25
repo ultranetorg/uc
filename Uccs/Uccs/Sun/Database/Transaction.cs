@@ -13,7 +13,7 @@ namespace Uccs.Net
 		public List<Operation>			Operations = new ();
 		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
 		
-		public Payload					Payload;
+		public Vote						Block;
 		public AccountAddress			Generator;
 		public int						Expiration;
 		public byte[]					Signature;

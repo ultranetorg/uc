@@ -26,7 +26,7 @@ namespace Uccs.Net
 			return k;
 		}
 
-		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
 			var e = FindEntry(account);
 
@@ -56,7 +56,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public IEnumerable<Transaction> FindTransactions(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public IEnumerable<Transaction> FindTransactions(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
 			var e = FindEntry(account);
 
@@ -84,14 +84,14 @@ namespace Uccs.Net
 			}
 		}
 
-		public Transaction FindLastTransaction(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public Transaction FindLastTransaction(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
 			return	Database.FindLastTailTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
 					??
 					FindTransaction(signer, transaction_predicate, payload_predicate, round_predicate);
 		}
 
-		public IEnumerable<Transaction> FindLastTransactions(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Payload, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public IEnumerable<Transaction> FindLastTransactions(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
 		{
 			return	Database.FindLastTailTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
 					.Union(FindTransactions(signer, transaction_predicate, payload_predicate, round_predicate));
@@ -111,7 +111,7 @@ namespace Uccs.Net
 			return o;
 		}
 
-		public Operation FindLastOperation(AccountAddress signer, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null, Func<Round, bool> rp = null)
+		public Operation FindLastOperation(AccountAddress signer, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null)
 		{
 			foreach(var t in FindLastTransactions(signer, tp, pp, rp))
 				foreach(var o in t.Operations)
@@ -121,7 +121,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public O FindLastOperation<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null, Func<Round, bool> rp = null) where O : Operation
+		public O FindLastOperation<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null) where O : Operation
 		{
 			foreach(var t in FindLastTransactions(signer, tp, pp, rp))
 				foreach(var o in t.Operations.OfType<O>())
@@ -131,7 +131,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public IEnumerable<O> FindLastOperations<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Payload, bool> pp = null, Func<Round, bool> rp = null) where O : Operation
+		public IEnumerable<O> FindLastOperations<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null) where O : Operation
 		{
 			foreach(var t in FindLastTransactions(signer, tp, pp, rp))
 				foreach(var o in t.Operations.OfType<O>())
