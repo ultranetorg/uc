@@ -16,9 +16,8 @@
 		<ApplicationIdGuid>E55F8A4B-9BC6-4389-9A27-2291AA155730</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
-		<ApplicationVersion>2</ApplicationVersion>
-
+		<ApplicationDisplayVersion>3.0</ApplicationDisplayVersion>
+		<ApplicationVersion>3</ApplicationVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net7.0-ios'">14.3</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net7.0-android'">31.0</SupportedOSPlatformVersion>
 		<BaseOutputPath>..\</BaseOutputPath>
