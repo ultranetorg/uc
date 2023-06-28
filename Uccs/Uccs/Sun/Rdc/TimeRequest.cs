@@ -9,7 +9,7 @@
 				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
 				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 				
-				return new TimeResponse {Time = core.Database.LastConfirmedRound.Time};
+				return new TimeResponse {Time = core.Database.LastConfirmedRound.ConfirmedTime};
 			}
 		}
 	}

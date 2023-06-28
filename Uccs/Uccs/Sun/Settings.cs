@@ -170,7 +170,8 @@ namespace Uccs.Net
 		public DatabaseSettings			Database;
 		public SecretSettings			Secrets;
 
-		public List<AccountAddress>		ProposedFunds = new(){};
+		public List<AccountAddress>		ProposedFundJoiners = new();
+		public List<AccountAddress>		ProposedFundLeavers = new();
 
 		public Settings()
 		{

@@ -16,7 +16,7 @@ namespace Uccs.Net
 		public const int		Length = 20;
 		protected byte[]		Bytes;
 		public static readonly	AccountAddress Zero = new AccountAddress(new byte[Length]);
-		public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
+		//public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
 
 		public static implicit operator byte[] (AccountAddress d) => d.Bytes;
 		

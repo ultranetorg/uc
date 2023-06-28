@@ -96,20 +96,27 @@ namespace Uccs.Net
 	{
 		public class Block
 		{
-			public string		Generator {get; set;}
-			public BlockType	Type {get; set;}
+			public AccountAddress	Generator {get; set;}
+			public bool				IsPayload {get; set;}
+			public bool				Confirmed {get; set;}
 		}
 
 		public class Round
 		{
 			public int							Id {get; set;}
-			public int							Members {get; set;}
+			public int							Generators {get; set;}
+			public int							Hubs {get; set;}
+			public int							Analyzers {get; set;}
 			public int							Pieces {get; set;}
 			public bool							Voted {get; set;}
 			public bool							Confirmed {get; set;}
 			public ChainTime					Time {get; set;}
+			public byte[]						Hash {get; set;}
+			public byte[]						Consensus {get; set;}
 			public IEnumerable<Block>			Blocks {get; set;}
-			public IEnumerable<AccountAddress>	JoinRequests {get; set;}
+			public IEnumerable<AccountAddress>	GeneratorJoinRequests {get; set;}
+			public IEnumerable<AccountAddress>	HubJoinRequests {get; set;}
+			public IEnumerable<AccountAddress>	AnalyzerJoinRequests {get; set;}
 		}
 
 		public IEnumerable<Round> Rounds {get; set;}
@@ -127,10 +134,9 @@ namespace Uccs.Net
 		{
 			public BlockType		Type { get; set; }
 			public int				Try { get; set; }
-			public int				RoundId { get; set; }
 			public int				Index { get; set; }
 			public int				Total { get; set; }
-			public byte[]			Signature { get; set; }
+			public string			Signature { get; set; }
 			public int				DataLength { get; set; }
 			public AccountAddress	Generator { get; set; }
 		}

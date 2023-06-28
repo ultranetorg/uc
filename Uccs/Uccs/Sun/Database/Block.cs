@@ -10,7 +10,7 @@ namespace Uccs.Net
 {
 	public enum BlockType : byte
 	{
-		Nnull = 0, Vote = 2, Payload = 3
+		Nnull = 0, Vote, Payload 
 	}
 
 	public class BlockPiece : IBinarySerializable, IEquatable<BlockPiece>
@@ -197,7 +197,7 @@ namespace Uccs.Net
 
 		public int						Try; /// TODO: revote if consensus not reached
 		public long						TimeDelta;
-		public Consensus				Reference;
+		public byte[]					ParentSummary;
 		public List<AccountAddress>		GeneratorJoiners = new();
 		public List<AccountAddress>		GeneratorLeavers = new();
 		public List<AccountAddress>		HubJoiners = new();
@@ -210,13 +210,13 @@ namespace Uccs.Net
 		public List<ReleaseAddress>		CleanReleases = new();
 		public List<ReleaseAddress>		InfectedReleases = new();
 
-		public byte[]					Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
+		//public byte[]					Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
 
 		public List<Transaction>		Transactions = new();
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Count() == i.Operations.Count);
 		public byte[]					OrderingKey => Generator;
 
-		public bool						Confirmed = false;
+		//public bool						Confirmed = false;
 
 		public override bool Valid
 		{
@@ -225,8 +225,8 @@ namespace Uccs.Net
 				if(!base.Valid)
 					return false;
 
-				if(Transactions.GroupBy(i => i.Signer).Any(g => g.Count() > 1)) /// only 1 tx per sender is allowed
-					return false;
+				//if(Transactions.GroupBy(i => i.Signer).Any(g => g.Count() > 1)) /// only 1 tx per sender is allowed
+				//	return false;
 
 				foreach(var i in Transactions)
 				{
@@ -247,7 +247,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return base.ToString() + $", Parents={{{Reference.Payloads.Count}}}, Violators={{{Violators.Count}}}, GJoiners={{{GeneratorJoiners.Count}}}, GLeavers={{{GeneratorLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+			return base.ToString() + $", Parent={{{Hex.ToHexString(ParentSummary)}}}, Violators={{{Violators.Count}}}, GJoiners={{{GeneratorJoiners.Count}}}, GLeavers={{{GeneratorLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
 		}
 
 		public void AddNext(Transaction t)
@@ -263,7 +263,7 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Reference);
+			writer.Write(ParentSummary);
 
 			writer.Write(GeneratorJoiners);
 			writer.Write(GeneratorLeavers);
@@ -288,7 +288,7 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(RoundId);
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(Reference);
+			writer.Write(ParentSummary);
 
 			writer.Write(GeneratorJoiners);
 			writer.Write(GeneratorLeavers);
@@ -310,7 +310,7 @@ namespace Uccs.Net
 			RoundId		= reader.Read7BitEncodedInt();
 			Try			= reader.Read7BitEncodedInt();
 			TimeDelta	= reader.Read7BitEncodedInt64();
-			Reference	= reader.Read<Consensus>();
+			ParentSummary	= reader.ReadBytes(Cryptography.HashSize);
 
 			GeneratorJoiners	= reader.ReadAccounts();
 			GeneratorLeavers	= reader.ReadAccounts();

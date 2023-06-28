@@ -117,10 +117,10 @@ namespace Uccs.Net
 										{
 											get
 											{
-												if(Connections.Count(i => i.BaseRank > 0) < Settings.Database.PeersMin)
-												{
-													Connect(Role.Base, Settings.Database.PeersMin, Workflow);
-												}
+												//if(Connections.Count(i => i.BaseRank > 0) < Settings.Database.PeersMin)
+												//{
+												//	Connect(Role.Base, Settings.Database.PeersMin, Workflow);
+												//}
 
 												return Connections.Where(i => i.BaseRank > 0);
 											}
@@ -307,9 +307,13 @@ namespace Uccs.Net
 		{
 			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Generators.Any(j => j.Account == i)) : new AccountKey[0];
 	
-			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}{(Settings.Roles.HasFlag(Role.Hub) ? "H" : "")}{(Settings.Roles.HasFlag(Role.Seed) ? "S" : "")}" +
+			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}" +
+					$"{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}" +
+					$"{(Settings.Roles.HasFlag(Role.Hub) ? "H" : "")}" +
+					$"{(Settings.Roles.HasFlag(Role.Seed) ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
-					$"{(!IP.Equals(IPAddress.None) ? " - " + IP : "")}" +
+					$"{(Settings.Anonymous ? " - A" : "")}" +
+					$"{(!IP.Equals(IPAddress.None) ? $" - {IP}" : "")}" +
 					$" - {Synchronization}" +
 					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Generators.Count()} members" : "");
 		}
@@ -665,7 +669,7 @@ namespace Uccs.Net
 
 			if(!MinimalPeersReached && 
 				Connections.Count() >= Settings.PeersMin && 
-				(Database == null || Connections.Count(i => i.Roles.HasFlag(Database.Roles)) >= Settings.Database.PeersMin))
+				(!Settings.Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Database.PeersMin))
 			{
 				if(Filebase != null && !IsClient)
 				{
@@ -1109,15 +1113,15 @@ namespace Uccs.Net
 						var rd = new BinaryReader(new MemoryStream(stamp.BaseState));
 		
 						rd.Read7BitEncodedInt();
-						r.Hash		= rd.ReadSha3();
-						r.Time		= rd.ReadTime();
-						r.WeiSpent	= rd.ReadBigInteger();
-						r.Factor	= rd.ReadCoin();
-						r.Emission	= rd.ReadCoin();
-						r.Generators= rd.Read<Generator>(m => m.ReadForBase(rd)).ToList();
-						r.Hubs		= rd.Read<Hub>(m => m.ReadForBase(rd)).ToList();
-						r.Analyzers	= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
-						r.Funds		= rd.ReadList<AccountAddress>();
+						r.Hash			= rd.ReadSha3();
+						r.ConfirmedTime	= rd.ReadTime();
+						r.WeiSpent		= rd.ReadBigInteger();
+						r.Factor		= rd.ReadCoin();
+						r.Emission		= rd.ReadCoin();
+						r.Generators	= rd.Read<Generator>(m => m.ReadForBase(rd)).ToList();
+						r.Hubs			= rd.Read<Hub>(m => m.ReadForBase(rd)).ToList();
+						r.Analyzers		= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
+						r.Funds			= rd.ReadList<AccountAddress>();
 		
 						Database.BaseState	= stamp.BaseState;
 						//Database.Members	= r.Members;
@@ -1178,7 +1182,7 @@ namespace Uccs.Net
 									{
 										foreach(var p in r.Payloads)
 										{
-											p.Confirmed = true;
+											//p.Confirmed = true;
 
 											foreach(var t in p.Transactions)
 												foreach(var o in t.Operations)
@@ -1200,6 +1204,14 @@ namespace Uccs.Net
 									}
 									else
 									{
+										if(!Database.Roles.HasFlag(Role.Chain))
+										{ 
+											var d = rp.LastConfirmedRound % Database.TailLength;
+											
+											if(d < Database.Pitch || Database.TailLength - d < Database.Pitch * 3)
+												break;
+										}
+
 										if(confirmed)
 										{
 											confirmed		= false;
@@ -1380,30 +1392,27 @@ namespace Uccs.Net
 						continue;
 
 					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
-					var txs = Database.CollectValidTransactions(Transactions.Where(i => r.Id <= i.Expiration && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified))
-																			.GroupBy(i => i.Signer)
-																			.Select(i => i.First()), r).ToArray();
+					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified)), r).ToArray();
 
 					var prev = r.Previous.Votes.FirstOrDefault(i => i.Generator == g);
-					var p = r.Parent;
 
 					Vote createvote()
 					{
 						return new Vote(Database){
 													RoundId				= r.Id,
 													Try					= r.Try,
-													Reference			= Database.ProposeConsensus(p),
+													ParentSummary		= Database.Summarize(r.Parent),
 													Time				= Clock.Now,
 													TimeDelta			= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
-													Violators			= p.Forkers.ToList(),
+													Violators			= r.Parent.Forkers.ToList(),
 													GeneratorJoiners	= Database.ProposeGeneratorJoiners(r).ToList(),
 													GeneratorLeavers	= Database.ProposeGeneratorLeavers(r, g).ToList(),
 													HubJoiners			= Database.ProposeHubJoiners(r).ToList(),
 													HubLeavers			= Database.ProposeHubLeavers(r, g).ToList(),
 													AnalyzerJoiners		= Database.ProposeAnalyzerJoiners(r).ToList(),
 													AnalyzerLeavers		= Database.ProposeAnalyzerLeavers(r, g).ToList(),
-													FundJoiners			= new(),
-													FundLeavers			= new(),
+													FundJoiners			= Settings.ProposedFundJoiners,
+													FundLeavers			= Settings.ProposedFundLeavers,
 													IPs					= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP}
 												};
 					}
@@ -1522,12 +1531,12 @@ namespace Uccs.Net
 				}
 
 				/// ALL FOR ALL
-				///foreach(var i in Connections.Where(i => i.BaseRank > 0))
+				///foreach(var i in Bases)
 				///{
 				///	i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
 				///}
 													
-				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}-{Hex.ToHexString(i.Generator.Prefix)}-{i.RoundId}")));
+				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}-{Hex.ToHexString(((byte[])i.Generator).Take(4).ToArray())}-{i.RoundId}")));
 			}
 
 			Statistics.Generating.End();
@@ -1570,7 +1579,7 @@ namespace Uccs.Net
 					
 					if(notcomebacks.Any())
 					{
-						foreach(var i in Connections.Where(i => i.BaseRank > 0).OrderBy(i => Guid.NewGuid()))
+						foreach(var i in Bases)
 						{
 							i.Send(new GeneratorVoxRequest{Pieces = notcomebacks});
 						}
@@ -1605,10 +1614,8 @@ namespace Uccs.Net
 			RdcInterface rdi = null;
 			AccountAddress m = null;
 
-			while(!Workflow.IsAborted)
+			while(Workflow.Active)
 			{
-				Thread.Sleep(1);
-
 				lock(Lock)
 				{
 					if(!Operations.Any())
@@ -1618,7 +1625,7 @@ namespace Uccs.Net
 					}
 				}
 				
-			chooserdi:
+				chooserdi:
 
 				if(rdi == null)
 				{
@@ -1642,9 +1649,9 @@ namespace Uccs.Net
 
 								//Members.RemoveAll(i => !members.Contains(i.Generator));
 																										
-								foreach(var i in members.OrderByRandom()) /// look for public IP in connections
+								foreach(var i in members.Where(i => i.PublicIPs.Any()).OrderByRandom()) /// look for public IP in connections
 								{
-									var p = Connections.FirstOrDefault(j => i.IPs.Any(ip => j.IP.Equals(ip)));
+									var p = Connections.OrderByRandom().FirstOrDefault(j => i.PublicIPs.Any(ip => j.IP.Equals(ip)));
 
 									if(p != null)
 									{
@@ -1658,9 +1665,9 @@ namespace Uccs.Net
 								if(rdi != null)
 									break;
 
-								foreach(var i in members.Where(i => i.IPs.Any()).OrderByRandom()) /// try by public IP address
+								foreach(var i in members.Where(i => i.PublicIPs.Any()).OrderByRandom()) /// try by public IP address
 								{
-									var ip = i.IPs.Random();
+									var ip = i.PublicIPs.Random();
 									var p = GetPeer(ip);
 
 									try
@@ -1685,46 +1692,45 @@ namespace Uccs.Net
 								if(rdi != null)
 									break;
 
-								foreach(var i in members.OrderByRandom()) /// look for a Proxy in connections
-								{
-									var p = Connections.FirstOrDefault(j => i.Proxy == j);
-
-									if(p != null)
-									{
-										try
-										{
-											Monitor.Exit(Lock);
-										
-											Connect(p, Workflow);
-											m = i.Account;
-											rdi = new ProxyRdi(m, p);
-											Workflow.Log?.Report(this, "Generator proxy connection established", $"{i} {p}");
-											break;
-										}
-										catch(Exception)
-										{
-										}
-										finally
-										{
-											Monitor.Enter(Lock);
-										}
-									}
-								}
-
-								if(rdi != null)
-									break;
+								//foreach(var i in members.Where(i => i.Proxyable).OrderByRandom()) /// look for a Proxy in connections
+								//{
+								//	var p = Connections.OrderByRandom().FirstOrDefault(j => i.Proxy == j);
+								//
+								//	if(p != null)
+								//	{
+								//		try
+								//		{
+								//			Monitor.Exit(Lock);
+								//		
+								//			Connect(p, Workflow);
+								//			m = i.Account;
+								//			rdi = new ProxyRdi(m, p);
+								//			Workflow.Log?.Report(this, "Generator proxy connection established", $"{i} {p}");
+								//			break;
+								//		}
+								//		catch(Exception)
+								//		{
+								//		}
+								//		finally
+								//		{
+								//			Monitor.Enter(Lock);
+								//		}
+								//	}
+								//}
+								//
+								//if(rdi != null)
+								//	break;
 									
-								foreach(var i in members.OrderByRandom())
+								foreach(var i in members.Where(i => i.Proxyable).OrderByRandom()) /// connect via random proxy
 								{
 									try
 									{
 										Monitor.Exit(Lock);
 
-										var p = GetPeer(i.IPs.Random());
-										Connect(p, Workflow);
+										//Connect(i.Proxy, Workflow);
 										m = i.Account;
-										rdi = new ProxyRdi(m, p);
-										Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {p}");
+										rdi = new ProxyRdi(m, cr.Peer);
+										Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {cr.Peer}");
 										break;
 									}
 									catch(Exception)
@@ -1738,6 +1744,24 @@ namespace Uccs.Net
 
 								if(rdi != null)
 									break;
+
+								try
+								{
+									Monitor.Exit(Lock);
+
+									var p = GetPeer(Zone.GenesisIP);
+									Connect(p, Workflow);
+									m = Zone.Father0;
+									rdi = p;
+									Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {p}");
+								}
+								catch(Exception)
+								{
+								}
+								finally
+								{
+									Monitor.Enter(Lock);
+								}
 							}
 						}
 					}
@@ -1816,15 +1840,10 @@ namespace Uccs.Net
 					if(atxs.Any())
 					{
 						if(atxs.Sum(i => i.Operations.Count) <= 1)
-						{
 							Workflow.Log?.Report(this, "Operations sent", atxs.SelectMany(i => i.Operations).Select(i => i.ToString()));
-						} 
 						else
-						{
 							Workflow.Log?.Report(this, "Operation sent", $"{atxs.First().Operations.First()} -> {m} {rdi}");
-						}
 					}
-
 				}
 
 				lock(Lock)
@@ -1832,24 +1851,32 @@ namespace Uccs.Net
 	
 				if(accepted.Any())
 				{
-					var rp = rdi.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}));
-							
-					lock(Lock)
+					try
 					{
-						foreach(var i in rp.Operations)
-						{
-							var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
-																		
-							if(o.Placing != i.Placing)
-							{
-								o.Placing = i.Placing;
+						var rp = rdi.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}));
 
-								if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
+						lock(Lock)
+						{
+							foreach(var i in rp.Operations)
+							{
+								var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
+																		
+								if(o.Placing != i.Placing)
 								{
-									Operations.Remove(o);
+									o.Placing = i.Placing;
+
+									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
+									{
+										Operations.Remove(o);
+									}
 								}
 							}
 						}
+					}
+					catch(RdcNodeException)
+					{
+						rdi = null;
+						goto chooserdi;
 					}
 				}
 

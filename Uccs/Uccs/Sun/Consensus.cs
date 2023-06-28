@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
+/*
 	public class Consensus : IEquatable<Consensus>, IBinarySerializable
 	{
 		public const byte		PrefixLength = 4;
@@ -21,8 +22,7 @@ namespace Uccs.Net
 																	AnalyzerLeavers = new(), 
 																	FundJoiners = new(), 
 																	FundLeavers = new(),
-																	Violators = new(), 
-																};
+																	Violators = new() };
 		public byte[]			Parent;
 		public ChainTime		Time;
 		public List<byte[]>		Payloads;
@@ -122,5 +122,5 @@ namespace Uccs.Net
 					FundJoiners		.SequenceEqual(o.FundJoiners,		new BytesEqualityComparer()) &&
 					FundLeavers		.SequenceEqual(o.FundLeavers,		new BytesEqualityComparer());
 		}
-	}
+	}*/
 }

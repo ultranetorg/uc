@@ -10,8 +10,8 @@ namespace Uccs.Net
 {
 	public class Generator
 	{
-		public AccountAddress			Account { get; set; }
-		public IEnumerable<IPAddress>	IPs { get; set; } = new IPAddress[0];
+		public AccountAddress			Account;
+		public IEnumerable<IPAddress>	IPs  = new IPAddress[0];
 		//public ChainTime				OnlineSince = ChainTime.Zero;
 		public int						JoinedAt;
 		public Peer         			Proxy;

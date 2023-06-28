@@ -81,7 +81,7 @@ namespace Uccs.Sun.FUI
 				var r =  Core.Database.FindRound((int)Round.Value);
 
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
-									r.Time + "\n" + 
+									r.ConfirmedTime + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
 									(r.ConfirmedPayloads != null ? r.ConfirmedPayloads.Count.ToString() : 0) + "\n" +
 									(r.ConfirmedGeneratorJoiners.Count) + "\n" +

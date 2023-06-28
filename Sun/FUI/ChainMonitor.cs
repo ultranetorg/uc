@@ -157,7 +157,7 @@ namespace Uccs.Sun.FUI
 										nm = Math.Max(nm, r.Generators.Count);
 
 									if(r != null)
-										ndate = Math.Max(ndate, r.Time.ToString().Length);
+										ndate = Math.Max(ndate, r.ConfirmedTime.ToString().Length);
 								}
 							}
 
@@ -227,7 +227,7 @@ namespace Uccs.Sun.FUI
 																r.ConfirmedGeneratorLeavers.Count,
 																r.Voted ? "v" : " ",
 																r.Confirmed ? "c" : " ",
-																r.Time);
+																r.ConfirmedTime);
 										
 										x += (int)e.Graphics.MeasureString(t, Font, int.MaxValue).Width;
 										e.Graphics.DrawString(t, Font, System.Drawing.Brushes.Black, 0, y-1);

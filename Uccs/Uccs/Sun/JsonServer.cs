@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
@@ -221,13 +222,21 @@ namespace Uccs.Net
 																						.Select(i => new ChainReportResponse.Round
 																									{
 																										Id = i.Id, 
-																										Members = i.Generators.Count,
+																										Generators = i.Generators.Count,
+																										Hubs = i.Hubs.Count,
+																										Analyzers = i.Analyzers.Count,
 																										Pieces = i.BlockPieces.Count,
 																										Voted = i.Voted,
 																										Confirmed = i.Confirmed,
-																										Time = i.Time,
-																										Blocks = i.Blocks.Select(i => new ChainReportResponse.Block {Generator = i.Generator.ToString(), Type = i.Type}),
-																										JoinRequests = i.GeneratorJoinRequests.Select(i => i.Generator)
+																										Time = i.ConfirmedTime,
+																										Hash = i.Hash,
+																										Consensus = i.Summary,
+																										Blocks = i.Blocks.Select(b => new ChainReportResponse.Block {	Generator = b.Generator, 
+																																										IsPayload = b is Vote v && v.Transactions.Any(), 
+																																										Confirmed = i.Confirmed && b is Vote vv && vv.Transactions.Any() && i.ConfirmedPayloads.Contains(b) }),
+																										GeneratorJoinRequests = i.GeneratorJoinRequests.Select(i => i.Generator),
+																										HubJoinRequests = i.HubJoinRequests.Select(i => i.Account),
+																										AnalyzerJoinRequests = i.AnalyzerJoinRequests.Select(i => i.Account)
 																									})
 																						.ToArray()}; 
 							
@@ -240,10 +249,9 @@ namespace Uccs.Net
 																					{
 																						Type = i.Type,
 																						Try = i.Try,
-																						RoundId = i.RoundId,
 																						Index = i.Index,
 																						Total = i.Total,
-																						Signature = i.Signature,
+																						Signature = Hex.ToHexString(i.Signature),
 																						DataLength = i.Data.Length,
 																						Generator = i.Generator
 																					})

@@ -78,7 +78,7 @@ namespace Uccs.Net
 		 
 		public override string ToString()
 		{
-			return $"{Type}, Id={Id}, {Placing}, " + Description + $", Error={Error}";
+			return $"{Type}, Id={Id}, {Placing}, {Description}, Error={Error}";
 		}
 
 		public void Read(BinaryReader reader)
@@ -385,10 +385,10 @@ namespace Uccs.Net
 		{
 			var a = round.AffectAuthor(Author);
 
-			ChainTime sinceauction() => round.Time - a.FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
+			ChainTime sinceauction() => round.ConfirmedTime - a.FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
 
 			bool expired = a.LastWinner != null && (a.Owner == null && sinceauction() > ChainTime.FromYears(2) ||		/// winner has not registered since the end of auction																/// winner has not registered during 2 year since auction start, restart the auction
-													a.Owner != null && round.Time - a.RegistrationTime > ChainTime.FromYears(a.Years));	/// winner has not renewed, restart the auction
+													a.Owner != null && round.ConfirmedTime - a.RegistrationTime > ChainTime.FromYears(a.Years));	/// winner has not renewed, restart the auction
 
  			if(!expired)
  			{
@@ -398,9 +398,9 @@ namespace Uccs.Net
 					{
 						round.AffectAccount(Signer).Balance -= Bid;
 						
-						a.FirstBidTime	= round.Time;
+						a.FirstBidTime	= round.ConfirmedTime;
 						a.LastBid		= Bid;
-						a.LastBidTime	= round.Time;
+						a.LastBidTime	= round.ConfirmedTime;
 						a.LastWinner	= Signer;
 						
 						return;
@@ -415,7 +415,7 @@ namespace Uccs.Net
 							round.AffectAccount(Signer).Balance -= Bid;
 							
 							a.LastBid		= Bid;
-							a.LastBidTime	= round.Time;
+							a.LastBidTime	= round.ConfirmedTime;
 							a.LastWinner	= Signer;
 				
 							return;
@@ -436,9 +436,9 @@ namespace Uccs.Net
 
 				round.AffectAccount(Signer).Balance -= Bid;
 				
-				a.FirstBidTime	= round.Time;
+				a.FirstBidTime	= round.ConfirmedTime;
 				a.LastBid		= Bid;
-				a.LastBidTime	= round.Time;
+				a.LastBidTime	= round.ConfirmedTime;
 				a.LastWinner	= Signer;
 			
 				return;
@@ -527,8 +527,8 @@ namespace Uccs.Net
 		{
 			var a = chain.Authors.Find(Author, round.Id);
 
-			ChainTime sinceauction() => round.Time - a.FirstBidTime;
-			ChainTime sincelastreg() => round.Time - a.RegistrationTime;
+			ChainTime sinceauction() => round.ConfirmedTime - a.FirstBidTime;
+			ChainTime sincelastreg() => round.ConfirmedTime - a.RegistrationTime;
 						
 			if(	a == null && !Exclusive ||																																	/// available
 				a != null && !Exclusive && sincelastreg() > ChainTime.FromYears(a.Years) ||																					/// not renewed
@@ -550,7 +550,7 @@ namespace Uccs.Net
 				//a.ObtainedRid		= round.Id;
 				a.Title				= Title;
 				a.Owner				= Signer;
-				a.RegistrationTime	= round.Time;
+				a.RegistrationTime	= round.ConfirmedTime;
 				a.Years				= Years;
 
 				round.AffectAccount(Signer).Balance -= cost;

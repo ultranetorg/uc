@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Net;
 using Nethereum.Signer;
+using static Uccs.Net.ChainReportResponse;
 
 namespace Uccs.Net
 {
@@ -32,19 +33,20 @@ namespace Uccs.Net
 		public IEnumerable<Vote>								Payloads	=> Votes.Where(i => i.Transactions.Any());
 		public IEnumerable<AccountAddress>						Forkers		=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
 		public IEnumerable<Vote>								Unique		=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		public IEnumerable<Vote>								Majority	=> Unique.Any() ? Unique.GroupBy(i => i.Reference).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
+		//public IEnumerable<Vote>								Majority	=> Unique.Any() ? Unique.GroupBy(i => i.Reference, new BytesEqualityComparer()).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
 		public List<Generator>									Generators = new();
 		public List<Hub>										Hubs = new();
 		public List<Analyzer>									Analyzers = new();
 		public List<AccountAddress>								Funds = new();
 
-		public List<Vote>										ConfirmedPayloads;
-		public List<Generator>									ConfirmedGeneratorJoiners = new();
+		public ChainTime										ConfirmedTime;
+		public List<Vote>										ConfirmedPayloads = new();
+		public List<AccountAddress>								ConfirmedGeneratorJoiners = new();
 		public List<AccountAddress>								ConfirmedGeneratorLeavers = new();
-		public List<Hub>										ConfirmedHubJoiners = new();
+		public List<AccountAddress>								ConfirmedHubJoiners = new();
 		public List<AccountAddress>								ConfirmedHubLeavers = new();
-		public List<Analyzer>									ConfirmedAnalyzerJoiners = new();
+		public List<AccountAddress>								ConfirmedAnalyzerJoiners = new();
 		public List<AccountAddress>								ConfirmedAnalyzerLeavers = new();
 		public List<AccountAddress>								ConfirmedFundJoiners = new();
 		public List<AccountAddress>								ConfirmedFundLeavers = new();
@@ -53,8 +55,8 @@ namespace Uccs.Net
 		public bool												Voted = false;
 		public bool												Confirmed = false;
 		public byte[]											Hash;
+		public byte[]											Summary;
 
-		public ChainTime										Time;
 		public BigInteger										WeiSpent;
 		public Coin												Factor;
 		public Coin												Emission;
@@ -66,7 +68,7 @@ namespace Uccs.Net
 		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
 		
 		public Database											Database;
-		
+
 		public Round(Database c)
 		{
 			Database = c;
@@ -74,7 +76,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}/{GeneratorJoinRequests.Count()}), Pieces={BlockPieces.Count}, Generators={Generators?.Count}, Time={Time}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({Votes.Count()}/{Payloads.Count()}/{GeneratorJoinRequests.Count()}), Pieces={BlockPieces.Count}, Generators={Generators?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)
@@ -297,15 +299,15 @@ namespace Uccs.Net
 			Hash = Database.Zone.Cryptography.Hash(s.ToArray());
 		}
 
-		void WriteConfirmed(BinaryWriter writer)
+		public void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Time);
+			writer.Write(ConfirmedTime);
 			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
-			writer.Write(ConfirmedGeneratorJoiners.OrderBy(i => i.Account), i => i.WriteConfirmed(writer));
+			writer.Write(ConfirmedGeneratorJoiners.OrderBy(i => i));
 			writer.Write(ConfirmedGeneratorLeavers.OrderBy(i => i));
-			writer.Write(ConfirmedHubJoiners.OrderBy(i => i.Account), i => i.WriteConfirmed(writer));
+			writer.Write(ConfirmedHubJoiners.OrderBy(i => i));
 			writer.Write(ConfirmedHubLeavers.OrderBy(i => i));
-			writer.Write(ConfirmedAnalyzerJoiners.OrderBy(i => i.Account), i => i.WriteConfirmed(writer));
+			writer.Write(ConfirmedAnalyzerJoiners.OrderBy(i => i));
 			writer.Write(ConfirmedAnalyzerLeavers.OrderBy(i => i));
 			writer.Write(ConfirmedFundJoiners.OrderBy(i => i));
 			writer.Write(ConfirmedFundLeavers.OrderBy(i => i));
@@ -314,24 +316,24 @@ namespace Uccs.Net
 
 		void ReadConfirmed(BinaryReader reader)
 		{
-			Time		= reader.ReadTime();
-			Blocks		= reader.ReadList(() =>	{	
-													var b = new Vote(Database);											
-													b.RoundId = Id;
-													b.Round = this;
-													b.Confirmed = true;
+			ConfirmedTime	= reader.ReadTime();
+			Blocks			= reader.ReadList(() =>	{	
+														var b = new Vote(Database);											
+														b.RoundId = Id;
+														b.Round = this;
+														//b.Confirmed = true;
 
-													b.ReadConfirmed(reader);
+														b.ReadConfirmed(reader);
 
-													return b as Block;
-												});
+														return b as Block;
+													});
 	
 			ConfirmedPayloads			= Blocks.Cast<Vote>().ToList();
-			ConfirmedGeneratorJoiners	= reader.Read<Generator>(i => i.ReadConfirmed(reader)).ToList();
+			ConfirmedGeneratorJoiners	= reader.ReadList<AccountAddress>();
 			ConfirmedGeneratorLeavers	= reader.ReadList<AccountAddress>();
-			ConfirmedHubJoiners			= reader.Read<Hub>(i => i.ReadConfirmed(reader)).ToList();
+			ConfirmedHubJoiners			= reader.ReadList<AccountAddress>();
 			ConfirmedHubLeavers			= reader.ReadList<AccountAddress>();
-			ConfirmedAnalyzerJoiners	= reader.Read<Analyzer>(i => i.ReadConfirmed(reader)).ToList();
+			ConfirmedAnalyzerJoiners	= reader.ReadList<AccountAddress>();
 			ConfirmedAnalyzerLeavers	= reader.ReadList<AccountAddress>();
 			ConfirmedFundJoiners		= reader.ReadList<AccountAddress>();
 			ConfirmedFundLeavers		= reader.ReadList<AccountAddress>();

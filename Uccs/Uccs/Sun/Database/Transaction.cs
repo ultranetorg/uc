@@ -21,13 +21,11 @@ namespace Uccs.Net
 		public AccountAddress			Signer;
 		public Zone						Zone;
 
-		public byte[]					Prefix => Signature.Take(Consensus.PrefixLength).ToArray();
-
 		public bool Valid
 		{
 			get
 			{
-				return Operations.All(i => i.Valid);
+				return Operations.Any() && Operations.All(i => i.Valid);
 			}
 		}
 
@@ -36,10 +34,15 @@ namespace Uccs.Net
  			Zone = zone;
  		}
 
-		public void Sign(AccountKey signer, AccountAddress member, int expiration)
+		public override string ToString()
+		{
+			return $"Operations={{{Operations.Count}}}, Signer={Signer}, Generator={Generator}, Expiration={Expiration}, Signature={Hex.ToHexString(Signature)}";
+		}
+
+		public void Sign(AccountKey signer, AccountAddress generator, int expiration)
 		{
 			Signer		= signer;
-			Generator	= member;
+			Generator	= generator;
 			Expiration	= expiration;
 			Signature	= Zone.Cryptography.Sign(signer, Hashify());
 		}
@@ -53,11 +56,6 @@ namespace Uccs.Net
 		{ 
 			Operations.Insert(0, operation);
 			operation.Transaction = this;
-		}
-
-		public override string ToString()
-		{
-			return $"Operations={{{Operations.Count}}}, Signer={Signer}, Expiration={Expiration}";
 		}
 
 		public byte[] Hashify()
