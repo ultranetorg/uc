@@ -16,7 +16,13 @@ namespace Uccs.Net
 					{ 
 						Address	= Address, 
 						Manifest = Manifest.Clone() as byte[],
-						Channel	= Channel
+						Channel	= Channel,
+						AnalysisStage = AnalysisStage,
+						AnalysisFee = AnalysisFee,
+						RoundId = RoundId,
+						QuorumRid = QuorumRid,
+						Good = Good,
+						Bad = Bad,
 					};
 		}
 

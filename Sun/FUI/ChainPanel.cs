@@ -83,10 +83,10 @@ namespace Uccs.Sun.FUI
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.ConfirmedTime + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
-									(r.ConfirmedPayloads != null ? r.ConfirmedPayloads.Count.ToString() : 0) + "\n" +
-									(r.ConfirmedGeneratorJoiners.Count) + "\n" +
-									(r.ConfirmedGeneratorLeavers.Count) + "\n" +
-									(r.ConfirmedViolators.Count)
+									r.ConfirmedPayloads.Length + "\n" +
+									r.ConfirmedGeneratorJoiners.Length + "\n" +
+									r.ConfirmedGeneratorLeavers.Length + "\n" +
+									r.ConfirmedViolators.Length
 									;
 
 				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i.Transactions.Any())

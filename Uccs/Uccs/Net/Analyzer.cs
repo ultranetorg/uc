@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
 	public class Analyzer
 	{
-		public AccountAddress			Account { get; set; }
-		//public IEnumerable<IPAddress>	IPs { get; set; } = new IPAddress[0];
+		public AccountAddress			Account;
 		public int						JoinedAt;
-		//public Peer         			Proxy;
+		//public int						LeftAt;
 	
   		public void WriteConfirmed(BinaryWriter w)
  		{
@@ -28,13 +22,15 @@ namespace Uccs.Net
   		public void WriteForBase(BinaryWriter w)
  		{
  			w.Write(Account);
-			w.Write7BitEncodedInt(JoinedAt);
+			w.Write7BitEncodedInt(JoinedAt); /// negative if inactive
+			//w.Write7BitEncodedInt(LeftAt); /// negative if inactive
  		}
  
  		public void ReadForBase(BinaryReader r)
  		{
 			Account		= r.ReadAccount();
  			JoinedAt	= r.Read7BitEncodedInt();
+ 			//LeftAt		= r.Read7BitEncodedInt();
 		}
 
 		public override string ToString()

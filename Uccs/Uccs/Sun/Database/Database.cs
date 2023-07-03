@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Xml;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Util;
 using Nethereum.Web3;
-using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -32,7 +31,8 @@ namespace Uccs.Net
 		public  int							TailLength => Dev != null && Dev.TailLength100 ? 100 : 1000;
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			BailMin = 1000;
-		public static readonly Coin			FeePerByte = new Coin(0.000001);
+		public static readonly Coin			TransactionFeePerByte = new Coin(0.001);
+		public static readonly Coin			AnalysisFeePerByte = new Coin(0.000001);
 
 		public Zone							Zone;
 		public DatabaseSettings				Settings;
@@ -41,8 +41,6 @@ namespace Uccs.Net
 
 		public List<Round>					Tail = new();
 		public Dictionary<int, Round>		LoadedRounds = new();
-		//public List<Member>					Members	= new();
-		//public List<Account>				Funds = new();
 
 		public RocksDb						Engine;
 		public byte[]						BaseState;
@@ -139,8 +137,8 @@ namespace Uccs.Net
 						
 						if(i == 16)
 						{
-							r.ConfirmedGeneratorJoiners.Add(Zone.Father0);
-							r.ConfirmedFundJoiners.Add(Zone.OrgAccount);
+							r.ConfirmedGeneratorJoiners = new[] {Zone.Father0 };
+							r.ConfirmedFundJoiners = new[] {Zone.OrgAccount};
 						}
 	
 						//foreach(var p in r.Payloads)
@@ -151,7 +149,7 @@ namespace Uccs.Net
 	
 						if(i <= 16)
 						{
-							r.ConfirmedPayloads = r.Payloads.ToList();
+							r.ConfirmedPayloads = r.Payloads.ToArray();
 
 							Confirm(r, true);
 
@@ -196,7 +194,7 @@ namespace Uccs.Net
 			void write(int rid)
 			{
 				var r = FindRound(rid);
-				r.ConfirmedPayloads = r.Payloads.ToList();
+				r.ConfirmedPayloads = r.Payloads.ToArray();
 				r.Hashify(r.Id > 0 ? FindRound(rid - 1).Hash : Zone.Cryptography.ZeroHash);
 				r.Write(w);
 			}
@@ -522,6 +520,13 @@ namespace Uccs.Net
 		///	/// STRICT: return prev != null && (prev.Payload.Confirmed || prev.Payload.Transactions.All(i => IsSequential(i, i.Payload.RoundId))); /// All transactions in a block containing 'prev' one must also be sequential
 		///	return prev.Transaction.Payload.Confirmed || IsSequential(prev, prev.Transaction.Payload.RoundId);
 		///}
+		
+		public IEnumerable<AccountAddress> ProposeViolators(Round round)
+		{
+			var g = round.Id > Pitch ? GeneratorsOf(round.Id) : new();
+			var gv = round.Votes.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
+			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
+		}
 
 		public IEnumerable<AccountAddress> ProposeGeneratorJoiners(Round round)
 		{
@@ -565,74 +570,141 @@ namespace Uccs.Net
 		
 		public IEnumerable<AccountAddress> ProposeHubLeavers(Round round, AccountAddress generator)
 		{
-			var prevs = Enumerable.Range(round.ParentId, Pitch).Select(i => FindRound(i));
-		
-			return HubsOf(round.Id).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
-												prevs.Count(r => r.HubVoxes.Any(b => b.Account == i.Account)) < AliveMinHubVotes &&	/// sent less than MinVotesPerPitch of required blocks
-												!prevs.Any(r => r.Votes.Any(v => v.Generator == generator && v.HubLeavers.Contains(i.Account)))) /// not yet reported in prev [Pitch-1] rounds
-									.Select(i => i.Account);
+			return new AccountAddress[]{};
+			///var prevs = Enumerable.Range(round.ParentId, Pitch).Select(i => FindRound(i));
+			///
+			///return HubsOf(round.Id).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
+			///									prevs.Count(r => r.HubVoxes.Any(b => b.Account == i.Account)) < AliveMinHubVotes &&	/// sent less than MinVotesPerPitch of required blocks
+			///									!prevs.Any(r => r.Votes.Any(v => v.Generator == generator && v.HubLeavers.Contains(i.Account)))) /// not yet reported in prev [Pitch-1] rounds
+			///						.Select(i => i.Account);
 		}
 
-		public IEnumerable<AccountAddress> ProposeAnalyzerJoiners(Round round)
-		{
-			var o = round.Parent.AnalyzerJoinRequests.OrderBy(i => i.Account).Select(i => i.Account);
-		
-			var n = Math.Min(AnalyzersMax - AnalyzersOf(round.Id).Count(), o.Count());
-		
-			return o.Take(n);
-		}
-		
-		public IEnumerable<AccountAddress> ProposeAnalyzerLeavers(Round round, AccountAddress generator)
-		{
-			var prevs = Enumerable.Range(round.ParentId, Pitch).Select(i => FindRound(i));
-		
-			return AnalyzersOf(round.Id).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
-													prevs.Count(r => r.AnalyzerVoxes.Any(b => b.Account == i.Account)) < AliveMinAnalyzerVotes &&	/// sent less than MinVotesPerPitch of required blocks
-													!prevs.Any(r => r.Votes.Any(v => v.Generator == generator && v.AnalyzerLeavers.Contains(i.Account)))) /// not yet reported in prev [Pitch-1] rounds
-									.Select(i => i.Account);
-		}
+		//public IEnumerable<AccountAddress> ProposeAnalyzerJoiners(Round round)
+		//{
+		//	var o = round.Parent.AnalyzerJoinRequests.OrderBy(i => i.Account).Select(i => i.Account);
+		//
+		//	var n = Math.Min(AnalyzersMax - AnalyzersOf(round.Id).Count(), o.Count());
+		//
+		//	return o.Take(n);
+		//}
+		//
+		//public IEnumerable<AccountAddress> ProposeAnalyzerLeavers(Round round, AccountAddress generator)
+		//{
+		//	var prevs = Enumerable.Range(round.ParentId, Pitch).Select(i => FindRound(i));
+		//
+		//	return AnalyzersOf(round.Id).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
+		//											prevs.Count(r => r.AnalyzerVoxes.Any(b => b.Account == i.Account)) < AliveMinAnalyzerVotes &&	/// sent less than MinVotesPerPitch of required blocks
+		//											!prevs.Any(r => r.Votes.Any(v => v.Generator == generator && v.AnalyzerLeavers.Contains(i.Account)))) /// not yet reported in prev [Pitch-1] rounds
+		//							.Select(i => i.Account);
+		//}
 
 		public byte[] Summarize(Round round)
 		{
 			if(round.Id > LastGenesisRound && !round.Parent.Confirmed)
 				return null;
 
-			var m = round.Id > Pitch ? GeneratorsOf(round.Id) : new();
-			var v = round.Unique.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
+			var g = round.Id > Pitch ? GeneratorsOf(round.Id) : new();
+			var gv = round.Votes.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
+			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
+			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 
-			var payloads = v.Where(i => i.Transactions.Any());
+			var a = round.Id > Pitch ? AnalyzersOf(round.Id) : new();
+			var av = round.AnalyzerVoxes.Where(i => a.Any(j => j.Account == i.Account)).ToArray();
+			var au = av.GroupBy(i => i.Account).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 
-			round.ConfirmedTime = CalculateTime(round, v);
+			var p = gu.Where(i => i.Transactions.Any());
+
+			round.ConfirmedTime = CalculateTime(round, gu);
 			
-			Execute(round, payloads, round.Forkers);
+			Execute(round, p, gf);
 
-			round.ConfirmedPayloads = payloads.Where(i => i.SuccessfulTransactions.Any()).OrderBy(i => i.OrderingKey, new BytesComparer()).ToList();
+			round.ConfirmedPayloads = p.Where(i => i.SuccessfulTransactions.Any()).OrderBy(i => i.OrderingKey, new BytesComparer()).ToArray();
 
-			if(round.Id < Pitch)
+			if(round.Id >= Pitch)
 			{
-				round.ConfirmedGeneratorJoiners	= new();
-				round.ConfirmedGeneratorLeavers	= new();
-				round.ConfirmedHubJoiners		= new();
-				round.ConfirmedHubLeavers		= new();
-				round.ConfirmedAnalyzerJoiners	= new();
-				round.ConfirmedAnalyzerLeavers	= new();
-				round.ConfirmedFundJoiners		= new();
-				round.ConfirmedFundLeavers		= new();
-				round.ConfirmedViolators		= new();
-			}
-			else
-			{
-				var q = m.Count * 2 / 3;
+				var gq = g.Count * 2/3;
 	
-				round.ConfirmedGeneratorJoiners	= v.SelectMany(i => i.GeneratorJoiners).Distinct().Where(x => v.Count(b => b.GeneratorJoiners.Contains(x)) >= q)						.OrderBy(i => i).ToList();
-				round.ConfirmedGeneratorLeavers	= v.SelectMany(i => i.GeneratorLeavers).Distinct().Where(x => v.Count(b => b.GeneratorLeavers.Contains(x)) >= q)						.OrderBy(i => i).ToList();
-				round.ConfirmedHubJoiners		= v.SelectMany(i => i.HubJoiners).		Distinct().Where(x => v.Count(b => b.HubJoiners.Contains(x)) >= q)								.OrderBy(i => i).ToList();
-				round.ConfirmedHubLeavers		= v.SelectMany(i => i.HubLeavers).		Distinct().Where(x => v.Count(b => b.HubLeavers.Contains(x)) >= q)								.OrderBy(i => i).ToList();
-				round.ConfirmedAnalyzerJoiners	= v.SelectMany(i => i.AnalyzerJoiners).	Distinct().Where(x => v.Count(b => b.AnalyzerJoiners.Contains(x)) >= q)							.OrderBy(i => i).ToList();
-				round.ConfirmedAnalyzerLeavers	= v.SelectMany(i => i.AnalyzerLeavers).	Distinct().Where(x => v.Count(b => b.AnalyzerLeavers.Contains(x)) >= q)							.OrderBy(i => i).ToList();
-				round.ConfirmedFundJoiners		= v.SelectMany(i => i.FundJoiners).		Distinct().Where(x => v.Count(b => b.FundJoiners.Contains(x)) >= Database.GeneratorsMax * 2 / 3).OrderBy(i => i).ToList();
-				round.ConfirmedFundLeavers		= v.SelectMany(i => i.FundLeavers).		Distinct().Where(x => v.Count(b => b.FundLeavers.Contains(x)) >= Database.GeneratorsMax * 2 / 3).OrderBy(i => i).ToList();
-				round.ConfirmedViolators		= v.SelectMany(i => i.Violators).		Distinct().Where(x => v.Count(b => b.Violators.Contains(x)) >= q)								.OrderBy(i => i).ToList();
+				round.ConfirmedGeneratorJoiners	= gu.SelectMany(i => i.GeneratorJoiners).Distinct()
+													.Where(x => !round.Generators.Any(j => j.Account == x) && gu.Count(b => b.GeneratorJoiners.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
+				round.ConfirmedGeneratorLeavers	= gu.SelectMany(i => i.GeneratorLeavers).Distinct()
+													.Where(x => round.Generators.Any(j => j.Account == x) && gu.Count(b => b.GeneratorLeavers.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
+				round.ConfirmedHubJoiners		= gu.SelectMany(i => i.HubJoiners).Distinct()
+													.Where(i => !round.Hubs.Any(j => j.Account == i) && gu.Count(b => b.HubJoiners.Contains(i)) >= gq)
+													.OrderBy(i => i).ToArray();
+				
+				round.ConfirmedHubLeavers		= gu.SelectMany(i => i.HubLeavers).Distinct()
+													.Where(i => round.Hubs.Any(j => j.Account == i) && gu.Count(b => b.HubLeavers.Contains(i)) >= gq)
+													.OrderBy(i => i).ToArray();
+				
+				round.ConfirmedAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Database.GeneratorsMax * 2/3)
+													.OrderBy(i => i).ToArray();
+				
+				round.ConfirmedAnalyzerLeavers	= gu.SelectMany(i => i.AnalyzerLeavers).Distinct()
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Database.GeneratorsMax * 2/3)
+													.OrderBy(i => i).ToArray();
+
+				round.ConfirmedFundJoiners		= gu.SelectMany(i => i.FundJoiners).Distinct()
+													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Database.GeneratorsMax * 2/3)
+													.OrderBy(i => i).ToArray();
+				
+				round.ConfirmedFundLeavers		= gu.SelectMany(i => i.FundLeavers).Distinct()
+													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Database.GeneratorsMax * 2/3)
+													.OrderBy(i => i).ToArray();
+
+				round.ConfirmedViolators		= gu.SelectMany(i => i.Violators).Distinct()
+													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
+				var aq = a.Count * 2/3;
+
+				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Release)
+											.Select(i => {
+															var e = round.FindRelease(i.Release);
+																	
+															if(e == null)
+																return null;
+																	
+															//var a = AnalysisResult.NotRequested;
+																
+															var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Release == i.Release)).Where(i => i != null);
+
+															if(v.Count() == aq || (e.AnalysisStage == AnalysisStage.QuorumReached && e.RoundId - e.QuorumRid + (e.RoundId - e.QuorumRid)/2 == round.Id))
+															{ 
+																var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
+																var inf = v.Count(i => i.Result == AnalysisResult.Infected);
+
+																return new AnalysisConclusion {Release = i.Release, Good = (byte)cln, Bad = (byte)inf};
+																
+																//if(cln >= aq)
+																//	a = AnalysisResult.Clean;
+																//else if(inf >= aq)
+																//	a = AnalysisResult.Infected;
+																//else if(cln < aq && inf < aq)
+																//	a = AnalysisResult.VotingFailed;
+																//else
+																//	a = AnalysisResult.Suspicious;
+															}
+															else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= aq)
+																return new AnalysisConclusion {Release = i.Release, QuorumReached = true};
+															else
+																return null;
+														})
+											.OrderBy(i => i).ToArray();
+
+				//round.ConfirmedClean	= au.SelectMany(i => i.Clean).Distinct()
+				//							.Where(i => round.FindRelease(i) is ReleaseEntry e && ((e.AnalysisResult == AnalysisResult.QuorumReached && e.RoundId - e.QuorumRid + (e.RoundId - e.QuorumRid)/2 == round.Id)
+				//																					|| (au.Count(j => j.Clean.Contains(i)) == a.Count)))
+				//							.OrderBy(i => i).ToArray();
+				//
+				//round.ConfirmedInfected	= au.SelectMany(i => i.Infected).Distinct()
+				//							.Where(i => round.FindRelease(i) is ReleaseEntry e && ((e.AnalysisResult == AnalysisResult.QuorumReached && e.RoundId - e.QuorumRid + (e.RoundId - e.QuorumRid)/2 == round.Id)
+				//																					|| (au.Count(j => j.Infected.Contains(i)) == a.Count)))
+				//							.OrderBy(i => i).ToArray();
 			}
 
 			var s = new MemoryStream();
@@ -813,15 +885,33 @@ namespace Uccs.Net
 			round.Generators.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < (Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
 			round.Generators.RemoveAll(i => round.ConfirmedGeneratorLeavers.Contains(i.Account));
 
-			round.Hubs.AddRange(round.ConfirmedHubJoiners.Select(i => new Hub {Account = i, JoinedAt = round.Id + Pitch + 1}));
 			round.Hubs.RemoveAll(i => round.ConfirmedHubLeavers.Contains(i.Account));
+			round.Hubs.AddRange(round.ConfirmedHubJoiners.Select(i => new Hub {Account = i, JoinedAt = round.Id + Pitch + 1}));
 
-			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Account = i, JoinedAt = round.Id + Pitch + 1}));
-			round.Analyzers.RemoveAll(i => round.ConfirmedAnalyzerLeavers.Contains(i.Account));
-	
-			round.Funds.AddRange(round.ConfirmedFundJoiners);
 			round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
+			round.Funds.AddRange(round.ConfirmedFundJoiners);
 
+			foreach(var i in round.ConfirmedAnalyses)
+			{
+				var e = round.AffectRelease(i.Release);
+				
+				if(i.Finished)
+				{
+					e.Good			= i.Good;
+					e.Bad			= i.Bad;
+					e.AnalysisStage = AnalysisStage.Finished;
+
+					round.Distribute(e.AnalysisFee, round.Analyzers.Select(i => i.Account));
+				}
+				else if(e.AnalysisStage == AnalysisStage.Pending && i.QuorumReached)
+				{
+					e.AnalysisStage = AnalysisStage.QuorumReached;
+				}
+			}
+
+			round.Analyzers.RemoveAll(i => round.ConfirmedAnalyzerLeavers.Contains(i.Account));
+			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Account = i, JoinedAt = round.Id + Pitch + 1}));
+			
 			using(var b = new WriteBatch())
 			{
 				if(Tail.Count(i => i.Id < round.Id) >= TailLength)
@@ -848,10 +938,10 @@ namespace Uccs.Net
 					w.Write(LastCommittedRound.WeiSpent);
 					w.Write(LastCommittedRound.Factor);
 					w.Write(LastCommittedRound.Emission);
-					w.Write(LastCommittedRound.Generators.OrderBy(i => i.Account), i => i.WriteForBase(w));
-					w.Write(LastCommittedRound.Hubs.OrderBy(i => i.Account), i => i.WriteForBase(w));
-					w.Write(LastCommittedRound.Analyzers.OrderBy(i => i.Account), i => i.WriteForBase(w));
-					w.Write(LastCommittedRound.Funds.OrderBy(i => i));
+					w.Write(LastCommittedRound.Generators, i => i.WriteForBase(w));
+					w.Write(LastCommittedRound.Hubs, i => i.WriteForBase(w));
+					w.Write(LastCommittedRound.Analyzers, i => i.WriteForBase(w));
+					w.Write(LastCommittedRound.Funds);
 	
 					BaseState = s.ToArray();
 

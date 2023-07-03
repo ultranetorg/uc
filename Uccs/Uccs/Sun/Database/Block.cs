@@ -216,7 +216,7 @@ namespace Uccs.Net
 		public IEnumerable<Transaction> SuccessfulTransactions => Transactions.Where(i => i.SuccessfulOperations.Count() == i.Operations.Count);
 		public byte[]					OrderingKey => Generator;
 
-		//public bool						Confirmed = false;
+		//public bool					Confirmed = false;
 
 		public override bool Valid
 		{
@@ -307,9 +307,9 @@ namespace Uccs.Net
 
 		protected void ReadVote(BinaryReader reader)
 		{
-			RoundId		= reader.Read7BitEncodedInt();
-			Try			= reader.Read7BitEncodedInt();
-			TimeDelta	= reader.Read7BitEncodedInt64();
+			RoundId			= reader.Read7BitEncodedInt();
+			Try				= reader.Read7BitEncodedInt();
+			TimeDelta		= reader.Read7BitEncodedInt64();
 			ParentSummary	= reader.ReadBytes(Cryptography.HashSize);
 
 			GeneratorJoiners	= reader.ReadAccounts();

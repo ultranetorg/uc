@@ -28,10 +28,10 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 				case "register" : 
-					return Core.Enqueue(new PlatformRegistration
+					return Core.Enqueue(new RealizationRegistration
 										{ 
 											Signer = GetPrivate("by", "password"), 
-											Platform = RealizationAddress.Parse(GetString("address")),
+											Address = RealizationAddress.Parse(GetString("address")),
 											//OSes = Args.One("oses").Nodes.Select(i => Osbi.Parse(i.Name)).ToArray()
 										},
 										GetAwaitStage(), 

@@ -150,8 +150,8 @@ namespace Uccs.Sun.FUI
 									nid = Math.Max(nid, i);
 									np = Math.Max(np, r.BlockPieces.Count);
 									njrs = Math.Max(njrs, r.GeneratorJoinRequests.Count());
-									nj = Math.Max(nj, r.ConfirmedGeneratorJoiners.Count);
-									nl = Math.Max(nj, r.ConfirmedGeneratorLeavers.Count);
+									nj = Math.Max(nj, r.ConfirmedGeneratorJoiners.Length);
+									nl = Math.Max(nj, r.ConfirmedGeneratorLeavers.Length);
 		
 									if(r?.Generators != null)
 										nm = Math.Max(nm, r.Generators.Count);
@@ -223,8 +223,8 @@ namespace Uccs.Sun.FUI
 																r.BlockPieces.Count,
 																r.Generators.Count, 
 																r.GeneratorJoinRequests.Count(),
-																r.ConfirmedGeneratorJoiners.Count,
-																r.ConfirmedGeneratorLeavers.Count,
+																r.ConfirmedGeneratorJoiners.Length,
+																r.ConfirmedGeneratorLeavers.Length,
 																r.Voted ? "v" : " ",
 																r.Confirmed ? "c" : " ",
 																r.ConfirmedTime);

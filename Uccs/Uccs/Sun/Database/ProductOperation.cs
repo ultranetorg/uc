@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Org.BouncyCastle.Utilities.Encoders;
+using static Uccs.Net.ChainReportResponse;
 
 namespace Uccs.Net
 {
@@ -41,7 +42,7 @@ namespace Uccs.Net
 
 			if(a == null || a.Owner != Signer)
 			{
-				Error = SignerDoesNotOwnTheAuthor;
+				Error = NotOwnerOfAuthor;
 				return;
 			}
 
@@ -61,40 +62,40 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PlatformRegistration : Operation
+	public class RealizationRegistration : Operation // aaaa/ppp//?sp=s3e67
 	{
-		public RealizationAddress			Platform;
+		public RealizationAddress			Address;
 		//public Osbi[]						OSes;
-		public override string				Description => $"{Platform}";
+		public override string				Description => $"{Address}";
 		public override bool				Valid => true;
 
-		public PlatformRegistration()
+		public RealizationRegistration()
 		{
 		}
 
 		protected override void ReadConfirmed(BinaryReader r)
 		{
-			Platform	= r.Read<RealizationAddress>();
+			Address	= r.Read<RealizationAddress>();
 			//OSes		= r.ReadArray<Osbi>();
 		}
 
 		protected override void WriteConfirmed(BinaryWriter w)
 		{
-			w.Write(Platform);
+			w.Write(Address);
 			//w.Write(OSes);
 		}
 
 		public override void Execute(Database chain, Round round)
 		{
-			var a = chain.Authors.Find(Platform.Product.Author, round.Id);
+			var a = chain.Authors.Find(Address.Product.Author, round.Id);
 
 			if(a == null || a.Owner != Signer)
 			{
-				Error = SignerDoesNotOwnTheAuthor;
+				Error = NotOwnerOfAuthor;
 				return;
 			}
 
-			if(chain.Products.Find(Platform.Product, round.Id) == null)
+			if(chain.Products.Find(Address.Product, round.Id) == null)
 			{
 				Error = "Product not found";
 				return;
@@ -113,7 +114,7 @@ namespace Uccs.Net
 			//p.Realizations.RemoveAll(i => i.Name == Realization.Name);
 			//p.Realizations.Add(new ProductEntryRealization{Name = Realization.Name, OSes = OSes});
 
-			var r = round.AffectPlatform(Platform);
+			var r = round.AffectPlatform(Address);
 
 			//r.OSes = OSes;
 		}
@@ -192,6 +193,8 @@ namespace Uccs.Net
 		public ReleaseAddress		Release { get; set; }
 		public byte[]				Manifest { get; set; }
 		public string				Channel { get; set; }
+		public bool					Analysable { get; set; }
+		public Coin					AnalysisFee { get; set; }
 
 		public override bool		Valid => true;
 		public override string		Description => $"{Release} {Channel} {Hex.ToHexString(Manifest)}";
@@ -213,6 +216,12 @@ namespace Uccs.Net
 			Release = reader.Read<ReleaseAddress>();
 			Manifest = reader.ReadSha3();
 			Channel = reader.ReadUtf8();
+			Analysable = reader.ReadBoolean();
+
+			if(Analysable)
+			{
+				AnalysisFee = reader.ReadCoin();
+			}
 		}
 
 		protected override void WriteConfirmed(BinaryWriter writer)
@@ -220,6 +229,12 @@ namespace Uccs.Net
 			writer.Write(Release);
 			writer.Write(Manifest);
 			writer.WriteUtf8(Channel);
+			writer.Write(Analysable);
+
+			if(Analysable)
+			{
+				writer.Write(AnalysisFee);
+			}
 		}
 
 		public override void Execute(Database chain, Round round)
@@ -228,13 +243,13 @@ namespace Uccs.Net
 
 			if(a == null || a.Owner != Signer)
 			{
-				Error = SignerDoesNotOwnTheAuthor;
+				Error = NotOwnerOfAuthor;
 				return;
 			}
 
 			if(chain.Products.Find(Release.Product, round.Id) == null)
 			{
-				Error = "Product not found";
+				Error = ProductNotFound;
 				return;
 			}
 
@@ -244,26 +259,6 @@ namespace Uccs.Net
 				return;
 			}
 
-// 			if(chain.Products.Find(Release, round.Id) == null)
-// 			{
-// 				Error = "Product not found";
-// 				return;
-// 			}
-//  
-// 			var p = round.FindProduct(Release);
-// 
-// 			if(p == null)
-// 				throw new IntegrityException("ProductEntry not found");
-// 			
-// 			var z = chain.Realizations.Find((RealizationAddress)Release, round.Id);
-// 			//var z = p.Realizations.Find(i => i.Name == Release.Realization);
-// 
-// 			if(z == null)
-// 			{
-// 				Error = "Realization not found";
-// 				return;
-// 			}
-
 			var ce = chain.Releases.Where(Release.Product.Author, Release.Product.Name, i => i.Address.Realization.Name == Release.Realization.Name, round.Id).MaxBy(i => i.Address.Version);
 					
 			if(ce != null && ce.Address.Version >= Release.Version)
@@ -271,15 +266,20 @@ namespace Uccs.Net
 				Error = "Version must be greater than current";
 				return;
 			}
-			
-			//var e = new ProductEntryRelease(Release.Realization, Release.Version, Channel, round.Id);
-
-			//p.Releases.Add(e);
 
 			var r = round.AffectRelease(Release);
 
 			r.Manifest = Manifest;
 			r.Channel = Channel;
+			r.AnalysisStage = Analysable ? AnalysisStage.Pending : AnalysisStage.NotRequested;
+
+			if(Analysable)
+			{
+				round.AffectAccount(Signer).Balance -= AnalysisFee;
+				r.AnalysisFee = AnalysisFee;
+				r.RoundId = round.Id;
+				r.QuorumRid = 0;
+			}
 		}
 	}
 }

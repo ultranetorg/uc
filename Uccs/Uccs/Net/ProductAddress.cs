@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Uccs.Net
 {
-	public class ProductAddress : IEquatable<ProductAddress>, IBinarySerializable
+	public class ProductAddress : IEquatable<ProductAddress>, IBinarySerializable, IComparable, IComparable<ProductAddress>
 	{
 		public string Author { get; set; }
 		public string Name { get; set; }
@@ -38,6 +38,19 @@ namespace Uccs.Net
 		public override int GetHashCode()
 		{
 			return HashCode.Combine(Author, Name);
+		}
+
+		public int CompareTo(object obj)
+		{
+			return CompareTo(obj as ProductAddress);
+		}
+
+		public int CompareTo(ProductAddress other)
+		{
+			if(Author.CompareTo(other.Author) != 0)
+				return Author.CompareTo(other.Author);
+
+			return Name.CompareTo(other.Name);
 		}
 
 		public virtual void Parse(string[] s)

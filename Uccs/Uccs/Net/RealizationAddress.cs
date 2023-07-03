@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
-	public class RealizationAddress : IEquatable<RealizationAddress>, IBinarySerializable
+	public class RealizationAddress : IEquatable<RealizationAddress>, IBinarySerializable, IComparable, IComparable<RealizationAddress>
 	{
 		public ProductAddress	Product { get; set; }
 		public string			Name { get; set; }
@@ -49,6 +49,19 @@ namespace Uccs.Net
  		{
  			return Product.GetHashCode(); /// don't change this!
  		}
+		
+		public int CompareTo(object obj)
+		{
+			return CompareTo(obj as RealizationAddress);
+		}
+
+		public int CompareTo(RealizationAddress other)
+		{
+			if(Product.CompareTo(other.Product) != 0)
+				return Product.CompareTo(other.Product);
+
+			return Name.CompareTo(other.Name);
+		}
 
 		public static RealizationAddress Parse(string v)
 		{

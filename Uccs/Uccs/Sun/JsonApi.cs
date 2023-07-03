@@ -116,7 +116,7 @@ namespace Uccs.Net
 			public IEnumerable<Block>			Blocks {get; set;}
 			public IEnumerable<AccountAddress>	GeneratorJoinRequests {get; set;}
 			public IEnumerable<AccountAddress>	HubJoinRequests {get; set;}
-			public IEnumerable<AccountAddress>	AnalyzerJoinRequests {get; set;}
+			//public IEnumerable<AccountAddress>	AnalyzerJoinRequests {get; set;}
 		}
 
 		public IEnumerable<Round> Rounds {get; set;}
@@ -200,5 +200,10 @@ namespace Uccs.Net
 	public class GetReleaseCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }
+	}
+
+	public class GenerateAnalysisReportCall : ApiCall
+	{
+		public IDictionary<ReleaseAddress, AnalysisResult>	Results { get; set; }
 	}
 }

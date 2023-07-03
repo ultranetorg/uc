@@ -269,6 +269,21 @@ namespace Uccs.Net
 			return o;
 		}
 
+		public static SortedDictionary<K, V> ReadSortedDictionary<K, V>(this BinaryReader r, Func<K> getk, Func<V> getv)
+		{
+			var n = r.Read7BitEncodedInt();
+			
+			var o = new SortedDictionary<K, V>();
+
+			for(int i = 0; i < n; i++)
+			{
+				o.Add(getk(), getv());
+			}
+
+			return o;
+		}
+
+
 		public static void Read(this BinaryReader r, Action a)
 		{
 			var n = r.Read7BitEncodedInt();

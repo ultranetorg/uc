@@ -7,6 +7,8 @@ using System.Text;
 using System.Net;
 using Nethereum.Signer;
 using static Uccs.Net.ChainReportResponse;
+using System.Xml.Linq;
+using NativeImport;
 
 namespace Uccs.Net
 {
@@ -26,12 +28,12 @@ namespace Uccs.Net
 		public List<Block>										Blocks = new();
 		public List<GeneratorJoinRequest>						GeneratorJoinRequests = new();
 		public List<HubJoinRequest>								HubJoinRequests = new();
-		public List<AnalyzerJoinRequest>						AnalyzerJoinRequests = new();
+		//public List<AnalyzerJoinRequest>						AnalyzerJoinRequests = new();
 		public IEnumerable<Vote>								Votes => Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public List<HubVoxRequest>								HubVoxes = new();
+		//public List<HubVoxRequest>								HubVoxes = new();
 		public List<AnalyzerVoxRequest>							AnalyzerVoxes = new();
 		public IEnumerable<Vote>								Payloads	=> Votes.Where(i => i.Transactions.Any());
-		public IEnumerable<AccountAddress>						Forkers		=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
+		//public IEnumerable<AccountAddress>						Forkers		=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key);
 		public IEnumerable<Vote>								Unique		=> Votes.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		//public IEnumerable<Vote>								Majority	=> Unique.Any() ? Unique.GroupBy(i => i.Reference, new BytesEqualityComparer()).Aggregate((i, j) => i.Count() > j.Count() ? i : j) : new Vote[0];
 
@@ -41,16 +43,17 @@ namespace Uccs.Net
 		public List<AccountAddress>								Funds = new();
 
 		public ChainTime										ConfirmedTime;
-		public List<Vote>										ConfirmedPayloads = new();
-		public List<AccountAddress>								ConfirmedGeneratorJoiners = new();
-		public List<AccountAddress>								ConfirmedGeneratorLeavers = new();
-		public List<AccountAddress>								ConfirmedHubJoiners = new();
-		public List<AccountAddress>								ConfirmedHubLeavers = new();
-		public List<AccountAddress>								ConfirmedAnalyzerJoiners = new();
-		public List<AccountAddress>								ConfirmedAnalyzerLeavers = new();
-		public List<AccountAddress>								ConfirmedFundJoiners = new();
-		public List<AccountAddress>								ConfirmedFundLeavers = new();
-		public List<AccountAddress>								ConfirmedViolators = new();
+		public Vote[]											ConfirmedPayloads = {};
+		public AccountAddress[]									ConfirmedGeneratorJoiners = {};
+		public AccountAddress[]									ConfirmedGeneratorLeavers = {};
+		public AccountAddress[]									ConfirmedHubJoiners = {};
+		public AccountAddress[]									ConfirmedHubLeavers = {};
+		public AccountAddress[]									ConfirmedAnalyzerJoiners = {};
+		public AccountAddress[]									ConfirmedAnalyzerLeavers = {};
+		public AccountAddress[]									ConfirmedFundJoiners = {};
+		public AccountAddress[]									ConfirmedFundLeavers = {};
+		public AccountAddress[]									ConfirmedViolators = {};
+		public AnalysisConclusion[]								ConfirmedAnalyses = {};
 
 		public bool												Voted = false;
 		public bool												Confirmed = false;
@@ -160,27 +163,26 @@ namespace Uccs.Net
 		{
 			if(AffectedAccounts.ContainsKey(account))
 				return AffectedAccounts[account];
-
+			
 			var e = Database.Accounts.Find(account, Id - 1);
 
 			if(e != null)
-				AffectedAccounts[account] = e.Clone();
+				return AffectedAccounts[account] = e.Clone();
 			else
-				AffectedAccounts[account] = new AccountEntry(Database){Address = account};
-
-			return AffectedAccounts[account];
+				return AffectedAccounts[account] = new AccountEntry(Database){Address = account};
 		}
 
-		public AuthorEntry AffectAuthor(string name)
+		public AuthorEntry AffectAuthor(string author)
 		{
-			var e = Database.Authors.Find(name, Id);
+			if(AffectedAuthors.ContainsKey(author))
+				return AffectedAuthors[author];
+			
+			var e = Database.Authors.Find(author, Id - 1);
 
 			if(e != null)
-				AffectedAuthors[name] = e.Clone();
+				return AffectedAuthors[author] = e.Clone();
 			else
-				AffectedAuthors[name] = new AuthorEntry(Database){Name = name};
-
-			return AffectedAuthors[name];
+				return AffectedAuthors[author] = new AuthorEntry(Database){Name = author};
 		}
 
 		//public AuthorEntry FindAuthor(string name)
@@ -216,40 +218,43 @@ namespace Uccs.Net
 			return Database.Releases.Find(name, Id - 1);
 		}
 
-		public ProductEntry AffectProduct(ProductAddress address)
+		public ProductEntry AffectProduct(ProductAddress product)
 		{
-			var e = FindProduct(address);
+			if(AffectedProducts.ContainsKey(product))
+				return AffectedProducts[product];
+			
+			var e = Database.Products.Find(product, Id - 1);
 
 			if(e != null)
-				AffectedProducts[address] = e.Clone();
+				return AffectedProducts[product] = e.Clone();
 			else
-				AffectedProducts[address] = new ProductEntry(){Address = address};
-
-			return AffectedProducts[address];
+				return AffectedProducts[product] = new ProductEntry(){Address = product};
 		}
 
-		public RealizationEntry AffectPlatform(RealizationAddress address)
+		public RealizationEntry AffectPlatform(RealizationAddress realization)
 		{
-			var e = FindPlatform(address);
+			if(AffectedPlatforms.ContainsKey(realization))
+				return AffectedPlatforms[realization];
+			
+			var e = Database.Realizations.Find(realization, Id - 1);
 
 			if(e != null)
-				AffectedPlatforms[address] = e.Clone();
+				return AffectedPlatforms[realization] = e.Clone();
 			else
-				AffectedPlatforms[address] = new RealizationEntry{Address = address};
-
-			return AffectedPlatforms[address];
+				return AffectedPlatforms[realization] = new RealizationEntry{Address = realization};
 		}
 
-		public ReleaseEntry AffectRelease(ReleaseAddress address)
+		public ReleaseEntry AffectRelease(ReleaseAddress release)
 		{
-			var e = FindRelease(address);
-
+			if(AffectedReleases.ContainsKey(release))
+				return AffectedReleases[release];
+			
+			var e = Database.Releases.Find(release, Id - 1);
+			
 			if(e != null)
-				AffectedReleases[address] = e.Clone();
+				return AffectedReleases[release] = e.Clone();
 			else
-				AffectedReleases[address] = new ReleaseEntry(){Address = address};
-
-			return AffectedReleases[address];
+				return AffectedReleases[release] = new ReleaseEntry(){Address = release};
 		}
 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
@@ -303,15 +308,16 @@ namespace Uccs.Net
 		{
 			writer.Write(ConfirmedTime);
 			writer.Write(ConfirmedPayloads, i => i.WriteConfirmed(writer));
-			writer.Write(ConfirmedGeneratorJoiners.OrderBy(i => i));
-			writer.Write(ConfirmedGeneratorLeavers.OrderBy(i => i));
-			writer.Write(ConfirmedHubJoiners.OrderBy(i => i));
-			writer.Write(ConfirmedHubLeavers.OrderBy(i => i));
-			writer.Write(ConfirmedAnalyzerJoiners.OrderBy(i => i));
-			writer.Write(ConfirmedAnalyzerLeavers.OrderBy(i => i));
-			writer.Write(ConfirmedFundJoiners.OrderBy(i => i));
-			writer.Write(ConfirmedFundLeavers.OrderBy(i => i));
-			writer.Write(ConfirmedViolators.OrderBy(i => i));
+			writer.Write(ConfirmedGeneratorJoiners);
+			writer.Write(ConfirmedGeneratorLeavers);
+			writer.Write(ConfirmedHubJoiners);
+			writer.Write(ConfirmedHubLeavers);
+			writer.Write(ConfirmedAnalyzerJoiners);
+			writer.Write(ConfirmedAnalyzerLeavers);
+			writer.Write(ConfirmedFundJoiners);
+			writer.Write(ConfirmedFundLeavers);
+			writer.Write(ConfirmedViolators);
+			writer.Write(ConfirmedAnalyses);
 		}
 
 		void ReadConfirmed(BinaryReader reader)
@@ -328,16 +334,17 @@ namespace Uccs.Net
 														return b as Block;
 													});
 	
-			ConfirmedPayloads			= Blocks.Cast<Vote>().ToList();
-			ConfirmedGeneratorJoiners	= reader.ReadList<AccountAddress>();
-			ConfirmedGeneratorLeavers	= reader.ReadList<AccountAddress>();
-			ConfirmedHubJoiners			= reader.ReadList<AccountAddress>();
-			ConfirmedHubLeavers			= reader.ReadList<AccountAddress>();
-			ConfirmedAnalyzerJoiners	= reader.ReadList<AccountAddress>();
-			ConfirmedAnalyzerLeavers	= reader.ReadList<AccountAddress>();
-			ConfirmedFundJoiners		= reader.ReadList<AccountAddress>();
-			ConfirmedFundLeavers		= reader.ReadList<AccountAddress>();
-			ConfirmedViolators			= reader.ReadList<AccountAddress>();
+			ConfirmedPayloads			= Blocks.Cast<Vote>().ToArray();
+			ConfirmedGeneratorJoiners	= reader.ReadArray<AccountAddress>();
+			ConfirmedGeneratorLeavers	= reader.ReadArray<AccountAddress>();
+			ConfirmedHubJoiners			= reader.ReadArray<AccountAddress>();
+			ConfirmedHubLeavers			= reader.ReadArray<AccountAddress>();
+			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
+			ConfirmedAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
+			ConfirmedFundJoiners		= reader.ReadArray<AccountAddress>();
+			ConfirmedFundLeavers		= reader.ReadArray<AccountAddress>();
+			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
+			ConfirmedAnalyses			= reader.ReadArray<AnalysisConclusion>();
 		}
 
 		public void Write(BinaryWriter w)

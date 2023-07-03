@@ -107,6 +107,7 @@ namespace Uccs.Net
 
 		public List<Transaction>		Transactions = new();
 		public List<Operation>			Operations	= new();
+		public List<Analysis>			Analyses = new();
 
 		bool							MinimalPeersReached;
 		bool							OnlineBroadcasted;
@@ -146,11 +147,11 @@ namespace Uccs.Net
 		public class SyncRound
 		{
 			public List<BlockPiece>				Blocks = new();
-			public List<HubVoxRequest>			HubVoxes = new();
+			//public List<HubVoxRequest>			HubVoxes = new();
 			public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
 			public List<GeneratorJoinRequest>	GeneratorJoins = new();
 			public List<HubJoinRequest>			HubJoins = new();
-			public List<AnalyzerJoinRequest>	AnalyzerJoins = new();
+			//public List<AnalyzerJoinRequest>	AnalyzerJoins = new();
 		}
 		
 		public Dictionary<int, SyncRound>	SyncCache	= new();
@@ -485,7 +486,7 @@ namespace Uccs.Net
 															///
 															if(Settings.Generators.Any())
 															{
-																Generate();
+																GenerateBasechain();
 															}
 														}
 													}
@@ -1328,7 +1329,53 @@ namespace Uccs.Net
 			return verified;
 		}
 
-		void Generate()
+		void GenerateAnalysis()
+		{
+			Statistics.Generating.Begin();
+
+			if(Database.AnalyzersOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch).Any(i => i.Account == Settings.Analyzer))
+			{
+				var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
+
+				if(r.AnalyzerVoxes.Any(i => i.Account == Settings.Analyzer))
+					return;
+	
+				if(Analyses.Any())
+				{
+					var rq = new AnalyzerVoxRequest();
+					var a = new List<Analysis>();
+
+					var s = new MemoryStream(); 
+					var w = new BinaryWriter(s);
+					rq.Sign(Zone, Settings.Analyzer);
+					rq.Write(w);
+	
+					foreach(var i in Analyses)
+					{
+						w.Write(i.Release);
+						w.Write((byte)i.Result);
+
+						if(s.Position > Block.SizeMax)
+							break;
+		
+						a.Add(i);
+					}
+					
+					rq.Sign(Zone, Settings.Analyzer);
+
+					foreach(var i in Bases)
+					{
+						i.Send(new AnalyzerVoxRequest {Analyses = a, RoundId = r.Id, Signature = rq.Signature});
+					}
+
+					Workflow.Log?.Report(this, "AnalyzerVoxRequest generated", $"by {Settings.Analyzer}");
+				}
+			}
+
+			Statistics.Generating.End();
+		}
+
+		void GenerateBasechain()
 		{
 			Statistics.Generating.Begin();
 
@@ -1398,23 +1445,21 @@ namespace Uccs.Net
 
 					Vote createvote()
 					{
-						return new Vote(Database){
-													RoundId				= r.Id,
+						return new Vote(Database){	RoundId				= r.Id,
 													Try					= r.Try,
 													ParentSummary		= Database.Summarize(r.Parent),
 													Time				= Clock.Now,
 													TimeDelta			= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
-													Violators			= r.Parent.Forkers.ToList(),
+													Violators			= Database.ProposeViolators(r).ToList(),
 													GeneratorJoiners	= Database.ProposeGeneratorJoiners(r).ToList(),
 													GeneratorLeavers	= Database.ProposeGeneratorLeavers(r, g).ToList(),
 													HubJoiners			= Database.ProposeHubJoiners(r).ToList(),
 													HubLeavers			= Database.ProposeHubLeavers(r, g).ToList(),
-													AnalyzerJoiners		= Database.ProposeAnalyzerJoiners(r).ToList(),
-													AnalyzerLeavers		= Database.ProposeAnalyzerLeavers(r, g).ToList(),
+													AnalyzerJoiners		= Settings.ProposedAnalyzerJoiners,
+													AnalyzerLeavers		= Settings.ProposedAnalyzerLeavers,
 													FundJoiners			= Settings.ProposedFundJoiners,
 													FundLeavers			= Settings.ProposedFundLeavers,
-													IPs					= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP}
-												};
+													IPs					= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
 					}
 	
 					if(txs.Any() || Database.Tail.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
@@ -1549,9 +1594,7 @@ namespace Uccs.Net
 			if(r.Confirmed)
 			{
 				Transactions.RemoveAll(t => t.Expiration <= r.Id);
-
-				//Members.AddRange(r.ConfirmedJoiners.Select(i => new OnlineMember {Generator = i.Generator, IPs = r.Parent.JoinMembersRequests.First(jr => jr.Generator == i.Generator).IPs}));
-				//Members.RemoveAll(i => r.ConfirmedLeavers.Any(j => j == i.Generator));
+				Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Release && j.Finished));
 			}
 			else
 			{

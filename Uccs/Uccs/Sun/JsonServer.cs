@@ -236,7 +236,7 @@ namespace Uccs.Net
 																																										Confirmed = i.Confirmed && b is Vote vv && vv.Transactions.Any() && i.ConfirmedPayloads.Contains(b) }),
 																										GeneratorJoinRequests = i.GeneratorJoinRequests.Select(i => i.Generator),
 																										HubJoinRequests = i.HubJoinRequests.Select(i => i.Account),
-																										AnalyzerJoinRequests = i.AnalyzerJoinRequests.Select(i => i.Account)
+																										//AnalyzerJoinRequests = i.AnalyzerJoinRequests.Select(i => i.Account)
 																									})
 																						.ToArray()}; 
 							
@@ -290,6 +290,13 @@ namespace Uccs.Net
 						case GetReleaseCall c:
 							lock(Core.Lock)
 								Core.GetRelease(c.Release, Workflow);
+							break;
+
+						case GenerateAnalysisReportCall c:
+							lock(Core.Lock)
+							{	
+								Core.Analyses.AddRange(c.Results.Select(i => new Analysis {Release = i.Key, Result = i.Value}));
+							}
 							break;
 					}
 

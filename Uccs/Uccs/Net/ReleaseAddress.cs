@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace Uccs.Net
 {
@@ -10,7 +11,7 @@ namespace Uccs.Net
 	///  ultranet://testnet1/uo.app/ms.dotnet7/0.0.0
 	/// </summary>
 
-	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>  
+	public class ReleaseAddress : IBinarySerializable, IEquatable<ReleaseAddress>, IComparable, IComparable<ReleaseAddress>
 	{
 		public RealizationAddress	Realization { get; set; }
 		public Version				Version { get; set; }
@@ -58,6 +59,19 @@ namespace Uccs.Net
  		{
  			return Realization.GetHashCode();
  		}
+
+		public int CompareTo(object obj)
+		{
+			return CompareTo(obj as RealizationAddress);
+		}
+
+		public int CompareTo(ReleaseAddress other)
+		{
+			if(Realization.CompareTo(other.Realization) != 0)
+				return Realization.CompareTo(other.Realization);
+
+			return Version.CompareTo(other.Version);
+		}
 
 		public static bool operator ==(ReleaseAddress left, ReleaseAddress right)
 		{

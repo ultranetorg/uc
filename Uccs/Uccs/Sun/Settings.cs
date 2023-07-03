@@ -159,6 +159,7 @@ namespace Uccs.Net
 		public IPAddress				IP;
 		public bool						Anonymous = false;
 		public List<AccountKey>			Generators = new();
+		public AccountKey				Analyzer;
 		public string					Profile;
 		public string					ProductsPath;
 
@@ -172,6 +173,8 @@ namespace Uccs.Net
 
 		public List<AccountAddress>		ProposedFundJoiners = new();
 		public List<AccountAddress>		ProposedFundLeavers = new();
+		public List<AccountAddress>		ProposedAnalyzerJoiners = new();
+		public List<AccountAddress>		ProposedAnalyzerLeavers = new();
 
 		public Settings()
 		{

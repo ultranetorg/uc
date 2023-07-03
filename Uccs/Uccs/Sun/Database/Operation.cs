@@ -32,7 +32,10 @@ namespace Uccs.Net
 
 	public enum Operations
 	{
-		Null = 0, CandidacyDeclaration, Emission, UntTransfer, AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, PlatformRegistration , ReleaseRegistration 
+		Null = 0, 
+		CandidacyDeclaration, 
+		Emission, UntTransfer, 
+		AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, RealizationRegistration , ReleaseRegistration
 	}
 
 	public abstract class Operation// : ITypedBinarySerializable
@@ -52,7 +55,8 @@ namespace Uccs.Net
 		public const string		AlreadyExists = "Alreadt exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
-		public const string		SignerDoesNotOwnTheAuthor = "The signer does not own the Author";
+		public const string		NotOwnerOfAuthor = "The signer does not own the Author";
+		public const string		ProductNotFound = "Product not found";
 
 		public Operations		Type => Enum.Parse<Operations>(GetType().Name);
 
@@ -134,7 +138,7 @@ namespace Uccs.Net
 		{
 			int size = CalculateSize();
 
-			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
+			return Database.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
 		}
 		
 		public static Coin CalculateFee(Coin factor, IEnumerable<Operation> operations)
@@ -147,7 +151,7 @@ namespace Uccs.Net
 			 	i.WriteConfirmed(w); 
 			}
 
-			return Database.FeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return Database.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
 	}
@@ -569,7 +573,6 @@ namespace Uccs.Net
 					a != null && !AuthorEntry.IsExclusive(name) && sincelastreg() > ChainTime.FromYears(a.Years) ||																					/// not renewed
 					a != null && AuthorEntry.IsExclusive(name) && accounts.Contains(a.LastWinner) && a.Owner == null && ChainTime.FromYears(1) < sinceauction() && sinceauction() < ChainTime.FromYears(2) ||/// auction is over and a winner can register the author during 1 year
 					a != null && accounts.Contains(a.Owner) && sincelastreg() < ChainTime.FromYears(a.Years); 																			/// renew
-			   	
 		}
 	}
 
@@ -607,7 +610,7 @@ namespace Uccs.Net
 		{
 			if(chain.Authors.Find(Author, round.Id).Owner != Signer)
 			{
-				Error = SignerDoesNotOwnTheAuthor;
+				Error = NotOwnerOfAuthor;
 				return;
 			}
 
