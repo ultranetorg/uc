@@ -4,12 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:Class="UC.Umc.Pages.AuthorTransferPage"
     x:DataType="vm:AuthorTransferViewModel"
-    Title="Transfer Author">
+    Title="{x:Static resx:Author_Strings.Transfer_Title}">
     
     <controls:CustomPage.MainContent>
         <Grid
@@ -34,14 +35,14 @@
                         <!--Step #1-->
                         <StackLayout Spacing="24">
                             <StackLayout>
-                                <Label FontSize="18" Text="Choose your Author and destination Account" />
+                                <Label FontSize="18" Text="{x:Static resx:Author_Strings.Transfer_SpecifyAuthorAccount}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="You need to specify your author and destination account to transfer." />
+                                    Text="{x:Static resx:Author_Strings.Transfer_SpecifyAuthorAccount2}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Transfer Author" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.Transfer_Author}" />
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <Border
                                         BindingContext="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Author}"
@@ -78,7 +79,7 @@
                                 </Grid>
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Account" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.Transfer_Account}" />
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <views:AccountView 
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=IsMyAuthor}"
@@ -103,25 +104,29 @@
                             </StackLayout>
                             
                             <controls:LabelPair
-                                Text1="Estimated commission"
+                                Text1="{x:Static resx:Author_Strings.Transfer_Comission}"
                                 Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Commission}" />
                         </StackLayout>
                         
                         <!--Step #2-->
                         <StackLayout Padding="5" Spacing="30">
                             <StackLayout>
-                                <Label FontSize="18" Text="Do you confirm the transfer of this author?" />
+                                <Label FontSize="18" Text="{x:Static resx:Author_Strings.Transfer_Confirm}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Clicking 'Confirm' button, transfer will start" />
+                                    Text="{x:Static resx:Author_Strings.Transfer_Confirm2}" />
                             </StackLayout>
                             <StackLayout Spacing="20">
-                                <controls:LabelPair Text1="Transfering Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account.Name}" />
-                                <controls:LabelPair Text1="With comission:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Comission}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Author_Strings.Transfer_Summary}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account.Name}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Author_Strings.Transfer_Summary2}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Comission}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="To Account" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.Transfer_Summary3}" />
                                 <views:AccountView
                                     BorderStyle="{StaticResource AccountCardBorder}"
                                     Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorTransferViewModel}}, Path=Account}"/>

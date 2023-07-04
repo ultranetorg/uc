@@ -4,11 +4,12 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:MakeBidViewModel"
-    Title="Make Bid"
+    Title="{x:Static resx:Author_Strings.MakeBid_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -34,14 +35,14 @@
                         <!--Step #1-->
                         <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
-                                <Label FontSize="18" Text="Make your bid" />
+                                <Label FontSize="18" Text="{x:Static resx:Author_Strings.MakeBid_MakeYourBid}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Make your bid. Your bid should be higher than current bid in order to win Auction" />
+                                    Text="{x:Static resx:Author_Strings.MakeBid_MakeYourBid2}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Payment Account" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.MakeBid_PaymentAccount}" />
                                 <Grid ColumnDefinitions="*,36" RowSpacing="-8">
                                     <views:AccountView
                                         Grid.ColumnSpan="2"
@@ -60,8 +61,8 @@
                                 </Grid>
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Author name" />
-                                <Label Opacity="0.7" Text="Normalized author's name" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.MakeBid_AuthorName}" />
+                                <Label Opacity="0.7" Text="{x:Static resx:Author_Strings.MakeBid_AuthorName2}" />
                                 <Border
                                     Padding="8,0"
                                     HeightRequest="44"
@@ -75,18 +76,18 @@
                             </StackLayout>
                             <StackLayout Spacing="16">
                                 <controls:LabelPair
-                                    Text1="Current bid"
+                                    Text1="{x:Static resx:Author_Strings.Author_CurrentBid}"
                                     Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.CurrentBid, StringFormat='{0} UNT'}" />
             
                                 <StackLayout Grid.Column="0" Spacing="8">
-                                    <Label Style="{StaticResource DashLabel}" Text="Your bid" />
+                                    <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.MakeBid_YourBid}" />
                                     <AbsoluteLayout Margin="0,0,0,4">
                                         <controls:FormEntryControl
                                             AbsoluteLayout.LayoutBounds="0,1,1,1"
                                             AbsoluteLayout.LayoutFlags="All"
                                             Value="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Amount}"
                                             ErrorMessage="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=AmountError}"
-                                            Placeholder="Amount"
+                                            Placeholder="{x:Static resx:Author_Strings.Author_Amount}"
                                             MaxLength="8"
                                             Margin="0,0,8,0" />
                                         <Label
@@ -103,19 +104,25 @@
                         <!--Step #2-->
                         <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
-                                <Label FontSize="18" Text="Do you confirm a bid?" />
+                                <Label FontSize="18" Text="{x:Static resx:Author_Strings.MakeBid_Confirm}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Click 'Confirm' button to confirm the bid" />
+                                    Text="{x:Static resx:Author_Strings.MakeBid_Confirm2}" />
                             </StackLayout>
                             <StackLayout Spacing="20">
-                                <controls:LabelPair Text1="Author:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Title}" />
-                                <controls:LabelPair Text1="With name:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Name}" />
-                                <controls:LabelPair Text1="With price:" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Amount, StringFormat='{0} UNT'}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Author_Strings.MakeBid_Summary}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Title}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Author_Strings.MakeBid_Summary2}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Author.Name}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Author_Strings.MakeBid_Summary3}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Amount, StringFormat='{0} UNT'}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="From Account" />
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.MakeBid_Summary4}" />
                                 <views:AccountView
                                     Grid.ColumnSpan="2"
                                     Account="{Binding Source={RelativeSource AncestorType={x:Type vm:MakeBidViewModel}}, Path=Account}"

@@ -6,6 +6,9 @@ public partial class AuthorRenewalViewModel : BaseAuthorViewModel
 	[NotifyPropertyChangedFor(nameof(EstimatedDate))]
 	private string _period = "10"; // TODO: replace with time span
 
+	[ObservableProperty]
+	private string _commission = "10 UNT ($15)"; // todo: commission calculation
+
 	public string EstimatedDate => string.IsNullOrWhiteSpace(Period)
 		? string.Empty
 		: DateTime.UtcNow.AddDays(int.Parse(Period)).ToShortDateString();

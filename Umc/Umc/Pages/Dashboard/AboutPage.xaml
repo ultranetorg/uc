@@ -47,7 +47,7 @@
                             Grid.Column="1"
                             FontSize="12"
                             Opacity="0.6"
-                            Text="3.0.1 build"
+                            Text="{Binding AppVersion, StringFormat='{0} build'}"
                             VerticalOptions="Center" />
                     </Grid>
                 </Border>

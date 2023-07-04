@@ -2,6 +2,9 @@
 
 public partial class AboutViewModel : BasePageViewModel
 {
+	[ObservableProperty]
+	private string _appVersion = AppInfo.Current.VersionString;
+
     public AboutViewModel(INotificationsService notificationService, ILogger<AboutViewModel> logger) : base(notificationService, logger)
     {
     }

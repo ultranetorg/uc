@@ -106,7 +106,7 @@ public partial class AuthorsViewModel : BasePageViewModel
 	[RelayCommand]
     private async Task OpenAuthorDetailsAsync(AuthorViewModel author) =>
 		await Navigation.GoToAsync(nameof(AuthorDetailsPage),
-			new Dictionary<string, object>(){{ QueryKeys.AUTHOR, author }});
+			new Dictionary<string, object>() {{ QueryKeys.AUTHOR, author }});
 
 	[RelayCommand]
 	private async Task SortAuthorsAsync()

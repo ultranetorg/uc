@@ -1,101 +1,339 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-	<!-- 
-		Microsoft ResX Schema
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
 
-		Version 1.3
-
-		The primary goals of this format is to allow a simple XML format 
-		that is mostly human readable. The generation and parsing of the 
-		various data types are done through the TypeConverter classes 
-		associated with the data types.
-
-		Example:
-
-		... ado.net/XML headers & schema ...
-		<resheader name="resmimetype">text/microsoft-resx</resheader>
-		<resheader name="version">1.3</resheader>
-		<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-		<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-		<data name="Name1">this is my long string</data>
-		<data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-		<data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-			[base64 mime encoded serialized .NET Framework object]
-		</data>
-		<data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-			[base64 mime encoded string representing a byte array form of the .NET Framework object]
-		</data>
-
-		There are any number of "resheader" rows that contain simple 
-		name/value pairs.
-
-		Each data row contains a name, and value. The row also contains a 
-		type or mimetype. Type corresponds to a .NET class that support 
-		text/value conversion through the TypeConverter architecture. 
-		Classes that don't support this are serialized and stored with the 
-		mimetype set.
-
-		The mimetype is used for serialized objects, and tells the 
-		ResXResourceReader how to depersist the object. This is currently not 
-		extensible. For a given mimetype the value must be set accordingly:
-
-		Note - application/x-microsoft.net.object.binary.base64 is the format 
-		that the ResXResourceWriter will generate, however the reader can 
-		read any of the formats listed below.
-
-		mimetype: application/x-microsoft.net.object.binary.base64
-		value   : The object must be serialized with 
-			: System.Serialization.Formatters.Binary.BinaryFormatter
-			: and then encoded with base64 encoding.
-
-		mimetype: application/x-microsoft.net.object.soap.base64
-		value   : The object must be serialized with 
-			: System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-			: and then encoded with base64 encoding.
-
-		mimetype: application/x-microsoft.net.object.bytearray.base64
-		value   : The object must be serialized into a byte array 
-			: using a System.ComponentModel.TypeConverter
-			: and then encoded with base64 encoding.
-	-->
-	
-	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-		<xsd:element name="root" msdata:IsDataSet="true">
-			<xsd:complexType>
-				<xsd:choice maxOccurs="unbounded">
-					<xsd:element name="data">
-						<xsd:complexType>
-							<xsd:sequence>
-								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-							</xsd:sequence>
-							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
-							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-						</xsd:complexType>
-					</xsd:element>
-					<xsd:element name="resheader">
-						<xsd:complexType>
-							<xsd:sequence>
-								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-							</xsd:sequence>
-							<xsd:attribute name="name" type="xsd:string" use="required" />
-						</xsd:complexType>
-					</xsd:element>
-				</xsd:choice>
-			</xsd:complexType>
-		</xsd:element>
-	</xsd:schema>
-	<resheader name="resmimetype">
-		<value>text/microsoft-resx</value>
-	</resheader>
-	<resheader name="version">
-		<value>1.3</value>
-	</resheader>
-	<resheader name="reader">
-		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-	</resheader>
-	<resheader name="writer">
-		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-	</resheader>
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Authors_Title" xml:space="preserve">
+    <value>Authors</value>
+  </data>
+  <data name="Author_Amount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Author_AndMore" xml:space="preserve">
+    <value>and more</value>
+  </data>
+  <data name="Author_AuctionEnd" xml:space="preserve">
+    <value>Auction ends</value>
+  </data>
+  <data name="Author_BidBy" xml:space="preserve">
+    <value>Bid by</value>
+  </data>
+  <data name="Author_CurrentBid" xml:space="preserve">
+    <value>Current bid</value>
+  </data>
+  <data name="Author_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Author_Details" xml:space="preserve">
+    <value>Author Details</value>
+  </data>
+  <data name="Author_Expired" xml:space="preserve">
+    <value>Expired at</value>
+  </data>
+  <data name="Author_FromList" xml:space="preserve">
+    <value>Author from Authors List</value>
+  </data>
+  <data name="Author_Hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="Author_MakeABid" xml:space="preserve">
+    <value>Make a bid</value>
+  </data>
+  <data name="Author_MaxBid" xml:space="preserve">
+    <value>Maximum bid by</value>
+  </data>
+  <data name="Author_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Author_Owner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="Author_Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Author_Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="Author_Renew" xml:space="preserve">
+    <value>Renew</value>
+  </data>
+  <data name="Author_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Author_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Author_Transfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
+  <data name="MakeBid_AuthorName" xml:space="preserve">
+    <value>Author name</value>
+  </data>
+  <data name="MakeBid_AuthorName2" xml:space="preserve">
+    <value>Normalized author's name</value>
+  </data>
+  <data name="MakeBid_Confirm" xml:space="preserve">
+    <value>Do you confirm a bid?</value>
+  </data>
+  <data name="MakeBid_Confirm2" xml:space="preserve">
+    <value>Click 'Confirm' button to confirm the bid</value>
+  </data>
+  <data name="MakeBid_MakeYourBid" xml:space="preserve">
+    <value>Make your bid</value>
+  </data>
+  <data name="MakeBid_MakeYourBid2" xml:space="preserve">
+    <value>Make your bid. Your bid should be higher than current bid in order to win Auction</value>
+  </data>
+  <data name="MakeBid_PaymentAccount" xml:space="preserve">
+    <value>Payment Account</value>
+  </data>
+  <data name="MakeBid_Summary" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="MakeBid_Summary2" xml:space="preserve">
+    <value>With name:</value>
+  </data>
+  <data name="MakeBid_Summary3" xml:space="preserve">
+    <value>With price:</value>
+  </data>
+  <data name="MakeBid_Summary4" xml:space="preserve">
+    <value>From Account</value>
+  </data>
+  <data name="MakeBid_Title" xml:space="preserve">
+    <value>Make Bid</value>
+  </data>
+  <data name="MakeBid_YourBid" xml:space="preserve">
+    <value>Your bid</value>
+  </data>
+  <data name="Registration_Comission" xml:space="preserve">
+    <value>UNT amount</value>
+  </data>
+  <data name="Registration_Confirm" xml:space="preserve">
+    <value>Do you confirm registration of this author?</value>
+  </data>
+  <data name="Registration_Confirm2" xml:space="preserve">
+    <value>Clicking 'Confirm' button, registration will start</value>
+  </data>
+  <data name="Registration_Instruction" xml:space="preserve">
+    <value>Choose your payment account and Author title</value>
+  </data>
+  <data name="Registration_Instruction2" xml:space="preserve">
+    <value>Your need specify your source, destination accounts and amount to transfer</value>
+  </data>
+  <data name="Registration_Name" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Registration_Name2" xml:space="preserve">
+    <value>Please specify Author name. This name will be used like an application domain</value>
+  </data>
+  <data name="Registration_Name3" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Registration_Name4" xml:space="preserve">
+    <value>Normalized Author name</value>
+  </data>
+  <data name="Registration_PaymentAccount" xml:space="preserve">
+    <value>Payment Account</value>
+  </data>
+  <data name="Registration_Summary" xml:space="preserve">
+    <value>Registering Author:</value>
+  </data>
+  <data name="Registration_Summary2" xml:space="preserve">
+    <value>With price:</value>
+  </data>
+  <data name="Registration_Summary3" xml:space="preserve">
+    <value>From Account</value>
+  </data>
+  <data name="Registration_Title" xml:space="preserve">
+    <value>Author Registration</value>
+  </data>
+  <data name="Renewal_Account" xml:space="preserve">
+    <value>Pay from Account</value>
+  </data>
+  <data name="Renewal_Author" xml:space="preserve">
+    <value>Author to renew</value>
+  </data>
+  <data name="Renewal_Confirm" xml:space="preserve">
+    <value>Do you confirm renewal of this author?</value>
+  </data>
+  <data name="Renewal_Confirm2" xml:space="preserve">
+    <value>Clicking 'Confirm' button, renewal will start</value>
+  </data>
+  <data name="Renewal_EstimatedComission" xml:space="preserve">
+    <value>Estimated comission</value>
+  </data>
+  <data name="Renewal_EstimatedEndDate" xml:space="preserve">
+    <value>Estimated end date</value>
+  </data>
+  <data name="Renewal_Period" xml:space="preserve">
+    <value>Choose renewal period</value>
+  </data>
+  <data name="Renewal_Period2" xml:space="preserve">
+    <value>Your need specify renewal period</value>
+  </data>
+  <data name="Renewal_Period3" xml:space="preserve">
+    <value>Renewal period</value>
+  </data>
+  <data name="Renewal_Summary" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="Renewal_Summary2" xml:space="preserve">
+    <value>With price:</value>
+  </data>
+  <data name="Renewal_Summary3" xml:space="preserve">
+    <value>Period:</value>
+  </data>
+  <data name="Renewal_Summary4" xml:space="preserve">
+    <value>From Account</value>
+  </data>
+  <data name="Renewal_Title" xml:space="preserve">
+    <value>Author Renewal</value>
+  </data>
+  <data name="Transfer_Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Transfer_Author" xml:space="preserve">
+    <value>Transfer Author</value>
+  </data>
+  <data name="Transfer_Comission" xml:space="preserve">
+    <value>Estimated commission</value>
+  </data>
+  <data name="Transfer_Confirm" xml:space="preserve">
+    <value>Do you confirm the transfer of this author?</value>
+  </data>
+  <data name="Transfer_Confirm2" xml:space="preserve">
+    <value>Clicking 'Confirm' button, transfer will start</value>
+  </data>
+  <data name="Transfer_SpecifyAuthorAccount" xml:space="preserve">
+    <value>Choose your Author and destination Account</value>
+  </data>
+  <data name="Transfer_SpecifyAuthorAccount2" xml:space="preserve">
+    <value>You need to specify your author and destination account to transfer.</value>
+  </data>
+  <data name="Transfer_Summary" xml:space="preserve">
+    <value>Transfering Author:</value>
+  </data>
+  <data name="Transfer_Summary2" xml:space="preserve">
+    <value>With comission:</value>
+  </data>
+  <data name="Transfer_Summary3" xml:space="preserve">
+    <value>To Account</value>
+  </data>
+  <data name="Transfer_Title" xml:space="preserve">
+    <value>Transfer Author</value>
+  </data>
 </root>

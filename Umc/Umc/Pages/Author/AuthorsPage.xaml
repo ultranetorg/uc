@@ -5,12 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:converters="clr-namespace:UC.Umc.Converters"
-    xmlns:models="clr-namespace:UC.Umc.Models"
     xmlns:enums="clr-namespace:UC.Umc.Enums"
+    xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:AuthorsViewModel"
-    Title="Authors"
+    Title="{x:Static resx:Author_Strings.Authors_Title}"
     x:Name="page">
     
     <controls:CustomPage.Resources>
