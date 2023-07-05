@@ -5,9 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ProductSearchViewModel"
-    Title="Product Search"
+    Title="{x:Static resx:Product_Strings.Search_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -92,7 +93,7 @@
                     <Label
                         Grid.Column="0"
                         Style="{StaticResource DashLabel}"
-                        Text="Product">
+                        Text="{x:Static resx:Product_Strings.Search_Product}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding SortProductsCommand}"
@@ -103,7 +104,7 @@
                         Grid.Column="1"
                         HorizontalOptions="Start"
                         Style="{StaticResource DashLabel}"
-                        Text="Author">
+                        Text="{x:Static resx:Product_Strings.Search_Author}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding SortProductsCommand}"
@@ -114,7 +115,7 @@
                         Grid.Column="2"
                         HorizontalOptions="End"
                         Style="{StaticResource DashLabel}"
-                        Text="Version">
+                        Text="{x:Static resx:Product_Strings.Search_Version}">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding SortProductsCommand}"

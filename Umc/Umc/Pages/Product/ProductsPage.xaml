@@ -5,9 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ProductsViewModel"
-    Title="Products"
+    Title="{x:Static resx:Product_Strings.Products_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -76,7 +77,9 @@
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
                 <StackLayout Padding="15">
-                    <Button Command="{Binding RegisterProductCommand}" Text="Register Product" />
+                    <Button
+                        Text="{x:Static resx:Product_Strings.Products_Register}"
+                        Command="{Binding RegisterProductCommand}" />
                 </StackLayout>
             </Border>
         </Grid>

@@ -59,5 +59,266 @@ namespace UC.Umc.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Register Product.
+        /// </summary>
+        internal static string Products_Register {
+            get {
+                return ResourceManager.GetString("Products_Register", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Products.
+        /// </summary>
+        internal static string Products_Title {
+            get {
+                return ResourceManager.GetString("Products_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Payment Account.
+        /// </summary>
+        internal static string Registration_Account {
+            get {
+                return ResourceManager.GetString("Registration_Account", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UNT amount.
+        /// </summary>
+        internal static string Registration_Amount {
+            get {
+                return ResourceManager.GetString("Registration_Amount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you confirm registration of this product?.
+        /// </summary>
+        internal static string Registration_Confirm {
+            get {
+                return ResourceManager.GetString("Registration_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clicking &apos;Confirm&apos; button, registration will start.
+        /// </summary>
+        internal static string Registration_Confirm2 {
+            get {
+                return ResourceManager.GetString("Registration_Confirm2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title.
+        /// </summary>
+        internal static string Registration_Name {
+            get {
+                return ResourceManager.GetString("Registration_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify Product name. This name will be used like an application domain.
+        /// </summary>
+        internal static string Registration_Name2 {
+            get {
+                return ResourceManager.GetString("Registration_Name2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose your payment account and Product title.
+        /// </summary>
+        internal static string Registration_Specify {
+            get {
+                return ResourceManager.GetString("Registration_Specify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your need specify your source, destination accounts and amount to transfer.
+        /// </summary>
+        internal static string Registration_Specify2 {
+            get {
+                return ResourceManager.GetString("Registration_Specify2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Registering Product:.
+        /// </summary>
+        internal static string Registration_Summary {
+            get {
+                return ResourceManager.GetString("Registration_Summary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to With price:.
+        /// </summary>
+        internal static string Registration_Summary2 {
+            get {
+                return ResourceManager.GetString("Registration_Summary2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From Account.
+        /// </summary>
+        internal static string Registration_Summary3 {
+            get {
+                return ResourceManager.GetString("Registration_Summary3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Product Registration.
+        /// </summary>
+        internal static string Registration_Title {
+            get {
+                return ResourceManager.GetString("Registration_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Author.
+        /// </summary>
+        internal static string Search_Author {
+            get {
+                return ResourceManager.GetString("Search_Author", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Product.
+        /// </summary>
+        internal static string Search_Product {
+            get {
+                return ResourceManager.GetString("Search_Product", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Product Search.
+        /// </summary>
+        internal static string Search_Title {
+            get {
+                return ResourceManager.GetString("Search_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version.
+        /// </summary>
+        internal static string Search_Version {
+            get {
+                return ResourceManager.GetString("Search_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Author.
+        /// </summary>
+        internal static string Transfer_Author {
+            get {
+                return ResourceManager.GetString("Transfer_Author", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Estimated commission.
+        /// </summary>
+        internal static string Transfer_Comission {
+            get {
+                return ResourceManager.GetString("Transfer_Comission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you confirm the transfer of this Product?.
+        /// </summary>
+        internal static string Transfer_Confirm {
+            get {
+                return ResourceManager.GetString("Transfer_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clicking &apos;Confirm&apos; button, transfer will start.
+        /// </summary>
+        internal static string Transfer_Confirm2 {
+            get {
+                return ResourceManager.GetString("Transfer_Confirm2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer Product.
+        /// </summary>
+        internal static string Transfer_Product {
+            get {
+                return ResourceManager.GetString("Transfer_Product", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose your Product and destination account.
+        /// </summary>
+        internal static string Transfer_Specify {
+            get {
+                return ResourceManager.GetString("Transfer_Specify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You need to specify your product and destination account to transfer..
+        /// </summary>
+        internal static string Transfer_Specify2 {
+            get {
+                return ResourceManager.GetString("Transfer_Specify2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfering Product:.
+        /// </summary>
+        internal static string Transfer_Summary {
+            get {
+                return ResourceManager.GetString("Transfer_Summary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to With comission:.
+        /// </summary>
+        internal static string Transfer_Summary2 {
+            get {
+                return ResourceManager.GetString("Transfer_Summary2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To Author:.
+        /// </summary>
+        internal static string Transfer_Summary3 {
+            get {
+                return ResourceManager.GetString("Transfer_Summary3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer Product.
+        /// </summary>
+        internal static string Transfer_Title {
+            get {
+                return ResourceManager.GetString("Transfer_Title", resourceCulture);
+            }
+        }
     }
 }
