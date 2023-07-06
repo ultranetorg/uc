@@ -5,10 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:RestoreAccountViewModel"
-    Title="Restore Account"
+    Title="{x:Static resx:Account_Strings.Restore_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -35,11 +36,13 @@
                         <!--Step #1-->
                         <StackLayout Spacing="16">
                             <StackLayout>
-                                <Label FontSize="18" Text="Choose private key" />
+                                <Label
+                                    FontSize="18"
+                                    Text="{x:Static resx:Account_Strings.Restore_PrivateKey}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Choose private key for account" />
+                                    Text="{x:Static resx:Account_Strings.Restore_PrivateKey2}" />
                             </StackLayout>
                 
                             <controls:SelectPrivateKey
@@ -51,11 +54,13 @@
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=IsPrivateKey}"
                                 Spacing="8"
                                 VerticalOptions="End">
-                                <Label Style="{StaticResource DashLabel}" Text="Private key" />
+                                <Label
+                                    Style="{StaticResource DashLabel}"
+                                    Text="{x:Static resx:Account_Strings.Restore_PrivateKey3}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Please specify Ultranet account private key" />
+                                    Text="{x:Static resx:Account_Strings.Restore_PrivateKey4}" />
                                 <controls:FormEntryControl HeightRequest="44" Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=PrivateKey}" />
                             </StackLayout>
                     
@@ -63,11 +68,13 @@
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=IsFilePath}"
                                 Spacing="8"
                                 VerticalOptions="End">
-                                <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
+                                <Label
+                                    Style="{StaticResource DashLabel}"
+                                    Text="{x:Static resx:Account_Strings.Restore_WalletFile}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Please specify Ultranet account private key" />
+                                    Text="{x:Static resx:Account_Strings.Restore_WalletFile2}" />
                                 <Grid
                                     ColumnDefinitions="*,44"
                                     ColumnSpacing="8"
@@ -85,17 +92,19 @@
                                 </Grid>
                                 <controls:FormEntryControl
                                     HeightRequest="44"
-                                    Placeholder="Please specify a file password"
+                                    Placeholder="{x:Static resx:Account_Strings.Restore_FilePassword}"
                                     IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=ShowPassword}"
                                     Value="{Binding Source={RelativeSource AncestorType={x:Type vm:RestoreAccountViewModel}}, Path=WalletPassword}" />
                             </StackLayout>
                             
                             <StackLayout Spacing="10">
-                                <Label Style="{StaticResource DashLabel}" Text="Public key" />
+                                <Label
+                                    Style="{StaticResource DashLabel}"
+                                    Text="{x:Static resx:Account_Strings.Restore_PublicKey}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Please specify Ultranet account public key" />
+                                    Text="{x:Static resx:Account_Strings.Restore_PublicKey2}" />
                                 <Border Style="{StaticResource KeyBorder}">
                                     <Label
                                         FontSize="12"
@@ -113,7 +122,7 @@
             <IndicatorView x:Name="indicator" Grid.Row="1" />
             <Button 
                 Grid.Row="2"
-                Text="Import"
+                Text="{x:Static resx:Account_Strings.Restore_Import}"
                 Command="{Binding NextWorkaroundCommand}"
                 Style="{StaticResource NextButton}" />
         </Grid>

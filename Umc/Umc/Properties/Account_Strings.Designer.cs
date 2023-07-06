@@ -59,5 +59,491 @@ namespace UC.Umc.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account name.
+        /// </summary>
+        internal static string Create_AccountName {
+            get {
+                return ResourceManager.GetString("Create_AccountName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose account password.
+        /// </summary>
+        internal static string Create_Password {
+            get {
+                return ResourceManager.GetString("Create_Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use strong password for account.
+        /// </summary>
+        internal static string Create_Password2 {
+            get {
+                return ResourceManager.GetString("Create_Password2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to At least 8 characters - the more characters the better.
+        /// </summary>
+        internal static string Create_Requirement1 {
+            get {
+                return ResourceManager.GetString("Create_Requirement1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A mixture of both uppercase and lowercase.
+        /// </summary>
+        internal static string Create_Requirement2 {
+            get {
+                return ResourceManager.GetString("Create_Requirement2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A mixture of letters and numbers.
+        /// </summary>
+        internal static string Create_Requirement3 {
+            get {
+                return ResourceManager.GetString("Create_Requirement3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inclusion of at least one special character e.g !@#.
+        /// </summary>
+        internal static string Create_Requirement4 {
+            get {
+                return ResourceManager.GetString("Create_Requirement4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Characteristics of strong passwords.
+        /// </summary>
+        internal static string Create_Requirements {
+            get {
+                return ResourceManager.GetString("Create_Requirements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose account name and color.
+        /// </summary>
+        internal static string Create_Specify {
+            get {
+                return ResourceManager.GetString("Create_Specify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose desired Account name and color.
+        /// </summary>
+        internal static string Create_Specify2 {
+            get {
+                return ResourceManager.GetString("Create_Specify2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify account name, for example: payment account, auction account, verification account etc..
+        /// </summary>
+        internal static string Create_Specify3 {
+            get {
+                return ResourceManager.GetString("Create_Specify3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create Account.
+        /// </summary>
+        internal static string Create_Title {
+            get {
+                return ResourceManager.GetString("Create_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to and more.
+        /// </summary>
+        internal static string Delete_AndMore {
+            get {
+                return ResourceManager.GetString("Delete_AndMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authors.
+        /// </summary>
+        internal static string Delete_Authors {
+            get {
+                return ResourceManager.GetString("Delete_Authors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This account has non zero balance. Do you wish to delete it?.
+        /// </summary>
+        internal static string Delete_Caution {
+            get {
+                return ResourceManager.GetString("Delete_Caution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you have not backuped it or not exported, all moneys, domains and programs will be lost.
+        /// </summary>
+        internal static string Delete_Caution2 {
+            get {
+                return ResourceManager.GetString("Delete_Caution2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        internal static string Delete_Confirm {
+            get {
+                return ResourceManager.GetString("Delete_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Products.
+        /// </summary>
+        internal static string Delete_Products {
+            get {
+                return ResourceManager.GetString("Delete_Products", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Account.
+        /// </summary>
+        internal static string Delete_Title {
+            get {
+                return ResourceManager.GetString("Delete_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account.
+        /// </summary>
+        internal static string Details_Account {
+            get {
+                return ResourceManager.GetString("Details_Account", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account color.
+        /// </summary>
+        internal static string Details_AccountColor {
+            get {
+                return ResourceManager.GetString("Details_AccountColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account Name.
+        /// </summary>
+        internal static string Details_AccountName {
+            get {
+                return ResourceManager.GetString("Details_AccountName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to and more.
+        /// </summary>
+        internal static string Details_AndMore {
+            get {
+                return ResourceManager.GetString("Details_AndMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authors.
+        /// </summary>
+        internal static string Details_Authors {
+            get {
+                return ResourceManager.GetString("Details_Authors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup.
+        /// </summary>
+        internal static string Details_Backup {
+            get {
+                return ResourceManager.GetString("Details_Backup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Balance.
+        /// </summary>
+        internal static string Details_Balance {
+            get {
+                return ResourceManager.GetString("Details_Balance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        internal static string Details_Delete {
+            get {
+                return ResourceManager.GetString("Details_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hide.
+        /// </summary>
+        internal static string Details_Hide {
+            get {
+                return ResourceManager.GetString("Details_Hide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account from Dashboard.
+        /// </summary>
+        internal static string Details_Hide2 {
+            get {
+                return ResourceManager.GetString("Details_Hide2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show private key.
+        /// </summary>
+        internal static string Details_PrivateKey {
+            get {
+                return ResourceManager.GetString("Details_PrivateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Products.
+        /// </summary>
+        internal static string Details_Products {
+            get {
+                return ResourceManager.GetString("Details_Products", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Random.
+        /// </summary>
+        internal static string Details_Random {
+            get {
+                return ResourceManager.GetString("Details_Random", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Receive.
+        /// </summary>
+        internal static string Details_Receive {
+            get {
+                return ResourceManager.GetString("Details_Receive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send.
+        /// </summary>
+        internal static string Details_Send {
+            get {
+                return ResourceManager.GetString("Details_Send", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account Details.
+        /// </summary>
+        internal static string Details_Title {
+            get {
+                return ResourceManager.GetString("Details_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create.
+        /// </summary>
+        internal static string Manage_Create {
+            get {
+                return ResourceManager.GetString("Manage_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restore account.
+        /// </summary>
+        internal static string Manage_Restore {
+            get {
+                return ResourceManager.GetString("Manage_Restore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accounts.
+        /// </summary>
+        internal static string Manage_Title {
+            get {
+                return ResourceManager.GetString("Manage_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string PrivateKey_Cancel {
+            get {
+                return ResourceManager.GetString("PrivateKey_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Never show and share your private key with other person!.
+        /// </summary>
+        internal static string PrivateKey_Caution {
+            get {
+                return ResourceManager.GetString("PrivateKey_Caution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This can lead to the loss of funds, domains and applications on the account.
+        /// </summary>
+        internal static string PrivateKey_Caution2 {
+            get {
+                return ResourceManager.GetString("PrivateKey_Caution2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy to clipboard.
+        /// </summary>
+        internal static string PrivateKey_Copy {
+            get {
+                return ResourceManager.GetString("PrivateKey_Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Private Key.
+        /// </summary>
+        internal static string PrivateKey_Title {
+            get {
+                return ResourceManager.GetString("PrivateKey_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify a file password.
+        /// </summary>
+        internal static string Restore_FilePassword {
+            get {
+                return ResourceManager.GetString("Restore_FilePassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        internal static string Restore_Import {
+            get {
+                return ResourceManager.GetString("Restore_Import", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose private key.
+        /// </summary>
+        internal static string Restore_PrivateKey {
+            get {
+                return ResourceManager.GetString("Restore_PrivateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose private key for account.
+        /// </summary>
+        internal static string Restore_PrivateKey2 {
+            get {
+                return ResourceManager.GetString("Restore_PrivateKey2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Private key.
+        /// </summary>
+        internal static string Restore_PrivateKey3 {
+            get {
+                return ResourceManager.GetString("Restore_PrivateKey3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify Ultranet account private key.
+        /// </summary>
+        internal static string Restore_PrivateKey4 {
+            get {
+                return ResourceManager.GetString("Restore_PrivateKey4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Public key.
+        /// </summary>
+        internal static string Restore_PublicKey {
+            get {
+                return ResourceManager.GetString("Restore_PublicKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify Ultranet account public key.
+        /// </summary>
+        internal static string Restore_PublicKey2 {
+            get {
+                return ResourceManager.GetString("Restore_PublicKey2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restore Account.
+        /// </summary>
+        internal static string Restore_Title {
+            get {
+                return ResourceManager.GetString("Restore_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wallet file.
+        /// </summary>
+        internal static string Restore_WalletFile {
+            get {
+                return ResourceManager.GetString("Restore_WalletFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify Ultranet account wallet file key.
+        /// </summary>
+        internal static string Restore_WalletFile2 {
+            get {
+                return ResourceManager.GetString("Restore_WalletFile2", resourceCulture);
+            }
+        }
     }
 }

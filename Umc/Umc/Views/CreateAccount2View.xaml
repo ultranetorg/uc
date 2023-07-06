@@ -5,20 +5,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:CreateAccount2ViewModel"
     x:Name="view">
     <StackLayout Padding="4" Spacing="32">
         <StackLayout>
-            <Label FontSize="18" Text="Choose account name and color" />
+            <Label FontSize="18" Text="{x:Static resx:Account_Strings.Create_Specify}" />
             <Label
                 FontSize="13"
                 Style="{StaticResource Regular}"
-                Text="Choose desired Account name and color" />
+                Text="{x:Static resx:Account_Strings.Create_Specify2}" />
         </StackLayout>
         <StackLayout Margin="0,0,0,-12" Spacing="8">
-            <controls:BorderEntry Placeholder="Account name" Text="{Binding Account.Name}">
+            <controls:BorderEntry
+                Placeholder="{x:Static resx:Account_Strings.Create_AccountName}"
+                Text="{Binding Account.Name}">
                 <controls:BorderEntry.Behaviors>
                     <toolkit:CharactersValidationBehavior
                         x:Name="cb"
@@ -38,7 +41,9 @@
                     TextColor="{StaticResource Red}" />
             </StackLayout>
         </StackLayout>
-        <Label Style="{StaticResource SubText}" Text="Please specify account name, for example: payment account, auction account, verification account etc." />
+        <Label
+            Style="{StaticResource SubText}"
+            Text="{x:Static resx:Account_Strings.Create_Specify3}" />
         <Border
             Padding="0"
             Background="{Binding SelectedAccountColor.Color}"
@@ -51,7 +56,7 @@
                 FontSize="24"
                 HorizontalOptions="Center"
                 Style="{StaticResource CodeLabel}"
-                Text="ABCD"
+                Text="{Binding ColorCode}"
                 VerticalOptions="Center" />
         </Border>
         <CollectionView HeightRequest="48" ItemsSource="{Binding ColorsCollection}">

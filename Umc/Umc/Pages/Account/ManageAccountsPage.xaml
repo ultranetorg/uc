@@ -5,10 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ManageAccountsViewModel"
-    Title="Accounts"
+    Title="{x:Static resx:Account_Strings.Manage_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -84,11 +85,13 @@
                 AbsoluteLayout.LayoutBounds="1,1,1,-1"
                 AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
                 <StackLayout Padding="16">
-                    <Button Command="{Binding CreateCommand}" Text="Create" />
+                    <Button
+                        Command="{Binding CreateCommand}"
+                        Text="{x:Static resx:Account_Strings.Manage_Create}" />
                     <Button
                         Command="{Binding RestoreCommand}"
                         Style="{StaticResource LabelButton}"
-                        Text="Restore account" />
+                        Text="{x:Static resx:Account_Strings.Manage_Restore}" />
                 </StackLayout>
             </Border>
         </Grid>

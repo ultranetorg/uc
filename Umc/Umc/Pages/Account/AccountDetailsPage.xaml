@@ -5,9 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    Title="Account Details"
+    Title="{x:Static resx:Account_Strings.Details_Title}"
     x:DataType="vm:AccountDetailsViewModel"
     x:Name="page">
     
@@ -86,7 +87,7 @@
                     Grid.Row="0"
                     Grid.Column="1"
                     Style="{StaticResource DashLabel}"
-                    Text="Account color"
+                    Text="{x:Static resx:Account_Strings.Details_AccountColor}"
                     VerticalOptions="Center"
                     FontAttributes="Bold" />
                 <ScrollView
@@ -109,7 +110,7 @@
                     ColumnSpacing="0">
                     <Label
                         Grid.Column="0"
-                        Text="Random"
+                        Text="{x:Static resx:Account_Strings.Details_Random}"
                         TextColor="{StaticResource PrimaryDark}"
                         VerticalOptions="Center"
                         FontAttributes="Bold" />
@@ -121,7 +122,9 @@
                 </Grid>
             </Grid>
             <StackLayout Spacing="4">
-                <Label Style="{StaticResource DashLabel}" Text="Account" />
+                <Label
+                    Style="{StaticResource DashLabel}"
+                    Text="{x:Static resx:Account_Strings.Details_Account}" />
                 <Label
                     FontSize="13"
                     Style="{StaticResource Medium}"
@@ -129,7 +132,7 @@
             </StackLayout>
                 
             <controls:FormEntryControl
-                Placeholder="Account Name"
+                Placeholder="{x:Static resx:Account_Strings.Details_AccountName}"
                 Value="{Binding AccountName}"
                 ErrorMessage="{Binding AccountNameError}"
                 MaxLength="30"
@@ -138,7 +141,7 @@
             <StackLayout Spacing="4">
                 <Label
                     Style="{StaticResource DashLabel}"
-                    Text="Balance" />
+                    Text="{x:Static resx:Account_Strings.Details_Balance}" />
                 <Label
                     FontSize="13"
                     Text="{Binding Account.DisplayAmount}" 
@@ -150,12 +153,12 @@
                 <Label
                     Grid.Row="0"
                     Style="{StaticResource DashLabel}"
-                    Text="Hide" />
+                    Text="{x:Static resx:Account_Strings.Details_Hide}" />
                 <Label
                     Grid.Row="1"
                     FontSize="13"
                     Style="{StaticResource Medium}"
-                    Text="Account from Dashboard" />
+                    Text="{x:Static resx:Account_Strings.Details_Hide2}" />
                 <controls:SwitchView
                     Grid.RowSpan="2"
                     Grid.Column="1"
@@ -166,7 +169,7 @@
                 <Label
                     Grid.Row="0"
                     Style="{StaticResource DashLabel}"
-                    Text="Authors" />
+                    Text="{x:Static resx:Account_Strings.Details_Authors}" />
                 <ScrollView
                     Grid.Row="1"
                     HorizontalScrollBarVisibility="Never"
@@ -182,7 +185,7 @@
                 <Label
                     Grid.Row="0"
                     Style="{StaticResource DashLabel}"
-                    Text="Products" />
+                    Text="{x:Static resx:Account_Strings.Details_Products}" />
                 <CollectionView
                     Grid.Row="1"
                     ItemTemplate="{StaticResource ProductsTemplate}"
@@ -194,7 +197,7 @@
                         <StackLayout Padding="{StaticResource SidePadding}">
                             <Label
                                 Style="{StaticResource Medium}"
-                                Text="and 100 more"
+                                Text="{x:Static resx:Account_Strings.Details_AndMore}"
                                 TextColor="{StaticResource Primary}"
                                 TextDecorations="Underline"
                                 VerticalOptions="CenterAndExpand" />
@@ -209,26 +212,26 @@
                 ColumnSpacing="8"
                 RowSpacing="8">
                 <Button
-                    Text="Receive"
+                    Text="{x:Static resx:Account_Strings.Details_Receive}"
                     Command="{Binding ReceiveCommand}" />
                 <Button
                     Grid.Column="1"
-                    Text="Send"
+                    Text="{x:Static resx:Account_Strings.Details_Send}"
                     Command="{Binding SendCommand}" />
                 <Button
                     Grid.Row="1"
                     Grid.ColumnSpan="2"
                     Command="{Binding ShowPrivateKeyCommand}"
-                    Text="Show private key" />
+                    Text="{x:Static resx:Account_Strings.Details_PrivateKey}" />
                 <Button
                     Grid.Row="2"
-                    Text="Backup" />
+                    Text="{x:Static resx:Account_Strings.Details_Backup}" />
                 <Button
                     Grid.Row="2"
                     Grid.Column="1"
                     Style="{StaticResource DeleteButton}"
                     Command="{Binding DeleteCommand}"
-                    Text="Delete" />
+                    Text="{x:Static resx:Account_Strings.Details_Delete}" />
             </Grid>
         </StackLayout>
     </controls:CustomPage.MainContent>

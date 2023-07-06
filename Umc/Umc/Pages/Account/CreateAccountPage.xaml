@@ -4,11 +4,12 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:CreateAccountPageViewModel"
-    Title="Create Account"
+    Title="{x:Static resx:Account_Strings.Create_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
@@ -35,11 +36,11 @@
 						<!--Step #1-->
                         <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
-                                <Label FontSize="18" Text="Choose account password" />
+                                <Label FontSize="18" Text="{x:Static resx:Account_Strings.Create_Password}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Use strong password for account" />
+                                    Text="{x:Static resx:Account_Strings.Create_Password2}" />
                             </StackLayout>
                             <controls:FormEntryControl
 								IsPassword="True"
@@ -64,19 +65,19 @@
                             <Label
                                 FontSize="13"
                                 Style="{StaticResource Regular}"
-                                Text="Characteristics of strong passwords" />
+                                Text="{x:Static resx:Account_Strings.Create_Requirements}" />
                             <StackLayout>
                                 <controls:ImageTextColumn
-									Text="At least 8 characters - the more characters the better"
+									Text="{x:Static resx:Account_Strings.Create_Requirement1}"
 									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=CharCountDone}"/>
                                 <controls:ImageTextColumn
-									Text="A mixture of both uppercase and lowercase"
+									Text="{x:Static resx:Account_Strings.Create_Requirement2}"
 									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=BothCasesDone}"/>
                                 <controls:ImageTextColumn
-									Text="A mixture of letters and numbers"
+									Text="{x:Static resx:Account_Strings.Create_Requirement3}"
 									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=NumbersIncluded}"/>
                                 <controls:ImageTextColumn
-									Text="Inclusion of at least one special character e.g !@#"
+									Text="{x:Static resx:Account_Strings.Create_Requirement4}"
 									IsEnabledImage="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateAccountPageViewModel}}, Path=SpecialCharacterIncluded}"/>
                             </StackLayout>
                         </StackLayout>

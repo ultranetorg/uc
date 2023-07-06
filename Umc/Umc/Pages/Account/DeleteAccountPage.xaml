@@ -6,21 +6,22 @@
     xmlns:constants="clr-namespace:UC.Umc.Common.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:DeleteAccountViewModel"
-    Title="Delete Account"
+    Title="{x:Static resx:Account_Strings.Delete_Title}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
         <ScrollView Padding="{StaticResource PagePadding}">
             <StackLayout Spacing="32">
                 <StackLayout>
-                    <Label FontSize="18" Text="This account has non zero balance. Do you wish to delete it?" />
+                    <Label FontSize="18" Text="{x:Static resx:Account_Strings.Delete_Caution}" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="If you have not backuped it or not exported, all moneys, domains and programs will be lost" />
+                        Text="{x:Static resx:Account_Strings.Delete_Caution2}" />
                 </StackLayout>
                 <views:AccountView
                     BorderStyle="{StaticResource AccountCardBorder}"
@@ -30,7 +31,7 @@
                     <Label
                         Grid.Row="0"
                         Style="{StaticResource DashLabel}"
-                        Text="Authors" />
+                        Text="{x:Static resx:Account_Strings.Delete_Authors}" />
                     <ScrollView
                         Grid.Row="1"
                         HorizontalScrollBarVisibility="Never"
@@ -60,7 +61,7 @@
                     <Label
                         Grid.Row="0"
                         Style="{StaticResource DashLabel}"
-                        Text="Products" />
+                        Text="{x:Static resx:Account_Strings.Delete_Products}" />
                     <CollectionView Grid.Row="1" ItemsSource="{Binding Products}">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
@@ -85,7 +86,7 @@
                             <StackLayout Padding="{StaticResource SidePadding}">
                                 <Label
                                     Style="{StaticResource Medium}"
-                                    Text="and 100 more"
+                                    Text="{x:Static resx:Account_Strings.Delete_AndMore}"
                                     TextColor="{StaticResource Primary}"
                                     TextDecorations="Underline"
                                     VerticalOptions="CenterAndExpand" />
@@ -96,7 +97,7 @@
                 <Button
                     Command="{Binding DeleteCommand}"
                     Style="{StaticResource DeleteButton}"
-                    Text="Delete"
+                    Text="{x:Static resx:Account_Strings.Delete_Confirm}"
                     VerticalOptions="EndAndExpand" />
             </StackLayout>
         </ScrollView>

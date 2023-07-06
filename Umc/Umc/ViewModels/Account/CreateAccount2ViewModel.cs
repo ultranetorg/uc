@@ -7,6 +7,7 @@ public partial class CreateAccount2ViewModel : BaseAccountViewModel
 	private readonly IServicesMockData _service;
 
 	[ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ColorCode))]
     private AccountColor _selectedAccountColor;
 
 	[ObservableProperty]
@@ -14,6 +15,8 @@ public partial class CreateAccount2ViewModel : BaseAccountViewModel
     [Required(ErrorMessage = "Required")]
     [NotifyPropertyChangedFor(nameof(AccountNameError))]
     private string _accountName;
+
+	public string ColorCode => SelectedAccountColor?.Color?.ToHex() ?? "#ABCD";
 
     public string AccountNameError => GetControlErrorMessage(nameof(AccountName));
 
