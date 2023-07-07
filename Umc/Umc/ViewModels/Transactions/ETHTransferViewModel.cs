@@ -24,6 +24,9 @@ public partial class ETHTransferViewModel : BaseAccountViewModel
 	private string _walletPassword;
 
 	[ObservableProperty]
+	private string _ethAvailable = "350 ETH " + Properties.Transaction_Strings.Transfer_Available; // must be taken from account
+
+	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(UntAmount))]
 	[NotifyPropertyChangedFor(nameof(EthCommission))]
 	[NotifyPropertyChangedFor(nameof(UntCommission))]

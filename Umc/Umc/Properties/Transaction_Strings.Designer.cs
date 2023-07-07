@@ -59,5 +59,509 @@ namespace UC.Umc.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have paid ETH comission.
+        /// </summary>
+        internal static string Completed_Comission {
+            get {
+                return ResourceManager.GetString("Completed_Comission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have paid UNT comission.
+        /// </summary>
+        internal static string Completed_Comission2 {
+            get {
+                return ResourceManager.GetString("Completed_Comission2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction date and time.
+        /// </summary>
+        internal static string Completed_DateTime {
+            get {
+                return ResourceManager.GetString("Completed_DateTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfering from Ethereum account.
+        /// </summary>
+        internal static string Completed_From {
+            get {
+                return ResourceManager.GetString("Completed_From", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You will receive.
+        /// </summary>
+        internal static string Completed_Receive {
+            get {
+                return ResourceManager.GetString("Completed_Receive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer successfully completed.
+        /// </summary>
+        internal static string Completed_Success {
+            get {
+                return ResourceManager.GetString("Completed_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer Сompleted.
+        /// </summary>
+        internal static string Completed_Title {
+            get {
+                return ResourceManager.GetString("Completed_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To Ultranet Account.
+        /// </summary>
+        internal static string Completed_To {
+            get {
+                return ResourceManager.GetString("Completed_To", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transactions.
+        /// </summary>
+        internal static string Completed_Transactions {
+            get {
+                return ResourceManager.GetString("Completed_Transactions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Amount.
+        /// </summary>
+        internal static string Send_Amount {
+            get {
+                return ResourceManager.GetString("Send_Amount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Amount to transfer.
+        /// </summary>
+        internal static string Send_AmountToTransfer {
+            get {
+                return ResourceManager.GetString("Send_AmountToTransfer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comission.
+        /// </summary>
+        internal static string Send_Comission {
+            get {
+                return ResourceManager.GetString("Send_Comission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you wish to send UNT tokens to another Ultranet account?.
+        /// </summary>
+        internal static string Send_Confirm {
+            get {
+                return ResourceManager.GetString("Send_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clicking &apos;Confirm&apos; button, transaction will start.
+        /// </summary>
+        internal static string Send_Confirm2 {
+            get {
+                return ResourceManager.GetString("Send_Confirm2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From.
+        /// </summary>
+        internal static string Send_From {
+            get {
+                return ResourceManager.GetString("Send_From", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recipient Account.
+        /// </summary>
+        internal static string Send_Recipient {
+            get {
+                return ResourceManager.GetString("Send_Recipient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify destination Ultranet Account that will receive moneys..
+        /// </summary>
+        internal static string Send_Recipient2 {
+            get {
+                return ResourceManager.GetString("Send_Recipient2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source Account.
+        /// </summary>
+        internal static string Send_Source {
+            get {
+                return ResourceManager.GetString("Send_Source", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify source Ultranet Account that will transfer moneys.
+        /// </summary>
+        internal static string Send_Source2 {
+            get {
+                return ResourceManager.GetString("Send_Source2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose your source and destination accounts.
+        /// </summary>
+        internal static string Send_Specify {
+            get {
+                return ResourceManager.GetString("Send_Specify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your need specify your source, destination accounts and amount to transfer.
+        /// </summary>
+        internal static string Send_Specify2 {
+            get {
+                return ResourceManager.GetString("Send_Specify2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send.
+        /// </summary>
+        internal static string Send_Title {
+            get {
+                return ResourceManager.GetString("Send_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To.
+        /// </summary>
+        internal static string Send_To {
+            get {
+                return ResourceManager.GetString("Send_To", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transactions.
+        /// </summary>
+        internal static string Transactions_Title {
+            get {
+                return ResourceManager.GetString("Transactions_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Amount to transfer.
+        /// </summary>
+        internal static string Transfer_Amount {
+            get {
+                return ResourceManager.GetString("Transfer_Amount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ethereum amount to transfer.
+        /// </summary>
+        internal static string Transfer_Amount2 {
+            get {
+                return ResourceManager.GetString("Transfer_Amount2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UNT amount.
+        /// </summary>
+        internal static string Transfer_Amount3 {
+            get {
+                return ResourceManager.GetString("Transfer_Amount3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to available.
+        /// </summary>
+        internal static string Transfer_Available {
+            get {
+                return ResourceManager.GetString("Transfer_Available", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string Transfer_Cancel {
+            get {
+                return ResourceManager.GetString("Transfer_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ETH comission.
+        /// </summary>
+        internal static string Transfer_Comission {
+            get {
+                return ResourceManager.GetString("Transfer_Comission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UNT comission.
+        /// </summary>
+        internal static string Transfer_Comission2 {
+            get {
+                return ResourceManager.GetString("Transfer_Comission2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Transfer.
+        /// </summary>
+        internal static string Transfer_Confirm {
+            get {
+                return ResourceManager.GetString("Transfer_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm.
+        /// </summary>
+        internal static string Transfer_Confirm2 {
+            get {
+                return ResourceManager.GetString("Transfer_Confirm2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Destination Ultranet Account.
+        /// </summary>
+        internal static string Transfer_DestinationAccount {
+            get {
+                return ResourceManager.GetString("Transfer_DestinationAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Destination Account that will receive Ultranet tokens.
+        /// </summary>
+        internal static string Transfer_DestinationAccount2 {
+            get {
+                return ResourceManager.GetString("Transfer_DestinationAccount2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To destination Ultranet Account.
+        /// </summary>
+        internal static string Transfer_DestinationAccount3 {
+            get {
+                return ResourceManager.GetString("Transfer_DestinationAccount3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify a file password.
+        /// </summary>
+        internal static string Transfer_FilePassword {
+            get {
+                return ResourceManager.GetString("Transfer_FilePassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finish Incomplete Transfer.
+        /// </summary>
+        internal static string Transfer_Finish {
+            get {
+                return ResourceManager.GetString("Transfer_Finish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Private key.
+        /// </summary>
+        internal static string Transfer_PrivateKey {
+            get {
+                return ResourceManager.GetString("Transfer_PrivateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify Ultranet account private key.
+        /// </summary>
+        internal static string Transfer_PrivateKey2 {
+            get {
+                return ResourceManager.GetString("Transfer_PrivateKey2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select Ultranet Account.
+        /// </summary>
+        internal static string Transfer_SelectAccount {
+            get {
+                return ResourceManager.GetString("Transfer_SelectAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your need specify your Ethereum private key or wallet file and transfer amount.
+        /// </summary>
+        internal static string Transfer_SelectAccount2 {
+            get {
+                return ResourceManager.GetString("Transfer_SelectAccount2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source Ethereum Account.
+        /// </summary>
+        internal static string Transfer_Source {
+            get {
+                return ResourceManager.GetString("Transfer_Source", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose your Ethereum private key and transfer amount.
+        /// </summary>
+        internal static string Transfer_Specify {
+            get {
+                return ResourceManager.GetString("Transfer_Specify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your need specify your Ethereum private key or wallet file and transfer amount.
+        /// </summary>
+        internal static string Transfer_Specify2 {
+            get {
+                return ResourceManager.GetString("Transfer_Specify2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ETH-UNT Transfer.
+        /// </summary>
+        internal static string Transfer_Title {
+            get {
+                return ResourceManager.GetString("Transfer_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wallet file.
+        /// </summary>
+        internal static string Transfer_WalletFile {
+            get {
+                return ResourceManager.GetString("Transfer_WalletFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify Ultranet account private wallet key.
+        /// </summary>
+        internal static string Transfer_WalletFile2 {
+            get {
+                return ResourceManager.GetString("Transfer_WalletFile2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last transfer destination account.
+        /// </summary>
+        internal static string Unfinished_Account {
+            get {
+                return ResourceManager.GetString("Unfinished_Account", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string Unfinished_Cancel {
+            get {
+                return ResourceManager.GetString("Unfinished_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer.
+        /// </summary>
+        internal static string Unfinished_Confirm {
+            get {
+                return ResourceManager.GetString("Unfinished_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detected unfinished transfer.
+        /// </summary>
+        internal static string Unfinished_Detected {
+            get {
+                return ResourceManager.GetString("Unfinished_Detected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Emission #.
+        /// </summary>
+        internal static string Unfinished_Emission {
+            get {
+                return ResourceManager.GetString("Unfinished_Emission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Estimated UNT.
+        /// </summary>
+        internal static string Unfinished_Estimated {
+            get {
+                return ResourceManager.GetString("Unfinished_Estimated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unfinished Transfer.
+        /// </summary>
+        internal static string Unfinished_Title {
+            get {
+                return ResourceManager.GetString("Unfinished_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total ETH.
+        /// </summary>
+        internal static string Unfinished_Total {
+            get {
+                return ResourceManager.GetString("Unfinished_Total", resourceCulture);
+            }
+        }
     }
 }

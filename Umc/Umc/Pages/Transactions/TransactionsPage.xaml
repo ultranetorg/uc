@@ -6,10 +6,11 @@
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:TransactionsViewModel"
-    Title="Transactions"
+    Title="{x:Static resx:Transaction_Strings.Transactions_Title}"
     x:Name="page">
     
     <controls:CustomPage.Resources>
@@ -111,7 +112,9 @@
                                         HorizontalOptions="End"
                                         VerticalOptions="Start" />
                                     <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}" CommandParameter="{Binding .}" />
+                                        <TapGestureRecognizer
+                                            Command="{Binding BindingContext.OpenDetailsCommand, Source={x:Reference page}}"
+                                            CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
                                 </Grid>
                             </Border>

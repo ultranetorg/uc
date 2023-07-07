@@ -5,11 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:SendViewModel"
-    x:Name="page"
-    Title="Send">
+    Title="{x:Static resx:Transaction_Strings.Send_Title}"
+    x:Name="page">
     
     <controls:CustomPage.MainContent>
         <ScrollView>
@@ -46,14 +47,16 @@
                 </CarouselView>
 
                 <StackLayout Grid.Row="1" IsVisible="{Binding FirstStep}">
-                    <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
+                    <Label
+                        Style="{StaticResource DashLabel}"
+                        Text="{x:Static resx:Transaction_Strings.Send_AmountToTransfer}" />
                     <AbsoluteLayout Margin="0,0,0,4">
                         <controls:FormEntryControl
                             AbsoluteLayout.LayoutBounds="0,1,1,1"
                             AbsoluteLayout.LayoutFlags="All"
                             Value="{Binding Amount}"
                             ErrorMessage="{Binding AmountError}"
-                            Placeholder="Amount"
+                            Placeholder="{x:Static resx:Transaction_Strings.Send_Amount}"
                             MaxLength="8"
                             Margin="0,0,8,0" />
                         <Label
@@ -69,7 +72,7 @@
             
                 <StackLayout Grid.Row="3">
                     <Button
-                        Text="Transfer"
+                        Text="{x:Static resx:Transaction_Strings.Unfinished_Confirm}"
                         IsVisible="{Binding FirstStep}"
                         Command="{Binding TransferCommand, Source={RelativeSource AncestorType={x:Type vm:SendViewModel}}}" />
 
@@ -81,7 +84,7 @@
                     <Button
                         Command="{Binding CancelCommand}"
                         Style="{DynamicResource LabelButton}"
-                        Text="Cancel" />
+                        Text="{x:Static resx:Transaction_Strings.Unfinished_Cancel}" />
                 </StackLayout>
             </Grid>
         </ScrollView>

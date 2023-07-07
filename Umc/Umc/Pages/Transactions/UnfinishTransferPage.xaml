@@ -5,31 +5,36 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:UnfinishTransferViewModel"
-    Title="Unfinished Transfer"
+    Title="{x:Static resx:Transaction_Strings.Unfinished_Detected}"
     x:Name="page">
     
     <controls:CustomPage.MainContent>
         <ScrollView>
             <StackLayout Padding="{StaticResource PagePadding}" Spacing="32">
-                <Label FontSize="18" Text="Detected unfinished transfer" />
+                <Label FontSize="18" Text="{x:Static resx:Transaction_Strings.Unfinished_Detected}" />
                 <StackLayout>
-                    <Label Style="{StaticResource DashLabel}" Text="Last transfer destination account" />
+                    <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Transaction_Strings.Unfinished_Account}" />
                     <views:AccountView
                         Account="{Binding Account}"
                         BorderStyle="{StaticResource AccountCardBorderDark}"/>
                 </StackLayout>
                 <StackLayout Spacing="16">
-                    <controls:LabelPair Text1="Total ETH" Text2="{Binding EthAmount, StringFormat='{0} ETH'}" />
-                    <controls:LabelPair Text1="Estimated UNT" Text2="{Binding UntAmount, StringFormat='{0} UNT'}" />
+                    <controls:LabelPair
+                        Text1="{x:Static resx:Transaction_Strings.Unfinished_Total}"
+                        Text2="{Binding EthAmount, StringFormat='{0} ETH'}" />
+                    <controls:LabelPair
+                        Text1="{x:Static resx:Transaction_Strings.Unfinished_Estimated}"
+                        Text2="{Binding UntAmount, StringFormat='{0} UNT'}" />
                     
                     <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*,*">
                         <Label
                             Grid.Column="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Emission #" />
+                            Text="{x:Static resx:Transaction_Strings.Unfinished_Emission}" />
                         <Label
                             Grid.Column="1" HorizontalOptions="End"
                             Style="{StaticResource DashLabel}"
@@ -52,8 +57,13 @@
                     </StackLayout>
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand">
-                    <Button Command="{Binding TransferCommand}" Text="Transfer" />
-                    <Button Command="{Binding CancelCommand}" Style="{DynamicResource LabelButton}" Text="Cancel" />
+                    <Button
+                        Command="{Binding TransferCommand}"
+                        Text="{x:Static resx:Transaction_Strings.Unfinished_Confirm}" />
+                    <Button
+                        Command="{Binding CancelCommand}"
+                        Style="{DynamicResource LabelButton}"
+                        Text="{x:Static resx:Transaction_Strings.Unfinished_Cancel}" />
                 </StackLayout>
             </StackLayout>
         </ScrollView>

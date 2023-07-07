@@ -5,11 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:fi="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
     x:DataType="vm:ETHTransferViewModel"
-    Title="ETH-UNT Transfer"
+    Title="{x:Static resx:Transaction_Strings.Transfer_Title}"
     x:Name="page">
     
     <Shell.TitleView>
@@ -44,7 +45,7 @@
                         <StackLayout Spacing="24">
                             <Label
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=NeedToFinishTransfer}"
-                                Text="Finish Incomplete Transfer"
+                                Text="{x:Static resx:Transaction_Strings.Transfer_Finish}"
                                 TextColor="{StaticResource LowerColor}"
                                 HorizontalOptions="End">
                                 <Label.GestureRecognizers>
@@ -53,15 +54,18 @@
                             </Label>
                             <StackLayout Spacing="16">
                                 <StackLayout>
-                                    <Label FontSize="18" Text="Choose your Ethereum private key and transfer amount" />
+                                    <Label
+                                        FontSize="18"
+                                        Text="{x:Static resx:Transaction_Strings.Transfer_Specify}" />
                                     <Label
                                         FontSize="13"
                                         Style="{StaticResource Regular}"
-                                        Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
+                                        Text="{x:Static resx:Transaction_Strings.Transfer_Specify2}" />
                                 </StackLayout>
             
-                                <Label Style="{StaticResource DashLabel}" Text="Source Ethereum Account" />
-                
+                                <Label
+                                    Style="{StaticResource DashLabel}"
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_Source}" />
                                 <controls:SelectPrivateKey
                                     IsPrivateKey="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=IsPrivateKey}"
                                     IsWalletPath="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=IsFilePath}"
@@ -71,23 +75,29 @@
                                     IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=IsPrivateKey}"
                                     Spacing="8"
                                     VerticalOptions="End">
-                                    <Label Style="{StaticResource DashLabel}" Text="Private key" />
+                                    <Label
+                                        Style="{StaticResource DashLabel}"
+                                        Text="{x:Static resx:Transaction_Strings.Transfer_PrivateKey}" />
                                     <Label
                                         FontSize="13"
                                         Style="{StaticResource Regular}"
-                                        Text="Please specify Ultranet account private key" />
-                                    <controls:FormEntryControl HeightRequest="44" Value="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=PrivateKey}" />
+                                        Text="{x:Static resx:Transaction_Strings.Transfer_PrivateKey2}" />
+                                    <controls:FormEntryControl
+                                        HeightRequest="44"
+                                        Value="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=PrivateKey}" />
                                 </StackLayout>
                     
                                 <StackLayout
                                     IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=IsFilePath}"
                                     Spacing="8"
                                     VerticalOptions="End">
-                                    <Label Style="{StaticResource DashLabel}" Text="Wallet file" />
+                                    <Label
+                                        Style="{StaticResource DashLabel}"
+                                        Text="{x:Static resx:Transaction_Strings.Transfer_WalletFile}" />
                                     <Label
                                         FontSize="13"
                                         Style="{StaticResource Regular}"
-                                        Text="Please specify Ultranet account private key" />
+                                        Text="{x:Static resx:Transaction_Strings.Transfer_WalletFile2}" />
                                     <Grid
                                         ColumnDefinitions="*,44"
                                         ColumnSpacing="8"
@@ -105,7 +115,7 @@
                                     </Grid>
                                     <controls:FormEntryControl
                                         HeightRequest="44"
-                                        Placeholder="Please specify a file password"
+                                        Placeholder="{x:Static resx:Transaction_Strings.Transfer_FilePassword}"
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=ShowFilePassword}"
                                         Value="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=WalletFilePassword}" />
                                 </StackLayout>
@@ -115,7 +125,9 @@
                                 ColumnDefinitions="*,36,*"
                                 VerticalOptions="EndAndExpand">
                                 <StackLayout Grid.Column="0" Spacing="8">
-                                    <Label Style="{StaticResource DashLabel}" Text="Amount to transfer" />
+                                    <Label
+                                        Style="{StaticResource DashLabel}"
+                                        Text="{x:Static resx:Transaction_Strings.Transfer_Amount}" />
                                     <AbsoluteLayout>
                                         <controls:FormEntryControl
                                             AbsoluteLayout.LayoutBounds="0,1,1,1"
@@ -157,7 +169,10 @@
                                     </Image.Behaviors>
                                 </Image>
                                 <StackLayout Grid.Column="2" Spacing="8">
-                                    <Label Style="{StaticResource DashLabelValue}" Text="350 ETH available" />
+                                    <!--must be taken from account-->
+                                    <Label
+                                        Style="{StaticResource DashLabelValue}"
+                                        Text="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=EthAvailable}" />
                                     <AbsoluteLayout>
                                         <controls:FormEntryControl
                                             Margin="0,-8,0,0"
@@ -197,18 +212,22 @@
 						<!--Step #2-->
                         <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
-                                <Label FontSize="18" Text="Select Ultranet Account" />
+                                <Label
+                                    FontSize="18"
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_SelectAccount}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_SelectAccount2}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Destination Ultranet Account" />
+                                <Label
+                                    Style="{StaticResource DashLabel}"
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_DestinationAccount}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Destination Account that will receive Ultranet tokens" />
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_DestinationAccount2}" />
                             </StackLayout>
                             <Grid ColumnDefinitions="*,36">
                                 <views:AccountView
@@ -228,37 +247,51 @@
                                     Style="{StaticResource BottomArrowIcon}" />
                             </Grid>
                         </StackLayout>
-                        <StackLayout Padding="5" Spacing="25">
+                        <StackLayout Padding="4" Spacing="24">
                             <StackLayout>
-                                <Label FontSize="18" Text="Confirm Transfer" />
+                                <Label
+                                    FontSize="18"
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_Confirm}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="Your need specify your Ethereum private key or wallet file and transfer amount" />
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_SelectAccount2}" />
                             </StackLayout>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="Source Ethereum Account" />
+                                <Label
+                                    Style="{StaticResource DashLabel}"
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_Source}" />
                                 <Label
                                     FontSize="13"
                                     Style="{StaticResource Regular}"
-                                    Text="0x2d7a6adeb37dcb6e0a796dc6b15d3e8889092cd9" />
+                                    Text="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=Account.Address}" />
                             </StackLayout>
                             <Grid ColumnDefinitions="*,Auto">
-                                <Label Grid.Column="0" Text="Ethereum amount to transfer" />
+                                <Label
+                                    Grid.Column="0"
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_Amount2}" />
                                 <Label
                                     Grid.Column="1"
                                     Text="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=EthAmount, StringFormat='{0} ETH'}" />
                             </Grid>
                             <StackLayout>
-                                <Label Style="{StaticResource DashLabel}" Text="To destination Ultranet Account" />
+                                <Label
+                                    Style="{StaticResource DashLabel}"
+                                    Text="{x:Static resx:Transaction_Strings.Transfer_DestinationAccount3}" />
                                 <views:AccountView
                                     Account="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=Account}"
                                     BorderStyle="{StaticResource AccountBorder}" />
                             </StackLayout>
                             <StackLayout Spacing="10">
-                                <controls:LabelPair Text1="UNT amount" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=UntAmount, StringFormat='{0} UNT'}" />
-                                <controls:LabelPair Text1="ETH comission" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=EthCommission, StringFormat='{0} ETH'}" />
-                                <controls:LabelPair Text1="UNT comission" Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=UntCommission, StringFormat='{0} UNT'}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Transaction_Strings.Transfer_Amount3}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=UntAmount, StringFormat='{0} UNT'}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Transaction_Strings.Transfer_Comission}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=EthCommission, StringFormat='{0} ETH'}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Transaction_Strings.Transfer_Comission2}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ETHTransferViewModel}}, Path=UntCommission, StringFormat='{0} UNT'}" />
                             </StackLayout>
                         </StackLayout>
                     </x:Array>
@@ -299,11 +332,13 @@
                         <Setter Property="IsVisible" Value="True" />
                     </DataTrigger>
                 </StackLayout.Triggers>
-                <Button Command="{Binding ConfirmCommand}" Text="Confirm" />
+                <Button
+                    Command="{Binding ConfirmCommand}"
+                    Text="{x:Static resx:Transaction_Strings.Transfer_Confirm2}" />
                 <Button
                     Style="{StaticResource LabelButton}"
                     Command="{Binding PrevCommand}"
-                    Text="Cancel" />
+                    Text="{x:Static resx:Transaction_Strings.Transfer_Cancel}" />
             </StackLayout>
         </Grid>
     </controls:CustomPage.MainContent>
