@@ -103,12 +103,24 @@
                             BindableLayout.ItemTemplate="{StaticResource TransactionTemplate}" />
                     </Border>
                     <StackLayout Padding="8">
-                        <controls:LabelPair Text1="Accounts" Text2="{Binding NumberOfAccounts}" />
-                        <controls:LabelPair Text1="Auctions (outbidded)" Text2="{Binding AuctionsOutbidded}" />
-                        <controls:LabelPair Text1="Authors (renewal needed)" Text2="{Binding AuthorsRenewal}" />
-                        <controls:LabelPair Text1="Products" Text2="{Binding NumberOfProducts}" />
-                        <controls:LabelPair Text1="Releases (total/clean/compromised)" Text2="346/300/2" />
-                        <controls:LabelPair Text1="Last Release" Text2="UOS 0.1.670" />
+                        <controls:LabelPair
+                            Text1="{x:Static resx:Dashboard_Strings.Dashboard_Accounts}"
+                            Text2="{Binding NumberOfAccounts}" />
+                        <controls:LabelPair
+                            Text1="{x:Static resx:Dashboard_Strings.Dashboard_Auctions}"
+                            Text2="{Binding AuctionsOutbidded}" />
+                        <controls:LabelPair
+                            Text1="{x:Static resx:Dashboard_Strings.Dashboard_Authors}"
+                            Text2="{Binding AuthorsRenewal}" />
+                        <controls:LabelPair
+                            Text1="{x:Static resx:Dashboard_Strings.Dashboard_Products}"
+                            Text2="{Binding NumberOfProducts}" />
+                        <controls:LabelPair
+                            Text1="{x:Static resx:Dashboard_Strings.Dashboard_Releases}"
+                            Text2="346/300/2" />
+                        <controls:LabelPair
+                            Text1="{x:Static resx:Dashboard_Strings.Dashboard_LastRelease}"
+                            Text2="UOS 0.1.670" />
                     </StackLayout>
                     <Grid
                         Margin="-12,0"

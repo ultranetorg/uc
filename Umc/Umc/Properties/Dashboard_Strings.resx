@@ -123,6 +123,12 @@
   <data name="About_BugBounty2" xml:space="preserve">
     <value>Read about our Bug Bounty program</value>
   </data>
+  <data name="About_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="About_HomePage" xml:space="preserve">
+    <value>Ultranet homepage</value>
+  </data>
   <data name="About_PrivacyTerms" xml:space="preserve">
     <value>Privacy and terms</value>
   </data>
@@ -165,8 +171,26 @@
   <data name="CreatePin_Heading" xml:space="preserve">
     <value>Create a PIN</value>
   </data>
+  <data name="Dashboard_Accounts" xml:space="preserve">
+    <value>Accounts</value>
+  </data>
+  <data name="Dashboard_Auctions" xml:space="preserve">
+    <value>Auctions (outbidded)</value>
+  </data>
+  <data name="Dashboard_Authors" xml:space="preserve">
+    <value>Authors (renewal needed)</value>
+  </data>
+  <data name="Dashboard_LastRelease" xml:space="preserve">
+    <value>Last Release</value>
+  </data>
   <data name="Dashboard_LockOut" xml:space="preserve">
     <value>Lock Out</value>
+  </data>
+  <data name="Dashboard_Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Dashboard_Releases" xml:space="preserve">
+    <value>Releases (total/clean/compromised)</value>
   </data>
   <data name="Dashboard_Search" xml:space="preserve">
     <value>Search</value>
@@ -255,8 +279,20 @@
   <data name="HelpQuestion_9" xml:space="preserve">
     <value>How to turn animation on or off in the search bar</value>
   </data>
+  <data name="Help_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Help_Related" xml:space="preserve">
+    <value>Related resources:</value>
+  </data>
   <data name="Help_Title" xml:space="preserve">
     <value>Help</value>
+  </data>
+  <data name="Help_WasUseful" xml:space="preserve">
+    <value>Was this information useful?</value>
+  </data>
+  <data name="Help_Yes" xml:space="preserve">
+    <value>Yes</value>
   </data>
   <data name="Network_ActiveUsers" xml:space="preserve">
     <value>Number of active users</value>

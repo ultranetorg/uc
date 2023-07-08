@@ -79,6 +79,24 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string About_Close {
+            get {
+                return ResourceManager.GetString("About_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ultranet homepage.
+        /// </summary>
+        internal static string About_HomePage {
+            get {
+                return ResourceManager.GetString("About_HomePage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Privacy and terms.
         /// </summary>
         internal static string About_PrivacyTerms {
@@ -205,11 +223,65 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Accounts.
+        /// </summary>
+        internal static string Dashboard_Accounts {
+            get {
+                return ResourceManager.GetString("Dashboard_Accounts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auctions (outbidded).
+        /// </summary>
+        internal static string Dashboard_Auctions {
+            get {
+                return ResourceManager.GetString("Dashboard_Auctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authors (renewal needed).
+        /// </summary>
+        internal static string Dashboard_Authors {
+            get {
+                return ResourceManager.GetString("Dashboard_Authors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last Release.
+        /// </summary>
+        internal static string Dashboard_LastRelease {
+            get {
+                return ResourceManager.GetString("Dashboard_LastRelease", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lock Out.
         /// </summary>
         internal static string Dashboard_LockOut {
             get {
                 return ResourceManager.GetString("Dashboard_LockOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Products.
+        /// </summary>
+        internal static string Dashboard_Products {
+            get {
+                return ResourceManager.GetString("Dashboard_Products", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Releases (total/clean/compromised).
+        /// </summary>
+        internal static string Dashboard_Releases {
+            get {
+                return ResourceManager.GetString("Dashboard_Releases", resourceCulture);
             }
         }
         
@@ -241,11 +313,47 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        internal static string Help_No {
+            get {
+                return ResourceManager.GetString("Help_No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Related resources:.
+        /// </summary>
+        internal static string Help_Related {
+            get {
+                return ResourceManager.GetString("Help_Related", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Help.
         /// </summary>
         internal static string Help_Title {
             get {
                 return ResourceManager.GetString("Help_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Was this information useful?.
+        /// </summary>
+        internal static string Help_WasUseful {
+            get {
+                return ResourceManager.GetString("Help_WasUseful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        internal static string Help_Yes {
+            get {
+                return ResourceManager.GetString("Help_Yes", resourceCulture);
             }
         }
         

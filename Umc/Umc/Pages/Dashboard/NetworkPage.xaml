@@ -12,12 +12,24 @@
     <controls:CustomPage.MainContent>
         <Grid RowDefinitions="*,Auto">
             <StackLayout Padding="32" Spacing="16">
-                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_NodesCount}" Text2="{Binding NetworkInfo.NodesCount}" />
-                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_ActiveUsers}" Text2="{Binding NetworkInfo.ActiveUsers}" />
-                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_Bandwidth}" Text2="{Binding NetworkInfo.Bandwidth}" />
-                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_LastBlockDate}" Text2="{Binding NetworkInfo.DisplayBlockDate}" />
-                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_RoundNumber}" Text2="{Binding NetworkInfo.RoundNumber}" />
-                <controls:LabelPair Text1="{x:Static resx:Dashboard_Strings.Network_CurrentTime}" Text2="{Binding CurrentTime}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Dashboard_Strings.Network_NodesCount}"
+                    Text2="{Binding NetworkInfo.NodesCount}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Dashboard_Strings.Network_ActiveUsers}"
+                    Text2="{Binding NetworkInfo.ActiveUsers}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Dashboard_Strings.Network_Bandwidth}"
+                    Text2="{Binding NetworkInfo.Bandwidth}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Dashboard_Strings.Network_LastBlockDate}"
+                    Text2="{Binding NetworkInfo.DisplayBlockDate}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Dashboard_Strings.Network_RoundNumber}"
+                    Text2="{Binding NetworkInfo.RoundNumber}" />
+                <controls:LabelPair
+                    Text1="{x:Static resx:Dashboard_Strings.Network_CurrentTime}"
+                    Text2="{Binding CurrentTime}" />
             </StackLayout>
             <Border Grid.Row="1" Padding="16" Style="{StaticResource AccountCardBorder}">
                 <Button Command="{Binding CancelCommand}" Text="{x:Static resx:Dashboard_Strings.Button_Close}" />

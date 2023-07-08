@@ -17,13 +17,16 @@
                         Grid.Column="0"
                         Style="{StaticResource DashLabel}"
                         Text="{Binding HelpDetails.Question}" />
-                    <Label Margin="0,4" Text="{Binding HelpDetails.Answer}" />
-                    <Label Text="{Binding HelpDetails.Answer}" />
+                    <Label
+                        Margin="0,4"
+                        Text="{Binding HelpDetails.Answer}" />
+                    <Label
+                        Text="{Binding HelpDetails.Answer}" />
                 </StackLayout>
                 <StackLayout VerticalOptions="EndAndExpand" Spacing="12">
                     <Label
                         Style="{StaticResource DashLabel}"
-                        Text="Related resources:" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_Related}" />
                     <Label FontSize="12" Text="How to add apps, shortcuts and widgets to your home screen" />
                     <Label FontSize="12" Text="How to add, move or remove a home screen" />
                     <Label FontSize="12" Text="An introduction to navigating an Android phone" />
@@ -49,15 +52,15 @@
                         Grid.ColumnSpan="2"
                         FontSize="18"
                         HorizontalOptions="Center"
-                        Text="Was this information useful?" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_WasUseful}" />
                     <Button
                         Grid.Row="2"
                         Grid.Column="0"
-                        Text="Yes" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_Yes}" />
                     <Button
                         Grid.Row="2"
                         Grid.Column="1"
-                        Text="No" />
+                        Text="{x:Static resx:Dashboard_Strings.Help_No}" />
                 </Grid>
             </Border>
         </Grid>
