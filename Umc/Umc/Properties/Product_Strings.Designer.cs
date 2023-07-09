@@ -61,6 +61,42 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Author.
+        /// </summary>
+        internal static string Filter_Author {
+            get {
+                return ResourceManager.GetString("Filter_Author", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string Filter_Name {
+            get {
+                return ResourceManager.GetString("Filter_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recent.
+        /// </summary>
+        internal static string Filter_Recent {
+            get {
+                return ResourceManager.GetString("Filter_Recent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version.
+        /// </summary>
+        internal static string Filter_Version {
+            get {
+                return ResourceManager.GetString("Filter_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Register Product.
         /// </summary>
         internal static string Products_Register {

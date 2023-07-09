@@ -9,7 +9,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:UC.Umc.Views"
     x:TypeArguments="views:PageTitleActionView"
-    x:Name="This">
+    x:Name="this">
     
     <ContentView.Resources>
         <converters:ConnectionToImageConverter x:Key="ConnectionToImageConverter" />
@@ -18,7 +18,7 @@
     
     <FlexLayout
         AlignItems="Center"
-        BindingContext="{x:Reference This}"
+        BindingContext="{x:Reference this}"
         Direction="Row"
         JustifyContent="SpaceBetween">
         <Label
@@ -55,10 +55,10 @@
                 <Border
                     AbsoluteLayout.LayoutBounds="1,0,-1,-1"
                     AbsoluteLayout.LayoutFlags="PositionProportional"
-                    IsVisible="{Binding Text, Source={x:Reference BadgeValueLabel}, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
+                    IsVisible="{Binding Text, Source={x:Reference badgeValueLabel}, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
                     Style="{StaticResource BadgeBorder}">
                     <Label
-                        x:Name="BadgeValueLabel"
+                        x:Name="badgeValueLabel"
                         Padding="0"
                         HorizontalOptions="CenterAndExpand"
                         VerticalOptions="CenterAndExpand"

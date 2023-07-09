@@ -36,7 +36,8 @@ public static class CommonHelper
         }
         catch(Exception ex)
         {
-            await ToastHelper.ShowMessageAsync("Loading error");
+            await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Error_LoadingFile);
+
 			ThrowHelper.ThrowInvalidOperationException("PathToBytes: Loading error", ex);
         }
         return result;
@@ -48,7 +49,7 @@ public static class CommonHelper
 		{
 			var result = await FilePicker.Default.PickAsync(new()
 			{
-				PickerTitle = "Please select a wallet file"
+				PickerTitle = Properties.Additional_Strings.WalletFile_Select
 			});
 
 			if (result == null)
@@ -60,7 +61,8 @@ public static class CommonHelper
 		}
 		catch (Exception ex)
 		{
-            await ToastHelper.ShowMessageAsync("Something went error");
+            await ToastHelper.ShowDefaultErrorMessageAsync();
+
 			ThrowHelper.ThrowInvalidOperationException("GetPathToWalletAsync: Loading error", ex);
 		}
 

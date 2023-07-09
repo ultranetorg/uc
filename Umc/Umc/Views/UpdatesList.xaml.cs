@@ -16,7 +16,6 @@ public partial class UpdatesList : ContentView
         get { return (List<string>)GetValue(FixedListProperty); }
         set { SetValue(FixedListProperty, value); }
 	}
-
 	public UpdatesList()
 	{
         InitializeComponent();

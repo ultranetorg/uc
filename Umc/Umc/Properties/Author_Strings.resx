@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Auction_DaysLeft" xml:space="preserve">
+    <value>Days left</value>
+  </data>
+  <data name="Auction_Expires" xml:space="preserve">
+    <value>Expires in</value>
+  </data>
   <data name="Authors_Title" xml:space="preserve">
     <value>Authors</value>
   </data>
@@ -179,6 +185,36 @@
   </data>
   <data name="Author_Transfer" xml:space="preserve">
     <value>Transfer</value>
+  </data>
+  <data name="Bid_Current" xml:space="preserve">
+    <value>Current bid</value>
+  </data>
+  <data name="Bid_Higher" xml:space="preserve">
+    <value>You have higher bid</value>
+  </data>
+  <data name="Bid_Lower" xml:space="preserve">
+    <value>You are not leading</value>
+  </data>
+  <data name="Filter_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Filter_Auction" xml:space="preserve">
+    <value>Auction</value>
+  </data>
+  <data name="Filter_Free" xml:space="preserve">
+    <value>Free</value>
+  </data>
+  <data name="Filter_Hidden" xml:space="preserve">
+    <value>Hidden</value>
+  </data>
+  <data name="Filter_Owned" xml:space="preserve">
+    <value>Owned</value>
+  </data>
+  <data name="Filter_Reserved" xml:space="preserve">
+    <value>Reserved</value>
+  </data>
+  <data name="Filter_Watched" xml:space="preserve">
+    <value>Watched</value>
   </data>
   <data name="MakeBid_AuthorName" xml:space="preserve">
     <value>Author name</value>

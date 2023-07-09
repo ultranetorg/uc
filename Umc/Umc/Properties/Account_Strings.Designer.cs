@@ -61,6 +61,15 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All Accounts.
+        /// </summary>
+        internal static string All_Accounts {
+            get {
+                return ResourceManager.GetString("All_Accounts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Account name.
         /// </summary>
         internal static string Create_AccountName {
@@ -372,6 +381,15 @@ namespace UC.Umc.Properties {
         internal static string Details_Title {
             get {
                 return ResourceManager.GetString("Details_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Main Ultranet Account.
+        /// </summary>
+        internal static string Main_Account {
+            get {
+                return ResourceManager.GetString("Main_Account", resourceCulture);
             }
         }
         

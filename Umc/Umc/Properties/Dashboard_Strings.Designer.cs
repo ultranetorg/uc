@@ -295,6 +295,15 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dashboard.
+        /// </summary>
+        internal static string Dashboard_Title {
+            get {
+                return ResourceManager.GetString("Dashboard_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enter PIN or use Fingerprint.
         /// </summary>
         internal static string EnterPin_Heading {
@@ -655,6 +664,24 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network.
+        /// </summary>
+        internal static string Notification_Default1 {
+            get {
+                return ResourceManager.GetString("Notification_Default1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Today at 16:00.
+        /// </summary>
+        internal static string Notification_Default2 {
+            get {
+                return ResourceManager.GetString("Notification_Default2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Notifications.
         /// </summary>
         internal static string Notifications_Title {
@@ -741,6 +768,24 @@ namespace UC.Umc.Properties {
         internal static string Ultranet_App_Name {
             get {
                 return ResourceManager.GetString("Ultranet_App_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Added.
+        /// </summary>
+        internal static string WhatsNew_Added {
+            get {
+                return ResourceManager.GetString("WhatsNew_Added", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fixed.
+        /// </summary>
+        internal static string WhatsNew_Fixed {
+            get {
+                return ResourceManager.GetString("WhatsNew_Fixed", resourceCulture);
             }
         }
         

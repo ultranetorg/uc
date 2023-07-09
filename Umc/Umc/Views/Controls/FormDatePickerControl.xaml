@@ -6,12 +6,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
-    x:Name="This"
+    x:Name="this"
     x:TypeArguments="controls:FormDatePickerControl, system:DateTime"
     ControlTemplate="{StaticResource ControlOutline}">
 
     <DatePicker
-        BindingContext="{x:Reference This}"
+        BindingContext="{x:Reference this}"
         Date="{Binding Value}"
         FontSize="14"
         Format="{Binding Format}"

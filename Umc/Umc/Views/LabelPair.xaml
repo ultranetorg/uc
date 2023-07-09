@@ -4,18 +4,18 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     ColumnDefinitions="2*,1*"
-    x:Name="Instance"
+    x:Name="instance"
     Padding="0">
     <Label
         Grid.Column="0"
         FontSize="12"
         Style="{StaticResource DashLabel}"
-        Text="{Binding Text1, Source={x:Reference Instance}}" />
+        Text="{Binding Text1, Source={x:Reference instance}}" />
     <Label
         Grid.Column="1"
         FontSize="12"
         Style="{StaticResource DashLabelValue}"
         FontAttributes="Bold"
         HorizontalOptions="End"
-        Text="{Binding Text2, Source={x:Reference Instance}}" />
+        Text="{Binding Text2, Source={x:Reference instance}}" />
 </Grid>

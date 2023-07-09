@@ -61,6 +61,24 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Days left.
+        /// </summary>
+        internal static string Auction_DaysLeft {
+            get {
+                return ResourceManager.GetString("Auction_DaysLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expires in.
+        /// </summary>
+        internal static string Auction_Expires {
+            get {
+                return ResourceManager.GetString("Auction_Expires", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Amount.
         /// </summary>
         internal static string Author_Amount {
@@ -246,6 +264,96 @@ namespace UC.Umc.Properties {
         internal static string Authors_Title {
             get {
                 return ResourceManager.GetString("Authors_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current bid.
+        /// </summary>
+        internal static string Bid_Current {
+            get {
+                return ResourceManager.GetString("Bid_Current", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have higher bid.
+        /// </summary>
+        internal static string Bid_Higher {
+            get {
+                return ResourceManager.GetString("Bid_Higher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are not leading.
+        /// </summary>
+        internal static string Bid_Lower {
+            get {
+                return ResourceManager.GetString("Bid_Lower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All.
+        /// </summary>
+        internal static string Filter_All {
+            get {
+                return ResourceManager.GetString("Filter_All", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auction.
+        /// </summary>
+        internal static string Filter_Auction {
+            get {
+                return ResourceManager.GetString("Filter_Auction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Free.
+        /// </summary>
+        internal static string Filter_Free {
+            get {
+                return ResourceManager.GetString("Filter_Free", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden.
+        /// </summary>
+        internal static string Filter_Hidden {
+            get {
+                return ResourceManager.GetString("Filter_Hidden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Owned.
+        /// </summary>
+        internal static string Filter_Owned {
+            get {
+                return ResourceManager.GetString("Filter_Owned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reserved.
+        /// </summary>
+        internal static string Filter_Reserved {
+            get {
+                return ResourceManager.GetString("Filter_Reserved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Watched.
+        /// </summary>
+        internal static string Filter_Watched {
+            get {
+                return ResourceManager.GetString("Filter_Watched", resourceCulture);
             }
         }
         

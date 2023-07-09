@@ -37,13 +37,14 @@ public partial class AuthorViewModel : ObservableObject
 			switch (Status)
 			{
 				case AuthorStatus.Auction:
-					return BidStatus == BidStatus.Higher ? "You have higher bid" : "You are not leading";
+					return BidStatus == BidStatus.Higher
+						? Properties.Author_Strings.Bid_Higher
+						: Properties.Author_Strings.Bid_Lower;
 				case AuthorStatus.Watched:
-					return $"Current bid: {CurrentBid}";
+					return $"{Properties.Author_Strings.Bid_Current}: {CurrentBid}";
 				case AuthorStatus.Owned:
-					return $"Expires in: {ActiveDue}";
 				case AuthorStatus.Reserved:
-					return $"Expires in: {ActiveDue}";
+					return $"{Properties.Author_Strings.Auction_Expires}: {ActiveDue}";
 				default:
 					return string.Empty;
 			}
@@ -57,11 +58,9 @@ public partial class AuthorViewModel : ObservableObject
 			switch (Status)
 			{
 				case AuthorStatus.Auction:
-					return $"Days left: {CommonHelper.GetDaysLeft(AuctionEndDate)}";
 				case AuthorStatus.Watched:
-					return $"Days left: {CommonHelper.GetDaysLeft(AuctionEndDate)}";
+					return $"{Properties.Author_Strings.Auction_DaysLeft}: {CommonHelper.GetDaysLeft(AuctionEndDate)}";
 				case AuthorStatus.Owned:
-					return Title;
 				case AuthorStatus.Reserved:
 					return Title;
 				default:
@@ -84,7 +83,7 @@ public partial class AuthorViewModel : ObservableObject
 
 public class Bid
 {
-    public decimal			Amount { get; internal set; }
-    public DateTime			Date { get; internal set; }
-    public string			BidBy { get; internal set; }
+    public decimal		Amount { get; internal set; }
+    public DateTime		Date { get; internal set; }
+    public string		BidBy { get; internal set; }
 }

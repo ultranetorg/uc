@@ -74,7 +74,7 @@ public partial class EnterPinViewModel : BasePageViewModel
 				}
 				else
 				{
-					ToastHelper.ShowErrorMessage(_logger, "Invalid Pincode");
+					ToastHelper.ShowErrorMessage(_logger, Properties.Additional_Strings.Error_PinCode);
 				}
 			}
 		}

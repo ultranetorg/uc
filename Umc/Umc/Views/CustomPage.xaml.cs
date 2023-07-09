@@ -40,8 +40,8 @@ public partial class CustomPage : ContentPage
 	//    base.OnAppearing();
 	//    if (AnimationEnabled)
 	//    {
-	//        MainFrame.TranslationY = Height;
-	//        await MainFrame.TranslateTo(0, 0, LENGTH, Easing.Linear);
+	//        mainFrame.TranslationY = Height;
+	//        await mainFrame.TranslateTo(0, 0, LENGTH, Easing.Linear);
 	//    }
 	//}
 
@@ -49,7 +49,7 @@ public partial class CustomPage : ContentPage
 	//{
 	//    base.OnDisappearing();
 	//    if (AnimationEnabled)
-	//        await MainFrame.TranslateTo(0, Height, LENGTH, Easing.Linear);
+	//        await mainFrame.TranslateTo(0, Height, LENGTH, Easing.Linear);
 	//}
 
 	#endregion Animation: TBD

@@ -20,7 +20,9 @@
             CornerRadius="{Binding CornerRadius}"
             VerticalOptions="FillAndExpand" />
         <Border.GestureRecognizers>
-            <TapGestureRecognizer Tapped="OnSwitchedAsync" Command="{Binding SwitchCommand}" />
+            <TapGestureRecognizer
+                Tapped="OnSwitchedAsync"
+                Command="{Binding SwitchCommand}" />
         </Border.GestureRecognizers>
     </Border>
 </ContentView>

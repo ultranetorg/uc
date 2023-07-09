@@ -4,21 +4,22 @@ namespace UC.Umc.Services;
 
 internal static class DefaultDataMock
 {
-	private static readonly string _defaultNotificationBody = "Your application P2P Browser version 1.12.2 successfully deployed to Ultranet network";
-	private static readonly string _defaultNotificationTitle = "Today at 16:00";
+	private static readonly string _defaultNotificationBody = Properties.Dashboard_Strings.Notification_Default1;
+	private static readonly string _defaultNotificationTitle = Properties.Dashboard_Strings.Notification_Default2;
+
 	private static readonly AccountViewModel _allAccountsOption = new(string.Empty)
 	{
-		Name = "All Accounts",
+		Name = Properties.Account_Strings.All_Accounts,
 		Color = ColorHelper.CreateGradientColor(Colors.DarkGrey),
 		Balance = 0,
 		ShowAmount = false
 	};
 
 	public static AccountViewModel CreateAccount(
-		string name = "Main Ultranet Account", decimal balance = 100M) =>
+		string name = null, decimal balance = 100M) =>
 		new($"0x{CommonHelper.GenerateUniqueId(CommonConstants.LENGTH_HASH)}")
 		{
-			Name = name,
+			Name = name ?? Properties.Account_Strings.Main_Account,
 			Color = ColorHelper.CreateRandomGradientColor(),
 			Balance = balance,
 		};
@@ -32,10 +33,40 @@ internal static class DefaultDataMock
 		ExpirationDate = new DateTime(2022, 7, 7)
 	};
 
-	public static CustomCollection<string> AuthorsFilter = new() { "All", "Owned", "Auction", "Watched", "Hidden", "Free", "Reserved" }; //"Shown", "Outdated"
-	public static CustomCollection<string> ProductsFilter = new() { "Name", "Version", "Author", "Recent" };
+	public static CustomCollection<string> AuthorsFilter = new()
+	{
+		Properties.Author_Strings.Filter_All,
+		Properties.Author_Strings.Filter_Auction,
+		Properties.Author_Strings.Filter_Free,
+		Properties.Author_Strings.Filter_Hidden,
+		Properties.Author_Strings.Filter_Owned,
+		Properties.Author_Strings.Filter_Reserved,
+		Properties.Author_Strings.Filter_Watched,
+	}; // "Shown", "Outdated"
 
-	public static CustomCollection<string> MonthList1 = new() { "April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March" };
+	public static CustomCollection<string> ProductsFilter = new()
+	{
+		Properties.Product_Strings.Filter_Name,
+		Properties.Product_Strings.Filter_Version,
+		Properties.Product_Strings.Filter_Author,
+		Properties.Product_Strings.Filter_Recent,
+	};
+
+	public static CustomCollection<string> MonthList1 = new()
+	{
+		Properties.Additional_Strings.Month_April,
+		Properties.Additional_Strings.Month_May,
+		Properties.Additional_Strings.Month_June,
+		Properties.Additional_Strings.Month_July,
+		Properties.Additional_Strings.Month_August,
+		Properties.Additional_Strings.Month_September,
+		Properties.Additional_Strings.Month_October,
+		Properties.Additional_Strings.Month_November,
+		Properties.Additional_Strings.Month_December,
+		Properties.Additional_Strings.Month_January,
+		Properties.Additional_Strings.Month_February,
+		Properties.Additional_Strings.Month_March,
+	};
 
 	public static NetworkInfo NetworkInfo = new()
 	{
@@ -77,15 +108,15 @@ internal static class DefaultDataMock
 
 	public static List<string> AddedList = new()
 	{
-		"The term was coined by Antoine Destutt de Tracy",
-		"And philosopher, who conceived it in 1796",
-		"To develop a rational system of ideas to oppose the"
+		Properties.Additional_Strings.Version4_Update1,
+		Properties.Additional_Strings.Version4_Update2,
+		Properties.Additional_Strings.Version4_Update3,
 	};
 
 	public static List<string> FixedList = new()
 	{
-		"The sensations that people experience as they interact with the material world",
-		"Cted to the terroristic phase of the revolution",
-		"Extending the vocabulary beyond what the general reader already possessed"
+		Properties.Additional_Strings.Version4_Fix1,
+		Properties.Additional_Strings.Version4_Fix2,
+		Properties.Additional_Strings.Version4_Fix3,
 	};
 }

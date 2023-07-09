@@ -5,10 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:UC.Umc.Views"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels"
-    Shell.NavBarIsVisible="{Binding EnableBackButton, Source={x:Reference Instance}}"
+    Shell.NavBarIsVisible="{Binding EnableBackButton, Source={x:Reference instance}}"
     Shell.TabBarIsVisible="False"
     x:DataType="vm:BasePageViewModel"
-    x:Name="Instance">
+    x:Name="instance">
     
     <Shell.TitleView>
         <views:PageTitleActionView
@@ -16,7 +16,7 @@
             MaxSeverity="{Binding NotificationsSeverity}"
             NotificationsCommand="{Binding OpenNotificationsCommand}"
             ConnectionState="{Binding ConnectionState}"
-            Title="{Binding Title, Source={x:Reference Instance}}"
+            Title="{Binding Title, Source={x:Reference instance}}"
             TitleStyle="{StaticResource TitleLabel}" />
     </Shell.TitleView>
     
@@ -31,8 +31,8 @@
             AbsoluteLayout.LayoutBounds="0,1,1,1"
             AbsoluteLayout.LayoutFlags="All">
             <ContentView
-                x:Name="MainFrame"
-                Content="{Binding MainContent, Source={x:Reference Instance}}" />
+                x:Name="mainFrame"
+                Content="{Binding MainContent, Source={x:Reference instance}}" />
         </Grid>
     </AbsoluteLayout>
 </ContentPage>

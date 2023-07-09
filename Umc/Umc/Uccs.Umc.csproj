@@ -64,6 +64,15 @@
 			<AutoGen>True</AutoGen>
 			<DependentUpon>Dashboard_Strings.resx</DependentUpon>
 		</Compile>
+		<EmbeddedResource Update="Properties\Additional_Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Additional_Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Additional_Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Additional_Strings.resx</DependentUpon>
+		</Compile>
 		<EmbeddedResource Update="Properties\Account_Strings.resx">
 			<Generator>ResXFileCodeGenerator</Generator>
 			<LastGenOutput>Account_Strings.Designer.cs</LastGenOutput>

@@ -6,12 +6,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    x:Name="This"
+    x:Name="this"
     x:TypeArguments="controls:FormEntryControl"
     ControlTemplate="{DynamicResource ControlOutline}">
 
     <Entry
-        BindingContext="{x:Reference This}"
+        BindingContext="{x:Reference this}"
         ClearButtonVisibility="{Binding ClearButtonVisibility}"
         FontSize="14"
         IsEnabled="{Binding IsEnabled}"
@@ -25,11 +25,11 @@
         Text="{Binding Value}">
         <Entry.Behaviors>
             <toolkit:EventToCommandBehavior Command="{Binding TextChanged}" EventName="TextChanged" />
-            <toolkit:MaskedBehavior Mask="{Binding EntryMask, Source={x:Reference This}}" />
+            <toolkit:MaskedBehavior Mask="{Binding EntryMask, Source={x:Reference this}}" />
             <toolkit:TextValidationBehavior
                 Flags="ValidateOnValueChanged"
-                MaximumLength="{Binding MaxLength, Source={x:Reference This}}"
-                MinimumLength="{Binding MinLength, Source={x:Reference This}}"
+                MaximumLength="{Binding MaxLength, Source={x:Reference this}}"
+                MinimumLength="{Binding MinLength, Source={x:Reference this}}"
                 RegexPattern="{Binding RegexValidationPattern}" />
         </Entry.Behaviors>
     </Entry>
