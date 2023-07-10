@@ -86,4 +86,6 @@ public class Bid
     public decimal		Amount { get; internal set; }
     public DateTime		Date { get; internal set; }
     public string		BidBy { get; internal set; }
+
+    public string		DateString => Date.ToShortDateString();
 }
