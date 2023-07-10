@@ -27,8 +27,8 @@ public partial class AuthorViewModel : ObservableObject
 
 	public bool						IsHidden { get; internal set; }
 	public bool						ExpiresSoon => DateTime.Today.AddDays(30) > ExpirationDate; 
-	public string					ActiveDue => $"{ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} days)";
-	public string					AuctionDue => $"{AuctionEndDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(AuctionEndDate)} days)";
+	public string					ActiveDue => $"{ExpirationDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(ExpirationDate)} {Properties.Additional_Strings.Models_Days})";
+	public string					AuctionDue => $"{AuctionEndDate.ToShortDateString()} ({CommonHelper.GetDaysLeft(AuctionEndDate)} {Properties.Additional_Strings.Models_Days})";
 
 	public string DisplayLine1
 	{

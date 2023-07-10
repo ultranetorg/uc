@@ -4,14 +4,15 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:const="clr-namespace:UC.Umc.Constants"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Color="Transparent"
     Size="{x:Static const:SizeConstants.Small}"
     VerticalOptions="End"
-    x:Name="page"
-    x:DataType="vm:ProductOptionsViewModel">
+    x:DataType="vm:ProductOptionsViewModel"
+    x:Name="page">
     <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             RowDefinitions="12,Auto"
@@ -26,7 +27,7 @@
             <Button
                 Grid.Row="1"
                 Command="{Binding TransferProductCommand}"
-                Text="Transfer" />
+                Text="{x:Static resx:Additional_Strings.Product_Transfer}" />
         </Grid>
     </Border>
 </toolkit:Popup>

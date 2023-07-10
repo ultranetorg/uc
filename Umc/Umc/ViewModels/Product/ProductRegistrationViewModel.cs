@@ -53,7 +53,7 @@ public partial class ProductRegistrationViewModel : BasePageViewModel
 		else if (Position == 1)
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully registered!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Registered);
 		}
 	}
 

@@ -6,6 +6,7 @@
     xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     CanBeDismissedByTappingOutsideOfPopup="True"
@@ -32,7 +33,7 @@
                     Grid.Row="1"
                     FontSize="18"
                     HorizontalOptions="Center"
-                    Text="Select author to transfer" />
+                    Text="{x:Static resx:Additional_Strings.SelectAuthor_Title}" />
             </Grid>
             
             <ListView
@@ -87,7 +88,7 @@
                 Grid.Row="2"
                 Margin="16,8"
                 Command="{Binding CloseCommand}"
-                Text="Confirm" />
+                Text="{x:Static resx:Additional_Strings.SelectAuthor_Confirm}" />
         </Grid>
     </Border>
 </toolkit:Popup>

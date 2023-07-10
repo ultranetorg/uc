@@ -6,6 +6,7 @@
     xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:enums="clr-namespace:UC.Umc.Enums"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     x:DataType="vm:NotificationViewModel"
@@ -28,7 +29,7 @@
                 <Label
                     Grid.Row="1"
                     FontSize="18"
-                    Text="Notification"
+                    Text="{x:Static resx:Additional_Strings.Notification_Title}"
                     VerticalOptions="Center" />
                 <StackLayout Grid.Row="2" Spacing="10">
                     <Image
@@ -78,13 +79,15 @@
                         </Image.Triggers>
                     </Image>
                     
-                    <controls:LabelPair Text1="Date" Text2="Today" />
+                    <controls:LabelPair
+                        Text1="{x:Static resx:Additional_Strings.Notification_Date}"
+                        Text2="{Binding Notification.DateString}" />
                     
                     <Grid ColumnDefinitions="*,*">
                         <Label
                             Grid.Column="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Severity" />
+                            Text="{x:Static resx:Additional_Strings.Notification_Severity}" />
                         <StackLayout
                             Grid.Column="1"
                             HorizontalOptions="EndAndExpand"
@@ -118,11 +121,11 @@
                             </Border>
                         </StackLayout>
                     </Grid>
-                    <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
                         <Label
                             Grid.Row="0"
                             Style="{StaticResource DashLabel}"
-                            Text="Notification" />
+                            Text="{x:Static resx:Additional_Strings.Notification_Title}" />
                         <Label
                             Grid.Row="1"
                             HorizontalOptions="Start"
@@ -131,7 +134,10 @@
                     </Grid>
                 </StackLayout>
             </Grid>
-            <Button Text="Mark as read" />
+            
+            <Button
+                Text="{x:Static resx:Additional_Strings.Notification_MarkAsRead}"
+                Command="{Binding MarkAsReadCommand}" />
         </StackLayout>
     </Border>
 </toolkit:Popup>

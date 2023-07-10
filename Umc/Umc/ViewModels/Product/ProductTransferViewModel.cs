@@ -73,7 +73,7 @@ public partial class ProductTransferViewModel : BasePageViewModel
 		else if (Position == 1)
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully transfered!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Transfered);
 		}
 	}
 

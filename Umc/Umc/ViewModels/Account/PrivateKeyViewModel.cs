@@ -44,7 +44,7 @@ public partial class PrivateKeyViewModel : BasePageViewModel
         try
         {
 			await Clipboard.SetTextAsync(Account.Address);
-            await ToastHelper.ShowMessageAsync("Copied to clipboard");
+            await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Copied);
 #if DEBUG
             _logger.LogDebug("CopyAsync Address: {Address}", Account.Address);
 #endif

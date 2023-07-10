@@ -79,11 +79,83 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Make a bid.
+        /// </summary>
+        internal static string Author_MakeABid {
+            get {
+                return ResourceManager.GetString("Author_MakeABid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Register.
+        /// </summary>
+        internal static string Author_Register {
+            get {
+                return ResourceManager.GetString("Author_Register", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renew.
+        /// </summary>
+        internal static string Author_Renew {
+            get {
+                return ResourceManager.GetString("Author_Renew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer.
+        /// </summary>
+        internal static string Author_Transfer {
+            get {
+                return ResourceManager.GetString("Author_Transfer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string Button_Cancel {
             get {
                 return ResourceManager.GetString("Button_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string DeleteAccount_Cancel {
+            get {
+                return ResourceManager.GetString("DeleteAccount_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete confirmation.
+        /// </summary>
+        internal static string DeleteAccount_Confirmation {
+            get {
+                return ResourceManager.GetString("DeleteAccount_Confirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        internal static string DeleteAccount_Confirmation2 {
+            get {
+                return ResourceManager.GetString("DeleteAccount_Confirmation2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you wish to delete account please specify next text.
+        /// </summary>
+        internal static string DeleteAccount_SpecifyText {
+            get {
+                return ResourceManager.GetString("DeleteAccount_SpecifyText", resourceCulture);
             }
         }
         
@@ -138,6 +210,96 @@ namespace UC.Umc.Properties {
         internal static string From_WalletFile {
             get {
                 return ResourceManager.GetString("From_WalletFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Barcode was detected!.
+        /// </summary>
+        internal static string Message_BarcodeDetected {
+            get {
+                return ResourceManager.GetString("Message_BarcodeDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copied to clipboard.
+        /// </summary>
+        internal static string Message_Copied {
+            get {
+                return ResourceManager.GetString("Message_Copied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully created!.
+        /// </summary>
+        internal static string Message_Created {
+            get {
+                return ResourceManager.GetString("Message_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully deleted!.
+        /// </summary>
+        internal static string Message_Deleted {
+            get {
+                return ResourceManager.GetString("Message_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pin was created.
+        /// </summary>
+        internal static string Message_PinCreated {
+            get {
+                return ResourceManager.GetString("Message_PinCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully registered!.
+        /// </summary>
+        internal static string Message_Registered {
+            get {
+                return ResourceManager.GetString("Message_Registered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully restored!.
+        /// </summary>
+        internal static string Message_Restored {
+            get {
+                return ResourceManager.GetString("Message_Restored", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Success!.
+        /// </summary>
+        internal static string Message_Success {
+            get {
+                return ResourceManager.GetString("Message_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successfully transfered!.
+        /// </summary>
+        internal static string Message_Transfered {
+            get {
+                return ResourceManager.GetString("Message_Transfered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to days.
+        /// </summary>
+        internal static string Models_Days {
+            get {
+                return ResourceManager.GetString("Models_Days", resourceCulture);
             }
         }
         
@@ -246,6 +408,222 @@ namespace UC.Umc.Properties {
         internal static string Month_September {
             get {
                 return ResourceManager.GetString("Month_September", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Date.
+        /// </summary>
+        internal static string Notification_Date {
+            get {
+                return ResourceManager.GetString("Notification_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mark As Read.
+        /// </summary>
+        internal static string Notification_MarkAsRead {
+            get {
+                return ResourceManager.GetString("Notification_MarkAsRead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Severity.
+        /// </summary>
+        internal static string Notification_Severity {
+            get {
+                return ResourceManager.GetString("Notification_Severity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Notification.
+        /// </summary>
+        internal static string Notification_Title {
+            get {
+                return ResourceManager.GetString("Notification_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer.
+        /// </summary>
+        internal static string Product_Transfer {
+            get {
+                return ResourceManager.GetString("Product_Transfer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recipient UNT address.
+        /// </summary>
+        internal static string RecipientAccount_Address {
+            get {
+                return ResourceManager.GetString("RecipientAccount_Address", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string RecipientAccount_Cancel {
+            get {
+                return ResourceManager.GetString("RecipientAccount_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Continue.
+        /// </summary>
+        internal static string RecipientAccount_Continue {
+            get {
+                return ResourceManager.GetString("RecipientAccount_Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to External.
+        /// </summary>
+        internal static string RecipientAccount_External {
+            get {
+                return ResourceManager.GetString("RecipientAccount_External", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Local.
+        /// </summary>
+        internal static string RecipientAccount_Local {
+            get {
+                return ResourceManager.GetString("RecipientAccount_Local", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify Ethereum account private key.
+        /// </summary>
+        internal static string RecipientAccount_PrivateKey {
+            get {
+                return ResourceManager.GetString("RecipientAccount_PrivateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to QR Code.
+        /// </summary>
+        internal static string RecipientAccount_QrCode {
+            get {
+                return ResourceManager.GetString("RecipientAccount_QrCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recipient Account.
+        /// </summary>
+        internal static string RecipientAccount_Title {
+            get {
+                return ResourceManager.GetString("RecipientAccount_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm.
+        /// </summary>
+        internal static string SelectAuthor_Confirm {
+            get {
+                return ResourceManager.GetString("SelectAuthor_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select author to transfer.
+        /// </summary>
+        internal static string SelectAuthor_Title {
+            get {
+                return ResourceManager.GetString("SelectAuthor_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm.
+        /// </summary>
+        internal static string SourceAccount_Confirm {
+            get {
+                return ResourceManager.GetString("SourceAccount_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source Account.
+        /// </summary>
+        internal static string SourceAccount_Title {
+            get {
+                return ResourceManager.GetString("SourceAccount_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirmations.
+        /// </summary>
+        internal static string Transaction_Confirmations {
+            get {
+                return ResourceManager.GetString("Transaction_Confirmations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy Transaction Hash.
+        /// </summary>
+        internal static string Transaction_CopyHash {
+            get {
+                return ResourceManager.GetString("Transaction_CopyHash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Date and time.
+        /// </summary>
+        internal static string Transaction_DateAndTime {
+            get {
+                return ResourceManager.GetString("Transaction_DateAndTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hash.
+        /// </summary>
+        internal static string Transaction_Hash {
+            get {
+                return ResourceManager.GetString("Transaction_Hash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        internal static string Transaction_Size {
+            get {
+                return ResourceManager.GetString("Transaction_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Status.
+        /// </summary>
+        internal static string Transaction_Status {
+            get {
+                return ResourceManager.GetString("Transaction_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction.
+        /// </summary>
+        internal static string Transaction_Title {
+            get {
+                return ResourceManager.GetString("Transaction_Title", resourceCulture);
             }
         }
         

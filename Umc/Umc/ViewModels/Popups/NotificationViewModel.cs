@@ -8,4 +8,12 @@ public partial class NotificationViewModel : BaseViewModel
     public NotificationViewModel(ILogger<NotificationViewModel> logger) : base(logger)
 	{
 	}
+	
+
+	[RelayCommand]
+    public async Task MarkAsReadAsync()
+	{
+		// Mark As Read
+		await Task.Delay(10);
+	}
 }

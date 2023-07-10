@@ -49,7 +49,7 @@ public partial class DeleteAccountViewModel : BaseAccountViewModel
 		{
 			await ShowPopup(new DeleteAccountPopup(Account));
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully deleted!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Deleted);
 		}
 		catch (Exception ex)
 		{

@@ -49,7 +49,7 @@ public class AuthService
 			// after a while we will ask to change pincode (TBD)
 			await UserSecureStore.SetUserDataAsync(CommonConstants.PINCODE_SET, DateTime.Today.ToShortDateString(), _logger);
 
-			await ToastHelper.ShowMessageAsync("Pin was created");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_PinCreated);
 		}
         catch (Exception ex)
         {

@@ -63,7 +63,7 @@ public partial class RestoreAccountViewModel : BaseAccountViewModel
 			else if (Position == 1)
 			{
 				await Navigation.PopAsync();
-				await ToastHelper.ShowMessageAsync("Successfully restored!");
+				await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Restored);
 			}
 		}
 		catch (Exception ex)

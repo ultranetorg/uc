@@ -18,7 +18,7 @@ public partial class TransactionDetailsViewModel : BaseViewModel
         try
         {
 			await Clipboard.SetTextAsync(Transaction.Hash);
-            await ToastHelper.ShowMessageAsync("Copied to clipboard");
+            await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Copied);
 #if DEBUG
             _logger.LogDebug("CopyHashAsync Address: {Address}", Transaction.Hash);
 #endif

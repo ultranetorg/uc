@@ -72,7 +72,7 @@ public partial class CreateAccountPageViewModel : BaseAccountViewModel
 		else if (Position == 1)
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Successfully created!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Created);
 		}
 	}
 }

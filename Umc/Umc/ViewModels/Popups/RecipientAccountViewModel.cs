@@ -91,7 +91,7 @@ public partial class RecipientAccountViewModel : BaseViewModel
 	{
 		try
 		{
-			await ToastHelper.ShowMessageAsync("Barcode was detected!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_BarcodeDetected);
 		}
 		catch (Exception ex)
 		{

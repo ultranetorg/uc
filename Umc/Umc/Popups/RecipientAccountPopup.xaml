@@ -6,6 +6,7 @@
     xmlns:const="clr-namespace:UC.Umc.Constants"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
     xmlns:models="clr-namespace:UC.Umc.Models"
+    xmlns:resx="clr-namespace:UC.Umc.Properties"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:UC.Umc.ViewModels.Popups"
     xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
@@ -33,7 +34,7 @@
                     Grid.Row="1"
                     FontSize="18"
                     HorizontalOptions="Center"
-                    Text="Recipient Account" />
+                    Text="{x:Static resx:Additional_Strings.RecipientAccount_Title}" />
             </Grid>
             
             <!--Tab Switch-->
@@ -52,7 +53,7 @@
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
-                                Text="Local"
+                                Text="{x:Static resx:Additional_Strings.RecipientAccount_Local}"
                                 TextColor="{StaticResource Primary}" />
                             <Grid.Triggers>
                                 <DataTrigger
@@ -83,7 +84,7 @@
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
-                                Text="External"
+                                Text="{x:Static resx:Additional_Strings.RecipientAccount_External}"
                                 TextColor="{StaticResource Primary}"/>
                             <Grid.Triggers>
                                 <DataTrigger
@@ -114,7 +115,7 @@
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
-                                Text="QR Code"
+                                Text="{x:Static resx:Additional_Strings.RecipientAccount_QrCode}"
                                 TextColor="{StaticResource Primary}" />
                             <Grid.Triggers>
                                 <DataTrigger
@@ -242,11 +243,11 @@
                 Spacing="40"
                 VerticalOptions="EndAndExpand">
                 <StackLayout>
-                    <Label Text="Recipient UNT address" />
+                    <Label Text="{x:Static resx:Additional_Strings.RecipientAccount_Address}" />
                     <Label
                         FontSize="13"
                         Style="{StaticResource Regular}"
-                        Text="Please specify Ethereum account private key" />
+                        Text="{x:Static resx:Additional_Strings.RecipientAccount_PrivateKey}" />
                 </StackLayout>
                 <StackLayout Spacing="24">
                     <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
@@ -291,7 +292,7 @@
                         BarcodesDetected="cameraBarcodeReaderView_BarcodesDetected" />
                 </Border>
                 <StackLayout Grid.Row="1" Spacing="8">
-                    <Label Text="Recipient UNT address" />
+                    <Label Text="{x:Static resx:Additional_Strings.RecipientAccount_Address}" />
                     <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
                         <controls:FormEntryControl.Behaviors>
                             <toolkit:CharactersValidationBehavior
@@ -315,11 +316,13 @@
             </Grid>
                 
             <StackLayout Grid.Row="3" Padding="16" VerticalOptions="EndAndExpand">
-                <Button Command="{Binding CloseCommand}" Text="Continue" />
+                <Button
+                    Command="{Binding CloseCommand}"
+                    Text="{x:Static resx:Additional_Strings.RecipientAccount_Continue}" />
                 <Button
                     Command="{Binding CloseCommand}"
                     Style="{DynamicResource LabelButton}"
-                    Text="Cancel" />
+                    Text="{x:Static resx:Additional_Strings.RecipientAccount_Cancel}" />
             </StackLayout>
         </Grid>
     </Border>

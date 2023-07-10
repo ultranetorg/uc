@@ -32,7 +32,7 @@ public partial class AuthorRenewalViewModel : BaseAuthorViewModel
 		else if (Position == 1)
 		{
 			await Navigation.PopAsync();
-			await ToastHelper.ShowMessageAsync("Success!");
+			await ToastHelper.ShowMessageAsync(Properties.Additional_Strings.Message_Success);
 		}
 	}
 

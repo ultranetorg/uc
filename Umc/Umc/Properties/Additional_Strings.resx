@@ -123,8 +123,32 @@
   <data name="Alert_Ok" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="Author_MakeABid" xml:space="preserve">
+    <value>Make a bid</value>
+  </data>
+  <data name="Author_Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="Author_Renew" xml:space="preserve">
+    <value>Renew</value>
+  </data>
+  <data name="Author_Transfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
   <data name="Button_Cancel" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="DeleteAccount_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="DeleteAccount_Confirmation" xml:space="preserve">
+    <value>Delete confirmation</value>
+  </data>
+  <data name="DeleteAccount_Confirmation2" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteAccount_SpecifyText" xml:space="preserve">
+    <value>If you wish to delete account please specify next text</value>
   </data>
   <data name="Error_Default" xml:space="preserve">
     <value>Something went wrong</value>
@@ -143,6 +167,36 @@
   </data>
   <data name="From_WalletFile" xml:space="preserve">
     <value>From wallet file</value>
+  </data>
+  <data name="Message_BarcodeDetected" xml:space="preserve">
+    <value>Barcode was detected!</value>
+  </data>
+  <data name="Message_Copied" xml:space="preserve">
+    <value>Copied to clipboard</value>
+  </data>
+  <data name="Message_Created" xml:space="preserve">
+    <value>Successfully created!</value>
+  </data>
+  <data name="Message_Deleted" xml:space="preserve">
+    <value>Successfully deleted!</value>
+  </data>
+  <data name="Message_PinCreated" xml:space="preserve">
+    <value>Pin was created</value>
+  </data>
+  <data name="Message_Registered" xml:space="preserve">
+    <value>Successfully registered!</value>
+  </data>
+  <data name="Message_Restored" xml:space="preserve">
+    <value>Successfully restored!</value>
+  </data>
+  <data name="Message_Success" xml:space="preserve">
+    <value>Success!</value>
+  </data>
+  <data name="Message_Transfered" xml:space="preserve">
+    <value>Successfully transfered!</value>
+  </data>
+  <data name="Models_Days" xml:space="preserve">
+    <value>days</value>
   </data>
   <data name="Month_April" xml:space="preserve">
     <value>April</value>
@@ -179,6 +233,78 @@
   </data>
   <data name="Month_September" xml:space="preserve">
     <value>September</value>
+  </data>
+  <data name="Notification_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Notification_MarkAsRead" xml:space="preserve">
+    <value>Mark As Read</value>
+  </data>
+  <data name="Notification_Severity" xml:space="preserve">
+    <value>Severity</value>
+  </data>
+  <data name="Notification_Title" xml:space="preserve">
+    <value>Notification</value>
+  </data>
+  <data name="Product_Transfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
+  <data name="RecipientAccount_Address" xml:space="preserve">
+    <value>Recipient UNT address</value>
+  </data>
+  <data name="RecipientAccount_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RecipientAccount_Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="RecipientAccount_External" xml:space="preserve">
+    <value>External</value>
+  </data>
+  <data name="RecipientAccount_Local" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="RecipientAccount_PrivateKey" xml:space="preserve">
+    <value>Please specify Ethereum account private key</value>
+  </data>
+  <data name="RecipientAccount_QrCode" xml:space="preserve">
+    <value>QR Code</value>
+  </data>
+  <data name="RecipientAccount_Title" xml:space="preserve">
+    <value>Recipient Account</value>
+  </data>
+  <data name="SelectAuthor_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="SelectAuthor_Title" xml:space="preserve">
+    <value>Select author to transfer</value>
+  </data>
+  <data name="SourceAccount_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="SourceAccount_Title" xml:space="preserve">
+    <value>Source Account</value>
+  </data>
+  <data name="Transaction_Confirmations" xml:space="preserve">
+    <value>Confirmations</value>
+  </data>
+  <data name="Transaction_CopyHash" xml:space="preserve">
+    <value>Copy Transaction Hash</value>
+  </data>
+  <data name="Transaction_DateAndTime" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="Transaction_Hash" xml:space="preserve">
+    <value>Hash</value>
+  </data>
+  <data name="Transaction_Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Transaction_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Transaction_Title" xml:space="preserve">
+    <value>Transaction</value>
   </data>
   <data name="Version4_Fix1" xml:space="preserve">
     <value>The sensations that people experience as they interact with the material world</value>

@@ -21,7 +21,6 @@ public partial class DeleteAccountPopupViewModel : BaseViewModel
 		if (TextInput != null && TextInput == TextToConfirm)
 		{
 			ClosePopup();
-			await ToastHelper.ShowMessageAsync("Successfully deleted!");
 		}
 	}
 
