@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:UC.Umc.Controls"
+    xmlns:classes="clr-namespace:UC.Umc.Data.Classes"
     xmlns:converters="clr-namespace:UC.Umc.Converters"
     xmlns:enums="clr-namespace:UC.Umc.Enums"
     xmlns:models="clr-namespace:UC.Umc.Models"
@@ -61,7 +62,7 @@
                     <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="classes:AuthorFilter">
                         <Border
                             HeightRequest="32"
                             HorizontalOptions="Start"
@@ -70,12 +71,12 @@
                             <Label
                                 FontSize="12"
                                 Style="{StaticResource ButtonLabel}"
-                                Text="{Binding .}"
+                                Text="{Binding Filter}"
                                 VerticalOptions="Center" />
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer
                                     Command="{Binding FilterAuthorsCommand, Source={RelativeSource AncestorType={x:Type vm:AuthorsViewModel}}}"
-                                    CommandParameter="{Binding .}" />
+                                    CommandParameter="{Binding Filter}" />
                             </Border.GestureRecognizers>
                         </Border>
                     </DataTemplate>

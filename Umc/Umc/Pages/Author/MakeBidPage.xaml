@@ -25,7 +25,7 @@
                 Loop="False"
                 PeekAreaInsets="0"
                 Position="{Binding Position}">
-                <CarouselView.ItemTemplate>
+                <CarouselView.ItemTemplate x:DataType="View">
                     <DataTemplate>
                         <ContentView Content="{Binding .}" />
                     </DataTemplate>

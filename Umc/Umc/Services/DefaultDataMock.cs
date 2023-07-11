@@ -1,4 +1,5 @@
 ﻿using UC.Umc.Common.Constants;
+using UC.Umc.Data.Classes;
 
 namespace UC.Umc.Services;
 
@@ -33,15 +34,15 @@ internal static class DefaultDataMock
 		ExpirationDate = new DateTime(2022, 7, 7)
 	};
 
-	public static CustomCollection<string> AuthorsFilter = new()
+	public static CustomCollection<AuthorFilter> AuthorsFilter = new()
 	{
-		Properties.Author_Strings.Filter_All,
-		Properties.Author_Strings.Filter_Auction,
-		Properties.Author_Strings.Filter_Free,
-		Properties.Author_Strings.Filter_Hidden,
-		Properties.Author_Strings.Filter_Owned,
-		Properties.Author_Strings.Filter_Reserved,
-		Properties.Author_Strings.Filter_Watched,
+		new AuthorFilter(Properties.Author_Strings.Filter_All),
+		new AuthorFilter(Properties.Author_Strings.Filter_Auction),
+		new AuthorFilter(Properties.Author_Strings.Filter_Free),
+		new AuthorFilter(Properties.Author_Strings.Filter_Hidden),
+		new AuthorFilter(Properties.Author_Strings.Filter_Owned),
+		new AuthorFilter(Properties.Author_Strings.Filter_Reserved),
+		new AuthorFilter(Properties.Author_Strings.Filter_Watched),
 	}; // "Shown", "Outdated"
 
 	public static CustomCollection<string> ProductsFilter = new()

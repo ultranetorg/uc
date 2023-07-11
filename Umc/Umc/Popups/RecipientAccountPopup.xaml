@@ -250,7 +250,9 @@
                         Text="{x:Static resx:Additional_Strings.RecipientAccount_PrivateKey}" />
                 </StackLayout>
                 <StackLayout Spacing="24">
-                    <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
+                    <controls:FormEntryControl
+                        Placeholder="{x:Static resx:Additional_Strings.RecipientAccount_Placeholder}"
+                        Value="{Binding ExternalAccount}">
                             <controls:FormEntryControl.Behaviors>
                                 <toolkit:CharactersValidationBehavior
                                     x:Name="cb"
@@ -293,7 +295,9 @@
                 </Border>
                 <StackLayout Grid.Row="1" Spacing="8">
                     <Label Text="{x:Static resx:Additional_Strings.RecipientAccount_Address}" />
-                    <controls:FormEntryControl Placeholder="Account name" Value="{Binding ExternalAccount}">
+                    <controls:FormEntryControl
+                        Placeholder="{x:Static resx:Additional_Strings.RecipientAccount_Placeholder}"
+                        Value="{Binding ExternalAccount}">
                         <controls:FormEntryControl.Behaviors>
                             <toolkit:CharactersValidationBehavior
                                 x:Name="cb1"

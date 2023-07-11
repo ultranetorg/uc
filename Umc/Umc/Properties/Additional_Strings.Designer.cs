@@ -502,6 +502,15 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Account name.
+        /// </summary>
+        internal static string RecipientAccount_Placeholder {
+            get {
+                return ResourceManager.GetString("RecipientAccount_Placeholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please specify Ethereum account private key.
         /// </summary>
         internal static string RecipientAccount_PrivateKey {

@@ -264,6 +264,9 @@
   <data name="RecipientAccount_Local" xml:space="preserve">
     <value>Local</value>
   </data>
+  <data name="RecipientAccount_Placeholder" xml:space="preserve">
+    <value>Account name</value>
+  </data>
   <data name="RecipientAccount_PrivateKey" xml:space="preserve">
     <value>Please specify Ethereum account private key</value>
   </data>

@@ -26,7 +26,7 @@
                 PeekAreaInsets="0"
                 Position="{Binding Position}">
                 <CarouselView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="View">
                         <ContentView Content="{Binding .}" />
                     </DataTemplate>
                 </CarouselView.ItemTemplate>
@@ -34,98 +34,98 @@
                     <x:Array Type="{x:Type View}">
                         <!--Step #1-->
                         <StackLayout Padding="4" Spacing="32">
-                                <StackLayout>
-                                    <Label FontSize="18" Text="{x:Static resx:Author_Strings.Renewal_Period}" />
-                                    <Label
-                                        FontSize="13"
-                                        Style="{StaticResource Regular}"
-                                        Text="{x:Static resx:Author_Strings.Renewal_Period2}" />
-                                </StackLayout>
-                                <StackLayout>
-                                    <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.Renewal_Author}" />
-                                    <Grid ColumnDefinitions="*,36" RowSpacing="-8">
-                                        <Border
-                                            Grid.ColumnSpan="2"
-                                            HeightRequest="60"
-                                            Style="{StaticResource AccountCardBorder}">
-                                            <Grid RowDefinitions="Auto,Auto">
-                                                <Label
-                                                    Grid.Row="0"
-                                                    Grid.Column="0"
-                                                    FontSize="13"
-                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Author.Name}"
-                                                    VerticalOptions="Center" />
-                                                <Label
-                                                    Grid.Row="1"
-                                                    Grid.Column="0"
-                                                    FontSize="10"
-                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Author.ActiveDue}"
-                                                    VerticalOptions="Center" />
-                                            </Grid>
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=SelectAuthorCommand}" />
-                                            </Border.GestureRecognizers>
-                                        </Border>
-                                        <Image
-                                            Grid.Column="1"
-                                            HorizontalOptions="Center"
-                                            InputTransparent="True"
-                                            Style="{StaticResource BottomArrowsIcon}"
-                                            VerticalOptions="Center" />
-                                    </Grid>
-                                </StackLayout>
-                                <StackLayout>
-                                    <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.Renewal_Account}" />
-                                    <Grid ColumnDefinitions="*,36" RowSpacing="-8">
-                                        <views:AccountView
-                                            Grid.ColumnSpan="2"
-                                            BorderStyle="{StaticResource AccountCardBorderDark}"
-                                            Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Account}">
-                                            <views:AccountView.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=SelectAccountCommand}" />
-                                            </views:AccountView.GestureRecognizers>
-                                        </views:AccountView>
-                                        <Image
-                                            Grid.Column="1"
-                                            HorizontalOptions="Center"
-                                            InputTransparent="True"
-                                            Style="{StaticResource BottomArrowsIcon}"
-                                            VerticalOptions="Center" />
-                                    </Grid>
-                                </StackLayout>
-                                <StackLayout Spacing="16">
-                                    <Grid ColumnDefinitions="*,*">
-                                        <Label
-                                            Grid.Column="0"
-                                            Style="{StaticResource DashLabel}"
-                                            Text="{x:Static resx:Author_Strings.Renewal_Period3}"
-                                            VerticalOptions="Center" />
-										<controls:BorderEntry
-                                            HorizontalOptions="End"
-                                            Keyboard="Numeric"
-                                            Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Period}"
-                                            Grid.Column="1"
-                                            FontSize="13">
-                                            <controls:BorderEntry.Behaviors>
-                                                <toolkit:CharactersValidationBehavior
-                                                    x:Name="cb2"
-                                                    CharacterType="Letter"
-                                                    Flags="ValidateOnValueChanged"
-                                                    InvalidStyle="{StaticResource InvalidEntry}"
-                                                    MaximumCharacterTypeCount="30"
-                                                    MinimumCharacterTypeCount="1"
-                                                    ValidStyle="{StaticResource Valid}" />
-                                            </controls:BorderEntry.Behaviors>
-                                        </controls:BorderEntry>
-                                    </Grid>
-                                    <controls:LabelPair
-                                        Text1="{x:Static resx:Author_Strings.Renewal_EstimatedEndDate}"
-                                        Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=EstimatedDate}" />
-                                    <controls:LabelPair
-                                        Text1="{x:Static resx:Author_Strings.Renewal_EstimatedComission}"
-                                        Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Comission}" />
-                                </StackLayout>
+                            <StackLayout>
+                                <Label FontSize="18" Text="{x:Static resx:Author_Strings.Renewal_Period}" />
+                                <Label
+                                    FontSize="13"
+                                    Style="{StaticResource Regular}"
+                                    Text="{x:Static resx:Author_Strings.Renewal_Period2}" />
                             </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.Renewal_Author}" />
+                                <Grid ColumnDefinitions="*,36" RowSpacing="-8">
+                                    <Border
+                                        Grid.ColumnSpan="2"
+                                        HeightRequest="60"
+                                        Style="{StaticResource AccountCardBorder}">
+                                        <Grid RowDefinitions="Auto,Auto">
+                                            <Label
+                                                Grid.Row="0"
+                                                Grid.Column="0"
+                                                FontSize="13"
+                                                Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Author.Name}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Row="1"
+                                                Grid.Column="0"
+                                                FontSize="10"
+                                                Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Author.ActiveDue}"
+                                                VerticalOptions="Center" />
+                                        </Grid>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=SelectAuthorCommand}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                    <Image
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Style="{StaticResource BottomArrowsIcon}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </StackLayout>
+                            <StackLayout>
+                                <Label Style="{StaticResource DashLabel}" Text="{x:Static resx:Author_Strings.Renewal_Account}" />
+                                <Grid ColumnDefinitions="*,36" RowSpacing="-8">
+                                    <views:AccountView
+                                        Grid.ColumnSpan="2"
+                                        BorderStyle="{StaticResource AccountCardBorderDark}"
+                                        Account="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Account}">
+                                        <views:AccountView.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=SelectAccountCommand}" />
+                                        </views:AccountView.GestureRecognizers>
+                                    </views:AccountView>
+                                    <Image
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        InputTransparent="True"
+                                        Style="{StaticResource BottomArrowsIcon}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </StackLayout>
+                            <StackLayout Spacing="16">
+                                <Grid ColumnDefinitions="*,*">
+                                    <Label
+                                        Grid.Column="0"
+                                        Style="{StaticResource DashLabel}"
+                                        Text="{x:Static resx:Author_Strings.Renewal_Period3}"
+                                        VerticalOptions="Center" />
+									<controls:BorderEntry
+                                        HorizontalOptions="End"
+                                        Keyboard="Numeric"
+                                        Text="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Period}"
+                                        Grid.Column="1"
+                                        FontSize="13">
+                                        <controls:BorderEntry.Behaviors>
+                                            <toolkit:CharactersValidationBehavior
+                                                x:Name="cb2"
+                                                CharacterType="Letter"
+                                                Flags="ValidateOnValueChanged"
+                                                InvalidStyle="{StaticResource InvalidEntry}"
+                                                MaximumCharacterTypeCount="30"
+                                                MinimumCharacterTypeCount="1"
+                                                ValidStyle="{StaticResource Valid}" />
+                                        </controls:BorderEntry.Behaviors>
+                                    </controls:BorderEntry>
+                                </Grid>
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Author_Strings.Renewal_EstimatedEndDate}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=EstimatedDate}" />
+                                <controls:LabelPair
+                                    Text1="{x:Static resx:Author_Strings.Renewal_EstimatedComission}"
+                                    Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:AuthorRenewalViewModel}}, Path=Comission}" />
+                            </StackLayout>
+                        </StackLayout>
                         
                         <!--Step #2-->
                         <StackLayout Padding="4" Spacing="32">

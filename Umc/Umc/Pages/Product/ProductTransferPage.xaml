@@ -26,7 +26,7 @@
                 PeekAreaInsets="0"
                 Position="{Binding Position}">
                 <CarouselView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="View">
                         <ContentView Content="{Binding .}" />
                     </DataTemplate>
                 </CarouselView.ItemTemplate>
@@ -100,7 +100,6 @@
                                         VerticalOptions="Center" />
                                 </Grid>
                             </StackLayout>
-                            
                             <controls:LabelPair
                                 Text1="{x:Static resx:Product_Strings.Transfer_Comission}"
                                 Text2="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductTransferViewModel}}, Path=Commission}" />

@@ -1,4 +1,6 @@
-﻿namespace UC.Umc.ViewModels;
+﻿using UC.Umc.Data.Classes;
+
+namespace UC.Umc.ViewModels;
 
 public partial class AuthorsViewModel : BasePageViewModel
 {
@@ -14,7 +16,7 @@ public partial class AuthorsViewModel : BasePageViewModel
     private CustomCollection<AuthorViewModel> _authors = new();
 
 	[ObservableProperty]
-    private CustomCollection<string> _authorsFilter = new();
+    private CustomCollection<AuthorFilter> _authorsFilter = new();
 
     public AuthorsViewModel(INotificationsService notificationService, IAuthorsService service,
 		ILogger<AuthorsViewModel> logger) : base(notificationService,logger)

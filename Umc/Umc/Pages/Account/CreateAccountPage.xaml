@@ -25,14 +25,13 @@
                 Loop="False"
                 PeekAreaInsets="0"
                 Position="{Binding Position}">
-                <CarouselView.ItemTemplate>
+                <CarouselView.ItemTemplate x:DataType="View">
                     <DataTemplate>
                         <ContentView Content="{Binding .}" />
                     </DataTemplate>
                 </CarouselView.ItemTemplate>
                 <CarouselView.ItemsSource>
                     <x:Array Type="{x:Type View}">
-						
 						<!--Step #1-->
                         <StackLayout Padding="4" Spacing="32">
                             <StackLayout>
