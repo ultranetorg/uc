@@ -18,7 +18,7 @@
             NotificationsCount="{Binding NotificationsCount}"
             MaxSeverity="{Binding NotificationsSeverity}"
             ConnectionState="{Binding ConnectionState}"
-            Title="{Binding Title, Source={x:Reference Instance}}"
+            Title="{Binding Title, Source={x:Reference page}}"
             TitleStyle="{StaticResource TitleLabel}" />
     </Shell.TitleView>
     
