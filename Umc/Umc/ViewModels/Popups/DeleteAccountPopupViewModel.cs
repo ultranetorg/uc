@@ -20,6 +20,7 @@ public partial class DeleteAccountPopupViewModel : BaseViewModel
 	{
 		if (TextInput != null && TextInput == TextToConfirm)
 		{
+			await Task.Delay(10);
 			ClosePopup();
 		}
 	}
