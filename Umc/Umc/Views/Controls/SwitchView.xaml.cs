@@ -3,8 +3,8 @@ namespace UC.Umc.Controls;
 
 public partial class SwitchView : ContentView
 {
-    private bool JustSet = true;
-    private bool IsRunning = false;
+    private bool _justSet = true;
+    private bool _isRunning = false;
 
 	public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(nameof(CornerRadius), typeof(double), typeof(SwitchView), default);
 
@@ -72,10 +72,10 @@ public partial class SwitchView : ContentView
 
 	private async void OnSizeChangedAsync(object sender, EventArgs e)
 	{
-		if (frame.Width > 0)
+		if (border.Width > 0)
 		{
-			frame.WidthRequest = frame.Height * 2;
-			thumb.HeightRequest = thumb.WidthRequest = frame.Height - 4;
+			border.WidthRequest = border.Height * 2;
+			thumb.HeightRequest = thumb.WidthRequest = border.Height - 4;
 			thumb.HorizontalOptions = LayoutOptions.Start;
 			await SwitchAsync();
 		}
@@ -83,11 +83,11 @@ public partial class SwitchView : ContentView
 
 	private async Task SwitchAsync()
 	{
-		if (!IsRunning)
+		if (!_isRunning)
 		{
-			IsRunning = true;
+			_isRunning = true;
 
-			if (IsOn && !JustSet)
+			if (IsOn && !_justSet)
 			{
 				await thumb.TranslateTo(thumb.TranslationX - thumb.Width, 0);
 				CurrentColor = OffColor;
@@ -98,7 +98,7 @@ public partial class SwitchView : ContentView
 				CurrentColor = OnColor;
 			}
 			IsOn = !IsOn;
-			IsRunning = JustSet = false;
+			_isRunning = _justSet = false;
 		}
 	}
 }

@@ -1,11 +1,9 @@
 ﻿using Plugin.Fingerprint;
 using Plugin.Fingerprint.Abstractions;
-using UC.Umc.Common.Constants;
-using UC.Umc.Common.Helpers;
 
 namespace UC.Umc.Services;
 
-public class AuthService
+internal class AuthService
 {
     private readonly ILogger _logger;
 

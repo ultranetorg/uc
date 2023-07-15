@@ -42,11 +42,6 @@
         </Setter>
     </Style>
 
-    <Style ApplyToDerivedTypes="True" TargetType="Frame">
-        <Setter Property="CornerRadius" Value="20" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource Secondary}, Light={StaticResource LightBackground}}" />
-        <Setter Property="Visual" Value="Material" />
-    </Style>
     <Style x:Key="RedDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 4" />
@@ -67,45 +62,6 @@
         <Setter Property="BackgroundColor" Value="{StaticResource Orange}" />
         <Setter Property="HeightRequest" Value="6" />
         <Setter Property="WidthRequest" Value="6" />
-    </Style>
-    <Style x:Key="Container" TargetType="Frame">
-        <Setter Property="Padding" Value="2" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light=#DDEAEE}" />
-        <Setter Property="HasShadow" Value="False" />
-    </Style>
-    <Style x:Key="PopupHandle" TargetType="Frame">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Opacity" Value="0.3" />
-        <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="HeightRequest" Value="4" />
-        <Setter Property="WidthRequest" Value="40" />
-        <Setter Property="BackgroundColor" Value="#E9E9E9" />
-    </Style>
-    <Style x:Key="AccountColor" TargetType="Frame">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="HeightRequest" Value="60" />
-        <Setter Property="WidthRequest" Value="60" />
-    </Style>
-    <Style x:Key="ButtonFrame" TargetType="Frame">
-        <Setter Property="Padding" Value="8,0,8,0" />
-        <Setter Property="CornerRadius" Value="6" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
-        <Setter Property="IsClippedToBounds" Value="True" />
-    </Style>
-    <Style x:Key="SquareFrame" TargetType="Frame">
-        <Setter Property="CornerRadius" Value="0" />
-        <Setter Property="BorderColor" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryDark}}" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="Padding" Value="10" />
-    </Style>
-    <Style x:Key="AccountCard" TargetType="Frame">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-        <Setter Property="IsClippedToBounds" Value="True" />
     </Style>
     <Style x:Key="TransactionCard" TargetType="Border">
         <Setter Property="Padding" Value="0" />

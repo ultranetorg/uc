@@ -1,6 +1,4 @@
-﻿using UC.Umc.Data.Classes;
-
-namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public partial class AuthorsViewModel : BasePageViewModel
 {

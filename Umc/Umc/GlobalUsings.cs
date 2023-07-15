@@ -19,3 +19,6 @@ global using UC.Umc.Pages;
 global using UC.Umc.Exceptions;
 global using UC.Umc.Constants;
 global using UC.Umc.Services;
+global using UC.Umc.Common.Constants;
+global using UC.Umc.Common.Helpers;
+global using UC.Umc.Data.Classes;

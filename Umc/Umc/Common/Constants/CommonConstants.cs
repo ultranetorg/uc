@@ -12,4 +12,5 @@ public class CommonConstants
 	public static readonly int LENGTH_HASH = 42;
 	public static readonly int LENGTH_TRANSACTION = 6;
 	public static readonly int LENGTH_ACCOUNT = 8;
+	public static readonly int DEFAULT_MAX_LENGTH = 100;
 }

@@ -1,7 +1,4 @@
-﻿using UC.Umc.Common.Constants;
-using UC.Umc.Data.Classes;
-
-namespace UC.Umc.Services;
+﻿namespace UC.Umc.Services;
 
 internal static class DefaultDataMock
 {

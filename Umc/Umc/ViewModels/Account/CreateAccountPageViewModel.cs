@@ -1,6 +1,4 @@
-﻿using UC.Umc.Common.Constants;
-
-namespace UC.Umc.ViewModels;
+﻿namespace UC.Umc.ViewModels;
 
 public partial class CreateAccountPageViewModel : BaseAccountViewModel
 {

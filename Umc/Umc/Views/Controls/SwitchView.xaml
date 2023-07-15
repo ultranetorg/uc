@@ -9,7 +9,7 @@
     SizeChanged="OnSizeChangedAsync"
     BindingContext="{x:Reference instance}">
     <Border
-        x:Name="frame"
+        x:Name="border"
         Padding="4"
         BackgroundColor="Transparent"
         Stroke="{Binding CurrentColor}"

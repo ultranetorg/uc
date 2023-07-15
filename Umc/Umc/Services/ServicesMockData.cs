@@ -1,8 +1,6 @@
-﻿using UC.Umc.Common.Helpers;
+﻿namespace UC.Umc.Services;
 
-namespace UC.Umc.Services;
-
-public class ServicesMockData : IServicesMockData
+internal class ServicesMockData : IServicesMockData
 {
 	private readonly ILogger<ServicesMockData> _logger;
 
