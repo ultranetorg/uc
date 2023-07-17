@@ -77,8 +77,16 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	[RelayCommand]
     private async Task HideFromDashboardAsync()
     {
-		// TODO: hide from dashboard
-		await Task.Delay(1);
+		try
+		{
+			Account.HideOnDashboard = Account.HideOnDashboard;
+			await Task.Delay(1);
+		}
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "HideFromDashboardAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
     }
 
 	[RelayCommand]
@@ -92,8 +100,16 @@ public partial class AccountDetailsViewModel : BaseAccountViewModel
 	[RelayCommand]
     private async Task BackupAsync()
     {
-		// TODO: backup
-		await Task.Delay(1);
+		try
+		{
+			// TODO: backup
+			await Task.Delay(1);
+		}
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BackupAsync Exception: {Ex}", ex.Message);
+            ToastHelper.ShowErrorMessage(_logger);
+        }
     }
 
 	[RelayCommand]

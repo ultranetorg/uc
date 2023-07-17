@@ -4,16 +4,17 @@ namespace UC.Umc.Models;
 
 public partial class AccountViewModel : ObservableObject
 {
-	protected Account		_account;
 	[ObservableProperty]
 	private bool			_isSelected;
 	[ObservableProperty]
-    public GradientBrush	_color;
+	private GradientBrush	_color;
+	[ObservableProperty]
+	protected Account		_account;
 
 	public string			Name { get; set; }
-    public bool				HideOnDashboard { get; set; }
 	public decimal			Balance { get; set; }
 	public string			Address { get; set; }
+	public bool				HideOnDashboard { get; set; }
 	
     public IList<string>	Authors { get; set; } = new List<string>();
     public HashSet<int>		Transactions { get; set; } = new HashSet<int>();
