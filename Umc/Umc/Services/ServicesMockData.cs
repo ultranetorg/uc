@@ -1,6 +1,6 @@
 ﻿namespace UC.Umc.Services;
 
-internal class ServicesMockData : IServicesMockData
+public class ServicesMockData : IServicesMockData
 {
 	private readonly ILogger<ServicesMockData> _logger;
 

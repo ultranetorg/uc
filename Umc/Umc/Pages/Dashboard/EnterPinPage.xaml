@@ -127,7 +127,7 @@
                 Padding="1"
                 HeightRequest="32"
                 HorizontalOptions="Center"
-                Style="{StaticResource Fingerprint}"
+                Style="{StaticResource FingerPrint}"
                 VerticalOptions="Center"
                 WidthRequest="32"
 				Command="{Binding BiometricLoginCommand}" />

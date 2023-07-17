@@ -23,53 +23,35 @@
         <Setter Property="Opacity" Value="0.2" />
         <Setter Property="Margin" Value="0,12" />
     </Style>
-    <Style x:Key="stacklayoutStyle" TargetType="StackLayout">
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Selected">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarkLighten}, Light={StaticResource PrimaryForLight}}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <VisualState x:Name="Normal">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="Transparent" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
+    <Style x:Key="AccountGrid" TargetType="Grid">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
 
     <Style x:Key="RedDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{StaticResource Red}" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="6" />
+        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="WidthRequest" Value="4" />
     </Style>
     <Style x:Key="GreenDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{StaticResource Green}" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="6" />
+        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="WidthRequest" Value="4" />
     </Style>
     <Style x:Key="OrangeDot" TargetType="Border">
         <Setter Property="Padding" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{StaticResource Orange}" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="6" />
+        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="WidthRequest" Value="4" />
     </Style>
     <Style x:Key="TransactionCard" TargetType="Border">
         <Setter Property="Padding" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 6" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-    </Style>
-    <Style x:Key="AccountGrid" TargetType="Grid">
-        <Setter Property="Padding" Value="0" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
     </Style>
     <Style x:Key="BadgeBorder" TargetType="Border">
@@ -104,16 +86,8 @@
         <Setter Property="HeightRequest" Value="60" />
         <Setter Property="WidthRequest" Value="60" />
     </Style>
-    <Style x:Key="PopupBorder" TargetType="Border">
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="HeightRequest" Value="6" />
-        <Setter Property="WidthRequest" Value="48" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
-    </Style>
     <Style x:Key="KeyBorder" TargetType="Border">
-        <Setter Property="Padding" Value="15,10" />
+        <Setter Property="Padding" Value="16,8" />
         <Setter Property="StrokeShape" Value="RoundRectangle 6" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource PrimaryDarker}, Light={StaticResource PrimaryLight}}" />
     </Style>
@@ -131,7 +105,7 @@
         <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource PrimaryDark}, Light={StaticResource LightBackground}}" />
     </Style>
     <Style x:Key="ComboBox" TargetType="Border">
-        <Setter Property="Padding" Value="2" />
+        <Setter Property="Padding" Value="4" />
         <Setter Property="StrokeShape" Value="RoundRectangle 4" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark={StaticResource DarkBackground}, Light={StaticResource LightBackground}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Dark={StaticResource Primary}, Light={StaticResource PrimaryForLight}}" />

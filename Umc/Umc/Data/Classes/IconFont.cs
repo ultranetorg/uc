@@ -35,7 +35,7 @@ public static class IconFont
 	public const string FaceID = "\ue93a";
 	public const string FileKey = "\ue942";
 	public const string Filter = "\ue945";
-	public const string Fingerprint = "\ue94b";
+	public const string FingerPrint = "\ue94b";
 	public const string Gem = "\ue950";
 	public const string Help = "\ue951";
 	public const string Hide = "\ue954";

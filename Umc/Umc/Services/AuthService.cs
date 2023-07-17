@@ -3,7 +3,7 @@ using Plugin.Fingerprint.Abstractions;
 
 namespace UC.Umc.Services;
 
-internal class AuthService
+public class AuthService
 {
     private readonly ILogger _logger;
 

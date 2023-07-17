@@ -33,7 +33,7 @@
                             Grid.RowSpan="2"
                             Grid.Column="0"
                             HeightRequest="32"
-                            Style="{StaticResource Logo4}"
+                            Style="{StaticResource Logo2}"
                             VerticalOptions="Center"
                             WidthRequest="32" />
                         <Label
