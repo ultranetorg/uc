@@ -17,11 +17,8 @@ namespace Uccs.Net
 
 	public class Database
 	{
-		//public ZoneGenesis					Genesis => Genesises.Find(i => i.Zone == Zone.Current && i.Crypto.GetType() == Cryptography.Current.GetType());
 		public const int					Pitch = 8;
 		public const int					AliveMinGeneratorVotes = 6;
-		public const int					AliveMinHubVotes = 1;
-		public const int					AliveMinAnalyzerVotes = 1;
 		public const int					LastGenesisRound = Pitch * 3;
 		public const int					GeneratorsMax = 1024;
 		public const int					HubsMax = 256 * 16;
@@ -31,8 +28,10 @@ namespace Uccs.Net
 		public  int							TailLength => Dev != null && Dev.TailLength100 ? 100 : 1000;
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			BailMin = 1000;
-		public static readonly Coin			TransactionFeePerByte = new Coin(0.001);
-		public static readonly Coin			AnalysisFeePerByte = new Coin(0.000001);
+		public static readonly Coin			TransactionFeePerByte	= new Coin(0.000001);
+		public static readonly Coin			SpaceFeePerByte			= new Coin(0.001);
+		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
+		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
 
 		public Zone							Zone;
 		public DatabaseSettings				Settings;
@@ -52,15 +51,11 @@ namespace Uccs.Net
 		static readonly byte[]				GenesisKey = new byte[] {0x04};
 		public AccountTable					Accounts;
 		public AuthorTable					Authors;
-		public ProductTable					Products;
-		public RealizationTable				Realizations;
-		public ReleaseTable					Releases;
+		public ResourceTable				Resources;
 		public int							Size => BaseState == null ? 0 : (BaseState.Length + 
 																			Accounts.Clusters.Sum(i => i.MainLength) +
 																			Authors.Clusters.Sum(i => i.MainLength) +
-																			Products.Clusters.Sum(i => i.MainLength) +
-																			Realizations.Clusters.Sum(i => i.MainLength) +
-																			Releases.Clusters.Sum(i => i.MainLength));
+																			Resources.Clusters.Sum(i => i.MainLength));
 		public Log							Log;
 		public BlockDelegate				BlockAdded;
 
@@ -85,9 +80,7 @@ namespace Uccs.Net
 
 			Accounts = new (this);
 			Authors = new (this);
-			Products = new (this);
-			Realizations = new (this);
-			Releases = new (this);
+			Resources = new (this);
 
 			BaseHash = Zone.Cryptography.ZeroHash;
 			BaseState = Engine.Get(BaseStateKey);
@@ -660,25 +653,25 @@ namespace Uccs.Net
 													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
 
-				var aq = a.Count * 2/3;
+				var aq = a.Count * 1/2;
 
-				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Release)
+				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
 											.Select(i => {
-															var e = round.FindRelease(i.Release);
+															var e = round.FindRelease(i.Resource);
 																	
 															if(e == null)
 																return null;
 																	
 															//var a = AnalysisResult.NotRequested;
 																
-															var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Release == i.Release)).Where(i => i != null);
+															var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Resource == i.Resource)).Where(i => i != null);
 
-															if(v.Count() == aq || (e.AnalysisStage == AnalysisStage.QuorumReached && e.RoundId - e.QuorumRid + (e.RoundId - e.QuorumRid)/2 == round.Id))
+															if(v.Count() == aq || (e.AnalysisStage == AnalysisStage.QuorumReached && e.RoundId - e.AnalysisQuorumRid + (e.RoundId - e.AnalysisQuorumRid)/2 == round.Id))
 															{ 
 																var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
 																var inf = v.Count(i => i.Result == AnalysisResult.Infected);
 
-																return new AnalysisConclusion {Release = i.Release, Good = (byte)cln, Bad = (byte)inf};
+																return new AnalysisConclusion {Release = i.Resource, Good = (byte)cln, Bad = (byte)inf};
 																
 																//if(cln >= aq)
 																//	a = AnalysisResult.Clean;
@@ -690,11 +683,11 @@ namespace Uccs.Net
 																//	a = AnalysisResult.Suspicious;
 															}
 															else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= aq)
-																return new AnalysisConclusion {Release = i.Release, QuorumReached = true};
+																return new AnalysisConclusion {Release = i.Resource, QuorumReached = true};
 															else
 																return null;
 														})
-											.OrderBy(i => i).ToArray();
+											.OrderBy(i => i.Release).ToArray();
 
 				//round.ConfirmedClean	= au.SelectMany(i => i.Clean).Distinct()
 				//							.Where(i => round.FindRelease(i) is ReleaseEntry e && ((e.AnalysisResult == AnalysisResult.QuorumReached && e.RoundId - e.QuorumRid + (e.RoundId - e.QuorumRid)/2 == round.Id)
@@ -744,8 +737,6 @@ namespace Uccs.Net
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
-			round.AffectedProducts.Clear();
-			round.AffectedPlatforms.Clear();
 			round.AffectedReleases.Clear();
 
 			foreach(var b in payloads.AsEnumerable().Reverse())
@@ -775,7 +766,7 @@ namespace Uccs.Net
 						if(o.Error != null)
 							goto start;
 
-						var f = o.CalculateFee(round.Factor);
+						var f = o.CalculateTransactionFee(round.Factor);
 	
 						if(s.Balance - f < 0)
 						{
@@ -823,9 +814,7 @@ namespace Uccs.Net
 	
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Products.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Realizations.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Releases.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Resources.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
 		public void Confirm(Round round, bool confirmed)
@@ -922,9 +911,7 @@ namespace Uccs.Net
 					{
 						Accounts	.Save(b, i.AffectedAccounts.Values);
 						Authors		.Save(b, i.AffectedAuthors.Values);
-						Products	.Save(b, i.AffectedProducts.Values);
-						Realizations.Save(b, i.AffectedPlatforms.Values);
-						Releases	.Save(b, i.AffectedReleases.Values);
+						Resources	.Save(b, i.AffectedReleases.Values);
 					}
 
 					LastCommittedRound = tail.Last();
@@ -1075,61 +1062,11 @@ namespace Uccs.Net
 						yield return b;
 		}
 
-
-		public Release QueryRelease(ReleaseQuery query)
+		public IEnumerable<Resource> QueryRelease(string query)
 		{
-			if(query.VersionQuery == VersionQuery.Latest)
-			{
-				var p = Products.Find(query.Realization.Product, LastConfirmedRound.Id);
-	
-				if(p != null)
-				{
-					//var r = p.Releases.Where(i => i.Realization == query.Platform && i.Channel == query.Channel).MaxBy(i => i.Version);
-					//
-					//if(r != null)
-					//{
-					//	var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Release == query.Realization && 
-					//																		m.Release.Version == r.Version);
-					//
-					//	return new QueryReleaseResult{Registration = rr};
-					//}
-
-					return Releases.Where(	query.Realization.Product.Author, 
-											query.Realization.Product.Name, 
-											i => i.Address.Realization.Name == query.Realization.Name, 
-											LastConfirmedRound.Id)
-									.MaxBy(i => i.Address.Version);
-
-				}
-
-				return null;
-			}
-
-			if(query.VersionQuery == VersionQuery.Exact)
-			{
-				var p = Products.Find(query.Realization.Product, LastConfirmedRound.Id);
-	
-				if(p != null)
-				{
-					//var r = p.Releases.Where(i => i.Realization == query.Platform && i.Channel == query.Channel).MaxBy(i => i.Version);
-					//
-					//if(r != null)
-					//{
-					//	var rr = FindRound(r.Rid).FindOperation<ReleaseRegistration>(m =>	(RealizationAddress)m.Release == query.Realization && 
-					//																		m.Release.Version == r.Version);
-					//
-					//	return new QueryReleaseResult{Registration = rr};
-					//}
-
-					var r = query.Realization;
-
-					return Releases.Find(new ReleaseAddress(r.Product, r.Name, query.Version), LastConfirmedRound.Id);
-				}
-
-				return null;
-			}
-
-			throw new ArgumentException("Unsupported VersionQuery");
+			var a = ResourceAddress.Parse(query);
+		
+			return Resources.Where(a.Author, i => i.Address.Resource.StartsWith(a.Resource), LastConfirmedRound.Id);
 		}
 	}
 }

@@ -15,9 +15,7 @@ namespace Uccs.Net
 		Null,
 		Accounts,
 		Authors,
-		Products,
-		Realizations,
-		Releases
+		Resources
 	}
 
 	public abstract class Table<E, K> : IEnumerable<E> where E : ITableEntry<K>

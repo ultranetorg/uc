@@ -85,15 +85,17 @@ namespace Uccs.Net
 		public void Write(BinaryWriter writer)
 		{
 			//writer.Write(IPs, i => writer.Write(i));
+			writer.Write7BitEncodedInt(RoundId);
 			writer.Write(Signature);
 		}
 		
 		public void Read(BinaryReader reader, Zone zone)
 		{
 			//IPs		= reader.ReadArray(() => reader.ReadIPAddress());
+			RoundId		= reader.Read7BitEncodedInt();
 			Signature	= reader.ReadSignature();
-		
-			Account = zone.Cryptography.AccountFrom(Signature, Hashify(zone));
+			
+			Account		= zone.Cryptography.AccountFrom(Signature, Hashify(zone));
 		}
 	}
 }

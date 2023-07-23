@@ -62,10 +62,10 @@ namespace Uccs.Sun.FUI
 			{
 				foreach(var i in Core.Seedbase.Releases)
 				{
-					var r = Packages.Items.Add(i.Key.Product.Author);
-					r.SubItems.Add(i.Key.Product.Name);
-					r.SubItems.Add(i.Key.Realization.Name.ToString());
-					r.SubItems.Add(i.Key.Version.ToString());
+					var r = Packages.Items.Add(i.Key.Author);
+					r.SubItems.Add(i.Key.Resource);
+					//r.SubItems.Add(i.Key.Realization.Name.ToString());
+					//r.SubItems.Add(i.Key.Version.ToString());
 					//r.SubItems.Add(i.Key.Distributives.ToString());
 					r.Tag = i.Value;
 				}
@@ -83,7 +83,7 @@ namespace Uccs.Sun.FUI
 					foreach(var i in e.Item.Tag as List<Seed>)
 					{
 						var r = Seeds.Items.Add(i.IP.ToString());
-						r.SubItems.Add((i.Distributives.HasFlag(Distributive.Complete) ? "c" : "") + (i.Distributives.HasFlag(Distributive.Incremental) ? "i" : ""));
+						r.SubItems.Add(i.Availability.ToString());
 						r.SubItems.Add(i.Arrived.ToString(ChainTime.DateFormat));
 					}
 				}

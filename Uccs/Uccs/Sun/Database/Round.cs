@@ -66,9 +66,7 @@ namespace Uccs.Net
 
 		public Dictionary<AccountAddress, AccountEntry>			AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
-		public Dictionary<ProductAddress, ProductEntry>			AffectedProducts = new();
-		public Dictionary<RealizationAddress, RealizationEntry>	AffectedPlatforms = new();
-		public Dictionary<ReleaseAddress, ReleaseEntry>			AffectedReleases = new();
+		public Dictionary<ResourceAddress, ResourceEntry>			AffectedReleases = new();
 		
 		public Database											Database;
 
@@ -194,67 +192,33 @@ namespace Uccs.Net
 		//}
 		//
 
-		public ProductEntry FindProduct(ProductAddress address)
+		public AccountEntry FindAccount(AccountAddress account)
 		{
-			if(AffectedProducts.ContainsKey(address))
-				return AffectedProducts[address];
-
-			return Database.Products.Find(address, Id - 1);
+			if(AffectedAccounts.ContainsKey(account))
+				return AffectedAccounts[account];
+		
+			return Database.Accounts.Find(account, Id - 1);
 		}
 
-		public RealizationEntry FindPlatform(RealizationAddress name)
-		{
-			if(AffectedPlatforms.ContainsKey(name))
-				return AffectedPlatforms[name];
-		
-			return Database.Realizations.Find(name, Id - 1);
-		}
-		
-		public ReleaseEntry FindRelease(ReleaseAddress name)
+		public ResourceEntry FindRelease(ResourceAddress name)
 		{
 			if(AffectedReleases.ContainsKey(name))
 				return AffectedReleases[name];
 		
-			return Database.Releases.Find(name, Id - 1);
+			return Database.Resources.Find(name, Id - 1);
 		}
 
-		public ProductEntry AffectProduct(ProductAddress product)
-		{
-			if(AffectedProducts.ContainsKey(product))
-				return AffectedProducts[product];
-			
-			var e = Database.Products.Find(product, Id - 1);
-
-			if(e != null)
-				return AffectedProducts[product] = e.Clone();
-			else
-				return AffectedProducts[product] = new ProductEntry(){Address = product};
-		}
-
-		public RealizationEntry AffectPlatform(RealizationAddress realization)
-		{
-			if(AffectedPlatforms.ContainsKey(realization))
-				return AffectedPlatforms[realization];
-			
-			var e = Database.Realizations.Find(realization, Id - 1);
-
-			if(e != null)
-				return AffectedPlatforms[realization] = e.Clone();
-			else
-				return AffectedPlatforms[realization] = new RealizationEntry{Address = realization};
-		}
-
-		public ReleaseEntry AffectRelease(ReleaseAddress release)
+		public ResourceEntry AffectRelease(ResourceAddress release)
 		{
 			if(AffectedReleases.ContainsKey(release))
 				return AffectedReleases[release];
 			
-			var e = Database.Releases.Find(release, Id - 1);
+			var e = Database.Resources.Find(release, Id - 1);
 			
 			if(e != null)
 				return AffectedReleases[release] = e.Clone();
 			else
-				return AffectedReleases[release] = new ReleaseEntry(){Address = release};
+				return AffectedReleases[release] = new ResourceEntry(){Address = release};
 		}
 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation

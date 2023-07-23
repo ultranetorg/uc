@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using Nethereum.KeyStore;
 using Nethereum.Signer;
 using Nethereum.Util;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Paddings;
-using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
 namespace Uccs.Net
@@ -30,6 +25,7 @@ namespace Uccs.Net
 		public abstract byte[]				Decrypt(byte[] input, string password);
 
 		public static readonly SecureRandom	Random = new SecureRandom();
+		public readonly SHA256				Sha256 = SHA256.Create();
 
 		protected Cryptography()
 		{
@@ -38,6 +34,11 @@ namespace Uccs.Net
 		public byte[] Hash(byte[] data)
 		{
 			return Sha3Keccack.Current.CalculateHash(data);
+		}
+
+		public byte[] HashFile(byte[] data)
+		{
+			return Sha256.ComputeHash(data);
 		}
 
 // 		public byte[] Hash(byte[] data)

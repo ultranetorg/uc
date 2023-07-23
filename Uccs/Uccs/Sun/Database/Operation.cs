@@ -35,7 +35,7 @@ namespace Uccs.Net
 		Null = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		AuthorBid, AuthorRegistration, AuthorTransfer, ProductRegistration, RealizationRegistration , ReleaseRegistration
+		AuthorBid, AuthorRegistration, AuthorTransfer, ResourceUpdation
 	}
 
 	public abstract class Operation// : ITypedBinarySerializable
@@ -56,7 +56,7 @@ namespace Uccs.Net
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		NotOwnerOfAuthor = "The signer does not own the Author";
-		public const string		ProductNotFound = "Product not found";
+		public const string		CantChangeConstantResource = "Cant change constant resource";
 
 		public Operations		Type => Enum.Parse<Operations>(GetType().Name);
 
@@ -134,14 +134,14 @@ namespace Uccs.Net
 			return (int)s.Length;
 		}
 
-		public Coin CalculateFee(Coin factor)
+		public Coin CalculateTransactionFee(Coin factor)
 		{
 			int size = CalculateSize();
 
 			return Database.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
 		}
 		
-		public static Coin CalculateFee(Coin factor, IEnumerable<Operation> operations)
+		public static Coin CalculateTransactionFee(Coin factor, IEnumerable<Operation> operations)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -154,6 +154,10 @@ namespace Uccs.Net
 			return Database.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
+		public Coin CalculateSpaceFee(Coin factor)
+		{
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * CalculateSize() * Database.SpaceFeePerByte;
+		}
 	}
 
 	public class CandidacyDeclaration : Operation
@@ -206,7 +210,7 @@ namespace Uccs.Net
 	public class Emission : Operation
 	{
 		public static readonly Coin		FactorStart = 0;
-		public static readonly Coin		FactorEnd = 1000;
+		public static readonly Coin		FactorEnd = 999;
 		public static readonly Coin		FactorStep = new Coin(0.1);
 		public static readonly Coin		Step = 1000;
 
@@ -246,7 +250,7 @@ namespace Uccs.Net
 		{
 			Portion = Calculate(round.WeiSpent, round.Factor, Wei);
 			
-			if(Portion.Factor < FactorEnd)
+			if(Portion.Factor <= FactorEnd)
 			{
 				round.AffectAccount(Signer).Balance += Portion.Amount;
 				round.Distribute(Portion.Amount * 1/10, round.Funds);
@@ -294,7 +298,7 @@ namespace Uccs.Net
 
 				var r = w - d;
 
-				while(f < FactorEnd)
+				while(f <= FactorEnd)
 				{
 					f = f + FactorStep;
 
@@ -348,9 +352,17 @@ namespace Uccs.Net
 			w.Write(Amount);
 		}
 
-		public override void  Execute(Database chain, Round round)
+		public override void Execute(Database chain, Round round)
 		{
-			round.AffectAccount(Signer).Balance -= Amount;
+			var s = round.AffectAccount(Signer);
+			
+			s.Balance -= Amount;
+
+			if(round.FindAccount(To) == null)
+			{
+				s.Balance -= CalculateSpaceFee(round.Factor);
+			}
+
 			round.AffectAccount(To).Balance += Amount;
 		}
 	}
@@ -496,7 +508,7 @@ namespace Uccs.Net
 		public override string		Description => $"{Author} ({Title}) for {Years} years";
 		public override bool		Valid => IsValid(Author, Title) && 0 < Years;
 		
-		public static Coin			GetCost(Round round, int years) => new Coin(1)/1000 * years * (Emission.FactorEnd - round.Factor) / Emission.FactorEnd;
+		public static Coin			GetCost(Coin factor, int years) => Database.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
 
 		public AuthorRegistration()
 		{
@@ -548,7 +560,7 @@ namespace Uccs.Net
 					//round.AffectAccount(Signer).Authors.Add(Author);
 				}
 
-				var cost = GetCost(round, Years);
+				var cost = GetCost(round.Factor, Years);
 
 				a = round.AffectAuthor(Author);
 				//a.ObtainedRid		= round.Id;
@@ -579,7 +591,7 @@ namespace Uccs.Net
 	public class AuthorTransfer : Operation
 	{
 		public string			Author;
-		public AccountAddress			To  {get; set;}
+		public AccountAddress	To  {get; set;}
 		public override string	Description => $"{Author} -> {To}";
 		public override bool	Valid => 0 < Author.Length;
 		

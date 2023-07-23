@@ -5,9 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualBasic;
-using Nethereum.Contracts.QueryHandlers.MultiCall;
-using static Uccs.Net.DownloadReport;
 
 namespace Uccs.Net
 {
@@ -20,7 +17,7 @@ namespace Uccs.Net
 	{
 		public class Dependency
 		{
-			public ReleaseAddress	Release { get; set; }
+			public ResourceAddress	Release { get; set; }
 			public bool				Exists { get; set; }
 		}
 
@@ -38,7 +35,7 @@ namespace Uccs.Net
 			public IEnumerable<IPAddress>	Seeds { get; set; }
 		}
 
-		public Distributive				Distributive { get; set; }
+		public string					File { get; set; }
 		public long						Length { get; set; }
 		public long						CompletedLength { get; set; }
 		public IEnumerable<Dependency>	DependenciesRecursive { get; set; }
@@ -131,7 +128,7 @@ namespace Uccs.Net
 
 												while(Data.Position < Length)
 												{
-													var d = Seed.Peer.DownloadRelease(Download.Release, Download.Distributive, Offset + Data.Position, Length - Data.Position).Data;
+													var d = Seed.Peer.DownloadRelease(Download.Release, Download.File, Offset + Data.Position, Length - Data.Position).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
@@ -152,16 +149,13 @@ namespace Uccs.Net
 			public int			Succeses;
 		}
 
-		public ReleaseAddress						Release;
-		public Distributive							Distributive { get; protected set; }
+		public ResourceAddress						Release;
+		public string								File { get; protected set; }
 		public long									Length { get; protected set; }
-		public bool									Succeeded => Downloaded && DependenciesRecursiveFound && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
+		public bool									Succeeded => Downloaded;
 		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
 																		- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
 																		+ CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
-		public int									DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
-		public bool									DependenciesRecursiveFound => Manifest != null && Dependencies.All(i => i.DependenciesRecursiveFound);
-		public int									DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public object								Lock = new object();
 
 		internal Core								Core;
@@ -171,35 +165,21 @@ namespace Uccs.Net
 		List<Piece>									CompletedPieces = new();
 		public List<Hub>							Hubs = new();
 		public List<Seed>							Seeds = new();
-		public List<Download>						Dependencies = new();
-		public IEnumerable<Download>				DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Release);
 		byte[]										Hash;
 		int											PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
-		Manifest									Manifest;
-		Task										Task;
+		public Task									Task;
 
-		public Download(Core core, ReleaseAddress release, Workflow workflow)
+		public Download(Core core, ResourceAddress release, string file, Workflow workflow)
 		{
 			Core = core;
 			Release = release;
+			File = file;
 			Workflow = workflow;
 
 			int hubsgoodmax = 8;
 
 			Task = Task.Run(() =>
 							{
-								ReleaseHistoryResponse his = null;
-
-								while(!workflow.IsAborted)
-								{
-									his = Core.Call(Role.Base, c => c.GetReleaseHistory(release.Realization), workflow);
-
-									if(his.Releases.Any(i => i.Address == Release))
-										break;
-									else
-										Thread.Sleep(100);
-								}
-				
 								Piece j;
 
 								while(!workflow.IsAborted)
@@ -242,48 +222,7 @@ namespace Uccs.Net
 												{
 													s.Peer = core.GetPeer(s.IP);
 												}
-
-												if(Manifest == null)
-												{
-													try
-													{
-														Manifest = core.Call(s.Peer.IP, p => p.GetManifest(release).Manifest, workflow);
-														Manifest.Release = release;
-
-														if(!Manifest.GetOrCalcHash().SequenceEqual(his.Releases.First(i => i.Address == release).Manifest))
-														{
-															Manifest = null;
-															continue;
-														}
-													}
-													catch(Exception ex) when(ex is ConnectionFailedException || ex is RdcNodeException || ex is RdcEntityException)
-													{
-														s.Failed = DateTime.UtcNow;
-														continue;
-													}
-															
-													Core.Filebase.DetermineDelta(his.Releases, Manifest, out Distributive d, out List<Dependency> deps);
-
-													Distributive = d;
-
-													deps	= d == Distributive.Incremental ? deps : Manifest.CompleteDependencies.ToList();
-													Hash	= d == Distributive.Complete ? Manifest.CompleteHash : Manifest.IncrementalHash;
-													Length	= d == Distributive.Complete ? Manifest.CompleteLength : Manifest.IncrementalLength;
-								
-													lock(core.Lock)
-													{
-														foreach(var i in deps)
-														{
-															var dd = core.DownloadRelease(i.Release, workflow);
-																
-															if(dd != null)
-															{
-																Dependencies.Add(dd);
-															}
-														}
-													}
-												}
-												
+																				
 												CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
 											}
 											else
@@ -330,15 +269,15 @@ namespace Uccs.Net
 											j.Seed.Failures++;
 											j.Seed.Failed = DateTime.MinValue;
 
-											lock(Core.Lock)
-												Core.Filebase.WritePackage(Release, Distributive, j.Offset, j.Data.ToArray());
+											lock(Core.Filebase.Lock)
+												Core.Filebase.WriteFile(Release, File, j.Offset, j.Data.ToArray());
 											
 											CompletedPieces.Add(j);
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
 												lock(Core.Lock)
-													if(Core.Filebase.GetHash(Release, Distributive).SequenceEqual(Hash))
+													if(Core.Filebase.Hashify(Release, File).SequenceEqual(Hash))
 													{	
 														goto end;
 													}
@@ -364,10 +303,8 @@ namespace Uccs.Net
 
 							end:
 
-								lock(Core.Lock)
+								lock(Core.Filebase.Lock)
 								{
-									Core.Filebase.AddRelease(Release, Manifest);
-
 									var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).Select(i => i.Peer);
 
 									foreach(var h in hubs)
@@ -378,10 +315,12 @@ namespace Uccs.Net
 									foreach(var h in seeds)
 										h.SeedRank++;
 
-									his.Peer.BaseRank++;
+									lock(Core.Lock)
+									{
+										Core.UpdatePeers(seeds.Union(hubs).Distinct());
+									}
 
-									Core.UpdatePeers(seeds.Union(hubs).Union(new[]{his.Peer}).Distinct());
-									Core.Downloads.Remove(this);
+									Core.Filebase.Downloads.Remove(this);
 
 									Downloaded = true;
 								}
@@ -392,7 +331,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return Release.ToString();
+			return $"{Release}/{File}";
 		}
 
 		//public Job AddCompleted(int i)

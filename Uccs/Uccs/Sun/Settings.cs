@@ -161,7 +161,7 @@ namespace Uccs.Net
 		public List<AccountKey>			Generators = new();
 		public AccountKey				Analyzer;
 		public string					Profile;
-		public string					ProductsPath;
+		public string					Packages;
 
 		public static DevSettings		Dev;
 		public NasSettings				Nas;
@@ -203,6 +203,7 @@ namespace Uccs.Net
 			IP			= IPAddress.Parse(doc.GetString("IP"));
 			Generators	= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log			= doc.Has("Log");
+			Packages	= doc.GetString("Packages");
 
 			Dev			= new (doc.One(nameof(Dev)));
 			Database	= new (doc.One(nameof(Database)));

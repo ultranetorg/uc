@@ -1,24 +1,32 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Uccs.Net
 {
+	public class ResourceDirectory
+	{
+		public string				Path { get; set; }
+		public AccountAddress[]		Publishers { get; set; }
+	}
+
 	public class Author : IBinarySerializable
 	{
-		public const int			ExclusiveLengthMax = 4;
-		public const int			NameLengthMin = 2;
+		public const int				ExclusiveLengthMax = 4;
+		public const int				NameLengthMin = 2;
 
-		public static bool IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
+		public string					Name;
+		public string					Title;
+		public AccountAddress			Owner;
+		public byte						Years;
+		public ChainTime				RegistrationTime;
+		public ChainTime				FirstBidTime = ChainTime.Empty;
+		public AccountAddress			LastWinner;
+		public Coin						LastBid;
+		public ChainTime				LastBidTime;
+		public List<ResourceDirectory>	Directories;
 
-		public string				Name { get; set; }
-		public string				Title { get; set; }
-		public AccountAddress		Owner { get; set; }
-		public byte					Years { get; set; }
-		public ChainTime			RegistrationTime { get; set; }
-		public ChainTime			FirstBidTime { get; set; } = ChainTime.Empty;
-		public AccountAddress		LastWinner { get; set; }
-		public Coin					LastBid { get; set; }
-		public ChainTime			LastBidTime { get; set; }
+		public static bool				IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
 
 		public void Write(BinaryWriter w)
 		{
@@ -46,6 +54,9 @@ namespace Uccs.Net
 				w.WriteUtf8(Title);
 				w.Write(Years);
 			}
+
+			w.Write(Directories, i => {	w.WriteUtf8(i.Path);
+										w.Write(i.Publishers); });
 		}
 
 		public void Read(BinaryReader r)
@@ -70,6 +81,9 @@ namespace Uccs.Net
 				Title				= r.ReadUtf8();
 				Years				= r.ReadByte();
 			}
+
+			Directories = r.ReadList<ResourceDirectory>(() => new ResourceDirectory {	Path = r.ReadUtf8(), 
+																						Publishers = r.ReadArray<AccountAddress>() });
 		}
 	}
 }

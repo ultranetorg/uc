@@ -7,15 +7,15 @@ using Nethereum.KeyStore.Crypto;
 
 namespace Uccs.Sun.FUI
 {
-	public class ProductModel
-	{
-		public ProductEntry Product;
-		public AuthorEntry Author;
-
-		public ProductModel()
-		{
-		}
-	}
+// 	public class ProductModel
+// 	{
+// 		public ProductEntry Product;
+// 		public AuthorEntry Author;
+// 
+// 		public ProductModel()
+// 		{
+// 		}
+// 	}
 
 	public class BaseControl : UserControl
 	{
@@ -50,33 +50,33 @@ namespace Uccs.Sun.FUI
 			return o;
 		}
 
-		public IEnumerable<ProductModel> FindProducts(AccountAddress owner)
-		{
-			var o = new List<ProductModel>();
-			
-			foreach(var r in Database.Tail)
-				foreach(var p in r.AffectedProducts)
-				{
-					foreach(var rx in Database.Tail)
-						foreach(var a in rx.AffectedAuthors)
-							if(a.Value.Owner == owner && p.Key.Author == a.Key && !o.Any(i => i.Author.Name == a.Key && i.Product.Address == p.Key))
-							{
-								o.Add(new ProductModel{Product = p.Value, Author = a.Value});
-							}
-				}
-
-			/// TODO: too slow
-			foreach(var i in Database.Authors.Where(i => i.Owner == owner)
-											 .SelectMany(a => Database.Products.Where(i => i.Address.Author == a.Name).Select(p =>	new ProductModel{Product = p, Author = a})))
-			{
-					if(!o.Any(x => x.Author.Name == i.Author.Name && x.Product.Address == i.Product.Address))
-					{
-						o.Add(i);
-					}
-			}
-
-			return o;
-		}
+// 		public IEnumerable<ProductModel> FindProducts(AccountAddress owner)
+// 		{
+// 			var o = new List<ProductModel>();
+// 			
+// 			foreach(var r in Database.Tail)
+// 				foreach(var p in r.AffectedProducts)
+// 				{
+// 					foreach(var rx in Database.Tail)
+// 						foreach(var a in rx.AffectedAuthors)
+// 							if(a.Value.Owner == owner && p.Key.Author == a.Key && !o.Any(i => i.Author.Name == a.Key && i.Product.Address == p.Key))
+// 							{
+// 								o.Add(new ProductModel{Product = p.Value, Author = a.Value});
+// 							}
+// 				}
+// 
+// 			/// TODO: too slow
+// 			foreach(var i in Database.Authors.Where(i => i.Owner == owner)
+// 											 .SelectMany(a => Database.Products.Where(i => i.Address.Author == a.Name).Select(p =>	new ProductModel{Product = p, Author = a})))
+// 			{
+// 					if(!o.Any(x => x.Author.Name == i.Author.Name && x.Product.Address == i.Product.Address))
+// 					{
+// 						o.Add(i);
+// 					}
+// 			}
+// 
+// 			return o;
+// 		}
 
 		protected void FillAccounts(ComboBox b)
 		{

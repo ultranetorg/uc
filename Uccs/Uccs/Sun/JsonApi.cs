@@ -172,15 +172,14 @@ namespace Uccs.Net
 		public Coin				Amount { get; set; }
 	}
 
-	public class QueryReleaseCall : ApiCall
+	public class QueryResourceCall : ApiCall
 	{
-		public IEnumerable<ReleaseQuery>	Queries { get; set; }
-		public bool							Confirmed { get; set; }
+		public string		Query { get; set; }
 	}
 
 	public class AddReleaseCall : ApiCall
 	{
-		public ReleaseAddress	Release { get; set; }
+		public ReleaseAddress		Release { get; set; }
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
@@ -191,19 +190,19 @@ namespace Uccs.Net
 	//	public ReleaseAddress	Release { get; set; }
 	//}
 
-	public class ReleaseStatusCall : ApiCall
+	public class PackageStatusCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }
-		public int				Limit  { get; set; }
+		public int			Limit  { get; set; }
 	}
 
-	public class GetReleaseCall : ApiCall
+	public class InstallPackageCall : ApiCall
 	{
 		public ReleaseAddress	Release { get; set; }
 	}
 
 	public class GenerateAnalysisReportCall : ApiCall
 	{
-		public IDictionary<ReleaseAddress, AnalysisResult>	Results { get; set; }
+		public IDictionary<ResourceAddress, AnalysisResult>	Results { get; set; }
 	}
 }

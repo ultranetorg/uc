@@ -257,22 +257,22 @@ namespace Uccs.Net
 																					})
 																					.ToArray()}; 
 	
-						case QueryReleaseCall c:
+						case QueryResourceCall c:
 							lock(Core.Lock)
-								return Core.QueryRelease(c.Queries, c.Confirmed);
+								return Core.QueryResource(c.Query);
 	
 						case AddReleaseCall c:
 							lock(Core.Lock)
 							{
-								Core.Filebase.AddRelease(c.Release, c.Manifest);
+								Core.PackageBase.Add(c.Release, c.Manifest);
 			
 								if(c.Complete != null)
 								{
-									Core.Filebase.WritePackage(c.Release, Distributive.Complete, 0, c.Complete);
+									Core.Filebase.WriteFile(c.Release, Package.Cpkg, 0, c.Complete);
 								}
 								if(c.Incremental != null)
 								{
-									Core.Filebase.WritePackage(c.Release, Distributive.Incremental, 0, c.Incremental);
+									Core.Filebase.WriteFile(c.Release, Package.Ipkg, 0, c.Incremental);
 								}
 							}
 	
@@ -283,19 +283,19 @@ namespace Uccs.Net
 						//		Core.DownloadRelease(c.Release, Workflow);
 						//	break;
 	
-						case ReleaseStatusCall c:
-							///lock(Core.Lock)
-							return Core.GetReleaseStatus(c.Release, c.Limit);
+						case PackageStatusCall c:
+							lock(Core.PackageBase.Lock)
+								return Core.PackageBase.GetStatus(c.Release, c.Limit);
 
-						case GetReleaseCall c:
-							lock(Core.Lock)
-								Core.GetRelease(c.Release, Workflow);
+						case InstallPackageCall c:
+							lock(Core.PackageBase.Lock)
+								Core.PackageBase.Install(c.Release, Workflow);
 							break;
 
 						case GenerateAnalysisReportCall c:
 							lock(Core.Lock)
 							{	
-								Core.Analyses.AddRange(c.Results.Select(i => new Analysis {Release = i.Key, Result = i.Value}));
+								Core.Analyses.AddRange(c.Results.Select(i => new Analysis {Resource = i.Key, Result = i.Value}));
 							}
 							break;
 					}

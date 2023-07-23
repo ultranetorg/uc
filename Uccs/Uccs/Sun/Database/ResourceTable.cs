@@ -6,23 +6,23 @@ using System.Xml.Linq;
 
 namespace Uccs.Net
 {
-	public class ReleaseTable : Table<ReleaseEntry, ReleaseAddress>
+	public class ResourceTable : Table<ResourceEntry, ResourceAddress>
 	{
-		public ReleaseTable(Database chain) : base(chain)
+		public ResourceTable(Database chain) : base(chain)
 		{
 		}
 		
-		protected override ReleaseEntry Create()
+		protected override ResourceEntry Create()
 		{
-			return new ReleaseEntry();
+			return new ResourceEntry();
 		}
 
-		protected override byte[] KeyToBytes(ReleaseAddress key)
+		protected override byte[] KeyToBytes(ResourceAddress key)
 		{
-			return Encoding.UTF8.GetBytes(key.ToString());
+			return Encoding.UTF8.GetBytes(key.Author);
 		}
 		
-		public ReleaseEntry Find(ReleaseAddress name, int ridmax)
+		public ResourceEntry Find(ResourceAddress name, int ridmax)
 		{
 			if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 				throw new IntegrityException("maxrid works inside pool only");
@@ -36,14 +36,14 @@ namespace Uccs.Net
 			return e;
 		}
 
-		public IEnumerable<ReleaseEntry> Where(string author, string product, Func<ReleaseEntry, bool> predicate, int ridmax)
+		public IEnumerable<ResourceEntry> Where(string author, Func<ResourceEntry, bool> predicate, int ridmax)
 		{
 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				foreach(var i in r.AffectedReleases)
-					if(i.Key.Product.Author == author && i.Key.Product.Name == product && predicate(i.Value))
+					if(i.Key.Author == author && predicate(i.Value))
 						yield return i.Value;
 
-			var bcid = KeyToBytes(new ReleaseAddress(author, product, null, Version.Zero)).Take(ClustersKeyLength).ToArray();
+			var bcid = KeyToBytes(new ResourceAddress(author, null)).Take(ClustersKeyLength).ToArray();
 			var cid = Cluster.ToId(bcid);
 		
 			var c = Clusters.Find(i => i.Id == cid);
@@ -52,7 +52,7 @@ namespace Uccs.Net
 				yield break;
 		
 			foreach(var i in c.Entries)
-				if(i.Key.Product.Author == author && i.Key.Product.Name == product && predicate(i))
+				if(i.Key.Author == author && predicate(i))
 					yield return i;
 		}
 	}

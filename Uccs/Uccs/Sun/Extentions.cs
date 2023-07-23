@@ -37,6 +37,17 @@ namespace Uccs.Net
 			return false;
 		}
 
+		public static void WriteBytes(this BinaryWriter w, byte [] data)
+		{
+			w.Write7BitEncodedInt(data.Length);
+			w.Write(data);
+		}
+
+		public static byte[] ReadBytes(this BinaryReader r)
+		{
+			return r.ReadBytes(r.Read7BitEncodedInt());
+		}
+
 		public static byte[] ReadSha3(this BinaryReader r)
 		{
 			return r.ReadBytes(Cryptography.HashSize);
@@ -184,24 +195,18 @@ namespace Uccs.Net
 				w.Write7BitEncodedInt(0);
 		}
 
-		public static List<T> ReadList<T>(this BinaryReader r, Func<T> a)
+		public static IEnumerable<T> Read<T>(this BinaryReader r, Func<T> read)
 		{
-			var o = new List<T>();
-
 			var n = r.Read7BitEncodedInt();
 			
 			for(int i = 0; i < n; i++)
 			{
-				o.Add(a());
+				yield return read();;
 			}
-
-			return o;
 		}
 
 		public static IEnumerable<T> Read<T>(this BinaryReader r, Action<T> read)  where T : new()
 		{
-			var o = new List<T>();
-
 			var n = r.Read7BitEncodedInt();
 			
 			for(int i = 0; i < n; i++)
@@ -224,6 +229,20 @@ namespace Uccs.Net
 				read(e);
 				yield return e;
 			}
+		}
+
+		public static List<T> ReadList<T>(this BinaryReader r, Func<T> a)
+		{
+			var o = new List<T>();
+
+			var n = r.Read7BitEncodedInt();
+			
+			for(int i = 0; i < n; i++)
+			{
+				o.Add(a());
+			}
+
+			return o;
 		}
 
 		public static HashSet<T> ReadHashSet<T>(this BinaryReader r, Func<T> a)
@@ -284,15 +303,15 @@ namespace Uccs.Net
 		}
 
 
-		public static void Read(this BinaryReader r, Action a)
-		{
-			var n = r.Read7BitEncodedInt();
-			
-			for(int i = 0; i < n; i++)
-			{
-				a();
-			}
-		}
+		//public static void Read(this BinaryReader r, Action a)
+		//{
+		//	var n = r.Read7BitEncodedInt();
+		//	
+		//	for(int i = 0; i < n; i++)
+		//	{
+		//		a();
+		//	}
+		//}
 
 		public static T[] ReadArray<T>(this BinaryReader r) where T : IBinarySerializable, new()
 		{

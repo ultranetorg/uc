@@ -207,8 +207,8 @@ namespace Uccs.Net
 		public List<AccountAddress>		FundJoiners = new();
 		public List<AccountAddress>		FundLeavers = new();
 		public List<AccountAddress>		Violators = new();
-		public List<ReleaseAddress>		CleanReleases = new();
-		public List<ReleaseAddress>		InfectedReleases = new();
+		public List<ResourceAddress>		CleanReleases = new();
+		public List<ResourceAddress>		InfectedReleases = new();
 
 		//public byte[]					Prefix => Hash.Take(Consensus.PrefixLength).ToArray();
 
@@ -321,8 +321,8 @@ namespace Uccs.Net
 			FundJoiners			= reader.ReadAccounts();
 			FundLeavers			= reader.ReadAccounts();
 			Violators			= reader.ReadAccounts();
-			CleanReleases		= reader.ReadList<ReleaseAddress>();
-			InfectedReleases	= reader.ReadList<ReleaseAddress>();
+			CleanReleases		= reader.ReadList<ResourceAddress>();
+			InfectedReleases	= reader.ReadList<ResourceAddress>();
 
 			Transactions = reader.ReadList(() =>	{
 														var t = new Transaction(Database.Zone)

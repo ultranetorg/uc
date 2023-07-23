@@ -2,8 +2,8 @@
 {
 	public class DownloadReleaseRequest : RdcRequest
 	{
-		public ReleaseAddress		Package { get; set; }
-		public Distributive			Distributive { get; set; }
+		public ResourceAddress		Release { get; set; }
+		public string				File { get; set; }
 		public long					Offset { get; set; }
 		public long					Length { get; set; }
 
@@ -11,7 +11,7 @@
 		{
 			if(core.Filebase == null) throw new RdcNodeException(RdcNodeError.NotSeed);
 
-			return new DownloadReleaseResponse{Data = core.Filebase.ReadPackage(Package, Distributive, Offset, Length)};
+			return new DownloadReleaseResponse{Data = core.Filebase.ReadFile(Release, File, Offset, Length)};
 		}
 	}
 

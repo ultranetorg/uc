@@ -23,56 +23,56 @@ namespace Uccs.Sun.FUI
 			{
 				BindAccounts(SearchAccount);
 				BindAccounts(PublisherAccount);
-				
+
 				registeringProduct_TextChanged(null, null);
 			}
 		}
 
 		private void search_Click(object sender, EventArgs e)
 		{
-			try
-			{
-				products.Items.Clear();
-				
-				foreach(var ar in FindProducts(AccountAddress.Parse(SearchAccount.Text)))
-				{
-					var i = new ListViewItem(ar.Product.Address.Name);
-					i.Tag = ar;
-					i.SubItems.Add(ar.Product.Title);
-					i.SubItems.Add(ar.Author.Name);
-	//				i.SubItems.Add(ar.Publisher.ToString());
-				
-					products.Items.Add(i);
-				}
-			}
-			catch(Exception ex)
-			{
-				ShowError(ex.Message);
-			}
+// 			try
+// 			{
+// 				products.Items.Clear();
+// 
+// 				foreach(var ar in FindProducts(AccountAddress.Parse(SearchAccount.Text)))
+// 				{
+// 					var i = new ListViewItem(ar.Product.Address.Name);
+// 					i.Tag = ar;
+// 					i.SubItems.Add(ar.Product.Title);
+// 					i.SubItems.Add(ar.Author.Name);
+// 					//				i.SubItems.Add(ar.Publisher.ToString());
+// 
+// 					products.Items.Add(i);
+// 				}
+// 			}
+// 			catch(Exception ex)
+// 			{
+// 				ShowError(ex.Message);
+// 			}
 		}
-		
+
 		private void register_Click(object sender, EventArgs e)
 		{
-			try
-			{
-				if(!Operation.IsValid(ProductName.Text, ProductTitle.Text))
-					throw new ArgumentException("Invalid product name");
-
-				if(Author.SelectedItem == null)
-					throw new ArgumentException("Invalid author name. If you don't own any author yet then you need to register one first.");
-
-				var a = Core.Database.Authors.Find(Author.SelectedItem as string, int.MaxValue);
-
-				Core.Enqueue(new ProductRegistration(	GetPrivate(a.Owner),
-														new ProductAddress(ProductName.Text, Author.SelectedItem as string),
-														ProductTitle.Text),
-														PlacingStage.Null,
-														null);
-			}
-			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
-			{
-				ShowError(ex.Message);
-			}
+// 			try
+// 			{
+// 				if(!Operation.IsValid(ProductName.Text, ProductTitle.Text))
+// 					throw new ArgumentException("Invalid product name");
+// 
+// 				if(Author.SelectedItem == null)
+// 					throw new ArgumentException("Invalid author name. If you don't own any author yet then you need to register one first.");
+// 
+// 				var a = Core.Database.Authors.Find(Author.SelectedItem as string, int.MaxValue);
+// 
+// 				Core.Enqueue(new ProductRegistration(GetPrivate(a.Owner),
+// 														new ProductAddress(ProductName.Text, Author.SelectedItem as string),
+// 														ProductTitle.Text),
+// 														PlacingStage.Null,
+// 														null);
+// 			}
+// 			catch(Exception ex) when(ex is RequirementException || ex is ArgumentException)
+// 			{
+// 				ShowError(ex.Message);
+// 			}
 		}
 
 		private void registeringProduct_TextChanged(object sender, EventArgs e)
@@ -103,7 +103,7 @@ namespace Uccs.Sun.FUI
 
 		private void products_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 		{
-			Management.Enabled = e.IsSelected && Vault.Accounts.Contains((e.Item.Tag as ProductModel).Author.Owner);
+		//	Management.Enabled = e.IsSelected && Vault.Accounts.Contains((e.Item.Tag as ProductModel).Author.Owner);
 		}
 	}
 }

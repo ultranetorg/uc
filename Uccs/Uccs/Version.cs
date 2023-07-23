@@ -139,7 +139,7 @@ namespace Uccs
 
 		public static bool operator == (Version left, Version right)
 		{
-			return EqualityComparer<Version>.Default.Equals(left, right);
+			return left is null && right is null || left is not null && right is not null && left.Equals(right);
 		}
 
 		public static bool operator !=(Version left, Version right)

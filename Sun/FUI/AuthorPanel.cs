@@ -159,7 +159,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Core.Lock)
 			{
-				Cost.Coins = AuthorRegistration.GetCost(Database.LastConfirmedRound, (byte)Years.Value);
+				Cost.Coins = AuthorRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
 			}
 		}
 

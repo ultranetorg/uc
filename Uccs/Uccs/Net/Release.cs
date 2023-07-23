@@ -1,59 +1,244 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Uccs.Net
 {
+	public enum DependencyType
+	{
+		Null, Critical, Deferred
+	}
+
+	public enum DependencyFlag : byte
+	{
+		Null, 
+		SideBySide			= 0b0000_0001, 
+		AutoUpdateAllowed	= 0b0000_0010
+	}
+
+	public class Dependency : IBinarySerializable, IEquatable<Dependency>
+	{
+		public DependencyType	Type { get; set; }
+		public DependencyFlag	Flags { get; set; }
+		public ReleaseAddress	Release { get; set; }
+
+		internal static Dependency From(Xon i)
+		{
+			var d = new Dependency();
+			
+			d.Release	= ReleaseAddress.Parse(i.String);
+			d.Type		= Enum.Parse<DependencyType>(i.Name);
+			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.Null;
+			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.Null;
+
+			return d;
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			Release = reader.Read<ReleaseAddress>();
+			Type = (DependencyType)reader.ReadByte();
+			Flags = (DependencyFlag)reader.ReadByte();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(Release);
+			writer.Write((byte)Type);
+			writer.Write((byte)Flags);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as Dependency);
+		}
+
+		public bool Equals(Dependency other)
+		{
+			return other is not null &&
+				   Type == other.Type &&
+				   Flags == other.Flags &&
+				   EqualityComparer<ReleaseAddress>.Default.Equals(Release, other.Release);
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Type, Flags, Release);
+		}
+
+		public static bool operator ==(Dependency left, Dependency right)
+		{
+			return EqualityComparer<Dependency>.Default.Equals(left, right);
+		}
+
+		public static bool operator !=(Dependency left, Dependency right)
+		{
+			return !(left == right);
+		}
+	}	
+
 	public class Release : IBinarySerializable
 	{
-		public ReleaseAddress	Address { get; set; }
-		public byte[]			Manifest { get; set; }
-		public string			Channel { get; set; } /// stable, beta, nightly, debug,...
-		public AnalysisStage	AnalysisStage { get; set; }
-		public Coin				AnalysisFee { get; set; }
-		public int				RoundId { get; set; }
-		public int				QuorumRid { get; set; }
-		public byte				Good { get; set; }
-		public byte				Bad { get; set; }
-		
+		public ReleaseAddress			Address { get; set; }
+		public byte[]					CompleteHash { get; set; }
+		public long						CompleteLength { get; set; }
+		public Dependency[]				CompleteDependencies { get; set; }
+
+		public byte[]					IncrementalHash { get; set; }
+		public long						IncrementalLength { get; set; }
+		public Version					IncrementalMinimalVersion { get; set; }
+		public Dependency[]				AddedDependencies { get; set; }
+		public Dependency[]				RemovedDependencies { get; set; }
+
+		[JsonIgnore]
+		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
+
+ 		byte[]							Hash;
+		public Zone						Zone;
+
+		public Release()
+		{
+		}
+
+		public Release(Zone zone)
+		{
+			Zone = zone;
+		}
+
+		public Release(Zone						zone,
+						byte[]					completehash,
+						long					completelength,
+						IEnumerable<Dependency>	completecoredependencies,
+						byte[]					incrementalhash,
+						long					incrementallength,
+						Version					incrementalminimalversion,
+						IEnumerable<Dependency>	addedcoredependencies,
+						IEnumerable<Dependency>	removedcoredependencies)
+		{
+			Zone						= zone;
+			CompleteHash				= completehash;
+			CompleteLength				= completelength;
+			CompleteDependencies		= completecoredependencies?.ToArray() ?? new Dependency[]{};
+			
+			IncrementalHash				= incrementalhash;
+			IncrementalLength			= incrementallength;
+			IncrementalMinimalVersion	= incrementalminimalversion;
+
+			AddedDependencies			= addedcoredependencies?.ToArray() ?? new Dependency[]{};
+			RemovedDependencies			= removedcoredependencies?.ToArray() ?? new Dependency[]{};
+		}
+
+		public XonDocument ToXon(IXonValueSerializator serializator)
+		{
+			var d = new XonDocument(serializator);
+
+			if(CompleteHash != null)
+			{
+				d.Add("CompleteHash").Value = CompleteHash;
+				d.Add("CompleteLength").Value = CompleteLength;
+	
+				if(CompleteDependencies.Any())
+				{
+					var cd = d.Add("CompleteDependencies");
+	
+					foreach(var i in CompleteDependencies)
+					{
+						cd.Add(i.ToString());
+					}
+				}
+			}
+	
+			if(IncrementalHash != null)
+			{
+				d.Add("IncrementalHash").Value = IncrementalHash;
+				d.Add("IncrementalLength").Value = IncrementalLength;
+				d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
+
+				if(AddedDependencies.Any())
+				{
+					var cd = d.Add("AddedDependencies");
+
+					foreach(var i in AddedDependencies)
+					{
+						cd.Add(i.ToString());
+					}
+				}
+	
+				if(RemovedDependencies.Any())
+				{
+					var cd = d.Add("RemovedDependencies");
+
+					foreach(var i in RemovedDependencies)
+					{
+						cd.Add(i.ToString());
+					}
+				}
+			}
+
+			return d;		
+		}
+
+ 		public byte[] GetOrCalcHash()
+ 		{
+ 			if(Hash != null)
+ 			{
+ 				return Hash;
+ 			}
+ 
+ 			var s = new MemoryStream();
+ 			var w = new BinaryWriter(s);
+ 	
+			Write(w);
+				
+ 			Hash = Zone.Cryptography.Hash(s.ToArray());
+ 		
+ 			return Hash;
+ 		}
+
 		public void Write(BinaryWriter w)
 		{
-			w.Write(Address);
-			w.Write(Manifest);
-			w.WriteUtf8(Channel);
-			w.Write((byte)AnalysisStage);
+			w.Write(CompleteHash != null);
 
-			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.QuorumReached)
+			if(CompleteHash != null)
 			{
-				w.Write(AnalysisFee);
-				w.Write7BitEncodedInt(RoundId);
-				w.Write7BitEncodedInt(QuorumRid);
+				w.Write(CompleteHash);
+				w.Write7BitEncodedInt64(CompleteLength);
+				w.Write(CompleteDependencies);
 			}
-			if(AnalysisStage == AnalysisStage.Finished)
+							
+			w.Write(IncrementalHash != null);
+				
+			if(IncrementalHash != null)
 			{
-				w.Write(Good);
-				w.Write(Bad);
+				w.Write(IncrementalHash);
+				w.Write7BitEncodedInt64(IncrementalLength);
+				w.Write(IncrementalMinimalVersion);
+
+				w.Write(AddedDependencies);
+				w.Write(RemovedDependencies);
 			}
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Address	= r.Read<ReleaseAddress>();
-			Manifest = r.ReadSha3();
-			Channel = r.ReadUtf8();
-			AnalysisStage = (AnalysisStage)r.ReadByte();
-			
-			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.QuorumReached)
+			if(r.ReadBoolean())
 			{
-				AnalysisFee = r.ReadCoin();
-				RoundId = r.Read7BitEncodedInt();
-				QuorumRid = r.Read7BitEncodedInt();
+				CompleteHash = r.ReadSha3();
+				CompleteLength = r.Read7BitEncodedInt64();
+				CompleteDependencies = r.ReadArray<Dependency>();
 			}
-			if(AnalysisStage == AnalysisStage.Finished)
+
+			if(r.ReadBoolean())
 			{
-				Good = r.ReadByte();
-				Bad = r.ReadByte();	
+				IncrementalHash = r.ReadSha3();
+				IncrementalLength = r.Read7BitEncodedInt64();
+				IncrementalMinimalVersion = r.Read<Version>();
+				AddedDependencies = r.ReadArray<Dependency>();
+				RemovedDependencies = r.ReadArray<Dependency>();
 			}
 		}
 	}

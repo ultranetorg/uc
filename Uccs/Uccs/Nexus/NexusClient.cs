@@ -17,7 +17,8 @@ namespace Uccs.Uos
 		public string SunApiKey;
 		public Zone Zone;
 
-		public Filebase		Filebase;
+		public ResourceBase		Filebase;
+		public PackageBase	PackageBase;
 		public JsonClient	Sun;
 		HttpClient			Http = new HttpClient();
 
@@ -32,32 +33,8 @@ namespace Uccs.Uos
 
 			var s = Sun.GetSettings(new Workflow());
 
-			Filebase = new Filebase(Zone, Path.Join(s.ProfilePath, nameof(Filebase)), ProductsPath);
-		}
-
-		string MapPath(ReleaseAddress r)
-		{
-			return Path.Join(ProductsPath, $"{r.Product}-{r.Realization}", r.Version.ABC);
-		}
-
-		public ReleaseAddress ReleaseFromAssembly(string path)
-		{
-			var x = path.Substring(ProductsPath.Length).Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
-
-			var apr = x[0].Split('-');
-			var p = apr[0].Split('.');
-
-			return new ReleaseAddress(p[0], p[1], p[2], Version.Parse(x[1]));
-		}
-
-		public static string ReleaseToRelative(ReleaseAddress release)
-		{
-			return Path.Join($"{release.Product}-{release.Realization}", release.Version.ABC);
-		}
-
-		public string MapReleasePath(ReleaseAddress release)
-		{
-			return Path.Join(ProductsPath, ReleaseToRelative(release));
+			Filebase = new ResourceBase(null, Zone, Path.Join(s.ProfilePath, nameof(Filebase)));
+			PackageBase = new PackageBase(null, Filebase, ProductsPath);
 		}
 
 		public void Start(Uri address, Workflow workflow)
@@ -66,7 +43,7 @@ namespace Uccs.Uos
 
 			if(s.Manifest == null)
 			{
-				Sun.GetRelease(ReleaseAddress.Parse(address.LocalPath), workflow);
+				Sun.InstallPackage(ReleaseAddress.Parse(address.LocalPath), workflow);
 
 				while(true)
 				{
@@ -87,15 +64,15 @@ namespace Uccs.Uos
 		{
 			var r = ReleaseAddress.Parse(request.LocalPath);
 
-			var f = Directory.EnumerateFiles(MapPath(r), "*.start").FirstOrDefault();
+			var f = Directory.EnumerateFiles(PackageBase.AddressToPath(r), "*.start").FirstOrDefault();
 			
 			if(f != null)
 			{
 				string setenv(ReleaseAddress a, string p)
 				{
-					p += ";" + MapPath(a);
+					p += ";" + PackageBase.AddressToPath(a);
 
-					foreach(var i in Filebase.FindRelease(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
+					foreach(var i in PackageBase.Find(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
 					{
 						p += ";" + setenv(i.Release, p);
 					}

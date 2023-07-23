@@ -103,9 +103,7 @@ namespace Uccs.Sun.CLI
 					case UntCommand.Keyword:			c = new UntCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 					case MembershipCommand.Keyword:		c = new MembershipCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 					case AuthorCommand.Keyword:			c = new AuthorCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case ProductCommand.Keyword:		c = new ProductCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case PlatformCommand.Keyword:		c = new PlatformCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case ReleaseCommand.Keyword:		c = new ReleaseCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case PackageCommand.Keyword:		c = new PackageCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
 				}
 
 				c?.Execute();

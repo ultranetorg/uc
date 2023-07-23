@@ -10,9 +10,9 @@ namespace Uccs.Net
 {
 	public class Seed
 	{
-		public IPAddress		IP;
-		public DateTime			Arrived;
-		public Distributive		Distributives;
+		public IPAddress			IP;
+		public DateTime				Arrived;
+		public Availability			Availability;
 
 		public Seed(IPAddress ip, DateTime arrived)
 		{
@@ -29,7 +29,7 @@ namespace Uccs.Net
 	public class Seedbase
 	{
 		Core											Core;
-		public Dictionary<ReleaseAddress, List<Seed>>	Releases = new ();
+		public Dictionary<ResourceAddress, List<Seed>>	Releases = new ();
 		public const int								SeedersPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
 		public const int								SeedersPerRequestMax = 256;
 
@@ -38,7 +38,7 @@ namespace Uccs.Net
 			Core = core;
 		}
 
-		List<Seed> GetSeeders(ReleaseAddress release)
+		List<Seed> GetSeeders(ResourceAddress release)
 		{
  			if(!Releases.ContainsKey(release))
  				return Releases[release] = new();
@@ -46,7 +46,7 @@ namespace Uccs.Net
  				return Releases[release];
 		}
 
-		public void Add(IPAddress ip, Dictionary<ReleaseAddress, Distributive> packages)
+		public void Add(IPAddress ip, Dictionary<ResourceAddress, Availability> packages)
 		{
 			foreach(var i in packages)
 			{
@@ -64,7 +64,7 @@ namespace Uccs.Net
 					s.Arrived = DateTime.UtcNow;
 				}
 
-				s.Distributives = i.Value;
+				s.Availability = i.Value;
 		
 				if(ss.Count > SeedersPerPackageMax)
 				{

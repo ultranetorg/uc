@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
+using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.ABI.EIP712;
@@ -62,7 +63,7 @@ namespace Uccs.Net
 	public class ReleaseStatus
 	{
 		public bool				ExistsRecursively { get; set; }
-		public Manifest			Manifest { get; set; }
+		public Release			Manifest { get; set; }
 		public DownloadReport	Download { get; set; }
 	}
 
@@ -88,7 +89,8 @@ namespace Uccs.Net
 		public Vault					Vault;
 		public INas						Nas;
 		public Database					Database;
-		public Filebase					Filebase;
+		public ResourceBase					Filebase;
+		public PackageBase				PackageBase;
 		public Seedbase					Seedbase;
 		public bool						IsClient => ListeningThread == null;
 		public object					Lock = new();
@@ -128,7 +130,6 @@ namespace Uccs.Net
 										}
 
 		public List<IPAddress>			IgnoredIPs	= new();
-		public List<Download>			Downloads = new();
 		//public List<Member>				Members = new();
 
 		TcpListener						Listener;
@@ -137,7 +138,6 @@ namespace Uccs.Net
 		Thread							TransactingThread;
 		Thread							VerifingThread;
 		Thread							SynchronizingThread;
-		Thread							DeclaringThread;
 
 		//public bool						Running { get; protected set; } = true;
 		public Synchronization			_Synchronization = Synchronization.Null;
@@ -236,27 +236,6 @@ namespace Uccs.Net
 			}
 		}
 		
-		//public Header Header
-		//{
-		//	get
-		//	{
-		//		Header h;
-		//
-		//		lock(Lock)
-		//		{
-		//			h =	new Header
-		//				{ 
-		//					LastNonEmptyRound	= Database?.LastNonEmptyRound == null ? -1 : Database.LastNonEmptyRound.Id,
-		//					LastConfirmedRound	= Database?.LastConfirmedRound == null ? -1 : Database.LastConfirmedRound.Id,
-		//					BaseHash			= Database?.BaseHash == null ? Cryptography.ZeroHash : Database.BaseHash
-		//				};
-		//		}
-		//
-		//		return h;
-		//	}
-		//}
-
-
 		public Core(Zone zone, Settings settings, Log log)
 		{
 			Zone = zone;
@@ -267,14 +246,14 @@ namespace Uccs.Net
 
 			Directory.CreateDirectory(Settings.Profile);
 
-			Workflow?.Log?.Report(this, $"Ultranet Node/Client {Version}");
-			Workflow?.Log?.Report(this, $"Runtime: {Environment.Version}");	
-			Workflow?.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-			Workflow?.Log?.Report(this, $"Zone: {Zone.Name}");
-			Workflow?.Log?.Report(this, $"Profile: {Settings.Profile}");	
+			Workflow.Log?.Report(this, $"Ultranet Node/Client {Version}");
+			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
+			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
+			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
+			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
 			if(Settings.Dev != null && Settings.Dev.Any)
-				Workflow?.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
+				Workflow.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
 
 			Vault = new Vault(Zone, Settings, Workflow?.Log);
 
@@ -288,15 +267,9 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (ProductTable.MetaColumnName,	new ()),
-																new (ProductTable.MainColumnName,	new ()),
-																new (ProductTable.MoreColumnName,	new ()),
-																new (RealizationTable.MetaColumnName,	new ()),
-																new (RealizationTable.MainColumnName,	new ()),
-																new (RealizationTable.MoreColumnName,	new ()),
-																new (ReleaseTable.MetaColumnName,	new ()),
-																new (ReleaseTable.MainColumnName,	new ()),
-																new (ReleaseTable.MoreColumnName,	new ()),
+																new (ResourceTable.MetaColumnName,	new ()),
+																new (ResourceTable.MainColumnName,	new ()),
+																new (ResourceTable.MoreColumnName,	new ()),
 																new (Database.ChainFamilyName,		new ()),
 															})
 				cfamilies.Add(i);
@@ -323,7 +296,7 @@ namespace Uccs.Net
 		{
 			if(t == typeof(Transaction)) return new Transaction(Zone);
 			if(t == typeof(BlockPiece)) return new BlockPiece(Zone);
-			if(t == typeof(Manifest)) return new Manifest(Zone);
+			if(t == typeof(Release)) return new Release(Zone);
 			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
 			if(t == typeof(RdcResponse)) return RdcResponse.FromType((Rdc)b); 
 
@@ -352,7 +325,8 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Seed))
 			{
-				Filebase = new Filebase(Zone, System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), Settings.ProductsPath);
+				Filebase = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
+				PackageBase = new PackageBase(this, Filebase, Settings.Packages);
 			}
 
 			LoadPeers();
@@ -396,6 +370,17 @@ namespace Uccs.Net
 		{
 			Nuid = Guid.NewGuid();
 
+			ListeningThread = new Thread(() =>	{
+													try
+													{
+														Listening();
+													}
+													catch(OperationCanceledException)
+													{
+													}
+												});
+			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
+
 			if(Settings.Roles.HasFlag(Role.Hub))
 			{
 				Seedbase = new Seedbase(this);
@@ -403,7 +388,8 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Seed))
 			{
-				Filebase = new Filebase(Zone, System.IO.Path.Join(Settings.Profile, typeof(Filebase).Name), System.IO.Path.Join(Settings.Profile, "Products"));
+				Filebase = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
+				PackageBase = new PackageBase(this, Filebase, Settings.Packages);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
@@ -441,18 +427,6 @@ namespace Uccs.Net
 
 			LoadPeers();
 
-			//overridefinal?.Invoke(Settings, Vault);
-
-			ListeningThread = new Thread(() =>	{
-													try
-													{
-														Listening();
-													}
-													catch(OperationCanceledException)
-													{
-													}
-												});
-			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
 			ListeningThread.Start();
 
  			MainThread = new Thread(() =>
@@ -672,13 +646,6 @@ namespace Uccs.Net
 				Connections.Count() >= Settings.PeersMin && 
 				(!Settings.Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Database.PeersMin))
 			{
-				if(Filebase != null && !IsClient)
-				{
-					DeclaringThread = new Thread(Declaring);
-					DeclaringThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Declaring";
-					DeclaringThread.Start();
-				}
-
 				if(Database != null)
 				{
 					StartSynchronization();
@@ -1052,17 +1019,9 @@ namespace Uccs.Net
 																															var c = Database.Authors.SuperClusters.ContainsKey(i.Id);
 																															return !c || !Database.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
-																			Tables.Products	=> stamp.Products.Where(i => {
-																															var c = Database.Products.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Database.Products.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																														 }),
-																			Tables.Realizations => stamp.Realizations.Where(i => {
-																																	var c = Database.Realizations.SuperClusters.ContainsKey(i.Id);
-																																	return !c || !Database.Realizations.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																																  }),
-																			Tables.Releases	=> stamp.Releases.Where(i => {
-																															var c = Database.Releases.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Database.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																			Tables.Resources	=> stamp.Resources.Where(i => {
+																															var c = Database.Resources.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Database.Resources.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														 }),
 																			_ => throw new SynchronizationException()
 																		}
@@ -1105,9 +1064,7 @@ namespace Uccs.Net
 		
 						download<AccountEntry,	AccountAddress>(Database.Accounts);
 						download<AuthorEntry, string>(Database.Authors);
-						download<ProductEntry, ProductAddress>(Database.Products);
-						download<RealizationEntry, RealizationAddress>(Database.Realizations);
-						download<ReleaseEntry, ReleaseAddress>(Database.Releases);
+						download<ResourceEntry, ResourceAddress>(Database.Resources);
 		
 						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
 		
@@ -1342,17 +1299,17 @@ namespace Uccs.Net
 	
 				if(Analyses.Any())
 				{
-					var rq = new AnalyzerVoxRequest();
+					var v = new AnalyzerVoxRequest();
 					var a = new List<Analysis>();
 
 					var s = new MemoryStream(); 
 					var w = new BinaryWriter(s);
-					rq.Sign(Zone, Settings.Analyzer);
-					rq.Write(w);
+					v.Sign(Zone, Settings.Analyzer);
+					v.Write(w);
 	
 					foreach(var i in Analyses)
 					{
-						w.Write(i.Release);
+						w.Write(i.Resource);
 						w.Write((byte)i.Result);
 
 						if(s.Position > Block.SizeMax)
@@ -1361,11 +1318,11 @@ namespace Uccs.Net
 						a.Add(i);
 					}
 					
-					rq.Sign(Zone, Settings.Analyzer);
+					v.Sign(Zone, Settings.Analyzer);
 
 					foreach(var i in Bases)
 					{
-						i.Send(new AnalyzerVoxRequest {Analyses = a, RoundId = r.Id, Signature = rq.Signature});
+						i.Send(new AnalyzerVoxRequest {Analyses = a, RoundId = r.Id, Signature = v.Signature});
 					}
 
 					Workflow.Log?.Report(this, "AnalyzerVoxRequest generated", $"by {Settings.Analyzer}");
@@ -1594,7 +1551,7 @@ namespace Uccs.Net
 			if(r.Confirmed)
 			{
 				Transactions.RemoveAll(t => t.Expiration <= r.Id);
-				Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Release && j.Finished));
+				Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
 			}
 			else
 			{
@@ -2087,63 +2044,6 @@ namespace Uccs.Net
 			}
 		}
 
-		void Declaring()
-		{
-			Workflow.Log?.Report(this, "Declaring started");
-
-			try
-			{
-				while(!Workflow.IsAborted)
-				{
-					Workflow.Wait(100);
-					Statistics.Declaring.Begin();
-
-					FilebaseRelease[] rs;
-					List<Peer> used;
-
-					lock(Lock)
-					{
-						rs = Filebase.Releases.Where(i => i.Hubs.Count < 8).ToArray();
-						used = rs.SelectMany(i => i.Hubs).Distinct().Where(h => rs.All(r => r.Hubs.Contains(h))).ToList();
-					}
-
-					if(rs.Any())
-					{
-						Call(	Role.Hub, 
-								h => {
-										lock(Lock)
-										{
-											rs = rs.Where(i => !i.Hubs.Contains(h)).ToArray();
-											used.Add(h);
-										}
-																				
-										h.DeclareRelease(rs.ToDictionary(i => i.Address, i => (Filebase.Exists(i.Address, Distributive.Complete) ? Distributive.Complete : 0) |
-																							  (Filebase.Exists(i.Address, Distributive.Incremental) ? Distributive.Incremental : 0)));
-
-										lock(Lock)
-										{
-											foreach(var i in rs)
-												i.Hubs.Add(h);
-										}
-									},
-								Workflow,
-								used,
-								true);
-					}
-				
-					Statistics.Declaring.End();
-				}
-
-			}
-			catch(OperationCanceledException)
-			{
-			}
-			catch(Exception ex) when (!Debugger.IsAttached)
-			{
-				Stop(MethodBase.GetCurrentMethod(), ex);
-			}
-		}
-
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			if(!Settings.Generators.Any(g => Database.LastConfirmedRound.Generators.Any(m => g == m.Account))) /// not ready to process external transactions
@@ -2370,29 +2270,9 @@ namespace Uccs.Net
 			return call(p);
 		}
 
-/*
-		public R Call<R>(IEnumerable<IPAddress> any, Func<Peer, R> call, Workflow workflow)
-		{
-			foreach(var i in any)
-			{
-				try
-				{
-					return Call(i, call, workflow);
-				}
-				catch(ConnectionFailedException)
-				{
-				}
-				catch(RdcException)
-				{
-				}
-			}
-
-			throw new RdcException(RdcError.AllNodesFailed);
-		}*/
-
 		public Coin EstimateFee(IEnumerable<Operation> operations)
 		{
-			return Database != null ? Operation.CalculateFee(Database.LastConfirmedRound.Factor, operations) : Coin.Zero;
+			return Database != null ? Operation.CalculateTransactionFee(Database.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)
@@ -2463,99 +2343,6 @@ namespace Uccs.Net
 			}
 
 			return null;
-		}
-
-		public Download DownloadRelease(ReleaseAddress release, Workflow workflow)
-		{
-			lock(Lock)
-			{
-				if(Filebase.FindRelease(release) != null)
-					return null;
-
-				var d = Downloads.Find(j => j.Release == release);
-				
-				if(d == null)
-				{
-					d = new Download(this, release, workflow);
-					Downloads.Add(d);
-				}
-
-				return d;
-			}
-		}
-
-		public void GetRelease(ReleaseAddress release, Workflow workflow)
-		{
-			Task.Run(() =>	{ 
-								try
-								{
-									lock(Lock)
-									{
-										if(!Filebase.ExistsRecursively(release))
-										{
-											var d = DownloadRelease(release, workflow);
-		
-											while(!workflow.IsAborted && Downloads.Contains(d))
-											{
-												Monitor.Exit(Lock);
-												{
-													Thread.Sleep(100);
-												}
-												Monitor.Enter(Lock);
-											}
-										}
-					
-										Filebase.Unpack(release);
-									}
-								}
-								catch(OperationCanceledException)
-								{
-								}
-							});
-		}
-
-		public ReleaseStatus GetReleaseStatus(ReleaseAddress release, int limit)
-		{
-			var s = new ReleaseStatus();
-
-			lock(Lock)
-				s.ExistsRecursively = Filebase.ExistsRecursively(release);
-
-			if(s.ExistsRecursively)
-			{
-				lock(Lock)
-					s.Manifest = Filebase.FindRelease(release).Manifest;
-			}
-			else
-			{
-				Download d ;
-				
-				lock(Lock)
-					d = Downloads.Find(i => i.Release == release);
-
-				if(d != null)
-				{
-					lock(d.Lock)
-					{
-						s.Download = new () {	Distributive			= d.Distributive,
-												Length					= d.Length, 
-												CompletedLength			= d.CompletedLength,
-												DependenciesRecursive	= d.DependenciesRecursive.Select(i => new DownloadReport.Dependency {Release = i.Release, Exists = Filebase.FindRelease(i.Release) != null}).ToArray(),
-												Hubs					= d.Hubs.Take(limit).Select(i => new DownloadReport.Hub { IP = i.Peer.IP, Seeds = i.Seeds.Take(limit).Select(i => i.IP), Status = i.Status }).ToArray(),
-												Seeds					= d.Seeds.Take(limit).Select(i => new DownloadReport.Seed { IP = i.IP, Succeses = i.Succeses, Failures = i.Failures }).ToArray() };
-					}
-				}
-			}
-
-			return s;
-		}
-
-		public void PackRelease(ReleaseAddress release, string channel, IEnumerable<string> sources, string dependsdirectory, bool confirmed, Workflow workflow)
-		{
-			var qlatest = Call(Role.Base, p => p.QueryRelease(release.Realization, release.Version, VersionQuery.Latest, channel, confirmed), workflow);
-			var previos = qlatest.Releases.FirstOrDefault()?.Address.Version;
-
-			Filebase.AddRelease(release, previos, sources, dependsdirectory, workflow);
 		}
 
 		public override Rp Request<Rp>(RdcRequest rq) where Rp : class

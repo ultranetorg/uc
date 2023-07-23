@@ -16,7 +16,6 @@ namespace Uccs.Net
 		public byte						Cluster { get; set; }
 		public byte						ClusterMusk { get; set; }
 		public int						JoinedAt;
-		public Peer         			Proxy;
 	
   		public void WriteConfirmed(BinaryWriter w)
  		{

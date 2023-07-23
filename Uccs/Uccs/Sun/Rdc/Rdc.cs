@@ -12,7 +12,7 @@ using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 using static Uccs.Net.ChainReportResponse;
-using static Uccs.Net.Download;
+using static Uccs.Net.PackageDownload;
 using static Uccs.Net.PiecesReportResponse;
 
 namespace Uccs.Net
@@ -21,9 +21,9 @@ namespace Uccs.Net
 	{
 		Null, 
 		Proxy, 
-		AnalyzerJoin, AnalyzerVox, GeneratorJoin, GeneratorVox, HubJoin, HubVox,
+		GeneratorJoin, GeneratorVox, HubJoin, HubVox, AnalyzerVox,
 		PeersBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Account, 
-		Author, QueryRelease, ReleaseHistory, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
+		Author, QueryResource, Resource, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
 
@@ -54,7 +54,7 @@ namespace Uccs.Net
 		Null,
 		InvalidRequest,
 		AccountNotFound,
-		ProductNotFound,
+		ResourceNotFound,
 		ClusterNotFound,
 		RoundNotAvailable,
 	}
@@ -114,13 +114,13 @@ namespace Uccs.Net
 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
-		public QueryReleaseResponse				QueryRelease(IEnumerable<ReleaseQuery> query, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = query, Confirmed = confirmed });
-		public QueryReleaseResponse				QueryRelease(RealizationAddress realization, Version version, VersionQuery versionquery, string channel, bool confirmed) => Request<QueryReleaseResponse>(new QueryReleaseRequest{ Queries = new [] {new ReleaseQuery(realization, version, versionquery, channel)}, Confirmed = confirmed });
-		public LocateReleaseResponse			LocateRelease(ReleaseAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
-		public void								DeclareRelease(Dictionary<ReleaseAddress, Distributive> packages) => Send(new DeclareReleaseRequest{Packages = new PackageAddressPack(packages)});
-		public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
-		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress release, Distributive distributive, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Package = release, Distributive = distributive, Offset = offset, Length = length});
-		public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
+		public ResourceResponse					FindResource(ResourceAddress resource) => Request<ResourceResponse>(new ResourceRequest {Resource = resource});
+		public QueryResourceResponse			QueryResource(string query) => Request<QueryResourceResponse>(new QueryResourceRequest {Query = query });
+		public LocateReleaseResponse			LocateRelease(ResourceAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
+		public void								DeclareRelease(Dictionary<ResourceAddress, Availability> packages) => Send(new DeclareReleaseRequest{Packages = packages});
+		//public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
+		public DownloadReleaseResponse			DownloadRelease(ResourceAddress release, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Release = release, File = file, Offset = offset, Length = length});
+		//public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
 	}
 
 	public abstract class RdcPacket : ITypedBinarySerializable

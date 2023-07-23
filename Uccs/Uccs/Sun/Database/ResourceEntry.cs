@@ -5,22 +5,22 @@ using System.Text;
 
 namespace Uccs.Net
 {
-	public class ReleaseEntry : Release, ITableEntry<ReleaseAddress>
+	public class ResourceEntry : Resource, ITableEntry<ResourceAddress>
 	{
-		public ReleaseAddress	Key => Address;
-		public byte[]			GetClusterKey(int n) =>  Encoding.UTF8.GetBytes(Address.Product.Author).Take(n).ToArray();
+		public ResourceAddress	Key => Address;
+		public byte[]			GetClusterKey(int n) =>  Encoding.UTF8.GetBytes(Address.Author).Take(n).ToArray();
 
-		public ReleaseEntry Clone()
+		public ResourceEntry Clone()
 		{
 			return	new() 
 					{ 
 						Address	= Address, 
-						Manifest = Manifest.Clone() as byte[],
-						Channel	= Channel,
+						Data = Data.Clone() as byte[],
+						//Channel	= Channel,
 						AnalysisStage = AnalysisStage,
 						AnalysisFee = AnalysisFee,
 						RoundId = RoundId,
-						QuorumRid = QuorumRid,
+						AnalysisQuorumRid = AnalysisQuorumRid,
 						Good = Good,
 						Bad = Bad,
 					};

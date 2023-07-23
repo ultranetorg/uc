@@ -32,9 +32,9 @@ namespace Uccs.Demo.Application
 
 			Task.Run(() =>
 					 {
-						var v = ReleaseAddress.Parse("uo.democomponent/uo.dotnet/0.0.0");
+						var v = ReleaseAddress.Parse("uo.democomponent/uo.dotnet#0.0.0");
 						
-						Application.Nexus.Sun.GetRelease(v, new Workflow());
+						Application.Nexus.Sun.InstallPackage(v, new Workflow());
 
 						ReleaseStatus s = null;
 
@@ -47,7 +47,7 @@ namespace Uccs.Demo.Application
 
 						f.BeginInvoke(new Action(	() =>
 													{
-														var a = Assembly.LoadFile(Path.Join(Application.Nexus.MapReleasePath(v), "Uccs.Demo.Component.dll"));
+														var a = Assembly.LoadFile(Path.Join(Application.Nexus.PackageBase.AddressToPath(v), "Uccs.Demo.Component.dll"));
 														var ct = a.GetType("DemoComponent.ComponentControl");
 														var c = ct?.GetConstructor(new Type[]{})?.Invoke(null) as UserControl;
 
