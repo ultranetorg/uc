@@ -146,7 +146,7 @@ namespace Uccs
 						77.91.123.57 77.91.123.141 77.91.123.178 77.91.123.197
 				"
 				.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
-				.Take(30)
+				//.Take(30)
 				.SelectMany(i => i.Split(new char[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries).Select(i => IPAddress.Parse(i)))
 				.ToArray();
 		}
