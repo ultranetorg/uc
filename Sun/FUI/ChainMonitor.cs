@@ -150,8 +150,8 @@ namespace Uccs.Sun.FUI
 									nid = Math.Max(nid, i);
 									nv = Math.Max(nv, r.Votes.Count);
 									njrs = Math.Max(njrs, r.JoinRequests.Count());
-									nj = Math.Max(nj, r.ConfirmedGeneratorJoiners.Length);
-									nl = Math.Max(nj, r.ConfirmedGeneratorLeavers.Length);
+									nj = Math.Max(nj, r.ConfirmedMemberJoiners.Length);
+									nl = Math.Max(nj, r.ConfirmedMemberLeavers.Length);
 		
 									if(r?.Members != null)
 										nm = Math.Max(nm, r.Members.Count);
@@ -223,8 +223,8 @@ namespace Uccs.Sun.FUI
 																r.Votes.Count,
 																r.Members.Count, 
 																r.JoinRequests.Count(),
-																r.ConfirmedGeneratorJoiners.Length,
-																r.ConfirmedGeneratorLeavers.Length,
+																r.ConfirmedMemberJoiners.Length,
+																r.ConfirmedMemberLeavers.Length,
 																r.Voted ? "v" : " ",
 																r.Confirmed ? "c" : " ",
 																r.ConfirmedTime);

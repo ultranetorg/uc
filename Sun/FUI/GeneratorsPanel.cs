@@ -78,14 +78,14 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					foreach(var i in (e.Item.Tag as Generator).IPs)
+					foreach(var i in (e.Item.Tag as Member).IPs)
 					{
 						var li = IPs.Items.Add(i.ToString());
 					}
 
 					//foreach(var i in (e.Item.Tag as Member).Proxies)
 					{
-						var li = Proxies.Items.Add((e.Item.Tag as Generator).Proxy?.ToString());
+						var li = Proxies.Items.Add((e.Item.Tag as Member).Proxy?.ToString());
 					}
 				}
 			}

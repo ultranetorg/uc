@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
-	public class Generator
+	public class Member
 	{
 		public AccountAddress			Account;
 		public IEnumerable<IPAddress>	IPs  = new IPAddress[0];
@@ -58,7 +58,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Generator={Account}, ActivatedAt={JoinedAt}";
+			return $"Account={Account}, ActivatedAt={JoinedAt}";
 		}
 	}
 }

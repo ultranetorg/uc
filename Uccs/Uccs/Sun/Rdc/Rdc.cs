@@ -211,7 +211,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				Generator m;
+				Member m;
 
 				lock(core.Lock)
 				{

@@ -104,7 +104,7 @@ namespace Uccs.Net
 		public class Round
 		{
 			public int							Id {get; set;}
-			public int							Generators {get; set;}
+			public int							Members {get; set;}
 			public int							Analyzers {get; set;}
 			public bool							Voted {get; set;}
 			public bool							Confirmed {get; set;}
@@ -112,7 +112,7 @@ namespace Uccs.Net
 			public byte[]						Hash {get; set;}
 			public byte[]						Consensus {get; set;}
 			public IEnumerable<Block>			Blocks {get; set;}
-			public IEnumerable<AccountAddress>	GeneratorJoinRequests {get; set;}
+			public IEnumerable<AccountAddress>	JoinRequests {get; set;}
 			//public IEnumerable<AccountAddress>	HubJoinRequests {get; set;}
 			//public IEnumerable<AccountAddress>	AnalyzerJoinRequests {get; set;}
 		}

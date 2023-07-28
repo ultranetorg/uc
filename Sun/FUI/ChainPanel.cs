@@ -84,8 +84,8 @@ namespace Uccs.Sun.FUI
 									r.ConfirmedTime + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
 									r.ConfirmedTransactions.Length + "\n" +
-									r.ConfirmedGeneratorJoiners.Length + "\n" +
-									r.ConfirmedGeneratorLeavers.Length + "\n" +
+									r.ConfirmedMemberJoiners.Length + "\n" +
+									r.ConfirmedMemberLeavers.Length + "\n" +
 									r.ConfirmedViolators.Length
 									;
 

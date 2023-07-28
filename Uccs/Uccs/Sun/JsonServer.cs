@@ -222,7 +222,7 @@ namespace Uccs.Net
 																						.Select(i => new ChainReportResponse.Round
 																									{
 																										Id = i.Id, 
-																										Generators = i.Members.Count,
+																										Members = i.Members.Count,
 																										Analyzers = i.Analyzers.Count,
 																										Voted = i.Voted,
 																										Confirmed = i.Confirmed,
@@ -232,7 +232,7 @@ namespace Uccs.Net
 																										Blocks = i.Votes.Select(b => new ChainReportResponse.Block {	Generator = b.Generator, 
 																																										IsPayload = b is Vote v && v.Transactions.Any(), 
 																																										/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
-																										GeneratorJoinRequests = i.JoinRequests.Select(i => i.Generator),
+																										JoinRequests = i.JoinRequests.Select(i => i.Generator),
 																									})
 																						.ToArray()}; 
 							

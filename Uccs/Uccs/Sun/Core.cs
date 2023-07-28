@@ -148,7 +148,7 @@ namespace Uccs.Net
 		{
 			public List<Vote>					Votes = new();
 			public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
-			public List<MemberJoinRequest>	GeneratorJoins = new();
+			public List<MemberJoinRequest>		Joins = new();
 		}
 		
 		public Dictionary<int, SyncRound>	SyncCache	= new();
@@ -1073,7 +1073,7 @@ namespace Uccs.Net
 						r.WeiSpent		= rd.ReadBigInteger();
 						r.Factor		= rd.ReadCoin();
 						r.Emission		= rd.ReadCoin();
-						r.Members		= rd.Read<Generator>(m => m.ReadForBase(rd)).ToList();
+						r.Members		= rd.Read<Member>(m => m.ReadForBase(rd)).ToList();
 						r.Analyzers		= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
 						r.Funds			= rd.ReadList<AccountAddress>();
 		
@@ -1196,7 +1196,7 @@ namespace Uccs.Net
 									foreach(var v in i.Value.Votes)
 										ProcessIncoming(v);
 
-									foreach(var jr in i.Value.GeneratorJoins)
+									foreach(var jr in i.Value.Joins)
 										jr.Execute(this);
 								}
 									
@@ -1332,7 +1332,7 @@ namespace Uccs.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				if(!Database.GeneratorsOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch).Any(i => i.Account == g))
+				if(!Database.MembersOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch).Any(i => i.Account == g))
 				{
 					///var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
@@ -1400,8 +1400,8 @@ namespace Uccs.Net
 													Created				= Clock.Now,
 													TimeDelta			= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
 													Violators			= Database.ProposeViolators(r).ToList(),
-													GeneratorJoiners	= Database.ProposeGeneratorJoiners(r).ToList(),
-													GeneratorLeavers	= Database.ProposeGeneratorLeavers(r, g).ToList(),
+													MemberJoiners		= Database.ProposeMemberJoiners(r).ToList(),
+													MemberLeavers		= Database.ProposeMemberLeavers(r, g).ToList(),
 													//HubJoiners			= Database.ProposeHubJoiners(r).ToList(),
 													//HubLeavers			= Database.ProposeHubLeavers(r, g).ToList(),
 													AnalyzerJoiners		= Settings.ProposedAnalyzerJoiners,
@@ -1443,7 +1443,7 @@ namespace Uccs.Net
 						votes.Add(b);
 					}
 
-					while(Database.GeneratorsOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+					while(Database.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
 					{
 						r = r.Previous;
 

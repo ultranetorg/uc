@@ -32,14 +32,14 @@ namespace Uccs.Net
 
 		public IEnumerable<Transaction>							OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 
-		public List<Generator>									Members = new();
+		public List<Member>									Members = new();
 		public List<Analyzer>									Analyzers = new();
 		public List<AccountAddress>								Funds = new();
 
 		public ChainTime										ConfirmedTime;
 		public Transaction[]									ConfirmedTransactions = {};
-		public AccountAddress[]									ConfirmedGeneratorJoiners = {};
-		public AccountAddress[]									ConfirmedGeneratorLeavers = {};
+		public AccountAddress[]									ConfirmedMemberJoiners = {};
+		public AccountAddress[]									ConfirmedMemberLeavers = {};
 		public AccountAddress[]									ConfirmedAnalyzerJoiners = {};
 		public AccountAddress[]									ConfirmedAnalyzerLeavers = {};
 		public AccountAddress[]									ConfirmedFundJoiners = {};
@@ -263,8 +263,8 @@ namespace Uccs.Net
 		public void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(ConfirmedTime);
-			writer.Write(ConfirmedGeneratorJoiners);
-			writer.Write(ConfirmedGeneratorLeavers);
+			writer.Write(ConfirmedMemberJoiners);
+			writer.Write(ConfirmedMemberLeavers);
 			//writer.Write(ConfirmedHubJoiners);
 			//writer.Write(ConfirmedHubLeavers);
 			writer.Write(ConfirmedAnalyzerJoiners);
@@ -279,8 +279,8 @@ namespace Uccs.Net
 		void ReadConfirmed(BinaryReader reader)
 		{
 			ConfirmedTime				= reader.ReadTime();
-			ConfirmedGeneratorJoiners	= reader.ReadArray<AccountAddress>();
-			ConfirmedGeneratorLeavers	= reader.ReadArray<AccountAddress>();
+			ConfirmedMemberJoiners	= reader.ReadArray<AccountAddress>();
+			ConfirmedMemberLeavers	= reader.ReadArray<AccountAddress>();
 			//ConfirmedHubJoiners			= reader.ReadArray<AccountAddress>();
 			//ConfirmedHubLeavers			= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();

@@ -40,7 +40,7 @@ namespace Uccs.Net
 				{
 	 				var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
 	 
-					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].GeneratorJoins.Any(i => i.Generator == Generator)))
+					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].Joins.Any(i => i.Generator == Generator)))
 					{
 						return null;
 					}
@@ -52,7 +52,7 @@ namespace Uccs.Net
 						l = core.SyncCache[RoundId] = new();
 					}
 	
-					l.GeneratorJoins.Add(this);
+					l.Joins.Add(this);
 						
 					foreach(var i in core.SyncCache.Keys)
 					{

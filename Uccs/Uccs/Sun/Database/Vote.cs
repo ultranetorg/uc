@@ -26,8 +26,8 @@ namespace Uccs.Net
 		public int						Try; /// TODO: revote if consensus not reached
 		public long						TimeDelta;
 		public byte[]					ParentSummary;
-		public List<AccountAddress>		GeneratorJoiners = new();
-		public List<AccountAddress>		GeneratorLeavers = new();
+		public List<AccountAddress>		MemberJoiners = new();
+		public List<AccountAddress>		MemberLeavers = new();
 		//public List<AccountAddress>		HubJoiners = new();
 		//public List<AccountAddress>		HubLeavers = new();
 		public List<AccountAddress>		AnalyzerJoiners = new();
@@ -99,7 +99,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {Hex.ToHexString(Generator)}, Parent={{{Hex.ToHexString(ParentSummary)}}}, Violators={{{Violators.Count}}}, GJoiners={{{GeneratorJoiners.Count}}}, GLeavers={{{GeneratorLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {Hex.ToHexString(Generator)}, Parent={{{Hex.ToHexString(ParentSummary)}}}, Violators={{{Violators.Count}}}, GJoiners={{{MemberJoiners.Count}}}, GLeavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
 		}
 
 		public void AddNext(Transaction t)
@@ -138,8 +138,8 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt64(TimeDelta);
 			writer.Write(ParentSummary);
 
-			writer.Write(GeneratorJoiners);
-			writer.Write(GeneratorLeavers);
+			writer.Write(MemberJoiners);
+			writer.Write(MemberLeavers);
 			//writer.Write(HubJoiners);
 			//writer.Write(HubLeavers);
 			writer.Write(AnalyzerJoiners);
@@ -162,8 +162,8 @@ namespace Uccs.Net
 			TimeDelta		= reader.Read7BitEncodedInt64();
 			ParentSummary	= reader.ReadBytes(Cryptography.HashSize);
 
-			GeneratorJoiners	= reader.ReadAccounts();
-			GeneratorLeavers	= reader.ReadAccounts();
+			MemberJoiners	= reader.ReadAccounts();
+			MemberLeavers	= reader.ReadAccounts();
 			//HubJoiners			= reader.ReadAccounts();
 			//HubLeavers			= reader.ReadAccounts();
 			AnalyzerJoiners		= reader.ReadAccounts();
