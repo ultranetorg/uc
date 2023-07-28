@@ -11,9 +11,6 @@ using NativeImport;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
-using static Uccs.Net.ChainReportResponse;
-using static Uccs.Net.PackageDownload;
-using static Uccs.Net.PiecesReportResponse;
 
 namespace Uccs.Net
 {

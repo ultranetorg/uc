@@ -13,7 +13,7 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public delegate void BlockDelegate(Block b);
+	public delegate void BlockDelegate(Vote b);
 
 	public class Database
 	{
@@ -62,7 +62,7 @@ namespace Uccs.Net
 		public Round						LastConfirmedRound;
 		public Round						LastCommittedRound;
 		public Round						LastNonEmptyRound	=> Tail.FirstOrDefault(i => i.Blocks.Any()) ?? LastConfirmedRound;
-		public Round						LastPayloadRound	=> Tail.FirstOrDefault(i => i.Votes.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
+		public Round						LastPayloadRound	=> Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 
 		public const string					ChainFamilyName = "Chain";
 		public ColumnFamilyHandle			ChainFamily	=> Engine.GetColumnFamily(ChainFamilyName);
@@ -138,11 +138,11 @@ namespace Uccs.Net
 						//	p.Confirmed = true;
 	
 						if(r.Id > 0)
-							r.ConfirmedTime = CalculateTime(r, r.Unique);
+							r.ConfirmedTime = CalculateTime(r, r.VotesOfTry);
 	
 						if(i <= 16)
 						{
-							r.ConfirmedPayloads = r.Payloads.ToArray();
+							r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
 							Confirm(r, true);
 
@@ -187,7 +187,7 @@ namespace Uccs.Net
 			void write(int rid)
 			{
 				var r = FindRound(rid);
-				r.ConfirmedPayloads = r.Payloads.ToArray();
+				r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 				r.Hashify(r.Id > 0 ? FindRound(rid - 1).Hash : Zone.Cryptography.ZeroHash);
 				r.Write(w);
 			}
@@ -204,36 +204,50 @@ namespace Uccs.Net
 			t.Sign(org, gen, 0);
 			b0.AddNext(t);
 						
-			void emmit(Dictionary<AccountAddress, AccountEntry> accs)
+			//void emmit(Dictionary<AccountAddress, AccountEntry> accs)
+			//{
+			//	foreach(var f in fathers.OrderBy(j => j))
+			//	{
+			//		var t = new Transaction(Zone);
+			//		t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
+			//						
+			//		if(accs != null)
+			//		{
+			//			t.AddOperation(new CandidacyDeclaration(f, accs[f].Balance - 1){ Id = 1 });
+			//		}
+			//
+			//		t.Sign(f, gen, 0);
+			//
+			//		b0.AddNext(t);
+			//	}
+			//
+			//	b0.Sign(gen);
+			//	Add(b0);
+			//}
+			//			
+			//emmit(null);
+			//
+			//Execute(Tail.First(), Tail.First().OrderedTransactions, null);
+			//var accs = Tail.First().AffectedAccounts;
+			//Tail.Clear();
+			//b0.Transactions.Clear();
+			//b0.AddNext(t);
+			//
+			//emmit(accs);
+			foreach(var f in fathers.OrderBy(j => j))
 			{
-				foreach(var f in fathers.OrderBy(j => j))
-				{
-					var t = new Transaction(Zone);
-					t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
-									
-					if(accs != null)
-					{
-						t.AddOperation(new CandidacyDeclaration(f, accs[f].Balance - 1){ Id = 1 });
-					}
-
-					t.Sign(f, gen, 0);
-	
-					b0.AddNext(t);
-				}
-
-				b0.Sign(gen);
-				Add(b0);
+				t = new Transaction(Zone);
+				t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
+				t.AddOperation(new CandidacyDeclaration(f, 900_000){ Id = 1 });
+			
+				t.Sign(f, gen, 0);
+			
+				b0.AddNext(t);
 			}
-						
-			emmit(null);
+			
+			b0.Sign(gen);
+			Add(b0);
 
-			Execute(Tail.First(), Tail.First().Payloads, null);
-			var accs = Tail.First().AffectedAccounts;
-			Tail.Clear();
-			b0.Transactions.Clear();
-			b0.AddNext(t);
-
-			emmit(accs);
 
 			b0.FundJoiners.Add(Zone.OrgAccount);
 	
@@ -277,7 +291,7 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
-		public void Add(Block b)
+		public void Add(Vote b)
 		{
 			var r = GetRound(b.RoundId);
 
@@ -286,9 +300,9 @@ namespace Uccs.Net
 			r.Blocks.Add(b);
 			//r.Blocks = r.Blocks.OrderBy(i => i is Payload p ? p.OrderingKey : new byte[] {}, new BytesComparer()).ToList();
 				
-			if(b is Vote p && p.Transactions.Any())
+			if(b.Transactions.Any())
 			{
-				foreach(var t in p.Transactions)
+				foreach(var t in b.Transactions)
 					foreach(var o in t.Operations)
 						o.Placing = PlacingStage.Placed;
 
@@ -322,7 +336,7 @@ namespace Uccs.Net
 			BlockAdded?.Invoke(b);
 		}
 
-		public void Add(IEnumerable<Block> bb)
+		public void Add(IEnumerable<Vote> bb)
 		{
 			foreach(var i in bb)
 			{
@@ -517,7 +531,7 @@ namespace Uccs.Net
 		public IEnumerable<AccountAddress> ProposeViolators(Round round)
 		{
 			var g = round.Id > Pitch ? GeneratorsOf(round.Id) : new();
-			var gv = round.Votes.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
+			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
 			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 		}
 
@@ -546,8 +560,8 @@ namespace Uccs.Net
 			var prevs = Enumerable.Range(round.ParentId, Pitch).Select(i => FindRound(i));
 
 			var leavers = GeneratorsOf(round.Id).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
-															prevs.Count(r => r.Votes.Any(b => b.Generator == i.Account)) < AliveMinGeneratorVotes &&	/// sent less than MinVotesPerPitch of required blocks
-															!prevs.Any(r => r.Votes.Any(v => v.Generator == generator && v.GeneratorLeavers.Contains(i.Account)))) /// not yet reported in prev [Pitch-1] rounds
+															prevs.Count(r => r.VotesOfTry.Any(b => b.Generator == i.Account)) < AliveMinGeneratorVotes &&	/// sent less than MinVotesPerPitch of required blocks
+															!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.GeneratorLeavers.Contains(i.Account)))) /// not yet reported in prev [Pitch-1] rounds
 												.Select(i => i.Account);
 			return leavers;
 		}
@@ -597,7 +611,7 @@ namespace Uccs.Net
 				return null;
 
 			var g = round.Id > Pitch ? GeneratorsOf(round.Id) : new();
-			var gv = round.Votes.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
+			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 
@@ -605,13 +619,13 @@ namespace Uccs.Net
 			var av = round.AnalyzerVoxes.Where(i => a.Any(j => j.Account == i.Account)).ToArray();
 			var au = av.GroupBy(i => i.Account).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 
-			var p = gu.Where(i => i.Transactions.Any());
+			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
 
 			round.ConfirmedTime = CalculateTime(round, gu);
 			
-			Execute(round, p, gf);
+			Execute(round, txs, gf);
 
-			round.ConfirmedPayloads = p.Where(i => i.SuccessfulTransactions.Any()).OrderBy(i => i.OrderingKey, new BytesComparer()).ToArray();
+			round.ConfirmedTransactions = txs.Where(i => i.Successful).ToArray();
 
 			if(round.Id >= Pitch)
 			{
@@ -713,17 +727,16 @@ namespace Uccs.Net
 			return round.Summary;
 		}
 
-		public void Execute(Round round, IEnumerable<Vote> payloads, IEnumerable<AccountAddress> forkers)
+		public void Execute(Round round, IEnumerable<Transaction> transactions, IEnumerable<AccountAddress> forkers)
 		{
 			var prev = round.Previous;
 				
 			if(round.Id != 0 && prev == null)
 				return;
 
-			foreach(var b in payloads)
-				foreach(var t in b.Transactions)
-					foreach(var o in t.Operations)
-						o.Error = null;
+			foreach(var t in transactions)
+				foreach(var o in t.Operations)
+					o.Error = null;
 
 			start: 
 
@@ -739,56 +752,47 @@ namespace Uccs.Net
 			round.AffectedAuthors.Clear();
 			round.AffectedReleases.Clear();
 
-			foreach(var b in payloads.AsEnumerable().Reverse())
+			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
-				foreach(var t in b.Transactions.AsEnumerable().Reverse())
+				Coin fee = 0;
+
+				foreach(var o in t.Operations.AsEnumerable().Reverse())
 				{
-					if(t.Operations.Any(i => i.Error != null))
-						continue;
+					//if(o.Error != null)
+					//	continue;
 
-					Coin fee = 0;
-
-					foreach(var o in t.Operations.AsEnumerable().Reverse())
-					{
-						//if(o.Error != null)
-						//	continue;
-
-						var s = round.AffectAccount(t.Signer);
+					var s = round.AffectAccount(t.Signer);
 					
-						if(o.Id <= s.LastOperationId)
-						{
-							o.Error = Operation.NotSequential;
-							goto start;
-						}
-						
-						o.Execute(this, round);
-
-						if(o.Error != null)
-							goto start;
-
-						var f = o.CalculateTransactionFee(round.Factor);
-	
-						if(s.Balance - f < 0)
-						{
-							o.Error = Operation.NotEnoughUNT;
-							goto start;
-						}
-
-						fee += f;
-						s.Balance -= f;
-						s.LastOperationId = o.Id;
-					}
-						
-					if(t.SuccessfulOperations.Count() == t.Operations.Count)
+					if(o.Id <= s.LastOperationId)
 					{
-						if(Roles.HasFlag(Role.Chain))
-						{
-							round.AffectAccount(t.Signer).Transactions.Add(round.Id);
-						}
-
-						round.Distribute(fee, new[]{b.Generator}, 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
+						o.Error = Operation.NotSequential;
+						goto start;
 					}
+						
+					o.Execute(this, round);
+
+					if(o.Error != null)
+						goto start;
+
+					var f = o.CalculateTransactionFee(round.Factor);
+	
+					if(s.Balance - f < 0)
+					{
+						o.Error = Operation.NotEnoughUNT;
+						goto start;
+					}
+
+					fee += f;
+					s.Balance -= f;
+					s.LastOperationId = o.Id;
 				}
+						
+				if(Roles.HasFlag(Role.Chain))
+				{
+					round.AffectAccount(t.Signer).Transactions.Add(round.Id);
+				}
+
+				round.Distribute(fee, round.Generators.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 			}
 
 			if(round.Id > LastGenesisRound)
@@ -840,30 +844,25 @@ namespace Uccs.Net
 			}
 			else
 			{
-				round.Blocks = round.ConfirmedPayloads.Cast<Block>().ToList();
-				Execute(round, round.ConfirmedPayloads, round.ConfirmedViolators);
+				///round.Blocks = round.ConfirmedPayloads.ToList();
+				Execute(round, round.ConfirmedTransactions, round.ConfirmedViolators);
 			}
 								
-			foreach(var b in round.Payloads)
+			foreach(var t in round.OrderedTransactions)
 			{
-				foreach(var t in b.Transactions)
+				var p = round.ConfirmedTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+
+				foreach(var o in t.Operations)
 				{	
-					foreach(var o in t.Operations)
-					{	
-						o.Placing = (round.ConfirmedPayloads.Contains(b) && o.Error == null) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+					o.Placing = p;
 						
-						#if DEBUG
-						if(o.__ExpectedPlacing > PlacingStage.Placed && o.Placing != o.__ExpectedPlacing)
-						{
-							Debugger.Break();
-						}
-						#endif
+					#if DEBUG
+					if(o.__ExpectedPlacing > PlacingStage.Placed && o.Placing != o.__ExpectedPlacing)
+					{
+						Debugger.Break();
 					}
-
-					t.Operations.RemoveAll(i => i.Error != null);
+					#endif
 				}
-
-				b.Transactions.RemoveAll(t => !t.Operations.Any());
 			}
 			
 			round.Generators.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
@@ -1033,34 +1032,34 @@ namespace Uccs.Net
 			return op == null ? ops : ops.Where(op);
 		}
 
-		public Block FindLastBlock(Func<Block, bool> f, int maxrid = int.MaxValue)
-		{
-			for(int i = LastNonEmptyRound.Id; i >= maxrid; i--)
-			{
-				var r = FindRound(i);
+// 		public Block FindLastBlock(Func<Block, bool> f, int maxrid = int.MaxValue)
+// 		{
+// 			for(int i = LastNonEmptyRound.Id; i >= maxrid; i--)
+// 			{
+// 				var r = FindRound(i);
+// 
+// 				if(r != null)
+// 				{
+// 					foreach(var b in r.Blocks)
+// 						if(f(b))
+// 							return b;
+// 				}
+// 			}
+// 			//foreach(var r in Rounds.Where(i => i.Id <= maxrid))
+// 			//	foreach(var b in r.Blocks)
+// 			//		if(f(b))
+// 			//			return b;
+// 
+// 			return null;
+// 		}
 
-				if(r != null)
-				{
-					foreach(var b in r.Blocks)
-						if(f(b))
-							return b;
-				}
-			}
-			//foreach(var r in Rounds.Where(i => i.Id <= maxrid))
-			//	foreach(var b in r.Blocks)
-			//		if(f(b))
-			//			return b;
-
-			return null;
-		}
-
-		public IEnumerable<Block> FindLastBlocks(Func<Block, bool> f, int maxrid = int.MaxValue)
-		{
-			foreach(var r in Tail.Where(i => i.Id <= maxrid))
-				foreach(var b in r.Blocks)
-					if(f(b))
-						yield return b;
-		}
+// 		public IEnumerable<Block> FindLastBlocks(Func<Block, bool> f, int maxrid = int.MaxValue)
+// 		{
+// 			foreach(var r in Tail.Where(i => i.Id <= maxrid))
+// 				foreach(var b in r.Blocks)
+// 					if(f(b))
+// 						yield return b;
+// 		}
 
 		public IEnumerable<Resource> QueryRelease(string query)
 		{

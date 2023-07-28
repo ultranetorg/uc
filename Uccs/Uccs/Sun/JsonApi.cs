@@ -98,7 +98,7 @@ namespace Uccs.Net
 		{
 			public AccountAddress	Generator {get; set;}
 			public bool				IsPayload {get; set;}
-			public bool				Confirmed {get; set;}
+			//public bool				Confirmed {get; set;}
 		}
 
 		public class Round
@@ -107,7 +107,6 @@ namespace Uccs.Net
 			public int							Generators {get; set;}
 			public int							Hubs {get; set;}
 			public int							Analyzers {get; set;}
-			public int							Pieces {get; set;}
 			public bool							Voted {get; set;}
 			public bool							Confirmed {get; set;}
 			public ChainTime					Time {get; set;}
@@ -122,22 +121,18 @@ namespace Uccs.Net
 		public IEnumerable<Round> Rounds {get; set;}
 	}
 
-	public class PiecesReportCall : ApiCall
+	public class VotesReportCall : ApiCall
 	{
 		public int		RoundId  { get; set; }
 		public int		Limit  { get; set; }
 	}
 
-	public class PiecesReportResponse
+	public class VotesReportResponse
 	{
 		public class Piece
 		{
-			public BlockType		Type { get; set; }
 			public int				Try { get; set; }
-			public int				Index { get; set; }
-			public int				Total { get; set; }
 			public string			Signature { get; set; }
-			public int				DataLength { get; set; }
 			public AccountAddress	Generator { get; set; }
 		}
 

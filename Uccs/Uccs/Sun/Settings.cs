@@ -203,7 +203,7 @@ namespace Uccs.Net
 			IP			= IPAddress.Parse(doc.GetString("IP"));
 			Generators	= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log			= doc.Has("Log");
-			Packages	= doc.GetString("Packages");
+			Packages	= doc.GetString("Packages") ?? System.IO.Path.Join(Profile, "Packages");
 
 			Dev			= new (doc.One(nameof(Dev)));
 			Database	= new (doc.One(nameof(Database)));

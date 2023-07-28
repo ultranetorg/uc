@@ -225,7 +225,6 @@ namespace Uccs.Net
 																										Generators = i.Generators.Count,
 																										Hubs = i.Hubs.Count,
 																										Analyzers = i.Analyzers.Count,
-																										Pieces = i.BlockPieces.Count,
 																										Voted = i.Voted,
 																										Confirmed = i.Confirmed,
 																										Time = i.ConfirmedTime,
@@ -233,26 +232,22 @@ namespace Uccs.Net
 																										Consensus = i.Summary,
 																										Blocks = i.Blocks.Select(b => new ChainReportResponse.Block {	Generator = b.Generator, 
 																																										IsPayload = b is Vote v && v.Transactions.Any(), 
-																																										Confirmed = i.Confirmed && b is Vote vv && vv.Transactions.Any() && i.ConfirmedPayloads.Contains(b) }),
+																																										/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
 																										GeneratorJoinRequests = i.GeneratorJoinRequests.Select(i => i.Generator),
 																										HubJoinRequests = i.HubJoinRequests.Select(i => i.Account),
 																										//AnalyzerJoinRequests = i.AnalyzerJoinRequests.Select(i => i.Account)
 																									})
 																						.ToArray()}; 
 							
-						case PiecesReportCall s:
+						case VotesReportCall s:
 							lock(Core.Lock)
-								return new PiecesReportResponse{Pieces = Database?	.FindRound(s.RoundId)?.BlockPieces
+								return new VotesReportResponse{Pieces = Database?	.FindRound(s.RoundId)?.Blocks
 																					.OrderBy(i => i.Generator)
 																					.Take(s.Limit)
-																					.Select(i => new PiecesReportResponse.Piece
+																					.Select(i => new VotesReportResponse.Piece
 																					{
-																						Type = i.Type,
 																						Try = i.Try,
-																						Index = i.Index,
-																						Total = i.Total,
 																						Signature = Hex.ToHexString(i.Signature),
-																						DataLength = i.Data.Length,
 																						Generator = i.Generator
 																					})
 																					.ToArray()}; 

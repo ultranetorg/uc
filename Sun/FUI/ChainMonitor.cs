@@ -42,7 +42,7 @@ namespace Uccs.Sun.FUI
 			Invalidate();
 		}
 
-		public void OnBlockAdded(Block b)
+		public void OnBlockAdded(Vote b)
 		{
 			Invalidate(); 
 			//BeginInvoke((MethodInvoker)delegate{ Invalidate(); });
@@ -116,7 +116,7 @@ namespace Uccs.Sun.FUI
 						var rounds = new List<Round>();
 	
 						int nid = 0;
-						int np = 0;
+						int nv = 0;
 						int nm = 0;
 						int njrs = 0;
 						int nj = 0;
@@ -148,7 +148,7 @@ namespace Uccs.Sun.FUI
 								if(showt && r != null)
 								{
 									nid = Math.Max(nid, i);
-									np = Math.Max(np, r.BlockPieces.Count);
+									nv = Math.Max(nv, r.Blocks.Count);
 									njrs = Math.Max(njrs, r.GeneratorJoinRequests.Count());
 									nj = Math.Max(nj, r.ConfirmedGeneratorJoiners.Length);
 									nl = Math.Max(nj, r.ConfirmedGeneratorLeavers.Length);
@@ -162,7 +162,7 @@ namespace Uccs.Sun.FUI
 							}
 
 							nid		= IntLength(nid);
-							np		= IntLength(np);
+							nv		= IntLength(nv);
 							njrs	= IntLength(njrs);
 							nj		= IntLength(nj);
 							nl		= IntLength(nl);
@@ -173,7 +173,7 @@ namespace Uccs.Sun.FUI
 							var joins = rounds.Where(i => i != null).SelectMany(i => i.GeneratorJoinRequests.Select(b => b.Generator));
 							generators = mems.Union(joins).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nid}}} {{1,{np}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nj}}} {{5,{nl}}} {{6}}{{7}} {{8,{ndate}}}";
+							f  = $"{{0,{nid}}} {{1,{nv}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nj}}} {{5,{nl}}} {{6}}{{7}} {{8,{ndate}}}";
 
 							if(rounds.Count() > 0)
 							{
@@ -220,7 +220,7 @@ namespace Uccs.Sun.FUI
 									{
 										var t = string.Format(	f, 
 																r.Id, 
-																r.BlockPieces.Count,
+																r.Blocks.Count,
 																r.Generators.Count, 
 																r.GeneratorJoinRequests.Count(),
 																r.ConfirmedGeneratorJoiners.Length,

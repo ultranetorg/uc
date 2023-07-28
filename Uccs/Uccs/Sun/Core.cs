@@ -146,8 +146,8 @@ namespace Uccs.Net
 		
 		public class SyncRound
 		{
-			public List<BlockPiece>				Blocks = new();
-			//public List<HubVoxRequest>			HubVoxes = new();
+			public List<Vote>					Blocks = new();
+			//public List<HubVoxRequest>		HubVoxes = new();
 			public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
 			public List<GeneratorJoinRequest>	GeneratorJoins = new();
 			public List<HubJoinRequest>			HubJoins = new();
@@ -295,7 +295,7 @@ namespace Uccs.Net
 		public object Constract(Type t, byte b)
 		{
 			if(t == typeof(Transaction)) return new Transaction(Zone);
-			if(t == typeof(BlockPiece)) return new BlockPiece(Zone);
+			if(t == typeof(Vote)) return new Vote(Database);
 			if(t == typeof(Release)) return new Release(Zone);
 			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
 			if(t == typeof(RdcResponse)) return RdcResponse.FromType((Rdc)b); 
@@ -1183,11 +1183,9 @@ namespace Uccs.Net
 							 				throw new SynchronizationException();
 										}
 
-										if(r.BlockPieces.Any())
+										if(r.Blocks.Any())
 										{
-											var rq = new GeneratorVoxRequest();
-
-											rq.Pieces = r.BlockPieces;
+											var rq = new GeneratorVoxRequest(r.Blocks);
 											rq.Execute(this);
 										}
 
@@ -1211,8 +1209,7 @@ namespace Uccs.Net
 										jr.Execute(this);
 									}
 
-									var rq = new GeneratorVoxRequest();
-									rq.Pieces = i.Value.Blocks;
+									var rq = new GeneratorVoxRequest(i.Value.Blocks);
 									rq.Execute(this);
 								}
 									
@@ -1247,7 +1244,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public IEnumerable<Block> ProcessIncoming(IEnumerable<Block> blocks)
+		public IEnumerable<Vote> ProcessIncoming(IEnumerable<Vote> blocks)
 		{
  			var verified = blocks.Where(b =>{
 												//if(LastConfirmedRound != null && b.RoundId <= LastConfirmedRound.Id)
@@ -1255,7 +1252,7 @@ namespace Uccs.Net
 
 												var r = Database.FindRound(b.RoundId);
 	
-												if(r != null && !r.Confirmed && r.Blocks.Any(i => i.Hash.SequenceEqual(b.Hash)))
+												if(r != null && !r.Confirmed && r.Blocks.Any(i => i.Signature.SequenceEqual(b.Signature)))
 													return false;
 
 												return b.Valid/* && Zone.Cryptography.Valid(b.Signature, b.Hash, b.Generator)*/;
@@ -1312,7 +1309,7 @@ namespace Uccs.Net
 						w.Write(i.Resource);
 						w.Write((byte)i.Result);
 
-						if(s.Position > Block.SizeMax)
+						if(s.Position > Vote.SizeMax)
 							break;
 		
 						a.Add(i);
@@ -1336,7 +1333,7 @@ namespace Uccs.Net
 		{
 			Statistics.Generating.Begin();
 
-			var blocks = new List<Block>();
+			var blocks = new List<Vote>();
 
 			foreach(var g in Settings.Generators)
 			{
@@ -1389,7 +1386,7 @@ namespace Uccs.Net
 				{
 					var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
 
-					if(r.Votes.Any(i => i.Generator == g))
+					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
 
 					if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to downloaded rounds since its blocks have no hashes
@@ -1398,15 +1395,15 @@ namespace Uccs.Net
 					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
 					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified)), r).ToArray();
 
-					var prev = r.Previous.Votes.FirstOrDefault(i => i.Generator == g);
+					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
 					Vote createvote()
 					{
 						return new Vote(Database){	RoundId				= r.Id,
 													Try					= r.Try,
 													ParentSummary		= Database.Summarize(r.Parent),
-													Time				= Clock.Now,
-													TimeDelta			= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Time).TotalMilliseconds,
+													Created				= Clock.Now,
+													TimeDelta			= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
 													Violators			= Database.ProposeViolators(r).ToList(),
 													GeneratorJoiners	= Database.ProposeGeneratorJoiners(r).ToList(),
 													GeneratorLeavers	= Database.ProposeGeneratorLeavers(r, g).ToList(),
@@ -1416,7 +1413,8 @@ namespace Uccs.Net
 													AnalyzerLeavers		= Settings.ProposedAnalyzerLeavers,
 													FundJoiners			= Settings.ProposedFundJoiners,
 													FundLeavers			= Settings.ProposedFundLeavers,
-													IPs					= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
+													BaseIPs				= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
+													HubIPs				= new IPAddress[] {IP} };
 					}
 	
 					if(txs.Any() || Database.Tail.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
@@ -1428,13 +1426,13 @@ namespace Uccs.Net
 							var s = new MemoryStream(); 
 							var w = new BinaryWriter(s);
 							b.Sign(g);
-							b.WriteForPiece(w);
+							b.WriteForBroadcast(w);
 	
 							foreach(var i in txs)
 							{
-								i.WriteAsPartOfBlock(w);
+								i.WriteForVote(w);
 	
-								if(s.Position > Block.SizeMax)
+								if(s.Position > Vote.SizeMax)
 									break;
 	
 								b.AddNext(i);
@@ -1450,11 +1448,11 @@ namespace Uccs.Net
 						blocks.Add(b);
 					}
 
-					while(Database.GeneratorsOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.Votes.Any(i => i.Generator == g))
+					while(Database.GeneratorsOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
 					{
 						r = r.Previous;
 
-						prev = r.Previous.Votes.FirstOrDefault(i => i.Generator == g);
+						prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
 						var b = createvote();
 								
@@ -1471,65 +1469,67 @@ namespace Uccs.Net
 					Database.Add(b);
 				}
 
-				var pieces = new List<BlockPiece>();
-
-				var npieces = 1;
-				var ppp = 3; // peers per peice
-
-				foreach(var b in blocks)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-
-					//w.Write(b.TypeCode);
-					b.WriteForPiece(w);
-
-					s.Position = 0;
-					var r = new BinaryReader(s);
-
-					//var guid = new byte[BlockPiece.GuidLength];
-					//Cryptography.Random.NextBytes(guid);
-
-					for(int i = 0; i < npieces; i++)
-					{
-						var p = new BlockPiece(Zone){	Type = b.Type,
-														Try = b is Vote v ? v.Try : 0,
-														RoundId = b.RoundId,
-														Total = npieces,
-														Index = i,
-														Data = r.ReadBytes((int)s.Length/npieces + (i < npieces-1 ? 0 : (int)s.Length % npieces))};
-
-						p.Sign(b.Generator as AccountKey);
-
-						pieces.Add(p);
-						Database.GetRound(b.RoundId).BlockPieces.Add(p);
-					}
-				}
-
-				IEnumerator<Peer> start() => Bases.GetEnumerator();
-
- 				var c = start();
- 
- 				foreach(var i in pieces)
- 				{
-					i.Peers = new();   
-
-					for(int j = 0; j < ppp; j++)
-					{
- 						if(!c.MoveNext())
- 						{
- 							c = start(); /// go to the beginning
- 							c.MoveNext();
- 						}
-
-						i.Peers.Add(c.Current);
-					}
- 				}
+// 				var pieces = new List<BlockPiece>();
+// 
+// 				var npieces = 1;
+// 				var ppp = 3; // peers per peice
+// 
+// 				foreach(var b in blocks)
+// 				{
+// 					var s = new MemoryStream();
+// 					var w = new BinaryWriter(s);
+// 
+// 					//w.Write(b.TypeCode);
+// 					b.WriteForPiece(w);
+// 
+// 					s.Position = 0;
+// 					var r = new BinaryReader(s);
+// 
+// 					//var guid = new byte[BlockPiece.GuidLength];
+// 					//Cryptography.Random.NextBytes(guid);
+// 
+// 					for(int i = 0; i < npieces; i++)
+// 					{
+// 						var p = new BlockPiece(Zone){	Type = b.Type,
+// 														Try = b is Vote v ? v.Try : 0,
+// 														RoundId = b.RoundId,
+// 														Total = npieces,
+// 														Index = i,
+// 														Data = r.ReadBytes((int)s.Length/npieces + (i < npieces-1 ? 0 : (int)s.Length % npieces))};
+// 
+// 						p.Sign(b.Generator as AccountKey);
+// 
+// 						pieces.Add(p);
+// 						Database.GetRound(b.RoundId).BlockPieces.Add(p);
+// 					}
+// 				}
+// 
+// 				IEnumerator<Peer> start() => Bases.GetEnumerator();
+// 
+//  				var c = start();
+//  
+//  				foreach(var i in pieces)
+//  				{
+// 					i.Peers = new();   
+// 
+// 					for(int j = 0; j < ppp; j++)
+// 					{
+//  						if(!c.MoveNext())
+//  						{
+//  							c = start(); /// go to the beginning
+//  							c.MoveNext();
+//  						}
+// 
+// 						i.Peers.Add(c.Current);
+// 					}
+//  				}
 
 				/// LESS RELIABLE
-				foreach(var i in pieces.SelectMany(i => i.Peers).Distinct())
+				var vox = new GeneratorVoxRequest(blocks);
+
+				foreach(var i in Bases)
 				{
-					i.Send(new GeneratorVoxRequest{Pieces = pieces.Where(x => x.Peers.Contains(i)).ToArray()});
+					i.Send(new GeneratorVoxRequest{Votes = vox.Votes});
 				}
 
 				/// ALL FOR ALL
@@ -1538,7 +1538,7 @@ namespace Uccs.Net
 				///	i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
 				///}
 													
-				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{i.Type}-{Hex.ToHexString(((byte[])i.Generator).Take(4).ToArray())}-{i.RoundId}")));
+				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{Hex.ToHexString(((byte[])i.Generator).Take(4).ToArray())}-{i.RoundId}")));
 			}
 
 			Statistics.Generating.End();
@@ -1575,13 +1575,15 @@ namespace Uccs.Net
 					r.Voted = true;
 
 					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
-					var notcomebacks = r.Parent.BlockPieces.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
+					var notcomebacks = r.Parent.Blocks.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
 					
 					if(notcomebacks.Any())
 					{
+						var vox = new GeneratorVoxRequest(notcomebacks);
+
 						foreach(var i in Bases)
 						{
-							i.Send(new GeneratorVoxRequest{Pieces = notcomebacks});
+							i.Send(new GeneratorVoxRequest{Votes = vox.Votes});
 						}
 					}
 

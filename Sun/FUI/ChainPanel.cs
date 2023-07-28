@@ -54,7 +54,7 @@ namespace Uccs.Sun.FUI
 																		var li = new ListViewItem(i.Signer.ToString());
 																		li.Tag = i;
 																		//li.SubItems.Add(i.Id.ToString());
-																		li.SubItems.Add(i.SuccessfulOperations.Count().ToString());
+																		li.SubItems.Add(i.Operations.Count().ToString());
 																		return li;
 																	}).ToArray());
 		}
@@ -83,13 +83,13 @@ namespace Uccs.Sun.FUI
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.ConfirmedTime + "\n" + 
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
-									r.ConfirmedPayloads.Length + "\n" +
+									r.ConfirmedTransactions.Length + "\n" +
 									r.ConfirmedGeneratorJoiners.Length + "\n" +
 									r.ConfirmedGeneratorLeavers.Length + "\n" +
 									r.ConfirmedViolators.Length
 									;
 
-				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i.Transactions.Any())
+				Blocks.Items.AddRange(	r.Blocks.OrderByDescending(i => i.Transactions.Any())
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());
@@ -99,8 +99,9 @@ namespace Uccs.Sun.FUI
 											return li;
 										}).ToArray());
 
-				LoadTransactions(r.Payloads.SelectMany(i => i.Transactions));
-				LoadOperations(r.Payloads.SelectMany(i => i.Transactions.SelectMany(i => i.Operations)));
+				var txs = r.Confirmed ? r.ConfirmedTransactions : r.OrderedTransactions;
+				LoadTransactions(txs);
+				LoadOperations(txs.SelectMany(i => i.Operations));
 			}
 		}
 

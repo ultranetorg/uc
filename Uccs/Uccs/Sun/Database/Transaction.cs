@@ -11,7 +11,8 @@ namespace Uccs.Net
 	public class Transaction : IBinarySerializable
 	{
 		public List<Operation>			Operations = new ();
-		public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
+		//public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
+		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 		
 		public Vote						Block;
 		public AccountAddress			Generator;
@@ -71,7 +72,30 @@ namespace Uccs.Net
 			return Zone.Cryptography.Hash(s.ToArray());
 		}
 
- 		public void	WriteAsPartOfBlock(BinaryWriter w)
+ 		public void	WriteConfirmed(BinaryWriter w)
+ 		{
+			w.Write(Signer);
+			w.Write(Operations, i => {
+										w.Write((byte)i.Type); 
+										i.Write(w); 
+									 });
+ 		}
+ 		
+ 		public void	ReadConfirmed(BinaryReader r)
+ 		{
+			Signer = r.ReadAccount();
+ 			Operations	= r.ReadList(() => {
+ 												var o = Operation.FromType((Operations)r.ReadByte());
+ 												o.Transaction	= this;
+ 												o.Read(r); 
+ 												return o; 
+ 											});
+			
+			foreach(var i in Operations)
+				i.Signer = Signer;
+ 		}
+
+ 		public void	WriteForVote(BinaryWriter w)
  		{
 			w.Write(Signature);
 			w.Write7BitEncodedInt(Expiration);
@@ -81,7 +105,7 @@ namespace Uccs.Net
 									 });
  		}
  		
- 		public void	ReadAsPartOfBlock(BinaryReader r)
+ 		public void	ReadForVote(BinaryReader r)
  		{
 			Signature	= r.ReadSignature();
 			Expiration	= r.Read7BitEncodedInt();

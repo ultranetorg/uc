@@ -78,8 +78,6 @@ namespace Uccs.Net
 			ProductsPath = productspath;
 
 			Directory.CreateDirectory(ProductsPath);
-
-			//Releases =	Filebase.Releases.Select(i => new SoftwareRelease(this, i.Address)).ToList();
 		}
 
 		public string AddressToPath(ReleaseAddress release)
