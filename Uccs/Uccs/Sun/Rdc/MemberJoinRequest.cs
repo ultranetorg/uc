@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class GeneratorJoinRequest : RdcRequest
+	public class MemberJoinRequest : RdcRequest
 	{
 		//public IEnumerable<IPAddress>	IPs { get; set; }
 		public int						RoundId { get; set; }
@@ -12,7 +12,7 @@ namespace Uccs.Net
 		public AccountAddress			Generator;
 		public override bool			WaitResponse => false;
 
-		public GeneratorJoinRequest()
+		public MemberJoinRequest()
 		{
 		}
 
@@ -67,7 +67,7 @@ namespace Uccs.Net
 					var d = core.Database;
 	
 					for(int i = RoundId; i > RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
-						if(d.FindRound(i) is Round r && r.GeneratorJoinRequests.Any(j => j.Generator == Generator))
+						if(d.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == Generator))
 							return null;
 
 					var a = core.Database.Accounts.Find(Generator, core.Database.LastConfirmedRound.Id);
@@ -75,12 +75,12 @@ namespace Uccs.Net
 					if(a == null || a.Bail == 0 /*|| a.BailStatus != BailStatus.Active*/)
 						return null;
 									
-					core.Database.GetRound(RoundId).GeneratorJoinRequests.Add(this);
+					core.Database.GetRound(RoundId).JoinRequests.Add(this);
 				}
 	
 				foreach(var i in core.Connections.Where(i => i != Peer))
 				{
-					i.Send(new GeneratorJoinRequest {RoundId = RoundId, Signature = Signature});
+					i.Send(new MemberJoinRequest {RoundId = RoundId, Signature = Signature});
 				}
 			}
 	

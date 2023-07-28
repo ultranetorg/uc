@@ -89,7 +89,7 @@ namespace Uccs.Sun.FUI
 									r.ConfirmedViolators.Length
 									;
 
-				Blocks.Items.AddRange(	r.Blocks.OrderByDescending(i => i.Transactions.Any())
+				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i.Transactions.Any())
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());

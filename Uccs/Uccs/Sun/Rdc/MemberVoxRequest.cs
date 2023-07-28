@@ -5,9 +5,9 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
-	public class GeneratorVoxRequest : RdcRequest
+	public class MemberVoxRequest : RdcRequest
 	{
-		public byte[]					Votes { get; set; }
+		public byte[]					Raw { get; set; }
 		//public ChainTime				Time { get; set; }
 		//public byte[]					Signature { get; set; }
 
@@ -15,22 +15,14 @@ namespace Uccs.Net
 
 		//public AccountAddress			Account;
 
-		public GeneratorVoxRequest()
+		public MemberVoxRequest()
 		{
 		}
 
-		public GeneratorVoxRequest(IEnumerable<Vote> votes)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			w.Write(votes, i => i.WriteForBroadcast(w));
-
-			Votes = s.ToArray();
-		}
 
 		public override RdcResponse Execute(Core core)
 		{
+
 ///			if(Account == null)
 ///			{
 ///				Account = core.Zone.Cryptography.AccountFrom(Signature, Hashify(core.Zone));
@@ -73,12 +65,51 @@ namespace Uccs.Net
 ///
 ///				return null;
 ///			}
-			var s = new MemoryStream(Votes);
+
+			var s = new MemoryStream(Raw);
 			var br = new BinaryReader(s);
 
-			var votes = br.Read<Vote>(() => new Vote(core.Database), v => v.ReadForBroadcast(br)).ToArray();
+			var v = new Vote(core.Database);
+			v.RawForBroadcast = Raw;
+			v.ReadForBroadcast(br);
 
-			var accepted = new List<Vote>();
+			lock(core.Lock)
+			{
+				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
+
+				var accepted = core.ProcessIncoming(v);
+
+				if(core.Synchronization == Synchronization.Synchronized)
+				{
+					var r = core.Database.FindRound(v.RoundId);
+					var _v = r.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
+
+					if(_v != null)
+					{
+						if(accepted) /// for the new vote
+						{
+							var m = core.Database.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
+							
+							if(m != null)
+							{
+								m.IPs = v.BaseIPs.ToArray();
+								m.Proxy = Peer;
+							}
+						}
+						else if(_v.Peers != null && !_v.Peers.Contains(Peer)) /// for the existing vote
+							_v.BroadcastConfirmed = true;
+					}
+				}
+
+				if(accepted)
+				{
+					core.Broadcast(v, Peer);
+				}
+			}
+
+			//var accepted = new List<Vote>();
+/*
+			var accepted = false;
 
 			lock(core.Lock)
 			{
@@ -88,31 +119,30 @@ namespace Uccs.Net
 				{
  					var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
  
-					foreach(var i in votes)
+					if(v.RoundId < min || (core.SyncCache.ContainsKey(v.RoundId) && core.SyncCache[v.RoundId].Blocks.Any(j => j.Signature.SequenceEqual(v.Signature))))
 					{
-						if(i.RoundId < min || (core.SyncCache.ContainsKey(i.RoundId) && core.SyncCache[i.RoundId].Blocks.Any(j => j.Signature.SequenceEqual(i.Signature))))
-						{
-							continue;
-						}
+					}
+					else
+					{ 
+						accepted = true;
 
-						Core.SyncRound l;
+						Core.SyncRound r;
 						
-						if(!core.SyncCache.TryGetValue(i.RoundId, out l))
+						if(!core.SyncCache.TryGetValue(v.RoundId, out r))
 						{
-							l = core.SyncCache[i.RoundId] = new();
+							r = core.SyncCache[v.RoundId] = new();
 						}
 
-						l.Blocks.Add(i);
-	 					accepted.Add(i);
- 					}
-					
-					foreach(var i in core.SyncCache.Keys)
-					{
-						if(i < min)
+						r.Blocks.Add(v);
+
+						foreach(var i in core.SyncCache.Keys)
 						{
-							core.SyncCache.Remove(i);
-						}
-					}					
+							if(i < min)
+							{
+								core.SyncCache.Remove(i);
+							}
+						}	
+					}
 				}
 				else if(core.Synchronization == Synchronization.Synchronized)
 				{
@@ -121,25 +151,10 @@ namespace Uccs.Net
 
 					var d = core.Database;
 
-					var good = votes.Where(p => { 
-
-
-													//if(p.Type == BlockType.JoinMembersRequest)
-													//{
-													//	for(int i = p.RoundId; i > p.RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
-													//		if(d.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == p.Generator))
-													//			return false;
-													//}
-													//else
-													{
-														if(p.RoundId <= d.LastConfirmedRound.Id || d.LastConfirmedRound.Id + Database.Pitch * 2 < p.RoundId)
-															return false;
-													}
-
-													return true;
-												}).ToArray();
-
-					foreach(var v in good)
+					if(v.RoundId <= d.LastConfirmedRound.Id || d.LastConfirmedRound.Id + Database.Pitch * 2 < v.RoundId)
+					{
+					}
+					else
 					{
 						var r = core.Database.GetRound(v.RoundId);
 				
@@ -147,7 +162,7 @@ namespace Uccs.Net
 
 						if(ep == null)
 						{
-							accepted.Add(v);
+							//accepted.Add(v);
 							//r.BlockPieces.Add(p);
 							//
 							//var ps = r.BlockPieces.Where(i => i.Generator == p.Generator && i.Try == p.Try).OrderBy(i => i.Index);
@@ -175,35 +190,33 @@ namespace Uccs.Net
 								///core.Workflow?.Log.Report(this, "Block received ", $"{Hex.ToHexString(b.Generator.Prefix)}-{b.RoundId}");
 				
 							//}
+							accepted = true;
+
+							core.ProcessIncoming(new[] {v});
+
+							var m = core.Database.LastConfirmedRound.Generators.Find(i => i.Account == v.Generator);
+		
+							if(m != null)
+							{
+								m.IPs = v.BaseIPs.ToArray();
+								m.Proxy = Peer;
+							}
 						}
 						else if(ep.Peers != null && !ep.Peers.Contains(Peer))
 							ep.BroadcastConfirmed = true;
 					}
-
-					core.ProcessIncoming(accepted);
-
-					foreach(var v in accepted)
-					{
-						var m = core.Database.LastConfirmedRound.Generators.Find(i => i.Account == v.Generator);
-		
-						if(m != null)
-						{
-							m.IPs = v.BaseIPs.ToArray();
-							m.Proxy = Peer;
-						}
-					}
 				}
 
-				if(accepted.Any())
+				if(accepted)
 				{
-					var vox = new GeneratorVoxRequest(accepted);
-
+					var rq = new GeneratorVoxRequest(v);
+	
 					foreach(var i in core.Bases.Where(i => i != Peer))
 					{
-						i.Send(new GeneratorVoxRequest {Votes = vox.Votes});
+						i.Send(new GeneratorVoxRequest {Vote = rq.Vote});
 					}
 				}
-			}
+			}*/
 
 			return null; 
 		}

@@ -146,12 +146,9 @@ namespace Uccs.Net
 		
 		public class SyncRound
 		{
-			public List<Vote>					Blocks = new();
-			//public List<HubVoxRequest>		HubVoxes = new();
+			public List<Vote>					Votes = new();
 			public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
-			public List<GeneratorJoinRequest>	GeneratorJoins = new();
-			public List<HubJoinRequest>			HubJoins = new();
-			//public List<AnalyzerJoinRequest>	AnalyzerJoins = new();
+			public List<MemberJoinRequest>	GeneratorJoins = new();
 		}
 		
 		public Dictionary<int, SyncRound>	SyncCache	= new();
@@ -184,9 +181,9 @@ namespace Uccs.Net
 				{
 					f.Add(new ("Synchronization",		$"{Synchronization}"));
 					f.Add(new ("Size",					$"{Database.Size}"));
-					f.Add(new ("Members",				$"{Database.LastConfirmedRound?.Generators.Count}"));
+					f.Add(new ("Members",				$"{Database.LastConfirmedRound?.Members.Count}"));
 					f.Add(new ("Emission",				$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}"));
-					f.Add(new ("SyncCache Blocks",		$"{SyncCache.Sum(i => i.Value.Blocks.Count)}"));
+					f.Add(new ("SyncCache Blocks",		$"{SyncCache.Sum(i => i.Value.Votes.Count)}"));
 					f.Add(new ("Cached Rounds",			$"{Database.LoadedRounds.Count()}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}"));
 					f.Add(new ("Last Payload Round",	$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}"));
@@ -279,7 +276,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Generators.Any(j => j.Account == i)) : new AccountKey[0];
+			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
 	
 			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}" +
 					$"{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}" +
@@ -289,7 +286,7 @@ namespace Uccs.Net
 					$"{(Settings.Anonymous ? " - A" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? $" - {IP}" : "")}" +
 					$" - {Synchronization}" +
-					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Generators.Count()} members" : "");
+					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Members.Count()} members" : "");
 		}
 
 		public object Constract(Type t, byte b)
@@ -1076,8 +1073,7 @@ namespace Uccs.Net
 						r.WeiSpent		= rd.ReadBigInteger();
 						r.Factor		= rd.ReadCoin();
 						r.Emission		= rd.ReadCoin();
-						r.Generators	= rd.Read<Generator>(m => m.ReadForBase(rd)).ToList();
-						r.Hubs			= rd.Read<Hub>(m => m.ReadForBase(rd)).ToList();
+						r.Members		= rd.Read<Generator>(m => m.ReadForBase(rd)).ToList();
 						r.Analyzers		= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
 						r.Funds			= rd.ReadList<AccountAddress>();
 		
@@ -1179,20 +1175,13 @@ namespace Uccs.Net
 										}
 			
 										if(r.Confirmed)
-										{
 							 				throw new SynchronizationException();
-										}
 
-										if(r.Blocks.Any())
-										{
-											var rq = new GeneratorVoxRequest(r.Blocks);
-											rq.Execute(this);
-										}
+										foreach(var i in r.Votes)
+											ProcessIncoming(i);
 
-										foreach(var i in r.GeneratorJoinRequests)
-										{
+										foreach(var i in r.JoinRequests)
 											i.Execute(this);
-										}
 									}
 								}
 										
@@ -1204,13 +1193,11 @@ namespace Uccs.Net
 
 								foreach(var i in SyncCache.OrderBy(i => i.Key))
 								{
-									foreach(var jr in i.Value.GeneratorJoins)
-									{
-										jr.Execute(this);
-									}
+									foreach(var v in i.Value.Votes)
+										ProcessIncoming(v);
 
-									var rq = new GeneratorVoxRequest(i.Value.Blocks);
-									rq.Execute(this);
+									foreach(var jr in i.Value.GeneratorJoins)
+										jr.Execute(this);
 								}
 									
 								SyncCache.Clear();
@@ -1244,43 +1231,51 @@ namespace Uccs.Net
 			}
 		}
 
-		public IEnumerable<Vote> ProcessIncoming(IEnumerable<Vote> blocks)
+		public bool ProcessIncoming(Vote v)
 		{
- 			var verified = blocks.Where(b =>{
-												//if(LastConfirmedRound != null && b.RoundId <= LastConfirmedRound.Id)
-												//	return false;
+			if(!v.Valid)
+				return false;
 
-												var r = Database.FindRound(b.RoundId);
-	
-												if(r != null && !r.Confirmed && r.Blocks.Any(i => i.Signature.SequenceEqual(b.Signature)))
-													return false;
-
-												return b.Valid/* && Zone.Cryptography.Valid(b.Signature, b.Hash, b.Generator)*/;
-
-											}).ToArray(); /// !ToArray cause will be added to Chain below
-
-			if(Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
+			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 			{
-				Database.Add(verified);
+ 				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+ 
+				if(v.RoundId < min || (SyncCache.ContainsKey(v.RoundId) && SyncCache[v.RoundId].Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
+					return false;
+
+				Core.SyncRound r;
+						
+				if(!SyncCache.TryGetValue(v.RoundId, out r))
+				{
+					r = SyncCache[v.RoundId] = new();
+				}
+
+				r.Votes.Add(v);
+
+				foreach(var i in SyncCache.Keys)
+				{
+					if(i < min)
+					{
+						SyncCache.Remove(i);
+					}
+				}	
 			}
-
-			if(Synchronization == Synchronization.Synchronized)
+			else if(Synchronization == Synchronization.Synchronized)
 			{
-				//var joins = verified.OfType<JoinMembersRequest>().Where(b => { 
-				//																for(int i = b.RoundId; i > b.RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
-				//																	if(Database.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == b.Generator))
-				//																		return false;
-				//
-				//																return true;
-				//															}).ToArray();
-				//Database.Add(joins);
-				//	
-				//var votes = verified.OfType<Vote>().Where(i => i.RoundId > Database.LastConfirmedRound.Id && Database.VoterOf(i.RoundId).Any(j => j.Generator == i.Generator)).ToArray();
+				if(v.RoundId <= Database.LastConfirmedRound.Id || Database.LastConfirmedRound.Id + Database.Pitch * 2 < v.RoundId)
+					return false;
+
+				var r = Database.GetRound(v.RoundId);
 				
-				Database.Add(verified);
+				var ve = r.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
+
+				if(ve != null)
+					return false;
+
+				Database.Add(v);
 			}
 
-			return verified;
+			return true;
 		}
 
 		void GenerateAnalysis()
@@ -1333,7 +1328,7 @@ namespace Uccs.Net
 		{
 			Statistics.Generating.Begin();
 
-			var blocks = new List<Vote>();
+			var votes = new List<Vote>();
 
 			foreach(var g in Settings.Generators)
 			{
@@ -1341,7 +1336,7 @@ namespace Uccs.Net
 				{
 					///var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
-					GeneratorJoinRequest jr = null;
+					MemberJoinRequest jr = null;
 
 					for(int i = Database.LastNonEmptyRound.Id; i >= Database.LastConfirmedRound.Id - Database.Pitch; i--)
 					{
@@ -1349,7 +1344,7 @@ namespace Uccs.Net
 
 						if(r != null)
 						{
-							jr = r.GeneratorJoinRequests.Find(j => j.Generator == g);
+							jr = r.JoinRequests.Find(j => j.Generator == g);
 							
 							if(jr != null)
 								break;
@@ -1358,7 +1353,7 @@ namespace Uccs.Net
 
 					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id)
 					{
-						jr = new GeneratorJoinRequest()
+						jr = new MemberJoinRequest()
 							{	
 								RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
 								//IPs  = new [] {IP}
@@ -1366,7 +1361,7 @@ namespace Uccs.Net
 						
 						jr.Sign(Zone, g);
 						
-						Database.GetRound(jr.RoundId).GeneratorJoinRequests.Add(jr);
+						Database.GetRound(jr.RoundId).JoinRequests.Add(jr);
 						//blocks.Add(b);
 
 						//if(BaseConnections.Count(i => i.Established) < Settings.Database.PeersMin)
@@ -1376,7 +1371,7 @@ namespace Uccs.Net
 
 						foreach(var i in Connections)
 						{
-							var bjr = new GeneratorJoinRequest {RoundId = jr.RoundId, Signature = jr.Signature};
+							var bjr = new MemberJoinRequest {RoundId = jr.RoundId, Signature = jr.Signature};
 
 							i.Send(bjr);
 						}
@@ -1407,8 +1402,8 @@ namespace Uccs.Net
 													Violators			= Database.ProposeViolators(r).ToList(),
 													GeneratorJoiners	= Database.ProposeGeneratorJoiners(r).ToList(),
 													GeneratorLeavers	= Database.ProposeGeneratorLeavers(r, g).ToList(),
-													HubJoiners			= Database.ProposeHubJoiners(r).ToList(),
-													HubLeavers			= Database.ProposeHubLeavers(r, g).ToList(),
+													//HubJoiners			= Database.ProposeHubJoiners(r).ToList(),
+													//HubLeavers			= Database.ProposeHubLeavers(r, g).ToList(),
 													AnalyzerJoiners		= Settings.ProposedAnalyzerJoiners,
 													AnalyzerLeavers		= Settings.ProposedAnalyzerLeavers,
 													FundJoiners			= Settings.ProposedFundJoiners,
@@ -1445,7 +1440,7 @@ namespace Uccs.Net
 						}
 						
 						b.Sign(g);
-						blocks.Add(b);
+						votes.Add(b);
 					}
 
 					while(Database.GeneratorsOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
@@ -1457,14 +1452,14 @@ namespace Uccs.Net
 						var b = createvote();
 								
 						b.Sign(g);
-						blocks.Add(b);
+						votes.Add(b);
 					}
 				}
 			}
 
-			if(blocks.Any())
+			if(votes.Any())
 			{
-				foreach(var b in blocks)
+				foreach(var b in votes)
 				{
 					Database.Add(b);
 				}
@@ -1524,21 +1519,13 @@ namespace Uccs.Net
 // 					}
 //  				}
 
-				/// LESS RELIABLE
-				var vox = new GeneratorVoxRequest(blocks);
-
-				foreach(var i in Bases)
+				
+				foreach(var i in votes)
 				{
-					i.Send(new GeneratorVoxRequest{Votes = vox.Votes});
+					Broadcast(i);
 				}
-
-				/// ALL FOR ALL
-				///foreach(var i in Bases)
-				///{
-				///	i.Request<object>(new UploadBlocksPiecesRequest{Pieces = pieces});
-				///}
 													
-				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", blocks.Select(i => $"{Hex.ToHexString(((byte[])i.Generator).Take(4).ToArray())}-{i.RoundId}")));
+				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{Hex.ToHexString(((byte[])i.Generator).Take(4).ToArray())}-{i.RoundId}")));
 			}
 
 			Statistics.Generating.End();
@@ -1575,17 +1562,10 @@ namespace Uccs.Net
 					r.Voted = true;
 
 					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
-					var notcomebacks = r.Parent.Blocks.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
+					var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
 					
-					if(notcomebacks.Any())
-					{
-						var vox = new GeneratorVoxRequest(notcomebacks);
-
-						foreach(var i in Bases)
-						{
-							i.Send(new GeneratorVoxRequest{Votes = vox.Votes});
-						}
-					}
+					foreach(var v in notcomebacks)
+						Broadcast(v);
 
 					Confirm(r.Parent, false);
 
@@ -2048,7 +2028,7 @@ namespace Uccs.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(!Settings.Generators.Any(g => Database.LastConfirmedRound.Generators.Any(m => g == m.Account))) /// not ready to process external transactions
+			if(!Settings.Generators.Any(g => Database.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
 				return new();
 
 			var accepted = txs.Where(i =>	!Transactions.Any(j => i.EqualBySignature(j)) &&
@@ -2372,5 +2352,13 @@ namespace Uccs.Net
 
  			rq.Execute(this);
  		}
+
+		public void Broadcast(Vote vote, Peer skip = null)
+		{
+			foreach(var i in Bases.Where(i => i != skip))
+			{
+				i.Send(new MemberVoxRequest {Raw = vote.RawForBroadcast });
+			}
+		}
 	}
 }

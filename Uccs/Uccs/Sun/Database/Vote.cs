@@ -19,7 +19,7 @@ namespace Uccs.Net
 		public Round					Round;
 		public DateTime					Created;
 		AccountAddress					_Generator;
-
+		byte[]							_RawForBroadcast;
 		public int						RoundId;
 		public IEnumerable<IPAddress>	BaseIPs;
 		public IEnumerable<IPAddress>	HubIPs;
@@ -28,8 +28,8 @@ namespace Uccs.Net
 		public byte[]					ParentSummary;
 		public List<AccountAddress>		GeneratorJoiners = new();
 		public List<AccountAddress>		GeneratorLeavers = new();
-		public List<AccountAddress>		HubJoiners = new();
-		public List<AccountAddress>		HubLeavers = new();
+		//public List<AccountAddress>		HubJoiners = new();
+		//public List<AccountAddress>		HubLeavers = new();
 		public List<AccountAddress>		AnalyzerJoiners = new();
 		public List<AccountAddress>		AnalyzerLeavers = new();
 		public List<AccountAddress>		FundJoiners = new();
@@ -69,6 +69,27 @@ namespace Uccs.Net
 
 				return _Generator;
 			}
+		}
+
+		public byte[] RawForBroadcast
+		{
+			get
+			{ 
+				if(_RawForBroadcast == null)
+				{
+					var s = new MemoryStream();
+					var w = new BinaryWriter(s);
+
+					WriteForBroadcast(w);
+
+					_RawForBroadcast = s.ToArray();
+
+				}
+			
+				return _RawForBroadcast; 
+			}
+
+			set { _RawForBroadcast = value; }
 		}
 
 		public Vote(Database c)
@@ -119,8 +140,8 @@ namespace Uccs.Net
 
 			writer.Write(GeneratorJoiners);
 			writer.Write(GeneratorLeavers);
-			writer.Write(HubJoiners);
-			writer.Write(HubLeavers);
+			//writer.Write(HubJoiners);
+			//writer.Write(HubLeavers);
 			writer.Write(AnalyzerJoiners);
 			writer.Write(AnalyzerLeavers);
 			writer.Write(FundJoiners);
@@ -143,8 +164,8 @@ namespace Uccs.Net
 
 			GeneratorJoiners	= reader.ReadAccounts();
 			GeneratorLeavers	= reader.ReadAccounts();
-			HubJoiners			= reader.ReadAccounts();
-			HubLeavers			= reader.ReadAccounts();
+			//HubJoiners			= reader.ReadAccounts();
+			//HubLeavers			= reader.ReadAccounts();
 			AnalyzerJoiners		= reader.ReadAccounts();
 			AnalyzerLeavers		= reader.ReadAccounts();
 			FundJoiners			= reader.ReadAccounts();

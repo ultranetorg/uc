@@ -222,26 +222,23 @@ namespace Uccs.Net
 																						.Select(i => new ChainReportResponse.Round
 																									{
 																										Id = i.Id, 
-																										Generators = i.Generators.Count,
-																										Hubs = i.Hubs.Count,
+																										Generators = i.Members.Count,
 																										Analyzers = i.Analyzers.Count,
 																										Voted = i.Voted,
 																										Confirmed = i.Confirmed,
 																										Time = i.ConfirmedTime,
 																										Hash = i.Hash,
 																										Consensus = i.Summary,
-																										Blocks = i.Blocks.Select(b => new ChainReportResponse.Block {	Generator = b.Generator, 
+																										Blocks = i.Votes.Select(b => new ChainReportResponse.Block {	Generator = b.Generator, 
 																																										IsPayload = b is Vote v && v.Transactions.Any(), 
 																																										/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
-																										GeneratorJoinRequests = i.GeneratorJoinRequests.Select(i => i.Generator),
-																										HubJoinRequests = i.HubJoinRequests.Select(i => i.Account),
-																										//AnalyzerJoinRequests = i.AnalyzerJoinRequests.Select(i => i.Account)
+																										GeneratorJoinRequests = i.JoinRequests.Select(i => i.Generator),
 																									})
 																						.ToArray()}; 
 							
 						case VotesReportCall s:
 							lock(Core.Lock)
-								return new VotesReportResponse{Pieces = Database?	.FindRound(s.RoundId)?.Blocks
+								return new VotesReportResponse{Pieces = Database?	.FindRound(s.RoundId)?.Votes
 																					.OrderBy(i => i.Generator)
 																					.Take(s.Limit)
 																					.Select(i => new VotesReportResponse.Piece

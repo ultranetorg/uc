@@ -105,7 +105,6 @@ namespace Uccs.Net
 		{
 			public int							Id {get; set;}
 			public int							Generators {get; set;}
-			public int							Hubs {get; set;}
 			public int							Analyzers {get; set;}
 			public bool							Voted {get; set;}
 			public bool							Confirmed {get; set;}
@@ -114,7 +113,7 @@ namespace Uccs.Net
 			public byte[]						Consensus {get; set;}
 			public IEnumerable<Block>			Blocks {get; set;}
 			public IEnumerable<AccountAddress>	GeneratorJoinRequests {get; set;}
-			public IEnumerable<AccountAddress>	HubJoinRequests {get; set;}
+			//public IEnumerable<AccountAddress>	HubJoinRequests {get; set;}
 			//public IEnumerable<AccountAddress>	AnalyzerJoinRequests {get; set;}
 		}
 

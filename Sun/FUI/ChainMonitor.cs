@@ -131,7 +131,7 @@ namespace Uccs.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var last = Core.Database.Tail.FirstOrDefault(i => i.Blocks.Any() || i.GeneratorJoinRequests.Any());
+							var last = Core.Database.Tail.FirstOrDefault(i => i.Votes.Any() || i.JoinRequests.Any());
 
 							if(last == null)
 							{
@@ -148,13 +148,13 @@ namespace Uccs.Sun.FUI
 								if(showt && r != null)
 								{
 									nid = Math.Max(nid, i);
-									nv = Math.Max(nv, r.Blocks.Count);
-									njrs = Math.Max(njrs, r.GeneratorJoinRequests.Count());
+									nv = Math.Max(nv, r.Votes.Count);
+									njrs = Math.Max(njrs, r.JoinRequests.Count());
 									nj = Math.Max(nj, r.ConfirmedGeneratorJoiners.Length);
 									nl = Math.Max(nj, r.ConfirmedGeneratorLeavers.Length);
 		
-									if(r?.Generators != null)
-										nm = Math.Max(nm, r.Generators.Count);
+									if(r?.Members != null)
+										nm = Math.Max(nm, r.Members.Count);
 
 									if(r != null)
 										ndate = Math.Max(ndate, r.ConfirmedTime.ToString().Length);
@@ -169,8 +169,8 @@ namespace Uccs.Sun.FUI
 							nm		= IntLength(nm);
 							ndate	= IntLength(ndate);
 		
-							var mems = rounds.Where(i => i != null).SelectMany(i => i.Blocks.Select(b => b.Generator));
-							var joins = rounds.Where(i => i != null).SelectMany(i => i.GeneratorJoinRequests.Select(b => b.Generator));
+							var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Generator));
+							var joins = rounds.Where(i => i != null).SelectMany(i => i.JoinRequests.Select(b => b.Generator));
 							generators = mems.Union(joins).Distinct().OrderBy(i => i);
 
 							f  = $"{{0,{nid}}} {{1,{nv}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nj}}} {{5,{nl}}} {{6}}{{7}} {{8,{ndate}}}";
@@ -220,9 +220,9 @@ namespace Uccs.Sun.FUI
 									{
 										var t = string.Format(	f, 
 																r.Id, 
-																r.Blocks.Count,
-																r.Generators.Count, 
-																r.GeneratorJoinRequests.Count(),
+																r.Votes.Count,
+																r.Members.Count, 
+																r.JoinRequests.Count(),
 																r.ConfirmedGeneratorJoiners.Length,
 																r.ConfirmedGeneratorLeavers.Length,
 																r.Voted ? "v" : " ",
@@ -235,7 +235,7 @@ namespace Uccs.Sun.FUI
 			
 									foreach(var m in generators)
 									{
-										var bk = r.Blocks.FirstOrDefault(i => i.Generator == m);
+										var bk = r.Votes.FirstOrDefault(i => i.Generator == m);
 		
 										if(bk != null)
 										{
@@ -245,7 +245,7 @@ namespace Uccs.Sun.FUI
 												e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3);
 										}
 
-										var jr = r.GeneratorJoinRequests.FirstOrDefault(i => i.Generator == m);
+										var jr = r.JoinRequests.FirstOrDefault(i => i.Generator == m);
 
 										if(jr != null)
 										{

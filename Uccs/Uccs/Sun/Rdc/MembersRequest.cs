@@ -16,7 +16,7 @@ namespace Uccs.Net
 			{
 				if(core.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
 			
-				return new MembersResponse {Members = core.Database.LastConfirmedRound.Generators.Select(i => new MembersResponse.Member {	Account = i.Account, 
+				return new MembersResponse {Members = core.Database.LastConfirmedRound.Members.Select(i => new MembersResponse.Member {	Account = i.Account, 
 																																			PublicIPs = i.IPs, 
 																																			Proxyable = i.Proxy != null})};
 			}

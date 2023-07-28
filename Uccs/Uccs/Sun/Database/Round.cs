@@ -23,20 +23,16 @@ namespace Uccs.Net
 		public int												Try = 0;
 		public DateTime											FirstArrivalTime = DateTime.MaxValue;
 
-		//public List<BlockPiece>									BlockPieces = new();
-
-		public List<Vote>										Blocks = new();
-		public List<GeneratorJoinRequest>						GeneratorJoinRequests = new();
-		//public List<HubJoinRequest>								HubJoinRequests = new();
-		public IEnumerable<Vote>								VotesOfTry => Blocks.OfType<Vote>().Where(i => i.Try == Try);
-		public List<AnalyzerVoxRequest>							AnalyzerVoxes = new();
+		public List<Vote>										Votes = new();
+		public List<MemberJoinRequest>							JoinRequests = new();
+		public IEnumerable<Vote>								VotesOfTry => Votes.Where(i => i.Try == Try);
 		public IEnumerable<Vote>								Payloads => VotesOfTry.Where(i => i.Transactions.Any());
 		public IEnumerable<Vote>								Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		//public IEnumerable<Transaction>							Transactions => Payloads.SelectMany(i => i.Transactions);
+		public List<AnalyzerVoxRequest>							AnalyzerVoxes = new();
+
 		public IEnumerable<Transaction>							OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 
-		public List<Generator>									Generators = new();
-		public List<Hub>										Hubs = new();
+		public List<Generator>									Members = new();
 		public List<Analyzer>									Analyzers = new();
 		public List<AccountAddress>								Funds = new();
 
@@ -44,8 +40,6 @@ namespace Uccs.Net
 		public Transaction[]									ConfirmedTransactions = {};
 		public AccountAddress[]									ConfirmedGeneratorJoiners = {};
 		public AccountAddress[]									ConfirmedGeneratorLeavers = {};
-		public AccountAddress[]									ConfirmedHubJoiners = {};
-		public AccountAddress[]									ConfirmedHubLeavers = {};
 		public AccountAddress[]									ConfirmedAnalyzerJoiners = {};
 		public AccountAddress[]									ConfirmedAnalyzerLeavers = {};
 		public AccountAddress[]									ConfirmedFundJoiners = {};
@@ -75,7 +69,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks(V/P/J)={Blocks.Count}({VotesOfTry.Count()}/{Payloads.Count()}/{GeneratorJoinRequests.Count()}), Generators={Generators?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Blocks(V/P/J)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}/{JoinRequests.Count()}), Generators={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)
@@ -271,8 +265,8 @@ namespace Uccs.Net
 			writer.Write(ConfirmedTime);
 			writer.Write(ConfirmedGeneratorJoiners);
 			writer.Write(ConfirmedGeneratorLeavers);
-			writer.Write(ConfirmedHubJoiners);
-			writer.Write(ConfirmedHubLeavers);
+			//writer.Write(ConfirmedHubJoiners);
+			//writer.Write(ConfirmedHubLeavers);
 			writer.Write(ConfirmedAnalyzerJoiners);
 			writer.Write(ConfirmedAnalyzerLeavers);
 			writer.Write(ConfirmedFundJoiners);
@@ -287,8 +281,8 @@ namespace Uccs.Net
 			ConfirmedTime				= reader.ReadTime();
 			ConfirmedGeneratorJoiners	= reader.ReadArray<AccountAddress>();
 			ConfirmedGeneratorLeavers	= reader.ReadArray<AccountAddress>();
-			ConfirmedHubJoiners			= reader.ReadArray<AccountAddress>();
-			ConfirmedHubLeavers			= reader.ReadArray<AccountAddress>();
+			//ConfirmedHubJoiners			= reader.ReadArray<AccountAddress>();
+			//ConfirmedHubLeavers			= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
 			ConfirmedFundJoiners		= reader.ReadArray<AccountAddress>();
@@ -309,11 +303,11 @@ namespace Uccs.Net
 // 				w.Write(Hash);
 // #endif
 				WriteConfirmed(w);
-				w.Write(GeneratorJoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
+				w.Write(JoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
 			} 
 			else
 			{
-				w.Write(Blocks, i => {
+				w.Write(Votes, i => {
 										i.WriteForRoundUnconfirmed(w); 
 									 });
 			}
@@ -330,8 +324,8 @@ namespace Uccs.Net
 // 				Hash = r.ReadSha3();
 // #endif
 				ReadConfirmed(r);
-				GeneratorJoinRequests.AddRange(r.ReadArray(() =>	{
-																		var b = new GeneratorJoinRequest();
+				JoinRequests.AddRange(r.ReadArray(() =>	{
+																		var b = new MemberJoinRequest();
 																		b.RoundId = Id;
 																		b.Read(r, Database.Zone);
 																		return b;
@@ -339,7 +333,7 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				Blocks	= r.ReadList(() =>	{
+				Votes	= r.ReadList(() =>	{
 												var b = new Vote(Database);
 												b.RoundId = Id;
 												b.Round = this;
