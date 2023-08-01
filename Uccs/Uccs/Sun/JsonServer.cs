@@ -261,20 +261,23 @@ namespace Uccs.Net
 								
 								var h = Core.Zone.Cryptography.HashFile(m.Bytes);
 								
-								Core.Filebase.Add(c.Release, h);
-
-								Core.Filebase.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
-
-								if(c.Complete != null)
+								lock(Core.Resources.Lock)
 								{
-									Core.Filebase.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
+									Core.Resources.Add(c.Release, h);
+	
+									Core.Resources.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
+	
+									if(c.Complete != null)
+									{
+										Core.Resources.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
+									}
+									if(c.Incremental != null)
+									{
+										Core.Resources.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
+									}
+								
+									Core.Resources.SetLatest(c.Release, h);
 								}
-								if(c.Incremental != null)
-								{
-									Core.Filebase.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
-								}
-							
-								Core.Filebase.SetLatest(c.Release, h);
 							}
 	
 							break;

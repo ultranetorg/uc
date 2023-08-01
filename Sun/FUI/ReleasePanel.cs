@@ -79,7 +79,7 @@ namespace Uccs.Sun.FUI
 				Task.Run(() =>	{
 									try
 									{
-										Core.Filebase.GetFile(r.Resource, null, Package.ManifestFile, null, ManifestWorkflow);
+										Core.Resources.GetFile(r.Resource, null, Package.ManifestFile, null, ManifestWorkflow);
 
 										var p = Core.PackageBase.Find(new PackageAddress(r.Resource));
 

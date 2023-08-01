@@ -88,7 +88,7 @@ namespace Uccs.Net
 		public Vault					Vault;
 		public INas						Nas;
 		public Chainbase				Chainbase;
-		public ResourceBase				Filebase;
+		public ResourceBase				Resources;
 		public PackageBase				PackageBase;
 		public Seedbase					Seedbase;
 		public bool						IsClient => ListeningThread == null;
@@ -323,8 +323,8 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
-				Filebase = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
-				PackageBase = new PackageBase(this, Filebase, Settings.Packages);
+				Resources = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
+				PackageBase = new PackageBase(this, Resources, Settings.Packages);
 			}
 
 			LoadPeers();
@@ -386,8 +386,8 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
-				Filebase = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
-				PackageBase = new PackageBase(this, Filebase, Settings.Packages);
+				Resources = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
+				PackageBase = new PackageBase(this, Resources, Settings.Packages);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))

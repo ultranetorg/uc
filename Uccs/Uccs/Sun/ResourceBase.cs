@@ -268,10 +268,16 @@ namespace Uccs.Net
 								Monitor.Enter(Lock);
 							}
 
-							var drs = Releases.Where(i => i.DeclareTo.Contains(m) && !i.DeclaredOn.Contains(m)).ToArray();
+							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Contains(m) && !i.DeclaredOn.Contains(m)).ToArray();
 
 							var t = Task.Run(() =>	{
-														Core.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {Hash = i.Hash, Availability = i.Availability}).ToArray()), Core.Workflow);
+														try
+														{
+															Core.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {Hash = i.Hash, Availability = i.Availability}).ToArray()), Core.Workflow);
+														}
+														catch(ConnectionFailedException)
+														{
+														}
 
 														lock(Lock)
 														{

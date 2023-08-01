@@ -55,9 +55,9 @@ namespace Uccs.Net
 			public IPAddress[]			IPs;
 			public Seed[]				Seeds = new Seed[]{};
 			public HubStatus			Status = HubStatus.Estimating;
-			FileDownload					Download;
 			public DateTime				Called;
 			public bool					Refreshing =false;
+			FileDownload				Download;
 
 			public Hub(FileDownload download, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
@@ -85,7 +85,7 @@ namespace Uccs.Net
 
 										lock(Download.Lock)
 										{
-											Download.Workflow.Log.Report(this, "Hub gives seeds", $"for {Download.Resource}, {Account}, {{{string.Join(", ", lr.Seeders.Take(8))}}}, ");
+											Download.Workflow.Log?.Report(this, "Hub gives seeds", $"for {Download.Resource}, {Account}, {{{string.Join(", ", lr.Seeders.Take(8))}}}, ");
 
 											Seeds = lr.Seeders.Where(i => !Download.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 
@@ -296,15 +296,15 @@ namespace Uccs.Net
 											j.Seed.Failures++;
 											j.Seed.Failed = DateTime.MinValue;
 
-											lock(Core.Filebase.Lock)
-												Core.Filebase.WriteFile(Resource, Hash, File, j.Offset, j.Data.ToArray());
+											lock(Core.Resources.Lock)
+												Core.Resources.WriteFile(Resource, Hash, File, j.Offset, j.Data.ToArray());
 											
 											CompletedPieces.Add(j);
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
 												lock(Core.Lock)
-													if(Core.Filebase.Hashify(Resource, Hash, File).SequenceEqual(filehash))
+													if(Core.Resources.Hashify(Resource, Hash, File).SequenceEqual(filehash))
 													{	
 														goto end;
 													}
@@ -330,7 +330,7 @@ namespace Uccs.Net
 
 							end:
 
-								lock(Core.Filebase.Lock)
+								lock(Core.Resources.Lock)
 								{
 									var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
 
@@ -347,7 +347,7 @@ namespace Uccs.Net
 										Core.UpdatePeers(seeds);
 									}
 
-									Core.Filebase.Downloads.Remove(this);
+									Core.Resources.Downloads.Remove(this);
 
 									Downloaded = true;
 								}

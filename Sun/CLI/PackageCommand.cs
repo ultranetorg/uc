@@ -53,9 +53,9 @@ namespace Uccs.Sun.CLI
 					{
 						while(!d.Succeeded)
 						{
-							var r = Core.Filebase.Downloads.Find(i => i.Resource == GetResourceAddress("address"));
+							var r = Core.Resources.Downloads.Find(i => i.Resource == GetResourceAddress("address"));
 
-							lock(Core.Filebase.Lock)
+							lock(Core.Resources.Lock)
 								lock(Core.PackageBase.Lock)
 									Workflow.Log?.Report(this, r != null ? $"{r.File}={r.CompletedLength}/{r.Length} " : null + $"Deps={d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
 							

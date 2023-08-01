@@ -620,7 +620,7 @@ namespace Uccs.Net
 										var h = hst.First().Data;
 
 										lock(Lock)
-											lock(Core.Filebase.Lock)
+											lock(Core.Resources.Lock)
 											{
 												d.Package = Find(package);
 											
@@ -629,16 +629,16 @@ namespace Uccs.Net
 													if(d.Package.Release.Hash.SequenceEqual(h))
 														goto done;
 													else
-														d.Package.Release = Core.Filebase.Add(package, h); /// update to the latest
+														d.Package.Release = Core.Resources.Add(package, h); /// update to the latest
 												} 
 												else
 												{	
-													d.Package = new Package(this, package, Core.Filebase.Add(package, h));
+													d.Package = new Package(this, package, Core.Resources.Add(package, h));
 													Packages.Add(d.Package);
 												}
 											}
 	 									
-										Core.Filebase.GetFile(package, h, Package.ManifestFile, h, workflow);
+										Core.Resources.GetFile(package, h, Package.ManifestFile, h, workflow);
 
 										bool incrementable;
 
@@ -670,7 +670,7 @@ namespace Uccs.Net
 											}
 										}
 
- 										Core.Filebase.GetFile(	package, 
+ 										Core.Resources.GetFile(	package, 
 																h, 
 																incrementable ? Package.IncrementalFile : Package.CompleteFile, 
 																incrementable ? d.Package.Manifest.IncrementalHash : d.Package.Manifest.CompleteHash, 

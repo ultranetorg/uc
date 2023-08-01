@@ -10,13 +10,13 @@
 
 		public override RdcResponse Execute(Core core)
 		{
-			if(core.Filebase == null) 
+			if(core.Resources == null) 
 				throw new RdcNodeException(RdcNodeError.NotSeeder);
 			
-			if(!core.Filebase.Exists(Resource, Hash, File)) 
+			if(!core.Resources.Exists(Resource, Hash, File)) 
 				throw new RdcNodeException(RdcNodeError.NotFound);
 
-			return new DownloadReleaseResponse{Data = core.Filebase.ReadFile(Resource, Hash, File, Offset, Length)};
+			return new DownloadReleaseResponse{Data = core.Resources.ReadFile(Resource, Hash, File, Offset, Length)};
 		}
 	}
 
