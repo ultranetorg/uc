@@ -15,7 +15,7 @@ namespace Uccs.Net
 {
 	public delegate void BlockDelegate(Vote b);
 
-	public class Database
+	public class Chainbase
 	{
 		public const int					Pitch = 8;
 		public const int					AliveMinMemberVotes = 6;
@@ -69,7 +69,7 @@ namespace Uccs.Net
 
 		public static int					GetValidityPeriod(int rid) => rid + Pitch;
 
-		public Database(Zone zone, Role roles, DatabaseSettings settings, DevSettings dev, Log log, RocksDb engine)
+		public Chainbase(Zone zone, Role roles, DatabaseSettings settings, DevSettings dev, Log log, RocksDb engine)
 		{
 			Roles = roles&(Role.Base|Role.Chain);
 			Zone = zone;
@@ -147,7 +147,7 @@ namespace Uccs.Net
 
 							if(i == 16)
 							{
-								r.Members[0].IPs = new IPAddress[] {};
+								r.Members[0].HubIPs = new IPAddress[]{zone.GenesisIP};
 							}
 						}
 					}
@@ -647,19 +647,19 @@ namespace Uccs.Net
 				//									.OrderBy(i => i).ToArray();
 				
 				round.ConfirmedAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Database.MembersMax * 2/3)
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Chainbase.MembersMax * 2/3)
 													.OrderBy(i => i).ToArray();
 				
 				round.ConfirmedAnalyzerLeavers	= gu.SelectMany(i => i.AnalyzerLeavers).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Database.MembersMax * 2/3)
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Chainbase.MembersMax * 2/3)
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedFundJoiners		= gu.SelectMany(i => i.FundJoiners).Distinct()
-													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Database.MembersMax * 2/3)
+													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Chainbase.MembersMax * 2/3)
 													.OrderBy(i => i).ToArray();
 				
 				round.ConfirmedFundLeavers		= gu.SelectMany(i => i.FundLeavers).Distinct()
-													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Database.MembersMax * 2/3)
+													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Chainbase.MembersMax * 2/3)
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedViolators		= gu.SelectMany(i => i.Violators).Distinct()

@@ -158,12 +158,12 @@ namespace Uccs.Net
 		public static string			MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
 		public static string			MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 		RocksDb							Engine;
-		protected Database				Database;
+		protected Chainbase				Database;
 
 		protected abstract E			Create();
 		protected abstract byte[]		KeyToBytes(K k);
 
-		public Table(Database chain)
+		public Table(Chainbase chain)
 		{
 			Database = chain;
 			Engine = Database.Engine;

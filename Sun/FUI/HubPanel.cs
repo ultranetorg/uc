@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Sun.FUI
 {
@@ -16,10 +17,10 @@ namespace Uccs.Sun.FUI
 		{
 			InitializeComponent();
 
-// 			foreach(DataGridViewColumn i in peers.Columns)
-// 			{
-// 				i.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-// 			}
+			// 			foreach(DataGridViewColumn i in peers.Columns)
+			// 			{
+			// 				i.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			// 			}
 		}
 
 		public override void Open(bool first)
@@ -57,13 +58,13 @@ namespace Uccs.Sun.FUI
 		{
 			Packages.Items.Clear();
 			Seeds.Items.Clear();
-	
+
 			lock(Core.Lock)
 			{
-				foreach(var i in Core.Seedbase.Releases)
+				foreach(var i in Core.Seedbase.Releases.Take(1000))
 				{
-					var r = Packages.Items.Add(i.Key.Author);
-					r.SubItems.Add(i.Key.Resource);
+					var r = Packages.Items.Add(Hex.ToHexString(i.Key));
+					//r.SubItems.Add(i.Key.Resource);
 					//r.SubItems.Add(i.Key.Realization.Name.ToString());
 					//r.SubItems.Add(i.Key.Version.ToString());
 					//r.SubItems.Add(i.Key.Distributives.ToString());
@@ -77,7 +78,7 @@ namespace Uccs.Sun.FUI
 			if(e.IsSelected)
 			{
 				Seeds.Items.Clear();
-	
+
 				lock(Core.Lock)
 				{
 					foreach(var i in e.Item.Tag as List<Seed>)

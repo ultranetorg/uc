@@ -14,13 +14,13 @@ namespace Uccs.Net
 		public string		Key => Name;
 		public byte[]		GetClusterKey(int n) => Encoding.UTF8.GetBytes(Name).Take(n).ToArray();
 
-		Database			Chain;
+		Chainbase			Chain;
 
 		public AuthorEntry()
 		{
 		}
 
-		public AuthorEntry(Database chain)
+		public AuthorEntry(Chainbase chain)
 		{
 			Chain = chain;
 		}

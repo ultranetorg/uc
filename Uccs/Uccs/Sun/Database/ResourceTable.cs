@@ -8,7 +8,7 @@ namespace Uccs.Net
 {
 	public class ResourceTable : Table<ResourceEntry, ResourceAddress>
 	{
-		public ResourceTable(Database chain) : base(chain)
+		public ResourceTable(Chainbase chain) : base(chain)
 		{
 		}
 		

@@ -102,11 +102,11 @@ namespace Uccs.Sun.FUI
 			{
 				e.Graphics.Clear(Color.White);
 
-				if(Core?.Database != null)
+				if(Core?.Chainbase != null)
 				{
 					lock(Core.Lock)
 					{
-						if(!Core.Database.Tail.Any())
+						if(!Core.Chainbase.Tail.Any())
 							return;
 
 						var s = 8;
@@ -131,7 +131,7 @@ namespace Uccs.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var last = Core.Database.Tail.FirstOrDefault(i => i.Votes.Any() || i.JoinRequests.Any());
+							var last = Core.Chainbase.Tail.FirstOrDefault(i => i.Votes.Any() || i.JoinRequests.Any());
 
 							if(last == null)
 							{
@@ -142,7 +142,7 @@ namespace Uccs.Sun.FUI
 							
 							for(int i = last.Id - n + 1; i <= last.Id; i++)
 							{
-								var r = Core.Database.FindRound(i);
+								var r = Core.Chainbase.FindRound(i);
 								rounds.Add(r);
 	
 								if(showt && r != null)

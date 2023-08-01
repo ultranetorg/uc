@@ -14,7 +14,7 @@ namespace Uccs.Net
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new RdcNodeException(RdcNodeError.NotSynchronized);
  				
-				return new QueryResourceResponse {Resources = core.Database.QueryRelease(Query).ToArray()};
+				return new QueryResourceResponse {Resources = core.Chainbase.QueryRelease(Query).ToArray()};
 			}
 		}
 	}

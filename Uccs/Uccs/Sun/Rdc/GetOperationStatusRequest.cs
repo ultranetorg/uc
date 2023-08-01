@@ -16,13 +16,13 @@ namespace Uccs.Net
 	
 				return	new GetOperationStatusResponse
 						{
-							LastConfirmedRoundId = core.Database.LastConfirmedRound.Id,
+							LastConfirmedRoundId = core.Chainbase.LastConfirmedRound.Id,
 							Operations = Operations.Select(o => new {	A = o,
 																		O = core.Transactions.Where(t => t.Signer == o.Account && t.Operations.Any(i => i.Id == o.Id))
 																							 .SelectMany(t => t.Operations)
 																							 .FirstOrDefault(i => i.Id == o.Id)
 																		?? 
-																		core.Database.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
+																		core.Chainbase.Accounts.FindLastOperation(o.Account, i => i.Id == o.Id)})
 													.Select(i => new GetOperationStatusResponse.Item {	Account		= i.A.Account,
 																										Id			= i.A.Id,
 																										Placing		= i.O == null ? PlacingStage.FailedOrNotFound : i.O.Placing}).ToArray()

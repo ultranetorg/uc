@@ -17,9 +17,9 @@ namespace Uccs.Net
 				
 				var m = Table switch
 							  {
-									Tables.Accounts		=> core.Database.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Authors		=> core.Database.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Resources		=> core.Database.Resources.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Accounts		=> core.Chainbase.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Authors		=> core.Chainbase.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Resources		=> core.Chainbase.Resources.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									_ => throw new RdcEntityException(RdcEntityError.InvalidRequest)
 							  };
 

@@ -9,7 +9,7 @@ namespace Uccs.Net
 {
 	public class AuthorTable : Table<AuthorEntry, string>
 	{
-		public AuthorTable(Database chain) : base(chain)
+		public AuthorTable(Chainbase chain) : base(chain)
 		{
 		}
 		

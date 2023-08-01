@@ -41,12 +41,12 @@ namespace Uccs.Net
 		public bool					Established => Tcp != null && Tcp.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
 
-		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (HubRank > 0 ? Role.Hub : 0) | (SeedRank > 0 ? Role.Seed : 0);
+		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0);
 		public int					PeerRank = 0;
 		public int					ChainRank = 0;
 		public int					BaseRank = 0;
-		public int					HubRank = 0;
-		public int					SeedRank = 0;
+		//public int					HubRank = 0;
+		//public int					SeedRank = 0;
 
 		public Dictionary<Role, DateTime>	LastFailure = new();
 
@@ -75,15 +75,13 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}, Cr={ChainRank}, Hr={HubRank}, Sr={SeedRank}";
+			return $"{IP}, {StatusDescription}";
 		}
  		
 		public int GetRank(Role role)
 		{
 			if(role == Role.Base) return BaseRank;
 			if(role == Role.Chain) return ChainRank;
-			if(role == Role.Hub) return HubRank;
-			if(role == Role.Seed) return SeedRank;
 
 			throw new IntegrityException("Wrong rank");
 		}
@@ -93,8 +91,6 @@ namespace Uccs.Net
   			w.Write7BitEncodedInt64(LastSeen.ToBinary());
 			w.Write(PeerRank);
 			w.Write(ChainRank);
-			w.Write(HubRank);
-			w.Write(SeedRank);
   		}
   
   		public void LoadNode(BinaryReader r)
@@ -102,8 +98,6 @@ namespace Uccs.Net
   			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
 			PeerRank = r.ReadInt32();
 			ChainRank = r.ReadInt32();
-			HubRank = r.ReadInt32();
-			SeedRank = r.ReadInt32();
   		}
  
  		public void WritePeer(BinaryWriter w)
@@ -118,9 +112,6 @@ namespace Uccs.Net
 			var r = (Role)reader.ReadByte();
 			BaseRank	= r.HasFlag(Role.Base) ? 1 : 0;
 			ChainRank	= r.HasFlag(Role.Chain) ? 1 : 0;
-			HubRank		= r.HasFlag(Role.Hub) ? 1 : 0;
-			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
-
  		}
 
 		public static void SendHello(TcpClient client, Hello h)
@@ -192,8 +183,6 @@ namespace Uccs.Net
 			LastSeen	= DateTime.UtcNow;
 			BaseRank	= h.Roles.HasFlag(Role.Base)	? 1 : 0;
 			ChainRank	= h.Roles.HasFlag(Role.Chain)	? 1 : 0;
-			HubRank		= h.Roles.HasFlag(Role.Hub)		? 1 : 0;
-			SeedRank	= h.Roles.HasFlag(Role.Seed)	? 1 : 0;
 
 			core.UpdatePeers(new Peer[]{this});
 

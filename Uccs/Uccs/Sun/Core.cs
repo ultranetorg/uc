@@ -55,15 +55,14 @@ namespace Uccs.Net
 		Null,
 		Base		= 0b00000001,
 		Chain		= 0b00000011,
-		Hub			= 0b00000101,
-		Analyzer	= 0b00001001,
-		Seed		= 0b00010000,
+		//Analyzer	= 0b00000101,
+		Seeder		= 0b00001000,
 	}
 
 	public class ReleaseStatus
 	{
 		public bool				ExistsRecursively { get; set; }
-		public Release			Manifest { get; set; }
+		public Manifest			Manifest { get; set; }
 		public DownloadReport	Download { get; set; }
 	}
 
@@ -88,8 +87,8 @@ namespace Uccs.Net
 		JsonServer						ApiServer;
 		public Vault					Vault;
 		public INas						Nas;
-		public Database					Database;
-		public ResourceBase					Filebase;
+		public Chainbase				Chainbase;
+		public ResourceBase				Filebase;
 		public PackageBase				PackageBase;
 		public Seedbase					Seedbase;
 		public bool						IsClient => ListeningThread == null;
@@ -144,6 +143,8 @@ namespace Uccs.Net
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate				SynchronizationChanged;
 		
+		public bool						IsMember => Synchronization == Synchronization.Synchronized && Settings.Generators.Any(g => Chainbase.LastConfirmedRound.Members.Any(i => i.Account == g));
+
 		public class SyncRound
 		{
 			public List<Vote>					Votes = new();
@@ -158,6 +159,7 @@ namespace Uccs.Net
 
 		public CoreDelegate				MainStarted;
 		public CoreDelegate				ApiStarted;
+
 		
 		public List<KeyValuePair<string, string>> Summary
 		{
@@ -177,17 +179,17 @@ namespace Uccs.Net
 				f.Add(new ("    Confirmed",				$"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}"));
 				f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
 				
-				if(Database != null)
+				if(Chainbase != null)
 				{
 					f.Add(new ("Synchronization",		$"{Synchronization}"));
-					f.Add(new ("Size",					$"{Database.Size}"));
-					f.Add(new ("Members",				$"{Database.LastConfirmedRound?.Members.Count}"));
-					f.Add(new ("Emission",				$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Emission.ToHumanString() : null)}"));
+					f.Add(new ("Size",					$"{Chainbase.Size}"));
+					f.Add(new ("Members",				$"{Chainbase.LastConfirmedRound?.Members.Count}"));
+					f.Add(new ("Emission",				$"{(Chainbase.LastPayloadRound != null ? Chainbase.LastPayloadRound.Emission.ToHumanString() : null)}"));
 					f.Add(new ("SyncCache Blocks",		$"{SyncCache.Sum(i => i.Value.Votes.Count)}"));
-					f.Add(new ("Cached Rounds",			$"{Database.LoadedRounds.Count()}"));
-					f.Add(new ("Last Non-Empty Round",	$"{(Database.LastNonEmptyRound != null ? Database.LastNonEmptyRound.Id : null)}"));
-					f.Add(new ("Last Payload Round",	$"{(Database.LastPayloadRound != null ? Database.LastPayloadRound.Id : null)}"));
-					f.Add(new ("Base Hash",				$"{Hex.ToHexString(Database.BaseHash)}"));
+					f.Add(new ("Cached Rounds",			$"{Chainbase.LoadedRounds.Count()}"));
+					f.Add(new ("Last Non-Empty Round",	$"{(Chainbase.LastNonEmptyRound != null ? Chainbase.LastNonEmptyRound.Id : null)}"));
+					f.Add(new ("Last Payload Round",	$"{(Chainbase.LastPayloadRound != null ? Chainbase.LastPayloadRound.Id : null)}"));
+					f.Add(new ("Base Hash",				$"{Hex.ToHexString(Chainbase.BaseHash)}"));
 					f.Add(new ("Generating (μs)",		(Statistics.Generating.Avarage.Ticks/10).ToString()));
 					f.Add(new ("Consensing (μs)",		(Statistics.Consensing.Avarage.Ticks/10).ToString()));
 					f.Add(new ("Transacting (μs)",		(Statistics.Transacting.Avarage.Ticks/10).ToString()));
@@ -200,7 +202,7 @@ namespace Uccs.Net
 					{
 						string formatbalance(AccountAddress a)
 						{
-							return Database.Accounts.Find(a, Database.LastConfirmedRound.Id)?.Balance.ToHumanString();
+							return Chainbase.Accounts.Find(a, Chainbase.LastConfirmedRound.Id)?.Balance.ToHumanString();
 						}
 	
 						foreach(var i in Vault.Accounts)
@@ -210,7 +212,7 @@ namespace Uccs.Net
 	
 						if(Settings.Dev.UI)
 						{
-							foreach(var i in Database.LastConfirmedRound.Funds)
+							foreach(var i in Chainbase.LastConfirmedRound.Funds)
 							{
 								f.Add(new ($"Fundable", $"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}"));
 							}
@@ -267,7 +269,7 @@ namespace Uccs.Net
 																new (ResourceTable.MetaColumnName,	new ()),
 																new (ResourceTable.MainColumnName,	new ()),
 																new (ResourceTable.MoreColumnName,	new ()),
-																new (Database.ChainFamilyName,		new ()),
+																new (Chainbase.ChainFamilyName,		new ()),
 															})
 				cfamilies.Add(i);
 
@@ -276,24 +278,23 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			var gens = Database?.LastConfirmedRound != null ? Settings.Generators.Where(i => Database.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
+			var gens = Chainbase?.LastConfirmedRound != null ? Settings.Generators.Where(i => Chainbase.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
 	
 			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}" +
 					$"{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}" +
-					$"{(Settings.Roles.HasFlag(Role.Hub) ? "H" : "")}" +
-					$"{(Settings.Roles.HasFlag(Role.Seed) ? "S" : "")}" +
+					$"{(Settings.Roles.HasFlag(Role.Seeder) ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
 					$"{(Settings.Anonymous ? " - A" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? $" - {IP}" : "")}" +
 					$" - {Synchronization}" +
-					(Database?.LastConfirmedRound != null ? $" - {gens.Count()}/{Database.LastConfirmedRound.Members.Count()} members" : "");
+					(Chainbase?.LastConfirmedRound != null ? $" - {gens.Count()}/{Chainbase.LastConfirmedRound.Members.Count()} members" : "");
 		}
 
 		public object Constract(Type t, byte b)
 		{
 			if(t == typeof(Transaction)) return new Transaction(Zone);
-			if(t == typeof(Vote)) return new Vote(Database);
-			if(t == typeof(Release)) return new Release(Zone);
+			if(t == typeof(Vote)) return new Vote(Chainbase);
+			if(t == typeof(Manifest)) return new Manifest(Zone);
 			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
 			if(t == typeof(RdcResponse)) return RdcResponse.FromType((Rdc)b); 
 
@@ -320,7 +321,7 @@ namespace Uccs.Net
 		{
 			Nuid = Guid.NewGuid();
 
-			if(Settings.Roles.HasFlag(Role.Seed))
+			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
 				Filebase = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
 				PackageBase = new PackageBase(this, Filebase, Settings.Packages);
@@ -378,12 +379,12 @@ namespace Uccs.Net
 												});
 			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
 
-			if(Settings.Roles.HasFlag(Role.Hub))
+			if(Settings.Roles.HasFlag(Role.Base) && Settings.Generators.Any())
 			{
 				Seedbase = new Seedbase(this);
 			}
 
-			if(Settings.Roles.HasFlag(Role.Seed))
+			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
 				Filebase = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
 				PackageBase = new PackageBase(this, Filebase, Settings.Packages);
@@ -391,14 +392,14 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
 			{
-				Database = new Database(Zone, Settings.Roles, Settings.Database, Settings.Dev, Workflow?.Log, DatabaseEngine);
+				Chainbase = new Chainbase(Zone, Settings.Roles, Settings.Database, Settings.Dev, Workflow?.Log, DatabaseEngine);
 		
 				//if(Database.LastConfirmedRound != null && Database.LastConfirmedRound.Members.FirstOrDefault().Generator == Zone.Father0)
 				//{
 				//	Members = new List<OnlineMember>{ new() {Generator = Zone.Father0, IPs = new[] {Zone.GenesisIP}}};
 				//}
 
-				Database.BlockAdded += b =>	ReachConsensus();
+				Chainbase.BlockAdded += b =>	ReachConsensus();
 		
 				if(Settings.Generators.Any())
 				{
@@ -438,7 +439,7 @@ namespace Uccs.Net
 												{
 													ProcessConnectivity();
 												
-													if(Database != null)
+													if(Chainbase != null)
 													{
 														if(Synchronization == Synchronization.Synchronized)
 														{
@@ -457,7 +458,7 @@ namespace Uccs.Net
 															///
 															if(Settings.Generators.Any())
 															{
-																GenerateBasechain();
+																GenerateChainbase();
 															}
 														}
 													}
@@ -597,15 +598,11 @@ namespace Uccs.Net
 
 						bool b = p.BaseRank == 0 && i.BaseRank > 0;
 						bool c = p.ChainRank == 0 && i.ChainRank > 0;
-						bool h = p.HubRank == 0 && i.HubRank > 0;
-						bool s = p.SeedRank == 0 && i.SeedRank > 0;
 
-						if(b || c || h || s)
+						if(b || c)
 						{
 							if(b) p.BaseRank = 1;
 							if(c) p.ChainRank = 1;
-							if(h) p.HubRank = 1;
-							if(s) p.SeedRank = 1;
 						
 							toupdate.Add(p);
 						}
@@ -643,7 +640,7 @@ namespace Uccs.Net
 				Connections.Count() >= Settings.PeersMin && 
 				(!Settings.Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Database.PeersMin))
 			{
-				if(Database != null)
+				if(Chainbase != null)
 				{
 					StartSynchronization();
 				}
@@ -994,13 +991,13 @@ namespace Uccs.Net
 					//int end = -1; 
 					int from = -1;
 
-					Database.LoadedRounds.Clear();
+					Chainbase.LoadedRounds.Clear();
 
-					var peer = Connect(Database.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
+					var peer = Connect(Chainbase.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
 
-					if(Database.Roles.HasFlag(Role.Base) && !Database.Roles.HasFlag(Role.Chain))
+					if(Chainbase.Roles.HasFlag(Role.Base) && !Chainbase.Roles.HasFlag(Role.Chain))
 					{
-						Database.Tail.Clear();
+						Chainbase.Tail.Clear();
 		
 						stamp = peer.GetStamp();
 		
@@ -1009,16 +1006,16 @@ namespace Uccs.Net
 							var ts = peer.GetTableStamp(t.Type, (t.Type switch
 																		{ 
 																			Tables.Accounts	=> stamp.Accounts.Where(i => {
-																															var c = Database.Accounts.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Database.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															var c = Chainbase.Accounts.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Chainbase.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														 }),
 																			Tables.Authors	=> stamp.Authors.Where(i =>	{
-																															var c = Database.Authors.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Database.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															var c = Chainbase.Authors.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Chainbase.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
 																			Tables.Resources	=> stamp.Resources.Where(i => {
-																															var c = Database.Resources.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Database.Resources.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															var c = Chainbase.Resources.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Chainbase.Resources.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														 }),
 																			_ => throw new SynchronizationException()
 																		}
@@ -1049,7 +1046,7 @@ namespace Uccs.Net
 											throw new SynchronizationException();
 										}
 									
-										Database.Engine.Write(b);
+										Chainbase.Engine.Write(b);
 									}
 		
 									Workflow.Log?.Report(this, "Cluster downloaded", $"{t.GetType().Name} {c.Id}");
@@ -1059,11 +1056,11 @@ namespace Uccs.Net
 							t.CalculateSuperClusters();
 						}
 		
-						download<AccountEntry,	AccountAddress>(Database.Accounts);
-						download<AuthorEntry, string>(Database.Authors);
-						download<ResourceEntry, ResourceAddress>(Database.Resources);
+						download<AccountEntry,	AccountAddress>(Chainbase.Accounts);
+						download<AuthorEntry, string>(Chainbase.Authors);
+						download<ResourceEntry, ResourceAddress>(Chainbase.Resources);
 		
-						var r = new Round(Database){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
+						var r = new Round(Chainbase){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
 		
 						var rd = new BinaryReader(new MemoryStream(stamp.BaseState));
 		
@@ -1077,17 +1074,17 @@ namespace Uccs.Net
 						r.Analyzers		= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
 						r.Funds			= rd.ReadList<AccountAddress>();
 		
-						Database.BaseState	= stamp.BaseState;
+						Chainbase.BaseState	= stamp.BaseState;
 						//Database.Members	= r.Members;
 						//Database.Funds		= r.Funds;
 		
-						Database.LastConfirmedRound = r;
-						Database.LastCommittedRound = r;
+						Chainbase.LastConfirmedRound = r;
+						Chainbase.LastCommittedRound = r;
 		
-						Database.Hashify();
+						Chainbase.Hashify();
 		
-						if(peer.GetStamp().BaseHash.SequenceEqual(Database.BaseHash))
- 							Database.LoadedRounds.Add(r.Id, r);
+						if(peer.GetStamp().BaseHash.SequenceEqual(Chainbase.BaseHash))
+ 							Chainbase.LoadedRounds.Add(r.Id, r);
 						else
 							throw new SynchronizationException();
 
@@ -1101,17 +1098,17 @@ namespace Uccs.Net
 		
 						lock(Lock)
 							if(final == -1)
-								if(Database.Roles.HasFlag(Role.Chain))
-									from = Database.LastConfirmedRound.Id + 1;
+								if(Chainbase.Roles.HasFlag(Role.Chain))
+									from = Chainbase.LastConfirmedRound.Id + 1;
 								else
 									if(from == -1)
-										from = Math.Max(stamp.FirstTailRound, Database.LastConfirmedRound == null ? -1 : (Database.LastConfirmedRound.Id + 1));
+										from = Math.Max(stamp.FirstTailRound, Chainbase.LastConfirmedRound == null ? -1 : (Chainbase.LastConfirmedRound.Id + 1));
 									else
-										from = Database.LastConfirmedRound.Id + 1;
+										from = Chainbase.LastConfirmedRound.Id + 1;
 							else
 								from = final;
 		
-						var to = from + Database.Pitch;
+						var to = from + Chainbase.Pitch;
 		
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
 						 	
@@ -1120,13 +1117,13 @@ namespace Uccs.Net
 							{
 								foreach(var i in SyncCache.Keys)
 								{
-									if(i < rp.LastConfirmedRound + 1 - Database.Pitch)
+									if(i < rp.LastConfirmedRound + 1 - Chainbase.Pitch)
 									{
 										SyncCache.Remove(i);
 									}
 								}
 
-								var rounds = rp.Read(Database);
+								var rounds = rp.Read(Chainbase);
 									
 								bool confirmed = true;
 				
@@ -1143,9 +1140,9 @@ namespace Uccs.Net
 													o.Placing = PlacingStage.Placed;
 										}
 				
-										Database.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
-										Database.Tail.Add(r);
-										Database.Tail = Database.Tail.OrderByDescending(i => i.Id).ToList();
+										Chainbase.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
+										Chainbase.Tail.Add(r);
+										Chainbase.Tail = Chainbase.Tail.OrderByDescending(i => i.Id).ToList();
 		
 										r.Confirmed = false;
 										Confirm(r, true);
@@ -1158,11 +1155,11 @@ namespace Uccs.Net
 									}
 									else
 									{
-										if(!Database.Roles.HasFlag(Role.Chain))
+										if(!Chainbase.Roles.HasFlag(Role.Chain))
 										{ 
-											var d = rp.LastConfirmedRound % Database.TailLength;
+											var d = rp.LastConfirmedRound % Chainbase.TailLength;
 											
-											if(d < Database.Pitch || Database.TailLength - d < Database.Pitch * 3)
+											if(d < Chainbase.Pitch || Chainbase.TailLength - d < Chainbase.Pitch * 3)
 												break;
 										}
 
@@ -1187,7 +1184,7 @@ namespace Uccs.Net
 										
 								Workflow.Log?.Report(this, "Rounds received", $"{rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
 							}
-							else if(Database.BaseHash.SequenceEqual(rp.BaseHash))
+							else if(Chainbase.BaseHash.SequenceEqual(rp.BaseHash))
 							{
 								Synchronization = Synchronization.Synchronized;
 
@@ -1238,7 +1235,7 @@ namespace Uccs.Net
 
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 			{
- 				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+ 				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Chainbase.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
  
 				if(v.RoundId < min || (SyncCache.ContainsKey(v.RoundId) && SyncCache[v.RoundId].Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
 					return false;
@@ -1262,17 +1259,17 @@ namespace Uccs.Net
 			}
 			else if(Synchronization == Synchronization.Synchronized)
 			{
-				if(v.RoundId <= Database.LastConfirmedRound.Id || Database.LastConfirmedRound.Id + Database.Pitch * 2 < v.RoundId)
+				if(v.RoundId <= Chainbase.LastConfirmedRound.Id || Chainbase.LastConfirmedRound.Id + Chainbase.Pitch * 2 < v.RoundId)
 					return false;
 
-				var r = Database.GetRound(v.RoundId);
+				var r = Chainbase.GetRound(v.RoundId);
 				
 				var ve = r.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
 
 				if(ve != null)
 					return false;
 
-				Database.Add(v);
+				Chainbase.Add(v);
 			}
 
 			return true;
@@ -1282,9 +1279,9 @@ namespace Uccs.Net
 		{
 			Statistics.Generating.Begin();
 
-			if(Database.AnalyzersOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch).Any(i => i.Account == Settings.Analyzer))
+			if(Chainbase.AnalyzersOf(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch).Any(i => i.Account == Settings.Analyzer))
 			{
-				var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
+				var r = Chainbase.GetRound(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch);
 
 				if(r.AnalyzerVoxes.Any(i => i.Account == Settings.Analyzer))
 					return;
@@ -1324,7 +1321,7 @@ namespace Uccs.Net
 			Statistics.Generating.End();
 		}
 
-		void GenerateBasechain()
+		void GenerateChainbase()
 		{
 			Statistics.Generating.Begin();
 
@@ -1332,15 +1329,15 @@ namespace Uccs.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				if(!Database.MembersOf(Database.LastConfirmedRound.Id + 1 + Database.Pitch).Any(i => i.Account == g))
+				if(!Chainbase.MembersOf(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch).Any(i => i.Account == g))
 				{
 					///var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
 					MemberJoinRequest jr = null;
 
-					for(int i = Database.LastNonEmptyRound.Id; i >= Database.LastConfirmedRound.Id - Database.Pitch; i--)
+					for(int i = Chainbase.LastNonEmptyRound.Id; i >= Chainbase.LastConfirmedRound.Id - Chainbase.Pitch; i--)
 					{
-						var r = Database.FindRound(i);
+						var r = Chainbase.FindRound(i);
 
 						if(r != null)
 						{
@@ -1351,17 +1348,17 @@ namespace Uccs.Net
 						}
 					}
 
-					if(jr == null || jr.RoundId + Database.Pitch <= Database.LastConfirmedRound.Id)
+					if(jr == null || jr.RoundId + Chainbase.Pitch <= Chainbase.LastConfirmedRound.Id)
 					{
 						jr = new MemberJoinRequest()
 							{	
-								RoundId	= Database.LastConfirmedRound.Id + Database.Pitch,
+								RoundId	= Chainbase.LastConfirmedRound.Id + Chainbase.Pitch,
 								//IPs  = new [] {IP}
 							};
 						
 						jr.Sign(Zone, g);
 						
-						Database.GetRound(jr.RoundId).JoinRequests.Add(jr);
+						Chainbase.GetRound(jr.RoundId).JoinRequests.Add(jr);
 						//blocks.Add(b);
 
 						//if(BaseConnections.Count(i => i.Established) < Settings.Database.PeersMin)
@@ -1379,7 +1376,7 @@ namespace Uccs.Net
 				}
 				else
 				{
-					var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
+					var r = Chainbase.GetRound(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch);
 
 					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
@@ -1388,20 +1385,20 @@ namespace Uccs.Net
 						continue;
 
 					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
-					var txs = Database.CollectValidTransactions(Transactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified)), r).ToArray();
+					var txs = Chainbase.CollectValidTransactions(Transactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified)), r).ToArray();
 
 					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
 					Vote createvote()
 					{
-						return new Vote(Database){	RoundId				= r.Id,
+						return new Vote(Chainbase){	RoundId				= r.Id,
 													Try					= r.Try,
-													ParentSummary		= Database.Summarize(r.Parent),
+													ParentSummary		= Chainbase.Summarize(r.Parent),
 													Created				= Clock.Now,
-													TimeDelta			= prev == null || prev.RoundId <= Database.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
-													Violators			= Database.ProposeViolators(r).ToList(),
-													MemberJoiners		= Database.ProposeMemberJoiners(r).ToList(),
-													MemberLeavers		= Database.ProposeMemberLeavers(r, g).ToList(),
+													TimeDelta			= prev == null || prev.RoundId <= Chainbase.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
+													Violators			= Chainbase.ProposeViolators(r).ToList(),
+													MemberJoiners		= Chainbase.ProposeMemberJoiners(r).ToList(),
+													MemberLeavers		= Chainbase.ProposeMemberLeavers(r, g).ToList(),
 													//HubJoiners			= Database.ProposeHubJoiners(r).ToList(),
 													//HubLeavers			= Database.ProposeHubLeavers(r, g).ToList(),
 													AnalyzerJoiners		= Settings.ProposedAnalyzerJoiners,
@@ -1412,7 +1409,7 @@ namespace Uccs.Net
 													HubIPs				= new IPAddress[] {IP} };
 					}
 	
-					if(txs.Any() || Database.Tail.Any(i => Database.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
+					if(txs.Any() || Chainbase.Tail.Any(i => Chainbase.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
 					{
 						var b = createvote();
 
@@ -1443,7 +1440,7 @@ namespace Uccs.Net
 						votes.Add(b);
 					}
 
-					while(Database.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+					while(Chainbase.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
 					{
 						r = r.Previous;
 
@@ -1461,7 +1458,7 @@ namespace Uccs.Net
 			{
 				foreach(var b in votes)
 				{
-					Database.Add(b);
+					Chainbase.Add(b);
 				}
 
 // 				var pieces = new List<BlockPiece>();
@@ -1533,7 +1530,7 @@ namespace Uccs.Net
 
 		void Confirm(Round r, bool confirmed)
 		{
-			Database.Confirm(r, confirmed);
+			Chainbase.Confirm(r, confirmed);
 
 			if(r.Confirmed)
 			{
@@ -1553,11 +1550,11 @@ namespace Uccs.Net
 
 			Statistics.Consensing.Begin();
 
-			var r = Database.GetRound(Database.LastConfirmedRound.Id + 1 + Database.Pitch);
+			var r = Chainbase.GetRound(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch);
 	
 			if(!r.Voted)
 			{
-				if(Database.QuorumReached(r) && r.Parent != null)
+				if(Chainbase.QuorumReached(r) && r.Parent != null)
 				{
 					r.Voted = true;
 
@@ -1570,7 +1567,7 @@ namespace Uccs.Net
 					Confirm(r.Parent, false);
 
 				}
-				else if(Database.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
+				else if(Chainbase.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
 				{
 					foreach(var i in Transactions.Where(i => i.Block != null && i.Block.RoundId >= r.Id).SelectMany(i => i.Operations))
 					{
@@ -1631,9 +1628,9 @@ namespace Uccs.Net
 
 								//Members.RemoveAll(i => !members.Contains(i.Generator));
 																										
-								foreach(var i in members.Where(i => i.PublicIPs.Any()).OrderByRandom()) /// look for public IP in connections
+								foreach(var i in members.Where(i => i.HubIPs.Any()).OrderByRandom()) /// look for public IP in connections
 								{
-									var p = Connections.OrderByRandom().FirstOrDefault(j => i.PublicIPs.Any(ip => j.IP.Equals(ip)));
+									var p = Connections.OrderByRandom().FirstOrDefault(j => i.HubIPs.Any(ip => j.IP.Equals(ip)));
 
 									if(p != null)
 									{
@@ -1647,9 +1644,9 @@ namespace Uccs.Net
 								if(rdi != null)
 									break;
 
-								foreach(var i in members.Where(i => i.PublicIPs.Any()).OrderByRandom()) /// try by public IP address
+								foreach(var i in members.Where(i => i.HubIPs.Any()).OrderByRandom()) /// try by public IP address
 								{
-									var ip = i.PublicIPs.Random();
+									var ip = i.HubIPs.Random();
 									var p = GetPeer(ip);
 
 									try
@@ -1798,7 +1795,7 @@ namespace Uccs.Net
 								t.AddOperation(o);
 							}
 
-							t.Sign(Vault.GetKey(g.Key), m, Database.GetValidityPeriod(rmax));
+							t.Sign(Vault.GetKey(g.Key), m, Chainbase.GetValidityPeriod(rmax));
 							txs.Add(t);
 						}
 					}
@@ -2028,11 +2025,11 @@ namespace Uccs.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(!Settings.Generators.Any(g => Database.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
+			if(!Settings.Generators.Any(g => Chainbase.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
 				return new();
 
 			var accepted = txs.Where(i =>	!Transactions.Any(j => i.EqualBySignature(j)) &&
-											i.Expiration > Database.LastConfirmedRound.Id &&
+											i.Expiration > Chainbase.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid).ToList();
 								
@@ -2161,10 +2158,9 @@ namespace Uccs.Net
 
 			Peer p;
 				
-			while(!workflow.IsAborted)
+			while(workflow.Active)
 			{
 				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
 	
 				lock(Lock)
 				{
@@ -2177,7 +2173,7 @@ namespace Uccs.Net
 					}
 				}
 
-				tried?.Add(p);
+				tried.Add(p);
 
 				try
 				{
@@ -2252,9 +2248,20 @@ namespace Uccs.Net
 			return call(p);
 		}
 
+		public void Send(IPAddress ip, Action<Peer> call, Workflow workflow)
+		{
+			Peer p;
+				
+			p = GetPeer(ip);
+
+			Connect(p, workflow);
+
+			call(p);
+		}
+
 		public Coin EstimateFee(IEnumerable<Operation> operations)
 		{
-			return Database != null ? Operation.CalculateTransactionFee(Database.LastConfirmedRound.Factor, operations) : Coin.Zero;
+			return Chainbase != null ? Operation.CalculateTransactionFee(Chainbase.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)

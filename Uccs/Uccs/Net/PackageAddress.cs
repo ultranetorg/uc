@@ -13,7 +13,7 @@ namespace Uccs.Net
 	///  ultranet://testnet1/uo.app/ms.dotnet7/0.0.0
 	/// </summary>
 
-	public class ReleaseAddress : IBinarySerializable, IComparable, IComparable<ReleaseAddress>, IEquatable<ReleaseAddress>
+	public class PackageAddress : IBinarySerializable, IComparable, IComparable<PackageAddress>, IEquatable<PackageAddress>
 	{
 		string	_Author;
 		string	_Product;
@@ -30,7 +30,7 @@ namespace Uccs.Net
 		ResourceAddress	_Release;
 		string			_String;
 
-		public ReleaseAddress(string author, string product, string realization, Version version)
+		public PackageAddress(string author, string product, string realization, Version version)
 		{
 			Author = author;
 			Product = product;
@@ -38,7 +38,7 @@ namespace Uccs.Net
 			Version = version;
 		}
 
-		public ReleaseAddress(ResourceAddress release)
+		public PackageAddress(ResourceAddress release)
 		{
 			Author = release.Author;
 
@@ -49,11 +49,11 @@ namespace Uccs.Net
 			Version = Version.Parse(s[2]);
 		}
 
-		public ReleaseAddress()
+		public PackageAddress()
 		{
 		}
 
-		public static implicit operator ResourceAddress (ReleaseAddress a)
+		public static implicit operator ResourceAddress (PackageAddress a)
 		{ 
 			if(a._Release == null)
 				a._Release = new ResourceAddress(a.Author, $"{a.Product}/{a.Realization}/{a.Version}");
@@ -61,12 +61,12 @@ namespace Uccs.Net
 			return a._Release;
 		}
 
-		public static bool operator == (ReleaseAddress left, ReleaseAddress right)
+		public static bool operator == (PackageAddress left, PackageAddress right)
 		{
 			return left is null && right is null || left is not null && right is not null && left.Equals(right);
 		}
 
-		public static bool operator != (ReleaseAddress left, ReleaseAddress right)
+		public static bool operator != (PackageAddress left, PackageAddress right)
 		{
 			return !(left == right);
 		}
@@ -84,9 +84,9 @@ namespace Uccs.Net
 			return Version.Parse(v.Substring(v.LastIndexOf('/') + 1));
 		}
 
-		public static ReleaseAddress Parse(string v)
+		public static PackageAddress Parse(string v)
 		{
-			var a = new ReleaseAddress();
+			var a = new PackageAddress();
 
 			var s = v.Split('/');
 			
@@ -100,10 +100,10 @@ namespace Uccs.Net
 
 		public int CompareTo(object obj)
 		{
-			return CompareTo(obj as ReleaseAddress);
+			return CompareTo(obj as PackageAddress);
 		}
 
-		public int CompareTo(ReleaseAddress other)
+		public int CompareTo(PackageAddress other)
 		{
 			var a = Author.CompareTo(other.Author);
 			if(a != 0)
@@ -138,16 +138,12 @@ namespace Uccs.Net
 
 		public override bool Equals(object obj)
 		{
-			return Equals(obj as ReleaseAddress);
+			return Equals(obj as PackageAddress);
 		}
 
-		public bool Equals(ReleaseAddress other)
+		public bool Equals(PackageAddress o)
 		{
-			return other is not null &&
-				   Author == other.Author &&
-				   Product == other.Product &&
-				   Realization == other.Realization &&
-				   Version == Version;
+			return o is not null && Author == o.Author && Product == o.Product && Realization == o.Realization && Version == o.Version;
 		}
 
 		public override int GetHashCode()

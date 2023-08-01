@@ -10,19 +10,19 @@ namespace Uccs.Net
 	public class Vote
 	{
 		public const int				SizeMax = 65536;
-		public int						ParentId => RoundId - Database.Pitch;
+		public int						ParentId => RoundId - Chainbase.Pitch;
 
 		public List<Peer>				Peers;
 		public bool						BroadcastConfirmed;
 		public byte[]					Hash;
-		Database						Database;
+		Chainbase						Database;
 		public Round					Round;
 		public DateTime					Created;
 		AccountAddress					_Generator;
 		byte[]							_RawForBroadcast;
 		public int						RoundId;
-		public IEnumerable<IPAddress>	BaseIPs;
-		public IEnumerable<IPAddress>	HubIPs;
+		public IPAddress[]				BaseIPs;
+		public IPAddress[]				HubIPs;
 		public int						Try; /// TODO: revote if consensus not reached
 		public long						TimeDelta;
 		public byte[]					ParentSummary;
@@ -92,7 +92,7 @@ namespace Uccs.Net
 			set { _RawForBroadcast = value; }
 		}
 
-		public Vote(Database c)
+		public Vote(Chainbase c)
 		{
 			Database = c;
 		}

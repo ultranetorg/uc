@@ -27,11 +27,11 @@ namespace Uccs.Sun.FUI
 			Generators.Items.Clear();
 			Proxies.Items.Clear();
 
-			if(Core.Database?.LastConfirmedRound != null)
+			if(Core.Chainbase?.LastConfirmedRound != null)
 			{
 				lock(Core.Lock)
 				{
-					foreach(var i in Core.Database.LastConfirmedRound.Members.OrderBy(i => i.Account))
+					foreach(var i in Core.Chainbase.LastConfirmedRound.Members.OrderBy(i => i.Account))
 					{
 						var li = Generators.Items.Add(i.Account.ToString());
 	
@@ -42,7 +42,7 @@ namespace Uccs.Sun.FUI
 	
 						li.Tag = i;
 						li.SubItems.Add(i.JoinedAt.ToString());
-						li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
+						li.SubItems.Add(Database != null ? Core.Chainbase.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
 						//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 					}
 				}
@@ -78,7 +78,7 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					foreach(var i in (e.Item.Tag as Member).IPs)
+					foreach(var i in (e.Item.Tag as Member).BaseIPs)
 					{
 						var li = IPs.Items.Add(i.ToString());
 					}

@@ -79,7 +79,7 @@ namespace Uccs.Sun.FUI
 				{
 					var a = Net.AccountAddress.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Core.Database.Accounts.SearchTransactions(a).OrderByDescending(i => i.Operations.Any() ? i.Operations.Max(o => o.Id) : 0);
+					var txs = Core.Chainbase.Accounts.SearchTransactions(a).OrderByDescending(i => i.Operations.Any() ? i.Operations.Max(o => o.Id) : 0);
 	
 					foreach(var i in txs)
 					{

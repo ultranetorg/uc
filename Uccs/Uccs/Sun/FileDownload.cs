@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
@@ -30,7 +32,7 @@ namespace Uccs.Net
 
 		public class Hub
 		{
-			public IPAddress				IP { get; set; }
+			public AccountAddress			Account { get; set; }
 			public HubStatus				Status { get; set; }
 			public IEnumerable<IPAddress>	Seeds { get; set; }
 		}
@@ -43,23 +45,25 @@ namespace Uccs.Net
 		public IEnumerable<Seed>		Seeds { get; set; }
 	}
 
-	public class Download
+	public class FileDownload
 	{
 		public const long DefaultPieceLength = 512 * 1024;
 
 		public class Hub
 		{
-			public Peer					Peer;
+			public AccountAddress		Account;
+			public IPAddress[]			IPs;
 			public Seed[]				Seeds = new Seed[]{};
 			public HubStatus			Status = HubStatus.Estimating;
-			Download					Download;
+			FileDownload					Download;
 			public DateTime				Called;
 			public bool					Refreshing =false;
 
-			public Hub(Download download, Peer peer)
+			public Hub(FileDownload download, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
 				Download = download;
-				Peer = peer;
+				Account = member;
+				IPs = ips.ToArray();
 
 				Refresh();
 			}
@@ -77,11 +81,11 @@ namespace Uccs.Net
 
 									try
 									{
-										var lr = Download.Core.Call(Peer.IP, p => p.LocateRelease(Download.Release, 16), Download.Workflow);
+										var lr = Download.Core.Call(IPs.Random(), p => p.LocateRelease(Download.Hash, 16), Download.Workflow);
 
 										lock(Download.Lock)
 										{
-											Download.Workflow.Log.Report(this, "Hub gives seeds", $"for {Download.Release}, {string.Join(", ", lr.Seeders.Take(8).Select(i => i.ToString()))}");
+											Download.Workflow.Log.Report(this, "Hub gives seeds", $"for {Download.Resource}, {Account}, {{{string.Join(", ", lr.Seeders.Take(8))}}}, ");
 
 											Seeds = lr.Seeders.Where(i => !Download.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 
@@ -112,10 +116,10 @@ namespace Uccs.Net
 			public long				Offset => I * DefaultPieceLength;
 			public MemoryStream		Data = new MemoryStream();
 			public bool				Succeeded => Data.Length == Length;
-			Download				Download;
+			FileDownload				Download;
 			Core					Core => Download.Core;
 
-			public Piece(Download download, Seed peer, int piece)
+			public Piece(FileDownload download, Seed peer, int piece)
 			{
 				Download = download;
 				Seed = peer;
@@ -128,7 +132,7 @@ namespace Uccs.Net
 
 												while(Data.Position < Length)
 												{
-													var d = Seed.Peer.DownloadRelease(Download.Release, Download.File, Offset + Data.Position, Length - Data.Position).Data;
+													var d = Seed.Peer.DownloadRelease(Download.Resource, Download.Hash, Download.File, Offset + Data.Position, Length - Data.Position).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
@@ -149,9 +153,10 @@ namespace Uccs.Net
 			public int			Succeses;
 		}
 
-		public ResourceAddress						Release;
-		public string								File { get; protected set; }
-		public long									Length { get; protected set; }
+		public ResourceAddress						Resource { get;  }
+		public byte[]								Hash { get; }
+		public string								File { get; }
+		public long									Length { get; protected set; } = -1;
 		public bool									Succeeded => Downloaded;
 		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
 																		- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
@@ -165,16 +170,16 @@ namespace Uccs.Net
 		List<Piece>									CompletedPieces = new();
 		public List<Hub>							Hubs = new();
 		public List<Seed>							Seeds = new();
-		byte[]										Hash;
 		int											PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
 		public Task									Task;
 
-		public Download(Core core, ResourceAddress release, string file, Workflow workflow)
+		public FileDownload(Core core, ResourceAddress resource, byte[] hash, string file,  byte[] filehash, Workflow workflow)
 		{
-			Core = core;
-			Release = release;
-			File = file;
-			Workflow = workflow;
+			Core		= core;
+			Resource	= resource;
+			Hash		= hash;
+			File		= file;
+			Workflow	= workflow;
 
 			int hubsgoodmax = 8;
 
@@ -189,15 +194,30 @@ namespace Uccs.Net
 
 									lock(Lock)
 									{
+										var cr = Core.Call<MembersResponse>(Role.Base, i =>	{
+																								while(workflow.Active)
+																								{
+																									var cr = i.GetMembers();
+	
+																									if(cr.Members.Any())
+																										return cr;
+																								}
+																									
+																								throw new OperationCanceledException();
+																							}, 
+																							Core.Workflow);
+
+										var nearest = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.HubIPs.Any()).Take(8).ToArray();
+
 										for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 										{
-											var h = Core.ChooseBestPeer(Role.Hub, Hubs.Select(i => i.Peer).ToHashSet());
-	
+											var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Account == x.Account));
+											
 											if(h != null)
 											{
-												Workflow.Log.Report(this, "Hub found", $"for {release}, {h}");
+												Workflow.Log?.Report(this, "Hub found", $"for {Resource}/{Hex.ToHexString(Hash)}/{File}, {h.Account}, {{{string.Join(", ", h.HubIPs.Take(8))}}}");
 
-												hlast = new Hub(this, h);
+												hlast = new Hub(this, h.Account, h.HubIPs);
 												Hubs.Add(hlast);
 											}
 											else
@@ -209,7 +229,7 @@ namespace Uccs.Net
 											i.Refresh();
 										}
 
-										if(Length == 0 || (PiecesTotal - CompletedPieces.Count - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
+										if(Length == -1 || (PiecesTotal - CompletedPieces.Count - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
 										{
 											var s = Seeds.OrderBy(i => i.Peer == null).FirstOrDefault(i =>	i.Peer == null ||  /// new candidate
 																											i.Peer != null && i.Failed == DateTime.MinValue || /// succeeded previously
@@ -221,6 +241,13 @@ namespace Uccs.Net
 												if(s.Peer == null)
 												{
 													s.Peer = core.GetPeer(s.IP);
+												}
+
+												if(Length == -1)
+												{
+													core.Connect(s.Peer, Workflow);
+
+													Length = s.Peer.Request<FileInfoResponse>(new FileInfoRequest {Resource = resource, Hash = hash, File = file}).Length;
 												}
 																				
 												CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
@@ -270,14 +297,14 @@ namespace Uccs.Net
 											j.Seed.Failed = DateTime.MinValue;
 
 											lock(Core.Filebase.Lock)
-												Core.Filebase.WriteFile(Release, File, j.Offset, j.Data.ToArray());
+												Core.Filebase.WriteFile(Resource, Hash, File, j.Offset, j.Data.ToArray());
 											
 											CompletedPieces.Add(j);
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
 												lock(Core.Lock)
-													if(Core.Filebase.Hashify(Release, File).SequenceEqual(Hash))
+													if(Core.Filebase.Hashify(Resource, Hash, File).SequenceEqual(filehash))
 													{	
 														goto end;
 													}
@@ -305,19 +332,19 @@ namespace Uccs.Net
 
 								lock(Core.Filebase.Lock)
 								{
-									var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).Select(i => i.Peer);
+									var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
 
-									foreach(var h in hubs)
-										h.HubRank++;
+									//foreach(var h in hubs)
+									//	h.HubRank++;
 
 									var seeds = CompletedPieces.Select(i => i.Seed.Peer);
-
-									foreach(var h in seeds)
-										h.SeedRank++;
+									
+									//foreach(var h in seeds)
+									//	h.SeedRank++;
 
 									lock(Core.Lock)
 									{
-										Core.UpdatePeers(seeds.Union(hubs).Distinct());
+										Core.UpdatePeers(seeds);
 									}
 
 									Core.Filebase.Downloads.Remove(this);
@@ -331,7 +358,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Release}/{File}";
+			return $"{Resource}/{File}";
 		}
 
 		//public Job AddCompleted(int i)

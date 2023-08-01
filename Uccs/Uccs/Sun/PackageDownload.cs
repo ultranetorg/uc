@@ -10,22 +10,22 @@ namespace Uccs.Net
 {
 	public class PackageDownload
 	{
-		public ReleaseAddress						Address;
+		public PackageAddress						Address;
 		public Package								Package;
 		public bool									Downloaded;
 		public List<PackageDownload>				Dependencies = new();
 		public Task									Task;
 
-		public bool									Succeeded => Downloaded && DependenciesRecursiveFound && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
+		public PackageDownload(PackageAddress address)
+		{
+			Address = address;
+		}
+
+		public bool									Succeeded => Downloaded && /*DependenciesRecursiveFound && */DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
 		public int									DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
-		public bool									DependenciesRecursiveFound => Package?.Manifest != null && Dependencies.All(i => i.DependenciesRecursiveFound);
+		//public bool									DependenciesRecursiveFound => Package.Manifest != null && Dependencies.All(i => i.DependenciesRecursiveFound);
 		public int									DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public IEnumerable<PackageDownload>			DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
-		public Task[]								Tasks => DependenciesRecursive.Select(i => i.Task).Append(Task).ToArray();
-
-		public PackageDownload()
-		{
-		}
 
 		public override string ToString()
 		{

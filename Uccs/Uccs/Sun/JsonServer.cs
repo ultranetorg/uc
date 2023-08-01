@@ -22,7 +22,7 @@ namespace Uccs.Net
 		Workflow		Workflow => Core.Workflow;
 		Settings		Settings => Core.Settings;
 		Vault			Vault => Core.Vault;
-		Database		Database => Core.Database;
+		Chainbase		Database => Core.Chainbase;
 
 		public JsonServer(Core core)
 		{
@@ -256,16 +256,25 @@ namespace Uccs.Net
 						case AddReleaseCall c:
 							lock(Core.Lock)
 							{
-								Core.PackageBase.Add(c.Release, c.Manifest);
-			
+								var m = new Manifest();
+								m.Read(new BinaryReader(new MemoryStream(c.Manifest)));
+								
+								var h = Core.Zone.Cryptography.HashFile(m.Bytes);
+								
+								Core.Filebase.Add(c.Release, h);
+
+								Core.Filebase.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
+
 								if(c.Complete != null)
 								{
-									Core.Filebase.WriteFile(c.Release, Package.Cpkg, 0, c.Complete);
+									Core.Filebase.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
 								}
 								if(c.Incremental != null)
 								{
-									Core.Filebase.WriteFile(c.Release, Package.Ipkg, 0, c.Incremental);
+									Core.Filebase.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
 								}
+							
+								Core.Filebase.SetLatest(c.Release, h);
 							}
 	
 							break;

@@ -15,7 +15,7 @@ namespace Uccs.Net
 	public class Round : IBinarySerializable
 	{
 		public int												Id;
-		public int												ParentId => Id - Database.Pitch;
+		public int												ParentId => Id - Chainbase.Pitch;
 		public Round											Previous =>	Database.FindRound(Id - 1);
 		public Round											Next =>	Database.FindRound(Id + 1);
 		public Round											Parent => Database.FindRound(ParentId);
@@ -60,9 +60,9 @@ namespace Uccs.Net
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
 		public Dictionary<ResourceAddress, ResourceEntry>			AffectedReleases = new();
 		
-		public Database											Database;
+		public Chainbase											Database;
 
-		public Round(Database c)
+		public Round(Chainbase c)
 		{
 			Database = c;
 		}

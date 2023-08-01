@@ -10,9 +10,9 @@ namespace Uccs.Net.Tests
 		public static void HashAnfEqual()
 		{
 			{
-				var p = new Dictionary<ReleaseAddress, object>(){{ReleaseAddress.Parse("a/r/p/v"), null}};
-				Assert.True(p.ContainsKey(ReleaseAddress.Parse("a/r/p/v")));
-				Assert.False(p.ContainsKey(ReleaseAddress.Parse("a/r/p/vv")));
+				var p = new Dictionary<PackageAddress, object>(){{PackageAddress.Parse("a/r/p/v"), null}};
+				Assert.True(p.ContainsKey(PackageAddress.Parse("a/r/p/v")));
+				Assert.False(p.ContainsKey(PackageAddress.Parse("a/r/p/vv")));
 			}
 			{
 				var p = new Dictionary<ResourceAddress, object>(){{ResourceAddress.Parse("a/r/p/0.0.0"), null}};

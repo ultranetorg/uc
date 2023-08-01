@@ -2,25 +2,27 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
+using System.Numerics;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
-	public class ResourceBaseItem
+	public class ReleaseBaseItem
 	{
-		public ResourceAddress	Address;
-		public Availability		Availability;
-		public List<Peer>		Hubs = new();
+		public ResourceAddress					Address;
+		public byte[]							Hash;
+		public Availability						Availability;
+		public List<MembersResponse.Member>		DeclaredOn = new();
+		public MembersResponse.Member[]			DeclareTo;
 
-		public ResourceBaseItem(ResourceAddress address)
+		public ReleaseBaseItem(ResourceAddress address, byte[] hash)
 		{
 			Address = address;
+			Hash = hash;
 		}
 	}
 	
@@ -30,8 +32,8 @@ namespace Uccs.Net
 		public const string				StatusFile = ".status";
 
 		string							PackagesPath;
-		public List<ResourceBaseItem>	Releases = new();
-		public List<Download>			Downloads = new();
+		public List<ReleaseBaseItem>	Releases = new();
+		public List<FileDownload>			Downloads = new();
 		Thread							DeclaringThread;
 		public Core						Core;
 		public object					Lock = new object();
@@ -46,10 +48,11 @@ namespace Uccs.Net
 
 			Directory.CreateDirectory(PackagesPath);
 
-			Releases =	Directory.EnumerateDirectories(PackagesPath)
-						.SelectMany(r => 
-						Directory.EnumerateFiles(r, "*")
-						.Select(i => new ResourceBaseItem(PathToAddress(i)))).ToList();
+			Releases = Directory.EnumerateDirectories(PackagesPath)
+									.SelectMany(a => Directory.EnumerateDirectories(a)
+										.SelectMany(r => Directory.EnumerateDirectories(r)
+											.Select(z => new ReleaseBaseItem(PathToAddress(z), Hex.Decode(Path.GetFileName(z))))))
+												.ToList();
 
 			if(core != null && !core.IsClient)
 			{
@@ -59,65 +62,93 @@ namespace Uccs.Net
 			}
 		}
 
+		string Escape(string resource)
+		{
+			return resource.Replace('/', ' ');
+		}
+
+		string Unescape(string resource)
+		{
+			return resource.Replace(' ', '/');
+		}
+
+		public void SetLatest(ResourceAddress release, byte[] hash)
+		{
+			File.WriteAllText(Path.Join(PackagesPath, release.Author, Escape(release.Resource),  "latest"), Hex.ToHexString(hash));
+		}
+
+		public string AddressToPath(ResourceAddress resource, byte[] hash)
+		{
+			string h;
+
+			if(hash == null)
+				h = File.ReadAllText(Path.Join(PackagesPath, resource.Author, Escape(resource.Resource),  "latest"));
+			else
+				h = Hex.ToHexString(hash);
+
+			return Path.Join(PackagesPath, resource.Author, Escape(resource.Resource), h);
+		}
+
+		public string AddressToPath(ResourceAddress resource, byte[] hash, string file)
+		{
+			return Path.Join(AddressToPath(resource, hash), file);
+		}
+
 		public ResourceAddress PathToAddress(string path)
 		{
-			path = path.Substring(PackagesPath.Length);
+			path = path.Substring(PackagesPath.Length).TrimStart(Path.DirectorySeparatorChar);
 
-			var i = path.IndexOf(Path.DirectorySeparatorChar);
+			var s = path.Split(Path.DirectorySeparatorChar);
 
-			return new ResourceAddress(path.Substring(0, i), path.Substring(i + 1).Replace(' ', '/'));
+			return new ResourceAddress(s[0], Unescape(s[1]));
 		}
 
-		public static string ToRelative(ResourceAddress release)
-		{
-			return @$"{release.Author}{Path.DirectorySeparatorChar}{release.Resource.Replace('/', ' ')}";
-		}
+// 		public string GetDirectory(ResourceAddress release, byte[] hash/*, bool create*/)
+// 		{
+// 			var p = AddressToPath(release, hash);
+// 
+// 			//if(create)
+// 			//	Directory.CreateDirectory(p);
+// 
+// 			return p;
+// 		}
 
-		public string AddressToPath(ResourceAddress release, string path)
+		public ReleaseBaseItem Add(ResourceAddress resource, byte[] hash)
 		{
-			return Path.Join(PackagesPath, ToRelative(release), path);
-		}
-
-		public string GetDirectory(ResourceAddress release, bool create)
-		{
-			var p = Path.Join(PackagesPath, ToRelative(release));
-
-			if(create)
-				Directory.CreateDirectory(p);
-			return p;
-		}
-
-		public ResourceBaseItem Add(ResourceAddress release)
-		{
-			var r = new ResourceBaseItem(release);
+			var r = new ReleaseBaseItem(resource, hash);
 	
 			Releases.Add(r);
 	
+			Directory.CreateDirectory(AddressToPath(resource, hash));
+
 			return r;
 		}
 
-		public ResourceBaseItem Find(ResourceAddress release)
+		public ReleaseBaseItem Find(ResourceAddress resource, byte[] hash)
 		{
-			var r = Releases.Find(i => i.Address == release);
+			return Releases.Find(i => i.Address == resource && (hash == null || i.Hash.SequenceEqual(hash)));
 
-			if(r != null)
-				return r;
+			//if(r != null)
+			//	return r;
 
-			if(File.Exists(GetDirectory(release, false)))
-			{
-				r = new ResourceBaseItem(release);
-	
-				Releases.Add(r);
-	
-				return r;
-			}
+			//if(!Directory.Exists(Path.Join(PackagesPath, resource.Author, Escape(resource.Resource))))
+			//	return null;
+			//
+			//if(Directory.Exists(GetDirectory(resource, hash, false)))
+			//{
+			//	r = new ReleaseBaseItem(resource, hash);
+			//
+			//	Releases.Add(r);
+			//
+			//	return r;
+			//}
 
-			return null;
+			//return null;
 		}
 
-		public byte[] ReadFile(ResourceAddress release, string file, long offset, long length)
+		public byte[] ReadFile(ResourceAddress release, byte[] hash, string file, long offset, long length)
 		{
-			using(var s = new FileStream(AddressToPath(release, file), FileMode.Open, FileAccess.Read, FileShare.Read))
+			using(var s = new FileStream(AddressToPath(release, hash, file), FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				s.Seek(offset, SeekOrigin.Begin);
 				
@@ -129,62 +160,57 @@ namespace Uccs.Net
 			}
 		}
 
-		public void WriteFile(ResourceAddress release, string file, long offset, byte[] data)
+		public void WriteFile(ResourceAddress release, byte[] hash, string file, long offset, byte[] data)
 		{
-			GetDirectory(release, true);
-
-			using(var s = new FileStream(AddressToPath(release, file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+			using(var s = new FileStream(AddressToPath(release, hash, file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
 			{
 				s.Seek(offset, SeekOrigin.Begin);
 				s.Write(data);
 			}
 		}
 
-		public bool Exists(ResourceAddress release, string file)
+		public bool Exists(ResourceAddress release, byte[] hash, string file)
 		{
-			return File.Exists(AddressToPath(release, file));
+			return File.Exists(AddressToPath(release, hash, file));
 		}
 
-		public byte[] ReadFile(ResourceAddress release, string file)
+		public byte[] ReadFile(ResourceAddress release, byte[] hash, string file)
 		{
-			return File.ReadAllBytes(AddressToPath(release, file));
+			return File.ReadAllBytes(AddressToPath(release, hash, file));
 		}
 
-		public byte[] Hashify(ResourceAddress release, string path)
+		public byte[] Hashify(ResourceAddress release, byte[] hash, string path)
 		{
-			return Zone.Cryptography.HashFile(File.ReadAllBytes(AddressToPath(release, path)));
+			return Zone.Cryptography.HashFile(File.ReadAllBytes(AddressToPath(release, hash, path)));
 		}
 
-		public long GetLength(ResourceAddress release, string path)
+		public long GetLength(ResourceAddress release, byte[] hash, string path)
 		{
-			return Exists(release, path) ? new FileInfo(AddressToPath(release, path)).Length : 0;
+			return Exists(release, hash, path) ? new FileInfo(AddressToPath(release, hash, path)).Length : 0;
 		}
 
-		public Download DownloadFile(ResourceAddress release, string file, Workflow workflow)
+		public FileDownload DownloadFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, Workflow workflow)
 		{
-			if(Find(release) != null)
-				return null;
-
-			var d = Downloads.Find(j => j.Release == release);
+			var d = Downloads.Find(j => j.Resource == release && j.Hash.SequenceEqual(hash) && j.File == file);
 				
 			if(d == null)
 			{
-				d = new Download(Core, release, file, workflow);
+				d = new FileDownload(Core, release, hash, file, filehash, workflow);
 				Downloads.Add(d);
 			}
 		
 			return d;
 		}
 
-		public void GetFile(ResourceAddress release, string file, Workflow workflow)
+		public void GetFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, Workflow workflow)
 		{
 			Task t = Task.CompletedTask;
 
 			lock(Lock)
 			{
-				if(!Exists(release, file))
+				if(!Exists(release, hash, file))
 				{
-					var d = DownloadFile(release, file, workflow);
+					var d = DownloadFile(release, hash, file, filehash, workflow);
 			
 					t = d.Task;
 				}
@@ -197,42 +223,66 @@ namespace Uccs.Net
 		{
 			Core.Workflow.Log?.Report(this, "Declaring started");
 
+			var tasks = new Dictionary<AccountAddress, Task>(32);
+
 			try
 			{
-				while(Core.Workflow.IsAborted)
+				while(Core.Workflow.Active)
 				{
 					Core.Workflow.Wait(100);
 
-					ResourceBaseItem[] rs;
-					List<Peer> used;
+					ReleaseBaseItem[] rs;
+					//List<Peer> used;
 
 					lock(Lock)
 					{
-						rs = Releases.Where(i => i.Hubs.Count < 8).ToArray();
-						used = rs.SelectMany(i => i.Hubs).Distinct().Where(h => rs.All(r => r.Hubs.Contains(h))).ToList();
+						rs = Releases.Where(i => i.DeclaredOn.Count < 8).ToArray();
+						//used = rs.SelectMany(i => i.DeclaredOn).Distinct().Where(h => rs.All(r => r.DeclaredOn.Contains(h))).ToList();
 					}
 
-					if(rs.Any())
-					{
-						Core.Call(	Role.Hub, 
-									h => {
-											lock(Lock)
-											{
-												rs = rs.Where(i => !i.Hubs.Contains(h)).ToArray();
-												used.Add(h);
-											}
-																				
-											h.DeclareRelease(rs.ToDictionary(i => i.Address, i => i.Availability));
+					if(!rs.Any())
+						continue;
 
-											lock(Lock)
-											{
-												foreach(var i in rs)
-													i.Hubs.Add(h);
-											}
-										},
-									Core.Workflow,
-									used,
-									true);
+					var cr = Core.Call<MembersResponse>(Role.Base, i => i.GetMembers(), Core.Workflow);
+	
+					if(!cr.Members.Any())
+						continue;
+
+					lock(Lock)
+					{
+						foreach(var r in Releases)
+						{
+							r.DeclareTo = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account) - new BigInteger(new Span<byte>(r.Hash, 0, 20)))).Take(8).ToArray();
+						}
+
+						foreach(var m in cr.Members.Where(i => i.HubIPs.Any()))
+						{
+							if(tasks.Count >= 32)
+							{
+								var ts = tasks.Select(i => i.Value).ToArray();
+
+								Monitor.Exit(Lock);
+								{
+									Task.WaitAny(ts, Core.Workflow.Cancellation.Token);
+								}
+								Monitor.Enter(Lock);
+							}
+
+							var drs = Releases.Where(i => i.DeclareTo.Contains(m) && !i.DeclaredOn.Contains(m)).ToArray();
+
+							var t = Task.Run(() =>	{
+														Core.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {Hash = i.Hash, Availability = i.Availability}).ToArray()), Core.Workflow);
+
+														lock(Lock)
+														{
+															foreach(var i in drs)
+																i.DeclaredOn.Add(m);
+												
+															tasks.Remove(m.Account);
+														}
+													});
+							tasks[m.Account] = t;
+						}
 					}
 				}
 			}

@@ -21,7 +21,7 @@ namespace Uccs.Sun.FUI
 	{
 		protected readonly Core		Core;
 		protected readonly Vault	Vault;
-		protected Database			Database => Core.Database;
+		protected Chainbase			Database => Core.Chainbase;
 
 		public BaseControl()
 		{

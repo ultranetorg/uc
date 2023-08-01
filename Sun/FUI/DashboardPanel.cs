@@ -70,7 +70,7 @@ namespace Uccs.Sun.FUI
 		{
 			if(source.SelectedItem is AccountAddress a)
 			{
-				amount.Coins = Core.Database.Accounts.Find(a, Core.Database.LastConfirmedRound.Id).Balance;
+				amount.Coins = Core.Chainbase.Accounts.Find(a, Core.Chainbase.LastConfirmedRound.Id).Balance;
 			}
 		}
 

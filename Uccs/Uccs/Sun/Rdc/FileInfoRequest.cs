@@ -1,12 +1,10 @@
 ﻿namespace Uccs.Net
 {
-	public class DownloadReleaseRequest : RdcRequest
+	public class FileInfoRequest : RdcRequest
 	{
 		public ResourceAddress	Resource { get; set; }
 		public byte[]			Hash { get; set; }
 		public string			File { get; set; }
-		public long				Offset { get; set; }
-		public long				Length { get; set; }
 
 		public override RdcResponse Execute(Core core)
 		{
@@ -16,12 +14,12 @@
 			if(!core.Filebase.Exists(Resource, Hash, File)) 
 				throw new RdcNodeException(RdcNodeError.NotFound);
 
-			return new DownloadReleaseResponse{Data = core.Filebase.ReadFile(Resource, Hash, File, Offset, Length)};
+			return new FileInfoResponse{Length = core.Filebase.GetLength(Resource, Hash, File)};
 		}
 	}
 
-	public class DownloadReleaseResponse : RdcResponse
+	public class FileInfoResponse : RdcResponse
 	{
-		public byte[] Data { get; set; }
+		public long Length { get; set; }
 	}
 }

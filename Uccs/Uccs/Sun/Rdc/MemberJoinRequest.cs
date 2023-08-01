@@ -38,7 +38,7 @@ namespace Uccs.Net
 
 				if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Downloading || core.Synchronization == Synchronization.Synchronizing)
 				{
-	 				var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+	 				var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Chainbase.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
 	 
 					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].Joins.Any(i => i.Generator == Generator)))
 					{
@@ -64,18 +64,18 @@ namespace Uccs.Net
 				}
 				else if(core.Synchronization == Synchronization.Synchronized)
 				{
-					var d = core.Database;
+					var d = core.Chainbase;
 	
-					for(int i = RoundId; i > RoundId - Database.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
+					for(int i = RoundId; i > RoundId - Chainbase.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
 						if(d.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == Generator))
 							return null;
 
-					var a = core.Database.Accounts.Find(Generator, core.Database.LastConfirmedRound.Id);
+					var a = core.Chainbase.Accounts.Find(Generator, core.Chainbase.LastConfirmedRound.Id);
 					
 					if(a == null || a.Bail == 0 /*|| a.BailStatus != BailStatus.Active*/)
 						return null;
 									
-					core.Database.GetRound(RoundId).JoinRequests.Add(this);
+					core.Chainbase.GetRound(RoundId).JoinRequests.Add(this);
 				}
 	
 				foreach(var i in core.Connections.Where(i => i != Peer))

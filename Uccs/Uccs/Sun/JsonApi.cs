@@ -173,7 +173,7 @@ namespace Uccs.Net
 
 	public class AddReleaseCall : ApiCall
 	{
-		public ReleaseAddress		Release { get; set; }
+		public PackageAddress	Release { get; set; }
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
@@ -186,13 +186,13 @@ namespace Uccs.Net
 
 	public class PackageStatusCall : ApiCall
 	{
-		public ReleaseAddress	Release { get; set; }
+		public PackageAddress	Release { get; set; }
 		public int			Limit  { get; set; }
 	}
 
 	public class InstallPackageCall : ApiCall
 	{
-		public ReleaseAddress	Release { get; set; }
+		public PackageAddress	Release { get; set; }
 	}
 
 	public class GenerateAnalysisReportCall : ApiCall

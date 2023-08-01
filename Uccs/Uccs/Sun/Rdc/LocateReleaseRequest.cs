@@ -5,12 +5,12 @@ namespace Uccs.Net
 {
 	public class LocateReleaseRequest : RdcRequest
 	{
-		public ResourceAddress	Release { get; set; }
-		public int				Count { get; set; }
+		public byte[]	Hash { get; set; }
+		public int		Count { get; set; }
 
 		public override RdcResponse Execute(Core core)
 		{
-			if(core.Seedbase == null) throw new RdcNodeException(RdcNodeError.NotHub);
+			if(!core.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
 
 			return new LocateReleaseResponse {Seeders = core.Seedbase.Locate(this)}; 
 		}

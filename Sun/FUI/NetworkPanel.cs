@@ -20,9 +20,8 @@ namespace Uccs.Sun.FUI
 		public override void Open(bool first)
 		{
 			Peers.Items.Clear();
-			Generators.Items.Clear();
+			Members.Items.Clear();
 			Funds.Items.Clear();
-			Hubs.Items.Clear();
 
 			lock(Core.Lock)
 			{
@@ -32,30 +31,29 @@ namespace Uccs.Sun.FUI
 					r.SubItems.Add(i.StatusDescription);
 					r.SubItems.Add(i.Retries.ToString());
 					r.SubItems.Add(i.PeerRank.ToString());
-					r.SubItems.Add(i.GetRank(Role.Chain).ToString());
-					r.SubItems.Add(i.GetRank(Role.Base).ToString());
-					r.SubItems.Add(i.GetRank(Role.Hub).ToString());
-					r.SubItems.Add(i.GetRank(Role.Seed).ToString());
+					r.SubItems.Add(i.BaseRank.ToString());
+					r.SubItems.Add(i.ChainRank.ToString());
 					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));
 					r.Tag = i;
 				}
 
-				foreach(var i in Core.Database.LastConfirmedRound.Members.OrderBy(i => i.Account))
+				foreach(var i in Core.Chainbase.LastConfirmedRound.Members.OrderBy(i => i.Account))
 				{
-					var li = Generators.Items.Add(i.Account.ToString());
+					var li = Members.Items.Add(i.Account.ToString());
 
 					li.SubItems.Add(i.JoinedAt.ToString());
-					li.SubItems.Add(Database != null ? Core.Database.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
-					li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
+					li.SubItems.Add(Database != null ? Core.Chainbase.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
+					li.SubItems.Add(string.Join(", ", i.BaseIPs.AsEnumerable()));
+					li.SubItems.Add(string.Join(", ", i.HubIPs.AsEnumerable()));
 				}
 
-				foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
-				{
-					var li = new ListViewItem(i.IP.ToString());
-					li.SubItems.Add(i.GetRank(Role.Hub).ToString());
-					//li.SubItems.Add(i.HubHits.ToString());
-					Hubs.Items.Add(li);
-				}
+				//foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
+				//{
+				//	var li = new ListViewItem(i.IP.ToString());
+				//	li.SubItems.Add(i.GetRank(Role.Hub).ToString());
+				//	//li.SubItems.Add(i.HubHits.ToString());
+				//	Hubs.Items.Add(li);
+				//}
 
 				if(Database?.LastConfirmedRound != null)
 				{
@@ -64,7 +62,7 @@ namespace Uccs.Sun.FUI
 						var li = new ListViewItem(i.ToString());
 						Funds.Items.Add(li);
 					}
-	
+
 				}
 			}
 		}

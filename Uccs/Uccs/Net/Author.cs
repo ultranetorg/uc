@@ -4,10 +4,11 @@ using System.IO;
 
 namespace Uccs.Net
 {
-	public class ResourceDirectory
+	public class Branch
 	{
 		public string				Path { get; set; }
 		public AccountAddress[]		Publishers { get; set; }
+		public ChainTime			Expiration;
 	}
 
 	public class Author : IBinarySerializable
@@ -24,7 +25,7 @@ namespace Uccs.Net
 		public AccountAddress			LastWinner;
 		public Coin						LastBid;
 		public ChainTime				LastBidTime;
-		public List<ResourceDirectory>	Directories;
+		public List<Branch>				Branches;
 
 		public static bool				IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
 
@@ -55,7 +56,7 @@ namespace Uccs.Net
 				w.Write(Years);
 			}
 
-			w.Write(Directories, i => {	w.WriteUtf8(i.Path);
+			w.Write(Branches, i => {	w.WriteUtf8(i.Path);
 										w.Write(i.Publishers); });
 		}
 
@@ -82,7 +83,7 @@ namespace Uccs.Net
 				Years				= r.ReadByte();
 			}
 
-			Directories = r.ReadList<ResourceDirectory>(() => new ResourceDirectory {	Path = r.ReadUtf8(), 
+			Branches = r.ReadList<Branch>(() => new Branch {	Path = r.ReadUtf8(), 
 																						Publishers = r.ReadArray<AccountAddress>() });
 		}
 	}

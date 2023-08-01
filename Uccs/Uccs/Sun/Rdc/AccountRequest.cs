@@ -11,7 +11,7 @@
 	 			if(core.Synchronization != Synchronization.Synchronized)
 					throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
-				var ai = core.Database.Accounts.Find(Account, core.Database.LastConfirmedRound.Id);
+				var ai = core.Chainbase.Accounts.Find(Account, core.Chainbase.LastConfirmedRound.Id);
 
 				if(ai == null)
 					throw new RdcEntityException(RdcEntityError.AccountNotFound);

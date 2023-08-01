@@ -39,17 +39,17 @@ namespace Uccs.Uos
 
 		public void Start(Uri address, Workflow workflow)
 		{
-			var s = Sun.GetReleaseStatus(ReleaseAddress.Parse(address.LocalPath), workflow);
+			var s = Sun.GetReleaseStatus(PackageAddress.Parse(address.LocalPath), workflow);
 
 			if(s.Manifest == null)
 			{
-				Sun.InstallPackage(ReleaseAddress.Parse(address.LocalPath), workflow);
+				Sun.InstallPackage(PackageAddress.Parse(address.LocalPath), workflow);
 
 				while(true)
 				{
 					workflow.Wait(1);
 
-					s = Sun.GetReleaseStatus(ReleaseAddress.Parse(address.LocalPath), workflow);
+					s = Sun.GetReleaseStatus(PackageAddress.Parse(address.LocalPath), workflow);
 
 					if(s.Download == null)
 					{
@@ -62,13 +62,13 @@ namespace Uccs.Uos
 
 		void Execute(Uri request)
 		{
-			var r = ReleaseAddress.Parse(request.LocalPath);
+			var r = PackageAddress.Parse(request.LocalPath);
 
 			var f = Directory.EnumerateFiles(PackageBase.AddressToPath(r), "*.start").FirstOrDefault();
 			
 			if(f != null)
 			{
-				string setenv(ReleaseAddress a, string p)
+				string setenv(PackageAddress a, string p)
 				{
 					p += ";" + PackageBase.AddressToPath(a);
 

@@ -24,13 +24,13 @@ namespace Uccs.Net
 	{
 		public DependencyType	Type { get; set; }
 		public DependencyFlag	Flags { get; set; }
-		public ReleaseAddress	Release { get; set; }
+		public PackageAddress	Release { get; set; }
 
 		internal static Dependency From(Xon i)
 		{
 			var d = new Dependency();
 			
-			d.Release	= ReleaseAddress.Parse(i.String);
+			d.Release	= PackageAddress.Parse(i.String);
 			d.Type		= Enum.Parse<DependencyType>(i.Name);
 			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.Null;
 			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.Null;
@@ -40,7 +40,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Release = reader.Read<ReleaseAddress>();
+			Release = reader.Read<PackageAddress>();
 			Type = (DependencyType)reader.ReadByte();
 			Flags = (DependencyFlag)reader.ReadByte();
 		}
@@ -62,7 +62,7 @@ namespace Uccs.Net
 			return other is not null &&
 				   Type == other.Type &&
 				   Flags == other.Flags &&
-				   EqualityComparer<ReleaseAddress>.Default.Equals(Release, other.Release);
+				   EqualityComparer<PackageAddress>.Default.Equals(Release, other.Release);
 		}
 
 		public override int GetHashCode()
@@ -81,9 +81,9 @@ namespace Uccs.Net
 		}
 	}	
 
-	public class Release : IBinarySerializable
+	public class Manifest : IBinarySerializable
 	{
-		public ReleaseAddress			Address { get; set; }
+		public PackageAddress			Address { get; set; }
 		public byte[]					CompleteHash { get; set; }
 		public long						CompleteLength { get; set; }
 		public Dependency[]				CompleteDependencies { get; set; }
@@ -97,19 +97,32 @@ namespace Uccs.Net
 		[JsonIgnore]
 		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
 
- 		byte[]							Hash;
+ 		byte[]							_Hash;
 		public Zone						Zone;
 
-		public Release()
+ 		public byte[] Bytes
+ 		{
+ 			get
+ 			{
+	 			var s = new MemoryStream();
+	 			var w = new BinaryWriter(s);
+	 	
+				Write(w);
+	 		
+	 			return s.ToArray();
+ 			}
+ 		}
+
+		public Manifest()
 		{
 		}
 
-		public Release(Zone zone)
+		public Manifest(Zone zone)
 		{
 			Zone = zone;
 		}
 
-		public Release(Zone						zone,
+		public Manifest(Zone					zone,
 						byte[]					completehash,
 						long					completelength,
 						IEnumerable<Dependency>	completecoredependencies,
@@ -181,23 +194,6 @@ namespace Uccs.Net
 
 			return d;		
 		}
-
- 		public byte[] GetOrCalcHash()
- 		{
- 			if(Hash != null)
- 			{
- 				return Hash;
- 			}
- 
- 			var s = new MemoryStream();
- 			var w = new BinaryWriter(s);
- 	
-			Write(w);
-				
- 			Hash = Zone.Cryptography.Hash(s.ToArray());
- 		
- 			return Hash;
- 		}
 
 		public void Write(BinaryWriter w)
 		{

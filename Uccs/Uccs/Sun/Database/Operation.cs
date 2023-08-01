@@ -64,7 +64,7 @@ namespace Uccs.Net
 		{
 		}
 		
-		public abstract void Execute(Database chain, Round round);
+		public abstract void Execute(Chainbase chain, Round round);
 		protected abstract void WriteConfirmed(BinaryWriter w);
 		protected abstract void ReadConfirmed(BinaryReader r);
 
@@ -138,7 +138,7 @@ namespace Uccs.Net
 		{
 			int size = CalculateSize();
 
-			return Database.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
+			return Chainbase.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
 		}
 		
 		public static Coin CalculateTransactionFee(Coin factor, IEnumerable<Operation> operations)
@@ -151,12 +151,12 @@ namespace Uccs.Net
 			 	i.WriteConfirmed(w); 
 			}
 
-			return Database.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return Chainbase.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
 		public Coin CalculateSpaceFee(Coin factor)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * CalculateSize() * Database.SpaceFeePerByte;
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * CalculateSize() * Chainbase.SpaceFeePerByte;
 		}
 	}
 
@@ -164,7 +164,7 @@ namespace Uccs.Net
 	{
 		public Coin				Bail;
 		public override string	Description => $"{Bail} UNT";
-		public override bool	Valid => Settings.Dev.DisableBailMin ? true : Bail >= Database.BailMin;
+		public override bool	Valid => Settings.Dev.DisableBailMin ? true : Bail >= Chainbase.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -188,7 +188,7 @@ namespace Uccs.Net
 			w.Write(Bail);
 		}
 
-		public override void Execute(Database chain, Round round)
+		public override void Execute(Chainbase chain, Round round)
 		{
 			var e = round.AffectAccount(Signer);
 
@@ -246,7 +246,7 @@ namespace Uccs.Net
 			w.Write7BitEncodedInt(Eid);
 		}
 
-		public override void Execute(Database chain, Round round)
+		public override void Execute(Chainbase chain, Round round)
 		{
 			Portion = Calculate(round.WeiSpent, round.Factor, Wei);
 			
@@ -352,7 +352,7 @@ namespace Uccs.Net
 			w.Write(Amount);
 		}
 
-		public override void Execute(Database chain, Round round)
+		public override void Execute(Chainbase chain, Round round)
 		{
 			var s = round.AffectAccount(Signer);
 			
@@ -397,7 +397,7 @@ namespace Uccs.Net
 			w.Write(Bid);
 		}
 
-		public override void Execute(Database chain, Round round)
+		public override void Execute(Chainbase chain, Round round)
 		{
 			var a = round.AffectAuthor(Author);
 
@@ -508,7 +508,7 @@ namespace Uccs.Net
 		public override string		Description => $"{Author} ({Title}) for {Years} years";
 		public override bool		Valid => IsValid(Author, Title) && 0 < Years;
 		
-		public static Coin			GetCost(Coin factor, int years) => Database.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
+		public static Coin			GetCost(Coin factor, int years) => Chainbase.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
 
 		public AuthorRegistration()
 		{
@@ -539,7 +539,7 @@ namespace Uccs.Net
 			w.Write(Years);
 		}
 
-		public override void Execute(Database chain, Round round)
+		public override void Execute(Chainbase chain, Round round)
 		{
 			var a = chain.Authors.Find(Author, round.Id);
 
@@ -618,7 +618,7 @@ namespace Uccs.Net
 			w.Write(To);
 		}
 
-		public override void Execute(Database chain, Round round)
+		public override void Execute(Chainbase chain, Round round)
 		{
 			if(chain.Authors.Find(Author, round.Id).Owner != Signer)
 			{

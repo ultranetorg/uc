@@ -20,7 +20,7 @@ namespace Uccs.Net
 		Proxy, 
 		MemberJoin, MemberVox, AnalyzerVox,
 		PeersBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Account, 
-		Author, QueryResource, Resource, DeclareRelease, LocateRelease, Manifest, DownloadRelease,
+		Author, QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
 
@@ -35,10 +35,11 @@ namespace Uccs.Net
 		Integrity,
 		Internal,
 		Timeout,
+		NotFound,
 		NotChain,
 		NotBase,
-		NotHub,
-		NotSeed,
+		NotMember,
+		NotSeeder,
 		NotSynchronized,
 		TooEearly,
 		AllNodesFailed,
@@ -113,10 +114,10 @@ namespace Uccs.Net
 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
 		public ResourceResponse					FindResource(ResourceAddress resource) => Request<ResourceResponse>(new ResourceRequest {Resource = resource});
 		public QueryResourceResponse			QueryResource(string query) => Request<QueryResourceResponse>(new QueryResourceRequest {Query = query });
-		public LocateReleaseResponse			LocateRelease(ResourceAddress package, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Release = package, Count = count});
-		public void								DeclareRelease(Dictionary<ResourceAddress, Availability> packages) => Send(new DeclareReleaseRequest{Packages = packages});
+		public LocateReleaseResponse			LocateRelease(byte[] hash, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Hash = hash, Count = count});
+		public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases});
 		//public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
-		public DownloadReleaseResponse			DownloadRelease(ResourceAddress release, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Release = release, File = file, Offset = offset, Length = length});
+		public DownloadReleaseResponse			DownloadRelease(ResourceAddress resource, byte[] hash, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Resource = resource, Hash = hash, File = file, Offset = offset, Length = length});
 		//public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
 	}
 
@@ -215,7 +216,7 @@ namespace Uccs.Net
 
 				lock(core.Lock)
 				{
-					m = core.Database.LastConfirmedRound.Members.Find(i => i.Account == Destination);
+					m = core.Chainbase.LastConfirmedRound.Members.Find(i => i.Account == Destination);
 				}
 
 				if(m?.Proxy != null)

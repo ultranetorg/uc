@@ -109,12 +109,12 @@ namespace Uccs.Net
 			return Request<SettingsResponse>(new SettingsCall {}, workflow);
 		}
 
-		public void InstallPackage(ReleaseAddress release, Workflow workflow)
+		public void InstallPackage(PackageAddress release, Workflow workflow)
 		{
 			Post(new InstallPackageCall {Release = release}, workflow);
 		}
 
-		public ReleaseStatus GetReleaseStatus(ReleaseAddress release, Workflow workflow)
+		public ReleaseStatus GetReleaseStatus(PackageAddress release, Workflow workflow)
 		{
 			return Request<ReleaseStatus>(new PackageStatusCall {Release = release}, workflow);
 		}

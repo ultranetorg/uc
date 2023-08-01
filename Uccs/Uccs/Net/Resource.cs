@@ -17,6 +17,9 @@ namespace Uccs.Net
 		File		= 0b0_0_001_00, 
 		FileTree	= 0b0_0_010_00, 
 		Package		= 0b0_0_011_00, 
+		IP4Address	= 0b0_0_100_00, 
+		IP6Address	= 0b0_0_101_00, 
+		Uri			= 0b0_0_110_00, 
 	
 		Analysable	= 0b0_1_000_00, 
 

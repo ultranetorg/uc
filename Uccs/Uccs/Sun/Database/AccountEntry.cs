@@ -23,13 +23,13 @@ namespace Uccs.Net
 		public AccountAddress			Key => Address;
 		public byte[]					GetClusterKey(int n) => ((byte[])Address).Take(n).ToArray();
 
-		Database						Database;
+		Chainbase						Database;
 
 		public AccountEntry()
 		{
 		}
 
-		public AccountEntry(Database chain)
+		public AccountEntry(Chainbase chain)
 		{
 			Database = chain;
 		}

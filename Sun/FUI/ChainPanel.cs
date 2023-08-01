@@ -24,22 +24,22 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					Core.Database.BlockAdded += (b) =>
+					Core.Chainbase.BlockAdded += (b) =>
 												{
 													BeginInvoke((MethodInvoker)delegate
 																{ 
 																	lock(Core.Lock)
 																	{
-																		Round.Minimum = Core.Settings.Roles.HasFlag(Role.Chain) ? 0 : Core.Database.Tail.Last().Id;
-																		Round.Maximum = Core.Database.LastNonEmptyRound.Id; 
+																		Round.Minimum = Core.Settings.Roles.HasFlag(Role.Chain) ? 0 : Core.Chainbase.Tail.Last().Id;
+																		Round.Maximum = Core.Chainbase.LastNonEmptyRound.Id; 
 																	}
 																});
 												};
 
 					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
-					Round.Minimum = Core.Settings.Roles.HasFlag(Role.Chain) ? 0 : Core.Database.Tail.Last().Id;
-					Round.Maximum = Core.Database.LastNonEmptyRound.Id;
-					Round.Value = Core.Database.LastNonEmptyRound.Id;
+					Round.Minimum = Core.Settings.Roles.HasFlag(Role.Chain) ? 0 : Core.Chainbase.Tail.Last().Id;
+					Round.Maximum = Core.Chainbase.LastNonEmptyRound.Id;
+					Round.Value = Core.Chainbase.LastNonEmptyRound.Id;
 				}
 			}
 		}
@@ -78,7 +78,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Core.Lock)
 			{
-				var r =  Core.Database.FindRound((int)Round.Value);
+				var r =  Core.Chainbase.FindRound((int)Round.Value);
 
 				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
 									r.ConfirmedTime + "\n" + 

@@ -175,7 +175,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public override void Execute(Database chain, Round round)
+		public override void Execute(Chainbase chain, Round round)
 		{
 			var a = chain.Authors.Find(Resource.Author, round.Id);
 

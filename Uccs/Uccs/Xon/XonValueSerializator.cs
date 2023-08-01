@@ -42,7 +42,7 @@ namespace Uccs
 			if(v.GetType() == typeof(long))				return v.ToString();
 			if(v.GetType() == typeof(byte[]))			return Hex.ToHexString(v as byte[]);
 			if(v.GetType() == typeof(ResourceAddress))	return v.ToString();
-			if(v.GetType() == typeof(ReleaseAddress))	return v.ToString();
+			if(v.GetType() == typeof(PackageAddress))	return v.ToString();
 			if(v.GetType() == typeof(Version))			return v.ToString();
 			if(v.GetType() == typeof(IPAddress))		return v.ToString();
 			if(v.GetType() == typeof(AccountAddress))	return v.ToString();
@@ -63,7 +63,7 @@ namespace Uccs
 			if(typeof(O) == typeof(long))			return (O)(object)long.Parse(v);
 			if(typeof(O) == typeof(byte[]))			return (O)(object)Hex.Decode(v);
 			if(typeof(O) == typeof(ResourceAddress))return (O)(object)ResourceAddress.Parse(v);
-			if(typeof(O) == typeof(ReleaseAddress))	return (O)(object)ReleaseAddress.Parse(v);
+			if(typeof(O) == typeof(PackageAddress))	return (O)(object)PackageAddress.Parse(v);
 			if(typeof(O) == typeof(Version))		return (O)(object)Version.Parse(v);
 			if(typeof(O) == typeof(IPAddress))		return (O)(object)IPAddress.Parse(v);
 			if(typeof(O) == typeof(ChainTime))		return (O)(object)ChainTime.Parse(v);

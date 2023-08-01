@@ -36,7 +36,7 @@ namespace Uccs.Sun.FUI
 
 				var a = ResourceAddress.Parse(Address.Text);
 
-				foreach(var r in Core.Database.Resources.Where(a.Author, i => i.Address.Resource.StartsWith(a.Resource), Core.Database.LastConfirmedRound.Id))
+				foreach(var r in Core.Chainbase.Resources.Where(a.Author, i => i.Address.Resource.StartsWith(a.Resource), Core.Chainbase.LastConfirmedRound.Id))
 				{
 					var i = new ListViewItem(r.Address.ToString());
 
@@ -79,9 +79,9 @@ namespace Uccs.Sun.FUI
 				Task.Run(() =>	{
 									try
 									{
-										Core.Filebase.GetFile(r.Resource, Package.ManifestFile, ManifestWorkflow);
+										Core.Filebase.GetFile(r.Resource, null, Package.ManifestFile, null, ManifestWorkflow);
 
-										var p = Core.PackageBase.Find(new ReleaseAddress(r.Resource));
+										var p = Core.PackageBase.Find(new PackageAddress(r.Resource));
 
 										BeginInvoke((MethodInvoker)delegate
 													{

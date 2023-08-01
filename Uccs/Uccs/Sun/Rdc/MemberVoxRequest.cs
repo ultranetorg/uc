@@ -69,7 +69,7 @@ namespace Uccs.Net
 			var s = new MemoryStream(Raw);
 			var br = new BinaryReader(s);
 
-			var v = new Vote(core.Database);
+			var v = new Vote(core.Chainbase);
 			v.RawForBroadcast = Raw;
 			v.ReadForBroadcast(br);
 
@@ -81,19 +81,20 @@ namespace Uccs.Net
 
 				if(core.Synchronization == Synchronization.Synchronized)
 				{
-					var r = core.Database.FindRound(v.RoundId);
+					var r = core.Chainbase.FindRound(v.RoundId);
 					var _v = r.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
 
 					if(_v != null)
 					{
 						if(accepted) /// for the new vote
 						{
-							var m = core.Database.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
+							var m = core.Chainbase.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
 							
 							if(m != null)
 							{
-								m.IPs = v.BaseIPs.ToArray();
-								m.Proxy = Peer;
+								m.BaseIPs	= v.BaseIPs.ToArray();
+								m.HubIPs	= v.HubIPs.ToArray();
+								m.Proxy		= Peer;
 							}
 						}
 						else if(_v.Peers != null && !_v.Peers.Contains(Peer)) /// for the existing vote

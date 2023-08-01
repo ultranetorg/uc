@@ -47,7 +47,7 @@ namespace Uccs.Sun.FUI
 			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Core, core.Vault)};
 			navigator.Nodes.Add(accs);
 
-			if(core.Database != null)
+			if(core.Chainbase != null)
 			{
 				if(core.Settings.Roles.HasFlag(Role.Chain))
 				{

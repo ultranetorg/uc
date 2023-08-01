@@ -11,7 +11,8 @@ namespace Uccs.Net
 	public class Member
 	{
 		public AccountAddress			Account;
-		public IEnumerable<IPAddress>	IPs  = new IPAddress[0];
+		public IPAddress[]				BaseIPs  = new IPAddress[0];
+		public IPAddress[]				HubIPs  = new IPAddress[0];
 		//public ChainTime				OnlineSince = ChainTime.Zero;
 		public int						JoinedAt;
 		public Peer         			Proxy;
@@ -58,7 +59,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Account={Account}, ActivatedAt={JoinedAt}";
+			return $"Account={Account}, JoinedAt={JoinedAt}";
 		}
 	}
 }

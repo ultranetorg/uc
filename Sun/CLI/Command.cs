@@ -54,10 +54,10 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected ReleaseAddress GetReleaseAddress(string paramenter)
+		protected PackageAddress GetReleaseAddress(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return ReleaseAddress.Parse(GetString("address"));
+				return PackageAddress.Parse(GetString("address"));
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}

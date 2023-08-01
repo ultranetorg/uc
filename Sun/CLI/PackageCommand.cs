@@ -53,9 +53,12 @@ namespace Uccs.Sun.CLI
 					{
 						while(!d.Succeeded)
 						{
-							var r = Core.Filebase.Downloads.Find(i => i.Release == GetResourceAddress("address"));
+							var r = Core.Filebase.Downloads.Find(i => i.Resource == GetResourceAddress("address"));
 
-							Workflow.Log?.Report(this, r != null ? $"{r.File}={r.CompletedLength}/{r.Length} " : null + $"Deps={d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
+							lock(Core.Filebase.Lock)
+								lock(Core.PackageBase.Lock)
+									Workflow.Log?.Report(this, r != null ? $"{r.File}={r.CompletedLength}/{r.Length} " : null + $"Deps={d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
+							
 							Thread.Sleep(500);
 						}
 					} 
