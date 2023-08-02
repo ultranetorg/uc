@@ -18,7 +18,7 @@
     <Border Style="{StaticResource AccountCardBorder}">
         <Grid
             HorizontalOptions="FillAndExpand"
-            RowDefinitions="Auto,Auto,Auto"
+            RowDefinitions="Auto,Auto"
             RowSpacing="12">
             <Grid
                 Grid.Row="0"
@@ -83,12 +83,6 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            
-            <Button
-                Grid.Row="2"
-                Margin="16,8"
-                Command="{Binding CloseCommand}"
-                Text="{x:Static resx:Additional_Strings.SelectAuthor_Confirm}" />
         </Grid>
     </Border>
 </toolkit:Popup>

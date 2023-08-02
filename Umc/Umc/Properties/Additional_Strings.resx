@@ -276,14 +276,8 @@
   <data name="RecipientAccount_Title" xml:space="preserve">
     <value>Recipient Account</value>
   </data>
-  <data name="SelectAuthor_Confirm" xml:space="preserve">
-    <value>Confirm</value>
-  </data>
   <data name="SelectAuthor_Title" xml:space="preserve">
     <value>Select author to transfer</value>
-  </data>
-  <data name="SourceAccount_Confirm" xml:space="preserve">
-    <value>Confirm</value>
   </data>
   <data name="SourceAccount_Title" xml:space="preserve">
     <value>Source Account</value>

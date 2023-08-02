@@ -538,29 +538,11 @@ namespace UC.Umc.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Confirm.
-        /// </summary>
-        internal static string SelectAuthor_Confirm {
-            get {
-                return ResourceManager.GetString("SelectAuthor_Confirm", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Select author to transfer.
         /// </summary>
         internal static string SelectAuthor_Title {
             get {
                 return ResourceManager.GetString("SelectAuthor_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Confirm.
-        /// </summary>
-        internal static string SourceAccount_Confirm {
-            get {
-                return ResourceManager.GetString("SourceAccount_Confirm", resourceCulture);
             }
         }
         

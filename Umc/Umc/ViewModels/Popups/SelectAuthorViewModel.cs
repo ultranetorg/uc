@@ -24,10 +24,9 @@ public partial class SelectAuthorViewModel : BaseViewModel
 		}
 		author.IsSelected = true;
 		SelectedAuthor = author;
-    }
 
-	[RelayCommand]
-    private void Close() => ClosePopup();
+		ClosePopup();
+    }
 	
 	public void LoadData()
 	{

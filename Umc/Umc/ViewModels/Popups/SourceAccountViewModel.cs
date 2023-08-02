@@ -63,20 +63,13 @@ public partial class SourceAccountViewModel : BaseViewModel
 			}
 			account.IsSelected = true;
 			Account = account;
+
+			ClosePopup();
 		}
 		catch (Exception ex)
 		{
 			ToastHelper.ShowErrorMessage(_logger);
 			_logger.LogError("ItemTapped Error: {Message}", ex.Message);
-		}
-	}
-
-	[RelayCommand]
-    private void Confirm()
-	{
-		if (Account != null)
-		{
-			ClosePopup();
 		}
 	}
 	
