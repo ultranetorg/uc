@@ -15,7 +15,7 @@ namespace Uccs.Net
 		//public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 		
-		public Vote						Block;
+		public Vote						Vote;
 		public AccountAddress			Generator;
 		public int						Expiration;
 		public byte[]					Signature;

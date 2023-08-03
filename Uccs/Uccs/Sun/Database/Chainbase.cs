@@ -15,6 +15,7 @@ namespace Uccs.Net
 {
 	public delegate void BlockDelegate(Vote b);
 	public delegate void ConsensusDelegate(Round b, bool reached);
+	public delegate void RoundDelegate(Round b);
 
 	public class Chainbase
 	{
@@ -36,7 +37,6 @@ namespace Uccs.Net
 
 		public Zone							Zone;
 		public DatabaseSettings				Settings;
-		DevSettings							Dev;
 		public Role							Roles;
 
 		public List<Round>					Tail = new();
@@ -60,6 +60,7 @@ namespace Uccs.Net
 		public Log							Log;
 		public BlockDelegate				BlockAdded;
 		public ConsensusDelegate			ConsensusConcluded;
+		public RoundDelegate				Confirmed;
 
 		public Round						LastConfirmedRound;
 		public Round						LastCommittedRound;
@@ -560,7 +561,7 @@ namespace Uccs.Net
 																	})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
 													.Where(i => i.a != null && 
 																i.a.CandidacyDeclarationRid <= round.Id - Pitch * 2 &&  /// 2 = declared, requested
-																i.a.Bail >= (Dev != null && DevSettings.DisableBailMin ? 0 : BailMin))
+																i.a.Bail >= (DevSettings.DisableBailMin ? 0 : BailMin))
 													.OrderByDescending(i => i.a.Bail)
 													.ThenBy(i => i.a.Address)
 													.Select(i => i.jr);
@@ -990,7 +991,7 @@ namespace Uccs.Net
 				
 				if(cjr != null)
 				{
-					cjr.Votes.Clear();
+					cjr.Votes.RemoveAll(i => i is not Vote v || !v.Transactions.Any());
 				}
 			}
 
@@ -998,6 +999,8 @@ namespace Uccs.Net
 		
 			round.Confirmed = true;
 			LastConfirmedRound = round;
+
+			Confirmed?.Invoke(round);
 		}
 /*
 		public ProductEntry FindProduct(ProductAddress product, int ridmax)

@@ -82,7 +82,7 @@ namespace Uccs.Sun.FUI
 	
 					foreach(var i in txs)
 					{
-						var li = new ListViewItem(i.Block.Round.Id.ToString());
+						var li = new ListViewItem(i.Vote.Round.Id.ToString());
 	
 						li.Tag = i;
 	

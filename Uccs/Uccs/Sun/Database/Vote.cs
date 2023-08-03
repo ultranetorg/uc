@@ -99,12 +99,12 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {Hex.ToHexString(Generator)}, Parent={{{Hex.ToHexString(ParentSummary)}}}, Violators={{{Violators.Count}}}, GJoiners={{{MemberJoiners.Count}}}, GLeavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(Generator != null ? Hex.ToHexString(Generator) : null)}, ParentSummary={{{(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}}}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
 		}
 
 		public void AddNext(Transaction t)
 		{
-			t.Block = this;
+			t.Vote = this;
 			Transactions.Insert(0, t);
 		}
 		
@@ -177,7 +177,7 @@ namespace Uccs.Net
 			Transactions = reader.ReadList(() =>	{
 														var t = new Transaction(Database.Zone)
 																{
-																	Block		= this,
+																	Vote		= this,
 																	Generator	= Generator
 																};
 														t.ReadForVote(reader);

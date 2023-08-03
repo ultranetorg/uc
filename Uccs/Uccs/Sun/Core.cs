@@ -172,7 +172,8 @@ namespace Uccs.Net
 				f.Add(new ("Zone",						Zone.Name));
 				f.Add(new ("Profile",					Settings.Profile));
 				f.Add(new ("IP(Reported):Port",			$"{Settings.IP} ({IP}) : {Zone.Port}"));
-				f.Add(new ("Transaction",				$"{OutgoingTransactions.Count}"));
+				f.Add(new ("Incoming Transactions",		$"{IncomingTransactions.Count}"));
+				f.Add(new ("Outgoing Transactions",		$"{OutgoingTransactions.Count}"));
 				f.Add(new ("    Pending Delegation",	$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.PendingDelegation)}"));
 				f.Add(new ("    Accepted",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"));
 				f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
@@ -412,13 +413,18 @@ namespace Uccs.Net
 													}
 													else
 													{
-														foreach(var i in IncomingTransactions.Where(i => i.Block != null && i.Block.RoundId >= r.Id))
+														foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId >= r.Id))
 														{
-															i.Block = null;
+															i.Vote = null;
 															i.Placing = PlacingStage.Verified;
 														}
 													}
 												};
+
+				Chainbase.Confirmed += r =>	{
+												IncomingTransactions.RemoveAll(t => t.Expiration <= r.Id);
+												Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
+											 };
 		
 				if(Settings.Generators.Any())
 				{
@@ -1163,7 +1169,7 @@ namespace Uccs.Net
 										Chainbase.Tail = Chainbase.Tail.OrderByDescending(i => i.Id).ToList();
 		
 										r.Confirmed = false;
-										Confirm(r, true);
+										Chainbase.Confirm(r, true);
 //#if DEBUG
 //										if(!r.Hash.SequenceEqual(h))
 //										{
@@ -1403,7 +1409,7 @@ namespace Uccs.Net
 						continue;
 
 					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
-					var txs = Chainbase.CollectValidTransactions(IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Operations.Any() && i.Placing == PlacingStage.Verified), r).ToArray();
+					var txs = Chainbase.CollectValidTransactions(IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Verified), r).ToArray();
 
 					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
@@ -1543,24 +1549,9 @@ namespace Uccs.Net
 			Statistics.Generating.End();
 		}
 
-		void Confirm(Round r, bool confirmed)
-		{
-			Chainbase.Confirm(r, confirmed);
-
-			if(r.Confirmed)
-			{
-				IncomingTransactions.RemoveAll(t => t.Expiration <= r.Id);
-				Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
-			}
-			else
-			{
-				throw new SynchronizationException();
-			}
-		}
-
 		void Transacting()
 		{
-			Operation[]					pendings;
+			Operation[]					next;
 			bool						ready;
 			IEnumerable<Transaction>	accepted;
 
@@ -1730,8 +1721,8 @@ namespace Uccs.Net
 					if(rdi == this && Synchronization != Synchronization.Synchronized)
 						continue;
 
-					pendings = Operations.Where(i => i.Transaction == null).ToArray();
-					ready = pendings.Any() && !Operations.Any(i => i.Transaction != null && i.Transaction.Placing >= PlacingStage.Accepted);
+					next = Operations.Where(i => i.Transaction == null).ToArray();
+					ready = next.Any() && !OutgoingTransactions.Any(i => i.Placing >= PlacingStage.Accepted);
 				}
 
 				if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
@@ -1742,7 +1733,7 @@ namespace Uccs.Net
 
 					lock(Lock)
 					{
-						foreach(var g in pendings.GroupBy(i => i.Signer))
+						foreach(var g in next.GroupBy(i => i.Signer))
 						{
 							if(!Vault.TransactionIds.ContainsKey(g.Key))
 							{
@@ -1780,7 +1771,7 @@ namespace Uccs.Net
 
 					try
 					{
-						atxs = rdi.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i)));
+						atxs = rdi.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i))).ToArray();
 					}
 					catch(RdcNodeException)
 					{
@@ -1794,8 +1785,13 @@ namespace Uccs.Net
 							i.Placing = PlacingStage.Accepted;
 
 						OutgoingTransactions.AddRange(atxs);
+
+						foreach(var i in txs.Where(t => !atxs.Contains(t)))
+							foreach(var o in i.Operations)
+								o.Transaction = null;
+
 					}
-						
+					
 					if(atxs.Any())
 					{
 						if(atxs.Sum(i => i.Operations.Count) <= 1)
