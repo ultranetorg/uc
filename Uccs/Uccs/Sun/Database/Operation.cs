@@ -40,11 +40,9 @@ namespace Uccs.Net
 
 	public abstract class Operation// : ITypedBinarySerializable
 	{
-		public int				Id;
 		public string			Error;
 		public AccountAddress	Signer { get; set; }
 		public Transaction		Transaction;
-		public PlacingStage		Placing;
 		//public Workflow		FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
@@ -82,13 +80,11 @@ namespace Uccs.Net
 		 
 		public override string ToString()
 		{
-			return $"{Type}, Id={Id}, {Placing}, {Description}, Error={Error}";
+			return $"{Type}, {Description}, Error={Error}";
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Id = reader.Read7BitEncodedInt();
-
 			ReadConfirmed(reader);
 
 			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
@@ -96,8 +92,6 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt(Id);
-			
 			WriteConfirmed(writer);
 
 			writer.Write((byte)__ExpectedPlacing);
@@ -164,7 +158,7 @@ namespace Uccs.Net
 	{
 		public Coin				Bail;
 		public override string	Description => $"{Bail} UNT";
-		public override bool	Valid => Settings.Dev.DisableBailMin ? true : Bail >= Chainbase.BailMin;
+		public override bool	Valid => DevSettings.DisableBailMin ? true : Bail >= Chainbase.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -372,7 +366,7 @@ namespace Uccs.Net
 		public string			Author;
 		public Coin				Bid {get; set;}
 		public override string	Description => $"{Bid} UNT for {Author}";
-		public override bool	Valid => Author.Length > 0 && AuthorEntry.IsExclusive(Author) && (Settings.Dev.DisableBidMin || GetMinCost(Author) <= Bid);
+		public override bool	Valid => Author.Length > 0 && AuthorEntry.IsExclusive(Author) && (DevSettings.DisableBidMin || GetMinCost(Author) <= Bid);
 
 		public AuthorBid()
 		{

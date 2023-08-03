@@ -27,11 +27,11 @@ namespace Uccs.Sun.FUI
 					Core.Chainbase.BlockAdded += (b) =>
 												{
 													BeginInvoke((MethodInvoker)delegate
-																{ 
+																{
 																	lock(Core.Lock)
 																	{
 																		Round.Minimum = Core.Settings.Roles.HasFlag(Role.Chain) ? 0 : Core.Chainbase.Tail.Last().Id;
-																		Round.Maximum = Core.Chainbase.LastNonEmptyRound.Id; 
+																		Round.Maximum = Core.Chainbase.LastNonEmptyRound.Id;
 																	}
 																});
 												};
@@ -50,24 +50,24 @@ namespace Uccs.Sun.FUI
 
 		void LoadTransactions(IEnumerable<Transaction> transactions)
 		{
-			Transactions.Items.AddRange(transactions.Select((i) => {
-																		var li = new ListViewItem(i.Signer.ToString());
-																		li.Tag = i;
-																		//li.SubItems.Add(i.Id.ToString());
-																		li.SubItems.Add(i.Operations.Count().ToString());
-																		return li;
-																	}).ToArray());
+			Transactions.Items.AddRange(transactions.Select((i) =>
+			{
+				var li = new ListViewItem(i.Id.ToString());
+				li.Tag = i;
+				li.SubItems.Add(i.Signer.ToString());
+				li.SubItems.Add(i.Operations.Count.ToString());
+				return li;
+			}).ToArray());
 		}
 
 		void LoadOperations(IEnumerable<Operation> operations)
 		{
-			Operations.Items.AddRange(operations.Select((i) =>	{
-																	var li = new ListViewItem(i.Id.ToString());
-																	li.Tag = i;
-																	li.SubItems.Add(i.ToString());
-																	li.SubItems.Add(i.Error);
-																	return li;
-																}).ToArray());
+			Operations.Items.AddRange(operations.Select((i) =>
+			{
+				var li = new ListViewItem(i.ToString());
+				li.Tag = i;
+				return li;
+			}).ToArray());
 		}
 
 		private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -78,10 +78,10 @@ namespace Uccs.Sun.FUI
 
 			lock(Core.Lock)
 			{
-				var r =  Core.Chainbase.FindRound((int)Round.Value);
+				var r = Core.Chainbase.FindRound((int)Round.Value);
 
-				InfoValues.Text =	(r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" + 
-									r.ConfirmedTime + "\n" + 
+				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" +
+									r.ConfirmedTime + "\n" +
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
 									r.ConfirmedTransactions.Length + "\n" +
 									r.ConfirmedMemberJoiners.Length + "\n" +
@@ -89,15 +89,15 @@ namespace Uccs.Sun.FUI
 									r.ConfirmedViolators.Length
 									;
 
-				Blocks.Items.AddRange(	r.Votes.OrderByDescending(i => i.Transactions.Any())
-										.Select((i, j) =>
-										{
-											var li = new ListViewItem(j.ToString());
-											li.Tag = i;
-											li.SubItems.Add(i.GetType().Name);
-											li.SubItems.Add(i.Generator.ToString());
-											return li;
-										}).ToArray());
+				Blocks.Items.AddRange(r.Votes.OrderByDescending(i => i.Transactions.Any())
+											.Select((i, j) =>
+											{
+												var li = new ListViewItem(j.ToString());
+												li.Tag = i;
+												li.SubItems.Add(i.GetType().Name);
+												li.SubItems.Add(i.Generator.ToString());
+												return li;
+											}).ToArray());
 
 				var txs = r.Confirmed ? r.ConfirmedTransactions : r.OrderedTransactions;
 				LoadTransactions(txs);

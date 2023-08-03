@@ -20,10 +20,11 @@ namespace Uccs.Net
 		IP4Address	= 0b0_0_100_00, 
 		IP6Address	= 0b0_0_101_00, 
 		Uri			= 0b0_0_110_00, 
+		Redirect	= 0b0_0_111_00,
 	
 		Analysable	= 0b0_1_000_00, 
 
-		Unlisted	= 0b1_0_000_00, 
+		Deprecated	= 0b1_0_000_00, 
 	}
 
 	public class Resource : IBinarySerializable

@@ -14,7 +14,7 @@ namespace Uccs.Net
 
 	public class AccountEntry : Account, ITableEntry<AccountAddress>
 	{
-		public int						LastOperationId = -1;
+		public int						LastTransactionId = -1;
 		public int						LastEmissionId = -1;
 		public int						CandidacyDeclarationRid = -1;
 
@@ -37,7 +37,7 @@ namespace Uccs.Net
 		public AccountEntry Clone()
 		{
 			return new AccountEntry(Database){	Address = Address,
-												LastOperationId = LastOperationId,
+												LastTransactionId = LastTransactionId,
 												LastEmissionId = LastEmissionId,
 												Balance = Balance,
 												CandidacyDeclarationRid = CandidacyDeclarationRid,
@@ -50,7 +50,7 @@ namespace Uccs.Net
 		{
 			base.Write(writer);
 
-			writer.Write7BitEncodedInt(LastOperationId);
+			writer.Write7BitEncodedInt(LastTransactionId);
 			writer.Write7BitEncodedInt(LastEmissionId);
 			writer.Write7BitEncodedInt(CandidacyDeclarationRid);
 		}
@@ -59,7 +59,7 @@ namespace Uccs.Net
 		{
 			base.Read(reader);
 
-			LastOperationId				= reader.Read7BitEncodedInt();
+			LastTransactionId			= reader.Read7BitEncodedInt();
 			LastEmissionId				= reader.Read7BitEncodedInt();
 			CandidacyDeclarationRid		= reader.Read7BitEncodedInt();
 		}
@@ -106,7 +106,7 @@ namespace Uccs.Net
 			var d = new XonDocument(new XonTextValueSerializator());
 
 			d.Add("Address").Value					= Address;
-			d.Add("LastOperationId").Value			= LastOperationId;
+			d.Add("LastTransactionId").Value		= LastTransactionId;
 			d.Add("Balance").Value					= Balance;
 			d.Add("LastEmissionId").Value			= LastEmissionId;
 			d.Add("CandidacyDeclarationRid").Value	= CandidacyDeclarationRid;

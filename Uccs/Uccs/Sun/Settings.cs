@@ -115,15 +115,17 @@ namespace Uccs.Net
 
 	public class DevSettings
 	{
-		public bool				UI;
-		public bool				DisableBailMin;
-		public bool				DisableBidMin;
-		public bool				DisableTimeouts;
-		public bool				ThrowOnCorrupted;
-		public bool				TailLength100;
+		public static bool		UI;
+		public static bool		DisableBailMin;
+		public static bool		DisableBidMin;
+		public static bool		DisableTimeouts;
+		public static bool		ThrowOnCorrupted;
+		public static bool		TailLength100;
 
-		public bool				Any => Fields.Any(i => (bool)i.GetValue(this));
-		IEnumerable<FieldInfo>	Fields => GetType().GetFields().Where(i => i.FieldType == typeof(bool));
+		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
+		static  IEnumerable<FieldInfo>	Fields => typeof(DevSettings).GetFields().Where(i => i.FieldType == typeof(bool));
+
+		public static string AsString => string.Join(' ', Fields.Select(i => (bool)i.GetValue(null) ? i.Name : null));
 
 		public DevSettings()
 		{
@@ -140,10 +142,6 @@ namespace Uccs.Net
 			}
 		}
 
-		public override string ToString()
-		{
-			return string.Join(' ', Fields.Select(i => (bool)i.GetValue(this) ? i.Name : null));
-		}
 	}
 
 	public class Settings
@@ -163,7 +161,7 @@ namespace Uccs.Net
 		public string					Profile;
 		public string					Packages;
 
-		public static DevSettings		Dev;
+		//public static DevSettings		Dev;
 		public NasSettings				Nas;
 		public HubSettings				Hub;
 		public ApiSettings				Api;
@@ -205,7 +203,6 @@ namespace Uccs.Net
 			Log			= doc.Has("Log");
 			Packages	= doc.GetString("Packages") ?? System.IO.Path.Join(Profile, "Packages");
 
-			Dev			= new (doc.One(nameof(Dev)));
 			Database	= new (doc.One(nameof(Database)));
 			Nas			= new (doc.One(nameof(Nas)));
 			Api			= new (doc.One(nameof(Api)), this);
@@ -223,7 +220,6 @@ namespace Uccs.Net
 			Profile		= profile;
 			IP			= IPAddress.Loopback;
 
-			Dev			= new ();
 			Database	= new ();
 			Nas			= new ();
 			Api			= new ();

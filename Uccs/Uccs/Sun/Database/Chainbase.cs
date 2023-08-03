@@ -14,6 +14,7 @@ using RocksDbSharp;
 namespace Uccs.Net
 {
 	public delegate void BlockDelegate(Vote b);
+	public delegate void ConsensusDelegate(Round b, bool reached);
 
 	public class Chainbase
 	{
@@ -25,7 +26,7 @@ namespace Uccs.Net
 		public const int					AnalyzersMax = 32;
 		public const int					NewMembersPerRoundMax = 1;
 		public const int					MembersRotation = 32;
-		public  int							TailLength => Dev != null && Dev.TailLength100 ? 100 : 1000;
+		public  int							TailLength => DevSettings.TailLength100 ? 100 : 1000;
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			BailMin = 1000;
 		public static readonly Coin			TransactionFeePerByte	= new Coin(0.000001);
@@ -58,6 +59,7 @@ namespace Uccs.Net
 																			Resources.Clusters.Sum(i => i.MainLength));
 		public Log							Log;
 		public BlockDelegate				BlockAdded;
+		public ConsensusDelegate			ConsensusConcluded;
 
 		public Round						LastConfirmedRound;
 		public Round						LastCommittedRound;
@@ -69,12 +71,11 @@ namespace Uccs.Net
 
 		public static int					GetValidityPeriod(int rid) => rid + Pitch;
 
-		public Chainbase(Zone zone, Role roles, DatabaseSettings settings, DevSettings dev, Log log, RocksDb engine)
+		public Chainbase(Zone zone, Role roles, DatabaseSettings settings, Log log, RocksDb engine)
 		{
 			Roles = roles&(Role.Base|Role.Chain);
 			Zone = zone;
 			Settings = settings;
-			Dev = dev;
 			Log = log;
 			Engine = engine;
 
@@ -197,9 +198,9 @@ namespace Uccs.Net
 										ParentSummary	= Zone.Cryptography.ZeroHash,
 									};
 
-			var t = new Transaction(Zone);
-			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
-			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", 1){ Id = 1 });
+			var t = new Transaction(Zone){ Id = 0 };
+			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
+			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", 1));
 			t.Sign(org, gen, 0);
 			b0.AddNext(t);
 						
@@ -235,9 +236,9 @@ namespace Uccs.Net
 			//emmit(accs);
 			foreach(var f in fathers.OrderBy(j => j))
 			{
-				t = new Transaction(Zone);
-				t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
-				t.AddOperation(new CandidacyDeclaration(f, 900_000){ Id = 1 });
+				t = new Transaction(Zone){ Id = 0 };
+				t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
+				t.AddOperation(new CandidacyDeclaration(f, 900_000));
 			
 				t.Sign(f, gen, 0);
 			
@@ -260,8 +261,8 @@ namespace Uccs.Net
 										ParentSummary	= Zone.Cryptography.ZeroHash,
 									};
 	
-			t = new Transaction(Zone);
-			t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255){Id = 2});
+			t = new Transaction(Zone){Id = 1};
+			t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255));
 			t.Sign(org, gen, 1);
 			b1.AddNext(t);
 			
@@ -302,8 +303,7 @@ namespace Uccs.Net
 			if(b.Transactions.Any())
 			{
 				foreach(var t in b.Transactions)
-					foreach(var o in t.Operations)
-						o.Placing = PlacingStage.Placed;
+					t.Placing = PlacingStage.Placed;
 
 				//if(execute)
 	 			//	for(int i = r.Id; i <= LastPayloadRound.Id; i++)
@@ -325,14 +325,32 @@ namespace Uccs.Net
 				r.FirstArrivalTime = DateTime.UtcNow;
 			} 
 
-
-// 			if(b is MembersJoinRequest jr)
-// 			{
-// 				//jr.Bail = Accounts.Find(jr.Generator, b.RoundId - Pitch).Bail;
-// 				JoinRequests.Add(jr);
-// 			}
-	
 			BlockAdded?.Invoke(b);
+
+			if(LastConfirmedRound != null)
+			{
+				r = GetRound(LastConfirmedRound.Id + 1 + Pitch);
+		
+				if(!r.Voted)
+				{
+					if(ConsensusReached(r) && r.Parent != null)
+					{
+						r.Voted = true;
+	
+						ConsensusConcluded(r, true);
+	
+						Confirm(r.Parent, false);
+	
+					}
+					else if(ConsensusFailed(r) || (!DevSettings.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
+					{
+						ConsensusConcluded(r, false);
+	
+						r.FirstArrivalTime = DateTime.MaxValue;
+						r.Try++;
+					}
+				}
+			}
 		}
 
 		public void Add(IEnumerable<Vote> bb)
@@ -421,7 +439,7 @@ namespace Uccs.Net
 			return FindRound(rid - Pitch - 1).Analyzers/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
-		public bool QuorumReached(Round r)
+		public bool ConsensusReached(Round r)
 		{
 			var m = MembersOf(r.Id);
 			
@@ -443,7 +461,7 @@ namespace Uccs.Net
 			return q <= n;
 		}
 
-		public bool QuorumFailed(Round r)
+		public bool ConsensusFailed(Round r)
 		{
 			var m = MembersOf(r.Id);
 
@@ -542,7 +560,7 @@ namespace Uccs.Net
 																	})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
 													.Where(i => i.a != null && 
 																i.a.CandidacyDeclarationRid <= round.Id - Pitch * 2 &&  /// 2 = declared, requested
-																i.a.Bail >= (Dev != null && Dev.DisableBailMin ? 0 : BailMin))
+																i.a.Bail >= (Dev != null && DevSettings.DisableBailMin ? 0 : BailMin))
 													.OrderByDescending(i => i.a.Bail)
 													.ThenBy(i => i.a.Address)
 													.Select(i => i.jr);
@@ -754,19 +772,18 @@ namespace Uccs.Net
 			{
 				Coin fee = 0;
 
+				var s = round.AffectAccount(t.Signer);
+
+				if(t.Id <= s.LastTransactionId)
+				{
+					foreach(var o in t.Operations)
+						o.Error = Operation.NotSequential;
+					
+					goto start;
+				}
+
 				foreach(var o in t.Operations.AsEnumerable().Reverse())
 				{
-					//if(o.Error != null)
-					//	continue;
-
-					var s = round.AffectAccount(t.Signer);
-					
-					if(o.Id <= s.LastOperationId)
-					{
-						o.Error = Operation.NotSequential;
-						goto start;
-					}
-						
 					o.Execute(this, round);
 
 					if(o.Error != null)
@@ -782,8 +799,9 @@ namespace Uccs.Net
 
 					fee += f;
 					s.Balance -= f;
-					s.LastOperationId = o.Id;
 				}
+
+				s.LastTransactionId = t.Id;
 						
 				if(Roles.HasFlag(Role.Chain))
 				{
@@ -848,14 +866,12 @@ namespace Uccs.Net
 								
 			foreach(var t in round.OrderedTransactions)
 			{
-				var p = round.ConfirmedTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+				t.Placing = round.ConfirmedTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
 
 				foreach(var o in t.Operations)
-				{	
-					o.Placing = p;
-						
+				{
 					#if DEBUG
-					if(o.__ExpectedPlacing > PlacingStage.Placed && o.Placing != o.__ExpectedPlacing)
+					if(o.__ExpectedPlacing > PlacingStage.Placed && t.Placing != o.__ExpectedPlacing)
 					{
 						Debugger.Break();
 					}
@@ -867,8 +883,8 @@ namespace Uccs.Net
 
 			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)
 																	 .Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
-			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
-			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < (Dev.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
+			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
+			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < (DevSettings.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
 			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
 
 			//round.Hubs.RemoveAll(i => round.ConfirmedHubLeavers.Contains(i.Account));
@@ -974,7 +990,7 @@ namespace Uccs.Net
 				
 				if(cjr != null)
 				{
-					cjr.Votes.RemoveAll(i => i is not Vote v || !v.Transactions.Any());
+					cjr.Votes.Clear();
 				}
 			}
 
@@ -998,34 +1014,32 @@ namespace Uccs.Net
 			return e;
 		}
 */
-		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
-				foreach(var b in payload_predicate == null ? r.Payloads : r.Payloads.Where(payload_predicate))
-					foreach(var t in b.Transactions)
-						if(transaction_predicate == null || transaction_predicate(t))
-							return t;
+				foreach(var t in r.Transactions)
+					if(transaction_predicate == null || transaction_predicate(t))
+						return t;
 
 			return null;
 		}
 
-		public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
-				foreach(var b in payload_predicate == null ? r.Payloads : r.Payloads.Where(payload_predicate))
-					foreach(var t in transaction_predicate == null ? b.Transactions : b.Transactions.Where(transaction_predicate))
-						yield return t;
+				foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
+					yield return t;
 		}
 
-		public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null)
+		public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
 		{
-			var ops = FindLastTailTransactions(tp, pp, rp).SelectMany(i => i.Operations.OfType<O>());
+			var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
 			return op == null ? ops.FirstOrDefault() : ops.FirstOrDefault(op);
 		}
 
-		IEnumerable<O> FindLastTailOperations<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null)
+		IEnumerable<O> FindLastTailOperations<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
 		{
-			var ops = FindLastTailTransactions(tp, pp, rp).SelectMany(i => i.Operations.OfType<O>());
+			var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
 			return op == null ? ops : ops.Where(op);
 		}
 

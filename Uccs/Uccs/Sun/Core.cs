@@ -106,7 +106,8 @@ namespace Uccs.Net
 		public Statistics				PrevStatistics = new();
 		public Statistics				Statistics = new();
 
-		public List<Transaction>		Transactions = new();
+		public List<Transaction>		IncomingTransactions = new();
+		List<Transaction>				OutgoingTransactions = new();
 		public List<Operation>			Operations	= new();
 		public List<Analysis>			Analyses = new();
 
@@ -171,12 +172,12 @@ namespace Uccs.Net
 				f.Add(new ("Zone",						Zone.Name));
 				f.Add(new ("Profile",					Settings.Profile));
 				f.Add(new ("IP(Reported):Port",			$"{Settings.IP} ({IP}) : {Zone.Port}"));
-				f.Add(new ("Operations",				$"{Operations.Count}"));
-				f.Add(new ("    Pending Delegation",	$"{Operations.Count(i => i.Placing == PlacingStage.PendingDelegation)}"));
-				f.Add(new ("    Accepted",				$"{Operations.Count(i => i.Placing == PlacingStage.Accepted)}"));
-				f.Add(new ("    Pending Placement",		$"{Operations.Count(i => i.Placing == PlacingStage.Verified)}"));
-				f.Add(new ("    Placed",				$"{Operations.Count(i => i.Placing == PlacingStage.Placed)}"));
-				f.Add(new ("    Confirmed",				$"{Operations.Count(i => i.Placing == PlacingStage.Confirmed)}"));
+				f.Add(new ("Transaction",				$"{OutgoingTransactions.Count}"));
+				f.Add(new ("    Pending Delegation",	$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.PendingDelegation)}"));
+				f.Add(new ("    Accepted",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"));
+				f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
+				f.Add(new ("    Placed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"));
+				f.Add(new ("    Confirmed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"));
 				f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
 				
 				if(Chainbase != null)
@@ -210,7 +211,7 @@ namespace Uccs.Net
 							f.Add(new ($"Account", $"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}"));
 						}
 	
-						if(Settings.Dev.UI)
+						if(DevSettings.UI)
 						{
 							foreach(var i in Chainbase.LastConfirmedRound.Funds)
 							{
@@ -251,8 +252,8 @@ namespace Uccs.Net
 			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
 			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
-			if(Settings.Dev != null && Settings.Dev.Any)
-				Workflow.Log?.ReportWarning(this, $"Dev: {Settings.Dev}");
+			if(DevSettings.Any)
+				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
 
 			Vault = new Vault(Zone, Settings, Workflow?.Log);
 
@@ -392,14 +393,32 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
 			{
-				Chainbase = new Chainbase(Zone, Settings.Roles, Settings.Database, Settings.Dev, Workflow?.Log, DatabaseEngine);
+				Chainbase = new Chainbase(Zone, Settings.Roles, Settings.Database, Workflow?.Log, DatabaseEngine);
 		
 				//if(Database.LastConfirmedRound != null && Database.LastConfirmedRound.Members.FirstOrDefault().Generator == Zone.Father0)
 				//{
 				//	Members = new List<OnlineMember>{ new() {Generator = Zone.Father0, IPs = new[] {Zone.GenesisIP}}};
 				//}
 
-				Chainbase.BlockAdded += b =>	ReachConsensus();
+				Chainbase.ConsensusConcluded += (r, reached) =>
+												{
+													if(reached)
+													{
+														/// Check OUR blocks that are not come back from other peer, means first peer went offline, if any - force broadcast them
+														var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
+					
+														foreach(var v in notcomebacks)
+															Broadcast(v);
+													}
+													else
+													{
+														foreach(var i in IncomingTransactions.Where(i => i.Block != null && i.Block.RoundId >= r.Id))
+														{
+															i.Block = null;
+															i.Placing = PlacingStage.Verified;
+														}
+													}
+												};
 		
 				if(Settings.Generators.Any())
 				{
@@ -727,7 +746,7 @@ namespace Uccs.Net
 
 					try
 					{
-						client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+						client.SendTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
 						//client.ReceiveTimeout = Timeout;
 						client.Connect(peer.IP, Zone.Port);
 					}
@@ -748,8 +767,8 @@ namespace Uccs.Net
 									
 					try
 					{
-						client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
-						client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+						client.SendTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
+						client.ReceiveTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
 
 						Peer.SendHello(client, CreateHello(peer.IP));
 						h = Peer.WaitHello(client);
@@ -862,12 +881,12 @@ namespace Uccs.Net
 	
 					try
 					{
-						client.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
-						client.ReceiveTimeout = Settings.Dev.DisableTimeouts ? 0 : Timeout;
+						client.SendTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
+						client.ReceiveTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
 
 						h = Peer.WaitHello(client);
 					}
-					catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
+					catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
 					{
 						Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; WaitHello {ex.Message}");
 						goto failed;
@@ -915,7 +934,7 @@ namespace Uccs.Net
 						{
 							Peer.SendHello(client, CreateHello(ip));
 						}
-						catch(Exception ex) when(!Settings.Dev.ThrowOnCorrupted)
+						catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
 						{
 							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; SendHello; {ex.Message}");
 							goto failed;
@@ -1136,8 +1155,7 @@ namespace Uccs.Net
 											//p.Confirmed = true;
 
 											foreach(var t in p.Transactions)
-												foreach(var o in t.Operations)
-													o.Placing = PlacingStage.Placed;
+												t.Placing = PlacingStage.Placed;
 										}
 				
 										Chainbase.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
@@ -1385,7 +1403,7 @@ namespace Uccs.Net
 						continue;
 
 					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
-					var txs = Chainbase.CollectValidTransactions(Transactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Operations.Any() && i.Operations.All(i => i.Placing == PlacingStage.Verified)), r).ToArray();
+					var txs = Chainbase.CollectValidTransactions(IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Operations.Any() && i.Placing == PlacingStage.Verified), r).ToArray();
 
 					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
@@ -1429,10 +1447,7 @@ namespace Uccs.Net
 	
 								b.AddNext(i);
 		
-								foreach(var o in i.Operations)
-									o.Placing = PlacingStage.Placed;
-	
-								//Transactions.Remove(i); /// required because in Database.Confirm operations and transactions may be deleted
+								i.Placing = PlacingStage.Placed;
 							}
 						}
 						
@@ -1534,7 +1549,7 @@ namespace Uccs.Net
 
 			if(r.Confirmed)
 			{
-				Transactions.RemoveAll(t => t.Expiration <= r.Id);
+				IncomingTransactions.RemoveAll(t => t.Expiration <= r.Id);
 				Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
 			}
 			else
@@ -1543,50 +1558,11 @@ namespace Uccs.Net
 			}
 		}
 
-		void ReachConsensus()
-		{
-			if(Synchronization != Synchronization.Synchronized)
-				return;
-
-			Statistics.Consensing.Begin();
-
-			var r = Chainbase.GetRound(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch);
-	
-			if(!r.Voted)
-			{
-				if(Chainbase.QuorumReached(r) && r.Parent != null)
-				{
-					r.Voted = true;
-
-					/// Check our peices that are not come back from other peer, means first peer went offline, if any - force broadcast them
-					var notcomebacks = r.Parent.Votes.Where(i => i.Peers != null && !i.BroadcastConfirmed).ToArray();
-					
-					foreach(var v in notcomebacks)
-						Broadcast(v);
-
-					Confirm(r.Parent, false);
-
-				}
-				else if(Chainbase.QuorumFailed(r) || (!Settings.Dev.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
-				{
-					foreach(var i in Transactions.Where(i => i.Block != null && i.Block.RoundId >= r.Id).SelectMany(i => i.Operations))
-					{
-						i.Placing = PlacingStage.Verified;
-					}
-
-					r.FirstArrivalTime = DateTime.MaxValue;
-					r.Try++;
-				}
-			}
-
-			Statistics.Consensing.End();
-		}
-
 		void Transacting()
 		{
 			Operation[]					pendings;
 			bool						ready;
-			IEnumerable<Operation>		accepted;
+			IEnumerable<Transaction>	accepted;
 
 			Workflow.Log?.Report(this, "Delegating started");
 
@@ -1754,8 +1730,8 @@ namespace Uccs.Net
 					if(rdi == this && Synchronization != Synchronization.Synchronized)
 						continue;
 
-					pendings = Operations.Where(i => i.Placing == PlacingStage.PendingDelegation).ToArray();
-					ready = pendings.Any() && !Operations.Any(i => i.Placing >= PlacingStage.Accepted);
+					pendings = Operations.Where(i => i.Transaction == null).ToArray();
+					ready = pendings.Any() && !Operations.Any(i => i.Transaction != null && i.Transaction.Placing >= PlacingStage.Accepted);
 				}
 
 				if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
@@ -1768,17 +1744,17 @@ namespace Uccs.Net
 					{
 						foreach(var g in pendings.GroupBy(i => i.Signer))
 						{
-							if(!Vault.OperationIds.ContainsKey(g.Key))
+							if(!Vault.TransactionIds.ContainsKey(g.Key))
 							{
 								Monitor.Exit(Lock);
 
 								try
 								{
-									Vault.OperationIds[g.Key] = Call<AccountResponse>(Role.Base, i => i.GetAccountInfo(g.Key), Workflow).Account.LastOperationId;
+									Vault.TransactionIds[g.Key] = Call<AccountResponse>(Role.Base, i => i.GetAccountInfo(g.Key), Workflow).Account.LastTransactionId;
 								}
 								catch(RdcEntityException ex) when(ex.Error == RdcEntityError.AccountNotFound)
 								{
-									Vault.OperationIds[g.Key] = -1;
+									Vault.TransactionIds[g.Key] = -1;
 								}
 								catch(Exception) when(!Debugger.IsAttached)
 								{
@@ -1788,10 +1764,10 @@ namespace Uccs.Net
 							}
 
 							var t = new Transaction(Zone);
+							t.Id = ++Vault.TransactionIds[g.Key];
 
 							foreach(var o in g)
 							{
-								o.Id = ++Vault.OperationIds[g.Key];
 								t.AddOperation(o);
 							}
 
@@ -1813,8 +1789,12 @@ namespace Uccs.Net
 					}
 	
 					lock(Lock)
-						foreach(var o in atxs.SelectMany(i => i.Operations))
-							o.Placing = PlacingStage.Accepted;
+					{	
+						foreach(var i in atxs)
+							i.Placing = PlacingStage.Accepted;
+
+						OutgoingTransactions.AddRange(atxs);
+					}
 						
 					if(atxs.Any())
 					{
@@ -1826,27 +1806,32 @@ namespace Uccs.Net
 				}
 
 				lock(Lock)
-					accepted = Operations.Where(i => i.Placing >= PlacingStage.Accepted).ToArray();
+					accepted = OutgoingTransactions.Where(i => i.Placing >= PlacingStage.Accepted).ToArray();
 	
 				if(accepted.Any())
 				{
 					try
 					{
-						var rp = rdi.GetOperationStatus(accepted.Select(i => new OperationAddress{Account = i.Signer, Id = i.Id}));
+						var rp = rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
 
 						lock(Lock)
 						{
-							foreach(var i in rp.Operations)
+							foreach(var i in rp.Transactions)
 							{
-								var o = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
+								var t = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
 																		
-								if(o.Placing != i.Placing)
+								if(t.Placing != i.Placing)
 								{
-									o.Placing = i.Placing;
+									t.Placing = i.Placing;
 
 									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
 									{
-										Operations.Remove(o);
+										OutgoingTransactions.Remove(t);
+
+										foreach(var o in t.Operations)
+										{
+											Operations.Remove(o);
+										}
 									}
 								}
 							}
@@ -1887,7 +1872,7 @@ namespace Uccs.Net
 					TransactingThread.Start();
 				}
 
-				o.Placing = PlacingStage.PendingDelegation;
+				//o.Placing = PlacingStage.PendingDelegation;
 				Operations.Add(o);
 			} 
 			else
@@ -1926,36 +1911,37 @@ namespace Uccs.Net
 					}
 				}
 
-			while(true)
+			while(workflow.Active)
 			{ 
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
+				Thread.Sleep(100);
 
 				switch(waitstage)
 				{
 					case PlacingStage.Null :				return;
-					case PlacingStage.Accepted :			if(operations.All(o => o.Placing >= PlacingStage.Accepted))			return; else break;
-					case PlacingStage.Placed :				if(operations.All(o => o.Placing >= PlacingStage.Placed))			return; else break;
-					case PlacingStage.Confirmed :			if(operations.All(o => o.Placing == PlacingStage.Confirmed))		return; else break;
-					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Placing == PlacingStage.FailedOrNotFound)) return; else break;
+					case PlacingStage.Accepted :			if(operations.All(o => o.Transaction.Placing >= PlacingStage.Accepted))			return; else break;
+					case PlacingStage.Placed :				if(operations.All(o => o.Transaction.Placing >= PlacingStage.Placed))			return; else break;
+					case PlacingStage.Confirmed :			if(operations.All(o => o.Transaction.Placing == PlacingStage.Confirmed))		return; else break;
+					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Transaction.Placing == PlacingStage.FailedOrNotFound)) return; else break;
 				}
 			}
 		}
 
 		void Await(Operation o, PlacingStage s, Workflow workflow)
 		{
-			while(true)
+			while(workflow.Active)
 			{ 
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
+				Thread.Sleep(100);
+
+				if(o.Transaction == null)
+					continue;
 
 				switch(s)
 				{
 					case PlacingStage.Null :				return;
-					case PlacingStage.Accepted :			if(o.Placing >= PlacingStage.Accepted) return; else break;
-					case PlacingStage.Placed :				if(o.Placing >= PlacingStage.Placed) return; else break;
-					case PlacingStage.Confirmed :			if(o.Placing == PlacingStage.Confirmed) return; else break;
-					case PlacingStage.FailedOrNotFound :	if(o.Placing == PlacingStage.FailedOrNotFound) return; else break;
+					case PlacingStage.Accepted :			if(o.Transaction.Placing >= PlacingStage.Accepted) return; else break;
+					case PlacingStage.Placed :				if(o.Transaction.Placing >= PlacingStage.Placed) return; else break;
+					case PlacingStage.Confirmed :			if(o.Transaction.Placing == PlacingStage.Confirmed) return; else break;
+					case PlacingStage.FailedOrNotFound :	if(o.Transaction.Placing == PlacingStage.FailedOrNotFound) return; else break;
 				}
 			}
 		}
@@ -1974,7 +1960,7 @@ namespace Uccs.Net
 
 					lock(Lock)
 					{
-						foreach(var t in Transactions.Where(i => i.Operations.All(i => i.Placing == PlacingStage.Accepted)).ToArray())
+						foreach(var t in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray())
 						{
 							bool valid = true;
 
@@ -1990,7 +1976,7 @@ namespace Uccs.Net
 										
 										if(!valid)
 										{	
-											Transactions.Remove(t);
+											IncomingTransactions.Remove(t);
 											break;
 										}
 									}
@@ -2006,8 +1992,9 @@ namespace Uccs.Net
 									}
 								}
 								
-								o.Placing = PlacingStage.Verified;
 							}
+
+							t.Placing = PlacingStage.Verified;
 						}
 					}
 
@@ -2028,16 +2015,15 @@ namespace Uccs.Net
 			if(!Settings.Generators.Any(g => Chainbase.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
 				return new();
 
-			var accepted = txs.Where(i =>	!Transactions.Any(j => i.EqualBySignature(j)) &&
+			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
 											i.Expiration > Chainbase.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid).ToList();
 								
 			foreach(var i in accepted)
-				foreach(var o in i.Operations)
-					o.Placing = PlacingStage.Accepted;
+				i.Placing = PlacingStage.Accepted;
 
-			Transactions.AddRange(accepted);
+			IncomingTransactions.AddRange(accepted);
 
 			return accepted;
 		}
@@ -2145,7 +2131,7 @@ namespace Uccs.Net
 					else if(peer.OutStatus == EstablishingStatus.Failed)
 						throw new ConnectionFailedException("Failed");
 
-				if(!Settings.Dev.DisableTimeouts)
+				if(!DevSettings.DisableTimeouts)
 					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
 						throw new ConnectionFailedException("Timed out");
 			}

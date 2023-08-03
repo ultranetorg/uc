@@ -26,7 +26,7 @@ namespace Uccs.Net
 			return k;
 		}
 
-		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
 			var e = FindEntry(account);
 
@@ -39,16 +39,10 @@ namespace Uccs.Net
 					if(round_predicate != null && !round_predicate(r))
 						continue;
 
-					foreach(var p in r.Payloads)
+					foreach(var t in r.ConfirmedTransactions.Where(t => t.Signer == account))
 					{
-						if(payload_predicate != null && !payload_predicate(p))
-							continue;
-
-						foreach(var t in p.Transactions.Where(t => t.Signer == account))
-						{
-							if(transaction_predicate == null || transaction_predicate(t))
-								return t;
-						}
+						if(transaction_predicate == null || transaction_predicate(t))
+							return t;
 					}
 				}
 			}
@@ -56,7 +50,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public IEnumerable<Transaction> FindTransactions(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public IEnumerable<Transaction> FindTransactions(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
 			var e = FindEntry(account);
 
@@ -71,10 +65,7 @@ namespace Uccs.Net
 
 					foreach(var p in r.Payloads)
 					{
-						if(payload_predicate != null && !payload_predicate(p))
-							continue;
-
-						foreach(var t in p.Transactions.Where(t => t.Signer == account))
+						foreach(var t in r.ConfirmedTransactions.Where(t => t.Signer == account))
 						{
 							if(transaction_predicate == null || transaction_predicate(t))
 								yield return t;
@@ -84,17 +75,17 @@ namespace Uccs.Net
 			}
 		}
 
-		public Transaction FindLastTransaction(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public Transaction FindLastTransaction(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			return	Database.FindLastTailTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
+			return	Database.FindLastTailTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), round_predicate)
 					??
-					FindTransaction(signer, transaction_predicate, payload_predicate, round_predicate);
+					FindTransaction(signer, transaction_predicate, round_predicate);
 		}
 
-		public IEnumerable<Transaction> FindLastTransactions(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Vote, bool> payload_predicate = null, Func<Round, bool> round_predicate = null)
+		public IEnumerable<Transaction> FindLastTransactions(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			return	Database.FindLastTailTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), payload_predicate, round_predicate)
-					.Union(FindTransactions(signer, transaction_predicate, payload_predicate, round_predicate));
+			return	Database.FindLastTailTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), round_predicate)
+					.Union(FindTransactions(signer, transaction_predicate, round_predicate));
 		}
 
 		public IEnumerable<Transaction> SearchTransactions(AccountAddress signer, int skip = 0, int count = int.MaxValue)
@@ -111,9 +102,9 @@ namespace Uccs.Net
 			return o;
 		}
 
-		public Operation FindLastOperation(AccountAddress signer, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null)
+		public Operation FindLastOperation(AccountAddress signer, Func<Operation, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
 		{
-			foreach(var t in FindLastTransactions(signer, tp, pp, rp))
+			foreach(var t in FindLastTransactions(signer, tp, rp))
 				foreach(var o in t.Operations)
 					if(op == null || op(o))
 						return o;
@@ -121,9 +112,9 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public O FindLastOperation<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null) where O : Operation
+		public O FindLastOperation<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null) where O : Operation
 		{
-			foreach(var t in FindLastTransactions(signer, tp, pp, rp))
+			foreach(var t in FindLastTransactions(signer, tp, rp))
 				foreach(var o in t.Operations.OfType<O>())
 					if(op == null || op(o))
 						return o;
@@ -131,9 +122,9 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public IEnumerable<O> FindLastOperations<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Vote, bool> pp = null, Func<Round, bool> rp = null) where O : Operation
+		public IEnumerable<O> FindLastOperations<O>(AccountAddress signer, Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null) where O : Operation
 		{
-			foreach(var t in FindLastTransactions(signer, tp, pp, rp))
+			foreach(var t in FindLastTransactions(signer, tp, rp))
 				foreach(var o in t.Operations.OfType<O>())
 					if(op == null || op(o))
 						yield return o;

@@ -31,8 +31,9 @@ namespace Uccs.Net
 		public List<AnalyzerVoxRequest>							AnalyzerVoxes = new();
 
 		public IEnumerable<Transaction>							OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
+		public IEnumerable<Transaction>							Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
 
-		public List<Member>									Members = new();
+		public List<Member>										Members = new();
 		public List<Analyzer>									Analyzers = new();
 		public List<AccountAddress>								Funds = new();
 

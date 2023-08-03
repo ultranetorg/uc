@@ -56,14 +56,13 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Core.Lock)
 				{
-					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
-																							{
-																								var li = new ListViewItem(i.Id.ToString());
-																								//li.Tag = i;
-																								li.SubItems.Add(i.GetType().Name + ", " + i.Description);
-																								return li;
-																							})
-																							.ToArray());
+					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>	{
+																										var li = new ListViewItem(i.ToString());
+																										//li.Tag = i;
+																										//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
+																										return li;
+																									})
+																									.ToArray());
 				}
 			}
 		}
@@ -79,7 +78,7 @@ namespace Uccs.Sun.FUI
 				{
 					var a = Net.AccountAddress.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Core.Chainbase.Accounts.SearchTransactions(a).OrderByDescending(i => i.Operations.Any() ? i.Operations.Max(o => o.Id) : 0);
+					var txs = Core.Chainbase.Accounts.SearchTransactions(a);
 	
 					foreach(var i in txs)
 					{
@@ -97,8 +96,8 @@ namespace Uccs.Sun.FUI
 
 					foreach(var i in txs.SelectMany(i => i.Operations))
 					{
-						var li = new ListViewItem(i.Id.ToString());
-						li.SubItems.Add(i.GetType().Name + ", " + i.Description);
+						var li = new ListViewItem(i.ToString());
+						//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
 		
 						Operations.Items.Add(li);
 					}

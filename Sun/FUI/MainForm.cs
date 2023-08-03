@@ -90,7 +90,7 @@ namespace Uccs.Sun.FUI
 			//var apps = new TreeNode("Files"){ Tag = new ApplicationsPanel(Core, core.Vault) };
 			//navigator.Nodes.Add(apps);
 
-			if(Settings.Dev.UI)
+			if(DevSettings.UI)
 			{
 				var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
 				net.Nodes.Add(initials);

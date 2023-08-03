@@ -19,7 +19,7 @@ namespace Uccs.Net
 		Null, 
 		Proxy, 
 		MemberJoin, MemberVox, AnalyzerVox,
-		PeersBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, GetOperationStatus, Account, 
+		PeersBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, TransactionStatus, Account, 
 		Author, QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
@@ -77,7 +77,7 @@ namespace Uccs.Net
 		}
  	}
 
-	public class OperationAddress : IBinarySerializable
+	public class TransactionsAddress : IBinarySerializable
 	{
 		public AccountAddress	Account { get; set; }
 		public int				Id { get; set; }
@@ -108,7 +108,7 @@ namespace Uccs.Net
 		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		public NextRoundResponse				GetNextRound() => Request<NextRoundResponse>(new NextRoundRequest());
 		public SendTransactionsResponse			SendTransactions(IEnumerable<Transaction> transactions) => Request<SendTransactionsResponse>(new SendTransactionsRequest{Transactions = transactions});
-		public GetOperationStatusResponse		GetOperationStatus(IEnumerable<OperationAddress> operations) => Request<GetOperationStatusResponse>(new GetOperationStatusRequest{Operations = operations});
+		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> operations) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = operations});
 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});

@@ -173,7 +173,7 @@ namespace Uccs.Net
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = 0;
-			Tcp.SendTimeout = Settings.Dev.DisableTimeouts ? 0 : Core.Timeout;
+			Tcp.SendTimeout = DevSettings.DisableTimeouts ? 0 : Core.Timeout;
 
 			PeerRank++;
 			Status		= ConnectionStatus.OK;
@@ -342,7 +342,7 @@ namespace Uccs.Net
 																													r.Peer = this;
 																											});
  							}
- 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+ 							catch(Exception) when(!DevSettings.ThrowOnCorrupted)
  							{
  								Disconnect();
  								break;
@@ -364,7 +364,7 @@ namespace Uccs.Net
  							{
 								rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Core.Constract, i => {});
 							}
- 							catch(Exception) when(!Settings.Dev.ThrowOnCorrupted)
+ 							catch(Exception) when(!DevSettings.ThrowOnCorrupted)
  							{
  								Disconnect();
  								break;
@@ -440,7 +440,7 @@ namespace Uccs.Net
 
  			if(rq.WaitResponse)
  			{
-	 			if(rq.Event.WaitOne(Settings.Dev.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
+	 			if(rq.Event.WaitOne(DevSettings.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
 	 			{
 					if(rq.Response == null)
 						throw new OperationCanceledException();

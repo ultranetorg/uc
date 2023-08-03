@@ -21,7 +21,7 @@ namespace Uccs.Net
 		Log											Log;
 		public Dictionary<AccountAddress, byte[]>	Wallets = new();
 		public List<AccountAddress>					Accounts = new();
-		public Dictionary<AccountAddress, int>		OperationIds = new();
+		public Dictionary<AccountAddress, int>		TransactionIds = new();
 
 		public event Action							AccountsChanged;						
 
