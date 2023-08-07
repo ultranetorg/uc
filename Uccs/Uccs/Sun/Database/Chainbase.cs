@@ -689,7 +689,7 @@ namespace Uccs.Net
 
 				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
 											.Select(i => {
-															var e = round.FindRelease(i.Resource);
+															var e = Resources.Find(i.Resource, round.Id);
 																	
 															if(e == null)
 																return null;

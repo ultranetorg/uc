@@ -27,14 +27,6 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "update" : 
-					return Core.Enqueue(new ResourceUpdation(	GetPrivate("by", "password"), 
-																ResourceAddress.Parse(GetString("address")),
-																GetHexBytes("hash"),
-																ResourceFlags.Package|ResourceFlags.Constant|(Args.Has("analysable") ? ResourceFlags.Analysable : 0)),
-										GetAwaitStage(), 
-										Workflow);
-
 				case "publish" :
 				{
 					Core.PackageBase.AddRelease(GetReleaseAddress("address"), 

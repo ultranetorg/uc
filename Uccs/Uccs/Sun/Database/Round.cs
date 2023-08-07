@@ -185,21 +185,21 @@ namespace Uccs.Net
 		//}
 		//
 
-		public AccountEntry FindAccount(AccountAddress account)
-		{
-			if(AffectedAccounts.ContainsKey(account))
-				return AffectedAccounts[account];
-		
-			return Database.Accounts.Find(account, Id - 1);
-		}
-
-		public ResourceEntry FindRelease(ResourceAddress name)
-		{
-			if(AffectedReleases.ContainsKey(name))
-				return AffectedReleases[name];
-		
-			return Database.Resources.Find(name, Id - 1);
-		}
+		//public AccountEntry FindAccount(AccountAddress account)
+		//{
+		//	if(AffectedAccounts.ContainsKey(account))
+		//		return AffectedAccounts[account];
+		//
+		//	return Database.Accounts.Find(account, Id - 1);
+		//}
+		//
+		//public ResourceEntry FindRelease(ResourceAddress name)
+		//{
+		//	if(AffectedReleases.ContainsKey(name))
+		//		return AffectedReleases[name];
+		//
+		//	return Database.Resources.Find(name, Id - 1);
+		//}
 
 		public ResourceEntry AffectRelease(ResourceAddress release)
 		{

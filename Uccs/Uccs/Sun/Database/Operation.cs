@@ -352,7 +352,7 @@ namespace Uccs.Net
 			
 			s.Balance -= Amount;
 
-			if(round.FindAccount(To) == null)
+			if(chain.Accounts.Find(To, round.Id) == null)
 			{
 				s.Balance -= CalculateSpaceFee(round.Factor);
 			}

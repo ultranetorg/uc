@@ -136,8 +136,8 @@ namespace Uccs.Net
 		public ResourceFlags		Flags { get; set; }
 		public Coin					AnalysisFee { get; set; }
 
-		public override bool		Valid => true;
-		public override string		Description => $"{Resource} {Hex.ToHexString(Data)}";
+		public override bool		Valid => !Flags.HasFlag(ResourceFlags.Child);
+		public override string		Description => $"{Resource}, {Flags}, {(Data != null ? Hex.ToHexString(Data) : null)}";
 
 		public ResourceUpdation()
 		{
@@ -155,7 +155,11 @@ namespace Uccs.Net
 		{
 			Resource = reader.Read<ResourceAddress>();
 			Flags = (ResourceFlags)reader.ReadByte();
-			Data = reader.ReadBytes();
+			
+			if(reader.ReadBoolean())
+			{
+				Data = reader.ReadBytes();
+			}
 
 			if(Flags.HasFlag(ResourceFlags.Analysable))
 			{
@@ -167,7 +171,13 @@ namespace Uccs.Net
 		{
 			writer.Write(Resource);
 			writer.Write((byte)Flags);
-			writer.WriteBytes(Data);
+
+			writer.Write(Data != null);
+
+			if(Data != null)
+			{
+				writer.WriteBytes(Data);
+			}
 
 			if(Flags.HasFlag(ResourceFlags.Analysable))
 			{
@@ -193,7 +203,7 @@ namespace Uccs.Net
 
 			var e = chain.Resources.Find(Resource, round.Id);
 					
-			if(e != null && e.Flags.HasFlag(ResourceFlags.Constant))
+			if(e != null && e.Flags.HasFlag(ResourceFlags.Sealed))
 			{
 				Error = CantChangeConstantResource;
 				return;
@@ -210,7 +220,12 @@ namespace Uccs.Net
 			var r = round.AffectRelease(Resource);
 
 			r.Flags = Flags;
-			r.Data = Data;
+
+			if(Data != null)
+			{
+				r.Data = Data;
+			}
+
 			r.AnalysisStage = Flags.HasFlag(ResourceFlags.Analysable) ? AnalysisStage.Pending : AnalysisStage.NotRequested;
 
 			if(Flags.HasFlag(ResourceFlags.Analysable))

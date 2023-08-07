@@ -10,21 +10,20 @@ namespace Uccs.Net
 	public enum ResourceFlags : byte
 	{
 		Null, 
-		Variable	= 0b0_0_000_00, 
-		Constant	= 0b0_0_000_01, 
-
-		Data		= 0b0_0_000_00,
-		File		= 0b0_0_001_00, 
-		FileTree	= 0b0_0_010_00, 
-		Package		= 0b0_0_011_00, 
-		IP4Address	= 0b0_0_100_00, 
-		IP6Address	= 0b0_0_101_00, 
-		Uri			= 0b0_0_110_00, 
-		Redirect	= 0b0_0_111_00,
-	
-		Analysable	= 0b0_1_000_00, 
-
-		Deprecated	= 0b1_0_000_00, 
+		Sealed		= 0b0_0000_001, 
+		Deprecated	= 0b0_0000_010, 
+		Child		= 0b0_0000_100, 
+						
+		Data		= 0b0_0001_000,
+		File		= 0b0_0010_000, 
+		FileTree	= 0b0_0011_000, 
+		Package		= 0b0_0100_000, 
+		IP4Address	= 0b0_0101_000, 
+		IP6Address	= 0b0_0110_000, 
+		Uri			= 0b0_0111_000, 
+		Redirect	= 0b0_1000_000,
+						
+		Analysable	= 0b1_0000_000, 
 	}
 
 	public class Resource : IBinarySerializable
