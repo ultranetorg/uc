@@ -31,17 +31,15 @@ namespace Uccs.Sun.FUI
 				Releases.Items.Clear();
 				manifest.Text = null;
 
-				if(string.IsNullOrWhiteSpace(Address.Text))
+				if(string.IsNullOrWhiteSpace(Query.Text))
 					return;
 
-				var a = ResourceAddress.Parse(Address.Text);
-
-				foreach(var r in Core.Chainbase.Resources.Where(a.Author, i => i.Address.Resource.StartsWith(a.Resource), Core.Chainbase.LastConfirmedRound.Id))
+				foreach(var r in Core.Chainbase.QueryRelease(Query.Text))
 				{
 					var i = new ListViewItem(r.Address.ToString());
 
 					i.Tag = r;
-					i.SubItems.Add(Hex.ToHexString(r.Data));
+					i.SubItems.Add(r.Data == null ? null : Hex.ToHexString(r.Data));
 					//i.SubItems.Add(r.Channel);
 
 					Releases.Items.Add(i);
@@ -65,7 +63,7 @@ namespace Uccs.Sun.FUI
 
 			if(Releases.SelectedItems.Count > 0)
 			{
-				var r = Releases.SelectedItems[0].Tag as ResourceUpdation;
+				var r = Releases.SelectedItems[0].Tag as Resource;
 
 				if(ManifestWorkflow != null)
 				{
@@ -79,9 +77,9 @@ namespace Uccs.Sun.FUI
 				Task.Run(() =>	{
 									try
 									{
-										Core.Resources.GetFile(r.Resource, null, Package.ManifestFile, null, ManifestWorkflow);
+										Core.Resources.GetFile(r.Address, r.Data, Package.ManifestFile, null, ManifestWorkflow);
 
-										var p = Core.PackageBase.Find(new PackageAddress(r.Resource));
+										var p = Core.PackageBase.Find(new PackageAddress(r.Address));
 
 										BeginInvoke((MethodInvoker)delegate
 													{

@@ -52,11 +52,9 @@ namespace Uccs.Net
 		static readonly byte[]				GenesisKey = new byte[] {0x04};
 		public AccountTable					Accounts;
 		public AuthorTable					Authors;
-		public ResourceTable				Resources;
 		public int							Size => BaseState == null ? 0 : (BaseState.Length + 
 																			Accounts.Clusters.Sum(i => i.MainLength) +
-																			Authors.Clusters.Sum(i => i.MainLength) +
-																			Resources.Clusters.Sum(i => i.MainLength));
+																			Authors.Clusters.Sum(i => i.MainLength));
 		public Log							Log;
 		public BlockDelegate				BlockAdded;
 		public ConsensusDelegate			ConsensusConcluded;
@@ -82,7 +80,6 @@ namespace Uccs.Net
 
 			Accounts = new (this);
 			Authors = new (this);
-			Resources = new (this);
 
 			BaseHash = Zone.Cryptography.ZeroHash;
 			BaseState = Engine.Get(BaseStateKey);
@@ -689,7 +686,7 @@ namespace Uccs.Net
 
 				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
 											.Select(i => {
-															var e = Resources.Find(i.Resource, round.Id);
+															var e = Authors.FindResource(i.Resource, round.Id);
 																	
 															if(e == null)
 																return null;
@@ -767,7 +764,6 @@ namespace Uccs.Net
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
-			round.AffectedReleases.Clear();
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
@@ -835,7 +831,6 @@ namespace Uccs.Net
 	
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Resources.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
 		public void Confirm(Round round, bool confirmed)
@@ -896,7 +891,7 @@ namespace Uccs.Net
 
 			foreach(var i in round.ConfirmedAnalyses)
 			{
-				var e = round.AffectRelease(i.Release);
+				var e = round.AffectAuthor(i.Release.Author).AffectResource(i.Release);
 				
 				if(i.Finished)
 				{
@@ -925,7 +920,6 @@ namespace Uccs.Net
 					{
 						Accounts	.Save(b, i.AffectedAccounts.Values);
 						Authors		.Save(b, i.AffectedAuthors.Values);
-						Resources	.Save(b, i.AffectedReleases.Values);
 					}
 
 					LastCommittedRound = tail.Last();
@@ -1079,7 +1073,7 @@ namespace Uccs.Net
 		{
 			var a = ResourceAddress.Parse(query);
 		
-			return Resources.Where(a.Author, i => i.Address.Resource.StartsWith(a.Resource), LastConfirmedRound.Id);
+			return Authors.Find(a.Author, LastConfirmedRound.Id).Resources.Where(i => i.Address.Resource.StartsWith(a.Resource));
 		}
 	}
 }

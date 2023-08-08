@@ -59,25 +59,6 @@ namespace Uccs.Sun.CLI
 
 					return d;
 				}
-
-		   		case "status" :
-				{
-					try
-					{
-						var r = Core.Call(Role.Base, i => i.FindResource(GetResourceAddress("address")), Workflow);
-	
-						Workflow.Log?.Report(this, "   " + r.Resource.Address.ToString());
-						Workflow.Log?.Report(this, "   " + r.Resource.Flags);
-						Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
-
-						return r;
-					}
-					catch(RdcEntityException ex)
-					{
-						Workflow.Log?.Report(this, ex.Message);
-						return null;
-					}
-				}
 				
 				default:
 					throw new SyntaxException("Unknown operation");;

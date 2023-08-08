@@ -59,7 +59,7 @@ namespace Uccs.Net
 
 		public Dictionary<AccountAddress, AccountEntry>			AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
-		public Dictionary<ResourceAddress, ResourceEntry>			AffectedReleases = new();
+		//public Dictionary<ResourceAddress, Resource>			AffectedResources = new();
 		
 		public Chainbase											Database;
 
@@ -200,19 +200,6 @@ namespace Uccs.Net
 		//
 		//	return Database.Resources.Find(name, Id - 1);
 		//}
-
-		public ResourceEntry AffectRelease(ResourceAddress release)
-		{
-			if(AffectedReleases.ContainsKey(release))
-				return AffectedReleases[release];
-			
-			var e = Database.Resources.Find(release, Id - 1);
-			
-			if(e != null)
-				return AffectedReleases[release] = e.Clone();
-			else
-				return AffectedReleases[release] = new ResourceEntry(){Address = release};
-		}
 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
  		{

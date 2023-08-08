@@ -17,9 +17,9 @@ namespace Uccs.Net
 
 				switch(Table)
 				{
-					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Chainbase.Accounts		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Chainbase.Authors		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Resources	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Chainbase.Resources		.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Chainbase.Accounts.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Chainbase.Authors	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+
 					default:
 						throw new RdcEntityException(RdcEntityError.InvalidRequest);
 				}

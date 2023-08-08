@@ -13,7 +13,7 @@ namespace Uccs.Net
 			{	
 				if(core.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
  			
-				var r = core.Chainbase.Resources.Find(Resource, core.Chainbase.LastConfirmedRound.Id);
+				var r = core.Chainbase.Authors.FindResource(Resource, core.Chainbase.LastConfirmedRound.Id);
 			
 				if(r == null)
 					throw new RdcEntityException(RdcEntityError.ResourceNotFound);

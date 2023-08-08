@@ -10,7 +10,7 @@ namespace Uccs.Net
 			lock(core.Lock)
 			{
 				if(core.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
-				if(core.Chainbase.BaseState == null)							throw new RdcNodeException(RdcNodeError.TooEearly);
+				if(core.Chainbase.BaseState == null)						throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				var r = new StampResponse {	BaseState				= core.Chainbase.BaseState,
 											BaseHash				= core.Chainbase.BaseHash,
@@ -19,7 +19,7 @@ namespace Uccs.Net
 											LastTailRound			= core.Chainbase.Tail.First().Id,
 											Accounts				= core.Chainbase.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
 											Authors					= core.Chainbase.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Resources				= core.Chainbase.Resources.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray()};
+											};
 				return r;
 			}
 		}
@@ -40,6 +40,5 @@ namespace Uccs.Net
 		public byte[]						LastCommitedRoundHash { get; set; }
 		public IEnumerable<SuperCluster>	Accounts { get; set; }
 		public IEnumerable<SuperCluster>	Authors { get; set; }
-		public IEnumerable<SuperCluster>	Resources { get; set; }
 	}
 }

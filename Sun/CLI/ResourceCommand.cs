@@ -27,15 +27,63 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "update" : 
-					return Core.Enqueue(new ResourceUpdation(	GetPrivate("by", "password"), 
-																ResourceAddress.Parse(GetString("address")),
-																Args.Has("hash") ? GetHexBytes("hash") : null,
-																Args.Has("flags") ? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.Null),
-										GetAwaitStage(), 
-										Workflow);
+				case "create" : 
+				{	
+					var r =	new ResourceCreation(	GetPrivate("by", "password"), 
+													ResourceAddress.Parse(GetString("address")),
+													Enum.Parse<ResourceFlags>(GetString("flags")),
+													Args.Has("data")		? GetHexBytes("data") : null,
+													Args.Has("parent")		? GetString("parent") : null, 
+													Args.Has("analysisfee") ? Coin.ParseDecimal(Args.GetString("analysisfee")) : Coin.Zero);
 
-				
+					return Core.Enqueue(r, GetAwaitStage(), Workflow);
+				}
+
+				case "update" : 
+				{	
+					var r =	new ResourceUpdation(GetPrivate("by", "password"), ResourceAddress.Parse(GetString("address")));
+
+					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
+					if(Args.Has("data"))		r.Change(GetHexBytes("data"));
+					if(Args.Has("parent"))		r.Change(GetString("parent"));
+					if(Args.Has("analysisfee")) r.Change(Coin.ParseDecimal(Args.GetString("analysisfee")));
+					
+					return Core.Enqueue(r, GetAwaitStage(), Workflow);
+				}
+
+
+		   		case "status" :
+				{
+					try
+					{
+						var r = Core.Call(Role.Base, i => i.FindResource(GetResourceAddress("address")), Workflow);
+	
+						Workflow.Log?.Report(this, "   " + r.Resource.Flags);
+						
+						if(r.Resource.Data != null)
+							Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
+
+						var e = Core.Call(Role.Base, i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
+
+						if(e.Resources.Any())
+						{
+							Workflow.Log?.Report(this, "   Subresources:");
+
+							foreach(var i in e.Resources)
+							{
+								Workflow.Log?.Report(this, "      " + i);
+							}
+						}
+
+						return r;
+					}
+					catch(RdcEntityException ex)
+					{
+						Workflow.Log?.Report(this, ex.Message);
+						return null;
+					}
+				}
+
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

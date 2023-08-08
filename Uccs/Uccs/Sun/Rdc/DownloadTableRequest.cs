@@ -19,7 +19,6 @@ namespace Uccs.Net
 							  {
 									Tables.Accounts		=> core.Chainbase.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Authors		=> core.Chainbase.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Resources		=> core.Chainbase.Resources.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									_ => throw new RdcEntityException(RdcEntityError.InvalidRequest)
 							  };
 

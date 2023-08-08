@@ -25,13 +25,19 @@ namespace Uccs.Net
 		public AccountAddress			LastWinner;
 		public Coin						LastBid;
 		public ChainTime				LastBidTime;
-		public List<Branch>				Branches;
+		public Resource[]				Resources = {};
+		public int						NextResourceId;
 
 		public static bool				IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
 
 		public void Write(BinaryWriter w)
 		{
 			w.WriteUtf8(Name);
+			w.Write7BitEncodedInt(NextResourceId);
+			w.Write(Resources, i =>	{
+										w.WriteUtf8(i.Address.Resource);
+										i.Write(w);
+									});
 
 			if(IsExclusive(Name))
 			{
@@ -56,35 +62,37 @@ namespace Uccs.Net
 				w.Write(Years);
 			}
 
-			w.Write(Branches, i => {	w.WriteUtf8(i.Path);
-										w.Write(i.Publishers); });
 		}
 
-		public void Read(BinaryReader r)
+		public void Read(BinaryReader reader)
 		{
-			Name = r.ReadUtf8();
+			Name			= reader.ReadUtf8();
+			NextResourceId	= reader.Read7BitEncodedInt();
+			Resources		= reader.ReadArray(() => { 
+														var a = new Resource();
+														a.Address = new ResourceAddress(Name, reader.ReadUtf8());
+														a.Read(reader);
+														return a;
+													});
 
 			if(IsExclusive(Name))
 			{
-				if(r.ReadBoolean())
+				if(reader.ReadBoolean())
 				{
-					FirstBidTime = r.ReadTime();
-					LastWinner	 = r.ReadAccount();
-					LastBidTime	 = r.ReadTime();
-					LastBid		 = r.ReadCoin();
+					FirstBidTime = reader.ReadTime();
+					LastWinner	 = reader.ReadAccount();
+					LastBidTime	 = reader.ReadTime();
+					LastBid		 = reader.ReadCoin();
 				}
 			}
 
-			if(r.ReadBoolean())
+			if(reader.ReadBoolean())
 			{
-				Owner				= r.ReadAccount();
-				RegistrationTime	= r.ReadTime();
-				Title				= r.ReadUtf8();
-				Years				= r.ReadByte();
+				Owner				= reader.ReadAccount();
+				RegistrationTime	= reader.ReadTime();
+				Title				= reader.ReadUtf8();
+				Years				= reader.ReadByte();
 			}
-
-			Branches = r.ReadList<Branch>(() => new Branch {	Path = r.ReadUtf8(), 
-																						Publishers = r.ReadArray<AccountAddress>() });
 		}
 	}
 }

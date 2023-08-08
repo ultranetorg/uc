@@ -16,7 +16,7 @@ namespace Uccs.Net
 
 	public enum AnalysisStage : byte
 	{
-		NotRequested, 
+		NotRequested = 0,  
 		Pending,
 		QuorumReached,
 		Finished,

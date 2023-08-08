@@ -268,9 +268,6 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (ResourceTable.MetaColumnName,	new ()),
-																new (ResourceTable.MainColumnName,	new ()),
-																new (ResourceTable.MoreColumnName,	new ()),
 																new (Chainbase.ChainFamilyName,		new ()),
 															})
 				cfamilies.Add(i);
@@ -1038,10 +1035,6 @@ namespace Uccs.Net
 																															var c = Chainbase.Authors.SuperClusters.ContainsKey(i.Id);
 																															return !c || !Chainbase.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
-																			Tables.Resources	=> stamp.Resources.Where(i => {
-																															var c = Chainbase.Resources.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Chainbase.Resources.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																														 }),
 																			_ => throw new SynchronizationException()
 																		}
 																).Select(i => i.Id).ToArray());
@@ -1083,7 +1076,6 @@ namespace Uccs.Net
 		
 						download<AccountEntry,	AccountAddress>(Chainbase.Accounts);
 						download<AuthorEntry, string>(Chainbase.Authors);
-						download<ResourceEntry, ResourceAddress>(Chainbase.Resources);
 		
 						var r = new Round(Chainbase){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
 		

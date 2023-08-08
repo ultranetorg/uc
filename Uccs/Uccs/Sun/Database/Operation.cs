@@ -35,7 +35,7 @@ namespace Uccs.Net
 		Null = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		AuthorBid, AuthorRegistration, AuthorTransfer, ResourceUpdation
+		AuthorBid, AuthorRegistration, AuthorTransfer, ResourceCreation, ResourceUpdation,
 	}
 
 	public abstract class Operation// : ITypedBinarySerializable
@@ -50,11 +50,12 @@ namespace Uccs.Net
 		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
 
 		public const string		Rejected = "Rejected";
+		public const string		NotFound = "Not found";
 		public const string		AlreadyExists = "Alreadt exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		NotOwnerOfAuthor = "The signer does not own the Author";
-		public const string		CantChangeConstantResource = "Cant change constant resource";
+		public const string		CantChangeSealedResource = "Cant change sealed resource";
 
 		public Operations		Type => Enum.Parse<Operations>(GetType().Name);
 
@@ -148,9 +149,9 @@ namespace Uccs.Net
 			return Chainbase.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
-		public Coin CalculateSpaceFee(Coin factor)
+		public Coin CalculateSpaceFee(Coin factor, int size)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * CalculateSize() * Chainbase.SpaceFeePerByte;
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Chainbase.SpaceFeePerByte;
 		}
 	}
 
@@ -354,7 +355,7 @@ namespace Uccs.Net
 
 			if(chain.Accounts.Find(To, round.Id) == null)
 			{
-				s.Balance -= CalculateSpaceFee(round.Factor);
+				s.Balance -= CalculateSpaceFee(round.Factor, CalculateSize());
 			}
 
 			round.AffectAccount(To).Balance += Amount;

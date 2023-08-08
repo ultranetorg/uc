@@ -15,6 +15,7 @@ namespace Uccs.Net
 		public byte[]		GetClusterKey(int n) => Encoding.UTF8.GetBytes(Name).Take(n).ToArray();
 
 		Chainbase			Chain;
+		List<Resource>		AffectedResources = new();
 
 		public AuthorEntry()
 		{
@@ -44,7 +45,9 @@ namespace Uccs.Net
 						FirstBidTime = FirstBidTime,
 						LastWinner = LastWinner,
 						LastBid = LastBid,
-						LastBidTime = LastBidTime
+						LastBidTime = LastBidTime,
+						Resources = Resources,
+						NextResourceId = NextResourceId,
 					};
 		}
 
@@ -77,6 +80,45 @@ namespace Uccs.Net
 			//	Products = r.ReadStings();
 			//}
 		}
+
+		//public Resource AffectResource(Resource release)
+		//{
+		//	var i = Array.FindIndex(Resources, i => i.Address == release)  
+		//
+		//	if(AffectedResources.ContainsKey(release.Address))
+		//		return release;
+		//	
+		//	return AffectedResources[release.Address] = release.Clone();
+		//}
+
+		public Resource AffectResource(ResourceAddress resource)
+		{
+			var r = AffectedResources.Find(i => i.Address == resource);
+			
+			if(r != null)
+				return r;
+
+			var i = Array.FindIndex(Resources, i => i.Address == resource);
+
+			if(i != -1)
+			{
+				Resources = Resources.ToArray();
+
+				r = Resources[i].Clone();
+				Resources[i] = r;
+			} 
+			else
+			{
+				r = new Resource{Address = resource, Id = NextResourceId++};
+				
+				Resources = Resources.Append(r).ToArray();
+			}
+
+			AffectedResources.Add(r);
+
+			return r;
+		}
+
 
 		public XonDocument ToXon(IXonValueSerializator serializator)
 		{

@@ -566,9 +566,9 @@ namespace Uccs.Net
 		public void Add(PackageAddress release, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
 		{
 			var qlatest = Core.Call(Role.Base, p => p.QueryResource($"{release.APR}/"), workflow);
-			var previos = qlatest.Resources.OrderBy(i => PackageAddress.ParseVesion(i.Address.Resource)).FirstOrDefault();
+			var previos = qlatest.Resources.OrderBy(i => PackageAddress.ParseVesion(i.Resource)).FirstOrDefault();
 
-			AddRelease(release, previos != null ? PackageAddress.ParseVesion(previos.Address.Resource) : null, sources, dependsdirectory, workflow);
+			AddRelease(release, previos != null ? PackageAddress.ParseVesion(previos.Resource) : null, sources, dependsdirectory, workflow);
 		}
 
 		public void Install(PackageAddress release, Workflow workflow)
@@ -602,13 +602,15 @@ namespace Uccs.Net
 			Downloads.Add(d);
 
 			d.Task = Task.Run(() =>	{
-										IEnumerable<Resource> hst = null;
+										byte[] h = null;
+										IEnumerable<ResourceAddress> hst = null;
 
 										while(!workflow.IsAborted)
 										{
 											try
 											{
 												hst = Core.Call(Role.Base, c => c.QueryResource(package.ToString()), workflow).Resources;
+												h = Core.Call(Role.Base, c => c.FindResource(hst.First()), workflow).Resource.Data;
 												break;
 											}
 											catch(RdcEntityException)
@@ -616,8 +618,6 @@ namespace Uccs.Net
 												Thread.Sleep(100);
 											}
 										}
-
-										var h = hst.First().Data;
 
 										lock(Lock)
 											lock(Core.Resources.Lock)
@@ -649,7 +649,7 @@ namespace Uccs.Net
 	 										//if(!Core.Zone.Cryptography.HashFile(d.Package.Manifest.Bytes).SequenceEqual(h))
 	 										//	return;
 											
-											DetermineDelta(hst.Select(i => new PackageAddress(i.Address)), d.Package.Manifest, h, out incrementable, out List<Dependency> deps);
+											DetermineDelta(hst.Select(i => new PackageAddress(i)), d.Package.Manifest, h, out incrementable, out List<Dependency> deps);
 											
 											//lock(Core.Filebase.Lock)
 

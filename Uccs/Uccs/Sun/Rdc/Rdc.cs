@@ -20,7 +20,7 @@ namespace Uccs.Net
 		Proxy, 
 		MemberJoin, MemberVox, AnalyzerVox,
 		PeersBroadcast, Time, Members, NextRound, LastOperation, SendTransactions, TransactionStatus, Account, 
-		Author, QueryResource, Resource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
+		Author, QueryResource, Resource, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
 
@@ -113,6 +113,7 @@ namespace Uccs.Net
 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
 		public ResourceResponse					FindResource(ResourceAddress resource) => Request<ResourceResponse>(new ResourceRequest {Resource = resource});
+		public SubresourcesResponse				EnumerateSubresources(ResourceAddress resource) => Request<SubresourcesResponse>(new SubresourcesRequest {Resource = resource});
 		public QueryResourceResponse			QueryResource(string query) => Request<QueryResourceResponse>(new QueryResourceRequest {Query = query });
 		public LocateReleaseResponse			LocateRelease(byte[] hash, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Hash = hash, Count = count});
 		public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases});

@@ -14,13 +14,13 @@ namespace Uccs.Net
 				if(core.Synchronization != Synchronization.Synchronized)
 					throw new RdcNodeException(RdcNodeError.NotSynchronized);
  				
-				return new QueryResourceResponse {Resources = core.Chainbase.QueryRelease(Query).ToArray()};
+				return new QueryResourceResponse {Resources = core.Chainbase.QueryRelease(Query).Select(i => i.Address).ToArray()};
 			}
 		}
 	}
 		
 	public class QueryResourceResponse : RdcResponse
 	{
-		public IEnumerable<Resource> Resources { get; set; }
+		public IEnumerable<ResourceAddress> Resources { get; set; }
 	}
 }
