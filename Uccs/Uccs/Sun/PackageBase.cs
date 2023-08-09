@@ -603,14 +603,14 @@ namespace Uccs.Net
 
 			d.Task = Task.Run(() =>	{
 										byte[] h = null;
-										IEnumerable<ResourceAddress> hst = null;
+										IEnumerable<PackageAddress> hst = null;
 
 										while(!workflow.IsAborted)
 										{
 											try
 											{
-												hst = Core.Call(Role.Base, c => c.QueryResource(package.ToString()), workflow).Resources;
-												h = Core.Call(Role.Base, c => c.FindResource(hst.First()), workflow).Resource.Data;
+												hst = Core.Call(Role.Base, c => c.QueryResource(package.APR + "/"), workflow).Resources.Select(i => new PackageAddress(i)).OrderBy(i => i.Version);
+												h = Core.Call(Role.Base, c => c.FindResource(package), workflow).Resource.Data;
 												break;
 											}
 											catch(RdcEntityException)
@@ -649,7 +649,7 @@ namespace Uccs.Net
 	 										//if(!Core.Zone.Cryptography.HashFile(d.Package.Manifest.Bytes).SequenceEqual(h))
 	 										//	return;
 											
-											DetermineDelta(hst.Select(i => new PackageAddress(i)), d.Package.Manifest, h, out incrementable, out List<Dependency> deps);
+											DetermineDelta(hst, d.Package.Manifest, h, out incrementable, out List<Dependency> deps);
 											
 											//lock(Core.Filebase.Lock)
 

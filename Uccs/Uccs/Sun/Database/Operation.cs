@@ -2,20 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Model;
-using Nethereum.Util;
-using Nethereum.Web3.Accounts;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
@@ -81,7 +70,7 @@ namespace Uccs.Net
 		 
 		public override string ToString()
 		{
-			return $"{Type}, {Description}, Error={Error}";
+			return $"{Type}, {Description}{(Error == null ? null : ", Error=" + Error)}";
 		}
 
 		public void Read(BinaryReader reader)
@@ -121,7 +110,7 @@ namespace Uccs.Net
 
 		public int CalculateSize()
 		{
-			var s = new MemoryStream();
+			var s = new FakeStream();
 			var w = new BinaryWriter(s);
 
 			WriteConfirmed(w);
@@ -138,7 +127,7 @@ namespace Uccs.Net
 		
 		public static Coin CalculateTransactionFee(Coin factor, IEnumerable<Operation> operations)
 		{
-			var s = new MemoryStream();
+			var s = new FakeStream();
 			var w = new BinaryWriter(s);
 
 			foreach(var i in operations)
@@ -149,9 +138,9 @@ namespace Uccs.Net
 			return Chainbase.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
-		public Coin CalculateSpaceFee(Coin factor, int size)
+		public Coin CalculateSpaceFee(Coin factor, int size, byte years)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Chainbase.SpaceFeePerByte;
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Chainbase.SpaceFeePerByte * (1 << years);
 		}
 	}
 
@@ -355,7 +344,7 @@ namespace Uccs.Net
 
 			if(chain.Accounts.Find(To, round.Id) == null)
 			{
-				s.Balance -= CalculateSpaceFee(round.Factor, CalculateSize());
+				s.Balance -= CalculateSpaceFee(round.Factor, CalculateSize(), 10);
 			}
 
 			round.AffectAccount(To).Balance += Amount;

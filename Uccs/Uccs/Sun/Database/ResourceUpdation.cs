@@ -10,13 +10,14 @@ namespace Uccs.Net
 	{
 		public ResourceAddress		Resource { get; set; }
 		public ResourceChanges		Changes	{ get; set; }
+		public byte					Years { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public byte[]				Data { get; set; }
 		public string				Parent;		
 		public Coin					AnalysisFee { get; set; }
 
-		public override bool		Valid => !Flags.HasFlag(ResourceFlags.Child);
-		public override string		Description => $"{Resource}, {Flags}, {(Data != null ? Hex.ToHexString(Data) : null)}";
+		public override bool		Valid => !Flags.HasFlag(ResourceFlags.Child) && !Flags.HasFlag(ResourceFlags.Data);
+		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}{(AnalysisFee == Coin.Zero ? null : ", AnalysisFee=" + AnalysisFee.ToHumanString())}";
 
 		public ResourceUpdation()
 		{
@@ -27,7 +28,13 @@ namespace Uccs.Net
 			Signer = signer;
 			Resource = resource;
 		}
-
+		
+		public void Change(byte years)
+		{
+			Years = years;
+			Changes |= ResourceChanges.Years;
+		}
+		
 		public void Change(ResourceFlags flags)
 		{
 			Flags = flags;
@@ -57,6 +64,7 @@ namespace Uccs.Net
 			Resource = reader.Read<ResourceAddress>();
 			Changes = (ResourceChanges)reader.ReadByte();
 			
+			if(Changes.HasFlag(ResourceChanges.Years))	Years = reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Flags))			Flags = (ResourceFlags)reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Changes.HasFlag(ResourceChanges.Parent))			Parent = reader.ReadUtf8();
@@ -68,6 +76,7 @@ namespace Uccs.Net
 			writer.Write(Resource);
 			writer.Write((byte)Changes);
 
+			if(Changes.HasFlag(ResourceChanges.Years))	writer.Write(Years);
 			if(Changes.HasFlag(ResourceChanges.Flags))			writer.Write((byte)Flags);
 			if(Changes.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
 			if(Changes.HasFlag(ResourceChanges.Parent))			writer.WriteUtf8(Parent);
@@ -93,6 +102,18 @@ namespace Uccs.Net
 			var a = round.AffectAuthor(Resource.Author);
 			var r = a.AffectResource(Resource);
 
+			if(Changes.HasFlag(ResourceChanges.Years))
+			{
+				if(r.Expiration > round.ConfirmedTime)
+				{
+					Error = "Renewal is allowed after current expiration only";
+					return;
+				}
+
+				r.Expiration += ChainTime.FromYears(Years);
+				round.AffectAccount(Signer).Balance -= CalculateSpaceFee(round.Factor, CalculateSize(), Years);
+			}
+
 			if(Changes.HasFlag(ResourceChanges.Parent))
 			{
 				if(e.Flags.HasFlag(ResourceFlags.Child)) /// remove from existing parent
@@ -116,14 +137,30 @@ namespace Uccs.Net
 
 			if(Changes.HasFlag(ResourceChanges.Flags))
 			{
-				r.Flags = r.Flags & ResourceFlags.Child | Flags & ~ResourceFlags.Child;
+				r.Flags = r.Flags & ResourceFlags.Unchangable | Flags & ~ResourceFlags.Unchangable;
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Data))
 			{
-				r.Data = Data;
+				if(Data != null && Data.Length > 0)
+				{
+					r.Flags |= ResourceFlags.Data;
+					r.Data = Data;
 
-				round.AffectAccount(Signer).Balance -= CalculateSpaceFee(round.Factor, (Data != null ? Data.Length : 0) - (r.Data != null ? r.Data.Length : 0));
+					var d = Data.Length - r.Reserved;
+	
+					if(d > 0) /// reduce period if data size is greater then existing one
+					{
+						//long s = CalculateSize();
+						//r.Expiration = new ChainTime(r.Expiration.Ticks - ChainTime.TicksFromYears(r.LastRenewalYears) + ChainTime.TicksFromYears(r.LastRenewalYears) * s / (s + d));
+						
+						r.Reserved += (short)d;
+	
+						round.AffectAccount(Signer).Balance -= CalculateSpaceFee(round.Factor, d, r.LastRenewalYears);
+					}
+				} 
+				else
+					r.Flags &= ~ResourceFlags.Data;
 			}
 
 			if(Changes.HasFlag(ResourceChanges.AnalysisFee))
@@ -135,7 +172,7 @@ namespace Uccs.Net
 					r.AnalysisStage = AnalysisStage.Pending;
 					r.AnalysisFee = AnalysisFee;
 					r.RoundId = round.Id;
-					r.AnalysisQuorumRid = 0;
+					r.AnalysisHalfVotingRid = 0;
 				}
 			}
 		}

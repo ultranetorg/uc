@@ -9,33 +9,37 @@ namespace Uccs.Net
 	[Flags]
 	public enum ResourceFlags : byte
 	{
-		Null, 
-		Sealed		= 0b0_0000_001, 
-		Deprecated	= 0b0_0000_010, 
-		Child		= 0b0_0000_100, 
+		Null		= 0, 
+		Sealed		= 0b0000_0001, 
+		Deprecated	= 0b0000_0010, 
+		Child		= 0b0000_0100, 
+		Data		= 0b0000_1000, 
 		
-		DataMask	= 0b0_1111_000,
-		Empty		= 0b0_0001_000,
-		Data		= 0b0_0010_000,
-		Directory	= 0b0_0011_000, 
-		Package		= 0b0_0100_000, 
-		IP4Address	= 0b0_0101_000, 
-		IP6Address	= 0b0_0110_000, 
-		Uri			= 0b0_0111_000, 
-		Redirect	= 0b0_1000_000,
-						
-		//Analysable	= 0b1_0000_000, 
+		NoType		= 0b0000_0000,
+		Directory	= 0b0001_0000, 
+		Package		= 0b0010_0000, 
+		IP4Address	= 0b0011_0000, 
+		IP6Address	= 0b0100_0000, 
+		Uri			= 0b0101_0000, 
+		Redirect	= 0b0110_0000,
+
+		Unchangable	= 0b0000_1100, 
 	}
 
 	public class Resource : IBinarySerializable
 	{
+		public const short		DataLengthMax = 1024;
+
 		public int				Id { get; set; }
 		public ResourceAddress	Address { get; set; }
+		public ChainTime		Expiration { get; set; }
+		public byte				LastRenewalYears { get; set; }
 		public ResourceFlags	Flags { get; set; }
+		public short			Reserved { get; set; }
 		public byte[]			Data { get; set; }
 		public AnalysisStage	AnalysisStage { get; set; }
 		public Coin				AnalysisFee { get; set; }
-		public int				AnalysisQuorumRid { get; set; }
+		public int				AnalysisHalfVotingRid { get; set; }
 		public int				RoundId { get; set; }
 		public byte				Good { get; set; }
 		public byte				Bad { get; set; }
@@ -48,13 +52,16 @@ namespace Uccs.Net
 
 		public Resource Clone()
 		{
-			return new() {	Address	= Address, 
-							Id = Id,
+			return new() {	Id = Id,
+							Address	= Address, 
+							Expiration = Expiration,
+							LastRenewalYears = LastRenewalYears,
 							Flags = Flags,
+							Reserved = Reserved,
 							Data = Data,
 							AnalysisStage = AnalysisStage,
 							AnalysisFee = AnalysisFee,
-							AnalysisQuorumRid = AnalysisQuorumRid,
+							AnalysisHalfVotingRid = AnalysisHalfVotingRid,
 							RoundId = RoundId,
 							Good = Good,
 							Bad = Bad,
@@ -65,19 +72,22 @@ namespace Uccs.Net
 		{
 			writer.Write7BitEncodedInt(Id);
 			writer.Write((byte)Flags);
+			writer.Write(Expiration);
+			writer.Write(LastRenewalYears);
+			writer.Write(Reserved);
 			
-			if(!Flags.HasFlag(ResourceFlags.Empty))
+			if(Flags.HasFlag(ResourceFlags.Data))
 			{
 				writer.WriteBytes(Data);
 			}
 
 			writer.Write((byte)AnalysisStage);
 
-			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.QuorumReached)
+			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
 			{
 				writer.Write(AnalysisFee);
 				writer.Write7BitEncodedInt(RoundId);
-				writer.Write7BitEncodedInt(AnalysisQuorumRid);
+				writer.Write7BitEncodedInt(AnalysisHalfVotingRid);
 			}
 
 			if(AnalysisStage == AnalysisStage.Finished)
@@ -91,21 +101,24 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Id		= reader.Read7BitEncodedInt();
-			Flags	= (ResourceFlags)reader.ReadByte();
+			Id					= reader.Read7BitEncodedInt();
+			Flags				= (ResourceFlags)reader.ReadByte();
+			Expiration			= reader.ReadTime();
+			LastRenewalYears	= reader.ReadByte();
+			Reserved			= reader.ReadInt16();
 			
-			if(!Flags.HasFlag(ResourceFlags.Empty))
+			if(Flags.HasFlag(ResourceFlags.Data))
 			{
 				Data = reader.ReadBytes();
 			}
 
 			AnalysisStage = (AnalysisStage)reader.ReadByte();
 			
-			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.QuorumReached)
+			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
 			{
 				AnalysisFee = reader.ReadCoin();
 				RoundId = reader.Read7BitEncodedInt();
-				AnalysisQuorumRid = reader.Read7BitEncodedInt();
+				AnalysisHalfVotingRid = reader.Read7BitEncodedInt();
 			}
 
 			if(AnalysisStage == AnalysisStage.Finished)

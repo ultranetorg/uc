@@ -31,7 +31,7 @@ namespace Uccs.Net
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			BailMin = 1000;
 		public static readonly Coin			TransactionFeePerByte	= new Coin(0.000001);
-		public static readonly Coin			SpaceFeePerByte			= new Coin(0.001);
+		public static readonly Coin			SpaceFeePerByte			= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
 
@@ -302,20 +302,6 @@ namespace Uccs.Net
 			{
 				foreach(var t in b.Transactions)
 					t.Placing = PlacingStage.Placed;
-
-				//if(execute)
-	 			//	for(int i = r.Id; i <= LastPayloadRound.Id; i++)
-	 			//	{
-	 			//		var ir = GetRound(i);
-	 			//			
-	 			//		if(ir.Payloads.Any() && ir.Previous != null)
-				//		{
-				//			ir.Time = CalculateTime(ir, ir.Unique);
-				//			Execute(ir, ir.Payloads, null);
-				//		}
-	 			//		else
-	 			//			break;
-	 			//	}
 			}
 	
 			if(r.FirstArrivalTime == DateTime.MaxValue)
@@ -654,14 +640,6 @@ namespace Uccs.Net
 													.Where(x => round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
 
-				//round.ConfirmedHubJoiners		= gu.SelectMany(i => i.HubJoiners).Distinct()
-				//									.Where(i => !round.Hubs.Any(j => j.Account == i) && gu.Count(b => b.HubJoiners.Contains(i)) >= gq)
-				//									.OrderBy(i => i).ToArray();
-				//
-				//round.ConfirmedHubLeavers		= gu.SelectMany(i => i.HubLeavers).Distinct()
-				//									.Where(i => round.Hubs.Any(j => j.Account == i) && gu.Count(b => b.HubLeavers.Contains(i)) >= gq)
-				//									.OrderBy(i => i).ToArray();
-				
 				round.ConfirmedAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
 													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Chainbase.MembersMax * 2/3)
 													.OrderBy(i => i).ToArray();
@@ -695,7 +673,7 @@ namespace Uccs.Net
 																
 															var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Resource == i.Resource)).Where(i => i != null);
 
-															if(v.Count() == aq || (e.AnalysisStage == AnalysisStage.QuorumReached && e.RoundId - e.AnalysisQuorumRid + (e.RoundId - e.AnalysisQuorumRid)/2 == round.Id))
+															if(v.Count() == aq || (e.AnalysisStage == AnalysisStage.HalfVotingReached && e.RoundId - e.AnalysisHalfVotingRid + (e.RoundId - e.AnalysisHalfVotingRid)/2 == round.Id))
 															{ 
 																var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
 																var inf = v.Count(i => i.Result == AnalysisResult.Infected);
@@ -903,7 +881,7 @@ namespace Uccs.Net
 				}
 				else if(e.AnalysisStage == AnalysisStage.Pending && i.QuorumReached)
 				{
-					e.AnalysisStage = AnalysisStage.QuorumReached;
+					e.AnalysisStage = AnalysisStage.HalfVotingReached;
 				}
 			}
 
@@ -996,21 +974,7 @@ namespace Uccs.Net
 
 			Confirmed?.Invoke(round);
 		}
-/*
-		public ProductEntry FindProduct(ProductAddress product, int ridmax)
-		{
-			if(ridmax >= LastCommittedRound.Id)
-				throw new IntegrityException("maxrid works inside pool only");
 
-			foreach(var r in Tail.Where(i => i.Id <= ridmax))
-				if(r.AffectedProducts.ContainsKey(product))
-					return r.AffectedProducts[product];
-
-			var e = Products.FindEntry(product);
-
-			return e;
-		}
-*/
 		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
 			foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
@@ -1039,35 +1003,6 @@ namespace Uccs.Net
 			var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
 			return op == null ? ops : ops.Where(op);
 		}
-
-// 		public Block FindLastBlock(Func<Block, bool> f, int maxrid = int.MaxValue)
-// 		{
-// 			for(int i = LastNonEmptyRound.Id; i >= maxrid; i--)
-// 			{
-// 				var r = FindRound(i);
-// 
-// 				if(r != null)
-// 				{
-// 					foreach(var b in r.Blocks)
-// 						if(f(b))
-// 							return b;
-// 				}
-// 			}
-// 			//foreach(var r in Rounds.Where(i => i.Id <= maxrid))
-// 			//	foreach(var b in r.Blocks)
-// 			//		if(f(b))
-// 			//			return b;
-// 
-// 			return null;
-// 		}
-
-// 		public IEnumerable<Block> FindLastBlocks(Func<Block, bool> f, int maxrid = int.MaxValue)
-// 		{
-// 			foreach(var r in Tail.Where(i => i.Id <= maxrid))
-// 				foreach(var b in r.Blocks)
-// 					if(f(b))
-// 						yield return b;
-// 		}
 
 		public IEnumerable<Resource> QueryRelease(string query)
 		{

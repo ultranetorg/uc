@@ -63,7 +63,12 @@ namespace Uccs.Net
 
 		public static ChainTime FromYears(long years)
 		{
-			return new ChainTime(TimeSpan.FromDays(365).Ticks / Divider * years);
+			return new ChainTime(TicksFromYears(years));
+		}
+
+		public static long TicksFromYears(long years)
+		{
+			return TimeSpan.FromDays(365).Ticks / Divider * years;
 		}
 
 		public void Read(BinaryReader r)

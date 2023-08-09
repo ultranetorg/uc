@@ -18,7 +18,7 @@ namespace Uccs.Net
 	{
 		NotRequested = 0,  
 		Pending,
-		QuorumReached,
+		HalfVotingReached,
 		Finished,
 	}
 

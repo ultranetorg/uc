@@ -27,11 +27,13 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
+				case "c" : 
 				case "create" : 
 				{	
 					var r =	new ResourceCreation(	GetPrivate("by", "password"), 
 													ResourceAddress.Parse(GetString("address")),
-													Enum.Parse<ResourceFlags>(GetString("flags")),
+													byte.Parse(GetString("years")),
+													Args.Has("flags")		? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.Null,
 													Args.Has("data")		? GetHexBytes("data") : null,
 													Args.Has("parent")		? GetString("parent") : null, 
 													Args.Has("analysisfee") ? Coin.ParseDecimal(Args.GetString("analysisfee")) : Coin.Zero);
@@ -39,6 +41,7 @@ namespace Uccs.Sun.CLI
 					return Core.Enqueue(r, GetAwaitStage(), Workflow);
 				}
 
+				case "u" : 
 				case "update" : 
 				{	
 					var r =	new ResourceUpdation(GetPrivate("by", "password"), ResourceAddress.Parse(GetString("address")));
@@ -51,7 +54,7 @@ namespace Uccs.Sun.CLI
 					return Core.Enqueue(r, GetAwaitStage(), Workflow);
 				}
 
-
+				case "s" :
 		   		case "status" :
 				{
 					try
@@ -59,6 +62,7 @@ namespace Uccs.Sun.CLI
 						var r = Core.Call(Role.Base, i => i.FindResource(GetResourceAddress("address")), Workflow);
 	
 						Workflow.Log?.Report(this, "   " + r.Resource.Flags);
+						Workflow.Log?.Report(this, "   " + r.Resource.Expiration.ToString());
 						
 						if(r.Resource.Data != null)
 							Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
