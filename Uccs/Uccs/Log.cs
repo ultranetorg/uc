@@ -93,12 +93,12 @@ namespace Uccs
 
 		public void Report(string a)
 		{
-			Report(null, null, Severity.Warning, new[]{a});
+			Report(null, null, Severity.Info, new[] {a});
 		}
 
-		public void Report(object sender, string subject)
+		public void Report(object sender, string a)
 		{
-			Report(sender, subject, Severity.Info, null);
+			Report(sender, null, Severity.Info, new[] {a});
 		}
 
 		public void Report(object sender, string subject, string a)

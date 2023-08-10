@@ -71,11 +71,11 @@ namespace Uccs.Sun.CLI
 
 		   		case "overview" :
 				{
-					var i = Core.Connect(Role.Base, null, Workflow).GetAuthorInfo(GetString("name"));
+					var rp = Core.Call(Role.Base, i => i.GetAuthorInfo(GetString("name")), Workflow);
 
 					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 
-					Dump(i.Entry.ToXon(new XonTextValueSerializator()));
+					Dump(rp.Entry);
 										
 					return null;
 				}

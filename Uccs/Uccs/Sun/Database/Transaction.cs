@@ -80,7 +80,7 @@ namespace Uccs.Net
 			w.Write(Signer);
 			w.Write7BitEncodedInt(Id);
 			w.Write(Operations, i => {
-										w.Write((byte)i.Type); 
+										w.Write((byte)i.Class); 
 										i.Write(w); 
 									 });
  		}
@@ -90,11 +90,11 @@ namespace Uccs.Net
 			Signer		= reader.ReadAccount();
 			Id			= reader.Read7BitEncodedInt();
  			Operations	= reader.ReadList(() => {
- 												var o = Operation.FromType((Operations)reader.ReadByte());
- 												o.Transaction = this;
- 												o.Read(reader); 
- 												return o; 
- 											});
+ 													var o = Operation.FromType((OperationClass)reader.ReadByte());
+ 													o.Transaction = this;
+ 													o.Read(reader); 
+ 													return o; 
+ 												});
 			
 			foreach(var i in Operations)
 				i.Signer = Signer;
@@ -106,7 +106,7 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(Id);
 			writer.Write7BitEncodedInt(Expiration);
 			writer.Write(Operations, i => {
-										writer.Write((byte)i.Type); 
+										writer.Write((byte)i.Class); 
 										i.Write(writer); 
 									 });
  		}
@@ -117,7 +117,7 @@ namespace Uccs.Net
 			Id			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
  			Operations	= reader.ReadList(() => {
- 													var o = Operation.FromType((Operations)reader.ReadByte());
+ 													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													//o.Placing		= PlacingStage.Confirmed;
  													o.Transaction	= this;
  													o.Read(reader); 
@@ -137,7 +137,7 @@ namespace Uccs.Net
 			writer.Write(Generator);
 			writer.Write7BitEncodedInt(Expiration);
 			writer.Write(Operations, i =>	{
-												writer.Write((byte)i.Type); 
+												writer.Write((byte)i.Class); 
 												i.Write(writer); 
 											});
 		}
@@ -149,7 +149,7 @@ namespace Uccs.Net
 			Generator	= reader.ReadAccount();
 			Expiration	= reader.Read7BitEncodedInt();
 			Operations	= reader.ReadList(() => {
-													var o = Operation.FromType((Operations)reader.ReadByte());
+													var o = Operation.FromType((OperationClass)reader.ReadByte());
 													o.Transaction = this;
 													o.Read(reader); 
 													return o; 

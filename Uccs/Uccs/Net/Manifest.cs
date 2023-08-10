@@ -85,11 +85,9 @@ namespace Uccs.Net
 	{
 		public PackageAddress			Address { get; set; }
 		public byte[]					CompleteHash { get; set; }
-		public long						CompleteLength { get; set; }
 		public Dependency[]				CompleteDependencies { get; set; }
 
 		public byte[]					IncrementalHash { get; set; }
-		public long						IncrementalLength { get; set; }
 		public Version					IncrementalMinimalVersion { get; set; }
 		public Dependency[]				AddedDependencies { get; set; }
 		public Dependency[]				RemovedDependencies { get; set; }
@@ -134,11 +132,9 @@ namespace Uccs.Net
 		{
 			Zone						= zone;
 			CompleteHash				= completehash;
-			CompleteLength				= completelength;
 			CompleteDependencies		= completecoredependencies?.ToArray() ?? new Dependency[]{};
 			
 			IncrementalHash				= incrementalhash;
-			IncrementalLength			= incrementallength;
 			IncrementalMinimalVersion	= incrementalminimalversion;
 
 			AddedDependencies			= addedcoredependencies?.ToArray() ?? new Dependency[]{};
@@ -152,7 +148,6 @@ namespace Uccs.Net
 			if(CompleteHash != null)
 			{
 				d.Add("CompleteHash").Value = CompleteHash;
-				d.Add("CompleteLength").Value = CompleteLength;
 	
 				if(CompleteDependencies.Any())
 				{
@@ -168,7 +163,6 @@ namespace Uccs.Net
 			if(IncrementalHash != null)
 			{
 				d.Add("IncrementalHash").Value = IncrementalHash;
-				d.Add("IncrementalLength").Value = IncrementalLength;
 				d.Add("IncrementalMinimalVersion").Value = IncrementalMinimalVersion;
 
 				if(AddedDependencies.Any())
@@ -202,7 +196,6 @@ namespace Uccs.Net
 			if(CompleteHash != null)
 			{
 				w.Write(CompleteHash);
-				w.Write7BitEncodedInt64(CompleteLength);
 				w.Write(CompleteDependencies);
 			}
 							
@@ -211,7 +204,6 @@ namespace Uccs.Net
 			if(IncrementalHash != null)
 			{
 				w.Write(IncrementalHash);
-				w.Write7BitEncodedInt64(IncrementalLength);
 				w.Write(IncrementalMinimalVersion);
 
 				w.Write(AddedDependencies);
@@ -224,14 +216,12 @@ namespace Uccs.Net
 			if(r.ReadBoolean())
 			{
 				CompleteHash = r.ReadSha3();
-				CompleteLength = r.Read7BitEncodedInt64();
 				CompleteDependencies = r.ReadArray<Dependency>();
 			}
 
 			if(r.ReadBoolean())
 			{
 				IncrementalHash = r.ReadSha3();
-				IncrementalLength = r.Read7BitEncodedInt64();
 				IncrementalMinimalVersion = r.Read<Version>();
 				AddedDependencies = r.ReadArray<Dependency>();
 				RemovedDependencies = r.ReadArray<Dependency>();

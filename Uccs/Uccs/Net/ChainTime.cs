@@ -43,7 +43,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return (new DateTime(Ticks * Divider)).ToString(DateFormat);
+			return Ticks == -1 ? "" : (new DateTime(Ticks * Divider)).ToString(DateFormat);
 		}
 
 		public static ChainTime Parse(string v)

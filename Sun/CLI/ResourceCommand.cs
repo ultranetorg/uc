@@ -34,6 +34,7 @@ namespace Uccs.Sun.CLI
 													ResourceAddress.Parse(GetString("address")),
 													byte.Parse(GetString("years")),
 													Args.Has("flags")		? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.Null,
+													Args.Has("type")		? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.Null,
 													Args.Has("data")		? GetHexBytes("data") : null,
 													Args.Has("parent")		? GetString("parent") : null, 
 													Args.Has("analysisfee") ? Coin.ParseDecimal(Args.GetString("analysisfee")) : Coin.Zero);
@@ -46,10 +47,13 @@ namespace Uccs.Sun.CLI
 				{	
 					var r =	new ResourceUpdation(GetPrivate("by", "password"), ResourceAddress.Parse(GetString("address")));
 
+					if(Args.Has("years"))		r.Change(byte.Parse(GetString("years")));
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
+					if(Args.Has("type"))		r.Change(Enum.Parse<ResourceType>(GetString("type")));
 					if(Args.Has("data"))		r.Change(GetHexBytes("data"));
 					if(Args.Has("parent"))		r.Change(GetString("parent"));
 					if(Args.Has("analysisfee")) r.Change(Coin.ParseDecimal(Args.GetString("analysisfee")));
+					if(Args.Has("recursive"))	r.ChangeRecursive();
 					
 					return Core.Enqueue(r, GetAwaitStage(), Workflow);
 				}
@@ -61,17 +65,20 @@ namespace Uccs.Sun.CLI
 					{
 						var r = Core.Call(Role.Base, i => i.FindResource(GetResourceAddress("address")), Workflow);
 	
-						Workflow.Log?.Report(this, "   " + r.Resource.Flags);
-						Workflow.Log?.Report(this, "   " + r.Resource.Expiration.ToString());
-						
-						if(r.Resource.Data != null)
-							Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
+						Dump(r.Resource);
+						//Workflow.Log?.Report(this, GetString("address"));
+						//Workflow.Log?.Report(this, "   " + r.Resource.Flags);
+						//Workflow.Log?.Report(this, "   " + r.Resource.Type);
+						//Workflow.Log?.Report(this, "   " + r.Resource.Expiration);
+						//
+						//if(r.Resource.Data != null)
+						//	Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
 
 						var e = Core.Call(Role.Base, i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
 
 						if(e.Resources.Any())
 						{
-							Workflow.Log?.Report(this, "   Subresources:");
+							//Workflow.Log?.Report(this, "   Subresources:");
 
 							foreach(var i in e.Resources)
 							{

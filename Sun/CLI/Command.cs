@@ -8,6 +8,7 @@ using System.Threading;
 using System;
 using Org.BouncyCastle.Utilities.Encoders;
 using Uccs.Net;
+using System.Collections;
 
 namespace Uccs.Sun.CLI
 {
@@ -131,34 +132,31 @@ namespace Uccs.Sun.CLI
 							.Wait();
 		}
 
-		//protected object Send(Func<object> create)
-		//{
-		//	var obj = create();
-		//
-		//	if(obj is Operation o)
-		//	{
-		//		if(Args.Has("await"))
-		//			Wait(() =>	{
-		//							switch(Args.GetString("await"))
-		//							{
-		//								case "accepted" :			return o.Placing < PlacingStage.Accepted;
-		//								case "placed" :				return o.Placing < PlacingStage.Placed;
-		//								case "confirmed" :			return o.Placing != PlacingStage.Confirmed;
-		//								case "failedornotfound" :	return o.Placing != PlacingStage.FailedOrNotFound;
-		//							}
-		//											
-		//							throw new SyntaxException("Unknown awaiting stage");
-		//						});
-		//		else
-		//			Wait(() => o.Placing < PlacingStage.Placed);
-		//	}
-		//
-		//	return obj;
-		//}
+		public void Dump(object o)
+		{
+			void save(string name, Type type, object value, int tab)
+			{
+				if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
+				{
+					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {{{(value as ICollection)?.Count}}}");
+				
+					//if(value is ICollection c)
+					//	foreach(var i in c)
+					//		save(i.GetType().Name, i.GetType(), i, tab + 1);
+				}
+				else
+					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {value}");
+			}
+
+			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+			{
+				save(i.Name, i.PropertyType, i.GetValue(o), 1);
+			}
+		}
 
 		protected void Dump(XonDocument document)
 		{
-			document.Dump((n, l) => Workflow.Log?.Report(this, null, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
+			document.Dump((n, l) => Workflow.Log?.Report(this, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
 		}
 
 		public PlacingStage GetAwaitStage()

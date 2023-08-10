@@ -16,17 +16,17 @@ namespace Uccs.Net
 		public const int				ExclusiveLengthMax = 4;
 		public const int				NameLengthMin = 2;
 
-		public string					Name;
-		public string					Title;
-		public AccountAddress			Owner;
-		public byte						Years;
-		public ChainTime				RegistrationTime;
-		public ChainTime				FirstBidTime = ChainTime.Empty;
-		public AccountAddress			LastWinner;
-		public Coin						LastBid;
-		public ChainTime				LastBidTime;
-		public Resource[]				Resources = {};
-		public int						NextResourceId;
+		public string					Name { get; set; }
+		public string					Title { get; set; }
+		public AccountAddress			Owner { get; set; }
+		public byte						Years { get; set; }
+		public ChainTime				RegistrationTime { get; set; }
+		public ChainTime				FirstBidTime { get; set; } = ChainTime.Empty;
+		public AccountAddress			LastWinner { get; set; }
+		public Coin						LastBid { get; set; }
+		public ChainTime				LastBidTime { get; set; }
+		public Resource[]				Resources { get; set; } = {};
+		public int						NextResourceId { get; set; }
 
 		public static bool				IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
 
@@ -94,5 +94,36 @@ namespace Uccs.Net
 				Years				= reader.ReadByte();
 			}
 		}
+
+ 		public XonDocument ToXon(IXonValueSerializator serializator)
+ 		{
+ 			var d = new XonDocument(serializator);
+ 
+ 			if(IsExclusive(Name))
+ 			{
+ 				if(LastWinner != null)
+ 				{
+ 					var p = d.Add("Auction");
+ 
+ 					p.Add("FirstBidTime").Value = FirstBidTime;
+ 					p.Add("LastWinner").Value = LastWinner;
+ 					p.Add("LastBid").Value = LastBid;
+ 					p.Add("LastBidTime").Value = LastBidTime;
+ 				}
+ 			}
+ 
+ 			if(Owner != null)
+ 			{
+ 				var p = d.Add("Registration");
+ 
+ 				p.Add("Owner").Value = Owner;
+ 				p.Add("Title").Value = Title;
+ 				p.Add("RegistrationTime").Value = RegistrationTime;
+ 				p.Add("Years").Value = Years;
+ 			}
+ 
+ 			return d;
+ 		}
+
 	}
 }

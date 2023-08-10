@@ -10,20 +10,40 @@ namespace Uccs.Net
 	public enum ResourceFlags : byte
 	{
 		Null		= 0, 
-		Sealed		= 0b0000_0001, 
-		Deprecated	= 0b0000_0010, 
-		Child		= 0b0000_0100, 
-		Data		= 0b0000_1000, 
-		
-		NoType		= 0b0000_0000,
-		Directory	= 0b0001_0000, 
-		Package		= 0b0010_0000, 
-		IP4Address	= 0b0011_0000, 
-		IP6Address	= 0b0100_0000, 
-		Uri			= 0b0101_0000, 
-		Redirect	= 0b0110_0000,
+		Sealed		= 0b________1, 
+		Deprecated	= 0b_______10, 
+		Child		= 0b______100, 
+		Data		= 0b_____1000, 
 
-		Unchangable	= 0b0000_1100, 
+		Unchangables= 0b0000_1100, 
+	}
+
+	public enum ResourceType : short
+	{
+		Null		= 0,
+		Redirect	= 1,
+		IP4Address	= 2, 
+		IP6Address	= 3, 
+		Uri			= 4,
+				
+		Directory	= 100, 
+		Package		= 101, 
+
+		FirstMime	= 1000, 
+	}
+
+	[Flags]
+	public enum ResourceChanges : ushort
+	{
+		Years			= 0b_______________1,
+		Flags			= 0b______________10,
+		Type			= 0b_____________100,
+		Data			= 0b____________1000,
+		Parent			= 0b___________10000,
+		AnalysisFee		= 0b__________100000,
+		AddPublisher	= 0b_________1000000,
+		RemovePublisher	= 0b________10000000,
+		Recursive		= 0b1000000000000000,
 	}
 
 	public class Resource : IBinarySerializable
@@ -35,6 +55,7 @@ namespace Uccs.Net
 		public ChainTime		Expiration { get; set; }
 		public byte				LastRenewalYears { get; set; }
 		public ResourceFlags	Flags { get; set; }
+		public ResourceType		Type { get; set; }
 		public short			Reserved { get; set; }
 		public byte[]			Data { get; set; }
 		public AnalysisStage	AnalysisStage { get; set; }
@@ -47,7 +68,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Id}, {Address}, [{Flags}], Resources={{{Resources.Length}}}";
+			return $"{Id}, {Address}, {Expiration}, {LastRenewalYears}, [{Flags}], {Type}, Reserved={Reserved}, Data={(Data == null ? null : ('[' + Data.Length + ']'))} Resources={{{Resources.Length}}}";
 		}
 
 		public Resource Clone()
@@ -57,6 +78,7 @@ namespace Uccs.Net
 							Expiration = Expiration,
 							LastRenewalYears = LastRenewalYears,
 							Flags = Flags,
+							Type = Type,
 							Reserved = Reserved,
 							Data = Data,
 							AnalysisStage = AnalysisStage,
@@ -74,7 +96,8 @@ namespace Uccs.Net
 			writer.Write((byte)Flags);
 			writer.Write(Expiration);
 			writer.Write(LastRenewalYears);
-			writer.Write(Reserved);
+			writer.Write7BitEncodedInt((int)Type);
+			writer.Write7BitEncodedInt(Reserved);
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 			{
@@ -105,7 +128,8 @@ namespace Uccs.Net
 			Flags				= (ResourceFlags)reader.ReadByte();
 			Expiration			= reader.ReadTime();
 			LastRenewalYears	= reader.ReadByte();
-			Reserved			= reader.ReadInt16();
+			Type				= (ResourceType)reader.Read7BitEncodedInt();
+			Reserved			= (short)reader.Read7BitEncodedInt();
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 			{

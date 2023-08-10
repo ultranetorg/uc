@@ -6,45 +6,35 @@ using System.Numerics;
 
 namespace Uccs.Net
 {
-	[Flags]
-	public enum ResourceChanges : byte
-	{
-		Years			= 0b________1,
-		Flags			= 0b_______10,
-		Data			= 0b______100,
-		Parent			= 0b_____1000,
-		AnalysisFee		= 0b____10000,
-		AddPublisher	= 0b___100000,
-		RemovePublisher	= 0b__1000000,
-	}
-
 	public class ResourceCreation : Operation
 	{
 		public ResourceAddress		Resource { get; set; }
 		public ResourceChanges		Initials { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public byte					Years { get; set; }
+		public ResourceType			Type { get; set; }
 		public byte[]				Data { get; set; }
-		public string				Parent;		
+		public string				Parent { get; set; }
 		public Coin					AnalysisFee { get; set; }
 
-		public override bool		Valid => (Flags & ResourceFlags.Unchangable) == 0 && 
+		public override bool		Valid => (Flags & ResourceFlags.Unchangables) == 0 && 
 											 (!Initials.HasFlag(ResourceChanges.Data) || Initials.HasFlag(ResourceChanges.Data) && Data.Length <= Uccs.Net.Resource.DataLengthMax);
 		
-		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], Years={Years}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}{(AnalysisFee == Coin.Zero ? null : ", AnalysisFee=" + AnalysisFee.ToHumanString())}";
+		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], Years={Years}, {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}{(AnalysisFee == Coin.Zero ? null : ", AnalysisFee=" + AnalysisFee.ToHumanString())}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(AccountAddress signer, ResourceAddress resource, byte years, ResourceFlags flags, byte[] data, string parent, Coin analysisfee)
+		public ResourceCreation(AccountAddress signer, ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent, Coin analysisfee)
 		{
 			Signer = signer;
 			Resource = resource;
 			Years = years;
 			Flags = flags;
+			Type = type;
 
-			Initials |= (ResourceChanges.Years|ResourceChanges.Flags);
+			Initials |= (ResourceChanges.Years|ResourceChanges.Flags|ResourceChanges.Type);
 
 			if(data != null && data.Length > 0)
 			{
@@ -71,6 +61,7 @@ namespace Uccs.Net
 			Initials	= (ResourceChanges)reader.ReadByte();
 			Years		= reader.ReadByte();
 			Flags		= (ResourceFlags)reader.ReadByte();
+			Type		= (ResourceType)reader.Read7BitEncodedInt();
 
 			if(Initials.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Initials.HasFlag(ResourceChanges.Parent))		Parent = reader.ReadUtf8();
@@ -83,6 +74,7 @@ namespace Uccs.Net
 			writer.Write((byte)Initials);
 			writer.Write(Years);
 			writer.Write((byte)Flags);
+			writer.Write7BitEncodedInt((short)Type);
 
 			if(Initials.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
 			if(Initials.HasFlag(ResourceChanges.Parent))		writer.WriteUtf8(Parent);
@@ -116,7 +108,8 @@ namespace Uccs.Net
 			a = round.AffectAuthor(Resource.Author);
 			var r = a.AffectResource(Resource);
 
-			r.Flags = r.Flags & ResourceFlags.Unchangable | Flags & ~ResourceFlags.Unchangable;
+			r.Flags = r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
+			r.Type = Type;
 
 			r.Expiration = round.ConfirmedTime + ChainTime.FromYears(Years);
 			round.AffectAccount(Signer).Balance -= CalculateSpaceFee(round.Factor, CalculateSize(), Years);

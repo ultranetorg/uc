@@ -19,6 +19,6 @@
 	
 	public class AuthorResponse : RdcResponse
 	{
-		public AuthorEntry Entry {get; set;}
+		public Author Entry {get; set;}
 	}
 }

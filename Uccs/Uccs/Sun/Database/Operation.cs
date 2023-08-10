@@ -19,7 +19,7 @@ namespace Uccs.Net
 		public Coin	Amount;
 	}
 
-	public enum Operations
+	public enum OperationClass
 	{
 		Null = 0, 
 		CandidacyDeclaration, 
@@ -46,7 +46,7 @@ namespace Uccs.Net
 		public const string		NotOwnerOfAuthor = "The signer does not own the Author";
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
 
-		public Operations		Type => Enum.Parse<Operations>(GetType().Name);
+		public OperationClass	Class => Enum.Parse<OperationClass>(GetType().Name);
 
 		public Operation()
 		{
@@ -56,7 +56,7 @@ namespace Uccs.Net
 		protected abstract void WriteConfirmed(BinaryWriter w);
 		protected abstract void ReadConfirmed(BinaryReader r);
 
-		public static Operation FromType(Operations type)
+		public static Operation FromType(OperationClass type)
 		{
 			try
 			{
@@ -70,7 +70,7 @@ namespace Uccs.Net
 		 
 		public override string ToString()
 		{
-			return $"{Type}, {Description}{(Error == null ? null : ", Error=" + Error)}";
+			return $"{Class}, {Description}{(Error == null ? null : ", Error=" + Error)}";
 		}
 
 		public void Read(BinaryReader reader)
@@ -447,7 +447,7 @@ namespace Uccs.Net
 			Error = "Bid too low or auction is over";
 		}
 
-		public static bool CanBid(AuthorEntry author, ChainTime time)
+		public static bool CanBid(Author author, ChainTime time)
 		{
 			if(author == null)
 				return true;
@@ -560,7 +560,7 @@ namespace Uccs.Net
 				Error = "Failed";
 		}
 
-		public static bool CanRegister(string name, AuthorEntry a, ChainTime time, IEnumerable<AccountAddress> accounts)
+		public static bool CanRegister(string name, Author a, ChainTime time, IEnumerable<AccountAddress> accounts)
 		{
 			ChainTime sinceauction() => time - a.FirstBidTime;
 			ChainTime sincelastreg() => time - a.RegistrationTime;

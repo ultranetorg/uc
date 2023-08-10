@@ -29,26 +29,26 @@ namespace Uccs
 	{
 		public static readonly XonTextValueSerializator Default = new XonTextValueSerializator();
 
-		public object Set(Xon node, object v)
+		public object Set(Xon node, object val)
 		{
-			if(v == null)
+			if(val == null)
 			{
 				return null;
 			}
 
-			if(v.GetType() == typeof(string))			return v;
-			if(v.GetType() == typeof(byte))				return v.ToString();
-			if(v.GetType() == typeof(int))				return v.ToString();
-			if(v.GetType() == typeof(long))				return v.ToString();
-			if(v.GetType() == typeof(byte[]))			return Hex.ToHexString(v as byte[]);
-			if(v.GetType() == typeof(ResourceAddress))	return v.ToString();
-			if(v.GetType() == typeof(PackageAddress))	return v.ToString();
-			if(v.GetType() == typeof(Version))			return v.ToString();
-			if(v.GetType() == typeof(IPAddress))		return v.ToString();
-			if(v.GetType() == typeof(AccountAddress))	return v.ToString();
-			if(v.GetType() == typeof(ChainTime))		return v.ToString();
-			if(v.GetType() == typeof(Coin))				return ((Coin)v).ToHumanString();
-			if(v.GetType().IsEnum)						return v.ToString();
+			if(val is string s)				return s;
+			if(val is byte b)				return b.ToString();
+			if(val is int i)				return i.ToString();
+			if(val is long l)				return l.ToString();
+			if(val is byte[] ba)			return Hex.ToHexString(ba);
+			if(val is AccountAddress aa)	return aa.ToString();
+			if(val is ResourceAddress ra)	return ra.ToString();
+			if(val is PackageAddress pa)	return pa.ToString();
+			if(val is Version v)			return v.ToString();
+			if(val is IPAddress ip)			return ip.ToString();
+			if(val is ChainTime t)			return t.ToString();
+			if(val is Coin c)				return c.ToHumanString();
+			if(val.GetType().IsEnum)		return val.ToString();
 
 			throw new NotSupportedException();
 		}
@@ -57,18 +57,18 @@ namespace Uccs
 		{
 			var v = value as string;
 
-			if(typeof(O) == typeof(string))			return (O)(object)v;
-			if(typeof(O) == typeof(byte))			return (O)(object)byte.Parse(v);
-			if(typeof(O) == typeof(int))			return (O)(object)int.Parse(v);
-			if(typeof(O) == typeof(long))			return (O)(object)long.Parse(v);
-			if(typeof(O) == typeof(byte[]))			return (O)(object)Hex.Decode(v);
-			if(typeof(O) == typeof(ResourceAddress))return (O)(object)ResourceAddress.Parse(v);
-			if(typeof(O) == typeof(PackageAddress))	return (O)(object)PackageAddress.Parse(v);
-			if(typeof(O) == typeof(Version))		return (O)(object)Version.Parse(v);
-			if(typeof(O) == typeof(IPAddress))		return (O)(object)IPAddress.Parse(v);
-			if(typeof(O) == typeof(ChainTime))		return (O)(object)ChainTime.Parse(v);
-			if(typeof(O) == typeof(Coin))			return (O)(object)Coin.ParseDecimal(v);
-			if(typeof(O).IsEnum)					Enum.Parse(v.GetType(), v); 
+			if(typeof(O) == typeof(string))				return (O)(object)v;
+			if(typeof(O) == typeof(byte))				return (O)(object)byte.Parse(v);
+			if(typeof(O) == typeof(int))				return (O)(object)int.Parse(v);
+			if(typeof(O) == typeof(long))				return (O)(object)long.Parse(v);
+			if(typeof(O) == typeof(byte[]))				return (O)(object)Hex.Decode(v);
+			if(typeof(O) == typeof(ResourceAddress))	return (O)(object)ResourceAddress.Parse(v);
+			if(typeof(O) == typeof(PackageAddress))		return (O)(object)PackageAddress.Parse(v);
+			if(typeof(O) == typeof(Version))			return (O)(object)Version.Parse(v);
+			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(v);
+			if(typeof(O) == typeof(ChainTime))			return (O)(object)ChainTime.Parse(v);
+			if(typeof(O) == typeof(Coin))				return (O)(object)Coin.ParseDecimal(v);
+			if(typeof(O).IsEnum)						Enum.Parse(v.GetType(), v); 
 
 			throw new NotSupportedException();
 		}

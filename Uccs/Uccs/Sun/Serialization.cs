@@ -79,7 +79,7 @@ namespace Uccs.Net
 					return true;
 
 	 			case Operation v:
-	 				writer.Write((byte)v.Type);
+	 				writer.Write((byte)v.Class);
 	 				v.Write(writer);
 					return true;
 
@@ -270,7 +270,7 @@ namespace Uccs.Net
 				else
 				if(type == typeof(Operation) || type.IsSubclassOf(typeof(Operation)))
 				{ 
-					var t = (Operations)reader.ReadByte();
+					var t = (OperationClass)reader.ReadByte();
 					var o = Operation.FromType(t);
 					o.Read(reader);
 					value = o;
