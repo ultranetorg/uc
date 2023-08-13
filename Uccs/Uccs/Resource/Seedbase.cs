@@ -38,7 +38,7 @@ namespace Uccs.Net
 			Core = core;
 		}
 
-		List<Seed> GetSeeders(byte[] release)
+		List<Seed> GetSeeds(byte[] release)
 		{
  			if(!Releases.ContainsKey(release))
  				return Releases[release] = new();
@@ -50,7 +50,7 @@ namespace Uccs.Net
 		{
 			foreach(var i in packages)
 			{
-				var ss = GetSeeders(i.Hash);
+				var ss = GetSeeds(i.Hash);
 	
 				var s = ss.Find(i => i.IP.Equals(ip));
 

@@ -30,6 +30,7 @@ namespace Uccs.Net
 		public static bool					operator!= (ChainTime a, ChainTime b) => a.Ticks != b.Ticks;
 
 		public string						ToString(string format) => Ticks >= 0 ? (new DateTime(Ticks * Divider)).ToString(format) : "~";
+		public static ChainTime				Max(ChainTime a, ChainTime b) => a > b ? a : b;
 
 		public ChainTime()
 		{
@@ -61,9 +62,14 @@ namespace Uccs.Net
 			return Ticks.GetHashCode();
 		}
 
-		public static ChainTime FromYears(long years)
+		public static ChainTime FromYears(int years)
 		{
 			return new ChainTime(TicksFromYears(years));
+		}
+
+		public static ChainTime FromDays(int daye)
+		{
+			return new ChainTime(TimeSpan.FromDays(daye).Ticks / Divider);
 		}
 
 		public static long TicksFromYears(long years)

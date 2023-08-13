@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Security.Permissions;
 using System.Threading;
 using System.Threading.Tasks;
+using DnsClient;
 using Nethereum.ABI.EIP712;
 using Nethereum.Model;
 using Org.BouncyCastle.Utilities.Encoders;
@@ -87,6 +88,7 @@ namespace Uccs.Net
 		JsonServer						ApiServer;
 		public Vault					Vault;
 		public INas						Nas;
+		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 		public Chainbase				Chainbase;
 		public ResourceBase				Resources;
 		public PackageBase				PackageBase;
@@ -1249,11 +1251,75 @@ namespace Uccs.Net
 			if(!v.Valid)
 				return false;
 
+			bool valid()
+			{
+ 				foreach(var t in v.Transactions)
+ 				{
+ 					foreach(var i in t.Operations)
+ 					{
+ 						if(i is Emission e)
+ 						{
+ 							try
+ 							{
+ 								Monitor.Exit(Lock);
+ 			
+ 								if(Nas.CheckEmission(e))
+ 								{
+ 								}
+ 								else
+ 									return false;
+ 							}
+ 							catch(Exception ex)
+ 							{
+ 								Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
+ 								return false;
+ 							}
+ 							finally
+ 							{
+ 								Monitor.Enter(Lock);
+ 							}
+ 						}
+ 	
+ 						if(i is AuthorBid b && b.Tld.Any())
+ 						{
+ 							try
+ 							{
+ 								Monitor.Exit(Lock);
+ 	
+ 								var result = Dns.QueryAsync(b.Name + '.' + b.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation.Token);
+ 															
+ 								var txt = result.Result.Answers.TxtRecords().FirstOrDefault(i => i.DomainName == b.Name + '.' + b.Tld + '.');
+ 		
+ 								if(txt != null && txt.Text.Any(i => i == t.Signer.ToString()))
+ 								{
+ 								}
+ 								else
+ 									return false;
+ 							}
+ 							catch(DnsResponseException ex)
+ 							{
+ 								Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+ 								return false;
+ 							}
+ 							finally
+ 							{
+ 								Monitor.Enter(Lock);
+ 							}
+ 						}
+ 					}
+ 				}
+
+				return true;
+			}
+
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 			{
  				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Chainbase.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
  
 				if(v.RoundId < min || (SyncCache.ContainsKey(v.RoundId) && SyncCache[v.RoundId].Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
+					return false;
+
+				if(!valid())
 					return false;
 
 				Core.SyncRound r;
@@ -1271,21 +1337,29 @@ namespace Uccs.Net
 					{
 						SyncCache.Remove(i);
 					}
-				}	
+				}
 			}
 			else if(Synchronization == Synchronization.Synchronized)
 			{
 				if(v.RoundId <= Chainbase.LastConfirmedRound.Id || Chainbase.LastConfirmedRound.Id + Chainbase.Pitch * 2 < v.RoundId)
 					return false;
 
+				if(v.RoundId <= Chainbase.LastVotedRound.Id - Chainbase.Pitch / 2)
+					return false;
+
 				var r = Chainbase.GetRound(v.RoundId);
 				
-				var ve = r.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
-
-				if(ve != null)
+				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
 
 				Chainbase.Add(v);
+
+				if(!valid()) /// do it only after adding to the chainbase
+				{
+					r.Votes.Remove(v);
+					return false;
+				}
+
 			}
 
 			return true;

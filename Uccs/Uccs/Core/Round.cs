@@ -56,12 +56,14 @@ namespace Uccs.Net
 		public BigInteger										WeiSpent;
 		public Coin												Factor;
 		public Coin												Emission;
+		
+		public Coin												Fees;
 
 		public Dictionary<AccountAddress, AccountEntry>			AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
 		//public Dictionary<ResourceAddress, Resource>			AffectedResources = new();
 		
-		public Chainbase											Database;
+		public Chainbase										Database;
 
 		public Round(Chainbase c)
 		{

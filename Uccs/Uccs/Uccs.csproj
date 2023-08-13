@@ -25,8 +25,9 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Nethereum.Web3" Version="4.14.0" />
-    <PackageReference Include="RocksDB" Version="8.1.1.38647" />
+    <PackageReference Include="DnsClient" Version="1.7.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.15.2" />
+    <PackageReference Include="RocksDB" Version="8.3.2.39829" />
     <PackageReference Include="System.Json" Version="4.7.1" />
   </ItemGroup>
 </Project>

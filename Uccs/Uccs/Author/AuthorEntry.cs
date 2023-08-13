@@ -28,10 +28,8 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Name}, {Title}, {Owner}, {Years}, {RegistrationTime}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
+			return $"{Name}, {Title}, {Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
 		}
-
-		public static bool IsValid(string name) => name.Length >= NameLengthMin; 
 
 		public AuthorEntry Clone()
 		{
@@ -40,12 +38,12 @@ namespace Uccs.Net
 						Name = Name,
 						Title = Title,
 						Owner = Owner,
-						Years = Years,
-						RegistrationTime = RegistrationTime,
+						Expiration = Expiration,
 						FirstBidTime = FirstBidTime,
 						LastWinner = LastWinner,
 						LastBid = LastBid,
 						LastBidTime = LastBidTime,
+						DomainOwnersOnly = DomainOwnersOnly,
 						Resources = Resources,
 						NextResourceId = NextResourceId,
 					};
@@ -117,24 +115,6 @@ namespace Uccs.Net
 			AffectedResources.Add(r);
 
 			return r;
-		}
-
-
-		public bool IsOngoingAuction(Round executing)
-		{
-			var sinceauction = executing.ConfirmedTime - FirstBidTime/* fb.Transaction.Payload.Round.Time*/;
-
-			bool expired = (Owner == null && sinceauction > ChainTime.FromYears(2) ||																			/// winner has not registered during 2 year since auction start, restart the auction
-							Owner != null && executing.ConfirmedTime - RegistrationTime > ChainTime.FromYears(Years));	/// winner has not renewed, restart the auction
-
- 			if(!expired)
- 			{
-	 			return sinceauction < ChainTime.FromYears(1);
- 			} 
- 			else
- 			{
-				return true;
-			}
 		}
 	}
 }

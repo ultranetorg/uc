@@ -65,7 +65,7 @@ namespace Uccs.Sun.FUI
 
 				var t = Core.Call(Role.Base, p => p.GetTime(), Core.Workflow);
 
-				if(AuthorEntry.IsExclusive(AuthorSearch.Text) && AuthorBid.CanBid(a, t.Time))
+				if(AuthorEntry.IsExclusive(AuthorSearch.Text) && Author.CanBid(a.Name, a, t.Time))
 				{
 					if(a != null)
 					{
@@ -74,7 +74,7 @@ namespace Uccs.Sun.FUI
 
 					Switch(Auction);
 				}
-				else if(AuthorRegistration.CanRegister(AuthorSearch.Text, a, t.Time, Core.Vault.Accounts))
+				else if(Core.Vault.Accounts.Any(i => Author.CanRegister(AuthorSearch.Text, a, t.Time, i)))
 					Switch(Registration);
 				else if(Core.Vault.Accounts.Any(i => i == a.Owner))
 					Switch(Transfering);
@@ -159,7 +159,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Core.Lock)
 			{
-				Cost.Coins = AuthorRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
+				//Cost.Coins = AuthorRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
 			}
 		}
 
@@ -192,15 +192,14 @@ namespace Uccs.Sun.FUI
 				var a = Database.Authors.Find(AuthorSearch.Text, Database.LastConfirmedRound.Id);
 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
 
-				if(a != null && !a.IsOngoingAuction(Database.LastConfirmedRound))
+				if(a != null && !Author.CanBid(a.Name, a, Database.LastConfirmedRound.ConfirmedTime))
 				{
 					AuctionStatus.Text = $"Auction is over";
 				}
 				else
 				{
-					Bid.Coins = a?.LastWinner != null ? a.LastBid : AuthorBid.GetMinCost(AuthorSearch.Text);
-					AuctionStatus.Text = $"Ongoing auction: " + (a?.LastWinner != null ? $"more than {a.LastBid}" : 
-																						 $"minimum {AuthorBid.GetMinCost(AuthorSearch.Text)}") + " UNT required";
+					Bid.Coins = a.LastBid;
+					AuctionStatus.Text = $"Ongoing auction:  more than {a.LastBid} UNT required";
 				}
 			}
 			else
@@ -233,7 +232,7 @@ namespace Uccs.Sun.FUI
 				if(s == null)
 					return;
 
-				Core.Enqueue(new AuthorBid(s, AuthorSearch.Text, Bid.Coins), PlacingStage.Null, new Workflow());
+				Core.Enqueue(new AuthorBid(s, AuthorSearch.Text, null, Bid.Coins), PlacingStage.Null, new Workflow());
 			}
 			catch(Exception ex)
 			{

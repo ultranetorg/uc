@@ -117,7 +117,7 @@ namespace Uccs.Net
 	{
 		public static bool		UI;
 		public static bool		DisableBailMin;
-		public static bool		DisableBidMin;
+		//public static bool		DisableBidMin;
 		public static bool		DisableTimeouts;
 		public static bool		ThrowOnCorrupted;
 		public static bool		TailLength100;

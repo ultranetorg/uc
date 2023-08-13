@@ -52,6 +52,7 @@ namespace Uccs.Sun.CLI
 		   		case "bid" : 
 					return Core.Enqueue(new AuthorBid(	GetPrivate("by", "password"), 
 														GetString("name"),
+														GetStringOrEmpty("tld"),
 														Coin.ParseDecimal(GetString("amount"))), 
 														GetAwaitStage(), 
 														Workflow);

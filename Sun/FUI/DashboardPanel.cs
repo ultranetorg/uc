@@ -1,5 +1,4 @@
-﻿using Nethereum.KeyStore.Crypto;
-using Nethereum.Web3;
+﻿using Nethereum.Web3;
 using Org.BouncyCastle.Crypto;
 using System;
 using System.Windows.Forms;

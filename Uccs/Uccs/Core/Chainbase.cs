@@ -62,6 +62,7 @@ namespace Uccs.Net
 
 		public Round						LastConfirmedRound;
 		public Round						LastCommittedRound;
+		public Round						LastVotedRound		=> Tail.FirstOrDefault(i => i.Voted) ?? LastConfirmedRound;
 		public Round						LastNonEmptyRound	=> Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 		public Round						LastPayloadRound	=> Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 
@@ -198,7 +199,7 @@ namespace Uccs.Net
 
 			var t = new Transaction(Zone){ Id = 0 };
 			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
-			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", 1));
+			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", null, 1));
 			t.Sign(org, gen, 0);
 			b0.AddNext(t);
 						
@@ -539,9 +540,9 @@ namespace Uccs.Net
 		public IEnumerable<AccountAddress> ProposeMemberJoiners(Round round)
 		{
 			var o = round.Parent.JoinRequests.Select(jr =>	{
-																		var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
-																		return new {jr = jr, a = a};
-																	})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
+																var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
+																return new {jr = jr, a = a};
+															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
 													.Where(i => i.a != null && 
 																i.a.CandidacyDeclarationRid <= round.Id - Pitch * 2 &&  /// 2 = declared, requested
 																i.a.Bail >= (DevSettings.DisableBailMin ? 0 : BailMin))
@@ -733,6 +734,7 @@ namespace Uccs.Net
 
 			start: 
 
+			round.Fees			= 0;
 			round.Emission		= round.Id == 0 ? 0						: prev.Emission;
 			round.WeiSpent		= round.Id == 0 ? 0						: prev.WeiSpent;
 			round.Factor		= round.Id == 0 ? Emission.FactorStart	: prev.Factor;
@@ -1006,9 +1008,15 @@ namespace Uccs.Net
 
 		public IEnumerable<Resource> QueryRelease(string query)
 		{
-			var a = ResourceAddress.Parse(query);
+			var r = ResourceAddress.Parse(query);
 		
-			return Authors.Find(a.Author, LastConfirmedRound.Id).Resources.Where(i => i.Address.Resource.StartsWith(a.Resource));
+			var a = Authors.Find(r.Author, LastConfirmedRound.Id);
+
+			if(a == null)
+				yield break;
+
+			foreach(var i in a.Resources.Where(i => i.Address.Resource.StartsWith(r.Resource)))
+				yield return i;
 		}
 	}
 }
