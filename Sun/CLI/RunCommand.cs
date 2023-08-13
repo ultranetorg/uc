@@ -9,7 +9,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "run";
 
-		public RunCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public RunCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
 		{
 		}
 
@@ -21,25 +21,25 @@ namespace Uccs.Sun.CLI
 			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Log.txt"), FileMode.Create);
 
 			if(Args.Has("api"))
-				Core.RunApi();
+				Sun.RunApi();
 
 			if(Args.Has("node"))
-				Core.RunNode();
+				Sun.RunNode();
 
 			if(ConsoleSupported)
 			{	
 				//Console.ReadKey(true);
-				Wait(() => !Core.Workflow.IsAborted && !Console.KeyAvailable);
+				Wait(() => !Sun.Workflow.IsAborted && !Console.KeyAvailable);
 
-				if(!Core.Workflow.IsAborted)
+				if(!Sun.Workflow.IsAborted)
 				{
-					Core.Stop("By user input");
+					Sun.Stop("By user input");
 				}
 			}
 			else
-				Wait(() => !Core.Workflow.IsAborted);
+				Wait(() => !Sun.Workflow.IsAborted);
 			
-			return Core;
+			return Sun;
 		}
 	}
 }

@@ -25,7 +25,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "membership";
 
-		public MembershipCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public MembershipCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
 		{
 		}
 
@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "declare" : 
-					return Core.Enqueue(new CandidacyDeclaration(	GetPrivate("candidate", "password"), 
+					return Sun.Enqueue(new CandidacyDeclaration(	GetPrivate("candidate", "password"), 
 																	Coin.ParseDecimal(GetString("bail"))), 
 																	//GetString("ips").Split(' ').Select(i => IPAddress.Parse(i))),
 																	GetAwaitStage(), 

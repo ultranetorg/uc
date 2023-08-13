@@ -10,12 +10,12 @@ namespace Uccs.Net
 	public class Vote
 	{
 		public const int				SizeMax = 65536;
-		public int						ParentId => RoundId - Chainbase.Pitch;
+		public int						ParentId => RoundId - Mcv.Pitch;
 
 		public List<Peer>				Peers;
 		public bool						BroadcastConfirmed;
 		public byte[]					Hash;
-		Chainbase						Database;
+		Mcv						Database;
 		public Round					Round;
 		public DateTime					Created;
 		AccountAddress					_Generator;
@@ -92,7 +92,7 @@ namespace Uccs.Net
 			set { _RawForBroadcast = value; }
 		}
 
-		public Vote(Chainbase c)
+		public Vote(Mcv c)
 		{
 			Database = c;
 		}

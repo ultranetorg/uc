@@ -15,84 +15,84 @@ namespace Uccs.Sun.FUI
 {
 	public partial class MainForm : Form
 	{
-		public readonly Core		Core;
+		public readonly Net.Sun		Sun;
 		readonly Timer				Timer = new Timer();
 
-		public MainForm(Core core)
+		public MainForm(Net.Sun sun)
 		{
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
 
 			InitializeComponent();
 
 			MinimumSize = Size;
-			Core = core;
-			Core.MainStarted += c =>{ 	
+			Sun = sun;
+			Sun.MainStarted += c =>{ 	
 										BeginInvoke((MethodInvoker) delegate
 													{ 
-														LoadUI(core);
+														LoadUI(sun);
 													});
 									};
 
-			if(core.MainThread != null)
+			if(sun.MainThread != null)
 			{
-				LoadUI(core);
+				LoadUI(sun);
 			}
 		}
 
-		void LoadUI(Core core)
+		void LoadUI(Net.Sun sun)
 		{
-			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Core, core.Vault)};
+			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Sun, sun.Vault)};
 			navigator.Nodes.Add(dashboard);
 
-			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Core, core.Vault)};
+			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Sun, sun.Vault)};
 			navigator.Nodes.Add(accs);
 
-			if(core.Chainbase != null)
+			if(sun.Mcv != null)
 			{
-				if(core.Settings.Roles.HasFlag(Role.Chain))
+				if(sun.Settings.Roles.HasFlag(Role.Chain))
 				{
-					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Core, core.Vault) };
+					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Sun, sun.Vault) };
 					navigator.Nodes.Add(txs);
 
-					var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Core, core.Vault) };
+					var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Sun, sun.Vault) };
 					navigator.Nodes.Add(exp);
 				}
 
-				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, core.Vault) };
+				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, sun.Vault) };
 				///navigator.Nodes.Add(memb);
 	
-				var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Core, core.Vault) };
+				var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Sun, sun.Vault) };
 				navigator.Nodes.Add(auth);
 	
-				var prod = new TreeNode("Products"){ Tag = new ProductPanel(Core, core.Vault) };
+				var prod = new TreeNode("Products"){ Tag = new ProductPanel(Sun, sun.Vault) };
 				navigator.Nodes.Add(prod);
 	
-				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Core, core.Vault) };				
+				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Sun, sun.Vault) };				
 				navigator.Nodes.Add(rel);
 			}
 
-			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Core, core.Vault) };
+			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Sun, sun.Vault) };
 			navigator.Nodes.Add(transfer);
 
-			var net = new TreeNode("Network"){ Tag = new NetworkPanel(Core, core.Vault) };
+			var net = new TreeNode("Network"){ Tag = new NetworkPanel(Sun, sun.Vault) };
 			net.Expand();
 			navigator.Nodes.Add(net);
 			
-			var gens = new TreeNode("Generators"){ Tag = new GeneratorsPanel(Core, core.Vault) };				
+			var gens = new TreeNode("Generators"){ Tag = new GeneratorsPanel(Sun, sun.Vault) };				
 			net.Nodes.Add(gens);
 
-			if(Core.Seedbase != null)
+			if(Sun.Hub != null)
 			{
-				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Core, core.Vault) };
+				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Sun, sun.Vault) };
 				navigator.Nodes.Add(hub);
 			}
 
-			//var apps = new TreeNode("Files"){ Tag = new ApplicationsPanel(Core, core.Vault) };
+			//var apps = new TreeNode("Files"){ Tag = new ApplicationsPanel(Core, sun.Vault) };
 			//navigator.Nodes.Add(apps);
 
 			if(DevSettings.UI)
 			{
-				var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Core, core.Vault)};
+				var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Sun, sun.Vault)};
 				net.Nodes.Add(initials);
 			}
 
@@ -122,9 +122,9 @@ namespace Uccs.Sun.FUI
 
 		void RefreshInfo(object myObject, EventArgs myEventArgs)
 		{
-			lock(Core.Lock)
+			lock(Sun.Lock)
 			{
-				Text = $"Ultranet Node - {Core}";
+				Text = $"Ultranet Node - {Sun}";
 			}
 
 			foreach(var i in Controls)

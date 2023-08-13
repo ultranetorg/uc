@@ -13,7 +13,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class HubPanel : MainPanel
 	{
-		public HubPanel(Core d, Vault vault) : base(d, vault)
+		public HubPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -59,9 +59,9 @@ namespace Uccs.Sun.FUI
 			Packages.Items.Clear();
 			Seeds.Items.Clear();
 
-			lock(Core.Lock)
+			lock(Sun.Lock)
 			{
-				foreach(var i in Core.Seedbase.Releases.Take(1000))
+				foreach(var i in Sun.Hub.Releases.Take(1000))
 				{
 					var r = Packages.Items.Add(Hex.ToHexString(i.Key));
 					//r.SubItems.Add(i.Key.Resource);
@@ -79,7 +79,7 @@ namespace Uccs.Sun.FUI
 			{
 				Seeds.Items.Clear();
 
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
 					foreach(var i in e.Item.Tag as List<Seed>)
 					{

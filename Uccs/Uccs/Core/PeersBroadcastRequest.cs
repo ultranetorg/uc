@@ -8,15 +8,15 @@ namespace Uccs.Net
 		public IEnumerable<Peer>	Peers { get; set; }
 		public override bool		WaitResponse => false;
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				var newfresh = core.RefreshPeers(Peers).ToArray();
+				var newfresh = sun.RefreshPeers(Peers).ToArray();
 	
 				if(newfresh.Any())
 				{
-					foreach(var i in core.Connections.Where(i => i != Peer))
+					foreach(var i in sun.Connections.Where(i => i != Peer))
 					{
 						i.Send(new PeersBroadcastRequest{Peers = newfresh});
 					}

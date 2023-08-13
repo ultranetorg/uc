@@ -8,15 +8,15 @@
 		public long				Offset { get; set; }
 		public long				Length { get; set; }
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			if(core.Resources == null) 
+			if(sun.Resources == null) 
 				throw new RdcNodeException(RdcNodeError.NotSeeder);
 			
-			if(!core.Resources.Exists(Resource, Hash, File)) 
+			if(!sun.Resources.Exists(Resource, Hash, File)) 
 				throw new RdcNodeException(RdcNodeError.NotFound);
 
-			return new DownloadReleaseResponse{Data = core.Resources.ReadFile(Resource, Hash, File, Offset, Length)};
+			return new DownloadReleaseResponse{Data = sun.Resources.ReadFile(Resource, Hash, File, Offset, Length)};
 		}
 	}
 

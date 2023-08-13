@@ -32,7 +32,7 @@ namespace Uccs.Net
 			w.Write(To);
 		}
 
-		public override void Execute(Chainbase chain, Round round)
+		public override void Execute(Mcv chain, Round round)
 		{
 			if(chain.Authors.Find(Author, round.Id).Owner != Signer)
 			{

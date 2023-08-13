@@ -94,7 +94,7 @@ namespace Uccs.Net
 			if(Changes.HasFlag(ResourceChanges.AnalysisFee))	writer.Write(AnalysisFee);
 		}
 
-		public override void Execute(Chainbase chain, Round round)
+		public override void Execute(Mcv chain, Round round)
 		{
 			var e = chain.Authors.FindResource(Resource, round.Id);
 			

@@ -38,7 +38,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "author";
 
-		public AuthorCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public AuthorCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
 		{
 		}
 
@@ -50,21 +50,21 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "bid" : 
-					return Core.Enqueue(new AuthorBid(	GetPrivate("by", "password"), 
+					return Sun.Enqueue(new AuthorBid(	GetPrivate("by", "password"), 
 														GetString("name"),
 														GetStringOrEmpty("tld"),
 														Coin.ParseDecimal(GetString("amount"))), 
 														GetAwaitStage(), 
 														Workflow);
 		   		case "register" : 
-					return Core.Enqueue(new AuthorRegistration(	GetPrivate("by", "password"), 
+					return Sun.Enqueue(new AuthorRegistration(	GetPrivate("by", "password"), 
 																GetString("name"),
 																GetString("title"),
 																byte.Parse(GetString("years"))),
 																GetAwaitStage(),
 																Workflow);
 		   		case "transfer" : 
-					return Core.Enqueue(new AuthorTransfer(	GetPrivate("from", "password"), 
+					return Sun.Enqueue(new AuthorTransfer(	GetPrivate("from", "password"), 
 															GetString("name"),
 															AccountAddress.Parse(GetString("to"))),
 															GetAwaitStage(), 
@@ -72,7 +72,7 @@ namespace Uccs.Sun.CLI
 
 		   		case "overview" :
 				{
-					var rp = Core.Call(Role.Base, i => i.GetAuthorInfo(GetString("name")), Workflow);
+					var rp = Sun.Call(Role.Base, i => i.GetAuthorInfo(GetString("name")), Workflow);
 
 					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 

@@ -16,7 +16,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "package";
 
-		public PackageCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public PackageCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
 		{
 		}
 
@@ -29,7 +29,7 @@ namespace Uccs.Sun.CLI
 			{
 				case "publish" :
 				{
-					Core.PackageBase.AddRelease(GetReleaseAddress("address"), 
+					Sun.Packages.AddRelease(GetReleaseAddress("address"), 
 												Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
 												GetString("sources").Split(','), 
 												GetString("dependsdirectory"), 
@@ -39,16 +39,16 @@ namespace Uccs.Sun.CLI
 
 				case "download" :
 				{
-					var d = Core.PackageBase.Download(GetReleaseAddress("address"), Workflow);
+					var d = Sun.Packages.Download(GetReleaseAddress("address"), Workflow);
 
 					if(d != null)
 					{
 						while(!d.Succeeded)
 						{
-							var r = Core.Resources.Downloads.Find(i => i.Resource == GetResourceAddress("address"));
+							var r = Sun.Resources.Downloads.Find(i => i.Resource == GetResourceAddress("address"));
 
-							lock(Core.Resources.Lock)
-								lock(Core.PackageBase.Lock)
+							lock(Sun.Resources.Lock)
+								lock(Sun.Packages.Lock)
 									Workflow.Log?.Report(this, r != null ? $"{r.File}={r.CompletedLength}/{r.Length} " : null + $"Deps={d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
 							
 							Thread.Sleep(500);

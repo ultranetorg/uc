@@ -8,11 +8,11 @@ namespace Uccs.Net
 		public byte[]	Hash { get; set; }
 		public int		Count { get; set; }
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			if(!core.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
+			if(!sun.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
 
-			return new LocateReleaseResponse {Seeders = core.Seedbase.Locate(this)}; 
+			return new LocateReleaseResponse {Seeders = sun.Hub.Locate(this)}; 
 		}
 	}
 		

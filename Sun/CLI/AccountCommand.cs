@@ -22,7 +22,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "account";
 
-		public AccountCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public AccountCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
 		{
 		}
 
@@ -39,7 +39,7 @@ namespace Uccs.Sun.CLI
 		   		
 				case "overview" :
 				{
-					var i = Core.Connect(Role.Base, null, Workflow).GetAccountInfo(AccountAddress.Parse(GetString("address")));
+					var i = Sun.Connect(Role.Base, null, Workflow).GetAccountInfo(AccountAddress.Parse(GetString("address")));
 					
 					Workflow?.Log?.Report(this, "Account", GetString("address") + " :");
 
@@ -120,7 +120,7 @@ namespace Uccs.Sun.CLI
 
 			Workflow.Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Core.Vault.AddWallet(acc, p);
+			Sun.Vault.AddWallet(acc, p);
 
 			return acc;
 		}
@@ -134,7 +134,7 @@ namespace Uccs.Sun.CLI
 
 			var acc = AccountKey.Parse(GetString("privatekey"));
 
-			if(Core.Vault.Accounts.Contains(acc))
+			if(Sun.Vault.Accounts.Contains(acc))
 			{
 				Workflow.Log?.ReportError(this, $"Account already exists: " + acc);
 				return null;
@@ -188,7 +188,7 @@ namespace Uccs.Sun.CLI
 
 			Workflow.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Core.Vault.AddWallet(acc, p);
+			Sun.Vault.AddWallet(acc, p);
 
 			return acc;
 		}

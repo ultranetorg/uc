@@ -53,7 +53,7 @@ namespace Uccs.Net
 			w.Write(Bid);
 		}
 
-		public override void Execute(Chainbase chain, Round round)
+		public override void Execute(Mcv chain, Round round)
 		{
 			var a = round.AffectAuthor(Name);
 

@@ -17,7 +17,7 @@ namespace Uccs.Sun.FUI
 	{
 		public AccountAddress CurrentAccout => accounts.SelectedItems[0]?.Tag as AccountAddress;
 
-		public AccountsPanel(Core d, Vault vault) : base(d, vault)
+		public AccountsPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 	
 										try
 										{
-											t = Core.Call(Role.Base, p => p.GetAccountInfo(i.Tag as AccountAddress), Core.Workflow).Account.Balance.ToHumanString(); 
+											t = Sun.Call(Role.Base, p => p.GetAccountInfo(i.Tag as AccountAddress), Sun.Workflow).Account.Balance.ToHumanString(); 
 										}
 										catch(Exception)
 										{
@@ -120,7 +120,7 @@ namespace Uccs.Sun.FUI
 			var f = new SaveFileDialog();
 
 			f.FileName = CurrentAccout.ToString();
-			f.DefaultExt = Vault.WalletExt(Core.Zone.Cryptography);
+			f.DefaultExt = Vault.WalletExt(Sun.Zone.Cryptography);
 
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{

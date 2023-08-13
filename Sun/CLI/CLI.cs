@@ -19,8 +19,7 @@ namespace Uccs.Sun.CLI
 		static Settings			Settings = null;
 		static Log				Log = new Log();
 		static ConsoleLogView	LogView;
-
-		static Core Core;
+		static Net.Sun			Sun;
 
 		static void Main(string[] args)
 		{
@@ -40,7 +39,7 @@ namespace Uccs.Sun.CLI
 
 			try
 			{
-				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
+				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Net.Sun.FailureExt))
 					File.Delete(i);
 					
 				var boot = new Boot(exedir);
@@ -48,7 +47,7 @@ namespace Uccs.Sun.CLI
 				Settings = new Settings(exedir, boot);
 								
 				if(File.Exists(Settings.Profile))
-					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
+					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Sun.FailureExt))
 						File.Delete(i);
 
 				if(!boot.Commnand.Nodes.Any())
@@ -56,10 +55,10 @@ namespace Uccs.Sun.CLI
 
 				//string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				Func<Core> getcore = () =>	{
-												if(Core == null)
+				Func<Net.Sun> getcore = () =>	{
+												if(Sun == null)
 												{
-													Core =	new Core(boot.Zone, Settings, Log)	
+						Sun =	new Net.Sun(boot.Zone, Settings, Log)	
 															{
 																Clock = new RealTimeClock(),
 																Nas = new Nas(Settings, Log),
@@ -68,14 +67,14 @@ namespace Uccs.Sun.CLI
 															};
 												}
 
-												return Core;
+												return Sun;
 											};
 
 
-				Func<Core> getuser = () =>	{
-												if(Core == null)
+				Func<Net.Sun> getuser = () =>	{
+												if(Sun == null)
 												{
-													Core =	new Core(boot.Zone, Settings, Log)	
+						Sun =	new Net.Sun(boot.Zone, Settings, Log)	
 															{
 																Clock = new RealTimeClock(),
 																Nas = new Nas(Settings, Log),
@@ -83,10 +82,10 @@ namespace Uccs.Sun.CLI
 																FeeAsker = new SilentFeeAsker()
 															};
 
-													Core.RunUser();
+						Sun.RunUser();
 												}
 
-												return Core;
+												return Sun;
 											};
 				
 				Command c = null;
@@ -115,13 +114,13 @@ namespace Uccs.Sun.CLI
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Core.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Net.Sun.FailureExt), ex.ToString());
 				throw;
 			}
 	
-			if(Core != null)
+			if(Sun != null)
 			{
-				Core.Stop("The End");
+				Sun.Stop("The End");
 			}
 		}
 	}

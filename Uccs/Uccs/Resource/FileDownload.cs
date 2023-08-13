@@ -81,7 +81,7 @@ namespace Uccs.Net
 
 									try
 									{
-										var lr = Download.Core.Call(IPs.Random(), p => p.LocateRelease(Download.Hash, 16), Download.Workflow);
+										var lr = Download.Sun.Call(IPs.Random(), p => p.LocateRelease(Download.Hash, 16), Download.Workflow);
 
 										lock(Download.Lock)
 										{
@@ -116,8 +116,7 @@ namespace Uccs.Net
 			public long				Offset => I * DefaultPieceLength;
 			public MemoryStream		Data = new MemoryStream();
 			public bool				Succeeded => Data.Length == Length;
-			FileDownload				Download;
-			Core					Core => Download.Core;
+			FileDownload			Download;
 
 			public Piece(FileDownload download, Seed peer, int piece)
 			{
@@ -128,7 +127,7 @@ namespace Uccs.Net
 				Task = Task.Run(() =>	{
 											try
 											{
-												Download.Core.Connect(Seed.Peer, download.Workflow);
+												Download.Sun.Connect(Seed.Peer, download.Workflow);
 
 												while(Data.Position < Length)
 												{
@@ -163,7 +162,7 @@ namespace Uccs.Net
 																		+ CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 		public object								Lock = new object();
 
-		internal Core								Core;
+		internal Sun								Sun;
 		internal Workflow							Workflow;
 		bool										Downloaded;
 		List<Piece>									CurrentPieces = new();
@@ -173,9 +172,9 @@ namespace Uccs.Net
 		int											PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
 		public Task									Task;
 
-		public FileDownload(Core core, ResourceAddress resource, byte[] hash, string file,  byte[] filehash, Workflow workflow)
+		public FileDownload(Sun sun, ResourceAddress resource, byte[] hash, string file,  byte[] filehash, Workflow workflow)
 		{
-			Core		= core;
+			Sun			= sun;
 			Resource	= resource;
 			Hash		= hash;
 			File		= file;
@@ -194,7 +193,7 @@ namespace Uccs.Net
 
 									lock(Lock)
 									{
-										var cr = Core.Call<MembersResponse>(Role.Base, i =>	{
+										var cr = Sun.Call<MembersResponse>(Role.Base, i =>	{
 																								while(workflow.Active)
 																								{
 																									var cr = i.GetMembers();
@@ -205,7 +204,7 @@ namespace Uccs.Net
 																									
 																								throw new OperationCanceledException();
 																							}, 
-																							Core.Workflow);
+																							Sun.Workflow);
 
 										var nearest = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.HubIPs.Any()).Take(8).ToArray();
 
@@ -240,12 +239,12 @@ namespace Uccs.Net
 											{
 												if(s.Peer == null)
 												{
-													s.Peer = core.GetPeer(s.IP);
+													s.Peer = sun.GetPeer(s.IP);
 												}
 
 												if(Length == -1)
 												{
-													core.Connect(s.Peer, Workflow);
+													sun.Connect(s.Peer, Workflow);
 
 													Length = s.Peer.Request<FileInfoResponse>(new FileInfoRequest {Resource = resource, Hash = hash, File = file}).Length;
 												}
@@ -296,15 +295,15 @@ namespace Uccs.Net
 											j.Seed.Failures++;
 											j.Seed.Failed = DateTime.MinValue;
 
-											lock(Core.Resources.Lock)
-												Core.Resources.WriteFile(Resource, Hash, File, j.Offset, j.Data.ToArray());
+											lock(Sun.Resources.Lock)
+												Sun.Resources.WriteFile(Resource, Hash, File, j.Offset, j.Data.ToArray());
 											
 											CompletedPieces.Add(j);
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
-												lock(Core.Lock)
-													if(Core.Resources.Hashify(Resource, Hash, File).SequenceEqual(filehash))
+												lock(Sun.Lock)
+													if(Sun.Resources.Hashify(Resource, Hash, File).SequenceEqual(filehash))
 													{	
 														goto end;
 													}
@@ -330,7 +329,7 @@ namespace Uccs.Net
 
 							end:
 
-								lock(Core.Resources.Lock)
+								lock(Sun.Resources.Lock)
 								{
 									var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
 
@@ -342,12 +341,12 @@ namespace Uccs.Net
 									//foreach(var h in seeds)
 									//	h.SeedRank++;
 
-									lock(Core.Lock)
+									lock(Sun.Lock)
 									{
-										Core.UpdatePeers(seeds);
+										Sun.UpdatePeers(seeds);
 									}
 
-									Core.Resources.Downloads.Remove(this);
+									Sun.Resources.Downloads.Remove(this);
 
 									Downloaded = true;
 								}

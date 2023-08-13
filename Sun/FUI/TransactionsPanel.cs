@@ -12,7 +12,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class TransactionsPanel : MainPanel
 	{
-		public TransactionsPanel(Core d, Vault vault) : base(d, vault)
+		public TransactionsPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -54,7 +54,7 @@ namespace Uccs.Sun.FUI
 
 			if(e.IsSelected)
 			{
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
 					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>	{
 																										var li = new ListViewItem(i.ToString());
@@ -74,11 +74,11 @@ namespace Uccs.Sun.FUI
 				Transactions.Items.Clear();
 				Operations.Items.Clear();
 	
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
 					var a = Net.AccountAddress.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Core.Chainbase.Accounts.SearchTransactions(a);
+					var txs = Sun.Mcv.Accounts.SearchTransactions(a);
 	
 					foreach(var i in txs)
 					{

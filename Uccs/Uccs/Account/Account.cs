@@ -19,7 +19,6 @@ namespace Uccs.Net
 		{
 			w.Write(Address);
 			w.Write(Balance);
-
 			w.Write((byte)BailStatus);
 			
 			if(BailStatus != BailStatus.Null)
@@ -32,12 +31,11 @@ namespace Uccs.Net
 		{
 			Address		= r.ReadAccount();
 			Balance		= r.ReadCoin();
-
 			BailStatus	= (BailStatus)r.ReadByte();
 
 			if(BailStatus != BailStatus.Null)
 			{
-				Bail		= r.ReadCoin();
+				Bail = r.ReadCoin();
 			}
 		}
 	}

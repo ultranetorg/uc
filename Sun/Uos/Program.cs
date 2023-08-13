@@ -13,7 +13,7 @@ namespace Uccs.Sun.Application
 	{
 		static Settings		Settings = null;
 		static Log			Log = new();
-		static Core			Core;
+		static Net.Sun		Sun;
 		//ManualResetEvent	CancelUosServer = new ManualResetEvent(false);
 
 		private static int numThreads = 1;
@@ -27,7 +27,7 @@ namespace Uccs.Sun.Application
 
 			try
 			{
-				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Core.FailureExt))
+				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Net.Sun.FailureExt))
 					File.Delete(i);
 					
 				var boot = new Boot(exedir);
@@ -37,17 +37,17 @@ namespace Uccs.Sun.Application
 				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
 									
 				if(File.Exists(Settings.Profile))
-					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Core.FailureExt))
+					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Sun.FailureExt))
 						File.Delete(i);
 
-				Core =	new Core(boot.Zone, Settings, Log)
+				Sun =	new Net.Sun(boot.Zone, Settings, Log)
 						{
 							Clock = new RealTimeClock(), 
 							Nas = new Nas(Settings, Log), 
 						}; 
 
-				Core.RunApi();
-				Core.RunNode();
+				Sun.RunApi();
+				Sun.RunNode();
 
 				RunUosServer();
 			}
@@ -58,13 +58,13 @@ namespace Uccs.Sun.Application
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Core.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Net.Sun.FailureExt), ex.ToString());
 				throw;
 			}
 	
-			if(Core != null)
+			if(Sun != null)
 			{
-				Core.Stop("The End");
+				Sun.Stop("The End");
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Uccs.Sun.Application
 
 			var r = new BinaryReader(pipe);
 
-			while(!Core.Workflow.IsAborted)
+			while(!Sun.Workflow.IsAborted)
 			{
 				try
 				{
@@ -110,7 +110,7 @@ namespace Uccs.Sun.Application
 					{
 						case StopMessage:
 						{
-							Core.Stop("By UOS request");
+							Sun.Stop("By UOS request");
 							goto stop;
 						}
 					}

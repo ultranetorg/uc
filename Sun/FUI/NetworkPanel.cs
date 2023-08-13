@@ -12,7 +12,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class NetworkPanel : MainPanel
 	{
-		public NetworkPanel(Core d, Vault vault) : base(d, vault)
+		public NetworkPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -23,9 +23,9 @@ namespace Uccs.Sun.FUI
 			Members.Items.Clear();
 			Funds.Items.Clear();
 
-			lock(Core.Lock)
+			lock(Sun.Lock)
 			{
-				foreach(var i in Core.Peers.OrderBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
+				foreach(var i in Sun.Peers.OrderBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
 				{
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
@@ -37,12 +37,12 @@ namespace Uccs.Sun.FUI
 					r.Tag = i;
 				}
 
-				foreach(var i in Core.Chainbase.LastConfirmedRound.Members.OrderBy(i => i.Account))
+				foreach(var i in Sun.Mcv.LastConfirmedRound.Members.OrderBy(i => i.Account))
 				{
 					var li = Members.Items.Add(i.Account.ToString());
 
 					li.SubItems.Add(i.JoinedAt.ToString());
-					li.SubItems.Add(Database != null ? Core.Chainbase.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
+					li.SubItems.Add(Database != null ? Sun.Mcv.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
 					li.SubItems.Add(string.Join(", ", i.BaseIPs.AsEnumerable()));
 					li.SubItems.Add(string.Join(", ", i.HubIPs.AsEnumerable()));
 				}

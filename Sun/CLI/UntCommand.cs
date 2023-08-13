@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "unt";
 
-		public UntCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public UntCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
 		{
 		}
 
@@ -77,7 +77,7 @@ namespace Uccs.Sun.CLI
 																				new BigInteger((int)Zone.EthereumNetwork));
 					}
 
-					return Core.Emit(	from,
+					return Sun.Emit(	from,
 										Web3.Convert.ToWei(GetString("amount")),
 										GetPrivate("to/account", "to/password"), 
 										GetAwaitStage(),
@@ -86,7 +86,7 @@ namespace Uccs.Sun.CLI
 
 		   		case "transfer" : 
 				{
-					return Core.Enqueue(new UntTransfer(GetPrivate("from/account", "from/password"), 
+					return Sun.Enqueue(new UntTransfer(GetPrivate("from/account", "from/password"), 
 														AccountAddress.Parse(GetString("to")), 
 														Coin.ParseDecimal(GetString("amount"))),
 														GetAwaitStage(), 

@@ -12,7 +12,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class ProductPanel : MainPanel
 	{
-		public ProductPanel(Core d, Vault vault) : base(d, vault)
+		public ProductPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}

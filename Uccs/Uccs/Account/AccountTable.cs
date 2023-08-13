@@ -12,7 +12,7 @@ namespace Uccs.Net
 {
 	public class AccountTable : Table<AccountEntry, AccountAddress>
 	{
-		public AccountTable(Chainbase chain) : base(chain)
+		public AccountTable(Mcv chain) : base(chain)
 		{
 		}
 

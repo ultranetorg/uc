@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,20 +7,15 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
-using System.Security.Permissions;
 using System.Threading;
-using System.Threading.Tasks;
 using DnsClient;
-using Nethereum.ABI.EIP712;
-using Nethereum.Model;
 using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
-using static Uccs.Net.ChainReportResponse;
 
 namespace Uccs.Net
 {
 	public delegate void VoidDelegate();
- 	public delegate void CoreDelegate(Core d);
+ 	public delegate void CoreDelegate(Sun d);
 
 	public class Statistics
 	{
@@ -67,13 +61,7 @@ namespace Uccs.Net
 		public DownloadReport	Download { get; set; }
 	}
 
-	//public class OnlineMember
-	//{
-	//	public AccountAddress			Generator { get; set; }
-	//	public IEnumerable<IPAddress>	IPs { get; set; }
-	//}
-
-	public class Core : RdcInterface
+	public class Sun : RdcInterface
 	{
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]	Versions = {1};
@@ -89,10 +77,10 @@ namespace Uccs.Net
 		public Vault					Vault;
 		public INas						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
-		public Chainbase				Chainbase;
+		public Mcv						Mcv;
 		public ResourceBase				Resources;
-		public PackageBase				PackageBase;
-		public Seedbase					Seedbase;
+		public PackageBase				Packages;
+		public Hub						Hub;
 		public bool						IsClient => ListeningThread == null;
 		public object					Lock = new();
 		public Clock					Clock;
@@ -146,7 +134,7 @@ namespace Uccs.Net
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public CoreDelegate				SynchronizationChanged;
 		
-		public bool						IsMember => Synchronization == Synchronization.Synchronized && Settings.Generators.Any(g => Chainbase.LastConfirmedRound.Members.Any(i => i.Account == g));
+		public bool						IsMember => Synchronization == Synchronization.Synchronized && Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(i => i.Account == g));
 
 		public class SyncRound
 		{
@@ -183,17 +171,17 @@ namespace Uccs.Net
 				f.Add(new ("    Confirmed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"));
 				f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
 				
-				if(Chainbase != null)
+				if(Mcv != null)
 				{
 					f.Add(new ("Synchronization",		$"{Synchronization}"));
-					f.Add(new ("Size",					$"{Chainbase.Size}"));
-					f.Add(new ("Members",				$"{Chainbase.LastConfirmedRound?.Members.Count}"));
-					f.Add(new ("Emission",				$"{(Chainbase.LastPayloadRound != null ? Chainbase.LastPayloadRound.Emission.ToHumanString() : null)}"));
+					f.Add(new ("Size",					$"{Mcv.Size}"));
+					f.Add(new ("Members",				$"{Mcv.LastConfirmedRound?.Members.Count}"));
+					f.Add(new ("Emission",				$"{(Mcv.LastPayloadRound != null ? Mcv.LastPayloadRound.Emission.ToHumanString() : null)}"));
 					f.Add(new ("SyncCache Blocks",		$"{SyncCache.Sum(i => i.Value.Votes.Count)}"));
-					f.Add(new ("Cached Rounds",			$"{Chainbase.LoadedRounds.Count()}"));
-					f.Add(new ("Last Non-Empty Round",	$"{(Chainbase.LastNonEmptyRound != null ? Chainbase.LastNonEmptyRound.Id : null)}"));
-					f.Add(new ("Last Payload Round",	$"{(Chainbase.LastPayloadRound != null ? Chainbase.LastPayloadRound.Id : null)}"));
-					f.Add(new ("Base Hash",				$"{Hex.ToHexString(Chainbase.BaseHash)}"));
+					f.Add(new ("Cached Rounds",			$"{Mcv.LoadedRounds.Count()}"));
+					f.Add(new ("Last Non-Empty Round",	$"{(Mcv.LastNonEmptyRound != null ? Mcv.LastNonEmptyRound.Id : null)}"));
+					f.Add(new ("Last Payload Round",	$"{(Mcv.LastPayloadRound != null ? Mcv.LastPayloadRound.Id : null)}"));
+					f.Add(new ("Base Hash",				$"{Hex.ToHexString(Mcv.BaseHash)}"));
 					f.Add(new ("Generating (μs)",		(Statistics.Generating.Avarage.Ticks/10).ToString()));
 					f.Add(new ("Consensing (μs)",		(Statistics.Consensing.Avarage.Ticks/10).ToString()));
 					f.Add(new ("Transacting (μs)",		(Statistics.Transacting.Avarage.Ticks/10).ToString()));
@@ -206,7 +194,7 @@ namespace Uccs.Net
 					{
 						string formatbalance(AccountAddress a)
 						{
-							return Chainbase.Accounts.Find(a, Chainbase.LastConfirmedRound.Id)?.Balance.ToHumanString();
+							return Mcv.Accounts.Find(a, Mcv.LastConfirmedRound.Id)?.Balance.ToHumanString();
 						}
 	
 						foreach(var i in Vault.Accounts)
@@ -216,7 +204,7 @@ namespace Uccs.Net
 	
 						if(DevSettings.UI)
 						{
-							foreach(var i in Chainbase.LastConfirmedRound.Funds)
+							foreach(var i in Mcv.LastConfirmedRound.Funds)
 							{
 								f.Add(new ($"Fundable", $"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}"));
 							}
@@ -239,7 +227,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public Core(Zone zone, Settings settings, Log log)
+		public Sun(Zone zone, Settings settings, Log log)
 		{
 			Zone = zone;
 			Settings = settings;
@@ -270,7 +258,7 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (Chainbase.ChainFamilyName,		new ()),
+																new (Mcv.ChainFamilyName,		new ()),
 															})
 				cfamilies.Add(i);
 
@@ -279,7 +267,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			var gens = Chainbase?.LastConfirmedRound != null ? Settings.Generators.Where(i => Chainbase.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
+			var gens = Mcv?.LastConfirmedRound != null ? Settings.Generators.Where(i => Mcv.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
 	
 			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}" +
 					$"{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}" +
@@ -288,13 +276,13 @@ namespace Uccs.Net
 					$"{(Settings.Anonymous ? " - A" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? $" - {IP}" : "")}" +
 					$" - {Synchronization}" +
-					(Chainbase?.LastConfirmedRound != null ? $" - {gens.Count()}/{Chainbase.LastConfirmedRound.Members.Count()} members" : "");
+					(Mcv?.LastConfirmedRound != null ? $" - {gens.Count()}/{Mcv.LastConfirmedRound.Members.Count()} members" : "");
 		}
 
 		public object Constract(Type t, byte b)
 		{
 			if(t == typeof(Transaction)) return new Transaction(Zone);
-			if(t == typeof(Vote)) return new Vote(Chainbase);
+			if(t == typeof(Vote)) return new Vote(Mcv);
 			if(t == typeof(Manifest)) return new Manifest(Zone);
 			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
 			if(t == typeof(RdcResponse)) return RdcResponse.FromType((Rdc)b); 
@@ -325,7 +313,7 @@ namespace Uccs.Net
 			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
 				Resources = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
-				PackageBase = new PackageBase(this, Resources, Settings.Packages);
+				Packages = new PackageBase(this, Resources, Settings.Packages);
 			}
 
 			LoadPeers();
@@ -382,25 +370,25 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Base) && Settings.Generators.Any())
 			{
-				Seedbase = new Seedbase(this);
+				Hub = new Hub(this);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
 				Resources = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
-				PackageBase = new PackageBase(this, Resources, Settings.Packages);
+				Packages = new PackageBase(this, Resources, Settings.Packages);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
 			{
-				Chainbase = new Chainbase(Zone, Settings.Roles, Settings.Database, Workflow?.Log, DatabaseEngine);
+				Mcv = new Mcv(Zone, Settings.Roles, Settings.Database, Workflow?.Log, DatabaseEngine);
 		
 				//if(Database.LastConfirmedRound != null && Database.LastConfirmedRound.Members.FirstOrDefault().Generator == Zone.Father0)
 				//{
 				//	Members = new List<OnlineMember>{ new() {Generator = Zone.Father0, IPs = new[] {Zone.GenesisIP}}};
 				//}
 
-				Chainbase.ConsensusConcluded += (r, reached) =>
+				Mcv.ConsensusConcluded += (r, reached) =>
 												{
 													if(reached)
 													{
@@ -420,7 +408,7 @@ namespace Uccs.Net
 													}
 												};
 
-				Chainbase.Confirmed += r =>	{
+				Mcv.Confirmed += r =>	{
 												IncomingTransactions.RemoveAll(t => t.Expiration <= r.Id);
 												Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
 											 };
@@ -463,7 +451,7 @@ namespace Uccs.Net
 												{
 													ProcessConnectivity();
 												
-													if(Chainbase != null)
+													if(Mcv != null)
 													{
 														if(Synchronization == Synchronization.Synchronized)
 														{
@@ -510,7 +498,7 @@ namespace Uccs.Net
 			lock(Lock)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(methodBase.Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings.Profile, m + "." + Core.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(Settings.Profile, m + "." + Sun.FailureExt), ex.ToString());
 				Workflow?.Log?.ReportError(this, m, ex);
 	
 				Stop("Exception");
@@ -664,7 +652,7 @@ namespace Uccs.Net
 				Connections.Count() >= Settings.PeersMin && 
 				(!Settings.Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Database.PeersMin))
 			{
-				if(Chainbase != null)
+				if(Mcv != null)
 				{
 					StartSynchronization();
 				}
@@ -1015,13 +1003,13 @@ namespace Uccs.Net
 					//int end = -1; 
 					int from = -1;
 
-					Chainbase.LoadedRounds.Clear();
+					Mcv.LoadedRounds.Clear();
 
-					var peer = Connect(Chainbase.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
+					var peer = Connect(Mcv.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
 
-					if(Chainbase.Roles.HasFlag(Role.Base) && !Chainbase.Roles.HasFlag(Role.Chain))
+					if(Mcv.Roles.HasFlag(Role.Base) && !Mcv.Roles.HasFlag(Role.Chain))
 					{
-						Chainbase.Tail.Clear();
+						Mcv.Tail.Clear();
 		
 						stamp = peer.GetStamp();
 		
@@ -1030,12 +1018,12 @@ namespace Uccs.Net
 							var ts = peer.GetTableStamp(t.Type, (t.Type switch
 																		{ 
 																			Tables.Accounts	=> stamp.Accounts.Where(i => {
-																															var c = Chainbase.Accounts.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Chainbase.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															var c = Mcv.Accounts.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Mcv.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														 }),
 																			Tables.Authors	=> stamp.Authors.Where(i =>	{
-																															var c = Chainbase.Authors.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Chainbase.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															var c = Mcv.Authors.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Mcv.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
 																			_ => throw new SynchronizationException()
 																		}
@@ -1066,7 +1054,7 @@ namespace Uccs.Net
 											throw new SynchronizationException();
 										}
 									
-										Chainbase.Engine.Write(b);
+										Mcv.Engine.Write(b);
 									}
 		
 									Workflow.Log?.Report(this, "Cluster downloaded", $"{t.GetType().Name} {c.Id}");
@@ -1076,10 +1064,10 @@ namespace Uccs.Net
 							t.CalculateSuperClusters();
 						}
 		
-						download<AccountEntry,	AccountAddress>(Chainbase.Accounts);
-						download<AuthorEntry, string>(Chainbase.Authors);
+						download<AccountEntry,	AccountAddress>(Mcv.Accounts);
+						download<AuthorEntry, string>(Mcv.Authors);
 		
-						var r = new Round(Chainbase){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
+						var r = new Round(Mcv){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
 		
 						var rd = new BinaryReader(new MemoryStream(stamp.BaseState));
 		
@@ -1093,17 +1081,17 @@ namespace Uccs.Net
 						r.Analyzers		= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
 						r.Funds			= rd.ReadList<AccountAddress>();
 		
-						Chainbase.BaseState	= stamp.BaseState;
+						Mcv.BaseState	= stamp.BaseState;
 						//Database.Members	= r.Members;
 						//Database.Funds		= r.Funds;
 		
-						Chainbase.LastConfirmedRound = r;
-						Chainbase.LastCommittedRound = r;
+						Mcv.LastConfirmedRound = r;
+						Mcv.LastCommittedRound = r;
 		
-						Chainbase.Hashify();
+						Mcv.Hashify();
 		
-						if(peer.GetStamp().BaseHash.SequenceEqual(Chainbase.BaseHash))
- 							Chainbase.LoadedRounds.Add(r.Id, r);
+						if(peer.GetStamp().BaseHash.SequenceEqual(Mcv.BaseHash))
+ 							Mcv.LoadedRounds.Add(r.Id, r);
 						else
 							throw new SynchronizationException();
 
@@ -1117,17 +1105,17 @@ namespace Uccs.Net
 		
 						lock(Lock)
 							if(final == -1)
-								if(Chainbase.Roles.HasFlag(Role.Chain))
-									from = Chainbase.LastConfirmedRound.Id + 1;
+								if(Mcv.Roles.HasFlag(Role.Chain))
+									from = Mcv.LastConfirmedRound.Id + 1;
 								else
 									if(from == -1)
-										from = Math.Max(stamp.FirstTailRound, Chainbase.LastConfirmedRound == null ? -1 : (Chainbase.LastConfirmedRound.Id + 1));
+										from = Math.Max(stamp.FirstTailRound, Mcv.LastConfirmedRound == null ? -1 : (Mcv.LastConfirmedRound.Id + 1));
 									else
-										from = Chainbase.LastConfirmedRound.Id + 1;
+										from = Mcv.LastConfirmedRound.Id + 1;
 							else
 								from = final;
 		
-						var to = from + Chainbase.Pitch;
+						var to = from + Mcv.Pitch;
 		
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
 						 	
@@ -1136,13 +1124,13 @@ namespace Uccs.Net
 							{
 								foreach(var i in SyncCache.Keys)
 								{
-									if(i < rp.LastConfirmedRound + 1 - Chainbase.Pitch)
+									if(i < rp.LastConfirmedRound + 1 - Mcv.Pitch)
 									{
 										SyncCache.Remove(i);
 									}
 								}
 
-								var rounds = rp.Read(Chainbase);
+								var rounds = rp.Read(Mcv);
 									
 								bool confirmed = true;
 				
@@ -1158,12 +1146,12 @@ namespace Uccs.Net
 												t.Placing = PlacingStage.Placed;
 										}
 				
-										Chainbase.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
-										Chainbase.Tail.Add(r);
-										Chainbase.Tail = Chainbase.Tail.OrderByDescending(i => i.Id).ToList();
+										Mcv.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
+										Mcv.Tail.Add(r);
+										Mcv.Tail = Mcv.Tail.OrderByDescending(i => i.Id).ToList();
 		
 										r.Confirmed = false;
-										Chainbase.Confirm(r, true);
+										Mcv.Confirm(r, true);
 //#if DEBUG
 //										if(!r.Hash.SequenceEqual(h))
 //										{
@@ -1173,11 +1161,11 @@ namespace Uccs.Net
 									}
 									else
 									{
-										if(!Chainbase.Roles.HasFlag(Role.Chain))
+										if(!Mcv.Roles.HasFlag(Role.Chain))
 										{ 
-											var d = rp.LastConfirmedRound % Chainbase.TailLength;
+											var d = rp.LastConfirmedRound % Mcv.TailLength;
 											
-											if(d < Chainbase.Pitch || Chainbase.TailLength - d < Chainbase.Pitch * 3)
+											if(d < Mcv.Pitch || Mcv.TailLength - d < Mcv.Pitch * 3)
 												break;
 										}
 
@@ -1202,7 +1190,7 @@ namespace Uccs.Net
 										
 								Workflow.Log?.Report(this, "Rounds received", $"{rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
 							}
-							else if(Chainbase.BaseHash.SequenceEqual(rp.BaseHash))
+							else if(Mcv.BaseHash.SequenceEqual(rp.BaseHash))
 							{
 								Synchronization = Synchronization.Synchronized;
 
@@ -1314,7 +1302,7 @@ namespace Uccs.Net
 
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 			{
- 				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Chainbase.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+ 				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Mcv.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
  
 				if(v.RoundId < min || (SyncCache.ContainsKey(v.RoundId) && SyncCache[v.RoundId].Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
 					return false;
@@ -1322,7 +1310,7 @@ namespace Uccs.Net
 				if(!valid())
 					return false;
 
-				Core.SyncRound r;
+				Sun.SyncRound r;
 						
 				if(!SyncCache.TryGetValue(v.RoundId, out r))
 				{
@@ -1341,18 +1329,18 @@ namespace Uccs.Net
 			}
 			else if(Synchronization == Synchronization.Synchronized)
 			{
-				if(v.RoundId <= Chainbase.LastConfirmedRound.Id || Chainbase.LastConfirmedRound.Id + Chainbase.Pitch * 2 < v.RoundId)
+				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.Pitch * 2 < v.RoundId)
 					return false;
 
-				if(v.RoundId <= Chainbase.LastVotedRound.Id - Chainbase.Pitch / 2)
+				if(v.RoundId <= Mcv.LastVotedRound.Id - Mcv.Pitch / 2)
 					return false;
 
-				var r = Chainbase.GetRound(v.RoundId);
+				var r = Mcv.GetRound(v.RoundId);
 				
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
 
-				Chainbase.Add(v);
+				Mcv.Add(v);
 
 				if(!valid()) /// do it only after adding to the chainbase
 				{
@@ -1369,9 +1357,9 @@ namespace Uccs.Net
 		{
 			Statistics.Generating.Begin();
 
-			if(Chainbase.AnalyzersOf(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch).Any(i => i.Account == Settings.Analyzer))
+			if(Mcv.AnalyzersOf(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch).Any(i => i.Account == Settings.Analyzer))
 			{
-				var r = Chainbase.GetRound(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch);
+				var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch);
 
 				if(r.AnalyzerVoxes.Any(i => i.Account == Settings.Analyzer))
 					return;
@@ -1419,15 +1407,15 @@ namespace Uccs.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				if(!Chainbase.MembersOf(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch).Any(i => i.Account == g))
+				if(!Mcv.MembersOf(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch).Any(i => i.Account == g))
 				{
 					///var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
 					MemberJoinRequest jr = null;
 
-					for(int i = Chainbase.LastNonEmptyRound.Id; i >= Chainbase.LastConfirmedRound.Id - Chainbase.Pitch; i--)
+					for(int i = Mcv.LastNonEmptyRound.Id; i >= Mcv.LastConfirmedRound.Id - Mcv.Pitch; i--)
 					{
-						var r = Chainbase.FindRound(i);
+						var r = Mcv.FindRound(i);
 
 						if(r != null)
 						{
@@ -1438,17 +1426,17 @@ namespace Uccs.Net
 						}
 					}
 
-					if(jr == null || jr.RoundId + Chainbase.Pitch <= Chainbase.LastConfirmedRound.Id)
+					if(jr == null || jr.RoundId + Mcv.Pitch <= Mcv.LastConfirmedRound.Id)
 					{
 						jr = new MemberJoinRequest()
 							{	
-								RoundId	= Chainbase.LastConfirmedRound.Id + Chainbase.Pitch,
+								RoundId	= Mcv.LastConfirmedRound.Id + Mcv.Pitch,
 								//IPs  = new [] {IP}
 							};
 						
 						jr.Sign(Zone, g);
 						
-						Chainbase.GetRound(jr.RoundId).JoinRequests.Add(jr);
+						Mcv.GetRound(jr.RoundId).JoinRequests.Add(jr);
 						//blocks.Add(b);
 
 						//if(BaseConnections.Count(i => i.Established) < Settings.Database.PeersMin)
@@ -1466,7 +1454,7 @@ namespace Uccs.Net
 				}
 				else
 				{
-					var r = Chainbase.GetRound(Chainbase.LastConfirmedRound.Id + 1 + Chainbase.Pitch);
+					var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch);
 
 					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
@@ -1475,20 +1463,20 @@ namespace Uccs.Net
 						continue;
 
 					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
-					var txs = Chainbase.CollectValidTransactions(IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Verified), r).ToArray();
+					var txs = Mcv.CollectValidTransactions(IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Verified), r).ToArray();
 
 					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
 					Vote createvote()
 					{
-						return new Vote(Chainbase){	RoundId				= r.Id,
+						return new Vote(Mcv){	RoundId				= r.Id,
 													Try					= r.Try,
-													ParentSummary		= Chainbase.Summarize(r.Parent),
+													ParentSummary		= Mcv.Summarize(r.Parent),
 													Created				= Clock.Now,
-													TimeDelta			= prev == null || prev.RoundId <= Chainbase.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
-													Violators			= Chainbase.ProposeViolators(r).ToList(),
-													MemberJoiners		= Chainbase.ProposeMemberJoiners(r).ToList(),
-													MemberLeavers		= Chainbase.ProposeMemberLeavers(r, g).ToList(),
+													TimeDelta			= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
+													Violators			= Mcv.ProposeViolators(r).ToList(),
+													MemberJoiners		= Mcv.ProposeMemberJoiners(r).ToList(),
+													MemberLeavers		= Mcv.ProposeMemberLeavers(r, g).ToList(),
 													//HubJoiners			= Database.ProposeHubJoiners(r).ToList(),
 													//HubLeavers			= Database.ProposeHubLeavers(r, g).ToList(),
 													AnalyzerJoiners		= Settings.ProposedAnalyzerJoiners,
@@ -1499,7 +1487,7 @@ namespace Uccs.Net
 													HubIPs				= new IPAddress[] {IP} };
 					}
 	
-					if(txs.Any() || Chainbase.Tail.Any(i => Chainbase.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
+					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
 					{
 						var b = createvote();
 
@@ -1527,7 +1515,7 @@ namespace Uccs.Net
 						votes.Add(b);
 					}
 
-					while(Chainbase.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+					while(Mcv.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
 					{
 						r = r.Previous;
 
@@ -1545,7 +1533,7 @@ namespace Uccs.Net
 			{
 				foreach(var b in votes)
 				{
-					Chainbase.Add(b);
+					Mcv.Add(b);
 				}
 
 // 				var pieces = new List<BlockPiece>();
@@ -1828,7 +1816,7 @@ namespace Uccs.Net
 								t.AddOperation(o);
 							}
 
-							t.Sign(Vault.GetKey(g.Key), m, Chainbase.GetValidityPeriod(rmax));
+							t.Sign(Vault.GetKey(g.Key), m, Mcv.GetValidityPeriod(rmax));
 							txs.Add(t);
 						}
 					}
@@ -2074,11 +2062,11 @@ namespace Uccs.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(!Settings.Generators.Any(g => Chainbase.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
+			if(!Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
 				return new();
 
 			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
-											i.Expiration > Chainbase.LastConfirmedRound.Id &&
+											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid).ToList();
 								
@@ -2309,7 +2297,7 @@ namespace Uccs.Net
 
 		public Coin EstimateFee(IEnumerable<Operation> operations)
 		{
-			return Chainbase != null ? Operation.CalculateTransactionFee(Chainbase.LastConfirmedRound.Factor, operations) : Coin.Zero;
+			return Mcv != null ? Operation.CalculateTransactionFee(Mcv.LastConfirmedRound.Factor, operations) : Coin.Zero;
 		}
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)

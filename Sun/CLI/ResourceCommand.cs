@@ -16,7 +16,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "package";
 
-		public ResourceCommand(Zone zone, Settings settings, Log log, Func<Core> core, Xon args) : base(zone, settings, log, core, args)
+		public ResourceCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
 		{
 		}
 
@@ -39,7 +39,7 @@ namespace Uccs.Sun.CLI
 													Args.Has("parent")		? GetString("parent") : null, 
 													Args.Has("analysisfee") ? Coin.ParseDecimal(Args.GetString("analysisfee")) : Coin.Zero);
 
-					return Core.Enqueue(r, GetAwaitStage(), Workflow);
+					return Sun.Enqueue(r, GetAwaitStage(), Workflow);
 				}
 
 				case "u" : 
@@ -55,7 +55,7 @@ namespace Uccs.Sun.CLI
 					if(Args.Has("analysisfee")) r.Change(Coin.ParseDecimal(Args.GetString("analysisfee")));
 					if(Args.Has("recursive"))	r.ChangeRecursive();
 					
-					return Core.Enqueue(r, GetAwaitStage(), Workflow);
+					return Sun.Enqueue(r, GetAwaitStage(), Workflow);
 				}
 
 				case "s" :
@@ -63,7 +63,7 @@ namespace Uccs.Sun.CLI
 				{
 					try
 					{
-						var r = Core.Call(Role.Base, i => i.FindResource(GetResourceAddress("address")), Workflow);
+						var r = Sun.Call(Role.Base, i => i.FindResource(GetResourceAddress("address")), Workflow);
 	
 						Dump(r.Resource);
 						//Workflow.Log?.Report(this, GetString("address"));
@@ -74,7 +74,7 @@ namespace Uccs.Sun.CLI
 						//if(r.Resource.Data != null)
 						//	Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
 
-						var e = Core.Call(Role.Base, i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
+						var e = Sun.Call(Role.Base, i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
 
 						if(e.Resources.Any())
 						{

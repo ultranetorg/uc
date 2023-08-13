@@ -35,13 +35,13 @@ namespace Uccs.Net
 		public List<ReleaseBaseItem>	Releases = new();
 		public List<FileDownload>			Downloads = new();
 		Thread							DeclaringThread;
-		public Core						Core;
+		public Sun						Sun;
 		public object					Lock = new object();
 		public Zone						Zone;
 
-		public ResourceBase(Core core, Zone zone, string packagespath)
+		public ResourceBase(Sun sun, Zone zone, string packagespath)
 		{
-			Core = core;
+			Sun = sun;
 			Zone = zone;
 
 			PackagesPath = packagespath;
@@ -54,10 +54,10 @@ namespace Uccs.Net
 											.Select(z => new ReleaseBaseItem(PathToAddress(z), Hex.Decode(Path.GetFileName(z))))))
 												.ToList();
 
-			if(core != null && !core.IsClient)
+			if(sun != null && !sun.IsClient)
 			{
 				DeclaringThread = new Thread(Declaring);
-				DeclaringThread.Name = $"{Core.Settings.IP.GetAddressBytes()[3]} Declaring";
+				DeclaringThread.Name = $"{Sun.Settings.IP.GetAddressBytes()[3]} Declaring";
 				DeclaringThread.Start();
 			}
 		}
@@ -195,7 +195,7 @@ namespace Uccs.Net
 				
 			if(d == null)
 			{
-				d = new FileDownload(Core, release, hash, file, filehash, workflow);
+				d = new FileDownload(Sun, release, hash, file, filehash, workflow);
 				Downloads.Add(d);
 			}
 		
@@ -221,15 +221,15 @@ namespace Uccs.Net
 
 		void Declaring()
 		{
-			Core.Workflow.Log?.Report(this, "Declaring started");
+			Sun.Workflow.Log?.Report(this, "Declaring started");
 
 			var tasks = new Dictionary<AccountAddress, Task>(32);
 
 			try
 			{
-				while(Core.Workflow.Active)
+				while(Sun.Workflow.Active)
 				{
-					Core.Workflow.Wait(100);
+					Sun.Workflow.Wait(100);
 
 					ReleaseBaseItem[] rs;
 					//List<Peer> used;
@@ -243,7 +243,7 @@ namespace Uccs.Net
 					if(!rs.Any())
 						continue;
 
-					var cr = Core.Call<MembersResponse>(Role.Base, i => i.GetMembers(), Core.Workflow);
+					var cr = Sun.Call<MembersResponse>(Role.Base, i => i.GetMembers(), Sun.Workflow);
 	
 					if(!cr.Members.Any())
 						continue;
@@ -263,7 +263,7 @@ namespace Uccs.Net
 
 								Monitor.Exit(Lock);
 								{
-									Task.WaitAny(ts, Core.Workflow.Cancellation.Token);
+									Task.WaitAny(ts, Sun.Workflow.Cancellation.Token);
 								}
 								Monitor.Enter(Lock);
 							}
@@ -273,7 +273,7 @@ namespace Uccs.Net
 							var t = Task.Run(() =>	{
 														try
 														{
-															Core.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {Hash = i.Hash, Availability = i.Availability}).ToArray()), Core.Workflow);
+															Sun.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {Hash = i.Hash, Availability = i.Availability}).ToArray()), Sun.Workflow);
 														}
 														catch(ConnectionFailedException)
 														{
@@ -297,7 +297,7 @@ namespace Uccs.Net
 			}
 			catch(Exception ex) when (!Debugger.IsAttached)
 			{
-				Core.Stop(MethodBase.GetCurrentMethod(), ex);
+				Sun.Stop(MethodBase.GetCurrentMethod(), ex);
 			}
 		}
 	}

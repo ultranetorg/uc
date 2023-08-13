@@ -33,7 +33,7 @@ namespace Uccs.Sun.FUI
 			Close();
 		}
 
-		public bool Ask(Core core, AccountKey account, Operation operation)
+		public bool Ask(Net.Sun sun, AccountKey account, Operation operation)
 		{
 			from.Text = account.ToString();
 			
@@ -41,7 +41,7 @@ namespace Uccs.Sun.FUI
 			t.AddOperation(operation);
 			t.Sign(account, new AccountAddress(Nethereum.Signer.EthECKey.GenerateKey()), 0);
 
-			var f = core.EstimateFee(t.Operations);
+			var f = sun.EstimateFee(t.Operations);
 
 			fee.Text = f > 0 ? f.ToHumanString() : "unavailavle"; 
 

@@ -7,14 +7,14 @@ namespace Uccs.Net
 	{
 		public IEnumerable<Transaction>	Transactions {get; set;}
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
-				if(core.Synchronization != Synchronization.Synchronized)
+			lock(sun.Lock)
+				if(sun.Synchronization != Synchronization.Synchronized)
 					throw new  RdcNodeException(RdcNodeError.NotSynchronized);
 				else
 				{
-					var acc = core.ProcessIncoming(Transactions);
+					var acc = sun.ProcessIncoming(Transactions);
 
 					return new SendTransactionsResponse {Accepted = acc.Select(i => i.Signature).ToList()};
 				}

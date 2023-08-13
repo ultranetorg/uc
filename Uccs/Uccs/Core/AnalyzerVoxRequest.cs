@@ -23,9 +23,9 @@ namespace Uccs.Net
 			return base.ToString() + $", Account={Account}, Analyses={{{Analyses.Count()}}}";
 		}
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
 				return null;
 			}

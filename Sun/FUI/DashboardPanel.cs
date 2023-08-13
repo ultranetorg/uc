@@ -13,11 +13,11 @@ namespace Uccs.Sun.FUI
 			InitializeComponent();
 		}
 
-		public DashboardPanel(Core d, Vault vault) : base(d, vault)
+		public DashboardPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
-			monitor.Core	= d;
+			monitor.Sun	= d;
 
 			//d.MainStarted += c =>	{
 			//							if(Core.Database != null && !Core.Database.BlockAdded.GetInvocationList().Any(i => i == monitor.OnBlockAdded))
@@ -32,7 +32,7 @@ namespace Uccs.Sun.FUI
 
 			if(first)
 			{
-				logbox.Log = Core.Workflow.Log;
+				logbox.Log = Sun.Workflow.Log;
 
 				BindAccounts(source);
 				BindAccounts(destination);
@@ -54,9 +54,9 @@ namespace Uccs.Sun.FUI
 		{
 			List<KeyValuePair<string, string>> i;
 
-			lock(Core.Lock)
+			lock(Sun.Lock)
 			{
-				i = Core.Summary;
+				i = Sun.Summary;
 			}
 
 			fields.Text = string.Join('\n', i.Select(j => j.Key));
@@ -69,7 +69,7 @@ namespace Uccs.Sun.FUI
 		{
 			if(source.SelectedItem is AccountAddress a)
 			{
-				amount.Coins = Core.Chainbase.Accounts.Find(a, Core.Chainbase.LastConfirmedRound.Id).Balance;
+				amount.Coins = Sun.Mcv.Accounts.Find(a, Sun.Mcv.LastConfirmedRound.Id).Balance;
 			}
 		}
 
@@ -86,7 +86,7 @@ namespace Uccs.Sun.FUI
 			{
 				try
 				{
-					Core.Enqueue(new UntTransfer(signer, AccountAddress.Parse(destination.Text), amount.Coins), PlacingStage.Null, new Workflow());
+					Sun.Enqueue(new UntTransfer(signer, AccountAddress.Parse(destination.Text), amount.Coins), PlacingStage.Null, new Workflow());
 				}
 				catch(RequirementException ex)
 				{

@@ -7,20 +7,20 @@ namespace Uccs.Net
 	{
 		public IEnumerable<TransactionsAddress>	Transactions { get; set; }
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Chain))				throw new RdcNodeException(RdcNodeError.NotChain);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				if(!sun.Settings.Roles.HasFlag(Role.Chain))				throw new RdcNodeException(RdcNodeError.NotChain);
+				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 	
 				return	new TransactionStatusResponse
 						{
-							LastConfirmedRoundId = core.Chainbase.LastConfirmedRound.Id,
+							LastConfirmedRoundId = sun.Mcv.LastConfirmedRound.Id,
 							Transactions = Transactions.Select(t => new {	Q = t,
-																			T = core.IncomingTransactions.Find(i => i.Signer == t.Account && i.Id == t.Id)
+																			T = sun.IncomingTransactions.Find(i => i.Signer == t.Account && i.Id == t.Id)
 																			?? 
-																			core.Chainbase.Accounts.FindLastTransaction(t.Account, i => i.Id == t.Id)})
+																			sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Id == t.Id)})
 														.Select(i => new TransactionStatusResponse.Item{Account		= i.Q.Account,
 																										Id			= i.Q.Id,
 																										Placing		= i.T == null ? PlacingStage.FailedOrNotFound : i.T.Placing}).ToArray()

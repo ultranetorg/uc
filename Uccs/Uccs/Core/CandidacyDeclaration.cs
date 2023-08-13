@@ -6,7 +6,7 @@ namespace Uccs.Net
 	{
 		public Coin				Bail;
 		public override string	Description => $"{Bail} UNT";
-		public override bool	Valid => DevSettings.DisableBailMin ? true : Bail >= Chainbase.BailMin;
+		public override bool	Valid => DevSettings.DisableBailMin ? true : Bail >= Mcv.BailMin;
 		
 		public CandidacyDeclaration()
 		{
@@ -30,7 +30,7 @@ namespace Uccs.Net
 			w.Write(Bail);
 		}
 
-		public override void Execute(Chainbase chain, Round round)
+		public override void Execute(Mcv chain, Round round)
 		{
 			var e = round.AffectAccount(Signer);
 

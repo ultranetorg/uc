@@ -51,7 +51,7 @@ namespace Uccs.Net
 		{
 		}
 		
-		public abstract void Execute(Chainbase chain, Round round);
+		public abstract void Execute(Mcv chain, Round round);
 		protected abstract void WriteConfirmed(BinaryWriter w);
 		protected abstract void ReadConfirmed(BinaryReader r);
 
@@ -121,7 +121,7 @@ namespace Uccs.Net
 		{
 			int size = CalculateSize();
 
-			return Chainbase.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
+			return Mcv.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
 		}
 		
 		public static Coin CalculateTransactionFee(Coin factor, IEnumerable<Operation> operations)
@@ -134,12 +134,12 @@ namespace Uccs.Net
 			 	i.WriteConfirmed(w); 
 			}
 
-			return Chainbase.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return Mcv.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
 		public Coin CalculateSpaceFee(Coin factor, int size, byte years)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Chainbase.SpaceFeePerByte * (1 << years);
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Mcv.SpaceFeePerByte * (1 << years);
 		}
 	}
 }

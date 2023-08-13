@@ -35,7 +35,7 @@ namespace Uccs.Net
 			w.Write(Amount);
 		}
 
-		public override void Execute(Chainbase chain, Round round)
+		public override void Execute(Mcv chain, Round round)
 		{
 			var s = round.AffectAccount(Signer);
 			

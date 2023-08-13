@@ -12,7 +12,7 @@ namespace Uccs.Sun.FUI
 	{
 		Workflow ManifestWorkflow;
 
-		public ReleasePanel(Core d, Vault vault) : base(d, vault)
+		public ReleasePanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -34,7 +34,7 @@ namespace Uccs.Sun.FUI
 				if(string.IsNullOrWhiteSpace(Query.Text))
 					return;
 
-				foreach(var r in Core.Chainbase.QueryRelease(Query.Text))
+				foreach(var r in Sun.Mcv.QueryRelease(Query.Text))
 				{
 					var i = new ListViewItem(r.Address.ToString());
 
@@ -77,9 +77,9 @@ namespace Uccs.Sun.FUI
 				Task.Run(() =>	{
 									try
 									{
-										Core.Resources.GetFile(r.Address, r.Data, Package.ManifestFile, null, ManifestWorkflow);
+										Sun.Resources.GetFile(r.Address, r.Data, Package.ManifestFile, null, ManifestWorkflow);
 
-										var p = Core.PackageBase.Find(new PackageAddress(r.Address));
+										var p = Sun.Packages.Find(new PackageAddress(r.Address));
 
 										BeginInvoke((MethodInvoker)delegate
 													{

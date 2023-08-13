@@ -20,28 +20,28 @@ namespace Uccs.Net
 		}
 
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
 
 ///			if(Account == null)
 ///			{
-///				Account = core.Zone.Cryptography.AccountFrom(Signature, Hashify(core.Zone));
+///				Account = sun.Zone.Cryptography.AccountFrom(Signature, Hashify(sun.Zone));
 ///			}
 
-///			lock(core.Lock)
+///			lock(sun.Lock)
 ///			{
-///				var m = core.Members.Find(i => i.Generator == Account);
+///				var m = sun.Members.Find(i => i.Generator == Account);
 ///
 ///				if(m == null)
 ///				{
-///					if(core.Settings.Roles.HasFlag(Role.Base))
+///					if(sun.Settings.Roles.HasFlag(Role.Base))
 ///					{
-///						if(core.Synchronization == Synchronization.Synchronized && !core.Database.LastConfirmedRound.Members.Any(i => i.Generator == Account))
+///						if(sun.Synchronization == Synchronization.Synchronized && !sun.Database.LastConfirmedRound.Members.Any(i => i.Generator == Account))
 ///							return null;
 ///					}
 ///
 ///					m = new Member{Generator = Account};
-///					core.Members.Add(m)	;
+///					sun.Members.Add(m)	;
 ///				}
 ///
 ///				if(IPs.Any())
@@ -50,13 +50,13 @@ namespace Uccs.Net
 ///					{
 ///						m.IPs = IPs.ToArray();
 ///		
-///						//foreach(var i in core.Connections.Where(i => i != Peer))
+///						//foreach(var i in sun.Connections.Where(i => i != Peer))
 ///						//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
 ///					}
 ///				}
 ///				else if(m.Proxy == null || m.OnlineSince < Time)
 ///				{
-///					//foreach(var i in core.Connections.Where(i => i != Peer))
+///					//foreach(var i in sun.Connections.Where(i => i != Peer))
 ///					//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
 ///				
 ///					m.Proxy = Peer;
@@ -69,26 +69,26 @@ namespace Uccs.Net
 			var s = new MemoryStream(Raw);
 			var br = new BinaryReader(s);
 
-			var v = new Vote(core.Chainbase);
+			var v = new Vote(sun.Mcv);
 			v.RawForBroadcast = Raw;
 			v.ReadForBroadcast(br);
 
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
+				if(!sun.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
 
-				var accepted = core.ProcessIncoming(v);
+				var accepted = sun.ProcessIncoming(v);
 
-				if(core.Synchronization == Synchronization.Synchronized)
+				if(sun.Synchronization == Synchronization.Synchronized)
 				{
-					var r = core.Chainbase.FindRound(v.RoundId);
+					var r = sun.Mcv.FindRound(v.RoundId);
 					var _v = r.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
 
 					if(_v != null)
 					{
 						if(accepted) /// for the new vote
 						{
-							var m = core.Chainbase.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
+							var m = sun.Mcv.LastConfirmedRound.Members.Find(i => i.Account == v.Generator);
 							
 							if(m != null)
 							{
@@ -104,7 +104,7 @@ namespace Uccs.Net
 
 				if(accepted)
 				{
-					core.Broadcast(v, Peer);
+					sun.Broadcast(v, Peer);
 				}
 			}
 
@@ -112,15 +112,15 @@ namespace Uccs.Net
 /*
 			var accepted = false;
 
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
+				if(!sun.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
 
-				if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Downloading || core.Synchronization == Synchronization.Synchronizing)
+				if(sun.Synchronization == Synchronization.Null || sun.Synchronization == Synchronization.Downloading || sun.Synchronization == Synchronization.Synchronizing)
 				{
- 					var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+ 					var min = sun.SyncCache.Any() ? sun.SyncCache.Max(i => i.Key) - Database.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
  
-					if(v.RoundId < min || (core.SyncCache.ContainsKey(v.RoundId) && core.SyncCache[v.RoundId].Blocks.Any(j => j.Signature.SequenceEqual(v.Signature))))
+					if(v.RoundId < min || (sun.SyncCache.ContainsKey(v.RoundId) && sun.SyncCache[v.RoundId].Blocks.Any(j => j.Signature.SequenceEqual(v.Signature))))
 					{
 					}
 					else
@@ -129,35 +129,35 @@ namespace Uccs.Net
 
 						Core.SyncRound r;
 						
-						if(!core.SyncCache.TryGetValue(v.RoundId, out r))
+						if(!sun.SyncCache.TryGetValue(v.RoundId, out r))
 						{
-							r = core.SyncCache[v.RoundId] = new();
+							r = sun.SyncCache[v.RoundId] = new();
 						}
 
 						r.Blocks.Add(v);
 
-						foreach(var i in core.SyncCache.Keys)
+						foreach(var i in sun.SyncCache.Keys)
 						{
 							if(i < min)
 							{
-								core.SyncCache.Remove(i);
+								sun.SyncCache.Remove(i);
 							}
 						}	
 					}
 				}
-				else if(core.Synchronization == Synchronization.Synchronized)
+				else if(sun.Synchronization == Synchronization.Synchronized)
 				{
-					//var notolder = core.Database.LastConfirmedRound.Id - Database.Pitch;
-					//var notnewer = core.Database.LastConfirmedRound.Id + Database.Pitch * 2;
+					//var notolder = sun.Database.LastConfirmedRound.Id - Database.Pitch;
+					//var notnewer = sun.Database.LastConfirmedRound.Id + Database.Pitch * 2;
 
-					var d = core.Database;
+					var d = sun.Database;
 
 					if(v.RoundId <= d.LastConfirmedRound.Id || d.LastConfirmedRound.Id + Database.Pitch * 2 < v.RoundId)
 					{
 					}
 					else
 					{
-						var r = core.Database.GetRound(v.RoundId);
+						var r = sun.Database.GetRound(v.RoundId);
 				
 						var ep = r.Blocks.Find(i => i.Signature.SequenceEqual(v.Signature));
 
@@ -181,21 +181,21 @@ namespace Uccs.Net
 							//	s.Position = 0;
 							//	var rd = new BinaryReader(s);
 				
-								//var b = new Vote(core.Database);
+								//var b = new Vote(sun.Database);
 								//b.Generator = p.Generator;
 								//b.ReadForBroadcast(rd);
 
 								//if(b.Generator != p.Generator)
 								//	continue;
 
-								///core.Workflow?.Log.Report(this, "Block received ", $"{Hex.ToHexString(b.Generator.Prefix)}-{b.RoundId}");
+								///sun.Workflow?.Log.Report(this, "Block received ", $"{Hex.ToHexString(b.Generator.Prefix)}-{b.RoundId}");
 				
 							//}
 							accepted = true;
 
-							core.ProcessIncoming(new[] {v});
+							sun.ProcessIncoming(new[] {v});
 
-							var m = core.Database.LastConfirmedRound.Generators.Find(i => i.Account == v.Generator);
+							var m = sun.Database.LastConfirmedRound.Generators.Find(i => i.Account == v.Generator);
 		
 							if(m != null)
 							{
@@ -212,7 +212,7 @@ namespace Uccs.Net
 				{
 					var rq = new GeneratorVoxRequest(v);
 	
-					foreach(var i in core.Bases.Where(i => i != Peer))
+					foreach(var i in sun.Bases.Where(i => i != Peer))
 					{
 						i.Send(new GeneratorVoxRequest {Vote = rq.Vote});
 					}

@@ -31,7 +31,7 @@ namespace Uccs.Net
 			{
 				if(_Manifest == null)
 				{
-					_Manifest = new Manifest(PackageBase.Core.Zone){Address = Address};
+					_Manifest = new Manifest(PackageBase.Sun.Zone){Address = Address};
 					
 					lock(PackageBase.Resources.Lock)
 					{
@@ -69,13 +69,13 @@ namespace Uccs.Net
 		public ResourceBase				Resources;
 		string							ProductsPath;
 		List<Package>					Packages = new();
-		public Core						Core;
+		public Sun						Sun;
 		List<PackageDownload>			Downloads = new();
 		public object					Lock = new object();
 
-		public PackageBase(Core core, ResourceBase filebase, string productspath)
+		public PackageBase(Sun sun, ResourceBase filebase, string productspath)
 		{
-			Core = core;
+			Sun = sun;
 			Resources = filebase;
 			ProductsPath = productspath;
 
@@ -565,7 +565,7 @@ namespace Uccs.Net
 
 		public void Add(PackageAddress release, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
 		{
-			var qlatest = Core.Call(Role.Base, p => p.QueryResource($"{release.APR}/"), workflow);
+			var qlatest = Sun.Call(Role.Base, p => p.QueryResource($"{release.APR}/"), workflow);
 			var previos = qlatest.Resources.OrderBy(i => PackageAddress.ParseVesion(i.Resource)).FirstOrDefault();
 
 			AddRelease(release, previos != null ? PackageAddress.ParseVesion(previos.Resource) : null, sources, dependsdirectory, workflow);
@@ -609,8 +609,8 @@ namespace Uccs.Net
 										{
 											try
 											{
-												hst = Core.Call(Role.Base, c => c.QueryResource(package.APR + "/"), workflow).Resources.Select(i => new PackageAddress(i)).OrderBy(i => i.Version);
-												h = Core.Call(Role.Base, c => c.FindResource(package), workflow).Resource.Data;
+												hst = Sun.Call(Role.Base, c => c.QueryResource(package.APR + "/"), workflow).Resources.Select(i => new PackageAddress(i)).OrderBy(i => i.Version);
+												h = Sun.Call(Role.Base, c => c.FindResource(package), workflow).Resource.Data;
 												break;
 											}
 											catch(RdcEntityException)
@@ -620,7 +620,7 @@ namespace Uccs.Net
 										}
 
 										lock(Lock)
-											lock(Core.Resources.Lock)
+											lock(Sun.Resources.Lock)
 											{
 												d.Package = Find(package);
 											
@@ -629,16 +629,16 @@ namespace Uccs.Net
 													if(d.Package.Release.Hash.SequenceEqual(h))
 														goto done;
 													else
-														d.Package.Release = Core.Resources.Add(package, h); /// update to the latest
+														d.Package.Release = Sun.Resources.Add(package, h); /// update to the latest
 												} 
 												else
 												{	
-													d.Package = new Package(this, package, Core.Resources.Add(package, h));
+													d.Package = new Package(this, package, Sun.Resources.Add(package, h));
 													Packages.Add(d.Package);
 												}
 											}
 	 									
-										Core.Resources.GetFile(package, h, Package.ManifestFile, h, workflow);
+										Sun.Resources.GetFile(package, h, Package.ManifestFile, h, workflow);
 
 										bool incrementable;
 
@@ -670,7 +670,7 @@ namespace Uccs.Net
 											}
 										}
 
- 										Core.Resources.GetFile(	package, 
+ 										Sun.Resources.GetFile(	package, 
 																h, 
 																incrementable ? Package.IncrementalFile : Package.CompleteFile, 
 																incrementable ? d.Package.Manifest.IncrementalHash : d.Package.Manifest.CompleteHash, 

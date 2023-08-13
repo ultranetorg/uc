@@ -7,13 +7,13 @@ namespace Uccs.Net
 	{
 		public ResourceAddress		Resource { get; set; }
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
- 			lock(core.Lock)
+ 			lock(sun.Lock)
 			{	
-				if(core.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				if(sun.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
  			
-				var r = core.Chainbase.Authors.FindResource(Resource, core.Chainbase.LastConfirmedRound.Id);
+				var r = sun.Mcv.Authors.FindResource(Resource, sun.Mcv.LastConfirmedRound.Id);
 			
 				if(r == null)
 					throw new RdcEntityException(RdcEntityError.ResourceNotFound);

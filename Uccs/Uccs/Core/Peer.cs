@@ -50,7 +50,7 @@ namespace Uccs.Net
 
 		public Dictionary<Role, DateTime>	LastFailure = new();
 
-		Core						Core;
+		Sun							Sun;
 		NetworkStream				Stream;
 		BinaryWriter				Writer;
 		BinaryReader				Reader;
@@ -134,7 +134,7 @@ namespace Uccs.Net
 
 		public void Disconnect()
 		{
-			lock(Core.Lock)
+			lock(Sun.Lock)
 			{
 				if(Status != ConnectionStatus.Disconnecting)
 					Status = ConnectionStatus.Disconnecting;
@@ -167,13 +167,13 @@ namespace Uccs.Net
 			}
 		}
 
-		public void Start(Core core, TcpClient client, Hello h, string host)
+		public void Start(Sun sun, TcpClient client, Hello h, string host)
 		{
-			Core = core;
+			Sun = sun;
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = 0;
-			Tcp.SendTimeout = DevSettings.DisableTimeouts ? 0 : Core.Timeout;
+			Tcp.SendTimeout = DevSettings.DisableTimeouts ? 0 : Sun.Timeout;
 
 			PeerRank++;
 			Status		= ConnectionStatus.OK;
@@ -184,7 +184,7 @@ namespace Uccs.Net
 			BaseRank	= h.Roles.HasFlag(Role.Base)	? 1 : 0;
 			ChainRank	= h.Roles.HasFlag(Role.Chain)	? 1 : 0;
 
-			core.UpdatePeers(new Peer[]{this});
+			sun.UpdatePeers(new Peer[]{this});
 
 			ReadThread = new (() => Listening());
 			ReadThread.Name = $"{host} <- {IP.GetAddressBytes()[3]}";
@@ -199,9 +199,9 @@ namespace Uccs.Net
 		{
 			try
 			{
-				while(Core.Workflow.Active && Established)
+				while(Sun.Workflow.Active && Established)
 				{
-					Core.Statistics.Sending.Begin();
+					Sun.Statistics.Sending.Begin();
 	
 					RdcRequest[] ins;
 	
@@ -221,7 +221,7 @@ namespace Uccs.Net
 
 								try
 								{
-									r = i.Execute(Core);
+									r = i.Execute(Sun);
 									r.Result = RdcResult.Success;
 								}
 								catch(RdcNodeException ex)
@@ -252,7 +252,7 @@ namespace Uccs.Net
 							{
 								try
 								{
-									i.Execute(Core);
+									i.Execute(Sun);
 								}
 								catch(Exception) when(!Debugger.IsAttached)
 								{
@@ -297,14 +297,14 @@ namespace Uccs.Net
 					}
 					catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
 					{
-						lock(Core.Lock)
+						lock(Sun.Lock)
 							if(Status != ConnectionStatus.Disconnecting)
 								Status = ConnectionStatus.Failed;
 	
 						break;
 					}
 	
-					Core.Statistics.Sending.End();
+					Sun.Statistics.Sending.End();
 									
 					SendSignal.WaitOne();
 				}
@@ -323,11 +323,11 @@ namespace Uccs.Net
 				{
 					var pk = (PacketType)Reader.ReadByte();
 
-					lock(Core.Lock)
-						if(Core.Workflow.IsAborted || !Established)
+					lock(Sun.Lock)
+						if(Sun.Workflow.IsAborted || !Established)
 							return;
 					
-					Core.Statistics.Reading.Begin();
+					Sun.Statistics.Reading.Begin();
 
 					switch(pk)
 					{
@@ -337,7 +337,7 @@ namespace Uccs.Net
 
  							try
  							{
-								rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Core.Constract,i =>	{
+								rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Sun.Constract,i =>	{
 																												if(i is RdcRequest r) 
 																													r.Peer = this;
 																											});
@@ -362,7 +362,7 @@ namespace Uccs.Net
 							
 							try
  							{
-								rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Core.Constract, i => {});
+								rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Sun.Constract, i => {});
 							}
  							catch(Exception) when(!DevSettings.ThrowOnCorrupted)
  							{
@@ -388,17 +388,17 @@ namespace Uccs.Net
 						}
 
 						default:
-							Core.Workflow.Log?.ReportError(this, $"Wrong packet type {pk}");
+							Sun.Workflow.Log?.ReportError(this, $"Wrong packet type {pk}");
 							Status = ConnectionStatus.Failed;
 							return;
 					}
 
-					Core.Statistics.Reading.End();
+					Sun.Statistics.Reading.End();
 				}
 	 		}
 			catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
 			{
-				lock(Core.Lock)
+				lock(Sun.Lock)
 					if(Status != ConnectionStatus.Disconnecting)
 						Status = ConnectionStatus.Failed;
 			}

@@ -17,8 +17,8 @@ namespace Uccs.Sun.CLI
 		//public string			ProductsDirectory => Path.Join(Assembly.GetEntryAssembly().Location, "..");
 		protected Settings		Settings; 
 		protected Xon			Args;
-		protected Core			Core => GetCore();
-		protected Func<Core>	GetCore;
+		protected Net.Sun		Sun => GetCore();
+		protected Func<Net.Sun>	GetCore;
 		public static bool		ConsoleSupported { get; protected set; }
 		public Workflow			Workflow { get; }
 		public Zone				Zone;
@@ -38,7 +38,7 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		protected Command(Zone zone, Settings settings, Log log, Func<Core> getcore, Xon args)
+		protected Command(Zone zone, Settings settings, Log log, Func<Net.Sun> getcore, Xon args)
 		{
 			Zone = zone;
 			Settings = settings;
@@ -118,7 +118,7 @@ namespace Uccs.Sun.CLI
 				p = a.Password; 
 			}
 
-			return Core.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
+			return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
 		}
 
 		protected void Wait(Func<bool> waitiftrue)

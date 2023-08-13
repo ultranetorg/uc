@@ -14,7 +14,7 @@ namespace Uccs.Sun.FUI
 	{
 		Font Bold;
 
-		public GeneratorsPanel(Core d, Vault vault) : base(d, vault)
+		public GeneratorsPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -27,22 +27,22 @@ namespace Uccs.Sun.FUI
 			Generators.Items.Clear();
 			Proxies.Items.Clear();
 
-			if(Core.Chainbase?.LastConfirmedRound != null)
+			if(Sun.Mcv?.LastConfirmedRound != null)
 			{
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
-					foreach(var i in Core.Chainbase.LastConfirmedRound.Members.OrderBy(i => i.Account))
+					foreach(var i in Sun.Mcv.LastConfirmedRound.Members.OrderBy(i => i.Account))
 					{
 						var li = Generators.Items.Add(i.Account.ToString());
 	
-						if(Core.Settings.Generators.Contains(i.Account))
+						if(Sun.Settings.Generators.Contains(i.Account))
 						{
 							li.Font = Bold;
 						}
 	
 						li.Tag = i;
 						li.SubItems.Add(i.JoinedAt.ToString());
-						li.SubItems.Add(Database != null ? Core.Chainbase.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
+						li.SubItems.Add(Database != null ? Sun.Mcv.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
 						//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 					}
 				}
@@ -76,7 +76,7 @@ namespace Uccs.Sun.FUI
 		{
 			if(e.IsSelected)
 			{
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
 					foreach(var i in (e.Item.Tag as Member).BaseIPs)
 					{

@@ -4,14 +4,14 @@
 	{
 		public AccountAddress		Account {get; set;}
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
- 			lock(core.Lock)
+ 			lock(sun.Lock)
 			{
-	 			if(core.Synchronization != Synchronization.Synchronized)
+	 			if(sun.Synchronization != Synchronization.Synchronized)
 					throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
-				var ai = core.Chainbase.Accounts.Find(Account, core.Chainbase.LastConfirmedRound.Id);
+				var ai = sun.Mcv.Accounts.Find(Account, sun.Mcv.LastConfirmedRound.Id);
 
 				if(ai == null)
 					throw new RdcEntityException(RdcEntityError.AccountNotFound);

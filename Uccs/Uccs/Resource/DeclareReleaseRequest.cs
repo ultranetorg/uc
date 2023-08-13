@@ -27,11 +27,11 @@ namespace Uccs.Net
 		public IEnumerable<DeclareReleaseItem>	Releases { get; set; }
 		public override bool					WaitResponse => false;
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			if(!core.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
+			if(!sun.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
 
-			core.Seedbase.Add(Peer.IP, Releases);
+			sun.Hub.Add(Peer.IP, Releases);
 
 			return null;
 		}

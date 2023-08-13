@@ -4,15 +4,15 @@
 	{
 		public string Name {get; set;}
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
- 			lock(core.Lock)
+ 			lock(sun.Lock)
 			{	
-				if(Name.Length == 0)										throw new RdcEntityException(RdcEntityError.InvalidRequest);
-				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				if(Name.Length == 0)									throw new RdcEntityException(RdcEntityError.InvalidRequest);
+				if(!sun.Settings.Roles.HasFlag(Role.Base))				throw new RdcNodeException(RdcNodeError.NotBase);
+				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
-				return new AuthorResponse{Entry = core.Chainbase.Authors.Find(Name, core.Chainbase.LastConfirmedRound.Id)};
+				return new AuthorResponse{Entry = sun.Mcv.Authors.Find(Name, sun.Mcv.LastConfirmedRound.Id)};
 			}
 		}
 	}

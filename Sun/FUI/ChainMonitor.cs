@@ -25,7 +25,7 @@ namespace Uccs.Sun.FUI
 		Coin						emission = 0;
 		BigInteger					spent = 0;
 
-		public Core Core;
+		public Net.Sun Sun;
 
 		public ChainMonitor()
 		{
@@ -102,11 +102,11 @@ namespace Uccs.Sun.FUI
 			{
 				e.Graphics.Clear(Color.White);
 
-				if(Core?.Chainbase != null)
+				if(Sun?.Mcv != null)
 				{
-					lock(Core.Lock)
+					lock(Sun.Lock)
 					{
-						if(!Core.Chainbase.Tail.Any())
+						if(!Sun.Mcv.Tail.Any())
 							return;
 
 						var s = 8;
@@ -131,7 +131,7 @@ namespace Uccs.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var last = Core.Chainbase.Tail.FirstOrDefault(i => i.Votes.Any() || i.JoinRequests.Any());
+							var last = Sun.Mcv.Tail.FirstOrDefault(i => i.Votes.Any() || i.JoinRequests.Any());
 
 							if(last == null)
 							{
@@ -142,7 +142,7 @@ namespace Uccs.Sun.FUI
 							
 							for(int i = last.Id - n + 1; i <= last.Id; i++)
 							{
-								var r = Core.Chainbase.FindRound(i);
+								var r = Sun.Mcv.FindRound(i);
 								rounds.Add(r);
 	
 								if(showt && r != null)

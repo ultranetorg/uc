@@ -8,17 +8,17 @@ namespace Uccs.Net
 		public Tables	Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				if(core.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
-				if(core.Chainbase.BaseState == null)							throw new RdcNodeException(RdcNodeError.TooEearly);
+				if(sun.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
+				if(sun.Mcv.BaseState == null)							throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				switch(Table)
 				{
-					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Chainbase.Accounts.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => core.Chainbase.Authors	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Accounts	: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Accounts.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Authors		: return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Authors	.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 
 					default:
 						throw new RdcEntityException(RdcEntityError.InvalidRequest);

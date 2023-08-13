@@ -5,20 +5,20 @@ namespace Uccs.Net
 {
 	public class StampRequest : RdcRequest
 	{
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				if(core.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
-				if(core.Chainbase.BaseState == null)						throw new RdcNodeException(RdcNodeError.TooEearly);
+				if(sun.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
+				if(sun.Mcv.BaseState == null)						throw new RdcNodeException(RdcNodeError.TooEearly);
 
-				var r = new StampResponse {	BaseState				= core.Chainbase.BaseState,
-											BaseHash				= core.Chainbase.BaseHash,
-											LastCommitedRoundHash	= core.Chainbase.LastCommittedRound.Hash,
-											FirstTailRound			= core.Chainbase.Tail.Last().Id,
-											LastTailRound			= core.Chainbase.Tail.First().Id,
-											Accounts				= core.Chainbase.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Authors					= core.Chainbase.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+				var r = new StampResponse {	BaseState				= sun.Mcv.BaseState,
+											BaseHash				= sun.Mcv.BaseHash,
+											LastCommitedRoundHash	= sun.Mcv.LastCommittedRound.Hash,
+											FirstTailRound			= sun.Mcv.Tail.Last().Id,
+											LastTailRound			= sun.Mcv.Tail.First().Id,
+											Accounts				= sun.Mcv.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Authors					= sun.Mcv.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
 											};
 				return r;
 			}

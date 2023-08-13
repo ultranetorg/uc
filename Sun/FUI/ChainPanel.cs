@@ -13,7 +13,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class ChainPanel : MainPanel
 	{
-		public ChainPanel(Core d, Vault vault) : base(d, vault)
+		public ChainPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -22,24 +22,24 @@ namespace Uccs.Sun.FUI
 		{
 			if(first)
 			{
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
-					Core.Chainbase.BlockAdded += (b) =>
+					Sun.Mcv.BlockAdded += (b) =>
 												{
 													BeginInvoke((MethodInvoker)delegate
 																{
-																	lock(Core.Lock)
+																	lock(Sun.Lock)
 																	{
-																		Round.Minimum = Core.Settings.Roles.HasFlag(Role.Chain) ? 0 : Core.Chainbase.Tail.Last().Id;
-																		Round.Maximum = Core.Chainbase.LastNonEmptyRound.Id;
+																		Round.Minimum = Sun.Settings.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
+																		Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
 																	}
 																});
 												};
 
 					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
-					Round.Minimum = Core.Settings.Roles.HasFlag(Role.Chain) ? 0 : Core.Chainbase.Tail.Last().Id;
-					Round.Maximum = Core.Chainbase.LastNonEmptyRound.Id;
-					Round.Value = Core.Chainbase.LastNonEmptyRound.Id;
+					Round.Minimum = Sun.Settings.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
+					Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
+					Round.Value = Sun.Mcv.LastNonEmptyRound.Id;
 				}
 			}
 		}
@@ -76,9 +76,9 @@ namespace Uccs.Sun.FUI
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
 
-			lock(Core.Lock)
+			lock(Sun.Lock)
 			{
-				var r = Core.Chainbase.FindRound((int)Round.Value);
+				var r = Sun.Mcv.FindRound((int)Round.Value);
 
 				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" +
 									r.ConfirmedTime + "\n" +
@@ -112,7 +112,7 @@ namespace Uccs.Sun.FUI
 
 			if(e.IsSelected && e.Item.Tag is Vote p)
 			{
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
 					LoadTransactions(p.Transactions);
 					LoadOperations(p.Transactions.SelectMany(i => i.Operations));
@@ -128,7 +128,7 @@ namespace Uccs.Sun.FUI
 
 			if(e.IsSelected)
 			{
-				lock(Core.Lock)
+				lock(Sun.Lock)
 				{
 					LoadOperations((e.Item.Tag as Transaction).Operations);
 				}

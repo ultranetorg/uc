@@ -15,7 +15,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class AuthorPanel : MainPanel
 	{
-		public AuthorPanel(Core d, Vault vault) : base(d, vault)
+		public AuthorPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Core.Call(Role.Base, p => p.GetAuthorInfo(AuthorSearch.Text), Core.Workflow).Entry;
+				var a = Sun.Call(Role.Base, p => p.GetAuthorInfo(AuthorSearch.Text), Sun.Workflow).Entry;
 	
 				if(a != null)
 				{	
@@ -63,7 +63,7 @@ namespace Uccs.Sun.FUI
 				else 
 					Fields.Text = "Not found";
 
-				var t = Core.Call(Role.Base, p => p.GetTime(), Core.Workflow);
+				var t = Sun.Call(Role.Base, p => p.GetTime(), Sun.Workflow);
 
 				if(AuthorEntry.IsExclusive(AuthorSearch.Text) && Author.CanBid(a.Name, a, t.Time))
 				{
@@ -74,9 +74,9 @@ namespace Uccs.Sun.FUI
 
 					Switch(Auction);
 				}
-				else if(Core.Vault.Accounts.Any(i => Author.CanRegister(AuthorSearch.Text, a, t.Time, i)))
+				else if(Sun.Vault.Accounts.Any(i => Author.CanRegister(AuthorSearch.Text, a, t.Time, i)))
 					Switch(Registration);
-				else if(Core.Vault.Accounts.Any(i => i == a.Owner))
+				else if(Sun.Vault.Accounts.Any(i => i == a.Owner))
 					Switch(Transfering);
 
 			}
@@ -157,7 +157,7 @@ namespace Uccs.Sun.FUI
 		{
 			RegistrationStatus.Text = null;
 
-			lock(Core.Lock)
+			lock(Sun.Lock)
 			{
 				//Cost.Coins = AuthorRegistration.GetCost(Database.LastConfirmedRound.Factor, (byte)Years.Value);
 			}
@@ -175,7 +175,7 @@ namespace Uccs.Sun.FUI
 				if(a == null)
 					return;
 
-				Core.Enqueue(new AuthorRegistration(a, AuthorSearch.Text, AuthorTitle.Text, (byte)Years.Value), PlacingStage.Null, new Workflow());
+				Sun.Enqueue(new AuthorRegistration(a, AuthorSearch.Text, AuthorTitle.Text, (byte)Years.Value), PlacingStage.Null, new Workflow());
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{
@@ -215,7 +215,7 @@ namespace Uccs.Sun.FUI
 
 				var a = Database.Authors.Find(AuthorSearch.Text, int.MaxValue);
 
-				Core.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), AuthorSearch.Text, AccountAddress.Parse(NewOwner.Text)), PlacingStage.Null, new Workflow());
+				Sun.Enqueue(new AuthorTransfer(GetPrivate(a.Owner), AuthorSearch.Text, AccountAddress.Parse(NewOwner.Text)), PlacingStage.Null, new Workflow());
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 			{
@@ -232,7 +232,7 @@ namespace Uccs.Sun.FUI
 				if(s == null)
 					return;
 
-				Core.Enqueue(new AuthorBid(s, AuthorSearch.Text, null, Bid.Coins), PlacingStage.Null, new Workflow());
+				Sun.Enqueue(new AuthorBid(s, AuthorSearch.Text, null, Bid.Coins), PlacingStage.Null, new Workflow());
 			}
 			catch(Exception ex)
 			{

@@ -4,14 +4,14 @@
 	{
 		public AccountAddress Generator;
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
-				if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				if(!sun.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
+				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
-				var r = core.Chainbase.LastConfirmedRound.Id + Chainbase.Pitch * 2;
+				var r = sun.Mcv.LastConfirmedRound.Id + Mcv.Pitch * 2;
 				
 				return new NextRoundResponse {NextRoundId = r};
 			}

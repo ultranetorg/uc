@@ -34,7 +34,7 @@ namespace Uccs.Sun.FUI
 				var settings = new Settings(exedir, boot);
 
 				var log = new Log();
-				var core =	new Core(boot.Zone, settings, log)
+				var sun =	new Net.Sun(boot.Zone, settings, log)
 							{
 								Clock = new RealTimeClock(), 
 								Nas = new Nas(settings, log), 
@@ -42,15 +42,15 @@ namespace Uccs.Sun.FUI
 								FeeAsker = new FeeForm(boot.Zone)
 							}; 
 
-				core.RunApi();
-				core.RunNode();
+				sun.RunApi();
+				sun.RunNode();
 
-				var f = new MainForm(core);
+				var f = new MainForm(sun);
 				f.StartPosition = FormStartPosition.CenterScreen;
 
 				f.Closed  +=	(s, a) =>
 								{
-									(s as MainForm).Core.Stop("Form closed");
+									(s as MainForm).Sun.Stop("Form closed");
 								};
 
 				Application.Run(f);

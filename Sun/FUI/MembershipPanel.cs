@@ -15,7 +15,7 @@ namespace Uccs.Sun.FUI
 {
 	public partial class MembershipPanel : MainPanel
 	{
-		public MembershipPanel(Core d, Vault vault) : base(d, vault)
+		public MembershipPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
@@ -29,8 +29,8 @@ namespace Uccs.Sun.FUI
 
 				UpdateCandidateAccounts();
 
-				Bail.Coins = Chainbase.BailMin;
-				IP.Text = Core.IP.ToString();
+				Bail.Coins = Mcv.BailMin;
+				IP.Text = Sun.IP.ToString();
 			}
 		}
 

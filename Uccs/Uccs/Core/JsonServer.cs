@@ -15,18 +15,18 @@ namespace Uccs.Net
 {
 	public class JsonServer
 	{
-		Core			Core;
+		Sun				Sun;
 		HttpListener	Listener;
 		Thread			Thread;
 
-		Workflow		Workflow => Core.Workflow;
-		Settings		Settings => Core.Settings;
-		Vault			Vault => Core.Vault;
-		Chainbase		Database => Core.Chainbase;
+		Workflow		Workflow => Sun.Workflow;
+		Settings		Settings => Sun.Settings;
+		Vault			Vault => Sun.Vault;
+		Mcv				Database => Sun.Mcv;
 
-		public JsonServer(Core core)
+		public JsonServer(Sun sun)
 		{
-			Core = core;
+			Sun = sun;
 
 			Thread = new Thread(() =>
 								{ 
@@ -34,7 +34,7 @@ namespace Uccs.Net
 									{
 										Listener = new HttpListener();
 	
-										var prefixes = new string[] {$"http://{(Settings.IP.Equals(IPAddress.Any) ? "+" : Settings.IP)}:{Core.Zone.JsonPort}/"};
+										var prefixes = new string[] {$"http://{(Settings.IP.Equals(IPAddress.Any) ? "+" : Settings.IP)}:{Sun.Zone.JsonPort}/"};
 			
 										foreach(string s in prefixes)
 										{
@@ -63,7 +63,7 @@ namespace Uccs.Net
 										if(!Listener.IsListening)
 											Listener = null;
 
-										Core.Stop(MethodBase.GetCurrentMethod(), ex);
+										Sun.Stop(MethodBase.GetCurrentMethod(), ex);
 									}
 								});
 
@@ -164,31 +164,31 @@ namespace Uccs.Net
 					switch(call)
 					{
 						case SettingsCall c:
-							lock(Core.Lock)
-								return new SettingsResponse {ProfilePath	= Core.Settings.Profile, 
-															 Settings		= Core.Settings}; /// TODO: serialize
+							lock(Sun.Lock)
+								return new SettingsResponse {ProfilePath	= Sun.Settings.Profile, 
+															 Settings		= Sun.Settings}; /// TODO: serialize
 						case RunNodeCall e:
-							Core.RunNode();
+							Sun.RunNode();
 							break;
 
 						case ExitCall e:
 							rp.Close();
-							Core.Stop("Json Api call");
+							Sun.Stop("Json Api call");
 							break;
 	
 						case AddWalletCall e:
-							lock(Core.Lock)
+							lock(Sun.Lock)
 								Vault.AddWallet(e.Account, e.Wallet);
 							break;
 	
 						case UnlockWalletCall e:
-							lock(Core.Lock)
+							lock(Sun.Lock)
 								Vault.Unlock(e.Account, e.Password);
 							break;
 		
 						case SetGeneratorCall e:
-							lock(Core.Lock)
-								Core.Settings.Generators = e.Generators.Select(i => Vault.GetKey(i)).ToList();
+							lock(Sun.Lock)
+								Sun.Settings.Generators = e.Generators.Select(i => Vault.GetKey(i)).ToList();
 							
 							Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
 							break;
@@ -197,26 +197,26 @@ namespace Uccs.Net
 							
 							AccountKey  pa;
 								
-							lock(Core.Lock)
+							lock(Sun.Lock)
 							{
 								pa = Vault.GetKey(e.From);
 							}
 
 							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
-							return Core.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, new Workflow());
+							return Sun.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, new Workflow());
 		
 						case LogReportCall s:
 							return new LogResponse{Log = Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()).ToArray() }; 
 
 						case SummaryReportCall s:
-							lock(Core.Lock)
-								return new SummaryResponse{Summary = Core.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
+							lock(Sun.Lock)
+								return new SummaryResponse{Summary = Sun.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 
 						case PeersReportCall s:
-							return new PeersResponse{Peers = Core.Peers.OrderByDescending(i => i.Established).TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
+							return new PeersResponse{Peers = Sun.Peers.OrderByDescending(i => i.Established).TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
 							
 						case ChainReportCall s:
-							lock(Core.Lock)
+							lock(Sun.Lock)
 								return new ChainReportResponse{Rounds = Database?.Tail	.Take(s.Limit)
 																						.Reverse()
 																						.Select(i => new ChainReportResponse.Round
@@ -237,7 +237,7 @@ namespace Uccs.Net
 																						.ToArray()}; 
 							
 						case VotesReportCall s:
-							lock(Core.Lock)
+							lock(Sun.Lock)
 								return new VotesReportResponse{Pieces = Database?	.FindRound(s.RoundId)?.Votes
 																					.OrderBy(i => i.Generator)
 																					.Take(s.Limit)
@@ -250,33 +250,33 @@ namespace Uccs.Net
 																					.ToArray()}; 
 	
 						case QueryResourceCall c:
-							lock(Core.Lock)
-								return Core.QueryResource(c.Query);
+							lock(Sun.Lock)
+								return Sun.QueryResource(c.Query);
 	
 						case AddReleaseCall c:
-							lock(Core.Lock)
+							lock(Sun.Lock)
 							{
 								var m = new Manifest();
 								m.Read(new BinaryReader(new MemoryStream(c.Manifest)));
 								
-								var h = Core.Zone.Cryptography.HashFile(m.Bytes);
+								var h = Sun.Zone.Cryptography.HashFile(m.Bytes);
 								
-								lock(Core.Resources.Lock)
+								lock(Sun.Resources.Lock)
 								{
-									Core.Resources.Add(c.Release, h);
+									Sun.Resources.Add(c.Release, h);
 	
-									Core.Resources.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
+									Sun.Resources.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
 	
 									if(c.Complete != null)
 									{
-										Core.Resources.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
+										Sun.Resources.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
 									}
 									if(c.Incremental != null)
 									{
-										Core.Resources.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
+										Sun.Resources.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
 									}
 								
-									Core.Resources.SetLatest(c.Release, h);
+									Sun.Resources.SetLatest(c.Release, h);
 								}
 							}
 	
@@ -288,18 +288,18 @@ namespace Uccs.Net
 						//	break;
 	
 						case PackageStatusCall c:
-							lock(Core.PackageBase.Lock)
-								return Core.PackageBase.GetStatus(c.Release, c.Limit);
+							lock(Sun.Packages.Lock)
+								return Sun.Packages.GetStatus(c.Release, c.Limit);
 
 						case InstallPackageCall c:
-							lock(Core.PackageBase.Lock)
-								Core.PackageBase.Install(c.Release, Workflow);
+							lock(Sun.Packages.Lock)
+								Sun.Packages.Install(c.Release, Workflow);
 							break;
 
 						case GenerateAnalysisReportCall c:
-							lock(Core.Lock)
+							lock(Sun.Lock)
 							{	
-								Core.Analyses.AddRange(c.Results.Select(i => new Analysis {Resource = i.Key, Result = i.Value}));
+								Sun.Analyses.AddRange(c.Results.Select(i => new Analysis {Resource = i.Key, Result = i.Value}));
 							}
 							break;
 					}
@@ -318,7 +318,7 @@ namespace Uccs.Net
 						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonClient.Options) as ApiCall));
 					}
 
-					lock(Core.Lock)
+					lock(Sun.Lock)
 						respondjson(rs);
 				}
 				else
@@ -327,7 +327,7 @@ namespace Uccs.Net
 	
 					if(r != null)
 					{
-						lock(Core.Lock)
+						lock(Sun.Lock)
 							respondjson(r);
 					}
 				}

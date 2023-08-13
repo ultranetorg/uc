@@ -14,15 +14,15 @@ namespace Uccs.Sun.FUI
 	{
 		bool loading = false;
 
-		public InitialsPanel(Core d, Vault vault) : base(d, vault)
+		public InitialsPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 		}
 
 		public override void Open(bool first)
 		{
-			manage.Visible = Core.Nas.IsAdministrator;
-			nodes.ReadOnly = !Core.Nas.IsAdministrator;
+			manage.Visible = Sun.Nas.IsAdministrator;
+			nodes.ReadOnly = !Sun.Nas.IsAdministrator;
 
 			zone.Items.Clear();
 
@@ -31,7 +31,7 @@ namespace Uccs.Sun.FUI
 				zone.Items.Add(i);
 			}
 
-			zone.SelectedItem = Core.Zone.Name;
+			zone.SelectedItem = Sun.Zone.Name;
 
 			//ReloadDefaultNodes();
 		}
@@ -43,7 +43,7 @@ namespace Uccs.Sun.FUI
 				manage.Enabled = false;
 				nodes.Enabled = false;
 
-				await Core.Nas.SetZone(Zone.OfficialByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
+				await Sun.Nas.SetZone(Zone.OfficialByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
@@ -60,7 +60,7 @@ namespace Uccs.Sun.FUI
 			{
 				manage.Enabled = false;
 
-				await Core.Nas.RemoveZone(Zone.OfficialByName(zone.SelectedItem as string), new EthereumFeeForm());
+				await Sun.Nas.RemoveZone(Zone.OfficialByName(zone.SelectedItem as string), new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 

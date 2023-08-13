@@ -27,58 +27,58 @@ namespace Uccs.Net
 			Signature = zone.Cryptography.Sign(generator, Hashify(zone));
 		}
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
 				if(Generator == null)
 				{
-					Generator = core.Zone.Cryptography.AccountFrom(Signature, Hashify(core.Zone));
+					Generator = sun.Zone.Cryptography.AccountFrom(Signature, Hashify(sun.Zone));
 				}
 
-				if(core.Synchronization == Synchronization.Null || core.Synchronization == Synchronization.Downloading || core.Synchronization == Synchronization.Synchronizing)
+				if(sun.Synchronization == Synchronization.Null || sun.Synchronization == Synchronization.Downloading || sun.Synchronization == Synchronization.Synchronizing)
 				{
-	 				var min = core.SyncCache.Any() ? core.SyncCache.Max(i => i.Key) - Chainbase.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+	 				var min = sun.SyncCache.Any() ? sun.SyncCache.Max(i => i.Key) - Mcv.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
 	 
-					if(RoundId < min || (core.SyncCache.ContainsKey(RoundId) && core.SyncCache[RoundId].Joins.Any(i => i.Generator == Generator)))
+					if(RoundId < min || (sun.SyncCache.ContainsKey(RoundId) && sun.SyncCache[RoundId].Joins.Any(i => i.Generator == Generator)))
 					{
 						return null;
 					}
 	
-					Core.SyncRound l;
+					Sun.SyncRound l;
 							
-					if(!core.SyncCache.TryGetValue(RoundId, out l))
+					if(!sun.SyncCache.TryGetValue(RoundId, out l))
 					{
-						l = core.SyncCache[RoundId] = new();
+						l = sun.SyncCache[RoundId] = new();
 					}
 	
 					l.Joins.Add(this);
 						
-					foreach(var i in core.SyncCache.Keys)
+					foreach(var i in sun.SyncCache.Keys)
 					{
 						if(i < min)
 						{
-							core.SyncCache.Remove(i);
+							sun.SyncCache.Remove(i);
 						}
 					}					
 				}
-				else if(core.Synchronization == Synchronization.Synchronized)
+				else if(sun.Synchronization == Synchronization.Synchronized)
 				{
-					var d = core.Chainbase;
+					var d = sun.Mcv;
 	
-					for(int i = RoundId; i > RoundId - Chainbase.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
+					for(int i = RoundId; i > RoundId - Mcv.Pitch * 2; i--) /// not more than 1 request per [2 x Pitch] rounds
 						if(d.FindRound(i) is Round r && r.JoinRequests.Any(j => j.Generator == Generator))
 							return null;
 
-					var a = core.Chainbase.Accounts.Find(Generator, core.Chainbase.LastConfirmedRound.Id);
+					var a = sun.Mcv.Accounts.Find(Generator, sun.Mcv.LastConfirmedRound.Id);
 					
 					if(a == null || a.Bail == 0 /*|| a.BailStatus != BailStatus.Active*/)
 						return null;
 									
-					core.Chainbase.GetRound(RoundId).JoinRequests.Add(this);
+					sun.Mcv.GetRound(RoundId).JoinRequests.Add(this);
 				}
 	
-				foreach(var i in core.Connections.Where(i => i != Peer))
+				foreach(var i in sun.Connections.Where(i => i != Peer))
 				{
 					i.Send(new MemberJoinRequest {RoundId = RoundId, Signature = Signature});
 				}

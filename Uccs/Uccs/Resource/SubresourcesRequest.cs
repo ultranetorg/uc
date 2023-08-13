@@ -7,14 +7,14 @@ namespace Uccs.Net
 	{
 		public ResourceAddress		Resource { get; set; }
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
- 			lock(core.Lock)
+ 			lock(sun.Lock)
 			{	
-				if(core.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				if(sun.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
  			
 				
-				return new SubresourcesResponse {Resources = core.Chainbase.Authors.EnumerateSubresources(Resource, core.Chainbase.LastConfirmedRound.Id).Select(i => i.Address.Resource).ToArray()};
+				return new SubresourcesResponse {Resources = sun.Mcv.Authors.EnumerateSubresources(Resource, sun.Mcv.LastConfirmedRound.Id).Select(i => i.Address.Resource).ToArray()};
 			}
 		}
 	}

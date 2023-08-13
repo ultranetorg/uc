@@ -163,7 +163,7 @@ namespace Uccs.Net
 			Event = new ManualResetEvent(false);
 		}
 
-		public abstract RdcResponse Execute(Core core);
+		public abstract RdcResponse Execute(Sun sun);
 	}
 
 	public abstract class RdcResponse : RdcPacket
@@ -193,36 +193,36 @@ namespace Uccs.Net
 		public RdcRequest		Request { get; set; }
 		public override	bool	WaitResponse => Request.WaitResponse;
 
-		public override RdcResponse Execute(Core core)
+		public override RdcResponse Execute(Sun sun)
 		{
-			if(!core.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
-			if(core.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+			if(!sun.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
+			if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
-			lock(core.Lock)
+			lock(sun.Lock)
 			{
-				if(core.Connections.Any(i =>{
+				if(sun.Connections.Any(i =>{
 												lock(i.InRequests) 
 													return i.InRequests.OfType<ProxyRequest>().Any(j => j.Destination == Destination && j.Guid == Guid);
 											}))
 					throw new RdcNodeException(RdcNodeError.CircularRoute);
 			}
 
-			if(core.Settings.Generators.Contains(Destination))
+			if(sun.Settings.Generators.Contains(Destination))
 			{
-				return new ProxyResponse {Response = Request.Execute(core)};
+				return new ProxyResponse {Response = Request.Execute(sun)};
 			}
 			else
 			{
 				Member m;
 
-				lock(core.Lock)
+				lock(sun.Lock)
 				{
-					m = core.Chainbase.LastConfirmedRound.Members.Find(i => i.Account == Destination);
+					m = sun.Mcv.LastConfirmedRound.Members.Find(i => i.Account == Destination);
 				}
 
 				if(m?.Proxy != null)
 				{
-					core.Connect(m.Proxy, core.Workflow);
+					sun.Connect(m.Proxy, sun.Workflow);
 			
 					return new ProxyResponse {Response = m.Proxy.Request<ProxyResponse>(new ProxyRequest {Guid = Guid, Destination = Destination, Request = Request}).Response};
 				}

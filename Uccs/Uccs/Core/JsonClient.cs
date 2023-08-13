@@ -65,7 +65,7 @@ namespace Uccs.Net
 
 		HttpResponseMessage Send(ApiCall request, Workflow workflow) 
 		{
-			request.ProtocolVersion = Core.Versions.First().ToString();
+			request.ProtocolVersion = Sun.Versions.First().ToString();
 			request.AccessKey = Key;
 
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);

@@ -13,15 +13,15 @@ namespace Uccs.Sun.FUI
 {
 	public partial class FlowControlForm : Form
 	{
-		Core				Core;
+		Net.Sun				Sun;
 		Operation			Operation;
 		Workflow			Vizor;
 
-		public FlowControlForm(Core core, Workflow vizor)
+		public FlowControlForm(Net.Sun sun, Workflow vizor)
 		{
 			InitializeComponent();
 
-			Core = core;
+			Sun = sun;
 			Vizor = vizor;
 			Logview.Log = Vizor.Log;
 		}

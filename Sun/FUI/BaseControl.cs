@@ -18,17 +18,17 @@ namespace Uccs.Sun.FUI
 
 	public class BaseControl : UserControl
 	{
-		protected readonly Core		Core;
+		protected readonly Net.Sun	Sun;
 		protected readonly Vault	Vault;
-		protected Chainbase			Database => Core.Chainbase;
+		protected Mcv				Database => Sun.Mcv;
 
 		public BaseControl()
 		{
 		}
 
-		public BaseControl(Core d, Vault v)
+		public BaseControl(Net.Sun d, Vault v)
 		{
-			Core = d;
+			Sun = d;
 			Vault = v;
 		}
 
@@ -173,13 +173,13 @@ namespace Uccs.Sun.FUI
 				return p;
 			}
 
-			var pa = new PasswordForm(Core.Settings.Secrets?.Password);
+			var pa = new PasswordForm(Sun.Settings.Secrets?.Password);
 
 			if(pa.Ask($"A password required to access {account} account"))
 			{
 				try
 				{
-					return Core.Vault.Unlock(account, pa.Password);
+					return Sun.Vault.Unlock(account, pa.Password);
 				}
 				catch(Exception ex)
 				{
@@ -210,7 +210,7 @@ namespace Uccs.Sun.FUI
 		{
 		}
 
-		public MainPanel(Core core, Vault vault) : base(core, vault)
+		public MainPanel(Net.Sun sun, Vault vault) : base(sun, vault)
 		{
 		}
 	}
