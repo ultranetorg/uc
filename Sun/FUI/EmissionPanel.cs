@@ -23,8 +23,8 @@ namespace Uccs.Sun.FUI
 		{
 			InitializeComponent();
 
-			if(Sun.Settings.Secrets?.EmissionWallet != null)
-				browse.Text = Sun.Settings.Secrets.EmissionWallet;
+			if(Sun.Settings.Secrets?.EthereumWallet != null)
+				browse.Text = Sun.Settings.Secrets.EthereumWallet;
 
 			walletChoice.Checked = true;
 
@@ -137,7 +137,7 @@ namespace Uccs.Sun.FUI
 			{
 				if(walletChoice.Checked)
 				{
-					string password = Sun.Settings.Secrets?.EmissionPassword;
+					string password = Sun.Settings.Secrets?.EthereumPassword;
 	
 					if(password == null)
 					{

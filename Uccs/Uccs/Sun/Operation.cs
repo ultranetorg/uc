@@ -139,7 +139,7 @@ namespace Uccs.Net
 
 		public Coin CalculateSpaceFee(Coin factor, int size, byte years)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Mcv.SpaceFeePerByte * (1 << years);
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Mcv.SpaceBasicFeePerByte * (1 << years);
 		}
 	}
 }

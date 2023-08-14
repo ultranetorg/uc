@@ -45,7 +45,7 @@ namespace Uccs.Sun.FUI
 
 		private void account_SelectionChangeCommitted(object sender, EventArgs e)
 		{
-		//	Search();
+			//	Search();
 		}
 
 		private void Transactions_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -56,12 +56,13 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Sun.Lock)
 				{
-					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>	{
-																										var li = new ListViewItem(i.ToString());
-																										//li.Tag = i;
-																										//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
-																										return li;
-																									})
+					Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>
+					{
+						var li = new ListViewItem(i.ToString());
+						//li.Tag = i;
+						//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
+						return li;
+					})
 																									.ToArray());
 				}
 			}
@@ -73,24 +74,19 @@ namespace Uccs.Sun.FUI
 			{
 				Transactions.Items.Clear();
 				Operations.Items.Clear();
-	
+
 				lock(Sun.Lock)
 				{
 					var a = Net.AccountAddress.Parse(Account.Text);
 					//var txs = Core.Transactions.Where(i => i.Signer == a);
-					var txs = Sun.Mcv.Accounts.SearchTransactions(a);
-	
+					var txs = Sun.Mcv.Accounts.SearchTransactions(a).OrderByDescending(i => i.Id);
+
 					foreach(var i in txs)
 					{
-						var li = new ListViewItem(i.Vote.Round.Id.ToString());
-	
-						li.Tag = i;
-	
-						//li.SubItems.Add(i.Id.ToString());
-						//li.SubItems.Add();
-						//li.SubItems.Add(i.Successful ? "OK" : "Failed" /*i.Payload.Round.Confirmed ? "Confirmed" : "Confirming..."*/);
+						var li = new ListViewItem(i.Id.ToString()) {Tag = i};
+						li.SubItems.Add(i.Vote.Round.Id.ToString());
 						li.SubItems.Add(i.Generator?.ToString());
-		
+
 						Transactions.Items.Add(li);
 					}
 
@@ -98,11 +94,11 @@ namespace Uccs.Sun.FUI
 					{
 						var li = new ListViewItem(i.ToString());
 						//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
-		
+
 						Operations.Items.Add(li);
 					}
 				}
-	
+
 				if(Transactions.Items.Count == 0)
 				{
 					Transactions.Items.Add("No results");

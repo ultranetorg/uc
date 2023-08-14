@@ -17,7 +17,7 @@ namespace Uccs.Net
 	public delegate void ConsensusDelegate(Round b, bool reached);
 	public delegate void RoundDelegate(Round b);
 
-	public class Mcv
+	public class Mcv /// Mutual chain voting
 	{
 		public const int					Pitch = 8;
 		public const int					AliveMinMemberVotes = 6;
@@ -31,12 +31,12 @@ namespace Uccs.Net
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			BailMin = 1000;
 		public static readonly Coin			TransactionFeePerByte	= new Coin(0.000001);
-		public static readonly Coin			SpaceFeePerByte			= new Coin(0.000001);
+		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
 
 		public Zone							Zone;
-		public DatabaseSettings				Settings;
+		public McvSettings				Settings;
 		public Role							Roles;
 
 		public List<Round>					Tail = new();
@@ -71,7 +71,7 @@ namespace Uccs.Net
 
 		public static int					GetValidityPeriod(int rid) => rid + Pitch;
 
-		public Mcv(Zone zone, Role roles, DatabaseSettings settings, Log log, RocksDb engine)
+		public Mcv(Zone zone, Role roles, McvSettings settings, Log log, RocksDb engine)
 		{
 			Roles = roles&(Role.Base|Role.Chain);
 			Zone = zone;
@@ -747,11 +747,11 @@ namespace Uccs.Net
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
-				Coin fee = 0;
+				//Coin fee = 0;
 
-				var s = round.AffectAccount(t.Signer);
+				var a = round.AffectAccount(t.Signer);
 
-				if(t.Id <= s.LastTransactionId)
+				if(t.Id != a.LastTransactionId + 1)
 				{
 					foreach(var o in t.Operations)
 						o.Error = Operation.NotSequential;
@@ -768,24 +768,24 @@ namespace Uccs.Net
 
 					var f = o.CalculateTransactionFee(round.Factor);
 	
-					if(s.Balance - f < 0)
+					if(a.Balance - f < 0)
 					{
 						o.Error = Operation.NotEnoughUNT;
 						goto start;
 					}
 
-					fee += f;
-					s.Balance -= f;
+					round.Fees += f;
+					a.Balance -= f;
 				}
 
-				s.LastTransactionId = t.Id;
+				a.LastTransactionId = t.Id;
 						
 				if(Roles.HasFlag(Role.Chain))
 				{
 					round.AffectAccount(t.Signer).Transactions.Add(round.Id);
 				}
 
-				round.Distribute(fee, round.Members.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
+				round.Distribute(round.Fees, round.Members.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 			}
 
 			if(round.Id > LastGenesisRound)

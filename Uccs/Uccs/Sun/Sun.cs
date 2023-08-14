@@ -381,7 +381,7 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
 			{
-				Mcv = new Mcv(Zone, Settings.Roles, Settings.Database, Workflow?.Log, DatabaseEngine);
+				Mcv = new Mcv(Zone, Settings.Roles, Settings.Mcv, Workflow?.Log, DatabaseEngine);
 		
 				//if(Database.LastConfirmedRound != null && Database.LastConfirmedRound.Members.FirstOrDefault().Generator == Zone.Father0)
 				//{
@@ -409,9 +409,9 @@ namespace Uccs.Net
 												};
 
 				Mcv.Confirmed += r =>	{
-												IncomingTransactions.RemoveAll(t => t.Expiration <= r.Id);
-												Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
-											 };
+											IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
+											Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
+										 };
 		
 				if(Settings.Generators.Any())
 				{
@@ -650,7 +650,7 @@ namespace Uccs.Net
 
 			if(!MinimalPeersReached && 
 				Connections.Count() >= Settings.PeersMin && 
-				(!Settings.Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Database.PeersMin))
+				(!Settings.Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Mcv.PeersMin))
 			{
 				if(Mcv != null)
 				{
@@ -1789,27 +1789,22 @@ namespace Uccs.Net
 					{
 						foreach(var g in next.GroupBy(i => i.Signer))
 						{
-							if(!Vault.TransactionIds.ContainsKey(g.Key))
-							{
-								Monitor.Exit(Lock);
+							Monitor.Exit(Lock);
 
-								try
-								{
-									Vault.TransactionIds[g.Key] = Call<AccountResponse>(Role.Base, i => i.GetAccountInfo(g.Key), Workflow).Account.LastTransactionId;
-								}
-								catch(RdcEntityException ex) when(ex.Error == RdcEntityError.AccountNotFound)
-								{
-									Vault.TransactionIds[g.Key] = -1;
-								}
-								catch(Exception) when(!Debugger.IsAttached)
-								{
-								}
-									
-								Monitor.Enter(Lock);
+							int lastid = -1;
+
+							try
+							{
+								lastid = Call<AccountResponse>(Role.Base, i => i.GetAccountInfo(g.Key), Workflow).Account.LastTransactionId;
 							}
+							catch(RdcEntityException ex) when(ex.Error == RdcEntityError.AccountNotFound)
+							{
+							}
+									
+							Monitor.Enter(Lock);
 
 							var t = new Transaction(Zone);
-							t.Id = ++Vault.TransactionIds[g.Key];
+							t.Id = lastid + 1;
 
 							foreach(var o in g)
 							{
@@ -1876,6 +1871,14 @@ namespace Uccs.Net
 
 									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
 									{
+										#if DEBUG
+											if(t.Operations.Any(o => o.__ExpectedPlacing != PlacingStage.Null && o.__ExpectedPlacing != i.Placing))
+											{	
+												rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
+												Debugger.Break();
+											}
+										#endif
+
 										OutgoingTransactions.Remove(t);
 
 										foreach(var o in t.Operations)
@@ -2400,7 +2403,13 @@ namespace Uccs.Net
 		{
 			foreach(var i in Bases.Where(i => i != skip))
 			{
-				i.Send(new MemberVoxRequest {Raw = vote.RawForBroadcast });
+				try
+				{
+					i.Send(new MemberVoxRequest {Raw = vote.RawForBroadcast });
+				}
+				catch(ConnectionFailedException)
+				{
+				}
 			}
 		}
 	}

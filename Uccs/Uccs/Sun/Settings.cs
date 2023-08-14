@@ -26,15 +26,15 @@ namespace Uccs.Net
 		}
 	}
 
-	public class DatabaseSettings
+	public class McvSettings
 	{
 		public int			PeersMin;
 
-		public DatabaseSettings()
+		public McvSettings()
 		{
 		}
 
-		public DatabaseSettings(Xon x)
+		public McvSettings(Xon x)
 		{
 			PeersMin	= x.GetInt32("PeersMin");
 		}
@@ -87,10 +87,10 @@ namespace Uccs.Net
 		public const string		FileName = "Secrets.globals";
 
 		public string			Password;
-		public string			EmissionWallet;
-		public string			EmissionPassword;
+		public string			EthereumWallet;
+		public string			EthereumPassword;
 
-		public string			NasProvider;
+		public string			EthereumProvider;
 
 		string					Path;
 
@@ -106,10 +106,10 @@ namespace Uccs.Net
 			
 			Password		= d.GetString("Password");
 
-			NasProvider		= d.GetString("NasProvider");
+			EthereumProvider		= d.GetString("NasProvider");
 
-			EmissionWallet	 = d.GetString("EmissionWallet");
-			EmissionPassword = d.GetString("EmissionPassword");
+			EthereumWallet	 = d.GetString("EmissionWallet");
+			EthereumPassword = d.GetString("EmissionPassword");
 		}
 	}
 
@@ -166,7 +166,7 @@ namespace Uccs.Net
 		public HubSettings				Hub;
 		public ApiSettings				Api;
 		public FilebaseSettings			Filebase;
-		public DatabaseSettings			Database;
+		public McvSettings			Mcv;
 		public SecretSettings			Secrets;
 
 		public List<AccountAddress>		ProposedFundJoiners = new();
@@ -203,7 +203,7 @@ namespace Uccs.Net
 			Log			= doc.Has("Log");
 			Packages	= doc.GetString("Packages") ?? System.IO.Path.Join(Profile, "Packages");
 
-			Database	= new (doc.One(nameof(Database)));
+			Mcv	= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));
 			Api			= new (doc.One(nameof(Api)), this);
 			Hub			= new (doc.One(nameof(Hub)));
@@ -220,7 +220,7 @@ namespace Uccs.Net
 			Profile		= profile;
 			IP			= IPAddress.Loopback;
 
-			Database	= new ();
+			Mcv	= new ();
 			Nas			= new ();
 			Api			= new ();
 			Hub			= new ();

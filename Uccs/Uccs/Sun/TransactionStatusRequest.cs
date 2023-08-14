@@ -19,8 +19,8 @@ namespace Uccs.Net
 							LastConfirmedRoundId = sun.Mcv.LastConfirmedRound.Id,
 							Transactions = Transactions.Select(t => new {	Q = t,
 																			T = sun.IncomingTransactions.Find(i => i.Signer == t.Account && i.Id == t.Id)
-																			?? 
-																			sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Id == t.Id)})
+																				?? 
+																				sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Id == t.Id)})
 														.Select(i => new TransactionStatusResponse.Item{Account		= i.Q.Account,
 																										Id			= i.Q.Id,
 																										Placing		= i.T == null ? PlacingStage.FailedOrNotFound : i.T.Placing}).ToArray()

@@ -35,12 +35,12 @@ namespace Uccs
 					var keyInfo = Console.ReadKey(intercept: true);
 					key = keyInfo.Key;
 
-					if (key == ConsoleKey.Backspace && p.Length > 0)
+					if(key == ConsoleKey.Backspace && p.Length > 0)
 					{
 						Console.Write("\b \b");
 						p = p[0..^1];
 					}
-					else if (!char.IsControl(keyInfo.KeyChar))
+					else if(!char.IsControl(keyInfo.KeyChar))
 					{
 						Console.Write("*");
 						p += keyInfo.KeyChar;

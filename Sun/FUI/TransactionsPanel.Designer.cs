@@ -29,119 +29,110 @@ namespace Uccs.Sun.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.Transactions = new System.Windows.Forms.ListView();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnPlacedBy = new System.Windows.Forms.ColumnHeader();
-			this.label1 = new System.Windows.Forms.Label();
-			this.Account = new System.Windows.Forms.ComboBox();
-			this.SearchButton = new System.Windows.Forms.Button();
-			this.Operations = new System.Windows.Forms.ListView();
-			this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
-			this.SuspendLayout();
+			Transactions = new System.Windows.Forms.ListView();
+			columnHeader1 = new System.Windows.Forms.ColumnHeader();
+			columnPlacedBy = new System.Windows.Forms.ColumnHeader();
+			label1 = new System.Windows.Forms.Label();
+			Account = new System.Windows.Forms.ComboBox();
+			SearchButton = new System.Windows.Forms.Button();
+			Operations = new System.Windows.Forms.ListView();
+			columnHeader5 = new System.Windows.Forms.ColumnHeader();
+			columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			SuspendLayout();
 			// 
 			// Transactions
 			// 
-			this.Transactions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnPlacedBy});
-			this.Transactions.FullRowSelect = true;
-			this.Transactions.HideSelection = false;
-			this.Transactions.Location = new System.Drawing.Point(0, 139);
-			this.Transactions.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Transactions.Name = "Transactions";
-			this.Transactions.Size = new System.Drawing.Size(761, 1499);
-			this.Transactions.TabIndex = 1;
-			this.Transactions.UseCompatibleStateImageBehavior = false;
-			this.Transactions.View = System.Windows.Forms.View.Details;
-			this.Transactions.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.Transactions_ItemSelectionChanged);
+			Transactions.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+			Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2, columnHeader1, columnPlacedBy });
+			Transactions.FullRowSelect = true;
+			Transactions.Location = new System.Drawing.Point(0, 139);
+			Transactions.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Transactions.Name = "Transactions";
+			Transactions.Size = new System.Drawing.Size(761, 1499);
+			Transactions.TabIndex = 1;
+			Transactions.UseCompatibleStateImageBehavior = false;
+			Transactions.View = System.Windows.Forms.View.Details;
+			Transactions.ItemSelectionChanged += Transactions_ItemSelectionChanged;
 			// 
 			// columnHeader1
 			// 
-			this.columnHeader1.Text = "Round";
+			columnHeader1.Text = "Round";
+			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// columnPlacedBy
 			// 
-			this.columnPlacedBy.Text = "Generator";
-			this.columnPlacedBy.Width = 300;
+			columnPlacedBy.Text = "Generator";
+			columnPlacedBy.Width = 300;
 			// 
 			// label1
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(35, 38);
-			this.label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(102, 27);
-			this.label1.TabIndex = 19;
-			this.label1.Text = "Account";
+			label1.AutoSize = true;
+			label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+			label1.Location = new System.Drawing.Point(35, 38);
+			label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(102, 27);
+			label1.TabIndex = 19;
+			label1.Text = "Account";
 			// 
 			// Account
 			// 
-			this.Account.FormattingEnabled = true;
-			this.Account.Location = new System.Drawing.Point(163, 32);
-			this.Account.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Account.Name = "Account";
-			this.Account.Size = new System.Drawing.Size(598, 40);
-			this.Account.TabIndex = 20;
-			this.Account.SelectedIndexChanged += new System.EventHandler(this.account_SelectedIndexChanged);
-			this.Account.SelectionChangeCommitted += new System.EventHandler(this.account_SelectionChangeCommitted);
+			Account.FormattingEnabled = true;
+			Account.Location = new System.Drawing.Point(163, 32);
+			Account.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Account.Name = "Account";
+			Account.Size = new System.Drawing.Size(598, 40);
+			Account.TabIndex = 20;
+			Account.SelectedIndexChanged += account_SelectedIndexChanged;
+			Account.SelectionChangeCommitted += account_SelectionChangeCommitted;
 			// 
 			// SearchButton
 			// 
-			this.SearchButton.Location = new System.Drawing.Point(802, 28);
-			this.SearchButton.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.SearchButton.Name = "SearchButton";
-			this.SearchButton.Size = new System.Drawing.Size(217, 58);
-			this.SearchButton.TabIndex = 18;
-			this.SearchButton.Text = "Search";
-			this.SearchButton.UseVisualStyleBackColor = true;
-			this.SearchButton.Click += new System.EventHandler(this.search_Click);
+			SearchButton.Location = new System.Drawing.Point(802, 28);
+			SearchButton.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			SearchButton.Name = "SearchButton";
+			SearchButton.Size = new System.Drawing.Size(217, 58);
+			SearchButton.TabIndex = 18;
+			SearchButton.Text = "Search";
+			SearchButton.UseVisualStyleBackColor = true;
+			SearchButton.Click += search_Click;
 			// 
 			// Operations
 			// 
-			this.Operations.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader5,
-            this.columnHeader6});
-			this.Operations.FullRowSelect = true;
-			this.Operations.HideSelection = false;
-			this.Operations.Location = new System.Drawing.Point(802, 139);
-			this.Operations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Operations.Name = "Operations";
-			this.Operations.Size = new System.Drawing.Size(1100, 1499);
-			this.Operations.TabIndex = 24;
-			this.Operations.UseCompatibleStateImageBehavior = false;
-			this.Operations.View = System.Windows.Forms.View.Details;
+			Operations.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader5 });
+			Operations.FullRowSelect = true;
+			Operations.Location = new System.Drawing.Point(802, 139);
+			Operations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Operations.Name = "Operations";
+			Operations.Size = new System.Drawing.Size(1100, 1499);
+			Operations.TabIndex = 24;
+			Operations.UseCompatibleStateImageBehavior = false;
+			Operations.View = System.Windows.Forms.View.Details;
 			// 
 			// columnHeader5
 			// 
-			this.columnHeader5.Text = "Id";
+			columnHeader5.Text = "Id";
+			columnHeader5.Width = 400;
 			// 
-			// columnHeader6
+			// columnHeader2
 			// 
-			this.columnHeader6.Text = "Details";
-			this.columnHeader6.Width = 500;
+			columnHeader2.Text = "Id";
 			// 
 			// TransactionsPanel
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.Operations);
-			this.Controls.Add(this.label1);
-			this.Controls.Add(this.Account);
-			this.Controls.Add(this.SearchButton);
-			this.Controls.Add(this.Transactions);
-			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Name = "TransactionsPanel";
-			this.Size = new System.Drawing.Size(1902, 1638);
-			this.ResumeLayout(false);
-			this.PerformLayout();
-
+			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			Controls.Add(Operations);
+			Controls.Add(label1);
+			Controls.Add(Account);
+			Controls.Add(SearchButton);
+			Controls.Add(Transactions);
+			Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Name = "TransactionsPanel";
+			Size = new System.Drawing.Size(1902, 1638);
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion
@@ -154,6 +145,6 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ColumnHeader columnPlacedBy;
 		private System.Windows.Forms.ListView Operations;
 		private System.Windows.Forms.ColumnHeader columnHeader5;
-		private System.Windows.Forms.ColumnHeader columnHeader6;
+		private System.Windows.Forms.ColumnHeader columnHeader2;
 	}
 }

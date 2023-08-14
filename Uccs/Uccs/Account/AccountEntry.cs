@@ -23,7 +23,7 @@ namespace Uccs.Net
 		public AccountAddress			Key => Address;
 		public byte[]					GetClusterKey(int n) => ((byte[])Address).Take(n).ToArray();
 
-		Mcv						Database;
+		Mcv								Mcv;
 
 		public AccountEntry()
 		{
@@ -31,19 +31,19 @@ namespace Uccs.Net
 
 		public AccountEntry(Mcv chain)
 		{
-			Database = chain;
+			Mcv = chain;
 		}
 
 		public AccountEntry Clone()
 		{
-			return new AccountEntry(Database){	Address = Address,
-												LastTransactionId = LastTransactionId,
-												LastEmissionId = LastEmissionId,
-												Balance = Balance,
-												CandidacyDeclarationRid = CandidacyDeclarationRid,
-												Bail = Bail,
-												BailStatus = BailStatus,
-												Transactions = Database.Roles.HasFlag(Role.Chain) ? new HashSet<int>(Transactions) : null};
+			return new AccountEntry(Mcv){	Address = Address,
+											Balance = Balance,
+											Bail = Bail,
+											BailStatus = BailStatus,
+											LastTransactionId = LastTransactionId,
+											LastEmissionId = LastEmissionId,
+											CandidacyDeclarationRid = CandidacyDeclarationRid,
+											Transactions = Mcv.Roles.HasFlag(Role.Chain) ? new HashSet<int>(Transactions) : null};
 		}
 
 		public override void Write(BinaryWriter writer)
@@ -77,7 +77,7 @@ namespace Uccs.Net
 
 		public void WriteMore(BinaryWriter w)
 		{
-			if(Database.Roles.HasFlag(Role.Chain))
+			if(Mcv.Roles.HasFlag(Role.Chain))
 			{
 				w.Write(Transactions);
 			}
@@ -91,7 +91,7 @@ namespace Uccs.Net
 
 		public void ReadMore(BinaryReader r)
 		{
-			if(Database.Roles.HasFlag(Role.Chain))
+			if(Mcv.Roles.HasFlag(Role.Chain))
 			{
 				Transactions = r.ReadHashSet(() => r.Read7BitEncodedInt());
 			}
