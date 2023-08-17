@@ -18,6 +18,9 @@ namespace Uccs.Net
 		public IPAddress		GenesisIP;
 		public IPAddress[]		Initials;
 		public ZoneCreation		Creation;
+		public Coin				BailMin;
+		public bool				PoW;
+		public bool				CheckDomains;
 
 		public AccountAddress	OrgAccount = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
 		public AccountAddress	GenAccount = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");

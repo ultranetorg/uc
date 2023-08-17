@@ -60,7 +60,7 @@ namespace Uccs.Net
 		public byte[]			Data { get; set; }
 		public AnalysisStage	AnalysisStage { get; set; }
 		public Coin				AnalysisFee { get; set; }
-		public int				AnalysisHalfVotingRid { get; set; }
+		public int				AnalysisHalfVotingRound { get; set; }
 		public int				RoundId { get; set; }
 		public byte				Good { get; set; }
 		public byte				Bad { get; set; }
@@ -83,7 +83,7 @@ namespace Uccs.Net
 							Data = Data,
 							AnalysisStage = AnalysisStage,
 							AnalysisFee = AnalysisFee,
-							AnalysisHalfVotingRid = AnalysisHalfVotingRid,
+							AnalysisHalfVotingRound = AnalysisHalfVotingRound,
 							RoundId = RoundId,
 							Good = Good,
 							Bad = Bad,
@@ -110,7 +110,7 @@ namespace Uccs.Net
 			{
 				writer.Write(AnalysisFee);
 				writer.Write7BitEncodedInt(RoundId);
-				writer.Write7BitEncodedInt(AnalysisHalfVotingRid);
+				writer.Write7BitEncodedInt(AnalysisHalfVotingRound);
 			}
 
 			if(AnalysisStage == AnalysisStage.Finished)
@@ -142,7 +142,7 @@ namespace Uccs.Net
 			{
 				AnalysisFee = reader.ReadCoin();
 				RoundId = reader.Read7BitEncodedInt();
-				AnalysisHalfVotingRid = reader.Read7BitEncodedInt();
+				AnalysisHalfVotingRound = reader.Read7BitEncodedInt();
 			}
 
 			if(AnalysisStage == AnalysisStage.Finished)

@@ -18,11 +18,14 @@ namespace Uccs.Net
 		public Vote						Vote;
 		public AccountAddress			Generator;
 		public int						Expiration;
+		public byte[]					PoW;
 		public byte[]					Signature;
 		
 		public AccountAddress			Signer;
 		public Zone						Zone;
 		public PlacingStage				Placing;
+
+		const int						PoWLength = 16;
 
 		public bool Valid
 		{
@@ -42,12 +45,38 @@ namespace Uccs.Net
 			return $"Id={Id}, {Placing}, Operations={{{Operations.Count}}}, Signer={Signer}, Generator={Generator}, Expiration={Expiration}, Signature={Hex.ToHexString(Signature)}";
 		}
 
-		public void Sign(AccountKey signer, AccountAddress generator, int expiration)
+		public void Sign(AccountKey signer, AccountAddress generator, int expiration, byte[] powhash)
 		{
 			Signer		= signer;
 			Generator	= generator;
 			Expiration	= expiration;
-			Signature	= Zone.Cryptography.Sign(signer, Hashify());
+
+            if(powhash.SequenceEqual(Zone.Cryptography.ZeroHash) || !Zone.PoW)
+			{
+				PoW = new byte[PoWLength];
+			}
+			else
+            {
+	            var r = new Random();
+				var h = new byte[32];
+	
+				var x = new byte[32+PoWLength];
+	
+				Array.Copy(powhash, x, 32);
+	
+				do
+				{
+					r.NextBytes(new Span<byte>(x, 32, PoWLength));
+					
+					h = Zone.Cryptography.Hash(x);
+				
+				}
+				while(h[0] != 0 || h[1] != 0);
+				
+				PoW = x.Skip(32).ToArray();
+            }
+
+			Signature = Zone.Cryptography.Sign(signer, Hashify());
 		}
 
 		public bool EqualBySignature(Transaction t)
@@ -70,25 +99,30 @@ namespace Uccs.Net
 			w.Write7BitEncodedInt(Id);
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Expiration);
+			w.WriteBytes(PoW);
 			w.Write(Operations, i => i.Write(w));
 
 			return Zone.Cryptography.Hash(s.ToArray());
 		}
 
- 		public void	WriteConfirmed(BinaryWriter w)
+ 		public void	WriteConfirmed(BinaryWriter writer)
  		{
-			w.Write(Signer);
-			w.Write7BitEncodedInt(Id);
-			w.Write(Operations, i => {
-										w.Write((byte)i.Class); 
-										i.Write(w); 
-									 });
+			writer.Write(Signer);
+			writer.Write7BitEncodedInt(Id);
+			writer.Write7BitEncodedInt(Expiration);
+			writer.Write(PoW);
+			writer.Write(Operations, i =>{
+											writer.Write((byte)i.Class); 
+											i.Write(writer); 
+										 });
  		}
  		
  		public void	ReadConfirmed(BinaryReader reader)
  		{
 			Signer		= reader.ReadAccount();
 			Id			= reader.Read7BitEncodedInt();
+			Expiration	= reader.Read7BitEncodedInt();
+			PoW			= reader.ReadBytes(PoWLength);
  			Operations	= reader.ReadList(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													o.Transaction = this;
@@ -105,10 +139,11 @@ namespace Uccs.Net
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Id);
 			writer.Write7BitEncodedInt(Expiration);
+			writer.Write(PoW);
 			writer.Write(Operations, i => {
-										writer.Write((byte)i.Class); 
-										i.Write(writer); 
-									 });
+											writer.Write((byte)i.Class); 
+											i.Write(writer); 
+										  });
  		}
  		
  		public void	ReadForVote(BinaryReader reader)
@@ -116,6 +151,7 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Id			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
+			PoW			= reader.ReadBytes(PoWLength);
  			Operations	= reader.ReadList(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													//o.Placing		= PlacingStage.Confirmed;
@@ -132,10 +168,11 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
+			writer.Write(Generator);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Id);
-			writer.Write(Generator);
 			writer.Write7BitEncodedInt(Expiration);
+			writer.Write(PoW);
 			writer.Write(Operations, i =>	{
 												writer.Write((byte)i.Class); 
 												i.Write(writer); 
@@ -144,10 +181,11 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
+			Generator	= reader.ReadAccount();
 			Signature	= reader.ReadSignature();
 			Id			= reader.Read7BitEncodedInt();
-			Generator	= reader.ReadAccount();
 			Expiration	= reader.Read7BitEncodedInt();
+			PoW			= reader.ReadBytes(PoWLength);
 			Operations	= reader.ReadList(() => {
 													var o = Operation.FromType((OperationClass)reader.ReadByte());
 													o.Transaction = this;
@@ -160,32 +198,5 @@ namespace Uccs.Net
 			foreach(var i in Operations)
 				i.Signer = Signer;
 		}
-
-// 		public void WriteUnconfirmed(BinaryWriter w)
-// 		{
-// 			w.Write(Signature);
-// 			w.Write7BitEncodedInt(RoundMax);
-// 			w.Write(Operations, i => {
-// 										w.Write((byte)i.Type); 
-// 										i.Write(w); 
-// 									 });
-// 		}
-// 
-// 		public void ReadUnconfirmed(BinaryReader r)
-// 		{
-// 			Signature	= r.ReadSignature();
-// 			RoundMax	= r.Read7BitEncodedInt();
-// 			Operations	= r.ReadList(() => {
-// 												var o = Operation.FromType((Operations)r.ReadByte());
-// 												o.Transaction = this;
-// 												o.Read(r); 
-// 												return o; 
-// 											});
-// 
-// 			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
-// 
-// 			foreach(var i in Operations)
-// 				i.Signer = Signer;
-// 		}
 	}
 }

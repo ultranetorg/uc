@@ -29,7 +29,6 @@ namespace Uccs.Net
 		public const int					MembersRotation = 32;
 		public  int							TailLength => DevSettings.TailLength100 ? 100 : 1000;
 		const int							LoadedRoundsMax = 1000;
-		public static readonly Coin			BailMin = 1000;
 		public static readonly Coin			TransactionFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
@@ -200,7 +199,7 @@ namespace Uccs.Net
 			var t = new Transaction(Zone){ Id = 0 };
 			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
 			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", null, 1));
-			t.Sign(org, gen, 0);
+			t.Sign(org, gen, 0, Zone.Cryptography.ZeroHash);
 			b0.AddNext(t);
 						
 			//void emmit(Dictionary<AccountAddress, AccountEntry> accs)
@@ -239,7 +238,7 @@ namespace Uccs.Net
 				t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
 				t.AddOperation(new CandidacyDeclaration(f, 900_000));
 			
-				t.Sign(f, gen, 0);
+				t.Sign(f, gen, 0, Zone.Cryptography.ZeroHash);
 			
 				b0.AddNext(t);
 			}
@@ -262,7 +261,7 @@ namespace Uccs.Net
 	
 			t = new Transaction(Zone){Id = 1};
 			t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255));
-			t.Sign(org, gen, 1);
+			t.Sign(org, gen, 1, Zone.Cryptography.ZeroHash);
 			b1.AddNext(t);
 			
 			b1.Sign(gen);
@@ -545,7 +544,7 @@ namespace Uccs.Net
 															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
 													.Where(i => i.a != null && 
 																i.a.CandidacyDeclarationRid <= round.Id - Pitch * 2 &&  /// 2 = declared, requested
-																i.a.Bail >= (DevSettings.DisableBailMin ? 0 : BailMin))
+																i.a.Bail >= Zone.BailMin)
 													.OrderByDescending(i => i.a.Bail)
 													.ThenBy(i => i.a.Address)
 													.Select(i => i.jr);
@@ -661,57 +660,35 @@ namespace Uccs.Net
 													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
 
-				var aq = a.Count * 1/2;
-
 				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
 											.Select(i => {
 															var e = Authors.FindResource(i.Resource, round.Id);
 																	
 															if(e == null)
-																return null;
+																return null; /// Some analyzer(s) is buggy
 																	
-															//var a = AnalysisResult.NotRequested;
-																
 															var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Resource == i.Resource)).Where(i => i != null);
 
-															if(v.Count() == aq || (e.AnalysisStage == AnalysisStage.HalfVotingReached && e.RoundId - e.AnalysisHalfVotingRid + (e.RoundId - e.AnalysisHalfVotingRid)/2 == round.Id))
+															if(v.Count() == a.Count || (e.AnalysisStage == AnalysisStage.HalfVotingReached && e.RoundId + (e.AnalysisHalfVotingRound - e.RoundId) * 2 == round.Id))
 															{ 
 																var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
 																var inf = v.Count(i => i.Result == AnalysisResult.Infected);
 
-																return new AnalysisConclusion {Release = i.Resource, Good = (byte)cln, Bad = (byte)inf};
+																return new AnalysisConclusion {Resource = i.Resource, Good = (byte)cln, Bad = (byte)inf};
 																
-																//if(cln >= aq)
-																//	a = AnalysisResult.Clean;
-																//else if(inf >= aq)
-																//	a = AnalysisResult.Infected;
-																//else if(cln < aq && inf < aq)
-																//	a = AnalysisResult.VotingFailed;
-																//else
-																//	a = AnalysisResult.Suspicious;
 															}
-															else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= aq)
-																return new AnalysisConclusion {Release = i.Resource, QuorumReached = true};
+															else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= a.Count/2)
+																return new AnalysisConclusion {Resource = i.Resource, HalfReached = true};
 															else
 																return null;
 														})
-											.OrderBy(i => i.Release).ToArray();
-
-				//round.ConfirmedClean	= au.SelectMany(i => i.Clean).Distinct()
-				//							.Where(i => round.FindRelease(i) is ReleaseEntry e && ((e.AnalysisResult == AnalysisResult.QuorumReached && e.RoundId - e.QuorumRid + (e.RoundId - e.QuorumRid)/2 == round.Id)
-				//																					|| (au.Count(j => j.Clean.Contains(i)) == a.Count)))
-				//							.OrderBy(i => i).ToArray();
-				//
-				//round.ConfirmedInfected	= au.SelectMany(i => i.Infected).Distinct()
-				//							.Where(i => round.FindRelease(i) is ReleaseEntry e && ((e.AnalysisResult == AnalysisResult.QuorumReached && e.RoundId - e.QuorumRid + (e.RoundId - e.QuorumRid)/2 == round.Id)
-				//																					|| (au.Count(j => j.Infected.Contains(i)) == a.Count)))
-				//							.OrderBy(i => i).ToArray();
+											.Where(i => i != null)
+											.OrderBy(i => i.Resource).ToArray();
 			}
 
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			//w.Write(Id >= Database.Pitch ? Parent.Hash : Database.Zone.Cryptography.ZeroHash);
 			w.Write(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash);
 			
 			round.WriteConfirmed(w);
@@ -858,9 +835,9 @@ namespace Uccs.Net
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 
 			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)
-																	 .Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
+																.Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
 			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
-			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < (DevSettings.DisableBailMin ? 0 : BailMin));  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
+			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < Zone.BailMin);  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
 			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
 
 			//round.Hubs.RemoveAll(i => round.ConfirmedHubLeavers.Contains(i.Account));
@@ -871,7 +848,7 @@ namespace Uccs.Net
 
 			foreach(var i in round.ConfirmedAnalyses)
 			{
-				var e = round.AffectAuthor(i.Release.Author).AffectResource(i.Release);
+				var e = round.AffectAuthor(i.Resource.Author).AffectResource(i.Resource);
 				
 				if(i.Finished)
 				{
@@ -881,7 +858,7 @@ namespace Uccs.Net
 
 					round.Distribute(e.AnalysisFee, round.Analyzers.Select(i => i.Account));
 				}
-				else if(e.AnalysisStage == AnalysisStage.Pending && i.QuorumReached)
+				else if(e.AnalysisStage == AnalysisStage.Pending && i.HalfReached)
 				{
 					e.AnalysisStage = AnalysisStage.HalfVotingReached;
 				}
@@ -898,8 +875,8 @@ namespace Uccs.Net
 	
 					foreach(var i in tail)
 					{
-						Accounts	.Save(b, i.AffectedAccounts.Values);
-						Authors		.Save(b, i.AffectedAuthors.Values);
+						Accounts.Save(b, i.AffectedAccounts.Values);
+						Authors	.Save(b, i.AffectedAuthors.Values);
 					}
 
 					LastCommittedRound = tail.Last();

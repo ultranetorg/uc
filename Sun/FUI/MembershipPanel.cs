@@ -29,7 +29,7 @@ namespace Uccs.Sun.FUI
 
 				UpdateCandidateAccounts();
 
-				Bail.Coins = Mcv.BailMin;
+				Bail.Coins = Sun.Zone.BailMin;
 				IP.Text = Sun.IP.ToString();
 			}
 		}

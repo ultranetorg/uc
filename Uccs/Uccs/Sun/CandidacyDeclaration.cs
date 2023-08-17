@@ -6,7 +6,7 @@ namespace Uccs.Net
 	{
 		public Coin				Bail;
 		public override string	Description => $"{Bail} UNT";
-		public override bool	Valid => DevSettings.DisableBailMin ? true : Bail >= Mcv.BailMin;
+		public override bool	Valid => Bail >= Transaction.Zone.BailMin;
 		
 		public CandidacyDeclaration()
 		{

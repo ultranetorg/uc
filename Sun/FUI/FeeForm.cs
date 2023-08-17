@@ -39,11 +39,11 @@ namespace Uccs.Sun.FUI
 			
 			var t = new Transaction(Zone);
 			t.AddOperation(operation);
-			t.Sign(account, new AccountAddress(Nethereum.Signer.EthECKey.GenerateKey()), 0);
+			t.Sign(account, AccountKey.Create(), 0, Zone.Cryptography.ZeroHash);
 
 			var f = sun.EstimateFee(t.Operations);
 
-			fee.Text = f > 0 ? f.ToHumanString() : "unavailavle"; 
+			fee.Text = f > 0 ? f.ToHumanString() : "unavailable"; 
 
 			if(ShowDialog() == DialogResult.OK)
 			{

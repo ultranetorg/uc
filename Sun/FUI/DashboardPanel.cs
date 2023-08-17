@@ -39,6 +39,14 @@ namespace Uccs.Sun.FUI
 
 				if(destination.Items.Count > 1)
 					destination.SelectedIndex = 1;
+
+				Sun.Mcv.BlockAdded += (b) =>
+											{
+												BeginInvoke((MethodInvoker)delegate
+															{
+																monitor.OnBlockAdded(b);
+															});
+											};
 			}
 		}
 
@@ -62,7 +70,7 @@ namespace Uccs.Sun.FUI
 			fields.Text = string.Join('\n', i.Select(j => j.Key));
 			values.Text = string.Join('\n', i.Select(j => j.Value));
 		
-			 monitor.OnBlockAdded(null);
+			 //monitor.OnBlockAdded(null);
 		}
 
 		private void all_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

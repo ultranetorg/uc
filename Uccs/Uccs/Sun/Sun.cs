@@ -410,7 +410,7 @@ namespace Uccs.Net
 
 				Mcv.Confirmed += r =>	{
 											IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-											Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Release == i.Resource && j.Finished));
+											Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
 										 };
 		
 				if(Settings.Generators.Any())
@@ -1268,7 +1268,7 @@ namespace Uccs.Net
  							}
  						}
  	
- 						if(i is AuthorBid b && b.Tld.Any())
+ 						if(i is AuthorBid b && b.Tld.Any() && Zone.CheckDomains)
  						{
  							try
  							{
@@ -1340,7 +1340,14 @@ namespace Uccs.Net
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
 
-				Mcv.Add(v);
+				try
+				{
+					Mcv.Add(v);
+				}
+				catch(ConfirmationException)
+				{
+					StartSynchronization();
+				}
 
 				if(!valid()) /// do it only after adding to the chainbase
 				{
@@ -1531,10 +1538,18 @@ namespace Uccs.Net
 
 			if(votes.Any())
 			{
-				foreach(var b in votes)
+				try
 				{
-					Mcv.Add(b);
+					foreach(var b in votes)
+					{
+						Mcv.Add(b);
+					}
 				}
+				catch(ConfirmationException)
+				{
+					StartSynchronization();
+				}
+
 
 // 				var pieces = new List<BlockPiece>();
 // 
@@ -1783,35 +1798,25 @@ namespace Uccs.Net
 				{
 					var txs = new List<Transaction>();
 
-					var rmax = Call<NextRoundResponse>(Role.Base, i => i.GetNextRound(), Workflow).NextRoundId;
-
 					lock(Lock)
 					{
 						foreach(var g in next.GroupBy(i => i.Signer))
 						{
 							Monitor.Exit(Lock);
 
-							int lastid = -1;
-
-							try
-							{
-								lastid = Call<AccountResponse>(Role.Base, i => i.GetAccountInfo(g.Key), Workflow).Account.LastTransactionId;
-							}
-							catch(RdcEntityException ex) when(ex.Error == RdcEntityError.AccountNotFound)
-							{
-							}
+							var at = Call<AllocateTransactionResponse>(Role.Base, i => i.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Account = g.Key}), Workflow);
 									
 							Monitor.Enter(Lock);
 
 							var t = new Transaction(Zone);
-							t.Id = lastid + 1;
+							t.Id = at.NextTransactionId;
 
 							foreach(var o in g)
 							{
 								t.AddOperation(o);
 							}
 
-							t.Sign(Vault.GetKey(g.Key), m, Mcv.GetValidityPeriod(rmax));
+							t.Sign(Vault.GetKey(g.Key), m, at.MaxRoundId, at.PowHash);
 							txs.Add(t);
 						}
 					}
@@ -2071,6 +2076,7 @@ namespace Uccs.Net
 			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
+											(!Zone.PoW || Zone.PoW && Zone.Cryptography.Hash(Mcv.FindRound(i.Expiration - Mcv.Pitch * 2).Hash.Concat(i.PoW).ToArray()).Take(2).All(i => i == 0)) &&
 											i.Valid).ToList();
 								
 			foreach(var i in accepted)

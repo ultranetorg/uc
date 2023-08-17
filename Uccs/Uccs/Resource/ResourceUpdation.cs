@@ -194,7 +194,7 @@ namespace Uccs.Net
 						r.AnalysisStage = AnalysisStage.Pending;
 						r.AnalysisFee = AnalysisFee;
 						r.RoundId = round.Id;
-						r.AnalysisHalfVotingRid = 0;
+						r.AnalysisHalfVotingRound = 0;
 					}
 				}
 

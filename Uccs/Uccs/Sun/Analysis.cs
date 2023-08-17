@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Uccs.Net;
+﻿using System.IO;
 
 namespace Uccs.Net
 {
 	public enum AnalysisResult : byte
 	{
+		Null,
 		Infected,
 		Clean,
+		NotEnoughPrepayment,
 	}
 
 	public enum AnalysisStage : byte
@@ -42,29 +38,41 @@ namespace Uccs.Net
 
 	public class AnalysisConclusion : IBinarySerializable
 	{
-		public ResourceAddress	Release;
+		public ResourceAddress	Resource;
 		public byte				Good;
 		public byte				Bad;
-		public bool				Finished =>	Good > 0 || Bad > 0;
+		public bool				Finished =>	(Good >= 0 || Bad >= 0) && !(Good == 255 && Bad == 255);
 
-		public bool	QuorumReached
+		public bool	HalfReached
 		{
 			get => Good == 255 && Bad == 255;
-			set { Good = value ? (byte)255 : (byte)0;
-				  Bad = value ? (byte)255 : (byte)0; }
+			set
+			{
+				Good =(byte)255;
+				Bad = (byte)255;
+			}
 		}
 
+		//public bool	NotEnoughPayment
+		//{
+		//	get => Good == 0 && Bad == 0;
+		//	set
+		//	{
+		//		Good = 0;
+		//		Bad = 0;
+		//	}
+		//}
 
 		public void Read(BinaryReader reader)
 		{
-			Release = reader.Read<ResourceAddress>();
+			Resource = reader.Read<ResourceAddress>();
 			Good = reader.ReadByte();
 			Bad = reader.ReadByte();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(Release);
+			writer.Write(Resource);
 			writer.Write(Good);
 			writer.Write(Bad);
 		}

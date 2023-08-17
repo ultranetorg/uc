@@ -43,7 +43,7 @@ namespace Uccs.Sun.FUI
 				manage.Enabled = false;
 				nodes.Enabled = false;
 
-				await Sun.Nas.SetZone(Zone.OfficialByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
+				//await Sun.Nas.SetZone(Zone.OfficialByName(zone.SelectedItem as string), nodes.Text, new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
@@ -60,7 +60,7 @@ namespace Uccs.Sun.FUI
 			{
 				manage.Enabled = false;
 
-				await Sun.Nas.RemoveZone(Zone.OfficialByName(zone.SelectedItem as string), new EthereumFeeForm());
+				//await Sun.Nas.RemoveZone(Zone.OfficialByName(zone.SelectedItem as string), new EthereumFeeForm());
 
 				ReloadDefaultNodes();
 
