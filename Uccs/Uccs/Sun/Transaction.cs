@@ -27,12 +27,10 @@ namespace Uccs.Net
 
 		const int						PoWLength = 16;
 
-		public bool Valid
+		public bool Valid(Mcv mcv)
 		{
-			get
-			{
-				return Operations.Any() && Operations.All(i => i.Valid);
-			}
+			return	Operations.Any() && Operations.All(i => i.Valid) &&
+					(!Zone.PoW || Zone.PoW && Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
  		public Transaction(Zone zone)

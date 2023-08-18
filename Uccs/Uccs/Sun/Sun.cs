@@ -1239,67 +1239,6 @@ namespace Uccs.Net
 			if(!v.Valid)
 				return false;
 
-			bool valid()
-			{
- 				foreach(var t in v.Transactions)
- 				{
- 					foreach(var i in t.Operations)
- 					{
- 						if(i is Emission e)
- 						{
- 							try
- 							{
- 								Monitor.Exit(Lock);
- 			
- 								if(Nas.CheckEmission(e))
- 								{
- 								}
- 								else
- 									return false;
- 							}
- 							catch(Exception ex)
- 							{
- 								Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
- 								return false;
- 							}
- 							finally
- 							{
- 								Monitor.Enter(Lock);
- 							}
- 						}
- 	
- 						if(i is AuthorBid b && b.Tld.Any() && Zone.CheckDomains)
- 						{
- 							try
- 							{
- 								Monitor.Exit(Lock);
- 	
- 								var result = Dns.QueryAsync(b.Name + '.' + b.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation.Token);
- 															
- 								var txt = result.Result.Answers.TxtRecords().FirstOrDefault(i => i.DomainName == b.Name + '.' + b.Tld + '.');
- 		
- 								if(txt != null && txt.Text.Any(i => i == t.Signer.ToString()))
- 								{
- 								}
- 								else
- 									return false;
- 							}
- 							catch(DnsResponseException ex)
- 							{
- 								Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
- 								return false;
- 							}
- 							finally
- 							{
- 								Monitor.Enter(Lock);
- 							}
- 						}
- 					}
- 				}
-
-				return true;
-			}
-
 			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 			{
  				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Mcv.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
@@ -1307,7 +1246,7 @@ namespace Uccs.Net
 				if(v.RoundId < min || (SyncCache.ContainsKey(v.RoundId) && SyncCache[v.RoundId].Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
 					return false;
 
-				if(!valid())
+				if(v.Transactions.Any(i => !Valid(i) || !i.Valid(Mcv)))
 					return false;
 
 				Sun.SyncRound r;
@@ -1349,15 +1288,129 @@ namespace Uccs.Net
 					StartSynchronization();
 				}
 
-				if(!valid()) /// do it only after adding to the chainbase
+				if(v.Transactions.Any(i => !Valid(i) || !i.Valid(Mcv))) /// do it only after adding to the chainbase
 				{
 					r.Votes.Remove(v);
 					return false;
 				}
-
 			}
 
 			return true;
+		}
+
+		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
+		{
+			if(!Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
+				return new();
+
+			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
+											i.Expiration > Mcv.LastConfirmedRound.Id &&
+											Settings.Generators.Any(g => g == i.Generator) &&
+											i.Valid(Mcv)).ToList();
+			
+			foreach(var i in accepted)
+				i.Placing = PlacingStage.Accepted;
+
+			IncomingTransactions.AddRange(accepted);
+
+			return accepted;
+		}
+
+		bool Valid(Transaction transaction)
+		{
+ 			foreach(var i in transaction.Operations)
+ 			{
+ 				if(i is Emission e)
+ 				{
+ 					try
+ 					{
+ 						Monitor.Exit(Lock);
+ 			
+ 						if(Nas.CheckEmission(e))
+ 						{
+ 						}
+ 						else
+ 							return false;
+ 					}
+ 					catch(Exception ex)
+ 					{
+ 						Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
+ 						return false;
+ 					}
+ 					finally
+ 					{
+ 						Monitor.Enter(Lock);
+ 					}
+ 				}
+ 	
+ 				if(i is AuthorBid b && b.Tld.Any() && Zone.CheckDomains)
+ 				{
+ 					try
+ 					{
+ 						Monitor.Exit(Lock);
+ 	
+ 						var result = Dns.QueryAsync(b.Name + '.' + b.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation.Token);
+ 															
+ 						var txt = result.Result.Answers.TxtRecords().FirstOrDefault(i => i.DomainName == b.Name + '.' + b.Tld + '.');
+ 		
+ 						if(txt != null && txt.Text.Any(i => i == transaction.Signer.ToString()))
+ 						{
+ 						}
+ 						else
+ 							return false;
+ 					}
+ 					catch(DnsResponseException ex)
+ 					{
+ 						Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+ 						return false;
+ 					}
+ 					finally
+ 					{
+ 						Monitor.Enter(Lock);
+ 					}
+ 				}
+ 			}
+
+			return true;
+		}
+
+		void Verifing()
+		{
+			Workflow.Log?.Report(this, "Verifing started");
+
+			try
+			{
+				while(!Workflow.IsAborted)
+				{
+					Thread.Sleep(1);
+
+					Statistics.Verifying.Begin();
+
+					lock(Lock)
+					{
+						foreach(var t in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray())
+						{
+							if(Valid(t))
+							{
+								t.Placing = PlacingStage.Verified;
+							} 
+							else
+							{
+								IncomingTransactions.Remove(t);
+							}
+						}
+					}
+
+					Statistics.Verifying.End();
+				}
+			}
+			catch(Exception ex) when (!Debugger.IsAttached)
+			{
+				Stop(MethodBase.GetCurrentMethod(), ex);
+			}
+			catch(OperationCanceledException)
+			{
+			}
 		}
 
 		void GenerateAnalysis()
@@ -2002,89 +2055,6 @@ namespace Uccs.Net
 					case PlacingStage.FailedOrNotFound :	if(o.Transaction.Placing == PlacingStage.FailedOrNotFound) return; else break;
 				}
 			}
-		}
-
-		void Verifing()
-		{
-			Workflow.Log?.Report(this, "Verifing started");
-
-			try
-			{
-				while(!Workflow.IsAborted)
-				{
-					Thread.Sleep(1);
-
-					Statistics.Verifying.Begin();
-
-					lock(Lock)
-					{
-						foreach(var t in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray())
-						{
-							bool valid = true;
-
-							foreach(var o in t.Operations)
-							{
-								if(o is Emission e)
-								{
-									Monitor.Exit(Lock);
-
-									try
-									{
-										valid = Nas.CheckEmission(e);
-										
-										if(!valid)
-										{	
-											IncomingTransactions.Remove(t);
-											break;
-										}
-									}
-									catch(Exception ex)
-									{
-										valid = false;
-										Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
-										break;
-									}
-									finally
-									{
-										Monitor.Enter(Lock);
-									}
-								}
-								
-							}
-
-							t.Placing = PlacingStage.Verified;
-						}
-					}
-
-					Statistics.Verifying.End();
-				}
-			}
-			catch(Exception ex) when (!Debugger.IsAttached)
-			{
-				Stop(MethodBase.GetCurrentMethod(), ex);
-			}
-			catch(OperationCanceledException)
-			{
-			}
-		}
-
-		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
-		{
-			if(!Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
-				return new();
-
-			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
-											i.Expiration > Mcv.LastConfirmedRound.Id &&
-											Settings.Generators.Any(g => g == i.Generator) &&
-											(!Zone.PoW || Zone.PoW && Zone.Cryptography.Hash(Mcv.FindRound(i.Expiration - Mcv.Pitch * 2).Hash.Concat(i.PoW).ToArray()).Take(2).All(i => i == 0)) &&
-											i.Valid).ToList();
-								
-			foreach(var i in accepted)
-				i.Placing = PlacingStage.Accepted;
-
-			IncomingTransactions.AddRange(accepted);
-
-			return accepted;
 		}
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)

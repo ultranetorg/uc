@@ -49,9 +49,6 @@ namespace Uccs.Net
 				{
 					if(i.Expiration < RoundId)
 						return false;
-
-					if(!i.Valid)
-						return false;
 				}
 
 				return true;

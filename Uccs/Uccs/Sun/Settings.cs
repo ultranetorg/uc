@@ -64,8 +64,6 @@ namespace Uccs.Net
 
 	public class ApiSettings
 	{
-		public bool		Enabled = true;
-		//public int	Port { get; }
 		public string	AccessKey;
 		Settings		Main;
 
@@ -76,8 +74,6 @@ namespace Uccs.Net
 		public ApiSettings(Xon x, Settings main)
 		{
 			Main		= main;
-			Enabled		= x.One("Enabled") != null;
-			//Port		= x.Has("Port") ? x.GetInt32("Port") : DefaultPort;
 			AccessKey	= x.GetString("AccessKey");
 		}
 	}
