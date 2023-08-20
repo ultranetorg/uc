@@ -94,11 +94,11 @@ namespace Uccs.Net
 			Database = c;
 		}
 
-		public override string ToString()
-		{
-			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(Generator != null ? Hex.ToHexString(Generator) : null)}, ParentSummary={{{(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}}}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
-		}
-
+		//public override string ToString()
+		//{
+		//	return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(Generator != null ? Hex.ToHexString(Generator) : null)}, ParentSummary={{{(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}}}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+		//}
+		//
 		public void AddNext(Transaction t)
 		{
 			t.Vote = this;

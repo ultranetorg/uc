@@ -37,19 +37,19 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			var s = round.AffectAccount(Signer);
-			
-			s.Balance -= Amount;
+			var from = round.AffectAccount(Signer);
 
-			if(chain.Accounts.Find(To, round.Id) == null)
+			var newto = chain.Accounts.Find(To, round.Id) == null;
+			var to = round.AffectAccount(To);
+
+			from.Balance -= Amount;
+			
+			if(newto)
 			{
-				var fee = CalculateSpaceFee(round.Factor, CalculateSize(), 10);
-				
-				s.Balance -= fee;
-				round.Fees += fee;
+				PayForAllocation(0, 10);
 			}
 
-			round.AffectAccount(To).Balance += Amount;
+			to.Balance += Amount;
 		}
 	}
 }

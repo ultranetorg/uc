@@ -93,7 +93,7 @@ namespace Uccs.Net
 
 			if(a.Owner != Signer)
 			{
-				Error = NotOwnerOfAuthor;
+				Error = NotOwner;
 				return;
 			}
 
@@ -108,11 +108,12 @@ namespace Uccs.Net
 			a = round.AffectAuthor(Resource.Author);
 			var r = a.AffectResource(Resource);
 
-			r.Flags = r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
-			r.Type = Type;
-
-			r.Expiration = round.ConfirmedTime + ChainTime.FromYears(Years);
-			round.AffectAccount(Signer).Balance -= CalculateSpaceFee(round.Factor, CalculateSize(), Years);
+			r.Flags				= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
+			r.Type				= Type;
+			r.LastRenewalYears	= Years;
+			r.Expiration		= round.ConfirmedTime + ChainTime.FromYears(Years);
+			
+			PayForAllocation(Data == null ? 0 : Data.Length, Years);
 			
 			if(Parent != null)
 			{

@@ -42,7 +42,7 @@ namespace Uccs.Net
 		public const string		AlreadyExists = "Alreadt exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
-		public const string		NotOwnerOfAuthor = "The signer does not own the Author";
+		public const string		NotOwner = "The signer does not own the entity";
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
 
 		public OperationClass	Class => Enum.Parse<OperationClass>(GetType().Name);
@@ -137,9 +137,11 @@ namespace Uccs.Net
 			return Mcv.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
 		}
 
-		public Coin CalculateSpaceFee(Coin factor, int size, byte years)
+		public void PayForAllocation(int extralength, byte years)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size * Mcv.SpaceBasicFeePerByte * (1 << years);
+			var fee = Mcv.CalculateSpaceFee(Transaction.Round.Factor, Mcv.EntityAllocationBaseLength + extralength, years);
+			Transaction.Round.AffectAccount(Signer).Balance -= fee;
+			Transaction.Round.Fees += fee;
 		}
 	}
 }

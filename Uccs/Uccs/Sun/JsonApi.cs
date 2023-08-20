@@ -94,7 +94,7 @@ namespace Uccs.Net
 
 	public class ChainReportResponse
 	{
-		public class Block
+		public class Vote
 		{
 			public AccountAddress	Generator {get; set;}
 			public bool				IsPayload {get; set;}
@@ -110,8 +110,8 @@ namespace Uccs.Net
 			public bool							Confirmed {get; set;}
 			public ChainTime					Time {get; set;}
 			public byte[]						Hash {get; set;}
-			public byte[]						Consensus {get; set;}
-			public IEnumerable<Block>			Blocks {get; set;}
+			public byte[]						Summary {get; set;}
+			public IEnumerable<Vote>			Votes {get; set;}
 			public IEnumerable<AccountAddress>	JoinRequests {get; set;}
 			//public IEnumerable<AccountAddress>	HubJoinRequests {get; set;}
 			//public IEnumerable<AccountAddress>	AnalyzerJoinRequests {get; set;}

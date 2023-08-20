@@ -33,9 +33,10 @@ namespace Uccs.Net
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
+		public const int					EntityAllocationBaseLength = 100;
 
 		public Zone							Zone;
-		public McvSettings				Settings;
+		public McvSettings					Settings;
 		public Role							Roles;
 
 		public List<Round>					Tail = new();
@@ -201,40 +202,10 @@ namespace Uccs.Net
 			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", null, 1));
 			t.Sign(org, gen, 0, Zone.Cryptography.ZeroHash);
 			b0.AddNext(t);
-						
-			//void emmit(Dictionary<AccountAddress, AccountEntry> accs)
-			//{
-			//	foreach(var f in fathers.OrderBy(j => j))
-			//	{
-			//		var t = new Transaction(Zone);
-			//		t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0){ Id = 0 });
-			//						
-			//		if(accs != null)
-			//		{
-			//			t.AddOperation(new CandidacyDeclaration(f, accs[f].Balance - 1){ Id = 1 });
-			//		}
-			//
-			//		t.Sign(f, gen, 0);
-			//
-			//		b0.AddNext(t);
-			//	}
-			//
-			//	b0.Sign(gen);
-			//	Add(b0);
-			//}
-			//			
-			//emmit(null);
-			//
-			//Execute(Tail.First(), Tail.First().OrderedTransactions, null);
-			//var accs = Tail.First().AffectedAccounts;
-			//Tail.Clear();
-			//b0.Transactions.Clear();
-			//b0.AddNext(t);
-			//
-			//emmit(accs);
-			foreach(var f in fathers.OrderBy(j => j))
+			
+			foreach(var f in fathers.OrderBy(j => j).ToArray())
 			{
-				t = new Transaction(Zone){ Id = 0 };
+				t = new Transaction(Zone) {Id = 0};
 				t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
 				t.AddOperation(new CandidacyDeclaration(f, 900_000));
 			
@@ -289,6 +260,11 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
+		public static Coin CalculateSpaceFee(Coin factor, int basefee, byte years)
+		{
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * basefee * Mcv.SpaceBasicFeePerByte * (1 << years);
+		}
+
 		public void Add(Vote b)
 		{
 			var r = GetRound(b.RoundId);
@@ -301,7 +277,10 @@ namespace Uccs.Net
 			if(b.Transactions.Any())
 			{
 				foreach(var t in b.Transactions)
+				{
+					t.Round = r;
 					t.Placing = PlacingStage.Placed;
+				}
 			}
 	
 			if(r.FirstArrivalTime == DateTime.MaxValue)

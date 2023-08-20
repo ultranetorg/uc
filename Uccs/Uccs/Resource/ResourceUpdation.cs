@@ -96,6 +96,14 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
+ 			var aa = chain.Authors.Find(Resource.Author, round.Id); /// TODO: Allow to prolongate for non-owner
+ 
+ 			if(aa.Owner != Signer)
+ 			{
+ 				Error = NotOwner;
+ 				return;
+ 			}
+
 			var e = chain.Authors.FindResource(Resource, round.Id);
 			
 			if(e == null) 
@@ -112,23 +120,31 @@ namespace Uccs.Net
 
 			var a = round.AffectAuthor(Resource.Author);
 			
-			void execute(ResourceAddress resource, bool ignoreexpiration)
+			void execute(ResourceAddress resource, bool ignore_renewal_errors)
 			{
 				var r = a.AffectResource(resource);
 	
 				if(Changes.HasFlag(ResourceChanges.Years))
 				{
-					if(!ignoreexpiration && r.Expiration > round.ConfirmedTime)
+					if(!ignore_renewal_errors)
 					{
-						Error = "Renewal is allowed after current expiration only";
-						return;
+						if(round.ConfirmedTime < r.RenewalBegin)
+						{
+							Error = "Renewal is allowed during last year only";
+							return;
+						}
+
+						if(round.ConfirmedTime > r.Expiration)
+						{
+							Error = "Expired";
+							return;
+						}
 					}
 					
-					if(r.Expiration <= round.ConfirmedTime)
-					{
-						r.Expiration += ChainTime.FromYears(Years);
-						round.AffectAccount(Signer).Balance -= CalculateSpaceFee(round.Factor, CalculateSize(), Years);
-					}
+					r.Expiration += ChainTime.FromYears(Years);
+					r.LastRenewalYears = Years;
+
+					PayForAllocation(e.Data == null ? 0 : e.Data.Length, Years);
 				}
 	
 				if(Changes.HasFlag(ResourceChanges.Flags))
@@ -171,14 +187,14 @@ namespace Uccs.Net
 	
 						var d = Data.Length - r.Reserved;
 		
-						if(d > 0) /// reduce period if data size is greater then existing one
+						if(d > 0)
 						{
 							//long s = CalculateSize();
 							//r.Expiration = new ChainTime(r.Expiration.Ticks - ChainTime.TicksFromYears(r.LastRenewalYears) + ChainTime.TicksFromYears(r.LastRenewalYears) * s / (s + d));
 							
 							r.Reserved += (short)d;
 		
-							round.AffectAccount(Signer).Balance -= CalculateSpaceFee(round.Factor, d, r.LastRenewalYears);
+							round.AffectAccount(Signer).Balance -= Mcv.CalculateSpaceFee(round.Factor, d, r.LastRenewalYears);
 						}
 					} 
 					else

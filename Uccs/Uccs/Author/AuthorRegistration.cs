@@ -47,28 +47,25 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			var a = chain.Authors.Find(Name, round.Id);
+			var e = chain.Authors.Find(Name, round.Id);
 						
-			if(Author.CanRegister(Name, a, round.ConfirmedTime, Signer))
+			if(Author.CanRegister(Name, e, round.ConfirmedTime, Signer))
 			{
-				if(a?.Owner == null)
+				if(e?.Owner == null)
 				{
 					if(Exclusive) /// distribite winner bid, one time
-						round.Fees += a.LastBid;
+						round.Fees += e.LastBid;
 				}
 
 
-				a = round.AffectAuthor(Name);
+				var a = round.AffectAuthor(Name);
 				
 				a.LastWinner	= null;
 				a.Title			= Title;
 				a.Owner			= Signer;
 				a.Expiration	= round.ConfirmedTime + ChainTime.FromYears(Years);
 
-				var cost = CalculateSpaceFee(round.Factor, CalculateSize(), Years);
-				
-				round.AffectAccount(Signer).Balance -= cost;
-				round.Fees += cost;
+				PayForAllocation(0, Years);
 			}
 			else
 				Error = "Failed";

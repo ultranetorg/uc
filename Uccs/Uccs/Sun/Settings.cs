@@ -162,7 +162,7 @@ namespace Uccs.Net
 		public HubSettings				Hub;
 		public ApiSettings				Api;
 		public FilebaseSettings			Filebase;
-		public McvSettings			Mcv;
+		public McvSettings				Mcv;
 		public SecretSettings			Secrets;
 
 		public List<AccountAddress>		ProposedFundJoiners = new();
@@ -214,6 +214,7 @@ namespace Uccs.Net
 			Directory.CreateDirectory(profile);
 
 			Profile		= profile;
+			Path		= System.IO.Path.Join(profile, FileName);
 			IP			= IPAddress.Loopback;
 
 			Mcv	= new ();

@@ -36,7 +36,7 @@ namespace Uccs.Net
 		{
 			if(chain.Authors.Find(Author, round.Id).Owner != Signer)
 			{
-				Error = NotOwnerOfAuthor;
+				Error = NotOwner;
 				return;
 			}
 

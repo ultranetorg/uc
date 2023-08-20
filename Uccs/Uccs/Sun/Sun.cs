@@ -204,10 +204,6 @@ namespace Uccs.Net
 	
 						if(DevSettings.UI)
 						{
-							foreach(var i in Mcv.LastConfirmedRound.Funds)
-							{
-								f.Add(new ($"Fundable", $"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}"));
-							}
 						}
 					}
 				}
@@ -1138,12 +1134,10 @@ namespace Uccs.Net
 								{
 									if(confirmed && r.Confirmed)
 									{
-										foreach(var p in r.Payloads)
+										foreach(var t in r.Transactions)
 										{
-											//p.Confirmed = true;
-
-											foreach(var t in p.Transactions)
-												t.Placing = PlacingStage.Placed;
+											//t.Round = r;
+											t.Placing = PlacingStage.Placed;
 										}
 				
 										Mcv.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks

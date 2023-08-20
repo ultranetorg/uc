@@ -16,6 +16,7 @@ namespace Uccs.Net
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 		
 		public Vote						Vote;
+		public Round					Round;
 		public AccountAddress			Generator;
 		public int						Expiration;
 		public byte[]					PoW;

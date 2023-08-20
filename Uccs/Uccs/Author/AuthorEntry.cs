@@ -14,9 +14,9 @@ namespace Uccs.Net
 		public string		Key => Name;
 		public byte[]		GetClusterKey(int n) => Encoding.UTF8.GetBytes(Name).Take(n).ToArray();
 
-		Mcv			Chain;
+		Mcv					Chain;
 		List<Resource>		AffectedResources = new();
-
+		
 		public AuthorEntry()
 		{
 		}

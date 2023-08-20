@@ -72,9 +72,9 @@ namespace Uccs.Net
 
 					var a = sun.Mcv.Accounts.Find(Generator, sun.Mcv.LastConfirmedRound.Id);
 					
-					if(a == null || a.Bail == 0 /*|| a.BailStatus != BailStatus.Active*/)
+					if(a == null || a.Bail < sun.Zone.BailMin /*|| a.BailStatus != BailStatus.Active*/)
 						return null;
-									
+					
 					sun.Mcv.GetRound(RoundId).JoinRequests.Add(this);
 				}
 	

@@ -279,7 +279,7 @@ namespace Uccs.Net
 			ConfirmedFundLeavers		= reader.ReadArray<AccountAddress>();
 			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyses			= reader.ReadArray<AnalysisConclusion>();
-			ConfirmedTransactions		= reader.Read(() =>	new Transaction(Database.Zone), t => t.ReadConfirmed(reader)).ToArray();
+			ConfirmedTransactions		= reader.Read(() =>	new Transaction(Database.Zone) {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
 		public void Write(BinaryWriter w)
@@ -315,21 +315,27 @@ namespace Uccs.Net
 // #endif
 				ReadConfirmed(r);
 				JoinRequests.AddRange(r.ReadArray(() =>	{
-																		var b = new MemberJoinRequest();
-																		b.RoundId = Id;
-																		b.Read(r, Database.Zone);
-																		return b;
-																	}));
+															var b = new MemberJoinRequest();
+															b.RoundId = Id;
+															b.Read(r, Database.Zone);
+															return b;
+														}));
 			} 
 			else
 			{
-				Votes	= r.ReadList(() =>	{
-												var b = new Vote(Database);
-												b.RoundId = Id;
-												b.Round = this;
-												b.ReadForRoundUnconfirmed(r);
-												return b;
-											});
+				Votes = r.ReadList(() => {
+											var v = new Vote(Database);
+											v.RoundId = Id;
+											v.Round = this;
+											v.ReadForRoundUnconfirmed(r);
+												
+											foreach(var i in v.Transactions)
+											{
+												i.Round = this;
+											}
+
+											return v;
+										 });
 			}
 		}
 

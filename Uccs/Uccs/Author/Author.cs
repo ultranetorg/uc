@@ -8,7 +8,7 @@ namespace Uccs.Net
 	public class Author : IBinarySerializable
 	{
 		public const int					ExclusiveLengthMax = 12;
-		public const int					LengthMin = 2;
+		public const int					LengthMin = 1;
 
 		public static readonly ChainTime	AuctionMinimalDuration = ChainTime.FromDays(365);
 		public static readonly ChainTime	Prolongation = ChainTime.FromDays(30);

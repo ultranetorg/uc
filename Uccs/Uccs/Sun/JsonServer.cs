@@ -228,9 +228,9 @@ namespace Uccs.Net
 																										Confirmed = i.Confirmed,
 																										Time = i.ConfirmedTime,
 																										Hash = i.Hash,
-																										Consensus = i.Summary,
-																										Blocks = i.Votes.Select(b => new ChainReportResponse.Block {	Generator = b.Generator, 
-																																										IsPayload = b is Vote v && v.Transactions.Any(), 
+																										Summary = i.Summary,
+																										Votes = i.Votes.Select(b => new ChainReportResponse.Vote {	Generator = b.Generator, 
+																																									IsPayload = b.Transactions.Any(), 
 																																										/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
 																										JoinRequests = i.JoinRequests.Select(i => i.Generator),
 																									})

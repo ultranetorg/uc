@@ -66,6 +66,8 @@ namespace Uccs.Net
 		public byte				Bad { get; set; }
 		public int[]			Resources { get; set; } = {};
 
+		public ChainTime		RenewalBegin => Expiration - ChainTime.FromYears(1);
+
 		public override string ToString()
 		{
 			return $"{Id}, {Address}, {Expiration}, {LastRenewalYears}, [{Flags}], {Type}, Reserved={Reserved}, Data={(Data == null ? null : ('[' + Data.Length + ']'))} Resources={{{Resources.Length}}}";

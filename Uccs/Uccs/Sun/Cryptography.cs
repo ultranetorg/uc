@@ -116,7 +116,7 @@ namespace Uccs.Net
 	{
 		public override byte[]	ZeroHash => new byte[HashSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-		static KeyStoreService				service;
+		static KeyStoreService	service;
 
 		static EthereumCryptography()
 		{

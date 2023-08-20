@@ -15,5 +15,7 @@ namespace Uccs.Net
 
 		void	ReadMore(BinaryReader r);
 		void	WriteMore(BinaryWriter r);
+
+
 	}
 }
