@@ -134,37 +134,37 @@ namespace Uccs.Net
 
 		public void Disconnect()
 		{
-			lock(Sun.Lock)
+			if(Status != ConnectionStatus.Disconnecting)
+				Status = ConnectionStatus.Disconnecting;
+			else
+				return;
+
+			foreach(var i in OutRequests)
+				i.Event.Set();
+
+			lock(OutRequests)
+				OutRequests.Clear();
+	
+			if(Tcp != null)
 			{
-				if(Status != ConnectionStatus.Disconnecting)
-					Status = ConnectionStatus.Disconnecting;
-				else
-					return;
+				Stream.Close();
+				Tcp.Close();
+				Tcp = null;
 
 				SendSignal.Set();
 
-				foreach(var i in OutRequests)
-					i.Event.Set();
+				//Monitor.Exit(Sun.Lock);
+				//WriteThread.Join();
+				//ReadThread.Join();
+				//Monitor.Enter(Sun.Lock);
 
-				lock(OutRequests)
-					OutRequests.Clear();
-	
-				if(Tcp != null)
-				{
-					Tcp.Close();
-					Tcp = null;
-				}
-	
-				if(WriteThread != null)
-					WriteThread = null;
-	
-				if(ReadThread != null)
-	 				ReadThread = null;
-		
-				Status = ConnectionStatus.Disconnected;
-				InStatus = EstablishingStatus.Null;
-				OutStatus = EstablishingStatus.Null;
+				WriteThread = null;
+ 				ReadThread = null;
 			}
+		
+			Status = ConnectionStatus.Disconnected;
+			InStatus = EstablishingStatus.Null;
+			OutStatus = EstablishingStatus.Null;
 		}
 
 		public void Start(Sun sun, TcpClient client, Hello h, string host)
@@ -273,45 +273,36 @@ namespace Uccs.Net
 						}
 					}
 
-					try
+					RdcPacket[] outs;
+	
+					lock(Outs)
 					{
-						RdcPacket[] outs;
-	
-						lock(Outs)
-						{
-							outs = Outs.ToArray();
-							Outs.Clear();
-						}
-	
-						foreach(var i in outs)
-						{
-							if(i is RdcRequest)
-								Writer.Write((byte)PacketType.Request);
-							else if(i is RdcResponse)
-								Writer.Write((byte)PacketType.Response);
-							else
-								throw new IntegrityException("Wrong packet to write");
-	
-							BinarySerializator.Serialize(Writer, i);
-						}
+						outs = Outs.ToArray();
+						Outs.Clear();
 					}
-					catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
-					{
-						lock(Sun.Lock)
-							if(Status != ConnectionStatus.Disconnecting)
-								Status = ConnectionStatus.Failed;
 	
-						break;
+					foreach(var i in outs)
+					{
+						if(i is RdcRequest)
+							Writer.Write((byte)PacketType.Request);
+						else if(i is RdcResponse)
+							Writer.Write((byte)PacketType.Response);
+						else
+							throw new IntegrityException("Wrong packet to write");
+	
+						BinarySerializator.Serialize(Writer, i);
 					}
 	
 					Sun.Statistics.Sending.End();
-									
-					SendSignal.WaitOne();
+					
+					WaitHandle.WaitAny(new[] {SendSignal, Sun.Workflow.Cancellation.Token.WaitHandle});
 				}
 			}
-			catch(Exception) when(!Debugger.IsAttached)
+			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
-				Status = ConnectionStatus.Failed;
+				lock(Sun.Lock)
+					if(Status != ConnectionStatus.Disconnecting)
+						Status = ConnectionStatus.Failed;
 			}
 		}
 
@@ -321,11 +312,11 @@ namespace Uccs.Net
 	 		{
 				while(true)
 				{
-					var pk = (PacketType)Reader.ReadByte();
-
 					lock(Sun.Lock)
 						if(Sun.Workflow.IsAborted || !Established)
 							return;
+
+					var pk = (PacketType)Reader.ReadByte();
 					
 					Sun.Statistics.Reading.Begin();
 
@@ -333,21 +324,10 @@ namespace Uccs.Net
 					{
  						case PacketType.Request:
  						{
-							RdcRequest rq;
-
- 							try
- 							{
-								rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Sun.Constract,i =>	{
+							var rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Sun.Constract,i =>	{
 																												if(i is RdcRequest r) 
 																													r.Peer = this;
 																											});
- 							}
- 							catch(Exception) when(!DevSettings.ThrowOnCorrupted)
- 							{
- 								Disconnect();
- 								break;
- 							}
-
 							lock(InRequests)
  								InRequests.Add(rq);
  	
@@ -358,17 +338,7 @@ namespace Uccs.Net
 
 						case PacketType.Response:
  						{
-							RdcResponse rp;
-							
-							try
- 							{
-								rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Sun.Constract, i => {});
-							}
- 							catch(Exception) when(!DevSettings.ThrowOnCorrupted)
- 							{
- 								Disconnect();
- 								break;
- 							}
+							var rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Sun.Constract, i => {});
 
 							lock(OutRequests)
 							{
@@ -396,17 +366,13 @@ namespace Uccs.Net
 					Sun.Statistics.Reading.End();
 				}
 	 		}
-			catch(Exception ex) when (ex is SocketException || ex is IOException || ex is ObjectDisposedException)
+			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
 				lock(Sun.Lock)
 					if(Status != ConnectionStatus.Disconnecting)
 						Status = ConnectionStatus.Failed;
 			}
-			catch(Exception) when (!Debugger.IsAttached)
-			{
-				Disconnect();
-			}
-		}	
+		}
 
  		public override void Send(RdcRequest rq)
  		{

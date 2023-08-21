@@ -35,6 +35,11 @@ namespace Uccs.Net
 			Attos = One * n;
 		}
 
+		public Coin(uint n)
+		{
+			Attos = One * n;
+		}
+
 		public Coin(decimal n)
 		{
 			Attos = Nethereum.Web3.Web3.Convert.ToWei(n);

@@ -14,6 +14,7 @@ using RocksDbSharp;
 namespace Uccs.Net
 {
 	public delegate void BlockDelegate(Vote b);
+	public delegate void JoinDelegate(MemberJoinRequest b);
 	public delegate void ConsensusDelegate(Round b, bool reached);
 	public delegate void RoundDelegate(Round b);
 
@@ -27,13 +28,15 @@ namespace Uccs.Net
 		public const int					AnalyzersMax = 32;
 		public const int					NewMembersPerRoundMax = 1;
 		public const int					MembersRotation = 32;
-		public  int							TailLength => DevSettings.TailLength100 ? 100 : 1000;
+		public int							TailLength => DevSettings.TailLength100 ? 100 : 1000;
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			TransactionFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
 		public const int					EntityAllocationBaseLength = 100;
+		public const int					EntityAllocationYearsMin = 1;
+		public const int					EntityAllocationYearsMax = 32;
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -57,6 +60,7 @@ namespace Uccs.Net
 																			Authors.Clusters.Sum(i => i.MainLength));
 		public Log							Log;
 		public BlockDelegate				BlockAdded;
+		public JoinDelegate					JoinAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Confirmed;
 
@@ -231,7 +235,7 @@ namespace Uccs.Net
 									};
 	
 			t = new Transaction(Zone){Id = 1};
-			t.AddOperation(new AuthorRegistration(org, "uo", "UO", 255));
+			t.AddOperation(new AuthorRegistration(org, "uo", "UO", EntityAllocationYearsMax));
 			t.Sign(org, gen, 1, Zone.Cryptography.ZeroHash);
 			b1.AddNext(t);
 			
@@ -262,7 +266,7 @@ namespace Uccs.Net
 
 		public static Coin CalculateSpaceFee(Coin factor, int basefee, byte years)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * basefee * Mcv.SpaceBasicFeePerByte * (1 << years);
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * basefee * Mcv.SpaceBasicFeePerByte * new Coin(1u << (years - 1));
 		}
 
 		public void Add(Vote b)

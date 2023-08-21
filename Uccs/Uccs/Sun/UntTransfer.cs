@@ -6,7 +6,7 @@ namespace Uccs.Net
 	{
 		public AccountAddress	To;
 		public Coin				Amount;
-		public override string	Description => $"{Amount} UNT -> {To}";
+		public override string	Description => $"{Signer} -> {Amount} UNT -> {To}";
 		public override bool	Valid => 0 <= Amount;
 
 		public UntTransfer()
@@ -18,9 +18,9 @@ namespace Uccs.Net
 			if(signer == null)	throw new RequirementException("Source account is null or invalid");
 			if(to == null)		throw new RequirementException("Destination account is null or invalid");
 
-			Signer = signer;
-			To = to;
-			Amount = amount;
+			Signer	= signer;
+			To		= to;
+			Amount	= amount;
 		}
 
 		protected override void ReadConfirmed(BinaryReader r)

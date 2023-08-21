@@ -32,6 +32,7 @@ namespace Uccs.Net
 		public Dictionary<byte[], List<Seed>>	Releases = new (new BytesEqualityComparer());
 		public const int						SeedersPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
 		public const int						SeedersPerRequestMax = 256;
+		public object							Lock = new object();
 
 		public Hub(Sun sun)
 		{

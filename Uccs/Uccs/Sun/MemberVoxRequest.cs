@@ -82,7 +82,7 @@ namespace Uccs.Net
 				if(sun.Synchronization == Synchronization.Synchronized)
 				{
 					var r = sun.Mcv.FindRound(v.RoundId);
-					var _v = r.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
+					var _v = r?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
 
 					if(_v != null)
 					{

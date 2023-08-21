@@ -31,7 +31,8 @@ namespace Uccs.Net
 		{
 			if(!sun.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
 
-			sun.Hub.Add(Peer.IP, Releases);
+			lock(sun.Hub.Lock)
+				sun.Hub.Add(Peer.IP, Releases);
 
 			return null;
 		}

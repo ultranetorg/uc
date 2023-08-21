@@ -15,11 +15,12 @@ namespace Uccs.Net
 		public List<Peer>				Peers;
 		public bool						BroadcastConfirmed;
 		public byte[]					Hash;
-		Mcv						Database;
 		public Round					Round;
 		public DateTime					Created;
 		AccountAddress					_Generator;
 		byte[]							_RawForBroadcast;
+		Mcv								Mcv;
+
 		public int						RoundId;
 		public IPAddress[]				BaseIPs;
 		public IPAddress[]				HubIPs;
@@ -28,8 +29,6 @@ namespace Uccs.Net
 		public byte[]					ParentSummary;
 		public List<AccountAddress>		MemberJoiners = new();
 		public List<AccountAddress>		MemberLeavers = new();
-		//public List<AccountAddress>		HubJoiners = new();
-		//public List<AccountAddress>		HubLeavers = new();
 		public List<AccountAddress>		AnalyzerJoiners = new();
 		public List<AccountAddress>		AnalyzerLeavers = new();
 		public List<AccountAddress>		FundJoiners = new();
@@ -38,7 +37,6 @@ namespace Uccs.Net
 		public List<ResourceAddress>	CleanReleases = new();
 		public List<ResourceAddress>	InfectedReleases = new();
 		public List<Transaction>		Transactions = new();
-	
 		public byte[]					Signature { get; set; }
 
 		public bool Valid
@@ -61,7 +59,7 @@ namespace Uccs.Net
 			{
 				if(_Generator == null)
 				{
-					_Generator = Database.Zone.Cryptography.AccountFrom(Signature, Hashify());
+					_Generator = Mcv.Zone.Cryptography.AccountFrom(Signature, Hashify());
 				}
 
 				return _Generator;
@@ -91,14 +89,14 @@ namespace Uccs.Net
 
 		public Vote(Mcv c)
 		{
-			Database = c;
+			Mcv = c;
 		}
 
-		//public override string ToString()
-		//{
-		//	return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(Generator != null ? Hex.ToHexString(Generator) : null)}, ParentSummary={{{(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}}}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
-		//}
-		//
+		public override string ToString()
+		{
+			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(Generator != null ? Hex.ToHexString(Generator) : null)}, ParentSummary={(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+		}
+		
 		public void AddNext(Transaction t)
 		{
 			t.Vote = this;
@@ -109,7 +107,7 @@ namespace Uccs.Net
 		{
 			_Generator = generator;
 			Hash = Hashify();
-			Signature = Database.Zone.Cryptography.Sign(generator, Hash);
+			Signature = Mcv.Zone.Cryptography.Sign(generator, Hash);
 		}
 
 		protected byte[] Hashify()
@@ -117,13 +115,13 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.WriteUtf8(Database.Zone.Name);
+			w.WriteUtf8(Mcv.Zone.Name);
 			w.Write(Generator);
 			w.Write7BitEncodedInt(RoundId);
 
 			WriteVote(w);
 
-			return Database.Zone.Cryptography.Hash(s.ToArray());
+			return Mcv.Zone.Cryptography.Hash(s.ToArray());
 		}
 
 		void WriteVote(BinaryWriter writer)
@@ -137,8 +135,6 @@ namespace Uccs.Net
 
 			writer.Write(MemberJoiners);
 			writer.Write(MemberLeavers);
-			//writer.Write(HubJoiners);
-			//writer.Write(HubLeavers);
 			writer.Write(AnalyzerJoiners);
 			writer.Write(AnalyzerLeavers);
 			writer.Write(FundJoiners);
@@ -159,10 +155,8 @@ namespace Uccs.Net
 			TimeDelta		= reader.Read7BitEncodedInt64();
 			ParentSummary	= reader.ReadBytes(Cryptography.HashSize);
 
-			MemberJoiners	= reader.ReadAccounts();
-			MemberLeavers	= reader.ReadAccounts();
-			//HubJoiners			= reader.ReadAccounts();
-			//HubLeavers			= reader.ReadAccounts();
+			MemberJoiners		= reader.ReadAccounts();
+			MemberLeavers		= reader.ReadAccounts();
 			AnalyzerJoiners		= reader.ReadAccounts();
 			AnalyzerLeavers		= reader.ReadAccounts();
 			FundJoiners			= reader.ReadAccounts();
@@ -172,7 +166,7 @@ namespace Uccs.Net
 			InfectedReleases	= reader.ReadList<ResourceAddress>();
 
 			Transactions = reader.ReadList(() =>	{
-														var t = new Transaction(Database.Zone)
+														var t = new Transaction(Mcv.Zone)
 																{
 																	Vote		= this,
 																	Generator	= Generator
@@ -216,5 +210,4 @@ namespace Uccs.Net
 			Hash = Hashify();
 		}
 	}
-
 }

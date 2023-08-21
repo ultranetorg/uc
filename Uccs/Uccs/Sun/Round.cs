@@ -63,7 +63,7 @@ namespace Uccs.Net
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
 		//public Dictionary<ResourceAddress, Resource>			AffectedResources = new();
 		
-		public Mcv										Database;
+		public Mcv												Database;
 
 		public Round(Mcv c)
 		{

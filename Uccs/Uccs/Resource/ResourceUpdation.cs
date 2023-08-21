@@ -17,7 +17,11 @@ namespace Uccs.Net
 		public string				Parent { get; set; }
 		public Coin					AnalysisFee { get; set; }
 
-		public override bool		Valid => !Flags.HasFlag(ResourceFlags.Child) && !Flags.HasFlag(ResourceFlags.Data);
+		public override bool		Valid=>	(Flags & ResourceFlags.Unchangables) == 0
+											&& (!Changes.HasFlag(ResourceChanges.Years) || Changes.HasFlag(ResourceChanges.Years) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax)
+											&& (!Changes.HasFlag(ResourceChanges.Data) || Changes.HasFlag(ResourceChanges.Data) && Data.Length <= Net.Resource.DataLengthMax)
+											&& (!Changes.HasFlag(ResourceChanges.AnalysisFee) || Changes.HasFlag(ResourceChanges.AnalysisFee) && AnalysisFee > 0)
+											;
 		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {Type}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}{(AnalysisFee == Coin.Zero ? null : ", AnalysisFee=" + AnalysisFee.ToHumanString())}";
 
 		public ResourceUpdation()

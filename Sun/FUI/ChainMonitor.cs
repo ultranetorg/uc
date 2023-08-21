@@ -94,7 +94,7 @@ namespace Uccs.Sun.FUI
 				if (n > -1000000000000000000L) return 19;
 				return 20;
 			}
-    }
+		}
 
 		protected override void OnPaint(PaintEventArgs e)
 		{

@@ -76,6 +76,7 @@ namespace Uccs.Net
 						return null;
 					
 					sun.Mcv.GetRound(RoundId).JoinRequests.Add(this);
+					sun.Mcv.JoinAdded?.Invoke(this);
 				}
 	
 				foreach(var i in sun.Connections.Where(i => i != Peer))

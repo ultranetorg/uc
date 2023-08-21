@@ -6,13 +6,13 @@ namespace Uccs.Net
 	public class AuthorRegistration : Operation
 	{
 		
-		public string				Name;
+		public string				Name {get; set;}
 		public string				Title {get; set;}
 		public byte					Years {get; set;}
 
 		public bool					Exclusive => AuthorEntry.IsExclusive(Name); 
 		public override string		Description => $"{Name} ({Title}) for {Years} years";
-		public override bool		Valid => IsValid(Name, Title) && 0 < Years;
+		public override bool		Valid => IsValid(Name, Title) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
 		
 		//public static Coin			GetCost(Coin factor, int years) => Chainbase.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
 
