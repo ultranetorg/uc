@@ -9,7 +9,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "run";
 
-		public RunCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
+		public RunCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 
@@ -24,7 +24,7 @@ namespace Uccs.Sun.CLI
 				Sun.RunApi();
 
 			if(Args.Has("node"))
-				Sun.RunNode();
+				Sun.RunNode(Workflow);
 
 			if(ConsoleSupported)
 			{	

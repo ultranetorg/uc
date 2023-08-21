@@ -40,14 +40,11 @@ namespace Uccs.Sun.Application
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Sun.FailureExt))
 						File.Delete(i);
 
-				Sun =	new Net.Sun(boot.Zone, Settings, Log)
-						{
-							Clock = new RealTimeClock(), 
-							Nas = new Nas(Settings, Log), 
-						}; 
+				Sun = new Net.Sun(boot.Zone, Settings)	{	Clock = new RealTimeClock(), 
+															Nas = new Nas(Settings, Log), }; 
 
 				Sun.RunApi();
-				Sun.RunNode();
+				Sun.RunNode(new Workflow(Log));
 
 				RunUosServer();
 			}

@@ -168,7 +168,7 @@ namespace Uccs.Net
 								return new SettingsResponse {ProfilePath	= Sun.Settings.Profile, 
 															 Settings		= Sun.Settings}; /// TODO: serialize
 						case RunNodeCall e:
-							Sun.RunNode();
+							Sun.RunNode(new Workflow(new Log()));
 							break;
 
 						case ExitCall e:

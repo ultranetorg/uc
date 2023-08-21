@@ -10,7 +10,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "dev";
 
-		public DevCommand(Zone zone, Settings settings, Log log, Func<Net.Sun> sun, Xon args) : base(zone, settings, log, sun, args)
+		public DevCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 

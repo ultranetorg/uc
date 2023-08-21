@@ -33,17 +33,18 @@ namespace Uccs.Sun.FUI
 
 				var settings = new Settings(exedir, boot);
 
-				var log = new Log();
-				var sun =	new Net.Sun(boot.Zone, settings, log)
+				var w = new Workflow(new Log());
+
+				var sun =	new Net.Sun(boot.Zone, settings)
 							{
 								Clock = new RealTimeClock(), 
-								Nas = new Nas(settings, log), 
+								Nas = new Nas(settings, w.Log), 
 								GasAsker = new EthereumFeeForm(), 
 								FeeAsker = new FeeForm(boot.Zone)
 							}; 
 
 				sun.RunApi();
-				sun.RunNode();
+				sun.RunNode(w);
 
 				var f = new MainForm(sun);
 				f.StartPosition = FormStartPosition.CenterScreen;

@@ -17,7 +17,7 @@ namespace Uccs.Net
 		public BigInteger Gas { get; set; }
 		public BigInteger GasPrice { get; set; }
 
-		public SilentGasAsker(Log log)
+		public SilentGasAsker()
 		{
 		}
 

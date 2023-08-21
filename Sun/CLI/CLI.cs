@@ -17,7 +17,7 @@ namespace Uccs.Sun.CLI
 	class Program
 	{
 		static Settings			Settings = null;
-		static Log				Log = new Log();
+		static Workflow			Workflow = new Workflow(new Log());
 		static ConsoleLogView	LogView;
 		static Net.Sun			Sun;
 
@@ -31,7 +31,7 @@ namespace Uccs.Sun.CLI
 			try
 			{
 				var p = Console.KeyAvailable;
-				LogView = new ConsoleLogView(Log, true, true);
+				LogView = new ConsoleLogView(Workflow.Log, true, true);
 			}
 			catch(Exception)
 			{
@@ -55,38 +55,30 @@ namespace Uccs.Sun.CLI
 
 				//string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-				Func<Net.Sun> getcore = () =>	{
-												if(Sun == null)
-												{
-						Sun =	new Net.Sun(boot.Zone, Settings, Log)	
-															{
-																Clock = new RealTimeClock(),
-																Nas = new Nas(Settings, Log),
-																GasAsker = new SilentGasAsker(Log),
-																FeeAsker = new SilentFeeAsker()
-															};
-												}
+				Func<Net.Sun> getsun = () =>	{
+													if(Sun == null)
+													{
+														Sun = new Net.Sun(boot.Zone, Settings){
+																									Clock = new RealTimeClock(),
+																									Nas = new Nas(Settings, Workflow.Log),
+																									GasAsker = new SilentGasAsker(),
+																									FeeAsker = new SilentFeeAsker()
+																								};
+													}
 
-												return Sun;
-											};
+													return Sun;
+												};
 
 
 				Func<Net.Sun> getuser = () =>	{
-												if(Sun == null)
-												{
-						Sun =	new Net.Sun(boot.Zone, Settings, Log)	
-															{
-																Clock = new RealTimeClock(),
-																Nas = new Nas(Settings, Log),
-																GasAsker = new SilentGasAsker(Log),
-																FeeAsker = new SilentFeeAsker()
-															};
+													if(Sun == null)
+													{
+														Sun = getsun();
+														Sun.RunUser(Workflow);
+													}
 
-						Sun.RunUser();
-												}
-
-												return Sun;
-											};
+													return Sun;
+												};
 				
 				Command c = null;
 
@@ -96,20 +88,20 @@ namespace Uccs.Sun.CLI
 
 				switch(t)
 				{
-					case RunCommand.Keyword:			c = new RunCommand(boot.Zone, Settings, Log, getcore, boot.Commnand); break;
-					case DevCommand.Keyword:			c = new DevCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case AccountCommand.Keyword:		c = new AccountCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case UntCommand.Keyword:			c = new UntCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case MembershipCommand.Keyword:		c = new MembershipCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case AuthorCommand.Keyword:			c = new AuthorCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
-					case PackageCommand.Keyword:		c = new PackageCommand(boot.Zone, Settings, Log, getuser, boot.Commnand); break;
+					case RunCommand.Keyword:			c = new RunCommand(boot.Zone, Settings, Workflow, getsun, boot.Commnand); break;
+					case DevCommand.Keyword:			c = new DevCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
+					case AccountCommand.Keyword:		c = new AccountCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
+					case UntCommand.Keyword:			c = new UntCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
+					case MembershipCommand.Keyword:		c = new MembershipCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
+					case AuthorCommand.Keyword:			c = new AuthorCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
+					case PackageCommand.Keyword:		c = new PackageCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
 				}
 
 				c?.Execute();
 			}
 			catch(AbortException)
 			{
-				Log.ReportError(null, "Execution aborted");
+				Workflow.Log.ReportError(null, "Execution aborted");
 			}
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{

@@ -218,39 +218,25 @@ namespace Uccs.Net
 			}
 		}
 		
-		public Sun(Zone zone, Settings settings, Log log)
+		public Sun(Zone zone, Settings settings)
 		{
 			Zone = zone;
 			Settings = settings;
-			//Cryptography.Current = settings.Cryptography;
-
-			Workflow = new Workflow(log);
 
 			Directory.CreateDirectory(Settings.Profile);
 
-			Workflow.Log?.Report(this, $"Ultranet Node/Client {Version}");
-			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
-			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
-			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
-			
-			if(DevSettings.Any)
-				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
-
-			Vault = new Vault(Zone, Settings, Workflow?.Log);
+			Vault = new Vault(Zone, Settings);
 
 			var cfamilies = new ColumnFamilies();
 			
-			foreach(var i in new ColumnFamilies.Descriptor[]{
-																new (nameof(Peers),					new ()),
+			foreach(var i in new ColumnFamilies.Descriptor[]{	new (nameof(Peers),					new ()),
 																new (AccountTable.MetaColumnName,	new ()),
 																new (AccountTable.MainColumnName,	new ()),
 																new (AccountTable.MoreColumnName,	new ()),
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (Mcv.ChainFamilyName,			new ()),
-															})
+																new (Mcv.ChainFamilyName,			new ()) })
 				cfamilies.Add(i);
 
 			DatabaseEngine = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
@@ -297,8 +283,9 @@ namespace Uccs.Net
 			ApiStarted?.Invoke(this);
 		}
 
-		public void RunUser()
+		public void RunUser(Workflow workflow)
 		{
+			Workflow = workflow;
 			Nuid = Guid.NewGuid();
 
 			if(Settings.Roles.HasFlag(Role.Seeder))
@@ -333,19 +320,20 @@ namespace Uccs.Net
 			MainThread.Start();
 
 			MainStarted?.Invoke(this);
-
-			//if(waitconnections)
-// 			{
-// 				while(!MinimalPeersReached)
-// 				{
-// 					Workflow.ThrowIfAborted();
-// 					Thread.Sleep(1);
-// 				}
-// 			}
 		}
 
-		public void RunNode()
+		public void RunNode(Workflow workflow)
 		{
+			Workflow = workflow;
+			Workflow.Log?.Report(this, $"Ultranet Node/Client {Version}");
+			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
+			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
+			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
+			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
+			
+			if(DevSettings.Any)
+				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
+
 			Nuid = Guid.NewGuid();
 
 			ListeningThread = new Thread(() =>	{
@@ -503,10 +491,10 @@ namespace Uccs.Net
 
 		public void Stop(string message)
 		{
-			if(Workflow.IsAborted)
+			if(Workflow != null && Workflow.IsAborted)
 				return;
 
-			Workflow.Abort();
+			Workflow?.Abort();
 			
 			Listener?.Stop();
 			ApiServer?.Stop();
@@ -525,7 +513,7 @@ namespace Uccs.Net
 
 			DatabaseEngine?.Dispose();
 
-			Workflow.Log?.Report(this, "Stopped", message);
+			Workflow?.Log?.Report(this, "Stopped", message);
 		}
 
 		public Peer GetPeer(IPAddress ip)
@@ -2029,33 +2017,33 @@ namespace Uccs.Net
 				return null;
 		}
 		
-		public void Enqueue(IEnumerable<Operation> operations, PlacingStage waitstage, Workflow workflow)
-		{
-			lock(Lock)
-				foreach(var i in operations)
-				{
-					i.__ExpectedPlacing = waitstage;
-
-					if(FeeAsker.Ask(this, i.Signer as AccountKey, i))
-					{
-				 		Enqueue(i);
-					}
-				}
-
-			while(workflow.Active)
-			{ 
-				Thread.Sleep(100);
-
-				switch(waitstage)
-				{
-					case PlacingStage.Null :				return;
-					case PlacingStage.Accepted :			if(operations.All(o => o.Transaction.Placing >= PlacingStage.Accepted))			return; else break;
-					case PlacingStage.Placed :				if(operations.All(o => o.Transaction.Placing >= PlacingStage.Placed))			return; else break;
-					case PlacingStage.Confirmed :			if(operations.All(o => o.Transaction.Placing == PlacingStage.Confirmed))		return; else break;
-					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Transaction.Placing == PlacingStage.FailedOrNotFound)) return; else break;
-				}
-			}
-		}
+// 		public void Enqueue(IEnumerable<Operation> operations, PlacingStage waitstage, Workflow workflow)
+// 		{
+// 			lock(Lock)
+// 				foreach(var i in operations)
+// 				{
+// 					i.__ExpectedPlacing = waitstage;
+// 
+// 					if(FeeAsker.Ask(this, i.Signer as AccountKey, i))
+// 					{
+// 				 		Enqueue(i);
+// 					}
+// 				}
+// 
+// 			while(workflow.Active)
+// 			{ 
+// 				Thread.Sleep(100);
+// 
+// 				switch(waitstage)
+// 				{
+// 					case PlacingStage.Null :				return;
+// 					case PlacingStage.Accepted :			if(operations.All(o => o.Transaction.Placing >= PlacingStage.Accepted))			return; else break;
+// 					case PlacingStage.Placed :				if(operations.All(o => o.Transaction.Placing >= PlacingStage.Placed))			return; else break;
+// 					case PlacingStage.Confirmed :			if(operations.All(o => o.Transaction.Placing == PlacingStage.Confirmed))		return; else break;
+// 					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Transaction.Placing == PlacingStage.FailedOrNotFound)) return; else break;
+// 				}
+// 			}
+// 		}
 
 		void Await(Operation o, PlacingStage s, Workflow workflow)
 		{
@@ -2069,12 +2057,15 @@ namespace Uccs.Net
 				switch(s)
 				{
 					case PlacingStage.Null :				return;
-					case PlacingStage.Accepted :			if(o.Transaction.Placing >= PlacingStage.Accepted) return; else break;
-					case PlacingStage.Placed :				if(o.Transaction.Placing >= PlacingStage.Placed) return; else break;
-					case PlacingStage.Confirmed :			if(o.Transaction.Placing == PlacingStage.Confirmed) return; else break;
-					case PlacingStage.FailedOrNotFound :	if(o.Transaction.Placing == PlacingStage.FailedOrNotFound) return; else break;
+					case PlacingStage.Accepted :			if(o.Transaction.Placing >= PlacingStage.Accepted) goto end; else break;
+					case PlacingStage.Placed :				if(o.Transaction.Placing >= PlacingStage.Placed) goto end; else break;
+					case PlacingStage.Confirmed :			if(o.Transaction.Placing == PlacingStage.Confirmed) goto end; else break;
+					case PlacingStage.FailedOrNotFound :	if(o.Transaction.Placing == PlacingStage.FailedOrNotFound) goto end; else break;
 				}
 			}
+
+			end:
+				workflow.Log?.Report(this, $"Operation {o.Transaction.Placing}", o.ToString());
 		}
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)

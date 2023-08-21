@@ -18,7 +18,6 @@ namespace Uccs.Net
 
 		Zone										Zone;
 		Settings									Settings;
-		Log											Log;
 		public Dictionary<AccountAddress, byte[]>	Wallets = new();
 		public List<AccountAddress>					Accounts = new();
 		//public Dictionary<AccountAddress, int>		TransactionIds = new();
@@ -31,11 +30,10 @@ namespace Uccs.Net
 																		"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
 																		"Don’t use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
 
-		public Vault(Zone zone, Settings settings, Log log)
+		public Vault(Zone zone, Settings settings)
 		{
 			Zone = zone;
 			Settings = settings;
-			Log		 = log;
 
 			Directory.CreateDirectory(Settings.Profile);
 
@@ -54,7 +52,7 @@ namespace Uccs.Net
 			Accounts.Add(account);
 			Wallets[account] = wallet;
 			
-			Log?.Report(this, "Wallet added", account.ToString());
+			//Log?.Report(this, "Wallet added", account.ToString());
 		}
 
 		public AccountKey Unlock(AccountAddress a, string password)
@@ -65,7 +63,7 @@ namespace Uccs.Net
 			Accounts.Remove(a);
 			Accounts.Insert(i, p);
 
-			Log?.Report(this, "Wallet unlocked", a.ToString());
+			//Log?.Report(this, "Wallet unlocked", a.ToString());
 
 			return p;
 		}
@@ -83,7 +81,7 @@ namespace Uccs.Net
 
 			a.Save(Zone.Cryptography, path, password);
 
-			Log?.Report(this, "Wallet saved", path);
+			//Log?.Report(this, "Wallet saved", path);
 
 			AccountsChanged?.Invoke();
 

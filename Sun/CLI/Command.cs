@@ -38,13 +38,13 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		protected Command(Zone zone, Settings settings, Log log, Func<Net.Sun> getcore, Xon args)
+		protected Command(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> getcore, Xon args)
 		{
 			Zone = zone;
 			Settings = settings;
 			GetCore = getcore;
 			Args = args;
-			Workflow = new Workflow(log);
+			Workflow = workflow ?? new Workflow(new Log());
 		}
 
 		protected ResourceAddress GetResourceAddress(string paramenter)
