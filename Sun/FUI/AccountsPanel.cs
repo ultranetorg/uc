@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 	
 										try
 										{
-											t = Sun.Call(Role.Base, p => p.GetAccountInfo(i.Tag as AccountAddress), Sun.Workflow).Account.Balance.ToHumanString(); 
+											t = Sun.Call(p => p.GetAccountInfo(i.Tag as AccountAddress), Sun.Workflow).Account.Balance.ToHumanString(); 
 										}
 										catch(Exception)
 										{

@@ -72,7 +72,7 @@ namespace Uccs.Sun.CLI
 
 		   		case "overview" :
 				{
-					var rp = Sun.Call(Role.Base, i => i.GetAuthorInfo(GetString("name")), Workflow);
+					var rp = Sun.Call(i => i.GetAuthorInfo(GetString("name")), Workflow);
 
 					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 

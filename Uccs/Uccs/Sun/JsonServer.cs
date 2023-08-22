@@ -19,10 +19,10 @@ namespace Uccs.Net
 		HttpListener	Listener;
 		Thread			Thread;
 
-		Workflow		Workflow => Sun.Workflow;
-		Settings		Settings => Sun.Settings;
-		Vault			Vault => Sun.Vault;
-		Mcv				Database => Sun.Mcv;
+		Workflow			Workflow = new Workflow(new Log());
+		Settings			Settings => Sun.Settings;
+		Vault				Vault => Sun.Vault;
+		Mcv					Database => Sun.Mcv;
 
 		public JsonServer(Sun sun)
 		{
@@ -45,7 +45,7 @@ namespace Uccs.Net
 				
 										Workflow.Log?.Report(this, "Listening started", prefixes[0]);
 		
-										while(!Workflow.IsAborted)
+										while(Workflow.Active)
 										{
 											ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
 										}
@@ -73,6 +73,7 @@ namespace Uccs.Net
 
 		public void Stop()
 		{
+			Workflow.Abort();
 			Listener?.Stop();
 		}
 
@@ -189,8 +190,6 @@ namespace Uccs.Net
 						case SetGeneratorCall e:
 							lock(Sun.Lock)
 								Sun.Settings.Generators = e.Generators.Select(i => Vault.GetKey(i)).ToList();
-							
-							Workflow.Log?.Report(this, "Generators is set", string.Join(", ", e.Generators));
 							break;
 	
 						case UntTransferCall e:
@@ -198,22 +197,19 @@ namespace Uccs.Net
 							AccountKey  pa;
 								
 							lock(Sun.Lock)
-							{
 								pa = Vault.GetKey(e.From);
-							}
 
-							Workflow.Log?.Report(this, "TransferUnt received", $"{e.From} -> {e.Amount} -> {e.To}");
-							return Sun.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, new Workflow());
+							return Sun.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, Workflow);
 		
 						case LogReportCall s:
-							return new LogResponse{Log = Workflow.Log?.Messages.TakeLast(s.Limit).Select(i => i.ToString()).ToArray() }; 
+							return new LogResponse{Log = Sun.Workflow.Log.Messages.TakeLast(s.Limit).Select(i => i.ToString()).ToArray() }; 
 
 						case SummaryReportCall s:
 							lock(Sun.Lock)
 								return new SummaryResponse{Summary = Sun.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 
 						case PeersReportCall s:
-							return new PeersResponse{Peers = Sun.Peers.OrderByDescending(i => i.Established).TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
+							return new PeersResponse{Peers = Sun.Peers.Where(i => i.Established).TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
 							
 						case ChainReportCall s:
 							lock(Sun.Lock)

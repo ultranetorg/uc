@@ -193,18 +193,18 @@ namespace Uccs.Net
 
 									lock(Lock)
 									{
-										var cr = Sun.Call<MembersResponse>(Role.Base, i =>	{
-																								while(workflow.Active)
-																								{
-																									var cr = i.GetMembers();
+										var cr = Sun.Call<MembersResponse>(i =>	{
+																					while(workflow.Active)
+																					{
+																						var cr = i.GetMembers();
 	
-																									if(cr.Members.Any())
-																										return cr;
-																								}
+																						if(cr.Members.Any())
+																							return cr;
+																					}
 																									
-																								throw new OperationCanceledException();
-																							}, 
-																							Sun.Workflow);
+																					throw new OperationCanceledException();
+																				}, 
+																				Sun.Workflow);
 
 										var nearest = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.HubIPs.Any()).Take(8).ToArray();
 

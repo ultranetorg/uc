@@ -565,7 +565,7 @@ namespace Uccs.Net
 
 		public void Add(PackageAddress release, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
 		{
-			var qlatest = Sun.Call(Role.Base, p => p.QueryResource($"{release.APR}/"), workflow);
+			var qlatest = Sun.Call(p => p.QueryResource($"{release.APR}/"), workflow);
 			var previos = qlatest.Resources.OrderBy(i => PackageAddress.ParseVesion(i.Resource)).FirstOrDefault();
 
 			AddRelease(release, previos != null ? PackageAddress.ParseVesion(previos.Resource) : null, sources, dependsdirectory, workflow);
@@ -609,8 +609,8 @@ namespace Uccs.Net
 										{
 											try
 											{
-												hst = Sun.Call(Role.Base, c => c.QueryResource(package.APR + "/"), workflow).Resources.Select(i => new PackageAddress(i)).OrderBy(i => i.Version);
-												h = Sun.Call(Role.Base, c => c.FindResource(package), workflow).Resource.Data;
+												hst = Sun.Call(c => c.QueryResource(package.APR + "/"), workflow).Resources.Select(i => new PackageAddress(i)).OrderBy(i => i.Version);
+												h = Sun.Call(c => c.FindResource(package), workflow).Resource.Data;
 												break;
 											}
 											catch(RdcEntityException)

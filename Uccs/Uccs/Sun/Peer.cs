@@ -31,12 +31,10 @@ namespace Uccs.Net
 		public EstablishingStatus	InStatus = EstablishingStatus.Null;
 		public EstablishingStatus	OutStatus = EstablishingStatus.Null;
 		public ConnectionStatus		Status = ConnectionStatus.Disconnected;
-		public TcpClient			Tcp;
 
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
-		//public int					ReachFailures;
 
 		public bool					Established => Tcp != null && Tcp.Connected && Status == ConnectionStatus.OK;
 		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
@@ -45,19 +43,18 @@ namespace Uccs.Net
 		public int					PeerRank = 0;
 		public int					ChainRank = 0;
 		public int					BaseRank = 0;
-		//public int					HubRank = 0;
-		//public int					SeedRank = 0;
 
 		public Dictionary<Role, DateTime>	LastFailure = new();
 
 		Sun							Sun;
+		TcpClient					Tcp;
 		NetworkStream				Stream;
 		BinaryWriter				Writer;
 		BinaryReader				Reader;
 		Thread						ReadThread;
 		Thread						WriteThread;
 		Queue<RdcPacket>			Outs = new();
-		public List<RdcRequest>			InRequests = new();
+		public List<RdcRequest>		InRequests = new();
 		List<RdcRequest>			OutRequests = new();
 		AutoResetEvent				SendSignal = new AutoResetEvent(true);
 		

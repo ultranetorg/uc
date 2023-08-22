@@ -192,7 +192,7 @@ namespace Uccs.Sun.FUI
 
 			try
 			{
-				Sun.FinishTransfer(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress));
+				Sun.FinishEmission(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress));
 
 				transfergroup.Enabled = true;
 				finishgroup.Enabled = true;

@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Sun.Call(Role.Base, p => p.GetAuthorInfo(AuthorSearch.Text), Sun.Workflow).Entry;
+				var a = Sun.Call(p => p.GetAuthorInfo(AuthorSearch.Text), Sun.Workflow).Entry;
 	
 				if(a != null)
 				{	
@@ -63,7 +63,7 @@ namespace Uccs.Sun.FUI
 				else 
 					Fields.Text = "Not found";
 
-				var t = Sun.Call(Role.Base, p => p.GetTime(), Sun.Workflow);
+				var t = Sun.Call(p => p.GetTime(), Sun.Workflow);
 
 				if(AuthorEntry.IsExclusive(AuthorSearch.Text) && Author.CanBid(a.Name, a, t.Time))
 				{

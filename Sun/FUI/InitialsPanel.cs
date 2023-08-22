@@ -12,8 +12,6 @@ namespace Uccs.Sun.FUI
 {
 	public partial class InitialsPanel : MainPanel
 	{
-		bool loading = false;
-
 		public InitialsPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
@@ -36,7 +34,7 @@ namespace Uccs.Sun.FUI
 			//ReloadDefaultNodes();
 		}
 
-		async private void register_Click(object sender, EventArgs e) 
+		private void register_Click(object sender, EventArgs e) 
 		{
 			try
 			{
@@ -54,7 +52,7 @@ namespace Uccs.Sun.FUI
 			}
 		}
 
-		async private void unregister_Click(object sender, EventArgs e)
+		private void unregister_Click(object sender, EventArgs e)
 		{
 			try
 			{

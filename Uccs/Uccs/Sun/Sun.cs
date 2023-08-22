@@ -494,10 +494,10 @@ namespace Uccs.Net
 			if(Workflow != null && Workflow.IsAborted)
 				return;
 
+			ApiServer?.Stop();
 			Workflow?.Abort();
 			
 			Listener?.Stop();
-			ApiServer?.Stop();
 
 			lock(Lock)
 			{
@@ -619,13 +619,12 @@ namespace Uccs.Net
 		{
 			var needed = Settings.PeersMin - Peers.Count(i => i.Established || i.InStatus == EstablishingStatus.Initiated || i.OutStatus == EstablishingStatus.Initiated);
 		
-			foreach(var p in Zone.ChoosePeers(Peers.Where(m =>	(m.InStatus == EstablishingStatus.Null || m.InStatus == EstablishingStatus.Failed) &&
-																(m.OutStatus == EstablishingStatus.Null || m.OutStatus == EstablishingStatus.Failed) && 
-																DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-												    .OrderByDescending(i => i.PeerRank)
-												    .ThenBy(i => i.Retries),
-											  needed)
-								.Take(needed))
+			foreach(var p in Peers.Where(m =>	(m.InStatus == EstablishingStatus.Null) &&
+												(m.OutStatus == EstablishingStatus.Null) && 
+												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
+									.OrderByDescending(i => i.PeerRank)
+									.ThenBy(i => i.Retries)
+									.Take(needed))
 			{
 				p.LastTry = DateTime.UtcNow;
 				p.Retries++;
@@ -1209,7 +1208,7 @@ namespace Uccs.Net
 								SyncCache.Clear();
 	
 								SynchronizingThread = null;
-	
+									
 								MainSignal.Set();
 
 								Workflow.Log?.Report(this, "Syncing finished");
@@ -1714,7 +1713,7 @@ namespace Uccs.Net
 					{ 
 						while(Workflow.Active)
 						{
-							var cr = Call<MembersResponse>(Role.Base, i => i.GetMembers(), Workflow);
+							var cr = Call<MembersResponse>(i => i.GetMembers(), Workflow);
 	
 							if(!cr.Members.Any())
 								continue;
@@ -2178,7 +2177,7 @@ namespace Uccs.Net
 		}
 
 
-		public R Call<R>(Role role, Func<Peer, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
+		public R Call<R>(Func<Peer, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
 		{
 			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
@@ -2190,7 +2189,7 @@ namespace Uccs.Net
 	
 				lock(Lock)
 				{
-					p = ChooseBestPeer(role, tried);
+					p = ChooseBestPeer(Role.Base, tried);
 	
 					if(p == null)
 					{
@@ -2209,59 +2208,59 @@ namespace Uccs.Net
 				}
 				catch(ConnectionFailedException)
 				{
-					p.LastFailure[role] = DateTime.UtcNow;
+					p.LastFailure[Role.Base] = DateTime.UtcNow;
 				}
  				catch(RdcNodeException)
  				{
-					p.LastFailure[role] = DateTime.UtcNow;
+					p.LastFailure[Role.Base] = DateTime.UtcNow;
  				}
 			}
 
 			throw new OperationCanceledException();
 		}
 
-		public void Call(Role role, Action<Peer> call, Workflow workflow, IEnumerable<Peer> exclusions = null, bool exitifnomore = false)
-		{
-			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
-
-			Peer p;
-				
-			while(!workflow.IsAborted)
-			{
-				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
-	
-				lock(Lock)
-				{
-					p = ChooseBestPeer(role, excl);
-	
-					if(p == null)
-						if(exitifnomore)
-							return;
-						else
-							continue;
-				}
-
-				excl?.Add(p);
-
-				try
-				{
-					Connect(p, workflow);
-
-					call(p);
-
-					break;
-				}
-				catch(ConnectionFailedException)
-				{
-					p.LastFailure[role] = DateTime.UtcNow;
-				}
-				catch(RdcNodeException)
-				{
-					p.LastFailure[role] = DateTime.UtcNow;
-				}
-			}
-		}
+// 		public void Call(Role role, Action<Peer> call, Workflow workflow, IEnumerable<Peer> exclusions = null, bool exitifnomore = false)
+// 		{
+// 			var excl = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
+// 
+// 			Peer p;
+// 				
+// 			while(!workflow.IsAborted)
+// 			{
+// 				Thread.Sleep(1);
+// 				workflow.ThrowIfAborted();
+// 	
+// 				lock(Lock)
+// 				{
+// 					p = ChooseBestPeer(role, excl);
+// 	
+// 					if(p == null)
+// 						if(exitifnomore)
+// 							return;
+// 						else
+// 							continue;
+// 				}
+// 
+// 				excl?.Add(p);
+// 
+// 				try
+// 				{
+// 					Connect(p, workflow);
+// 
+// 					call(p);
+// 
+// 					break;
+// 				}
+// 				catch(ConnectionFailedException)
+// 				{
+// 					p.LastFailure[role] = DateTime.UtcNow;
+// 				}
+// 				catch(RdcNodeException)
+// 				{
+// 					p.LastFailure[role] = DateTime.UtcNow;
+// 				}
+// 			}
+// 		}
 
 		public R Call<R>(IPAddress ip, Func<Peer, R> call, Workflow workflow)
 		{
@@ -2292,17 +2291,17 @@ namespace Uccs.Net
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)
 		{
-			var	l = Call(Role.Base, p =>{
-											try
-											{
-												return p.GetAccountInfo(signer);
-											}
-											catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
-											{
-												return new AccountResponse();
-											}
-										}, 
-										workflow);
+			var	l = Call(p =>{
+								try
+								{
+									return p.GetAccountInfo(signer);
+								}
+								catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
+								{
+									return new AccountResponse();
+								}
+							}, 
+							workflow);
 			
 			var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
 
@@ -2325,21 +2324,21 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public Emission FinishTransfer(AccountKey signer, Workflow workflow = null)
+		public Emission FinishEmission(AccountKey signer, Workflow workflow = null)
 		{
 			lock(Lock)
 			{
-				var	l = Call(Role.Base, p =>{
-												try
-												{
-													return p.GetAccountInfo(signer);
-												}
-												catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
-												{
-													return new AccountResponse();
-												}
-											}, 
-											workflow);
+				var	l = Call(p =>{
+									try
+									{
+										return p.GetAccountInfo(signer);
+									}
+									catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
+									{
+										return new AccountResponse();
+									}
+								}, 
+								workflow);
 			
 				var eid = l.Account == null ? 0 : l.Account.LastEmissionId + 1;
 

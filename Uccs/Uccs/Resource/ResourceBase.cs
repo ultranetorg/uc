@@ -243,7 +243,7 @@ namespace Uccs.Net
 					if(!rs.Any())
 						continue;
 
-					var cr = Sun.Call<MembersResponse>(Role.Base, i => i.GetMembers(), Sun.Workflow);
+					var cr = Sun.Call<MembersResponse>(i => i.GetMembers(), Sun.Workflow);
 	
 					if(!cr.Members.Any())
 						continue;

@@ -29,15 +29,15 @@ namespace Uccs.Sun.CLI
 			if(ConsoleSupported)
 			{	
 				//Console.ReadKey(true);
-				Wait(() => !Sun.Workflow.IsAborted && !Console.KeyAvailable);
+				Wait(() => !Workflow.IsAborted && !Console.KeyAvailable);
 
-				if(!Sun.Workflow.IsAborted)
+				if(!Workflow.IsAborted)
 				{
 					Sun.Stop("By user input");
 				}
 			}
 			else
-				Wait(() => !Sun.Workflow.IsAborted);
+				Wait(() => !Workflow.IsAborted);
 			
 			return Sun;
 		}

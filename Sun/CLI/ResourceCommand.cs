@@ -63,7 +63,7 @@ namespace Uccs.Sun.CLI
 				{
 					try
 					{
-						var r = Sun.Call(Role.Base, i => i.FindResource(GetResourceAddress("address")), Workflow);
+						var r = Sun.Call(i => i.FindResource(GetResourceAddress("address")), Workflow);
 	
 						Dump(r.Resource);
 						//Workflow.Log?.Report(this, GetString("address"));
@@ -74,7 +74,7 @@ namespace Uccs.Sun.CLI
 						//if(r.Resource.Data != null)
 						//	Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
 
-						var e = Sun.Call(Role.Base, i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
+						var e = Sun.Call(i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
 
 						if(e.Resources.Any())
 						{

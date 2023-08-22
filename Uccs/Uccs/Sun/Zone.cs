@@ -81,10 +81,5 @@ namespace Uccs.Net
 			GenesisIP		= IPAddress.Parse(d.GetString("GenesisIP"));
 			Initials		= d.GetString("Initials").Split(' ').Select(i => IPAddress.Parse(i)).ToArray();
 		}
-
-		public virtual IEnumerable<Peer> ChoosePeers(IEnumerable<Peer> peers, int needed)
-		{
-			return peers;
-		}
 	}
 }
