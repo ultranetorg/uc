@@ -106,7 +106,7 @@ namespace Uccs.Net
 		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
 		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
-		public AllocateTransactionResponse		AllocateTransaction() => Request<AllocateTransactionResponse>(new AllocateTransactionRequest());
+		//public AllocateTransactionResponse		AllocateTransaction() => Request<AllocateTransactionResponse>(new AllocateTransactionRequest());
 		public SendTransactionsResponse			SendTransactions(IEnumerable<Transaction> transactions) => Request<SendTransactionsResponse>(new SendTransactionsRequest{Transactions = transactions});
 		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> operations) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = operations});
 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());

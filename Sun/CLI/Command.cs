@@ -103,23 +103,16 @@ namespace Uccs.Sun.CLI
 				return string.Empty;
 		}
 
-		protected AccountKey GetPrivate(string walletarg, string passwordarg)
-		{
-			string p = null;
-			
-			if(Args.Has(passwordarg))
-				p = GetString(passwordarg);
-			else if(Settings.Secrets != null)	
-				p = Settings.Secrets.Password;
-			else
-			{
-				var a = new ConsolePasswordAsker();
-				a.Ask(GetString(walletarg));
-				p = a.Password; 
-			}
-
-			return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
-		}
+		//protected AccountKey GetPrivate(string walletarg)
+		//{
+		//	string p = null;
+		//	
+		//	var a = new ConsolePasswordAsker();
+		//	a.Ask(GetString(walletarg));
+		//	p = a.Password; 
+		//
+		//	return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
+		//}
 
 		protected void Wait(Func<bool> waitiftrue)
 		{

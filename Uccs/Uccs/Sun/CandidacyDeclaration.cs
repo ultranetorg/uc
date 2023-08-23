@@ -36,16 +36,17 @@ namespace Uccs.Net
 
 			//var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
 
-			if(e.BailStatus == BailStatus.Active) /// first, add existing if not previously Siezed
+			if(e.BailStatus != BailStatus.Siezed) /// first, return existing if not previously Siezed
 				e.Balance += e.Bail;
 
 			e.Balance -= Bail; /// then, subtract a new bail
 			e.Bail += Bail;
 
-			if(e.BailStatus == BailStatus.Siezed) /// if was siezed than reset to OK status
-				e.BailStatus = BailStatus.Active;
+			//if(e.BailStatus == BailStatus.Siezed) /// if was siezed than reset to OK status
 
 			e.CandidacyDeclarationRid = round.Id;
+			
+			e.BailStatus = BailStatus.Active;
 		}
 	}
 }

@@ -23,6 +23,6 @@
 	
 	public class AccountResponse : RdcResponse
 	{
-		public AccountEntry Account {get; set;}
+		public Account Account {get; set;}
 	}
 }

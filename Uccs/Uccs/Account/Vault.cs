@@ -19,8 +19,7 @@ namespace Uccs.Net
 		Zone										Zone;
 		Settings									Settings;
 		public Dictionary<AccountAddress, byte[]>	Wallets = new();
-		public List<AccountAddress>					Accounts = new();
-		//public Dictionary<AccountAddress, int>		TransactionIds = new();
+		public List<AccountKey>						Keys = new();
 
 		public event Action							AccountsChanged;						
 
@@ -42,26 +41,30 @@ namespace Uccs.Net
 				foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExt(Zone.Cryptography)))
 				{
 					Wallets[AccountAddress.Parse(Path.GetFileNameWithoutExtension(i))] = File.ReadAllBytes(i);
-					Accounts.Add(AccountAddress.Parse(Path.GetFileNameWithoutExtension(i)));
 				}
 			}
 		}
 
 		public void AddWallet(AccountAddress account, byte[] wallet)
 		{
-			Accounts.Add(account);
 			Wallets[account] = wallet;
 			
 			//Log?.Report(this, "Wallet added", account.ToString());
 		}
 
+
 		public AccountKey Unlock(AccountAddress a, string password)
 		{
+			if(Keys.Contains(a))
+				return Keys.Find(i => i == a);
+
 			var p = AccountKey.Load(Zone.Cryptography, Wallets[a], password);
 
-			var i = Accounts.IndexOf(a);
-			Accounts.Remove(a);
-			Accounts.Insert(i, p);
+			Keys.Add(p);
+
+			//var i = Accounts.IndexOf(a);
+			//Accounts.Remove(a);
+			//Accounts.Insert(i, p);
 
 			//Log?.Report(this, "Wallet unlocked", a.ToString());
 
@@ -70,7 +73,7 @@ namespace Uccs.Net
 
 		public AccountKey GetKey(AccountAddress a)
 		{
-			return Accounts.Find(i => i == a) as AccountKey;
+			return Keys.Find(i => i == a) as AccountKey;
 		}
 
 		public string AddWallet(AccountKey a, string password)
@@ -92,7 +95,7 @@ namespace Uccs.Net
 		{
 			File.Delete(Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt(Zone.Cryptography)));
 
-			Accounts.Remove(a);
+			Keys.RemoveAll(i => i == a);
 
 			AccountsChanged?.Invoke();
 		}

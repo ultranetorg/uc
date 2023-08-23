@@ -549,14 +549,17 @@ namespace Uccs.Net
 
 				if(p != null)
 				{
-					var r = Resources.Downloads.Find(i => i.Resource == package);
+					lock(Sun.Resources.Lock)
+					{
+						var r = Resources.Downloads.Find(i => i.Resource == package);
 
-					s.Download = new () {	File					= r.File,
+						s.Download = new(){	File					= r.File,
 											Length					= r.Length,
 											CompletedLength			= r.CompletedLength,
 											DependenciesRecursive	= p.DependenciesRecursive.Select(i => new DownloadReport.Dependency {Release = i.Address, Exists = Find(new PackageAddress(i.Address)) != null}).ToArray(),
 											Hubs					= r.Hubs.Take(limit).Select(i => new DownloadReport.Hub { Account = i.Account, Seeds = i.Seeds.Take(limit).Select(i => i.IP), Status = i.Status }).ToArray(),
 											Seeds					= r.Seeds.Take(limit).Select(i => new DownloadReport.Seed { IP = i.IP, Succeses = i.Succeses, Failures = i.Failures }).ToArray() };
+					}
 				}
 			}
 

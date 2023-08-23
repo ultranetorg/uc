@@ -81,7 +81,7 @@ namespace Uccs.Sun.FUI
 		{
 			b.Items.Clear();
 	
-			foreach(var i in Vault.Accounts)
+			foreach(var i in Vault.Wallets.Keys)
 				b.Items.Add(i);
 		
 			if(b.Items.Count > 0)

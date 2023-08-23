@@ -34,22 +34,28 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "new" : return New();
-				
+
+				case "unlock" :
+				{
+					Sun.Vault.Unlock(AccountAddress.Parse(GetString("address")), GetString("password"));
+					return null;
+				}
+
 				case "import" : return Import();
 		   		
-				case "overview" :
+				case "info" :
 				{
 					var i = Sun.Connect(Role.Base, null, Workflow).GetAccountInfo(AccountAddress.Parse(GetString("address")));
 					
 					Workflow?.Log?.Report(this, "Account", GetString("address") + " :");
 
-					Dump(i.Account.ToXon());
+					Dump(i.Account);
 
 					return null;
 				}
 
 				default:
-					throw new SyntaxException("Unknown operation");;
+					throw new SyntaxException("Unknown operation");
 			}
 		}
 
@@ -134,7 +140,7 @@ namespace Uccs.Sun.CLI
 
 			var acc = AccountKey.Parse(GetString("privatekey"));
 
-			if(Sun.Vault.Accounts.Contains(acc))
+			if(Sun.Vault.Wallets.ContainsKey(acc))
 			{
 				Workflow.Log?.ReportError(this, $"Account already exists: " + acc);
 				return null;

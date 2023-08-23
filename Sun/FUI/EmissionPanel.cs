@@ -100,7 +100,7 @@ namespace Uccs.Sun.FUI
 			var v = Nethereum.Util.AddressUtil.Current.IsValidAddressLength(source.Text) && 
 					source.Text.IsHex() && 
 					eth.Wei > 0 && 
-					destination.SelectedItem != null && Vault.Accounts.Any(i => i == destination.SelectedItem as AccountAddress);
+					destination.SelectedItem != null && Vault.Wallets.Keys.Any(i => i == destination.SelectedItem as AccountAddress);
 
 			transfer.Enabled = v;
 		}

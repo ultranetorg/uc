@@ -14,16 +14,11 @@ namespace Uccs.Net
 
 	public class AccountEntry : Account, ITableEntry<AccountAddress>
 	{
-		public int						LastTransactionId = -1;
-		public int						LastEmissionId = -1;
-		public int						CandidacyDeclarationRid = -1;
-
 		public HashSet<int>				Transactions = new();
 
+		Mcv								Mcv;
 		public AccountAddress			Key => Address;
 		public byte[]					GetClusterKey(int n) => ((byte[])Address).Take(n).ToArray();
-
-		Mcv								Mcv;
 
 		public AccountEntry()
 		{
@@ -50,18 +45,11 @@ namespace Uccs.Net
 		{
 			base.Write(writer);
 
-			writer.Write7BitEncodedInt(LastTransactionId);
-			writer.Write7BitEncodedInt(LastEmissionId);
-			writer.Write7BitEncodedInt(CandidacyDeclarationRid);
 		}
 
 		public override void Read(BinaryReader reader)
 		{
 			base.Read(reader);
-
-			LastTransactionId			= reader.Read7BitEncodedInt();
-			LastEmissionId				= reader.Read7BitEncodedInt();
-			CandidacyDeclarationRid		= reader.Read7BitEncodedInt();
 		}
 
 		public void WriteMain(BinaryWriter w)

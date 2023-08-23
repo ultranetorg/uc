@@ -29,7 +29,7 @@ namespace Uccs.Sun.FUI
 			{
 				accounts.Items.Clear();
 
-				foreach(var i in Vault.Accounts)
+				foreach(var i in Vault.Wallets.Keys)
 				{
 					AddRow(i);
 				}

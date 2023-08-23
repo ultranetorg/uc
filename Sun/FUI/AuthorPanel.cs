@@ -74,9 +74,9 @@ namespace Uccs.Sun.FUI
 
 					Switch(Auction);
 				}
-				else if(Sun.Vault.Accounts.Any(i => Author.CanRegister(AuthorSearch.Text, a, t.Time, i)))
+				else if(Sun.Vault.Wallets.Keys.Any(i => Author.CanRegister(AuthorSearch.Text, a, t.Time, i)))
 					Switch(Registration);
-				else if(Sun.Vault.Accounts.Any(i => i == a.Owner))
+				else if(Sun.Vault.Wallets.Keys.Any(i => i == a.Owner))
 					Switch(Transfering);
 
 			}

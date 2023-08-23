@@ -192,9 +192,9 @@ namespace Uccs.Net
 							return Mcv.Accounts.Find(a, Mcv.LastConfirmedRound.Id)?.Balance.ToHumanString();
 						}
 	
-						foreach(var i in Vault.Accounts)
+						foreach(var i in Vault.Wallets)
 						{
-							f.Add(new ($"Account", $"{i.ToString().Insert(6, "-")} {formatbalance(i), BalanceWidth}"));
+							f.Add(new ($"Account", $"{i.ToString().Insert(6, "-")} {formatbalance(i.Key), BalanceWidth}"));
 						}
 	
 						if(DevSettings.UI)
@@ -206,7 +206,7 @@ namespace Uccs.Net
 				{
 					//f.Add(new ("Members (retrieved)", $"{Members.Count}"));
 
-					foreach(var i in Vault.Accounts)
+					foreach(var i in Vault.Wallets)
 					{
 						f.Add(new ($"Account", $"{i}"));
 					}
@@ -1847,6 +1847,9 @@ namespace Uccs.Net
 
 					next = Operations.Where(i => i.Transaction == null).ToArray();
 					ready = next.Any() && !OutgoingTransactions.Any(i => i.Placing >= PlacingStage.Accepted);
+
+					if(next.Any(i => i.Signer == null))
+						next = next;
 				}
 
 				if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly

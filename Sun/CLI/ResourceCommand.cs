@@ -30,7 +30,7 @@ namespace Uccs.Sun.CLI
 				case "c" : 
 				case "create" : 
 				{	
-					var r =	new ResourceCreation(	GetPrivate("by", "password"), 
+					var r =	new ResourceCreation(	Sun.Vault.GetKey(AccountAddress.Parse(GetString("by"))), 
 													ResourceAddress.Parse(GetString("address")),
 													byte.Parse(GetString("years")),
 													Args.Has("flags")		? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.Null,
@@ -45,7 +45,7 @@ namespace Uccs.Sun.CLI
 				case "u" : 
 				case "update" : 
 				{	
-					var r =	new ResourceUpdation(GetPrivate("by", "password"), ResourceAddress.Parse(GetString("address")));
+					var r =	new ResourceUpdation(Sun.Vault.GetKey(AccountAddress.Parse(GetString("by"))), ResourceAddress.Parse(GetString("address")));
 
 					if(Args.Has("years"))		r.Change(byte.Parse(GetString("years")));
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
@@ -59,12 +59,14 @@ namespace Uccs.Sun.CLI
 				}
 
 				case "s" :
-		   		case "status" :
+		   		case "info" :
 				{
 					try
 					{
 						var r = Sun.Call(i => i.FindResource(GetResourceAddress("address")), Workflow);
 	
+						Workflow.Log?.Report(this, GetString("address"));
+
 						Dump(r.Resource);
 						//Workflow.Log?.Report(this, GetString("address"));
 						//Workflow.Log?.Report(this, "   " + r.Resource.Flags);

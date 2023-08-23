@@ -77,16 +77,16 @@ namespace Uccs.Sun.CLI
 																				new BigInteger((int)Zone.EthereumNetwork));
 					}
 
-					return Sun.Emit(	from,
-										Web3.Convert.ToWei(GetString("amount")),
-										GetPrivate("to/account", "to/password"), 
-										GetAwaitStage(),
-										Workflow);
+					return Sun.Emit(from,
+									Web3.Convert.ToWei(GetString("amount")),
+									Sun.Vault.GetKey(AccountAddress.Parse(GetString("to"))), 
+									GetAwaitStage(),
+									Workflow);
 				}
 
 		   		case "transfer" : 
 				{
-					return Sun.Enqueue(new UntTransfer(GetPrivate("from/account", "from/password"), 
+					return Sun.Enqueue(new UntTransfer(	Sun.Vault.GetKey(AccountAddress.Parse(GetString("from"))), 
 														AccountAddress.Parse(GetString("to")), 
 														Coin.ParseDecimal(GetString("amount"))),
 														GetAwaitStage(), 
