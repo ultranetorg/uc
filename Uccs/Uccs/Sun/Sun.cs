@@ -104,7 +104,7 @@ namespace Uccs.Net
 		bool							MinimalPeersReached;
 		bool							OnlineBroadcasted;
 		public List<Peer>				Peers		= new();
-		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Established);
+		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
 		public IEnumerable<Peer>		Bases
 										{
 											get
@@ -164,7 +164,7 @@ namespace Uccs.Net
 				f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
 				f.Add(new ("    Placed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"));
 				f.Add(new ("    Confirmed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"));
-				f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
+				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
 				
 				if(Mcv != null)
 				{
@@ -499,11 +499,14 @@ namespace Uccs.Net
 			
 			Listener?.Stop();
 
-			lock(Lock)
-			{
-				foreach(var i in Peers.Where(i => i.Established))
-					i.Disconnect();
-			}
+			while(Peers.Any(i => i.Status != ConnectionStatus.Disconnected))
+				lock(Lock)
+				{
+					foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected))
+						i.Disconnect();
+
+				}
+
 
 			MainThread?.Join();
 			ListeningThread?.Join();
@@ -617,10 +620,9 @@ namespace Uccs.Net
 
 		void ProcessConnectivity()
 		{
-			var needed = Settings.PeersMin - Peers.Count(i => i.Established || i.InStatus == EstablishingStatus.Initiated || i.OutStatus == EstablishingStatus.Initiated);
+			var needed = Settings.PeersMin - Peers.Count(i => i.Status != ConnectionStatus.Disconnected);
 		
-			foreach(var p in Peers.Where(m =>	(m.InStatus == EstablishingStatus.Null) &&
-												(m.OutStatus == EstablishingStatus.Null) && 
+			foreach(var p in Peers.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 									.OrderByDescending(i => i.PeerRank)
 									.ThenBy(i => i.Retries)
@@ -631,8 +633,6 @@ namespace Uccs.Net
 		
 				OutboundConnect(p);
 			}
-
-			//var sss = Peers.ToArray();
 
 			foreach(var i in Peers.Where(i => i.Status == ConnectionStatus.Failed))
 				i.Disconnect();
@@ -718,7 +718,7 @@ namespace Uccs.Net
 
 		void OutboundConnect(Peer peer)
 		{
-			peer.OutStatus = EstablishingStatus.Initiated;
+			peer.Status = ConnectionStatus.Initiated;
 
 			void f()
 			{
@@ -795,38 +795,29 @@ namespace Uccs.Net
 							Workflow.Log?.Report(this, "Detected IP", IP.ToString());
 						}
 	
-						if(peer.Established)
+						if(peer.Status == ConnectionStatus.OK)
 						{
 							Workflow.Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
 							client.Close();
 							return;
 						}
-
-						//foreach(var i in h.Generators)
-						//{
-						//	if(!Members.Any(j => j.Generator == i.Generator))
-						//	{
-						//		i.OnlineSince = ChainTime.Zero;
-						//		i.Proxy = peer;
-						//		Members.Add(i);
-						//	}
-						//}
 	
 						RefreshPeers(h.Peers.Append(peer));
 	
-						peer.OutStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}");
+						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}", false);
 							
-						Workflow.Log?.Report(this, "Connected", $"to {peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
+						//Workflow.Log?.Report(this, "Connected", $"to {peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
 						return;
 					}
 	
 					failed:
+					{
 						lock(Lock)
-							peer.OutStatus = EstablishingStatus.Failed;
+							peer.Status = ConnectionStatus.Failed;
 									
 						client.Close();
+					}
 				}
 				catch(Exception ex) when(!Debugger.IsAttached)
 				{
@@ -854,16 +845,20 @@ namespace Uccs.Net
 
 			if(peer != null)
 			{
-				if(peer.Status == ConnectionStatus.OK)
+				if(peer.Status == ConnectionStatus.OK || peer.Status == ConnectionStatus.Initiated)
 				{
 					client.Close();
 					return;
 				}
 
-				if(peer.Status != ConnectionStatus.Disconnected)
+				if(peer.Status == ConnectionStatus.Failed)
+				{
 					peer.Disconnect();
-
-				peer.InStatus = EstablishingStatus.Initiated;
+				
+					while(peer.Status != ConnectionStatus.Disconnected);
+				}
+								
+				peer.Status = ConnectionStatus.Initiated;
 			}
 
 			var t = new Thread(a => incon());
@@ -914,7 +909,7 @@ namespace Uccs.Net
 							return;
 						}
 
-						if(peer != null && peer.Established)
+						if(peer != null && peer.Status == ConnectionStatus.OK)
 						{
 							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; Already established" );
 							client.Close();
@@ -955,10 +950,10 @@ namespace Uccs.Net
 
 						RefreshPeers(h.Peers.Append(peer));
 	
-						peer.InStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}");
+						//peer.InStatus = EstablishingStatus.Succeeded;
+						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}", true);
 			
-						Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
+						//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
 						return;
 					}
@@ -966,7 +961,7 @@ namespace Uccs.Net
 				failed:
 					lock(Lock)
 						if(peer != null)
-							peer.InStatus = EstablishingStatus.Failed;
+							peer.Status = ConnectionStatus.Failed;
 
 					client.Close();
 				}
@@ -1140,7 +1135,7 @@ namespace Uccs.Net
 				
 								foreach(var r in rounds.OrderBy(i => i.Id))
 								{
-									if(confirmed && r.Confirmed)
+									if(r.Confirmed)
 									{
 										foreach(var t in r.Transactions)
 										{
@@ -2069,7 +2064,7 @@ namespace Uccs.Net
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
 		{
-			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Established)
+			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Status == ConnectionStatus.OK)
 																											.ThenBy(i => i.GetRank(role))
 																											//.ThenByDescending(i => i.ReachFailures)
 																											.FirstOrDefault();
@@ -2149,7 +2144,7 @@ namespace Uccs.Net
 		{
 			lock(Lock)
 			{
-				if(!peer.Established && peer.InStatus != EstablishingStatus.Initiated && peer.OutStatus != EstablishingStatus.Initiated)
+				if(peer.Status != ConnectionStatus.OK && peer.Status != ConnectionStatus.Initiated && peer.Status != ConnectionStatus.Disconnecting)
 				{
 					peer.LastTry = DateTime.UtcNow;
 					peer.Retries++;
@@ -2165,9 +2160,9 @@ namespace Uccs.Net
 				Thread.Sleep(1);
 
 				lock(Lock)
-					if(peer.Established)
+					if(peer.Status == ConnectionStatus.OK)
 						return;
-					else if(peer.OutStatus == EstablishingStatus.Failed)
+					else if(peer.Status == ConnectionStatus.Failed)
 						throw new ConnectionFailedException("Failed");
 
 				if(!DevSettings.DisableTimeouts)

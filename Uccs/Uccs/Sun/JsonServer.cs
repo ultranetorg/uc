@@ -209,7 +209,7 @@ namespace Uccs.Net
 								return new SummaryResponse{Summary = Sun.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
 
 						case PeersReportCall s:
-							return new PeersResponse{Peers = Sun.Peers.Where(i => i.Established).TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
+							return new PeersResponse{Peers = Sun.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(s.Limit).Select(i => i.ToString()).ToArray()}; 
 							
 						case ChainReportCall s:
 							lock(Sun.Lock)

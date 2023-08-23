@@ -14,30 +14,28 @@ namespace Uccs.Net
 		Null, Request, Response
 	}
 
-	public enum EstablishingStatus
-	{
-		Failed = -1, Null = 0, Initiated = 1, Succeeded = 2, 
-	}
+	//public enum EstablishingStatus
+	//{
+	//	Failed = -1, Null = 0, Initiated = 1, Succeeded = 2, 
+	//}
 
 	public enum ConnectionStatus
 	{
-		Disconnected = 0, OK, Failed, Disconnecting
+		Disconnected = 0, Initiated, OK, Failed, Disconnecting
 	}
 
 	public class Peer : RdcInterface
 	{
 		public IPAddress			IP {get; set;} 
 
-		public EstablishingStatus	InStatus = EstablishingStatus.Null;
-		public EstablishingStatus	OutStatus = EstablishingStatus.Null;
 		public ConnectionStatus		Status = ConnectionStatus.Disconnected;
 
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
 
-		public bool					Established => Tcp != null && Tcp.Connected && Status == ConnectionStatus.OK;
-		public string				StatusDescription => (Status == ConnectionStatus.OK ? (InStatus == EstablishingStatus.Succeeded ? "Inbound" : (OutStatus == EstablishingStatus.Succeeded ? "Outbound" : "<Error>")) : Status.ToString());
+		public bool					Inbound;
+		public string				StatusDescription => Status == ConnectionStatus.OK ? (Inbound ? "Incoming" : "Outbound") : Status.ToString();
 
 		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0);
 		public int					PeerRank = 0;
@@ -51,8 +49,8 @@ namespace Uccs.Net
 		NetworkStream				Stream;
 		BinaryWriter				Writer;
 		BinaryReader				Reader;
-		Thread						ReadThread;
-		Thread						WriteThread;
+		Thread						ListenThread;
+		Thread						SendThread;
 		Queue<RdcPacket>			Outs = new();
 		public List<RdcRequest>		InRequests = new();
 		List<RdcRequest>			OutRequests = new();
@@ -155,16 +153,18 @@ namespace Uccs.Net
 				//ReadThread.Join();
 				//Monitor.Enter(Sun.Lock);
 
-				WriteThread = null;
- 				ReadThread = null;
 			}
-		
-			Status = ConnectionStatus.Disconnected;
-			InStatus = EstablishingStatus.Null;
-			OutStatus = EstablishingStatus.Null;
+
+			if(SendThread == null && ListenThread == null)
+			{
+				//InStatus = EstablishingStatus.Null;
+				//OutStatus = EstablishingStatus.Null;
+
+				Status = ConnectionStatus.Disconnected;
+			}
 		}
 
-		public void Start(Sun sun, TcpClient client, Hello h, string host)
+		public void Start(Sun sun, TcpClient client, Hello h, string host, bool inbound)
 		{
 			Sun = sun;
 			Tcp = client;
@@ -174,6 +174,7 @@ namespace Uccs.Net
 
 			PeerRank++;
 			Status		= ConnectionStatus.OK;
+			Inbound		= inbound;
 			Stream		= client.GetStream();
 			Writer		= new BinaryWriter(Stream);
 			Reader		= new BinaryReader(Stream);
@@ -183,20 +184,20 @@ namespace Uccs.Net
 
 			sun.UpdatePeers(new Peer[]{this});
 
-			ReadThread = new (() => Listening());
-			ReadThread.Name = $"{host} <- {IP.GetAddressBytes()[3]}";
-			ReadThread.Start();
+			ListenThread = new (() => Listening());
+			ListenThread.Name = $"{host} <- {IP.GetAddressBytes()[3]}";
+			ListenThread.Start();
 	
-			WriteThread = new (() => Sending());
-			WriteThread.Name = $"{host} -> {IP.GetAddressBytes()[3]}";
-			WriteThread.Start();
+			SendThread = new (() => Sending());
+			SendThread.Name = $"{host} -> {IP.GetAddressBytes()[3]}";
+			SendThread.Start();
 		}
 
 		void Sending()
 		{
 			try
 			{
-				while(Sun.Workflow.Active && Established)
+				while(Sun.Workflow.Active && Status == ConnectionStatus.OK)
 				{
 					Sun.Statistics.Sending.Begin();
 	
@@ -301,6 +302,13 @@ namespace Uccs.Net
 					if(Status != ConnectionStatus.Disconnecting)
 						Status = ConnectionStatus.Failed;
 			}
+
+			SendThread = null;
+
+			if(Status == ConnectionStatus.Disconnecting && SendThread == null && ListenThread == null)
+			{
+				Status = ConnectionStatus.Disconnected;
+			}
 		}
 
 		void Listening()
@@ -310,7 +318,7 @@ namespace Uccs.Net
 				while(true)
 				{
 					lock(Sun.Lock)
-						if(Sun.Workflow.IsAborted || !Established)
+						if(Sun.Workflow.IsAborted || Status != ConnectionStatus.OK)
 							return;
 
 					var pk = (PacketType)Reader.ReadByte();
@@ -369,11 +377,18 @@ namespace Uccs.Net
 					if(Status != ConnectionStatus.Disconnecting)
 						Status = ConnectionStatus.Failed;
 			}
+
+			ListenThread = null;
+
+			if(Status == ConnectionStatus.Disconnecting && SendThread == null && ListenThread == null)
+			{
+				Status = ConnectionStatus.Disconnected;
+			}
 		}
 
  		public override void Send(RdcRequest rq)
  		{
-			if(!Established)
+			if(Status != ConnectionStatus.OK)
 				throw new ConnectionFailedException("Peer is not connected");
 
 			rq.Id = IdCounter++;
@@ -387,7 +402,7 @@ namespace Uccs.Net
 
  		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
  		{
-			if(!Established)
+			if(Status != ConnectionStatus.OK)
 				throw new ConnectionFailedException("Peer is not connected");
 
 			rq.Id = IdCounter++;

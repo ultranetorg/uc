@@ -87,15 +87,6 @@ namespace Uccs.Sun.FUI
 				navigator.Nodes.Add(hub);
 			}
 
-			//var apps = new TreeNode("Files"){ Tag = new ApplicationsPanel(Core, sun.Vault) };
-			//navigator.Nodes.Add(apps);
-
-			if(DevSettings.UI)
-			{
-				var initials = new TreeNode("Initials"){ Tag = new InitialsPanel(Sun, sun.Vault)};
-				net.Nodes.Add(initials);
-			}
-
 			navigator.SelectedNode = dashboard;
 		}
 
