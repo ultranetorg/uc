@@ -47,10 +47,18 @@ namespace Uccs.Sun.CLI
 			Workflow = workflow ?? new Workflow(new Log());
 		}
 
+		protected AccountAddress GetAccountAddress(string paramenter)
+		{
+			if(Args.Has(paramenter))
+				return AccountAddress.Parse(GetString(paramenter));
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+		}
+
 		protected ResourceAddress GetResourceAddress(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return ResourceAddress.Parse(GetString("address"));
+				return ResourceAddress.Parse(GetString(paramenter));
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -58,7 +66,7 @@ namespace Uccs.Sun.CLI
 		protected PackageAddress GetReleaseAddress(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return PackageAddress.Parse(GetString("address"));
+				return PackageAddress.Parse(GetString(paramenter));
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}

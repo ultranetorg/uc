@@ -9,15 +9,6 @@ using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
-	/// <summary>
-	/// Usage:	account new
-	/// 
-	///			account import 
-	///						privatekey = PRIVATEKEY
-	///						
-	///			author overview
-	///						address = ACCOUNT	
-	/// </summary>
 	public class AccountCommand : Command
 	{
 		public const string Keyword = "account";
@@ -37,7 +28,7 @@ namespace Uccs.Sun.CLI
 
 				case "unlock" :
 				{
-					Sun.Vault.Unlock(AccountAddress.Parse(GetString("address")), GetString("password"));
+					Sun.Vault.Unlock(GetAccountAddress("address"), GetString("password"));
 					return null;
 				}
 
@@ -45,9 +36,9 @@ namespace Uccs.Sun.CLI
 		   		
 				case "info" :
 				{
-					var i = Sun.Connect(Role.Base, null, Workflow).GetAccountInfo(AccountAddress.Parse(GetString("address")));
+					var i = Sun.Call(i => i.GetAccountInfo(GetAccountAddress("address")), Workflow);
 					
-					Workflow?.Log?.Report(this, "Account", GetString("address") + " :");
+					Workflow.Log?.Report(this, "Account : ");
 
 					Dump(i.Account);
 

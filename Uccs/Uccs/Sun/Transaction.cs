@@ -59,7 +59,7 @@ namespace Uccs.Net
 	            var r = new Random();
 				var h = new byte[32];
 	
-				var x = new byte[32+PoWLength];
+				var x = new byte[32 + PoWLength];
 	
 				Array.Copy(powhash, x, 32);
 	
@@ -108,8 +108,8 @@ namespace Uccs.Net
  		{
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Id);
-			writer.Write7BitEncodedInt(Expiration);
-			writer.Write(PoW);
+			//writer.Write7BitEncodedInt(Expiration);
+			//writer.Write(PoW);
 			writer.Write(Operations, i =>{
 											writer.Write((byte)i.Class); 
 											i.Write(writer); 
@@ -120,8 +120,8 @@ namespace Uccs.Net
  		{
 			Signer		= reader.ReadAccount();
 			Id			= reader.Read7BitEncodedInt();
-			Expiration	= reader.Read7BitEncodedInt();
-			PoW			= reader.ReadBytes(PoWLength);
+			//Expiration	= reader.Read7BitEncodedInt();
+			//PoW			= reader.ReadBytes(PoWLength);
  			Operations	= reader.ReadList(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													o.Transaction = this;

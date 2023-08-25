@@ -266,7 +266,7 @@ namespace Uccs.Net
 
 		public static Coin CalculateSpaceFee(Coin factor, int basefee, byte years)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * basefee * Mcv.SpaceBasicFeePerByte * new Coin(1u << (years - 1));
+			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * basefee * SpaceBasicFeePerByte * new Coin(1u << (years - 1));
 		}
 
 		public void Add(Vote b)
@@ -738,7 +738,7 @@ namespace Uccs.Net
 					a.Balance -= f;
 				}
 
-				a.LastTransactionId = t.Id;
+				a.LastTransactionId++;
 						
 				if(Roles.HasFlag(Role.Chain))
 				{
