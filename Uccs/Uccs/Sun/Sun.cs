@@ -974,6 +974,12 @@ namespace Uccs.Net
 
 		void StartSynchronization()
 		{
+			if(DevSettings.SkipSynchronizetion)
+			{
+				Synchronization = Synchronization.Synchronized;
+				return;
+			}
+
 			if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
 			{
 				Workflow.Log?.Report(this, "Syncing started");
@@ -1564,7 +1570,7 @@ namespace Uccs.Net
 								if(s.Position > Vote.SizeMax)
 									break;
 		
-								v.AddNext(i);
+								v.AddTransaction(i);
 			
 								i.Placing = PlacingStage.Placed;
 							}

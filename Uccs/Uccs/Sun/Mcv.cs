@@ -205,7 +205,7 @@ namespace Uccs.Net
 			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
 			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", null, 1));
 			t.Sign(org, gen, 0, Zone.Cryptography.ZeroHash);
-			b0.AddNext(t);
+			b0.AddTransaction(t);
 			
 			foreach(var f in fathers.OrderBy(j => j).ToArray())
 			{
@@ -215,7 +215,7 @@ namespace Uccs.Net
 			
 				t.Sign(f, gen, 0, Zone.Cryptography.ZeroHash);
 			
-				b0.AddNext(t);
+				b0.AddTransaction(t);
 			}
 			
 			b0.Sign(gen);
@@ -237,7 +237,7 @@ namespace Uccs.Net
 			t = new Transaction(Zone){Id = 1};
 			t.AddOperation(new AuthorRegistration(org, "uo", "UO", EntityAllocationYearsMax));
 			t.Sign(org, gen, 1, Zone.Cryptography.ZeroHash);
-			b1.AddNext(t);
+			b1.AddTransaction(t);
 			
 			b1.Sign(gen);
 			Add(b1);

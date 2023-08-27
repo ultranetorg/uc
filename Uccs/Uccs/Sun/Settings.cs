@@ -117,6 +117,7 @@ namespace Uccs.Net
 		public static bool		DisableTimeouts;
 		public static bool		ThrowOnCorrupted;
 		public static bool		TailLength100;
+		public static bool		SkipSynchronizetion;
 
 		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
 		static  IEnumerable<FieldInfo>	Fields => typeof(DevSettings).GetFields().Where(i => i.FieldType == typeof(bool));
