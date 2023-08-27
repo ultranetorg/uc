@@ -277,56 +277,56 @@ namespace Uccs.Sun.FUI
 		void PaintEmission(Graphics g)
 		{ 
 			g.Clear(Color.FromArgb(16,16,16));
-
-			if(stat == null)
-			{
-				stat = new List<Coin[]>(100000);
-
-				var rnd = new Random();
-	
-				emission = 0;
-				spent = 0;
-				
-				Coin f = Emission.FactorStart;
-				//Coin l = 1;
-	
-				do
-				{
-					var wei = Web3.Convert.ToWei((decimal)(rnd.NextDouble() * Math.Pow(10, rnd.Next(0, 4))));
-
-					var r = Emission.Calculate(spent, f, wei);
-					
-					f			= r.Factor;
-					emission	+= r.Amount;
-					spent		+= wei;
-						
-					stat.Add(new Coin[] {f, emission, Coin.FromWei(spent)});
-				}
-				while(f < 1000);
-			}
-
-			var h = ClientSize.Height;
-			var w = ClientSize.Width;
-
-			for(var x=1f; x < w; x++)
-			{
-				g.DrawLine(System.Drawing.Pens.DarkMagenta,	x - 1,	(float)(h - h * stat[(int)((x -1) * stat.Count / w)][2]/stat.Last()[2]).ToDecimal(),  
-															x,		(float)(h - h * stat[(int)(x	  * stat.Count / w)][2]/stat.Last()[2]).ToDecimal());
-
-				g.DrawLine(System.Drawing.Pens.DarkCyan,	x - 1,	(float)(h - h * stat[(int)((x -1) * stat.Count / w)][1]/stat.Last()[1]).ToDecimal(),  
-															x,		(float)(h - h * stat[(int)(x	  * stat.Count / w)][1]/stat.Last()[1]).ToDecimal());
-			}
-
-			g.DrawString("Emission Simulation", Font, System.Drawing.Brushes.Gray, 0, 0);
-			
-			var eth = $"Estimated Total ETH Spent:    {Web3.Convert.FromWei(spent), 30}";
-			var unt = $"Estimated Total UNT Emitted : {emission.ToDecimal(), 30}";
-			
-			var eths = g.MeasureString(eth, Font);
-			var unts = g.MeasureString(unt, Font);
-
-			g.DrawString(eth, Font, System.Drawing.Brushes.DarkMagenta, w - eths.Width, h - eths.Height - unts.Height);
-			g.DrawString(unt, Font, System.Drawing.Brushes.DarkCyan,	w - unts.Width, h - unts.Height);
+// 
+// 			if(stat == null)
+// 			{
+// 				stat = new List<Coin[]>(100000);
+// 
+// 				var rnd = new Random();
+// 	
+// 				emission = 0;
+// 				spent = 0;
+// 				
+// 				Coin f = Emission.FactorStart;
+// 				//Coin l = 1;
+// 	
+// 				do
+// 				{
+// 					var wei = Web3.Convert.ToWei((decimal)(rnd.NextDouble() * Math.Pow(10, rnd.Next(0, 4))));
+// 
+// 					var r = Emission.Calculate(spent, f, wei);
+// 					
+// 					f			= r.Factor;
+// 					emission	+= r.Amount;
+// 					spent		+= wei;
+// 						
+// 					stat.Add(new Coin[] {f, emission, Coin.FromWei(spent)});
+// 				}
+// 				while(f < 1000);
+// 			}
+// 
+// 			var h = ClientSize.Height;
+// 			var w = ClientSize.Width;
+// 
+// 			for(var x=1f; x < w; x++)
+// 			{
+// 				g.DrawLine(System.Drawing.Pens.DarkMagenta,	x - 1,	(float)(h - h * stat[(int)((x -1) * stat.Count / w)][2]/stat.Last()[2]).ToDecimal(),  
+// 															x,		(float)(h - h * stat[(int)(x	  * stat.Count / w)][2]/stat.Last()[2]).ToDecimal());
+// 
+// 				g.DrawLine(System.Drawing.Pens.DarkCyan,	x - 1,	(float)(h - h * stat[(int)((x -1) * stat.Count / w)][1]/stat.Last()[1]).ToDecimal(),  
+// 															x,		(float)(h - h * stat[(int)(x	  * stat.Count / w)][1]/stat.Last()[1]).ToDecimal());
+// 			}
+// 
+// 			g.DrawString("Emission Simulation", Font, System.Drawing.Brushes.Gray, 0, 0);
+// 			
+// 			var eth = $"Estimated Total ETH Spent:    {Web3.Convert.FromWei(spent), 30}";
+// 			var unt = $"Estimated Total UNT Emitted : {emission.ToDecimal(), 30}";
+// 			
+// 			var eths = g.MeasureString(eth, Font);
+// 			var unts = g.MeasureString(unt, Font);
+// 
+// 			g.DrawString(eth, Font, System.Drawing.Brushes.DarkMagenta, w - eths.Width, h - eths.Height - unts.Height);
+// 			g.DrawString(unt, Font, System.Drawing.Brushes.DarkCyan,	w - unts.Width, h - unts.Height);
 		}
 	}
 }

@@ -10,9 +10,10 @@ namespace Uccs.Net
 {
 	public class Zone
 	{
+		public const string		TestnetPrefix	= "Testnet";
+
 		public string			Name;
 		public Chain			EthereumNetwork;
-		public const string		TestnetPrefix	= "Testnet";
 		public Cryptography		Cryptography;
 		public string			Genesis;
 		public IPAddress		GenesisIP;
@@ -21,6 +22,7 @@ namespace Uccs.Net
 		public Coin				BailMin;
 		public bool				PoW;
 		public bool				CheckDomains;
+		public int				TailLength;
 
 		public AccountAddress	OrgAccount = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
 		public AccountAddress	GenAccount = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");

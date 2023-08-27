@@ -112,11 +112,10 @@ namespace Uccs.Net
 	public class DevSettings
 	{
 		public static bool		UI;
-		public static bool		DisableBailMin;
+		//public static bool		DisableBailMin;
 		//public static bool		DisableBidMin;
 		public static bool		DisableTimeouts;
 		public static bool		ThrowOnCorrupted;
-		public static bool		TailLength100;
 		public static bool		SkipSynchronizetion;
 
 		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));

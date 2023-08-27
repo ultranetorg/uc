@@ -194,7 +194,8 @@ namespace Uccs.Net
 	
 						foreach(var i in Vault.Wallets)
 						{
-							f.Add(new ($"Account", $"{i.ToString().Insert(6, "-")} {formatbalance(i.Key), BalanceWidth}"));
+							var a = i.Key.ToString();
+							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)}", $"{formatbalance(i.Key)}"));
 						}
 	
 						if(DevSettings.UI)
@@ -1079,8 +1080,8 @@ namespace Uccs.Net
 						rd.Read7BitEncodedInt();
 						r.Hash			= rd.ReadSha3();
 						r.ConfirmedTime	= rd.ReadTime();
-						r.WeiSpent		= rd.ReadBigInteger();
-						r.Factor		= rd.ReadCoin();
+						//r.WeiSpent		= rd.ReadBigInteger();
+						//r.Factor		= rd.ReadCoin();
 						r.Emission		= rd.ReadCoin();
 						r.Members		= rd.Read<Member>(m => m.ReadForBase(rd)).ToList();
 						r.Analyzers		= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
@@ -1166,9 +1167,9 @@ namespace Uccs.Net
 									{
 										if(!Mcv.Roles.HasFlag(Role.Chain))
 										{ 
-											var d = rp.LastConfirmedRound % Mcv.TailLength;
+											var d = rp.LastConfirmedRound % Zone.TailLength;
 											
-											if(d < Mcv.Pitch || Mcv.TailLength - d < Mcv.Pitch * 3)
+											if(d < Mcv.Pitch || Zone.TailLength - d < Mcv.Pitch * 3)
 												break;
 										}
 
@@ -2288,9 +2289,9 @@ namespace Uccs.Net
 			call(p);
 		}
 
-		public Coin EstimateFee(IEnumerable<Operation> operations)
+		public double EstimateFee(IEnumerable<Operation> operations)
 		{
-			return Mcv != null ? Operation.CalculateTransactionFee(Mcv.LastConfirmedRound.Factor, operations) : Coin.Zero;
+			return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(Mcv.LastConfirmedRound.TransactionPerByteFee).ToDecimal()) : double.NaN;
 		}
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)

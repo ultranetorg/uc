@@ -28,15 +28,15 @@ namespace Uccs.Net
 		public const int					AnalyzersMax = 32;
 		public const int					NewMembersPerRoundMax = 1;
 		public const int					MembersRotation = 32;
-		public int							TailLength => DevSettings.TailLength100 ? 100 : 1000;
 		const int							LoadedRoundsMax = 1000;
-		public static readonly Coin			TransactionFeePerByte	= new Coin(0.000001);
+		public static readonly Coin			TransactionFeePerByteMin= new Coin(0.000001);
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
+		public const int					TransactionsPerRoundThreshold = 3000;
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -96,8 +96,8 @@ namespace Uccs.Net
 				LastCommittedRound				= new Round(this){Id = r.Read7BitEncodedInt()};
 				LastCommittedRound.Hash			= r.ReadSha3();
 				LastCommittedRound.ConfirmedTime= r.ReadTime();
-				LastCommittedRound.WeiSpent		= r.ReadBigInteger();
-				LastCommittedRound.Factor		= r.ReadCoin();
+				//LastCommittedRound.WeiSpent		= r.ReadBigInteger();
+				//LastCommittedRound.Factor		= r.ReadCoin();
 				LastCommittedRound.Emission		= r.ReadCoin();
 				LastCommittedRound.Members		= r.Read<Member>(m => m.ReadForBase(r)).ToList();
 				LastCommittedRound.Analyzers	= r.Read<Analyzer>(m => m.ReadForBase(r)).ToList();
@@ -133,7 +133,7 @@ namespace Uccs.Net
 						
 						if(i == 16)
 						{
-							r.ConfirmedMemberJoiners = new[] {Zone.Father0 };
+							r.ConfirmedMemberJoiners = new[] {Zone.Father0};
 							r.ConfirmedFundJoiners = new[] {Zone.OrgAccount};
 						}
 	
@@ -151,7 +151,7 @@ namespace Uccs.Net
 
 							if(i == 16)
 							{
-								r.Members[0].HubIPs = new IPAddress[]{zone.GenesisIP};
+								r.Members[0].HubIPs = new IPAddress[] {zone.GenesisIP};
 							}
 						}
 					}
@@ -169,7 +169,7 @@ namespace Uccs.Net
 
 					var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-					for(int i = lcr.Id - lcr.Id % TailLength; i <= lcr.Id; i++)
+					for(int i = lcr.Id - lcr.Id % Zone.TailLength; i <= lcr.Id; i++)
 					{
 						var r = FindRound(i);
 
@@ -229,8 +229,8 @@ namespace Uccs.Net
 			/// UO Autor
 
 			var b1 = new Vote(this)	{
-										RoundId		= 1,
-										TimeDelta	= ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1),  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+										RoundId			= 1,
+										TimeDelta		= ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1),  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
 										ParentSummary	= Zone.Cryptography.ZeroHash,
 									};
 	
@@ -264,9 +264,9 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
-		public static Coin CalculateSpaceFee(Coin factor, int basefee, byte years)
+		public static Coin CalculateSpaceFee(int size, byte years)
 		{
-			return ((Emission.FactorEnd - factor) / Emission.FactorEnd) * basefee * SpaceBasicFeePerByte * new Coin(1u << (years - 1));
+			return SpaceBasicFeePerByte * size * new Coin(1u << (years - 1));
 		}
 
 		public void Add(Vote b)
@@ -382,9 +382,9 @@ namespace Uccs.Net
 
 		void Recycle()
 		{
-			if(LoadedRounds.Count > TailLength * 10)
+			if(LoadedRounds.Count > Zone.TailLength * 10)
 			{
-				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(TailLength * 10))
+				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.TailLength * 10))
 				{
 					LoadedRounds.Remove(i.Key);
 				}
@@ -694,13 +694,14 @@ namespace Uccs.Net
 
 			start: 
 
-			round.Fees			= 0;
-			round.Emission		= round.Id == 0 ? 0						: prev.Emission;
-			round.WeiSpent		= round.Id == 0 ? 0						: prev.WeiSpent;
-			round.Factor		= round.Id == 0 ? Emission.FactorStart	: prev.Factor;
-			round.Members		= round.Id == 0 ? new()					: prev.Members.ToList();
-			round.Analyzers		= round.Id == 0 ? new()					: prev.Analyzers.ToList();
-			round.Funds			= round.Id == 0 ? new()					: prev.Funds.ToList();
+			round.Fees					= 0;
+			round.TransactionPerByteFee	= round.Id == 0 ? TransactionFeePerByteMin	: prev.TransactionPerByteFee;
+			round.Emission				= round.Id == 0 ? 0							: prev.Emission;
+			//round.WeiSpent				= round.Id == 0 ? 0							: prev.WeiSpent;
+			//round.Factor				= round.Id == 0 ? Emission.FactorStart		: prev.Factor;
+			round.Members				= round.Id == 0 ? new()						: prev.Members.ToList();
+			round.Analyzers				= round.Id == 0 ? new()						: prev.Analyzers.ToList();
+			round.Funds					= round.Id == 0 ? new()						: prev.Funds.ToList();
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
@@ -726,7 +727,7 @@ namespace Uccs.Net
 					if(o.Error != null)
 						goto start;
 
-					var f = o.CalculateTransactionFee(round.Factor);
+					var f = o.CalculateTransactionFee(round.TransactionPerByteFee);
 	
 					if(a.Balance - f < 0)
 					{
@@ -815,8 +816,16 @@ namespace Uccs.Net
 				}
 			}
 			
-			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
+			if(round.ConfirmedTransactions.Length > TransactionsPerRoundThreshold)
+			{
+				round.TransactionPerByteFee = round.TransactionPerByteFee * 2;
+			}
+			else if(round.TransactionPerByteFee > TransactionFeePerByteMin)
+			{
+				round.TransactionPerByteFee = round.TransactionPerByteFee / 2;
+			}
 
+			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)
 																.Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
 			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
@@ -852,9 +861,9 @@ namespace Uccs.Net
 			
 			using(var b = new WriteBatch())
 			{
-				if(Tail.Count(i => i.Id < round.Id) >= TailLength)
+				if(Tail.Count(i => i.Id < round.Id) >= Zone.TailLength)
 				{
-					var tail = Tail.AsEnumerable().Reverse().Take(TailLength);
+					var tail = Tail.AsEnumerable().Reverse().Take(Zone.TailLength);
 	
 					foreach(var i in tail)
 					{
@@ -870,8 +879,8 @@ namespace Uccs.Net
 					w.Write7BitEncodedInt(LastCommittedRound.Id);
 					w.Write(LastCommittedRound.Hash);
 					w.Write(LastCommittedRound.ConfirmedTime);
-					w.Write(LastCommittedRound.WeiSpent);
-					w.Write(LastCommittedRound.Factor);
+					//w.Write(LastCommittedRound.WeiSpent);
+					//w.Write(LastCommittedRound.Factor);
 					w.Write(LastCommittedRound.Emission);
 					w.Write(LastCommittedRound.Members, i => i.WriteForBase(w));
 					w.Write(LastCommittedRound.Analyzers, i => i.WriteForBase(w));

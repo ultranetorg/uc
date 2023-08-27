@@ -118,7 +118,7 @@ namespace Uccs.Sun.FUI
 			{
 				if(Sun.Mcv?.LastConfirmedRound != null)
 				{
-					estimated.Text = Emission.Calculate(Sun.Mcv.LastConfirmedRound.WeiSpent, Sun.Mcv.LastConfirmedRound.Factor, eth.Wei).Amount.ToHumanString() + " UNT";
+					estimated.Text = Emission.Calculate(eth.Wei).ToHumanString() + " UNT";
 				}
 			}
 		}

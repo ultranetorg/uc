@@ -43,7 +43,7 @@ namespace Uccs.Sun.FUI
 
 			var f = sun.EstimateFee(t.Operations);
 
-			fee.Text = f > 0 ? f.ToHumanString() : "unavailable"; 
+			fee.Text = f.ToString();
 
 			if(ShowDialog() == DialogResult.OK)
 			{

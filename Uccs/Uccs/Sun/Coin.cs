@@ -35,6 +35,11 @@ namespace Uccs.Net
 			Attos = One * n;
 		}
 
+		public Coin(long n)
+		{
+			Attos = One * n;
+		}
+
 		public Coin(uint n)
 		{
 			Attos = One * n;

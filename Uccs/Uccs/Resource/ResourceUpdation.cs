@@ -198,7 +198,7 @@ namespace Uccs.Net
 							
 							r.Reserved += (short)d;
 		
-							round.AffectAccount(Signer).Balance -= Mcv.CalculateSpaceFee(round.Factor, d, r.LastRenewalYears);
+							round.AffectAccount(Signer).Balance -= Mcv.CalculateSpaceFee(d, r.LastRenewalYears);
 						}
 					} 
 					else

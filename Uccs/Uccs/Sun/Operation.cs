@@ -117,29 +117,17 @@ namespace Uccs.Net
 			return (int)s.Length;
 		}
 
-		public Coin CalculateTransactionFee(Coin factor)
+		public Coin CalculateTransactionFee(Coin feeperbyte)
 		{
 			int size = CalculateSize();
 
-			return Mcv.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * size;
-		}
-		
-		public static Coin CalculateTransactionFee(Coin factor, IEnumerable<Operation> operations)
-		{
-			var s = new FakeStream();
-			var w = new BinaryWriter(s);
-
-			foreach(var i in operations)
-			{
-			 	i.WriteConfirmed(w); 
-			}
-
-			return Mcv.TransactionFeePerByte * ((Emission.FactorEnd - factor) / Emission.FactorEnd) * (int)s.Length;
+			return feeperbyte * size;
 		}
 
 		public void PayForAllocation(int extralength, byte years)
 		{
-			var fee = Mcv.CalculateSpaceFee(Transaction.Round.Factor, Mcv.EntityAllocationBaseLength + extralength, years);
+			var fee = Mcv.CalculateSpaceFee(Mcv.EntityAllocationBaseLength + extralength, years);
+			
 			Transaction.Round.AffectAccount(Signer).Balance -= fee;
 			Transaction.Round.Fees += fee;
 		}

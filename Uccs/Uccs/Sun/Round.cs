@@ -16,9 +16,9 @@ namespace Uccs.Net
 	{
 		public int												Id;
 		public int												ParentId => Id - Mcv.Pitch;
-		public Round											Previous =>	Database.FindRound(Id - 1);
-		public Round											Next =>	Database.FindRound(Id + 1);
-		public Round											Parent => Database.FindRound(ParentId);
+		public Round											Previous =>	Mcv.FindRound(Id - 1);
+		public Round											Next =>	Mcv.FindRound(Id + 1);
+		public Round											Parent => Mcv.FindRound(ParentId);
 
 		public int												Try = 0;
 		public DateTime											FirstArrivalTime = DateTime.MaxValue;
@@ -33,9 +33,6 @@ namespace Uccs.Net
 		public IEnumerable<Transaction>							OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 		public IEnumerable<Transaction>							Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
 
-		public List<Member>										Members = new();
-		public List<Analyzer>									Analyzers = new();
-		public List<AccountAddress>								Funds = new();
 
 		public ChainTime										ConfirmedTime;
 		public Transaction[]									ConfirmedTransactions = {};
@@ -53,21 +50,23 @@ namespace Uccs.Net
 		public byte[]											Hash;
 		public byte[]											Summary;
 
-		public BigInteger										WeiSpent;
-		public Coin												Factor;
-		public Coin												Emission;
-		
 		public Coin												Fees;
+		public Coin												TransactionPerByteFee;
+		public Coin												Emission;
+		//public BigInteger										WeiSpent;
+		//public Coin												Factor;
+		public List<Member>										Members = new();
+		public List<Analyzer>									Analyzers = new();
+		public List<AccountAddress>								Funds = new();
 
 		public Dictionary<AccountAddress, AccountEntry>			AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
-		//public Dictionary<ResourceAddress, Resource>			AffectedResources = new();
 		
-		public Mcv												Database;
+		public Mcv												Mcv;
 
 		public Round(Mcv c)
 		{
-			Database = c;
+			Mcv = c;
 		}
 
 		public override string ToString()
@@ -157,12 +156,12 @@ namespace Uccs.Net
 			if(AffectedAccounts.ContainsKey(account))
 				return AffectedAccounts[account];
 			
-			var e = Database.Accounts.Find(account, Id - 1);
+			var e = Mcv.Accounts.Find(account, Id - 1);
 
 			if(e != null)
 				return AffectedAccounts[account] = e.Clone();
 			else
-				return AffectedAccounts[account] = new AccountEntry(Database){Address = account};
+				return AffectedAccounts[account] = new AccountEntry(Mcv){Address = account};
 		}
 
 		public AuthorEntry AffectAuthor(string author)
@@ -170,12 +169,12 @@ namespace Uccs.Net
 			if(AffectedAuthors.ContainsKey(author))
 				return AffectedAuthors[author];
 			
-			var e = Database.Authors.Find(author, Id - 1);
+			var e = Mcv.Authors.Find(author, Id - 1);
 
 			if(e != null)
 				return AffectedAuthors[author] = e.Clone();
 			else
-				return AffectedAuthors[author] = new AuthorEntry(Database){Name = author};
+				return AffectedAuthors[author] = new AuthorEntry(Mcv){Name = author};
 		}
 
 		//public AuthorEntry FindAuthor(string name)
@@ -242,12 +241,12 @@ namespace Uccs.Net
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write(Database.BaseHash);
+			w.Write(Mcv.BaseHash);
 			w.Write(previous);
 
 			WriteConfirmed(w);
 
-			Hash = Database.Zone.Cryptography.Hash(s.ToArray());
+			Hash = Mcv.Zone.Cryptography.Hash(s.ToArray());
 		}
 
 		public void WriteConfirmed(BinaryWriter writer)
@@ -279,7 +278,7 @@ namespace Uccs.Net
 			ConfirmedFundLeavers		= reader.ReadArray<AccountAddress>();
 			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyses			= reader.ReadArray<AnalysisConclusion>();
-			ConfirmedTransactions		= reader.Read(() =>	new Transaction(Database.Zone) {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+			ConfirmedTransactions		= reader.Read(() =>	new Transaction(Mcv.Zone) {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
 		public void Write(BinaryWriter w)
@@ -317,14 +316,14 @@ namespace Uccs.Net
 				JoinRequests.AddRange(r.ReadArray(() =>	{
 															var b = new MemberJoinRequest();
 															b.RoundId = Id;
-															b.Read(r, Database.Zone);
+															b.Read(r, Mcv.Zone);
 															return b;
 														}));
 			} 
 			else
 			{
 				Votes = r.ReadList(() => {
-											var v = new Vote(Database);
+											var v = new Vote(Mcv);
 											v.RoundId = Id;
 											v.Round = this;
 											v.ReadForRoundUnconfirmed(r);
