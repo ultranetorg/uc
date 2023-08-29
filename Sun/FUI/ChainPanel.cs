@@ -62,7 +62,7 @@ namespace Uccs.Sun.FUI
 
 		void LoadOperations(IEnumerable<Operation> operations)
 		{
-			Operations.Items.AddRange(operations.Select((i) =>
+			Operations.Items.AddRange(operations.Select(i =>
 			{
 				var li = new ListViewItem(i.ToString());
 				li.Tag = i;
@@ -72,9 +72,10 @@ namespace Uccs.Sun.FUI
 
 		private void numericUpDown1_ValueChanged(object sender, EventArgs e)
 		{
-			Blocks.Items.Clear();
+			Votes.Items.Clear();
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
+			Joiners.Items.Clear();
 
 			lock(Sun.Lock)
 			{
@@ -83,13 +84,10 @@ namespace Uccs.Sun.FUI
 				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" +
 									r.ConfirmedTime + "\n" +
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
-									r.ConfirmedTransactions.Length + "\n" +
-									r.ConfirmedMemberJoiners.Length + "\n" +
-									r.ConfirmedMemberLeavers.Length + "\n" +
-									r.ConfirmedViolators.Length
+									r.TransactionPerByteFee.ToHumanString()
 									;
 
-				Blocks.Items.AddRange(r.Votes.OrderByDescending(i => i.Transactions.Any())
+				Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Transactions.Any())
 											.Select((i, j) =>
 											{
 												var li = new ListViewItem(j.ToString());
@@ -98,6 +96,11 @@ namespace Uccs.Sun.FUI
 												li.SubItems.Add(i.Generator.ToString());
 												return li;
 											}).ToArray());
+
+				Joiners.Items.AddRange(r.ConfirmedMemberJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
+				Leavers.Items.AddRange(r.ConfirmedMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
+				Violators.Items.AddRange(r.ConfirmedViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
+
 
 				var txs = r.Confirmed ? r.ConfirmedTransactions : r.OrderedTransactions;
 				LoadTransactions(txs);

@@ -166,6 +166,7 @@ namespace Uccs.Sun.CLI
 			{
 				switch(Args.GetString("await"))
 				{
+					case "null" :				return PlacingStage.Null;
 					case "accepted" :			return PlacingStage.Accepted;
 					case "placed" :				return PlacingStage.Placed;
 					case "confirmed" :			return PlacingStage.Confirmed;

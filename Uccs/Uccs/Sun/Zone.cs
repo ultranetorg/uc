@@ -8,7 +8,7 @@ using Nethereum.Signer;
 
 namespace Uccs.Net
 {
-	public class Zone
+	public class Zone : ICloneable
 	{
 		public const string		TestnetPrefix	= "Testnet";
 
@@ -18,15 +18,16 @@ namespace Uccs.Net
 		public string			Genesis;
 		public IPAddress		GenesisIP;
 		public IPAddress[]		Initials;
-		public ZoneCreation		Creation;
 		public Coin				BailMin;
 		public bool				PoW;
 		public bool				CheckDomains;
 		public int				TailLength;
+		public int				TransactionsPerRoundThreshold;
 
-		public AccountAddress	OrgAccount = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
-		public AccountAddress	GenAccount = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
-		public AccountAddress	Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
+		public ZoneCreation		Creation;
+		public AccountAddress	OrgAccount;
+		public AccountAddress	GenAccount;
+		public AccountAddress	Father0;
 
 		public ushort Port	{
 								get
@@ -51,6 +52,30 @@ namespace Uccs.Net
 		public override string ToString()
 		{
 			return Name;
+		}
+
+		public object Clone()
+		{
+			var z = new Zone();
+
+			z.Name = 							Name;
+			z.EthereumNetwork = 				EthereumNetwork;
+			z.Cryptography = 					Cryptography;
+			z.Genesis = 						Genesis;
+			z.GenesisIP = 						GenesisIP;
+			z.Initials = 						Initials;
+			z.Creation = 						Creation;
+			z.BailMin = 						BailMin;
+			z.PoW = 							PoW;		
+			z.CheckDomains = 					CheckDomains;
+			z.TailLength = 						TailLength;
+			z.TransactionsPerRoundThreshold = 	TransactionsPerRoundThreshold;
+			
+			z.OrgAccount = 						OrgAccount;
+			z.GenAccount = 						GenAccount;
+			z.Father0 = 						Father0;
+			
+			return z;
 		}
 
 		public static Zone OfficialByName(string name) => Official.First(i => i.Name == name);

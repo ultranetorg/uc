@@ -29,14 +29,13 @@ namespace Uccs.Net
 		public const int					NewMembersPerRoundMax = 1;
 		public const int					MembersRotation = 32;
 		const int							LoadedRoundsMax = 1000;
-		public static readonly Coin			TransactionFeePerByteMin= new Coin(0.000001);
+		public static readonly Coin			TransactionPerByteFeeMin= new Coin(0.000001);
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
-		public const int					TransactionsPerRoundThreshold = 3000;
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -93,15 +92,8 @@ namespace Uccs.Net
 			{
 				var r = new BinaryReader(new MemoryStream(BaseState));
 		
-				LastCommittedRound				= new Round(this){Id = r.Read7BitEncodedInt()};
-				LastCommittedRound.Hash			= r.ReadSha3();
-				LastCommittedRound.ConfirmedTime= r.ReadTime();
-				//LastCommittedRound.WeiSpent		= r.ReadBigInteger();
-				//LastCommittedRound.Factor		= r.ReadCoin();
-				LastCommittedRound.Emission		= r.ReadCoin();
-				LastCommittedRound.Members		= r.Read<Member>(m => m.ReadForBase(r)).ToList();
-				LastCommittedRound.Analyzers	= r.Read<Analyzer>(m => m.ReadForBase(r)).ToList();
-				LastCommittedRound.Funds		= r.ReadList<AccountAddress>();
+				LastCommittedRound = new Round(this);
+				LastCommittedRound.ReadBaseState(r);
 
 				LoadedRounds.Add(LastCommittedRound.Id, LastCommittedRound);
 
@@ -694,14 +686,13 @@ namespace Uccs.Net
 
 			start: 
 
-			round.Fees					= 0;
-			round.TransactionPerByteFee	= round.Id == 0 ? TransactionFeePerByteMin	: prev.TransactionPerByteFee;
-			round.Emission				= round.Id == 0 ? 0							: prev.Emission;
-			//round.WeiSpent				= round.Id == 0 ? 0							: prev.WeiSpent;
-			//round.Factor				= round.Id == 0 ? Emission.FactorStart		: prev.Factor;
-			round.Members				= round.Id == 0 ? new()						: prev.Members.ToList();
-			round.Analyzers				= round.Id == 0 ? new()						: prev.Analyzers.ToList();
-			round.Funds					= round.Id == 0 ? new()						: prev.Funds.ToList();
+			round.Fees								= 0;
+			round.TransactionPerByteFee				= round.Id == 0 ? TransactionPerByteFeeMin	: prev.TransactionPerByteFee;
+			round.TransactionThresholdExcessRound	= round.Id == 0 ? 0							: prev.TransactionThresholdExcessRound;
+			round.Emission							= round.Id == 0 ? 0							: prev.Emission;
+			round.Members							= round.Id == 0 ? new()						: prev.Members.ToList();
+			round.Analyzers							= round.Id == 0 ? new()						: prev.Analyzers.ToList();
+			round.Funds								= round.Id == 0 ? new()						: prev.Funds.ToList();
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
@@ -797,7 +788,6 @@ namespace Uccs.Net
 			}
 			else
 			{
-				///round.Blocks = round.ConfirmedPayloads.ToList();
 				Execute(round, round.ConfirmedTransactions, round.ConfirmedViolators);
 			}
 								
@@ -816,11 +806,12 @@ namespace Uccs.Net
 				}
 			}
 			
-			if(round.ConfirmedTransactions.Length > TransactionsPerRoundThreshold)
+			if(round.ConfirmedTransactions.Length > Zone.TransactionsPerRoundThreshold)
 			{
 				round.TransactionPerByteFee = round.TransactionPerByteFee * 2;
+				round.TransactionThresholdExcessRound = round.Id;
 			}
-			else if(round.TransactionPerByteFee > TransactionFeePerByteMin)
+			else if(round.TransactionPerByteFee > TransactionPerByteFeeMin && round.Id - round.TransactionThresholdExcessRound > Pitch)
 			{
 				round.TransactionPerByteFee = round.TransactionPerByteFee / 2;
 			}
@@ -876,15 +867,7 @@ namespace Uccs.Net
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
 	
-					w.Write7BitEncodedInt(LastCommittedRound.Id);
-					w.Write(LastCommittedRound.Hash);
-					w.Write(LastCommittedRound.ConfirmedTime);
-					//w.Write(LastCommittedRound.WeiSpent);
-					//w.Write(LastCommittedRound.Factor);
-					w.Write(LastCommittedRound.Emission);
-					w.Write(LastCommittedRound.Members, i => i.WriteForBase(w));
-					w.Write(LastCommittedRound.Analyzers, i => i.WriteForBase(w));
-					w.Write(LastCommittedRound.Funds);
+					LastCommittedRound.WriteBaseState(w);
 	
 					BaseState = s.ToArray();
 

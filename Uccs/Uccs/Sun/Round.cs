@@ -52,6 +52,7 @@ namespace Uccs.Net
 
 		public Coin												Fees;
 		public Coin												TransactionPerByteFee;
+		public int												TransactionThresholdExcessRound;
 		public Coin												Emission;
 		//public BigInteger										WeiSpent;
 		//public Coin												Factor;
@@ -249,13 +250,37 @@ namespace Uccs.Net
 			Hash = Mcv.Zone.Cryptography.Hash(s.ToArray());
 		}
 
+		public void WriteBaseState(BinaryWriter writer)
+		{
+			writer.Write7BitEncodedInt(Id);
+			writer.Write(Hash);
+			writer.Write(ConfirmedTime);
+			writer.Write(Emission);
+			writer.Write(TransactionPerByteFee);
+			writer.Write7BitEncodedInt(TransactionThresholdExcessRound);
+			writer.Write(Members, i => i.WriteForBase(writer));
+			writer.Write(Analyzers, i => i.WriteForBase(writer));
+			writer.Write(Funds);
+		}
+
+		public void ReadBaseState(BinaryReader reader)
+		{
+			Id									= reader.Read7BitEncodedInt();
+			Hash								= reader.ReadSha3();
+			ConfirmedTime						= reader.ReadTime();
+			Emission							= reader.ReadCoin();
+			TransactionPerByteFee				= reader.ReadCoin();
+			TransactionThresholdExcessRound	= reader.Read7BitEncodedInt();
+			Members								= reader.Read<Member>(m => m.ReadForBase(reader)).ToList();
+			Analyzers							= reader.Read<Analyzer>(m => m.ReadForBase(reader)).ToList();
+			Funds								= reader.ReadList<AccountAddress>();
+		}
+
 		public void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(ConfirmedTime);
 			writer.Write(ConfirmedMemberJoiners);
 			writer.Write(ConfirmedMemberLeavers);
-			//writer.Write(ConfirmedHubJoiners);
-			//writer.Write(ConfirmedHubLeavers);
 			writer.Write(ConfirmedAnalyzerJoiners);
 			writer.Write(ConfirmedAnalyzerLeavers);
 			writer.Write(ConfirmedFundJoiners);
@@ -270,8 +295,6 @@ namespace Uccs.Net
 			ConfirmedTime				= reader.ReadTime();
 			ConfirmedMemberJoiners	= reader.ReadArray<AccountAddress>();
 			ConfirmedMemberLeavers	= reader.ReadArray<AccountAddress>();
-			//ConfirmedHubJoiners			= reader.ReadArray<AccountAddress>();
-			//ConfirmedHubLeavers			= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
 			ConfirmedFundJoiners		= reader.ReadArray<AccountAddress>();

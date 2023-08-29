@@ -1070,27 +1070,14 @@ namespace Uccs.Net
 							t.CalculateSuperClusters();
 						}
 		
-						download<AccountEntry,	AccountAddress>(Mcv.Accounts);
+						download<AccountEntry, AccountAddress>(Mcv.Accounts);
 						download<AuthorEntry, string>(Mcv.Authors);
 		
-						var r = new Round(Mcv){Id = stamp.FirstTailRound - 1, Hash = stamp.LastCommitedRoundHash, Confirmed = true};
+						var r = new Round(Mcv) {Confirmed = true};
 		
-						var rd = new BinaryReader(new MemoryStream(stamp.BaseState));
+						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
 		
-						rd.Read7BitEncodedInt();
-						r.Hash			= rd.ReadSha3();
-						r.ConfirmedTime	= rd.ReadTime();
-						//r.WeiSpent		= rd.ReadBigInteger();
-						//r.Factor		= rd.ReadCoin();
-						r.Emission		= rd.ReadCoin();
-						r.Members		= rd.Read<Member>(m => m.ReadForBase(rd)).ToList();
-						r.Analyzers		= rd.Read<Analyzer>(m => m.ReadForBase(rd)).ToList();
-						r.Funds			= rd.ReadList<AccountAddress>();
-		
-						Mcv.BaseState	= stamp.BaseState;
-						//Database.Members	= r.Members;
-						//Database.Funds		= r.Funds;
-		
+						Mcv.BaseState = stamp.BaseState;
 						Mcv.LastConfirmedRound = r;
 						Mcv.LastCommittedRound = r;
 		
@@ -2021,40 +2008,41 @@ namespace Uccs.Net
 				return null;
 		}
 		
-// 		public void Enqueue(IEnumerable<Operation> operations, PlacingStage waitstage, Workflow workflow)
-// 		{
-// 			lock(Lock)
-// 				foreach(var i in operations)
-// 				{
-// 					i.__ExpectedPlacing = waitstage;
-// 
-// 					if(FeeAsker.Ask(this, i.Signer as AccountKey, i))
-// 					{
-// 				 		Enqueue(i);
-// 					}
-// 				}
-// 
-// 			while(workflow.Active)
-// 			{ 
-// 				Thread.Sleep(100);
-// 
-// 				switch(waitstage)
-// 				{
-// 					case PlacingStage.Null :				return;
-// 					case PlacingStage.Accepted :			if(operations.All(o => o.Transaction.Placing >= PlacingStage.Accepted))			return; else break;
-// 					case PlacingStage.Placed :				if(operations.All(o => o.Transaction.Placing >= PlacingStage.Placed))			return; else break;
-// 					case PlacingStage.Confirmed :			if(operations.All(o => o.Transaction.Placing == PlacingStage.Confirmed))		return; else break;
-// 					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Transaction.Placing == PlacingStage.FailedOrNotFound)) return; else break;
-// 				}
-// 			}
-// 		}
+ 		public void Enqueue(IEnumerable<Operation> operations, PlacingStage waitstage, Workflow workflow)
+ 		{
+ 			lock(Lock)
+ 				foreach(var i in operations)
+ 				{
+ 					i.__ExpectedPlacing = waitstage;
+ 
+ 					if(FeeAsker.Ask(this, i.Signer as AccountKey, i))
+ 					{
+ 				 		Enqueue(i);
+ 					}
+ 				}
+ 
+ 			while(workflow.Active)
+ 			{ 
+ 				if(operations.All(o => o.Transaction != null))
+ 				{
+	 				switch(waitstage)
+	 				{
+	 					case PlacingStage.Null :				return;
+	 					case PlacingStage.Accepted :			if(operations.All(o => o.Transaction.Placing >= PlacingStage.Accepted))			return; else break;
+	 					case PlacingStage.Placed :				if(operations.All(o => o.Transaction.Placing >= PlacingStage.Placed))			return; else break;
+	 					case PlacingStage.Confirmed :			if(operations.All(o => o.Transaction.Placing == PlacingStage.Confirmed))		return; else break;
+	 					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Transaction.Placing == PlacingStage.FailedOrNotFound)) return; else break;
+	 				}
+ 				}
+
+ 				Thread.Sleep(100);
+ 			}
+ 		}
 
 		void Await(Operation o, PlacingStage s, Workflow workflow)
 		{
 			while(workflow.Active)
 			{ 
-				Thread.Sleep(100);
-
 				if(o.Transaction == null)
 					continue;
 
@@ -2066,6 +2054,8 @@ namespace Uccs.Net
 					case PlacingStage.Confirmed :			if(o.Transaction.Placing == PlacingStage.Confirmed) goto end; else break;
 					case PlacingStage.FailedOrNotFound :	if(o.Transaction.Placing == PlacingStage.FailedOrNotFound) goto end; else break;
 				}
+
+				Thread.Sleep(100);
 			}
 
 			end:
