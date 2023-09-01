@@ -1297,6 +1297,7 @@ namespace Uccs.Net
 				return new();
 
 			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
+											i.Fee >= i.Operations.Sum(i => i.CalculateSize()) * Mcv.TransactionPerByteFeeMin &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid(Mcv)).ToList();
@@ -1536,8 +1537,8 @@ namespace Uccs.Net
 												FundJoiners			= Settings.ProposedFundJoiners,
 												FundLeavers			= Settings.ProposedFundLeavers,
 												BaseIPs				= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
-												HubIPs				= new IPAddress[] {IP} };
-					}
+												HubIPs				= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
+					};
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
 					{
@@ -1712,45 +1713,50 @@ namespace Uccs.Net
 								var members = cr.Members;
 
 								//Members.RemoveAll(i => !members.Contains(i.Generator));
-																										
-								foreach(var i in members.Where(i => i.HubIPs.Any()).OrderByRandom()) /// look for public IP in connections
+								
+								//foreach(var i in members.Where(i => i.BaseIPs.Any()).OrderByRandom()) /// look for public IP in connections
+								//{
+								//	var p = Connections.OrderByRandom().FirstOrDefault(j => i.BaseIPs.Any(ip => j.IP.Equals(ip)));
+								//
+								//	if(p != null)
+								//	{
+								//		rdi = p;
+								//		m = i.Account;
+								//		Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
+								//		break;
+								//	}
+								//}
+								//
+								//if(rdi != null)
+								//	break;
+
+								foreach(var i in members.Where(i => i.BaseIPs.Any()).OrderByRandom()) /// try by public IP address
 								{
-									var p = Connections.OrderByRandom().FirstOrDefault(j => i.HubIPs.Any(ip => j.IP.Equals(ip)));
-
-									if(p != null)
+									foreach(var j in i.BaseIPs.OrderByRandom())
 									{
-										rdi = p;
-										m = i.Account;
-										Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
+										var p = GetPeer(j);
+
+										try
+										{
+											Monitor.Exit(Lock);
+
+											Connect(p, Workflow);
+											rdi = p;
+											m = i.Account;
+											Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
+											break;
+										}
+										catch(ConnectionFailedException)
+										{
+										}
+										finally
+										{
+											Monitor.Enter(Lock);
+										}
+									}
+
+									if(rdi != null)
 										break;
-									}
-								}
-
-								if(rdi != null)
-									break;
-
-								foreach(var i in members.Where(i => i.HubIPs.Any()).OrderByRandom()) /// try by public IP address
-								{
-									var ip = i.HubIPs.Random();
-									var p = GetPeer(ip);
-
-									try
-									{
-										Monitor.Exit(Lock);
-
-										Connect(p, Workflow);
-										rdi = p;
-										m = i.Account;
-										Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
-										break;
-									}
-									catch(ConnectionFailedException)
-									{
-									}
-									finally
-									{
-										Monitor.Enter(Lock);
-									}
 								}
 
 								if(rdi != null)
@@ -1785,41 +1791,43 @@ namespace Uccs.Net
 								//if(rdi != null)
 								//	break;
 									
-								foreach(var i in members.Where(i => i.Proxyable).OrderByRandom()) /// connect via random proxy
-								{
-									try
-									{
-										Monitor.Exit(Lock);
+								//foreach(var i in members.Where(i => i.Proxyable).OrderByRandom()) /// connect via random proxy
+								//{
+								//	try
+								//	{
+								//		Monitor.Exit(Lock);
+								//
+								//		//Connect(i.Proxy, Workflow);
+								//		m = i.Account;
+								//		rdi = new ProxyRdi(m, cr.Peer);
+								//		Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {cr.Peer}");
+								//		break;
+								//	}
+								//	catch(Exception)
+								//	{
+								//	}
+								//	finally
+								//	{
+								//		Monitor.Enter(Lock);
+								//	}
+								//}
 
-										//Connect(i.Proxy, Workflow);
-										m = i.Account;
-										rdi = new ProxyRdi(m, cr.Peer);
-										Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {cr.Peer}");
-										break;
-									}
-									catch(Exception)
-									{
-									}
-									finally
-									{
-										Monitor.Enter(Lock);
-									}
-								}
+								//if(rdi != null)
+								//	break;
 
-								if(rdi != null)
-									break;
+								var gp = GetPeer(Zone.GenesisIP);
 
 								try
 								{
 									Monitor.Exit(Lock);
 
-									var p = GetPeer(Zone.GenesisIP);
-									Connect(p, Workflow);
+									Connect(gp, Workflow);
+
 									m = Zone.Father0;
-									rdi = p;
-									Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {p}");
+									rdi = gp;
+									Workflow.Log?.Report(this, "Generator connection established", $"{m}, {gp}");
 								}
-								catch(Exception)
+								catch(ConnectionFailedException)
 								{
 								}
 								finally
@@ -1841,9 +1849,6 @@ namespace Uccs.Net
 
 					next = Operations.Where(i => i.Transaction == null).ToArray();
 					ready = next.Any() && !OutgoingTransactions.Any(i => i.Placing >= PlacingStage.Accepted);
-
-					if(next.Any(i => i.Signer == null))
-						next = next;
 				}
 
 				if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
@@ -1860,15 +1865,21 @@ namespace Uccs.Net
 									
 							Monitor.Enter(Lock);
 
-							var t = new Transaction(Zone);
-							t.Id = at.NextTransactionId;
+							var t = new Transaction(Zone)
+									{
+										Id = at.NextTransactionId,
+										Generator = m,
+										Expiration = at.MaxRoundId
+									};
 
 							foreach(var o in g)
 							{
 								t.AddOperation(o);
+								t.Fee += o.CalculateTransactionFee(at.MinFeePerByte);
 							}
 
-							t.Sign(Vault.GetKey(g.Key), m, at.MaxRoundId, at.PowHash);
+
+							t.Sign(Vault.GetKey(g.Key), at.PowHash);
 							txs.Add(t);
 						}
 					}
@@ -2281,7 +2292,7 @@ namespace Uccs.Net
 
 		public double EstimateFee(IEnumerable<Operation> operations)
 		{
-			return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(Mcv.LastConfirmedRound.TransactionPerByteFee).ToDecimal()) : double.NaN;
+			return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(Mcv.TransactionPerByteFeeMin).ToDecimal()) : double.NaN;
 		}
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)

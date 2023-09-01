@@ -22,7 +22,6 @@ namespace Uccs.Net
 		public bool				PoW;
 		public bool				CheckDomains;
 		public int				TailLength;
-		public int				TransactionsPerRoundThreshold;
 
 		public ZoneCreation		Creation;
 		public AccountAddress	OrgAccount;
@@ -58,22 +57,21 @@ namespace Uccs.Net
 		{
 			var z = new Zone();
 
-			z.Name = 							Name;
-			z.EthereumNetwork = 				EthereumNetwork;
-			z.Cryptography = 					Cryptography;
-			z.Genesis = 						Genesis;
-			z.GenesisIP = 						GenesisIP;
-			z.Initials = 						Initials;
-			z.Creation = 						Creation;
-			z.BailMin = 						BailMin;
-			z.PoW = 							PoW;		
-			z.CheckDomains = 					CheckDomains;
-			z.TailLength = 						TailLength;
-			z.TransactionsPerRoundThreshold = 	TransactionsPerRoundThreshold;
+			z.Name = 			Name;
+			z.EthereumNetwork = EthereumNetwork;
+			z.Cryptography = 	Cryptography;
+			z.Genesis = 		Genesis;
+			z.GenesisIP = 		GenesisIP;
+			z.Initials = 		Initials;
+			z.Creation = 		Creation;
+			z.BailMin = 		BailMin;
+			z.PoW = 			PoW;		
+			z.CheckDomains = 	CheckDomains;
+			z.TailLength = 		TailLength;
 			
-			z.OrgAccount = 						OrgAccount;
-			z.GenAccount = 						GenAccount;
-			z.Father0 = 						Father0;
+			z.OrgAccount = 		OrgAccount;
+			z.GenAccount = 		GenAccount;
+			z.Father0 = 		Father0;
 			
 			return z;
 		}

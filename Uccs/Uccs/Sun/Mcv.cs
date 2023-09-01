@@ -29,13 +29,14 @@ namespace Uccs.Net
 		public const int					NewMembersPerRoundMax = 1;
 		public const int					MembersRotation = 32;
 		const int							LoadedRoundsMax = 1000;
-		public static readonly Coin			TransactionPerByteFeeMin= new Coin(0.000001);
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
+
+		public Coin							TransactionPerByteFeeMin = new Coin(0.000001);
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -143,6 +144,7 @@ namespace Uccs.Net
 
 							if(i == 16)
 							{
+								r.Members[0].BaseIPs = new IPAddress[] {zone.GenesisIP};
 								r.Members[0].HubIPs = new IPAddress[] {zone.GenesisIP};
 							}
 						}
@@ -193,19 +195,19 @@ namespace Uccs.Net
 										ParentSummary	= Zone.Cryptography.ZeroHash,
 									};
 
-			var t = new Transaction(Zone){ Id = 0 };
+			var t = new Transaction(Zone) {Id = 0, Generator = gen, Expiration = 0};
 			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
 			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", null, 1));
-			t.Sign(org, gen, 0, Zone.Cryptography.ZeroHash);
+			t.Sign(org, Zone.Cryptography.ZeroHash);
 			b0.AddTransaction(t);
 			
 			foreach(var f in fathers.OrderBy(j => j).ToArray())
 			{
-				t = new Transaction(Zone) {Id = 0};
+				t = new Transaction(Zone) {Id = 0, Generator = gen, Expiration = 0};
 				t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
-				t.AddOperation(new CandidacyDeclaration(f, 900_000));
+				t.AddOperation(new CandidacyDeclaration(f, 1000_000));
 			
-				t.Sign(f, gen, 0, Zone.Cryptography.ZeroHash);
+				t.Sign(f, Zone.Cryptography.ZeroHash);
 			
 				b0.AddTransaction(t);
 			}
@@ -226,9 +228,9 @@ namespace Uccs.Net
 										ParentSummary	= Zone.Cryptography.ZeroHash,
 									};
 	
-			t = new Transaction(Zone){Id = 1};
+			t = new Transaction(Zone){Id = 1, Generator = gen, Expiration = 1};
 			t.AddOperation(new AuthorRegistration(org, "uo", "UO", EntityAllocationYearsMax));
-			t.Sign(org, gen, 1, Zone.Cryptography.ZeroHash);
+			t.Sign(org, Zone.Cryptography.ZeroHash);
 			b1.AddTransaction(t);
 			
 			b1.Sign(gen);
@@ -239,8 +241,8 @@ namespace Uccs.Net
 			{
 				var b = new Vote(this)
 						{
-							RoundId		= i,
-							TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+							RoundId			= i,
+							TimeDelta		= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
 							ParentSummary	= i < 8 ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - Pitch))
 						};
 		 
@@ -687,8 +689,8 @@ namespace Uccs.Net
 			start: 
 
 			round.Fees								= 0;
-			round.TransactionPerByteFee				= round.Id == 0 ? TransactionPerByteFeeMin	: prev.TransactionPerByteFee;
-			round.TransactionThresholdExcessRound	= round.Id == 0 ? 0							: prev.TransactionThresholdExcessRound;
+			//round.TransactionPerByteFee				= round.Id == 0 ? TransactionPerByteFeeMin	: prev.TransactionPerByteFee;
+			//round.TransactionThresholdExcessRound	= round.Id == 0 ? 0							: prev.TransactionThresholdExcessRound;
 			round.Emission							= round.Id == 0 ? 0							: prev.Emission;
 			round.Members							= round.Id == 0 ? new()						: prev.Members.ToList();
 			round.Analyzers							= round.Id == 0 ? new()						: prev.Analyzers.ToList();
@@ -718,18 +720,17 @@ namespace Uccs.Net
 					if(o.Error != null)
 						goto start;
 
-					var f = o.CalculateTransactionFee(round.TransactionPerByteFee);
+					//var f = o.CalculateTransactionFee(round.TransactionPerByteFee);
 	
-					if(a.Balance - f < 0)
+					if(a.Balance - t.Fee < 0)
 					{
 						o.Error = Operation.NotEnoughUNT;
 						goto start;
 					}
-
-					round.Fees += f;
-					a.Balance -= f;
 				}
 
+				round.Fees += t.Fee;
+				a.Balance -= t.Fee;
 				a.LastTransactionId++;
 						
 				if(Roles.HasFlag(Role.Chain))
@@ -806,15 +807,15 @@ namespace Uccs.Net
 				}
 			}
 			
-			if(round.ConfirmedTransactions.Length > Zone.TransactionsPerRoundThreshold)
-			{
-				round.TransactionPerByteFee = round.TransactionPerByteFee * 2;
-				round.TransactionThresholdExcessRound = round.Id;
-			}
-			else if(round.TransactionPerByteFee > TransactionPerByteFeeMin && round.Id - round.TransactionThresholdExcessRound > Pitch)
-			{
-				round.TransactionPerByteFee = round.TransactionPerByteFee / 2;
-			}
+			//if(round.ConfirmedTransactions.Length > Zone.TransactionsPerRoundThreshold)
+			//{
+			//	round.TransactionPerByteFee = round.TransactionPerByteFee * 2;
+			//	round.TransactionThresholdExcessRound = round.Id;
+			//}
+			//else if(round.TransactionPerByteFee > TransactionPerByteFeeMin && round.Id - round.TransactionThresholdExcessRound > Pitch)
+			//{
+			//	round.TransactionPerByteFee = round.TransactionPerByteFee / 2;
+			//}
 
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)

@@ -56,6 +56,7 @@ namespace Uccs.Sun.FUI
 				li.Tag = i;
 				li.SubItems.Add(i.Signer.ToString());
 				li.SubItems.Add(i.Operations.Count.ToString());
+				li.SubItems.Add(i.Fee.ToString());
 				return li;
 			}).ToArray());
 		}
@@ -83,8 +84,8 @@ namespace Uccs.Sun.FUI
 
 				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" +
 									r.ConfirmedTime + "\n" +
-									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n" +
-									r.TransactionPerByteFee.ToHumanString()
+									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n"
+									//r.TransactionPerByteFee.ToHumanString()
 									;
 
 				Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Transactions.Any())

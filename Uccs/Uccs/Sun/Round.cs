@@ -51,8 +51,8 @@ namespace Uccs.Net
 		public byte[]											Summary;
 
 		public Coin												Fees;
-		public Coin												TransactionPerByteFee;
-		public int												TransactionThresholdExcessRound;
+		//public Coin												TransactionPerByteFee;
+		//public int												TransactionThresholdExcessRound;
 		public Coin												Emission;
 		//public BigInteger										WeiSpent;
 		//public Coin												Factor;
@@ -256,8 +256,8 @@ namespace Uccs.Net
 			writer.Write(Hash);
 			writer.Write(ConfirmedTime);
 			writer.Write(Emission);
-			writer.Write(TransactionPerByteFee);
-			writer.Write7BitEncodedInt(TransactionThresholdExcessRound);
+			//writer.Write(TransactionPerByteFee);
+			//writer.Write7BitEncodedInt(TransactionThresholdExcessRound);
 			writer.Write(Members, i => i.WriteForBase(writer));
 			writer.Write(Analyzers, i => i.WriteForBase(writer));
 			writer.Write(Funds);
@@ -269,8 +269,8 @@ namespace Uccs.Net
 			Hash								= reader.ReadSha3();
 			ConfirmedTime						= reader.ReadTime();
 			Emission							= reader.ReadCoin();
-			TransactionPerByteFee				= reader.ReadCoin();
-			TransactionThresholdExcessRound	= reader.Read7BitEncodedInt();
+			//TransactionPerByteFee				= reader.ReadCoin();
+			//TransactionThresholdExcessRound	= reader.Read7BitEncodedInt();
 			Members								= reader.Read<Member>(m => m.ReadForBase(reader)).ToList();
 			Analyzers							= reader.Read<Analyzer>(m => m.ReadForBase(reader)).ToList();
 			Funds								= reader.ReadList<AccountAddress>();

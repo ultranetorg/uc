@@ -12,7 +12,6 @@ namespace Uccs.Net
 	{
 		public int						Id;
 		public List<Operation>			Operations = new ();
-		//public IEnumerable<Operation>	SuccessfulOperations => Operations.Where(i => i.Error == null);
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 		
 		public Vote						Vote;
@@ -20,8 +19,9 @@ namespace Uccs.Net
 		public AccountAddress			Generator;
 		public int						Expiration;
 		public byte[]					PoW;
+		public Coin						Fee;
 		public byte[]					Signature;
-		
+				
 		public AccountAddress			Signer;
 		public Zone						Zone;
 		public PlacingStage				Placing;
@@ -44,11 +44,9 @@ namespace Uccs.Net
 			return $"Id={Id}, {Placing}, Operations={{{Operations.Count}}}, Signer={Signer}, Generator={Generator}, Expiration={Expiration}, Signature={Hex.ToHexString(Signature)}";
 		}
 
-		public void Sign(AccountKey signer, AccountAddress generator, int expiration, byte[] powhash)
+		public void Sign(AccountKey signer, byte[] powhash)
 		{
-			Signer		= signer;
-			Generator	= generator;
-			Expiration	= expiration;
+			Signer = signer;
 
             if(powhash.SequenceEqual(Zone.Cryptography.ZeroHash) || !Zone.PoW)
 			{
@@ -98,6 +96,7 @@ namespace Uccs.Net
 			w.Write7BitEncodedInt(Id);
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Expiration);
+			w.Write(Fee);
 			w.WriteBytes(PoW);
 			w.Write(Operations, i => i.Write(w));
 
@@ -108,8 +107,7 @@ namespace Uccs.Net
  		{
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Id);
-			//writer.Write7BitEncodedInt(Expiration);
-			//writer.Write(PoW);
+			writer.Write(Fee);
 			writer.Write(Operations, i =>{
 											writer.Write((byte)i.Class); 
 											i.Write(writer); 
@@ -120,8 +118,7 @@ namespace Uccs.Net
  		{
 			Signer		= reader.ReadAccount();
 			Id			= reader.Read7BitEncodedInt();
-			//Expiration	= reader.Read7BitEncodedInt();
-			//PoW			= reader.ReadBytes(PoWLength);
+			Fee			= reader.ReadCoin();
  			Operations	= reader.ReadList(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													o.Transaction = this;
@@ -138,6 +135,7 @@ namespace Uccs.Net
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Id);
 			writer.Write7BitEncodedInt(Expiration);
+			writer.Write(Fee);
 			writer.Write(PoW);
 			writer.Write(Operations, i => {
 											writer.Write((byte)i.Class); 
@@ -150,6 +148,7 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Id			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
+			Fee			= reader.ReadCoin();
 			PoW			= reader.ReadBytes(PoWLength);
  			Operations	= reader.ReadList(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
@@ -171,6 +170,7 @@ namespace Uccs.Net
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Id);
 			writer.Write7BitEncodedInt(Expiration);
+			writer.Write(Fee);
 			writer.Write(PoW);
 			writer.Write(Operations, i =>	{
 												writer.Write((byte)i.Class); 
@@ -184,6 +184,7 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Id			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
+			Fee			= reader.ReadCoin();
 			PoW			= reader.ReadBytes(PoWLength);
 			Operations	= reader.ReadList(() => {
 													var o = Operation.FromType((OperationClass)reader.ReadByte());

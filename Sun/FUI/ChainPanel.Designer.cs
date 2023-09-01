@@ -37,6 +37,7 @@ namespace Uccs.Sun.FUI
 			columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			columnHeader3 = new System.Windows.Forms.ColumnHeader();
 			columnHeader4 = new System.Windows.Forms.ColumnHeader();
+			columnHeader9 = new System.Windows.Forms.ColumnHeader();
 			Operations = new System.Windows.Forms.ListView();
 			columnHeader8 = new System.Windows.Forms.ColumnHeader();
 			label9 = new System.Windows.Forms.Label();
@@ -72,7 +73,7 @@ namespace Uccs.Sun.FUI
 			Votes.Location = new System.Drawing.Point(10, 9);
 			Votes.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Votes.Name = "Votes";
-			Votes.Size = new System.Drawing.Size(899, 1367);
+			Votes.Size = new System.Drawing.Size(796, 1367);
 			Votes.TabIndex = 21;
 			Votes.UseCompatibleStateImageBehavior = false;
 			Votes.View = System.Windows.Forms.View.Details;
@@ -94,12 +95,12 @@ namespace Uccs.Sun.FUI
 			// 
 			// Transactions
 			// 
-			Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader1, columnHeader3, columnHeader4 });
+			Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader1, columnHeader3, columnHeader4, columnHeader9 });
 			Transactions.FullRowSelect = true;
 			Transactions.Location = new System.Drawing.Point(7, 193);
 			Transactions.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Transactions.Name = "Transactions";
-			Transactions.Size = new System.Drawing.Size(913, 662);
+			Transactions.Size = new System.Drawing.Size(1038, 662);
 			Transactions.TabIndex = 22;
 			Transactions.UseCompatibleStateImageBehavior = false;
 			Transactions.View = System.Windows.Forms.View.Details;
@@ -116,9 +117,15 @@ namespace Uccs.Sun.FUI
 			// 
 			// columnHeader4
 			// 
-			columnHeader4.Text = "Operations(n)";
+			columnHeader4.Text = "Ops.(n)";
 			columnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			columnHeader4.Width = 100;
+			columnHeader4.Width = 50;
+			// 
+			// columnHeader9
+			// 
+			columnHeader9.Text = "Fee";
+			columnHeader9.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			columnHeader9.Width = 120;
 			// 
 			// Operations
 			// 
@@ -129,7 +136,7 @@ namespace Uccs.Sun.FUI
 			Operations.Location = new System.Drawing.Point(7, 915);
 			Operations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Operations.Name = "Operations";
-			Operations.Size = new System.Drawing.Size(913, 717);
+			Operations.Size = new System.Drawing.Size(1038, 717);
 			Operations.TabIndex = 23;
 			Operations.UseCompatibleStateImageBehavior = false;
 			Operations.View = System.Windows.Forms.View.Details;
@@ -188,15 +195,15 @@ namespace Uccs.Sun.FUI
 			InfoFields.Location = new System.Drawing.Point(386, 32);
 			InfoFields.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			InfoFields.Name = "InfoFields";
-			InfoFields.Size = new System.Drawing.Size(187, 108);
+			InfoFields.Size = new System.Drawing.Size(70, 81);
 			InfoFields.TabIndex = 24;
-			InfoFields.Text = "State\r\nTime\r\nHash\r\nTransaction Fee";
+			InfoFields.Text = "State\r\nTime\r\nHash";
 			// 
 			// InfoValues
 			// 
 			InfoValues.AutoSize = true;
 			InfoValues.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			InfoValues.Location = new System.Drawing.Point(587, 32);
+			InfoValues.Location = new System.Drawing.Point(470, 32);
 			InfoValues.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			InfoValues.Name = "InfoValues";
 			InfoValues.Size = new System.Drawing.Size(74, 27);
@@ -210,10 +217,10 @@ namespace Uccs.Sun.FUI
 			tabLeavers.Controls.Add(tabPage2);
 			tabLeavers.Controls.Add(tabPage3);
 			tabLeavers.Controls.Add(tabPage4);
-			tabLeavers.Location = new System.Drawing.Point(964, 193);
+			tabLeavers.Location = new System.Drawing.Point(1067, 193);
 			tabLeavers.Name = "tabLeavers";
 			tabLeavers.SelectedIndex = 0;
-			tabLeavers.Size = new System.Drawing.Size(935, 1439);
+			tabLeavers.Size = new System.Drawing.Size(832, 1439);
 			tabLeavers.TabIndex = 26;
 			// 
 			// tabPage1
@@ -222,7 +229,7 @@ namespace Uccs.Sun.FUI
 			tabPage1.Location = new System.Drawing.Point(8, 46);
 			tabPage1.Name = "tabPage1";
 			tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			tabPage1.Size = new System.Drawing.Size(919, 1385);
+			tabPage1.Size = new System.Drawing.Size(816, 1385);
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "Votes";
 			tabPage1.UseVisualStyleBackColor = true;
@@ -233,7 +240,7 @@ namespace Uccs.Sun.FUI
 			tabPage2.Location = new System.Drawing.Point(8, 46);
 			tabPage2.Name = "tabPage2";
 			tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			tabPage2.Size = new System.Drawing.Size(919, 1385);
+			tabPage2.Size = new System.Drawing.Size(816, 1385);
 			tabPage2.TabIndex = 1;
 			tabPage2.Text = "Member Joiners";
 			tabPage2.UseVisualStyleBackColor = true;
@@ -247,7 +254,7 @@ namespace Uccs.Sun.FUI
 			Joiners.Location = new System.Drawing.Point(10, 9);
 			Joiners.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Joiners.Name = "Joiners";
-			Joiners.Size = new System.Drawing.Size(899, 1367);
+			Joiners.Size = new System.Drawing.Size(796, 1367);
 			Joiners.TabIndex = 22;
 			Joiners.UseCompatibleStateImageBehavior = false;
 			Joiners.View = System.Windows.Forms.View.Details;
@@ -263,7 +270,7 @@ namespace Uccs.Sun.FUI
 			tabPage3.Location = new System.Drawing.Point(8, 46);
 			tabPage3.Name = "tabPage3";
 			tabPage3.Padding = new System.Windows.Forms.Padding(3);
-			tabPage3.Size = new System.Drawing.Size(919, 1385);
+			tabPage3.Size = new System.Drawing.Size(816, 1385);
 			tabPage3.TabIndex = 2;
 			tabPage3.Text = "Member Leavers";
 			tabPage3.UseVisualStyleBackColor = true;
@@ -277,7 +284,7 @@ namespace Uccs.Sun.FUI
 			Leavers.Location = new System.Drawing.Point(10, 9);
 			Leavers.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Leavers.Name = "Leavers";
-			Leavers.Size = new System.Drawing.Size(899, 1367);
+			Leavers.Size = new System.Drawing.Size(796, 1367);
 			Leavers.TabIndex = 22;
 			Leavers.UseCompatibleStateImageBehavior = false;
 			Leavers.View = System.Windows.Forms.View.Details;
@@ -293,7 +300,7 @@ namespace Uccs.Sun.FUI
 			tabPage4.Location = new System.Drawing.Point(8, 46);
 			tabPage4.Name = "tabPage4";
 			tabPage4.Padding = new System.Windows.Forms.Padding(3);
-			tabPage4.Size = new System.Drawing.Size(919, 1385);
+			tabPage4.Size = new System.Drawing.Size(816, 1385);
 			tabPage4.TabIndex = 3;
 			tabPage4.Text = "Violators";
 			tabPage4.UseVisualStyleBackColor = true;
@@ -307,7 +314,7 @@ namespace Uccs.Sun.FUI
 			Violators.Location = new System.Drawing.Point(10, 9);
 			Violators.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Violators.Name = "Violators";
-			Violators.Size = new System.Drawing.Size(899, 1367);
+			Violators.Size = new System.Drawing.Size(796, 1367);
 			Violators.TabIndex = 22;
 			Violators.UseCompatibleStateImageBehavior = false;
 			Violators.View = System.Windows.Forms.View.Details;
@@ -371,5 +378,6 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ListView Violators;
 		private System.Windows.Forms.ColumnHeader columnHeader13;
 		private System.Windows.Forms.ColumnHeader columnHeader8;
+		private System.Windows.Forms.ColumnHeader columnHeader9;
 	}
 }

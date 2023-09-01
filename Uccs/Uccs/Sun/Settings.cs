@@ -170,6 +170,8 @@ namespace Uccs.Net
 		public List<AccountAddress>		ProposedAnalyzerJoiners = new();
 		public List<AccountAddress>		ProposedAnalyzerLeavers = new();
 
+		public int						TransactionCountThreshold;
+
 		public Settings()
 		{
 		}

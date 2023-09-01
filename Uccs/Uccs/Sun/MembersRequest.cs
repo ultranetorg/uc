@@ -14,11 +14,13 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(sun.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				if(sun.Synchronization != Synchronization.Synchronized)
+					throw new RdcNodeException(RdcNodeError.NotSynchronized);
 			
-				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Select(i => new MembersResponse.Member{ Account = i.Account, 
-																																		HubIPs = i.HubIPs, 
-																																		Proxyable = i.Proxy != null})};
+				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Select(i => new MembersResponse.Member{Account = i.Account, 
+																																BaseIPs = i.BaseIPs, 
+																																HubIPs = i.HubIPs, 
+																																Proxyable = i.Proxy != null})};
 			}
 		}
 	}
@@ -28,6 +30,7 @@ namespace Uccs.Net
 		public class Member
 		{
 			public AccountAddress			Account { get; set; }
+			public IEnumerable<IPAddress>	BaseIPs { get; set; }
 			public IEnumerable<IPAddress>	HubIPs { get; set; }
 			public bool         			Proxyable { get; set; }
 		}
