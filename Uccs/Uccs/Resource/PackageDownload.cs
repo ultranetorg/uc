@@ -10,11 +10,12 @@ namespace Uccs.Net
 {
 	public class PackageDownload
 	{
-		public PackageAddress						Address;
-		public Package								Package;
-		public bool									Downloaded;
-		public List<PackageDownload>				Dependencies = new();
-		public Task									Task;
+		public PackageAddress			Address;
+		public Package					Package;
+		public bool						Downloaded;
+		public List<PackageDownload>	Dependencies = new();
+		public Task						Task;
+		public SeedCollector			SeedCollector;
 
 		public PackageDownload(PackageAddress address)
 		{

@@ -14,56 +14,57 @@ namespace Uccs.Net
 {
 	public class Round : IBinarySerializable
 	{
-		public int												Id;
-		public int												ParentId => Id - Mcv.Pitch;
-		public Round											Previous =>	Mcv.FindRound(Id - 1);
-		public Round											Next =>	Mcv.FindRound(Id + 1);
-		public Round											Parent => Mcv.FindRound(ParentId);
+		public int											Id;
+		public int											ParentId => Id - Mcv.Pitch;
+		public Round										Previous =>	Mcv.FindRound(Id - 1);
+		public Round										Next =>	Mcv.FindRound(Id + 1);
+		public Round										Parent => Mcv.FindRound(ParentId);
+		public int											TransactionCountPerVoteMax => Mcv.TransactionsPerRoundMax / Members.Count;
 
-		public int												Try = 0;
-		public DateTime											FirstArrivalTime = DateTime.MaxValue;
+		public int											Try = 0;
+		public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
-		public List<Vote>										Votes = new();
-		public List<MemberJoinRequest>							JoinRequests = new();
-		public IEnumerable<Vote>								VotesOfTry => Votes.Where(i => i.Try == Try);
-		public IEnumerable<Vote>								Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-		public IEnumerable<Vote>								Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		public List<AnalyzerVoxRequest>							AnalyzerVoxes = new();
+		public List<Vote>									Votes = new();
+		public List<MemberJoinRequest>						JoinRequests = new();
+		public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
+		public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
+		public IEnumerable<Vote>							Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public List<AnalyzerVoxRequest>						AnalyzerVoxes = new();
 
-		public IEnumerable<Transaction>							OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
-		public IEnumerable<Transaction>							Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
+		public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
+		public IEnumerable<Transaction>						Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
 
 
-		public ChainTime										ConfirmedTime;
-		public Transaction[]									ConfirmedTransactions = {};
-		public AccountAddress[]									ConfirmedMemberJoiners = {};
-		public AccountAddress[]									ConfirmedMemberLeavers = {};
-		public AccountAddress[]									ConfirmedAnalyzerJoiners = {};
-		public AccountAddress[]									ConfirmedAnalyzerLeavers = {};
-		public AccountAddress[]									ConfirmedFundJoiners = {};
-		public AccountAddress[]									ConfirmedFundLeavers = {};
-		public AccountAddress[]									ConfirmedViolators = {};
-		public AnalysisConclusion[]								ConfirmedAnalyses = {};
+		public ChainTime									ConfirmedTime;
+		public Transaction[]								ConfirmedTransactions = {};
+		public AccountAddress[]								ConfirmedMemberJoiners = {};
+		public AccountAddress[]								ConfirmedMemberLeavers = {};
+		public AccountAddress[]								ConfirmedAnalyzerJoiners = {};
+		public AccountAddress[]								ConfirmedAnalyzerLeavers = {};
+		public AccountAddress[]								ConfirmedFundJoiners = {};
+		public AccountAddress[]								ConfirmedFundLeavers = {};
+		public AccountAddress[]								ConfirmedViolators = {};
+		public AnalysisConclusion[]							ConfirmedAnalyses = {};
 
-		public bool												Voted = false;
-		public bool												Confirmed = false;
-		public byte[]											Hash;
-		public byte[]											Summary;
+		public bool											Voted = false;
+		public bool											Confirmed = false;
+		public byte[]										Hash;
+		public byte[]										Summary;
 
-		public Coin												Fees;
-		//public Coin												TransactionPerByteFee;
-		//public int												TransactionThresholdExcessRound;
-		public Coin												Emission;
-		//public BigInteger										WeiSpent;
-		//public Coin												Factor;
-		public List<Member>										Members = new();
-		public List<Analyzer>									Analyzers = new();
-		public List<AccountAddress>								Funds = new();
+		public Coin											Fees;
+		//public Coin											TransactionPerByteFee;
+		//public int											TransactionThresholdExcessRound;
+		public Coin											Emission;
+		//public BigInteger									WeiSpent;
+		//public Coin											Factor;
+		public List<Member>									Members = new();
+		public List<Analyzer>								Analyzers = new();
+		public List<AccountAddress>							Funds = new();
 
-		public Dictionary<AccountAddress, AccountEntry>			AffectedAccounts = new();
-		public Dictionary<string, AuthorEntry>					AffectedAuthors = new();
+		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
+		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
 		
-		public Mcv												Mcv;
+		public Mcv											Mcv;
 
 		public Round(Mcv c)
 		{

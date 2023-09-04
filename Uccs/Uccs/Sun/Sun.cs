@@ -58,7 +58,7 @@ namespace Uccs.Net
 	{
 		public bool				ExistsRecursively { get; set; }
 		public Manifest			Manifest { get; set; }
-		public DownloadReport	Download { get; set; }
+		public PackageDownloadReport	Download { get; set; }
 	}
 
 	public class Sun : RdcInterface
@@ -100,6 +100,9 @@ namespace Uccs.Net
 		List<Transaction>				OutgoingTransactions = new();
 		public List<Operation>			Operations	= new();
 		public List<Analysis>			Analyses = new();
+
+		public Coin						TransactionPerByteMinFee;
+		public int						TransactionThresholdExcessRound;
 
 		bool							MinimalPeersReached;
 		bool							OnlineBroadcasted;
@@ -223,6 +226,7 @@ namespace Uccs.Net
 		{
 			Zone = zone;
 			Settings = settings;
+			TransactionPerByteMinFee = settings.TransactionPerByteMinFee;
 
 			Directory.CreateDirectory(Settings.Profile);
 
@@ -394,6 +398,16 @@ namespace Uccs.Net
 				Mcv.Confirmed += r =>	{
 											IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 											Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
+
+											if(r.ConfirmedTransactions.Length > Settings.TransactionCountPerRoundThreshold)
+											{
+												TransactionPerByteMinFee *= 2;
+												TransactionThresholdExcessRound = r.Id;
+											}
+											else if(TransactionPerByteMinFee > Settings.TransactionPerByteMinFee && r.Id - TransactionThresholdExcessRound > Mcv.Pitch)
+											{
+												TransactionPerByteMinFee /= 2;
+											}
 										};
 		
 				if(Settings.Generators.Any())
@@ -1242,9 +1256,7 @@ namespace Uccs.Net
 				if(v.Transactions.Any(i => !Valid(i) || !i.Valid(Mcv)))
 					return false;
 
-				Sun.SyncRound r;
-						
-				if(!SyncCache.TryGetValue(v.RoundId, out r))
+				if(!SyncCache.TryGetValue(v.RoundId, out SyncRound r))
 				{
 					r = SyncCache[v.RoundId] = new();
 				}
@@ -1269,7 +1281,7 @@ namespace Uccs.Net
 
 				var r = Mcv.GetRound(v.RoundId);
 				
-				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
+				if(r.Parent != null && r.Parent.Members.Count > 0 && v.Transactions.Count > r.Parent.TransactionCountPerVoteMax || r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
 
 				try
@@ -1297,7 +1309,7 @@ namespace Uccs.Net
 				return new();
 
 			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
-											i.Fee >= i.Operations.Sum(i => i.CalculateSize()) * Mcv.TransactionPerByteFeeMin &&
+											i.Fee >= i.Operations.Sum(i => i.CalculateSize()) * TransactionPerByteMinFee &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid(Mcv)).ToList();
@@ -1424,18 +1436,18 @@ namespace Uccs.Net
 					var v = new AnalyzerVoxRequest();
 					var a = new List<Analysis>();
 
-					var s = new MemoryStream(); 
-					var w = new BinaryWriter(s);
-					v.Sign(Zone, Settings.Analyzer);
-					v.Write(w);
+					//var s = new MemoryStream(); 
+					//var w = new BinaryWriter(s);
+					//v.Sign(Zone, Settings.Analyzer);
+					//v.Write(w);
 	
 					foreach(var i in Analyses)
 					{
-						w.Write(i.Resource);
-						w.Write((byte)i.Result);
-
-						if(s.Position > Vote.SizeMax)
-							break;
+						//w.Write(i.Resource);
+						//w.Write((byte)i.Result);
+						//
+						//if(s.Position > Vote.SizeMax)
+						//	break;
 		
 						a.Add(i);
 					}
@@ -1444,7 +1456,7 @@ namespace Uccs.Net
 
 					foreach(var i in Bases)
 					{
-						i.Send(new AnalyzerVoxRequest {Analyses = a, RoundId = r.Id, Signature = v.Signature});
+						i.Send(new AnalyzerVoxRequest {RoundId = r.Id, Analyses = a, Signature = v.Signature});
 					}
 
 					Workflow.Log?.Report(this, "AnalyzerVoxRequest generated", $"by {Settings.Analyzer}");
@@ -1517,27 +1529,26 @@ namespace Uccs.Net
 					if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to downloaded rounds since its blocks have no hashes
 						continue;
 
-					// i.Operations.Any() required because in Database.Confirm operations and transactions may be deleted
-					var txs = Mcv.CollectValidTransactions(IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Verified), r).ToArray();
+					var txs = IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Verified).OrderByDescending(i => i.Fee).ToArray();
 
 					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
 					Vote createvote()
 					{
-						return new Vote(Mcv){	RoundId				= r.Id,
-												Try					= r.Try,
-												ParentSummary		= Mcv.Summarize(r.Parent),
-												Created				= Clock.Now,
-												TimeDelta			= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
-												Violators			= Mcv.ProposeViolators(r).ToList(),
-												MemberJoiners		= Mcv.ProposeMemberJoiners(r).ToList(),
-												MemberLeavers		= Mcv.ProposeMemberLeavers(r, g).ToList(),
-												AnalyzerJoiners		= Settings.ProposedAnalyzerJoiners,
-												AnalyzerLeavers		= Settings.ProposedAnalyzerLeavers,
-												FundJoiners			= Settings.ProposedFundJoiners,
-												FundLeavers			= Settings.ProposedFundLeavers,
-												BaseIPs				= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
-												HubIPs				= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
+						return new Vote(Mcv){	RoundId			= r.Id,
+												Try				= r.Try,
+												ParentSummary	= Mcv.Summarize(r.Parent),
+												Created			= Clock.Now,
+												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
+												Violators		= Mcv.ProposeViolators(r).ToList(),
+												MemberJoiners	= Mcv.ProposeMemberJoiners(r).ToList(),
+												MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToList(),
+												AnalyzerJoiners	= Settings.ProposedAnalyzerJoiners,
+												AnalyzerLeavers	= Settings.ProposedAnalyzerLeavers,
+												FundJoiners		= Settings.ProposedFundJoiners,
+												FundLeavers		= Settings.ProposedFundLeavers,
+												BaseIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
+												HubIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
 					};
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
@@ -1546,31 +1557,23 @@ namespace Uccs.Net
 	
 						if(txs.Any())
 						{
-							var s = new FakeStream(); 
-							var w = new BinaryWriter(s);
-								
-							v.Sign(g);
-							v.WriteForBroadcast(w);
-		
 							foreach(var i in txs)
 							{
-								i.WriteForVote(w);
-		
-								if(s.Position > Vote.SizeMax)
+								if(v.Transactions.Count > r.Parent.TransactionCountPerVoteMax)
 									break;
-		
+
 								v.AddTransaction(i);
 			
 								i.Placing = PlacingStage.Placed;
 							}
 						}
-							
+						
 						v.Sign(g);
 						votes.Add(v);
- 
- 						if(txs.Any(i => i.Placing == PlacingStage.Verified) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
- 							MainSignal.Set();
 					}
+
+					if(txs.Any(i => i.Placing == PlacingStage.Verified) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+						MainSignal.Set();
 
 					while(Mcv.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
 					{
@@ -1600,63 +1603,6 @@ namespace Uccs.Net
 					StartSynchronization();
 				}
 
-
-// 				var pieces = new List<BlockPiece>();
-// 
-// 				var npieces = 1;
-// 				var ppp = 3; // peers per peice
-// 
-// 				foreach(var b in blocks)
-// 				{
-// 					var s = new MemoryStream();
-// 					var w = new BinaryWriter(s);
-// 
-// 					//w.Write(b.TypeCode);
-// 					b.WriteForPiece(w);
-// 
-// 					s.Position = 0;
-// 					var r = new BinaryReader(s);
-// 
-// 					//var guid = new byte[BlockPiece.GuidLength];
-// 					//Cryptography.Random.NextBytes(guid);
-// 
-// 					for(int i = 0; i < npieces; i++)
-// 					{
-// 						var p = new BlockPiece(Zone){	Type = b.Type,
-// 														Try = b is Vote v ? v.Try : 0,
-// 														RoundId = b.RoundId,
-// 														Total = npieces,
-// 														Index = i,
-// 														Data = r.ReadBytes((int)s.Length/npieces + (i < npieces-1 ? 0 : (int)s.Length % npieces))};
-// 
-// 						p.Sign(b.Generator as AccountKey);
-// 
-// 						pieces.Add(p);
-// 						Database.GetRound(b.RoundId).BlockPieces.Add(p);
-// 					}
-// 				}
-// 
-// 				IEnumerator<Peer> start() => Bases.GetEnumerator();
-// 
-//  				var c = start();
-//  
-//  				foreach(var i in pieces)
-//  				{
-// 					i.Peers = new();   
-// 
-// 					for(int j = 0; j < ppp; j++)
-// 					{
-//  						if(!c.MoveNext())
-//  						{
-//  							c = start(); /// go to the beginning
-//  							c.MoveNext();
-//  						}
-// 
-// 						i.Peers.Add(c.Current);
-// 					}
-//  				}
-
-				
 				foreach(var i in votes)
 				{
 					Broadcast(i);
@@ -1875,7 +1821,7 @@ namespace Uccs.Net
 							foreach(var o in g)
 							{
 								t.AddOperation(o);
-								t.Fee += o.CalculateTransactionFee(at.MinFeePerByte);
+								t.Fee += o.CalculateTransactionFee(at.PerByteMinFee);
 							}
 
 
@@ -2220,6 +2166,9 @@ namespace Uccs.Net
  				{
 					p.LastFailure[Role.Base] = DateTime.UtcNow;
  				}
+				catch(ContinueException)
+				{
+				}
 			}
 
 			throw new OperationCanceledException();
@@ -2292,7 +2241,7 @@ namespace Uccs.Net
 
 		public double EstimateFee(IEnumerable<Operation> operations)
 		{
-			return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(Mcv.TransactionPerByteFeeMin).ToDecimal()) : double.NaN;
+			return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
 		}
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)

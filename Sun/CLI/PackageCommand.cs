@@ -27,13 +27,13 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "publish" :
+				case "build" :
 				{
 					Sun.Packages.AddRelease(GetReleaseAddress("address"), 
-												Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
-												GetString("sources").Split(','), 
-												GetString("dependsdirectory"), 
-												Workflow);
+											Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
+											GetString("sources").Split(','), 
+											GetString("dependsdirectory"), 
+											Workflow);
 					return null;
 				}
 
@@ -45,7 +45,7 @@ namespace Uccs.Sun.CLI
 					{
 						while(!d.Succeeded)
 						{
-							var r = Sun.Resources.Downloads.Find(i => i.Resource == GetResourceAddress("address"));
+							var r = Sun.Resources.FileDownloads.Find(i => i.Resource == GetResourceAddress("address"));
 
 							lock(Sun.Resources.Lock)
 								lock(Sun.Packages.Lock)

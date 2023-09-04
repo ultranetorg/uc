@@ -551,14 +551,14 @@ namespace Uccs.Net
 				{
 					lock(Sun.Resources.Lock)
 					{
-						var r = Resources.Downloads.Find(i => i.Resource == package);
+						var r = Resources.FileDownloads.Find(i => i.Resource == package);
 
 						s.Download = new(){	File					= r.File,
 											Length					= r.Length,
 											CompletedLength			= r.CompletedLength,
-											DependenciesRecursive	= p.DependenciesRecursive.Select(i => new DownloadReport.Dependency {Release = i.Address, Exists = Find(new PackageAddress(i.Address)) != null}).ToArray(),
-											Hubs					= r.Hubs.Take(limit).Select(i => new DownloadReport.Hub { Account = i.Account, Seeds = i.Seeds.Take(limit).Select(i => i.IP), Status = i.Status }).ToArray(),
-											Seeds					= r.Seeds.Take(limit).Select(i => new DownloadReport.Seed { IP = i.IP, Succeses = i.Succeses, Failures = i.Failures }).ToArray() };
+											DependenciesRecursive	= p.DependenciesRecursive.Select(i => new PackageDownloadReport.Dependency {Release = i.Address, Exists = Find(new PackageAddress(i.Address)) != null}).ToArray(),
+											Hubs					= r.SeedCollector.Hubs.Take(limit).Select(i => new PackageDownloadReport.Hub {Member = i.Member, /*Seeds = i.Seeds.Take(limit).Select(i => i.IP),*/ Status = i.Status}).ToArray(),
+											Seeds					= r.SeedCollector.Seeds.Take(limit).Select(i => new PackageDownloadReport.Seed {IP = i.IP}).ToArray()};
 					}
 				}
 			}
@@ -608,7 +608,7 @@ namespace Uccs.Net
 										byte[] h = null;
 										IEnumerable<PackageAddress> hst = null;
 
-										while(!workflow.IsAborted)
+										while(workflow.Active)
 										{
 											try
 											{
@@ -621,6 +621,8 @@ namespace Uccs.Net
 												Thread.Sleep(100);
 											}
 										}
+
+										d.SeedCollector = new SeedCollector(Sun, h, workflow);
 
 										lock(Lock)
 											lock(Sun.Resources.Lock)
@@ -641,7 +643,7 @@ namespace Uccs.Net
 												}
 											}
 	 									
-										Sun.Resources.GetFile(package, h, Package.ManifestFile, h, workflow);
+										Sun.Resources.GetFile(package, h, Package.ManifestFile, h, d.SeedCollector, workflow);
 
 										bool incrementable;
 
@@ -677,12 +679,15 @@ namespace Uccs.Net
 																h, 
 																incrementable ? Package.IncrementalFile : Package.CompleteFile, 
 																incrementable ? d.Package.Manifest.IncrementalHash : d.Package.Manifest.CompleteHash, 
+																d.SeedCollector,
 																workflow);
 
 
 										Task.WaitAll(d.DependenciesRecursive.Select(i => i.Task).ToArray());
 
 									done:
+										d.SeedCollector.Stop();
+
 										lock(Lock)
 										{
 											d.Downloaded = true;

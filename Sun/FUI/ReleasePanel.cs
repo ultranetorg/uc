@@ -77,7 +77,7 @@ namespace Uccs.Sun.FUI
 				Task.Run(() =>	{
 									try
 									{
-										Sun.Resources.GetFile(r.Address, r.Data, Package.ManifestFile, null, ManifestWorkflow);
+										Sun.Resources.GetFile(r.Address, r.Data, Package.ManifestFile, null, null, ManifestWorkflow);
 
 										var p = Sun.Packages.Find(new PackageAddress(r.Address));
 

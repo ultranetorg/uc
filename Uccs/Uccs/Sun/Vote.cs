@@ -9,7 +9,7 @@ namespace Uccs.Net
 {
 	public class Vote
 	{
-		public const int				SizeMax = 65536;
+		//public const int				SizeMax = 65536;
 		public int						ParentId => RoundId - Mcv.Pitch;
 
 		public List<Peer>				Peers;
@@ -94,7 +94,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(Generator != null ? Hex.ToHexString(Generator) : null)}, ParentSummary={(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(_Generator != null ? Hex.ToHexString(_Generator) : null)}, ParentSummary={(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
 		}
 		
 		public void AddTransaction(Transaction t)
@@ -116,7 +116,7 @@ namespace Uccs.Net
 			var w = new BinaryWriter(s);
 
 			w.WriteUtf8(Mcv.Zone.Name);
-			w.Write(Generator);
+			w.Write(_Generator);
 			w.Write7BitEncodedInt(RoundId);
 
 			WriteVote(w);

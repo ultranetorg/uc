@@ -21,12 +21,11 @@ namespace Uccs.Net
 	public class Mcv /// Mutual chain voting
 	{
 		public const int					Pitch = 8;
-		public const int					AliveMinMemberVotes = 6;
-		public const int					LastGenesisRound = Pitch * 3;
-		public const int					MembersMax = 1024;
-		public const int					HubsMax = 256 * 16;
+		public const int					VotesPerPitchMin = 6;
+		public const int					LastGenesisRound = 24;
+		public const int					MembersMax = 1000;
+		public const int					TransactionsPerRoundMax = 30000;
 		public const int					AnalyzersMax = 32;
-		public const int					NewMembersPerRoundMax = 1;
 		public const int					MembersRotation = 32;
 		const int							LoadedRoundsMax = 1000;
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
@@ -35,8 +34,6 @@ namespace Uccs.Net
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
-
-		public Coin							TransactionPerByteFeeMin = new Coin(0.000001);
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -467,12 +464,12 @@ namespace Uccs.Net
 			return round.Previous.ConfirmedTime + new ChainTime(votes.Sum(i => i.TimeDelta)/votes.Count());
 		}
 
-		public IEnumerable<Transaction> CollectValidTransactions(IEnumerable<Transaction> txs, Round round)
-		{
-			//txs = txs.Where(i => round.Id <= i.RoundMax /*&& IsSequential(i, round.Id)*/);
-
-			if(txs.Any())
-			{
+//		public IEnumerable<Transaction> CollectValidTransactions(IEnumerable<Transaction> txs, Round round)
+//		{
+//			//txs = txs.Where(i => round.Id <= i.RoundMax /*&& IsSequential(i, round.Id)*/);
+//
+//			if(txs.Any())
+//			{
 // 				var p = new Payload(this);
 // 				p.Member	= Account.Zero;
 // 				p.Time		= DateTime.UtcNow;
@@ -487,10 +484,10 @@ namespace Uccs.Net
 //  				Execute(round, new Payload[] {p}, null);
  	
  //				txs = txs.Where(t => t.SuccessfulOperations.Any());
-			}
-
-			return txs;
-		}
+//			}
+//
+//			return txs;
+//		}
 
 		///public bool IsSequential(Operation transaction, int ridmax)
 		///{
@@ -538,7 +535,7 @@ namespace Uccs.Net
 			var prevs = Enumerable.Range(round.ParentId, Pitch).Select(i => FindRound(i));
 
 			var leavers = MembersOf(round.Id).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
-															prevs.Count(r => r.VotesOfTry.Any(b => b.Generator == i.Account)) < AliveMinMemberVotes &&	/// sent less than MinVotesPerPitch of required blocks
+															prevs.Count(r => r.VotesOfTry.Any(b => b.Generator == i.Account)) < VotesPerPitchMin &&	/// sent less than MinVotesPerPitch of required blocks
 															!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Account)))) /// not yet reported in prev [Pitch-1] rounds
 												.Select(i => i.Account);
 			return leavers;
@@ -806,16 +803,6 @@ namespace Uccs.Net
 					#endif
 				}
 			}
-			
-			//if(round.ConfirmedTransactions.Length > Zone.TransactionsPerRoundThreshold)
-			//{
-			//	round.TransactionPerByteFee = round.TransactionPerByteFee * 2;
-			//	round.TransactionThresholdExcessRound = round.Id;
-			//}
-			//else if(round.TransactionPerByteFee > TransactionPerByteFeeMin && round.Id - round.TransactionThresholdExcessRound > Pitch)
-			//{
-			//	round.TransactionPerByteFee = round.TransactionPerByteFee / 2;
-			//}
 
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)

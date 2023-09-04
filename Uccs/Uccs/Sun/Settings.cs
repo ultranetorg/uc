@@ -145,19 +145,18 @@ namespace Uccs.Net
 		public const string				FileName = "Sun.settings";
 
 		string							Path; 
-	
+		public string					Profile;
+
 		public Role						Roles;
 		public bool						Log;
-		public int						PeersMin;
-		public int						PeersInMax;
+		public int						PeersMin = 6;
+		public int						PeersInMax = 128;
 		public IPAddress				IP;
 		public bool						Anonymous = false;
 		public List<AccountKey>			Generators = new();
 		public AccountKey				Analyzer;
-		public string					Profile;
 		public string					Packages;
 
-		//public static DevSettings		Dev;
 		public NasSettings				Nas;
 		public HubSettings				Hub;
 		public ApiSettings				Api;
@@ -170,7 +169,8 @@ namespace Uccs.Net
 		public List<AccountAddress>		ProposedAnalyzerJoiners = new();
 		public List<AccountAddress>		ProposedAnalyzerLeavers = new();
 
-		public int						TransactionCountThreshold;
+		public Coin						TransactionPerByteMinFee = new Coin(0.000_001);
+		public int						TransactionCountPerRoundThreshold = int.MaxValue;
 
 		public Settings()
 		{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -33,7 +34,8 @@ namespace Uccs.Net
 
 		string							PackagesPath;
 		public List<ReleaseBaseItem>	Releases = new();
-		public List<FileDownload>			Downloads = new();
+		public List<FileDownload>		FileDownloads = new();
+		public List<DirectoryDownload>	DirectoryDownloads = new();
 		Thread							DeclaringThread;
 		public Sun						Sun;
 		public object					Lock = new object();
@@ -103,16 +105,6 @@ namespace Uccs.Net
 			return new ResourceAddress(s[0], Unescape(s[1]));
 		}
 
-// 		public string GetDirectory(ResourceAddress release, byte[] hash/*, bool create*/)
-// 		{
-// 			var p = AddressToPath(release, hash);
-// 
-// 			//if(create)
-// 			//	Directory.CreateDirectory(p);
-// 
-// 			return p;
-// 		}
-
 		public ReleaseBaseItem Add(ResourceAddress resource, byte[] hash)
 		{
 			var r = new ReleaseBaseItem(resource, hash);
@@ -120,6 +112,95 @@ namespace Uccs.Net
 			Releases.Add(r);
 	
 			Directory.CreateDirectory(AddressToPath(resource, hash));
+
+			return r;
+		}
+
+		public ReleaseBaseItem Add(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
+		{
+			var files = new Dictionary<string, string>();
+			var index = new XonDocument(new XonBinaryValueSerializator());
+
+			void adddir(string basepath, Xon parent, string dir, string dest)
+			{
+				//var d = parent.Add(Path.GetFileName(path));
+
+				foreach(var i in Directory.EnumerateFiles(dir))
+				{
+					files[i] = Path.Join(dest, i.Substring(basepath.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
+					parent.Add(Path.GetFileName(i)).Value = Zone.Cryptography.HashFile(File.ReadAllBytes(i));
+				}
+
+				foreach(var i in Directory.EnumerateDirectories(dir).Where(i => Directory.EnumerateFileSystemEntries(i).Any()))
+				{
+					var d = parent.Add(Path.GetFileName(i));
+
+					adddir(basepath, d, i, dest);
+				}
+			}
+
+			foreach(var i in sources)
+			{
+				var sd = i.Split('=');
+				var s = sd[0];
+				var d = sd.Length == 2 ? sd[1] : null;
+
+				if(d == null)
+				{
+					if(Directory.Exists(s))
+					{
+						adddir(s, index, s, null);
+					}
+					else
+					{
+						files[s] = Path.GetFileName(s);
+						index.Add(files[s]).Value = Zone.Cryptography.HashFile(File.ReadAllBytes(s));
+					}
+				}
+				else
+				{
+					if(Directory.Exists(s))
+					{
+						adddir(s, index, s, d);
+					}
+					else
+					{
+						files[s] = d;
+						index.Add(files[s]).Value = Zone.Cryptography.HashFile(File.ReadAllBytes(s));
+					}
+				}
+			}
+
+			var ms = new MemoryStream();
+			index.Save(new XonBinaryWriter(ms));
+
+			var h = Zone.Cryptography.HashFile(ms.ToArray());
+ 				
+			var r = Add(resource, h);
+
+ 			WriteFile(resource, h, ".index", 0, ms.ToArray());
+
+			foreach(var i in files)
+			{
+				WriteFile(resource, h, i.Value, 0, File.ReadAllBytes(i.Key));
+			}
+			
+			SetLatest(resource, h);
+
+			return r;
+		}
+
+		public ReleaseBaseItem Add(ResourceAddress resource, string source, Workflow workflow)
+		{
+			var b = File.ReadAllBytes(source);
+
+			var h = Zone.Cryptography.HashFile(b);
+ 				
+			var r = Add(resource, h);
+
+ 			WriteFile(resource, h, "f", 0, b);
+			
+			SetLatest(resource, h);
 
 			return r;
 		}
@@ -162,6 +243,13 @@ namespace Uccs.Net
 
 		public void WriteFile(ResourceAddress release, byte[] hash, string file, long offset, byte[] data)
 		{
+			var d = Path.GetDirectoryName(file);
+		
+			if(d.Any())
+			{
+				Directory.CreateDirectory(AddressToPath(release, hash, d));
+			}
+
 			using(var s = new FileStream(AddressToPath(release, hash, file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
 			{
 				s.Seek(offset, SeekOrigin.Begin);
@@ -189,20 +277,7 @@ namespace Uccs.Net
 			return Exists(release, hash, path) ? new FileInfo(AddressToPath(release, hash, path)).Length : 0;
 		}
 
-		public FileDownload DownloadFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, Workflow workflow)
-		{
-			var d = Downloads.Find(j => j.Resource == release && j.Hash.SequenceEqual(hash) && j.File == file);
-				
-			if(d == null)
-			{
-				d = new FileDownload(Sun, release, hash, file, filehash, workflow);
-				Downloads.Add(d);
-			}
-		
-			return d;
-		}
-
-		public void GetFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, Workflow workflow)
+		public void GetFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
 		{
 			Task t = Task.CompletedTask;
 
@@ -210,7 +285,7 @@ namespace Uccs.Net
 			{
 				if(!Exists(release, hash, file))
 				{
-					var d = DownloadFile(release, hash, file, filehash, workflow);
+					var d = DownloadFile(release, hash, file, filehash, peerCollector, workflow);
 			
 					t = d.Task;
 				}
@@ -299,6 +374,32 @@ namespace Uccs.Net
 			{
 				Sun.Stop(MethodBase.GetCurrentMethod(), ex);
 			}
+		}
+
+		public FileDownload DownloadFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, SeedCollector peercollector, Workflow workflow)
+		{
+			var d = FileDownloads.Find(j => j.Resource == release && j.Hash.SequenceEqual(hash) && j.File == file);
+				
+			if(d == null)
+			{
+				d = new FileDownload(Sun, release, hash, file, filehash, peercollector, workflow);
+				FileDownloads.Add(d);
+			}
+		
+			return d;
+		}
+
+		public DirectoryDownload DownloadDirectory(ResourceAddress address, Workflow workflow)
+		{
+			var d = DirectoryDownloads.Find(j => j.Address == address);
+				
+			if(d != null)
+				return d;
+				
+			d = new DirectoryDownload(address, Sun, workflow);
+			DirectoryDownloads.Add(d);
+
+			return d;
 		}
 	}
 }

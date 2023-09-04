@@ -26,8 +26,9 @@ namespace Uccs.Net
 		IP6Address	= 3, 
 		Uri			= 4,
 				
-		Directory	= 100, 
-		Package		= 101, 
+		File		= 100, 
+		Directory	= 101, 
+		Package		= 102, 
 
 		FirstMime	= 1000, 
 	}

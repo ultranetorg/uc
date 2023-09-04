@@ -12,10 +12,10 @@ namespace Uccs.Net
 {
 	public enum HubStatus
 	{
-		Null, Estimating, Bad
+		Null, Estimating, Refreshing, Bad
 	}
 
-	public class DownloadReport
+	public class PackageDownloadReport
 	{
 		public class Dependency
 		{
@@ -32,7 +32,7 @@ namespace Uccs.Net
 
 		public class Hub
 		{
-			public AccountAddress			Account { get; set; }
+			public AccountAddress			Member { get; set; }
 			public HubStatus				Status { get; set; }
 			public IEnumerable<IPAddress>	Seeds { get; set; }
 		}
@@ -49,76 +49,18 @@ namespace Uccs.Net
 	{
 		public const long DefaultPieceLength = 512 * 1024;
 
-		public class Hub
-		{
-			public AccountAddress		Account;
-			public IPAddress[]			IPs;
-			public Seed[]				Seeds = new Seed[]{};
-			public HubStatus			Status = HubStatus.Estimating;
-			public DateTime				Called;
-			public bool					Refreshing =false;
-			FileDownload				Download;
-
-			public Hub(FileDownload download, AccountAddress member, IEnumerable<IPAddress> ips)
-			{
-				Download = download;
-				Account = member;
-				IPs = ips.ToArray();
-
-				Refresh();
-			}
-
-			public void Refresh()
-			{
-				if(Refreshing)
-					return;
-				else
-					Refreshing = true;
-
-				Called = DateTime.UtcNow;
-
-				Task.Run(() =>	{
-
-									try
-									{
-										var lr = Download.Sun.Call(IPs.Random(), p => p.LocateRelease(Download.Hash, 16), Download.Workflow);
-
-										lock(Download.Lock)
-										{
-											Download.Workflow.Log?.Report(this, "Hub gives seeds", $"for {Download.Resource}, {Account}, {{{string.Join(", ", lr.Seeders.Take(8))}}}, ");
-
-											Seeds = lr.Seeders.Where(i => !Download.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
-
-											Download.Seeds.AddRange(Seeds);
-										}
-
-										Called = DateTime.UtcNow;
-									}
-									catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcNodeException || ex is RdcEntityException)
-									{
-									}
-									catch(OperationCanceledException)
-									{
-									}
-
-									Refreshing = false;
-								}, 
-								Download.Workflow.Cancellation.Token);
-			}
-		}
-
 		public class Piece
 		{
-			public Seed				Seed;
-			public Task				Task;
-			public int				I = -1;
-			public long				Length => I * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
-			public long				Offset => I * DefaultPieceLength;
-			public MemoryStream		Data = new MemoryStream();
-			public bool				Succeeded => Data.Length == Length;
-			FileDownload			Download;
+			public SeedCollector.Seed	Seed;
+			public Task					Task;
+			public int					I = -1;
+			public long					Length => I * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
+			public long					Offset => I * DefaultPieceLength;
+			public MemoryStream			Data = new MemoryStream();
+			public bool					Succeeded => Data.Length == Length;
+			FileDownload				Download;
 
-			public Piece(FileDownload download, Seed peer, int piece)
+			public Piece(FileDownload download, SeedCollector.Seed peer, int piece)
 			{
 				Download = download;
 				Seed = peer;
@@ -127,8 +69,6 @@ namespace Uccs.Net
 				Task = Task.Run(() =>	{
 											try
 											{
-												Download.Sun.Connect(Seed.Peer, download.Workflow);
-
 												while(Data.Position < Length)
 												{
 													var d = Seed.Peer.DownloadRelease(Download.Resource, Download.Hash, Download.File, Offset + Data.Position, Length - Data.Position).Data;
@@ -140,116 +80,69 @@ namespace Uccs.Net
 											}
 										}, 
 										Download.Workflow.Cancellation.Token);
-				}
+			}
 		}
 
-		public class Seed
+		public ResourceAddress	Resource { get;  }
+		public byte[]			Hash { get; }
+		public string			File { get; }
+		public long				Length { get; protected set; } = -1;
+		public bool				Succeeded;
+		public long				CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
+													- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
+													+ CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
+
+		List<Piece>				CurrentPieces = new();
+		List<Piece>				CompletedPieces = new();
+		int						PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
+		public Task				Task;
+		public SeedCollector	SeedCollector;
+		Sun						Sun;
+		Workflow				Workflow;
+		object					Lock = new object();
+
+		public FileDownload(Sun sun, ResourceAddress resource, byte[] hash, string file,  byte[] filehash, SeedCollector seedcollector, Workflow workflow)
 		{
-			public IPAddress	IP;
-			public Peer			Peer;
-			public DateTime		Failed;
-			public int			Failures;
-			public int			Succeses;
-		}
-
-		public ResourceAddress						Resource { get;  }
-		public byte[]								Hash { get; }
-		public string								File { get; }
-		public long									Length { get; protected set; } = -1;
-		public bool									Succeeded => Downloaded;
-		public long									CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
-																		- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
-																		+ CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
-		public object								Lock = new object();
-
-		internal Sun								Sun;
-		internal Workflow							Workflow;
-		bool										Downloaded;
-		List<Piece>									CurrentPieces = new();
-		List<Piece>									CompletedPieces = new();
-		public List<Hub>							Hubs = new();
-		public List<Seed>							Seeds = new();
-		int											PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
-		public Task									Task;
-
-		public FileDownload(Sun sun, ResourceAddress resource, byte[] hash, string file,  byte[] filehash, Workflow workflow)
-		{
-			Sun			= sun;
-			Resource	= resource;
-			Hash		= hash;
-			File		= file;
-			Workflow	= workflow;
-
-			int hubsgoodmax = 8;
+			Sun				= sun;
+			Resource		= resource;
+			Hash			= hash;
+			File			= file;
+			Workflow		= workflow;
+			SeedCollector	= seedcollector ?? new SeedCollector(sun, hash, workflow);
 
 			Task = Task.Run(() =>
 							{
 								Piece j;
 
-								while(!workflow.IsAborted)
+								while(workflow.Active)
 								{
 									Task[] tasks;
-									Hub hlast = null;
 
 									lock(Lock)
 									{
-										var cr = Sun.Call<MembersResponse>(i =>	{
-																					while(workflow.Active)
-																					{
-																						var cr = i.GetMembers();
-	
-																						if(cr.Members.Any())
-																							return cr;
-																					}
-																									
-																					throw new OperationCanceledException();
-																				}, 
-																				Sun.Workflow);
-
-										var nearest = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.HubIPs.Any()).Take(8).ToArray();
-
-										for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
-										{
-											var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Account == x.Account));
-											
-											if(h != null)
-											{
-												Workflow.Log?.Report(this, "Hub found", $"for {Resource}/{Hex.ToHexString(Hash)}/{File}, {h.Account}, {{{string.Join(", ", h.HubIPs.Take(8))}}}");
-
-												hlast = new Hub(this, h.Account, h.HubIPs);
-												Hubs.Add(hlast);
-											}
-											else
-												break;
-										}
-
-										foreach(var i in Hubs.Where(i => i.Seeds.Length < 16 && DateTime.UtcNow - i.Called > TimeSpan.FromSeconds(5)))
-										{
-											i.Refresh();
-										}
-
 										if(Length == -1 || (PiecesTotal - CompletedPieces.Count - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
 										{
-											var s = Seeds.OrderBy(i => i.Peer == null).FirstOrDefault(i =>	i.Peer == null ||  /// new candidate
-																											i.Peer != null && i.Failed == DateTime.MinValue || /// succeeded previously
-																											(DateTime.UtcNow - i.Failed) > TimeSpan.FromSeconds(5)  &&  /// bad node
-																											CurrentPieces.All(j => j.Seed != i));
+											SeedCollector.Seed s;
+
+											lock(SeedCollector.Lock)
+												s = SeedCollector.Seeds.Find(i => i.Good && CurrentPieces.All(j => j.Seed != i)); /// skip currrently used
 											
 											if(s != null)
 											{
-												if(s.Peer == null)
-												{
-													s.Peer = sun.GetPeer(s.IP);
-												}
+												//if(s.Peer == null)
+												//{
+												//	s.Peer = sun.GetPeer(s.IP);
+												//}
 
 												if(Length == -1)
 												{
-													sun.Connect(s.Peer, Workflow);
-
-													Length = s.Peer.Request<FileInfoResponse>(new FileInfoRequest {Resource = resource, Hash = hash, File = file}).Length;
+													Length = Sun.Call<FileInfoResponse>(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = resource, Hash = hash, File = file}), workflow).Length;
 												}
-																				
-												CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
+												
+												if(Length > 0)
+													CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
+												else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash))
+													goto end;
 											}
 											else
 											{
@@ -292,7 +185,7 @@ namespace Uccs.Net
 
 										if(j.Succeeded)
 										{
-											j.Seed.Failures++;
+											//j.Seed.Failures++;
 											j.Seed.Failed = DateTime.MinValue;
 
 											lock(Sun.Resources.Lock)
@@ -302,7 +195,7 @@ namespace Uccs.Net
 
 											if(CompletedPieces.Count() == PiecesTotal)
 											{
-												lock(Sun.Lock)
+												lock(Sun.Resources.Lock)
 													if(Sun.Resources.Hashify(Resource, Hash, File).SequenceEqual(filehash))
 													{	
 														goto end;
@@ -311,8 +204,8 @@ namespace Uccs.Net
 													{
 														CurrentPieces.Clear();
 														CompletedPieces.Clear();
-														Hubs.Clear();
-														Seeds.Clear();
+														//Hubs.Clear();
+														//Seeds.Clear();
 													}
 											}
 
@@ -321,36 +214,36 @@ namespace Uccs.Net
 										}
 										else
 										{	
-											j.Seed.Succeses++;
-											j.Seed.Failed = DateTime.UtcNow;
+											//j.Seed.Succeses++;
+											//j.Seed.Failed = DateTime.UtcNow;
 										}
 									}
 								}
 
 							end:
 
-								lock(Sun.Resources.Lock)
+								//var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
+
+								//foreach(var h in hubs)
+								//	h.HubRank++;
+
+								if(seedcollector == null)
 								{
-									var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
-
-									//foreach(var h in hubs)
-									//	h.HubRank++;
-
-									var seeds = CompletedPieces.Select(i => i.Seed.Peer);
-									
-									//foreach(var h in seeds)
-									//	h.SeedRank++;
-
-									lock(Sun.Lock)
-									{
-										Sun.UpdatePeers(seeds);
-									}
-
-									Sun.Resources.Downloads.Remove(this);
-
-									Downloaded = true;
+									SeedCollector.Stop();
 								}
+
+								var seeds = CompletedPieces.Select(i => i.Seed.Peer);
 									
+								//foreach(var h in seeds)
+								//	h.SeedRank++;
+
+								lock(Sun.Lock)
+									Sun.UpdatePeers(seeds);
+
+								lock(Sun.Resources.Lock)
+									Sun.Resources.FileDownloads.Remove(this);
+
+								Succeeded = true;
 							},
 							workflow.Cancellation.Token);
 		}

@@ -61,7 +61,7 @@ namespace Uccs
 
 		public override string ToString()
 		{
-			return $"{Name}{(_Value != null ? " = " + Serializator.Get<String>(this, _Value) : null)}{(Nodes.Any() ? (Name != null ? ", " : null) + "Nodes=" + Nodes.Count : null)}";
+			return $"{Name}{(_Value != null ? " = " + _Value : null)}{(Nodes.Any() ? (Name != null ? ", " : null) + "Nodes=" + Nodes.Count : null)}";
 		}
 
 		public object this[string name]

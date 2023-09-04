@@ -23,6 +23,11 @@ namespace Uccs
 		{
 			Load(null, new XonTextReader(text));
 		}
+
+		public XonDocument(byte[] data) : base(XonBinaryValueSerializator.Default)
+		{
+			Load(null, new XonBinaryReader(new MemoryStream(data)));
+		}
 		
 		public XonDocument(IXonReader r, IXonValueSerializator serializator) : base(serializator)
 		{

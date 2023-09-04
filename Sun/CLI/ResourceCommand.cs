@@ -5,6 +5,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using System.Collections.Generic;
 using System.Threading;
 using Uccs.Net;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Sun.CLI
 {
@@ -58,7 +59,85 @@ namespace Uccs.Sun.CLI
 					return Sun.Enqueue(r, GetAwaitStage(), Workflow);
 				}
 
-				case "s" :
+				case "b" :
+				case "build" :
+				{	
+					ReleaseBaseItem rbi = null;
+
+					if(Args.Has("source"))
+						rbi = Sun.Resources.Add(GetResourceAddress("address"), GetString("source"), Workflow);
+					else if(Args.Has("sources"))
+						rbi = Sun.Resources.Add(GetResourceAddress("address"), GetString("sources").Split(','), Workflow);
+					else
+						throw new SyntaxException("Unknown arguments");
+
+					Workflow.Log?.Report(this, $"Hash={rbi.Hash.ToHex()}");
+
+					return rbi;
+				}
+
+				case "d" :
+				case "download" :
+				{
+					var a = GetResourceAddress("address");
+
+					var r = Sun.Call(c => c.FindResource(a), Workflow).Resource;
+
+					Sun.Resources.Add(a, r.Data);
+
+					if(r.Type == ResourceType.File)
+					{
+						FileDownload d;
+						
+						lock(Sun.Resources.Lock)
+							d = Sun.Resources.DownloadFile(a, r.Data, "f", r.Data, null, Workflow);
+	
+						if(d != null)
+						{
+							while(!d.Succeeded)
+							{
+								Thread.Sleep(500);
+
+								lock(Sun.Resources.Lock)
+								{ 
+									Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length} bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
+								}
+							}
+						} 
+						else
+							Workflow.Log?.Report(this, $"Already downloaded");
+				
+						return d;
+					}
+					else if(r.Type == ResourceType.Directory)
+					{
+						DirectoryDownload d;
+						
+						lock(Sun.Resources.Lock)
+							d = Sun.Resources.DownloadDirectory(a, Workflow);
+	
+						if(d != null)
+						{
+							while(!d.Succeeded)
+							{
+								lock(Sun.Resources.Lock)
+								{ 
+									Workflow.Log?.Report(this, $"{d.CompletedCount} downloaded, {d.Files.Count} left, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
+								}
+								
+								Thread.Sleep(500);
+							}
+						} 
+						else
+							Workflow.Log?.Report(this, $"Already downloaded");
+				
+						return d;
+					}
+
+					throw new NotImplementedException();
+				}
+
+				case "i" :
 		   		case "info" :
 				{
 					try
@@ -68,20 +147,11 @@ namespace Uccs.Sun.CLI
 						Workflow.Log?.Report(this, GetString("address"));
 
 						Dump(r.Resource);
-						//Workflow.Log?.Report(this, GetString("address"));
-						//Workflow.Log?.Report(this, "   " + r.Resource.Flags);
-						//Workflow.Log?.Report(this, "   " + r.Resource.Type);
-						//Workflow.Log?.Report(this, "   " + r.Resource.Expiration);
-						//
-						//if(r.Resource.Data != null)
-						//	Workflow.Log?.Report(this, "   " + Hex.ToHexString(r.Resource.Data));
 
 						var e = Sun.Call(i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
 
 						if(e.Resources.Any())
 						{
-							//Workflow.Log?.Report(this, "   Subresources:");
-
 							foreach(var i in e.Resources)
 							{
 								Workflow.Log?.Report(this, "      " + i);
