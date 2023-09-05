@@ -291,7 +291,7 @@ namespace Uccs.Net
 				}
 			}
 
-			t.Wait(workflow.Cancellation.Token);
+			t.Wait(workflow.Cancellation);
 		}
 
 		void Declaring()
@@ -338,7 +338,7 @@ namespace Uccs.Net
 
 								Monitor.Exit(Lock);
 								{
-									Task.WaitAny(ts, Sun.Workflow.Cancellation.Token);
+									Task.WaitAny(ts, Sun.Workflow.Cancellation);
 								}
 								Monitor.Enter(Lock);
 							}

@@ -79,7 +79,7 @@ namespace Uccs.Net
 											{
 											}
 										}, 
-										Download.Workflow.Cancellation.Token);
+										Download.Workflow.Cancellation);
 			}
 		}
 
@@ -175,7 +175,7 @@ namespace Uccs.Net
 										}
 									}
 
-									var ti = Task.WaitAny(tasks, workflow.Cancellation.Token);
+									var ti = Task.WaitAny(tasks, workflow.Cancellation);
 
 									lock(Lock)
 									{	
@@ -245,7 +245,7 @@ namespace Uccs.Net
 
 								Succeeded = true;
 							},
-							workflow.Cancellation.Token);
+							workflow.Cancellation);
 		}
 
 		public override string ToString()

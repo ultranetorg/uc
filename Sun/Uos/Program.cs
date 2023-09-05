@@ -95,7 +95,7 @@ namespace Uccs.Sun.Application
 
 			var r = new BinaryReader(pipe);
 
-			while(!Sun.Workflow.IsAborted)
+			while(Sun.Workflow.Active)
 			{
 				try
 				{

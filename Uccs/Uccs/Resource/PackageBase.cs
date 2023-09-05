@@ -583,7 +583,7 @@ namespace Uccs.Net
 									{
 										var d = Download(release, workflow);
 		
-										d.Task.Wait(workflow.Cancellation.Token);
+										d.Task.Wait(workflow.Cancellation);
 									}
 					
 									Unpack(release);
@@ -649,41 +649,27 @@ namespace Uccs.Net
 
 										lock(Lock)
 										{
-											//d.Package = Find(package);
-	 
-	 										//if(!Core.Zone.Cryptography.HashFile(d.Package.Manifest.Bytes).SequenceEqual(h))
-	 										//	return;
-											
 											DetermineDelta(hst, d.Package.Manifest, h, out incrementable, out List<Dependency> deps);
-											
-											//lock(Core.Filebase.Lock)
-
-											//var file = caninc ? Aprvbase.Ipkg : Aprvbase.Cpkg;
-
-											//deps	= incrementable ? deps : r.Manifest.CompleteDependencies.ToList();
-											//Hash	= caninc ? Manifest.IncrementalHash :	Manifest.CompleteHash;
-											//Length	= caninc ? Manifest.IncrementalLength :	Manifest.CompleteLength;
 								
 											foreach(var i in deps)
 											{
-												var dd = Download(i.Release, workflow);
-																
-												if(dd != null)
+												if(!ExistsRecursively(i.Release))
 												{
+													var dd = Download(i.Release, workflow);
 													d.Dependencies.Add(dd);
 												}
 											}
 										}
 
- 										Sun.Resources.GetFile(	package, 
-																h, 
-																incrementable ? Package.IncrementalFile : Package.CompleteFile, 
-																incrementable ? d.Package.Manifest.IncrementalHash : d.Package.Manifest.CompleteHash, 
-																d.SeedCollector,
-																workflow);
+ 										d.FileDownload = Sun.Resources.DownloadFile(package, 
+																					h, 
+																					incrementable ? Package.IncrementalFile : Package.CompleteFile, 
+																					incrementable ? d.Package.Manifest.IncrementalHash : d.Package.Manifest.CompleteHash, 
+																					d.SeedCollector,
+																					workflow);
 
 
-										Task.WaitAll(d.DependenciesRecursive.Select(i => i.Task).ToArray());
+										Task.WaitAll(d.DependenciesRecursive.Select(i => i.Task).Append(d.FileDownload.Task).ToArray());
 
 									done:
 										d.SeedCollector.Stop();
@@ -694,7 +680,7 @@ namespace Uccs.Net
 											Downloads.Remove(d);
 										}
 									},
-									workflow.Cancellation.Token);
+									workflow.Cancellation);
 			
 		
 			return d;

@@ -14,6 +14,7 @@ namespace Uccs.Net
 		public bool					Succeeded;
 		public Queue<Xon>			Files = new();
 		public int					CompletedCount;
+		public int					TotalCount;
 		public List<FileDownload>	CurrentDownloads = new();
 		public Task					Task;
 		public SeedCollector		SeedCollector;
@@ -53,6 +54,8 @@ namespace Uccs.Net
 	
 					enumearate(index);
 	
+					TotalCount = Files.Count;
+
 					do 
 					{
 						if(CurrentDownloads.Count < 10 && Files.Any())
@@ -70,7 +73,7 @@ namespace Uccs.Net
 							}
 						}
 	
-						var i = Task.WaitAny(CurrentDownloads.Select(i => i.Task).ToArray());
+						var i = Task.WaitAny(CurrentDownloads.Select(i => i.Task).ToArray(), workflow.Cancellation);
 	
 						if(CurrentDownloads[i].Succeeded)
 						{
@@ -93,7 +96,7 @@ namespace Uccs.Net
 				}
 			}
 
-			Task = Task.Run(run, workflow.Cancellation.Token);
+			Task = Task.Run(run, workflow.Cancellation);
 		}
 
 		public override string ToString()

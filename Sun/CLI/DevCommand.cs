@@ -71,7 +71,7 @@ namespace Uccs.Sun.CLI
 					var h = c.Hash(BitConverter.GetBytes(t.Ticks));
 					int n = 0;
 
-					while(!Workflow.IsAborted)
+					while(Workflow.Active)
 					{
 						var s = c.Sign(a, h);
 				

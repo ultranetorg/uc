@@ -307,7 +307,7 @@ namespace Uccs.Net
 
 										try
 										{
-											while(!Workflow.IsAborted)
+											while(Workflow.Active)
 											{
 												lock(Lock)
 												{
@@ -444,7 +444,7 @@ namespace Uccs.Net
 										{
 											while(Workflow.Active)
 											{
-												WaitHandle.WaitAny(new[] {MainSignal, Workflow.Cancellation.Token.WaitHandle}, 500);
+												WaitHandle.WaitAny(new[] {MainSignal, Workflow.Cancellation.WaitHandle}, 500);
 
 												lock(Lock)
 												{
@@ -506,7 +506,7 @@ namespace Uccs.Net
 
 		public void Stop(string message)
 		{
-			if(Workflow != null && Workflow.IsAborted)
+			if(Workflow != null && Workflow.Aborted)
 				return;
 
 			ApiServer?.Stop();
@@ -679,16 +679,16 @@ namespace Uccs.Net
 				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();
 	
-				while(!Workflow.IsAborted)
+				while(Workflow.Active)
 				{
 					var c = Listener.AcceptTcpClient();
 
-					if(Workflow.IsAborted)
+					if(Workflow.Aborted)
 						return;
 	
 					lock(Lock)
 					{
-						if(!Workflow.IsAborted && Connections.Count() < Settings.PeersInMax)
+						if(!Workflow.Aborted && Connections.Count() < Settings.PeersInMax)
 							InboundConnect(c);
 						else
 							c.Close();
@@ -778,7 +778,7 @@ namespace Uccs.Net
 	
 					lock(Lock)
 					{
-						if(Workflow.IsAborted)
+						if(Workflow.Aborted)
 						{
 							client.Close();
 							return;
@@ -901,7 +901,7 @@ namespace Uccs.Net
 				
 					lock(Lock)
 					{
-						if(Workflow.IsAborted)
+						if(Workflow.Aborted)
 							return;
 
 						if(!h.Versions.Any(i => Versions.Contains(i)))
@@ -1013,7 +1013,7 @@ namespace Uccs.Net
 	
 			StampResponse stamp = null;
 
-			while(!Workflow.IsAborted)
+			while(Workflow.Active)
 			{
 				try
 				{
@@ -1105,10 +1105,9 @@ namespace Uccs.Net
 						//Members = r.Members.Select(i => new OnlineMember {Generator = i.Generator, IPs = new IPAddress[]{} }).ToList();
 					}
 		
-					while(!Workflow.IsAborted)
+					while(Workflow.Active)
 					{
 						Thread.Sleep(1);
-						Workflow.ThrowIfAborted();
 		
 						lock(Lock)
 							if(final == -1)
@@ -1355,7 +1354,7 @@ namespace Uccs.Net
  					{
  						Monitor.Exit(Lock);
  	
- 						var result = Dns.QueryAsync(b.Name + '.' + b.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation.Token);
+ 						var result = Dns.QueryAsync(b.Name + '.' + b.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
  															
  						var txt = result.Result.Answers.TxtRecords().FirstOrDefault(i => i.DomainName == b.Name + '.' + b.Tld + '.');
  		
@@ -2031,10 +2030,9 @@ namespace Uccs.Net
 		{
 			Peer peer;
 				
-			while(true)
+			while(workflow.Active)
 			{
 				Thread.Sleep(1);
-				workflow.ThrowIfAborted();
 	
 				lock(Lock)
 				{

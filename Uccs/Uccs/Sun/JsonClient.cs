@@ -74,7 +74,7 @@ namespace Uccs.Net
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	
-				return HttpClient.Send(m, workflow.Cancellation.Token);
+				return HttpClient.Send(m, workflow.Cancellation);
 			}
 		}
 

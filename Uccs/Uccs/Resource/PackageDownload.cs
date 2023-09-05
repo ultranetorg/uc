@@ -12,6 +12,7 @@ namespace Uccs.Net
 	{
 		public PackageAddress			Address;
 		public Package					Package;
+		public FileDownload				FileDownload;
 		public bool						Downloaded;
 		public List<PackageDownload>	Dependencies = new();
 		public Task						Task;
@@ -22,11 +23,11 @@ namespace Uccs.Net
 			Address = address;
 		}
 
-		public bool									Succeeded => Downloaded && /*DependenciesRecursiveFound && */DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
-		public int									DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
-		//public bool									DependenciesRecursiveFound => Package.Manifest != null && Dependencies.All(i => i.DependenciesRecursiveFound);
-		public int									DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
-		public IEnumerable<PackageDownload>			DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
+		public bool								Succeeded => Downloaded && /*DependenciesRecursiveFound && */DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
+		public int								DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
+		//public bool							DependenciesRecursiveFound => Package.Manifest != null && Dependencies.All(i => i.DependenciesRecursiveFound);
+		public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
+		public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
 		public override string ToString()
 		{

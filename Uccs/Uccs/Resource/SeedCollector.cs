@@ -66,7 +66,7 @@ namespace Uccs.Net
 											Collector.Seeds.AddRange(seeds);
 										}
 
-										while(Collector.Workflow != null && Collector.Workflow.Active)
+										while(Collector.Workflow.Active)
 										{
 											lock(Collector.Lock)
 											{
@@ -118,7 +118,7 @@ namespace Uccs.Net
 
 									Refreshing = false;
 								}, 
-								Collector.Workflow.Cancellation.Token);
+								Collector.Workflow.Cancellation);
 			}
 		}
 
@@ -136,11 +136,11 @@ namespace Uccs.Net
 		public SeedCollector(Sun sun, byte[] hash, Workflow workflow)
 		{
 			Sun = sun;
-			Workflow = workflow;
+			Workflow = workflow.CreateNested();
 			Hub hlast = null;
 
  			Thread = new Thread(() =>{ 
-										while(Workflow != null && Workflow.Active)
+										while(Workflow.Active)
 										{
 											if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 											{
@@ -195,7 +195,7 @@ namespace Uccs.Net
 
 		public void Stop()
 		{
-			Workflow = null;
+			Workflow.Abort();
 			Thread.Join();
 		}
 	}

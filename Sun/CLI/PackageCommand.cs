@@ -41,21 +41,25 @@ namespace Uccs.Sun.CLI
 				{
 					var d = Sun.Packages.Download(GetReleaseAddress("address"), Workflow);
 
+					void report()
+					{
+						var f = d.FileDownload;
+
+						Workflow.Log?.Report(this, (f != null ? $"{f.File} = {f.CompletedLength}/{f.Length}" : null) + $", deps = {d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
+					}
+
 					if(d != null)
 					{
 						while(!d.Succeeded)
 						{
-							var r = Sun.Resources.FileDownloads.Find(i => i.Resource == GetResourceAddress("address"));
-
-							lock(Sun.Resources.Lock)
-								lock(Sun.Packages.Lock)
-									Workflow.Log?.Report(this, r != null ? $"{r.File}={r.CompletedLength}/{r.Length} " : null + $"Deps={d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
-							
 							Thread.Sleep(500);
+
+							report();
 						}
 					} 
 					else
 						Workflow.Log?.Report(this, $"Already downloaded");
+
 
 					return d;
 				}

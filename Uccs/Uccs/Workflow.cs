@@ -5,53 +5,54 @@ namespace Uccs.Net
 {
 	public class Workflow
 	{
-		public CancellationTokenSource	Cancellation { get; }
+		CancellationTokenSource			CancellationSource;
+		public CancellationToken		Cancellation => CancellationSource.Token;
 		public Log						Log { get; }
-		public bool						IsAborted => Cancellation.IsCancellationRequested;
-		public bool						Active => !IsAborted;
+		public bool						Aborted => Cancellation.IsCancellationRequested;
+		public bool						Active => !Aborted;
 
 		public Workflow()
 		{
-			Cancellation = new CancellationTokenSource();
+			CancellationSource = new CancellationTokenSource();
 		}
 
 		public Workflow(Log log)
 		{
-			Cancellation = new CancellationTokenSource();
+			CancellationSource = new CancellationTokenSource();
 			Log = log;
 		}
 
 		public Workflow(Log log, CancellationTokenSource cancellation)
 		{
-			Cancellation = cancellation;
+			CancellationSource = cancellation;
 			Log = log;
 		}
 
 		public Workflow CreateNested()
 		{
-			var a = CancellationTokenSource.CreateLinkedTokenSource(Cancellation.Token);
+			var a = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);
 			
 			return new Workflow(Log, a);
 		}
 
 		public void Abort()
 		{
-			Cancellation.Cancel();
+			CancellationSource.Cancel();
 		}
 
 		public void	ThrowIfAborted()
 		{
-			if(Cancellation.Token.IsCancellationRequested)
+			if(CancellationSource.Token.IsCancellationRequested)
 			{
-				throw new OperationCanceledException(Cancellation.Token);
+				throw new OperationCanceledException(CancellationSource.Token);
 			}
 		}
 
 		public void	Wait(int timeout)
 		{
-			if(Cancellation.Token.IsCancellationRequested)
+			if(CancellationSource.Token.IsCancellationRequested)
 			{
-				throw new OperationCanceledException(Cancellation.Token);
+				throw new OperationCanceledException(CancellationSource.Token);
 			}
 			else
 				Thread.Sleep(timeout);

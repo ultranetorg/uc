@@ -118,14 +118,16 @@ namespace Uccs.Sun.CLI
 	
 						if(d != null)
 						{
+							void report() => Workflow.Log?.Report(this, $"{d.CompletedCount}/{d.TotalCount} files, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
+
 							while(!d.Succeeded)
 							{
+								Thread.Sleep(500);
+
 								lock(Sun.Resources.Lock)
 								{ 
-									Workflow.Log?.Report(this, $"{d.CompletedCount} downloaded, {d.Files.Count} left, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
+									report();
 								}
-								
-								Thread.Sleep(500);
 							}
 						} 
 						else

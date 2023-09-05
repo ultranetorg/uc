@@ -293,7 +293,7 @@ namespace Uccs.Net
 	
 					Sun.Statistics.Sending.End();
 					
-					WaitHandle.WaitAny(new[] {SendSignal, Sun.Workflow.Cancellation.Token.WaitHandle});
+					WaitHandle.WaitAny(new[] {SendSignal, Sun.Workflow.Cancellation.WaitHandle});
 				}
 			}
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
@@ -315,10 +315,10 @@ namespace Uccs.Net
 		{
 	 		try
 	 		{
-				while(true)
+				while(Sun.Workflow.Active)
 				{
 					lock(Sun.Lock)
-						if(Sun.Workflow.IsAborted || Status != ConnectionStatus.OK)
+						if(Status != ConnectionStatus.OK)
 							return;
 
 					var pk = (PacketType)Reader.ReadByte();
