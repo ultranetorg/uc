@@ -5,21 +5,10 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	[Flags]
-	public enum Availability
-	{
-		IncrementalFull		= 0b00000001, 
-		IncrementalPartial	= 0b00000010, 
-		CompleteFull		= 0b00000100, 
-		CompletePartial		= 0b00001000, 
-		Full				= 0b00010000, 
-		Minimal				= 0b00100000, 
-	}
-
 	public class DeclareReleaseItem
 	{
-		public byte[]		Hash { get; set; }
-		public Availability	Availability  { get; set; }	
+		public byte[]			Hash { get; set; }
+		public Availability		Availability { get; set; }	
 	}
 
 	public class DeclareReleaseRequest : RdcRequest//, IBinarySerializable

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
@@ -26,15 +23,15 @@ namespace Uccs.Net
 		}
 	}
 
-	public class Hub
+	public class SeedHub
 	{
+		public const int						SeedsPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
+		public const int						SeedsPerRequestMax = 256;
 		Sun										Sun;
 		public Dictionary<byte[], List<Seed>>	Releases = new (new BytesEqualityComparer());
-		public const int						SeedersPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
-		public const int						SeedersPerRequestMax = 256;
 		public object							Lock = new object();
 
-		public Hub(Sun sun)
+		public SeedHub(Sun sun)
 		{
 			Sun = sun;
 		}
@@ -67,10 +64,10 @@ namespace Uccs.Net
 
 				s.Availability = i.Availability;
 		
-				if(ss.Count > SeedersPerPackageMax)
+				if(ss.Count > SeedsPerPackageMax)
 				{
 					ss = ss.OrderByDescending(i => i.Arrived).ToList();
-					ss.RemoveRange(SeedersPerPackageMax, ss.Count - SeedersPerPackageMax);
+					ss.RemoveRange(SeedsPerPackageMax, ss.Count - SeedsPerPackageMax);
 				}
 			}
 		}
@@ -78,7 +75,7 @@ namespace Uccs.Net
  		public IPAddress[] Locate(LocateReleaseRequest request)
  		{
  			if(Releases.ContainsKey(request.Hash))
-	 			return Releases[request.Hash].OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedersPerRequestMax)).Select(i => i.IP).ToArray();
+	 			return Releases[request.Hash].OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
  			else
  				return new IPAddress[0]; /// TODO: ask other hubs
  		}

@@ -219,8 +219,6 @@ namespace Uccs.Net
 
 		public static IEnumerable<T> Read<T>(this BinaryReader r, Func<T> create, Action<T> read)
 		{
-			var o = new List<T>();
-
 			var n = r.Read7BitEncodedInt();
 			
 			for(int i = 0; i < n; i++)
@@ -231,17 +229,17 @@ namespace Uccs.Net
 			}
 		}
 
-		public static List<T> ReadList<T>(this BinaryReader r, Func<T> a)
+		public static List<T> ReadList<T>(this BinaryReader r, Func<T> read)
 		{
 			var o = new List<T>();
-
+		
 			var n = r.Read7BitEncodedInt();
 			
 			for(int i = 0; i < n; i++)
 			{
-				o.Add(a());
+				o.Add(read());
 			}
-
+		
 			return o;
 		}
 

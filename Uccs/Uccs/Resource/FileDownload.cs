@@ -47,18 +47,23 @@ namespace Uccs.Net
 
 	public class FileDownload
 	{
-		public const long DefaultPieceLength = 512 * 1024;
+		public const int DefaultPieceLength = 512 * 1024;
 
 		public class Piece
 		{
 			public SeedCollector.Seed	Seed;
 			public Task					Task;
 			public int					I = -1;
-			public long					Length => I * DefaultPieceLength + DefaultPieceLength > Download.Length ? Download.Length % DefaultPieceLength : DefaultPieceLength;
-			public long					Offset => I * DefaultPieceLength;
+			public long					Length => I * Download.File.PieceLength + Download.File.PieceLength > Download.Length ? Download.Length % Download.File.PieceLength : Download.File.PieceLength;
+			public long					Offset => I * Download.File.PieceLength;
 			public MemoryStream			Data = new MemoryStream();
 			public bool					Succeeded => Data.Length == Length;
 			FileDownload				Download;
+
+			public Piece(int piece)
+			{
+				I = piece;
+			}
 
 			public Piece(FileDownload download, SeedCollector.Seed peer, int piece)
 			{
@@ -71,7 +76,7 @@ namespace Uccs.Net
 											{
 												while(Data.Position < Length)
 												{
-													var d = Seed.Peer.DownloadRelease(Download.Resource, Download.Hash, Download.File, Offset + Data.Position, Length - Data.Position).Data;
+													var d = Seed.Peer.DownloadRelease(Download.Release.Address, Download.Release.Hash, Download.File.Path, Offset + Data.Position, Length - Data.Position).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
@@ -83,44 +88,36 @@ namespace Uccs.Net
 			}
 		}
 
-		public ResourceAddress	Resource { get;  }
-		public byte[]			Hash { get; }
-		public string			File { get; }
-		public long				Length { get; protected set; } = -1;
+		public Release			Release;
+		public ReleaseFile		File;
 		public bool				Succeeded;
-		public long				CompletedLength =>	CompletedPieces.Count * DefaultPieceLength 
-													- (CompletedPieces.Any(i => i.I == PiecesTotal-1) ? DefaultPieceLength - Length % DefaultPieceLength : 0) /// take the tail into account
-													+ CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
+		public long				Length => File.Length;
+		public long				DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 
-		List<Piece>				CurrentPieces = new();
-		List<Piece>				CompletedPieces = new();
-		int						PiecesTotal => (int)(Length / DefaultPieceLength + (Length % DefaultPieceLength != 0 ? 1 : 0));
 		public Task				Task;
 		public SeedCollector	SeedCollector;
+		List<Piece>				CurrentPieces = new();
 		Sun						Sun;
 		Workflow				Workflow;
 		object					Lock = new object();
 
-		public FileDownload(Sun sun, ResourceAddress resource, byte[] hash, string file,  byte[] filehash, SeedCollector seedcollector, Workflow workflow)
+		public FileDownload(Sun sun, Release release, string filepath, byte[] filehash, SeedCollector seedcollector, Workflow workflow)
 		{
 			Sun				= sun;
-			Resource		= resource;
-			Hash			= hash;
-			File			= file;
+			Release			= release;
+			File			= release.Files?.Find(i => i.Path == filepath);
 			Workflow		= workflow;
-			SeedCollector	= seedcollector ?? new SeedCollector(sun, hash, workflow);
+			SeedCollector	= seedcollector ?? new SeedCollector(sun, release.Hash, workflow);
 
 			Task = Task.Run(() =>
 							{
-								Piece j;
-
 								while(workflow.Active)
 								{
 									Task[] tasks;
 
 									lock(Lock)
 									{
-										if(Length == -1 || (PiecesTotal - CompletedPieces.Count - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
+										if(File == null || (File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
 										{
 											SeedCollector.Seed s;
 
@@ -129,20 +126,24 @@ namespace Uccs.Net
 											
 											if(s != null)
 											{
-												//if(s.Peer == null)
-												//{
-												//	s.Peer = sun.GetPeer(s.IP);
-												//}
-
-												if(Length == -1)
+												if(File == null)
 												{
-													Length = Sun.Call<FileInfoResponse>(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = resource, Hash = hash, File = file}), workflow).Length;
+													var l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
+													
+													lock(Sun.Resources.Lock)
+													{
+														File = Release.AddFile(filepath, l, DefaultPieceLength, (int)(l / DefaultPieceLength + (l % DefaultPieceLength != 0 ? 1 : 0)));
+													}
 												}
 												
 												if(Length > 0)
-													CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, (int)PiecesTotal).First(i => !CompletedPieces.Any(j => j.I == i) && !CurrentPieces.Any(j => j.I == i))));
+													CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
 												else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash))
+												{
+													Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, 0, new byte[0]);
+													Succeeded = true;
 													goto end;
+												}
 											}
 											else
 											{
@@ -179,31 +180,35 @@ namespace Uccs.Net
 
 									lock(Lock)
 									{	
-										j = CurrentPieces.Find(i => i.Task == tasks[ti]);
+										var p = CurrentPieces.Find(i => i.Task == tasks[ti]);
 										
-										CurrentPieces.Remove(j);
+										CurrentPieces.Remove(p);
 
-										if(j.Succeeded)
+										if(p.Succeeded)
 										{
 											//j.Seed.Failures++;
-											j.Seed.Failed = DateTime.MinValue;
+											p.Seed.Failed = DateTime.MinValue;
 
 											lock(Sun.Resources.Lock)
-												Sun.Resources.WriteFile(Resource, Hash, File, j.Offset, j.Data.ToArray());
+											{	
+												Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, p.Offset, p.Data.ToArray());
+												File.CompletePiece(p.I);
+											}
 											
-											CompletedPieces.Add(j);
+											//CompletedPieces.Add(p);
 
-											if(CompletedPieces.Count() == PiecesTotal)
+											if(File.CompletedPieces.Count() == File.Pieces.Length)
 											{
 												lock(Sun.Resources.Lock)
-													if(Sun.Resources.Hashify(Resource, Hash, File).SequenceEqual(filehash))
+													if(Sun.Resources.Hashify(Release.Address, release.Hash, File.Path).SequenceEqual(filehash))
 													{	
+														Succeeded = true;
 														goto end;
 													}
 													else
 													{
 														CurrentPieces.Clear();
-														CompletedPieces.Clear();
+														//CompletedPieces.Clear();
 														//Hubs.Clear();
 														//Seeds.Clear();
 													}
@@ -232,25 +237,38 @@ namespace Uccs.Net
 									SeedCollector.Stop();
 								}
 
-								var seeds = CompletedPieces.Select(i => i.Seed.Peer);
-									
-								//foreach(var h in seeds)
-								//	h.SeedRank++;
+								if(Succeeded)
+								{
+									//var seeds = CompletedPieces.Select(i => i.Seed.Peer);
+										
+									//foreach(var h in seeds)
+									//	h.SeedRank++;
+	
+									//lock(Sun.Lock)
+									//	Sun.UpdatePeers(seeds);
+	
+									lock(Sun.Resources.Lock)
+									{	
+										File.Complete();
 
-								lock(Sun.Lock)
-									Sun.UpdatePeers(seeds);
+										if(Release.Hash.SequenceEqual(filehash)) /// means ResourseType = File
+										{
+											Release.Complete(Availability.Full);
+										}
+									}
+								}
 
 								lock(Sun.Resources.Lock)
+								{	
 									Sun.Resources.FileDownloads.Remove(this);
-
-								Succeeded = true;
+								}
 							},
 							workflow.Cancellation);
 		}
 
 		public override string ToString()
 		{
-			return $"{Resource}/{File}";
+			return $"{Release}/{File.Path}";
 		}
 
 		//public Job AddCompleted(int i)

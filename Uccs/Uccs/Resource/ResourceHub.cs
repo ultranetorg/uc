@@ -6,54 +6,44 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Security.AccessControl;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Org.BouncyCastle.Utilities.Encoders;
+using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public class ReleaseBaseItem
-	{
-		public ResourceAddress					Address;
-		public byte[]							Hash;
-		public Availability						Availability;
-		public List<MembersResponse.Member>		DeclaredOn = new();
-		public MembersResponse.Member[]			DeclareTo;
-
-		public ReleaseBaseItem(ResourceAddress address, byte[] hash)
-		{
-			Address = address;
-			Hash = hash;
-		}
-	}
-	
-	public class ResourceBase
+	public class ResourceHub
 	{
 		public const long				PieceMaxLength = 512 * 1024;
-		public const string				StatusFile = ".status";
+		public const string				FamilyName = "Resources";
 
-		string							PackagesPath;
-		public List<ReleaseBaseItem>	Releases = new();
+		internal string					ResourcesPath;
+		public List<Release>			Releases = new();
 		public List<FileDownload>		FileDownloads = new();
 		public List<DirectoryDownload>	DirectoryDownloads = new();
 		Thread							DeclaringThread;
 		public Sun						Sun;
 		public object					Lock = new object();
 		public Zone						Zone;
+		public ColumnFamilyHandle		Family => Sun.Database.GetColumnFamily(FamilyName);
 
-		public ResourceBase(Sun sun, Zone zone, string packagespath)
+		public ResourceHub(Sun sun, Zone zone, string path)
 		{
 			Sun = sun;
 			Zone = zone;
 
-			PackagesPath = packagespath;
+			ResourcesPath = path;
 
-			Directory.CreateDirectory(PackagesPath);
+			Directory.CreateDirectory(ResourcesPath);
 
-			Releases = Directory.EnumerateDirectories(PackagesPath)
+			Releases = Directory.EnumerateDirectories(ResourcesPath)
 									.SelectMany(a => Directory.EnumerateDirectories(a)
 										.SelectMany(r => Directory.EnumerateDirectories(r)
-											.Select(z => new ReleaseBaseItem(PathToAddress(z), Hex.Decode(Path.GetFileName(z))))))
+											.Select(z => new Release(this, PathToAddress(z), Hex.Decode(Path.GetFileName(z))))))
 												.ToList();
 
 			if(sun != null && !sun.IsClient)
@@ -64,19 +54,19 @@ namespace Uccs.Net
 			}
 		}
 
-		string Escape(string resource)
+		public string Escape(string resource)
 		{
 			return resource.Replace('/', ' ');
 		}
 
-		string Unescape(string resource)
+		public string Unescape(string resource)
 		{
 			return resource.Replace(' ', '/');
 		}
 
 		public void SetLatest(ResourceAddress release, byte[] hash)
 		{
-			File.WriteAllText(Path.Join(PackagesPath, release.Author, Escape(release.Resource),  "latest"), Hex.ToHexString(hash));
+			File.WriteAllText(Path.Join(ResourcesPath, release.Author, Escape(release.Resource),  "latest"), hash.ToHex());
 		}
 
 		public string AddressToPath(ResourceAddress resource, byte[] hash)
@@ -84,11 +74,11 @@ namespace Uccs.Net
 			string h;
 
 			if(hash == null)
-				h = File.ReadAllText(Path.Join(PackagesPath, resource.Author, Escape(resource.Resource),  "latest"));
+				h = File.ReadAllText(Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource),  "latest"));
 			else
 				h = Hex.ToHexString(hash);
 
-			return Path.Join(PackagesPath, resource.Author, Escape(resource.Resource), h);
+			return Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource), h);
 		}
 
 		public string AddressToPath(ResourceAddress resource, byte[] hash, string file)
@@ -98,16 +88,16 @@ namespace Uccs.Net
 
 		public ResourceAddress PathToAddress(string path)
 		{
-			path = path.Substring(PackagesPath.Length).TrimStart(Path.DirectorySeparatorChar);
+			path = path.Substring(ResourcesPath.Length).TrimStart(Path.DirectorySeparatorChar);
 
 			var s = path.Split(Path.DirectorySeparatorChar);
 
 			return new ResourceAddress(s[0], Unescape(s[1]));
 		}
 
-		public ReleaseBaseItem Add(ResourceAddress resource, byte[] hash)
+		public Release Add(ResourceAddress resource, byte[] hash)
 		{
-			var r = new ReleaseBaseItem(resource, hash);
+			var r = new Release(this, resource, hash);
 	
 			Releases.Add(r);
 	
@@ -116,7 +106,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public ReleaseBaseItem Add(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
+		public Release Add(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 			var index = new XonDocument(new XonBinaryValueSerializator());
@@ -190,7 +180,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public ReleaseBaseItem Add(ResourceAddress resource, string source, Workflow workflow)
+		public Release Add(ResourceAddress resource, string source, Workflow workflow)
 		{
 			var b = File.ReadAllBytes(source);
 
@@ -205,7 +195,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public ReleaseBaseItem Find(ResourceAddress resource, byte[] hash)
+		public Release Find(ResourceAddress resource, byte[] hash)
 		{
 			return Releases.Find(i => i.Address == resource && (hash == null || i.Hash.SequenceEqual(hash)));
 
@@ -277,15 +267,15 @@ namespace Uccs.Net
 			return Exists(release, hash, path) ? new FileInfo(AddressToPath(release, hash, path)).Length : 0;
 		}
 
-		public void GetFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
+		public void GetFile(Release release, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
 		{
 			Task t = Task.CompletedTask;
 
 			lock(Lock)
 			{
-				if(!Exists(release, hash, file))
+				if(!Exists(release.Address, release.Hash, file))
 				{
-					var d = DownloadFile(release, hash, file, filehash, peerCollector, workflow);
+					var d = DownloadFile(release, file, filehash, peerCollector, workflow);
 			
 					t = d.Task;
 				}
@@ -306,7 +296,7 @@ namespace Uccs.Net
 				{
 					Sun.Workflow.Wait(100);
 
-					ReleaseBaseItem[] rs;
+					Release[] rs;
 					//List<Peer> used;
 
 					lock(Lock)
@@ -318,7 +308,7 @@ namespace Uccs.Net
 					if(!rs.Any())
 						continue;
 
-					var cr = Sun.Call<MembersResponse>(i => i.GetMembers(), Sun.Workflow);
+					var cr = Sun.Call(i => i.GetMembers(), Sun.Workflow);
 	
 					if(!cr.Members.Any())
 						continue;
@@ -343,12 +333,14 @@ namespace Uccs.Net
 								Monitor.Enter(Lock);
 							}
 
-							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Contains(m) && !i.DeclaredOn.Contains(m)).ToArray();
+							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Contains(m) && !i.DeclaredOn.Contains(m)).Select(i => new {r = i, h = i.Hash, a = i.Availability}).ToArray();
 
 							var t = Task.Run(() =>	{
 														try
 														{
-															Sun.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {Hash = i.Hash, Availability = i.Availability}).ToArray()), Sun.Workflow);
+															Sun.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {	Hash = i.h, 
+																																						Availability  = i.a
+																																					}).ToArray()), Sun.Workflow);
 														}
 														catch(ConnectionFailedException)
 														{
@@ -357,7 +349,7 @@ namespace Uccs.Net
 														lock(Lock)
 														{
 															foreach(var i in drs)
-																i.DeclaredOn.Add(m);
+																i.r.DeclaredOn.Add(m);
 												
 															tasks.Remove(m.Account);
 														}
@@ -376,27 +368,27 @@ namespace Uccs.Net
 			}
 		}
 
-		public FileDownload DownloadFile(ResourceAddress release, byte[] hash, string file, byte[] filehash, SeedCollector peercollector, Workflow workflow)
+		public FileDownload DownloadFile(Release release, string file, byte[] filehash, SeedCollector peercollector, Workflow workflow)
 		{
-			var d = FileDownloads.Find(j => j.Resource == release && j.Hash.SequenceEqual(hash) && j.File == file);
+			var d = FileDownloads.Find(j => j.Release == release && j.File.Path == file);
 				
-			if(d == null)
-			{
-				d = new FileDownload(Sun, release, hash, file, filehash, peercollector, workflow);
-				FileDownloads.Add(d);
-			}
+			if(d != null)
+				return d;
+
+			d = new FileDownload(Sun, release, file, filehash, peercollector, workflow);
+			FileDownloads.Add(d);
 		
 			return d;
 		}
 
-		public DirectoryDownload DownloadDirectory(ResourceAddress address, Workflow workflow)
+		public DirectoryDownload DownloadDirectory(Release release, Workflow workflow)
 		{
-			var d = DirectoryDownloads.Find(j => j.Address == address);
+			var d = DirectoryDownloads.Find(j => j.Release == release);
 				
 			if(d != null)
 				return d;
 				
-			d = new DirectoryDownload(address, Sun, workflow);
+			d = new DirectoryDownload(Sun, release, workflow);
 			DirectoryDownloads.Add(d);
 
 			return d;

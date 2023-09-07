@@ -21,8 +21,8 @@ namespace Uccs.Net
 		public const string		Renamings = ".renamings"; /// TODO
 
 		public PackageAddress	Address;
-		public ReleaseBaseItem	Release;
-		PackageBase				PackageBase;
+		public Release	Release;
+		PackageHub				PackageBase;
 		Manifest				_Manifest;
 
 		public Manifest	Manifest
@@ -43,14 +43,14 @@ namespace Uccs.Net
 			}
 		}
 
-		public Package(PackageBase packbase, PackageAddress address, ReleaseBaseItem release)
+		public Package(PackageHub packbase, PackageAddress address, Release release)
 		{
 			Address = address;
 			PackageBase = packbase;
 			Release = release;
 		}
 
-		public Package(PackageBase packebase, PackageAddress address, ReleaseBaseItem release, Manifest manifest)
+		public Package(PackageHub packebase, PackageAddress address, Release release, Manifest manifest)
 		{
 			PackageBase = packebase;
 			Address = address;
@@ -64,16 +64,16 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class PackageBase
+	public class PackageHub
 	{
-		public ResourceBase				Resources;
+		public ResourceHub				Resources;
 		string							ProductsPath;
-		List<Package>					Packages = new();
+		public List<Package>			Packages = new();
 		public Sun						Sun;
-		List<PackageDownload>			Downloads = new();
+		public List<PackageDownload>	Downloads = new();
 		public object					Lock = new object();
 
-		public PackageBase(Sun sun, ResourceBase filebase, string productspath)
+		public PackageHub(Sun sun, ResourceHub filebase, string productspath)
 		{
 			Sun = sun;
 			Resources = filebase;
@@ -127,7 +127,7 @@ namespace Uccs.Net
 			if(p != null)
 				return p;
 
-			ReleaseBaseItem r;
+			Release r;
 
 			//var rp = Core.Call(Role.Base, p => p.FindResource(package), Core.Workflow);
 
@@ -273,7 +273,7 @@ namespace Uccs.Net
 			//
 			//if(Directory.Exists(dir))
 			//{
-				var c = Resources.Releases	.Where(i => i.Address.Author == manifest.Address.Author && i.Address.ToString().StartsWith(manifest.Address.APR))
+				var c = Resources.Releases	.Where(i => i.Address.Author == manifest.Address.Author && i.Address.ToString().StartsWith(manifest.Address.APR) && i.Availability == Availability.CompleteFull)
 											.Select(i => PackageAddress.ParseVesion(i.Address.Resource))
 											.OrderBy(i => i)
 											.TakeWhile(i => i < manifest.Address.Version) 
@@ -551,11 +551,11 @@ namespace Uccs.Net
 				{
 					lock(Sun.Resources.Lock)
 					{
-						var r = Resources.FileDownloads.Find(i => i.Resource == package);
+						var r = Resources.FileDownloads.Find(i => i.Release.Address == package);
 
-						s.Download = new(){	File					= r.File,
-											Length					= r.Length,
-											CompletedLength			= r.CompletedLength,
+						s.Download = new(){	File					= r.File.Path,
+											Length					= r.File.Length,
+											CompletedLength			= r.DownloadedLength,
 											DependenciesRecursive	= p.DependenciesRecursive.Select(i => new PackageDownloadReport.Dependency {Release = i.Address, Exists = Find(new PackageAddress(i.Address)) != null}).ToArray(),
 											Hubs					= r.SeedCollector.Hubs.Take(limit).Select(i => new PackageDownloadReport.Hub {Member = i.Member, /*Seeds = i.Seeds.Take(limit).Select(i => i.IP),*/ Status = i.Status}).ToArray(),
 											Seeds					= r.SeedCollector.Seeds.Take(limit).Select(i => new PackageDownloadReport.Seed {IP = i.IP}).ToArray()};
@@ -601,87 +601,8 @@ namespace Uccs.Net
 			if(d != null)
 				return d;
 				
-			d = new PackageDownload(package);
+			d = new PackageDownload(Sun, package, workflow);
 			Downloads.Add(d);
-
-			d.Task = Task.Run(() =>	{
-										byte[] h = null;
-										IEnumerable<PackageAddress> hst = null;
-
-										while(workflow.Active)
-										{
-											try
-											{
-												hst = Sun.Call(c => c.QueryResource(package.APR + "/"), workflow).Resources.Select(i => new PackageAddress(i)).OrderBy(i => i.Version);
-												h = Sun.Call(c => c.FindResource(package), workflow).Resource.Data;
-												break;
-											}
-											catch(RdcEntityException)
-											{
-												Thread.Sleep(100);
-											}
-										}
-
-										d.SeedCollector = new SeedCollector(Sun, h, workflow);
-
-										lock(Lock)
-											lock(Sun.Resources.Lock)
-											{
-												d.Package = Find(package);
-											
-												if(d.Package != null)
-												{
-													if(d.Package.Release.Hash.SequenceEqual(h))
-														goto done;
-													else
-														d.Package.Release = Sun.Resources.Add(package, h); /// update to the latest
-												} 
-												else
-												{	
-													d.Package = new Package(this, package, Sun.Resources.Add(package, h));
-													Packages.Add(d.Package);
-												}
-											}
-	 									
-										Sun.Resources.GetFile(package, h, Package.ManifestFile, h, d.SeedCollector, workflow);
-
-										bool incrementable;
-
-										lock(Lock)
-										{
-											DetermineDelta(hst, d.Package.Manifest, h, out incrementable, out List<Dependency> deps);
-								
-											foreach(var i in deps)
-											{
-												if(!ExistsRecursively(i.Release))
-												{
-													var dd = Download(i.Release, workflow);
-													d.Dependencies.Add(dd);
-												}
-											}
-										}
-
- 										d.FileDownload = Sun.Resources.DownloadFile(package, 
-																					h, 
-																					incrementable ? Package.IncrementalFile : Package.CompleteFile, 
-																					incrementable ? d.Package.Manifest.IncrementalHash : d.Package.Manifest.CompleteHash, 
-																					d.SeedCollector,
-																					workflow);
-
-
-										Task.WaitAll(d.DependenciesRecursive.Select(i => i.Task).Append(d.FileDownload.Task).ToArray());
-
-									done:
-										d.SeedCollector.Stop();
-
-										lock(Lock)
-										{
-											d.Downloaded = true;
-											Downloads.Remove(d);
-										}
-									},
-									workflow.Cancellation);
-			
 		
 			return d;
 		}

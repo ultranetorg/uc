@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Uccs.Net;
 using Nethereum.Hex.HexConvertors.Extensions;
+using System.Threading.Tasks;
 
 namespace Uccs.Sun.CLI
 {
@@ -62,7 +63,7 @@ namespace Uccs.Sun.CLI
 				case "b" :
 				case "build" :
 				{	
-					ReleaseBaseItem rbi = null;
+					Release rbi = null;
 
 					if(Args.Has("source"))
 						rbi = Sun.Resources.Add(GetResourceAddress("address"), GetString("source"), Workflow);
@@ -80,63 +81,71 @@ namespace Uccs.Sun.CLI
 				case "download" :
 				{
 					var a = GetResourceAddress("address");
-
+		
 					var r = Sun.Call(c => c.FindResource(a), Workflow).Resource;
+					
+					Release rz;
 
-					Sun.Resources.Add(a, r.Data);
-
+					lock(Sun.Resources.Lock)
+						rz = Sun.Resources.Find(a, r.Data) ?? Sun.Resources.Add(a, r.Data);
+	
 					if(r.Type == ResourceType.File)
 					{
 						FileDownload d;
-						
+							
 						lock(Sun.Resources.Lock)
-							d = Sun.Resources.DownloadFile(a, r.Data, "f", r.Data, null, Workflow);
-	
+							d = Sun.Resources.DownloadFile(rz, "f", r.Data, null, Workflow);
+		
 						if(d != null)
 						{
-							while(!d.Succeeded)
+							do
 							{
-								Thread.Sleep(500);
-
+								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
+	
 								lock(Sun.Resources.Lock)
 								{ 
-									Workflow.Log?.Report(this, $"{d.CompletedLength}/{d.Length} bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
+									if(d.File != null)
+										Workflow.Log?.Report(this, $"{d.DownloadedLength}/{d.Length} bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
+									else
+										Workflow.Log?.Report(this, $"?/? bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
 								}
 							}
+							while(!d.Succeeded && Workflow.Active);
 						} 
 						else
 							Workflow.Log?.Report(this, $"Already downloaded");
-				
+					
 						return d;
 					}
 					else if(r.Type == ResourceType.Directory)
 					{
 						DirectoryDownload d;
-						
+							
 						lock(Sun.Resources.Lock)
-							d = Sun.Resources.DownloadDirectory(a, Workflow);
-	
+							d = Sun.Resources.DownloadDirectory(rz, Workflow);
+		
 						if(d != null)
 						{
 							void report() => Workflow.Log?.Report(this, $"{d.CompletedCount}/{d.TotalCount} files, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
-
-							while(!d.Succeeded)
+	
+							do
 							{
-								Thread.Sleep(500);
-
+								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
+	
 								lock(Sun.Resources.Lock)
 								{ 
 									report();
 								}
 							}
+							while(!d.Succeeded && Workflow.Active);
 						} 
 						else
 							Workflow.Log?.Report(this, $"Already downloaded");
-				
+					
 						return d;
 					}
-
-					throw new NotImplementedException();
+	
+					throw new NotSupportedException();
 				}
 
 				case "i" :

@@ -45,12 +45,12 @@ namespace Uccs.Sun.CLI
 					{
 						var f = d.FileDownload;
 
-						Workflow.Log?.Report(this, (f != null ? $"{f.File} = {f.CompletedLength}/{f.Length}" : null) + $", deps = {d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
+						Workflow.Log?.Report(this, (f != null ? $"{f.File.Path} = {f.DownloadedLength}/{f.Length}" : null) + $", deps = {d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
 					}
 
 					if(d != null)
 					{
-						while(!d.Succeeded)
+						while(!d.Succeeded && Workflow.Active)
 						{
 							Thread.Sleep(500);
 

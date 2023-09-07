@@ -78,15 +78,15 @@ namespace Uccs.Net
 		public INas						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 		public Mcv						Mcv;
-		public ResourceBase				Resources;
-		public PackageBase				Packages;
-		public Hub						Hub;
+		public ResourceHub				Resources;
+		public PackageHub					Packages;
+		public SeedHub						Hub;
 		public bool						IsClient => ListeningThread == null;
 		public object					Lock = new();
 		public Clock					Clock;
 
-		public RocksDb					DatabaseEngine;
-		public ColumnFamilyHandle		PeersFamily => DatabaseEngine.GetColumnFamily(nameof(Peers));
+		public RocksDb					Database;
+		public ColumnFamilyHandle		PeersFamily => Database.GetColumnFamily(nameof(Peers));
 		readonly DbOptions				DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																			.SetCreateMissingColumnFamilies(true);
 
@@ -241,10 +241,12 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (Mcv.ChainFamilyName,			new ()) })
+																new (Mcv.ChainFamilyName,			new ()),
+																new (ResourceHub.FamilyName,		new ())
+																})
 				cfamilies.Add(i);
 
-			DatabaseEngine = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
 		}
 
 		public override string ToString()
@@ -295,8 +297,8 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
-				Resources = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
-				Packages = new PackageBase(this, Resources, Settings.Packages);
+				Resources = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
+				Packages = new PackageHub(this, Resources, Settings.Packages);
 			}
 
 			LoadPeers();
@@ -354,18 +356,18 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Base) && Settings.Generators.Any())
 			{
-				Hub = new Hub(this);
+				Hub = new SeedHub(this);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Seeder))
 			{
-				Resources = new ResourceBase(this, Zone, System.IO.Path.Join(Settings.Profile, typeof(ResourceBase).Name));
-				Packages = new PackageBase(this, Resources, Settings.Packages);
+				Resources = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
+				Packages = new PackageHub(this, Resources, Settings.Packages);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
 			{
-				Mcv = new Mcv(Zone, Settings.Roles, Settings.Mcv, Workflow?.Log, DatabaseEngine);
+				Mcv = new Mcv(Zone, Settings.Roles, Settings.Mcv, Workflow?.Log, Database);
 		
 				//if(Database.LastConfirmedRound != null && Database.LastConfirmedRound.Members.FirstOrDefault().Generator == Zone.Father0)
 				//{
@@ -529,7 +531,7 @@ namespace Uccs.Net
 			VerifingThread?.Join();
 			SynchronizingThread?.Join();
 
-			DatabaseEngine?.Dispose();
+			Database?.Dispose();
 
 			Workflow?.Log?.Report(this, "Stopped", message);
 		}
@@ -554,7 +556,7 @@ namespace Uccs.Net
 
 		void LoadPeers()
 		{
-			using(var i = DatabaseEngine.NewIterator(PeersFamily))
+			using(var i = Database.NewIterator(PeersFamily))
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
@@ -589,7 +591,7 @@ namespace Uccs.Net
 					b.Put(i.IP.GetAddressBytes(), s.ToArray(), PeersFamily);
 				}
 	
-				DatabaseEngine.Write(b);
+				Database.Write(b);
 			}
 		}
 
@@ -1648,7 +1650,7 @@ namespace Uccs.Net
 					{ 
 						while(Workflow.Active)
 						{
-							var cr = Call<MembersResponse>(i => i.GetMembers(), Workflow);
+							var cr = Call(i => i.GetMembers(), Workflow);
 	
 							if(!cr.Members.Any())
 								continue;
@@ -2015,7 +2017,7 @@ namespace Uccs.Net
 			}
 
 			end:
-				workflow.Log?.Report(this, $"Operation {o.Transaction.Placing}", o.ToString());
+				workflow.Log?.Report(this, $"Operation {o.Transaction?.Placing}", o.ToString());
 		}
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
@@ -2351,5 +2353,8 @@ namespace Uccs.Net
 				}
 			}
 		}
+
+		//public QueryResourceResponse QueryResource(string query, Workflow workflow) => Call(c => c.QueryResource(query), workflow);
+		//public ResourceResponse FindResource(ResourceAddress query, Workflow workflow) => Call(c => c.FindResource(query), workflow);
 	}
 }

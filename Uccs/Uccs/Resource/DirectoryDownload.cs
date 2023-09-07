@@ -10,7 +10,7 @@ namespace Uccs.Net
 {
 	public class DirectoryDownload
 	{
-		public ResourceAddress		Address;
+		public Release				Release;
 		public bool					Succeeded;
 		public Queue<Xon>			Files = new();
 		public int					CompletedCount;
@@ -19,22 +19,21 @@ namespace Uccs.Net
 		public Task					Task;
 		public SeedCollector		SeedCollector;
 
-		public DirectoryDownload(ResourceAddress address, Sun sun,  Workflow workflow)
+		public DirectoryDownload(Sun sun, Release release, Workflow workflow)
 		{
-			Address = address;
+			Release = release;
 
 			void run()
 			{
 				try
 				{
-					var h = sun.Call(c => c.FindResource(address), workflow).Resource.Data;
+					//var h = sun.Call(c => c.FindResource(release.Address), workflow).Resource.Data;
 		 									
-					SeedCollector = new SeedCollector(sun, h, workflow);
+					SeedCollector = new SeedCollector(sun, release.Hash, workflow);
 	
-					sun.Resources.GetFile(address, h, ".index", h, SeedCollector, workflow);
-	
-											
-					var index = new XonDocument(sun.Resources.ReadFile(address, h, ".index"));
+					sun.Resources.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
+												
+					var index = new XonDocument(sun.Resources.ReadFile(release.Address, release.Hash, ".index"));
 	
 					void enumearate(Xon xon)
 					{
@@ -64,7 +63,7 @@ namespace Uccs.Net
 	
 							lock(sun.Resources.Lock)
 							{
-								var dd = sun.Resources.DownloadFile(address, h, f.Name, f.Value as byte[], SeedCollector, workflow);
+								var dd = sun.Resources.DownloadFile(release, f.Name, f.Value as byte[], SeedCollector, workflow);
 	
 								if(dd != null)
 								{
@@ -88,6 +87,7 @@ namespace Uccs.Net
 					lock(sun.Resources.Lock)
 					{
 						Succeeded = true;
+						release.Complete(Availability.Full);
 						sun.Resources.DirectoryDownloads.Remove(this);
 					}
 				}
@@ -101,7 +101,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return Address.ToString();
+			return Release.Address.ToString();
 		}
 	}
 }

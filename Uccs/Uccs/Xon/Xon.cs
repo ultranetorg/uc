@@ -68,12 +68,7 @@ namespace Uccs
 		{
 			get
 			{
-				var n = One(name);
-				
-				if(n == null)
-					n = Add(name);
-
-				return n.Value;
+				return One(name).Value;
 			}
 
 			set

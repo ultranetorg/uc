@@ -17,8 +17,8 @@ namespace Uccs.Uos
 		public string SunApiKey;
 		public Zone Zone;
 
-		public ResourceBase		Filebase;
-		public PackageBase	PackageBase;
+		public ResourceHub		Filebase;
+		public PackageHub	PackageBase;
 		public JsonClient	Sun;
 		HttpClient			Http = new HttpClient();
 
@@ -33,8 +33,8 @@ namespace Uccs.Uos
 
 			var s = Sun.GetSettings(new Workflow());
 
-			Filebase = new ResourceBase(null, Zone, Path.Join(s.ProfilePath, nameof(Filebase)));
-			PackageBase = new PackageBase(null, Filebase, ProductsPath);
+			Filebase = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(Filebase)));
+			PackageBase = new PackageHub(null, Filebase, ProductsPath);
 		}
 
 		public void Start(Uri address, Workflow workflow)

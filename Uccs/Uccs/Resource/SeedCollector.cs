@@ -144,18 +144,18 @@ namespace Uccs.Net
 										{
 											if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 											{
-												var r = Sun.Call<MembersResponse>(i =>	{
-																							while(Workflow.Active)
-																							{
-																								var cr = i.GetMembers();
+												var r = Sun.Call(i =>	{
+																			while(Workflow.Active)
+																			{
+																				var cr = i.GetMembers();
 			
-																								if(cr.Members.Any())
-																									return cr;
-																							}
+																				if(cr.Members.Any())
+																					return cr;
+																			}
 																											
-																							throw new OperationCanceledException();
-																						}, 
-																						Workflow);
+																			throw new OperationCanceledException();
+																		}, 
+																		Workflow);
 												lock(Lock)
 													Members = r.Members.ToArray();
 												
