@@ -17,7 +17,7 @@ namespace Uccs.Sun.CLI
 	class Program
 	{
 		static Settings			Settings = null;
-		static Workflow			Workflow = new Workflow(new Log());
+		static Workflow			Workflow = new Workflow("CLI", new Log());
 		static ConsoleLogView	LogView;
 		static Net.Sun			Sun;
 
@@ -86,15 +86,17 @@ namespace Uccs.Sun.CLI
 
 				boot.Commnand.Nodes.RemoveAt(0);
 
+				var w = Workflow.CreateNested("Command");
+
 				switch(t)
 				{
-					case RunCommand.Keyword:			c = new RunCommand(boot.Zone, Settings, Workflow, getsun, boot.Commnand); break;
-					case DevCommand.Keyword:			c = new DevCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
-					case AccountCommand.Keyword:		c = new AccountCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
-					case UntCommand.Keyword:			c = new UntCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
-					case MembershipCommand.Keyword:		c = new MembershipCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
-					case AuthorCommand.Keyword:			c = new AuthorCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
-					case PackageCommand.Keyword:		c = new PackageCommand(boot.Zone, Settings, Workflow, getuser, boot.Commnand); break;
+					case RunCommand.Keyword:			c = new RunCommand(boot.Zone, Settings, w, getsun, boot.Commnand); break;
+					case DevCommand.Keyword:			c = new DevCommand(boot.Zone, Settings, w, getuser, boot.Commnand); break;
+					case AccountCommand.Keyword:		c = new AccountCommand(boot.Zone, Settings, w, getuser, boot.Commnand); break;
+					case UntCommand.Keyword:			c = new UntCommand(boot.Zone, Settings, w, getuser, boot.Commnand); break;
+					case MembershipCommand.Keyword:		c = new MembershipCommand(boot.Zone, Settings, w, getuser, boot.Commnand); break;
+					case AuthorCommand.Keyword:			c = new AuthorCommand(boot.Zone, Settings, w, getuser, boot.Commnand); break;
+					case PackageCommand.Keyword:		c = new PackageCommand(boot.Zone, Settings, w, getuser, boot.Commnand); break;
 				}
 
 				c?.Execute();

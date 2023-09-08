@@ -10,29 +10,39 @@ namespace Uccs.Net
 		public Log						Log { get; }
 		public bool						Aborted => Cancellation.IsCancellationRequested;
 		public bool						Active => !Aborted;
+		public string					Name;
+		Workflow						Parent;
 
-		public Workflow()
+		public Workflow(string name)
 		{
+			Name = name;
 			CancellationSource = new CancellationTokenSource();
 		}
 
-		public Workflow(Log log)
+		public Workflow(string name, Log log)
 		{
+			Name = name;
 			CancellationSource = new CancellationTokenSource();
 			Log = log;
 		}
 
-		public Workflow(Log log, CancellationTokenSource cancellation)
+		public Workflow(string name, Log log, CancellationTokenSource cancellation)
 		{
+			Name = name;
 			CancellationSource = cancellation;
 			Log = log;
 		}
 
-		public Workflow CreateNested()
+		public override string ToString()
+		{
+			return Name;
+		}
+
+		public Workflow CreateNested(string name, Log log = null)
 		{
 			var a = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);
 			
-			return new Workflow(Log, a);
+			return new Workflow(name, log ?? Log, a) {Parent = this};
 		}
 
 		public void Abort()

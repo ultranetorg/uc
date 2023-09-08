@@ -19,10 +19,10 @@ namespace Uccs.Net
 		HttpListener	Listener;
 		Thread			Thread;
 
-		Workflow			Workflow = new Workflow(new Log());
-		Settings			Settings => Sun.Settings;
-		Vault				Vault => Sun.Vault;
-		Mcv					Database => Sun.Mcv;
+		Workflow		Workflow = new Workflow("JsonServer", new Log());
+		Settings		Settings => Sun.Settings;
+		Vault			Vault => Sun.Vault;
+		Mcv				Database => Sun.Mcv;
 
 		public JsonServer(Sun sun)
 		{
@@ -169,7 +169,7 @@ namespace Uccs.Net
 								return new SettingsResponse {ProfilePath	= Sun.Settings.Profile, 
 															 Settings		= Sun.Settings}; /// TODO: serialize
 						case RunNodeCall e:
-							Sun.RunNode(new Workflow(new Log()));
+							Sun.RunNode(null);
 							break;
 
 						case ExitCall e:

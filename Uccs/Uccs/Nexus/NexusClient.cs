@@ -31,7 +31,7 @@ namespace Uccs.Uos
 
 			Sun = new JsonClient(Http, SunAddress, Zone, SunApiKey);
 
-			var s = Sun.GetSettings(new Workflow());
+			var s = Sun.GetSettings(new Workflow("GetSettings"));
 
 			Filebase = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(Filebase)));
 			PackageBase = new PackageHub(null, Filebase, ProductsPath);

@@ -5,6 +5,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using System.Collections.Generic;
 using System.Threading;
 using Uccs.Net;
+using System.Threading.Tasks;
 
 namespace Uccs.Sun.CLI
 {
@@ -50,11 +51,18 @@ namespace Uccs.Sun.CLI
 
 					if(d != null)
 					{
-						while(!d.Succeeded && Workflow.Active)
+						try
 						{
-							Thread.Sleep(500);
-
-							report();
+							do
+							{
+								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
+	
+								report();
+							}
+							while(!d.Task.IsCompleted && Workflow.Active);
+						}
+						catch(OperationCanceledException)
+						{
 						}
 					} 
 					else

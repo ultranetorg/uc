@@ -44,7 +44,7 @@ namespace Uccs.Sun.Application
 															Nas = new Nas(Settings, Log), }; 
 
 				Sun.RunApi();
-				Sun.RunNode(new Workflow(Log));
+				Sun.RunNode(new Workflow("RunNode", Log));
 
 				RunUosServer();
 			}

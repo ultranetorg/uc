@@ -292,7 +292,7 @@ namespace Uccs.Net
 
 		public void RunUser(Workflow workflow)
 		{
-			Workflow = workflow;
+			Workflow = workflow.CreateNested("RunUser");
 			Nuid = Guid.NewGuid();
 
 			if(Settings.Roles.HasFlag(Role.Seeder))
@@ -331,7 +331,8 @@ namespace Uccs.Net
 
 		public void RunNode(Workflow workflow)
 		{
-			Workflow = workflow;
+			Workflow = workflow != null ? workflow.CreateNested("RunNode", new Log()) : new Workflow("RunNode", new Log());
+
 			Workflow.Log?.Report(this, $"Ultranet Node/Client {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
@@ -508,9 +509,6 @@ namespace Uccs.Net
 
 		public void Stop(string message)
 		{
-			if(Workflow != null && Workflow.Aborted)
-				return;
-
 			ApiServer?.Stop();
 			Workflow?.Abort();
 			

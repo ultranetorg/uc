@@ -99,7 +99,7 @@ namespace Uccs.Net
 		List<Piece>				CurrentPieces = new();
 		Sun						Sun;
 		Workflow				Workflow;
-		object					Lock = new object();
+		public object			Lock = new object();
 
 		public FileDownload(Sun sun, Release release, string filepath, byte[] filehash, SeedCollector seedcollector, Workflow workflow)
 		{
@@ -111,156 +111,162 @@ namespace Uccs.Net
 
 			Task = Task.Run(() =>
 							{
-								while(workflow.Active)
+								try
 								{
-									Task[] tasks;
-
-									lock(Lock)
+									while(workflow.Active)
 									{
-										if(File == null || (File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
+										Task[] tasks;
+	
+										lock(Lock)
 										{
-											SeedCollector.Seed s;
-
-											lock(SeedCollector.Lock)
-												s = SeedCollector.Seeds.Find(i => i.Good && CurrentPieces.All(j => j.Seed != i)); /// skip currrently used
-											
-											if(s != null)
+											if(File == null || (File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
 											{
-												if(File == null)
-												{
-													var l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
-													
-													lock(Sun.Resources.Lock)
-													{
-														File = Release.AddFile(filepath, l, DefaultPieceLength, (int)(l / DefaultPieceLength + (l % DefaultPieceLength != 0 ? 1 : 0)));
-													}
-												}
+												SeedCollector.Seed s;
+	
+												lock(SeedCollector.Lock)
+													s = SeedCollector.Seeds.Find(i => i.Good && CurrentPieces.All(j => j.Seed != i)); /// skip currrently used
 												
-												if(Length > 0)
-													CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
-												else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash))
+												if(s != null)
 												{
-													Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, 0, new byte[0]);
-													Succeeded = true;
-													goto end;
-												}
-											}
-											else
-											{
-												//Thread.Sleep(1);
-												//
-												//foreach(var h in Hubs.Where(i => i.Status == HubStatus.Estimating && i.Seeds.Any()))
-												//{
-												//	if(h.Seeds.All(i => Seeds[i] == SeedStatus.Bad)) /// all seeds are bad
-												//	{
-												//		h.Status = HubStatus.Bad;
-												//	}
-												//}
-												//
-												//if(Seeds.Any() && Seeds.All(i => i.Value == SeedStatus.Bad)) /// no good seeds found
-												//{
-												//	if(Hubs.Count(i => i.Status == HubStatus.Estimating) < hubsgoodmax && hlast == null) /// no more hubs, total restart
-												//	{
-												//		//Hubs.Clear();
-												//		//Seeds.Clear();
-												//	}
-												//}
-											}
-										}
-									
-										tasks = CurrentPieces.Select(i => i.Task).ToArray();
-
-										if(tasks.Length == 0)
-										{
-											continue;
-										}
-									}
-
-									var ti = Task.WaitAny(tasks, workflow.Cancellation);
-
-									lock(Lock)
-									{	
-										var p = CurrentPieces.Find(i => i.Task == tasks[ti]);
-										
-										CurrentPieces.Remove(p);
-
-										if(p.Succeeded)
-										{
-											//j.Seed.Failures++;
-											p.Seed.Failed = DateTime.MinValue;
-
-											lock(Sun.Resources.Lock)
-											{	
-												Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, p.Offset, p.Data.ToArray());
-												File.CompletePiece(p.I);
-											}
-											
-											//CompletedPieces.Add(p);
-
-											if(File.CompletedPieces.Count() == File.Pieces.Length)
-											{
-												lock(Sun.Resources.Lock)
-													if(Sun.Resources.Hashify(Release.Address, release.Hash, File.Path).SequenceEqual(filehash))
-													{	
+													if(File == null)
+													{
+														var l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
+														
+														lock(Sun.Resources.Lock)
+														{
+															File = Release.AddFile(filepath, l, DefaultPieceLength, (int)(l / DefaultPieceLength + (l % DefaultPieceLength != 0 ? 1 : 0)));
+														}
+													}
+													
+													if(Length > 0)
+														CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
+													else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash))
+													{
+														Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, 0, new byte[0]);
 														Succeeded = true;
 														goto end;
 													}
-													else
-													{
-														CurrentPieces.Clear();
-														//CompletedPieces.Clear();
-														//Hubs.Clear();
-														//Seeds.Clear();
-													}
+												}
+												else
+												{
+													//Thread.Sleep(1);
+													//
+													//foreach(var h in Hubs.Where(i => i.Status == HubStatus.Estimating && i.Seeds.Any()))
+													//{
+													//	if(h.Seeds.All(i => Seeds[i] == SeedStatus.Bad)) /// all seeds are bad
+													//	{
+													//		h.Status = HubStatus.Bad;
+													//	}
+													//}
+													//
+													//if(Seeds.Any() && Seeds.All(i => i.Value == SeedStatus.Bad)) /// no good seeds found
+													//{
+													//	if(Hubs.Count(i => i.Status == HubStatus.Estimating) < hubsgoodmax && hlast == null) /// no more hubs, total restart
+													//	{
+													//		//Hubs.Clear();
+													//		//Seeds.Clear();
+													//	}
+													//}
+												}
 											}
-
-											///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
-											///	d.HubsSeeders[h].Add(s);
-										}
-										else
-										{	
-											//j.Seed.Succeses++;
-											//j.Seed.Failed = DateTime.UtcNow;
-										}
-									}
-								}
-
-							end:
-
-								//var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
-
-								//foreach(var h in hubs)
-								//	h.HubRank++;
-
-								if(seedcollector == null)
-								{
-									SeedCollector.Stop();
-								}
-
-								if(Succeeded)
-								{
-									//var seeds = CompletedPieces.Select(i => i.Seed.Peer);
 										
-									//foreach(var h in seeds)
-									//	h.SeedRank++;
+											tasks = CurrentPieces.Select(i => i.Task).ToArray();
 	
-									//lock(Sun.Lock)
-									//	Sun.UpdatePeers(seeds);
+											if(tasks.Length == 0)
+											{
+												continue;
+											}
+										}
 	
-									lock(Sun.Resources.Lock)
-									{	
-										File.Complete();
-
-										if(Release.Hash.SequenceEqual(filehash)) /// means ResourseType = File
-										{
-											Release.Complete(Availability.Full);
+										var ti = Task.WaitAny(tasks, workflow.Cancellation);
+	
+										lock(Lock)
+										{	
+											var p = CurrentPieces.Find(i => i.Task == tasks[ti]);
+											
+											CurrentPieces.Remove(p);
+	
+											if(p.Succeeded)
+											{
+												//j.Seed.Failures++;
+												p.Seed.Failed = DateTime.MinValue;
+	
+												lock(Sun.Resources.Lock)
+												{	
+													Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, p.Offset, p.Data.ToArray());
+													File.CompletePiece(p.I);
+												}
+												
+												//CompletedPieces.Add(p);
+	
+												if(File.CompletedPieces.Count() == File.Pieces.Length)
+												{
+													lock(Sun.Resources.Lock)
+														if(Sun.Resources.Hashify(Release.Address, release.Hash, File.Path).SequenceEqual(filehash))
+														{	
+															Succeeded = true;
+															goto end;
+														}
+														else
+														{
+															CurrentPieces.Clear();
+															//CompletedPieces.Clear();
+															//Hubs.Clear();
+															//Seeds.Clear();
+														}
+												}
+	
+												///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
+												///	d.HubsSeeders[h].Add(s);
+											}
+											else
+											{	
+												//j.Seed.Succeses++;
+												//j.Seed.Failed = DateTime.UtcNow;
+											}
+										}
+									}
+	
+								end:
+	
+									//var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
+	
+									//foreach(var h in hubs)
+									//	h.HubRank++;
+	
+									if(seedcollector == null)
+									{
+										SeedCollector.Stop();
+									}
+	
+									if(Succeeded)
+									{
+										//var seeds = CompletedPieces.Select(i => i.Seed.Peer);
+											
+										//foreach(var h in seeds)
+										//	h.SeedRank++;
+		
+										//lock(Sun.Lock)
+										//	Sun.UpdatePeers(seeds);
+		
+										lock(Sun.Resources.Lock)
+										{	
+											File.Complete();
+	
+											if(Release.Hash.SequenceEqual(filehash)) /// means ResourseType = File
+											{
+												Release.Complete(Availability.Full);
+											}
 										}
 									}
 								}
-
-								lock(Sun.Resources.Lock)
-								{	
-									Sun.Resources.FileDownloads.Remove(this);
+								catch(Exception) when(Workflow.Aborted)
+								{
+								}
+								finally
+								{
+									lock(Sun.Resources.Lock)
+										Sun.Resources.FileDownloads.Remove(this);
 								}
 							},
 							workflow.Cancellation);

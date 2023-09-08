@@ -44,7 +44,7 @@ namespace Uccs.Sun.CLI
 			Settings = settings;
 			GetCore = getcore;
 			Args = args;
-			Workflow = workflow ?? new Workflow(new Log());
+			Workflow = workflow;
 		}
 
 		protected AccountAddress GetAccountAddress(string paramenter)

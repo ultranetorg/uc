@@ -5,6 +5,7 @@ using System.Net;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -136,7 +137,7 @@ namespace Uccs.Net
 		public SeedCollector(Sun sun, byte[] hash, Workflow workflow)
 		{
 			Sun = sun;
-			Workflow = workflow.CreateNested();
+			Workflow = workflow.CreateNested($"SeedCollector {hash.ToHex()}");
 			Hub hlast = null;
 
  			Thread = new Thread(() =>{ 

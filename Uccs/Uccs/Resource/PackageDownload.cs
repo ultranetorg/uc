@@ -112,11 +112,15 @@ namespace Uccs.Net
 												Package.Release.Complete(a);
 
 												Downloaded = true;
-												sun.Packages.Downloads.Remove(this);
 											}
 										}
 										catch(Exception) when(workflow.Aborted)
 										{
+										}
+										finally
+										{
+											lock(sun.Packages.Lock)
+												sun.Packages.Downloads.Remove(this);
 										}
 									},
 									workflow.Cancellation);

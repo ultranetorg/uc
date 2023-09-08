@@ -102,7 +102,7 @@ namespace Uccs.Sun.CLI
 							{
 								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
 	
-								lock(Sun.Resources.Lock)
+								lock(d.Lock)
 								{ 
 									if(d.File != null)
 										Workflow.Log?.Report(this, $"{d.DownloadedLength}/{d.Length} bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
@@ -110,7 +110,7 @@ namespace Uccs.Sun.CLI
 										Workflow.Log?.Report(this, $"?/? bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
 								}
 							}
-							while(!d.Succeeded && Workflow.Active);
+							while(!d.Task.IsCompleted && Workflow.Active);
 						} 
 						else
 							Workflow.Log?.Report(this, $"Already downloaded");
@@ -132,12 +132,9 @@ namespace Uccs.Sun.CLI
 							{
 								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
 	
-								lock(Sun.Resources.Lock)
-								{ 
-									report();
-								}
+								report();
 							}
-							while(!d.Succeeded && Workflow.Active);
+							while(!d.Task.IsCompleted && Workflow.Active);
 						} 
 						else
 							Workflow.Log?.Report(this, $"Already downloaded");

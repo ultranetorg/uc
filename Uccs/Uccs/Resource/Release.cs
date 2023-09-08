@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Nethereum.Hex.HexConvertors.Extensions;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -42,6 +43,11 @@ namespace Uccs.Net
 			Length = length;
 			PieceLength = piecelength;
 			Pieces = new bool[piececount];
+		}
+		
+		public override string ToString()
+		{
+			return $"{Path}, Length+{Length}, PieceLength={PieceLength} Pieces={{{Pieces?.Length}}}";
 		}
 
 		public void CompletePiece(int i)
@@ -116,6 +122,11 @@ namespace Uccs.Net
 			Address = address;
 			Hash = hash;
 			//Type = type;
+		}
+
+		public override string ToString()
+		{
+			return $"{Address}, {Hash.ToHex()}, Availability={_Availability}, Files={{{_Files?.Count}}}";
 		}
 
 		public ReleaseFile AddFile(string path, long length, int piecelength, int piececount)

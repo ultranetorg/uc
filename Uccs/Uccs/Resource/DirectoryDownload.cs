@@ -88,11 +88,15 @@ namespace Uccs.Net
 					{
 						Succeeded = true;
 						release.Complete(Availability.Full);
-						sun.Resources.DirectoryDownloads.Remove(this);
 					}
 				}
-				catch(OperationCanceledException)
+				catch(Exception) when(workflow.Aborted)
 				{
+				}
+				finally
+				{
+					lock(sun.Packages.Lock)
+						sun.Resources.DirectoryDownloads.Remove(this);
 				}
 			}
 

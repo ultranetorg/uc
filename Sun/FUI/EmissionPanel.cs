@@ -163,7 +163,7 @@ namespace Uccs.Sun.FUI
 						
 					if(k != null)
 					{
-						var v = new Workflow(log);
+						var v = new Workflow("Emission", log);
 
 						var f = new FlowControlForm(Sun, v);
 						f.StartPosition = FormStartPosition.CenterParent;

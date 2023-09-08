@@ -70,7 +70,7 @@ namespace Uccs.Sun.FUI
 					ManifestWorkflow.Abort();
 				}
 
-				ManifestWorkflow = new Workflow();
+				ManifestWorkflow = new Workflow("releases_SelectedIndexChanged");
 
 				manifest.Text = "Downloading ...";
 
