@@ -23,7 +23,7 @@ namespace Uccs
 			PoW								= true;
 			CheckDomains					= true;
 
-			OrgAccount = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
+			UOFund = AccountAddress.Parse("0xeeee974ab6b3e9533ee99f306460cfc24adcdae0");
 			GenAccount = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
 			Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
 

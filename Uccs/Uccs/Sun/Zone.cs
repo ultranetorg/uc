@@ -24,7 +24,7 @@ namespace Uccs.Net
 		public int				TailLength;
 
 		public ZoneCreation		Creation;
-		public AccountAddress	OrgAccount;
+		public AccountAddress	UOFund;
 		public AccountAddress	GenAccount;
 		public AccountAddress	Father0;
 
@@ -69,7 +69,7 @@ namespace Uccs.Net
 			z.CheckDomains = 	CheckDomains;
 			z.TailLength = 		TailLength;
 			
-			z.OrgAccount = 		OrgAccount;
+			z.UOFund = 		UOFund;
 			z.GenAccount = 		GenAccount;
 			z.Father0 = 		Father0;
 			

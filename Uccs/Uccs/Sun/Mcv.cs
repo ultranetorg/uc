@@ -124,7 +124,7 @@ namespace Uccs.Net
 						if(i == 16)
 						{
 							r.ConfirmedMemberJoiners = new[] {Zone.Father0};
-							r.ConfirmedFundJoiners = new[] {Zone.OrgAccount};
+							r.ConfirmedFundJoiners = new[] {Zone.UOFund};
 						}
 	
 						//foreach(var p in r.Payloads)
@@ -213,7 +213,7 @@ namespace Uccs.Net
 			Add(b0);
 
 
-			b0.FundJoiners.Add(Zone.OrgAccount);
+			b0.FundJoiners.Add(Zone.UOFund);
 	
 			write(0);
 			
