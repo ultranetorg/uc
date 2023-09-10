@@ -9,7 +9,9 @@ namespace Uccs.Net
 {
 	public enum PlacingStage
 	{
-		Null, PendingDelegation, Accepted, Verified, Placed, Confirmed, FailedOrNotFound
+		Null, 
+		Pending,
+		Accepted, Verified, Placed, Confirmed, FailedOrNotFound
 	}
 
 	public struct Portion

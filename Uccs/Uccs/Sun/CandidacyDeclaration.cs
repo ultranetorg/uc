@@ -12,11 +12,8 @@ namespace Uccs.Net
 		{
 		}
 
-		public CandidacyDeclaration(AccountKey signer, Coin bail)
+		public CandidacyDeclaration(Coin bail)
 		{
-			//if(!Settings.Dev.DisableBailMin && bail < Roundchain.BailMin)	throw new RequirementException("The bail must be greater than or equal to BailMin");
-
-			Signer = signer;
 			Bail = bail;
 		}
 

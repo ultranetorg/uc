@@ -14,7 +14,7 @@ namespace Uccs.Net
 		public static readonly ChainTime	Prolongation = ChainTime.FromDays(30);
 		public static readonly ChainTime	WinnerRegistrationPeriod = ChainTime.FromDays(30);
 		public static readonly ChainTime	RenewaPeriod = ChainTime.FromDays(365);
-		public ChainTime					AuthionEnd => ChainTime.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
+		public ChainTime					AuctionEnd => ChainTime.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 		public string						Name { get; set; }
 		public string						Title { get; set; }
@@ -33,7 +33,7 @@ namespace Uccs.Net
 
 		public static bool IsExpired(Author a, ChainTime time) 
 		{
-			return	a.LastWinner != null && a.Owner == null && time > a.AuthionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
+			return	a.LastWinner != null && a.Owner == null && time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
 					a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
 		}
 
@@ -44,7 +44,7 @@ namespace Uccs.Net
 					author != null && IsExclusive(name) && author.Owner == null && author.LastWinner == by &&	
 						time > author.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
 						time > author.LastBidTime + Prolongation && /// wait until prolongation is over
-						time < author.AuthionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an author during special period
+						time < author.AuctionEnd + WinnerRegistrationPeriod || /// auction is over and a winner can register an author during special period
 					author != null && author.Owner == by &&	time > author.Expiration - RenewaPeriod && /// renewal by owner: renewal is allowed during last year olny
 															time <= author.Expiration
 				  ;
@@ -59,7 +59,7 @@ namespace Uccs.Net
 					return true;
 				}
 				//else if(time - author.FirstBidTime < AuctionMinimalDuration || time - author.LastBidTime < Prolongation)
-				else if(time < author.AuthionEnd)
+				else if(time < author.AuctionEnd)
 				{
 					return true;
 				}

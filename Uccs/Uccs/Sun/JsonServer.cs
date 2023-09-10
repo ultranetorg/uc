@@ -194,12 +194,14 @@ namespace Uccs.Net
 	
 						case UntTransferCall e:
 							
-							AccountKey  pa;
+							AccountKey k;
 								
 							lock(Sun.Lock)
-								pa = Vault.GetKey(e.From);
+								k = Vault.GetKey(e.From);
 
-							return Sun.Enqueue(new UntTransfer(pa, e.To, e.Amount), PlacingStage.Accepted, Workflow);
+							Sun.Enqueue(new UntTransfer(e.To, e.Amount), k, PlacingStage.Accepted, Workflow);
+
+							break;
 		
 						case LogReportCall s:
 							return new LogResponse{Log = Sun.Workflow.Log.Messages.TakeLast(s.Limit).Select(i => i.ToString()).ToArray() }; 

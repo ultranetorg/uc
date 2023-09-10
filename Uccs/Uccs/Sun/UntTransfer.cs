@@ -13,12 +13,10 @@ namespace Uccs.Net
 		{
 		}
 
-		public UntTransfer(AccountKey signer, AccountAddress to, Coin amount)
+		public UntTransfer(AccountAddress to, Coin amount)
 		{
-			if(signer == null)	throw new RequirementException("Source account is null or invalid");
 			if(to == null)		throw new RequirementException("Destination account is null or invalid");
 
-			Signer	= signer;
 			To		= to;
 			Amount	= amount;
 		}

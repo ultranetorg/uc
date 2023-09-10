@@ -31,9 +31,8 @@ namespace Uccs.Net
 		{
 		}
 
-		public AuthorBid(AccountAddress signer, string name, string tld, Coin bid)
+		public AuthorBid(string name, string tld, Coin bid)
 		{
-			Signer = signer;
 			Name = name;
 			Tld = tld ?? "";
 			Bid = bid;
@@ -71,7 +70,7 @@ namespace Uccs.Net
 						
 					return;
 				}
-				else if(round.ConfirmedTime < a.AuthionEnd)
+				else if(round.ConfirmedTime < a.AuctionEnd)
 				{
 					if((!a.DomainOwnersOnly && (a.LastBid < Bid || Tld.Any())) || (a.DomainOwnersOnly && a.LastBid < Bid && Tld.Any())) /// outbid
 					{

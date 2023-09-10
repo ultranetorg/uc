@@ -16,7 +16,7 @@ namespace Uccs.Sun.CLI
 	/// </summary>
 	public class ResourceCommand : Command
 	{
-		public const string Keyword = "package";
+		public const string Keyword = "resource";
 
 		public ResourceCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
@@ -32,22 +32,19 @@ namespace Uccs.Sun.CLI
 				case "c" : 
 				case "create" : 
 				{	
-					var r =	new ResourceCreation(	Sun.Vault.GetKey(AccountAddress.Parse(GetString("by"))), 
-													ResourceAddress.Parse(GetString("address")),
-													byte.Parse(GetString("years")),
-													Args.Has("flags")		? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.Null,
-													Args.Has("type")		? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.Null,
-													Args.Has("data")		? GetHexBytes("data") : null,
-													Args.Has("parent")		? GetString("parent") : null, 
-													Args.Has("analysisfee") ? Coin.ParseDecimal(Args.GetString("analysisfee")) : Coin.Zero);
-
-					return Sun.Enqueue(r, GetAwaitStage(), Workflow);
+					return new ResourceCreation(ResourceAddress.Parse(GetString("address")),
+												byte.Parse(GetString("years")),
+												Args.Has("flags")		? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.Null,
+												Args.Has("type")		? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.Null,
+												Args.Has("data")		? GetHexBytes("data") : null,
+												Args.Has("parent")		? GetString("parent") : null, 
+												Args.Has("analysisfee") ? Coin.ParseDecimal(Args.GetString("analysisfee")) : Coin.Zero);
 				}
 
 				case "u" : 
 				case "update" : 
 				{	
-					var r =	new ResourceUpdation(Sun.Vault.GetKey(AccountAddress.Parse(GetString("by"))), ResourceAddress.Parse(GetString("address")));
+					var r =	new ResourceUpdation(ResourceAddress.Parse(GetString("address")));
 
 					if(Args.Has("years"))		r.Change(byte.Parse(GetString("years")));
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
@@ -57,7 +54,7 @@ namespace Uccs.Sun.CLI
 					if(Args.Has("analysisfee")) r.Change(Coin.ParseDecimal(Args.GetString("analysisfee")));
 					if(Args.Has("recursive"))	r.ChangeRecursive();
 					
-					return Sun.Enqueue(r, GetAwaitStage(), Workflow);
+					return r;
 				}
 
 				case "b" :

@@ -50,26 +50,16 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "bid" : 
-					return Sun.Enqueue(new AuthorBid(	Sun.Vault.GetKey(GetAccountAddress("by")),
-														GetString("name"),
-														GetStringOrEmpty("tld"),
-														Coin.ParseDecimal(GetString("amount"))), 
-														GetAwaitStage(), 
-														Workflow);
+					return new AuthorBid(	GetString("name"),
+											GetStringOrEmpty("tld"),
+											Coin.ParseDecimal(GetString("amount")));
 		   		case "register" : 
-					return Sun.Enqueue(new AuthorRegistration(	Sun.Vault.GetKey(GetAccountAddress("by")), 
-																GetString("name"),
-																GetString("title"),
-																byte.Parse(GetString("years"))),
-																GetAwaitStage(),
-																Workflow);
+					return new AuthorRegistration(	GetString("name"),
+													GetString("title"),
+													byte.Parse(GetString("years")));
 		   		case "transfer" : 
-					return Sun.Enqueue(new AuthorTransfer(	Sun.Vault.GetKey(GetAccountAddress(("from"))), 
-															GetString("name"),
-															AccountAddress.Parse(GetString("to"))),
-															GetAwaitStage(), 
-															Workflow);
-
+					return new AuthorTransfer(	GetString("name"),
+												AccountAddress.Parse(GetString("to")));
 		   		case "info" :
 				{
 					var rp = Sun.Call(i => i.GetAuthorInfo(GetString("name")), Workflow);

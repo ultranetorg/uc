@@ -100,7 +100,7 @@ namespace Uccs.Sun.FUI
 			{
 				try
 				{
-					Sun.Enqueue(new UntTransfer(signer, AccountAddress.Parse(destination.Text), amount.Coins), PlacingStage.Null, new Workflow("UntTransfer"));
+					Sun.Enqueue(new UntTransfer(AccountAddress.Parse(destination.Text), amount.Coins), signer, PlacingStage.Null, new Workflow("UntTransfer"));
 				}
 				catch(RequirementException ex)
 				{

@@ -33,13 +33,13 @@ namespace Uccs.Sun.FUI
 			Close();
 		}
 
-		public bool Ask(Net.Sun sun, AccountKey account, Operation operation)
+		public bool Ask(Net.Sun sun, AccountAddress account, Operation operation)
 		{
 			from.Text = account.ToString();
 			
 			var t = new Transaction(Zone){Generator = AccountKey.Create(), Expiration = 0};
 			t.AddOperation(operation);
-			t.Sign(account, Zone.Cryptography.ZeroHash);
+			//t.Sign(account, Zone.Cryptography.ZeroHash);
 
 			var f = sun.EstimateFee(t.Operations);
 

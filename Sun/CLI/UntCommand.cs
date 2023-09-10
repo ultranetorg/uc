@@ -70,7 +70,6 @@ namespace Uccs.Sun.CLI
 							a.Ask(GetString("from/wallet"));
 							p = a.Password;
 						}
-					
 
 						from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
 																				p, 
@@ -79,18 +78,15 @@ namespace Uccs.Sun.CLI
 
 					return Sun.Emit(from,
 									Web3.Convert.ToWei(GetString("amount")),
-									Sun.Vault.GetKey(AccountAddress.Parse(GetString("to"))), 
-									GetAwaitStage(),
+									Sun.Vault.GetKey(AccountAddress.Parse(GetString("by"))), 
+									Command.GetAwaitStage(Args),
 									Workflow);
 				}
 
 		   		case "transfer" : 
 				{
-					return Sun.Enqueue(new UntTransfer(	Sun.Vault.GetKey(AccountAddress.Parse(GetString("from"))), 
-														AccountAddress.Parse(GetString("to")), 
-														Coin.ParseDecimal(GetString("amount"))),
-														GetAwaitStage(), 
-														Workflow);
+					return new UntTransfer(	AccountAddress.Parse(GetString("to")), 
+											Coin.ParseDecimal(GetString("amount")));
 
 				}
 

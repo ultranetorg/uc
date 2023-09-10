@@ -20,12 +20,11 @@ namespace Uccs.Net
 		{
 		}
 
-		public AuthorRegistration(AccountKey signer, string author, string title, byte years)
+		public AuthorRegistration(string author, string title, byte years)
 		{
 			if(!Operation.IsValid(author, title))
 				throw new ArgumentException("Invalid Author name/title");
 
-			Signer = signer;
 			Name = author;
 			Title = title;
 			Years = years;

@@ -13,9 +13,8 @@ namespace Uccs.Net
 		{
 		}
 
-		public AuthorTransfer(AccountKey signer, string name, AccountAddress to)
+		public AuthorTransfer(string name, AccountAddress to)
 		{
-			Signer = signer;
 			Author = name;
 			To = to;
 		}

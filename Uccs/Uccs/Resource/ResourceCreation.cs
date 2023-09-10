@@ -29,9 +29,8 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceCreation(AccountAddress signer, ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent, Coin analysisfee)
+		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent, Coin analysisfee)
 		{
-			Signer = signer;
 			Resource = resource;
 			Years = years;
 			Flags = flags;

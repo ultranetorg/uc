@@ -14,6 +14,7 @@ using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Web3;
 using Org.BouncyCastle.Math;
 using System.Threading;
+using System.Reflection;
 
 namespace Uccs.Sun.FUI
 {
@@ -192,7 +193,7 @@ namespace Uccs.Sun.FUI
 
 			try
 			{
-				Sun.FinishEmission(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress));
+				Sun.FinishEmission(GetPrivate(Unfinished.SelectedItems[0].Tag as AccountAddress), new Workflow(MethodBase.GetCurrentMethod().Name));
 
 				transfergroup.Enabled = true;
 				finishgroup.Enabled = true;

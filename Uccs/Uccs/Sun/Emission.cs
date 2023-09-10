@@ -21,9 +21,8 @@ namespace Uccs.Net
 		{
 		}
 
-		public Emission(AccountAddress signer, BigInteger wei, int eid)
+		public Emission(BigInteger wei, int eid)
 		{
-			Signer = signer;
 			Wei = wei;
 			Eid = eid;
 		}

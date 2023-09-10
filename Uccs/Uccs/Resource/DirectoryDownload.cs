@@ -95,7 +95,7 @@ namespace Uccs.Net
 				}
 				finally
 				{
-					lock(sun.Packages.Lock)
+					lock(sun.Resources.Lock)
 						sun.Resources.DirectoryDownloads.Remove(this);
 				}
 			}

@@ -98,7 +98,7 @@ namespace Uccs.Net
 
 		public List<Transaction>		IncomingTransactions = new();
 		List<Transaction>				OutgoingTransactions = new();
-		public List<Operation>			Operations	= new();
+		//public List<Operation>			Operations	= new();
 		public List<Analysis>			Analyses = new();
 
 		public Coin						TransactionPerByteMinFee;
@@ -162,7 +162,7 @@ namespace Uccs.Net
 				f.Add(new ("IP(Reported):Port",			$"{Settings.IP} ({IP}) : {Zone.Port}"));
 				f.Add(new ("Incoming Transactions",		$"{IncomingTransactions.Count}"));
 				f.Add(new ("Outgoing Transactions",		$"{OutgoingTransactions.Count}"));
-				f.Add(new ("    Pending Delegation",	$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.PendingDelegation)}"));
+				f.Add(new ("    Pending Delegation",	$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Pending)}"));
 				f.Add(new ("    Accepted",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"));
 				f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
 				f.Add(new ("    Placed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"));
@@ -1615,8 +1615,6 @@ namespace Uccs.Net
 
 		void Transacting()
 		{
-			Operation[]					next;
-			bool						ready;
 			IEnumerable<Transaction>	accepted;
 
 			Workflow.Log?.Report(this, "Delegating started");
@@ -1628,7 +1626,7 @@ namespace Uccs.Net
 			{
 				lock(Lock)
 				{
-					if(!Operations.Any())
+					if(!OutgoingTransactions.Any())
 					{
 						TransactingThread = null;
 						return;
@@ -1787,72 +1785,66 @@ namespace Uccs.Net
 
 				Statistics.Transacting.Begin();
 
+				var txs = new List<Transaction>();
+				
 				lock(Lock)
 				{
 					if(rdi == this && Synchronization != Synchronization.Synchronized)
 						continue;
 
-					next = Operations.Where(i => i.Transaction == null).ToArray();
-					ready = next.Any() && !OutgoingTransactions.Any(i => i.Placing >= PlacingStage.Accepted);
-				}
-
-				if(ready) /// Any pending ops and no delegated cause we first need to recieve a valid block to keep tx id sequential correctly
-				{
-					var txs = new List<Transaction>();
-
-					lock(Lock)
+					if(!OutgoingTransactions.Any(i => i.Placing >= PlacingStage.Accepted))
 					{
-						foreach(var g in next.GroupBy(i => i.Signer))
+						foreach(var g in OutgoingTransactions.Where(i => i.Placing == PlacingStage.Null).GroupBy(i => i.Signer))
 						{
 							Monitor.Exit(Lock);
 
 							var at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Account = g.Key});
 									
 							Monitor.Enter(Lock);
+							
+							int tid = at.NextTransactionId;
 
-							var t = new Transaction(Zone)
-									{
-										Id = at.NextTransactionId,
-										Generator = m,
-										Expiration = at.MaxRoundId
-									};
-
-							foreach(var o in g)
+							foreach(var t in g)
 							{
-								t.AddOperation(o);
-								t.Fee += o.CalculateTransactionFee(at.PerByteMinFee);
+								t.Id = tid++;
+								t.Generator = m;
+								t.Expiration = at.MaxRoundId;
+	
+								foreach(var o in t.Operations)
+								{
+									t.Fee += o.CalculateTransactionFee(at.PerByteMinFee);
+								}
+	
+								t.Sign(Vault.GetKey(t.Signer), at.PowHash);
+								txs.Add(t);
 							}
-
-
-							t.Sign(Vault.GetKey(g.Key), at.PowHash);
-							txs.Add(t);
 						}
 					}
+				}
+
+				IEnumerable<Transaction> atxs = null;
+
+				try
+				{
+					atxs = rdi.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i))).ToArray();
+				}
+				catch(RdcNodeException)
+				{
+					rdi = null;
+					goto chooserdi;
+				}
 	
-					IEnumerable<Transaction> atxs = null;
+				lock(Lock)
+				{	
+					foreach(var i in atxs)
+						i.Placing = PlacingStage.Accepted;
 
-					try
-					{
-						atxs = rdi.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i))).ToArray();
-					}
-					catch(RdcNodeException)
-					{
-						rdi = null;
-						goto chooserdi;
-					}
-	
-					lock(Lock)
-					{	
-						foreach(var i in atxs)
-							i.Placing = PlacingStage.Accepted;
+					//OutgoingTransactions.AddRange(atxs);
 
-						OutgoingTransactions.AddRange(atxs);
-
-						foreach(var i in txs.Where(t => !atxs.Contains(t)))
-							foreach(var o in i.Operations)
-								o.Transaction = null;
-
-					}
+					//foreach(var i in txs.Where(t => !atxs.Contains(t)))
+					//	foreach(var o in i.Operations)
+					//		o.Transaction = null;
+					//
 					
 					if(atxs.Any())
 					{
@@ -1893,11 +1885,6 @@ namespace Uccs.Net
 										#endif
 
 										OutgoingTransactions.Remove(t);
-
-										foreach(var o in t.Operations)
-										{
-											Operations.Remove(o);
-										}
 									}
 								}
 							}
@@ -1914,9 +1901,9 @@ namespace Uccs.Net
 			}
 		}
 
-		void Enqueue(Operation o)
+		void Enqueue(Transaction t)
 		{
-			if(Operations.Count <= OperationsQueueLimit)
+			if(OutgoingTransactions.Count <= OperationsQueueLimit)
 			{
 				if(TransactingThread == null)
 				{
@@ -1928,7 +1915,7 @@ namespace Uccs.Net
 															catch(OperationCanceledException)
 															{
 															}
-															catch(Exception ex) when (!Debugger.IsAttached)
+															catch(Exception ex) when (!Debugger.IsAttached && Workflow.Active)
 															{
 																Stop(MethodBase.GetCurrentMethod(), ex);
 															}
@@ -1939,7 +1926,7 @@ namespace Uccs.Net
 				}
 
 				//o.Placing = PlacingStage.PendingDelegation;
-				Operations.Add(o);
+				OutgoingTransactions.Add(t);
 			} 
 			else
 			{
@@ -1947,75 +1934,69 @@ namespace Uccs.Net
 			}
 		}
 		
-		public Operation Enqueue(Operation operation, PlacingStage waitstage, Workflow workflow)
-		{
-			operation.__ExpectedPlacing = waitstage;
-
-			if(FeeAsker.Ask(this, operation.Signer as AccountKey, operation))
-			{
-				lock(Lock)
-				 	Enqueue(operation);
-
-				Await(operation, waitstage, workflow);
-
-				return operation;
-			}
-			else
-				return null;
-		}
+// 		public Operation Enqueue(Operation operation, PlacingStage waitstage, Workflow workflow)
+// 		{
+// 			operation.__ExpectedPlacing = waitstage;
+// 
+// 			if(FeeAsker.Ask(this, operation.Signer as AccountKey, operation))
+// 			{
+// 				lock(Lock)
+// 				 	Enqueue(operation);
+// 
+// 				Await(operation, waitstage, workflow);
+// 
+// 				return operation;
+// 			}
+// 			else
+// 				return null;
+// 		}
 		
- 		public void Enqueue(IEnumerable<Operation> operations, PlacingStage waitstage, Workflow workflow)
- 		{
- 			lock(Lock)
- 				foreach(var i in operations)
- 				{
- 					i.__ExpectedPlacing = waitstage;
- 
- 					if(FeeAsker.Ask(this, i.Signer as AccountKey, i))
- 					{
- 				 		Enqueue(i);
- 					}
- 				}
- 
- 			while(workflow.Active)
- 			{ 
- 				if(operations.All(o => o.Transaction != null))
- 				{
-	 				switch(waitstage)
-	 				{
-	 					case PlacingStage.Null :				return;
-	 					case PlacingStage.Accepted :			if(operations.All(o => o.Transaction.Placing >= PlacingStage.Accepted))			return; else break;
-	 					case PlacingStage.Placed :				if(operations.All(o => o.Transaction.Placing >= PlacingStage.Placed))			return; else break;
-	 					case PlacingStage.Confirmed :			if(operations.All(o => o.Transaction.Placing == PlacingStage.Confirmed))		return; else break;
-	 					case PlacingStage.FailedOrNotFound :	if(operations.All(o => o.Transaction.Placing == PlacingStage.FailedOrNotFound)) return; else break;
-	 				}
- 				}
+		public void Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
+		{
+			Enqueue(new Operation[] {operation}, signer, await, workflow);
+		}
 
- 				Thread.Sleep(100);
- 			}
+ 		public void Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage awaitstage, Workflow workflow)
+ 		{
+			var t = new Transaction(Zone);
+
+ 			lock(Lock)
+			{	
+				t.Signer = signer;
+			
+				foreach(var i in operations)
+				{
+ 					i.__ExpectedPlacing = awaitstage;
+					t.AddOperation(i);
+				}
+				 
+ 				if(FeeAsker.Ask(this, signer, null))
+ 				{
+ 				 	Enqueue(t);
+ 				}
+			}
+ 
+			Await(t, awaitstage, workflow);
  		}
 
-		void Await(Operation o, PlacingStage s, Workflow workflow)
+		void Await(Transaction t, PlacingStage s, Workflow workflow)
 		{
 			while(workflow.Active)
 			{ 
-				if(o.Transaction == null)
-					continue;
-
 				switch(s)
 				{
 					case PlacingStage.Null :				return;
-					case PlacingStage.Accepted :			if(o.Transaction.Placing >= PlacingStage.Accepted) goto end; else break;
-					case PlacingStage.Placed :				if(o.Transaction.Placing >= PlacingStage.Placed) goto end; else break;
-					case PlacingStage.Confirmed :			if(o.Transaction.Placing == PlacingStage.Confirmed) goto end; else break;
-					case PlacingStage.FailedOrNotFound :	if(o.Transaction.Placing == PlacingStage.FailedOrNotFound) goto end; else break;
+					case PlacingStage.Accepted :			if(t.Placing >= PlacingStage.Accepted) goto end; else break;
+					case PlacingStage.Placed :				if(t.Placing >= PlacingStage.Placed) goto end; else break;
+					case PlacingStage.Confirmed :			if(t.Placing == PlacingStage.Confirmed) goto end; else break;
+					case PlacingStage.FailedOrNotFound :	if(t.Placing == PlacingStage.FailedOrNotFound) goto end; else break;
 				}
 
 				Thread.Sleep(100);
 			}
 
 			end:
-				workflow.Log?.Report(this, $"Operation {o.Transaction?.Placing}", o.ToString());
+				workflow.Log?.Report(this, $"Transaction is {t.Placing}", t.ToString());
 		}
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
@@ -2260,24 +2241,20 @@ namespace Uccs.Net
 
 			Nas.Emit(a, wei, signer, GasAsker, eid, workflow);		
 						
-			var o = new Emission(signer, wei, eid);
+			var o = new Emission(wei, eid);
 
 
 			//flow?.SetOperation(o);
 						
 			if(FeeAsker.Ask(this, signer, o))
 			{
-				Enqueue(o, awaitstage, workflow);
-	
-				workflow?.Log?.Report(this, "State changed", $"{o} is queued for placing and confirmation");
-						
 				return o;
 			}
 
 			return null;
 		}
 
-		public Emission FinishEmission(AccountKey signer, Workflow workflow = null)
+		public Emission FinishEmission(AccountKey signer, Workflow workflow)
 		{
 			lock(Lock)
 			{
@@ -2300,11 +2277,11 @@ namespace Uccs.Net
 				if(wei == 0)
 					throw new RequirementException("No corresponding Ethrereum transaction found");
 
-				var o = new Emission(signer, wei, eid);
+				var o = new Emission(wei, eid);
 
 				if(FeeAsker.Ask(this, signer, o))
 				{
-					Enqueue(o);
+					Enqueue(o, signer, PlacingStage.Confirmed, workflow);
 					return o;
 				}
 			}

@@ -28,9 +28,8 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceUpdation(AccountAddress signer, ResourceAddress resource)
+		public ResourceUpdation(ResourceAddress resource)
 		{
-			Signer = signer;
 			Resource = resource;
 		}
 		

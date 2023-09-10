@@ -193,16 +193,16 @@ namespace Uccs.Net
 									};
 
 			var t = new Transaction(Zone) {Id = 0, Generator = gen, Expiration = 0};
-			t.AddOperation(new Emission(Zone.OrgAccount, Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
-			t.AddOperation(new AuthorBid(Zone.OrgAccount, "uo", null, 1));
+			t.AddOperation(new Emission(Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
+			t.AddOperation(new AuthorBid("uo", null, 1));
 			t.Sign(org, Zone.Cryptography.ZeroHash);
 			b0.AddTransaction(t);
 			
 			foreach(var f in fathers.OrderBy(j => j).ToArray())
 			{
 				t = new Transaction(Zone) {Id = 0, Generator = gen, Expiration = 0};
-				t.AddOperation(new Emission(f, Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
-				t.AddOperation(new CandidacyDeclaration(f, 1000_000));
+				t.AddOperation(new Emission(Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
+				t.AddOperation(new CandidacyDeclaration(1000_000));
 			
 				t.Sign(f, Zone.Cryptography.ZeroHash);
 			
@@ -226,7 +226,7 @@ namespace Uccs.Net
 									};
 	
 			t = new Transaction(Zone){Id = 1, Generator = gen, Expiration = 1};
-			t.AddOperation(new AuthorRegistration(org, "uo", "UO", EntityAllocationYearsMax));
+			t.AddOperation(new AuthorRegistration("uo", "UO", EntityAllocationYearsMax));
 			t.Sign(org, Zone.Cryptography.ZeroHash);
 			b1.AddTransaction(t);
 			

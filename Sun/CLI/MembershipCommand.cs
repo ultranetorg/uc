@@ -37,12 +37,8 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "declare" : 
-					return Sun.Enqueue(new CandidacyDeclaration(	Sun.Vault.GetKey(AccountAddress.Parse(GetString("candidate"))), 
-																	Coin.ParseDecimal(GetString("bail"))), 
-																	//GetString("ips").Split(' ').Select(i => IPAddress.Parse(i))),
-																	GetAwaitStage(), 
-																	Workflow);
-
+					return new CandidacyDeclaration(Coin.ParseDecimal(GetString("bail")));
+				
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

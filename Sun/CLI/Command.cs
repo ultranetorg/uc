@@ -14,14 +14,14 @@ namespace Uccs.Sun.CLI
 {
 	public abstract class Command
 	{
-		//public string			ProductsDirectory => Path.Join(Assembly.GetEntryAssembly().Location, "..");
 		protected Settings		Settings; 
 		protected Xon			Args;
-		protected Net.Sun		Sun => GetCore();
+		public Net.Sun			Sun => GetCore();
 		protected Func<Net.Sun>	GetCore;
 		public static bool		ConsoleSupported { get; protected set; }
 		public Workflow			Workflow { get; }
 		public Zone				Zone;
+		public const string		AwaitArg = "await";
 
 		public abstract object Execute();
 
@@ -47,7 +47,7 @@ namespace Uccs.Sun.CLI
 			Workflow = workflow;
 		}
 
-		protected AccountAddress GetAccountAddress(string paramenter)
+		public AccountAddress GetAccountAddress(string paramenter)
 		{
 			if(Args.Has(paramenter))
 				return AccountAddress.Parse(GetString(paramenter));
@@ -160,20 +160,11 @@ namespace Uccs.Sun.CLI
 			document.Dump((n, l) => Workflow.Log?.Report(this, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
 		}
 
-		public PlacingStage GetAwaitStage()
+		public static PlacingStage GetAwaitStage(Xon args)
 		{
-			if(Args.Has("await"))
+			if(args.Has(AwaitArg))
 			{
-				switch(Args.GetString("await"))
-				{
-					case "null" :				return PlacingStage.Null;
-					case "accepted" :			return PlacingStage.Accepted;
-					case "placed" :				return PlacingStage.Placed;
-					case "confirmed" :			return PlacingStage.Confirmed;
-					case "failedornotfound" :	return PlacingStage.FailedOrNotFound;
-				}
-			
-				throw new SyntaxException("Unknown awaiting stage");
+				return Enum.GetValues<PlacingStage>().First(i => i.ToString().ToLower() == args.GetString(AwaitArg));
 			}
 			else
 				return PlacingStage.Placed;
