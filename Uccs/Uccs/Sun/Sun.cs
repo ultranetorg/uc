@@ -1879,7 +1879,7 @@ namespace Uccs.Net
 										#if DEBUG
 											if(t.Operations.Any(o => o.__ExpectedPlacing != PlacingStage.Null && o.__ExpectedPlacing != i.Placing))
 											{	
-												rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
+												//rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
 												Debugger.Break();
 											}
 										#endif
