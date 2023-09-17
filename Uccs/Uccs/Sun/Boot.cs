@@ -59,7 +59,7 @@ namespace Uccs.Net
 
 		public void Load(Xon boot, Xon cmd)
 		{
- 			ZonePath = boot.GetString("Zone");
+ 			ZonePath = boot.Get<string>("Zone");
 		
  			Parse(cmd, (n,v) => { 
  									switch(n)

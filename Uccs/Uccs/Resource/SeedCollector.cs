@@ -18,6 +18,11 @@ namespace Uccs.Net
 			public DateTime		Failed;
 
 			public bool			Good => Peer != null && Peer.Status == ConnectionStatus.OK && Failed == DateTime.MinValue;
+
+			public override string ToString()
+			{
+				return $"{IP}, Good={Good}, Failed={Failed}";
+			}
 		}
 
 		public class Hub
@@ -65,6 +70,7 @@ namespace Uccs.Net
 											var seeds = lr.Seeders.Where(i => !Collector.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 
 											Collector.Seeds.AddRange(seeds);
+											//Collector.SeedsFound.Set();
 										}
 
 										while(Collector.Workflow.Active)
@@ -128,6 +134,7 @@ namespace Uccs.Net
 		public List<Hub>			Hubs = new();
 		public List<Seed>			Seeds = new();
 		public object				Lock = new object();
+		//public AutoResetEvent		SeedsFound = new(true);
 
 		int							hubsgoodmax = 8;
 		Thread						Thread;

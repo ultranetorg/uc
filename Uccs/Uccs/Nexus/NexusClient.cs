@@ -29,7 +29,7 @@ namespace Uccs.Uos
 			SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
 			Zone			=	null;//Environment.GetEnvironmentVariable(Nexus.BootZone);
 
-			Sun = new JsonClient(Http, SunAddress, Zone, SunApiKey);
+			Sun = new JsonClient(Http, SunAddress, SunApiKey);
 
 			var s = Sun.GetSettings(new Workflow("GetSettings"));
 
@@ -84,7 +84,7 @@ namespace Uccs.Uos
 				
 				var s = new XonDocument(File.ReadAllText(f));
 				
-				Process.Start(s.GetString("Executable"), s.GetString("Arguments"));
+				Process.Start(s.Get<string>("Executable"), s.Get<string>("Arguments"));
 			}
 		}
 	}

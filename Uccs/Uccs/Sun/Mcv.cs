@@ -173,7 +173,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public string CreateGenesis(AccountKey gen, AccountKey org, AccountKey[] fathers)
+		public string CreateGenesis(AccountKey god, AccountKey org, AccountKey[] fathers)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -192,7 +192,7 @@ namespace Uccs.Net
 										ParentSummary	= Zone.Cryptography.ZeroHash,
 									};
 
-			var t = new Transaction(Zone) {Id = 0, Generator = gen, Expiration = 0};
+			var t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
 			t.AddOperation(new Emission(Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
 			t.AddOperation(new AuthorBid("uo", null, 1));
 			t.Sign(org, Zone.Cryptography.ZeroHash);
@@ -200,7 +200,7 @@ namespace Uccs.Net
 			
 			foreach(var f in fathers.OrderBy(j => j).ToArray())
 			{
-				t = new Transaction(Zone) {Id = 0, Generator = gen, Expiration = 0};
+				t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
 				t.AddOperation(new Emission(Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
 				t.AddOperation(new CandidacyDeclaration(1000_000));
 			
@@ -209,7 +209,7 @@ namespace Uccs.Net
 				b0.AddTransaction(t);
 			}
 			
-			b0.Sign(gen);
+			b0.Sign(god);
 			Add(b0);
 
 
@@ -225,12 +225,12 @@ namespace Uccs.Net
 										ParentSummary	= Zone.Cryptography.ZeroHash,
 									};
 	
-			t = new Transaction(Zone){Id = 1, Generator = gen, Expiration = 1};
+			t = new Transaction(Zone){Id = 1, Generator = god, Expiration = 1};
 			t.AddOperation(new AuthorRegistration("uo", "UO", EntityAllocationYearsMax));
 			t.Sign(org, Zone.Cryptography.ZeroHash);
 			b1.AddTransaction(t);
 			
-			b1.Sign(gen);
+			b1.Sign(god);
 			Add(b1);
 			write(1);
 	
@@ -246,7 +246,7 @@ namespace Uccs.Net
 				if(i == 16)
 					b.MemberJoiners.Add(Zone.Father0);
 	
-				b.Sign(gen);
+				b.Sign(god);
 				Add(b);
 
 				write(i);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -41,7 +42,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, {Placing}, Operations={{{Operations.Count}}}, Signer={Signer}, Generator={Generator}, Expiration={Expiration}, Signature={Hex.ToHexString(Signature)}";
+			return $"Id={Id}, {Placing}, Operations={{{Operations.Count}}}, Signer={Signer}, Generator={Generator}, Expiration={Expiration}, Signature={Signature?.ToHex()}";
 		}
 
 		public void Sign(AccountKey signer, byte[] powhash)

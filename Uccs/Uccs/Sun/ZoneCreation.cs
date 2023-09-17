@@ -56,7 +56,7 @@ namespace Uccs.Net
 		}
 
 		public Father			Gen;
-		public Father			Org;
+		public Father			UOFund;
 		public Father[]			Fathers;
 	}
 }

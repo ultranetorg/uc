@@ -1,15 +1,9 @@
-﻿using Nethereum.Signer;
-using Nethereum.Web3;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Numerics;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -108,14 +102,14 @@ namespace Uccs.Sun.CLI
 
 			switch(t)
 			{
-				case RunCommand.Keyword:			c = new RunCommand(zone, settings, workflow, sun, args); break;
-				case DevCommand.Keyword:			c = new DevCommand(zone, settings, workflow, sun, args); break;
-				case AccountCommand.Keyword:		c = new AccountCommand(zone, settings, workflow, sun, args); break;
-				case UntCommand.Keyword:			c = new UntCommand(zone, settings, workflow, sun, args); break;
-				case MembershipCommand.Keyword:		c = new MembershipCommand(zone, settings, workflow, sun, args); break;
-				case AuthorCommand.Keyword:			c = new AuthorCommand(zone, settings, workflow, sun, args); break;
-				case PackageCommand.Keyword:		c = new PackageCommand(zone, settings, workflow, sun, args); break;
-				case ResourceCommand.Keyword:		c = new ResourceCommand(zone, settings, workflow, sun, args); break;
+				case RunCommand.Keyword:		c = new RunCommand(zone, settings, workflow, sun, args); break;
+				case DevCommand.Keyword:		c = new DevCommand(zone, settings, workflow, sun, args); break;
+				case AccountCommand.Keyword:	c = new AccountCommand(zone, settings, workflow, sun, args); break;
+				case UntCommand.Keyword:		c = new UntCommand(zone, settings, workflow, sun, args); break;
+				case MembershipCommand.Keyword:	c = new MembershipCommand(zone, settings, workflow, sun, args); break;
+				case AuthorCommand.Keyword:		c = new AuthorCommand(zone, settings, workflow, sun, args); break;
+				case PackageCommand.Keyword:	c = new PackageCommand(zone, settings, workflow, sun, args); break;
+				case ResourceCommand.Keyword:	c = new ResourceCommand(zone, settings, workflow, sun, args); break;
 			}
 
 			return c;
@@ -143,7 +137,7 @@ namespace Uccs.Sun.CLI
 
 				var ops = command.Nodes.Where(i => i.Name != "await" && i.Name != "by").Select(i => Create(zone, settings, workflow, getsun, i).Execute() as Operation).ToArray();
 
-				sun.Enqueue(ops, sun.Vault.GetKey(AccountAddress.Parse(command.GetString("by"))), Command.GetAwaitStage(command), workflow);
+				sun.Enqueue(ops, sun.Vault.GetKey(AccountAddress.Parse(command.Get<string>("by"))), Command.GetAwaitStage(command), workflow);
 
 				return ops;
 			}

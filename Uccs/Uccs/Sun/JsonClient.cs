@@ -56,10 +56,10 @@ namespace Uccs.Net
 			Options.Converters.Add(new XonDocumentJsonConverter());
 		}
 
-		public JsonClient(HttpClient http, string server, Zone zone, string accesskey)
+		public JsonClient(HttpClient http, string address, string accesskey)
 		{
 			HttpClient = http;
-			Address = $"http://{server}:{zone.JsonPort}";
+			Address = address;
 			Key = accesskey;
 		}
 

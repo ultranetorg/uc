@@ -73,7 +73,7 @@ namespace Uccs.Net
 
 		public AccountKey GetKey(AccountAddress a)
 		{
-			return Keys.Find(i => i == a) as AccountKey;
+			return Keys.Find(i => i == a);
 		}
 
 		public string AddWallet(AccountKey a, string password)

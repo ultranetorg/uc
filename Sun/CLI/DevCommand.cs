@@ -60,34 +60,6 @@ namespace Uccs.Sun.CLI
 
 					return null;
 
-				case "signingtest" :
-				{
-					var t = DateTime.Now;
-
-					var c = Cryptography.Ethereum;
-
-					var a = AccountKey.Create();
-
-					var h = c.Hash(BitConverter.GetBytes(t.Ticks));
-					int n = 0;
-
-					while(Workflow.Active)
-					{
-						var s = c.Sign(a, h);
-				
-						n++;
-
-						if(DateTime.Now - t > TimeSpan.FromSeconds(1))
-						{
-							Workflow.Log.Report(this, null, $"Signs per second: {n}");
-
-							t = DateTime.Now;
-							n = 0;
-						}
-					}
-					return null;
-				}
-
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

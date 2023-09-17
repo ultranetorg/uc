@@ -74,7 +74,7 @@ namespace Uccs.Sun.CLI
 		protected string GetString(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return Args.GetString(paramenter);
+				return Args.Get<string>(paramenter);
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -82,7 +82,7 @@ namespace Uccs.Sun.CLI
 		protected long GetLong(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return long.Parse(Args.GetString(paramenter));
+				return long.Parse(Args.Get<string>(paramenter));
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -90,7 +90,7 @@ namespace Uccs.Sun.CLI
 		protected byte[] GetHexBytes(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return Hex.Decode(Args.GetString(paramenter));
+				return Hex.Decode(Args.Get<string>(paramenter));
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -98,7 +98,7 @@ namespace Uccs.Sun.CLI
 		protected Version GetVersion(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return Version.Parse(Args.GetString(paramenter));
+				return Version.Parse(Args.Get<string>(paramenter));
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -106,7 +106,7 @@ namespace Uccs.Sun.CLI
 		protected string GetStringOrEmpty(string paramenter)
 		{
 			if(Args.Has(paramenter))
-				return Args.GetString(paramenter);
+				return Args.Get<string>(paramenter);
 			else
 				return string.Empty;
 		}
@@ -164,7 +164,7 @@ namespace Uccs.Sun.CLI
 		{
 			if(args.Has(AwaitArg))
 			{
-				return Enum.GetValues<PlacingStage>().First(i => i.ToString().ToLower() == args.GetString(AwaitArg));
+				return Enum.GetValues<PlacingStage>().First(i => i.ToString().ToLower() == args.Get<string>(AwaitArg));
 			}
 			else
 				return PlacingStage.Placed;

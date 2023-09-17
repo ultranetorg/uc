@@ -51,13 +51,13 @@ namespace Uccs.Net
 		Base		= 0b00000001,
 		Chain		= 0b00000011,
 		//Analyzer	= 0b00000101,
-		Seeder		= 0b00001000,
+		Seed		= 0b00001000,
 	}
 
 	public class ReleaseStatus
 	{
-		public bool				ExistsRecursively { get; set; }
-		public Manifest			Manifest { get; set; }
+		public bool						ExistsRecursively { get; set; }
+		public Manifest					Manifest { get; set; }
 		public PackageDownloadReport	Download { get; set; }
 	}
 
@@ -79,8 +79,8 @@ namespace Uccs.Net
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 		public Mcv						Mcv;
 		public ResourceHub				Resources;
-		public PackageHub					Packages;
-		public SeedHub						Hub;
+		public PackageHub				Packages;
+		public SeedHub					Hub;
 		public bool						IsClient => ListeningThread == null;
 		public object					Lock = new();
 		public Clock					Clock;
@@ -98,7 +98,6 @@ namespace Uccs.Net
 
 		public List<Transaction>		IncomingTransactions = new();
 		List<Transaction>				OutgoingTransactions = new();
-		//public List<Operation>			Operations	= new();
 		public List<Analysis>			Analyses = new();
 
 		public Coin						TransactionPerByteMinFee;
@@ -106,7 +105,7 @@ namespace Uccs.Net
 
 		bool							MinimalPeersReached;
 		bool							OnlineBroadcasted;
-		public List<Peer>				Peers		= new();
+		public List<Peer>				Peers = new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
 		public IEnumerable<Peer>		Bases
 										{
@@ -117,7 +116,6 @@ namespace Uccs.Net
 										}
 
 		public List<IPAddress>			IgnoredIPs	= new();
-		//public List<Member>				Members = new();
 
 		TcpListener						Listener;
 		public Thread					MainThread;
@@ -255,7 +253,7 @@ namespace Uccs.Net
 	
 			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}" +
 					$"{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}" +
-					$"{(Settings.Roles.HasFlag(Role.Seeder) ? "S" : "")}" +
+					$"{(Settings.Roles.HasFlag(Role.Seed) ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
 					$"{(Settings.Anonymous ? " - A" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? $" - {IP}" : "")}" +
@@ -295,7 +293,7 @@ namespace Uccs.Net
 			Workflow = workflow.CreateNested("RunUser");
 			Nuid = Guid.NewGuid();
 
-			if(Settings.Roles.HasFlag(Role.Seeder))
+			if(Settings.Roles.HasFlag(Role.Seed))
 			{
 				Resources = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
 				Packages = new PackageHub(this, Resources, Settings.Packages);
@@ -333,6 +331,8 @@ namespace Uccs.Net
 		{
 			Workflow = workflow != null ? workflow.CreateNested("RunNode", new Log()) : new Workflow("RunNode", new Log());
 
+			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
+
 			Workflow.Log?.Report(this, $"Ultranet Node/Client {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
@@ -360,7 +360,7 @@ namespace Uccs.Net
 				Hub = new SeedHub(this);
 			}
 
-			if(Settings.Roles.HasFlag(Role.Seeder))
+			if(Settings.Roles.HasFlag(Role.Seed))
 			{
 				Resources = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
 				Packages = new PackageHub(this, Resources, Settings.Packages);

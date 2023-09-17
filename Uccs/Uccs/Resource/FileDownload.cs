@@ -48,6 +48,7 @@ namespace Uccs.Net
 	public class FileDownload
 	{
 		public const int DefaultPieceLength = 512 * 1024;
+		public const int MaxThreadsCount = 8;
 
 		public class Piece
 		{
@@ -96,7 +97,7 @@ namespace Uccs.Net
 
 		public Task				Task;
 		public SeedCollector	SeedCollector;
-		List<Piece>				CurrentPieces = new();
+		public List<Piece>		CurrentPieces = new();
 		Sun						Sun;
 		Workflow				Workflow;
 		public object			Lock = new object();
@@ -119,18 +120,20 @@ namespace Uccs.Net
 	
 										lock(Lock)
 										{
-											if(File == null || (File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count > 0 && CurrentPieces.Count < 8))
+											int left() => File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count;
+
+											if(File == null || (left() > 0 && CurrentPieces.Count < MaxThreadsCount))
 											{
-												SeedCollector.Seed s;
+												SeedCollector.Seed[] seeds;
 	
 												lock(SeedCollector.Lock)
-													s = SeedCollector.Seeds.Find(i => i.Good && CurrentPieces.All(j => j.Seed != i)); /// skip currrently used
+													seeds = SeedCollector.Seeds.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i)).ToArray(); /// skip currrently used
 												
-												if(s != null)
+												if(seeds.Any())
 												{
 													if(File == null)
 													{
-														var l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
+														var l = Sun.Call(seeds.First().IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
 														
 														lock(Sun.Resources.Lock)
 														{
@@ -139,7 +142,15 @@ namespace Uccs.Net
 													}
 													
 													if(Length > 0)
-														CurrentPieces.Add(new Piece(this, s, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
+													{
+														var s = seeds.AsEnumerable().GetEnumerator();
+
+														for(int i=0; i < Math.Min(seeds.Length, Math.Min(left(), MaxThreadsCount - CurrentPieces.Count)); i++)
+														{
+															s.MoveNext();
+															CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
+														}
+													}
 													else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash))
 													{
 														Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, 0, new byte[0]);
@@ -176,10 +187,15 @@ namespace Uccs.Net
 											{
 												continue;
 											}
+											if(tasks.Length > 1)
+												File=File;
 										}
 	
-										var ti = Task.WaitAny(tasks, workflow.Cancellation);
-	
+										var ti = Task.WaitAny(tasks, 100, workflow.Cancellation);
+										
+										if(ti == -1)
+											continue;
+
 										lock(Lock)
 										{	
 											var p = CurrentPieces.Find(i => i.Task == tasks[ti]);

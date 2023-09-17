@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Reflection.PortableExecutable;
 using System.Text;
-using System.Threading.Tasks;
 using Org.BouncyCastle.Utilities.Encoders;
 using Uccs.Net;
 
@@ -36,19 +34,25 @@ namespace Uccs
 				return null;
 			}
 
-			if(val is string s)				return s;
-			if(val is byte b)				return b.ToString();
-			if(val is int i)				return i.ToString();
-			if(val is long l)				return l.ToString();
-			if(val is byte[] ba)			return Hex.ToHexString(ba);
-			if(val is AccountAddress aa)	return aa.ToString();
-			if(val is ResourceAddress ra)	return ra.ToString();
-			if(val is PackageAddress pa)	return pa.ToString();
-			if(val is Version v)			return v.ToString();
-			if(val is IPAddress ip)			return ip.ToString();
-			if(val is ChainTime t)			return t.ToString();
-			if(val is Coin c)				return c.ToHumanString();
-			if(val.GetType().IsEnum)		return val.ToString();
+			if(	val is string			||
+				val is byte				||
+				val is sbyte			||
+				val is short			||
+				val is ushort			||
+				val is int				||
+				val is uint				||
+				val is long				||
+				val is ulong			||
+				val is AccountAddress	||
+				val is ResourceAddress	||
+				val is PackageAddress	||
+				val is Version			||
+				val is IPAddress		||
+				val is ChainTime		||
+				val.GetType().IsEnum)
+				return val.ToString();
+			if(val is Coin c)		return c.ToHumanString();
+			if(val is byte[] ba)	return Hex.ToHexString(ba);
 
 			throw new NotSupportedException();
 		}
@@ -57,10 +61,15 @@ namespace Uccs
 		{
 			var v = value as string;
 
-			if(typeof(O) == typeof(string))				return (O)(object)v;
+			if(typeof(O) == typeof(string))				return (O)value;
 			if(typeof(O) == typeof(byte))				return (O)(object)byte.Parse(v);
+			if(typeof(O) == typeof(sbyte))				return (O)(object)sbyte.Parse(v);
+			if(typeof(O) == typeof(short))				return (O)(object)short.Parse(v);
+			if(typeof(O) == typeof(ushort))				return (O)(object)ushort.Parse(v);
 			if(typeof(O) == typeof(int))				return (O)(object)int.Parse(v);
+			if(typeof(O) == typeof(uint))				return (O)(object)uint.Parse(v);
 			if(typeof(O) == typeof(long))				return (O)(object)long.Parse(v);
+			if(typeof(O) == typeof(ulong))				return (O)(object)ulong.Parse(v);
 			if(typeof(O) == typeof(byte[]))				return (O)(object)Hex.Decode(v);
 			if(typeof(O) == typeof(ResourceAddress))	return (O)(object)ResourceAddress.Parse(v);
 			if(typeof(O) == typeof(PackageAddress))		return (O)(object)PackageAddress.Parse(v);

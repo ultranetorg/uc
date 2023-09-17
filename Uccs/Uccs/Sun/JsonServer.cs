@@ -15,6 +15,8 @@ namespace Uccs.Net
 {
 	public class JsonServer
 	{
+		public const ushort DefaultPort = 3900;
+
 		Sun				Sun;
 		HttpListener	Listener;
 		Thread			Thread;
@@ -28,22 +30,27 @@ namespace Uccs.Net
 		{
 			Sun = sun;
 
+			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "JsonServer.log"), FileMode.Create);
+
 			Thread = new Thread(() =>
 								{ 
 									try
 									{
 										Listener = new HttpListener();
 	
-										var prefixes = new string[] {$"http://{(Settings.IP.Equals(IPAddress.Any) ? "+" : Settings.IP)}:{Sun.Zone.JsonPort}/"};
-			
-										foreach(string s in prefixes)
+										if(!Settings.IP.Equals(IPAddress.Any))
 										{
-											Listener.Prefixes.Add(s);
+											Listener.Prefixes.Add($"http://{Settings.IP}:{Settings.JsonServerPort}/");
 										}
+										else
+										{
+											Listener.Prefixes.Add($"http://+:{Settings.JsonServerPort}/");
+										}
+										
+										Workflow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
 
 										Listener.Start();
 				
-										Workflow.Log?.Report(this, "Listening started", prefixes[0]);
 		
 										while(Workflow.Active)
 										{
@@ -62,6 +69,8 @@ namespace Uccs.Net
 									{
 										if(!Listener.IsListening)
 											Listener = null;
+
+										Workflow.Log?.ReportError(this, "Erorr", ex);
 
 										Sun.Stop(MethodBase.GetCurrentMethod(), ex);
 									}
@@ -130,7 +139,7 @@ namespace Uccs.Net
 // 											{
 // 											}
 // 										}
-	
+			
 			if(rq.ContentType == null || !rq.HasEntityBody)
 				return;
 	

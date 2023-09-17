@@ -21,8 +21,8 @@ namespace Uccs.Net
 
 		public NasSettings(Xon x)
 		{
-			//Chain = x.GetString("Chain");
-			Provider = x.GetString("Provider");
+			//Chain = x.Get<string>("Chain");
+			Provider = x.Get<string>("Provider");
 		}
 	}
 
@@ -36,7 +36,7 @@ namespace Uccs.Net
 
 		public McvSettings(Xon x)
 		{
-			PeersMin	= x.GetInt32("PeersMin");
+			PeersMin	= x.Get<int>("PeersMin");
 		}
 	}
 
@@ -74,7 +74,7 @@ namespace Uccs.Net
 		public ApiSettings(Xon x, Settings main)
 		{
 			Main		= main;
-			AccessKey	= x.GetString("AccessKey");
+			AccessKey	= x.Get<string>("AccessKey");
 		}
 	}
 
@@ -100,12 +100,12 @@ namespace Uccs.Net
 
 			var d = new XonDocument(File.ReadAllText(path));
 			
-			Password		= d.GetString("Password");
+			Password		= d.Get<string>("Password");
 
-			EthereumProvider		= d.GetString("NasProvider");
+			EthereumProvider= d.Get<string>("NasProvider");
 
-			EthereumWallet	 = d.GetString("EmissionWallet");
-			EthereumPassword = d.GetString("EmissionPassword");
+			EthereumWallet	 = d.Get<string>("EmissionWallet");
+			EthereumPassword = d.Get<string>("EmissionPassword");
 		}
 	}
 
@@ -152,6 +152,8 @@ namespace Uccs.Net
 		public int						PeersMin = 6;
 		public int						PeersInMax = 128;
 		public IPAddress				IP;
+		//public IPAddress				ExternalIP;
+		public ushort					JsonServerPort;
 		public bool						Anonymous = false;
 		public List<AccountKey>			Generators = new();
 		public AccountKey				Analyzer;
@@ -192,16 +194,18 @@ namespace Uccs.Net
 
 			var doc = new XonDocument(File.ReadAllText(Path));
 
-			Roles		= Enum.Parse<Role>(doc.GetString("Roles"));
-			Anonymous	= doc.Has("Anonymous");
-			PeersMin	= doc.GetInt32("PeersMin");
-			PeersInMax	= doc.GetInt32("PeersInMax");
-			IP			= IPAddress.Parse(doc.GetString("IP"));
-			Generators	= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
-			Log			= doc.Has("Log");
-			Packages	= doc.GetString("Packages") ?? System.IO.Path.Join(Profile, "Packages");
+			Roles			= Enum.Parse<Role>(doc.Get<string>("Roles"));
+			Anonymous		= doc.Has("Anonymous");
+			PeersMin		= doc.Get<int>("PeersMin");
+			PeersInMax		= doc.Get<int>("PeersInMax");
+			IP				= IPAddress.Parse(doc.Get<string>("IP"));
+			//ExternalIP		= IPAddress.Parse(doc.Get<string>("ExternalIP"));
+			JsonServerPort	= (ushort)doc.Get<int>("JsonServerPort");
+			Generators		= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
+			Log				= doc.Has("Log");
+			Packages		= doc.Get<string>("Packages") ?? System.IO.Path.Join(Profile, "Packages");
 
-			Mcv	= new (doc.One(nameof(Mcv)));
+			Mcv			= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));
 			Api			= new (doc.One(nameof(Api)), this);
 			Hub			= new (doc.One(nameof(Hub)));

@@ -61,7 +61,7 @@ namespace Uccs.Sun.CLI
 			
 			if(Args.Has("password"))
 			{
-				p = Args.GetString("password");
+				p = Args.Get<string>("password");
 			} 
 			else
 			{

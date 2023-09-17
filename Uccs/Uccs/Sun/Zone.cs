@@ -24,21 +24,19 @@ namespace Uccs.Net
 		public int				TailLength;
 
 		public ZoneCreation		Creation;
-		public AccountAddress	UOFund;
-		public AccountAddress	GenAccount;
+		public AccountAddress	God;
 		public AccountAddress	Father0;
+		public AccountAddress	UOFund;
 
 		public ushort Port	{
 								get
 								{
 									if(IsTest)
-										return (ushort)(30800 + ushort.Parse(Name.Substring(TestnetPrefix.Length)));
+										return (ushort)(3800 + ushort.Parse(Name.Substring(TestnetPrefix.Length)));
 									else
-										return 3080;
+										return 3800;
 								}
 							}
-	
-		public ushort JsonPort => (ushort)(IsTest ? (Port + 100) : 3090);
 
  		public static readonly Zone		Testnet1 = new Testnet1();
 		public static readonly Zone		Mainnet	= null;
@@ -70,7 +68,7 @@ namespace Uccs.Net
 			z.TailLength = 		TailLength;
 			
 			z.UOFund = 		UOFund;
-			z.GenAccount = 		GenAccount;
+			z.God = 		God;
 			z.Father0 = 		Father0;
 			
 			return z;
@@ -100,11 +98,11 @@ namespace Uccs.Net
 
 			Name = Path.GetFileNameWithoutExtension(path);
 
-			Genesis			= d.GetString("Genesis");
-			Cryptography	= Activator.CreateInstance(typeof(NoCryptography).Assembly.FullName, typeof(NoCryptography).Namespace + '.' + d.GetString("Cryptography")).Unwrap() as Uccs.Net.Cryptography;
-			EthereumNetwork	= Enum.Parse<Chain>(d.GetString("EthereumNetwork"));
-			GenesisIP		= IPAddress.Parse(d.GetString("GenesisIP"));
-			Initials		= d.GetString("Initials").Split(' ').Select(i => IPAddress.Parse(i)).ToArray();
+			Genesis			= d.Get<string>("Genesis");
+			Cryptography	= Activator.CreateInstance(typeof(NoCryptography).Assembly.FullName, typeof(NoCryptography).Namespace + '.' + d.Get<string>("Cryptography")).Unwrap() as Uccs.Net.Cryptography;
+			EthereumNetwork	= Enum.Parse<Chain>(d.Get<string>("EthereumNetwork"));
+			GenesisIP		= IPAddress.Parse(d.Get<string>("GenesisIP"));
+			Initials		= d.Get<string>("Initials").Split(' ').Select(i => IPAddress.Parse(i)).ToArray();
 		}
 	}
 }
