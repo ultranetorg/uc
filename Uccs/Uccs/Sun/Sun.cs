@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using DnsClient;
 using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
@@ -1036,10 +1037,6 @@ namespace Uccs.Net
 				{
 					Thread.Sleep(1000);
 
-					int final = -1; 
-					//int end = -1; 
-					int from = -1;
-
 					Mcv.LoadedRounds.Clear();
 
 					var peer = Connect(Mcv.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
@@ -1118,14 +1115,14 @@ namespace Uccs.Net
  							Mcv.LoadedRounds.Add(r.Id, r);
 						else
 							throw new SynchronizationException();
-
-						//Members = r.Members.Select(i => new OnlineMember {Generator = i.Generator, IPs = new IPAddress[]{} }).ToList();
 					}
 		
+					int final = -1; 
+					//int end = -1; 
+					int from = -1;
+
 					while(Workflow.Active)
 					{
-						Thread.Sleep(1);
-		
 						lock(Lock)
 							if(final == -1)
 								if(Mcv.Roles.HasFlag(Role.Chain))
@@ -1141,8 +1138,17 @@ namespace Uccs.Net
 						var to = from + Mcv.Pitch;
 		
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
-						 	
+
+// 						if(!Mcv.Roles.HasFlag(Role.Chain))
+// 						{ 
+// 							var d = rp.LastConfirmedRound % Zone.TailLength;
+// 											
+// 							if(d < Mcv.Pitch || Zone.TailLength - Mcv.Pitch * 3 > d)
+// 								throw new SynchronizationException();
+// 						}
+
 						lock(Lock)
+						{
 							if(from <= rp.LastNonEmptyRound)
 							{
 								foreach(var i in SyncCache.Keys)
@@ -1161,6 +1167,9 @@ namespace Uccs.Net
 								{
 									if(r.Confirmed)
 									{
+										if(!confirmed)
+							 				throw new SynchronizationException();
+
 										foreach(var t in r.Transactions)
 										{
 											//t.Round = r;
@@ -1172,7 +1181,7 @@ namespace Uccs.Net
 										Mcv.Tail = Mcv.Tail.OrderByDescending(i => i.Id).ToList();
 		
 										r.Confirmed = false;
-										Mcv.Confirm(r, true);
+										Mcv.Confirm(r, false);
 //#if DEBUG
 //										if(!r.Hash.SequenceEqual(h))
 //										{
@@ -1182,14 +1191,6 @@ namespace Uccs.Net
 									}
 									else
 									{
-										if(!Mcv.Roles.HasFlag(Role.Chain))
-										{ 
-											var d = rp.LastConfirmedRound % Zone.TailLength;
-											
-											if(d < Mcv.Pitch || Zone.TailLength - d < Mcv.Pitch * 3)
-												break;
-										}
-
 										if(confirmed)
 										{
 											confirmed		= false;
@@ -1198,8 +1199,6 @@ namespace Uccs.Net
 											Synchronization	= Synchronization.Synchronizing;
 										}
 			
-										if(r.Confirmed)
-							 				throw new SynchronizationException();
 
 										foreach(var i in r.Votes)
 											ProcessIncoming(i);
@@ -1236,6 +1235,7 @@ namespace Uccs.Net
 							}
 							else
 								throw new SynchronizationException();
+						}
 					}
 				}
 				catch(RdcNodeException)
@@ -1307,6 +1307,7 @@ namespace Uccs.Net
 				catch(ConfirmationException)
 				{
 					StartSynchronization();
+					return false;
 				}
 
 				if(v.Transactions.Any(i => !Valid(i) || !i.Valid(Mcv))) /// do it only after adding to the chainbase

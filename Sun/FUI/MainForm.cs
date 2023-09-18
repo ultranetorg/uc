@@ -1,13 +1,4 @@
-﻿using Org.BouncyCastle.Asn1.Crmf;
-using Org.BouncyCastle.Utilities.Encoders;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Net;
-using System.Numerics;
-using System.Reflection;
-using System.Threading;
+﻿using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 
@@ -26,7 +17,7 @@ namespace Uccs.Sun.FUI
 
 			MinimumSize = Size;
 			Sun = sun;
-			Sun.MainStarted += c =>{ 	
+			Sun.MainStarted += c =>	{ 	
 										BeginInvoke((MethodInvoker) delegate
 													{ 
 														LoadUI(sun);

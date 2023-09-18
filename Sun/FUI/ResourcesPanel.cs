@@ -1,11 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Nethereum.Contracts;
+﻿using System.Windows.Forms;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Org.BouncyCastle.Utilities.Encoders;
-using Uccs.Net;
 
 namespace Uccs.Sun.FUI
 {
@@ -17,16 +11,16 @@ namespace Uccs.Sun.FUI
 		{
 			InitializeComponent();
 
-			NetworkQuery.KeyDown += (sender, e) =>
+			NetworkQuery.KeyDown += (s, e) =>
 									{
 										if(e.KeyCode == Keys.Enter)
-											NetworkSearch_Click(sender, e);
+											NetworkSearch_Click(s, e);
 									};
 
-			LocalQuery.KeyDown += (sender, e) =>
+			LocalQuery.KeyDown +=	(s, e) =>
 									{
 										if(e.KeyCode == Keys.Enter)
-											LocalSearch_Click(sender, e);
+											LocalSearch_Click(s, e);
 									};
 		}
 
@@ -40,12 +34,19 @@ namespace Uccs.Sun.FUI
 
 		private void NetworkSearch_Click(object sender, EventArgs e)
 		{
+			if(!Sun.Settings.Roles.HasFlag(Role.Base))
+			{	
+				NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
+				NetworkReleases.Columns.Clear();
+				NetworkReleases.Columns.Add(new ColumnHeader() {Width = 500});
+				NetworkReleases.Items.Clear();
+				NetworkReleases.Items.Add(new ListViewItem("Base role is not enabled"));
+				return;
+			}
+
 			try
 			{
 				NetworkReleases.Items.Clear();
-
-				if(string.IsNullOrWhiteSpace(NetworkQuery.Text))
-					return;
 
 				foreach(var r in Sun.Mcv.QueryResource(NetworkQuery.Text))
 				{
@@ -84,6 +85,16 @@ namespace Uccs.Sun.FUI
 
 		private void LocalSearch_Click(object sender, EventArgs e)
 		{
+			if(!Sun.Settings.Roles.HasFlag(Role.Seed))
+			{	
+				LocalReleases.HeaderStyle = ColumnHeaderStyle.None;
+				LocalReleases.Columns.Clear();
+				LocalReleases.Columns.Add(new ColumnHeader() {Width = 500});
+				LocalReleases.Items.Clear();
+				LocalReleases.Items.Add(new ListViewItem("Seed role is not enabled"));
+				return;
+			}
+
 			LocalReleases.Items.Clear();
 
 			foreach(var i in Sun.ResourceHub.Releases.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))

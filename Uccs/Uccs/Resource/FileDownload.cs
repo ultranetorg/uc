@@ -187,8 +187,6 @@ namespace Uccs.Net
 											{
 												continue;
 											}
-											if(tasks.Length > 1)
-												File=File;
 										}
 	
 										var ti = Task.WaitAny(tasks, 100, workflow.Cancellation);

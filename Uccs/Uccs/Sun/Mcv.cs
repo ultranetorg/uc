@@ -137,7 +137,7 @@ namespace Uccs.Net
 						{
 							r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
-							Confirm(r, true);
+							Confirm(r, false);
 
 							if(i == 16)
 							{
@@ -167,7 +167,7 @@ namespace Uccs.Net
 						Tail.Insert(0, r);
 		
 						r.Confirmed = false;
-						Confirm(r, true);
+						Confirm(r, false);
 					}
 				}
 			}
@@ -297,7 +297,7 @@ namespace Uccs.Net
 	
 						ConsensusConcluded(r, true);
 	
-						Confirm(r.Parent, false);
+						Confirm(r.Parent, true);
 	
 					}
 					else if(ConsensusFailed(r) || (!DevSettings.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
@@ -763,12 +763,12 @@ namespace Uccs.Net
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
-		public void Confirm(Round round, bool confirmed)
+		public void Confirm(Round round, bool checksummary)
 		{
 			if(round.Id > 0 && LastConfirmedRound != null && LastConfirmedRound.Id + 1 != round.Id)
 				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
 
-			if(!confirmed)
+			if(checksummary)
 			{
 				if(round.Summary == null)
 				{
@@ -846,11 +846,6 @@ namespace Uccs.Net
 	
 					foreach(var i in tail)
 					{
-						if(i.Id == 178)
-						{
-							round = round;
-						}
-
 						Accounts.Save(b, i.AffectedAccounts.Values);
 						Authors	.Save(b, i.AffectedAuthors.Values);
 					}
