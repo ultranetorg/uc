@@ -20,8 +20,8 @@ namespace Uccs.Net
 		{
 			if(!sun.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
 
-			lock(sun.Hub.Lock)
-				sun.Hub.Add(Peer.IP, Releases);
+			lock(sun.SeedHub.Lock)
+				sun.SeedHub.Add(Peer.IP, Releases);
 
 			return null;
 		}

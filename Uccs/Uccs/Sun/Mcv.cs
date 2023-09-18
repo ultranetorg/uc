@@ -846,6 +846,11 @@ namespace Uccs.Net
 	
 					foreach(var i in tail)
 					{
+						if(i.Id == 178)
+						{
+							round = round;
+						}
+
 						Accounts.Save(b, i.AffectedAccounts.Values);
 						Authors	.Save(b, i.AffectedAuthors.Values);
 					}
@@ -946,7 +951,7 @@ namespace Uccs.Net
 			return op == null ? ops : ops.Where(op);
 		}
 
-		public IEnumerable<Resource> QueryRelease(string query)
+		public IEnumerable<Resource> QueryResource(string query)
 		{
 			var r = ResourceAddress.Parse(query);
 		

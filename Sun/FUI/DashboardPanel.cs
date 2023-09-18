@@ -40,19 +40,11 @@ namespace Uccs.Sun.FUI
 				if(destination.Items.Count > 1)
 					destination.SelectedIndex = 1;
 
-				Sun.Mcv.BlockAdded += (b) =>{
-												BeginInvoke((MethodInvoker)delegate
-															{
-																monitor.Invalidate();
-															});
-											};
-
-				Sun.Mcv.JoinAdded += (b) =>	{
-												BeginInvoke((MethodInvoker)delegate
-															{
-																monitor.Invalidate();
-															});
-											};
+				if(Sun.Mcv != null)
+				{
+					Sun.Mcv.BlockAdded += (b) => BeginInvoke(monitor.Invalidate);
+					Sun.Mcv.JoinAdded += (b) =>	BeginInvoke(monitor.Invalidate);
+				}
 			}
 		}
 

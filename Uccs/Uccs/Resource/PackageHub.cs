@@ -273,7 +273,7 @@ namespace Uccs.Net
 			//
 			//if(Directory.Exists(dir))
 			//{
-				var c = Resources.Releases	.Where(i => i.Address.Author == manifest.Address.Author && i.Address.ToString().StartsWith(manifest.Address.APR) && i.Availability == Availability.CompleteFull)
+				var c = Resources.Releases	.Where(i => i.Address.Author == manifest.Address.Author && i.Address.ToString().StartsWith(manifest.Address.APR) && i.Availability == Availability.Complete)
 											.Select(i => PackageAddress.ParseVesion(i.Address.Resource))
 											.OrderBy(i => i)
 											.TakeWhile(i => i < manifest.Address.Version) 
@@ -407,6 +407,7 @@ namespace Uccs.Net
  
  				Packages.Add(new Package(this, package, r));
 
+				r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
 				Resources.SetLatest(package, h);
  			}
 		}
@@ -549,7 +550,7 @@ namespace Uccs.Net
 
 				if(p != null)
 				{
-					lock(Sun.Resources.Lock)
+					lock(Sun.ResourceHub.Lock)
 					{
 						var r = Resources.FileDownloads.Find(i => i.Release.Address == package);
 

@@ -97,8 +97,15 @@ namespace Uccs.Net
 													try
 													{
 														Monitor.Exit(Collector.Lock);
+
+														if(Collector.Sun.IP.GetAddressBytes()[3] == 108 && s.IP.GetAddressBytes()[3] == 108)
+														{
+															s=s;
+														}
 		
 														Collector.Sun.Connect(s.Peer, Collector.Workflow);
+														
+														s.Failed = DateTime.MinValue;
 													}
 													catch(ConnectionFailedException)
 													{
@@ -109,7 +116,6 @@ namespace Uccs.Net
 														Monitor.Enter(Collector.Lock);
 													}
 														
-													s.Failed = DateTime.MinValue;
 												}
 											}
 										}

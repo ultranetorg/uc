@@ -31,9 +31,9 @@ namespace Uccs.Net
 		 									
 					SeedCollector = new SeedCollector(sun, release.Hash, workflow);
 	
-					sun.Resources.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
+					sun.ResourceHub.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
 												
-					var index = new XonDocument(sun.Resources.ReadFile(release.Address, release.Hash, ".index"));
+					var index = new XonDocument(sun.ResourceHub.ReadFile(release.Address, release.Hash, ".index"));
 	
 					void enumearate(Xon xon)
 					{
@@ -61,9 +61,9 @@ namespace Uccs.Net
 						{
 							var f = Files.Dequeue();
 	
-							lock(sun.Resources.Lock)
+							lock(sun.ResourceHub.Lock)
 							{
-								var dd = sun.Resources.DownloadFile(release, f.Name, f.Value as byte[], SeedCollector, workflow);
+								var dd = sun.ResourceHub.DownloadFile(release, f.Name, f.Value as byte[], SeedCollector, workflow);
 	
 								if(dd != null)
 								{
@@ -84,7 +84,7 @@ namespace Uccs.Net
 	
 					SeedCollector.Stop();
 	
-					lock(sun.Resources.Lock)
+					lock(sun.ResourceHub.Lock)
 					{
 						Succeeded = true;
 						release.Complete(Availability.Full);
@@ -95,8 +95,8 @@ namespace Uccs.Net
 				}
 				finally
 				{
-					lock(sun.Resources.Lock)
-						sun.Resources.DirectoryDownloads.Remove(this);
+					lock(sun.ResourceHub.Lock)
+						sun.ResourceHub.DirectoryDownloads.Remove(this);
 				}
 			}
 

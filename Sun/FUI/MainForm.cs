@@ -60,16 +60,13 @@ namespace Uccs.Sun.FUI
 
 				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, sun.Vault) };
 				///navigator.Nodes.Add(memb);
-	
-				var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Sun, sun.Vault) };
-				navigator.Nodes.Add(auth);
-	
-				var prod = new TreeNode("Products"){ Tag = new ProductPanel(Sun, sun.Vault) };
-				navigator.Nodes.Add(prod);
-	
-				var rel = new TreeNode("Releases"){ Tag = new ReleasePanel(Sun, sun.Vault) };				
-				navigator.Nodes.Add(rel);
 			}
+	
+			var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Sun, sun.Vault) };
+			navigator.Nodes.Add(auth);
+	
+			var rel = new TreeNode("Resources"){ Tag = new ResourcesPanel(Sun, sun.Vault) };				
+			navigator.Nodes.Add(rel);
 
 			var transfer = new TreeNode("Emission"){ Tag = new EmissionPanel(Sun, sun.Vault) };
 			navigator.Nodes.Add(transfer);
@@ -81,7 +78,7 @@ namespace Uccs.Sun.FUI
 			var gens = new TreeNode("Generators"){ Tag = new GeneratorsPanel(Sun, sun.Vault) };				
 			net.Nodes.Add(gens);
 
-			if(Sun.Hub != null)
+			if(Sun.SeedHub != null)
 			{
 				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Sun, sun.Vault) };
 				navigator.Nodes.Add(hub);

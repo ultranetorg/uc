@@ -78,9 +78,9 @@ namespace Uccs.Net
 		public INas						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 		public Mcv						Mcv;
-		public ResourceHub				Resources;
-		public PackageHub				Packages;
-		public SeedHub					Hub;
+		public ResourceHub				ResourceHub;
+		public PackageHub				PackageHub;
+		public SeedHub					SeedHub;
 		public bool						IsClient => ListeningThread == null;
 		public object					Lock = new();
 		public Clock					Clock;
@@ -295,8 +295,8 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Seed))
 			{
-				Resources = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
-				Packages = new PackageHub(this, Resources, Settings.Packages);
+				ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
+				PackageHub = new PackageHub(this, ResourceHub, Settings.Packages);
 			}
 
 			LoadPeers();
@@ -357,13 +357,13 @@ namespace Uccs.Net
 
 			if(Settings.Roles.HasFlag(Role.Base) && Settings.Generators.Any())
 			{
-				Hub = new SeedHub(this);
+				SeedHub = new SeedHub(this);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Seed))
 			{
-				Resources = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
-				Packages = new PackageHub(this, Resources, Settings.Packages);
+				ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
+				PackageHub = new PackageHub(this, ResourceHub, Settings.Packages);
 			}
 
 			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
@@ -643,9 +643,6 @@ namespace Uccs.Net
 									.ThenBy(i => i.Retries)
 									.Take(needed))
 			{
-				p.LastTry = DateTime.UtcNow;
-				p.Retries++;
-		
 				OutboundConnect(p);
 			}
 
@@ -734,6 +731,8 @@ namespace Uccs.Net
 		void OutboundConnect(Peer peer)
 		{
 			peer.Status = ConnectionStatus.Initiated;
+			peer.LastTry = DateTime.UtcNow;
+			peer.Retries++;
 
 			void f()
 			{
@@ -799,6 +798,7 @@ namespace Uccs.Net
 						if(h.Nuid == Nuid)
 						{
 							Workflow.Log?.Report(this, "Establishing failed", "It's me");
+							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							client.Close();
 							return;
@@ -829,7 +829,9 @@ namespace Uccs.Net
 					failed:
 					{
 						lock(Lock)
+						{
 							peer.Status = ConnectionStatus.Failed;
+						}
 									
 						client.Close();
 					}
@@ -851,9 +853,22 @@ namespace Uccs.Net
 			var ip = (client.Client.RemoteEndPoint as IPEndPoint).Address.MapToIPv4();
 			var peer = Peers.Find(i => i.IP.Equals(ip));
 
-			if(ip.Equals(IP) || IgnoredIPs.Any(j => j.Equals(ip)))
+			if(ip.Equals(IP))
 			{
-				Peers.Remove(peer);
+				IgnoredIPs.Add(ip);
+				
+				if(peer != null)
+					Peers.Remove(peer);
+				
+				client.Close();
+				return;
+			}
+
+			if(IgnoredIPs.Contains(ip))
+			{
+				if(peer != null)
+					Peers.Remove(peer);
+
 				client.Close();
 				return;
 			}
@@ -870,7 +885,8 @@ namespace Uccs.Net
 				{
 					peer.Disconnect();
 				
-					while(peer.Status != ConnectionStatus.Disconnected);
+					while(peer.Status != ConnectionStatus.Disconnected) 
+						Thread.Sleep(1);
 				}
 								
 				peer.Status = ConnectionStatus.Initiated;
@@ -919,6 +935,7 @@ namespace Uccs.Net
 						if(h.Nuid == Nuid)
 						{
 							Workflow.Log?.Report(this, "Establishing failed", "It's me");
+							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							client.Close();
 							return;
@@ -2082,9 +2099,6 @@ namespace Uccs.Net
 			{
 				if(peer.Status != ConnectionStatus.OK && peer.Status != ConnectionStatus.Initiated && peer.Status != ConnectionStatus.Disconnecting)
 				{
-					peer.LastTry = DateTime.UtcNow;
-					peer.Retries++;
-			
 					OutboundConnect(peer);
 				}
 			}

@@ -135,7 +135,7 @@ namespace Uccs.Net
 													{
 														var l = Sun.Call(seeds.First().IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
 														
-														lock(Sun.Resources.Lock)
+														lock(Sun.ResourceHub.Lock)
 														{
 															File = Release.AddFile(filepath, l, DefaultPieceLength, (int)(l / DefaultPieceLength + (l % DefaultPieceLength != 0 ? 1 : 0)));
 														}
@@ -153,7 +153,7 @@ namespace Uccs.Net
 													}
 													else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash))
 													{
-														Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, 0, new byte[0]);
+														Sun.ResourceHub.WriteFile(Release.Address, release.Hash, File.Path, 0, new byte[0]);
 														Succeeded = true;
 														goto end;
 													}
@@ -207,9 +207,9 @@ namespace Uccs.Net
 												//j.Seed.Failures++;
 												p.Seed.Failed = DateTime.MinValue;
 	
-												lock(Sun.Resources.Lock)
+												lock(Sun.ResourceHub.Lock)
 												{	
-													Sun.Resources.WriteFile(Release.Address, release.Hash, File.Path, p.Offset, p.Data.ToArray());
+													Sun.ResourceHub.WriteFile(Release.Address, release.Hash, File.Path, p.Offset, p.Data.ToArray());
 													File.CompletePiece(p.I);
 												}
 												
@@ -217,8 +217,8 @@ namespace Uccs.Net
 	
 												if(File.CompletedPieces.Count() == File.Pieces.Length)
 												{
-													lock(Sun.Resources.Lock)
-														if(Sun.Resources.Hashify(Release.Address, release.Hash, File.Path).SequenceEqual(filehash))
+													lock(Sun.ResourceHub.Lock)
+														if(Sun.ResourceHub.Hashify(Release.Address, release.Hash, File.Path).SequenceEqual(filehash))
 														{	
 															Succeeded = true;
 															goto end;
@@ -265,7 +265,7 @@ namespace Uccs.Net
 										//lock(Sun.Lock)
 										//	Sun.UpdatePeers(seeds);
 		
-										lock(Sun.Resources.Lock)
+										lock(Sun.ResourceHub.Lock)
 										{	
 											File.Complete();
 	
@@ -281,8 +281,8 @@ namespace Uccs.Net
 								}
 								finally
 								{
-									lock(Sun.Resources.Lock)
-										Sun.Resources.FileDownloads.Remove(this);
+									lock(Sun.ResourceHub.Lock)
+										Sun.ResourceHub.FileDownloads.Remove(this);
 								}
 							},
 							workflow.Cancellation);

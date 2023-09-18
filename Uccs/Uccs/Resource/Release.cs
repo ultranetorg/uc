@@ -11,10 +11,10 @@ namespace Uccs.Net
 	public enum Availability
 	{
 		Null				= 0,
-		IncrementalFull		= 0b00000001, 
-		IncrementalPartial	= 0b00000010, 
-		CompleteFull		= 0b00000100, 
-		CompletePartial		= 0b00001000, 
+		Complete			= 0b00000001, 
+		CompletePartial		= 0b00000010, 
+		Incremental			= 0b00000100, 
+		IncrementalPartial	= 0b00001000, 
 		Full				= 0b00010000, 
 		Minimal				= 0b00100000, 
 	}
@@ -147,7 +147,7 @@ namespace Uccs.Net
 		public void Complete(Availability availability)
 		{
 			_Availability = availability;
-			_Files.Clear();
+			_Files?.Clear();
 			Save();
 		}
 

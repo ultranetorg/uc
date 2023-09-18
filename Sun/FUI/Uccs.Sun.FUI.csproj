@@ -42,8 +42,7 @@
     <Compile Update="ChainPanel.cs" />
     <Compile Update="GeneratorsPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
-    <Compile Update="ProductPanel.cs" />
-    <Compile Update="ReleasePanel.cs" />
+    <Compile Update="ResourcesPanel.cs" />
     <Compile Update="ApplicationsPanel.cs" />
     <Compile Update="TextForm.cs">
       <SubType>Form</SubType>

@@ -25,11 +25,11 @@ namespace Uccs.Net
 		public List<Release>			Releases = new();
 		public List<FileDownload>		FileDownloads = new();
 		public List<DirectoryDownload>	DirectoryDownloads = new();
-		Thread							DeclaringThread;
 		public Sun						Sun;
 		public object					Lock = new object();
 		public Zone						Zone;
 		public ColumnFamilyHandle		Family => Sun.Database.GetColumnFamily(FamilyName);
+		Thread							DeclaringThread;
 
 		public ResourceHub(Sun sun, Zone zone, string path)
 		{
@@ -175,6 +175,7 @@ namespace Uccs.Net
 				WriteFile(resource, h, i.Value, 0, File.ReadAllBytes(i.Key));
 			}
 			
+			r.Complete(Availability.Full);
 			SetLatest(resource, h);
 
 			return r;
@@ -190,6 +191,7 @@ namespace Uccs.Net
 
  			WriteFile(resource, h, "f", 0, b);
 			
+			r.Complete(Availability.Full);
 			SetLatest(resource, h);
 
 			return r;

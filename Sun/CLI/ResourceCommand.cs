@@ -63,9 +63,9 @@ namespace Uccs.Sun.CLI
 					Release rbi = null;
 
 					if(Args.Has("source"))
-						rbi = Sun.Resources.Add(GetResourceAddress("address"), GetString("source"), Workflow);
+						rbi = Sun.ResourceHub.Add(GetResourceAddress("address"), GetString("source"), Workflow);
 					else if(Args.Has("sources"))
-						rbi = Sun.Resources.Add(GetResourceAddress("address"), GetString("sources").Split(','), Workflow);
+						rbi = Sun.ResourceHub.Add(GetResourceAddress("address"), GetString("sources").Split(','), Workflow);
 					else
 						throw new SyntaxException("Unknown arguments");
 
@@ -83,15 +83,15 @@ namespace Uccs.Sun.CLI
 					
 					Release rz;
 
-					lock(Sun.Resources.Lock)
-						rz = Sun.Resources.Find(a, r.Data) ?? Sun.Resources.Add(a, r.Data);
+					lock(Sun.ResourceHub.Lock)
+						rz = Sun.ResourceHub.Find(a, r.Data) ?? Sun.ResourceHub.Add(a, r.Data);
 	
 					if(r.Type == ResourceType.File)
 					{
 						FileDownload d;
 							
-						lock(Sun.Resources.Lock)
-							d = Sun.Resources.DownloadFile(rz, "f", r.Data, null, Workflow);
+						lock(Sun.ResourceHub.Lock)
+							d = Sun.ResourceHub.DownloadFile(rz, "f", r.Data, null, Workflow);
 		
 						if(d != null)
 						{
@@ -118,8 +118,8 @@ namespace Uccs.Sun.CLI
 					{
 						DirectoryDownload d;
 							
-						lock(Sun.Resources.Lock)
-							d = Sun.Resources.DownloadDirectory(rz, Workflow);
+						lock(Sun.ResourceHub.Lock)
+							d = Sun.ResourceHub.DownloadDirectory(rz, Workflow);
 		
 						if(d != null)
 						{

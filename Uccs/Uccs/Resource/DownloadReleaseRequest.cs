@@ -10,13 +10,13 @@
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			if(sun.Resources == null) 
+			if(sun.ResourceHub == null) 
 				throw new RdcNodeException(RdcNodeError.NotSeeder);
 			
-			if(!sun.Resources.Exists(Resource, Hash, File)) 
+			if(!sun.ResourceHub.Exists(Resource, Hash, File)) 
 				throw new RdcNodeException(RdcNodeError.NotFound);
 
-			return new DownloadReleaseResponse{Data = sun.Resources.ReadFile(Resource, Hash, File, Offset, Length)};
+			return new DownloadReleaseResponse{Data = sun.ResourceHub.ReadFile(Resource, Hash, File, Offset, Length)};
 		}
 	}
 

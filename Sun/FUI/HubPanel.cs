@@ -61,7 +61,7 @@ namespace Uccs.Sun.FUI
 
 			lock(Sun.Lock)
 			{
-				foreach(var i in Sun.Hub.Releases.Take(1000))
+				foreach(var i in Sun.SeedHub.Releases.Take(1000))
 				{
 					var r = Packages.Items.Add(Hex.ToHexString(i.Key));
 					//r.SubItems.Add(i.Key.Resource);

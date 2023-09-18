@@ -12,8 +12,8 @@ namespace Uccs.Net
 		{
 			if(!sun.IsMember) throw new RdcNodeException(RdcNodeError.NotMember);
 
-			lock(sun.Hub.Lock)
-				return new LocateReleaseResponse {Seeders = sun.Hub.Locate(this)}; 
+			lock(sun.SeedHub.Lock)
+				return new LocateReleaseResponse {Seeders = sun.SeedHub.Locate(this)}; 
 		}
 	}
 		

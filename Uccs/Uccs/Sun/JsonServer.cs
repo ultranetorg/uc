@@ -268,22 +268,22 @@ namespace Uccs.Net
 								
 								var h = Sun.Zone.Cryptography.HashFile(m.Bytes);
 								
-								lock(Sun.Resources.Lock)
+								lock(Sun.ResourceHub.Lock)
 								{
-									Sun.Resources.Add(c.Release, h);
+									Sun.ResourceHub.Add(c.Release, h);
 	
-									Sun.Resources.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
+									Sun.ResourceHub.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
 	
 									if(c.Complete != null)
 									{
-										Sun.Resources.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
+										Sun.ResourceHub.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
 									}
 									if(c.Incremental != null)
 									{
-										Sun.Resources.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
+										Sun.ResourceHub.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
 									}
 								
-									Sun.Resources.SetLatest(c.Release, h);
+									Sun.ResourceHub.SetLatest(c.Release, h);
 								}
 							}
 	
@@ -295,12 +295,12 @@ namespace Uccs.Net
 						//	break;
 	
 						case PackageStatusCall c:
-							lock(Sun.Packages.Lock)
-								return Sun.Packages.GetStatus(c.Release, c.Limit);
+							lock(Sun.PackageHub.Lock)
+								return Sun.PackageHub.GetStatus(c.Release, c.Limit);
 
 						case InstallPackageCall c:
-							lock(Sun.Packages.Lock)
-								Sun.Packages.Install(c.Release, Workflow);
+							lock(Sun.PackageHub.Lock)
+								Sun.PackageHub.Install(c.Release, Workflow);
 							break;
 
 						case GenerateAnalysisReportCall c:

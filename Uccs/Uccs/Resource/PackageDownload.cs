@@ -50,44 +50,44 @@ namespace Uccs.Net
 	
 											SeedCollector = new SeedCollector(sun, h, workflow);
 	
-											lock(sun.Packages.Lock)
-												lock(sun.Resources.Lock)
+											lock(sun.PackageHub.Lock)
+												lock(sun.ResourceHub.Lock)
 												{
-													Package = sun.Packages.Find(package);
+													Package = sun.PackageHub.Find(package);
 												
 													if(Package != null)
 													{
 														if(Package.Release.Hash.SequenceEqual(h))
 															goto done;
 														else
-															Package.Release = sun.Resources.Add(package, h); /// update to the latest
+															Package.Release = sun.ResourceHub.Add(package, h); /// update to the latest
 													} 
 													else
 													{	
-														Package = new Package(sun.Packages, package, sun.Resources.Add(package, h));
-														sun.Packages.Packages.Add(Package);
+														Package = new Package(sun.PackageHub, package, sun.ResourceHub.Add(package, h));
+														sun.PackageHub.Packages.Add(Package);
 													}
 												}
 		 									
-											sun.Resources.GetFile(Package.Release, Package.ManifestFile, h, SeedCollector, workflow);
+											sun.ResourceHub.GetFile(Package.Release, Package.ManifestFile, h, SeedCollector, workflow);
 	
 											bool incrementable;
 	
-											lock(sun.Packages.Lock)
+											lock(sun.PackageHub.Lock)
 											{
-												sun.Packages.DetermineDelta(hst, Package.Manifest, h, out incrementable, out List<Dependency> deps);
+												sun.PackageHub.DetermineDelta(hst, Package.Manifest, h, out incrementable, out List<Dependency> deps);
 									
 												foreach(var i in deps)
 												{
-													if(!sun.Packages.ExistsRecursively(i.Release))
+													if(!sun.PackageHub.ExistsRecursively(i.Release))
 													{
-														var dd = sun.Packages.Download(i.Release, workflow);
+														var dd = sun.PackageHub.Download(i.Release, workflow);
 														Dependencies.Add(dd);
 													}
 												}
 											}
 	
-	 										FileDownload = sun.Resources.DownloadFile(	Package.Release, 
+	 										FileDownload = sun.ResourceHub.DownloadFile(	Package.Release, 
 																						incrementable ? Package.IncrementalFile : Package.CompleteFile, 
 																						incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash, 
 																						SeedCollector,
@@ -99,15 +99,15 @@ namespace Uccs.Net
 										done:
 											SeedCollector.Stop();
 	
-											lock(sun.Packages.Lock)
+											lock(sun.PackageHub.Lock)
 											{
 												var a = Availability.Null;;
 
-												if(sun.Resources.Exists(Package.Release.Address, Package.Release.Hash, Package.CompleteFile))
-													a |= Availability.CompleteFull;
+												if(sun.ResourceHub.Exists(Package.Release.Address, Package.Release.Hash, Package.CompleteFile))
+													a |= Availability.Complete;
 
-												if(sun.Resources.Exists(Package.Release.Address, Package.Release.Hash, Package.IncrementalFile))
-													a |= Availability.IncrementalFull;
+												if(sun.ResourceHub.Exists(Package.Release.Address, Package.Release.Hash, Package.IncrementalFile))
+													a |= Availability.Incremental;
 
 												Package.Release.Complete(a);
 
@@ -119,8 +119,8 @@ namespace Uccs.Net
 										}
 										finally
 										{
-											lock(sun.Packages.Lock)
-												sun.Packages.Downloads.Remove(this);
+											lock(sun.PackageHub.Lock)
+												sun.PackageHub.Downloads.Remove(this);
 										}
 									},
 									workflow.Cancellation);

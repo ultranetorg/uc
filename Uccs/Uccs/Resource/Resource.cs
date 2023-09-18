@@ -12,7 +12,7 @@ namespace Uccs.Net
 		Child		= 0b______100, 
 		Data		= 0b_____1000, 
 
-		Unchangables= 0b0000_1100, 
+		Unchangables= Child | Data, 
 	}
 
 	public enum ResourceType : short

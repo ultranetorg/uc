@@ -14,7 +14,7 @@ namespace Uccs.Net
 				if(sun.Synchronization != Synchronization.Synchronized)
 					throw new RdcNodeException(RdcNodeError.NotSynchronized);
  				
-				return new QueryResourceResponse {Resources = sun.Mcv.QueryRelease(Query).Select(i => i.Address).ToArray()};
+				return new QueryResourceResponse {Resources = sun.Mcv.QueryResource(Query).Select(i => i.Address).ToArray()};
 			}
 		}
 	}
