@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Nethereum.Model;
-using Nethereum.Signer;
-using Org.BouncyCastle.Crypto;
 
 namespace Uccs.Net
 {
 	public class Vault
 	{
-		public const string							EthereumWalletExtention = "uwe";
-		public const string							NoCryptoWalletExtention = "uwnc";
+		public const string							EthereumWalletExtention = "sunwe";
+		public const string							NoCryptoWalletExtention = "sunwpk";
 		public static string						WalletExt(Cryptography c) => c is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
 
 		Zone										Zone;
@@ -48,10 +43,22 @@ namespace Uccs.Net
 		public void AddWallet(AccountAddress account, byte[] wallet)
 		{
 			Wallets[account] = wallet;
-			
-			//Log?.Report(this, "Wallet added", account.ToString());
 		}
 
+		public string AddWallet(AccountKey a, string password)
+		{
+			AddWallet(a, a.Save(Zone.Cryptography, password));
+
+			var path = Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt(Zone.Cryptography));
+
+			a.Save(Zone.Cryptography, path, password);
+
+			//Log?.Report(this, "Wallet saved", path);
+
+			AccountsChanged?.Invoke();
+
+			return path;
+		}
 
 		public AccountKey Unlock(AccountAddress a, string password)
 		{
@@ -74,21 +81,6 @@ namespace Uccs.Net
 		public AccountKey GetKey(AccountAddress a)
 		{
 			return Keys.Find(i => i == a);
-		}
-
-		public string AddWallet(AccountKey a, string password)
-		{
-			AddWallet(a, a.Save(Zone.Cryptography, password));
-
-			var path = Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt(Zone.Cryptography));
-
-			a.Save(Zone.Cryptography, path, password);
-
-			//Log?.Report(this, "Wallet saved", path);
-
-			AccountsChanged?.Invoke();
-
-			return path;
 		}
 
 		public void DeleteWallet(AccountAddress a)
