@@ -130,6 +130,8 @@ namespace Uccs.Net
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public SunDelegate				SynchronizationChanged;
 		
+		public SunDelegate				Stopped;
+
 		public bool						IsMember => Synchronization == Synchronization.Synchronized && Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(i => i.Account == g));
 
 		public class SyncRound
@@ -331,7 +333,6 @@ namespace Uccs.Net
 		public void RunNode(Workflow workflow)
 		{
 			Workflow = workflow != null ? workflow.CreateNested("RunNode", new Log()) : new Workflow("RunNode", new Log());
-
 			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
 
 			Workflow.Log?.Report(this, $"Ultranet Node/Client {Version}");
@@ -533,6 +534,8 @@ namespace Uccs.Net
 			Database?.Dispose();
 
 			Workflow?.Log?.Report(this, "Stopped", message);
+
+			Stopped?.Invoke(this);
 		}
 
 		public Peer GetPeer(IPAddress ip)
@@ -1816,7 +1819,18 @@ namespace Uccs.Net
 						{
 							Monitor.Exit(Lock);
 
-							var at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Account = g.Key});
+							AllocateTransactionResponse at = null;
+
+							try
+							{
+								at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Account = g.Key});
+							}
+							catch(RdcNodeException)
+							{
+								rdi = null;
+								Monitor.Enter(Lock);
+								goto chooserdi;
+							}
 									
 							Monitor.Enter(Lock);
 							

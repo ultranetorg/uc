@@ -28,20 +28,14 @@ namespace Uccs.Sun.FUI
 			try
 			{
 				var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-				var boot = new Boot(exedir);
-
-				var settings = new Settings(exedir, boot);
-
+				var b = new Boot(exedir);
+				var s = new Settings(exedir, b);
 				var l = new Log();
 
-				var sun =	new Net.Sun(boot.Zone, settings)
-							{
-								Clock = new RealTimeClock(), 
-								Nas = new Nas(settings, l), 
-								GasAsker = new EthereumFeeForm(), 
-								FeeAsker = new FeeForm(boot.Zone)
-							}; 
+				var sun = new Net.Sun(b.Zone, s) {	Clock = new RealTimeClock(), 
+													Nas = new Nas(s, l), 
+													GasAsker = new EthereumFeeForm(), 
+													FeeAsker = new FeeForm(b.Zone)}; 
 
 				sun.RunApi();
 				sun.RunNode(null);
@@ -49,10 +43,7 @@ namespace Uccs.Sun.FUI
 				var f = new MainForm(sun);
 				f.StartPosition = FormStartPosition.CenterScreen;
 
-				f.Closed  +=	(s, a) =>
-								{
-									(s as MainForm).Sun.Stop("Form closed");
-								};
+				f.Closed += (s, a) => (s as MainForm).Sun.Stop("Form closed");
 
 				Application.Run(f);
 			}

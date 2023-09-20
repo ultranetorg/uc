@@ -183,7 +183,7 @@ namespace Uccs.Net
 
 						case ExitCall e:
 							rp.Close();
-							Sun.Stop("Json Api call");
+							Sun.Stop("Json API Call");
 							break;
 	
 						case AddWalletCall e:
