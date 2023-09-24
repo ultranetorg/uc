@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -100,6 +101,8 @@ namespace Uccs.Net
 		public List<Transaction>		IncomingTransactions = new();
 		List<Transaction>				OutgoingTransactions = new();
 		public List<Analysis>			Analyses = new();
+		public List<OperationId>		ApprovedEmissions = new();
+		public List<OperationId>		ApprovedDomainBids = new();
 
 		public Coin						TransactionPerByteMinFee;
 		public int						TransactionThresholdExcessRound;
@@ -122,7 +125,7 @@ namespace Uccs.Net
 		public Thread					MainThread;
 		Thread							ListeningThread;
 		Thread							TransactingThread;
-		Thread							VerifingThread;
+		//Thread							VerifingThread;
 		Thread							SynchronizingThread;
 		AutoResetEvent					MainSignal = new AutoResetEvent(true);
 
@@ -165,7 +168,7 @@ namespace Uccs.Net
 				f.Add(new ("Outgoing Transactions",		$"{OutgoingTransactions.Count}"));
 				f.Add(new ("    Pending Delegation",	$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Pending)}"));
 				f.Add(new ("    Accepted",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"));
-				f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
+				//f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
 				f.Add(new ("    Placed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"));
 				f.Add(new ("    Confirmed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"));
 				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
@@ -243,8 +246,7 @@ namespace Uccs.Net
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
 																new (Mcv.ChainFamilyName,			new ()),
-																new (ResourceHub.FamilyName,		new ())
-																})
+																new (ResourceHub.FamilyName,		new ()) })
 				cfamilies.Add(i);
 
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
@@ -395,25 +397,83 @@ namespace Uccs.Net
 																	foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId >= r.Id))
 																	{
 																		i.Vote = null;
-																		i.Placing = PlacingStage.Verified;
+																		i.Placing = PlacingStage.Accepted;
 																	}
 																}
 															};
 
-				Mcv.Confirmed += r =>	{
-											IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-											Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
+				Mcv.Confirmed +=	(Round r) =>
+									{
+										var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
 
-											if(r.ConfirmedTransactions.Length > Settings.TransactionCountPerRoundThreshold)
+										foreach(var o in ops)
+										{
+											if(o is AuthorBid ab && ab.Tld.Any())
 											{
-												TransactionPerByteMinFee *= 2;
-												TransactionThresholdExcessRound = r.Id;
+ 												if(!DevSettings.SkipDomainVerification)
+ 												{
+													Task.Run(() =>	{
+ 																		try
+ 																		{
+ 																			var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+ 															
+ 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
+ 		
+ 																			if(txt != null && txt.Text.Any(i => i == o.Transaction.Signer.ToString()))
+ 																			{
+																				lock(Lock)
+																				{	
+																					ApprovedDomainBids.Add(ab.Id);
+																				}
+ 																			}
+ 																		}
+ 																		catch(DnsResponseException ex)
+ 																		{
+ 																			Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+ 																		}
+																	});
+ 												}
+												else
+													ApprovedDomainBids.Add(ab.Id);
 											}
-											else if(TransactionPerByteMinFee > Settings.TransactionPerByteMinFee && r.Id - TransactionThresholdExcessRound > Mcv.Pitch)
+
+											if(o is Emission e)
 											{
-												TransactionPerByteMinFee /= 2;
+												Task.Run(() =>	{
+ 																	try
+ 																	{
+ 																		if(Nas.CheckEmission(e))
+ 																		{
+																			lock(Lock)
+																			{	
+																				ApprovedEmissions.Add(e.Id);
+																			}
+ 																		}
+ 																	}
+ 																	catch(Exception ex)
+ 																	{
+ 																		Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
+ 																	}
+																});
 											}
-										};
+										}
+
+
+										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Round + Zone.ExternalVerificationDuration);
+										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Round + Zone.ExternalVerificationDuration);
+										IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
+										Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
+											
+										if(r.ConfirmedTransactions.Length > Settings.TransactionCountPerRoundThreshold)
+										{
+											TransactionPerByteMinFee *= 2;
+											TransactionThresholdExcessRound = r.Id;
+										}
+										else if(TransactionPerByteMinFee > Settings.TransactionPerByteMinFee && r.Id - TransactionThresholdExcessRound > Mcv.Pitch)
+										{
+											TransactionPerByteMinFee /= 2;
+										}
+									};
 		
 				if(Settings.Generators.Any())
 				{
@@ -429,9 +489,9 @@ namespace Uccs.Net
 
 					//Generator = PrivateAccount.Parse(Settings.Generator);
 
-					VerifingThread = new Thread(Verifing);
-					VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
-					VerifingThread.Start();
+					//VerifingThread = new Thread(Verifing);
+					//VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
+					//VerifingThread.Start();
 				}
 
 				Workflow.Log?.Report(this, "Chain started");
@@ -528,7 +588,7 @@ namespace Uccs.Net
 			MainThread?.Join();
 			ListeningThread?.Join();
 			TransactingThread?.Join();
-			VerifingThread?.Join();
+			//VerifingThread?.Join();
 			SynchronizingThread?.Join();
 
 			Database?.Dispose();
@@ -659,7 +719,7 @@ namespace Uccs.Net
 			{
 				if(Mcv != null)
 				{
-					StartSynchronization();
+					Synchronize();
 				}
 
 				MinimalPeersReached = true;
@@ -1008,7 +1068,7 @@ namespace Uccs.Net
 			}
 		}
 
-		void StartSynchronization()
+		void Synchronize()
 		{
 			if(DevSettings.SkipSynchronizetion)
 			{
@@ -1272,7 +1332,7 @@ namespace Uccs.Net
 				if(v.RoundId < min || (SyncCache.ContainsKey(v.RoundId) && SyncCache[v.RoundId].Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
 					return false;
 
-				if(v.Transactions.Any(i => !Valid(i) || !i.Valid(Mcv)))
+				if(v.Transactions.Any(i => !i.Valid(Mcv)))
 					return false;
 
 				if(!SyncCache.TryGetValue(v.RoundId, out SyncRound r))
@@ -1300,7 +1360,7 @@ namespace Uccs.Net
 
 				var r = Mcv.GetRound(v.RoundId);
 				
-				if(r.Parent != null && r.Parent.Members.Count > 0 && v.Transactions.Count > r.Parent.TransactionCountPerVoteMax || r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
+				if(r.Parent != null && r.Parent.Members.Count > 0 && v.Transactions.Length > r.Parent.TransactionCountPerVoteMax || r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
 
 				try
@@ -1309,11 +1369,11 @@ namespace Uccs.Net
 				}
 				catch(ConfirmationException)
 				{
-					StartSynchronization();
+					Synchronize();
 					return false;
 				}
 
-				if(v.Transactions.Any(i => !Valid(i) || !i.Valid(Mcv))) /// do it only after adding to the chainbase
+				if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
 				{
 					r.Votes.Remove(v);
 					return false;
@@ -1342,103 +1402,45 @@ namespace Uccs.Net
 			return accepted;
 		}
 
-		bool Valid(Transaction transaction)
-		{
- 			foreach(var i in transaction.Operations)
- 			{
- 				if(i is Emission e)
- 				{
- 					try
- 					{
- 						Monitor.Exit(Lock);
- 			
- 						if(Nas.CheckEmission(e))
- 						{
- 						}
- 						else
- 							return false;
- 					}
- 					catch(Exception ex)
- 					{
- 						Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
- 						return false;
- 					}
- 					finally
- 					{
- 						Monitor.Enter(Lock);
- 					}
- 				}
- 	
- 				if(i is AuthorBid b && b.Tld.Any() && Zone.CheckDomains)
- 				{
- 					try
- 					{
- 						Monitor.Exit(Lock);
- 	
- 						var result = Dns.QueryAsync(b.Name + '.' + b.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
- 															
- 						var txt = result.Result.Answers.TxtRecords().FirstOrDefault(i => i.DomainName == b.Name + '.' + b.Tld + '.');
- 		
- 						if(txt != null && txt.Text.Any(i => i == transaction.Signer.ToString()))
- 						{
- 						}
- 						else
- 							return false;
- 					}
- 					catch(DnsResponseException ex)
- 					{
- 						Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
- 						return false;
- 					}
- 					finally
- 					{
- 						Monitor.Enter(Lock);
- 					}
- 				}
- 			}
-
-			return true;
-		}
-
-		void Verifing()
-		{
-			Workflow.Log?.Report(this, "Verifing started");
-
-			try
-			{
-				while(Workflow.Active)
-				{
-					Thread.Sleep(1);
-
-					Statistics.Verifying.Begin();
-
-					lock(Lock)
-					{
-						foreach(var t in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray())
-						{
-							if(Valid(t))
-							{
-								t.Placing = PlacingStage.Verified;
-								MainSignal.Set();
-							} 
-							else
-							{
-								IncomingTransactions.Remove(t);
-							}
-						}
-					}
-
-					Statistics.Verifying.End();
-				}
-			}
-			catch(Exception ex) when (!Debugger.IsAttached)
-			{
-				Stop(MethodBase.GetCurrentMethod(), ex);
-			}
-			catch(OperationCanceledException)
-			{
-			}
-		}
+		//void Verifing()
+		//{
+		//	Workflow.Log?.Report(this, "Verifing started");
+		//
+		//	try
+		//	{
+		//		while(Workflow.Active)
+		//		{
+		//			Thread.Sleep(1);
+		//
+		//			Statistics.Verifying.Begin();
+		//
+		//			lock(Lock)
+		//			{
+		//				foreach(var t in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray())
+		//				{
+		//					if(Valid(t))
+		//					{
+		//						t.Placing = PlacingStage.Verified;
+		//						MainSignal.Set();
+		//					} 
+		//					else
+		//					{
+		//						IncomingTransactions.Remove(t);
+		//					}
+		//				}
+		//			}
+		//
+		//			Statistics.Verifying.End();
+		//		}
+		//	}
+		//	catch(Exception ex) when (!Debugger.IsAttached)
+		//	{
+		//		Stop(MethodBase.GetCurrentMethod(), ex);
+		//	}
+		//	catch(OperationCanceledException)
+		//	{
+		//	}
+		//}
 
 		void GenerateAnalysis()
 		{
@@ -1549,7 +1551,7 @@ namespace Uccs.Net
 					if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to downloaded rounds since its blocks have no hashes
 						continue;
 
-					var txs = IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Verified).OrderByDescending(i => i.Fee).ToArray();
+					var txs = IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray();
 
 					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
@@ -1560,13 +1562,15 @@ namespace Uccs.Net
 												ParentSummary	= Mcv.Summarize(r.Parent),
 												Created			= Clock.Now,
 												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
-												Violators		= Mcv.ProposeViolators(r).ToList(),
-												MemberJoiners	= Mcv.ProposeMemberJoiners(r).ToList(),
-												MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToList(),
-												AnalyzerJoiners	= Settings.ProposedAnalyzerJoiners,
-												AnalyzerLeavers	= Settings.ProposedAnalyzerLeavers,
-												FundJoiners		= Settings.ProposedFundJoiners,
-												FundLeavers		= Settings.ProposedFundLeavers,
+												Violators		= Mcv.ProposeViolators(r).ToArray(),
+												MemberJoiners	= Mcv.ProposeMemberJoiners(r).ToArray(),
+												MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToArray(),
+												AnalyzerJoiners	= Settings.ProposedAnalyzerJoiners.ToArray(),
+												AnalyzerLeavers	= Settings.ProposedAnalyzerLeavers.ToArray(),
+												FundJoiners		= Settings.ProposedFundJoiners.ToArray(),
+												FundLeavers		= Settings.ProposedFundLeavers.ToArray(),
+												Emissions		= ApprovedEmissions.ToArray(),
+												DomainBids		= ApprovedDomainBids.ToArray(),
 												BaseIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
 												HubIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
 					};
@@ -1579,7 +1583,7 @@ namespace Uccs.Net
 						{
 							foreach(var i in txs)
 							{
-								if(v.Transactions.Count > r.Parent.TransactionCountPerVoteMax)
+								if(v.Transactions.Length > r.Parent.TransactionCountPerVoteMax)
 									break;
 
 								v.AddTransaction(i);
@@ -1592,7 +1596,7 @@ namespace Uccs.Net
 						votes.Add(v);
 					}
 
-					if(txs.Any(i => i.Placing == PlacingStage.Verified) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+					if(txs.Any(i => i.Placing == PlacingStage.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 						MainSignal.Set();
 
 					while(Mcv.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
@@ -1620,7 +1624,7 @@ namespace Uccs.Net
 				}
 				catch(ConfirmationException)
 				{
-					StartSynchronization();
+					Synchronize();
 				}
 
 				foreach(var i in votes)
@@ -1909,11 +1913,11 @@ namespace Uccs.Net
 									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
 									{
 										#if DEBUG
-											if(t.Operations.Any(o => o.__ExpectedPlacing != PlacingStage.Null && o.__ExpectedPlacing != i.Placing))
-											{	
-												//rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
-												Debugger.Break();
-											}
+										if(t.__ExpectedPlacing != PlacingStage.Null && t.__ExpectedPlacing != i.Placing)
+										{	
+											//rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
+											Debugger.Break();
+										}
 										#endif
 
 										OutgoingTransactions.Remove(t);
@@ -1995,10 +1999,10 @@ namespace Uccs.Net
  			lock(Lock)
 			{	
 				t.Signer = signer;
+ 				t.__ExpectedPlacing = awaitstage;
 			
 				foreach(var i in operations)
 				{
- 					i.__ExpectedPlacing = awaitstage;
 					t.AddOperation(i);
 				}
 				 

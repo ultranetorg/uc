@@ -137,34 +137,34 @@ namespace Uccs.Net
 			}
 		}
 
- 		public XonDocument ToXon(IXonValueSerializator serializator)
- 		{
- 			var d = new XonDocument(serializator);
- 
- 			if(IsExclusive(Name))
- 			{
- 				if(LastWinner != null)
- 				{
- 					var p = d.Add("Auction");
- 
- 					p.Add("FirstBidTime").Value = FirstBidTime;
- 					p.Add("LastWinner").Value = LastWinner;
- 					p.Add("LastBid").Value = LastBid;
- 					p.Add("LastBidTime").Value = LastBidTime;
- 				}
- 			}
- 
- 			if(Owner != null)
- 			{
- 				var p = d.Add("Registration");
- 
- 				p.Add("Owner").Value = Owner;
- 				p.Add("Title").Value = Title;
- 				p.Add("Expiration").Value = Expiration;
- 			}
- 
- 			return d;
- 		}
+//  		public XonDocument ToXon(IXonValueSerializator serializator)
+//  		{
+//  			var d = new XonDocument(serializator);
+//  
+//  			if(IsExclusive(Name))
+//  			{
+//  				if(LastWinner != null)
+//  				{
+//  					var p = d.Add("Auction");
+//  
+//  					p.Add("FirstBidTime").Value = FirstBidTime;
+//  					p.Add("LastWinner").Value = LastWinner;
+//  					p.Add("LastBid").Value = LastBid;
+//  					p.Add("LastBidTime").Value = LastBidTime;
+//  				}
+//  			}
+//  
+//  			if(Owner != null)
+//  			{
+//  				var p = d.Add("Registration");
+//  
+//  				p.Add("Owner").Value = Owner;
+//  				p.Add("Title").Value = Title;
+//  				p.Add("Expiration").Value = Expiration;
+//  			}
+//  
+//  			return d;
+//  		}
 
 	}
 }

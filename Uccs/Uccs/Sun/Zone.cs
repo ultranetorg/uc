@@ -20,13 +20,12 @@ namespace Uccs.Net
 		public IPAddress[]		Initials;
 		public Coin				BailMin;
 		public bool				PoW;
-		public bool				CheckDomains;
+		public int				ExternalVerificationDuration;
 		public int				TailLength;
 
 		public ZoneCreation		Creation;
 		public AccountAddress	God;
 		public AccountAddress	Father0;
-		public AccountAddress	UOFund;
 
 		public ushort Port	{
 								get
@@ -64,11 +63,9 @@ namespace Uccs.Net
 			z.Creation = 		Creation;
 			z.BailMin = 		BailMin;
 			z.PoW = 			PoW;		
-			z.CheckDomains = 	CheckDomains;
 			z.TailLength = 		TailLength;
 			
-			z.UOFund = 		UOFund;
-			z.God = 		God;
+			z.God = 			God;
 			z.Father0 = 		Father0;
 			
 			return z;

@@ -29,6 +29,8 @@ namespace Uccs.Net
 
 		const int						PoWLength = 16;
 
+		public PlacingStage				__ExpectedPlacing = PlacingStage.Null;
+
 		public bool Valid(Mcv mcv)
 		{
 			return	Operations.Any() && Operations.All(i => i.Valid) &&
@@ -133,6 +135,8 @@ namespace Uccs.Net
 
  		public void	WriteForVote(BinaryWriter writer)
  		{
+			writer.Write((byte)__ExpectedPlacing);
+
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Id);
 			writer.Write7BitEncodedInt(Expiration);
@@ -146,6 +150,8 @@ namespace Uccs.Net
  		
  		public void	ReadForVote(BinaryReader reader)
  		{
+			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
+
 			Signature	= reader.ReadSignature();
 			Id			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
@@ -167,6 +173,8 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
+			writer.Write((byte)__ExpectedPlacing);
+		
 			writer.Write(Generator);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Id);
@@ -181,6 +189,8 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
+			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
+		
 			Generator	= reader.ReadAccount();
 			Signature	= reader.ReadSignature();
 			Id			= reader.Read7BitEncodedInt();

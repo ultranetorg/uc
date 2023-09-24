@@ -19,14 +19,14 @@ namespace Uccs.Net
 			Account	= r.ReadAccount();
 		}
 	
-  		public void WriteForBase(BinaryWriter w)
+  		public void WriteBaseState(BinaryWriter w)
  		{
  			w.Write(Account);
 			w.Write7BitEncodedInt(JoinedAt); /// negative if inactive
 			//w.Write7BitEncodedInt(LeftAt); /// negative if inactive
  		}
  
- 		public void ReadForBase(BinaryReader r)
+ 		public void ReadBaseState(BinaryReader r)
  		{
 			Account		= r.ReadAccount();
  			JoinedAt	= r.Read7BitEncodedInt();

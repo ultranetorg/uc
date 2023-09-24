@@ -53,24 +53,19 @@ namespace Uccs.Sun.FUI
 	
 				if(a != null)
 				{	
-					a.ToXon(new XonTextValueSerializator()).Dump((n, t) => 
-																 {
-																	Fields.Text += new string(' ', t * 3) + n.Name + "\n";
-																	Values.Text += (n.Value != null ? n.Serializator.Get<String>(n, n.Value) : null) + "\n";
-																 });
-
+					Dump(a, Fields, Values);
 				}
 				else 
 					Fields.Text = "Not found";
 
 				var t = Sun.Call(p => p.GetTime(), Sun.Workflow);
 
-				if(AuthorEntry.IsExclusive(AuthorSearch.Text) && Author.CanBid(a.Name, a, t.Time))
+				if(Author.IsExclusive(AuthorSearch.Text) && (a == null || Author.CanBid(a.Name, a, t.Time)))
 				{
 					if(a != null)
-					{
 						AuctionStatus.Text = $"Current bid is {a.LastBid}. Send higher than this amount to outbid.";
-					}
+					else
+						AuctionStatus.Text = "Start the auction by sending first bid";
 
 					Switch(Auction);
 				}

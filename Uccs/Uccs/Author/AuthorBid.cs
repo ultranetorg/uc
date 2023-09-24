@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Uccs.Net
 {
-	public class AuthorBid : Operation
+	public class AuthorBid : Operation//, IEquatable<AuthorBid>
 	{
 		public string			Name;
 		public Coin				Bid;
@@ -38,21 +40,76 @@ namespace Uccs.Net
 			Bid = bid;
 		}
 		
-		protected override void ReadConfirmed(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Name	= r.ReadUtf8();
-			Tld		= r.ReadUtf8();
-			Bid		= r.ReadCoin();
+			Name	= reader.ReadUtf8();
+			Tld		= reader.ReadUtf8();
+			Bid		= reader.ReadCoin();
 		}
 
-		protected override void WriteConfirmed(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			w.WriteUtf8(Name);
-			w.WriteUtf8(Tld);
-			w.Write(Bid);
+			writer.WriteUtf8(Name);
+			writer.WriteUtf8(Tld);
+			writer.Write(Bid);
 		}
 
-		public override void Execute(Mcv chain, Round round)
+		public void WriteBaseState(BinaryWriter writer)
+		{
+			writer.Write(Id);
+			writer.Write(Signer);
+			writer.WriteUtf8(Name);
+			writer.WriteUtf8(Tld);
+			writer.Write(Bid);
+		}
+
+		public void ReadBaseState(BinaryReader reader)
+		{
+			Id		= reader.Read<OperationId>();
+			Signer	= reader.ReadAccount();
+			Name	= reader.ReadUtf8();
+			Tld		= reader.ReadUtf8();
+			Bid		= reader.ReadCoin();
+		}
+		public override void Execute(Mcv mcv, Round round)
+		{
+			if(Tld.Any())
+			{
+				Check(mcv, round);
+			} 
+			else
+			{
+				ConsensusExecute(round);
+			}
+		}
+
+		public void Check(Mcv mcv, Round round)
+		{
+			var a =  mcv.Authors.Find(Name, round.Id);
+
+ 			if(a != null && !Author.IsExpired(a, round.ConfirmedTime))
+ 			{
+				if(a.LastWinner == null) /// first bid
+				{
+					return;
+				}
+				else if(round.ConfirmedTime < a.AuctionEnd)
+				{
+					if((!a.DomainOwnersOnly && Tld.Any()) || (a.DomainOwnersOnly && a.LastBid < Bid && Tld.Any())) /// outbid
+					{
+						return;
+					}
+				}
+ 			}
+ 			else
+ 			{
+				return;
+			}
+
+			Error = "Bid too low or auction is over";
+		}
+
+		public void ConsensusExecute(Round round)
 		{
 			var a = round.AffectAuthor(Name);
 
@@ -62,11 +119,12 @@ namespace Uccs.Net
 				{
 					round.AffectAccount(Signer).Balance -= Bid;
 						
-					a.Owner			= null;
-					a.FirstBidTime	= round.ConfirmedTime;
-					a.LastBid		= Bid;
-					a.LastBidTime	= round.ConfirmedTime;
-					a.LastWinner	= Signer;
+					a.Owner				= null;
+					a.FirstBidTime		= round.ConfirmedTime;
+					a.LastBid			= Bid;
+					a.LastBidTime		= round.ConfirmedTime;
+					a.LastWinner		= Signer;
+					a.DomainOwnersOnly	= Tld.Any();
 						
 					return;
 				}
@@ -87,7 +145,7 @@ namespace Uccs.Net
 						return;
 					}
 				}
- 			} 
+ 			}
  			else
  			{
 				if(a.Owner != null)
@@ -100,11 +158,12 @@ namespace Uccs.Net
 
 				round.AffectAccount(Signer).Balance -= Bid;
 				
-				a.Owner			= null;
-				a.FirstBidTime	= round.ConfirmedTime;
-				a.LastBid		= Bid;
-				a.LastBidTime	= round.ConfirmedTime;
-				a.LastWinner	= Signer;
+				a.Owner				= null;
+				a.FirstBidTime		= round.ConfirmedTime;
+				a.LastBid			= Bid;
+				a.LastBidTime		= round.ConfirmedTime;
+				a.LastWinner		= Signer;
+				a.DomainOwnersOnly	= Tld.Any();
 			
 				return;
 			}
@@ -112,27 +171,14 @@ namespace Uccs.Net
 			Error = "Bid too low or auction is over";
 		}
 
-// 		public static bool CanBid(Author author, ChainTime time)
+// 		public override bool Equals(object obj)
 // 		{
-// 			if(author == null)
-// 				return true;
+// 			return Equals(obj as AuthorBid);
+// 		}
 // 
-// 			ChainTime sinceauction() => time - author.FirstBidTime;
-// 
-// 			bool expired = author.LastWinner != null && (	author.Owner == null && sinceauction() > ChainTime.FromYears(2) ||		/// winner has not registered during 2 year since auction start, restart the auction
-// 															author.Owner != null && time > author.Expiration);	/// is not renewed by owner, restart the auction
-// 
-//  			if(!expired)
-//  			{
-// 	 			if(author.LastWinner == null || sinceauction() < ChainTime.FromYears(1))
-// 	 			{
-// 					return true;
-// 	 			}
-//  			} 
-//  			else
-// 				return true;
-// 
-// 			return false;
+// 		public bool Equals(AuthorBid a)
+// 		{
+// 			return a is not null && Id.Equals(a.Id) && Signer == a.Signer && Name == a.Name && Bid.Equals(a.Bid) && Tld == a.Tld;
 // 		}
 	}
 }

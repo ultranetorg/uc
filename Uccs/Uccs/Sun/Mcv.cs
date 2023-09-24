@@ -113,33 +113,33 @@ namespace Uccs.Net
 	
  					var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
 						
-					for(int i = 0; i <= 24; i++)
+					for(int i = 0; i <=1+8 + 1+8 + 1+8; i++)
 					{
 						var r = new Round(this);
 						r.Read(rd);
 						r.Voted = true;
 		
 						Tail.Insert(0, r);
-						
-						if(i == 16)
-						{
-							r.ConfirmedMemberJoiners = new[] {Zone.Father0};
-							r.ConfirmedFundJoiners = new[] {Zone.UOFund};
-						}
-	
-						//foreach(var p in r.Payloads)
-						//	p.Confirmed = true;
 	
 						if(r.Id > 0)
 							r.ConfirmedTime = CalculateTime(r, r.VotesOfTry);
 	
-						if(i <= 16)
+						if(i <= 1+8 + 1+8 + 1)
 						{
+							if(i == 0)
+								r.ConfirmedFundJoiners = new[] {Zone.Father0};
+
+							if(i == 1)
+								r.ConfirmedEmissions = new OperationId[] {new() {Round = 0, Index = 0}};
+
+							if(i == 1+8 + 1+8 + 1)
+								r.ConfirmedMemberJoiners = new[] {Zone.Father0};
+
 							r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
 							Confirm(r, false);
 
-							if(i == 16)
+							if(i == 1+8 + 1+8 + 1)
 							{
 								r.Members[0].BaseIPs = new IPAddress[] {zone.GenesisIP};
 								r.Members[0].HubIPs = new IPAddress[] {zone.GenesisIP};
@@ -173,8 +173,18 @@ namespace Uccs.Net
 			}
 		}
 
-		public string CreateGenesis(AccountKey god, AccountKey org, AccountKey[] fathers)
+		public string CreateGenesis(AccountKey god, AccountKey[] fathers)
 		{
+			/// 0 - emission request
+			/// 1 - vote for emission 
+			/// 1+8	 - emited
+			/// 1+8+1 - candidacy declaration
+			/// 1+8+1 + 8 - decalared
+			/// 1+8+1 + 8+1 - join request
+			/// 1+8+1 + 8+1+8 - joined
+
+			var f0 = fathers[0];
+
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
@@ -186,68 +196,66 @@ namespace Uccs.Net
 				r.Write(w);
 			}
 	
-			var b0 = new Vote(this)	{
-										RoundId		= 0,
-										TimeDelta	= 1,
-										ParentSummary	= Zone.Cryptography.ZeroHash,
-									};
-
-			var t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
-			t.AddOperation(new Emission(Web3.Convert.ToWei(512_000, UnitConversion.EthUnit.Ether), 0));
-			t.AddOperation(new AuthorBid("uo", null, 1));
-			t.Sign(org, Zone.Cryptography.ZeroHash);
-			b0.AddTransaction(t);
-			
-			foreach(var f in fathers.OrderBy(j => j).ToArray())
+			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentSummary = Zone.Cryptography.ZeroHash};
 			{
-				t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
-				t.AddOperation(new Emission(Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
-				t.AddOperation(new CandidacyDeclaration(1000_000));
+				var t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
+				t.AddOperation(new Emission(Web3.Convert.ToWei((fathers.Length + 1) * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
+				//t.AddOperation(new AuthorBid("uo", null, 1));
+				t.Sign(f0, Zone.Cryptography.ZeroHash);
+				v0.AddTransaction(t);
 			
-				t.Sign(f, Zone.Cryptography.ZeroHash);
+				//foreach(var f in fathers.OrderBy(j => j).ToArray())
+				//{
+				//	t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
+				//	t.AddOperation(new Emission(Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
+				//	t.Sign(f, Zone.Cryptography.ZeroHash);
+				//	b0.AddTransaction(t);
+				//}
 			
-				b0.AddTransaction(t);
+				v0.Sign(god);
+				Add(v0);
+				v0.FundJoiners = v0.FundJoiners.Append(Zone.Father0).ToArray();
+				write(0);
 			}
-			
-			b0.Sign(god);
-			Add(b0);
-
-
-			b0.FundJoiners.Add(Zone.UOFund);
-	
-			write(0);
 			
 			/// UO Autor
 
-			var b1 = new Vote(this)	{
-										RoundId			= 1,
-										TimeDelta		= ((long)TimeSpan.FromDays(365).TotalMilliseconds + 1),  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										ParentSummary	= Zone.Cryptography.ZeroHash,
-									};
-	
-			t = new Transaction(Zone){Id = 1, Generator = god, Expiration = 1};
-			t.AddOperation(new AuthorRegistration("uo", "UO", EntityAllocationYearsMax));
-			t.Sign(org, Zone.Cryptography.ZeroHash);
-			b1.AddTransaction(t);
-			
-			b1.Sign(god);
-			Add(b1);
-			write(1);
-	
-			for(int i = 2; i <= 24; i++)
+			var v1 = new Vote(this){ RoundId = 1, TimeDelta = 1, ParentSummary = Zone.Cryptography.ZeroHash};
 			{
-				var b = new Vote(this)
-						{
-							RoundId			= i,
-							TimeDelta		= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-							ParentSummary	= i < 8 ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - Pitch))
-						};
-		 
-				if(i == 16)
-					b.MemberJoiners.Add(Zone.Father0);
+		
+				//t = new Transaction(Zone){Id = 1, Generator = god, Expiration = 1};
+				//t.AddOperation(new AuthorRegistration("uo", "UO", EntityAllocationYearsMax));
+				//t.Sign(org, Zone.Cryptography.ZeroHash);
+				//b1.AddTransaction(t);
 	
-				b.Sign(god);
-				Add(b);
+				//var ops = FindRound(0).Transactions.SelectMany(i => i.Operations).ToList();
+				//b1.Emissions = ops.OfType<Emission>().Select(i => new OperationId {Round = 0, Index = ops.IndexOf(i)}).ToList();
+				v1.Emissions = new OperationId[] {new(){Round = 0, Index = 0}};
+	
+				v1.Sign(god);
+				Add(v1);
+				write(1);
+			}
+	
+			for(int i = 2; i <= 1+8 + 1+8 + 1+8; i++)
+			{
+				var v = new Vote(this){	 RoundId		= i,
+										 TimeDelta		= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+										 ParentSummary	= i < 8 ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - Pitch)) };
+		 
+				if(i == 1+8 + 1)
+				{
+					var t = new Transaction(Zone) {Id = 1, Generator = god, Expiration = i};
+					t.AddOperation(new CandidacyDeclaration(1_000_000));
+					t.Sign(f0, Zone.Cryptography.ZeroHash);
+					v.AddTransaction(t);
+				}
+
+				if(i == 1+8 + 1+8 + 1) 
+					v.MemberJoiners = v.MemberJoiners.Append(Zone.Father0).ToArray();
+	
+				v.Sign(god);
+				Add(v);
 
 				write(i);
 			}
@@ -517,7 +525,7 @@ namespace Uccs.Net
 																return new {jr = jr, a = a};
 															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
 													.Where(i => i.a != null && 
-																i.a.CandidacyDeclarationRid <= round.Id - Pitch * 2 &&  /// 2 = declared, requested
+																i.a.CandidacyDeclarationRid < round.Id &&
 																i.a.Bail >= Zone.BailMin)
 													.OrderByDescending(i => i.a.Bail)
 													.ThenBy(i => i.a.Address)
@@ -634,6 +642,20 @@ namespace Uccs.Net
 													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
 
+				round.ConfirmedEmissions		= gu.SelectMany(i => i.Emissions).Distinct()
+													.Where(x => round.Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
+				var n = gu.SelectMany(i => i.DomainBids).Distinct();
+				if(n.Count() > 0)
+				{
+					n=n;
+				}
+
+				round.ConfirmedDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
+													.Where(x => round.DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
 				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
 											.Select(i => {
 															var e = Authors.FindResource(i.Resource, round.Id);
@@ -648,11 +670,11 @@ namespace Uccs.Net
 																var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
 																var inf = v.Count(i => i.Result == AnalysisResult.Infected);
 
-																return new AnalysisConclusion {Resource = i.Resource, Good = (byte)cln, Bad = (byte)inf};
+																return new AnalysisConclusion { Resource = i.Resource, Good = (byte)cln, Bad = (byte)inf };
 																
 															}
 															else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= a.Count/2)
-																return new AnalysisConclusion {Resource = i.Resource, HalfReached = true};
+																return new AnalysisConclusion { Resource = i.Resource, HalfReached = true};
 															else
 																return null;
 														})
@@ -684,14 +706,16 @@ namespace Uccs.Net
 					o.Error = null;
 
 			start: 
-
+	
 			round.Fees								= 0;
-			//round.TransactionPerByteFee				= round.Id == 0 ? TransactionPerByteFeeMin	: prev.TransactionPerByteFee;
-			//round.TransactionThresholdExcessRound	= round.Id == 0 ? 0							: prev.TransactionThresholdExcessRound;
-			round.Emission							= round.Id == 0 ? 0							: prev.Emission;
-			round.Members							= round.Id == 0 ? new()						: prev.Members.ToList();
-			round.Analyzers							= round.Id == 0 ? new()						: prev.Analyzers.ToList();
-			round.Funds								= round.Id == 0 ? new()						: prev.Funds.ToList();
+			//round.TransactionPerByteFee			= round.Id == 0 ? TransactionPerByteFeeMin	: round.Previous.TransactionPerByteFee;
+			//round.TransactionThresholdExcessRound	= round.Id == 0 ? 0							: round.Previous.TransactionThresholdExcessRound;
+			round.Emission							= round.Id == 0 ? 0							: round.Previous.Emission;
+			round.Members							= round.Id == 0 ? new()						: round.Previous.Members.ToList();
+			round.Emissions							= round.Id == 0 ? new()						: round.Previous.Emissions.ToList();
+			round.DomainBids						= round.Id == 0 ? new()						: round.Previous.DomainBids.ToList();
+			round.Analyzers							= round.Id == 0 ? new()						: round.Previous.Analyzers.ToList();
+			round.Funds								= round.Id == 0 ? new()						: round.Previous.Funds.ToList();
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
@@ -788,34 +812,39 @@ namespace Uccs.Net
 			{
 				Execute(round, round.ConfirmedTransactions, round.ConfirmedViolators);
 			}
-								
-			foreach(var t in round.OrderedTransactions)
-			{
-				t.Placing = round.ConfirmedTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
 
-				foreach(var o in t.Operations)
-				{
-					#if DEBUG
-					if(o.__ExpectedPlacing > PlacingStage.Placed && t.Placing != o.__ExpectedPlacing)
-					{
-						Debugger.Break();
-					}
-					#endif
-				}
+			var ops = round.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+
+			for(int i = 0; i < ops.Length; i++)
+			{
+				var o = ops[i];
+
+				o.AssignId(round.Id, i);
+
+				if(o is Emission e)
+					round.Emissions.Add(e);
+
+				if(o is AuthorBid b && b.Tld.Any())
+					round.DomainBids.Add(b);
 			}
 
-			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
-			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid <= round.Id - Pitch * 2)
-																.Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
-			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
-			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < Zone.BailMin);  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
-			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
+			foreach(var i in round.ConfirmedEmissions)
+			{
+				var e = round.Emissions.Find(j => j.Id == i);
+				e.ConsensusExecute(round);
+				round.Emissions.Remove(e);
+			}
 
-			//round.Hubs.RemoveAll(i => round.ConfirmedHubLeavers.Contains(i.Account));
-			//round.Hubs.AddRange(round.ConfirmedHubJoiners.Select(i => new Hub {Account = i, JoinedAt = round.Id + Pitch + 1}));
+			round.Emissions.RemoveAll(i => round.Id > i.Id.Round + Zone.ExternalVerificationDuration);
 
-			round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
-			round.Funds.AddRange(round.ConfirmedFundJoiners);
+			foreach(var i in round.ConfirmedDomainBids)
+			{
+				var b = round.DomainBids.Find(j => j.Id == i);
+				b.ConsensusExecute(round);
+				round.DomainBids.Remove(b);
+			}
+
+			round.DomainBids.RemoveAll(i => round.Id > i.Id.Round + Zone.ExternalVerificationDuration);
 
 			foreach(var i in round.ConfirmedAnalyses)
 			{
@@ -834,6 +863,28 @@ namespace Uccs.Net
 					e.AnalysisStage = AnalysisStage.HalfVotingReached;
 				}
 			}
+								
+			foreach(var t in round.OrderedTransactions)
+			{
+				t.Placing = round.ConfirmedTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+
+				#if DEBUG
+				if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
+				{
+					Debugger.Break();
+				}
+				#endif
+			}
+
+			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
+			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid < round.Id)
+																.Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
+			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
+			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < Zone.BailMin);  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
+			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
+
+			round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
+			round.Funds.AddRange(round.ConfirmedFundJoiners);
 
 			round.Analyzers.RemoveAll(i => round.ConfirmedAnalyzerLeavers.Contains(i.Account));
 			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Account = i, JoinedAt = round.Id + Pitch + 1}));

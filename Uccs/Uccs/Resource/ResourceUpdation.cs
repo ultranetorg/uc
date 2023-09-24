@@ -73,7 +73,7 @@ namespace Uccs.Net
 			Changes |= ResourceChanges.Recursive;
 		}
 
-		protected override void ReadConfirmed(BinaryReader reader)
+		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource = reader.Read<ResourceAddress>();
 			Changes = (ResourceChanges)reader.ReadByte();
@@ -85,7 +85,7 @@ namespace Uccs.Net
 			if(Changes.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadCoin();
 		}
 
-		protected override void WriteConfirmed(BinaryWriter writer)
+		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Resource);
 			writer.Write((byte)Changes);

@@ -17,12 +17,12 @@ namespace Uccs.Net
 			Bail = bail;
 		}
 
-		protected override void ReadConfirmed(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader r)
 		{
 			Bail = r.ReadCoin();
 		}
 
-		protected override void WriteConfirmed(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter w)
 		{
 			w.Write(Bail);
 		}

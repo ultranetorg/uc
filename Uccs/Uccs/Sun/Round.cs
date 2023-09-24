@@ -44,6 +44,8 @@ namespace Uccs.Net
 		public AccountAddress[]								ConfirmedFundJoiners = {};
 		public AccountAddress[]								ConfirmedFundLeavers = {};
 		public AccountAddress[]								ConfirmedViolators = {};
+		public OperationId[]								ConfirmedEmissions = {};
+		public OperationId[]								ConfirmedDomainBids = {};
 		public AnalysisConclusion[]							ConfirmedAnalyses = {};
 
 		public bool											Voted = false;
@@ -58,6 +60,8 @@ namespace Uccs.Net
 		//public BigInteger									WeiSpent;
 		//public Coin											Factor;
 		public List<Member>									Members = new();
+		public List<Emission>								Emissions = new ();
+		public List<AuthorBid>								DomainBids = new ();
 		public List<Analyzer>								Analyzers = new();
 		public List<AccountAddress>							Funds = new();
 
@@ -155,8 +159,8 @@ namespace Uccs.Net
 
 		public AccountEntry AffectAccount(AccountAddress account)
 		{
-			if(AffectedAccounts.ContainsKey(account))
-				return AffectedAccounts[account];
+			if(AffectedAccounts.TryGetValue(account, out AccountEntry a))
+				return a;
 			
 			var e = Mcv.Accounts.Find(account, Id - 1);
 
@@ -168,8 +172,8 @@ namespace Uccs.Net
 
 		public AuthorEntry AffectAuthor(string author)
 		{
-			if(AffectedAuthors.ContainsKey(author))
-				return AffectedAuthors[author];
+			if(AffectedAuthors.TryGetValue(author, out AuthorEntry a))
+				return a;
 			
 			var e = Mcv.Authors.Find(author, Id - 1);
 
@@ -259,9 +263,11 @@ namespace Uccs.Net
 			writer.Write(Emission);
 			//writer.Write(TransactionPerByteFee);
 			//writer.Write7BitEncodedInt(TransactionThresholdExcessRound);
-			writer.Write(Members, i => i.WriteForBase(writer));
-			writer.Write(Analyzers, i => i.WriteForBase(writer));
+			writer.Write(Members, i => i.WriteBaseState(writer));
+			writer.Write(Analyzers, i => i.WriteBaseState(writer));
 			writer.Write(Funds);
+			writer.Write(Emissions, i => i.WriteBaseState(writer));
+			writer.Write(DomainBids, i => i.WriteBaseState(writer));
 		}
 
 		public void ReadBaseState(BinaryReader reader)
@@ -272,9 +278,11 @@ namespace Uccs.Net
 			Emission							= reader.ReadCoin();
 			//TransactionPerByteFee				= reader.ReadCoin();
 			//TransactionThresholdExcessRound	= reader.Read7BitEncodedInt();
-			Members								= reader.Read<Member>(m => m.ReadForBase(reader)).ToList();
-			Analyzers							= reader.Read<Analyzer>(m => m.ReadForBase(reader)).ToList();
+			Members								= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
+			Analyzers							= reader.Read<Analyzer>(m => m.ReadBaseState(reader)).ToList();
 			Funds								= reader.ReadList<AccountAddress>();
+			Emissions							= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
+			DomainBids							= reader.Read<AuthorBid>(m => m.ReadBaseState(reader)).ToList();
 		}
 
 		public void WriteConfirmed(BinaryWriter writer)
@@ -287,6 +295,8 @@ namespace Uccs.Net
 			writer.Write(ConfirmedFundJoiners);
 			writer.Write(ConfirmedFundLeavers);
 			writer.Write(ConfirmedViolators);
+			writer.Write(ConfirmedEmissions);
+			writer.Write(ConfirmedDomainBids);
 			writer.Write(ConfirmedAnalyses);
 			writer.Write(ConfirmedTransactions, i => i.WriteConfirmed(writer));
 		}
@@ -294,13 +304,15 @@ namespace Uccs.Net
 		void ReadConfirmed(BinaryReader reader)
 		{
 			ConfirmedTime				= reader.ReadTime();
-			ConfirmedMemberJoiners	= reader.ReadArray<AccountAddress>();
-			ConfirmedMemberLeavers	= reader.ReadArray<AccountAddress>();
+			ConfirmedMemberJoiners		= reader.ReadArray<AccountAddress>();
+			ConfirmedMemberLeavers		= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
 			ConfirmedFundJoiners		= reader.ReadArray<AccountAddress>();
 			ConfirmedFundLeavers		= reader.ReadArray<AccountAddress>();
 			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
+			ConfirmedEmissions			= reader.ReadArray<OperationId>();
+			ConfirmedDomainBids			= reader.ReadArray<OperationId>();
 			ConfirmedAnalyses			= reader.ReadArray<AnalysisConclusion>();
 			ConfirmedTransactions		= reader.Read(() =>	new Transaction(Mcv.Zone) {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}

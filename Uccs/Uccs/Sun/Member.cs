@@ -31,14 +31,14 @@ namespace Uccs.Net
  			//IPs		= r.ReadArray(() => r.ReadIPAddress());
 		}
 	
-  		public void WriteForBase(BinaryWriter w)
+  		public void WriteBaseState(BinaryWriter w)
  		{
  			w.Write(Account);
 			w.Write7BitEncodedInt(JoinedAt);
  			//w.Write(IPs, i => w.Write(i));
  		}
  
- 		public void ReadForBase(BinaryReader r)
+ 		public void ReadBaseState(BinaryReader r)
  		{
 			Account	= r.ReadAccount();
  			JoinedAt	= r.Read7BitEncodedInt();

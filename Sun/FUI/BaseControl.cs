@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -195,6 +196,29 @@ namespace Uccs.Sun.FUI
 			string t = "";
 			doc.Dump((n, l) => t += new string(' ', l * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value))) + Environment.NewLine);
 			return t;
+		}
+
+
+		public void Dump(object o, Control fields, Control values)
+		{
+			void save(string name, Type type, object value, int tab)
+			{
+				fields.Text += new string(' ', tab * 4) + $"{name}\n";
+
+				if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
+				{
+					values.Text += $"{{{(value as ICollection)?.Count}}}\n";
+				}
+				else
+				{
+					values.Text += $"{value?.ToString()}\n";
+				}
+			}
+
+			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+			{
+				save(i.Name, i.PropertyType, i.GetValue(o), 1);
+			}
 		}
 	}
 

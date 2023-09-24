@@ -1,9 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Numerics;
 
 namespace Uccs.Net
 {
-	public class Emission : Operation
+	public class Emission : Operation//, IEquatable<Emission>
 	{
 		public static readonly Coin		Multiplier = 1000;
 		public static readonly Coin		End = new Coin(10_000_000_000);
@@ -29,16 +32,32 @@ namespace Uccs.Net
 
 		public override bool Valid => 0 < Wei && 0 <= Eid;
 
-		protected override void ReadConfirmed(BinaryReader r)
+		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			Wei	= r.ReadBigInteger();
-			Eid	= r.Read7BitEncodedInt();
+			writer.Write(Wei);
+			writer.Write7BitEncodedInt(Eid);
 		}
 
-		protected override void WriteConfirmed(BinaryWriter w)
+		public override void ReadConfirmed(BinaryReader reader)
 		{
-			w.Write(Wei);
-			w.Write7BitEncodedInt(Eid);
+			Wei	= reader.ReadBigInteger();
+			Eid	= reader.Read7BitEncodedInt();
+		}
+
+		public void WriteBaseState(BinaryWriter writer)
+		{
+			writer.Write(Id);
+			writer.Write(Signer);
+			writer.Write(Wei);
+			writer.Write7BitEncodedInt(Eid);
+		}
+
+		public void ReadBaseState(BinaryReader reader)
+		{
+			Id		= reader.Read<OperationId>();
+			Signer	= reader.ReadAccount();
+			Wei		= reader.ReadBigInteger();
+			Eid		= reader.Read7BitEncodedInt();
 		}
 
  		public static Coin Calculate(BigInteger wei)
@@ -86,6 +105,10 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
+		}
+
+		public void ConsensusExecute(Round round)
+		{
 			if(round.Emission > End)
 			{
 				Error = "Emission is over"; /// emission is over
@@ -97,8 +120,6 @@ namespace Uccs.Net
 			round.AffectAccount(Signer).Balance += Portion;
 				
 			round.Fees += Portion / 10;
-			//round.Factor = Portion.Factor;
-			//round.WeiSpent += Wei;
 			round.Emission += Portion;
 		}
 
@@ -112,10 +133,15 @@ namespace Uccs.Net
 
 			return s.ToArray();
 		}
-		
-//		public static Coin Multiplier(Coin factor)
-//		{
-//			return FactorEnd - factor;
-//		}
+
+// 		public override bool Equals(object obj)
+// 		{
+// 			return Equals(obj as Emission);
+// 		}
+// 
+// 		public bool Equals(Emission a)
+// 		{
+// 			return a is not null && Id.Equals(a.Id) && Signer == a.Signer && Wei.Equals(a.Wei) && Eid == a.Eid;
+// 		}
 	}
 }

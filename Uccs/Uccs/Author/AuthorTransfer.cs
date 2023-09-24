@@ -19,13 +19,13 @@ namespace Uccs.Net
 			To = to;
 		}
 
-		protected override void ReadConfirmed(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader r)
 		{
 			Author	= r.ReadUtf8();
 			To		= r.ReadAccount();
 		}
 
-		protected override void WriteConfirmed(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter w)
 		{
 			w.WriteUtf8(Author);
 			w.Write(To);

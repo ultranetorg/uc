@@ -111,17 +111,16 @@ namespace Uccs.Net
 
 	public class DevSettings
 	{
-		public static bool		UI;
-		//public static bool		DisableBailMin;
-		//public static bool		DisableBidMin;
-		public static bool		DisableTimeouts;
-		public static bool		ThrowOnCorrupted;
-		public static bool		SkipSynchronizetion;
+		public static bool				UI;
+		public static bool				DisableTimeouts;
+		public static bool				ThrowOnCorrupted;
+		public static bool				SkipSynchronizetion;
+		public static bool				SkipDomainVerification;
 
 		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
-		static  IEnumerable<FieldInfo>	Fields => typeof(DevSettings).GetFields().Where(i => i.FieldType == typeof(bool));
+		static IEnumerable<FieldInfo>	Fields => typeof(DevSettings).GetFields().Where(i => i.FieldType == typeof(bool));
 
-		public static string AsString => string.Join(' ', Fields.Select(i => (bool)i.GetValue(null) ? i.Name : null));
+		public static string			AsString => string.Join(' ', Fields.Select(i => (bool)i.GetValue(null) ? i.Name : null));
 
 		public DevSettings()
 		{

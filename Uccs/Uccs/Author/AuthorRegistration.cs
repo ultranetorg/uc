@@ -30,14 +30,14 @@ namespace Uccs.Net
 			Years = years;
 		}
 
-		protected override void ReadConfirmed(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader r)
 		{
 			Name	= r.ReadUtf8();
 			Title	= r.ReadUtf8();
 			Years	= r.ReadByte();
 		}
 
-		protected override void WriteConfirmed(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter w)
 		{
 			w.WriteUtf8(Name);
 			w.WriteUtf8(Title);

@@ -21,13 +21,13 @@ namespace Uccs.Net
 			Amount	= amount;
 		}
 
-		protected override void ReadConfirmed(BinaryReader r)
+		public override void ReadConfirmed(BinaryReader r)
 		{
 			To		= r.ReadAccount();
 			Amount	= r.ReadCoin();
 		}
 
-		protected override void WriteConfirmed(BinaryWriter w)
+		public override void WriteConfirmed(BinaryWriter w)
 		{
 			w.Write(To);
 			w.Write(Amount);

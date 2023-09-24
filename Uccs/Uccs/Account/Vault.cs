@@ -80,7 +80,7 @@ namespace Uccs.Net
 
 		public AccountKey GetKey(AccountAddress a)
 		{
-			return Keys.Find(i => i == a);
+			return Keys.First(i => i == a);
 		}
 
 		public void DeleteWallet(AccountAddress a)

@@ -11,7 +11,7 @@ namespace Uccs.Net
 	{
 		Null, 
 		Pending,
-		Accepted, Verified, Placed, Confirmed, FailedOrNotFound
+		Accepted, /*Verified, */Placed, Confirmed, FailedOrNotFound
 	}
 
 	public struct Portion
@@ -28,16 +28,69 @@ namespace Uccs.Net
 		AuthorBid, AuthorRegistration, AuthorTransfer, ResourceCreation, ResourceUpdation,
 	}
 
+	public struct OperationId : IBinarySerializable, IEquatable<OperationId>, IComparable<OperationId>
+	{
+		public int Round;
+		public int Index;
+
+		public void Read(BinaryReader reader)
+		{
+			Round = reader.Read7BitEncodedInt();
+			Index = reader.Read7BitEncodedInt();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write7BitEncodedInt(Round);
+			writer.Write7BitEncodedInt(Index);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is OperationId id && Equals(id);
+		}
+
+		public bool Equals(OperationId a)
+		{
+			return Round == a.Round && Index == a.Index;
+		}
+
+		public int CompareTo(OperationId a)
+		{
+			if(Round != a.Round)
+				return Round.CompareTo(a.Round);
+
+			if(Index != a.Index)
+				return Index.CompareTo(a.Index);
+
+			return 0;
+		}
+
+		public override int GetHashCode()
+		{
+			return Round;
+		}
+
+		public static bool operator == (OperationId left, OperationId right)
+		{
+			return left.Equals(right);
+		}
+
+		public static bool operator != (OperationId left, OperationId right)
+		{
+			return !(left == right);
+		}
+	}
+
 	public abstract class Operation// : ITypedBinarySerializable
 	{
+		public OperationId		Id;
 		public string			Error;
 		public AccountAddress	Signer { get; set; }
 		public Transaction		Transaction;
 		//public Workflow		FlowReport;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
-
-		public PlacingStage		__ExpectedPlacing = PlacingStage.Null;
 
 		public const string		Rejected = "Rejected";
 		public const string		NotFound = "Not found";
@@ -54,8 +107,8 @@ namespace Uccs.Net
 		}
 		
 		public abstract void Execute(Mcv chain, Round round);
-		protected abstract void WriteConfirmed(BinaryWriter w);
-		protected abstract void ReadConfirmed(BinaryReader r);
+		public abstract void WriteConfirmed(BinaryWriter w);
+		public abstract void ReadConfirmed(BinaryReader r);
 
 		public static Operation FromType(OperationClass type)
 		{
@@ -68,6 +121,11 @@ namespace Uccs.Net
 				throw new IntegrityException($"Wrong {nameof(Operation)} type", ex);
 			}
 		}
+
+		public void AssignId(int rid, int index)
+		{
+			Id = new OperationId {Round = rid, Index = index};
+		}
 		 
 		public override string ToString()
 		{
@@ -77,15 +135,11 @@ namespace Uccs.Net
 		public void Read(BinaryReader reader)
 		{
 			ReadConfirmed(reader);
-
-			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
 			WriteConfirmed(writer);
-
-			writer.Write((byte)__ExpectedPlacing);
 		}
 
 		public static bool IsValid(string author, string title)

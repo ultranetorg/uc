@@ -57,7 +57,7 @@ namespace Uccs.Net
 			}
 		}
 
-		protected override void ReadConfirmed(BinaryReader reader)
+		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource	= reader.Read<ResourceAddress>();
 			Initials	= (ResourceChanges)reader.ReadByte();
@@ -70,7 +70,7 @@ namespace Uccs.Net
 			if(Initials.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadCoin();
 		}
 
-		protected override void WriteConfirmed(BinaryWriter writer)
+		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Resource);
 			writer.Write((byte)Initials);

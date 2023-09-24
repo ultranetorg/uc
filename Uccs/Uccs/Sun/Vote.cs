@@ -1,43 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
 	public class Vote
 	{
-		//public const int				SizeMax = 65536;
-		public int						ParentId => RoundId - Mcv.Pitch;
+		//public const int									SizeMax = 65536;
+		public int											ParentId => RoundId - Mcv.Pitch;
 
-		public List<Peer>				Peers;
-		public bool						BroadcastConfirmed;
-		public byte[]					Hash;
-		public Round					Round;
-		public DateTime					Created;
-		AccountAddress					_Generator;
-		byte[]							_RawForBroadcast;
-		Mcv								Mcv;
+		public List<Peer>									Peers;
+		public bool											BroadcastConfirmed;
+		public byte[]										Hash;
+		public Round										Round;
+		public DateTime										Created;
+		AccountAddress										_Generator;
+		byte[]												_RawForBroadcast;
+		Mcv													Mcv;
 
-		public int						RoundId;
-		public IPAddress[]				BaseIPs;
-		public IPAddress[]				HubIPs;
-		public int						Try; /// TODO: revote if consensus not reached
-		public long						TimeDelta;
-		public byte[]					ParentSummary;
-		public List<AccountAddress>		MemberJoiners = new();
-		public List<AccountAddress>		MemberLeavers = new();
-		public List<AccountAddress>		AnalyzerJoiners = new();
-		public List<AccountAddress>		AnalyzerLeavers = new();
-		public List<AccountAddress>		FundJoiners = new();
-		public List<AccountAddress>		FundLeavers = new();
-		public List<AccountAddress>		Violators = new();
-		public List<ResourceAddress>	CleanReleases = new();
-		public List<ResourceAddress>	InfectedReleases = new();
-		public List<Transaction>		Transactions = new();
-		public byte[]					Signature { get; set; }
+		public int											RoundId;
+		public IPAddress[]									BaseIPs;
+		public IPAddress[]									HubIPs;
+		public int											Try; /// TODO: revote if consensus not reached
+		public long											TimeDelta;
+		public byte[]										ParentSummary;
+		public AccountAddress[]								MemberJoiners = {};
+		public AccountAddress[]								MemberLeavers = {};
+		public AccountAddress[]								AnalyzerJoiners = {};
+		public AccountAddress[]								AnalyzerLeavers = {};
+		public AccountAddress[]								FundJoiners = {};
+		public AccountAddress[]								FundLeavers = {};
+		public AccountAddress[]								Violators = {};
+		public ResourceAddress[]							CleanReleases = {};
+		public ResourceAddress[]							InfectedReleases = {};
+		public OperationId[]								Emissions = {};
+		public OperationId[]								DomainBids = {};
+		public Transaction[]								Transactions = {};
+		public byte[]										Signature { get; set; }
 
 		public bool Valid
 		{
@@ -94,13 +98,13 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, BroadcastConfirmed={BroadcastConfirmed}, {(_Generator != null ? Hex.ToHexString(_Generator) : null)}, ParentSummary={(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}, Violators={{{Violators.Count}}}, Joiners={{{MemberJoiners.Count}}}, Leavers={{{MemberLeavers.Count}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Count}, Op(n)={Transactions.Sum(i => i.Operations.Count)}";
+			return $"{RoundId}, {(_Generator != null ? Hex.ToHexString(_Generator) : null)}, ParentSummary={(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}, Violators={{{Violators.Length}}}, Joiners={{{MemberJoiners.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Count)}, BroadcastConfirmed={BroadcastConfirmed}";
 		}
 		
 		public void AddTransaction(Transaction t)
 		{
 			t.Vote = this;
-			Transactions.Insert(0, t);
+			Transactions = Transactions.Prepend(t).ToArray();
 		}
 		
 		public void Sign(AccountKey generator)
@@ -140,6 +144,8 @@ namespace Uccs.Net
 			writer.Write(FundJoiners);
 			writer.Write(FundLeavers);
 			writer.Write(Violators);
+			writer.Write(Emissions);
+			writer.Write(DomainBids);
 			writer.Write(CleanReleases);
 			writer.Write(InfectedReleases);
 
@@ -155,17 +161,19 @@ namespace Uccs.Net
 			TimeDelta		= reader.Read7BitEncodedInt64();
 			ParentSummary	= reader.ReadBytes(Cryptography.HashSize);
 
-			MemberJoiners		= reader.ReadAccounts();
-			MemberLeavers		= reader.ReadAccounts();
-			AnalyzerJoiners		= reader.ReadAccounts();
-			AnalyzerLeavers		= reader.ReadAccounts();
-			FundJoiners			= reader.ReadAccounts();
-			FundLeavers			= reader.ReadAccounts();
-			Violators			= reader.ReadAccounts();
-			CleanReleases		= reader.ReadList<ResourceAddress>();
-			InfectedReleases	= reader.ReadList<ResourceAddress>();
+			MemberJoiners		= reader.ReadArray<AccountAddress>();
+			MemberLeavers		= reader.ReadArray<AccountAddress>();
+			AnalyzerJoiners		= reader.ReadArray<AccountAddress>();
+			AnalyzerLeavers		= reader.ReadArray<AccountAddress>();
+			FundJoiners			= reader.ReadArray<AccountAddress>();
+			FundLeavers			= reader.ReadArray<AccountAddress>();
+			Violators			= reader.ReadArray<AccountAddress>();
+			Emissions			= reader.ReadArray<OperationId>();
+			DomainBids			= reader.ReadArray<OperationId>();
+			CleanReleases		= reader.ReadArray<ResourceAddress>();
+			InfectedReleases	= reader.ReadArray<ResourceAddress>();
 
-			Transactions = reader.ReadList(() =>	{
+			Transactions = reader.ReadArray(() =>	{
 														var t = new Transaction(Mcv.Zone)
 																{
 																	Vote		= this,
