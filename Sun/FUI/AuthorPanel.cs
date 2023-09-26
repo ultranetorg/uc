@@ -144,7 +144,7 @@ namespace Uccs.Sun.FUI
 		{
 			if(AuthorTitle.Text.Length > 0)
 			{
-				AuthorSearch.Text = Operation.TitleToName(AuthorTitle.Text);
+				///AuthorSearch.Text = Operation.TitleToName(AuthorTitle.Text);
 			}
 		}
 
@@ -162,7 +162,7 @@ namespace Uccs.Sun.FUI
 		{
 			try
 			{
-				if(!Operation.IsValid(AuthorSearch.Text, AuthorTitle.Text))
+				if(!Author.Valid(AuthorSearch.Text))
 					throw new ArgumentException("Invalid author name");
 
 				var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
@@ -194,8 +194,8 @@ namespace Uccs.Sun.FUI
 					AuctionStatus.Text = $"Ongoing auction:  more than {a.LastBid} UNT required";
 				}
 			}
-			else
-				AuctionStatus.Text = $"Author Name must be less than {AuthorEntry.ExclusiveLengthMax} characters"; 
+			//else
+			//	AuctionStatus.Text = $"Author name must be less than {AuthorEntry.ExclusiveLengthMax} characters"; 
 		}
 
 		private void Transfer_Click(object sender, EventArgs e)

@@ -77,7 +77,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Blocks(V/P/J)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}/{JoinRequests.Count()}), Generators={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Votes(V/VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}, JR={JoinRequests.Count()}, Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)

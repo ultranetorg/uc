@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Uccs.Net
 {
 	public class Author : IBinarySerializable
 	{
-		public const int					ExclusiveLengthMax = 12;
-		public const int					LengthMin = 1;
+		//public const int					ExclusiveLengthMax = 12;
+		public const int					NameLengthMin = 1;
+		public const int					NameLengthMax = 256;
+		public const char					CommonPrefix = '@';
 
 		public static readonly ChainTime	AuctionMinimalDuration = ChainTime.FromDays(365);
 		public static readonly ChainTime	Prolongation = ChainTime.FromDays(30);
@@ -28,8 +31,28 @@ namespace Uccs.Net
 		public Resource[]					Resources { get; set; } = {};
 		public int							NextResourceId { get; set; }
 
+		public static bool Valid(string name)
+		{
+			if(name.Length < NameLengthMin || name.Length > NameLengthMax)
+				return false;
 
-		public static bool IsExclusive(string name) => name.Length <= ExclusiveLengthMax; 
+			var r = new Regex($@"^[a-z0-9_{CommonPrefix}]+$");
+			
+			if(r.Match(name).Success == false)
+				return false;
+
+			//if(TitleToName(title) != author)
+			//	return false;
+
+			return true;
+		}
+
+		//public static string TitleToName(string title)
+		//{
+		//	return Regex.Matches(title, @"[a-zA-Z0-9_]+").Aggregate(string.Empty, (a,m) => a += m.Value).ToLower();
+		//}
+
+		public static bool IsExclusive(string name) => name[0] != CommonPrefix; 
 
 		public static bool IsExpired(Author a, ChainTime time) 
 		{

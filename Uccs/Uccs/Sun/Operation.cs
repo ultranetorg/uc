@@ -142,27 +142,6 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public static bool IsValid(string author, string title)
-		{
-			if(author.Length < 2)
-				return false;
-
-			var r = new Regex(@"^[a-z0-9_]+$");
-			
-			if(r.Match(author).Success == false)
-				return false;
-
-			if(TitleToName(title) != author)
-				return false;
-
-			return true;
-		}
-
-		public static string TitleToName(string title)
-		{
-			return Regex.Matches(title, @"[a-zA-Z0-9_]+").Aggregate(string.Empty, (a,m) => a += m.Value).ToLower();
-		}
-
 		public int CalculateSize()
 		{
 			var s = new FakeStream();
