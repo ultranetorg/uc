@@ -11,7 +11,7 @@ namespace Uccs.Net
 	{
 		Null, 
 		Pending,
-		Accepted, /*Verified, */Placed, Confirmed, FailedOrNotFound
+		Accepted, /*Verified, */Placed, FailedOrNotFound, Confirmed
 	}
 
 	public struct Portion

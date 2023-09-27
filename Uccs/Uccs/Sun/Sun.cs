@@ -1496,8 +1496,13 @@ namespace Uccs.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				if(!Mcv.MembersOf(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch).Any(i => i.Account == g))
+				if(!Mcv.LastConfirmedRound.Members.Any(i => i.Account == g))
 				{
+					var d = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
+
+					if(d == null || d.BailStatus != BailStatus.Active || d.Bail < Zone.BailMin)
+						break;
+
 					///var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
 
 					MemberJoinRequest jr = null;
@@ -1548,8 +1553,8 @@ namespace Uccs.Net
 					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
 
-					if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to downloaded rounds since its blocks have no hashes
-						continue;
+					//if(r.Parent == null || r.Parent.Payloads.Any(i => i.Hash == null)) /// cant refer to downloaded rounds since its blocks have no hashes
+					//	continue;
 
 					var txs = IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray();
 
@@ -1913,7 +1918,7 @@ namespace Uccs.Net
 									if(i.Placing == PlacingStage.Confirmed || i.Placing == PlacingStage.FailedOrNotFound)
 									{
 										#if DEBUG
-										if(t.__ExpectedPlacing != PlacingStage.Null && t.__ExpectedPlacing != i.Placing)
+										if(t.__ExpectedPlacing >= PlacingStage.FailedOrNotFound && t.__ExpectedPlacing != i.Placing)
 										{	
 											//rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
 											Debugger.Break();

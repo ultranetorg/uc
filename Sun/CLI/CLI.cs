@@ -117,6 +117,9 @@ namespace Uccs.Sun.CLI
 
 		public static object Execute(Xon command, Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> getsun)
 		{
+			if(workflow.Aborted)
+				throw new OperationCanceledException();
+
 			var args = command.Nodes.ToList();
 			var c = Create(zone, settings, workflow, getsun, command);
 

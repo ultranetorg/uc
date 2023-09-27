@@ -11,7 +11,7 @@ namespace Uccs.Net
 		//public const int					ExclusiveLengthMax = 12;
 		public const int					NameLengthMin = 1;
 		public const int					NameLengthMax = 256;
-		public const char					CommonPrefix = '@';
+		public const char					CommonNamespacePrefix = '_';
 
 		public static readonly ChainTime	AuctionMinimalDuration = ChainTime.FromDays(365);
 		public static readonly ChainTime	Prolongation = ChainTime.FromDays(30);
@@ -36,7 +36,7 @@ namespace Uccs.Net
 			if(name.Length < NameLengthMin || name.Length > NameLengthMax)
 				return false;
 
-			var r = new Regex($@"^[a-z0-9_{CommonPrefix}]+$");
+			var r = new Regex($@"^[a-z0-9_{CommonNamespacePrefix}]+$");
 			
 			if(r.Match(name).Success == false)
 				return false;
@@ -52,7 +52,7 @@ namespace Uccs.Net
 		//	return Regex.Matches(title, @"[a-zA-Z0-9_]+").Aggregate(string.Empty, (a,m) => a += m.Value).ToLower();
 		//}
 
-		public static bool IsExclusive(string name) => name[0] != CommonPrefix; 
+		public static bool IsExclusive(string name) => name[0] != CommonNamespacePrefix; 
 
 		public static bool IsExpired(Author a, ChainTime time) 
 		{

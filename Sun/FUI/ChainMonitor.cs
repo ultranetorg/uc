@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Data;
 using System.Drawing;
-using System.Data;
-using System.Text;
-using System.Linq;
-using System.Windows.Forms;
-using System.Threading;
+using System.Drawing.Drawing2D;
 using System.Numerics;
-using Nethereum.Web3;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.Cms;
-using System.Runtime.Intrinsics.X86;
+using System.Windows.Forms;
 
 namespace Uccs.Sun.FUI
 {
@@ -249,7 +240,7 @@ namespace Uccs.Sun.FUI
 
 										if(jr != null)
 										{
-											e.Graphics.FillRectangle(Brushes[m], x+s/4, y+s/4, s/2, s/2);
+											e.Graphics.FillPolygon(Brushes[m], new PointF[]{new (x + s/2, y), new (x, y+s), new (x+s, y+s)});
 										}
 										
 										x += s;

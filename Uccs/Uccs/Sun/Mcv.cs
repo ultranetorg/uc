@@ -646,12 +646,6 @@ namespace Uccs.Net
 													.Where(x => round.Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
 
-				var n = gu.SelectMany(i => i.DomainBids).Distinct();
-				if(n.Count() > 0)
-				{
-					n=n;
-				}
-
 				round.ConfirmedDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
 													.Where(x => round.DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
@@ -876,12 +870,20 @@ namespace Uccs.Net
 				#endif
 			}
 
-			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid < round.Id)
 																.Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
-			round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
-			round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < Zone.BailMin);  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
-			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
+			var n = round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
+			if(n > 2)
+				n=n;
+			n = round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
+			if(n > 2)
+				n=n;
+			n = round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < Zone.BailMin);  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
+			if(n > 2)
+				n=n;
+			n = round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
+			if(n > 2)
+				n=n;
 
 			round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
 			round.Funds.AddRange(round.ConfirmedFundJoiners);
