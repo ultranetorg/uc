@@ -55,7 +55,6 @@ namespace Uccs.Net
 		public int							Size => BaseState == null ? 0 : (BaseState.Length + 
 																			Accounts.Clusters.Sum(i => i.MainLength) +
 																			Authors.Clusters.Sum(i => i.MainLength));
-		public Log							Log;
 		public BlockDelegate				BlockAdded;
 		public JoinDelegate					JoinAdded;
 		public ConsensusDelegate			ConsensusConcluded;
@@ -72,12 +71,11 @@ namespace Uccs.Net
 
 		public static int					GetValidityPeriod(int rid) => rid + Pitch;
 
-		public Mcv(Zone zone, Role roles, McvSettings settings, Log log, RocksDb engine)
+		public Mcv(Zone zone, Role roles, McvSettings settings, RocksDb engine)
 		{
 			Roles = roles&(Role.Base|Role.Chain);
 			Zone = zone;
 			Settings = settings;
-			Log = log;
 			Engine = engine;
 
 			Accounts = new (this);

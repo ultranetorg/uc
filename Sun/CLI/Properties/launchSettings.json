@@ -24,9 +24,9 @@
       "commandName": "Project",
       "commandLineArgs": "run api"
     },
-    "run api profile=A:\\": {
+    "run user profile=a:\\UOTMP\\CLI zone=Simulation": {
       "commandName": "Project",
-      "commandLineArgs": "run api profile=A:\\"
+      "commandLineArgs": "run user profile=a:\\UOTMP\\CLI zone=Simulation"
     }
   }
 }

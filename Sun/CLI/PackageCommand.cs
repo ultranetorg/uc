@@ -17,7 +17,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "package";
 
-		public PackageCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public PackageCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 

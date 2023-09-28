@@ -8,13 +8,12 @@
 		{
  			lock(sun.Lock)
 			{
-	 			if(sun.Synchronization != Synchronization.Synchronized)
-					throw new RdcNodeException(RdcNodeError.NotSynchronized);
+	 			if(sun.Synchronization != Synchronization.Synchronized)		throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
 				var ai = sun.Mcv.Accounts.Find(Account, sun.Mcv.LastConfirmedRound.Id);
 
 				if(ai == null)
-					throw new RdcEntityException(RdcEntityError.AccountNotFound);
+					throw new RdcEntityException(RdcEntityError.NotFound);
 
  				return new AccountResponse{Account = ai};
 			}

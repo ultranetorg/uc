@@ -178,9 +178,14 @@ namespace Uccs.Net
 								return new SettingsResponse {ProfilePath	= Sun.Settings.Profile, 
 															 Settings		= Sun.Settings}; /// TODO: serialize
 						case RunNodeCall e:
-							Sun.RunNode(null);
+						{	
+							Sun.RunNode(null, e.Roles);
+							
+							if(e.Roles.HasFlag(Role.Seed))
+								Sun.RunSeed();
+							
 							break;
-
+						}
 						case ExitCall e:
 							rp.Close();
 							Sun.Stop("Json API Call");

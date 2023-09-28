@@ -8,7 +8,7 @@
 		{
 			lock(sun.Lock)
 			{
-				if(!sun.Settings.Roles.HasFlag(Role.Base))				throw new RdcNodeException(RdcNodeError.NotBase);
+				if(!sun.Roles.HasFlag(Role.Base))						throw new RdcNodeException(RdcNodeError.NotBase);
 				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
 				var a = sun.Mcv.Accounts.Find(Account, sun.Mcv.LastConfirmedRound.Id);

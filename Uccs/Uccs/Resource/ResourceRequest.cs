@@ -16,7 +16,7 @@ namespace Uccs.Net
 				var r = sun.Mcv.Authors.FindResource(Resource, sun.Mcv.LastConfirmedRound.Id);
 			
 				if(r == null)
-					throw new RdcEntityException(RdcEntityError.ResourceNotFound);
+					throw new RdcEntityException(RdcEntityError.NotFound);
 				
 				return new ResourceResponse {Resource = r};
 			}

@@ -13,7 +13,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "account";
 
-		public AccountCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public AccountCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 
@@ -36,11 +36,18 @@ namespace Uccs.Sun.CLI
 		   		
 				case "info" :
 				{
-					var i = Sun.Call(i => i.GetAccountInfo(GetAccountAddress("address")), Workflow);
-					
-					Workflow.Log?.Report(this, "Account : ");
+					try
+					{
+						var i = Sun.Call(i => i.GetAccountInfo(GetAccountAddress("address")), Workflow);
+	
+						Dump(i.Account);
 
-					Dump(i.Account);
+						return i.Account;
+					}
+					catch(RdcEntityException ex)
+					{
+						Workflow.Log?.Report(this, ex.Message);
+					}
 
 					return null;
 				}

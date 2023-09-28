@@ -23,7 +23,7 @@ namespace Uccs.Net
 		public int				ExternalVerificationDuration;
 		public int				TailLength;
 
-		public ZoneCreation		Creation;
+		//public ZoneCreation		Creation;
 		public AccountAddress	God;
 		public AccountAddress	Father0;
 
@@ -38,8 +38,9 @@ namespace Uccs.Net
 							}
 
  		public static readonly Zone		Testnet1 = new Testnet1();
+ 		public static readonly Zone		Simulation = new SimulationZone();
 		public static readonly Zone		Mainnet	= null;
-		public static readonly Zone[]	Official = {Testnet1, Mainnet};
+		public static readonly Zone[]	Official = {Simulation, Testnet1};
 
 		public Zone()
 		{
@@ -60,7 +61,6 @@ namespace Uccs.Net
 			z.Genesis = 		Genesis;
 			z.GenesisIP = 		GenesisIP;
 			z.Initials = 		Initials;
-			z.Creation = 		Creation;
 			z.BailMin = 		BailMin;
 			z.PoW = 			PoW;		
 			z.TailLength = 		TailLength;

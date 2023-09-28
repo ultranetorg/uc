@@ -34,7 +34,7 @@ namespace Uccs.Sun.FUI
 
 		private void NetworkSearch_Click(object sender, EventArgs e)
 		{
-			if(!Sun.Settings.Roles.HasFlag(Role.Base))
+			if(!Sun.Roles.HasFlag(Role.Base))
 			{	
 				NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
 				NetworkReleases.Columns.Clear();
@@ -85,7 +85,7 @@ namespace Uccs.Sun.FUI
 
 		private void LocalSearch_Click(object sender, EventArgs e)
 		{
-			if(!Sun.Settings.Roles.HasFlag(Role.Seed))
+			if(!Sun.Roles.HasFlag(Role.Seed))
 			{	
 				LocalReleases.HeaderStyle = ColumnHeaderStyle.None;
 				LocalReleases.Columns.Clear();

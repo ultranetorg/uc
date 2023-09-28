@@ -100,12 +100,11 @@ namespace Uccs.Net
 
 			var d = new XonDocument(File.ReadAllText(path));
 			
-			Password		= d.Get<string>("Password");
+			Password			= d.Get<string>("Password");
 
-			EthereumProvider= d.Get<string>("NasProvider");
-
-			EthereumWallet	 = d.Get<string>("EmissionWallet");
-			EthereumPassword = d.Get<string>("EmissionPassword");
+			EthereumProvider	= d.Get<string>("NasProvider");
+			EthereumWallet		= d.Get<string>("EmissionWallet");
+			EthereumPassword	= d.Get<string>("EmissionPassword");
 		}
 	}
 
@@ -146,7 +145,7 @@ namespace Uccs.Net
 		string							Path; 
 		public string					Profile;
 
-		public Role						Roles;
+		public string					FuiRoles;
 		public bool						Log;
 		public int						PeersMin = 6;
 		public int						PeersInMax = 128;
@@ -193,7 +192,7 @@ namespace Uccs.Net
 
 			var doc = new XonDocument(File.ReadAllText(Path));
 
-			Roles			= Enum.Parse<Role>(doc.Get<string>("Roles"));
+			FuiRoles		= doc.Get<string>("FuiRoles");
 			Anonymous		= doc.Has("Anonymous");
 			PeersMin		= doc.Get<int>("PeersMin");
 			PeersInMax		= doc.Get<int>("PeersInMax");
@@ -202,7 +201,7 @@ namespace Uccs.Net
 			JsonServerPort	= (ushort)doc.Get<int>("JsonServerPort");
 			Generators		= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log				= doc.Has("Log");
-			Packages		= doc.Get<string>("Packages") ?? System.IO.Path.Join(Profile, "Packages");
+			Packages		= doc.GetOrDefault<string>("Packages") ?? System.IO.Path.Join(Profile, "Packages");
 
 			Mcv			= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));

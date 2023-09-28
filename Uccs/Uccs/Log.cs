@@ -80,12 +80,12 @@ namespace Uccs
 	
 				if(r.Messages.Count > 1000)
 					r.Messages.RemoveRange(0, r.Messages.Count - 1000);
-			}
 
-			if(r.Writer != null)
-			{
-				r.Writer.WriteLine(m.ToString());
-				r.Writer.Flush();
+				if(r.Writer != null)
+				{
+					r.Writer.WriteLine(m.ToString());
+					r.Writer.Flush();
+				}
 			}
 			
 			r.Reported?.Invoke(m);

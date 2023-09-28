@@ -53,7 +53,7 @@ namespace Uccs.Net
 		Base		= 0b00000001,
 		Chain		= 0b00000011,
 		//Analyzer	= 0b00000101,
-		Seed		= 0b00001000,
+		Seed		= 0b00000100,
 	}
 
 	public class ReleaseStatus
@@ -65,6 +65,8 @@ namespace Uccs.Net
 
 	public class Sun : RdcInterface
 	{
+		public Role						Roles => (Mcv != null ? Mcv.Roles : Role.Null)|(ResourceHub != null ? Role.Seed : Role.Null);
+
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]	Versions = {1};
 		public const string				FailureExt = "failure";
@@ -83,7 +85,6 @@ namespace Uccs.Net
 		public ResourceHub				ResourceHub;
 		public PackageHub				PackageHub;
 		public SeedHub					SeedHub;
-		public bool						IsClient => ListeningThread == null;
 		public object					Lock = new();
 		public Clock					Clock;
 
@@ -94,6 +95,8 @@ namespace Uccs.Net
 
 		public Guid						Nuid;
 		public IPAddress				IP = IPAddress.None;
+		public bool						IsNodeOrUserRun => MainThread != null;
+		public bool						IsClient => ListeningThread == null;
 
 		public Statistics				PrevStatistics = new();
 		public Statistics				Statistics = new();
@@ -107,7 +110,7 @@ namespace Uccs.Net
 		public Coin						TransactionPerByteMinFee;
 		public int						TransactionThresholdExcessRound;
 
-		bool							MinimalPeersReached;
+		public bool						MinimalPeersReached;
 		bool							OnlineBroadcasted;
 		public List<Peer>				Peers = new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
@@ -256,9 +259,9 @@ namespace Uccs.Net
 		{
 			var gens = Mcv?.LastConfirmedRound != null ? Settings.Generators.Where(i => Mcv.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
 	
-			return	$"{(Settings.Roles.HasFlag(Role.Base) ? "B" : "")}" +
-					$"{(Settings.Roles.HasFlag(Role.Chain) ? "C" : "")}" +
-					$"{(Settings.Roles.HasFlag(Role.Seed) ? "S" : "")}" +
+			return	$"{(Roles.HasFlag(Role.Base) ? "B" : "")}" +
+					$"{(Roles.HasFlag(Role.Chain) ? "C" : "")}" +
+					$"{(Roles.HasFlag(Role.Seed) ? "S" : "")}" +
 					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
 					$"{(Settings.Anonymous ? " - A" : "")}" +
 					$"{(!IP.Equals(IPAddress.None) ? $" - {IP}" : "")}" +
@@ -293,21 +296,39 @@ namespace Uccs.Net
 			ApiStarted?.Invoke(this);
 		}
 
+		public void Run(Xon xon, Workflow workflow)
+		{
+			if(xon.Has("api"))
+				RunApi();
+			
+			if(xon.Has("node"))
+				RunNode(workflow, (xon.Has("base") ? Role.Base : Role.Null) | (xon.Has("chain") ? Role.Chain : Role.Null));
+			else if(xon.Has("user"))
+				RunUser(workflow);
+
+			if(xon.Has("seed"))
+				RunSeed();
+		}
+
 		public void RunUser(Workflow workflow)
 		{
-			Workflow = workflow.CreateNested("RunUser");
-			Nuid = Guid.NewGuid();
+			Workflow = workflow != null ? workflow.CreateNested("RunUser", workflow?.Log) : new Workflow("RunUser", workflow?.Log);
+			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
 
-			if(Settings.Roles.HasFlag(Role.Seed))
-			{
-				ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
-				PackageHub = new PackageHub(this, ResourceHub, Settings.Packages);
-			}
+			Workflow.Log?.Report(this, $"Ultranet Client {Version}");
+			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
+			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
+			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
+			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
+			
+			if(DevSettings.Any)
+				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
+
+			Nuid = Guid.NewGuid();
 
 			LoadPeers();
 			
- 			MainThread = new Thread(() =>
- 									{ 
+ 			MainThread = new (() =>	{ 
 										Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
 
 										try
@@ -328,16 +349,15 @@ namespace Uccs.Net
 										}
  									});
 			MainThread.Start();
-
 			MainStarted?.Invoke(this);
 		}
 
-		public void RunNode(Workflow workflow)
+		public void RunNode(Workflow workflow, Role roles)
 		{
 			Workflow = workflow != null ? workflow.CreateNested("RunNode", new Log()) : new Workflow("RunNode", new Log());
 			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
 
-			Workflow.Log?.Report(this, $"Ultranet Node/Client {Version}");
+			Workflow.Log?.Report(this, $"Ultranet Node {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
 			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
@@ -348,36 +368,17 @@ namespace Uccs.Net
 
 			Nuid = Guid.NewGuid();
 
-			ListeningThread = new Thread(() =>	{
-													try
-													{
-														Listening();
-													}
-													catch(OperationCanceledException)
-													{
-													}
-												});
+			ListeningThread = new Thread(Listening);
 			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
 
-			if(Settings.Roles.HasFlag(Role.Base) && Settings.Generators.Any())
+			if(Settings.Generators.Any())
 			{
 				SeedHub = new SeedHub(this);
 			}
 
-			if(Settings.Roles.HasFlag(Role.Seed))
+			if(roles.HasFlag(Role.Base) || roles.HasFlag(Role.Chain))
 			{
-				ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
-				PackageHub = new PackageHub(this, ResourceHub, Settings.Packages);
-			}
-
-			if(Settings.Roles.HasFlag(Role.Base) || Settings.Roles.HasFlag(Role.Chain))
-			{
-				Mcv = new Mcv(Zone, Settings.Roles, Settings.Mcv, Workflow?.Log, Database);
-		
-				//if(Database.LastConfirmedRound != null && Database.LastConfirmedRound.Members.FirstOrDefault().Generator == Zone.Father0)
-				//{
-				//	Members = new List<OnlineMember>{ new() {Generator = Zone.Father0, IPs = new[] {Zone.GenesisIP}}};
-				//}
+				Mcv = new Mcv(Zone, roles, Settings.Mcv, Database);
 
 				Mcv.BlockAdded += b =>	{
 											MainSignal.Set();
@@ -553,8 +554,13 @@ namespace Uccs.Net
 										}
  									});
 			MainThread.Start();
-
 			MainStarted?.Invoke(this);
+		}
+
+		public void RunSeed()
+		{
+			ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
+			PackageHub = new PackageHub(this, ResourceHub, Settings.Packages);
 		}
 
 		public void Stop(MethodBase methodBase, Exception ex)
@@ -715,7 +721,7 @@ namespace Uccs.Net
 
 			if(!MinimalPeersReached && 
 				Connections.Count() >= Settings.PeersMin && 
-				(!Settings.Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Mcv.PeersMin))
+				(!Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Mcv.PeersMin))
 			{
 				if(Mcv != null)
 				{
@@ -768,6 +774,9 @@ namespace Uccs.Net
 			{
 				Stop(MethodBase.GetCurrentMethod(), ex);
 			}
+			catch(OperationCanceledException)
+			{
+			}
 		}
 
 		Hello CreateHello(IPAddress ip)
@@ -781,7 +790,7 @@ namespace Uccs.Net
 
 			var h = new Hello();
 
-			h.Roles			= Settings.Roles;
+			h.Roles			= Roles;
 			h.Versions		= Versions;
 			h.Zone			= Zone.Name;
 			h.IP			= ip;
@@ -812,7 +821,7 @@ namespace Uccs.Net
 					}
 					catch(SocketException ex) 
 					{
-						Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Connect; {ex.Message}" );
+						Workflow.Log?.Report(this, "connectivity", $"Establishing failed To {peer.IP}; Connect; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -835,7 +844,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, "Establishing failed", $"To {peer.IP}; Send/Wait Hello; {ex.Message}" );
+						Workflow.Log?.Report(this, "connectivity", $"Establishing failed to {peer.IP}; Send/Wait Hello; {ex.Message}" );
 						goto failed;
 					}
 	
@@ -861,7 +870,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", "It's me");
+							Workflow.Log?.Report(this, "connectivity", "Establishing failed: It's me");
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							client.Close();
@@ -871,12 +880,12 @@ namespace Uccs.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, "Detected IP", IP.ToString());
+							Workflow.Log?.Report(this, "connectivity", $"Reported IP {IP}");
 						}
 	
 						if(peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", $"From {peer.IP}; Already established" );
+							Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {peer.IP}: Already established" );
 							client.Close();
 							return;
 						}
@@ -975,7 +984,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; WaitHello {ex.Message}");
+						Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {ip}; WaitHello {ex.Message}");
 						goto failed;
 					}
 				
@@ -998,7 +1007,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", "It's me");
+							Workflow.Log?.Report(this, "connectivity", "Establishing failed: It's me");
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							client.Close();
@@ -1007,7 +1016,7 @@ namespace Uccs.Net
 
 						if(peer != null && peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; Already established" );
+							Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {ip}: Already established" );
 							client.Close();
 							return;
 						}
@@ -1015,7 +1024,7 @@ namespace Uccs.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, "Reported IP", IP.ToString());
+							Workflow.Log?.Report(this, "connectivity", $"Reported IP {IP}");
 						}
 		
 						try
@@ -1024,7 +1033,7 @@ namespace Uccs.Net
 						}
 						catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
 						{
-							Workflow.Log?.Report(this, "Establishing failed", $"From {ip}; SendHello; {ex.Message}");
+							Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {ip}; SendHello; {ex.Message}");
 							goto failed;
 						}
 	
@@ -2268,7 +2277,7 @@ namespace Uccs.Net
 								{
 									return p.GetAccountInfo(signer);
 								}
-								catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
+								catch(RdcEntityException ex) when (ex.Error == RdcEntityError.NotFound)
 								{
 									return new AccountResponse();
 								}
@@ -2301,7 +2310,7 @@ namespace Uccs.Net
 									{
 										return p.GetAccountInfo(signer);
 									}
-									catch(RdcEntityException ex) when (ex.Error == RdcEntityError.AccountNotFound)
+									catch(RdcEntityException ex) when (ex.Error == RdcEntityError.NotFound)
 									{
 										return new AccountResponse();
 									}

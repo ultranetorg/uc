@@ -202,5 +202,12 @@ namespace Uccs
 
 			return Serializator.Get<O>(n, n.Value);
 		} 
+
+		public O GetOrDefault<O>(string name)
+		{
+			var n = One(name);
+
+			return n != null ? Serializator.Get<O>(n, n.Value) : default;
+		} 
 	}
 }

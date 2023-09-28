@@ -37,10 +37,11 @@ namespace Uccs.Net
 		public bool					Inbound;
 		public string				StatusDescription => Status == ConnectionStatus.OK ? (Inbound ? "Incoming" : "Outbound") : Status.ToString();
 
-		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0);
+		public Role					Roles => (ChainRank > 0 ? Role.Chain : 0) | (BaseRank > 0 ? Role.Base : 0) | (SeedRank > 0 ? Role.Seed : 0);
 		public int					PeerRank = 0;
 		public int					ChainRank = 0;
 		public int					BaseRank = 0;
+		public int					SeedRank = 0;
 
 		public Dictionary<Role, DateTime>	LastFailure = new();
 
@@ -77,6 +78,7 @@ namespace Uccs.Net
 		{
 			if(role == Role.Base) return BaseRank;
 			if(role == Role.Chain) return ChainRank;
+			if(role == Role.Seed) return SeedRank;
 
 			throw new IntegrityException("Wrong rank");
 		}
@@ -86,6 +88,7 @@ namespace Uccs.Net
   			w.Write7BitEncodedInt64(LastSeen.ToBinary());
 			w.Write(PeerRank);
 			w.Write(ChainRank);
+			w.Write(SeedRank);
   		}
   
   		public void LoadNode(BinaryReader r)
@@ -93,6 +96,7 @@ namespace Uccs.Net
   			LastSeen = DateTime.FromBinary(r.Read7BitEncodedInt64());
 			PeerRank = r.ReadInt32();
 			ChainRank = r.ReadInt32();
+			SeedRank = r.ReadInt32();
   		}
  
  		public void WritePeer(BinaryWriter w)
@@ -107,6 +111,7 @@ namespace Uccs.Net
 			var r = (Role)reader.ReadByte();
 			BaseRank	= r.HasFlag(Role.Base) ? 1 : 0;
 			ChainRank	= r.HasFlag(Role.Chain) ? 1 : 0;
+			SeedRank	= r.HasFlag(Role.Seed) ? 1 : 0;
  		}
 
 		public static void SendHello(TcpClient client, Hello h)
@@ -181,6 +186,7 @@ namespace Uccs.Net
 			LastSeen	= DateTime.UtcNow;
 			BaseRank	= h.Roles.HasFlag(Role.Base)	? 1 : 0;
 			ChainRank	= h.Roles.HasFlag(Role.Chain)	? 1 : 0;
+			SeedRank	= h.Roles.HasFlag(Role.Seed)	? 1 : 0;
 
 			sun.UpdatePeers(new Peer[]{this});
 
@@ -426,7 +432,20 @@ namespace Uccs.Net
 	 				if(rq.Response.Result == RdcResult.Success)
 		 				return rq.Response as Rp;
 	 				else if(rq.Response.Result == RdcResult.NodeException)
-						throw new RdcNodeException((RdcNodeError)rq.Response.Error);
+					{
+						var e =(RdcNodeError)rq.Response.Error;
+
+						if(e.HasFlag(RdcNodeError.NotBase))
+							BaseRank = 0;
+
+						if(e.HasFlag(RdcNodeError.NotChain))
+							ChainRank = 0;
+
+						if(e.HasFlag(RdcNodeError.NotSeed))
+							SeedRank = 0;
+
+						throw new RdcNodeException(e);
+					}
 	 				else if(rq.Response.Result == RdcResult.EntityException)
 						throw new RdcEntityException((RdcEntityError)rq.Response.Error);
 					else

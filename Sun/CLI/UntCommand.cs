@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "unt";
 
-		public UntCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public UntCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 

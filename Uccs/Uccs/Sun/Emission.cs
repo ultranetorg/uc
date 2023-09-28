@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Numerics;
 
 namespace Uccs.Net
@@ -117,10 +114,12 @@ namespace Uccs.Net
 
 			Portion = Calculate(Wei);
 			
-			round.AffectAccount(Signer).Balance += Portion;
+			var a = round.AffectAccount(Signer);
+			a.Balance += Portion;
+			a.LastEmissionId = Eid;
 				
-			round.Fees += Portion / 10;
 			round.Emission += Portion;
+			round.Fees += Portion / 10;
 		}
 
 		public static byte[] Serialize(AccountAddress beneficiary, int eid)

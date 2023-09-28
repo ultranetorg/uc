@@ -65,6 +65,8 @@ namespace Uccs.Net
 ///
 ///				return null;
 ///			}
+			if(!sun.Roles.HasFlag(Role.Base))
+				throw new RdcNodeException(RdcNodeError.NotBase);
 
 			var s = new MemoryStream(Raw);
 			var br = new BinaryReader(s);
@@ -75,8 +77,6 @@ namespace Uccs.Net
 
 			lock(sun.Lock)
 			{
-				if(!sun.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
-
 				var accepted = sun.ProcessIncoming(v);
 
 				if(sun.Synchronization == Synchronization.Synchronized)

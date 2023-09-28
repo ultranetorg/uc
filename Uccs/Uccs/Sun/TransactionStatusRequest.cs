@@ -11,8 +11,11 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(!sun.Settings.Roles.HasFlag(Role.Chain))				throw new RdcNodeException(RdcNodeError.NotChain);
-				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				if(!sun.Roles.HasFlag(Role.Chain))
+					throw new RdcNodeException(RdcNodeError.NotChain);
+
+				if(sun.Synchronization != Synchronization.Synchronized)
+					throw new RdcNodeException(RdcNodeError.NotSynchronized);
 	
 				return	new TransactionStatusResponse
 						{

@@ -82,7 +82,12 @@ namespace Uccs.Sun.FUI
 		{
 			b.Items.Clear();
 	
-			foreach(var i in Vault.Wallets.Keys)
+			IEnumerable<AccountAddress> keys;
+
+			lock(Sun.Lock)
+				keys = Vault.Wallets.Keys.ToArray();
+
+			foreach(var i in keys)
 				b.Items.Add(i);
 		
 			if(b.Items.Count > 0)
@@ -92,8 +97,10 @@ namespace Uccs.Sun.FUI
 		public void BindAccounts(ComboBox b, Action filled = null)
 		{
 			Vault.AccountsChanged += () => {
-												FillAccounts(b);
-												filled?.Invoke();
+												BeginInvoke(new Action(() => { 
+																			FillAccounts(b);
+																			filled?.Invoke();
+																		}));
 											};
 			FillAccounts(b);
 			filled?.Invoke();

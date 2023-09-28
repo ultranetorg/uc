@@ -49,7 +49,7 @@ namespace Uccs.Sun.FUI
 				Auction.Visible			= false;
 				Transfering.Visible		= false;
 
-				var a = Sun.Call(p => p.GetAuthorInfo(AuthorSearch.Text), Sun.Workflow).Entry;
+				var a = Sun.Call(p => p.GetAuthorInfo(AuthorSearch.Text), Sun.Workflow).Author;
 	
 				if(a != null)
 				{	

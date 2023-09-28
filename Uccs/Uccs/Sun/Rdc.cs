@@ -36,10 +36,10 @@ namespace Uccs.Net
 		Internal,
 		Timeout,
 		NotFound,
-		NotChain,
 		NotBase,
+		NotChain,
+		NotSeed,
 		NotMember,
-		NotSeeder,
 		NotSynchronized,
 		TooEearly,
 		AllNodesFailed,
@@ -51,9 +51,7 @@ namespace Uccs.Net
 	{
 		Null,
 		InvalidRequest,
-		AccountNotFound,
-		ResourceNotFound,
-		ClusterNotFound,
+		NotFound,
 		RoundNotAvailable,
 	}
 
@@ -195,8 +193,10 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			if(!sun.Settings.Roles.HasFlag(Role.Base))					throw new RdcNodeException(RdcNodeError.NotBase);
-			if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+			if(!sun.Roles.HasFlag(Role.Base))
+				throw new RdcNodeException(RdcNodeError.NotBase);
+			if(sun.Synchronization != Synchronization.Synchronized)
+				throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
 			lock(sun.Lock)
 			{

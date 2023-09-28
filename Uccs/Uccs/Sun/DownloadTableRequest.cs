@@ -13,17 +13,17 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(!sun.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
+				if(!sun.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
 				
 				var m = Table switch
 							  {
-									Tables.Accounts		=> sun.Mcv.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Authors		=> sun.Mcv.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Authors	=> sun.Mcv.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									_ => throw new RdcEntityException(RdcEntityError.InvalidRequest)
 							  };
 
 				if(m == null)
-					throw new RdcEntityException(RdcEntityError.ClusterNotFound);
+					throw new RdcEntityException(RdcEntityError.NotFound);
 	
 				var s = new MemoryStream(m);
 				var r = new BinaryReader(s);

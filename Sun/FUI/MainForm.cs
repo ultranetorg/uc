@@ -40,7 +40,7 @@ namespace Uccs.Sun.FUI
 
 			if(sun.Mcv != null)
 			{
-				if(sun.Settings.Roles.HasFlag(Role.Chain))
+				if(sun.Roles.HasFlag(Role.Chain))
 				{
 					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Sun, sun.Vault) };
 					navigator.Nodes.Add(txs);

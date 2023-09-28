@@ -30,14 +30,14 @@ namespace Uccs.Sun.FUI
 																{
 																	lock(Sun.Lock)
 																	{
-																		Round.Minimum = Sun.Settings.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
+																		Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
 																		Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
 																	}
 																});
 												};
 
 					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
-					Round.Minimum = Sun.Settings.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
+					Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
 					Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
 					Round.Value = Sun.Mcv.LastNonEmptyRound.Id;
 				}

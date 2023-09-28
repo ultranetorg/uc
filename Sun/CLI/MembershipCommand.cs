@@ -25,7 +25,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "membership";
 
-		public MembershipCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public MembershipCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 

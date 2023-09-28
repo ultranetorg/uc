@@ -32,13 +32,12 @@ namespace Uccs.Sun.FUI
 				var s = new Settings(exedir, b);
 				var l = new Log();
 
-				var sun = new Net.Sun(b.Zone, s) {	Clock = new RealTimeClock(), 
+				var sun = new Net.Sun(b.Zone, s){	Clock = new RealTimeClock(), 
 													Nas = new Nas(s, l), 
 													GasAsker = new EthereumFeeForm(), 
 													FeeAsker = new FeeForm(b.Zone)}; 
 
-				sun.RunApi();
-				sun.RunNode(null);
+				sun.Run(new XonDocument(s.FuiRoles), new Workflow("Main"));
 
 				var f = new MainForm(sun);
 				f.StartPosition = FormStartPosition.CenterScreen;

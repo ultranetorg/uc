@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Uccs.Net
@@ -33,6 +30,9 @@ namespace Uccs.Net
 
 		public static bool Valid(string name)
 		{
+			if(name == null)
+				return false;
+
 			if(name.Length < NameLengthMin || name.Length > NameLengthMax)
 				return false;
 

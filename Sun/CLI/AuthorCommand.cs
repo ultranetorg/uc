@@ -1,12 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Nethereum.Util;
-using Nethereum.Web3;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -38,7 +31,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "author";
 
-		public AuthorCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public AuthorCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 
@@ -62,12 +55,21 @@ namespace Uccs.Sun.CLI
 												AccountAddress.Parse(GetString("to")));
 		   		case "info" :
 				{
-					var rp = Sun.Call(i => i.GetAuthorInfo(GetString("name")), Workflow);
+					try
+					{
+						var rp = Sun.Call(i => i.GetAuthorInfo(GetString("name")), Workflow);
+	
+						//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
+	
+						Dump(rp.Author);
+						
+						return rp.Author;
+					}
+					catch(RdcEntityException ex)
+					{
+						Workflow.Log?.Report(this, ex.Message);
+					}
 
-					Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
-
-					Dump(rp.Entry);
-					
 					return null;
 				}
 

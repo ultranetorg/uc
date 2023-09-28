@@ -18,7 +18,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "resource";
 
-		public ResourceCommand(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public ResourceCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 
@@ -148,7 +148,7 @@ namespace Uccs.Sun.CLI
 					try
 					{
 						var r = Sun.Call(i => i.FindResource(GetResourceAddress("address")), Workflow);
-	
+
 						Workflow.Log?.Report(this, GetString("address"));
 
 						Dump(r.Resource);
@@ -163,13 +163,14 @@ namespace Uccs.Sun.CLI
 							}
 						}
 
-						return r;
+						return r.Resource;
 					}
 					catch(RdcEntityException ex)
 					{
 						Workflow.Log?.Report(this, ex.Message);
-						return null;
 					}
+					
+					return null;
 				}
 
 				default:

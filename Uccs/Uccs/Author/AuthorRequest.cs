@@ -8,17 +8,22 @@
 		{
  			lock(sun.Lock)
 			{	
-				if(Name.Length == 0)									throw new RdcEntityException(RdcEntityError.InvalidRequest);
-				if(!sun.Settings.Roles.HasFlag(Role.Base))				throw new RdcNodeException(RdcNodeError.NotBase);
+				if(!Author.Valid(Name))									throw new RdcEntityException(RdcEntityError.InvalidRequest);
+				if(!sun.Roles.HasFlag(Role.Base))						throw new RdcNodeException(RdcNodeError.NotBase);
 				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
 
-				return new AuthorResponse{Entry = sun.Mcv.Authors.Find(Name, sun.Mcv.LastConfirmedRound.Id)};
+				var e = sun.Mcv.Authors.Find(Name, sun.Mcv.LastConfirmedRound.Id); 
+
+				if(e == null)
+					throw new RdcEntityException(RdcEntityError.NotFound);
+
+				return new AuthorResponse {Author = e};
 			}
 		}
 	}
 	
 	public class AuthorResponse : RdcResponse
 	{
-		public Author Entry {get; set;}
+		public Author Author {get; set;}
 	}
 }

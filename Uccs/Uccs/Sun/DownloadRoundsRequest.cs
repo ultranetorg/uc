@@ -12,7 +12,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(!sun.Settings.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
+				if(!sun.Roles.HasFlag(Role.Base))		throw new RdcNodeException(RdcNodeError.NotBase);
 				if(sun.Mcv.LastNonEmptyRound == null)	throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				var s = new MemoryStream();

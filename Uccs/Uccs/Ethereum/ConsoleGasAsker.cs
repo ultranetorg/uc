@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
-namespace Uccs.Net.Ethereum
+namespace Uccs.Net
 {
 	public class ConsoleGasAsker : IGasAsker
 	{

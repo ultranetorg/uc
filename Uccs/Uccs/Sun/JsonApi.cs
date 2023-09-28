@@ -140,6 +140,7 @@ namespace Uccs.Net
 
 	public class RunNodeCall : ApiCall
 	{
+		public Role	Roles	{ get; set; }
 	}
 
 	public class AddWalletCall : ApiCall

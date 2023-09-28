@@ -16,9 +16,8 @@ namespace Uccs.Sun.CLI
 	{
 		protected Settings		Settings; 
 		protected Xon			Args;
-		public Net.Sun			Sun => GetCore();
-		protected Func<Net.Sun>	GetCore;
-		public static bool		ConsoleSupported { get; protected set; }
+		public Net.Sun			Sun;
+		public static bool		ConsoleAvailable { get; protected set; }
 		public Workflow			Workflow { get; }
 		public Zone				Zone;
 		public const string		AwaitArg = "await";
@@ -30,19 +29,19 @@ namespace Uccs.Sun.CLI
 			try
 			{
 				var p = Console.KeyAvailable;
-				ConsoleSupported = true;
+				ConsoleAvailable = true;
 			}
 			catch(Exception)
 			{
-				ConsoleSupported = false;
+				ConsoleAvailable = false;
 			}
 		}
 
-		protected Command(Zone zone, Settings settings, Workflow workflow, Func<Net.Sun> getcore, Xon args)
+		protected Command(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args)
 		{
 			Zone = zone;
 			Settings = settings;
-			GetCore = getcore;
+			Sun = sun;
 			Args = args;
 			Workflow = workflow;
 		}
@@ -125,7 +124,7 @@ namespace Uccs.Sun.CLI
 		protected void Wait(Func<bool> waitiftrue)
 		{
 			Task.Run(() =>	{
-								while(waitiftrue() && (!ConsoleSupported || !Console.KeyAvailable) && !Workflow.Cancellation.IsCancellationRequested)
+								while(waitiftrue() && (!ConsoleAvailable || !Console.KeyAvailable) && !Workflow.Cancellation.IsCancellationRequested)
 								{
 									Thread.Sleep(1); 
 								}
