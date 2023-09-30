@@ -14,7 +14,7 @@ namespace Uccs.Net
 		{
 			string			PathWithoutExtention;
 			AccountKey		_Key;
-			byte[]			_NoCryptographyWallet;
+			byte[]			_PrivateKey;
 			byte[]			_EthereumCryptographyWallet;
 
 			public AccountKey Key
@@ -22,36 +22,26 @@ namespace Uccs.Net
 				get
 				{
 					if(_Key == null)
-						_Key = AccountKey.Load(Cryptography.No, System.IO.Path.Join(PathWithoutExtention + "." + Vault.NoCryptoWalletExtention), null);
+						_Key = new AccountKey(PrivateKey);
 
 					return _Key;
+				}
+			}
+
+			public byte[] PrivateKey
+			{
+				get
+				{
+					if(_PrivateKey == null)
+						_PrivateKey = File.ReadAllBytes(System.IO.Path.Join(PathWithoutExtention + "." + Vault.PrivakeKeyWalletExtention));
+
+					return _PrivateKey;
 				}
 			}
 
 			public Father(string path)
 			{
 				PathWithoutExtention = path;
-			}
-
-			public byte[] GetWallet(Cryptography cryptography)
-			{
-				if(cryptography == Cryptography.No)
-				{
-					if(_NoCryptographyWallet == null)
-						_NoCryptographyWallet = File.ReadAllBytes(System.IO.Path.Join(PathWithoutExtention + "." + Vault.NoCryptoWalletExtention));
-
-					return _NoCryptographyWallet;
-				}
-				
-				if(cryptography == Cryptography.Ethereum)
-				{
-					if(_EthereumCryptographyWallet == null)
-						_EthereumCryptographyWallet = File.ReadAllBytes(System.IO.Path.Join(PathWithoutExtention + "." + Vault.EthereumWalletExtention));
-
-					return _EthereumCryptographyWallet;
-				}
-
-				throw new ArgumentException();
 			}
 		}
 

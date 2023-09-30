@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
@@ -98,7 +99,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, {(_Generator != null ? Hex.ToHexString(_Generator) : null)}, ParentSummary={(ParentSummary != null ? Hex.ToHexString(ParentSummary) : null)}, Violators={{{Violators.Length}}}, Joiners={{{MemberJoiners.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Count)}, BroadcastConfirmed={BroadcastConfirmed}";
+			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentSummary?.ToHex()}, Violators={{{Violators.Length}}}, Joiners={{{MemberJoiners.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Count)}, BroadcastConfirmed={BroadcastConfirmed}";
 		}
 		
 		public void AddTransaction(Transaction t)

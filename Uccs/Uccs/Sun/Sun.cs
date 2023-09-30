@@ -313,7 +313,8 @@ namespace Uccs.Net
 		public void RunUser(Workflow workflow)
 		{
 			Workflow = workflow != null ? workflow.CreateNested("RunUser", workflow?.Log) : new Workflow("RunUser", workflow?.Log);
-			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
+			if(Workflow.Log != null)
+				Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
 
 			Workflow.Log?.Report(this, $"Ultranet Client {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
@@ -711,6 +712,7 @@ namespace Uccs.Net
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 									.OrderByDescending(i => i.PeerRank)
 									.ThenBy(i => i.Retries)
+									.OrderByRandom()
 									.Take(needed))
 			{
 				OutboundConnect(p);
@@ -1364,12 +1366,15 @@ namespace Uccs.Net
 				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.Pitch * 2 < v.RoundId)
 					return false;
 
-				if(v.RoundId <= Mcv.LastVotedRound.Id - Mcv.Pitch / 2)
-					return false;
+				///if(v.RoundId <= Mcv.LastVotedRound.Id - Mcv.Pitch / 2)
+				///	return false;
 
 				var r = Mcv.GetRound(v.RoundId);
+
+				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
+					return false;
 				
-				if(r.Parent != null && r.Parent.Members.Count > 0 && v.Transactions.Length > r.Parent.TransactionCountPerVoteMax || r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
+				if(r.Parent != null && r.Parent.Members.Count > 0 && v.Transactions.Length > r.Parent.TransactionCountPerVoteMax)
 					return false;
 
 				try
@@ -1646,7 +1651,7 @@ namespace Uccs.Net
 					Broadcast(i);
 				}
 													
-				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{Hex.ToHexString(((byte[])i.Generator).Take(4).ToArray())}-{i.RoundId}")));
+				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{Hex.ToHexString(i.Generator.Bytes.Take(4).ToArray())}-{i.RoundId}")));
 			}
 
 			Statistics.Generating.End();

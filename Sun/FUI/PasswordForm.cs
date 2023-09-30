@@ -15,7 +15,7 @@ namespace Uccs.Sun.FUI
 	{
 		public string Password => password.Text;
 
-		public PasswordForm(string defaultpassword)
+		public PasswordForm(string defaultpassword = null)
 		{
 			InitializeComponent();
 

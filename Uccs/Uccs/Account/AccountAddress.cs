@@ -14,11 +14,11 @@ namespace Uccs.Net
 	public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatable<AccountAddress>, IBinarySerializable
 	{
 		public const int		Length = 20;
-		protected byte[]		Bytes;
+		public byte[]			Bytes;
 		public static readonly	AccountAddress Zero = new AccountAddress(new byte[Length]);
 		//public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
 
-		public static implicit operator byte[] (AccountAddress d) => d.Bytes;
+		//public static implicit operator byte[] (AccountAddress d) => d.Bytes;
 		
 		public byte	this[int k] => Bytes[k];
  
@@ -135,6 +135,15 @@ namespace Uccs.Net
 
 			if(Bytes.Length != Length)
 				throw new IntegrityException("Bytes.Length != Length");
+		}
+
+		public AccountKey(byte[] privatekay)
+		{
+			Key = new EthECKey(privatekay, true);
+
+			var initaddr = Sha3Keccack.Current.CalculateHash(Key.GetPubKeyNoPrefix());
+			Bytes = new byte[initaddr.Length - 12];
+			Array.Copy(initaddr, 12, Bytes, 0, initaddr.Length - 12);
 		}
 	
 		public static AccountKey Create()

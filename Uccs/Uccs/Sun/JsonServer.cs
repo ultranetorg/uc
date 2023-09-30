@@ -193,7 +193,7 @@ namespace Uccs.Net
 	
 						case AddWalletCall e:
 							lock(Sun.Lock)
-								Vault.AddWallet(e.Account, e.Wallet);
+								Vault.AddWallet(e.PrivateKey, e.Password);
 							break;
 	
 						case UnlockWalletCall e:

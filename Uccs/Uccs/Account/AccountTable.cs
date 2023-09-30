@@ -23,7 +23,7 @@ namespace Uccs.Net
 
 		protected override byte[] KeyToBytes(AccountAddress k)
 		{
-			return k;
+			return k.Bytes;
 		}
 
 		public Transaction FindTransaction(AccountAddress account, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)

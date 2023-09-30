@@ -173,7 +173,7 @@ namespace Uccs.Net
 	
 											lock(Lock)
 											{
-												var nearest = Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.HubIPs.Any()).Take(8).ToArray();
+												var nearest = Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.HubIPs.Any()).Take(8).ToArray();
 		
 												for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 												{

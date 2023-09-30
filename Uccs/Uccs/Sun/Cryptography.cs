@@ -16,6 +16,7 @@ namespace Uccs.Net
 
 		public const int					SignatureSize = 65;
 		public const int					HashSize = 32;
+		public const int					PrivateKeyLength = 32;
 		public static readonly byte[]		ZeroSignature = new byte[SignatureSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		public abstract byte[]				ZeroHash { get; }
 
@@ -66,7 +67,7 @@ namespace Uccs.Net
 		{
 			var s = new byte[SignatureSize];
 	
-			Array.Copy(k, 0, s, 0,	((byte[])k).Length);
+			Array.Copy(k.Bytes, 0, s, 0, k.Bytes.Length);
 			Array.Copy(h, 0, s, 32,	h.Length);
 
 			return s;

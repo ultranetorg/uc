@@ -125,6 +125,7 @@ namespace Uccs.Sun.CLI
 			Workflow.Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
 			Sun.Vault.AddWallet(acc, p);
+			Sun.Vault.SaveWallet(acc);
 
 			return acc;
 		}
@@ -190,10 +191,11 @@ namespace Uccs.Sun.CLI
 			Console.WriteLine();
 			Console.ForegroundColor = c;							
 
-			Workflow.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
-
 			Sun.Vault.AddWallet(acc, p);
+			Sun.Vault.SaveWallet(acc);
 
+			Workflow.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
+			
 			return acc;
 		}
 	}

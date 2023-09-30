@@ -319,7 +319,7 @@ namespace Uccs.Net
 					{
 						foreach(var r in Releases)
 						{
-							r.DeclareTo = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account) - new BigInteger(new Span<byte>(r.Hash, 0, 20)))).Take(8).ToArray();
+							r.DeclareTo = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes) - new BigInteger(new Span<byte>(r.Hash, 0, 20)))).Take(8).ToArray();
 						}
 
 						foreach(var m in cr.Members.Where(i => i.HubIPs.Any()))

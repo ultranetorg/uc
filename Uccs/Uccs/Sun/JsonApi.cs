@@ -145,8 +145,8 @@ namespace Uccs.Net
 
 	public class AddWalletCall : ApiCall
 	{
-		public AccountAddress	Account { get; set; }
-		public byte[]			Wallet { get; set; }
+		public byte[]	PrivateKey { get; set; }
+		public string	Password { get; set; }
 	}
 
 	public class UnlockWalletCall : ApiCall

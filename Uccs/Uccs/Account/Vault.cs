@@ -8,8 +8,8 @@ namespace Uccs.Net
 	public class Vault
 	{
 		public const string							EthereumWalletExtention = "sunwe";
-		public const string							NoCryptoWalletExtention = "sunwpk";
-		public static string						WalletExt(Cryptography c) => c is EthereumCryptography ? EthereumWalletExtention : NoCryptoWalletExtention;
+		public const string							PrivakeKeyWalletExtention = "sunwpk";
+		public static string						WalletExt(Cryptography c) => c is EthereumCryptography ? EthereumWalletExtention : PrivakeKeyWalletExtention;
 
 		Zone										Zone;
 		Settings									Settings;
@@ -40,24 +40,31 @@ namespace Uccs.Net
 			}
 		}
 
+		public void AddKey(AccountKey key)
+		{
+			Keys.Add(key);
+		}
+
 		public void AddWallet(AccountAddress account, byte[] wallet)
 		{
 			Wallets[account] = wallet;
 		}
 
-		public string AddWallet(AccountKey a, string password)
+		public void AddWallet(AccountKey key, string password)
 		{
-			AddWallet(a, a.Save(Zone.Cryptography, password));
+			Wallets[key] = key.Save(Zone.Cryptography, password);
+		}
 
-			var path = Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt(Zone.Cryptography));
+		public AccountKey AddWallet(byte[] privatekey, string password)
+		{
+			if(privatekey.Length != Cryptography.PrivateKeyLength)
+				throw new ArgumentException();
 
-			a.Save(Zone.Cryptography, path, password);
+			var k = new AccountKey(privatekey);
 
-			//Log?.Report(this, "Wallet saved", path);
+			Wallets[k] = k.Save(Zone.Cryptography, password);
 
-			AccountsChanged?.Invoke();
-
-			return path;
+			return k;
 		}
 
 		public AccountKey Unlock(AccountAddress a, string password)
@@ -78,16 +85,27 @@ namespace Uccs.Net
 			return p;
 		}
 
-		public AccountKey GetKey(AccountAddress a)
+		public AccountKey GetKey(AccountAddress account)
 		{
-			return Keys.First(i => i == a);
+			return Keys.First(i => i == account);
 		}
 
-		public void DeleteWallet(AccountAddress a)
+		public string SaveWallet(AccountAddress account)
 		{
-			File.Delete(Path.Combine(Settings.Profile, a.ToString() + "." + WalletExt(Zone.Cryptography)));
+			var path = Path.Combine(Settings.Profile, account.ToString() + "." + WalletExt(Zone.Cryptography));
 
-			Keys.RemoveAll(i => i == a);
+			File.WriteAllBytes(path, Wallets[account]);
+
+			AccountsChanged?.Invoke();
+
+			return path;
+		}
+
+		public void DeleteWallet(AccountAddress account)
+		{
+			File.Delete(Path.Combine(Settings.Profile, account.ToString() + "." + WalletExt(Zone.Cryptography)));
+
+			Keys.RemoveAll(i => i == account);
 
 			AccountsChanged?.Invoke();
 		}
