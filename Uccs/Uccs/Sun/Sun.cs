@@ -1572,10 +1572,11 @@ namespace Uccs.Net
 
 					var txs = IncomingTransactions.Where(i => i.Generator == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray();
 
-					var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
 
-					Vote createvote()
+					Vote createvote(Round r)
 					{
+						var prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
+						
 						return new Vote(Mcv){	RoundId			= r.Id,
 												Try				= r.Try,
 												ParentSummary	= Mcv.Summarize(r.Parent),
@@ -1596,7 +1597,7 @@ namespace Uccs.Net
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
 					{
-						var v = createvote();
+						var v = createvote(r);
 	
 						if(txs.Any())
 						{
@@ -1622,9 +1623,7 @@ namespace Uccs.Net
 					{
 						r = r.Previous;
 
-						prev = r.Previous.VotesOfTry.FirstOrDefault(i => i.Generator == g);
-
-						var b = createvote();
+						var b = createvote(r);
 								
 						b.Sign(g);
 						votes.Add(b);

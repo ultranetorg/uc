@@ -25,7 +25,7 @@ namespace Uccs.Net
 			God							= Zone.Testnet1.God;
 			Father0						= Zone.Testnet1.Father0;
 			
-			Initials					= Enumerable.Range(100, 100).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
+			Initials					= Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
 		}
 	}
 }

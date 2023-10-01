@@ -64,17 +64,30 @@ namespace Uccs.Net
 
 	public class LogResponse
 	{
-		public IEnumerable<string> Log {get; set;}
+		public IEnumerable<string> Log { get; set; }
 	}
 
 	public class PeersReportCall : ApiCall
 	{
-		public int		Limit  { get; set; }
+		public int		Limit { get; set; }
 	}
 
 	public class PeersResponse
 	{
-		public IEnumerable<string> Peers {get; set;}
+		public class Peer
+		{
+			public IPAddress	IP { get; set; }
+			public string		Status  { get; set; }
+			public int			PeerRank { get; set; }
+			public int			ChainRank { get; set; }
+			public int			BaseRank { get; set; }
+			public int			SeedRank { get; set; }
+			public DateTime		LastSeen { get; set; }
+			public DateTime		LastTry { get; set; }
+			public int			Retries { get; set; }
+		}
+
+		public IEnumerable<Peer> Peers {get; set;}
 	}
 
 	public class SummaryReportCall : ApiCall

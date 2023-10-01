@@ -25,11 +25,11 @@ namespace Uccs.Net
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 		public List<Vote>									Votes = new();
+		public List<AnalyzerVoxRequest>						AnalyzerVoxes = new();
 		public List<MemberJoinRequest>						JoinRequests = new();
 		public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 		public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
 		public IEnumerable<Vote>							Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
-		public List<AnalyzerVoxRequest>						AnalyzerVoxes = new();
 
 		public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 		public IEnumerable<Transaction>						Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;

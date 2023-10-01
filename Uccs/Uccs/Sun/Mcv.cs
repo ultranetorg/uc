@@ -870,13 +870,11 @@ namespace Uccs.Net
 
 			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid < round.Id)
 																.Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
+
 			var n = round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 			if(n > 2)
 				n=n;
-			n = round.Members.RemoveAll(i => round.AnyOperation(o => o is CandidacyDeclaration d && d.Signer == i.Account && o.Transaction.Placing == PlacingStage.Confirmed));  /// CandidacyDeclaration cancels membership
-			if(n > 2)
-				n=n;
-			n = round.Members.RemoveAll(i => round.AffectedAccounts.ContainsKey(i.Account) && round.AffectedAccounts[i.Account].Bail < Zone.BailMin);  /// if Bail has exhausted due to penalties (CURRENTY NOT APPLICABLE, penalties are disabled)
+			n = round.Members.RemoveAll(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id);  /// CandidacyDeclaration cancels membership
 			if(n > 2)
 				n=n;
 			n = round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
@@ -950,13 +948,15 @@ namespace Uccs.Net
 				Engine.Write(b);
 			}
 
-			if(round.Id > Pitch)
+			//if(round.Id > Pitch)
 			{
-				var cjr = FindRound(round.Id - Pitch - 1);
+				var ro = FindRound(round.Id - Pitch - Pitch - 1);
 				
-				if(cjr != null)
+				if(ro != null)
 				{
-					cjr.Votes.RemoveAll(i => i is not Vote v || !v.Transactions.Any());
+					ro.JoinRequests.Clear();
+					ro.Votes.Clear();
+					ro.AnalyzerVoxes.Clear();
 				}
 			}
 

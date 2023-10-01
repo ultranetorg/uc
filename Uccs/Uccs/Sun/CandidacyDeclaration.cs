@@ -38,11 +38,7 @@ namespace Uccs.Net
 
 			e.Balance -= Bail; /// then, subtract a new bail
 			e.Bail += Bail;
-
-			//if(e.BailStatus == BailStatus.Siezed) /// if was siezed than reset to OK status
-
 			e.CandidacyDeclarationRid = round.Id;
-			
 			e.BailStatus = BailStatus.Active;
 		}
 	}
