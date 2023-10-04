@@ -322,7 +322,7 @@ namespace Uccs.Net
 							r.DeclareTo = cr.Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes) - new BigInteger(new Span<byte>(r.Hash, 0, 20)))).Take(8).ToArray();
 						}
 
-						foreach(var m in cr.Members.Where(i => i.HubIPs.Any()))
+						foreach(var m in cr.Members.Where(i => i.SeedHubRdcIPs.Any()))
 						{
 							if(tasks.Count >= 32)
 							{
@@ -340,7 +340,7 @@ namespace Uccs.Net
 							var t = Task.Run(() =>	{
 														try
 														{
-															Sun.Send(m.HubIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {	Hash = i.h, 
+															Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {	Hash = i.h, 
 																																						Availability  = i.a
 																																					}).ToArray()), Sun.Workflow);
 														}

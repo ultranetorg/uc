@@ -21,6 +21,10 @@ namespace Uccs.Net
 			BailMin						= 0;
 			ExternalVerificationDuration = 100;
 			PoW							= false;
+			MembersMax					= 1000;
+			TransactionsPerRoundMax		= 30000;
+			OperationsPerRoundMax		= 1_000_000;
+
 
 			God							= Zone.Testnet1.God;
 			Father0						= Zone.Testnet1.Father0;

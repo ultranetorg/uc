@@ -78,7 +78,7 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Sun.Lock)
 				{
-					foreach(var i in (e.Item.Tag as Member).BaseIPs)
+					foreach(var i in (e.Item.Tag as Member).BaseRdcIPs)
 					{
 						var li = IPs.Items.Add(i.ToString());
 					}

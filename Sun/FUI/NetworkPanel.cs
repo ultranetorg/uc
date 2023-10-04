@@ -43,8 +43,8 @@ namespace Uccs.Sun.FUI
 
 					li.SubItems.Add(i.JoinedAt.ToString());
 					li.SubItems.Add(Database != null ? Sun.Mcv.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
-					li.SubItems.Add(string.Join(", ", i.BaseIPs.AsEnumerable()));
-					li.SubItems.Add(string.Join(", ", i.HubIPs.AsEnumerable()));
+					li.SubItems.Add(string.Join(", ", i.BaseRdcIPs.AsEnumerable()));
+					li.SubItems.Add(string.Join(", ", i.SeedHubRdcIPs.AsEnumerable()));
 				}
 
 				//foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))

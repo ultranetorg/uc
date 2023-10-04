@@ -20,8 +20,12 @@ namespace Uccs.Net
 		public IPAddress[]		Initials;
 		public Coin				BailMin;
 		public bool				PoW;
-		public int				ExternalVerificationDuration;
-		public int				TailLength;
+		public int				ExternalVerificationDuration = -1;
+		public int				TailLength = -1;
+		public int				MembersMax = -1;
+		public int				TransactionsPerRoundMax = -1;
+		public int				OperationsPerRoundMax = -1;
+
 
 		//public ZoneCreation		Creation;
 		public AccountAddress	God;

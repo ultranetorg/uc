@@ -149,6 +149,7 @@ namespace Uccs.Net
 		public bool						Log;
 		public int						PeersMin = 6;
 		public int						PeersInMax = 128;
+		public bool						PeersInitialRandomization = false;
 		public IPAddress				IP;
 		//public IPAddress				ExternalIP;
 		public ushort					JsonServerPort;
@@ -192,16 +193,17 @@ namespace Uccs.Net
 
 			var doc = new XonDocument(File.ReadAllText(Path));
 
-			FuiRoles		= doc.Get<string>("FuiRoles");
-			Anonymous		= doc.Has("Anonymous");
-			PeersMin		= doc.Get<int>("PeersMin");
-			PeersInMax		= doc.Get<int>("PeersInMax");
-			IP				= IPAddress.Parse(doc.Get<string>("IP"));
-			//ExternalIP		= IPAddress.Parse(doc.Get<string>("ExternalIP"));
-			JsonServerPort	= (ushort)doc.Get<int>("JsonServerPort");
-			Generators		= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
-			Log				= doc.Has("Log");
-			Packages		= doc.GetOrDefault<string>("Packages") ?? System.IO.Path.Join(Profile, "Packages");
+			FuiRoles					= doc.Get<string>("FuiRoles");
+			Anonymous					= doc.Has("Anonymous");
+			PeersMin					= doc.Get<int>("PeersMin");
+			PeersInMax					= doc.Get<int>("PeersInMax");
+			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");
+			IP							= IPAddress.Parse(doc.Get<string>("IP"));
+			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));
+			JsonServerPort				= (ushort)doc.Get<int>("JsonServerPort");
+			Generators					= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
+			Log							= doc.Has("Log");
+			Packages					= doc.GetOrDefault<string>("Packages") ?? System.IO.Path.Join(Profile, "Packages");
 
 			Mcv			= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));

@@ -82,9 +82,9 @@ namespace Uccs.Net
 				if(sun.Synchronization == Synchronization.Synchronized)
 				{
 					var r = sun.Mcv.FindRound(v.RoundId);
-					var _v = r?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature));
+					var _v = r?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
 
-					if(_v != null)
+					if(_v != null) /// added or existed
 					{
 						if(accepted) /// for the new vote
 						{
@@ -92,9 +92,9 @@ namespace Uccs.Net
 							
 							if(m != null)
 							{
-								m.BaseIPs	= v.BaseIPs.ToArray();
-								m.HubIPs	= v.HubIPs.ToArray();
-								m.Proxy		= Peer;
+								m.BaseRdcIPs	= v.BaseRdcIPs.ToArray();
+								m.SeedHubRdcIPs	= v.SeedHubRdcIPs.ToArray();
+								m.Proxy			= Peer;
 							}
 						}
 						else if(_v.Peers != null && !_v.Peers.Contains(Peer)) /// for the existing vote

@@ -20,13 +20,13 @@
       "commandName": "Project",
       "commandLineArgs": "run node api secrets=a:\\uo"
     },
-    "run node api": {
-      "commandName": "Project",
-      "commandLineArgs": "run api"
-    },
     "run user profile=a:\\UOTMP\\CLI zone=Simulation": {
       "commandName": "Project",
       "commandLineArgs": "run user profile=a:\\UOTMP\\CLI zone=Simulation"
+    },
+    "run user": {
+      "commandName": "Project",
+      "commandLineArgs": "run user"
     }
   }
 }

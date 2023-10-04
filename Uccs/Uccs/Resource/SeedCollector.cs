@@ -173,7 +173,7 @@ namespace Uccs.Net
 	
 											lock(Lock)
 											{
-												var nearest = Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.HubIPs.Any()).Take(8).ToArray();
+												var nearest = Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.SeedHubRdcIPs.Any()).Take(8).ToArray();
 		
 												for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 												{
@@ -183,7 +183,7 @@ namespace Uccs.Net
 													{
 														//Workflow.Log?.Report(this, "Hub found", $"for {Resource}/{Hex.ToHexString(Hash)}/{File}, {h.Account}, {{{string.Join(", ", h.HubIPs.Take(8))}}}");
 		
-														hlast = new Hub(this, hash, h.Account, h.HubIPs);
+														hlast = new Hub(this, hash, h.Account, h.SeedHubRdcIPs);
 														Hubs.Add(hlast);
 													}
 													else

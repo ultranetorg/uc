@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
-using System.Text;
-using System.Net;
-using Nethereum.Signer;
-using static Uccs.Net.ChainReportResponse;
-using System.Xml.Linq;
-using NativeImport;
+using System.Linq;
 
 namespace Uccs.Net
 {
@@ -19,7 +12,9 @@ namespace Uccs.Net
 		public Round										Previous =>	Mcv.FindRound(Id - 1);
 		public Round										Next =>	Mcv.FindRound(Id + 1);
 		public Round										Parent => Mcv.FindRound(ParentId);
-		public int											TransactionCountPerVoteMax => Mcv.TransactionsPerRoundMax / Members.Count;
+		public int											TransactionCountPerVoteGuaranteedMax => Mcv.Zone.TransactionsPerRoundMax / Members.Count;
+		public int											TransactionCountPerVoteAbsoluteMax => Mcv.Zone.TransactionsPerRoundMax / Members.Count * 10;
+		public int											OperationsCountPerVoteMax => Mcv.Zone.OperationsPerRoundMax / Members.Count;
 
 		public int											Try = 0;
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;

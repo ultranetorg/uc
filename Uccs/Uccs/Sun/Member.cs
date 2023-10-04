@@ -11,8 +11,8 @@ namespace Uccs.Net
 	public class Member
 	{
 		public AccountAddress			Account;
-		public IPAddress[]				BaseIPs  = new IPAddress[0];
-		public IPAddress[]				HubIPs  = new IPAddress[0];
+		public IPAddress[]				BaseRdcIPs  = new IPAddress[0];
+		public IPAddress[]				SeedHubRdcIPs  = new IPAddress[0];
 		//public ChainTime				OnlineSince = ChainTime.Zero;
 		public int						JoinedAt;
 		public Peer         			Proxy;

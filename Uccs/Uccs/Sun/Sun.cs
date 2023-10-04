@@ -381,7 +381,8 @@ namespace Uccs.Net
 			{
 				Mcv = new Mcv(Zone, roles, Settings.Mcv, Database);
 
-				Mcv.BlockAdded += b =>	{
+				Mcv.Log = Workflow.Log;
+				Mcv.VoteAdded += b =>	{
 											MainSignal.Set();
 										};
 
@@ -708,11 +709,11 @@ namespace Uccs.Net
 		{
 			var needed = Settings.PeersMin - Peers.Count(i => i.Status != ConnectionStatus.Disconnected);
 		
-			foreach(var p in Peers.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
+			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
 									.OrderByDescending(i => i.PeerRank)
 									.ThenBy(i => i.Retries)
-									.OrderByRandom()
+									.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
 									.Take(needed))
 			{
 				OutboundConnect(p);
@@ -1374,8 +1375,14 @@ namespace Uccs.Net
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
 				
-				if(r.Parent != null && r.Parent.Members.Count > 0 && v.Transactions.Length > r.Parent.TransactionCountPerVoteMax)
-					return false;
+				if(r.Parent != null && r.Parent.Members.Count > 0)
+				{
+					if(v.Transactions.Length > r.Parent.TransactionCountPerVoteAbsoluteMax)
+						return false;
+
+					if(v.Transactions.Sum(i => i.Operations.Count) > r.Parent.OperationsCountPerVoteMax)
+						return false;
+				}
 
 				try
 				{
@@ -1579,7 +1586,7 @@ namespace Uccs.Net
 						
 						return new Vote(Mcv){	RoundId			= r.Id,
 												Try				= r.Try,
-												ParentSummary	= Mcv.Summarize(r.Parent),
+												ParentSummary= Mcv.Summarize(r.Parent),
 												Created			= Clock.Now,
 												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
 												Violators		= Mcv.ProposeViolators(r).ToArray(),
@@ -1591,8 +1598,8 @@ namespace Uccs.Net
 												FundLeavers		= Settings.ProposedFundLeavers.ToArray(),
 												Emissions		= ApprovedEmissions.ToArray(),
 												DomainBids		= ApprovedDomainBids.ToArray(),
-												BaseIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
-												HubIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
+												BaseRdcIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
+												SeedHubRdcIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
 					};
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
@@ -1603,11 +1610,14 @@ namespace Uccs.Net
 						{
 							foreach(var i in txs)
 							{
-								if(v.Transactions.Length > r.Parent.TransactionCountPerVoteMax)
+								if(v.Transactions.Sum(i => i.Operations.Count) + i.Operations.Count > r.Parent.OperationsCountPerVoteMax)
+									break;
+
+								if(v.Transactions.Length + 1 > r.Parent.TransactionCountPerVoteAbsoluteMax)
 									break;
 
 								v.AddTransaction(i);
-			
+
 								i.Placing = PlacingStage.Placed;
 							}
 						}
@@ -1716,9 +1726,9 @@ namespace Uccs.Net
 								//if(rdi != null)
 								//	break;
 
-								foreach(var i in members.Where(i => i.BaseIPs.Any()).OrderByRandom()) /// try by public IP address
+								foreach(var i in members.Where(i => i.BaseRdcIPs.Any()).OrderByRandom()) /// try by public IP address
 								{
-									foreach(var j in i.BaseIPs.OrderByRandom())
+									foreach(var j in i.BaseRdcIPs.OrderByRandom())
 									{
 										var p = GetPeer(j);
 
@@ -1835,9 +1845,9 @@ namespace Uccs.Net
 					if(rdi == this && Synchronization != Synchronization.Synchronized)
 						continue;
 
-					if(!OutgoingTransactions.Any(i => i.Placing >= PlacingStage.Accepted))
+					foreach(var g in OutgoingTransactions.GroupBy(i => i.Signer))
 					{
-						foreach(var g in OutgoingTransactions.Where(i => i.Placing == PlacingStage.Null).GroupBy(i => i.Signer))
+						if(!g.Any(i => i.Signer == g.Key && i.Placing >= PlacingStage.Accepted) && g.Any(i => i.Placing == PlacingStage.Null))
 						{
 							Monitor.Exit(Lock);
 
@@ -1858,7 +1868,7 @@ namespace Uccs.Net
 							
 							int tid = at.NextTransactionId;
 
-							foreach(var t in g)
+							foreach(var t in g.Where(i => i.Placing == PlacingStage.Null))
 							{
 								t.Id = tid++;
 								t.Generator = m;

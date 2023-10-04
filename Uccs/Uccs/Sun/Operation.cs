@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic;
 
 namespace Uccs.Net
 {
@@ -30,8 +31,41 @@ namespace Uccs.Net
 
 	public struct OperationId : IBinarySerializable, IEquatable<OperationId>, IComparable<OperationId>
 	{
-		public int Round;
-		public int Index;
+		public const int Max7Bit4BytesInt = 0xFFF_FFFF;
+
+		public int	Round { get; private set; }
+		public int	Index { get; private set; }
+
+		long		_Number = -1;
+
+		public OperationId(int round, int index)
+		{
+			if(round > Max7Bit4BytesInt)
+				throw new NotSupportedException();
+
+			if(index > Max7Bit4BytesInt)
+				throw new NotSupportedException();
+
+			Round = round;
+			Index = index;
+		}
+
+		public long Number
+		{
+			get
+			{
+				if(_Number == -1)
+				{
+					var s = new MemoryStream(8);
+					var w = new BinaryWriter(s);
+					Write(w);
+	
+					_Number = BitConverter.ToInt64(s.GetBuffer());
+				}
+
+				return _Number;
+			}
+		}
 
 		public void Read(BinaryReader reader)
 		{
@@ -124,7 +158,7 @@ namespace Uccs.Net
 
 		public void AssignId(int rid, int index)
 		{
-			Id = new OperationId {Round = rid, Index = index};
+			Id = new OperationId(rid, index);
 		}
 		 
 		public override string ToString()

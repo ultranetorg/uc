@@ -42,7 +42,7 @@ namespace Uccs.Sun.FUI
 
 				if(Sun.Mcv != null)
 				{
-					Sun.Mcv.BlockAdded += (b) => BeginInvoke(monitor.Invalidate);
+					Sun.Mcv.VoteAdded += (b) => BeginInvoke(monitor.Invalidate);
 					Sun.Mcv.JoinAdded += (b) =>	BeginInvoke(monitor.Invalidate);
 				}
 			}

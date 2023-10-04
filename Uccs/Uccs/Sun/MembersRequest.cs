@@ -18,8 +18,8 @@ namespace Uccs.Net
 					throw new RdcNodeException(RdcNodeError.NotSynchronized);
 			
 				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Select(i => new MembersResponse.Member{Account = i.Account, 
-																																BaseIPs = i.BaseIPs, 
-																																HubIPs = i.HubIPs, 
+																																BaseRdcIPs = i.BaseRdcIPs, 
+																																SeedHubRdcIPs = i.SeedHubRdcIPs, 
 																																Proxyable = i.Proxy != null})};
 			}
 		}
@@ -30,8 +30,8 @@ namespace Uccs.Net
 		public class Member
 		{
 			public AccountAddress			Account { get; set; }
-			public IEnumerable<IPAddress>	BaseIPs { get; set; }
-			public IEnumerable<IPAddress>	HubIPs { get; set; }
+			public IEnumerable<IPAddress>	BaseRdcIPs { get; set; }
+			public IEnumerable<IPAddress>	SeedHubRdcIPs { get; set; }
 			public bool         			Proxyable { get; set; }
 		}
 

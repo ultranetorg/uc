@@ -1,48 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection.Metadata.Ecma335;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
 	public class Vote
 	{
-		//public const int									SizeMax = 65536;
-		public int											ParentId => RoundId - Mcv.Pitch;
+		//public const int			SizeMax = 65536;
+		public int					ParentId => RoundId - Mcv.Pitch;
 
-		public List<Peer>									Peers;
-		public bool											BroadcastConfirmed;
-		public byte[]										Hash;
-		public Round										Round;
-		public DateTime										Created;
-		AccountAddress										_Generator;
-		byte[]												_RawForBroadcast;
-		Mcv													Mcv;
+		public List<Peer>			Peers;
+		public bool					BroadcastConfirmed;
+		//public byte[]				Hash;
+		public Round				Round;
+		public DateTime				Created;
+		AccountAddress				_Generator;
+		byte[]						_RawForBroadcast;
+		Mcv							Mcv;
 
-		public int											RoundId;
-		public IPAddress[]									BaseIPs;
-		public IPAddress[]									HubIPs;
-		public int											Try; /// TODO: revote if consensus not reached
-		public long											TimeDelta;
-		public byte[]										ParentSummary;
-		public AccountAddress[]								MemberJoiners = {};
-		public AccountAddress[]								MemberLeavers = {};
-		public AccountAddress[]								AnalyzerJoiners = {};
-		public AccountAddress[]								AnalyzerLeavers = {};
-		public AccountAddress[]								FundJoiners = {};
-		public AccountAddress[]								FundLeavers = {};
-		public AccountAddress[]								Violators = {};
-		public ResourceAddress[]							CleanReleases = {};
-		public ResourceAddress[]							InfectedReleases = {};
-		public OperationId[]								Emissions = {};
-		public OperationId[]								DomainBids = {};
-		public Transaction[]								Transactions = {};
-		public byte[]										Signature { get; set; }
+		public int					RoundId;
+		public IPAddress[]			BaseRdcIPs;
+		public IPAddress[]			SeedHubRdcIPs;
+		public int					Try; /// TODO: revote if consensus not reached
+		public long					TimeDelta;
+		public byte[]				ParentSummary;
+		public AccountAddress[]		MemberJoiners = {};
+		public AccountAddress[]		MemberLeavers = {};
+		public AccountAddress[]		AnalyzerJoiners = {};
+		public AccountAddress[]		AnalyzerLeavers = {};
+		public AccountAddress[]		FundJoiners = {};
+		public AccountAddress[]		FundLeavers = {};
+		public AccountAddress[]		Violators = {};
+		public ResourceAddress[]	CleanReleases = {};
+		public ResourceAddress[]	InfectedReleases = {};
+		public OperationId[]		Emissions = {};
+		public OperationId[]		DomainBids = {};
+		public Transaction[]		Transactions = {};
+		public byte[]				Signature { get; set; }
+
+		public int					TransactionCountExcess;
 
 		public bool Valid
 		{
@@ -111,8 +110,7 @@ namespace Uccs.Net
 		public void Sign(AccountKey generator)
 		{
 			_Generator = generator;
-			Hash = Hashify();
-			Signature = Mcv.Zone.Cryptography.Sign(generator, Hash);
+			Signature = Mcv.Zone.Cryptography.Sign(generator, Hashify());
 		}
 
 		protected byte[] Hashify()
@@ -131,8 +129,8 @@ namespace Uccs.Net
 
 		void WriteVote(BinaryWriter writer)
 		{
-			writer.Write(BaseIPs, i => writer.Write(i));
-			writer.Write(HubIPs, i => writer.Write(i));
+			writer.Write(BaseRdcIPs, i => writer.Write(i));
+			writer.Write(SeedHubRdcIPs, i => writer.Write(i));
 
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
@@ -155,11 +153,11 @@ namespace Uccs.Net
 
 		void ReadVote(BinaryReader reader)
 		{
-			BaseIPs			= reader.ReadArray(() => reader.ReadIPAddress());
-			HubIPs			= reader.ReadArray(() => reader.ReadIPAddress());
+			BaseRdcIPs				= reader.ReadArray(() => reader.ReadIPAddress());
+			SeedHubRdcIPs				= reader.ReadArray(() => reader.ReadIPAddress());
 
-			Try				= reader.Read7BitEncodedInt();
-			TimeDelta		= reader.Read7BitEncodedInt64();
+			Try					= reader.Read7BitEncodedInt();
+			TimeDelta			= reader.Read7BitEncodedInt64();
 			ParentSummary	= reader.ReadBytes(Cryptography.HashSize);
 
 			MemberJoiners		= reader.ReadArray<AccountAddress>();
@@ -199,8 +197,6 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			_Generator	= reader.ReadAccount();
 			ReadVote(reader);
-		
-			Hash = Hashify();
 		}
 
 		public void WriteForRoundUnconfirmed(BinaryWriter writer)
@@ -215,8 +211,6 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			_Generator	= reader.ReadAccount();
 			ReadVote(reader);
-			
-			Hash = Hashify();
 		}
 	}
 }
