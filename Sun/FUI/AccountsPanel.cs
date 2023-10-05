@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Nethereum.KeyStore.Crypto;
@@ -76,7 +68,7 @@ namespace Uccs.Sun.FUI
 			accounts.Items.Add(r);
 		}
 
-		private void add_Click(object sender, EventArgs e)
+		private void add_Click(object sender, EventArgs args)
 		{
 			var f = new CreatePasswordForm();
 			
@@ -84,6 +76,7 @@ namespace Uccs.Sun.FUI
 			{
 				var acc = AccountKey.Create();
 				Vault.AddWallet(acc, f.Password);
+				Vault.SaveWallet(acc);
 				
 				AddRow(acc);
 			}
@@ -109,7 +102,7 @@ namespace Uccs.Sun.FUI
 					TextForm.ShowDialog("Private Key", $"Private Key for {CurrentAccout}", a.Key.GetPrivateKey());
 				}
 			}
-			catch(Exception ex) when (ex is RequirementException || ex is DecryptionException)
+			catch(Exception ex)
 			{
 				ShowException("Can't access private key", ex);
 			}

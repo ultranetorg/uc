@@ -37,21 +37,6 @@ namespace Uccs.Sun.FUI
 
 			var accs = new TreeNode("Accounts"){ Tag = new AccountsPanel(Sun, sun.Vault)};
 			navigator.Nodes.Add(accs);
-
-			if(sun.Mcv != null)
-			{
-				if(sun.Roles.HasFlag(Role.Chain))
-				{
-					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Sun, sun.Vault) };
-					navigator.Nodes.Add(txs);
-
-					var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Sun, sun.Vault) };
-					navigator.Nodes.Add(exp);
-				}
-
-				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, sun.Vault) };
-				///navigator.Nodes.Add(memb);
-			}
 	
 			var auth = new TreeNode("Authors"){ Tag = new AuthorPanel(Sun, sun.Vault) };
 			navigator.Nodes.Add(auth);
@@ -63,11 +48,28 @@ namespace Uccs.Sun.FUI
 			navigator.Nodes.Add(transfer);
 
 			var net = new TreeNode("Network"){ Tag = new NetworkPanel(Sun, sun.Vault) };
-			net.Expand();
 			navigator.Nodes.Add(net);
+
+			if(sun.Mcv != null)
+			{
+				var mcv = new TreeNode("Mcv"){ Tag = new AccountsPanel(Sun, sun.Vault)};
+				navigator.Nodes.Add(mcv);
 			
-			var gens = new TreeNode("Generators"){ Tag = new GeneratorsPanel(Sun, sun.Vault) };				
-			net.Nodes.Add(gens);
+				var gens = new TreeNode("Members"){ Tag = new MembersPanel(Sun, sun.Vault) };
+				mcv.Nodes.Add(gens);
+
+				if(sun.Roles.HasFlag(Role.Chain))
+				{
+					var txs = new TreeNode("Transactions"){ Tag = new TransactionsPanel(Sun, sun.Vault) };
+					mcv.Nodes.Add(txs);
+
+					var exp = new TreeNode("Chain"){ Tag = new ChainPanel(Sun, sun.Vault) };
+					mcv.Nodes.Add(exp);
+				}
+
+				///var memb = new TreeNode("Membership"){ Tag = new MembershipPanel(Core, sun.Vault) };
+				///navigator.Nodes.Add(memb);
+			}
 
 			if(Sun.SeedHub != null)
 			{
@@ -76,6 +78,7 @@ namespace Uccs.Sun.FUI
 			}
 
 			navigator.SelectedNode = dashboard;
+			navigator.ExpandAll();
 		}
 
 		protected override void OnHandleCreated(EventArgs e)

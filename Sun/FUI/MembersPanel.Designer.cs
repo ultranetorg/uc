@@ -1,7 +1,7 @@
 ﻿
 namespace Uccs.Sun.FUI
 {
-	partial class GeneratorsPanel
+	partial class MembersPanel
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -34,12 +34,15 @@ namespace Uccs.Sun.FUI
 			columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			columnHeader3 = new System.Windows.Forms.ColumnHeader();
 			DestLabel = new System.Windows.Forms.Label();
-			IPs = new System.Windows.Forms.ListView();
+			BaseRdcIPs = new System.Windows.Forms.ListView();
 			columnHeader2 = new System.Windows.Forms.ColumnHeader();
 			label1 = new System.Windows.Forms.Label();
 			Proxies = new System.Windows.Forms.ListView();
 			columnHeader5 = new System.Windows.Forms.ColumnHeader();
 			label2 = new System.Windows.Forms.Label();
+			label3 = new System.Windows.Forms.Label();
+			SeedHubRdcIPs = new System.Windows.Forms.ListView();
+			columnHeader6 = new System.Windows.Forms.ColumnHeader();
 			SuspendLayout();
 			// 
 			// Generators
@@ -85,18 +88,19 @@ namespace Uccs.Sun.FUI
 			DestLabel.Text = "Generators";
 			DestLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
-			// IPs
+			// BaseRdcIPs
 			// 
-			IPs.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			IPs.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2 });
-			IPs.FullRowSelect = true;
-			IPs.Location = new System.Drawing.Point(1264, 78);
-			IPs.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			IPs.Name = "IPs";
-			IPs.Size = new System.Drawing.Size(631, 695);
-			IPs.TabIndex = 3;
-			IPs.UseCompatibleStateImageBehavior = false;
-			IPs.View = System.Windows.Forms.View.Details;
+			BaseRdcIPs.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			BaseRdcIPs.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2 });
+			BaseRdcIPs.FullRowSelect = true;
+			BaseRdcIPs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			BaseRdcIPs.Location = new System.Drawing.Point(1264, 78);
+			BaseRdcIPs.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			BaseRdcIPs.Name = "BaseRdcIPs";
+			BaseRdcIPs.Size = new System.Drawing.Size(631, 301);
+			BaseRdcIPs.TabIndex = 3;
+			BaseRdcIPs.UseCompatibleStateImageBehavior = false;
+			BaseRdcIPs.View = System.Windows.Forms.View.Details;
 			// 
 			// columnHeader2
 			// 
@@ -111,9 +115,9 @@ namespace Uccs.Sun.FUI
 			label1.Location = new System.Drawing.Point(1264, 32);
 			label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(155, 27);
+			label1.Size = new System.Drawing.Size(230, 27);
 			label1.TabIndex = 2;
-			label1.Text = "IP Addresses";
+			label1.Text = "Base Rdc Addresses";
 			label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// Proxies
@@ -121,10 +125,11 @@ namespace Uccs.Sun.FUI
 			Proxies.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 			Proxies.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader5 });
 			Proxies.FullRowSelect = true;
-			Proxies.Location = new System.Drawing.Point(1264, 854);
+			Proxies.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			Proxies.Location = new System.Drawing.Point(1264, 1349);
 			Proxies.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Proxies.Name = "Proxies";
-			Proxies.Size = new System.Drawing.Size(631, 778);
+			Proxies.Size = new System.Drawing.Size(631, 283);
 			Proxies.TabIndex = 4;
 			Proxies.UseCompatibleStateImageBehavior = false;
 			Proxies.View = System.Windows.Forms.View.Details;
@@ -139,7 +144,7 @@ namespace Uccs.Sun.FUI
 			label2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 			label2.AutoSize = true;
 			label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label2.Location = new System.Drawing.Point(1264, 801);
+			label2.Location = new System.Drawing.Point(1264, 1304);
 			label2.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			label2.Name = "label2";
 			label2.Size = new System.Drawing.Size(94, 27);
@@ -147,18 +152,52 @@ namespace Uccs.Sun.FUI
 			label2.Text = "Proxies";
 			label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
-			// GeneratorsPanel
+			// label3
+			// 
+			label3.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			label3.AutoSize = true;
+			label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+			label3.Location = new System.Drawing.Point(1264, 406);
+			label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			label3.Name = "label3";
+			label3.Size = new System.Drawing.Size(283, 27);
+			label3.TabIndex = 2;
+			label3.Text = "Seed Hub Rdc Addresses";
+			label3.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// SeedHubRdcIPs
+			// 
+			SeedHubRdcIPs.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			SeedHubRdcIPs.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader6 });
+			SeedHubRdcIPs.FullRowSelect = true;
+			SeedHubRdcIPs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			SeedHubRdcIPs.Location = new System.Drawing.Point(1264, 456);
+			SeedHubRdcIPs.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			SeedHubRdcIPs.Name = "SeedHubRdcIPs";
+			SeedHubRdcIPs.Size = new System.Drawing.Size(631, 301);
+			SeedHubRdcIPs.TabIndex = 5;
+			SeedHubRdcIPs.UseCompatibleStateImageBehavior = false;
+			SeedHubRdcIPs.View = System.Windows.Forms.View.Details;
+			// 
+			// columnHeader6
+			// 
+			columnHeader6.Text = "IP";
+			columnHeader6.Width = 200;
+			// 
+			// MembersPanel
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			Controls.Add(SeedHubRdcIPs);
 			Controls.Add(Proxies);
-			Controls.Add(IPs);
+			Controls.Add(BaseRdcIPs);
 			Controls.Add(label2);
+			Controls.Add(label3);
 			Controls.Add(label1);
 			Controls.Add(DestLabel);
 			Controls.Add(Generators);
 			Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			Name = "GeneratorsPanel";
+			Name = "MembersPanel";
 			Size = new System.Drawing.Size(1902, 1638);
 			ResumeLayout(false);
 			PerformLayout();
@@ -171,11 +210,14 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader4;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
 		private System.Windows.Forms.Label DestLabel;
-		private System.Windows.Forms.ListView IPs;
+		private System.Windows.Forms.ListView BaseRdcIPs;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ListView Proxies;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader5;
+		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.ListView SeedHubRdcIPs;
+		private System.Windows.Forms.ColumnHeader columnHeader6;
 	}
 }

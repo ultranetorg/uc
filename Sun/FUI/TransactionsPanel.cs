@@ -84,7 +84,7 @@ namespace Uccs.Sun.FUI
 					foreach(var i in txs)
 					{
 						var li = new ListViewItem(i.Id.ToString()) {Tag = i};
-						li.SubItems.Add(i.Vote.Round.Id.ToString());
+						li.SubItems.Add(i.Round.Id.ToString());
 						li.SubItems.Add(i.Generator?.ToString());
 
 						Transactions.Items.Add(li);

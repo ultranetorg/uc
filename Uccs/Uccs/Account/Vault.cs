@@ -85,6 +85,11 @@ namespace Uccs.Net
 			return p;
 		}
 
+		public bool IsUnlocked(AccountAddress account)
+		{
+			return Keys.Any(i => i == account);
+		}
+
 		public AccountKey GetKey(AccountAddress account)
 		{
 			return Keys.First(i => i == account);

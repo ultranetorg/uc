@@ -149,7 +149,7 @@ namespace Uccs.Net
 		public bool						Log;
 		public int						PeersMin = 6;
 		public int						PeersInMax = 128;
-		public bool						PeersInitialRandomization = false;
+		public bool						PeersInitialRandomization = true;
 		public IPAddress				IP;
 		//public IPAddress				ExternalIP;
 		public ushort					JsonServerPort;

@@ -2,15 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Threading;
-using System.Xml.Linq;
-using NativeImport;
-using Nethereum.BlockchainProcessing.BlockStorage.Entities;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Security;
 
 namespace Uccs.Net
 {
@@ -19,7 +12,7 @@ namespace Uccs.Net
 		Null, 
 		Proxy, 
 		MemberJoin, MemberVox, AnalyzerVox,
-		PeersBroadcast, Time, Members, AllocateTransaction, LastOperation, SendTransactions, TransactionStatus, Account, 
+		PeersBroadcast, Time, Members, Funds, AllocateTransaction, LastOperation, SendTransactions, TransactionStatus, Account, 
 		Author, QueryResource, Resource, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
@@ -108,6 +101,7 @@ namespace Uccs.Net
 		public SendTransactionsResponse			SendTransactions(IEnumerable<Transaction> transactions) => Request<SendTransactionsResponse>(new SendTransactionsRequest{Transactions = transactions});
 		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> operations) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = operations});
 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
+		public FundsResponse					GetFunds() => Request<FundsResponse>(new FundsRequest());
 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
 		public ResourceResponse					FindResource(ResourceAddress resource) => Request<ResourceResponse>(new ResourceRequest {Resource = resource});

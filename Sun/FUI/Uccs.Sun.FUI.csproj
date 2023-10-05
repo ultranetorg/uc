@@ -40,7 +40,7 @@
     <Compile Update="AuthorPanel.cs" />
     <Compile Update="HubPanel.cs" />
     <Compile Update="ChainPanel.cs" />
-    <Compile Update="GeneratorsPanel.cs" />
+    <Compile Update="MembersPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ResourcesPanel.cs" />
     <Compile Update="ApplicationsPanel.cs" />

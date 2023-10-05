@@ -174,28 +174,24 @@ namespace Uccs.Sun.FUI
 
 		public AccountKey GetPrivate(AccountAddress account)
 		{
-			var p = Vault.GetKey(account);
-			
-			if(p != null)
+			if(!Vault.IsUnlocked(account))
 			{
-				return p;
-			}
-
-			var pa = new PasswordForm(Sun.Settings.Secrets?.Password);
-
-			if(pa.Ask($"A password required to access {account} account"))
-			{
-				try
+				var pa = new PasswordForm(Sun.Settings.Secrets?.Password);
+	
+				if(pa.Ask($"A password required to access {account} account"))
 				{
-					return Sun.Vault.Unlock(account, pa.Password);
-				}
-				catch(Exception ex)
-				{
-					MessageBox.Show(this, $"Account access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					try
+					{
+						return Sun.Vault.Unlock(account, pa.Password);
+					}
+					catch(Exception ex)
+					{
+						throw new Exception($"Wallet access failed.\nThe password is incorrect or wallet file is invalid.\n({ex.Message})", ex);
+					}
 				}
 			}
 
-			return null;
+			return Vault.GetKey(account);
 		}
 
 		public static string Dump(XonDocument doc)

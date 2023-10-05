@@ -24,8 +24,7 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Sun.Lock)
 				{
-					Sun.Mcv.VoteAdded += (b) =>
-												{
+					Sun.Mcv.VoteAdded += (b) =>	{
 													BeginInvoke((MethodInvoker)delegate
 																{
 																	lock(Sun.Lock)

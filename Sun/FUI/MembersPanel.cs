@@ -4,17 +4,18 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Uccs.Sun.FUI
 {
-	public partial class GeneratorsPanel : MainPanel
+	public partial class MembersPanel : MainPanel
 	{
 		Font Bold;
 
-		public GeneratorsPanel(Net.Sun d, Vault vault) : base(d, vault)
+		public MembersPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
 
@@ -23,28 +24,25 @@ namespace Uccs.Sun.FUI
 
 		public override void Open(bool first)
 		{
-			IPs.Items.Clear();
+			BaseRdcIPs.Items.Clear();
 			Generators.Items.Clear();
 			Proxies.Items.Clear();
 
-			if(Sun.Mcv?.LastConfirmedRound != null)
+			lock(Sun.Lock)
 			{
-				lock(Sun.Lock)
+				foreach(var i in Sun.Mcv.LastConfirmedRound.Members)
 				{
-					foreach(var i in Sun.Mcv.LastConfirmedRound.Members.OrderBy(i => i.Account))
+					var li = Generators.Items.Add(i.Account.ToString());
+		
+					if(Sun.Settings.Generators.Contains(i.Account))
 					{
-						var li = Generators.Items.Add(i.Account.ToString());
-	
-						if(Sun.Settings.Generators.Contains(i.Account))
-						{
-							li.Font = Bold;
-						}
-	
-						li.Tag = i;
-						li.SubItems.Add(i.JoinedAt.ToString());
-						li.SubItems.Add(Database != null ? Sun.Mcv.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
-						//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
+						li.Font = Bold;
 					}
+		
+					li.Tag = i;
+					li.SubItems.Add(i.JoinedAt.ToString());
+					li.SubItems.Add(Sun.Mcv.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString());
+					//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}
 			}
 		}
@@ -80,18 +78,24 @@ namespace Uccs.Sun.FUI
 				{
 					foreach(var i in (e.Item.Tag as Member).BaseRdcIPs)
 					{
-						var li = IPs.Items.Add(i.ToString());
+						var bli = BaseRdcIPs.Items.Add(i.ToString());
 					}
 
-					//foreach(var i in (e.Item.Tag as Member).Proxies)
+					foreach(var i in (e.Item.Tag as Member).SeedHubRdcIPs)
 					{
-						var li = Proxies.Items.Add((e.Item.Tag as Member).Proxy?.ToString());
+						var li = SeedHubRdcIPs.Items.Add(i.ToString());
+					}
+
+					///foreach(var i in (e.Item.Tag as Member).Proxies)
+					{
+					//	var li = Proxies.Items.Add((e.Item.Tag as MembersResponse.Member).Proxy?.ToString());
 					}
 				}
 			}
 			else
 			{
-				IPs.Items.Clear();
+				BaseRdcIPs.Items.Clear();
+				SeedHubRdcIPs.Items.Clear();
 				Proxies.Items.Clear();
 			}
 		}

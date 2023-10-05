@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿using System.Data;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,6 +7,8 @@ namespace Uccs.Sun.FUI
 {
 	public partial class NetworkPanel : MainPanel
 	{
+		Workflow Workflow;
+
 		public NetworkPanel(Net.Sun d, Vault vault) : base(d, vault)
 		{
 			InitializeComponent();
@@ -23,9 +20,16 @@ namespace Uccs.Sun.FUI
 			Members.Items.Clear();
 			Funds.Items.Clear();
 
+			if(Workflow != null && Workflow.Active)
+			{
+				Workflow.Abort();
+			}
+
+			Workflow = Sun.Workflow.CreateNested(MethodBase.GetCurrentMethod().Name);
+
 			lock(Sun.Lock)
 			{
-				foreach(var i in Sun.Peers.OrderBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
+				foreach(var i in Sun.Peers.OrderByDescending(i => i.Status))
 				{
 					var r = Peers.Items.Add(i.IP.ToString());
 					r.SubItems.Add(i.StatusDescription);
@@ -36,35 +40,60 @@ namespace Uccs.Sun.FUI
 					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));
 					r.Tag = i;
 				}
-
-				foreach(var i in Sun.Mcv.LastConfirmedRound.Members.OrderBy(i => i.Account))
-				{
-					var li = Members.Items.Add(i.Account.ToString());
-
-					li.SubItems.Add(i.JoinedAt.ToString());
-					li.SubItems.Add(Database != null ? Sun.Mcv.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString() : null);
-					li.SubItems.Add(string.Join(", ", i.BaseRdcIPs.AsEnumerable()));
-					li.SubItems.Add(string.Join(", ", i.SeedHubRdcIPs.AsEnumerable()));
-				}
-
-				//foreach(var i in Core.Peers.Where(i => i.GetRank(Role.Hub) > 0).OrderByDescending(i => i.GetRank(Role.Hub)).ThenBy(i => i.IP.GetAddressBytes(), new BytesComparer()))
-				//{
-				//	var li = new ListViewItem(i.IP.ToString());
-				//	li.SubItems.Add(i.GetRank(Role.Hub).ToString());
-				//	//li.SubItems.Add(i.HubHits.ToString());
-				//	Hubs.Items.Add(li);
-				//}
-
-				if(Database?.LastConfirmedRound != null)
-				{
-					foreach(var i in Database.LastConfirmedRound.Funds.OrderBy(i => i))
-					{
-						var li = new ListViewItem(i.ToString());
-						Funds.Items.Add(li);
-					}
-
-				}
 			}
+
+			Task.Run(() =>	{
+								MembersResponse rp = null;
+
+								try
+								{
+									rp = Sun.Call(p => p.GetMembers(), Workflow);
+								}
+								catch(OperationCanceledException)
+								{
+									return;
+								}
+								catch(Exception)
+								{
+								}
+								
+								Invoke(new Action(() =>{
+															foreach(var i in rp.Members.OrderBy(i => i.Account))
+															{
+																var li = Members.Items.Add(i.Account.ToString());
+
+																li.SubItems.Add("no data");
+																li.SubItems.Add("no data");
+																li.SubItems.Add(string.Join(", ", i.BaseRdcIPs.AsEnumerable()));
+																li.SubItems.Add(string.Join(", ", i.SeedHubRdcIPs.AsEnumerable()));
+															}
+														}));
+							});
+
+
+			Task.Run(() =>	{
+								FundsResponse rp = null;
+
+								try
+								{
+									rp = Sun.Call(p => p.GetFunds(), Workflow);
+								}
+								catch(OperationCanceledException)
+								{
+									return;
+								}
+								catch(Exception)
+								{
+								}
+								
+								Invoke(new Action(() =>{
+															foreach(var i in rp.Funds.OrderBy(i => i))
+															{
+																var li = new ListViewItem(i.ToString());
+																Funds.Items.Add(li);
+															}
+														}));
+							});
 		}
 
 		public override void PeriodicalRefresh()
