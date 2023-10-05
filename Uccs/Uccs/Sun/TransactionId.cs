@@ -5,48 +5,42 @@ namespace Uccs.Net
 {
 	public struct TransactionId : IBinarySerializable, IEquatable<TransactionId>, IComparable<TransactionId>
 	{
-		public const int	MaxRi = 0b1111111_1111111_1111111_1111111;
-		public const int	MaxTi = 0b1111111_1111111_1111111;
-
-		public int			Ri { get; private set; }
+		public long			Ri { get; private set; }
 		public int			Ti { get; private set; }
-		long				_Number = -1;
+		byte[]				_Serial;
 
-		public TransactionId(int ri, int ti)
+		public TransactionId(long ri, int ti)
 		{
-			if(ri > MaxRi)	throw new NotSupportedException();
-			if(ti > MaxTi)	throw new NotSupportedException();
-
 			Ri = ri;
 			Ti = ti;
 		}
 
-		public long Number
+		public byte[] Serial
 		{
 			get
 			{
-				if(_Number == -1)
+				if(_Serial == null)
 				{
 					var s = new MemoryStream(8);
 					var w = new BinaryWriter(s);
 					Write(w);
 	
-					_Number = BitConverter.ToInt64(s.GetBuffer());
+					_Serial = s.GetBuffer();
 				}
 
-				return _Number;
+				return _Serial;
 			}
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Ri	= reader.Read7BitEncodedInt();
+			Ri	= reader.Read7BitEncodedInt64();
 			Ti	= reader.Read7BitEncodedInt();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt(Ri);
+			writer.Write7BitEncodedInt64(Ri);
 			writer.Write7BitEncodedInt(Ti);
 		}
 
@@ -70,7 +64,7 @@ namespace Uccs.Net
 
 		public override int GetHashCode()
 		{
-			return Ri;
+			return Ri.GetHashCode();
 		}
 
 		public static bool operator == (TransactionId left, TransactionId right)

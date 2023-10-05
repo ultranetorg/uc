@@ -33,7 +33,6 @@ namespace Uccs.Net
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
-		public const int					OperationsPerTransactionMax = OperationId.MaxOi + 1;
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -798,7 +797,7 @@ namespace Uccs.Net
 			{
 				//round.ConfirmedTransactions[ti].Hid = new (round.Id, ti);
 
-				for(byte oi = 0; oi < round.ConfirmedTransactions[ti].Operations.Length; oi++)
+				for(int oi = 0; oi < round.ConfirmedTransactions[ti].Operations.Length; oi++)
 				{
 					var o = round.ConfirmedTransactions[ti].Operations[oi];
 					//

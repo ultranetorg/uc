@@ -2022,7 +2022,7 @@ namespace Uccs.Net
 
  		public void Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage awaitstage, Workflow workflow)
  		{
-			if(operations.Count() > Mcv.OperationsPerTransactionMax)
+			if(operations.Count() > Zone.OperationsPerTransactionMax)
 				throw new ArgumentException();
 
 			var t = new Transaction(Zone);

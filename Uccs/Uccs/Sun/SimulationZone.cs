@@ -24,6 +24,7 @@ namespace Uccs.Net
 			MembersMax					= 1000;
 			TransactionsPerRoundMax		= 30000;
 			OperationsPerRoundMax		= 1_000_000;
+			OperationsPerTransactionMax	= 1000;
 
 
 			God							= Zone.Testnet1.God;

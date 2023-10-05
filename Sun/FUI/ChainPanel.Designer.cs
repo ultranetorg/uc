@@ -34,12 +34,15 @@ namespace Uccs.Sun.FUI
 			columnHeader6 = new System.Windows.Forms.ColumnHeader();
 			columnHeader5 = new System.Windows.Forms.ColumnHeader();
 			Transactions = new System.Windows.Forms.ListView();
+			columnHeader12 = new System.Windows.Forms.ColumnHeader();
 			columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			columnHeader3 = new System.Windows.Forms.ColumnHeader();
 			columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			columnHeader9 = new System.Windows.Forms.ColumnHeader();
 			Operations = new System.Windows.Forms.ListView();
+			columnHeader14 = new System.Windows.Forms.ColumnHeader();
 			columnHeader8 = new System.Windows.Forms.ColumnHeader();
+			columnHeader11 = new System.Windows.Forms.ColumnHeader();
 			label9 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
 			label3 = new System.Windows.Forms.Label();
@@ -57,6 +60,7 @@ namespace Uccs.Sun.FUI
 			tabPage4 = new System.Windows.Forms.TabPage();
 			Violators = new System.Windows.Forms.ListView();
 			columnHeader13 = new System.Windows.Forms.ColumnHeader();
+			columnHeader15 = new System.Windows.Forms.ColumnHeader();
 			((System.ComponentModel.ISupportInitialize)Round).BeginInit();
 			tabLeavers.SuspendLayout();
 			tabPage1.SuspendLayout();
@@ -95,7 +99,7 @@ namespace Uccs.Sun.FUI
 			// 
 			// Transactions
 			// 
-			Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader1, columnHeader3, columnHeader4, columnHeader9 });
+			Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader12, columnHeader1, columnHeader15, columnHeader3, columnHeader4, columnHeader9 });
 			Transactions.FullRowSelect = true;
 			Transactions.Location = new System.Drawing.Point(7, 193);
 			Transactions.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
@@ -106,9 +110,14 @@ namespace Uccs.Sun.FUI
 			Transactions.View = System.Windows.Forms.View.Details;
 			Transactions.ItemSelectionChanged += Transactions_ItemSelectionChanged;
 			// 
+			// columnHeader12
+			// 
+			columnHeader12.Text = "#";
+			// 
 			// columnHeader1
 			// 
 			columnHeader1.Text = "Id";
+			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// columnHeader3
 			// 
@@ -130,9 +139,8 @@ namespace Uccs.Sun.FUI
 			// Operations
 			// 
 			Operations.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-			Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader8 });
+			Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader14, columnHeader8, columnHeader11 });
 			Operations.FullRowSelect = true;
-			Operations.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			Operations.Location = new System.Drawing.Point(7, 915);
 			Operations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			Operations.Name = "Operations";
@@ -141,9 +149,18 @@ namespace Uccs.Sun.FUI
 			Operations.UseCompatibleStateImageBehavior = false;
 			Operations.View = System.Windows.Forms.View.Details;
 			// 
+			// columnHeader14
+			// 
+			columnHeader14.Text = "#";
+			// 
 			// columnHeader8
 			// 
-			columnHeader8.Width = 1000;
+			columnHeader8.Text = "Id";
+			// 
+			// columnHeader11
+			// 
+			columnHeader11.Text = "Description";
+			columnHeader11.Width = 500;
 			// 
 			// label9
 			// 
@@ -324,6 +341,11 @@ namespace Uccs.Sun.FUI
 			columnHeader13.Text = "";
 			columnHeader13.Width = 300;
 			// 
+			// columnHeader15
+			// 
+			columnHeader15.Text = "Nid";
+			columnHeader15.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
 			// ChainPanel
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
@@ -379,5 +401,9 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader13;
 		private System.Windows.Forms.ColumnHeader columnHeader8;
 		private System.Windows.Forms.ColumnHeader columnHeader9;
+		private System.Windows.Forms.ColumnHeader columnHeader11;
+		private System.Windows.Forms.ColumnHeader columnHeader12;
+		private System.Windows.Forms.ColumnHeader columnHeader14;
+		private System.Windows.Forms.ColumnHeader columnHeader15;
 	}
 }

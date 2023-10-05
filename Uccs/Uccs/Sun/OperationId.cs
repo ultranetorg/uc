@@ -5,54 +5,48 @@ namespace Uccs.Net
 {
 	public struct OperationId : IBinarySerializable, IEquatable<OperationId>, IComparable<OperationId>
 	{
-		public const byte MaxOi = 0b1111111;
+		public long	Ri { get; private set; } = -1;
+		public int	Ti { get; private set; }
+		public int	Oi { get; private set; }
 
-		public int		Ri { get; private set; } = -1;
-		public int		Ti { get; private set; }
-		public byte		Oi { get; private set; }
+		byte[]			_Serial;
 
-		long			_Number = -1;
-
-		public OperationId(int ri, int ti, byte oi)
+		public OperationId(long ri, int ti, byte oi)
 		{
-			if(ri > TransactionId.MaxRi)	throw new NotSupportedException();
-			if(ti > TransactionId.MaxTi)	throw new NotSupportedException();
-			if(oi > MaxOi)					throw new NotSupportedException();
-
 			Ri = ri;
 			Ti = ti;
 			Oi = oi;
 		}
 
-		public long Number
+		public byte[] Serial
 		{
 			get
 			{
-				if(_Number == -1)
+				if(_Serial == null)
 				{
 					var s = new MemoryStream(8);
 					var w = new BinaryWriter(s);
 					Write(w);
 	
-					_Number = BitConverter.ToInt64(s.GetBuffer());
+					_Serial = s.GetBuffer();
 				}
 
-				return _Number;
+				return _Serial;
 			}
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Ri	= reader.Read7BitEncodedInt();
+			Ri	= reader.Read7BitEncodedInt64();
 			Ti	= reader.Read7BitEncodedInt();
-			Oi	= reader.ReadByte();
+			Oi	= reader.Read7BitEncodedInt();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt(Ri);
+			writer.Write7BitEncodedInt64(Ri);
 			writer.Write7BitEncodedInt(Ti);
-			writer.Write(Oi);
+			writer.Write7BitEncodedInt(Oi);
 		}
 
 		public override bool Equals(object obj)
@@ -76,7 +70,7 @@ namespace Uccs.Net
 
 		public override int GetHashCode()
 		{
-			return Ri;
+			return Ri.GetHashCode();
 		}
 
 		public static bool operator == (OperationId left, OperationId right)

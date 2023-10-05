@@ -51,13 +51,13 @@ namespace Uccs.Net
 
 		protected OperationId	_id;
 		
-		public OperationId	Id
+		public OperationId Id
 		{
 			get
 			{
 				if(_id == default)
 				{
-					_id =	new (Transaction.Id.Ri, Transaction.Id.Ti, (byte)Array.IndexOf(Transaction.Operations, this));
+					_id = new (Transaction.Id.Ri, Transaction.Id.Ti, (byte)Array.IndexOf(Transaction.Operations, this));
 				}
 
 				return _id;

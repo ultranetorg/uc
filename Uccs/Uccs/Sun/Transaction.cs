@@ -31,7 +31,7 @@ namespace Uccs.Net
 
 		public bool Valid(Mcv mcv)
 		{
-			return	Operations.Any() && Operations.Length <= Mcv.OperationsPerTransactionMax && Operations.All(i => i.Valid) &&
+			return	Operations.Any() && Operations.Length <= Zone.OperationsPerTransactionMax && Operations.All(i => i.Valid) &&
 					(!Zone.PoW || Zone.PoW && Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 

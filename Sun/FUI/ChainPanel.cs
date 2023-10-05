@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,16 +25,17 @@ namespace Uccs.Sun.FUI
 			{
 				lock(Sun.Lock)
 				{
-					Sun.Mcv.VoteAdded += (b) =>	{
-													BeginInvoke((MethodInvoker)delegate
-																{
-																	lock(Sun.Lock)
-																	{
-																		Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
-																		Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
-																	}
-																});
-												};
+					Sun.Mcv.VoteAdded += (b) =>
+					{
+						BeginInvoke((MethodInvoker)delegate
+									{
+										lock(Sun.Lock)
+										{
+											Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
+											Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
+										}
+									});
+					};
 
 					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
 					Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
@@ -49,25 +51,27 @@ namespace Uccs.Sun.FUI
 
 		void LoadTransactions(IEnumerable<Transaction> transactions)
 		{
-			Transactions.Items.AddRange(transactions.Select((i) =>
-			{
-				var li = new ListViewItem(i.Nid.ToString());
-				li.Tag = i;
-				li.SubItems.Add(i.Signer.ToString());
-				li.SubItems.Add(i.Operations.Length.ToString());
-				li.SubItems.Add(i.Fee.ToString());
-				return li;
-			}).ToArray());
+			Transactions.Items.AddRange(transactions.Select((i, j) =>	{
+																			var li = new ListViewItem(j.ToString());
+																			li.Tag = i;
+																			li.SubItems.Add(new BigInteger(i.Id.Serial).ToString());
+																			li.SubItems.Add(i.Nid.ToString());
+																			li.SubItems.Add(i.Signer.ToString());
+																			li.SubItems.Add(i.Operations.Length.ToString());
+																			li.SubItems.Add(i.Fee.ToString());
+																			return li;
+																		}).ToArray());
 		}
 
 		void LoadOperations(IEnumerable<Operation> operations)
 		{
-			Operations.Items.AddRange(operations.Select(i =>
-			{
-				var li = new ListViewItem(i.ToString());
-				li.Tag = i;
-				return li;
-			}).ToArray());
+			Operations.Items.AddRange(operations.Select((i, j) =>	{
+																		var li = new ListViewItem(j.ToString());
+																		li.Tag = i;
+																		li.SubItems.Add(new BigInteger(i.Id.Serial).ToString());
+																		li.SubItems.Add(i.ToString());
+																		return li;
+																	}).ToArray());
 		}
 
 		private void numericUpDown1_ValueChanged(object sender, EventArgs e)

@@ -25,6 +25,7 @@ namespace Uccs.Net
 		public int				MembersMax = -1;
 		public int				TransactionsPerRoundMax = -1;
 		public int				OperationsPerRoundMax = -1;
+		public int				OperationsPerTransactionMax = -1;
 
 
 		//public ZoneCreation		Creation;
