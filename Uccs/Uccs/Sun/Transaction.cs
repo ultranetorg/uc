@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Signer;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
 	public class Transaction : IBinarySerializable
 	{
-		public int						Id;
-		public List<Operation>			Operations = new ();
+		public int						Nid;
+		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConfirmedTransactions, this));
+		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 		
 		public Vote						Vote;
@@ -33,7 +31,7 @@ namespace Uccs.Net
 
 		public bool Valid(Mcv mcv)
 		{
-			return	Operations.Any() && Operations.All(i => i.Valid) &&
+			return	Operations.Any() && Operations.Length <= Mcv.OperationsPerTransactionMax && Operations.All(i => i.Valid) &&
 					(!Zone.PoW || Zone.PoW && Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
@@ -44,7 +42,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, {Placing}, Operations={{{Operations.Count}}}, Signer={Signer}, Generator={Generator}, Expiration={Expiration}, Signature={Signature?.ToHex()}";
+			return $"Nid={Nid}, {Placing}, Operations={{{Operations.Length}}}, Signer={Signer}, Generator={Generator}, Expiration={Expiration}, Signature={Signature?.ToHex()}";
 		}
 
 		public void Sign(AccountKey signer, byte[] powhash)
@@ -86,7 +84,7 @@ namespace Uccs.Net
 
 		public void AddOperation(Operation operation)
 		{ 
-			Operations.Insert(0, operation);
+			Operations = Operations.Prepend(operation).ToArray();
 			operation.Transaction = this;
 		}
 
@@ -96,7 +94,7 @@ namespace Uccs.Net
 			var w = new BinaryWriter(s);
 
 			w.WriteUtf8(Zone.Name); 
-			w.Write7BitEncodedInt(Id);
+			w.Write7BitEncodedInt(Nid);
 			w.Write(Generator);
 			w.Write7BitEncodedInt(Expiration);
 			w.Write(Fee);
@@ -109,7 +107,7 @@ namespace Uccs.Net
  		public void	WriteConfirmed(BinaryWriter writer)
  		{
 			writer.Write(Signer);
-			writer.Write7BitEncodedInt(Id);
+			writer.Write7BitEncodedInt(Nid);
 			writer.Write(Fee);
 			writer.Write(Operations, i =>{
 											writer.Write((byte)i.Class); 
@@ -120,9 +118,9 @@ namespace Uccs.Net
  		public void	ReadConfirmed(BinaryReader reader)
  		{
 			Signer		= reader.ReadAccount();
-			Id			= reader.Read7BitEncodedInt();
+			Nid			= reader.Read7BitEncodedInt();
 			Fee			= reader.ReadCoin();
- 			Operations	= reader.ReadList(() => {
+ 			Operations	= reader.ReadArray(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													o.Transaction = this;
  													o.Read(reader); 
@@ -138,7 +136,7 @@ namespace Uccs.Net
 			writer.Write((byte)__ExpectedPlacing);
 
 			writer.Write(Signature);
-			writer.Write7BitEncodedInt(Id);
+			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
 			writer.Write(Fee);
 			writer.Write(PoW);
@@ -153,11 +151,11 @@ namespace Uccs.Net
 			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
 
 			Signature	= reader.ReadSignature();
-			Id			= reader.Read7BitEncodedInt();
+			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
 			Fee			= reader.ReadCoin();
 			PoW			= reader.ReadBytes(PoWLength);
- 			Operations	= reader.ReadList(() => {
+ 			Operations	= reader.ReadArray(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													//o.Placing		= PlacingStage.Confirmed;
  													o.Transaction	= this;
@@ -177,7 +175,7 @@ namespace Uccs.Net
 		
 			writer.Write(Generator);
 			writer.Write(Signature);
-			writer.Write7BitEncodedInt(Id);
+			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
 			writer.Write(Fee);
 			writer.Write(PoW);
@@ -193,11 +191,11 @@ namespace Uccs.Net
 		
 			Generator	= reader.ReadAccount();
 			Signature	= reader.ReadSignature();
-			Id			= reader.Read7BitEncodedInt();
+			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
 			Fee			= reader.ReadCoin();
 			PoW			= reader.ReadBytes(PoWLength);
-			Operations	= reader.ReadList(() => {
+			Operations	= reader.ReadArray(() => {
 													var o = Operation.FromType((OperationClass)reader.ReadByte());
 													o.Transaction = this;
 													o.Read(reader); 

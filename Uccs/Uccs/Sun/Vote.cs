@@ -98,7 +98,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentSummary?.ToHex()}, Violators={{{Violators.Length}}}, Joiners={{{MemberJoiners.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Count)}, BroadcastConfirmed={BroadcastConfirmed}";
+			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentSummary?.ToHex()}, Violators={{{Violators.Length}}}, Joiners={{{MemberJoiners.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
 		}
 		
 		public void AddTransaction(Transaction t)

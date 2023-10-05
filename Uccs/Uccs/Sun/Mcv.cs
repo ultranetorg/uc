@@ -33,6 +33,7 @@ namespace Uccs.Net
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
+		public const int					OperationsPerTransactionMax = OperationId.MaxOi + 1;
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -127,7 +128,7 @@ namespace Uccs.Net
 								r.ConfirmedFundJoiners = new[] {Zone.Father0};
 
 							if(i == 1)
-								r.ConfirmedEmissions = new OperationId[] {new(0, 0)};
+								r.ConfirmedEmissions = new OperationId[] {new(0, 0, 0)};
 
 							if(i == 1+8 + 1+8 + 1)
 								r.ConfirmedMemberJoiners = new[] {Zone.Father0};
@@ -195,7 +196,7 @@ namespace Uccs.Net
 	
 			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentSummary = Zone.Cryptography.ZeroHash};
 			{
-				var t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
+				var t = new Transaction(Zone) {Nid = 0, Generator = god, Expiration = 0};
 				t.AddOperation(new Emission(Web3.Convert.ToWei((fathers.Length + 1) * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
 				//t.AddOperation(new AuthorBid("uo", null, 1));
 				t.Sign(f0, Zone.Cryptography.ZeroHash);
@@ -227,7 +228,7 @@ namespace Uccs.Net
 	
 				//var ops = FindRound(0).Transactions.SelectMany(i => i.Operations).ToList();
 				//b1.Emissions = ops.OfType<Emission>().Select(i => new OperationId {Round = 0, Index = ops.IndexOf(i)}).ToList();
-				v1.Emissions = new OperationId[] {new(0, 0)};
+				v1.Emissions = new OperationId[] {new(0, 0, 0)};
 	
 				v1.Sign(god);
 				Add(v1);
@@ -242,7 +243,7 @@ namespace Uccs.Net
 		 
 				if(i == 1+8 + 1)
 				{
-					var t = new Transaction(Zone) {Id = 1, Generator = god, Expiration = i};
+					var t = new Transaction(Zone) {Nid = 1, Generator = god, Expiration = i};
 					t.AddOperation(new CandidacyDeclaration(1_000_000));
 					t.Sign(f0, Zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
@@ -704,7 +705,7 @@ namespace Uccs.Net
 
 				var a = round.AffectAccount(t.Signer);
 
-				if(t.Id != a.LastTransactionId + 1)
+				if(t.Nid != a.LastTransactionNid + 1)
 				{
 					foreach(var o in t.Operations)
 						o.Error = Operation.NotSequential;
@@ -730,7 +731,7 @@ namespace Uccs.Net
 
 				round.Fees += t.Fee;
 				a.Balance -= t.Fee;
-				a.LastTransactionId++;
+				a.LastTransactionNid++;
 						
 				if(Roles.HasFlag(Role.Chain))
 				{
@@ -791,19 +792,24 @@ namespace Uccs.Net
 				Execute(round, round.ConfirmedTransactions, round.ConfirmedViolators);
 			}
 
-			var ops = round.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+			//var ops = round.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
 
-			for(int i = 0; i < ops.Length; i++)
+			for(int ti = 0; ti < round.ConfirmedTransactions.Length; ti++)
 			{
-				var o = ops[i];
+				//round.ConfirmedTransactions[ti].Hid = new (round.Id, ti);
 
-				o.AssignId(round.Id, i);
+				for(byte oi = 0; oi < round.ConfirmedTransactions[ti].Operations.Length; oi++)
+				{
+					var o = round.ConfirmedTransactions[ti].Operations[oi];
+					//
+					//o.Hid = new (round.Id, ti, oi);
 
-				if(o is Emission e)
-					round.Emissions.Add(e);
+					if(o is Emission e)
+						round.Emissions.Add(e);
 
-				if(o is AuthorBid b && b.Tld.Any())
-					round.DomainBids.Add(b);
+					if(o is AuthorBid b && b.Tld.Any())
+						round.DomainBids.Add(b);
+				}
 			}
 
 			foreach(var i in round.ConfirmedEmissions)
@@ -813,7 +819,7 @@ namespace Uccs.Net
 				round.Emissions.Remove(e);
 			}
 
-			round.Emissions.RemoveAll(i => round.Id > i.Id.Round + Zone.ExternalVerificationDuration);
+			round.Emissions.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDuration);
 
 			foreach(var i in round.ConfirmedDomainBids)
 			{
@@ -822,7 +828,7 @@ namespace Uccs.Net
 				round.DomainBids.Remove(b);
 			}
 
-			round.DomainBids.RemoveAll(i => round.Id > i.Id.Round + Zone.ExternalVerificationDuration);
+			round.DomainBids.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDuration);
 
 			foreach(var i in round.ConfirmedAnalyses)
 			{

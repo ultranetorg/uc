@@ -462,8 +462,8 @@ namespace Uccs.Net
 										}
 
 
-										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Round + Zone.ExternalVerificationDuration);
-										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Round + Zone.ExternalVerificationDuration);
+										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDuration);
+										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDuration);
 										IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 										Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
 											
@@ -1380,7 +1380,7 @@ namespace Uccs.Net
 					if(v.Transactions.Length > r.Parent.TransactionCountPerVoteAbsoluteMax)
 						return false;
 
-					if(v.Transactions.Sum(i => i.Operations.Count) > r.Parent.OperationsCountPerVoteMax)
+					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsCountPerVoteMax)
 						return false;
 				}
 
@@ -1610,7 +1610,7 @@ namespace Uccs.Net
 						{
 							foreach(var i in txs)
 							{
-								if(v.Transactions.Sum(i => i.Operations.Count) + i.Operations.Count > r.Parent.OperationsCountPerVoteMax)
+								if(v.Transactions.Sum(i => i.Operations.Length) + i.Operations.Length > r.Parent.OperationsCountPerVoteMax)
 									break;
 
 								if(v.Transactions.Length + 1 > r.Parent.TransactionCountPerVoteAbsoluteMax)
@@ -1866,11 +1866,11 @@ namespace Uccs.Net
 									
 							Monitor.Enter(Lock);
 							
-							int tid = at.NextTransactionId;
+							int nid = at.NextTransactionId;
 
 							foreach(var t in g.Where(i => i.Placing == PlacingStage.Null))
 							{
-								t.Id = tid++;
+								t.Nid = nid++;
 								t.Generator = m;
 								t.Expiration = at.MaxRoundId;
 	
@@ -1912,7 +1912,7 @@ namespace Uccs.Net
 					
 					if(atxs.Any())
 					{
-						if(atxs.Sum(i => i.Operations.Count) <= 1)
+						if(atxs.Sum(i => i.Operations.Length) <= 1)
 							Workflow.Log?.Report(this, "Operations sent", atxs.SelectMany(i => i.Operations).Select(i => i.ToString()));
 						else
 							Workflow.Log?.Report(this, "Operation sent", $"{atxs.First().Operations.First()} -> {m} {rdi}");
@@ -1926,13 +1926,13 @@ namespace Uccs.Net
 				{
 					try
 					{
-						var rp = rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Id = i.Id}));
+						var rp = rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Nid = i.Nid}));
 
 						lock(Lock)
 						{
 							foreach(var i in rp.Transactions)
 							{
-								var t = accepted.First(d => d.Signer == i.Account && d.Id == i.Id);
+								var t = accepted.First(d => d.Signer == i.Account && d.Nid == i.Nid);
 																		
 								if(t.Placing != i.Placing)
 								{
@@ -2022,6 +2022,9 @@ namespace Uccs.Net
 
  		public void Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage awaitstage, Workflow workflow)
  		{
+			if(operations.Count() > Mcv.OperationsPerTransactionMax)
+				throw new ArgumentException();
+
 			var t = new Transaction(Zone);
 
  			lock(Lock)

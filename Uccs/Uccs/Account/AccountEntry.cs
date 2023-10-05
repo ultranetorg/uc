@@ -35,7 +35,7 @@ namespace Uccs.Net
 											Balance = Balance,
 											Bail = Bail,
 											BailStatus = BailStatus,
-											LastTransactionId = LastTransactionId,
+											LastTransactionNid = LastTransactionNid,
 											LastEmissionId = LastEmissionId,
 											CandidacyDeclarationRid = CandidacyDeclarationRid,
 											Transactions = Mcv.Roles.HasFlag(Role.Chain) ? new HashSet<int>(Transactions) : null};
@@ -94,7 +94,7 @@ namespace Uccs.Net
 			var d = new XonDocument(new XonTextValueSerializator());
 
 			d.Add("Address").Value					= Address;
-			d.Add("LastTransactionId").Value		= LastTransactionId;
+			d.Add("LastTransactionId").Value		= LastTransactionNid;
 			d.Add("Balance").Value					= Balance;
 			d.Add("LastEmissionId").Value			= LastEmissionId;
 			d.Add("CandidacyDeclarationRid").Value	= CandidacyDeclarationRid;

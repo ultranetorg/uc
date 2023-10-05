@@ -8,7 +8,7 @@ namespace Uccs.Net
 		public Coin						Balance { get; set; }
 		public Coin						Bail { get; set; }
 		public BailStatus				BailStatus { get; set; }
-		public int						LastTransactionId { get; set; } = -1;
+		public int						LastTransactionNid { get; set; } = -1;
 		public int						LastEmissionId  { get; set; } = -1;
 		public int						CandidacyDeclarationRid  { get; set; } = -1;
 
@@ -24,7 +24,7 @@ namespace Uccs.Net
 				writer.Write7BitEncodedInt(CandidacyDeclarationRid);
 			}
 
-			writer.Write7BitEncodedInt(LastTransactionId);
+			writer.Write7BitEncodedInt(LastTransactionNid);
 			writer.Write7BitEncodedInt(LastEmissionId);
 		}
 
@@ -40,7 +40,7 @@ namespace Uccs.Net
 				CandidacyDeclarationRid		= reader.Read7BitEncodedInt();
 			}
 
-			LastTransactionId	= reader.Read7BitEncodedInt();
+			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();
 		}
 	}

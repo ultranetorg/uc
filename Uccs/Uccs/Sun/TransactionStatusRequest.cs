@@ -21,11 +21,11 @@ namespace Uccs.Net
 						{
 							LastConfirmedRoundId = sun.Mcv.LastConfirmedRound.Id,
 							Transactions = Transactions.Select(t => new {	Q = t,
-																			T = sun.IncomingTransactions.Find(i => i.Signer == t.Account && i.Id == t.Id)
+																			T = sun.IncomingTransactions.Find(i => i.Signer == t.Account && i.Nid == t.Nid)
 																				?? 
-																				sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Id == t.Id)})
+																				sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Nid == t.Nid)})
 														.Select(i => new TransactionStatusResponse.Item{Account		= i.Q.Account,
-																										Id			= i.Q.Id,
+																										Nid			= i.Q.Nid,
 																										Placing		= i.T == null ? PlacingStage.FailedOrNotFound : i.T.Placing}).ToArray()
 						};
 			}
@@ -37,7 +37,7 @@ namespace Uccs.Net
 		public class Item
 		{
 			public AccountAddress	Account { get; set; }
-			public int				Id { get; set; }
+			public int				Nid { get; set; }
 			public PlacingStage		Placing { get; set; }
 		}
 

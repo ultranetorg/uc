@@ -71,18 +71,18 @@ namespace Uccs.Net
 	public class TransactionsAddress : IBinarySerializable
 	{
 		public AccountAddress	Account { get; set; }
-		public int				Id { get; set; }
+		public int				Nid { get; set; }
 
 		public void Read(BinaryReader r)
 		{
 			Account = r.ReadAccount();
-			Id = r.Read7BitEncodedInt();
+			Nid = r.Read7BitEncodedInt();
 		}
 
 		public void Write(BinaryWriter w)
 		{
 			w.Write(Account); 
-			w.Write7BitEncodedInt(Id);
+			w.Write7BitEncodedInt(Nid);
 		}
 	}
 

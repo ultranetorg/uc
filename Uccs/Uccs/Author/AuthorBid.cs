@@ -65,7 +65,7 @@ namespace Uccs.Net
 
 		public void ReadBaseState(BinaryReader reader)
 		{
-			Id		= reader.Read<OperationId>();
+			_id	= reader.Read<OperationId>();
 			Signer	= reader.ReadAccount();
 			Name	= reader.ReadUtf8();
 			Tld		= reader.ReadUtf8();

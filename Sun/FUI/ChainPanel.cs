@@ -51,10 +51,10 @@ namespace Uccs.Sun.FUI
 		{
 			Transactions.Items.AddRange(transactions.Select((i) =>
 			{
-				var li = new ListViewItem(i.Id.ToString());
+				var li = new ListViewItem(i.Nid.ToString());
 				li.Tag = i;
 				li.SubItems.Add(i.Signer.ToString());
-				li.SubItems.Add(i.Operations.Count.ToString());
+				li.SubItems.Add(i.Operations.Length.ToString());
 				li.SubItems.Add(i.Fee.ToString());
 				return li;
 			}).ToArray());

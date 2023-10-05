@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.VisualBasic;
@@ -29,96 +30,8 @@ namespace Uccs.Net
 		AuthorBid, AuthorRegistration, AuthorTransfer, ResourceCreation, ResourceUpdation,
 	}
 
-	public struct OperationId : IBinarySerializable, IEquatable<OperationId>, IComparable<OperationId>
-	{
-		public const int Max7Bit4BytesInt = 0xFFF_FFFF;
-
-		public int	Round { get; private set; }
-		public int	Index { get; private set; }
-
-		long		_Number = -1;
-
-		public OperationId(int round, int index)
-		{
-			if(round > Max7Bit4BytesInt)
-				throw new NotSupportedException();
-
-			if(index > Max7Bit4BytesInt)
-				throw new NotSupportedException();
-
-			Round = round;
-			Index = index;
-		}
-
-		public long Number
-		{
-			get
-			{
-				if(_Number == -1)
-				{
-					var s = new MemoryStream(8);
-					var w = new BinaryWriter(s);
-					Write(w);
-	
-					_Number = BitConverter.ToInt64(s.GetBuffer());
-				}
-
-				return _Number;
-			}
-		}
-
-		public void Read(BinaryReader reader)
-		{
-			Round = reader.Read7BitEncodedInt();
-			Index = reader.Read7BitEncodedInt();
-		}
-
-		public void Write(BinaryWriter writer)
-		{
-			writer.Write7BitEncodedInt(Round);
-			writer.Write7BitEncodedInt(Index);
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is OperationId id && Equals(id);
-		}
-
-		public bool Equals(OperationId a)
-		{
-			return Round == a.Round && Index == a.Index;
-		}
-
-		public int CompareTo(OperationId a)
-		{
-			if(Round != a.Round)
-				return Round.CompareTo(a.Round);
-
-			if(Index != a.Index)
-				return Index.CompareTo(a.Index);
-
-			return 0;
-		}
-
-		public override int GetHashCode()
-		{
-			return Round;
-		}
-
-		public static bool operator == (OperationId left, OperationId right)
-		{
-			return left.Equals(right);
-		}
-
-		public static bool operator != (OperationId left, OperationId right)
-		{
-			return !(left == right);
-		}
-	}
-
 	public abstract class Operation// : ITypedBinarySerializable
 	{
-		public OperationId		Id;
 		public string			Error;
 		public AccountAddress	Signer { get; set; }
 		public Transaction		Transaction;
@@ -135,6 +48,22 @@ namespace Uccs.Net
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
 
 		public OperationClass	Class => Enum.Parse<OperationClass>(GetType().Name);
+
+		protected OperationId	_id;
+		
+		public OperationId	Id
+		{
+			get
+			{
+				if(_id == default)
+				{
+					_id =	new (Transaction.Id.Ri, Transaction.Id.Ti, (byte)Array.IndexOf(Transaction.Operations, this));
+				}
+
+				return _id;
+			}
+		}
+			
 
 		public Operation()
 		{
@@ -154,11 +83,6 @@ namespace Uccs.Net
 			{
 				throw new IntegrityException($"Wrong {nameof(Operation)} type", ex);
 			}
-		}
-
-		public void AssignId(int rid, int index)
-		{
-			Id = new OperationId(rid, index);
 		}
 		 
 		public override string ToString()
