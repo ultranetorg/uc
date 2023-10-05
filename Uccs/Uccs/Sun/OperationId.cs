@@ -24,11 +24,11 @@ namespace Uccs.Net
 			{
 				if(_Serial == null)
 				{
-					var s = new MemoryStream(8);
+					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
 					Write(w);
 	
-					_Serial = s.GetBuffer();
+					_Serial = s.ToArray();
 				}
 
 				return _Serial;
