@@ -86,7 +86,7 @@ namespace Uccs.Sun.FUI
 			// columnHeader2
 			// 
 			columnHeader2.Text = "#";
-			columnHeader2.Width = 20;
+			columnHeader2.Width = 40;
 			// 
 			// columnHeader6
 			// 
@@ -113,10 +113,12 @@ namespace Uccs.Sun.FUI
 			// columnHeader12
 			// 
 			columnHeader12.Text = "#";
+			columnHeader12.Width = 40;
 			// 
 			// columnHeader1
 			// 
 			columnHeader1.Text = "Id";
+			columnHeader1.Width = 40;
 			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// columnHeader3
@@ -152,10 +154,12 @@ namespace Uccs.Sun.FUI
 			// columnHeader14
 			// 
 			columnHeader14.Text = "#";
+			columnHeader14.Width = 40;
 			// 
 			// columnHeader8
 			// 
 			columnHeader8.Text = "Id";
+			columnHeader8.Width = 40;
 			// 
 			// columnHeader11
 			// 
@@ -344,6 +348,7 @@ namespace Uccs.Sun.FUI
 			// columnHeader15
 			// 
 			columnHeader15.Text = "Nid";
+			columnHeader15.Width = 40;
 			columnHeader15.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// ChainPanel

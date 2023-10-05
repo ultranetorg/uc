@@ -5,11 +5,11 @@ namespace Uccs.Net
 {
 	public struct TransactionId : IBinarySerializable, IEquatable<TransactionId>, IComparable<TransactionId>
 	{
-		public long			Ri { get; private set; }
+		public int			Ri { get; private set; }
 		public int			Ti { get; private set; }
 		byte[]				_Serial;
 
-		public TransactionId(long ri, int ti)
+		public TransactionId(int ri, int ti)
 		{
 			Ri = ri;
 			Ti = ti;
@@ -34,13 +34,13 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Ri	= reader.Read7BitEncodedInt64();
+			Ri	= reader.Read7BitEncodedInt();
 			Ti	= reader.Read7BitEncodedInt();
 		}
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt64(Ri);
+			writer.Write7BitEncodedInt(Ri);
 			writer.Write7BitEncodedInt(Ti);
 		}
 
