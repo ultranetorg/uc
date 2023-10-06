@@ -12,9 +12,9 @@ namespace Uccs.Net
 		public Round										Previous =>	Mcv.FindRound(Id - 1);
 		public Round										Next =>	Mcv.FindRound(Id + 1);
 		public Round										Parent => Mcv.FindRound(ParentId);
-		public int											TransactionCountPerVoteGuaranteedMax => Mcv.Zone.TransactionsPerRoundMax / Members.Count;
-		public int											TransactionCountPerVoteAbsoluteMax => Mcv.Zone.TransactionsPerRoundMax / Members.Count * 10;
-		public int											OperationsCountPerVoteMax => Mcv.Zone.OperationsPerRoundMax / Members.Count;
+		public int											TransactionsPerVoteGuaranteedLimit	=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count;
+		public int											TransactionsPerVoteAbsoluteLimit	=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count * 10;
+		public int											OperationsCountPerVoteLimit			=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
 
 		public int											Try = 0;
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
@@ -72,7 +72,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Votes(V/VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}, JR={JoinRequests.Count()}, Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Votes(VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), JR={JoinRequests.Count}, Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)
@@ -152,17 +152,17 @@ namespace Uccs.Net
 // 
 // 		}
 
-		public AccountEntry AffectAccount(AccountAddress account)
+		public AccountEntry AffectAccount(AccountAddress account/*, Operation operation*/)
 		{
 			if(AffectedAccounts.TryGetValue(account, out AccountEntry a))
 				return a;
 			
-			var e = Mcv.Accounts.Find(account, Id - 1);
+			var e = Mcv.Accounts.Find(account, Id - 1);	
 
 			if(e != null)
 				return AffectedAccounts[account] = e.Clone();
 			else
-				return AffectedAccounts[account] = new AccountEntry(Mcv){Address = account};
+				return AffectedAccounts[account] = new AccountEntry(Mcv) {Address = account};
 		}
 
 		public AuthorEntry AffectAuthor(string author)
@@ -177,31 +177,6 @@ namespace Uccs.Net
 			else
 				return AffectedAuthors[author] = new AuthorEntry(Mcv){Name = author};
 		}
-
-		//public AuthorEntry FindAuthor(string name)
-		//{
-		//	if(AffectedAuthors.ContainsKey(name))
-		//		return AffectedAuthors[name];
-		//
-		//	return Chain.Authors.Find(name, Id - 1);
-		//}
-		//
-
-		//public AccountEntry FindAccount(AccountAddress account)
-		//{
-		//	if(AffectedAccounts.ContainsKey(account))
-		//		return AffectedAccounts[account];
-		//
-		//	return Database.Accounts.Find(account, Id - 1);
-		//}
-		//
-		//public ResourceEntry FindRelease(ResourceAddress name)
-		//{
-		//	if(AffectedReleases.ContainsKey(name))
-		//		return AffectedReleases[name];
-		//
-		//	return Database.Resources.Find(name, Id - 1);
-		//}
 
  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
  		{

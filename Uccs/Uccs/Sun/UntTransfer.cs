@@ -35,18 +35,10 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			var from = round.AffectAccount(Signer);
-
-			var newto = chain.Accounts.Find(To, round.Id) == null;
-			var to = round.AffectAccount(To);
+			var from = AffectAccount(Signer);
+			var to = AffectAccount(To);
 
 			from.Balance -= Amount;
-			
-			if(newto)
-			{
-				PayForAllocation(0, 10);
-			}
-
 			to.Balance += Amount;
 		}
 	}

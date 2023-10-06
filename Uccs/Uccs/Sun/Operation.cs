@@ -121,8 +121,29 @@ namespace Uccs.Net
 		{
 			var fee = Mcv.CalculateSpaceFee(Mcv.EntityAllocationBaseLength + extralength, years);
 			
-			Transaction.Round.AffectAccount(Signer).Balance -= fee;
+			AffectAccount(Signer).Balance -= fee;
 			Transaction.Round.Fees += fee;
+		}
+
+		public AccountEntry AffectAccount(AccountAddress account)
+		{
+			var r = Transaction.Round;
+			var e = r.Mcv.Accounts.Find(account, r.Id);	
+
+			if(e == null) /// new account
+			{
+				var	s = r.AffectAccount(Signer);
+				
+				s.Balance -= Mcv.AccountAllocationFee;
+				r.Fees += Mcv.AccountAllocationFee;
+			}
+
+			return r.AffectAccount(account);
+		}
+
+		public AuthorEntry AffectAuthor(string author)
+		{
+			return Transaction.Round.AffectAuthor(author);
 		}
 	}
 }

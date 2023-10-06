@@ -78,7 +78,7 @@ namespace Uccs.Net
 			Resource = reader.Read<ResourceAddress>();
 			Changes = (ResourceChanges)reader.ReadByte();
 			
-			if(Changes.HasFlag(ResourceChanges.Years))	Years = reader.ReadByte();
+			if(Changes.HasFlag(ResourceChanges.Years))			Years = reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Flags))			Flags = (ResourceFlags)reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Changes.HasFlag(ResourceChanges.Parent))			Parent = reader.ReadUtf8();
@@ -90,7 +90,7 @@ namespace Uccs.Net
 			writer.Write(Resource);
 			writer.Write((byte)Changes);
 
-			if(Changes.HasFlag(ResourceChanges.Years))	writer.Write(Years);
+			if(Changes.HasFlag(ResourceChanges.Years))			writer.Write(Years);
 			if(Changes.HasFlag(ResourceChanges.Flags))			writer.Write((byte)Flags);
 			if(Changes.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
 			if(Changes.HasFlag(ResourceChanges.Parent))			writer.WriteUtf8(Parent);
@@ -121,7 +121,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			var a = round.AffectAuthor(Resource.Author);
+			var a = AffectAuthor(Resource.Author);
 			
 			void execute(ResourceAddress resource, bool ignore_renewal_errors)
 			{
@@ -197,7 +197,7 @@ namespace Uccs.Net
 							
 							r.Reserved += (short)d;
 		
-							round.AffectAccount(Signer).Balance -= Mcv.CalculateSpaceFee(d, r.LastRenewalYears);
+							AffectAccount(Signer).Balance -= Mcv.CalculateSpaceFee(d, r.LastRenewalYears);
 						}
 					} 
 					else
@@ -208,7 +208,7 @@ namespace Uccs.Net
 				{
 					if(AnalysisFee > 0 && r.AnalysisStage == AnalysisStage.NotRequested)
 					{
-						round.AffectAccount(Signer).Balance -= AnalysisFee;
+						AffectAccount(Signer).Balance -= AnalysisFee;
 		
 						r.AnalysisStage = AnalysisStage.Pending;
 						r.AnalysisFee = AnalysisFee;

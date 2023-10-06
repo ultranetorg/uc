@@ -114,7 +114,7 @@ namespace Uccs.Net
 
 			Portion = Calculate(Wei);
 			
-			var a = round.AffectAccount(Signer);
+			var a = AffectAccount(Signer);
 			a.Balance += Portion;
 			a.LastEmissionId = Eid;
 				

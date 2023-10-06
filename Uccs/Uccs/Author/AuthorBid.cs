@@ -111,13 +111,13 @@ namespace Uccs.Net
 
 		public void ConsensusExecute(Round round)
 		{
-			var a = round.AffectAuthor(Name);
+			var a = AffectAuthor(Name);
 
  			if(!Author.IsExpired(a, round.ConfirmedTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{
-					round.AffectAccount(Signer).Balance -= Bid;
+					AffectAccount(Signer).Balance -= Bid;
 						
 					a.Owner				= null;
 					a.FirstBidTime		= round.ConfirmedTime;
@@ -132,8 +132,8 @@ namespace Uccs.Net
 				{
 					if((!a.DomainOwnersOnly && (a.LastBid < Bid || Tld.Any())) || (a.DomainOwnersOnly && a.LastBid < Bid && Tld.Any())) /// outbid
 					{
-						round.AffectAccount(a.LastWinner).Balance += a.LastBid;
-						round.AffectAccount(Signer).Balance -= Bid;
+						AffectAccount(a.LastWinner).Balance += a.LastBid;
+						AffectAccount(Signer).Balance -= Bid;
 						
 						if(!a.DomainOwnersOnly && Tld.Any())
 							a.DomainOwnersOnly = true;
@@ -156,7 +156,7 @@ namespace Uccs.Net
 				/// dont refund previous winner
 				round.Fees += a.LastBid;
 
-				round.AffectAccount(Signer).Balance -= Bid;
+				AffectAccount(Signer).Balance -= Bid;
 				
 				a.Owner				= null;
 				a.FirstBidTime		= round.ConfirmedTime;

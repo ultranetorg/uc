@@ -107,7 +107,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = round.AffectAuthor(Resource.Author);
+			a = AffectAuthor(Resource.Author);
 			var r = a.AffectResource(Resource);
 
 			r.Flags				= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
@@ -133,12 +133,12 @@ namespace Uccs.Net
 
 			if(AnalysisFee > 0)
 			{
-				round.AffectAccount(Signer).Balance -= AnalysisFee;
+				AffectAccount(Signer).Balance -= AnalysisFee;
 	
-				r.AnalysisStage			= AnalysisStage.Pending;
-				r.AnalysisFee			= AnalysisFee;
-				r.RoundId				= round.Id;
-				r.AnalysisHalfVotingRound = 0;
+				r.AnalysisStage				= AnalysisStage.Pending;
+				r.AnalysisFee				= AnalysisFee;
+				r.RoundId					= round.Id;
+				r.AnalysisHalfVotingRound	= 0;
 			}
 		}
 	}

@@ -19,12 +19,12 @@ namespace Uccs.Net
 			EthereumNetwork				= Chain.Goerli;
 			TailLength					= 100;
 			BailMin						= 0;
-			ExternalVerificationDuration = 100;
+			ExternalVerificationDurationLimit = 100;
 			PoW							= false;
-			MembersMax					= 1000;
-			TransactionsPerRoundMax		= 30000;
-			OperationsPerRoundMax		= 1_000_000;
-			OperationsPerTransactionMax	= 1000;
+			MembersLimit					= 1000;
+			TransactionsPerRoundLimit		= 30000;
+			OperationsPerRoundLimit		= 1_000_000;
+			OperationsPerTransactionLimit	= 1000;
 
 
 			God							= Zone.Testnet1.God;

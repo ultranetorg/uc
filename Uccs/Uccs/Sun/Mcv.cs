@@ -30,6 +30,7 @@ namespace Uccs.Net
 		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
 		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
 		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
+		public static readonly Coin			AccountAllocationFee	= new Coin(0.001);
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
@@ -528,7 +529,7 @@ namespace Uccs.Net
 													.ThenBy(i => i.a.Address)
 													.Select(i => i.jr);
 
-			var n = Math.Min(Zone.MembersMax - MembersOf(round.Id).Count(), o.Count());
+			var n = Math.Min(Zone.MembersLimit - MembersOf(round.Id).Count(), o.Count());
 
 			return o.Take(n).Select(i => i.Generator);
 		}
@@ -564,9 +565,9 @@ namespace Uccs.Net
 
 			var tn = gu.Sum(i => i.Transactions.Length);
 						
-			if(tn > Zone.TransactionsPerRoundMax)
+			if(tn > Zone.TransactionsPerRoundLimit)
 			{
-				var e = tn - Zone.TransactionsPerRoundMax;
+				var e = tn - Zone.TransactionsPerRoundLimit;
 
 				foreach(var i in gu)
 				{
@@ -574,7 +575,7 @@ namespace Uccs.Net
 					{
 						e--;
 
-						if(i.Transactions.Length > round.TransactionCountPerVoteGuaranteedMax)
+						if(i.Transactions.Length > round.TransactionsPerVoteGuaranteedLimit)
 							i.TransactionCountExcess++;
 					} 
 					else
@@ -609,19 +610,19 @@ namespace Uccs.Net
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Zone.MembersMax * 2/3)
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
 													.OrderBy(i => i).ToArray();
 				
 				round.ConfirmedAnalyzerLeavers	= gu.SelectMany(i => i.AnalyzerLeavers).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Zone.MembersMax * 2/3)
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedFundJoiners		= gu.SelectMany(i => i.FundJoiners).Distinct()
-													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersMax * 2/3)
+													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
 													.OrderBy(i => i).ToArray();
 				
 				round.ConfirmedFundLeavers		= gu.SelectMany(i => i.FundLeavers).Distinct()
-													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersMax * 2/3)
+													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedViolators		= gu.SelectMany(i => i.Violators).Distinct()
@@ -818,7 +819,7 @@ namespace Uccs.Net
 				round.Emissions.Remove(e);
 			}
 
-			round.Emissions.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDuration);
+			round.Emissions.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDurationLimit);
 
 			foreach(var i in round.ConfirmedDomainBids)
 			{
@@ -827,7 +828,7 @@ namespace Uccs.Net
 				round.DomainBids.Remove(b);
 			}
 
-			round.DomainBids.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDuration);
+			round.DomainBids.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDurationLimit);
 
 			foreach(var i in round.ConfirmedAnalyses)
 			{

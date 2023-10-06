@@ -57,7 +57,7 @@ namespace Uccs.Net
 				}
 
 
-				var a = round.AffectAuthor(Name);
+				var a = AffectAuthor(Name);
 				
 				a.LastWinner	= null;
 				a.Title			= Title;

@@ -462,8 +462,8 @@ namespace Uccs.Net
 										}
 
 
-										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDuration);
-										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDuration);
+										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
 										IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 										Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
 											
@@ -1377,10 +1377,10 @@ namespace Uccs.Net
 				
 				if(r.Parent != null && r.Parent.Members.Count > 0)
 				{
-					if(v.Transactions.Length > r.Parent.TransactionCountPerVoteAbsoluteMax)
+					if(v.Transactions.Length > r.Parent.TransactionsPerVoteAbsoluteLimit)
 						return false;
 
-					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsCountPerVoteMax)
+					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsCountPerVoteLimit)
 						return false;
 				}
 
@@ -1598,8 +1598,8 @@ namespace Uccs.Net
 												FundLeavers		= Settings.ProposedFundLeavers.ToArray(),
 												Emissions		= ApprovedEmissions.ToArray(),
 												DomainBids		= ApprovedDomainBids.ToArray(),
-												BaseRdcIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
-												SeedHubRdcIPs			= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
+												BaseRdcIPs		= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
+												SeedHubRdcIPs	= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
 					};
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
@@ -1610,10 +1610,10 @@ namespace Uccs.Net
 						{
 							foreach(var i in txs)
 							{
-								if(v.Transactions.Sum(i => i.Operations.Length) + i.Operations.Length > r.Parent.OperationsCountPerVoteMax)
+								if(v.Transactions.Sum(i => i.Operations.Length) + i.Operations.Length > r.Parent.OperationsCountPerVoteLimit)
 									break;
 
-								if(v.Transactions.Length + 1 > r.Parent.TransactionCountPerVoteAbsoluteMax)
+								if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAbsoluteLimit)
 									break;
 
 								v.AddTransaction(i);
@@ -2022,7 +2022,7 @@ namespace Uccs.Net
 
  		public void Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage awaitstage, Workflow workflow)
  		{
-			if(operations.Count() > Zone.OperationsPerTransactionMax)
+			if(operations.Count() > Zone.OperationsPerTransactionLimit)
 				throw new ArgumentException();
 
 			var t = new Transaction(Zone);

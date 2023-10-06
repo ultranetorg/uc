@@ -29,7 +29,7 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			var e = round.AffectAccount(Signer);
+			var e = AffectAccount(Signer);
 
 			//var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
 
