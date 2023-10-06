@@ -170,7 +170,7 @@ namespace Uccs.Net
 		public List<AccountAddress>		ProposedAnalyzerJoiners = new();
 		public List<AccountAddress>		ProposedAnalyzerLeavers = new();
 
-		public Coin						TransactionPerByteMinFee = new Coin(0.000_001);
+		public Money					TransactionPerByteMinFee = new Money(0.000_001);
 		public int						TransactionCountPerRoundThreshold = int.MaxValue;
 
 		public Settings()

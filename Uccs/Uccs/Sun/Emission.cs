@@ -5,8 +5,8 @@ namespace Uccs.Net
 {
 	public class Emission : Operation//, IEquatable<Emission>
 	{
-		public static readonly Coin		Multiplier = 1000;
-		public static readonly Coin		End = new Coin(10_000_000_000);
+		public static readonly Money		Multiplier = 1000;
+		public static readonly Money		End = new Money(10_000_000_000);
 		//public static readonly Coin		FactorStep = new Coin(0.1);
 		//public static readonly Coin		Step = 1000;
 
@@ -15,7 +15,7 @@ namespace Uccs.Net
 
 		public override string Description => $"#{Eid}, {Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Wei)} ETH -> {Calculate(Wei)} UNT";
 
-		Coin Portion;
+		Money Portion;
 
 		public Emission() 
 		{
@@ -57,9 +57,9 @@ namespace Uccs.Net
 			Eid		= reader.Read7BitEncodedInt();
 		}
 
- 		public static Coin Calculate(BigInteger wei)
+ 		public static Money Calculate(BigInteger wei)
  		{
- 			return Coin.FromWei(wei) * Multiplier;
+ 			return Money.FromWei(wei) * Multiplier;
 
 // 		public static Portion Calculate(BigInteger spent, Coin factor, BigInteger wei)
 // 		{

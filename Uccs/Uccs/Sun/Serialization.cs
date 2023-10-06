@@ -37,7 +37,7 @@ namespace Uccs.Net
 				case byte v :	writer.Write(v); return true;
 				case int v :	writer.Write7BitEncodedInt(v); return true;
 				case long v :	writer.Write7BitEncodedInt64(v); return true;
-				case Coin v :	v.Write(writer); return true;
+				case Money v :	v.Write(writer); return true;
 			}
 
 			if(type.IsEnum)
@@ -225,9 +225,9 @@ namespace Uccs.Net
 				value = reader.Read7BitEncodedInt64(); 
 				return true;
 			}
-			else if(typeof(Coin) == type)
+			else if(typeof(Money) == type)
 			{
-				var c = new Coin(); 
+				var c = new Money(); 
 				c.Read(reader);
 				value = c;
 				return true;

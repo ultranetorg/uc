@@ -4,7 +4,7 @@ namespace Uccs.Net
 {
 	public class CandidacyDeclaration : Operation
 	{
-		public Coin				Bail;
+		public Money			Bail;
 		public override string	Description => $"{Bail} UNT";
 		public override bool	Valid => Bail >= Transaction.Zone.BailMin;
 		
@@ -12,7 +12,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public CandidacyDeclaration(Coin bail)
+		public CandidacyDeclaration(Money bail)
 		{
 			Bail = bail;
 		}

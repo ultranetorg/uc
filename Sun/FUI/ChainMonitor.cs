@@ -12,8 +12,8 @@ namespace Uccs.Sun.FUI
 		Dictionary<AccountAddress, Pen>	Pens = new Dictionary<AccountAddress, Pen>();
 		bool						Mode = false;
 
-		static List<Coin[]>			stat;
-		Coin						emission = 0;
+		static List<Money[]>		stat;
+		Money						emission = 0;
 		BigInteger					spent = 0;
 
 		public Net.Sun Sun;

@@ -48,12 +48,12 @@ namespace Uccs.Net
 		public byte[]										Hash;
 		public byte[]										Summary;
 
-		public Coin											Fees;
-		//public Coin											TransactionPerByteFee;
-		//public int											TransactionThresholdExcessRound;
-		public Coin											Emission;
+		public Money										Fees;
+		//public Coin										TransactionPerByteFee;
+		//public int										TransactionThresholdExcessRound;
+		public Money										Emission;
 		//public BigInteger									WeiSpent;
-		//public Coin											Factor;
+		//public Coin										Factor;
 		public List<Member>									Members = new();
 		public List<Emission>								Emissions = new ();
 		public List<AuthorBid>								DomainBids = new ();
@@ -75,7 +75,7 @@ namespace Uccs.Net
 			return $"Id={Id}, Votes(VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), JR={JoinRequests.Count}, Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
-		public void Distribute(Coin amount, IEnumerable<AccountAddress> a)
+		public void Distribute(Money amount, IEnumerable<AccountAddress> a)
 		{
 			if(a.Any())
 			{
@@ -88,9 +88,9 @@ namespace Uccs.Net
 			}
 		}
 
-		public void Distribute(Coin amount, IEnumerable<AccountAddress> a, int ashare, IEnumerable<AccountAddress> b, int bshare)
+		public void Distribute(Money amount, IEnumerable<AccountAddress> a, int ashare, IEnumerable<AccountAddress> b, int bshare)
 		{
-			var s = amount * new Coin(ashare)/new Coin(ashare + bshare);
+			var s = amount * new Money(ashare)/new Money(ashare + bshare);
 
 			if(a.Any())
 			{

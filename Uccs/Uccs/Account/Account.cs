@@ -5,8 +5,8 @@ namespace Uccs.Net
 	public class Account : IBinarySerializable
 	{
 		public AccountAddress			Address { get; set; }
-		public Coin						Balance { get; set; }
-		public Coin						Bail { get; set; }
+		public Money					Balance { get; set; }
+		public Money					Bail { get; set; }
 		public BailStatus				BailStatus { get; set; }
 		public int						LastTransactionNid { get; set; } = -1;
 		public int						LastEmissionId  { get; set; } = -1;

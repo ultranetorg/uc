@@ -45,7 +45,7 @@ namespace Uccs.Sun.CLI
 		   		case "bid" : 
 					return new AuthorBid(	GetString("name"),
 											GetStringOrEmpty("tld"),
-											Coin.ParseDecimal(GetString("amount")));
+											Money.ParseDecimal(GetString("amount")));
 		   		case "register" : 
 					return new AuthorRegistration(	GetString("name"),
 													GetString("title"),

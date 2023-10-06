@@ -177,7 +177,7 @@ namespace Uccs.Net
 	{
 		public AccountAddress	From { get; set; }
 		public AccountAddress	To { get; set; }
-		public Coin				Amount { get; set; }
+		public Money			Amount { get; set; }
 	}
 
 	public class QueryResourceCall : ApiCall

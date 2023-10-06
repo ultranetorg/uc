@@ -18,8 +18,8 @@ namespace Uccs.Net
 
 	public struct Portion
 	{
-		public Coin	Factor;
-		public Coin	Amount;
+		public Money	Factor;
+		public Money	Amount;
 	}
 
 	public enum OperationClass
@@ -110,7 +110,7 @@ namespace Uccs.Net
 			return (int)s.Length;
 		}
 
-		public Coin CalculateTransactionFee(Coin feeperbyte)
+		public Money CalculateTransactionFee(Money feeperbyte)
 		{
 			int size = CalculateSize();
 

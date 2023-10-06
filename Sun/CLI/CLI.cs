@@ -87,7 +87,7 @@ namespace Uccs.Sun.CLI
 				case RunCommand.Keyword:		c = new RunCommand(zone, settings, workflow, sun, args); break;
 				case DevCommand.Keyword:		c = new DevCommand(zone, settings, workflow, sun, args); break;
 				case AccountCommand.Keyword:	c = new AccountCommand(zone, settings, workflow, sun, args); break;
-				case UntCommand.Keyword:		c = new UntCommand(zone, settings, workflow, sun, args); break;
+				case MoneyCommand.Keyword:		c = new MoneyCommand(zone, settings, workflow, sun, args); break;
 				case MembershipCommand.Keyword:	c = new MembershipCommand(zone, settings, workflow, sun, args); break;
 				case AuthorCommand.Keyword:		c = new AuthorCommand(zone, settings, workflow, sun, args); break;
 				case PackageCommand.Keyword:	c = new PackageCommand(zone, settings, workflow, sun, args); break;

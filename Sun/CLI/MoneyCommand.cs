@@ -1,12 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Nethereum.Signer;
-using Nethereum.Util;
 using Nethereum.Web3;
 using Uccs.Net;
 
@@ -33,11 +27,11 @@ namespace Uccs.Sun.CLI
 	/// unt emit from{wallet=a:\Ultranet\d061eecb93844a8cabea06d80976d5958f48a343.mew} amount=0.123 to{account=0x0007f34bc43d41cf3ec2e6f684c7b9b131b04b41}
 	/// unt transfer from=0x000038a7a3cb80ec769c632b7b3e43525547ecd1 to=0x00015326bcf44c84a605afbdd5343de4aaf11387 amount=5.000
 	/// </example>
-	public class UntCommand : Command
+	public class MoneyCommand : Command
 	{
-		public const string Keyword = "unt";
+		public const string Keyword = "money";
 
-		public UntCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public MoneyCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
 		}
 
@@ -85,9 +79,7 @@ namespace Uccs.Sun.CLI
 
 		   		case "transfer" : 
 				{
-					return new UntTransfer(	AccountAddress.Parse(GetString("to")), 
-											Coin.ParseDecimal(GetString("amount")));
-
+					return new UntTransfer(AccountAddress.Parse(GetString("to")), Money.ParseDecimal(GetString("amount")));
 				}
 
 				default:

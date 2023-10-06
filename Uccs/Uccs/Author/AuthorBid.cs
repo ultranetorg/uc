@@ -8,7 +8,7 @@ namespace Uccs.Net
 	public class AuthorBid : Operation//, IEquatable<AuthorBid>
 	{
 		public string			Name;
-		public Coin				Bid;
+		public Money			Bid;
 		public string			Tld;
 		public override string	Description => $"{Bid} UNT for {Name}, {Tld}";
 		
@@ -19,7 +19,7 @@ namespace Uccs.Net
 				if(!Author.IsExclusive(Name))
 					return false;
 
-				if(Bid <= Coin.Zero)
+				if(Bid <= Money.Zero)
 					return false;
 
 				if(Tld.Any() && !(Tld == "com" || Tld == "org" || Tld == "net"))
@@ -33,7 +33,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public AuthorBid(string name, string tld, Coin bid)
+		public AuthorBid(string name, string tld, Money bid)
 		{
 			Name = name;
 			Tld = tld ?? "";

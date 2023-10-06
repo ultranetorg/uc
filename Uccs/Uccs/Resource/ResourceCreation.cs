@@ -15,7 +15,7 @@ namespace Uccs.Net
 		public ResourceType			Type { get; set; }
 		public byte[]				Data { get; set; }
 		public string				Parent { get; set; }
-		public Coin					AnalysisFee { get; set; }
+		public Money				AnalysisFee { get; set; }
 
 		public override bool		Valid => (Flags & ResourceFlags.Unchangables) == 0
 												&& Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax
@@ -23,13 +23,13 @@ namespace Uccs.Net
 												&& (!Initials.HasFlag(ResourceChanges.AnalysisFee) || Initials.HasFlag(ResourceChanges.AnalysisFee) && AnalysisFee > 0)
 			;
 		
-		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], Years={Years}, {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}{(AnalysisFee == Coin.Zero ? null : ", AnalysisFee=" + AnalysisFee.ToHumanString())}";
+		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], Years={Years}, {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}{(AnalysisFee == Money.Zero ? null : ", AnalysisFee=" + AnalysisFee.ToHumanString())}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent, Coin analysisfee)
+		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent, Money analysisfee)
 		{
 			Resource = resource;
 			Years = years;
@@ -50,7 +50,7 @@ namespace Uccs.Net
 				Initials |= ResourceChanges.Parent;
 			}
 
-			if(analysisfee > Coin.Zero)
+			if(analysisfee > Money.Zero)
 			{
 				AnalysisFee = analysisfee;
 				Initials |= ResourceChanges.AnalysisFee;

@@ -57,7 +57,7 @@ namespace Uccs.Net
 		public short			Reserved { get; set; }
 		public byte[]			Data { get; set; }
 		public AnalysisStage	AnalysisStage { get; set; }
-		public Coin				AnalysisFee { get; set; }
+		public Money			AnalysisFee { get; set; }
 		public int				AnalysisHalfVotingRound { get; set; }
 		public int				RoundId { get; set; }
 		public byte				Good { get; set; }

@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "declare" : 
-					return new CandidacyDeclaration(Coin.ParseDecimal(GetString("bail")));
+					return new CandidacyDeclaration(Money.ParseDecimal(GetString("bail")));
 				
 				default:
 					throw new SyntaxException("Unknown operation");;

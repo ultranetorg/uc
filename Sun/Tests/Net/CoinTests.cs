@@ -9,7 +9,7 @@ namespace Uccs.Net.Tests
 		[Fact]
 		public static void Zero()
 		{
-			Assert.Equal(new Coin(0), Coin.Zero);
+			Assert.Equal(new Money(0), Money.Zero);
 		}
 
 		//[Theory]

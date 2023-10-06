@@ -18,7 +18,7 @@ namespace Uccs.Net
 		public string			Genesis;
 		public IPAddress		GenesisIP;
 		public IPAddress[]		Initials;
-		public Coin				BailMin;
+		public Money			BailMin;
 		public bool				PoW;
 		public int				TailLength = -1;
 		public int				MembersLimit = -1;

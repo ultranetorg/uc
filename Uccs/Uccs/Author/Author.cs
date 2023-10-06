@@ -22,7 +22,7 @@ namespace Uccs.Net
 		public ChainTime					Expiration { get; set; }
 		public ChainTime					FirstBidTime { get; set; } = ChainTime.Empty;
 		public AccountAddress				LastWinner { get; set; }
-		public Coin							LastBid { get; set; }
+		public Money							LastBid { get; set; }
 		public ChainTime					LastBidTime { get; set; }
 		public bool							DomainOwnersOnly  { get; set; }
 		public Resource[]					Resources { get; set; } = {};

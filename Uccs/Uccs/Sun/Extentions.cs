@@ -75,7 +75,7 @@ namespace Uccs.Net
 			a.Write(w);
 		}
 
-		public static void Write(this BinaryWriter w, Coin a)
+		public static void Write(this BinaryWriter w, Money a)
 		{
 			a.Write(w);
 		}
@@ -119,9 +119,9 @@ namespace Uccs.Net
 			return Encoding.UTF8.GetString(r.ReadBytes(r.Read7BitEncodedInt()));
 		}
 
-		public static Coin ReadCoin(this BinaryReader r)
+		public static Money ReadCoin(this BinaryReader r)
 		{
-			return new Coin(r);
+			return new Money(r);
 		}
 
 		public static BigInteger ReadBigInteger(this BinaryReader r)

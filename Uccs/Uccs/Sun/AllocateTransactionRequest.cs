@@ -26,7 +26,7 @@
 		public int		MaxRoundId { get; set; }
 		public int		NextTransactionId { get; set; }
 		public byte[]	PowHash { get; set; }
-		public Coin		PerByteMinFee { get; set; }
+		public Money	PerByteMinFee { get; set; }
 	}
 
 }

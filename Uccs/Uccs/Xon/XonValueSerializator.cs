@@ -51,7 +51,7 @@ namespace Uccs
 				val is ChainTime		||
 				val.GetType().IsEnum)
 				return val.ToString();
-			if(val is Coin c)		return c.ToHumanString();
+			if(val is Money c)		return c.ToHumanString();
 			if(val is byte[] ba)	return Hex.ToHexString(ba);
 
 			throw new NotSupportedException();
@@ -76,7 +76,7 @@ namespace Uccs
 			if(typeof(O) == typeof(Version))			return (O)(object)Version.Parse(v);
 			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(v);
 			if(typeof(O) == typeof(ChainTime))			return (O)(object)ChainTime.Parse(v);
-			if(typeof(O) == typeof(Coin))				return (O)(object)Coin.ParseDecimal(v);
+			if(typeof(O) == typeof(Money))				return (O)(object)Money.ParseDecimal(v);
 			if(typeof(O).IsEnum)						Enum.Parse(v.GetType(), v); 
 
 			throw new NotSupportedException();

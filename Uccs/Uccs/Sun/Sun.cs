@@ -107,7 +107,7 @@ namespace Uccs.Net
 		public List<OperationId>		ApprovedEmissions = new();
 		public List<OperationId>		ApprovedDomainBids = new();
 
-		public Coin						TransactionPerByteMinFee;
+		public Money					TransactionPerByteMinFee;
 		public int						TransactionThresholdExcessRound;
 
 		public bool						MinimalPeersReached;

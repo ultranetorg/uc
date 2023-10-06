@@ -5,7 +5,7 @@ namespace Uccs.Net
 	public class UntTransfer : Operation
 	{
 		public AccountAddress	To;
-		public Coin				Amount;
+		public Money			Amount;
 		public override string	Description => $"{Signer} -> {Amount} UNT -> {To}";
 		public override bool	Valid => 0 <= Amount;
 
@@ -13,7 +13,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public UntTransfer(AccountAddress to, Coin amount)
+		public UntTransfer(AccountAddress to, Money amount)
 		{
 			if(to == null)		throw new RequirementException("Destination account is null or invalid");
 

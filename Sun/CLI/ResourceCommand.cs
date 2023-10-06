@@ -38,7 +38,7 @@ namespace Uccs.Sun.CLI
 												Args.Has("type")		? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.Null,
 												Args.Has("data")		? GetHexBytes("data") : null,
 												Args.Has("parent")		? GetString("parent") : null, 
-												Args.Has("analysisfee") ? Coin.ParseDecimal(GetString("analysisfee")) : Coin.Zero);
+												Args.Has("analysisfee") ? Money.ParseDecimal(GetString("analysisfee")) : Money.Zero);
 				}
 
 				case "u" : 
@@ -51,7 +51,7 @@ namespace Uccs.Sun.CLI
 					if(Args.Has("type"))		r.Change(Enum.Parse<ResourceType>(GetString("type")));
 					if(Args.Has("data"))		r.Change(GetHexBytes("data"));
 					if(Args.Has("parent"))		r.Change(GetString("parent"));
-					if(Args.Has("analysisfee")) r.Change(Coin.ParseDecimal(GetString("analysisfee")));
+					if(Args.Has("analysisfee")) r.Change(Money.ParseDecimal(GetString("analysisfee")));
 					if(Args.Has("recursive"))	r.ChangeRecursive();
 					
 					return r;

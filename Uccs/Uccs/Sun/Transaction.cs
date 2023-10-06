@@ -18,7 +18,7 @@ namespace Uccs.Net
 		public AccountAddress			Generator;
 		public int						Expiration;
 		public byte[]					PoW;
-		public Coin						Fee;
+		public Money					Fee;
 		public byte[]					Signature;
 				
 		public AccountAddress			Signer;

@@ -19,11 +19,11 @@ namespace Uccs.Sun.FUI
 			Text = "0.000000";
 		}
 
-		public Coin Coins
+		public Money Coins
 		{
 			get
 			{
-				return string.IsNullOrWhiteSpace(Text) ? Coin.Zero : new Coin(decimal.Parse(Text));
+				return string.IsNullOrWhiteSpace(Text) ? Money.Zero : new Money(decimal.Parse(Text));
 			}
 			set
 			{

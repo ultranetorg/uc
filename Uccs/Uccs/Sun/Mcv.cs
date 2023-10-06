@@ -27,10 +27,10 @@ namespace Uccs.Net
 		public const int					AnalyzersMax = 32;
 		///public const int					MembersRotation = 32;
 		const int							LoadedRoundsMax = 1000;
-		public static readonly Coin			SpaceBasicFeePerByte	= new Coin(0.000001);
-		public static readonly Coin			AnalysisFeePerByte		= new Coin(0.000000001);
-		public static readonly Coin			AuthorFeePerYear		= new Coin(1);
-		public static readonly Coin			AccountAllocationFee	= new Coin(0.001);
+		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000001);
+		public static readonly Money		AnalysisFeePerByte		= new Money(0.000000001);
+		public static readonly Money		AuthorFeePerYear		= new Money(1);
+		public static readonly Money		AccountAllocationFee	= new Money(0.001);
 		public const int					EntityAllocationBaseLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
@@ -261,9 +261,9 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
-		public static Coin CalculateSpaceFee(int size, byte years)
+		public static Money CalculateSpaceFee(int size, byte years)
 		{
-			return SpaceBasicFeePerByte * size * new Coin(1u << (years - 1));
+			return SpaceBasicFeePerByte * size * new Money(1u << (years - 1));
 		}
 
 		public void Add(Vote b)
@@ -743,7 +743,7 @@ namespace Uccs.Net
 
 			if(round.Id > LastGenesisRound)
 			{
-				var penalty = Coin.Zero;
+				var penalty = Money.Zero;
 
 				if(forkers != null && forkers.Any())
 				{
