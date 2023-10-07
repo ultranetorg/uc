@@ -441,7 +441,7 @@ namespace Uccs.Net
 			return v.Any() && v.GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).All(i => i.Count() + d < q);
 		}
 
-		public ChainTime CalculateTime(Round round, IEnumerable<Vote> votes)
+		public Time CalculateTime(Round round, IEnumerable<Vote> votes)
 		{
  			if(round.Id == 0)
  			{
@@ -450,7 +450,7 @@ namespace Uccs.Net
 
  			if(!votes.Any())
  			{
-				return round.Previous.ConfirmedTime + new ChainTime(1);
+				return round.Previous.ConfirmedTime + new Time(1);
 			}
 
 			///var t = 0L;
@@ -467,7 +467,7 @@ namespace Uccs.Net
 
 			votes = votes.OrderBy(i => i.Generator);
 
-			return round.Previous.ConfirmedTime + new ChainTime(votes.Sum(i => i.TimeDelta)/votes.Count());
+			return round.Previous.ConfirmedTime + new Time(votes.Sum(i => i.TimeDelta)/votes.Count());
 		}
 
 //		public IEnumerable<Transaction> CollectValidTransactions(IEnumerable<Transaction> txs, Round round)

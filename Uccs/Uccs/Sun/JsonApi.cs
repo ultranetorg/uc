@@ -121,7 +121,7 @@ namespace Uccs.Net
 			public int							Analyzers {get; set;}
 			public bool							Voted {get; set;}
 			public bool							Confirmed {get; set;}
-			public ChainTime					Time {get; set;}
+			public Time							Time {get; set;}
 			public byte[]						Hash {get; set;}
 			public byte[]						Summary {get; set;}
 			public IEnumerable<Vote>			Votes {get; set;}

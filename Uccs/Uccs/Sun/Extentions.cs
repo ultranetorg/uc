@@ -65,9 +65,9 @@ namespace Uccs.Net
 			return a;
 		}
 
-		public static ChainTime ReadTime(this BinaryReader r)
+		public static Time ReadTime(this BinaryReader r)
 		{
-			return new ChainTime(r.Read7BitEncodedInt64());
+			return new Time(r.Read7BitEncodedInt64());
 		}
 
 		public static void Write(this BinaryWriter w, AccountAddress a)
@@ -98,7 +98,7 @@ namespace Uccs.Net
 			w.Write(a);
 		}
 
-		public static void Write(this BinaryWriter w, ChainTime t)
+		public static void Write(this BinaryWriter w, Time t)
 		{
 			w.Write7BitEncodedInt64(t.Ticks);
 		}

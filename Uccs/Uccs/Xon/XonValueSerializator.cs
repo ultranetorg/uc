@@ -48,7 +48,7 @@ namespace Uccs
 				val is PackageAddress	||
 				val is Version			||
 				val is IPAddress		||
-				val is ChainTime		||
+				val is Time				||
 				val.GetType().IsEnum)
 				return val.ToString();
 			if(val is Money c)		return c.ToHumanString();
@@ -75,7 +75,7 @@ namespace Uccs
 			if(typeof(O) == typeof(PackageAddress))		return (O)(object)PackageAddress.Parse(v);
 			if(typeof(O) == typeof(Version))			return (O)(object)Version.Parse(v);
 			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(v);
-			if(typeof(O) == typeof(ChainTime))			return (O)(object)ChainTime.Parse(v);
+			if(typeof(O) == typeof(Time))				return (O)(object)Time.Parse(v);
 			if(typeof(O) == typeof(Money))				return (O)(object)Money.ParseDecimal(v);
 			if(typeof(O).IsEnum)						Enum.Parse(v.GetType(), v); 
 

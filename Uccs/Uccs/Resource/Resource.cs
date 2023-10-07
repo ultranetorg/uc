@@ -50,7 +50,7 @@ namespace Uccs.Net
 
 		public int				Id { get; set; }
 		public ResourceAddress	Address { get; set; }
-		public ChainTime		Expiration { get; set; }
+		public Time				Expiration { get; set; }
 		public byte				LastRenewalYears { get; set; }
 		public ResourceFlags	Flags { get; set; }
 		public ResourceType		Type { get; set; }
@@ -64,7 +64,7 @@ namespace Uccs.Net
 		public byte				Bad { get; set; }
 		public int[]			Resources { get; set; } = {};
 
-		public ChainTime		RenewalBegin => Expiration - ChainTime.FromYears(1);
+		public Time				RenewalBegin => Expiration - Time.FromYears(1);
 
 		public override string ToString()
 		{

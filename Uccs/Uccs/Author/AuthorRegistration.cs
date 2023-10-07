@@ -62,7 +62,7 @@ namespace Uccs.Net
 				a.LastWinner	= null;
 				a.Title			= Title;
 				a.Owner			= Signer;
-				a.Expiration	= round.ConfirmedTime + ChainTime.FromYears(Years);
+				a.Expiration	= round.ConfirmedTime + Time.FromYears(Years);
 
 				PayForAllocation(0, Years);
 			}

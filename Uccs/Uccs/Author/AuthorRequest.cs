@@ -8,9 +8,9 @@
 		{
  			lock(sun.Lock)
 			{	
-				if(!Author.Valid(Name))									throw new RdcEntityException(RdcEntityError.InvalidRequest);
-				if(!sun.Roles.HasFlag(Role.Base))						throw new RdcNodeException(RdcNodeError.NotBase);
-				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				RequireBase(sun);
+				RequireSynchronization(sun);
+				if(!Author.Valid(Name))	throw new RdcEntityException(RdcEntityError.InvalidRequest);
 
 				var e = sun.Mcv.Authors.Find(Name, sun.Mcv.LastConfirmedRound.Id); 
 
@@ -24,6 +24,6 @@
 	
 	public class AuthorResponse : RdcResponse
 	{
-		public Author Author {get; set;}
+		public Author	Author {get; set;}
 	}
 }

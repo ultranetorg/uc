@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Uccs.Net;
 
 namespace Uccs.Net
 {
@@ -14,8 +10,8 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(sun.Synchronization != Synchronization.Synchronized)
-					throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				RequireBase(sun);
+				RequireSynchronization(sun);
 			
 				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Select(i => new MembersResponse.Member{Account = i.Account, 
 																																BaseRdcIPs = i.BaseRdcIPs, 

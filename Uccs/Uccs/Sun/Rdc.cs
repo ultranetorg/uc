@@ -12,7 +12,7 @@ namespace Uccs.Net
 		Null, 
 		Proxy, 
 		MemberJoin, MemberVox, AnalyzerVox,
-		PeersBroadcast, Time, Members, Funds, AllocateTransaction, LastOperation, SendTransactions, TransactionStatus, Account, 
+		PeersBroadcast, Time, Members, Member, Funds, AllocateTransaction, LastOperation, SendTransactions, TransactionStatus, Account, 
 		Author, QueryResource, Resource, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds
 	}
@@ -156,6 +156,20 @@ namespace Uccs.Net
 		}
 
 		public abstract RdcResponse Execute(Sun sun);
+
+
+		protected void RequireBase(Sun sun)
+		{
+			if(!sun.Roles.HasFlag(Role.Base))
+				throw new RdcNodeException(RdcNodeError.NotBase);
+		}
+
+		protected void RequireSynchronization(Sun sun)
+		{
+			if(sun.Synchronization != Synchronization.Synchronized)
+				throw new RdcNodeException(RdcNodeError.NotSynchronized);
+		}
+
 	}
 
 	public abstract class RdcResponse : RdcPacket

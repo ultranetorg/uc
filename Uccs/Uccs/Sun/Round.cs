@@ -30,7 +30,7 @@ namespace Uccs.Net
 		public IEnumerable<Transaction>						Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
 
 
-		public ChainTime									ConfirmedTime;
+		public Time											ConfirmedTime;
 		public Transaction[]								ConfirmedTransactions = {};
 		public AccountAddress[]								ConfirmedMemberJoiners = {};
 		public AccountAddress[]								ConfirmedMemberLeavers = {};

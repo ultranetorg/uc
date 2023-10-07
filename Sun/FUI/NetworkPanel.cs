@@ -37,7 +37,7 @@ namespace Uccs.Sun.FUI
 					r.SubItems.Add(i.PeerRank.ToString());
 					r.SubItems.Add(i.BaseRank.ToString());
 					r.SubItems.Add(i.ChainRank.ToString());
-					r.SubItems.Add(i.LastSeen.ToString(ChainTime.DateFormat.ToString()));
+					r.SubItems.Add(i.LastSeen.ToString(Time.DateFormat.ToString()));
 					r.Tag = i;
 				}
 			}

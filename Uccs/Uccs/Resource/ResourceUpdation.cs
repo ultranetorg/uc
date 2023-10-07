@@ -144,7 +144,7 @@ namespace Uccs.Net
 						}
 					}
 					
-					r.Expiration += ChainTime.FromYears(Years);
+					r.Expiration += Time.FromYears(Years);
 					r.LastRenewalYears = Years;
 
 					PayForAllocation(e.Data == null ? 0 : e.Data.Length, Years);

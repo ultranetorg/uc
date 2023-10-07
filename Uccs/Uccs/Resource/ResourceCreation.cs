@@ -113,7 +113,7 @@ namespace Uccs.Net
 			r.Flags				= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
 			r.Type				= Type;
 			r.LastRenewalYears	= Years;
-			r.Expiration		= round.ConfirmedTime + ChainTime.FromYears(Years);
+			r.Expiration		= round.ConfirmedTime + Time.FromYears(Years);
 			
 			PayForAllocation(Data == null ? 0 : Data.Length, Years);
 			

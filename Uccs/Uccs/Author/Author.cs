@@ -10,22 +10,21 @@ namespace Uccs.Net
 		public const int					NameLengthMax = 256;
 		public const char					CommonNamespacePrefix = '_';
 
-		public static readonly ChainTime	AuctionMinimalDuration = ChainTime.FromDays(365);
-		public static readonly ChainTime	Prolongation = ChainTime.FromDays(30);
-		public static readonly ChainTime	WinnerRegistrationPeriod = ChainTime.FromDays(30);
-		public static readonly ChainTime	RenewaPeriod = ChainTime.FromDays(365);
-		public ChainTime					AuctionEnd => ChainTime.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
+		public static readonly Time			AuctionMinimalDuration = Time.FromDays(365);
+		public static readonly Time			Prolongation = Time.FromDays(30);
+		public static readonly Time			WinnerRegistrationPeriod = Time.FromDays(30);
+		public static readonly Time			RenewaPeriod = Time.FromDays(365);
+		public Time							AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 		public string						Name { get; set; }
 		public string						Title { get; set; }
 		public AccountAddress				Owner { get; set; }
-		public ChainTime					Expiration { get; set; }
-		public ChainTime					FirstBidTime { get; set; } = ChainTime.Empty;
+		public Time							Expiration { get; set; }
+		public Time							FirstBidTime { get; set; } = Time.Empty;
 		public AccountAddress				LastWinner { get; set; }
-		public Money							LastBid { get; set; }
-		public ChainTime					LastBidTime { get; set; }
+		public Money						LastBid { get; set; }
+		public Time							LastBidTime { get; set; }
 		public bool							DomainOwnersOnly  { get; set; }
-		public Resource[]					Resources { get; set; } = {};
 		public int							NextResourceId { get; set; }
 
 		public static bool Valid(string name)
@@ -54,13 +53,13 @@ namespace Uccs.Net
 
 		public static bool IsExclusive(string name) => name[0] != CommonNamespacePrefix; 
 
-		public static bool IsExpired(Author a, ChainTime time) 
+		public static bool IsExpired(Author a, Time time) 
 		{
 			return	a.LastWinner != null && a.Owner == null && time > a.AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
 					a.Owner != null && time > a.Expiration;	 /// owner has not renewed, restart the auction
 		}
 
-		public static bool CanRegister(string name, Author author, ChainTime time, AccountAddress by)
+		public static bool CanRegister(string name, Author author, Time time, AccountAddress by)
 		{
 			return	author == null && !IsExclusive(name) || /// available
 					author != null && !IsExclusive(name) && author.Owner != null && time > author.Expiration || /// not renewed by current owner
@@ -73,7 +72,7 @@ namespace Uccs.Net
 				  ;
 		}
 
-		public static bool CanBid(string name, Author author, ChainTime time)
+		public static bool CanBid(string name, Author author, Time time)
 		{
  			if(!IsExpired(author, time))
  			{
@@ -99,10 +98,6 @@ namespace Uccs.Net
 		{
 			w.WriteUtf8(Name);
 			w.Write7BitEncodedInt(NextResourceId);
-			w.Write(Resources, i =>	{
-										w.WriteUtf8(i.Address.Resource);
-										i.Write(w);
-									});
 
 			if(IsExclusive(Name))
 			{
@@ -133,12 +128,6 @@ namespace Uccs.Net
 		{
 			Name			= reader.ReadUtf8();
 			NextResourceId	= reader.Read7BitEncodedInt();
-			Resources		= reader.ReadArray(() => { 
-														var a = new Resource();
-														a.Address = new ResourceAddress(Name, reader.ReadUtf8());
-														a.Read(reader);
-														return a;
-													});
 
 			if(IsExclusive(Name))
 			{

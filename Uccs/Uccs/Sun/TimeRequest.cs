@@ -16,7 +16,7 @@
 
 	public class TimeResponse : RdcResponse
 	{
-		public ChainTime Time { get; set; }
+		public Time Time { get; set; }
 	}
 
 }

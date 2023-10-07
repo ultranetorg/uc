@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class ResourceRequest : RdcRequest
 	{
@@ -11,7 +8,8 @@ namespace Uccs.Net
 		{
  			lock(sun.Lock)
 			{	
-				if(sun.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				RequireBase(sun);
+				RequireSynchronization(sun);
  			
 				var r = sun.Mcv.Authors.FindResource(Resource, sun.Mcv.LastConfirmedRound.Id);
 			

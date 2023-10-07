@@ -85,7 +85,7 @@ namespace Uccs.Sun.FUI
 					{
 						var r = Seeds.Items.Add(i.IP.ToString());
 						r.SubItems.Add(i.Availability.ToString());
-						r.SubItems.Add(i.Arrived.ToString(ChainTime.DateFormat));
+						r.SubItems.Add(i.Arrived.ToString(Time.DateFormat));
 					}
 				}
 			}

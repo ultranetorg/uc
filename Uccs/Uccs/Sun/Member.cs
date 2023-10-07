@@ -10,11 +10,10 @@ namespace Uccs.Net
 {
 	public class Member
 	{
-		public AccountAddress			Account;
-		public IPAddress[]				BaseRdcIPs  = new IPAddress[0];
-		public IPAddress[]				SeedHubRdcIPs  = new IPAddress[0];
-		//public ChainTime				OnlineSince = ChainTime.Zero;
-		public int						JoinedAt;
+		public AccountAddress			Account { get; set; }
+		public IPAddress[]				BaseRdcIPs   { get; set; } = new IPAddress[0];
+		public IPAddress[]				SeedHubRdcIPs   { get; set; } = new IPAddress[0];
+		public int						JoinedAt { get; set; }
 		public Peer         			Proxy;
 	
   		public void WriteConfirmed(BinaryWriter w)

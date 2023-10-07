@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Utilities.Encoders;
@@ -130,15 +132,25 @@ namespace Uccs.Sun.CLI
 
 		public void Dump(object o)
 		{
-			void save(string name, Type type, object value, int tab)
+			void dump(string name, object value, int tab)
 			{
-				if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
+				if(value is null)
 				{
-					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {{{(value as ICollection)?.Count}}}");
-				
-					//if(value is ICollection c)
-					//	foreach(var i in c)
-					//		save(i.GetType().Name, i.GetType(), i, tab + 1);
+					Workflow.Log?.Report(new string(' ', tab * 3) + name);
+				}
+				else if(value is ICollection e)
+				{
+					if(value is int[])
+					{
+						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as int[])}]");
+					}
+					else if(value is IEnumerable<string> ||
+							value is IEnumerable<IPAddress>)
+					{
+						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as IEnumerable<object>)}]");
+					}
+					else
+						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {{{e.Count}}}");
 				}
 				else
 					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {value}");
@@ -146,7 +158,7 @@ namespace Uccs.Sun.CLI
 
 			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
-				save(i.Name, i.PropertyType, i.GetValue(o), 1);
+				dump(i.Name, i.GetValue(o), 1);
 			}
 		}
 

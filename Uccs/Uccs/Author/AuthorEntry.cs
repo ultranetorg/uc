@@ -17,6 +17,8 @@ namespace Uccs.Net
 		Mcv					Chain;
 		List<Resource>		AffectedResources = new();
 		
+		public Resource[]	Resources { get; set; } = {};
+
 		public AuthorEntry()
 		{
 		}
@@ -52,11 +54,23 @@ namespace Uccs.Net
 		public void WriteMain(BinaryWriter w)
 		{
 			Write(w);
+
+			w.Write(Resources, i =>	{
+										w.WriteUtf8(i.Address.Resource);
+										i.Write(w);
+									});
 		}
 
-		public void ReadMain(BinaryReader r)
+		public void ReadMain(BinaryReader reader)
 		{
-			Read(r);
+			Read(reader);
+
+			Resources = reader.ReadArray(() => { 
+													var a = new Resource();
+													a.Address = new ResourceAddress(Name, reader.ReadUtf8());
+													a.Read(reader);
+													return a;
+												});
 		}
 
 		public void WriteMore(BinaryWriter w)
