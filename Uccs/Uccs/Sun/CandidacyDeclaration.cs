@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 
 namespace Uccs.Net
 {
@@ -29,17 +30,24 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			var e = AffectAccount(Signer);
+			if(round.Members.Any(i => i.Account == Signer))
+			{
+				Error = "Changing candidacy declaration is not allowed while being a member";
+				return;
+			}
+
+			var e = Affect(round, Signer);
 
 			//var prev = e.ExeFindOperation<CandidacyDeclaration>(round);
 
-			if(e.BailStatus != BailStatus.Siezed) /// first, return existing if not previously Siezed
-				e.Balance += e.Bail;
+			//if(e.BailStatus != BailStatus.Siezed) /// first, return existing if not previously Siezed
+			//	e.Balance += e.Bail;
 
+			e.Balance += e.Bail;
 			e.Balance -= Bail; /// then, subtract a new bail
 			e.Bail += Bail;
 			e.CandidacyDeclarationRid = round.Id;
-			e.BailStatus = BailStatus.Active;
+			//e.BailStatus = BailStatus.Active;
 		}
 	}
 }

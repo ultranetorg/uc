@@ -69,7 +69,7 @@ namespace Uccs.Net
 		{
 		}
 		
-		public abstract void Execute(Mcv chain, Round round);
+		public abstract void Execute(Mcv mcv, Round round);
 		public abstract void WriteConfirmed(BinaryWriter w);
 		public abstract void ReadConfirmed(BinaryReader r);
 
@@ -117,33 +117,37 @@ namespace Uccs.Net
 			return feeperbyte * size;
 		}
 
-		public void PayForAllocation(int extralength, byte years)
+		Money CalculateSpaceFee(int size, byte years)
 		{
-			var fee = Mcv.CalculateSpaceFee(Mcv.EntityAllocationBaseLength + extralength, years);
-			
-			AffectAccount(Signer).Balance -= fee;
-			Transaction.Round.Fees += fee;
+			return Mcv.SpaceBasicFeePerByte * size * new Money(1u << (years - 1));
 		}
 
-		public AccountEntry AffectAccount(AccountAddress account)
+		public void PayForAllocation(Round round, int length, byte years)
 		{
-			var r = Transaction.Round;
-			var e = r.Mcv.Accounts.Find(account, r.Id);	
+			var fee = CalculateSpaceFee(length, years);
+			
+			Affect(round, Signer).Balance -= fee;
+			round.Fees += fee;
+		}
+
+		public AccountEntry Affect(Round round, AccountAddress account)
+		{
+			var e = round.Mcv.Accounts.Find(account, round.Id);	
 
 			if(e == null) /// new account
 			{
-				var	s = r.AffectAccount(Signer);
+				var	s = round.AffectAccount(Signer);
 				
 				s.Balance -= Mcv.AccountAllocationFee;
-				r.Fees += Mcv.AccountAllocationFee;
+				round.Fees += Mcv.AccountAllocationFee;
 			}
 
-			return r.AffectAccount(account);
+			return round.AffectAccount(account);
 		}
 
-		public AuthorEntry AffectAuthor(string author)
+		public AuthorEntry Affect(Round round, string author)
 		{
-			return Transaction.Round.AffectAuthor(author);
+			return round.AffectAuthor(author);
 		}
 	}
 }

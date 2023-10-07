@@ -22,16 +22,14 @@ namespace Uccs.Net
 		public Log							Log;
 
 		public const int					Pitch = 8;
-		public const int					VotesPerPitchMin = 6;
-		public const int					LastGenesisRound = 24;
+		public const int					LastGenesisRound = 27;
 		public const int					AnalyzersMax = 32;
 		///public const int					MembersRotation = 32;
-		const int							LoadedRoundsMax = 1000;
 		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000001);
 		public static readonly Money		AnalysisFeePerByte		= new Money(0.000000001);
 		public static readonly Money		AuthorFeePerYear		= new Money(1);
-		public static readonly Money		AccountAllocationFee	= new Money(0.001);
-		public const int					EntityAllocationBaseLength = 100;
+		public static readonly Money		AccountAllocationFee	= new Money(1);
+		public const int					EntityAllocationAverageLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
 
@@ -261,11 +259,6 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
-		public static Money CalculateSpaceFee(int size, byte years)
-		{
-			return SpaceBasicFeePerByte * size * new Money(1u << (years - 1));
-		}
-
 		public void Add(Vote b)
 		{
 			var r = GetRound(b.RoundId);
@@ -344,23 +337,16 @@ namespace Uccs.Net
 		{
 			foreach(var i in Tail)
 				if(i.Id == rid)
-				{
-					//i.LastAccessed = DateTime.UtcNow;
 					return i;
-				}
 
-			if(LoadedRounds.ContainsKey(rid))
-			{
-				var r = LoadedRounds[rid];
-				//r.LastAccessed = DateTime.UtcNow;
+			if(LoadedRounds.TryGetValue(rid, out var r))
 				return r;
-			}
 
 			var d = Engine.Get(BitConverter.GetBytes(rid), ChainFamily);
 
 			if(d != null)
 			{
-				var r = new Round(this);
+				r = new Round(this);
 				r.Id			= rid; 
 				r.Voted			= true; 
 				r.Confirmed		= true;
@@ -379,9 +365,9 @@ namespace Uccs.Net
 
 		void Recycle()
 		{
-			if(LoadedRounds.Count > Zone.TailLength * 10)
+			if(LoadedRounds.Count > Zone.TailLength)
 			{
-				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.TailLength * 10))
+				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.TailLength))
 				{
 					LoadedRounds.Remove(i.Key);
 				}
@@ -453,21 +439,19 @@ namespace Uccs.Net
 				return round.Previous.ConfirmedTime + new Time(1);
 			}
 
-			///var t = 0L;
-			///var n = 0;
-			///
-			///for(int i = Math.Max(0, round.Id - Pitch + 1); i <= round.Id; i++)
-			///{
-			///	var r = FindRound(i);
-			///	t += r.Payloads.Sum(i => i.Time.Ticks);
-			///	n += r.Payloads.Count();
-			///}
-			///
-			///t /= n;
+			if(votes.Count() < 3)
+			{
+				var a = votes.Sum(i => i.TimeDelta)/votes.Count();
+				return round.Previous.ConfirmedTime + new Time(a);
+			}
+			else
+			{
+				var n = votes.Count();
+				votes = votes.OrderBy(i => i.TimeDelta).Skip(n/3).Take(n/3);
+				var a = votes.Sum(i => i.TimeDelta)/votes.Count();
 
-			votes = votes.OrderBy(i => i.Generator);
-
-			return round.Previous.ConfirmedTime + new Time(votes.Sum(i => i.TimeDelta)/votes.Count());
+				return round.Previous.ConfirmedTime + new Time(a);
+			}
 		}
 
 //		public IEnumerable<Transaction> CollectValidTransactions(IEnumerable<Transaction> txs, Round round)
@@ -737,25 +721,16 @@ namespace Uccs.Net
 				{
 					round.AffectAccount(t.Signer).Transactions.Add(round.Id);
 				}
-
-				round.Distribute(round.Fees, round.Members.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 			}
 
-			if(round.Id > LastGenesisRound)
+			foreach(var f in forkers)
 			{
-				var penalty = Money.Zero;
-
-				if(forkers != null && forkers.Any())
-				{
-					foreach(var f in forkers)
-					{
-						penalty += round.AffectAccount(f).Bail;
-						round.AffectAccount(f).BailStatus = BailStatus.Siezed;
-					}
-
-					round.Distribute(penalty, round.Members.Where(i => !forkers.Contains(i.Account)).Select(i => i.Account), 1, round.Funds, 1);
-				}
+				var fe = round.AffectAccount(f);
+				round.Fees = fe.Bail;
+				fe.Bail = 0;
 			}
+			
+			round.Distribute(round.Fees, round.Members.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 		}
 
 		public void Hashify()
@@ -869,7 +844,7 @@ namespace Uccs.Net
 
 //foreach(var i in round.Members.Where(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id))
 //	Log?.Report(this, $"Member removed due to CandidacyDeclarationRid == round.Id {round.Id} - {i.Account}");
-			round.Members.RemoveAll(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id);  /// CandidacyDeclaration cancels membership
+			//round.Members.RemoveAll(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id);  /// CandidacyDeclaration cancels membership
 
 //foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(i.Account)))
 //	Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");

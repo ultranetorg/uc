@@ -3,12 +3,10 @@ using System.Numerics;
 
 namespace Uccs.Net
 {
-	public class Emission : Operation//, IEquatable<Emission>
+	public class Emission : Operation
 	{
 		public static readonly Money		Multiplier = 1000;
 		public static readonly Money		End = new Money(10_000_000_000);
-		//public static readonly Coin		FactorStep = new Coin(0.1);
-		//public static readonly Coin		Step = 1000;
 
 		public BigInteger	Wei;
 		public int			Eid;
@@ -114,7 +112,7 @@ namespace Uccs.Net
 
 			Portion = Calculate(Wei);
 			
-			var a = AffectAccount(Signer);
+			var a = Affect(round, Signer);
 			a.Balance += Portion;
 			a.LastEmissionId = Eid;
 				
@@ -132,15 +130,5 @@ namespace Uccs.Net
 
 			return s.ToArray();
 		}
-
-// 		public override bool Equals(object obj)
-// 		{
-// 			return Equals(obj as Emission);
-// 		}
-// 
-// 		public bool Equals(Emission a)
-// 		{
-// 			return a is not null && Id.Equals(a.Id) && Signer == a.Signer && Wei.Equals(a.Wei) && Eid == a.Eid;
-// 		}
 	}
 }

@@ -183,7 +183,7 @@ namespace Uccs.Net
 					f.Add(new ("Members",				$"{Mcv.LastConfirmedRound?.Members.Count}"));
 					f.Add(new ("Emission",				$"{(Mcv.LastPayloadRound != null ? Mcv.LastPayloadRound.Emission.ToHumanString() : null)}"));
 					f.Add(new ("SyncCache Blocks",		$"{SyncCache.Sum(i => i.Value.Votes.Count)}"));
-					f.Add(new ("Cached Rounds",			$"{Mcv.LoadedRounds.Count()}"));
+					f.Add(new ("Loaded Rounds",			$"{Mcv.LoadedRounds.Count()}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(Mcv.LastNonEmptyRound != null ? Mcv.LastNonEmptyRound.Id : null)}"));
 					f.Add(new ("Last Payload Round",	$"{(Mcv.LastPayloadRound != null ? Mcv.LastPayloadRound.Id : null)}"));
 					f.Add(new ("Base Hash",				$"{Hex.ToHexString(Mcv.BaseHash)}"));
@@ -205,7 +205,7 @@ namespace Uccs.Net
 						foreach(var i in Vault.Wallets)
 						{
 							var a = i.Key.ToString();
-							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)}", $"{formatbalance(i.Key)}"));
+							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)}", $"{formatbalance(i.Key),23}"));
 						}
 	
 						if(DevSettings.UI)
@@ -422,7 +422,7 @@ namespace Uccs.Net
  															
  																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
  		
- 																			if(txt != null && txt.Text.Any(i => i == o.Transaction.Signer.ToString()))
+ 																			if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
  																			{
 																				lock(Lock)
 																				{	
@@ -1177,7 +1177,6 @@ namespace Uccs.Net
 						download<AuthorEntry, string>(Mcv.Authors);
 		
 						var r = new Round(Mcv) {Confirmed = true};
-		
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
 		
 						Mcv.BaseState = stamp.BaseState;
@@ -1193,7 +1192,6 @@ namespace Uccs.Net
 					}
 		
 					int final = -1; 
-					//int end = -1; 
 					int from = -1;
 
 					while(Workflow.Active)
@@ -1521,7 +1519,7 @@ namespace Uccs.Net
 				{
 					var d = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
-					if(d == null || d.BailStatus != BailStatus.Active || d.Bail < Zone.BailMin)
+					if(d == null || d.Bail < Zone.BailMin)
 						break;
 
 					///var jr = Database.FindLastBlock(i => i is JoinMembersRequest jr && jr.Generator == g, Database.LastConfirmedRound.Id - Database.Pitch) as JoinMembersRequest;
@@ -1586,7 +1584,7 @@ namespace Uccs.Net
 						
 						return new Vote(Mcv){	RoundId			= r.Id,
 												Try				= r.Try,
-												ParentSummary= Mcv.Summarize(r.Parent),
+												ParentSummary	= Mcv.Summarize(r.Parent),
 												Created			= Clock.Now,
 												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
 												Violators		= Mcv.ProposeViolators(r).ToArray(),

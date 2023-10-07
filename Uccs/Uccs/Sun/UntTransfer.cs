@@ -35,8 +35,8 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			var from = AffectAccount(Signer);
-			var to = AffectAccount(To);
+			var from = Affect(round, Signer);
+			var to = Affect(round, To);
 
 			from.Balance -= Amount;
 			to.Balance += Amount;

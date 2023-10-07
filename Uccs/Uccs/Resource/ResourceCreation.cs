@@ -107,7 +107,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			a = AffectAuthor(Resource.Author);
+			a = Affect(round, Resource.Author);
 			var r = a.AffectResource(Resource);
 
 			r.Flags				= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
@@ -115,7 +115,7 @@ namespace Uccs.Net
 			r.LastRenewalYears	= Years;
 			r.Expiration		= round.ConfirmedTime + Time.FromYears(Years);
 			
-			PayForAllocation(Data == null ? 0 : Data.Length, Years);
+			PayForAllocation(round, Mcv.EntityAllocationAverageLength + (Data == null ? 0 : Data.Length), Years);
 			
 			if(Parent != null)
 			{
@@ -133,7 +133,7 @@ namespace Uccs.Net
 
 			if(AnalysisFee > 0)
 			{
-				AffectAccount(Signer).Balance -= AnalysisFee;
+				Affect(round, Signer).Balance -= AnalysisFee;
 	
 				r.AnalysisStage				= AnalysisStage.Pending;
 				r.AnalysisFee				= AnalysisFee;

@@ -52,7 +52,7 @@ namespace Uccs.Sun.FUI
 
 			if(sun.Mcv != null)
 			{
-				var mcv = new TreeNode("Mcv"){ Tag = new AccountsPanel(Sun, sun.Vault)};
+				var mcv = new TreeNode("Mcv"){};
 				navigator.Nodes.Add(mcv);
 			
 				var gens = new TreeNode("Members"){ Tag = new MembersPanel(Sun, sun.Vault) };

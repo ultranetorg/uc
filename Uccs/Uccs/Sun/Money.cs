@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Numerics;
 using System.Text.Json;
@@ -11,9 +12,17 @@ namespace Uccs.Net
 	public struct Money : IComparable, IComparable<Money>, IEquatable<Money>, IBinarySerializable
 	{
 		readonly static BigInteger		One = 1_000_000_000_000_000_000;
-
 		public readonly static Money	Zero = new Money();
 		public BigInteger				Attos;
+
+		static NumberFormatInfo			HumanFormat;
+
+		static Money()
+		{
+			HumanFormat = NumberFormatInfo.CurrentInfo.Clone() as NumberFormatInfo;
+			HumanFormat.CurrencySymbol = "";
+			HumanFormat.CurrencyDecimalDigits = 9;
+		}
 
 		Money(BigInteger a)
 		{
@@ -103,7 +112,7 @@ namespace Uccs.Net
 		
 		public string ToHumanString()
 		{
-			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString();
+			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString("C", HumanFormat);
 		}
 
 		public int CompareTo(object obj)

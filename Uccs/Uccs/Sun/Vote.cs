@@ -153,12 +153,12 @@ namespace Uccs.Net
 
 		void ReadVote(BinaryReader reader)
 		{
-			BaseRdcIPs				= reader.ReadArray(() => reader.ReadIPAddress());
-			SeedHubRdcIPs				= reader.ReadArray(() => reader.ReadIPAddress());
+			BaseRdcIPs			= reader.ReadArray(() => reader.ReadIPAddress());
+			SeedHubRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
 
 			Try					= reader.Read7BitEncodedInt();
 			TimeDelta			= reader.Read7BitEncodedInt64();
-			ParentSummary	= reader.ReadBytes(Cryptography.HashSize);
+			ParentSummary		= reader.ReadBytes(Cryptography.HashSize);
 
 			MemberJoiners		= reader.ReadArray<AccountAddress>();
 			MemberLeavers		= reader.ReadArray<AccountAddress>();

@@ -43,7 +43,7 @@ namespace Uccs.Net
 			//round.AffectAccount(To).Authors.Add(Author);
 
 			//round.AffectAuthor(Author).ObtainedRid = round.Id;
-			round.AffectAuthor(Author).Owner = To;
+			Affect(round, Author).Owner = To;
 		}
 	}
 }

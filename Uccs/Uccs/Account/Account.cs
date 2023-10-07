@@ -7,7 +7,7 @@ namespace Uccs.Net
 		public AccountAddress			Address { get; set; }
 		public Money					Balance { get; set; }
 		public Money					Bail { get; set; }
-		public BailStatus				BailStatus { get; set; }
+		//public BailStatus				BailStatus { get; set; }
 		public int						LastTransactionNid { get; set; } = -1;
 		public int						LastEmissionId  { get; set; } = -1;
 		public int						CandidacyDeclarationRid  { get; set; } = -1;
@@ -16,12 +16,12 @@ namespace Uccs.Net
 		{
 			writer.Write(Address);
 			writer.Write(Balance);
-			writer.Write((byte)BailStatus);
 			
-			if(BailStatus != BailStatus.Null)
+			writer.Write7BitEncodedInt(CandidacyDeclarationRid);
+			
+			if(CandidacyDeclarationRid != -1)
 			{
 				writer.Write(Bail);
-				writer.Write7BitEncodedInt(CandidacyDeclarationRid);
 			}
 
 			writer.Write7BitEncodedInt(LastTransactionNid);
@@ -32,12 +32,12 @@ namespace Uccs.Net
 		{
 			Address		= reader.ReadAccount();
 			Balance		= reader.ReadCoin();
-			BailStatus	= (BailStatus)reader.ReadByte();
 
-			if(BailStatus != BailStatus.Null)
+			CandidacyDeclarationRid	= reader.Read7BitEncodedInt();
+
+			if(CandidacyDeclarationRid != -1)
 			{
 				Bail = reader.ReadCoin();
-				CandidacyDeclarationRid		= reader.Read7BitEncodedInt();
 			}
 
 			LastTransactionNid	= reader.Read7BitEncodedInt();

@@ -34,7 +34,6 @@ namespace Uccs.Net
 			return new AccountEntry(Mcv){	Address = Address,
 											Balance = Balance,
 											Bail = Bail,
-											BailStatus = BailStatus,
 											LastTransactionNid = LastTransactionNid,
 											LastEmissionId = LastEmissionId,
 											CandidacyDeclarationRid = CandidacyDeclarationRid,
@@ -99,7 +98,7 @@ namespace Uccs.Net
 			d.Add("LastEmissionId").Value			= LastEmissionId;
 			d.Add("CandidacyDeclarationRid").Value	= CandidacyDeclarationRid;
 			d.Add("Bail").Value						= Bail;
-			d.Add("BailStatus").Value				= BailStatus;
+			//d.Add("BailStatus").Value				= BailStatus;
 
 			return d;
 		}
