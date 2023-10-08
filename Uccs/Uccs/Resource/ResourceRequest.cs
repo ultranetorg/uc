@@ -8,8 +8,7 @@
 		{
  			lock(sun.Lock)
 			{	
-				RequireBase(sun);
-				RequireSynchronization(sun);
+				RequireSynchronizedBase(sun);
  			
 				var r = sun.Mcv.Authors.FindResource(Resource, sun.Mcv.LastConfirmedRound.Id);
 			

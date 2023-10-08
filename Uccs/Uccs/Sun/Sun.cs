@@ -77,7 +77,7 @@ namespace Uccs.Net
 		public Zone						Zone;
 		public Settings					Settings;
 		public Workflow					Workflow;
-		JsonServer						ApiServer;
+		public JsonServer				ApiServer;
 		public Vault					Vault;
 		public INas						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
@@ -155,7 +155,13 @@ namespace Uccs.Net
 		public SunDelegate				MainStarted;
 		public SunDelegate				ApiStarted;
 
-
+		public class Tag
+		{
+			public const string Peering = "Peering";
+			public const string Error = "Error";
+			public const string Establishing = "Establishing";
+			public const string Synchronization = "Synchronization";
+		}
 		
 		public List<KeyValuePair<string, string>> Summary
 		{
@@ -489,12 +495,6 @@ namespace Uccs.Net
 		  				Nas.ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to run the node as a generator.", true);
 						return;
 		  			}
-
-					//Generator = PrivateAccount.Parse(Settings.Generator);
-
-					//VerifingThread = new Thread(Verifing);
-					//VerifingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Verifing";
-					//VerifingThread.Start();
 				}
 
 				Workflow.Log?.Report(this, "Chain started");
@@ -744,7 +744,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Workflow?.Log?.Report(this, "Listening starting", $"{Settings.IP}:{Zone.Port}");
+				Workflow?.Log?.Report(this, $"{Tag.Peering}", $"Listening starting {Settings.IP}:{Zone.Port}");
 
 				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();
@@ -824,7 +824,7 @@ namespace Uccs.Net
 					}
 					catch(SocketException ex) 
 					{
-						Workflow.Log?.Report(this, "connectivity", $"Establishing failed To {peer.IP}; Connect; {ex.Message}" );
+						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. {ex.Message}" );
 						goto failed;
 					}
 	
@@ -847,7 +847,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, "connectivity", $"Establishing failed to {peer.IP}; Send/Wait Hello; {ex.Message}" );
+						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. {ex.Message}" );
 						goto failed;
 					}
 	
@@ -873,7 +873,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, "connectivity", "Establishing failed: It's me");
+							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. It's me" );
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							client.Close();
@@ -883,12 +883,12 @@ namespace Uccs.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, "connectivity", $"Reported IP {IP}");
+							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing}", $"Reported IP {IP}");
 						}
 	
 						if(peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {peer.IP}: Already established" );
+							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. Already established" );
 							client.Close();
 							return;
 						}
@@ -987,7 +987,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {ip}; WaitHello {ex.Message}");
+						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. WaitHello -> {ex.Message}");
 						goto failed;
 					}
 				
@@ -1010,7 +1010,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, "connectivity", "Establishing failed: It's me");
+							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. It's me");
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							client.Close();
@@ -1019,7 +1019,7 @@ namespace Uccs.Net
 
 						if(peer != null && peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {ip}: Already established" );
+							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. Already established" );
 							client.Close();
 							return;
 						}
@@ -1027,7 +1027,7 @@ namespace Uccs.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, "connectivity", $"Reported IP {IP}");
+							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"Reported IP {IP}");
 						}
 		
 						try
@@ -1036,7 +1036,7 @@ namespace Uccs.Net
 						}
 						catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
 						{
-							Workflow.Log?.Report(this, "connectivity", $"Establishing failed from {ip}; SendHello; {ex.Message}");
+							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. SendHello -> {ex.Message}");
 							goto failed;
 						}
 	
@@ -1090,7 +1090,7 @@ namespace Uccs.Net
 
 			if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
 			{
-				Workflow.Log?.Report(this, "Syncing started");
+				Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Started");
 
 				SynchronizingThread = new Thread(Synchronizing);
 				SynchronizingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Synchronizing";
@@ -1166,7 +1166,7 @@ namespace Uccs.Net
 										Mcv.Engine.Write(b);
 									}
 		
-									Workflow.Log?.Report(this, "Cluster downloaded", $"{t.GetType().Name} {c.Id}");
+									Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Cluster downloaded {t.GetType().Name}, {c.Id}");
 								}
 							}
 		
@@ -1281,7 +1281,7 @@ namespace Uccs.Net
 									}
 								}
 										
-								Workflow.Log?.Report(this, "Rounds received", $"{rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
+								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Rounds received {rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
 							}
 							else if(Mcv.BaseHash.SequenceEqual(rp.BaseHash))
 							{
@@ -1302,7 +1302,7 @@ namespace Uccs.Net
 									
 								MainSignal.Set();
 
-								Workflow.Log?.Report(this, "Syncing finished");
+								Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
 
 								return;
 							}

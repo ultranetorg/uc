@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Net.Http;
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Net;
-using System.Collections;
-using static System.Collections.Specialized.BitVector32;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -21,6 +14,8 @@ namespace Uccs.Net
 
 		public static string NameOf<C>() => NameOf(typeof(C));
 		public static string NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
+
+		public abstract object	Execute(Sun sun, Workflow workflow);
 	}
 
 	public class BatchCall : ApiCall
@@ -40,15 +35,32 @@ namespace Uccs.Net
 
 			(Calls as List<Item>).Add(new Item {Name = call.GetType().Name.Remove(call.GetType().Name.IndexOf("Call")), Call = call});
 		}
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			return null;
+		}
 	}
 
 	public class ExitCall : ApiCall
 	{
 		public string Reason { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			sun.Stop("Json API Call");
+			return null;
+		}
 	}
 
 	public class SettingsCall : ApiCall
 	{
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				return new SettingsResponse {	ProfilePath	= sun.Settings.Profile, 
+												Settings	= sun.Settings}; /// TODO: serialize
+		}
 	}
 
 	public class SettingsResponse
@@ -60,6 +72,12 @@ namespace Uccs.Net
 	public class LogReportCall : ApiCall
 	{
 		public int		Limit  { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				return new LogResponse{Log = sun.Workflow.Log.Messages.TakeLast(Limit).Select(i => i.ToString()).ToArray() }; 
+		}
 	}
 
 	public class LogResponse
@@ -70,9 +88,26 @@ namespace Uccs.Net
 	public class PeersReportCall : ApiCall
 	{
 		public int		Limit { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				return new PeersReport{Peers = sun.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i =>	new PeersReport.Peer
+																																	{
+																																		IP			= i.IP,			
+																																		Status		= i.StatusDescription,
+																																		PeerRank	= i.PeerRank,
+																																		ChainRank	= i.ChainRank,
+																																		BaseRank	= i.BaseRank,
+																																		SeedRank	= i.SeedRank,
+																																		LastSeen	= i.LastSeen,
+																																		LastTry		= i.LastTry,
+																																		Retries		= i.Retries	
+																																	}).ToArray()}; 
+		}
 	}
 
-	public class PeersResponse
+	public class PeersReport
 	{
 		public class Peer
 		{
@@ -93,6 +128,12 @@ namespace Uccs.Net
 	public class SummaryReportCall : ApiCall
 	{
 		public int		Limit  { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				return new SummaryResponse{Summary = sun.Summary.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
+		}
 	}
 
 	public class SummaryResponse
@@ -103,6 +144,29 @@ namespace Uccs.Net
 	public class ChainReportCall : ApiCall
 	{
 		public int		Limit  { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				return new ChainReportResponse{Rounds = sun.Mcv.Tail.Take(Limit)
+																	.Reverse()
+																	.Select(i => new ChainReportResponse.Round
+																				{
+																					Id = i.Id, 
+																					Members = i.Members.Count,
+																					Analyzers = i.Analyzers.Count,
+																					Voted = i.Voted,
+																					Confirmed = i.Confirmed,
+																					Time = i.ConfirmedTime,
+																					Hash = i.Hash,
+																					Summary = i.Summary,
+																					Votes = i.Votes.Select(b => new ChainReportResponse.Vote {	Generator = b.Generator, 
+																																				IsPayload = b.Transactions.Any(), 
+																																					/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
+																					JoinRequests = i.JoinRequests.Select(i => i.Generator),
+																				})
+																	.ToArray()}; 
+		}
 	}
 
 	public class ChainReportResponse
@@ -137,40 +201,90 @@ namespace Uccs.Net
 	{
 		public int		RoundId  { get; set; }
 		public int		Limit  { get; set; }
+
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				return new VotesReportResponse{Votes = sun.Mcv.FindRound(RoundId)?.Votes
+																.OrderBy(i => i.Generator)
+																.Take(Limit)
+																.Select(i => new VotesReportResponse.Vote
+																{
+																	Try = i.Try,
+																	Signature = i.Signature.ToHex(),
+																	Generator = i.Generator
+																})
+																.ToArray()}; 
+		}
 	}
 
 	public class VotesReportResponse
 	{
-		public class Piece
+		public class Vote
 		{
 			public int				Try { get; set; }
 			public string			Signature { get; set; }
 			public AccountAddress	Generator { get; set; }
 		}
 
-		public IEnumerable<Piece> Pieces {get; set;}
+		public IEnumerable<Vote> Votes {get; set;}
 	}
 
 	public class RunNodeCall : ApiCall
 	{
 		public Role	Roles	{ get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			sun.RunNode(null, Roles);
+							
+			if(Roles.HasFlag(Role.Seed))
+				sun.RunSeed();
+			
+			return null;
+		}
 	}
 
 	public class AddWalletCall : ApiCall
 	{
 		public byte[]	PrivateKey { get; set; }
 		public string	Password { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				sun.Vault.AddWallet(PrivateKey, Password);
+			
+			return null;
+		}
 	}
 
 	public class UnlockWalletCall : ApiCall
 	{
 		public AccountAddress	Account { get; set; }
-		public string	Password { get; set; }
+		public string			Password { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				sun.Vault.Unlock(Account, Password);
+
+			return null;
+		}
 	}
 
 	public class SetGeneratorCall : ApiCall
 	{
 		public IEnumerable<AccountAddress>	 Generators {get; set;}
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				sun.Settings.Generators = Generators.Select(i => sun.Vault.GetKey(i)).ToList();
+
+			return null;
+		}
 	}
 
 	public class UntTransferCall : ApiCall
@@ -178,11 +292,29 @@ namespace Uccs.Net
 		public AccountAddress	From { get; set; }
 		public AccountAddress	To { get; set; }
 		public Money			Amount { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			AccountKey k;
+								
+			lock(sun.Lock)
+				k = sun.Vault.GetKey(From);
+
+			sun.Enqueue(new UntTransfer(To, Amount), k, PlacingStage.Accepted, workflow);
+
+			return null;
+		}
 	}
 
 	public class QueryResourceCall : ApiCall
 	{
 		public string		Query { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				return sun.QueryResource(Query).Resources;
+		}
 	}
 
 	public class AddReleaseCall : ApiCall
@@ -191,6 +323,37 @@ namespace Uccs.Net
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+			{
+				var m = new Manifest();
+				m.Read(new BinaryReader(new MemoryStream(Manifest)));
+								
+				var h = sun.Zone.Cryptography.HashFile(m.Bytes);
+								
+				lock(sun.ResourceHub.Lock)
+				{
+					sun.ResourceHub.Add(Release, h);
+	
+					sun.ResourceHub.WriteFile(Release, h, Package.ManifestFile, 0, Manifest);
+	
+					if(Complete != null)
+					{
+						sun.ResourceHub.WriteFile(Release, h, Package.CompleteFile, 0, Complete);
+					}
+					if(Incremental != null)
+					{
+						sun.ResourceHub.WriteFile(Release, h, Package.IncrementalFile, 0, Incremental);
+					}
+								
+					sun.ResourceHub.SetLatest(Release, h);
+				}
+			}
+
+			return null;
+		}
 	}
 
 	//public class DownloadReleaseCall : ApiCall
@@ -201,16 +364,40 @@ namespace Uccs.Net
 	public class PackageStatusCall : ApiCall
 	{
 		public PackageAddress	Release { get; set; }
-		public int			Limit  { get; set; }
+		public int				Limit  { get; set; }
+		
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+				return sun.PackageHub.GetStatus(Release, Limit);
+		}
 	}
 
 	public class InstallPackageCall : ApiCall
 	{
 		public PackageAddress	Release { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+				sun.PackageHub.Install(Release, workflow);
+
+			return null;
+		}
 	}
 
 	public class GenerateAnalysisReportCall : ApiCall
 	{
 		public IDictionary<ResourceAddress, AnalysisResult>	Results { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+			{	
+				sun.Analyses.AddRange(Results.Select(i => new Analysis {Resource = i.Key, Result = i.Value}));
+			}
+
+			return null;
+		}
 	}
 }

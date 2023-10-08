@@ -8,8 +8,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(sun.Synchronization != Synchronization.Synchronized)
-					throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				RequireSynchronizedBase(sun);
 			
 				return new FundsResponse {Funds = sun.Mcv.LastConfirmedRound.Funds.ToArray()};
 			}

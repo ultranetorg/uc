@@ -11,8 +11,7 @@ namespace Uccs.Net
 		{
  			lock(sun.Lock)
 			{	
-				if(sun.Synchronization != Synchronization.Synchronized)
-					throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				RequireSynchronizedBase(sun);
  				
 				return new QueryResourceResponse {Resources = sun.Mcv.QueryResource(Query).Select(i => i.Address).ToArray()};
 			}

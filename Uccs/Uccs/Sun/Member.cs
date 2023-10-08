@@ -15,6 +15,11 @@ namespace Uccs.Net
 		public IPAddress[]				SeedHubRdcIPs   { get; set; } = new IPAddress[0];
 		public int						JoinedAt { get; set; }
 		public Peer         			Proxy;
+
+		public override string ToString()
+		{
+			return $"Account={Account}, JoinedAt={JoinedAt}, BaseRdcIPs={{{BaseRdcIPs.Length}}}, SeedHubRdcIPs={{{SeedHubRdcIPs.Length}}}";
+		}
 	
   		public void WriteConfirmed(BinaryWriter w)
  		{
@@ -55,10 +60,5 @@ namespace Uccs.Net
 // 			Generator	= r.ReadAccount();
 // 			IPs			= r.ReadArray(() => r.ReadIPAddress());
 // 		}
-
-		public override string ToString()
-		{
-			return $"Account={Account}, JoinedAt={JoinedAt}";
-		}
 	}
 }

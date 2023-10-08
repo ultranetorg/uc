@@ -8,7 +8,7 @@
 		{
  			lock(sun.Lock)
 			{
-	 			if(sun.Synchronization != Synchronization.Synchronized)		throw new RdcNodeException(RdcNodeError.NotSynchronized);
+	 			RequireSynchronizedBase(sun);
 
 				var ai = sun.Mcv.Accounts.Find(Account, sun.Mcv.LastConfirmedRound.Id);
 

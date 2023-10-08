@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
+using System.Net.Http;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -10,6 +7,7 @@ namespace Uccs.Sun.CLI
 	internal class RunCommand : Command
 	{
 		public const string Keyword = "run";
+		HttpClient Http = new HttpClient(); 
 
 		public RunCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
 		{
@@ -18,6 +16,8 @@ namespace Uccs.Sun.CLI
 		public override object Execute()
 		{
 			Sun.Run(Args, Workflow);
+
+			ApiClient = new JsonClient(Http, $"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}", Sun.Settings.Api.AccessKey);
 
 			if(ConsoleAvailable)
 			{	
@@ -28,13 +28,15 @@ namespace Uccs.Sun.CLI
 				//{
 				//}
 
+				CLI.Program.LogView.Tags = new string[] {};
+
 				string c;
 
-				if(Sun.Nuid != Guid.Empty)
-				{
-					while(!Sun.MinimalPeersReached)
-						Thread.Sleep(100);
-				}
+				//if(Sun.Nuid != Guid.Empty)
+				//{
+				//	while(!Sun.MinimalPeersReached)
+				//		Thread.Sleep(100);
+				//}
 
 				while(true)
 				{

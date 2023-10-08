@@ -8,8 +8,7 @@
 		{
  			lock(sun.Lock)
 			{	
-				RequireBase(sun);
-				RequireSynchronization(sun);
+				RequireSynchronizedBase(sun);
 				if(!Author.Valid(Name))	throw new RdcEntityException(RdcEntityError.InvalidRequest);
 
 				var e = sun.Mcv.Authors.Find(Name, sun.Mcv.LastConfirmedRound.Id); 

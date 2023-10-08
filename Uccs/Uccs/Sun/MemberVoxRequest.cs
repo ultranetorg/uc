@@ -23,48 +23,50 @@ namespace Uccs.Net
 		public override RdcResponse Execute(Sun sun)
 		{
 
-///			if(Account == null)
-///			{
-///				Account = sun.Zone.Cryptography.AccountFrom(Signature, Hashify(sun.Zone));
-///			}
+			///			if(Account == null)
+			///			{
+			///				Account = sun.Zone.Cryptography.AccountFrom(Signature, Hashify(sun.Zone));
+			///			}
 
-///			lock(sun.Lock)
-///			{
-///				var m = sun.Members.Find(i => i.Generator == Account);
-///
-///				if(m == null)
-///				{
-///					if(sun.Settings.Roles.HasFlag(Role.Base))
-///					{
-///						if(sun.Synchronization == Synchronization.Synchronized && !sun.Database.LastConfirmedRound.Members.Any(i => i.Generator == Account))
-///							return null;
-///					}
-///
-///					m = new Member{Generator = Account};
-///					sun.Members.Add(m)	;
-///				}
-///
-///				if(IPs.Any())
-///				{
-///					if(!m.IPs.SequenceEqual(IPs))
-///					{
-///						m.IPs = IPs.ToArray();
-///		
-///						//foreach(var i in sun.Connections.Where(i => i != Peer))
-///						//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
-///					}
-///				}
-///				else if(m.Proxy == null || m.OnlineSince < Time)
-///				{
-///					//foreach(var i in sun.Connections.Where(i => i != Peer))
-///					//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
-///				
-///					m.Proxy = Peer;
-///					m.OnlineSince = Time;
-///				}
-///
-///				return null;
-///			}
+			///			lock(sun.Lock)
+			///			{
+			///				var m = sun.Members.Find(i => i.Generator == Account);
+			///
+			///				if(m == null)
+			///				{
+			///					if(sun.Settings.Roles.HasFlag(Role.Base))
+			///					{
+			///						if(sun.Synchronization == Synchronization.Synchronized && !sun.Database.LastConfirmedRound.Members.Any(i => i.Generator == Account))
+			///							return null;
+			///					}
+			///
+			///					m = new Member{Generator = Account};
+			///					sun.Members.Add(m)	;
+			///				}
+			///
+			///				if(IPs.Any())
+			///				{
+			///					if(!m.IPs.SequenceEqual(IPs))
+			///					{
+			///						m.IPs = IPs.ToArray();
+			///		
+			///						//foreach(var i in sun.Connections.Where(i => i != Peer))
+			///						//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
+			///					}
+			///				}
+			///				else if(m.Proxy == null || m.OnlineSince < Time)
+			///				{
+			///					//foreach(var i in sun.Connections.Where(i => i != Peer))
+			///					//	i.Send(new GeneratorOnlineBroadcastRequest {Account = Account, Time = Time, IPs = IPs, Signature = Signature});
+			///				
+			///					m.Proxy = Peer;
+			///					m.OnlineSince = Time;
+			///				}
+			///
+			///				return null;
+			///			}
+
+
 			if(!sun.Roles.HasFlag(Role.Base))
 				throw new RdcNodeException(RdcNodeError.NotBase);
 

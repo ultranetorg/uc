@@ -164,8 +164,11 @@ namespace Uccs.Net
 				throw new RdcNodeException(RdcNodeError.NotBase);
 		}
 
-		protected void RequireSynchronization(Sun sun)
+		protected void RequireSynchronizedBase(Sun sun)
 		{
+			if(!sun.Roles.HasFlag(Role.Base))
+				throw new RdcNodeException(RdcNodeError.NotBase);
+
 			if(sun.Synchronization != Synchronization.Synchronized)
 				throw new RdcNodeException(RdcNodeError.NotSynchronized);
 		}

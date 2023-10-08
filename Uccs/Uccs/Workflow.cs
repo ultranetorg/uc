@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Uccs.Net
 {
-	public class Workflow
+	public class Workflow : IDisposable
 	{
 		CancellationTokenSource			CancellationSource;
 		public CancellationToken		Cancellation => CancellationSource.Token;
@@ -26,7 +26,7 @@ namespace Uccs.Net
 			Log = log;
 		}
 
-		public Workflow(string name, Log log, CancellationTokenSource cancellation)
+		Workflow(string name, Log log, CancellationTokenSource cancellation)
 		{
 			Name = name;
 			CancellationSource = cancellation;
@@ -66,6 +66,11 @@ namespace Uccs.Net
 			}
 			else
 				Thread.Sleep(timeout);
+		}
+
+		public void Dispose()
+		{
+			CancellationSource.Dispose();
 		}
 	}
 }

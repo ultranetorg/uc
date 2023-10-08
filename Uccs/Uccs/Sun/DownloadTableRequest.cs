@@ -13,7 +13,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(!sun.Roles.HasFlag(Role.Base))	throw new RdcNodeException(RdcNodeError.NotBase);
+				RequireBase(sun);
 				
 				var m = Table switch
 							  {

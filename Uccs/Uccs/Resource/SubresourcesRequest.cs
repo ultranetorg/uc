@@ -11,9 +11,8 @@ namespace Uccs.Net
 		{
  			lock(sun.Lock)
 			{	
-				if(sun.Synchronization != Synchronization.Synchronized) throw new RdcNodeException(RdcNodeError.NotSynchronized);
- 			
-				
+				RequireSynchronizedBase(sun);
+ 							
 				return new SubresourcesResponse {Resources = sun.Mcv.Authors.EnumerateSubresources(Resource, sun.Mcv.LastConfirmedRound.Id).Select(i => i.Address.Resource).ToArray()};
 			}
 		}

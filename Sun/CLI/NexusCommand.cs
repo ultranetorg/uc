@@ -30,7 +30,7 @@ namespace Uccs.Sun.CLI
 		   		case "declare" : 
 					return new CandidacyDeclaration(Money.ParseDecimal(GetString("bail")));
 
-				case "info" :
+				case "membership" :
 				{
 					var rp = Sun.Call(i => i.GetMembers(), Workflow);
 	

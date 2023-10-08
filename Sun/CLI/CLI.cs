@@ -10,11 +10,11 @@ namespace Uccs.Sun.CLI
 {
 	public class Program
 	{
-		static Settings			Settings = null;
-		static Workflow			Workflow = new Workflow("CLI", new Log());
-		static ConsoleLogView	LogView;
-		static Net.Sun			Sun;
-		internal static Boot	Boot;
+		static Settings					Settings = null;
+		static Workflow					Workflow = new Workflow("CLI", new Log());
+		public static ConsoleLogView	LogView;
+		static Net.Sun					Sun;
+		internal static Boot			Boot;
 
 		static void Main(string[] args)
 		{
@@ -87,10 +87,11 @@ namespace Uccs.Sun.CLI
 				case DevCommand.Keyword:		c = new DevCommand(zone, settings, workflow, sun, args); break;
 				case AccountCommand.Keyword:	c = new AccountCommand(zone, settings, workflow, sun, args); break;
 				case MoneyCommand.Keyword:		c = new MoneyCommand(zone, settings, workflow, sun, args); break;
-				case NexusCommand.Keyword:	c = new NexusCommand(zone, settings, workflow, sun, args); break;
+				case NexusCommand.Keyword:		c = new NexusCommand(zone, settings, workflow, sun, args); break;
 				case AuthorCommand.Keyword:		c = new AuthorCommand(zone, settings, workflow, sun, args); break;
 				case PackageCommand.Keyword:	c = new PackageCommand(zone, settings, workflow, sun, args); break;
 				case ResourceCommand.Keyword:	c = new ResourceCommand(zone, settings, workflow, sun, args); break;
+				case NetCommand.Keyword:		c = new NetCommand(zone, settings, workflow, sun, args); break;
 			}
 
 			return c;

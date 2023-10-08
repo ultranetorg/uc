@@ -10,10 +10,10 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				RequireBase(sun);
-				RequireSynchronization(sun);
+				RequireSynchronizedBase(sun);
 			
 				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Select(i => new MembersResponse.Member{Account = i.Account, 
+																																JoinedAt = i.JoinedAt,
 																																BaseRdcIPs = i.BaseRdcIPs, 
 																																SeedHubRdcIPs = i.SeedHubRdcIPs, 
 																																Proxyable = i.Proxy != null})};
@@ -26,6 +26,7 @@ namespace Uccs.Net
 		public class Member
 		{
 			public AccountAddress			Account { get; set; }
+			public int						JoinedAt { get; set; }
 			public IEnumerable<IPAddress>	BaseRdcIPs { get; set; }
 			public IEnumerable<IPAddress>	SeedHubRdcIPs { get; set; }
 			public bool         			Proxyable { get; set; }

@@ -20,6 +20,8 @@ namespace Uccs.Sun.CLI
 		public Zone				Zone;
 		public const string		AwaitArg = "await";
 
+		protected JsonClient	ApiClient;
+
 		public abstract object Execute();
 
 		static Command()
@@ -42,6 +44,11 @@ namespace Uccs.Sun.CLI
 			Sun = sun;
 			Args = args;
 			Workflow = workflow;
+		}
+
+		protected Rp Call<Rp>(ApiCall call, Workflow workflow) where Rp : class
+		{
+			return Sun != null ? call.Execute(Sun, workflow) as Rp : ApiClient.Request<Rp>(call, workflow);
 		}
 
 		public AccountAddress GetAccountAddress(string paramenter)
@@ -159,6 +166,41 @@ namespace Uccs.Sun.CLI
 			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
 				dump(i.Name, i.GetValue(o), 1);
+			}
+		}
+
+		public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, string>> gets)
+		{
+			string[,] t = new string[items.Count(), columns.Length];
+			int[] w = columns.Select(i => i.Length).ToArray();
+
+			var ii = 0;
+
+			foreach(var i in items)
+			{
+				var gi = 0;
+
+				foreach(var g in gets)
+				{
+					t[ii, gi] = g(i);
+					w[gi] = Math.Max(w[gi], t[ii, gi].Length);
+
+					gi++;
+				}
+
+				ii++;
+			}
+
+			var f = string.Join(" ", columns.Select((c, i) => $"{{{i},-{w[i]}}}"));
+
+			Workflow.Log?.Report(string.Format(f, columns));
+			Workflow.Log?.Report(string.Format(f, w.Select(i => new string('-', i)).ToArray()));
+						
+			f = string.Join(" ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
+
+			for(int i=0; i < items.Count(); i++)
+			{
+				Workflow.Log?.Report(string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
 			}
 		}
 

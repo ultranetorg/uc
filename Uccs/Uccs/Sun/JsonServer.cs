@@ -22,15 +22,12 @@ namespace Uccs.Net
 		Thread			Thread;
 
 		Workflow		Workflow = new Workflow("JsonServer", new Log());
-		Settings		Settings => Sun.Settings;
-		Vault			Vault => Sun.Vault;
-		Mcv				Database => Sun.Mcv;
 
 		public JsonServer(Sun sun)
 		{
 			Sun = sun;
 
-			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "JsonServer.log"), FileMode.Create);
+			Workflow.Log.Stream = new FileStream(Path.Combine(Sun.Settings.Profile, "JsonServer.log"), FileMode.Create);
 
 			Thread = new Thread(() =>
 								{ 
@@ -38,13 +35,13 @@ namespace Uccs.Net
 									{
 										Listener = new HttpListener();
 	
-										if(!Settings.IP.Equals(IPAddress.Any))
+										if(!Sun.Settings.IP.Equals(IPAddress.Any))
 										{
-											Listener.Prefixes.Add($"http://{Settings.IP}:{Settings.JsonServerPort}/");
+											Listener.Prefixes.Add($"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}/");
 										}
 										else
 										{
-											Listener.Prefixes.Add($"http://+:{Settings.JsonServerPort}/");
+											Listener.Prefixes.Add($"http://+:{Sun.Settings.JsonServerPort}/");
 										}
 										
 										Workflow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
@@ -76,7 +73,7 @@ namespace Uccs.Net
 									}
 								});
 
-			Thread.Name = $"{Settings.IP.GetAddressBytes()[3]} Aping";
+			Thread.Name = $"{Sun.Settings.IP.GetAddressBytes()[3]} Aping";
 			Thread.Start();
 		}
 
@@ -160,7 +157,7 @@ namespace Uccs.Net
 
 				var call = JsonSerializer.Deserialize(json, t, JsonClient.Options) as ApiCall;
 
-				if(!string.IsNullOrWhiteSpace(Settings.Api.AccessKey) && call.AccessKey != Settings.Api.AccessKey)
+				if(!string.IsNullOrWhiteSpace(Sun.Settings.Api.AccessKey) && call.AccessKey != Sun.Settings.Api.AccessKey)
 				{
 					rp.StatusCode = (int)HttpStatusCode.Unauthorized;
 					rp.Close();
@@ -173,163 +170,16 @@ namespace Uccs.Net
 				{
 					switch(call)
 					{
-						case SettingsCall c:
-							lock(Sun.Lock)
-								return new SettingsResponse {ProfilePath	= Sun.Settings.Profile, 
-															 Settings		= Sun.Settings}; /// TODO: serialize
-						case RunNodeCall e:
-						{	
-							Sun.RunNode(null, e.Roles);
-							
-							if(e.Roles.HasFlag(Role.Seed))
-								Sun.RunSeed();
-							
-							break;
-						}
 						case ExitCall e:
 							rp.Close();
-							Sun.Stop("Json API Call");
-							break;
-	
-						case AddWalletCall e:
-							lock(Sun.Lock)
-								Vault.AddWallet(e.PrivateKey, e.Password);
-							break;
-	
-						case UnlockWalletCall e:
-							lock(Sun.Lock)
-								Vault.Unlock(e.Account, e.Password);
-							break;
-		
-						case SetGeneratorCall e:
-							lock(Sun.Lock)
-								Sun.Settings.Generators = e.Generators.Select(i => Vault.GetKey(i)).ToList();
-							break;
-	
-						case UntTransferCall e:
-							
-							AccountKey k;
-								
-							lock(Sun.Lock)
-								k = Vault.GetKey(e.From);
-
-							Sun.Enqueue(new UntTransfer(e.To, e.Amount), k, PlacingStage.Accepted, Workflow);
-
-							break;
-		
-						case LogReportCall s:
-							return new LogResponse{Log = Sun.Workflow.Log.Messages.TakeLast(s.Limit).Select(i => i.ToString()).ToArray() }; 
-
-						case SummaryReportCall s:
-							lock(Sun.Lock)
-								return new SummaryResponse{Summary = Sun.Summary.Take(s.Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
-
-						case PeersReportCall s:
-							return new PeersResponse{Peers = Sun.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(s.Limit).Select(i => new PeersResponse.Peer
-																																				{
-																																					IP			= i.IP,			
-																																					Status		= i.StatusDescription,
-																																					PeerRank	= i.PeerRank,
-																																					ChainRank	= i.ChainRank,
-																																					BaseRank	= i.BaseRank,
-																																					SeedRank	= i.SeedRank,
-																																					LastSeen	= i.LastSeen,
-																																					LastTry		= i.LastTry,
-																																					Retries		= i.Retries	
-																																				}).ToArray()}; 
-							
-						case ChainReportCall s:
-							lock(Sun.Lock)
-								return new ChainReportResponse{Rounds = Database?.Tail	.Take(s.Limit)
-																						.Reverse()
-																						.Select(i => new ChainReportResponse.Round
-																									{
-																										Id = i.Id, 
-																										Members = i.Members.Count,
-																										Analyzers = i.Analyzers.Count,
-																										Voted = i.Voted,
-																										Confirmed = i.Confirmed,
-																										Time = i.ConfirmedTime,
-																										Hash = i.Hash,
-																										Summary = i.Summary,
-																										Votes = i.Votes.Select(b => new ChainReportResponse.Vote {	Generator = b.Generator, 
-																																									IsPayload = b.Transactions.Any(), 
-																																										/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
-																										JoinRequests = i.JoinRequests.Select(i => i.Generator),
-																									})
-																						.ToArray()}; 
-							
-						case VotesReportCall s:
-							lock(Sun.Lock)
-								return new VotesReportResponse{Pieces = Database?	.FindRound(s.RoundId)?.Votes
-																					.OrderBy(i => i.Generator)
-																					.Take(s.Limit)
-																					.Select(i => new VotesReportResponse.Piece
-																					{
-																						Try = i.Try,
-																						Signature = Hex.ToHexString(i.Signature),
-																						Generator = i.Generator
-																					})
-																					.ToArray()}; 
-	
-						case QueryResourceCall c:
-							lock(Sun.Lock)
-								return Sun.QueryResource(c.Query);
-	
-						case AddReleaseCall c:
-							lock(Sun.Lock)
-							{
-								var m = new Manifest();
-								m.Read(new BinaryReader(new MemoryStream(c.Manifest)));
-								
-								var h = Sun.Zone.Cryptography.HashFile(m.Bytes);
-								
-								lock(Sun.ResourceHub.Lock)
-								{
-									Sun.ResourceHub.Add(c.Release, h);
-	
-									Sun.ResourceHub.WriteFile(c.Release, h, Package.ManifestFile, 0, c.Manifest);
-	
-									if(c.Complete != null)
-									{
-										Sun.ResourceHub.WriteFile(c.Release, h, Package.CompleteFile, 0, c.Complete);
-									}
-									if(c.Incremental != null)
-									{
-										Sun.ResourceHub.WriteFile(c.Release, h, Package.IncrementalFile, 0, c.Incremental);
-									}
-								
-									Sun.ResourceHub.SetLatest(c.Release, h);
-								}
-							}
-	
-							break;
-	
-						//case DownloadReleaseCall c:
-						//	lock(Core.Lock)
-						//		Core.DownloadRelease(c.Release, Workflow);
-						//	break;
-	
-						case PackageStatusCall c:
-							lock(Sun.PackageHub.Lock)
-								return Sun.PackageHub.GetStatus(c.Release, c.Limit);
-
-						case InstallPackageCall c:
-							lock(Sun.PackageHub.Lock)
-								Sun.PackageHub.Install(c.Release, Workflow);
-							break;
-
-						case GenerateAnalysisReportCall c:
-							lock(Sun.Lock)
-							{	
-								Sun.Analyses.AddRange(c.Results.Select(i => new Analysis {Resource = i.Key, Result = i.Value}));
-							}
 							break;
 					}
-
-					return null;
+				
+					using(var w = Workflow.CreateNested(MethodBase.GetCurrentMethod().Name))
+					{
+						return call.Execute(Sun, w);
+					}
 				}
-
 
 				if(call is BatchCall c)
 				{ 

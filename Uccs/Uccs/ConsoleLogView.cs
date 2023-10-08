@@ -17,6 +17,7 @@ namespace Uccs
 		public bool		ShowSender { get;set; } = false;
 		public bool		ShowSubject { get;set; } = false;
 		public int		BufferWidth => Console.BufferWidth;
+		public string[]	Tags;
 
 		public ConsoleLogView(Log log, bool showsender, bool showsubject)
 		{
@@ -41,6 +42,9 @@ namespace Uccs
 		{
 			lock(Lock)
 			{
+				if(Tags != null && m.Subject != null && m.Subject.Split(' ').Any(i => !Tags.Contains(i)))
+					return;
+
 				var prev = Console.ForegroundColor;
 	
 				Console.ForegroundColor = m.Severity switch
