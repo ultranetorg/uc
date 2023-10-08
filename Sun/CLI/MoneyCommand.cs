@@ -72,7 +72,7 @@ namespace Uccs.Sun.CLI
 
 					return Sun.Emit(from,
 									Web3.Convert.ToWei(GetString("amount")),
-									Sun.Vault.GetKey(AccountAddress.Parse(GetString("by"))), 
+									Sun.Vault.GetKey(GetAccountAddress("by")), 
 									Command.GetAwaitStage(Args),
 									Workflow);
 				}

@@ -32,25 +32,16 @@ namespace Uccs.Sun.CLI
 
 				case "info" :
 				{
-					try
-					{
-						var rp = Sun.Call(i => i.GetMembers(), Workflow);
+					var rp = Sun.Call(i => i.GetMembers(), Workflow);
 	
-						var m = rp.Members.FirstOrDefault(i => i.Account == GetAccountAddress("address"));
+					var m = rp.Members.FirstOrDefault(i => i.Account == AccountAddress.Parse(Args.Nodes[1].Name));
 
-						if(m == null)
-							throw new RdcEntityException(RdcEntityError.NotFound);
+					if(m == null)
+						throw new RdcEntityException(RdcEntityError.NotFound);
 
-						Dump(m);
+					Dump(m);
 
-						return m;
-					}
-					catch(RdcEntityException ex)
-					{
-						Workflow.Log?.Report(this, ex.Message);
-					}
-
-					return null;
+					return m;
 				}				
 				default:
 					throw new SyntaxException("Unknown operation");;

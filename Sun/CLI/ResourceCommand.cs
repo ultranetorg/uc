@@ -1,12 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using Org.BouncyCastle.Utilities.Encoders;
-using System.Collections.Generic;
-using System.Threading;
-using Uccs.Net;
-using Nethereum.Hex.HexConvertors.Extensions;
 using System.Threading.Tasks;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Uccs.Net;
 
 namespace Uccs.Sun.CLI
 {
@@ -32,7 +28,7 @@ namespace Uccs.Sun.CLI
 				case "c" : 
 				case "create" : 
 				{	
-					return new ResourceCreation(ResourceAddress.Parse(GetString("address")),
+					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												byte.Parse(GetString("years")),
 												Args.Has("flags")		? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.Null,
 												Args.Has("type")		? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.Null,
@@ -44,7 +40,7 @@ namespace Uccs.Sun.CLI
 				case "u" : 
 				case "update" : 
 				{	
-					var r =	new ResourceUpdation(ResourceAddress.Parse(GetString("address")));
+					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
 					if(Args.Has("years"))		r.Change(byte.Parse(GetString("years")));
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
@@ -63,9 +59,9 @@ namespace Uccs.Sun.CLI
 					Release rbi = null;
 
 					if(Args.Has("source"))
-						rbi = Sun.ResourceHub.Add(GetResourceAddress("address"), GetString("source"), Workflow);
+						rbi = Sun.ResourceHub.Add(ResourceAddress.Parse(Args.Nodes[1].Name), GetString("source"), Workflow);
 					else if(Args.Has("sources"))
-						rbi = Sun.ResourceHub.Add(GetResourceAddress("address"), GetString("sources").Split(','), Workflow);
+						rbi = Sun.ResourceHub.Add(ResourceAddress.Parse(Args.Nodes[1].Name), GetString("sources").Split(','), Workflow);
 					else
 						throw new SyntaxException("Unknown arguments");
 
@@ -77,7 +73,7 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var a = GetResourceAddress("address");
+					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
 		
 					var r = Sun.Call(c => c.FindResource(a), Workflow).Resource;
 					
@@ -145,32 +141,21 @@ namespace Uccs.Sun.CLI
 				case "i" :
 		   		case "info" :
 				{
-					try
+					var r = Sun.Call(i => i.FindResource(ResourceAddress.Parse(Args.Nodes[1].Name)), Workflow);
+
+					Dump(r.Resource);
+
+					var e = Sun.Call(i => i.EnumerateSubresources(ResourceAddress.Parse(Args.Nodes[1].Name)), Workflow);
+
+					if(e.Resources.Any())
 					{
-						var r = Sun.Call(i => i.FindResource(GetResourceAddress("address")), Workflow);
-
-						Workflow.Log?.Report(this, GetString("address"));
-
-						Dump(r.Resource);
-
-						var e = Sun.Call(i => i.EnumerateSubresources(GetResourceAddress("address")), Workflow);
-
-						if(e.Resources.Any())
+						foreach(var i in e.Resources)
 						{
-							foreach(var i in e.Resources)
-							{
-								Workflow.Log?.Report(this, "      " + i);
-							}
+							Workflow.Log?.Report(this, "      " + i);
 						}
+					}
 
-						return r.Resource;
-					}
-					catch(RdcEntityException ex)
-					{
-						Workflow.Log?.Report(this, ex.Message);
-					}
-					
-					return null;
+					return r.Resource;
 				}
 
 				default:

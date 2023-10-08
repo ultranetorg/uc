@@ -26,7 +26,7 @@ namespace Uccs.Sun.CLI
 			{
 				case "build" :
 				{
-					Sun.PackageHub.AddRelease(GetReleaseAddress("address"), 
+					Sun.PackageHub.AddRelease(PackageAddress.Parse(Args.Nodes[1].Name), 
 											Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
 											GetString("sources").Split(','), 
 											GetString("dependsdirectory"), 
@@ -36,7 +36,7 @@ namespace Uccs.Sun.CLI
 
 				case "download" :
 				{
-					var d = Sun.PackageHub.Download(GetReleaseAddress("address"), Workflow);
+					var d = Sun.PackageHub.Download(PackageAddress.Parse(Args.Nodes[1].Name), Workflow);
 
 					void report()
 					{

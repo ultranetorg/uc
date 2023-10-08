@@ -1,10 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Nethereum.Signer;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -28,7 +23,7 @@ namespace Uccs.Sun.CLI
 
 				case "unlock" :
 				{
-					Sun.Vault.Unlock(GetAccountAddress("address"), GetString("password"));
+					Sun.Vault.Unlock(AccountAddress.Parse(Args.Nodes[1].Name), GetString("password"));
 					return null;
 				}
 
@@ -36,20 +31,11 @@ namespace Uccs.Sun.CLI
 		   		
 				case "info" :
 				{
-					try
-					{
-						var i = Sun.Call(i => i.GetAccountInfo(GetAccountAddress("address")), Workflow);
+					var i = Sun.Call(i => i.GetAccountInfo(AccountAddress.Parse(Args.Nodes[1].Name)), Workflow);
 	
-						Dump(i.Account);
+					Dump(i.Account);
 
-						return i.Account;
-					}
-					catch(RdcEntityException ex)
-					{
-						Workflow.Log?.Report(this, ex.Message);
-					}
-
-					return null;
+					return i.Account;
 				}
 
 				default:

@@ -26,7 +26,7 @@ namespace Uccs.Sun.CLI
 			try
 			{
 				var p = Console.KeyAvailable;
-				LogView = new ConsoleLogView(Workflow.Log, true, true);
+				LogView = new ConsoleLogView(Workflow.Log, false, true);
 			}
 			catch(Exception)
 			{
@@ -61,7 +61,7 @@ namespace Uccs.Sun.CLI
 
 				Execute(Boot.Commnand, Boot.Zone, Settings, Sun, Workflow);
 			}
-			catch(AbortException)
+			catch(OperationCanceledException)
 			{
 				Workflow.Log.ReportError(null, "Execution aborted");
 			}
@@ -69,7 +69,6 @@ namespace Uccs.Sun.CLI
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
 				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Net.Sun.FailureExt), ex.ToString());
-				throw;
 			}
 
 			Sun.Stop("The End");

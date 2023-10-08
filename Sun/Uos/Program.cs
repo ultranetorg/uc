@@ -48,7 +48,7 @@ namespace Uccs.Sun.Application
 
 				RunUosServer();
 			}
-			catch(AbortException)
+			catch(OperationCanceledException)
 			{
 				Log.ReportError(null, "Execution aborted");
 			}

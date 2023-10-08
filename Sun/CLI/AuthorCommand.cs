@@ -43,34 +43,25 @@ namespace Uccs.Sun.CLI
 			switch(Args.Nodes.First().Name)
 			{
 		   		case "bid" : 
-					return new AuthorBid(	GetString("name"),
+					return new AuthorBid(	Args.Nodes[1].Name,
 											GetStringOrEmpty("tld"),
 											Money.ParseDecimal(GetString("amount")));
 		   		case "register" : 
-					return new AuthorRegistration(	GetString("name"),
+					return new AuthorRegistration(	Args.Nodes[1].Name,
 													GetString("title"),
 													byte.Parse(GetString("years")));
 		   		case "transfer" : 
-					return new AuthorTransfer(	GetString("name"),
+					return new AuthorTransfer(	Args.Nodes[1].Name,
 												AccountAddress.Parse(GetString("to")));
 		   		case "info" :
 				{
-					try
-					{
-						var rp = Sun.Call(i => i.GetAuthorInfo(GetString("name")), Workflow);
+					var rp = Sun.Call(i => i.GetAuthorInfo(Args.Nodes[1].Name), Workflow);
 	
-						//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
+					//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 	
-						Dump(rp.Author);
+					Dump(rp.Author);
 						
-						return rp.Author;
-					}
-					catch(RdcEntityException ex)
-					{
-						Workflow.Log?.Report(this, ex.Message);
-					}
-
-					return null;
+					return rp.Author;
 				}
 
 				default:
