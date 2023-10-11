@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Uccs.Net;
 
@@ -7,13 +8,18 @@ namespace Uccs.Sun.CLI
 {
 	/// <summary>
 	/// Usage: 
-	///		release publish 
+	///		
 	/// </summary>
+	///  <example>
+	///		package download _aaa/app/win32/0.0.5
+	///  </example>
 	public class PackageCommand : Command
 	{
 		public const string Keyword = "package";
 
-		public PackageCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		PackageAddress Package => PackageAddress.Parse(Args.Nodes[1].Name);
+
+		public PackageCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -26,46 +32,46 @@ namespace Uccs.Sun.CLI
 			{
 				case "build" :
 				{
-					Sun.PackageHub.AddRelease(PackageAddress.Parse(Args.Nodes[1].Name), 
-											Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
-											GetString("sources").Split(','), 
-											GetString("dependsdirectory"), 
-											Workflow);
+					Program.Call(new PackageBuildCall {	Package	= Package, 
+														Version = Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
+														Sources = GetString("sources").Split(','), 
+														DependsDirectory =GetString("dependsdirectory") });
 					return null;
 				}
 
 				case "download" :
 				{
-					var d = Sun.PackageHub.Download(PackageAddress.Parse(Args.Nodes[1].Name), Workflow);
+					var h = Program.Call<byte[]>(new PackageDownloadCall {Package = Package});
 
-					void report()
+					try
 					{
-						var f = d.FileDownload;
+						PackageDownloadProgress d;
+						
+						do
+						{
+							d = Program.Call<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = Package});
+							
+							if(d == null)
+							{	
+								if(!Program.Call<bool>(new PackageReadyCall {Package = Package}))
+								{
+									Workflow.Log?.ReportError(this, "Failed");
+								}
 
-						Workflow.Log?.Report(this, (f != null ? $"{f.File.Path} = {f.DownloadedLength}/{f.Length}" : null) + $", deps = {d.DependenciesRecursiveSuccesses}/{d.DependenciesRecursiveCount}");
+								break;
+							}
+
+							Workflow.Log?.Report(this, d.ToString());
+
+							Thread.Sleep(500);
+						}
+						while(d != null && Workflow.Active);
+					}
+					catch(OperationCanceledException)
+					{
 					}
 
-					if(d != null)
-					{
-						try
-						{
-							do
-							{
-								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
-	
-								report();
-							}
-							while(!d.Task.IsCompleted && Workflow.Active);
-						}
-						catch(OperationCanceledException)
-						{
-						}
-					} 
-					else
-						Workflow.Log?.Report(this, $"Already downloaded");
-
-
-					return d;
+					return null;
 				}
 				
 				default:

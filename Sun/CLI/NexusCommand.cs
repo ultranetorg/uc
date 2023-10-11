@@ -16,7 +16,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "nexus";
 
-		public NexusCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public NexusCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -32,7 +32,7 @@ namespace Uccs.Sun.CLI
 
 				case "membership" :
 				{
-					var rp = Sun.Call(i => i.GetMembers(), Workflow);
+					var rp = Program.Rdc<MembersResponse>(new MembersRequest());
 	
 					var m = rp.Members.FirstOrDefault(i => i.Account == AccountAddress.Parse(Args.Nodes[1].Name));
 

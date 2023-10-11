@@ -34,16 +34,16 @@ namespace Uccs.Demo.Application
 					 {
 						var v = PackageAddress.Parse("uo/democomponent/dotnet/0.0.0");
 						
-						Application.Nexus.Sun.InstallPackage(v, new Workflow($"InstallPackage {v}"));
+						Application.Nexus.Sun.Send(new PackageInstallCall {Package = v}, new Workflow($"InstallPackage {v}"));
 
-						ReleaseStatus s = null;
+						PackageDownloadProgress s = null;
 
 						do
 						{
 							Thread.Sleep(1);
-							s = Application.Nexus.Sun.GetReleaseStatus(v, new Workflow("GetReleaseStatus"));
+							s = Application.Nexus.Sun.Request<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = v}, new Workflow("GetReleaseStatus"));
 						}
-						while(s.Manifest == null);
+						while(!s.Succeeded);
 
 						f.BeginInvoke(new Action(	() =>
 													{

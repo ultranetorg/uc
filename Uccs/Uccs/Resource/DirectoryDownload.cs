@@ -33,7 +33,7 @@ namespace Uccs.Net
 	
 					sun.ResourceHub.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
 												
-					var index = new XonDocument(sun.ResourceHub.ReadFile(release.Address, release.Hash, ".index"));
+					var index = new XonDocument(release.ReadFile(".index"));
 	
 					void enumearate(Xon xon)
 					{

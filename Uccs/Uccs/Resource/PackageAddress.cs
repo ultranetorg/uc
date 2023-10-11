@@ -84,6 +84,11 @@ namespace Uccs.Net
 			return Version.Parse(v.Substring(v.LastIndexOf('/') + 1));
 		}
 
+		public PackageAddress ReplaceVesion(Version version)
+		{
+			return new PackageAddress(Author, Product, Realization, version);
+		}
+
 		public static PackageAddress Parse(string v)
 		{
 			var a = new PackageAddress();

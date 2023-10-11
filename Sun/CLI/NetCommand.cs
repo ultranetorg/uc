@@ -8,7 +8,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "net";
 
-		public NetCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public NetCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -21,7 +21,7 @@ namespace Uccs.Sun.CLI
 			{
 		   		case "peers" :
 				{
-					var r = Call<PeersReport>(new PeersReportCall {Limit = int.MaxValue}, Workflow);
+					var r = Program.Call<PeersReport>(new PeersReportCall {Limit = int.MaxValue});
 			
 					Dump(	r.Peers, 
 							new string[] {"IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"}, 

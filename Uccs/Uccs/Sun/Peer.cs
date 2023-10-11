@@ -230,19 +230,19 @@ namespace Uccs.Net
 								}
 								catch(RdcNodeException ex)
 								{
-									r = RdcResponse.FromType(i.Type);
+									r = RdcResponse.FromType(i.Class);
 									r.Result = RdcResult.NodeException;
 									r.Error = (byte)ex.Error;
 								}
 								catch(RdcEntityException ex)
 								{
-									r = RdcResponse.FromType(i.Type);
+									r = RdcResponse.FromType(i.Class);
 									r.Result = RdcResult.EntityException;
 									r.Error = (byte)ex.Error;
 								}
 								catch(Exception) when(!Debugger.IsAttached)
 								{
-									r = RdcResponse.FromType(i.Type);
+									r = RdcResponse.FromType(i.Class);
 									r.Result = RdcResult.NodeException;
 									r.Error = (byte)RdcNodeError.Internal;
 								}
@@ -405,8 +405,7 @@ namespace Uccs.Net
 			SendSignal.Set();
  		}
 
-
- 		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
+ 		public override RdcResponse Request(RdcRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
 				throw new ConnectionFailedException("Peer is not connected");
@@ -430,7 +429,7 @@ namespace Uccs.Net
 						throw new OperationCanceledException();
 	
 	 				if(rq.Response.Result == RdcResult.Success)
-		 				return rq.Response as Rp;
+		 				return rq.Response;
 	 				else if(rq.Response.Result == RdcResult.NodeException)
 					{
 						var e =(RdcNodeError)rq.Response.Error;

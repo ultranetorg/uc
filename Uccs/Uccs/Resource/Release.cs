@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
 using RocksDbSharp;
 
@@ -10,13 +11,14 @@ namespace Uccs.Net
 	[Flags]
 	public enum Availability
 	{
-		Null				= 0,
-		Complete			= 0b00000001, 
-		CompletePartial		= 0b00000010, 
-		Incremental			= 0b00000100, 
-		IncrementalPartial	= 0b00001000, 
-		Full				= 0b00010000, 
-		Minimal				= 0b00100000, 
+		None				= 0,
+		Full				= 0b_______1,
+		Minimal				= 0b______10,
+		Partial				= 0b_____100,
+		Complete			= 0b____1000, 
+		CompletePartial		= 0b___10000, 
+		Incremental			= 0b__100000, 
+		IncrementalPartial	= 0b_1000000, 
 	}
 
 	public class ReleaseFile : IBinarySerializable
@@ -29,7 +31,7 @@ namespace Uccs.Net
 
 		public IEnumerable<int>	CompletedPieces => Pieces.Select((e, i) => e ? i : -1).Where(i => i != -1);
 		public long				CompletedLength => CompletedPieces.Count() * PieceLength - (Pieces.Last() ? PieceLength - Length % PieceLength : 0); /// take the tail into account
-		public bool				Completed => PieceLength == -1; 
+		public bool				Completed => Length == -1; 
 			
 		public ReleaseFile(Release release)
 		{
@@ -48,6 +50,12 @@ namespace Uccs.Net
 		public override string ToString()
 		{
 			return $"{Path}, Length+{Length}, PieceLength={PieceLength} Pieces={{{Pieces?.Length}}}";
+		}
+						 			
+		public void Complete()
+		{
+			Length = -1;
+			Release.Save();
 		}
 
 		public void CompletePiece(int i)
@@ -79,12 +87,6 @@ namespace Uccs.Net
 				writer.Write(Pieces, i => writer.Write(i));
 			}
 		}
-						 			
-		public void Complete()
-		{
-			Length = -1;
-			Release.Save();
-		}
 	}
 
 	public class Release
@@ -97,6 +99,7 @@ namespace Uccs.Net
 		List<ReleaseFile>						_Files;
 		bool									Loaded;
 		ResourceHub								Hub;
+		public string							Path => System.IO.Path.Join(Hub.ResourcesPath, Address.Author, Hub.Escape(Address.Resource), Hash.ToHex());
 
 		public List<ReleaseFile> Files
 		{
@@ -144,10 +147,33 @@ namespace Uccs.Net
 			return Files.Last();
 		}
 
+		public ReleaseFile AddFile(string path, byte[] data)
+		{
+			if(Files == null)
+			{
+				_Files = new();
+				Loaded = true;
+			}
+
+			var f = new ReleaseFile(this) {Path = path};
+			Files.Add(f);
+
+			WriteFile(path, 0, data);
+
+			f.Complete(); /// implicit Save called
+
+			return f;
+		}
+
 		public void Complete(Availability availability)
 		{
 			_Availability = availability;
-			_Files?.Clear();
+
+			//if(availability == Availability.Full)
+			//{
+			//	_Files?.Clear();
+			//}
+
 			Save();
 		}
 
@@ -185,5 +211,74 @@ namespace Uccs.Net
 				Hub.Sun.Database.Write(b);
 			}
 		}
+
+		public string AddressToPath(string file)
+		{
+			return System.IO.Path.Join(Path, file);
+		}
+
+		public byte[] ReadFile(string file, long offset, long length)
+		{
+			using(var s = new FileStream(AddressToPath(file), FileMode.Open, FileAccess.Read, FileShare.Read))
+			{
+				s.Seek(offset, SeekOrigin.Begin);
+				
+				var b = new byte[Math.Min(length, ResourceHub.PieceMaxLength)];
+	
+				s.Read(b);
+	
+				return b;
+			}
+		}
+
+		public void WriteFile(string file, long offset, byte[] data)
+		{
+			var d = System.IO.Path.GetDirectoryName(AddressToPath(file));
+
+			if(!Directory.Exists(d))
+			{
+				Directory.CreateDirectory(d);
+			}
+
+			using(var s = new FileStream(AddressToPath(file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+			{
+				s.Seek(offset, SeekOrigin.Begin);
+				s.Write(data);
+			}
+		}
+
+		public ReleaseFile Find(string filepath)
+		{
+			return Files?.Find(i => i.Path == filepath);
+		}
+		
+		public bool IsReady(string filepath)
+		{
+			if(Availability == Availability.Full)
+				return true;
+
+			var f = Find(filepath);
+			
+			if(f == null)
+				return false;
+
+			return f.Completed;
+		}
+
+		public byte[] ReadFile(string file)
+		{
+			return File.ReadAllBytes(AddressToPath(file));
+		}
+
+		public byte[] Hashify(string path)
+		{
+			return Hub.Zone.Cryptography.HashFile(File.ReadAllBytes(AddressToPath(path)));
+		}
+
+		public long GetLength(string path)
+		{
+			return Find(path) != null ? new FileInfo(AddressToPath(path)).Length : -1;
+		}
+
 	}
 }

@@ -37,7 +37,7 @@ namespace Uccs.Sun.FUI
 					i.SubItems[1].Tag = true;
 	
 					Task.Run(() =>	{
-										string t;
+										string t = null;
 	
 										try
 										{
@@ -45,12 +45,11 @@ namespace Uccs.Sun.FUI
 										}
 										catch(Exception)
 										{
-											return;
 										}
 	
 										Invoke(	(MethodInvoker) delegate
 												{
-													i.SubItems[1].Text = t; 
+													i.SubItems[1].Text = t ?? "..."; 
 													i.SubItems[1].Tag = false;
 												});
 									});

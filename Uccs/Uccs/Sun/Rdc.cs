@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -28,7 +31,7 @@ namespace Uccs.Net
 		Integrity,
 		Internal,
 		Timeout,
-		NotFound,
+		//NotFound,
 		NotBase,
 		NotChain,
 		NotSeed,
@@ -90,9 +93,10 @@ namespace Uccs.Net
 	{
 		public int								Failures;
 
- 		public abstract Rp						Request<Rp>(RdcRequest rq) where Rp : RdcResponse;
+ 		public abstract RdcResponse				Request(RdcRequest rq);
+ 		public Rp								Request<Rp>(RdcRequest rq) where Rp : RdcResponse => Request(rq) as Rp;
  		public abstract	void					Send(RdcRequest rq);
- 
+
 		public TimeResponse						GetTime() => Request<TimeResponse>(new TimeRequest());
 		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
@@ -124,7 +128,7 @@ namespace Uccs.Net
 
 	public abstract class RdcRequest : RdcPacket
 	{
-		public override byte			TypeCode => (byte)Type;
+		public override byte			TypeCode => (byte)Class;
 		public ManualResetEvent			Event;
 		public RdcResponse				Response;
 		public Action					Process;
@@ -142,7 +146,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public Rdc Type
+		public Rdc Class
 		{
 			get
 			{
@@ -172,8 +176,50 @@ namespace Uccs.Net
 			if(sun.Synchronization != Synchronization.Synchronized)
 				throw new RdcNodeException(RdcNodeError.NotSynchronized);
 		}
-
 	}
+
+	public class RdcRequestJsonConverter : JsonConverter<RdcRequest>
+	{
+		public override void Write(Utf8JsonWriter writer, RdcRequest value, JsonSerializerOptions options)
+		{
+			//writer.WriteStartObject();
+			//writer.WritePropertyName("Class");
+			//writer.WriteStringValue(value.Type.ToString());
+			//writer.WritePropertyName("Request");
+			//writer.WriteRawValue(JsonSerializer.Serialize(value, value.GetType(), options));
+			//writer.WriteEndObject();
+
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			BinarySerializator.Serialize(w, value);
+			
+			writer.WriteStringValue(value.Class.ToString() + ":" + s.ToArray().ToHex());
+
+		}
+
+		public override RdcRequest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			//reader.Read();
+			//reader.Read();
+			//var t = RdcRequest.FromType(Enum.Parse<Rdc>(reader.GetString()));
+			//reader.Read();
+			//
+			//return JsonSerializer.Deserialize(reader.GetString(), t, options);
+
+			var s = reader.GetString().Split(':');
+			var o = RdcRequest.FromType(Enum.Parse<Rdc>(s[0]));
+ 			
+			var r = new BinaryReader(new MemoryStream(s[1].HexToByteArray()));
+
+			return BinarySerializator.Deserialize<RdcRequest>(r,(t, b) =>	{ 
+																				if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b);
+
+																				return null;
+																			});
+		}
+	}
+
 
 	public abstract class RdcResponse : RdcPacket
 	{

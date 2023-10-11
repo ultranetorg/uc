@@ -4,8 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.VisualBasic;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -150,4 +153,28 @@ namespace Uccs.Net
 			return round.AffectAuthor(author);
 		}
 	}
+
+	public class OperationJsonConverter : JsonConverter<Operation>
+	{
+		public override Operation Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			var s = reader.GetString().Split(':');
+			var o = Operation.FromType(Enum.Parse<OperationClass>(s[0]));
+ 			
+			o.Read(new BinaryReader(new MemoryStream(s[1].HexToByteArray()))); 
+
+			return o;
+		}
+
+		public override void Write(Utf8JsonWriter writer, Operation value, JsonSerializerOptions options)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			
+			value.Write(w);
+			
+			writer.WriteStringValue(value.Class.ToString() + ":" + s.ToArray().ToHex());
+		}
+	}
+
 }

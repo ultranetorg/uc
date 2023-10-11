@@ -9,11 +9,10 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
-	public class JsonServer
+	public class JsonApiServer
 	{
 		public const ushort DefaultPort = 3900;
 
@@ -23,7 +22,7 @@ namespace Uccs.Net
 
 		Workflow		Workflow = new Workflow("JsonServer", new Log());
 
-		public JsonServer(Sun sun)
+		public JsonApiServer(Sun sun)
 		{
 			Sun = sun;
 
@@ -115,9 +114,9 @@ namespace Uccs.Net
 															}
 														}
 	
-			void respondjson(dynamic t){
+			void respondjson(object t){
 											var output = rp.OutputStream;
-											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonClient.Options));
+											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonApiClient.Options));
 							
 											rp.ContentType = "text/json" ;
 											rp.ContentLength64 = buffer.Length;
@@ -155,7 +154,7 @@ namespace Uccs.Net
 					return;
 				}
 
-				var call = JsonSerializer.Deserialize(json, t, JsonClient.Options) as ApiCall;
+				var call = JsonSerializer.Deserialize(json, t, JsonApiClient.Options) as ApiCall;
 
 				if(!string.IsNullOrWhiteSpace(Sun.Settings.Api.AccessKey) && call.AccessKey != Sun.Settings.Api.AccessKey)
 				{
@@ -175,10 +174,7 @@ namespace Uccs.Net
 							break;
 					}
 				
-					using(var w = Workflow.CreateNested(MethodBase.GetCurrentMethod().Name))
-					{
-						return call.Execute(Sun, w);
-					}
+					return call.Execute(Sun, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
 				}
 
 				if(call is BatchCall c)
@@ -188,7 +184,7 @@ namespace Uccs.Net
 					foreach(var i in c.Calls)
 					{
 						t = Type.GetType(GetType().Namespace + "." + i.Name + "Call");
-						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonClient.Options) as ApiCall));
+						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonApiClient.Options) as ApiCall));
 					}
 
 					lock(Sun.Lock)
@@ -198,7 +194,7 @@ namespace Uccs.Net
 				{
 					var r = execute(call);
 	
-					if(r != null)
+					//if(r != null)
 					{
 						lock(Sun.Lock)
 							respondjson(r);
@@ -215,6 +211,10 @@ namespace Uccs.Net
 			{
 				responderror(ex.Message, (int)HttpStatusCode.BadRequest);
 			}
+			catch(RdcEntityException ex)
+			{
+				responderror(ex.Message, (int)HttpStatusCode.UnprocessableEntity);
+			}
 			catch(Exception ex) when (!Debugger.IsAttached)
 			{
 				responderror(ex.ToString(), (int)HttpStatusCode.InternalServerError);
@@ -224,8 +224,9 @@ namespace Uccs.Net
 			{
 				rp.Close();
 			}
-			catch(ObjectDisposedException){}
-			catch(InvalidOperationException){}
+			catch(Exception)
+			{
+			}
 		}
 	}
 }

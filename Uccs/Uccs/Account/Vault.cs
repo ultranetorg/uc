@@ -62,6 +62,9 @@ namespace Uccs.Net
 
 			var k = new AccountKey(privatekey);
 
+			if(Wallets.ContainsKey(k))
+				throw new ArgumentException();
+
 			Wallets[k] = k.Save(Zone.Cryptography, password);
 
 			return k;

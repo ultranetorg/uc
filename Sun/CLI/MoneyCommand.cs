@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Numerics;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Web3;
 using Uccs.Net;
 
@@ -24,14 +25,15 @@ namespace Uccs.Sun.CLI
 	///						amount = UNT 
 	/// </summary>
 	///	<example>
-	/// unt emit from{wallet=a:\Ultranet\d061eecb93844a8cabea06d80976d5958f48a343.mew} amount=0.123 to{account=0x0007f34bc43d41cf3ec2e6f684c7b9b131b04b41}
-	/// unt transfer from=0x000038a7a3cb80ec769c632b7b3e43525547ecd1 to=0x00015326bcf44c84a605afbdd5343de4aaf11387 amount=5.000
+	/// 
+	/// money emit from{wallet=m:\UO\Team\Maximion\0x321D3AB8998c551Aeb086a7AC28635261AC66c00.mew} amount=1 by=0x001fea628d33830e5515e52fb7e3f9a009b24317
+	/// 
 	/// </example>
 	public class MoneyCommand : Command
 	{
 		public const string Keyword = "money";
 
-		public MoneyCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public MoneyCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -48,7 +50,7 @@ namespace Uccs.Sun.CLI
 
 					if(Args.Has("from/key"))
 					{
-						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Zone.EthereumNetwork);
+						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Program.Zone.EthereumNetwork);
 					}
 					else
 					{
@@ -67,14 +69,14 @@ namespace Uccs.Sun.CLI
 
 						from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
 																				p, 
-																				new BigInteger((int)Zone.EthereumNetwork));
+																				new BigInteger((int)Program.Zone.EthereumNetwork));
 					}
 
-					return Sun.Emit(from,
-									Web3.Convert.ToWei(GetString("amount")),
-									Sun.Vault.GetKey(GetAccountAddress("by")), 
-									Command.GetAwaitStage(Args),
-									Workflow);
+					Program.Call<PlacingStage>(new EmitCall{FromPrivateKey = from.PrivateKey.HexToByteArray(),
+															Wei = Web3.Convert.ToWei(GetString("amount")),
+															To = GetAccountAddress("by"), 
+															Await = Command.GetAwaitStage(Args) });
+					return null;
 				}
 
 		   		case "transfer" : 

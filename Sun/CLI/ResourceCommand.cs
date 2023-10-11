@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Uccs.Net;
@@ -14,7 +15,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "resource";
 
-		public ResourceCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public ResourceCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -55,19 +56,17 @@ namespace Uccs.Sun.CLI
 
 				case "b" :
 				case "build" :
-				{	
-					Release rbi = null;
-
-					if(Args.Has("source"))
-						rbi = Sun.ResourceHub.Add(ResourceAddress.Parse(Args.Nodes[1].Name), GetString("source"), Workflow);
-					else if(Args.Has("sources"))
-						rbi = Sun.ResourceHub.Add(ResourceAddress.Parse(Args.Nodes[1].Name), GetString("sources").Split(','), Workflow);
-					else
+				{
+					if(!Args.Has("source") && !Args.Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					Workflow.Log?.Report(this, $"Hash={rbi.Hash.ToHex()}");
+					var h = Program.Call<byte[]>(new ResourceBuildCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
+																		FilePath = GetString("source", null),
+																		Sources = GetString("sources", null)?.Split(',')});
 
-					return rbi;
+					Workflow.Log?.Report(this, $"Hash={h.ToHex()}");
+
+					return null;
 				}
 
 				case "d" :
@@ -75,77 +74,104 @@ namespace Uccs.Sun.CLI
 				{
 					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
 		
-					var r = Sun.Call(c => c.FindResource(a), Workflow).Resource;
-					
-					Release rz;
+					var h = Program.Call<byte[]>(new ResourceDownloadCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 
-					lock(Sun.ResourceHub.Lock)
-						rz = Sun.ResourceHub.Find(a, r.Data) ?? Sun.ResourceHub.Add(a, r.Data);
-	
-					if(r.Type == ResourceType.File)
+					try
 					{
-						FileDownload d;
-							
-						lock(Sun.ResourceHub.Lock)
-							d = Sun.ResourceHub.DownloadFile(rz, "f", r.Data, null, Workflow);
-		
-						if(d != null)
+						ResourceDownloadProgress d = null;
+						
+						while(Workflow.Active)
 						{
-							do
-							{
-								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
-	
-								lock(d.Lock)
-								{ 
-									if(d.File != null)
-										Workflow.Log?.Report(this, $"{d.DownloadedLength}/{d.Length} bytes, {d.CurrentPieces.Count} threads, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
-									else
-										Workflow.Log?.Report(this, $"?/? bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
-								}
-							}
-							while(!d.Task.IsCompleted && Workflow.Active);
-						} 
-						else
-							Workflow.Log?.Report(this, $"Already downloaded");
-					
-						return d;
+
+							d = Program.Call<ResourceDownloadProgress>(new ResourceDownloadProgressCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name), Hash = h});
+
+							if(d == null)
+								break;
+
+							Workflow.Log?.Report(this, d.ToString());
+
+							Thread.Sleep(500);
+						}
 					}
-					else if(r.Type == ResourceType.Directory)
+					catch(OperationCanceledException)
 					{
-						DirectoryDownload d;
-							
-						lock(Sun.ResourceHub.Lock)
-							d = Sun.ResourceHub.DownloadDirectory(rz, Workflow);
-		
-						if(d != null)
-						{
-							void report() => Workflow.Log?.Report(this, $"{d.CompletedCount}/{d.TotalCount} files, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
-	
-							do
-							{
-								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
-	
-								report();
-							}
-							while(!d.Task.IsCompleted && Workflow.Active);
-						} 
-						else
-							Workflow.Log?.Report(this, $"Already downloaded");
-					
-						return d;
 					}
-	
-					throw new NotSupportedException();
+
+					return null;
+
+
+
+// 					var r = Sun.Call(c => c.FindResource(a), Workflow).Resource;
+// 					
+// 					Release rz;
+// 
+// 					lock(Sun.ResourceHub.Lock)
+// 						rz = Sun.ResourceHub.Find(a, r.Data) ?? Sun.ResourceHub.Add(a, r.Data);
+// 	
+// 					if(r.Type == ResourceType.File)
+// 					{
+// 						FileDownload d;
+// 							
+// 						lock(Sun.ResourceHub.Lock)
+// 							d = Sun.ResourceHub.DownloadFile(rz, "f", r.Data, null, Workflow);
+// 		
+// 						if(d != null)
+// 						{
+// 							do
+// 							{
+// 								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
+// 	
+// 								lock(d.Lock)
+// 								{ 
+// 									if(d.File != null)
+// 										Workflow.Log?.Report(this, $"{d.DownloadedLength}/{d.Length} bytes, {d.CurrentPieces.Count} threads, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
+// 									else
+// 										Workflow.Log?.Report(this, $"?/? bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
+// 								}
+// 							}
+// 							while(!d.Task.IsCompleted && Workflow.Active);
+// 						} 
+// 						else
+// 							Workflow.Log?.Report(this, $"Already downloaded");
+// 					
+// 						return d;
+// 					}
+// 					else if(r.Type == ResourceType.Directory)
+// 					{
+// 						DirectoryDownload d;
+// 							
+// 						lock(Sun.ResourceHub.Lock)
+// 							d = Sun.ResourceHub.DownloadDirectory(rz, Workflow);
+// 		
+// 						if(d != null)
+// 						{
+// 							void report() => Workflow.Log?.Report(this, $"{d.CompletedCount}/{d.TotalCount} files, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
+// 	
+// 							do
+// 							{
+// 								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
+// 	
+// 								report();
+// 							}
+// 							while(!d.Task.IsCompleted && Workflow.Active);
+// 						} 
+// 						else
+// 							Workflow.Log?.Report(this, $"Already downloaded");
+// 					
+// 						return d;
+// 					}
+// 	
+// 					throw new NotSupportedException();
 				}
 
 				case "i" :
 		   		case "info" :
 				{
-					var r = Sun.Call(i => i.FindResource(ResourceAddress.Parse(Args.Nodes[1].Name)), Workflow);
+					var r = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 
 					Dump(r.Resource);
 
-					var e = Sun.Call(i => i.EnumerateSubresources(ResourceAddress.Parse(Args.Nodes[1].Name)), Workflow);
+					var e = Program.Rdc<SubresourcesResponse>(new SubresourcesRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 
 					if(e.Resources.Any())
 					{

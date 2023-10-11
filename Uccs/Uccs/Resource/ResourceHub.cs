@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Security.AccessControl;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -69,22 +66,22 @@ namespace Uccs.Net
 			File.WriteAllText(Path.Join(ResourcesPath, release.Author, Escape(release.Resource),  "latest"), hash.ToHex());
 		}
 
-		public string AddressToPath(ResourceAddress resource, byte[] hash)
-		{
-			string h;
-
-			if(hash == null)
-				h = File.ReadAllText(Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource),  "latest"));
-			else
-				h = Hex.ToHexString(hash);
-
-			return Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource), h);
-		}
-
-		public string AddressToPath(ResourceAddress resource, byte[] hash, string file)
-		{
-			return Path.Join(AddressToPath(resource, hash), file);
-		}
+// 		public string AddressToPath(ResourceAddress resource, byte[] hash)
+// 		{
+// 			string h;
+// 
+// 			if(hash == null)
+// 				h = File.ReadAllText(Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource),  "latest"));
+// 			else
+// 				h = Hex.ToHexString(hash);
+// 
+// 			return Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource), h);
+// 		}
+// 
+// 		public string AddressToPath(ResourceAddress resource, byte[] hash, string file)
+// 		{
+// 			return Path.Join(AddressToPath(resource, hash), file);
+// 		}
 
 		public ResourceAddress PathToAddress(string path)
 		{
@@ -101,12 +98,12 @@ namespace Uccs.Net
 	
 			Releases.Add(r);
 	
-			Directory.CreateDirectory(AddressToPath(resource, hash));
+			Directory.CreateDirectory(r.Path);
 
 			return r;
 		}
 
-		public Release Add(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
+		public Release Build(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 			var index = new XonDocument(new XonBinaryValueSerializator());
@@ -168,20 +165,21 @@ namespace Uccs.Net
  				
 			var r = Add(resource, h);
 
- 			WriteFile(resource, h, ".index", 0, ms.ToArray());
+			r.AddFile(".index", ms.ToArray());
 
 			foreach(var i in files)
 			{
-				WriteFile(resource, h, i.Value, 0, File.ReadAllBytes(i.Key));
+				r.AddFile(i.Value, File.ReadAllBytes(i.Key));
 			}
 			
 			r.Complete(Availability.Full);
+			
 			SetLatest(resource, h);
 
 			return r;
 		}
 
-		public Release Add(ResourceAddress resource, string source, Workflow workflow)
+		public Release Build(ResourceAddress resource, string source, Workflow workflow)
 		{
 			var b = File.ReadAllBytes(source);
 
@@ -189,9 +187,10 @@ namespace Uccs.Net
  				
 			var r = Add(resource, h);
 
- 			WriteFile(resource, h, "f", 0, b);
+ 			r.AddFile("f", b);
 			
 			r.Complete(Availability.Full);
+			
 			SetLatest(resource, h);
 
 			return r;
@@ -219,63 +218,13 @@ namespace Uccs.Net
 			//return null;
 		}
 
-		public byte[] ReadFile(ResourceAddress release, byte[] hash, string file, long offset, long length)
-		{
-			using(var s = new FileStream(AddressToPath(release, hash, file), FileMode.Open, FileAccess.Read, FileShare.Read))
-			{
-				s.Seek(offset, SeekOrigin.Begin);
-				
-				var b = new byte[Math.Min(length, PieceMaxLength)];
-	
-				s.Read(b);
-	
-				return b;
-			}
-		}
-
-		public void WriteFile(ResourceAddress release, byte[] hash, string file, long offset, byte[] data)
-		{
-			var d = Path.GetDirectoryName(file);
-		
-			if(d.Any())
-			{
-				Directory.CreateDirectory(AddressToPath(release, hash, d));
-			}
-
-			using(var s = new FileStream(AddressToPath(release, hash, file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
-			{
-				s.Seek(offset, SeekOrigin.Begin);
-				s.Write(data);
-			}
-		}
-
-		public bool Exists(ResourceAddress release, byte[] hash, string file)
-		{
-			return File.Exists(AddressToPath(release, hash, file));
-		}
-
-		public byte[] ReadFile(ResourceAddress release, byte[] hash, string file)
-		{
-			return File.ReadAllBytes(AddressToPath(release, hash, file));
-		}
-
-		public byte[] Hashify(ResourceAddress release, byte[] hash, string path)
-		{
-			return Zone.Cryptography.HashFile(File.ReadAllBytes(AddressToPath(release, hash, path)));
-		}
-
-		public long GetLength(ResourceAddress release, byte[] hash, string path)
-		{
-			return Exists(release, hash, path) ? new FileInfo(AddressToPath(release, hash, path)).Length : 0;
-		}
-
 		public void GetFile(Release release, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
 		{
 			Task t = Task.CompletedTask;
 
 			lock(Lock)
 			{
-				if(!Exists(release.Address, release.Hash, file))
+				if(!release.IsReady(file))
 				{
 					var d = DownloadFile(release, file, filehash, peerCollector, workflow);
 			
@@ -394,6 +343,25 @@ namespace Uccs.Net
 			DirectoryDownloads.Add(d);
 
 			return d;
+		}
+
+		public ResourceDownloadProgress GetDownloadProgress(ResourceAddress resource, byte[] hash)
+		{
+			var f = FileDownloads.Find(i => i.Release.Address == resource && i.Release.Hash.SequenceEqual(hash));
+			var d = DirectoryDownloads.Find(i => i.Release.Address == resource && i.Release.Hash.SequenceEqual(hash));
+
+			if(d != null || f != null)
+			{
+				var s = new ResourceDownloadProgress(d?.SeedCollector ?? f?.SeedCollector);
+
+				s.Succeeded	= d != null ? d.Succeeded : f.Succeeded;
+
+				s.CurrentFiles = FileDownloads.Where(i => i.Release == (d?.Release ?? f?.Release)).Select(i => new FileDownloadProgress(i)).ToArray();
+
+				return s;
+			}
+			
+			return null;
 		}
 	}
 }

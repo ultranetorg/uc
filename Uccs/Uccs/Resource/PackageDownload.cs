@@ -8,6 +8,20 @@ using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
+	public class PackageDownloadProgress
+	{
+		public bool									Succeeded { get; set; }
+		public int									DependenciesRecursiveCount { get; set; }
+		public int									DependenciesRecursiveSuccesses { get; set; }
+		public IEnumerable<FileDownloadProgress>	CurrentFiles { get; set; } = new FileDownloadProgress[]{};
+		public IEnumerable<PackageDownloadProgress>	Dependencies { get; set; } = new PackageDownloadProgress[]{};
+
+		public override string ToString()
+		{
+			return$"Fip={string.Join(", ", CurrentFiles.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}"))}, Deps={DependenciesRecursiveSuccesses}/{DependenciesRecursiveCount}";
+		}
+	}
+
 	public class PackageDownload
 	{
 		public PackageAddress					Address;
@@ -18,9 +32,8 @@ namespace Uccs.Net
 		public Task								Task;
 		public SeedCollector					SeedCollector;
 
-		public bool								Succeeded => Downloaded && /*DependenciesRecursiveFound && */DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
+		public bool								Succeeded => Downloaded && DependenciesRecursiveCount == DependenciesRecursiveSuccesses;
 		public int								DependenciesRecursiveCount => Dependencies.Count + Dependencies.Sum(i => i.DependenciesRecursiveCount);
-		//public bool							DependenciesRecursiveFound => Package.Manifest != null && Dependencies.All(i => i.DependenciesRecursiveFound);
 		public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
@@ -87,7 +100,7 @@ namespace Uccs.Net
 												}
 											}
 	
-	 										FileDownload = sun.ResourceHub.DownloadFile(	Package.Release, 
+	 										FileDownload = sun.ResourceHub.DownloadFile(Package.Release, 
 																						incrementable ? Package.IncrementalFile : Package.CompleteFile, 
 																						incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash, 
 																						SeedCollector,
@@ -101,12 +114,12 @@ namespace Uccs.Net
 	
 											lock(sun.PackageHub.Lock)
 											{
-												var a = Availability.Null;;
+												var a = Availability.None;;
 
-												if(sun.ResourceHub.Exists(Package.Release.Address, Package.Release.Hash, Package.CompleteFile))
+												if(Package.Release.IsReady(Package.CompleteFile))
 													a |= Availability.Complete;
 
-												if(sun.ResourceHub.Exists(Package.Release.Address, Package.Release.Hash, Package.IncrementalFile))
+												if(Package.Release.IsReady(Package.IncrementalFile))
 													a |= Availability.Incremental;
 
 												Package.Release.Complete(a);

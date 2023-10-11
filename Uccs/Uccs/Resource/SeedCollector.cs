@@ -154,15 +154,12 @@ namespace Uccs.Net
 											if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 											{
 												var r = Sun.Call(i =>	{
-																			while(Workflow.Active)
-																			{
-																				var cr = i.GetMembers();
+																			var cr = i.GetMembers();
 			
-																				if(cr.Members.Any())
-																					return cr;
-																			}
+																			if(cr.Members.Any())
+																				return cr;
 																											
-																			throw new OperationCanceledException();
+																			throw new ContinueException();
 																		}, 
 																		Workflow);
 												lock(Lock)

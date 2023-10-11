@@ -31,7 +31,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "author";
 
-		public AuthorCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public AuthorCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -44,7 +44,7 @@ namespace Uccs.Sun.CLI
 			{
 		   		case "bid" : 
 					return new AuthorBid(	Args.Nodes[1].Name,
-											GetStringOrEmpty("tld"),
+											GetString("tld", ""),
 											Money.ParseDecimal(GetString("amount")));
 		   		case "register" : 
 					return new AuthorRegistration(	Args.Nodes[1].Name,
@@ -55,7 +55,7 @@ namespace Uccs.Sun.CLI
 												AccountAddress.Parse(GetString("to")));
 		   		case "info" :
 				{
-					var rp = Sun.Call(i => i.GetAuthorInfo(Args.Nodes[1].Name), Workflow);
+					var rp = Program.Rdc<AuthorResponse>(new AuthorRequest {Name = Args.Nodes[1].Name});
 	
 					//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 	

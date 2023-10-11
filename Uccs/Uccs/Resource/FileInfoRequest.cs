@@ -11,10 +11,12 @@
 			if(sun.ResourceHub == null) 
 				throw new RdcNodeException(RdcNodeError.NotSeed);
 			
-			if(!sun.ResourceHub.Exists(Resource, Hash, File)) 
-				throw new RdcNodeException(RdcNodeError.NotFound);
+			var r = sun.ResourceHub.Find(Resource, Hash);
+			
+			if(r == null || !r.IsReady(File)) 
+				throw new RdcEntityException(RdcEntityError.NotFound);
 
-			return new FileInfoResponse{Length = sun.ResourceHub.GetLength(Resource, Hash, File)};
+			return new FileInfoResponse{Length = r.GetLength(File)};
 		}
 	}
 

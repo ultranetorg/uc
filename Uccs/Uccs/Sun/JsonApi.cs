@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
@@ -12,8 +13,8 @@ namespace Uccs.Net
 		public string			ProtocolVersion { get; set; }
 		public string			AccessKey { get; set; }
 
-		public static string NameOf<C>() => NameOf(typeof(C));
-		public static string NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
+		public static string	NameOf<C>() => NameOf(typeof(C));
+		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
 
 		public abstract object	Execute(Sun sun, Workflow workflow);
 	}
@@ -260,6 +261,19 @@ namespace Uccs.Net
 		}
 	}
 
+	public class SaveWalletCall : ApiCall
+	{
+		public AccountAddress	Account { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.Lock)
+				sun.Vault.SaveWallet(Account);
+			
+			return null;
+		}
+	}
+
 	public class UnlockWalletCall : ApiCall
 	{
 		public AccountAddress	Account { get; set; }
@@ -287,26 +301,49 @@ namespace Uccs.Net
 		}
 	}
 
-	public class UntTransferCall : ApiCall
+	public class OperationResponse
 	{
-		public AccountAddress	From { get; set; }
-		public AccountAddress	To { get; set; }
-		public Money			Amount { get; set; }
+		public Operation Operation {get; set;} 
+	}
+
+	public class EmitCall : ApiCall
+	{
+		public byte[]			FromPrivateKey { get; set; } 
+		public BigInteger		Wei { get; set; } 
+		public AccountAddress	To { get; set; } 
+		public PlacingStage		Await { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			AccountKey k;
-								
-			lock(sun.Lock)
-				k = sun.Vault.GetKey(From);
+			var o = sun.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)sun.Zone.EthereumNetwork)), Wei, sun.Vault.GetKey(To), Await, workflow);
 
-			sun.Enqueue(new UntTransfer(To, Amount), k, PlacingStage.Accepted, workflow);
-
-			return null;
+			return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
 		}
 	}
 
-	public class QueryResourceCall : ApiCall
+	public class EnqeueOperationCall : ApiCall
+	{
+		public IEnumerable<Operation>	Operations { get; set; }
+		public AccountAddress			By  { get; set; }
+		public PlacingStage				Await  { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			return sun.Enqueue(Operations, sun.Vault.GetKey(By), Await, workflow);
+		}
+	}
+
+	public class RdcCall : ApiCall
+	{
+		public RdcRequest	Request { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			return sun.Call(i => i.Request(Request), workflow);
+		}
+	}
+
+	public class ResourceQueryCall : ApiCall
 	{
 		public string		Query { get; set; }
 
@@ -317,70 +354,197 @@ namespace Uccs.Net
 		}
 	}
 
-	public class AddReleaseCall : ApiCall
+	public class PackageAddCall : ApiCall
 	{
-		public PackageAddress	Release { get; set; }
+		public PackageAddress	Package { get; set; }
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			lock(sun.Lock)
+			var m = new Manifest();
+			m.Read(new BinaryReader(new MemoryStream(Manifest)));
+								
+			var h = sun.Zone.Cryptography.HashFile(m.Bytes);
+								
+			lock(sun.ResourceHub.Lock)
 			{
-				var m = new Manifest();
-				m.Read(new BinaryReader(new MemoryStream(Manifest)));
-								
-				var h = sun.Zone.Cryptography.HashFile(m.Bytes);
-								
-				lock(sun.ResourceHub.Lock)
-				{
-					sun.ResourceHub.Add(Release, h);
+				var r = sun.ResourceHub.Add(Package, h);
 	
-					sun.ResourceHub.WriteFile(Release, h, Package.ManifestFile, 0, Manifest);
+				r.AddFile(Net.Package.ManifestFile, Manifest);
 	
-					if(Complete != null)
-					{
-						sun.ResourceHub.WriteFile(Release, h, Package.CompleteFile, 0, Complete);
-					}
-					if(Incremental != null)
-					{
-						sun.ResourceHub.WriteFile(Release, h, Package.IncrementalFile, 0, Incremental);
-					}
+				if(Complete != null)
+					r.AddFile(Net.Package.CompleteFile, Complete);
+
+				if(Incremental != null)
+					r.AddFile(Net.Package.IncrementalFile, Incremental);
 								
-					sun.ResourceHub.SetLatest(Release, h);
-				}
+				r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+				sun.ResourceHub.SetLatest(Package, h);
 			}
 
 			return null;
 		}
 	}
 
-	//public class DownloadReleaseCall : ApiCall
-	//{
-	//	public ReleaseAddress	Release { get; set; }
-	//}
-
-	public class PackageStatusCall : ApiCall
+	public class ResourceBuildCall : ApiCall
 	{
-		public PackageAddress	Release { get; set; }
-		public int				Limit  { get; set; }
+		public ResourceAddress		Resource { get; set; }
+		public IEnumerable<string>	Sources { get; set; }
+		public string				FilePath { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{
+				if(FilePath != null)
+					return sun.ResourceHub.Build(Resource, FilePath, workflow).Hash;
+				else if(Sources != null && Sources.Any())
+					return sun.ResourceHub.Build(Resource, Sources, workflow).Hash;
+			}
+
+			return null;
+		}
+	}
+
+	public class ResourceDownloadCall : ApiCall
+	{
+		public ResourceAddress Resource { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			var r = sun.Call(c => c.FindResource(Resource), workflow).Resource;
+					
+			Release rs;
+
+			lock(sun.ResourceHub.Lock)
+			{
+				rs = sun.ResourceHub.Find(Resource, r.Data) ?? sun.ResourceHub.Add(Resource, r.Data);
+	
+				if(r.Type == ResourceType.File)
+				{
+					sun.ResourceHub.DownloadFile(rs, "f", r.Data, null, workflow);
+		
+					//if(d != null)
+					//{
+					//	do
+					//	{
+					//		Task.WaitAny(new Task[] {d.Task}, 500, workflow.Cancellation);
+					//
+					//		lock(d.Lock)
+					//		{ 
+					//			if(d.File != null)
+					//				workflow.Log?.Report(this, $"{d.DownloadedLength}/{d.Length} bytes, {d.CurrentPieces.Count} threads, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
+					//			else
+					//				workflow.Log?.Report(this, $"?/? bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
+					//		}
+					//	}
+					//	while(!d.Task.IsCompleted && workflow.Active);
+					//} 
+					//else
+					//	workflow.Log?.Report(this, $"Already downloaded");
+					
+					return r.Data;
+				}
+				else if(r.Type == ResourceType.Directory)
+				{
+					sun.ResourceHub.DownloadDirectory(rs, workflow);
+		
+					//if(d != null)
+					//{
+					//	void report() => workflow.Log?.Report(this, $"{d.CompletedCount}/{d.TotalCount} files, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
+					//
+					//	do
+					//	{
+					//		Task.WaitAny(new Task[] {d.Task}, 500, workflow.Cancellation);
+					//
+					//		report();
+					//	}
+					//	while(!d.Task.IsCompleted && workflow.Active);
+					//} 
+					//else
+					//	workflow.Log?.Report(this, $"Already downloaded");
+					
+					return r.Data;
+				}
+			}
+	
+			throw new NotSupportedException();
+		}
+	}
+	
+	public class ResourceDownloadProgressCall : ApiCall
+	{
+		public ResourceAddress	Resource { get; set; }
+		public byte[]			Hash { get; set; }
+		
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+				return sun.ResourceHub.GetDownloadProgress(Resource, Hash);
+		}
+	}
+
+	public class PackageBuildCall : ApiCall
+	{
+		public PackageAddress		Package { get; set; }
+		public Version				Version { get; set; }
+		public IEnumerable<string>	Sources { get; set; }
+		public string				DependsDirectory { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+				sun.PackageHub.AddRelease(Package, Version, Sources, DependsDirectory, workflow);
+
+			return null;
+		}
+	}
+
+	public class PackageDownloadCall : ApiCall
+	{
+		public PackageAddress		Package { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+				sun.PackageHub.Download(Package, workflow);
+
+			return null;
+		}
+	}
+
+	public class PackageDownloadProgressCall : ApiCall
+	{
+		public PackageAddress	Package { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				return sun.PackageHub.GetStatus(Release, Limit);
+				return sun.PackageHub.GetDownloadProgress(Package);
 		}
 	}
 
-	public class InstallPackageCall : ApiCall
+	public class PackageReadyCall : ApiCall
 	{
-		public PackageAddress	Release { get; set; }
+		public PackageAddress	Package { get; set; }
+		
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.PackageHub.Lock)
+				return sun.PackageHub.IsReady(Package);
+		}
+	}
+
+	public class PackageInstallCall : ApiCall
+	{
+		public PackageAddress	Package { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				sun.PackageHub.Install(Release, workflow);
+				sun.PackageHub.Install(Package, workflow);
 
 			return null;
 		}

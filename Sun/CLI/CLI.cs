@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,18 +11,16 @@ namespace Uccs.Sun.CLI
 {
 	public class Program
 	{
-		static Settings					Settings = null;
-		static Workflow					Workflow = new Workflow("CLI", new Log());
-		public static ConsoleLogView	LogView;
-		static Net.Sun					Sun;
-		internal static Boot			Boot;
+		public ConsoleLogView	LogView;
+		public string			ExeDirectory;
+		public Zone				Zone;
+		public Net.Sun			Sun;
+		public JsonApiClient	Api;
+		public Workflow			Workflow = new Workflow("CLI", new Log());
 
-		static void Main(string[] args)
+		public Program()
 		{
-			Thread.CurrentThread.CurrentCulture = 
-			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-
-			var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 			try
 			{
@@ -34,32 +33,15 @@ namespace Uccs.Sun.CLI
 
 			try
 			{
-				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Net.Sun.FailureExt))
+				foreach(var i in Directory.EnumerateFiles(ExeDirectory, "*." + Net.Sun.FailureExt))
 					File.Delete(i);
-					
-				Boot = new Boot(exedir);
-				Settings = new Settings(exedir, Boot);
-								
-				if(File.Exists(Settings.Profile))
-					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Sun.FailureExt))
-						File.Delete(i);
+				
+				var b = new Boot(ExeDirectory);
 
-				if(!Boot.Commnand.Nodes.Any())
+				if(!b.Commnand.Nodes.Any())
 					return;
 
-				//string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-				Sun = new Net.Sun(Boot.Zone, Settings){	Clock = new RealTimeClock(),
-														Nas = new Nas(Settings, Workflow.Log),
-														GasAsker = Command.ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
-														FeeAsker = new SilentFeeAsker()};
-				
-				if(Boot.Commnand.Nodes.First().Name != RunCommand.Keyword)
-				{
-					Sun.RunUser(Workflow);
-				}
-
-				Execute(Boot.Commnand, Boot.Zone, Settings, Sun, Workflow);
+				Execute(b.Commnand);
 			}
 			catch(OperationCanceledException)
 			{
@@ -68,13 +50,29 @@ namespace Uccs.Sun.CLI
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Net.Sun.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(ExeDirectory, m + "." + Net.Sun.FailureExt), ex.ToString());
 			}
 
 			Sun.Stop("The End");
 		}
 
-		static Command Create(Zone zone, Settings settings, Net.Sun sun, Xon commnad, Workflow workflow)
+		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Workflow workflow)
+		{
+			Zone = zone;
+			Sun = sun;
+			Api = api;
+			Workflow = workflow;
+		}
+
+		static void Main(string[] args)
+		{
+			Thread.CurrentThread.CurrentCulture = 
+			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
+
+			new Program();
+		}
+
+		Command Create(Xon commnad)
 		{
 			Command c = null;
 			var t = commnad.Nodes.First().Name;
@@ -83,47 +81,88 @@ namespace Uccs.Sun.CLI
 
 			switch(t)
 			{
-				case RunCommand.Keyword:		c = new RunCommand(zone, settings, workflow, sun, args); break;
-				case DevCommand.Keyword:		c = new DevCommand(zone, settings, workflow, sun, args); break;
-				case AccountCommand.Keyword:	c = new AccountCommand(zone, settings, workflow, sun, args); break;
-				case MoneyCommand.Keyword:		c = new MoneyCommand(zone, settings, workflow, sun, args); break;
-				case NexusCommand.Keyword:		c = new NexusCommand(zone, settings, workflow, sun, args); break;
-				case AuthorCommand.Keyword:		c = new AuthorCommand(zone, settings, workflow, sun, args); break;
-				case PackageCommand.Keyword:	c = new PackageCommand(zone, settings, workflow, sun, args); break;
-				case ResourceCommand.Keyword:	c = new ResourceCommand(zone, settings, workflow, sun, args); break;
-				case NetCommand.Keyword:		c = new NetCommand(zone, settings, workflow, sun, args); break;
+				case RunCommand.Keyword:		c = new RunCommand(this, args); break;
+				case AttachCommand.Keyword:		c = new AttachCommand(this, args); break;
+				case DevCommand.Keyword:		c = new DevCommand(this, args); break;
+				case AccountCommand.Keyword:	c = new AccountCommand(this, args); break;
+				case MoneyCommand.Keyword:		c = new MoneyCommand(this, args); break;
+				case NexusCommand.Keyword:		c = new NexusCommand(this, args); break;
+				case AuthorCommand.Keyword:		c = new AuthorCommand(this, args); break;
+				case PackageCommand.Keyword:	c = new PackageCommand(this, args); break;
+				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args); break;
+				case NetCommand.Keyword:		c = new NetCommand(this, args); break;
 			}
 
 			return c;
 		}
 
-		public static object Execute(Xon command, Zone zone, Settings settings, Net.Sun sun, Workflow workflow)
+
+		public object Execute(Xon command)
 		{
-			if(workflow.Aborted)
+			if(Workflow.Aborted)
 				throw new OperationCanceledException();
 
 			var args = command.Nodes.ToList();
-			var c = Create(zone, settings, sun, command, workflow);
+			var c = Create(command);
 
 			if(c != null)
 			{
-				var a = c?.Execute();
+				var a = c.Execute();
 
 				if(a is Operation o)
 				{
-					c.Sun.Enqueue(new Operation[]{o}, c.Sun.Vault.GetKey(c.GetAccountAddress("by")), Command.GetAwaitStage(command),  workflow);
+					Enqueue(new Operation[]{o}, c.GetAccountAddress("by"), Command.GetAwaitStage(command));
+					//if(api == null)
+					//	c.Sun.Enqueue(new Operation[]{o}, c.Sun.Vault.GetKey(c.GetAccountAddress("by")), Command.GetAwaitStage(command),  workflow);
+					//else
+					//	api.Send(new EnqeueOperationCall{	By = c.GetAccountAddress("by"),
+					//										Await = Command.GetAwaitStage(command),
+					//										Operations = new [] {o}}, 
+					//				Workflow);
 				}
 				
 				return a;
 			} 
 			else
 			{
-				var ops = command.Nodes.Where(i => i.Name != "await" && i.Name != "by").Select(i => Create(zone, settings, sun, i, workflow).Execute() as Operation).ToArray();
+				var results = command.Nodes.Where(i => i.Name != "await" && i.Name != "by").Select(i => Create(i)).Select(i => i.Execute());
 
-				sun.Enqueue(ops, sun.Vault.GetKey(AccountAddress.Parse(command.Get<string>("by"))), Command.GetAwaitStage(command), workflow);
+				Enqueue(results.OfType<Operation>(), AccountAddress.Parse(command.Get<string>("by")), Command.GetAwaitStage(command));
 
-				return ops;
+				return results;
 			}
+		}
+
+		public Rp Call<Rp>(ApiCall call)
+		{
+			if(Api == null) 
+				return (Rp)call.Execute(Sun, Workflow);
+			else
+				return Api.Request<Rp>(call, Workflow);
+		}
+
+		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
+		{
+			return Call<Rp>(new RdcCall {Request = request});
+		}
+
+		public void Call(ApiCall call)
+		{
+			if(Api == null)
+				call.Execute(Sun, Workflow);
+			else
+				Api.Send(call, Workflow);
+		}
+
+		public void Enqueue(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
+		{
+			if(Api == null)
+				Sun.Enqueue(operations, by, await, Workflow);
+			else
+				Api.Send(new EnqeueOperationCall{	Operations = operations,
+													By = by,
+													Await = await}, 
+							Workflow);
 		}
 	}
 }

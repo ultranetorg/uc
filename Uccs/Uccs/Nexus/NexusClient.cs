@@ -18,9 +18,9 @@ namespace Uccs.Uos
 		public Zone Zone;
 
 		public ResourceHub		Filebase;
-		public PackageHub	PackageBase;
-		public JsonClient	Sun;
-		HttpClient			Http = new HttpClient();
+		public PackageHub		PackageBase;
+		public JsonApiClient	Sun;
+		HttpClient				Http = new HttpClient();
 
 		public NexusClient()
 		{
@@ -29,9 +29,9 @@ namespace Uccs.Uos
 			SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
 			Zone			=	null;//Environment.GetEnvironmentVariable(Nexus.BootZone);
 
-			Sun = new JsonClient(Http, SunAddress, SunApiKey);
+			Sun = new JsonApiClient(Http, SunAddress, SunApiKey);
 
-			var s = Sun.GetSettings(new Workflow("GetSettings"));
+			var s = Sun.Request<SettingsResponse>(new SettingsCall(), new Workflow("GetSettings"));
 
 			Filebase = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(Filebase)));
 			PackageBase = new PackageHub(null, Filebase, ProductsPath);
@@ -39,25 +39,25 @@ namespace Uccs.Uos
 
 		public void Start(Uri address, Workflow workflow)
 		{
-			var s = Sun.GetReleaseStatus(PackageAddress.Parse(address.LocalPath), workflow);
-
-			if(s.Manifest == null)
-			{
-				Sun.InstallPackage(PackageAddress.Parse(address.LocalPath), workflow);
-
-				while(true)
-				{
-					workflow.Wait(1);
-
-					s = Sun.GetReleaseStatus(PackageAddress.Parse(address.LocalPath), workflow);
-
-					if(s.Download == null)
-					{
-						Execute(address);
-						return;
-					}
-				}
-			}
+			///var s = Sun.Request<PackageDownloadReport>(new PackageDownloadReportCall {Package = PackageAddress.Parse(address.LocalPath)}, workflow);
+			///
+			///if(s.Manifest == null)
+			///{
+			///	Sun.Send(new InstallPackageCall {Package = PackageAddress.Parse(address.LocalPath)}, workflow);
+			///
+			///	while(true)
+			///	{
+			///		workflow.Wait(1);
+			///
+			///		s = Sun.Request<PackageDownloadReport>(new PackageDownloadReportCall {Package = PackageAddress.Parse(address.LocalPath)}, workflow);
+			///
+			///		if(s.Download == null)
+			///		{
+			///			Execute(address);
+			///			return;
+			///		}
+			///	}
+			///}
 		}
 
 		void Execute(Uri request)

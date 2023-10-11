@@ -13,9 +13,9 @@ namespace Uccs.Net
 			Proxy = proxy;
 		}
 
-		public override Rp Request<Rp>(RdcRequest rq)
+		public override RdcResponse Request(RdcRequest rq)
 		{
-			return Proxy.Request<ProxyResponse>(new ProxyRequest { Destination = Generator, Guid = Guid.NewGuid().ToByteArray(), Request = rq}).Response as Rp;
+			return Proxy.Request<ProxyResponse>(new ProxyRequest { Destination = Generator, Guid = Guid.NewGuid().ToByteArray(), Request = rq}).Response;
 		}
 
 		public override void Send(RdcRequest rq)

@@ -27,6 +27,10 @@
     "run user": {
       "commandName": "Project",
       "commandLineArgs": "run user"
+    },
+    "attach node=127.0.0.101 accesskey profile=a:\\UOTMP\\CLI zone=Simulation": {
+      "commandName": "Project",
+      "commandLineArgs": "attach to=http://127.0.0.101:3900 zone=Simulation"
     }
   }
 }

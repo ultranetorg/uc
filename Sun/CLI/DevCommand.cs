@@ -10,7 +10,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "dev";
 
-		public DevCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public DevCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 	
 							var t = DateTime.Now;
 	
-							client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Zone.Port);
+							client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
 				
 							Workflow.Log?.Report(this, null, $"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 	

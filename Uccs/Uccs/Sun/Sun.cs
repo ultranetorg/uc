@@ -56,13 +56,6 @@ namespace Uccs.Net
 		Seed		= 0b00000100,
 	}
 
-	public class ReleaseStatus
-	{
-		public bool						ExistsRecursively { get; set; }
-		public Manifest					Manifest { get; set; }
-		public PackageDownloadReport	Download { get; set; }
-	}
-
 	public class Sun : RdcInterface
 	{
 		public Role						Roles => (Mcv != null ? Mcv.Roles : Role.Null)|(ResourceHub != null ? Role.Seed : Role.Null);
@@ -77,7 +70,7 @@ namespace Uccs.Net
 		public Zone						Zone;
 		public Settings					Settings;
 		public Workflow					Workflow;
-		public JsonServer				ApiServer;
+		public JsonApiServer				ApiServer;
 		public Vault					Vault;
 		public INas						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
@@ -111,7 +104,6 @@ namespace Uccs.Net
 		public int						TransactionThresholdExcessRound;
 
 		public bool						MinimalPeersReached;
-		bool							OnlineBroadcasted;
 		public List<Peer>				Peers = new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
 		public IEnumerable<Peer>		Bases
@@ -296,7 +288,7 @@ namespace Uccs.Net
 
 			lock(Lock)
 			{
-				ApiServer = new JsonServer(this);
+				ApiServer = new JsonApiServer(this);
 			}
 		
 			ApiStarted?.Invoke(this);
@@ -2013,12 +2005,12 @@ namespace Uccs.Net
 // 				return null;
 // 		}
 		
-		public void Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
+		public PlacingStage Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
 		{
-			Enqueue(new Operation[] {operation}, signer, await, workflow);
+			return Enqueue(new Operation[] {operation}, signer, await, workflow);
 		}
 
- 		public void Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage awaitstage, Workflow workflow)
+ 		public PlacingStage Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage await, Workflow workflow)
  		{
 			if(operations.Count() > Zone.OperationsPerTransactionLimit)
 				throw new ArgumentException();
@@ -2028,7 +2020,7 @@ namespace Uccs.Net
  			lock(Lock)
 			{	
 				t.Signer = signer;
- 				t.__ExpectedPlacing = awaitstage;
+ 				t.__ExpectedPlacing = await;
 			
 				foreach(var i in operations)
 				{
@@ -2041,7 +2033,9 @@ namespace Uccs.Net
  				}
 			}
  
-			Await(t, awaitstage, workflow);
+			Await(t, await, workflow);
+
+			return t.Placing;
  		}
 
 		void Await(Transaction t, PlacingStage s, Workflow workflow)
@@ -2351,7 +2345,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public override Rp Request<Rp>(RdcRequest rq) where Rp : class
+		public override RdcResponse Request(RdcRequest rq)
   		{
 			if(rq.Peer == null) /// self call, cloning needed
 			{
@@ -2361,7 +2355,7 @@ namespace Uccs.Net
 				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
 			}
 
- 			return rq.Execute(this) as Rp;
+ 			return rq.Execute(this);
  		}
 
 		public override void Send(RdcRequest rq)

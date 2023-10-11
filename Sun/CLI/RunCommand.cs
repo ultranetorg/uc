@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Net.Http;
+using System.IO;
+using System.Threading;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -7,41 +8,44 @@ namespace Uccs.Sun.CLI
 	internal class RunCommand : Command
 	{
 		public const string Keyword = "run";
-		HttpClient Http = new HttpClient(); 
 
-		public RunCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public RunCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			Sun.Run(Args, Workflow);
+			var b = new Boot(Program.ExeDirectory);
 
-			ApiClient = new JsonClient(Http, $"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}", Sun.Settings.Api.AccessKey);
+			var settings = new Settings(Program.ExeDirectory, b);
+				
+			if(File.Exists(settings.Profile))
+				foreach(var i in Directory.EnumerateFiles(settings.Profile, "*." + Net.Sun.FailureExt))
+					File.Delete(i);
+
+			//string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+			Program.Sun = new Net.Sun(b.Zone, settings){Clock = new RealTimeClock(),
+														Nas = new Nas(settings, Workflow.Log),
+														GasAsker = Command.ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
+														FeeAsker = new SilentFeeAsker() };
+			
+			//ApiClient = new JsonClient(Http, $"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}", Sun.Settings.Api.AccessKey);
+			//if(Boot.Commnand.Nodes.First().Name != RunCommand.Keyword)
+			//{
+			//	Sun.RunUser(Workflow);
+			//}
+
+			Program.Sun.Run(Args, Workflow);
 
 			if(ConsoleAvailable)
 			{	
-				//Console.ReadKey(true);
-				//Wait(() => Workflow.Active && !Console.KeyAvailable);
-				//
-				//if(Workflow.Active)
-				//{
-				//}
-
-				CLI.Program.LogView.Tags = new string[] {};
-
-				string c;
-
-				//if(Sun.Nuid != Guid.Empty)
-				//{
-				//	while(!Sun.MinimalPeersReached)
-				//		Thread.Sleep(100);
-				//}
+				Program.LogView.Tags = new string[] {};
 
 				while(true)
 				{
 					Console.Write(">");
-					c = Console.ReadLine();
+					var c = Console.ReadLine();
 
 					if(c == "exit")
 						break;
@@ -50,7 +54,7 @@ namespace Uccs.Sun.CLI
 					{
 						var xc = new XonDocument(c);
 	
-						Program.Execute(xc, Program.Boot.Zone, Settings, Sun, Workflow);
+						Program.Execute(xc);
 					}
 					catch(Exception ex)
 					{
@@ -61,9 +65,12 @@ namespace Uccs.Sun.CLI
 				//Sun.Stop("By user input");
 			}
 			else
-				Wait(() => Workflow.Active);
+				while(Workflow.Active)
+				{
+					Thread.Sleep(100); 
+				}
 			
-			return Sun;
+			return null;
 		}
 	}
 }

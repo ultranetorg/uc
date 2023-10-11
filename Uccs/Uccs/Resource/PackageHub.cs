@@ -21,8 +21,8 @@ namespace Uccs.Net
 		public const string		Renamings = ".renamings"; /// TODO
 
 		public PackageAddress	Address;
-		public Release	Release;
-		PackageHub				PackageBase;
+		public Release			Release;
+		PackageHub				Hub;
 		Manifest				_Manifest;
 
 		public Manifest	Manifest
@@ -31,11 +31,11 @@ namespace Uccs.Net
 			{
 				if(_Manifest == null)
 				{
-					_Manifest = new Manifest(PackageBase.Sun.Zone){Address = Address};
+					_Manifest = new Manifest(Hub.Sun.Zone){Address = Address};
 					
-					lock(PackageBase.Resources.Lock)
+					lock(Hub.Resources.Lock)
 					{
-						_Manifest.Read(new BinaryReader(new MemoryStream(PackageBase.Resources.ReadFile(Release.Address, Release.Hash, ManifestFile))));
+						_Manifest.Read(new BinaryReader(new MemoryStream(Release.ReadFile(ManifestFile))));
 					}
 				}
 
@@ -43,16 +43,16 @@ namespace Uccs.Net
 			}
 		}
 
-		public Package(PackageHub packbase, PackageAddress address, Release release)
+		public Package(PackageHub hub, PackageAddress address, Release release)
 		{
 			Address = address;
-			PackageBase = packbase;
+			Hub = hub;
 			Release = release;
 		}
 
-		public Package(PackageHub packebase, PackageAddress address, Release release, Manifest manifest)
+		public Package(PackageHub hub, PackageAddress address, Release release, Manifest manifest)
 		{
-			PackageBase = packebase;
+			Hub = hub;
 			Address = address;
 			Release = release;
 			_Manifest = manifest;
@@ -119,6 +119,37 @@ namespace Uccs.Net
 // 				Packages.Add(new Package(this, package, r));
 // 			}
 // 		}
+
+		public IEnumerable<Package> FindPrevious(PackageAddress package, Version incrementalminimalversion)
+		{
+			return Resources.Releases	.Where(i => i.Address.ToString().StartsWith(package.APR + "/"))
+										.Select(i => Find(new PackageAddress(i.Address)))
+										.OrderByDescending(i => i.Address.Version)
+										.SkipWhile(i => i.Address.Version >= package.Version)
+										.TakeWhile(i => i.Address.Version >= incrementalminimalversion);
+		}
+
+		public bool IsReady(PackageAddress package)
+		{
+			var p = Find(package);
+
+			if(p == null)
+				return false;
+
+			if(p.Release.Availability.HasFlag(Availability.Complete) || p.Release.Availability.HasFlag(Availability.Incremental) && 
+																		FindPrevious(package, p.Manifest.IncrementalMinimalVersion).Any(i => IsReady(i.Address)))
+			{
+				foreach(var i in p.Manifest.CriticalDependencies)
+				{
+					if(!IsReady(i.Release))
+						return false;
+				}
+
+				return true;
+			}
+			else
+				return false;
+		}
 
 		public Package Find(PackageAddress package)
 		{
@@ -187,7 +218,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public void BuildIncremental(Stream stream, PackageAddress release, Version previous, IDictionary<string, string> files, out Version minimal, Workflow workflow)
+		public void BuildIncremental(Stream stream, PackageAddress package, Version previous, IDictionary<string, string> files, out Version minimal, Workflow workflow)
 		{
 			var rems = new List<string>();
 			var incs = new Dictionary<string, string>();
@@ -196,9 +227,9 @@ namespace Uccs.Net
 			//var r = ResourceBase.GetDirectory(release, null, true);
 
 			//r = r.Substring(0, r.LastIndexOf(' ') + 1);
-			var prev = new PackageAddress(release.Author, release.Product, release.Realization, previous);
+			var prev = package.ReplaceVesion(previous);
 
-			using(var s = new FileStream(Resources.AddressToPath(prev, null, Package.CompleteFile), FileMode.Open))
+			using(var s = new FileStream(Find(prev).Release.AddressToPath(Package.CompleteFile), FileMode.Open))
 			{
 				using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
 				{
@@ -262,7 +293,7 @@ namespace Uccs.Net
 
 			minimal = previous; /// TODO: determine really minimal
 			
-			Build(stream, release, incs, rems, workflow);
+			Build(stream, package, incs, rems, workflow);
 		}
 
 		public void DetermineDelta(IEnumerable<PackageAddress> history, Manifest manifest, byte[] hash, out bool canincrement, out List<Dependency> dependencies)
@@ -283,7 +314,7 @@ namespace Uccs.Net
 					var need = history.SkipWhile(i => i.Version <= c).TakeWhile(i => i.Version < manifest.Address.Version);
 					
 					lock(Resources.Lock)
-						if(need.All(i => Resources.Exists(i, null, Package.IncrementalFile)))
+						if(need.All(i => Find(i).Release.IsReady(Package.IncrementalFile)))
 						{
 							foreach(var i in need)
 							{
@@ -397,12 +428,12 @@ namespace Uccs.Net
  				
 				var r = Resources.Add(package, h);
 				 
- 				Resources.WriteFile(package, h, Package.ManifestFile, 0, m.Bytes);
-				Resources.WriteFile(package, h, Package.CompleteFile, 0, cstream.ToArray());
+ 				r.AddFile(Package.ManifestFile, m.Bytes);
+				r.AddFile(Package.CompleteFile, cstream.ToArray());
 
 				if(istream != null)
 				{
-					Resources.WriteFile(package, h, Package.IncrementalFile, 0, istream.ToArray());
+					r.AddFile(Package.IncrementalFile, istream.ToArray());
 				}
  
  				Packages.Add(new Package(this, package, r));
@@ -414,18 +445,18 @@ namespace Uccs.Net
 
 		public void Unpack(PackageAddress release, bool overwrite = false)
 		{
-			var dir = Resources.AddressToPath(release, null);
+			var dir = Find(release).Release.Path;
 
 			var c = Directory.EnumerateFiles(dir, $"*.{Package.CompleteFile}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
-																		.OrderByDescending(i => i)
-																		.SkipWhile(i => i > release.Version) /// skip younger
-																		.FirstOrDefault();	/// find last available complete package
+																				.OrderByDescending(i => i)
+																				.SkipWhile(i => i > release.Version) /// skip younger
+																				.FirstOrDefault();	/// find last available complete package
 			if(c != null) 
 			{
-				var incs = Directory.EnumerateFiles(dir, $"*.{Package.IncrementalFile}")	.Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
-																				.OrderBy(i => i)
-																				.SkipWhile(i => i <= c)
-																				.TakeWhile(i => i <= release.Version); /// take all incremetals before complete
+				var incs = Directory.EnumerateFiles(dir, $"*.{Package.IncrementalFile}").Select(i => Version.Parse(Path.GetFileNameWithoutExtension(i)))
+																						.OrderBy(i => i)
+																						.SkipWhile(i => i <= c)
+																						.TakeWhile(i => i <= release.Version); /// take all incremetals before complete
 				
 				var deps = new List<Dependency>();
 
@@ -433,7 +464,7 @@ namespace Uccs.Net
 				{
 					var r = new PackageAddress(release.Author, release.Product, release.Realization, v);
 
-					using(var s = new FileStream(Resources.AddressToPath(r, null, Package.CompleteFile), FileMode.Open))
+					using(var s = new FileStream(Find(r).Release.AddressToPath(Package.CompleteFile), FileMode.Open))
 					{
 						using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
 						{
@@ -466,7 +497,7 @@ namespace Uccs.Net
 				{
 					var r = new PackageAddress(release.Author, release.Product, release.Realization, v);
 
-					using(var s = new FileStream(Resources.AddressToPath(r, null, Package.IncrementalFile), FileMode.Open))
+					using(var s = new FileStream(Find(r).Release.AddressToPath(Package.IncrementalFile), FileMode.Open))
 					{
 						using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
 						{
@@ -534,39 +565,6 @@ namespace Uccs.Net
 			}
 		}
 
-		public ReleaseStatus GetStatus(PackageAddress package, int limit)
-		{
-			var s = new ReleaseStatus();
-
-			s.ExistsRecursively = ExistsRecursively(package);
-
-			if(s.ExistsRecursively)
-			{
-				s.Manifest = Find(package).Manifest;
-			}
-			else
-			{
-				var p = Downloads.Find(i => i.Address == package);
-
-				if(p != null)
-				{
-					lock(Sun.ResourceHub.Lock)
-					{
-						var r = Resources.FileDownloads.Find(i => i.Release.Address == package);
-
-						s.Download = new(){	File					= r.File.Path,
-											Length					= r.File.Length,
-											CompletedLength			= r.DownloadedLength,
-											DependenciesRecursive	= p.DependenciesRecursive.Select(i => new PackageDownloadReport.Dependency {Release = i.Address, Exists = Find(new PackageAddress(i.Address)) != null}).ToArray(),
-											Hubs					= r.SeedCollector.Hubs.Take(limit).Select(i => new PackageDownloadReport.Hub {Member = i.Member, /*Seeds = i.Seeds.Take(limit).Select(i => i.IP),*/ Status = i.Status}).ToArray(),
-											Seeds					= r.SeedCollector.Seeds.Take(limit).Select(i => new PackageDownloadReport.Seed {IP = i.IP}).ToArray()};
-					}
-				}
-			}
-
-			return s;
-		}
-
 		public void Add(PackageAddress release, IEnumerable<string> sources, string dependsdirectory, Workflow workflow)
 		{
 			var qlatest = Sun.Call(p => p.QueryResource($"{release.APR}/"), workflow);
@@ -608,22 +606,31 @@ namespace Uccs.Net
 			return d;
 		}
 
-		//public void GetPackge(PackageAddress release, Workflow workflow)
-		//{
-		//	Task t = Task.CompletedTask;
-		//
-		//	lock(Lock)
-		//	{
-		//		if(!Exists(release))
-		//		{
-		//			var d = Download(release, workflow);
-		//	
-		//			t = d.Task;
-		//		}
-		//	}
-		//
-		//	t.Wait(workflow.Cancellation.Token);
-		//}
+		public PackageDownloadProgress GetDownloadProgress(PackageAddress package)
+		{
+			var d = Downloads.Find(i => i.Address == package);
 
+			if(d == null)
+				return null;
+			
+			var s = new PackageDownloadProgress();
+
+			s.Succeeded						 = d.Succeeded;
+			s.DependenciesRecursiveCount	 = d.DependenciesRecursiveCount;
+			s.DependenciesRecursiveSuccesses = d.DependenciesRecursiveSuccesses;
+
+			lock(Sun.ResourceHub.Lock)
+			{
+				if(d.Package != null)
+				{
+					s.CurrentFiles = Resources.FileDownloads.Where(i => i.Release == d.Package.Release).Select(i => new FileDownloadProgress(i)).ToArray();
+				}
+	
+			}
+			
+			s.Dependencies = d.Dependencies.Select(i => GetDownloadProgress(i.Address)).Where(i => i != null).ToArray();
+
+			return s;
+		}
 	}
 }

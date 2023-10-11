@@ -2,47 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Numerics;
-using System.Threading;
 using System.Threading.Tasks;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Net
 {
 	public enum HubStatus
 	{
 		Null, Estimating, Refreshing, Bad
-	}
-
-	public class PackageDownloadReport
-	{
-		public class Dependency
-		{
-			public ResourceAddress	Release { get; set; }
-			public bool				Exists { get; set; }
-		}
-
-		public class Seed
-		{
-			public IPAddress	IP { get; set; }
-			public int			Failures { get; set; }
-			public int			Succeses { get; set; }
-		}
-
-		public class Hub
-		{
-			public AccountAddress			Member { get; set; }
-			public HubStatus				Status { get; set; }
-			public IEnumerable<IPAddress>	Seeds { get; set; }
-		}
-
-		public string					File { get; set; }
-		public long						Length { get; set; }
-		public long						CompletedLength { get; set; }
-		public IEnumerable<Dependency>	DependenciesRecursive { get; set; }
-		public IEnumerable<Hub>			Hubs { get; set; }
-		public IEnumerable<Seed>		Seeds { get; set; }
 	}
 
 	public class FileDownload
@@ -100,7 +66,7 @@ namespace Uccs.Net
 		public List<Piece>		CurrentPieces = new();
 		Sun						Sun;
 		Workflow				Workflow;
-		public object			Lock = new object();
+		//public object			Lock = new object();
 
 		public FileDownload(Sun sun, Release release, string filepath, byte[] filehash, SeedCollector seedcollector, Workflow workflow)
 		{
@@ -118,7 +84,7 @@ namespace Uccs.Net
 									{
 										Task[] tasks;
 	
-										lock(Lock)
+										//lock(Lock)
 										{
 											int left() => File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count;
 
@@ -133,7 +99,20 @@ namespace Uccs.Net
 												{
 													if(File == null)
 													{
-														var l = Sun.Call(seeds.First().IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
+														long l = -1;
+
+														try
+														{
+															l = Sun.Call(seeds.First().IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
+														}
+														catch(RdcNodeException)
+														{
+															continue;
+														}
+														catch(RdcEntityException)
+														{
+															continue;
+														}
 														
 														lock(Sun.ResourceHub.Lock)
 														{
@@ -141,21 +120,24 @@ namespace Uccs.Net
 														}
 													}
 													
-													if(Length > 0)
+													lock(Sun.ResourceHub.Lock)
 													{
-														var s = seeds.AsEnumerable().GetEnumerator();
-
-														for(int i=0; i < Math.Min(seeds.Length, Math.Min(left(), MaxThreadsCount - CurrentPieces.Count)); i++)
+														if(Length > 0)
 														{
-															s.MoveNext();
-															CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
+															var s = seeds.AsEnumerable().GetEnumerator();
+	
+															for(int i=0; i < Math.Min(seeds.Length, Math.Min(left(), MaxThreadsCount - CurrentPieces.Count)); i++)
+															{
+																s.MoveNext();
+																CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
+															}
 														}
-													}
-													else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash))
-													{
-														Sun.ResourceHub.WriteFile(Release.Address, release.Hash, File.Path, 0, new byte[0]);
-														Succeeded = true;
-														goto end;
+														else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash)) /// zero-length file
+														{
+															release.AddFile(File.Path, new byte[0]);
+															Succeeded = true;
+															goto end;
+														}
 													}
 												}
 												else
@@ -194,7 +176,7 @@ namespace Uccs.Net
 										if(ti == -1)
 											continue;
 
-										lock(Lock)
+										lock(Sun.ResourceHub.Lock)
 										{	
 											var p = CurrentPieces.Find(i => i.Task == tasks[ti]);
 											
@@ -207,7 +189,7 @@ namespace Uccs.Net
 	
 												lock(Sun.ResourceHub.Lock)
 												{	
-													Sun.ResourceHub.WriteFile(Release.Address, release.Hash, File.Path, p.Offset, p.Data.ToArray());
+													release.WriteFile(File.Path, p.Offset, p.Data.ToArray());
 													File.CompletePiece(p.I);
 												}
 												
@@ -216,7 +198,7 @@ namespace Uccs.Net
 												if(File.CompletedPieces.Count() == File.Pieces.Length)
 												{
 													lock(Sun.ResourceHub.Lock)
-														if(Sun.ResourceHub.Hashify(Release.Address, release.Hash, File.Path).SequenceEqual(filehash))
+														if(release.Hashify(File.Path).SequenceEqual(filehash))
 														{	
 															Succeeded = true;
 															goto end;

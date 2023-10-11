@@ -12,15 +12,14 @@ namespace Uccs.Sun.CLI
 {
 	public abstract class Command
 	{
-		protected Settings		Settings; 
+		protected Program		Program;
 		protected Xon			Args;
-		public Net.Sun			Sun;
+		//public Net.Sun			Sun;
+		//protected JsonApiClient	Api;
 		public static bool		ConsoleAvailable { get; protected set; }
-		public Workflow			Workflow { get; }
-		public Zone				Zone;
 		public const string		AwaitArg = "await";
 
-		protected JsonClient	ApiClient;
+		protected Workflow		Workflow => Program.Workflow;
 
 		public abstract object Execute();
 
@@ -37,18 +36,10 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		protected Command(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args)
+		protected Command(Program program, Xon args)
 		{
-			Zone = zone;
-			Settings = settings;
-			Sun = sun;
+			Program = program;
 			Args = args;
-			Workflow = workflow;
-		}
-
-		protected Rp Call<Rp>(ApiCall call, Workflow workflow) where Rp : class
-		{
-			return Sun != null ? call.Execute(Sun, workflow) as Rp : ApiClient.Request<Rp>(call, workflow);
 		}
 
 		public AccountAddress GetAccountAddress(string paramenter)
@@ -107,12 +98,12 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected string GetStringOrEmpty(string paramenter)
+		protected string GetString(string paramenter, string def)
 		{
 			if(Args.Has(paramenter))
 				return Args.Get<string>(paramenter);
 			else
-				return string.Empty;
+				return def;
 		}
 
 		//protected AccountKey GetPrivate(string walletarg)
@@ -125,17 +116,6 @@ namespace Uccs.Sun.CLI
 		//
 		//	return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
 		//}
-
-		protected void Wait(Func<bool> waitiftrue)
-		{
-			Task.Run(() =>	{
-								while(waitiftrue() && (!ConsoleAvailable || !Console.KeyAvailable) && !Workflow.Cancellation.IsCancellationRequested)
-								{
-									Thread.Sleep(1); 
-								}
-							})
-							.Wait();
-		}
 
 		public void Dump(object o)
 		{

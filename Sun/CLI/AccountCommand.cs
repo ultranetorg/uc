@@ -8,7 +8,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "account";
 
-		public AccountCommand(Zone zone, Settings settings, Workflow workflow, Net.Sun sun, Xon args) : base(zone, settings, workflow, sun, args)
+		public AccountCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -19,19 +19,25 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-		   		case "new" : return New();
+		   		case "new" : 
+					return New();
 
 				case "unlock" :
 				{
-					Sun.Vault.Unlock(AccountAddress.Parse(Args.Nodes[1].Name), GetString("password"));
+					Program.Call(new UnlockWalletCall {	Account = AccountAddress.Parse(Args.Nodes[1].Name), 
+														Password = GetString("password")});
+					//Sun.Vault.Unlock(AccountAddress.Parse(Args.Nodes[1].Name), GetString("password"));
 					return null;
 				}
 
-				case "import" : return Import();
+				case "import" : 
+					return Import();
 		   		
 				case "info" :
 				{
-					var i = Sun.Call(i => i.GetAccountInfo(AccountAddress.Parse(Args.Nodes[1].Name)), Workflow);
+					var i = Program.Rdc<AccountResponse>(new AccountRequest {Account = AccountAddress.Parse(Args.Nodes[1].Name)});
+
+					//var i = Sun.Call(i => i.GetAccountInfo(AccountAddress.Parse(Args.Nodes[1].Name)), Workflow);
 	
 					Dump(i.Account);
 
@@ -110,8 +116,8 @@ namespace Uccs.Sun.CLI
 
 			Workflow.Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 
-			Sun.Vault.AddWallet(acc, p);
-			Sun.Vault.SaveWallet(acc);
+			Program.Call(new AddWalletCall {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
+			Program.Call(new SaveWalletCall {Account = acc});
 
 			return acc;
 		}
@@ -124,12 +130,6 @@ namespace Uccs.Sun.CLI
 			string pc = null;
 
 			var acc = AccountKey.Parse(GetString("privatekey"));
-
-			if(Sun.Vault.Wallets.ContainsKey(acc))
-			{
-				Workflow.Log?.ReportError(this, $"Account already exists: " + acc);
-				return null;
-			}
 
 			Console.ForegroundColor = ConsoleColor.DarkGreen;
 
@@ -177,8 +177,8 @@ namespace Uccs.Sun.CLI
 			Console.WriteLine();
 			Console.ForegroundColor = c;							
 
-			Sun.Vault.AddWallet(acc, p);
-			Sun.Vault.SaveWallet(acc);
+			Program.Call(new AddWalletCall {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
+			Program.Call(new SaveWalletCall {Account = acc});
 
 			Workflow.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
 			
