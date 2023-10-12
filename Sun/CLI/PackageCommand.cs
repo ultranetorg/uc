@@ -39,6 +39,13 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
+				case "info" :
+				{
+					var r = Program.Call<bool>(new PackageReadyCall {Package= Package});
+					Workflow.Log?.Report(this, $"Status: {(r ? "Ready" : "Not ready")}");
+					return null;
+				}
+
 				case "download" :
 				{
 					var h = Program.Call<byte[]>(new PackageDownloadCall {Package = Package});

@@ -252,7 +252,7 @@ namespace Uccs.Net
 
 					lock(Lock)
 					{
-						rs = Releases.Where(i => i.DeclaredOn.Count < 8).ToArray();
+						rs = Releases.Where(i => i.Availability != Availability.None && i.DeclaredOn.Count < 8).ToArray();
 						//used = rs.SelectMany(i => i.DeclaredOn).Distinct().Where(h => rs.All(r => r.DeclaredOn.Contains(h))).ToList();
 					}
 

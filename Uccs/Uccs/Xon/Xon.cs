@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Org.BouncyCastle.Utilities.Encoders;
-using Uccs.Net;
 
 namespace Uccs
 {
@@ -34,6 +28,8 @@ namespace Uccs
 		public bool						IsTemplate = false;
 		public List<Xon>				Removed;
 		public bool						IsRemoved = false;
+
+		public bool						IsDifferenceDeleted { get => false; }
 
 		public Xon()
 		{
@@ -108,6 +104,7 @@ namespace Uccs
 				while(i.MoveNext())
 				{
 					p = p.Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
+
 					if(p == null)
 					{
 						return null;
@@ -162,45 +159,21 @@ namespace Uccs
 			return p;
 		}
 
-// 		public void Write(ref string b)
-// 		{
-// 			throw new NotImplementedException();
-// 		}
-// 
-// 		public void Read(string b)
-// 		{
-// 			throw new NotImplementedException();
-// 		}
-// 
-// 		public object Clone()
-// 		{
-// 			throw new NotImplementedException();
-// 		}
-
-		/// 
-
-		//public IEnumerable<INestedSerializable> GetNodes()
-		//{
-		//	return Nodes.Cast<INestedSerializable>();
-		//}
-		//
-		//public object GetValue()
-		//{
-		//	return Value;
-		//}
-		//
-		//public string GetName()
-		//{
-		//	return Name;
-		//}
-
-		public bool IsDifferenceDeleted { get => false; }
-
 		public O Get<O>(string name)
 		{
 			var n = One(name);
 
 			return Serializator.Get<O>(n, n.Value);
+		} 
+
+		public O Get<O>(string name, O otherwise)
+		{
+			var n = One(name);
+	
+			if(n != null)
+				return Serializator.Get<O>(n, n.Value);
+			else
+				return otherwise;
 		} 
 
 		public O GetOrDefault<O>(string name)

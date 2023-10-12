@@ -56,7 +56,7 @@ namespace Uccs.Sun.FUI
 			// 
 			// Seeds
 			// 
-			Seeds.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			Seeds.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 			Seeds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader5, columnHeader2, columnHeader1 });
 			Seeds.FullRowSelect = true;
 			Seeds.Location = new System.Drawing.Point(1219, 186);
