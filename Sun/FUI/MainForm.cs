@@ -73,7 +73,7 @@ namespace Uccs.Sun.FUI
 
 			if(Sun.SeedHub != null)
 			{
-				var hub = new TreeNode("Hub"){ Tag = new HubPanel(Sun, sun.Vault) };
+				var hub = new TreeNode("Seed Hub"){ Tag = new HubPanel(Sun, sun.Vault) };
 				navigator.Nodes.Add(hub);
 			}
 

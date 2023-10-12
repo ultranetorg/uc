@@ -18,7 +18,6 @@ namespace Uccs.Sun.FUI
 		{
 			Peers.Items.Clear();
 			Members.Items.Clear();
-			Funds.Items.Clear();
 
 			if(Workflow != null && Workflow.Active)
 			{
@@ -42,58 +41,60 @@ namespace Uccs.Sun.FUI
 				}
 			}
 
-			Task.Run(() =>	{
-								MembersResponse rp = null;
+			Task.Run(() =>
+			{
+				MembersResponse rp = null;
 
-								try
-								{
-									rp = Sun.Call(p => p.GetMembers(), Workflow);
-								}
-								catch(OperationCanceledException)
-								{
-									return;
-								}
-								catch(Exception)
-								{
-								}
-								
-								Invoke(new Action(() =>{
-															foreach(var i in rp.Members.OrderBy(i => i.Account))
-															{
-																var li = Members.Items.Add(i.Account.ToString());
+				try
+				{
+					rp = Sun.Call(p => p.GetMembers(), Workflow);
+				}
+				catch(OperationCanceledException)
+				{
+					return;
+				}
+				catch(Exception)
+				{
+				}
 
-																li.SubItems.Add("no data");
-																li.SubItems.Add("no data");
-																li.SubItems.Add(string.Join(", ", i.BaseRdcIPs.AsEnumerable()));
-																li.SubItems.Add(string.Join(", ", i.SeedHubRdcIPs.AsEnumerable()));
-															}
-														}));
-							});
+				Invoke(new Action(() =>	{
+											foreach(var i in rp.Members.OrderBy(i => i.Account))
+											{
+												var li = Members.Items.Add(i.Account.ToString());
+
+												li.SubItems.Add("no data");
+												li.SubItems.Add("no data");
+												li.SubItems.Add(string.Join(", ", i.BaseRdcIPs.AsEnumerable()));
+												li.SubItems.Add(string.Join(", ", i.SeedHubRdcIPs.AsEnumerable()));
+											}
+										}));
+			});
 
 
-			Task.Run(() =>	{
-								FundsResponse rp = null;
-
-								try
-								{
-									rp = Sun.Call(p => p.GetFunds(), Workflow);
-								}
-								catch(OperationCanceledException)
-								{
-									return;
-								}
-								catch(Exception)
-								{
-								}
-								
-								Invoke(new Action(() =>{
-															foreach(var i in rp.Funds.OrderBy(i => i))
-															{
-																var li = new ListViewItem(i.ToString());
-																Funds.Items.Add(li);
-															}
-														}));
-							});
+			//Task.Run(() =>	{
+			//					FundsResponse rp = null;
+			//
+			//					try
+			//					{
+			//						rp = Sun.Call(p => p.GetFunds(), Workflow);
+			//					}
+			//					catch(OperationCanceledException)
+			//					{
+			//						return;
+			//					}
+			//					catch(Exception)
+			//					{
+			//					}
+			//
+			//					Invoke(new Action(() =>
+			//					{
+			//						foreach(var i in rp.Funds.OrderBy(i => i))
+			//						{
+			//							var li = new ListViewItem(i.ToString());
+			//							Funds.Items.Add(li);
+			//						}
+			//					}));
+			//				});
 		}
 
 		public override void PeriodicalRefresh()

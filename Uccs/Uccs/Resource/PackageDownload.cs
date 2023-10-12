@@ -73,11 +73,11 @@ namespace Uccs.Net
 														if(Package.Release.Hash.SequenceEqual(h))
 															goto done;
 														else
-															Package.Release = sun.ResourceHub.Add(package, h); /// update to the latest
+															Package.Release = sun.ResourceHub.Add(package, ResourceType.Package, h); /// update to the latest
 													} 
 													else
 													{	
-														Package = new Package(sun.PackageHub, package, sun.ResourceHub.Add(package, h));
+														Package = new Package(sun.PackageHub, package, sun.ResourceHub.Add(package, ResourceType.Package, h));
 														sun.PackageHub.Packages.Add(Package);
 													}
 												}
@@ -114,7 +114,7 @@ namespace Uccs.Net
 	
 											lock(sun.PackageHub.Lock)
 											{
-												var a = Availability.None;;
+												var a = Availability.None;
 
 												if(Package.Release.IsReady(Package.CompleteFile))
 													a |= Availability.Complete;

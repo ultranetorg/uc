@@ -13,6 +13,7 @@ namespace Uccs.Net
 		Null, Critical, Deferred
 	}
 
+	[Flags]
 	public enum DependencyFlag : byte
 	{
 		Null, 
@@ -22,9 +23,9 @@ namespace Uccs.Net
 
 	public class Dependency : IBinarySerializable, IEquatable<Dependency>
 	{
+		public PackageAddress	Release { get; set; }
 		public DependencyType	Type { get; set; }
 		public DependencyFlag	Flags { get; set; }
-		public PackageAddress	Release { get; set; }
 
 		internal static Dependency From(Xon i)
 		{
@@ -36,6 +37,11 @@ namespace Uccs.Net
 			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.Null;
 
 			return d;
+		}
+
+		public override string ToString()
+		{
+			return $"{Release}, {Type}, {Flags}";
 		}
 
 		public void Read(BinaryReader reader)

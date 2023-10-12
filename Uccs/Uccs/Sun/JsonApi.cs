@@ -370,7 +370,7 @@ namespace Uccs.Net
 								
 			lock(sun.ResourceHub.Lock)
 			{
-				var r = sun.ResourceHub.Add(Package, h);
+				var r = sun.ResourceHub.Add(Package, ResourceType.Package, h);
 	
 				r.AddFile(Net.Package.ManifestFile, Manifest);
 	
@@ -420,7 +420,7 @@ namespace Uccs.Net
 
 			lock(sun.ResourceHub.Lock)
 			{
-				rs = sun.ResourceHub.Find(Resource, r.Data) ?? sun.ResourceHub.Add(Resource, r.Data);
+				rs = sun.ResourceHub.Find(Resource, r.Data) ?? sun.ResourceHub.Add(Resource, r.Type, r.Data);
 	
 				if(r.Type == ResourceType.File)
 				{
@@ -485,6 +485,35 @@ namespace Uccs.Net
 				return sun.ResourceHub.GetDownloadProgress(Resource, Hash);
 		}
 	}
+	
+	public class ResourceInfoCall : ApiCall
+	{
+		public ResourceAddress	Resource { get; set; }
+		public byte[]			Hash { get; set; }
+		
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{	
+				var r = sun.Call<ResourceResponse>(p => p.FindResource(Resource), workflow);
+
+				var a = sun.ResourceHub.Find(Resource, Hash);
+
+				return new ResourceInfo{ LocalAvailability	= a != null ? a.Availability : Availability.None,
+										 LocalFiles			= a != null ? a.Files.Count() : 0,
+										 LocalRelease		= a != null ? a.Hash : null,
+										 Entity				= r.Resource };
+			}
+		}
+	}
+
+	public class ResourceInfo
+	{
+		public Availability		LocalAvailability { get; set; }
+		public byte[]			LocalRelease { get; set; }
+		public int				LocalFiles { get; set; }
+		public Resource			Entity { get; set; }
+	}
 
 	public class PackageBuildCall : ApiCall
 	{
@@ -526,15 +555,33 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageReadyCall : ApiCall
+	public class PackageInfoCall : ApiCall
 	{
 		public PackageAddress	Package { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				return sun.PackageHub.IsReady(Package);
+			{	
+				var p = sun.PackageHub.Find(Package);
+
+				if(p == null)
+					throw new RdcEntityException(RdcEntityError.NotFound);
+
+				return new PackageInfo	{ 
+											Ready			= sun.PackageHub.IsReady(Package),
+											Availability	= p.Release.Availability,
+											Manifest		= p.Manifest
+										};
+			}
 		}
+	}
+
+	public class PackageInfo
+	{
+		public bool				Ready { get; set; }
+		public Availability		Availability { get; set; }
+		public Manifest			Manifest { get; set; }
 	}
 
 	public class PackageInstallCall : ApiCall

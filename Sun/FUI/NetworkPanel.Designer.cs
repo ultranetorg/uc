@@ -37,28 +37,25 @@ namespace Uccs.Sun.FUI
 			columnHeader5 = new System.Windows.Forms.ColumnHeader();
 			DestLabel = new System.Windows.Forms.Label();
 			label1 = new System.Windows.Forms.Label();
-			Funds = new System.Windows.Forms.ListView();
-			columnHeader9 = new System.Windows.Forms.ColumnHeader();
-			label3 = new System.Windows.Forms.Label();
 			Peers = new System.Windows.Forms.ListView();
 			columnHeader13 = new System.Windows.Forms.ColumnHeader();
 			columnHeader14 = new System.Windows.Forms.ColumnHeader();
 			columnHeader15 = new System.Windows.Forms.ColumnHeader();
 			columnHeader11 = new System.Windows.Forms.ColumnHeader();
-			columnHeaderCR = new System.Windows.Forms.ColumnHeader();
 			columnHeaderBR = new System.Windows.Forms.ColumnHeader();
+			columnHeaderCR = new System.Windows.Forms.ColumnHeader();
 			columnHeader16 = new System.Windows.Forms.ColumnHeader();
 			SuspendLayout();
 			// 
-			// Generators
+			// Members
 			// 
 			Members.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			Members.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader1, columnHeader4, columnHeader3, columnHeader2, columnHeader5 });
 			Members.FullRowSelect = true;
 			Members.Location = new System.Drawing.Point(7, 860);
 			Members.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			Members.Name = "Generators";
-			Members.Size = new System.Drawing.Size(1199, 772);
+			Members.Name = "Members";
+			Members.Size = new System.Drawing.Size(1888, 772);
 			Members.TabIndex = 1;
 			Members.UseCompatibleStateImageBehavior = false;
 			Members.View = System.Windows.Forms.View.Details;
@@ -115,36 +112,6 @@ namespace Uccs.Sun.FUI
 			label1.Text = "Peers";
 			label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
-			// Funds
-			// 
-			Funds.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-			Funds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader9 });
-			Funds.FullRowSelect = true;
-			Funds.Location = new System.Drawing.Point(1239, 856);
-			Funds.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			Funds.Name = "Funds";
-			Funds.Size = new System.Drawing.Size(656, 776);
-			Funds.TabIndex = 5;
-			Funds.UseCompatibleStateImageBehavior = false;
-			Funds.View = System.Windows.Forms.View.Details;
-			// 
-			// columnHeader9
-			// 
-			columnHeader9.Text = "Account";
-			columnHeader9.Width = 300;
-			// 
-			// label3
-			// 
-			label3.AutoSize = true;
-			label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label3.Location = new System.Drawing.Point(1239, 819);
-			label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			label3.Name = "label3";
-			label3.Size = new System.Drawing.Size(78, 27);
-			label3.TabIndex = 2;
-			label3.Text = "Funds";
-			label3.TextAlign = System.Drawing.ContentAlignment.TopRight;
-			// 
 			// Peers
 			// 
 			Peers.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -181,19 +148,19 @@ namespace Uccs.Sun.FUI
 			columnHeader11.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			columnHeader11.Width = 100;
 			// 
-			// columnHeaderCR
-			// 
-			columnHeaderCR.DisplayIndex = 4;
-			columnHeaderCR.Text = "Chain Rank";
-			columnHeaderCR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			columnHeaderCR.Width = 100;
-			// 
 			// columnHeaderBR
 			// 
 			columnHeaderBR.DisplayIndex = 5;
 			columnHeaderBR.Text = "Base Rank";
 			columnHeaderBR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			columnHeaderBR.Width = 100;
+			// 
+			// columnHeaderCR
+			// 
+			columnHeaderCR.DisplayIndex = 4;
+			columnHeaderCR.Text = "Chain Rank";
+			columnHeaderCR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			columnHeaderCR.Width = 100;
 			// 
 			// columnHeader16
 			// 
@@ -205,9 +172,7 @@ namespace Uccs.Sun.FUI
 			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			Controls.Add(Peers);
-			Controls.Add(Funds);
 			Controls.Add(label1);
-			Controls.Add(label3);
 			Controls.Add(DestLabel);
 			Controls.Add(Members);
 			Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
@@ -226,9 +191,6 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader3;
 		private System.Windows.Forms.Label DestLabel;
 		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.ListView Funds;
-		private System.Windows.Forms.ColumnHeader columnHeader9;
-		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ListView Peers;
 		private System.Windows.Forms.ColumnHeader columnHeader13;
 		private System.Windows.Forms.ColumnHeader columnHeader14;

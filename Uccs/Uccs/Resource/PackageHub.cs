@@ -426,7 +426,7 @@ namespace Uccs.Net
  			{
 				var h = Resources.Zone.Cryptography.HashFile(m.Bytes);
  				
-				var r = Resources.Add(package, h);
+				var r = Resources.Add(package, ResourceType.Package, h);
 				 
  				r.AddFile(Package.ManifestFile, m.Bytes);
 				r.AddFile(Package.CompleteFile, cstream.ToArray());

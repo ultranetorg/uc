@@ -93,6 +93,7 @@ namespace Uccs.Net
 	{
 		public ResourceAddress					Address;
 		public byte[]							Hash;
+		public ResourceType						Type;
 		public List<MembersResponse.Member>		DeclaredOn = new();
 		public MembersResponse.Member[]			DeclareTo;
 		public Availability						_Availability;
@@ -119,12 +120,12 @@ namespace Uccs.Net
 			}
 		}
 
-		public Release(ResourceHub hub, ResourceAddress address, byte[] hash)
+		public Release(ResourceHub hub, ResourceAddress address, ResourceType type, byte[] hash)
 		{
 			Hub = hub;
 			Address = address;
 			Hash = hash;
-			//Type = type;
+			Type = type;
 		}
 
 		public override string ToString()
@@ -188,6 +189,7 @@ namespace Uccs.Net
 					var s = new MemoryStream(d);
 					var r = new BinaryReader(s);
 	
+					Type = (ResourceType)r.ReadByte();
 					_Availability = (Availability)r.ReadByte();
 					_Files = r.Read(() => new ReleaseFile(this), f => f.Read(r)).ToList();
 				}
@@ -202,7 +204,8 @@ namespace Uccs.Net
 			{
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
-
+								
+				w.Write((byte)Type);
 				w.Write((byte)Availability);
 				w.Write(Files);
 

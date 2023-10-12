@@ -40,7 +40,7 @@ namespace Uccs.Net
 			Releases = Directory.EnumerateDirectories(ResourcesPath)
 									.SelectMany(a => Directory.EnumerateDirectories(a)
 										.SelectMany(r => Directory.EnumerateDirectories(r)
-											.Select(z => new Release(this, PathToAddress(z), Hex.Decode(Path.GetFileName(z))))))
+											.Select(z => new Release(this, PathToAddress(z), ResourceType.Null, Hex.Decode(Path.GetFileName(z))))))
 												.ToList();
 
 			if(sun != null && !sun.IsClient)
@@ -66,23 +66,6 @@ namespace Uccs.Net
 			File.WriteAllText(Path.Join(ResourcesPath, release.Author, Escape(release.Resource),  "latest"), hash.ToHex());
 		}
 
-// 		public string AddressToPath(ResourceAddress resource, byte[] hash)
-// 		{
-// 			string h;
-// 
-// 			if(hash == null)
-// 				h = File.ReadAllText(Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource),  "latest"));
-// 			else
-// 				h = Hex.ToHexString(hash);
-// 
-// 			return Path.Join(ResourcesPath, resource.Author, Escape(resource.Resource), h);
-// 		}
-// 
-// 		public string AddressToPath(ResourceAddress resource, byte[] hash, string file)
-// 		{
-// 			return Path.Join(AddressToPath(resource, hash), file);
-// 		}
-
 		public ResourceAddress PathToAddress(string path)
 		{
 			path = path.Substring(ResourcesPath.Length).TrimStart(Path.DirectorySeparatorChar);
@@ -92,9 +75,9 @@ namespace Uccs.Net
 			return new ResourceAddress(s[0], Unescape(s[1]));
 		}
 
-		public Release Add(ResourceAddress resource, byte[] hash)
+		public Release Add(ResourceAddress resource, ResourceType type, byte[] hash)
 		{
-			var r = new Release(this, resource, hash);
+			var r = new Release(this, resource, type, hash);
 	
 			Releases.Add(r);
 	
@@ -163,7 +146,7 @@ namespace Uccs.Net
 
 			var h = Zone.Cryptography.HashFile(ms.ToArray());
  				
-			var r = Add(resource, h);
+			var r = Add(resource, ResourceType.Directory, h);
 
 			r.AddFile(".index", ms.ToArray());
 
@@ -185,7 +168,7 @@ namespace Uccs.Net
 
 			var h = Zone.Cryptography.HashFile(b);
  				
-			var r = Add(resource, h);
+			var r = Add(resource, ResourceType.File, h);
 
  			r.AddFile("f", b);
 			

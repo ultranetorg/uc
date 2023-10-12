@@ -249,7 +249,7 @@ namespace Uccs.Net
 										{	
 											File.Complete();
 	
-											if(Release.Hash.SequenceEqual(filehash)) /// means ResourseType = File
+											if(Release.Type == ResourceType.File) /// means ResourseType = File
 											{
 												Release.Complete(Availability.Full);
 											}

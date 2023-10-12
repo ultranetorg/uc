@@ -167,21 +167,22 @@ namespace Uccs.Sun.CLI
 				case "i" :
 		   		case "info" :
 				{
-					var r = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Program.Call<ResourceInfo>(new ResourceInfoCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name), 
+																			 Hash = Args.Get<byte[]>("hash", null)});
 
-					Dump(r.Resource);
+					Dump(r);
 
-					var e = Program.Rdc<SubresourcesResponse>(new SubresourcesRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					//var e = Program.Rdc<SubresourcesResponse>(new SubresourcesRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					//
+					//if(e.Resources.Any())
+					//{
+					//	foreach(var i in e.Resources)
+					//	{
+					//		Workflow.Log?.Report(this, "    " + i);
+					//	}
+					//}
 
-					if(e.Resources.Any())
-					{
-						foreach(var i in e.Resources)
-						{
-							Workflow.Log?.Report(this, "      " + i);
-						}
-					}
-
-					return r.Resource;
+					return r;
 				}
 
 				default:

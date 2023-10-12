@@ -41,8 +41,14 @@ namespace Uccs.Sun.CLI
 
 				case "info" :
 				{
-					var r = Program.Call<bool>(new PackageReadyCall {Package= Package});
-					Workflow.Log?.Report(this, $"Status: {(r ? "Ready" : "Not ready")}");
+					var r = Program.Call<PackageInfo>(new PackageInfoCall {Package= Package});
+					
+					Workflow.Log?.Report(this, $"Status       : {(r.Ready ? "Ready" : "Not ready")}");
+					Workflow.Log?.Report(this, $"Availability : {r.Availability}");
+					Workflow.Log?.Report(this, $"Manifest     :");
+
+					Dump(r.Manifest);
+
 					return null;
 				}
 
@@ -60,7 +66,7 @@ namespace Uccs.Sun.CLI
 							
 							if(d == null)
 							{	
-								if(!Program.Call<bool>(new PackageReadyCall {Package = Package}))
+								if(!Program.Call<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
 								{
 									Workflow.Log?.ReportError(this, "Failed");
 								}

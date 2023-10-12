@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Org.BouncyCastle.Utilities.Encoders;
 using Uccs.Net;
 
@@ -131,16 +132,38 @@ namespace Uccs.Sun.CLI
 					{
 						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as int[])}]");
 					}
+					else if(value is byte[])
+					{
+						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {(value as byte[]).ToHex()}");
+					}
 					else if(value is IEnumerable<string> ||
 							value is IEnumerable<IPAddress>)
 					{
 						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as IEnumerable<object>)}]");
 					}
+					else if(value is IEnumerable<Dependency>)
+					{
+						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} :");
+
+						foreach(var i in value as IEnumerable)
+						{
+							dump(null, i, tab+1);
+						}
+					}
 					else
 						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {{{e.Count}}}");
 				}
+				else if(value is Resource)
+				{
+					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name}");
+
+					foreach(var i in value.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+					{
+						dump(i.Name, i.GetValue(value), tab + 1);
+					}
+				}
 				else
-					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {value}");
+					Workflow.Log?.Report(new string(' ', tab * 3) + $"{(name == null ? null : (name + " : " ))}{value}");
 			}
 
 			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
