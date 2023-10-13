@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Utilities.Collections;
 
 namespace Uccs.Net
 {
 	public enum HubStatus
 	{
-		Null, Estimating, Refreshing, Bad
+		None, Estimating, Refreshing, Bad
 	}
 
 	public class FileDownload
@@ -55,18 +56,18 @@ namespace Uccs.Net
 			}
 		}
 
-		public Release			Release;
-		public ReleaseFile		File;
-		public bool				Succeeded;
-		public long				Length => File.Length;
-		public long				DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
+		public Release								Release;
+		public ReleaseFile							File;
+		public bool									Succeeded;
+		public long									Length => File.Length;
+		public long									DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
 
-		public Task				Task;
-		public SeedCollector	SeedCollector;
-		public List<Piece>		CurrentPieces = new();
-		Sun						Sun;
-		Workflow				Workflow;
-		//public object			Lock = new object();
+		public Task									Task;
+		public SeedCollector						SeedCollector;
+		public List<Piece>							CurrentPieces = new();
+		public Dictionary<SeedCollector.Seed, int>	Seeds = new();
+		Sun											Sun;
+		Workflow									Workflow;
 
 		public FileDownload(Sun sun, Release release, string filepath, byte[] filehash, SeedCollector seedcollector, Workflow workflow)
 		{
@@ -93,7 +94,9 @@ namespace Uccs.Net
 												SeedCollector.Seed[] seeds;
 	
 												lock(SeedCollector.Lock)
-													seeds = SeedCollector.Seeds.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i)).ToArray(); /// skip currrently used
+													seeds = SeedCollector.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
+																				.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
+																				.ToArray(); /// skip currrently used
 												
 												if(seeds.Any())
 												{
@@ -101,16 +104,23 @@ namespace Uccs.Net
 													{
 														long l = -1;
 
+														var s = seeds.First();
+
+														if(!Seeds.ContainsKey(s))
+															Seeds[s] = 0;
+
 														try
 														{
-															l = Sun.Call(seeds.First().IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
+															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
 														}
 														catch(RdcNodeException)
 														{
+															Seeds[s]--;
 															continue;
 														}
 														catch(RdcEntityException)
 														{
+															Seeds[s]--;
 															continue;
 														}
 														
@@ -129,6 +139,10 @@ namespace Uccs.Net
 															for(int i=0; i < Math.Min(seeds.Length, Math.Min(left(), MaxThreadsCount - CurrentPieces.Count)); i++)
 															{
 																s.MoveNext();
+																
+																if(!Seeds.ContainsKey(s.Current))
+																	Seeds[s.Current] = 0;
+																
 																CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
 															}
 														}
@@ -185,15 +199,14 @@ namespace Uccs.Net
 											if(p.Succeeded)
 											{
 												//j.Seed.Failures++;
-												p.Seed.Failed = DateTime.MinValue;
+												//p.Seed.Failed = DateTime.MinValue;
+												Seeds[p.Seed]++;
 	
 												lock(Sun.ResourceHub.Lock)
 												{	
 													release.WriteFile(File.Path, p.Offset, p.Data.ToArray());
 													File.CompletePiece(p.I);
 												}
-												
-												//CompletedPieces.Add(p);
 	
 												if(File.CompletedPieces.Count() == File.Pieces.Length)
 												{
@@ -205,6 +218,9 @@ namespace Uccs.Net
 														}
 														else
 														{
+															Release.RemoveFile(File);
+															File = null;
+															Seeds.Clear();
 															CurrentPieces.Clear();
 															//CompletedPieces.Clear();
 															//Hubs.Clear();
@@ -217,6 +233,7 @@ namespace Uccs.Net
 											}
 											else
 											{	
+												Seeds[p.Seed]--;
 												//j.Seed.Succeses++;
 												//j.Seed.Failed = DateTime.UtcNow;
 											}

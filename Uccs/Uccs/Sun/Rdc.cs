@@ -12,7 +12,7 @@ namespace Uccs.Net
 {
 	public enum Rdc : byte
 	{
-		Null, 
+		None, 
 		Proxy, 
 		MemberJoin, MemberVox, AnalyzerVox,
 		PeersBroadcast, Time, Members, Member, Funds, AllocateTransaction, LastOperation, SendTransactions, TransactionStatus, Account, 
@@ -22,12 +22,12 @@ namespace Uccs.Net
 
 	public enum RdcResult : byte
 	{
-		Null, Success, NodeException, EntityException
+		None, Success, NodeException, EntityException
 	}
 
 	public enum RdcNodeError : byte
 	{
-		Null,
+		None,
 		Integrity,
 		Internal,
 		Timeout,
@@ -45,7 +45,7 @@ namespace Uccs.Net
 
 	public enum RdcEntityError : byte
 	{
-		Null,
+		None,
 		InvalidRequest,
 		NotFound,
 		RoundNotAvailable,

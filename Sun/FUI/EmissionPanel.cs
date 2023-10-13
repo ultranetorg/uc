@@ -170,7 +170,7 @@ namespace Uccs.Sun.FUI
 						f.StartPosition = FormStartPosition.CenterParent;
 						f.Show(ParentForm);
 
-						Sun.Emit(a, eth.Wei, k, PlacingStage.Null, v);
+						Sun.Emit(a, eth.Wei, k, PlacingStage.None, v);
 					}
 				}
 			}

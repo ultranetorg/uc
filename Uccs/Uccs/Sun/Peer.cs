@@ -11,7 +11,7 @@ namespace Uccs.Net
 {
 	public enum PacketType : byte
 	{
-		Null, Request, Response
+		None, Request, Response
 	}
 
 	//public enum EstablishingStatus
@@ -21,7 +21,7 @@ namespace Uccs.Net
 
 	public enum ConnectionStatus
 	{
-		Disconnected = 0, Initiated, OK, Failed, Disconnecting
+		None, Disconnected, Initiated, OK, Failed, Disconnecting
 	}
 
 	public class Peer : RdcInterface

@@ -52,6 +52,13 @@ namespace Uccs.Net
 			return $"{Path}, Length+{Length}, PieceLength={PieceLength} Pieces={{{Pieces?.Length}}}";
 		}
 						 			
+		public void Reset()
+		{
+			Length = -1;
+			Pieces = new bool[Pieces.Length];
+			Release.Save();
+		}
+						 			
 		public void Complete()
 		{
 			Length = -1;
@@ -164,6 +171,11 @@ namespace Uccs.Net
 			f.Complete(); /// implicit Save called
 
 			return f;
+		}
+
+		public void RemoveFile(ReleaseFile file)
+		{
+			Files.Remove(file);
 		}
 
 		public void Complete(Availability availability)

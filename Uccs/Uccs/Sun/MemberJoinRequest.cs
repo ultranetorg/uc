@@ -36,7 +36,7 @@ namespace Uccs.Net
 					Generator = sun.Zone.Cryptography.AccountFrom(Signature, Hashify(sun.Zone));
 				}
 
-				if(sun.Synchronization == Synchronization.Null || sun.Synchronization == Synchronization.Downloading || sun.Synchronization == Synchronization.Synchronizing)
+				if(sun.Synchronization == Synchronization.None || sun.Synchronization == Synchronization.Downloading || sun.Synchronization == Synchronization.Synchronizing)
 				{
 	 				var min = sun.SyncCache.Any() ? sun.SyncCache.Max(i => i.Key) - Mcv.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
 	 

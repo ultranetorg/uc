@@ -9,7 +9,7 @@ namespace Uccs.Net
 {
 	public enum BailStatus
 	{
-		Null, Active, Siezed
+		None, Active, Siezed
 	}
 
 	public class AccountEntry : Account, ITableEntry<AccountAddress>

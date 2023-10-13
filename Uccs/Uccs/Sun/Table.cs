@@ -12,7 +12,7 @@ namespace Uccs.Net
 {
 	public enum Tables
 	{
-		Null,
+		None,
 		Accounts,
 		Authors,
 		Resources

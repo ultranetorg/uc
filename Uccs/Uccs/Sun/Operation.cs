@@ -14,7 +14,7 @@ namespace Uccs.Net
 {
 	public enum PlacingStage
 	{
-		Null, 
+		None, 
 		Pending,
 		Accepted, /*Verified, */Placed, FailedOrNotFound, Confirmed
 	}
@@ -27,7 +27,7 @@ namespace Uccs.Net
 
 	public enum OperationClass
 	{
-		Null = 0, 
+		None = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
 		AuthorBid, AuthorRegistration, AuthorTransfer, ResourceCreation, ResourceUpdation,

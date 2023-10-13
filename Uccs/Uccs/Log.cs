@@ -29,7 +29,7 @@ namespace Uccs
 	{
 		public enum Severity
 		{
-			Null, Info, Warning, Error, SubLog
+			None, Info, Warning, Error, SubLog
 		}
 
 		public List<LogMessage>		Messages = new List<LogMessage>();

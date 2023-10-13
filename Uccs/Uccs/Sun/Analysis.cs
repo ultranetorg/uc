@@ -4,7 +4,7 @@ namespace Uccs.Net
 {
 	public enum AnalysisResult : byte
 	{
-		Null,
+		None,
 		Infected,
 		Clean,
 		NotEnoughPrepayment,

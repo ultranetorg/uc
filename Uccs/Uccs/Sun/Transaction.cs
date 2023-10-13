@@ -27,7 +27,7 @@ namespace Uccs.Net
 
 		const int						PoWLength = 16;
 
-		public PlacingStage				__ExpectedPlacing = PlacingStage.Null;
+		public PlacingStage				__ExpectedPlacing = PlacingStage.None;
 
 		public bool Valid(Mcv mcv)
 		{

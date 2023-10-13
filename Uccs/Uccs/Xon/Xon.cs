@@ -6,7 +6,7 @@ namespace Uccs
 {
 	public enum XonToken
 	{
-		ChildrenBegin, ChildrenEnd,  NodeBegin, NodeEnd, NameBegin, NameEnd, MetaBegin, MetaEnd, ValueBegin, ValueEnd, SimpleValueBegin, SimpleValueEnd, AttrValueBegin, AttrValueEnd, End
+		None, ChildrenBegin, ChildrenEnd,  NodeBegin, NodeEnd, NameBegin, NameEnd, MetaBegin, MetaEnd, ValueBegin, ValueEnd, SimpleValueBegin, SimpleValueEnd, AttrValueBegin, AttrValueEnd, End
 	};
 
 	public class Xon// : INestedSerializable
@@ -164,7 +164,7 @@ namespace Uccs
 			return Serializator.Get<O>(this, Value);
 		} 
 
-		public O Get<O>(O otherwise)
+		public O GetOr<O>(O otherwise)
 		{
 			return _Value != null ? Serializator.Get<O>(this, Value) : otherwise;
 		} 
@@ -184,13 +184,6 @@ namespace Uccs
 				return Serializator.Get<O>(n, n.Value);
 			else
 				return otherwise;
-		} 
-
-		public O GetOrDefault<O>(string name)
-		{
-			var n = One(name);
-
-			return n != null ? Serializator.Get<O>(n, n.Value) : default;
 		} 
 	}
 }

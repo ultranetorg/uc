@@ -40,7 +40,7 @@ namespace Uccs.Net
 			Releases = Directory.EnumerateDirectories(ResourcesPath)
 									.SelectMany(a => Directory.EnumerateDirectories(a)
 										.SelectMany(r => Directory.EnumerateDirectories(r)
-											.Select(z => new Release(this, PathToAddress(z), ResourceType.Null, Hex.Decode(Path.GetFileName(z))))))
+											.Select(z => new Release(this, PathToAddress(z), ResourceType.None, Hex.Decode(Path.GetFileName(z))))))
 												.ToList();
 
 			if(sun != null && !sun.IsClient)

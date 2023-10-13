@@ -425,46 +425,12 @@ namespace Uccs.Net
 				if(r.Type == ResourceType.File)
 				{
 					sun.ResourceHub.DownloadFile(rs, "f", r.Data, null, workflow);
-		
-					//if(d != null)
-					//{
-					//	do
-					//	{
-					//		Task.WaitAny(new Task[] {d.Task}, 500, workflow.Cancellation);
-					//
-					//		lock(d.Lock)
-					//		{ 
-					//			if(d.File != null)
-					//				workflow.Log?.Report(this, $"{d.DownloadedLength}/{d.Length} bytes, {d.CurrentPieces.Count} threads, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
-					//			else
-					//				workflow.Log?.Report(this, $"?/? bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
-					//		}
-					//	}
-					//	while(!d.Task.IsCompleted && workflow.Active);
-					//} 
-					//else
-					//	workflow.Log?.Report(this, $"Already downloaded");
 					
 					return r.Data;
 				}
 				else if(r.Type == ResourceType.Directory)
 				{
 					sun.ResourceHub.DownloadDirectory(rs, workflow);
-		
-					//if(d != null)
-					//{
-					//	void report() => workflow.Log?.Report(this, $"{d.CompletedCount}/{d.TotalCount} files, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
-					//
-					//	do
-					//	{
-					//		Task.WaitAny(new Task[] {d.Task}, 500, workflow.Cancellation);
-					//
-					//		report();
-					//	}
-					//	while(!d.Task.IsCompleted && workflow.Active);
-					//} 
-					//else
-					//	workflow.Log?.Report(this, $"Already downloaded");
 					
 					return r.Data;
 				}
@@ -500,8 +466,8 @@ namespace Uccs.Net
 				var a = sun.ResourceHub.Find(Resource, Hash);
 
 				return new ResourceInfo{ LocalAvailability	= a != null ? a.Availability : Availability.None,
-										 LocalFiles			= a != null ? a.Files.Count() : 0,
-										 LocalRelease		= a != null ? a.Hash : null,
+										 LocalLatest		= a != null ? a.Hash : null,
+										 LocalLatestFiles	= a != null ? a.Files.Count() : 0,
 										 Entity				= r.Resource };
 			}
 		}
@@ -510,8 +476,8 @@ namespace Uccs.Net
 	public class ResourceInfo
 	{
 		public Availability		LocalAvailability { get; set; }
-		public byte[]			LocalRelease { get; set; }
-		public int				LocalFiles { get; set; }
+		public byte[]			LocalLatest { get; set; }
+		public int				LocalLatestFiles { get; set; }
 		public Resource			Entity { get; set; }
 	}
 
@@ -562,17 +528,15 @@ namespace Uccs.Net
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-			{	
+			{
 				var p = sun.PackageHub.Find(Package);
 
 				if(p == null)
 					throw new RdcEntityException(RdcEntityError.NotFound);
 
-				return new PackageInfo	{ 
-											Ready			= sun.PackageHub.IsReady(Package),
-											Availability	= p.Release.Availability,
-											Manifest		= p.Manifest
-										};
+				return new PackageInfo{ Ready			= sun.PackageHub.IsReady(Package),
+										Availability	= p.Release.Availability,
+										Manifest		= p.Manifest };
 			}
 		}
 	}

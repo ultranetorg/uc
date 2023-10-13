@@ -6,7 +6,7 @@ namespace Uccs.Net
 	[Flags]
 	public enum ResourceFlags : byte
 	{
-		Null		= 0, 
+		None		= 0, 
 		Sealed		= 0b________1, 
 		Deprecated	= 0b_______10, 
 		Child		= 0b______100, 
@@ -17,7 +17,7 @@ namespace Uccs.Net
 
 	public enum ResourceType : short
 	{
-		Null		= 0,
+		None		= 0,
 		Redirect	= 1,
 		IP4Address	= 2, 
 		IP6Address	= 3, 
@@ -33,6 +33,7 @@ namespace Uccs.Net
 	[Flags]
 	public enum ResourceChanges : ushort
 	{
+		None			= 0,
 		Years			= 0b_______________1,
 		Flags			= 0b______________10,
 		Type			= 0b_____________100,

@@ -10,13 +10,13 @@ namespace Uccs.Net
 {
 	public enum DependencyType
 	{
-		Null, Critical, Deferred
+		None, Critical, Deferred
 	}
 
 	[Flags]
 	public enum DependencyFlag : byte
 	{
-		Null, 
+		None, 
 		SideBySide			= 0b0000_0001, 
 		AutoUpdateAllowed	= 0b0000_0010
 	}
@@ -33,8 +33,8 @@ namespace Uccs.Net
 			
 			d.Release	= PackageAddress.Parse(i.String);
 			d.Type		= Enum.Parse<DependencyType>(i.Name);
-			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.Null;
-			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.Null;
+			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.None;
+			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
 
 			return d;
 		}

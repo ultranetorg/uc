@@ -40,24 +40,24 @@ namespace Uccs.Net
 		}
 	}
 
-	public class HubSettings
+	public class SeedHubSettings
 	{
-		public HubSettings()
+		public SeedHubSettings()
 		{
 		}
 
-		public HubSettings(Xon x)
+		public SeedHubSettings(Xon x)
 		{
 		}
 	}
 
-	public class FilebaseSettings
+	public class ResourceHubSettings
 	{
-		public FilebaseSettings()
+		public ResourceHubSettings()
 		{
 		}
 
-		public FilebaseSettings(Xon x)
+		public ResourceHubSettings(Xon x)
 		{
 		}
 	}
@@ -65,16 +65,14 @@ namespace Uccs.Net
 	public class ApiSettings
 	{
 		public string	AccessKey;
-		Settings		Main;
 
 		public ApiSettings()
 		{
 		}
 
-		public ApiSettings(Xon x, Settings main)
+		public ApiSettings(Xon x)
 		{
-			Main		= main;
-			AccessKey	= x.Get<string>("AccessKey");
+			AccessKey = x.Get<string>("AccessKey");
 		}
 	}
 
@@ -158,11 +156,11 @@ namespace Uccs.Net
 		public AccountKey				Analyzer;
 		public string					Packages;
 
-		public NasSettings				Nas;
-		public HubSettings				Hub;
 		public ApiSettings				Api;
-		public FilebaseSettings			Filebase;
 		public McvSettings				Mcv;
+		public NasSettings				Nas;
+		public SeedHubSettings			SeedHub;
+		public ResourceHubSettings		ResourceHub;
 		public SecretSettings			Secrets;
 
 		public List<AccountAddress>		ProposedFundJoiners = new();
@@ -203,13 +201,13 @@ namespace Uccs.Net
 			JsonServerPort				= (ushort)doc.Get<int>("JsonServerPort");
 			Generators					= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
-			Packages					= doc.GetOrDefault<string>("Packages") ?? System.IO.Path.Join(Profile, "Packages");
+			Packages					= doc.Get<string>("Packages", System.IO.Path.Join(Profile, "Packages"));
 
 			Mcv			= new (doc.One(nameof(Mcv)));
 			Nas			= new (doc.One(nameof(Nas)));
-			Api			= new (doc.One(nameof(Api)), this);
-			Hub			= new (doc.One(nameof(Hub)));
-			Filebase	= new (doc.One(nameof(Filebase)));
+			Api			= new (doc.One(nameof(Api)));
+			SeedHub		= new (doc.One(nameof(SeedHub)));
+			ResourceHub	= new (doc.One(nameof(ResourceHub)));
 
 			if(boot.Secrets != null)	
 				LoadSecrets(boot.Secrets);
@@ -223,11 +221,11 @@ namespace Uccs.Net
 			Path		= System.IO.Path.Join(profile, FileName);
 			IP			= IPAddress.Loopback;
 
-			Mcv	= new ();
+			Mcv			= new ();
 			Nas			= new ();
 			Api			= new ();
-			Hub			= new ();
-			Filebase	= new ();
+			SeedHub		= new ();
+			ResourceHub	= new ();
 		}
 
 		public void LoadSecrets(string path)

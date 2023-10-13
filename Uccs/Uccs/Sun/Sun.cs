@@ -43,13 +43,13 @@ namespace Uccs.Net
 
 	public enum Synchronization
 	{
-		Null, Downloading, Synchronizing, Synchronized
+		None, Downloading, Synchronizing, Synchronized
 	}
 
 	[Flags]
 	public enum Role : uint
 	{
-		Null,
+		None,
 		Base		= 0b00000001,
 		Chain		= 0b00000011,
 		//Analyzer	= 0b00000101,
@@ -58,7 +58,7 @@ namespace Uccs.Net
 
 	public class Sun : RdcInterface
 	{
-		public Role						Roles => (Mcv != null ? Mcv.Roles : Role.Null)|(ResourceHub != null ? Role.Seed : Role.Null);
+		public Role						Roles => (Mcv != null ? Mcv.Roles : Role.None)|(ResourceHub != null ? Role.Seed : Role.None);
 
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
 		public static readonly int[]	Versions = {1};
@@ -124,7 +124,7 @@ namespace Uccs.Net
 		Thread							SynchronizingThread;
 		AutoResetEvent					MainSignal = new AutoResetEvent(true);
 
-		public Synchronization			_Synchronization = Synchronization.Null;
+		public Synchronization			_Synchronization = Synchronization.None;
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public SunDelegate				SynchronizationChanged;
 		
@@ -300,7 +300,7 @@ namespace Uccs.Net
 				RunApi();
 			
 			if(xon.Has("node"))
-				RunNode(workflow, (xon.Has("base") ? Role.Base : Role.Null) | (xon.Has("chain") ? Role.Chain : Role.Null));
+				RunNode(workflow, (xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
 			else if(xon.Has("user"))
 				RunUser(workflow);
 
@@ -1327,7 +1327,7 @@ namespace Uccs.Net
 			if(!v.Valid)
 				return false;
 
-			if(Synchronization == Synchronization.Null || Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
+			if(Synchronization == Synchronization.None || Synchronization == Synchronization.Downloading || Synchronization == Synchronization.Synchronizing)
 			{
  				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Mcv.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
  
@@ -1837,7 +1837,7 @@ namespace Uccs.Net
 
 					foreach(var g in OutgoingTransactions.GroupBy(i => i.Signer))
 					{
-						if(!g.Any(i => i.Signer == g.Key && i.Placing >= PlacingStage.Accepted) && g.Any(i => i.Placing == PlacingStage.Null))
+						if(!g.Any(i => i.Signer == g.Key && i.Placing >= PlacingStage.Accepted) && g.Any(i => i.Placing == PlacingStage.None))
 						{
 							Monitor.Exit(Lock);
 
@@ -1858,7 +1858,7 @@ namespace Uccs.Net
 							
 							int nid = at.NextTransactionId;
 
-							foreach(var t in g.Where(i => i.Placing == PlacingStage.Null))
+							foreach(var t in g.Where(i => i.Placing == PlacingStage.None))
 							{
 								t.Nid = nid++;
 								t.Generator = m;
@@ -2044,7 +2044,7 @@ namespace Uccs.Net
 			{ 
 				switch(s)
 				{
-					case PlacingStage.Null :				return;
+					case PlacingStage.None :				return;
 					case PlacingStage.Accepted :			if(t.Placing >= PlacingStage.Accepted) goto end; else break;
 					case PlacingStage.Placed :				if(t.Placing >= PlacingStage.Placed) goto end; else break;
 					case PlacingStage.Confirmed :			if(t.Placing == PlacingStage.Confirmed) goto end; else break;

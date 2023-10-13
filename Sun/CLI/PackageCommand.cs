@@ -30,6 +30,7 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
+				case "b" :
 				case "build" :
 				{
 					Program.Call(new PackageBuildCall {	Package	= Package, 
@@ -39,19 +40,17 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
+				case "i" :
 				case "info" :
 				{
 					var r = Program.Call<PackageInfo>(new PackageInfoCall {Package= Package});
 					
-					Workflow.Log?.Report(this, $"Status       : {(r.Ready ? "Ready" : "Not ready")}");
-					Workflow.Log?.Report(this, $"Availability : {r.Availability}");
-					Workflow.Log?.Report(this, $"Manifest     :");
-
-					Dump(r.Manifest);
+					Dump(r);
 
 					return null;
 				}
 
+				case "d" :
 				case "download" :
 				{
 					var h = Program.Call<byte[]>(new PackageDownloadCall {Package = Package});

@@ -153,7 +153,8 @@ namespace Uccs.Sun.CLI
 					else
 						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : {{{e.Count}}}");
 				}
-				else if(value is Resource)
+				else if(value is Resource || 
+						value is Manifest)
 				{
 					Workflow.Log?.Report(new string(' ', tab * 3) + $"{name}");
 
