@@ -16,11 +16,10 @@ namespace Uccs.Net
 	{
 		public const ushort DefaultPort = 3900;
 
-		Sun				Sun;
-		HttpListener	Listener;
-		Thread			Thread;
-
-		Workflow		Workflow = new Workflow("JsonServer", new Log());
+		Sun					Sun;
+		HttpListener		Listener;
+		Thread				Thread;
+		Workflow			Workflow = new Workflow("JsonServer", new Log());
 
 		public JsonApiServer(Sun sun)
 		{
@@ -72,7 +71,7 @@ namespace Uccs.Net
 									}
 								});
 
-			Thread.Name = $"{Sun.Settings.IP.GetAddressBytes()[3]} Aping";
+			Thread.Name = $"{Sun.Settings.IP?.GetAddressBytes()[3]} Aping";
 			Thread.Start();
 		}
 

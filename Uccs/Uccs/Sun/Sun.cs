@@ -70,7 +70,7 @@ namespace Uccs.Net
 		public Zone						Zone;
 		public Settings					Settings;
 		public Workflow					Workflow;
-		public JsonApiServer				ApiServer;
+		public JsonApiServer			ApiServer;
 		public Vault					Vault;
 		public INas						Nas;
 		LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
@@ -328,7 +328,7 @@ namespace Uccs.Net
 			LoadPeers();
 			
  			MainThread = new (() =>	{ 
-										Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
+										Thread.CurrentThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
 
 										try
 										{
@@ -494,7 +494,7 @@ namespace Uccs.Net
 			if(Settings.IP != null)
 			{
 				ListeningThread = new Thread(Listening);
-				ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
+				ListeningThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Listening";
 				ListeningThread.Start();
 			}
 
@@ -547,7 +547,7 @@ namespace Uccs.Net
 											Stop(MethodBase.GetCurrentMethod(), ex);
 										}
  									});
-			MainThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
+			MainThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
 			MainThread.Start();
 			MainStarted?.Invoke(this);
 		}
@@ -807,7 +807,7 @@ namespace Uccs.Net
 			{
 				try
 				{
-					var client = new TcpClient(new IPEndPoint(Settings.IP, 0));
+					var client = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
 
 					try
 					{
@@ -888,7 +888,7 @@ namespace Uccs.Net
 	
 						RefreshPeers(h.Peers.Append(peer));
 	
-						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}", false);
+						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
 							
 						//Workflow.Log?.Report(this, "Connected", $"to {peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
@@ -912,7 +912,7 @@ namespace Uccs.Net
 			}
 			
 			var t = new Thread(f);
-			t.Name = Settings.IP.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
+			t.Name = Settings.IP?.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
 			t.Start();
 						
 		}
@@ -962,7 +962,7 @@ namespace Uccs.Net
 			}
 
 			var t = new Thread(a => incon());
-			t.Name = Settings.IP.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
+			t.Name = Settings.IP?.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
 			t.Start();
 
 			void incon()
@@ -1052,7 +1052,7 @@ namespace Uccs.Net
 						RefreshPeers(h.Peers.Append(peer));
 	
 						//peer.InStatus = EstablishingStatus.Succeeded;
-						peer.Start(this, client, h, $"{Settings.IP.GetAddressBytes()[3]}", true);
+						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
 			
 						//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
@@ -1086,7 +1086,7 @@ namespace Uccs.Net
 				Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Started");
 
 				SynchronizingThread = new Thread(Synchronizing);
-				SynchronizingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Synchronizing";
+				SynchronizingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Synchronizing";
 				SynchronizingThread.Start();
 		
 				Synchronization = Synchronization.Downloading;
@@ -1976,7 +1976,7 @@ namespace Uccs.Net
 															}
 														});
 
-					TransactingThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Transacting";
+					TransactingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Transacting";
 					TransactingThread.Start();
 				}
 
