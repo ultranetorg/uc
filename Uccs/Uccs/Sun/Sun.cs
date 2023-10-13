@@ -367,9 +367,6 @@ namespace Uccs.Net
 
 			Nuid = Guid.NewGuid();
 
-			ListeningThread = new Thread(Listening);
-			ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
-
 			if(Settings.Generators.Any())
 			{
 				SeedHub = new SeedHub(this);
@@ -494,12 +491,15 @@ namespace Uccs.Net
 
 			LoadPeers();
 
-			ListeningThread.Start();
+			if(Settings.IP != null)
+			{
+				ListeningThread = new Thread(Listening);
+				ListeningThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Listening";
+				ListeningThread.Start();
+			}
 
  			MainThread = new Thread(() =>
  									{ 
-										Thread.CurrentThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
-
 										try
 										{
 											while(Workflow.Active)
@@ -547,6 +547,7 @@ namespace Uccs.Net
 											Stop(MethodBase.GetCurrentMethod(), ex);
 										}
  									});
+			MainThread.Name = $"{Settings.IP.GetAddressBytes()[3]} Main";
 			MainThread.Start();
 			MainStarted?.Invoke(this);
 		}

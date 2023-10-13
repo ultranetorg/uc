@@ -196,7 +196,7 @@ namespace Uccs.Net
 			PeersMin					= doc.Get<int>("PeersMin");
 			PeersInMax					= doc.Get<int>("PeersInMax");
 			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");
-			IP							= IPAddress.Parse(doc.Get<string>("IP"));
+			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
 			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));
 			JsonServerPort				= (ushort)doc.Get<int>("JsonServerPort");
 			Generators					= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
