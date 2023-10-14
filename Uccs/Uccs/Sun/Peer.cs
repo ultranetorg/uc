@@ -258,7 +258,7 @@ namespace Uccs.Net
 								{
 									i.Execute(Sun);
 								}
-								catch(Exception) when(!Debugger.IsAttached)
+								catch(Exception ex) when(!Debugger.IsAttached || ex is RdcEntityException || ex is RdcNodeException)
 								{
 								}
 							}

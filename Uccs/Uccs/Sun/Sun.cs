@@ -257,14 +257,14 @@ namespace Uccs.Net
 		{
 			var gens = Mcv?.LastConfirmedRound != null ? Settings.Generators.Where(i => Mcv.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
 	
-			return	$"{(Roles.HasFlag(Role.Base) ? "B" : "")}" +
-					$"{(Roles.HasFlag(Role.Chain) ? "C" : "")}" +
-					$"{(Roles.HasFlag(Role.Seed) ? "S" : "")}" +
-					$"{(Connections.Count() < Settings.PeersMin ? " - Low Peers" : "")}" +
-					$"{(Settings.Anonymous ? " - A" : "")}" +
-					$"{(!IP.Equals(IPAddress.None) ? $" - {IP}" : "")}" +
-					$" - {Synchronization}" +
-					(Mcv?.LastConfirmedRound != null ? $" - {gens.Count()}/{Mcv.LastConfirmedRound.Members.Count()} members" : "");
+			return string.Join(" - ", new string[]{	$"{(Roles.HasFlag(Role.Base) ? "B" : null)}" +
+													$"{(Roles.HasFlag(Role.Chain) ? "C" : null)}" +
+													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
+													Connections.Count() < Settings.PeersMin ? "Low Peers" : null,
+													Settings.Anonymous ? "A" : null,
+													(Settings.IP != null ? $"{IP}" : null),
+													Mcv != null ?  Synchronization.ToString() : null,
+													Mcv?.LastConfirmedRound != null ? $"{gens.Count()}/{Mcv.LastConfirmedRound.Members.Count()} members" : null}.Where(i => i != null));
 		}
 
 		public object Constract(Type t, byte b)
@@ -299,57 +299,54 @@ namespace Uccs.Net
 			if(xon.Has("api"))
 				RunApi();
 			
-			if(xon.Has("node"))
-				RunNode(workflow, (xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
-			else if(xon.Has("user"))
-				RunUser(workflow);
+			RunNode(workflow, (xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
 
 			if(xon.Has("seed"))
 				RunSeed();
 		}
 
-		public void RunUser(Workflow workflow)
-		{
-			Workflow = workflow != null ? workflow.CreateNested("RunUser", workflow?.Log) : new Workflow("RunUser", workflow?.Log);
-			if(Workflow.Log != null)
-				Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
-
-			Workflow.Log?.Report(this, $"Ultranet Client {Version}");
-			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
-			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
-			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
-			
-			if(DevSettings.Any)
-				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
-
-			Nuid = Guid.NewGuid();
-
-			LoadPeers();
-			
- 			MainThread = new (() =>	{ 
-										Thread.CurrentThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
-
-										try
-										{
-											while(Workflow.Active)
-											{
-												lock(Lock)
-												{
-													ProcessConnectivity();
-												}
-	
-												Thread.Sleep(1);
-											}
-										}
-										catch(Exception ex) when (!Debugger.IsAttached)
-										{
-											Stop(MethodBase.GetCurrentMethod(), ex);
-										}
- 									});
-			MainThread.Start();
-			MainStarted?.Invoke(this);
-		}
+// 		public void RunUser(Workflow workflow)
+// 		{
+// 			Workflow = workflow != null ? workflow.CreateNested("RunUser", workflow?.Log) : new Workflow("RunUser", workflow?.Log);
+// 			if(Workflow.Log != null)
+// 				Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
+// 
+// 			Workflow.Log?.Report(this, $"Ultranet Client {Version}");
+// 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
+// 			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
+// 			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
+// 			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
+// 			
+// 			if(DevSettings.Any)
+// 				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
+// 
+// 			Nuid = Guid.NewGuid();
+// 
+// 			LoadPeers();
+// 			
+//  			MainThread = new (() =>	{ 
+// 										Thread.CurrentThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
+// 
+// 										try
+// 										{
+// 											while(Workflow.Active)
+// 											{
+// 												lock(Lock)
+// 												{
+// 													ProcessConnectivity();
+// 												}
+// 	
+// 												Thread.Sleep(1);
+// 											}
+// 										}
+// 										catch(Exception ex) when (!Debugger.IsAttached)
+// 										{
+// 											Stop(MethodBase.GetCurrentMethod(), ex);
+// 										}
+//  									});
+// 			MainThread.Start();
+// 			MainStarted?.Invoke(this);
+// 		}
 
 		public void RunNode(Workflow workflow, Role roles)
 		{
@@ -486,7 +483,7 @@ namespace Uccs.Net
 		  			}
 				}
 
-				Workflow.Log?.Report(this, "Chain started");
+				Workflow.Log?.Report(this, "MCV started");
 			}
 
 			LoadPeers();
@@ -498,55 +495,41 @@ namespace Uccs.Net
 				ListeningThread.Start();
 			}
 
- 			MainThread = new Thread(() =>
- 									{ 
-										try
-										{
-											while(Workflow.Active)
-											{
-												WaitHandle.WaitAny(new[] {MainSignal, Workflow.Cancellation.WaitHandle}, 500);
-
-												lock(Lock)
+ 			MainThread = new Thread(() =>	{ 
+												try
 												{
-													ProcessConnectivity();
-												
-													if(Mcv != null)
+													while(Workflow.Active)
 													{
-														if(Synchronization == Synchronization.Synchronized)
+														var r = WaitHandle.WaitAny(new[] {MainSignal, Workflow.Cancellation.WaitHandle}, 500);
+
+														lock(Lock)
 														{
-															/// TODO: Rethink
-															///var conns = Connections.Where(i => i.Roles.HasFlag(Database.Roles)).ToArray(); /// Not cool, cause Peer.Established may change after this and 'conn' items will change
-															///
-															///if(conns.Any())
-															///{
-															///	var max = conns.Aggregate((i, j) => i.Count() > j.Count() ? i : j);
-															///
-															///	if(max.Key - Database.LastConfirmedRound.Id > Net.Database.Pitch) /// we are late, force to resync
-															///	{
-															///		 StartSynchronization();
-															///	}
-															///}
-															///
-															if(Settings.Generators.Any())
+															ProcessConnectivity();
+												
+															if(Mcv != null)
 															{
-																Generate();
+																if(Synchronization == Synchronization.Synchronized)
+																{
+																	if(Settings.Generators.Any())
+																	{
+																		Generate();
+																	}
+																}
 															}
 														}
+	
+														//Thread.Sleep(1);
 													}
 												}
-	
-												//Thread.Sleep(1);
-											}
-										}
-										catch(OperationCanceledException)
-										{
-											Stop("Canceled");
-										}
-										catch(Exception ex) when (!Debugger.IsAttached)
-										{
-											Stop(MethodBase.GetCurrentMethod(), ex);
-										}
- 									});
+												catch(OperationCanceledException)
+												{
+													Stop("Canceled");
+												}
+												catch(Exception ex) when (!Debugger.IsAttached)
+												{
+													Stop(MethodBase.GetCurrentMethod(), ex);
+												}
+ 											});
 			MainThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
 			MainThread.Start();
 			MainStarted?.Invoke(this);
@@ -704,12 +687,28 @@ namespace Uccs.Net
 		
 			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
-									.OrderByDescending(i => i.PeerRank)
-									.ThenBy(i => i.Retries)
+									//.OrderByDescending(i => i.PeerRank)
+									.OrderBy(i => i.Retries)
 									.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
 									.Take(needed))
 			{
 				OutboundConnect(p);
+			}
+
+			if(Roles.HasFlag(Role.Base))
+			{
+				needed = Settings.Mcv.PeersMin - Connections.Count(i => i.Roles.HasFlag(Role.Base));
+
+				foreach(var p in Peers	.Where(m =>	m.BaseRank > 0 &&
+													m.Status == ConnectionStatus.Disconnected &&
+													DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
+										//.OrderByDescending(i => i.PeerRank)
+										.OrderBy(i => i.Retries)
+										.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
+										.Take(needed))
+				{
+					OutboundConnect(p);
+				}
 			}
 
 			foreach(var i in Peers.Where(i => i.Status == ConnectionStatus.Failed))
@@ -1411,6 +1410,8 @@ namespace Uccs.Net
 
 			IncomingTransactions.AddRange(accepted);
 
+			MainSignal.Set();
+
 			return accepted;
 		}
 
@@ -1617,9 +1618,6 @@ namespace Uccs.Net
 						votes.Add(v);
 					}
 
-					if(txs.Any(i => i.Placing == PlacingStage.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
-						MainSignal.Set();
-
 					while(Mcv.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
 					{
 						r = r.Previous;
@@ -1629,6 +1627,9 @@ namespace Uccs.Net
 						b.Sign(g);
 						votes.Add(b);
 					}
+
+					if(IncomingTransactions.Any(i => i.Placing == PlacingStage.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+						MainSignal.Set();
 				}
 			}
 
