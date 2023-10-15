@@ -12,20 +12,57 @@ using System.Threading;
 
 namespace Uccs.Net
 {
+	public abstract class ApiCall
+	{
+		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
+	}
+
+	public class PingCall : ApiCall
+	{
+	}
+
+	public class Pong
+	{
+		public string Status { get; set; }
+	}
+
+	public class BatchCall : ApiCall
+	{
+		public class Item
+		{
+			public string Name { get; set; }
+			public dynamic Call { get; set; }
+		}
+
+		public IEnumerable<Item> Calls { get; set; }
+
+		public void Add(SunApiCall call)
+		{
+			if(Calls == null)
+				Calls = new List<Item>();
+
+			(Calls as List<Item>).Add(new Item {Name = call.GetType().Name.Remove(call.GetType().Name.IndexOf("Call")), Call = call});
+		}
+	}
+
 	public class JsonApiServer
 	{
 		public const ushort DefaultPort = 3900;
 
-		Sun					Sun;
-		HttpListener		Listener;
-		Thread				Thread;
-		Workflow			Workflow = new Workflow("JsonServer", new Log());
+		HttpListener					Listener;
+		Thread							Thread;
+		string							AccessKey;
+		Func<object, Workflow, object>	Execute;
+		Workflow						Workflow;
+		Func<string, Type>				Create;
 
-		public JsonApiServer(Sun sun)
+		public JsonApiServer(IPAddress ip, ushort port, string accesskey, Func<string, Type> create, Func<object, Workflow, object> execute, Workflow workflow)
 		{
-			Sun = sun;
-
-			Workflow.Log.Stream = new FileStream(Path.Combine(Sun.Settings.Profile, "JsonServer.log"), FileMode.Create);
+			Create = create;
+			AccessKey = accesskey;
+			Execute = execute;
+			Workflow = workflow;
+			///Workflow.Log.Stream = new FileStream(Path.Combine(Sun.Settings.Profile, "JsonServer.log"), FileMode.Create);
 
 			Thread = new Thread(() =>
 								{ 
@@ -33,20 +70,29 @@ namespace Uccs.Net
 									{
 										Listener = new HttpListener();
 	
-										if(!Sun.Settings.IP.Equals(IPAddress.Any))
-										{
-											Listener.Prefixes.Add($"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}/");
-										}
-										else
-										{
-											Listener.Prefixes.Add($"http://+:{Sun.Settings.JsonServerPort}/");
-										}
+// 										if(!Sun.Settings.IP.Equals(IPAddress.Any))
+// 										{
+// 											Listener.Prefixes.Add($"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}/");
+// 										}
+// 										else
+// 										{
+// 											Listener.Prefixes.Add($"http://+:{Sun.Settings.JsonServerPort}/");
+// 										}
+
+ 										if(ip != null)
+ 										{
+ 											Listener.Prefixes.Add($"http://{ip}:{port}/");
+ 										}
+ 										else
+ 										{
+ 											Listener.Prefixes.Add($"http://+:{port}/");
+ 										}
+
 										
 										Workflow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
 
 										Listener.Start();
-				
-		
+						
 										while(Workflow.Active)
 										{
 											ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
@@ -67,11 +113,11 @@ namespace Uccs.Net
 
 										Workflow.Log?.ReportError(this, "Erorr", ex);
 
-										Sun.Stop(MethodBase.GetCurrentMethod(), ex);
+										//Sun.Stop(MethodBase.GetCurrentMethod(), ex);
 									}
 								});
 
-			Thread.Name = $"{Sun.Settings.IP?.GetAddressBytes()[3]} Aping";
+			Thread.Name = $"{ip?.GetAddressBytes()[3]} Aping";
 			Thread.Start();
 		}
 
@@ -135,16 +181,24 @@ namespace Uccs.Net
 // 											}
 // 										}
 			
-			if(rq.ContentType == null || !rq.HasEntityBody)
-				return;
-	
-			var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
-		
 			try
 			{
-				var json = reader.ReadToEnd();
+				if(!string.IsNullOrWhiteSpace(AccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get("accesskey") != AccessKey)
+				{
+					rp.StatusCode = (int)HttpStatusCode.Unauthorized;
+					rp.Close();
+					return;
+				}
+
+				if(rq.Url.LocalPath.Substring(1) == "Ping")
+				{
+					rp.StatusCode = (int)HttpStatusCode.OK;
+					respondjson(new Pong {Status = "OK"});
+					rp.Close();
+					return;
+				}
 				
-				var t = Type.GetType(GetType().Namespace + "." + rq.Url.LocalPath.Substring(1) + "Call");
+				var t = Create(rq.Url.LocalPath.Substring(1) + "Call");
 
 				if(t == null)
 				{
@@ -153,27 +207,15 @@ namespace Uccs.Net
 					return;
 				}
 
+				var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
+				var json = reader.ReadToEnd();
 				var call = JsonSerializer.Deserialize(json, t, JsonApiClient.Options) as ApiCall;
-
-				if(!string.IsNullOrWhiteSpace(Sun.Settings.Api.AccessKey) && call.AccessKey != Sun.Settings.Api.AccessKey)
-				{
-					rp.StatusCode = (int)HttpStatusCode.Unauthorized;
-					rp.Close();
-					return;
-				}
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
 				object execute(ApiCall call)
 				{
-					switch(call)
-					{
-						case ExitCall e:
-							rp.Close();
-							break;
-					}
-				
-					return call.Execute(Sun, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
+					return Execute(call, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
 				}
 
 				if(call is BatchCall c)
@@ -182,11 +224,11 @@ namespace Uccs.Net
 
 					foreach(var i in c.Calls)
 					{
-						t = Type.GetType(GetType().Namespace + "." + i.Name + "Call");
+						t = Create(i.Name + "Call");
 						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonApiClient.Options) as ApiCall));
 					}
 
-					lock(Sun.Lock)
+					///lock(Sun.Lock)
 						respondjson(rs);
 				}
 				else
@@ -195,7 +237,7 @@ namespace Uccs.Net
 	
 					//if(r != null)
 					{
-						lock(Sun.Lock)
+						///lock(Sun.Lock)
 							respondjson(r);
 					}
 				}

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Numerics;
@@ -82,12 +81,9 @@ namespace Uccs.Net
 
 		public HttpResponseMessage Send(ApiCall request, Workflow workflow)
 		{
-			request.ProtocolVersion = Sun.Versions.First().ToString();
-			request.AccessKey = Key;
-
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			using(var m = new HttpRequestMessage(HttpMethod.Get, Address + "/" + ApiCall.NameOf(request.GetType())))
+			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{ApiCall.NameOf(request.GetType())}?accesskey={Key}"))
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	

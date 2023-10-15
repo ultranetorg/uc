@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -8,42 +7,12 @@ using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
-	public abstract class ApiCall
+	public abstract class SunApiCall : ApiCall
 	{
-		public string			ProtocolVersion { get; set; }
-		public string			AccessKey { get; set; }
-
-		public static string	NameOf<C>() => NameOf(typeof(C));
-		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
-
 		public abstract object	Execute(Sun sun, Workflow workflow);
 	}
 
-	public class BatchCall : ApiCall
-	{
-		public class Item
-		{
-			public string Name { get; set; }
-			public dynamic Call { get; set; }
-		}
-
-		public IEnumerable<Item> Calls { get; set; }
-
-		public void Add(ApiCall call)
-		{
-			if(Calls == null)
-				Calls = new List<Item>();
-
-			(Calls as List<Item>).Add(new Item {Name = call.GetType().Name.Remove(call.GetType().Name.IndexOf("Call")), Call = call});
-		}
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			return null;
-		}
-	}
-
-	public class ExitCall : ApiCall
+	public class ExitCall : SunApiCall
 	{
 		public string Reason { get; set; }
 
@@ -54,13 +23,13 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SettingsCall : ApiCall
+	public class SettingsCall : SunApiCall
 	{
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.Lock)
-				return new SettingsResponse {	ProfilePath	= sun.Settings.Profile, 
-												Settings	= sun.Settings}; /// TODO: serialize
+				return new SettingsResponse{ProfilePath	= sun.Settings.Profile, 
+											Settings	= sun.Settings}; /// TODO: serialize
 		}
 	}
 
@@ -70,7 +39,7 @@ namespace Uccs.Net
 		public Settings		Settings {get; set;}
 	}
 
-	public class LogReportCall : ApiCall
+	public class LogReportCall : SunApiCall
 	{
 		public int		Limit  { get; set; }
 
@@ -86,7 +55,7 @@ namespace Uccs.Net
 		public IEnumerable<string> Log { get; set; }
 	}
 
-	public class PeersReportCall : ApiCall
+	public class PeersReportCall : SunApiCall
 	{
 		public int		Limit { get; set; }
 
@@ -126,7 +95,7 @@ namespace Uccs.Net
 		public IEnumerable<Peer> Peers {get; set;}
 	}
 
-	public class SummaryReportCall : ApiCall
+	public class SummaryReportCall : SunApiCall
 	{
 		public int		Limit  { get; set; }
 
@@ -142,7 +111,7 @@ namespace Uccs.Net
 		public IEnumerable<string[]> Summary {get; set;}
 	}
 
-	public class ChainReportCall : ApiCall
+	public class ChainReportCall : SunApiCall
 	{
 		public int		Limit  { get; set; }
 
@@ -198,7 +167,7 @@ namespace Uccs.Net
 		public IEnumerable<Round> Rounds {get; set;}
 	}
 
-	public class VotesReportCall : ApiCall
+	public class VotesReportCall : SunApiCall
 	{
 		public int		RoundId  { get; set; }
 		public int		Limit  { get; set; }
@@ -232,13 +201,13 @@ namespace Uccs.Net
 		public IEnumerable<Vote> Votes {get; set;}
 	}
 
-	public class RunNodeCall : ApiCall
+	public class RunNodeCall : SunApiCall
 	{
 		public Role	Roles	{ get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			sun.RunNode(null, Roles);
+			sun.RunNode(new Workflow("Main by Api call", new Log()), Roles);
 							
 			if(Roles.HasFlag(Role.Seed))
 				sun.RunSeed();
@@ -247,7 +216,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class AddWalletCall : ApiCall
+	public class AddWalletCall : SunApiCall
 	{
 		public byte[]	PrivateKey { get; set; }
 		public string	Password { get; set; }
@@ -261,7 +230,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SaveWalletCall : ApiCall
+	public class SaveWalletCall : SunApiCall
 	{
 		public AccountAddress	Account { get; set; }
 
@@ -274,7 +243,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class UnlockWalletCall : ApiCall
+	public class UnlockWalletCall : SunApiCall
 	{
 		public AccountAddress	Account { get; set; }
 		public string			Password { get; set; }
@@ -288,7 +257,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SetGeneratorCall : ApiCall
+	public class SetGeneratorCall : SunApiCall
 	{
 		public IEnumerable<AccountAddress>	 Generators {get; set;}
 
@@ -306,7 +275,7 @@ namespace Uccs.Net
 		public Operation Operation {get; set;} 
 	}
 
-	public class EmitCall : ApiCall
+	public class EmitCall : SunApiCall
 	{
 		public byte[]			FromPrivateKey { get; set; } 
 		public BigInteger		Wei { get; set; } 
@@ -321,7 +290,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class EnqeueOperationCall : ApiCall
+	public class EnqeueOperationCall : SunApiCall
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
 		public AccountAddress			By  { get; set; }
@@ -333,7 +302,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class RdcCall : ApiCall
+	public class RdcCall : SunApiCall
 	{
 		public RdcRequest	Request { get; set; }
 
@@ -343,225 +312,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ResourceQueryCall : ApiCall
-	{
-		public string		Query { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.Lock)
-				return sun.QueryResource(Query).Resources;
-		}
-	}
-
-	public class PackageAddCall : ApiCall
-	{
-		public PackageAddress	Package { get; set; }
-		public byte[]			Complete { get; set; }
-		public byte[]			Incremental { get; set; }
-		public byte[]			Manifest { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			var m = new Manifest();
-			m.Read(new BinaryReader(new MemoryStream(Manifest)));
-								
-			var h = sun.Zone.Cryptography.HashFile(m.Bytes);
-								
-			lock(sun.ResourceHub.Lock)
-			{
-				var r = sun.ResourceHub.Add(Package, ResourceType.Package, h);
-	
-				r.AddFile(Net.Package.ManifestFile, Manifest);
-	
-				if(Complete != null)
-					r.AddFile(Net.Package.CompleteFile, Complete);
-
-				if(Incremental != null)
-					r.AddFile(Net.Package.IncrementalFile, Incremental);
-								
-				r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
-				sun.ResourceHub.SetLatest(Package, h);
-			}
-
-			return null;
-		}
-	}
-
-	public class ResourceBuildCall : ApiCall
-	{
-		public ResourceAddress		Resource { get; set; }
-		public IEnumerable<string>	Sources { get; set; }
-		public string				FilePath { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{
-				if(FilePath != null)
-					return sun.ResourceHub.Build(Resource, FilePath, workflow).Hash;
-				else if(Sources != null && Sources.Any())
-					return sun.ResourceHub.Build(Resource, Sources, workflow).Hash;
-			}
-
-			return null;
-		}
-	}
-
-	public class ResourceDownloadCall : ApiCall
-	{
-		public ResourceAddress Resource { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			var r = sun.Call(c => c.FindResource(Resource), workflow).Resource;
-					
-			Release rs;
-
-			lock(sun.ResourceHub.Lock)
-			{
-				rs = sun.ResourceHub.Find(Resource, r.Data) ?? sun.ResourceHub.Add(Resource, r.Type, r.Data);
-	
-				if(r.Type == ResourceType.File)
-				{
-					sun.ResourceHub.DownloadFile(rs, "f", r.Data, null, workflow);
-					
-					return r.Data;
-				}
-				else if(r.Type == ResourceType.Directory)
-				{
-					sun.ResourceHub.DownloadDirectory(rs, workflow);
-					
-					return r.Data;
-				}
-			}
-	
-			throw new NotSupportedException();
-		}
-	}
-	
-	public class ResourceDownloadProgressCall : ApiCall
-	{
-		public ResourceAddress	Resource { get; set; }
-		public byte[]			Hash { get; set; }
-		
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-				return sun.ResourceHub.GetDownloadProgress(Resource, Hash);
-		}
-	}
-	
-	public class ResourceInfoCall : ApiCall
-	{
-		public ResourceAddress	Resource { get; set; }
-		public byte[]			Hash { get; set; }
-		
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.ResourceHub.Lock)
-			{	
-				var r = sun.Call<ResourceResponse>(p => p.FindResource(Resource), workflow);
-
-				var a = sun.ResourceHub.Find(Resource, Hash);
-
-				return new ResourceInfo{ LocalAvailability	= a != null ? a.Availability : Availability.None,
-										 LocalLatest		= a != null ? a.Hash : null,
-										 LocalLatestFiles	= a != null ? a.Files.Count() : 0,
-										 Entity				= r.Resource };
-			}
-		}
-	}
-
-	public class ResourceInfo
-	{
-		public Availability		LocalAvailability { get; set; }
-		public byte[]			LocalLatest { get; set; }
-		public int				LocalLatestFiles { get; set; }
-		public Resource			Entity { get; set; }
-	}
-
-	public class PackageBuildCall : ApiCall
-	{
-		public PackageAddress		Package { get; set; }
-		public Version				Version { get; set; }
-		public IEnumerable<string>	Sources { get; set; }
-		public string				DependsDirectory { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.PackageHub.Lock)
-				sun.PackageHub.AddRelease(Package, Version, Sources, DependsDirectory, workflow);
-
-			return null;
-		}
-	}
-
-	public class PackageDownloadCall : ApiCall
-	{
-		public PackageAddress		Package { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.PackageHub.Lock)
-				sun.PackageHub.Download(Package, workflow);
-
-			return null;
-		}
-	}
-
-	public class PackageDownloadProgressCall : ApiCall
-	{
-		public PackageAddress	Package { get; set; }
-		
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.PackageHub.Lock)
-				return sun.PackageHub.GetDownloadProgress(Package);
-		}
-	}
-
-	public class PackageInfoCall : ApiCall
-	{
-		public PackageAddress	Package { get; set; }
-		
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.PackageHub.Lock)
-			{
-				var p = sun.PackageHub.Find(Package);
-
-				if(p == null)
-					throw new RdcEntityException(RdcEntityError.NotFound);
-
-				return new PackageInfo{ Ready			= sun.PackageHub.IsReady(Package),
-										Availability	= p.Release.Availability,
-										Manifest		= p.Manifest };
-			}
-		}
-	}
-
-	public class PackageInfo
-	{
-		public bool				Ready { get; set; }
-		public Availability		Availability { get; set; }
-		public Manifest			Manifest { get; set; }
-	}
-
-	public class PackageInstallCall : ApiCall
-	{
-		public PackageAddress	Package { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.PackageHub.Lock)
-				sun.PackageHub.Install(Package, workflow);
-
-			return null;
-		}
-	}
-
-	public class GenerateAnalysisReportCall : ApiCall
+	public class GenerateAnalysisReportCall : SunApiCall
 	{
 		public IDictionary<ResourceAddress, AnalysisResult>	Results { get; set; }
 

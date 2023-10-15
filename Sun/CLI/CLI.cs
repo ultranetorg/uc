@@ -133,7 +133,7 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		public Rp Call<Rp>(ApiCall call)
+		public Rp Call<Rp>(SunApiCall call)
 		{
 			if(Api == null) 
 				return (Rp)call.Execute(Sun, Workflow);
@@ -146,7 +146,7 @@ namespace Uccs.Sun.CLI
 			return Call<Rp>(new RdcCall {Request = request});
 		}
 
-		public void Call(ApiCall call)
+		public void Call(SunApiCall call)
 		{
 			if(Api == null)
 				call.Execute(Sun, Workflow);

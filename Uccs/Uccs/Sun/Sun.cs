@@ -278,7 +278,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public void RunApi()
+		public void RunApi(Workflow workflow)
 		{
 			if(!HttpListener.IsSupported)
 			{
@@ -288,7 +288,9 @@ namespace Uccs.Net
 
 			lock(Lock)
 			{
-				ApiServer = new JsonApiServer(this);
+				workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "JsonServer.log"), FileMode.Create);
+
+				ApiServer = new JsonApiServer(Settings.IP, Settings.JsonServerPort, Settings.Api.AccessKey, n => Type.GetType(GetType().Namespace + '.' + n), (o, w) => (o as SunApiCall).Execute(this, w), workflow);
 			}
 		
 			ApiStarted?.Invoke(this);
@@ -297,61 +299,19 @@ namespace Uccs.Net
 		public void Run(Xon xon, Workflow workflow)
 		{
 			if(xon.Has("api"))
-				RunApi();
+				RunApi(workflow);
 			
-			RunNode(workflow, (xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
+			if(xon.Has("node"))
+				RunNode(workflow, (xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
 
 			if(xon.Has("seed"))
 				RunSeed();
 		}
 
-// 		public void RunUser(Workflow workflow)
-// 		{
-// 			Workflow = workflow != null ? workflow.CreateNested("RunUser", workflow?.Log) : new Workflow("RunUser", workflow?.Log);
-// 			if(Workflow.Log != null)
-// 				Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
-// 
-// 			Workflow.Log?.Report(this, $"Ultranet Client {Version}");
-// 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
-// 			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-// 			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
-// 			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
-// 			
-// 			if(DevSettings.Any)
-// 				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
-// 
-// 			Nuid = Guid.NewGuid();
-// 
-// 			LoadPeers();
-// 			
-//  			MainThread = new (() =>	{ 
-// 										Thread.CurrentThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
-// 
-// 										try
-// 										{
-// 											while(Workflow.Active)
-// 											{
-// 												lock(Lock)
-// 												{
-// 													ProcessConnectivity();
-// 												}
-// 	
-// 												Thread.Sleep(1);
-// 											}
-// 										}
-// 										catch(Exception ex) when (!Debugger.IsAttached)
-// 										{
-// 											Stop(MethodBase.GetCurrentMethod(), ex);
-// 										}
-//  									});
-// 			MainThread.Start();
-// 			MainStarted?.Invoke(this);
-// 		}
-
 		public void RunNode(Workflow workflow, Role roles)
 		{
-			Workflow = workflow != null ? workflow.CreateNested("RunNode", new Log()) : new Workflow("RunNode", new Log());
-			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
+			Workflow = workflow;
+			workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
 
 			Workflow.Log?.Report(this, $"Ultranet Node {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	

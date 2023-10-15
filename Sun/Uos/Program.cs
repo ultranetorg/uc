@@ -43,8 +43,9 @@ namespace Uccs.Sun.Application
 				Sun = new Net.Sun(boot.Zone, Settings){	Clock = new RealTimeClock(), 
 														Nas = new Nas(Settings, Log), }; 
 
-				Sun.RunApi();
-				Sun.RunNode(new Workflow("RunNode", Log), Role.Chain);
+				var w = new Workflow("Main", Log);
+				Sun.RunApi(w);
+				Sun.RunNode(w, Role.Chain);
 
 				RunUosServer();
 			}
