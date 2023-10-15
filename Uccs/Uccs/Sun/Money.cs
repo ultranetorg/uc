@@ -13,13 +13,14 @@ namespace Uccs.Net
 	{
 		readonly static BigInteger		One = 1_000_000_000_000_000_000;
 		public readonly static Money	Zero = new Money();
+		public readonly static Money	Min = new Money{Attos = 1};
 		public BigInteger				Attos;
 
 		static NumberFormatInfo			HumanFormat;
 
 		static Money()
 		{
-			HumanFormat = NumberFormatInfo.CurrentInfo.Clone() as NumberFormatInfo;
+			HumanFormat = NumberFormatInfo.InvariantInfo.Clone() as NumberFormatInfo;
 			HumanFormat.CurrencySymbol = "";
 			HumanFormat.CurrencyDecimalDigits = 9;
 		}

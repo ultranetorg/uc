@@ -272,9 +272,9 @@ namespace Uccs.Net
 							var t = Task.Run(() =>	{
 														try
 														{
-															Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem {	Hash = i.h, 
-																																						Availability  = i.a
-																																					}).ToArray()), Sun.Workflow);
+															Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem{	Hash = i.h, 
+																																								Availability  = i.a
+																																							}).ToArray()), Sun.Workflow);
 														}
 														catch(ConnectionFailedException)
 														{

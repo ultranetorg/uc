@@ -106,13 +106,7 @@ namespace Uccs.Net
 		public bool						MinimalPeersReached;
 		public List<Peer>				Peers = new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
-		public IEnumerable<Peer>		Bases
-										{
-											get
-											{
-												return Connections.Where(i => i.BaseRank > 0);
-											}
-										}
+		public IEnumerable<Peer>		Bases => Connections.Where(i => i.Permanent && i.BaseRank > 0);
 
 		public List<IPAddress>			IgnoredIPs	= new();
 
@@ -260,7 +254,7 @@ namespace Uccs.Net
 			return string.Join(" - ", new string[]{	$"{(Roles.HasFlag(Role.Base) ? "B" : null)}" +
 													$"{(Roles.HasFlag(Role.Chain) ? "C" : null)}" +
 													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
-													Connections.Count() < Settings.PeersMin ? "Low Peers" : null,
+													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
 													Settings.Anonymous ? "A" : null,
 													(Settings.IP != null ? $"{IP}" : null),
 													Mcv != null ?  Synchronization.ToString() : null,
@@ -301,6 +295,8 @@ namespace Uccs.Net
 			if(xon.Has("api"))
 				RunApi(workflow);
 			
+			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
+
 			if(xon.Has("node"))
 				RunNode(workflow, (xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
 
@@ -311,7 +307,6 @@ namespace Uccs.Net
 		public void RunNode(Workflow workflow, Role roles)
 		{
 			Workflow = workflow;
-			workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
 
 			Workflow.Log?.Report(this, $"Ultranet Node {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
@@ -643,7 +638,7 @@ namespace Uccs.Net
 
 		void ProcessConnectivity()
 		{
-			var needed = Settings.PeersMin - Peers.Count(i => i.Status != ConnectionStatus.Disconnected);
+			var needed = Settings.PeersPermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
 			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
 												DateTime.UtcNow - m.LastTry > TimeSpan.FromSeconds(5))
@@ -652,12 +647,17 @@ namespace Uccs.Net
 									.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
 									.Take(needed))
 			{
-				OutboundConnect(p);
+				OutboundConnect(p, true);
+			}
+
+			foreach(var p in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
+			{
+				OutboundConnect(p, false);
 			}
 
 			if(Roles.HasFlag(Role.Base))
 			{
-				needed = Settings.Mcv.PeersMin - Connections.Count(i => i.Roles.HasFlag(Role.Base));
+				needed = Settings.Mcv.PeersMin - Bases.Count();
 
 				foreach(var p in Peers	.Where(m =>	m.BaseRank > 0 &&
 													m.Status == ConnectionStatus.Disconnected &&
@@ -667,7 +667,7 @@ namespace Uccs.Net
 										.ThenBy(i => Settings.PeersInitialRandomization ? Guid.NewGuid() : Guid.Empty)
 										.Take(needed))
 				{
-					OutboundConnect(p);
+					OutboundConnect(p, true);
 				}
 			}
 
@@ -675,8 +675,8 @@ namespace Uccs.Net
 				i.Disconnect();
 
 			if(!MinimalPeersReached && 
-				Connections.Count() >= Settings.PeersMin && 
-				(!Roles.HasFlag(Role.Base) || Connections.Count(i => i.Roles.HasFlag(Role.Base)) >= Settings.Mcv.PeersMin))
+				Connections.Count(i => i.Permanent) >= Settings.PeersPermanentMin && 
+				(!Roles.HasFlag(Role.Base) || Bases.Count() >= Settings.Mcv.PeersMin))
 			{
 				if(Mcv != null)
 				{
@@ -704,16 +704,14 @@ namespace Uccs.Net
 				while(Workflow.Active)
 				{
 					var c = Listener.AcceptTcpClient();
-
-					if(Workflow.Aborted)
-						return;
 	
 					lock(Lock)
 					{
-						if(!Workflow.Aborted && Connections.Count() < Settings.PeersInMax)
+						if(Workflow.Aborted)
+							return;
+
+						if(Connections.Count(i => i.Inbound) <= Settings.PeersInboundMax)
 							InboundConnect(c);
-						else
-							c.Close();
 					}
 				}
 			}
@@ -734,7 +732,7 @@ namespace Uccs.Net
 			}
 		}
 
-		Hello CreateHello(IPAddress ip)
+		Hello CreateHello(IPAddress ip, bool permanent)
 		{
 			Peer[] peers;
 		
@@ -751,14 +749,16 @@ namespace Uccs.Net
 			h.IP			= ip;
 			h.Nuid			= Nuid;
 			h.Peers			= peers;
+			h.Permanent		= permanent;
 			//h.Generators	= Members;
 			
 			return h;
 		}
 
-		void OutboundConnect(Peer peer)
+		void OutboundConnect(Peer peer, bool permanent)
 		{
 			peer.Status = ConnectionStatus.Initiated;
+			peer.Permanent = permanent;
 			peer.LastTry = DateTime.UtcNow;
 			peer.Retries++;
 
@@ -794,7 +794,7 @@ namespace Uccs.Net
 						client.SendTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
 						client.ReceiveTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
 
-						Peer.SendHello(client, CreateHello(peer.IP));
+						Peer.SendHello(client, CreateHello(peer.IP, permanent));
 						h = Peer.WaitHello(client);
 					}
 					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
@@ -848,8 +848,8 @@ namespace Uccs.Net
 						RefreshPeers(h.Peers.Append(peer));
 	
 						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
-							
-						//Workflow.Log?.Report(this, "Connected", $"to {peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
+						
+						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing}", $"Connected to {peer}");
 	
 						return;
 					}
@@ -948,16 +948,22 @@ namespace Uccs.Net
 						if(Workflow.Aborted)
 							return;
 
+						if(h.Permanent)
+						{
+							if(Connections.Count(i => i.Inbound && i.Permanent) + 1 > Settings.PeersPermanentInboundMax)
+							{
+								goto failed;
+							}
+						}
+
 						if(!h.Versions.Any(i => Versions.Contains(i)))
 						{
-							client.Close();
-							return;
+							goto failed;
 						}
 
 						if(h.Zone != Zone.Name)
 						{
-							client.Close();
-							return;
+							goto failed;
 						}
 
 						if(h.Nuid == Nuid)
@@ -965,15 +971,13 @@ namespace Uccs.Net
 							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. It's me");
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
-							client.Close();
-							return;
+							goto failed;
 						}
 
 						if(peer != null && peer.Status == ConnectionStatus.OK)
 						{
 							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. Already established" );
-							client.Close();
-							return;
+							goto failed;
 						}
 	
 						if(IP.Equals(IPAddress.None))
@@ -984,7 +988,7 @@ namespace Uccs.Net
 		
 						try
 						{
-							Peer.SendHello(client, CreateHello(ip));
+							Peer.SendHello(client, CreateHello(ip, false));
 						}
 						catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
 						{
@@ -1011,7 +1015,9 @@ namespace Uccs.Net
 						RefreshPeers(h.Peers.Append(peer));
 	
 						//peer.InStatus = EstablishingStatus.Succeeded;
+						peer.Permanent = h.Permanent;
 						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
+						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing}", $"Connected from {peer}");
 			
 						//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
@@ -1019,8 +1025,8 @@ namespace Uccs.Net
 					}
 	
 				failed:
-					lock(Lock)
-						if(peer != null)
+					if(peer != null)
+						lock(Lock)
 							peer.Status = ConnectionStatus.Failed;
 
 					client.Close();
@@ -2101,9 +2107,10 @@ namespace Uccs.Net
 		{
 			lock(Lock)
 			{
-				if(peer.Status != ConnectionStatus.OK && peer.Status != ConnectionStatus.Initiated && peer.Status != ConnectionStatus.Disconnecting)
+				if(peer.Status != ConnectionStatus.OK)
 				{
-					OutboundConnect(peer);
+					peer.Forced = true;
+					MainSignal.Set();
 				}
 			}
 

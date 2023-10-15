@@ -30,6 +30,8 @@ namespace Uccs.Net
 
 		public ConnectionStatus		Status = ConnectionStatus.Disconnected;
 
+		public bool					Forced;
+		public bool					Permanent;
 		public DateTime				LastSeen = DateTime.MinValue;
 		public DateTime				LastTry = DateTime.MinValue;
 		public int					Retries;
@@ -71,7 +73,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{IP}, {StatusDescription}";
+			return $"{IP}, {StatusDescription}, Forced={Forced}, Permanent={Permanent}";
 		}
  		
 		public int GetRank(Role role)
@@ -139,6 +141,8 @@ namespace Uccs.Net
 			else
 				return;
 
+			Forced = false;
+
 			foreach(var i in OutRequests)
 				i.Event.Set();
 
@@ -174,10 +178,11 @@ namespace Uccs.Net
 			Sun = sun;
 			Tcp = client;
 			
-			Tcp.ReceiveTimeout = 0;
+			Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
 			Tcp.SendTimeout = DevSettings.DisableTimeouts ? 0 : Sun.Timeout;
 
 			PeerRank++;
+			Forced		= false;
 			Status		= ConnectionStatus.OK;
 			Inbound		= inbound;
 			Stream		= client.GetStream();

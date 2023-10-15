@@ -178,39 +178,39 @@ namespace Uccs.Net
 				return AffectedAuthors[author] = new AuthorEntry(Mcv){Name = author};
 		}
 
- 		public O FindOperation<O>(Func<O, bool> f) where O : Operation
- 		{
- 			foreach(var b in Payloads)
- 				foreach(var t in b.Transactions)
- 					foreach(var o in t.Operations.OfType<O>())
- 						if(f(o))
- 							return o;
- 
- 			return null;
- 		}
-
- 		public bool AnyOperation(Func<Operation, bool> f)
- 		{
- 			foreach(var b in Payloads)
- 				foreach(var t in b.Transactions)
- 					foreach(var o in t.Operations)
- 						if(f(o))
- 							return true;
- 
- 			return false;
- 		}
-
- 		public List<Transaction> FindTransactions(Func<Transaction, bool> f)
- 		{
- 			var o = new List<Transaction>();
- 
- 			foreach(var b in Payloads)
- 				foreach(var t in b.Transactions)
- 					if(f(t))
- 						o.Add(t);
- 
- 			return o;
- 		}
+//  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
+//  		{
+//  			foreach(var b in Payloads)
+//  				foreach(var t in b.Transactions)
+//  					foreach(var o in t.Operations.OfType<O>())
+//  						if(f(o))
+//  							return o;
+//  
+//  			return null;
+//  		}
+// 
+//  		public bool AnyOperation(Func<Operation, bool> f)
+//  		{
+//  			foreach(var b in Payloads)
+//  				foreach(var t in b.Transactions)
+//  					foreach(var o in t.Operations)
+//  						if(f(o))
+//  							return true;
+//  
+//  			return false;
+//  		}
+// 
+//  		public List<Transaction> FindTransactions(Func<Transaction, bool> f)
+//  		{
+//  			var o = new List<Transaction>();
+//  
+//  			foreach(var b in Payloads)
+//  				foreach(var t in b.Transactions)
+//  					if(f(t))
+//  						o.Add(t);
+//  
+//  			return o;
+//  		}
 
 		public void Hashify(byte[] previous)
 		{

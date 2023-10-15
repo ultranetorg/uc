@@ -145,8 +145,9 @@ namespace Uccs.Net
 
 		public string					FuiRoles;
 		public bool						Log;
-		public int						PeersMin = 6;
-		public int						PeersInMax = 128;
+		public int						PeersPermanentMin = 6;
+		public int						PeersPermanentInboundMax = 128;
+		public int						PeersInboundMax = 16 * 1024;
 		public bool						PeersInitialRandomization = true;
 		public IPAddress				IP;
 		//public IPAddress				ExternalIP;
@@ -193,8 +194,8 @@ namespace Uccs.Net
 
 			FuiRoles					= doc.Get<string>("FuiRoles");
 			Anonymous					= doc.Has("Anonymous");
-			PeersMin					= doc.Get<int>("PeersMin");
-			PeersInMax					= doc.Get<int>("PeersInMax");
+			PeersPermanentMin			= doc.Get<int>("PeersPermanentMin");
+			PeersPermanentInboundMax	= doc.Get<int>("PeersPermanentInboundMax");
 			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");
 			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
 			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));

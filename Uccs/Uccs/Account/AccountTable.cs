@@ -96,7 +96,7 @@ namespace Uccs.Net
 
 			if(e != null && e.Transactions != null)
 			{
-				o = o.Union(e.Transactions.SelectMany(r => Database.FindRound(r).FindTransactions(t => t.Signer == signer))).Skip(skip).Take(count);
+				o = o.Union(e.Transactions.SelectMany(r => Database.FindRound(r).Transactions.Where(t => t.Signer == signer))).Skip(skip).Take(count);
 			}
 
 			return o;
