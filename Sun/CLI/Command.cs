@@ -175,6 +175,13 @@ namespace Uccs.Sun.CLI
 
 		public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, string>> gets)
 		{
+			if(!items.Any())
+			{	
+				Workflow.Log?.Report("   No results");
+				return;
+			}
+
+
 			string[,] t = new string[items.Count(), columns.Length];
 			int[] w = columns.Select(i => i.Length).ToArray();
 
@@ -197,14 +204,14 @@ namespace Uccs.Sun.CLI
 
 			var f = string.Join(" ", columns.Select((c, i) => $"{{{i},-{w[i]}}}"));
 
-			Workflow.Log?.Report(string.Format(f, columns));
-			Workflow.Log?.Report(string.Format(f, w.Select(i => new string('-', i)).ToArray()));
+			Workflow.Log?.Report("   " + string.Format(f, columns));
+			Workflow.Log?.Report("   " + string.Format(f, w.Select(i => new string('-', i)).ToArray()));
 						
 			f = string.Join(" ", columns.Select((c, i) => $"{{{i},{w[i]}}}"));
 
 			for(int i=0; i < items.Count(); i++)
 			{
-				Workflow.Log?.Report(string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
+				Workflow.Log?.Report("   " + string.Format(f, Enumerable.Range(0, columns.Length).Select(j => t[i, j]).ToArray()));
 			}
 		}
 

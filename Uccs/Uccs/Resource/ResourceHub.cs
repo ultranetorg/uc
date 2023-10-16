@@ -66,6 +66,12 @@ namespace Uccs.Net
 			File.WriteAllText(Path.Join(ResourcesPath, release.Author, Escape(release.Resource),  "latest"), hash.ToHex());
 		}
 
+		public byte[] GetLatest(ResourceAddress release)
+		{
+			var f = Path.Join(ResourcesPath, release.Author, Escape(release.Resource),  "latest");
+			return File.Exists(f) ? File.ReadAllText(f).HexToByteArray() : null;
+		}
+
 		public ResourceAddress PathToAddress(string path)
 		{
 			path = path.Substring(ResourcesPath.Length).TrimStart(Path.DirectorySeparatorChar);
@@ -181,7 +187,8 @@ namespace Uccs.Net
 
 		public Release Find(ResourceAddress resource, byte[] hash)
 		{
-			return Releases.Find(i => i.Address == resource && (hash == null || i.Hash.SequenceEqual(hash)));
+			hash = hash ?? GetLatest(resource);
+			return hash == null ? null : Releases.Find(i => i.Address == resource && i.Hash.SequenceEqual(hash));
 
 			//if(r != null)
 			//	return r;
@@ -276,7 +283,7 @@ namespace Uccs.Net
 																																								Availability  = i.a
 																																							}).ToArray()), Sun.Workflow);
 														}
-														catch(ConnectionFailedException)
+														catch(RdcNodeException)
 														{
 														}
 

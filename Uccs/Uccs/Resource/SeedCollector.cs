@@ -102,7 +102,7 @@ namespace Uccs.Net
 														
 														s.Failed = DateTime.MinValue;
 													}
-													catch(ConnectionFailedException)
+													catch(RdcNodeException)
 													{
 														s.Failed = DateTime.UtcNow;
 													}
@@ -110,14 +110,13 @@ namespace Uccs.Net
 													{
 														Monitor.Enter(Collector.Lock);
 													}
-														
 												}
 											}
 										}
 										
 										Called = DateTime.UtcNow;
 									}
-									catch(Exception ex) when (ex is ConnectionFailedException || ex is RdcNodeException || ex is RdcEntityException)
+									catch(Exception ex) when (ex is RdcNodeException || ex is RdcEntityException)
 									{
 									}
 									catch(OperationCanceledException)

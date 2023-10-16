@@ -2,14 +2,13 @@
 
 namespace Uccs.Net
 {
-	public class ConnectionFailedException : Exception
+	public class ConfirmationException : Exception
 	{
-		public ConnectionFailedException(string m)
-		{
-		}
+		Round Round;
 
-		public ConnectionFailedException(string m, Exception ex) : base(m, ex)
+		public ConfirmationException(string m, Round r) : base(m)
 		{
+			Round = r;
 		}
 	}
 }

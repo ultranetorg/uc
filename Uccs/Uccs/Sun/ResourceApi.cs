@@ -4,18 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class ResourceQueryCall : SunApiCall
-	{
-		public string		Query { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.Lock)
-				return sun.QueryResource(Query).Resources;
-		}
-	}
-
-	public class ResourceBuildCall : SunApiCall
+	public class ReleaseBuildCall : SunApiCall
 	{
 		public ResourceAddress		Resource { get; set; }
 		public IEnumerable<string>	Sources { get; set; }
@@ -79,10 +68,10 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class ResourceInfoCall : SunApiCall
+	public class ResourceEntityCall : SunApiCall
 	{
 		public ResourceAddress	Resource { get; set; }
-		public byte[]			Hash { get; set; }
+		//public byte[]			Hash { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
@@ -90,21 +79,61 @@ namespace Uccs.Net
 			{	
 				var r = sun.Call<ResourceResponse>(p => p.FindResource(Resource), workflow);
 
-				var a = sun.ResourceHub.Find(Resource, Hash);
+				//var a = sun.ResourceHub.Find(Resource, Hash);
 
-				return new ResourceInfo{ LocalAvailability	= a != null ? a.Availability : Availability.None,
-										 LocalLatest		= a != null ? a.Hash : null,
-										 LocalLatestFiles	= a != null ? a.Files.Count() : 0,
-										 Entity				= r.Resource };
+				return r.Resource;
+			}
+		}
+	}
+		
+	public class LocalResourcesCall : SunApiCall
+	{
+		public string	Query { get; set; }
+		public int		Skip { get; set; } = 0;
+		public int		Take { get; set; } = int.MaxValue;
+		
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{	
+				return sun.ResourceHub.Releases	.Where(i => i.Address.ToString().Contains(Query))
+												.GroupBy(i => i.Address)
+												.Skip(Skip)
+												.Take(Take)
+												.Select(i => new LocalResource{	Resource = i.Key,
+																				Latest = sun.ResourceHub.Find(i.Key, null).Hash,
+																				Releases = i.Count()});
 			}
 		}
 	}
 
-	public class ResourceInfo
+	public class LocalResource
 	{
-		public Availability		LocalAvailability { get; set; }
-		public byte[]			LocalLatest { get; set; }
-		public int				LocalLatestFiles { get; set; }
-		public Resource			Entity { get; set; }
+		public ResourceAddress		Resource  { get; set; }
+		public int					Releases { get; set; }
+		public byte[]				Latest { get; set; }
+	}
+	
+	public class LocalReleasesCall : SunApiCall
+	{
+		public ResourceAddress		Resource { get; set; }
+		
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			lock(sun.ResourceHub.Lock)
+			{	
+				return sun.ResourceHub.Releases	.Where(i => i.Address == Resource)
+												.Select(i => new LocalRelease {	Availability = i.Availability,
+																				Hash = i.Hash,
+																				Type = i.Type });
+			}
+		}
+	}
+
+	public class LocalRelease
+	{
+		public ResourceType		Type { get; set; }
+		public Availability		Availability { get; set; }
+		public byte[]			Hash { get; set; }
 	}
 }

@@ -22,6 +22,7 @@ namespace Uccs.Net
 		public DirectoryDownload(Sun sun, Release release, Workflow workflow)
 		{
 			Release = release;
+			SeedCollector = new SeedCollector(sun, release.Hash, workflow);
 
 			void run()
 			{
@@ -29,7 +30,6 @@ namespace Uccs.Net
 				{
 					//var h = sun.Call(c => c.FindResource(release.Address), workflow).Resource.Data;
 		 									
-					SeedCollector = new SeedCollector(sun, release.Hash, workflow);
 	
 					sun.ResourceHub.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
 												

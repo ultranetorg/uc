@@ -48,7 +48,7 @@ namespace Uccs.Net
 													Data.Write(d, 0, d.Length);
 												}
 											}
-											catch(Exception ex) when(ex is ConnectionFailedException || ex is OperationCanceledException || ex is RdcNodeException || ex is RdcEntityException)
+											catch(Exception ex) when(ex is OperationCanceledException || ex is RdcNodeException || ex is RdcEntityException)
 											{
 											}
 										}, 
@@ -77,6 +77,12 @@ namespace Uccs.Net
 			Workflow		= workflow;
 			SeedCollector	= seedcollector ?? new SeedCollector(sun, release.Hash, workflow);
 
+			if(File != null && File.Completed)
+			{	
+				release.RemoveFile(File);
+				File = null;
+			}
+			
 			Task = Task.Run(() =>
 							{
 								try

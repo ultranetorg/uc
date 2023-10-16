@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,121 +55,10 @@ namespace Uccs.Sun.CLI
 					return r;
 				}
 
-				case "b" :
-				case "build" :
-				{
-					if(!Args.Has("source") && !Args.Has("sources"))
-						throw new SyntaxException("Unknown arguments");
-
-					var h = Program.Call<byte[]>(new ResourceBuildCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
-																		FilePath = GetString("source", null),
-																		Sources = GetString("sources", null)?.Split(',')});
-
-					Workflow.Log?.Report(this, $"Hash={h.ToHex()}");
-
-					return null;
-				}
-
-				case "d" :
-				case "download" :
-				{
-					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
-		
-					var h = Program.Call<byte[]>(new ResourceDownloadCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
-
-					try
-					{
-						ResourceDownloadProgress d = null;
-						
-						while(Workflow.Active)
-						{
-
-							d = Program.Call<ResourceDownloadProgress>(new ResourceDownloadProgressCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name), Hash = h});
-
-							if(d == null)
-								break;
-
-							Workflow.Log?.Report(this, d.ToString());
-
-							Thread.Sleep(500);
-						}
-					}
-					catch(OperationCanceledException)
-					{
-					}
-
-					return null;
-
-
-
-// 					var r = Sun.Call(c => c.FindResource(a), Workflow).Resource;
-// 					
-// 					Release rz;
-// 
-// 					lock(Sun.ResourceHub.Lock)
-// 						rz = Sun.ResourceHub.Find(a, r.Data) ?? Sun.ResourceHub.Add(a, r.Data);
-// 	
-// 					if(r.Type == ResourceType.File)
-// 					{
-// 						FileDownload d;
-// 							
-// 						lock(Sun.ResourceHub.Lock)
-// 							d = Sun.ResourceHub.DownloadFile(rz, "f", r.Data, null, Workflow);
-// 		
-// 						if(d != null)
-// 						{
-// 							do
-// 							{
-// 								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
-// 	
-// 								lock(d.Lock)
-// 								{ 
-// 									if(d.File != null)
-// 										Workflow.Log?.Report(this, $"{d.DownloadedLength}/{d.Length} bytes, {d.CurrentPieces.Count} threads, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
-// 									else
-// 										Workflow.Log?.Report(this, $"?/? bytes, {d.SeedCollector.Hubs.Count} hubs, {d.SeedCollector.Seeds.Count} seeds");
-// 								}
-// 							}
-// 							while(!d.Task.IsCompleted && Workflow.Active);
-// 						} 
-// 						else
-// 							Workflow.Log?.Report(this, $"Already downloaded");
-// 					
-// 						return d;
-// 					}
-// 					else if(r.Type == ResourceType.Directory)
-// 					{
-// 						DirectoryDownload d;
-// 							
-// 						lock(Sun.ResourceHub.Lock)
-// 							d = Sun.ResourceHub.DownloadDirectory(rz, Workflow);
-// 		
-// 						if(d != null)
-// 						{
-// 							void report() => Workflow.Log?.Report(this, $"{d.CompletedCount}/{d.TotalCount} files, {d.SeedCollector?.Hubs.Count} hubs, {d.SeedCollector?.Seeds.Count} seeds");
-// 	
-// 							do
-// 							{
-// 								Task.WaitAny(new Task[] {d.Task}, 500, Workflow.Cancellation);
-// 	
-// 								report();
-// 							}
-// 							while(!d.Task.IsCompleted && Workflow.Active);
-// 						} 
-// 						else
-// 							Workflow.Log?.Report(this, $"Already downloaded");
-// 					
-// 						return d;
-// 					}
-// 	
-// 					throw new NotSupportedException();
-				}
-
 				case "i" :
 		   		case "info" :
 				{
-					var r = Program.Call<ResourceInfo>(new ResourceInfoCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name), 
-																			 Hash = Args.Get<byte[]>("hash", null)});
+					var r = Program.Call<Resource>(new ResourceEntityCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 
 					Dump(r);
 
@@ -181,6 +71,20 @@ namespace Uccs.Sun.CLI
 					//		Workflow.Log?.Report(this, "    " + i);
 					//	}
 					//}
+
+					return r;
+				}
+
+				case "l" : 
+				case "local" : 
+				{	
+					var r = Program.Call<IEnumerable<LocalResource>>(new LocalResourcesCall {Query = Args.Nodes[1].Name});
+					
+					Dump(	r, 
+							new string[] {"Address", "Releases", "Latest"}, 
+							new Func<LocalResource, string>[]{	i => i.Resource.ToString(),
+																i => i.Releases.ToString(),
+																i => i.Latest.ToHex() });
 
 					return r;
 				}

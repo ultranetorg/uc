@@ -28,6 +28,7 @@ namespace Uccs.Net
 	public enum RdcNodeError : byte
 	{
 		None,
+		Connectivity,
 		Integrity,
 		Internal,
 		Timeout,

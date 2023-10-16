@@ -50,6 +50,7 @@ namespace Uccs.Net
 			Type = type;
 			Changes |= ResourceChanges.Type;
 		}
+
 		public void Change(byte[] data)
 		{
 			Data = data;
@@ -80,6 +81,7 @@ namespace Uccs.Net
 			
 			if(Changes.HasFlag(ResourceChanges.Years))			Years = reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Flags))			Flags = (ResourceFlags)reader.ReadByte();
+			if(Changes.HasFlag(ResourceChanges.Type))			Type = (ResourceType)reader.ReadInt16();
 			if(Changes.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Changes.HasFlag(ResourceChanges.Parent))			Parent = reader.ReadUtf8();
 			if(Changes.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadCoin();
@@ -92,6 +94,7 @@ namespace Uccs.Net
 
 			if(Changes.HasFlag(ResourceChanges.Years))			writer.Write(Years);
 			if(Changes.HasFlag(ResourceChanges.Flags))			writer.Write((byte)Flags);
+			if(Changes.HasFlag(ResourceChanges.Type))			writer.Write((short)Type);
 			if(Changes.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
 			if(Changes.HasFlag(ResourceChanges.Parent))			writer.WriteUtf8(Parent);
 			if(Changes.HasFlag(ResourceChanges.AnalysisFee))	writer.Write(AnalysisFee);

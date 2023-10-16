@@ -1278,9 +1278,6 @@ namespace Uccs.Net
 				catch(SynchronizationException)
 				{
 				}
-				catch(ConnectionFailedException)
-				{
-				}
 				catch(OperationCanceledException)
 				{
 					return;
@@ -1700,7 +1697,7 @@ namespace Uccs.Net
 											Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
 											break;
 										}
-										catch(ConnectionFailedException)
+										catch(RdcNodeException)
 										{
 										}
 										finally
@@ -1781,7 +1778,7 @@ namespace Uccs.Net
 									rdi = gp;
 									Workflow.Log?.Report(this, "Generator connection established", $"{m}, {gp}");
 								}
-								catch(ConnectionFailedException)
+								catch(RdcNodeException)
 								{
 								}
 								finally
@@ -2061,12 +2058,12 @@ namespace Uccs.Net
 	
 					return peer;
 				}
-				catch(ConnectionFailedException)
+				catch(RdcNodeException)
 				{
 				}
 			}
 
-			throw new ConnectionFailedException("Aborted, overall abort or timeout");
+			throw new OperationCanceledException();
 		}
 
 		public Peer[] Connect(Role role, int n, Workflow workflow)
@@ -2086,7 +2083,7 @@ namespace Uccs.Net
 					{
 						Connect(p, workflow);
 					}
-					catch(ConnectionFailedException)
+					catch(RdcNodeException)
 					{
 						continue;
 					}
@@ -2100,7 +2097,7 @@ namespace Uccs.Net
 				}
 			}
 
-			throw new ConnectionFailedException("Aborted, overall abort or timeout");
+			throw new OperationCanceledException();
 		}
 
 		public void Connect(Peer peer, Workflow workflow)
@@ -2124,11 +2121,11 @@ namespace Uccs.Net
 					if(peer.Status == ConnectionStatus.OK)
 						return;
 					else if(peer.Status == ConnectionStatus.Failed)
-						throw new ConnectionFailedException("Failed");
+						throw new RdcNodeException(RdcNodeError.Connectivity);
 
 				if(!DevSettings.DisableTimeouts)
 					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
-						throw new ConnectionFailedException("Timed out");
+						throw new RdcNodeException(RdcNodeError.Timeout);
 			}
 		}
 
@@ -2161,10 +2158,6 @@ namespace Uccs.Net
 					Connect(p, workflow);
 
 					return call(p);
-				}
-				catch(ConnectionFailedException)
-				{
-					p.LastFailure[Role.Base] = DateTime.UtcNow;
 				}
  				catch(RdcNodeException)
  				{
@@ -2348,7 +2341,7 @@ namespace Uccs.Net
 				{
 					i.Send(new MemberVoxRequest {Raw = vote.RawForBroadcast });
 				}
-				catch(ConnectionFailedException)
+				catch(RdcNodeException)
 				{
 				}
 			}

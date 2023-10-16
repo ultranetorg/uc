@@ -90,6 +90,7 @@ namespace Uccs.Sun.CLI
 				case AuthorCommand.Keyword:		c = new AuthorCommand(this, args); break;
 				case PackageCommand.Keyword:	c = new PackageCommand(this, args); break;
 				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args); break;
+				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args); break;
 				case NetCommand.Keyword:		c = new NetCommand(this, args); break;
 			}
 

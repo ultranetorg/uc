@@ -400,7 +400,7 @@ namespace Uccs.Net
  		public override void Send(RdcRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
-				throw new ConnectionFailedException("Peer is not connected");
+				throw new RdcNodeException(RdcNodeError.Connectivity);
 
 			rq.Id = IdCounter++;
 
@@ -413,7 +413,7 @@ namespace Uccs.Net
  		public override RdcResponse Request(RdcRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
-				throw new ConnectionFailedException("Peer is not connected");
+				throw new RdcNodeException(RdcNodeError.Connectivity);
 
 			rq.Id = IdCounter++;
 
