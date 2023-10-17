@@ -1360,7 +1360,7 @@ namespace Uccs.Net
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			if(!Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
-				return new();
+				throw new RdcNodeException(RdcNodeError.NotMember);
 
 			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
 											i.Fee >= i.Operations.Sum(i => i.CalculateSize()) * TransactionPerByteMinFee &&
@@ -1645,15 +1645,16 @@ namespace Uccs.Net
 
 				if(rdi == null)
 				{
-					if(Settings.Generators.Any())
+					while(Workflow.Active)
 					{
-						m = Settings.Generators.First();
-						rdi = this;
-					}
-					else
-					{ 
-						while(Workflow.Active)
+						if(Synchronization == Synchronization.Synchronized && Settings.Generators.Any(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i)))
 						{
+							m = Settings.Generators.First(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i));
+							rdi = this;
+							break;
+						}
+						else
+						{ 
 							var cr = Call(i => i.GetMembers(), Workflow);
 	
 							if(!cr.Members.Any())
@@ -1661,7 +1662,7 @@ namespace Uccs.Net
 
 							lock(Lock)
 							{
-								var members = cr.Members;
+								var members = cr.Members.Where(i => !Settings.Generators.Contains(i.Account));
 
 								//Members.RemoveAll(i => !members.Contains(i.Generator));
 								
@@ -1777,9 +1778,11 @@ namespace Uccs.Net
 									m = Zone.Father0;
 									rdi = gp;
 									Workflow.Log?.Report(this, "Generator connection established", $"{m}, {gp}");
+									break;
 								}
 								catch(RdcNodeException)
 								{
+									Thread.Sleep(500);
 								}
 								finally
 								{
