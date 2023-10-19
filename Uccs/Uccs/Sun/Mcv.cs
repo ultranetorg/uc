@@ -118,7 +118,10 @@ namespace Uccs.Net
 						Tail.Insert(0, r);
 	
 						if(r.Id > 0)
+						{
 							r.ConfirmedTime = CalculateTime(r, r.VotesOfTry);
+							r.ConfirmedExeunitMinFee = zone.ExeunitMinFee;
+						}
 	
 						if(i <= 1+8 + 1+8 + 1)
 						{
@@ -548,23 +551,31 @@ namespace Uccs.Net
 			var au = av.GroupBy(i => i.Account).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 
 			var tn = gu.Sum(i => i.Transactions.Length);
-						
+			
+			round.ConfirmedExeunitMinFee = round.Id == 0 ? Zone.ExeunitMinFee	: round.Previous.ConfirmedExeunitMinFee;
+			round.ConfirmedOverflowRound = round.Id == 0 ? 0					: round.Previous.ConfirmedOverflowRound;
+
 			if(tn > Zone.TransactionsPerRoundLimit)
 			{
+				round.ConfirmedExeunitMinFee *= Zone.TransactionsOverflowFactor;
+				round.ConfirmedOverflowRound = round.Id;
+
 				var e = tn - Zone.TransactionsPerRoundLimit;
 
-				foreach(var i in gu)
+				var gi = gu.AsEnumerable().GetEnumerator();
+
+				do
 				{
-					if(e > 0)
+					if(!gi.MoveNext())
+						gi.Reset();
+					
+					if(gi.Current.Transactions.Length > round.TransactionsPerVoteExecutionLimit)
 					{
 						e--;
-
-						if(i.Transactions.Length > round.TransactionsPerVoteGuaranteedLimit)
-							i.TransactionCountExcess++;
-					} 
-					else
-						break;
+						gi.Current.TransactionCountExcess++;
+					}
 				}
+				while(e > 0);
 
 				foreach(var i in gu.Where(i => i.TransactionCountExcess > 0))
 				{
@@ -572,6 +583,11 @@ namespace Uccs.Net
 					Array.Copy(i.Transactions, i.TransactionCountExcess, ts, 0, ts.Length);
 					i.Transactions = ts;
 				}
+			}
+			else 
+			{
+				if(round.ConfirmedExeunitMinFee > Zone.ExeunitMinFee && round.Id - round.ConfirmedOverflowRound > Pitch)
+					round.ConfirmedExeunitMinFee /= Zone.TransactionsOverflowFactor;
 			}
 			
 			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();

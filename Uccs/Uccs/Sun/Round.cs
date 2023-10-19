@@ -12,9 +12,9 @@ namespace Uccs.Net
 		public Round										Previous =>	Mcv.FindRound(Id - 1);
 		public Round										Next =>	Mcv.FindRound(Id + 1);
 		public Round										Parent => Mcv.FindRound(ParentId);
-		public int											TransactionsPerVoteGuaranteedLimit	=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count;
-		public int											TransactionsPerVoteAbsoluteLimit	=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count * 10;
-		public int											OperationsCountPerVoteLimit			=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
+		public int											TransactionsPerVoteExecutionLimit		=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count;
+		public int											TransactionsPerVoteAllowableOverflow	=> TransactionsPerVoteExecutionLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMuliplier;
+		public int											OperationsPerVoteLimit					=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
 
 		public int											Try = 0;
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
@@ -49,11 +49,9 @@ namespace Uccs.Net
 		public byte[]										Summary;
 
 		public Money										Fees;
-		//public Coin										TransactionPerByteFee;
-		//public int										TransactionThresholdExcessRound;
 		public Money										Emission;
-		//public BigInteger									WeiSpent;
-		//public Coin										Factor;
+		public Money										ConfirmedExeunitMinFee;
+		public int											ConfirmedOverflowRound;
 		public List<Member>									Members = new();
 		public List<Emission>								Emissions = new ();
 		public List<AuthorBid>								DomainBids = new ();
@@ -124,33 +122,6 @@ namespace Uccs.Net
 				AffectAccount(b.First()).Balance += v;
 			}
 		}
-		
-		//public Operation GetMutable(int rid, Func<Operation, bool> op)
-		//{
-		//	var r = Chain.FindRound(rid);
-		//
- 		//	foreach(var b in r.Payloads)
- 		//		foreach(var t in b.Transactions)
- 		//			foreach(var o in t.Operations.Where(i => i.Mutable))
- 		//				if(op(o))
-		//				{	
-		//					if(!AffectedMutables.Contains(o))
-		//						AffectedMutables.Add(o);
-		//					
-		//					return o; 
-		//				}
-		//
-		//	return null;
-		//}
-// 
-// 		public void RewardOrPay(Account account, Coin fee)
-// 		{
-// 			if(Fees.ContainsKey(account))
-// 				Fees[account] += fee; 
-// 			else
-// 				Fees[account] = fee;
-// 
-// 		}
 
 		public AccountEntry AffectAccount(AccountAddress account/*, Operation operation*/)
 		{
@@ -178,40 +149,6 @@ namespace Uccs.Net
 				return AffectedAuthors[author] = new AuthorEntry(Mcv){Name = author};
 		}
 
-//  		public O FindOperation<O>(Func<O, bool> f) where O : Operation
-//  		{
-//  			foreach(var b in Payloads)
-//  				foreach(var t in b.Transactions)
-//  					foreach(var o in t.Operations.OfType<O>())
-//  						if(f(o))
-//  							return o;
-//  
-//  			return null;
-//  		}
-// 
-//  		public bool AnyOperation(Func<Operation, bool> f)
-//  		{
-//  			foreach(var b in Payloads)
-//  				foreach(var t in b.Transactions)
-//  					foreach(var o in t.Operations)
-//  						if(f(o))
-//  							return true;
-//  
-//  			return false;
-//  		}
-// 
-//  		public List<Transaction> FindTransactions(Func<Transaction, bool> f)
-//  		{
-//  			var o = new List<Transaction>();
-//  
-//  			foreach(var b in Payloads)
-//  				foreach(var t in b.Transactions)
-//  					if(f(t))
-//  						o.Add(t);
-//  
-//  			return o;
-//  		}
-
 		public void Hashify(byte[] previous)
 		{
 			var s = new MemoryStream();
@@ -230,9 +167,9 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(Id);
 			writer.Write(Hash);
 			writer.Write(ConfirmedTime);
+			writer.Write(ConfirmedExeunitMinFee);
+			writer.Write7BitEncodedInt(ConfirmedOverflowRound);
 			writer.Write(Emission);
-			//writer.Write(TransactionPerByteFee);
-			//writer.Write7BitEncodedInt(TransactionThresholdExcessRound);
 			writer.Write(Members, i => i.WriteBaseState(writer));
 			writer.Write(Analyzers, i => i.WriteBaseState(writer));
 			writer.Write(Funds);
@@ -242,22 +179,24 @@ namespace Uccs.Net
 
 		public void ReadBaseState(BinaryReader reader)
 		{
-			Id									= reader.Read7BitEncodedInt();
-			Hash								= reader.ReadSha3();
-			ConfirmedTime						= reader.ReadTime();
-			Emission							= reader.ReadCoin();
-			//TransactionPerByteFee				= reader.ReadCoin();
-			//TransactionThresholdExcessRound	= reader.Read7BitEncodedInt();
-			Members								= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
-			Analyzers							= reader.Read<Analyzer>(m => m.ReadBaseState(reader)).ToList();
-			Funds								= reader.ReadList<AccountAddress>();
-			Emissions							= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
-			DomainBids							= reader.Read<AuthorBid>(m => m.ReadBaseState(reader)).ToList();
+			Id						= reader.Read7BitEncodedInt();
+			Hash					= reader.ReadSha3();
+			ConfirmedTime			= reader.ReadTime();
+			ConfirmedExeunitMinFee	= reader.ReadMoney();
+			ConfirmedOverflowRound	= reader.Read7BitEncodedInt();
+			Emission				= reader.ReadMoney();
+			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
+			Analyzers				= reader.Read<Analyzer>(m => m.ReadBaseState(reader)).ToList();
+			Funds					= reader.ReadList<AccountAddress>();
+			Emissions				= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
+			DomainBids				= reader.Read<AuthorBid>(m => m.ReadBaseState(reader)).ToList();
 		}
 
 		public void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(ConfirmedTime);
+			writer.Write(ConfirmedExeunitMinFee);
+			writer.Write7BitEncodedInt(ConfirmedOverflowRound);
 			writer.Write(ConfirmedMemberJoiners);
 			writer.Write(ConfirmedMemberLeavers);
 			writer.Write(ConfirmedAnalyzerJoiners);
@@ -274,6 +213,8 @@ namespace Uccs.Net
 		void ReadConfirmed(BinaryReader reader)
 		{
 			ConfirmedTime				= reader.ReadTime();
+			ConfirmedExeunitMinFee		= reader.ReadMoney();
+			ConfirmedOverflowRound		= reader.Read7BitEncodedInt();
 			ConfirmedMemberJoiners		= reader.ReadArray<AccountAddress>();
 			ConfirmedMemberLeavers		= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();

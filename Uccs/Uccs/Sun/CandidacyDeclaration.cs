@@ -20,7 +20,7 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader r)
 		{
-			Bail = r.ReadCoin();
+			Bail = r.ReadMoney();
 		}
 
 		public override void WriteConfirmed(BinaryWriter w)

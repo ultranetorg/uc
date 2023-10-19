@@ -119,7 +119,7 @@ namespace Uccs.Net
  		{
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
-			Fee			= reader.ReadCoin();
+			Fee			= reader.ReadMoney();
  			Operations	= reader.ReadArray(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													o.Transaction = this;
@@ -153,7 +153,7 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
-			Fee			= reader.ReadCoin();
+			Fee			= reader.ReadMoney();
 			PoW			= reader.ReadBytes(PoWLength);
  			Operations	= reader.ReadArray(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
@@ -193,7 +193,7 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
-			Fee			= reader.ReadCoin();
+			Fee			= reader.ReadMoney();
 			PoW			= reader.ReadBytes(PoWLength);
 			Operations	= reader.ReadArray(() => {
 													var o = Operation.FromType((OperationClass)reader.ReadByte());

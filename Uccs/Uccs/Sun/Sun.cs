@@ -29,6 +29,9 @@ namespace Uccs.Net
 		public PerformanceMeter Sending = new();
 		public PerformanceMeter Reading = new();
 
+		public int AccpetedVotes;
+		public int RejectedVotes;
+
 		public void Reset()
 		{
 			Consensing.Reset();
@@ -100,9 +103,6 @@ namespace Uccs.Net
 		public List<OperationId>		ApprovedEmissions = new();
 		public List<OperationId>		ApprovedDomainBids = new();
 
-		public Money					TransactionPerByteMinFee;
-		public int						TransactionThresholdExcessRound;
-
 		public bool						MinimalPeersReached;
 		public List<Peer>				Peers = new();
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
@@ -166,6 +166,7 @@ namespace Uccs.Net
 				//f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
 				f.Add(new ("    Placed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"));
 				f.Add(new ("    Confirmed",				$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"));
+				f.Add(new ("Votes Acceped/Rejected",	$"{Statistics.AccpetedVotes}/{Statistics.RejectedVotes}"));
 				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
 				
 				if(Mcv != null)
@@ -173,7 +174,8 @@ namespace Uccs.Net
 					f.Add(new ("Synchronization",		$"{Synchronization}"));
 					f.Add(new ("Size",					$"{Mcv.Size}"));
 					f.Add(new ("Members",				$"{Mcv.LastConfirmedRound?.Members.Count}"));
-					f.Add(new ("Emission",				$"{(Mcv.LastPayloadRound != null ? Mcv.LastPayloadRound.Emission.ToHumanString() : null)}"));
+					f.Add(new ("Emission",				$"{Mcv.LastConfirmedRound?.Emission.ToHumanString()}"));
+					f.Add(new ("ExeunitMinFee",			$"{Mcv.LastConfirmedRound?.ConfirmedExeunitMinFee.ToHumanString()}"));
 					f.Add(new ("SyncCache Blocks",		$"{SyncCache.Sum(i => i.Value.Votes.Count)}"));
 					f.Add(new ("Loaded Rounds",			$"{Mcv.LoadedRounds.Count()}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(Mcv.LastNonEmptyRound != null ? Mcv.LastNonEmptyRound.Id : null)}"));
@@ -225,7 +227,6 @@ namespace Uccs.Net
 		{
 			Zone = zone;
 			Settings = settings;
-			TransactionPerByteMinFee = settings.TransactionPerByteMinFee;
 
 			Directory.CreateDirectory(Settings.Profile);
 
@@ -258,7 +259,7 @@ namespace Uccs.Net
 													Settings.Anonymous ? "A" : null,
 													(Settings.IP != null ? $"{IP}" : null),
 													Mcv != null ?  Synchronization.ToString() : null,
-													Mcv?.LastConfirmedRound != null ? $"{gens.Count()}/{Mcv.LastConfirmedRound.Members.Count()} members" : null}.Where(i => i != null));
+													Mcv?.LastConfirmedRound != null ? $"{gens.Count()}/{Mcv.LastConfirmedRound.Members.Count()} members" : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
 		public object Constract(Type t, byte b)
@@ -413,16 +414,6 @@ namespace Uccs.Net
 										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
 										IncomingTransactions.RemoveAll(t => t.Vote != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 										Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
-											
-										if(r.ConfirmedTransactions.Length > Settings.TransactionCountPerRoundThreshold)
-										{
-											TransactionPerByteMinFee *= 2;
-											TransactionThresholdExcessRound = r.Id;
-										}
-										else if(TransactionPerByteMinFee > Settings.TransactionPerByteMinFee && r.Id - TransactionThresholdExcessRound > Mcv.Pitch)
-										{
-											TransactionPerByteMinFee /= 2;
-										}
 									};
 		
 				if(Settings.Generators.Any())
@@ -1330,10 +1321,10 @@ namespace Uccs.Net
 				
 				if(r.Parent != null && r.Parent.Members.Count > 0)
 				{
-					if(v.Transactions.Length > r.Parent.TransactionsPerVoteAbsoluteLimit)
+					if(v.Transactions.Length > r.Parent.TransactionsPerVoteAllowableOverflow)
 						return false;
 
-					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsCountPerVoteLimit)
+					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsPerVoteLimit)
 						return false;
 				}
 
@@ -1363,7 +1354,7 @@ namespace Uccs.Net
 				throw new RdcNodeException(RdcNodeError.NotMember);
 
 			var accepted = txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
-											i.Fee >= i.Operations.Sum(i => i.CalculateSize()) * TransactionPerByteMinFee &&
+											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConfirmedExeunitMinFee &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											Settings.Generators.Any(g => g == i.Generator) &&
 											i.Valid(Mcv)).ToList();
@@ -1565,10 +1556,10 @@ namespace Uccs.Net
 						{
 							foreach(var i in txs)
 							{
-								if(v.Transactions.Sum(i => i.Operations.Length) + i.Operations.Length > r.Parent.OperationsCountPerVoteLimit)
+								if(v.Transactions.Sum(i => i.Operations.Length) + i.Operations.Length > r.Parent.OperationsPerVoteLimit)
 									break;
 
-								if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAbsoluteLimit)
+								if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAllowableOverflow)
 									break;
 
 								v.AddTransaction(i);
@@ -1831,11 +1822,7 @@ namespace Uccs.Net
 								t.Nid = nid++;
 								t.Generator = m;
 								t.Expiration = at.MaxRoundId;
-	
-								foreach(var o in t.Operations)
-								{
-									t.Fee += o.CalculateTransactionFee(at.PerByteMinFee);
-								}
+								t.Fee = t.Operations.Length * at.ExeunitMinFee;
 	
 								t.Sign(Vault.GetKey(t.Signer), at.PowHash);
 								txs.Add(t);
@@ -2239,10 +2226,10 @@ namespace Uccs.Net
 			call(p);
 		}
 
-		public double EstimateFee(IEnumerable<Operation> operations)
-		{
-			return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
-		}
+		//public double EstimateFee(IEnumerable<Operation> operations)
+		//{
+		//	return Mcv != null ? operations.Sum(i => (double)i.CalculateTransactionFee(TransactionPerByteMinFee).ToDecimal()) : double.NaN;
+		//}
 
 		public Emission Emit(Nethereum.Web3.Accounts.Account a, BigInteger wei, AccountKey signer, PlacingStage awaitstage, Workflow workflow)
 		{

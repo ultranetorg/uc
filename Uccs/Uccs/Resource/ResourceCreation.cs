@@ -67,7 +67,7 @@ namespace Uccs.Net
 
 			if(Initials.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Initials.HasFlag(ResourceChanges.Parent))		Parent = reader.ReadUtf8();
-			if(Initials.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadCoin();
+			if(Initials.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadMoney();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)

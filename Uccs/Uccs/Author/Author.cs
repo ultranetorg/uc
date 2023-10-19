@@ -136,7 +136,7 @@ namespace Uccs.Net
 					FirstBidTime		= reader.ReadTime();
 					LastWinner			= reader.ReadAccount();
 					LastBidTime			= reader.ReadTime();
-					LastBid				= reader.ReadCoin();
+					LastBid				= reader.ReadMoney();
 					DomainOwnersOnly	= reader.ReadBoolean();
 				}
 			}

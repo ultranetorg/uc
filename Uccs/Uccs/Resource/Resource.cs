@@ -141,7 +141,7 @@ namespace Uccs.Net
 			
 			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
 			{
-				AnalysisFee = reader.ReadCoin();
+				AnalysisFee = reader.ReadMoney();
 				RoundId = reader.Read7BitEncodedInt();
 				AnalysisHalfVotingRound = reader.Read7BitEncodedInt();
 			}

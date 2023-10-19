@@ -103,23 +103,6 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public int CalculateSize()
-		{
-			var s = new FakeStream();
-			var w = new BinaryWriter(s);
-
-			WriteConfirmed(w);
-
-			return (int)s.Length;
-		}
-
-		public Money CalculateTransactionFee(Money feeperbyte)
-		{
-			int size = CalculateSize();
-
-			return feeperbyte * size;
-		}
-
 		Money CalculateSpaceFee(int size, byte years)
 		{
 			return Mcv.SpaceBasicFeePerByte * size * new Money(1u << (years - 1));

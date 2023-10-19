@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -13,24 +12,30 @@ namespace Uccs.Net
 		public const string		TestnetPrefix	= "Testnet";
 
 		public string			Name;
-		public Chain			EthereumNetwork;
-		public Cryptography		Cryptography;
-		public string			Genesis;
+		public string			Genesis;	
 		public IPAddress		GenesisIP;
 		public IPAddress[]		Initials;
-		public Money			BailMin;
-		public bool				PoW;
-		public int				TailLength = -1;
-		public int				MembersLimit = -1;
-		public int				ExternalVerificationDurationLimit = -1;
-		public int				TransactionsPerRoundLimit = -1;
-		public int				OperationsPerRoundLimit = -1;
-		public int				OperationsPerTransactionLimit = -1;
+ 		public Cryptography		Cryptography									= Cryptography.Ethereum;
+ 		public Chain			EthereumNetwork									= Chain.Goerli;	
+		public bool				PoW												= true;
+		public int				TailLength										= 1000;
+		public int				ExternalVerificationDurationLimit				= 100;
+		public Money			BailMin											= 1000;
+		public int				MembersLimit									= 1000;
+		public int				TransactionsPerRoundLimit						= 5_000;
+		public int				TransactionsPerVoteAllowableOverflowMuliplier	= 10;
+		public int				TransactionsOverflowFactor						= 10;
+		public int				OperationsPerTransactionLimit					= 100;
+		public int				OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
+		public Money			ExeunitMinFee									= new Money(0.000_001);	/// 50 *1000 / (1e7/100*0.2*3600*24*30) = 0.000 000 192
+																										/// 50  - server per month avarage cost in usd
+																										/// 1000 - members max limit
+																										///	1e7 - 100 MB/s bandwidth
+																										///	100 - avarage length of operation
+																										///	0.2 - effective bandwidth utilization 
 
-
-		//public ZoneCreation		Creation;
-		public AccountAddress	God;
-		public AccountAddress	Father0;
+		public AccountAddress	God = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
+		public AccountAddress	Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
 
 		public ushort Port	{
 								get

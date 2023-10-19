@@ -15,7 +15,7 @@
 				return new AllocateTransactionResponse {MaxRoundId			= sun.Mcv.LastConfirmedRound.Id + Mcv.Pitch * 2,
 														PowHash				= sun.Mcv.LastConfirmedRound.Hash,
 														NextTransactionId	= a == null ? 0 : a.LastTransactionNid + 1,
-														PerByteMinFee		= sun.TransactionPerByteMinFee};
+														ExeunitMinFee		= sun.Mcv.LastConfirmedRound.ConfirmedExeunitMinFee};
 			}
 		}
 	}
@@ -25,7 +25,7 @@
 		public int		MaxRoundId { get; set; }
 		public int		NextTransactionId { get; set; }
 		public byte[]	PowHash { get; set; }
-		public Money	PerByteMinFee { get; set; }
+		public Money	ExeunitMinFee { get; set; }
 	}
 
 }

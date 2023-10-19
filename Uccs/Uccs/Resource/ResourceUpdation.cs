@@ -84,7 +84,7 @@ namespace Uccs.Net
 			if(Changes.HasFlag(ResourceChanges.Type))			Type = (ResourceType)reader.ReadInt16();
 			if(Changes.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Changes.HasFlag(ResourceChanges.Parent))			Parent = reader.ReadUtf8();
-			if(Changes.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadCoin();
+			if(Changes.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadMoney();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)

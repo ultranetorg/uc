@@ -31,13 +31,13 @@ namespace Uccs.Net
 		public virtual void Read(BinaryReader reader)
 		{
 			Address		= reader.ReadAccount();
-			Balance		= reader.ReadCoin();
+			Balance		= reader.ReadMoney();
 
 			CandidacyDeclarationRid	= reader.Read7BitEncodedInt();
 
 			if(CandidacyDeclarationRid != -1)
 			{
-				Bail = reader.ReadCoin();
+				Bail = reader.ReadMoney();
 			}
 
 			LastTransactionNid	= reader.Read7BitEncodedInt();

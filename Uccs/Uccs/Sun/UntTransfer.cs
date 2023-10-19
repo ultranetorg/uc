@@ -24,7 +24,7 @@ namespace Uccs.Net
 		public override void ReadConfirmed(BinaryReader r)
 		{
 			To		= r.ReadAccount();
-			Amount	= r.ReadCoin();
+			Amount	= r.ReadMoney();
 		}
 
 		public override void WriteConfirmed(BinaryWriter w)

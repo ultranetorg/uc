@@ -107,7 +107,11 @@ namespace Uccs.Net
 				if(accepted)
 				{
 					sun.Broadcast(v, Peer);
+					sun.Statistics.AccpetedVotes++;
 				}
+				else
+					sun.Statistics.RejectedVotes++;
+
 			}
 
 			//var accepted = new List<Vote>();

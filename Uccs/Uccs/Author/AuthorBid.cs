@@ -44,7 +44,7 @@ namespace Uccs.Net
 		{
 			Name	= reader.ReadUtf8();
 			Tld		= reader.ReadUtf8();
-			Bid		= reader.ReadCoin();
+			Bid		= reader.ReadMoney();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -69,7 +69,7 @@ namespace Uccs.Net
 			Signer	= reader.ReadAccount();
 			Name	= reader.ReadUtf8();
 			Tld		= reader.ReadUtf8();
-			Bid		= reader.ReadCoin();
+			Bid		= reader.ReadMoney();
 		}
 		public override void Execute(Mcv mcv, Round round)
 		{

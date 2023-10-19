@@ -41,9 +41,9 @@ namespace Uccs.Sun.FUI
 			t.AddOperation(operation);
 			//t.Sign(account, Zone.Cryptography.ZeroHash);
 
-			var f = sun.EstimateFee(t.Operations);
-
-			fee.Text = f.ToString();
+			//var f = sun.EstimateFee(t.Operations);
+			//
+			//fee.Text = f.ToString();
 
 			if(ShowDialog() == DialogResult.OK)
 			{
