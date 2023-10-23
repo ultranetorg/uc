@@ -256,7 +256,7 @@ namespace Uccs.Net
 													$"{(Roles.HasFlag(Role.Chain) ? "C" : null)}" +
 													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
 													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
-													Settings.Anonymous ? "A" : null,
+													//Settings.Anonymous ? "A" : null,
 													(Settings.IP != null ? $"{IP}" : null),
 													Mcv != null ?  Synchronization.ToString() : null,
 													Mcv?.LastConfirmedRound != null ? $"{gens.Count()}/{Mcv.LastConfirmedRound.Members.Count()} members" : null}.Where(i => !string.IsNullOrWhiteSpace(i)));
@@ -1318,7 +1318,7 @@ namespace Uccs.Net
 
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
-				
+								
 				if(r.Parent != null && r.Parent.Members.Count > 0)
 				{
 					if(v.Transactions.Length > r.Parent.TransactionsPerVoteAllowableOverflow)
@@ -1326,6 +1326,9 @@ namespace Uccs.Net
 
 					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsPerVoteLimit)
 						return false;
+
+					//if(v.Transactions.Any(i => r.Parent.Members.NearestBy(i => i.Account, i.Signer).Account != v.Generator))
+					//	return false;
 				}
 
 				try
@@ -1360,7 +1363,10 @@ namespace Uccs.Net
 											i.Valid(Mcv)).ToList();
 			
 			foreach(var i in accepted)
+			{
 				i.Placing = PlacingStage.Accepted;
+				Workflow.Log?.Report(this, "Transaction Accepted", i.ToString());
+			}
 
 			IncomingTransactions.AddRange(accepted);
 
@@ -1544,8 +1550,8 @@ namespace Uccs.Net
 												FundLeavers		= Settings.ProposedFundLeavers.ToArray(),
 												Emissions		= ApprovedEmissions.ToArray(),
 												DomainBids		= ApprovedDomainBids.ToArray(),
-												BaseRdcIPs		= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP},
-												SeedHubRdcIPs	= Settings.Anonymous ? new IPAddress[] {} : new IPAddress[] {IP} };
+												BaseRdcIPs		= new IPAddress[] {IP},
+												SeedHubRdcIPs	= new IPAddress[] {IP} };
 					};
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
@@ -1565,6 +1571,7 @@ namespace Uccs.Net
 								v.AddTransaction(i);
 
 								i.Placing = PlacingStage.Placed;
+								Workflow.Log?.Report(this, "Transaction Placed", i.ToString());
 							}
 						}
 						
@@ -1618,8 +1625,8 @@ namespace Uccs.Net
 
 			Workflow.Log?.Report(this, "Delegating started");
 
-			RdcInterface rdi = null;
-			AccountAddress m = null;
+			//RdcInterface rdi = null;
+			//AccountAddress m = null;
 
 			while(Workflow.Active)
 			{
@@ -1631,29 +1638,50 @@ namespace Uccs.Net
 						return;
 					}
 				}
-				
-				chooserdi:
 
-				if(rdi == null)
+				Thread.Sleep(100);
+				
+				var cr = Call(i => i.GetMembers(), Workflow);
+
+				if(!cr.Members.Any())
+					continue;
+
+				var members = cr.Members;
+
+				RdcInterface getrdi(AccountAddress account)
 				{
+					var m = getmember(account);
+
+					if(Settings.Generators.Contains(m.Account))
+						return this;
+
+					if(!m.BaseRdcIPs.Any())
+						throw new RdcNodeException(RdcNodeError.NoIP);
+
+					var p = GetPeer(m.BaseRdcIPs.Random());
+					Connect(p, Workflow);
+
+					return p;
+				}
+
+				MembersResponse.Member getmember(AccountAddress account)
+				{
+					var m = members.NearestBy(i => i.Account, account);
+
+					return m;
+
 					while(Workflow.Active)
 					{
-						if(Synchronization == Synchronization.Synchronized && Settings.Generators.Any(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i)))
-						{
-							m = Settings.Generators.First(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i));
-							rdi = this;
-							break;
-						}
-						else
+						//if(Synchronization == Synchronization.Synchronized && Settings.Generators.Any(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i)))
+						//{
+						//	m = Settings.Generators.First(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i));
+						//	rdi = this;
+						//	break;
+						//}
+						//else
 						{ 
-							var cr = Call(i => i.GetMembers(), Workflow);
-	
-							if(!cr.Members.Any())
-								continue;
-
 							lock(Lock)
 							{
-								var members = cr.Members.Where(i => !Settings.Generators.Contains(i.Account));
 
 								//Members.RemoveAll(i => !members.Contains(i.Generator));
 								
@@ -1673,37 +1701,37 @@ namespace Uccs.Net
 								//if(rdi != null)
 								//	break;
 
-								foreach(var i in members.Where(i => i.BaseRdcIPs.Any()).OrderByRandom()) /// try by public IP address
-								{
-									foreach(var j in i.BaseRdcIPs.OrderByRandom())
-									{
-										var p = GetPeer(j);
-
-										try
-										{
-											Monitor.Exit(Lock);
-
-											Connect(p, Workflow);
-											rdi = p;
-											m = i.Account;
-											Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
-											break;
-										}
-										catch(RdcNodeException)
-										{
-										}
-										finally
-										{
-											Monitor.Enter(Lock);
-										}
-									}
-
-									if(rdi != null)
-										break;
-								}
-
-								if(rdi != null)
-									break;
+// 								foreach(var i in members.Where(i => i.BaseRdcIPs.Any()).OrderByRandom()) /// try by public IP address
+// 								{
+// 									foreach(var j in i.BaseRdcIPs.OrderByRandom())
+// 									{
+// 										var p = GetPeer(j);
+// 
+// 										try
+// 										{
+// 											Monitor.Exit(Lock);
+// 
+// 											Connect(p, Workflow);
+// 											rdi = p;
+// 											m = i.Account;
+// 											Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
+// 											break;
+// 										}
+// 										catch(RdcNodeException)
+// 										{
+// 										}
+// 										finally
+// 										{
+// 											Monitor.Enter(Lock);
+// 										}
+// 									}
+// 
+// 									if(rdi != null)
+// 										break;
+// 								}
+// 
+// 								if(rdi != null)
+// 									break;
 
 								//foreach(var i in members.Where(i => i.Proxyable).OrderByRandom()) /// look for a Proxy in connections
 								//{
@@ -1758,124 +1786,140 @@ namespace Uccs.Net
 								//if(rdi != null)
 								//	break;
 
-								var gp = GetPeer(Zone.GenesisIP);
-
-								try
-								{
-									Monitor.Exit(Lock);
-
-									Connect(gp, Workflow);
-
-									m = Zone.Father0;
-									rdi = gp;
-									Workflow.Log?.Report(this, "Generator connection established", $"{m}, {gp}");
-									break;
-								}
-								catch(RdcNodeException)
-								{
-									Thread.Sleep(500);
-								}
-								finally
-								{
-									Monitor.Enter(Lock);
-								}
+// 								var gp = GetPeer(Zone.GenesisIP);
+// 
+// 								try
+// 								{
+// 									Monitor.Exit(Lock);
+// 
+// 									Connect(gp, Workflow);
+// 
+// 									m = Zone.Father0;
+// 									rdi = gp;
+// 									Workflow.Log?.Report(this, "Generator connection established", $"{m}, {gp}");
+// 									break;
+// 								}
+// 								catch(RdcNodeException)
+// 								{
+// 									Thread.Sleep(500);
+// 								}
+// 								finally
+// 								{
+// 									Monitor.Enter(Lock);
+// 								}
 							}
 						}
 					}
+
+					throw new OperationCanceledException();
 				}
 
-
 				Statistics.Transacting.Begin();
-
-				var txs = new List<Transaction>();
 				
 				lock(Lock)
 				{
-					if(rdi == this && Synchronization != Synchronization.Synchronized)
-						continue;
+					//if(rdi == this && Synchronization != Synchronization.Synchronized)
+					//	continue;
 
-					foreach(var g in OutgoingTransactions.GroupBy(i => i.Signer))
+					foreach(var g in OutgoingTransactions.GroupBy(i => i.Signer).ToArray())
 					{
-						if(!g.Any(i => i.Signer == g.Key && i.Placing >= PlacingStage.Accepted) && g.Any(i => i.Placing == PlacingStage.None))
+						if(!g.Any(i => i.Placing >= PlacingStage.Accepted) && g.Any(i => i.Placing == PlacingStage.None))
 						{
-							Monitor.Exit(Lock);
-
+							var m = getmember(g.Key);
 							AllocateTransactionResponse at = null;
+
+							RdcInterface rdi; 
 
 							try
 							{
+								Monitor.Exit(Lock);
+
+								rdi = getrdi(g.Key);
 								at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Account = g.Key});
 							}
 							catch(RdcNodeException)
 							{
-								rdi = null;
+								continue;
+							}
+							finally
+							{
 								Monitor.Enter(Lock);
-								goto chooserdi;
 							}
 									
-							Monitor.Enter(Lock);
-							
 							int nid = at.NextTransactionId;
+							var txs = new List<Transaction>();
 
 							foreach(var t in g.Where(i => i.Placing == PlacingStage.None))
 							{
 								t.Nid = nid++;
-								t.Generator = m;
-								t.Expiration = at.MaxRoundId;
+								t.Generator = m.Account;
+								t.Member = rdi;
+								t.Expiration = at.LastConfirmedRid + Mcv.Pitch * 10;
 								t.Fee = t.Operations.Length * at.ExeunitMinFee;
 	
 								t.Sign(Vault.GetKey(t.Signer), at.PowHash);
 								txs.Add(t);
 							}
+
+							IEnumerable<Transaction> atxs = null;
+
+							try
+							{
+								Monitor.Exit(Lock);
+								atxs = rdi.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i))).ToArray();
+							}
+							catch(RdcNodeException)
+							{
+								continue;
+							}
+							finally
+							{
+								Monitor.Enter(Lock);
+							}
+
+							foreach(var i in atxs)
+								i.Placing = PlacingStage.Accepted;
+
+							//OutgoingTransactions.AddRange(atxs);
+
+							//foreach(var i in txs.Where(t => !atxs.Contains(t)))
+							//	foreach(var o in i.Operations)
+							//		o.Transaction = null;
+							//
+					
+							if(atxs.Any())
+							{
+								if(atxs.Sum(i => i.Operations.Length) <= 1)
+									Workflow.Log?.Report(this, "Operations sent", atxs.SelectMany(i => i.Operations).Select(i => i.ToString()));
+								else
+									Workflow.Log?.Report(this, "Operation sent", $"{atxs.First().Operations.First()} -> {m} {rdi}");
+							}
 						}
 					}
-				}
 
-				IEnumerable<Transaction> atxs = null;
-
-				try
-				{
-					atxs = rdi.SendTransactions(txs).Accepted.Select(i => txs.Find(t => t.Signature.SequenceEqual(i))).ToArray();
-				}
-				catch(RdcNodeException)
-				{
-					rdi = null;
-					goto chooserdi;
-				}
-	
-				lock(Lock)
-				{	
-					foreach(var i in atxs)
-						i.Placing = PlacingStage.Accepted;
-
-					//OutgoingTransactions.AddRange(atxs);
-
-					//foreach(var i in txs.Where(t => !atxs.Contains(t)))
-					//	foreach(var o in i.Operations)
-					//		o.Transaction = null;
-					//
-					
-					if(atxs.Any())
-					{
-						if(atxs.Sum(i => i.Operations.Length) <= 1)
-							Workflow.Log?.Report(this, "Operations sent", atxs.SelectMany(i => i.Operations).Select(i => i.ToString()));
-						else
-							Workflow.Log?.Report(this, "Operation sent", $"{atxs.First().Operations.First()} -> {m} {rdi}");
-					}
-				}
-
-				lock(Lock)
 					accepted = OutgoingTransactions.Where(i => i.Placing >= PlacingStage.Accepted).ToArray();
-	
-				if(accepted.Any())
-				{
-					try
-					{
-						var rp = rdi.GetTransactionStatus(accepted.Select(i => new TransactionsAddress{Account = i.Signer, Nid = i.Nid}));
 
-						lock(Lock)
+					if(accepted.Any())
+					{
+						foreach(var g in accepted.GroupBy(i => i.Member).ToArray())
 						{
-							foreach(var i in rp.Transactions)
+							TransactionStatusResponse ts;
+
+							try
+							{
+								Monitor.Exit(Lock);
+								ts = g.Key.GetTransactionStatus(g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}));
+							}
+							catch(RdcNodeException)
+							{
+								continue;
+							}
+							finally
+							{
+								Monitor.Enter(Lock);
+							}
+
+							foreach(var i in ts.Transactions)
 							{
 								var t = accepted.First(d => d.Signer == i.Account && d.Nid == i.Nid);
 																		
@@ -1899,11 +1943,6 @@ namespace Uccs.Net
 							}
 						}
 					}
-					catch(RdcNodeException)
-					{
-						rdi = null;
-						goto chooserdi;
-					}
 				}
 
 				Statistics.Transacting.End();
@@ -1923,6 +1962,7 @@ namespace Uccs.Net
 															}
 															catch(OperationCanceledException)
 															{
+																t=t;
 															}
 															catch(Exception ex) when (!Debugger.IsAttached && Workflow.Active)
 															{
@@ -1960,37 +2000,42 @@ namespace Uccs.Net
 // 				return null;
 // 		}
 		
-		public PlacingStage Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
+		public Transaction Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
 		{
-			return Enqueue(new Operation[] {operation}, signer, await, workflow);
+			return Enqueue(new Operation[] {operation}, signer, await, workflow)[0];
 		}
 
- 		public PlacingStage Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage await, Workflow workflow)
+ 		public Transaction[] Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage await, Workflow workflow)
  		{
-			if(operations.Count() > Zone.OperationsPerTransactionLimit)
-				throw new ArgumentException();
+			var p = new List<Transaction>();
 
-			var t = new Transaction(Zone);
-
- 			lock(Lock)
-			{	
+			while(operations.Any())
+			{
+				var t = new Transaction(Zone);
 				t.Signer = signer;
  				t.__ExpectedPlacing = await;
 			
-				foreach(var i in operations)
+				foreach(var i in operations.Take(Zone.OperationsPerTransactionLimit))
 				{
 					t.AddOperation(i);
 				}
-				 
- 				if(FeeAsker.Ask(this, signer, null))
- 				{
- 				 	Enqueue(t);
- 				}
-			}
- 
-			Await(t, await, workflow);
 
-			return t.Placing;
+ 				lock(Lock)
+				{	
+ 					if(FeeAsker.Ask(this, signer, null))
+ 					{
+ 				 		Enqueue(t);
+ 					}
+				}
+ 
+				Await(t, await, workflow);
+
+				p.Add(t);
+
+				operations = operations.Skip(Zone.OperationsPerTransactionLimit);
+			}
+
+			return p.ToArray();
  		}
 
 		void Await(Transaction t, PlacingStage s, Workflow workflow)

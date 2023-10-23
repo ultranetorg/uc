@@ -72,7 +72,7 @@ namespace Uccs.Sun.CLI
 																				new BigInteger((int)Program.Zone.EthereumNetwork));
 					}
 
-					Program.Call<PlacingStage>(new EmitCall{FromPrivateKey = from.PrivateKey.HexToByteArray(),
+					Program.Call<Transaction>(new EmitCall{	FromPrivateKey = from.PrivateKey.HexToByteArray(),
 															Wei = Web3.Convert.ToWei(GetString("amount")),
 															To = GetAccountAddress("by"), 
 															Await = Command.GetAwaitStage(Args) });

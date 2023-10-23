@@ -32,6 +32,7 @@ namespace Uccs.Net
 		Integrity,
 		Internal,
 		Timeout,
+		NoIP,
 		//NotFound,
 		NotBase,
 		NotChain,

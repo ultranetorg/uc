@@ -29,7 +29,6 @@ namespace Uccs.Net
 		public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 		public IEnumerable<Transaction>						Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
 
-
 		public Time											ConfirmedTime;
 		public Transaction[]								ConfirmedTransactions = {};
 		public AccountAddress[]								ConfirmedMemberJoiners = {};
@@ -62,16 +61,16 @@ namespace Uccs.Net
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
 		
 		public Mcv											Mcv;
-
+		
 		public Round(Mcv c)
 		{
 			Mcv = c;
 		}
-
 		public override string ToString()
 		{
 			return $"Id={Id}, Votes(VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), JR={JoinRequests.Count}, Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
+
 
 		public void Distribute(Money amount, IEnumerable<AccountAddress> a)
 		{

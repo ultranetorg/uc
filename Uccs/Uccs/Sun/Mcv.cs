@@ -302,7 +302,7 @@ namespace Uccs.Net
 						Confirm(r.Parent, true);
 	
 					}
-					else if(ConsensusFailed(r) || (!DevSettings.DisableTimeouts && DateTime.UtcNow - r.FirstArrivalTime > TimeSpan.FromMinutes(5)))
+					else if(ConsensusFailed(r))
 					{
 						ConsensusConcluded(r, false);
 	
@@ -939,9 +939,11 @@ namespace Uccs.Net
 				
 				if(ro != null)
 				{
+					#if !DEBUG
 					ro.JoinRequests.Clear();
 					ro.Votes.Clear();
 					ro.AnalyzerVoxes.Clear();
+					#endif
 				}
 			}
 

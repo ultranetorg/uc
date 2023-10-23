@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Uccs.Net
 {
@@ -9,6 +10,10 @@ namespace Uccs.Net
 		public ConfirmationException(string m, Round r) : base(m)
 		{
 			Round = r;
+
+			#if DEBUG
+			Debugger.Break();
+			#endif
 		}
 	}
 }

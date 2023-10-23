@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Text;
-using Uccs.Net;
 
 namespace Uccs.Net
 {
@@ -19,6 +18,16 @@ namespace Uccs.Net
 		public static IEnumerable<T> OrderByRandom<T>(this IEnumerable<T> e)
 		{
 			return e.OrderBy(i => Guid.NewGuid());
+		}
+
+		public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AccountAddress> by, AccountAddress account)
+		{
+			return e.MinBy(m => BigInteger.Abs(new BigInteger(by(m).Bytes) - new BigInteger(account.Bytes)));
+		}
+
+		public static IEnumerable<MembersResponse.Member> OrderByNearest(this IEnumerable<MembersResponse.Member> e, byte[] hash)
+		{
+			return e.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes) - new BigInteger(new Span<byte>(hash, 0, 20)))).Take(3).ToArray();
 		}
 
 		public static bool Contains(this Exception e, Func<Exception, bool> p)

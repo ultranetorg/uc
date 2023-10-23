@@ -148,51 +148,57 @@ namespace Uccs.Net
 			Hub hlast = null;
 
  			Thread = new Thread(() =>{ 
-										while(Workflow.Active)
+										try
 										{
-											if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
+											while(Workflow.Active)
 											{
-												var r = Sun.Call(i =>	{
-																			var cr = i.GetMembers();
-			
-																			if(cr.Members.Any())
-																				return cr;
-																											
-																			throw new ContinueException();
-																		}, 
-																		Workflow);
-												lock(Lock)
-													Members = r.Members.ToArray();
-												
-												MembersRefreshed = DateTime.UtcNow;
-											}
-	
-											lock(Lock)
-											{
-												var nearest = Members.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes) - new BigInteger(new Span<byte>(hash, 0, 20)))).Where(i => i.SeedHubRdcIPs.Any()).Take(8).ToArray();
-		
-												for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
+												if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 												{
-													var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
+													var r = Sun.Call(i =>	{
+																				var cr = i.GetMembers();
+				
+																				if(cr.Members.Any())
+																					return cr;
+																												
+																				throw new ContinueException();
+																			}, 
+																			Workflow);
+													lock(Lock)
+														Members = r.Members.ToArray();
 													
-													if(h != null)
-													{
-														//Workflow.Log?.Report(this, "Hub found", $"for {Resource}/{Hex.ToHexString(Hash)}/{File}, {h.Account}, {{{string.Join(", ", h.HubIPs.Take(8))}}}");
-		
-														hlast = new Hub(this, hash, h.Account, h.SeedHubRdcIPs);
-														Hubs.Add(hlast);
-													}
-													else
-														break;
+													MembersRefreshed = DateTime.UtcNow;
 												}
 		
-												foreach(var i in Hubs.Where(i => DateTime.UtcNow - i.Called > TimeSpan.FromSeconds(5)))
+												lock(Lock)
 												{
-													i.Refresh();
+													var nearest = Members.OrderByNearest(hash).Where(i => i.SeedHubRdcIPs.Any()).Take(3).ToArray();
+			
+													for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
+													{
+														var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
+														
+														if(h != null)
+														{
+															//Workflow.Log?.Report(this, "Hub found", $"for {Resource}/{Hex.ToHexString(Hash)}/{File}, {h.Account}, {{{string.Join(", ", h.HubIPs.Take(8))}}}");
+			
+															hlast = new Hub(this, hash, h.Account, h.SeedHubRdcIPs);
+															Hubs.Add(hlast);
+														}
+														else
+															break;
+													}
+			
+													foreach(var i in Hubs.Where(i => DateTime.UtcNow - i.Called > TimeSpan.FromSeconds(5)))
+													{
+														i.Refresh();
+													}
 												}
+	
+												Thread.Sleep(100);
 											}
-
-											Thread.Sleep(100);
+										}
+										catch(OperationCanceledException)
+										{
 										}
  									});
 			Thread.Start();

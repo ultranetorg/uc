@@ -24,6 +24,7 @@ namespace Uccs.Net
 		public AccountAddress			Signer;
 		public Zone						Zone;
 		public PlacingStage				Placing;
+		public RdcInterface				Member;
 
 		const int						PoWLength = 16;
 

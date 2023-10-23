@@ -152,7 +152,7 @@ namespace Uccs.Net
 		public IPAddress				IP;
 		//public IPAddress				ExternalIP;
 		public ushort					JsonServerPort;
-		public bool						Anonymous = false;
+		//public bool						Anonymous = false;
 		public List<AccountKey>			Generators = new();
 		public AccountKey				Analyzer;
 		public string					Packages;
@@ -193,7 +193,7 @@ namespace Uccs.Net
 			var doc = new XonDocument(File.ReadAllText(Path));
 
 			FuiRoles					= doc.Get<string>("FuiRoles");
-			Anonymous					= doc.Has("Anonymous");
+			//Anonymous					= doc.Has("Anonymous");
 			PeersPermanentMin			= doc.Get<int>("PeersPermanentMin");
 			PeersPermanentInboundMax	= doc.Get<int>("PeersPermanentInboundMax");
 			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");

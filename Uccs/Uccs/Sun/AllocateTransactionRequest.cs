@@ -12,7 +12,7 @@
 
 				var a = sun.Mcv.Accounts.Find(Account, sun.Mcv.LastConfirmedRound.Id);
 								
-				return new AllocateTransactionResponse {MaxRoundId			= sun.Mcv.LastConfirmedRound.Id + Mcv.Pitch * 2,
+				return new AllocateTransactionResponse {LastConfirmedRid	= sun.Mcv.LastConfirmedRound.Id,
 														PowHash				= sun.Mcv.LastConfirmedRound.Hash,
 														NextTransactionId	= a == null ? 0 : a.LastTransactionNid + 1,
 														ExeunitMinFee		= sun.Mcv.LastConfirmedRound.ConfirmedExeunitMinFee};
@@ -22,7 +22,7 @@
 	
 	public class AllocateTransactionResponse : RdcResponse
 	{
-		public int		MaxRoundId { get; set; }
+		public int		LastConfirmedRid { get; set; }
 		public int		NextTransactionId { get; set; }
 		public byte[]	PowHash { get; set; }
 		public Money	ExeunitMinFee { get; set; }
