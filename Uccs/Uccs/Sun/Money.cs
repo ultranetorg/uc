@@ -16,13 +16,11 @@ namespace Uccs.Net
 		public readonly static Money	Min = new Money{Attos = 1};
 		public BigInteger				Attos;
 
-		static NumberFormatInfo			HumanFormat;
+		public static implicit operator Money(int value) => new Money(value);
+		public static implicit operator Money(double value) => new Money(value);
 
 		static Money()
 		{
-			HumanFormat = NumberFormatInfo.InvariantInfo.Clone() as NumberFormatInfo;
-			HumanFormat.CurrencySymbol = "";
-			HumanFormat.CurrencyDecimalDigits = 9;
 		}
 
 		Money(BigInteger a)
@@ -40,24 +38,9 @@ namespace Uccs.Net
 			Attos = Nethereum.Web3.Web3.Convert.ToWei(d);
 		}
 
-		public Money(int n)
-		{
-			Attos = One * n;
-		}
-
 		public Money(long n)
 		{
 			Attos = One * n;
-		}
-
-		public Money(uint n)
-		{
-			Attos = One * n;
-		}
-
-		public Money(decimal n)
-		{
-			Attos = Nethereum.Web3.Web3.Convert.ToWei(n);
 		}
 
 		public Money(double n)
@@ -95,11 +78,6 @@ namespace Uccs.Net
 		{
 			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos);
 		}
-				
-		public static implicit operator Money(int value)
-		{
-			return new Money(value);
-		}
 
 		public static explicit operator decimal(Money c)
 		{
@@ -113,7 +91,7 @@ namespace Uccs.Net
 		
 		public string ToHumanString()
 		{
-			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString("C", HumanFormat);
+			return Nethereum.Web3.Web3.Convert.FromWeiToBigDecimal(Attos).ToString();
 		}
 
 		public int CompareTo(object obj)

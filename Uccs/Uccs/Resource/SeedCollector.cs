@@ -171,7 +171,7 @@ namespace Uccs.Net
 		
 												lock(Lock)
 												{
-													var nearest = Members.OrderByNearest(hash).Where(i => i.SeedHubRdcIPs.Any()).Take(3).ToArray();
+													var nearest = Members.OrderByNearest(hash).Where(i => i.SeedHubRdcIPs.Any()).Take(ResourceHub.MembersPerDeclaration).ToArray();
 			
 													for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 													{

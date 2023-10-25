@@ -13,7 +13,6 @@ using RocksDbSharp;
 namespace Uccs.Net
 {
 	public delegate void BlockDelegate(Vote b);
-	public delegate void JoinDelegate(MemberJoinRequest b);
 	public delegate void ConsensusDelegate(Round b, bool reached);
 	public delegate void RoundDelegate(Round b);
 
@@ -22,7 +21,7 @@ namespace Uccs.Net
 		public Log							Log;
 
 		public const int					Pitch = 8;
-		public const int					LastGenesisRound = 27;
+		public const int					LastGenesisRound = 18;
 		public const int					AnalyzersMax = 32;
 		///public const int					MembersRotation = 32;
 		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000001);
@@ -54,7 +53,6 @@ namespace Uccs.Net
 																			Accounts.Clusters.Sum(i => i.MainLength) +
 																			Authors.Clusters.Sum(i => i.MainLength));
 		public BlockDelegate				VoteAdded;
-		public JoinDelegate					JoinAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Confirmed;
 
@@ -109,7 +107,7 @@ namespace Uccs.Net
 	
  					var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
 						
-					for(int i = 0; i <=1+8 + 1+8 + 1+8; i++)
+					for(int i = 0; i <=1+8 + 1+8; i++)
 					{
 						var r = new Round(this);
 						r.Read(rd);
@@ -123,7 +121,7 @@ namespace Uccs.Net
 							r.ConfirmedExeunitMinFee = zone.ExeunitMinFee;
 						}
 	
-						if(i <= 1+8 + 1+8 + 1)
+						if(i <= 1+8 + 1)
 						{
 							if(i == 0)
 								r.ConfirmedFundJoiners = new[] {Zone.Father0};
@@ -131,18 +129,9 @@ namespace Uccs.Net
 							if(i == 1)
 								r.ConfirmedEmissions = new OperationId[] {new(0, 0, 0)};
 
-							if(i == 1+8 + 1+8 + 1)
-								r.ConfirmedMemberJoiners = new[] {Zone.Father0};
-
 							r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
 							Confirm(r, false);
-
-							if(i == 1+8 + 1+8 + 1)
-							{
-								r.Members[0].BaseRdcIPs = new IPAddress[] {zone.GenesisIP};
-								r.Members[0].SeedHubRdcIPs = new IPAddress[] {zone.GenesisIP};
-							}
 						}
 					}
 	
@@ -197,8 +186,8 @@ namespace Uccs.Net
 	
 			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentSummary = Zone.Cryptography.ZeroHash};
 			{
-				var t = new Transaction(Zone) {Nid = 0, Generator = god, Expiration = 0};
-				t.AddOperation(new Emission(Web3.Convert.ToWei((fathers.Length + 1) * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
+				var t = new Transaction(Zone) {Nid = 0, Member = god, Expiration = 0};
+				t.AddOperation(new Emission(Web3.Convert.ToWei(fathers.Length * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
 				//t.AddOperation(new AuthorBid("uo", null, 1));
 				t.Sign(f0, Zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
@@ -236,7 +225,7 @@ namespace Uccs.Net
 				write(1);
 			}
 	
-			for(int i = 2; i <= 1+8 + 1+8 + 1+8; i++)
+			for(int i = 2; i <= 1+8 + 1+8; i++)
 			{
 				var v = new Vote(this){	 RoundId		= i,
 										 TimeDelta		= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
@@ -244,14 +233,13 @@ namespace Uccs.Net
 		 
 				if(i == 1+8 + 1)
 				{
-					var t = new Transaction(Zone) {Nid = 1, Generator = god, Expiration = i};
-					t.AddOperation(new CandidacyDeclaration(1_000_000));
+					var t = new Transaction(Zone) {Nid = 1, Member = god, Expiration = i};
+					t.AddOperation(new CandidacyDeclaration {	Bail = 1_000_000,
+																BaseRdcIPs = new IPAddress[] {Zone.Father0IP},
+																SeedHubRdcIPs = new IPAddress[] {Zone.Father0IP} });
 					t.Sign(f0, Zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
 				}
-
-				if(i == 1+8 + 1+8 + 1) 
-					v.MemberJoiners = v.MemberJoiners.Append(Zone.Father0).ToArray();
 	
 				v.Sign(god);
 				Add(v);
@@ -503,23 +491,23 @@ namespace Uccs.Net
 			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 		}
 
-		public IEnumerable<AccountAddress> ProposeMemberJoiners(Round round)
-		{
-			var o = round.Parent.JoinRequests.Select(jr =>	{
-																var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
-																return new {jr = jr, a = a};
-															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
-													.Where(i => i.a != null && 
-																i.a.CandidacyDeclarationRid < round.Id &&
-																i.a.Bail >= Zone.BailMin)
-													.OrderByDescending(i => i.a.Bail)
-													.ThenBy(i => i.a.Address)
-													.Select(i => i.jr);
-
-			var n = Math.Min(Zone.MembersLimit - MembersOf(round.Id).Count(), o.Count());
-
-			return o.Take(n).Select(i => i.Generator);
-		}
+// 		public IEnumerable<AccountAddress> ProposeMemberJoiners(Round round)
+// 		{
+// 			var o = round.Parent.JoinRequests.Select(jr =>	{
+// 																var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
+// 																return new {jr = jr, a = a};
+// 															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
+// 													.Where(i => i.a != null && 
+// 																i.a.CandidacyDeclarationRid < round.Id &&
+// 																i.a.Bail >= Zone.BailMin)
+// 													.OrderByDescending(i => i.a.Bail)
+// 													.ThenBy(i => i.a.Address)
+// 													.Select(i => i.jr);
+// 
+// 			var n = Math.Min(Zone.MembersLimit - MembersOf(round.Id).Count(), o.Count());
+// 
+// 			return o.Take(n).Select(i => i.Generator);
+// 		}
 
 		public IEnumerable<AccountAddress> ProposeMemberLeavers(Round round, AccountAddress generator)
 		{
@@ -601,10 +589,6 @@ namespace Uccs.Net
 			{
 				var gq = g.Count * 2/3;
 	
-				round.ConfirmedMemberJoiners	= gu.SelectMany(i => i.MemberJoiners).Distinct()
-													.Where(x => !round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberJoiners.Contains(x)) >= gq)
-													.OrderBy(i => i).ToArray();
-
 				round.ConfirmedMemberLeavers	= gu.SelectMany(i => i.MemberLeavers).Distinct()
 													.Where(x => round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
@@ -667,7 +651,6 @@ namespace Uccs.Net
 			var w = new BinaryWriter(s);
 
 			w.Write(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash);
-			
 			round.WriteConfirmed(w);
 
 			round.Summary = Zone.Cryptography.Hash(s.ToArray());
@@ -678,6 +661,12 @@ namespace Uccs.Net
 		public void Execute(Round round, IEnumerable<Transaction> transactions, IEnumerable<AccountAddress> forkers)
 		{
 			var prev = round.Previous;
+
+			round.Members		= round.Id == 0 ? new()	: round.Previous.Members.ToList();
+			round.Emissions		= round.Id == 0 ? new()	: round.Previous.Emissions.ToList();
+			round.DomainBids	= round.Id == 0 ? new()	: round.Previous.DomainBids.ToList();
+			round.Analyzers		= round.Id == 0 ? new()	: round.Previous.Analyzers.ToList();
+			round.Funds			= round.Id == 0 ? new()	: round.Previous.Funds.ToList();
 				
 			if(round.Id != 0 && prev == null)
 				return;
@@ -690,11 +679,6 @@ namespace Uccs.Net
 	
 			round.Fees			= 0;
 			round.Emission		= round.Id == 0 ? 0		: round.Previous.Emission;
-			round.Members		= round.Id == 0 ? new()	: round.Previous.Members.ToList();
-			round.Emissions		= round.Id == 0 ? new()	: round.Previous.Emissions.ToList();
-			round.DomainBids	= round.Id == 0 ? new()	: round.Previous.DomainBids.ToList();
-			round.Analyzers		= round.Id == 0 ? new()	: round.Previous.Analyzers.ToList();
-			round.Funds			= round.Id == 0 ? new()	: round.Previous.Funds.ToList();
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
@@ -775,7 +759,7 @@ namespace Uccs.Net
 	 		
 				if(!s.SequenceEqual(round.Summary))
 				{
-					throw new ConfirmationException("Can't confirm", round);
+					throw new ConfirmationException(round);
 				}
 			}
 			else
@@ -794,7 +778,6 @@ namespace Uccs.Net
 					var o = round.ConfirmedTransactions[ti].Operations[oi];
 					//
 					//o.Hid = new (round.Id, ti, oi);
-
 					if(o is Emission e)
 						round.Emissions.Add(e);
 
@@ -851,8 +834,17 @@ namespace Uccs.Net
 				#endif
 			}
 
-			round.Members.AddRange(round.ConfirmedMemberJoiners.Where(i => Accounts.Find(i, round.Id).CandidacyDeclarationRid < round.Id)
-																.Select(i => new Member {Account = i, JoinedAt = round.Id + Pitch + 1}));
+
+			var js = round.ConfirmedTransactions.SelectMany(i => i.Operations)
+												.OfType<CandidacyDeclaration>()
+												.DistinctBy(i => i.Transaction.Signer)
+												.OrderByDescending(i => i.Bail)
+												.OrderBy(i => i.Signer);
+ 
+			round.Members.AddRange(js.Take(Math.Min(Zone.MembersLimit - round.Members.Count, js.Count())).Select(i => new Member{ JoinedAt = round.Id + Pitch + 1,
+																																  Account = i.Signer, 
+																																  BaseRdcIPs = i.BaseRdcIPs, 
+																																  SeedHubRdcIPs = i.SeedHubRdcIPs}));
 
 //foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Account)))
 //	Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
@@ -940,7 +932,6 @@ namespace Uccs.Net
 				if(ro != null)
 				{
 					#if !DEBUG
-					ro.JoinRequests.Clear();
 					ro.Votes.Clear();
 					ro.AnalyzerVoxes.Clear();
 					#endif

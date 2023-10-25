@@ -16,7 +16,7 @@ namespace Uccs.Net
 	{
 		None, 
 		Pending,
-		Accepted, /*Verified, */Placed, FailedOrNotFound, Confirmed
+		Accepted, /*Verified, */Placed, FailedOrNotFound, NotNearestAnymore, Confirmed
 	}
 
 	public struct Portion
@@ -30,7 +30,8 @@ namespace Uccs.Net
 		None = 0, 
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
-		AuthorBid, AuthorRegistration, AuthorTransfer, ResourceCreation, ResourceUpdation,
+		AuthorBid, AuthorRegistration, AuthorTransfer,
+		ResourceCreation, ResourceUpdation,
 	}
 
 	public abstract class Operation// : ITypedBinarySerializable

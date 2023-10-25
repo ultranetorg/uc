@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -27,8 +28,10 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-		   		case "declare" : 
-					return new CandidacyDeclaration(Money.ParseDecimal(GetString("bail")));
+		   		//case "declare" : 
+				//	return new CandidacyDeclaration(Money.ParseDecimal(GetString("bail")), 
+				//									GetString("baseips").Split(' ').Select(i => IPAddress.Parse(i)).ToArray(),
+				//									GetString("seedhubips").Split(' ').Select(i => IPAddress.Parse(i)).ToArray());
 
 				case "membership" :
 				{

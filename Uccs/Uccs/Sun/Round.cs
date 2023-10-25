@@ -21,7 +21,6 @@ namespace Uccs.Net
 
 		public List<Vote>									Votes = new();
 		public List<AnalyzerVoxRequest>						AnalyzerVoxes = new();
-		public List<MemberJoinRequest>						JoinRequests = new();
 		public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 		public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
 		public IEnumerable<Vote>							Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
@@ -31,7 +30,6 @@ namespace Uccs.Net
 
 		public Time											ConfirmedTime;
 		public Transaction[]								ConfirmedTransactions = {};
-		public AccountAddress[]								ConfirmedMemberJoiners = {};
 		public AccountAddress[]								ConfirmedMemberLeavers = {};
 		public AccountAddress[]								ConfirmedAnalyzerJoiners = {};
 		public AccountAddress[]								ConfirmedAnalyzerLeavers = {};
@@ -68,7 +66,7 @@ namespace Uccs.Net
 		}
 		public override string ToString()
 		{
-			return $"Id={Id}, Votes(VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), JR={JoinRequests.Count}, Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, Votes(VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
 		}
 
 
@@ -196,7 +194,6 @@ namespace Uccs.Net
 			writer.Write(ConfirmedTime);
 			writer.Write(ConfirmedExeunitMinFee);
 			writer.Write7BitEncodedInt(ConfirmedOverflowRound);
-			writer.Write(ConfirmedMemberJoiners);
 			writer.Write(ConfirmedMemberLeavers);
 			writer.Write(ConfirmedAnalyzerJoiners);
 			writer.Write(ConfirmedAnalyzerLeavers);
@@ -214,7 +211,6 @@ namespace Uccs.Net
 			ConfirmedTime				= reader.ReadTime();
 			ConfirmedExeunitMinFee		= reader.ReadMoney();
 			ConfirmedOverflowRound		= reader.Read7BitEncodedInt();
-			ConfirmedMemberJoiners		= reader.ReadArray<AccountAddress>();
 			ConfirmedMemberLeavers		= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
 			ConfirmedAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
@@ -238,7 +234,7 @@ namespace Uccs.Net
 // 				w.Write(Hash);
 // #endif
 				WriteConfirmed(w);
-				w.Write(JoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
+				//w.Write(JoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
 			} 
 			else
 			{
@@ -259,12 +255,12 @@ namespace Uccs.Net
 // 				Hash = r.ReadSha3();
 // #endif
 				ReadConfirmed(r);
-				JoinRequests.AddRange(r.ReadArray(() =>	{
-															var b = new MemberJoinRequest();
-															b.RoundId = Id;
-															b.Read(r, Mcv.Zone);
-															return b;
-														}));
+				//JoinRequests.AddRange(r.ReadArray(() =>	{
+				//											var b = new MemberJoinOperation();
+				//											b.RoundId = Id;
+				//											b.Read(r, Mcv.Zone);
+				//											return b;
+				//										}));
 			} 
 			else
 			{

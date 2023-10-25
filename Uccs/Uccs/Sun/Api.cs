@@ -102,7 +102,74 @@ namespace Uccs.Net
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.Lock)
-				return new SummaryResponse{Summary = sun.Summary.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
+			{ 
+				List<KeyValuePair<string, string>> f = new();
+															
+				f.Add(new ("Version",					sun.Version.ToString()));
+				f.Add(new ("Zone",						sun.Zone.Name));
+				f.Add(new ("Profile",					sun.Settings.Profile));
+				f.Add(new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Zone.Port}"));
+				f.Add(new ("Incoming Transactions",		$"{sun.IncomingTransactions.Count}"));
+				f.Add(new ("Outgoing Transactions",		$"{sun.OutgoingTransactions.Count}"));
+				f.Add(new ("    Pending Delegation",	$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Pending)}"));
+				f.Add(new ("    Accepted",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"));
+				//f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
+				f.Add(new ("    Placed",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"));
+				f.Add(new ("    Confirmed",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"));
+				f.Add(new ("Votes Acceped/Rejected",	$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"));
+				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
+				
+				if(sun.Mcv != null)
+				{
+					f.Add(new ("Synchronization",		$"{sun.Synchronization}"));
+					f.Add(new ("Size",					$"{sun.Mcv.Size}"));
+					f.Add(new ("Members",				$"{sun.Mcv.LastConfirmedRound?.Members.Count}"));
+					f.Add(new ("Emission",				$"{sun.Mcv.LastConfirmedRound?.Emission.ToHumanString()}"));
+					f.Add(new ("ExeunitMinFee",			$"{sun.Mcv.LastConfirmedRound?.ConfirmedExeunitMinFee.ToHumanString()}"));
+					f.Add(new ("SyncCache Blocks",		$"{sun.SyncCache.Sum(i => i.Value.Votes.Count)}"));
+					f.Add(new ("Loaded Rounds",			$"{sun.Mcv.LoadedRounds.Count()}"));
+					f.Add(new ("Last Non-Empty Round",	$"{(sun.Mcv.LastNonEmptyRound != null ? sun.Mcv.LastNonEmptyRound.Id : null)}"));
+					f.Add(new ("Last Payload Round",	$"{(sun.Mcv.LastPayloadRound != null ? sun.Mcv.LastPayloadRound.Id : null)}"));
+					f.Add(new ("Base Hash",				sun.Mcv.BaseHash.ToHex()));
+					f.Add(new ("Generating (nps/μs)",	$"{sun.Statistics.Generating	.N}/{sun.Statistics.Generating	.Avarage.Ticks/10}"));
+					f.Add(new ("Consensing (nps/μs)",	$"{sun.Statistics.Consensing	.N}/{sun.Statistics.Consensing	.Avarage.Ticks/10}"));
+					f.Add(new ("Transacting (nps/μs)",	$"{sun.Statistics.Transacting	.N}/{sun.Statistics.Transacting	.Avarage.Ticks/10}"));
+					f.Add(new ("Declaring (nps/μs)",	$"{sun.Statistics.Declaring		.N}/{sun.Statistics.Declaring	.Avarage.Ticks/10}"));
+					f.Add(new ("Sending (nps/μs)",		$"{sun.Statistics.Sending		.N}/{sun.Statistics.Sending		.Avarage.Ticks/10}"));
+					f.Add(new ("Reading (nps/μs)",		$"{sun.Statistics.Reading		.N}/{sun.Statistics.Reading		.Avarage.Ticks/10}"));
+
+					if(sun.Synchronization == Synchronization.Synchronized)
+					{
+						string formatbalance(AccountAddress a)
+						{
+							return sun.Mcv.Accounts.Find(a, sun.Mcv.LastConfirmedRound.Id)?.Balance.ToHumanString();
+						}
+	
+						foreach(var i in sun.Vault.Wallets)
+						{
+							var a = i.Key.ToString();
+							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)}", $"{formatbalance(i.Key),23}"));
+						}
+	
+						if(DevSettings.UI)
+						{
+						}
+					}
+				}
+				else
+				{
+					//f.Add(new ("Members (retrieved)", $"{Members.Count}"));
+
+					foreach(var i in sun.Vault.Wallets)
+					{
+						f.Add(new ($"Account", $"{i}"));
+					}
+				}
+
+				sun.Statistics.Reset();
+		
+				return new SummaryResponse{Summary = f.Take(Limit).Select(i => new [] {i.Key, i.Value}).ToArray() }; 
+			}
 		}
 	}
 
@@ -133,7 +200,7 @@ namespace Uccs.Net
 																					Votes = i.Votes.Select(b => new ChainReportResponse.Vote {	Generator = b.Generator, 
 																																				IsPayload = b.Transactions.Any(), 
 																																					/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
-																					JoinRequests = i.JoinRequests.Select(i => i.Generator),
+																					JoinRequests = i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(i => i.Transaction.Signer),
 																				})
 																	.ToArray()}; 
 		}

@@ -7,13 +7,13 @@ namespace Uccs.Net
 	{
 		Round Round;
 
-		public ConfirmationException(string m, Round r) : base(m)
+		public ConfirmationException(Round r)
 		{
 			Round = r;
 
-			#if DEBUG
-			Debugger.Break();
-			#endif
+			//#if DEBUG
+			//Debugger.Break();
+			//#endif
 		}
 	}
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +16,7 @@ namespace Uccs.Net
 	{
 		public const long				PieceMaxLength = 512 * 1024;
 		public const string				FamilyName = "Resources";
+		public const int				MembersPerDeclaration = 3;
 
 		internal string					ResourcesPath;
 		public List<Release>			Releases = new();
@@ -242,7 +242,7 @@ namespace Uccs.Net
 
 					lock(Lock)
 					{
-						rs = Releases.Where(i => i.Availability != Availability.None && i.DeclaredOn.Count < 8).ToArray();
+						rs = Releases.Where(i => i.Availability != Availability.None && i.DeclaredOn.Count < MembersPerDeclaration).ToArray();
 						//used = rs.SelectMany(i => i.DeclaredOn).Distinct().Where(h => rs.All(r => r.DeclaredOn.Contains(h))).ToList();
 					}
 
@@ -258,7 +258,7 @@ namespace Uccs.Net
 					{
 						foreach(var r in Releases)
 						{
-							r.DeclareTo = cr.Members.OrderByNearest(r.Hash).ToArray();
+							r.DeclareTo = cr.Members.OrderByNearest(r.Hash).Take(MembersPerDeclaration).ToArray();
 						}
 
 						foreach(var m in cr.Members.Where(i => i.SeedHubRdcIPs.Any()))

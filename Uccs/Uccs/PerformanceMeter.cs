@@ -8,7 +8,7 @@ namespace Uccs.Net
 {
 	public class PerformanceMeter
 	{
-		int			N;
+		public int	N { get; protected set; }
 		TimeSpan	Time;
 		DateTime	Start;
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 
 namespace Uccs.Net
@@ -13,12 +14,17 @@ namespace Uccs.Net
 			lock(sun.Lock)
 			{
 				RequireBase(sun);
-				if(sun.Mcv.LastNonEmptyRound == null)	throw new RdcNodeException(RdcNodeError.TooEearly);
+				
+				if(sun.Mcv.LastNonEmptyRound == null)	
+					throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 			
-				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.FindRound(i)).Where(i => i != null), i => i.Write(w));
+				//From	= Math.Max(From, sun.Mcv.LastNonEmptyRound.Id); 
+				//To		= Math.Max(To, sun.Mcv.LastNonEmptyRound.Id);
+
+				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.GetRound(i)), i => i.Write(w));
 			
 				return new DownloadRoundsResponse {	LastNonEmptyRound	= sun.Mcv.LastNonEmptyRound.Id,
 													LastConfirmedRound	= sun.Mcv.LastConfirmedRound.Id,

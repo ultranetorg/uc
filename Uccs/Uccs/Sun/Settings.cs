@@ -150,6 +150,7 @@ namespace Uccs.Net
 		public int						PeersInboundMax = 16 * 1024;
 		public bool						PeersInitialRandomization = true;
 		public IPAddress				IP;
+		public Money					Bail;
 		//public IPAddress				ExternalIP;
 		public ushort					JsonServerPort;
 		//public bool						Anonymous = false;
@@ -200,6 +201,7 @@ namespace Uccs.Net
 			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
 			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));
 			JsonServerPort				= (ushort)doc.Get<int>("JsonServerPort");
+			Bail						= doc.Get<Money>("Bail");
 			Generators					= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
 			Packages					= doc.Get<string>("Packages", System.IO.Path.Join(Profile, "Packages"));

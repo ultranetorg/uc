@@ -11,8 +11,8 @@ namespace Uccs.Net
 	public class Member
 	{
 		public AccountAddress			Account { get; set; }
-		public IPAddress[]				BaseRdcIPs   { get; set; } = new IPAddress[0];
-		public IPAddress[]				SeedHubRdcIPs   { get; set; } = new IPAddress[0];
+		public IPAddress[]				BaseRdcIPs { get; set; } = new IPAddress[0];
+		public IPAddress[]				SeedHubRdcIPs { get; set; } = new IPAddress[0];
 		public int						JoinedAt { get; set; }
 		public Peer         			Proxy;
 
@@ -21,32 +21,34 @@ namespace Uccs.Net
 			return $"Account={Account}, JoinedAt={JoinedAt}, BaseRdcIPs={{{BaseRdcIPs.Length}}}, SeedHubRdcIPs={{{SeedHubRdcIPs.Length}}}";
 		}
 	
-  		public void WriteConfirmed(BinaryWriter w)
- 		{
- 			w.Write(Account);
-			//w.Write7BitEncodedInt(ActivatedAt);
- 			//w.Write(IPs, i => w.Write(i));
- 		}
- 
- 		public void ReadConfirmed(BinaryReader r)
- 		{
-			Account	= r.ReadAccount();
- 			//ActivatedAt	= r.Read7BitEncodedInt();
- 			//IPs		= r.ReadArray(() => r.ReadIPAddress());
-		}
+  		//public void WriteConfirmed(BinaryWriter writer)
+ 		//{
+ 		//	writer.Write(Account);
+		//	writer.Write(BaseRdcIPs, i => writer.Write(i));
+		//	writer.Write(SeedHubRdcIPs, i => writer.Write(i));
+		//}
+ 		//
+ 		//public void ReadConfirmed(BinaryReader reader)
+ 		//{
+		//	Account			= reader.ReadAccount();
+		//	BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
+		//	SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
+		//}
 	
-  		public void WriteBaseState(BinaryWriter w)
+  		public void WriteBaseState(BinaryWriter writer)
  		{
- 			w.Write(Account);
-			w.Write7BitEncodedInt(JoinedAt);
- 			//w.Write(IPs, i => w.Write(i));
+ 			writer.Write(Account);
+			writer.Write(BaseRdcIPs, i => writer.Write(i));
+			writer.Write(SeedHubRdcIPs, i => writer.Write(i));
+			writer.Write7BitEncodedInt(JoinedAt);
  		}
  
- 		public void ReadBaseState(BinaryReader r)
+ 		public void ReadBaseState(BinaryReader reader)
  		{
-			Account	= r.ReadAccount();
- 			JoinedAt	= r.Read7BitEncodedInt();
- 			//IPs		= r.ReadArray(() => r.ReadIPAddress());
+			Account			= reader.ReadAccount();
+			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
+			SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
+ 			JoinedAt		= reader.Read7BitEncodedInt();
 		}
 	
 //   		public void WriteForSharing(BinaryWriter w)

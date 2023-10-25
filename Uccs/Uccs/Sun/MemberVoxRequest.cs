@@ -79,7 +79,9 @@ namespace Uccs.Net
 
 			lock(sun.Lock)
 			{
+				sun.Statistics.Consensing.Begin();
 				var accepted = sun.ProcessIncoming(v);
+				sun.Statistics.Consensing.End();
 
 				if(sun.Synchronization == Synchronization.Synchronized)
 				{
@@ -94,8 +96,8 @@ namespace Uccs.Net
 							
 							if(m != null)
 							{
-								m.BaseRdcIPs	= v.BaseRdcIPs.ToArray();
-								m.SeedHubRdcIPs	= v.SeedHubRdcIPs.ToArray();
+								//m.BaseRdcIPs	= v.BaseRdcIPs.ToArray();
+								//m.SeedHubRdcIPs	= v.SeedHubRdcIPs.ToArray();
 								m.Proxy			= Peer;
 							}
 						}

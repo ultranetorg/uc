@@ -43,7 +43,6 @@ namespace Uccs.Sun.FUI
 				if(Sun.Mcv != null)
 				{
 					Sun.Mcv.VoteAdded += (b) => BeginInvoke(monitor.Invalidate);
-					Sun.Mcv.JoinAdded += (b) =>	BeginInvoke(monitor.Invalidate);
 				}
 			}
 		}
@@ -58,15 +57,10 @@ namespace Uccs.Sun.FUI
 
 		public override void PeriodicalRefresh()
 		{
-			List<KeyValuePair<string, string>> i;
+			var	s = (new SummaryReportCall() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Sun, null) as SummaryResponse).Summary;
 
-			lock(Sun.Lock)
-			{
-				i = Sun.Summary;
-			}
-
-			fields.Text = string.Join('\n', i.Select(j => j.Key));
-			values.Text = string.Join('\n', i.Select(j => j.Value));
+			fields.Text = string.Join('\n', s.Select(j => j[0]));
+			values.Text = string.Join('\n', s.Select(j => j[1]));
 		
 			 //monitor.OnBlockAdded(null);
 		}

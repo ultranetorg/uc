@@ -110,7 +110,6 @@ namespace Uccs.Sun.FUI
 						int nv = 0;
 						int nm = 0;
 						int njrs = 0;
-						int nj = 0;
 						int nl = 0;
 						int ndate = 0;
 	
@@ -122,7 +121,7 @@ namespace Uccs.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var last = Sun.Mcv.Tail.FirstOrDefault(i => i.Votes.Any() || i.JoinRequests.Any());
+							var last = Sun.Mcv.Tail.FirstOrDefault(i => i.Votes.Any() || i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Any());
 
 							if(last == null)
 							{
@@ -140,9 +139,8 @@ namespace Uccs.Sun.FUI
 								{
 									nid = Math.Max(nid, i);
 									nv = Math.Max(nv, r.Votes.Count);
-									njrs = Math.Max(njrs, r.JoinRequests.Count());
-									nj = Math.Max(nj, r.ConfirmedMemberJoiners.Length);
-									nl = Math.Max(nj, r.ConfirmedMemberLeavers.Length);
+									njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
+									nl = Math.Max(nl, r.ConfirmedMemberLeavers.Length);
 		
 									if(r?.Members != null)
 										nm = Math.Max(nm, r.Members.Count);
@@ -155,16 +153,15 @@ namespace Uccs.Sun.FUI
 							nid		= IntLength(nid);
 							nv		= IntLength(nv);
 							njrs	= IntLength(njrs);
-							nj		= IntLength(nj);
 							nl		= IntLength(nl);
 							nm		= IntLength(nm);
 							ndate	= IntLength(ndate);
 		
 							var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Generator));
-							var joins = rounds.Where(i => i != null).SelectMany(i => i.JoinRequests.Select(b => b.Generator));
+							var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => b.Transaction.Signer));
 							generators = mems.Union(joins).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nid}}} {{1,{nv}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nj}}} {{5,{nl}}} {{6}}{{7}} {{8,{ndate}}}";
+							f  = $"{{0,{nid}}} {{1,{nv}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}}";
 
 							if(rounds.Count() > 0)
 							{
@@ -213,8 +210,7 @@ namespace Uccs.Sun.FUI
 																r.Id, 
 																r.Votes.Count,
 																r.Members.Count, 
-																r.JoinRequests.Count(),
-																r.ConfirmedMemberJoiners.Length,
+																r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
 																r.ConfirmedMemberLeavers.Length,
 																r.Voted ? "v" : " ",
 																r.Confirmed ? "c" : " ",
@@ -236,7 +232,7 @@ namespace Uccs.Sun.FUI
 												e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3);
 										}
 
-										var jr = r.JoinRequests.FirstOrDefault(i => i.Generator == m);
+										var jr = r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().FirstOrDefault(i => i.Transaction.Signer == m);
 
 										if(jr != null)
 										{

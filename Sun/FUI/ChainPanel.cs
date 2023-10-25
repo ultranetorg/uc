@@ -101,7 +101,8 @@ namespace Uccs.Sun.FUI
 												return li;
 											}).ToArray());
 
-				Joiners.Items.AddRange(r.ConfirmedMemberJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
+				if(r.Id > 0)
+					Joiners.Items.AddRange(r.Members.Where(i => !r.Previous.Members.Any(j => i.Account == j.Account)).Select(i => new ListViewItem(i.ToString())).ToArray());
 				Leavers.Items.AddRange(r.ConfirmedMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 				Violators.Items.AddRange(r.ConfirmedViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
 

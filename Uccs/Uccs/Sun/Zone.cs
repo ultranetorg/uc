@@ -13,7 +13,6 @@ namespace Uccs.Net
 
 		public string			Name;
 		public string			Genesis;	
-		public IPAddress		GenesisIP;
 		public IPAddress[]		Initials;
  		public Cryptography		Cryptography									= Cryptography.Ethereum;
  		public Chain			EthereumNetwork									= Chain.Goerli;	
@@ -36,6 +35,7 @@ namespace Uccs.Net
 
 		public AccountAddress	God = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
 		public AccountAddress	Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
+		public IPAddress		Father0IP;
 
 		public ushort Port	{
 								get
@@ -69,7 +69,7 @@ namespace Uccs.Net
 			z.EthereumNetwork = EthereumNetwork;
 			z.Cryptography = 	Cryptography;
 			z.Genesis = 		Genesis;
-			z.GenesisIP = 		GenesisIP;
+			z.Father0IP = 		Father0IP;
 			z.Initials = 		Initials;
 			z.BailMin = 		BailMin;
 			z.PoW = 			PoW;		
@@ -92,7 +92,7 @@ namespace Uccs.Net
 			d.Add("Genesis").Value			= Genesis;
 			d.Add("Cryptography").Value		= Cryptography.GetType().Name;
 			d.Add("EthereumNetwork").Value	= EthereumNetwork.ToString();
-			d.Add("GenesisIP").Value		= GenesisIP.ToString();
+			d.Add("GenesisIP").Value		= Father0IP.ToString();
 			d.Add("Initials").Value			= string.Join(' ', Initials.AsEnumerable());
 
 			using(var s = File.Create(Path.Join(directory, Name + ".zone")))
@@ -108,7 +108,7 @@ namespace Uccs.Net
 			Genesis			= d.Get<string>("Genesis");
 			Cryptography	= Activator.CreateInstance(typeof(NoCryptography).Assembly.FullName, typeof(NoCryptography).Namespace + '.' + d.Get<string>("Cryptography")).Unwrap() as Uccs.Net.Cryptography;
 			EthereumNetwork	= Enum.Parse<Chain>(d.Get<string>("EthereumNetwork"));
-			GenesisIP		= IPAddress.Parse(d.Get<string>("GenesisIP"));
+			Father0IP		= IPAddress.Parse(d.Get<string>("GenesisIP"));
 			Initials		= d.Get<string>("Initials").Split(' ').Select(i => IPAddress.Parse(i)).ToArray();
 		}
 	}

@@ -22,12 +22,12 @@ namespace Uccs.Net
 		Mcv							Mcv;
 
 		public int					RoundId;
-		public IPAddress[]			BaseRdcIPs;
-		public IPAddress[]			SeedHubRdcIPs;
+		//public IPAddress[]			BaseRdcIPs;
+		//public IPAddress[]			SeedHubRdcIPs;
 		public int					Try; /// TODO: revote if consensus not reached
 		public long					TimeDelta;
 		public byte[]				ParentSummary;
-		public AccountAddress[]		MemberJoiners = {};
+		//public AccountAddress[]		MemberJoiners = {};
 		public AccountAddress[]		MemberLeavers = {};
 		public AccountAddress[]		AnalyzerJoiners = {};
 		public AccountAddress[]		AnalyzerLeavers = {};
@@ -98,7 +98,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentSummary?.ToHex()}, Violators={{{Violators.Length}}}, Joiners={{{MemberJoiners.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
+			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentSummary?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
 		}
 		
 		public void AddTransaction(Transaction t)
@@ -129,14 +129,10 @@ namespace Uccs.Net
 
 		void WriteVote(BinaryWriter writer)
 		{
-			writer.Write(BaseRdcIPs, i => writer.Write(i));
-			writer.Write(SeedHubRdcIPs, i => writer.Write(i));
-
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
 			writer.Write(ParentSummary);
 
-			writer.Write(MemberJoiners);
 			writer.Write(MemberLeavers);
 			writer.Write(AnalyzerJoiners);
 			writer.Write(AnalyzerLeavers);
@@ -153,14 +149,10 @@ namespace Uccs.Net
 
 		void ReadVote(BinaryReader reader)
 		{
-			BaseRdcIPs			= reader.ReadArray(() => reader.ReadIPAddress());
-			SeedHubRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
-
 			Try					= reader.Read7BitEncodedInt();
 			TimeDelta			= reader.Read7BitEncodedInt64();
 			ParentSummary		= reader.ReadBytes(Cryptography.HashSize);
 
-			MemberJoiners		= reader.ReadArray<AccountAddress>();
 			MemberLeavers		= reader.ReadArray<AccountAddress>();
 			AnalyzerJoiners		= reader.ReadArray<AccountAddress>();
 			AnalyzerLeavers		= reader.ReadArray<AccountAddress>();
@@ -176,7 +168,7 @@ namespace Uccs.Net
 														var t = new Transaction(Mcv.Zone)
 																{
 																	Vote		= this,
-																	Generator	= Generator
+																	Member	= Generator
 																};
 														t.ReadForVote(reader);
 														return t;
