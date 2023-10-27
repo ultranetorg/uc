@@ -16,6 +16,8 @@ namespace Uccs.Net
 		{
 			writer.Write(Address);
 			writer.Write(Balance);
+			writer.Write7BitEncodedInt(LastTransactionNid);
+			writer.Write7BitEncodedInt(LastEmissionId);
 			
 			writer.Write7BitEncodedInt(CandidacyDeclarationRid);
 			
@@ -23,15 +25,14 @@ namespace Uccs.Net
 			{
 				writer.Write(Bail);
 			}
-
-			writer.Write7BitEncodedInt(LastTransactionNid);
-			writer.Write7BitEncodedInt(LastEmissionId);
 		}
 
 		public virtual void Read(BinaryReader reader)
 		{
-			Address		= reader.ReadAccount();
-			Balance		= reader.ReadMoney();
+			Address				= reader.ReadAccount();
+			Balance				= reader.ReadMoney();
+			LastTransactionNid	= reader.Read7BitEncodedInt();
+			LastEmissionId		= reader.Read7BitEncodedInt();
 
 			CandidacyDeclarationRid	= reader.Read7BitEncodedInt();
 
@@ -40,8 +41,6 @@ namespace Uccs.Net
 				Bail = reader.ReadMoney();
 			}
 
-			LastTransactionNid	= reader.Read7BitEncodedInt();
-			LastEmissionId		= reader.Read7BitEncodedInt();
 		}
 	}
 }

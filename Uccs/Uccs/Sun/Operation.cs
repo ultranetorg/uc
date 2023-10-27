@@ -12,13 +12,6 @@ using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
-	public enum PlacingStage
-	{
-		None, 
-		Pending,
-		Accepted, /*Verified, */Placed, FailedOrNotFound, NotNearestAnymore, Confirmed
-	}
-
 	public struct Portion
 	{
 		public Money	Factor;

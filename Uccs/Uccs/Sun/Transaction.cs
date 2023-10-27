@@ -6,6 +6,13 @@ using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
+	public enum PlacingStage
+	{
+		None, 
+		Pending,
+		Accepted, Placed, FailedOrNotFound, NotNearestAnymore, Confirmed
+	}
+
 	public class Transaction : IBinarySerializable
 	{
 		public int						Nid;

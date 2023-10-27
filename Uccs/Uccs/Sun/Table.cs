@@ -187,6 +187,12 @@ namespace Uccs.Net
 			}
 		}
 
+		public void Clear()
+		{
+			Clusters.Clear();
+			SuperClusters.Clear();
+		}
+
 		public void CalculateSuperClusters()
 		{
 			if(!Clusters.Any())

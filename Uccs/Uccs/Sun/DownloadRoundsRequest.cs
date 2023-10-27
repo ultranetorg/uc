@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -14,6 +15,7 @@ namespace Uccs.Net
 			lock(sun.Lock)
 			{
 				RequireBase(sun);
+				RequireSynchronized(sun);
 				
 				if(sun.Mcv.LastNonEmptyRound == null)	
 					throw new RdcNodeException(RdcNodeError.TooEearly);
@@ -24,22 +26,24 @@ namespace Uccs.Net
 				//From	= Math.Max(From, sun.Mcv.LastNonEmptyRound.Id); 
 				//To		= Math.Max(To, sun.Mcv.LastNonEmptyRound.Id);
 
-				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.GetRound(i)), i => i.Write(w));
+				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.FindRound(i)).Where(i => i != null), i => i.Write(w));
 			
-				return new DownloadRoundsResponse {	LastNonEmptyRound	= sun.Mcv.LastNonEmptyRound.Id,
-													LastConfirmedRound	= sun.Mcv.LastConfirmedRound.Id,
-													BaseHash			= sun.Mcv.BaseHash,
-													Rounds				= s.ToArray()};
+				return new DownloadRoundsResponse {	LastNonEmptyRound			= sun.Mcv.LastNonEmptyRound.Id,
+													LastConfirmedRound			= sun.Mcv.LastConfirmedRound.Id,
+													LastConfirmedRoundHashes	= Enumerable.Range(sun.Mcv.LastConfirmedRound.Id - Mcv.Pitch + 1, Mcv.Pitch).Select(i => sun.Mcv.FindRound(i).Hash).ToArray(),
+													BaseHash					= sun.Mcv.BaseHash,
+													Rounds						= s.ToArray()};
 			}
 		}
 	}
 	
 	public class DownloadRoundsResponse : RdcResponse
 	{
-		public int		LastNonEmptyRound { get; set; }
-		public int		LastConfirmedRound { get; set; }
-		public byte[]	BaseHash{ get; set; }
-		public byte[]	Rounds { get; set; }
+		public int					LastNonEmptyRound { get; set; }
+		public int					LastConfirmedRound { get; set; }
+		public IEnumerable<byte[]>	LastConfirmedRoundHashes{ get; set; }
+		public byte[]				BaseHash{ get; set; }
+		public byte[]				Rounds { get; set; }
 
 		public Round[] Read(Mcv chain)
 		{

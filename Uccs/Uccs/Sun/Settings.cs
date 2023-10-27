@@ -111,7 +111,7 @@ namespace Uccs.Net
 		public static bool				UI;
 		public static bool				DisableTimeouts;
 		public static bool				ThrowOnCorrupted;
-		public static bool				SkipSynchronizetion;
+		public static bool				SkipSynchronization;
 		public static bool				SkipDomainVerification;
 
 		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));

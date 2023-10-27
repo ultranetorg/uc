@@ -69,7 +69,7 @@ namespace Uccs.Net
 
 		public Mcv(Zone zone, Role roles, McvSettings settings, RocksDb engine)
 		{
-			Roles = roles&(Role.Base|Role.Chain);
+			Roles = roles & (Role.Base|Role.Chain);
 			Zone = zone;
 			Settings = settings;
 			Engine = engine;
@@ -250,18 +250,18 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
-		public void Add(Vote b)
+		public void Add(Vote vote)
 		{
-			var r = GetRound(b.RoundId);
+			var r = GetRound(vote.RoundId);
 
-			b.Round = r;
+			vote.Round = r;
 
-			r.Votes.Add(b);
+			r.Votes.Add(vote);
 			//r.Blocks = r.Blocks.OrderBy(i => i is Payload p ? p.OrderingKey : new byte[] {}, new BytesComparer()).ToList();
 				
-			if(b.Transactions.Any())
+			if(vote.Transactions.Any())
 			{
-				foreach(var t in b.Transactions)
+				foreach(var t in vote.Transactions)
 				{
 					t.Round = r;
 					t.Placing = PlacingStage.Placed;
@@ -273,7 +273,7 @@ namespace Uccs.Net
 				r.FirstArrivalTime = DateTime.UtcNow;
 			} 
 
-			VoteAdded?.Invoke(b);
+			VoteAdded?.Invoke(vote);
 
 			if(LastConfirmedRound != null)
 			{
@@ -741,12 +741,12 @@ namespace Uccs.Net
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
-		public void Confirm(Round round, bool checksummary)
+		public void Confirm(Round round, bool summarize)
 		{
 			if(round.Id > 0 && LastConfirmedRound != null && LastConfirmedRound.Id + 1 != round.Id)
 				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
 
-			if(checksummary)
+			if(summarize)
 			{
 				if(round.Summary == null)
 				{

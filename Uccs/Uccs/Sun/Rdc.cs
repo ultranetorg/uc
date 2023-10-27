@@ -178,6 +178,12 @@ namespace Uccs.Net
 			if(sun.Synchronization != Synchronization.Synchronized)
 				throw new RdcNodeException(RdcNodeError.NotSynchronized);
 		}
+
+		protected void RequireSynchronized(Sun sun)
+		{
+			if(sun.Synchronization != Synchronization.Synchronized)
+				throw new RdcNodeException(RdcNodeError.NotSynchronized);
+		}
 	}
 
 	public class RdcRequestJsonConverter : JsonConverter<RdcRequest>
