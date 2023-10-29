@@ -30,6 +30,11 @@ namespace Uccs.Net
 			public IEnumerable<IPAddress>	BaseRdcIPs { get; set; }
 			public IEnumerable<IPAddress>	SeedHubRdcIPs { get; set; }
 			public bool         			Proxyable { get; set; }
+
+			public override string ToString()
+			{
+				return $"{Account}";
+			}
 		}
 
 		public IEnumerable<Member> Members { get; set; }

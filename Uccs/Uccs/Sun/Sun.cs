@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DnsClient;
+using Nethereum.ABI.FunctionEncoding.Attributes;
 using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 
@@ -46,7 +47,7 @@ namespace Uccs.Net
 
 	public enum Synchronization
 	{
-		None, Downloading, Synchronizing, Synchronized
+		None, Downloading, Synchronized
 	}
 
 	[Flags]
@@ -133,7 +134,7 @@ namespace Uccs.Net
 			public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
 		}
 		
-		public Dictionary<int, SyncRound>	SyncCache	= new();
+		public Dictionary<int, SyncRound>	SyncTail	= new();
 
 		public IGasAsker				GasAsker; 
 		public IFeeAsker				FeeAsker;
@@ -277,72 +278,71 @@ namespace Uccs.Net
 																}
 															};
 
-				Mcv.Confirmed +=	(Round r) =>
-									{
-										var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+				Mcv.Confirmed += r =>	{
+											var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
 
-										foreach(var o in ops)
-										{
-											if(o is AuthorBid ab && ab.Tld.Any())
+											foreach(var o in ops)
 											{
- 												if(!DevSettings.SkipDomainVerification)
- 												{
+												if(o is AuthorBid ab && ab.Tld.Any())
+												{
+ 													if(!DevSettings.SkipDomainVerification)
+ 													{
+														Task.Run(() =>	{
+ 																			try
+ 																			{
+ 																				var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+ 															
+ 																				var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
+ 		
+ 																				if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
+ 																				{
+																					lock(Lock)
+																					{	
+																						ApprovedDomainBids.Add(ab.Id);
+																					}
+ 																				}
+ 																			}
+ 																			catch(AggregateException ex)
+ 																			{
+ 																				Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+ 																			}
+ 																			catch(DnsResponseException ex)
+ 																			{
+ 																				Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+ 																			}
+																		});
+ 													}
+													else
+														ApprovedDomainBids.Add(ab.Id);
+												}
+
+												if(o is Emission e)
+												{
 													Task.Run(() =>	{
  																		try
  																		{
- 																			var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
- 															
- 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
- 		
- 																			if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
+ 																			if(Nas.CheckEmission(e))
  																			{
 																				lock(Lock)
 																				{	
-																					ApprovedDomainBids.Add(ab.Id);
+																					ApprovedEmissions.Add(e.Id);
 																				}
  																			}
  																		}
- 																		catch(AggregateException ex)
+ 																		catch(Exception ex)
  																		{
- 																			Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
- 																		}
- 																		catch(DnsResponseException ex)
- 																		{
- 																			Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+ 																			Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
  																		}
 																	});
- 												}
-												else
-													ApprovedDomainBids.Add(ab.Id);
+												}
 											}
 
-											if(o is Emission e)
-											{
-												Task.Run(() =>	{
- 																	try
- 																	{
- 																		if(Nas.CheckEmission(e))
- 																		{
-																			lock(Lock)
-																			{	
-																				ApprovedEmissions.Add(e.Id);
-																			}
- 																		}
- 																	}
- 																	catch(Exception ex)
- 																	{
- 																		Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
- 																	}
-																});
-											}
-										}
 
-
-										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-										Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
-									};
+											ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+											ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+											IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
+											Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
+										};
 		
 				if(Settings.Generators.Any())
 				{
@@ -382,12 +382,9 @@ namespace Uccs.Net
 												
 															if(Mcv != null)
 															{
-																if(Synchronization == Synchronization.Synchronized)
+																if(Settings.Generators.Any())
 																{
-																	if(Settings.Generators.Any())
-																	{
-																		Generate();
-																	}
+																	Generate();
 																}
 															}
 														}
@@ -965,7 +962,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(Synchronization != Synchronization.Downloading && Synchronization != Synchronization.Synchronizing)
+			if(Synchronization != Synchronization.Downloading)
 			{
 				Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Started");
 
@@ -989,14 +986,13 @@ namespace Uccs.Net
 				{
 					Thread.Sleep(1000);
 
-					Mcv.LoadedRounds.Clear();
+					lock(Lock)
+						Mcv.LoadedRounds.Clear();
 
 					var peer = Connect(Mcv.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
 
 					if(Mcv.Roles.HasFlag(Role.Base) && !Mcv.Roles.HasFlag(Role.Chain))
 					{
-						Mcv.Tail.Clear();
-		
 						stamp = peer.GetStamp();
 		
 						void download<E, K>(Table<E, K> t) where E : ITableEntry<K>
@@ -1031,16 +1027,19 @@ namespace Uccs.Net
 											
 									c.Read(new BinaryReader(new MemoryStream(d.Data)));
 										
-									using(var b = new WriteBatch())
+									lock(Lock)
 									{
-										c.Save(b);
-		
-										if(!c.Hash.SequenceEqual(i.Hash))
+										using(var b = new WriteBatch())
 										{
-											throw new SynchronizationException();
+											c.Save(b);
+			
+											if(!c.Hash.SequenceEqual(i.Hash))
+											{
+												throw new SynchronizationException();
+											}
+										
+											Mcv.Engine.Write(b);
 										}
-									
-										Mcv.Engine.Write(b);
 									}
 		
 									Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Cluster downloaded {t.GetType().Name}, {c.Id}");
@@ -1049,6 +1048,9 @@ namespace Uccs.Net
 		
 							t.CalculateSuperClusters();
 						}
+
+						lock(Lock)
+							Mcv.Tail.Clear();
 		
 						download<AccountEntry, AccountAddress>(Mcv.Accounts);
 						download<AuthorEntry, string>(Mcv.Authors);
@@ -1056,16 +1058,19 @@ namespace Uccs.Net
 						var r = new Round(Mcv) {Confirmed = true};
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
 		
-						Mcv.BaseState = stamp.BaseState;
-						Mcv.LastConfirmedRound = r;
-						Mcv.LastCommittedRound = r;
-		
-						Mcv.Hashify();
-		
-						if(peer.GetStamp().BaseHash.SequenceEqual(Mcv.BaseHash))
- 							Mcv.LoadedRounds.Add(r.Id, r);
-						else
-							throw new SynchronizationException();
+						lock(Lock)
+						{
+							Mcv.BaseState = stamp.BaseState;
+							Mcv.LastConfirmedRound = r;
+							Mcv.LastCommittedRound = r;
+			
+							Mcv.Hashify();
+			
+							if(peer.GetStamp().BaseHash.SequenceEqual(Mcv.BaseHash))
+	 							Mcv.LoadedRounds.Add(r.Id, r);
+							else
+								throw new SynchronizationException();
+						}
 					}
 		
 					//int finalfrom = -1; 
@@ -1073,7 +1078,8 @@ namespace Uccs.Net
 					int to = -1;
 					bool confirmed = true;
 
-					Mcv.Tail.RemoveAll(i => i.Id > Mcv.LastConfirmedRound.Id);
+					lock(Lock)
+						Mcv.Tail.RemoveAll(i => i.Id > Mcv.LastConfirmedRound.Id);
 
 					while(Workflow.Active)
 					{
@@ -1082,12 +1088,12 @@ namespace Uccs.Net
 								if(from == -1)
 									from = Mcv.LastConfirmedRound.Id + 1;
 								else
-									from = to + 1;
+									from = Mcv.Tail.First().Id + 1;
 							else
 								if(from == -1)
 									from = Math.Max(stamp.FirstTailRound, Mcv.LastConfirmedRound == null ? -1 : (Mcv.LastConfirmedRound.Id + 1));
 								else
-									from = to + 1;
+									from = Mcv.Tail.First().Id + 1;
 		
 						to = from + Mcv.Pitch;
 		
@@ -1095,86 +1101,123 @@ namespace Uccs.Net
 
 						lock(Lock)
 						{
-							foreach(var i in SyncCache.Keys)
+							foreach(var i in SyncTail.Keys)
 								if(i < rp.LastConfirmedRound + 1 - Mcv.Pitch)
-									SyncCache.Remove(i);
+									SyncTail.Remove(i);
 
 							var rounds = rp.Read(Mcv);
+														
+							for(int rid = from; rounds.Any() && rid <= rounds.Max(i => i.Id); rid++)
+							{
+								var r = rounds.FirstOrDefault(i => i.Id == rid);
 
+								if(r != null)
+								{
+									//if(r.Confirmed)
+									//{
+										if(Mcv.LastConfirmedRound.Id + 1 != rid)
+								 			throw new SynchronizationException();
+	
+										if(SyncTail.TryGetValue(rid, out var p) && SyncTail.TryGetValue(rid + Mcv.Pitch, out var c) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
+										{
+											foreach(var v in p.Votes)
+												ProcessIncoming(v, true);
+
+											foreach(var v in c.Votes)
+												ProcessIncoming(v, true);
+
+											if(	Mcv.LastConfirmedRound.Id == rid && 
+												Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
+											{
+												Synchronization = Synchronization.Synchronized;
 							
-							for(int i = from; rounds.Any() && i <= rounds.Max(i => i.Id); i++)
-							{
-								var r = rounds.FirstOrDefault(j => j.Id == i);
+												foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > rid))
+												{
+													foreach(var v in i.Value.Votes)
+														ProcessIncoming(v, true);
+												}
 
-								if(confirmed && r != null && r.Confirmed)
-								{
-									if(Mcv.LastConfirmedRound.Id + 1 != i)
-							 			throw new SynchronizationException();
+												SyncTail.Clear();
+												SynchronizingThread = null;
+												MainSignal.Set();
+						
+												Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
+						
+												return;
+											}
+											else
+												Mcv.Tail.RemoveAll(i => i.Id >= rid);
+										}
 
-									///Mcv.Tail.RemoveAll(i => i.Id == r.Id); /// remove old round with all its blocks
-									Mcv.Tail.Insert(0, r);
-
-									foreach(var t in r.Transactions)
-									{
-										t.Placing = PlacingStage.Placed;
-									}
-		
-									r.Confirmed = false;
-									Mcv.Confirm(r, false);
-								}
-								else
-								{
-									if(confirmed)
-									{
-										confirmed		= false;
-										//finalfrom		= rounds.Max(i => i.Id) + 1;
-										//end			= rp.LastNonEmptyRound;
-										Synchronization	= Synchronization.Synchronizing;
-									}
+										Mcv.Tail.Insert(0, r);
+	
+										foreach(var t in r.Transactions)
+										{
+											t.Placing = PlacingStage.Placed;
+										}
 			
-									Mcv.GetRound(i);
-
-									foreach(var v in r.Votes)
-										ProcessIncoming(v);
+										r.Confirmed = false;
+										Mcv.Confirm(r, false);
+									//}
+									//else
+									//{
+									//	if(confirmed)
+									//	{
+									//		confirmed		= false;
+									//		//finalfrom		= rounds.Max(i => i.Id) + 1;
+									//		//end			= rp.LastNonEmptyRound;
+									//		Synchronization	= Synchronization.Synchronizing;
+									//	}
+									//
+									//	Mcv.GetRound(i);
+									//
+									//	foreach(var v in r.Votes)
+									//		ProcessIncoming(v);
+									//}
 								}
 							}
-										
-							Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Rounds received {rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
+							
+							if(rounds.Any())
+								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Rounds received {rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
+							
+							Thread.Sleep(1);
 
-							if(rp.LastNonEmptyRound <= to && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(Mcv.LastConfirmedRound.Id + 1).Parent != null))
-							{
-								Synchronization = Synchronization.Synchronized;
-	
-								foreach(var i in SyncCache.OrderBy(i => i.Key))
-								{
-									foreach(var v in i.Value.Votes)
-										ProcessIncoming(v);
-								}
-										
-								if(!Mcv.BaseHash.SequenceEqual(rp.BaseHash))
-								{
-									throw new SynchronizationException();
-								}
-
-
-								var a = Enumerable.Range(Mcv.LastConfirmedRound.Id - Mcv.Pitch + 1, Mcv.Pitch);
-								var b = Enumerable.Range(rp.LastConfirmedRound - Mcv.Pitch + 1, Mcv.Pitch).ToList();
-								var c = a.Reverse().First(i => b.Contains(i));
-
-								if(!rp.LastConfirmedRoundHashes.ElementAt(b.IndexOf(c)).SequenceEqual(Mcv.FindRound(c).Hash))
-								{
-									throw new SynchronizationException();
-								}
-		
-								SyncCache.Clear();
-								SynchronizingThread = null;
-
-								MainSignal.Set();
-	
-								Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
-	
-								return;
-							}
+///							if(rp.LastNonEmptyRound <= to && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(Mcv.LastConfirmedRound.Id + 1).Parent != null))
+///							{
+///								Synchronization = Synchronization.Synchronized;
+///	
+///								foreach(var i in SyncCache.OrderBy(i => i.Key))
+///								{
+///									foreach(var v in i.Value.Votes)
+///										ProcessIncoming(v);
+///								}
+///										
+///								if(!Mcv.BaseHash.SequenceEqual(rp.BaseHash))
+///								{
+///									throw new SynchronizationException();
+///								}
+///
+///
+///								var a = Enumerable.Range(Mcv.LastConfirmedRound.Id - Mcv.Pitch + 1, Mcv.Pitch);
+///								var b = Enumerable.Range(rp.LastConfirmedRound - Mcv.Pitch + 1, Mcv.Pitch).ToList();
+///								
+///								if(!a.Any(i => b.Contains(i)))
+///									throw new SynchronizationException();
+///
+///								var c = a.Reverse().First(i => b.Contains(i));
+///	
+///								if(!rp.LastConfirmedRoundHashes.ElementAt(b.IndexOf(c)).SequenceEqual(Mcv.FindRound(c).Hash))
+///									throw new SynchronizationException();
+///		
+///								SyncCache.Clear();
+///								SynchronizingThread = null;
+///
+///								MainSignal.Set();
+///	
+///								Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
+///	
+///								return;
+///							}
 						}
 					}
 				}
@@ -1194,37 +1237,34 @@ namespace Uccs.Net
 			}
 		}
 
-		public bool ProcessIncoming(Vote v)
+		public bool ProcessIncoming(Vote v, bool assynchronized = false)
 		{
 			if(!v.Valid)
 				return false;
 
-			if(Synchronization == Synchronization.None || Synchronization == Synchronization.Downloading)
+			if(!assynchronized && (Synchronization == Synchronization.None || Synchronization == Synchronization.Downloading))
 			{
- 				var min = SyncCache.Any() ? SyncCache.Max(i => i.Key) - Mcv.Pitch * 3 : 0; /// keep latest Pitch * 3 rounds only
+ 				var min = SyncTail.Any() ? SyncTail.Max(i => i.Key) - Mcv.Pitch * 100 : 0; /// keep latest Pitch * 3 rounds only
  
-				if(v.RoundId < min || (SyncCache.ContainsKey(v.RoundId) && SyncCache[v.RoundId].Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
+				if(v.RoundId < min || (SyncTail.TryGetValue(v.RoundId, out var r) && r.Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
 					return false;
 
-				if(v.Transactions.Any(i => !i.Valid(Mcv)))
-					return false;
-
-				if(!SyncCache.TryGetValue(v.RoundId, out SyncRound r))
+				if(!SyncTail.TryGetValue(v.RoundId, out r))
 				{
-					r = SyncCache[v.RoundId] = new();
+					r = SyncTail[v.RoundId] = new();
 				}
 
 				r.Votes.Add(v);
 
-				foreach(var i in SyncCache.Keys)
+				foreach(var i in SyncTail.Keys)
 				{
 					if(i < min)
 					{
-						SyncCache.Remove(i);
+						SyncTail.Remove(i);
 					}
 				}
 			}
-			else if(Synchronization == Synchronization.Synchronizing || Synchronization == Synchronization.Synchronized)
+			else if(assynchronized || Synchronization == Synchronization.Synchronized)
 			{
 				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.Pitch * 2 < v.RoundId)
 					return false;
@@ -1245,7 +1285,7 @@ namespace Uccs.Net
 					if(v.Transactions.Sum(i => i.Operations.Length) > r.Parent.OperationsPerVoteLimit)
 						return false;
 
-					if(v.Transactions.Any(t =>  Mcv.MembersOf(r.Id).NearestBy(m => m.Account, t.Signer).Account != v.Generator))
+					if(v.Transactions.Any(t => Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account != v.Generator))
 						return false;
 				}
 
@@ -1440,7 +1480,7 @@ namespace Uccs.Net
 												FundLeavers		= Settings.ProposedFundLeavers.ToArray(),
 												Emissions		= ApprovedEmissions.ToArray(),
 												DomainBids		= ApprovedDomainBids.ToArray() };
-					};
+					}
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
 					{
@@ -1456,7 +1496,7 @@ namespace Uccs.Net
 								if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAllowableOverflow)
 									break;
 
-								if(Mcv.MembersOf(r.Id).NearestBy(m => m.Account, i.Signer).Account != i.Member)
+								if(Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account != i.Member)
 								{
 									i.Placing = PlacingStage.NotNearestAnymore;
 									continue;
@@ -1473,15 +1513,15 @@ namespace Uccs.Net
 						votes.Add(v);
 					}
 
-					while(Mcv.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
-					{
-						r = r.Previous;
-
-						var b = createvote(r);
-								
-						b.Sign(g);
-						votes.Add(b);
-					}
+// 					while(Mcv.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+// 					{
+// 						r = r.Previous;
+// 
+// 						var b = createvote(r);
+// 								
+// 						b.Sign(g);
+// 						votes.Add(b);
+// 					}
 
 					if(IncomingTransactions.Any(i => i.Placing == PlacingStage.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 						MainSignal.Set();
@@ -1530,9 +1570,6 @@ namespace Uccs.Net
 
 			Workflow.Log?.Report(this, "Delegating started");
 
-			//RdcInterface rdi = null;
-			//AccountAddress m = null;
-
 			while(Workflow.Active)
 			{
 				lock(Lock)
@@ -1555,7 +1592,7 @@ namespace Uccs.Net
 
 				RdcInterface getrdi(AccountAddress account)
 				{
-					var m = getmember(account);
+					var m = members.NearestBy(i => i.Account, account);
 
 					if(m.BaseRdcIPs.Contains(Settings.IP))
 						return this;
@@ -1566,170 +1603,17 @@ namespace Uccs.Net
 					return p;
 				}
 
-				MembersResponse.Member getmember(AccountAddress account)
-				{
-					var m = members.NearestBy(i => i.Account, account);
-
-					return m;
-
-					while(Workflow.Active)
-					{
-						//if(Synchronization == Synchronization.Synchronized && Settings.Generators.Any(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i)))
-						//{
-						//	m = Settings.Generators.First(i => Mcv.LastConfirmedRound.Members.Any(m => m.Account == i));
-						//	rdi = this;
-						//	break;
-						//}
-						//else
-						{ 
-							lock(Lock)
-							{
-
-								//Members.RemoveAll(i => !members.Contains(i.Generator));
-								
-								//foreach(var i in members.Where(i => i.BaseIPs.Any()).OrderByRandom()) /// look for public IP in connections
-								//{
-								//	var p = Connections.OrderByRandom().FirstOrDefault(j => i.BaseIPs.Any(ip => j.IP.Equals(ip)));
-								//
-								//	if(p != null)
-								//	{
-								//		rdi = p;
-								//		m = i.Account;
-								//		Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
-								//		break;
-								//	}
-								//}
-								//
-								//if(rdi != null)
-								//	break;
-
-// 								foreach(var i in members.Where(i => i.BaseRdcIPs.Any()).OrderByRandom()) /// try by public IP address
-// 								{
-// 									foreach(var j in i.BaseRdcIPs.OrderByRandom())
-// 									{
-// 										var p = GetPeer(j);
-// 
-// 										try
-// 										{
-// 											Monitor.Exit(Lock);
-// 
-// 											Connect(p, Workflow);
-// 											rdi = p;
-// 											m = i.Account;
-// 											Workflow.Log?.Report(this, "Generator direct connection established", $"{i} {p}");
-// 											break;
-// 										}
-// 										catch(RdcNodeException)
-// 										{
-// 										}
-// 										finally
-// 										{
-// 											Monitor.Enter(Lock);
-// 										}
-// 									}
-// 
-// 									if(rdi != null)
-// 										break;
-// 								}
-// 
-// 								if(rdi != null)
-// 									break;
-
-								//foreach(var i in members.Where(i => i.Proxyable).OrderByRandom()) /// look for a Proxy in connections
-								//{
-								//	var p = Connections.OrderByRandom().FirstOrDefault(j => i.Proxy == j);
-								//
-								//	if(p != null)
-								//	{
-								//		try
-								//		{
-								//			Monitor.Exit(Lock);
-								//		
-								//			Connect(p, Workflow);
-								//			m = i.Account;
-								//			rdi = new ProxyRdi(m, p);
-								//			Workflow.Log?.Report(this, "Generator proxy connection established", $"{i} {p}");
-								//			break;
-								//		}
-								//		catch(Exception)
-								//		{
-								//		}
-								//		finally
-								//		{
-								//			Monitor.Enter(Lock);
-								//		}
-								//	}
-								//}
-								//
-								//if(rdi != null)
-								//	break;
-									
-								//foreach(var i in members.Where(i => i.Proxyable).OrderByRandom()) /// connect via random proxy
-								//{
-								//	try
-								//	{
-								//		Monitor.Exit(Lock);
-								//
-								//		//Connect(i.Proxy, Workflow);
-								//		m = i.Account;
-								//		rdi = new ProxyRdi(m, cr.Peer);
-								//		Workflow.Log?.Report(this, "Generator proxy connection established", $"{m} {cr.Peer}");
-								//		break;
-								//	}
-								//	catch(Exception)
-								//	{
-								//	}
-								//	finally
-								//	{
-								//		Monitor.Enter(Lock);
-								//	}
-								//}
-
-								//if(rdi != null)
-								//	break;
-
-// 								var gp = GetPeer(Zone.GenesisIP);
-// 
-// 								try
-// 								{
-// 									Monitor.Exit(Lock);
-// 
-// 									Connect(gp, Workflow);
-// 
-// 									m = Zone.Father0;
-// 									rdi = gp;
-// 									Workflow.Log?.Report(this, "Generator connection established", $"{m}, {gp}");
-// 									break;
-// 								}
-// 								catch(RdcNodeException)
-// 								{
-// 									Thread.Sleep(500);
-// 								}
-// 								finally
-// 								{
-// 									Monitor.Enter(Lock);
-// 								}
-							}
-						}
-					}
-
-					throw new OperationCanceledException();
-				}
-
 				Statistics.Transacting.Begin();
 				
 				lock(Lock)
 				{
-					//if(rdi == this && Synchronization != Synchronization.Synchronized)
-					//	continue;
-
 					foreach(var g in OutgoingTransactions.GroupBy(i => i.Signer).ToArray())
 					{
 						if(!g.Any(i => i.Placing >= PlacingStage.Accepted) && g.Any(i => i.Placing == PlacingStage.None))
 						{
-							var m = getmember(g.Key);
-							AllocateTransactionResponse at = null;
+							var m = members.NearestBy(i => i.Account, g.Key);
 
+							AllocateTransactionResponse at = null;
 							RdcInterface rdi; 
 
 							try
@@ -1756,7 +1640,7 @@ namespace Uccs.Net
 								t.Nid = nid++;
 								t.Member = m.Account;
 								t.Rdc = rdi;
-								t.Expiration = at.LastConfirmedRid + Mcv.Pitch * 10;
+								t.Expiration = at.LastConfirmedRid + Mcv.Pitch * 2;
 								t.Fee = t.Operations.Length * at.ExeunitMinFee;
 	
 								t.Sign(Vault.GetKey(t.Signer), at.PowHash);
@@ -2075,7 +1959,7 @@ namespace Uccs.Net
 		}
 
 
-		public R Call<R>(Func<Peer, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
+		public R Call<R>(Func<RdcInterface, R> call, Workflow workflow, IEnumerable<Peer> exclusions = null)
 		{
 			var tried = exclusions != null ? new HashSet<Peer>(exclusions) : new HashSet<Peer>();
 
@@ -2087,6 +1971,11 @@ namespace Uccs.Net
 	
 				lock(Lock)
 				{
+					if(Synchronization == Synchronization.Synchronized)
+					{
+						return call(this);
+					}
+
 					p = ChooseBestPeer(Role.Base, tried);
 	
 					if(p == null)

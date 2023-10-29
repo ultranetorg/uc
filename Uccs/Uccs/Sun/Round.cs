@@ -9,6 +9,7 @@ namespace Uccs.Net
 	{
 		public int											Id;
 		public int											ParentId => Id - Mcv.Pitch;
+		public int											VotersRound => ParentId - 1;
 		public Round										Previous =>	Mcv.FindRound(Id - 1);
 		public Round										Next =>	Mcv.FindRound(Id + 1);
 		public Round										Parent => Mcv.FindRound(ParentId);
@@ -234,6 +235,7 @@ namespace Uccs.Net
 // 				w.Write(Hash);
 // #endif
 				WriteConfirmed(w);
+				w.Write(Hash);
 				//w.Write(JoinRequests, i => i.Write(w)); /// for [LastConfimed-Pitch..LastConfimed]
 			} 
 			else
@@ -255,6 +257,7 @@ namespace Uccs.Net
 // 				Hash = r.ReadSha3();
 // #endif
 				ReadConfirmed(r);
+				Hash = r.ReadSha3();
 				//JoinRequests.AddRange(r.ReadArray(() =>	{
 				//											var b = new MemberJoinOperation();
 				//											b.RoundId = Id;

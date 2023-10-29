@@ -16,7 +16,7 @@ namespace Uccs.Net
 		public IPAddress[]		Initials;
  		public Cryptography		Cryptography									= Cryptography.Ethereum;
  		public Chain			EthereumNetwork									= Chain.Goerli;	
-		public bool				PoW												= true;
+		public bool				PoW												= false;
 		public int				TailLength										= 1000;
 		public int				ExternalVerificationDurationLimit				= 100;
 		public Money			BailMin											= 1000;

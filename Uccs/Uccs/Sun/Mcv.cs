@@ -365,9 +365,9 @@ namespace Uccs.Net
 			}
 		}
 
-		public List<Member> MembersOf(int rid)
+		public List<Member> VotersOf(Round round)
 		{
-			return FindRound(rid - Pitch - 1).Members/*.Where(i => i.JoinedAt < r.Id)*/;
+			return FindRound(round.VotersRound).Members/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
 		//public List<Hub> HubsOf(int rid)
@@ -382,7 +382,7 @@ namespace Uccs.Net
 
 		public bool ConsensusReached(Round r)
 		{
-			var m = MembersOf(r.Id);
+			var m = VotersOf(r);
 			
 			var q = m.Count() * 2 / 3;
 
@@ -404,7 +404,7 @@ namespace Uccs.Net
 
 		public bool ConsensusFailed(Round r)
 		{
-			var m = MembersOf(r.Id);
+			var m = VotersOf(r);
 
 			var v = r.Unique.Where(i => m.Any(j => j.Account == i.Generator));
 			
@@ -486,7 +486,7 @@ namespace Uccs.Net
 		
 		public IEnumerable<AccountAddress> ProposeViolators(Round round)
 		{
-			var g = round.Id > Pitch ? MembersOf(round.Id) : new();
+			var g = round.Id > Pitch ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
 			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 		}
@@ -513,10 +513,10 @@ namespace Uccs.Net
 		{
 			var prevs = Enumerable.Range(round.ParentId - Pitch, Pitch).Select(i => FindRound(i));
 
-			var ls = MembersOf(round.Id).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
-													!round.Parent.VotesOfTry.Any(v => v.Generator == i.Account) &&	/// ??? sent less than MinVotesPerPitch of required blocks
-													!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Account)))) /// not yet proposed in prev [Pitch-1] rounds
-										.Select(i => i.Account);
+			var ls = VotersOf(round).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
+												!round.Parent.VotesOfTry.Any(v => v.Generator == i.Account) &&	/// ??? sent less than MinVotesPerPitch of required blocks
+												!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Account)))) /// not yet proposed in prev [Pitch-1] rounds
+									.Select(i => i.Account);
 //foreach(var i in ls)
 //{
 //	Log?.Report(this, $"Proposed leaver for {round.Id} - {i} - {prevs.Count(r => r.VotesOfTry.Any(b => b.Generator == i))} - {prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i)))}");
@@ -526,10 +526,10 @@ namespace Uccs.Net
 
 		public byte[] Summarize(Round round)
 		{
-			if(round.Id > LastGenesisRound && !round.Parent.Confirmed)
-				return null;
+			//if(round.Id > LastGenesisRound && !round.Parent.Confirmed)
+			//	return null;
 
-			var g = round.Id > Pitch ? MembersOf(round.Id) : new();
+			var g = round.Id > Pitch ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
@@ -754,7 +754,7 @@ namespace Uccs.Net
 				}
 
 				var c = FindRound(round.Id + Pitch);
-				var cm = MembersOf(c.Id);
+				var cm = VotersOf(c);
 				var s = c.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).MaxBy(i => i.Count()).Key;
 	 		
 				if(!s.SequenceEqual(round.Summary))

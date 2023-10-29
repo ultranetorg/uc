@@ -6,7 +6,7 @@ using Nethereum.Signer;
 namespace Uccs.Net
 {
 	public class SimulationZone : Zone
-	{
+	{	
 		public SimulationZone()
 		{
 			Name				= "Simulation";

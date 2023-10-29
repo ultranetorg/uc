@@ -56,10 +56,17 @@ namespace Uccs.Net
  	public class RdcNodeException : Exception
  	{
 		public RdcNodeError Error;
+		public string		ErrorDetails;
 
  		public RdcNodeException(RdcNodeError erorr) : base(erorr.ToString())
 		{
 			Error = erorr;
+		}
+
+ 		public RdcNodeException(RdcNodeError erorr, string errordetails) : base(erorr.ToString())
+		{
+			Error = erorr;
+			ErrorDetails = errordetails;
 		}
  	}
 
@@ -235,6 +242,7 @@ namespace Uccs.Net
 		public Rdc				Type => Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 		public RdcResult		Result { get; set; }
 		public byte				Error { get; set; }
+		public string			ErrorDetails { get; set; }
 
 		public static RdcResponse FromType(Rdc type)
 		{

@@ -274,28 +274,31 @@ namespace Uccs.Net
 								Monitor.Enter(Lock);
 							}
 
-							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Contains(m) && !i.DeclaredOn.Contains(m)).Select(i => new {r = i, h = i.Hash, a = i.Availability}).ToArray();
+							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Any(i => i.Account == m.Account) && !i.DeclaredOn.Any(i => i.Account == m.Account) ).Select(i => new {r = i, h = i.Hash, a = i.Availability}).ToArray();
 
-							var t = Task.Run(() =>	{
-														try
-														{
-															Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem{	Hash = i.h, 
-																																								Availability  = i.a
-																																							}).ToArray()), Sun.Workflow);
-														}
-														catch(RdcNodeException)
-														{
-														}
+							if(drs.Any())
+							{
+								var t = Task.Run(() =>	{
+															try
+															{
+																Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem{	Hash = i.h, 
+																																									Availability  = i.a
+																																								}).ToArray()), Sun.Workflow);
+															}
+															catch(RdcNodeException)
+															{
+															}
+	
+															lock(Lock)
+															{
+																foreach(var i in drs)
+																	i.r.DeclaredOn.Add(m);
 
-														lock(Lock)
-														{
-															foreach(var i in drs)
-																i.r.DeclaredOn.Add(m);
-												
-															tasks.Remove(m.Account);
-														}
-													});
-							tasks[m.Account] = t;
+																tasks.Remove(m.Account);
+															}
+														});
+								tasks[m.Account] = t;
+							}
 						}
 					}
 				}

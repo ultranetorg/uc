@@ -238,18 +238,21 @@ namespace Uccs.Net
 									r = RdcResponse.FromType(i.Class);
 									r.Result = RdcResult.NodeException;
 									r.Error = (byte)ex.Error;
+									r.ErrorDetails = ex.ToString();
 								}
 								catch(RdcEntityException ex)
 								{
 									r = RdcResponse.FromType(i.Class);
 									r.Result = RdcResult.EntityException;
 									r.Error = (byte)ex.Error;
+									r.ErrorDetails = ex.ToString();
 								}
-								catch(Exception) when(!Debugger.IsAttached)
+								catch(Exception ex) when(!Debugger.IsAttached)
 								{
 									r = RdcResponse.FromType(i.Class);
 									r.Result = RdcResult.NodeException;
 									r.Error = (byte)RdcNodeError.Internal;
+									r.ErrorDetails = ex.ToString();
 								}
 
 								r.Id = i.Id;
@@ -437,8 +440,8 @@ namespace Uccs.Net
 		 				return rq.Response;
 	 				else if(rq.Response.Result == RdcResult.NodeException)
 					{
-						var e =(RdcNodeError)rq.Response.Error;
-
+						var e = (RdcNodeError)rq.Response.Error;
+						
 						if(e.HasFlag(RdcNodeError.NotBase))
 							BaseRank = 0;
 
@@ -448,7 +451,7 @@ namespace Uccs.Net
 						if(e.HasFlag(RdcNodeError.NotSeed))
 							SeedRank = 0;
 
-						throw new RdcNodeException(e);
+						throw new RdcNodeException(e, rq.Response.ErrorDetails);
 					}
 	 				else if(rq.Response.Result == RdcResult.EntityException)
 						throw new RdcEntityException((RdcEntityError)rq.Response.Error);
