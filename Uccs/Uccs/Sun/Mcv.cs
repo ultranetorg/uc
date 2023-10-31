@@ -845,17 +845,16 @@ namespace Uccs.Net
 																																  Account = i.Signer, 
 																																  BaseRdcIPs = i.BaseRdcIPs, 
 																																  SeedHubRdcIPs = i.SeedHubRdcIPs}));
-
-//foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Account)))
-//	Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
+foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Account)))
+	Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 
 //foreach(var i in round.Members.Where(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id))
 //	Log?.Report(this, $"Member removed due to CandidacyDeclarationRid == round.Id {round.Id} - {i.Account}");
 			//round.Members.RemoveAll(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id);  /// CandidacyDeclaration cancels membership
 
-//foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(i.Account)))
-//	Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");
+foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(i.Account)))
+	Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");
 			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
 
 			round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));

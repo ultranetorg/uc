@@ -380,12 +380,9 @@ namespace Uccs.Net
 														{
 															ProcessConnectivity();
 												
-															if(Mcv != null)
+															if(Settings.Generators.Any() && Synchronization == Synchronization.Synchronized)
 															{
-																if(Settings.Generators.Any())
-																{
-																	Generate();
-																}
+																Generate();
 															}
 														}
 	
@@ -1449,13 +1446,16 @@ namespace Uccs.Net
 
 					if(a != null && a.Bail + a.Balance > Settings.Bail && a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && (LastCandidacyDeclaration == null || LastCandidacyDeclaration.Placing > PlacingStage.Placed))
 					{
-						LastCandidacyDeclaration = Enqueue(new CandidacyDeclaration {	Bail			= Settings.Bail,
-																						BaseRdcIPs		= new IPAddress[] {Settings.IP},
-																						SeedHubRdcIPs	= new IPAddress[] {Settings.IP}}, g, PlacingStage.None, Workflow);
+						LastCandidacyDeclaration = Enqueue(new CandidacyDeclaration{Bail			= Settings.Bail,
+																					BaseRdcIPs		= new IPAddress[] {Settings.IP},
+																					SeedHubRdcIPs	= new IPAddress[] {Settings.IP}}, g, PlacingStage.None, Workflow);
 					}
 				}
 				else
 				{
+					if(Mcv.VotersOf(Mcv.LastConfirmedRound).Any(i => i.Account == g) && !Mcv.LastConfirmedRound.VotesOfTry.Any(i => i.Generator == g))
+						votes = votes;
+
 					var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch);
 
 					if(r.VotesOfTry.Any(i => i.Generator == g))
@@ -1513,15 +1513,15 @@ namespace Uccs.Net
 						votes.Add(v);
 					}
 
-// 					while(Mcv.MembersOf(r.Previous.Id).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
-// 					{
-// 						r = r.Previous;
-// 
-// 						var b = createvote(r);
-// 								
-// 						b.Sign(g);
-// 						votes.Add(b);
-// 					}
+ 					while(r.Previous != null && Mcv.VotersOf(r.Previous).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+ 					{
+ 						r = r.Previous;
+ 
+ 						var b = createvote(r);
+ 								
+ 						b.Sign(g);
+ 						votes.Add(b);
+ 					}
 
 					if(IncomingTransactions.Any(i => i.Placing == PlacingStage.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 						MainSignal.Set();
