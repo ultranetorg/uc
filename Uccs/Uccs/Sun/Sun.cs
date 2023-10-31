@@ -953,7 +953,7 @@ namespace Uccs.Net
 
 		void Synchronize()
 		{
-			if(Settings.IP.Equals(Zone.Father0IP) && Settings.Generators.Contains(Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || DevSettings.SkipSynchronization)
+			if(Settings.IP != null && Settings.IP.Equals(Zone.Father0IP) && Settings.Generators.Contains(Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || DevSettings.SkipSynchronization)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
