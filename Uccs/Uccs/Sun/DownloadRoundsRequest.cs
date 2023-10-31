@@ -23,10 +23,10 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 			
-				From	= Math.Min(From, sun.Mcv.LastConfirmedRound.Id); 
-				To		= Math.Min(To, sun.Mcv.LastConfirmedRound.Id);
+				//From	= Math.Min(From, sun.Mcv.LastConfirmedRound.Id);
+				//To		= Math.Min(To, sun.Mcv.LastConfirmedRound.Id);
 
-				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.FindRound(i)), i => i.Write(w));
+				w.Write(Enumerable.Range(From, To - From + 1).Select(i => sun.Mcv.FindRound(i)).Where(i => i != null && i.Confirmed), i => i.Write(w));
 			
 				return new DownloadRoundsResponse {	LastNonEmptyRound	= sun.Mcv.LastNonEmptyRound.Id,
 													LastConfirmedRound	= sun.Mcv.LastConfirmedRound.Id,
