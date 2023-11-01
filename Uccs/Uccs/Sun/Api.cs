@@ -239,7 +239,6 @@ namespace Uccs.Net
 		public int		RoundId  { get; set; }
 		public int		Limit  { get; set; }
 
-
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.Lock)
@@ -249,7 +248,8 @@ namespace Uccs.Net
 																.Select(i => new VotesReportResponse.Vote
 																{
 																	Try = i.Try,
-																	Signature = i.Signature.ToHex(),
+																	ParentSummary = i.ParentSummary,
+																	Signature = i.Signature,
 																	Generator = i.Generator
 																})
 																.ToArray()}; 
@@ -261,7 +261,8 @@ namespace Uccs.Net
 		public class Vote
 		{
 			public int				Try { get; set; }
-			public string			Signature { get; set; }
+			public byte[]			ParentSummary { get; set; }
+			public byte[]			Signature { get; set; }
 			public AccountAddress	Generator { get; set; }
 		}
 

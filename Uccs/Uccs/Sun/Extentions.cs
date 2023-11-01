@@ -10,6 +10,11 @@ namespace Uccs.Net
 {
 	public static class Extentions
 	{
+		public static string ToHexPrefix(this byte[] e)
+		{
+			return Convert.ToHexString(e, 0, 4);
+		}
+
 		public static T Random<T>(this IEnumerable<T> e)
 		{
 			return e.OrderByRandom().First();

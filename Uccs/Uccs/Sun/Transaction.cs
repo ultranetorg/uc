@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -50,7 +49,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Nid={Nid}, {Placing}, Operations={{{Operations.Length}}}, Signer={Signer}, Member={Member}, Expiration={Expiration}, Signature={Signature?.ToHex()}";
+			return $"Nid={Nid}, {Placing}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Member={Member?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 		}
 
 		public void Sign(AccountKey signer, byte[] powhash)

@@ -184,7 +184,7 @@ namespace Uccs.Net
 													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
 													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
 													(Settings.IP != null ? $"{IP}" : null),
-													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id}" : null}
+													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id} - {Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
@@ -256,7 +256,6 @@ namespace Uccs.Net
 				Mcv = new Mcv(Zone, roles, Settings.Mcv, Database);
 
 				Mcv.Log = Workflow.Log;
-
 				Mcv.VoteAdded += b => MainSignal.Set();
 
 				Mcv.ConsensusConcluded += (r, reached) =>	{
@@ -277,72 +276,75 @@ namespace Uccs.Net
 																	}
 																}
 															};
+				
+					Mcv.Confirmed += r =>	{
 
-				Mcv.Confirmed += r =>	{
-											var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
-
-											foreach(var o in ops)
-											{
-												if(o is AuthorBid ab && ab.Tld.Any())
+												if(IsMember)
 												{
- 													if(!DevSettings.SkipDomainVerification)
- 													{
-														Task.Run(() =>	{
- 																			try
- 																			{
- 																				var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
- 															
- 																				var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
- 		
- 																				if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
- 																				{
-																					lock(Lock)
-																					{	
-																						ApprovedDomainBids.Add(ab.Id);
-																					}
- 																				}
- 																			}
- 																			catch(AggregateException ex)
- 																			{
- 																				Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
- 																			}
- 																			catch(DnsResponseException ex)
- 																			{
- 																				Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
- 																			}
-																		});
- 													}
-													else
-														ApprovedDomainBids.Add(ab.Id);
+													var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+												
+													foreach(var o in ops)
+													{
+														if(o is AuthorBid ab && ab.Tld.Any())
+														{
+	 														if(!DevSettings.SkipDomainVerification)
+	 														{
+																Task.Run(() =>	{
+	 																				try
+	 																				{
+	 																					var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+	 															
+	 																					var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
+	 		
+	 																					if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
+	 																					{
+																							lock(Lock)
+																							{	
+																								ApprovedDomainBids.Add(ab.Id);
+																							}
+	 																					}
+	 																				}
+	 																				catch(AggregateException ex)
+	 																				{
+	 																					Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 																				}
+	 																				catch(DnsResponseException ex)
+	 																				{
+	 																					Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 																				}
+																				});
+	 														}
+															else
+																ApprovedDomainBids.Add(ab.Id);
+														}
+	
+														if(o is Emission e)
+														{
+															Task.Run(() =>	{
+	 																			try
+	 																			{
+	 																				if(Nas.CheckEmission(e))
+	 																				{
+																						lock(Lock)
+																						{	
+																							ApprovedEmissions.Add(e.Id);
+																						}
+	 																				}
+	 																			}
+	 																			catch(Exception ex)
+	 																			{
+	 																				Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
+	 																			}
+																			});
+														}
+													}
 												}
 
-												if(o is Emission e)
-												{
-													Task.Run(() =>	{
- 																		try
- 																		{
- 																			if(Nas.CheckEmission(e))
- 																			{
-																				lock(Lock)
-																				{	
-																					ApprovedEmissions.Add(e.Id);
-																				}
- 																			}
- 																		}
- 																		catch(Exception ex)
- 																		{
- 																			Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
- 																		}
-																	});
-												}
-											}
-
-
-											ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-											ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-											IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-											Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
-										};
+												ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+												ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+												IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
+												Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
+											};
 		
 				if(Settings.Generators.Any())
 				{
@@ -1155,6 +1157,7 @@ namespace Uccs.Net
 			
 										r.Confirmed = false;
 										Mcv.Confirm(r, false);
+										Mcv.VoteAdded?.Invoke(null);
 									//}
 									//else
 									//{
@@ -1175,7 +1178,7 @@ namespace Uccs.Net
 							}
 							
 							if(rounds.Any())
-								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Rounds received {rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)}");
+								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Rounds received {rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)} from {peer.IP}");
 							
 							Thread.Sleep(1);
 
@@ -1290,8 +1293,9 @@ namespace Uccs.Net
 				{
 					Mcv.Add(v);
 				}
-				catch(ConfirmationException)
+				catch(ConfirmationException ex)
 				{
+					Workflow.Log?.Report(this, "Confirmation Exception", $"at ProcessIncoming, rid={ex.Round.Id}");
 					Synchronize();
 					return false;
 				}
@@ -1328,6 +1332,11 @@ namespace Uccs.Net
 
 				if(!i.Successful)
 				{
+					if(i.Signer == Zone.Father0)
+					{
+						r=r;
+					}
+
 					r.AffectedAccounts.Clear();
 					r.AffectedAuthors.Clear();
 					continue;
@@ -1548,8 +1557,9 @@ namespace Uccs.Net
 						}
 					}
 				}
-				catch(ConfirmationException)
+				catch(ConfirmationException ex)
 				{
+					Workflow.Log?.Report(this, "Confirmation Exception", $"at Generate, rid={ex.Round.Id}");
 					Synchronize();
 				}
 
@@ -1558,7 +1568,7 @@ namespace Uccs.Net
 					Broadcast(i);
 				}
 													
-				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{Hex.ToHexString(i.Generator.Bytes.Take(4).ToArray())}-{i.RoundId}")));
+				 Workflow.Log?.Report(this, "Block(s) generated", string.Join(", ", votes.Select(i => $"{i.Generator.Bytes.ToHexPrefix()}-{i.RoundId}")));
 			}
 
 			Statistics.Generating.End();

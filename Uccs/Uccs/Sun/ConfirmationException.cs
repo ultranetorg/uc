@@ -5,7 +5,7 @@ namespace Uccs.Net
 {
 	public class ConfirmationException : Exception
 	{
-		Round Round;
+		public Round Round { get; protected set; }
 
 		public ConfirmationException(Round r)
 		{

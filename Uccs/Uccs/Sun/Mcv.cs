@@ -931,8 +931,8 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 				if(ro != null)
 				{
 					#if !DEBUG
-					ro.Votes.Clear();
-					ro.AnalyzerVoxes.Clear();
+					//ro.Votes.Clear();
+					//ro.AnalyzerVoxes.Clear();
 					#endif
 				}
 			}
