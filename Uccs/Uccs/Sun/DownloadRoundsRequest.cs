@@ -14,8 +14,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				RequireBase(sun);
-				RequireSynchronized(sun);
+				RequireSynchronizedBase(sun);
 				
 				if(sun.Mcv.LastNonEmptyRound == null)	
 					throw new RdcNodeException(RdcNodeError.TooEearly);

@@ -121,7 +121,7 @@ namespace Uccs.Sun.FUI
 						{
 							rounds.Clear();
 	
-							var last = Sun.Mcv.Tail.FirstOrDefault(i => i.Votes.Any() || i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Any());
+							var last = Sun.Mcv.Tail.FirstOrDefault();
 
 							if(last == null)
 							{
@@ -161,7 +161,7 @@ namespace Uccs.Sun.FUI
 							var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => b.Transaction.Signer));
 							generators = mems.Union(joins).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nid}}} {{1,{nv}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}}";
+							f  = $"{{0,{nid}}} {{1,{nv}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}} {{8,8}}";
 
 							if(rounds.Count() > 0)
 							{
@@ -214,7 +214,8 @@ namespace Uccs.Sun.FUI
 																r.ConfirmedMemberLeavers.Length,
 																r.Voted ? "v" : " ",
 																r.Confirmed ? "c" : " ",
-																r.ConfirmedTime);
+																r.ConfirmedTime,
+																r.Hash != null ?r.Hash.ToHexPrefix() : "--------");
 										
 										x += (int)e.Graphics.MeasureString(t, Font, int.MaxValue).Width;
 										e.Graphics.DrawString(t, Font, System.Drawing.Brushes.Black, 0, y-1);

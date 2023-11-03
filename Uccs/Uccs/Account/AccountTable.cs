@@ -132,8 +132,8 @@ namespace Uccs.Net
 
 		public AccountEntry Find(AccountAddress account, int ridmax)
 		{
-			if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-				throw new IntegrityException("maxrid works inside pool only");
+			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+			//	throw new IntegrityException("maxrid works inside pool only");
 
 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedAccounts.TryGetValue(account, out var e))

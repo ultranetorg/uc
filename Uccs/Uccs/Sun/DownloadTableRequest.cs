@@ -13,7 +13,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				RequireBase(sun);
+				RequireSynchronizedBase(sun);
 				
 				var m = Table switch
 							  {

@@ -26,7 +26,7 @@ namespace Uccs.Net
 		public abstract byte[]				Decrypt(byte[] input, string password);
 
 		public static readonly SecureRandom	Random = new SecureRandom();
-		public readonly SHA256				Sha256 = SHA256.Create();
+		public static readonly SHA256		Sha256 = SHA256.Create();
 
 		protected Cryptography()
 		{

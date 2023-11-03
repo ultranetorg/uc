@@ -437,7 +437,12 @@ namespace Uccs.Net
 						throw new OperationCanceledException();
 	
 	 				if(rq.Response.Result == RdcResult.Success)
-		 				return rq.Response;
+					{
+						if(rq.Response == null)
+							rq=rq;
+
+						return rq.Response;
+					}
 	 				else if(rq.Response.Result == RdcResult.NodeException)
 					{
 						var e = (RdcNodeError)rq.Response.Error;

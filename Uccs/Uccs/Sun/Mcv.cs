@@ -97,6 +97,11 @@ namespace Uccs.Net
 				}
 			}
 
+			Initialize();
+		}
+
+		void Initialize()
+		{
 			if(Roles.HasFlag(Role.Chain))
 			{
 				var chainstate = Engine.Get(ChainStateKey);
@@ -118,7 +123,7 @@ namespace Uccs.Net
 						if(r.Id > 0)
 						{
 							r.ConfirmedTime = CalculateTime(r, r.VotesOfTry);
-							r.ConfirmedExeunitMinFee = zone.ExeunitMinFee;
+							r.ConfirmedExeunitMinFee = Zone.ExeunitMinFee;
 						}
 	
 						if(i <= 1+8 + 1)
@@ -159,6 +164,29 @@ namespace Uccs.Net
 					}
 				}
 			}
+		}
+
+		public void Clear()
+		{
+			BaseState = null;
+			BaseHash = Zone.Cryptography.ZeroHash;
+
+			LastCommittedRound = null;
+			LastConfirmedRound = null;
+
+			LoadedRounds.Clear();
+			Accounts.Clear();
+			Authors.Clear();
+
+			Engine.Remove(BaseStateKey);
+			Engine.Remove(__BaseHashKey);
+			Engine.Remove(ChainStateKey);
+			Engine.Remove(GenesisKey);
+
+			Engine.DropColumnFamily(ChainFamilyName);
+			Engine.CreateColumnFamily(new (), ChainFamilyName);
+
+			Initialize();
 		}
 
 		public string CreateGenesis(AccountKey god, AccountKey[] fathers)
@@ -277,9 +305,9 @@ namespace Uccs.Net
 
 			if(LastConfirmedRound != null)
 			{
-				r = GetRound(LastConfirmedRound.Id + 1 + Pitch);
+				r = FindRound(LastConfirmedRound.Id + 1 + Pitch);
 		
-				if(!r.Voted)
+				if(r != null && !r.Voted)
 				{
 					if(ConsensusReached(r) && r.Parent != null)
 					{

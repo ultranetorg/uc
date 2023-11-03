@@ -9,8 +9,10 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(sun.Synchronization != Synchronization.Synchronized)	throw new  RdcNodeException(RdcNodeError.NotSynchronized);
-				if(sun.Mcv.BaseState == null)						throw new RdcNodeException(RdcNodeError.TooEearly);
+				RequireSynchronizedBase(sun);
+				
+				if(sun.Mcv.BaseState == null)
+					throw new RdcNodeException(RdcNodeError.TooEearly);
 
 				var r = new StampResponse {	BaseState				= sun.Mcv.BaseState,
 											BaseHash				= sun.Mcv.BaseHash,

@@ -7,7 +7,7 @@ namespace Uccs.Net
 	{
 		public Round Round { get; protected set; }
 
-		public ConfirmationException(Round r)
+		public ConfirmationException(Round r) : base(typeof(ConfirmationException).Name + " - " + $"Confirmation failed at {r.Id} round")
 		{
 			Round = r;
 

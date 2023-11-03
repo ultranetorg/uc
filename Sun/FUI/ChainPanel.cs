@@ -36,12 +36,14 @@ namespace Uccs.Sun.FUI
 										}
 									});
 					};
-
-					//Rounds.Items.AddRange(Enumerable.Range(0, Core.Chain.LastNonEmptyRound.Id).OrderByDescending(i => i).Select(i => new ListViewItem(i.ToString())).ToArray());
-					Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
-					Round.Maximum = Sun.Mcv.LastNonEmptyRound.Id;
-					Round.Value = Sun.Mcv.LastNonEmptyRound.Id;
 				}
+			}
+
+			lock(Sun.Lock)
+			{
+				Round.Minimum = Sun.Roles.HasFlag(Role.Chain) ? 0 : Sun.Mcv.Tail.Last().Id;
+				Round.Maximum = Sun.Mcv.Tail.First().Id;
+				Round.Value = Sun.Mcv.LastNonEmptyRound.Id;
 			}
 		}
 
@@ -91,7 +93,7 @@ namespace Uccs.Sun.FUI
 									//r.TransactionPerByteFee.ToHumanString()
 									;
 
-				Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Transactions.Any())
+				Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Generator)
 											.Select((i, j) =>
 											{
 												var li = new ListViewItem(j.ToString());

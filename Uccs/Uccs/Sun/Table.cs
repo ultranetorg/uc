@@ -181,16 +181,21 @@ namespace Uccs.Net
 				}
 			}
 
-			if(Clusters.Any())
-			{
-				CalculateSuperClusters();
-			}
+			CalculateSuperClusters();
 		}
 
 		public void Clear()
 		{
 			Clusters.Clear();
 			SuperClusters.Clear();
+
+			Engine.DropColumnFamily(MetaColumnName);
+			Engine.DropColumnFamily(MainColumnName);
+			Engine.DropColumnFamily(MoreColumnName);
+
+			MetaColumn = Engine.CreateColumnFamily(new (), MetaColumnName);
+			MainColumn = Engine.CreateColumnFamily(new (), MainColumnName);
+			MoreColumn = Engine.CreateColumnFamily(new (), MoreColumnName);
 		}
 
 		public void CalculateSuperClusters()

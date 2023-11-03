@@ -5,7 +5,6 @@ namespace Uccs.Net
 {
 	public class AuthorRegistration : Operation
 	{
-		
 		public string				Name {get; set;}
 		public string				Title {get; set;}
 		public byte					Years {get; set;}

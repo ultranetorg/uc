@@ -25,8 +25,8 @@ namespace Uccs.Net
 		
  		public AuthorEntry Find(string name, int ridmax)
  		{
-			if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-				throw new IntegrityException("maxrid works inside pool only");
+			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+			//	throw new IntegrityException("maxrid works inside pool only");
 
  			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
  				if(r.AffectedAuthors.TryGetValue(name, out AuthorEntry v))
@@ -37,8 +37,8 @@ namespace Uccs.Net
 		
  		public Resource FindResource(ResourceAddress resource, int ridmax)
  		{
-			if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
-				throw new IntegrityException("maxrid works inside pool only");
+			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+			//	throw new IntegrityException("maxrid works inside pool only");
 
  			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedAuthors.TryGetValue(resource.Author, out AuthorEntry a))
