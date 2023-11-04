@@ -40,9 +40,7 @@ namespace Uccs.Net
 				}
 				catch(ConfirmationException ex)
 				{
-					sun.Workflow.Log?.ReportError(this, ex.Message);
-					sun.Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
-					sun.Synchronize();
+					sun.ProcessConfirmationException(ex);
 					accepted = true; /// consensus failed but the vote looks valid
 				}
 

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DnsClient;
 using Nethereum.ABI.FunctionEncoding.Attributes;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 
@@ -184,7 +185,9 @@ namespace Uccs.Net
 													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
 													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
 													(Settings.IP != null ? $"{IP}" : null),
-													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id} - {Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null}
+													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id} - {Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
+													$"T-{OutgoingTransactions.Count}/{IncomingTransactions.Count}",
+													}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
@@ -982,6 +985,9 @@ namespace Uccs.Net
 			StampResponse stamp = null;
 			Peer peer = null;
 
+			lock(Lock)
+				SyncTail.Clear();
+
 			while(Workflow.Active)
 			{
 				try
@@ -1100,6 +1106,8 @@ namespace Uccs.Net
 							{
 								var r = rounds.FirstOrDefault(i => i.Id == rid);
 
+								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
+
 								if(r != null)
 								{
 									if(Mcv.LastConfirmedRound.Id + 1 != rid)
@@ -1158,9 +1166,6 @@ namespace Uccs.Net
 									Mcv.VoteAdded?.Invoke(null);
 								}
 							}
-							
-							if(rounds.Any())
-								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Rounds received {rounds.Min(i => i.Id)}..{rounds.Max(i => i.Id)} from {peer.IP}");
 						}
 					}
 				}
@@ -1171,7 +1176,10 @@ namespace Uccs.Net
 					used.Add(peer);
 
 					lock(Lock)
+					{	
+						SyncTail.Clear();
 						Mcv.Clear();
+					}
 				}
 				catch(RdcNodeException)
 				{
@@ -1240,24 +1248,7 @@ namespace Uccs.Net
 						return false;
 				}
 
-				//try
-				//{
-					Mcv.Add(v);
-				//}
-				//catch(ConfirmationException ex)
-				//{
-				//	if(!assynchronized)
-				//	{
-				//		Workflow.Log?.Report(this, "Confirmation Exception", $"at ProcessIncoming, rid={ex.Round.Id}");
-				//
-				//		foreach(var i in ex.Round.Votes)
-				//		{
-				//			Workflow.Log?.Report(this, "Vote", i.ToString());
-				//		}
-				//
-				//		Synchronize();
-				//	}
-				//}
+				Mcv.Add(v);
 
 				if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
 				{
@@ -1291,13 +1282,13 @@ namespace Uccs.Net
 
 				if(!i.Successful)
 				{
-					if(i.Signer == Zone.Father0)
-					{
-						r=r;
-					}
-
-					r.AffectedAccounts.Clear();
-					r.AffectedAuthors.Clear();
+					//if(i.Signer == Zone.Father0)
+					//{
+					//	r=r;
+					//}
+					//
+					//r.AffectedAccounts.Clear();
+					//r.AffectedAuthors.Clear();
 					continue;
 				}
 
@@ -1414,9 +1405,17 @@ namespace Uccs.Net
 
 					if(a != null && a.Bail + a.Balance > Settings.Bail && a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && (LastCandidacyDeclaration == null || LastCandidacyDeclaration.Placing > PlacingStage.Placed))
 					{
-						LastCandidacyDeclaration = Enqueue(new CandidacyDeclaration{Bail			= Settings.Bail,
-																					BaseRdcIPs		= new IPAddress[] {Settings.IP},
-																					SeedHubRdcIPs	= new IPAddress[] {Settings.IP}}, g, PlacingStage.None, Workflow);
+						var o = new CandidacyDeclaration{	Bail = Settings.Bail,
+															BaseRdcIPs		= new IPAddress[] {Settings.IP},
+															SeedHubRdcIPs	= new IPAddress[] {Settings.IP}};
+
+						LastCandidacyDeclaration = new Transaction(Zone);
+						LastCandidacyDeclaration.Signer = g;
+ 						LastCandidacyDeclaration.__ExpectedPlacing = PlacingStage.Confirmed;
+			
+						LastCandidacyDeclaration.AddOperation(o);
+
+			 			Enqueue(LastCandidacyDeclaration);
 					}
 				}
 				else
@@ -1466,7 +1465,7 @@ namespace Uccs.Net
 
 								if(Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account != i.Member)
 								{
-									i.Placing = PlacingStage.NotNearestAnymore;
+									IncomingTransactions.Remove(i);
 									continue;
 								}
 
@@ -1518,8 +1517,7 @@ namespace Uccs.Net
 				}
 				catch(ConfirmationException ex)
 				{
-					Workflow.Log?.ReportError(this, ex.Message);
-					Synchronize();
+					ProcessConfirmationException(ex);
 				}
 
 				foreach(var i in votes)
@@ -1531,6 +1529,16 @@ namespace Uccs.Net
 			}
 
 			Statistics.Generating.End();
+		}
+
+		public void ProcessConfirmationException(ConfirmationException ex)
+		{
+			Workflow.Log?.ReportError(this, ex.Message);
+			Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
+
+			IncomingTransactions.RemoveAll(i => i.Vote != null && i.Vote.RoundId >= ex.Round.Id && (i.Placing == PlacingStage.Placed || i.Placing == PlacingStage.Confirmed));
+
+			Synchronize();
 		}
 
 		void Transacting()
@@ -1689,16 +1697,12 @@ namespace Uccs.Net
 								{
 									t.Placing = i.Placing;
 
-									if(t.Placing == PlacingStage.NotNearestAnymore)
-									{
-										t.Placing = PlacingStage.None;
-									}
-									else if(i.Placing == PlacingStage.FailedOrNotFound)
+									if(t.Placing == PlacingStage.FailedOrNotFound)
 									{
 										if(t.__ExpectedPlacing == PlacingStage.Confirmed)
 											t.Placing = PlacingStage.None;
 									}
-									else if(i.Placing == PlacingStage.Confirmed)
+									else if(t.Placing == PlacingStage.Confirmed)
 									{
 										if(t.__ExpectedPlacing == PlacingStage.FailedOrNotFound)
 											Debugger.Break();

@@ -9,7 +9,7 @@ namespace Uccs.Net
 	{
 		None, 
 		Pending,
-		Accepted, Placed, FailedOrNotFound, NotNearestAnymore, Confirmed
+		Accepted, Placed, FailedOrNotFound, Confirmed
 	}
 
 	public class Transaction : IBinarySerializable
@@ -124,6 +124,8 @@ namespace Uccs.Net
  		
  		public void	ReadConfirmed(BinaryReader reader)
  		{
+			Placing		= PlacingStage.Confirmed;
+
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
 			Fee			= reader.ReadMoney();
