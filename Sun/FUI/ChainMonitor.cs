@@ -109,7 +109,7 @@ namespace Uccs.Sun.FUI
 						int nid = 0;
 						int nv = 0;
 						int nm = 0;
-						int njrs = 0;
+						//int njrs = 0;
 						int nl = 0;
 						int ndate = 0;
 	
@@ -138,8 +138,8 @@ namespace Uccs.Sun.FUI
 								if(showt && r != null)
 								{
 									nid = Math.Max(nid, i);
-									nv = Math.Max(nv, r.Votes.Count);
-									njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
+									nv = r.Id > Mcv.Pitch ? Math.Max(nv, IntLength(r.MajorityVotes) + 1 + IntLength(r.RequiredVotes)) : 0;
+									//njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
 									nl = Math.Max(nl, r.ConfirmedMemberLeavers.Length);
 		
 									if(r?.Members != null)
@@ -151,8 +151,8 @@ namespace Uccs.Sun.FUI
 							}
 
 							nid		= IntLength(nid);
-							nv		= IntLength(nv);
-							njrs	= IntLength(njrs);
+							//nv		= IntLength(nv);
+							//njrs	= IntLength(njrs);
 							nl		= IntLength(nl);
 							nm		= IntLength(nm);
 							ndate	= IntLength(ndate);
@@ -161,11 +161,11 @@ namespace Uccs.Sun.FUI
 							var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => b.Transaction.Signer));
 							generators = mems.Union(joins).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nid}}} {{1,{nv}}} {{2,{nm}}} {{3,{njrs}}} {{4,{nl}}} {{5}}{{6}} {{7,{ndate}}} {{8,8}}";
+							f  = $"{{0,{nid}}} {{1}} {{2,{nv}}} {{3,{nm}}} {{4,{nl}}} {{5,{ndate}}} {{6,8}}";
 
 							if(rounds.Count() > 0)
 							{
-								var t = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
+								var t = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
 			
 								if(t + generators.Count() * s < ClientSize.Width)
 								{
@@ -208,12 +208,11 @@ namespace Uccs.Sun.FUI
 									{
 										var t = string.Format(	f, 
 																r.Id, 
-																r.Votes.Count,
-																r.Members.Count, 
-																r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
-																r.ConfirmedMemberLeavers.Length,
-																r.Voted ? "v" : " ",
 																r.Confirmed ? "c" : " ",
+																r.Id > Mcv.Pitch ? $"{r.MajorityVotes}/{r.RequiredVotes}" : null,
+																r.Members.Count,
+																//r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
+																r.ConfirmedMemberLeavers.Length,
 																r.ConfirmedTime,
 																r.Hash != null ?r.Hash.ToHexPrefix() : "--------");
 										

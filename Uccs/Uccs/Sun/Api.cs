@@ -192,7 +192,6 @@ namespace Uccs.Net
 																					Id = i.Id, 
 																					Members = i.Members.Count,
 																					Analyzers = i.Analyzers.Count,
-																					Voted = i.Voted,
 																					Confirmed = i.Confirmed,
 																					Time = i.ConfirmedTime,
 																					Hash = i.Hash,
@@ -220,7 +219,6 @@ namespace Uccs.Net
 			public int							Id {get; set;}
 			public int							Members {get; set;}
 			public int							Analyzers {get; set;}
-			public bool							Voted {get; set;}
 			public bool							Confirmed {get; set;}
 			public Time							Time {get; set;}
 			public byte[]						Hash {get; set;}

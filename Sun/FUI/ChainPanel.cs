@@ -87,7 +87,7 @@ namespace Uccs.Sun.FUI
 			{
 				var r = Sun.Mcv.FindRound((int)Round.Value);
 
-				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + (r.Voted ? "Voted " : "") + "\n" +
+				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + "\n" +
 									r.ConfirmedTime + "\n" +
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n"
 									//r.TransactionPerByteFee.ToHumanString()

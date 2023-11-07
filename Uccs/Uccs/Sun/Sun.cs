@@ -124,7 +124,7 @@ namespace Uccs.Net
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
 		public SunDelegate				SynchronizationChanged;
 		
-		Transaction						LastCandidacyDeclaration;
+		Dictionary<AccountAddress, Transaction>		LastCandidacyDeclaration = new();
 
 		public SunDelegate				Stopped;
 
@@ -280,7 +280,7 @@ namespace Uccs.Net
 																}
 															};
 				
-					Mcv.Confirmed += r =>	{
+					Mcv.Commited += r =>	{
 
 												if(IsMember)
 												{
@@ -436,7 +436,7 @@ namespace Uccs.Net
 			while(Peers.Any(i => i.Status != ConnectionStatus.Disconnected))
 				lock(Lock)
 				{
-					foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected))
+					foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected).ToArray())
 						i.Disconnect();
 
 				}
@@ -450,7 +450,7 @@ namespace Uccs.Net
 
 			Database?.Dispose();
 
-			Workflow?.Log?.Report(this, "Stopped", message);
+			Workflow.Log?.Report(this, "Stopped", message);
 
 			Stopped?.Invoke(this);
 		}
@@ -1096,80 +1096,100 @@ namespace Uccs.Net
 
 						lock(Lock)
 						{
-							foreach(var i in SyncTail.Keys)
-								if(i < rp.LastConfirmedRound + 1 - Mcv.Pitch)
-									SyncTail.Remove(i);
-
 							var rounds = rp.Read(Mcv);
 														
 							for(int rid = from; rounds.Any() && rid <= rounds.Max(i => i.Id); rid++)
 							{
 								var r = rounds.FirstOrDefault(i => i.Id == rid);
 
+								if(r == null)
+									break;
+								
 								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
-
-								if(r != null)
+									
+								if(Mcv.LastConfirmedRound.Id + 1 != rid)
+								 	throw new IntegrityException();
+	
+								if(Enumerable.Range(rid, Mcv.Pitch + 1).All(i => SyncTail.ContainsKey(i)) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
 								{
-									if(Mcv.LastConfirmedRound.Id + 1 != rid)
-								 		throw new IntegrityException();
-	
-									if(Enumerable.Range(rid, Mcv.Pitch + 1).All(i => SyncTail.ContainsKey(i)) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
+									var p =	SyncTail[rid];
+									var c =	SyncTail[rid + Mcv.Pitch];
+
+									try
 									{
-										var p =	SyncTail[rid];
-										var c =	SyncTail[rid + Mcv.Pitch];
+										foreach(var v in p.Votes)
+											ProcessIncoming(v, true);
+		
+										foreach(var v in c.Votes)
+											ProcessIncoming(v, true);
+									}
+									catch(ConfirmationException)
+									{
+									}
 
-										try
+									if(Mcv.LastConfirmedRound.Id == rid && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
+									{
+										Mcv.Commit(Mcv.LastConfirmedRound);
+										
+										foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > rid))
 										{
-											foreach(var v in p.Votes)
-												ProcessIncoming(v, true);
-	
-											foreach(var v in c.Votes)
+											foreach(var v in i.Value.Votes)
 												ProcessIncoming(v, true);
 										}
-										catch(ConfirmationException)
-										{
-										}
-
-										if(Mcv.LastConfirmedRound.Id == rid && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
-										{
-											foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > rid))
-											{
-												foreach(var v in i.Value.Votes)
-													ProcessIncoming(v, true);
-											}
-
-											SyncTail.Clear();
-											SynchronizingThread = null;
-											MainSignal.Set();
+										
+										Synchronization = Synchronization.Synchronized;
+										SyncTail.Clear();
+										SynchronizingThread = null;
 						
-											Synchronization = Synchronization.Synchronized;
+										MainSignal.Set();
 
-											Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
-											return;
-										}
+										Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
+										return;
 									}
-
-									Mcv.Tail.RemoveAll(i => i.Id >= rid);
-									Mcv.Tail.Insert(0, r);
-	
-									foreach(var t in r.Transactions)
-									{
-										t.Placing = PlacingStage.Placed;
-									}
-			
-									r.Confirmed = false;
-									Mcv.Confirm(r, false);
-
-									if(r.Members.Count == 0)
-										throw new SynchronizationException("Incorrect round (Members.Count == 0)");
-
-									Mcv.VoteAdded?.Invoke(null);
 								}
+
+								Mcv.Tail.RemoveAll(i => i.Id >= rid);
+								Mcv.LastConfirmedRound = Mcv.Tail.First();
+								Mcv.Tail.Insert(0, r);
+	
+								foreach(var t in r.Transactions)
+								{
+									t.Placing = PlacingStage.Placed;
+								}
+			
+								var h = r.Hash;
+								r.Confirmed = false;
+								Mcv.Confirm(r, false);
+
+								if(!r.Hash.SequenceEqual(h))
+									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
+
+								if(r.Members.Count == 0)
+									throw new SynchronizationException("Incorrect round (Members.Count == 0)");
+
+								Mcv.Commit(r);
+								
+								foreach(var i in SyncTail.Keys)
+									if(i <= rid)
+										SyncTail.Remove(i);
 							}
 						}
 					}
 				}
-				catch(Exception ex) when(ex is ConfirmationException || ex is SynchronizationException)
+				catch(ConfirmationException ex)
+				{
+					Workflow.Log?.ReportError(this, ex.Message);
+
+					lock(Lock)
+					{	
+						//foreach(var i in SyncTail.Keys)
+						//	if(i <= ex.Round.Id)
+						//		SyncTail.Remove(i);
+
+						Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
+					}
+				}
+				catch(SynchronizationException ex)
 				{
 					Workflow.Log?.ReportError(this, ex.Message);
 
@@ -1177,11 +1197,11 @@ namespace Uccs.Net
 
 					lock(Lock)
 					{	
-						SyncTail.Clear();
+						//SyncTail.Clear();
 						Mcv.Clear();
 					}
 				}
-				catch(RdcNodeException)
+				catch(RdcNodeException ex)
 				{
 					used.Add(peer);
 				}
@@ -1195,16 +1215,16 @@ namespace Uccs.Net
 			}
 		}
 
-		public bool ProcessIncoming(Vote v, bool assynchronized = false)
+		public bool ProcessIncoming(Vote v, bool assynchronized)
 		{
 			if(!v.Valid)
 				return false;
 
 			if(!assynchronized && (Synchronization == Synchronization.None || Synchronization == Synchronization.Downloading))
 			{
- 				var min = SyncTail.Any() ? SyncTail.Max(i => i.Key) - Mcv.Pitch * 100 : 0; /// keep latest Pitch * 3 rounds only
+ 				//var min = SyncTail.Any() ? SyncTail.Max(i => i.Key) - Mcv.Pitch * 100 : 0; /// keep latest Pitch * 3 rounds only
  
-				if(v.RoundId < min || (SyncTail.TryGetValue(v.RoundId, out var r) && r.Votes.Any(j => j.Signature.SequenceEqual(v.Signature))))
+				if(SyncTail.TryGetValue(v.RoundId, out var r) && r.Votes.Any(j => j.Signature.SequenceEqual(v.Signature)))
 					return false;
 
 				if(!SyncTail.TryGetValue(v.RoundId, out r))
@@ -1215,13 +1235,13 @@ namespace Uccs.Net
 				v.Created = DateTime.UtcNow;
 				r.Votes.Add(v);
 
-				foreach(var i in SyncTail.Keys)
-				{
-					if(i < min)
-					{
-						SyncTail.Remove(i);
-					}
-				}
+				//foreach(var i in SyncTail.Keys)
+				//{
+				//	if(i < min)
+				//	{
+				//		SyncTail.Remove(i);
+				//	}
+				//}
 			}
 			else if(assynchronized || Synchronization == Synchronization.Synchronized)
 			{
@@ -1255,6 +1275,11 @@ namespace Uccs.Net
 					r.Votes.Remove(v);
 					return false;
 				}
+
+				if(r.Parent.Confirmed)
+				{
+					Mcv.Commit(r.Parent);
+				}
 			}
 
 			return true;
@@ -1287,8 +1312,8 @@ namespace Uccs.Net
 					//	r=r;
 					//}
 					//
-					//r.AffectedAccounts.Clear();
-					//r.AffectedAuthors.Clear();
+					r.AffectedAccounts.Clear();
+					r.AffectedAuthors.Clear();
 					continue;
 				}
 
@@ -1403,25 +1428,30 @@ namespace Uccs.Net
 				{
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
-					if(a != null && a.Bail + a.Balance > Settings.Bail && a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && (LastCandidacyDeclaration == null || LastCandidacyDeclaration.Placing > PlacingStage.Placed))
+					if(a != null && a.Bail + a.Balance > Settings.Bail && a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Placing > PlacingStage.Placed))
 					{
 						var o = new CandidacyDeclaration{	Bail = Settings.Bail,
 															BaseRdcIPs		= new IPAddress[] {Settings.IP},
 															SeedHubRdcIPs	= new IPAddress[] {Settings.IP}};
 
-						LastCandidacyDeclaration = new Transaction(Zone);
-						LastCandidacyDeclaration.Signer = g;
- 						LastCandidacyDeclaration.__ExpectedPlacing = PlacingStage.Confirmed;
+						var t = new Transaction(Zone);
+						t.Signer = g;
+ 						t.__ExpectedPlacing = PlacingStage.Confirmed;
 			
-						LastCandidacyDeclaration.AddOperation(o);
+						t.AddOperation(o);
 
-			 			Enqueue(LastCandidacyDeclaration);
+			 			Enqueue(t);
+
+						LastCandidacyDeclaration[g] = t;
 					}
 				}
 				else
 				{
 					//if(Mcv.VotersOf(Mcv.LastConfirmedRound).Any(i => i.Account == g) && !Mcv.LastConfirmedRound.VotesOfTry.Any(i => i.Generator == g))
 					//	votes = votes;
+
+					if(LastCandidacyDeclaration.TryGetValue(g, out var lcd))
+						OutgoingTransactions.Remove(lcd);
 
 					var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch);
 
@@ -1507,6 +1537,12 @@ namespace Uccs.Net
 						}
 
 						var r = Mcv.FindRound(v.Key);
+
+						if(r.Parent.Confirmed)
+						{
+							Mcv.Commit(r.Parent);
+						}
+
 						var txs = r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Member));
 						
 						if(txs.Any())
@@ -1514,6 +1550,7 @@ namespace Uccs.Net
 							Mcv.Execute(r, txs, new AccountAddress[0]);
 						}
 					}
+
 				}
 				catch(ConfirmationException ex)
 				{

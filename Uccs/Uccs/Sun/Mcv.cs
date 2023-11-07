@@ -26,7 +26,7 @@ namespace Uccs.Net
 		///public const int					MembersRotation = 32;
 		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000001);
 		public static readonly Money		AnalysisFeePerByte		= new Money(0.000000001);
-		public static readonly Money		AuthorFeePerYear		= new Money(1);
+		//public static readonly Money		AuthorFeePerYear		= new Money(1);
 		public static readonly Money		AccountAllocationFee	= new Money(1);
 		public const int					EntityAllocationAverageLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
@@ -41,10 +41,9 @@ namespace Uccs.Net
 
 		public RocksDb						Engine;
 		public byte[]						BaseState;
-		static readonly byte[]				BaseStateKey = new byte[] {0x01};
-		//public byte[]						__BaseStateHash;
-		static readonly byte[]				__BaseHashKey = new byte[] {0x02};
 		public byte[]						BaseHash;
+		static readonly byte[]				BaseStateKey = new byte[] {0x01};
+		static readonly byte[]				__BaseHashKey = new byte[] {0x02};
 		static readonly byte[]				ChainStateKey = new byte[] {0x03};
 		static readonly byte[]				GenesisKey = new byte[] {0x04};
 		public AccountTable					Accounts;
@@ -54,11 +53,10 @@ namespace Uccs.Net
 																			Authors.Clusters.Sum(i => i.MainLength));
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
-		public RoundDelegate				Confirmed;
+		public RoundDelegate				Commited;
 
 		public Round						LastConfirmedRound;
 		public Round						LastCommittedRound;
-		public Round						LastVotedRound		=> Tail.FirstOrDefault(i => i.Voted) ?? LastConfirmedRound;
 		public Round						LastNonEmptyRound	=> Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 		public Round						LastPayloadRound	=> Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 
@@ -116,7 +114,6 @@ namespace Uccs.Net
 					{
 						var r = new Round(this);
 						r.Read(rd);
-						r.Voted = true;
 		
 						Tail.Insert(0, r);
 	
@@ -137,6 +134,7 @@ namespace Uccs.Net
 							r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
 							Confirm(r, false);
+							Commit(r);
 						}
 					}
 	
@@ -307,12 +305,10 @@ namespace Uccs.Net
 			{
 				r = FindRound(LastConfirmedRound.Id + 1 + Pitch);
 		
-				if(r != null && !r.Voted)
+				if(r != null && !r.Parent.Confirmed)
 				{
-					if(ConsensusReached(r) && r.Parent != null)
+					if(r.ConsensusReached && r.Parent != null)
 					{
-						r.Voted = true;
-	
 						ConsensusConcluded(r, true);
 	
 						Confirm(r.Parent, true);
@@ -326,14 +322,6 @@ namespace Uccs.Net
 						r.Try++;
 					}
 				}
-			}
-		}
-
-		public void Add(IEnumerable<Vote> bb)
-		{
-			foreach(var i in bb)
-			{
-				Add(i);
 			}
 		}
 
@@ -367,7 +355,6 @@ namespace Uccs.Net
 			{
 				r = new Round(this);
 				r.Id			= rid; 
-				r.Voted			= true; 
 				r.Confirmed		= true;
 				//r.LastAccessed	= DateTime.UtcNow;
 
@@ -406,28 +393,6 @@ namespace Uccs.Net
 		public List<Analyzer> AnalyzersOf(int rid)
 		{
 			return FindRound(rid - Pitch - 1).Analyzers/*.Where(i => i.JoinedAt < r.Id)*/;
-		}
-
-		public bool ConsensusReached(Round r)
-		{
-			var m = VotersOf(r);
-			
-			var q = m.Count() * 2 / 3;
-
-			if(m.Count() * 2 % 3 != 0)
-				q++;
-
-			if(r.Unique.Count() < q)
-				return false;
-
-			var v = r.Unique.Where(i => m.Any(j => j.Account == i.Generator));
-				
-			if(v.Count() < q)
-				return false;
-
-			var n =	v.GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).Max(i => i.Count());
-
-			return q <= n;
 		}
 
 		public bool ConsensusFailed(Round r)
@@ -765,14 +730,17 @@ namespace Uccs.Net
 		{
 			BaseHash = Zone.Cryptography.Hash(BaseState);
 	
-			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))			BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
 		public void Confirm(Round round, bool summarize)
 		{
 			if(round.Id > 0 && LastConfirmedRound != null && LastConfirmedRound.Id + 1 != round.Id)
 				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
+
+			if(round.Id % 100 == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
+				throw new IntegrityException("round.Id % 100 == 0 && LastCommittedRound != round.Previous");
 
 			if(summarize)
 			{
@@ -855,19 +823,18 @@ namespace Uccs.Net
 				t.Placing = round.ConfirmedTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
 
 				#if DEBUG
-				if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
-				{
-					Debugger.Break();
-				}
+				//if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
+				//{
+				//	Debugger.Break();
+				//}
 				#endif
 			}
-
 
 			var js = round.ConfirmedTransactions.SelectMany(i => i.Operations)
 												.OfType<CandidacyDeclaration>()
 												.DistinctBy(i => i.Transaction.Signer)
 												.OrderByDescending(i => i.Bail)
-												.OrderBy(i => i.Signer);
+												.ThenBy(i => i.Signer);
  
 			round.Members.AddRange(js.Take(Math.Min(Zone.MembersLimit - round.Members.Count, js.Count())).Select(i => new Member{ JoinedAt = round.Id + Pitch + 1,
 																																  Account = i.Signer, 
@@ -875,6 +842,7 @@ namespace Uccs.Net
 																																  SeedHubRdcIPs = i.SeedHubRdcIPs}));
 foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Account)))
 	Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
+
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 
 //foreach(var i in round.Members.Where(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id))
@@ -883,6 +851,7 @@ foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Ac
 
 foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(i.Account)))
 	Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");
+
 			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
 
 			round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
@@ -890,65 +859,72 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 
 			round.Analyzers.RemoveAll(i => round.ConfirmedAnalyzerLeavers.Contains(i.Account));
 			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Account = i, JoinedAt = round.Id + Pitch + 1}));
-			
+
+			round.Hashify(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash); /// depends on BaseHash 
+		
+			round.Confirmed = true;
+
+			LastConfirmedRound = round;
+		}
+	
+		public void Commit(Round round)
+		{
 			using(var b = new WriteBatch())
 			{
+				if(Roles.HasFlag(Role.Chain))
+				{
+					var s = new MemoryStream();
+					var w = new BinaryWriter(s);
+	
+					w.Write7BitEncodedInt(round.Id);
+	
+					b.Put(ChainStateKey, s.ToArray());
+	
+					s = new MemoryStream();
+					w = new BinaryWriter(s);
+		
+					round.Save(w);
+		
+					b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), ChainFamily);
+				}
+	
 				if(Tail.Count(i => i.Id < round.Id) >= Zone.TailLength)
 				{
 					var tail = Tail.AsEnumerable().Reverse().Take(Zone.TailLength);
-	
+		
 					foreach(var i in tail)
 					{
 						Accounts.Save(b, i.AffectedAccounts.Values);
 						Authors	.Save(b, i.AffectedAuthors.Values);
 					}
-
-					LastCommittedRound = tail.Last();
 	
+					LastCommittedRound = tail.Last();
+		
 					var s = new MemoryStream();
 					var w = new BinaryWriter(s);
-	
+		
 					LastCommittedRound.WriteBaseState(w);
-	
+		
 					BaseState = s.ToArray();
-
+	
 					Hashify();
-									
+										
 					b.Put(BaseStateKey, BaseState);
 					b.Put(__BaseHashKey, BaseHash);
-
+	
 					foreach(var i in tail)
 					{
 						if(!LoadedRounds.ContainsKey(i.Id))
 						{
 							LoadedRounds.Add(i.Id, i);
 						}
-						
+							
 						Tail.Remove(i);
 					}
-
+	
 					Recycle();
 				}
-
-				round.Hashify(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash); /// depends on BaseHash 
-
-				if(Roles.HasFlag(Role.Chain))
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-
-					w.Write7BitEncodedInt(round.Id);
-
-					b.Put(ChainStateKey, s.ToArray());
-
-					s = new MemoryStream();
-					w = new BinaryWriter(s);
 	
-					round.Save(w);
-	
-					b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), ChainFamily);
-				}
-
 				Engine.Write(b);
 			}
 
@@ -965,12 +941,8 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 				}
 			}
 
+			Commited?.Invoke(round);
 			//round.JoinRequests.RemoveAll(i => i.RoundId < round.Id - Pitch);
-		
-			round.Confirmed = true;
-			LastConfirmedRound = round;
-
-			Confirmed?.Invoke(round);
 		}
 
 		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)

@@ -30,6 +30,11 @@ namespace Uccs.Sun.FUI
 			}
 		}
 
+		public void BeginClose()
+		{
+			BeginInvoke(Close);
+		}
+
 		void LoadUI(Net.Sun sun)
 		{
 			var dashboard = new TreeNode("Dashboard"){Tag = new DashboardPanel(Sun, sun.Vault)};

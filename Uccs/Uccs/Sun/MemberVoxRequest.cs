@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using Org.BouncyCastle.Pkix;
 
 namespace Uccs.Net
 {
@@ -36,20 +37,20 @@ namespace Uccs.Net
 
 				try
 				{
-					accepted = sun.ProcessIncoming(v);
+					accepted = sun.ProcessIncoming(v, false);
 				}
 				catch(ConfirmationException ex)
 				{
 					sun.ProcessConfirmationException(ex);
 					accepted = true; /// consensus failed but the vote looks valid
 				}
-
+								
 				sun.Statistics.Consensing.End();
 
 				if(sun.Synchronization == Synchronization.Synchronized)
 				{
-					var r = sun.Mcv.FindRound(v.RoundId);
-					var _v = r?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
+					//var r = sun.Mcv.FindRound(v.RoundId);
+					var _v = v.Round?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
 
 					if(_v != null) /// added or existed
 					{

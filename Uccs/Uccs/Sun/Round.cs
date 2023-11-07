@@ -41,7 +41,6 @@ namespace Uccs.Net
 		public OperationId[]								ConfirmedDomainBids = {};
 		public AnalysisConclusion[]							ConfirmedAnalyses = {};
 
-		public bool											Voted = false;
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 		public byte[]										Summary;
@@ -61,13 +60,62 @@ namespace Uccs.Net
 		
 		public Mcv											Mcv;
 		
+		public int RequiredVotes
+		{
+			get
+			{ 
+				var m = Mcv.VotersOf(this);
+
+				int q;
+
+				if(m.Count() == 1)		q = 1;
+				else if(m.Count() == 2)	q = 2;
+				else if(m.Count() == 4)	q = 3;
+				else
+					q = m.Count() * 2 / 3;
+
+				return q;
+			}
+		}
+		
+		public int MajorityVotes
+		{
+			get
+			{ 
+				var m = Mcv.VotersOf(this);
+
+				var v = Unique.Where(i => m.Any(j => j.Account == i.Generator));
+
+				return !v.Any() ? 0 : v.GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).Max(i => i.Count());
+			}
+		}
+
+		public bool ConsensusReached
+		{
+			get
+			{ 
+				int q = RequiredVotes;
+
+				if(Unique.Count() < q)
+					return false;
+
+				var m = MajorityVotes;
+				
+				if(m < q)
+					return false;
+
+				return m >= q;
+			}
+		}
+
+
 		public Round(Mcv c)
 		{
 			Mcv = c;
 		}
 		public override string ToString()
 		{
-			return $"Id={Id}, Votes(VoT/P)={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Voted ? "Voted " : "")}{(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Confirmed ? "Confirmed " : "")}";
 		}
 
 

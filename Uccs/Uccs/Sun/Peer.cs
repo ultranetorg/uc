@@ -317,11 +317,14 @@ namespace Uccs.Net
 						Status = ConnectionStatus.Failed;
 			}
 
-			SendThread = null;
-
-			if(Status == ConnectionStatus.Disconnecting && SendThread == null && ListenThread == null)
+			lock(Sun.Lock)
 			{
-				Status = ConnectionStatus.Disconnected;
+				SendThread = null;
+	
+				if(Status == ConnectionStatus.Disconnecting && SendThread == null && ListenThread == null)
+				{
+					Status = ConnectionStatus.Disconnected;
+				}
 			}
 		}
 
@@ -392,11 +395,14 @@ namespace Uccs.Net
 						Status = ConnectionStatus.Failed;
 			}
 
-			ListenThread = null;
-
-			if(Status == ConnectionStatus.Disconnecting && SendThread == null && ListenThread == null)
+			lock(Sun.Lock)
 			{
-				Status = ConnectionStatus.Disconnected;
+				ListenThread = null;
+	
+				if(Status == ConnectionStatus.Disconnecting && SendThread == null && ListenThread == null)
+				{
+					Status = ConnectionStatus.Disconnected;
+				}
 			}
 		}
 

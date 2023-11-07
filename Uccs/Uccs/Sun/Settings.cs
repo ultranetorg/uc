@@ -119,6 +119,8 @@ namespace Uccs.Net
 
 		public static string			AsString => string.Join(' ', Fields.Select(i => (bool)i.GetValue(null) ? i.Name : null));
 
+		public static List<Sun>			Suns = new();
+
 		public DevSettings()
 		{
 		}
