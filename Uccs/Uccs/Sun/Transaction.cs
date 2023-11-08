@@ -38,8 +38,8 @@ namespace Uccs.Net
 
 		public bool Valid(Mcv mcv)
 		{
-			return	Operations.Any() && Operations.Length <= Zone.OperationsPerTransactionLimit && Operations.All(i => i.Valid) &&
-					(!Zone.PoW || Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
+			return	Operations.Any() && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit && Operations.All(i => i.Valid) &&
+					(!mcv.Zone.PoW || mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
  		public Transaction(Zone zone)

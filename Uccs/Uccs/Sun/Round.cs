@@ -13,6 +13,7 @@ namespace Uccs.Net
 		public Round										Previous =>	Mcv.FindRound(Id - 1);
 		public Round										Next =>	Mcv.FindRound(Id + 1);
 		public Round										Parent => Mcv.FindRound(ParentId);
+		public Round										Child => Mcv.FindRound(Id + Mcv.Pitch);
 		public int											TransactionsPerVoteExecutionLimit		=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count;
 		public int											TransactionsPerVoteAllowableOverflow	=> TransactionsPerVoteExecutionLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMuliplier;
 		public int											OperationsPerVoteLimit					=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
@@ -255,7 +256,7 @@ namespace Uccs.Net
 			writer.Write(ConfirmedTransactions, i => i.WriteConfirmed(writer));
 		}
 
-		void ReadConfirmed(BinaryReader reader)
+		public void ReadConfirmed(BinaryReader reader)
 		{
 			ConfirmedTime				= reader.ReadTime();
 			ConfirmedExeunitMinFee		= reader.ReadMoney();

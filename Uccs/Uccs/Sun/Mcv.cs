@@ -276,7 +276,7 @@ namespace Uccs.Net
 			return s.ToArray().ToHex();
 		}
 
-		public void Add(Vote vote)
+		public bool Add(Vote vote)
 		{
 			var r = GetRound(vote.RoundId);
 
@@ -301,28 +301,27 @@ namespace Uccs.Net
 
 			VoteAdded?.Invoke(vote);
 
-			if(LastConfirmedRound != null)
+			if(vote.RoundId > LastGenesisRound && r.Parent.Previous.Confirmed && !r.Parent.Confirmed)
 			{
-				r = FindRound(LastConfirmedRound.Id + 1 + Pitch);
-		
-				if(r != null && !r.Parent.Confirmed)
+				if(r.ConsensusReached)
 				{
-					if(r.ConsensusReached && r.Parent != null)
-					{
-						ConsensusConcluded(r, true);
+					ConsensusConcluded(r, true);
 	
-						Confirm(r.Parent, true);
+					Confirm(r.Parent, true);
+
+					return true;
 	
-					}
-					else if(ConsensusFailed(r))
-					{
-						ConsensusConcluded(r, false);
+				}
+				else if(ConsensusFailed(r))
+				{
+					ConsensusConcluded(r, false);
 	
-						r.FirstArrivalTime = DateTime.MaxValue;
-						r.Try++;
-					}
+					r.FirstArrivalTime = DateTime.MaxValue;
+					r.Try++;
 				}
 			}
+
+			return false;
 		}
 
 		public Round GetRound(int rid)
@@ -522,8 +521,8 @@ namespace Uccs.Net
 			//if(round.Id > LastGenesisRound && !round.Parent.Confirmed)
 			//	return null;
 
-			var g = round.Id > Pitch ? VotersOf(round) : new();
-			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
+			var m = round.Id > Pitch ? VotersOf(round) : new();
+			var gv = round.VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 
@@ -580,7 +579,7 @@ namespace Uccs.Net
 
 			if(round.Id >= Pitch)
 			{
-				var gq = g.Count * 2/3;
+				var gq = m.Count * 2/3;
 	
 				round.ConfirmedMemberLeavers	= gu.SelectMany(i => i.MemberLeavers).Distinct()
 													.Where(x => round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
@@ -653,6 +652,9 @@ namespace Uccs.Net
 
 		public void Execute(Round round, IEnumerable<Transaction> transactions, IEnumerable<AccountAddress> forkers)
 		{
+			if(round.Confirmed)
+				throw new IntegrityException();
+
 			var prev = round.Previous;
 
 			round.Members		= round.Id == 0 ? new()	: round.Previous.Members.ToList();
@@ -749,13 +751,17 @@ namespace Uccs.Net
 					Summarize(round);
 				}
 
-				var c = FindRound(round.Id + Pitch);
-				var cm = VotersOf(c);
-				var s = c.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).MaxBy(i => i.Count()).Key;
+				var cm = VotersOf(round.Child);
+				var s = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).MaxBy(i => i.Count()).Key;
 	 		
 				if(!s.SequenceEqual(round.Summary))
 				{
-					throw new ConfirmationException(round);
+					#if DEBUG
+					var x = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).Select(i => i.ParentSummary.ToHex());
+					var a = DevSettings.Suns.Select(i => i.Mcv.FindRound(round.Id)?.Summary?.ToHex());
+					#endif
+
+					throw new ConfirmationException(round, s);
 				}
 			}
 			else
@@ -888,7 +894,7 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 					b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), ChainFamily);
 				}
 	
-				if(Tail.Count(i => i.Id < round.Id) >= Zone.TailLength)
+				if(Tail.Count(i => i.Id <= round.Id) >= Zone.TailLength)
 				{
 					var tail = Tail.AsEnumerable().Reverse().Take(Zone.TailLength);
 		

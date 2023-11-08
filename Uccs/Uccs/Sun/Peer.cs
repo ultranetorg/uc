@@ -317,7 +317,7 @@ namespace Uccs.Net
 						Status = ConnectionStatus.Failed;
 			}
 
-			lock(Sun.Lock)
+			//lock(Sun.Lock)
 			{
 				SendThread = null;
 	
@@ -395,7 +395,7 @@ namespace Uccs.Net
 						Status = ConnectionStatus.Failed;
 			}
 
-			lock(Sun.Lock)
+			//lock(Sun.Lock)
 			{
 				ListenThread = null;
 	

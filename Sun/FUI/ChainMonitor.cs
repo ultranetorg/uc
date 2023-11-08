@@ -107,6 +107,7 @@ namespace Uccs.Sun.FUI
 						var rounds = new List<Round>();
 	
 						int nid = 0;
+						int ntry= 0;
 						int nv = 0;
 						int nm = 0;
 						//int njrs = 0;
@@ -138,6 +139,7 @@ namespace Uccs.Sun.FUI
 								if(showt && r != null)
 								{
 									nid = Math.Max(nid, i);
+									ntry = Math.Max(ntry, r.Try);
 									nv = r.Id > Mcv.Pitch ? Math.Max(nv, IntLength(r.MajorityVotes) + 1 + IntLength(r.RequiredVotes)) : 0;
 									//njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
 									nl = Math.Max(nl, r.ConfirmedMemberLeavers.Length);
@@ -151,6 +153,7 @@ namespace Uccs.Sun.FUI
 							}
 
 							nid		= IntLength(nid);
+							ntry	= IntLength(ntry);
 							//nv		= IntLength(nv);
 							//njrs	= IntLength(njrs);
 							nl		= IntLength(nl);
@@ -161,11 +164,11 @@ namespace Uccs.Sun.FUI
 							var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => b.Transaction.Signer));
 							generators = mems.Union(joins).Distinct().OrderBy(i => i);
 
-							f  = $"{{0,{nid}}} {{1}} {{2,{nv}}} {{3,{nm}}} {{4,{nl}}} {{5,{ndate}}} {{6,8}}";
+							f  = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nv}}} {{4,{nm}}} {{5,{nl}}} {{6,{ndate}}} {{7,8}}";
 
 							if(rounds.Count() > 0)
 							{
-								var t = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
+								var t = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
 			
 								if(t + generators.Count() * s < ClientSize.Width)
 								{
@@ -208,6 +211,7 @@ namespace Uccs.Sun.FUI
 									{
 										var t = string.Format(	f, 
 																r.Id, 
+																r.Try,
 																r.Confirmed ? "c" : " ",
 																r.Id > Mcv.Pitch ? $"{r.MajorityVotes}/{r.RequiredVotes}" : null,
 																r.Members.Count,

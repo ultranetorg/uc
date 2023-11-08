@@ -272,7 +272,7 @@ namespace Uccs.Net
 																}
 																else
 																{
-																	foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId >= r.Id))
+																	foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId == r.Id))
 																	{
 																		i.Vote = null;
 																		i.Placing = PlacingStage.Accepted;
@@ -433,14 +433,11 @@ namespace Uccs.Net
 			
 			Listener?.Stop();
 
-			while(Peers.Any(i => i.Status != ConnectionStatus.Disconnected))
-				lock(Lock)
-				{
-					foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected).ToArray())
-						i.Disconnect();
-
-				}
-
+			lock(Lock)
+			{
+				foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected).ToArray())
+					i.Disconnect();
+			}
 
 			MainThread?.Join();
 			ListeningThread?.Join();
@@ -450,7 +447,7 @@ namespace Uccs.Net
 
 			Database?.Dispose();
 
-			Workflow.Log?.Report(this, "Stopped", message);
+			Workflow?.Log?.Report(this, "Stopped", message);
 
 			Stopped?.Invoke(this);
 		}
@@ -1129,7 +1126,7 @@ namespace Uccs.Net
 
 									if(Mcv.LastConfirmedRound.Id == rid && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
 									{
-										Mcv.Commit(Mcv.LastConfirmedRound);
+										//Mcv.Commit(Mcv.LastConfirmedRound);
 										
 										foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > rid))
 										{
@@ -1149,7 +1146,7 @@ namespace Uccs.Net
 								}
 
 								Mcv.Tail.RemoveAll(i => i.Id >= rid);
-								Mcv.LastConfirmedRound = Mcv.Tail.First();
+								//Mcv.LastConfirmedRound = Mcv.Tail.First();
 								Mcv.Tail.Insert(0, r);
 	
 								foreach(var t in r.Transactions)
@@ -1187,6 +1184,7 @@ namespace Uccs.Net
 						//		SyncTail.Remove(i);
 
 						Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
+						//Mcv.LastConfirmedRound = Mcv.Tail.First();
 					}
 				}
 				catch(SynchronizationException ex)
@@ -1268,15 +1266,15 @@ namespace Uccs.Net
 						return false;
 				}
 
-				Mcv.Add(v);
-
 				if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
 				{
-					r.Votes.Remove(v);
+					//r.Votes.Remove(v);
 					return false;
 				}
 
-				if(r.Parent.Confirmed)
+				var pc = Mcv.Add(v);
+
+				if(pc)
 				{
 					Mcv.Commit(r.Parent);
 				}
@@ -1298,7 +1296,7 @@ namespace Uccs.Net
 											Settings.Generators.Any(g => g == i.Member) &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				var r = Mcv.GetRound((Mcv.Tail.FirstOrDefault(r => r.Votes.Any(v => v.Generator == i.Member)) ?? Mcv.LastConfirmedRound).Id + 1);
+				var r = Mcv.GetRound((Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == i.Member)) ?? Mcv.LastConfirmedRound).Id + 1);
 				
 				var prev = r.Previous.VotesOfTry.FirstOrDefault(j => j.Generator == i.Member);
 				r.ConfirmedTime = new Time(Mcv.LastConfirmedRound.ConfirmedTime.Ticks + (prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds));
@@ -1466,7 +1464,7 @@ namespace Uccs.Net
 						
 						return new Vote(Mcv) {	RoundId			= r.Id,
 												Try				= r.Try,
-												ParentSummary	= Mcv.Summarize(r.Parent),
+												ParentSummary	= r.Parent.Summary ?? Mcv.Summarize(r.Parent),
 												Created			= Clock.Now,
 												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
 												Violators		= Mcv.ProposeViolators(r).ToArray(),
@@ -1510,7 +1508,7 @@ namespace Uccs.Net
 						votes.Add(v);
 					}
 
- 					while(r.Previous != null && Mcv.VotersOf(r.Previous).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
+ 					while(r.Previous != null && !r.Previous.Confirmed && Mcv.VotersOf(r.Previous).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
  					{
  						r = r.Previous;
  
@@ -1531,23 +1529,26 @@ namespace Uccs.Net
 				{
 					foreach(var v in votes.GroupBy(i => i.RoundId).OrderBy(i => i.Key))
 					{
-						foreach(var i in v)
-						{
-							Mcv.Add(i);
-						}
-
 						var r = Mcv.FindRound(v.Key);
 
-						if(r.Parent.Confirmed)
+						foreach(var i in v)
 						{
-							Mcv.Commit(r.Parent);
+							var pc = Mcv.Add(i);
+
+							if(pc)
+							{
+								Mcv.Commit(r.Parent);
+							}
 						}
 
-						var txs = r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Member));
-						
-						if(txs.Any())
+						if(!r.Confirmed)
 						{
-							Mcv.Execute(r, txs, new AccountAddress[0]);
+							var txs = r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Member));
+							
+							if(txs.Any())
+							{
+								Mcv.Execute(r, txs, new AccountAddress[0]);
+							}
 						}
 					}
 
