@@ -332,12 +332,8 @@ namespace Uccs.Net
 		{
 	 		try
 	 		{
-				while(Sun.Workflow.Active)
+				while(Sun.Workflow.Active && Status == ConnectionStatus.OK)
 				{
-					lock(Sun.Lock)
-						if(Status != ConnectionStatus.OK)
-							return;
-
 					var pk = (PacketType)Reader.ReadByte();
 					
 					Sun.Statistics.Reading.Begin();

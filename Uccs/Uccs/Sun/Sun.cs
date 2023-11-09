@@ -428,16 +428,15 @@ namespace Uccs.Net
 
 		public void Stop(string message)
 		{
-			ApiServer?.Stop();
 			Workflow?.Abort();
-			
-			Listener?.Stop();
 
 			lock(Lock)
-			{
 				foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected).ToArray())
 					i.Disconnect();
-			}
+
+			ApiServer?.Stop();
+			
+			Listener?.Stop();
 
 			MainThread?.Join();
 			ListeningThread?.Join();
