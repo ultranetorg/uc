@@ -25,7 +25,16 @@ namespace Uccs.Net
 		public List<AnalyzerVoxRequest>						AnalyzerVoxes = new();
 		public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 		public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-		public IEnumerable<Vote>							Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		//public IEnumerable<Vote>							Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+		public IEnumerable<Vote>							Eligible 
+															{ 
+																get 
+																{ 
+																	var v = Mcv.VotersOf(this);
+																	return VotesOfTry.Where(i => v.Any(j => j.Account == i.Generator)).GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
+																} 
+															}
+		public IGrouping<byte[], Vote>						Majority => Eligible.GroupBy(i => i.ParentHash, new BytesEqualityComparer()).MaxBy(i => i.Count());
 
 		public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 		public IEnumerable<Transaction>						Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
@@ -44,7 +53,7 @@ namespace Uccs.Net
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
-		public byte[]										Summary;
+		//public byte[]										Summary;
 
 		public Money										Fees;
 		public Money										Emission;
@@ -78,18 +87,6 @@ namespace Uccs.Net
 				return q;
 			}
 		}
-		
-		public int MajorityVotes
-		{
-			get
-			{ 
-				var m = Mcv.VotersOf(this);
-
-				var v = Unique.Where(i => m.Any(j => j.Account == i.Generator));
-
-				return !v.Any() ? 0 : v.GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).Max(i => i.Count());
-			}
-		}
 
 		public bool ConsensusReached
 		{
@@ -97,15 +94,10 @@ namespace Uccs.Net
 			{ 
 				int q = RequiredVotes;
 
-				if(Unique.Count() < q)
+				if(Eligible.Count() < q)
 					return false;
 
-				var m = MajorityVotes;
-				
-				if(m < q)
-					return false;
-
-				return m >= q;
+				return Majority.Count() >= q;
 			}
 		}
 
@@ -196,14 +188,13 @@ namespace Uccs.Net
 				return AffectedAuthors[author] = new AuthorEntry(Mcv){Name = author};
 		}
 
-		public void Hashify(byte[] previous)
+		public void Hashify()
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
 			w.Write(Mcv.BaseHash);
-			w.Write(previous);
-
+			w.Write(Id > 0 ? Previous.Hash : Mcv.Zone.Cryptography.ZeroHash);
 			WriteConfirmed(w);
 
 			Hash = Mcv.Zone.Cryptography.Hash(s.ToArray());

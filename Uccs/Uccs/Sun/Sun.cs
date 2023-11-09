@@ -620,12 +620,15 @@ namespace Uccs.Net
 				while(Workflow.Active)
 				{
 					var c = Listener.AcceptTcpClient();
+
+					if(Workflow.Aborted)
+					{
+						c.Close();
+						return;
+					}
 	
 					lock(Lock)
 					{
-						if(Workflow.Aborted)
-							return;
-
 						if(Connections.Count(i => i.Inbound) <= Settings.PeersInboundMax)
 							InboundConnect(c);
 					}
@@ -639,12 +642,12 @@ namespace Uccs.Net
 			{
 				Listener = null;
 			}
+			catch(OperationCanceledException)
+			{
+			}
 			catch(Exception ex) when (!Debugger.IsAttached)
 			{
 				Stop(MethodBase.GetCurrentMethod(), ex);
-			}
-			catch(OperationCanceledException)
-			{
 			}
 		}
 
@@ -696,13 +699,6 @@ namespace Uccs.Net
 						goto failed;
 					}
 	
-					IEnumerable<Peer> peers;
-											
-					lock(Lock)
-					{
-						peers = Peers.ToArray();
-					}
-											
 					Hello h = null;
 									
 					try
@@ -729,14 +725,12 @@ namespace Uccs.Net
 
 						if(!h.Versions.Any(i => Versions.Contains(i)))
 						{
-							client.Close();
-							return;
+							goto failed;
 						}
 
 						if(h.Zone != Zone.Name)
 						{
-							client.Close();
-							return;
+							goto failed;
 						}
 
 						if(h.Nuid == Nuid)
@@ -744,8 +738,7 @@ namespace Uccs.Net
 							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. It's me" );
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
-							client.Close();
-							return;
+							goto failed;
 						}
 													
 						if(IP.Equals(IPAddress.None))
@@ -1145,20 +1138,18 @@ namespace Uccs.Net
 								}
 
 								Mcv.Tail.RemoveAll(i => i.Id >= rid);
-								//Mcv.LastConfirmedRound = Mcv.Tail.First();
 								Mcv.Tail.Insert(0, r);
-	
-								foreach(var t in r.Transactions)
-								{
-									t.Placing = PlacingStage.Placed;
-								}
 			
 								var h = r.Hash;
-								r.Confirmed = false;
-								Mcv.Confirm(r, false);
+
+								r.Hashify();
 
 								if(!r.Hash.SequenceEqual(h))
 									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
+
+								r.Confirmed = false;
+								Mcv.Execute(r, r.ConfirmedTransactions);
+								Mcv.Confirm(r);
 
 								if(r.Members.Count == 0)
 									throw new SynchronizationException("Incorrect round (Members.Count == 0)");
@@ -1275,7 +1266,6 @@ namespace Uccs.Net
 
 				if(pc)
 				{
-					Mcv.Commit(r.Parent);
 				}
 			}
 
@@ -1295,29 +1285,21 @@ namespace Uccs.Net
 											Settings.Generators.Any(g => g == i.Member) &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				var r = Mcv.GetRound((Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == i.Member)) ?? Mcv.LastConfirmedRound).Id + 1);
+				var r = new Round(Mcv);
+				r.Id = (Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == i.Member)) ?? Mcv.LastConfirmedRound).Id + 1;
 				
 				var prev = r.Previous.VotesOfTry.FirstOrDefault(j => j.Generator == i.Member);
 				r.ConfirmedTime = new Time(Mcv.LastConfirmedRound.ConfirmedTime.Ticks + (prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds));
 
-				Mcv.Execute(r, new [] {i}, new AccountAddress[0]);
+				Mcv.Execute(r, new [] {i});
 
-				if(!i.Successful)
+				if(i.Successful)
 				{
-					//if(i.Signer == Zone.Father0)
-					//{
-					//	r=r;
-					//}
-					//
-					r.AffectedAccounts.Clear();
-					r.AffectedAuthors.Clear();
-					continue;
+					i.Placing = PlacingStage.Accepted;
+					a.Add(i);
+
+					Workflow.Log?.Report(this, "Transaction Accepted", i.ToString());
 				}
-
-				i.Placing = PlacingStage.Accepted;
-				a.Add(i);
-
-				Workflow.Log?.Report(this, "Transaction Accepted", i.ToString());
 			}
 
 			IncomingTransactions.AddRange(a);
@@ -1463,7 +1445,7 @@ namespace Uccs.Net
 						
 						return new Vote(Mcv) {	RoundId			= r.Id,
 												Try				= r.Try,
-												ParentSummary	= r.Parent.Summary ?? Mcv.Summarize(r.Parent),
+												ParentHash		= r.Parent.Hash ?? Mcv.Summarize(r.Parent),
 												Created			= Clock.Now,
 												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
 												Violators		= Mcv.ProposeViolators(r).ToArray(),
@@ -1536,21 +1518,21 @@ namespace Uccs.Net
 
 							if(pc)
 							{
-								Mcv.Commit(r.Parent);
-							}
-						}
-
-						if(!r.Confirmed)
-						{
-							var txs = r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Member));
-							
-							if(txs.Any())
-							{
-								Mcv.Execute(r, txs, new AccountAddress[0]);
 							}
 						}
 					}
 
+					for(int i = votes.Min(i => i.RoundId); i <= Mcv.LastNonEmptyRound.Id; i++)
+					{
+						var r = Mcv.FindRound(i);
+
+						if(r != null && !r.Confirmed)
+						{
+							var txs = r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Vote.Generator));
+							
+							Mcv.Execute(r, txs);
+						}
+					}
 				}
 				catch(ConfirmationException ex)
 				{

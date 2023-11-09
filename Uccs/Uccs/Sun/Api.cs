@@ -195,7 +195,7 @@ namespace Uccs.Net
 																					Confirmed = i.Confirmed,
 																					Time = i.ConfirmedTime,
 																					Hash = i.Hash,
-																					Summary = i.Summary,
+																					//Summary = i.Summary,
 																					Votes = i.Votes.Select(b => new ChainReportResponse.Vote {	Generator = b.Generator, 
 																																				IsPayload = b.Transactions.Any(), 
 																																					/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
@@ -246,7 +246,7 @@ namespace Uccs.Net
 																.Select(i => new VotesReportResponse.Vote
 																{
 																	Try = i.Try,
-																	ParentSummary = i.ParentSummary,
+																	ParentSummary = i.ParentHash,
 																	Signature = i.Signature,
 																	Generator = i.Generator
 																})

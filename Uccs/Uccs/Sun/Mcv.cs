@@ -133,7 +133,9 @@ namespace Uccs.Net
 
 							r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
-							Confirm(r, false);
+							r.Hashify();
+							Execute(r, r.ConfirmedTransactions);
+							Confirm(r);
 							Commit(r);
 						}
 					}
@@ -158,7 +160,8 @@ namespace Uccs.Net
 						Tail.Insert(0, r);
 		
 						r.Confirmed = false;
-						Confirm(r, false);
+						Execute(r, r.ConfirmedTransactions);
+						Confirm(r);
 					}
 				}
 			}
@@ -206,11 +209,11 @@ namespace Uccs.Net
 			{
 				var r = FindRound(rid);
 				r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
-				r.Hashify(r.Id > 0 ? FindRound(rid - 1).Hash : Zone.Cryptography.ZeroHash);
+				r.Hashify();
 				r.Write(w);
 			}
 	
-			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentSummary = Zone.Cryptography.ZeroHash};
+			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentHash = Zone.Cryptography.ZeroHash};
 			{
 				var t = new Transaction(Zone) {Nid = 0, Member = god, Expiration = 0};
 				t.AddOperation(new Emission(Web3.Convert.ToWei(fathers.Length * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
@@ -234,7 +237,7 @@ namespace Uccs.Net
 			
 			/// UO Autor
 
-			var v1 = new Vote(this){ RoundId = 1, TimeDelta = 1, ParentSummary = Zone.Cryptography.ZeroHash};
+			var v1 = new Vote(this){ RoundId = 1, TimeDelta = 1, ParentHash = Zone.Cryptography.ZeroHash};
 			{
 		
 				//t = new Transaction(Zone){Id = 1, Generator = god, Expiration = 1};
@@ -255,7 +258,7 @@ namespace Uccs.Net
 			{
 				var v = new Vote(this){	 RoundId		= i,
 										 TimeDelta		= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										 ParentSummary	= i < 8 ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - Pitch)) };
+										 ParentHash	= i < 8 ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - Pitch)) };
 		 
 				if(i == 1+8 + 1)
 				{
@@ -306,18 +309,43 @@ namespace Uccs.Net
 				if(r.ConsensusReached)
 				{
 					ConsensusConcluded(r, true);
-	
-					Confirm(r.Parent, true);
+
+					var hbm = r.Majority.Key;
+	 		
+					if(r.Parent.Hash == null || !hbm.SequenceEqual(r.Parent.Hash))
+					{
+						Summarize(r.Parent);
+						
+						if(!hbm.SequenceEqual((r.Parent.Hash)))
+						{
+							#if DEBUG
+							if(DevSettings.Suns[0].Mcv == this)
+							{
+								r=r;
+							}
+
+							var x = r.Eligible.Select(i => i.ParentHash.ToHex());
+							var a = DevSettings.Suns.Select(i => i.Mcv.FindRound(r.ParentId)?.Hash?.ToHex());
+							#endif
+
+							throw new ConfirmationException(r.Parent, hbm);
+						}
+					}
+
+					Confirm(r.Parent);
+					Commit(r.Parent);
 
 					return true;
 	
 				}
 				else if(ConsensusFailed(r))
 				{
-					ConsensusConcluded(r, false);
-	
 					r.FirstArrivalTime = DateTime.MaxValue;
 					r.Try++;
+
+					r.Parent.Hash = null;
+
+					ConsensusConcluded(r, false);
 				}
 			}
 
@@ -398,16 +426,13 @@ namespace Uccs.Net
 		{
 			var m = VotersOf(r);
 
-			var v = r.Unique.Where(i => m.Any(j => j.Account == i.Generator));
+			var e = r.Eligible;
 			
-			var d = m.Count - v.Count();
+			var d = m.Count - e.Count();
 
-			var q = m.Count * 2 / 3;
+			var q = r.RequiredVotes;
 
-			if(m.Count * 2 % 3 != 0)
-				q++;
-
-			return v.Any() && v.GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).All(i => i.Count() + d < q);
+			return e.Any() && e.GroupBy(i => i.ParentHash, new BytesEqualityComparer()).All(i => i.Count() + d < q);
 		}
 
 		public Time CalculateTime(Round round, IEnumerable<Vote> votes)
@@ -516,6 +541,14 @@ namespace Uccs.Net
 			return ls;
 		}
 
+		public void Hashify()
+		{
+			BaseHash = Zone.Cryptography.Hash(BaseState);
+	
+			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+		}
+
 		public byte[] Summarize(Round round)
 		{
 			//if(round.Id > LastGenesisRound && !round.Parent.Confirmed)
@@ -573,7 +606,7 @@ namespace Uccs.Net
 			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
 			round.ConfirmedTime = CalculateTime(round, gu);
 
-			Execute(round, txs, gf);
+			Execute(round, txs);
 
 			round.ConfirmedTransactions = txs.Where(i => i.Successful).ToArray();
 
@@ -583,6 +616,18 @@ namespace Uccs.Net
 	
 				round.ConfirmedMemberLeavers	= gu.SelectMany(i => i.MemberLeavers).Distinct()
 													.Where(x => round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
+				round.ConfirmedViolators		= gu.SelectMany(i => i.Violators).Distinct()
+													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
+				round.ConfirmedEmissions		= gu.SelectMany(i => i.Emissions).Distinct()
+													.Where(x => round.Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
+													.OrderBy(i => i).ToArray();
+
+				round.ConfirmedDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
+													.Where(x => round.DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
@@ -599,18 +644,6 @@ namespace Uccs.Net
 				
 				round.ConfirmedFundLeavers		= gu.SelectMany(i => i.FundLeavers).Distinct()
 													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
-													.OrderBy(i => i).ToArray();
-
-				round.ConfirmedViolators		= gu.SelectMany(i => i.Violators).Distinct()
-													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
-													.OrderBy(i => i).ToArray();
-
-				round.ConfirmedEmissions		= gu.SelectMany(i => i.Emissions).Distinct()
-													.Where(x => round.Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
-													.OrderBy(i => i).ToArray();
-
-				round.ConfirmedDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
-													.Where(x => round.DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
@@ -639,18 +672,21 @@ namespace Uccs.Net
 											.OrderBy(i => i.Resource).ToArray();
 			}
 
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			//var s = new MemoryStream();
+			//var w = new BinaryWriter(s);
+			//
+			//w.Write(BaseHash);
+			//w.Write(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash);
+			//round.WriteConfirmed(w);
+			//
+			//round.Summary = Zone.Cryptography.Hash(s.ToArray());
 
-			w.Write(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash);
-			round.WriteConfirmed(w);
+			round.Hashify(); /// depends on BaseHash 
 
-			round.Summary = Zone.Cryptography.Hash(s.ToArray());
-
-			return round.Summary;
+			return round.Hash;
 		}
 
-		public void Execute(Round round, IEnumerable<Transaction> transactions, IEnumerable<AccountAddress> forkers)
+		public void Execute(Round round, IEnumerable<Transaction> transactions)
 		{
 			if(round.Confirmed)
 				throw new IntegrityException();
@@ -717,8 +753,47 @@ namespace Uccs.Net
 					round.AffectAccount(t.Signer).Transactions.Add(round.Id);
 				}
 			}
+		}
 
-			foreach(var f in forkers)
+		public void Confirm(Round round)
+		{
+			if(round.Confirmed)
+				throw new IntegrityException();
+
+			if(round.Id > 0 && LastConfirmedRound != null && LastConfirmedRound.Id + 1 != round.Id)
+				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
+
+			if(round.Id % 100 == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
+				throw new IntegrityException("round.Id % 100 == 0 && LastCommittedRound != round.Previous");
+
+// 			if(summarize)
+// 			{
+// 				if(round.Summary == null)
+// 				{
+// 					Summarize(round);
+// 				}
+// 
+// 				var cm = VotersOf(round.Child);
+// 				var s = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).MaxBy(i => i.Count()).Key;
+// 	 		
+// 				if(!s.SequenceEqual(round.Summary))
+// 				{
+// 					#if DEBUG
+// 					var x = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).Select(i => i.ParentSummary.ToHex());
+// 					var a = DevSettings.Suns.Select(i => i.Mcv.FindRound(round.Id)?.Summary?.ToHex());
+// 					#endif
+// 
+// 					throw new ConfirmationException(round, s);
+// 				}
+// 			}
+// 			else
+// 			{
+// 				Execute(round, round.ConfirmedTransactions, round.ConfirmedViolators);
+// 			}
+
+			//var ops = round.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+
+			foreach(var f in round.ConfirmedViolators)
 			{
 				var fe = round.AffectAccount(f);
 				round.Fees = fe.Bail;
@@ -726,50 +801,7 @@ namespace Uccs.Net
 			}
 			
 			round.Distribute(round.Fees, round.Members.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
-		}
 
-		public void Hashify()
-		{
-			BaseHash = Zone.Cryptography.Hash(BaseState);
-	
-			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-		}
-
-		public void Confirm(Round round, bool summarize)
-		{
-			if(round.Id > 0 && LastConfirmedRound != null && LastConfirmedRound.Id + 1 != round.Id)
-				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
-
-			if(round.Id % 100 == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
-				throw new IntegrityException("round.Id % 100 == 0 && LastCommittedRound != round.Previous");
-
-			if(summarize)
-			{
-				if(round.Summary == null)
-				{
-					Summarize(round);
-				}
-
-				var cm = VotersOf(round.Child);
-				var s = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).MaxBy(i => i.Count()).Key;
-	 		
-				if(!s.SequenceEqual(round.Summary))
-				{
-					#if DEBUG
-					var x = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).Select(i => i.ParentSummary.ToHex());
-					var a = DevSettings.Suns.Select(i => i.Mcv.FindRound(round.Id)?.Summary?.ToHex());
-					#endif
-
-					throw new ConfirmationException(round, s);
-				}
-			}
-			else
-			{
-				Execute(round, round.ConfirmedTransactions, round.ConfirmedViolators);
-			}
-
-			//var ops = round.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
 
 			for(int ti = 0; ti < round.ConfirmedTransactions.Length; ti++)
 			{
@@ -865,9 +897,7 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 
 			round.Analyzers.RemoveAll(i => round.ConfirmedAnalyzerLeavers.Contains(i.Account));
 			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Account = i, JoinedAt = round.Id + Pitch + 1}));
-
-			round.Hashify(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash); /// depends on BaseHash 
-		
+					
 			round.Confirmed = true;
 
 			LastConfirmedRound = round;

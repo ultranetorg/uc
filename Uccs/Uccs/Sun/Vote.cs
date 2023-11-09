@@ -26,7 +26,7 @@ namespace Uccs.Net
 		//public IPAddress[]			SeedHubRdcIPs;
 		public int					Try; /// TODO: revote if consensus not reached
 		public long					TimeDelta;
-		public byte[]				ParentSummary;
+		public byte[]				ParentHash;
 		//public AccountAddress[]		MemberJoiners = {};
 		public AccountAddress[]		MemberLeavers = {};
 		public AccountAddress[]		AnalyzerJoiners = {};
@@ -101,7 +101,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentSummary?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
+			return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, TimeDelta={TimeDelta}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
 		}
 		
 		public void AddTransaction(Transaction t)
@@ -134,7 +134,7 @@ namespace Uccs.Net
 		{
 			writer.Write7BitEncodedInt(Try);
 			writer.Write7BitEncodedInt64(TimeDelta);
-			writer.Write(ParentSummary);
+			writer.Write(ParentHash);
 
 			writer.Write(MemberLeavers);
 			writer.Write(AnalyzerJoiners);
@@ -154,7 +154,7 @@ namespace Uccs.Net
 		{
 			Try					= reader.Read7BitEncodedInt();
 			TimeDelta			= reader.Read7BitEncodedInt64();
-			ParentSummary		= reader.ReadBytes(Cryptography.HashSize);
+			ParentHash		= reader.ReadBytes(Cryptography.HashSize);
 
 			MemberLeavers		= reader.ReadArray<AccountAddress>();
 			AnalyzerJoiners		= reader.ReadArray<AccountAddress>();

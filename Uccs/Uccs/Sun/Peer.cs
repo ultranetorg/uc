@@ -335,6 +335,9 @@ namespace Uccs.Net
 				while(Sun.Workflow.Active && Status == ConnectionStatus.OK)
 				{
 					var pk = (PacketType)Reader.ReadByte();
+
+					if(Sun.Workflow.Aborted || Status != ConnectionStatus.OK)
+						return;
 					
 					Sun.Statistics.Reading.Begin();
 
