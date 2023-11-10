@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Numerics;
 using System.Text.Json;
@@ -16,8 +15,9 @@ namespace Uccs.Net
 		public readonly static Money	Min = new Money{Attos = 1};
 		public BigInteger				Attos;
 
-		public static implicit operator Money(int value) => new Money(value);
+		public static implicit operator Money(long value) => new Money(value);
 		public static implicit operator Money(double value) => new Money(value);
+		public static implicit operator BigInteger(Money money) => money.Attos / One;
 
 		static Money()
 		{

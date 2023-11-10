@@ -21,7 +21,7 @@ namespace Uccs.Net
 
 	public enum ConnectionStatus
 	{
-		None, Disconnected, Initiated, OK, Failed, Disconnecting
+		None, Disconnected, Initiated, OK, Disconnecting
 	}
 
 	public class Peer : RdcInterface
@@ -143,11 +143,13 @@ namespace Uccs.Net
 
 			Forced = false;
 
-			foreach(var i in OutRequests)
-				i.Event.Set();
-
 			lock(OutRequests)
+			{
+				foreach(var i in OutRequests)
+					i.Event.Set();
+
 				OutRequests.Clear();
+			}
 	
 			if(Tcp != null)
 			{
@@ -313,8 +315,7 @@ namespace Uccs.Net
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
 				lock(Sun.Lock)
-					if(Status != ConnectionStatus.Disconnecting)
-						Status = ConnectionStatus.Failed;
+					Disconnect();
 			}
 
 			//lock(Sun.Lock)
@@ -377,11 +378,6 @@ namespace Uccs.Net
 
 							break;
 						}
-
-						default:
-							Sun.Workflow.Log?.ReportError(this, $"Wrong packet type {pk}");
-							Status = ConnectionStatus.Failed;
-							return;
 					}
 
 					Sun.Statistics.Reading.End();
@@ -390,8 +386,7 @@ namespace Uccs.Net
 			catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 			{
 				lock(Sun.Lock)
-					if(Status != ConnectionStatus.Disconnecting)
-						Status = ConnectionStatus.Failed;
+					Disconnect();
 			}
 
 			//lock(Sun.Lock)

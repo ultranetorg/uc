@@ -585,8 +585,8 @@ namespace Uccs.Net
 				}
 			}
 
-			foreach(var i in Peers.Where(i => i.Status == ConnectionStatus.Failed))
-				i.Disconnect();
+			//foreach(var i in Peers.Where(i => i.Status == ConnectionStatus.Failed))
+			//	i.Disconnect();
 
 			if(!MinimalPeersReached && 
 				Connections.Count(i => i.Permanent) >= Settings.PeersPermanentMin && 
@@ -766,9 +766,7 @@ namespace Uccs.Net
 					failed:
 					{
 						lock(Lock)
-						{
-							peer.Status = ConnectionStatus.Failed;
-						}
+							peer.Disconnect();;
 									
 						client.Close();
 					}
@@ -818,13 +816,10 @@ namespace Uccs.Net
 					return;
 				}
 
-				if(peer.Status == ConnectionStatus.Failed)
-				{
-					peer.Disconnect();
+				peer.Disconnect();
 				
-					while(peer.Status != ConnectionStatus.Disconnected) 
-						Thread.Sleep(1);
-				}
+				while(peer.Status != ConnectionStatus.Disconnected) 
+					Thread.Sleep(1);
 								
 				peer.Status = ConnectionStatus.Initiated;
 			}
@@ -936,7 +931,7 @@ namespace Uccs.Net
 				failed:
 					if(peer != null)
 						lock(Lock)
-							peer.Status = ConnectionStatus.Failed;
+							peer.Disconnect();;
 
 					client.Close();
 				}
@@ -1058,7 +1053,7 @@ namespace Uccs.Net
 							Mcv.Hashify();
 			
 							if(peer.GetStamp().BaseHash.SequenceEqual(Mcv.BaseHash))
-	 							Mcv.LoadedRounds.Add(r.Id, r);
+	 							Mcv.LoadedRounds[r.Id] = r;
 							else
 								throw new SynchronizationException("BaseHash mismatch");
 						}
@@ -1928,10 +1923,16 @@ namespace Uccs.Net
 		{
 			lock(Lock)
 			{
-				if(peer.Status != ConnectionStatus.OK)
-				{
-					peer.Forced = true;
-					MainSignal.Set();
+				if(peer.Status == ConnectionStatus.OK)
+					return;
+				else if(peer.Status == ConnectionStatus.Disconnected)
+					OutboundConnect(peer, false);
+				else if(peer.Status == ConnectionStatus.Disconnecting)
+				{	
+					while(peer.Status != ConnectionStatus.Disconnected)
+						Thread.Sleep(0);
+					
+					OutboundConnect(peer, false);
 				}
 			}
 
@@ -1939,17 +1940,17 @@ namespace Uccs.Net
 
 			while(workflow.Active)
 			{
-				Thread.Sleep(1);
-
 				lock(Lock)
 					if(peer.Status == ConnectionStatus.OK)
 						return;
-					else if(peer.Status == ConnectionStatus.Failed)
+					else if(peer.Status == ConnectionStatus.Disconnecting || peer.Status == ConnectionStatus.Disconnected)
 						throw new RdcNodeException(RdcNodeError.Connectivity);
 
 				if(!DevSettings.DisableTimeouts)
 					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
 						throw new RdcNodeException(RdcNodeError.Timeout);
+				
+				Thread.Sleep(1);
 			}
 		}
 

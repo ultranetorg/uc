@@ -97,7 +97,7 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		Money CalculateSpaceFee(int size, byte years)
+		public static Money CalculateSpaceFee(int size, byte years)
 		{
 			return Mcv.SpaceBasicFeePerByte * size * new Money(1u << (years - 1));
 		}
