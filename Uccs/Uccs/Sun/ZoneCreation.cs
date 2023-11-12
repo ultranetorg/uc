@@ -15,7 +15,6 @@ namespace Uccs.Net
 			string			PathWithoutExtention;
 			AccountKey		_Key;
 			byte[]			_PrivateKey;
-			byte[]			_EthereumCryptographyWallet;
 
 			public AccountKey Key
 			{

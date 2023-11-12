@@ -21,7 +21,7 @@ namespace Uccs.Net
 		
 		public Vote						Vote;
 		public Round					Round;
-		public AccountAddress			Member;
+		//public AccountAddress			Member;
 		public int						Expiration;
 		public byte[]					PoW;
 		public Money					Fee;
@@ -49,7 +49,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"Nid={Nid}, {Placing}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Member={Member?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+			return $"Nid={Nid}, {Placing}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 		}
 
 		public void Sign(AccountKey signer, byte[] powhash)
@@ -102,7 +102,6 @@ namespace Uccs.Net
 
 			w.WriteUtf8(Zone.Name); 
 			w.Write7BitEncodedInt(Nid);
-			w.Write(Member);
 			w.Write7BitEncodedInt(Expiration);
 			w.Write(Fee);
 			w.WriteBytes(PoW);
@@ -182,7 +181,6 @@ namespace Uccs.Net
 		{
 			writer.Write((byte)__ExpectedPlacing);
 		
-			writer.Write(Member);
 			writer.Write(Signature);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write7BitEncodedInt(Expiration);
@@ -198,7 +196,6 @@ namespace Uccs.Net
 		{
 			__ExpectedPlacing = (PlacingStage)reader.ReadByte();
 		
-			Member	= reader.ReadAccount();
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();

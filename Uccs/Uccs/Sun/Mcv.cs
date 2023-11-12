@@ -215,7 +215,7 @@ namespace Uccs.Net
 	
 			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentHash = Zone.Cryptography.ZeroHash};
 			{
-				var t = new Transaction(Zone) {Nid = 0, Member = god, Expiration = 0};
+				var t = new Transaction(Zone) {Nid = 0, Expiration = 0};
 				t.AddOperation(new Emission(Web3.Convert.ToWei(fathers.Length * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
 				//t.AddOperation(new AuthorBid("uo", null, 1));
 				t.Sign(f0, Zone.Cryptography.ZeroHash);
@@ -262,7 +262,7 @@ namespace Uccs.Net
 		 
 				if(i == 1+8 + 1)
 				{
-					var t = new Transaction(Zone) {Nid = 1, Member = god, Expiration = i};
+					var t = new Transaction(Zone) {Nid = 1, Expiration = i};
 					t.AddOperation(new CandidacyDeclaration {	Bail = 1_000_000,
 																BaseRdcIPs = new IPAddress[] {Zone.Father0IP},
 																SeedHubRdcIPs = new IPAddress[] {Zone.Father0IP} });
@@ -319,11 +319,6 @@ namespace Uccs.Net
 						if(!hbm.SequenceEqual((r.Parent.Hash)))
 						{
 							#if DEBUG
-							if(DevSettings.Suns[0].Mcv == this)
-							{
-								r=r;
-							}
-
 							var x = r.Eligible.Select(i => i.ParentHash.ToHex());
 							var a = DevSettings.Suns.Select(i => i.Mcv.FindRound(r.ParentId)?.Hash?.ToHex());
 							#endif
@@ -461,70 +456,13 @@ namespace Uccs.Net
 				return round.Previous.ConfirmedTime + new Time(a);
 			}
 		}
-
-//		public IEnumerable<Transaction> CollectValidTransactions(IEnumerable<Transaction> txs, Round round)
-//		{
-//			//txs = txs.Where(i => round.Id <= i.RoundMax /*&& IsSequential(i, round.Id)*/);
-//
-//			if(txs.Any())
-//			{
-// 				var p = new Payload(this);
-// 				p.Member	= Account.Zero;
-// 				p.Time		= DateTime.UtcNow;
-// 				p.Round		= round;
-// 				p.TimeDelta	= 1;
-// 					
-// 				foreach(var i in txs)
-// 				{
-// 					p.AddNext(i);
-// 				}
-// 				
-//  				Execute(round, new Payload[] {p}, null);
- 	
- //				txs = txs.Where(t => t.SuccessfulOperations.Any());
-//			}
-//
-//			return txs;
-//		}
-
-		///public bool IsSequential(Operation transaction, int ridmax)
-		///{
-		///	var prev = Accounts.FindLastOperation(transaction.Signer, o => o.Successful, t => t.Successful, null, r => r.Id < ridmax);
-		///
-		///	if(transaction.Id == 0 && prev == null)
-		///		return true;
-		///
-		///	if(transaction.Id == 0 && prev != null || transaction.Id != 0 && prev != null && prev.Id != transaction.Id - 1)
-		///		return false;
-		///
-		///	/// STRICT: return prev != null && (prev.Payload.Confirmed || prev.Payload.Transactions.All(i => IsSequential(i, i.Payload.RoundId))); /// All transactions in a block containing 'prev' one must also be sequential
-		///	return prev.Transaction.Payload.Confirmed || IsSequential(prev, prev.Transaction.Payload.RoundId);
-		///}
-		
+			
 		public IEnumerable<AccountAddress> ProposeViolators(Round round)
 		{
 			var g = round.Id > Pitch ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
 			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 		}
-
-// 		public IEnumerable<AccountAddress> ProposeMemberJoiners(Round round)
-// 		{
-// 			var o = round.Parent.JoinRequests.Select(jr =>	{
-// 																var a = Accounts.Find(jr.Generator, LastConfirmedRound.Id);
-// 																return new {jr = jr, a = a};
-// 															})	/// round.ParentId - Pitch means to not join earlier than [Pitch] after declaration, and not redeclare after a join is requested
-// 													.Where(i => i.a != null && 
-// 																i.a.CandidacyDeclarationRid < round.Id &&
-// 																i.a.Bail >= Zone.BailMin)
-// 													.OrderByDescending(i => i.a.Bail)
-// 													.ThenBy(i => i.a.Address)
-// 													.Select(i => i.jr);
-// 
-// 			var n = Math.Min(Zone.MembersLimit - MembersOf(round.Id).Count(), o.Count());
-// 
-// 			return o.Take(n).Select(i => i.Generator);
-// 		}
 
 		public IEnumerable<AccountAddress> ProposeMemberLeavers(Round round, AccountAddress generator)
 		{
@@ -534,10 +472,6 @@ namespace Uccs.Net
 												!round.Parent.VotesOfTry.Any(v => v.Generator == i.Account) &&	/// ??? sent less than MinVotesPerPitch of required blocks
 												!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Account)))) /// not yet proposed in prev [Pitch-1] rounds
 									.Select(i => i.Account);
-//foreach(var i in ls)
-//{
-//	Log?.Report(this, $"Proposed leaver for {round.Id} - {i} - {prevs.Count(r => r.VotesOfTry.Any(b => b.Generator == i))} - {prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i)))}");
-//}
 			return ls;
 		}
 
@@ -655,13 +589,12 @@ namespace Uccs.Net
 																	
 															var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Resource == i.Resource)).Where(i => i != null);
 
-															if(v.Count() == a.Count || (e.AnalysisStage == AnalysisStage.HalfVotingReached && e.RoundId + (e.AnalysisHalfVotingRound - e.RoundId) * 2 == round.Id))
+															if(v.Count() == a.Count || (e.AnalysisStage == AnalysisStage.HalfVotingReached && round.Id > e.RoundId + (e.AnalysisHalfVotingRound - e.RoundId) * 2))
 															{ 
 																var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
 																var inf = v.Count(i => i.Result == AnalysisResult.Infected);
 
 																return new AnalysisConclusion { Resource = i.Resource, Good = (byte)cln, Bad = (byte)inf };
-																
 															}
 															else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= a.Count/2)
 																return new AnalysisConclusion { Resource = i.Resource, HalfReached = true};

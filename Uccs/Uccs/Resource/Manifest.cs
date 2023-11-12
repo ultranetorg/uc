@@ -101,7 +101,6 @@ namespace Uccs.Net
 		[JsonIgnore]
 		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
 
- 		byte[]							_Hash;
 		public Zone						Zone;
 
  		public byte[] Bytes

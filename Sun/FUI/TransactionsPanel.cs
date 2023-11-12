@@ -85,7 +85,7 @@ namespace Uccs.Sun.FUI
 					{
 						var li = new ListViewItem(i.Nid.ToString()) {Tag = i};
 						li.SubItems.Add(i.Round.Id.ToString());
-						li.SubItems.Add(i.Member?.ToString());
+						//li.SubItems.Add(i.Member?.ToString());
 
 						Transactions.Items.Add(li);
 					}

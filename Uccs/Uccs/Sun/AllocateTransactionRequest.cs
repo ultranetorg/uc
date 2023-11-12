@@ -27,5 +27,4 @@
 		public byte[]	PowHash { get; set; }
 		public Money	ExeunitMinFee { get; set; }
 	}
-
 }

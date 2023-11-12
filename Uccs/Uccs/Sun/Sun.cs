@@ -1269,21 +1269,25 @@ namespace Uccs.Net
 
 		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			if(!Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
-				throw new RdcNodeException(RdcNodeError.NotMember);
+			//if(!Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
+			//	throw new RdcNodeException(RdcNodeError.NotMember);
 
 			var a = new List<Transaction>();
 
 			foreach(var i in txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
 											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConfirmedExeunitMinFee &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
-											Settings.Generators.Any(g => g == i.Member) &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
+				var m = Mcv.LastConfirmedRound.Members.NearestBy(m => m.Account, i.Signer).Account;
+
+				if(!Settings.Generators.Contains(m))
+					continue;
+
 				var r = new Round(Mcv);
-				r.Id = (Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == i.Member)) ?? Mcv.LastConfirmedRound).Id + 1;
+				r.Id = (Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound).Id + 1;
 				
-				var prev = r.Previous.VotesOfTry.FirstOrDefault(j => j.Generator == i.Member);
+				var prev = r.Previous.VotesOfTry.FirstOrDefault(j => j.Generator == m);
 				r.ConfirmedTime = new Time(Mcv.LastConfirmedRound.ConfirmedTime.Ticks + (prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds));
 
 				Mcv.Execute(r, new [] {i});
@@ -1432,7 +1436,7 @@ namespace Uccs.Net
 					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
 
-					var txs = IncomingTransactions.Where(i => i.Member == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray();
+					var txs = IncomingTransactions.Where(i => Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray();
 
 					Vote createvote(Round r)
 					{
@@ -1467,11 +1471,11 @@ namespace Uccs.Net
 								if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAllowableOverflow)
 									break;
 
-								if(Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account != i.Member)
-								{
-									IncomingTransactions.Remove(i);
-									continue;
-								}
+								//if(Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account != i.Member)
+								//{
+								//	IncomingTransactions.Remove(i);
+								//	continue;
+								//}
 
 								v.AddTransaction(i);
 
@@ -1630,7 +1634,6 @@ namespace Uccs.Net
 							foreach(var t in g.Where(i => i.Placing == PlacingStage.None))
 							{
 								t.Nid = nid++;
-								t.Member = m.Account;
 								t.Rdc = rdi;
 								t.Expiration = at.LastConfirmedRid + Mcv.Pitch * 2;
 								t.Fee = t.Operations.Length * at.ExeunitMinFee;
@@ -1662,7 +1665,7 @@ namespace Uccs.Net
 								{
 									t.Placing = PlacingStage.Accepted;
 
-									Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {t.Member}, {t.Rdc}");
+									Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdc}");
 								}
 								else
 								{
@@ -1746,7 +1749,6 @@ namespace Uccs.Net
 															}
 															catch(OperationCanceledException)
 															{
-																t=t;
 															}
 															catch(Exception ex) when (!Debugger.IsAttached && Workflow.Active)
 															{

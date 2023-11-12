@@ -154,7 +154,7 @@ namespace Uccs.Net
 		{
 			Try					= reader.Read7BitEncodedInt();
 			TimeDelta			= reader.Read7BitEncodedInt64();
-			ParentHash		= reader.ReadBytes(Cryptography.HashSize);
+			ParentHash			= reader.ReadBytes(Cryptography.HashSize);
 
 			MemberLeavers		= reader.ReadArray<AccountAddress>();
 			AnalyzerJoiners		= reader.ReadArray<AccountAddress>();
@@ -171,7 +171,7 @@ namespace Uccs.Net
 														var t = new Transaction(Mcv.Zone)
 																{
 																	Vote		= this,
-																	Member	= Generator
+																	//Member	= Generator
 																};
 														t.ReadForVote(reader);
 														return t;
