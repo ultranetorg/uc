@@ -25,6 +25,7 @@ namespace Uccs.Net
 		Emission, UntTransfer, 
 		AuthorBid, AuthorRegistration, AuthorTransfer,
 		ResourceCreation, ResourceUpdation,
+		AnalysisOrder, AnalysisRegistration
 	}
 
 	public abstract class Operation// : ITypedBinarySerializable
@@ -128,6 +129,11 @@ namespace Uccs.Net
 		public AuthorEntry Affect(Round round, string author)
 		{
 			return round.AffectAuthor(author);
+		}
+
+		public AnalysisEntry Affect(Round round, byte[] release)
+		{
+			return round.AffectAnalysis(release);
 		}
 	}
 

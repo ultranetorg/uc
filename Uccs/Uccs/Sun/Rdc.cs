@@ -17,7 +17,8 @@ namespace Uccs.Net
 		MemberJoin, MemberVox, AnalyzerVox,
 		PeersBroadcast, Time, Members, Member, Funds, AllocateTransaction, LastOperation, SendTransactions, TransactionStatus, Account, 
 		Author, QueryResource, Resource, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
-		Stamp, TableStamp, DownloadTable, DownloadRounds
+		Stamp, TableStamp, DownloadTable, DownloadRounds,
+		Analysis
 	}
 
 	public enum RdcResult : byte

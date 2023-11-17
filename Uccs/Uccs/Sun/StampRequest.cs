@@ -19,8 +19,9 @@ namespace Uccs.Net
 											LastCommitedRoundHash	= sun.Mcv.LastCommittedRound.Hash,
 											FirstTailRound			= sun.Mcv.Tail.Last().Id,
 											LastTailRound			= sun.Mcv.Tail.First().Id,
-											Accounts				= sun.Mcv.Accounts.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Authors					= sun.Mcv.Authors.		SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Accounts				= sun.Mcv.Accounts.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Authors					= sun.Mcv.Authors.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
+											Analyses				= sun.Mcv.Analyses.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
 											};
 				return r;
 			}
@@ -42,5 +43,6 @@ namespace Uccs.Net
 		public byte[]						LastCommitedRoundHash { get; set; }
 		public IEnumerable<SuperCluster>	Accounts { get; set; }
 		public IEnumerable<SuperCluster>	Authors { get; set; }
+		public IEnumerable<SuperCluster>	Analyses { get; set; }
 	}
 }

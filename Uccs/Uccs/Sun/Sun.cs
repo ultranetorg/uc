@@ -102,7 +102,7 @@ namespace Uccs.Net
 
 		public List<Transaction>		IncomingTransactions = new();
 		internal List<Transaction>		OutgoingTransactions = new();
-		public List<Analysis>			Analyses = new();
+		//public List<Analysis>			Analyses = new();
 		public List<OperationId>		ApprovedEmissions = new();
 		public List<OperationId>		ApprovedDomainBids = new();
 
@@ -132,7 +132,7 @@ namespace Uccs.Net
 		public class SyncRound
 		{
 			public List<Vote>					Votes = new();
-			public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
+			//public List<AnalyzerVoxRequest>		AnalyzerVoxes = new();
 		}
 		
 		public Dictionary<int, SyncRound>	SyncTail	= new();
@@ -169,6 +169,9 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
+																new (AnalysisTable.MetaColumnName,	new ()),
+																new (AnalysisTable.MainColumnName,	new ()),
+																new (AnalysisTable.MoreColumnName,	new ()),
 																new (Mcv.ChainFamilyName,			new ()),
 																new (ResourceHub.FamilyName,		new ()) })
 				cfamilies.Add(i);
@@ -346,7 +349,7 @@ namespace Uccs.Net
 												ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
 												ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
 												IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-												Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Resource && j.Finished));
+												//Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Release && j.Finished));
 											};
 		
 				if(Settings.Generators.Any())
@@ -996,6 +999,10 @@ namespace Uccs.Net
 																															var c = Mcv.Authors.SuperClusters.ContainsKey(i.Id);
 																															return !c || !Mcv.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
+																			Tables.Analyses => stamp.Analyses.Where(i =>{
+																															var c = Mcv.Analyses.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Mcv.Analyses.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																														}),
 																			_ => throw new SynchronizationException("Unknown table recieved after GetTableStamp")
 																		}
 																).Select(i => i.Id).ToArray());
@@ -1040,6 +1047,7 @@ namespace Uccs.Net
 		
 						download<AccountEntry, AccountAddress>(Mcv.Accounts);
 						download<AuthorEntry, string>(Mcv.Authors);
+						download<AnalysisEntry, byte[]>(Mcv.Analyses);
 		
 						var r = new Round(Mcv) {Confirmed = true};
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
@@ -1289,6 +1297,7 @@ namespace Uccs.Net
 				
 				var prev = r.Previous.VotesOfTry.FirstOrDefault(j => j.Generator == m);
 				r.ConfirmedTime = new Time(Mcv.LastConfirmedRound.ConfirmedTime.Ticks + (prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds));
+				r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
 
 				Mcv.Execute(r, new [] {i});
 
@@ -1306,92 +1315,6 @@ namespace Uccs.Net
 			MainSignal.Set();
 
 			return a;
-		}
-
-		//void Verifing()
-		//{
-		//	Workflow.Log?.Report(this, "Verifing started");
-		//
-		//	try
-		//	{
-		//		while(Workflow.Active)
-		//		{
-		//			Thread.Sleep(1);
-		//
-		//			Statistics.Verifying.Begin();
-		//
-		//			lock(Lock)
-		//			{
-		//				foreach(var t in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray())
-		//				{
-		//					if(Valid(t))
-		//					{
-		//						t.Placing = PlacingStage.Verified;
-		//						MainSignal.Set();
-		//					} 
-		//					else
-		//					{
-		//						IncomingTransactions.Remove(t);
-		//					}
-		//				}
-		//			}
-		//
-		//			Statistics.Verifying.End();
-		//		}
-		//	}
-		//	catch(Exception ex) when (!Debugger.IsAttached)
-		//	{
-		//		Stop(MethodBase.GetCurrentMethod(), ex);
-		//	}
-		//	catch(OperationCanceledException)
-		//	{
-		//	}
-		//}
-
-		void GenerateAnalysis()
-		{
-			Statistics.Generating.Begin();
-
-			if(Mcv.AnalyzersOf(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch).Any(i => i.Account == Settings.Analyzer))
-			{
-				var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch);
-
-				if(r.AnalyzerVoxes.Any(i => i.Account == Settings.Analyzer))
-					return;
-	
-				if(Analyses.Any())
-				{
-					var v = new AnalyzerVoxRequest();
-					var a = new List<Analysis>();
-
-					//var s = new MemoryStream(); 
-					//var w = new BinaryWriter(s);
-					//v.Sign(Zone, Settings.Analyzer);
-					//v.Write(w);
-	
-					foreach(var i in Analyses)
-					{
-						//w.Write(i.Resource);
-						//w.Write((byte)i.Result);
-						//
-						//if(s.Position > Vote.SizeMax)
-						//	break;
-		
-						a.Add(i);
-					}
-					
-					v.Sign(Zone, Settings.Analyzer);
-
-					foreach(var i in Bases)
-					{
-						i.Send(new AnalyzerVoxRequest {RoundId = r.Id, Analyses = a, Signature = v.Signature});
-					}
-
-					Workflow.Log?.Report(this, "AnalyzerVoxRequest generated", $"by {Settings.Analyzer}");
-				}
-			}
-
-			Statistics.Generating.End();
 		}
 
 		void Generate()
@@ -1449,10 +1372,10 @@ namespace Uccs.Net
 												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
 												Violators		= Mcv.ProposeViolators(r).ToArray(),
 												MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToArray(),
-												AnalyzerJoiners	= Settings.ProposedAnalyzerJoiners.ToArray(),
-												AnalyzerLeavers	= Settings.ProposedAnalyzerLeavers.ToArray(),
-												FundJoiners		= Settings.ProposedFundJoiners.ToArray(),
-												FundLeavers		= Settings.ProposedFundLeavers.ToArray(),
+												AnalyzerJoiners	= Settings.ProposedAnalyzerJoiners.Where(i => !Mcv.LastConfirmedRound.Analyzers.Any(j => j.Account == i)).ToArray(),
+												AnalyzerLeavers	= Settings.ProposedAnalyzerLeavers.Where(i => Mcv.LastConfirmedRound.Analyzers.Any(j => j.Account == i)).ToArray(),
+												FundJoiners		= Settings.ProposedFundJoiners.Where(i => !Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
+												FundLeavers		= Settings.ProposedFundLeavers.Where(i => Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
 												Emissions		= ApprovedEmissions.ToArray(),
 												DomainBids		= ApprovedDomainBids.ToArray() };
 					}
@@ -1513,17 +1436,14 @@ namespace Uccs.Net
 
 						foreach(var i in v)
 						{
-							var pc = Mcv.Add(i);
-
-							if(pc)
-							{
-							}
+							Mcv.Add(i);
 						}
 					}
 
 					for(int i = votes.Min(i => i.RoundId); i <= Mcv.LastNonEmptyRound.Id; i++)
 					{
 						var r = Mcv.FindRound(i);
+						r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
 
 						if(r != null && !r.Confirmed)
 						{

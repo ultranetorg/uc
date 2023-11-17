@@ -12,7 +12,7 @@ namespace Uccs.Net
 	public class AuthorEntry : Author, ITableEntry<string>
 	{
 		public string		Key => Name;
-		public byte[]		GetClusterKey(int n) => Encoding.UTF8.GetBytes(Name).Take(n).ToArray();
+		public Span<byte>	GetClusterKey(int n) => new Span<byte>(Encoding.UTF8.GetBytes(Name, 0, n));
 
 		Mcv					Chain;
 		List<Resource>		AffectedResources = new();

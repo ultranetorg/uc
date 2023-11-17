@@ -62,7 +62,7 @@ namespace Uccs.Net
 			return r.ReadBytes(r.Read7BitEncodedInt());
 		}
 
-		public static byte[] ReadSha3(this BinaryReader r)
+		public static byte[] ReadHash(this BinaryReader r)
 		{
 			return r.ReadBytes(Cryptography.HashSize);
 		}

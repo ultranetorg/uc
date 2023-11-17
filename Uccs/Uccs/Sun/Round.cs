@@ -22,10 +22,8 @@ namespace Uccs.Net
 		public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 		public List<Vote>									Votes = new();
-		public List<AnalyzerVoxRequest>						AnalyzerVoxes = new();
 		public IEnumerable<Vote>							VotesOfTry => Votes.Where(i => i.Try == Try);
 		public IEnumerable<Vote>							Payloads => VotesOfTry.Where(i => i.Transactions.Any());
-		//public IEnumerable<Vote>							Unique => VotesOfTry.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 		public IEnumerable<Vote>							Eligible 
 															{ 
 																get 
@@ -49,24 +47,24 @@ namespace Uccs.Net
 		public AccountAddress[]								ConfirmedViolators = {};
 		public OperationId[]								ConfirmedEmissions = {};
 		public OperationId[]								ConfirmedDomainBids = {};
-		public AnalysisConclusion[]							ConfirmedAnalyses = {};
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
-		//public byte[]										Summary;
 
 		public Money										Fees;
 		public Money										Emission;
 		public Money										ConfirmedExeunitMinFee;
 		public int											ConfirmedOverflowRound;
 		public List<Member>									Members = new();
-		public List<Emission>								Emissions = new ();
-		public List<AuthorBid>								DomainBids = new ();
-		public List<Analyzer>								Analyzers = new();
-		public List<AccountAddress>							Funds = new();
+		public List<Analyzer>								Analyzers;
+		public List<AccountAddress>							Funds;
+		public List<Emission>								Emissions;
+		public List<AuthorBid>								DomainBids;
+		public int											AnalyzersIdCounter;
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
+		public Dictionary<byte[], AnalysisEntry>			AffectedAnalyses = new(new BytesEqualityComparer());
 		
 		public Mcv											Mcv;
 		
@@ -188,6 +186,19 @@ namespace Uccs.Net
 				return AffectedAuthors[author] = new AuthorEntry(Mcv){Name = author};
 		}
 
+		public AnalysisEntry AffectAnalysis(byte[] release)
+		{
+			if(AffectedAnalyses.TryGetValue(release, out AnalysisEntry a))
+				return a;
+			
+			var e = Mcv.Analyses.Find(release, Id - 1);
+
+			if(e != null)
+				return AffectedAnalyses[release] = e.Clone();
+			else
+				return AffectedAnalyses[release] = new AnalysisEntry(Mcv){Release = release, Results = new AnalyzerResult[0]};
+		}
+
 		public void Hashify()
 		{
 			var s = new MemoryStream();
@@ -210,6 +221,7 @@ namespace Uccs.Net
 			writer.Write(Emission);
 			writer.Write(Members, i => i.WriteBaseState(writer));
 			writer.Write(Analyzers, i => i.WriteBaseState(writer));
+			writer.Write7BitEncodedInt(AnalyzersIdCounter);
 			writer.Write(Funds);
 			writer.Write(Emissions, i => i.WriteBaseState(writer));
 			writer.Write(DomainBids, i => i.WriteBaseState(writer));
@@ -218,13 +230,14 @@ namespace Uccs.Net
 		public void ReadBaseState(BinaryReader reader)
 		{
 			Id						= reader.Read7BitEncodedInt();
-			Hash					= reader.ReadSha3();
+			Hash					= reader.ReadHash();
 			ConfirmedTime			= reader.ReadTime();
 			ConfirmedExeunitMinFee	= reader.ReadMoney();
 			ConfirmedOverflowRound	= reader.Read7BitEncodedInt();
 			Emission				= reader.ReadMoney();
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
 			Analyzers				= reader.Read<Analyzer>(m => m.ReadBaseState(reader)).ToList();
+			AnalyzersIdCounter		= reader.Read7BitEncodedInt();
 			Funds					= reader.ReadList<AccountAddress>();
 			Emissions				= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
 			DomainBids				= reader.Read<AuthorBid>(m => m.ReadBaseState(reader)).ToList();
@@ -243,7 +256,6 @@ namespace Uccs.Net
 			writer.Write(ConfirmedViolators);
 			writer.Write(ConfirmedEmissions);
 			writer.Write(ConfirmedDomainBids);
-			writer.Write(ConfirmedAnalyses);
 			writer.Write(ConfirmedTransactions, i => i.WriteConfirmed(writer));
 		}
 
@@ -260,7 +272,6 @@ namespace Uccs.Net
 			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
 			ConfirmedEmissions			= reader.ReadArray<OperationId>();
 			ConfirmedDomainBids			= reader.ReadArray<OperationId>();
-			ConfirmedAnalyses			= reader.ReadArray<AnalysisConclusion>();
 			ConfirmedTransactions		= reader.Read(() =>	new Transaction(Mcv.Zone) {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
@@ -297,7 +308,7 @@ namespace Uccs.Net
 // 				Hash = r.ReadSha3();
 // #endif
 				ReadConfirmed(r);
-				Hash = r.ReadSha3();
+				Hash = r.ReadHash();
 				//JoinRequests.AddRange(r.ReadArray(() =>	{
 				//											var b = new MemberJoinOperation();
 				//											b.RoundId = Id;
@@ -334,7 +345,7 @@ namespace Uccs.Net
 		{
 			ReadConfirmed(r);
 
-			Hash = r.ReadSha3();
+			Hash = r.ReadHash();
 		}
 	}
 }

@@ -21,6 +21,7 @@ namespace Uccs.Net
 		public int				ExternalVerificationDurationLimit				= 100;
 		public Money			BailMin											= 1000;
 		public int				MembersLimit									= 1000;
+		public virtual int		AnalizerMinimumVotes							=> MembersLimit * 2/3;
 		public int				TransactionsPerRoundLimit						= 5_000;
 		public int				TransactionsPerVoteAllowableOverflowMuliplier	= 10;
 		public int				TransactionsOverflowFactor						= 10;

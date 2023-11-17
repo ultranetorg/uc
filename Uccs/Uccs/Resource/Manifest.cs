@@ -220,13 +220,13 @@ namespace Uccs.Net
 		{
 			if(r.ReadBoolean())
 			{
-				CompleteHash = r.ReadSha3();
+				CompleteHash = r.ReadHash();
 				CompleteDependencies = r.ReadArray<Dependency>();
 			}
 
 			if(r.ReadBoolean())
 			{
-				IncrementalHash = r.ReadSha3();
+				IncrementalHash = r.ReadHash();
 				IncrementalMinimalVersion = r.Read<Version>();
 				AddedDependencies = r.ReadArray<Dependency>();
 				RemovedDependencies = r.ReadArray<Dependency>();

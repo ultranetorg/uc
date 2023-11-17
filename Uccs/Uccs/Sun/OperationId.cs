@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 
 namespace Uccs.Net
 {
@@ -18,7 +19,14 @@ namespace Uccs.Net
 			Oi = oi;
 		}
 
-		public byte[] Serial
+		public override string ToString()
+		{
+			return $"{Ri}-{Ti}-{Oi}";
+		}
+
+		public BigInteger AsBigInteger => new BigInteger(AsBytes, true, true);
+		
+		byte[] AsBytes
 		{
 			get
 			{
@@ -34,6 +42,7 @@ namespace Uccs.Net
 				return _Serial;
 			}
 		}
+
 
 		public void Read(BinaryReader reader)
 		{

@@ -22,10 +22,10 @@ namespace Uccs.Net
 
 		public const int					Pitch = 8;
 		public const int					LastGenesisRound = 18;
-		public const int					AnalyzersMax = 32;
+		public const int					AnalyzersIdMax = 255;
 		///public const int					MembersRotation = 32;
-		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000001);
-		public static readonly Money		AnalysisFeePerByte		= new Money(0.000000001);
+		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000_001);
+		public static readonly Money		AnalysisFeePerByte		= new Money(0.000_000_001);
 		//public static readonly Money		AuthorFeePerYear		= new Money(1);
 		public static readonly Money		AccountAllocationFee	= new Money(1);
 		public const int					EntityAllocationAverageLength = 100;
@@ -48,9 +48,11 @@ namespace Uccs.Net
 		static readonly byte[]				GenesisKey = new byte[] {0x04};
 		public AccountTable					Accounts;
 		public AuthorTable					Authors;
+		public AnalysisTable				Analyses;
 		public int							Size => BaseState == null ? 0 : (BaseState.Length + 
 																			Accounts.Clusters.Sum(i => i.MainLength) +
-																			Authors.Clusters.Sum(i => i.MainLength));
+																			Authors.Clusters.Sum(i => i.MainLength) +
+																			Analyses.Clusters.Sum(i => i.MainLength));
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Commited;
@@ -74,6 +76,7 @@ namespace Uccs.Net
 
 			Accounts = new (this);
 			Authors = new (this);
+			Analyses = new (this);
 
 			BaseHash = Zone.Cryptography.ZeroHash;
 			BaseState = Engine.Get(BaseStateKey);
@@ -178,6 +181,7 @@ namespace Uccs.Net
 			LoadedRounds.Clear();
 			Accounts.Clear();
 			Authors.Clear();
+			Analyses.Clear();
 
 			Engine.Remove(BaseStateKey);
 			Engine.Remove(__BaseHashKey);
@@ -481,21 +485,29 @@ namespace Uccs.Net
 	
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Analyses.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
 		public byte[] Summarize(Round round)
 		{
-			//if(round.Id > LastGenesisRound && !round.Parent.Confirmed)
-			//	return null;
+			var prev = round.Previous;
+
+			round.Members				= round.Id == 0 ? new()	: round.Previous.Members.ToList();
+			round.Emissions				= round.Id == 0 ? new()	: round.Previous.Emissions.ToList();
+			round.DomainBids			= round.Id == 0 ? new()	: round.Previous.DomainBids.ToList();
+			round.Analyzers				= round.Id == 0 ? new()	: round.Previous.Analyzers.ToList();
+			round.Funds					= round.Id == 0 ? new()	: round.Previous.Funds.ToList();
+			round.AnalyzersIdCounter	= round.Id == 0 ? new()	: round.Previous.AnalyzersIdCounter;
+
 
 			var m = round.Id > Pitch ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 
-			var a = round.Id > Pitch ? AnalyzersOf(round.Id) : new();
-			var av = round.AnalyzerVoxes.Where(i => a.Any(j => j.Account == i.Account)).ToArray();
-			var au = av.GroupBy(i => i.Account).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
+			//var a = round.Id > Pitch ? AnalyzersOf(round.Id) : new();
+			//var av = round.AnalyzerVoxes.Where(i => a.Any(j => j.Account == i.Account)).ToArray();
+			//var au = av.GroupBy(i => i.Account).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 
 			var tn = gu.Sum(i => i.Transactions.Length);
 			
@@ -565,11 +577,11 @@ namespace Uccs.Net
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Zone.AnalizerMinimumVotes)
 													.OrderBy(i => i).ToArray();
 				
 				round.ConfirmedAnalyzerLeavers	= gu.SelectMany(i => i.AnalyzerLeavers).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
+													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Zone.AnalizerMinimumVotes)
 													.OrderBy(i => i).ToArray();
 
 				round.ConfirmedFundJoiners		= gu.SelectMany(i => i.FundJoiners).Distinct()
@@ -580,29 +592,29 @@ namespace Uccs.Net
 													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
 													.OrderBy(i => i).ToArray();
 
-				round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
-											.Select(i => {
-															var e = Authors.FindResource(i.Resource, round.Id);
-																	
-															if(e == null)
-																return null; /// Some analyzer(s) is buggy
-																	
-															var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Resource == i.Resource)).Where(i => i != null);
-
-															if(v.Count() == a.Count || (e.AnalysisStage == AnalysisStage.HalfVotingReached && round.Id > e.RoundId + (e.AnalysisHalfVotingRound - e.RoundId) * 2))
-															{ 
-																var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
-																var inf = v.Count(i => i.Result == AnalysisResult.Infected);
-
-																return new AnalysisConclusion { Resource = i.Resource, Good = (byte)cln, Bad = (byte)inf };
-															}
-															else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= a.Count/2)
-																return new AnalysisConclusion { Resource = i.Resource, HalfReached = true};
-															else
-																return null;
-														})
-											.Where(i => i != null)
-											.OrderBy(i => i.Resource).ToArray();
+				//round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
+				//							.Select(i => {
+				//											var e = Authors.FindResource(i.Resource, round.Id);
+				//													
+				//											if(e == null)
+				//												return null; /// Some analyzer(s) is buggy
+				//													
+				//											var v = au.Select(u => u.Analyses.FirstOrDefault(x => x.Resource == i.Resource)).Where(i => i != null);
+				//
+				//											if(v.Count() == a.Count || (e.AnalysisStage == AnalysisStage.HalfVotingReached && round.Id > e.RoundId + (e.AnalysisHalfVotingRound - e.RoundId) * 2))
+				//											{ 
+				//												var cln = v.Count(i => i.Result == AnalysisResult.Clean); 
+				//												var inf = v.Count(i => i.Result == AnalysisResult.Infected);
+				//
+				//												return new AnalysisConclusion { Resource = i.Resource, Good = (byte)cln, Bad = (byte)inf };
+				//											}
+				//											else if(e.AnalysisStage == AnalysisStage.Pending && v.Count() >= a.Count/2)
+				//												return new AnalysisConclusion { Resource = i.Resource, HalfReached = true};
+				//											else
+				//												return null;
+				//										})
+				//							.Where(i => i != null)
+				//							.OrderBy(i => i.Resource).ToArray();
 			}
 
 			//var s = new MemoryStream();
@@ -623,16 +635,8 @@ namespace Uccs.Net
 		{
 			if(round.Confirmed)
 				throw new IntegrityException();
-
-			var prev = round.Previous;
-
-			round.Members		= round.Id == 0 ? new()	: round.Previous.Members.ToList();
-			round.Emissions		= round.Id == 0 ? new()	: round.Previous.Emissions.ToList();
-			round.DomainBids	= round.Id == 0 ? new()	: round.Previous.DomainBids.ToList();
-			round.Analyzers		= round.Id == 0 ? new()	: round.Previous.Analyzers.ToList();
-			round.Funds			= round.Id == 0 ? new()	: round.Previous.Funds.ToList();
-				
-			if(round.Id != 0 && prev == null)
+	
+			if(round.Id != 0 && round.Previous == null)
 				return;
 
 			foreach(var t in transactions)
@@ -646,6 +650,7 @@ namespace Uccs.Net
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
+			round.AffectedAnalyses.Clear();
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
@@ -699,32 +704,14 @@ namespace Uccs.Net
 			if(round.Id % 100 == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
 				throw new IntegrityException("round.Id % 100 == 0 && LastCommittedRound != round.Previous");
 
-// 			if(summarize)
-// 			{
-// 				if(round.Summary == null)
-// 				{
-// 					Summarize(round);
-// 				}
-// 
-// 				var cm = VotersOf(round.Child);
-// 				var s = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).GroupBy(i => i.ParentSummary, new BytesEqualityComparer()).MaxBy(i => i.Count()).Key;
-// 	 		
-// 				if(!s.SequenceEqual(round.Summary))
-// 				{
-// 					#if DEBUG
-// 					var x = round.Child.Unique.Where(i => cm.Any(j => j.Account == i.Generator)).Select(i => i.ParentSummary.ToHex());
-// 					var a = DevSettings.Suns.Select(i => i.Mcv.FindRound(round.Id)?.Summary?.ToHex());
-// 					#endif
-// 
-// 					throw new ConfirmationException(round, s);
-// 				}
-// 			}
-// 			else
-// 			{
-// 				Execute(round, round.ConfirmedTransactions, round.ConfirmedViolators);
-// 			}
+			var prev = round.Previous;
 
-			//var ops = round.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+			round.Members				= round.Id == 0 ? new()	: round.Previous.Members.ToList();
+			round.Emissions				= round.Id == 0 ? new()	: round.Previous.Emissions.ToList();
+			round.DomainBids			= round.Id == 0 ? new()	: round.Previous.DomainBids.ToList();
+			round.Analyzers				= round.Id == 0 ? new()	: round.Previous.Analyzers.ToList();
+			round.Funds					= round.Id == 0 ? new()	: round.Previous.Funds.ToList();
+			round.AnalyzersIdCounter	= round.Id == 0 ? new()	: round.Previous.AnalyzersIdCounter;
 
 			foreach(var f in round.ConfirmedViolators)
 			{
@@ -771,23 +758,23 @@ namespace Uccs.Net
 
 			round.DomainBids.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDurationLimit);
 
-			foreach(var i in round.ConfirmedAnalyses)
-			{
-				var e = round.AffectAuthor(i.Resource.Author).AffectResource(i.Resource);
-				
-				if(i.Finished)
-				{
-					e.Good			= i.Good;
-					e.Bad			= i.Bad;
-					e.AnalysisStage = AnalysisStage.Finished;
-
-					round.Distribute(e.AnalysisFee, round.Analyzers.Select(i => i.Account));
-				}
-				else if(e.AnalysisStage == AnalysisStage.Pending && i.HalfReached)
-				{
-					e.AnalysisStage = AnalysisStage.HalfVotingReached;
-				}
-			}
+			//foreach(var i in round.ConfirmedAnalyses)
+			//{
+			//	var e = round.AffectAuthor(i.Resource.Author).AffectResource(i.Resource);
+			//	
+			//	if(i.Finished)
+			//	{
+			//		e.Good			= i.Good;
+			//		e.Bad			= i.Bad;
+			//		e.AnalysisStage = AnalysisStage.Finished;
+			//
+			//		round.Distribute(e.AnalysisFee, round.Analyzers.Select(i => i.Account));
+			//	}
+			//	else if(e.AnalysisStage == AnalysisStage.Pending && i.HalfReached)
+			//	{
+			//		e.AnalysisStage = AnalysisStage.HalfVotingReached;
+			//	}
+			//}
 								
 			foreach(var t in round.OrderedTransactions)
 			{
@@ -829,7 +816,7 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 			round.Funds.AddRange(round.ConfirmedFundJoiners);
 
 			round.Analyzers.RemoveAll(i => round.ConfirmedAnalyzerLeavers.Contains(i.Account));
-			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Account = i, JoinedAt = round.Id + Pitch + 1}));
+			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Id = (byte)round.AnalyzersIdCounter++, Account = i, JoinedAt = round.Id + Pitch + 1}));
 					
 			round.Confirmed = true;
 
@@ -864,7 +851,8 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 					foreach(var i in tail)
 					{
 						Accounts.Save(b, i.AffectedAccounts.Values);
-						Authors	.Save(b, i.AffectedAuthors.Values);
+						Authors.Save(b, i.AffectedAuthors.Values);
+						Analyses.Save(b, i.AffectedAnalyses.Values);
 					}
 	
 					LastCommittedRound = tail.Last();

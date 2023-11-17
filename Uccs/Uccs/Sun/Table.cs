@@ -15,7 +15,7 @@ namespace Uccs.Net
 		None,
 		Accounts,
 		Authors,
-		Resources
+		Analyses
 	}
 
 	public abstract class Table<E, K> : IEnumerable<E> where E : ITableEntry<K>
@@ -26,7 +26,7 @@ namespace Uccs.Net
 			public ushort			Id;
 			public int				MainLength;
 			public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
-			public static ushort	ToId(byte[] k) => (ushort)(((ushort)k[0])<<8 | k[1]);
+			public static ushort	ToId(Span<byte> k) => (ushort)(((ushort)k[0])<<8 | k[1]);
 			List<E>					_Entries;
 			Table<E, K>				Table;
 			byte[]					_Main;
@@ -91,7 +91,7 @@ namespace Uccs.Net
 				{
 					var r = new BinaryReader(new MemoryStream(m));
 	
-					Hash = r.ReadSha3();
+					Hash = r.ReadHash();
 					MainLength = r.Read7BitEncodedInt();
 				}
 			}
@@ -147,7 +147,17 @@ namespace Uccs.Net
 
 		public const int				ClustersKeyLength = 2;
 		const int						ClustersCacheLimit = 1000;
-		public Tables					Type => Enum.Parse<Tables>(GetType().Name.Replace("Table", "s"));
+		public Tables					Type
+										{
+											get
+											{
+												if(GetType() == typeof(AccountTable)) return Tables.Accounts;
+												if(GetType() == typeof(AuthorTable)) return Tables.Authors;
+												if(GetType() == typeof(AnalysisTable)) return Tables.Analyses;
+
+												throw new IntegrityException();
+											}
+										}
 
 		public Dictionary<byte, byte[]> SuperClusters = new();
 		public List<Cluster>			Clusters = new();

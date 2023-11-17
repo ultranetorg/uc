@@ -83,6 +83,7 @@ namespace Uccs.Sun.CLI
 			{
 				case RunCommand.Keyword:		c = new RunCommand(this, args); break;
 				case AttachCommand.Keyword:		c = new AttachCommand(this, args); break;
+				case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args); break;
 				case DevCommand.Keyword:		c = new DevCommand(this, args); break;
 				case AccountCommand.Keyword:	c = new AccountCommand(this, args); break;
 				case MoneyCommand.Keyword:		c = new MoneyCommand(this, args); break;

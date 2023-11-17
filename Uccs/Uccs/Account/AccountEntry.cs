@@ -18,7 +18,7 @@ namespace Uccs.Net
 
 		Mcv								Mcv;
 		public AccountAddress			Key => Address;
-		public byte[]					GetClusterKey(int n) => Address.Bytes.Take(n).ToArray();
+		public Span<byte>				GetClusterKey(int n) => new Span<byte>(Address.Bytes, 0, n);
 
 		public AccountEntry()
 		{

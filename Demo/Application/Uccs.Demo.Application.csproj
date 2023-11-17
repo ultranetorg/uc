@@ -8,8 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>0.0.1544.0</AssemblyVersion>
-    <FileVersion>0.0.1544.0</FileVersion>
+    <AssemblyVersion>0.0.1550.0</AssemblyVersion>
+    <FileVersion>0.0.1550.0</FileVersion>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>

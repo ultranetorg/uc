@@ -7,14 +7,14 @@ namespace Uccs.Net
 {
 	public interface ITableEntry<K>
 	{
-		K		Key { get; }
-		byte[]	GetClusterKey(int n);
+		K			Key { get; }
+		Span<byte>	GetClusterKey(int n);
 
-		void	ReadMain(BinaryReader r);
-		void	WriteMain(BinaryWriter r);
+		void		ReadMain(BinaryReader r);
+		void		WriteMain(BinaryWriter r);
 
-		void	ReadMore(BinaryReader r);
-		void	WriteMore(BinaryWriter r);
+		void		ReadMore(BinaryReader r);
+		void		WriteMore(BinaryWriter r);
 
 
 	}

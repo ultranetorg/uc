@@ -378,18 +378,18 @@ namespace Uccs.Net
 		}
 	}
 
-	public class GenerateAnalysisReportCall : SunApiCall
-	{
-		public IDictionary<ResourceAddress, AnalysisResult>	Results { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.Lock)
-			{	
-				sun.Analyses.AddRange(Results.Select(i => new Analysis {Resource = i.Key, Result = i.Value}));
-			}
-
-			return null;
-		}
-	}
+// 	public class GenerateAnalysisReportCall : SunApiCall
+// 	{
+// 		public IDictionary<ResourceAddress, AnalysisResult>	Results { get; set; }
+// 
+// 		public override object Execute(Sun sun, Workflow workflow)
+// 		{
+// 			lock(sun.Lock)
+// 			{	
+// 				sun.Analyses.AddRange(Results.Select(i => new Analysis {Release = i.Key, Result = i.Value}));
+// 			}
+// 
+// 			return null;
+// 		}
+// 	}
 }

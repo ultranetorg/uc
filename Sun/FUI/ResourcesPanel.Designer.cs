@@ -38,29 +38,24 @@ namespace Uccs.Sun.FUI
 			CHType = new System.Windows.Forms.ColumnHeader();
 			CHReserved = new System.Windows.Forms.ColumnHeader();
 			CHData = new System.Windows.Forms.ColumnHeader();
-			CHAnalysisStage = new System.Windows.Forms.ColumnHeader();
-			CHAnalysisFee = new System.Windows.Forms.ColumnHeader();
-			CHAnalysisHVR = new System.Windows.Forms.ColumnHeader();
-			CHGood = new System.Windows.Forms.ColumnHeader();
-			CHBad = new System.Windows.Forms.ColumnHeader();
 			CHResources = new System.Windows.Forms.ColumnHeader();
 			label5 = new System.Windows.Forms.Label();
 			NetworkQuery = new System.Windows.Forms.ComboBox();
 			NetworkSearch = new System.Windows.Forms.Button();
 			LocalReleases = new System.Windows.Forms.ListView();
 			columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			columnHeader6 = new System.Windows.Forms.ColumnHeader();
 			columnHeader8 = new System.Windows.Forms.ColumnHeader();
 			label3 = new System.Windows.Forms.Label();
 			LocalQuery = new System.Windows.Forms.ComboBox();
 			LocalSearch = new System.Windows.Forms.Button();
-			columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			SuspendLayout();
 			// 
 			// NetworkReleases
 			// 
 			NetworkReleases.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			NetworkReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { CHId, CHAddress, CHExpiration, CHLastProlongation, CHFlags, CHType, CHReserved, CHData, CHAnalysisStage, CHAnalysisFee, CHAnalysisHVR, CHGood, CHBad, CHResources });
+			NetworkReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { CHId, CHAddress, CHExpiration, CHLastProlongation, CHFlags, CHType, CHReserved, CHData, CHResources });
 			NetworkReleases.FullRowSelect = true;
 			NetworkReleases.Location = new System.Drawing.Point(12, 112);
 			NetworkReleases.Margin = new System.Windows.Forms.Padding(6);
@@ -106,30 +101,6 @@ namespace Uccs.Sun.FUI
 			// 
 			CHData.Text = "Data";
 			CHData.Width = 200;
-			// 
-			// CHAnalysisStage
-			// 
-			CHAnalysisStage.Text = "Analysis Stage";
-			// 
-			// CHAnalysisFee
-			// 
-			CHAnalysisFee.Text = "Analysis Fee";
-			CHAnalysisFee.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			// 
-			// CHAnalysisHVR
-			// 
-			CHAnalysisHVR.Text = "Analysis HVR";
-			CHAnalysisHVR.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			// 
-			// CHGood
-			// 
-			CHGood.Text = "Good";
-			CHGood.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			// 
-			// CHBad
-			// 
-			CHBad.Text = "Bad";
-			CHBad.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// CHResources
 			// 
@@ -185,6 +156,11 @@ namespace Uccs.Sun.FUI
 			columnHeader2.Text = "Address";
 			columnHeader2.Width = 300;
 			// 
+			// columnHeader1
+			// 
+			columnHeader1.Text = "Status";
+			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
 			// columnHeader6
 			// 
 			columnHeader6.Text = "Type";
@@ -225,11 +201,6 @@ namespace Uccs.Sun.FUI
 			LocalSearch.UseVisualStyleBackColor = true;
 			LocalSearch.Click += LocalSearch_Click;
 			// 
-			// columnHeader1
-			// 
-			columnHeader1.Text = "Status";
-			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
 			// ResourcesPanel
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
@@ -261,11 +232,6 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ColumnHeader CHType;
 		private System.Windows.Forms.ColumnHeader CHReserved;
 		private System.Windows.Forms.ColumnHeader CHData;
-		private System.Windows.Forms.ColumnHeader CHAnalysisStage;
-		private System.Windows.Forms.ColumnHeader CHAnalysisFee;
-		private System.Windows.Forms.ColumnHeader CHAnalysisHVR;
-		private System.Windows.Forms.ColumnHeader CHGood;
-		private System.Windows.Forms.ColumnHeader CHBad;
 		private System.Windows.Forms.ColumnHeader CHResources;
 		private System.Windows.Forms.ColumnHeader CHId;
 		private System.Windows.Forms.ListView LocalReleases;

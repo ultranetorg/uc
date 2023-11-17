@@ -15,21 +15,20 @@ namespace Uccs.Net
 		public ResourceType			Type { get; set; }
 		public byte[]				Data { get; set; }
 		public string				Parent { get; set; }
-		public Money				AnalysisFee { get; set; }
+		//public Money				AnalysisFee { get; set; }
 
 		public override bool		Valid => (Flags & ResourceFlags.Unchangables) == 0
 												&& Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax
 												&& (!Initials.HasFlag(ResourceChanges.Data)	|| Initials.HasFlag(ResourceChanges.Data) && Data.Length <= Net.Resource.DataLengthMax)
-												&& (!Initials.HasFlag(ResourceChanges.AnalysisFee) || Initials.HasFlag(ResourceChanges.AnalysisFee) && AnalysisFee > 0)
-			;
+											;
 		
-		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], Years={Years}, {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}{(AnalysisFee == Money.Zero ? null : ", AnalysisFee=" + AnalysisFee.ToHumanString())}";
+		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], Years={Years}, {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent, Money analysisfee)
+		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent)
 		{
 			Resource = resource;
 			Years = years;
@@ -49,12 +48,6 @@ namespace Uccs.Net
 				Parent = parent;
 				Initials |= ResourceChanges.Parent;
 			}
-
-			if(analysisfee > Money.Zero)
-			{
-				AnalysisFee = analysisfee;
-				Initials |= ResourceChanges.AnalysisFee;
-			}
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
@@ -67,7 +60,6 @@ namespace Uccs.Net
 
 			if(Initials.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Initials.HasFlag(ResourceChanges.Parent))		Parent = reader.ReadUtf8();
-			if(Initials.HasFlag(ResourceChanges.AnalysisFee))	AnalysisFee = reader.ReadMoney();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -80,7 +72,6 @@ namespace Uccs.Net
 
 			if(Initials.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
 			if(Initials.HasFlag(ResourceChanges.Parent))		writer.WriteUtf8(Parent);
-			if(Initials.HasFlag(ResourceChanges.AnalysisFee))	writer.Write(AnalysisFee);
 		}
 
 		public override void Execute(Mcv chain, Round round)
@@ -131,15 +122,15 @@ namespace Uccs.Net
 				r.Data		= Data;
 			}
 
-			if(AnalysisFee > 0)
-			{
-				Affect(round, Signer).Balance -= AnalysisFee;
-	
-				r.AnalysisStage				= AnalysisStage.Pending;
-				r.AnalysisFee				= AnalysisFee;
-				r.RoundId					= round.Id;
-				r.AnalysisHalfVotingRound	= 0;
-			}
+			//if(AnalysisFee > 0)
+			//{
+			//	Affect(round, Signer).Balance -= AnalysisFee;
+			//
+			//	r.AnalysisStage				= AnalysisStage.Pending;
+			//	r.AnalysisFee				= AnalysisFee;
+			//	r.RoundId					= round.Id;
+			//	r.AnalysisHalfVotingRound	= 0;
+			//}
 		}
 	}
 }

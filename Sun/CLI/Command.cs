@@ -107,6 +107,14 @@ namespace Uccs.Sun.CLI
 				return def;
 		}
 
+		protected Money GetMoney(string paramenter)
+		{
+			if(Args.Has(paramenter))
+				return Money.ParseDecimal(Args.Get<string>(paramenter));
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+		}
+
 		//protected AccountKey GetPrivate(string walletarg)
 		//{
 		//	string p = null;
@@ -141,7 +149,8 @@ namespace Uccs.Sun.CLI
 					{
 						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} : [{string.Join(", ", value as IEnumerable<object>)}]");
 					}
-					else if(value is IEnumerable<Dependency>)
+					else if(value is IEnumerable<Dependency> ||
+							value is IEnumerable<AnalyzerResult>)
 					{
 						Workflow.Log?.Report(new string(' ', tab * 3) + $"{name} :");
 

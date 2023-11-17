@@ -19,6 +19,7 @@ namespace Uccs.Net
 							  {
 									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									Tables.Authors	=> sun.Mcv.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
+									Tables.Analyses	=> sun.Mcv.Analyses.Clusters.Find(i => i.Id == ClusterId)?.Main,
 									_ => throw new RdcEntityException(RdcEntityError.InvalidRequest)
 							  };
 

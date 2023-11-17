@@ -17,7 +17,7 @@ namespace Uccs.Sun.FUI
 											NetworkSearch_Click(s, e);
 									};
 
-			LocalQuery.KeyDown +=	(s, e) =>
+			LocalQuery.KeyDown += (s, e) =>
 									{
 										if(e.KeyCode == Keys.Enter)
 											LocalSearch_Click(s, e);
@@ -35,10 +35,10 @@ namespace Uccs.Sun.FUI
 		private void NetworkSearch_Click(object sender, EventArgs e)
 		{
 			if(!Sun.Roles.HasFlag(Role.Base))
-			{	
+			{
 				NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
 				NetworkReleases.Columns.Clear();
-				NetworkReleases.Columns.Add(new ColumnHeader() {Width = 500});
+				NetworkReleases.Columns.Add(new ColumnHeader() { Width = 500 });
 				NetworkReleases.Items.Clear();
 				NetworkReleases.Items.Add(new ListViewItem("Base role is not enabled"));
 				return;
@@ -61,11 +61,6 @@ namespace Uccs.Sun.FUI
 					i.SubItems.Add(r.Type.ToString());
 					i.SubItems.Add(r.Reserved.ToString());
 					i.SubItems.Add(r.Data?.ToHex());
-					i.SubItems.Add(r.AnalysisStage.ToString());
-					i.SubItems.Add(r.AnalysisFee.ToHumanString());
-					i.SubItems.Add(r.AnalysisHalfVotingRound.ToString());
-					i.SubItems.Add(r.Good.ToString());
-					i.SubItems.Add(r.Bad.ToString());
 					i.SubItems.Add(r.Resources.Length.ToString());
 
 					NetworkReleases.Items.Add(i);
@@ -86,10 +81,10 @@ namespace Uccs.Sun.FUI
 		private void LocalSearch_Click(object sender, EventArgs e)
 		{
 			if(!Sun.Roles.HasFlag(Role.Seed))
-			{	
+			{
 				LocalReleases.HeaderStyle = ColumnHeaderStyle.None;
 				LocalReleases.Columns.Clear();
-				LocalReleases.Columns.Add(new ColumnHeader() {Width = 500});
+				LocalReleases.Columns.Add(new ColumnHeader() { Width = 500 });
 				LocalReleases.Items.Clear();
 				LocalReleases.Items.Add(new ListViewItem("Seed role is not enabled"));
 				return;

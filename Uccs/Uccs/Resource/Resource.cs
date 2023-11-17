@@ -39,7 +39,7 @@ namespace Uccs.Net
 		Type			= 0b_____________100,
 		Data			= 0b____________1000,
 		Parent			= 0b___________10000,
-		AnalysisFee		= 0b__________100000,
+		//AnalysisFee		= 0b__________100000,
 		AddPublisher	= 0b_________1000000,
 		RemovePublisher	= 0b________10000000,
 		Recursive		= 0b1000000000000000,
@@ -57,12 +57,6 @@ namespace Uccs.Net
 		public ResourceType		Type { get; set; }
 		public short			Reserved { get; set; }
 		public byte[]			Data { get; set; }
-		public AnalysisStage	AnalysisStage { get; set; }
-		public Money			AnalysisFee { get; set; }
-		public int				AnalysisHalfVotingRound { get; set; }
-		public int				RoundId { get; set; }
-		public byte				Good { get; set; }
-		public byte				Bad { get; set; }
 		public int[]			Resources { get; set; } = {};
 
 		public Time				RenewalBegin => Expiration - Time.FromYears(1);
@@ -82,12 +76,6 @@ namespace Uccs.Net
 							Type = Type,
 							Reserved = Reserved,
 							Data = Data,
-							AnalysisStage = AnalysisStage,
-							AnalysisFee = AnalysisFee,
-							AnalysisHalfVotingRound = AnalysisHalfVotingRound,
-							RoundId = RoundId,
-							Good = Good,
-							Bad = Bad,
 							Resources = Resources};
 		}
 
@@ -105,20 +93,20 @@ namespace Uccs.Net
 				writer.WriteBytes(Data);
 			}
 
-			writer.Write((byte)AnalysisStage);
-
-			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
-			{
-				writer.Write(AnalysisFee);
-				writer.Write7BitEncodedInt(RoundId);
-				writer.Write7BitEncodedInt(AnalysisHalfVotingRound);
-			}
-
-			if(AnalysisStage == AnalysisStage.Finished)
-			{
-				writer.Write(Good);
-				writer.Write(Bad);
-			}
+			//writer.Write((byte)AnalysisStage);
+			//
+			//if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
+			//{
+			//	writer.Write(AnalysisFee);
+			//	writer.Write7BitEncodedInt(RoundId);
+			//	writer.Write7BitEncodedInt(AnalysisHalfVotingRound);
+			//}
+			//
+			//if(AnalysisStage == AnalysisStage.Finished)
+			//{
+			//	writer.Write(Good);
+			//	writer.Write(Bad);
+			//}
 
 			writer.Write(Resources, i => writer.Write7BitEncodedInt(i));
 		}
@@ -137,20 +125,20 @@ namespace Uccs.Net
 				Data = reader.ReadBytes();
 			}
 
-			AnalysisStage = (AnalysisStage)reader.ReadByte();
-			
-			if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
-			{
-				AnalysisFee = reader.ReadMoney();
-				RoundId = reader.Read7BitEncodedInt();
-				AnalysisHalfVotingRound = reader.Read7BitEncodedInt();
-			}
-
-			if(AnalysisStage == AnalysisStage.Finished)
-			{
-				Good = reader.ReadByte();
-				Bad = reader.ReadByte();	
-			}
+			//AnalysisStage = (AnalysisStage)reader.ReadByte();
+			//
+			//if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
+			//{
+			//	AnalysisFee = reader.ReadMoney();
+			//	RoundId = reader.Read7BitEncodedInt();
+			//	AnalysisHalfVotingRound = reader.Read7BitEncodedInt();
+			//}
+			//
+			//if(AnalysisStage == AnalysisStage.Finished)
+			//{
+			//	Good = reader.ReadByte();
+			//	Bad = reader.ReadByte();	
+			//}
 
 			Resources = reader.ReadArray(() => reader.Read7BitEncodedInt());
 		}
