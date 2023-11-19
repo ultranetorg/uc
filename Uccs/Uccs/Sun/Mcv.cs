@@ -26,8 +26,7 @@ namespace Uccs.Net
 		///public const int					MembersRotation = 32;
 		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000_001);
 		public static readonly Money		AnalysisFeePerByte		= new Money(0.000_000_001);
-		//public static readonly Money		AuthorFeePerYear		= new Money(1);
-		public static readonly Money		AccountAllocationFee	= new Money(1);
+		//public static readonly Money		AccountAllocationFee	= new Money(1);
 		public const int					EntityAllocationAverageLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;

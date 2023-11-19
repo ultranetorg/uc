@@ -8,7 +8,7 @@ namespace Uccs.Net
 		None,
 		Negative,
 		Positive,
-		NotEnoughPrepayment,
+		//NotEnoughPrepayment,
 	}
 
 	//public enum AnalysisStage : byte
@@ -21,12 +21,12 @@ namespace Uccs.Net
 
 	public struct AnalyzerResult
 	{
-		public byte				Analyzer { get; set; }
+		public byte				AnalyzerId { get; set; }
 		public AnalysisResult	Result { get; set; }
 
 		public override string ToString()
 		{
-			return $"{Analyzer}={Result}";
+			return $"{AnalyzerId}={Result}";
 		}
 	}
 
@@ -44,7 +44,7 @@ namespace Uccs.Net
 			Fee			= reader.ReadMoney();
 			StartedAt	= reader.Read7BitEncodedInt();
 			Consil		= reader.ReadByte();
-			Results		= reader.ReadArray(() => new AnalyzerResult {Analyzer = reader.ReadByte(), Result = (AnalysisResult)reader.ReadByte()});
+			Results		= reader.ReadArray(() => new AnalyzerResult {AnalyzerId = reader.ReadByte(), Result = (AnalysisResult)reader.ReadByte()});
 		}
 
 		public void Write(BinaryWriter writer)
@@ -53,7 +53,7 @@ namespace Uccs.Net
 			writer.Write(Fee);
 			writer.Write7BitEncodedInt(StartedAt);
 			writer.Write(Consil);
-			writer.Write(Results, i => { writer.Write(i.Analyzer); writer.Write((byte)i.Result); });
+			writer.Write(Results, i => { writer.Write(i.AnalyzerId); writer.Write((byte)i.Result); });
 		}
 	}
 }

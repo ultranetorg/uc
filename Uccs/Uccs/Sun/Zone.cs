@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -48,10 +49,9 @@ namespace Uccs.Net
 								}
 							}
 
- 		public static readonly Zone		Testnet1 = new Testnet1();
- 		public static readonly Zone		Simulation = new SimulationZone();
-		public static readonly Zone		Mainnet	= null;
-		public static readonly Zone[]	Official = {Simulation, Testnet1};
+ 		public static readonly Zone			Testnet1 = new Testnet1();
+		public static readonly Zone			Mainnet	= null;
+		public static readonly Zone[]		Official = {Testnet1};
 
 		public Zone()
 		{

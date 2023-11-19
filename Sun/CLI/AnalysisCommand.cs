@@ -37,8 +37,7 @@ namespace Uccs.Sun.CLI
 				case "register" :
 				{
 					return new AnalysisRegistration { Negatives = Args.Get<string>("negatives", null)?.Split(' ')?.Select(i => i.HexToByteArray()),
-													  Positives = Args.Get<string>("positives", null)?.Split(' ').Select(i => i.HexToByteArray()),
-													  Rejections = Args.Get<string>("rejections", null)?.Split(' ').Select(i => i.HexToByteArray()) };
+													  Positives = Args.Get<string>("positives", null)?.Split(' ').Select(i => i.HexToByteArray())};
 				}
 
 				case "i" : 

@@ -173,7 +173,6 @@ namespace Uccs.Net
 // 											try
 // 											{
 // 												rp.ContentType = "application/octet-stream";
-// 						
 // 												rp.OutputStream.Write(t, 0, t.Length);
 // 											}
 // 											catch(InvalidOperationException)
@@ -215,6 +214,7 @@ namespace Uccs.Net
 
 				object execute(ApiCall call)
 				{
+					Workflow.Log?.Report(this, "Executing", json);
 					return Execute(call, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
 				}
 

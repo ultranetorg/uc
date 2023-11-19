@@ -103,7 +103,7 @@ namespace Uccs.Net
 			return Mcv.SpaceBasicFeePerByte * size * new Money(1u << (years - 1));
 		}
 
-		public void PayForAllocation(Round round, int length, byte years)
+		public void Pay(Round round, int length, byte years)
 		{
 			var fee = CalculateSpaceFee(length, years);
 			
@@ -117,10 +117,7 @@ namespace Uccs.Net
 
 			if(e == null) /// new account
 			{
-				var	s = round.AffectAccount(Signer);
-				
-				s.Balance -= Mcv.AccountAllocationFee;
-				round.Fees += Mcv.AccountAllocationFee;
+				Pay(round, Mcv.EntityAllocationAverageLength, 15);
 			}
 
 			return round.AffectAccount(account);
@@ -133,6 +130,13 @@ namespace Uccs.Net
 
 		public AnalysisEntry Affect(Round round, byte[] release)
 		{
+			var e = round.Mcv.Analyses.Find(release, round.Id);	
+
+			if(e == null) /// new account
+			{
+				Pay(round, Mcv.EntityAllocationAverageLength, 1);
+			}
+
 			return round.AffectAnalysis(release);
 		}
 	}

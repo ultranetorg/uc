@@ -106,7 +106,7 @@ namespace Uccs.Net
 			r.LastRenewalYears	= Years;
 			r.Expiration		= round.ConfirmedTime + Time.FromYears(Years);
 			
-			PayForAllocation(round, Mcv.EntityAllocationAverageLength + (Data == null ? 0 : Data.Length), Years);
+			Pay(round, Mcv.EntityAllocationAverageLength + (Data == null ? 0 : Data.Length), Years);
 			
 			if(Parent != null)
 			{

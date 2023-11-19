@@ -148,7 +148,7 @@ namespace Uccs.Net
 						foreach(var i in sun.Vault.Wallets)
 						{
 							var a = i.Key.ToString();
-							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)}", $"{formatbalance(i.Key),23}"));
+							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)} {(sun.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", $"{formatbalance(i.Key),23}"));
 						}
 	
 						if(DevSettings.UI)
@@ -190,12 +190,11 @@ namespace Uccs.Net
 																	.Select(i => new ChainReportResponse.Round
 																				{
 																					Id = i.Id, 
-																					Members = i.Members.Count,
-																					Analyzers = i.Analyzers.Count,
+																					Members = i.Members == null ? 0 : i.Members.Count,
+																					Analyzers = i.Analyzers == null ? 0 : i.Analyzers.Count,
 																					Confirmed = i.Confirmed,
 																					Time = i.ConfirmedTime,
 																					Hash = i.Hash,
-																					//Summary = i.Summary,
 																					Votes = i.Votes.Select(b => new ChainReportResponse.Vote {	Generator = b.Generator, 
 																																				IsPayload = b.Transactions.Any(), 
 																																					/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
