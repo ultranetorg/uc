@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
 	public class AnalysisRegistration : Operation
 	{
-		public IEnumerable<byte[]>		Negatives { get; set; }
-		public IEnumerable<byte[]>		Positives { get; set; }
-		//public IEnumerable<byte[]>		Rejections { get; set; }
+		public byte[]			Release { get; set; }
+		public AnalysisResult	Result { get; set; }
 		
-		public override string			Description => $"Negatives={{{Negatives.Count()}}}, Positives={{{Positives.Count()}}}";
-		public override bool			Valid => Negatives.Any() || Positives.Any();
+		public override string			Description => $"Release={Release.ToHex()}, Result={Result}";
+		public override bool			Valid => true;
 
 		public AnalysisRegistration()
 		{
@@ -20,16 +20,14 @@ namespace Uccs.Net
 		
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Negatives, i => writer.Write(i));
-			writer.Write(Positives, i => writer.Write(i));
-			//writer.Write(Rejections, i => writer.Write(i));
+			writer.Write(Release);
+			writer.Write((byte)Result);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Negatives = reader.ReadArray(() => reader.ReadHash());
-			Positives = reader.ReadArray(() => reader.ReadHash());
-			//Rejections = reader.ReadArray(() => reader.ReadHash());
+			Release = reader.ReadHash();
+			Result = (AnalysisResult)reader.ReadByte();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -42,47 +40,45 @@ namespace Uccs.Net
 				return;
 			}
 
- 			foreach(var i in Negatives)
- 			{
- 				var an = Affect(round, i);
+ 			var an = Affect(round, Release);
 
-				if(an == null)
-				{
-					Error = NotFound;
-					return;
-				}
+			if(an == null)
+			{
+				Error = NotFound;
+				return;
+			}
  
-				var r = an.Results.FirstOrDefault(i => i.AnalyzerId == az.Id);
+			var j = Array.FindIndex(an.Results, i => i.AnalyzerId == az.Id);
+			
+ 			if(j == -1)
+			{
+				an.Results = an.Results.Append(new AnalyzerResult {AnalyzerId = az.Id, Result = Result}).ToArray();
+				Affect(round, Signer).Balance += an.Fee/an.Consil;
+			}
+ 			else
+				an.Results[j].Result = Result;
+ 			
 
- 				if(r.Result == AnalysisResult.None)
- 				{
-					an.Results = an.Results.Append(new AnalyzerResult {AnalyzerId = az.Id, Result = AnalysisResult.Negative}).ToArray();
-					Affect(round, Signer).Balance += an.Fee/an.Consil;
-				}
- 				else
-					r.Result = AnalysisResult.Negative;
- 			}
-
- 			foreach(var i in Positives)
- 			{
- 				var an = Affect(round, i);
-
-				if(an == null)
-				{
-					Error = NotFound;
-					return;
-				}
- 
-				var j = Array.FindIndex(an.Results, i => i.AnalyzerId == az.Id);
-
- 				if(j == -1)
-				{
-					an.Results = an.Results.Append(new AnalyzerResult {AnalyzerId = az.Id, Result = AnalysisResult.Positive}).ToArray();
-					Affect(round, Signer).Balance += an.Fee/an.Consil;
-				}
- 				else
-					an.Results[j].Result = AnalysisResult.Positive;
- 			}
+ 			//foreach(var i in Positives)
+ 			//{
+ 			//	var an = Affect(round, i);
+			//
+			//	if(an == null)
+			//	{
+			//		Error = NotFound;
+			//		return;
+			//	}
+ 			//
+			//	var j = Array.FindIndex(an.Results, i => i.AnalyzerId == az.Id);
+			//
+ 			//	if(j == -1)
+			//	{
+			//		an.Results = an.Results.Append(new AnalyzerResult {AnalyzerId = az.Id, Result = AnalysisResult.Positive}).ToArray();
+			//		Affect(round, Signer).Balance += an.Fee/an.Consil;
+			//	}
+ 			//	else
+			//		an.Results[j].Result = AnalysisResult.Positive;
+ 			//}
 
  			//foreach(var i in Rejections)
  			//{

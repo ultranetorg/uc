@@ -7,8 +7,6 @@ namespace Uccs.Net
 	public class MemberVoxRequest : RdcRequest
 	{
 		public byte[]					Raw { get; set; }
-		//public ChainTime				Time { get; set; }
-		//public byte[]					Signature { get; set; }
 
 		public override bool			WaitResponse => false;
 

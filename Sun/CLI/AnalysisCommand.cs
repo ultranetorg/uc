@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Uccs.Net;
 
@@ -32,8 +33,7 @@ namespace Uccs.Sun.CLI
 				case "r" :
 				case "register" :
 				{
-					return new AnalysisRegistration { Negatives = Args.Get<string>("negatives", null)?.Split(' ').Select(i => i.HexToByteArray()),
-													  Positives = Args.Get<string>("positives", null)?.Split(' ').Select(i => i.HexToByteArray())};
+					return new AnalysisRegistration {Release = Args.Nodes[1].Name.HexToByteArray(), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
 				}
 
 				case "i" : 
