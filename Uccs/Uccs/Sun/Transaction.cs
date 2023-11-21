@@ -14,6 +14,9 @@ namespace Uccs.Net
 
 	public class Transaction : IBinarySerializable
 	{
+		const int						PoWLength = 16;
+		const int						TagLengthMax = 1024;
+
 		public int						Nid;
 		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConfirmedTransactions, this));
 		public Operation[]				Operations = {};
@@ -21,9 +24,9 @@ namespace Uccs.Net
 		
 		public Vote						Vote;
 		public Round					Round;
-		//public AccountAddress			Member;
 		public int						Expiration;
 		public byte[]					PoW;
+		public byte[]					Tag;
 		public Money					Fee;
 		public byte[]					Signature;
 				
@@ -32,14 +35,13 @@ namespace Uccs.Net
 		public PlacingStage				Placing;
 		public RdcInterface				Rdc;
 
-		const int						PoWLength = 16;
-
 		public PlacingStage				__ExpectedPlacing = PlacingStage.None;
 
 		public bool Valid(Mcv mcv)
 		{
-			return	Operations.Any() && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit && Operations.All(i => i.Valid) &&
-					(!mcv.Zone.PoW || mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
+			return	(Tag == null || Tag.Length <= TagLengthMax) &&
+					Operations.Any() && Operations.All(i => i.Valid) && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit &&
+					(!mcv.Zone.PoW || PoW.Length == PoWLength && mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
  		public Transaction(Zone zone)
@@ -105,6 +107,7 @@ namespace Uccs.Net
 			w.Write7BitEncodedInt(Expiration);
 			w.Write(Fee);
 			w.WriteBytes(PoW);
+			w.WriteBytes(Tag);
 			w.Write(Operations, i => i.Write(w));
 
 			return Zone.Cryptography.Hash(s.ToArray());
@@ -115,6 +118,7 @@ namespace Uccs.Net
 			writer.Write(Signer);
 			writer.Write7BitEncodedInt(Nid);
 			writer.Write(Fee);
+			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>{
 											writer.Write((byte)i.Class); 
 											i.Write(writer); 
@@ -128,6 +132,7 @@ namespace Uccs.Net
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
 			Fee			= reader.ReadMoney();
+			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													o.Transaction = this;
@@ -148,6 +153,7 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(Expiration);
 			writer.Write(Fee);
 			writer.Write(PoW);
+			writer.WriteBytes(Tag);
 			writer.Write(Operations, i => {
 											writer.Write((byte)i.Class); 
 											i.Write(writer); 
@@ -163,6 +169,7 @@ namespace Uccs.Net
 			Expiration	= reader.Read7BitEncodedInt();
 			Fee			= reader.ReadMoney();
 			PoW			= reader.ReadBytes(PoWLength);
+			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
  													//o.Placing		= PlacingStage.Confirmed;
@@ -186,6 +193,7 @@ namespace Uccs.Net
 			writer.Write7BitEncodedInt(Expiration);
 			writer.Write(Fee);
 			writer.Write(PoW);
+			writer.WriteBytes(Tag);
 			writer.Write(Operations, i =>	{
 												writer.Write((byte)i.Class); 
 												i.Write(writer); 
@@ -201,6 +209,7 @@ namespace Uccs.Net
 			Expiration	= reader.Read7BitEncodedInt();
 			Fee			= reader.ReadMoney();
 			PoW			= reader.ReadBytes(PoWLength);
+			Tag			= reader.ReadBytes();
 			Operations	= reader.ReadArray(() => {
 													var o = Operation.FromType((OperationClass)reader.ReadByte());
 													o.Transaction = this;

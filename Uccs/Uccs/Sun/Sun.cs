@@ -1474,7 +1474,10 @@ namespace Uccs.Net
 			Workflow.Log?.ReportError(this, ex.Message);
 			Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
 
-			IncomingTransactions.RemoveAll(i => i.Vote != null && i.Vote.RoundId >= ex.Round.Id && (i.Placing == PlacingStage.Placed || i.Placing == PlacingStage.Confirmed));
+			//foreach(var i in IncomingTransactions.Where(i => i.Vote != null && i.Vote.RoundId >= ex.Round.Id && (i.Placing == PlacingStage.Placed || i.Placing == PlacingStage.Confirmed)).ToArray())
+			//{
+			//	i.Placing = PlacingStage.Accepted;
+			//}
 
 			Synchronize();
 		}

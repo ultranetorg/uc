@@ -644,8 +644,8 @@ namespace Uccs.Net
 
 		start: 
 	
-			round.Fees			= 0;
-			round.Emission		= round.Id == 0 ? 0		: round.Previous.Emission;
+			round.Fees		= 0;
+			round.Emission	= round.Id == 0 ? 0 : round.Previous.Emission;
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
@@ -653,8 +653,6 @@ namespace Uccs.Net
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
-				//Coin fee = 0;
-
 				var a = round.AffectAccount(t.Signer);
 
 				if(t.Nid != a.LastTransactionNid + 1)
@@ -672,8 +670,6 @@ namespace Uccs.Net
 					if(o.Error != null)
 						goto start;
 
-					//var f = o.CalculateTransactionFee(round.TransactionPerByteFee);
-	
 					if(a.Balance - t.Fee < 0)
 					{
 						o.Error = Operation.NotEnoughUNT;

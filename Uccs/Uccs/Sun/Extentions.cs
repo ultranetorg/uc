@@ -53,13 +53,23 @@ namespace Uccs.Net
 
 		public static void WriteBytes(this BinaryWriter w, byte [] data)
 		{
-			w.Write7BitEncodedInt(data.Length);
-			w.Write(data);
+			if(data != null && data.Length > 0)
+			{
+				w.Write7BitEncodedInt(data.Length);
+				w.Write(data);
+			}
+			else
+				w.Write7BitEncodedInt(0);
 		}
 
 		public static byte[] ReadBytes(this BinaryReader r)
 		{
-			return r.ReadBytes(r.Read7BitEncodedInt());
+			var n = r.Read7BitEncodedInt();
+			
+			if(n > 0)
+				return r.ReadBytes(n);
+			else
+				return null;
 		}
 
 		public static byte[] ReadHash(this BinaryReader r)
