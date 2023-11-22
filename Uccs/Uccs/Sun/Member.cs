@@ -13,12 +13,12 @@ namespace Uccs.Net
 		public AccountAddress			Account { get; set; }
 		public IPAddress[]				BaseRdcIPs { get; set; } = new IPAddress[0];
 		public IPAddress[]				SeedHubRdcIPs { get; set; } = new IPAddress[0];
-		public int						JoinedAt { get; set; }
+		public int						CastingSince { get; set; }
 		public Peer         			Proxy;
 
 		public override string ToString()
 		{
-			return $"Account={Account}, JoinedAt={JoinedAt}, BaseRdcIPs={{{BaseRdcIPs.Length}}}, SeedHubRdcIPs={{{SeedHubRdcIPs.Length}}}";
+			return $"Account={Account}, JoinedAt={CastingSince}, BaseRdcIPs={{{BaseRdcIPs.Length}}}, SeedHubRdcIPs={{{SeedHubRdcIPs.Length}}}";
 		}
 	
   		//public void WriteConfirmed(BinaryWriter writer)
@@ -40,7 +40,7 @@ namespace Uccs.Net
  			writer.Write(Account);
 			writer.Write(BaseRdcIPs, i => writer.Write(i));
 			writer.Write(SeedHubRdcIPs, i => writer.Write(i));
-			writer.Write7BitEncodedInt(JoinedAt);
+			writer.Write7BitEncodedInt(CastingSince);
  		}
  
  		public void ReadBaseState(BinaryReader reader)
@@ -48,7 +48,7 @@ namespace Uccs.Net
 			Account			= reader.ReadAccount();
 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
 			SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
- 			JoinedAt		= reader.Read7BitEncodedInt();
+ 			CastingSince		= reader.Read7BitEncodedInt();
 		}
 	
 //   		public void WriteForSharing(BinaryWriter w)

@@ -11,8 +11,8 @@ namespace Uccs.Net
 		public byte[]			Release { get; set; }
 		public AnalysisResult	Result { get; set; }
 		
-		public override string			Description => $"Release={Release.ToHex()}, Result={Result}";
-		public override bool			Valid => true;
+		public override string	Description => $"Release={Release.ToHex()}, Result={Result}";
+		public override bool	Valid => true;
 
 		public AnalysisRegistration()
 		{

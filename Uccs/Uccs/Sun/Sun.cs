@@ -283,74 +283,73 @@ namespace Uccs.Net
 																}
 															};
 				
-					Mcv.Commited += r =>	{
-
-												if(IsMember)
-												{
-													var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+				Mcv.Commited += r => {
+										if(IsMember)
+										{
+											var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
 												
-													foreach(var o in ops)
-													{
-														if(o is AuthorBid ab && ab.Tld.Any())
-														{
-	 														if(!DevSettings.SkipDomainVerification)
-	 														{
-																Task.Run(() =>	{
-	 																				try
-	 																				{
-	 																					var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+											foreach(var o in ops)
+											{
+												if(o is AuthorBid ab && ab.Tld.Any())
+												{
+	 												if(!DevSettings.SkipDomainVerification)
+	 												{
+														Task.Run(() =>	{
+	 																		try
+	 																		{
+	 																			var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
 	 															
-	 																					var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
+	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
 	 		
-	 																					if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
-	 																					{
-																							lock(Lock)
-																							{	
-																								ApprovedDomainBids.Add(ab.Id);
-																							}
-	 																					}
-	 																				}
-	 																				catch(AggregateException ex)
-	 																				{
-	 																					Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
-	 																				}
-	 																				catch(DnsResponseException ex)
-	 																				{
-	 																					Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
-	 																				}
-																				});
-	 														}
-															else
-																ApprovedDomainBids.Add(ab.Id);
-														}
-	
-														if(o is Emission e)
-														{
-															Task.Run(() =>	{
-	 																			try
+	 																			if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
 	 																			{
-	 																				if(Nas.CheckEmission(e))
-	 																				{
-																						lock(Lock)
-																						{	
-																							ApprovedEmissions.Add(e.Id);
-																						}
-	 																				}
+																					lock(Lock)
+																					{	
+																						ApprovedDomainBids.Add(ab.Id);
+																					}
 	 																			}
-	 																			catch(Exception ex)
-	 																			{
-	 																				Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
-	 																			}
-																			});
-														}
-													}
+	 																		}
+	 																		catch(AggregateException ex)
+	 																		{
+	 																			Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 																		}
+	 																		catch(DnsResponseException ex)
+	 																		{
+	 																			Workflow.Log?.ReportError(this, "Can't verify AuthorBid domain", ex);
+	 																		}
+																		});
+	 												}
+													else
+														ApprovedDomainBids.Add(ab.Id);
 												}
+	
+												if(o is Emission e)
+												{
+													Task.Run(() =>	{
+	 																	try
+	 																	{
+	 																		if(Nas.CheckEmission(e))
+	 																		{
+																				lock(Lock)
+																				{	
+																					ApprovedEmissions.Add(e.Id);
+																				}
+	 																		}
+	 																	}
+	 																	catch(Exception ex)
+	 																	{
+	 																		Workflow.Log?.ReportError(this, "Can't verify Emission operation", ex);
+	 																	}
+																	});
+												}
+											}
+										}
 
-												ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-												ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-												IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
-												//Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Release && j.Finished));
-											};
+										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
+										//Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Release && j.Finished));
+									};
 		
 				if(Settings.Generators.Any())
 				{
@@ -1082,7 +1081,7 @@ namespace Uccs.Net
 							else
 								from = Math.Max(stamp.FirstTailRound, Mcv.LastConfirmedRound == null ? -1 : (Mcv.LastConfirmedRound.Id + 1));
 		
-						to = from + Mcv.Pitch;
+						to = from + Mcv.P;
 		
 						var rp = peer.Request<DownloadRoundsResponse>(new DownloadRoundsRequest{From = from, To = to});
 
@@ -1102,10 +1101,10 @@ namespace Uccs.Net
 								if(Mcv.LastConfirmedRound.Id + 1 != rid)
 								 	throw new IntegrityException();
 	
-								if(Enumerable.Range(rid, Mcv.Pitch + 1).All(i => SyncTail.ContainsKey(i)) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
+								if(Enumerable.Range(rid, Mcv.P + 1).All(i => SyncTail.ContainsKey(i)) && (Mcv.Roles.HasFlag(Role.Chain) || Mcv.FindRound(r.VotersRound) != null))
 								{
 									var p =	SyncTail[rid];
-									var c =	SyncTail[rid + Mcv.Pitch];
+									var c =	SyncTail[rid + Mcv.P];
 
 									try
 									{
@@ -1236,7 +1235,7 @@ namespace Uccs.Net
 			}
 			else if(assynchronized || Synchronization == Synchronization.Synchronized)
 			{
-				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.Pitch * 2 < v.RoundId)
+				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
 					return false;
 
 				///if(v.RoundId <= Mcv.LastVotedRound.Id - Mcv.Pitch / 2)
@@ -1287,7 +1286,7 @@ namespace Uccs.Net
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				var m = Mcv.LastConfirmedRound.Members.NearestBy(m => m.Account, i.Signer).Account;
+				var m = Mcv.LastConfirmedRound.Members.Where(i => i.CastingSince <= Mcv.LastConfirmedRound.Id + Mcv.P).NearestBy(m => m.Account, i.Signer).Account;
 
 				if(!Settings.Generators.Contains(m))
 					continue;
@@ -1323,9 +1322,12 @@ namespace Uccs.Net
 
 			var votes = new List<Vote>();
 
+
 			foreach(var g in Settings.Generators)
 			{
-				if(!Mcv.LastConfirmedRound.Members.Any(i => i.Account == g))
+				var m = Mcv.LastConfirmedRound.Members.Find(i => i.Account == g);
+
+				if(m == null)
 				{
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
@@ -1354,12 +1356,37 @@ namespace Uccs.Net
 					if(LastCandidacyDeclaration.TryGetValue(g, out var lcd))
 						OutgoingTransactions.Remove(lcd);
 
-					var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.Pitch);
+					var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P);
+
+					if(r.Id < m.CastingSince)
+						continue;
 
 					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
 
-					var txs = IncomingTransactions.Where(i => Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account == g && r.Id <= i.Expiration && i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray();
+					var txs = new List<Transaction>();
+
+					foreach(var i in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray())
+					{
+						var nearest = Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account;
+
+						if(!Settings.Generators.Contains(nearest))
+						{
+							i.Placing = PlacingStage.FailedOrNotFound;
+							IncomingTransactions.Remove(i);
+							continue;
+						}
+
+						if(r.Id > i.Expiration)
+						{
+							i.Placing = PlacingStage.FailedOrNotFound;
+							IncomingTransactions.Remove(i);
+							continue;
+						}
+
+						if(nearest == g)
+							txs.Add(i);
+					}
 
 					Vote createvote(Round r)
 					{
@@ -1558,7 +1585,7 @@ namespace Uccs.Net
 							{
 								t.Nid = nid++;
 								t.Rdc = rdi;
-								t.Expiration = at.LastConfirmedRid + Mcv.Pitch * 2;
+								t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 								t.Fee = t.Operations.Length * at.ExeunitMinFee;
 	
 								t.Sign(Vault.GetKey(t.Signer), at.PowHash);

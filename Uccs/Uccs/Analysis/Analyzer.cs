@@ -5,6 +5,8 @@ namespace Uccs.Net
 {
 	public class Analyzer
 	{
+		public const int				IdMax = 255;
+
 		public AccountAddress			Account;
 		public byte						Id;
 		public int						JoinedAt;

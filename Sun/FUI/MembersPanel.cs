@@ -40,7 +40,7 @@ namespace Uccs.Sun.FUI
 					}
 		
 					li.Tag = i;
-					li.SubItems.Add(i.JoinedAt.ToString());
+					li.SubItems.Add(i.CastingSince.ToString());
 					li.SubItems.Add(Sun.Mcv.Accounts.Find(i.Account, int.MaxValue).Bail.ToHumanString());
 					//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 				}

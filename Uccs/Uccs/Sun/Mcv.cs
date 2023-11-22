@@ -20,9 +20,10 @@ namespace Uccs.Net
 	{
 		public Log							Log;
 
-		public const int					Pitch = 8;
-		public const int					LastGenesisRound = 18;
-		public const int					AnalyzersIdMax = 255;
+		public const int					P = 8; /// pitch
+		public const int					DeclareToGenerateDelay = P*2;
+		public const int					TransactionPlacingLifetime = P*2;
+		public const int					LastGenesisRound = 1+P + 1+P + P;
 		///public const int					MembersRotation = 32;
 		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000_001);
 		public static readonly Money		AnalysisFeePerByte		= new Money(0.000_000_001);
@@ -64,7 +65,7 @@ namespace Uccs.Net
 		public const string					ChainFamilyName = "Chain";
 		public ColumnFamilyHandle			ChainFamily	=> Engine.GetColumnFamily(ChainFamilyName);
 
-		public static int					GetValidityPeriod(int rid) => rid + Pitch;
+		public static int					GetValidityPeriod(int rid) => rid + P;
 
 		public Mcv(Zone zone, Role roles, McvSettings settings, RocksDb engine)
 		{
@@ -112,7 +113,7 @@ namespace Uccs.Net
 	
  					var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
 						
-					for(int i = 0; i <=1+8 + 1+8; i++)
+					for(int i = 0; i <=1+P + 1+P + P; i++)
 					{
 						var r = new Round(this);
 						r.Read(rd);
@@ -125,7 +126,7 @@ namespace Uccs.Net
 							r.ConfirmedExeunitMinFee = Zone.ExeunitMinFee;
 						}
 	
-						if(i <= 1+8 + 1)
+						if(i <= 1+P + 1+P)
 						{
 							if(i == 0)
 								r.ConfirmedFundJoiners = new[] {Zone.Father0};
@@ -198,10 +199,9 @@ namespace Uccs.Net
 			/// 0 - emission request
 			/// 1 - vote for emission 
 			/// 1+8	 - emited
-			/// 1+8+1 - candidacy declaration
-			/// 1+8+1 + 8 - decalared
-			/// 1+8+1 + 8+1 - join request
-			/// 1+8+1 + 8+1+8 - joined
+			/// 1+8 + 1 - candidacy declaration
+			/// 1+8 + 1+8 - decalared
+			/// 1+8 + 1+8 + 8 - joined
 
 			var f0 = fathers[0];
 
@@ -257,18 +257,18 @@ namespace Uccs.Net
 				write(1);
 			}
 	
-			for(int i = 2; i <= 1+8 + 1+8; i++)
+			for(int i = 2; i <= 1+P + 1+P + P; i++)
 			{
-				var v = new Vote(this){	 RoundId		= i,
-										 TimeDelta		= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										 ParentHash	= i < 8 ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - Pitch)) };
+				var v = new Vote(this){	 RoundId	= i,
+										 TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+										 ParentHash	= i < P ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - P)) };
 		 
-				if(i == 1+8 + 1)
+				if(i == 1+P + 1)
 				{
 					var t = new Transaction(Zone) {Nid = 1, Expiration = i};
-					t.AddOperation(new CandidacyDeclaration {	Bail = 1_000_000,
-																BaseRdcIPs = new IPAddress[] {Zone.Father0IP},
-																SeedHubRdcIPs = new IPAddress[] {Zone.Father0IP} });
+					t.AddOperation(new CandidacyDeclaration{Bail = 1_000_000,
+															BaseRdcIPs = new IPAddress[] {Zone.Father0IP},
+															SeedHubRdcIPs = new IPAddress[] {Zone.Father0IP} });
 					t.Sign(f0, Zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
 				}
@@ -417,7 +417,7 @@ namespace Uccs.Net
 
 		public List<Analyzer> AnalyzersOf(int rid)
 		{
-			return FindRound(rid - Pitch - 1).Analyzers/*.Where(i => i.JoinedAt < r.Id)*/;
+			return FindRound(rid - P - 1).Analyzers/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
 		public bool ConsensusFailed(Round r)
@@ -462,16 +462,16 @@ namespace Uccs.Net
 			
 		public IEnumerable<AccountAddress> ProposeViolators(Round round)
 		{
-			var g = round.Id > Pitch ? VotersOf(round) : new();
+			var g = round.Id > P ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => g.Any(j => i.Generator == j.Account)).ToArray();
 			return gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 		}
 
 		public IEnumerable<AccountAddress> ProposeMemberLeavers(Round round, AccountAddress generator)
 		{
-			var prevs = Enumerable.Range(round.ParentId - Pitch, Pitch).Select(i => FindRound(i));
+			var prevs = Enumerable.Range(round.ParentId - P, P).Select(i => FindRound(i));
 
-			var ls = VotersOf(round).Where(i =>	i.JoinedAt <= round.ParentId &&/// in previous Pitch number of rounds
+			var ls = VotersOf(round).Where(i =>	i.CastingSince <= round.ParentId &&/// in previous Pitch number of rounds
 												!round.Parent.VotesOfTry.Any(v => v.Generator == i.Account) &&	/// ??? sent less than MinVotesPerPitch of required blocks
 												!prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Account)))) /// not yet proposed in prev [Pitch-1] rounds
 									.Select(i => i.Account);
@@ -499,7 +499,7 @@ namespace Uccs.Net
 			round.AnalyzersIdCounter	= round.Id == 0 ? new()	: round.Previous.AnalyzersIdCounter;
 
 
-			var m = round.Id > Pitch ? VotersOf(round) : new();
+			var m = round.Id >= DeclareToGenerateDelay ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
@@ -544,7 +544,7 @@ namespace Uccs.Net
 			}
 			else 
 			{
-				if(round.ConfirmedExeunitMinFee > Zone.ExeunitMinFee && round.Id - round.ConfirmedOverflowRound > Pitch)
+				if(round.ConfirmedExeunitMinFee > Zone.ExeunitMinFee && round.Id - round.ConfirmedOverflowRound > P)
 					round.ConfirmedExeunitMinFee /= Zone.TransactionsOverflowFactor;
 			}
 			
@@ -555,7 +555,7 @@ namespace Uccs.Net
 
 			round.ConfirmedTransactions = txs.Where(i => i.Successful).ToArray();
 
-			if(round.Id >= Pitch)
+			if(round.Id >= P)
 			{
 				var gq = m.Count * 2/3;
 	
@@ -789,7 +789,7 @@ namespace Uccs.Net
 												.OrderByDescending(i => i.Bail)
 												.ThenBy(i => i.Signer);
  
-			round.Members.AddRange(js.Take(Math.Min(Zone.MembersLimit - round.Members.Count, js.Count())).Select(i => new Member{ JoinedAt = round.Id + Pitch + 1,
+			round.Members.AddRange(js.Take(Math.Min(Zone.MembersLimit - round.Members.Count, js.Count())).Select(i => new Member{ CastingSince = round.Id + DeclareToGenerateDelay,
 																																  Account = i.Signer, 
 																																  BaseRdcIPs = i.BaseRdcIPs, 
 																																  SeedHubRdcIPs = i.SeedHubRdcIPs}));
@@ -811,7 +811,7 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 			round.Funds.AddRange(round.ConfirmedFundJoiners);
 
 			round.Analyzers.RemoveAll(i => round.ConfirmedAnalyzerLeavers.Contains(i.Account));
-			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Id = (byte)round.AnalyzersIdCounter++, Account = i, JoinedAt = round.Id + Pitch + 1}));
+			round.Analyzers.AddRange(round.ConfirmedAnalyzerJoiners.Select(i => new Analyzer {Id = (byte)round.AnalyzersIdCounter++, Account = i, JoinedAt = round.Id + P + 1}));
 					
 			round.Confirmed = true;
 
@@ -882,7 +882,7 @@ foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(
 
 			//if(round.Id > Pitch)
 			{
-				var ro = FindRound(round.Id - Pitch-1);
+				var ro = FindRound(round.Id - P-1);
 				
 				if(ro != null)
 				{

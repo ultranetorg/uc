@@ -12,8 +12,9 @@ namespace Uccs.Net
 			{
 				RequireSynchronizedBase(sun);
 			
-				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Select(i => new MembersResponse.Member{Account = i.Account, 
-																																JoinedAt = i.JoinedAt,
+				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Where(i => i.CastingSince <= sun.Mcv.LastConfirmedRound.Id + Mcv.P)
+																						.Select(i => new MembersResponse.Member{Account = i.Account, 
+																																JoinedAt = i.CastingSince,
 																																BaseRdcIPs = i.BaseRdcIPs, 
 																																SeedHubRdcIPs = i.SeedHubRdcIPs, 
 																																Proxyable = i.Proxy != null})};

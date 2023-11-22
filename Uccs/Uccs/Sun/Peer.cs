@@ -287,24 +287,25 @@ namespace Uccs.Net
 						}
 					}
 
-					RdcPacket[] outs;
+					//RdcPacket[] outs;
 	
 					lock(Outs)
 					{
-						outs = Outs.ToArray();
+						//outs = Outs.ToArray();
+
+						foreach(var i in Outs)
+						{
+							if(i is RdcRequest)
+								Writer.Write((byte)PacketType.Request);
+							else if(i is RdcResponse)
+								Writer.Write((byte)PacketType.Response);
+							else
+								throw new IntegrityException("Wrong packet to write");
+	
+							BinarySerializator.Serialize(Writer, i);
+						}
+						
 						Outs.Clear();
-					}
-	
-					foreach(var i in outs)
-					{
-						if(i is RdcRequest)
-							Writer.Write((byte)PacketType.Request);
-						else if(i is RdcResponse)
-							Writer.Write((byte)PacketType.Response);
-						else
-							throw new IntegrityException("Wrong packet to write");
-	
-						BinarySerializator.Serialize(Writer, i);
 					}
 	
 					Sun.Statistics.Sending.End();

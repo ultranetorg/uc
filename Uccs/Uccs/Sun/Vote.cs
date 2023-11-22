@@ -10,7 +10,7 @@ namespace Uccs.Net
 	public class Vote
 	{
 		//public const int			SizeMax = 65536;
-		public int					ParentId => RoundId - Mcv.Pitch;
+		public int					ParentId => RoundId - Mcv.P;
 
 		public List<Peer>			Peers;
 		public bool					BroadcastConfirmed;

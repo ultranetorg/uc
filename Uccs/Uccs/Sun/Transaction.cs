@@ -41,7 +41,7 @@ namespace Uccs.Net
 		{
 			return	(Tag == null || Tag.Length <= TagLengthMax) &&
 					Operations.Any() && Operations.All(i => i.Valid) && Operations.Length <= mcv.Zone.OperationsPerTransactionLimit &&
-					(!mcv.Zone.PoW || PoW.Length == PoWLength && mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.Pitch * 2).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
+					(!mcv.Zone.PoW || PoW.Length == PoWLength && mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
  		public Transaction(Zone zone)

@@ -39,7 +39,7 @@ namespace Uccs.Net
 
 		public const string		Rejected = "Rejected";
 		public const string		NotFound = "Not found";
-		public const string		AlreadyExists = "Alreadt exists";
+		public const string		AlreadyExists = "Already exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
 		public const string		NotOwner = "The signer does not own the entity";

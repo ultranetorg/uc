@@ -8,12 +8,12 @@ namespace Uccs.Net
 	public class Round : IBinarySerializable
 	{
 		public int											Id;
-		public int											ParentId => Id - Mcv.Pitch;
-		public int											VotersRound => ParentId - 1;
+		public int											ParentId => Id - Mcv.P;
+		public int											VotersRound => Id - Mcv.DeclareToGenerateDelay;
 		public Round										Previous =>	Mcv.FindRound(Id - 1);
 		public Round										Next =>	Mcv.FindRound(Id + 1);
 		public Round										Parent => Mcv.FindRound(ParentId);
-		public Round										Child => Mcv.FindRound(Id + Mcv.Pitch);
+		public Round										Child => Mcv.FindRound(Id + Mcv.P);
 		public int											TransactionsPerVoteExecutionLimit		=> Mcv.Zone.TransactionsPerRoundLimit / Members.Count;
 		public int											TransactionsPerVoteAllowableOverflow	=> TransactionsPerVoteExecutionLimit * Mcv.Zone.TransactionsPerVoteAllowableOverflowMuliplier;
 		public int											OperationsPerVoteLimit					=> Mcv.Zone.OperationsPerRoundLimit / Members.Count;
@@ -66,6 +66,8 @@ namespace Uccs.Net
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
 		public Dictionary<byte[], AnalysisEntry>			AffectedAnalyses = new(new BytesEqualityComparer());
 		
+		//public IEnumerable<Member>							ActiveMembers => Members.Where(i => i.JoinedAt >= Id);
+
 		public Mcv											Mcv;
 		
 		public int RequiredVotes
