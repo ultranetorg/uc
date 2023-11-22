@@ -5,7 +5,7 @@ namespace Uccs.Net
 {
 	public class TransactionStatusRequest : RdcRequest
 	{
-		public IEnumerable<TransactionsAddress>	Transactions { get; set; }
+		public TransactionsAddress[]	Transactions { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{
@@ -41,7 +41,7 @@ namespace Uccs.Net
 			public PlacingStage		Placing { get; set; }
 		}
 
-		public int					LastConfirmedRoundId { get; set; }
-		public IEnumerable<Item>	Transactions { get; set; }
+		public int		LastConfirmedRoundId { get; set; }
+		public Item[]	Transactions { get; set; }
 	}
 }

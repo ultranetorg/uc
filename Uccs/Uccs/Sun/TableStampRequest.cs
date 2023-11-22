@@ -39,6 +39,6 @@ namespace Uccs.Net
 			public byte[]	Hash { get; set; }
 		}
 	
-		public IEnumerable<Cluster>	Clusters { get; set; }
+		public Cluster[]	Clusters { get; set; }
 	}
 }

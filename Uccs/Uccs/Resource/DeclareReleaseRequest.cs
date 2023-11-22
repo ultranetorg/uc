@@ -13,8 +13,8 @@ namespace Uccs.Net
 
 	public class DeclareReleaseRequest : RdcRequest//, IBinarySerializable
 	{
-		public IEnumerable<DeclareReleaseItem>	Releases { get; set; }
-		public override bool					WaitResponse => false;
+		public DeclareReleaseItem[]	Releases { get; set; }
+		public override bool		WaitResponse => false;
 
 		public override RdcResponse Execute(Sun sun)
 		{

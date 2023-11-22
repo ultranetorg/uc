@@ -5,7 +5,7 @@ namespace Uccs.Net
 {
 	public class SendTransactionsRequest : RdcRequest
 	{
-		public IEnumerable<Transaction>	Transactions {get; set;}
+		public Transaction[]	Transactions {get; set;}
 
 		public override RdcResponse Execute(Sun sun)
 		{
@@ -16,14 +16,14 @@ namespace Uccs.Net
 				{
 					var acc = sun.ProcessIncoming(Transactions);
 
-					return new SendTransactionsResponse {Accepted = acc.Select(i => i.Signature).ToList()};
+					return new SendTransactionsResponse {Accepted = acc.Select(i => i.Signature).ToArray()};
 				}
 		}
 	}
 	
 	public class SendTransactionsResponse : RdcResponse
 	{
-		public IEnumerable<byte[]> Accepted { get; set; }
+		public byte[][] Accepted { get; set; }
 	}
 }
 

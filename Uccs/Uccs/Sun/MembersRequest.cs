@@ -14,10 +14,10 @@ namespace Uccs.Net
 			
 				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Where(i => i.CastingSince <= sun.Mcv.LastConfirmedRound.Id + Mcv.P)
 																						.Select(i => new MembersResponse.Member{Account = i.Account, 
-																																JoinedAt = i.CastingSince,
+																																CastingSince = i.CastingSince,
 																																BaseRdcIPs = i.BaseRdcIPs, 
 																																SeedHubRdcIPs = i.SeedHubRdcIPs, 
-																																Proxyable = i.Proxy != null})};
+																																Proxyable = i.Proxy != null}).ToArray()};
 			}
 		}
 	}
@@ -27,9 +27,9 @@ namespace Uccs.Net
 		public class Member
 		{
 			public AccountAddress			Account { get; set; }
-			public int						JoinedAt { get; set; }
-			public IEnumerable<IPAddress>	BaseRdcIPs { get; set; }
-			public IEnumerable<IPAddress>	SeedHubRdcIPs { get; set; }
+			public int						CastingSince { get; set; }
+			public IPAddress[]				BaseRdcIPs { get; set; }
+			public IPAddress[]				SeedHubRdcIPs { get; set; }
 			public bool         			Proxyable { get; set; }
 
 			public override string ToString()
@@ -38,6 +38,6 @@ namespace Uccs.Net
 			}
 		}
 
-		public IEnumerable<Member> Members { get; set; }
+		public Member[] Members { get; set; }
 	}
 }

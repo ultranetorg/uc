@@ -36,13 +36,13 @@ namespace Uccs.Net
 			public byte[]	Hash { get; set; }
 		}
 
-		public byte[]						BaseState { get; set; }
-		public byte[]						BaseHash { get; set; }
-		public int							FirstTailRound { get; set; }
-		public int							LastTailRound { get; set; }
-		public byte[]						LastCommitedRoundHash { get; set; }
-		public IEnumerable<SuperCluster>	Accounts { get; set; }
-		public IEnumerable<SuperCluster>	Authors { get; set; }
-		public IEnumerable<SuperCluster>	Analyses { get; set; }
+		public byte[]			BaseState { get; set; }
+		public byte[]			BaseHash { get; set; }
+		public int				FirstTailRound { get; set; }
+		public int				LastTailRound { get; set; }
+		public byte[]			LastCommitedRoundHash { get; set; }
+		public SuperCluster[]	Accounts { get; set; }
+		public SuperCluster[]	Authors { get; set; }
+		public SuperCluster[]	Analyses { get; set; }
 	}
 }

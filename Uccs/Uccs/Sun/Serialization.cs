@@ -94,19 +94,13 @@ namespace Uccs.Net
 					writer.Write(b);
 					return true;
 				}
-				case System.Collections.IEnumerable v:
+				case System.Collections.ICollection v:
 				{
-					var n = 0;
-					foreach(var i in (System.Collections.IEnumerable)v)
-					{
-						n++;
-					}
-
-					writer.Write7BitEncodedInt(n);
+					writer.Write7BitEncodedInt(v.Count);
 							
 					foreach(var j in v)
 					{
-						if(!Serialize(writer, j, type.GetGenericArguments()[0]))
+						if(!Serialize(writer, j, type.GetElementType()))
 							Serialize(writer, j);
 					}
 					return true;
@@ -286,9 +280,9 @@ namespace Uccs.Net
 					return true;
 				}
 				else 
-				if(type.GetInterfaces().Any(i => i == typeof(System.Collections.IEnumerable)))
+				if(type.GetInterfaces().Any(i => i == typeof(System.Collections.ICollection)))
 				{
-					var ltype = type.GetGenericArguments()[0].MakeArrayType(1);
+					var ltype = type.GetElementType().MakeArrayType(1);
 	
 					var n = reader.Read7BitEncodedInt();
 	
@@ -296,11 +290,11 @@ namespace Uccs.Net
 	
 					for(int i=0; i<n; i++)
 					{
-						if(DeserializeValue(reader, type.GetGenericArguments()[0], construct, initialize, out object v))
+						if(DeserializeValue(reader, type.GetElementType(), construct, initialize, out object v))
 							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, v});
 							//l[i] = v; 
 						else
-							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, Deserialize(reader, type.GetGenericArguments()[0], construct)});
+							l.GetType().GetMethod("Set").Invoke(l, new object[]{i, Deserialize(reader, type.GetElementType(), construct)});
 					}
 
 					value = l;

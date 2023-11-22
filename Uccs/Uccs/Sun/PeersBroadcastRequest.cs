@@ -5,7 +5,7 @@ namespace Uccs.Net
 {
 	public class PeersBroadcastRequest : RdcRequest
 	{
-		public IEnumerable<Peer>	Peers { get; set; }
+		public Peer[]				Peers { get; set; }
 		public override bool		WaitResponse => false;
 
 		public override RdcResponse Execute(Sun sun)

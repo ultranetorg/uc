@@ -17,6 +17,6 @@ namespace Uccs.Net
 
 	public class FundsResponse : RdcResponse
 	{
-		public IEnumerable<AccountAddress> Funds { get; set; }
+		public AccountAddress[] Funds { get; set; }
 	}
 }

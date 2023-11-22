@@ -20,6 +20,6 @@ namespace Uccs.Net
 		
 	public class SubresourcesResponse : RdcResponse
 	{
-		public IEnumerable<string> Resources { get; set; }
+		public string[] Resources { get; set; }
 	}
 }

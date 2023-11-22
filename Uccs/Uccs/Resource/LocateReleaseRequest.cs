@@ -19,6 +19,6 @@ namespace Uccs.Net
 		
 	public class LocateReleaseResponse : RdcResponse
 	{
-		public IEnumerable<IPAddress>	Seeders { get; set; }
+		public IPAddress[]	Seeders { get; set; }
 	}
 }

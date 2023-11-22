@@ -20,6 +20,6 @@ namespace Uccs.Net
 		
 	public class QueryResourceResponse : RdcResponse
 	{
-		public IEnumerable<ResourceAddress> Resources { get; set; }
+		public ResourceAddress[] Resources { get; set; }
 	}
 }

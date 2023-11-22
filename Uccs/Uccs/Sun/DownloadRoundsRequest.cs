@@ -37,10 +37,10 @@ namespace Uccs.Net
 	
 	public class DownloadRoundsResponse : RdcResponse
 	{
-		public int					LastNonEmptyRound { get; set; }
-		public int					LastConfirmedRound { get; set; }
-		public byte[]				BaseHash{ get; set; }
-		public byte[]				Rounds { get; set; }
+		public int		LastNonEmptyRound { get; set; }
+		public int		LastConfirmedRound { get; set; }
+		public byte[]	BaseHash{ get; set; }
+		public byte[]	Rounds { get; set; }
 
 		public Round[] Read(Mcv chain)
 		{
