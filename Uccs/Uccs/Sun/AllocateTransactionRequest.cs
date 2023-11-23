@@ -8,7 +8,7 @@
 		{
 			lock(sun.Lock)
 			{
-				RequireSynchronizedBase(sun);
+				RequireMember(sun);
 
 				var a = sun.Mcv.Accounts.Find(Account, sun.Mcv.LastConfirmedRound.Id);
 								

@@ -6,8 +6,7 @@
 		{
 			lock(sun.Lock)
 			{
-				if(!sun.Roles.HasFlag(Role.Base))						throw new RdcNodeException(RdcNodeError.NotBase);
-				if(sun.Synchronization != Synchronization.Synchronized)	throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				RequireBase(sun);
 				
 				return new TimeResponse {Time = sun.Mcv.LastConfirmedRound.ConfirmedTime};
 			}

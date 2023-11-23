@@ -10,7 +10,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				RequireSynchronizedBase(sun);
+				RequireBase(sun);
 			
 				return new MembersResponse {Members = sun.Mcv.LastConfirmedRound.Members.Where(i => i.CastingSince <= sun.Mcv.LastConfirmedRound.Id + Mcv.P)
 																						.Select(i => new MembersResponse.Member{Account = i.Account, 

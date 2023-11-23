@@ -12,7 +12,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				RequireSynchronizedBase(sun);
+				RequireBase(sun);
 				
 				if(sun.Mcv.BaseState == null)
 					throw new RdcNodeException(RdcNodeError.TooEearly);

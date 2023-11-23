@@ -8,7 +8,7 @@
 		{
  			lock(sun.Lock)
 			{	
-				RequireSynchronizedBase(sun);
+				RequireBase(sun);
 
 				var e = sun.Mcv.Analyses.Find(Release, sun.Mcv.LastConfirmedRound.Id); 
 

@@ -9,7 +9,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				RequireSynchronizedBase(sun);
+				RequireBase(sun);
 				
 				if(sun.Mcv.BaseState == null)
 					throw new RdcNodeException(RdcNodeError.TooEearly);
@@ -21,8 +21,7 @@ namespace Uccs.Net
 											LastTailRound			= sun.Mcv.Tail.First().Id,
 											Accounts				= sun.Mcv.Accounts.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
 											Authors					= sun.Mcv.Authors.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											Analyses				= sun.Mcv.Analyses.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),
-											};
+											Analyses				= sun.Mcv.Analyses.	SuperClusters.Select(i => new StampResponse.SuperCluster{Id = i.Key, Hash = i.Value}).ToArray(),};
 				return r;
 			}
 		}

@@ -14,8 +14,8 @@ namespace Uccs.Net
 	{
 		None, 
 		Proxy, 
-		MemberJoin, MemberVox, AnalyzerVox,
-		PeersBroadcast, Time, Members, Member, Funds, AllocateTransaction, LastOperation, SendTransactions, TransactionStatus, Account, 
+		MemberJoin, Vote,
+		PeersBroadcast, Time, Members, Member, Funds, AllocateTransaction, LastOperation, PlaceTransactions, TransactionStatus, Account, 
 		Author, QueryResource, Resource, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds,
 		Analysis
@@ -101,8 +101,6 @@ namespace Uccs.Net
 
 	public abstract class RdcInterface
 	{
-		public int								Failures;
-
  		public abstract RdcResponse				Request(RdcRequest rq);
  		public Rp								Request<Rp>(RdcRequest rq) where Rp : RdcResponse => Request(rq) as Rp;
  		public abstract	void					Send(RdcRequest rq);
@@ -112,7 +110,7 @@ namespace Uccs.Net
 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
 		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		//public AllocateTransactionResponse		AllocateTransaction() => Request<AllocateTransactionResponse>(new AllocateTransactionRequest());
-		public SendTransactionsResponse			SendTransactions(IEnumerable<Transaction> transactions) => Request<SendTransactionsResponse>(new SendTransactionsRequest{Transactions = transactions.ToArray()});
+		public PlaceTransactionsResponse		SendTransactions(IEnumerable<Transaction> transactions) => Request<PlaceTransactionsResponse>(new PlaceTransactionsRequest{Transactions = transactions.ToArray()});
 		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> transactions) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = transactions.ToArray()});
 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
 		public FundsResponse					GetFunds() => Request<FundsResponse>(new FundsRequest());
@@ -171,27 +169,28 @@ namespace Uccs.Net
 
 		public abstract RdcResponse Execute(Sun sun);
 
-
 		protected void RequireBase(Sun sun)
 		{
 			if(!sun.Roles.HasFlag(Role.Base))
 				throw new RdcNodeException(RdcNodeError.NotBase);
-		}
-
-		protected void RequireSynchronizedBase(Sun sun)
-		{
-			if(!sun.Roles.HasFlag(Role.Base))
-				throw new RdcNodeException(RdcNodeError.NotBase);
 
 			if(sun.Synchronization != Synchronization.Synchronized)
 				throw new RdcNodeException(RdcNodeError.NotSynchronized);
 		}
 
-		protected void RequireSynchronized(Sun sun)
+		protected void RequireMember(Sun sun)
 		{
-			if(sun.Synchronization != Synchronization.Synchronized)
-				throw new RdcNodeException(RdcNodeError.NotSynchronized);
+			RequireBase(sun);
+
+			if(!sun.IsMember) 
+				throw new RdcNodeException(RdcNodeError.NotMember);
 		}
+
+		//protected void RequireSynchronized(Sun sun)
+		//{
+		//	if(sun.Synchronization != Synchronization.Synchronized)
+		//		throw new RdcNodeException(RdcNodeError.NotSynchronized);
+		//}
 	}
 
 	public class RdcRequestJsonConverter : JsonConverter<RdcRequest>

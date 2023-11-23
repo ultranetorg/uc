@@ -11,7 +11,7 @@ namespace Uccs.Net
 		{
  			lock(sun.Lock)
 			{	
-				RequireSynchronizedBase(sun);
+				RequireBase(sun);
  				
 				return new QueryResourceResponse {Resources = sun.Mcv.QueryResource(Query).Select(i => i.Address).ToArray()};
 			}

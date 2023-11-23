@@ -11,13 +11,9 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				if(!sun.Roles.HasFlag(Role.Chain))
-					throw new RdcNodeException(RdcNodeError.NotChain);
-
-				if(sun.Synchronization != Synchronization.Synchronized)
-					throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				RequireBase(sun);
 	
-				return	new TransactionStatusResponse
+				return new TransactionStatusResponse
 						{
 							LastConfirmedRoundId = sun.Mcv.LastConfirmedRound.Id,
 							Transactions = Transactions.Select(t => new{Q = t,

@@ -4,13 +4,13 @@ using Org.BouncyCastle.Pkix;
 
 namespace Uccs.Net
 {
-	public class MemberVoxRequest : RdcRequest
+	public class VoteRequest : RdcRequest
 	{
 		public byte[]					Raw { get; set; }
 
 		public override bool			WaitResponse => false;
 
-		public MemberVoxRequest()
+		public VoteRequest()
 		{
 		}
 

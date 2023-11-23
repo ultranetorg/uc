@@ -8,7 +8,7 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{
-				RequireSynchronizedBase(sun);
+				RequireBase(sun);
 			
 				return new FundsResponse {Funds = sun.Mcv.LastConfirmedRound.Funds.ToArray()};
 			}

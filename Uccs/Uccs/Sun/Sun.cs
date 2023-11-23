@@ -1238,10 +1238,13 @@ namespace Uccs.Net
 				if(v.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P * 2 < v.RoundId)
 					return false;
 
-				///if(v.RoundId <= Mcv.LastVotedRound.Id - Mcv.Pitch / 2)
-				///	return false;
+				//if(v.RoundId <= Mcv.LastVotedRound.Id - Mcv.Pitch / 2)
+				//	return false;
 
 				var r = Mcv.GetRound(v.RoundId);
+
+				if(!Mcv.VotersOf(r).Any(i => i.Account == v.Generator))
+					return false;
 
 				if(r.Votes.Any(i => i.Signature.SequenceEqual(v.Signature)))
 					return false;
@@ -1274,13 +1277,8 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public List<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
+		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			//if(!Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(m => g == m.Account))) /// not ready to process external transactions
-			//	throw new RdcNodeException(RdcNodeError.NotMember);
-
-			var a = new List<Transaction>();
-
 			foreach(var i in txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
 											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConfirmedExeunitMinFee &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
@@ -1303,17 +1301,15 @@ namespace Uccs.Net
 				if(i.Successful)
 				{
 					i.Placing = PlacingStage.Accepted;
-					a.Add(i);
+					IncomingTransactions.Add(i);
 
 					Workflow.Log?.Report(this, "Transaction Accepted", i.ToString());
+
+					yield return i;
 				}
 			}
 
-			IncomingTransactions.AddRange(a);
-
 			MainSignal.Set();
-
-			return a;
 		}
 
 		void Generate()
@@ -2121,7 +2117,7 @@ namespace Uccs.Net
 			{
 				try
 				{
-					i.Send(new MemberVoxRequest {Raw = vote.RawForBroadcast });
+					i.Send(new VoteRequest {Raw = vote.RawForBroadcast });
 				}
 				catch(RdcNodeException)
 				{

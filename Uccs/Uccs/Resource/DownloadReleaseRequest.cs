@@ -10,15 +10,18 @@
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			if(sun.ResourceHub == null) 
-				throw new RdcNodeException(RdcNodeError.NotSeed);
-			
-			var r = sun.ResourceHub.Find(Resource, Hash);
-			
-			if(r == null || !r.IsReady(File)) 
-				throw new RdcEntityException(RdcEntityError.NotFound);
+			lock(sun.ResourceHub.Lock)
+			{
+				if(sun.ResourceHub == null) 
+					throw new RdcNodeException(RdcNodeError.NotSeed);
 
-			return new DownloadReleaseResponse {Data = r.ReadFile(File, Offset, Length)};
+				var r = sun.ResourceHub.Find(Resource, Hash);
+				
+				if(r == null || !r.IsReady(File)) 
+					throw new RdcEntityException(RdcEntityError.NotFound);
+	
+				return new DownloadReleaseResponse {Data = r.ReadFile(File, Offset, Length)};
+			}
 		}
 	}
 
