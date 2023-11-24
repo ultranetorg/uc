@@ -24,10 +24,9 @@ namespace Uccs.Sun.FUI
 				var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 				var b = new Boot(exedir);
 				var s = new Settings(exedir, b);
-				var l = new Log();
 
 				var sun = new Net.Sun(b.Zone, s){	Clock = new RealTimeClock(), 
-													Nas = new Nas(s, l), 
+													Nas = new Nas(s), 
 													GasAsker = new EthereumFeeForm(), 
 													FeeAsker = new FeeForm(b.Zone)}; 
 

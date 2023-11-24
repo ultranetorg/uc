@@ -37,7 +37,7 @@ namespace Uccs.Sun.FUI
 		{
 			from.Text = account.ToString();
 			
-			var t = new Transaction(Zone){Expiration = 0};
+			var t = new Transaction(){Expiration = 0};
 			t.AddOperation(operation);
 			//t.Sign(account, Zone.Cryptography.ZeroHash);
 

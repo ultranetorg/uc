@@ -31,9 +31,9 @@ namespace Uccs.Net
 	public abstract class Operation// : ITypedBinarySerializable
 	{
 		public string			Error;
-		public AccountAddress	Signer { get; set; }
+		//public AccountAddress	Signer { get; set; }
 		public Transaction		Transaction;
-		//public Workflow		FlowReport;
+		public AccountAddress	Signer => Transaction.Signer;
 		public abstract string	Description { get; }
 		public abstract bool	Valid {get;}
 
@@ -42,6 +42,7 @@ namespace Uccs.Net
 		public const string		AlreadyExists = "Already exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
+		public const string		NoAnalyzers = "No analyzers";
 		public const string		NotOwner = "The signer does not own the entity";
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
 

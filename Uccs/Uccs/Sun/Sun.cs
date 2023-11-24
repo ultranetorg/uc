@@ -196,7 +196,7 @@ namespace Uccs.Net
 
 		public object Constract(Type t, byte b)
 		{
-			if(t == typeof(Transaction)) return new Transaction(Zone);
+			if(t == typeof(Transaction)) return new Transaction {Zone = Zone};
 			if(t == typeof(Vote)) return new Vote(Mcv);
 			if(t == typeof(Manifest)) return new Manifest(Zone);
 			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
@@ -1189,6 +1189,7 @@ namespace Uccs.Net
 					{	
 						//SyncTail.Clear();
 						Mcv.Clear();
+						Mcv.Initialize();
 					}
 				}
 				catch(RdcNodeException ex)
@@ -1333,7 +1334,8 @@ namespace Uccs.Net
 															BaseRdcIPs		= new IPAddress[] {Settings.IP},
 															SeedHubRdcIPs	= new IPAddress[] {Settings.IP}};
 
-						var t = new Transaction(Zone);
+						var t = new Transaction();
+						t.Zone = Zone;
 						t.Signer = g;
  						t.__ExpectedPlacing = PlacingStage.Confirmed;
 			
@@ -1743,7 +1745,8 @@ namespace Uccs.Net
 
 			while(operations.Any())
 			{
-				var t = new Transaction(Zone);
+				var t = new Transaction();
+				t.Zone = Zone;
 				t.Signer = signer;
  				t.__ExpectedPlacing = await;
 			

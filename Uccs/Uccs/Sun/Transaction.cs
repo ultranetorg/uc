@@ -21,7 +21,8 @@ namespace Uccs.Net
 		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConfirmedTransactions, this));
 		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
-		
+
+
 		public Vote						Vote;
 		public Round					Round;
 		public int						Expiration;
@@ -29,8 +30,22 @@ namespace Uccs.Net
 		public byte[]					Tag;
 		public Money					Fee;
 		public byte[]					Signature;
-				
-		public AccountAddress			Signer;
+
+		private AccountAddress			_Signer;
+		public AccountAddress			Signer
+										{
+											get
+											{
+												if(_Signer == null)
+												{
+													_Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
+												}
+
+												return _Signer; 
+											}
+											set => _Signer = value; 
+										}
+		
 		public Zone						Zone;
 		public PlacingStage				Placing;
 		public RdcInterface				Rdc;
@@ -44,9 +59,8 @@ namespace Uccs.Net
 					(!mcv.Zone.PoW || PoW.Length == PoWLength && mcv.Zone.Cryptography.Hash(mcv.FindRound(Expiration - Mcv.TransactionPlacingLifetime).Hash.Concat(PoW).ToArray()).Take(2).All(i => i == 0));
 		}
 
- 		public Transaction(Zone zone)
+ 		public Transaction()
  		{
- 			Zone = zone;
  		}
 
 		public override string ToString()
@@ -139,9 +153,6 @@ namespace Uccs.Net
  													o.Read(reader); 
  													return o; 
  												});
-			
-			foreach(var i in Operations)
-				i.Signer = Signer;
  		}
 
  		public void	WriteForVote(BinaryWriter writer)
@@ -177,11 +188,6 @@ namespace Uccs.Net
  													o.Read(reader); 
  													return o; 
  												});
-			
-			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
-
-			foreach(var i in Operations)
-				i.Signer = Signer;
  		}
 
 		public void Write(BinaryWriter writer)
@@ -216,11 +222,6 @@ namespace Uccs.Net
 													o.Read(reader); 
 													return o; 
 												});
-
-			Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
-
-			foreach(var i in Operations)
-				i.Signer = Signer;
 		}
 	}
 }

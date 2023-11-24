@@ -41,7 +41,7 @@ namespace Uccs.Sun.Application
 						File.Delete(i);
 
 				Sun = new Net.Sun(boot.Zone, Settings){	Clock = new RealTimeClock(), 
-														Nas = new Nas(Settings, Log), }; 
+														Nas = new Nas(Settings), }; 
 
 				var w = new Workflow("Main", Log);
 				Sun.RunApi(w);

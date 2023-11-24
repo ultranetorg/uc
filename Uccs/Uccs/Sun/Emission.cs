@@ -50,9 +50,12 @@ namespace Uccs.Net
 		public void ReadBaseState(BinaryReader reader)
 		{
 			_id	= reader.Read<OperationId>();
-			Signer	= reader.ReadAccount();
-			Wei		= reader.ReadBigInteger();
-			Eid		= reader.Read7BitEncodedInt();
+
+			Transaction = new Transaction();
+			
+			Transaction.Signer	= reader.ReadAccount();
+			Wei					= reader.ReadBigInteger();
+			Eid					= reader.Read7BitEncodedInt();
 		}
 
  		public static Money Calculate(BigInteger wei)

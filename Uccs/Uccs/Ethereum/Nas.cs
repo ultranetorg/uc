@@ -18,15 +18,14 @@ namespace Uccs.Net
 {
 	public class Nas : INas
 	{
-		public const string							ContractAddress = "0x43958d38C348579362353E1B81Ef74B9f47B2310";
-		Settings									Settings;
-		public Web3									Web3;
-		Log											Log;
+		public const string						ContractAddress = "0x43958d38C348579362353E1B81Ef74B9f47B2310";
+		Settings								Settings;
+		public Web3								Web3;
 
-		ContractHandler								_Contract;
-		Nethereum.Web3.Accounts.Account				_Account;
-		static Dictionary<Zone, IPAddress[]>		Zones = new ();
-		static string								Creator;
+		ContractHandler							_Contract;
+		Nethereum.Web3.Accounts.Account			_Account;
+		static Dictionary<Zone, IPAddress[]>	Zones = new ();
+		static string							Creator;
 
 		public Nethereum.Web3.Accounts.Account Account
 		{
@@ -68,144 +67,135 @@ namespace Uccs.Net
 			}
 		}
 
-		public Nas(Settings s, Log log)
+		public Nas(Settings s)
 		{
-			Log = log;
 			Settings = s;
 		}
 
-		public IPAddress[] GetInitials(Zone zone)
+// 		public IPAddress[] GetInitials(Zone zone, Workflow workflow)
+// 		{
+// 			lock(Zones)
+// 			{
+// 				var ips = new List<IPAddress>();
+// 
+// 				if(!Zones.ContainsKey(zone))
+// 				{
+// 					try
+// 					{
+// 						var input = new GetZoneFunction{Name = zone.Name};
+// 						var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
+// 	
+// 						foreach(var i in z.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries))
+// 						{
+// 							if(!IPAddress.TryParse(i, out var ip))
+// 							{
+// 								try
+// 								{
+// 									var r = Dns.GetHostEntry(i);
+// 									ip = r.AddressList.First();
+// 								}
+// 								catch(SocketException ex)
+// 								{
+// 									workflow?.Log.ReportError(this, $"Can't DNS resolve - {i}", ex);
+// 									continue;
+// 								}
+// 							}
+// 	
+// 							ips.Add(ip);
+// 						}
+// 
+// 						Zones[zone] = ips.ToArray();
+// 					}
+// 					catch(Exception ex) when (ex is not RequirementException)
+// 					{
+// 		  				try
+// 		  				{
+// 		 					new Uri(Settings.Nas.Provider);
+// 		  				}
+// 		  				catch(Exception)
+// 		  				{
+// 							ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to get intial nodes.", false);
+// 		  				}
+// 
+// 					}
+// 
+// 					if(!ips.Any())
+// 					{
+// 						workflow?.Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used.");
+// 						Zones[zone] = zone.Initials;
+// 					}
+// 				}
+// 
+// 				return Zones[zone];
+// 			}
+// 		}
+
+		public string[] ReportEthereumJsonAPIWarning(string message, bool aserror)
 		{
-			lock(Zones)
-			{
-				var ips = new List<IPAddress>();
-
-				if(!Zones.ContainsKey(zone))
-				{
-					try
-					{
-						var input = new GetZoneFunction{Name = zone.Name};
-						var z = Contract.QueryAsync<GetZoneFunction, string>(input).Result;
-	
-						foreach(var i in z.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries))
-						{
-							if(!IPAddress.TryParse(i, out var ip))
-							{
-								try
-								{
-									var r = Dns.GetHostEntry(i);
-									ip = r.AddressList.First();
-								}
-								catch(SocketException ex)
-								{
-									Log.ReportError(this, $"Can't DNS resolve - {i}", ex);
-									continue;
-								}
-							}
-	
-							ips.Add(ip);
-						}
-
-						Zones[zone] = ips.ToArray();
-					}
-					catch(Exception ex) when (ex is not RequirementException)
-					{
-		  				try
-		  				{
-		 					new Uri(Settings.Nas.Provider);
-		  				}
-		  				catch(Exception)
-		  				{
-							ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to get intial nodes.", false);
-		  				}
-
-					}
-
-					if(!ips.Any())
-					{
-						Log.ReportWarning(this, "Can't retrieve initial peers from Ethereum. Predefined ones are used.");
-						Zones[zone] = zone.Initials;
-					}
-				}
-
-				return Zones[zone];
-			}
+			return new string[]{message,
+								$"But it is not set or incorrect.",
+		 						$"It's located in {Path.Join(Settings.Profile, Settings.FileName)} -> Nas -> Provider",
+		 						$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"};
 		}
 
-		public void ReportEthereumJsonAPIWarning(string message, bool aserror)
-		{
-			var s = new string[]{	message,
-									$"But it is not set or incorrect.",
-		 							$"It's located in {Path.Join(Settings.Profile, Settings.FileName)} -> Nas -> Provider",
-		 							$"This can be instance of some Ethereum client or third-party services like infura.io or alchemy.com"};
+// 		public async Task SetZone(Zone zone, string nodes, IGasAsker asker)
+// 		{
+// 			var f = new SetZoneFunction
+// 			{
+// 				Name = zone.Name,
+// 				Nodes = nodes
+// 			};
+// 
+// 			try
+// 			{
+// 				Log.Report(this, "Setting zone", "Initiated");
+// 
+// 				if(asker.Ask(Web3, Contract, Account.Address, f, null))
+// 				{
+// 					f.Gas = asker.Gas;
+// 					f.GasPrice = asker.GasPrice;
+// 
+// 					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
+// 
+// 					Log.Report(this, "Setting zone", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
+// 				}
+// 			}
+// 			catch(Exception ex)
+// 			{
+// 				Log.ReportError(this, "Registering a new Node: Failed", ex);
+// 				throw ex;
+// 			}
+// 		}
+// 
+// 		public async Task RemoveZone(Zone zone, IGasAsker asker)
+// 		{
+// 			var f = new RemoveZoneFunction
+// 			{
+// 				Name = zone.Name
+// 			};
+// 
+// 			if(asker.Ask(Web3, Contract, Account.Address, f, null))
+// 			{
+// 				Log.Report(this, "Removing zone", "Initiated");
+// 
+// 				try
+// 				{
+// 					f.Gas = asker.Gas;
+// 					f.GasPrice = asker.GasPrice;
+// 
+// 					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
+// 
+// 					Log.Report(this, "Removing zone", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
+// 				}
+// 				catch(Exception ex)
+// 				{
+// 					Log.ReportError(this, "Removing zone: Failed; ", ex);
+// 					throw ex;
+// 				}
+// 			}
+// 		}
 
-			foreach(var i in s)
-			{
-				if(aserror)
-					Log.ReportError(this, i);
-				else
-					Log.ReportWarning(this, i);
-			}
-		}
-
-		public async Task SetZone(Zone zone, string nodes, IGasAsker asker)
-		{
-			var f = new SetZoneFunction
-			{
-				Name = zone.Name,
-				Nodes = nodes
-			};
-
-			try
-			{
-				Log.Report(this, "Setting zone", "Initiated");
-
-				if(asker.Ask(Web3, Contract, Account.Address, f, null))
-				{
-					f.Gas = asker.Gas;
-					f.GasPrice = asker.GasPrice;
-
-					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
-
-					Log.Report(this, "Setting zone", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
-				}
-			}
-			catch(Exception ex)
-			{
-				Log.ReportError(this, "Registering a new Node: Failed", ex);
-				throw ex;
-			}
-		}
-
-		public async Task RemoveZone(Zone zone, IGasAsker asker)
-		{
-			var f = new RemoveZoneFunction
-			{
-				Name = zone.Name
-			};
-
-			if(asker.Ask(Web3, Contract, Account.Address, f, null))
-			{
-				Log.Report(this, "Removing zone", "Initiated");
-
-				try
-				{
-					f.Gas = asker.Gas;
-					f.GasPrice = asker.GasPrice;
-
-					var r = await Contract.SendRequestAndWaitForReceiptAsync(f);
-
-					Log.Report(this, "Removing zone", $"Succeeded, Hash={r.TransactionHash}, Gas={r.CumulativeGasUsed}");
-				}
-				catch(Exception ex)
-				{
-					Log.ReportError(this, "Removing zone: Failed; ", ex);
-					throw ex;
-				}
-			}
-		}
-
-		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, AccountKey signer, IGasAsker gasAsker, int eid, Workflow vizor)
+		public void Emit(Nethereum.Web3.Accounts.Account source, BigInteger wei, AccountKey signer, IGasAsker gasAsker, int eid, Workflow workflow)
 		{
 			var args = Emission.Serialize(signer, eid);
 
@@ -218,16 +208,16 @@ namespace Uccs.Net
 					 	Secret = args
 					 };
 
-			if(gasAsker.Ask(w3, c, source.Address, rt, vizor?.Log))
+			if(gasAsker.Ask(w3, c, source.Address, rt, workflow?.Log))
 			{
 				rt.Gas = gasAsker.Gas;
 				rt.GasPrice = gasAsker.GasPrice;
 
-				vizor?.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
+				workflow.Log?.Report(this, "Ethereum", "Sending and waiting for a confirmation...");
 
-				var receipt = c.SendRequestAndWaitForReceiptAsync(rt, vizor.Cancellation).Result;
+				var receipt = c.SendRequestAndWaitForReceiptAsync(rt, workflow.Cancellation).Result;
 
-				vizor?.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
+				workflow.Log?.Report(this, "Ethereum", $"Transaction succeeded. Hash: {receipt.TransactionHash}. Gas: {receipt.CumulativeGasUsed}");
 			}
 		}
 

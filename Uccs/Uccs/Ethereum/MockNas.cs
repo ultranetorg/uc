@@ -45,8 +45,9 @@ namespace Uccs.Net
 			throw new NotImplementedException();
 		}
 
-		public void ReportEthereumJsonAPIWarning(string message, bool aserror)
+		public string[] ReportEthereumJsonAPIWarning(string message, bool aserror)
 		{
+			return null;
 		}
 	}
 }

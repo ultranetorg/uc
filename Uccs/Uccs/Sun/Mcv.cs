@@ -79,6 +79,77 @@ namespace Uccs.Net
 			Analyses = new (this);
 
 			BaseHash = Zone.Cryptography.ZeroHash;
+
+			var g = Engine.Get(GenesisKey);
+
+			if(g == null)
+			{
+				Initialize();
+			}
+			else
+			{
+				if(g.SequenceEqual(Zone.Genesis.HexToByteArray()))
+				{
+					Load();
+				}
+				else
+				{ 
+					Clear();
+					Initialize();
+				}
+			}
+		}
+
+		public void Initialize()
+		{
+			if(Roles.HasFlag(Role.Chain))
+			{
+				Tail.Clear();
+	
+ 				var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
+						
+				for(int i = 0; i <=1+P + 1+P + P; i++)
+				{
+					var r = new Round(this);
+					r.Read(rd);
+		
+					Tail.Insert(0, r);
+	
+					if(r.Id > 0)
+					{
+						r.ConfirmedTime = CalculateTime(r, r.VotesOfTry);
+						r.ConfirmedExeunitMinFee = Zone.ExeunitMinFee;
+					}
+	
+					if(i <= 1+P + 1+P)
+					{
+						if(i == 0)
+							r.ConfirmedFundJoiners = new[] {Zone.Father0};
+
+						if(i == 1)
+							r.ConfirmedEmissions = new OperationId[] {new(0, 0, 0)};
+
+						r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
+
+						r.Hashify();
+						Execute(r, r.ConfirmedTransactions);
+						Confirm(r);
+						Commit(r);
+					}
+				}
+	
+				if(Tail.Any(i => i.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null)))))
+				{
+					throw new IntegrityException("Genesis construction failed");
+				}
+				
+			}
+		
+			Engine.Put(GenesisKey, Zone.Genesis.HexToByteArray());
+		}
+		
+		public void Load()
+		{
 			BaseState = Engine.Get(BaseStateKey);
 
 			if(BaseState != null)
@@ -98,80 +169,31 @@ namespace Uccs.Net
 				}
 			}
 
-			Initialize();
-		}
-
-		void Initialize()
-		{
 			if(Roles.HasFlag(Role.Chain))
 			{
-				var chainstate = Engine.Get(ChainStateKey);
+				var s = Engine.Get(ChainStateKey);
 
-				if(chainstate == null || !Engine.Get(GenesisKey).SequenceEqual(Zone.Genesis.HexToByteArray()))
-				{
-					Tail.Clear();
-	
- 					var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
-						
-					for(int i = 0; i <=1+P + 1+P + P; i++)
-					{
-						var r = new Round(this);
-						r.Read(rd);
-		
-						Tail.Insert(0, r);
-	
-						if(r.Id > 0)
-						{
-							r.ConfirmedTime = CalculateTime(r, r.VotesOfTry);
-							r.ConfirmedExeunitMinFee = Zone.ExeunitMinFee;
-						}
-	
-						if(i <= 1+P + 1+P)
-						{
-							if(i == 0)
-								r.ConfirmedFundJoiners = new[] {Zone.Father0};
+				var rd = new BinaryReader(new MemoryStream(s));
 
-							if(i == 1)
-								r.ConfirmedEmissions = new OperationId[] {new(0, 0, 0)};
-
-							r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
-
-							r.Hashify();
-							Execute(r, r.ConfirmedTransactions);
-							Confirm(r);
-							Commit(r);
-						}
-					}
-	
-					if(Tail.Any(i => i.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null)))))
-					{
-						throw new IntegrityException("Genesis construction failed");
-					}
-				
-					Engine.Put(GenesisKey, Zone.Genesis.HexToByteArray());
-				}
-				else
-				{
-					var rd = new BinaryReader(new MemoryStream(chainstate));
-
-					var lcr = FindRound(rd.Read7BitEncodedInt());
+				var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-					for(int i = lcr.Id - lcr.Id % Zone.TailLength; i <= lcr.Id; i++)
-					{
-						var r = FindRound(i);
+				for(int i = lcr.Id - lcr.Id % Zone.TailLength; i <= lcr.Id; i++)
+				{
+					var r = FindRound(i);
 
-						Tail.Insert(0, r);
+					Tail.Insert(0, r);
 		
-						r.Confirmed = false;
-						Execute(r, r.ConfirmedTransactions);
-						Confirm(r);
-					}
+					r.Confirmed = false;
+					Execute(r, r.ConfirmedTransactions);
+					Confirm(r);
 				}
 			}
 		}
 
 		public void Clear()
 		{
+			Tail.Clear();
+
 			BaseState = null;
 			BaseHash = Zone.Cryptography.ZeroHash;
 
@@ -190,8 +212,6 @@ namespace Uccs.Net
 
 			Engine.DropColumnFamily(ChainFamilyName);
 			Engine.CreateColumnFamily(new (), ChainFamilyName);
-
-			Initialize();
 		}
 
 		public string CreateGenesis(AccountKey god, AccountKey[] fathers)
@@ -218,7 +238,7 @@ namespace Uccs.Net
 	
 			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentHash = Zone.Cryptography.ZeroHash};
 			{
-				var t = new Transaction(Zone) {Nid = 0, Expiration = 0};
+				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.AddOperation(new Emission(Web3.Convert.ToWei(fathers.Length * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
 				//t.AddOperation(new AuthorBid("uo", null, 1));
 				t.Sign(f0, Zone.Cryptography.ZeroHash);
@@ -265,7 +285,7 @@ namespace Uccs.Net
 		 
 				if(i == 1+P + 1)
 				{
-					var t = new Transaction(Zone) {Nid = 1, Expiration = i};
+					var t = new Transaction {Zone = Zone, Nid = 1, Expiration = i};
 					t.AddOperation(new CandidacyDeclaration{Bail = 1_000_000,
 															BaseRdcIPs = new IPAddress[] {Zone.Father0IP},
 															SeedHubRdcIPs = new IPAddress[] {Zone.Father0IP} });

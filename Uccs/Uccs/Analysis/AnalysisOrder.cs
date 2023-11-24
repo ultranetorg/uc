@@ -32,6 +32,12 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
+			if(round.Analyzers.Count == 0)
+			{
+				Error = NoAnalyzers;
+				return;
+			}
+
 			var a = mcv.Analyses.Find(Release, round.Id);
 
 			if(a != null)

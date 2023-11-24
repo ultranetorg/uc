@@ -66,10 +66,13 @@ namespace Uccs.Net
 		public void ReadBaseState(BinaryReader reader)
 		{
 			_id	= reader.Read<OperationId>();
-			Signer	= reader.ReadAccount();
-			Name	= reader.ReadUtf8();
-			Tld		= reader.ReadUtf8();
-			Bid		= reader.ReadMoney();
+
+			Transaction = new Transaction();
+			
+			Transaction.Signer	= reader.ReadAccount();
+			Name				= reader.ReadUtf8();
+			Tld					= reader.ReadUtf8();
+			Bid					= reader.ReadMoney();
 		}
 		public override void Execute(Mcv mcv, Round round)
 		{

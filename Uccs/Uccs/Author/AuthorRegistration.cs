@@ -47,7 +47,7 @@ namespace Uccs.Net
 		{
 			var e = chain.Authors.Find(Name, round.Id);
 						
-			if(Author.CanRegister(Name, e, round.ConfirmedTime, Signer))
+			if(Author.CanRegister(Name, e, round.ConfirmedTime, Transaction.Signer))
 			{
 				if(e?.Owner == null)
 				{

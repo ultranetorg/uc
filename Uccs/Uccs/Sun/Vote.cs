@@ -168,11 +168,7 @@ namespace Uccs.Net
 			InfectedReleases	= reader.ReadArray<ResourceAddress>();
 
 			Transactions = reader.ReadArray(() =>	{
-														var t = new Transaction(Mcv.Zone)
-																{
-																	Vote		= this,
-																	//Member	= Generator
-																};
+														var t = new Transaction {Zone = Mcv.Zone, Vote = this};
 														t.ReadForVote(reader);
 														return t;
 													});

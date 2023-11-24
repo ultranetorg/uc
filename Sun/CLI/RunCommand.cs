@@ -26,7 +26,7 @@ namespace Uccs.Sun.CLI
 			//string dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 			Program.Sun = new Net.Sun(b.Zone, settings){Clock = new RealTimeClock(),
-														Nas = new Nas(settings, Workflow.Log),
+														Nas = new Nas(settings),
 														GasAsker = Command.ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
 														FeeAsker = new SilentFeeAsker() };
 			

@@ -274,7 +274,7 @@ namespace Uccs.Net
 			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
 			ConfirmedEmissions			= reader.ReadArray<OperationId>();
 			ConfirmedDomainBids			= reader.ReadArray<OperationId>();
-			ConfirmedTransactions		= reader.Read(() =>	new Transaction(Mcv.Zone) {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+			ConfirmedTransactions		= reader.Read(() =>	new Transaction() {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
 		public void Write(BinaryWriter w)
@@ -328,6 +328,7 @@ namespace Uccs.Net
 												
 											foreach(var i in v.Transactions)
 											{
+												i.Zone = Mcv.Zone;
 												i.Round = this;
 											}
 
