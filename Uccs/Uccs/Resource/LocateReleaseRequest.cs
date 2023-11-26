@@ -8,7 +8,7 @@ namespace Uccs.Net
 		public byte[]	Hash { get; set; }
 		public int		Count { get; set; }
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			RequireMember(sun);
 

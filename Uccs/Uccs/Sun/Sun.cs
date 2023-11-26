@@ -1008,17 +1008,17 @@ namespace Uccs.Net
 		
 							foreach(var i in ts.Clusters)
 							{
-								var c = t.Clusters.Find(j => j.Id == i.Id);
+								var c = t.Clusters.Find(j => j.Id.SequenceEqual(i.Id));
 		
 								if(c == null || !c.Hash.SequenceEqual(i.Hash))
 								{
 									if(c == null)
 									{
-										c = new Table<E, K>.Cluster(t, (ushort)i.Id);
+										c = new Table<E, K>.Cluster(t, i.Id);
 										t.Clusters.Add(c);
 									}
 		
-									var d = peer.DownloadTable(t.Type, (ushort)i.Id, 0, i.Length);
+									var d = peer.DownloadTable(t.Type, i.Id, 0, i.Length);
 											
 									c.Read(new BinaryReader(new MemoryStream(d.Data)));
 										
@@ -1037,7 +1037,7 @@ namespace Uccs.Net
 										}
 									}
 		
-									Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Cluster downloaded {t.GetType().Name}, {c.Id}");
+									Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Cluster downloaded {t.GetType().Name}, {c.Id.ToHex()}");
 								}
 							}
 		
@@ -2098,7 +2098,20 @@ namespace Uccs.Net
 				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
 			}
 
- 			return rq.TryExecute(this);
+ 			return rq.Execute(this);
+ 		}
+
+		public override RdcResponse SafeRequest(RdcRequest rq)
+  		{
+			if(rq.Peer == null) /// self call, cloning needed
+			{
+				var s = new MemoryStream();
+				BinarySerializator.Serialize(new(s), rq); 
+				s.Position = 0;
+				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
+			}
+
+ 			return rq.SafeExecute(this);
  		}
 
 		public override void Send(RdcRequest rq)
@@ -2111,7 +2124,7 @@ namespace Uccs.Net
 				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
 			}
 
- 			rq.TryExecute(this);
+ 			rq.Execute(this);
  		}
 
 		public void Broadcast(Vote vote, Peer skip = null)

@@ -8,7 +8,7 @@
 		public long				Offset { get; set; }
 		public long				Length { get; set; }
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.ResourceHub.Lock)
 			{

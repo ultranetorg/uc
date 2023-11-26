@@ -4,14 +4,14 @@
 	{
 		public string Name {get; set;}
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
+			if(!Author.Valid(Name))	
+				throw new RdcRequestException();
+
  			lock(sun.Lock)
 			{	
 				RequireBase(sun);
-				
-				if(!Author.Valid(Name))	
-					throw new RdcEntityException(RdcEntityError.InvalidRequest);
 
 				var e = sun.Mcv.Authors.Find(Name, sun.Mcv.LastConfirmedRound.Id); 
 

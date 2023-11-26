@@ -24,7 +24,7 @@ namespace Uccs.Net
 
 	public enum RdcResult : byte
 	{
-		None, Success, NodeException, RequestException, EntityException
+		None, Success, NodeException, RequestException, EntityException, GeneralException
 	}
 
 	public enum RdcNodeError : byte
@@ -50,7 +50,7 @@ namespace Uccs.Net
 	public enum RdcEntityError : byte
 	{
 		None,
-		InvalidRequest,
+		//InvalidRequest,
 		NotFound,
 		RoundNotAvailable,
 	}
@@ -110,13 +110,14 @@ namespace Uccs.Net
 	public abstract class RdcInterface
 	{
  		public abstract RdcResponse				Request(RdcRequest rq);
+ 		public abstract RdcResponse				SafeRequest(RdcRequest rq);
  		public Rp								Request<Rp>(RdcRequest rq) where Rp : RdcResponse => Request(rq) as Rp;
  		public abstract	void					Send(RdcRequest rq);
 
 		public TimeResponse						GetTime() => Request<TimeResponse>(new TimeRequest());
 		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
-		public DownloadTableResponse			DownloadTable(Tables table, ushort cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
+		public DownloadTableResponse			DownloadTable(Tables table, byte[] cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
 		//public AllocateTransactionResponse		AllocateTransaction() => Request<AllocateTransactionResponse>(new AllocateTransactionRequest());
 		public PlaceTransactionsResponse		SendTransactions(IEnumerable<Transaction> transactions) => Request<PlaceTransactionsResponse>(new PlaceTransactionsRequest{Transactions = transactions.ToArray()});
 		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> transactions) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = transactions.ToArray()});
@@ -150,6 +151,8 @@ namespace Uccs.Net
 		public Action					Process;
 		public virtual bool				WaitResponse { get; protected set; } = true;
 
+		public abstract RdcResponse		Execute(Sun sun);
+
 		public static RdcRequest FromType(Rdc type)
 		{
 			try
@@ -175,7 +178,7 @@ namespace Uccs.Net
 			Event = new ManualResetEvent(false);
 		}
 
-		public RdcResponse TryExecute(Sun sun)
+		public RdcResponse SafeExecute(Sun sun)
 		{
 			if(WaitResponse)
 			{
@@ -208,8 +211,7 @@ namespace Uccs.Net
 				catch(Exception ex) when(!Debugger.IsAttached)
 				{
 					r = RdcResponse.FromType(Class);
-					r.Result = RdcResult.NodeException;
-					r.Error = (byte)RdcNodeError.Internal;
+					r.Result = RdcResult.GeneralException;
 					r.ErrorDetails = ex.ToString();
 				}
 
@@ -223,15 +225,13 @@ namespace Uccs.Net
 				{
 					Execute(sun);
 				}
-				catch(Exception ex) when(!Debugger.IsAttached || ex is RdcEntityException || ex is RdcNodeException)
+				catch(Exception ex) when(!Debugger.IsAttached || ex is RdcEntityException || ex is RdcNodeException || ex is RdcRequestException)
 				{
 				}
 
 				return null;
 			}
 		}
-
-		protected abstract RdcResponse Execute(Sun sun);
 
 		protected void RequireBase(Sun sun)
 		{
@@ -328,7 +328,7 @@ namespace Uccs.Net
 		public RdcRequest		Request { get; set; }
 		public override	bool	WaitResponse => Request.WaitResponse;
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			if(!sun.Roles.HasFlag(Role.Base))
 				throw new RdcNodeException(RdcNodeError.NotBase);
@@ -346,7 +346,7 @@ namespace Uccs.Net
 
 			if(sun.Settings.Generators.Contains(Destination))
 			{
-				return new ProxyResponse {Response = Request.TryExecute(sun)};
+				return new ProxyResponse {Response = Request.SafeExecute(sun)};
 			}
 			else
 			{

@@ -56,7 +56,7 @@ namespace Uccs.Sun.CLI
 				case "i" :
 		   		case "info" :
 				{
-					var r = Program.Call<Resource>(new ResourceEntityCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Program.Api<Resource>(new ResourceEntityCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 
 					Dump(r);
 
@@ -76,7 +76,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Program.Call<IEnumerable<LocalResource>>(new LocalResourcesCall {Query = Args.Nodes[1].Name});
+					var r = Program.Api<IEnumerable<LocalResource>>(new LocalResourcesCall {Query = Args.Nodes[1].Name});
 					
 					Dump(	r, 
 							new string[] {"Address", "Releases", "Latest"}, 

@@ -8,8 +8,11 @@ namespace Uccs.Net
 		public Tables	Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
+			if(SuperClusters.Length > AccountTable.SuperClustersCountMax)
+				throw new RdcRequestException();
+
 			lock(sun.Lock)
 			{
 				RequireBase(sun);
@@ -19,12 +22,12 @@ namespace Uccs.Net
 
 				switch(Table)
 				{
-					case Tables.Accounts : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Accounts.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Authors	 : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Authors.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Analyses : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Analyses.Clusters.Where(c => c.Id>>8 == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Accounts : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Accounts.Clusters.Where(c => c.Id[1] == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Authors	 : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Authors.Clusters.Where(c => c.Id[1] == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Analyses : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Analyses.Clusters.Where(c => c.Id[1] == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 
 					default:
-						throw new RdcEntityException(RdcEntityError.InvalidRequest);
+						throw new RdcRequestException();
 				}
 			}
 		}
@@ -34,7 +37,7 @@ namespace Uccs.Net
 	{
 		public class Cluster
 		{
-			public int		Id { get; set; }
+			public byte[]	Id { get; set; }
 			public int		Length { get; set; }
 			public byte[]	Hash { get; set; }
 		}

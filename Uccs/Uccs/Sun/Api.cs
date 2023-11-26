@@ -373,7 +373,7 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			return sun.Call(i => i.Request(Request), workflow);
+			return sun.Call(i => i.SafeRequest(Request), workflow);
 		}
 	}
 

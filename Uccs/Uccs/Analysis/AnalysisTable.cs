@@ -12,7 +12,7 @@ namespace Uccs.Net
 		
 		protected override  AnalysisEntry Create()
 		{
-			return new  AnalysisEntry(Database);
+			return new  AnalysisEntry(Mcv);
 		}
 
 		protected override byte[] KeyToBytes(byte[] key)
@@ -22,7 +22,7 @@ namespace Uccs.Net
 		
  		public AnalysisEntry Find(byte[] release, int ridmax)
  		{
- 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
  				if(r.AffectedAnalyses.TryGetValue(release, out AnalysisEntry v))
  					return v;
  		

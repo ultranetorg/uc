@@ -252,10 +252,10 @@ namespace Uccs.Net
 			{
 				responderror(ex.Message, (int)HttpStatusCode.BadRequest);
 			}
-			catch(RdcEntityException ex)
-			{
-				responderror(ex.Message, (int)HttpStatusCode.UnprocessableEntity);
-			}
+			//catch(RdcEntityException ex)
+			//{
+			//	responderror(ex.Message, (int)HttpStatusCode.UnprocessableEntity);
+			//}
 			catch(Exception ex) when (!Debugger.IsAttached)
 			{
 				responderror(ex.ToString(), (int)HttpStatusCode.InternalServerError);

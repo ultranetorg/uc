@@ -33,7 +33,7 @@ namespace Uccs.Sun.CLI
 				case "b" :
 				case "build" :
 				{
-					Program.Call(new PackageBuildCall {	Package	= Package, 
+					Program.Api(new PackageBuildCall {	Package	= Package, 
 														Version = Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
 														Sources = GetString("sources").Split(','), 
 														DependsDirectory =GetString("dependsdirectory") });
@@ -43,7 +43,7 @@ namespace Uccs.Sun.CLI
 				case "i" :
 				case "info" :
 				{
-					var r = Program.Call<PackageInfo>(new PackageInfoCall {Package= Package});
+					var r = Program.Api<PackageInfo>(new PackageInfoCall {Package= Package});
 					
 					Dump(r);
 
@@ -53,7 +53,7 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var h = Program.Call<byte[]>(new PackageDownloadCall {Package = Package});
+					var h = Program.Api<byte[]>(new PackageDownloadCall {Package = Package});
 
 					try
 					{
@@ -61,11 +61,11 @@ namespace Uccs.Sun.CLI
 						
 						do
 						{
-							d = Program.Call<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = Package});
+							d = Program.Api<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = Package});
 							
 							if(d == null)
 							{	
-								if(!Program.Call<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
+								if(!Program.Api<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
 								{
 									Workflow.Log?.ReportError(this, "Failed");
 								}

@@ -14,7 +14,7 @@ namespace Uccs.Net
 		
 		protected override AuthorEntry Create()
 		{
-			return new AuthorEntry(Database);
+			return new AuthorEntry(Mcv);
 		}
 
 		protected override byte[] KeyToBytes(string key)
@@ -27,7 +27,7 @@ namespace Uccs.Net
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
- 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
  				if(r.AffectedAuthors.TryGetValue(name, out AuthorEntry v))
  					return v;
  		
@@ -39,7 +39,7 @@ namespace Uccs.Net
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
- 			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
+ 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedAuthors.TryGetValue(resource.Author, out AuthorEntry a))
 				{	
 					var x = a.Resources.FirstOrDefault(i => i.Address.Resource == resource.Resource);

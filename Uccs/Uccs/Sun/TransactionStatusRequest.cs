@@ -7,7 +7,7 @@ namespace Uccs.Net
 	{
 		public TransactionsAddress[]	Transactions { get; set; }
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
 			{

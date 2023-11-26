@@ -33,7 +33,7 @@ namespace Uccs.Sun.CLI
 					if(!Args.Has("source") && !Args.Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var h = Program.Call<byte[]>(new ReleaseBuildCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
+					var h = Program.Api<byte[]>(new ReleaseBuildCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
 																		FilePath = GetString("source", null),
 																		Sources = GetString("sources", null)?.Split(',')});
 
@@ -47,7 +47,7 @@ namespace Uccs.Sun.CLI
 				{
 					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
 		
-					var h = Args.Has("hash") ? Args.Get<string>("hash").HexToByteArray() : Program.Call<byte[]>(new ResourceDownloadCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var h = Args.Has("hash") ? Args.Get<string>("hash").HexToByteArray() : Program.Api<byte[]>(new ResourceDownloadCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 
 					try
 					{
@@ -55,7 +55,7 @@ namespace Uccs.Sun.CLI
 						
 						while(Workflow.Active)
 						{
-							d = Program.Call<ResourceDownloadProgress>(new ResourceDownloadProgressCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name), Hash = h});
+							d = Program.Api<ResourceDownloadProgress>(new ResourceDownloadProgressCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name), Hash = h});
 
 							if(d == null)
 								break;
@@ -75,7 +75,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Program.Call<IEnumerable<LocalRelease>>(new LocalReleasesCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Program.Api<IEnumerable<LocalRelease>>(new LocalReleasesCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					Dump(	r, 
 							new string[] {"Hash", "Type", "Availability"}, 

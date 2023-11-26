@@ -227,7 +227,7 @@ namespace Uccs.Net
 						if(i is ProxyRequest px)
 						{
 							Task.Run(() =>	{
-												var rp = i.TryExecute(Sun);
+												var rp = i.SafeExecute(Sun);
 
 												if(i.WaitResponse)
 													lock(Outs)
@@ -238,7 +238,7 @@ namespace Uccs.Net
 						}
 						else
 						{
-							var rp = i.TryExecute(Sun);
+							var rp = i.SafeExecute(Sun);
 
 							if(i.WaitResponse)
 								lock(Outs)
@@ -430,6 +430,52 @@ namespace Uccs.Net
  			}
 			else
 				return null;
+ 		}
+
+ 		public override RdcResponse SafeRequest(RdcRequest rq)
+ 		{
+ 			if(Status != ConnectionStatus.OK)
+			{
+				var rp = RdcResponse.FromType(rq.Class);
+				rp.Result = RdcResult.NodeException;
+				rp.Error = (byte)RdcNodeError.Connectivity;
+				return rp;
+			}
+ 
+ 			rq.Id = IdCounter++;
+ 
+ 			if(rq.WaitResponse)
+ 				lock(OutRequests)
+ 					OutRequests.Add(rq);
+ 
+ 			lock(Outs)
+ 				Outs.Enqueue(rq);
+ 
+ 			SendSignal.Set();
+ 
+  			if(rq.WaitResponse)
+  			{
+ 	 			if(rq.Event.WaitOne(DevSettings.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
+ 	 			{
+ 					if(rq.Response == null)
+					{
+						var rp = RdcResponse.FromType(rq.Class);
+						rp.Result = RdcResult.GeneralException;
+						return rp;
+					}
+ 	
+ 					return rq.Response;
+  				}
+ 				else
+				{
+					var rp = RdcResponse.FromType(rq.Class);
+					rp.Result = RdcResult.NodeException;
+					rp.Error = (byte)RdcNodeError.Timeout;
+					return rp;
+				}
+  			}
+ 			else
+ 				return null;
  		}
 	}
 }

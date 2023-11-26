@@ -4,7 +4,7 @@
 	{
 		public byte[] Release {get; set;}
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			if(Release.Length != Cryptography.HashSize)
 				throw new RdcRequestException();

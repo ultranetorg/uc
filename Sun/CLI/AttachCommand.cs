@@ -17,7 +17,7 @@ namespace Uccs.Sun.CLI
 		public override object Execute()
 		{
 			var a = new Uri(GetString("to"));
-			Program.Api = new JsonApiClient(new HttpClient(), GetString("to"), GetString("accesskey", null));
+			Program.ApiClient = new JsonApiClient(new HttpClient(), GetString("to"), GetString("accesskey", null));
 
 			Program.LogView.Tags = new string[] {};
 

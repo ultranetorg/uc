@@ -6,7 +6,7 @@
 		public byte[]			Hash { get; set; }
 		public string			File { get; set; }
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.ResourceHub.Lock)
 			{

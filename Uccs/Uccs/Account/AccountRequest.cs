@@ -4,7 +4,7 @@
 	{
 		public AccountAddress		Account {get; set;}
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
  			lock(sun.Lock)
 			{

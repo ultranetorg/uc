@@ -20,7 +20,7 @@ namespace Uccs.Net
 
 		protected override AccountEntry Create()
 		{
-			return new AccountEntry(Database);
+			return new AccountEntry(Mcv);
 		}
 
 		protected override byte[] KeyToBytes(AccountAddress k)
@@ -36,7 +36,7 @@ namespace Uccs.Net
 			{
 				foreach(var i in e.Transactions.OrderByDescending(i => i))
 				{
-					var r = Database.FindRound(i);
+					var r = Mcv.FindRound(i);
 
 					if(round_predicate != null && !round_predicate(r))
 						continue;
@@ -60,7 +60,7 @@ namespace Uccs.Net
 			{
 				foreach(var i in e.Transactions.OrderByDescending(i => i))
 				{
-					var r = Database.FindRound(i);
+					var r = Mcv.FindRound(i);
 
 					if(round_predicate != null && !round_predicate(r))
 						continue;
@@ -79,26 +79,26 @@ namespace Uccs.Net
 
 		public Transaction FindLastTransaction(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			return	Database.FindLastTailTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), round_predicate)
+			return	Mcv.FindLastTailTransaction(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), round_predicate)
 					??
 					FindTransaction(signer, transaction_predicate, round_predicate);
 		}
 
 		public IEnumerable<Transaction> FindLastTransactions(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
-			return	Database.FindLastTailTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), round_predicate)
+			return	Mcv.FindLastTailTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), round_predicate)
 					.Union(FindTransactions(signer, transaction_predicate, round_predicate));
 		}
 
 		public IEnumerable<Transaction> SearchTransactions(AccountAddress signer, int skip = 0, int count = int.MaxValue)
 		{
-			var o = Database.FindLastTailTransactions(i => i.Signer == signer);
+			var o = Mcv.FindLastTailTransactions(i => i.Signer == signer);
 
 			var e = FindEntry(signer);
 
 			if(e != null && e.Transactions != null)
 			{
-				o = o.Union(e.Transactions.SelectMany(r => Database.FindRound(r).Transactions.Where(t => t.Signer == signer))).Skip(skip).Take(count);
+				o = o.Union(e.Transactions.SelectMany(r => Mcv.FindRound(r).Transactions.Where(t => t.Signer == signer))).Skip(skip).Take(count);
 			}
 
 			return o;
@@ -137,7 +137,7 @@ namespace Uccs.Net
 			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
 			//	throw new IntegrityException("maxrid works inside pool only");
 
-			foreach(var r in Database.Tail.Where(i => i.Id <= ridmax))
+			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 				if(r.AffectedAccounts.TryGetValue(account, out var e))
 					return e;
 

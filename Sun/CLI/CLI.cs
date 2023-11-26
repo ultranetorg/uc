@@ -15,7 +15,7 @@ namespace Uccs.Sun.CLI
 		public string			ExeDirectory;
 		public Zone				Zone;
 		public Net.Sun			Sun;
-		public JsonApiClient	Api;
+		public JsonApiClient	ApiClient;
 		public Workflow			Workflow = new Workflow("CLI", new Log());
 
 		public Program()
@@ -60,7 +60,7 @@ namespace Uccs.Sun.CLI
 		{
 			Zone = zone;
 			Sun = sun;
-			Api = api;
+			ApiClient = api;
 			Workflow = workflow;
 		}
 
@@ -120,54 +120,53 @@ namespace Uccs.Sun.CLI
 			return a;
 		}
 
-		public Rp Call<Rp>(SunApiCall call)
+		public void Api(SunApiCall call)
 		{
-			if(Api == null) 
+			if(ApiClient == null)
+				call.Execute(Sun, Workflow);
+			else
+				ApiClient.Send(call, Workflow);
+		}
+
+		public Rp Api<Rp>(SunApiCall call)
+		{
+			if(ApiClient == null) 
 				return (Rp)call.Execute(Sun, Workflow);
 			else
-				return Api.Request<Rp>(call, Workflow);
+				return ApiClient.Request<Rp>(call, Workflow);
 		}
 
 		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
 		{
-			var rp = Call<Rp>(new RdcCall {Request = request});
-
-			if(rp.Result != RdcResult.Success)
-			{
-				string m = rp.Result.ToString();
-
-				if(rp.Result == RdcResult.EntityException)
-					m +=  " - " + ((RdcEntityError)rp.Error).ToString();
-				else if(rp.Result == RdcResult.NodeException)
-					m +=  " - " + ((RdcNodeError)rp.Error).ToString();
-
-				//if(rp.ErrorDetails != null)
-				//	m += " - " + rp.ErrorDetails;
-
-				throw new Exception(m);
-			}
+			var rp = Api<Rp>(new RdcCall {Request = request});
+ 
+ 			if(rp.Result != RdcResult.Success)
+ 			{
+ 				string m = rp.Result.ToString();
+ 
+ 				if(rp.Result == RdcResult.EntityException)
+ 					m +=  " : " + ((RdcEntityError)rp.Error).ToString();
+ 				else if(rp.Result == RdcResult.NodeException)
+ 					m +=  " : " + ((RdcNodeError)rp.Error).ToString();
+ 
+ 				//if(rp.ErrorDetails != null)
+ 				//	m += " - " + rp.ErrorDetails;
+ 
+ 				throw new Exception(m);
+ 			}
 
 			return rp;
-
-		}
-
-		public void Call(SunApiCall call)
-		{
-			if(Api == null)
-				call.Execute(Sun, Workflow);
-			else
-				Api.Send(call, Workflow);
 		}
 
 		public void Enqueue(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
 		{
-			if(Api == null)
+			if(ApiClient == null)
 				Sun.Enqueue(operations, by, await, Workflow);
 			else
-				Api.Send(new EnqeueOperationCall{	Operations = operations,
-													By = by,
-													Await = await}, 
-							Workflow);
+				ApiClient.Send(new EnqeueOperationCall {Operations = operations,
+														By = by,
+														Await = await}, 
+								Workflow);
 		}
 	}
 }

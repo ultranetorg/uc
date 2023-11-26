@@ -7,6 +7,7 @@ using System.Reflection;
 using Org.BouncyCastle.Utilities.Encoders;
 using Org.BouncyCastle.Utilities.Collections;
 using System.Collections;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -23,10 +24,10 @@ namespace Uccs.Net
 		public class Cluster
 		{
 			public int				Round;
-			public ushort			Id;
+			public byte[]			Id;
 			public int				MainLength;
-			public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
-			public static ushort	ToId(Span<byte> k) => (ushort)(((ushort)k[0])<<8 | k[1]);
+			//public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
+			//public static ushort	ToId(Span<byte> k) => (ushort)(((ushort)k[0])<<8 | k[1]);
 			List<E>					_Entries;
 			Table<E, K>				Table;
 			byte[]					_Main;
@@ -49,7 +50,7 @@ namespace Uccs.Net
 															return e;
 														 });
 					
-							s = new MemoryStream(Table.Engine.Get(ToBytes(Id), Table.MoreColumn));
+							s = new MemoryStream(Table.Engine.Get(Id, Table.MoreColumn));
 							r = new BinaryReader(s);
 	
 							for(int i = 0; i < a.Length; i++)
@@ -73,19 +74,19 @@ namespace Uccs.Net
 				{
 					if(_Main == null)
 					{
-						_Main = Table.Engine.Get(ToBytes(Id), Table.MainColumn);
+						_Main = Table.Engine.Get(Id, Table.MainColumn);
 					}
 
 					return _Main;
 				}
 			}
 
-			public Cluster(Table<E, K> table, ushort id)
+			public Cluster(Table<E, K> table, byte[] id)
 			{
 				Table = table;
 				Id = id;
 
-				var m = Table.Engine.Get(ToBytes(Id), Table.MetaColumn);
+				var m = Table.Engine.Get(Id, Table.MetaColumn);
 
 				if(m != null)
 				{
@@ -101,28 +102,28 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 
-				var entities = Entries/*.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer())*/;
+				var entities = Entries.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer());
 
 				w.Write(entities, i => i.WriteMain(w));
 
 				_Main = s.ToArray();
-				batch.Put(ToBytes(Id), _Main, Table.MainColumn);
+				batch.Put(Id, _Main, Table.MainColumn);
 
-				Hash = Table.Database.Zone.Cryptography.Hash(_Main);
+				Hash = Table.Mcv.Zone.Cryptography.Hash(_Main);
 				MainLength = _Main.Length;
 				
 				s.SetLength(0);
 				w.Write(Hash);
 				w.Write7BitEncodedInt(_Main.Length);
 
-				batch.Put(ToBytes(Id), s.ToArray(), Table.MetaColumn);
+				batch.Put(Id, s.ToArray(), Table.MetaColumn);
 
 				s.SetLength(0);
 
 				foreach(var i in entities)
 					i.WriteMore(w);
 
-				batch.Put(ToBytes(Id), s.ToArray(), Table.MoreColumn);
+				batch.Put(Id, s.ToArray(), Table.MoreColumn);
 			}
 
 			public void Write(BinaryWriter writer)
@@ -141,11 +142,12 @@ namespace Uccs.Net
 
 			public override string ToString()
 			{
-				return $"{Id:X2}, Entries={{{(_Entries != null ? _Entries.Count.ToString() : "")}}}, Hash={(Hash != null ? Hex.ToHexString(Hash) : "")}";
+				return $"{Id.ToHex()}, Entries={{{(_Entries != null ? _Entries.Count.ToString() : "")}}}, Hash={(Hash != null ? Hex.ToHexString(Hash) : "")}";
 			}
 		}
 
 		public const int				ClustersKeyLength = 2;
+		public const int				SuperClustersCountMax = byte.MaxValue + 1;
 		const int						ClustersCacheLimit = 1000;
 		public Tables					Type
 										{
@@ -168,7 +170,7 @@ namespace Uccs.Net
 		public static string			MainColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MainColumn);
 		public static string			MoreColumnName => typeof(E).Name.Substring(0, typeof(E).Name.IndexOf("Entry")) + nameof(MoreColumn);
 		RocksDb							Engine;
-		protected Mcv					Database;
+		protected Mcv					Mcv;
 
 		protected abstract E			Create();
 		protected abstract byte[]		KeyToBytes(K k);
@@ -176,8 +178,8 @@ namespace Uccs.Net
 
 		public Table(Mcv chain)
 		{
-			Database = chain;
-			Engine = Database.Engine;
+			Mcv = chain;
+			Engine = Mcv.Engine;
 			MetaColumn = Engine.GetColumnFamily(MetaColumnName);
 			MainColumn = Engine.GetColumnFamily(MainColumnName);
 			MoreColumn = Engine.GetColumnFamily(MoreColumnName);
@@ -186,7 +188,7 @@ namespace Uccs.Net
 			{
 				for(i.SeekToFirst(); i.Valid(); i.Next())
 				{
-	 				var c = new Cluster(this, Cluster.ToId(i.Key()));
+	 				var c = new Cluster(this, i.Key());
 					//c.Hash = i.Value();
 	 				Clusters.Add(c);
 				}
@@ -214,21 +216,21 @@ namespace Uccs.Net
 			if(!Clusters.Any())
 				return;
 
-			var ocs = Clusters.OrderBy(i => i.Id);
+			var ocs = Clusters.OrderBy(i => i.Id, new BytesComparer());
 
-			byte b = (byte)(ocs.First().Id >> 8);
+			byte b = ocs.First().Id[1];
 			byte[] h = ocs.First().Hash;
 
 			foreach(var i in ocs.Skip(1))
 			{
-				if(b != i.Id >> 8)
+				if(b != i.Id[1])
 				{
 					SuperClusters[b] = h;
-					b = (byte)(i.Id >> 8);
+					b = i.Id[1];
 					h = i.Hash;
 				}
 				else
-					h = Database.Zone.Cryptography.Hash(Bytes.Xor(h, i.Hash));
+					h = Mcv.Zone.Cryptography.Hash(Bytes.Xor(h, i.Hash));
 			}
 
 			SuperClusters[b] = h;
@@ -297,9 +299,9 @@ namespace Uccs.Net
  			return new Enumerator(this);
  		}
 
-		Cluster GetCluster(ushort id)
+		Cluster GetCluster(byte[] id)
 		{
-			var c = Clusters.Find(i => i.Id == id);
+			var c = Clusters.Find(i => i.Id.SequenceEqual(id));
 
 			if(c != null)
 				return c;
@@ -314,10 +316,10 @@ namespace Uccs.Net
 
 		public E FindEntry(K key)
 		{
-			var bcid = KeyToBytes(key).Take(ClustersKeyLength).ToArray();
-			var cid = Cluster.ToId(bcid);
+			var cid = KeyToBytes(key).Take(ClustersKeyLength).ToArray();
+			//var cid = Cluster.ToId(bcid);
 
-			var c = Clusters.Find(i => i.Id == cid);
+			var c = Clusters.Find(i => i.Id.SequenceEqual(cid));
 
 			if(c == null)
 				return default(E);
@@ -353,7 +355,7 @@ namespace Uccs.Net
 
 			foreach(var i in entities)
 			{
-				var c = GetCluster(Cluster.ToId(i.GetClusterKey(ClustersKeyLength)));
+				var c = GetCluster(i.GetClusterKey(ClustersKeyLength).ToArray());
 
 				c.Entries.Remove(c.Entries.Find(e => Equal(e.Key, i.Key)));
 				c.Entries.Add(i);

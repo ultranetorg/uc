@@ -8,7 +8,7 @@ namespace Uccs.Net
 		public Peer[]				Peers { get; set; }
 		public override bool		WaitResponse => false;
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
 			{

@@ -16,7 +16,7 @@ namespace Uccs.Net
 		public DeclareReleaseItem[]	Releases { get; set; }
 		public override bool		WaitResponse => false;
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
 			RequireMember(sun);
 

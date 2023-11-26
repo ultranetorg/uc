@@ -1,26 +1,32 @@
 ﻿using System.IO;
+using System.Linq;
 
 namespace Uccs.Net
 {
 	public class DownloadTableRequest : RdcRequest
 	{
 		public Tables	Table { get; set; }
-		public int		ClusterId { get; set; }
+		public byte[]	ClusterId { get; set; }
 		public long		Offset { get; set; }
 		public long		Length { get; set; }
 
-		protected override RdcResponse Execute(Sun sun)
+		public override RdcResponse Execute(Sun sun)
 		{
+			if(	ClusterId.Length != AccountTable.ClustersKeyLength ||
+				Offset < 0 ||
+				Length < 0)
+				throw new RdcRequestException();
+
 			lock(sun.Lock)
 			{
 				RequireBase(sun);
 				
 				var m = Table switch
 							  {
-									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Authors	=> sun.Mcv.Authors.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									Tables.Analyses	=> sun.Mcv.Analyses.Clusters.Find(i => i.Id == ClusterId)?.Main,
-									_ => throw new RdcEntityException(RdcEntityError.InvalidRequest)
+									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
+									Tables.Authors	=> sun.Mcv.Authors.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
+									Tables.Analyses	=> sun.Mcv.Analyses.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
+									_ => throw new RdcRequestException()
 							  };
 
 				if(m == null)
