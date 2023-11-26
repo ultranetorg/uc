@@ -72,7 +72,7 @@ namespace Uccs.Sun.CLI
 			new Program();
 		}
 
-		Command Create(Xon commnad)
+		public Command Create(Xon commnad)
 		{
 			Command c = null;
 			var t = commnad.Nodes.First().Name;
@@ -81,6 +81,7 @@ namespace Uccs.Sun.CLI
 
 			switch(t)
 			{
+				case BatchCommand.Keyword :		c = new BatchCommand(this, args); break;
 				case RunCommand.Keyword:		c = new RunCommand(this, args); break;
 				case AttachCommand.Keyword:		c = new AttachCommand(this, args); break;
 				case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args); break;
@@ -93,6 +94,8 @@ namespace Uccs.Sun.CLI
 				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args); break;
 				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args); break;
 				case NetCommand.Keyword:		c = new NetCommand(this, args); break;
+				default:
+					throw new SyntaxException("Unknown command");
 			}
 
 			return c;
@@ -107,32 +110,14 @@ namespace Uccs.Sun.CLI
 			var args = command.Nodes.ToList();
 			var c = Create(command);
 
-			if(c != null)
+			var a = c.Execute();
+
+			if(a is Operation o)
 			{
-				var a = c.Execute();
-
-				if(a is Operation o)
-				{
-					Enqueue(new Operation[]{o}, c.GetAccountAddress("by"), Command.GetAwaitStage(command));
-					//if(api == null)
-					//	c.Sun.Enqueue(new Operation[]{o}, c.Sun.Vault.GetKey(c.GetAccountAddress("by")), Command.GetAwaitStage(command),  workflow);
-					//else
-					//	api.Send(new EnqeueOperationCall{	By = c.GetAccountAddress("by"),
-					//										Await = Command.GetAwaitStage(command),
-					//										Operations = new [] {o}}, 
-					//				Workflow);
-				}
-				
-				return a;
-			} 
-			else
-			{
-				var results = command.Nodes.Where(i => i.Name != "await" && i.Name != "by").Select(i => Create(i)).Select(i => i.Execute());
-
-				Enqueue(results.OfType<Operation>(), AccountAddress.Parse(command.Get<string>("by")), Command.GetAwaitStage(command));
-
-				return results;
+				Enqueue(new Operation[]{o}, c.GetAccountAddress("by"), Command.GetAwaitStage(command));
 			}
+				
+			return a;
 		}
 
 		public Rp Call<Rp>(SunApiCall call)
@@ -145,7 +130,25 @@ namespace Uccs.Sun.CLI
 
 		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
 		{
-			return Call<Rp>(new RdcCall {Request = request});
+			var rp = Call<Rp>(new RdcCall {Request = request});
+
+			if(rp.Result != RdcResult.Success)
+			{
+				string m = rp.Result.ToString();
+
+				if(rp.Result == RdcResult.EntityException)
+					m +=  " - " + ((RdcEntityError)rp.Error).ToString();
+				else if(rp.Result == RdcResult.NodeException)
+					m +=  " - " + ((RdcNodeError)rp.Error).ToString();
+
+				//if(rp.ErrorDetails != null)
+				//	m += " - " + rp.ErrorDetails;
+
+				throw new Exception(m);
+			}
+
+			return rp;
+
 		}
 
 		public void Call(SunApiCall call)

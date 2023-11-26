@@ -15,7 +15,7 @@ namespace Uccs.Net
 		}
 
 
-		public override RdcResponse Execute(Sun sun)
+		protected override RdcResponse Execute(Sun sun)
 		{
 			if(!sun.Roles.HasFlag(Role.Base))
 				throw new RdcNodeException(RdcNodeError.NotBase);

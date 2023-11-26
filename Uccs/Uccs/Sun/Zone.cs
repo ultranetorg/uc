@@ -49,9 +49,10 @@ namespace Uccs.Net
 								}
 							}
 
+ 		public static readonly Zone			Localnet = new Localnet();
  		public static readonly Zone			Testnet1 = new Testnet1();
 		public static readonly Zone			Mainnet	= null;
-		public static readonly Zone[]		Official = {Testnet1};
+		public static readonly Zone[]		Official = {Localnet, Testnet1};
 
 		public Zone()
 		{

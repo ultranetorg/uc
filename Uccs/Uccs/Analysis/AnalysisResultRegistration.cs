@@ -6,7 +6,7 @@ using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
-	public class AnalysisRegistration : Operation
+	public class AnalysisResultRegistration : Operation
 	{
 		public byte[]			Release { get; set; }
 		public AnalysisResult	Result { get; set; }
@@ -14,7 +14,7 @@ namespace Uccs.Net
 		public override string	Description => $"Release={Release.ToHex()}, Result={Result}";
 		public override bool	Valid => true;
 
-		public AnalysisRegistration()
+		public AnalysisResultRegistration()
 		{
 		}
 		

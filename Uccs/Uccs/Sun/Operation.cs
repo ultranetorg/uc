@@ -25,7 +25,7 @@ namespace Uccs.Net
 		Emission, UntTransfer, 
 		AuthorBid, AuthorRegistration, AuthorTransfer,
 		ResourceCreation, ResourceUpdation,
-		AnalysisOrder, AnalysisRegistration
+		AnalysisOrder, AnalysisResultRegistration
 	}
 
 	public abstract class Operation// : ITypedBinarySerializable

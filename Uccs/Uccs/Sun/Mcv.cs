@@ -132,7 +132,7 @@ namespace Uccs.Net
 						r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
 						r.Hashify();
-						Execute(r, r.ConfirmedTransactions);
+						//Execute(r, r.ConfirmedTransactions);
 						Confirm(r);
 						Commit(r);
 					}
@@ -184,7 +184,7 @@ namespace Uccs.Net
 					Tail.Insert(0, r);
 		
 					r.Confirmed = false;
-					Execute(r, r.ConfirmedTransactions);
+					//Execute(r, r.ConfirmedTransactions);
 					Confirm(r);
 				}
 			}
@@ -509,16 +509,6 @@ namespace Uccs.Net
 
 		public byte[] Summarize(Round round)
 		{
-			var prev = round.Previous;
-
-			round.Members				= round.Id == 0 ? new()	: round.Previous.Members.ToList();
-			round.Emissions				= round.Id == 0 ? new()	: round.Previous.Emissions.ToList();
-			round.DomainBids			= round.Id == 0 ? new()	: round.Previous.DomainBids.ToList();
-			round.Analyzers				= round.Id == 0 ? new()	: round.Previous.Analyzers.ToList();
-			round.Funds					= round.Id == 0 ? new()	: round.Previous.Funds.ToList();
-			round.AnalyzersIdCounter	= round.Id == 0 ? new()	: round.Previous.AnalyzersIdCounter;
-
-
 			var m = round.Id >= DeclareToGenerateDelay ? VotersOf(round) : new();
 			var gv = round.VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
@@ -662,8 +652,14 @@ namespace Uccs.Net
 				foreach(var o in t.Operations)
 					o.Error = null;
 
+			round.Members			 = round.Id == 0 ? new() : round.Previous.Members;
+			round.Analyzers			 = round.Id == 0 ? new() : round.Previous.Analyzers;
+			round.Funds				 = round.Id == 0 ? new() : round.Previous.Funds;
+			round.Emissions			 = round.Id == 0 ? new() : round.Previous.Emissions;
+			round.DomainBids		 = round.Id == 0 ? new() : round.Previous.DomainBids;
+			round.AnalyzersIdCounter = round.Id == 0 ? new() : round.Previous.AnalyzersIdCounter;
+
 		start: 
-	
 			round.Fees		= 0;
 			round.Emission	= round.Id == 0 ? 0 : round.Previous.Emission;
 
@@ -719,14 +715,13 @@ namespace Uccs.Net
 			if(round.Id % 100 == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
 				throw new IntegrityException("round.Id % 100 == 0 && LastCommittedRound != round.Previous");
 
-			var prev = round.Previous;
+			Execute(round, round.ConfirmedTransactions);
 
-			round.Members				= round.Id == 0 ? new()	: round.Previous.Members.ToList();
-			round.Emissions				= round.Id == 0 ? new()	: round.Previous.Emissions.ToList();
-			round.DomainBids			= round.Id == 0 ? new()	: round.Previous.DomainBids.ToList();
-			round.Analyzers				= round.Id == 0 ? new()	: round.Previous.Analyzers.ToList();
-			round.Funds					= round.Id == 0 ? new()	: round.Previous.Funds.ToList();
-			round.AnalyzersIdCounter	= round.Id == 0 ? new()	: round.Previous.AnalyzersIdCounter;
+			round.Members		= round.Members.ToList();
+			round.Analyzers		= round.Analyzers.ToList();
+			round.Funds			= round.Funds.ToList();
+			round.Emissions		= round.Emissions.ToList();
+			round.DomainBids	= round.DomainBids.ToList();
 
 			foreach(var f in round.ConfirmedViolators)
 			{
@@ -737,16 +732,12 @@ namespace Uccs.Net
 			
 			round.Distribute(round.Fees, round.Members.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
 
-
 			for(int ti = 0; ti < round.ConfirmedTransactions.Length; ti++)
 			{
-				//round.ConfirmedTransactions[ti].Hid = new (round.Id, ti);
-
 				for(int oi = 0; oi < round.ConfirmedTransactions[ti].Operations.Length; oi++)
 				{
 					var o = round.ConfirmedTransactions[ti].Operations[oi];
-					//
-					//o.Hid = new (round.Id, ti, oi);
+
 					if(o is Emission e)
 						round.Emissions.Add(e);
 
@@ -773,24 +764,7 @@ namespace Uccs.Net
 
 			round.DomainBids.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDurationLimit);
 
-			//foreach(var i in round.ConfirmedAnalyses)
-			//{
-			//	var e = round.AffectAuthor(i.Resource.Author).AffectResource(i.Resource);
-			//	
-			//	if(i.Finished)
-			//	{
-			//		e.Good			= i.Good;
-			//		e.Bad			= i.Bad;
-			//		e.AnalysisStage = AnalysisStage.Finished;
-			//
-			//		round.Distribute(e.AnalysisFee, round.Analyzers.Select(i => i.Account));
-			//	}
-			//	else if(e.AnalysisStage == AnalysisStage.Pending && i.HalfReached)
-			//	{
-			//		e.AnalysisStage = AnalysisStage.HalfVotingReached;
-			//	}
-			//}
-								
+	
 			foreach(var t in round.OrderedTransactions)
 			{
 				t.Placing = round.ConfirmedTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
@@ -817,10 +791,6 @@ foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Ac
 	Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
 
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
-
-//foreach(var i in round.Members.Where(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id))
-//	Log?.Report(this, $"Member removed due to CandidacyDeclarationRid == round.Id {round.Id} - {i.Account}");
-			//round.Members.RemoveAll(i => round.AffectedAccounts.TryGetValue(i.Account, out var a) && a.CandidacyDeclarationRid == round.Id);  /// CandidacyDeclaration cancels membership
 
 foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(i.Account)))
 	Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");

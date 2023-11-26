@@ -172,6 +172,7 @@ namespace Uccs.Net
 
 		protected abstract E			Create();
 		protected abstract byte[]		KeyToBytes(K k);
+		protected abstract bool			Equal(K a, K b);
 
 		public Table(Mcv chain)
 		{
@@ -296,21 +297,6 @@ namespace Uccs.Net
  			return new Enumerator(this);
  		}
 
-// 		public E GetEntry(K key)
-// 		{
-// 			var e = FindEntry(key);
-// 		
-// 			if(e == null)
-// 			{
-// 				e = Create(key);
-// 				e.LastAccessed = DateTime.UtcNow;
-// 				Entries.Add(e);
-// 				Recycle();
-// 			} 
-// 		
-// 			return e;
-// 		}
-
 		Cluster GetCluster(ushort id)
 		{
 			var c = Clusters.Find(i => i.Id == id);
@@ -336,7 +322,7 @@ namespace Uccs.Net
 			if(c == null)
 				return default(E);
 
-			var e = c.Entries.Find(i => i.Key.Equals(key));
+			var e = c.Entries.Find(i => Equal(i.Key, key));
 
 // 			if(e != null)
 // 			{
@@ -346,24 +332,6 @@ namespace Uccs.Net
 			return e;
 		}
 
-		//public IEnumerable<E> Where(K key, Func<E, bool> predicate)
-		//{
-		//	var bcid = KeyToBytes(key).Take(ClustersKeyLength).ToArray();
-		//	var cid = Cluster.ToId(bcid);
-		//
-		//	var c = Clusters.Find(i => i.Id == cid);
-		//
-		//	if(c == null)
-		//		yield break;
-		//
-		//	foreach(var i in c.Entries)
-		//	{
-		//		if(i.Key.Equals(key) && predicate(i))
-		//		{
-		//			yield return i;
-		//		}
-		//	}
-		//}
 
 		void Recycle()
 		{
@@ -387,7 +355,7 @@ namespace Uccs.Net
 			{
 				var c = GetCluster(Cluster.ToId(i.GetClusterKey(ClustersKeyLength)));
 
-				c.Entries.Remove(c.Entries.Find(e => e.Key.Equals(i.Key)));
+				c.Entries.Remove(c.Entries.Find(e => Equal(e.Key, i.Key)));
 				c.Entries.Add(i);
 
 				cs.Add(c);

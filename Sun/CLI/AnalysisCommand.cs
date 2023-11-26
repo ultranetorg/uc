@@ -30,10 +30,10 @@ namespace Uccs.Sun.CLI
 					return new AnalysisOrder {Release = Args.Nodes[1].Name.HexToByteArray(), Fee = GetMoney("fee")};
 				}
 
-				case "r" :
-				case "register" :
+				case "rr" :
+				case "registerresult" :
 				{
-					return new AnalysisRegistration {Release = Args.Nodes[1].Name.HexToByteArray(), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
+					return new AnalysisResultRegistration {Release = Args.Nodes[1].Name.HexToByteArray(), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
 				}
 
 				case "i" : 

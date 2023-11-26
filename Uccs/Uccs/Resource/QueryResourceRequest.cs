@@ -7,7 +7,7 @@ namespace Uccs.Net
 	{
 		public string		Query { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		protected override RdcResponse Execute(Sun sun)
 		{
  			lock(sun.Lock)
 			{	

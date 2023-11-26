@@ -214,76 +214,35 @@ namespace Uccs.Net
 				{
 					Sun.Statistics.Sending.Begin();
 	
-					RdcRequest[] ins;
+					RdcRequest[] inrq;
 	
 					lock(InRequests)
 					{
-						ins = InRequests.ToArray();
+						inrq = InRequests.ToArray();
 						InRequests.Clear();
 					}
 							
-					foreach(var i in ins)
+					foreach(var i in inrq)
 					{
-						void execute()
-						{
-							if(i.WaitResponse)
-							{
-								RdcResponse r;
-
-								try
-								{
-									r = i.Execute(Sun);
-									r.Result = RdcResult.Success;
-								}
-								catch(RdcNodeException ex)
-								{
-									r = RdcResponse.FromType(i.Class);
-									r.Result = RdcResult.NodeException;
-									r.Error = (byte)ex.Error;
-									r.ErrorDetails = ex.ToString();
-								}
-								catch(RdcEntityException ex)
-								{
-									r = RdcResponse.FromType(i.Class);
-									r.Result = RdcResult.EntityException;
-									r.Error = (byte)ex.Error;
-									r.ErrorDetails = ex.ToString();
-								}
-								catch(Exception ex) when(!Debugger.IsAttached)
-								{
-									r = RdcResponse.FromType(i.Class);
-									r.Result = RdcResult.NodeException;
-									r.Error = (byte)RdcNodeError.Internal;
-									r.ErrorDetails = ex.ToString();
-								}
-
-								r.Id = i.Id;
-
-								lock(Outs)
-									Outs.Enqueue(r);
-							}
-							else
-							{
-								try
-								{
-									i.Execute(Sun);
-								}
-								catch(Exception ex) when(!Debugger.IsAttached || ex is RdcEntityException || ex is RdcNodeException)
-								{
-								}
-							}
-						}
-
 						if(i is ProxyRequest px)
 						{
 							Task.Run(() =>	{
-												execute();
+												var rp = i.TryExecute(Sun);
+
+												if(i.WaitResponse)
+													lock(Outs)
+														Outs.Enqueue(rp);
+
 												SendSignal.Set();
 											});
 						}
 						else
 						{
-							execute();
+							var rp = i.TryExecute(Sun);
+
+							if(i.WaitResponse)
+								lock(Outs)
+									Outs.Enqueue(rp);
 						}
 					}
 
@@ -459,6 +418,8 @@ namespace Uccs.Net
 
 						throw new RdcNodeException(e, rq.Response.ErrorDetails);
 					}
+	 				else if(rq.Response.Result == RdcResult.RequestException)
+						throw new RdcRequestException();
 	 				else if(rq.Response.Result == RdcResult.EntityException)
 						throw new RdcEntityException((RdcEntityError)rq.Response.Error);
 					else

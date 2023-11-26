@@ -7,7 +7,7 @@ namespace Uccs.Net
 	{
 		public TransactionsAddress[]	Transactions { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		protected override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
 			{
@@ -18,11 +18,12 @@ namespace Uccs.Net
 							LastConfirmedRoundId = sun.Mcv.LastConfirmedRound.Id,
 							Transactions = Transactions.Select(t => new{Q = t,
 																		T = sun.IncomingTransactions.Find(i => i.Signer == t.Account && i.Nid == t.Nid)
-																		?? 
-																		sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Nid == t.Nid)})
+																			?? 
+																			sun.Mcv.Accounts.FindLastTransaction(t.Account, i => i.Nid == t.Nid)})
 														.Select(i => new TransactionStatusResponse.Item{Account		= i.Q.Account,
 																										Nid			= i.Q.Nid,
-																										Placing		= i.T == null ? PlacingStage.FailedOrNotFound : i.T.Placing}).ToArray()
+																										Placing		= i.T == null ? PlacingStage.FailedOrNotFound : i.T.Placing})
+														.ToArray()
 						};
 			}
 		}

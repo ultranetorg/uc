@@ -1150,7 +1150,7 @@ namespace Uccs.Net
 									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
 
 								r.Confirmed = false;
-								Mcv.Execute(r, r.ConfirmedTransactions);
+								//Mcv.Execute(r, r.ConfirmedTransactions);
 								Mcv.Confirm(r);
 
 								if(r.Members.Count == 0)
@@ -1295,7 +1295,7 @@ namespace Uccs.Net
 				
 				var prev = r.Previous.VotesOfTry.FirstOrDefault(j => j.Generator == m);
 				r.ConfirmedTime = new Time(Mcv.LastConfirmedRound.ConfirmedTime.Ticks + (prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds));
-				r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
+				//r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
 
 				Mcv.Execute(r, new [] {i});
 
@@ -1465,12 +1465,12 @@ namespace Uccs.Net
 						}
 					}
 
-					for(int i = votes.Min(i => i.RoundId); i <= Mcv.LastNonEmptyRound.Id; i++)
+					for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
 					{
-						var r = Mcv.FindRound(i);
-						r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
+						var r = Mcv.GetRound(i);
+						//r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
 
-						if(r != null && !r.Confirmed)
+						if(!r.Confirmed)
 						{
 							var txs = r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Vote.Generator));
 							
@@ -2098,7 +2098,7 @@ namespace Uccs.Net
 				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
 			}
 
- 			return rq.Execute(this);
+ 			return rq.TryExecute(this);
  		}
 
 		public override void Send(RdcRequest rq)
@@ -2111,7 +2111,7 @@ namespace Uccs.Net
 				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
 			}
 
- 			rq.Execute(this);
+ 			rq.TryExecute(this);
  		}
 
 		public void Broadcast(Vote vote, Peer skip = null)

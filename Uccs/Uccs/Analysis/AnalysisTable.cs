@@ -4,6 +4,8 @@ namespace Uccs.Net
 {
 	public class AnalysisTable : Table<AnalysisEntry, byte[]>
 	{
+		protected override bool	Equal(byte[] a, byte[] b) => a.SequenceEqual(b);
+
 		public  AnalysisTable(Mcv chain) : base(chain)
 		{
 		}

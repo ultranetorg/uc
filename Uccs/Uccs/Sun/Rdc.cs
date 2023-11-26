@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -23,7 +24,7 @@ namespace Uccs.Net
 
 	public enum RdcResult : byte
 	{
-		None, Success, NodeException, EntityException
+		None, Success, NodeException, RequestException, EntityException
 	}
 
 	public enum RdcNodeError : byte
@@ -70,6 +71,13 @@ namespace Uccs.Net
 			ErrorDetails = errordetails;
 		}
  	}
+
+	public class RdcRequestException : Exception
+	{
+		public RdcRequestException()
+		{
+		}
+	}
 
  	public class RdcEntityException : Exception
  	{
@@ -167,7 +175,63 @@ namespace Uccs.Net
 			Event = new ManualResetEvent(false);
 		}
 
-		public abstract RdcResponse Execute(Sun sun);
+		public RdcResponse TryExecute(Sun sun)
+		{
+			if(WaitResponse)
+			{
+				RdcResponse r;
+
+				try
+				{
+					r = Execute(sun);
+					r.Result = RdcResult.Success;
+				}
+				catch(RdcNodeException ex)
+				{
+					r = RdcResponse.FromType(Class);
+					r.Result = RdcResult.NodeException;
+					r.Error = (byte)ex.Error;
+					r.ErrorDetails = ex.ToString();
+				}
+				catch(RdcRequestException)
+				{
+					r = RdcResponse.FromType(Class);
+					r.Result = RdcResult.RequestException;
+				}
+				catch(RdcEntityException ex)
+				{
+					r = RdcResponse.FromType(Class);
+					r.Result = RdcResult.EntityException;
+					r.Error = (byte)ex.Error;
+					r.ErrorDetails = ex.ToString();
+				}
+				catch(Exception ex) when(!Debugger.IsAttached)
+				{
+					r = RdcResponse.FromType(Class);
+					r.Result = RdcResult.NodeException;
+					r.Error = (byte)RdcNodeError.Internal;
+					r.ErrorDetails = ex.ToString();
+				}
+
+				r.Id = Id;
+
+				return r;
+			}
+			else
+			{
+				try
+				{
+					Execute(sun);
+				}
+				catch(Exception ex) when(!Debugger.IsAttached || ex is RdcEntityException || ex is RdcNodeException)
+				{
+				}
+
+				return null;
+			}
+		}
+
+		protected abstract RdcResponse Execute(Sun sun);
 
 		protected void RequireBase(Sun sun)
 		{
@@ -264,7 +328,7 @@ namespace Uccs.Net
 		public RdcRequest		Request { get; set; }
 		public override	bool	WaitResponse => Request.WaitResponse;
 
-		public override RdcResponse Execute(Sun sun)
+		protected override RdcResponse Execute(Sun sun)
 		{
 			if(!sun.Roles.HasFlag(Role.Base))
 				throw new RdcNodeException(RdcNodeError.NotBase);
@@ -282,7 +346,7 @@ namespace Uccs.Net
 
 			if(sun.Settings.Generators.Contains(Destination))
 			{
-				return new ProxyResponse {Response = Request.Execute(sun)};
+				return new ProxyResponse {Response = Request.TryExecute(sun)};
 			}
 			else
 			{

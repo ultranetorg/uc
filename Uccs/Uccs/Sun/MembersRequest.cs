@@ -6,7 +6,7 @@ namespace Uccs.Net
 {
 	public class MembersRequest : RdcRequest
 	{
-		public override RdcResponse Execute(Sun sun)
+		protected override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
 			{

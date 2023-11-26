@@ -1,14 +1,13 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using RocksDbSharp;
 
 namespace Uccs.Net
 {
 	public class AuthorTable : Table<AuthorEntry, string>
 	{
+		protected override bool Equal(string a, string b) => a.Equals(b);
+
 		public AuthorTable(Mcv chain) : base(chain)
 		{
 		}

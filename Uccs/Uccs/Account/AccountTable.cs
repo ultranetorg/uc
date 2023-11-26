@@ -12,6 +12,8 @@ namespace Uccs.Net
 {
 	public class AccountTable : Table<AccountEntry, AccountAddress>
 	{
+		protected override bool Equal(AccountAddress a, AccountAddress b) => a.Equals(b);
+
 		public AccountTable(Mcv chain) : base(chain)
 		{
 		}

@@ -8,7 +8,7 @@ namespace Uccs.Net
 		public Tables	Table { get; set; }
 		public byte[]	SuperClusters { get; set; }
 
-		public override RdcResponse Execute(Sun sun)
+		protected override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
 			{

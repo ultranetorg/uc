@@ -10,7 +10,7 @@ namespace Uccs.Net
 		public int From { get; set; }
 		public int To { get; set; }
 		
-		public override RdcResponse Execute(Sun sun)
+		protected override RdcResponse Execute(Sun sun)
 		{
 			lock(sun.Lock)
 			{
