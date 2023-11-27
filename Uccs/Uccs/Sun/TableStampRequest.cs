@@ -22,9 +22,9 @@ namespace Uccs.Net
 
 				switch(Table)
 				{
-					case Tables.Accounts : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Accounts.Clusters.Where(c => c.Id[1] == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Authors	 : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Authors.Clusters.Where(c => c.Id[1] == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
-					case Tables.Analyses : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Analyses.Clusters.Where(c => c.Id[1] == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Accounts : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Accounts.Clusters.Where(c => c.SuperId == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Authors	 : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Authors.Clusters.Where(c => c.SuperId == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
+					case Tables.Analyses : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Analyses.Clusters.Where(c => c.SuperId == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 
 					default:
 						throw new RdcRequestException();

@@ -25,6 +25,7 @@ namespace Uccs.Net
 		{
 			public int				Round;
 			public byte[]			Id;
+			public byte				SuperId => Id[1];
 			public int				MainLength;
 			//public static byte[]	ToBytes(ushort k) => new byte[]{(byte)(k>>8), (byte)k};
 			//public static ushort	ToId(Span<byte> k) => (ushort)(((ushort)k[0])<<8 | k[1]);
@@ -218,15 +219,15 @@ namespace Uccs.Net
 
 			var ocs = Clusters.OrderBy(i => i.Id, new BytesComparer());
 
-			byte b = ocs.First().Id[1];
+			byte b = ocs.First().SuperId;
 			byte[] h = ocs.First().Hash;
 
 			foreach(var i in ocs.Skip(1))
 			{
-				if(b != i.Id[1])
+				if(b != i.SuperId)
 				{
 					SuperClusters[b] = h;
-					b = i.Id[1];
+					b = i.SuperId;
 					h = i.Hash;
 				}
 				else

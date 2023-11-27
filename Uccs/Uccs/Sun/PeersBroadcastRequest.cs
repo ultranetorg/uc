@@ -10,6 +10,9 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Sun sun)
 		{
+			if(Peers.Length > 1000)
+				throw new RdcRequestException();
+
 			lock(sun.Lock)
 			{
 				var newfresh = sun.RefreshPeers(Peers).ToArray();

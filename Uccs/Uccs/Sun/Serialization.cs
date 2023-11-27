@@ -69,9 +69,7 @@ namespace Uccs.Net
 
 				case IPAddress v:
 				{
-					var b = v.GetAddressBytes();
-					writer.Write7BitEncodedInt(b.Length);
-					writer.Write(b);
+					writer.Write(v);
 					return true;
 				}
 				case IBinarySerializable v:
@@ -252,7 +250,7 @@ namespace Uccs.Net
 				else
 				if(typeof(IPAddress) == type)
 				{
-					value = new IPAddress(reader.ReadBytes(reader.Read7BitEncodedInt()));
+					value = reader.ReadIPAddress();
 					return true;
 				}
 				else
@@ -280,7 +278,7 @@ namespace Uccs.Net
 					return true;
 				}
 				else 
-				if(type.GetInterfaces().Any(i => i == typeof(System.Collections.ICollection)))
+				if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
 				{
 					var ltype = type.GetElementType().MakeArrayType(1);
 	
