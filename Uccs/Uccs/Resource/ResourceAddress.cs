@@ -93,7 +93,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ReleaseAddressJsonConverter : JsonConverter<ResourceAddress>
+	public class ResourceAddressJsonConverter : JsonConverter<ResourceAddress>
 	{
 		public override ResourceAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{

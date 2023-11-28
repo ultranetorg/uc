@@ -118,7 +118,7 @@ namespace Uccs.Net
 
 			if(e == null) /// new account
 			{
-				Pay(round, Mcv.EntityAllocationAverageLength, 15);
+				Pay(round, Mcv.EntityAllocationAverageLength, 5);
 			}
 
 			return round.AffectAccount(account);
