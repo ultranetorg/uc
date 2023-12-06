@@ -65,7 +65,6 @@ namespace Uccs.Net
 			Options.Converters.Add(new IPJsonConverter());
 			Options.Converters.Add(new ChainTimeJsonConverter());
 			Options.Converters.Add(new ResourceAddressJsonConverter());
-			Options.Converters.Add(new ReleaseAddressJsonConverter());
 			Options.Converters.Add(new VersionJsonConverter());
 			Options.Converters.Add(new XonDocumentJsonConverter());
 			Options.Converters.Add(new OperationJsonConverter());

@@ -67,12 +67,15 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected string GetString(string paramenter)
+		protected string GetString(string paramenter, bool mandatory = false)
 		{
 			if(Args.Has(paramenter))
 				return Args.Get<string>(paramenter);
 			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				if(mandatory)
+					throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				else
+					return null;
 		}
 
 		protected long GetLong(string paramenter)
@@ -83,12 +86,15 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected byte[] GetHexBytes(string paramenter)
+		protected byte[] GetHexBytes(string paramenter, bool mandatory = false)
 		{
 			if(Args.Has(paramenter))
 				return Hex.Decode(Args.Get<string>(paramenter));
 			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				if(mandatory)
+					throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				else
+					return null;
 		}
 
 		protected Version GetVersion(string paramenter)

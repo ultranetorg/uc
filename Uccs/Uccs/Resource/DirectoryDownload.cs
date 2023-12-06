@@ -10,7 +10,7 @@ namespace Uccs.Net
 {
 	public class DirectoryDownload
 	{
-		public Release				Release;
+		public LocalRelease				Release;
 		public bool					Succeeded;
 		public Queue<Xon>			Files = new();
 		public int					CompletedCount;
@@ -19,7 +19,7 @@ namespace Uccs.Net
 		public Task					Task;
 		public SeedCollector		SeedCollector;
 
-		public DirectoryDownload(Sun sun, Release release, Workflow workflow)
+		public DirectoryDownload(Sun sun, LocalRelease release, Workflow workflow)
 		{
 			Release = release;
 			SeedCollector = new SeedCollector(sun, release.Hash, workflow);
@@ -105,7 +105,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return Release.Address.ToString();
+			return Release.Hash.ToHex();
 		}
 	}
 }

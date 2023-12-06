@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Nethereum.Hex.HexConvertors.Extensions;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -21,24 +19,24 @@ namespace Uccs.Net
 		IncrementalPartial	= 0b_1000000, 
 	}
 
-	public class ReleaseFile : IBinarySerializable
+	public class LocalFile : IBinarySerializable
 	{
-		public string	Path;
-		public int		PieceLength;
-		public long		Length;
-		public bool[]	Pieces;
-		Release			Release;
+		public string			Path;
+		public int				PieceLength;
+		public long				Length;
+		public bool[]			Pieces;
+		LocalRelease			Release;
 
 		public IEnumerable<int>	CompletedPieces => Pieces.Select((e, i) => e ? i : -1).Where(i => i != -1);
 		public long				CompletedLength => CompletedPieces.Count() * PieceLength - (Pieces.Last() ? PieceLength - Length % PieceLength : 0); /// take the tail into account
 		public bool				Completed => Length == -1; 
 			
-		public ReleaseFile(Release release)
+		public LocalFile(LocalRelease release)
 		{
 			Release = release;
 		}
 
-		public ReleaseFile(Release release, string path, long length, int piecelength, int piececount)
+		public LocalFile(LocalRelease release, string path, long length, int piecelength, int piececount)
 		{
 			Release = release;
 			Path = path;
@@ -49,7 +47,7 @@ namespace Uccs.Net
 		
 		public override string ToString()
 		{
-			return $"{Path}, Length+{Length}, PieceLength={PieceLength} Pieces={{{Pieces?.Length}}}";
+			return $"{Path}, Length={Length}, PieceLength={PieceLength}, Pieces={{{Pieces?.Length}}}";
 		}
 						 			
 		public void Reset()
@@ -96,20 +94,19 @@ namespace Uccs.Net
 		}
 	}
 
-	public class Release
+	public class LocalRelease
 	{
-		public ResourceAddress					Address;
 		public byte[]							Hash;
 		public ResourceType						Type;
 		public List<MembersResponse.Member>		DeclaredOn = new();
 		public MembersResponse.Member[]			DeclareTo;
 		public Availability						_Availability;
-		List<ReleaseFile>						_Files;
+		List<LocalFile>							_Files;
 		bool									Loaded;
 		ResourceHub								Hub;
-		public string							Path => System.IO.Path.Join(Hub.ResourcesPath, Address.Author, Hub.Escape(Address.Resource), Hash.ToHex());
+		public string							Path => System.IO.Path.Join(Hub.ReleasesPath, Hash.ToHex());
 
-		public List<ReleaseFile> Files
+		public List<LocalFile> Files
 		{
 			get
 			{ 
@@ -127,43 +124,46 @@ namespace Uccs.Net
 			}
 		}
 
-		public Release(ResourceHub hub, ResourceAddress address, ResourceType type, byte[] hash)
+		public LocalRelease(ResourceHub hub, byte[] hash, ResourceType type)	
 		{
 			Hub = hub;
-			Address = address;
 			Hash = hash;
 			Type = type;
 		}
 
 		public override string ToString()
 		{
-			return $"{Address}, {Hash.ToHex()}, Availability={_Availability}, Files={{{_Files?.Count}}}";
+			return $"{Hash.ToHex()}, Availability={_Availability}, Files={{{_Files?.Count}}}";
 		}
 
-		public ReleaseFile AddFile(string path, long length, int piecelength, int piececount)
+		public LocalFile AddFile(string path, long length, int piecelength, int piececount)
 		{
+			Load();
+	
 			if(Files == null)
 			{
 				_Files = new();
 				Loaded = true;
 			}
 
-			Files.Add(new ReleaseFile(this, path, length, piecelength, piececount));
+			Files.Add(new LocalFile(this, path, length, piecelength, piececount));
 
 			Save();
 
 			return Files.Last();
 		}
 
-		public ReleaseFile AddFile(string path, byte[] data)
+		public LocalFile AddFile(string path, byte[] data)
 		{
+			Load();
+		
 			if(Files == null)
 			{
 				_Files = new();
 				Loaded = true;
 			}
 
-			var f = new ReleaseFile(this) {Path = path};
+			var f = new LocalFile(this) {Path = path};
 			Files.Add(f);
 
 			WriteFile(path, 0, data);
@@ -173,13 +173,17 @@ namespace Uccs.Net
 			return f;
 		}
 
-		public void RemoveFile(ReleaseFile file)
+		public void RemoveFile(LocalFile file)
 		{
+			Load();
+		
 			Files.Remove(file);
 		}
 
 		public void Complete(Availability availability)
 		{
+			Load();
+		
 			_Availability = availability;
 
 			//if(availability == Availability.Full)
@@ -194,7 +198,7 @@ namespace Uccs.Net
 		{
 			if(!Loaded)
 			{
-				var d = Hub.Sun.Database.Get(Hash, Hub.Family);
+				var d = Hub.Sun.Database.Get(Hash, Hub.ReleaseFamily);
 										
 				if(d != null)
 				{
@@ -203,7 +207,7 @@ namespace Uccs.Net
 	
 					Type = (ResourceType)r.ReadByte();
 					_Availability = (Availability)r.ReadByte();
-					_Files = r.Read(() => new ReleaseFile(this), f => f.Read(r)).ToList();
+					_Files = r.Read(() => new LocalFile(this), f => f.Read(r)).ToList();
 				}
 			}
 
@@ -221,20 +225,20 @@ namespace Uccs.Net
 				w.Write((byte)Availability);
 				w.Write(Files);
 
-				b.Put(Hash, s.ToArray(), Hub.Family);
+				b.Put(Hash, s.ToArray(), Hub.ReleaseFamily);
 									
 				Hub.Sun.Database.Write(b);
 			}
 		}
 
-		public string AddressToPath(string file)
+		public string MapPath(string file)
 		{
 			return System.IO.Path.Join(Path, file);
 		}
 
 		public byte[] ReadFile(string file, long offset, long length)
 		{
-			using(var s = new FileStream(AddressToPath(file), FileMode.Open, FileAccess.Read, FileShare.Read))
+			using(var s = new FileStream(MapPath(file), FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				s.Seek(offset, SeekOrigin.Begin);
 				
@@ -248,21 +252,21 @@ namespace Uccs.Net
 
 		public void WriteFile(string file, long offset, byte[] data)
 		{
-			var d = System.IO.Path.GetDirectoryName(AddressToPath(file));
+			var d = System.IO.Path.GetDirectoryName(MapPath(file));
 
 			if(!Directory.Exists(d))
 			{
 				Directory.CreateDirectory(d);
 			}
 
-			using(var s = new FileStream(AddressToPath(file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+			using(var s = new FileStream(MapPath(file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
 			{
 				s.Seek(offset, SeekOrigin.Begin);
 				s.Write(data);
 			}
 		}
 
-		public ReleaseFile Find(string filepath)
+		public LocalFile Find(string filepath)
 		{
 			return Files?.Find(i => i.Path == filepath);
 		}
@@ -282,17 +286,17 @@ namespace Uccs.Net
 
 		public byte[] ReadFile(string file)
 		{
-			return File.ReadAllBytes(AddressToPath(file));
+			return File.ReadAllBytes(MapPath(file));
 		}
 
 		public byte[] Hashify(string path)
 		{
-			return Hub.Zone.Cryptography.HashFile(File.ReadAllBytes(AddressToPath(path)));
+			return Hub.Zone.Cryptography.HashFile(File.ReadAllBytes(MapPath(path)));
 		}
 
 		public long GetLength(string path)
 		{
-			return Find(path) != null ? new FileInfo(AddressToPath(path)).Length : -1;
+			return Find(path) != null ? new FileInfo(MapPath(path)).Length : -1;
 		}
 
 	}

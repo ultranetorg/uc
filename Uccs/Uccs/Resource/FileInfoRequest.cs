@@ -2,9 +2,8 @@
 {
 	public class FileInfoRequest : RdcRequest
 	{
-		public ResourceAddress	Resource { get; set; }
-		public byte[]			Hash { get; set; }
-		public string			File { get; set; }
+		public byte[]		Release { get; set; }
+		public string		File { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{
@@ -13,7 +12,7 @@
 				if(sun.ResourceHub == null) 
 					throw new RdcNodeException(RdcNodeError.NotSeed);
 				
-				var r = sun.ResourceHub.Find(Resource, Hash);
+				var r = sun.ResourceHub.Find(Release);
 				
 				if(r == null || !r.IsReady(File)) 
 					throw new RdcEntityException(RdcEntityError.NotFound);

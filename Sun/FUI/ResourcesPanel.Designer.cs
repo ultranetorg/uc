@@ -45,7 +45,6 @@ namespace Uccs.Sun.FUI
 			LocalReleases = new System.Windows.Forms.ListView();
 			columnHeader2 = new System.Windows.Forms.ColumnHeader();
 			columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			columnHeader6 = new System.Windows.Forms.ColumnHeader();
 			columnHeader8 = new System.Windows.Forms.ColumnHeader();
 			label3 = new System.Windows.Forms.Label();
 			LocalQuery = new System.Windows.Forms.ComboBox();
@@ -141,7 +140,7 @@ namespace Uccs.Sun.FUI
 			// LocalReleases
 			// 
 			LocalReleases.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			LocalReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2, columnHeader1, columnHeader6, columnHeader8 });
+			LocalReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2, columnHeader1, columnHeader8 });
 			LocalReleases.FullRowSelect = true;
 			LocalReleases.Location = new System.Drawing.Point(12, 908);
 			LocalReleases.Margin = new System.Windows.Forms.Padding(6);
@@ -158,16 +157,12 @@ namespace Uccs.Sun.FUI
 			// 
 			// columnHeader1
 			// 
-			columnHeader1.Text = "Status";
-			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
-			// columnHeader6
-			// 
-			columnHeader6.Text = "Type";
+			columnHeader1.Text = "Releases";
+			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// columnHeader8
 			// 
-			columnHeader8.Text = "Data";
+			columnHeader8.Text = "Last";
 			columnHeader8.Width = 500;
 			// 
 			// label3
@@ -236,7 +231,6 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ColumnHeader CHId;
 		private System.Windows.Forms.ListView LocalReleases;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
-		private System.Windows.Forms.ColumnHeader columnHeader6;
 		private System.Windows.Forms.ColumnHeader columnHeader8;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ComboBox LocalQuery;

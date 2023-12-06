@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Uccs.Net
 {
@@ -24,47 +25,50 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ResourceDownloadCall : SunApiCall
+	public class ReleaseDownloadCall : SunApiCall
 	{
-		public ResourceAddress Resource { get; set; }
+		public byte[]			Release { get; set; }
+		public ResourceType		Type { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			var r = sun.Call(c => c.FindResource(Resource), workflow).Resource;
-					
-			Release rs;
-
 			lock(sun.ResourceHub.Lock)
 			{
-				rs = sun.ResourceHub.Find(Resource, r.Data) ?? sun.ResourceHub.Add(Resource, r.Type, r.Data);
-	
-				if(r.Type == ResourceType.File)
+				var r = sun.ResourceHub.Find(Release);
+
+				if(r == null)
 				{
-					sun.ResourceHub.DownloadFile(rs, "f", r.Data, null, workflow);
-					
-					return r.Data;
+					r = sun.ResourceHub.Add(Release, Type);
 				}
-				else if(r.Type == ResourceType.Directory)
+			
+				if(Type == ResourceType.File)
 				{
-					sun.ResourceHub.DownloadDirectory(rs, workflow);
-					
-					return r.Data;
+					sun.ResourceHub.DownloadFile(r, "f", Release, null, workflow);
+					return r.Hash;
+				}
+				else if(Type == ResourceType.Directory)
+				{
+					sun.ResourceHub.DownloadDirectory(r, workflow);
+					return r.Hash;
 				}
 			}
 	
-			throw new NotSupportedException();
+			return null;
 		}
 	}
 	
-	public class ResourceDownloadProgressCall : SunApiCall
+	public class ReleaseDownloadProgressCall : SunApiCall
 	{
-		public ResourceAddress	Resource { get; set; }
-		public byte[]			Hash { get; set; }
+		public byte[] Release { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
-				return sun.ResourceHub.GetDownloadProgress(Resource, Hash);
+			{
+				var r = sun.ResourceHub.Find(Release);
+
+				return sun.ResourceHub.GetDownloadProgress(r);
+			}
 		}
 	}
 	
@@ -96,44 +100,32 @@ namespace Uccs.Net
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
-				return sun.ResourceHub.Releases	.Where(i => i.Address.ToString().Contains(Query))
-												.GroupBy(i => i.Address)
-												.Skip(Skip)
-												.Take(Take)
-												.Select(i => new LocalResource{	Resource = i.Key,
-																				Latest = sun.ResourceHub.Find(i.Key, null).Hash,
-																				Releases = i.Count()});
+				return sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query)).Skip(Skip).Take(Take);
 			}
 		}
-	}
-
-	public class LocalResource
-	{
-		public ResourceAddress		Resource  { get; set; }
-		public int					Releases { get; set; }
-		public byte[]				Latest { get; set; }
 	}
 	
 	public class LocalReleasesCall : SunApiCall
 	{
 		public ResourceAddress		Resource { get; set; }
+
+		public class Item
+		{
+			public ResourceType		Type { get; set; }
+			public Availability		Availability { get; set; }
+			public byte[]			Hash { get; set; }
+		}
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
-				return sun.ResourceHub.Releases	.Where(i => i.Address == Resource)
-												.Select(i => new LocalRelease {	Availability = i.Availability,
-																				Hash = i.Hash,
-																				Type = i.Type });
+				return sun.ResourceHub.Resources.Find(i => i.Address == Resource).Datas
+												.Select(i =>{ 
+																var r = sun.ResourceHub.Find(i);
+																return new Item {Hash = r.Hash, Type = r.Type, Availability = r.Availability};
+															});
 			}
 		}
-	}
-
-	public class LocalRelease
-	{
-		public ResourceType		Type { get; set; }
-		public Availability		Availability { get; set; }
-		public byte[]			Hash { get; set; }
 	}
 }

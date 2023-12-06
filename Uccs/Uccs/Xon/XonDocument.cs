@@ -205,6 +205,14 @@ namespace Uccs
 			w.Write(this);
 			w.Finish();
 		}
+
+		public void Save(string path)
+		{
+			using(var s = File.Create(path))
+			{
+				Save(new XonTextWriter(s, Encoding.UTF8));
+			}
+		}
 		
 		public void Dump(Action<Xon, int> write)
 		{

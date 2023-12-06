@@ -131,7 +131,7 @@ namespace Uccs.Net
 		public LocateReleaseResponse			LocateRelease(byte[] hash, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Hash = hash, Count = count});
 		public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases.ToArray()});
 		//public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
-		public DownloadReleaseResponse			DownloadRelease(ResourceAddress resource, byte[] hash, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Resource = resource, Hash = hash, File = file, Offset = offset, Length = length});
+		public DownloadReleaseResponse			DownloadRelease(byte[] release, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Release = release, File = file, Offset = offset, Length = length});
 		//public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
 	}
 

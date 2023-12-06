@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Channels;
-using System.Xml.Linq;
+using System.Linq;
 
 namespace Uccs.Net
 {
@@ -15,50 +11,38 @@ namespace Uccs.Net
 
 	public class PackageAddress : IBinarySerializable, IComparable, IComparable<PackageAddress>, IEquatable<PackageAddress>
 	{
-		string	_Author;
-		string	_Product;
-		string	_Realization;
-		Version	_Version;
+		public string	Author		{ get { return _Author; }		set { _Author = value;		_Resource = null; _String = null; _Ura = null; } }
+		public string	Product		{ get { return _Product; }		set { _Product = value;		_Resource = null; _String = null; _Ura = null; } }
+		public string	Realization { get { return _Realization; }	set { _Realization = value; _Resource = null; _String = null; _Ura = null; } }
+		public byte[]	Hash		{ get { return _Hash; }			set { _Hash = value;		_Resource = null; _String = null; _Ura = null; } }
 
-		public string	Author { get { return _Author;  } set { _Author = value; _Release = null; _String = null; } }
-		public string	Product  { get { return _Product;  } set { _Product = value; _Release = null; _String = null; } }
-		public string	Realization  { get { return _Realization;  } set{ _Realization = value; _Release = null; _String = null; } }
-		public Version	Version { get { return _Version;  } set { _Version = value; _Release = null; _String = null; } }
+		public string	APR => $"{Author}{ResourceAddress.Separator}{Product}/{Realization}";
 
-		public string APR => $"{Author}/{Product}/{Realization}";
+		public const char	HashSeparator = '/';
 
-		ResourceAddress	_Release;
+		string			_Author;
+		string			_Product;
+		string			_Realization;
+		byte[]			_Hash;
+		ResourceAddress	_Resource;
+		Ura				_Ura;
 		string			_String;
 
-		public PackageAddress(string author, string product, string realization, Version version)
-		{
-			Author = author;
-			Product = product;
-			Realization = realization;
-			Version = version;
-		}
-
-		public PackageAddress(ResourceAddress release)
-		{
-			Author = release.Author;
-
-			var s = release.Resource.Split('/');
-			
-			Product = s[0];
-			Realization = s[1];
-			Version = Version.Parse(s[2]);
-		}
-
-		public PackageAddress()
-		{
-		}
 
 		public static implicit operator ResourceAddress (PackageAddress a)
 		{ 
-			if(a._Release == null)
-				a._Release = new ResourceAddress(a.Author, $"{a.Product}/{a.Realization}/{a.Version}");
+			if(a._Resource == null)
+				a._Resource = new ResourceAddress(a.Author, $"{a.Product}{ResourceAddress.Separator}{a.Realization}");
 			
-			return a._Release;
+			return a._Resource;
+		}
+
+		public static implicit operator Ura (PackageAddress a)
+		{ 
+			if(a._Ura == null)
+				a._Ura = new Ura(a.Author, $"{a.Product}{ResourceAddress.Separator}{a.Realization}{HashSeparator}{a.Hash.ToHex()}");
+			
+			return a._Ura;
 		}
 
 		public static bool operator == (PackageAddress left, PackageAddress right)
@@ -71,36 +55,79 @@ namespace Uccs.Net
 			return !(left == right);
 		}
 
+		public PackageAddress(string author, string product, string realization, byte[] hash)
+		{
+			_Author = author;
+			_Product = product;
+			_Realization = realization;
+			_Hash = hash;
+		}
+
+		public PackageAddress(ResourceAddress release)
+		{
+			Author = release.Author;
+
+			var i = release.Resource.IndexOf(HashSeparator);
+			
+			var pr = release.Resource.Substring(0, i);
+
+			var j = pr.LastIndexOf(ResourceAddress.Separator);
+
+			Product		= pr.Substring(0, j);
+			Realization = pr.Substring(j + 1);
+			Hash		= release.Resource.Substring(i + 1).FromHex(); 
+		}
+
+		public PackageAddress(ResourceAddress release, byte[] hash)
+		{
+			Author = release.Author;
+
+			var j = release.Resource.LastIndexOf(ResourceAddress.Separator);
+
+			Product		= release.Resource.Substring(0, j);
+			Realization = release.Resource.Substring(j + 1);
+			Hash		= hash; 
+		}
+
+		public PackageAddress()
+		{
+		}
+
 		public override string ToString()
 		{
 			if(_String == null)
-				_String = $"{Author}/{Product}/{Realization}/{Version}";
+				_String = $"{Author}{ResourceAddress.Separator}{Product}{ResourceAddress.Separator}{Realization}{HashSeparator}{Hash.ToHex()}";
 
 			return _String;
 		}
 
-		public static Version ParseVesion(string v)
-		{
-			return Version.Parse(v.Substring(v.LastIndexOf('/') + 1));
-		}
-
-		public PackageAddress ReplaceVesion(Version version)
-		{
-			return new PackageAddress(Author, Product, Realization, version);
-		}
-
 		public static PackageAddress Parse(string v)
 		{
-			var a = new PackageAddress();
-
-			var s = v.Split('/');
+			var h = v.IndexOf(HashSeparator);
 			
-			a.Author = s[0];
-			a.Product = s[1];
-			a.Realization = s[2];
-			a.Version = Version.Parse(s[3]);
+			var apr = v.Substring(0, h);
+			
+			var a = apr.IndexOf(ResourceAddress.Separator);
+			var r = apr.LastIndexOf(ResourceAddress.Separator);
 
-			return a;
+			var p = new PackageAddress();
+
+			p.Author		= apr.Substring(0, a);
+			p.Product		= apr.Substring(a + 1, r-a-1);
+			p.Realization	= apr.Substring(r + 1);
+			p.Hash			= v.Substring(h + 1).FromHex(); 
+
+			return p;
+		}
+
+		//public static Version ParseVesion(string v)
+		//{
+		//	return Version.Parse(v.Substring(v.LastIndexOf('/') + 1));
+		//}
+
+		public PackageAddress ReplaceHash(byte[] hash)
+		{
+			return new PackageAddress(Author, Product, Realization, hash);
 		}
 
 		public int CompareTo(object obj)
@@ -108,21 +135,26 @@ namespace Uccs.Net
 			return CompareTo(obj as PackageAddress);
 		}
 
-		public int CompareTo(PackageAddress other)
+		public int CompareTo(PackageAddress o)
 		{
-			var a = Author.CompareTo(other.Author);
+			var a = Author.CompareTo(o.Author);
 			if(a != 0)
 				return a;
 
-			a = Product.CompareTo(other.Product);
+			a = Product.CompareTo(o.Product);
 			if(a != 0)
 				return a;
 
-			a = Realization.CompareTo(other.Realization);
+			a = Realization.CompareTo(o.Realization);
 			if(a != 0)
 				return a;
 
-			return Version.CompareTo(other.Version);
+			if(Hash is null && o.Hash is not null)
+				return -1;
+			if(Hash is not null && o.Hash is null)
+				return 1;
+			else
+				return BytesComparer.Dafault.Compare(Hash, o.Hash);
 		}
 		
 		public virtual void Write(BinaryWriter w)
@@ -130,7 +162,7 @@ namespace Uccs.Net
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Product);
 			w.WriteUtf8(Realization);
-			w.Write(Version);
+			w.WriteBytes(Hash);
 		}
 
 		public virtual void Read(BinaryReader r)
@@ -138,7 +170,7 @@ namespace Uccs.Net
 			Author = r.ReadUtf8();
 			Product = r.ReadUtf8();
 			Realization = r.ReadUtf8();
-			Version = r.Read<Version>();
+			Hash = r.ReadBytes();
 		}
 
 		public override bool Equals(object obj)
@@ -148,7 +180,11 @@ namespace Uccs.Net
 
 		public bool Equals(PackageAddress o)
 		{
-			return o is not null && Author == o.Author && Product == o.Product && Realization == o.Realization && Version == o.Version;
+			return	o is not null && 
+					Author == o.Author && 
+					Product == o.Product && 
+					Realization == o.Realization && 
+					((Hash is null && o.Hash is null) || (Hash is not null && o.Hash is not null && Hash.SequenceEqual(o.Hash)));
 		}
 
 		public override int GetHashCode()

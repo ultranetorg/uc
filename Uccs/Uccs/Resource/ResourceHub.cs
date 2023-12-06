@@ -4,10 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -15,17 +14,20 @@ namespace Uccs.Net
 	public class ResourceHub
 	{
 		public const long				PieceMaxLength = 512 * 1024;
-		public const string				FamilyName = "Resources";
+		public const string				ReleaseFamilyName = "Releases";
+		public const string				ResourceFamilyName = "Resources";
 		public const int				MembersPerDeclaration = 3;
 
-		internal string					ResourcesPath;
-		public List<Release>			Releases = new();
+		internal string					ReleasesPath;
+		public List<LocalRelease>		Releases = new();
+		public List<LocalResource>		Resources = new();
 		public List<FileDownload>		FileDownloads = new();
 		public List<DirectoryDownload>	DirectoryDownloads = new();
 		public Sun						Sun;
 		public object					Lock = new object();
 		public Zone						Zone;
-		public ColumnFamilyHandle		Family => Sun.Database.GetColumnFamily(FamilyName);
+		public ColumnFamilyHandle		ReleaseFamily => Sun.Database.GetColumnFamily(ReleaseFamilyName);
+		public ColumnFamilyHandle		ResourceFamily => Sun.Database.GetColumnFamily(ResourceFamilyName);
 		Thread							DeclaringThread;
 
 		public ResourceHub(Sun sun, Zone zone, string path)
@@ -33,15 +35,13 @@ namespace Uccs.Net
 			Sun = sun;
 			Zone = zone;
 
-			ResourcesPath = path;
+			ReleasesPath = path;
 
-			Directory.CreateDirectory(ResourcesPath);
+			Directory.CreateDirectory(ReleasesPath);
 
-			Releases = Directory.EnumerateDirectories(ResourcesPath)
-									.SelectMany(a => Directory.EnumerateDirectories(a)
-										.SelectMany(r => Directory.EnumerateDirectories(r)
-											.Select(z => new Release(this, PathToAddress(z), ResourceType.None, Hex.Decode(Path.GetFileName(z))))))
-												.ToList();
+			Releases = Directory.EnumerateDirectories(ReleasesPath)
+									.Select(z => new LocalRelease(this, Path.GetFileName(z).FromHex(), ResourceType.None))
+										.ToList();
 
 			if(sun != null && !sun.IsClient)
 			{
@@ -61,29 +61,29 @@ namespace Uccs.Net
 			return resource.Replace(' ', '/');
 		}
 
-		public void SetLatest(ResourceAddress release, byte[] hash)
+		//public void SetLatest(ResourceAddress release, byte[] hash)
+		//{
+		//	File.WriteAllText(Path.Join(ReleasesPath, release.Author, Escape(release.Resource),  "latest"), hash.ToHex());
+		//}
+		//
+		//public byte[] GetLatest(ResourceAddress release)
+		//{
+		//	var f = Path.Join(ReleasesPath, release.Author, Escape(release.Resource),  "latest");
+		//	return File.Exists(f) ? File.ReadAllText(f).FromHex() : null;
+		//}
+
+		//public ReleaseAddress PathToAddress(string path)
+		//{
+		//	path = path.Substring(ReleasesPath.Length).TrimStart(Path.DirectorySeparatorChar);
+		//
+		//	var s = path.Split(Path.DirectorySeparatorChar);
+		//
+		//	return new ReleaseAddress(s[0], Unescape(s[1]), s[2].FromHex());
+		//}
+
+		public LocalRelease Add(byte[] release, ResourceType type)
 		{
-			File.WriteAllText(Path.Join(ResourcesPath, release.Author, Escape(release.Resource),  "latest"), hash.ToHex());
-		}
-
-		public byte[] GetLatest(ResourceAddress release)
-		{
-			var f = Path.Join(ResourcesPath, release.Author, Escape(release.Resource),  "latest");
-			return File.Exists(f) ? File.ReadAllText(f).HexToByteArray() : null;
-		}
-
-		public ResourceAddress PathToAddress(string path)
-		{
-			path = path.Substring(ResourcesPath.Length).TrimStart(Path.DirectorySeparatorChar);
-
-			var s = path.Split(Path.DirectorySeparatorChar);
-
-			return new ResourceAddress(s[0], Unescape(s[1]));
-		}
-
-		public Release Add(ResourceAddress resource, ResourceType type, byte[] hash)
-		{
-			var r = new Release(this, resource, type, hash);
+			var r = new LocalRelease(this, release, type);
 	
 			Releases.Add(r);
 	
@@ -92,7 +92,70 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public Release Build(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
+		public LocalResource Add(ResourceAddress resource)
+		{
+			var r = new LocalResource(this, resource) {Datas = new()};
+	
+			Resources.Add(r);
+
+			r.Save();
+
+			return r;
+		}
+
+		public LocalRelease Find(byte[] hash)
+		{
+			var r = Releases.Find(i => i.Hash.SequenceEqual(hash));
+
+			if(r != null)
+				return r;
+
+			var d = Sun.Database.Get(hash, ReleaseFamily);
+
+			if(d != null)
+			{
+				r = new LocalRelease(this, hash, ResourceType.None);
+				Releases.Add(r);
+				return r;
+			}
+
+			return null;
+		}
+
+		public LocalResource Find(ResourceAddress resource)
+		{
+			var r = Resources.Find(i => i.Address == resource);
+
+			if(r != null)
+				return r;
+
+			var d = Sun.Database.Get(Encoding.UTF8.GetBytes(resource.ToString()), ResourceFamily);
+
+			if(d != null)
+			{
+				r = new LocalResource(this, resource);
+				r.Load();
+				Resources.Add(r);
+				return r;
+			}
+
+			return null;
+		}
+
+// 		public LocalRelease Find(ReleaseAddress release)
+// 		{
+// 			if(release.Hash != null)
+// 				return Find(release.Hash);
+// 
+// 			var r = Find(release.Resource);
+// 
+// 			if(r != null)
+// 				return Find(r.Last);
+// 
+// 			return null;
+// 		}
+
+		public LocalRelease Build(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 			var index = new XonDocument(new XonBinaryValueSerializator());
@@ -152,7 +215,7 @@ namespace Uccs.Net
 
 			var h = Zone.Cryptography.HashFile(ms.ToArray());
  				
-			var r = Add(resource, ResourceType.Directory, h);
+			var r = Add(h, ResourceType.Directory);
 
 			r.AddFile(".index", ms.ToArray());
 
@@ -163,52 +226,29 @@ namespace Uccs.Net
 			
 			r.Complete(Availability.Full);
 			
-			SetLatest(resource, h);
+			(Find(resource) ?? Add(resource)).AddData(h);
 
 			return r;
 		}
 
-		public Release Build(ResourceAddress resource, string source, Workflow workflow)
+		public LocalRelease Build(ResourceAddress resource, string source, Workflow workflow)
 		{
 			var b = File.ReadAllBytes(source);
 
 			var h = Zone.Cryptography.HashFile(b);
  				
-			var r = Add(resource, ResourceType.File, h);
+			var r = Add(h, ResourceType.File);
 
  			r.AddFile("f", b);
 			
 			r.Complete(Availability.Full);
 			
-			SetLatest(resource, h);
+			(Find(resource) ?? Add(resource)).AddData(h);
 
 			return r;
 		}
 
-		public Release Find(ResourceAddress resource, byte[] hash)
-		{
-			hash = hash ?? GetLatest(resource);
-			return hash == null ? null : Releases.Find(i => i.Address == resource && i.Hash.SequenceEqual(hash));
-
-			//if(r != null)
-			//	return r;
-
-			//if(!Directory.Exists(Path.Join(PackagesPath, resource.Author, Escape(resource.Resource))))
-			//	return null;
-			//
-			//if(Directory.Exists(GetDirectory(resource, hash, false)))
-			//{
-			//	r = new ReleaseBaseItem(resource, hash);
-			//
-			//	Releases.Add(r);
-			//
-			//	return r;
-			//}
-
-			//return null;
-		}
-
-		public void GetFile(Release release, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
+		public void GetFile(LocalRelease release, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
 		{
 			Task t = Task.CompletedTask;
 
@@ -237,7 +277,7 @@ namespace Uccs.Net
 				{
 					Sun.Workflow.Wait(100);
 
-					Release[] rs;
+					LocalRelease[] rs;
 					//List<Peer> used;
 
 					lock(Lock)
@@ -274,16 +314,14 @@ namespace Uccs.Net
 								Monitor.Enter(Lock);
 							}
 
-							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Any(i => i.Account == m.Account) && !i.DeclaredOn.Any(i => i.Account == m.Account) ).Select(i => new {r = i, h = i.Hash, a = i.Availability}).ToArray();
+							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Any(i => i.Account == m.Account) && !i.DeclaredOn.Any(i => i.Account == m.Account)).ToArray();
 
 							if(drs.Any())
 							{
 								var t = Task.Run(() =>	{
 															try
 															{
-																Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem{	Hash = i.h, 
-																																									Availability  = i.a
-																																								}).ToArray()), Sun.Workflow);
+																Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem{Hash = i.Hash, Availability  = i.Availability}).ToArray()), Sun.Workflow);
 															}
 															catch(RdcNodeException)
 															{
@@ -292,7 +330,7 @@ namespace Uccs.Net
 															lock(Lock)
 															{
 																foreach(var i in drs)
-																	i.r.DeclaredOn.Add(m);
+																	i.DeclaredOn.Add(m);
 
 																tasks.Remove(m.Account);
 															}
@@ -312,7 +350,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public FileDownload DownloadFile(Release release, string file, byte[] filehash, SeedCollector peercollector, Workflow workflow)
+		public FileDownload DownloadFile(LocalRelease release, string file, byte[] filehash, SeedCollector peercollector, Workflow workflow)
 		{
 			var d = FileDownloads.Find(j => j.Release == release && j.File.Path == file);
 				
@@ -325,7 +363,7 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public DirectoryDownload DownloadDirectory(Release release, Workflow workflow)
+		public DirectoryDownload DownloadDirectory(LocalRelease release, Workflow workflow)
 		{
 			var d = DirectoryDownloads.Find(j => j.Release == release);
 				
@@ -338,10 +376,10 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public ResourceDownloadProgress GetDownloadProgress(ResourceAddress resource, byte[] hash)
+		public ResourceDownloadProgress GetDownloadProgress(LocalRelease release)
 		{
-			var f = FileDownloads.Find(i => i.Release.Address == resource && i.Release.Hash.SequenceEqual(hash));
-			var d = DirectoryDownloads.Find(i => i.Release.Address == resource && i.Release.Hash.SequenceEqual(hash));
+			var f = FileDownloads.Find(i => i.Release == release);
+			var d = DirectoryDownloads.Find(i => i.Release == release);
 
 			if(d != null || f != null)
 			{

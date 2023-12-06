@@ -74,7 +74,7 @@ namespace Uccs.Uos
 
 					foreach(var i in PackageBase.Find(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
 					{
-						p += ";" + setenv(i.Release, p);
+						p += ";" + setenv(i.Package, p);
 					}
 
 					return p;

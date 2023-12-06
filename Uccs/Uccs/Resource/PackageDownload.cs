@@ -44,15 +44,13 @@ namespace Uccs.Net
 			Task = Task.Run(() =>	{
 										try
 										{
-											byte[] h = null;
-											IEnumerable<PackageAddress> hst = null;
+											History hst = null;
 	
 											while(workflow.Active)
 											{
 												try
 												{
-													hst = sun.Call(c => c.QueryResource(package.APR + "/"), workflow).Resources.Select(i => new PackageAddress(i)).OrderBy(i => i.Version);
-													h = sun.Call(c => c.FindResource(package), workflow).Resource.Data;
+													hst = new History(sun.Call(c => c.FindResource(package), workflow).Resource.Data);
 													break;
 												}
 												catch(RdcEntityException)
@@ -61,7 +59,7 @@ namespace Uccs.Net
 												}
 											}
 	
-											SeedCollector = new SeedCollector(sun, h, workflow);
+											SeedCollector = new SeedCollector(sun, package.Hash, workflow);
 	
 											lock(sun.PackageHub.Lock)
 												lock(sun.ResourceHub.Lock)
@@ -70,31 +68,30 @@ namespace Uccs.Net
 												
 													if(Package != null)
 													{
-														if(Package.Release.Hash.SequenceEqual(h))
+														if(Package.Release.Hash.SequenceEqual(package.Hash))
 															goto done;
 														else
-															Package.Release = sun.ResourceHub.Add(package, ResourceType.Package, h); /// update to the latest
+															Package.Release = sun.ResourceHub.Add(package.Hash, ResourceType.Package); /// update to the latest
 													} 
 													else
 													{	
-														Package = new Package(sun.PackageHub, package, sun.ResourceHub.Add(package, ResourceType.Package, h));
-														sun.PackageHub.Packages.Add(Package);
+														Package = sun.PackageHub.Add(package);
 													}
 												}
 		 									
-											sun.ResourceHub.GetFile(Package.Release, Package.ManifestFile, h, SeedCollector, workflow);
+											sun.ResourceHub.GetFile(Package.Release, Package.ManifestFile, package.Hash, SeedCollector, workflow);
 	
 											bool incrementable;
 	
 											lock(sun.PackageHub.Lock)
 											{
-												sun.PackageHub.DetermineDelta(hst, Package.Manifest, h, out incrementable, out List<Dependency> deps);
+												sun.PackageHub.DetermineDelta(package, Package.Manifest, out incrementable, out List<Dependency> deps);
 									
 												foreach(var i in deps)
 												{
-													if(!sun.PackageHub.ExistsRecursively(i.Release))
+													if(!sun.PackageHub.ExistsRecursively(i.Package))
 													{
-														var dd = sun.PackageHub.Download(i.Release, workflow);
+														var dd = sun.PackageHub.Download(i.Package, workflow);
 														Dependencies.Add(dd);
 													}
 												}

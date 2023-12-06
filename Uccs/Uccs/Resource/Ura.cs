@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
@@ -7,11 +8,10 @@ using System.Xml.Linq;
 namespace Uccs.Net
 {
 	/// <summary>
-	///  uo-app-ms.dotnet7-0.0.0
-	///  ultranet://testnet1/uo.app/ms.dotnet7/0.0.0
+	/// author.resource:release/path
 	/// </summary>
 
-	public class ResourceAddress : IBinarySerializable, IEquatable<ResourceAddress>, IComparable, IComparable<ResourceAddress>
+	public class Ura : IBinarySerializable, IEquatable<Ura> 
 	{
 		public string		Author { get; set; }
 		public string		Resource { get; set; }
@@ -19,13 +19,13 @@ namespace Uccs.Net
 
 		public bool		Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
 
-		public ResourceAddress(string author, string resource)
+		public Ura(string author, string resource)
 		{
 			Author = author;
 			Resource = resource;
 		}
 
-		public ResourceAddress()
+		public Ura()
 		{
 		}
 
@@ -34,18 +34,12 @@ namespace Uccs.Net
 			return $"{Author}{Separator}{Resource}";
 		}
 
-		public static bool IsValid(string v)
-		{
-			var i = v.IndexOf(Separator);
-			return v.Length >=3 && i != -1 && i != 0 && i != v.Length-1;
-		}
-
 		public override bool Equals(object o)
 		{
-			return o is ResourceAddress a && Equals(a);
+			return o is Ura a && Equals(a);
 		}
 
-		public bool Equals(ResourceAddress o)
+		public bool Equals(Ura o)
 		{
 			return Author == o.Author && Resource == o.Resource;
 		}
@@ -57,10 +51,10 @@ namespace Uccs.Net
 
 		public int CompareTo(object obj)
 		{
-			return CompareTo(obj as ResourceAddress);
+			return CompareTo(obj as Ura);
 		}
 
-		public int CompareTo(ResourceAddress other)
+		public int CompareTo(Ura other)
 		{
 			if(Author.CompareTo(other.Author) != 0)
 				return Author.CompareTo(other.Author);
@@ -68,20 +62,20 @@ namespace Uccs.Net
 			return Resource.CompareTo(other.Resource);
 		}
 
-		public static bool operator == (ResourceAddress left, ResourceAddress right)
+		public static bool operator == (Ura left, Ura right)
 		{
 			return left is null && right is null || left is not null && right is not null && left.Equals(right);
 		}
 
-		public static bool operator != (ResourceAddress left, ResourceAddress right)
+		public static bool operator != (Ura left, Ura right)
 		{
 			return !(left == right);
 		}
 
-		public static ResourceAddress Parse(string v)
+		public static Ura Parse(string v)
 		{
 			var s = v.IndexOf(Separator);
-			var a = new ResourceAddress();
+			var a = new Ura();
 			a.Author = v.Substring(0, s);
 			a.Resource = v.Substring(s + 1);
 			return a;
@@ -100,14 +94,14 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ResourceAddressJsonConverter : JsonConverter<ResourceAddress>
+	public class ReleaseAddressJsonConverter : JsonConverter<Ura>
 	{
-		public override ResourceAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override Ura Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return ResourceAddress.Parse(reader.GetString());
+			return Ura.Parse(reader.GetString());
 		}
 
-		public override void Write(Utf8JsonWriter writer, ResourceAddress value, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, Ura value, JsonSerializerOptions options)
 		{
 			writer.WriteStringValue(value.ToString());
 		}

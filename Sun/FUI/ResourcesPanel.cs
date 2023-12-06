@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Sun.FUI
 {
@@ -92,13 +91,12 @@ namespace Uccs.Sun.FUI
 
 			LocalReleases.Items.Clear();
 
-			foreach(var i in Sun.ResourceHub.Releases.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
+			foreach(var i in Sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
 			{
 				var li = new ListViewItem(i.Address.ToString());
 				li.Tag = i;
-				li.SubItems.Add(i.Availability.ToString());
-				li.SubItems.Add("");
-				li.SubItems.Add(i.Hash.ToHex());
+				li.SubItems.Add(i.Datas.Count.ToString());
+				li.SubItems.Add(i.Last.ToHex());
 
 				LocalReleases.Items.Add(li);
 			}

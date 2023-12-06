@@ -6,7 +6,7 @@ namespace Uccs.Net
 { 
 	public class PackageAddCall : SunApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ResourceAddress	Package { get; set; }
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
@@ -20,7 +20,7 @@ namespace Uccs.Net
 								
 			lock(sun.ResourceHub.Lock)
 			{
-				var r = sun.ResourceHub.Add(Package, ResourceType.Package, h);
+				var r = sun.ResourceHub.Add(h, ResourceType.Package);
 	
 				r.AddFile(Net.Package.ManifestFile, Manifest);
 	
@@ -31,7 +31,8 @@ namespace Uccs.Net
 					r.AddFile(Net.Package.IncrementalFile, Incremental);
 								
 				r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
-				sun.ResourceHub.SetLatest(Package, h);
+				
+				(sun.ResourceHub.Find(Package) ?? sun.ResourceHub.Add(Package)).AddData(h);
 			}
 
 			return null;
@@ -40,15 +41,15 @@ namespace Uccs.Net
 
 	public class PackageBuildCall : SunApiCall
 	{
-		public PackageAddress		Package { get; set; }
-		public Version				Version { get; set; }
+		public ResourceAddress		Resource { get; set; }
 		public IEnumerable<string>	Sources { get; set; }
-		public string				DependsDirectory { get; set; }
+		public string				DependenciesPath { get; set; }
+		public byte[]				Previous { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				sun.PackageHub.AddRelease(Package, Version, Sources, DependsDirectory, workflow);
+				sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, workflow);
 
 			return null;
 		}

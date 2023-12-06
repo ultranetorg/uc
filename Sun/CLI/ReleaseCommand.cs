@@ -33,9 +33,9 @@ namespace Uccs.Sun.CLI
 					if(!Args.Has("source") && !Args.Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var h = Program.Api<byte[]>(new ReleaseBuildCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
-																		FilePath = GetString("source", null),
-																		Sources = GetString("sources", null)?.Split(',')});
+					var h = Program.Api<byte[]>(new ReleaseBuildCall{Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
+																	 FilePath = GetString("source", null),
+																	 Sources = GetString("sources", null)?.Split(',')});
 
 					Workflow.Log?.Report(this, $"Hash={h.ToHex()}");
 
@@ -45,9 +45,12 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
-		
-					var h = Args.Has("hash") ? Args.Get<string>("hash").HexToByteArray() : Program.Api<byte[]>(new ResourceDownloadCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var h = ResourceAddress.IsValid(Args.Nodes[1].Name) ? 
+								Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}).Resource.Data
+								: 
+								Args.Nodes[1].Name.FromHex();
+
+					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h});
 
 					try
 					{
@@ -55,7 +58,7 @@ namespace Uccs.Sun.CLI
 						
 						while(Workflow.Active)
 						{
-							d = Program.Api<ResourceDownloadProgress>(new ResourceDownloadProgressCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name), Hash = h});
+							d = Program.Api<ResourceDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
 
 							if(d == null)
 								break;

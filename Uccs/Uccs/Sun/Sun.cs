@@ -173,7 +173,9 @@ namespace Uccs.Net
 																new (AnalysisTable.MainColumnName,	new ()),
 																new (AnalysisTable.MoreColumnName,	new ()),
 																new (Mcv.ChainFamilyName,			new ()),
-																new (ResourceHub.FamilyName,		new ()) })
+																new (ResourceHub.ReleaseFamilyName,	new ()),
+																new (ResourceHub.ResourceFamilyName,new ()),
+																})
 				cfamilies.Add(i);
 
 			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
@@ -198,7 +200,7 @@ namespace Uccs.Net
 		{
 			if(t == typeof(Transaction)) return new Transaction {Zone = Zone};
 			if(t == typeof(Vote)) return new Vote(Mcv);
-			if(t == typeof(Manifest)) return new Manifest(Zone);
+			if(t == typeof(Manifest)) return new Manifest();
 			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
 			if(t == typeof(RdcResponse)) return RdcResponse.FromType((Rdc)b); 
 
@@ -1010,7 +1012,7 @@ namespace Uccs.Net
 							{
 								var c = t.Clusters.Find(j => j.Id.SequenceEqual(i.Id));
 		
-								if(c == null || !c.Hash.SequenceEqual(i.Hash))
+								if(c == null || c.Hash == null || !c.Hash.SequenceEqual(i.Hash))
 								{
 									if(c == null)
 									{

@@ -80,9 +80,9 @@ namespace Uccs.Sun.CLI
 					
 					Dump(	r, 
 							new string[] {"Address", "Releases", "Latest"}, 
-							new Func<LocalResource, string>[]{	i => i.Resource.ToString(),
-																i => i.Releases.ToString(),
-																i => i.Latest.ToHex() });
+							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
+																i => i.Datas.Count.ToString(),
+																i => i.Last.ToHex() });
 
 					return r;
 				}

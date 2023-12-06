@@ -20,6 +20,21 @@ namespace Uccs.Sun.CLI
 
 		public Program()
 		{
+// 			double r = 17000;
+// 			double pp = 17000/20;
+// 			double s = 0;
+// 
+// 			for(int i=0; i<20; i++)
+// 			{
+// 
+// 				s += pp + r * 0.07;
+// 			
+// 				Console.WriteLine($"год {i} - платеэж {pp + r * 0.07:0.} - всего {s:0.}");
+// 				
+// 				r -= pp;
+// 			}
+
+
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 			try

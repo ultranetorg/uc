@@ -33,10 +33,10 @@ namespace Uccs.Sun.CLI
 				case "b" :
 				case "build" :
 				{
-					Program.Api(new PackageBuildCall {	Package	= Package, 
-														Version = Args.Has("previous") ? Version.Parse(GetString("previous")) : null,
+					Program.Api(new PackageBuildCall {	Resource = ResourceAddress.Parse(Args.Nodes[1].Name), 
 														Sources = GetString("sources").Split(','), 
-														DependsDirectory =GetString("dependsdirectory") });
+														DependenciesPath = GetString("dependenciespath"),
+														Previous = GetHexBytes("previous", false) });
 					return null;
 				}
 

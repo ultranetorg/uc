@@ -26,6 +26,7 @@ namespace Uccs.Net
 
 		public string				ToString(string format) => Ticks >= 0 ? (new DateTime(Ticks * Divider)).ToString(format) : "~";
 		public static Time			Max(Time a, Time b) => a > b ? a : b;
+		public TimeSpan				ToTimeSpan() => new TimeSpan(Ticks * Divider);
 
 		public Time()
 		{

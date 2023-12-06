@@ -10,6 +10,16 @@ namespace Uccs.Net
 {
 	public static class Extentions
 	{
+		public static string ToHex(this byte[] e)
+		{
+			return Convert.ToHexString(e);
+		}
+
+		public static byte[] FromHex(this string e)
+		{
+			return Convert.FromHexString(e);
+		}
+
 		public static string ToHexPrefix(this byte[] e)
 		{
 			return Convert.ToHexString(e, 0, 4);

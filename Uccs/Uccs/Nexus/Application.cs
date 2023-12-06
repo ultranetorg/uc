@@ -25,7 +25,7 @@ namespace Uccs.Uos
 
 			foreach(var i in r.Manifest.CriticalDependencies)
 			{
-				var dp = Path.Join(Nexus.PackageBase.AddressToPath(i.Release), new AssemblyName(args.Name).Name + ".dll");
+				var dp = Path.Join(Nexus.PackageBase.AddressToPath(i.Package), new AssemblyName(args.Name).Name + ".dll");
 
 				if(File.Exists(dp))
 				{

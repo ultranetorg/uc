@@ -44,7 +44,7 @@ namespace Uccs.Net
 											{
 												while(Data.Position < Length)
 												{
-													var d = Seed.Peer.DownloadRelease(Download.Release.Address, Download.Release.Hash, Download.File.Path, Offset + Data.Position, Length - Data.Position).Data;
+													var d = Seed.Peer.DownloadRelease(Download.Release.Hash, Download.File.Path, Offset + Data.Position, Length - Data.Position).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
@@ -56,8 +56,8 @@ namespace Uccs.Net
 			}
 		}
 
-		public Release								Release;
-		public ReleaseFile							File;
+		public LocalRelease								Release;
+		public LocalFile							File;
 		public bool									Succeeded;
 		public long									Length => File.Length;
 		public long									DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
@@ -69,7 +69,7 @@ namespace Uccs.Net
 		Sun											Sun;
 		Workflow									Workflow;
 
-		public FileDownload(Sun sun, Release release, string filepath, byte[] filehash, SeedCollector seedcollector, Workflow workflow)
+		public FileDownload(Sun sun, LocalRelease release, string filepath, byte[] filehash, SeedCollector seedcollector, Workflow workflow)
 		{
 			Sun				= sun;
 			Release			= release;
@@ -117,7 +117,7 @@ namespace Uccs.Net
 
 														try
 														{
-															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Resource = release.Address, Hash = release.Hash, File = filepath}), workflow).Length;
+															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Hash, File = filepath}), workflow).Length;
 														}
 														catch(RdcNodeException)
 														{
