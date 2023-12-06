@@ -32,10 +32,10 @@ namespace Uccs.Sun.CLI
 				{	
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												byte.Parse(GetString("years")),
-												Args.Has("flags")		? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
-												Args.Has("type")		? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.None,
-												Args.Has("data")		? GetHexBytes("data") : null,
-												Args.Has("parent")		? GetString("parent") : null);
+												Args.Has("flags")	? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
+												Args.Has("type")	? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.None,
+												GetHexBytes("data", false),
+												GetResourceAddress("parent", false));
 				}
 
 				case "u" : 

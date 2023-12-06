@@ -12,7 +12,6 @@ namespace Uccs.Net
 		public List<byte[]>			Datas { get; set; }
 
 		public byte[]				Last => Datas.Last();
-		public History				LastAsHistory => new History(Datas.Last());
 
 		ResourceHub					Hub;
 
@@ -20,6 +19,13 @@ namespace Uccs.Net
 		{
 			Hub = hub;
 			Address = resource;
+		}
+
+		public T Data<T>() where T : IBinarySerializable, new()
+		{
+			var t = new T();
+			t.Read(new BinaryReader(new MemoryStream(Last)));
+			return t;
 		}
 
 		public void AddData(byte[] data)

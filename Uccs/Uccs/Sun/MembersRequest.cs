@@ -12,9 +12,9 @@ namespace Uccs.Net
 			{
 				RequireBase(sun);
 			
-				return new MembersResponse {Members = sun.Mcv	.VotersOf(sun.Mcv.GetRound(sun.Mcv.LastConfirmedRound.Id + 1 + Mcv.P))
-																//.Where(i => i.CastingSince <= sun.Mcv.LastConfirmedRound.Id + Mcv.P)
-																.Select(i => new MembersResponse.Member{Account = i.Account, 
+				return new MembersResponse {Members = sun.Mcv.VotersOf(sun.Mcv.GetRound(sun.Mcv.LastConfirmedRound.Id + 1 + Mcv.P))
+															 //.Where(i => i.CastingSince <= sun.Mcv.LastConfirmedRound.Id + Mcv.P)
+															 .Select(i => new MembersResponse.Member {	Account = i.Account, 
 																										CastingSince = i.CastingSince,
 																										BaseRdcIPs = i.BaseRdcIPs, 
 																										SeedHubRdcIPs = i.SeedHubRdcIPs, 

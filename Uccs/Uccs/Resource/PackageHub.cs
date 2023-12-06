@@ -207,7 +207,7 @@ namespace Uccs.Net
 
 				if(r != null)
 				{
-					var h = r.LastAsHistory.Releases.Last().Hash;
+					var h = r.Data<History>().Releases.Last().Hash;
 					p = new Package(this, new PackageAddress(resource, h), ResourceHub.Find(h), r);
 	
 					Packages.Add(p);

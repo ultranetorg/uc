@@ -14,7 +14,7 @@ namespace Uccs.Net
 		public byte					Years { get; set; }
 		public ResourceType			Type { get; set; }
 		public byte[]				Data { get; set; }
-		public string				Parent { get; set; }
+		public ResourceAddress		Parent { get; set; }
 		//public Money				AnalysisFee { get; set; }
 
 		public override bool		Valid => (Flags & ResourceFlags.Unchangables) == 0
@@ -28,7 +28,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent)
+		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, ResourceAddress parent)
 		{
 			Resource = resource;
 			Years = years;
@@ -58,8 +58,8 @@ namespace Uccs.Net
 			Flags		= (ResourceFlags)reader.ReadByte();
 			Type		= (ResourceType)reader.Read7BitEncodedInt();
 
-			if(Initials.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
-			if(Initials.HasFlag(ResourceChanges.Parent))		Parent = reader.ReadUtf8();
+			if(Initials.HasFlag(ResourceChanges.Data))		Data = reader.ReadBytes();
+			if(Initials.HasFlag(ResourceChanges.Parent))	Parent = reader.Read<ResourceAddress>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -70,12 +70,17 @@ namespace Uccs.Net
 			writer.Write((byte)Flags);
 			writer.Write7BitEncodedInt((short)Type);
 
-			if(Initials.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
-			if(Initials.HasFlag(ResourceChanges.Parent))		writer.WriteUtf8(Parent);
+			if(Initials.HasFlag(ResourceChanges.Data))		writer.WriteBytes(Data);
+			if(Initials.HasFlag(ResourceChanges.Parent))	writer.Write(Parent);
 		}
 
 		public override void Execute(Mcv chain, Round round)
 		{
+			if(Resource.ToString() == "_aaa._aaa.app")
+			{
+				round = round;
+			}
+
 			var a = chain.Authors.Find(Resource.Author, round.Id);
 
 			if(a == null)
@@ -111,7 +116,7 @@ namespace Uccs.Net
 			if(Parent != null)
 			{
 				r.Flags |= ResourceFlags.Child;
-				var p = a.AffectResource(new ResourceAddress(a.Name, Parent));
+				var p = a.AffectResource(Parent);
 				p.Resources = p.Resources.Append(r.Id).ToArray();
 			}
 						

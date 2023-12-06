@@ -43,31 +43,40 @@ namespace Uccs.Sun.CLI
 			Args = args;
 		}
 
-		public AccountAddress GetAccountAddress(string paramenter)
+		public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
 				return AccountAddress.Parse(GetString(paramenter));
 			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				if(mandatory)
+					throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				else
+					return null;
 		}
 
-		protected ResourceAddress GetResourceAddress(string paramenter)
+		protected ResourceAddress GetResourceAddress(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
 				return ResourceAddress.Parse(GetString(paramenter));
 			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				if(mandatory)
+					throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				else
+					return null;
 		}
 
-		protected PackageAddress GetReleaseAddress(string paramenter)
+		protected PackageAddress GetReleaseAddress(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
 				return PackageAddress.Parse(GetString(paramenter));
 			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				if(mandatory)
+					throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				else
+					return null;
 		}
 
-		protected string GetString(string paramenter, bool mandatory = false)
+		protected string GetString(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
 				return Args.Get<string>(paramenter);
@@ -86,7 +95,7 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected byte[] GetHexBytes(string paramenter, bool mandatory = false)
+		protected byte[] GetHexBytes(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
 				return Hex.Decode(Args.Get<string>(paramenter));
@@ -97,12 +106,15 @@ namespace Uccs.Sun.CLI
 					return null;
 		}
 
-		protected Version GetVersion(string paramenter)
+		protected Version GetVersion(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
 				return Version.Parse(Args.Get<string>(paramenter));
 			else
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				if(mandatory)
+					throw new SyntaxException($"Parameter '{paramenter}' not provided");
+				else
+					return null;
 		}
 
 		protected string GetString(string paramenter, string def)
