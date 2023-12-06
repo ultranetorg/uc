@@ -35,7 +35,7 @@ namespace Uccs.Sun.CLI
 												Args.Has("flags")	? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
 												Args.Has("type")	? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.None,
 												GetHexBytes("data", false),
-												GetResourceAddress("parent", false));
+												GetString("parent", false));
 				}
 
 				case "u" : 

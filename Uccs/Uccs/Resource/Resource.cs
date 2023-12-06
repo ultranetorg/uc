@@ -47,7 +47,7 @@ namespace Uccs.Net
 
 	public class Resource : IBinarySerializable
 	{
-		public const short		DataLengthMax = 1024;
+		public const short		DataLengthMax = 8192;
 
 		public int				Id { get; set; }
 		public ResourceAddress	Address { get; set; }

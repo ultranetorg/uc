@@ -168,6 +168,14 @@ namespace Uccs.Net
 					}
 					else
 					{
+						var i = Array.FindIndex(a.Resources, i => i.Address.Resource == Parent);
+
+						if(i == -1)
+						{
+							Error = NotFound;
+							return;
+						}
+
 						r.Flags |= ResourceFlags.Child;
 						var p = a.AffectResource(new ResourceAddress(a.Name, Parent));
 						p.Resources = p.Resources.Append(r.Id).ToArray();
