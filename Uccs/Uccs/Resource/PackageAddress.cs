@@ -16,9 +16,7 @@ namespace Uccs.Net
 		public string	Realization { get { return _Realization; }	set { _Realization = value; _Resource = null; _String = null; _Ura = null; } }
 		public byte[]	Hash		{ get { return _Hash; }			set { _Hash = value;		_Resource = null; _String = null; _Ura = null; } }
 
-		public string	APR => $"{Author}{ResourceAddress.Separator}{Product}/{Realization}";
-
-		public const char	HashSeparator = '/';
+		public string	APR => $"{Author}{Ura.RSeparator}{Product}/{Realization}";
 
 		string			_Author;
 		string			_Product;
@@ -32,7 +30,7 @@ namespace Uccs.Net
 		public static implicit operator ResourceAddress (PackageAddress a)
 		{ 
 			if(a._Resource == null)
-				a._Resource = new ResourceAddress(a.Author, $"{a.Product}{ResourceAddress.Separator}{a.Realization}");
+				a._Resource = new ResourceAddress(a.Author, $"{a.Product}{Ura.RSeparator}{a.Realization}");
 			
 			return a._Resource;
 		}
@@ -40,7 +38,7 @@ namespace Uccs.Net
 		public static implicit operator Ura (PackageAddress a)
 		{ 
 			if(a._Ura == null)
-				a._Ura = new Ura(a.Author, $"{a.Product}{ResourceAddress.Separator}{a.Realization}{HashSeparator}{a.Hash.ToHex()}");
+				a._Ura = new Ura(a.Author, $"{a.Product}{Ura.RSeparator}{a.Realization}", a.Hash.ToHex());
 			
 			return a._Ura;
 		}
@@ -63,26 +61,22 @@ namespace Uccs.Net
 			_Hash = hash;
 		}
 
-		public PackageAddress(ResourceAddress release)
+		public PackageAddress(Ura ura)
 		{
-			Author = release.Author;
-
-			var i = release.Resource.IndexOf(HashSeparator);
+			Author = ura.Author;
 			
-			var pr = release.Resource.Substring(0, i);
+			var j = ura.Resource.LastIndexOf(Ura.RSeparator);
 
-			var j = pr.LastIndexOf(ResourceAddress.Separator);
-
-			Product		= pr.Substring(0, j);
-			Realization = pr.Substring(j + 1);
-			Hash		= release.Resource.Substring(i + 1).FromHex(); 
+			Product		= ura.Resource.Substring(0, j);
+			Realization = ura.Resource.Substring(j + 1);
+			Hash		= ura.Details.FromHex(); 
 		}
 
 		public PackageAddress(ResourceAddress release, byte[] hash)
 		{
 			Author = release.Author;
 
-			var j = release.Resource.LastIndexOf(ResourceAddress.Separator);
+			var j = release.Resource.LastIndexOf(Ura.RSeparator);
 
 			Product		= release.Resource.Substring(0, j);
 			Realization = release.Resource.Substring(j + 1);
@@ -96,19 +90,19 @@ namespace Uccs.Net
 		public override string ToString()
 		{
 			if(_String == null)
-				_String = $"{Author}{ResourceAddress.Separator}{Product}{ResourceAddress.Separator}{Realization}{HashSeparator}{Hash.ToHex()}";
+				_String = $"{Author}{Ura.RSeparator}{Product}{Ura.RSeparator}{Realization}{Ura.DSeparator}{Hash.ToHex()}";
 
 			return _String;
 		}
 
 		public static PackageAddress Parse(string v)
 		{
-			var h = v.IndexOf(HashSeparator);
+			var h = v.IndexOf(Ura.DSeparator);
 			
 			var apr = v.Substring(0, h);
 			
-			var a = apr.IndexOf(ResourceAddress.Separator);
-			var r = apr.LastIndexOf(ResourceAddress.Separator);
+			var a = apr.IndexOf(Ura.RSeparator);
+			var r = apr.LastIndexOf(Ura.RSeparator);
 
 			var p = new PackageAddress();
 

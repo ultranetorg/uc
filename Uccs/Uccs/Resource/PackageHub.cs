@@ -150,6 +150,11 @@ namespace Uccs.Net
 // 			}
 // 		}
 
+		public History GetHistory(ResourceAddress resource)
+		{
+			return ResourceHub.Find(resource).DataAs<History>();
+		}
+
 		public IEnumerable<Package> FindPrevious(PackageAddress package, byte[] incrementalminimal)
 		{
 			return Find(package).History.Releases	.TakeWhile(i => !i.Hash.SequenceEqual(package.Hash))
@@ -207,7 +212,7 @@ namespace Uccs.Net
 
 				if(r != null)
 				{
-					var h = r.Data<History>().Releases.Last().Hash;
+					var h = r.DataAs<History>().Releases.Last().Hash;
 					p = new Package(this, new PackageAddress(resource, h), ResourceHub.Find(h), r);
 	
 					Packages.Add(p);

@@ -15,7 +15,6 @@ namespace Uccs.Net
 	{
 		public string		Author { get; set; }
 		public string		Resource { get; set; }
-		public const char	Separator = '.';
 
 		public bool		Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
 
@@ -31,12 +30,12 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Author}{Separator}{Resource}";
+			return $"{Author}{Ura.RSeparator}{Resource}";
 		}
 
 		public static bool IsValid(string v)
 		{
-			var i = v.IndexOf(Separator);
+			var i = v.IndexOf(Ura.RSeparator);
 			return v.Length >=3 && i != -1 && i != 0 && i != v.Length-1;
 		}
 
@@ -80,7 +79,7 @@ namespace Uccs.Net
 
 		public static ResourceAddress Parse(string v)
 		{
-			var s = v.IndexOf(Separator);
+			var s = v.IndexOf(Ura.RSeparator);
 			var a = new ResourceAddress();
 			a.Author = v.Substring(0, s);
 			a.Resource = v.Substring(s + 1);

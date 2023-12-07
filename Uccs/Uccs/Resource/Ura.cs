@@ -1,28 +1,31 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace Uccs.Net
 {
 	/// <summary>
-	/// author.resource:release/path
+	/// author.resource/details
 	/// </summary>
 
 	public class Ura : IBinarySerializable, IEquatable<Ura> 
 	{
 		public string		Author { get; set; }
 		public string		Resource { get; set; }
-		public const char	Separator = '.';
+		public string		Details { get; set; }
 
-		public bool		Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
+		public const char	RSeparator = '.';
+		public const char	DSeparator = '/';
 
-		public Ura(string author, string resource)
+		public bool			Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
+
+		public Ura(string author, string resource, string details)
 		{
 			Author = author;
 			Resource = resource;
+			Details = details;
 		}
 
 		public Ura()
@@ -31,7 +34,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Author}{Separator}{Resource}";
+			return $"{Author}{RSeparator}{Resource}{(string.IsNullOrEmpty(Details) ? null : (DSeparator + Details))}";
 		}
 
 		public override bool Equals(object o)
@@ -41,7 +44,7 @@ namespace Uccs.Net
 
 		public bool Equals(Ura o)
 		{
-			return Author == o.Author && Resource == o.Resource;
+			return Author == o.Author && Resource == o.Resource && Details == o.Details;
 		}
 
  		public override int GetHashCode()
@@ -59,12 +62,15 @@ namespace Uccs.Net
 			if(Author.CompareTo(other.Author) != 0)
 				return Author.CompareTo(other.Author);
 
-			return Resource.CompareTo(other.Resource);
+			if(Resource.CompareTo(other.Resource) != 0)
+				return Resource.CompareTo(other.Resource);
+
+			return Details.CompareTo(other.Details);
 		}
 
-		public static bool operator == (Ura left, Ura right)
+		public static bool operator == (Ura a, Ura b)
 		{
-			return left is null && right is null || left is not null && right is not null && left.Equals(right);
+			return a is null && b is null || a is not null && b is not null && a.Equals(b);
 		}
 
 		public static bool operator != (Ura left, Ura right)
@@ -74,10 +80,19 @@ namespace Uccs.Net
 
 		public static Ura Parse(string v)
 		{
-			var s = v.IndexOf(Separator);
+			var s = v.IndexOf(RSeparator);
 			var a = new Ura();
-			a.Author = v.Substring(0, s);
-			a.Resource = v.Substring(s + 1);
+			a.Author	= v.Substring(0, s);
+			a.Resource	= v.Substring(s + 1);
+
+			s = v.IndexOf(DSeparator);
+
+			if(s != -1)
+			{
+				a.Details	= a.Resource.Substring(s + 1);
+				a.Resource	= a.Resource.Substring(0, s);
+			} 
+
 			return a;
 		}
 
@@ -85,12 +100,14 @@ namespace Uccs.Net
 		{
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Resource);
+			w.WriteBytes(!string.IsNullOrEmpty(Details) ? Encoding.UTF8.GetBytes(Details) : null);
 		}
 
 		public void Read(BinaryReader r)
 		{
 			Author = r.ReadUtf8();
 			Resource = r.ReadUtf8();
+			Details = r.ReadBytes() is byte[] b ? Encoding.UTF8.GetString(b) : null;
 		}
 	}
 

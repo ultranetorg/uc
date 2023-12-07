@@ -21,7 +21,7 @@ namespace Uccs.Net
 			Address = resource;
 		}
 
-		public T Data<T>() where T : IBinarySerializable, new()
+		public T DataAs<T>() where T : IBinarySerializable, new()
 		{
 			var t = new T();
 			t.Read(new BinaryReader(new MemoryStream(Last)));

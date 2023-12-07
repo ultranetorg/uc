@@ -414,7 +414,7 @@ namespace Uccs.Net
 
 		public void RunSeed()
 		{
-			ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Resources"));
+			ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Releases"));
 			PackageHub = new PackageHub(this, ResourceHub, Settings.Packages);
 		}
 
@@ -1324,7 +1324,7 @@ namespace Uccs.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				var m = Mcv.LastConfirmedRound.Members.Find(i => i.Account == g);
+				var m = Mcv.VotersOf(Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P)).Find(i => i.Account == g);
 
 				if(m == null)
 				{
