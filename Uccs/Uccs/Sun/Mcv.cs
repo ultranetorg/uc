@@ -26,11 +26,14 @@ namespace Uccs.Net
 		public const int					LastGenesisRound = 1+P + 1+P + P;
 		///public const int					MembersRotation = 32;
 		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000_001);
+		public static readonly Money		AccountAllocationFee	= 1;
+		public static readonly Money		AnalysisAllocationFee	= 1;
 		public static readonly Money		AnalysisFeePerByte		= new Money(0.000_000_001);
 		//public static readonly Money		AccountAllocationFee	= new Money(1);
 		public const int					EntityAllocationAverageLength = 100;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
+
 
 		public Zone							Zone;
 		public McvSettings					Settings;
@@ -777,25 +780,29 @@ namespace Uccs.Net
 				#endif
 			}
 
-			var js = round.ConfirmedTransactions.SelectMany(i => i.Operations)
-												.OfType<CandidacyDeclaration>()
-												.DistinctBy(i => i.Transaction.Signer)
-												.OrderByDescending(i => i.Bail)
-												.ThenBy(i => i.Signer);
- 
-			round.Members.AddRange(js.Take(Math.Min(Zone.MembersLimit - round.Members.Count, js.Count())).Select(i => new Member{ CastingSince = round.Id + DeclareToGenerateDelay,
-																																  Account = i.Signer, 
-																																  BaseRdcIPs = i.BaseRdcIPs, 
-																																  SeedHubRdcIPs = i.SeedHubRdcIPs}));
-foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Account)))
-	Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
+			foreach(var i in round.Members.Where(i => round.ConfirmedViolators.Contains(i.Account)))
+				Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
 
 			round.Members.RemoveAll(i => round.ConfirmedViolators.Contains(i.Account));
 
-foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(i.Account)))
-	Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");
+			foreach(var i in round.Members.Where(i => round.ConfirmedMemberLeavers.Contains(i.Account)))
+				Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");
 
 			round.Members.RemoveAll(i => round.ConfirmedMemberLeavers.Contains(i.Account));
+
+			var js = round.ConfirmedTransactions.SelectMany(i => i.Operations)
+												.OfType<CandidacyDeclaration>()
+												.DistinctBy(i => i.Transaction.Signer)
+												.Where(i => !round.ConfirmedViolators.Contains(i.Transaction.Signer) && !round.ConfirmedMemberLeavers.Contains(i.Transaction.Signer))
+												.OrderByDescending(i => i.Bail)
+												.ThenBy(i => i.Signer)
+												.Take(Zone.MembersLimit - round.Members.Count);
+ 
+			round.Members.AddRange(js.Select(i => new Member{CastingSince = round.Id + DeclareToGenerateDelay,
+															 Account = i.Signer, 
+															 BaseRdcIPs = i.BaseRdcIPs, 
+															 SeedHubRdcIPs = i.SeedHubRdcIPs}));
+
 
 			round.Funds.RemoveAll(i => round.ConfirmedFundLeavers.Contains(i));
 			round.Funds.AddRange(round.ConfirmedFundJoiners);

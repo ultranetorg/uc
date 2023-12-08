@@ -118,7 +118,8 @@ namespace Uccs.Net
 
 			if(e == null) /// new account
 			{
-				Pay(round, Mcv.EntityAllocationAverageLength, 5);
+				Affect(round, Signer).Balance -= Mcv.AccountAllocationFee;
+				round.Fees += Mcv.AccountAllocationFee;
 			}
 
 			return round.AffectAccount(account);
@@ -135,7 +136,8 @@ namespace Uccs.Net
 
 			if(e == null) /// new account
 			{
-				Pay(round, Mcv.EntityAllocationAverageLength, 1);
+				Affect(round, Signer).Balance -= Mcv.AnalysisAllocationFee;
+				round.Fees += Mcv.AnalysisAllocationFee;
 			}
 
 			return round.AffectAnalysis(release);

@@ -1797,10 +1797,11 @@ namespace Uccs.Net
 
 		public Peer ChooseBestPeer(Role role, HashSet<Peer> exclusions)
 		{
-			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i))).OrderByDescending(i => i.Status == ConnectionStatus.OK)
-																											.ThenBy(i => i.GetRank(role))
-																											//.ThenByDescending(i => i.ReachFailures)
-																											.FirstOrDefault();
+			return Peers.Where(i => i.GetRank(role) > 0 && (exclusions == null || !exclusions.Contains(i)))
+						.OrderByDescending(i => i.Status == ConnectionStatus.OK)
+						//.ThenBy(i => i.GetRank(role))
+						//.ThenByDescending(i => i.ReachFailures)
+						.FirstOrDefault();
 		}
 
 		public Peer Connect(Role role, HashSet<Peer> exclusions, Workflow workflow)

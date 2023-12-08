@@ -30,6 +30,11 @@ namespace Uccs.Net
 			return e.OrderByRandom().First();
 		}
 
+		public static T RandomOrDefault<T>(this IEnumerable<T> e)
+		{
+			return e.Any() ? e.OrderByRandom().First() : default;
+		}
+
 		public static IEnumerable<T> OrderByRandom<T>(this IEnumerable<T> e)
 		{
 			return e.OrderBy(i => Guid.NewGuid());
