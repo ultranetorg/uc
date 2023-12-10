@@ -140,7 +140,7 @@ namespace Uccs.Net
 					r.Expiration += Time.FromYears(Years);
 					r.LastRenewalYears = Years;
 
-					Pay(round, Mcv.EntityAllocationAverageLength + (e.Data == null ? 0 : e.Data.Length), Years);
+					Pay(round, Mcv.EntityAllocation + (e.Data == null ? 0 : e.Data.Length), Years);
 				}
 	
 				if(Changes.HasFlag(ResourceChanges.Flags))

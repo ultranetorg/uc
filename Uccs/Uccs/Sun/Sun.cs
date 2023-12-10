@@ -1287,7 +1287,7 @@ namespace Uccs.Net
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				var m = Mcv.LastConfirmedRound.Members.Where(i => i.CastingSince <= Mcv.LastConfirmedRound.Id + Mcv.P).NearestBy(m => m.Account, i.Signer).Account;
+				var m = Mcv.VotersOf(Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P)).NearestBy(m => m.Account, i.Signer).Account;
 
 				if(!Settings.Generators.Contains(m))
 					continue;

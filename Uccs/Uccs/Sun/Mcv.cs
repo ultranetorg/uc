@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Util;
 using Nethereum.Web3;
 using RocksDbSharp;
@@ -25,12 +23,11 @@ namespace Uccs.Net
 		public const int					TransactionPlacingLifetime = P*2;
 		public const int					LastGenesisRound = 1+P + 1+P + P;
 		///public const int					MembersRotation = 32;
-		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.000_001);
-		public static readonly Money		AccountAllocationFee	= 1;
-		public static readonly Money		AnalysisAllocationFee	= 1;
+		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.001);
+		public static Money					AccountAllocationFee	=> SpaceBasicFeePerByte * EntityAllocation;
+		public static Money					AnalysisAllocationFee	=> SpaceBasicFeePerByte * EntityAllocation;
 		public static readonly Money		AnalysisFeePerByte		= new Money(0.000_000_001);
-		//public static readonly Money		AccountAllocationFee	= new Money(1);
-		public const int					EntityAllocationAverageLength = 100;
+		public const int					EntityAllocation = 1000;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
 
@@ -91,7 +88,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				if(g.SequenceEqual(Zone.Genesis.HexToByteArray()))
+				if(g.SequenceEqual(Zone.Genesis.FromHex()))
 				{
 					Load();
 				}
@@ -109,7 +106,7 @@ namespace Uccs.Net
 			{
 				Tail.Clear();
 	
- 				var rd = new BinaryReader(new MemoryStream(Zone.Genesis.HexToByteArray()));
+ 				var rd = new BinaryReader(new MemoryStream(Zone.Genesis.FromHex()));
 						
 				for(int i = 0; i <=1+P + 1+P + P; i++)
 				{
@@ -148,7 +145,7 @@ namespace Uccs.Net
 				
 			}
 		
-			Engine.Put(GenesisKey, Zone.Genesis.HexToByteArray());
+			Engine.Put(GenesisKey, Zone.Genesis.FromHex());
 		}
 		
 		public void Load()
