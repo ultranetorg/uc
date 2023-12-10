@@ -99,14 +99,27 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public static Money CalculateSpaceFee(int size, byte years)
+		public static Money CalculateEntityFee(byte years)
 		{
-			return Mcv.SpaceBasicFeePerByte * size * new Money(1u << (years - 1));
+			return Mcv.EntityAllocationFee * new Money(1u << (years - 1));
 		}
 
-		public void Pay(Round round, int length, byte years)
+		public static Money CalculateResourceDataFee(int size, byte years)
 		{
-			var fee = CalculateSpaceFee(length, years);
+			return Mcv.ResourceDataPerByteFee * size * new Money(1u << (years - 1));
+		}
+
+		public void PayForResourceData(Round round, int length, byte years)
+		{
+			var fee = CalculateResourceDataFee(length, years);
+			
+			Affect(round, Signer).Balance -= fee;
+			round.Fees += fee;
+		}
+
+		public void PayForEnity(Round round, byte years)
+		{
+			var fee = CalculateEntityFee(years);
 			
 			Affect(round, Signer).Balance -= fee;
 			round.Fees += fee;
@@ -116,10 +129,9 @@ namespace Uccs.Net
 		{
 			var e = round.Mcv.Accounts.Find(account, round.Id);	
 
-			if(e == null) /// new account
+			if(e == null) /// new Account
 			{
-				Affect(round, Signer).Balance -= Mcv.AccountAllocationFee;
-				round.Fees += Mcv.AccountAllocationFee;
+				PayForEnity(round, 1);
 			}
 
 			return round.AffectAccount(account);
@@ -134,10 +146,9 @@ namespace Uccs.Net
 		{
 			var e = round.Mcv.Analyses.Find(release, round.Id);	
 
-			if(e == null) /// new account
+			if(e == null) /// new Analysis
 			{
-				Affect(round, Signer).Balance -= Mcv.AnalysisAllocationFee;
-				round.Fees += Mcv.AnalysisAllocationFee;
+				PayForEnity(round, 1);
 			}
 
 			return round.AffectAnalysis(release);

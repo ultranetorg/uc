@@ -23,11 +23,10 @@ namespace Uccs.Net
 		public const int					TransactionPlacingLifetime = P*2;
 		public const int					LastGenesisRound = 1+P + 1+P + P;
 		///public const int					MembersRotation = 32;
-		public static readonly Money		SpaceBasicFeePerByte	= new Money(0.001);
-		public static Money					AccountAllocationFee	=> SpaceBasicFeePerByte * EntityAllocation;
-		public static Money					AnalysisAllocationFee	=> SpaceBasicFeePerByte * EntityAllocation;
-		public static readonly Money		AnalysisFeePerByte		= new Money(0.000_000_001);
-		public const int					EntityAllocation = 1000;
+		public static readonly Money		ResourceDataPerByteFee	= new Money(0.001);
+		public static readonly Money		EntityAllocationFee		= new Money(1);
+		public static readonly Money		AnalysisPerByteFee		= new Money(0.000_000_001);
+		//public const int					EntityAllocation = 1000;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
 

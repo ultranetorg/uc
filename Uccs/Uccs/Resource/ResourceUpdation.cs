@@ -140,7 +140,10 @@ namespace Uccs.Net
 					r.Expiration += Time.FromYears(Years);
 					r.LastRenewalYears = Years;
 
-					Pay(round, Mcv.EntityAllocation + (e.Data == null ? 0 : e.Data.Length), Years);
+					PayForEnity(round, Years);
+			
+					if(e.Data != null)
+						PayForResourceData(round, e.Data.Length, Years);
 				}
 	
 				if(Changes.HasFlag(ResourceChanges.Flags))
@@ -198,7 +201,7 @@ namespace Uccs.Net
 							
 							r.Reserved += (short)d;
 		
-							Pay(round, d, r.LastRenewalYears);
+							PayForResourceData(round, d, r.LastRenewalYears);
 						}
 					} 
 					else

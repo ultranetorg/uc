@@ -63,7 +63,7 @@ namespace Uccs.Net
 				a.Owner			= Signer;
 				a.Expiration	= round.ConfirmedTime + Time.FromYears(Years);
 
-				Pay(round, Mcv.EntityAllocation, Years);
+				PayForEnity(round, Years);
 			}
 			else
 				Error = "Failed";
