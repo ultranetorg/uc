@@ -48,6 +48,8 @@ namespace Uccs.Net
 						DomainOwnersOnly = DomainOwnersOnly,
 						Resources = Resources,
 						NextResourceId = NextResourceId,
+						SpaceReserved = SpaceReserved,
+						SpaceUsed = SpaceUsed
 					};
 		}
 

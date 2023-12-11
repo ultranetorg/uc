@@ -26,6 +26,8 @@ namespace Uccs.Net
 		public Time							LastBidTime { get; set; }
 		public bool							DomainOwnersOnly  { get; set; }
 		public int							NextResourceId { get; set; }
+		public short						SpaceReserved { get; set; }
+		public short						SpaceUsed { get; set; }
 
 		public static bool Valid(string name)
 		{
@@ -40,16 +42,8 @@ namespace Uccs.Net
 			if(r.Match(name).Success == false)
 				return false;
 
-			//if(TitleToName(title) != author)
-			//	return false;
-
 			return true;
 		}
-
-		//public static string TitleToName(string title)
-		//{
-		//	return Regex.Matches(title, @"[a-zA-Z0-9_]+").Aggregate(string.Empty, (a,m) => a += m.Value).ToLower();
-		//}
 
 		public static bool IsExclusive(string name) => name[0] != CommonNamespacePrefix; 
 
@@ -98,6 +92,8 @@ namespace Uccs.Net
 		{
 			w.WriteUtf8(Name);
 			w.Write7BitEncodedInt(NextResourceId);
+			w.Write7BitEncodedInt(SpaceReserved);
+			w.Write7BitEncodedInt(SpaceUsed);
 
 			if(IsExclusive(Name))
 			{
@@ -128,6 +124,8 @@ namespace Uccs.Net
 		{
 			Name			= reader.ReadUtf8();
 			NextResourceId	= reader.Read7BitEncodedInt();
+			SpaceReserved	= (short)reader.Read7BitEncodedInt();
+			SpaceUsed		= (short)reader.Read7BitEncodedInt();
 
 			if(IsExclusive(Name))
 			{
@@ -148,35 +146,5 @@ namespace Uccs.Net
 				Title				= reader.ReadUtf8();
 			}
 		}
-
-//  		public XonDocument ToXon(IXonValueSerializator serializator)
-//  		{
-//  			var d = new XonDocument(serializator);
-//  
-//  			if(IsExclusive(Name))
-//  			{
-//  				if(LastWinner != null)
-//  				{
-//  					var p = d.Add("Auction");
-//  
-//  					p.Add("FirstBidTime").Value = FirstBidTime;
-//  					p.Add("LastWinner").Value = LastWinner;
-//  					p.Add("LastBid").Value = LastBid;
-//  					p.Add("LastBidTime").Value = LastBidTime;
-//  				}
-//  			}
-//  
-//  			if(Owner != null)
-//  			{
-//  				var p = d.Add("Registration");
-//  
-//  				p.Add("Owner").Value = Owner;
-//  				p.Add("Title").Value = Title;
-//  				p.Add("Expiration").Value = Expiration;
-//  			}
-//  
-//  			return d;
-//  		}
-
 	}
 }

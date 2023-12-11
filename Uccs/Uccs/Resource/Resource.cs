@@ -34,15 +34,13 @@ namespace Uccs.Net
 	public enum ResourceChanges : ushort
 	{
 		None			= 0,
-		Years			= 0b_______________1,
-		Flags			= 0b______________10,
-		Type			= 0b_____________100,
-		Data			= 0b____________1000,
-		Parent			= 0b___________10000,
-		//AnalysisFee		= 0b__________100000,
-		AddPublisher	= 0b_________1000000,
-		RemovePublisher	= 0b________10000000,
-		Recursive		= 0b1000000000000000,
+		Flags			= 0b______________1,
+		Type			= 0b_____________10,
+		Data			= 0b____________100,
+		Parent			= 0b___________1000,
+		AddPublisher	= 0b__________10000,
+		RemovePublisher	= 0b_________100000,
+		Recursive		= 0b100000000000000,
 	}
 
 	public class Resource : IBinarySerializable
@@ -51,30 +49,22 @@ namespace Uccs.Net
 
 		public int				Id { get; set; }
 		public ResourceAddress	Address { get; set; }
-		public Time				Expiration { get; set; }
-		public byte				LastRenewalYears { get; set; }
 		public ResourceFlags	Flags { get; set; }
 		public ResourceType		Type { get; set; }
-		public short			Reserved { get; set; }
 		public byte[]			Data { get; set; }
 		public int[]			Resources { get; set; } = {};
 
-		public Time				RenewalBegin => Expiration - Time.FromYears(1);
-
 		public override string ToString()
 		{
-			return $"{Id}, {Address}, {Expiration}, {LastRenewalYears}, [{Flags}], {Type}, Reserved={Reserved}, Data={(Data == null ? null : ('[' + Data.Length + ']'))} Resources={{{Resources.Length}}}";
+			return $"{Id}, {Address}, [{Flags}], {Type}, Data={(Data == null ? null : ('[' + Data.Length + ']'))} Resources={{{Resources.Length}}}";
 		}
 
 		public Resource Clone()
 		{
 			return new() {	Id = Id,
 							Address	= Address, 
-							Expiration = Expiration,
-							LastRenewalYears = LastRenewalYears,
 							Flags = Flags,
 							Type = Type,
-							Reserved = Reserved,
 							Data = Data,
 							Resources = Resources};
 		}
@@ -83,62 +73,26 @@ namespace Uccs.Net
 		{
 			writer.Write7BitEncodedInt(Id);
 			writer.Write((byte)Flags);
-			writer.Write(Expiration);
-			writer.Write(LastRenewalYears);
 			writer.Write7BitEncodedInt((int)Type);
-			writer.Write7BitEncodedInt(Reserved);
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 			{
 				writer.WriteBytes(Data);
 			}
 
-			//writer.Write((byte)AnalysisStage);
-			//
-			//if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
-			//{
-			//	writer.Write(AnalysisFee);
-			//	writer.Write7BitEncodedInt(RoundId);
-			//	writer.Write7BitEncodedInt(AnalysisHalfVotingRound);
-			//}
-			//
-			//if(AnalysisStage == AnalysisStage.Finished)
-			//{
-			//	writer.Write(Good);
-			//	writer.Write(Bad);
-			//}
-
 			writer.Write(Resources, i => writer.Write7BitEncodedInt(i));
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Id					= reader.Read7BitEncodedInt();
-			Flags				= (ResourceFlags)reader.ReadByte();
-			Expiration			= reader.ReadTime();
-			LastRenewalYears	= reader.ReadByte();
-			Type				= (ResourceType)reader.Read7BitEncodedInt();
-			Reserved			= (short)reader.Read7BitEncodedInt();
+			Id		= reader.Read7BitEncodedInt();
+			Flags	= (ResourceFlags)reader.ReadByte();
+			Type	= (ResourceType)reader.Read7BitEncodedInt();
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 			{
 				Data = reader.ReadBytes();
 			}
-
-			//AnalysisStage = (AnalysisStage)reader.ReadByte();
-			//
-			//if(AnalysisStage == AnalysisStage.Pending || AnalysisStage == AnalysisStage.HalfVotingReached)
-			//{
-			//	AnalysisFee = reader.ReadMoney();
-			//	RoundId = reader.Read7BitEncodedInt();
-			//	AnalysisHalfVotingRound = reader.Read7BitEncodedInt();
-			//}
-			//
-			//if(AnalysisStage == AnalysisStage.Finished)
-			//{
-			//	Good = reader.ReadByte();
-			//	Bad = reader.ReadByte();	
-			//}
 
 			Resources = reader.ReadArray(() => reader.Read7BitEncodedInt());
 		}

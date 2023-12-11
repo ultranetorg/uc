@@ -11,31 +11,28 @@ namespace Uccs.Net
 		public ResourceAddress		Resource { get; set; }
 		public ResourceChanges		Initials { get; set; }
 		public ResourceFlags		Flags { get; set; }
-		public byte					Years { get; set; }
 		public ResourceType			Type { get; set; }
 		public byte[]				Data { get; set; }
 		public string				Parent { get; set; }
 		//public Money				AnalysisFee { get; set; }
 
 		public override bool		Valid => (Flags & ResourceFlags.Unchangables) == 0
-												&& Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax
 												&& (!Initials.HasFlag(ResourceChanges.Data)	|| Initials.HasFlag(ResourceChanges.Data) && Data.Length <= Net.Resource.DataLengthMax)
 											;
 		
-		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], Years={Years}, {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
+		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, byte years, ResourceFlags flags, ResourceType type, byte[] data, string parent)
+		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceType type, byte[] data, string parent)
 		{
 			Resource = resource;
-			Years = years;
 			Flags = flags;
 			Type = type;
 
-			Initials |= (ResourceChanges.Years|ResourceChanges.Flags|ResourceChanges.Type);
+			Initials |= (ResourceChanges.Flags|ResourceChanges.Type);
 
 			if(data != null && data.Length > 0)
 			{
@@ -54,7 +51,6 @@ namespace Uccs.Net
 		{
 			Resource	= reader.Read<ResourceAddress>();
 			Initials	= (ResourceChanges)reader.ReadByte();
-			Years		= reader.ReadByte();
 			Flags		= (ResourceFlags)reader.ReadByte();
 			Type		= (ResourceType)reader.Read7BitEncodedInt();
 
@@ -66,7 +62,6 @@ namespace Uccs.Net
 		{
 			writer.Write(Resource);
 			writer.Write((byte)Initials);
-			writer.Write(Years);
 			writer.Write((byte)Flags);
 			writer.Write7BitEncodedInt((short)Type);
 
@@ -101,15 +96,12 @@ namespace Uccs.Net
 			a = Affect(round, Resource.Author);
 			var r = a.AffectResource(Resource);
 
-			r.Flags				= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
-			r.Type				= Type;
-			r.LastRenewalYears	= Years;
-			r.Expiration		= round.ConfirmedTime + Time.FromYears(Years);
+			r.Flags	= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
+			r.Type	= Type;
 			
-			PayForEnity(round, Years);
-			
-			if(Data != null)
-				PayForResourceData(round, Data.Length, Years);
+			var y = (byte)((round.ConfirmedTime.Ticks - a.Expiration.Ticks) / Time.FromYears(1).Ticks + 1);
+
+			PayForEnity(round, y);
 			
 			if(Parent != null)
 			{
@@ -129,20 +121,18 @@ namespace Uccs.Net
 						
 			if(Data != null)
 			{
-				r.Flags |= ResourceFlags.Data;
-				r.Reserved	= (short)Data.Length;
+				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
-			}
 
-			//if(AnalysisFee > 0)
-			//{
-			//	Affect(round, Signer).Balance -= AnalysisFee;
-			//
-			//	r.AnalysisStage				= AnalysisStage.Pending;
-			//	r.AnalysisFee				= AnalysisFee;
-			//	r.RoundId					= round.Id;
-			//	r.AnalysisHalfVotingRound	= 0;
-			//}
+				if(a.SpaceReserved < a.SpaceUsed + r.Data.Length)
+				{
+					PayForResourceData(round, a.SpaceUsed + r.Data.Length - a.SpaceReserved, y);
+
+					a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Length);
+					a.SpaceReserved	= a.SpaceUsed;
+	
+				}
+			}
 		}
 	}
 }

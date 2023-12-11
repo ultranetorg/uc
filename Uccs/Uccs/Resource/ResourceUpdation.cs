@@ -17,7 +17,7 @@ namespace Uccs.Net
 		public string				Parent { get; set; }
 
 		public override bool		Valid=>	(Flags & ResourceFlags.Unchangables) == 0
-											&& (!Changes.HasFlag(ResourceChanges.Years) || Changes.HasFlag(ResourceChanges.Years) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax)
+											//&& (!Changes.HasFlag(ResourceChanges.Years) || Changes.HasFlag(ResourceChanges.Years) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax)
 											&& (!Changes.HasFlag(ResourceChanges.Data) || Changes.HasFlag(ResourceChanges.Data) && Data.Length <= Net.Resource.DataLengthMax)
 											;
 		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {Type}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
@@ -31,11 +31,11 @@ namespace Uccs.Net
 			Resource = resource;
 		}
 		
-		public void Change(byte years)
-		{
-			Years = years;
-			Changes |= ResourceChanges.Years;
-		}
+// 		public void Change(byte years)
+// 		{
+// 			Years = years;
+// 			Changes |= ResourceChanges.Years;
+// 		}
 		
 		public void Change(ResourceFlags flags)
 		{
@@ -71,7 +71,7 @@ namespace Uccs.Net
 			Resource = reader.Read<ResourceAddress>();
 			Changes = (ResourceChanges)reader.ReadByte();
 			
-			if(Changes.HasFlag(ResourceChanges.Years))			Years = reader.ReadByte();
+			//if(Changes.HasFlag(ResourceChanges.Years))			Years = reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Flags))			Flags = (ResourceFlags)reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Type))			Type = (ResourceType)reader.ReadInt16();
 			if(Changes.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
@@ -83,7 +83,7 @@ namespace Uccs.Net
 			writer.Write(Resource);
 			writer.Write((byte)Changes);
 
-			if(Changes.HasFlag(ResourceChanges.Years))			writer.Write(Years);
+			//if(Changes.HasFlag(ResourceChanges.Years))			writer.Write(Years);
 			if(Changes.HasFlag(ResourceChanges.Flags))			writer.Write((byte)Flags);
 			if(Changes.HasFlag(ResourceChanges.Type))			writer.Write((short)Type);
 			if(Changes.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
@@ -120,31 +120,31 @@ namespace Uccs.Net
 			{
 				var r = a.AffectResource(resource);
 	
-				if(Changes.HasFlag(ResourceChanges.Years))
-				{
-					if(!ignore_renewal_errors)
-					{
-						if(round.ConfirmedTime < r.RenewalBegin)
-						{
-							Error = "Renewal is allowed during last year only";
-							return;
-						}
-
-						if(round.ConfirmedTime > r.Expiration)
-						{
-							Error = "Expired";
-							return;
-						}
-					}
-					
-					r.Expiration += Time.FromYears(Years);
-					r.LastRenewalYears = Years;
-
-					PayForEnity(round, Years);
-			
-					if(e.Data != null)
-						PayForResourceData(round, e.Data.Length, Years);
-				}
+// 				if(Changes.HasFlag(ResourceChanges.Years))
+// 				{
+// 					if(!ignore_renewal_errors)
+// 					{
+// 						if(round.ConfirmedTime < r.RenewalBegin)
+// 						{
+// 							Error = "Renewal is allowed during last year only";
+// 							return;
+// 						}
+// 
+// 						if(round.ConfirmedTime > r.Expiration)
+// 						{
+// 							Error = "Expired";
+// 							return;
+// 						}
+// 					}
+// 					
+// 					r.Expiration += Time.FromYears(Years);
+// 					r.LastRenewalYears = Years;
+// 
+// 					PayForEnity(round, Years);
+// 			
+// 					if(e.Data != null)
+// 						PayForResourceData(round, e.Data.Length, Years);
+// 				}
 	
 				if(Changes.HasFlag(ResourceChanges.Flags))
 				{
@@ -192,16 +192,14 @@ namespace Uccs.Net
 						r.Flags |= ResourceFlags.Data;
 						r.Data = Data;
 	
-						var d = Data.Length - r.Reserved;
-		
-						if(d > 0)
+						if(a.SpaceReserved < a.SpaceUsed + r.Data.Length)
 						{
-							//long s = CalculateSize();
-							//r.Expiration = new ChainTime(r.Expiration.Ticks - ChainTime.TicksFromYears(r.LastRenewalYears) + ChainTime.TicksFromYears(r.LastRenewalYears) * s / (s + d));
-							
-							r.Reserved += (short)d;
-		
-							PayForResourceData(round, d, r.LastRenewalYears);
+							var y = (byte)((round.ConfirmedTime.Ticks - a.Expiration.Ticks) / Time.FromYears(1).Ticks + 1);
+
+							PayForResourceData(round, a.SpaceUsed + r.Data.Length - a.SpaceReserved, y);
+
+							a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Length);
+							a.SpaceReserved	= a.SpaceUsed;
 						}
 					} 
 					else

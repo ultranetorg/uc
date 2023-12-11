@@ -32,11 +32,8 @@ namespace Uccs.Sun.FUI
 			NetworkReleases = new System.Windows.Forms.ListView();
 			CHId = new System.Windows.Forms.ColumnHeader();
 			CHAddress = new System.Windows.Forms.ColumnHeader();
-			CHExpiration = new System.Windows.Forms.ColumnHeader();
-			CHLastProlongation = new System.Windows.Forms.ColumnHeader();
 			CHFlags = new System.Windows.Forms.ColumnHeader();
 			CHType = new System.Windows.Forms.ColumnHeader();
-			CHReserved = new System.Windows.Forms.ColumnHeader();
 			CHData = new System.Windows.Forms.ColumnHeader();
 			CHResources = new System.Windows.Forms.ColumnHeader();
 			label5 = new System.Windows.Forms.Label();
@@ -54,7 +51,7 @@ namespace Uccs.Sun.FUI
 			// NetworkReleases
 			// 
 			NetworkReleases.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			NetworkReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { CHId, CHAddress, CHExpiration, CHLastProlongation, CHFlags, CHType, CHReserved, CHData, CHResources });
+			NetworkReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { CHId, CHAddress, CHFlags, CHType, CHData, CHResources });
 			NetworkReleases.FullRowSelect = true;
 			NetworkReleases.Location = new System.Drawing.Point(12, 112);
 			NetworkReleases.Margin = new System.Windows.Forms.Padding(6);
@@ -73,16 +70,6 @@ namespace Uccs.Sun.FUI
 			CHAddress.Text = "Address";
 			CHAddress.Width = 300;
 			// 
-			// CHExpiration
-			// 
-			CHExpiration.Text = "Expiration";
-			CHExpiration.Width = 100;
-			// 
-			// CHLastProlongation
-			// 
-			CHLastProlongation.Text = "Last Prolongation";
-			CHLastProlongation.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			// 
 			// CHFlags
 			// 
 			CHFlags.Text = "Flags";
@@ -90,11 +77,6 @@ namespace Uccs.Sun.FUI
 			// CHType
 			// 
 			CHType.Text = "Type";
-			// 
-			// CHReserved
-			// 
-			CHReserved.Text = "Reserved";
-			CHReserved.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// CHData
 			// 
@@ -221,11 +203,8 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ComboBox NetworkQuery;
 		private System.Windows.Forms.Button NetworkSearch;
-		private System.Windows.Forms.ColumnHeader CHExpiration;
-		private System.Windows.Forms.ColumnHeader CHLastProlongation;
 		private System.Windows.Forms.ColumnHeader CHFlags;
 		private System.Windows.Forms.ColumnHeader CHType;
-		private System.Windows.Forms.ColumnHeader CHReserved;
 		private System.Windows.Forms.ColumnHeader CHData;
 		private System.Windows.Forms.ColumnHeader CHResources;
 		private System.Windows.Forms.ColumnHeader CHId;

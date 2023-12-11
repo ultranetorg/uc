@@ -31,7 +31,6 @@ namespace Uccs.Sun.CLI
 				case "create" : 
 				{	
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
-												byte.Parse(GetString("years")),
 												Args.Has("flags")	? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
 												Args.Has("type")	? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.None,
 												GetHexBytes("data", false),
@@ -43,7 +42,6 @@ namespace Uccs.Sun.CLI
 				{	
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
-					if(Args.Has("years"))		r.Change(byte.Parse(GetString("years")));
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
 					if(Args.Has("type"))		r.Change(Enum.Parse<ResourceType>(GetString("type")));
 					if(Args.Has("data"))		r.Change(GetHexBytes("data"));
