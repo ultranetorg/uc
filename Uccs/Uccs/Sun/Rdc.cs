@@ -241,20 +241,13 @@ namespace Uccs.Net
 			if(sun.Synchronization != Synchronization.Synchronized)
 				throw new RdcNodeException(RdcNodeError.NotSynchronized);
 		}
-
 		protected void RequireMember(Sun sun)
 		{
 			RequireBase(sun);
 
-			if(!sun.IsMember) 
+			if(!sun.NextVoteMembers.Any(i => sun.Settings.Generators.Contains(i.Account))) 
 				throw new RdcNodeException(RdcNodeError.NotMember);
 		}
-
-		//protected void RequireSynchronized(Sun sun)
-		//{
-		//	if(sun.Synchronization != Synchronization.Synchronized)
-		//		throw new RdcNodeException(RdcNodeError.NotSynchronized);
-		//}
 	}
 
 	public class RdcRequestJsonConverter : JsonConverter<RdcRequest>

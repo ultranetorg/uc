@@ -11,9 +11,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DnsClient;
-using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Org.BouncyCastle.Utilities.Encoders;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -95,7 +92,8 @@ namespace Uccs.Net
 		public IPAddress				IP = IPAddress.None;
 		public bool						IsNodeOrUserRun => MainThread != null;
 		public bool						IsClient => ListeningThread == null;
-		public bool						IsMember => Synchronization == Synchronization.Synchronized && Settings.Generators.Any(g => Mcv.LastConfirmedRound.Members.Any(i => i.Account == g));
+		public Round					NextVoteRound => Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P);
+		public List<Member>				NextVoteMembers => Mcv.VotersOf(NextVoteRound);
 
 		public Statistics				PrevStatistics = new();
 		public Statistics				Statistics = new();
@@ -118,7 +116,8 @@ namespace Uccs.Net
 		Thread							ListeningThread;
 		Thread							TransactingThread;
 		Thread							SynchronizingThread;
-		AutoResetEvent					MainSignal = new AutoResetEvent(true);
+		AutoResetEvent					MainWakeup = new AutoResetEvent(true);
+		AutoResetEvent					TransactingWakeup = new AutoResetEvent(true);
 
 		public Synchronization			_Synchronization = Synchronization.None;
 		public Synchronization			Synchronization { protected set { _Synchronization = value; SynchronizationChanged?.Invoke(this); } get { return _Synchronization; } }
@@ -264,7 +263,7 @@ namespace Uccs.Net
 				Mcv = new Mcv(Zone, roles, Settings.Mcv, Database);
 
 				Mcv.Log = Workflow.Log;
-				Mcv.VoteAdded += b => MainSignal.Set();
+				Mcv.VoteAdded += b => MainWakeup.Set();
 
 				Mcv.ConsensusConcluded += (r, reached) =>	{
 																if(reached)
@@ -286,7 +285,7 @@ namespace Uccs.Net
 															};
 				
 				Mcv.Commited += r => {
-										if(IsMember)
+										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Account)))
 										{
 											var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
 												
@@ -383,7 +382,7 @@ namespace Uccs.Net
 												{
 													while(Workflow.Active)
 													{
-														var r = WaitHandle.WaitAny(new[] {MainSignal, Workflow.Cancellation.WaitHandle}, 500);
+														var r = WaitHandle.WaitAny(new[] {MainWakeup, Workflow.Cancellation.WaitHandle}, 500);
 
 														lock(Lock)
 														{
@@ -1134,7 +1133,7 @@ namespace Uccs.Net
 										SyncTail.Clear();
 										SynchronizingThread = null;
 						
-										MainSignal.Set();
+										MainWakeup.Set();
 
 										Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
 										return;
@@ -1287,7 +1286,7 @@ namespace Uccs.Net
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				var m = Mcv.VotersOf(Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P)).NearestBy(m => m.Account, i.Signer).Account;
+				var m = NextVoteMembers.NearestBy(m => m.Account, i.Signer).Account;
 
 				if(!Settings.Generators.Contains(m))
 					continue;
@@ -1312,7 +1311,7 @@ namespace Uccs.Net
 				}
 			}
 
-			MainSignal.Set();
+			MainWakeup.Set();
 		}
 
 		void Generate()
@@ -1324,13 +1323,16 @@ namespace Uccs.Net
 
 			foreach(var g in Settings.Generators)
 			{
-				var m = Mcv.VotersOf(Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P)).Find(i => i.Account == g);
+				var m = NextVoteMembers.Find(i => i.Account == g);
 
 				if(m == null)
 				{
+					m = Mcv.LastConfirmedRound.Members.Find(i => i.Account == g);
+
 					var a = Mcv.Accounts.Find(g, Mcv.LastConfirmedRound.Id);
 
-					if(a != null && a.Bail + a.Balance > Settings.Bail && a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && (!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Placing > PlacingStage.Placed))
+					if(m == null && a != null && a.Bail + a.Balance > Settings.Bail &&	//a.CandidacyDeclarationRid <= Mcv.LastConfirmedRound.Id && 
+																						(!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Placing > PlacingStage.Placed))
 					{
 						var o = new CandidacyDeclaration{	Bail = Settings.Bail,
 															BaseRdcIPs		= new IPAddress[] {Settings.IP},
@@ -1356,7 +1358,7 @@ namespace Uccs.Net
 					if(LastCandidacyDeclaration.TryGetValue(g, out var lcd))
 						OutgoingTransactions.Remove(lcd);
 
-					var r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1 + Mcv.P);
+					var r = NextVoteRound;
 
 					if(r.Id < m.CastingSince)
 						continue;
@@ -1449,7 +1451,7 @@ namespace Uccs.Net
  					}
 
 					if(IncomingTransactions.Any(i => i.Placing == PlacingStage.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
-						MainSignal.Set();
+						MainWakeup.Set();
 				}
 			}
 
@@ -1511,23 +1513,15 @@ namespace Uccs.Net
 
 		void Transacting()
 		{
-			IEnumerable<Transaction>	accepted;
+			//IEnumerable<Transaction>	accepted;
 
-			Workflow.Log?.Report(this, "Delegating started");
+			Workflow.Log?.Report(this, "Transacting started");
 
 			while(Workflow.Active)
 			{
-				lock(Lock)
-				{
-					if(!OutgoingTransactions.Any())
-					{
-						TransactingThread = null;
-						return;
-					}
-				}
+				if(!OutgoingTransactions.Any())
+					WaitHandle.WaitAny(new[] {TransactingWakeup, Workflow.Cancellation.WaitHandle});
 
-				//Thread.Sleep(100);
-				
 				var cr = Call(i => i.GetMembers(), Workflow);
 
 				if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any() || !i.SeedHubRdcIPs.Any()))
@@ -1633,7 +1627,7 @@ namespace Uccs.Net
 						}
 					}
 
-					accepted = OutgoingTransactions.Where(i => i.Placing == PlacingStage.Accepted || i.Placing == PlacingStage.Placed).ToArray();
+					var accepted = OutgoingTransactions.Where(i => i.Placing == PlacingStage.Accepted || i.Placing == PlacingStage.Placed).ToArray();
 
 					if(accepted.Any())
 					{
@@ -1712,6 +1706,7 @@ namespace Uccs.Net
 
 				//o.Placing = PlacingStage.PendingDelegation;
 				OutgoingTransactions.Add(t);
+				TransactingWakeup.Set();
 			} 
 			else
 			{
@@ -1884,7 +1879,10 @@ namespace Uccs.Net
 				else if(peer.Status == ConnectionStatus.Disconnecting)
 				{	
 					while(peer.Status != ConnectionStatus.Disconnected)
+					{
+						workflow.ThrowIfAborted();
 						Thread.Sleep(0);
+					}
 					
 					OutboundConnect(peer, false);
 				}

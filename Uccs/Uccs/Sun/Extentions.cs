@@ -50,6 +50,11 @@ namespace Uccs.Net
 			return e.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes, true, true) - new BigInteger(new Span<byte>(hash, 0, 20), true, true)));
 		}
 
+		public static IEnumerable<Member> OrderByNearest(this IEnumerable<Member> e, byte[] hash)
+		{
+			return e.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes, true, true) - new BigInteger(new Span<byte>(hash, 0, 20), true, true)));
+		}
+
 		public static bool Contains(this Exception e, Func<Exception, bool> p)
 		{
 			if(p(e))

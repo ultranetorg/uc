@@ -44,10 +44,13 @@ namespace Uccs.Net
  				return Releases[release];
 		}
 
-		public void Add(IPAddress ip, IEnumerable<DeclareReleaseItem> packages)
+		public void Add(IPAddress ip, IEnumerable<DeclareReleaseItem> releases)
 		{
-			foreach(var i in packages)
+			foreach(var i in releases)
 			{
+				if(!Sun.NextVoteMembers.OrderByNearest(i.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
+					continue;
+
 				var ss = GetSeeds(i.Hash);
 	
 				var s = ss.Find(i => i.IP.Equals(ip));
