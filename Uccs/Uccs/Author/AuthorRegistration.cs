@@ -56,7 +56,7 @@ namespace Uccs.Net
 				
 				a.LastWinner	= null;
 				a.Owner			= Signer;
-				a.Expiration	= round.ConfirmedTime + Time.FromYears(Years);
+				a.Expiration	= round.ConfirmedTime + Years*365;
 
 				PayForEnity(round, Years);
 			}

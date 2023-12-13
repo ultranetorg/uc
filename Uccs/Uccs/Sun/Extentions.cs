@@ -109,11 +109,6 @@ namespace Uccs.Net
 			return a;
 		}
 
-		public static Time ReadTime(this BinaryReader r)
-		{
-			return new Time(r.Read7BitEncodedInt64());
-		}
-
 		public static void Write(this BinaryWriter w, AccountAddress a)
 		{
 			a.Write(w);
@@ -140,11 +135,6 @@ namespace Uccs.Net
 			var a = Encoding.UTF8.GetBytes(s);
 			w.Write7BitEncodedInt(a.Length);
 			w.Write(a);
-		}
-
-		public static void Write(this BinaryWriter w, Time t)
-		{
-			w.Write7BitEncodedInt64(t.Ticks);
 		}
 
 // 		public static void Write(this BinaryWriter w, ProductAddress pa)

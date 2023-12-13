@@ -10,10 +10,10 @@ namespace Uccs.Net
 		public const int					NameLengthMax = 256;
 		public const char					NormalPrefix = '_';
 
-		public static readonly Time			AuctionMinimalDuration = Time.FromDays(365);
-		public static readonly Time			Prolongation = Time.FromDays(30);
-		public static readonly Time			WinnerRegistrationPeriod = Time.FromDays(30);
-		public static readonly Time			RenewaPeriod = Time.FromDays(365);
+		public static readonly int			AuctionMinimalDuration = 365;
+		public static readonly int			Prolongation = 30;
+		public static readonly int			WinnerRegistrationPeriod = 30;
+		public static readonly int			RenewaPeriod = 365;
 		public Time							AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 		public string						Name { get; set; }
@@ -128,9 +128,9 @@ namespace Uccs.Net
 			{
 				if(reader.ReadBoolean())
 				{
-					FirstBidTime		= reader.ReadTime();
+					FirstBidTime		= reader.Read<Time>();
 					LastWinner			= reader.ReadAccount();
-					LastBidTime			= reader.ReadTime();
+					LastBidTime			= reader.Read<Time>();
 					LastBid				= reader.ReadMoney();
 					DomainOwnersOnly	= reader.ReadBoolean();
 				}
@@ -139,7 +139,7 @@ namespace Uccs.Net
 			if(reader.ReadBoolean())
 			{
 				Owner				= reader.ReadAccount();
-				Expiration			= reader.ReadTime();
+				Expiration			= reader.Read<Time>();
 			}
 		}
 	}

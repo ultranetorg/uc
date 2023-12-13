@@ -117,7 +117,7 @@ namespace Uccs.Net
 	
 					if(r.Id > 0)
 					{
-						r.ConfirmedTime = CalculateTime(r, r.VotesOfTry);
+						r.ConfirmedTime = r.Confirmed ? r.ConfirmedTime : r.Votes.First().Time;
 						r.ConfirmedExeunitMinFee = Zone.ExeunitMinFee;
 					}
 	
@@ -236,7 +236,7 @@ namespace Uccs.Net
 				r.Write(w);
 			}
 	
-			var v0 = new Vote(this){ RoundId = 0, TimeDelta = 1, ParentHash = Zone.Cryptography.ZeroHash};
+			var v0 = new Vote(this){ RoundId = 0, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
 			{
 				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
 				t.AddOperation(new Emission(Web3.Convert.ToWei(fathers.Length * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
@@ -260,7 +260,7 @@ namespace Uccs.Net
 			
 			/// UO Autor
 
-			var v1 = new Vote(this){ RoundId = 1, TimeDelta = 1, ParentHash = Zone.Cryptography.ZeroHash};
+			var v1 = new Vote(this){ RoundId = 1, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
 			{
 		
 				//t = new Transaction(Zone){Id = 1, Generator = god, Expiration = 1};
@@ -280,7 +280,7 @@ namespace Uccs.Net
 			for(int i = 2; i <= 1+P + 1+P + P; i++)
 			{
 				var v = new Vote(this){	 RoundId	= i,
-										 TimeDelta	= 1,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
+										 Time		= Time.Zero,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
 										 ParentHash	= i < P ? Zone.Cryptography.ZeroHash : Summarize(GetRound(i - P)) };
 		 
 				if(i == 1+P + 1)
@@ -453,32 +453,32 @@ namespace Uccs.Net
 			return e.Any() && e.GroupBy(i => i.ParentHash, new BytesEqualityComparer()).All(i => i.Count() + d < q);
 		}
 
-		public Time CalculateTime(Round round, IEnumerable<Vote> votes)
-		{
- 			if(round.Id == 0)
- 			{
- 				return round.ConfirmedTime;
- 			}
-
- 			if(!votes.Any())
- 			{
-				return round.Previous.ConfirmedTime + new Time(1);
-			}
-
-			if(votes.Count() < 3)
-			{
-				var a = votes.Sum(i => i.TimeDelta)/votes.Count();
-				return round.Previous.ConfirmedTime + new Time(a);
-			}
-			else
-			{
-				var n = votes.Count();
-				votes = votes.OrderBy(i => i.TimeDelta).Skip(n/3).Take(n/3);
-				var a = votes.Sum(i => i.TimeDelta)/votes.Count();
-
-				return round.Previous.ConfirmedTime + new Time(a);
-			}
-		}
+		///public Time CalculateTime(Round round, IEnumerable<Vote> votes)
+		///{
+ 		///	if(round.Id == 0)
+ 		///	{
+ 		///		return round.ConfirmedTime;
+ 		///	}
+		///	
+ 		///	if(!votes.Any())
+ 		///	{
+		///		return round.Previous.ConfirmedTime + new Time(1);
+		///	}
+		///	
+		///	if(votes.Count() < 3)
+		///	{
+		///		var a = votes.Sum(i => i.TimeDelta)/votes.Count();
+		///		return round.Previous.ConfirmedTime + new Time(a);
+		///	}
+		///	else
+		///	{
+		///		var n = votes.Count();
+		///		votes = votes.OrderBy(i => i.TimeDelta).Skip(n/3).Take(n/3);
+		///		var a = votes.Sum(i => i.TimeDelta)/votes.Count();
+		///	
+		///		return round.Previous.ConfirmedTime + new Time(a);
+		///	}
+		///}
 			
 		public IEnumerable<AccountAddress> ProposeViolators(Round round)
 		{
@@ -510,9 +510,11 @@ namespace Uccs.Net
 		public byte[] Summarize(Round round)
 		{
 			var m = round.Id >= DeclareToGenerateDelay ? VotersOf(round) : new();
+			var gq = m.Count * 2/3;
 			var gv = round.VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
+
 
 			//var a = round.Id > Pitch ? AnalyzersOf(round.Id) : new();
 			//var av = round.AnalyzerVoxes.Where(i => a.Any(j => j.Account == i.Account)).ToArray();
@@ -559,7 +561,17 @@ namespace Uccs.Net
 			}
 			
 			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
-			round.ConfirmedTime = CalculateTime(round, gu);
+			//round.ConfirmedTime = CalculateTime(round, gu);
+
+			var t = gu.GroupBy(x => x.Time).MaxBy(i => i.Count());
+
+			if(t != null)
+			{
+				if(t.Count() >= gq && t.Key > round.Previous.ConfirmedTime)
+					round.ConfirmedTime	= t.Key;
+				else
+					round.ConfirmedTime = round.Previous.ConfirmedTime;
+			}
 
 			Execute(round, txs);
 
@@ -567,8 +579,6 @@ namespace Uccs.Net
 
 			if(round.Id >= P)
 			{
-				var gq = m.Count * 2/3;
-	
 				round.ConfirmedMemberLeavers	= gu.SelectMany(i => i.MemberLeavers).Distinct()
 													.Where(x => round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
 													.OrderBy(i => i).ToArray();

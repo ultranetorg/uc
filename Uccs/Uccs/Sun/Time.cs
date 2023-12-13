@@ -8,79 +8,80 @@ namespace Uccs.Net
 {
 	public struct Time : IBinarySerializable
 	{
-		public long					Ticks;
-		const int					Divider = 10_000;
-		public const string			DateFormat = "yyyy-MM-dd H:mm:ss:fff";
+		public int					Days;
+		//const int					Divider = 10_000;
+		public const string			DateFormat = "yyyy-MM-dd";
 
 		public static readonly Time	Zero = new Time(0);
 		public static readonly Time	Empty = new Time(-1);
+		public static DateTime		Start = new DateTime(2020, 1, 1);
+		public static Time			Now(Clock clock) => new Time(clock.Now - Start);
 
-		public static Time			operator-  (Time a, Time b) => new Time(a.Ticks - b.Ticks);
-		public static Time			operator+  (Time a, Time b) => new Time(a.Ticks + b.Ticks);
-		public static bool			operator<  (Time a, Time b) => a.Ticks < b.Ticks;
-		public static bool			operator>  (Time a, Time b) => a.Ticks > b.Ticks;
-		public static bool			operator<= (Time a, Time b) => a.Ticks <= b.Ticks;
-		public static bool			operator>= (Time a, Time b) => a.Ticks >= b.Ticks;
-		public static bool			operator== (Time a, Time b) => a.Ticks == b.Ticks;
-		public static bool			operator!= (Time a, Time b) => a.Ticks != b.Ticks;
+		public static Time			operator-  (Time a, int b) => new Time(a.Days - b);
+		public static Time			operator+  (Time a, int b) => new Time(a.Days + b);
+		public static bool			operator<  (Time a, Time b) => a.Days < b.Days;
+		public static bool			operator>  (Time a, Time b) => a.Days > b.Days;
+		public static bool			operator<= (Time a, Time b) => a.Days <= b.Days;
+		public static bool			operator>= (Time a, Time b) => a.Days >= b.Days;
+		public static bool			operator== (Time a, Time b) => a.Days == b.Days;
+		public static bool			operator!= (Time a, Time b) => a.Days != b.Days;
 
-		public string				ToString(string format) => Ticks >= 0 ? (new DateTime(Ticks * Divider)).ToString(format) : "~";
+		public string				ToString(string format) => (Start + TimeSpan.FromDays(Days)).ToString(format);
 		public static Time			Max(Time a, Time b) => a > b ? a : b;
-		public TimeSpan				ToTimeSpan() => new TimeSpan(Ticks * Divider);
+		public TimeSpan				ToTimeSpan() => TimeSpan.FromDays(Days);
 
 		public Time()
 		{
-			Ticks = -1;
 		}
 
-		public Time(long t)
+		public Time(int t)
 		{
-			Ticks = t;
+			Days = t;
+		}
+
+		public Time(TimeSpan time)
+		{
+			Days = (int)(time.Ticks/10_000_000/60/60/24);
 		}
 
 		public override string ToString()
 		{
-			return Ticks == -1 ? "" : (new DateTime(Ticks * Divider)).ToString(DateFormat);
+			return ToString(DateFormat);
 		}
 
 		public static Time Parse(string v)
 		{
-			return new Time(DateTime.ParseExact(v, DateFormat, CultureInfo.InvariantCulture).Ticks / Divider);
+			return new Time(DateTime.ParseExact(v, DateFormat, CultureInfo.InvariantCulture) - Start);
 		}
 
 		public override bool Equals(object o)
 		{
-			return o != null && o is Time t && t.Ticks == Ticks;
+			return o != null && o is Time t && t.Days == Days;
 		}
 
 		public override int GetHashCode()
 		{
-			return Ticks.GetHashCode();
+			return Days.GetHashCode();
 		}
 
 		public static Time FromYears(int years)
 		{
-			return new Time(TicksFromYears(years));
+			return new Time(365 * years);
 		}
 
-		public static Time FromDays(int daye)
+		public static Time FromDays(int days)
 		{
-			return new Time(TimeSpan.FromDays(daye).Ticks / Divider);
-		}
-
-		public static long TicksFromYears(long years)
-		{
-			return TimeSpan.FromDays(365).Ticks / Divider * years;
+			return new Time(days);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Ticks = r.Read7BitEncodedInt64();
+			Days = r.Read7BitEncodedInt();
 		}
 
 		public void Write(BinaryWriter w)
 		{
-			w.Write7BitEncodedInt64(Ticks);
+			w.Write7BitEncodedInt(Days);
 		}
 	}
 
@@ -88,12 +89,12 @@ namespace Uccs.Net
 	{
 		public override Time Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return new Time(reader.GetInt64());
+			return new Time(reader.GetInt32());
 		}
 
 		public override void Write(Utf8JsonWriter writer, Time value, JsonSerializerOptions options)
 		{
-			writer.WriteNumberValue(value.Ticks);
+			writer.WriteNumberValue(value.Days);
 		}
 	}
 }

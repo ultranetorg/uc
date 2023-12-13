@@ -1294,8 +1294,8 @@ namespace Uccs.Net
 				var r = new Round(Mcv);
 				r.Id = (Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound).Id + 1;
 				
-				var prev = r.Previous.VotesOfTry.FirstOrDefault(j => j.Generator == m);
-				r.ConfirmedTime = new Time(Mcv.LastConfirmedRound.ConfirmedTime.Ticks + (prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds));
+				
+				r.ConfirmedTime = Time.Now(Clock);
 				//r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
 
 				Mcv.Execute(r, new [] {i});
@@ -1398,7 +1398,7 @@ namespace Uccs.Net
 												Try				= r.Try,
 												ParentHash		= r.Parent.Hash ?? Mcv.Summarize(r.Parent),
 												Created			= Clock.Now,
-												TimeDelta		= prev == null || prev.RoundId <= Mcv.LastGenesisRound ? 0 : (long)(Clock.Now - prev.Created).TotalMilliseconds,
+												Time			= Time.Now(Clock),
 												Violators		= Mcv.ProposeViolators(r).ToArray(),
 												MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToArray(),
 												AnalyzerJoiners	= Settings.ProposedAnalyzerJoiners.Where(i => !Mcv.LastConfirmedRound.Analyzers.Any(j => j.Account == i)).ToArray(),
@@ -1662,6 +1662,8 @@ namespace Uccs.Net
 									{
 										if(t.__ExpectedPlacing == PlacingStage.Confirmed)
 											t.Placing = PlacingStage.None;
+										else
+											OutgoingTransactions.Remove(t);
 									}
 									else if(t.Placing == PlacingStage.Confirmed)
 									{

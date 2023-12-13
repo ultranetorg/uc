@@ -13,9 +13,9 @@ namespace Uccs.Net
 			{
 				RequireMember(sun);
 	
-				var acc = sun.ProcessIncoming(Transactions);
+				var acc = sun.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
 
-				return new PlaceTransactionsResponse {Accepted = acc.Select(i => i.Signature).ToArray()};
+				return new PlaceTransactionsResponse {Accepted = acc};
 			}
 		}
 	}

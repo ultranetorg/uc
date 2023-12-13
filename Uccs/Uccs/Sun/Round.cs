@@ -233,7 +233,7 @@ namespace Uccs.Net
 		{
 			Id						= reader.Read7BitEncodedInt();
 			Hash					= reader.ReadHash();
-			ConfirmedTime			= reader.ReadTime();
+			ConfirmedTime			= reader.Read<Time>();
 			ConfirmedExeunitMinFee	= reader.ReadMoney();
 			ConfirmedOverflowRound	= reader.Read7BitEncodedInt();
 			Emission				= reader.ReadMoney();
@@ -263,7 +263,7 @@ namespace Uccs.Net
 
 		public void ReadConfirmed(BinaryReader reader)
 		{
-			ConfirmedTime				= reader.ReadTime();
+			ConfirmedTime				= reader.Read<Time>();
 			ConfirmedExeunitMinFee		= reader.ReadMoney();
 			ConfirmedOverflowRound		= reader.Read7BitEncodedInt();
 			ConfirmedMemberLeavers		= reader.ReadArray<AccountAddress>();
