@@ -48,7 +48,6 @@ namespace Uccs.Sun.CLI
 											Money.ParseDecimal(GetString("amount")));
 		   		case "register" : 
 					return new AuthorRegistration(	Args.Nodes[1].Name,
-													GetString("title"),
 													byte.Parse(GetString("years")));
 		   		case "transfer" : 
 					return new AuthorTransfer(	Args.Nodes[1].Name,

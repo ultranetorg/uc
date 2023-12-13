@@ -18,7 +18,7 @@ namespace Uccs.Net
 
 		public override bool		Valid=>	(Flags & ResourceFlags.Unchangables) == 0
 											//&& (!Changes.HasFlag(ResourceChanges.Years) || Changes.HasFlag(ResourceChanges.Years) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax)
-											&& (!Changes.HasFlag(ResourceChanges.Data) || Changes.HasFlag(ResourceChanges.Data) && Data.Length <= Net.Resource.DataLengthMax)
+											&& (!Changes.HasFlag(ResourceChanges.Data) || Changes.HasFlag(ResourceChanges.Data) && (Data == null || Data.Length <= Net.Resource.DataLengthMax))
 											;
 		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {Type}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
 
@@ -108,6 +108,12 @@ namespace Uccs.Net
 				return;
 			}
 
+			if(Author.IsExpired(aa, round.ConfirmedTime))
+			{
+				Error = Expired;
+				return;
+			}
+
 			if(Changes.HasFlag(ResourceChanges.Data) && e.Flags.HasFlag(ResourceFlags.Sealed))
 			{
 				Error = CantChangeSealedResource;
@@ -194,7 +200,10 @@ namespace Uccs.Net
 	
 						if(a.SpaceReserved < a.SpaceUsed + r.Data.Length)
 						{
-							var y = (byte)((round.ConfirmedTime.Ticks - a.Expiration.Ticks) / Time.FromYears(1).Ticks + 1);
+							var y = (byte)((a.Expiration.Ticks - round.ConfirmedTime.Ticks) / Time.FromYears(1).Ticks + 1);
+
+							if(y < 0)
+								throw new IntegrityException();
 
 							PayForResourceData(round, a.SpaceUsed + r.Data.Length - a.SpaceReserved, y);
 

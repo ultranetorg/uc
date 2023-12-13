@@ -85,6 +85,12 @@ namespace Uccs.Net
 				return;
 			}
 
+			if(Author.IsExpired(a, round.ConfirmedTime))
+			{
+				Error = Expired;
+				return;
+			}
+
 			var e = chain.Authors.FindResource(Resource, round.Id);
 					
 			if(e != null)
@@ -99,7 +105,10 @@ namespace Uccs.Net
 			r.Flags	= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
 			r.Type	= Type;
 			
-			var y = (byte)((round.ConfirmedTime.Ticks - a.Expiration.Ticks) / Time.FromYears(1).Ticks + 1);
+			var y = (byte)((a.Expiration.Ticks - round.ConfirmedTime.Ticks) / Time.FromYears(1).Ticks + 1);
+
+			if(y < 0)
+				throw new IntegrityException();
 
 			PayForEnity(round, y);
 			

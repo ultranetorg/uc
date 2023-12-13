@@ -30,7 +30,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Name}, {Title}, {Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
+			return $"{Name}, {Owner}, {Expiration}, {FirstBidTime}, {LastWinner}, {LastBid}, {LastBidTime}";
 		}
 
 		public AuthorEntry Clone()
@@ -38,7 +38,6 @@ namespace Uccs.Net
 			return new AuthorEntry(Chain)
 					{
 						Name = Name,
-						Title = Title,
 						Owner = Owner,
 						Expiration = Expiration,
 						FirstBidTime = FirstBidTime,

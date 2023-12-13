@@ -8,7 +8,7 @@ namespace Uccs.Net
 		//public const int					ExclusiveLengthMax = 12;
 		public const int					NameLengthMin = 1;
 		public const int					NameLengthMax = 256;
-		public const char					CommonNamespacePrefix = '_';
+		public const char					NormalPrefix = '_';
 
 		public static readonly Time			AuctionMinimalDuration = Time.FromDays(365);
 		public static readonly Time			Prolongation = Time.FromDays(30);
@@ -17,7 +17,6 @@ namespace Uccs.Net
 		public Time							AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 		public string						Name { get; set; }
-		public string						Title { get; set; }
 		public AccountAddress				Owner { get; set; }
 		public Time							Expiration { get; set; }
 		public Time							FirstBidTime { get; set; } = Time.Empty;
@@ -37,7 +36,7 @@ namespace Uccs.Net
 			if(name.Length < NameLengthMin || name.Length > NameLengthMax)
 				return false;
 
-			var r = new Regex($@"^[a-z0-9_{CommonNamespacePrefix}]+$");
+			var r = new Regex($@"^[a-z0-9{NormalPrefix}]+$");
 			
 			if(r.Match(name).Success == false)
 				return false;
@@ -45,7 +44,7 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public static bool IsExclusive(string name) => name[0] != CommonNamespacePrefix; 
+		public static bool IsExclusive(string name) => name[0] != NormalPrefix; 
 
 		public static bool IsExpired(Author a, Time time) 
 		{
@@ -115,9 +114,7 @@ namespace Uccs.Net
 			{
 				w.Write(Owner);
 				w.Write(Expiration);
-				w.WriteUtf8(Title);
 			}
-
 		}
 
 		public void Read(BinaryReader reader)
@@ -143,7 +140,6 @@ namespace Uccs.Net
 			{
 				Owner				= reader.ReadAccount();
 				Expiration			= reader.ReadTime();
-				Title				= reader.ReadUtf8();
 			}
 		}
 	}

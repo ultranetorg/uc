@@ -167,7 +167,7 @@ namespace Uccs.Sun.FUI
 
 				var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
 
-				Sun.Enqueue(new AuthorRegistration(AuthorSearch.Text, AuthorTitle.Text, (byte)Years.Value), a, PlacingStage.None, new Workflow("AuthorRegistration"));
+				Sun.Enqueue(new AuthorRegistration(AuthorSearch.Text, (byte)Years.Value), a, PlacingStage.None, new Workflow("AuthorRegistration"));
 			}
 			catch(Exception ex) when (ex is RequirementException || ex is ArgumentException)
 			{
