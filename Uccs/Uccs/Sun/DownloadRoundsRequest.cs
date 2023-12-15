@@ -44,6 +44,9 @@ namespace Uccs.Net
 
 		public Round[] Read(Mcv chain)
 		{
+			if(Rounds == null)
+				return new Round[0];
+
 			var rd = new BinaryReader(new MemoryStream(Rounds));
 
 			return rd.ReadArray<Round>(() =>{

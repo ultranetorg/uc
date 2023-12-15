@@ -150,17 +150,13 @@ namespace Uccs.Net
 						r.ConfirmedTransactions = r.OrderedTransactions.ToArray();
 
 						r.Hashify();
-						//Execute(r, r.ConfirmedTransactions);
 						Confirm(r);
 						Commit(r);
 					}
 				}
 	
 				if(Tail.Any(i => i.Payloads.Any(i => i.Transactions.Any(i => i.Operations.Any(i => i.Error != null)))))
-				{
 					throw new IntegrityException("Genesis construction failed");
-				}
-				
 			}
 		
 			Engine.Put(GenesisKey, Zone.Genesis.FromHex());
@@ -236,10 +232,10 @@ namespace Uccs.Net
 		{
 			/// 0 - emission request
 			/// 1 - vote for emission 
-			/// 1+8	 - emited
-			/// 1+8 + 1 - candidacy declaration
-			/// 1+8 + 1+8 - decalared
-			/// 1+8 + 1+8 + 8 - joined
+			/// 1+P	 - emited
+			/// 1+P + 1 - candidacy declaration
+			/// 1+P + 1+P - decalared
+			/// 1+P + 1+P + P - joined
 
 			var f0 = fathers[0];
 
@@ -254,21 +250,13 @@ namespace Uccs.Net
 				r.Write(w);
 			}
 	
-			var v0 = new Vote(this){ RoundId = 0, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
+			var v0 = new Vote(this) {RoundId = 0, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
 			{
 				var t = new Transaction {Zone = Zone, Nid = 0, Expiration = 0};
-				t.AddOperation(new Emission(Web3.Convert.ToWei(fathers.Length * 1000 + 1_000_000, UnitConversion.EthUnit.Ether), 0));
+				t.AddOperation(new Emission(Web3.Convert.ToWei(1_000_000, UnitConversion.EthUnit.Ether), 0));
 				//t.AddOperation(new AuthorBid("uo", null, 1));
 				t.Sign(f0, Zone.Cryptography.ZeroHash);
 				v0.AddTransaction(t);
-			
-				//foreach(var f in fathers.OrderBy(j => j).ToArray())
-				//{
-				//	t = new Transaction(Zone) {Id = 0, Generator = god, Expiration = 0};
-				//	t.AddOperation(new Emission(Web3.Convert.ToWei(1000, UnitConversion.EthUnit.Ether), 0));
-				//	t.Sign(f, Zone.Cryptography.ZeroHash);
-				//	b0.AddTransaction(t);
-				//}
 			
 				v0.Sign(god);
 				Add(v0);
@@ -278,16 +266,8 @@ namespace Uccs.Net
 			
 			/// UO Autor
 
-			var v1 = new Vote(this){ RoundId = 1, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
+			var v1 = new Vote(this) {RoundId = 1, Time = Time.Zero, ParentHash = Zone.Cryptography.ZeroHash};
 			{
-		
-				//t = new Transaction(Zone){Id = 1, Generator = god, Expiration = 1};
-				//t.AddOperation(new AuthorRegistration("uo", "UO", EntityAllocationYearsMax));
-				//t.Sign(org, Zone.Cryptography.ZeroHash);
-				//b1.AddTransaction(t);
-	
-				//var ops = FindRound(0).Transactions.SelectMany(i => i.Operations).ToList();
-				//b1.Emissions = ops.OfType<Emission>().Select(i => new OperationId {Round = 0, Index = ops.IndexOf(i)}).ToList();
 				v1.Emissions = new OperationId[] {new(0, 0, 0)};
 	
 				v1.Sign(god);
@@ -305,8 +285,8 @@ namespace Uccs.Net
 				{
 					var t = new Transaction {Zone = Zone, Nid = 1, Expiration = i};
 					t.AddOperation(new CandidacyDeclaration{Bail = 1_000_000,
-															BaseRdcIPs = new IPAddress[] {Zone.Father0IP},
-															SeedHubRdcIPs = new IPAddress[] {Zone.Father0IP} });
+															BaseRdcIPs = new [] {Zone.Father0IP},
+															SeedHubRdcIPs = new [] {Zone.Father0IP} });
 					t.Sign(f0, Zone.Cryptography.ZeroHash);
 					v.AddTransaction(t);
 				}
@@ -327,8 +307,7 @@ namespace Uccs.Net
 			vote.Round = r;
 
 			r.Votes.Add(vote);
-			//r.Blocks = r.Blocks.OrderBy(i => i is Payload p ? p.OrderingKey : new byte[] {}, new BytesComparer()).ToList();
-				
+		
 			if(vote.Transactions.Any())
 			{
 				foreach(var t in vote.Transactions)
@@ -448,11 +427,6 @@ namespace Uccs.Net
 			return FindRound(round.VotersRound).Members/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
-		//public List<Hub> HubsOf(int rid)
-		//{
-		//	return FindRound(rid - Pitch - 1).Hubs/*.Where(i => i.JoinedAt < r.Id)*/;
-		//}
-
 		public List<Analyzer> AnalyzersOf(int rid)
 		{
 			return FindRound(rid - P - 1).Analyzers/*.Where(i => i.JoinedAt < r.Id)*/;
@@ -532,11 +506,6 @@ namespace Uccs.Net
 			var gv = round.VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
-
-
-			//var a = round.Id > Pitch ? AnalyzersOf(round.Id) : new();
-			//var av = round.AnalyzerVoxes.Where(i => a.Any(j => j.Account == i.Account)).ToArray();
-			//var au = av.GroupBy(i => i.Account).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 
 			var tn = gu.Sum(i => i.Transactions.Length);
 			
@@ -653,15 +622,6 @@ namespace Uccs.Net
 				//							.Where(i => i != null)
 				//							.OrderBy(i => i.Resource).ToArray();
 			}
-
-			//var s = new MemoryStream();
-			//var w = new BinaryWriter(s);
-			//
-			//w.Write(BaseHash);
-			//w.Write(round.Id > 0 ? round.Previous.Hash : Zone.Cryptography.ZeroHash);
-			//round.WriteConfirmed(w);
-			//
-			//round.Summary = Zone.Cryptography.Hash(s.ToArray());
 
 			round.Hashify(); /// depends on BaseHash 
 
