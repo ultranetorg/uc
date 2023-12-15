@@ -24,7 +24,7 @@ namespace Uccs.Net
 		public const int					LastGenesisRound = 1+P + 1+P + P;
 		///public const int					MembersRotation = 32;
 		public static readonly Money		ResourceDataPerByteFee	= new Money(0.001);
-		public static readonly Money		EntityAllocationFee		= new Money(1);
+		public static readonly Money		EntityAllocationFee		= new Money(0.1);
 		public static readonly Money		AnalysisPerByteFee		= new Money(0.000_000_001);
 		public static readonly Money		BalanceMin				= new Money(0.000_000_001);
 		//public const int					EntityAllocation = 1000;
