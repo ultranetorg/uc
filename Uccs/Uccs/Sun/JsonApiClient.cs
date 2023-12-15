@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace Uccs.Net
 {
@@ -47,7 +48,7 @@ namespace Uccs.Net
 
 	public class JsonApiClient// : RpcClient
 	{
-		HttpClient			HttpClient;
+		HttpClient			Http;
 		public string		Address;
 		string				Key;
 		public int			Failures;
@@ -74,7 +75,16 @@ namespace Uccs.Net
 
 		public JsonApiClient(HttpClient http, string address, string accesskey)
 		{
-			HttpClient = http;
+			Http = http;
+			Address = address;
+			Key = accesskey;
+		}
+
+		public JsonApiClient(string address, string accesskey, int timeout = 30)
+		{
+			Http = new HttpClient();
+			Http.Timeout = timeout == 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(timeout);
+
 			Address = address;
 			Key = accesskey;
 		}
@@ -87,7 +97,7 @@ namespace Uccs.Net
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	
-				var cr =  HttpClient.Send(m, workflow.Cancellation);
+				var cr =  Http.Send(m, workflow.Cancellation);
 
 				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 					throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);

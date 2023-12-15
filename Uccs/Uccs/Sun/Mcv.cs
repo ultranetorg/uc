@@ -67,12 +67,30 @@ namespace Uccs.Net
 
 		public static int					GetValidityPeriod(int rid) => rid + P;
 
-		public Mcv(Zone zone, Role roles, McvSettings settings, RocksDb engine)
+		public Mcv(Zone zone, Role roles, McvSettings settings, string databasepath)
 		{
 			Roles = roles & (Role.Base|Role.Chain);
 			Zone = zone;
 			Settings = settings;
-			Engine = engine;
+
+			var dbo	= new DbOptions().SetCreateIfMissing(true)
+									 .SetCreateMissingColumnFamilies(true);
+
+			var cfs = new ColumnFamilies();
+			
+			foreach(var i in new ColumnFamilies.Descriptor[]{	new (AccountTable.MetaColumnName,	new ()),
+																new (AccountTable.MainColumnName,	new ()),
+																new (AccountTable.MoreColumnName,	new ()),
+																new (AuthorTable.MetaColumnName,	new ()),
+																new (AuthorTable.MainColumnName,	new ()),
+																new (AuthorTable.MoreColumnName,	new ()),
+																new (AnalysisTable.MetaColumnName,	new ()),
+																new (AnalysisTable.MainColumnName,	new ()),
+																new (AnalysisTable.MoreColumnName,	new ()),
+																new (Mcv.ChainFamilyName,			new ())})
+				cfs.Add(i);
+
+			Engine = RocksDb.Open(dbo, databasepath, cfs);
 
 			Accounts = new (this);
 			Authors = new (this);

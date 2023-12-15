@@ -162,22 +162,12 @@ namespace Uccs.Net
 			var cfamilies = new ColumnFamilies();
 			
 			foreach(var i in new ColumnFamilies.Descriptor[]{	new (nameof(Peers),					new ()),
-																new (AccountTable.MetaColumnName,	new ()),
-																new (AccountTable.MainColumnName,	new ()),
-																new (AccountTable.MoreColumnName,	new ()),
-																new (AuthorTable.MetaColumnName,	new ()),
-																new (AuthorTable.MainColumnName,	new ()),
-																new (AuthorTable.MoreColumnName,	new ()),
-																new (AnalysisTable.MetaColumnName,	new ()),
-																new (AnalysisTable.MainColumnName,	new ()),
-																new (AnalysisTable.MoreColumnName,	new ()),
-																new (Mcv.ChainFamilyName,			new ()),
 																new (ResourceHub.ReleaseFamilyName,	new ()),
 																new (ResourceHub.ResourceFamilyName,new ()),
 																})
 				cfamilies.Add(i);
 
-			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Database"), cfamilies);
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), cfamilies);
 		}
 
 		public override string ToString()
@@ -260,7 +250,7 @@ namespace Uccs.Net
 
 			if(roles.HasFlag(Role.Base) || roles.HasFlag(Role.Chain))
 			{
-				Mcv = new Mcv(Zone, roles, Settings.Mcv, Database);
+				Mcv = new Mcv(Zone, roles, Settings.Mcv, Path.Join(Settings.Profile, nameof(Mcv)));
 
 				Mcv.Log = Workflow.Log;
 				Mcv.VoteAdded += b => MainWakeup.Set();

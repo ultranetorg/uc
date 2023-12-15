@@ -28,7 +28,7 @@ namespace Uccs.Net
 
 	public class McvSettings
 	{
-		public int			PeersMin;
+		public int		PeersMin;
 
 		public McvSettings()
 		{
@@ -36,7 +36,7 @@ namespace Uccs.Net
 
 		public McvSettings(Xon x)
 		{
-			PeersMin	= x.Get<int>("PeersMin");
+			PeersMin = x.Get<int>("PeersMin");
 		}
 	}
 

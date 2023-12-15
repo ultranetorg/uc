@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -391,4 +392,22 @@ namespace Uccs.Net
 // 			return null;
 // 		}
 // 	}
+	//public class RoundCall : SunApiCall
+	//{
+	//	public int	Id { get; set; }
+	//
+	//	public override object Execute(Sun sun, Workflow workflow)
+	//	{
+	//		lock(sun.Lock)
+	//		{
+	//			var r = sun.Mcv.FindRound(Id);
+	//
+	//			var s = new MemoryStream();
+	//			var w = new BinaryWriter(s);
+	//			r.Write(w);
+	//
+	//			return s.ToArray();
+	//		}
+	//	}
+	//}
 }
