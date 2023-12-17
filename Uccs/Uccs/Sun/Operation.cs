@@ -102,12 +102,12 @@ namespace Uccs.Net
 
 		public static Money CalculateEntityFee(byte years)
 		{
-			return Mcv.EntityAllocationFee * new Money(1u << (years - 1));
+			return Mcv.EntityAllocationFee * new Money(1u << years);
 		}
 
 		public static Money CalculateResourceDataFee(int size, byte years)
 		{
-			return Mcv.ResourceDataPerByteFee * size * new Money(1u << (years - 1));
+			return Mcv.ResourceDataPerByteFee * size * new Money(1u << years);
 		}
 
 		public void PayForResourceData(Round round, int length, byte years)
