@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -14,6 +15,10 @@ namespace Uccs.Net
 		public byte[]				Last => Datas.Last();
 
 		ResourceHub					Hub;
+
+		public LocalResource()
+		{
+		}
 
 		public LocalResource(ResourceHub hub, ResourceAddress resource)
 		{

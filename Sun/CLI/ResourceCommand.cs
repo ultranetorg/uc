@@ -51,38 +51,44 @@ namespace Uccs.Sun.CLI
 					return r;
 				}
 
-				case "i" :
-		   		case "info" :
+				case "e" :
+		   		case "entity" :
 				{
-					var r = Program.Api<Resource>(new ResourceEntityCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					
+					Dump(r.Resource);
 
-					Dump(r);
+					return r;
+				}
 
-					//var e = Program.Rdc<SubresourcesResponse>(new SubresourcesRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
-					//
-					//if(e.Resources.Any())
-					//{
-					//	foreach(var i in e.Resources)
-					//	{
-					//		Workflow.Log?.Report(this, "    " + i);
-					//	}
-					//}
-
+				case "ls" : 
+				case "list" : 
+				{	
+					var r = Program.Api<IEnumerable<LocalResource>>(new QueryLocalResourcesCall {Query = Args.Nodes[1].Name});
+					
+					Dump(	r, 
+							new string[] {"Address", "Releases", "Latest", "Latest Length", }, 
+							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
+																i => i.Datas.Count.ToString(),
+																i => i.Last.ToHex(32),
+																i => i.Last.Length.ToString()});
 					return r;
 				}
 
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Program.Api<IEnumerable<LocalResource>>(new LocalResourcesCall {Query = Args.Nodes[1].Name});
+					var r = Program.Api<LocalResource>(new LocalResourceCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
-					Dump(	r, 
-							new string[] {"Address", "Releases", "Latest"}, 
-							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
-																i => i.Datas.Count.ToString(),
-																i => i.Last.ToHex() });
-
-					return r;
+					if(r != null)
+					{
+						Dump(	r.Datas, 
+								new string[] {"Data", "Length"}, 
+								new Func<byte[], string>[] {i => i.ToHex(32), i => i.Length.ToString()});
+						return r;
+					}
+					else
+						throw new Exception("Resource not found");
 				}
 
 				default:

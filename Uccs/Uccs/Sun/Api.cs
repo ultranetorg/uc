@@ -152,7 +152,7 @@ namespace Uccs.Net
 							f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length-8, 8)} {(sun.Vault.IsUnlocked(i.Key) ? "Unlocked" : "Locked")}", $"{formatbalance(i.Key),23}"));
 						}
 	
-						if(DevSettings.UI)
+						if(SunGlobals.UI)
 						{
 						}
 					}

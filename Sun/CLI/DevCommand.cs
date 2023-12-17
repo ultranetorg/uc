@@ -23,8 +23,7 @@ namespace Uccs.Sun.CLI
 			{
 				case "ping": 
 				{
-					string host = GetString("ip");
-
+					string host = GetString(Args.Nodes[1].Name);
 					var s = host.Split(':');
 		
 					for(int i=0; i<4; i++)
@@ -51,7 +50,11 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 				case "listen" :
-					var Listener = new TcpListener(IPAddress.Parse(GetString("ip")), int.Parse(GetString("port")));
+				{
+					var host = GetString(Args.Nodes[1].Name);
+					var s = host.Split(':');
+
+					var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);
 					Listener.Start();
 
 					Workflow.Log?.Report(this, null, $"Listening...");
@@ -59,7 +62,7 @@ namespace Uccs.Sun.CLI
 					Listener.AcceptTcpClient();
 
 					return null;
-
+				}
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

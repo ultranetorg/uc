@@ -181,7 +181,7 @@ namespace Uccs.Net
 			Tcp = client;
 			
 			Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
-			Tcp.SendTimeout = DevSettings.DisableTimeouts ? 0 : Sun.Timeout;
+			Tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Sun.Timeout;
 
 			PeerRank++;
 			Forced		= false;
@@ -391,7 +391,7 @@ namespace Uccs.Net
 
  			if(rq.WaitResponse)
  			{
-	 			if(rq.Event.WaitOne(DevSettings.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
+	 			if(rq.Event.WaitOne(SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
 	 			{
 					if(rq.Response == null)
 						throw new OperationCanceledException();
@@ -455,7 +455,7 @@ namespace Uccs.Net
  
   			if(rq.WaitResponse)
   			{
- 	 			if(rq.Event.WaitOne(DevSettings.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
+ 	 			if(rq.Event.WaitOne(SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
  	 			{
  					if(rq.Response == null)
 					{

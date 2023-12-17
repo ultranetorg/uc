@@ -35,10 +35,10 @@ namespace Uccs.Sun.CLI
 	
 					Program.Execute(x);
 				}
-				catch(ApiCallException ex) when(ex.Response != null && ex.Response.StatusCode == HttpStatusCode.UnprocessableEntity)
-				{
-					Workflow.Log.ReportError(this, "Error", ex);
-				}
+				//catch(ApiCallException ex) when(ex.Response != null && ex.Response.StatusCode == HttpStatusCode.UnprocessableEntity)
+				//{
+				//	Workflow.Log.ReportError(this, "Error", ex);
+				//}
 				catch(Exception ex)
 				{
 					Workflow.Log.ReportError(this, "Error", ex);

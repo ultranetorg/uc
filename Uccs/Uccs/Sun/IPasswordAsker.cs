@@ -10,20 +10,15 @@ namespace Uccs.Net
 	{
 		string			Password { get; }
 		bool			Ask(string info);
+		void			Create();
 		void			ShowError(string message);						
 	}
 
-	public interface INewPasswordAsker
-	{
-		bool		Ask(string info);
-		string		Password { get; }
-	}
-
-	public class FixedPasswordAsker : IPasswordAsker
+	public class SilentPasswordAsker : IPasswordAsker
 	{
 		public string		Password { get; set; }
 
-		public FixedPasswordAsker(string password)
+		public SilentPasswordAsker(string password)
 		{
 			Password = password;
 		}
@@ -33,6 +28,12 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public void ShowError(string message){ }
+		public void Create()
+		{
+		}
+
+		public void ShowError(string message)
+		{
+		}
 	}
 }

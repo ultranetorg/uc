@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Sun.FUI
 {
-	partial class PasswordForm
+	partial class EnterPasswordForm
 	{
 		/// <summary>
 		/// Required designer variable.

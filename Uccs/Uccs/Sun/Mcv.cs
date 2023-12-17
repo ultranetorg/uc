@@ -228,7 +228,7 @@ namespace Uccs.Net
 			Engine.CreateColumnFamily(new (), ChainFamilyName);
 		}
 
-		public string CreateGenesis(AccountKey god, AccountKey[] fathers)
+		public string CreateGenesis(AccountKey god, AccountKey f0)
 		{
 			/// 0 - emission request
 			/// 1 - vote for emission 
@@ -236,8 +236,6 @@ namespace Uccs.Net
 			/// 1+P + 1 - candidacy declaration
 			/// 1+P + 1+P - decalared
 			/// 1+P + 1+P + P - joined
-
-			var f0 = fathers[0];
 
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -340,7 +338,7 @@ namespace Uccs.Net
 						{
 							#if DEBUG
 							var x = r.Eligible.Select(i => i.ParentHash.ToHex());
-							var a = DevSettings.Suns.Select(i => i.Mcv.FindRound(r.ParentId)?.Hash?.ToHex());
+							var a = SunGlobals.Suns.Select(i => i.Mcv.FindRound(r.ParentId)?.Hash?.ToHex());
 							#endif
 
 							throw new ConfirmationException(r.Parent, hbm);

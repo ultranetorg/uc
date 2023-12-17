@@ -44,6 +44,7 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
+		   		case "e" :
 		   		case "emit" :
 				{
 					Nethereum.Web3.Accounts.Account from;
@@ -62,9 +63,8 @@ namespace Uccs.Sun.CLI
 						}
 						else
 						{
-							var a = new ConsolePasswordAsker();
-							a.Ask(GetString("from/wallet"));
-							p = a.Password;
+							Program.PasswordAsker.Ask(GetString("from/wallet"));
+							p = Program.PasswordAsker.Password;
 						}
 
 						from = Nethereum.Web3.Accounts.Account.LoadFromKeyStore(File.ReadAllText(GetString("from/wallet")), 
@@ -79,6 +79,7 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
+		   		case "t" : 
 		   		case "transfer" : 
 				{
 					return new UntTransfer(AccountAddress.Parse(GetString("to")), Money.ParseDecimal(GetString("amount")));

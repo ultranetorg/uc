@@ -21,9 +21,9 @@ namespace Uccs.Net
 
 	public class LocalFile : IBinarySerializable
 	{
-		public string			Path;
-		public int				PieceLength;
-		public long				Length;
+		public string			Path { get; set; }
+		public int				PieceLength { get; protected set; }
+		public long				Length { get; protected set; }
 		public bool[]			Pieces;
 		LocalRelease			Release;
 
@@ -31,6 +31,10 @@ namespace Uccs.Net
 		public long				CompletedLength => CompletedPieces.Count() * PieceLength - (Pieces.Last() ? PieceLength - Length % PieceLength : 0); /// take the tail into account
 		public bool				Completed => Length == -1; 
 			
+		public LocalFile()
+		{
+		}
+
 		public LocalFile(LocalRelease release)
 		{
 			Release = release;

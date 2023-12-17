@@ -15,6 +15,11 @@ namespace Uccs.Net
 			return Convert.ToHexString(e);
 		}
 
+		public static string ToHex(this byte[] e, int max)
+		{
+			return e.Length <= max ? Convert.ToHexString(e) : (Convert.ToHexString(e, 0, max/2 - 1 + max%2) + "...." + Convert.ToHexString(e, e.Length - max/2 + 1, max/2 - 1));
+		}
+
 		public static byte[] FromHex(this string e)
 		{
 			return Convert.FromHexString(e);

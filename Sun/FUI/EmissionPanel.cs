@@ -142,7 +142,7 @@ namespace Uccs.Sun.FUI
 	
 					if(password == null)
 					{
-						var f = new PasswordForm(Sun.Settings.Secrets?.Password);
+						var f = new EnterPasswordForm(Sun.Settings.Secrets?.Password);
 					
 						if(f.Ask(browse.Text))
 							password = f.Password;

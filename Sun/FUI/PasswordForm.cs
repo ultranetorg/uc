@@ -2,11 +2,11 @@
 
 namespace Uccs.Sun.FUI
 {
-	public partial class PasswordForm : Form, IPasswordAsker
+	public partial class EnterPasswordForm : Form
 	{
 		public string Password => password.Text;
 
-		public PasswordForm(string defaultpassword = null)
+		public EnterPasswordForm(string defaultpassword = null)
 		{
 			InitializeComponent();
 

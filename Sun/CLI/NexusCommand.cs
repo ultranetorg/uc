@@ -33,6 +33,7 @@ namespace Uccs.Sun.CLI
 				//									GetString("baseips").Split(' ').Select(i => IPAddress.Parse(i)).ToArray(),
 				//									GetString("seedhubips").Split(' ').Select(i => IPAddress.Parse(i)).ToArray());
 
+				case "m" :
 				case "membership" :
 				{
 					var rp = Program.Rdc<MembersResponse>(new MembersRequest());

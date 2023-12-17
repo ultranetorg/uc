@@ -78,15 +78,15 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Program.Api<IEnumerable<LocalRelease>>(new LocalReleasesCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Program.Api<LocalReleaseCall.Release>(new LocalReleaseCall {Address = Args.Nodes[1].Name.FromHex()});
 					
-					Dump(	r, 
-							new string[] {"Hash", "Type", "Availability"}, 
-							new Func<LocalRelease, string>[]{	i => i.Hash.ToHex(),
-																i => i.Type.ToString(),
-																i => i.Availability.ToString() });
-
-					return r;
+					if(r != null)
+					{
+						Dump(r);
+						return r;
+					}
+					else
+						throw new Exception("Resource not found");
 				}
 
 				default:

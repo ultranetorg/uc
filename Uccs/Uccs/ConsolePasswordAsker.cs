@@ -64,6 +64,58 @@ namespace Uccs
 			while(true);
 		}
 
+		public void Create()
+		{
+			var c = Console.ForegroundColor;
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
+
+			Console.WriteLine();
+			Console.WriteLine("    Password Creation");
+			Console.WriteLine();
+			Console.WriteLine("    Suggestions:");
+			Console.WriteLine();
+
+			foreach(var i in Vault.PasswordWarning)
+			{
+				Console.WriteLine("    " + i + Environment.NewLine);
+			}
+
+			string pc = null;
+
+			do 
+			{
+				Console.ForegroundColor = c;
+	
+				Console.Write("Create password  : ");
+				Password = Console.ReadLine();
+	
+				if(string.IsNullOrWhiteSpace(Password))
+				{
+					Console.WriteLine();
+					Console.WriteLine("Password is empty or whitespace");
+					Console.WriteLine();
+					continue;
+				}
+	
+				Console.Write("Confirm password : ");
+				pc = Console.ReadLine();
+	
+				if(pc != Password)
+				{
+					Console.WriteLine();
+					Console.WriteLine("Password mismatch");
+					Console.WriteLine();
+					continue;
+				}
+	
+				break;
+			}
+			while(true);
+
+			Console.WriteLine();
+			Console.ForegroundColor = c;
+		}
+
 		public void ShowError(string message)
 		{
 			var c = Console.ForegroundColor;

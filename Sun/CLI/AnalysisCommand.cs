@@ -36,8 +36,8 @@ namespace Uccs.Sun.CLI
 					return new AnalysisResultRegistration {Release = Args.Nodes[1].Name.HexToByteArray(), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
 				}
 
-				case "i" : 
-				case "info" : 
+				case "e" : 
+				case "entity" : 
 				{	
 					var rp = Program.Rdc<AnalysisResponse>(new AnalysisRequest {Release = Args.Nodes[1].Name.HexToByteArray()});
 	

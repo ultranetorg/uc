@@ -17,6 +17,7 @@ namespace Uccs.Sun.CLI
 		public Net.Sun			Sun;
 		public JsonApiClient	ApiClient;
 		public Workflow			Workflow = new Workflow("CLI", new Log());
+		public IPasswordAsker	PasswordAsker;
 
 		public Program()
 		{
@@ -36,6 +37,7 @@ namespace Uccs.Sun.CLI
 
 
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+			PasswordAsker = new ConsolePasswordAsker();
 
 			try
 			{
@@ -71,12 +73,13 @@ namespace Uccs.Sun.CLI
 			Sun.Stop("The End");
 		}
 
-		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Workflow workflow)
+		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Workflow workflow, IPasswordAsker passwordAsker)
 		{
 			Zone = zone;
 			Sun = sun;
 			ApiClient = api;
 			Workflow = workflow;
+			PasswordAsker = passwordAsker;
 		}
 
 		static void Main(string[] args)
@@ -143,7 +146,7 @@ namespace Uccs.Sun.CLI
 				ApiClient.Send(call, Workflow);
 		}
 
-		public Rp Api<Rp>(SunApiCall call)
+		public Rp Api	<Rp>(SunApiCall call)
 		{
 			if(ApiClient == null) 
 				return (Rp)call.Execute(Sun, Workflow);

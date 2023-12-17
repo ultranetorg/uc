@@ -16,8 +16,7 @@ namespace Uccs.Sun.CLI
 	public class PackageCommand : Command
 	{
 		public const string Keyword = "package";
-
-		PackageAddress Package => PackageAddress.Parse(Args.Nodes[1].Name);
+		PackageAddress		Package => PackageAddress.Parse(Args.Nodes[1].Name);
 
 		public PackageCommand(Program program, Xon args) : base(program, args)
 		{
@@ -33,17 +32,17 @@ namespace Uccs.Sun.CLI
 				case "b" :
 				case "build" :
 				{
-					Program.Api(new PackageBuildCall {	Resource = ResourceAddress.Parse(Args.Nodes[1].Name), 
-														Sources = GetString("sources").Split(','), 
+					Program.Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
+														Sources			 = GetString("sources").Split(','), 
 														DependenciesPath = GetString("dependenciespath", false),
-														Previous = GetHexBytes("previous", false) });
+														Previous		 = GetHexBytes("previous", false) });
 					return null;
 				}
 
-				case "i" :
-				case "info" :
+				case "l" :
+				case "local" :
 				{
-					var r = Program.Api<PackageInfo>(new PackageInfoCall {Package= Package});
+					var r = Program.Api<PackageInfo>(new PackageInfoCall {Package = Package});
 					
 					Dump(r);
 

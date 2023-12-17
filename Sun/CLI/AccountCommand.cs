@@ -19,9 +19,11 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
+		   		case "n" : 
 		   		case "new" : 
 					return New();
 
+				case "u" :
 				case "unlock" :
 				{
 					Program.Api(new UnlockWalletCall {	Account = AccountAddress.Parse(Args.Nodes[1].Name), 
@@ -30,10 +32,12 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
+				case "i" : 
 				case "import" : 
 					return Import();
 		   		
-				case "info" :
+				case "e" :
+				case "entity" :
 				{
 					var i = Program.Rdc<AccountResponse>(new AccountRequest {Account = AccountAddress.Parse(Args.Nodes[1].Name)});
 
@@ -51,66 +55,13 @@ namespace Uccs.Sun.CLI
 
 		public AccountKey New()
 		{
-			var c = Console.ForegroundColor;
-									
-			string p = null;
+			string p = GetString("password", null);
 
-			Console.WriteLine();
-			Console.WriteLine("    ACCOUNT CREATION");
-			
-			if(Args.Has("password"))
+			if(p == null)
 			{
-				p = Args.Get<string>("password");
-			} 
-			else
-			{
-				//Console.ForegroundColor = ConsoleColor.DarkGreen;
-
-				string pc = null;
-
-				Console.WriteLine();
-				Console.WriteLine("    Password Suggestions:");
-				Console.WriteLine();
-	
-				foreach(var i in Vault.PasswordWarning)
-				{
-					Console.WriteLine("    " + i + Environment.NewLine);
-				}
-	
-				do 
-				{
-					Console.ForegroundColor = c;
-	
-					Console.Write("Create password  : ");
-					p = Console.ReadLine();
-	
-					if(string.IsNullOrWhiteSpace(p))
-					{
-						Console.WriteLine();
-						Console.WriteLine("Password is empty or whitespace");
-						Console.WriteLine();
-						continue;
-					}
-	
-					Console.Write("Confirm password : ");
-					pc = Console.ReadLine();
-	
-					if(pc != p)
-					{
-						Console.WriteLine();
-						Console.WriteLine("Password mismatch");
-						Console.WriteLine();
-						continue;
-					}
-	
-					break;
-				}
-				while(true);
-	
-				Console.WriteLine();
-				Console.ForegroundColor = c;	
+				Program.PasswordAsker.Create();
+				p = Program.PasswordAsker.Password;
 			}
-					
 
 			var acc = AccountKey.Create();
 
@@ -124,58 +75,32 @@ namespace Uccs.Sun.CLI
 
 		AccountKey Import() /// from private key
 		{
-			var c = Console.ForegroundColor;
-									
-			string p = null;
-			string pc = null;
-
-			var acc = AccountKey.Parse(GetString("privatekey"));
-
-			Console.ForegroundColor = ConsoleColor.DarkGreen;
-
-			Console.WriteLine();
-			Console.WriteLine("    ACCOUNT IMPORT");
-			Console.WriteLine();
-			Console.WriteLine("    Password Suggestions:");
-			Console.WriteLine();
-
-			foreach(var i in Vault.PasswordWarning)
+			AccountKey acc;
+			
+			if(Args.Has("privatekey"))
+				acc = AccountKey.Parse(GetString("privatekey"));
+			else if(Args.Has("wallet"))
 			{
-				Console.WriteLine("    " + i + Environment.NewLine);
-			}
+				var wp = GetString("wallet/password", null);
 
-			do 
-			{
-				Console.ForegroundColor = c;
-
-				Console.Write("Create password  : ");
-				p = Console.ReadLine();
-
-				if(string.IsNullOrWhiteSpace(p))
+				if(wp == null)
 				{
-					Console.WriteLine();
-					Console.WriteLine("Password is empty or whitespace");
-					Console.WriteLine();
-					continue;
+					Program.PasswordAsker.Ask(GetString("wallet/path"));
+					wp = Program.PasswordAsker.Password;
 				}
 
-				Console.Write("Confirm password : ");
-				pc = Console.ReadLine();
-
-				if(pc != p)
-				{
-					Console.WriteLine();
-					Console.WriteLine("Password mismatch");
-					Console.WriteLine();
-					continue;
-				}
-
-				break;
+				acc = AccountKey.Load(Program.Zone.Cryptography, GetString("wallet/path"), wp);
 			}
-			while(true);
+			else
+				throw new SyntaxException("'privatekey' or 'wallet' must be provided");
 
-			Console.WriteLine();
-			Console.ForegroundColor = c;							
+			string p = GetString("password", null);
+
+			if(p == null)
+			{
+				Program.PasswordAsker.Create();
+				p = Program.PasswordAsker.Password;
+			}
 
 			Program.Api(new AddWalletCall {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
 			Program.Api(new SaveWalletCall {Account = acc});

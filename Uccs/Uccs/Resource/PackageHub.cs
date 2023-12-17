@@ -494,6 +494,8 @@ namespace Uccs.Net
  				var p = Add(new PackageAddress(resource, h));
 
 				p.AddRelease(h, PackageReleaseFlag.Complete|(istream != null ? PackageReleaseFlag.Incremental : 0), previous);
+
+				workflow.Log?.Report(this, $"Manifest Hash: {h.ToHex()}");
  			}
 		}
 

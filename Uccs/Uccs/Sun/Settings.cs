@@ -106,7 +106,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class DevSettings
+	public class SunGlobals
 	{
 		public static bool				UI;
 		public static bool				DisableTimeouts;
@@ -115,17 +115,17 @@ namespace Uccs.Net
 		public static bool				SkipDomainVerification;
 
 		public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
-		static IEnumerable<FieldInfo>	Fields => typeof(DevSettings).GetFields().Where(i => i.FieldType == typeof(bool));
+		static IEnumerable<FieldInfo>	Fields => typeof(SunGlobals).GetFields().Where(i => i.FieldType == typeof(bool));
 
 		public static string			AsString => string.Join(' ', Fields.Select(i => (bool)i.GetValue(null) ? i.Name : null));
 
 		public static List<Sun>			Suns = new();
 
-		public DevSettings()
+		public SunGlobals()
 		{
 		}
 
-		public DevSettings(Xon x)
+		public SunGlobals(Xon x)
 		{
 			if(x != null)
 			{
@@ -203,7 +203,7 @@ namespace Uccs.Net
 			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
 			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));
 			JsonServerPort				= (ushort)doc.Get<int>("JsonServerPort");
-			Bail						= doc.Get<Money>("Bail");
+			Bail						= doc.Get<Money>("Bail", Money.Zero);
 			Generators					= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
 			Packages					= doc.Get<string>("Packages", System.IO.Path.Join(Profile, "Packages"));

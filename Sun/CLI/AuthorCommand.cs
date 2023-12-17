@@ -42,17 +42,21 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
+		   		case "b" : 
 		   		case "bid" : 
 					return new AuthorBid(	Args.Nodes[1].Name,
 											GetString("tld", ""),
 											Money.ParseDecimal(GetString("amount")));
+		   		case "r" : 
 		   		case "register" : 
 					return new AuthorRegistration(	Args.Nodes[1].Name,
 													byte.Parse(GetString("years")));
+		   		case "t" : 
 		   		case "transfer" : 
 					return new AuthorTransfer(	Args.Nodes[1].Name,
 												AccountAddress.Parse(GetString("to")));
-		   		case "info" :
+		   		case "e" :
+		   		case "entity" :
 				{
 					var rp = Program.Rdc<AuthorResponse>(new AuthorRequest {Name = Args.Nodes[1].Name});
 	

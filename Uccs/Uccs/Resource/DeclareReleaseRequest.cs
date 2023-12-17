@@ -18,7 +18,8 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			RequireMember(sun);
+			lock(sun.Lock)
+				RequireMember(sun);
 
 			lock(sun.SeedHub.Lock)
 				sun.SeedHub.Add(Peer.IP, Releases);

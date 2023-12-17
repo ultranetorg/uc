@@ -238,8 +238,8 @@ namespace Uccs.Net
 			Workflow.Log?.Report(this, $"Zone: {Zone.Name}");
 			Workflow.Log?.Report(this, $"Profile: {Settings.Profile}");	
 			
-			if(DevSettings.Any)
-				Workflow.Log?.ReportWarning(this, $"Dev: {DevSettings.AsString}");
+			if(SunGlobals.Any)
+				Workflow.Log?.ReportWarning(this, $"Dev: {SunGlobals.AsString}");
 
 			Nuid = Guid.NewGuid();
 
@@ -283,7 +283,7 @@ namespace Uccs.Net
 											{
 												if(o is AuthorBid ab && ab.Tld.Any())
 												{
-	 												if(!DevSettings.SkipDomainVerification)
+	 												if(!SunGlobals.SkipDomainVerification)
 	 												{
 														Task.Run(() =>	{
 	 																		try
@@ -682,7 +682,7 @@ namespace Uccs.Net
 
 					try
 					{
-						client.SendTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
+						client.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
 						//client.ReceiveTimeout = Timeout;
 						client.Connect(peer.IP, Zone.Port);
 					}
@@ -696,8 +696,8 @@ namespace Uccs.Net
 									
 					try
 					{
-						client.SendTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
-						client.ReceiveTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
+						client.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+						client.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
 
 						Peer.SendHello(client, CreateHello(peer.IP, permanent));
 						h = Peer.WaitHello(client);
@@ -829,12 +829,12 @@ namespace Uccs.Net
 	
 					try
 					{
-						client.SendTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
-						client.ReceiveTimeout = DevSettings.DisableTimeouts ? 0 : Timeout;
+						client.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+						client.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
 
 						h = Peer.WaitHello(client);
 					}
-					catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
+					catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 					{
 						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. WaitHello -> {ex.Message}");
 						goto failed;
@@ -887,7 +887,7 @@ namespace Uccs.Net
 						{
 							Peer.SendHello(client, CreateHello(ip, false));
 						}
-						catch(Exception ex) when(!DevSettings.ThrowOnCorrupted)
+						catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 						{
 							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. SendHello -> {ex.Message}");
 							goto failed;
@@ -937,7 +937,7 @@ namespace Uccs.Net
 
 		public void Synchronize()
 		{
-			if(Settings.IP != null && Settings.IP.Equals(Zone.Father0IP) && Settings.Generators.Contains(Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || DevSettings.SkipSynchronization)
+			if(Settings.IP != null && Settings.IP.Equals(Zone.Father0IP) && Settings.Generators.Contains(Zone.Father0) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound || SunGlobals.SkipSynchronization)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -1890,7 +1890,7 @@ namespace Uccs.Net
 					else if(peer.Status == ConnectionStatus.Disconnecting || peer.Status == ConnectionStatus.Disconnected)
 						throw new RdcNodeException(RdcNodeError.Connectivity);
 
-				if(!DevSettings.DisableTimeouts)
+				if(!SunGlobals.DisableTimeouts)
 					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
 						throw new RdcNodeException(RdcNodeError.Timeout);
 				

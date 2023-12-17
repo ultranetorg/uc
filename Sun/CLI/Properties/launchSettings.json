@@ -4,33 +4,21 @@
       "commandName": "WSL2",
       "distributionName": ""
     },
-    "release publish": {
-      "commandName": "Project",
-      "commandLineArgs": "release publish address=uo/cef/winx64/3.3578.1870.0 channel=prototype sources=M:\\UO\\_Release\\\\uo-cef-winx64\\0.0.0  by=0x00fe929a68368c301a1906ed39016ee9be3d937b password=forweshallwinthroughnomatterthecost await=placed secrets=A:\\UO"
-    },
-    "realization register": {
-      "commandName": "Project",
-      "commandLineArgs": "platfrom register address=uo.winx64 oses{1.2.3.4} by=0x00fe929a68368c301a1906ed39016ee9be3d937b password=forweshallwinthroughnomatterthecost await=placed profile=A:\\UO\\SunOrgT1-Profile zone=Testnet1 secrets=A:\\UO"
-    },
     "empty": {
       "commandName": "Project",
       "remoteDebugEnabled": false
     },
-    "run node api secrets=a:\\uo": {
+    "run node api": {
       "commandName": "Project",
-      "commandLineArgs": "run node api secrets=a:\\uo"
+      "commandLineArgs": "run node api"
     },
-    "run user profile=a:\\UOTMP\\CLI zone=Simulation": {
+    "attach node=127.0.0.105 profile=a:\\UOTMP\\CLI-105 zone=Localnet": {
       "commandName": "Project",
-      "commandLineArgs": "run user profile=a:\\UOTMP\\CLI zone=Simulation"
+      "commandLineArgs": "attach to=http://127.0.0.105:3900 zone=Localnet profile=a:\\UOTMP\\CLI-105"
     },
-    "run user": {
+    "attach node=127.0.0.101 profile=a:\\UOTMP\\CLI-101 zone=Localnet": {
       "commandName": "Project",
-      "commandLineArgs": "run user"
-    },
-    "attach node=127.0.0.101 accesskey profile=a:\\UOTMP\\CLI zone=Simulation": {
-      "commandName": "Project",
-      "commandLineArgs": "attach to=http://127.0.0.101:3900 zone=Simulation"
+      "commandLineArgs": "attach to=http://127.0.0.101:3900 zone=Localnet profile=a:\\UOTMP\\CLI-101"
     }
   }
 }
