@@ -103,7 +103,7 @@ namespace Uccs.Net
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 
-				var entities = Entries.OrderBy(i => Table.KeyToBytes(i.Key), new BytesComparer());
+				var entities = Entries.OrderBy(i => Table.KeyToBytes(i.Key), Bytes.Comparer);
 
 				w.Write(entities, i => i.WriteMain(w));
 
@@ -217,7 +217,7 @@ namespace Uccs.Net
 			if(!Clusters.Any())
 				return;
 
-			var ocs = Clusters.OrderBy(i => i.Id, new BytesComparer());
+			var ocs = Clusters.OrderBy(i => i.Id, Bytes.Comparer);
 
 			byte b = ocs.First().SuperId;
 			byte[] h = ocs.First().Hash;

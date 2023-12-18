@@ -28,7 +28,7 @@ namespace Uccs.Net
 		public const int						SeedsPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
 		public const int						SeedsPerRequestMax = 256;
 		Sun										Sun;
-		public Dictionary<byte[], List<Seed>>	Releases = new (new BytesEqualityComparer());
+		public Dictionary<byte[], List<Seed>>	Releases = new (Bytes.EqualityComparer);
 		public object							Lock = new object();
 
 		public SeedHub(Sun sun)

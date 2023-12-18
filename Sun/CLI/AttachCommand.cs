@@ -17,7 +17,12 @@ namespace Uccs.Sun.CLI
 		public override object Execute()
 		{
 			var a = new Uri(GetString("to"));
-			Program.ApiClient = new JsonApiClient(new HttpClient(), GetString("to"), GetString("accesskey", null));
+
+			var h = new HttpClientHandler();
+			h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+			var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
+
+			Program.ApiClient = new JsonApiClient(http, GetString("to"), GetString("accesskey", null));
 
 			Program.LogView.Tags = new string[] {};
 

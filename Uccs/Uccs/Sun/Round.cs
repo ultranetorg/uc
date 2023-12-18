@@ -32,7 +32,7 @@ namespace Uccs.Net
 																	return VotesOfTry.Where(i => v.Any(j => j.Account == i.Generator)).GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First());
 																} 
 															}
-		public IGrouping<byte[], Vote>						Majority => Eligible.GroupBy(i => i.ParentHash, new BytesEqualityComparer()).MaxBy(i => i.Count());
+		public IGrouping<byte[], Vote>						Majority => Eligible.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
 		public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 		public IEnumerable<Transaction>						Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
@@ -64,7 +64,7 @@ namespace Uccs.Net
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
-		public Dictionary<byte[], AnalysisEntry>			AffectedAnalyses = new(new BytesEqualityComparer());
+		public Dictionary<byte[], AnalysisEntry>			AffectedAnalyses = new(Bytes.EqualityComparer);
 		
 		//public IEnumerable<Member>							ActiveMembers => Members.Where(i => i.JoinedAt >= Id);
 

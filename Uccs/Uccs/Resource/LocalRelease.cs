@@ -101,10 +101,10 @@ namespace Uccs.Net
 	public class LocalRelease
 	{
 		public byte[]							Hash;
-		public ResourceType						Type;
 		public List<MembersResponse.Member>		DeclaredOn = new();
 		public MembersResponse.Member[]			DeclareTo;
 		public Availability						_Availability;
+		public ResourceType						_Type;
 		List<LocalFile>							_Files;
 		bool									Loaded;
 		ResourceHub								Hub;
@@ -128,27 +128,31 @@ namespace Uccs.Net
 			}
 		}
 
+		public ResourceType Type
+		{
+			get
+			{ 
+				Load();
+				return _Type; 
+			}
+		}
+
 		public LocalRelease(ResourceHub hub, byte[] hash, ResourceType type)	
 		{
 			Hub = hub;
 			Hash = hash;
-			Type = type;
+			_Type = type;
 		}
 
 		public override string ToString()
 		{
-			return $"{Hash.ToHex()}, Availability={_Availability}, Files={{{_Files?.Count}}}";
+			return $"{Hash.ToHex()}, Availability={Availability}, Files={{{Files?.Count}}}";
 		}
 
 		public LocalFile AddFile(string path, long length, int piecelength, int piececount)
 		{
-			Load();
-	
-			if(Files == null)
-			{
-				_Files = new();
-				Loaded = true;
-			}
+			if(Files.Any(i => i.Path== path))
+				throw new IntegrityException($"File {path} already exists");
 
 			Files.Add(new LocalFile(this, path, length, piecelength, piececount));
 
@@ -159,13 +163,8 @@ namespace Uccs.Net
 
 		public LocalFile AddFile(string path, byte[] data)
 		{
-			Load();
-		
-			if(Files == null)
-			{
-				_Files = new();
-				Loaded = true;
-			}
+			if(Files.Any(i => i.Path== path))
+				throw new IntegrityException($"File {path} already exists");
 
 			var f = new LocalFile(this) {Path = path};
 			Files.Add(f);
@@ -179,8 +178,6 @@ namespace Uccs.Net
 
 		public void RemoveFile(LocalFile file)
 		{
-			Load();
-		
 			Files.Remove(file);
 		}
 
@@ -189,11 +186,6 @@ namespace Uccs.Net
 			Load();
 		
 			_Availability = availability;
-
-			//if(availability == Availability.Full)
-			//{
-			//	_Files?.Clear();
-			//}
 
 			Save();
 		}
@@ -209,9 +201,13 @@ namespace Uccs.Net
 					var s = new MemoryStream(d);
 					var r = new BinaryReader(s);
 	
-					Type = (ResourceType)r.ReadByte();
+					_Type = (ResourceType)r.ReadByte();
 					_Availability = (Availability)r.ReadByte();
 					_Files = r.Read(() => new LocalFile(this), f => f.Read(r)).ToList();
+				}
+				else
+				{
+					_Files = new();
 				}
 			}
 
@@ -272,7 +268,7 @@ namespace Uccs.Net
 
 		public LocalFile Find(string filepath)
 		{
-			return Files?.Find(i => i.Path == filepath);
+			return Files.Find(i => i.Path == filepath);
 		}
 		
 		public bool IsReady(string filepath)

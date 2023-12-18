@@ -83,6 +83,9 @@ namespace Uccs.Net
 
 		public LocalRelease Add(byte[] release, ResourceType type)
 		{
+			if(Releases.Any(i => i.Hash.SequenceEqual(release)))
+				throw new ResourceException($"Release {release.ToHex()} already exists");
+
 			var r = new LocalRelease(this, release, type);
 	
 			Releases.Add(r);
@@ -94,6 +97,9 @@ namespace Uccs.Net
 
 		public LocalResource Add(ResourceAddress resource)
 		{
+			if(Resources.Any(i => i.Address == resource))
+				throw new ResourceException($"Resource {resource} already exists");
+
 			var r = new LocalResource(this, resource) {Datas = new()};
 	
 			Resources.Add(r);

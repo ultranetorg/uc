@@ -6,7 +6,7 @@ namespace Uccs.Net
 { 
 	public class PackageAddCall : SunApiCall
 	{
-		public ResourceAddress	Package { get; set; }
+		public ResourceAddress	Resource { get; set; }
 		public byte[]			Complete { get; set; }
 		public byte[]			Incremental { get; set; }
 		public byte[]			Manifest { get; set; }
@@ -20,19 +20,24 @@ namespace Uccs.Net
 								
 			lock(sun.ResourceHub.Lock)
 			{
-				var r = sun.ResourceHub.Add(h, ResourceType.Package);
-	
-				r.AddFile(Net.Package.ManifestFile, Manifest);
-	
-				if(Complete != null)
-					r.AddFile(Net.Package.CompleteFile, Complete);
+				var r = sun.ResourceHub.Find(h);
 
-				if(Incremental != null)
-					r.AddFile(Net.Package.IncrementalFile, Incremental);
-								
-				r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+				if(r == null)
+				{
+					r = sun.ResourceHub.Add(h, ResourceType.Package);
 				
-				(sun.ResourceHub.Find(Package) ?? sun.ResourceHub.Add(Package)).AddData(h);
+					r.AddFile(Net.Package.ManifestFile, Manifest);
+		
+					if(Complete != null)
+						r.AddFile(Net.Package.CompleteFile, Complete);
+	
+					if(Incremental != null)
+						r.AddFile(Net.Package.IncrementalFile, Incremental);
+									
+					r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+				}
+				
+				(sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource)).AddData(h);
 			}
 
 			return null;

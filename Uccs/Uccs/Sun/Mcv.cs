@@ -237,6 +237,8 @@ namespace Uccs.Net
 			/// 1+P + 1+P - decalared
 			/// 1+P + 1+P + P - joined
 
+			Clear();
+
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
@@ -440,7 +442,7 @@ namespace Uccs.Net
 
 			var q = r.RequiredVotes;
 
-			return e.Any() && e.GroupBy(i => i.ParentHash, new BytesEqualityComparer()).All(i => i.Count() + d < q);
+			return e.Any() && e.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).All(i => i.Count() + d < q);
 		}
 
 		///public Time CalculateTime(Round round, IEnumerable<Vote> votes)

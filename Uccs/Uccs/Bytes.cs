@@ -6,8 +6,6 @@ namespace Uccs.Net
 {
     public class BytesComparer : IComparer<byte[]>
     {
-        public static BytesComparer Dafault = new BytesComparer();
-
         public int Compare(byte[] x, byte[] y)
         {
 			var len = Math.Min(x.Length, y.Length);
@@ -26,7 +24,7 @@ namespace Uccs.Net
 
     }
 
-	class BytesEqualityComparer : IEqualityComparer<byte[]>
+	public class BytesEqualityComparer : IEqualityComparer<byte[]>
     {
         public bool Equals(byte[] b1, byte[] b2)
         {
@@ -41,6 +39,9 @@ namespace Uccs.Net
 
     public static class Bytes
 	{
+        public static BytesEqualityComparer EqualityComparer = new BytesEqualityComparer();
+        public static BytesComparer         Comparer = new BytesComparer();
+
         public static byte[] Xor(byte[] a, byte[] b)
         {
             var n = Math.Min(a.Length, b.Length);

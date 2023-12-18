@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -37,6 +36,15 @@ namespace Uccs.Net
 		{
 			if(Datas == null)
 				Datas = new();
+
+			var i = Datas.FindIndex(i => i.SequenceEqual(data));
+
+			if(i != -1)
+			{
+				Datas.RemoveAt(i);
+				Datas.Add(data);
+				return;
+			}
 
 			Datas.Add(data);
 			Save();

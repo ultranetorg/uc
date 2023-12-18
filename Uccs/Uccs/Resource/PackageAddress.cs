@@ -148,7 +148,7 @@ namespace Uccs.Net
 			if(Hash is not null && o.Hash is null)
 				return 1;
 			else
-				return BytesComparer.Dafault.Compare(Hash, o.Hash);
+				return Bytes.Comparer.Compare(Hash, o.Hash);
 		}
 		
 		public virtual void Write(BinaryWriter w)
