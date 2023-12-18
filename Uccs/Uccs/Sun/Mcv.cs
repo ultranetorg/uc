@@ -39,7 +39,7 @@ namespace Uccs.Net
 		public List<Round>					Tail = new();
 		public Dictionary<int, Round>		LoadedRounds = new();
 
-		public RocksDb						Engine;
+		public RocksDb						Database;
 		public byte[]						BaseState;
 		public byte[]						BaseHash;
 		static readonly byte[]				BaseStateKey = new byte[] {0x01};
@@ -63,7 +63,7 @@ namespace Uccs.Net
 		public Round						LastPayloadRound	=> Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 
 		public const string					ChainFamilyName = "Chain";
-		public ColumnFamilyHandle			ChainFamily	=> Engine.GetColumnFamily(ChainFamilyName);
+		public ColumnFamilyHandle			ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
 
 		public static int					GetValidityPeriod(int rid) => rid + P;
 
@@ -90,7 +90,7 @@ namespace Uccs.Net
 																new (Mcv.ChainFamilyName,			new ())})
 				cfs.Add(i);
 
-			Engine = RocksDb.Open(dbo, databasepath, cfs);
+			Database = RocksDb.Open(dbo, databasepath, cfs);
 
 			Accounts = new (this);
 			Authors = new (this);
@@ -98,7 +98,7 @@ namespace Uccs.Net
 
 			BaseHash = Zone.Cryptography.ZeroHash;
 
-			var g = Engine.Get(GenesisKey);
+			var g = Database.Get(GenesisKey);
 
 			if(g == null)
 			{
@@ -159,12 +159,12 @@ namespace Uccs.Net
 					throw new IntegrityException("Genesis construction failed");
 			}
 		
-			Engine.Put(GenesisKey, Zone.Genesis.FromHex());
+			Database.Put(GenesisKey, Zone.Genesis.FromHex());
 		}
 		
 		public void Load()
 		{
-			BaseState = Engine.Get(BaseStateKey);
+			BaseState = Database.Get(BaseStateKey);
 
 			if(BaseState != null)
 			{
@@ -177,7 +177,7 @@ namespace Uccs.Net
 
 				Hashify();
 
-				if(!BaseHash.SequenceEqual(Engine.Get(__BaseHashKey)))
+				if(!BaseHash.SequenceEqual(Database.Get(__BaseHashKey)))
 				{
 					throw new IntegrityException("");
 				}
@@ -185,7 +185,7 @@ namespace Uccs.Net
 
 			if(Roles.HasFlag(Role.Chain))
 			{
-				var s = Engine.Get(ChainStateKey);
+				var s = Database.Get(ChainStateKey);
 
 				var rd = new BinaryReader(new MemoryStream(s));
 
@@ -219,13 +219,13 @@ namespace Uccs.Net
 			Authors.Clear();
 			Analyses.Clear();
 
-			Engine.Remove(BaseStateKey);
-			Engine.Remove(__BaseHashKey);
-			Engine.Remove(ChainStateKey);
-			Engine.Remove(GenesisKey);
+			Database.Remove(BaseStateKey);
+			Database.Remove(__BaseHashKey);
+			Database.Remove(ChainStateKey);
+			Database.Remove(GenesisKey);
 
-			Engine.DropColumnFamily(ChainFamilyName);
-			Engine.CreateColumnFamily(new (), ChainFamilyName);
+			Database.DropColumnFamily(ChainFamilyName);
+			Database.CreateColumnFamily(new (), ChainFamilyName);
 		}
 
 		public string CreateGenesis(AccountKey god, AccountKey f0)
@@ -391,7 +391,7 @@ namespace Uccs.Net
 			if(LoadedRounds.TryGetValue(rid, out var r))
 				return r;
 
-			var d = Engine.Get(BitConverter.GetBytes(rid), ChainFamily);
+			var d = Database.Get(BitConverter.GetBytes(rid), ChainFamily);
 
 			if(d != null)
 			{
@@ -859,7 +859,7 @@ namespace Uccs.Net
 					Recycle();
 				}
 	
-				Engine.Write(b);
+				Database.Write(b);
 			}
 
 			//if(round.Id > Pitch)

@@ -180,7 +180,7 @@ namespace Uccs.Net
 		public Table(Mcv chain)
 		{
 			Mcv = chain;
-			Engine = Mcv.Engine;
+			Engine = Mcv.Database;
 			MetaColumn = Engine.GetColumnFamily(MetaColumnName);
 			MainColumn = Engine.GetColumnFamily(MainColumnName);
 			MoreColumn = Engine.GetColumnFamily(MoreColumnName);

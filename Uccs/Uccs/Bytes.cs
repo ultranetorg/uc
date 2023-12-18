@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-    public class BytesComparer : IComparer<byte[]>
+	public class BytesComparer : IComparer<byte[]>
     {
         public int Compare(byte[] x, byte[] y)
         {
 			var len = Math.Min(x.Length, y.Length);
 
-			for (var i = 0; i < len; i++)
+			for(var i = 0; i < len; i++)
 			{
 			    var c = x[i].CompareTo(y[i]);
 			    if (c != 0)
@@ -21,7 +21,6 @@ namespace Uccs.Net
 
 			return x.Length.CompareTo(y.Length);
         }
-
     }
 
 	public class BytesEqualityComparer : IEqualityComparer<byte[]>

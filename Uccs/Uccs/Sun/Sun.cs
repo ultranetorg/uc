@@ -174,11 +174,11 @@ namespace Uccs.Net
 		{
 			var gens = Mcv?.LastConfirmedRound != null ? Settings.Generators.Where(i => Mcv.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
 	
-			return string.Join(" - ", new string[]{	$"{(Roles.HasFlag(Role.Base) ? "B" : null)}" +
+			return string.Join(" - ", new string[]{	(Settings.IP != null ? $"{IP}" : null),
+													$"{(Roles.HasFlag(Role.Base) ? "B" : null)}" +
 													$"{(Roles.HasFlag(Role.Chain) ? "C" : null)}" +
 													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
 													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
-													(Settings.IP != null ? $"{IP}" : null),
 													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id} - {Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
 													$"T-{OutgoingTransactions.Count}/{IncomingTransactions.Count}",
 													}
@@ -437,6 +437,7 @@ namespace Uccs.Net
 			//VerifingThread?.Join();
 			SynchronizingThread?.Join();
 
+			Mcv?.Database.Dispose();
 			Database?.Dispose();
 
 			Workflow?.Log?.Report(this, "Stopped", message);
@@ -1024,7 +1025,7 @@ namespace Uccs.Net
 												throw new SynchronizationException("Cluster hash mismatch");
 											}
 										
-											Mcv.Engine.Write(b);
+											Mcv.Database.Write(b);
 										}
 									}
 		
