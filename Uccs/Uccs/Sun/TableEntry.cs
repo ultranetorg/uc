@@ -7,15 +7,13 @@ namespace Uccs.Net
 {
 	public interface ITableEntry<K>
 	{
+		EntityId	Id { get; set; }
 		K			Key { get; }
-		Span<byte>	GetClusterKey(int n);
 
 		void		ReadMain(BinaryReader r);
 		void		WriteMain(BinaryWriter r);
 
 		void		ReadMore(BinaryReader r);
 		void		WriteMore(BinaryWriter r);
-
-
 	}
 }

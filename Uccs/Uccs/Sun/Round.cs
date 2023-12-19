@@ -61,6 +61,9 @@ namespace Uccs.Net
 		public List<Emission>								Emissions;
 		public List<AuthorBid>								DomainBids;
 		public int											AnalyzersIdCounter;
+		public Dictionary<byte[], int>						NextAccountIds;
+		public Dictionary<byte[], int>						NextAuthorIds;
+		public Dictionary<byte[], int>						NextAnalysisIds;
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
@@ -172,7 +175,21 @@ namespace Uccs.Net
 			if(e != null)
 				return AffectedAccounts[account] = e.Clone();
 			else
-				return AffectedAccounts[account] = new AccountEntry(Mcv) {Address = account};
+			{
+				var ci = Mcv.Accounts.KeyToCluster(account).ToArray();
+				var c = Mcv.Accounts.Clusters.Find(i => i.Id.SequenceEqual(ci));
+
+				int ai;
+				
+				if(c == null)
+					NextAccountIds[ci] = 0;
+				else
+					NextAccountIds[ci] = c.NextEntityId;
+				
+				ai = NextAccountIds[ci]++;
+
+				return AffectedAccounts[account] = new AccountEntry(Mcv) {Id = new EntityId(ci, ai), Address = account};
+			}
 		}
 
 		public AuthorEntry AffectAuthor(string author)
@@ -185,7 +202,21 @@ namespace Uccs.Net
 			if(e != null)
 				return AffectedAuthors[author] = e.Clone();
 			else
-				return AffectedAuthors[author] = new AuthorEntry(Mcv){Name = author};
+			{
+				var ci = Mcv.Authors.KeyToCluster(author).ToArray();
+				var c = Mcv.Authors.Clusters.Find(i => i.Id.SequenceEqual(ci));
+
+				int ai;
+				
+				if(c == null)
+					NextAccountIds[ci] = 0;
+				else
+					NextAccountIds[ci] = c.NextEntityId;
+				
+				ai = NextAccountIds[ci]++;
+
+				return AffectedAuthors[author] = new AuthorEntry(Mcv){Id = new EntityId(ci, ai), Name = author};
+			}
 		}
 
 		public AnalysisEntry AffectAnalysis(byte[] release)
@@ -198,7 +229,21 @@ namespace Uccs.Net
 			if(e != null)
 				return AffectedAnalyses[release] = e.Clone();
 			else
-				return AffectedAnalyses[release] = new AnalysisEntry(Mcv){Release = release, Results = new AnalyzerResult[0]};
+			{
+				var ci = Mcv.Analyses.KeyToCluster(release).ToArray();
+				var c = Mcv.Analyses.Clusters.Find(i => i.Id.SequenceEqual(ci));
+
+				int ai;
+				
+				if(c == null)
+					NextAccountIds[ci] = 0;
+				else
+					NextAccountIds[ci] = c.NextEntityId;
+				
+				ai = NextAccountIds[ci]++;
+
+				return AffectedAnalyses[release] = new AnalysisEntry(Mcv){Id = new EntityId(ci, ai), Release = release, Results = new AnalyzerResult[0]};
+			}
 		}
 
 		public void Hashify()

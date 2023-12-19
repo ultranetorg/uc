@@ -382,14 +382,14 @@ namespace Uccs.Net
 			return d;
 		}
 
-		public ResourceDownloadProgress GetDownloadProgress(LocalRelease release)
+		public ReleaseDownloadProgress GetDownloadProgress(LocalRelease release)
 		{
 			var f = FileDownloads.Find(i => i.Release == release);
 			var d = DirectoryDownloads.Find(i => i.Release == release);
 
 			if(d != null || f != null)
 			{
-				var s = new ResourceDownloadProgress(d?.SeedCollector ?? f?.SeedCollector);
+				var s = new ReleaseDownloadProgress(d?.SeedCollector ?? f?.SeedCollector);
 
 				s.Succeeded	= d != null ? d.Succeeded : f.Succeeded;
 

@@ -54,7 +54,6 @@ namespace Uccs.Net
 		None,
 		Base		= 0b00000001,
 		Chain		= 0b00000011,
-		//Analyzer	= 0b00000101,
 		Seed		= 0b00000100,
 	}
 
@@ -180,8 +179,7 @@ namespace Uccs.Net
 													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
 													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id} - {Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
-													$"T-{OutgoingTransactions.Count}/{IncomingTransactions.Count}",
-													}
+													$"{OutgoingTransactions.Count}ot/{IncomingTransactions.Count}it"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 
@@ -1272,7 +1270,7 @@ namespace Uccs.Net
 
 		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
-			foreach(var i in txs.Where(i =>	!IncomingTransactions.Any(j => i.EqualBySignature(j)) &&
+			foreach(var i in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
 											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConfirmedExeunitMinFee &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))

@@ -25,7 +25,7 @@ namespace Uccs.Net
 		public long		DownloadedLength { get; set; }
 	}
 
-	public class ResourceDownloadProgress
+	public class ReleaseDownloadProgress
 	{
 		public class Hub
 		{
@@ -45,11 +45,11 @@ namespace Uccs.Net
 		public IEnumerable<Seed>					Seeds { get; set; }
 		public bool									Succeeded  { get; set; }
 
-		public ResourceDownloadProgress()
+		public ReleaseDownloadProgress()
 		{
 		}
 
-		public ResourceDownloadProgress(SeedCollector seedCollector)
+		public ReleaseDownloadProgress(SeedCollector seedCollector)
 		{
 			Hubs	= seedCollector.Hubs.Select(i => new Hub {Member = i.Member, Status = i.Status}).ToArray();
 			Seeds	= seedCollector.Seeds.Select(i => new Seed {IP = i.IP}).ToArray();

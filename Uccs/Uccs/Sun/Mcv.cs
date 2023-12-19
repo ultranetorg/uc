@@ -647,6 +647,10 @@ namespace Uccs.Net
 			round.DomainBids		 = round.Id == 0 ? new() : round.Previous.DomainBids;
 			round.AnalyzersIdCounter = round.Id == 0 ? new() : round.Previous.AnalyzersIdCounter;
 
+			round.NextAccountIds	= new Dictionary<byte[], int>(Bytes.EqualityComparer);
+			round.NextAuthorIds		= new Dictionary<byte[], int>(Bytes.EqualityComparer);
+			round.NextAnalysisIds	= new Dictionary<byte[], int>(Bytes.EqualityComparer);
+
 		start: 
 			round.Fees		= 0;
 			round.Emission	= round.Id == 0 ? 0 : round.Previous.Emission;

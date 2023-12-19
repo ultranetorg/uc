@@ -166,9 +166,9 @@ namespace Uccs.Net
 				{
 					if(e.Flags.HasFlag(ResourceFlags.Child)) /// remove from existing parent
 					{
-						var p = a.Resources.First(i => i.Resources.Contains(e.Id));
+						var p = a.Resources.First(i => i.Resources.Contains(e.Id.Ri));
 						p = a.AffectResource(p.Address);
-						p.Resources = p.Resources.Where(i => i != e.Id).ToArray();
+						p.Resources = p.Resources.Where(i => i != e.Id.Ri).ToArray();
 					} 
 									
 					if(Parent == null)
@@ -187,7 +187,7 @@ namespace Uccs.Net
 
 						r.Flags |= ResourceFlags.Child;
 						var p = a.AffectResource(new ResourceAddress(a.Name, Parent));
-						p.Resources = p.Resources.Append(r.Id).ToArray();
+						p.Resources = p.Resources.Append(r.Id.Ri).ToArray();
 					}
 				}
 	

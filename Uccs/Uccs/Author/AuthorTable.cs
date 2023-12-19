@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -6,7 +7,8 @@ namespace Uccs.Net
 {
 	public class AuthorTable : Table<AuthorEntry, string>
 	{
-		protected override bool Equal(string a, string b) => a.Equals(b);
+		public override bool		Equal(string a, string b) => a.Equals(b);
+		public override Span<byte>	KeyToCluster(string author) => new Span<byte>(Encoding.UTF8.GetBytes(author, 0, Cluster.IdLength));
 
 		public AuthorTable(Mcv chain) : base(chain)
 		{
@@ -15,11 +17,6 @@ namespace Uccs.Net
 		protected override AuthorEntry Create()
 		{
 			return new AuthorEntry(Mcv);
-		}
-
-		protected override byte[] KeyToBytes(string key)
-		{
-			return Encoding.UTF8.GetBytes(key);
 		}
 		
  		public AuthorEntry Find(string name, int ridmax)
@@ -58,7 +55,7 @@ namespace Uccs.Net
 
 			foreach(var i in r.Resources)
 			{
-				yield return a.Resources.First(j => j.Id == i);
+				yield return a.Resources.First(j => j.Id.Ri == i);
 			}
  		}
 	}

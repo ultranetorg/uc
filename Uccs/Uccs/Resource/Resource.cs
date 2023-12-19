@@ -47,7 +47,7 @@ namespace Uccs.Net
 	{
 		public const short		DataLengthMax = 8192;
 
-		public int				Id { get; set; }
+		public ResourceId		Id { get; set; }
 		public ResourceAddress	Address { get; set; }
 		public ResourceFlags	Flags { get; set; }
 		public ResourceType		Type { get; set; }
@@ -71,7 +71,6 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write7BitEncodedInt(Id);
 			writer.Write((byte)Flags);
 			writer.Write7BitEncodedInt((int)Type);
 			
@@ -85,7 +84,6 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Id		= reader.Read7BitEncodedInt();
 			Flags	= (ResourceFlags)reader.ReadByte();
 			Type	= (ResourceType)reader.Read7BitEncodedInt();
 			

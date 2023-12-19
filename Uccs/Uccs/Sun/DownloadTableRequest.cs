@@ -12,7 +12,7 @@ namespace Uccs.Net
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			if(	ClusterId.Length != AccountTable.ClustersKeyLength ||
+			if(	ClusterId.Length != Table<ITableEntry<int>, int>.Cluster.IdLength ||
 				Offset < 0 ||
 				Length < 0)
 				throw new RdcRequestException();

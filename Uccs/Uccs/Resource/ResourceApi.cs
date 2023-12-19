@@ -34,12 +34,7 @@ namespace Uccs.Net
 		{
 			lock(sun.ResourceHub.Lock)
 			{
-				var r = sun.ResourceHub.Find(Release);
-
-				if(r == null)
-				{
-					r = sun.ResourceHub.Add(Release, Type);
-				}
+				var r = sun.ResourceHub.Find(Release) ?? sun.ResourceHub.Add(Release, Type);
 			
 				if(Type == ResourceType.File)
 				{

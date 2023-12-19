@@ -7,8 +7,8 @@ namespace Uccs.Net
 {
 	public class AnalysisEntry : Analysis, ITableEntry<byte[]>
 	{
+		public EntityId		Id { get; set; }
 		public byte[]		Key => Release;
-		public Span<byte>	GetClusterKey(int n) => new Span<byte>(Release, 0, n);
 
 		Mcv					Chain;
 
@@ -23,7 +23,8 @@ namespace Uccs.Net
 
 		public AnalysisEntry Clone()
 		{
-			return new AnalysisEntry(Chain){ Release = Release,
+			return new AnalysisEntry(Chain){ Id = Id, 
+											 Release = Release,
 											 Fee = Fee,
 											 StartedAt = StartedAt,
 											 Consil = Consil,

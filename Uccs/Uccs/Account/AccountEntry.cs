@@ -14,11 +14,11 @@ namespace Uccs.Net
 
 	public class AccountEntry : Account, ITableEntry<AccountAddress>
 	{
-		public HashSet<int>				Transactions = new();
-
-		Mcv								Mcv;
+		public EntityId					Id { get; set; }
 		public AccountAddress			Key => Address;
-		public Span<byte>				GetClusterKey(int n) => new Span<byte>(Address.Bytes, 0, n);
+		
+		public HashSet<int>				Transactions = new();
+		Mcv								Mcv;
 
 		public AccountEntry()
 		{
@@ -31,7 +31,8 @@ namespace Uccs.Net
 
 		public AccountEntry Clone()
 		{
-			return new AccountEntry(Mcv){	Address = Address,
+			return new AccountEntry(Mcv){	Id = Id,
+											Address = Address,
 											Balance = Balance,
 											Bail = Bail,
 											LastTransactionNid = LastTransactionNid,

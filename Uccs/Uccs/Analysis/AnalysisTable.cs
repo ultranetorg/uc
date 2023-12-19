@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Uccs.Net
 {
 	public class AnalysisTable : Table<AnalysisEntry, byte[]>
 	{
-		protected override bool	Equal(byte[] a, byte[] b) => a.SequenceEqual(b);
+		public override bool		Equal(byte[] a, byte[] b) => a.SequenceEqual(b);
+		public override Span<byte>	KeyToCluster(byte[] address) => new Span<byte>(address, 0, Cluster.IdLength);
 
 		public  AnalysisTable(Mcv chain) : base(chain)
 		{
@@ -13,11 +15,6 @@ namespace Uccs.Net
 		protected override  AnalysisEntry Create()
 		{
 			return new  AnalysisEntry(Mcv);
-		}
-
-		protected override byte[] KeyToBytes(byte[] key)
-		{
-			return key;
 		}
 		
  		public AnalysisEntry Find(byte[] release, int ridmax)

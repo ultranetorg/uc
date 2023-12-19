@@ -91,6 +91,44 @@ namespace Uccs.Sun.CLI
 						throw new Exception("Resource not found");
 				}
 
+
+				case "d" :
+				case "download" :
+				{
+					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
+					var h = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = a}).Resource.Data;
+
+					lock(Program.Sun.ResourceHub.Lock)
+					{
+						var r = Program.Sun.ResourceHub.Add(a);
+						r.AddData(h);
+					}
+
+					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h});
+
+					try
+					{
+						ReleaseDownloadProgress d = null;
+						
+						while(Workflow.Active)
+						{
+							d = Program.Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
+
+							if(d == null)
+								break;
+
+							Workflow.Log?.Report(this, d.ToString());
+
+							Thread.Sleep(500);
+						}
+					}
+					catch(OperationCanceledException)
+					{
+					}
+
+					return null;
+				}
+
 				default:
 					throw new SyntaxException("Unknown operation");;
 			}

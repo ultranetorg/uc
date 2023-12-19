@@ -12,11 +12,9 @@ namespace Uccs.Net
 	public class AuthorEntry : Author, ITableEntry<string>
 	{
 		public string		Key => Name;
-		public Span<byte>	GetClusterKey(int n) => new Span<byte>(Encoding.UTF8.GetBytes(Name, 0, n));
-
+		
 		Mcv					Chain;
 		List<Resource>		AffectedResources = new();
-		
 		public Resource[]	Resources { get; set; } = {};
 
 		public AuthorEntry()
@@ -35,21 +33,21 @@ namespace Uccs.Net
 
 		public AuthorEntry Clone()
 		{
-			return new AuthorEntry(Chain)
-					{
-						Name = Name,
-						Owner = Owner,
-						Expiration = Expiration,
-						FirstBidTime = FirstBidTime,
-						LastWinner = LastWinner,
-						LastBid = LastBid,
-						LastBidTime = LastBidTime,
-						DomainOwnersOnly = DomainOwnersOnly,
-						Resources = Resources,
-						NextResourceId = NextResourceId,
-						SpaceReserved = SpaceReserved,
-						SpaceUsed = SpaceUsed
-					};
+			return new AuthorEntry(Chain){
+											Id = Id,
+											Name = Name,
+											Owner = Owner,
+											Expiration = Expiration,
+											FirstBidTime = FirstBidTime,
+											LastWinner = LastWinner,
+											LastBid = LastBid,
+											LastBidTime = LastBidTime,
+											DomainOwnersOnly = DomainOwnersOnly,
+											Resources = Resources,
+											NextResourceId = NextResourceId,
+											SpaceReserved = SpaceReserved,
+											SpaceUsed = SpaceUsed
+										};
 		}
 
 		public void WriteMain(BinaryWriter w)
@@ -57,6 +55,7 @@ namespace Uccs.Net
 			Write(w);
 
 			w.Write(Resources, i =>	{
+										w.Write7BitEncodedInt(i.Id.Ri);
 										w.WriteUtf8(i.Address.Resource);
 										i.Write(w);
 									});
@@ -68,6 +67,7 @@ namespace Uccs.Net
 
 			Resources = reader.ReadArray(() => { 
 													var a = new Resource();
+													a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
 													a.Address = new ResourceAddress(Name, reader.ReadUtf8());
 													a.Read(reader);
 													return a;
@@ -122,7 +122,7 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				r = new Resource{Address = resource, Id = NextResourceId++};
+				r = new Resource{Address = resource, Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++)};
 				
 				Resources = Resources.Append(r).ToArray();
 			}

@@ -16,6 +16,7 @@ namespace Uccs.Net
 		public static readonly int			RenewaPeriod = 365;
 		public Time							AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
+		public EntityId						Id { get; set; }
 		public string						Name { get; set; }
 		public AccountAddress				Owner { get; set; }
 		public Time							Expiration { get; set; }

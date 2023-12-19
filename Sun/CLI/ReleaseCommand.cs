@@ -45,20 +45,17 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var h = ResourceAddress.IsValid(Args.Nodes[1].Name) ? 
-								Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}).Resource.Data
-								: 
-								Args.Nodes[1].Name.FromHex();
+					var h = Args.Nodes[1].Name.FromHex();
 
 					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h});
 
 					try
 					{
-						ResourceDownloadProgress d = null;
+						ReleaseDownloadProgress d = null;
 						
 						while(Workflow.Active)
 						{
-							d = Program.Api<ResourceDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
+							d = Program.Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
 
 							if(d == null)
 								break;

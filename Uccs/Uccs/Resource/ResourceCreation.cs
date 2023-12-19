@@ -125,7 +125,7 @@ namespace Uccs.Net
 				}
 
 				var p = a.AffectResource(new ResourceAddress(a.Name, Parent));
-				p.Resources = p.Resources.Append(r.Id).ToArray();
+				p.Resources = p.Resources.Append(r.Id.Ri).ToArray();
 			}
 						
 			if(Data != null)
