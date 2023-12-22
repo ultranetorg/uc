@@ -84,6 +84,14 @@ namespace Uccs.Sun.CLI
 
 					return null;
 				}
+
+				case "i" :
+				case "install" :
+				{
+					Program.Api(new PackageInstallCall {Package = Package});
+
+					return null;
+				}
 				
 				default:
 					throw new SyntaxException("Unknown operation");;

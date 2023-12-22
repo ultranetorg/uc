@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Uccs.Net
 { 
@@ -16,28 +17,34 @@ namespace Uccs.Net
 			var m = new Manifest();
 			m.Read(new BinaryReader(new MemoryStream(Manifest)));
 								
-			var h = sun.Zone.Cryptography.HashFile(m.Bytes);
+			var h = sun.Zone.Cryptography.HashFile(m.Raw);
 								
 			lock(sun.ResourceHub.Lock)
 			{
-				var r = sun.ResourceHub.Find(h);
+				var rl = sun.ResourceHub.Find(h);
 
-				if(r == null)
+				if(rl == null)
 				{
-					r = sun.ResourceHub.Add(h, ResourceType.Package);
+					rl = sun.ResourceHub.Add(h, DataType.Package);
 				
-					r.AddFile(Net.Package.ManifestFile, Manifest);
+					rl.AddFile(Net.Package.ManifestFile, Manifest);
 		
 					if(Complete != null)
-						r.AddFile(Net.Package.CompleteFile, Complete);
+						rl.AddFile(Net.Package.CompleteFile, Complete);
 	
 					if(Incremental != null)
-						r.AddFile(Net.Package.IncrementalFile, Incremental);
+						rl.AddFile(Net.Package.IncrementalFile, Incremental);
 									
-					r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+					rl.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
 				}
+
+				var p = sun.PackageHub.Get(new (Resource, h));
 				
-				(sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource)).AddData(h);
+				//var rs = sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource);
+				//var l = rs.LastAs<History>();
+				//var his = l == null ? new History {Releases = new()} : new History(l.Raw);
+
+				p.AddRelease(h);
 			}
 
 			return null;

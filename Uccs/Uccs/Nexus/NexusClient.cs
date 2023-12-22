@@ -17,8 +17,8 @@ namespace Uccs.Uos
 		public string SunApiKey;
 		public Zone Zone;
 
-		public ResourceHub		Filebase;
-		public PackageHub		PackageBase;
+		public ResourceHub		ResourceHub;
+		public PackageHub		PackageHub;
 		public JsonApiClient	Sun;
 		HttpClient				Http = new HttpClient();
 
@@ -33,8 +33,8 @@ namespace Uccs.Uos
 
 			var s = Sun.Request<SettingsResponse>(new SettingsCall(), new Workflow("GetSettings"));
 
-			Filebase = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(Filebase)));
-			PackageBase = new PackageHub(null, Filebase, ProductsPath);
+			ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
+			PackageHub = new PackageHub(null, ProductsPath);
 		}
 
 		public void Start(Uri address, Workflow workflow)
@@ -64,15 +64,15 @@ namespace Uccs.Uos
 		{
 			var r = PackageAddress.Parse(request.LocalPath);
 
-			var f = Directory.EnumerateFiles(PackageBase.AddressToPath(r), "*.start").FirstOrDefault();
+			var f = Directory.EnumerateFiles(PackageHub.AddressToPath(r), "*.start").FirstOrDefault();
 			
 			if(f != null)
 			{
 				string setenv(PackageAddress a, string p)
 				{
-					p += ";" + PackageBase.AddressToPath(a);
+					p += ";" + PackageHub.AddressToPath(a);
 
-					foreach(var i in PackageBase.Find(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
+					foreach(var i in PackageHub.Find(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
 					{
 						p += ";" + setenv(i.Package, p);
 					}

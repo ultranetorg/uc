@@ -15,13 +15,12 @@ namespace Uccs.Net
 		Unchangables= Child | Data, 
 	}
 
-	public enum ResourceType : short
+	public enum DataType : short
 	{
 		None		= 0,
 		Redirect	= 1,
-		IP4Address	= 2, 
-		IP6Address	= 3, 
-		Uri			= 4,
+		IPAddress	= 2, 
+		Uri			= 3,
 				
 		File		= 100, 
 		Directory	= 101, 
@@ -35,7 +34,7 @@ namespace Uccs.Net
 	{
 		None			= 0,
 		Flags			= 0b______________1,
-		Type			= 0b_____________10,
+		//Type			= 0b_____________10,
 		Data			= 0b____________100,
 		Parent			= 0b___________1000,
 		AddPublisher	= 0b__________10000,
@@ -50,13 +49,13 @@ namespace Uccs.Net
 		public ResourceId		Id { get; set; }
 		public ResourceAddress	Address { get; set; }
 		public ResourceFlags	Flags { get; set; }
-		public ResourceType		Type { get; set; }
+		//public ResourceType	Type { get; set; }
 		public byte[]			Data { get; set; }
 		public int[]			Resources { get; set; } = {};
 
 		public override string ToString()
 		{
-			return $"{Id}, {Address}, [{Flags}], {Type}, Data={(Data == null ? null : ('[' + Data.Length + ']'))} Resources={{{Resources.Length}}}";
+			return $"{Id}, {Address}, [{Flags}], Data={(Data == null ? null : ('[' + Data.Length + ']'))} Resources={{{Resources.Length}}}";
 		}
 
 		public Resource Clone()
@@ -64,7 +63,6 @@ namespace Uccs.Net
 			return new() {	Id = Id,
 							Address	= Address, 
 							Flags = Flags,
-							Type = Type,
 							Data = Data,
 							Resources = Resources};
 		}
@@ -72,7 +70,6 @@ namespace Uccs.Net
 		public void Write(BinaryWriter writer)
 		{
 			writer.Write((byte)Flags);
-			writer.Write7BitEncodedInt((int)Type);
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 			{
@@ -85,7 +82,6 @@ namespace Uccs.Net
 		public void Read(BinaryReader reader)
 		{
 			Flags	= (ResourceFlags)reader.ReadByte();
-			Type	= (ResourceType)reader.Read7BitEncodedInt();
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 			{

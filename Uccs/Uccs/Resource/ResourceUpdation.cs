@@ -12,7 +12,6 @@ namespace Uccs.Net
 		public ResourceChanges		Changes	{ get; set; }
 		public byte					Years { get; set; }
 		public ResourceFlags		Flags { get; set; }
-		public ResourceType			Type { get; set; }
 		public byte[]				Data { get; set; }
 		public string				Parent { get; set; }
 
@@ -20,7 +19,7 @@ namespace Uccs.Net
 											//&& (!Changes.HasFlag(ResourceChanges.Years) || Changes.HasFlag(ResourceChanges.Years) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax)
 											&& (!Changes.HasFlag(ResourceChanges.Data) || Changes.HasFlag(ResourceChanges.Data) && (Data == null || Data.Length <= Net.Resource.DataLengthMax))
 											;
-		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {Type}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
+		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
 
 		public ResourceUpdation()
 		{
@@ -31,22 +30,10 @@ namespace Uccs.Net
 			Resource = resource;
 		}
 		
-// 		public void Change(byte years)
-// 		{
-// 			Years = years;
-// 			Changes |= ResourceChanges.Years;
-// 		}
-		
 		public void Change(ResourceFlags flags)
 		{
 			Flags = flags;
 			Changes |= ResourceChanges.Flags;
-		}
-		
-		public void Change(ResourceType type)
-		{
-			Type = type;
-			Changes |= ResourceChanges.Type;
 		}
 
 		public void Change(byte[] data)
@@ -73,7 +60,6 @@ namespace Uccs.Net
 			
 			//if(Changes.HasFlag(ResourceChanges.Years))			Years = reader.ReadByte();
 			if(Changes.HasFlag(ResourceChanges.Flags))			Flags = (ResourceFlags)reader.ReadByte();
-			if(Changes.HasFlag(ResourceChanges.Type))			Type = (ResourceType)reader.ReadInt16();
 			if(Changes.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
 			if(Changes.HasFlag(ResourceChanges.Parent))			Parent = reader.ReadUtf8();
 		}
@@ -85,7 +71,6 @@ namespace Uccs.Net
 
 			//if(Changes.HasFlag(ResourceChanges.Years))			writer.Write(Years);
 			if(Changes.HasFlag(ResourceChanges.Flags))			writer.Write((byte)Flags);
-			if(Changes.HasFlag(ResourceChanges.Type))			writer.Write((short)Type);
 			if(Changes.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
 			if(Changes.HasFlag(ResourceChanges.Parent))			writer.WriteUtf8(Parent);
 		}
@@ -155,11 +140,6 @@ namespace Uccs.Net
 				if(Changes.HasFlag(ResourceChanges.Flags))
 				{
 					r.Flags = r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
-				}
-	
-				if(Changes.HasFlag(ResourceChanges.Type))
-				{
-					r.Type = Type;
 				}
 	
 				if(Changes.HasFlag(ResourceChanges.Parent))

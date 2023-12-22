@@ -104,7 +104,7 @@ namespace Uccs.Net
 		public List<MembersResponse.Member>		DeclaredOn = new();
 		public MembersResponse.Member[]			DeclareTo;
 		public Availability						_Availability;
-		public ResourceType						_Type;
+		public DataType						_Type;
 		List<LocalFile>							_Files;
 		bool									Loaded;
 		ResourceHub								Hub;
@@ -128,7 +128,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public ResourceType Type
+		public DataType Type
 		{
 			get
 			{ 
@@ -137,7 +137,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalRelease(ResourceHub hub, byte[] hash, ResourceType type)	
+		public LocalRelease(ResourceHub hub, byte[] hash, DataType type)	
 		{
 			Hub = hub;
 			Hash = hash;
@@ -201,7 +201,7 @@ namespace Uccs.Net
 					var s = new MemoryStream(d);
 					var r = new BinaryReader(s);
 	
-					_Type = (ResourceType)r.ReadByte();
+					_Type = (DataType)r.ReadByte();
 					_Availability = (Availability)r.ReadByte();
 					_Files = r.Read(() => new LocalFile(this), f => f.Read(r)).ToList();
 				}

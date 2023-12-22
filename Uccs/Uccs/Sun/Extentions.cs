@@ -270,10 +270,10 @@ namespace Uccs.Net
 
 		public static List<T> ReadList<T>(this BinaryReader r, Func<T> read)
 		{
-			var o = new List<T>();
-		
 			var n = r.Read7BitEncodedInt();
-			
+		
+			var o = new List<T>(n);
+					
 			for(int i = 0; i < n; i++)
 			{
 				o.Add(read());
@@ -284,10 +284,10 @@ namespace Uccs.Net
 
 		public static HashSet<T> ReadHashSet<T>(this BinaryReader r, Func<T> a)
 		{
-			var o = new HashSet<T>();
-
 			var n = r.Read7BitEncodedInt();
 			
+			var o = new HashSet<T>(n);
+						
 			for(int i = 0; i < n; i++)
 			{
 				o.Add(a());
@@ -314,7 +314,7 @@ namespace Uccs.Net
 		{
 			var n = r.Read7BitEncodedInt();
 			
-			var o = new Dictionary<K, V>();
+			var o = new Dictionary<K, V>(n);
 
 			for(int i = 0; i < n; i++)
 			{
@@ -370,41 +370,13 @@ namespace Uccs.Net
 		{
 			var n = r.Read7BitEncodedInt();
 			
-			var o = new List<T>();
+			var o = new List<T>(n);
 
 			for(int i = 0; i < n; i++)
 			{
 				var t = new T();
 				t.Read(r);
 				o.Add(t);
-			}
-
-			return o;
-		}
-
-
-		public static void Write(this BinaryWriter w, IEnumerable<AccountAddress> items)
-		{
-			if(items != null)
-			{
-				w.Write7BitEncodedInt(items.Count());
-			
-				foreach(var i in items)
-					w.Write(i);
-			}
-			else
-				w.Write7BitEncodedInt(0);
-		}
-
-		public static List<AccountAddress> ReadAccounts(this BinaryReader r)
-		{
-			var n = r.Read7BitEncodedInt();
-			
-			var o = new List<AccountAddress>();
-
-			for(int i = 0; i < n; i++)
-			{
-				o.Add(r.ReadAccount());
 			}
 
 			return o;

@@ -28,7 +28,7 @@ namespace Uccs.Net
 	public class ReleaseDownloadCall : SunApiCall
 	{
 		public byte[]			Release { get; set; }
-		public ResourceType		Type { get; set; }
+		public DataType		Type { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
@@ -36,12 +36,12 @@ namespace Uccs.Net
 			{
 				var r = sun.ResourceHub.Find(Release) ?? sun.ResourceHub.Add(Release, Type);
 			
-				if(Type == ResourceType.File)
+				if(Type == DataType.File)
 				{
 					sun.ResourceHub.DownloadFile(r, "f", Release, null, workflow);
 					return r.Hash;
 				}
-				else if(Type == ResourceType.Directory)
+				else if(Type == DataType.Directory)
 				{
 					sun.ResourceHub.DownloadDirectory(r, workflow);
 					return r.Hash;
@@ -152,7 +152,7 @@ namespace Uccs.Net
 		public class Release
 		{
 			public byte[]							Hash { get; set; }
-			public ResourceType						Type { get; set; }
+			public DataType						Type { get; set; }
 			public List<MembersResponse.Member>		DeclaredOn { get; set; }
 			public MembersResponse.Member[]			DeclareTo { get; set; }
 			public Availability						Availability { get; set; }

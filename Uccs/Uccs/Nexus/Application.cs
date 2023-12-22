@@ -19,13 +19,13 @@ namespace Uccs.Uos
 
 		Assembly AssemblyResolve(object sender, ResolveEventArgs args)
 		{
-			var rp = Nexus.PackageBase.PathToAddress(args.RequestingAssembly.Location);
+			var rp = Nexus.PackageHub.PathToAddress(args.RequestingAssembly.Location);
 
-			var r = Nexus.PackageBase.Find(rp);
+			var r = Nexus.PackageHub.Find(rp);
 
 			foreach(var i in r.Manifest.CriticalDependencies)
 			{
-				var dp = Path.Join(Nexus.PackageBase.AddressToPath(i.Package), new AssemblyName(args.Name).Name + ".dll");
+				var dp = Path.Join(Nexus.PackageHub.AddressToPath(i.Package), new AssemblyName(args.Name).Name + ".dll");
 
 				if(File.Exists(dp))
 				{

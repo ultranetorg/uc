@@ -41,6 +41,15 @@ namespace Uccs.Net
 		{
 			Address = package;
 
+			lock(sun.PackageHub.Lock)
+			{
+				if(sun.PackageHub.IsReady(package))
+				{
+					Downloaded = true;
+					return;
+				}
+			}
+
 			Task = Task.Run(() =>	{
 										try
 										{
@@ -50,7 +59,7 @@ namespace Uccs.Net
 											{
 												try
 												{
-													hst = new History(sun.Call(c => c.FindResource(package), workflow).Resource.Data);
+													hst = new History(ResourceData.SkipHeader(sun.Call(c => c.FindResource(package), workflow).Resource.Data));
 													break;
 												}
 												catch(RdcEntityException)
@@ -62,22 +71,11 @@ namespace Uccs.Net
 											SeedCollector = new SeedCollector(sun, package.Hash, workflow);
 	
 											lock(sun.PackageHub.Lock)
-												lock(sun.ResourceHub.Lock)
-												{
-													Package = sun.PackageHub.Find(package);
-												
-													if(Package != null)
-													{
-														if(Package.Release.Hash.SequenceEqual(package.Hash))
-															goto done;
-														else
-															Package.Release = sun.ResourceHub.Add(package.Hash, ResourceType.Package); /// update to the latest
-													} 
-													else
-													{	
-														Package = sun.PackageHub.Add(package);
-													}
-												}
+											{
+												Package = sun.PackageHub.Get(package);
+
+												Package.Resource.AddData(DataType.Package, hst);
+											}
 		 									
 											sun.ResourceHub.GetFile(Package.Release, Package.ManifestFile, package.Hash, SeedCollector, workflow);
 	
@@ -99,14 +97,13 @@ namespace Uccs.Net
 	
 	 										FileDownload = sun.ResourceHub.DownloadFile(Package.Release, 
 																						incrementable ? Package.IncrementalFile : Package.CompleteFile, 
-																						incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash, 
+																						incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash,
 																						SeedCollector,
 																						workflow);
 	
 	
 											Task.WaitAll(DependenciesRecursive.Select(i => i.Task).Append(FileDownload.Task).ToArray());
 	
-										done:
 											SeedCollector.Stop();
 	
 											lock(sun.PackageHub.Lock)

@@ -32,7 +32,6 @@ namespace Uccs.Sun.CLI
 				{	
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												Args.Has("flags")	? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
-												Args.Has("type")	? Enum.Parse<ResourceType>(GetString("type")) : ResourceType.None,
 												GetHexBytes("data", false),
 												GetString("parent", false));
 				}
@@ -43,7 +42,6 @@ namespace Uccs.Sun.CLI
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
-					if(Args.Has("type"))		r.Change(Enum.Parse<ResourceType>(GetString("type")));
 					if(Args.Has("data"))		r.Change(GetHexBytes("data"));
 					if(Args.Has("parent"))		r.Change(GetString("parent"));
 					if(Args.Has("recursive"))	r.ChangeRecursive();
@@ -67,11 +65,12 @@ namespace Uccs.Sun.CLI
 					var r = Program.Api<IEnumerable<LocalResource>>(new QueryLocalResourcesCall {Query = Args.Nodes[1].Name});
 					
 					Dump(	r, 
-							new string[] {"Address", "Releases", "Latest", "Latest Length", }, 
+							new string[] {"Address", "Releases", "Latest Type", "Latest Data", "Latest Length"}, 
 							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
 																i => i.Datas.Count.ToString(),
-																i => i.Last.ToHex(32),
-																i => i.Last.Length.ToString()});
+																i => i.Last.Type.ToString(),
+																i => i.Last.Data.ToHex(32),
+																i => i.Last.Data.Length.ToString() });
 					return r;
 				}
 
@@ -83,8 +82,10 @@ namespace Uccs.Sun.CLI
 					if(r != null)
 					{
 						Dump(	r.Datas, 
-								new string[] {"Data", "Length"}, 
-								new Func<byte[], string>[] {i => i.ToHex(32), i => i.Length.ToString()});
+								new string[] {"Type", "Data", "Length"}, 
+								new Func<ResourceData, string>[] {	i => i.Type.ToString(), 
+																	i => i.Data.ToHex(32), 
+																	i => i.Data.Length.ToString() });
 						return r;
 					}
 					else

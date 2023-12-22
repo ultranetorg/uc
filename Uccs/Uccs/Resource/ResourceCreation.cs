@@ -11,7 +11,6 @@ namespace Uccs.Net
 		public ResourceAddress		Resource { get; set; }
 		public ResourceChanges		Initials { get; set; }
 		public ResourceFlags		Flags { get; set; }
-		public ResourceType			Type { get; set; }
 		public byte[]				Data { get; set; }
 		public string				Parent { get; set; }
 		//public Money				AnalysisFee { get; set; }
@@ -20,19 +19,18 @@ namespace Uccs.Net
 												&& (!Initials.HasFlag(ResourceChanges.Data)	|| Initials.HasFlag(ResourceChanges.Data) && Data.Length <= Net.Resource.DataLengthMax)
 											;
 		
-		public override string		Description => $"{Resource}, [{Initials}], [{Flags}], {Type}{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
+		public override string		Description => $"{Resource}, [{Initials}], [{Flags}]{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceType type, byte[] data, string parent)
+		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, byte[] data, string parent)
 		{
 			Resource = resource;
 			Flags = flags;
-			Type = type;
 
-			Initials |= (ResourceChanges.Flags|ResourceChanges.Type);
+			Initials |= (ResourceChanges.Flags);
 
 			if(data != null && data.Length > 0)
 			{
@@ -52,7 +50,6 @@ namespace Uccs.Net
 			Resource	= reader.Read<ResourceAddress>();
 			Initials	= (ResourceChanges)reader.ReadByte();
 			Flags		= (ResourceFlags)reader.ReadByte();
-			Type		= (ResourceType)reader.Read7BitEncodedInt();
 
 			if(Initials.HasFlag(ResourceChanges.Data))		Data = reader.ReadBytes();
 			if(Initials.HasFlag(ResourceChanges.Parent))	Parent = reader.ReadUtf8();
@@ -63,7 +60,6 @@ namespace Uccs.Net
 			writer.Write(Resource);
 			writer.Write((byte)Initials);
 			writer.Write((byte)Flags);
-			writer.Write7BitEncodedInt((short)Type);
 
 			if(Initials.HasFlag(ResourceChanges.Data))		writer.WriteBytes(Data);
 			if(Initials.HasFlag(ResourceChanges.Parent))	writer.WriteUtf8(Parent);
@@ -103,7 +99,6 @@ namespace Uccs.Net
 			var r = a.AffectResource(Resource);
 
 			r.Flags	= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
-			r.Type	= Type;
 			
 			var y = (byte)((a.Expiration.Days - round.ConfirmedTime.Days) / 365 + 1);
 

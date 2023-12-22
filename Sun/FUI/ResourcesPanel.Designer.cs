@@ -33,7 +33,6 @@ namespace Uccs.Sun.FUI
 			CHId = new System.Windows.Forms.ColumnHeader();
 			CHAddress = new System.Windows.Forms.ColumnHeader();
 			CHFlags = new System.Windows.Forms.ColumnHeader();
-			CHType = new System.Windows.Forms.ColumnHeader();
 			CHData = new System.Windows.Forms.ColumnHeader();
 			CHResources = new System.Windows.Forms.ColumnHeader();
 			label5 = new System.Windows.Forms.Label();
@@ -46,12 +45,14 @@ namespace Uccs.Sun.FUI
 			label3 = new System.Windows.Forms.Label();
 			LocalQuery = new System.Windows.Forms.ComboBox();
 			LocalSearch = new System.Windows.Forms.Button();
+			columnHeader3 = new System.Windows.Forms.ColumnHeader();
+			columnHeader4 = new System.Windows.Forms.ColumnHeader();
 			SuspendLayout();
 			// 
 			// NetworkReleases
 			// 
 			NetworkReleases.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			NetworkReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { CHId, CHAddress, CHFlags, CHType, CHData, CHResources });
+			NetworkReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { CHId, CHAddress, CHFlags, CHData, CHResources });
 			NetworkReleases.FullRowSelect = true;
 			NetworkReleases.Location = new System.Drawing.Point(12, 112);
 			NetworkReleases.Margin = new System.Windows.Forms.Padding(6);
@@ -64,6 +65,7 @@ namespace Uccs.Sun.FUI
 			// CHId
 			// 
 			CHId.Text = "Id";
+			CHId.Width = 100;
 			// 
 			// CHAddress
 			// 
@@ -73,10 +75,6 @@ namespace Uccs.Sun.FUI
 			// CHFlags
 			// 
 			CHFlags.Text = "Flags";
-			// 
-			// CHType
-			// 
-			CHType.Text = "Type";
 			// 
 			// CHData
 			// 
@@ -122,7 +120,7 @@ namespace Uccs.Sun.FUI
 			// LocalReleases
 			// 
 			LocalReleases.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			LocalReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2, columnHeader1, columnHeader8 });
+			LocalReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2, columnHeader1, columnHeader3, columnHeader8, columnHeader4 });
 			LocalReleases.FullRowSelect = true;
 			LocalReleases.Location = new System.Drawing.Point(12, 908);
 			LocalReleases.Margin = new System.Windows.Forms.Padding(6);
@@ -139,12 +137,12 @@ namespace Uccs.Sun.FUI
 			// 
 			// columnHeader1
 			// 
-			columnHeader1.Text = "Releases";
+			columnHeader1.Text = "Releases(n)";
 			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// columnHeader8
 			// 
-			columnHeader8.Text = "Last";
+			columnHeader8.Text = "Last Data";
 			columnHeader8.Width = 500;
 			// 
 			// label3
@@ -178,6 +176,14 @@ namespace Uccs.Sun.FUI
 			LocalSearch.UseVisualStyleBackColor = true;
 			LocalSearch.Click += LocalSearch_Click;
 			// 
+			// columnHeader3
+			// 
+			columnHeader3.Text = "Last Type";
+			// 
+			// columnHeader4
+			// 
+			columnHeader4.Text = "Last Data Length";
+			// 
 			// ResourcesPanel
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
@@ -204,7 +210,6 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ComboBox NetworkQuery;
 		private System.Windows.Forms.Button NetworkSearch;
 		private System.Windows.Forms.ColumnHeader CHFlags;
-		private System.Windows.Forms.ColumnHeader CHType;
 		private System.Windows.Forms.ColumnHeader CHData;
 		private System.Windows.Forms.ColumnHeader CHResources;
 		private System.Windows.Forms.ColumnHeader CHId;
@@ -215,5 +220,7 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.ComboBox LocalQuery;
 		private System.Windows.Forms.Button LocalSearch;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
+		private System.Windows.Forms.ColumnHeader columnHeader3;
+		private System.Windows.Forms.ColumnHeader columnHeader4;
 	}
 }

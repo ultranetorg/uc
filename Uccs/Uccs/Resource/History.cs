@@ -9,27 +9,27 @@ using Newtonsoft.Json;
 
 namespace Uccs.Net
 {
-	[Flags]
-	public enum PackageReleaseFlag
-	{
-		None, 
-		Complete	= 0b01,
-		Incremental = 0b10,
-	}
+	//[Flags]
+	//public enum PackageReleaseFlag
+	//{
+	//	None, 
+	//	Complete	= 0b01,
+	//	Incremental = 0b10,
+	//}
 
 	public class HistoryRelease : IBinarySerializable
 	{
 		public byte[]				Hash { get; set; }
-		public PackageReleaseFlag	Flags { get; set; }
-		public int					IncrementalMinimal { get; set; }
+		//public PackageReleaseFlag	Flags { get; set; }
+		//public int					IncrementalMinimal { get; set; }
 
 		public void Write(BinaryWriter writer)
 		{
 			writer.WriteBytes(Hash);
-			writer.Write((byte)Flags);
+			//writer.Write((byte)Flags);
 			
-			if(Flags.HasFlag(PackageReleaseFlag.Incremental))
-				writer.Write7BitEncodedInt(IncrementalMinimal);
+			//if(Flags.HasFlag(PackageReleaseFlag.Incremental))
+			//	writer.Write7BitEncodedInt(IncrementalMinimal);
 
 			//writer.Write(Version);
 			//writer.WriteBytes(Complete);
@@ -44,10 +44,10 @@ namespace Uccs.Net
 		public void Read(BinaryReader reader)
 		{
 			Hash = reader.ReadBytes();
-			Flags = (PackageReleaseFlag)reader.ReadByte();
+			//Flags = (PackageReleaseFlag)reader.ReadByte();
 			
-			if(Flags.HasFlag(PackageReleaseFlag.Incremental))
-				IncrementalMinimal = reader.Read7BitEncodedInt();
+			//if(Flags.HasFlag(PackageReleaseFlag.Incremental))
+			//	IncrementalMinimal = reader.Read7BitEncodedInt();
 			
 			///Version = reader.Read<Version>();
 			///Complete = reader.ReadBytes();
@@ -58,6 +58,11 @@ namespace Uccs.Net
 			///	IncrementalMinimalVersion = reader.Read<Version>();
 			///}
 		}
+
+		public override string ToString()
+		{
+			return $"{Hash.ToHex()}";
+		}
 	}
 
 	public class History : IBinarySerializable
@@ -65,7 +70,7 @@ namespace Uccs.Net
 		public ResourceAddress			Address { get; set; }
 		public List<HistoryRelease>		Releases { get; set; }
 
- 		public byte[] Bytes
+ 		public byte[] Raw
  		{
  			get
  			{
@@ -80,6 +85,11 @@ namespace Uccs.Net
 
 		public History()
 		{
+		}
+
+		public History(BinaryReader r)
+		{
+			Read(r);
 		}
 
 		public History(byte[] data)
@@ -104,12 +114,12 @@ namespace Uccs.Net
 			foreach(var i in Releases)
 			{
 				var n = d.Add(i.Hash.ToHex());
-				n.Value = i.Flags.ToString();
-
-				if(i.Flags.HasFlag(PackageReleaseFlag.Incremental))
-				{
-					n.Add("IncrementalMinimal").Value = i.IncrementalMinimal;
-				}
+				//n.Value = i.Flags.ToString();
+				//
+				//if(i.Flags.HasFlag(PackageReleaseFlag.Incremental))
+				//{
+				//	n.Add("IncrementalMinimal").Value = i.IncrementalMinimal;
+				//}
 			}
 
 			return d;		

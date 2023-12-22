@@ -40,7 +40,7 @@ namespace Uccs.Net
 			Directory.CreateDirectory(ReleasesPath);
 
 			Releases = Directory.EnumerateDirectories(ReleasesPath)
-									.Select(z => new LocalRelease(this, Path.GetFileName(z).FromHex(), ResourceType.None))
+									.Select(z => new LocalRelease(this, Path.GetFileName(z).FromHex(), DataType.None))
 										.ToList();
 
 			if(sun != null && !sun.IsClient)
@@ -81,7 +81,7 @@ namespace Uccs.Net
 		//	return new ReleaseAddress(s[0], Unescape(s[1]), s[2].FromHex());
 		//}
 
-		public LocalRelease Add(byte[] release, ResourceType type)
+		public LocalRelease Add(byte[] release, DataType type)
 		{
 			if(Releases.Any(i => i.Hash.SequenceEqual(release)))
 				throw new ResourceException($"Release {release.ToHex()} already exists");
@@ -120,7 +120,7 @@ namespace Uccs.Net
 
 			if(d != null)
 			{
-				r = new LocalRelease(this, hash, ResourceType.None);
+				r = new LocalRelease(this, hash, DataType.None);
 				Releases.Add(r);
 				return r;
 			}
@@ -221,7 +221,7 @@ namespace Uccs.Net
 
 			var h = Zone.Cryptography.HashFile(ms.ToArray());
  				
-			var r = Add(h, ResourceType.Directory);
+			var r = Add(h, DataType.Directory);
 
 			r.AddFile(".index", ms.ToArray());
 
@@ -232,7 +232,7 @@ namespace Uccs.Net
 			
 			r.Complete(Availability.Full);
 			
-			(Find(resource) ?? Add(resource)).AddData(h);
+			(Find(resource) ?? Add(resource)).AddData(DataType.Directory, r);
 
 			return r;
 		}
@@ -243,13 +243,12 @@ namespace Uccs.Net
 
 			var h = Zone.Cryptography.HashFile(b);
  				
-			var r = Add(h, ResourceType.File);
+			var r = Add(h, DataType.File);
 
  			r.AddFile("f", b);
-			
 			r.Complete(Availability.Full);
 			
-			(Find(resource) ?? Add(resource)).AddData(h);
+			(Find(resource) ?? Add(resource)).AddData(DataType.File, r);
 
 			return r;
 		}

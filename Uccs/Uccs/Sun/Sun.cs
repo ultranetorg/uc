@@ -402,7 +402,7 @@ namespace Uccs.Net
 		public void RunSeed()
 		{
 			ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Releases"));
-			PackageHub = new PackageHub(this, ResourceHub, Settings.Packages);
+			PackageHub = new PackageHub(this, Settings.Packages);
 		}
 
 		public void Stop(MethodBase methodBase, Exception ex)

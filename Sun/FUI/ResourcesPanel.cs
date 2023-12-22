@@ -55,8 +55,7 @@ namespace Uccs.Sun.FUI
 
 					i.SubItems.Add(r.Address.ToString());
 					i.SubItems.Add(string.Join(",", Enum.GetValues<ResourceFlags>().Where(i => i != ResourceFlags.None && i != ResourceFlags.Unchangables && ((i & r.Flags) != 0))));
-					i.SubItems.Add(r.Type.ToString());
-					i.SubItems.Add(r.Data?.ToHex());
+					i.SubItems.Add(r.Data?.ToHex(32));
 					i.SubItems.Add(r.Resources.Length.ToString());
 
 					NetworkReleases.Items.Add(i);
@@ -93,7 +92,7 @@ namespace Uccs.Sun.FUI
 				var li = new ListViewItem(i.Address.ToString());
 				li.Tag = i;
 				li.SubItems.Add(i.Datas.Count.ToString());
-				li.SubItems.Add(i.Last.ToHex());
+				li.SubItems.Add(i.Last.Data.ToHex(128));
 
 				LocalReleases.Items.Add(li);
 			}

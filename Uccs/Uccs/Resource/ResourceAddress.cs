@@ -30,12 +30,12 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Author}{Ura.RSeparator}{Resource}";
+			return $"{Author}{Ura.AR}{Resource}";
 		}
 
 		public static bool IsValid(string v)
 		{
-			var i = v.IndexOf(Ura.RSeparator);
+			var i = v.IndexOf(Ura.AR);
 			return v.Length >=3 && i != -1 && i != 0 && i != v.Length-1;
 		}
 
@@ -79,7 +79,7 @@ namespace Uccs.Net
 
 		public static ResourceAddress Parse(string v)
 		{
-			var s = v.IndexOf(Ura.RSeparator);
+			var s = v.IndexOf(Ura.AR);
 			var a = new ResourceAddress();
 			a.Author = v.Substring(0, s);
 			a.Resource = v.Substring(s + 1);

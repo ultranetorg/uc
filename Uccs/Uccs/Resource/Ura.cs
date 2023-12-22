@@ -16,8 +16,8 @@ namespace Uccs.Net
 		public string		Resource { get; set; }
 		public string		Details { get; set; }
 
-		public const char	RSeparator = '.';
-		public const char	DSeparator = '/';
+		public const char	AR = '.';
+		public const char	RD = '/';
 
 		public bool			Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
 
@@ -34,7 +34,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Author}{RSeparator}{Resource}{(string.IsNullOrEmpty(Details) ? null : (DSeparator + Details))}";
+			return $"{Author}{AR}{Resource}{(string.IsNullOrEmpty(Details) ? null : (RD + Details))}";
 		}
 
 		public override bool Equals(object o)
@@ -80,12 +80,12 @@ namespace Uccs.Net
 
 		public static Ura Parse(string v)
 		{
-			var s = v.IndexOf(RSeparator);
+			var s = v.IndexOf(AR);
 			var a = new Ura();
 			a.Author	= v.Substring(0, s);
 			a.Resource	= v.Substring(s + 1);
 
-			s = v.IndexOf(DSeparator);
+			s = v.IndexOf(RD);
 
 			if(s != -1)
 			{

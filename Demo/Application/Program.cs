@@ -47,7 +47,7 @@ namespace Uccs.Demo.Application
 
 						f.BeginInvoke(new Action(	() =>
 													{
-														var a = Assembly.LoadFile(Path.Join(Application.Nexus.PackageBase.AddressToPath(v), "Uccs.Demo.Component.dll"));
+														var a = Assembly.LoadFile(Path.Join(Application.Nexus.PackageHub.AddressToPath(v), "Uccs.Demo.Component.dll"));
 														var ct = a.GetType("DemoComponent.ComponentControl");
 														var c = ct?.GetConstructor(new Type[]{})?.Invoke(null) as UserControl;
 

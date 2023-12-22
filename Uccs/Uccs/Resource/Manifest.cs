@@ -68,7 +68,7 @@ namespace Uccs.Net
 			return other is not null &&
 				   Type == other.Type &&
 				   Flags == other.Flags &&
-				   EqualityComparer<PackageAddress>.Default.Equals(Package, other.Package);
+				   Package == other.Package;
 		}
 
 		public override int GetHashCode()
@@ -103,22 +103,40 @@ namespace Uccs.Net
 		}
 	}	
 
+	public class ParentPackage : IBinarySerializable
+	{
+		public byte[]			Release { get; set; }
+		public Dependency[]		AddedDependencies { get; set; }
+		public Dependency[]		RemovedDependencies { get; set; }
+
+		public void Write(BinaryWriter w)
+		{
+			w.Write(Release);
+			w.Write(AddedDependencies);
+			w.Write(RemovedDependencies);
+		}
+
+		public void Read(BinaryReader r)
+		{
+			Release				= r.ReadHash();
+			AddedDependencies	= r.ReadArray<Dependency>();
+			RemovedDependencies = r.ReadArray<Dependency>();
+		}
+	}
+
 	public class Manifest : IBinarySerializable
 	{
-		//public PackageAddress			Address { get; set; }
 		public byte[]					CompleteHash { get; set; }
 		public Dependency[]				CompleteDependencies { get; set; }
-
 		public byte[]					IncrementalHash { get; set; }
-		public Dependency[]				AddedDependencies { get; set; }
-		public Dependency[]				RemovedDependencies { get; set; }
+		public ParentPackage[]			Parents { get; set; }
 
 		public const string				Extension = "manifest";
 
 		[JsonIgnore]
 		public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Type == DependencyType.Critical);
 
- 		public byte[] Bytes
+ 		public byte[] Raw
  		{
  			get
  			{
@@ -133,21 +151,6 @@ namespace Uccs.Net
 
 		public Manifest()
 		{
-		}
-
-		public Manifest(byte[]					completehash,
-						IEnumerable<Dependency>	completedependencies,
-						byte[]					incrementalhash,
-						IEnumerable<Dependency>	addeddependencies,
-						IEnumerable<Dependency>	removeddependencies)
-		{
-			CompleteHash				= completehash;
-			CompleteDependencies		= completedependencies?.ToArray() ?? new Dependency[]{};
-			
-			IncrementalHash				= incrementalhash;
-
-			AddedDependencies			= addeddependencies?.ToArray() ?? new Dependency[]{};
-			RemovedDependencies			= removeddependencies?.ToArray() ?? new Dependency[]{};
 		}
 
 		public static Manifest LoadCompleteDependencies(string filepath)
@@ -176,99 +179,76 @@ namespace Uccs.Net
 			d.Save(filepath);
 		}
 
-		public void Save(string filepath)
-		{
-			ToXon(XonTextValueSerializator.Default).Save(filepath);
-		}
-
-		public XonDocument ToXon(IXonValueSerializator serializator)
-		{
-			var d = new XonDocument(serializator);
-
-			if(CompleteHash != null)
-			{
-				var s = d.Add("Complete");
-
-				s.Add("Hash").Value = CompleteHash;
-
-				if(CompleteDependencies.Any())
-				{
-					var deps = s.Add("Dependencies");
-
-					foreach(var i in CompleteDependencies)
-					{
-						deps.Nodes.Add(i.ToXon(serializator));
-					}
-				}
-			}
-	
-			if(IncrementalHash != null)
-			{
-				var s = d.Add("Incremental");
-
-				s.Add("Hash").Value = IncrementalHash;
-
-				if(AddedDependencies.Any())
-				{
-					var a = s.Add("AddedDependencies");
-
-					foreach(var i in AddedDependencies)
-					{
-						a.Nodes.Add(i.ToXon(serializator));
-					}
-				}
-	
-				if(RemovedDependencies.Any())
-				{
-					var r = s.Add("RemovedDependencies");
-
-					foreach(var i in RemovedDependencies)
-					{
-						r.Nodes.Add(i.ToXon(serializator));
-					}
-				}
-			}
-
-			return d;		
-		}
+// 		public void Save(string filepath)
+// 		{
+// 			ToXon(XonTextValueSerializator.Default).Save(filepath);
+// 		}
+// 
+// 		public XonDocument ToXon(IXonValueSerializator serializator)
+// 		{
+// 			var d = new XonDocument(serializator);
+// 
+// 			if(CompleteHash != null)
+// 			{
+// 				var s = d.Add("Complete");
+// 
+// 				s.Add("Hash").Value = CompleteHash;
+// 
+// 				if(CompleteDependencies.Any())
+// 				{
+// 					var deps = s.Add("Dependencies");
+// 
+// 					foreach(var i in CompleteDependencies)
+// 					{
+// 						deps.Nodes.Add(i.ToXon(serializator));
+// 					}
+// 				}
+// 			}
+// 	
+// 			if(IncrementalHash != null)
+// 			{
+// 				var s = d.Add("Incremental");
+// 
+// 				s.Add("Hash").Value = IncrementalHash;
+// 
+// 				if(AddedDependencies.Any())
+// 				{
+// 					var a = s.Add("AddedDependencies");
+// 
+// 					foreach(var i in AddedDependencies)
+// 					{
+// 						a.Nodes.Add(i.ToXon(serializator));
+// 					}
+// 				}
+// 	
+// 				if(RemovedDependencies.Any())
+// 				{
+// 					var r = s.Add("RemovedDependencies");
+// 
+// 					foreach(var i in RemovedDependencies)
+// 					{
+// 						r.Nodes.Add(i.ToXon(serializator));
+// 					}
+// 				}
+// 			}
+// 
+// 			return d;		
+// 		}
 
 		public void Write(BinaryWriter w)
 		{
-			w.Write(CompleteHash != null);
-
-			if(CompleteHash != null)
-			{
-				w.Write(CompleteHash);
-				w.Write(CompleteDependencies);
-			}
-							
-			w.Write(IncrementalHash != null);
-				
-			if(IncrementalHash != null)
-			{
-				w.Write(IncrementalHash);
-				//w.Write(IncrementalMinimalVersion);
-
-				w.Write(AddedDependencies);
-				w.Write(RemovedDependencies);
-			}
+			w.WriteBytes(CompleteHash);
+			w.WriteBytes(IncrementalHash);
+			w.Write(CompleteDependencies);
+			w.Write(Parents);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			if(r.ReadBoolean())
-			{
-				CompleteHash = r.ReadHash();
-				CompleteDependencies = r.ReadArray<Dependency>();
-			}
-
-			if(r.ReadBoolean())
-			{
-				IncrementalHash = r.ReadHash();
-				//IncrementalMinimalVersion = r.Read<Version>();
-				AddedDependencies = r.ReadArray<Dependency>();
-				RemovedDependencies = r.ReadArray<Dependency>();
-			}
+			CompleteHash			= r.ReadBytes();
+			IncrementalHash			= r.ReadBytes();
+			CompleteDependencies	= r.ReadArray<Dependency>();
+			Parents					= r.ReadArray<ParentPackage>();
 		}
 	}
 }
