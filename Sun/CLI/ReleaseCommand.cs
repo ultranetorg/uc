@@ -47,7 +47,7 @@ namespace Uccs.Sun.CLI
 				{
 					var h = Args.Nodes[1].Name.FromHex();
 
-					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h});
+					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = Enum.Parse<DataType>(GetString("type")) });
 
 					try
 					{

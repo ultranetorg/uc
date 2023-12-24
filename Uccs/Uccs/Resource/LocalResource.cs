@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -45,7 +46,6 @@ namespace Uccs.Net
 			}
 		}
 
-
 		public ResourceData(ResourceHub hub)
 		{
 			Hub = hub;
@@ -68,6 +68,17 @@ namespace Uccs.Net
 		{
 			Type = type;
 			_Interpretation = interpretation;
+		}
+
+		public ResourceData(DataType type, byte[] value)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write7BitEncodedInt((int)type);
+			w.WriteBytes(value);
+
+			_Data = s.ToArray();
 		}
 
 		public static BinaryReader SkipHeader(byte[] data)
@@ -98,7 +109,7 @@ namespace Uccs.Net
 
 				case DataType.File:
 				case DataType.Directory:
-					_Interpretation = Hub.Find(reader.ReadHash());
+					_Interpretation = reader.ReadHash();
 					break;
 
 				case DataType.Package: 
@@ -137,7 +148,7 @@ namespace Uccs.Net
 				
 					case DataType.File:
 					case DataType.Directory:
-						writer.Write((Interpretation as LocalRelease).Hash);
+						writer.Write(Interpretation as byte[]);
 						break;
 				
 					case DataType.Package: 
@@ -190,8 +201,9 @@ namespace Uccs.Net
 			else
 			{
 				Datas.Add(new ResourceData(Hub, data));
-				Save();
 			}
+			
+			Save();
 		}
 
 		public void AddData(DataType type, object interpretation)
@@ -211,8 +223,9 @@ namespace Uccs.Net
 			else
 			{ 
 				Datas.Add(d);
-				Save();
 			}
+		
+			Save();
 		}
 
 		internal void Load()

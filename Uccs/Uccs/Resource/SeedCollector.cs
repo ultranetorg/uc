@@ -31,8 +31,6 @@ namespace Uccs.Net
 			public IPAddress[]			IPs;
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
-			public DateTime				Called;
-			public bool					Refreshing =false;
 			SeedCollector				Collector;
 			byte[]						Hash;
 
@@ -43,87 +41,29 @@ namespace Uccs.Net
 				Member = member;
 				IPs = ips.ToArray();
 
-				Refresh();
-			}
-
-			public void Refresh()
-			{
-				if(Refreshing)
-					return;
-				else
-				{	
-					Refreshing = true;
-					Called = DateTime.UtcNow;
-				}
-
-
 				Task.Run(() =>	{
-
-									try
+									while(Collector.Workflow.Active)
 									{
-										var lr = Collector.Sun.Call(IPs.Random(), p => p.LocateRelease(Hash, 16), Collector.Workflow);
-
-										lock(Collector.Lock)
+										try
 										{
-											//Download.Workflow.Log?.Report(this, "Hub gives seeds", $"for {Download.Resource}, {Account}, {{{string.Join(", ", lr.Seeders.Take(8))}}}, ");
-
-											var seeds = lr.Seeders.Where(i => !Collector.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
-
-											Collector.Seeds.AddRange(seeds);
-											//Collector.SeedsFound.Set();
-										}
-
-										while(Collector.Workflow.Active)
-										{
+											var lr = Collector.Sun.Call(IPs.Random(), p => p.LocateRelease(Hash, 16), Collector.Workflow);
+	
 											lock(Collector.Lock)
 											{
-												if(Collector.Seeds.Count(i => i.Good) > 16)
-												{
-													break;
-												}
+												var seeds = lr.Seeders.Where(i => !Collector.Seeds.Any(j => j.IP.Equals(i))).Select(i => new Seed {IP = i}).ToArray();
 	
-												var s = Collector.Seeds	.Where(i => !i.Good)
-																		.OrderByDescending(i => i.Peer == null) /// try new seeds
-																		.ThenBy(i => i.Failed) /// then oldest failed 
-																		.FirstOrDefault(i => DateTime.UtcNow - i.Failed > TimeSpan.FromSeconds(5));  /// skip recent failed
-												
-												if(s != null)
-												{
-													if(s.Peer == null)
-													{
-														s.Peer = Collector.Sun.GetPeer(s.IP);
-													}
-		
-													try
-													{
-														Monitor.Exit(Collector.Lock);
-		
-														Collector.Sun.Connect(s.Peer, Collector.Workflow);
-														
-														s.Failed = DateTime.MinValue;
-													}
-													catch(RdcNodeException)
-													{
-														s.Failed = DateTime.UtcNow;
-													}
-													finally
-													{
-														Monitor.Enter(Collector.Lock);
-													}
-												}
+												Collector.Seeds.AddRange(seeds);
 											}
 										}
-										
-										Called = DateTime.UtcNow;
-									}
-									catch(Exception ex) when (ex is RdcNodeException || ex is RdcEntityException)
-									{
-									}
-									catch(OperationCanceledException)
-									{
-									}
+										catch(Exception ex) when (ex is RdcNodeException || ex is RdcEntityException)
+										{
+										}
+										catch(OperationCanceledException)
+										{
+										}
 
-									Refreshing = false;
+										WaitHandle.WaitAny(new WaitHandle []{Collector.Workflow.Cancellation.WaitHandle}, 5000);
+									}
 								}, 
 								Collector.Workflow.Cancellation);
 			}
@@ -171,7 +111,7 @@ namespace Uccs.Net
 		
 												lock(Lock)
 												{
-													var nearest = Members.OrderByNearest(hash).Where(i => i.SeedHubRdcIPs.Any()).Take(ResourceHub.MembersPerDeclaration).ToArray();
+													var nearest = Members.OrderByNearest(hash).Take(ResourceHub.MembersPerDeclaration);
 			
 													for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 													{
@@ -179,22 +119,15 @@ namespace Uccs.Net
 														
 														if(h != null)
 														{
-															//Workflow.Log?.Report(this, "Hub found", $"for {Resource}/{Hex.ToHexString(Hash)}/{File}, {h.Account}, {{{string.Join(", ", h.HubIPs.Take(8))}}}");
-			
 															hlast = new Hub(this, hash, h.Account, h.SeedHubRdcIPs);
 															Hubs.Add(hlast);
 														}
 														else
 															break;
 													}
-			
-													foreach(var i in Hubs.Where(i => DateTime.UtcNow - i.Called > TimeSpan.FromSeconds(5)))
-													{
-														i.Refresh();
-													}
 												}
 	
-												Thread.Sleep(100);
+												WaitHandle.WaitAny(new WaitHandle []{Workflow.Cancellation.WaitHandle}, 100);
 											}
 										}
 										catch(OperationCanceledException)
@@ -202,6 +135,59 @@ namespace Uccs.Net
 										}
  									});
 			Thread.Start();
+
+			for(int i=0; i<8; i++)
+			{
+				Task.Run(() =>	{
+									try
+									{
+										while(Workflow.Active)
+										{
+											lock(Lock)
+											{
+												if(Seeds.Count(i => i.Good) > 32)
+													break;
+		
+												var s = Seeds	.Where(i => !i.Good)
+																.OrderByDescending(i => i.Peer == null) /// try new seeds
+																.ThenBy(i => i.Failed) /// then oldest failed 
+																.FirstOrDefault(i => DateTime.UtcNow - i.Failed > TimeSpan.FromSeconds(5));  /// skip recent failed
+													
+												if(s != null)
+												{
+													if(s.Peer == null)
+													{
+														s.Peer = Sun.GetPeer(s.IP);
+													}
+			
+													try
+													{
+														Monitor.Exit(Lock);
+			
+														Sun.Connect(s.Peer, Workflow);
+															
+														s.Failed = DateTime.MinValue;
+													}
+													catch(RdcNodeException)
+													{
+														s.Failed = DateTime.UtcNow;
+													}
+													finally
+													{
+														Monitor.Enter(Lock);
+													}
+												}
+											}
+
+											WaitHandle.WaitAny(new WaitHandle []{Workflow.Cancellation.WaitHandle}, 100);
+										}
+									}
+									catch(OperationCanceledException)
+									{
+									}
+								}, 
+								Workflow.Cancellation);
+			}
 		}
 
 		public void Stop()

@@ -13,6 +13,7 @@ namespace Uccs.Net
 			for(var i = 0; i < len; i++)
 			{
 			    var c = x[i].CompareTo(y[i]);
+
 			    if (c != 0)
 			    {
 			        return c;
@@ -43,16 +44,55 @@ namespace Uccs.Net
 
         public static byte[] Xor(byte[] a, byte[] b)
         {
-            var n = Math.Min(a.Length, b.Length);
-			var max = a.Length > b.Length ? a : b;
-            var result = new byte[max.Length];
+            if(a.Length == b.Length)
+            {
+	            var r = new byte[a.Length];
 
-			Array.Copy(max, result, result.Length);
+	            for(var i = 0; i < a.Length; i++)
+	                r[i] = (byte) (a[i] ^ b[i]);
 
-            for(var i = 0; i < n; i++)
-                result[i] = (byte) (a[i] ^ b[i]);
+				return r;
+            } 
+            else
+            {
+	            var n = Math.Min(a.Length, b.Length);
+				var max = a.Length > b.Length ? a : b;
+	            var r = new byte[max.Length];
+	
+				Array.Copy(max, r, r.Length);
+	
+	            for(var i = 0; i < n; i++)
+	                r[i] = (byte) (a[i] ^ b[i]);
+	
+				return r;
+            }
+        }
 
-            return result;
+        public static byte[] Xor(Span<byte> a, Span<byte> b)
+        {
+            if(a.Length == b.Length)
+            {
+	            var r = new byte[a.Length];
+
+	            for(var i = 0; i < a.Length; i++)
+	                r[i] = (byte) (a[i] ^ b[i]);
+
+				return r;
+            } 
+            else
+            {
+	            var n = Math.Min(a.Length, b.Length);
+				var max = a.Length > b.Length ? a : b;
+	            var r = new byte[max.Length];
+	
+				max.CopyTo(r);
+				//Array.Copy(, r, r.Length);
+	
+	            for(var i = 0; i < n; i++)
+	                r[i] = (byte) (a[i] ^ b[i]);
+	
+				return r;
+            }
         }
 	}
 }

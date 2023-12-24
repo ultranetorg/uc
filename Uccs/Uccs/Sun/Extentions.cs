@@ -47,17 +47,17 @@ namespace Uccs.Net
 
 		public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AccountAddress> by, AccountAddress account)
 		{
-			return e.MinBy(m => BigInteger.Abs(new BigInteger(by(m).Bytes, true, true) - new BigInteger(account.Bytes, true, true)));
+			return e.MinBy(m => Bytes.Xor(by(m).Bytes, account.Bytes), Bytes.Comparer);
 		}
 
 		public static IEnumerable<MembersResponse.Member> OrderByNearest(this IEnumerable<MembersResponse.Member> e, byte[] hash)
 		{
-			return e.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes, true, true) - new BigInteger(new Span<byte>(hash, 0, 20), true, true)));
+			return e.OrderBy(i => Bytes.Xor(i.Account.Bytes, new Span<byte>(hash, 0, AccountAddress.Length)), Bytes.Comparer);
 		}
 
 		public static IEnumerable<Member> OrderByNearest(this IEnumerable<Member> e, byte[] hash)
 		{
-			return e.OrderBy(i => BigInteger.Abs(new BigInteger(i.Account.Bytes, true, true) - new BigInteger(new Span<byte>(hash, 0, 20), true, true)));
+			return e.OrderBy(i => Bytes.Xor(i.Account.Bytes, new Span<byte>(hash, 0, AccountAddress.Length)), Bytes.Comparer);
 		}
 
 		public static bool Contains(this Exception e, Func<Exception, bool> p)

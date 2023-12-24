@@ -11,6 +11,18 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
+	public class ReleaseDeclaration
+	{
+		public byte[]			Hash { get; set; }
+		public Availability		Availability { get; set; }	
+	}
+
+	public class ResourceDeclaration
+	{
+		public ResourceAddress			Resource { get; set; }	
+		public ReleaseDeclaration[]		Releases { get; set; }	
+	}
+
 	public class ResourceHub
 	{
 		public const long				PieceMaxLength = 512 * 1024;
@@ -232,7 +244,7 @@ namespace Uccs.Net
 			
 			r.Complete(Availability.Full);
 			
-			(Find(resource) ?? Add(resource)).AddData(DataType.Directory, r);
+			(Find(resource) ?? Add(resource)).AddData(DataType.Directory, h);
 
 			return r;
 		}
@@ -248,7 +260,7 @@ namespace Uccs.Net
  			r.AddFile("f", b);
 			r.Complete(Availability.Full);
 			
-			(Find(resource) ?? Add(resource)).AddData(DataType.File, r);
+			(Find(resource) ?? Add(resource)).AddData(DataType.File, h);
 
 			return r;
 		}
@@ -274,76 +286,110 @@ namespace Uccs.Net
 		{
 			Sun.Workflow.Log?.Report(this, "Declaring started");
 
-			var tasks = new Dictionary<AccountAddress, Task>(32);
 
+			var tasks = new Dictionary<AccountAddress, Task>(32);
+						
 			try
 			{
 				while(Sun.Workflow.Active)
 				{
-					Sun.Workflow.Wait(100);
-
-					LocalRelease[] rs;
-					//List<Peer> used;
-
-					lock(Lock)
-					{
-						rs = Releases.Where(i => i.Availability != Availability.None && i.DeclaredOn.Count < MembersPerDeclaration).ToArray();
-						//used = rs.SelectMany(i => i.DeclaredOn).Distinct().Where(h => rs.All(r => r.DeclaredOn.Contains(h))).ToList();
-					}
-
-					if(!rs.Any())
-						continue;
+					Sun.Statistics.Declaring.Begin();
 
 					var cr = Sun.Call(i => i.GetMembers(), Sun.Workflow);
 	
 					if(!cr.Members.Any())
 						continue;
 
+					var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceAddress, List<LocalRelease>>>();
+
 					lock(Lock)
 					{
-						foreach(var r in Releases)
-						{
-							r.DeclareTo = cr.Members.OrderByNearest(r.Hash).Take(MembersPerDeclaration).ToArray();
-						}
-
-						foreach(var m in cr.Members.Where(i => i.SeedHubRdcIPs.Any()))
-						{
-							if(tasks.Count >= 32)
+						foreach(var r in Resources)
+						{ 
+							switch(r.Last.Type)
 							{
-								var ts = tasks.Select(i => i.Value).ToArray();
-
-								Monitor.Exit(Lock);
+								case DataType.File:
+								case DataType.Directory:
 								{
-									Task.WaitAny(ts, Sun.Workflow.Cancellation);
+									var lr = Find(r.LastAs<byte[]>());
+
+									if(lr != null && lr.Availability != Availability.None)
+									{
+										foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
+										{
+											(ds.TryGetValue(m, out var x) ? x : (ds[m] = new()))[r.Address] = new() {lr};
+										}
+
+									}
+									break;
+								}								
+								case DataType.Package:
+								{	
+									foreach(var lr in (r.LastAs<History>()).Releases.Select(i => Find(i.Hash)).Where(i => i is not null && i.Availability != Availability.None))
+									{
+										foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
+										{
+											var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
+											(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
+										}
+									}
+
+									break;
 								}
-								Monitor.Enter(Lock);
-							}
-
-							var drs = Releases.Where(i => i.DeclareTo != null && i.DeclareTo.Any(i => i.Account == m.Account) && !i.DeclaredOn.Any(i => i.Account == m.Account)).ToArray();
-
-							if(drs.Any())
-							{
-								var t = Task.Run(() =>	{
-															try
-															{
-																Sun.Send(m.SeedHubRdcIPs.Random(), p => p.DeclareRelease(drs.Select(i => new DeclareReleaseItem{Hash = i.Hash, Availability  = i.Availability}).ToArray()), Sun.Workflow);
-															}
-															catch(RdcNodeException)
-															{
-															}
-	
-															lock(Lock)
-															{
-																foreach(var i in drs)
-																	i.DeclaredOn.Add(m);
-
-																tasks.Remove(m.Account);
-															}
-														});
-								tasks[m.Account] = t;
 							}
 						}
 					}
+
+					if(!ds.Any())
+					{
+						Sun.Statistics.Declaring.End();
+						Thread.Sleep(1000);
+						continue;
+					}
+
+					lock(Lock)
+					{
+						if(tasks.Count >= 32)
+						{
+							var ts = tasks.Select(i => i.Value).ToArray();
+
+							Monitor.Exit(Lock);
+							{
+								Task.WaitAny(ts, Sun.Workflow.Cancellation);
+							}
+							Monitor.Enter(Lock);
+						}
+
+						foreach(var i in ds)
+						{
+							var t = Task.Run(() =>	{
+														DeclareReleaseResponse drr;
+
+														try
+														{
+															drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{	Resource = rs.Key, 
+																																																										Releases = rs.Value.Select(rl => new ReleaseDeclaration{Hash = rl.Hash, 
+																																																																								Availability  = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
+														}
+														catch(RdcNodeException)
+														{
+															return;
+														}
+	
+														lock(Lock)
+														{
+															foreach(var r in drr.Results)
+																if(r.Result == DeclarationResult.Accepted)
+																	Find(r.Hash).DeclaredOn.Add(i.Key);
+
+															tasks.Remove(i.Key.Account);
+														}
+													});
+							tasks[i.Key.Account] = t;
+						}
+					}
+					
+					Sun.Statistics.Declaring.End();
 				}
 			}
 			catch(OperationCanceledException)

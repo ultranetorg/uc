@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Nethereum.Contracts.QueryHandlers.MultiCall;
 
 namespace Uccs.Net
 {
@@ -11,9 +12,9 @@ namespace Uccs.Net
 		public DateTime				Arrived;
 		public Availability			Availability;
 
-		public Seed(IPAddress ip, DateTime arrived)
+		public Seed(IPAddress iP, DateTime arrived)
 		{
-			IP = ip;
+			IP = iP;
 			Arrived = arrived;
 		}
 
@@ -25,7 +26,7 @@ namespace Uccs.Net
 
 	public class SeedHub
 	{
-		public const int						SeedsPerPackageMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
+		public const int						SeedsPerReleaseMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
 		public const int						SeedsPerRequestMax = 256;
 		Sun										Sun;
 		public Dictionary<byte[], List<Seed>>	Releases = new (Bytes.EqualityComparer);
@@ -36,49 +37,84 @@ namespace Uccs.Net
 			Sun = sun;
 		}
 
-		List<Seed> GetSeeds(byte[] release)
+		public List<ReleaseDeclarationResult> ProcessIncoming(IPAddress ip, ResourceDeclaration[] resources)
 		{
- 			if(!Releases.ContainsKey(release))
- 				return Releases[release] = new();
- 			else
- 				return Releases[release];
-		}
+			var results = new List<ReleaseDeclarationResult>();
 
-		public void Add(IPAddress ip, IEnumerable<DeclareReleaseItem> releases)
-		{
-			foreach(var i in releases)
+			foreach(var rs in resources)
 			{
-				if(!Sun.NextVoteMembers.OrderByNearest(i.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
+				Resource r;
+				
+				lock(Sun.Lock)
+					r = Sun.Mcv.Authors.FindResource(rs.Resource, Sun.Mcv.LastConfirmedRound.Id);
+
+				if(r == null || r.Data == null)
+				{
+					results.AddRange(rs.Releases.Select(i => new ReleaseDeclarationResult {Hash = i.Hash, Result = DeclarationResult.ResourceNotFound}));
 					continue;
-
-				var ss = GetSeeds(i.Hash);
-	
-				var s = ss.Find(i => i.IP.Equals(ip));
-
-				if(s == null)
-				{
-					s = new Seed(ip, DateTime.UtcNow);
-					ss.Add(s);
-				} 
-				else
-				{
-					s.Arrived = DateTime.UtcNow;
 				}
 
-				s.Availability = i.Availability;
-		
-				if(ss.Count > SeedsPerPackageMax)
+				foreach(var rl in rs.Releases)
 				{
-					ss = ss.OrderByDescending(i => i.Arrived).ToList();
-					ss.RemoveRange(SeedsPerPackageMax, ss.Count - SeedsPerPackageMax);
+					lock(Sun.Lock)
+						if(!Sun.NextVoteMembers.OrderByNearest(rl.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
+						{
+							results.Add(new ReleaseDeclarationResult {Hash = rl.Hash, Result = DeclarationResult.NotNearest});
+							continue;
+						}
+					
+					if(Releases.TryGetValue(rl.Hash, out var ss))
+					{
+						var s = ss.Find(i => i.IP.Equals(ip));
+	
+						if(s == null)
+						{
+							s = new Seed(ip, DateTime.UtcNow);
+							ss.Add(s);
+						} 
+						else
+						{
+							s.Arrived = DateTime.UtcNow;
+						}
+						
+						s.Availability = rl.Availability;
+					}
+					else
+					{
+						var d = new ResourceData(Sun.ResourceHub, r.Data);
+
+						if((d.Type == DataType.File || d.Type == DataType.Directory) && d.Interpretation is byte[] h && !rl.Hash.SequenceEqual(h))
+						{
+							results.Add(new ReleaseDeclarationResult {Hash = rl.Hash, Result = DeclarationResult.ReleaseNotFound});
+							continue;
+						}
+
+						if(d.Type == DataType.Package && !(d.Interpretation as History).Releases.Any(i => !rl.Hash.SequenceEqual(i.Hash)))
+						{
+							results.Add(new ReleaseDeclarationResult {Hash = rl.Hash, Result = DeclarationResult.ReleaseNotFound});
+							continue;
+						}
+
+						Releases[rl.Hash] = ss = new () {new Seed(ip, DateTime.UtcNow) {Availability = rl.Availability}};
+					}
+
+					results.Add(new ReleaseDeclarationResult {Hash = rl.Hash, Result = DeclarationResult.Accepted});
+			
+					if(ss.Count > SeedsPerReleaseMax)
+					{
+						ss = ss.OrderByDescending(i => i.Arrived).ToList();
+						ss.RemoveRange(SeedsPerReleaseMax, ss.Count - SeedsPerReleaseMax);
+					}
 				}
 			}
+
+			return results;
 		}
 
  		public IPAddress[] Locate(LocateReleaseRequest request)
  		{
- 			if(Releases.ContainsKey(request.Hash))
-	 			return Releases[request.Hash].OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
+ 			if(Releases.TryGetValue(request.Hash, out var v))
+	 			return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
  			else
  				return new IPAddress[0]; /// TODO: ask other hubs
  		}

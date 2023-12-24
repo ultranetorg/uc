@@ -102,9 +102,8 @@ namespace Uccs.Net
 	{
 		public byte[]							Hash;
 		public List<MembersResponse.Member>		DeclaredOn = new();
-		public MembersResponse.Member[]			DeclareTo;
 		public Availability						_Availability;
-		public DataType						_Type;
+		public DataType							_Type;
 		List<LocalFile>							_Files;
 		bool									Loaded;
 		ResourceHub								Hub;

@@ -106,16 +106,6 @@ namespace Uccs
 			Report(sender, subject, Severity.Info, new[] {a});
 		}
 
-		public void Report(object sender, string subject, string a, string b)
-		{
-			Report(sender, subject, Severity.Info, new[] {a, b});
-		}
-
-		public void Report(object sender, string subject, string a, string b, string c)
-		{
-			Report(sender, subject, Severity.Info, new[] {a, b, c});
-		}
-
 		public void Report(object sender, string subject, IEnumerable<string> a)
 		{
 			Report(sender, subject, Severity.Info, a);
@@ -123,7 +113,7 @@ namespace Uccs
 
 		public void ReportError(object sender, string a)
 		{
-			Report(sender, null, Severity.Error, new[]{ a });
+			Report(sender, null, Severity.Error, new[]{a});
 		}
 
 		public void ReportError(string a)

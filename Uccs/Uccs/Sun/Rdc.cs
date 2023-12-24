@@ -129,7 +129,7 @@ namespace Uccs.Net
 		public SubresourcesResponse				EnumerateSubresources(ResourceAddress resource) => Request<SubresourcesResponse>(new SubresourcesRequest {Resource = resource});
 		public QueryResourceResponse			QueryResource(string query) => Request<QueryResourceResponse>(new QueryResourceRequest {Query = query });
 		public LocateReleaseResponse			LocateRelease(byte[] hash, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Hash = hash, Count = count});
-		public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases.ToArray()});
+		//public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases.ToArray()});
 		//public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
 		public DownloadReleaseResponse			DownloadRelease(byte[] release, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Release = release, File = file, Offset = offset, Length = length});
 		//public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});

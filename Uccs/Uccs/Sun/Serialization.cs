@@ -147,7 +147,7 @@ namespace Uccs.Net
 			if(type.GetInterfaces().Contains(typeof(ITypedBinarySerializable)))
 				o = construct(type, reader.ReadByte());
 			else
-				o = construct(type, 0) ?? type.GetConstructor(new System.Type[]{}).Invoke(new object[]{});
+				o = construct(type, 0) ?? type.GetConstructor(new System.Type[]{}).Invoke(null);
 
 			initialize?.Invoke(o);
 

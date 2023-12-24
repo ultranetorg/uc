@@ -143,10 +143,10 @@ namespace Uccs.Net
 
 		public class Tag
 		{
-			public const string Peering = "Peering";
-			public const string Error = "Error";
-			public const string Establishing = "Establishing";
-			public const string Synchronization = "Synchronization";
+			public const string P = "Peering";
+			public const string S = "Synchronization";
+			public const string ERR = "Error";
+			public const string EST = "Establishing";
 		}
 		
 		public Sun(Zone zone, Settings settings)
@@ -421,18 +421,16 @@ namespace Uccs.Net
 		{
 			Workflow?.Abort();
 
+			ApiServer?.Stop();
+			Listener?.Stop();
+
 			lock(Lock)
 				foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected).ToArray())
 					i.Disconnect();
 
-			ApiServer?.Stop();
-			
-			Listener?.Stop();
-
 			MainThread?.Join();
 			ListeningThread?.Join();
 			TransactingThread?.Join();
-			//VerifingThread?.Join();
 			SynchronizingThread?.Join();
 
 			Mcv?.Database.Dispose();
@@ -476,7 +474,7 @@ namespace Uccs.Net
 			
 			if(Peers.Any())
 			{
-				Workflow?.Log?.Report(this, "Peers loaded", $"n={Peers.Count}");
+				Workflow?.Log?.Report(this, "PEE loaded", $"n={Peers.Count}");
 			}
 			else
 			{
@@ -584,7 +582,7 @@ namespace Uccs.Net
 				Connections.Count(i => i.Permanent) >= Settings.PeersPermanentMin && 
 				(!Roles.HasFlag(Role.Base) || Bases.Count() >= Settings.Mcv.PeersMin))
 			{
-				Workflow?.Log?.Report(this, $"{Tag.Peering}", "Minimal peers reached");
+				Workflow?.Log?.Report(this, $"{Tag.P}", "Minimal peers reached");
 
 				if(Mcv != null)
 				{
@@ -604,7 +602,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Workflow?.Log?.Report(this, $"{Tag.Peering}", $"Listening starting {Settings.IP}:{Zone.Port}");
+				Workflow?.Log?.Report(this, $"{Tag.P}", $"Listening starting {Settings.IP}:{Zone.Port}");
 
 				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();
@@ -677,17 +675,17 @@ namespace Uccs.Net
 			{
 				try
 				{
-					var client = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
+					var tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
 
 					try
 					{
-						client.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+						tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
 						//client.ReceiveTimeout = Timeout;
-						client.Connect(peer.IP, Zone.Port);
+						tcp.Connect(peer.IP, Zone.Port);
 					}
 					catch(SocketException ex) 
 					{
-						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. {ex.Message}" );
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
 						goto failed;
 					}
 	
@@ -695,15 +693,15 @@ namespace Uccs.Net
 									
 					try
 					{
-						client.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
-						client.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+						tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+						tcp.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
 
-						Peer.SendHello(client, CreateHello(peer.IP, permanent));
-						h = Peer.WaitHello(client);
+						Peer.SendHello(tcp, CreateHello(peer.IP, permanent));
+						h = Peer.WaitHello(tcp);
 					}
 					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. {ex.Message}" );
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
 						goto failed;
 					}
 	
@@ -711,7 +709,7 @@ namespace Uccs.Net
 					{
 						if(Workflow.Aborted)
 						{
-							client.Close();
+							tcp.Close();
 							return;
 						}
 
@@ -727,7 +725,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. It's me" );
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. It's me" );
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							goto failed;
@@ -736,21 +734,21 @@ namespace Uccs.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing}", $"Reported IP {IP}");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST}", $"Reported IP {IP}");
 						}
 	
 						if(peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"To {peer.IP}. Already established" );
-							client.Close();
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. Already established" );
+							tcp.Close();
 							return;
 						}
 	
 						RefreshPeers(h.Peers.Append(peer));
 	
-						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
+						peer.Start(this, tcp, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
 						
-						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing}", $"Connected to {peer}");
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST}", $"Connected to {peer}");
 	
 						return;
 					}
@@ -760,7 +758,7 @@ namespace Uccs.Net
 						lock(Lock)
 							peer.Disconnect();;
 									
-						client.Close();
+						tcp.Close();
 					}
 				}
 				catch(Exception ex) when(!Debugger.IsAttached)
@@ -835,7 +833,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. WaitHello -> {ex.Message}");
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
 						goto failed;
 					}
 				
@@ -864,7 +862,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. It's me");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. It's me");
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							goto failed;
@@ -872,14 +870,14 @@ namespace Uccs.Net
 
 						if(peer != null && peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. Already established" );
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. Already established" );
 							goto failed;
 						}
 	
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"Reported IP {IP}");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"Reported IP {IP}");
 						}
 		
 						try
@@ -888,7 +886,7 @@ namespace Uccs.Net
 						}
 						catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 						{
-							Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing} {Tag.Error}", $"From {ip}. SendHello -> {ex.Message}");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
 							goto failed;
 						}
 	
@@ -913,7 +911,7 @@ namespace Uccs.Net
 						//peer.InStatus = EstablishingStatus.Succeeded;
 						peer.Permanent = h.Permanent;
 						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
-						Workflow.Log?.Report(this, $"{Tag.Peering} {Tag.Establishing}", $"Connected from {peer}");
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST}", $"Connected from {peer}");
 			
 						//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
@@ -944,7 +942,7 @@ namespace Uccs.Net
 
 			if(Synchronization != Synchronization.Downloading)
 			{
-				Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Started");
+				Workflow.Log?.Report(this, $"{Tag.S}", "Started");
 
 				SynchronizingThread = new Thread(Synchronizing);
 				SynchronizingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Synchronizing";
@@ -1027,7 +1025,7 @@ namespace Uccs.Net
 										}
 									}
 		
-									Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Cluster downloaded {t.GetType().Name}, {c.Id.ToHex()}");
+									Workflow.Log?.Report(this, $"{Tag.S}", $"Cluster downloaded {t.GetType().Name}, {c.Id.ToHex()}");
 								}
 							}
 		
@@ -1086,7 +1084,7 @@ namespace Uccs.Net
 								if(r == null)
 									break;
 								
-								Workflow.Log?.Report(this, $"{Tag.Synchronization}", $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
+								Workflow.Log?.Report(this, $"{Tag.S}", $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.IP}");
 									
 								if(Mcv.LastConfirmedRound.Id + 1 != rid)
 								 	throw new IntegrityException();
@@ -1124,7 +1122,7 @@ namespace Uccs.Net
 						
 										MainWakeup.Set();
 
-										Workflow.Log?.Report(this, $"{Tag.Synchronization}", "Finished");
+										Workflow.Log?.Report(this, $"{Tag.S}", "Finished");
 										return;
 									}
 								}
@@ -1152,6 +1150,8 @@ namespace Uccs.Net
 									if(i <= rid)
 										SyncTail.Remove(i);
 							}
+
+							Thread.Sleep(1);
 						}
 					}
 				}

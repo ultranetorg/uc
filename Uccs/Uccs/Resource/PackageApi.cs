@@ -14,37 +14,33 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			var m = new Manifest();
-			m.Read(new BinaryReader(new MemoryStream(Manifest)));
+// 			var m = new Manifest();
+// 			m.Read(new BinaryReader(new MemoryStream(Manifest)));
 								
-			var h = sun.Zone.Cryptography.HashFile(m.Raw);
+			var h = sun.Zone.Cryptography.HashFile(Manifest);
 								
-			lock(sun.ResourceHub.Lock)
+			lock(sun.PackageHub.Lock)
 			{
-				var rl = sun.ResourceHub.Find(h);
-
-				if(rl == null)
-				{
-					rl = sun.ResourceHub.Add(h, DataType.Package);
-				
-					rl.AddFile(Net.Package.ManifestFile, Manifest);
-		
-					if(Complete != null)
-						rl.AddFile(Net.Package.CompleteFile, Complete);
-	
-					if(Incremental != null)
-						rl.AddFile(Net.Package.IncrementalFile, Incremental);
-									
-					rl.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
-				}
-
 				var p = sun.PackageHub.Get(new (Resource, h));
-				
-				//var rs = sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource);
-				//var l = rs.LastAs<History>();
-				//var his = l == null ? new History {Releases = new()} : new History(l.Raw);
-
 				p.AddRelease(h);
+				
+				lock(sun.ResourceHub.Lock)
+				{
+					var rl = sun.ResourceHub.Find(h);
+	
+					if(rl == null)
+					{
+						rl.AddFile(Net.Package.ManifestFile, Manifest);
+			
+						if(Complete != null)
+							rl.AddFile(Net.Package.CompleteFile, Complete);
+		
+						if(Incremental != null)
+							rl.AddFile(Net.Package.IncrementalFile, Incremental);
+										
+						rl.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+					}
+				}
 			}
 
 			return null;

@@ -97,28 +97,36 @@ namespace Uccs.Sun.CLI
 				case "download" :
 				{
 					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
-					var h = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = a}).Resource.Data;
+					var d = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = a}).Resource.Data;
+
+					byte[] h;
+
+					LocalResource lr;
 
 					lock(Program.Sun.ResourceHub.Lock)
 					{
-						var r = Program.Sun.ResourceHub.Add(a);
-						r.AddData(h);
+						lr = Program.Sun.ResourceHub.Add(a);
+						lr.AddData(d);
+						h = lr.LastAs<byte[]>();
 					}
 
-					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h});
+					if(h == null)
+						throw new Exception("Not supported type");
+
+					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = lr.Last.Type});
 
 					try
 					{
-						ReleaseDownloadProgress d = null;
+						ReleaseDownloadProgress p = null;
 						
 						while(Workflow.Active)
 						{
-							d = Program.Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
+							p = Program.Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
 
-							if(d == null)
+							if(p == null)
 								break;
 
-							Workflow.Log?.Report(this, d.ToString());
+							Workflow.Log?.Report(this, p.ToString());
 
 							Thread.Sleep(500);
 						}

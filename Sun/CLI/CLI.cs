@@ -84,6 +84,62 @@ namespace Uccs.Sun.CLI
 
 		static void Main(string[] args)
 		{
+// 			var r = new Random();
+// 
+// 			var a = new bool[100];
+// 
+// 			var b = new bool[100];
+// 
+// 			var c = new bool[100];
+// 			var d = new bool[100];
+// 
+// 			var c0 = new bool[100];
+// 			var d0 = new bool[100];
+// 
+// 			for(int j=0; j<100000; j++)
+// 			{
+// 				a[r.Next(100)] = true;
+// 				b[r.Next(100)] = true;
+// 
+// 				for(int k=0; k<15; k++)
+// 				{
+// 					for(int i=0; i<100; i++)
+// 					{
+// 						c0[i] = r.Next() % 2 == 0 ? a[i] : b[i];
+// 					}
+// 					
+// 					if(k == 0)
+// 						Array.Copy(c0, c, 100);
+// 					else if(c0.Count(i => i) < c.Count(i => i))
+// 						Array.Copy(c0, c, 100);
+// 				}
+// 
+// 
+// 				for(int k=0; k<15; k++)
+// 				{
+// 					for(int i=0; i<100; i++)
+// 					{
+// 						d0[i] = r.Next() % 2 == 0 ? a[i] : b[i];
+// 					}
+// 					
+// 					if(k == 0)
+// 						Array.Copy(d0, d, 100);
+// 					else if(d0.Count(i => i) < d.Count(i => i))
+// 						Array.Copy(d0, d, 100);
+// 				}
+// 	
+// 				Console.WriteLine(j +" = "+  c.Count(i => i).ToString() + " " + d.Count(i => i).ToString());
+// 	
+// 				Array.Copy(c, a, 100);
+// 				Array.Copy(d, b, 100);
+// 
+// 				if(c.All(i => i) || d.All(i => i))
+// 				{
+// 					break;
+// 				}
+// 			}
+
+
 			Thread.CurrentThread.CurrentCulture = 
 			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 

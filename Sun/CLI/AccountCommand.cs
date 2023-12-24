@@ -65,7 +65,9 @@ namespace Uccs.Sun.CLI
 
 			var acc = AccountKey.Create();
 
-			Workflow.Log?.Report(this, "Account created", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
+			Workflow.Log?.Report(this, null, new string[]{	"Account created", 
+															"Public Address - " + acc.ToString(), 
+															"Private Key    - " + acc.Key.GetPrivateKey() });
 
 			Program.Api(new AddWalletCall {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
 			Program.Api(new SaveWalletCall {Account = acc});
@@ -105,7 +107,9 @@ namespace Uccs.Sun.CLI
 			Program.Api(new AddWalletCall {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
 			Program.Api(new SaveWalletCall {Account = acc});
 
-			Workflow.Log?.Report(this, "Account imported", null, "Public Address - " + acc.ToString(), "Private Key    - " + acc.Key.GetPrivateKey());
+			Workflow.Log?.Report(this, null, new string[] {	"Account imported", 
+															"Public Address - " + acc.ToString(), 
+															"Private Key    - " + acc.Key.GetPrivateKey() });
 			
 			return acc;
 		}

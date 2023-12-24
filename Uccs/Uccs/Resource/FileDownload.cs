@@ -56,7 +56,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalRelease								Release;
+		public LocalRelease							Release;
 		public LocalFile							File;
 		public bool									Succeeded;
 		public long									Length => File.Length;
@@ -159,27 +159,6 @@ namespace Uccs.Net
 															goto end;
 														}
 													}
-												}
-												else
-												{
-													//Thread.Sleep(1);
-													//
-													//foreach(var h in Hubs.Where(i => i.Status == HubStatus.Estimating && i.Seeds.Any()))
-													//{
-													//	if(h.Seeds.All(i => Seeds[i] == SeedStatus.Bad)) /// all seeds are bad
-													//	{
-													//		h.Status = HubStatus.Bad;
-													//	}
-													//}
-													//
-													//if(Seeds.Any() && Seeds.All(i => i.Value == SeedStatus.Bad)) /// no good seeds found
-													//{
-													//	if(Hubs.Count(i => i.Status == HubStatus.Estimating) < hubsgoodmax && hlast == null) /// no more hubs, total restart
-													//	{
-													//		//Hubs.Clear();
-													//		//Seeds.Clear();
-													//	}
-													//}
 												}
 											}
 										

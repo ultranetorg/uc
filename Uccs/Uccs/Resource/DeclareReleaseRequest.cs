@@ -5,16 +5,10 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class DeclareReleaseItem
-	{
-		public byte[]			Hash { get; set; }
-		public Availability		Availability { get; set; }	
-	}
-
 	public class DeclareReleaseRequest : RdcRequest//, IBinarySerializable
 	{
-		public DeclareReleaseItem[]	Releases { get; set; }
-		public override bool		WaitResponse => false;
+		public ResourceDeclaration[]	Resources { get; set; }
+		public override bool			WaitResponse => true;
 
 		public override RdcResponse Execute(Sun sun)
 		{
@@ -22,11 +16,25 @@ namespace Uccs.Net
 				RequireMember(sun);
 
 			lock(sun.SeedHub.Lock)
-				sun.SeedHub.Add(Peer.IP, Releases);
-
-			return null;
+				return new DeclareReleaseResponse {Results = sun.SeedHub.ProcessIncoming(Peer.IP, Resources).ToArray() };
 		}
+	}
 
+	public enum DeclarationResult
+	{
+		None, Accepted, ResourceNotFound, ReleaseNotFound, NotNearest
+	}
+
+	public class ReleaseDeclarationResult
+	{
+		public byte[]				Hash { get; set; }
+		public DeclarationResult	Result { get; set; }	
+	}
+
+	public class DeclareReleaseResponse : RdcResponse
+	{
+		public ReleaseDeclarationResult[]	Results { get; set; }
+	}
 // 		public void Write(BinaryWriter writer)
 // 		{
 // 			var aa = Releases.GroupBy(i => i.Key.Author);
@@ -128,5 +136,4 @@ namespace Uccs.Net
 // 			//
 // 			//Items = list;
 // 		}
-	}
 }
