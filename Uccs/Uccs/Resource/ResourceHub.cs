@@ -73,32 +73,13 @@ namespace Uccs.Net
 			return resource.Replace(' ', '/');
 		}
 
-		//public void SetLatest(ResourceAddress release, byte[] hash)
-		//{
-		//	File.WriteAllText(Path.Join(ReleasesPath, release.Author, Escape(release.Resource),  "latest"), hash.ToHex());
-		//}
-		//
-		//public byte[] GetLatest(ResourceAddress release)
-		//{
-		//	var f = Path.Join(ReleasesPath, release.Author, Escape(release.Resource),  "latest");
-		//	return File.Exists(f) ? File.ReadAllText(f).FromHex() : null;
-		//}
-
-		//public ReleaseAddress PathToAddress(string path)
-		//{
-		//	path = path.Substring(ReleasesPath.Length).TrimStart(Path.DirectorySeparatorChar);
-		//
-		//	var s = path.Split(Path.DirectorySeparatorChar);
-		//
-		//	return new ReleaseAddress(s[0], Unescape(s[1]), s[2].FromHex());
-		//}
-
 		public LocalRelease Add(byte[] release, DataType type)
 		{
 			if(Releases.Any(i => i.Hash.SequenceEqual(release)))
 				throw new ResourceException($"Release {release.ToHex()} already exists");
 
 			var r = new LocalRelease(this, release, type);
+			r.__StackTrace = new System.Diagnostics.StackTrace(true);
 	
 			Releases.Add(r);
 	
@@ -159,19 +140,6 @@ namespace Uccs.Net
 
 			return null;
 		}
-
-// 		public LocalRelease Find(ReleaseAddress release)
-// 		{
-// 			if(release.Hash != null)
-// 				return Find(release.Hash);
-// 
-// 			var r = Find(release.Resource);
-// 
-// 			if(r != null)
-// 				return Find(r.Last);
-// 
-// 			return null;
-// 		}
 
 		public LocalRelease Build(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
 		{

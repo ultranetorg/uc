@@ -109,6 +109,8 @@ namespace Uccs.Net
 		ResourceHub								Hub;
 		public string							Path => System.IO.Path.Join(Hub.ReleasesPath, Hash.ToHex());
 
+		public System.Diagnostics.StackTrace	__StackTrace;
+
 		public List<LocalFile> Files
 		{
 			get

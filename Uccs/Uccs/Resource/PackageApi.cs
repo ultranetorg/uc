@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Uccs.Net
 { 
@@ -14,11 +15,8 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-// 			var m = new Manifest();
-// 			m.Read(new BinaryReader(new MemoryStream(Manifest)));
-								
 			var h = sun.Zone.Cryptography.HashFile(Manifest);
-								
+			
 			lock(sun.PackageHub.Lock)
 			{
 				var p = sun.PackageHub.Get(new (Resource, h));

@@ -184,32 +184,32 @@ namespace Uccs.Net
 			return p;
 		}
 
-		public Package Find(ResourceAddress resource)
-		{
-			var p = Packages.Find(i => i.Address == resource);
-
-			if(p != null)
-				return p;
-
-			LocalResource r;
-
-			lock(Sun.ResourceHub.Lock)
-			{
-				r = Sun.ResourceHub.Find(resource);
-
-				if(r != null)
-				{
-					var h = r.LastAs<History>().Releases.Last().Hash;
-					p = new Package(this, new PackageAddress(resource, h), r, Sun.ResourceHub.Find(h));
-	
-					Packages.Add(p);
-	
-					return p;
-				}
-			}
-
-			return null;
-		}
+ 		public Package Find(ResourceAddress resource)
+ 		{
+ 			var p = Packages.Find(i => i.Address == resource);
+ 
+ 			if(p != null)
+ 				return p;
+ 
+ 			LocalResource r;
+ 
+ 			lock(Sun.ResourceHub.Lock)
+ 			{
+ 				r = Sun.ResourceHub.Find(resource);
+ 
+ 				if(r != null)
+ 				{
+ 					var h = r.LastAs<History>().Releases.Last().Hash;
+ 					p = new Package(this, new PackageAddress(resource, h), r, Sun.ResourceHub.Find(h));
+ 	
+ 					Packages.Add(p);
+ 	
+ 					return p;
+ 				}
+ 			}
+ 
+ 			return null;
+ 		}
 
 		public Package Find(PackageAddress package)
 		{
@@ -218,18 +218,17 @@ namespace Uccs.Net
 			if(p != null)
 				return p;
 
-			LocalRelease r;
-
 			lock(Sun.ResourceHub.Lock)
 			{
-				r = Sun.ResourceHub.Find(package.Hash);
+				var rs = Sun.ResourceHub.Find(package);
+				var rl = Sun.ResourceHub.Find(package.Hash);
 
-				if(r != null)
+				if(rs != null && rl != null)
 				{
-					p = new Package(this, package, Sun.ResourceHub.Find(package), r);
-	
+					p = new Package(this, package, rs, rl);
+
 					Packages.Add(p);
-	
+
 					return p;
 				}
 			}
