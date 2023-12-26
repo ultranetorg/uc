@@ -62,7 +62,7 @@ namespace Uccs.Net
 		public Role						Roles => (Mcv != null ? Mcv.Roles : Role.None)|(ResourceHub != null ? Role.Seed : Role.None);
 
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
-		public static readonly int[]	Versions = {2};
+		public static readonly int[]	Versions = {3};
 		public const string				FailureExt = "failure";
 		public const int				Timeout = 5000;
 		public const int				OperationsQueueLimit = 1000;
