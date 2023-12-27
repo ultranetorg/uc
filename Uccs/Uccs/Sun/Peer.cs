@@ -406,13 +406,13 @@ namespace Uccs.Net
 					{
 						if(rq.Response.Error is NodeException e)
 						{
-							if(e.Error.HasFlag(NodeError.NotBase))
+							if(e.Error == NodeError.NotBase)
 								BaseRank = 0;
 	
-							if(e.Error.HasFlag(NodeError.NotChain))
+							if(e.Error == NodeError.NotChain)
 								ChainRank = 0;
 	
-							if(e.Error.HasFlag(NodeError.NotSeed))
+							if(e.Error == NodeError.NotSeed)
 								SeedRank = 0;
 						}
 

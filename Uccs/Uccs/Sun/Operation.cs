@@ -28,7 +28,7 @@ namespace Uccs.Net
 		AnalysisOrder, AnalysisResultRegistration
 	}
 
-	public abstract class Operation// : ITypedBinarySerializable
+	public abstract class Operation : ITypedBinarySerializable, IBinarySerializable
 	{
 		public string			Error;
 		//public AccountAddress	Signer { get; set; }
@@ -48,6 +48,7 @@ namespace Uccs.Net
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
 
 		public OperationClass	Class => Enum.Parse<OperationClass>(GetType().Name);
+		public byte				TypeCode => (byte)Class;
 
 		protected OperationId	_id;
 		

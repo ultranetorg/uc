@@ -59,11 +59,6 @@ namespace Uccs.Net
 					return;
 				}
 
-	 			case Operation v:
-	 				writer.Write((byte)v.Class);
-	 				v.Write(writer);
-					return;
-
 	 			case XonDocument v:
 				{	
 					var s = new MemoryStream();
@@ -211,35 +206,15 @@ namespace Uccs.Net
 			if(!reader.ReadBoolean())
 				return null;
 			
-			if(typeof(string) == type)
-			{
-				return reader.ReadUtf8(); 
-			} 
-			else
-			if(typeof(byte[]) == type)
-			{ 
+			if(typeof(byte[]) == type)		
 				return reader.ReadBytes(reader.Read7BitEncodedInt()); 
-			}
-			else
+			else if(typeof(string) == type)
+				return reader.ReadUtf8(); else 
 			if(typeof(IPAddress) == type)
-			{
 				return reader.ReadIPAddress();
-			}
-			else
-			if(type == typeof(XonDocument))
-			{ 
+			else if(type == typeof(XonDocument))
 				return new XonDocument(new XonBinaryReader(new MemoryStream(reader.ReadBytes(reader.Read7BitEncodedInt()))), new XonTypedBinaryValueSerializator());
-			}
-			else
-			if(type == typeof(Operation) || type.IsSubclassOf(typeof(Operation)))
-			{ 
-				var t = (OperationClass)reader.ReadByte();
-				var v = Operation.FromType(t);
-				v.Read(reader);
-				return v;
-			}
-			else
-			if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
+			else if(type.GetInterfaces().Any(i => i == typeof(ICollection)))
 			{
 				var ltype = type.GetElementType().MakeArrayType(1);
 	
