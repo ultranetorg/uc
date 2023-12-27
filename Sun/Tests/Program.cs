@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using Uccs.Net;
+using Uocs;
 
 namespace Tests
 {
@@ -8,18 +11,30 @@ namespace Tests
 	{
 		public static void Main(string[] args)
 		{
-			var r = new Random();
-			var h = new byte[32];
-			var x = Enumerable.Range(0, 100).Select(i => new Member {Account = AccountKey.Create()}).OrderBy(i => i.Account).ToList();
+			var sun = new Sun(Zone.Localnet, new Settings() {Profile = $"{G.Dev.Tmp}\\Tests" });
 
-			while(true)
+			var rq = new MembersResponse()
 			{
-				r.NextBytes(h);
+				Id = 123,
+				Error = new NodeException(NodeError.AllNodesFailed),
+				Members = new MembersResponse.Member[] {new MembersResponse.Member{ Account = AccountAddress.Zero, 
+																					BaseRdcIPs = new IPAddress[] {IPAddress.Parse("1.1.1.1") },
+																					SeedHubRdcIPs = new IPAddress[] {IPAddress.Parse("1.1.1.1") },
+																					CastingSince = 345,
+																					Proxyable = true
+																					}}
+			};
 
-				var n = x.OrderByNearest(h).Take(3).ToArray();
+			
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+			var r = new BinaryReader(s);
 
-				Console.WriteLine($"{x.IndexOf(n[0]),10}{x.IndexOf(n[1]),10}{x.IndexOf(n[2]),10}");
-			}
+			BinarySerializator.Serialize(w, rq);
+
+			s.Position = 0;
+
+			rq = BinarySerializator.Deserialize<MembersResponse>(r, sun.Constract);
 		}
 	}
 }

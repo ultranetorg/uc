@@ -117,7 +117,7 @@ namespace Uccs.Net
 					break;
 
 				default:
-					throw new ResourceException("Unknown DataType");
+					throw new ResourceException(ResourceError.UnknownDataType);
 			}
 		}
 

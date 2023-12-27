@@ -188,12 +188,14 @@ namespace Uccs.Net
 			if(t == typeof(Transaction)) return new Transaction {Zone = Zone};
 			if(t == typeof(Vote)) return new Vote(Mcv);
 			if(t == typeof(Manifest)) return new Manifest();
-			if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b); 
-			if(t == typeof(RdcResponse)) return RdcResponse.FromType((Rdc)b); 
+			if(t == typeof(RdcRequest) || t.IsSubclassOf(typeof(RdcRequest))) return RdcRequest.FromType((Rdc)b); 
+			if(t == typeof(RdcResponse) || t.IsSubclassOf(typeof(RdcResponse))) return RdcResponse.FromType((Rdc)b); 
+			if(t == typeof(Operation) || t.IsSubclassOf(typeof(Operation))) return Operation.FromType((OperationClass)b); 
+			if(t == typeof(SunException) || t.IsSubclassOf(typeof(SunException))) return SunException.FromType((ExceptionClass)b); 
 
 			return null;
 		}
-
+		
 		public void RunApi(Workflow workflow)
 		{
 			if(!HttpListener.IsSupported)
@@ -1182,11 +1184,11 @@ namespace Uccs.Net
 						Mcv.Initialize();
 					}
 				}
-				catch(RdcNodeException ex)
+				catch(NodeException ex)
 				{
 					used.Add(peer);
 				}
-				catch(RdcEntityException)
+				catch(EntityException)
 				{
 				}
 				catch(OperationCanceledException)
@@ -1551,7 +1553,7 @@ namespace Uccs.Net
 								rdi = getrdi(g.Key);
 								at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Account = g.Key});
 							}
-							catch(RdcNodeException)
+							catch(NodeException)
 							{
 								Thread.Sleep(1000);
 								continue;
@@ -1582,7 +1584,7 @@ namespace Uccs.Net
 								Monitor.Exit(Lock);
 								atxs = rdi.SendTransactions(txs).Accepted;
 							}
-							catch(RdcNodeException)
+							catch(NodeException)
 							{
 								Thread.Sleep(1000);
 								continue;
@@ -1629,7 +1631,7 @@ namespace Uccs.Net
 								Monitor.Exit(Lock);
 								ts = g.Key.GetTransactionStatus(g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}));
 							}
-							catch(RdcNodeException)
+							catch(NodeException)
 							{
 								Thread.Sleep(1000);
 								continue;
@@ -1817,7 +1819,7 @@ namespace Uccs.Net
 	
 					return peer;
 				}
-				catch(RdcNodeException)
+				catch(NodeException)
 				{
 				}
 			}
@@ -1842,7 +1844,7 @@ namespace Uccs.Net
 					{
 						Connect(p, workflow);
 					}
-					catch(RdcNodeException)
+					catch(NodeException)
 					{
 						continue;
 					}
@@ -1887,11 +1889,11 @@ namespace Uccs.Net
 					if(peer.Status == ConnectionStatus.OK)
 						return;
 					else if(peer.Status == ConnectionStatus.Disconnecting || peer.Status == ConnectionStatus.Disconnected)
-						throw new RdcNodeException(RdcNodeError.Connectivity);
+						throw new NodeException(NodeError.Connectivity);
 
 				if(!SunGlobals.DisableTimeouts)
 					if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
-						throw new RdcNodeException(RdcNodeError.Timeout);
+						throw new NodeException(NodeError.Timeout);
 				
 				Thread.Sleep(1);
 			}
@@ -1932,7 +1934,7 @@ namespace Uccs.Net
 
 					return call(p);
 				}
- 				catch(RdcNodeException)
+ 				catch(NodeException)
  				{
 					p.LastFailure[Role.Base] = DateTime.UtcNow;
  				}
@@ -2021,7 +2023,7 @@ namespace Uccs.Net
 								{
 									return p.GetAccountInfo(signer);
 								}
-								catch(RdcEntityException ex) when (ex.Error == RdcEntityError.NotFound)
+								catch(EntityException ex) when (ex.Error == EntityError.NotFound)
 								{
 									return new AccountResponse();
 								}
@@ -2054,7 +2056,7 @@ namespace Uccs.Net
 									{
 										return p.GetAccountInfo(signer);
 									}
-									catch(RdcEntityException ex) when (ex.Error == RdcEntityError.NotFound)
+									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
 									{
 										return new AccountResponse();
 									}
@@ -2127,7 +2129,7 @@ namespace Uccs.Net
 				{
 					i.Send(new VoteRequest {Raw = vote.RawForBroadcast });
 				}
-				catch(RdcNodeException)
+				catch(NodeException)
 				{
 				}
 			}

@@ -47,7 +47,7 @@ namespace Uccs.Net
 					return r.Hash;
 				}
 				else
-					throw new ResourceException($"{Type} not supported");
+					throw new ResourceException(ResourceError.DataTypeNotSupported);
 			}
 		}
 	}

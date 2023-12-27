@@ -18,7 +18,7 @@ namespace Uccs.Net
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(!sun.Roles.HasFlag(Role.Base))
-				throw new RdcNodeException(RdcNodeError.NotBase);
+				throw new NodeException(NodeError.NotBase);
 
 			var s = new MemoryStream(Raw);
 			var br = new BinaryReader(s);

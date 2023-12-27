@@ -13,7 +13,7 @@
 				var ai = sun.Mcv.Accounts.Find(Account, sun.Mcv.LastConfirmedRound.Id);
 
 				if(ai == null)
-					throw new RdcEntityException(RdcEntityError.NotFound);
+					throw new EntityException(EntityError.NotFound);
 
  				return new AccountResponse{Account = ai};
 			}

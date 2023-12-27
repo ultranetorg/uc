@@ -7,7 +7,7 @@
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(Release.Length != Cryptography.HashSize)
-				throw new RdcRequestException();
+				throw new RequestException();
 
  			lock(sun.Lock)
 			{	
@@ -16,7 +16,7 @@
 				var e = sun.Mcv.Analyses.Find(Release, sun.Mcv.LastConfirmedRound.Id); 
 
 				if(e == null)
-					throw new RdcEntityException(RdcEntityError.NotFound);
+					throw new EntityException(EntityError.NotFound);
 
 				return new AnalysisResponse {Analysis = e};
 			}

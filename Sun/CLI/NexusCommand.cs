@@ -41,7 +41,7 @@ namespace Uccs.Sun.CLI
 					var m = rp.Members.FirstOrDefault(i => i.Account == AccountAddress.Parse(Args.Nodes[1].Name));
 
 					if(m == null)
-						throw new RdcEntityException(RdcEntityError.NotFound);
+						throw new EntityException(EntityError.NotFound);
 
 					Dump(m);
 

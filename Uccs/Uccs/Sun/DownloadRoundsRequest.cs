@@ -17,7 +17,7 @@ namespace Uccs.Net
 				RequireBase(sun);
 				
 				if(sun.Mcv.LastNonEmptyRound == null)	
-					throw new RdcNodeException(RdcNodeError.TooEearly);
+					throw new NodeException(NodeError.TooEearly);
 
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);

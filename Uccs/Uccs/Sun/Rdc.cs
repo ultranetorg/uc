@@ -22,73 +22,6 @@ namespace Uccs.Net
 		Analysis
 	}
 
-	public enum RdcResult : byte
-	{
-		None, Success, NodeException, RequestException, EntityException, GeneralException
-	}
-
-	public enum RdcNodeError : byte
-	{
-		None,
-		Connectivity,
-		Integrity,
-		Internal,
-		Timeout,
-		NoIP,
-		//NotFound,
-		NotBase,
-		NotChain,
-		NotSeed,
-		NotMember,
-		NotSynchronized,
-		TooEearly,
-		AllNodesFailed,
-		NotOnlineYet,
-		CircularRoute,
-	}
-
-	public enum RdcEntityError : byte
-	{
-		None,
-		//InvalidRequest,
-		NotFound,
-		RoundNotAvailable,
-	}
-
- 	public class RdcNodeException : Exception
- 	{
-		public RdcNodeError Error;
-		public string		ErrorDetails;
-
- 		public RdcNodeException(RdcNodeError erorr) : base(erorr.ToString())
-		{
-			Error = erorr;
-		}
-
- 		public RdcNodeException(RdcNodeError erorr, string errordetails) : base(erorr.ToString())
-		{
-			Error = erorr;
-			ErrorDetails = errordetails;
-		}
- 	}
-
-	public class RdcRequestException : Exception
-	{
-		public RdcRequestException()
-		{
-		}
-	}
-
- 	public class RdcEntityException : Exception
- 	{
-		public RdcEntityError Error;
-
- 		public RdcEntityException(RdcEntityError erorr) : base(erorr.ToString())
-		{
-			Error = erorr;
-		}
- 	}
-
 	public class TransactionsAddress : IBinarySerializable
 	{
 		public AccountAddress	Account { get; set; }
@@ -155,14 +88,7 @@ namespace Uccs.Net
 
 		public static RdcRequest FromType(Rdc type)
 		{
-			try
-			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as RdcRequest;
-			}
-			catch(Exception ex)
-			{
-				throw new IntegrityException($"Wrong {nameof(RdcRequest)} type", ex);
-			}
+			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as RdcRequest;
 		}
 
 		public Rdc Class
@@ -182,42 +108,26 @@ namespace Uccs.Net
 		{
 			if(WaitResponse)
 			{
-				RdcResponse r;
+				RdcResponse rp;
 
 				try
 				{
-					r = Execute(sun);
-					r.Result = RdcResult.Success;
+					rp = Execute(sun);
 				}
-				catch(RdcNodeException ex)
+				catch(SunException ex)
 				{
-					r = RdcResponse.FromType(Class);
-					r.Result = RdcResult.NodeException;
-					r.Error = (byte)ex.Error;
-					r.ErrorDetails = ex.ToString();
+					rp = RdcResponse.FromType(Class);
+					rp.Error = ex;
 				}
-				catch(RdcRequestException)
+				catch(Exception) when(!Debugger.IsAttached)
 				{
-					r = RdcResponse.FromType(Class);
-					r.Result = RdcResult.RequestException;
-				}
-				catch(RdcEntityException ex)
-				{
-					r = RdcResponse.FromType(Class);
-					r.Result = RdcResult.EntityException;
-					r.Error = (byte)ex.Error;
-					r.ErrorDetails = ex.ToString();
-				}
-				catch(Exception ex) when(!Debugger.IsAttached)
-				{
-					r = RdcResponse.FromType(Class);
-					r.Result = RdcResult.GeneralException;
-					r.ErrorDetails = ex.ToString();
+					rp = RdcResponse.FromType(Class);
+					rp.Error = new NodeException(NodeError.Unknown);
 				}
 
-				r.Id = Id;
+				rp.Id = Id;
 
-				return r;
+				return rp;
 			}
 			else
 			{
@@ -225,7 +135,7 @@ namespace Uccs.Net
 				{
 					Execute(sun);
 				}
-				catch(Exception ex) when(!Debugger.IsAttached || ex is RdcEntityException || ex is RdcNodeException || ex is RdcRequestException)
+				catch(Exception ex) when(!Debugger.IsAttached || ex is EntityException || ex is NodeException || ex is RequestException)
 				{
 				}
 
@@ -236,17 +146,17 @@ namespace Uccs.Net
 		protected void RequireBase(Sun sun)
 		{
 			if(!sun.Roles.HasFlag(Role.Base))
-				throw new RdcNodeException(RdcNodeError.NotBase);
+				throw new NodeException(NodeError.NotBase);
 
 			if(sun.Synchronization != Synchronization.Synchronized)
-				throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				throw new NodeException(NodeError.NotSynchronized);
 		}
 		protected void RequireMember(Sun sun)
 		{
 			RequireBase(sun);
 
 			if(!sun.NextVoteMembers.Any(i => sun.Settings.Generators.Contains(i.Account))) 
-				throw new RdcNodeException(RdcNodeError.NotMember);
+				throw new NodeException(NodeError.NotMember);
 		}
 	}
 
@@ -297,15 +207,13 @@ namespace Uccs.Net
 	{
 		public override byte	TypeCode => (byte)Type;
 		public Rdc				Type => Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
-		public RdcResult		Result { get; set; }
-		public byte				Error { get; set; }
-		public string			ErrorDetails { get; set; }
+		public SunException		Error { get; set; }
 
 		public static RdcResponse FromType(Rdc type)
 		{
 			try
 			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(RdcResponse).Namespace + "." + type + "Response").GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as RdcResponse;
+				return Assembly.GetExecutingAssembly().GetType(typeof(RdcResponse).Namespace + "." + type + "Response").GetConstructor(new System.Type[]{}).Invoke(null) as RdcResponse;
 			}
 			catch(Exception ex)
 			{
@@ -324,9 +232,9 @@ namespace Uccs.Net
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(!sun.Roles.HasFlag(Role.Base))
-				throw new RdcNodeException(RdcNodeError.NotBase);
+				throw new NodeException(NodeError.NotBase);
 			if(sun.Synchronization != Synchronization.Synchronized)
-				throw new RdcNodeException(RdcNodeError.NotSynchronized);
+				throw new NodeException(NodeError.NotSynchronized);
 
 			lock(sun.Lock)
 			{
@@ -334,7 +242,7 @@ namespace Uccs.Net
 												lock(i.InRequests) 
 													return i.InRequests.OfType<ProxyRequest>().Any(j => j.Destination == Destination && j.Guid == Guid);
 											}))
-					throw new RdcNodeException(RdcNodeError.CircularRoute);
+					throw new NodeException(NodeError.CircularRoute);
 			}
 
 			if(sun.Settings.Generators.Contains(Destination))
@@ -358,7 +266,7 @@ namespace Uccs.Net
 				}
 			}
 
-			throw new RdcNodeException(RdcNodeError.NotOnlineYet);
+			throw new NodeException(NodeError.NotOnlineYet);
 		}
 	}
 

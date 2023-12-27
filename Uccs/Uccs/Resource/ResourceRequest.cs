@@ -13,7 +13,7 @@
 				var r = sun.Mcv.Authors.FindResource(Resource, sun.Mcv.LastConfirmedRound.Id);
 			
 				if(r == null)
-					throw new RdcEntityException(RdcEntityError.NotFound);
+					throw new EntityException(EntityError.NotFound);
 				
 				return new ResourceResponse {Resource = r};
 			}

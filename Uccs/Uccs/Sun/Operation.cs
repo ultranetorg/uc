@@ -75,14 +75,7 @@ namespace Uccs.Net
 
 		public static Operation FromType(OperationClass type)
 		{
-			try
-			{
-				return Assembly.GetExecutingAssembly().GetType(typeof(Operation).Namespace + "." + type).GetConstructor(new System.Type[]{}).Invoke(new object[]{}) as Operation;
-			}
-			catch(Exception ex)
-			{
-				throw new IntegrityException($"Wrong {nameof(Operation)} type", ex);
-			}
+			return Assembly.GetExecutingAssembly().GetType(typeof(Operation).Namespace + "." + type).GetConstructor(new System.Type[]{}).Invoke(null) as Operation;
 		}
 		 
 		public override string ToString()

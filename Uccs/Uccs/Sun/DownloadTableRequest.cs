@@ -15,7 +15,7 @@ namespace Uccs.Net
 			if(	ClusterId.Length != Table<ITableEntry<int>, int>.Cluster.IdLength ||
 				Offset < 0 ||
 				Length < 0)
-				throw new RdcRequestException();
+				throw new RequestException();
 
 			lock(sun.Lock)
 			{
@@ -26,11 +26,11 @@ namespace Uccs.Net
 									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
 									Tables.Authors	=> sun.Mcv.Authors.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
 									Tables.Analyses	=> sun.Mcv.Analyses.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
-									_ => throw new RdcRequestException()
+									_ => throw new RequestException()
 							  };
 
 				if(m == null)
-					throw new RdcEntityException(RdcEntityError.NotFound);
+					throw new EntityException(EntityError.NotFound);
 	
 				var s = new MemoryStream(m);
 				var r = new BinaryReader(s);

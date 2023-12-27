@@ -214,19 +214,19 @@ namespace Uccs.Sun.CLI
 		{
 			var rp = Api<Rp>(new RdcCall {Request = request});
  
- 			if(rp.Result != RdcResult.Success)
+ 			if(rp.Error != null)
  			{
- 				string m = rp.Result.ToString();
+ 				//string m = rp.Error.Message;
  
- 				if(rp.Result == RdcResult.EntityException)
- 					m +=  " : " + ((RdcEntityError)rp.Error).ToString();
- 				else if(rp.Result == RdcResult.NodeException)
- 					m +=  " : " + ((RdcNodeError)rp.Error).ToString();
+ 				//if(rp.Result == ExceptionClass.EntityException)
+ 				//	m +=  " : " + ((EntityError)rp.Error).ToString();
+ 				//else if(rp.Result == ExceptionClass.NodeException)
+ 				//	m +=  " : " + ((NodeError)rp.Error).ToString();
  
  				//if(rp.ErrorDetails != null)
  				//	m += " - " + rp.ErrorDetails;
  
- 				throw new Exception(m);
+ 				throw rp.Error;
  			}
 
 			return rp;
@@ -239,8 +239,7 @@ namespace Uccs.Sun.CLI
 			else
 				ApiClient.Send(new EnqeueOperationCall {Operations = operations,
 														By = by,
-														Await = await}, 
-								Workflow);
+														Await = await}, Workflow);
 		}
 	}
 }

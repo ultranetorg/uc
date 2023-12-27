@@ -76,7 +76,7 @@ namespace Uccs.Net
 		public LocalRelease Add(byte[] release, DataType type)
 		{
 			if(Releases.Any(i => i.Hash.SequenceEqual(release)))
-				throw new ResourceException($"Release {release.ToHex()} already exists");
+				throw new ResourceException(ResourceError.AlreadyExists);
 
 			var r = new LocalRelease(this, release, type);
 			r.__StackTrace = new System.Diagnostics.StackTrace(true);
@@ -91,7 +91,7 @@ namespace Uccs.Net
 		public LocalResource Add(ResourceAddress resource)
 		{
 			if(Resources.Any(i => i.Address == resource))
-				throw new ResourceException($"Resource {resource} already exists");
+				throw new ResourceException(ResourceError.AlreadyExists);
 
 			var r = new LocalResource(this, resource) {Datas = new()};
 	
@@ -339,7 +339,7 @@ namespace Uccs.Net
 																																																										Releases = rs.Value.Select(rl => new ReleaseDeclaration{Hash = rl.Hash, 
 																																																																								Availability  = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
 														}
-														catch(RdcNodeException)
+														catch(NodeException)
 														{
 															return;
 														}

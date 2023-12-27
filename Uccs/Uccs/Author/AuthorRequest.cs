@@ -7,7 +7,7 @@
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(!Author.Valid(Name))	
-				throw new RdcRequestException();
+				throw new RequestException();
 
  			lock(sun.Lock)
 			{	
@@ -16,7 +16,7 @@
 				var e = sun.Mcv.Authors.Find(Name, sun.Mcv.LastConfirmedRound.Id); 
 
 				if(e == null)
-					throw new RdcEntityException(RdcEntityError.NotFound);
+					throw new EntityException(EntityError.NotFound);
 
 				return new AuthorResponse {Author = e};
 			}

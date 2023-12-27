@@ -12,7 +12,7 @@ namespace Uccs.Net
 				RequireBase(sun);
 				
 				if(sun.Mcv.BaseState == null)
-					throw new RdcNodeException(RdcNodeError.TooEearly);
+					throw new NodeException(NodeError.TooEearly);
 
 				var r = new StampResponse {	BaseState				= sun.Mcv.BaseState,
 											BaseHash				= sun.Mcv.BaseHash,

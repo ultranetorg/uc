@@ -306,10 +306,9 @@ namespace Uccs.Net
 					{
  						case PacketType.Request:
  						{
-							var rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Sun.Constract,i =>	{
-																												if(i is RdcRequest r) 
-																													r.Peer = this;
-																											});
+							var rq = BinarySerializator.Deserialize<RdcRequest>(Reader,	Sun.Constract);
+							rq.Peer = this;
+
 							lock(InRequests)
  								InRequests.Add(rq);
  	
@@ -320,7 +319,7 @@ namespace Uccs.Net
 
 						case PacketType.Response:
  						{
-							var rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Sun.Constract, i => {});
+							var rp = BinarySerializator.Deserialize<RdcResponse>(Reader, Sun.Constract);
 
 							lock(OutRequests)
 							{
@@ -363,7 +362,7 @@ namespace Uccs.Net
  		public override void Send(RdcRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
-				throw new RdcNodeException(RdcNodeError.Connectivity);
+				throw new NodeException(NodeError.Connectivity);
 
 			rq.Id = IdCounter++;
 
@@ -376,7 +375,7 @@ namespace Uccs.Net
  		public override RdcResponse Request(RdcRequest rq)
  		{
 			if(Status != ConnectionStatus.OK)
-				throw new RdcNodeException(RdcNodeError.Connectivity);
+				throw new NodeException(NodeError.Connectivity);
 
 			rq.Id = IdCounter++;
 
@@ -396,37 +395,40 @@ namespace Uccs.Net
 					if(rq.Response == null)
 						throw new OperationCanceledException();
 	
-	 				if(rq.Response.Result == RdcResult.Success)
+	 				if(rq.Response.Error == null)
 					{
 						if(rq.Response == null)
 							rq=rq;
 
 						return rq.Response;
 					}
-	 				else if(rq.Response.Result == RdcResult.NodeException)
+	 				else 
 					{
-						var e = (RdcNodeError)rq.Response.Error;
-						
-						if(e.HasFlag(RdcNodeError.NotBase))
-							BaseRank = 0;
+						if(rq.Response.Error is NodeException e)
+						{
+							if(e.Error.HasFlag(NodeError.NotBase))
+								BaseRank = 0;
+	
+							if(e.Error.HasFlag(NodeError.NotChain))
+								ChainRank = 0;
+	
+							if(e.Error.HasFlag(NodeError.NotSeed))
+								SeedRank = 0;
+						}
 
-						if(e.HasFlag(RdcNodeError.NotChain))
-							ChainRank = 0;
-
-						if(e.HasFlag(RdcNodeError.NotSeed))
-							SeedRank = 0;
-
-						throw new RdcNodeException(e, rq.Response.ErrorDetails);
+						throw rq.Response.Error;
 					}
-	 				else if(rq.Response.Result == RdcResult.RequestException)
-						throw new RdcRequestException();
-	 				else if(rq.Response.Result == RdcResult.EntityException)
-						throw new RdcEntityException((RdcEntityError)rq.Response.Error);
-					else
-						throw new RdcNodeException(RdcNodeError.Integrity);
+
+
+	 			//else if(rq.Response.Result == RdcResult.RequestException)
+				//	throw new RdcRequestException();
+	 			//else if(rq.Response.Result == RdcResult.EntityException)
+				//	throw new RdcEntityException((RdcEntityError)rq.Response.Error);
+				//else
+				//	throw new RdcNodeException(RdcNodeError.Integrity);
  				}
 				else
-	 				throw new RdcNodeException(RdcNodeError.Timeout);
+	 				throw new NodeException(NodeError.Timeout);
  			}
 			else
 				return null;
@@ -437,8 +439,7 @@ namespace Uccs.Net
  			if(Status != ConnectionStatus.OK)
 			{
 				var rp = RdcResponse.FromType(rq.Class);
-				rp.Result = RdcResult.NodeException;
-				rp.Error = (byte)RdcNodeError.Connectivity;
+				rp.Error = new NodeException(NodeError.Connectivity);
 				return rp;
 			}
  
@@ -460,7 +461,7 @@ namespace Uccs.Net
  					if(rq.Response == null)
 					{
 						var rp = RdcResponse.FromType(rq.Class);
-						rp.Result = RdcResult.GeneralException;
+						rp.Error = new NodeException(NodeError.Unknown);
 						return rp;
 					}
  	
@@ -469,8 +470,7 @@ namespace Uccs.Net
  				else
 				{
 					var rp = RdcResponse.FromType(rq.Class);
-					rp.Result = RdcResult.NodeException;
-					rp.Error = (byte)RdcNodeError.Timeout;
+					rp.Error = new NodeException(NodeError.Timeout);
 					return rp;
 				}
   			}

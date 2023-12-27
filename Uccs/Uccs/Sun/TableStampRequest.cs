@@ -11,14 +11,14 @@ namespace Uccs.Net
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(SuperClusters.Length > AccountTable.SuperClustersCountMax)
-				throw new RdcRequestException();
+				throw new RequestException();
 
 			lock(sun.Lock)
 			{
 				RequireBase(sun);
 				
 				if(sun.Mcv.BaseState == null)
-					throw new RdcNodeException(RdcNodeError.TooEearly);
+					throw new NodeException(NodeError.TooEearly);
 
 				switch(Table)
 				{
@@ -27,7 +27,7 @@ namespace Uccs.Net
 					case Tables.Analyses : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Analyses.Clusters.Where(c => c.SuperId == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 
 					default:
-						throw new RdcRequestException();
+						throw new RequestException();
 				}
 			}
 		}

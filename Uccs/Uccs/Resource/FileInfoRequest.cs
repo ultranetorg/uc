@@ -10,12 +10,12 @@
 			lock(sun.ResourceHub.Lock)
 			{
 				if(sun.ResourceHub == null) 
-					throw new RdcNodeException(RdcNodeError.NotSeed);
+					throw new NodeException(NodeError.NotSeed);
 				
 				var r = sun.ResourceHub.Find(Release);
 				
 				if(r == null || !r.IsReady(File)) 
-					throw new RdcEntityException(RdcEntityError.NotFound);
+					throw new EntityException(EntityError.NotFound);
 	
 				return new FileInfoResponse{Length = r.GetLength(File)};
 			}

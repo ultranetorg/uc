@@ -62,7 +62,7 @@ namespace Uccs.Net
 													hst = new History(ResourceData.SkipHeader(sun.Call(c => c.FindResource(package), workflow).Resource.Data));
 													break;
 												}
-												catch(RdcEntityException)
+												catch(EntityException)
 												{
 													Thread.Sleep(100);
 												}

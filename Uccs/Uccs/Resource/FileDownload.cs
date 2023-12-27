@@ -48,7 +48,7 @@ namespace Uccs.Net
 													Data.Write(d, 0, d.Length);
 												}
 											}
-											catch(Exception ex) when(ex is OperationCanceledException || ex is RdcNodeException || ex is RdcEntityException)
+											catch(Exception ex) when(ex is OperationCanceledException || ex is NodeException || ex is EntityException)
 											{
 											}
 										}, 
@@ -119,12 +119,12 @@ namespace Uccs.Net
 														{
 															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Hash, File = filepath}), workflow).Length;
 														}
-														catch(RdcNodeException)
+														catch(NodeException)
 														{
 															Seeds[s]--;
 															continue;
 														}
-														catch(RdcEntityException)
+														catch(EntityException)
 														{
 															Seeds[s]--;
 															continue;

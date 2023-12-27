@@ -71,6 +71,7 @@ namespace Uccs.Net
 			Options.Converters.Add(new OperationJsonConverter());
 			Options.Converters.Add(new RdcRequestJsonConverter());
 			Options.Converters.Add(new BigIntegerJsonConverter());
+			Options.Converters.Add(new SunExceptionJsonConverter());
 		}
 
 		public JsonApiClient(HttpClient http, string address, string accesskey)

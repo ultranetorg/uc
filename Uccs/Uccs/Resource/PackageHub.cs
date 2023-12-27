@@ -46,7 +46,7 @@ namespace Uccs.Net
 		public Package(PackageHub hub, PackageAddress address, LocalResource resource, LocalRelease release)
 		{
 			if(resource == null || release == null)
-				throw new ResourceException();
+				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);
 
 			Hub = hub;
 			Address = address;
@@ -57,7 +57,7 @@ namespace Uccs.Net
 		public Package(PackageHub hub, PackageAddress address, LocalResource resource, LocalRelease release, Manifest manifest)
 		{
 			if(resource == null || release == null)
-				throw new ResourceException();
+				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);
 
 			Hub = hub;
 			Address = address;
@@ -481,7 +481,7 @@ namespace Uccs.Net
 					pks.Add(new (p, a));
 				}
 				else
-					throw new ResourceException("Required packages not found");
+					throw new ResourceException(ResourceError.RequiredPackagesNotFound);
 			}
 
 			var deps = new List<Dependency>();

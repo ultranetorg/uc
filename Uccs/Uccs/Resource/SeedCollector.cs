@@ -55,7 +55,7 @@ namespace Uccs.Net
 												Collector.Seeds.AddRange(seeds);
 											}
 										}
-										catch(Exception ex) when (ex is RdcNodeException || ex is RdcEntityException)
+										catch(Exception ex) when (ex is NodeException || ex is EntityException)
 										{
 										}
 										catch(OperationCanceledException)
@@ -168,7 +168,7 @@ namespace Uccs.Net
 															
 														s.Failed = DateTime.MinValue;
 													}
-													catch(RdcNodeException)
+													catch(NodeException)
 													{
 														s.Failed = DateTime.UtcNow;
 													}
