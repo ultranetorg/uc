@@ -97,6 +97,7 @@ namespace Uccs.Net
 		public Statistics				PrevStatistics = new();
 		public Statistics				Statistics = new();
 
+		public List<TcpClient>			IncomingConnections = new();
 		public List<Transaction>		IncomingTransactions = new();
 		internal List<Transaction>		OutgoingTransactions = new();
 		//public List<Analysis>			Analyses = new();
@@ -108,7 +109,7 @@ namespace Uccs.Net
 		public IEnumerable<Peer>		Connections	=> Peers.Where(i => i.Status == ConnectionStatus.OK);
 		public IEnumerable<Peer>		Bases => Connections.Where(i => i.Permanent && i.BaseRank > 0);
 
-		public List<IPAddress>			IgnoredIPs	= new();
+		public List<IPAddress>			IgnoredIPs = new();
 
 		TcpListener						Listener;
 		public Thread					MainThread;
@@ -230,7 +231,8 @@ namespace Uccs.Net
 
 		public void RunNode(Workflow workflow, Role roles)
 		{
-			Workflow = workflow;
+			Workflow = workflow.CreateNested("Node");
+			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
 
 			Workflow.Log?.Report(this, $"Ultranet Node {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
@@ -426,9 +428,15 @@ namespace Uccs.Net
 			ApiServer?.Stop();
 			Listener?.Stop();
 
+
 			lock(Lock)
+			{
+				foreach(var i in IncomingConnections)
+					i.Close();
+
 				foreach(var i in Peers.Where(i => i.Status != ConnectionStatus.Disconnected).ToArray())
 					i.Disconnect();
+			}
 
 			MainThread?.Join();
 			ListeningThread?.Join();
@@ -816,6 +824,8 @@ namespace Uccs.Net
 				peer.Status = ConnectionStatus.Initiated;
 			}
 
+			IncomingConnections.Add(client);
+
 			var t = new Thread(a => incon());
 			t.Name = Settings.IP?.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
 			t.Start();
@@ -915,6 +925,7 @@ namespace Uccs.Net
 						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
 						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST}", $"Connected from {peer}");
 			
+						IncomingConnections.Remove(client);
 						//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
 	
 						return;

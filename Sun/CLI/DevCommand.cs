@@ -51,7 +51,7 @@ namespace Uccs.Sun.CLI
 				}
 				case "listen" :
 				{
-					var host = GetString(Args.Nodes[1].Name);
+					var host = Args.Nodes[1].Name;
 					var s = host.Split(':');
 
 					var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);

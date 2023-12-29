@@ -360,7 +360,7 @@ namespace Uccs.Net
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
 		public AccountAddress			By  { get; set; }
-		public PlacingStage				Await  { get; set; }
+		public PlacingStage				Await  { get; set; } = PlacingStage.Confirmed;
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
