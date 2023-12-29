@@ -23,12 +23,12 @@ namespace Uccs.Sun.CLI
 				foreach(var i in Directory.EnumerateFiles(settings.Profile, "*." + Net.Sun.FailureExt))
 					File.Delete(i);
 
-			Program.Sun = new Net.Sun(b.Zone, settings){Clock = new RealTimeClock(),
-														Nas = new Nas(settings),
-														GasAsker = Command.ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
-														FeeAsker = new SilentFeeAsker() };
+			Program.Sun = new Net.Sun(b.Zone, settings, Workflow) {	Clock = new RealTimeClock(),
+																	Nas = new Nas(settings),
+																	GasAsker = Command.ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
+																	FeeAsker = new SilentFeeAsker() };
 			
-			Program.Sun.Run(Args, Workflow);
+			Program.Sun.Run(Args);
 
 			WaitHandle.WaitAny(new WaitHandle[] {Workflow.Cancellation.WaitHandle});
 			

@@ -47,22 +47,26 @@ namespace Uccs.Net
 
 	public class JsonApiServer
 	{
-		public const ushort DefaultPort = 3900;
+		public const ushort				DefaultPort = 3900;
 
 		HttpListener					Listener;
 		Thread							Thread;
 		string							AccessKey;
 		Func<object, Workflow, object>	Execute;
-		Workflow						Workflow;
 		Func<string, Type>				Create;
+		Workflow						Workflow;
 
-		public JsonApiServer(IPAddress ip, ushort port, string accesskey, Func<string, Type> create, Func<object, Workflow, object> execute, Workflow workflow)
+		public JsonApiServer(string profile, IPAddress ip, ushort port, string accesskey, Func<string, Type> create, Func<object, Workflow, object> execute, Workflow workflow)
 		{
-			Create = create;
-			AccessKey = accesskey;
-			Execute = execute;
-			Workflow = workflow;
-			///Workflow.Log.Stream = new FileStream(Path.Combine(Sun.Settings.Profile, "JsonServer.log"), FileMode.Create);
+			Create		= create;
+			AccessKey	= accesskey;
+			Execute		= execute;
+			Workflow	= workflow.CreateNested("JsonApiServer", new Log());
+
+			if(profile != null)
+			{
+				Workflow.Log.Reported += m => File.AppendAllText(Path.Combine(profile, "JsonApiServer.log"), m.ToString() + Environment.NewLine);
+			}
 
 			Thread = new Thread(() =>
 								{ 
@@ -112,8 +116,6 @@ namespace Uccs.Net
 											Listener = null;
 
 										Workflow.Log?.ReportError(this, "Erorr", ex);
-
-										//Sun.Stop(MethodBase.GetCurrentMethod(), ex);
 									}
 								});
 
@@ -214,7 +216,7 @@ namespace Uccs.Net
 
 				object execute(ApiCall call)
 				{
-					Workflow.Log?.Report(this, "Executing", json);
+					//Workflow.Log?.Report(this, "Executing", json);
 					return Execute(call, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
 				}
 

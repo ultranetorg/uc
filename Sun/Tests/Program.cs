@@ -11,7 +11,7 @@ namespace Tests
 	{
 		public static void Main(string[] args)
 		{
-			var sun = new Sun(Zone.Localzone, new Settings() {Profile = $"{G.Dev.Tmp}\\Tests" });
+			var sun = new Sun(Zone.Localzone, new Settings() {Profile = $"{G.Dev.Tmp}\\Tests" }, null);
 
 			var rq = new MembersResponse()
 			{

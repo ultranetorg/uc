@@ -32,10 +32,8 @@ namespace Uccs
 			None, Info, Warning, Error, SubLog
 		}
 
-		public List<LogMessage>		Messages = new List<LogMessage>();
+		public List<LogMessage>		Messages = new List<LogMessage>(1500);
 		public ReportedDelegate		Reported;
-		public Stream				Stream { set { Writer = new StreamWriter(value); } }
-		public TextWriter			Writer;
 		public Log					Parent;
 		string						Name;
 
@@ -78,17 +76,11 @@ namespace Uccs
 			{
 				r.Messages.Add(m);
 	
-				if(r.Messages.Count > 1000)
-					r.Messages.RemoveRange(0, r.Messages.Count - 1000);
-
-				if(r.Writer != null)
-				{
-					r.Writer.WriteLine(m.ToString());
-					r.Writer.Flush();
-				}
-			}
+				if(r.Messages.Count > 1500)
+					r.Messages.RemoveRange(0, 1000);
 			
-			r.Reported?.Invoke(m);
+				r.Reported?.Invoke(m);
+			}
 		}
 
 		public void Report(string a)

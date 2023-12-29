@@ -34,18 +34,17 @@ namespace Uccs.Sun.Application
 
 				Settings = new Settings(exedir, boot);
 
-				Log.Stream = new FileStream(Path.Combine(boot.Profile, "Log.txt"), FileMode.Create);
+				Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, "Sun.log"), m.ToString() + Environment.NewLine);
 									
 				if(File.Exists(Settings.Profile))
 					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Sun.FailureExt))
 						File.Delete(i);
 
-				Sun = new Net.Sun(boot.Zone, Settings){	Clock = new RealTimeClock(), 
-														Nas = new Nas(Settings), }; 
+				Sun = new Net.Sun(boot.Zone, Settings, new Workflow("Main", Log)){	Clock = new RealTimeClock(), 
+																					Nas = new Nas(Settings), }; 
 
-				var w = new Workflow("Main", Log);
-				Sun.RunApi(w);
-				Sun.RunNode(w, Role.Chain);
+				Sun.RunApi();
+				Sun.RunNode(Role.Chain);
 
 				RunUosServer();
 			}

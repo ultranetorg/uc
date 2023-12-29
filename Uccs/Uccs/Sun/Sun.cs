@@ -145,29 +145,34 @@ namespace Uccs.Net
 		public class Tag
 		{
 			public const string P = "Peering";
+			public const string E = "Establishing";
 			public const string S = "Synchronization";
 			public const string ERR = "Error";
-			public const string EST = "Establishing";
 		}
 		
-		public Sun(Zone zone, Settings settings)
+		public Sun(Zone zone, Settings settings, Workflow workflow)
 		{
 			Zone = zone;
 			Settings = settings;
-
 			Directory.CreateDirectory(Settings.Profile);
+			
+			Workflow = workflow ?? new Workflow("Sun", new Log());
+
+			if(Workflow.Log != null)
+			{
+				Workflow.Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, "Sun.log"), m.ToString() + Environment.NewLine);
+			}
 
 			Vault = new Vault(Zone, Settings);
 
-			var cfamilies = new ColumnFamilies();
+			var fs = new ColumnFamilies();
 			
-			foreach(var i in new ColumnFamilies.Descriptor[]{	new (nameof(Peers),					new ()),
+			foreach(var i in new ColumnFamilies.Descriptor[] {	new (nameof(Peers),					new ()),
 																new (ResourceHub.ReleaseFamilyName,	new ()),
-																new (ResourceHub.ResourceFamilyName,new ()),
-																})
-				cfamilies.Add(i);
+																new (ResourceHub.ResourceFamilyName,new ()) })
+				fs.Add(i);
 
-			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), cfamilies);
+			Database = RocksDb.Open(DatabaseOptions, Path.Join(Settings.Profile, "Node"), fs);
 		}
 
 		public override string ToString()
@@ -197,7 +202,7 @@ namespace Uccs.Net
 			return null;
 		}
 		
-		public void RunApi(Workflow workflow)
+		public void RunApi()
 		{
 			if(!HttpListener.IsSupported)
 			{
@@ -207,33 +212,34 @@ namespace Uccs.Net
 
 			lock(Lock)
 			{
-				workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "JsonServer.log"), FileMode.Create);
-
-				ApiServer = new JsonApiServer(Settings.IP, Settings.JsonServerPort, Settings.Api.AccessKey, n => Type.GetType(GetType().Namespace + '.' + n), (o, w) => (o as SunApiCall).Execute(this, w), workflow);
+				ApiServer = new JsonApiServer(	Settings.Profile,
+												Settings.IP, 
+												Settings.JsonServerPort, 
+												Settings.Api.AccessKey, 
+												n => Type.GetType(GetType().Namespace + '.' + n), 
+												(o, w) => (o as SunApiCall).Execute(this, w), 
+												Workflow);
 			}
 		
 			ApiStarted?.Invoke(this);
 		}
 
-		public void Run(Xon xon, Workflow workflow)
+		public void Run(Xon xon)
 		{
 			if(xon.Has("api"))
-				RunApi(workflow);
+				RunApi();
 			
 			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
 
 			if(xon.Has("node"))
-				RunNode(workflow, (xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
+				RunNode((xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
 
 			if(xon.Has("seed"))
 				RunSeed();
 		}
 
-		public void RunNode(Workflow workflow, Role roles)
+		public void RunNode(Role roles)
 		{
-			Workflow = workflow.CreateNested("Node");
-			Workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create);
-
 			Workflow.Log?.Report(this, $"Ultranet Node {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
@@ -695,7 +701,7 @@ namespace Uccs.Net
 					}
 					catch(SocketException ex) 
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
 						goto failed;
 					}
 	
@@ -711,7 +717,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
 						goto failed;
 					}
 	
@@ -735,7 +741,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. It's me" );
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							goto failed;
@@ -744,12 +750,12 @@ namespace Uccs.Net
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST}", $"Reported IP {IP}");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Reported IP {IP}");
 						}
 	
 						if(peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"To {peer.IP}. Already established" );
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. Already established" );
 							tcp.Close();
 							return;
 						}
@@ -758,7 +764,7 @@ namespace Uccs.Net
 	
 						peer.Start(this, tcp, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
 						
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST}", $"Connected to {peer}");
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected to {peer}");
 	
 						return;
 					}
@@ -845,7 +851,7 @@ namespace Uccs.Net
 					}
 					catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
 						goto failed;
 					}
 				
@@ -874,7 +880,7 @@ namespace Uccs.Net
 
 						if(h.Nuid == Nuid)
 						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. It's me");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
 							IgnoredIPs.Add(peer.IP);
 							Peers.Remove(peer);
 							goto failed;
@@ -882,14 +888,14 @@ namespace Uccs.Net
 
 						if(peer != null && peer.Status == ConnectionStatus.OK)
 						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. Already established" );
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. Already established" );
 							goto failed;
 						}
 	
 						if(IP.Equals(IPAddress.None))
 						{
 							IP = h.IP;
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"Reported IP {IP}");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"Reported IP {IP}");
 						}
 		
 						try
@@ -898,7 +904,7 @@ namespace Uccs.Net
 						}
 						catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
+							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
 							goto failed;
 						}
 	
@@ -923,7 +929,7 @@ namespace Uccs.Net
 						//peer.InStatus = EstablishingStatus.Succeeded;
 						peer.Permanent = h.Permanent;
 						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.EST}", $"Connected from {peer}");
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected from {peer}");
 			
 						IncomingConnections.Remove(client);
 						//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");

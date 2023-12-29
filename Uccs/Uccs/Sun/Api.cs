@@ -273,7 +273,7 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			sun.RunNode(new Workflow("Main by Api call", new Log()), Roles);
+			sun.RunNode(Roles);
 							
 			if(Roles.HasFlag(Role.Seed))
 				sun.RunSeed();
