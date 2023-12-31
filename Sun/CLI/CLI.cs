@@ -47,16 +47,16 @@ namespace Uccs.Sun.CLI
 			catch(Exception)
 			{
 			}
+		
+			var b = new Boot(ExeDirectory);
+
+			if(!b.Commnand.Nodes.Any())
+				return;
 
 			try
 			{
 				foreach(var i in Directory.EnumerateFiles(ExeDirectory, "*." + Net.Sun.FailureExt))
 					File.Delete(i);
-				
-				var b = new Boot(ExeDirectory);
-
-				if(!b.Commnand.Nodes.Any())
-					return;
 
 				Execute(b.Commnand);
 			}
@@ -67,7 +67,7 @@ namespace Uccs.Sun.CLI
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(ExeDirectory, m + "." + Net.Sun.FailureExt), ex.ToString());
+				File.WriteAllText(Path.Join(b.Profile, m + "." + Net.Sun.FailureExt), ex.ToString());
 			}
 
 			Sun.Stop("The End");
@@ -202,7 +202,7 @@ namespace Uccs.Sun.CLI
 				ApiClient.Send(call, Workflow);
 		}
 
-		public Rp Api	<Rp>(SunApiCall call)
+		public Rp Api<Rp>(SunApiCall call)
 		{
 			if(ApiClient == null) 
 				return (Rp)call.Execute(Sun, Workflow);
