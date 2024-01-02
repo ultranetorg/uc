@@ -1444,7 +1444,7 @@ namespace Uccs.Net
 							}
 						}
 						
-						v.Sign(g);
+						v.Sign(Vault.GetKey(g));
 						votes.Add(v);
 					}
 
@@ -1454,7 +1454,7 @@ namespace Uccs.Net
  
  						var b = createvote(r);
  								
- 						b.Sign(g);
+ 						b.Sign(Vault.GetKey(g));
  						votes.Add(b);
  					}
 

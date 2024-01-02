@@ -153,8 +153,8 @@ namespace Uccs.Net
 		public Money					Bail;
 		//public IPAddress				ExternalIP;
 		public ushort					JsonServerPort;
-		//public bool						Anonymous = false;
-		public List<AccountKey>			Generators = new();
+		//public bool					Anonymous = false;
+		public List<AccountAddress>		Generators = new();
 		public AccountKey				Analyzer;
 		public string					Packages;
 
@@ -202,7 +202,7 @@ namespace Uccs.Net
 			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));
 			JsonServerPort				= (ushort)doc.Get<int>("JsonServerPort");
 			Bail						= doc.Get<Money>("Bail", Money.Zero);
-			Generators					= doc.Many("Generator").Select(i => AccountKey.Parse(i.Value as string)).ToList();
+			Generators					= doc.Many("Generator").Select(i => AccountAddress.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
 			Packages					= doc.Get<string>("Packages", System.IO.Path.Join(Profile, "Packages"));
 

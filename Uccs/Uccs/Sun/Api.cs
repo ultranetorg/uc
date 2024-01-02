@@ -317,7 +317,13 @@ namespace Uccs.Net
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.Lock)
-				sun.Vault.Unlock(Account, Password);
+			{
+				if(Account != null)
+					sun.Vault.Unlock(Account, Password);
+				else
+					foreach(var i in sun.Vault.Wallets)
+						sun.Vault.Unlock(i.Key, Password);
+			}
 
 			return null;
 		}
@@ -330,7 +336,7 @@ namespace Uccs.Net
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.Lock)
-				sun.Settings.Generators = Generators.Select(i => sun.Vault.GetKey(i)).ToList();
+				sun.Settings.Generators = Generators.ToList();
 
 			return null;
 		}
