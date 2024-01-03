@@ -5,29 +5,30 @@ namespace Uccs.Net
 {
 	public class Author : IBinarySerializable
 	{
-		//public const int					ExclusiveLengthMax = 12;
-		public const int					NameLengthMin = 1;
-		public const int					NameLengthMax = 256;
-		public const char					NormalPrefix = '_';
+		//public const int			ExclusiveLengthMax = 12;
+		public const int			NameLengthMin = 1;
+		public const int			NameLengthMax = 256;
+		public const char			NormalPrefix = '_';
+		public const char			CountryPrefix = '~';
 
-		public static readonly int			AuctionMinimalDuration = 365;
-		public static readonly int			Prolongation = 30;
-		public static readonly int			WinnerRegistrationPeriod = 30;
-		public static readonly int			RenewaPeriod = 365;
-		public Time							AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
+		public static readonly int	AuctionMinimalDuration = 365;
+		public static readonly int	Prolongation = 30;
+		public static readonly int	WinnerRegistrationPeriod = 30;
+		public static readonly int	RenewaPeriod = 365;
+		public Time					AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
-		public EntityId						Id { get; set; }
-		public string						Name { get; set; }
-		public AccountAddress				Owner { get; set; }
-		public Time							Expiration { get; set; }
-		public Time							FirstBidTime { get; set; } = Time.Empty;
-		public AccountAddress				LastWinner { get; set; }
-		public Money						LastBid { get; set; }
-		public Time							LastBidTime { get; set; }
-		public bool							DomainOwnersOnly  { get; set; }
-		public int							NextResourceId { get; set; }
-		public short						SpaceReserved { get; set; }
-		public short						SpaceUsed { get; set; }
+		public EntityId				Id { get; set; }
+		public string				Name { get; set; }
+		public AccountAddress		Owner { get; set; }
+		public Time					Expiration { get; set; }
+		public Time					FirstBidTime { get; set; } = Time.Empty;
+		public AccountAddress		LastWinner { get; set; }
+		public Money				LastBid { get; set; }
+		public Time					LastBidTime { get; set; }
+		public bool					DomainOwnersOnly  { get; set; }
+		public int					NextResourceId { get; set; }
+		public short				SpaceReserved { get; set; }
+		public short				SpaceUsed { get; set; }
 
 		public static bool Valid(string name)
 		{
