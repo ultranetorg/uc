@@ -25,22 +25,16 @@ namespace Uccs.Sun.Application
 
 			var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
+			var b = new Boot(exedir);
+			
 			try
 			{
-				foreach(var i in Directory.EnumerateFiles(exedir, "*." + Net.Sun.FailureExt))
-					File.Delete(i);
-					
-				var boot = new Boot(exedir);
 
-				Settings = new Settings(exedir, boot);
+				Settings = new Settings(exedir, b);
 
 				Log.Reported += m => File.AppendAllText(Path.Combine(Settings.Profile, "Sun.log"), m.ToString() + Environment.NewLine);
-									
-				if(File.Exists(Settings.Profile))
-					foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + Net.Sun.FailureExt))
-						File.Delete(i);
 
-				Sun = new Net.Sun(boot.Zone, Settings, new Workflow("Main", Log)){	Clock = new RealTimeClock(), 
+				Sun = new Net.Sun(b.Zone, Settings, new Workflow("Main", Log)){	Clock = new RealClock(), 
 																					Nas = new Nas(Settings), }; 
 
 				Sun.RunApi();
@@ -55,8 +49,7 @@ namespace Uccs.Sun.Application
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings?.Profile ?? exedir, m + "." + Net.Sun.FailureExt), ex.ToString());
-				throw;
+				File.WriteAllText(Path.Join(b.Profile, m + "." + Net.Sun.FailureExt), ex.ToString());
 			}
 	
 			if(Sun != null)

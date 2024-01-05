@@ -32,17 +32,17 @@ namespace Uccs.Sun.CLI
 				case "b" :
 				case "build" :
 				{
-					Program.Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
-														Sources			 = GetString("sources").Split(','), 
-														DependenciesPath = GetString("dependenciespath", false),
-														Previous		 = GetHexBytes("previous", false) });
+					Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
+												Sources			 = GetString("sources").Split(','), 
+												DependenciesPath = GetString("dependenciespath", false),
+												Previous		 = GetHexBytes("previous", false) });
 					return null;
 				}
 
 				case "l" :
 				case "local" :
 				{
-					var r = Program.Api<PackageInfo>(new PackageInfoCall {Package = Package});
+					var r = Api<PackageInfo>(new PackageInfoCall {Package = Package});
 					
 					Dump(r);
 
@@ -52,7 +52,7 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var h = Program.Api<byte[]>(new PackageDownloadCall {Package = Package});
+					var h = Api<byte[]>(new PackageDownloadCall {Package = Package});
 
 					try
 					{
@@ -60,11 +60,11 @@ namespace Uccs.Sun.CLI
 						
 						do
 						{
-							d = Program.Api<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = Package});
+							d = Api<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = Package});
 							
 							if(d == null)
 							{	
-								if(!Program.Api<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
+								if(!Api<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
 								{
 									Workflow.Log?.ReportError(this, "Failed");
 								}
@@ -88,7 +88,7 @@ namespace Uccs.Sun.CLI
 				case "i" :
 				case "install" :
 				{
-					Program.Api(new PackageInstallCall {Package = Package});
+					Api(new PackageInstallCall {Package = Package});
 
 					return null;
 				}

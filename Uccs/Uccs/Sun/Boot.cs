@@ -29,6 +29,11 @@ namespace Uccs.Net
 				Profile = Commnand.Get<string>("profile");
 			else
 				Profile = System.IO.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "UO.Sun", Zone.Name);
+
+				
+			if(File.Exists(Profile))
+				foreach(var i in Directory.EnumerateFiles(Profile, "*." + Net.Sun.FailureExt))
+					File.Delete(i);
 		}
 	}
 }

@@ -19,11 +19,15 @@ namespace Uccs
 		public int		BufferWidth => Console.BufferWidth;
 		public string[]	Tags;
 
-		public ConsoleLogView(Log log, bool showsender, bool showsubject)
+		public ConsoleLogView(bool showsender, bool showsubject)
 		{
 			ShowSender = showsender;
 			ShowSubject = showsubject;
 
+		}
+
+		public void StartListening(Log log)
+		{
 			Log = log;
 
 			lock(Log.Messages)
@@ -37,6 +41,10 @@ namespace Uccs
 			log.Reported += OnReported;
 		}
 
+		public void StopListening(Log log)
+		{
+			log.Reported -= OnReported;
+		}
 
 		public void OnReported(LogMessage m)
 		{

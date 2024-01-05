@@ -24,8 +24,6 @@ namespace Uccs.Sun.CLI
 
 			Program.ApiClient = new JsonApiClient(http, GetString("to"), GetString("accesskey", null));
 
-			Program.LogView.Tags = new string[] {};
-
 			while(true)
 			{
 				Console.Write($"{a.Host}:{a.Port} > ");

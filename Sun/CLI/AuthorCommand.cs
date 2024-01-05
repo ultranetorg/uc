@@ -44,21 +44,38 @@ namespace Uccs.Sun.CLI
 			{
 		   		case "b" : 
 		   		case "bid" : 
+				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
 					return new AuthorBid(	Args.Nodes[1].Name,
 											GetString("tld", ""),
 											Money.ParseDecimal(GetString("amount")));
+				}
+
 		   		case "r" : 
 		   		case "register" : 
+				{
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
 					return new AuthorRegistration(	Args.Nodes[1].Name,
 													byte.Parse(GetString("years")));
+				}
+
 		   		case "t" : 
 		   		case "transfer" : 
+				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
 					return new AuthorTransfer(	Args.Nodes[1].Name,
 												AccountAddress.Parse(GetString("to")));
+				}
+
 		   		case "e" :
 		   		case "entity" :
 				{
-					var rp = Program.Rdc<AuthorResponse>(new AuthorRequest {Name = Args.Nodes[1].Name});
+					Workflow.CancelAfter(RdcQueryTimeout);
+					
+					var rp = Rdc<AuthorResponse>(new AuthorRequest {Name = Args.Nodes[1].Name});
 	
 					//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 	

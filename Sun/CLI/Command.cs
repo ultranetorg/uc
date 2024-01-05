@@ -15,12 +15,12 @@ namespace Uccs.Sun.CLI
 	{
 		protected Program		Program;
 		protected Xon			Args;
-		//public Net.Sun			Sun;
-		//protected JsonApiClient	Api;
 		public static bool		ConsoleAvailable { get; protected set; }
 		public const string		AwaitArg = "await";
 
-		protected Workflow		Workflow => Program.Workflow;
+		public Workflow			Workflow;
+		protected int			RdcQueryTimeout = 5000;
+		protected int			RdcTransactingTimeout = 60*1000;
 
 		public abstract object Execute();
 
@@ -256,5 +256,54 @@ namespace Uccs.Sun.CLI
 			else
 				return PlacingStage.Placed;
 		}
+
+		public void Api(SunApiCall call)
+		{
+			if(Program.ApiClient == null)
+				call.Execute(Program.Sun, Workflow);
+			else
+				Program.ApiClient.Send(call, Workflow);
+		}
+
+		public Rp Api<Rp>(SunApiCall call)
+		{
+			if(Program.ApiClient == null) 
+				return (Rp)call.Execute(Program.Sun, Workflow);
+			else
+				return Program.ApiClient.Request<Rp>(call, Workflow);
+		}
+
+		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
+		{
+			var rp = Api<Rp>(new RdcCall {Request = request});
+ 
+ 			if(rp.Error != null)
+ 			{
+ 				//string m = rp.Error.Message;
+ 
+ 				//if(rp.Result == ExceptionClass.EntityException)
+ 				//	m +=  " : " + ((EntityError)rp.Error).ToString();
+ 				//else if(rp.Result == ExceptionClass.NodeException)
+ 				//	m +=  " : " + ((NodeError)rp.Error).ToString();
+ 
+ 				//if(rp.ErrorDetails != null)
+ 				//	m += " - " + rp.ErrorDetails;
+ 
+ 				throw rp.Error;
+ 			}
+
+			return rp;
+		}
+
+		public void Enqueue(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
+		{
+			if(Program.ApiClient == null)
+				Program.Sun.Enqueue(operations, by, await, Workflow);
+			else
+				Program.ApiClient.Send(new EnqeueOperationCall {Operations = operations,
+																By = by,
+																Await = await}, Workflow);
+		}
+
 	}
 }

@@ -38,6 +38,11 @@ namespace Uccs.Net
 			return Name;
 		}
 
+		public void CancelAfter(int timeout)
+		{ 
+			CancellationSource.CancelAfter(timeout);
+		}
+		
 		public Workflow CreateNested(string name, Log log = null)
 		{
 			var a = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);

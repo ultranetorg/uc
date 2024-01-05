@@ -62,7 +62,7 @@ namespace Uccs.Net
 		public Role						Roles => (Mcv != null ? Mcv.Roles : Role.None)|(ResourceHub != null ? Role.Seed : Role.None);
 
 		public System.Version			Version => Assembly.GetAssembly(GetType()).GetName().Version;
-		public static readonly int[]	Versions = {3};
+		public static readonly int[]	Versions = {4};
 		public const string				FailureExt = "failure";
 		public const int				Timeout = 5000;
 		public const int				OperationsQueueLimit = 1000;
@@ -421,7 +421,7 @@ namespace Uccs.Net
 			{
 				var m = Path.GetInvalidFileNameChars().Aggregate(methodBase.Name, (c1, c2) => c1.Replace(c2, '_'));
 				File.WriteAllText(Path.Join(Settings.Profile, m + "." + Sun.FailureExt), ex.ToString());
-				Workflow?.Log?.ReportError(this, m, ex);
+				Workflow.Log?.ReportError(this, m, ex);
 	
 				Stop("Exception");
 			}
@@ -429,7 +429,7 @@ namespace Uccs.Net
 
 		public void Stop(string message)
 		{
-			Workflow?.Abort();
+			Workflow.Abort();
 
 			ApiServer?.Stop();
 			Listener?.Stop();
@@ -452,7 +452,7 @@ namespace Uccs.Net
 			Mcv?.Database.Dispose();
 			Database?.Dispose();
 
-			Workflow?.Log?.Report(this, "Stopped", message);
+			Workflow.Log?.Report(this, "Stopped", message);
 
 			Stopped?.Invoke(this);
 		}
@@ -490,7 +490,7 @@ namespace Uccs.Net
 			
 			if(Peers.Any())
 			{
-				Workflow?.Log?.Report(this, "PEE loaded", $"n={Peers.Count}");
+				Workflow.Log?.Report(this, "PEE loaded", $"n={Peers.Count}");
 			}
 			else
 			{
@@ -556,8 +556,16 @@ namespace Uccs.Net
 			}
 		}
 
+		DateTime __X = DateTime.Now;
+
 		void ProcessConnectivity()
 		{
+// 			if(DateTime.Now - __X > TimeSpan.FromSeconds(1))
+// 			{
+// 				__X = DateTime.Now;
+// 				Workflow.Log?.Report(this, __X.ToString());
+// 			}
+
 			var needed = Settings.PeersPermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
 			foreach(var p in Peers	.Where(m =>	m.Status == ConnectionStatus.Disconnected &&
@@ -598,7 +606,7 @@ namespace Uccs.Net
 				Connections.Count(i => i.Permanent) >= Settings.PeersPermanentMin && 
 				(!Roles.HasFlag(Role.Base) || Bases.Count() >= Settings.Mcv.PeersMin))
 			{
-				Workflow?.Log?.Report(this, $"{Tag.P}", "Minimal peers reached");
+				Workflow.Log?.Report(this, $"{Tag.P}", "Minimal peers reached");
 
 				if(Mcv != null)
 				{
@@ -618,7 +626,7 @@ namespace Uccs.Net
 		{
 			try
 			{
-				Workflow?.Log?.Report(this, $"{Tag.P}", $"Listening starting {Settings.IP}:{Zone.Port}");
+				Workflow.Log?.Report(this, $"{Tag.P}", $"Listening starting {Settings.IP}:{Zone.Port}");
 
 				Listener = new TcpListener(Settings.IP, Zone.Port);
 				Listener.Start();

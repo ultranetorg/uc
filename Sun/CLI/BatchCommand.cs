@@ -18,7 +18,7 @@ namespace Uccs.Sun.CLI
 		{
 			var results = Args.Nodes.Where(i => i.Name != "await" && i.Name != "by").Select(i => Program.Create(i)).Select(i => i.Execute());
 
-			Program.Enqueue(results.OfType<Operation>(), GetAccountAddress("by"), Command.GetAwaitStage(Args));
+			Enqueue(results.OfType<Operation>(), GetAccountAddress("by"), Command.GetAwaitStage(Args));
 
 			return results;
 		}

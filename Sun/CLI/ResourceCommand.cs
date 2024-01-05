@@ -30,6 +30,8 @@ namespace Uccs.Sun.CLI
 				case "c" : 
 				case "create" : 
 				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												Args.Has("flags")	? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
 												GetHexBytes("data", false),
@@ -39,6 +41,8 @@ namespace Uccs.Sun.CLI
 				case "u" : 
 				case "update" : 
 				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
@@ -52,7 +56,9 @@ namespace Uccs.Sun.CLI
 				case "e" :
 		   		case "entity" :
 				{
-					var r = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					Workflow.CancelAfter(RdcQueryTimeout);
+
+					var r = Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					Dump(r.Resource);
 
@@ -62,7 +68,9 @@ namespace Uccs.Sun.CLI
 				case "ls" : 
 				case "list" : 
 				{	
-					var r = Program.Api<IEnumerable<LocalResource>>(new QueryLocalResourcesCall {Query = Args.Nodes[1].Name});
+					Workflow.CancelAfter(RdcQueryTimeout);
+
+					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesCall {Query = Args.Nodes[1].Name});
 					
 					Dump(	r, 
 							new string[] {"Address", "Releases", "Latest Type", "Latest Data", "Latest Length"}, 
@@ -77,7 +85,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Program.Api<LocalResource>(new LocalResourceCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Api<LocalResource>(new LocalResourceCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					if(r != null)
 					{
@@ -97,7 +105,7 @@ namespace Uccs.Sun.CLI
 				case "download" :
 				{
 					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
-					var d = Program.Rdc<ResourceResponse>(new ResourceRequest {Resource = a}).Resource.Data;
+					var d = Rdc<ResourceResponse>(new ResourceRequest {Resource = a}).Resource.Data;
 
 					byte[] h;
 
@@ -113,7 +121,7 @@ namespace Uccs.Sun.CLI
 					if(h == null)
 						throw new Exception("Not supported type");
 
-					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = lr.Last.Type});
+					Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = lr.Last.Type});
 
 					try
 					{
@@ -121,7 +129,7 @@ namespace Uccs.Sun.CLI
 						
 						while(Workflow.Active)
 						{
-							p = Program.Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
+							p = Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
 
 							if(p == null)
 								break;

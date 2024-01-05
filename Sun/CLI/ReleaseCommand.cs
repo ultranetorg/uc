@@ -33,7 +33,7 @@ namespace Uccs.Sun.CLI
 					if(!Args.Has("source") && !Args.Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var h = Program.Api<byte[]>(new ReleaseBuildCall{Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
+					var h = Api<byte[]>(new ReleaseBuildCall{Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
 																	 FilePath = GetString("source", null),
 																	 Sources = GetString("sources", null)?.Split(',')});
 
@@ -47,7 +47,7 @@ namespace Uccs.Sun.CLI
 				{
 					var h = Args.Nodes[1].Name.FromHex();
 
-					Program.Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = Enum.Parse<DataType>(GetString("type")) });
+					Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = Enum.Parse<DataType>(GetString("type")) });
 
 					try
 					{
@@ -55,7 +55,7 @@ namespace Uccs.Sun.CLI
 						
 						while(Workflow.Active)
 						{
-							d = Program.Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
+							d = Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
 
 							if(d == null)
 								break;
@@ -75,7 +75,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Program.Api<LocalReleaseCall.Release>(new LocalReleaseCall {Address = Args.Nodes[1].Name.FromHex()});
+					var r = Api<LocalReleaseCall.Release>(new LocalReleaseCall {Address = Args.Nodes[1].Name.FromHex()});
 					
 					if(r != null)
 					{

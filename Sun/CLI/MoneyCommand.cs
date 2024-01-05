@@ -47,6 +47,8 @@ namespace Uccs.Sun.CLI
 		   		case "e" :
 		   		case "emit" :
 				{
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
 					Nethereum.Web3.Accounts.Account from;
 
 					if(Args.Has("from/key"))
@@ -72,16 +74,18 @@ namespace Uccs.Sun.CLI
 																				new BigInteger((int)Program.Zone.EthereumNetwork));
 					}
 
-					Program.Api<Transaction>(new EmitCall{	FromPrivateKey = from.PrivateKey.HexToByteArray(),
-															Wei = Web3.Convert.ToWei(GetString("amount")),
-															To = GetAccountAddress("by"), 
-															Await = Command.GetAwaitStage(Args) });
+					Api<Transaction>(new EmitCall{	FromPrivateKey = from.PrivateKey.HexToByteArray(),
+													Wei = Web3.Convert.ToWei(GetString("amount")),
+													To = GetAccountAddress("by"), 
+													Await = Command.GetAwaitStage(Args) });
 					return null;
 				}
 
 		   		case "t" : 
 		   		case "transfer" : 
 				{
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
 					return new UntTransfer(AccountAddress.Parse(GetString("to")), Money.ParseDecimal(GetString("amount")));
 				}
 

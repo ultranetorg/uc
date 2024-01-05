@@ -11,7 +11,7 @@ namespace Uccs.Net
 		public virtual DateTime	Now {get;}
 	}
 
-	public class RealTimeClock : Clock
+	public class RealClock : Clock
 	{
 		override public DateTime	Now => DateTime.UtcNow;
 	}

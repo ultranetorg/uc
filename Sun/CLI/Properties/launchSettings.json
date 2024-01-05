@@ -1,37 +1,37 @@
 {
-  "profiles": {
-    "WSL": {
-      "commandName": "WSL2",
-      "distributionName": ""
-    },
-    "empty": {
-      "commandName": "Project",
-      "remoteDebugEnabled": false
-    },
-    "run node api": {
-      "commandName": "Project",
-      "commandLineArgs": "run node zone=Devzone"
-    },
-    "127.0.0.101": {
-      "commandName": "Project",
-      "commandLineArgs": "attach to=http://127.0.0.101:3900 zone=Localnet profile=a:\\UOTMP\\CLI-101"
-    },
-    "127.0.0.105": {
-      "commandName": "Project",
-      "commandLineArgs": "attach to=http://127.0.0.105:3900 zone=Localnet profile=a:\\UOTMP\\CLI-105"
-    },
-    "Devzone 78.47.204.100": {
-      "commandName": "Project",
-      "commandLineArgs": "attach to=https://78.47.204.100:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.204.100 accesskey=json_api_access_key"
-    },
-    "Devzone 78.47.198.218": {
-      "commandName": "Project",
-      "commandLineArgs": "attach to=https://78.47.198.218:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.198.218 accesskey=json_api_access_key"
-    },
-    "dev listen": {
-      "commandName": "Project",
-      "commandLineArgs": "dev listen 127.0.0.99:3899",
-      "remoteDebugEnabled": false
+    "profiles": {
+        "WSL": {
+            "commandName": "WSL2",
+            "distributionName": ""
+        },
+        "empty": {
+            "commandName": "Project",
+            "remoteDebugEnabled": false
+        },
+        "Localzone: run node": {
+            "commandName": "Project",
+            "commandLineArgs": "run node zone=Localzone"
+        },
+        "127.0.0.101": {
+            "commandName": "Project",
+            "commandLineArgs": "attach to=http://127.0.0.101:3900 zone=Localnet profile=a:\\UOTMP\\CLI-101"
+        },
+        "127.0.0.105": {
+            "commandName": "Project",
+            "commandLineArgs": "attach to=http://127.0.0.105:3900 zone=Localnet profile=a:\\UOTMP\\CLI-105"
+        },
+        "Devzone: 78.47.204.100": {
+            "commandName": "Project",
+            "commandLineArgs": "attach to=https://78.47.204.100:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.204.100 accesskey=json_api_access_key"
+        },
+        "Devzone: 78.47.198.218": {
+            "commandName": "Project",
+            "commandLineArgs": "attach to=https://78.47.198.218:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.198.218 accesskey=json_api_access_key"
+        },
+        "dev listen": {
+            "commandName": "Project",
+            "commandLineArgs": "dev listen 127.0.0.99:3899",
+            "remoteDebugEnabled": false
+        }
     }
-  }
 }

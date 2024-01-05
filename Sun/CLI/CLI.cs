@@ -11,7 +11,6 @@ namespace Uccs.Sun.CLI
 {
 	public class Program
 	{
-		public ConsoleLogView	LogView;
 		public string			ExeDirectory;
 		public Zone				Zone;
 		public Net.Sun			Sun;
@@ -38,15 +37,6 @@ namespace Uccs.Sun.CLI
 
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 			PasswordAsker = new ConsolePasswordAsker();
-
-			try
-			{
-				var p = Console.KeyAvailable;
-				LogView = new ConsoleLogView(Workflow.Log, false, true);
-			}
-			catch(Exception)
-			{
-			}
 		
 			var b = new Boot(ExeDirectory);
 
@@ -55,9 +45,6 @@ namespace Uccs.Sun.CLI
 
 			try
 			{
-				foreach(var i in Directory.EnumerateFiles(ExeDirectory, "*." + Net.Sun.FailureExt))
-					File.Delete(i);
-
 				Execute(b.Commnand);
 			}
 			catch(OperationCanceledException)
@@ -156,11 +143,12 @@ namespace Uccs.Sun.CLI
 			switch(t)
 			{
 				case BatchCommand.Keyword :		c = new BatchCommand(this, args); break;
+				case AccountCommand.Keyword :	c = new AccountCommand(this, args); break;
 				case RunCommand.Keyword:		c = new RunCommand(this, args); break;
 				case AttachCommand.Keyword:		c = new AttachCommand(this, args); break;
 				case AnalysisCommand.Keyword:	c = new AnalysisCommand(this, args); break;
 				case DevCommand.Keyword:		c = new DevCommand(this, args); break;
-				case AccountCommand.Keyword:	c = new AccountCommand(this, args); break;
+				case WalletCommand.Keyword:		c = new WalletCommand(this, args); break;
 				case MoneyCommand.Keyword:		c = new MoneyCommand(this, args); break;
 				case NexusCommand.Keyword:		c = new NexusCommand(this, args); break;
 				case AuthorCommand.Keyword:		c = new AuthorCommand(this, args); break;
@@ -168,9 +156,12 @@ namespace Uccs.Sun.CLI
 				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args); break;
 				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args); break;
 				case NetCommand.Keyword:		c = new NetCommand(this, args); break;
+				case LogCommand.Keyword:		c = new LogCommand(this, args); break;
 				default:
 					throw new SyntaxException("Unknown command");
 			}
+
+			c.Workflow = Workflow;
 
 			return c;
 		}
@@ -188,58 +179,10 @@ namespace Uccs.Sun.CLI
 
 			if(a is Operation o)
 			{
-				Enqueue(new Operation[]{o}, c.GetAccountAddress("by"), Command.GetAwaitStage(command));
+				c.Enqueue(new Operation[]{o}, c.GetAccountAddress("by"), Command.GetAwaitStage(command));
 			}
 				
 			return a;
-		}
-
-		public void Api(SunApiCall call)
-		{
-			if(ApiClient == null)
-				call.Execute(Sun, Workflow);
-			else
-				ApiClient.Send(call, Workflow);
-		}
-
-		public Rp Api<Rp>(SunApiCall call)
-		{
-			if(ApiClient == null) 
-				return (Rp)call.Execute(Sun, Workflow);
-			else
-				return ApiClient.Request<Rp>(call, Workflow);
-		}
-
-		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
-		{
-			var rp = Api<Rp>(new RdcCall {Request = request});
- 
- 			if(rp.Error != null)
- 			{
- 				//string m = rp.Error.Message;
- 
- 				//if(rp.Result == ExceptionClass.EntityException)
- 				//	m +=  " : " + ((EntityError)rp.Error).ToString();
- 				//else if(rp.Result == ExceptionClass.NodeException)
- 				//	m +=  " : " + ((NodeError)rp.Error).ToString();
- 
- 				//if(rp.ErrorDetails != null)
- 				//	m += " - " + rp.ErrorDetails;
- 
- 				throw rp.Error;
- 			}
-
-			return rp;
-		}
-
-		public void Enqueue(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
-		{
-			if(ApiClient == null)
-				Sun.Enqueue(operations, by, await, Workflow);
-			else
-				ApiClient.Send(new EnqeueOperationCall {Operations = operations,
-														By = by,
-														Await = await}, Workflow);
 		}
 	}
 }

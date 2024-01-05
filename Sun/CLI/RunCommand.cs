@@ -16,21 +16,41 @@ namespace Uccs.Sun.CLI
 		public override object Execute()
 		{
 			var b = new Boot(Program.ExeDirectory);
+			var s = new Settings(Program.ExeDirectory, b);
 
-			var settings = new Settings(Program.ExeDirectory, b);
-				
-			if(File.Exists(settings.Profile))
-				foreach(var i in Directory.EnumerateFiles(settings.Profile, "*." + Net.Sun.FailureExt))
-					File.Delete(i);
-
-			Program.Sun = new Net.Sun(b.Zone, settings, Workflow) {	Clock = new RealTimeClock(),
-																	Nas = new Nas(settings),
-																	GasAsker = Command.ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
-																	FeeAsker = new SilentFeeAsker() };
+			Program.Sun = new Net.Sun(b.Zone, s, Workflow){	Clock = new RealClock(),
+															Nas = new Nas(s),
+															GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
+															FeeAsker = new SilentFeeAsker() };
 			
 			Program.Sun.Run(Args);
 
-			WaitHandle.WaitAny(new WaitHandle[] {Workflow.Cancellation.WaitHandle});
+			if(ConsoleAvailable)
+				while(Workflow.Active)
+				{
+					Console.Write(b.Zone + " > ");
+
+					var l = new Log();
+					var v = new ConsoleLogView(false, true);
+					v.StartListening(l);
+
+					try
+					{
+						var c = Program.Create(new XonDocument(Console.ReadLine()));
+	
+						c.Workflow = Program.Workflow.CreateNested("Console Command", l);
+
+						c.Execute();
+					}
+					catch(Exception ex)
+					{
+						l.ReportError(this, "Error", ex);
+					}
+
+					v.StopListening(l);
+				}
+			else
+				WaitHandle.WaitAny(new WaitHandle[] {Workflow.Cancellation.WaitHandle});
 			
 			return null;
 		}
