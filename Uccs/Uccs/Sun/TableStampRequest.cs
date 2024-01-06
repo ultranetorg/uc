@@ -11,7 +11,7 @@ namespace Uccs.Net
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(SuperClusters.Length > AccountTable.SuperClustersCountMax)
-				throw new RequestException();
+				throw new RequestException(RequestError.IncorrectRequest);
 
 			lock(sun.Lock)
 			{
@@ -27,7 +27,7 @@ namespace Uccs.Net
 					case Tables.Analyses : return new TableStampResponse{Clusters = SuperClusters.SelectMany(s => sun.Mcv.Analyses.Clusters.Where(c => c.SuperId == s).Select(i => new TableStampResponse.Cluster{Id = i.Id, Length = i.MainLength, Hash = i.Hash})).ToArray()};
 
 					default:
-						throw new RequestException();
+						throw new RequestException(RequestError.IncorrectRequest);
 				}
 			}
 		}

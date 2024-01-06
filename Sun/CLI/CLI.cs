@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,21 +19,6 @@ namespace Uccs.Sun.CLI
 
 		public Program()
 		{
-// 			double r = 17000;
-// 			double pp = 17000/20;
-// 			double s = 0;
-// 
-// 			for(int i=0; i<20; i++)
-// 			{
-// 
-// 				s += pp + r * 0.07;
-// 			
-// 				Console.WriteLine($"год {i} - платеэж {pp + r * 0.07:0.} - всего {s:0.}");
-// 				
-// 				r -= pp;
-// 			}
-
-
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 			PasswordAsker = new ConsolePasswordAsker();
 		
@@ -57,7 +41,7 @@ namespace Uccs.Sun.CLI
 				File.WriteAllText(Path.Join(b.Profile, m + "." + Net.Sun.FailureExt), ex.ToString());
 			}
 
-			Sun.Stop("The End");
+			Sun?.Stop("The End");
 		}
 
 		public Program(Zone zone, Net.Sun sun, JsonApiClient api, Workflow workflow, IPasswordAsker passwordAsker)
@@ -161,19 +145,21 @@ namespace Uccs.Sun.CLI
 					throw new SyntaxException("Unknown command");
 			}
 
-			c.Workflow = Workflow;
-
 			return c;
 		}
 
-
-		public object Execute(Xon command)
+		public object Execute(Xon command, Log log = null)
 		{
 			if(Workflow.Aborted)
 				throw new OperationCanceledException();
 
 			var args = command.Nodes.ToList();
 			var c = Create(command);
+
+			c.Workflow = Workflow.CreateNested("Command", Workflow.Log);
+			
+			if(log != null)
+				c.Workflow.Log = log;
 
 			var a = c.Execute();
 

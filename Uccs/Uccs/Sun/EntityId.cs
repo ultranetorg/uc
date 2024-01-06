@@ -6,9 +6,13 @@ namespace Uccs.Net
 {
 	public struct EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>
 	{
-		public byte[]	Ci { get; private set; }
-		public int		Ei { get; private set; }
+		public byte[]	Ci { get; set; }
+		public int		Ei { get; set; }
 		byte[]			_Serial;
+
+		public EntityId()
+		{
+		}
 
 		public EntityId(byte[] ci, int ei)
 		{

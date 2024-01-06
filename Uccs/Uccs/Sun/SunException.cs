@@ -42,6 +42,7 @@ namespace Uccs.Net
 	public enum RequestError : byte
 	{
 		None,
+		IncorrectRequest,
 	}
 
 	public enum ResourceError : byte

@@ -3,10 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Org.BouncyCastle.Utilities.Encoders;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -41,6 +37,50 @@ namespace Uccs.Sun.CLI
 		{
 			Program = program;
 			Args = args;
+		}
+
+		public void Api(SunApiCall call)
+		{
+			if(Program.ApiClient == null)
+				call.Execute(Program.Sun, Workflow);
+			else
+				Program.ApiClient.Send(call, Workflow);
+		}
+
+		public Rp Api<Rp>(SunApiCall call)
+		{
+			if(Program.ApiClient == null) 
+				return (Rp)call.Execute(Program.Sun, Workflow);
+			else
+				return Program.ApiClient.Request<Rp>(call, Workflow);
+		}
+
+		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
+		{
+			if(Program.ApiClient == null) 
+			{
+				return Program.Sun.Call(i => i.Request(request), Workflow) as Rp;
+			}
+			else
+			{
+				var rp = Api<Rp>(new RdcCall {Request = request});
+ 
+ 				if(rp.Error != null)
+ 					throw rp.Error;
+ 
+				return rp;
+			}
+		}
+
+		public void Enqueue(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
+		{
+			if(Program.ApiClient == null)
+				Program.Sun.Enqueue(operations, by, await, Workflow);
+			else
+				Program.ApiClient.Send(new EnqeueOperationCall {Operations = operations,
+																By = by,
+																Await = await},
+										Workflow);
 		}
 
 		public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
@@ -98,7 +138,7 @@ namespace Uccs.Sun.CLI
 		protected byte[] GetHexBytes(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
-				return Hex.Decode(Args.Get<string>(paramenter));
+				return Args.Get<string>(paramenter).FromHex();
 			else
 				if(mandatory)
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");
@@ -256,54 +296,5 @@ namespace Uccs.Sun.CLI
 			else
 				return PlacingStage.Placed;
 		}
-
-		public void Api(SunApiCall call)
-		{
-			if(Program.ApiClient == null)
-				call.Execute(Program.Sun, Workflow);
-			else
-				Program.ApiClient.Send(call, Workflow);
-		}
-
-		public Rp Api<Rp>(SunApiCall call)
-		{
-			if(Program.ApiClient == null) 
-				return (Rp)call.Execute(Program.Sun, Workflow);
-			else
-				return Program.ApiClient.Request<Rp>(call, Workflow);
-		}
-
-		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
-		{
-			var rp = Api<Rp>(new RdcCall {Request = request});
- 
- 			if(rp.Error != null)
- 			{
- 				//string m = rp.Error.Message;
- 
- 				//if(rp.Result == ExceptionClass.EntityException)
- 				//	m +=  " : " + ((EntityError)rp.Error).ToString();
- 				//else if(rp.Result == ExceptionClass.NodeException)
- 				//	m +=  " : " + ((NodeError)rp.Error).ToString();
- 
- 				//if(rp.ErrorDetails != null)
- 				//	m += " - " + rp.ErrorDetails;
- 
- 				throw rp.Error;
- 			}
-
-			return rp;
-		}
-
-		public void Enqueue(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
-		{
-			if(Program.ApiClient == null)
-				Program.Sun.Enqueue(operations, by, await, Workflow);
-			else
-				Program.ApiClient.Send(new EnqeueOperationCall {Operations = operations,
-																By = by,
-																Await = await}, Workflow);
-		}
-
 	}
 }

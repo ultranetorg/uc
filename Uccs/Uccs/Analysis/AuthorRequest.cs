@@ -7,7 +7,7 @@
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(Release.Length != Cryptography.HashSize)
-				throw new RequestException();
+				throw new RequestException(RequestError.IncorrectRequest);
 
  			lock(sun.Lock)
 			{	

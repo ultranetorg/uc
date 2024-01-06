@@ -79,6 +79,7 @@ namespace Uccs.Sun.CLI
 	
 					//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 	
+					rp.Author.Id = rp.EntityId;
 					Dump(rp.Author);
 						
 					return rp.Author;

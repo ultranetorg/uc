@@ -16,13 +16,16 @@ namespace Uccs.Sun.CLI
 
 		public override object Execute()
 		{
-			var a = new Uri(GetString("to"));
+			var a = new Uri(Args.Nodes[0].Name);
 
 			var h = new HttpClientHandler();
 			h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 			var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-			Program.ApiClient = new JsonApiClient(http, GetString("to"), GetString("accesskey", null));
+			Program.ApiClient = new JsonApiClient(http, Args.Nodes[0].Name, GetString("accesskey", null));
+
+			var v = new ConsoleLogView(false, true);
+			v.StartListening(Workflow.Log);
 
 			while(true)
 			{
@@ -35,18 +38,19 @@ namespace Uccs.Sun.CLI
 				try
 				{
 					var x = new XonDocument(c);
+
+					if(x.Nodes[0].Name == RunCommand.Keyword || x.Nodes[0].Name == AttachCommand.Keyword || x.Nodes[0].Name == LogCommand.Keyword)
+						throw new Exception("Not available");
 	
 					Program.Execute(x);
 				}
-				//catch(ApiCallException ex) when(ex.Response != null && ex.Response.StatusCode == HttpStatusCode.UnprocessableEntity)
-				//{
-				//	Workflow.Log.ReportError(this, "Error", ex);
-				//}
 				catch(Exception ex)
 				{
 					Workflow.Log.ReportError(this, "Error", ex);
 				}
 			}
+
+			v.StopListening(Workflow.Log);
 			
 			return null;
 		}

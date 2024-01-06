@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
+﻿using System.Linq;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -16,7 +13,11 @@ namespace Uccs.Sun.CLI
 
 		public override object Execute()
 		{
-			var results = Args.Nodes.Where(i => i.Name != "await" && i.Name != "by").Select(i => Program.Create(i)).Select(i => i.Execute());
+			var results = Args.Nodes.Where(i => i.Name != "await" && i.Name != "by").Select(i => {
+																									var c = Program.Create(i);
+																									c.Workflow = Workflow;
+																									return c;
+																								 }).Select(i => i.Execute());
 
 			Enqueue(results.OfType<Operation>(), GetAccountAddress("by"), Command.GetAwaitStage(Args));
 

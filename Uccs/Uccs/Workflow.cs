@@ -7,7 +7,7 @@ namespace Uccs.Net
 	{
 		CancellationTokenSource			CancellationSource;
 		public CancellationToken		Cancellation => CancellationSource.Token;
-		public Log						Log { get; }
+		public Log						Log { get; set; }
 		public bool						Aborted => Cancellation.IsCancellationRequested;
 		public bool						Active => !Aborted;
 		public string					Name;

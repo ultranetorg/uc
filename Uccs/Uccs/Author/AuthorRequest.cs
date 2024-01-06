@@ -7,7 +7,7 @@
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(!Author.Valid(Name))	
-				throw new RequestException();
+				throw new RequestException(RequestError.IncorrectRequest);
 
  			lock(sun.Lock)
 			{	
@@ -18,13 +18,14 @@
 				if(e == null)
 					throw new EntityException(EntityError.NotFound);
 
-				return new AuthorResponse {Author = e};
+				return new AuthorResponse {Author = e, EntityId = e.Id};
 			}
 		}
 	}
 	
 	public class AuthorResponse : RdcResponse
 	{
+		public EntityId	EntityId {get; set;} = new([0,0], 0);
 		public Author	Author {get; set;}
 	}
 }

@@ -36,11 +36,12 @@ namespace Uccs.Sun.CLI
 
 					try
 					{
-						var c = Program.Create(new XonDocument(Console.ReadLine()));
-	
-						c.Workflow = Program.Workflow.CreateNested("Console Command", l);
+						var x = new XonDocument(Console.ReadLine());
 
-						c.Execute();
+						if(x.Nodes[0].Name == RunCommand.Keyword || x.Nodes[0].Name == AttachCommand.Keyword)
+							throw new Exception("Not available");
+
+						Program.Execute(x, l);
 					}
 					catch(Exception ex)
 					{

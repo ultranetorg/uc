@@ -11,7 +11,7 @@ namespace Uccs.Net
 		public override RdcResponse Execute(Sun sun)
 		{
 			if(Peers.Length > 1000)
-				throw new RequestException();
+				throw new RequestException(RequestError.IncorrectRequest);
 
 			lock(sun.Lock)
 			{

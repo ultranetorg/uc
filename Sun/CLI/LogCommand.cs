@@ -15,6 +15,9 @@ namespace Uccs.Sun.CLI
 
 		public override object Execute()
 		{
+			if(Program.Sun == null)
+				throw new Exception("\"run node\" mode supported only");
+
 			if(ConsoleAvailable)
 			{
 				var v = new ConsoleLogView(false, true);
