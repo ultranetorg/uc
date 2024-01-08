@@ -8,7 +8,7 @@ namespace Uccs.Net
 {
 	/// <summary>
 	///  uo-app-ms.dotnet7-0.0.0
-	///  ultranet://testnet1/uo.app/ms.dotnet7/0.0.0
+	///  ultranet://testzone1/uo.app/ms.dotnet7/0.0.0
 	/// </summary>
 
 	public class ResourceAddress : IBinarySerializable, IEquatable<ResourceAddress>, IComparable, IComparable<ResourceAddress>
