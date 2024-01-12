@@ -231,7 +231,7 @@ namespace Uccs.Net
 			
 			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
 
-			if(xon.Has("node"))
+			if(xon.Has("peer"))
 				RunNode((xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
 
 			if(xon.Has("seed"))

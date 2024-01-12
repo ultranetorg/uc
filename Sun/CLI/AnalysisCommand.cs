@@ -24,20 +24,20 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "o" :
-				case "order" :
+				case "c" :
+				case "create" :
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AnalysisOrder {Release = Args.Nodes[1].Name.HexToByteArray(), Fee = GetMoney("fee")};
+					return new AnalysisOrder {Release = Args.Nodes[1].Name.FromHex(), Fee = GetMoney("fee")};
 				}
 
-				case "rr" :
-				case "registerresult" :
+				case "r" :
+				case "update" :
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AnalysisResultRegistration {Release = Args.Nodes[1].Name.HexToByteArray(), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
+					return new AnalysisResultRegistration {Release = Args.Nodes[1].Name.FromHex(), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
 				}
 
 				case "e" : 
@@ -45,7 +45,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = Args.Nodes[1].Name.HexToByteArray()});
+					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = Args.Nodes[1].Name.FromHex()});
 	
 					Dump(rp.Analysis);
 						

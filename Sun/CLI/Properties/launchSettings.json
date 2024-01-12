@@ -8,9 +8,9 @@
       "commandName": "Project",
       "remoteDebugEnabled": false
     },
-    "Localzone: run node": {
+    "Localzone: node run peer": {
       "commandName": "Project",
-      "commandLineArgs": "run node zone=Localzone"
+      "commandLineArgs": "node run peer zone=Localzone"
     },
     "dev listen": {
       "commandName": "Project",
@@ -19,19 +19,19 @@
     },
     "Devzone: attach 78.47.204.100": {
       "commandName": "Project",
-      "commandLineArgs": "attach https://78.47.204.100:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.204.100 accesskey=json_api_access_key"
+      "commandLineArgs": "node attach https://78.47.204.100:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.204.100 accesskey=json_api_access_key"
     },
     "Devzone: attach 78.47.198.218": {
-      "commandName": "Project",
-      "commandLineArgs": "attach https://78.47.198.218:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.198.218 accesskey=json_api_access_key"
+        "commandName": "Project",
+        "commandLineArgs": "node attach https://78.47.198.218:3901 zone=Devzone profile=a:\\UOTMP\\CLI-78.47.198.218 accesskey=json_api_access_key"
     },
     "Localzone: attach 127.0.0.105": {
-      "commandName": "Project",
-      "commandLineArgs": "attach http://127.0.0.105:3900 zone=Localzone profile=a:\\UOTMP\\CLI-105"
+        "commandName": "Project",
+        "commandLineArgs": "node attach http://127.0.0.105:3900 zone=Localzone profile=a:\\UOTMP\\CLI-105"
     },
     "Localzone: attach 127.0.0.101": {
-      "commandName": "Project",
-      "commandLineArgs": "attach http://127.0.0.101:3900 zone=Localzone profile=a:\\UOTMP\\CLI-101"
+        "commandName": "Project",
+        "commandLineArgs": "node attach http://127.0.0.101:3900 zone=Localzone profile=a:\\UOTMP\\CLI-101"
     }
   }
 }

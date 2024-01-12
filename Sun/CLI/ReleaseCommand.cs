@@ -27,15 +27,15 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "b" :
-				case "build" :
+				case "c" :
+				case "create" :
 				{
 					if(!Args.Has("source") && !Args.Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
 					var h = Api<byte[]>(new ReleaseBuildCall{Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
-																	 FilePath = GetString("source", null),
-																	 Sources = GetString("sources", null)?.Split(',')});
+															 FilePath = GetString("source", null),
+															 Sources = GetString("sources", null)?.Split(',')});
 
 					Workflow.Log?.Report(this, $"Hash={h.ToHex()}");
 

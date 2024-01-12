@@ -29,8 +29,8 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "b" :
-				case "build" :
+				case "c" :
+				case "create" :
 				{
 					Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
 												Sources			 = GetString("sources").Split(','), 

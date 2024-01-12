@@ -16,7 +16,7 @@ namespace Uccs.Sun.CLI
 		public override object Execute()
 		{
 			if(Program.Sun == null)
-				throw new Exception("\"run node\" mode supported only");
+				throw new Exception("\"node run peer\" mode supported only");
 
 			if(ConsoleAvailable)
 			{
