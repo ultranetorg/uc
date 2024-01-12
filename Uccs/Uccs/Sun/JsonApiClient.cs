@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
@@ -107,9 +108,44 @@ namespace Uccs.Net
 			}
 		}
 
+		public async Task<HttpResponseMessage> SendAsync(ApiCall request, Workflow workflow)
+		{
+			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
+
+			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{ApiCall.NameOf(request.GetType())}?accesskey={Key}"))
+			{
+				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
+	
+				var cr = await Http.SendAsync(m, workflow.Cancellation);
+
+				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
+					throw new ApiCallException(cr, cr.ReasonPhrase);
+
+				return cr;
+			}
+		}
+
 		public Rp Request<Rp>(ApiCall request, Workflow workflow)
 		{
 			using(var cr = Send(request, workflow))
+			{
+				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
+					throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);
+
+				try
+				{
+					return JsonSerializer.Deserialize<Rp>(cr.Content.ReadAsStringAsync().Result, Options);
+				}
+				catch(Exception ex)
+				{
+					throw new ApiCallException("Deserialization error", ex);
+				}
+			}
+		}
+
+		public async Task<Rp> RequestAsync<Rp>(ApiCall request, Workflow workflow)
+		{
+			using(var cr = await SendAsync(request, workflow))
 			{
 				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
 					throw new ApiCallException(cr, cr.Content.ReadAsStringAsync().Result);
