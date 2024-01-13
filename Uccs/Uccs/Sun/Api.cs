@@ -1,16 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
 	public abstract class SunApiCall : ApiCall
 	{
 		public abstract object	Execute(Sun sun, Workflow workflow);
+	}
+
+	public class PropertyCall : SunApiCall
+	{
+		public string Path { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			object o = sun;
+
+			foreach(var i in Path.Split('.'))
+			{
+				o = o.GetType().GetProperty(i)?.GetValue(o) ?? o.GetType().GetField(i)?.GetValue(o);
+			}
+
+			switch(o)
+			{
+				case byte[] b:
+					return b.ToHex();
+
+				default:
+					return o?.ToString();
+			}
+		}
 	}
 
 	public class ExitCall : SunApiCall
@@ -128,7 +150,7 @@ namespace Uccs.Net
 					f.Add(new ("Emission",				$"{sun.Mcv.LastConfirmedRound?.Emission.ToHumanString()}"));
 					f.Add(new ("ExeunitMinFee",			$"{sun.Mcv.LastConfirmedRound?.ConfirmedExeunitMinFee.ToHumanString()}"));
 					f.Add(new ("SyncCache Blocks",		$"{sun.SyncTail.Sum(i => i.Value.Votes.Count)}"));
-					f.Add(new ("Loaded Rounds",			$"{sun.Mcv.LoadedRounds.Count()}"));
+					f.Add(new ("Loaded Rounds",			$"{sun.Mcv.LoadedRounds.Count}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(sun.Mcv.LastNonEmptyRound != null ? sun.Mcv.LastNonEmptyRound.Id : null)}"));
 					f.Add(new ("Last Payload Round",	$"{(sun.Mcv.LastPayloadRound != null ? sun.Mcv.LastPayloadRound.Id : null)}"));
 					f.Add(new ("Base Hash",				sun.Mcv.BaseHash.ToHex()));
