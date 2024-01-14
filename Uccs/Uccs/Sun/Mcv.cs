@@ -722,8 +722,6 @@ namespace Uccs.Net
 				fe.Bail = 0;
 			}
 			
-			round.Distribute(round.Fees, round.Members.Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
-
 			for(int ti = 0; ti < round.ConfirmedTransactions.Length; ti++)
 			{
 				for(int oi = 0; oi < round.ConfirmedTransactions[ti].Operations.Length; oi++)
@@ -829,6 +827,15 @@ namespace Uccs.Net
 				{
 					var tail = Tail.AsEnumerable().Reverse().Take(Zone.TailLength);
 		
+					var f = Money.Zero;
+					
+					foreach(var i in tail)
+					{
+						f += i.Fees;
+					}
+
+					round.Distribute(f, round.Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
+
 					foreach(var i in tail)
 					{
 						Accounts.Save(b, i.AffectedAccounts.Values);
@@ -846,7 +853,7 @@ namespace Uccs.Net
 					BaseState = s.ToArray();
 	
 					Hashify();
-										
+					
 					b.Put(BaseStateKey, BaseState);
 					b.Put(__BaseHashKey, BaseHash);
 	
