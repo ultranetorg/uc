@@ -119,9 +119,7 @@ namespace Uccs.Net
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				sun.PackageHub.Install(Package, workflow);
-
-			return null;
+				return sun.PackageHub.Install(Package, workflow).Id;
 		}
 	}
 }

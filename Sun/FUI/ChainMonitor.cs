@@ -162,7 +162,7 @@ namespace Uccs.Sun.FUI
 		
 							var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Generator));
 							var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => b.Transaction.Signer));
-							generators = mems.Union(joins).Distinct().OrderBy(i => i);
+							generators = mems.Union(joins).Distinct().Order();
 
 							f  = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nv}}} {{4,{nm}}} {{5,{nl}}} {{6,{ndate}}} {{7,8}}";
 

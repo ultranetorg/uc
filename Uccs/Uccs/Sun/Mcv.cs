@@ -568,35 +568,35 @@ namespace Uccs.Net
 			{
 				round.ConfirmedMemberLeavers	= gu.SelectMany(i => i.MemberLeavers).Distinct()
 													.Where(x => round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 
 				round.ConfirmedViolators		= gu.SelectMany(i => i.Violators).Distinct()
 													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 
 				round.ConfirmedEmissions		= gu.SelectMany(i => i.Emissions).Distinct()
 													.Where(x => round.Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 
 				round.ConfirmedDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
 													.Where(x => round.DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 
 				round.ConfirmedAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
 													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Zone.AnalizerMinimumVotes)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 				
 				round.ConfirmedAnalyzerLeavers	= gu.SelectMany(i => i.AnalyzerLeavers).Distinct()
 													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Zone.AnalizerMinimumVotes)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 
 				round.ConfirmedFundJoiners		= gu.SelectMany(i => i.FundJoiners).Distinct()
 													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 				
 				round.ConfirmedFundLeavers		= gu.SelectMany(i => i.FundLeavers).Distinct()
 													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
-													.OrderBy(i => i).ToArray();
+													.Order().ToArray();
 
 				//round.ConfirmedAnalyses	= au.SelectMany(i => i.Analyses).DistinctBy(i => i.Resource)
 				//							.Select(i => {

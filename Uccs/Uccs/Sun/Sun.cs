@@ -1211,7 +1211,8 @@ namespace Uccs.Net
 				}
 				catch(NodeException ex)
 				{
-					used.Add(peer);
+					if(ex.Error != NodeError.TooEearly)
+						used.Add(peer);
 				}
 				catch(EntityException)
 				{

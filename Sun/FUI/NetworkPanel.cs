@@ -88,7 +88,7 @@ namespace Uccs.Sun.FUI
 			//
 			//					Invoke(new Action(() =>
 			//					{
-			//						foreach(var i in rp.Funds.OrderBy(i => i))
+			//						foreach(var i in rp.Funds.Order())
 			//						{
 			//							var li = new ListViewItem(i.ToString());
 			//							Funds.Items.Add(li);

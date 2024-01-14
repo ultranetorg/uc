@@ -464,7 +464,7 @@ namespace Uccs.Net
  			}
 		}
 
-		public void Unpack(PackageAddress package, bool overwrite = false)
+		public void Unpack(PackageAddress package)
 		{
 			var p = Find(package);
 			var dir = p.Release.Path;
@@ -477,16 +477,16 @@ namespace Uccs.Net
 
 				if(a != null && p.Release.Availability.HasFlag(Availability.Complete) || p.Release.Availability.HasFlag(Availability.Incremental))
 				{
-					p = Find(new PackageAddress(package, a.Release));
 					pks.Add(new (p, a));
+					p = Find(new (package, a.Release));
 				}
 				else
 					throw new ResourceException(ResourceError.RequiredPackagesNotFound);
 			}
 
-			var deps = new List<Dependency>();
+			var deps = new HashSet<PackageAddress>();
 
-			var c = Find(package);
+			var c = p;
 
 			using(var s = new FileStream(c.Release.MapPath(Package.CompleteFile), FileMode.Open))
 			{
@@ -496,16 +496,14 @@ namespace Uccs.Net
 					{
 						var f = Path.Join(AddressToPath(package), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 								
-						if(!File.Exists(f) || overwrite)
-						{
-							Directory.CreateDirectory(Path.GetDirectoryName(f));
-							e.ExtractToFile(f, true);
-						}
+						Directory.CreateDirectory(Path.GetDirectoryName(f));
+						e.ExtractToFile(f, true);
 					}
 				}
 			}
 
-			deps.AddRange(c.Manifest.CompleteDependencies);
+			foreach(var i in c.Manifest.CompleteDependencies.Select(i => i.Package))
+				deps.Add(i);
 
 			foreach(var i in pks.AsEnumerable().Reverse())
 			{
@@ -519,11 +517,8 @@ namespace Uccs.Net
 							{
 								var f = Path.Join(AddressToPath(package), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									
-								if(!File.Exists(f) || overwrite)
-								{
-									Directory.CreateDirectory(Path.GetDirectoryName(f));
-									e.ExtractToFile(f, true);
-								}
+								Directory.CreateDirectory(Path.GetDirectoryName(f));
+								e.ExtractToFile(f, true);
 							} 
 							else
 							{
@@ -533,7 +528,7 @@ namespace Uccs.Net
 
 									while(!sr.EndOfStream)
 									{
-										File.Delete(Path.Join(ProductsPath, sr.ReadLine()));
+										File.Delete(Path.Join(AddressToPath(package), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
 									}
 								}
 							}
@@ -542,22 +537,17 @@ namespace Uccs.Net
 				}
 
 				foreach(var j in i.Value.AddedDependencies)
-				{
-					///Unpack(j.Package);
-					deps.Add(j);
-				}
+					deps.Add(j.Package);
 
 				foreach(var j in i.Value.RemovedDependencies)
-				{
-					deps.Remove(j);
-				}
+					deps.Remove(j.Package);
 			}
 
 			if(deps.Any())
 			{
 				foreach(var i in deps)
 				{
-					Unpack(i.Package);
+					Unpack(i);
 				}
 
 				//var f = Path.Join(AddressToPath(package), $".{Manifest.Extension}");
@@ -584,24 +574,24 @@ namespace Uccs.Net
 			AddRelease(resource, sources, dependenciespath, r?.LastAs<History>().Releases.Last().Hash, workflow);
 		}
 
-		public void Install(PackageAddress release, Workflow workflow)
+		public Task Install(PackageAddress release, Workflow workflow)
 		{
-			Task.Run(() =>	{ 
-								try
-								{
-									if(!ExistsRecursively(release))
-									{
-										var d = Download(release, workflow);
+			return Task.Run(() =>	{ 
+										try
+										{
+											if(!ExistsRecursively(release))
+											{
+												var d = Download(release, workflow);
 		
-										d.Task.Wait(workflow.Cancellation);
-									}
+												d.Task.Wait(workflow.Cancellation);
+											}
 					
-									Unpack(release);
-								}
-								catch(OperationCanceledException)
-								{
-								}
-							});
+											Unpack(release);
+										}
+										catch(OperationCanceledException)
+										{
+										}
+									});
 		}
 
 		public PackageDownload Download(PackageAddress package, Workflow workflow)
