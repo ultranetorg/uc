@@ -889,8 +889,11 @@ namespace Uccs.Net
 						if(h.Nuid == Nuid)
 						{
 							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
-							IgnoredIPs.Add(peer.IP);
-							Peers.Remove(peer);
+							if(peer != null)
+							{	
+								IgnoredIPs.Add(peer.IP);
+								Peers.Remove(peer);
+							}
 							goto failed;
 						}
 

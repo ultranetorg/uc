@@ -10,7 +10,7 @@
     },
     "Localzone: node run peer": {
       "commandName": "Project",
-      "commandLineArgs": "node run peer zone=Localzone"
+      "commandLineArgs": "node run peer zone=Localzone profile=a:\\UOTMP\\CLI-78.47.204.100 "
     },
     "dev listen": {
       "commandName": "Project",
