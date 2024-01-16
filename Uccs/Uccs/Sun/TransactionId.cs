@@ -15,6 +15,11 @@ namespace Uccs.Net
 			Ti = ti;
 		}
 
+		public override string ToString()
+		{
+			return $"{Ri}-{Ti}";
+		}
+
 		public byte[] Serial
 		{
 			get

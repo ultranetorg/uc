@@ -56,7 +56,7 @@ namespace Uccs.Sun.FUI
 			Transactions.Items.AddRange(transactions.Select((i, j) =>	{
 																			var li = new ListViewItem(j.ToString());
 																			li.Tag = i;
-																			li.SubItems.Add(new BigInteger(i.Id.Serial, true, true).ToString());
+																			li.SubItems.Add(i.Id.ToString());
 																			li.SubItems.Add(i.Nid.ToString());
 																			li.SubItems.Add(i.Signer.ToString());
 																			li.SubItems.Add(i.Operations.Length.ToString());
@@ -70,7 +70,7 @@ namespace Uccs.Sun.FUI
 			Operations.Items.AddRange(operations.Select((i, j) =>	{
 																		var li = new ListViewItem(j.ToString());
 																		li.Tag = i;
-																		li.SubItems.Add(i.Id.AsBigInteger.ToString());
+																		li.SubItems.Add(i.Id.ToString());
 																		li.SubItems.Add(i.ToString());
 																		return li;
 																	}).ToArray());
