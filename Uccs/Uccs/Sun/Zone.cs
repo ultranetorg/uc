@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -23,9 +22,9 @@ namespace Uccs.Net
 		public Money			BailMin											= 1000;
 		public int				MembersLimit									= 1000;
 		public virtual int		AnalizerMinimumVotes							=> MembersLimit * 2/3;
-		public int				TransactionsPerRoundLimit						= 5_000;
+		public int				TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
 		public int				TransactionsPerVoteAllowableOverflowMuliplier	= 10;
-		public int				TransactionsOverflowFactor						= 10;
+		public int				TransactionsFeeOverflowFactor					= 10;
 		public int				OperationsPerTransactionLimit					= 100;
 		public int				OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
 		public Money			ExeunitMinFee									= new Money(0.000_001);	/// 50 *1000 / (1e7/100*0.2*3600*24*30) = 0.000 000 192

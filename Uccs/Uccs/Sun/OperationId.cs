@@ -17,7 +17,7 @@ namespace Uccs.Net
 			Ri = ri;
 			Ti = ti;
 			Oi = oi;
-		}
+		}	
 
 		public override string ToString()
 		{

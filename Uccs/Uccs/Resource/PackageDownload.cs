@@ -18,7 +18,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return$"Fip={string.Join(", ", CurrentFiles.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}"))}, Deps={DependenciesRecursiveSuccesses}/{DependenciesRecursiveCount}";
+			return$"Downloading={{{string.Join(", ", CurrentFiles.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}"))}}}, Ds={DependenciesRecursiveSuccesses}/{DependenciesRecursiveCount}";
 		}
 	}
 
@@ -73,7 +73,6 @@ namespace Uccs.Net
 											lock(sun.PackageHub.Lock)
 											{
 												Package = sun.PackageHub.Get(package);
-
 												Package.Resource.AddData(DataType.Package, hst);
 											}
 		 									

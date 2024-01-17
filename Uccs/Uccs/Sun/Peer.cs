@@ -146,7 +146,7 @@ namespace Uccs.Net
 			lock(OutRequests)
 			{
 				foreach(var i in OutRequests)
-					i.Event.Set();
+					i.Event.Close();
 
 				OutRequests.Clear();
 			}
@@ -158,19 +158,10 @@ namespace Uccs.Net
 				Tcp = null;
 
 				SendSignal.Set();
-
-				//Monitor.Exit(Sun.Lock);
-				//WriteThread.Join();
-				//ReadThread.Join();
-				//Monitor.Enter(Sun.Lock);
-
 			}
 
 			if(SendThread == null && ListenThread == null)
 			{
-				//InStatus = EstablishingStatus.Null;
-				//OutStatus = EstablishingStatus.Null;
-
 				Status = ConnectionStatus.Disconnected;
 			}
 		}

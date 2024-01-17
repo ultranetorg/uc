@@ -201,6 +201,23 @@ namespace Uccs.Net
 
 			return null;
 		}
+
+		public Thread CreateThread(Action action)
+		{
+			return new Thread(() => { 
+										try
+										{
+											action();
+										}
+										catch(OperationCanceledException)
+										{
+										}
+										catch(Exception ex) when (!Debugger.IsAttached && Workflow.Active)
+										{
+											Abort(MethodBase.GetCurrentMethod(), ex);
+										}
+									});
+		}
 		
 		public void RunApi()
 		{
@@ -370,40 +387,30 @@ namespace Uccs.Net
 
 			if(Settings.IP != null)
 			{
-				ListeningThread = new Thread(Listening);
+				ListeningThread = CreateThread(Listening);
 				ListeningThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Listening";
 				ListeningThread.Start();
 			}
 
- 			MainThread = new Thread(() =>	{ 
-												try
+ 			MainThread = CreateThread(() =>	{ 
+												while(Workflow.Active)
 												{
-													while(Workflow.Active)
-													{
-														var r = WaitHandle.WaitAny(new[] {MainWakeup, Workflow.Cancellation.WaitHandle}, 500);
+													var r = WaitHandle.WaitAny(new[] {MainWakeup, Workflow.Cancellation.WaitHandle}, 500);
 
-														lock(Lock)
-														{
-															ProcessConnectivity();
+													lock(Lock)
+													{
+														ProcessConnectivity();
 												
-															if(Settings.Generators.Any() && Synchronization == Synchronization.Synchronized)
-															{
-																Generate();
-															}
+														if(Settings.Generators.Any() && Synchronization == Synchronization.Synchronized)
+														{
+															Generate();
 														}
-	
-														//Thread.Sleep(1);
 													}
-												}
-												catch(OperationCanceledException)
-												{
-													Stop("Canceled");
-												}
-												catch(Exception ex) when (!Debugger.IsAttached)
-												{
-													Stop(MethodBase.GetCurrentMethod(), ex);
+	
+													//Thread.Sleep(1);
 												}
  											});
+
 			MainThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Main";
 			MainThread.Start();
 			MainStarted?.Invoke(this);
@@ -415,7 +422,7 @@ namespace Uccs.Net
 			PackageHub = new PackageHub(this, Settings.Packages);
 		}
 
-		public void Stop(MethodBase methodBase, Exception ex)
+		public void Abort(MethodBase methodBase, Exception ex)
 		{
 			lock(Lock)
 			{
@@ -656,13 +663,6 @@ namespace Uccs.Net
 			{
 				Listener = null;
 			}
-			catch(OperationCanceledException)
-			{
-			}
-			catch(Exception ex) when (!Debugger.IsAttached)
-			{
-				Stop(MethodBase.GetCurrentMethod(), ex);
-			}
 		}
 
 		Hello CreateHello(IPAddress ip, bool permanent)
@@ -697,101 +697,94 @@ namespace Uccs.Net
 
 			void f()
 			{
+				var tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
+
 				try
 				{
-					var tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
-
-					try
-					{
-						tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
-						//client.ReceiveTimeout = Timeout;
-						tcp.Connect(peer.IP, Zone.Port);
-					}
-					catch(SocketException ex) 
-					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
-						goto failed;
-					}
+					tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+					//client.ReceiveTimeout = Timeout;
+					tcp.Connect(peer.IP, Zone.Port);
+				}
+				catch(SocketException ex) 
+				{
+					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+					goto failed;
+				}
 	
-					Hello h = null;
+				Hello h = null;
 									
-					try
-					{
-						tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
-						tcp.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+				try
+				{
+					tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+					tcp.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
 
-						Peer.SendHello(tcp, CreateHello(peer.IP, permanent));
-						h = Peer.WaitHello(tcp);
-					}
-					catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
+					Peer.SendHello(tcp, CreateHello(peer.IP, permanent));
+					h = Peer.WaitHello(tcp);
+				}
+				catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
+				{
+					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+					goto failed;
+				}
+	
+				lock(Lock)
+				{
+					if(Workflow.Aborted)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. {ex.Message}" );
+						tcp.Close();
+						return;
+					}
+
+					if(!h.Versions.Any(i => Versions.Contains(i)))
+					{
 						goto failed;
 					}
-	
-					lock(Lock)
+
+					if(h.Zone != Zone.Name)
 					{
-						if(Workflow.Aborted)
-						{
-							tcp.Close();
-							return;
-						}
+						goto failed;
+					}
 
-						if(!h.Versions.Any(i => Versions.Contains(i)))
-						{
-							goto failed;
-						}
-
-						if(h.Zone != Zone.Name)
-						{
-							goto failed;
-						}
-
-						if(h.Nuid == Nuid)
-						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
-							IgnoredIPs.Add(peer.IP);
-							Peers.Remove(peer);
-							goto failed;
-						}
+					if(h.Nuid == Nuid)
+					{
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
+						IgnoredIPs.Add(peer.IP);
+						Peers.Remove(peer);
+						goto failed;
+					}
 													
-						if(IP.Equals(IPAddress.None))
-						{
-							IP = h.IP;
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Reported IP {IP}");
-						}
+					if(IP.Equals(IPAddress.None))
+					{
+						IP = h.IP;
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Reported IP {IP}");
+					}
 	
-						if(peer.Status == ConnectionStatus.OK)
-						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. Already established" );
-							tcp.Close();
-							return;
-						}
-	
-						RefreshPeers(h.Peers.Append(peer));
-	
-						peer.Start(this, tcp, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
-						
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected to {peer}");
-	
+					if(peer.Status == ConnectionStatus.OK)
+					{
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. Already established" );
+						tcp.Close();
 						return;
 					}
 	
-					failed:
-					{
-						lock(Lock)
-							peer.Disconnect();;
-									
-						tcp.Close();
-					}
+					RefreshPeers(h.Peers.Append(peer));
+	
+					peer.Start(this, tcp, h, $"{Settings.IP?.GetAddressBytes()[3]}", false);
+						
+					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected to {peer}");
+	
+					return;
 				}
-				catch(Exception ex) when(!Debugger.IsAttached)
+	
+				failed:
 				{
-					Stop(MethodBase.GetCurrentMethod(), ex);
+					lock(Lock)
+						peer.Disconnect();;
+									
+					tcp.Close();
 				}
 			}
 			
-			var t = new Thread(f);
+			var t = CreateThread(f);
 			t.Name = Settings.IP?.GetAddressBytes()[3] + " -> out -> " + peer.IP.GetAddressBytes()[3];
 			t.Start();
 						
@@ -832,7 +825,7 @@ namespace Uccs.Net
 
 				peer.Disconnect();
 				
-				while(peer.Status != ConnectionStatus.Disconnected) 
+				while(Workflow.Active && peer.Status != ConnectionStatus.Disconnected) 
 					Thread.Sleep(1);
 								
 				peer.Status = ConnectionStatus.Initiated;
@@ -840,125 +833,119 @@ namespace Uccs.Net
 
 			IncomingConnections.Add(client);
 
-			var t = new Thread(a => incon());
+			var t = CreateThread(incon);
 			t.Name = Settings.IP?.GetAddressBytes()[3] + " <- in <- " + ip.GetAddressBytes()[3];
 			t.Start();
 
 			void incon()
 			{
+				Hello h = null;
+	
 				try
 				{
-					Hello h = null;
+					client.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+					client.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
+
+					h = Peer.WaitHello(client);
+				}
+				catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
+				{
+					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
+					goto failed;
+				}
+				
+				lock(Lock)
+				{
+					if(Workflow.Aborted)
+						return;
+
+					if(h.Permanent)
+					{
+						if(Connections.Count(i => i.Inbound && i.Permanent) + 1 > Settings.PeersPermanentInboundMax)
+						{
+							goto failed;
+						}
+					}
+
+					if(!h.Versions.Any(i => Versions.Contains(i)))
+					{
+						goto failed;
+					}
+
+					if(h.Zone != Zone.Name)
+					{
+						goto failed;
+					}
+
+					if(h.Nuid == Nuid)
+					{
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
+						if(peer != null)
+						{	
+							IgnoredIPs.Add(peer.IP);
+							Peers.Remove(peer);
+						}
+						goto failed;
+					}
+
+					if(peer != null && peer.Status == ConnectionStatus.OK)
+					{
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. Already established" );
+						goto failed;
+					}
 	
+					if(IP.Equals(IPAddress.None))
+					{
+						IP = h.IP;
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"Reported IP {IP}");
+					}
+		
 					try
 					{
-						client.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
-						client.ReceiveTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
-
-						h = Peer.WaitHello(client);
+						Peer.SendHello(client, CreateHello(ip, false));
 					}
 					catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
 					{
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. WaitHello -> {ex.Message}");
+						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
 						goto failed;
 					}
-				
-					lock(Lock)
+	
+					if(peer == null)
 					{
-						if(Workflow.Aborted)
-							return;
-
-						if(h.Permanent)
-						{
-							if(Connections.Count(i => i.Inbound && i.Permanent) + 1 > Settings.PeersPermanentInboundMax)
-							{
-								goto failed;
-							}
-						}
-
-						if(!h.Versions.Any(i => Versions.Contains(i)))
-						{
-							goto failed;
-						}
-
-						if(h.Zone != Zone.Name)
-						{
-							goto failed;
-						}
-
-						if(h.Nuid == Nuid)
-						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
-							if(peer != null)
-							{	
-								IgnoredIPs.Add(peer.IP);
-								Peers.Remove(peer);
-							}
-							goto failed;
-						}
-
-						if(peer != null && peer.Status == ConnectionStatus.OK)
-						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. Already established" );
-							goto failed;
-						}
-	
-						if(IP.Equals(IPAddress.None))
-						{
-							IP = h.IP;
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"Reported IP {IP}");
-						}
-		
-						try
-						{
-							Peer.SendHello(client, CreateHello(ip, false));
-						}
-						catch(Exception ex) when(!SunGlobals.ThrowOnCorrupted)
-						{
-							Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. SendHello -> {ex.Message}");
-							goto failed;
-						}
-	
-						if(peer == null)
-						{
-							peer = new Peer(ip);
-							Peers.Add(peer);
-						}
-
-						//foreach(var i in h.Generators)
-						//{
-						//	if(!Members.Any(j => j.Generator == i.Generator))
-						//	{
-						//		i.OnlineSince = ChainTime.Zero;
-						//		i.Proxy = peer;
-						//		Members.Add(i);
-						//	}
-						//}
-
-						RefreshPeers(h.Peers.Append(peer));
-	
-						//peer.InStatus = EstablishingStatus.Succeeded;
-						peer.Permanent = h.Permanent;
-						peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
-						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected from {peer}");
-			
-						IncomingConnections.Remove(client);
-						//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
-	
-						return;
+						peer = new Peer(ip);
+						Peers.Add(peer);
 					}
-	
-				failed:
-					if(peer != null)
-						lock(Lock)
-							peer.Disconnect();;
 
-					client.Close();
+					//foreach(var i in h.Generators)
+					//{
+					//	if(!Members.Any(j => j.Generator == i.Generator))
+					//	{
+					//		i.OnlineSince = ChainTime.Zero;
+					//		i.Proxy = peer;
+					//		Members.Add(i);
+					//	}
+					//}
+
+					RefreshPeers(h.Peers.Append(peer));
+	
+					//peer.InStatus = EstablishingStatus.Succeeded;
+					peer.Permanent = h.Permanent;
+					peer.Start(this, client, h, $"{Settings.IP?.GetAddressBytes()[3]}", true);
+					Workflow.Log?.Report(this, $"{Tag.P} {Tag.E}", $"Connected from {peer}");
+			
+					IncomingConnections.Remove(client);
+					//Workflow.Log?.Report(this, "Accepted from", $"{peer}, in/out/min/inmax/total={Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Settings.PeersInMax}/{Peers.Count}");
+	
+					return;
 				}
-				catch(Exception ex) when(!Debugger.IsAttached)
-				{
-					Stop(MethodBase.GetCurrentMethod(), ex);
-				}
+	
+			failed:
+				if(peer != null)
+					lock(Lock)
+						peer.Disconnect();;
+
+				client.Close();
+
 			}
 		}
 
@@ -974,7 +961,7 @@ namespace Uccs.Net
 			{
 				Workflow.Log?.Report(this, $"{Tag.S}", "Started");
 
-				SynchronizingThread = new Thread(Synchronizing);
+				SynchronizingThread = CreateThread(Synchronizing);
 				SynchronizingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Synchronizing";
 				SynchronizingThread.Start();
 		
@@ -1219,10 +1206,6 @@ namespace Uccs.Net
 				}
 				catch(EntityException)
 				{
-				}
-				catch(OperationCanceledException)
-				{
-					return;
 				}
 			}
 		}
@@ -1708,19 +1691,7 @@ namespace Uccs.Net
 			{
 				if(TransactingThread == null)
 				{
-					TransactingThread = new Thread(() => { 
-															try
-															{
-																Transacting();
-															}
-															catch(OperationCanceledException)
-															{
-															}
-															catch(Exception ex) when (!Debugger.IsAttached && Workflow.Active)
-															{
-																Stop(MethodBase.GetCurrentMethod(), ex);
-															}
-														});
+					TransactingThread = CreateThread(Transacting);
 
 					TransactingThread.Name = $"{Settings.IP?.GetAddressBytes()[3]} Transacting";
 					TransactingThread.Start();
@@ -1735,23 +1706,6 @@ namespace Uccs.Net
 				Workflow.Log?.ReportError(this, "Too many pending/unconfirmed operations");
 			}
 		}
-		
-// 		public Operation Enqueue(Operation operation, PlacingStage waitstage, Workflow workflow)
-// 		{
-// 			operation.__ExpectedPlacing = waitstage;
-// 
-// 			if(FeeAsker.Ask(this, operation.Signer as AccountKey, operation))
-// 			{
-// 				lock(Lock)
-// 				 	Enqueue(operation);
-// 
-// 				Await(operation, waitstage, workflow);
-// 
-// 				return operation;
-// 			}
-// 			else
-// 				return null;
-// 		}
 		
 		public Transaction Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
 		{

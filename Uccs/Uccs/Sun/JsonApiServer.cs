@@ -68,56 +68,55 @@ namespace Uccs.Net
 				Workflow.Log.Reported += m => File.AppendAllText(Path.Combine(profile, "JsonApiServer.log"), m.ToString() + Environment.NewLine);
 			}
 
-			Thread = new Thread(() =>
-								{ 
-									try
-									{
-										Listener = new HttpListener();
+			Thread = new Thread(() =>	{ 
+											try
+											{
+												Listener = new HttpListener();
 	
-// 										if(!Sun.Settings.IP.Equals(IPAddress.Any))
-// 										{
-// 											Listener.Prefixes.Add($"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}/");
-// 										}
-// 										else
-// 										{
-// 											Listener.Prefixes.Add($"http://+:{Sun.Settings.JsonServerPort}/");
-// 										}
+		// 										if(!Sun.Settings.IP.Equals(IPAddress.Any))
+		// 										{
+		// 											Listener.Prefixes.Add($"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}/");
+		// 										}
+		// 										else
+		// 										{
+		// 											Listener.Prefixes.Add($"http://+:{Sun.Settings.JsonServerPort}/");
+		// 										}
 
- 										if(ip != null)
- 										{
- 											Listener.Prefixes.Add($"http://{ip}:{port}/");
- 										}
- 										else
- 										{
- 											Listener.Prefixes.Add($"http://+:{port}/");
- 										}
+ 												if(ip != null)
+ 												{
+ 													Listener.Prefixes.Add($"http://{ip}:{port}/");
+ 												}
+ 												else
+ 												{
+ 													Listener.Prefixes.Add($"http://+:{port}/");
+ 												}
 
 										
-										Workflow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
+												Workflow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
 
-										Listener.Start();
+												Listener.Start();
 						
-										while(Workflow.Active)
-										{
-											ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
-										}
-									}
-									catch(SocketException ex) when (ex.SocketErrorCode == SocketError.Interrupted)
-									{
-										Listener = null;
-									}
-									catch(HttpListenerException ex) when (ex.NativeErrorCode == 995 || ex.NativeErrorCode == 500)
-									{
-										Listener = null;
-									}
-									catch(Exception ex) when (!Debugger.IsAttached)
-									{
-										if(!Listener.IsListening)
-											Listener = null;
+												while(Workflow.Active)
+												{
+													ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
+												}
+											}
+											catch(SocketException ex) when (ex.SocketErrorCode == SocketError.Interrupted)
+											{
+												Listener = null;
+											}
+											catch(HttpListenerException ex) when (ex.NativeErrorCode == 995 || ex.NativeErrorCode == 500)
+											{
+												Listener = null;
+											}
+											catch(Exception ex) when (!Debugger.IsAttached)
+											{
+												if(!Listener.IsListening)
+													Listener = null;
 
-										Workflow.Log?.ReportError(this, "Erorr", ex);
-									}
-								});
+												Workflow.Log?.ReportError(this, "Erorr", ex);
+											}
+										});
 
 			Thread.Name = $"{ip?.GetAddressBytes()[3]} Aping";
 			Thread.Start();

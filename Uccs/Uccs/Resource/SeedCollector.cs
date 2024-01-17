@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -87,53 +89,47 @@ namespace Uccs.Net
 			Workflow = workflow.CreateNested($"SeedCollector {hash.ToHex()}");
 			Hub hlast = null;
 
- 			Thread = new Thread(() =>{ 
-										try
-										{
-											while(Workflow.Active)
-											{
-												if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
+ 			Thread = sun.CreateThread(() =>	{ 
+												while(Workflow.Active)
 												{
-													var r = Sun.Call(i =>	{
-																				var cr = i.GetMembers();
-				
-																				if(cr.Members.Any())
-																					return cr;
-																												
-																				throw new ContinueException();
-																			}, 
-																			Workflow);
-													lock(Lock)
-														Members = r.Members.ToArray();
-													
-													MembersRefreshed = DateTime.UtcNow;
-												}
-		
-												lock(Lock)
-												{
-													var nearest = Members.OrderByNearest(hash).Take(ResourceHub.MembersPerDeclaration);
-			
-													for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
+													if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 													{
-														var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
-														
-														if(h != null)
-														{
-															hlast = new Hub(this, hash, h.Account, h.SeedHubRdcIPs);
-															Hubs.Add(hlast);
-														}
-														else
-															break;
+														var r = Sun.Call(i =>	{
+																					var cr = i.GetMembers();
+				
+																					if(cr.Members.Any())
+																						return cr;
+																												
+																					throw new ContinueException();
+																				}, 
+																				Workflow);
+														lock(Lock)
+															Members = r.Members.ToArray();
+													
+														MembersRefreshed = DateTime.UtcNow;
 													}
-												}
+		
+													lock(Lock)
+													{
+														var nearest = Members.OrderByNearest(hash).Take(ResourceHub.MembersPerDeclaration);
+			
+														for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
+														{
+															var h = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Account));
+														
+															if(h != null)
+															{
+																hlast = new Hub(this, hash, h.Account, h.SeedHubRdcIPs);
+																Hubs.Add(hlast);
+															}
+															else
+																break;
+														}
+													}
 	
-												WaitHandle.WaitAny(new WaitHandle []{Workflow.Cancellation.WaitHandle}, 100);
-											}
-										}
-										catch(OperationCanceledException)
-										{
-										}
- 									});
+													WaitHandle.WaitAny(new WaitHandle []{Workflow.Cancellation.WaitHandle}, 100);
+												}
+ 											});
 			Thread.Start();
 
 			for(int i=0; i<8; i++)

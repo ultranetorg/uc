@@ -8,6 +8,7 @@ namespace Uccs.Net
 		None,
 		Negative,
 		Positive,
+		Vulnerable,
 		//NotEnoughPrepayment,
 	}
 

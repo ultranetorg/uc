@@ -57,7 +57,7 @@ namespace Uccs.Net
 
 			if(sun != null && !sun.IsClient)
 			{
-				DeclaringThread = new Thread(Declaring);
+				DeclaringThread = sun.CreateThread(Declaring);
 				DeclaringThread.Name = $"{Sun.Settings.IP.GetAddressBytes()[3]} Declaring";
 				DeclaringThread.Start();
 			}
@@ -254,118 +254,107 @@ namespace Uccs.Net
 		{
 			Sun.Workflow.Log?.Report(this, "Declaring started");
 
-
 			var tasks = new Dictionary<AccountAddress, Task>(32);
-						
-			try
+
+			while(Sun.Workflow.Active)
 			{
-				while(Sun.Workflow.Active)
+				Sun.Statistics.Declaring.Begin();
+
+				var cr = Sun.Call(i => i.GetMembers(), Sun.Workflow);
+	
+				if(!cr.Members.Any())
+					continue;
+
+				var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceAddress, List<LocalRelease>>>();
+
+				lock(Lock)
 				{
-					Sun.Statistics.Declaring.Begin();
-
-					var cr = Sun.Call(i => i.GetMembers(), Sun.Workflow);
-	
-					if(!cr.Members.Any())
-						continue;
-
-					var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceAddress, List<LocalRelease>>>();
-
-					lock(Lock)
-					{
-						foreach(var r in Resources)
-						{ 
-							switch(r.Last.Type)
+					foreach(var r in Resources.Where(i => i.Last != null))
+					{ 
+						switch(r.Last.Type)
+						{
+							case DataType.File:
+							case DataType.Directory:
 							{
-								case DataType.File:
-								case DataType.Directory:
+								var lr = Find(r.LastAs<byte[]>());
+
+								if(lr != null && lr.Availability != Availability.None)
 								{
-									var lr = Find(r.LastAs<byte[]>());
-
-									if(lr != null && lr.Availability != Availability.None)
+									foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
 									{
-										foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
-										{
-											(ds.TryGetValue(m, out var x) ? x : (ds[m] = new()))[r.Address] = new() {lr};
-										}
-
-									}
-									break;
-								}								
-								case DataType.Package:
-								{	
-									foreach(var lr in (r.LastAs<History>()).Releases.Select(i => Find(i.Hash)).Where(i => i is not null && i.Availability != Availability.None))
-									{
-										foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
-										{
-											var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
-											(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
-										}
+										(ds.TryGetValue(m, out var x) ? x : (ds[m] = new()))[r.Address] = new() {lr};
 									}
 
-									break;
 								}
+								break;
+							}								
+							case DataType.Package:
+							{	
+								foreach(var lr in (r.LastAs<History>()).Releases.Select(i => Find(i.Hash)).Where(i => i is not null && i.Availability != Availability.None))
+								{
+									foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
+									{
+										var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
+										(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
+									}
+								}
+
+								break;
 							}
 						}
 					}
-
-					if(!ds.Any())
-					{
-						Sun.Statistics.Declaring.End();
-						Thread.Sleep(1000);
-						continue;
-					}
-
-					lock(Lock)
-					{
-						if(tasks.Count >= 32)
-						{
-							var ts = tasks.Select(i => i.Value).ToArray();
-
-							Monitor.Exit(Lock);
-							{
-								Task.WaitAny(ts, Sun.Workflow.Cancellation);
-							}
-							Monitor.Enter(Lock);
-						}
-
-						foreach(var i in ds)
-						{
-							var t = Task.Run(() =>	{
-														DeclareReleaseResponse drr;
-
-														try
-														{
-															drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{	Resource = rs.Key, 
-																																																										Releases = rs.Value.Select(rl => new ReleaseDeclaration{Hash = rl.Hash, 
-																																																																								Availability  = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
-														}
-														catch(NodeException)
-														{
-															return;
-														}
-	
-														lock(Lock)
-														{
-															foreach(var r in drr.Results)
-																if(r.Result == DeclarationResult.Accepted)
-																	Find(r.Hash).DeclaredOn.Add(i.Key);
-
-															tasks.Remove(i.Key.Account);
-														}
-													});
-							tasks[i.Key.Account] = t;
-						}
-					}
-					
-					Sun.Statistics.Declaring.End();
 				}
-			}
-			catch(OperationCanceledException)
-			{
-			}
-			catch(Exception ex) when (!Debugger.IsAttached)
-			{
-				Sun.Stop(MethodBase.GetCurrentMethod(), ex);
+
+				if(!ds.Any())
+				{
+					Sun.Statistics.Declaring.End();
+					Thread.Sleep(1000);
+					continue;
+				}
+
+				lock(Lock)
+				{
+					if(tasks.Count >= 32)
+					{
+						var ts = tasks.Select(i => i.Value).ToArray();
+
+						Monitor.Exit(Lock);
+						{
+							Task.WaitAny(ts, Sun.Workflow.Cancellation);
+						}
+						Monitor.Enter(Lock);
+					}
+
+					foreach(var i in ds)
+					{
+						var t = Task.Run(() =>	{
+													DeclareReleaseResponse drr;
+
+													try
+													{
+														drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{	Resource = rs.Key, 
+																																																									Releases = rs.Value.Select(rl => new ReleaseDeclaration{Hash = rl.Hash, 
+																																																																							Availability  = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
+													}
+													catch(NodeException)
+													{
+														return;
+													}
+	
+													lock(Lock)
+													{
+														foreach(var r in drr.Results)
+															if(r.Result == DeclarationResult.Accepted)
+																Find(r.Hash).DeclaredOn.Add(i.Key);
+
+														tasks.Remove(i.Key.Account);
+													}
+												});
+						tasks[i.Key.Account] = t;
+					}
+				}
+					
+				Sun.Statistics.Declaring.End();
 			}
 		}
 

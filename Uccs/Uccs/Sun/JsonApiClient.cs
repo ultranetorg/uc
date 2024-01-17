@@ -99,12 +99,19 @@ namespace Uccs.Net
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	
-				var cr =  Http.Send(m, workflow.Cancellation);
-
-				if(cr.StatusCode != System.Net.HttpStatusCode.OK)
-					throw new ApiCallException(cr, cr.ReasonPhrase);
-
-				return cr;
+				try
+				{
+					var cr = Http.Send(m, workflow.Cancellation);
+	
+					if(cr.StatusCode != System.Net.HttpStatusCode.OK)
+						throw new ApiCallException(cr, cr.ReasonPhrase);
+	
+					return cr;
+				}
+				catch(HttpRequestException ex)
+				{
+					throw new ApiCallException(ex.Message, ex);
+				}
 			}
 		}
 

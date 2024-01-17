@@ -514,7 +514,7 @@ namespace Uccs.Net
 
 			if(tn > Zone.TransactionsPerRoundLimit)
 			{
-				round.ConfirmedExeunitMinFee *= Zone.TransactionsOverflowFactor;
+				round.ConfirmedExeunitMinFee *= Zone.TransactionsFeeOverflowFactor;
 				round.ConfirmedOverflowRound = round.Id;
 
 				var e = tn - Zone.TransactionsPerRoundLimit;
@@ -544,7 +544,7 @@ namespace Uccs.Net
 			else 
 			{
 				if(round.ConfirmedExeunitMinFee > Zone.ExeunitMinFee && round.Id - round.ConfirmedOverflowRound > P)
-					round.ConfirmedExeunitMinFee /= Zone.TransactionsOverflowFactor;
+					round.ConfirmedExeunitMinFee /= Zone.TransactionsFeeOverflowFactor;
 			}
 			
 			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
