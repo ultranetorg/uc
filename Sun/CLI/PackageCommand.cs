@@ -34,7 +34,7 @@ namespace Uccs.Sun.CLI
 				{
 					Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
 												Sources			 = GetString("sources").Split(','), 
-												DependenciesPath = GetString("dependenciespath", false),
+												DependenciesPath = GetString("dependencies", false),
 												Previous		 = GetHexBytes("previous", false) });
 					return null;
 				}
