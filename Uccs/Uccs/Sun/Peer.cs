@@ -381,16 +381,15 @@ namespace Uccs.Net
 
  			if(rq.WaitResponse)
  			{
-	 			if(rq.Event.WaitOne(SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
+				var i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+
+	 			if(i == 0)
 	 			{
 					if(rq.Response == null)
 						throw new OperationCanceledException();
 	
 	 				if(rq.Response.Error == null)
 					{
-						if(rq.Response == null)
-							rq=rq;
-
 						return rq.Response;
 					}
 	 				else 
@@ -409,15 +408,9 @@ namespace Uccs.Net
 
 						throw rq.Response.Error;
 					}
-
-
-	 			//else if(rq.Response.Result == RdcResult.RequestException)
-				//	throw new RdcRequestException();
-	 			//else if(rq.Response.Result == RdcResult.EntityException)
-				//	throw new RdcEntityException((RdcEntityError)rq.Response.Error);
-				//else
-				//	throw new RdcNodeException(RdcNodeError.Integrity);
  				}
+	 			if(i == 1)
+					throw new OperationCanceledException();
 				else
 	 				throw new NodeException(NodeError.Timeout);
  			}
