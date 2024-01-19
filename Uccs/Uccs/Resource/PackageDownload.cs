@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
-	public class PackageDownloadProgress
+	public class PackageDownloadProgress : ResourceActivityProgress
 	{
 		public bool									Succeeded { get; set; }
 		public int									DependenciesRecursiveCount { get; set; }
@@ -24,8 +22,7 @@ namespace Uccs.Net
 
 	public class PackageDownload
 	{
-		public PackageAddress					Address;
-		public Package							Package;
+		public LocalPackage						Package;
 		public FileDownload						FileDownload;
 		public bool								Downloaded;
 		public List<PackageDownload>			Dependencies = new();
@@ -37,18 +34,20 @@ namespace Uccs.Net
 		public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 		public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Union(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
-		public PackageDownload(Sun sun, PackageAddress package, Workflow workflow)
+		public PackageDownload(Sun sun, LocalPackage package, Workflow workflow)
 		{
-			Address = package;
+			Package = package;
 
 			lock(sun.PackageHub.Lock)
 			{
-				if(sun.PackageHub.IsReady(package))
+				if(sun.PackageHub.IsReady(package.Address))
 				{
 					Downloaded = true;
 					return;
 				}
 			}
+
+			Package.Activity = this;
 
 			Task = Task.Run(() =>	{
 										try
@@ -59,7 +58,7 @@ namespace Uccs.Net
 											{
 												try
 												{
-													hst = new History(ResourceData.SkipHeader(sun.Call(c => c.FindResource(package), workflow).Resource.Data));
+													hst = new History(ResourceData.SkipHeader(sun.Call(c => c.FindResource(package.Address), workflow).Resource.Data));
 													break;
 												}
 												catch(EntityException)
@@ -68,21 +67,21 @@ namespace Uccs.Net
 												}
 											}
 	
-											SeedCollector = new SeedCollector(sun, package.Hash, workflow);
+											SeedCollector = new SeedCollector(sun, package.Address.Hash, workflow);
 	
 											lock(sun.PackageHub.Lock)
 											{
-												Package = sun.PackageHub.Get(package);
+												///Package = sun.PackageHub.Get(package);
 												Package.Resource.AddData(DataType.Package, hst);
 											}
 		 									
-											sun.ResourceHub.GetFile(Package.Release, Package.ManifestFile, package.Hash, SeedCollector, workflow);
+											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, package.Address.Hash, SeedCollector, workflow);
 	
 											bool incrementable;
 	
 											lock(sun.PackageHub.Lock)
 											{
-												sun.PackageHub.DetermineDelta(package, Package.Manifest, out incrementable, out List<Dependency> deps);
+												sun.PackageHub.DetermineDelta(package.Address, Package.Manifest, out incrementable, out List<Dependency> deps);
 									
 												foreach(var i in deps)
 												{
@@ -94,11 +93,12 @@ namespace Uccs.Net
 												}
 											}
 	
-	 										FileDownload = sun.ResourceHub.DownloadFile(Package.Release, 
-																						incrementable ? Package.IncrementalFile : Package.CompleteFile, 
-																						incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash,
-																						SeedCollector,
-																						workflow);
+											lock(sun.ResourceHub)
+	 											FileDownload = sun.ResourceHub.DownloadFile(Package.Release, 
+																							incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
+																							incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash,
+																							SeedCollector,
+																							workflow);
 	
 	
 											Task.WaitAll(DependenciesRecursive.Select(i => i.Task).Append(FileDownload.Task).ToArray());
@@ -109,10 +109,10 @@ namespace Uccs.Net
 											{
 												var a = Availability.None;
 
-												if(Package.Release.IsReady(Package.CompleteFile))
+												if(Package.Release.IsReady(LocalPackage.CompleteFile))
 													a |= Availability.Complete;
 
-												if(Package.Release.IsReady(Package.IncrementalFile))
+												if(Package.Release.IsReady(LocalPackage.IncrementalFile))
 													a |= Availability.Incremental;
 
 												Package.Release.Complete(a);
@@ -126,7 +126,7 @@ namespace Uccs.Net
 										finally
 										{
 											lock(sun.PackageHub.Lock)
-												sun.PackageHub.Downloads.Remove(this);
+												Package.Activity = null;
 										}
 									},
 									workflow.Cancellation);

@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
 	public class DirectoryDownload
 	{
-		public LocalRelease				Release;
+		public LocalRelease			Release;
 		public bool					Succeeded;
 		public Queue<Xon>			Files = new();
 		public int					CompletedCount;
@@ -22,15 +19,13 @@ namespace Uccs.Net
 		public DirectoryDownload(Sun sun, LocalRelease release, Workflow workflow)
 		{
 			Release = release;
+			Release.Activity = this;
 			SeedCollector = new SeedCollector(sun, release.Hash, workflow);
 
 			void run()
 			{
 				try
 				{
-					//var h = sun.Call(c => c.FindResource(release.Address), workflow).Resource.Data;
-		 									
-	
 					sun.ResourceHub.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
 												
 					var index = new XonDocument(release.ReadFile(".index"));
@@ -96,7 +91,7 @@ namespace Uccs.Net
 				finally
 				{
 					lock(sun.ResourceHub.Lock)
-						sun.ResourceHub.DirectoryDownloads.Remove(this);
+						Release.Activity = null;
 				}
 			}
 

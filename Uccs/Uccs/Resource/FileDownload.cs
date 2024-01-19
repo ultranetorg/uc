@@ -48,7 +48,10 @@ namespace Uccs.Net
 													Data.Write(d, 0, d.Length);
 												}
 											}
-											catch(Exception ex) when(ex is OperationCanceledException || ex is NodeException || ex is EntityException)
+											catch(OperationCanceledException)
+											{
+											}
+											catch(Exception ex) when(ex is NodeException || ex is EntityException)
 											{
 											}
 										}, 
@@ -69,20 +72,27 @@ namespace Uccs.Net
 		Sun											Sun;
 		Workflow									Workflow;
 
-		public FileDownload(Sun sun, LocalRelease release, string filepath, byte[] filehash, SeedCollector seedcollector, Workflow workflow)
+		public FileDownload(Sun sun, LocalRelease release, string path, byte[] hash, SeedCollector seedcollector, Workflow workflow)
 		{
-			Sun				= sun;
-			Release			= release;
-			File			= release.Files?.Find(i => i.Path == filepath);
-			Workflow		= workflow;
-			SeedCollector	= seedcollector ?? new SeedCollector(sun, release.Hash, workflow);
+			Sun					= sun;
+			Release				= release;
+			Release.Activity	= release.Type == DataType.File ? this : null;
+			File				= release.Files.Find(i => i.Path == path) ?? release.AddEmpty(path);
+			File.Activity		= this;
+			Workflow			= workflow;
+			SeedCollector		= seedcollector ?? new SeedCollector(sun, release.Hash, workflow);
 
-			if(File != null && File.Completed)
-			{	
-				release.RemoveFile(File);
-				File = null;
+			if(File.Completed)
+			{
+				if(release.Hashify(path).SequenceEqual(hash))
+				{
+					Succeeded = true;
+					return;
+				}
+				else
+					File.Reset();
 			}
-			
+
 			Task = Task.Run(() =>
 							{
 								try
@@ -95,7 +105,7 @@ namespace Uccs.Net
 										{
 											int left() => File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count;
 
-											if(File == null || (left() > 0 && CurrentPieces.Count < MaxThreadsCount))
+											if(!File.Initialized || (left() > 0 && CurrentPieces.Count < MaxThreadsCount))
 											{
 												SeedCollector.Seed[] seeds;
 	
@@ -106,7 +116,7 @@ namespace Uccs.Net
 												
 												if(seeds.Any())
 												{
-													if(File == null)
+													if(!File.Initialized)
 													{
 														long l = -1;
 
@@ -117,7 +127,7 @@ namespace Uccs.Net
 
 														try
 														{
-															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Hash, File = filepath}), workflow).Length;
+															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Hash, File = path}), workflow).Length;
 														}
 														catch(NodeException)
 														{
@@ -132,7 +142,7 @@ namespace Uccs.Net
 														
 														lock(Sun.ResourceHub.Lock)
 														{
-															File = Release.AddFile(filepath, l, DefaultPieceLength, (int)(l / DefaultPieceLength + (l % DefaultPieceLength != 0 ? 1 : 0)));
+															File.Init(l, DefaultPieceLength, (int)(l / DefaultPieceLength + (l % DefaultPieceLength != 0 ? 1 : 0)));
 														}
 													}
 													
@@ -152,9 +162,9 @@ namespace Uccs.Net
 																CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
 															}
 														}
-														else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(filehash)) /// zero-length file
+														else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(hash)) /// zero-length file
 														{
-															release.AddFile(File.Path, new byte[0]);
+															release.AddCompleted(File.Path, new byte[0]);
 															Succeeded = true;
 															goto end;
 														}
@@ -196,15 +206,14 @@ namespace Uccs.Net
 												if(File.CompletedPieces.Count() == File.Pieces.Length)
 												{
 													lock(Sun.ResourceHub.Lock)
-														if(release.Hashify(File.Path).SequenceEqual(filehash))
+														if(release.Hashify(File.Path).SequenceEqual(hash))
 														{	
 															Succeeded = true;
 															goto end;
 														}
 														else
 														{
-															Release.RemoveFile(File);
-															File = null;
+															File.Reset();
 															Seeds.Clear();
 															CurrentPieces.Clear();
 															//CompletedPieces.Clear();
@@ -264,7 +273,12 @@ namespace Uccs.Net
 								finally
 								{
 									lock(Sun.ResourceHub.Lock)
-										Sun.ResourceHub.FileDownloads.Remove(this);
+									{	
+										if(Release.Type == DataType.File)
+											Release.Activity = null;
+
+										File.Activity = null;
+									}
 								}
 							},
 							workflow.Cancellation);

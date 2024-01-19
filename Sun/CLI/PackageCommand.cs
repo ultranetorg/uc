@@ -60,7 +60,7 @@ namespace Uccs.Sun.CLI
 						
 						do
 						{
-							d = Api<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = Package});
+							d = Api<PackageDownloadProgress>(new PackageActivityProgressCall {Package = Package});
 							
 							if(d == null)
 							{	
@@ -89,6 +89,34 @@ namespace Uccs.Sun.CLI
 				case "install" :
 				{
 					Api(new PackageInstallCall {Package = Package});
+
+					try
+					{
+						ResourceActivityProgress d;
+						
+						do
+						{
+							d = Api<ResourceActivityProgress>(new PackageActivityProgressCall {Package = Package});
+							
+							if(d == null)
+							{	
+								if(!Api<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
+								{
+									Workflow.Log?.ReportError(this, "Failed");
+								}
+
+								break;
+							}
+
+							Workflow.Log?.Report(this, d.ToString());
+
+							Thread.Sleep(500);
+						}
+						while(d != null && Workflow.Active);
+					}
+					catch(OperationCanceledException)
+					{
+					}
 
 					return null;
 				}

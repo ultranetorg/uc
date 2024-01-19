@@ -33,8 +33,8 @@ namespace Uccs.Net
 		internal string					ReleasesPath;
 		public List<LocalRelease>		Releases = new();
 		public List<LocalResource>		Resources = new();
-		public List<FileDownload>		FileDownloads = new();
-		public List<DirectoryDownload>	DirectoryDownloads = new();
+		//public List<FileDownload>		FileDownloads = new();
+		//public List<DirectoryDownload>	DirectoryDownloads = new();
 		public Sun						Sun;
 		public object					Lock = new object();
 		public Zone						Zone;
@@ -203,11 +203,11 @@ namespace Uccs.Net
  				
 			var r = Add(h, DataType.Directory);
 
-			r.AddFile(".index", ms.ToArray());
+			r.AddCompleted(".index", ms.ToArray());
 
 			foreach(var i in files)
 			{
-				r.AddFile(i.Value, File.ReadAllBytes(i.Key));
+				r.AddCompleted(i.Value, File.ReadAllBytes(i.Key));
 			}
 			
 			r.Complete(Availability.Full);
@@ -225,7 +225,7 @@ namespace Uccs.Net
  				
 			var r = Add(h, DataType.File);
 
- 			r.AddFile("f", b);
+ 			r.AddCompleted("f", b);
 			r.Complete(Availability.Full);
 			
 			(Find(resource) ?? Add(resource)).AddData(DataType.File, h);
@@ -235,7 +235,7 @@ namespace Uccs.Net
 
 		public void GetFile(LocalRelease release, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
 		{
-			Task t = Task.CompletedTask;
+			var t = Task.CompletedTask;
 
 			lock(Lock)
 			{
@@ -358,49 +358,33 @@ namespace Uccs.Net
 			}
 		}
 
-		public FileDownload DownloadFile(LocalRelease release, string file, byte[] filehash, SeedCollector peercollector, Workflow workflow)
+		public FileDownload DownloadFile(LocalRelease release, string file, byte[] hash, SeedCollector collector, Workflow workflow)
 		{
-			var d = FileDownloads.Find(j => j.Release == release && j.File.Path == file);
-				
-			if(d != null)
-				return d;
+			var f = release.Files.Find(j => j.Path == file);
+			
+			if(f != null)
+			{
+				if(f.Activity is FileDownload d0)
+					return d0;
+				else if(f.Activity != null)
+					throw new ResourceException(ResourceError.Busy);
+			}
 
-			d = new FileDownload(Sun, release, file, filehash, peercollector, workflow);
-			FileDownloads.Add(d);
+			var d = new FileDownload(Sun, release, file, hash, collector, workflow);
 		
 			return d;
 		}
 
 		public DirectoryDownload DownloadDirectory(LocalRelease release, Workflow workflow)
 		{
-			var d = DirectoryDownloads.Find(j => j.Release == release);
-				
-			if(d != null)
+			if(release.Activity is DirectoryDownload d)
 				return d;
+			else if(release.Activity != null)
+				throw new ResourceException(ResourceError.Busy);
 				
 			d = new DirectoryDownload(Sun, release, workflow);
-			DirectoryDownloads.Add(d);
 
 			return d;
-		}
-
-		public ReleaseDownloadProgress GetDownloadProgress(LocalRelease release)
-		{
-			var f = FileDownloads.Find(i => i.Release == release);
-			var d = DirectoryDownloads.Find(i => i.Release == release);
-
-			if(d != null || f != null)
-			{
-				var s = new ReleaseDownloadProgress(d?.SeedCollector ?? f?.SeedCollector);
-
-				s.Succeeded	= d != null ? d.Succeeded : f.Succeeded;
-
-				s.CurrentFiles = FileDownloads.Where(i => i.Release == (d?.Release ?? f?.Release)).Select(i => new FileDownloadProgress(i)).ToArray();
-
-				return s;
-			}
-			
-			return null;
 		}
 	}
 }

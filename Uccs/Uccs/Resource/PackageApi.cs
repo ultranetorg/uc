@@ -28,13 +28,13 @@ namespace Uccs.Net
 	
 					if(rl == null)
 					{
-						rl.AddFile(Net.Package.ManifestFile, Manifest);
+						rl.AddCompleted(Net.LocalPackage.ManifestFile, Manifest);
 			
 						if(Complete != null)
-							rl.AddFile(Net.Package.CompleteFile, Complete);
+							rl.AddCompleted(Net.LocalPackage.CompleteFile, Complete);
 		
 						if(Incremental != null)
-							rl.AddFile(Net.Package.IncrementalFile, Incremental);
+							rl.AddCompleted(Net.LocalPackage.IncrementalFile, Incremental);
 										
 						rl.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
 					}
@@ -68,20 +68,81 @@ namespace Uccs.Net
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
+			{	
 				sun.PackageHub.Download(Package, workflow);
+				return null;
+			}
+		}
+	}
 
+	public class PackageInstallCall : SunApiCall
+	{
+		public PackageAddress	Package { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			sun.PackageHub.Install(Package, workflow);
 			return null;
 		}
 	}
 
-	public class PackageDownloadProgressCall : SunApiCall
+	public class PackageActivityProgressCall : SunApiCall
 	{
 		public PackageAddress	Package { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
+			var p = sun.PackageHub.Find(Package);
+
+			PackageDownloadProgress download(PackageAddress address)
+			{
+				var p = sun.PackageHub.Find(address);
+	
+				if(p == null)
+					return null;
+
+				var d = p.Activity as PackageDownload;
+				var s = new PackageDownloadProgress();
+	
+				s.Succeeded						 = d.Succeeded;
+				s.DependenciesRecursiveCount	 = d.DependenciesRecursiveCount;
+				s.DependenciesRecursiveSuccesses = d.DependenciesRecursiveSuccesses;
+	
+				lock(sun.ResourceHub.Lock)
+				{
+					if(d.Package != null)
+					{
+						s.CurrentFiles = p.Release.Files.Where(i => i.Activity is FileDownload)
+														.Select(i => new FileDownloadProgress(i.Activity as FileDownload))
+														.ToArray();
+					}
+				}
+				
+				s.Dependencies = d.Dependencies.Select(i => download(i.Package.Address)).Where(i => i != null).ToArray();
+	
+				return s;
+			}
+
+			PackageDeploymentProgress deployment(PackageAddress address)
+			{
+				var p = sun.PackageHub.Find(address);
+	
+				if(p == null)
+					return null;
+
+				var d = p.Activity as PackageDownload;
+				var o = new PackageDeploymentProgress();
+	
+				return o;
+			}
+
 			lock(sun.PackageHub.Lock)
-				return sun.PackageHub.GetDownloadProgress(Package);
+				if(p.Activity is PackageDownload)
+					return download(Package);
+				if(p.Activity is PackageDeployment)
+					return deployment(Package);
+				else
+					return null;
 		}
 	}
 
@@ -110,16 +171,5 @@ namespace Uccs.Net
 		public bool				Ready { get; set; }
 		public Availability		Availability { get; set; }
 		public Manifest			Manifest { get; set; }
-	}
-
-	public class PackageInstallCall : SunApiCall
-	{
-		public PackageAddress	Package { get; set; }
-
-		public override object Execute(Sun sun, Workflow workflow)
-		{
-			lock(sun.PackageHub.Lock)
-				return sun.PackageHub.Install(Package, workflow).Id;
-		}
 	}
 }

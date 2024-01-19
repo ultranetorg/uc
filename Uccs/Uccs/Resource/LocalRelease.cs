@@ -22,48 +22,58 @@ namespace Uccs.Net
 	public class LocalFile : IBinarySerializable
 	{
 		public string			Path { get; set; }
-		public int				PieceLength { get; protected set; }
-		public long				Length { get; protected set; }
+		public int				PieceLength { get; protected set; } = -1;
+		public long				Length { get; protected set; } = -1;
 		public bool[]			Pieces;
+		public object			Activity;
 		LocalRelease			Release;
 
 		public IEnumerable<int>	CompletedPieces => Pieces.Select((e, i) => e ? i : -1).Where(i => i != -1);
 		public long				CompletedLength => CompletedPieces.Count() * PieceLength - (Pieces.Last() ? PieceLength - Length % PieceLength : 0); /// take the tail into account
-		public bool				Completed => Length == -1; 
+		public bool				Completed => Length == -2; 
+		public bool				Initialized => Length >= 0; 
 			
-		public LocalFile()
-		{
-		}
-
 		public LocalFile(LocalRelease release)
 		{
 			Release = release;
 		}
-
-		public LocalFile(LocalRelease release, string path, long length, int piecelength, int piececount)
+			
+		public LocalFile(LocalRelease release, string path)
 		{
 			Release = release;
 			Path = path;
-			Length = length;
-			PieceLength = piecelength;
-			Pieces = new bool[piececount];
 		}
 		
 		public override string ToString()
 		{
 			return $"{Path}, Length={Length}, PieceLength={PieceLength}, Pieces={{{Pieces?.Length}}}";
 		}
-						 			
-		public void Reset()
+
+		public void Init(long length, int piecelength, int piececount)
 		{
-			Length = -1;
-			Pieces = new bool[Pieces.Length];
+			Length = length;
+
+			if(length > 0)
+			{
+				PieceLength = piecelength;
+				Pieces		= new bool[piececount];
+			}
+
 			Release.Save();
 		}
 						 			
+ 		public void Reset()
+ 		{
+ 			Length = -1;
+			PieceLength = -1;
+ 			Pieces = null;
+
+			Release.Save();
+ 		}
+						 			
 		public void Complete()
 		{
-			Length = -1;
+			Length = -2;
 			Release.Save();
 		}
 
@@ -108,6 +118,7 @@ namespace Uccs.Net
 		bool									Loaded;
 		ResourceHub								Hub;
 		public string							Path => System.IO.Path.Join(Hub.ReleasesPath, Hash.ToHex());
+		public object							Activity;
 
 		public System.Diagnostics.StackTrace	__StackTrace;
 
@@ -150,24 +161,24 @@ namespace Uccs.Net
 			return $"{Hash.ToHex()}, Availability={Availability}, Files={{{Files?.Count}}}";
 		}
 
-		public LocalFile AddFile(string path, long length, int piecelength, int piececount)
+		public LocalFile AddEmpty(string path)
 		{
-			if(Files.Any(i => i.Path== path))
+			if(Files.Any(i => i.Path == path))
 				throw new IntegrityException($"File {path} already exists");
 
-			Files.Add(new LocalFile(this, path, length, piecelength, piececount));
+			Files.Add(new LocalFile(this, path));
 
 			Save();
 
 			return Files.Last();
 		}
 
-		public LocalFile AddFile(string path, byte[] data)
+		public LocalFile AddCompleted(string path, byte[] data)
 		{
-			if(Files.Any(i => i.Path== path))
+			if(Files.Any(i => i.Path == path))
 				throw new IntegrityException($"File {path} already exists");
 
-			var f = new LocalFile(this) {Path = path};
+			var f = new LocalFile(this, path);
 			Files.Add(f);
 
 			WriteFile(path, 0, data);
@@ -175,11 +186,6 @@ namespace Uccs.Net
 			f.Complete(); /// implicit Save called
 
 			return f;
-		}
-
-		public void RemoveFile(LocalFile file)
-		{
-			Files.Remove(file);
 		}
 
 		public void Complete(Availability availability)

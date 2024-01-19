@@ -1,10 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 
 namespace Uccs.Net
 {
+	[JsonDerivedType(typeof(FileDownloadProgress), typeDiscriminator: "FileDownloadProgress")]
+	[JsonDerivedType(typeof(ReleaseDownloadProgress), typeDiscriminator: "ReleaseDownloadProgress")]
+	public class ResourceActivityProgress
+	{
+
+	}
+
 	public class ReleaseBuildCall : SunApiCall
 	{
 		public ResourceAddress		Resource { get; set; }
@@ -34,17 +46,17 @@ namespace Uccs.Net
 		{
 			lock(sun.ResourceHub.Lock)
 			{
-				var r = sun.ResourceHub.Find(Release) ?? sun.ResourceHub.Add(Release, Type);
-			
 				if(Type == DataType.File)
 				{
+					var r = sun.ResourceHub.Find(Release) ?? sun.ResourceHub.Add(Release, Type);
 					sun.ResourceHub.DownloadFile(r, "f", Release, null, workflow);
-					return r.Hash;
+					return null;
 				}
 				else if(Type == DataType.Directory)
 				{
+					var r = sun.ResourceHub.Find(Release) ?? sun.ResourceHub.Add(Release, Type);
 					sun.ResourceHub.DownloadDirectory(r, workflow);
-					return r.Hash;
+					return null;
 				}
 				else
 					throw new ResourceException(ResourceError.DataTypeNotSupported);
@@ -52,7 +64,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class ReleaseDownloadProgressCall : SunApiCall
+	public class ReleaseActivityProgressCall : SunApiCall
 	{
 		public byte[] Release { get; set; }
 		
@@ -62,7 +74,26 @@ namespace Uccs.Net
 			{
 				var r = sun.ResourceHub.Find(Release);
 
-				return sun.ResourceHub.GetDownloadProgress(r);
+				if(r.Activity is FileDownload f)
+				{
+					var s = new ReleaseDownloadProgress(f.SeedCollector);
+	
+					s.Succeeded	= f.Succeeded;
+					s.CurrentFiles = new [] {new FileDownloadProgress(f)};
+	
+					return s;
+				}
+				else if(r.Activity is DirectoryDownload d)
+				{
+					var s = new ReleaseDownloadProgress(d.SeedCollector);
+	
+					s.Succeeded	= d.Succeeded;
+					s.CurrentFiles = r.Files.Where(i => i.Activity is FileDownload).Select(i => new FileDownloadProgress(i.Activity as FileDownload)).ToArray();
+	
+					return s;
+				}
+				else
+					return null;
 			}
 		}
 	}

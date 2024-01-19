@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
-	public class FileDownloadProgress
+	public class FileDownloadProgress : ResourceActivityProgress
 	{
 		public FileDownloadProgress()
 		{
@@ -15,9 +13,9 @@ namespace Uccs.Net
 
 		public FileDownloadProgress(FileDownload file)
 		{
-			Path				= file.File != null ? file.File.Path : null;
-			Length				= file.File != null ? file.File.Length : -1;
-			DownloadedLength	= file.File != null ? file.DownloadedLength : -1;
+			Path				= file.File.Initialized ? file.File.Path : null;
+			Length				= file.File.Initialized ? file.File.Length : -1;
+			DownloadedLength	= file.File.Initialized ? file.DownloadedLength : -1;
 		}
 
 		public string	Path { get; set; }
@@ -25,7 +23,7 @@ namespace Uccs.Net
 		public long		DownloadedLength { get; set; }
 	}
 
-	public class ReleaseDownloadProgress
+	public class ReleaseDownloadProgress : ResourceActivityProgress
 	{
 		public class Hub
 		{

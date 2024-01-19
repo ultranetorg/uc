@@ -52,7 +52,7 @@ namespace Uccs.Sun.CLI
 						
 						while(Workflow.Active)
 						{
-							d = Api<ReleaseDownloadProgress>(new ReleaseDownloadProgressCall {Release = h});
+							d = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = h});
 
 							if(d == null)
 								break;

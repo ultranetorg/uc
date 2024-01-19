@@ -41,7 +41,7 @@ namespace Uccs.Demo.Application
 						do
 						{
 							Thread.Sleep(1);
-							s = Application.Nexus.Sun.Request<PackageDownloadProgress>(new PackageDownloadProgressCall {Package = v}, new Workflow("GetReleaseStatus"));
+							s = Application.Nexus.Sun.Request<PackageDownloadProgress>(new PackageActivityProgressCall {Package = v}, new Workflow("GetReleaseStatus"));
 						}
 						while(!s.Succeeded);
 
