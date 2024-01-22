@@ -92,7 +92,7 @@ namespace Uccs.Sun.CLI
 
 					try
 					{
-						ResourceActivityProgress d;
+						ResourceActivityProgress d = null;
 						
 						do
 						{
@@ -101,14 +101,12 @@ namespace Uccs.Sun.CLI
 							if(d == null)
 							{	
 								if(!Api<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
-								{
 									Workflow.Log?.ReportError(this, "Failed");
-								}
-
+								
 								break;
 							}
-
-							Workflow.Log?.Report(this, d.ToString());
+							else
+								Workflow.Log?.Report(this, d.ToString());
 
 							Thread.Sleep(500);
 						}

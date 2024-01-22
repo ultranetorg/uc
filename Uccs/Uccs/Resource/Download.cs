@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using Org.BouncyCastle.Utilities.Collections;
 
 namespace Uccs.Net
 {
@@ -76,9 +76,7 @@ namespace Uccs.Net
 		{
 			Sun					= sun;
 			Release				= release;
-			Release.Activity	= release.Type == DataType.File ? this : null;
 			File				= release.Files.Find(i => i.Path == path) ?? release.AddEmpty(path);
-			File.Activity		= this;
 			Workflow			= workflow;
 			SeedCollector		= seedcollector ?? new SeedCollector(sun, release.Hash, workflow);
 
@@ -92,6 +90,11 @@ namespace Uccs.Net
 				else
 					File.Reset();
 			}
+
+			if(release.Type == DataType.File)
+				Release.Activity = this;
+			
+			File.Activity = this;
 
 			Task = Task.Run(() =>
 							{
@@ -297,5 +300,158 @@ namespace Uccs.Net
 		//	Jobs.Add(j);
 		//	return j;
 		//}
+	}
+	
+	public class DirectoryDownload
+	{
+		public LocalRelease			Release;
+		public bool					Succeeded;
+		public Queue<Xon>			Files = new();
+		public int					CompletedCount;
+		public int					TotalCount;
+		public List<FileDownload>	CurrentDownloads = new();
+		public Task					Task;
+		public SeedCollector		SeedCollector;
+
+		public DirectoryDownload(Sun sun, LocalRelease release, Workflow workflow)
+		{
+			Release = release;
+			Release.Activity = this;
+			SeedCollector = new SeedCollector(sun, release.Hash, workflow);
+
+			void run()
+			{
+				try
+				{
+					sun.ResourceHub.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
+												
+					var index = new XonDocument(release.ReadFile(".index"));
+	
+					void enumearate(Xon xon)
+					{
+						if(xon.Parent != null && xon.Parent.Name != null)
+							xon.Name = xon.Parent.Name + "/" + xon.Name;
+	
+						if(xon.Value != null)
+						{
+							Files.Enqueue(xon);
+						}
+	
+						foreach(var i in xon.Nodes)
+						{
+							enumearate(i);
+						}
+					}
+	
+					enumearate(index);
+	
+					TotalCount = Files.Count;
+
+					do 
+					{
+						if(CurrentDownloads.Count < 10 && Files.Any())
+						{
+							var f = Files.Dequeue();
+	
+							lock(sun.ResourceHub.Lock)
+							{
+								var dd = sun.ResourceHub.DownloadFile(release, f.Name, f.Value as byte[], SeedCollector, workflow);
+	
+								if(dd != null)
+								{
+									CurrentDownloads.Add(dd);
+								}
+							}
+						}
+	
+						var i = Task.WaitAny(CurrentDownloads.Select(i => i.Task).ToArray(), workflow.Cancellation);
+	
+						if(CurrentDownloads[i].Succeeded)
+						{
+							CompletedCount++;
+							CurrentDownloads.Remove(CurrentDownloads[i]);
+						}
+					}
+					while(Files.Any() && workflow.Active);
+	
+					SeedCollector.Stop();
+	
+					lock(sun.ResourceHub.Lock)
+					{
+						Succeeded = true;
+						release.Complete(Availability.Full);
+					}
+				}
+				catch(Exception) when(workflow.Aborted)
+				{
+				}
+				finally
+				{
+					lock(sun.ResourceHub.Lock)
+						Release.Activity = null;
+				}
+			}
+
+			Task = Task.Run(run, workflow.Cancellation);
+		}
+
+		public override string ToString()
+		{
+			return Release.Hash.ToHex();
+		}
+	}
+
+	public class FileDownloadProgress : ResourceActivityProgress
+	{
+		public FileDownloadProgress()
+		{
+		}
+
+		public FileDownloadProgress(FileDownload file)
+		{
+			Path				= file.File.Initialized ? file.File.Path : null;
+			Length				= file.File.Initialized ? file.File.Length : -1;
+			DownloadedLength	= file.File.Initialized ? file.DownloadedLength : -1;
+		}
+
+		public string	Path { get; set; }
+		public long		Length { get; set; }
+		public long		DownloadedLength { get; set; }
+	}
+
+	public class ReleaseDownloadProgress : ResourceActivityProgress
+	{
+		public class Hub
+		{
+			public AccountAddress	Member { get; set; }
+			public HubStatus		Status { get; set; }
+		}
+
+		public class Seed
+		{
+			public IPAddress	IP { get; set; }
+			public int			Failures { get; set; }
+			public int			Succeses { get; set; }
+		}
+
+		public IEnumerable<Hub>						Hubs { get; set; }
+		public IEnumerable<FileDownloadProgress>	CurrentFiles { get; set; }
+		public IEnumerable<Seed>					Seeds { get; set; }
+		public bool									Succeeded  { get; set; }
+
+		public ReleaseDownloadProgress()
+		{
+		}
+
+		public ReleaseDownloadProgress(SeedCollector seedCollector)
+		{
+			Hubs	= seedCollector.Hubs.Select(i => new Hub {Member = i.Member, Status = i.Status}).ToArray();
+			Seeds	= seedCollector.Seeds.Select(i => new Seed {IP = i.IP}).ToArray();
+		}
+
+		public override string ToString()
+		{
+			return $"H={{{Hubs.Count()}}}, S={{{Seeds.Count()}}}, F={{{CurrentFiles.Count()}}}, {string.Join(", ", CurrentFiles.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}"))}";
+		}
 	}
 }

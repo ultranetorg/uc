@@ -147,7 +147,7 @@ namespace Uccs.Net
 		{
 			var p = Find(release);
 
-			if(p == null)
+			if(p?.Manifest == null)
 				return false;
 
 			foreach(var i in p.Manifest.CompleteDependencies)
@@ -371,36 +371,34 @@ namespace Uccs.Net
  			}
 		}
 
-		public void Deploy(PackageAddress package, Workflow workflow)
+		public Deployment Deploy(PackageAddress package, Workflow workflow)
 		{
-			//if(Installations.Any())
-			//	throw new ResourceException(ResourceError.Busy);
-			var	all = new List<LocalPackage>();
+			var	d = new Deployment();
 
-			void collect(PackageAddress address)
+			void collect(LocalPackage parent,  PackageAddress address)
 			{
-				var t = Find(address);
-				var p = t;
+				var m = new DeploymentMerge{Target = Find(address)};
+				d.Merges.Add(m);
 
-				var sequence = new List<KeyValuePair<LocalPackage, ParentPackage>>();	
+				var p = m.Target;
 
 				while(true)
 				{
 					if(p.Release.Availability.HasFlag(Availability.Complete))
 					{
 						if(p.Activity == null)
-							p.Activity = new PackageDeployment {Target = t, Complete = p};
+							p.Activity = d;
 						else
 							throw new ResourceException(ResourceError.Busy);
 					
-						sequence.Add(new (p, null));
+						m.Complete = p;
 
 						break;
 					}
 					else if(p.Release.Availability.HasFlag(Availability.Incremental))
 					{	
 						if(p.Activity == null)
-							p.Activity = new PackageDeployment {Target = t, Incremental = p};
+							p.Activity = d;
 						else
 							throw new ResourceException(ResourceError.Busy);
 
@@ -409,95 +407,91 @@ namespace Uccs.Net
 						if(pp == null)
 							throw new ResourceException(ResourceError.RequiredPackagesNotFound);
 
-						sequence.Add(new (p, pp));
+						m.Incrementals.Insert(0, new (p, pp));
 
 						p = Find(new (address, pp.Release));
 					}
 				}
 
-				//p.Activity = new PackageInstallation {Target = t, Complete = p};
-				//Installations.Add(new PackageInstallation{Target = t, Complete = p});
-
-				var deps = new HashSet<PackageAddress>();
+				//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
 				
-				all.AddRange(sequence.Select(i => i.Key).AsEnumerable().Reverse());
+				var deps = new HashSet<PackageAddress>();
 
-				foreach(var i in sequence.AsEnumerable().Reverse())
+				foreach(var j in m.Complete.Manifest.CompleteDependencies)
+					deps.Add(j.Package);
+
+				foreach(var i in m.Incrementals.AsEnumerable().Reverse())
 				{
-					//Installations.Add(new PackageInstallation{Target = t, Incremental = i.Key});
-	
-					if(i.Value == null)
-					{
-						foreach(var j in i.Key.Manifest.CompleteDependencies)
-							deps.Add(j.Package);
-					} 
-					else
-					{
-						foreach(var j in i.Value.AddedDependencies)
-							deps.Add(j.Package);
+					foreach(var j in i.Value.AddedDependencies)
+						deps.Add(j.Package);
 		
-						foreach(var j in i.Value.RemovedDependencies)
-							deps.Remove(j.Package);
-					}
+					foreach(var j in i.Value.RemovedDependencies)
+						deps.Remove(j.Package);
 				}
 	
 				foreach(var i in deps)
-					collect(i);
+					collect(p, i);
 			}
 
 			lock(Lock)
-				collect(package);
+				collect(null, package);
 
-			foreach(var i in all)
-			{
-				var pi = i.Activity as PackageDeployment;
-
-				using(var s = new FileStream((pi.Complete ?? pi.Incremental).Release.MapPath(pi.Complete != null ? LocalPackage.CompleteFile : LocalPackage.IncrementalFile), FileMode.Open))
-				{
-					using(var a = new ZipArchive(s, ZipArchiveMode.Read))
-					{
-						foreach(var e in a.Entries)
-						{
-							if(pi.Complete != null)
-							{
-								var f = Path.Join(AddressToPath(pi.Target.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
-									
-								Directory.CreateDirectory(Path.GetDirectoryName(f));
-								e.ExtractToFile(f, true);
-							} 
-							else
-							{
-								if(e.Name != LocalPackage.Removals)
+			Task.Run(() =>	{ 
+								foreach(var s in d.Merges.AsEnumerable().Reverse())
 								{
-									var f = Path.Join(AddressToPath(pi.Target.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
-									
-									Directory.CreateDirectory(Path.GetDirectoryName(f));
-									e.ExtractToFile(f, true);
-								} 
-								else
-								{
-									using(var es = e.Open())
+									using(var fs = new FileStream(s.Complete.Release.MapPath(LocalPackage.CompleteFile), FileMode.Open))
 									{
-										var sr = new StreamReader(es);
-
-										while(!sr.EndOfStream)
+										using(var a = new ZipArchive(fs, ZipArchiveMode.Read))
 										{
-											File.Delete(Path.Join(AddressToPath(pi.Target.Address), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+											foreach(var e in a.Entries)
+											{
+												var f = Path.Join(AddressToPath(s.Target.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+									
+												Directory.CreateDirectory(Path.GetDirectoryName(f));
+												e.ExtractToFile(f, true);
+											}
 										}
 									}
+
+									s.Complete.Activity = null;
+
+									foreach(var i in s.Incrementals)
+									{
+										using(var fs = new FileStream(i.Key.Release.MapPath(LocalPackage.IncrementalFile), FileMode.Open))
+										{
+											using(var z = new ZipArchive(fs, ZipArchiveMode.Read))
+											{
+												foreach(var e in z.Entries)
+												{
+													if(e.Name != LocalPackage.Removals)
+													{
+														var f = Path.Join(AddressToPath(s.Target.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+									
+														Directory.CreateDirectory(Path.GetDirectoryName(f));
+														e.ExtractToFile(f, true);
+													} 
+													else
+													{
+														using(var es = e.Open())
+														{
+															var sr = new StreamReader(es);
+
+															while(!sr.EndOfStream)
+															{
+																File.Delete(Path.Join(AddressToPath(s.Target.Address), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+															}
+														}
+													}
+												}
+											}
+										}
+
+										i.Key.Activity = null;
+									}
 								}
-							}
-						}
-					}
-				}
+							});
 
-				i.Activity = null;
-			}
-
-			lock(Lock)
-			{
-				all.Clear();
-			}
+			return d;
 		}
 
 		public void Add(ResourceAddress resource, IEnumerable<string> sources, string dependenciespath, Workflow workflow)
@@ -520,8 +514,6 @@ namespace Uccs.Net
 				throw new ResourceException(ResourceError.Busy);
 				
 			d = new PackageDownload(Sun, p, workflow);
-			
-			p.Activity = d;
 
 			return d;
 		}
@@ -539,7 +531,7 @@ namespace Uccs.Net
 
 				lock(Lock)
 					d = Download(package, workflow);
-		
+
 				d.Task.Wait(workflow.Cancellation);
 			}
 				

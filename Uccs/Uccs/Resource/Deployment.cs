@@ -1,0 +1,50 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Uccs.Net
+{
+	public class DeploymentMerge
+	{
+		public LocalPackage											Target;
+		public LocalPackage											Complete;	
+		public List<KeyValuePair<LocalPackage, ParentPackage>>		Incrementals = new();	
+	}
+
+	public class Deployment
+	{
+		public List<DeploymentMerge>	Merges = new ();	
+	}
+
+	public class DeploymentMergeProgress
+	{
+		public PackageAddress		Target { get; set; }	
+		public PackageAddress		Complete { get; set; }	
+		public PackageAddress[]		Incrementals { get; set; }	
+
+		public DeploymentMergeProgress(DeploymentMerge merge)
+		{
+			Target			= merge.Target.Address;
+			Complete		= merge.Complete.Address;
+			Incrementals	= merge.Incrementals.Select(i => i.Key.Address).ToArray();
+		}
+	}
+
+	public class DeploymentProgress : ResourceActivityProgress
+	{
+		public DeploymentMergeProgress[]	Merges { get; set; }
+
+		public DeploymentProgress()
+		{
+		}
+
+		public DeploymentProgress(Deployment deployment)
+		{
+			Merges = deployment.Merges.Select(i => new DeploymentMergeProgress(i)).ToArray();
+		}
+
+		public override string ToString()
+		{
+			return $"deploment: {Merges.Length}, packages: {Merges.Sum(i => i.Incrementals.Length + 1)}";
+		}
+	}
+}

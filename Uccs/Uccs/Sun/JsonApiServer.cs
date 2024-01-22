@@ -114,7 +114,7 @@ namespace Uccs.Net
 												if(!Listener.IsListening)
 													Listener = null;
 
-												Workflow.Log?.ReportError(this, "Erorr", ex);
+												Workflow.Log?.ReportError(this, "Listener Thread Error", ex);
 											}
 										});
 
@@ -160,7 +160,7 @@ namespace Uccs.Net
 															}
 														}
 	
-			void respondjson(object t){
+			void respondjson(object t)	{
 											var output = rp.OutputStream;
 											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonApiClient.Options));
 							
@@ -253,13 +253,10 @@ namespace Uccs.Net
 			{
 				responderror(ex.Message, (int)HttpStatusCode.BadRequest);
 			}
-			//catch(RdcEntityException ex)
-			//{
-			//	responderror(ex.Message, (int)HttpStatusCode.UnprocessableEntity);
-			//}
 			catch(Exception ex) when (!Debugger.IsAttached)
 			{
 				responderror(ex.ToString(), (int)HttpStatusCode.InternalServerError);
+				Workflow.Log?.ReportError(this, "Request Processing Error", ex);
 			}
 
 			try

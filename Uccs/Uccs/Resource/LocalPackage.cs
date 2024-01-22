@@ -28,11 +28,14 @@ namespace Uccs.Net
 			{
 				if(_Manifest == null)
 				{
-					_Manifest = new Manifest{};
-					
-					lock(Hub.Sun.ResourceHub.Lock)
+					if(Release.IsReady(ManifestFile))
 					{
-						_Manifest.Read(new BinaryReader(new MemoryStream(Release.ReadFile(ManifestFile))));
+						_Manifest = new Manifest{};
+						
+						lock(Hub.Sun.ResourceHub.Lock)
+						{
+							_Manifest.Read(new BinaryReader(new MemoryStream(Release.ReadFile(ManifestFile))));
+						}
 					}
 				}
 

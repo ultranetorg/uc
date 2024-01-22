@@ -8,15 +8,30 @@ namespace Uccs.Net
 {
 	public class PackageDownloadProgress : ResourceActivityProgress
 	{
-		public bool									Succeeded { get; set; }
-		public int									DependenciesRecursiveCount { get; set; }
-		public int									DependenciesRecursiveSuccesses { get; set; }
-		public IEnumerable<FileDownloadProgress>	CurrentFiles { get; set; } = new FileDownloadProgress[]{};
-		public IEnumerable<PackageDownloadProgress>	Dependencies { get; set; } = new PackageDownloadProgress[]{};
+		public bool							Succeeded { get; set; }
+		public int							DependenciesRecursiveCount { get; set; }
+		public int							DependenciesRecursiveSuccesses { get; set; }
+		public FileDownloadProgress[]		CurrentFiles { get; set; } = [];
+		public PackageDownloadProgress[]	Dependencies { get; set; } = [];
+
+		public PackageDownloadProgress(PackageDownload download)
+		{
+			Succeeded						= download.Succeeded;
+			DependenciesRecursiveCount		= download.DependenciesRecursiveCount;
+			DependenciesRecursiveSuccesses	= download.DependenciesRecursiveSuccesses;
+	
+			CurrentFiles = download.Package.Release.Files	.Where(i => i.Activity is FileDownload)
+															.Select(i => new FileDownloadProgress(i.Activity as FileDownload))
+															.ToArray();
+				
+			Dependencies = download.Dependencies.Where(i => i.Package.Activity is PackageDownload)
+												.Select(i => new PackageDownloadProgress(i.Package.Activity as PackageDownload))
+												.ToArray();
+		}
 
 		public override string ToString()
 		{
-			return$"Downloading={{{string.Join(", ", CurrentFiles.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}"))}}}, Ds={DependenciesRecursiveSuccesses}/{DependenciesRecursiveCount}";
+			return$"downloading: {{{string.Join(", ", CurrentFiles.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}"))}}}, dps: {DependenciesRecursiveSuccesses}/{DependenciesRecursiveCount}";
 		}
 	}
 

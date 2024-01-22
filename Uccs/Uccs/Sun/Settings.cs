@@ -51,6 +51,8 @@ namespace Uccs.Net
 
 	public class ResourceHubSettings
 	{
+		public int		CollectRefreshInterval = 60000;
+
 		public ResourceHubSettings()
 		{
 		}

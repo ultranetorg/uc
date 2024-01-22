@@ -94,53 +94,11 @@ namespace Uccs.Net
 		{
 			var p = sun.PackageHub.Find(Package);
 
-			PackageDownloadProgress download(PackageAddress address)
-			{
-				var p = sun.PackageHub.Find(address);
-	
-				if(p == null)
-					return null;
-
-				var d = p.Activity as PackageDownload;
-				var s = new PackageDownloadProgress();
-	
-				s.Succeeded						 = d.Succeeded;
-				s.DependenciesRecursiveCount	 = d.DependenciesRecursiveCount;
-				s.DependenciesRecursiveSuccesses = d.DependenciesRecursiveSuccesses;
-	
-				lock(sun.ResourceHub.Lock)
-				{
-					if(d.Package != null)
-					{
-						s.CurrentFiles = p.Release.Files.Where(i => i.Activity is FileDownload)
-														.Select(i => new FileDownloadProgress(i.Activity as FileDownload))
-														.ToArray();
-					}
-				}
-				
-				s.Dependencies = d.Dependencies.Select(i => download(i.Package.Address)).Where(i => i != null).ToArray();
-	
-				return s;
-			}
-
-			PackageDeploymentProgress deployment(PackageAddress address)
-			{
-				var p = sun.PackageHub.Find(address);
-	
-				if(p == null)
-					return null;
-
-				var d = p.Activity as PackageDownload;
-				var o = new PackageDeploymentProgress();
-	
-				return o;
-			}
-
 			lock(sun.PackageHub.Lock)
-				if(p.Activity is PackageDownload)
-					return download(Package);
-				if(p.Activity is PackageDeployment)
-					return deployment(Package);
+				if(p?.Activity is PackageDownload dl)
+					return new PackageDownloadProgress(dl);
+				if(p?.Activity is Deployment dp)
+					return new DeploymentProgress(dp);
 				else
 					return null;
 		}
@@ -157,7 +115,7 @@ namespace Uccs.Net
 				var p = sun.PackageHub.Find(Package);
 
 				if(p == null)
-					throw new EntityException(EntityError.NotFound);
+					throw new ResourceException(ResourceError.NotFound);
 
 				return new PackageInfo{ Ready			= sun.PackageHub.IsReady(Package),
 										Availability	= p.Release.Availability,

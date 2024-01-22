@@ -54,6 +54,7 @@ namespace Uccs.Net
 		AlreadyExists,
 		DataTypeNotSupported,
 		Busy,
+		NotFound,
 	}
 
 	public abstract class SunException : Exception, ITypedBinarySerializable, IBinarySerializable 

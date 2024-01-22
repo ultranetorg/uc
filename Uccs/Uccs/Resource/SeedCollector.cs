@@ -36,9 +36,9 @@ namespace Uccs.Net
 			SeedCollector				Collector;
 			byte[]						Hash;
 
-			public Hub(SeedCollector finder, byte[] hash, AccountAddress member, IEnumerable<IPAddress> ips)
+			public Hub(SeedCollector collector, byte[] hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
-				Collector = finder;
+				Collector = collector;
 				Hash = hash;
 				Member = member;
 				IPs = ips.ToArray();
@@ -64,7 +64,7 @@ namespace Uccs.Net
 										{
 										}
 
-										WaitHandle.WaitAny(new WaitHandle []{Collector.Workflow.Cancellation.WaitHandle}, 5000);
+										WaitHandle.WaitAny(new WaitHandle []{Collector.Workflow.Cancellation.WaitHandle}, collector.Sun.Settings.ResourceHub.CollectRefreshInterval);
 									}
 								}, 
 								Collector.Workflow.Cancellation);
