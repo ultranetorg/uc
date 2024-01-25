@@ -19,6 +19,9 @@ namespace Uccs.Net
 				if(sun.Mcv.LastNonEmptyRound == null)	
 					throw new NodeException(NodeError.TooEearly);
 
+				if(From > sun.Mcv.LastNonEmptyRound.Id || To - From > Mcv.P)
+					throw new InvalidRequestException("Invalid params");
+
 				var s = new MemoryStream();
 				var w = new BinaryWriter(s);
 			

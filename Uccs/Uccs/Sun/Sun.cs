@@ -212,9 +212,10 @@ namespace Uccs.Net
 										catch(OperationCanceledException)
 										{
 										}
-										catch(Exception ex) when (!Debugger.IsAttached && Workflow.Active)
+										catch(Exception ex) when (!Debugger.IsAttached)
 										{
-											Abort(MethodBase.GetCurrentMethod(), ex);
+											if(Workflow.Active)
+												Abort(ex);
 										}
 									});
 		}
@@ -422,15 +423,14 @@ namespace Uccs.Net
 			PackageHub = new PackageHub(this, Settings.Packages);
 		}
 
-		public void Abort(MethodBase methodBase, Exception ex)
+		public void Abort(Exception ex)
 		{
 			lock(Lock)
 			{
-				var m = Path.GetInvalidFileNameChars().Aggregate(methodBase.Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(Settings.Profile, m + "." + Sun.FailureExt), ex.ToString());
-				Workflow.Log?.ReportError(this, m, ex);
+				File.WriteAllText(Path.Join(Settings.Profile, "Abort." + Sun.FailureExt), ex.ToString());
+				Workflow.Log?.ReportError(this, "Abort", ex);
 	
-				Stop("Exception");
+				Stop("Due to exception");
 			}
 		}
 
@@ -695,12 +695,15 @@ namespace Uccs.Net
 			peer.LastTry = DateTime.UtcNow;
 			peer.Retries++;
 
+			TcpClient tcp = null;
+			
 			void f()
 			{
-				var tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
 
 				try
 				{
+					tcp = Settings.IP != null ? new TcpClient(new IPEndPoint(Settings.IP, 0)) : new TcpClient();
+
 					tcp.SendTimeout = SunGlobals.DisableTimeouts ? 0 : Timeout;
 					//client.ReceiveTimeout = Timeout;
 					tcp.Connect(peer.IP, Zone.Port);
@@ -780,7 +783,7 @@ namespace Uccs.Net
 					lock(Lock)
 						peer.Disconnect();;
 									
-					tcp.Close();
+					tcp?.Close();
 				}
 			}
 			

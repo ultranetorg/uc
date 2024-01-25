@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -146,9 +147,29 @@ namespace Uccs.Net
 			lock(OutRequests)
 			{
 				foreach(var i in OutRequests)
-					i.Event.Close();
+				{
+					if(!i.Event.SafeWaitHandle.IsClosed)
+					{
+						i.Event.Set();
+						i.Event.Close();
+					}
+				}
 
 				OutRequests.Clear();
+			}
+
+			lock(Outs)
+			{
+				foreach(var i in Outs.OfType<RdcRequest>())
+				{
+					if(!i.Event.SafeWaitHandle.IsClosed)
+					{
+						i.Event.Set();
+						i.Event.Close();
+					}
+				}
+
+				Outs.Clear();
 			}
 	
 			if(Tcp != null)
@@ -383,10 +404,12 @@ namespace Uccs.Net
  			{
 				var i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 
+				rq.Event.Close();
+
 	 			if(i == 0)
 	 			{
 					if(rq.Response == null)
-						throw new OperationCanceledException();
+						throw new NodeException(NodeError.Connectivity);
 	
 	 				if(rq.Response.Error == null)
 					{
@@ -422,9 +445,8 @@ namespace Uccs.Net
  		{
  			if(Status != ConnectionStatus.OK)
 			{
-				var rp = RdcResponse.FromType(rq.Class);
-				rp.Error = new NodeException(NodeError.Connectivity);
-				return rp;
+				rq.Response.Error = new NodeException(NodeError.Connectivity);
+				return rq.Response;
 			}
  
  			rq.Id = IdCounter++;
@@ -440,22 +462,45 @@ namespace Uccs.Net
  
   			if(rq.WaitResponse)
   			{
- 	 			if(rq.Event.WaitOne(SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000)) 
- 	 			{
- 					if(rq.Response == null)
+				var i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+
+				rq.Event.Close();
+
+	 			if(i == 0)
+	 			{
+					if(rq.Response == null)
 					{
-						var rp = RdcResponse.FromType(rq.Class);
-						rp.Error = new NodeException(NodeError.Unknown);
-						return rp;
+						rq.Response.Error = new NodeException(NodeError.Connectivity);
+						return rq.Response;
 					}
- 	
- 					return rq.Response;
-  				}
+	
+	 				if(rq.Response.Error == null)
+					{
+						return rq.Response;
+					}
+	 				else 
+					{
+						if(rq.Response.Error is NodeException e)
+						{
+							if(e.Error == NodeError.NotBase)
+								BaseRank = 0;
+	
+							if(e.Error == NodeError.NotChain)
+								ChainRank = 0;
+	
+							if(e.Error == NodeError.NotSeed)
+								SeedRank = 0;
+						}
+
+						return rq.Response;
+					}
+ 				}
+	 			else if(i == 1)
+					throw new OperationCanceledException();
  				else
 				{
-					var rp = RdcResponse.FromType(rq.Class);
-					rp.Error = new NodeException(NodeError.Timeout);
-					return rp;
+					rq.Response.Error = new NodeException(NodeError.Timeout);
+					return rq.Response;
 				}
   			}
  			else

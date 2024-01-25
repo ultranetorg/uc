@@ -59,6 +59,10 @@ namespace Uccs.Net
 				a.Expiration	= round.ConfirmedTime + Years*365;
 
 				PayForEnity(round, Years);
+				PayForResourceData(round, a.SpaceUsed, Years);
+
+				foreach(var i in a.Resources)
+					PayForEnity(round, Years);
 			}
 			else
 				Error = "Failed";
