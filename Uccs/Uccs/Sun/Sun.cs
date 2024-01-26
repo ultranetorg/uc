@@ -828,8 +828,12 @@ namespace Uccs.Net
 
 				peer.Disconnect();
 				
+				Monitor.Exit(Lock);
+
 				while(Workflow.Active && peer.Status != ConnectionStatus.Disconnected) 
 					Thread.Sleep(1);
+
+				Monitor.Enter(Lock);
 								
 				peer.Status = ConnectionStatus.Initiated;
 			}

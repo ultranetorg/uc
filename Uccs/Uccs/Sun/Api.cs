@@ -35,6 +35,16 @@ namespace Uccs.Net
 		}
 	}
 
+	public class ExceptionCall : SunApiCall
+	{
+		public string Reason { get; set; }
+
+		public override object Execute(Sun sun, Workflow workflow)
+		{
+			throw new Exception("TEST");
+		}
+	}
+
 	public class ExitCall : SunApiCall
 	{
 		public string Reason { get; set; }
