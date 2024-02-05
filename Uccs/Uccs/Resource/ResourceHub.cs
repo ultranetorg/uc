@@ -303,40 +303,40 @@ namespace Uccs.Net
 
 				lock(Lock)
 				{
-					foreach(var r in Resources.Where(i => i.Last != null))
-					{ 
-						switch(r.Last.Type)
-						{
-							case DataType.File:
-							case DataType.Directory:
-							case DataType.Package:
+					foreach(var r in Resources)
+						foreach(var d in r.Datas)
+							switch(d.Type)
 							{
-								var lr = Find(r.LastAs<ReleaseAddress>());
-
-								if(lr != null && lr.Availability != Availability.None)
+								case DataType.File:
+								case DataType.Directory:
+								case DataType.Package:
 								{
-									foreach(var m in cr.Members.OrderByNearest(lr.Address.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Member.Account == m.Account)))
-									{
-										(ds.TryGetValue(m, out var x) ? x : (ds[m] = new()))[r.Address] = new() {lr};
-									}
+									var l = Find(d.Interpretation as ReleaseAddress);
 
-								}
-								break;
-							}								
-							//{	
-							//	foreach(var lr in r.Datas.Select(i => Find(i.Data)).Where(i => i is not null && i.Availability != Availability.None))
-							//	{
-							//		foreach(var m in cr.Members.OrderByNearest(lr.Address).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
-							//		{
-							//			var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
-							//			(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
-							//		}
-							//	}
-							//
-							//	break;
-							//}
-						}
-					}
+									if(l != null && l.Availability != Availability.None)
+									{
+										foreach(var m in cr.Members.OrderByNearest(l.Address.Hash).Take(MembersPerDeclaration).Where(m => !l.DeclaredOn.Any(dm => dm.Member.Account == m.Account)))
+										{
+											var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
+											(rss.TryGetValue(r.Address, out var y) ? y : (rss[r.Address] = new())).Add(l);
+										}
+
+									}
+									break;
+								}								
+								//{	
+								//	foreach(var lr in r.Datas.Select(i => Find(i.Data)).Where(i => i is not null && i.Availability != Availability.None))
+								//	{
+								//		foreach(var m in cr.Members.OrderByNearest(lr.Address).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
+								//		{
+								//			var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
+								//			(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
+								//		}
+								//	}
+								//
+								//	break;
+								//}
+							}
 				}
 
 				if(!ds.Any())

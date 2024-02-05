@@ -180,22 +180,29 @@ namespace Uccs.Net
 			d.Save(filepath);
 		}
 
-		public void Write(BinaryWriter w)
+		public void Write(BinaryWriter writer)
 		{
-			w.Write(History);
-			w.WriteBytes(CompleteHash);
-			w.WriteBytes(IncrementalHash);
-			w.Write(CompleteDependencies);
-			w.Write(Parents);
+			writer.Write(History, i => {
+											writer.Write(i.TypeCode); 
+											i.Write(writer); 
+									  });
+			writer.WriteBytes(CompleteHash);
+			writer.WriteBytes(IncrementalHash);
+			writer.Write(CompleteDependencies);
+			writer.Write(Parents);
 		}
 
-		public void Read(BinaryReader r)
+		public void Read(BinaryReader reader)
 		{
-			History					= r.ReadArray(() => ReleaseAddress.FromRaw(r));
-			CompleteHash			= r.ReadBytes();
-			IncrementalHash			= r.ReadBytes();
-			CompleteDependencies	= r.ReadArray<Dependency>();
-			Parents					= r.ReadArray<ParentPackage>();
+			History					= reader.ReadArray(() => {
+ 																var o = ReleaseAddress.FromType(reader.ReadByte());
+ 																o.Read(reader); 
+ 																return o; 
+ 															});
+			CompleteHash			= reader.ReadBytes();
+			IncrementalHash			= reader.ReadBytes();
+			CompleteDependencies	= reader.ReadArray<Dependency>();
+			Parents					= reader.ReadArray<ParentPackage>();
 		}
 
 // 		public void Save(string filepath)
