@@ -63,7 +63,7 @@ namespace Uccs.Sun.FUI
 			{
 				foreach(var i in Sun.SeedHub.Releases.Take(1000))
 				{
-					var r = Packages.Items.Add(Hex.ToHexString(i.Key));
+					var r = Packages.Items.Add(i.Key.ToString());
 					//r.SubItems.Add(i.Key.Resource);
 					//r.SubItems.Add(i.Key.Realization.Name.ToString());
 					//r.SubItems.Add(i.Key.Version.ToString());

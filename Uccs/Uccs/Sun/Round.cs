@@ -67,9 +67,7 @@ namespace Uccs.Net
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
-		public Dictionary<byte[], AnalysisEntry>			AffectedAnalyses = new(Bytes.EqualityComparer);
-		
-		//public IEnumerable<Member>							ActiveMembers => Members.Where(i => i.JoinedAt >= Id);
+		public Dictionary<ReleaseAddress, ReleaseEntry>		AffectedReleases = new();
 
 		public Mcv											Mcv;
 		
@@ -219,19 +217,19 @@ namespace Uccs.Net
 			}
 		}
 
-		public AnalysisEntry AffectAnalysis(byte[] release)
+		public ReleaseEntry AffectRelease(ReleaseAddress release)
 		{
-			if(AffectedAnalyses.TryGetValue(release, out AnalysisEntry a))
+			if(AffectedReleases.TryGetValue(release, out ReleaseEntry a))
 				return a;
 			
-			var e = Mcv.Analyses.Find(release, Id - 1);
+			var e = Mcv.Releases.Find(release, Id - 1);
 
 			if(e != null)
-				return AffectedAnalyses[release] = e.Clone();
+				return AffectedReleases[release] = e.Clone();
 			else
 			{
-				var ci = Mcv.Analyses.KeyToCluster(release).ToArray();
-				var c = Mcv.Analyses.Clusters.Find(i => i.Id.SequenceEqual(ci));
+				var ci = Mcv.Releases.KeyToCluster(release).ToArray();
+				var c = Mcv.Releases.Clusters.Find(i => i.Id.SequenceEqual(ci));
 
 				int ai;
 				
@@ -242,7 +240,7 @@ namespace Uccs.Net
 				
 				ai = NextAccountIds[ci]++;
 
-				return AffectedAnalyses[release] = new AnalysisEntry(Mcv){Id = new EntityId(ci, ai), Release = release, Results = new AnalyzerResult[0]};
+				return AffectedReleases[release] = new ReleaseEntry(Mcv){Id = new EntityId(ci, ai), Address = release, Results = new AnalyzerResult[0]};
 			}
 		}
 

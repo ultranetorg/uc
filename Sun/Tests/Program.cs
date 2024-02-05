@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Uccs.Net;
+using Uccs.Net.Tests;
 using Uocs;
 
 namespace Tests
@@ -17,8 +18,13 @@ namespace Tests
 	{
 		public static void Main(string[] args)
 		{
+			AddressTests.Release();
+
+
 			var ja = JsonSerializer.Serialize(new A{Progress = new FileDownloadProgress()}, JsonApiClient.Options);
 			var jb = JsonSerializer.Serialize(new A{Progress = new ReleaseDownloadProgress()}, JsonApiClient.Options);
+
+
 
 //			var sun = new Sun(Zone.Localzone, new Settings() {Profile = $"{G.Dev.Tmp}\\Tests" }, null);
 

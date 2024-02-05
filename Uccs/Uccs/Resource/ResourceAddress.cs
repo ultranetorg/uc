@@ -16,7 +16,7 @@ namespace Uccs.Net
 		public string		Author { get; set; }
 		public string		Resource { get; set; }
 
-		public bool		Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
+		public bool			Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
 
 		public ResourceAddress(string author, string resource)
 		{

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Uccs.Net;
@@ -31,8 +32,8 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
-												Args.Has("flags")	? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
-												GetHexBytes("data", false),
+												Args.Has("flags") ? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
+												Args.Has("data") ? new ResourceData(new BinaryReader(new MemoryStream(GetHexBytes("data")))) : null,
 												GetString("parent", false));
 				}
 
@@ -44,7 +45,7 @@ namespace Uccs.Sun.CLI
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
 					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
-					if(Args.Has("data"))		r.Change(GetHexBytes("data"));
+					if(Args.Has("data"))		r.Change(GetHexBytes("data") is byte[] b && b.Length > 0 ? new ResourceData(new BinaryReader(new MemoryStream(b))) : null);
 					if(Args.Has("parent"))		r.Change(GetString("parent"));
 					if(Args.Has("recursive"))	r.ChangeRecursive();
 					
@@ -75,8 +76,8 @@ namespace Uccs.Sun.CLI
 							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
 																i => i.Datas.Count.ToString(),
 																i => i.Last.Type.ToString(),
-																i => i.Last.Data.ToHex(32),
-																i => i.Last.Data.Length.ToString() });
+																i => i.Last.Value.ToHex(32),
+																i => i.Last.Value.Length.ToString() });
 					return r;
 				}
 
@@ -90,8 +91,8 @@ namespace Uccs.Sun.CLI
 						Dump(	r.Datas, 
 								new string[] {"Type", "Data", "Length"}, 
 								new Func<ResourceData, string>[] {	i => i.Type.ToString(), 
-																	i => i.Data.ToHex(32), 
-																	i => i.Data.Length.ToString() });
+																	i => i.Value.ToHex(32), 
+																	i => i.Value.Length.ToString() });
 						return r;
 					}
 					else
@@ -105,21 +106,20 @@ namespace Uccs.Sun.CLI
 					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
 					var d = Rdc<ResourceResponse>(new ResourceRequest {Resource = a}).Resource.Data;
 
-					byte[] h;
-
+					ReleaseAddress h;
 					LocalResource lr;
 
 					lock(Program.Sun.ResourceHub.Lock)
 					{
 						lr = Program.Sun.ResourceHub.Add(a);
 						lr.AddData(d);
-						h = lr.LastAs<byte[]>();
+						h = lr.LastAs<ReleaseAddress>();
 					}
 
 					if(h == null)
 						throw new Exception("Not supported type");
 
-					Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = lr.Last.Type});
+					Api(new ReleaseDownloadCall {Address = h, Type = lr.Last.Type});
 
 					try
 					{

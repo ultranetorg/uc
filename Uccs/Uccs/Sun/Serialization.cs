@@ -82,7 +82,7 @@ namespace Uccs.Net
 				}
 			}
 
-			if(val is ITypedBinarySerializable t)
+			if(val is ITypeCode t)
 			{
 				writer.Write(t.TypeCode);
 			}
@@ -135,7 +135,7 @@ namespace Uccs.Net
 		{
 			object o;
 
-			if(type.GetInterfaces().Contains(typeof(ITypedBinarySerializable)))
+			if(type.GetInterfaces().Contains(typeof(ITypeCode)))
 				o = construct(type, reader.ReadByte());
 			else
 				o = construct(type, 0) ?? type.GetConstructor(new System.Type[]{}).Invoke(null);

@@ -8,10 +8,10 @@ namespace Uccs.Net
 {
 	public class AnalysisOrder : Operation
 	{
-		public byte[]			Release { get; set; }
+		public ReleaseAddress	Release { get; set; }
 		public Money			Fee { get; set; }
 
-		public override string	Description => $"Release={Release.ToHex()}, Fee={Fee}";
+		public override string	Description => $"Release={Release}, Fee={Fee}";
 		public override bool	Valid => Fee > 0;
 
 		public AnalysisOrder()
@@ -26,7 +26,7 @@ namespace Uccs.Net
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Release = reader.ReadHash();
+			Release = reader.Read(ReleaseAddress.FromType);
 			Fee		= reader.ReadMoney();
 		}
 
@@ -38,7 +38,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			var a = mcv.Analyses.Find(Release, round.Id);
+			var a = mcv.Releases.Find(Release, round.Id);
 
 			if(a != null)
 			{

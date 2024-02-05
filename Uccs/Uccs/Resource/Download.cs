@@ -44,7 +44,7 @@ namespace Uccs.Net
 											{
 												while(Data.Position < Length)
 												{
-													var d = Seed.Peer.DownloadRelease(Download.Release.Hash, Download.File.Path, Offset + Data.Position, Length - Data.Position).Data;
+													var d = Seed.Peer.DownloadRelease(Download.Release.Address, Download.File.Path, Offset + Data.Position, Length - Data.Position).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
@@ -78,7 +78,7 @@ namespace Uccs.Net
 			Release				= release;
 			File				= release.Files.Find(i => i.Path == path) ?? release.AddEmpty(path);
 			Workflow			= workflow;
-			SeedCollector		= seedcollector ?? new SeedCollector(sun, release.Hash, workflow);
+			SeedCollector		= seedcollector ?? new SeedCollector(sun, release.Address, workflow);
 
 			if(File.Completed)
 			{
@@ -130,7 +130,7 @@ namespace Uccs.Net
 
 														try
 														{
-															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Hash, File = path}), workflow).Length;
+															l = Sun.Call(s.IP, p => p.Request<FileInfoResponse>(new FileInfoRequest {Release = release.Address, File = path}), workflow).Length;
 														}
 														catch(NodeException)
 														{
@@ -317,13 +317,26 @@ namespace Uccs.Net
 		{
 			Release = release;
 			Release.Activity = this;
-			SeedCollector = new SeedCollector(sun, release.Hash, workflow);
+			SeedCollector = new SeedCollector(sun, release.Address, workflow);
 
 			void run()
 			{
 				try
 				{
-					sun.ResourceHub.GetFile(release, ".index", release.Hash, SeedCollector, workflow);
+					sun.ResourceHub.GetFile(release, ".index", release.Address.Hash, SeedCollector, workflow);
+
+					//var h = sun.Zone.Cryptography.HashFile(release.ReadFile(".index"));
+					//
+					//if(release.Address is HashAddress a)
+					//	if(!a.Verify(h))
+					//		return;
+					//if(release.Address is ProvingAddress pa)
+					//{	
+					//	var o = sun.Call(p => p.Request<AuthorResponse>(new AuthorRequest {Name = release.}), workflow).Author;
+					//
+					//	if(!pa.Verify(sun.Zone.Cryptography, h, o.Owner))
+					//		return;
+					//}
 												
 					var index = new XonDocument(release.ReadFile(".index"));
 	
@@ -397,7 +410,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return Release.Hash.ToHex();
+			return Release.Address.ToString();
 		}
 	}
 

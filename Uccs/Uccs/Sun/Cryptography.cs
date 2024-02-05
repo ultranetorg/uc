@@ -17,8 +17,8 @@ namespace Uccs.Net
 		public const int					SignatureSize = 65;
 		public const int					HashSize = 32;
 		public const int					PrivateKeyLength = 32;
-		public static readonly byte[]		ZeroSignature = new byte[SignatureSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		public abstract byte[]				ZeroHash { get; }
+		public virtual byte[]				ZeroSignature => new byte[SignatureSize];
+		public virtual byte[]				ZeroHash  => new byte[HashSize];
 
 		public abstract byte[]				Sign(AccountKey pk, byte[] hash);
 		public abstract AccountAddress		AccountFrom(byte[] signature, byte[] hash);
@@ -60,7 +60,6 @@ namespace Uccs.Net
 
 	public class NoCryptography : Cryptography
 	{
-		public override byte[]	ZeroHash => new byte[HashSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 		public override byte[] Sign(AccountKey k, byte[] h)
 		{
@@ -114,8 +113,6 @@ namespace Uccs.Net
 
 	public class EthereumCryptography : Cryptography
 	{
-		public override byte[]	ZeroHash => new byte[HashSize] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
 		static KeyStoreService	service;
 
 		static EthereumCryptography()

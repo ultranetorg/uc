@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Numerics;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -34,12 +31,12 @@ namespace Uccs.Net
 			//public Seed[]				Seeds = {};
 			public HubStatus			Status = HubStatus.Estimating;
 			SeedCollector				Collector;
-			byte[]						Hash;
+			ReleaseAddress				Address;
 
-			public Hub(SeedCollector collector, byte[] hash, AccountAddress member, IEnumerable<IPAddress> ips)
+			public Hub(SeedCollector collector, ReleaseAddress hash, AccountAddress member, IEnumerable<IPAddress> ips)
 			{
 				Collector = collector;
-				Hash = hash;
+				Address = hash;
 				Member = member;
 				IPs = ips.ToArray();
 
@@ -48,7 +45,7 @@ namespace Uccs.Net
 									{
 										try
 										{
-											var lr = Collector.Sun.Call(IPs.Random(), p => p.LocateRelease(Hash, 16), Collector.Workflow);
+											var lr = Collector.Sun.Call(IPs.Random(), p => p.LocateRelease(Address, 16), Collector.Workflow);
 	
 											lock(Collector.Lock)
 											{
@@ -83,10 +80,10 @@ namespace Uccs.Net
 		DateTime					MembersRefreshed = DateTime.MinValue;
 		MembersResponse.Member[]	Members;
 
-		public SeedCollector(Sun sun, byte[] hash, Workflow workflow)
+		public SeedCollector(Sun sun, ReleaseAddress address, Workflow workflow)
 		{
 			Sun = sun;
-			Workflow = workflow.CreateNested($"SeedCollector {hash.ToHex()}");
+			Workflow = workflow.CreateNested($"SeedCollector {address}");
 			Hub hlast = null;
 
  			Thread = sun.CreateThread(() =>	{ 
@@ -111,7 +108,7 @@ namespace Uccs.Net
 		
 													lock(Lock)
 													{
-														var nearest = Members.OrderByNearest(hash).Take(ResourceHub.MembersPerDeclaration);
+														var nearest = Members.OrderByNearest(address.Hash).Take(ResourceHub.MembersPerDeclaration);
 			
 														for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 														{
@@ -119,7 +116,7 @@ namespace Uccs.Net
 														
 															if(h != null)
 															{
-																hlast = new Hub(this, hash, h.Account, h.SeedHubRdcIPs);
+																hlast = new Hub(this, address, h.Account, h.SeedHubRdcIPs);
 																Hubs.Add(hlast);
 															}
 															else

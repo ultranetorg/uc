@@ -27,7 +27,7 @@ namespace Uccs.Net
 
 		public string AddressToPath(PackageAddress release)
 		{
-			return Path.Join(ProductsPath, $"{release.APR}{Path.DirectorySeparatorChar}{release.Hash.ToHex()}");
+			return Path.Join(ProductsPath, $"{release.APR}{Path.DirectorySeparatorChar}{release.Release}");
 		}
 
 		public PackageAddress PathToAddress(string path)
@@ -39,19 +39,19 @@ namespace Uccs.Net
 			var b = path.Substring(i + 1);
 			var h = b.Substring(0, b.IndexOf(Path.DirectorySeparatorChar));
 
-			return new PackageAddress(apr[0], apr[1], apr[2], h.FromHex());
+			return new PackageAddress(apr[0], apr[1], apr[2], ReleaseAddress.Parse(h));
 		}
 
-		public History GetHistory(ResourceAddress resource)
-		{
-			return Sun.ResourceHub.Find(resource).LastAs<History>();
-		}
+		//public History GetHistory(ResourceAddress resource)
+		//{
+		//	return Sun.ResourceHub.Find(resource).LastAs<History>();
+		//}
 
-		IEnumerable<LocalPackage> PreviousIncrementals(PackageAddress package, byte[] incrementalminimal)
+		IEnumerable<LocalPackage> PreviousIncrementals(PackageAddress package, ReleaseAddress incrementalminimal)
 		{
-			return Find(package).History.Releases	.TakeWhile(i => !i.Hash.SequenceEqual(package.Hash))
-													.SkipWhile(i => !i.Hash.SequenceEqual(incrementalminimal))
-													.Select(i => Find(package.ReplaceHash(i.Hash)))
+			return Find(package).Manifest.History	//.TakeWhile(i => !i.SequenceEqual(package.Hash))
+													.SkipWhile(i => i != incrementalminimal)
+													.Select(i => Find(package.ReplaceHash(i)))
 													.Where(i => i is not null);
 		}
 
@@ -83,7 +83,7 @@ namespace Uccs.Net
 
 			lock(Sun.ResourceHub.Lock)
 			{
-				p = new LocalPackage(this, package, Sun.ResourceHub.Find(package) ?? Sun.ResourceHub.Add(package), Sun.ResourceHub.Find(package.Hash) ?? Sun.ResourceHub.Add(package.Hash, DataType.Package));
+				p = new LocalPackage(this, package, Sun.ResourceHub.Find(package) ?? Sun.ResourceHub.Add(package), Sun.ResourceHub.Find(package.Release) ?? Sun.ResourceHub.Add(package.Release, DataType.Package));
 			}
 
 			Packages.Add(p);
@@ -106,8 +106,8 @@ namespace Uccs.Net
  
  				if(r != null)
  				{
- 					var h = r.LastAs<History>().Releases.Last().Hash;
- 					p = new LocalPackage(this, new PackageAddress(resource, h), r, Sun.ResourceHub.Find(h));
+ 					var s = r.LastAs<ReleaseAddress>();
+ 					p = new LocalPackage(this, new PackageAddress(resource, s), r, Sun.ResourceHub.Find(s));
  	
  					Packages.Add(p);
  	
@@ -128,7 +128,7 @@ namespace Uccs.Net
 			lock(Sun.ResourceHub.Lock)
 			{
 				var rs = Sun.ResourceHub.Find(package);
-				var rl = Sun.ResourceHub.Find(package.Hash);
+				var rl = Sun.ResourceHub.Find(package.Release);
 
 				if(rs != null && rl != null)
 				{
@@ -182,7 +182,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public void BuildIncremental(Stream stream, ResourceAddress package, byte[] previous, IDictionary<string, string> files, Workflow workflow)
+		public void BuildIncremental(Stream stream, ResourceAddress package, ReleaseAddress previous, IDictionary<string, string> files, Workflow workflow)
 		{
 			var rems = new List<string>();
 			var incs = new Dictionary<string, string>();
@@ -287,7 +287,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public void AddRelease(ResourceAddress resource, IEnumerable<string> sources, string dependenciespath, byte[] previous, Workflow workflow)
+		public ReleaseAddress AddRelease(ResourceAddress resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddress[] history, ReleaseAddress previous, ReleaseAddressCreator addresscreator, Workflow workflow)
 		{
 			var cstream = new MemoryStream();
 			var istream = (MemoryStream)null;
@@ -340,7 +340,7 @@ namespace Uccs.Net
 				m.CompleteHash		= Sun.ResourceHub.Zone.Cryptography.HashFile(cstream.ToArray());
 				m.IncrementalHash	= istream != null ? Sun.ResourceHub.Zone.Cryptography.HashFile(istream.ToArray()) : null;
 
-				if(previous != null)
+				if(previous != null) /// a single parent supported only
 				{
 					var pm = new Manifest();
 					pm.Read(new BinaryReader(new MemoryStream(Sun.ResourceHub.Find(previous).ReadFile(LocalPackage.ManifestFile))));
@@ -350,25 +350,45 @@ namespace Uccs.Net
 												RemovedDependencies	= pm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() };
 					
 					m.Parents = new ParentPackage[] {d};
+					m.History = history.Append(previous).ToArray();
 				}
 
 				var h = Sun.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
+
+				var a = addresscreator.Create(Sun, h);
  				
-				var p = Get(new PackageAddress(resource, h));
-				p.AddRelease(h);
+				var p = Get(new PackageAddress(resource, a));
+				p.AddRelease(a);
  				
-				var r = Sun.ResourceHub.Find(h);
+				var r = Sun.ResourceHub.Find(a);
 				 
  				r.AddCompleted(LocalPackage.ManifestFile, m.Raw);
 				r.AddCompleted(LocalPackage.CompleteFile, cstream.ToArray());
 
 				if(istream != null)
 					r.AddCompleted(LocalPackage.IncrementalFile, istream.ToArray());
-				
+
 				r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
 
-				workflow.Log?.Report(this, $"Manifest Hash: {h.ToHex()}");
+				workflow.Log?.Report(this, $"Address: {a}");
+
+				return a;
  			}
+		}
+
+		public ReleaseAddress AddRelease(ResourceAddress resource, IEnumerable<string> sources, string dependenciespath, ReleaseAddressCreator addresscreator, Workflow workflow)
+		{
+			var r = Sun.ResourceHub.Find(resource);
+			var m = new Manifest();
+		
+			if(r != null)
+			{
+				var c = Sun.ResourceHub.Find(r.LastAs<ReleaseAddress>());
+				
+				m.Read(new BinaryReader(new MemoryStream(c.ReadFile("m"))));
+			}
+		
+			 return AddRelease(resource, sources, dependenciespath, m.History, r?.LastAs<ReleaseAddress>(), addresscreator, workflow);
 		}
 
 		public Deployment Deploy(PackageAddress package, Workflow workflow)
@@ -492,16 +512,6 @@ namespace Uccs.Net
 							});
 
 			return d;
-		}
-
-		public void Add(ResourceAddress resource, IEnumerable<string> sources, string dependenciespath, Workflow workflow)
-		{
-			//var qlatest = Sun.Call(p => p.QueryResource($"{release.APR}/"), workflow);
-			//var previos = qlatest.Resources.OrderBy(i => PackageAddress.ParseVesion(i.Resource)).FirstOrDefault();
-
-			var r = Sun.ResourceHub.Find(resource);
-
-			AddRelease(resource, sources, dependenciespath, r?.LastAs<History>().Releases.Last().Hash, workflow);
 		}
 
 		public PackageDownload Download(PackageAddress package, Workflow workflow)

@@ -12,14 +12,13 @@ namespace Uccs.Net
 		public ResourceChanges		Changes	{ get; set; }
 		public byte					Years { get; set; }
 		public ResourceFlags		Flags { get; set; }
-		public byte[]				Data { get; set; }
+		public ResourceData			Data { get; set; }
 		public string				Parent { get; set; }
 
 		public override bool		Valid=>	(Flags & ResourceFlags.Unchangables) == 0
 											//&& (!Changes.HasFlag(ResourceChanges.Years) || Changes.HasFlag(ResourceChanges.Years) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax)
-											&& (!Changes.HasFlag(ResourceChanges.Data) || Changes.HasFlag(ResourceChanges.Data) && (Data == null || Data.Length <= Net.Resource.DataLengthMax))
-											;
-		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
+											&& (!Changes.HasFlag(ResourceChanges.Data) || (Data == null || Data.Value.Length <= Net.Resource.DataLengthMax));
+		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ResourceUpdation()
 		{
@@ -36,10 +35,13 @@ namespace Uccs.Net
 			Changes |= ResourceChanges.Flags;
 		}
 
-		public void Change(byte[] data)
+		public void Change(ResourceData data)
 		{
 			Data = data;
 			Changes |= ResourceChanges.Data;
+
+			if(data != null)
+				Changes |= ResourceChanges.NonEmtpyData;
 		}
 
 		public void Change(string parent)
@@ -58,10 +60,9 @@ namespace Uccs.Net
 			Resource = reader.Read<ResourceAddress>();
 			Changes = (ResourceChanges)reader.ReadByte();
 			
-			//if(Changes.HasFlag(ResourceChanges.Years))			Years = reader.ReadByte();
-			if(Changes.HasFlag(ResourceChanges.Flags))			Flags = (ResourceFlags)reader.ReadByte();
-			if(Changes.HasFlag(ResourceChanges.Data))			Data = reader.ReadBytes();
-			if(Changes.HasFlag(ResourceChanges.Parent))			Parent = reader.ReadUtf8();
+			if(Changes.HasFlag(ResourceChanges.Flags))													Flags = (ResourceFlags)reader.ReadByte();
+			if(Changes.HasFlag(ResourceChanges.Data) && Changes.HasFlag(ResourceChanges.NonEmtpyData))	Data = reader.Read<ResourceData>();
+			if(Changes.HasFlag(ResourceChanges.Parent))													Parent = reader.ReadUtf8();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -69,10 +70,9 @@ namespace Uccs.Net
 			writer.Write(Resource);
 			writer.Write((byte)Changes);
 
-			//if(Changes.HasFlag(ResourceChanges.Years))			writer.Write(Years);
-			if(Changes.HasFlag(ResourceChanges.Flags))			writer.Write((byte)Flags);
-			if(Changes.HasFlag(ResourceChanges.Data))			writer.WriteBytes(Data);
-			if(Changes.HasFlag(ResourceChanges.Parent))			writer.WriteUtf8(Parent);
+			if(Changes.HasFlag(ResourceChanges.Flags))													writer.Write((byte)Flags);
+			if(Changes.HasFlag(ResourceChanges.Data) && Changes.HasFlag(ResourceChanges.NonEmtpyData))	writer.Write(Data);
+			if(Changes.HasFlag(ResourceChanges.Parent))													writer.WriteUtf8(Parent);
 		}
 
 		public override void Execute(Mcv chain, Round round)
@@ -173,24 +173,24 @@ namespace Uccs.Net
 	
 				if(Changes.HasFlag(ResourceChanges.Data))
 				{
-					if(Data != null && Data.Length > 0)
+					if(Data != null)
 					{
 						r.Flags |= ResourceFlags.Data;
 						r.Data = Data;
 	
-						if(a.SpaceReserved < a.SpaceUsed + r.Data.Length)
+						if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
 						{
 							var y = (byte)((a.Expiration.Days - round.ConfirmedTime.Days) / 365 + 1);
 
 							if(y < 0)
 								throw new IntegrityException();
 
-							PayForResourceData(round, a.SpaceUsed + r.Data.Length - a.SpaceReserved, y);
+							PayForResourceData(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
 
-							a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Length);
+							a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
 							a.SpaceReserved	= a.SpaceUsed;
 						}
-					} 
+					}
 					else
 						r.Flags &= ~ResourceFlags.Data;
 				}

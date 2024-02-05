@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using System.Threading;
 
 namespace Uccs.Net
 {
@@ -19,18 +15,19 @@ namespace Uccs.Net
 
 	public class ReleaseBuildCall : SunApiCall
 	{
-		public ResourceAddress		Resource { get; set; }
-		public IEnumerable<string>	Sources { get; set; }
-		public string				FilePath { get; set; }
+		public ResourceAddress			Resource { get; set; }
+		public IEnumerable<string>		Sources { get; set; }
+		public string					FilePath { get; set; }
+		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
 				if(FilePath != null)
-					return sun.ResourceHub.Build(Resource, FilePath, workflow).Hash;
+					return sun.ResourceHub.Add(Resource, FilePath, AddressCreator, workflow).Address;
 				else if(Sources != null && Sources.Any())
-					return sun.ResourceHub.Build(Resource, Sources, workflow).Hash;
+					return sun.ResourceHub.Add(Resource, Sources, AddressCreator, workflow).Address;
 			}
 
 			return null;
@@ -39,8 +36,8 @@ namespace Uccs.Net
 
 	public class ReleaseDownloadCall : SunApiCall
 	{
-		public byte[]		Release { get; set; }
-		public DataType		Type { get; set; }
+		public ReleaseAddress	Address { get; set; }
+		public DataType			Type { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
@@ -48,13 +45,13 @@ namespace Uccs.Net
 			{
 				if(Type == DataType.File)
 				{
-					var r = sun.ResourceHub.Find(Release) ?? sun.ResourceHub.Add(Release, Type);
-					sun.ResourceHub.DownloadFile(r, "f", Release, null, workflow);
+					var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address, Type);
+					sun.ResourceHub.DownloadFile(r, "f", Address.Hash, null, workflow);
 					return null;
 				}
 				else if(Type == DataType.Directory)
 				{
-					var r = sun.ResourceHub.Find(Release) ?? sun.ResourceHub.Add(Release, Type);
+					var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address, Type);
 					sun.ResourceHub.DownloadDirectory(r, workflow);
 					return null;
 				}
@@ -66,7 +63,7 @@ namespace Uccs.Net
 	
 	public class ReleaseActivityProgressCall : SunApiCall
 	{
-		public byte[] Release { get; set; }
+		public ReleaseAddress Release { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
@@ -146,7 +143,7 @@ namespace Uccs.Net
 	
 	public class LocalReleaseCall : SunApiCall
 	{
-		public byte[]		Address { get; set; }
+		public ReleaseAddress		Address { get; set; }
 
 		public class File
 		{
@@ -182,12 +179,12 @@ namespace Uccs.Net
 
 		public class Release
 		{
-			public byte[]							Hash { get; set; }
-			public DataType							Type { get; set; }
-			public List<MembersResponse.Member>		DeclaredOn { get; set; }
-			public Availability						Availability { get; set; }
-			public File[]							Files { get; set; }
-			public string							Path { get; set; }
+			public byte[]						Hash { get; set; }
+			public DataType						Type { get; set; }
+			public MembersResponse.Member[]		DeclaredOn { get; set; }
+			public Availability					Availability { get; set; }
+			public File[]						Files { get; set; }
+			public string						Path { get; set; }
 
 			public Release()
 			{
@@ -195,9 +192,9 @@ namespace Uccs.Net
 
 			public Release(LocalRelease release)
 			{
-				Hash		= release.Hash;
+				Hash		= release.Address.Hash;
 				Type		= release.Type;
-				DeclaredOn	= release.DeclaredOn;
+				DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
 				Availability= release.Availability;
 				Files		= release.Files.Select(i => new File(i)).ToArray();
 				Path		= release.Path;
@@ -208,9 +205,9 @@ namespace Uccs.Net
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
-				var r = sun.ResourceHub.Releases.Find(i => i.Hash.SequenceEqual(Address));
+				var r = sun.ResourceHub.Find(Address);
 
-				return r != null ? new Release(r) : r;
+				return r != null ? new Release(r) : null;
 			}
 		}
 	}

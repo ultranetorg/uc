@@ -67,13 +67,13 @@ namespace Uccs.Net
 			Task = Task.Run(() =>	{
 										try
 										{
-											History hst = null;
+											ReleaseAddress last = null;
 	
 											while(workflow.Active)
 											{
 												try
 												{
-													hst = new History(ResourceData.SkipHeader(sun.Call(c => c.FindResource(package.Address), workflow).Resource.Data));
+													last = sun.Call(c => c.FindResource(package.Address), workflow).Resource.Data.Interpretation as ReleaseAddress;
 													break;
 												}
 												catch(EntityException)
@@ -82,15 +82,15 @@ namespace Uccs.Net
 												}
 											}
 	
-											SeedCollector = new SeedCollector(sun, package.Address.Hash, workflow);
+											SeedCollector = new SeedCollector(sun, package.Address.Release, workflow);
 	
 											lock(sun.PackageHub.Lock)
 											{
 												///Package = sun.PackageHub.Get(package);
-												Package.Resource.AddData(DataType.Package, hst);
+												Package.Resource.AddData(DataType.Package, last);
 											}
 		 									
-											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, package.Address.Hash, SeedCollector, workflow);
+											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, package.Address.Release.Hash, SeedCollector, workflow);
 	
 											bool incrementable;
 	

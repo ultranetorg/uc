@@ -8,10 +8,10 @@ namespace Uccs.Net
 {
 	public class AnalysisResultRegistration : Operation
 	{
-		public byte[]			Release { get; set; }
+		public ReleaseAddress	Release { get; set; }
 		public AnalysisResult	Result { get; set; }
 		
-		public override string	Description => $"Release={Release.ToHex()}, Result={Result}";
+		public override string	Description => $"Release={Release}, Result={Result}";
 		public override bool	Valid => true;
 
 		public AnalysisResultRegistration()
@@ -26,7 +26,7 @@ namespace Uccs.Net
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Release = reader.ReadHash();
+			Release = reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
 			Result = (AnalysisResult)reader.ReadByte();
 		}
 

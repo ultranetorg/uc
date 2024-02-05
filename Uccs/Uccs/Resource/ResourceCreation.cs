@@ -11,28 +11,26 @@ namespace Uccs.Net
 		public ResourceAddress		Resource { get; set; }
 		public ResourceChanges		Initials { get; set; }
 		public ResourceFlags		Flags { get; set; }
-		public byte[]				Data { get; set; }
+		public ResourceData			Data { get; set; }
 		public string				Parent { get; set; }
-		//public Money				AnalysisFee { get; set; }
 
-		public override bool		Valid => (Flags & ResourceFlags.Unchangables) == 0
-												&& (!Initials.HasFlag(ResourceChanges.Data)	|| Initials.HasFlag(ResourceChanges.Data) && Data.Length <= Net.Resource.DataLengthMax)
-											;
+		public override bool		Valid =>	(Flags & ResourceFlags.Unchangables) == 0
+												&& (!Initials.HasFlag(ResourceChanges.Data)	|| Data.Value.Length <= Net.Resource.DataLengthMax);
 		
-		public override string		Description => $"{Resource}, [{Initials}], [{Flags}]{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Hex.ToHexString(Data))}";
+		public override string		Description => $"{Resource}, [{Initials}], [{Flags}]{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Data)}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, byte[] data, string parent)
+		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data, string parent)
 		{
 			Resource = resource;
 			Flags = flags;
 
 			Initials |= (ResourceChanges.Flags);
 
-			if(data != null && data.Length > 0)
+			if(data != null)
 			{
 				Data = data;
 				Initials |= ResourceChanges.Data;
@@ -51,7 +49,7 @@ namespace Uccs.Net
 			Initials	= (ResourceChanges)reader.ReadByte();
 			Flags		= (ResourceFlags)reader.ReadByte();
 
-			if(Initials.HasFlag(ResourceChanges.Data))		Data = reader.ReadBytes();
+			if(Initials.HasFlag(ResourceChanges.Data))		Data = reader.Read<ResourceData>();
 			if(Initials.HasFlag(ResourceChanges.Parent))	Parent = reader.ReadUtf8();
 		}
 
@@ -61,7 +59,7 @@ namespace Uccs.Net
 			writer.Write((byte)Initials);
 			writer.Write((byte)Flags);
 
-			if(Initials.HasFlag(ResourceChanges.Data))		writer.WriteBytes(Data);
+			if(Initials.HasFlag(ResourceChanges.Data))		writer.Write(Data);
 			if(Initials.HasFlag(ResourceChanges.Parent))	writer.WriteUtf8(Parent);
 		}
 
@@ -128,11 +126,11 @@ namespace Uccs.Net
 				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
 
-				if(a.SpaceReserved < a.SpaceUsed + r.Data.Length)
+				if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
 				{
-					PayForResourceData(round, a.SpaceUsed + r.Data.Length - a.SpaceReserved, y);
+					PayForResourceData(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
 
-					a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Length);
+					a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
 					a.SpaceReserved	= a.SpaceUsed;
 	
 				}

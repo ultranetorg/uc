@@ -37,8 +37,11 @@ namespace Uccs.Sun.CLI
 			}
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
-				var m = Path.GetInvalidFileNameChars().Aggregate(MethodBase.GetCurrentMethod().Name, (c1, c2) => c1.Replace(c2, '_'));
-				File.WriteAllText(Path.Join(b.Profile, m + "." + Net.Sun.FailureExt), ex.ToString());
+				if(Command.ConsoleAvailable)
+					Console.WriteLine(ex.ToString());
+
+				Directory.CreateDirectory(b.Profile);
+				File.WriteAllText(Path.Join(b.Profile, "CLI." + Net.Sun.FailureExt), ex.ToString());
 			}
 
 			Sun?.Stop("The End");

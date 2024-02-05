@@ -2,7 +2,7 @@
 {
 	public class DownloadReleaseRequest : RdcRequest
 	{
-		public byte[]			Release { get; set; }
+		public ReleaseAddress	Address { get; set; }
 		public string			File { get; set; }
 		public long				Offset { get; set; }
 		public long				Length { get; set; }
@@ -14,7 +14,7 @@
 				if(sun.ResourceHub == null) 
 					throw new NodeException(NodeError.NotSeed);
 
-				var r = sun.ResourceHub.Find(Release);
+				var r = sun.ResourceHub.Find(Address);
 				
 				if(r == null || !r.IsReady(File)) 
 					throw new EntityException(EntityError.NotFound);

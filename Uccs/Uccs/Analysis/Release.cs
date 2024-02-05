@@ -31,9 +31,9 @@ namespace Uccs.Net
 		}
 	}
 
-	public class Analysis : IBinarySerializable
+	public class Release : IBinarySerializable
 	{
-		public byte[]			Release { get; set; }
+		public ReleaseAddress	Address { get; set; }
 		public Money			Fee { get; set; }
 		public int				StartedAt { get; set; }
 		public byte				Consil { get; set; }
@@ -41,7 +41,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Release		= reader.ReadHash();
+			Address		= reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
 			Fee			= reader.ReadMoney();
 			StartedAt	= reader.Read7BitEncodedInt();
 			Consil		= reader.ReadByte();
@@ -50,7 +50,7 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(Release);
+			writer.Write(Address);
 			writer.Write(Fee);
 			writer.Write7BitEncodedInt(StartedAt);
 			writer.Write(Consil);

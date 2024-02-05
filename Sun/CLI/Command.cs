@@ -173,6 +173,14 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
+		protected E GetEnum<E>(string paramenter, E def) where E : struct
+		{
+			if(Args.Has(paramenter))
+				return Enum.Parse<E>(Args.Get<string>(paramenter));
+			else
+				return def;
+		}
+
 		//protected AccountKey GetPrivate(string walletarg)
 		//{
 		//	string p = null;

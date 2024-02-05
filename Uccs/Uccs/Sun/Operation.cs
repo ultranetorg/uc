@@ -28,7 +28,7 @@ namespace Uccs.Net
 		AnalysisOrder, AnalysisResultRegistration
 	}
 
-	public abstract class Operation : ITypedBinarySerializable, IBinarySerializable
+	public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		public string			Error;
 		//public AccountAddress	Signer { get; set; }
@@ -137,16 +137,16 @@ namespace Uccs.Net
 			return round.AffectAuthor(author);
 		}
 
-		public AnalysisEntry Affect(Round round, byte[] release)
+		public ReleaseEntry Affect(Round round, ReleaseAddress release)
 		{
-			var e = round.Mcv.Analyses.Find(release, round.Id);	
+			var e = round.Mcv.Releases.Find(release, round.Id);	
 
 			if(e == null) /// new Analysis
 			{
 				PayForEnity(round, 1);
 			}
 
-			return round.AffectAnalysis(release);
+			return round.AffectRelease(release);
 		}
 	}
 

@@ -49,15 +49,17 @@ namespace Uccs.Net
 	{
 		None,
 		UnknownDataType,
+		UnknownAddressType,
 		BothResourceAndReleaseNotFound,
 		RequiredPackagesNotFound,
 		AlreadyExists,
 		DataTypeNotSupported,
 		Busy,
 		NotFound,
+		HashMismatch,
 	}
 
-	public abstract class SunException : Exception, ITypedBinarySerializable, IBinarySerializable 
+	public abstract class SunException : Exception, ITypeCode, IBinarySerializable 
 	{
 		public byte				TypeCode => (byte)Class;
 		public abstract int		ErrorCode {get; set;}

@@ -5,8 +5,8 @@ namespace Uccs.Net
 {
 	public class LocateReleaseRequest : RdcRequest
 	{
-		public byte[]	Hash { get; set; }
-		public int		Count { get; set; }
+		public ReleaseAddress	Address { get; set; }
+		public int				Count { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{

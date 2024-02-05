@@ -1,11 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Text.Json;
 using Xunit;
 
 namespace Uccs.Net.Tests
 {
 	public static class AddressTests
 	{
+		static byte[] RandomBytes(int n)
+		{
+			var b = new byte[n];
+			Cryptography.Random.NextBytes(b);
+			return b;
+		}
+
 		[Fact]
 		public static void HashAnfEqual()
 		{
@@ -19,6 +29,37 @@ namespace Uccs.Net.Tests
 				Assert.True(p.ContainsKey(ResourceAddress.Parse("a/p/r/0.0.0")));
 				Assert.False(p.ContainsKey(ResourceAddress.Parse("a/p/r/0.0.1")));
 			}
+		}
+
+		[Fact]
+		public static void Release()
+		{
+			var a = new HashAddress { Hash = RandomBytes(32) };
+			var ac = new HashAddress{ Hash = a.Hash.ToArray() };
+			var b = new HashAddress { Hash = RandomBytes(32) };
+			 
+			var x = new ProvingAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var xc = new ProvingAddress{ Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
+			var y = new ProvingAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
+
+			Assert.True(a == ac && a != b &&
+						x == xc && x != y &&
+						a != x && ac != xc);
+
+			var l = new List<ReleaseAddress> {a, x};
+
+			Assert.True(l.Contains(a));
+			Assert.True(l.Contains(ac));
+			Assert.False(l.Contains(b));
+
+			Assert.True(l.Contains(x));
+			Assert.True(l.Contains(xc));
+			Assert.False(l.Contains(y));
+
+			Assert.True(a == ReleaseAddress.Parse(a.ToString()));
+
+			Assert.True(a == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)a, JsonApiClient.Options), JsonApiClient.Options));
+			Assert.True(x == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)x, JsonApiClient.Options), JsonApiClient.Options));
 		}
 
 		//[Theory]

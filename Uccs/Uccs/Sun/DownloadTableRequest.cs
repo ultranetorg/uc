@@ -25,7 +25,7 @@ namespace Uccs.Net
 							  {
 									Tables.Accounts	=> sun.Mcv.Accounts.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
 									Tables.Authors	=> sun.Mcv.Authors.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
-									Tables.Analyses	=> sun.Mcv.Analyses.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
+									Tables.Analyses	=> sun.Mcv.Releases.Clusters.Find(i => i.Id.SequenceEqual(ClusterId))?.Main,
 									_ => throw new RequestException(RequestError.IncorrectRequest)
 							  };
 

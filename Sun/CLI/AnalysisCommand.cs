@@ -29,7 +29,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AnalysisOrder {Release = Args.Nodes[1].Name.FromHex(), Fee = GetMoney("fee")};
+					return new AnalysisOrder {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Fee = GetMoney("fee")};
 				}
 
 				case "r" :
@@ -37,7 +37,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AnalysisResultRegistration {Release = Args.Nodes[1].Name.FromHex(), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
+					return new AnalysisResultRegistration {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
 				}
 
 				case "e" : 
@@ -45,7 +45,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = Args.Nodes[1].Name.FromHex()});
+					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
 	
 					Dump(rp.Analysis);
 						

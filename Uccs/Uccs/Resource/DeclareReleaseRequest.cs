@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class DeclareReleaseRequest : RdcRequest//, IBinarySerializable
 	{
@@ -22,12 +17,12 @@ namespace Uccs.Net
 
 	public enum DeclarationResult
 	{
-		None, Accepted, ResourceNotFound, ReleaseNotFound, NotNearest
+		None, Accepted, ResourceNotFound, ReleaseNotFound, NotRelease, NotNearest, 
 	}
 
 	public class ReleaseDeclarationResult
 	{
-		public byte[]				Hash { get; set; }
+		public ReleaseAddress		Address { get; set; }
 		public DeclarationResult	Result { get; set; }	
 	}
 

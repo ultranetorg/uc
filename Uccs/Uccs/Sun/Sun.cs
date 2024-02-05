@@ -194,10 +194,11 @@ namespace Uccs.Net
 			if(t == typeof(Transaction)) return new Transaction {Zone = Zone};
 			if(t == typeof(Vote)) return new Vote(Mcv);
 			if(t == typeof(Manifest)) return new Manifest();
-			if(t == typeof(RdcRequest) || t.IsSubclassOf(typeof(RdcRequest))) return RdcRequest.FromType((Rdc)b); 
-			if(t == typeof(RdcResponse) || t.IsSubclassOf(typeof(RdcResponse))) return RdcResponse.FromType((Rdc)b); 
-			if(t == typeof(Operation) || t.IsSubclassOf(typeof(Operation))) return Operation.FromType((OperationClass)b); 
-			if(t == typeof(SunException) || t.IsSubclassOf(typeof(SunException))) return SunException.FromType((ExceptionClass)b); 
+			if(t == typeof(RdcRequest) || t.IsSubclassOf(typeof(RdcRequest)))			return RdcRequest.FromType((Rdc)b); 
+			if(t == typeof(RdcResponse) || t.IsSubclassOf(typeof(RdcResponse)))			return RdcResponse.FromType((Rdc)b); 
+			if(t == typeof(Operation) || t.IsSubclassOf(typeof(Operation)))				return Operation.FromType((OperationClass)b); 
+			if(t == typeof(SunException) || t.IsSubclassOf(typeof(SunException)))		return SunException.FromType((ExceptionClass)b); 
+			if(t == typeof(ReleaseAddress) || t.IsSubclassOf(typeof(ReleaseAddress)))	return ReleaseAddress.FromType(b); 
 
 			return null;
 		}
@@ -1011,8 +1012,8 @@ namespace Uccs.Net
 																															return !c || !Mcv.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
 																			Tables.Analyses => stamp.Analyses.Where(i =>{
-																															var c = Mcv.Analyses.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Mcv.Analyses.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																															var c = Mcv.Releases.SuperClusters.ContainsKey(i.Id);
+																															return !c || !Mcv.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
 																			_ => throw new SynchronizationException("Unknown table recieved after GetTableStamp")
 																		}
@@ -1058,7 +1059,7 @@ namespace Uccs.Net
 		
 						download<AccountEntry, AccountAddress>(Mcv.Accounts);
 						download<AuthorEntry, string>(Mcv.Authors);
-						download<AnalysisEntry, byte[]>(Mcv.Analyses);
+						download<ReleaseEntry, ReleaseAddress>(Mcv.Releases);
 		
 						var r = new Round(Mcv) {Confirmed = true};
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));

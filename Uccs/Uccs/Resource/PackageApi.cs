@@ -8,33 +8,36 @@ namespace Uccs.Net
 { 
 	public class PackageAddCall : SunApiCall
 	{
-		public ResourceAddress	Resource { get; set; }
-		public byte[]			Complete { get; set; }
-		public byte[]			Incremental { get; set; }
-		public byte[]			Manifest { get; set; }
+		public ResourceAddress			Resource { get; set; }
+		public byte[]					Complete { get; set; }
+		public byte[]					Incremental { get; set; }
+		public byte[]					Manifest { get; set; }
+		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			var h = sun.Zone.Cryptography.HashFile(Manifest);
-			
+			var a = AddressCreator.Create(sun, h);
+
 			lock(sun.PackageHub.Lock)
 			{
-				var p = sun.PackageHub.Get(new (Resource, h));
-				p.AddRelease(h);
+				var p = sun.PackageHub.Get(new (Resource, a));
 				
 				lock(sun.ResourceHub.Lock)
 				{
-					var rl = sun.ResourceHub.Find(h);
+					p.AddRelease(a);
+					
+					var rl = sun.ResourceHub.Find(a);
 	
 					if(rl == null)
 					{
-						rl.AddCompleted(Net.LocalPackage.ManifestFile, Manifest);
+						rl.AddCompleted(LocalPackage.ManifestFile, Manifest);
 			
 						if(Complete != null)
-							rl.AddCompleted(Net.LocalPackage.CompleteFile, Complete);
+							rl.AddCompleted(LocalPackage.CompleteFile, Complete);
 		
 						if(Incremental != null)
-							rl.AddCompleted(Net.LocalPackage.IncrementalFile, Incremental);
+							rl.AddCompleted(LocalPackage.IncrementalFile, Incremental);
 										
 						rl.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
 					}
@@ -47,15 +50,17 @@ namespace Uccs.Net
 
 	public class PackageBuildCall : SunApiCall
 	{
-		public ResourceAddress		Resource { get; set; }
-		public IEnumerable<string>	Sources { get; set; }
-		public string				DependenciesPath { get; set; }
-		public byte[]				Previous { get; set; }
+		public ResourceAddress			Resource { get; set; }
+		public IEnumerable<string>		Sources { get; set; }
+		public string					DependenciesPath { get; set; }
+		public ReleaseAddress			Previous { get; set; }
+		public ReleaseAddress[]			History { get; set; }
+		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
 			lock(sun.PackageHub.Lock)
-				sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, workflow);
+				sun.PackageHub.AddRelease(Resource, Sources, DependenciesPath, History, Previous, AddressCreator, workflow);
 
 			return null;
 		}

@@ -19,8 +19,8 @@ namespace Uccs.Net
 		Manifest				_Manifest;
 		public object			Activity;
 
-		public HistoryRelease	HistoryRelease => History.Releases.First(i => i.Hash.SequenceEqual(Address.Hash));
-		public History			History => Hub.Sun.ResourceHub.Find(Address).LastAs<History>();
+		//public HistoryRelease	HistoryRelease => History.Releases.First(i => i.Hash.SequenceEqual(Address.Hash));
+		//public History			History => Hub.Sun.ResourceHub.Find(Address).LastAs<History>();
 
 		public Manifest	Manifest
 		{
@@ -71,13 +71,13 @@ namespace Uccs.Net
 			return Address.ToString();
 		}
 
-		public void AddRelease(byte[] hash)
+		public void AddRelease(ReleaseAddress address)
 		{
-			var h = History == null ? new History {Releases = new()} : new History(History.Raw);
-
-			h.Releases.Add(new HistoryRelease {Hash = hash});
+			//var h = History == null ? new History {Releases = new()} : new History(History.Raw);
+			//
+			//h.Releases.Add(new HistoryRelease {Hash = hash});
 			
-			Resource.AddData(DataType.Package, h);
+			Resource.AddData(DataType.Package, address);
 		}
 	}
 }

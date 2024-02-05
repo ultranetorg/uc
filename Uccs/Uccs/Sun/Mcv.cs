@@ -48,11 +48,11 @@ namespace Uccs.Net
 		static readonly byte[]				GenesisKey = new byte[] {0x04};
 		public AccountTable					Accounts;
 		public AuthorTable					Authors;
-		public AnalysisTable				Analyses;
+		public ReleaseTable				Releases;
 		public int							Size => BaseState == null ? 0 : (BaseState.Length + 
 																			Accounts.Clusters.Sum(i => i.MainLength) +
 																			Authors.Clusters.Sum(i => i.MainLength) +
-																			Analyses.Clusters.Sum(i => i.MainLength));
+																			Releases.Clusters.Sum(i => i.MainLength));
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Commited;
@@ -84,9 +84,9 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (AnalysisTable.MetaColumnName,	new ()),
-																new (AnalysisTable.MainColumnName,	new ()),
-																new (AnalysisTable.MoreColumnName,	new ()),
+																new (ReleaseTable.MetaColumnName,	new ()),
+																new (ReleaseTable.MainColumnName,	new ()),
+																new (ReleaseTable.MoreColumnName,	new ()),
 																new (Mcv.ChainFamilyName,			new ())})
 				cfs.Add(i);
 
@@ -94,9 +94,9 @@ namespace Uccs.Net
 
 			Accounts = new (this);
 			Authors = new (this);
-			Analyses = new (this);
+			Releases = new (this);
 
-			BaseHash = Zone.Cryptography.ZeroHash;
+			BaseHash = zone.Cryptography.ZeroHash;
 
 			var g = Database.Get(GenesisKey);
 
@@ -217,7 +217,7 @@ namespace Uccs.Net
 			LoadedRounds.Clear();
 			Accounts.Clear();
 			Authors.Clear();
-			Analyses.Clear();
+			Releases.Clear();
 
 			Database.Remove(BaseStateKey);
 			Database.Remove(__BaseHashKey);
@@ -496,7 +496,7 @@ namespace Uccs.Net
 	
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Analyses.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
+			foreach(var i in Releases.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
 		public byte[] Summarize(Round round)
@@ -657,7 +657,7 @@ namespace Uccs.Net
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
-			round.AffectedAnalyses.Clear();
+			round.AffectedReleases.Clear();
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
@@ -840,7 +840,7 @@ namespace Uccs.Net
 					{
 						Accounts.Save(b, i.AffectedAccounts.Values);
 						Authors.Save(b, i.AffectedAuthors.Values);
-						Analyses.Save(b, i.AffectedAnalyses.Values);
+						Releases.Save(b, i.AffectedReleases.Values);
 					}
 	
 					LastCommittedRound = tail.Last();

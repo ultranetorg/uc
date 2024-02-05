@@ -32,10 +32,34 @@ namespace Uccs.Sun.CLI
 				case "c" :
 				case "create" :
 				{
+					ReleaseAddress p = null;
+					Manifest m = null;
+
+					try
+					{
+						p = Args.Has("previous") ? ReleaseAddress.FromRaw(GetHexBytes("previous"))
+												 : Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
+						
+						if(p != null)
+						{
+							m = Api<PackageInfo>(new PackageInfoCall {Package = new PackageAddress(ResourceAddress.Parse(Args.Nodes[1].Name), p)}).Manifest;
+						}
+					}
+					catch(EntityException ex) when(ex.Error == EntityError.NotFound)
+					{
+					}
+
+
 					Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
 												Sources			 = GetString("sources").Split(','), 
 												DependenciesPath = GetString("dependencies", false),
-												Previous		 = GetHexBytes("previous", false) });
+												Previous		 = p,
+												History			 = m?.History,
+												AddressCreator	 = new(){	
+																			Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.Hash),
+																			Owner = GetAccountAddress("owner", false),
+																			Resource = ResourceAddress.Parse(Args.Nodes[1].Name)
+																		} });
 					return null;
 				}
 

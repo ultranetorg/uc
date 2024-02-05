@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +11,7 @@ namespace Uccs.Net
 {
 	public class ReleaseDeclaration
 	{
-		public byte[]			Hash { get; set; }
+		public ReleaseAddress	Address { get; set; }
 		public Availability		Availability { get; set; }	
 	}
 
@@ -52,7 +50,7 @@ namespace Uccs.Net
 			Directory.CreateDirectory(ReleasesPath);
 
 			Releases = Directory.EnumerateDirectories(ReleasesPath)
-									.Select(z => new LocalRelease(this, Path.GetFileName(z).FromHex(), DataType.None))
+									.Select(z => new LocalRelease(this, ReleaseAddress.Parse(Path.GetFileName(z)), DataType.None))
 										.ToList();
 
 			if(sun != null && !sun.IsClient)
@@ -73,12 +71,27 @@ namespace Uccs.Net
 			return resource.Replace(' ', '/');
 		}
 
-		public LocalRelease Add(byte[] release, DataType type)
+		//public LocalRelease Add(byte[] address, DataType type)
+		//{
+		//	if(Releases.Any(i => i.Address.Raw.SequenceEqual(address)))
+		//		throw new ResourceException(ResourceError.AlreadyExists);
+		//
+		//	var r = new LocalRelease(this, ReleaseAddress.FromRaw(address), type);
+		//	r.__StackTrace = new System.Diagnostics.StackTrace(true);
+		//
+		//	Releases.Add(r);
+		//
+		//	Directory.CreateDirectory(r.Path);
+		//
+		//	return r;
+		//}
+
+		public LocalRelease Add(ReleaseAddress address, DataType type)
 		{
-			if(Releases.Any(i => i.Hash.SequenceEqual(release)))
+			if(Releases.Any(i => i.Address == address))
 				throw new ResourceException(ResourceError.AlreadyExists);
 
-			var r = new LocalRelease(this, release, type);
+			var r = new LocalRelease(this, address, type);
 			r.__StackTrace = new System.Diagnostics.StackTrace(true);
 	
 			Releases.Add(r);
@@ -102,18 +115,37 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public LocalRelease Find(byte[] hash)
+//		public LocalRelease Find(byte[] address)
+//		{
+//			var r = Releases.Find(i => i.Address.Raw.SequenceEqual(address));
+//
+//			if(r != null)
+//				return r;
+//
+//			var d = Sun.Database.Get(address, ReleaseFamily);
+//
+//			if(d != null)
+//			{
+//				r = new LocalRelease(this, ReleaseAddress.FromRaw(address), DataType.None);
+//				Releases.Add(r);
+//				return r;
+//			}
+//
+//			return null;
+//		}
+
+		public LocalRelease Find(ReleaseAddress address)
 		{
-			var r = Releases.Find(i => i.Hash.SequenceEqual(hash));
+			var r = Releases.Find(i => i.Address == address);
 
 			if(r != null)
 				return r;
 
-			var d = Sun.Database.Get(hash, ReleaseFamily);
+			var d = Sun.Database.Get(address.Raw, ReleaseFamily);
 
 			if(d != null)
 			{
-				r = new LocalRelease(this, hash, DataType.None);
+				r = new LocalRelease(this, address, DataType.None);
 				Releases.Add(r);
 				return r;
 			}
@@ -141,7 +173,7 @@ namespace Uccs.Net
 			return null;
 		}
 
-		public LocalRelease Build(ResourceAddress resource, IEnumerable<string> sources, Workflow workflow)
+		public LocalRelease Add(ResourceAddress resource, IEnumerable<string> sources, ReleaseAddressCreator address, Workflow workflow)
 		{
 			var files = new Dictionary<string, string>();
 			var index = new XonDocument(new XonBinaryValueSerializator());
@@ -200,8 +232,9 @@ namespace Uccs.Net
 			index.Save(new XonBinaryWriter(ms));
 
 			var h = Zone.Cryptography.HashFile(ms.ToArray());
+			var a = address.Create(Sun, h);
  				
-			var r = Add(h, DataType.Directory);
+			var r = Add(a, DataType.Directory);
 
 			r.AddCompleted(".index", ms.ToArray());
 
@@ -212,23 +245,24 @@ namespace Uccs.Net
 			
 			r.Complete(Availability.Full);
 			
-			(Find(resource) ?? Add(resource)).AddData(DataType.Directory, h);
+			(Find(resource) ?? Add(resource)).AddData(DataType.Directory, a);
 
 			return r;
 		}
 
-		public LocalRelease Build(ResourceAddress resource, string source, Workflow workflow)
+		public LocalRelease Add(ResourceAddress resource, string source, ReleaseAddressCreator address, Workflow workflow)
 		{
 			var b = File.ReadAllBytes(source);
 
 			var h = Zone.Cryptography.HashFile(b);
- 				
-			var r = Add(h, DataType.File);
+			var a = address.Create(Sun, h);
+ 			
+			var r = Add(a, DataType.File);
 
  			r.AddCompleted("f", b);
 			r.Complete(Availability.Full);
 			
-			(Find(resource) ?? Add(resource)).AddData(DataType.File, h);
+			(Find(resource) ?? Add(resource)).AddData(DataType.File, a);
 
 			return r;
 		}
@@ -275,12 +309,13 @@ namespace Uccs.Net
 						{
 							case DataType.File:
 							case DataType.Directory:
+							case DataType.Package:
 							{
-								var lr = Find(r.LastAs<byte[]>());
+								var lr = Find(r.LastAs<ReleaseAddress>());
 
 								if(lr != null && lr.Availability != Availability.None)
 								{
-									foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
+									foreach(var m in cr.Members.OrderByNearest(lr.Address.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Member.Account == m.Account)))
 									{
 										(ds.TryGetValue(m, out var x) ? x : (ds[m] = new()))[r.Address] = new() {lr};
 									}
@@ -288,19 +323,18 @@ namespace Uccs.Net
 								}
 								break;
 							}								
-							case DataType.Package:
-							{	
-								foreach(var lr in (r.LastAs<History>()).Releases.Select(i => Find(i.Hash)).Where(i => i is not null && i.Availability != Availability.None))
-								{
-									foreach(var m in cr.Members.OrderByNearest(lr.Hash).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
-									{
-										var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
-										(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
-									}
-								}
-
-								break;
-							}
+							//{	
+							//	foreach(var lr in r.Datas.Select(i => Find(i.Data)).Where(i => i is not null && i.Availability != Availability.None))
+							//	{
+							//		foreach(var m in cr.Members.OrderByNearest(lr.Address).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
+							//		{
+							//			var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
+							//			(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
+							//		}
+							//	}
+							//
+							//	break;
+							//}
 						}
 					}
 				}
@@ -327,14 +361,17 @@ namespace Uccs.Net
 
 					foreach(var i in ds)
 					{
+						foreach(var r in i.Value.SelectMany(i => i.Value))
+							r.DeclaredOn.Add(new Declaration {Member = i.Key, Status = DeclarationStatus.InProgress});
+
 						var t = Task.Run(() =>	{
 													DeclareReleaseResponse drr;
 
 													try
 													{
-														drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{	Resource = rs.Key, 
-																																																									Releases = rs.Value.Select(rl => new ReleaseDeclaration{Hash = rl.Hash, 
-																																																																							Availability  = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
+														drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key, 
+																																																								Releases = rs.Value.Select(rl => new ReleaseDeclaration{Address = rl.Address, 
+																																																																						Availability = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
 													}
 													catch(NodeException)
 													{
@@ -345,7 +382,9 @@ namespace Uccs.Net
 													{
 														foreach(var r in drr.Results)
 															if(r.Result == DeclarationResult.Accepted)
-																Find(r.Hash).DeclaredOn.Add(i.Key);
+																Find(r.Address).DeclaredOn.Find(j => j.Member.Account == i.Key.Account).Status = DeclarationStatus.Accepted;
+															else
+																Find(r.Address).DeclaredOn.RemoveAll(j => j.Member.Account == i.Key.Account);
 
 														tasks.Remove(i.Key.Account);
 													}

@@ -9,11 +9,12 @@ namespace Uccs
 {
 	public interface IBinarySerializable
 	{
-		void Read(BinaryReader reader);
 		void Write(BinaryWriter writer);
+		void Read(BinaryReader reader);
+
 	}
 
-	public interface ITypedBinarySerializable
+	public interface ITypeCode
 	{
 		byte TypeCode { get; }
 	}

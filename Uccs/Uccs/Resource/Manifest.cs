@@ -105,7 +105,7 @@ namespace Uccs.Net
 
 	public class ParentPackage : IBinarySerializable
 	{
-		public byte[]			Release { get; set; }
+		public ReleaseAddress	Release { get; set; }
 		public Dependency[]		AddedDependencies { get; set; }
 		public Dependency[]		RemovedDependencies { get; set; }
 
@@ -118,7 +118,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader r)
 		{
-			Release				= r.ReadHash();
+			Release				= ReleaseAddress.FromRaw(r);
 			AddedDependencies	= r.ReadArray<Dependency>();
 			RemovedDependencies = r.ReadArray<Dependency>();
 		}
@@ -130,6 +130,7 @@ namespace Uccs.Net
 		public Dependency[]				CompleteDependencies { get; set; }
 		public byte[]					IncrementalHash { get; set; }
 		public ParentPackage[]			Parents { get; set; }
+		public ReleaseAddress[]			History { get; set; }
 
 		public const string				Extension = "manifest";
 
@@ -177,6 +178,24 @@ namespace Uccs.Net
 			}
 
 			d.Save(filepath);
+		}
+
+		public void Write(BinaryWriter w)
+		{
+			w.Write(History);
+			w.WriteBytes(CompleteHash);
+			w.WriteBytes(IncrementalHash);
+			w.Write(CompleteDependencies);
+			w.Write(Parents);
+		}
+
+		public void Read(BinaryReader r)
+		{
+			History					= r.ReadArray(() => ReleaseAddress.FromRaw(r));
+			CompleteHash			= r.ReadBytes();
+			IncrementalHash			= r.ReadBytes();
+			CompleteDependencies	= r.ReadArray<Dependency>();
+			Parents					= r.ReadArray<ParentPackage>();
 		}
 
 // 		public void Save(string filepath)
@@ -234,21 +253,5 @@ namespace Uccs.Net
 // 
 // 			return d;		
 // 		}
-
-		public void Write(BinaryWriter w)
-		{
-			w.WriteBytes(CompleteHash);
-			w.WriteBytes(IncrementalHash);
-			w.Write(CompleteDependencies);
-			w.Write(Parents);
-		}
-
-		public void Read(BinaryReader r)
-		{
-			CompleteHash			= r.ReadBytes();
-			IncrementalHash			= r.ReadBytes();
-			CompleteDependencies	= r.ReadArray<Dependency>();
-			Parents					= r.ReadArray<ParentPackage>();
-		}
 	}
 }

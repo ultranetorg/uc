@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -108,19 +109,30 @@ namespace Uccs.Net
 		}
 	}
 
+	public enum DeclarationStatus
+	{
+		None, InProgress, Accepted
+	}
+
+	public class Declaration
+	{
+		public MembersResponse.Member	Member;
+		public DeclarationStatus		Status;
+	}
+
 	public class LocalRelease
 	{
-		public byte[]							Hash;
-		public List<MembersResponse.Member>		DeclaredOn = new();
-		public Availability						_Availability;
-		public DataType							_Type;
-		List<LocalFile>							_Files;
-		bool									Loaded;
-		ResourceHub								Hub;
-		public string							Path => System.IO.Path.Join(Hub.ReleasesPath, Hash.ToHex());
-		public object							Activity;
+		public ReleaseAddress			Address;
+		public List<Declaration>		DeclaredOn = new();
+		public string					Path => System.IO.Path.Join(Hub.ReleasesPath, Address.ToString());
+		public object					Activity;
+		Availability					_Availability;
+		DataType						_Type;
+		List<LocalFile>					_Files;
+		bool							Loaded;
+		ResourceHub						Hub;
 
-		public System.Diagnostics.StackTrace	__StackTrace;
+		public System.Diagnostics.StackTrace		__StackTrace;
 
 		public List<LocalFile> Files
 		{
@@ -149,16 +161,16 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalRelease(ResourceHub hub, byte[] hash, DataType type)	
+		public LocalRelease(ResourceHub hub, ReleaseAddress address, DataType type)	
 		{
 			Hub = hub;
-			Hash = hash;
+			Address = address;
 			_Type = type;
 		}
 
 		public override string ToString()
 		{
-			return $"{Hash.ToHex()}, Availability={Availability}, Files={{{Files?.Count}}}";
+			return $"{Address}, Availability={Availability}, Files={{{Files?.Count}}}";
 		}
 
 		public LocalFile AddEmpty(string path)
@@ -201,16 +213,16 @@ namespace Uccs.Net
 		{
 			if(!Loaded)
 			{
-				var d = Hub.Sun.Database.Get(Hash, Hub.ReleaseFamily);
+				var d = Hub.Sun.Database.Get(Address.Raw, Hub.ReleaseFamily);
 										
 				if(d != null)
 				{
 					var s = new MemoryStream(d);
 					var r = new BinaryReader(s);
 	
-					_Type = (DataType)r.ReadByte();
-					_Availability = (Availability)r.ReadByte();
-					_Files = r.Read(() => new LocalFile(this), f => f.Read(r)).ToList();
+					_Type			= (DataType)r.ReadByte();
+					_Availability	= (Availability)r.ReadByte();
+					_Files			= r.Read(() => new LocalFile(this), f => f.Read(r)).ToList();
 				}
 				else
 				{
@@ -232,7 +244,7 @@ namespace Uccs.Net
 				w.Write((byte)Availability);
 				w.Write(Files);
 
-				b.Put(Hash, s.ToArray(), Hub.ReleaseFamily);
+				b.Put(Address.Raw, s.ToArray(), Hub.ReleaseFamily);
 									
 				Hub.Sun.Database.Write(b);
 			}

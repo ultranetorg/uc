@@ -30,11 +30,16 @@ namespace Uccs.Sun.CLI
 					if(!Args.Has("source") && !Args.Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var h = Api<byte[]>(new ReleaseBuildCall{Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
-															 FilePath = GetString("source", null),
-															 Sources = GetString("sources", null)?.Split(',')});
+					var a = Api<ReleaseAddress>(new ReleaseBuildCall{Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
+																	 FilePath = GetString("source", null),
+																	 Sources = GetString("sources", null)?.Split(','),
+																	 AddressCreator = new()	{	
+																								Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.Hash),
+																								Owner = GetAccountAddress("owner", false),
+																								Resource = ResourceAddress.Parse(Args.Nodes[1].Name)
+																							} });
 
-					Workflow.Log?.Report(this, $"Hash={h.ToHex()}");
+					Workflow.Log?.Report(this, $"Address : {a}");
 
 					return null;
 				}
@@ -42,9 +47,9 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var h = Args.Nodes[1].Name.FromHex();
+					var a = ReleaseAddress.Parse(Args.Nodes[1].Name);
 
-					Api<byte[]>(new ReleaseDownloadCall {Release = h, Type = Enum.Parse<DataType>(GetString("type")) });
+					Api(new ReleaseDownloadCall {Address = a, Type = Enum.Parse<DataType>(GetString("type")) });
 
 					try
 					{
@@ -52,7 +57,7 @@ namespace Uccs.Sun.CLI
 						
 						while(Workflow.Active)
 						{
-							d = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = h});
+							d = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = a});
 
 							if(d == null)
 								break;
@@ -72,7 +77,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Api<LocalReleaseCall.Release>(new LocalReleaseCall {Address = Args.Nodes[1].Name.FromHex()});
+					var r = Api<LocalReleaseCall.Release>(new LocalReleaseCall {Address = ReleaseAddress.Parse(Args.Nodes[1].Name)});
 					
 					if(r != null)
 					{

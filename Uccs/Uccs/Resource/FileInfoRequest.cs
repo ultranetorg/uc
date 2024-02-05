@@ -2,8 +2,8 @@
 {
 	public class FileInfoRequest : RdcRequest
 	{
-		public byte[]		Release { get; set; }
-		public string		File { get; set; }
+		public ReleaseAddress	Release { get; set; }
+		public string			File { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{

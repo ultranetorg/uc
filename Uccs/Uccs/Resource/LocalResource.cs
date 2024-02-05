@@ -8,157 +8,6 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public class ResourceData : IBinarySerializable
-	{
-		public DataType		Type;
-		byte[]				_Data;
-		object				_Interpretation;
-		ResourceHub			Hub;
-
-		public byte[] Data
-		{
-			get
-			{
-				if(_Data == null)
-				{
-					var s = new MemoryStream();
-					var w = new BinaryWriter(s);
-			
-					Write(w);
-
-					_Data = s.ToArray();
-				}
-
-				return _Data;
-			}
-		}
-		
-		public object Interpretation
-		{
-			get
-			{
-				if(_Interpretation == null)
-				{
-					Read(new BinaryReader(new MemoryStream(Data)));
-				}
-
-				return _Interpretation;
-			}
-		}
-
-		public ResourceData(ResourceHub hub)
-		{
-			Hub = hub;
-		}
-
-		public ResourceData(ResourceHub hub, byte[] data)
-		{
-			Hub = hub;
-			Type = (DataType)new BinaryReader(new MemoryStream(data)).Read7BitEncodedInt();
-			_Data = data;
-		}
-
-		public ResourceData(ResourceHub hub, BinaryReader reader)
-		{
-			Hub = hub;
-			Read(reader);
-		}
-
-		public ResourceData(ResourceHub hub, DataType type, object interpretation)
-		{
-			Type = type;
-			_Interpretation = interpretation;
-		}
-
-		public ResourceData(DataType type, byte[] value)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-
-			w.Write7BitEncodedInt((int)type);
-			w.WriteBytes(value);
-
-			_Data = s.ToArray();
-		}
-
-		public static BinaryReader SkipHeader(byte[] data)
-		{
-			var r = new BinaryReader(new MemoryStream(data));
-			r.Read7BitEncodedInt();
-			return r;
-		}
-
-		public void Read(BinaryReader reader)
-		{
-			Type = (DataType)reader.Read7BitEncodedInt();
-			
-			switch(Type)
-			{
-				case DataType.None:
-					_Interpretation = reader.ReadBytes();
-					break;
-
-				case DataType.Redirect:
-				case DataType.Uri:
-					_Interpretation = reader.ReadUtf8();
-					break;
-
-				case DataType.IPAddress:
-					_Interpretation = new IPAddress(reader.ReadBytes());
-					break;
-
-				case DataType.File:
-				case DataType.Directory:
-					_Interpretation = reader.ReadHash();
-					break;
-
-				case DataType.Package: 
-					_Interpretation = new History(reader);
-					break;
-
-				default:
-					throw new ResourceException(ResourceError.UnknownDataType);
-			}
-		}
-
-		public void Write(BinaryWriter writer)
-		{
-			if(_Data != null)
-			{
-				writer.Write(_Data);
-			} 
-			else
-			{
-				writer.Write7BitEncodedInt((int)Type);
-				
-				switch(Type)
-				{
-					case DataType.None:
-						writer.WriteBytes(Interpretation as byte[]);
-						break;
-	
-					case DataType.Redirect:
-					case DataType.Uri:
-						writer.WriteUtf8(Interpretation as string);
-						break;
-				
-					case DataType.IPAddress:
-						writer.WriteBytes((Interpretation as IPAddress).GetAddressBytes());
-						break;
-				
-					case DataType.File:
-					case DataType.Directory:
-						writer.Write(Interpretation as byte[]);
-						break;
-				
-					case DataType.Package: 
-						(Interpretation as History).Write(writer);
-						break;
-				}
-			}
-		}
-	}
-
 	public class LocalResource
 	{
 		public ResourceAddress		Address { get; set; }
@@ -186,12 +35,12 @@ namespace Uccs.Net
 			return Last?.Interpretation as T;
 		}
 
-		public void AddData(byte[] data)
+		public void AddData(ResourceData data)
 		{
 			if(Datas == null)
 				Datas = new();
 
-			var i = Datas.Find(i => i.Data.SequenceEqual(data));
+			var i = Datas.Find(i => i.Equals(data));
 
 			if(i != null)
 			{
@@ -200,7 +49,7 @@ namespace Uccs.Net
 			}
 			else
 			{
-				Datas.Add(new ResourceData(Hub, data));
+				Datas.Add(data);
 			}
 			
 			Save();
@@ -211,9 +60,7 @@ namespace Uccs.Net
 			if(Datas == null)
 				Datas = new();
 
-			var d = new ResourceData(Hub, type, interpretation);
-
-			var i = Datas.Find(i => i.Data.SequenceEqual(d.Data));
+			var i = Datas.Find(i => i.Type == type && i.Interpretation.Equals(interpretation));
 
 			if(i != null)
 			{
@@ -222,7 +69,7 @@ namespace Uccs.Net
 			}
 			else
 			{ 
-				Datas.Add(d);
+				Datas.Add(new ResourceData(type, interpretation));
 			}
 		
 			Save();
@@ -237,7 +84,7 @@ namespace Uccs.Net
 				var s = new MemoryStream(d);
 				var r = new BinaryReader(s);
 	
-				Datas = r.ReadList<ResourceData>(() => new ResourceData(Hub, r));
+				Datas = r.ReadList<ResourceData>();
 			}
 		}
 

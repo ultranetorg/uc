@@ -2,18 +2,18 @@
 {
 	public class AnalysisRequest : RdcRequest
 	{
-		public byte[] Release {get; set;}
+		public ReleaseAddress Release {get; set;}
 
 		public override RdcResponse Execute(Sun sun)
 		{
-			if(Release.Length != Cryptography.HashSize)
-				throw new RequestException(RequestError.IncorrectRequest);
+			//if(Release.Length != Cryptography.HashSize)
+			//	throw new RequestException(RequestError.IncorrectRequest);
 
  			lock(sun.Lock)
 			{	
 				RequireBase(sun);
 
-				var e = sun.Mcv.Analyses.Find(Release, sun.Mcv.LastConfirmedRound.Id); 
+				var e = sun.Mcv.Releases.Find(Release, sun.Mcv.LastConfirmedRound.Id); 
 
 				if(e == null)
 					throw new EntityException(EntityError.NotFound);
@@ -25,6 +25,6 @@
 	
 	public class AnalysisResponse : RdcResponse
 	{
-		public Analysis Analysis {get; set;}
+		public Release Analysis {get; set;}
 	}
 }
