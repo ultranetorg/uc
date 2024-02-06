@@ -240,7 +240,9 @@ namespace Uccs.Net
 				
 				ai = NextAccountIds[ci]++;
 
-				return AffectedReleases[release] = new ReleaseEntry(Mcv){Id = new EntityId(ci, ai), Address = release, Results = new AnalyzerResult[0]};
+				return AffectedReleases[release] = new ReleaseEntry(Mcv) {	Id = new EntityId(ci, ai), 
+																			Address = release, 
+																			Results = new AnalyzerResult[0]};
 			}
 		}
 

@@ -6,7 +6,7 @@ using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
-	public class AnalysisOrder : Operation
+	public class AnalysisRegistration : Operation
 	{
 		public ReleaseAddress	Release { get; set; }
 		public Money			Fee { get; set; }
@@ -14,7 +14,7 @@ namespace Uccs.Net
 		public override string	Description => $"Release={Release}, Fee={Fee}";
 		public override bool	Valid => Fee > 0;
 
-		public AnalysisOrder()
+		public AnalysisRegistration()
 		{
 		}
 		
@@ -38,18 +38,26 @@ namespace Uccs.Net
 				return;
 			}
 
-			var a = mcv.Releases.Find(Release, round.Id);
+			var z = mcv.Releases.Find(Release, round.Id);
 
-			if(a != null)
+			if(z != null && z.Flags.HasFlag(ReleaseFlag.Analysis) && round.ConfirmedTime.Days - z.StartedAt.Days < 2) /// 1..2 days
 			{
 				Error = AlreadyExists;
 				return;
 			}
 
-			a = Affect(round, Release);
-			a.Fee = Fee;
-			a.StartedAt = round.Id;
-			a.Consil = (byte)round.Analyzers.Count;
+			z = Affect(round, Release);
+
+			if(z.Expiration - round.ConfirmedTime < Time.FromYears(1))
+			{
+				z.Expiration = round.ConfirmedTime + Time.FromYears(1);
+				PayForEntity(round, 1);
+			}
+
+			z.Flags		|= ReleaseFlag.Analysis;
+			z.Fee		= Fee;
+			z.StartedAt = round.ConfirmedTime;
+			z.Consil	= (byte)round.Analyzers.Count;
 
 			var s = Affect(round, Signer);
 			s.Balance -= Fee;

@@ -17,13 +17,23 @@
 
 	public enum DeclarationResult
 	{
-		None, Accepted, ResourceNotFound, ReleaseNotFound, NotRelease, NotNearest, 
+		None, Accepted, ResourceNotFound, Rejected, NotRelease, NotNearest, 
 	}
 
 	public class ReleaseDeclarationResult
 	{
 		public ReleaseAddress		Address { get; set; }
 		public DeclarationResult	Result { get; set; }	
+
+		public ReleaseDeclarationResult()
+		{
+		}
+
+		public ReleaseDeclarationResult(ReleaseAddress address, DeclarationResult result)
+		{
+			Address = address;
+			Result = result;
+		}
 	}
 
 	public class DeclareReleaseResponse : RdcResponse

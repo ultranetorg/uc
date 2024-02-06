@@ -1,8 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Uccs.Net
 {
+	[Flags]
+	public enum ReleaseFlag : byte
+	{
+		None,
+		Analysis = 0b_______1
+	}
+
 	public enum AnalysisResult : byte
 	{
 		None,
@@ -33,28 +41,44 @@ namespace Uccs.Net
 
 	public class Release : IBinarySerializable
 	{
-		public ReleaseAddress	Address { get; set; }
-		public Money			Fee { get; set; }
-		public int				StartedAt { get; set; }
-		public byte				Consil { get; set; }
-		public AnalyzerResult[]	Results { get; set; }
+		public ReleaseAddress		Address { get; set; }
+		public ReleaseFlag			Flags { get; set; }
+		public Time					Expiration { get; set; }
+		public Money				Fee { get; set; }
+		public Time					StartedAt { get; set; }
+		public byte					Consil { get; set; }
+		public AnalyzerResult[]		Results { get; set; }
 
 		public void Read(BinaryReader reader)
 		{
 			Address		= reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
-			Fee			= reader.ReadMoney();
-			StartedAt	= reader.Read7BitEncodedInt();
-			Consil		= reader.ReadByte();
-			Results		= reader.ReadArray(() => new AnalyzerResult {AnalyzerId = reader.ReadByte(), Result = (AnalysisResult)reader.ReadByte()});
+			Flags		= (ReleaseFlag)reader.ReadByte();
+			Expiration	= reader.Read<Time>();
+			
+			if(Flags.HasFlag(ReleaseFlag.Analysis))
+			{
+				Fee			= reader.ReadMoney();
+				StartedAt	= reader.Read<Time>();
+				Consil		= reader.ReadByte();
+				Results		= reader.ReadArray(() => new AnalyzerResult{AnalyzerId = reader.ReadByte(), 
+																		Result = (AnalysisResult)reader.ReadByte()});
+			}
 		}
 
 		public void Write(BinaryWriter writer)
 		{
 			writer.Write(Address);
-			writer.Write(Fee);
-			writer.Write7BitEncodedInt(StartedAt);
-			writer.Write(Consil);
-			writer.Write(Results, i => { writer.Write(i.AnalyzerId); writer.Write((byte)i.Result); });
+			writer.Write((byte)Flags);
+			writer.Write(Expiration);
+
+			if(Flags.HasFlag(ReleaseFlag.Analysis))
+			{
+				writer.Write(Fee);
+				writer.Write(StartedAt);
+				writer.Write(Consil);
+				writer.Write(Results, i => { writer.Write(i.AnalyzerId);
+											 writer.Write((byte)i.Result); });
+			}
 		}
 	}
 }

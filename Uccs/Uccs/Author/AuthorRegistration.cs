@@ -56,13 +56,13 @@ namespace Uccs.Net
 				
 				a.LastWinner	= null;
 				a.Owner			= Signer;
-				a.Expiration	= round.ConfirmedTime + Years*365;
+				a.Expiration	= round.ConfirmedTime + Time.FromYears(Years);
 
-				PayForEnity(round, Years);
+				PayForEntity(round, Years);
 				PayForResourceData(round, a.SpaceUsed, Years);
 
 				foreach(var i in a.Resources)
-					PayForEnity(round, Years);
+					PayForEntity(round, Years);
 			}
 			else
 				Error = "Failed";

@@ -25,6 +25,8 @@ namespace Uccs.Net
 		{
 			return new ReleaseEntry(Chain){	Id = Id, 
 											Address = Address,
+											Expiration = Expiration,
+											Flags = Flags,
 											Fee = Fee,
 											StartedAt = StartedAt,
 											Consil = Consil,

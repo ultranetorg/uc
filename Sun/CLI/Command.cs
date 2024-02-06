@@ -83,6 +83,11 @@ namespace Uccs.Sun.CLI
 										Workflow);
 		}
 
+		public bool Has(string paramenter)
+		{
+			return Args.Has(paramenter);
+		}
+
 		public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
@@ -179,6 +184,14 @@ namespace Uccs.Sun.CLI
 				return Enum.Parse<E>(Args.Get<string>(paramenter));
 			else
 				return def;
+		}
+
+		protected E GetEnum<E>(string paramenter) where E : struct
+		{
+			if(Args.Has(paramenter))
+				return Enum.Parse<E>(Args.Get<string>(paramenter));
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
 		//protected AccountKey GetPrivate(string walletarg)

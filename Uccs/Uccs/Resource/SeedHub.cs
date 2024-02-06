@@ -12,10 +12,11 @@ namespace Uccs.Net
 		public DateTime				Arrived;
 		public Availability			Availability;
 
-		public Seed(IPAddress iP, DateTime arrived)
+		public Seed(IPAddress iP, DateTime arrived, Availability availability)
 		{
 			IP = iP;
 			Arrived = arrived;
+			Availability = availability;
 		}
 
 		public override string ToString()
@@ -43,33 +44,24 @@ namespace Uccs.Net
 
 			foreach(var rsd in resources)
 			{
-				Resource e;
-				
-				lock(Sun.Lock)
-					e = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
-
-				if(e == null || e.Data == null)
-				{
-					results.AddRange(rsd.Releases.Select(i => new ReleaseDeclarationResult {Address = i.Address, Result = DeclarationResult.ResourceNotFound}));
-					continue;
-				}
-
-				foreach(var d in rsd.Releases)
+				foreach(var rzd in rsd.Releases)
 				{
 					lock(Sun.Lock)
-						if(!Sun.NextVoteMembers.OrderByNearest(d.Address.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
+					{ 
+						if(!Sun.NextVoteMembers.OrderByNearest(rzd.Address.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
 						{
-							results.Add(new ReleaseDeclarationResult {Address = d.Address, Result = DeclarationResult.NotNearest});
+							results.Add(new (rzd.Address, DeclarationResult.NotNearest));
 							continue;
 						}
-					
-					if(Releases.TryGetValue(d.Address, out var ss))
+					}
+
+					if(Releases.TryGetValue(rzd.Address, out var ss))
 					{
 						var s = ss.Find(i => i.IP.Equals(ip));
 	
 						if(s == null)
 						{
-							s = new Seed(ip, DateTime.UtcNow);
+							s = new Seed(ip, DateTime.UtcNow, rzd.Availability);
 							ss.Add(s);
 						} 
 						else
@@ -77,45 +69,43 @@ namespace Uccs.Net
 							s.Arrived = DateTime.UtcNow;
 						}
 						
-						s.Availability = d.Availability;
+						s.Availability = rzd.Availability;
 					}
 					else
 					{
-						if(e.Data.Interpretation is ReleaseAddress)
+						lock(Sun.Lock)
 						{
-							if(d.Address is HashAddress ha)
+							if(rzd.Address is HashAddress da)
 							{
-								/// check existance
-
-								if((e.Data.Interpretation as HashAddress) != ha)
+								var z = Sun.Mcv.Releases.Find(rzd.Address, Sun.Mcv.LastConfirmedRound.Id);
+	
+								if(z == null)
 								{
-									results.Add(new ReleaseDeclarationResult {Address = d.Address, Result = DeclarationResult.ReleaseNotFound});
-									continue;
+									var e = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
+
+									if(e == null || e.Data.Interpretation is HashAddress ha && ha != da)
+									{
+										results.Add(new (rzd.Address, DeclarationResult.Rejected));
+										continue;
+									}
 								}
 							}
-
-							if(d.Address is ProvingAddress pa)
+							else if(rzd.Address is ProvingAddress pa)
 							{
 								var ea = Sun.Mcv.Authors.Find(rsd.Resource.Author, Sun.Mcv.LastConfirmedRound.Id);
-
+	
 								if(!pa.Valid(Sun.Zone.Cryptography, rsd.Resource, ea.Owner))
 								{
-									results.Add(new ReleaseDeclarationResult {Address = d.Address, Result = DeclarationResult.ReleaseNotFound});
+									results.Add(new (rzd.Address, DeclarationResult.Rejected));
 									continue;
 								}
 							}
-						
-							Releases[d.Address] = ss = new () {new Seed(ip, DateTime.UtcNow) {Availability = d.Availability}};
 						}
-						else
-						{
-							results.Add(new ReleaseDeclarationResult {Address = d.Address, Result = DeclarationResult.NotRelease});
-							continue;
-						}
-					}
 
-					results.Add(new ReleaseDeclarationResult {Address = d.Address, Result = DeclarationResult.Accepted});
-			
+						ss = Releases[rzd.Address] = new () {new Seed(ip, DateTime.UtcNow, rzd.Availability)};
+						results.Add(new (rzd.Address, DeclarationResult.Accepted));
+					}
+									
 					if(ss.Count > SeedsPerReleaseMax)
 					{
 						ss = ss.OrderByDescending(i => i.Arrived).ToList();

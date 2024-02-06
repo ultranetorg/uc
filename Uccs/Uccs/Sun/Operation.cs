@@ -25,7 +25,7 @@ namespace Uccs.Net
 		Emission, UntTransfer, 
 		AuthorBid, AuthorRegistration, AuthorTransfer,
 		ResourceCreation, ResourceUpdation,
-		AnalysisOrder, AnalysisResultRegistration
+		AnalysisRegistration, AnalysisResultRegistration
 	}
 
 	public abstract class Operation : ITypeCode, IBinarySerializable
@@ -46,6 +46,7 @@ namespace Uccs.Net
 		public const string		NoAnalyzers = "No analyzers";
 		public const string		NotOwner = "The signer does not own the entity";
 		public const string		CantChangeSealedResource = "Cant change sealed resource";
+		public const string		NotRelease = "Data valus is not a release";
 
 		public OperationClass	Class => Enum.Parse<OperationClass>(GetType().Name);
 		public byte				TypeCode => (byte)Class;
@@ -112,7 +113,7 @@ namespace Uccs.Net
 			round.Fees += fee;
 		}
 
-		public void PayForEnity(Round round, byte years)
+		public void PayForEntity(Round round, byte years)
 		{
 			var fee = CalculateEntityFee(years);
 			
@@ -126,7 +127,7 @@ namespace Uccs.Net
 
 			if(e == null) /// new Account
 			{
-				PayForEnity(round, 1);
+				PayForEntity(round, 1);
 			}
 
 			return round.AffectAccount(account);
@@ -143,7 +144,7 @@ namespace Uccs.Net
 
 			if(e == null) /// new Analysis
 			{
-				PayForEnity(round, 1);
+				PayForEntity(round, 1);
 			}
 
 			return round.AffectRelease(release);

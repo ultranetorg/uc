@@ -10,7 +10,6 @@ namespace Uccs.Net
 	public enum ResourceFlags : byte
 	{
 		None		= 0, 
-		Sealed		= 0b________1, 
 		Deprecated	= 0b_______10, 
 		Child		= 0b______100, 
 		Data		= 0b_____1000, 
@@ -40,8 +39,9 @@ namespace Uccs.Net
 		Data			= 0b_____________10,
 		NonEmtpyData	= 0b____________100,
 		Parent			= 0b___________1000,
-		AddPublisher	= 0b__________10000,
-		RemovePublisher	= 0b_________100000,
+		RememberRelease	= 0b__________10000,
+		AddPublisher	= 0b_________100000,
+		RemovePublisher	= 0b________1000000,
 		Recursive		= 0b100000000000000,
 	}
 

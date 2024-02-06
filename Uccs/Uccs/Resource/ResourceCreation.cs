@@ -23,7 +23,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data, string parent)
+		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data, string parent, bool rememberrelease)
 		{
 			Resource = resource;
 			Flags = flags;
@@ -41,6 +41,9 @@ namespace Uccs.Net
 				Parent = parent;
 				Initials |= ResourceChanges.Parent;
 			}
+
+			if(rememberrelease)
+				Initials |= ResourceChanges.RememberRelease;
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
@@ -103,7 +106,7 @@ namespace Uccs.Net
 			if(y < 0)
 				throw new IntegrityException();
 
-			PayForEnity(round, y);
+			PayForEntity(round, y);
 			
 			if(Parent != null)
 			{
@@ -132,7 +135,30 @@ namespace Uccs.Net
 
 					a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
 					a.SpaceReserved	= a.SpaceUsed;
-	
+				}
+
+				if(Initials.HasFlag(ResourceChanges.RememberRelease))
+				{
+					if(Data.Interpretation is ReleaseAddress ra)
+					{
+						var z = Affect(round, ra);
+					
+						if(z.Expiration - round.ConfirmedTime < Time.FromYears(1))
+						{
+							z.Expiration = round.ConfirmedTime + Time.FromYears(10);
+							PayForEntity(round, 10);
+						}
+						else
+						{
+							Error = AlreadyExists;
+							return;
+						}
+					}
+					else
+					{
+						Error = NotRelease;
+						return;
+					}
 				}
 			}
 		}

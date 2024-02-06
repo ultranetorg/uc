@@ -32,9 +32,10 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
-												Args.Has("flags") ? Enum.Parse<ResourceFlags>(GetString("flags")) : ResourceFlags.None,
-												Args.Has("data") ? new ResourceData(new BinaryReader(new MemoryStream(GetHexBytes("data")))) : null,
-												GetString("parent", false));
+												GetEnum<ResourceFlags>("flags", ResourceFlags.None),
+												Has("data") ? new ResourceData(new BinaryReader(new MemoryStream(GetHexBytes("data")))) : null,
+												GetString("parent", false),
+												Has("keep"));
 				}
 
 				case "u" : 
@@ -44,10 +45,12 @@ namespace Uccs.Sun.CLI
 
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
-					if(Args.Has("flags"))		r.Change(Enum.Parse<ResourceFlags>(GetString("flags")));
-					if(Args.Has("data"))		r.Change(GetHexBytes("data") is byte[] b && b.Length > 0 ? new ResourceData(new BinaryReader(new MemoryStream(b))) : null);
-					if(Args.Has("parent"))		r.Change(GetString("parent"));
-					if(Args.Has("recursive"))	r.ChangeRecursive();
+					if(Has("flags"))		r.Change(GetEnum<ResourceFlags>("flags"));
+					if(Has("data"))			r.Change(GetHexBytes("data") is byte[] b && b.Length > 0 ? new ResourceData(new BinaryReader(new MemoryStream(b))) : null);
+					if(Has("parent"))		r.Change(GetString("parent"));
+					if(Has("recursive"))	r.ChangeRecursive();
+					if(Has("keep"))			r.ChangeRememberRelease();
+					
 					
 					return r;
 				}

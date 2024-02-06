@@ -55,6 +55,11 @@ namespace Uccs.Net
 			Changes |= ResourceChanges.Recursive;
 		}
 
+		public void ChangeRememberRelease()
+		{
+			Changes |= ResourceChanges.RememberRelease;
+		}
+
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource = reader.Read<ResourceAddress>();
@@ -96,12 +101,6 @@ namespace Uccs.Net
 			if(Author.IsExpired(aa, round.ConfirmedTime))
 			{
 				Error = Expired;
-				return;
-			}
-
-			if(Changes.HasFlag(ResourceChanges.Data) && e.Flags.HasFlag(ResourceFlags.Sealed))
-			{
-				Error = CantChangeSealedResource;
 				return;
 			}
 
@@ -180,7 +179,10 @@ namespace Uccs.Net
 	
 						if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
 						{
-							var y = (byte)((a.Expiration.Days - round.ConfirmedTime.Days) / 365 + 1);
+							var y = (byte)((a.Expiration.Days - round.ConfirmedTime.Days) / 365);
+
+							if((a.Expiration.Days - round.ConfirmedTime.Days) % 365 > 0)
+								y++;
 
 							if(y < 0)
 								throw new IntegrityException();
@@ -190,6 +192,31 @@ namespace Uccs.Net
 							a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
 							a.SpaceReserved	= a.SpaceUsed;
 						}
+
+						if(Changes.HasFlag(ResourceChanges.RememberRelease))
+						{
+							if(Data.Interpretation is ReleaseAddress ra)
+							{
+								var z = Affect(round, ra);
+					
+								if(z.Expiration - round.ConfirmedTime < Time.FromYears(1))
+								{
+									z.Expiration = round.ConfirmedTime + Time.FromYears(10);
+									PayForEntity(round, 10);
+								}
+								else
+								{
+									Error = AlreadyExists;
+									return;
+								}
+							}
+							else
+							{
+								Error = NotRelease;
+								return;
+							}
+						}
+
 					}
 					else
 						r.Flags &= ~ResourceFlags.Data;

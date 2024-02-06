@@ -11,10 +11,10 @@ namespace Uccs.Net
 		public const char			NormalPrefix = '_';
 		public const char			CountryPrefix = '~';
 
-		public static readonly int	AuctionMinimalDuration = 365;
-		public static readonly int	Prolongation = 30;
-		public static readonly int	WinnerRegistrationPeriod = 30;
-		public static readonly int	RenewaPeriod = 365;
+		public static readonly Time	AuctionMinimalDuration = Time.FromDays(365);
+		public static readonly Time	Prolongation = Time.FromDays(30);
+		public static readonly Time	WinnerRegistrationPeriod = Time.FromDays(30);
+		public static readonly Time	RenewaPeriod = Time.FromDays(365);
 		public Time					AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
 
 		public EntityId				Id { get; set; }

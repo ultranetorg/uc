@@ -373,6 +373,10 @@ namespace Uccs.Net
 																																																								Releases = rs.Value.Select(rl => new ReleaseDeclaration{Address = rl.Address, 
 																																																																						Availability = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
 													}
+													catch(OperationCanceledException)
+													{
+														return;
+													}
 													catch(NodeException)
 													{
 														return;
@@ -383,6 +387,8 @@ namespace Uccs.Net
 														foreach(var r in drr.Results)
 															if(r.Result == DeclarationResult.Accepted)
 																Find(r.Address).DeclaredOn.Find(j => j.Member.Account == i.Key.Account).Status = DeclarationStatus.Accepted;
+															else if(r.Result == DeclarationResult.Rejected)
+																Find(r.Address).DeclaredOn.Find(j => j.Member.Account == i.Key.Account).Status = DeclarationStatus.Ignore;
 															else
 																Find(r.Address).DeclaredOn.RemoveAll(j => j.Member.Account == i.Key.Account);
 

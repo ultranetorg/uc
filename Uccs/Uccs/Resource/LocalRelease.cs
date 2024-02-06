@@ -111,7 +111,7 @@ namespace Uccs.Net
 
 	public enum DeclarationStatus
 	{
-		None, InProgress, Accepted
+		None, InProgress, Accepted, Ignore
 	}
 
 	public class Declaration
