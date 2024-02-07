@@ -111,13 +111,14 @@ namespace Uccs.Net
 
 	public enum DeclarationStatus
 	{
-		None, InProgress, Accepted, Ignore
+		None, InProgress, Accepted, Failed
 	}
 
 	public class Declaration
 	{
 		public MembersResponse.Member	Member;
 		public DeclarationStatus		Status;
+		public DateTime					Failed;
 	}
 
 	public class LocalRelease

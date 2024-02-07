@@ -402,40 +402,49 @@ namespace Uccs.Net
 
  			if(rq.WaitResponse)
  			{
-				var i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+				int i = -1;
 
+				try
+				{
+					i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+				}
+				catch(ObjectDisposedException)
+				{
+					throw new OperationCanceledException();
+				}
+	
 				rq.Event.Close();
-
-	 			if(i == 0)
-	 			{
+	
+		 		if(i == 0)
+		 		{
 					if(rq.Response == null)
 						throw new NodeException(NodeError.Connectivity);
-	
-	 				if(rq.Response.Error == null)
+		
+		 			if(rq.Response.Error == null)
 					{
 						return rq.Response;
 					}
-	 				else 
+		 			else 
 					{
 						if(rq.Response.Error is NodeException e)
 						{
 							if(e.Error == NodeError.NotBase)
 								BaseRank = 0;
-	
+		
 							if(e.Error == NodeError.NotChain)
 								ChainRank = 0;
-	
+		
 							if(e.Error == NodeError.NotSeed)
 								SeedRank = 0;
 						}
-
+	
 						throw rq.Response.Error;
 					}
- 				}
-	 			if(i == 1)
+	 			}
+		 		if(i == 1)
 					throw new OperationCanceledException();
 				else
-	 				throw new NodeException(NodeError.Timeout);
+		 			throw new NodeException(NodeError.Timeout);
  			}
 			else
 				return null;
@@ -462,7 +471,16 @@ namespace Uccs.Net
  
   			if(rq.WaitResponse)
   			{
-				var i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+				int i = -1;
+
+				try
+				{
+					i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
+				}
+				catch(ObjectDisposedException)
+				{
+					return null;
+				}
 
 				rq.Event.Close();
 

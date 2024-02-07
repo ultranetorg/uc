@@ -165,7 +165,7 @@ namespace Uccs.Net
 			w.Write(resource);
 			w.Write(hash);
 
-			return new ProvingAddress {Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
+			return new ProvingAddress {Hash = hash, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
 		}
 
 		protected override void WriteMore(BinaryWriter writer)

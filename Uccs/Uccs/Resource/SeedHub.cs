@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Nethereum.Contracts.QueryHandlers.MultiCall;
 
 namespace Uccs.Net
 {
@@ -27,11 +26,12 @@ namespace Uccs.Net
 
 	public class SeedHub
 	{
-		public const int								SeedsPerReleaseMax = 1000; /// (1000000 authors * 5 products * 1 rlzs * 100 versions * 1000 peers)*4 ~= 2 TB
-		public const int								SeedsPerRequestMax = 256;
-		Sun												Sun;
-		public Dictionary<ReleaseAddress, List<Seed>>	Releases = new ();
-		public object									Lock = new object();
+		public const int											SeedsPerReleaseMax = 100;
+		public const int											SeedsPerRequestMax = 50;
+		public Dictionary<ReleaseAddress, List<Seed>>				Releases = new ();
+		public Dictionary<ResourceAddress, List<ReleaseAddress>>	Resources = new ();
+		public object												Lock = new object();
+		Sun															Sun;
 
 		public SeedHub(Sun sun)
 		{
@@ -83,7 +83,7 @@ namespace Uccs.Net
 								{
 									var e = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 
-									if(e == null || e.Data.Interpretation is HashAddress ha && ha != da)
+									if(e?.Data == null || e.Data.Interpretation is HashAddress ha && ha != da)
 									{
 										results.Add(new (rzd.Address, DeclarationResult.Rejected));
 										continue;
@@ -99,13 +99,23 @@ namespace Uccs.Net
 									results.Add(new (rzd.Address, DeclarationResult.Rejected));
 									continue;
 								}
+
+								var s = (Resources.TryGetValue(rsd.Resource, out var l) ? l : Resources[rsd.Resource] = new());
+								
+								s.Add(rzd.Address);
+
+								if(s.Count > 50)
+								{
+									s.RemoveAt(0);
+								}
 							}
 						}
 
 						ss = Releases[rzd.Address] = new () {new Seed(ip, DateTime.UtcNow, rzd.Availability)};
-						results.Add(new (rzd.Address, DeclarationResult.Accepted));
 					}
 									
+					results.Add(new (rzd.Address, DeclarationResult.Accepted));
+				
 					if(ss.Count > SeedsPerReleaseMax)
 					{
 						ss = ss.OrderByDescending(i => i.Arrived).ToList();

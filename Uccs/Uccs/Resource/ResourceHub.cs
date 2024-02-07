@@ -315,7 +315,10 @@ namespace Uccs.Net
 
 									if(l != null && l.Availability != Availability.None)
 									{
-										foreach(var m in cr.Members.OrderByNearest(l.Address.Hash).Take(MembersPerDeclaration).Where(m => !l.DeclaredOn.Any(dm => dm.Member.Account == m.Account)))
+										foreach(var m in cr.Members.OrderByNearest(l.Address.Hash).Take(MembersPerDeclaration).Where(m =>	{
+																																				var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
+																																				return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																																			}))
 										{
 											var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
 											(rss.TryGetValue(r.Address, out var y) ? y : (rss[r.Address] = new())).Add(l);
@@ -385,12 +388,19 @@ namespace Uccs.Net
 													lock(Lock)
 													{
 														foreach(var r in drr.Results)
+														{	
+															var x = Find(r.Address).DeclaredOn.Find(j => j.Member.Account == i.Key.Account);
+
 															if(r.Result == DeclarationResult.Accepted)
-																Find(r.Address).DeclaredOn.Find(j => j.Member.Account == i.Key.Account).Status = DeclarationStatus.Accepted;
+																x.Status = DeclarationStatus.Accepted;
 															else if(r.Result == DeclarationResult.Rejected)
-																Find(r.Address).DeclaredOn.Find(j => j.Member.Account == i.Key.Account).Status = DeclarationStatus.Ignore;
+															{	
+																x.Status = DeclarationStatus.Failed;
+																x.Failed = DateTime.UtcNow;
+															}
 															else
-																Find(r.Address).DeclaredOn.RemoveAll(j => j.Member.Account == i.Key.Account);
+																Find(r.Address).DeclaredOn.Remove(x);
+														}
 
 														tasks.Remove(i.Key.Account);
 													}
