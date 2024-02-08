@@ -74,6 +74,18 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
+				case "e" :
+		   		case "entity" :
+				{
+					Workflow.CancelAfter(RdcQueryTimeout);
+
+					var r = Rdc<ReleaseResponse>(new ReleaseRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
+					
+					Dump(r.Release);
+
+					return r;
+				}
+
 				case "l" : 
 				case "local" : 
 				{	

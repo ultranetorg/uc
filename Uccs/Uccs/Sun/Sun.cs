@@ -2086,19 +2086,6 @@ namespace Uccs.Net
  			return rq.Execute(this);
  		}
 
-		public override RdcResponse SafeRequest(RdcRequest rq)
-  		{
-			if(rq.Peer == null) /// self call, cloning needed
-			{
-				var s = new MemoryStream();
-				BinarySerializator.Serialize(new(s), rq); 
-				s.Position = 0;
-				rq = BinarySerializator.Deserialize<RdcRequest>(new(s), Constract);
-			}
-
- 			return rq.SafeExecute(this);
- 		}
-
 		public override void Send(RdcRequest rq)
   		{
 			if(rq.Peer == null) /// self call, cloning needed

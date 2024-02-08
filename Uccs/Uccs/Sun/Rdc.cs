@@ -17,7 +17,7 @@ namespace Uccs.Net
 		Proxy, 
 		MemberJoin, Vote,
 		PeersBroadcast, Time, Members, Member, Funds, AllocateTransaction, LastOperation, PlaceTransactions, TransactionStatus, Account, 
-		Author, QueryResource, Resource, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
+		Author, QueryResource, Resource, Release, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds,
 		Analysis
 	}
@@ -43,7 +43,6 @@ namespace Uccs.Net
 	public abstract class RdcInterface
 	{
  		public abstract RdcResponse				Request(RdcRequest rq);
- 		public abstract RdcResponse				SafeRequest(RdcRequest rq);
  		public Rp								Request<Rp>(RdcRequest rq) where Rp : RdcResponse => Request(rq) as Rp;
  		public abstract	void					Send(RdcRequest rq);
 
@@ -86,11 +85,6 @@ namespace Uccs.Net
 
 		public abstract RdcResponse		Execute(Sun sun);
 
-		public static RdcRequest FromType(Rdc type)
-		{
-			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as RdcRequest;
-		}
-
 		public Rdc Class
 		{
 			get
@@ -101,7 +95,11 @@ namespace Uccs.Net
 
 		public RdcRequest()
 		{
-			Event = new ManualResetEvent(false);
+		}
+
+		public static RdcRequest FromType(Rdc type)
+		{
+			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as RdcRequest;
 		}
 
 		public RdcResponse SafeExecute(Sun sun)
@@ -196,6 +194,7 @@ namespace Uccs.Net
 
 			return BinarySerializator.Deserialize<RdcRequest>(r,(t, b) =>	{ 
 																				if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b);
+																				if(t == typeof(ReleaseAddress)) return ReleaseAddress.FromType(b);
 
 																				return null;
 																			});

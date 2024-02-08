@@ -393,7 +393,10 @@ namespace Uccs.Net
 
 			if(rq.WaitResponse)
 				lock(OutRequests)
+				{
+					rq.Event = new ManualResetEvent(false);
 					OutRequests.Add(rq);
+				}
 
 			lock(Outs)
 				Outs.Enqueue(rq);
@@ -408,12 +411,10 @@ namespace Uccs.Net
 				{
 					i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 				}
-				catch(ObjectDisposedException)
+				finally
 				{
-					throw new OperationCanceledException();
+					rq.Event.Close();
 				}
-	
-				rq.Event.Close();
 	
 		 		if(i == 0)
 		 		{
@@ -448,81 +449,6 @@ namespace Uccs.Net
  			}
 			else
 				return null;
- 		}
-
- 		public override RdcResponse SafeRequest(RdcRequest rq)
- 		{
- 			if(Status != ConnectionStatus.OK)
-			{
-				rq.Response.Error = new NodeException(NodeError.Connectivity);
-				return rq.Response;
-			}
- 
- 			rq.Id = IdCounter++;
- 
- 			if(rq.WaitResponse)
- 				lock(OutRequests)
- 					OutRequests.Add(rq);
- 
- 			lock(Outs)
- 				Outs.Enqueue(rq);
- 
- 			SendSignal.Set();
- 
-  			if(rq.WaitResponse)
-  			{
-				int i = -1;
-
-				try
-				{
-					i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
-				}
-				catch(ObjectDisposedException)
-				{
-					return null;
-				}
-
-				rq.Event.Close();
-
-	 			if(i == 0)
-	 			{
-					if(rq.Response == null)
-					{
-						rq.Response.Error = new NodeException(NodeError.Connectivity);
-						return rq.Response;
-					}
-	
-	 				if(rq.Response.Error == null)
-					{
-						return rq.Response;
-					}
-	 				else 
-					{
-						if(rq.Response.Error is NodeException e)
-						{
-							if(e.Error == NodeError.NotBase)
-								BaseRank = 0;
-	
-							if(e.Error == NodeError.NotChain)
-								ChainRank = 0;
-	
-							if(e.Error == NodeError.NotSeed)
-								SeedRank = 0;
-						}
-
-						return rq.Response;
-					}
- 				}
-	 			else if(i == 1)
-					throw new OperationCanceledException();
- 				else
-				{
-					rq.Response.Error = new NodeException(NodeError.Timeout);
-					return rq.Response;
-				}
-  			}
- 			else
- 				return null;
  		}
 	}
 }

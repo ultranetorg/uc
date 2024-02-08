@@ -18,11 +18,6 @@ namespace Uccs.Net
 			return Proxy.Request<ProxyResponse>(new ProxyRequest { Destination = Generator, Guid = Guid.NewGuid().ToByteArray(), Request = rq}).Response;
 		}
 
-		 public override RdcResponse SafeRequest(RdcRequest rq)
- 		{
-			throw new NotSupportedException();
- 		}
-
 		public override void Send(RdcRequest rq)
 		{
 			Proxy.Send(new ProxyRequest {Destination = Generator, Request = rq});

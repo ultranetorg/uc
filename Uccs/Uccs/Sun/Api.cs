@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -412,40 +413,17 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			return sun.Call(i => i.SafeRequest(Request), workflow);
+			try
+			{
+				return sun.Call(i => i.Request(Request), workflow);
+			}
+			catch(SunException ex)
+			{
+				var rp = RdcResponse.FromType(Request.Class);
+				rp.Error = ex;
+				
+				return rp;
+			}
 		}
 	}
-
-// 	public class GenerateAnalysisReportCall : SunApiCall
-// 	{
-// 		public IDictionary<ResourceAddress, AnalysisResult>	Results { get; set; }
-// 
-// 		public override object Execute(Sun sun, Workflow workflow)
-// 		{
-// 			lock(sun.Lock)
-// 			{	
-// 				sun.Analyses.AddRange(Results.Select(i => new Analysis {Release = i.Key, Result = i.Value}));
-// 			}
-// 
-// 			return null;
-// 		}
-// 	}
-	//public class RoundCall : SunApiCall
-	//{
-	//	public int	Id { get; set; }
-	//
-	//	public override object Execute(Sun sun, Workflow workflow)
-	//	{
-	//		lock(sun.Lock)
-	//		{
-	//			var r = sun.Mcv.FindRound(Id);
-	//
-	//			var s = new MemoryStream();
-	//			var w = new BinaryWriter(s);
-	//			r.Write(w);
-	//
-	//			return s.ToArray();
-	//		}
-	//	}
-	//}
 }

@@ -365,7 +365,14 @@ namespace Uccs.Net
 					foreach(var i in ds)
 					{
 						foreach(var r in i.Value.SelectMany(i => i.Value))
-							r.DeclaredOn.Add(new Declaration {Member = i.Key, Status = DeclarationStatus.InProgress});
+						{
+							var d = r.DeclaredOn.Find(j => j.Member.Account == i.Key.Account);
+
+							if(d == null)
+								r.DeclaredOn.Add(new Declaration {Member = i.Key, Status = DeclarationStatus.InProgress});
+							else
+								d.Status = DeclarationStatus.InProgress;
+						}
 
 						var t = Task.Run(() =>	{
 													DeclareReleaseResponse drr;
