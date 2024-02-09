@@ -34,13 +34,13 @@ namespace Uccs.Net.Tests
 		[Fact]
 		public static void Release()
 		{
-			var a = new HashAddress { Hash = RandomBytes(32) };
-			var ac = new HashAddress{ Hash = a.Hash.ToArray() };
-			var b = new HashAddress { Hash = RandomBytes(32) };
+			var a = new DHAAddress { Hash = RandomBytes(32) };
+			var ac = new DHAAddress{ Hash = a.Hash.ToArray() };
+			var b = new DHAAddress { Hash = RandomBytes(32) };
 			 
-			var x = new ProvingAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
-			var xc = new ProvingAddress{ Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
-			var y = new ProvingAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var x = new SPDAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var xc = new SPDAddress{ Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
+			var y = new SPDAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
 
 			Assert.True(a == ac && a != b &&
 						x == xc && x != y &&

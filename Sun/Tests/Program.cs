@@ -18,11 +18,12 @@ namespace Tests
 	{
 		public static void Main(string[] args)
 		{
-			AddressTests.Release();
+			//AddressTests.Release();
 
+			var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
 
-			var ja = JsonSerializer.Serialize(new A{Progress = new FileDownloadProgress()}, JsonApiClient.Options);
-			var jb = JsonSerializer.Serialize(new A{Progress = new ReleaseDownloadProgress()}, JsonApiClient.Options);
+			//var ja = JsonSerializer.Serialize(new A{Progress = new FileDownloadProgress()}, JsonApiClient.Options);
+			//var jb = JsonSerializer.Serialize(new A{Progress = new ReleaseDownloadProgress()}, JsonApiClient.Options);
 
 
 

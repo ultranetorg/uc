@@ -59,6 +59,10 @@ namespace Uccs.Net
 		HashMismatch,
 	}
 
+	[JsonDerivedType(typeof(NodeException), typeDiscriminator: "Node")]
+	[JsonDerivedType(typeof(RequestException), typeDiscriminator: "Request")]
+	[JsonDerivedType(typeof(EntityException), typeDiscriminator: "Entity")]
+	[JsonDerivedType(typeof(ResourceException), typeDiscriminator: "Resource")]
 	public abstract class SunException : Exception, ITypeCode, IBinarySerializable 
 	{
 		public byte				TypeCode => (byte)Class;
@@ -153,28 +157,4 @@ namespace Uccs.Net
 			Error = erorr;
 		}
 	}
-
-	public class SunExceptionJsonConverter : JsonConverter<SunException>
-	{
-		public override SunException Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			var s = reader.GetString().Split(':');
-			var o = SunException.FromType(Enum.Parse<ExceptionClass>(s[0]));
- 			
-			o.Read(new BinaryReader(new MemoryStream(s[1].FromHex()))); 
-
-			return o;
-		}
-
-		public override void Write(Utf8JsonWriter writer, SunException value, JsonSerializerOptions options)
-		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-			
-			value.Write(w);
-			
-			writer.WriteStringValue(value.Class.ToString() + ":" + s.ToArray().ToHex());
-		}
-	}
-
 }

@@ -111,16 +111,16 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ReleaseAddressJsonConverter : JsonConverter<Ura>
-	{
-		public override Ura Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			return Ura.Parse(reader.GetString());
-		}
-
-		public override void Write(Utf8JsonWriter writer, Ura value, JsonSerializerOptions options)
-		{
-			writer.WriteStringValue(value.ToString());
-		}
-	}
+// 	public class ReleaseAddressJsonConverter : JsonConverter<Ura>
+// 	{
+// 		public override Ura Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+// 		{
+// 			return Ura.Parse(reader.GetString());
+// 		}
+// 
+// 		public override void Write(Utf8JsonWriter writer, Ura value, JsonSerializerOptions options)
+// 		{
+// 			writer.WriteStringValue(value.ToString());
+// 		}
+// 	}
 }

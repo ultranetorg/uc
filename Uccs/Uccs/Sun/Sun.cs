@@ -191,14 +191,14 @@ namespace Uccs.Net
 
 		public object Constract(Type t, byte b)
 		{
-			if(t == typeof(Transaction)) return new Transaction {Zone = Zone};
-			if(t == typeof(Vote)) return new Vote(Mcv);
-			if(t == typeof(Manifest)) return new Manifest();
-			if(t == typeof(RdcRequest) || t.IsSubclassOf(typeof(RdcRequest)))			return RdcRequest.FromType((Rdc)b); 
-			if(t == typeof(RdcResponse) || t.IsSubclassOf(typeof(RdcResponse)))			return RdcResponse.FromType((Rdc)b); 
-			if(t == typeof(Operation) || t.IsSubclassOf(typeof(Operation)))				return Operation.FromType((OperationClass)b); 
-			if(t == typeof(SunException) || t.IsSubclassOf(typeof(SunException)))		return SunException.FromType((ExceptionClass)b); 
-			if(t == typeof(ReleaseAddress) || t.IsSubclassOf(typeof(ReleaseAddress)))	return ReleaseAddress.FromType(b); 
+			if(t == typeof(Transaction))	return new Transaction {Zone = Zone};
+			if(t == typeof(Vote))			return new Vote(Mcv);
+			if(t == typeof(Manifest))		return new Manifest();
+			if(t == typeof(RdcRequest))		return RdcRequest.FromType((RdcClass)b); 
+			if(t == typeof(RdcResponse))	return RdcResponse.FromType((RdcClass)b); 
+			if(t == typeof(Operation))		return Operation.FromType((OperationClass)b); 
+			if(t == typeof(SunException))	return SunException.FromType((ExceptionClass)b); 
+			if(t == typeof(ReleaseAddress))	return ReleaseAddress.FromType(b); 
 
 			return null;
 		}

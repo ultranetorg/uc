@@ -7,16 +7,15 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
-	public enum Rdc : byte
+	public enum RdcClass : byte
 	{
 		None, 
 		Proxy, 
-		MemberJoin, Vote,
-		PeersBroadcast, Time, Members, Member, Funds, AllocateTransaction, LastOperation, PlaceTransactions, TransactionStatus, Account, 
+		Vote,
+		PeersBroadcast, Time, Members, Funds, AllocateTransaction, PlaceTransactions, TransactionStatus, Account, 
 		Author, QueryResource, Resource, Release, Subresources, DeclareRelease, LocateRelease, FileInfo, DownloadRelease,
 		Stamp, TableStamp, DownloadTable, DownloadRounds,
 		Analysis
@@ -80,16 +79,15 @@ namespace Uccs.Net
 		public override byte			TypeCode => (byte)Class;
 		public ManualResetEvent			Event;
 		public RdcResponse				Response;
-		public Action					Process;
 		public virtual bool				WaitResponse { get; protected set; } = true;
 
 		public abstract RdcResponse		Execute(Sun sun);
 
-		public Rdc Class
+		public RdcClass Class
 		{
 			get
 			{
-				return Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Request")));
+				return Enum.Parse<RdcClass>(GetType().Name.Remove(GetType().Name.IndexOf("Request")));
 			}
 		}
 
@@ -97,7 +95,7 @@ namespace Uccs.Net
 		{
 		}
 
-		public static RdcRequest FromType(Rdc type)
+		public static RdcRequest FromType(RdcClass type)
 		{
 			return Assembly.GetExecutingAssembly().GetType(typeof(RdcRequest).Namespace + "." + type + "Request").GetConstructor(new System.Type[]{}).Invoke(new object[]{ }) as RdcRequest;
 		}
@@ -158,57 +156,13 @@ namespace Uccs.Net
 		}
 	}
 
-	public class RdcRequestJsonConverter : JsonConverter<RdcRequest>
-	{
-		public override void Write(Utf8JsonWriter writer, RdcRequest value, JsonSerializerOptions options)
-		{
-			//writer.WriteStartObject();
-			//writer.WritePropertyName("Class");
-			//writer.WriteStringValue(value.Type.ToString());
-			//writer.WritePropertyName("Request");
-			//writer.WriteRawValue(JsonSerializer.Serialize(value, value.GetType(), options));
-			//writer.WriteEndObject();
-
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-			
-			BinarySerializator.Serialize(w, value);
-			
-			writer.WriteStringValue(value.Class.ToString() + ":" + s.ToArray().ToHex());
-
-		}
-
-		public override RdcRequest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			//reader.Read();
-			//reader.Read();
-			//var t = RdcRequest.FromType(Enum.Parse<Rdc>(reader.GetString()));
-			//reader.Read();
-			//
-			//return JsonSerializer.Deserialize(reader.GetString(), t, options);
-
-			var s = reader.GetString().Split(':');
-			var o = RdcRequest.FromType(Enum.Parse<Rdc>(s[0]));
- 			
-			var r = new BinaryReader(new MemoryStream(s[1].HexToByteArray()));
-
-			return BinarySerializator.Deserialize<RdcRequest>(r,(t, b) =>	{ 
-																				if(t == typeof(RdcRequest)) return RdcRequest.FromType((Rdc)b);
-																				if(t == typeof(ReleaseAddress)) return ReleaseAddress.FromType(b);
-
-																				return null;
-																			});
-		}
-	}
-
-
 	public abstract class RdcResponse : RdcPacket
 	{
 		public override byte	TypeCode => (byte)Type;
-		public Rdc				Type => Enum.Parse<Rdc>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
+		public RdcClass			Type => Enum.Parse<RdcClass>(GetType().Name.Remove(GetType().Name.IndexOf("Response")));
 		public SunException		Error { get; set; }
 
-		public static RdcResponse FromType(Rdc type)
+		public static RdcResponse FromType(RdcClass type)
 		{
 			try
 			{
