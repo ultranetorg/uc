@@ -1290,6 +1290,27 @@ namespace Uccs.Net
 			return true;
 		}
 
+		public bool TryExecute(Transaction transaction)
+		{
+			var m = NextVoteMembers.NearestBy(m => m.Account, transaction.Signer).Account;
+
+			if(!Settings.Generators.Contains(m))
+				return false;
+
+			var p = Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound;
+
+			var r = new Round(Mcv) {Id						= p.Id + 1,
+									ConfirmedTime			= Time.Now(Clock), 
+									ConfirmedExeunitMinFee	= p.ConfirmedExeunitMinFee,
+									Members					= p.Members,
+									Funds					= p.Funds,
+									Analyzers				= p.Analyzers};
+	
+			Mcv.Execute(r, new [] {transaction});
+
+			return transaction.Successful;
+		}
+
 		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			foreach(var i in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
@@ -1297,21 +1318,7 @@ namespace Uccs.Net
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				var m = NextVoteMembers.NearestBy(m => m.Account, i.Signer).Account;
-
-				if(!Settings.Generators.Contains(m))
-					continue;
-
-				var r = new Round(Mcv);
-				r.Id = (Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound).Id + 1;
-				
-				
-				r.ConfirmedTime = Time.Now(Clock);
-				//r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
-
-				Mcv.Execute(r, new [] {i});
-
-				if(i.Successful)
+				if(TryExecute(i))
 				{
 					i.Placing = PlacingStage.Accepted;
 					IncomingTransactions.Add(i);
@@ -1483,7 +1490,12 @@ namespace Uccs.Net
 					for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
 					{
 						var r = Mcv.GetRound(i);
-						//r.Analyzers = Mcv.LastConfirmedRound.Analyzers.ToList();
+						
+						if(r.Hash == null)
+						{
+							r.ConfirmedTime = Time.Now(Clock);
+							r.ConfirmedExeunitMinFee = Mcv.LastConfirmedRound.ConfirmedExeunitMinFee;
+						}
 
 						if(!r.Confirmed)
 						{
@@ -1563,7 +1575,7 @@ namespace Uccs.Net
 						{
 							var m = members.NearestBy(i => i.Account, g.Key);
 
-							AllocateTransactionResponse at = null;
+							//AllocateTransactionResponse at = null;
 							RdcInterface rdi; 
 
 							try
@@ -1571,7 +1583,6 @@ namespace Uccs.Net
 								Monitor.Exit(Lock);
 
 								rdi = getrdi(g.Key);
-								at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Account = g.Key});
 							}
 							catch(NodeException)
 							{
@@ -1582,19 +1593,58 @@ namespace Uccs.Net
 							{
 								Monitor.Enter(Lock);
 							}
-									
-							int nid = at.NextTransactionId;
+
+							int nid = -1;
 							var txs = new List<Transaction>();
 
 							foreach(var t in g.Where(i => i.Placing == PlacingStage.None))
 							{
-								t.Nid = nid++;
-								t.Rdc = rdi;
-								t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
-								t.Fee = t.Operations.Length * at.ExeunitMinFee;
-	
-								t.Sign(Vault.GetKey(t.Signer), at.PowHash);
-								txs.Add(t);
+								try
+								{
+									Monitor.Exit(Lock);
+
+									t.Rdi = rdi;
+									t.Fee = 0;
+									t.Nid = 0;
+									t.Expiration = 0;
+
+									t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
+
+									var at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Transaction = t});
+								
+									if(nid == -1)
+										nid = at.NextTransactionId;
+									else
+										nid++;
+
+									t.Fee		 = at.MinFee;
+									t.Nid		 = nid;
+									t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
+
+									t.Sign(Vault.GetKey(t.Signer), at.PowHash);
+									txs.Add(t);
+								}
+								catch(NodeException)
+								{
+									Thread.Sleep(1000);
+									continue;
+								}
+								catch(EntityException)
+								{
+									if(t.__ExpectedPlacing == PlacingStage.FailedOrNotFound)
+									{
+										t.Placing = PlacingStage.FailedOrNotFound;
+										OutgoingTransactions.Remove(t);
+									} 
+									else
+										Thread.Sleep(1000);
+
+									continue;
+								}
+								finally
+								{
+									Monitor.Enter(Lock);
+								}
 							}
 
 							IEnumerable<byte[]> atxs = null;
@@ -1620,7 +1670,7 @@ namespace Uccs.Net
 								{
 									t.Placing = PlacingStage.Accepted;
 
-									Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdc}");
+									Workflow.Log?.Report(this, "Operation(s) accepted", $"N={t.Operations.Length} -> {m}, {t.Rdi}");
 								}
 								else
 								{
@@ -1642,7 +1692,7 @@ namespace Uccs.Net
 
 					if(accepted.Any())
 					{
-						foreach(var g in accepted.GroupBy(i => i.Rdc).ToArray())
+						foreach(var g in accepted.GroupBy(i => i.Rdi).ToArray())
 						{
 							TransactionStatusResponse ts;
 

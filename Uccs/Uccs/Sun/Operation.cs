@@ -31,6 +31,7 @@ namespace Uccs.Net
 	public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		public string			Error;
+		public Money			Fee;
 		//public AccountAddress	Signer { get; set; }
 		public Transaction		Transaction;
 		public AccountAddress	Signer => Transaction.Signer;
@@ -97,12 +98,12 @@ namespace Uccs.Net
 
 		public static Money CalculateEntityFee(byte years)
 		{
-			return Mcv.EntityAllocationFee * new Money(1u << years);
+			return Mcv.EntityAllocationFee * new Money(years * years * years);
 		}
 
 		public static Money CalculateResourceDataFee(int size, byte years)
 		{
-			return Mcv.ResourceDataPerByteFee * size * new Money(1u << years);
+			return Mcv.ResourceDataPerByteFee * size * new Money(years * years * years);
 		}
 
 		public void PayForResourceData(Round round, int length, byte years)
@@ -110,7 +111,7 @@ namespace Uccs.Net
 			var fee = CalculateResourceDataFee(length, years);
 			
 			Affect(round, Signer).Balance -= fee;
-			round.Fees += fee;
+			Fee += fee;
 		}
 
 		public void PayForEntity(Round round, byte years)
@@ -118,7 +119,7 @@ namespace Uccs.Net
 			var fee = CalculateEntityFee(years);
 			
 			Affect(round, Signer).Balance -= fee;
-			round.Fees += fee;
+			Fee += fee;
 		}
 
 		public AccountEntry Affect(Round round, AccountAddress account)

@@ -108,6 +108,8 @@ namespace Uccs.Net
 			
 			void execute(ResourceAddress resource, bool ignore_renewal_errors)
 			{
+				Fee += round.ConfirmedExeunitMinFee;
+
 				var r = a.AffectResource(resource);
 	
 // 				if(Changes.HasFlag(ResourceChanges.Years))

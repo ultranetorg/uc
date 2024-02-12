@@ -157,7 +157,7 @@ namespace Uccs.Net
 				}
 
 				/// dont refund previous winner
-				round.Fees += a.LastBid;
+				Fee += a.LastBid;
 
 				Affect(round, Signer).Balance -= Bid;
 				

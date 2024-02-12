@@ -48,7 +48,7 @@ namespace Uccs.Net
 				if(e?.Owner == null)
 				{
 					if(Exclusive) /// distribite winner bid, one time
-						round.Fees += e.LastBid;
+						Fee += e.LastBid;
 				}
 
 

@@ -40,6 +40,18 @@ namespace Uccs.Net
 			return e.Any() ? e.OrderByRandom().First() : default;
 		}
 
+		public static Money SumMoney<T>(this IEnumerable<T> e, Func<T, Money> by)
+		{
+			var s = Money.Zero;
+
+			foreach(var i in e)
+			{
+				s = s + by(i);
+			}
+
+			return s;
+		}
+
 		public static IEnumerable<T> OrderByRandom<T>(this IEnumerable<T> e)
 		{
 			return e.OrderBy(i => Guid.NewGuid());

@@ -47,14 +47,14 @@ namespace Uccs.Net
 		public AccountAddress[]								ConfirmedViolators = {};
 		public OperationId[]								ConfirmedEmissions = {};
 		public OperationId[]								ConfirmedDomainBids = {};
+		public Money										ConfirmedExeunitMinFee;
+		public int											ConfirmedOverflowRound;
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
 		public Money										Fees;
 		public Money										Emission;
-		public Money										ConfirmedExeunitMinFee;
-		public int											ConfirmedOverflowRound;
 		public List<Member>									Members = new();
 		public List<Analyzer>								Analyzers;
 		public List<AccountAddress>							Funds;
@@ -70,7 +70,7 @@ namespace Uccs.Net
 		public Dictionary<ReleaseAddress, ReleaseEntry>		AffectedReleases = new();
 
 		public Mcv											Mcv;
-		
+
 		public int RequiredVotes
 		{
 			get
@@ -109,7 +109,7 @@ namespace Uccs.Net
 		}
 		public override string ToString()
 		{
-			return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Confirmed ? "Confirmed " : "")}";
+			return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Confirmed ? "Confirmed " : "")}, Hash={Hash?.ToHex()}";
 		}
 
 
@@ -319,7 +319,7 @@ namespace Uccs.Net
 			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
 			ConfirmedEmissions			= reader.ReadArray<OperationId>();
 			ConfirmedDomainBids			= reader.ReadArray<OperationId>();
-			ConfirmedTransactions		= reader.Read(() =>	new Transaction() {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+			ConfirmedTransactions		= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
 		public void Write(BinaryWriter w)

@@ -48,7 +48,7 @@ namespace Uccs.Net
 		
 		public Zone						Zone;
 		public PlacingStage				Placing;
-		public RdcInterface				Rdc;
+		public RdcInterface				Rdi;
 
 		public PlacingStage				__ExpectedPlacing = PlacingStage.None;
 

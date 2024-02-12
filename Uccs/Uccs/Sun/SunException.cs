@@ -37,6 +37,7 @@ namespace Uccs.Net
 		None,
 		NotFound,
 		RoundNotAvailable,
+		ExcutionFailed,
 	}
 
 	public enum RequestError : byte
