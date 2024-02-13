@@ -27,6 +27,7 @@ namespace Uccs.Net
 		public static readonly Money		EntityAllocationFee		= new Money(0.001);
 		public static readonly Money		AnalysisPerByteFee		= new Money(0.000_000_001);
 		public static readonly Money		BalanceMin				= new Money(0.000_000_001);
+		public static int					RentFactor(int years)	=> years * years * 10;
 		//public const int					EntityAllocation = 1000;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;

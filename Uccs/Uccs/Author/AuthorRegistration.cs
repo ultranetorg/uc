@@ -59,7 +59,7 @@ namespace Uccs.Net
 				a.Expiration	= round.ConfirmedTime + Time.FromYears(Years);
 
 				PayForEntity(round, Years);
-				PayForResourceData(round, a.SpaceUsed, Years);
+				PayForBytes(round, a.SpaceUsed, Years);
 
 				foreach(var i in a.Resources)
 					PayForEntity(round, Years);

@@ -189,7 +189,7 @@ namespace Uccs.Net
 							if(y < 0)
 								throw new IntegrityException();
 
-							PayForResourceData(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
+							PayForBytes(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
 
 							a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
 							a.SpaceReserved	= a.SpaceUsed;
@@ -218,7 +218,6 @@ namespace Uccs.Net
 								return;
 							}
 						}
-
 					}
 					else
 						r.Flags &= ~ResourceFlags.Data;

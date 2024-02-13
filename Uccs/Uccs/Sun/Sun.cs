@@ -1493,8 +1493,8 @@ namespace Uccs.Net
 						
 						if(r.Hash == null)
 						{
-							r.ConfirmedTime = Time.Now(Clock);
-							r.ConfirmedExeunitMinFee = Mcv.LastConfirmedRound.ConfirmedExeunitMinFee;
+							r.ConfirmedTime = r.Previous.ConfirmedTime;
+							r.ConfirmedExeunitMinFee = r.Previous.ConfirmedExeunitMinFee;
 						}
 
 						if(!r.Confirmed)

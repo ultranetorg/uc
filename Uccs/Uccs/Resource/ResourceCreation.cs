@@ -131,7 +131,7 @@ namespace Uccs.Net
 
 				if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
 				{
-					PayForResourceData(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
+					PayForBytes(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
 
 					a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
 					a.SpaceReserved	= a.SpaceUsed;
