@@ -15,7 +15,7 @@ namespace Uccs.Net
 		Analyses
 	}
 
-	public abstract class Table<E, K> : IEnumerable<E> where E : ITableEntry<K>
+	public abstract class Table<E, K> : IEnumerable<E> where E : class, ITableEntry<K>
 	{
 		public class Cluster
 		{
@@ -379,6 +379,33 @@ namespace Uccs.Net
 			}
 
 			CalculateSuperClusters();
+		}
+
+		public long MeasureChanges(IEnumerable<E> affected)
+		{
+			var si = new FakeStream();
+			var wi = new BinaryWriter(si);
+
+			var se = new FakeStream();
+			var we = new BinaryWriter(se);
+
+			foreach(var i in affected)
+			{
+				var c = Clusters.Find(j => j.Id.SequenceEqual(i.Id.Ci));
+
+				var e = c?.Entries.Find(e => Equal(e.Key, i.Key));
+				
+				if(e != null)
+				{
+					we.Write7BitEncodedInt(e.Id.Ei);
+					e.WriteMain(we);
+				}
+
+				wi.Write7BitEncodedInt(i.Id.Ei);
+				i.WriteMain(wi);
+			}
+
+			return si.Length - se.Length;
 		}
 	}
 }

@@ -82,7 +82,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(Author.IsExpired(a, round.ConfirmedTime))
+			if(Author.IsExpired(a, round.ConsensusTime))
 			{
 				Error = Expired;
 				return;
@@ -101,7 +101,7 @@ namespace Uccs.Net
 
 			r.Flags	= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
 			
-			var y = (byte)((a.Expiration.Days - round.ConfirmedTime.Days) / 365 + 1);
+			var y = (byte)((a.Expiration.Days - round.ConsensusTime.Days) / 365 + 1);
 
 			if(y < 0)
 				throw new IntegrityException();
@@ -131,6 +131,8 @@ namespace Uccs.Net
 
 				if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
 				{
+					//round.DataRented += a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved;
+
 					PayForBytes(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
 
 					a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
@@ -143,9 +145,9 @@ namespace Uccs.Net
 					{
 						var z = Affect(round, ra);
 					
-						if(z.Expiration - round.ConfirmedTime < Time.FromYears(1))
+						if(z.Expiration - round.ConsensusTime < Time.FromYears(1))
 						{
-							z.Expiration = round.ConfirmedTime + Time.FromYears(10);
+							z.Expiration = round.ConsensusTime + Time.FromYears(10);
 							PayForEntity(round, 10);
 						}
 						else

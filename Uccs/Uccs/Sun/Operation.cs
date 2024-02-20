@@ -52,18 +52,18 @@ namespace Uccs.Net
 		public OperationClass	Class => Enum.Parse<OperationClass>(GetType().Name);
 		public byte				TypeCode => (byte)Class;
 
-		protected OperationId	_id;
+		protected OperationId	_Id;
 		
 		public OperationId Id
 		{
 			get
 			{
-				if(_id == default)
+				if(_Id == default)
 				{
-					_id = new (Transaction.Id.Ri, Transaction.Id.Ti, (byte)Array.IndexOf(Transaction.Operations, this));
+					_Id = new (Transaction.Id.Ri, Transaction.Id.Ti, (byte)Array.IndexOf(Transaction.Operations, this));
 				}
 
-				return _id;
+				return _Id;
 			}
 		}
 			
@@ -96,19 +96,19 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public static Money CalculateEntityFee(byte years)
+		public static Money CalculateEntityFee(Money rentperentity, byte years)
 		{
-			return Mcv.EntityAllocationFee * new Money(Mcv.RentFactor(years));
+			return rentperentity * new Money(Mcv.RentFactor(years));
 		}
 
-		public static Money CalculateResourceDataFee(int size, byte years)
+		public static Money CalculateResourceDataFee(Money rentperbyte, int size, byte years)
 		{
-			return Mcv.ResourceDataPerByteFee * size * new Money(Mcv.RentFactor(years));
+			return rentperbyte * size * new Money(Mcv.RentFactor(years));
 		}
 
 		public void PayForBytes(Round round, int length, byte years)
 		{
-			var fee = CalculateResourceDataFee(length, years);
+			var fee = CalculateResourceDataFee(round.RentalPerByte, length, years);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;
@@ -116,7 +116,7 @@ namespace Uccs.Net
 
 		public void PayForEntity(Round round, byte years)
 		{
-			var fee = CalculateEntityFee(years);
+			var fee = CalculateEntityFee(round.RentPerEntity, years);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;

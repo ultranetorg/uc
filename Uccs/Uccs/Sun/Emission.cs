@@ -49,7 +49,7 @@ namespace Uccs.Net
 
 		public void ReadBaseState(BinaryReader reader)
 		{
-			_id	= reader.Read<OperationId>();
+			_Id	= reader.Read<OperationId>();
 
 			Transaction = new Transaction();
 			

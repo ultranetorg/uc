@@ -142,13 +142,13 @@ namespace Uccs.Sun.FUI
 									ntry = Math.Max(ntry, r.Try);
 									nv = r.Id >= Mcv.DeclareToGenerateDelay ? Math.Max(nv, IntLength((r.Majority != null ? r.Majority.Count() : 0)) + 1 + IntLength(r.RequiredVotes)) : 0;
 									//njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
-									nl = Math.Max(nl, r.ConfirmedMemberLeavers.Length);
+									nl = Math.Max(nl, r.ConsensusMemberLeavers.Length);
 		
 									if(r?.Members != null)
 										nm = Math.Max(nm, r.Members.Count);
 
 									if(r != null)
-										ndate = Math.Max(ndate, r.ConfirmedTime.ToString().Length);
+										ndate = Math.Max(ndate, r.ConsensusTime.ToString().Length);
 								}
 							}
 
@@ -216,8 +216,8 @@ namespace Uccs.Sun.FUI
 																r.Id > Mcv.P ? $"{(r.Majority != null ? r.Majority.Count() : 0)}/{r.RequiredVotes}" : null,
 																r.Members.Count,
 																//r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
-																r.ConfirmedMemberLeavers.Length,
-																r.ConfirmedTime,
+																r.ConsensusMemberLeavers.Length,
+																r.ConsensusTime,
 																r.Hash != null ?r.Hash.ToHexPrefix() : "--------");
 										
 										x += (int)e.Graphics.MeasureString(t, Font, int.MaxValue).Width;

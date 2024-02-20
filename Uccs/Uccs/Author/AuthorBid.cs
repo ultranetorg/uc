@@ -44,7 +44,7 @@ namespace Uccs.Net
 		{
 			Name	= reader.ReadUtf8();
 			Tld		= reader.ReadUtf8();
-			Bid		= reader.ReadMoney();
+			Bid		= reader.Read<Money>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -65,14 +65,14 @@ namespace Uccs.Net
 
 		public void ReadBaseState(BinaryReader reader)
 		{
-			_id	= reader.Read<OperationId>();
+			_Id	= reader.Read<OperationId>();
 
 			Transaction = new Transaction();
 			
 			Transaction.Signer	= reader.ReadAccount();
 			Name				= reader.ReadUtf8();
 			Tld					= reader.ReadUtf8();
-			Bid					= reader.ReadMoney();
+			Bid					= reader.Read<Money>();
 		}
 		public override void Execute(Mcv mcv, Round round)
 		{
@@ -90,13 +90,13 @@ namespace Uccs.Net
 		{
 			var a =  mcv.Authors.Find(Name, round.Id);
 
- 			if(a != null && !Author.IsExpired(a, round.ConfirmedTime))
+ 			if(a != null && !Author.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{
 					return;
 				}
-				else if(round.ConfirmedTime < a.AuctionEnd)
+				else if(round.ConsensusTime < a.AuctionEnd)
 				{
 					if((!a.DomainOwnersOnly && Tld.Any()) || (a.DomainOwnersOnly && a.LastBid < Bid && Tld.Any())) /// outbid
 					{
@@ -116,22 +116,22 @@ namespace Uccs.Net
 		{
 			var a = Affect(round, Name);
 
- 			if(!Author.IsExpired(a, round.ConfirmedTime))
+ 			if(!Author.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{
 					Affect(round, Signer).Balance -= Bid;
 						
 					a.Owner				= null;
-					a.FirstBidTime		= round.ConfirmedTime;
+					a.FirstBidTime		= round.ConsensusTime;
 					a.LastBid			= Bid;
-					a.LastBidTime		= round.ConfirmedTime;
+					a.LastBidTime		= round.ConsensusTime;
 					a.LastWinner		= Signer;
 					a.DomainOwnersOnly	= Tld.Any();
 						
 					return;
 				}
-				else if(round.ConfirmedTime < a.AuctionEnd)
+				else if(round.ConsensusTime < a.AuctionEnd)
 				{
 					if((!a.DomainOwnersOnly && (a.LastBid < Bid || Tld.Any())) || (a.DomainOwnersOnly && a.LastBid < Bid && Tld.Any())) /// outbid
 					{
@@ -142,7 +142,7 @@ namespace Uccs.Net
 							a.DomainOwnersOnly = true;
 						
 						a.LastBid		= Bid;
-						a.LastBidTime	= round.ConfirmedTime;
+						a.LastBidTime	= round.ConsensusTime;
 						a.LastWinner	= Signer;
 				
 						return;
@@ -162,9 +162,9 @@ namespace Uccs.Net
 				Affect(round, Signer).Balance -= Bid;
 				
 				a.Owner				= null;
-				a.FirstBidTime		= round.ConfirmedTime;
+				a.FirstBidTime		= round.ConsensusTime;
 				a.LastBid			= Bid;
-				a.LastBidTime		= round.ConfirmedTime;
+				a.LastBidTime		= round.ConsensusTime;
 				a.LastWinner		= Signer;
 				a.DomainOwnersOnly	= Tld.Any();
 			

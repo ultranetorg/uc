@@ -170,11 +170,6 @@ namespace Uccs.Net
 			return Encoding.UTF8.GetString(r.ReadBytes(r.Read7BitEncodedInt()));
 		}
 
-		public static Money ReadMoney(this BinaryReader r)
-		{
-			return new Money(r);
-		}
-
 		public static BigInteger ReadBigInteger(this BinaryReader r)
 		{
 			return new BigInteger(r.ReadBytes(r.ReadByte()));

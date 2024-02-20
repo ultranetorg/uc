@@ -37,7 +37,7 @@ namespace Uccs.Net
 					if(round_predicate != null && !round_predicate(r))
 						continue;
 
-					foreach(var t in r.ConfirmedTransactions.Where(t => t.Signer == account))
+					foreach(var t in r.ConsensusTransactions.Where(t => t.Signer == account))
 					{
 						if(transaction_predicate == null || transaction_predicate(t))
 							return t;
@@ -63,7 +63,7 @@ namespace Uccs.Net
 
 					foreach(var p in r.Payloads)
 					{
-						foreach(var t in r.ConfirmedTransactions.Where(t => t.Signer == account))
+						foreach(var t in r.ConsensusTransactions.Where(t => t.Signer == account))
 						{
 							if(transaction_predicate == null || transaction_predicate(t))
 								yield return t;

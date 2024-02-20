@@ -27,7 +27,7 @@ namespace Uccs.Net
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Release = reader.Read(ReleaseAddress.FromType);
-			Fee		= reader.ReadMoney();
+			Fee		= reader.Read<Money>();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -40,7 +40,7 @@ namespace Uccs.Net
 
 			var z = mcv.Releases.Find(Release, round.Id);
 
-			if(z != null && z.Flags.HasFlag(ReleaseFlag.Analysis) && round.ConfirmedTime.Days - z.StartedAt.Days < 2) /// 1..2 days
+			if(z != null && z.Flags.HasFlag(ReleaseFlag.Analysis) && round.ConsensusTime.Days - z.StartedAt.Days < 2) /// 1..2 days
 			{
 				Error = AlreadyExists;
 				return;
@@ -48,15 +48,15 @@ namespace Uccs.Net
 
 			z = Affect(round, Release);
 
-			if(z.Expiration - round.ConfirmedTime < Time.FromYears(1))
+			if(z.Expiration - round.ConsensusTime < Time.FromYears(1))
 			{
-				z.Expiration = round.ConfirmedTime + Time.FromYears(1);
+				z.Expiration = round.ConsensusTime + Time.FromYears(1);
 				PayForEntity(round, 1);
 			}
 
 			z.Flags		|= ReleaseFlag.Analysis;
 			z.Fee		= Fee;
-			z.StartedAt = round.ConfirmedTime;
+			z.StartedAt = round.ConsensusTime;
 			z.Consil	= (byte)round.Analyzers.Count;
 
 			var s = Affect(round, Signer);

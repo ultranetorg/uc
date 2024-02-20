@@ -159,7 +159,7 @@ namespace Uccs.Net
 					f.Add(new ("Size",					$"{sun.Mcv.Size}"));
 					f.Add(new ("Members",				$"{sun.Mcv.LastConfirmedRound?.Members.Count}"));
 					f.Add(new ("Emission",				$"{sun.Mcv.LastConfirmedRound?.Emission.ToHumanString()}"));
-					f.Add(new ("ExeunitMinFee",			$"{sun.Mcv.LastConfirmedRound?.ConfirmedExeunitMinFee.ToHumanString()}"));
+					f.Add(new ("ExeunitMinFee",			$"{sun.Mcv.LastConfirmedRound?.ConsensusExeunitFee.ToHumanString()}"));
 					f.Add(new ("SyncCache Blocks",		$"{sun.SyncTail.Sum(i => i.Value.Votes.Count)}"));
 					f.Add(new ("Loaded Rounds",			$"{sun.Mcv.LoadedRounds.Count}"));
 					f.Add(new ("Last Non-Empty Round",	$"{(sun.Mcv.LastNonEmptyRound != null ? sun.Mcv.LastNonEmptyRound.Id : null)}"));
@@ -227,7 +227,7 @@ namespace Uccs.Net
 																					Members = i.Members == null ? 0 : i.Members.Count,
 																					Analyzers = i.Analyzers == null ? 0 : i.Analyzers.Count,
 																					Confirmed = i.Confirmed,
-																					Time = i.ConfirmedTime,
+																					Time = i.ConsensusTime,
 																					Hash = i.Hash,
 																					Votes = i.Votes.Select(b => new ChainReportResponse.Vote {	Generator = b.Generator, 
 																																				IsPayload = b.Transactions.Any(), 

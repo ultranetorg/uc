@@ -9,6 +9,7 @@ namespace Uccs.Net
 	{
 		EntityId	Id { get; set; }
 		K			Key { get; }
+		bool		New { get; set; }
 
 		void		ReadMain(BinaryReader r);
 		void		WriteMain(BinaryWriter r);

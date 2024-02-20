@@ -35,26 +35,28 @@ namespace Uccs.Net
 		public IGrouping<byte[], Vote>						Majority => Eligible.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
 		public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
-		public IEnumerable<Transaction>						Transactions => Confirmed ? ConfirmedTransactions : OrderedTransactions;
+		public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
 
-		public Time											ConfirmedTime;
-		public Transaction[]								ConfirmedTransactions = {};
-		public AccountAddress[]								ConfirmedMemberLeavers = {};
-		public AccountAddress[]								ConfirmedAnalyzerJoiners = {};
-		public AccountAddress[]								ConfirmedAnalyzerLeavers = {};
-		public AccountAddress[]								ConfirmedFundJoiners = {};
-		public AccountAddress[]								ConfirmedFundLeavers = {};
-		public AccountAddress[]								ConfirmedViolators = {};
-		public OperationId[]								ConfirmedEmissions = {};
-		public OperationId[]								ConfirmedDomainBids = {};
-		public Money										ConfirmedExeunitMinFee;
-		public int											ConfirmedOverflowRound;
+		public Time											ConsensusTime;
+		public Transaction[]								ConsensusTransactions = {};
+		public AccountAddress[]								ConsensusMemberLeavers = {};
+		public AccountAddress[]								ConsensusAnalyzerJoiners = {};
+		public AccountAddress[]								ConsensusAnalyzerLeavers = {};
+		public AccountAddress[]								ConsensusFundJoiners = {};
+		public AccountAddress[]								ConsensusFundLeavers = {};
+		public AccountAddress[]								ConsensusViolators = {};
+		public OperationId[]								ConsensusEmissions = {};
+		public OperationId[]								ConsensusDomainBids = {};
+		public Money										ConsensusExeunitFee;
+		public int											ConsensusTransactionsOverflowRound;
 
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
 		public Money										Fees;
 		public Money										Emission;
+		public Money										RentalPerByte;
+		public Money										RentPerEntity => RentalPerByte * 100;
 		public List<Member>									Members = new();
 		public List<Analyzer>								Analyzers;
 		public List<AccountAddress>							Funds;
@@ -63,7 +65,12 @@ namespace Uccs.Net
 		public int											AnalyzersIdCounter;
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextAuthorIds;
-		public Dictionary<byte[], int>						NextAnalysisIds;
+		public Dictionary<byte[], int>						NextReleaseIds;
+		public List<long>									Last365BaseDeltas;
+		public long											PreviousDayBaseSize;
+		//public long											BaseSize;
+
+		//public long											DataRented;
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
@@ -109,7 +116,7 @@ namespace Uccs.Net
 		}
 		public override string ToString()
 		{
-			return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConfirmedTime}, {(Confirmed ? "Confirmed " : "")}, Hash={Hash?.ToHex()}";
+			return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConsensusTime}, {(Confirmed ? "Confirmed " : "")}, Hash={Hash?.ToHex()}";
 		}
 
 
@@ -186,7 +193,9 @@ namespace Uccs.Net
 				
 				ai = NextAccountIds[ci]++;
 
-				return AffectedAccounts[account] = new AccountEntry(Mcv) {Id = new EntityId(ci, ai), Address = account};
+				return AffectedAccounts[account] = new AccountEntry(Mcv) {	Id = new EntityId(ci, ai), 
+																			Address = account,
+																			New = true};
 			}
 		}
 
@@ -207,13 +216,15 @@ namespace Uccs.Net
 				int ai;
 				
 				if(c == null)
-					NextAccountIds[ci] = 0;
+					NextAuthorIds[ci] = 0;
 				else
-					NextAccountIds[ci] = c.NextEntityId;
+					NextAuthorIds[ci] = c.NextEntityId;
 				
-				ai = NextAccountIds[ci]++;
+				ai = NextAuthorIds[ci]++;
 
-				return AffectedAuthors[author] = new AuthorEntry(Mcv){Id = new EntityId(ci, ai), Name = author};
+				return AffectedAuthors[author] = new AuthorEntry(Mcv){	Id = new EntityId(ci, ai), 
+																		Name = author,
+																		New = true};
 			}
 		}
 
@@ -234,15 +245,16 @@ namespace Uccs.Net
 				int ai;
 				
 				if(c == null)
-					NextAccountIds[ci] = 0;
+					NextReleaseIds[ci] = 0;
 				else
-					NextAccountIds[ci] = c.NextEntityId;
+					NextReleaseIds[ci] = c.NextEntityId;
 				
-				ai = NextAccountIds[ci]++;
+				ai = NextReleaseIds[ci]++;
 
 				return AffectedReleases[release] = new ReleaseEntry(Mcv) {	Id = new EntityId(ci, ai), 
 																			Address = release, 
-																			Results = new AnalyzerResult[0]};
+																			Results = new AnalyzerResult[0],
+																			New = true};
 			}
 		}
 
@@ -262,9 +274,14 @@ namespace Uccs.Net
 		{
 			writer.Write7BitEncodedInt(Id);
 			writer.Write(Hash);
-			writer.Write(ConfirmedTime);
-			writer.Write(ConfirmedExeunitMinFee);
-			writer.Write7BitEncodedInt(ConfirmedOverflowRound);
+			writer.Write(ConsensusTime);
+			writer.Write(ConsensusExeunitFee);
+			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
+			
+			writer.Write(RentalPerByte);
+			writer.Write7BitEncodedInt64(PreviousDayBaseSize);
+			writer.Write(Last365BaseDeltas, i => writer.Write7BitEncodedInt64(i));
+			
 			writer.Write(Emission);
 			writer.Write(Members, i => i.WriteBaseState(writer));
 			writer.Write(Analyzers, i => i.WriteBaseState(writer));
@@ -278,10 +295,15 @@ namespace Uccs.Net
 		{
 			Id						= reader.Read7BitEncodedInt();
 			Hash					= reader.ReadHash();
-			ConfirmedTime			= reader.Read<Time>();
-			ConfirmedExeunitMinFee	= reader.ReadMoney();
-			ConfirmedOverflowRound	= reader.Read7BitEncodedInt();
-			Emission				= reader.ReadMoney();
+			ConsensusTime			= reader.Read<Time>();
+			ConsensusExeunitFee	= reader.Read<Money>();
+			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
+			
+			RentalPerByte			= reader.Read<Money>();
+			PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
+			Last365BaseDeltas			= reader.ReadList(() => reader.Read7BitEncodedInt64());
+			
+			Emission				= reader.Read<Money>();
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
 			Analyzers				= reader.Read<Analyzer>(m => m.ReadBaseState(reader)).ToList();
 			AnalyzersIdCounter		= reader.Read7BitEncodedInt();
@@ -292,34 +314,34 @@ namespace Uccs.Net
 
 		public void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(ConfirmedTime);
-			writer.Write(ConfirmedExeunitMinFee);
-			writer.Write7BitEncodedInt(ConfirmedOverflowRound);
-			writer.Write(ConfirmedMemberLeavers);
-			writer.Write(ConfirmedAnalyzerJoiners);
-			writer.Write(ConfirmedAnalyzerLeavers);
-			writer.Write(ConfirmedFundJoiners);
-			writer.Write(ConfirmedFundLeavers);
-			writer.Write(ConfirmedViolators);
-			writer.Write(ConfirmedEmissions);
-			writer.Write(ConfirmedDomainBids);
-			writer.Write(ConfirmedTransactions, i => i.WriteConfirmed(writer));
+			writer.Write(ConsensusTime);
+			writer.Write(ConsensusExeunitFee);
+			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
+			writer.Write(ConsensusMemberLeavers);
+			writer.Write(ConsensusAnalyzerJoiners);
+			writer.Write(ConsensusAnalyzerLeavers);
+			writer.Write(ConsensusFundJoiners);
+			writer.Write(ConsensusFundLeavers);
+			writer.Write(ConsensusViolators);
+			writer.Write(ConsensusEmissions);
+			writer.Write(ConsensusDomainBids);
+			writer.Write(ConsensusTransactions, i => i.WriteConfirmed(writer));
 		}
 
 		public void ReadConfirmed(BinaryReader reader)
 		{
-			ConfirmedTime				= reader.Read<Time>();
-			ConfirmedExeunitMinFee		= reader.ReadMoney();
-			ConfirmedOverflowRound		= reader.Read7BitEncodedInt();
-			ConfirmedMemberLeavers		= reader.ReadArray<AccountAddress>();
-			ConfirmedAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
-			ConfirmedAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
-			ConfirmedFundJoiners		= reader.ReadArray<AccountAddress>();
-			ConfirmedFundLeavers		= reader.ReadArray<AccountAddress>();
-			ConfirmedViolators			= reader.ReadArray<AccountAddress>();
-			ConfirmedEmissions			= reader.ReadArray<OperationId>();
-			ConfirmedDomainBids			= reader.ReadArray<OperationId>();
-			ConfirmedTransactions		= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+			ConsensusTime				= reader.Read<Time>();
+			ConsensusExeunitFee		= reader.Read<Money>();
+			ConsensusTransactionsOverflowRound		= reader.Read7BitEncodedInt();
+			ConsensusMemberLeavers		= reader.ReadArray<AccountAddress>();
+			ConsensusAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
+			ConsensusAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
+			ConsensusFundJoiners		= reader.ReadArray<AccountAddress>();
+			ConsensusFundLeavers		= reader.ReadArray<AccountAddress>();
+			ConsensusViolators			= reader.ReadArray<AccountAddress>();
+			ConsensusEmissions			= reader.ReadArray<OperationId>();
+			ConsensusDomainBids			= reader.ReadArray<OperationId>();
+			ConsensusTransactions		= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		}
 
 		public void Write(BinaryWriter w)

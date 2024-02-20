@@ -184,7 +184,7 @@ namespace Uccs.Sun.FUI
 				var a = Database.Authors.Find(AuthorSearch.Text, Database.LastConfirmedRound.Id);
 				//var r = a?.FindRegistration(Chain.LastConfirmedRound);
 
-				if(a != null && !Author.CanBid(a.Name, a, Database.LastConfirmedRound.ConfirmedTime))
+				if(a != null && !Author.CanBid(a.Name, a, Database.LastConfirmedRound.ConsensusTime))
 				{
 					AuctionStatus.Text = $"Auction is over";
 				}

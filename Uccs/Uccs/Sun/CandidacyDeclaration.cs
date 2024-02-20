@@ -25,7 +25,7 @@ namespace Uccs.Net
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Bail			= reader.ReadMoney();
+			Bail			= reader.Read<Money>();
 			BaseRdcIPs		= reader.ReadArray(() => reader.ReadIPAddress());
 			SeedHubRdcIPs	= reader.ReadArray(() => reader.ReadIPAddress());
 		}

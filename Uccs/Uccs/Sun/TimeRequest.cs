@@ -8,7 +8,7 @@
 			{
 				RequireBase(sun);
 				
-				return new TimeResponse {Time = sun.Mcv.LastConfirmedRound.ConfirmedTime};
+				return new TimeResponse {Time = sun.Mcv.LastConfirmedRound.ConsensusTime};
 			}
 		}
 	}

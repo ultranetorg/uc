@@ -16,6 +16,7 @@ namespace Uccs.Net
 	{
 		public EntityId					Id { get; set; }
 		public AccountAddress			Key => Address;
+		public bool						New { get; set; }
 		
 		public HashSet<int>				Transactions = new();
 		Mcv								Mcv;

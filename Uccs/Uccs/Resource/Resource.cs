@@ -249,6 +249,8 @@ namespace Uccs.Net
 		public ResourceData		Data { get; set; }
 		public int[]			Resources { get; set; } = {};
 
+		public bool				New;
+
 		public override string ToString()
 		{
 			return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Resources={{{Resources.Length}}}";

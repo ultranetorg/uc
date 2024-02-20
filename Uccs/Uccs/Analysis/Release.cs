@@ -57,7 +57,7 @@ namespace Uccs.Net
 			
 			if(Flags.HasFlag(ReleaseFlag.Analysis))
 			{
-				Fee			= reader.ReadMoney();
+				Fee			= reader.Read<Money>();
 				StartedAt	= reader.Read<Time>();
 				Consil		= reader.ReadByte();
 				Results		= reader.ReadArray(() => new AnalyzerResult{AnalyzerId = reader.ReadByte(), 

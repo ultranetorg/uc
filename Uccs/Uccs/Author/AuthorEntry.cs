@@ -12,6 +12,7 @@ namespace Uccs.Net
 	public class AuthorEntry : Author, ITableEntry<string>
 	{
 		public string		Key => Name;
+		public bool			New { get; set; }
 		
 		Mcv					Chain;
 		List<Resource>		AffectedResources = new();
@@ -122,7 +123,7 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				r = new Resource{Address = resource, Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++)};
+				r = new Resource{Address = resource, Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++), New = true};
 				
 				Resources = Resources.Append(r).ToArray();
 			}

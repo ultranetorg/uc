@@ -95,7 +95,7 @@ namespace Uccs.Sun.FUI
 				var r = Sun.Mcv.FindRound((int)Round.Value);
 
 				InfoValues.Text = (r.Confirmed ? "Confirmed " : "") + "\n" +
-									r.ConfirmedTime + "\n" +
+									r.ConsensusTime + "\n" +
 									(r.Hash != null ? Hex.ToHexString(r.Hash) : null) + "\n"
 									//r.TransactionPerByteFee.ToHumanString()
 									;
@@ -110,23 +110,23 @@ namespace Uccs.Sun.FUI
 												return li;
 											}).ToArray());
 
-				var txs = r.Confirmed ? r.ConfirmedTransactions : r.OrderedTransactions;
+				var txs = r.Confirmed ? r.ConsensusTransactions : r.OrderedTransactions;
 				LoadTransactions(txs);
 				LoadOperations(txs.SelectMany(i => i.Operations));
 
 				if(r.Id > 0)
 					MemberJoiners.Items.AddRange(r.Members.Where(i => !r.Previous.Members.Any(j => i.Account == j.Account)).Select(i => new ListViewItem(i.ToString())).ToArray());
-				MemberLeavers.Items.AddRange(r.ConfirmedMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
-				Violators.Items.AddRange(r.ConfirmedViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
+				MemberLeavers.Items.AddRange(r.ConsensusMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
+				Violators.Items.AddRange(r.ConsensusViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
 
-				AnalyzerJoiners.Items.AddRange(r.ConfirmedAnalyzerJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
-				AnalyzerLeavers.Items.AddRange(r.ConfirmedAnalyzerLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
+				AnalyzerJoiners.Items.AddRange(r.ConsensusAnalyzerJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
+				AnalyzerLeavers.Items.AddRange(r.ConsensusAnalyzerLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 
-				FundJoiners.Items.AddRange(r.ConfirmedFundJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
-				FundLeavers.Items.AddRange(r.ConfirmedFundLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
+				FundJoiners.Items.AddRange(r.ConsensusFundJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
+				FundLeavers.Items.AddRange(r.ConsensusFundLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 
-				Emissions.Items.AddRange(r.ConfirmedEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
-				DomainBids.Items.AddRange(r.ConfirmedDomainBids.Select(i => new ListViewItem(i.ToString())).ToArray());
+				Emissions.Items.AddRange(r.ConsensusEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
+				DomainBids.Items.AddRange(r.ConsensusDomainBids.Select(i => new ListViewItem(i.ToString())).ToArray());
 			}
 		}
 

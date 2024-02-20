@@ -18,7 +18,7 @@ namespace Uccs.Net
 		const int						TagLengthMax = 1024;
 
 		public int						Nid;
-		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConfirmedTransactions, this));
+		public TransactionId			Id => new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this));
 		public Operation[]				Operations = {};
 		public bool						Successful => Operations.Any() && Operations.All(i => i.Error == null);
 
@@ -145,7 +145,7 @@ namespace Uccs.Net
 
 			Signer		= reader.ReadAccount();
 			Nid			= reader.Read7BitEncodedInt();
-			Fee			= reader.ReadMoney();
+			Fee			= reader.Read<Money>();
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
  													var o = Operation.FromType((OperationClass)reader.ReadByte());
@@ -178,7 +178,7 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
-			Fee			= reader.ReadMoney();
+			Fee			= reader.Read<Money>();
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
  			Operations	= reader.ReadArray(() => {
@@ -213,7 +213,7 @@ namespace Uccs.Net
 			Signature	= reader.ReadSignature();
 			Nid			= reader.Read7BitEncodedInt();
 			Expiration	= reader.Read7BitEncodedInt();
-			Fee			= reader.ReadMoney();
+			Fee			= reader.Read<Money>();
 			PoW			= reader.ReadBytes(PoWLength);
 			Tag			= reader.ReadBytes();
 			Operations	= reader.ReadArray(() => {

@@ -304,7 +304,7 @@ namespace Uccs.Net
 				Mcv.Commited += r => {
 										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Generators.Contains(i.Account)))
 										{
-											var ops = r.ConfirmedTransactions.SelectMany(t => t.Operations).ToArray();
+											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
 												
 											foreach(var o in ops)
 											{
@@ -363,8 +363,8 @@ namespace Uccs.Net
 											}
 										}
 
-										ApprovedEmissions.RemoveAll(i => r.ConfirmedEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
-										ApprovedDomainBids.RemoveAll(i => r.ConfirmedDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedEmissions.RemoveAll(i => r.ConsensusEmissions.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
+										ApprovedDomainBids.RemoveAll(i => r.ConsensusDomainBids.Contains(i) || r.Id > i.Ri + Zone.ExternalVerificationDurationLimit);
 										IncomingTransactions.RemoveAll(t => t.Vote?.Round != null && t.Vote.Round.Id <= r.Id || t.Expiration <= r.Id);
 										//Analyses.RemoveAll(i => r.ConfirmedAnalyses.Any(j => j.Resource == i.Release && j.Finished));
 									};
@@ -999,7 +999,7 @@ namespace Uccs.Net
 					{
 						stamp = peer.GetStamp();
 		
-						void download<E, K>(Table<E, K> t) where E : ITableEntry<K>
+						void download<E, K>(Table<E, K> t) where E : class, ITableEntry<K>
 						{
 							var ts = peer.GetTableStamp(t.Type, (t.Type switch
 																		{ 
@@ -1300,8 +1300,8 @@ namespace Uccs.Net
 			var p = Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound;
 
 			var r = new Round(Mcv) {Id						= p.Id + 1,
-									ConfirmedTime			= Time.Now(Clock), 
-									ConfirmedExeunitMinFee	= p.ConfirmedExeunitMinFee,
+									ConsensusTime			= Time.Now(Clock), 
+									ConsensusExeunitFee	= p.ConsensusExeunitFee,
 									Members					= p.Members,
 									Funds					= p.Funds,
 									Analyzers				= p.Analyzers};
@@ -1314,7 +1314,7 @@ namespace Uccs.Net
 		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 		{
 			foreach(var i in txs.Where(i =>	!IncomingTransactions.Any(j => j.Signer == i.Signer && j.Nid == i.Nid) &&
-											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConfirmedExeunitMinFee &&
+											i.Fee >= i.Operations.Length * Mcv.LastConfirmedRound.ConsensusExeunitFee &&
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
@@ -1493,8 +1493,8 @@ namespace Uccs.Net
 						
 						if(r.Hash == null)
 						{
-							r.ConfirmedTime = r.Previous.ConfirmedTime;
-							r.ConfirmedExeunitMinFee = r.Previous.ConfirmedExeunitMinFee;
+							r.ConsensusTime = r.Previous.ConsensusTime;
+							r.ConsensusExeunitFee = r.Previous.ConsensusExeunitFee;
 						}
 
 						if(!r.Confirmed)
@@ -1817,8 +1817,8 @@ namespace Uccs.Net
 					case PlacingStage.FailedOrNotFound :	if(t.Placing == PlacingStage.FailedOrNotFound) goto end; else break;
 				}
 
-				Thread.Sleep(100);
 			}
+				Thread.Sleep(100);
 
 			end:
 				workflow.Log?.Report(this, $"Transaction is {t.Placing}", t.ToString());

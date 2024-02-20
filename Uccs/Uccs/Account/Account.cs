@@ -30,7 +30,7 @@ namespace Uccs.Net
 		public virtual void Read(BinaryReader reader)
 		{
 			Address				= reader.ReadAccount();
-			Balance				= reader.ReadMoney();
+			Balance				= reader.Read<Money>();
 			LastTransactionNid	= reader.Read7BitEncodedInt();
 			LastEmissionId		= reader.Read7BitEncodedInt();
 
@@ -38,7 +38,7 @@ namespace Uccs.Net
 
 			if(CandidacyDeclarationRid != -1)
 			{
-				Bail = reader.ReadMoney();
+				Bail = reader.Read<Money>();
 			}
 
 		}

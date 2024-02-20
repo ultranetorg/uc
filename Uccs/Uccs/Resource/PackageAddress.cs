@@ -15,18 +15,16 @@ namespace Uccs.Net
 		public string			Realization { get { return _Realization; }	set { _Realization = value; _Resource = null; _String = null; _Ura = null; } }
 		public ReleaseAddress	Release		{ get { return _Hash; }			set { _Hash = value;		_Resource = null; _String = null; _Ura = null; } }
 
-		public const char	PR = '.';
+		public const char		PR = '.';
+		public string			APR => $"{Author}{Ura.AR}{Product}{PR}{Realization}";
 
-		public string	APR => $"{Author}{Ura.AR}{Product}{PR}{Realization}";
-
-		string			_Author;
-		string			_Product;
-		string			_Realization;
-		ReleaseAddress	_Hash;
-		ResourceAddress	_Resource;
-		Ura				_Ura;
-		string			_String;
-
+		string					_Author;
+		string					_Product;
+		string					_Realization;
+		ReleaseAddress			_Hash;
+		ResourceAddress			_Resource;
+		Ura						_Ura;
+		string					_String;
 
 		public static implicit operator ResourceAddress (PackageAddress a)
 		{ 

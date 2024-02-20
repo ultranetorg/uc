@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Uccs.Net
 {
@@ -13,19 +9,29 @@ namespace Uccs.Net
 
 	public class RealClock : Clock
 	{
-		override public DateTime	Now => DateTime.UtcNow;
+		override public DateTime Now => DateTime.UtcNow;
 	}
 
 	public class SimulationClock : Clock
 	{
-		DateTime Time = DateTime.UtcNow;
-		DateTime Last = DateTime.UtcNow;
+		DateTime	Time = DateTime.UtcNow;
+		DateTime	Last = DateTime.UtcNow;
+		float		Speed = 1f;
+
+		public SimulationClock()
+		{
+		}
+
+		public SimulationClock(float speed)
+		{
+			Speed = speed;
+		}
 
 		override public DateTime Now
 		{
 			get
 			{
-				Time += DateTime.UtcNow - Last;
+				Time += (DateTime.UtcNow - Last) * Speed;
 				Last = DateTime.UtcNow;
 				return Time;
 			}

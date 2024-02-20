@@ -9,6 +9,7 @@ namespace Uccs.Net
 	{
 		public EntityId			Id { get; set; }
 		public ReleaseAddress	Key => Address;
+		public bool				New { get; set; }
 
 		Mcv						Chain;
 
