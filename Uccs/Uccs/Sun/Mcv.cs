@@ -54,6 +54,7 @@ namespace Uccs.Net
 		public int							Size => Accounts.Clusters.Sum(i => i.MainLength) +
 													Authors.Clusters.Sum(i => i.MainLength) +
 													Releases.Clusters.Sum(i => i.MainLength);
+		bool								ReadyToCommit(Round round) => Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Commited;
@@ -223,7 +224,7 @@ namespace Uccs.Net
 
 				var lcr = FindRound(rd.Read7BitEncodedInt());
 					
-				for(int i = lcr.Id - lcr.Id % Zone.TailLength; i <= lcr.Id; i++)
+				for(int i = lcr.Id - lcr.Id % Zone.CommitLength; i <= lcr.Id; i++)
 				{
 					var r = FindRound(i);
 
@@ -450,9 +451,9 @@ namespace Uccs.Net
 
 		void Recycle()
 		{
-			if(LoadedRounds.Count > Zone.TailLength)
+			if(LoadedRounds.Count > Zone.CommitLength)
 			{
-				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.TailLength))
+				foreach(var i in LoadedRounds.OrderByDescending(i => i.Value.Id).Skip(Zone.CommitLength))
 				{
 					LoadedRounds.Remove(i.Key);
 				}
@@ -745,40 +746,6 @@ namespace Uccs.Net
 			round.Emissions				= round.Emissions.ToList();
 			round.DomainBids			= round.DomainBids.ToList();
 
-			if(round.Id > 0 && round.ConsensusTime != round.Previous.ConsensusTime)
-			{
-				var accounts = new Dictionary<AccountAddress, AccountEntry>();
-				var authors	 = new Dictionary<string, AuthorEntry>();
-				var releases = new Dictionary<ReleaseAddress, ReleaseEntry>();
-
-				foreach(var r in Tail.SkipWhile(i => i != round))
-				{
-					foreach(var i in r.AffectedAccounts)
-						if(!accounts.ContainsKey(i.Key))
-							accounts.Add(i.Key, i.Value);
-
-					foreach(var i in r.AffectedAuthors)
-						if(!authors.ContainsKey(i.Key))
-							authors.Add(i.Key, i.Value);
-
-					foreach(var i in r.AffectedReleases)
-						if(!releases.ContainsKey(i.Key))
-							releases.Add(i.Key, i.Value);
-				}
-
-				var s = Size + Accounts.MeasureChanges(accounts.Values) + Authors.MeasureChanges(authors.Values) + Releases.MeasureChanges(releases.Values);
-								
-				round.Last365BaseDeltas.RemoveAt(0);
-				round.Last365BaseDeltas.Add(s - round.PreviousDayBaseSize);
-
-				if(round.Last365BaseDeltas.Sum() > 100L*1024*1024*1024)
-				{
-					round.RentalPerByte = Zone.RentPerByteMinimum * round.Last365BaseDeltas.Sum() / (100L*1024*1024*1024);
-				}
-
-				round.PreviousDayBaseSize = s;
-			}
-
 			foreach(var f in round.ConsensusViolators)
 			{
 				var fe = round.AffectAccount(f);
@@ -860,9 +827,48 @@ namespace Uccs.Net
 
 			round.Analyzers.RemoveAll(i => round.ConsensusAnalyzerLeavers.Contains(i.Account));
 			round.Analyzers.AddRange(round.ConsensusAnalyzerJoiners.Select(i => new Analyzer {Id = (byte)round.AnalyzersIdCounter++, Account = i, JoinedAt = round.Id + P + 1}));
-					
-			round.Confirmed = true;
+			
+			if(ReadyToCommit(round))
+			{
+				var tail = Tail.AsEnumerable().Reverse().Take(Zone.CommitLength);
+				round.Distribute(tail.SumMoney(i => i.Fees), round.Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, round.Funds, 1);
+			}
 
+			if(round.Id > 0 && round.ConsensusTime != round.Previous.ConsensusTime)
+			{
+				var accounts = new Dictionary<AccountAddress, AccountEntry>();
+				var authors	 = new Dictionary<string, AuthorEntry>();
+				var releases = new Dictionary<ReleaseAddress, ReleaseEntry>();
+
+				foreach(var r in Tail.SkipWhile(i => i != round))
+				{
+					foreach(var i in r.AffectedAccounts)
+						if(!accounts.ContainsKey(i.Key))
+							accounts.Add(i.Key, i.Value);
+
+					foreach(var i in r.AffectedAuthors)
+						if(!authors.ContainsKey(i.Key))
+							authors.Add(i.Key, i.Value);
+
+					foreach(var i in r.AffectedReleases)
+						if(!releases.ContainsKey(i.Key))
+							releases.Add(i.Key, i.Value);
+				}
+
+				var s = Size + Accounts.MeasureChanges(accounts.Values) + Authors.MeasureChanges(authors.Values) + Releases.MeasureChanges(releases.Values);
+								
+				round.Last365BaseDeltas.RemoveAt(0);
+				round.Last365BaseDeltas.Add(s - round.PreviousDayBaseSize);
+
+				if(round.Last365BaseDeltas.Sum() > 100L*1024*1024*1024)
+				{
+					round.RentalPerByte = Zone.RentPerByteMinimum * round.Last365BaseDeltas.Sum() / (100L*1024*1024*1024);
+				}
+
+				round.PreviousDayBaseSize = s;
+			}
+			
+			round.Confirmed = true;
 			LastConfirmedRound = round;
 		}
 	
@@ -870,11 +876,9 @@ namespace Uccs.Net
 		{
 			using(var b = new WriteBatch())
 			{
-				if(Tail.Count(i => i.Id <= round.Id) >= Zone.TailLength)
+				if(ReadyToCommit(round))
 				{
-					var tail = Tail.AsEnumerable().Reverse().Take(Zone.TailLength);
-		
-					round.Distribute(tail.SumMoney(i => i.Fees), round.Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, round.Funds, 1); /// taking 10% we prevent a member from sending his own transactions using his own blocks for free, this could be used for block flooding
+					var tail = Tail.AsEnumerable().Reverse().Take(Zone.CommitLength);
 
 					foreach(var i in tail)
 					{
@@ -931,21 +935,7 @@ namespace Uccs.Net
 				Database.Write(b);
 			}
 
-			//if(round.Id > Pitch)
-			{
-				var ro = FindRound(round.Id - P-1);
-				
-				if(ro != null)
-				{
-					#if !DEBUG
-					//ro.Votes.Clear();
-					//ro.AnalyzerVoxes.Clear();
-					#endif
-				}
-			}
-
 			Commited?.Invoke(round);
-			//round.JoinRequests.RemoveAll(i => i.RoundId < round.Id - Pitch);
 		}
 
 		public Transaction FindLastTailTransaction(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)

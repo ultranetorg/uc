@@ -162,7 +162,7 @@ namespace Uccs.Net
 			{
 				foreach(var i in Outs.OfType<RdcRequest>())
 				{
-					if(!i.Event.SafeWaitHandle.IsClosed)
+					if(i.Event != null && !i.Event.SafeWaitHandle.IsClosed)
 					{
 						i.Event.Set();
 						i.Event.Close();
@@ -209,11 +209,11 @@ namespace Uccs.Net
 
 			sun.UpdatePeers(new Peer[]{this});
 
-			ListenThread = new (() => Listening());
+			ListenThread = Sun.CreateThread(Listening);
 			ListenThread.Name = $"{host} <- {IP.GetAddressBytes()[3]}";
 			ListenThread.Start();
 	
-			SendThread = new (() => Sending());
+			SendThread = Sun.CreateThread(Sending);
 			SendThread.Name = $"{host} -> {IP.GetAddressBytes()[3]}";
 			SendThread.Start();
 		}

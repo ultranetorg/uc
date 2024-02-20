@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Nethereum.Signer;
 using RocksDbSharp;
 
 namespace Uccs.Net
@@ -383,11 +384,14 @@ namespace Uccs.Net
 
 		public long MeasureChanges(IEnumerable<E> affected)
 		{
+			var se = new FakeStream();
+			var we = new BinaryWriter(se);
+			we.Write7BitEncodedInt(Clusters.Count);
+
 			var si = new FakeStream();
 			var wi = new BinaryWriter(si);
 
-			var se = new FakeStream();
-			var we = new BinaryWriter(se);
+			int n = 0;
 
 			foreach(var i in affected)
 			{
@@ -400,12 +404,16 @@ namespace Uccs.Net
 					we.Write7BitEncodedInt(e.Id.Ei);
 					e.WriteMain(we);
 				}
+				else
+					n++;
 
 				wi.Write7BitEncodedInt(i.Id.Ei);
 				i.WriteMain(wi);
 			}
 
-			return si.Length - se.Length;
+			wi.Write7BitEncodedInt(Clusters.Count + n);
+
+			return si.Length - se.Length ;
 		}
 	}
 }

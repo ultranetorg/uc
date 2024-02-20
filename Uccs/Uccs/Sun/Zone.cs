@@ -17,7 +17,7 @@ namespace Uccs.Net
  		public Cryptography		Cryptography									= Cryptography.Ethereum;
  		public Chain			EthereumNetwork									= Chain.Goerli;	
 		public bool				PoW												= false;
-		public int				TailLength										= 1000;
+		public int				CommitLength										= 1000;
 		public int				ExternalVerificationDurationLimit				= 100;
 		public Money			BailMin											= 1000;
 		public int				MembersLimit									= 1000;
@@ -81,7 +81,7 @@ namespace Uccs.Net
 			z.Initials = 		Initials;
 			z.BailMin = 		BailMin;
 			z.PoW = 			PoW;		
-			z.TailLength = 		TailLength;
+			z.CommitLength = 		CommitLength;
 			
 			z.God = 			God;
 			z.Father0 = 		Father0;
@@ -129,7 +129,7 @@ namespace Uccs.Net
 			Cryptography		= Cryptography.No;
 			EthereumNetwork		= Chain.Goerli;
 			PoW					= false;
-			TailLength			= 100;
+			CommitLength			= 100;
 			BailMin				= 0.000_000_001;
 
 			Initials			= Enumerable.Range(100, 16).Select(i => new IPAddress(new byte[] {127, 0, 0, (byte)i})).ToArray();
