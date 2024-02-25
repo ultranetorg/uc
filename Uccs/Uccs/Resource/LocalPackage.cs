@@ -12,7 +12,7 @@ namespace Uccs.Net
 		public const string		Removals = ".removals";
 		public const string		Renamings = ".renamings"; /// TODO
 
-		public PackageAddress	Address;
+		//public PackageAddress	Address;
 		public LocalRelease		Release;
 		public LocalResource	Resource;
 		PackageHub				Hub;
@@ -43,24 +43,22 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalPackage(PackageHub hub, PackageAddress address, LocalResource resource, LocalRelease release)
+		public LocalPackage(PackageHub hub, LocalResource resource, LocalRelease release)
 		{
 			if(resource == null || release == null)
 				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);
 
 			Hub = hub;
-			Address = address;
 			Release = release;
 			Resource = resource;
 		}
 
-		public LocalPackage(PackageHub hub, PackageAddress address, LocalResource resource, LocalRelease release, Manifest manifest)
+		public LocalPackage(PackageHub hub, LocalResource resource, LocalRelease release, Manifest manifest)
 		{
 			if(resource == null || release == null)
 				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);
 
 			Hub = hub;
-			Address = address;
 			Release = release;
 			Resource = resource;
 			_Manifest = manifest;
@@ -68,16 +66,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return Address.ToString();
-		}
-
-		public void AddRelease(ReleaseAddress address)
-		{
-			//var h = History == null ? new History {Releases = new()} : new History(History.Raw);
-			//
-			//h.Releases.Add(new HistoryRelease {Hash = hash});
-			
-			Resource.AddData(DataType.Package, address);
+			return Resource.Address.ToString();
 		}
 	}
 }

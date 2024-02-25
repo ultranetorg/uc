@@ -61,14 +61,14 @@ namespace Uccs.Net
 			}
 		}
 
-		public string Escape(string resource)
+		public static string Escape(string path)
 		{
-			return resource.Replace('/', ' ');
+			return Path.GetInvalidFileNameChars().Aggregate(path.ToString(), (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
 		}
 
-		public string Unescape(string resource)
+		public static string Unescape(string path)
 		{
-			return resource.Replace(' ', '/');
+			return Path.GetInvalidFileNameChars().Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
 		}
 
 		//public LocalRelease Add(byte[] address, DataType type)

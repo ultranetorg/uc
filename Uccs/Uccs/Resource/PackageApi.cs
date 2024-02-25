@@ -21,25 +21,25 @@ namespace Uccs.Net
 
 			lock(sun.PackageHub.Lock)
 			{
-				var p = sun.PackageHub.Get(new (Resource, a));
+				var p = sun.PackageHub.Get(Resource);
 				
 				lock(sun.ResourceHub.Lock)
 				{
-					p.AddRelease(a);
+					p.Resource.AddData(DataType.Package, a);
 					
-					var rl = sun.ResourceHub.Find(a);
+					var r = sun.ResourceHub.Find(a);
 	
-					if(rl == null)
+					if(r == null)
 					{
-						rl.AddCompleted(LocalPackage.ManifestFile, Manifest);
+						r.AddCompleted(LocalPackage.ManifestFile, Manifest);
 			
 						if(Complete != null)
-							rl.AddCompleted(LocalPackage.CompleteFile, Complete);
+							r.AddCompleted(LocalPackage.CompleteFile, Complete);
 		
 						if(Incremental != null)
-							rl.AddCompleted(LocalPackage.IncrementalFile, Incremental);
+							r.AddCompleted(LocalPackage.IncrementalFile, Incremental);
 										
-						rl.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+						r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
 					}
 				}
 			}
@@ -53,8 +53,8 @@ namespace Uccs.Net
 		public ResourceAddress			Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
 		public string					DependenciesPath { get; set; }
-		public ReleaseAddress			Previous { get; set; }
-		public ReleaseAddress[]			History { get; set; }
+		public ResourceAddress			Previous { get; set; }
+		public ResourceAddress[]		History { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
@@ -68,7 +68,7 @@ namespace Uccs.Net
 
 	public class PackageDownloadCall : SunApiCall
 	{
-		public PackageAddress		Package { get; set; }
+		public ResourceAddress		Package { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
@@ -82,7 +82,7 @@ namespace Uccs.Net
 
 	public class PackageInstallCall : SunApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ResourceAddress	Package { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
@@ -93,7 +93,7 @@ namespace Uccs.Net
 
 	public class PackageActivityProgressCall : SunApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ResourceAddress	Package { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{
@@ -111,7 +111,7 @@ namespace Uccs.Net
 
 	public class PackageInfoCall : SunApiCall
 	{
-		public PackageAddress	Package { get; set; }
+		public ResourceAddress	Package { get; set; }
 		
 		public override object Execute(Sun sun, Workflow workflow)
 		{

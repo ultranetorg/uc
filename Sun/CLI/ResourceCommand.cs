@@ -34,8 +34,7 @@ namespace Uccs.Sun.CLI
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												GetEnum<ResourceFlags>("flags", ResourceFlags.None),
 												Has("data") ? new ResourceData(new BinaryReader(new MemoryStream(GetHexBytes("data")))) : null,
-												GetString("parent", false),
-												Has("keep"));
+												GetString("parent", false));
 				}
 
 				case "u" : 
@@ -49,9 +48,7 @@ namespace Uccs.Sun.CLI
 					if(Has("data"))			r.Change(GetHexBytes("data") is byte[] b && b.Length > 0 ? new ResourceData(new BinaryReader(new MemoryStream(b))) : null);
 					if(Has("parent"))		r.Change(GetString("parent"));
 					if(Has("recursive"))	r.ChangeRecursive();
-					if(Has("keep"))			r.ChangeRememberRelease();
-					
-					
+
 					return r;
 				}
 

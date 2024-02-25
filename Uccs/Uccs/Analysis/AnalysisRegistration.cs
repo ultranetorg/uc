@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Nethereum.Hex.HexConvertors.Extensions;
+﻿using System.IO;
 
 namespace Uccs.Net
 {
 	public class AnalysisRegistration : Operation
 	{
 		public ReleaseAddress	Release { get; set; }
-		public Money			Fee { get; set; }
+		public Money			Payment { get; set; }
 
-		public override string	Description => $"Release={Release}, Fee={Fee}";
-		public override bool	Valid => Fee > 0;
+		public override string	Description => $"Release={Release}, Payment={Payment}";
+		public override bool	Valid => Payment > 0;
 
 		public AnalysisRegistration()
 		{
@@ -21,13 +17,13 @@ namespace Uccs.Net
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Release);
-			writer.Write(Fee);
+			writer.Write(Payment);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Release = reader.Read(ReleaseAddress.FromType);
-			Fee		= reader.Read<Money>();
+			Payment	= reader.Read<Money>();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -55,12 +51,12 @@ namespace Uccs.Net
 			}
 
 			z.Flags		|= ReleaseFlag.Analysis;
-			z.Fee		= Fee;
+			z.Fee		= Payment;
 			z.StartedAt = round.ConsensusTime;
 			z.Consil	= (byte)round.Analyzers.Count;
 
 			var s = Affect(round, Signer);
-			s.Balance -= Fee;
+			s.Balance -= Payment;
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace Uccs
 				val is ulong			||
 				val is AccountAddress	||
 				val is ResourceAddress	||
-				val is PackageAddress	||
+				//val is PackageAddress	||
 				val is Version			||
 				val is IPAddress		||
 				val is Time				||
@@ -72,7 +72,7 @@ namespace Uccs
 			if(typeof(O) == typeof(ulong))				return (O)(object)ulong.Parse(v);
 			if(typeof(O) == typeof(byte[]))				return (O)(object)Hex.Decode(v);
 			if(typeof(O) == typeof(ResourceAddress))	return (O)(object)ResourceAddress.Parse(v);
-			if(typeof(O) == typeof(PackageAddress))		return (O)(object)PackageAddress.Parse(v);
+			//if(typeof(O) == typeof(PackageAddress))		return (O)(object)PackageAddress.Parse(v);
 			if(typeof(O) == typeof(Version))			return (O)(object)Version.Parse(v);
 			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(v);
 			if(typeof(O) == typeof(Time))				return (O)(object)Time.Parse(v);

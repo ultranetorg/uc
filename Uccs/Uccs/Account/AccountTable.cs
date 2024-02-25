@@ -83,7 +83,7 @@ namespace Uccs.Net
 		public IEnumerable<Transaction> FindLastTransactions(AccountAddress signer, Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
 		{
 			return	Mcv.FindLastTailTransactions(i => i.Signer == signer && (transaction_predicate == null || transaction_predicate(i)), round_predicate)
-					.Union(FindTransactions(signer, transaction_predicate, round_predicate));
+					.Concat(FindTransactions(signer, transaction_predicate, round_predicate));
 		}
 
 		public IEnumerable<Transaction> SearchTransactions(AccountAddress signer, int skip = 0, int count = int.MaxValue)
@@ -94,7 +94,7 @@ namespace Uccs.Net
 
 			if(e != null && e.Transactions != null)
 			{
-				o = o.Union(e.Transactions.SelectMany(r => Mcv.FindRound(r).Transactions.Where(t => t.Signer == signer))).Skip(skip).Take(count);
+				o = o.Concat(e.Transactions.SelectMany(r => Mcv.FindRound(r).Transactions.Where(t => t.Signer == signer))).Skip(skip).Take(count);
 			}
 
 			return o;

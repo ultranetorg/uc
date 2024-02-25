@@ -34,7 +34,7 @@ namespace Uccs.Sun.CLI
 																	 FilePath = GetString("source", null),
 																	 Sources = GetString("sources", null)?.Split(','),
 																	 AddressCreator = new()	{	
-																								Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.DHA),
+																								Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.DH),
 																								Owner = GetAccountAddress("owner", false),
 																								Resource = ResourceAddress.Parse(Args.Nodes[1].Name)
 																							} });
@@ -74,17 +74,17 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
-				case "e" :
-		   		case "entity" :
-				{
-					Workflow.CancelAfter(RdcQueryTimeout);
-
-					var r = Rdc<ReleaseResponse>(new ReleaseRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
-					
-					Dump(r.Release);
-
-					return r;
-				}
+ 				case "e" :
+ 		   		case "entity" :
+ 				{
+ 					Workflow.CancelAfter(RdcQueryTimeout);
+ 
+ 					var r = Rdc<ReleaseResponse>(new ReleaseRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
+ 					
+ 					Dump(r.Release);
+ 
+ 					return r;
+ 				}
 
 				case "l" : 
 				case "local" : 

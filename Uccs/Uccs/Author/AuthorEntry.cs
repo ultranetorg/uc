@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using Nethereum.Model;
-using RocksDbSharp;
 
 namespace Uccs.Net
 {
@@ -55,55 +51,50 @@ namespace Uccs.Net
 		{
 			Write(w);
 
-			w.Write(Resources, i =>	{
-										w.Write7BitEncodedInt(i.Id.Ri);
-										w.WriteUtf8(i.Address.Resource);
-										i.Write(w);
-									});
+			w.Write(Resources.Where(i => i.Address.Type == ResourceType.Variable), i =>	{
+																							w.Write7BitEncodedInt(i.Id.Ri);
+																							w.WriteUtf8(i.Address.Resource);
+																							i.Write(w);
+																						});
+
+			w.Write(Resources.Where(i => i.Address.Type == ResourceType.Constant), i =>	{
+																							w.Write7BitEncodedInt(i.Id.Ri);
+																							w.WriteUtf8(i.Address.Resource);
+																							i.Write(w);
+																						});
 		}
 
 		public void ReadMain(BinaryReader reader)
 		{
 			Read(reader);
 
-			Resources = reader.ReadArray(() => { 
-													var a = new Resource();
-													a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-													a.Address = new ResourceAddress(Name, reader.ReadUtf8());
-													a.Read(reader);
-													return a;
-												});
+			Resources = reader.Read(() =>	{ 
+												var a = new Resource();
+												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
+												a.Address = new ResourceAddress{Type = ResourceType.Variable,
+																				Author = Name, 
+																				Resource = reader.ReadUtf8()};
+												a.Read(reader);
+												return a;
+											})
+					.Concat(reader.Read(() =>{ 
+												var a = new Resource();
+												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
+												a.Address = new ResourceAddress{Type = ResourceType.Constant,
+																				Author = Name, 
+																				Resource = reader.ReadUtf8()};
+												a.Read(reader);
+												return a;
+											})).ToArray();
 		}
 
 		public void WriteMore(BinaryWriter w)
 		{
-			//w.Write7BitEncodedInt(ObtainedRid);
-
-			//if(RegistrationTime != ChainTime.Zero)
-			//{
-			//	w.Write(Products);
-			//}
 		}
 
 		public void ReadMore(BinaryReader r)
 		{
-			//ObtainedRid = r.Read7BitEncodedInt();
-
-			//if(RegistrationTime != ChainTime.Zero)
-			//{
-			//	Products = r.ReadStings();
-			//}
 		}
-
-		//public Resource AffectResource(Resource release)
-		//{
-		//	var i = Array.FindIndex(Resources, i => i.Address == release)  
-		//
-		//	if(AffectedResources.ContainsKey(release.Address))
-		//		return release;
-		//	
-		//	return AffectedResources[release.Address] = release.Clone();
-		//}
 
 		public Resource AffectResource(ResourceAddress resource)
 		{

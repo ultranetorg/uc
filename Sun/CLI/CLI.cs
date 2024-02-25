@@ -136,7 +136,7 @@ namespace Uccs.Sun.CLI
 				case DevCommand.Keyword:		c = new DevCommand(this, args); break;
 				case WalletCommand.Keyword:		c = new WalletCommand(this, args); break;
 				case MoneyCommand.Keyword:		c = new MoneyCommand(this, args); break;
-				case MemberCommand.Keyword:		c = new MemberCommand(this, args); break;
+				case NexusCommand.Keyword:		c = new NexusCommand(this, args); break;
 				case AuthorCommand.Keyword:		c = new AuthorCommand(this, args); break;
 				case PackageCommand.Keyword:	c = new PackageCommand(this, args); break;
 				case ResourceCommand.Keyword:	c = new ResourceCommand(this, args); break;

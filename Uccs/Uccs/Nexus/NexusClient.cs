@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Uccs.Net;
 
 namespace Uccs.Uos
@@ -62,30 +59,30 @@ namespace Uccs.Uos
 
 		void Execute(Uri request)
 		{
-			var r = PackageAddress.Parse(request.LocalPath);
-
-			var f = Directory.EnumerateFiles(PackageHub.AddressToPath(r), "*.start").FirstOrDefault();
-			
-			if(f != null)
-			{
-				string setenv(PackageAddress a, string p)
-				{
-					p += ";" + PackageHub.AddressToPath(a);
-
-					foreach(var i in PackageHub.Find(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
-					{
-						p += ";" + setenv(i.Package, p);
-					}
-
-					return p;
-				}
-
-				Environment.SetEnvironmentVariable("PATH", setenv(r, Environment.GetEnvironmentVariable("PATH")));
-				
-				var s = new XonDocument(File.ReadAllText(f));
-				
-				Process.Start(s.Get<string>("Executable"), s.Get<string>("Arguments"));
-			}
+			/// var r = PackageAddress.Parse(request.LocalPath);
+			/// 
+			/// var f = Directory.EnumerateFiles(PackageHub.AddressToPath(r), "*.start").FirstOrDefault();
+			/// 
+			/// if(f != null)
+			/// {
+			/// 	string setenv(PackageAddress a, string p)
+			/// 	{
+			/// 		p += ";" + PackageHub.AddressToPath(a);
+			/// 
+			/// 		foreach(var i in PackageHub.Find(a).Manifest.CompleteDependencies.Where(i => i.Type == DependencyType.Critical && i.Flags.HasFlag(DependencyFlag.SideBySide)))
+			/// 		{
+			/// 			p += ";" + setenv(i.Package, p);
+			/// 		}
+			/// 
+			/// 		return p;
+			/// 	}
+			/// 
+			/// 	Environment.SetEnvironmentVariable("PATH", setenv(r, Environment.GetEnvironmentVariable("PATH")));
+			/// 	
+			/// 	var s = new XonDocument(File.ReadAllText(f));
+			/// 	
+			/// 	Process.Start(s.Get<string>("Executable"), s.Get<string>("Arguments"));
+			/// }
 		}
 	}
 }

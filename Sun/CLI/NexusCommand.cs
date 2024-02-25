@@ -5,11 +5,11 @@ namespace Uccs.Sun.CLI
 {
 	/// <summary>
 	/// </summary>
-	public class MemberCommand : Command
+	public class NexusCommand : Command
 	{
 		public const string Keyword = "nexus";
 
-		public MemberCommand(Program program, Xon args) : base(program, args)
+		public NexusCommand(Program program, Xon args) : base(program, args)
 		{
 		}
 
@@ -20,8 +20,8 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "e" :
-				case "entity" :
+				case "m" :
+				case "membership" :
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 

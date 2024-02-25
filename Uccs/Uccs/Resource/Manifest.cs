@@ -23,7 +23,7 @@ namespace Uccs.Net
 
 	public class Dependency : IBinarySerializable, IEquatable<Dependency>
 	{
-		public PackageAddress	Package { get; set; }
+		public ResourceAddress	Package { get; set; }
 		public DependencyType	Type { get; set; }
 		public DependencyFlag	Flags { get; set; }
 
@@ -31,7 +31,7 @@ namespace Uccs.Net
 		{
 			var d = new Dependency();
 			
-			d.Package	= PackageAddress.Parse(i.Name);
+			d.Package	= ResourceAddress.Parse(i.Name);
 			d.Type		= Enum.Parse<DependencyType>(i.Get<string>("Type"));
 			d.Flags		|= i.Has(DependencyFlag.SideBySide.ToString()) ? DependencyFlag.SideBySide : DependencyFlag.None;
 			d.Flags		|= i.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
@@ -46,7 +46,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			Package = reader.Read<PackageAddress>();
+			Package = reader.Read<ResourceAddress>();
 			Type = (DependencyType)reader.ReadByte();
 			Flags = (DependencyFlag)reader.ReadByte();
 		}
@@ -105,7 +105,7 @@ namespace Uccs.Net
 
 	public class ParentPackage : IBinarySerializable
 	{
-		public ReleaseAddress	Release { get; set; }
+		public ResourceAddress	Release { get; set; }
 		public Dependency[]		AddedDependencies { get; set; }
 		public Dependency[]		RemovedDependencies { get; set; }
 
@@ -118,7 +118,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader r)
 		{
-			Release				= ReleaseAddress.FromRaw(r);
+			Release				= r.Read<ResourceAddress>();
 			AddedDependencies	= r.ReadArray<Dependency>();
 			RemovedDependencies = r.ReadArray<Dependency>();
 		}
@@ -130,7 +130,7 @@ namespace Uccs.Net
 		public Dependency[]				CompleteDependencies { get; set; }
 		public byte[]					IncrementalHash { get; set; }
 		public ParentPackage[]			Parents { get; set; }
-		public ReleaseAddress[]			History { get; set; }
+		public ResourceAddress[]		History { get; set; }
 
 		public const string				Extension = "manifest";
 
@@ -182,10 +182,7 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter writer)
 		{
-			writer.Write(History, i => {
-											writer.Write(i.TypeCode); 
-											i.Write(writer); 
-									  });
+			writer.Write(History);
 			writer.WriteBytes(CompleteHash);
 			writer.WriteBytes(IncrementalHash);
 			writer.Write(CompleteDependencies);
@@ -194,11 +191,7 @@ namespace Uccs.Net
 
 		public void Read(BinaryReader reader)
 		{
-			History					= reader.ReadArray(() => {
- 																var o = ReleaseAddress.FromType(reader.ReadByte());
- 																o.Read(reader); 
- 																return o; 
- 															});
+			History					= reader.ReadArray<ResourceAddress>();
 			CompleteHash			= reader.ReadBytes();
 			IncrementalHash			= reader.ReadBytes();
 			CompleteDependencies	= reader.ReadArray<Dependency>();

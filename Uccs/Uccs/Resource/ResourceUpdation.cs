@@ -17,7 +17,7 @@ namespace Uccs.Net
 
 		public override bool		Valid=>	(Flags & ResourceFlags.Unchangables) == 0
 											//&& (!Changes.HasFlag(ResourceChanges.Years) || Changes.HasFlag(ResourceChanges.Years) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax)
-											&& (!Changes.HasFlag(ResourceChanges.Data) || (Data == null || Data.Value.Length <= Net.Resource.DataLengthMax));
+											&& (!Changes.HasFlag(ResourceChanges.Data) || (Data == null || Data.Value.Length <= ResourceData.LengthMax));
 		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], Years={Years}, {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ResourceUpdation()
@@ -53,11 +53,6 @@ namespace Uccs.Net
 		public void ChangeRecursive()
 		{
 			Changes |= ResourceChanges.Recursive;
-		}
-
-		public void ChangeRememberRelease()
-		{
-			Changes |= ResourceChanges.RememberRelease;
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
@@ -167,13 +162,19 @@ namespace Uccs.Net
 						}
 
 						r.Flags |= ResourceFlags.Child;
-						var p = a.AffectResource(new ResourceAddress(a.Name, Parent));
+						var p = a.AffectResource(new ResourceAddress{Author = a.Name, Resource = Parent});
 						p.Resources = p.Resources.Append(r.Id.Ri).ToArray();
 					}
 				}
 	
 				if(Changes.HasFlag(ResourceChanges.Data))
 				{
+					if(r.Flags.HasFlag(ResourceFlags.Sealed))
+					{
+						Error = Sealed;
+						return;
+					}
+
 					if(Data != null)
 					{
 						r.Flags |= ResourceFlags.Data;
@@ -197,29 +198,29 @@ namespace Uccs.Net
 							a.SpaceReserved	= a.SpaceUsed;
 						}
 
-						if(Changes.HasFlag(ResourceChanges.RememberRelease))
-						{
-							if(Data.Interpretation is ReleaseAddress ra)
-							{
-								var z = Affect(round, ra);
-					
-								if(z.Expiration - round.ConsensusTime < Time.FromYears(1))
-								{
-									z.Expiration = round.ConsensusTime + Time.FromYears(10);
-									PayForEntity(round, 10);
-								}
-								else
-								{
-									Error = AlreadyExists;
-									return;
-								}
-							}
-							else
-							{
-								Error = NotRelease;
-								return;
-							}
-						}
+						//if(Changes.HasFlag(ResourceChanges.RememberRelease))
+						//{
+						//	if(Data.Interpretation is ReleaseAddress ra)
+						//	{
+						//		var z = Affect(round, ra);
+						//
+						//		if(z.Expiration - round.ConsensusTime < Time.FromYears(1))
+						//		{
+						//			z.Expiration = round.ConsensusTime + Time.FromYears(10);
+						//			PayForEntity(round, 10);
+						//		}
+						//		else
+						//		{
+						//			Error = AlreadyExists;
+						//			return;
+						//		}
+						//	}
+						//	else
+						//	{
+						//		Error = NotRelease;
+						//		return;
+						//	}
+						//}
 					}
 					else
 						r.Flags &= ~ResourceFlags.Data;

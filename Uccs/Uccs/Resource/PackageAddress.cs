@@ -10,76 +10,57 @@ namespace Uccs.Net
 
 	public class PackageAddress : IBinarySerializable, IComparable, IComparable<PackageAddress>, IEquatable<PackageAddress>
 	{
-		public string			Author		{ get { return _Author; }		set { _Author = value;		_Resource = null; _String = null; _Ura = null; } }
-		public string			Product		{ get { return _Product; }		set { _Product = value;		_Resource = null; _String = null; _Ura = null; } }
-		public string			Realization { get { return _Realization; }	set { _Realization = value; _Resource = null; _String = null; _Ura = null; } }
-		public ReleaseAddress	Release		{ get { return _Hash; }			set { _Hash = value;		_Resource = null; _String = null; _Ura = null; } }
+		public ResourceType	Type		{ get ; set; }
+		public string			Author		{ get ; set; }
+		public string			Product		{ get ; set; }
+		public string			Realization { get ; set; }
+		public string			Version		{ get ; set; }
 
-		public const char		PR = '.';
-		public string			APR => $"{Author}{Ura.AR}{Product}{PR}{Realization}";
+		public string			APR => $"{Author}/{Product}/{Realization}";
 
-		string					_Author;
-		string					_Product;
-		string					_Realization;
-		ReleaseAddress			_Hash;
-		ResourceAddress			_Resource;
-		Ura						_Ura;
-		string					_String;
+//		public static implicit operator ResourceAddress (PackageAddress a)
+//		{ 
+//			return a._Resource ??= new ResourceAddress(ResourceSpace.Permanent, a.Author, $"{a.Product}/{a.Realization}");
+//		}
 
-		public static implicit operator ResourceAddress (PackageAddress a)
-		{ 
-			if(a._Resource == null)
-				a._Resource = new ResourceAddress(a.Author, $"{a.Product}{PR}{a.Realization}");
+// 		public static implicit operator Ura (PackageAddress a)
+// 		{ 
+// 			if(a._Ura == null)
+// 				a._Ura = new Ura(a.Author, $"{a.Product}{PR}{a.Realization}", a.ToString());
+// 			
+// 			return a._Ura;
+// 		}
+
+		public PackageAddress(ResourceType scheme, string author, string product, string realization, string veriosn)
+		{
+			Type = scheme;
+			Author = author;
+			Product = product;
+			Realization = realization;
+			Version = veriosn;
+		}
+
+// 		public PackageAddress(Ura ura)
+// 		{
+// 			Author = ura.Author;
+// 			
+// 			var j = ura.Resource.LastIndexOf(Ura.AR);
+// 
+// 			Product		= ura.Resource.Substring(0, j);
+// 			Realization = ura.Resource.Substring(j + 1);
+// 			Release		= ReleaseAddress.Parse(ura.Details); 
+// 		}
+
+		public PackageAddress(ResourceAddress resource, string version)
+		{
+
+			var j = resource.Resource.LastIndexOf('/');
 			
-			return a._Resource;
-		}
-
-		public static implicit operator Ura (PackageAddress a)
-		{ 
-			if(a._Ura == null)
-				a._Ura = new Ura(a.Author, $"{a.Product}{PR}{a.Realization}", a.ToString());
-			
-			return a._Ura;
-		}
-
-		public static bool operator == (PackageAddress left, PackageAddress right)
-		{
-			return left is null && right is null || left is not null && right is not null && left.Equals(right);
-		}
-
-		public static bool operator != (PackageAddress left, PackageAddress right)
-		{
-			return !(left == right);
-		}
-
-		public PackageAddress(string author, string product, string realization, ReleaseAddress hash)
-		{
-			_Author = author;
-			_Product = product;
-			_Realization = realization;
-			_Hash = hash;
-		}
-
-		public PackageAddress(Ura ura)
-		{
-			Author = ura.Author;
-			
-			var j = ura.Resource.LastIndexOf(Ura.AR);
-
-			Product		= ura.Resource.Substring(0, j);
-			Realization = ura.Resource.Substring(j + 1);
-			Release		= ReleaseAddress.Parse(ura.Details); 
-		}
-
-		public PackageAddress(ResourceAddress release, ReleaseAddress hash)
-		{
-			Author = release.Author;
-
-			var j = release.Resource.LastIndexOf(Ura.AR);
-
-			Product		= release.Resource.Substring(0, j);
-			Realization = release.Resource.Substring(j + 1);
-			Release		= hash; 
+			Type		= resource.Type;
+			Author		= resource.Author;
+			Product		= resource.Resource.Substring(0, j);
+			Realization = resource.Resource.Substring(j + 1);
+			Version		= version; 
 		}
 
 		public PackageAddress()
@@ -88,29 +69,24 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			if(_String == null)
-				_String = $"{Author}{Ura.AR}{Product}{PR}{Realization}{Ura.RD}{Release}";
-
-			return _String;
+			return $"{Type.ToString().ToLower()}:/{Author}/{Product}/{Realization}/{Version}";
 		}
 
 		public static PackageAddress Parse(string v)
 		{
-			var h = v.IndexOf(Ura.RD);
-			
-			var apr = v.Substring(0, h);
-			
-			var a = apr.IndexOf(Ura.AR);
-			var r = apr.LastIndexOf(PR);
+			var r = ResourceAddress.Parse(v);
 
-			var p = new PackageAddress();
+			var a = new PackageAddress();
 
-			p.Author		= apr.Substring(0, a);
-			p.Product		= apr.Substring(a + 1, r-a-1);
-			p.Realization	= apr.Substring(r + 1);
-			p.Release		= ReleaseAddress.Parse(v.Substring(h + 1)); 
+			var p = r.Resource.Split('/');
 
-			return p;
+			a.Type			= r.Type;
+			a.Author		= r.Author;
+			a.Product		= p[0];
+			a.Realization	= p[1];
+			a.Version		= p[2]; 
+
+			return a;
 		}
 
 		//public static Version ParseVesion(string v)
@@ -118,9 +94,9 @@ namespace Uccs.Net
 		//	return Version.Parse(v.Substring(v.LastIndexOf('/') + 1));
 		//}
 
-		public PackageAddress ReplaceHash(ReleaseAddress hash)
+		public PackageAddress ReplaceVersion(string version)
 		{
-			return new PackageAddress(Author, Product, Realization, hash);
+			return new PackageAddress(Type, Author, Product, Realization, version);
 		}
 
 		public int CompareTo(object obj)
@@ -130,7 +106,11 @@ namespace Uccs.Net
 
 		public int CompareTo(PackageAddress o)
 		{
-			var a = Author.CompareTo(o.Author);
+			var a = Type.CompareTo(o.Type);
+			if(a != 0)
+				return a;
+
+			a = Author.CompareTo(o.Author);
 			if(a != 0)
 				return a;
 
@@ -142,28 +122,30 @@ namespace Uccs.Net
 			if(a != 0)
 				return a;
 
-			if(Release is null && o.Release is not null)
+			if(Version is null && o.Version is not null)
 				return -1;
-			if(Release is not null && o.Release is null)
+			else if(Version is not null && o.Version is null)
 				return 1;
 			else
-				return Bytes.Comparer.Compare(Release.Raw, o.Release.Raw);
+				return Version.CompareTo(o.Version);
 		}
 		
 		public virtual void Write(BinaryWriter w)
 		{
+			w.Write((byte)Type);
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Product);
 			w.WriteUtf8(Realization);
-			w.Write(Release);
+			w.WriteUtf8(Version);
 		}
 
 		public virtual void Read(BinaryReader r)
 		{
+			Type = (ResourceType)r.ReadByte();
 			Author = r.ReadUtf8();
 			Product = r.ReadUtf8();
 			Realization = r.ReadUtf8();
-			Release = r.Read<ReleaseAddress>(ReleaseAddress.FromType);
+			Version = r.ReadUtf8();
 		}
 
 		public override bool Equals(object obj)
@@ -174,15 +156,26 @@ namespace Uccs.Net
 		public bool Equals(PackageAddress o)
 		{
 			return	o is not null && 
-					Author == o.Author && 
-					Product == o.Product && 
-					Realization == o.Realization && 
-					((Release is null && o.Release is null) || (Release is not null && Release.Equals(o.Release)));
+					Type		== o.Type &&
+					Author		== o.Author && 
+					Product		== o.Product && 
+					Realization	== o.Realization && 
+					Version.Equals(o.Version);
 		}
 
 		public override int GetHashCode()
 		{
 			return Author.GetHashCode();
+		}
+
+		public static bool operator == (PackageAddress left, PackageAddress right)
+		{
+			return left is null && right is null || left is not null && left.Equals(right);
+		}
+
+		public static bool operator != (PackageAddress left, PackageAddress right)
+		{
+			return !(left == right);
 		}
 	}
 }

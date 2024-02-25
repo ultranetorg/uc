@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security.AccessControl;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
@@ -7,36 +8,40 @@ using System.Xml.Linq;
 namespace Uccs.Net
 {
 	/// <summary>
-	///  uo-app-ms.dotnet7-0.0.0
-	///  ultranet://testzone1/uo.app/ms.dotnet7/0.0.0
+	///		/author/resource
 	/// </summary>
+	 
+	public enum ResourceType
+	{
+		None, Variable, Constant
+	}
 
 	public class ResourceAddress : IBinarySerializable, IEquatable<ResourceAddress>, IComparable, IComparable<ResourceAddress>
 	{
-		public string		Author { get; set; }
-		public string		Resource { get; set; }
+		public ResourceType			Type { get; set; }
+		public string				Zone { get; set; }
+		public string				Author { get; set; }
+		public string				Resource { get; set; }
 
-		public bool			Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
+		public string				Scheme => Type switch {ResourceType.Variable => "upv", ResourceType.Constant => "upc"};
+		public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
 
-		public ResourceAddress(string author, string resource)
-		{
-			Author = author;
-			Resource = resource;
-		}
+		public bool					Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
 
 		public ResourceAddress()
 		{
 		}
 
-		public override string ToString()
+		public ResourceAddress(ResourceType type, string author, string resource)
 		{
-			return $"{Author}{Ura.AR}{Resource}";
+			Type = type;
+			Author = author;
+			Resource = resource;
 		}
 
-		public static bool IsValid(string v)
+		public override string ToString()
 		{
-			var i = v.IndexOf(Ura.AR);
-			return v.Length >=3 && i != -1 && i != 0 && i != v.Length-1;
+			return $"{Scheme}:{Zone}/{Author}/{Resource}";
 		}
 
 		public override bool Equals(object o)
@@ -46,7 +51,7 @@ namespace Uccs.Net
 
 		public bool Equals(ResourceAddress o)
 		{
-			return Author == o.Author && Resource == o.Resource;
+			return Type == o.Type && Zone == o.Zone && Author == o.Author && Resource == o.Resource;
 		}
 
  		public override int GetHashCode()
@@ -59,17 +64,29 @@ namespace Uccs.Net
 			return CompareTo(obj as ResourceAddress);
 		}
 
-		public int CompareTo(ResourceAddress other)
+		public int CompareTo(ResourceAddress o)
 		{
-			if(Author.CompareTo(other.Author) != 0)
-				return Author.CompareTo(other.Author);
+			var c = Type.CompareTo(o.Type); 
 
-			return Resource.CompareTo(other.Resource);
+			if(c != 0)
+				return c;
+
+			c = Zone.CompareTo(o.Zone);
+
+			if(c != 0)
+				return c;
+
+			c = Author.CompareTo(o.Author);
+
+			if(c != 0)
+				return c;
+
+			return Resource.CompareTo(o.Resource);
 		}
 
 		public static bool operator == (ResourceAddress left, ResourceAddress right)
 		{
-			return left is null && right is null || left is not null && right is not null && left.Equals(right);
+			return left is null && right is null || left is not null && left.Equals(right);
 		}
 
 		public static bool operator != (ResourceAddress left, ResourceAddress right)
@@ -79,22 +96,52 @@ namespace Uccs.Net
 
 		public static ResourceAddress Parse(string v)
 		{
-			var s = v.IndexOf(Ura.AR);
 			var a = new ResourceAddress();
-			a.Author = v.Substring(0, s);
-			a.Resource = v.Substring(s + 1);
+			
+			var i = v.IndexOf(':');
+
+			if(i != -1)
+				a.Type = SchemeToType(v.Substring(0, i));
+
+			var j = v.IndexOf('/', i+1);
+			
+			if(i+1 < j)
+				a.Zone = v.Substring(i+1, j-i-1);
+
+			i = j;
+			j = v.IndexOf('/', i+1);
+			a.Author = v.Substring(i+1, j-i-1);
+
+			i = j;
+			j = v.IndexOf('/', i+1);
+			a.Resource = v.Substring(i+1);
+
+			return a;
+		}
+
+		public static ResourceAddress ParseAR(string v)
+		{
+			var a = new ResourceAddress();
+			
+			var i = v.IndexOf('/');
+
+			a.Author = v.Substring(0, i);
+			a.Resource = v.Substring(i+1);
+
 			return a;
 		}
 
 		public void Write(BinaryWriter w)
 		{
+			w.Write((byte)Type);
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Resource);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Author = r.ReadUtf8();
+			Type	 = (ResourceType)r.ReadByte();
+			Author	 = r.ReadUtf8();
 			Resource = r.ReadUtf8();
 		}
 	}

@@ -7,26 +7,21 @@ using System.Text.Json.Serialization;
 namespace Uccs.Net
 {
 	/// <summary>
-	/// author.resource/details
+	/// 
+	/// ultranet:/author
+	/// ultranet:/author/reso/ur/ce (/author/ - корневой)
+	/// ultranet:#0123456789ABCDEF
+	/// ultranet:$author/product:hhhhhhhhhhhhhhhhhhh:sssssssssssssssssssssssssssssssssssssssssssssss
+	/// 
 	/// </summary>
 
 	public class Ura : IBinarySerializable, IEquatable<Ura> 
 	{
-		public string		Author { get; set; }
-		public string		Resource { get; set; }
-		public string		Details { get; set; }
+		public string			Author { get; set; }
+		public string			Resource { get; set; }
+		public ReleaseAddress	Release { get; set; }
 
-		public const char	AR = '.';
-		public const char	RD = '/';
-
-		public bool			Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
-
-		public Ura(string author, string resource, string details)
-		{
-			Author = author;
-			Resource = resource;
-			Details = details;
-		}
+		public bool				Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
 
 		public Ura()
 		{
@@ -34,7 +29,13 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Author}{AR}{Resource}{(string.IsNullOrEmpty(Details) ? null : (RD + Details))}";
+			if(Author != null)
+				if(Resource == null)
+					return $"/{Author}";
+				else
+					return $"/{Author}/{Resource}";
+			else
+				return $"{Release}";
 		}
 
 		public override bool Equals(object o)
@@ -44,7 +45,7 @@ namespace Uccs.Net
 
 		public bool Equals(Ura o)
 		{
-			return Author == o.Author && Resource == o.Resource && Details == o.Details;
+			return Author == o.Author && Resource == o.Resource && Release == o.Release;
 		}
 
  		public override int GetHashCode()
@@ -65,7 +66,8 @@ namespace Uccs.Net
 			if(Resource.CompareTo(other.Resource) != 0)
 				return Resource.CompareTo(other.Resource);
 
-			return Details.CompareTo(other.Details);
+			///return Release.CompareTo(other.Release);
+			throw new NotImplementedException();
 		}
 
 		public static bool operator == (Ura a, Ura b)
@@ -80,34 +82,23 @@ namespace Uccs.Net
 
 		public static Ura Parse(string v)
 		{
-			var s = v.IndexOf(AR);
-			var a = new Ura();
-			a.Author	= v.Substring(0, s);
-			a.Resource	= v.Substring(s + 1);
-
-			s = v.IndexOf(RD);
-
-			if(s != -1)
-			{
-				a.Details	= a.Resource.Substring(s + 1);
-				a.Resource	= a.Resource.Substring(0, s);
-			} 
-
-			return a;
+			throw new NotImplementedException();
 		}
 
 		public void Write(BinaryWriter w)
 		{
-			w.WriteUtf8(Author);
-			w.WriteUtf8(Resource);
-			w.WriteBytes(!string.IsNullOrEmpty(Details) ? Encoding.UTF8.GetBytes(Details) : null);
+			throw new NotImplementedException();
+			//w.WriteUtf8(Author);
+			//w.WriteUtf8(Resource);
+			//w.Write();
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Author = r.ReadUtf8();
-			Resource = r.ReadUtf8();
-			Details = r.ReadBytes() is byte[] b ? Encoding.UTF8.GetString(b) : null;
+			throw new NotImplementedException();
+			///Author = r.ReadUtf8();
+			///Resource = r.ReadUtf8();
+			///Details = r.ReadBytes() is byte[] b ? Encoding.UTF8.GetString(b) : null;
 		}
 	}
 

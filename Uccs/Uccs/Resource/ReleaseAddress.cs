@@ -6,14 +6,25 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
+	/// <summary>
+	/// 
+	/// ultranet:testzone1
+	/// ultranet:testzone1/author
+	/// ultranet:testzone1/author/res.our.sce
+	/// ultranet:testzone1#0123456789ABCDEF
+	/// ultranet:testzone1$author/product:hhhhhhhhhhhhhhhhhhh:sssssssssssssssssssssssssssssssssssssssssssssss
+	/// 
+	/// </summary>
+
 	public enum ReleaseAddressType
 	{
-		None, DHA, SPD
+		None, DH, SPD
 	}
 
  	public abstract class ReleaseAddress : ITypeCode, IBinarySerializable, IEquatable<ReleaseAddress>
  	{
  		public abstract byte			TypeCode { get; }
+		public string					Zone { get; set; }
  		public byte[]					Hash { get; set; }
  		public byte[]					Raw {
 												get
@@ -31,33 +42,44 @@ namespace Uccs.Net
 		public override abstract bool	Equals(object other);
   		public abstract bool			Equals(ReleaseAddress other);
 
+	//	public const char				S = ':';
+	
+		public override string ToString()
+		{
+			return null;
+		}
+
 		public static ReleaseAddress Parse(string t)
 		{
-			var i = t.IndexOf('#');
+			var i = t.IndexOf(':');
 
-			var s = new MemoryStream(t.Substring(i + 1).FromHex());
-			var r = new BinaryReader(s);
+			var a = t.Substring(0, i) switch{
+												"updh"	=> new DHAddress() as ReleaseAddress,
+												"upsdv" => new SDAddress(),
+												"upsdc" => new SDAddress(),
+												_ => throw new FormatException()
+											};
 
-			switch(Enum.Parse<ReleaseAddressType>(t.Substring(0, i).ToUpper()))
+			var z = t.IndexOf('/', i+1);
+			
+			if(z > i+1)
+				a.Zone = t.Substring(i+1, z-i-1);
+			
+			a.ParseSpecific(t.Substring(z + 1));
+
+			if(a is SDAddress s)
 			{
-				case ReleaseAddressType.DHA: 
-				{
-					var a = new DHAAddress();
-					a.Read(r);
-					return a;
-				}
-
-				case ReleaseAddressType.SPD: 
-				{
-					var a = new SPDAddress();
-					a.Read(r);
-					return a;
-				}
-
-				default:
-					throw new IntegrityException();
+				s.Resource.Type = t[4] switch	{
+													'v' => ResourceType.Variable,
+													'c' => ResourceType.Constant,
+													_ => throw new FormatException()
+												};
 			}
+
+			return a;
 		}
+
+		public abstract void ParseSpecific(string t);
 		
 		protected virtual void WriteMore(BinaryWriter writer)
 		{
@@ -83,8 +105,8 @@ namespace Uccs.Net
 		{
 			switch((ReleaseAddressType)c)
 			{
-				case ReleaseAddressType.DHA:	return new DHAAddress();
-				case ReleaseAddressType.SPD:	return new SPDAddress();
+				case ReleaseAddressType.DH:		return new DHAddress();
+				case ReleaseAddressType.SPD:	return new SDAddress();
 			}
 
 			throw new ResourceException(ResourceError.UnknownAddressType);
@@ -123,36 +145,23 @@ namespace Uccs.Net
  			return BitConverter.ToInt32(Hash);
  		}
 	}
-
-	public class ReleaseAddressCreator
-	{
-		public ReleaseAddressType	Type { get; set; }
-		public AccountAddress		Owner { get; set; }
-		public ResourceAddress		Resource { get; set; }
-
-		public ReleaseAddress Create(Sun sun, byte[] hash)
-		{
-			return Type	switch
-						{
-							ReleaseAddressType.DHA => new DHAAddress {Hash = hash},
-							ReleaseAddressType.SPD => SPDAddress.Create(sun.Zone.Cryptography, sun.Vault.GetKey(Owner), Resource, hash),
-							_ => throw new ResourceException(ResourceError.UnknownAddressType)
-						};
-
-		}
-	}
  
- 	public class DHAAddress : ReleaseAddress
+ 	public class DHAddress : ReleaseAddress
  	{
- 		public override byte	TypeCode => (byte)ReleaseAddressType.DHA;
+ 		public override byte	TypeCode => (byte)ReleaseAddressType.DH;
  		
 		public override int		GetHashCode() => base.GetHashCode();
- 		public override bool	Equals(object obj) => Equals(obj as DHAAddress);
-		public override bool	Equals(ReleaseAddress o) => o is DHAAddress a && Hash.SequenceEqual(o.Hash);
+ 		public override bool	Equals(object obj) => Equals(obj as DHAddress);
+		public override bool	Equals(ReleaseAddress o) => o is DHAddress a && Hash.SequenceEqual(o.Hash);
 
 		public override string ToString()
 		{
-			return $"dha#{Hash.ToHex()}";
+			return $"updh:{Zone}/{Hash.ToHex()}";
+		}
+
+		public override void ParseSpecific(string t)
+		{
+			Hash = t.FromHex();
 		}
 
 		public bool Verify(byte[] hash)
@@ -161,25 +170,36 @@ namespace Uccs.Net
 		}
  	}
 
-	public class SPDAddress : ReleaseAddress
+	public class SDAddress : ReleaseAddress
 	{
+		public ResourceAddress	Resource { get; set; }
 		public byte[]			Signature { get; set; }
 		public override byte	TypeCode => (byte)ReleaseAddressType.SPD;
 
  		public override int		GetHashCode() => base.GetHashCode();
- 		public override bool	Equals(object o) => Equals(o as SPDAddress);
-		public override bool	Equals(ReleaseAddress o) => o is SPDAddress a && Hash.SequenceEqual(o.Hash) && Signature.SequenceEqual(a.Signature);
+ 		public override bool	Equals(object o) => Equals(o as SDAddress);
+		public override bool	Equals(ReleaseAddress o) => o is SDAddress a && Resource == a.Resource && Hash.SequenceEqual(o.Hash) && Signature.SequenceEqual(a.Signature);
  
 		public override string ToString()
 		{
-			return $"spd#{Hash.ToHex()}{Signature.ToHex()}";
+			return $"upsd{Resource.Type switch {ResourceType.Variable => 'v', ResourceType.Constant => 'c'}}:{Zone}/{Resource.Author}/{Resource.Resource}:{Hash.ToHex()}:{Signature.ToHex()}";
+		}
+		
+		public override void ParseSpecific(string t)
+		{
+			var h = t.IndexOf(':');
+			var s = t.IndexOf(':', h+1);
+
+			Resource	= ResourceAddress.ParseAR(t.Substring(0, h));
+			Hash		= t.Substring(h+1, s-h-1).FromHex();
+			Signature	= t.Substring(s + 1).FromHex();
 		}
 
-		public bool Valid(Cryptography cryptography, ResourceAddress resource, AccountAddress account)
+		public bool Prove(Cryptography cryptography, AccountAddress account)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
-			w.Write(resource);
+			w.Write(Resource);
 			w.Write(Hash);
 
 			return cryptography.AccountFrom(Signature, cryptography.Hash(s.ToArray())) == account;
@@ -192,16 +212,18 @@ namespace Uccs.Net
 			w.Write(resource);
 			w.Write(hash);
 
-			return new SPDAddress {Hash = hash, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
+			return new SDAddress {Hash = hash, Resource = resource, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
 		}
 
 		protected override void WriteMore(BinaryWriter writer)
 		{
+			writer.Write(Resource);
 			writer.Write(Signature);
 		}
 
 		protected override void ReadMore(BinaryReader reader)
 		{
+			Resource = reader.Read<ResourceAddress>();
 			Signature = reader.ReadBytes(Cryptography.SignatureSize);
 		}
 	}
@@ -216,6 +238,24 @@ namespace Uccs.Net
 		public override void Write(Utf8JsonWriter writer, ReleaseAddress value, JsonSerializerOptions options)
 		{
 			writer.WriteStringValue(value.ToString());
+		}
+	}
+
+	public class ReleaseAddressCreator
+	{
+		public ReleaseAddressType	Type { get; set; }
+		public AccountAddress		Owner { get; set; }
+		public ResourceAddress		Resource { get; set; }
+
+		public ReleaseAddress Create(Sun sun, byte[] hash)
+		{
+			return Type	switch
+						{
+							ReleaseAddressType.DH => new DHAddress {Hash = hash},
+							ReleaseAddressType.SPD => SDAddress.Create(sun.Zone.Cryptography, sun.Vault.GetKey(Owner), Resource, hash),
+							_ => throw new ResourceException(ResourceError.UnknownAddressType)
+						};
+
 		}
 	}
 }

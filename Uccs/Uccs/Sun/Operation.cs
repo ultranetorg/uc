@@ -41,6 +41,7 @@ namespace Uccs.Net
 		public const string		Rejected = "Rejected";
 		public const string		NotFound = "Not found";
 		public const string		Expired = "Expired";
+		public const string		Sealed = "Sealed";
 		public const string		AlreadyExists = "Already exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";

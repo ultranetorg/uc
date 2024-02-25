@@ -10,13 +10,11 @@ namespace Uccs.Sun.CLI
 	/// Usage: 
 	///		
 	/// </summary>
-	///  <example>
-	///		package download _aaa/app/win32/0.0.5
-	///  </example>
+
 	public class PackageCommand : Command
 	{
 		public const string Keyword = "package";
-		PackageAddress		Package => PackageAddress.Parse(Args.Nodes[1].Name);
+		ResourceAddress		Package => ResourceAddress.Parse(Args.Nodes[1].Name);
 
 		public PackageCommand(Program program, Xon args) : base(program, args)
 		{
@@ -32,23 +30,22 @@ namespace Uccs.Sun.CLI
 				case "c" :
 				case "create" :
 				{
-					ReleaseAddress p = null;
+					ResourceAddress p = null;
 					Manifest m = null;
 
 					try
 					{
-						p = Args.Has("previous") ? ReleaseAddress.FromRaw(GetHexBytes("previous"))
-												 : Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
+						p = GetResourceAddress("previous");
+							//: Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
 						
 						if(p != null)
 						{
-							m = Api<PackageInfo>(new PackageInfoCall {Package = new PackageAddress(ResourceAddress.Parse(Args.Nodes[1].Name), p)}).Manifest;
+							m = Api<PackageInfo>(new PackageInfoCall {Package = p}).Manifest;
 						}
 					}
 					catch(EntityException ex) when(ex.Error == EntityError.NotFound)
 					{
 					}
-
 
 					Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
 												Sources			 = GetString("sources").Split(','), 
@@ -56,7 +53,7 @@ namespace Uccs.Sun.CLI
 												Previous		 = p,
 												History			 = m?.History,
 												AddressCreator	 = new(){	
-																			Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.DHA),
+																			Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.DH),
 																			Owner = GetAccountAddress("owner", false),
 																			Resource = ResourceAddress.Parse(Args.Nodes[1].Name)
 																		} });

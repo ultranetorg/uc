@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 
 namespace Uccs.Net
 {
@@ -10,11 +11,13 @@ namespace Uccs.Net
 	public enum ResourceFlags : byte
 	{
 		None		= 0, 
-		Deprecated	= 0b_______10, 
-		Child		= 0b______100, 
-		Data		= 0b_____1000, 
+		//Constant	= 0b________1, 
+		Sealed		= 0b_______10, 
+		//Deprecated	= 0b______100, 
+		Child		= 0b_____1000, 
+		Data		= 0b____10000, 
 
-		Unchangables= Child | Data, 
+		Unchangables= Child | Data 
 	}
 
 	public enum DataType : short
@@ -39,7 +42,7 @@ namespace Uccs.Net
 		Data			= 0b_____________10,
 		NonEmtpyData	= 0b____________100,
 		Parent			= 0b___________1000,
-		RememberRelease	= 0b__________10000,
+		//RememberRelease	= 0b__________10000,
 		AddPublisher	= 0b_________100000,
 		RemovePublisher	= 0b________1000000,
 		Recursive		= 0b100000000000000,
@@ -47,6 +50,8 @@ namespace Uccs.Net
 
 	public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	{
+		public const short	LengthMax = 8192;
+
 		public DataType		Type;
 		byte[]				_Value;
 		object				_Interpretation;
@@ -241,8 +246,6 @@ namespace Uccs.Net
 
 	public class Resource : IBinarySerializable
 	{
-		public const short		DataLengthMax = 8192;
-
 		public ResourceId		Id { get; set; }
 		public ResourceAddress	Address { get; set; }
 		public ResourceFlags	Flags { get; set; }
@@ -270,21 +273,17 @@ namespace Uccs.Net
 			writer.Write((byte)Flags);
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
-			{
 				writer.Write(Data);
-			}
 
 			writer.Write(Resources, i => writer.Write7BitEncodedInt(i));
 		}
 
 		public void Read(BinaryReader reader)
 		{
-			Flags	= (ResourceFlags)reader.ReadByte();
-			
+			Flags = (ResourceFlags)reader.ReadByte();
+
 			if(Flags.HasFlag(ResourceFlags.Data))
-			{
 				Data = reader.Read<ResourceData>();
-			}
 
 			Resources = reader.ReadArray(() => reader.Read7BitEncodedInt());
 		}

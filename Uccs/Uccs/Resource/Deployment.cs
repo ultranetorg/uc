@@ -17,15 +17,15 @@ namespace Uccs.Net
 
 	public class DeploymentMergeProgress
 	{
-		public PackageAddress		Target { get; set; }	
-		public PackageAddress		Complete { get; set; }	
-		public PackageAddress[]		Incrementals { get; set; }	
+		public ResourceAddress		Target { get; set; }	
+		public ResourceAddress		Complete { get; set; }	
+		public ResourceAddress[]	Incrementals { get; set; }	
 
 		public DeploymentMergeProgress(DeploymentMerge merge)
 		{
-			Target			= merge.Target.Address;
-			Complete		= merge.Complete.Address;
-			Incrementals	= merge.Incrementals.Select(i => i.Key.Address).ToArray();
+			Target			= merge.Target.Resource.Address;
+			Complete		= merge.Complete.Resource.Address;
+			Incrementals	= merge.Incrementals.Select(i => i.Key.Resource.Address).ToArray();
 		}
 	}
 

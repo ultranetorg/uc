@@ -110,10 +110,10 @@ namespace Uccs.Sun.CLI
 					return null;
 		}
 
-		protected PackageAddress GetReleaseAddress(string paramenter, bool mandatory = true)
+		protected ReleaseAddress GetReleaseAddress(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
-				return PackageAddress.Parse(GetString(paramenter));
+				return ReleaseAddress.Parse(GetString(paramenter));
 			else
 				if(mandatory)
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");

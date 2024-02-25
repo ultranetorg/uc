@@ -75,7 +75,7 @@ namespace Uccs.Net
 					{
 						lock(Sun.Lock)
 						{
-							if(rzd.Address is DHAAddress da)
+							if(rzd.Address is DHAddress da)
 							{
 								var z = Sun.Mcv.Releases.Find(rzd.Address, Sun.Mcv.LastConfirmedRound.Id);
 	
@@ -83,18 +83,18 @@ namespace Uccs.Net
 								{
 									var e = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 
-									if(e?.Data == null || e.Data.Interpretation is DHAAddress ha && ha != da)
+									if(e?.Data == null || e.Data.Interpretation is DHAddress ha && ha != da)
 									{
 										results.Add(new (rzd.Address, DeclarationResult.Rejected));
 										continue;
 									}
 								}
 							}
-							else if(rzd.Address is SPDAddress pa)
+							else if(rzd.Address is SDAddress pa)
 							{
 								var ea = Sun.Mcv.Authors.Find(rsd.Resource.Author, Sun.Mcv.LastConfirmedRound.Id);
 	
-								if(!pa.Valid(Sun.Zone.Cryptography, rsd.Resource, ea.Owner))
+								if(!pa.Prove(Sun.Zone.Cryptography, ea.Owner))
 								{
 									results.Add(new (rzd.Address, DeclarationResult.Rejected));
 									continue;

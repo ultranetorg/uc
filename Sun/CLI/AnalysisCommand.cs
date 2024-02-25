@@ -29,7 +29,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AnalysisRegistration {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Fee = GetMoney("fee")};
+					return new AnalysisRegistration {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Payment = GetMoney("payment")};
 				}
 
 				case "r" :

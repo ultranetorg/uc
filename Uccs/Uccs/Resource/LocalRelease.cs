@@ -125,7 +125,7 @@ namespace Uccs.Net
 	{
 		public ReleaseAddress			Address;
 		public List<Declaration>		DeclaredOn = new();
-		public string					Path => System.IO.Path.Join(Hub.ReleasesPath, Address.ToString());
+		public string					Path => System.IO.Path.Join(Hub.ReleasesPath, ResourceHub.Escape(Address.ToString()));
 		public object					Activity;
 		Availability					_Availability;
 		DataType						_Type;

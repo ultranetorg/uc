@@ -12,11 +12,6 @@ namespace Uccs.Net
 	{
 		public static void Serialize(BinaryWriter writer, object o)
 		{
-			if(o is ReleaseRequest)
-			{
-				o=o;
-			}
-
 			Serialize(writer, o, o.GetType());
 		}
 
@@ -139,9 +134,6 @@ namespace Uccs.Net
 		static object Construct(BinaryReader reader, Type type, Func<Type, byte, object> construct)
 		{
 			object o;
-
-			if(type == typeof(ReleaseAddress))
-				type = type;
 
 			if(type.GetInterfaces().Contains(typeof(ITypeCode)))
 				o = construct(type, reader.ReadByte());

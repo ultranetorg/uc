@@ -16,31 +16,45 @@ namespace Uccs.Net.Tests
 			return b;
 		}
 
-		[Fact]
-		public static void HashAnfEqual()
-		{
-			{
-				var p = new Dictionary<PackageAddress, object>(){{PackageAddress.Parse("a/r/p/v"), null}};
-				Assert.True(p.ContainsKey(PackageAddress.Parse("a/r/p/v")));
-				Assert.False(p.ContainsKey(PackageAddress.Parse("a/r/p/vv")));
-			}
-			{
-				var p = new Dictionary<ResourceAddress, object>(){{ResourceAddress.Parse("a/r/p/0.0.0"), null}};
-				Assert.True(p.ContainsKey(ResourceAddress.Parse("a/p/r/0.0.0")));
-				Assert.False(p.ContainsKey(ResourceAddress.Parse("a/p/r/0.0.1")));
-			}
-		}
+ 		[Fact]
+ 		public static void Resource()
+ 		{
+ 			var s = new HashSet<ResourceAddress>(){	ResourceAddress.Parse("upv:/a/r"), 
+													ResourceAddress.Parse("upc:/aa/rr"),
+													ResourceAddress.Parse("upc:zone/aaa/rrr"),
+													};
+
+ 			Assert.True(s.Contains(ResourceAddress.Parse("upv:/a/r")));
+ 			Assert.True(s.Contains(ResourceAddress.Parse("upc:/aa/rr")));
+ 			Assert.True(s.Contains(ResourceAddress.Parse("upc:zone/aaa/rrr")));
+ 			
+			Assert.False(s.Contains(ResourceAddress.Parse("upc:wrong/aaa/rrr")));
+ 			Assert.False(s.Contains(ResourceAddress.Parse("upc:/a/r")));
+ 			Assert.False(s.Contains(ResourceAddress.Parse("upv:/aa/rr")));
+ 		}
+
+ 		[Fact]
+ 		public static void Package()
+ 		{
+ 			var p = new HashSet<PackageAddress>(){PackageAddress.Parse("upc:/a/p/r/v")};
+ 			Assert.True(p.Contains(PackageAddress.Parse("upc:/a/p/r/v")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a/p/r/v-")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a/p/r-/v")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a/p-/r/v")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a-/p/r/v")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("upv:/a/p/r/v")));
+ 		}
 
 		[Fact]
 		public static void Release()
 		{
-			var a = new DHAAddress { Hash = RandomBytes(32) };
-			var ac = new DHAAddress{ Hash = a.Hash.ToArray() };
-			var b = new DHAAddress { Hash = RandomBytes(32) };
+			var a = new DHAddress { Hash = RandomBytes(32) };
+			var ac = new DHAddress{ Hash = a.Hash.ToArray() };
+			var b = new DHAddress { Hash = RandomBytes(32) };
 			 
-			var x = new SPDAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
-			var xc = new SPDAddress{ Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
-			var y = new SPDAddress { Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var x = new SDAddress { Resource = ResourceAddress.Parse("upv:/a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var xc = new SDAddress{ Resource = ResourceAddress.Parse("upv:/a/p"), Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
+			var y = new SDAddress { Resource = ResourceAddress.Parse("upv:/a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
 
 			Assert.True(a == ac && a != b &&
 						x == xc && x != y &&
