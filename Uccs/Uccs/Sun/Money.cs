@@ -19,6 +19,22 @@ namespace Uccs.Net
 		public static implicit operator Money(double value) => new Money(value);
 		public static implicit operator BigInteger(Money money) => money.Attos / One;
 
+		public static Money operator +	(Money v)			=> v;
+		public static Money operator -	(Money v)			=> new Money(-v.Attos);
+		public static Money operator +	(Money a, Money b)	=> new Money(a.Attos + b.Attos);
+		public static Money operator -	(Money a, Money b)	=> new Money(a.Attos - b.Attos);
+		public static Money operator ++	(Money v)			{v.Attos += One; return v; }
+		public static Money operator --	(Money v)			{v.Attos -= One; return v; }
+		public static Money operator *	(Money a, Money b)	=> new Money(a.Attos * b.Attos / One);
+		public static Money operator /	(Money a, Money b)	=> new Money(One * a.Attos / b.Attos);
+		public static Money operator %	(Money a, Money b)	=> new Money(a.Attos % b.Attos);
+		public static bool operator ==	(Money a, Money b)	=> a.Attos == b.Attos;
+		public static bool operator !=	(Money a, Money b)	=> a.Attos != b.Attos;
+		public static bool operator <	(Money a, Money b)	=> a.Attos < b.Attos;
+		public static bool operator >	(Money a, Money b)	=> a.Attos > b.Attos;
+		public static bool operator <=	(Money a, Money b)	=> a.Attos <= b.Attos;
+		public static bool operator >=	(Money a, Money b)	=> a.Attos >= b.Attos;
+
 		static Money()
 		{
 		}
@@ -139,22 +155,6 @@ namespace Uccs.Net
 		{
 			return Attos.Equals(((Money)obj).Attos);
 		}
-
-		public static Money operator +	(Money v)			=> v;
-		public static Money operator -	(Money v)			=> new Money(-v.Attos);
-		public static Money operator +	(Money a, Money b)	=> new Money(a.Attos + b.Attos);
-		public static Money operator -	(Money a, Money b)	=> new Money(a.Attos - b.Attos);
-		public static Money operator ++	(Money v)			{v.Attos += One; return v; }
-		public static Money operator --	(Money v)			{v.Attos -= One; return v; }
-		public static Money operator *	(Money a, Money b)	=> new Money(a.Attos * b.Attos / One);
-		public static Money operator /	(Money a, Money b)	=> new Money(One * a.Attos / b.Attos);
-		public static Money operator %	(Money a, Money b)	=> new Money(a.Attos % b.Attos);
-		public static bool operator ==	(Money a, Money b)	=> a.Attos == b.Attos;
-		public static bool operator !=	(Money a, Money b)	=> a.Attos != b.Attos;
-		public static bool operator <	(Money a, Money b)	=> a.Attos < b.Attos;
-		public static bool operator >	(Money a, Money b)	=> a.Attos > b.Attos;
-		public static bool operator <=	(Money a, Money b)	=> a.Attos <= b.Attos;
-		public static bool operator >=	(Money a, Money b)	=> a.Attos >= b.Attos;
 
 		public Money Pow(int p)
 		{

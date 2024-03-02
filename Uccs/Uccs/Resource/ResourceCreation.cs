@@ -87,7 +87,7 @@ namespace Uccs.Net
 
 			r.Flags	= Flags;
 
-			PayForEntity(round, a.Expiration.Days - round.ConsensusTime.Days);
+			PayForEntity(round, a.Expiration - round.ConsensusTime);
 			
 			if(Flags.HasFlag(ResourceFlags.Child))
 			{

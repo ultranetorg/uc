@@ -97,27 +97,27 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public static Money CalculateEntityFee(Money rentperentity, int days)
+		public static Money CalculateEntityFee(Money rentperentity, Time time)
 		{
-			return rentperentity * new Money(Mcv.RentFactor(days));
+			return rentperentity * Mcv.RentFactor(time);
 		}
 
-		public static Money CalculateResourceDataFee(Money rentperbyte, int length, int days)
+		public static Money CalculateResourceDataFee(Money rentperbyte, int length, Time time)
 		{
-			return rentperbyte * length * new Money(Mcv.RentFactor(days));
+			return rentperbyte * length * Mcv.RentFactor(time);
 		}
 
-		public void PayForBytes(Round round, int length, int days)
+		public void PayForBytes(Round round, int length, Time time)
 		{
-			var fee = CalculateResourceDataFee(round.RentPerByte, length, days);
+			var fee = CalculateResourceDataFee(round.RentPerByte, length, time);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;
 		}
 
-		public void PayForEntity(Round round, int days)
+		public void PayForEntity(Round round, Time time)
 		{
-			var fee = CalculateEntityFee(round.RentPerEntity, days);
+			var fee = CalculateEntityFee(round.RentPerEntity, time);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;
@@ -125,7 +125,7 @@ namespace Uccs.Net
 
 		public void Expand(Round round, Author author, int toallocate)
 		{
-			PayForBytes(round, author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration.Days - round.ConsensusTime.Days);
+			PayForBytes(round, author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration - round.ConsensusTime);
 
 			author.SpaceUsed		= (short)(author.SpaceUsed + toallocate);
 			author.SpaceReserved	= author.SpaceUsed;
@@ -137,7 +137,7 @@ namespace Uccs.Net
 
 			if(e == null) /// new Account
 			{
-				PayForEntity(round, 1);
+				PayForEntity(round, Time.FromYears(10));
 			}
 
 			return round.AffectAccount(account);

@@ -58,11 +58,11 @@ namespace Uccs.Net
 				a.Owner			= Signer;
 				a.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 
-				PayForEntity(round, Years);
-				PayForBytes(round, a.SpaceUsed, Years);
+				PayForEntity(round, Time.FromYears(Years));
+				PayForBytes(round, a.SpaceUsed, Time.FromYears(Years));
 
 				foreach(var i in a.Resources)
-					PayForEntity(round, Years);
+					PayForEntity(round, Time.FromYears(Years));
 			}
 			else
 				Error = "Failed";

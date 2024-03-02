@@ -22,14 +22,9 @@ namespace Uccs.Net
 		public const int					DeclareToGenerateDelay = P*2;
 		public const int					TransactionPlacingLifetime = P*2;
 		public const int					LastGenesisRound = 1+P + 1+P + P;
-		///public const int					MembersRotation = 32;
-		//public static readonly Money		ResourceDataPerByteFee	= new Money(0.00001);
-		//public static readonly Money		EntityAllocationFee		= new Money(0.001);
-		//public const int					EntityAllocation		= 100;
 		public static readonly Money		AnalysisPerByteFee		= new Money(0.000_000_001);
 		public static readonly Money		BalanceMin				= new Money(0.000_000_001);
-		public static int					RentFactor(int days)	=> (days * days)/(Time.FromYears(1).Days);
-		//public const int					EntityAllocation = 1000;
+		public static Money					RentFactor(Time time)	=> new Money(time.Days * time.Days)/(Time.FromYears(1).Days  * Time.FromYears(1).Days);
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
 
@@ -52,10 +47,10 @@ namespace Uccs.Net
 		public AuthorTable					Authors;
 		public int							Size => Accounts.Clusters.Sum(i => i.MainLength) +
 													Authors.Clusters.Sum(i => i.MainLength);
-		bool								ReadyToCommit(Round round) => Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
 		public RoundDelegate				Commited;
+		
 
 		public Round						LastConfirmedRound;
 		public Round						LastCommittedRound;
@@ -65,6 +60,7 @@ namespace Uccs.Net
 		public const string					ChainFamilyName = "Chain";
 		public ColumnFamilyHandle			ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
 
+		bool								ReadyToCommit(Round round) => Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public static int					GetValidityPeriod(int rid) => rid + P;
 
 		public Mcv(Zone zone, Role roles, McvSettings settings, string databasepath)
