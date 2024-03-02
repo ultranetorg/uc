@@ -178,6 +178,14 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
+		protected Money GetMoney(string paramenter, Money def)
+		{
+			if(Args.Has(paramenter))
+				return Money.ParseDecimal(Args.Get<string>(paramenter));
+			else
+				return def;
+		}
+
 		protected E GetEnum<E>(string paramenter, E def) where E : struct
 		{
 			if(Args.Has(paramenter))

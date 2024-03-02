@@ -24,33 +24,35 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-				case "c" :
-				case "create" :
-				{
-					Workflow.CancelAfter(RdcTransactingTimeout);
+// 				case "c" :
+// 				case "create" :
+// 				{
+// 					Workflow.CancelAfter(RdcTransactingTimeout);
+// 
+// 					return new AnalysisRegistration {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Payment = GetMoney("payment")};
+// 				}
 
-					return new AnalysisRegistration {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Payment = GetMoney("payment")};
-				}
-
-				case "r" :
+				case "u" :
 				case "update" :
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AnalysisResultRegistration {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
+					return new AnalysisResultRegistration {	Resource = GetResourceAddress("resource"), 
+															Release = GetReleaseAddress("release"), 
+															Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
 				}
-
-				case "e" : 
-				case "entity" : 
-				{	
-					Workflow.CancelAfter(RdcQueryTimeout);
-
-					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
-	
-					Dump(rp.Analysis);
-						
-					return rp.Analysis;
-				}
+// 
+// 				case "e" : 
+// 				case "entity" : 
+// 				{	
+// 					Workflow.CancelAfter(RdcQueryTimeout);
+// 
+// 					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
+// 	
+// 					Dump(rp.Analysis);
+// 						
+// 					return rp.Analysis;
+// 				}
 
 				default:
 					throw new SyntaxException("Unknown operation");;

@@ -1,71 +1,60 @@
 using System;
 using System.IO;
 using System.Linq;
-using Org.BouncyCastle.Utilities.Encoders;
-using System.Numerics;
 
 namespace Uccs.Net
 {
 	public class ResourceCreation : Operation
 	{
 		public ResourceAddress		Resource { get; set; }
-		public ResourceChanges		Initials { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public string				Parent { get; set; }
+		public Money				AnalysisPayment { get; set; }
 
-		public override bool		Valid =>	(Flags & ResourceFlags.Unchangables) == 0
-												&& (!Initials.HasFlag(ResourceChanges.Data)	|| Data.Value.Length <= ResourceData.LengthMax);
-		
-		public override string		Description => $"{Resource}, [{Initials}], [{Flags}]{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Data)}";
+		public override bool		Valid => !Flags.HasFlag(ResourceFlags.Data) || (Data.Value.Length <= ResourceData.LengthMax);
+		public override string		Description => $"{Resource}, [{Flags}]{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Data)}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data, string parent)
+		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data, Money analysispayment, string parent)
 		{
 			Resource = resource;
 			Flags = flags;
+			Data = data;
+			Parent = parent;
+			AnalysisPayment = analysispayment;
 
-			Initials |= (ResourceChanges.Flags);
-
-			if(data != null)
-			{
-				Data = data;
-				Initials |= ResourceChanges.Data;
-			}
-
-			if(parent != null)
-			{
-				Parent = parent;
-				Initials |= ResourceChanges.Parent;
-			}
+			if(Data != null)					Flags |= ResourceFlags.Data;
+			if(Parent != null)					Flags |= ResourceFlags.Child;
+			if(AnalysisPayment > Money.Zero)	Flags |= ResourceFlags.Analysis;
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource	= reader.Read<ResourceAddress>();
-			Initials	= (ResourceChanges)reader.ReadByte();
 			Flags		= (ResourceFlags)reader.ReadByte();
 
-			if(Initials.HasFlag(ResourceChanges.Data))		Data = reader.Read<ResourceData>();
-			if(Initials.HasFlag(ResourceChanges.Parent))	Parent = reader.ReadUtf8();
+			if(Flags.HasFlag(ResourceFlags.Data))		Data = reader.Read<ResourceData>();
+			if(Flags.HasFlag(ResourceFlags.Child))		Parent = reader.ReadUtf8();
+			if(Flags.HasFlag(ResourceFlags.Analysis))	AnalysisPayment = reader.Read<Money>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Resource);
-			writer.Write((byte)Initials);
 			writer.Write((byte)Flags);
 
-			if(Initials.HasFlag(ResourceChanges.Data))		writer.Write(Data);
-			if(Initials.HasFlag(ResourceChanges.Parent))	writer.WriteUtf8(Parent);
+			if(Flags.HasFlag(ResourceFlags.Data))		writer.Write(Data);
+			if(Flags.HasFlag(ResourceFlags.Child))		writer.WriteUtf8(Parent);
+			if(Flags.HasFlag(ResourceFlags.Analysis))	writer.Write(AnalysisPayment);
 		}
 
-		public override void Execute(Mcv chain, Round round)
+		public override void Execute(Mcv mcv, Round round)
 		{
-			var a = chain.Authors.Find(Resource.Author, round.Id);
+			var a = mcv.Authors.Find(Resource.Author, round.Id);
 
 			if(a == null)
 			{
@@ -85,7 +74,7 @@ namespace Uccs.Net
 				return;
 			}
 
-			var e = chain.Authors.FindResource(Resource, round.Id);
+			var e = a.Resources.FirstOrDefault(i => i.Address == Resource);
 					
 			if(e != null)
 			{
@@ -94,71 +83,56 @@ namespace Uccs.Net
 			}
 
 			a = Affect(round, Resource.Author);
-			var r = a.AffectResource(Resource);
+			var r = a.AffectResource(Resource.Resource);
 
-			r.Flags	= r.Flags & ResourceFlags.Unchangables | Flags & ~ResourceFlags.Unchangables;
+			r.Flags	= Flags;
+
+			PayForEntity(round, a.Expiration.Days - round.ConsensusTime.Days);
 			
-			var y = (byte)((a.Expiration.Days - round.ConsensusTime.Days) / 365 + 1);
-
-			if(y < 0)
-				throw new IntegrityException();
-
-			PayForEntity(round, y);
-			
-			if(Parent != null)
+			if(Flags.HasFlag(ResourceFlags.Child))
 			{
-				r.Flags |= ResourceFlags.Child;
-
 				var i = Array.FindIndex(a.Resources, i => i.Address.Resource == Parent);
-
+	
 				if(i == -1)
 				{
 					Error = NotFound;
 					return;
 				}
-
-				var p = a.AffectResource(new ResourceAddress{Author = a.Name, Resource = Parent});
+	
+				var p = a.AffectResource(Parent);
 				p.Resources = p.Resources.Append(r.Id.Ri).ToArray();
 			}
 						
-			if(Data != null)
+			if(Flags.HasFlag(ResourceFlags.Data))
 			{
-				r.Flags		|= ResourceFlags.Data;
+				r.Updated	= round.ConsensusTime;
 				r.Data		= Data;
 
-				if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
+				if(Data != null)
 				{
-					//round.DataRented += a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved;
+					if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
+					{
+						Expand(round, a, r.Data.Value.Length);
+					}
+				} 
+			}
 
-					PayForBytes(round, a.SpaceUsed + r.Data.Value.Length - a.SpaceReserved, y);
-
-					a.SpaceUsed		= (short)(a.SpaceUsed + r.Data.Value.Length);
-					a.SpaceReserved	= a.SpaceUsed;
+			if(Flags.HasFlag(ResourceFlags.Analysis))
+			{
+				if(Data.Interpretation is ReleaseAddress)
+				{
+					r.AnalysisPayment	= AnalysisPayment;
+					r.AnalysisConsil	= (byte)round.Analyzers.Count;
+					r.AnalysisResults	= null;
+	
+					var s = Affect(round, Signer);
+					s.Balance -= AnalysisPayment;
+				} 
+				else
+				{
+					Error = NotRelease;
+					return;
 				}
-
-				//if(Initials.HasFlag(ResourceChanges.RememberRelease))
-				//{
-				//	if(Data.Interpretation is ReleaseAddress ra)
-				//	{
-				//		var z = Affect(round, ra);
-				//	
-				//		if(z.Expiration - round.ConsensusTime < Time.FromYears(1))
-				//		{
-				//			z.Expiration = round.ConsensusTime + Time.FromYears(10);
-				//			PayForEntity(round, 10);
-				//		}
-				//		else
-				//		{
-				//			Error = AlreadyExists;
-				//			return;
-				//		}
-				//	}
-				//	else
-				//	{
-				//		Error = NotRelease;
-				//		return;
-				//	}
-				//}
 			}
 		}
 	}

@@ -10,7 +10,6 @@ namespace Uccs.Net
 
 	public class PackageAddress : IBinarySerializable, IComparable, IComparable<PackageAddress>, IEquatable<PackageAddress>
 	{
-		public ResourceType	Type		{ get ; set; }
 		public string			Author		{ get ; set; }
 		public string			Product		{ get ; set; }
 		public string			Realization { get ; set; }
@@ -31,9 +30,8 @@ namespace Uccs.Net
 // 			return a._Ura;
 // 		}
 
-		public PackageAddress(ResourceType scheme, string author, string product, string realization, string veriosn)
+		public PackageAddress(string author, string product, string realization, string veriosn)
 		{
-			Type = scheme;
 			Author = author;
 			Product = product;
 			Realization = realization;
@@ -53,11 +51,10 @@ namespace Uccs.Net
 
 		public PackageAddress(ResourceAddress resource, string version)
 		{
+			Author		= resource.Author;
 
 			var j = resource.Resource.LastIndexOf('/');
 			
-			Type		= resource.Type;
-			Author		= resource.Author;
 			Product		= resource.Resource.Substring(0, j);
 			Realization = resource.Resource.Substring(j + 1);
 			Version		= version; 
@@ -69,18 +66,15 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"{Type.ToString().ToLower()}:/{Author}/{Product}/{Realization}/{Version}";
+			return $"{ResourceAddress.Scheme}:{Author}/{Product}/{Realization}/{Version}";
 		}
 
 		public static PackageAddress Parse(string v)
 		{
 			var r = ResourceAddress.Parse(v);
-
 			var a = new PackageAddress();
-
 			var p = r.Resource.Split('/');
 
-			a.Type			= r.Type;
 			a.Author		= r.Author;
 			a.Product		= p[0];
 			a.Realization	= p[1];
@@ -96,7 +90,7 @@ namespace Uccs.Net
 
 		public PackageAddress ReplaceVersion(string version)
 		{
-			return new PackageAddress(Type, Author, Product, Realization, version);
+			return new PackageAddress(Author, Product, Realization, version);
 		}
 
 		public int CompareTo(object obj)
@@ -106,11 +100,7 @@ namespace Uccs.Net
 
 		public int CompareTo(PackageAddress o)
 		{
-			var a = Type.CompareTo(o.Type);
-			if(a != 0)
-				return a;
-
-			a = Author.CompareTo(o.Author);
+			var a = Author.CompareTo(o.Author);
 			if(a != 0)
 				return a;
 
@@ -132,7 +122,6 @@ namespace Uccs.Net
 		
 		public virtual void Write(BinaryWriter w)
 		{
-			w.Write((byte)Type);
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Product);
 			w.WriteUtf8(Realization);
@@ -141,7 +130,6 @@ namespace Uccs.Net
 
 		public virtual void Read(BinaryReader r)
 		{
-			Type = (ResourceType)r.ReadByte();
 			Author = r.ReadUtf8();
 			Product = r.ReadUtf8();
 			Realization = r.ReadUtf8();
@@ -156,7 +144,6 @@ namespace Uccs.Net
 		public bool Equals(PackageAddress o)
 		{
 			return	o is not null && 
-					Type		== o.Type &&
 					Author		== o.Author && 
 					Product		== o.Product && 
 					Realization	== o.Realization && 

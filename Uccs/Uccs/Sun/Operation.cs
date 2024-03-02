@@ -97,30 +97,38 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public static Money CalculateEntityFee(Money rentperentity, byte years)
+		public static Money CalculateEntityFee(Money rentperentity, int days)
 		{
-			return rentperentity * new Money(Mcv.RentFactor(years));
+			return rentperentity * new Money(Mcv.RentFactor(days));
 		}
 
-		public static Money CalculateResourceDataFee(Money rentperbyte, int size, byte years)
+		public static Money CalculateResourceDataFee(Money rentperbyte, int length, int days)
 		{
-			return rentperbyte * size * new Money(Mcv.RentFactor(years));
+			return rentperbyte * length * new Money(Mcv.RentFactor(days));
 		}
 
-		public void PayForBytes(Round round, int length, byte years)
+		public void PayForBytes(Round round, int length, int days)
 		{
-			var fee = CalculateResourceDataFee(round.RentalPerByte, length, years);
+			var fee = CalculateResourceDataFee(round.RentPerByte, length, days);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;
 		}
 
-		public void PayForEntity(Round round, byte years)
+		public void PayForEntity(Round round, int days)
 		{
-			var fee = CalculateEntityFee(round.RentPerEntity, years);
+			var fee = CalculateEntityFee(round.RentPerEntity, days);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;
+		}
+
+		public void Expand(Round round, Author author, int toallocate)
+		{
+			PayForBytes(round, author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration.Days - round.ConsensusTime.Days);
+
+			author.SpaceUsed		= (short)(author.SpaceUsed + toallocate);
+			author.SpaceReserved	= author.SpaceUsed;
 		}
 
 		public AccountEntry Affect(Round round, AccountAddress account)
@@ -138,18 +146,6 @@ namespace Uccs.Net
 		public AuthorEntry Affect(Round round, string author)
 		{
 			return round.AffectAuthor(author);
-		}
-
-		public ReleaseEntry Affect(Round round, ReleaseAddress release)
-		{
-			var e = round.Mcv.Releases.Find(release, round.Id);	
-
-			if(e == null) /// new Analysis
-			{
-				PayForEntity(round, 1);
-			}
-
-			return round.AffectRelease(release);
 		}
 	}
 

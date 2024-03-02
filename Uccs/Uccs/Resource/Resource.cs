@@ -10,14 +10,11 @@ namespace Uccs.Net
 	[Flags]
 	public enum ResourceFlags : byte
 	{
-		None		= 0, 
-		//Constant	= 0b________1, 
-		Sealed		= 0b_______10, 
-		//Deprecated	= 0b______100, 
-		Child		= 0b_____1000, 
-		Data		= 0b____10000, 
-
-		Unchangables= Child | Data 
+		None			= 0, 
+		Sealed			= 0b_______1, 
+		Child			= 0b______10, 
+		Data			= 0b_____100, 
+		Analysis		= 0b____1000, 
 	}
 
 	public enum DataType : short
@@ -35,17 +32,17 @@ namespace Uccs.Net
 	}
 
 	[Flags]
-	public enum ResourceChanges : ushort
+	public enum ResourceChanges : byte
 	{
 		None			= 0,
-		Flags			= 0b______________1,
-		Data			= 0b_____________10,
-		NonEmtpyData	= 0b____________100,
-		Parent			= 0b___________1000,
-		//RememberRelease	= 0b__________10000,
-		AddPublisher	= 0b_________100000,
-		RemovePublisher	= 0b________1000000,
-		Recursive		= 0b100000000000000,
+		Recursive		= 0b______________1,
+		NotNullData			= 0b_____________10,
+		//Flags			= 0b______________1,
+		//Data			= 0b_____________10,
+		//Parent			= 0b___________1000,
+		//Analysis		= 0b__________10000,
+		//AddPublisher	= 0b_________100000,
+		//RemovePublisher	= 0b________1000000,
 	}
 
 	public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
@@ -246,13 +243,18 @@ namespace Uccs.Net
 
 	public class Resource : IBinarySerializable
 	{
-		public ResourceId		Id { get; set; }
-		public ResourceAddress	Address { get; set; }
-		public ResourceFlags	Flags { get; set; }
-		public ResourceData		Data { get; set; }
-		public int[]			Resources { get; set; } = {};
+		public ResourceId			Id { get; set; }
+		public ResourceAddress		Address { get; set; }
+		public ResourceFlags		Flags { get; set; }
+		public ResourceData			Data { get; set; }
+		public int[]				Resources { get; set; } = {};
+		public Time					Updated { get; set; }
 
-		public bool				New;
+		public Money				AnalysisPayment { get; set; }
+		public byte					AnalysisConsil { get; set; }
+		public AnalyzerResult[]		AnalysisResults { get; set; }
+
+		public bool					New;
 
 		public override string ToString()
 		{
@@ -265,25 +267,48 @@ namespace Uccs.Net
 							Address	= Address, 
 							Flags = Flags,
 							Data = Data,
-							Resources = Resources};
+							Resources = Resources,
+							Updated = Updated,
+							AnalysisPayment = AnalysisPayment,
+							AnalysisConsil = AnalysisConsil,
+							AnalysisResults = AnalysisResults
+							};
 		}
 
 		public void Write(BinaryWriter writer)
 		{
 			writer.Write((byte)Flags);
+			writer.Write(Updated);
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 				writer.Write(Data);
 
+			if(Flags.HasFlag(ResourceFlags.Analysis))
+			{
+				writer.Write(AnalysisPayment);
+				writer.Write(AnalysisConsil);
+				writer.Write(AnalysisResults, i => { writer.Write(i.AnalyzerId);
+													 writer.Write((byte)i.Result); });
+			}
+		
 			writer.Write(Resources, i => writer.Write7BitEncodedInt(i));
 		}
 
 		public void Read(BinaryReader reader)
 		{
 			Flags = (ResourceFlags)reader.ReadByte();
+			Updated	= reader.Read<Time>();
 
 			if(Flags.HasFlag(ResourceFlags.Data))
 				Data = reader.Read<ResourceData>();
+			
+			if(Flags.HasFlag(ResourceFlags.Analysis))
+			{
+				AnalysisPayment	= reader.Read<Money>();
+				AnalysisConsil	= reader.ReadByte();
+				AnalysisResults	= reader.ReadArray(() => new AnalyzerResult{AnalyzerId = reader.ReadByte(), 
+																			Result = (AnalysisResult)reader.ReadByte()});
+			}
 
 			Resources = reader.ReadArray(() => reader.Read7BitEncodedInt());
 		}

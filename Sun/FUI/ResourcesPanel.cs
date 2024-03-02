@@ -54,7 +54,7 @@ namespace Uccs.Sun.FUI
 					i.Tag = r;
 
 					i.SubItems.Add(r.Address.ToString());
-					i.SubItems.Add(string.Join(",", Enum.GetValues<ResourceFlags>().Where(i => i != ResourceFlags.None && i != ResourceFlags.Unchangables && ((i & r.Flags) != 0))));
+					i.SubItems.Add(string.Join(",", Enum.GetValues<ResourceFlags>().Where(i => i != ResourceFlags.None && ((i & r.Flags) != 0))));
 					i.SubItems.Add(r.Data.ToString());
 					i.SubItems.Add(r.Resources.Length.ToString());
 

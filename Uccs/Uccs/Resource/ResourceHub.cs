@@ -9,16 +9,11 @@ using RocksDbSharp;
 
 namespace Uccs.Net
 {
-	public class ReleaseDeclaration
-	{
-		public ReleaseAddress	Address { get; set; }
-		public Availability		Availability { get; set; }	
-	}
-
 	public class ResourceDeclaration
 	{
 		public ResourceAddress			Resource { get; set; }	
-		public ReleaseDeclaration[]		Releases { get; set; }	
+		public ReleaseAddress			Release { get; set; }	
+		public Availability				Availability { get; set; }	
 	}
 
 	public class ResourceHub
@@ -299,47 +294,51 @@ namespace Uccs.Net
 				if(!cr.Members.Any())
 					continue;
 
-				var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceAddress, List<LocalRelease>>>();
+				var ds = new Dictionary<MembersResponse.Member, Dictionary<ResourceAddress, LocalRelease>>();
 
 				lock(Lock)
 				{
-					foreach(var r in Resources)
-						foreach(var d in r.Datas)
-							switch(d.Type)
+					foreach(var r in Resources.Where(i => i.Last != null))
+					{	
+						//foreach(var d in r.Datas)
+						var d = r.Last;
+
+						switch(d.Type)
+						{
+							case DataType.File:
+							case DataType.Directory:
+							case DataType.Package:
 							{
-								case DataType.File:
-								case DataType.Directory:
-								case DataType.Package:
+								var l = Find(d.Interpretation as ReleaseAddress);
+
+								if(l != null && l.Availability != Availability.None)
 								{
-									var l = Find(d.Interpretation as ReleaseAddress);
-
-									if(l != null && l.Availability != Availability.None)
+									foreach(var m in cr.Members.OrderByNearest(l.Address.Hash).Take(MembersPerDeclaration).Where(m =>	{
+																																			var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
+																																			return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																																		}))
 									{
-										foreach(var m in cr.Members.OrderByNearest(l.Address.Hash).Take(MembersPerDeclaration).Where(m =>	{
-																																				var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
-																																				return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																																			}))
-										{
-											var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
-											(rss.TryGetValue(r.Address, out var y) ? y : (rss[r.Address] = new())).Add(l);
-										}
-
+										var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
+										rss[r.Address] = l;
 									}
-									break;
-								}								
-								//{	
-								//	foreach(var lr in r.Datas.Select(i => Find(i.Data)).Where(i => i is not null && i.Availability != Availability.None))
-								//	{
-								//		foreach(var m in cr.Members.OrderByNearest(lr.Address).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
-								//		{
-								//			var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
-								//			(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
-								//		}
-								//	}
-								//
-								//	break;
-								//}
-							}
+
+								}
+								break;
+							}								
+							//{	
+							//	foreach(var lr in r.Datas.Select(i => Find(i.Data)).Where(i => i is not null && i.Availability != Availability.None))
+							//	{
+							//		foreach(var m in cr.Members.OrderByNearest(lr.Address).Take(MembersPerDeclaration).Where(m => !lr.DeclaredOn.Any(dm => dm.Account == m.Account)))
+							//		{
+							//			var a = (ds.TryGetValue(m, out var x) ? x : (ds[m] = new()));
+							//			(a.TryGetValue(r.Address, out var y) ? y : (a[r.Address] = new())).Add(lr);
+							//		}
+							//	}
+							//
+							//	break;
+							//}
+						}
+					}
 				}
 
 				if(!ds.Any())
@@ -364,7 +363,7 @@ namespace Uccs.Net
 
 					foreach(var i in ds)
 					{
-						foreach(var r in i.Value.SelectMany(i => i.Value))
+						foreach(var r in i.Value.Select(i => i.Value))
 						{
 							var d = r.DeclaredOn.Find(j => j.Member.Account == i.Key.Account);
 
@@ -380,8 +379,8 @@ namespace Uccs.Net
 													try
 													{
 														drr = Sun.Call(i.Key.SeedHubRdcIPs.Random(), p => p.Request<DeclareReleaseResponse>(new DeclareReleaseRequest {Resources = i.Value.Select(rs => new ResourceDeclaration{Resource = rs.Key, 
-																																																								Releases = rs.Value.Select(rl => new ReleaseDeclaration{Address = rl.Address, 
-																																																																						Availability = rl.Availability}).ToArray() }).ToArray() }), Sun.Workflow);
+																																																								Release = rs.Value.Address, 
+																																																								Availability = rs.Value.Availability }).ToArray() }), Sun.Workflow);
 													}
 													catch(OperationCanceledException)
 													{

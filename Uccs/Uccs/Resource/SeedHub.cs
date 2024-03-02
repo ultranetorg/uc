@@ -44,24 +44,25 @@ namespace Uccs.Net
 
 			foreach(var rsd in resources)
 			{
-				foreach(var rzd in rsd.Releases)
+				var rzd = rsd.Release;
+				//foreach(var rzd in rsd.Releases)
 				{
 					lock(Sun.Lock)
 					{ 
-						if(!Sun.NextVoteMembers.OrderByNearest(rzd.Address.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
+						if(!Sun.NextVoteMembers.OrderByNearest(rzd.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
 						{
-							results.Add(new (rzd.Address, DeclarationResult.NotNearest));
+							results.Add(new (rzd, DeclarationResult.NotNearest));
 							continue;
 						}
 					}
 
-					if(Releases.TryGetValue(rzd.Address, out var ss))
+					if(Releases.TryGetValue(rzd, out var ss))
 					{
 						var s = ss.Find(i => i.IP.Equals(ip));
 	
 						if(s == null)
 						{
-							s = new Seed(ip, DateTime.UtcNow, rzd.Availability);
+							s = new Seed(ip, DateTime.UtcNow, rsd.Availability);
 							ss.Add(s);
 						} 
 						else
@@ -69,15 +70,15 @@ namespace Uccs.Net
 							s.Arrived = DateTime.UtcNow;
 						}
 						
-						s.Availability = rzd.Availability;
+						s.Availability = rsd.Availability;
 					}
 					else
 					{
 						lock(Sun.Lock)
 						{
-							if(rzd.Address is DHAddress da)
+							if(rzd is DHAddress da)
 							{
-								var z = Sun.Mcv.Releases.Find(rzd.Address, Sun.Mcv.LastConfirmedRound.Id);
+								var z = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 	
 								if(z == null)
 								{
@@ -85,24 +86,24 @@ namespace Uccs.Net
 
 									if(e?.Data == null || e.Data.Interpretation is DHAddress ha && ha != da)
 									{
-										results.Add(new (rzd.Address, DeclarationResult.Rejected));
+										results.Add(new (rzd, DeclarationResult.Rejected));
 										continue;
 									}
 								}
 							}
-							else if(rzd.Address is SDAddress pa)
+							else if(rzd is SDAddress pa)
 							{
 								var ea = Sun.Mcv.Authors.Find(rsd.Resource.Author, Sun.Mcv.LastConfirmedRound.Id);
 	
 								if(!pa.Prove(Sun.Zone.Cryptography, ea.Owner))
 								{
-									results.Add(new (rzd.Address, DeclarationResult.Rejected));
+									results.Add(new (rzd, DeclarationResult.Rejected));
 									continue;
 								}
 
 								var s = (Resources.TryGetValue(rsd.Resource, out var l) ? l : Resources[rsd.Resource] = new());
 								
-								s.Add(rzd.Address);
+								s.Add(rzd);
 
 								if(s.Count > 50)
 								{
@@ -111,10 +112,10 @@ namespace Uccs.Net
 							}
 						}
 
-						ss = Releases[rzd.Address] = new () {new Seed(ip, DateTime.UtcNow, rzd.Availability)};
+						ss = Releases[rzd] = new () {new Seed(ip, DateTime.UtcNow, rsd.Availability)};
 					}
 									
-					results.Add(new (rzd.Address, DeclarationResult.Accepted));
+					results.Add(new (rzd, DeclarationResult.Accepted));
 				
 					if(ss.Count > SeedsPerReleaseMax)
 					{

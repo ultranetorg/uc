@@ -51,17 +51,11 @@ namespace Uccs.Net
 		{
 			Write(w);
 
-			w.Write(Resources.Where(i => i.Address.Type == ResourceType.Variable), i =>	{
-																							w.Write7BitEncodedInt(i.Id.Ri);
-																							w.WriteUtf8(i.Address.Resource);
-																							i.Write(w);
-																						});
-
-			w.Write(Resources.Where(i => i.Address.Type == ResourceType.Constant), i =>	{
-																							w.Write7BitEncodedInt(i.Id.Ri);
-																							w.WriteUtf8(i.Address.Resource);
-																							i.Write(w);
-																						});
+			w.Write(Resources, i =>	{
+										w.Write7BitEncodedInt(i.Id.Ri);
+										w.WriteUtf8(i.Address.Resource);
+										i.Write(w);
+									});
 		}
 
 		public void ReadMain(BinaryReader reader)
@@ -71,21 +65,11 @@ namespace Uccs.Net
 			Resources = reader.Read(() =>	{ 
 												var a = new Resource();
 												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-												a.Address = new ResourceAddress{Type = ResourceType.Variable,
-																				Author = Name, 
+												a.Address = new ResourceAddress{Author = Name, 
 																				Resource = reader.ReadUtf8()};
 												a.Read(reader);
 												return a;
-											})
-					.Concat(reader.Read(() =>{ 
-												var a = new Resource();
-												a.Id = new ResourceId(Id.Ci, Id.Ei, reader.Read7BitEncodedInt());
-												a.Address = new ResourceAddress{Type = ResourceType.Constant,
-																				Author = Name, 
-																				Resource = reader.ReadUtf8()};
-												a.Read(reader);
-												return a;
-											})).ToArray();
+											}).ToArray();
 		}
 
 		public void WriteMore(BinaryWriter w)
@@ -96,14 +80,14 @@ namespace Uccs.Net
 		{
 		}
 
-		public Resource AffectResource(ResourceAddress resource)
+		public Resource AffectResource(string resource)
 		{
-			var r = AffectedResources.Find(i => i.Address == resource);
+			var r = AffectedResources.Find(i => i.Address.Resource == resource);
 			
 			if(r != null)
 				return r;
 
-			var i = Array.FindIndex(Resources, i => i.Address == resource);
+			var i = Array.FindIndex(Resources, i => i.Address.Resource == resource);
 
 			if(i != -1)
 			{
@@ -114,8 +98,7 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				r = new Resource{Address = resource, Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++), New = true};
-				
+				r = new Resource{Address = new ResourceAddress(Name, resource), Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++), New = true};
 				Resources = Resources.Append(r).ToArray();
 			}
 

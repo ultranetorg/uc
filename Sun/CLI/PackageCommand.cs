@@ -35,7 +35,7 @@ namespace Uccs.Sun.CLI
 
 					try
 					{
-						p = GetResourceAddress("previous");
+						p = GetResourceAddress("previous", false);
 							//: Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
 						
 						if(p != null)

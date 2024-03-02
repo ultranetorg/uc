@@ -11,20 +11,21 @@ namespace Uccs.Net
 	///		/author/resource
 	/// </summary>
 	 
-	public enum ResourceType
-	{
-		None, Variable, Constant
-	}
+// 	public enum ResourceType
+// 	{
+// 		None, Variable, Constant
+// 	}
 
 	public class ResourceAddress : IBinarySerializable, IEquatable<ResourceAddress>, IComparable, IComparable<ResourceAddress>
 	{
-		public ResourceType			Type { get; set; }
+	//	public ResourceType			Type { get; set; }
 		public string				Zone { get; set; }
 		public string				Author { get; set; }
 		public string				Resource { get; set; }
 
-		public string				Scheme => Type switch {ResourceType.Variable => "upv", ResourceType.Constant => "upc"};
-		public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
+		public const string			Scheme = "ura";
+		public string				Uri => $"{Scheme}:{Zone}{(Zone != null ? "." : null)}{Author}/{Resource}";
+		//public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
 
 		public bool					Valid => !string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(Resource);
 
@@ -32,16 +33,15 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceAddress(ResourceType type, string author, string resource)
+		public ResourceAddress(string author, string resource)
 		{
-			Type = type;
 			Author = author;
 			Resource = resource;
 		}
 
 		public override string ToString()
 		{
-			return $"{Scheme}:{Zone}/{Author}/{Resource}";
+			return $"{Author}/{Resource}";
 		}
 
 		public override bool Equals(object o)
@@ -51,7 +51,7 @@ namespace Uccs.Net
 
 		public bool Equals(ResourceAddress o)
 		{
-			return Type == o.Type && Zone == o.Zone && Author == o.Author && Resource == o.Resource;
+			return Zone == o.Zone && Author == o.Author && Resource == o.Resource;
 		}
 
  		public override int GetHashCode()
@@ -66,12 +66,7 @@ namespace Uccs.Net
 
 		public int CompareTo(ResourceAddress o)
 		{
-			var c = Type.CompareTo(o.Type); 
-
-			if(c != 0)
-				return c;
-
-			c = Zone.CompareTo(o.Zone);
+			var c = Zone.CompareTo(o.Zone);
 
 			if(c != 0)
 				return c;
@@ -98,23 +93,25 @@ namespace Uccs.Net
 		{
 			var a = new ResourceAddress();
 			
-			var i = v.IndexOf(':');
+			var d = v.IndexOf(':');
 
-			if(i != -1)
-				a.Type = SchemeToType(v.Substring(0, i));
+			//if(i != -1)
+			//	a.Type = SchemeToType(v.Substring(0, i));
 
-			var j = v.IndexOf('/', i+1);
+			var r = d == -1 ? v.IndexOf('/') : v.IndexOf('/', d+1);
 			
-			if(i+1 < j)
-				a.Zone = v.Substring(i+1, j-i-1);
+			var za = v.Substring(d+1, r-d-1);
+			var j = za.IndexOf('.');
+				
+			if(j != -1)
+			{
+				a.Zone = za.Substring(0, j);
+				a.Author = za.Substring(j+1);
+			}
+			else
+				a.Author = za;
 
-			i = j;
-			j = v.IndexOf('/', i+1);
-			a.Author = v.Substring(i+1, j-i-1);
-
-			i = j;
-			j = v.IndexOf('/', i+1);
-			a.Resource = v.Substring(i+1);
+			a.Resource = v.Substring(r+1);
 
 			return a;
 		}
@@ -133,14 +130,12 @@ namespace Uccs.Net
 
 		public void Write(BinaryWriter w)
 		{
-			w.Write((byte)Type);
 			w.WriteUtf8(Author);
 			w.WriteUtf8(Resource);
 		}
 
 		public void Read(BinaryReader r)
 		{
-			Type	 = (ResourceType)r.ReadByte();
 			Author	 = r.ReadUtf8();
 			Resource = r.ReadUtf8();
 		}

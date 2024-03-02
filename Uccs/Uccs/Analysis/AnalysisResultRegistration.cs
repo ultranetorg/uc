@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
 	public class AnalysisResultRegistration : Operation
 	{
+		public ResourceAddress	Resource { get; set; }
 		public ReleaseAddress	Release { get; set; }
 		public AnalysisResult	Result { get; set; }
 		
-		public override string	Description => $"Release={Release}, Result={Result}";
+		public override string	Description => $"Resource={Resource}, Release={Release}, Result={Result}";
 		public override bool	Valid => true;
 
 		public AnalysisResultRegistration()
@@ -20,12 +19,14 @@ namespace Uccs.Net
 		
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
+			writer.Write(Resource);
 			writer.Write(Release);
 			writer.Write((byte)Result);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
+			Resource = reader.Read<ResourceAddress>();
 			Release = reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
 			Result = (AnalysisResult)reader.ReadByte();
 		}
@@ -40,23 +41,42 @@ namespace Uccs.Net
 				return;
 			}
 
- 			var an = Affect(round, Release);
+			var a = mcv.Authors.Find(Resource.Author, round.Id);
 
-			if(an == null)
+			if(a == null)
 			{
 				Error = NotFound;
 				return;
 			}
+
+			if(Author.IsExpired(a, round.ConsensusTime))
+			{
+				Error = Expired;
+				return;
+			}
+
+			var e = a.Resources.FirstOrDefault(i => i.Address == Resource);
+					
+			if(e == null)
+			{
+				Error = NotFound;
+				return;
+			}
+
+			a = Affect(round, Resource.Author);
+			var r = a.AffectResource(Resource.Resource);
+			
+			r.AnalysisResults ??= [];
  
-			var j = Array.FindIndex(an.Results, i => i.AnalyzerId == az.Id);
+			var j = Array.FindIndex(r.AnalysisResults, i => i.AnalyzerId == az.Id);
 			
  			if(j == -1)
 			{
-				an.Results = an.Results.Append(new AnalyzerResult {AnalyzerId = az.Id, Result = Result}).ToArray();
-				Affect(round, Signer).Balance += an.Fee/an.Consil;
+				r.AnalysisResults = r.AnalysisResults.Append(new AnalyzerResult {AnalyzerId = az.Id, Result = Result}).ToArray();
+				Affect(round, Signer).Balance += r.AnalysisPayment/r.AnalysisConsil;
 			}
  			else
-				an.Results[j].Result = Result;
+				r.AnalysisResults[j].Result = Result;
  			
 
  			//foreach(var i in Positives)

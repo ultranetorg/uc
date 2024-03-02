@@ -55,8 +55,8 @@ namespace Uccs.Net
 
 		public Money										Fees;
 		public Money										Emission;
-		public Money										RentalPerByte;
-		public Money										RentPerEntity => RentalPerByte * 100;
+		public Money										RentPerByte;
+		public Money										RentPerEntity => RentPerByte * 100;
 		public List<Member>									Members = new();
 		public List<Analyzer>								Analyzers;
 		public List<AccountAddress>							Funds;
@@ -74,7 +74,6 @@ namespace Uccs.Net
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
-		public Dictionary<ReleaseAddress, ReleaseEntry>		AffectedReleases = new();
 
 		public Mcv											Mcv;
 
@@ -228,36 +227,6 @@ namespace Uccs.Net
 			}
 		}
 
-		public ReleaseEntry AffectRelease(ReleaseAddress release)
-		{
-			if(AffectedReleases.TryGetValue(release, out ReleaseEntry a))
-				return a;
-			
-			var e = Mcv.Releases.Find(release, Id - 1);
-
-			if(e != null)
-				return AffectedReleases[release] = e.Clone();
-			else
-			{
-				var ci = Mcv.Releases.KeyToCluster(release).ToArray();
-				var c = Mcv.Releases.Clusters.Find(i => i.Id.SequenceEqual(ci));
-
-				int ai;
-				
-				if(c == null)
-					NextReleaseIds[ci] = 0;
-				else
-					NextReleaseIds[ci] = c.NextEntityId;
-				
-				ai = NextReleaseIds[ci]++;
-
-				return AffectedReleases[release] = new ReleaseEntry(Mcv) {	Id = new EntityId(ci, ai), 
-																			Address = release, 
-																			Results = new AnalyzerResult[0],
-																			New = true};
-			}
-		}
-
 		public void Hashify()
 		{
 			var s = new MemoryStream();
@@ -278,7 +247,7 @@ namespace Uccs.Net
 			writer.Write(ConsensusExeunitFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			
-			writer.Write(RentalPerByte);
+			writer.Write(RentPerByte);
 			writer.Write7BitEncodedInt64(PreviousDayBaseSize);
 			writer.Write(Last365BaseDeltas, i => writer.Write7BitEncodedInt64(i));
 			
@@ -299,7 +268,7 @@ namespace Uccs.Net
 			ConsensusExeunitFee	= reader.Read<Money>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
-			RentalPerByte			= reader.Read<Money>();
+			RentPerByte			= reader.Read<Money>();
 			PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
 			Last365BaseDeltas			= reader.ReadList(() => reader.Read7BitEncodedInt64());
 			

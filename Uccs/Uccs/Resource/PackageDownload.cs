@@ -20,7 +20,7 @@ namespace Uccs.Net
 			DependenciesRecursiveCount		= download.DependenciesRecursiveCount;
 			DependenciesRecursiveSuccesses	= download.DependenciesRecursiveSuccesses;
 	
-			CurrentFiles = download.Package.Release.Files	.Where(i => i.Activity is FileDownload)
+			CurrentFiles = download.Package.Release?.Files	.Where(i => i.Activity is FileDownload)
 															.Select(i => new FileDownloadProgress(i.Activity as FileDownload))
 															.ToArray();
 				
@@ -31,7 +31,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return$"downloading: {{{string.Join(", ", CurrentFiles.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}"))}}}, dps: {DependenciesRecursiveSuccesses}/{DependenciesRecursiveCount}";
+			return$"downloading: {{{(CurrentFiles != null ? string.Join(", ", CurrentFiles?.Select(i => $"{i.Path}={i.DownloadedLength}/{i.Length}")) : null)}}}, dps: {DependenciesRecursiveSuccesses}/{DependenciesRecursiveCount}";
 		}
 	}
 
@@ -67,13 +67,22 @@ namespace Uccs.Net
 			Task = Task.Run(() =>	{
 										try
 										{
-											ReleaseAddress last = null;
+											Resource last = null;
 	
 											while(workflow.Active)
 											{
 												try
 												{
-													last = sun.Call(c => c.FindResource(package.Resource.Address), workflow).Resource.Data.Interpretation as ReleaseAddress;
+													last = sun.Call(c => c.FindResource(package.Resource.Address), workflow).Resource;
+														
+													if(last.Data.Type != DataType.Package)
+													{
+														lock(sun.PackageHub.Lock)
+															Package.Activity = null;
+
+														return;
+													}
+
 													break;
 												}
 												catch(EntityException)
@@ -81,14 +90,20 @@ namespace Uccs.Net
 													Thread.Sleep(100);
 												}
 											}
+
+											lock(sun.ResourceHub.Lock)
+											{
+												sun.ResourceHub.Add(last.Data.Interpretation as ReleaseAddress, DataType.Package);
+												package.Resource.AddData(last.Data);
+											}
 	
 											SeedCollector = new SeedCollector(sun, package.Release.Address, workflow);
 	
-											lock(sun.PackageHub.Lock)
-											{
-												///Package = sun.PackageHub.Get(package);
-												Package.Resource.AddData(DataType.Package, last);
-											}
+											//lock(sun.PackageHub.Lock)
+											//{
+											//	///Package = sun.PackageHub.Get(package);
+											//	Package.Resource.AddData(DataType.Package, last);
+											//}
 		 									
 											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, package.Release.Address.Hash, SeedCollector, workflow);
 	

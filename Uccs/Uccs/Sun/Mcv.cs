@@ -28,7 +28,7 @@ namespace Uccs.Net
 		//public const int					EntityAllocation		= 100;
 		public static readonly Money		AnalysisPerByteFee		= new Money(0.000_000_001);
 		public static readonly Money		BalanceMin				= new Money(0.000_000_001);
-		public static int					RentFactor(int years)	=> years * years * 10;
+		public static int					RentFactor(int days)	=> (days * days)/(Time.FromYears(1).Days);
 		//public const int					EntityAllocation = 1000;
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
@@ -50,10 +50,8 @@ namespace Uccs.Net
 		static readonly byte[]				GenesisKey = new byte[] {0x04};
 		public AccountTable					Accounts;
 		public AuthorTable					Authors;
-		public ReleaseTable					Releases;
 		public int							Size => Accounts.Clusters.Sum(i => i.MainLength) +
-													Authors.Clusters.Sum(i => i.MainLength) +
-													Releases.Clusters.Sum(i => i.MainLength);
+													Authors.Clusters.Sum(i => i.MainLength);
 		bool								ReadyToCommit(Round round) => Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public BlockDelegate				VoteAdded;
 		public ConsensusDelegate			ConsensusConcluded;
@@ -86,9 +84,6 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (ReleaseTable.MetaColumnName,	new ()),
-																new (ReleaseTable.MainColumnName,	new ()),
-																new (ReleaseTable.MoreColumnName,	new ()),
 																new (Mcv.ChainFamilyName,			new ())})
 				cfs.Add(i);
 
@@ -96,7 +91,6 @@ namespace Uccs.Net
 
 			Accounts = new (this);
 			Authors = new (this);
-			Releases = new (this);
 
 			BaseHash = zone.Cryptography.ZeroHash;
 
@@ -136,9 +130,6 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (ReleaseTable.MetaColumnName,	new ()),
-																new (ReleaseTable.MainColumnName,	new ()),
-																new (ReleaseTable.MoreColumnName,	new ()),
 																new (Mcv.ChainFamilyName,			new ())})
 				cfs.Add(i);
 
@@ -146,7 +137,6 @@ namespace Uccs.Net
 
 			Accounts = new (this);
 			Authors = new (this);
-			Releases = new (this);
 
 			BaseHash = zone.Cryptography.ZeroHash;
 		}
@@ -250,7 +240,6 @@ namespace Uccs.Net
 			LoadedRounds.Clear();
 			Accounts.Clear();
 			Authors.Clear();
-			Releases.Clear();
 
 			Database.Remove(BaseStateKey);
 			Database.Remove(__BaseHashKey);
@@ -534,7 +523,6 @@ namespace Uccs.Net
 	
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-			foreach(var i in Releases.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 		}
 
 		public byte[] Summarize(Round round)
@@ -658,7 +646,7 @@ namespace Uccs.Net
 			round.Funds					= round.Id == 0 ? new()						: round.Previous.Funds;
 			round.Emissions				= round.Id == 0 ? new()						: round.Previous.Emissions;
 			round.DomainBids			= round.Id == 0 ? new()						: round.Previous.DomainBids;
-			round.RentalPerByte			= round.Id == 0 ? Zone.RentPerByteMinimum	: round.Previous.RentalPerByte;
+			round.RentPerByte			= round.Id == 0 ? Zone.RentPerBytePerDayMinimum	: round.Previous.RentPerByte;
 
 		start: 
 			round.Fees				= 0;
@@ -671,7 +659,6 @@ namespace Uccs.Net
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();
-			round.AffectedReleases.Clear();
 
 			foreach(var t in transactions)
 				foreach(var o in t.Operations)
@@ -838,7 +825,6 @@ namespace Uccs.Net
 			{
 				var accounts = new Dictionary<AccountAddress, AccountEntry>();
 				var authors	 = new Dictionary<string, AuthorEntry>();
-				var releases = new Dictionary<ReleaseAddress, ReleaseEntry>();
 
 				foreach(var r in Tail.SkipWhile(i => i != round))
 				{
@@ -849,20 +835,16 @@ namespace Uccs.Net
 					foreach(var i in r.AffectedAuthors)
 						if(!authors.ContainsKey(i.Key))
 							authors.Add(i.Key, i.Value);
-
-					foreach(var i in r.AffectedReleases)
-						if(!releases.ContainsKey(i.Key))
-							releases.Add(i.Key, i.Value);
 				}
 
-				var s = Size + Accounts.MeasureChanges(accounts.Values) + Authors.MeasureChanges(authors.Values) + Releases.MeasureChanges(releases.Values);
+				var s = Size + Accounts.MeasureChanges(accounts.Values) + Authors.MeasureChanges(authors.Values);
 								
 				round.Last365BaseDeltas.RemoveAt(0);
 				round.Last365BaseDeltas.Add(s - round.PreviousDayBaseSize);
 
 				if(round.Last365BaseDeltas.Sum() > 100L*1024*1024*1024)
 				{
-					round.RentalPerByte = Zone.RentPerByteMinimum * round.Last365BaseDeltas.Sum() / (100L*1024*1024*1024);
+					round.RentPerByte = Zone.RentPerBytePerDayMinimum * round.Last365BaseDeltas.Sum() / (100L*1024*1024*1024);
 				}
 
 				round.PreviousDayBaseSize = s;
@@ -884,7 +866,6 @@ namespace Uccs.Net
 					{
 						Accounts.Save(b, i.AffectedAccounts.Values);
 						Authors.Save(b, i.AffectedAuthors.Values);
-						Releases.Save(b, i.AffectedReleases.Values);
 					}
 	
 					LastCommittedRound = tail.Last();

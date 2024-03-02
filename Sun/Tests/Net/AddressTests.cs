@@ -19,30 +19,29 @@ namespace Uccs.Net.Tests
  		[Fact]
  		public static void Resource()
  		{
- 			var s = new HashSet<ResourceAddress>(){	ResourceAddress.Parse("upv:/a/r"), 
-													ResourceAddress.Parse("upc:/aa/rr"),
-													ResourceAddress.Parse("upc:zone/aaa/rrr"),
+ 			var s = new HashSet<ResourceAddress>(){	ResourceAddress.Parse("a/r"), 
+													ResourceAddress.Parse("ura:a/r"), 
+													ResourceAddress.Parse("ura:aa/rr"),
+													ResourceAddress.Parse("ura:zone.aaa/rrr"),
 													};
 
- 			Assert.True(s.Contains(ResourceAddress.Parse("upv:/a/r")));
- 			Assert.True(s.Contains(ResourceAddress.Parse("upc:/aa/rr")));
- 			Assert.True(s.Contains(ResourceAddress.Parse("upc:zone/aaa/rrr")));
+			Assert.True(s.Contains(ResourceAddress.Parse("a/r")));
+ 			Assert.True(s.Contains(ResourceAddress.Parse("ura:a/r")));
+ 			Assert.True(s.Contains(ResourceAddress.Parse("ura:aa/rr")));
+ 			Assert.True(s.Contains(ResourceAddress.Parse("ura:zone.aaa/rrr")));
  			
-			Assert.False(s.Contains(ResourceAddress.Parse("upc:wrong/aaa/rrr")));
- 			Assert.False(s.Contains(ResourceAddress.Parse("upc:/a/r")));
- 			Assert.False(s.Contains(ResourceAddress.Parse("upv:/aa/rr")));
+			Assert.False(s.Contains(ResourceAddress.Parse("ura:wrong.aaa/rrr")));
  		}
 
  		[Fact]
  		public static void Package()
  		{
- 			var p = new HashSet<PackageAddress>(){PackageAddress.Parse("upc:/a/p/r/v")};
- 			Assert.True(p.Contains(PackageAddress.Parse("upc:/a/p/r/v")));
- 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a/p/r/v-")));
- 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a/p/r-/v")));
- 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a/p-/r/v")));
- 			Assert.False(p.Contains(PackageAddress.Parse("upc:/a-/p/r/v")));
- 			Assert.False(p.Contains(PackageAddress.Parse("upv:/a/p/r/v")));
+ 			var p = new HashSet<PackageAddress>(){PackageAddress.Parse("ura:a/p/r/v")};
+ 			Assert.True(p.Contains(PackageAddress.Parse("ura:a/p/r/v")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("ura:a/p/r/v-")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("ura:a/p/r-/v")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("ura:a/p-/r/v")));
+ 			Assert.False(p.Contains(PackageAddress.Parse("ura:a-/p/r/v")));
  		}
 
 		[Fact]
@@ -52,9 +51,9 @@ namespace Uccs.Net.Tests
 			var ac = new DHAddress{ Hash = a.Hash.ToArray() };
 			var b = new DHAddress { Hash = RandomBytes(32) };
 			 
-			var x = new SDAddress { Resource = ResourceAddress.Parse("upv:/a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
-			var xc = new SDAddress{ Resource = ResourceAddress.Parse("upv:/a/p"), Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
-			var y = new SDAddress { Resource = ResourceAddress.Parse("upv:/a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var x = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var xc = new SDAddress{ Resource = ResourceAddress.Parse("upv:a/p"), Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
+			var y = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
 
 			Assert.True(a == ac && a != b &&
 						x == xc && x != y &&

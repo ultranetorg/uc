@@ -162,7 +162,6 @@ namespace Uccs.Net
 											{
 												if(GetType() == typeof(AccountTable)) return Tables.Accounts;
 												if(GetType() == typeof(AuthorTable)) return Tables.Authors;
-												if(GetType() == typeof(ReleaseTable)) return Tables.Analyses;
 
 												throw new IntegrityException();
 											}

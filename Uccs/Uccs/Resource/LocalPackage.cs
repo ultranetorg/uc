@@ -12,9 +12,8 @@ namespace Uccs.Net
 		public const string		Removals = ".removals";
 		public const string		Renamings = ".renamings"; /// TODO
 
-		//public PackageAddress	Address;
-		public LocalRelease		Release;
 		public LocalResource	Resource;
+		public LocalRelease		Release => Resource.Last?.Interpretation is ReleaseAddress a ? Hub.Sun.ResourceHub.Find(a) : null;
 		PackageHub				Hub;
 		Manifest				_Manifest;
 		public object			Activity;
@@ -43,23 +42,21 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalPackage(PackageHub hub, LocalResource resource, LocalRelease release)
+		public LocalPackage(PackageHub hub, LocalResource resource)
 		{
-			if(resource == null || release == null)
+			if(resource == null)
 				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);
 
 			Hub = hub;
-			Release = release;
 			Resource = resource;
 		}
 
-		public LocalPackage(PackageHub hub, LocalResource resource, LocalRelease release, Manifest manifest)
+		public LocalPackage(PackageHub hub, LocalResource resource, Manifest manifest)
 		{
-			if(resource == null || release == null)
+			if(resource == null)
 				throw new ResourceException(ResourceError.BothResourceAndReleaseNotFound);
 
 			Hub = hub;
-			Release = release;
 			Resource = resource;
 			_Manifest = manifest;
 		}

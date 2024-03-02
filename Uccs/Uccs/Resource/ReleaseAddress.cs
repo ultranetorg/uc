@@ -54,27 +54,20 @@ namespace Uccs.Net
 			var i = t.IndexOf(':');
 
 			var a = t.Substring(0, i) switch{
-												"updh"	=> new DHAddress() as ReleaseAddress,
-												"upsdv" => new SDAddress(),
-												"upsdc" => new SDAddress(),
+												"updh" => new DHAddress() as ReleaseAddress,
+												"upsd" => new SDAddress(),
 												_ => throw new FormatException()
 											};
 
-			var z = t.IndexOf('/', i+1);
+			var z = t.IndexOf('.', i+1);
 			
-			if(z > i+1)
+			if(z != -1)
+			{	
 				a.Zone = t.Substring(i+1, z-i-1);
-			
-			a.ParseSpecific(t.Substring(z + 1));
-
-			if(a is SDAddress s)
-			{
-				s.Resource.Type = t[4] switch	{
-													'v' => ResourceType.Variable,
-													'c' => ResourceType.Constant,
-													_ => throw new FormatException()
-												};
+				a.ParseSpecific(t.Substring(z+1));
 			}
+			else
+				a.ParseSpecific(t.Substring(i+1));
 
 			return a;
 		}
@@ -156,7 +149,7 @@ namespace Uccs.Net
 
 		public override string ToString()
 		{
-			return $"updh:{Zone}/{Hash.ToHex()}";
+			return $"updh:{Zone}{(Zone != null ? "." : null)}{Hash.ToHex()}";
 		}
 
 		public override void ParseSpecific(string t)
@@ -182,17 +175,20 @@ namespace Uccs.Net
  
 		public override string ToString()
 		{
-			return $"upsd{Resource.Type switch {ResourceType.Variable => 'v', ResourceType.Constant => 'c'}}:{Zone}/{Resource.Author}/{Resource.Resource}:{Hash.ToHex()}:{Signature.ToHex()}";
+			return $"upsd:{Zone}{(Zone != null ? "." : null)}{Resource.Author}/{Resource.Resource}:{Hash.ToHex()}:{Signature.ToHex()}";
 		}
 		
 		public override void ParseSpecific(string t)
 		{
-			var h = t.IndexOf(':');
-			var s = t.IndexOf(':', h+1);
+			Resource	= ResourceAddress.ParseAR(t);
 
-			Resource	= ResourceAddress.ParseAR(t.Substring(0, h));
-			Hash		= t.Substring(h+1, s-h-1).FromHex();
-			Signature	= t.Substring(s + 1).FromHex();
+			var s = Resource.Resource.LastIndexOf(':');
+			var h = Resource.Resource.LastIndexOf(':', s-1);
+
+			Hash		= Resource.Resource.Substring(h+1, s-h-1).FromHex();
+			Signature	= Resource.Resource.Substring(s + 1).FromHex();
+
+			Resource.Resource = Resource.Resource.Substring(0, h);
 		}
 
 		public bool Prove(Cryptography cryptography, AccountAddress account)

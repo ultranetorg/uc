@@ -17,12 +17,12 @@ namespace Uccs.Net
  		public Cryptography		Cryptography									= Cryptography.Ethereum;
  		public Chain			EthereumNetwork									= Chain.Goerli;	
 		public bool				PoW												= false;
-		public int				CommitLength										= 1000;
+		public int				CommitLength									= 1000;
 		public int				ExternalVerificationDurationLimit				= 100;
 		public Money			BailMin											= 1000;
 		public int				MembersLimit									= 1000;
 		public virtual int		AnalizerMinimumVotes							=> MembersLimit * 2/3;
-		public Money			RentPerByteMinimum								= new Money(0.00001);
+		public Money			RentPerBytePerDayMinimum						= new Money(0.000001);
 		public int				TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
 		public int				TransactionsPerVoteAllowableOverflowMuliplier	= 10;
 		public int				TransactionsFeeOverflowFactor					= 10;

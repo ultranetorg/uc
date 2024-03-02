@@ -44,11 +44,14 @@ namespace Uccs.Net
 													.Where(i => i is not null);
 		}
 
-		public bool IsReady(ResourceAddress package)
+		public bool IsReady(ResourceAddress package) 
 		{
 			var p = Find(package);
-	
+				
 			if(p == null)
+				return false;
+
+			if(p.Release == null)
 				return false;
 	
 			lock(Sun.ResourceHub.Lock)
@@ -63,17 +66,17 @@ namespace Uccs.Net
 			}
 		}
 
-		public LocalPackage Get(ResourceAddress package)
+		public LocalPackage Get(ResourceAddress resource)
 		{
-			var p = Find(package);
+			var p = Find(resource);
 
 			if(p != null)
 				return p;
 
 			lock(Sun.ResourceHub.Lock)
 			{
-				var r = Sun.ResourceHub.Find(package) ?? Sun.ResourceHub.Add(package);
-				p = new LocalPackage(this, r, r.Datas.Any() ? Sun.ResourceHub.Find(r.LastAs<ReleaseAddress>()) : null);
+				var r = Sun.ResourceHub.Find(resource) ?? Sun.ResourceHub.Add(resource);
+				p = new LocalPackage(this, r);
 			}
 
 			Packages.Add(p);
@@ -96,8 +99,7 @@ namespace Uccs.Net
  
  				if(r != null)
  				{
- 					var s = r.LastAs<ReleaseAddress>();
- 					p = new LocalPackage(this, r, Sun.ResourceHub.Find(s));
+ 					p = new LocalPackage(this, r);
  	
  					Packages.Add(p);
  	
@@ -312,7 +314,7 @@ namespace Uccs.Net
 				}
 			}
 
-			Build(cstream, files, new string[]{}, workflow);
+			Build(cstream, files, [], workflow);
 
 			if(previous != null)
 			{
@@ -346,11 +348,7 @@ namespace Uccs.Net
 				var h = Sun.ResourceHub.Zone.Cryptography.HashFile(m.Raw);
 
 				var a = addresscreator.Create(Sun, h);
- 				
-				var p = Get(resource);
-				p.Resource.AddData(DataType.Package, a);
-				 				
-				var r = Sun.ResourceHub.Find(a);
+				var r = Sun.ResourceHub.Add(a, DataType.Package);
 				 
  				r.AddCompleted(LocalPackage.ManifestFile, m.Raw);
 				r.AddCompleted(LocalPackage.CompleteFile, cstream.ToArray());
@@ -359,6 +357,9 @@ namespace Uccs.Net
 					r.AddCompleted(LocalPackage.IncrementalFile, istream.ToArray());
 
 				r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
+ 				
+				var p = Get(resource);
+				p.Resource.AddData(DataType.Package, a);
 
 				workflow.Log?.Report(this, $"Address: {a}");
 

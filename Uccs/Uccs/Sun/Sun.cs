@@ -1011,10 +1011,6 @@ namespace Uccs.Net
 																															var c = Mcv.Authors.SuperClusters.ContainsKey(i.Id);
 																															return !c || !Mcv.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
 																														}),
-																			Tables.Analyses => stamp.Analyses.Where(i =>{
-																															var c = Mcv.Releases.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Mcv.Releases.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																														}),
 																			_ => throw new SynchronizationException("Unknown table recieved after GetTableStamp")
 																		}
 																).Select(i => i.Id).ToArray());
@@ -1059,7 +1055,6 @@ namespace Uccs.Net
 		
 						download<AccountEntry, AccountAddress>(Mcv.Accounts);
 						download<AuthorEntry, string>(Mcv.Authors);
-						download<ReleaseEntry, ReleaseAddress>(Mcv.Releases);
 		
 						var r = new Round(Mcv) {Confirmed = true};
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));

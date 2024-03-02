@@ -34,6 +34,7 @@ namespace Uccs.Sun.CLI
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												GetEnum<ResourceFlags>("flags", ResourceFlags.None),
 												Has("data") ? new ResourceData(new BinaryReader(new MemoryStream(GetHexBytes("data")))) : null,
+												GetMoney("analysispayment", 0),
 												GetString("parent", false));
 				}
 
