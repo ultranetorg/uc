@@ -651,7 +651,6 @@ namespace Uccs.Net
 
 			round.NextAccountIds	= new (Bytes.EqualityComparer);
 			round.NextAuthorIds		= new (Bytes.EqualityComparer);
-			round.NextReleaseIds	= new (Bytes.EqualityComparer);
 
 			round.AffectedAccounts.Clear();
 			round.AffectedAuthors.Clear();

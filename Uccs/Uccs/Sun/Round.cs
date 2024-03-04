@@ -65,12 +65,8 @@ namespace Uccs.Net
 		public int											AnalyzersIdCounter;
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextAuthorIds;
-		public Dictionary<byte[], int>						NextReleaseIds;
 		public List<long>									Last365BaseDeltas;
 		public long											PreviousDayBaseSize;
-		//public long											BaseSize;
-
-		//public long											DataRented;
 
 		public Dictionary<AccountAddress, AccountEntry>		AffectedAccounts = new();
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
