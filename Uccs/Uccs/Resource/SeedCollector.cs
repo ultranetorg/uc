@@ -108,7 +108,7 @@ namespace Uccs.Net
 		
 													lock(Lock)
 													{
-														var nearest = Members.OrderByNearest(address.Hash).Take(ResourceHub.MembersPerDeclaration);
+														var nearest = Members.OrderByNearest(address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration);
 			
 														for(int i = 0; i < hubsgoodmax - Hubs.Count(i => i.Status == HubStatus.Estimating); i++)
 														{

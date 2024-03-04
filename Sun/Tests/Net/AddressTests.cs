@@ -51,9 +51,9 @@ namespace Uccs.Net.Tests
 			var ac = new DHAddress{ Hash = a.Hash.ToArray() };
 			var b = new DHAddress { Hash = RandomBytes(32) };
 			 
-			var x = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
-			var xc = new SDAddress{ Resource = ResourceAddress.Parse("upv:a/p"), Hash = x.Hash.ToArray(), Signature = x.Signature.ToArray() };
-			var y = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Hash = RandomBytes(32), Signature = RandomBytes(65) };
+			var x = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Signature = RandomBytes(65) };
+			var xc = new SDAddress{ Resource = ResourceAddress.Parse("upv:a/p"), Signature = x.Signature.ToArray() };
+			var y = new SDAddress { Resource = ResourceAddress.Parse("upv:a/p"), Signature = RandomBytes(65) };
 
 			Assert.True(a == ac && a != b &&
 						x == xc && x != y &&

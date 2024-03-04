@@ -34,29 +34,52 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ReleaseDownloadCall : SunApiCall
+	public class ResourceDownloadCall : SunApiCall
 	{
-		public ReleaseAddress	Address { get; set; }
-		public DataType			Type { get; set; }
+		public ResourceAddress	Address { get; set; }
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
+			var r = sun.Call(i => i.Request<ResourceResponse>(new ResourceRequest {Resource = Address}), workflow).Resource;
+
+			IIntegrity itg;
+
+			var rza = r.Data.Interpretation as ReleaseAddress;
+
+			switch(rza)
+			{ 
+				case DHAddress a :
+					itg = new DHIntegrity(a.Hash); 
+					break;
+
+				case SDAddress a :
+					var au = sun.Call(c => c.GetAuthorInfo(Address.Author), workflow).Author;
+					itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
+					break;
+
+				default:
+					throw new ResourceException(ResourceError.NotSupportedDataType);
+			};
+
 			lock(sun.ResourceHub.Lock)
 			{
-				if(Type == DataType.File)
+				var lrs = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
+				lrs.AddData(r.Data);
+
+				var lrl = sun.ResourceHub.Find(rza) ?? sun.ResourceHub.Add(rza, r.Data.Type);
+
+				if(r.Data.Type == DataType.File)
 				{
-					var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address, Type);
-					sun.ResourceHub.DownloadFile(r, "f", Address.Hash, null, workflow);
-					return null;
+					sun.ResourceHub.DownloadFile(lrl, "f", itg, null, workflow);
+					return r;
 				}
-				else if(Type == DataType.Directory)
+				else if(r.Data.Type == DataType.Directory)
 				{
-					var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address, Type);
-					sun.ResourceHub.DownloadDirectory(r, workflow);
-					return null;
+					sun.ResourceHub.DownloadDirectory(lrl, itg, workflow);
+					return r;
 				}
 				else
-					throw new ResourceException(ResourceError.DataTypeNotSupported);
+					throw new ResourceException(ResourceError.NotSupportedDataType);
 			}
 		}
 	}
@@ -179,7 +202,6 @@ namespace Uccs.Net
 
 		public class Release
 		{
-			public byte[]						Hash { get; set; }
 			public DataType						Type { get; set; }
 			public MembersResponse.Member[]		DeclaredOn { get; set; }
 			public Availability					Availability { get; set; }
@@ -192,7 +214,6 @@ namespace Uccs.Net
 
 			public Release(LocalRelease release)
 			{
-				Hash		= release.Address.Hash;
 				Type		= release.Type;
 				DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
 				Availability= release.Availability;

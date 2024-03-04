@@ -54,7 +54,7 @@ namespace Uccs.Net
 		BothResourceAndReleaseNotFound,
 		RequiredPackagesNotFound,
 		AlreadyExists,
-		DataTypeNotSupported,
+		NotSupportedDataType,
 		Busy,
 		NotFound,
 		HashMismatch,

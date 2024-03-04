@@ -96,16 +96,24 @@ namespace Uccs.Net
 												sun.ResourceHub.Add(last.Data.Interpretation as ReleaseAddress, DataType.Package);
 												package.Resource.AddData(last.Data);
 											}
+
+											IIntegrity itg = null;
+
+											switch(last.Data.Interpretation)
+											{ 
+												case DHAddress a :
+													itg = new DHIntegrity(a.Hash); 
+													break;
+
+												case SDAddress a :
+													var au = sun.Call(c => c.GetAuthorInfo(package.Resource.Address.Author), workflow).Author;
+													itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
+													break;
+											};
 	
 											SeedCollector = new SeedCollector(sun, package.Release.Address, workflow);
 	
-											//lock(sun.PackageHub.Lock)
-											//{
-											//	///Package = sun.PackageHub.Get(package);
-											//	Package.Resource.AddData(DataType.Package, last);
-											//}
-		 									
-											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, package.Release.Address.Hash, SeedCollector, workflow);
+											sun.ResourceHub.GetFile(Package.Release, LocalPackage.ManifestFile, itg, SeedCollector, workflow);
 	
 											bool incrementable;
 	
@@ -126,7 +134,7 @@ namespace Uccs.Net
 											lock(sun.ResourceHub)
 	 											FileDownload = sun.ResourceHub.DownloadFile(Package.Release, 
 																							incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
-																							incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash,
+																							new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
 																							SeedCollector,
 																							workflow);
 	

@@ -13,6 +13,7 @@ namespace Uccs.Net
 	{
 		public ResourceAddress			Resource { get; set; }	
 		public ReleaseAddress			Release { get; set; }	
+		public byte[]					Hash { get; set; }
 		public Availability				Availability { get; set; }	
 	}
 
@@ -66,20 +67,20 @@ namespace Uccs.Net
 			return Path.GetInvalidFileNameChars().Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
 		}
 
-		//public LocalRelease Add(byte[] address, DataType type)
-		//{
-		//	if(Releases.Any(i => i.Address.Raw.SequenceEqual(address)))
-		//		throw new ResourceException(ResourceError.AlreadyExists);
-		//
-		//	var r = new LocalRelease(this, ReleaseAddress.FromRaw(address), type);
-		//	r.__StackTrace = new System.Diagnostics.StackTrace(true);
-		//
-		//	Releases.Add(r);
-		//
-		//	Directory.CreateDirectory(r.Path);
-		//
-		//	return r;
-		//}
+		public LocalRelease Add(byte[] address, DataType type)
+		{
+			if(Releases.Any(i => i.Address.Raw.SequenceEqual(address)))
+				throw new ResourceException(ResourceError.AlreadyExists);
+		
+			var r = new LocalRelease(this, ReleaseAddress.FromRaw(address), type);
+			r.__StackTrace = new System.Diagnostics.StackTrace(true);
+		
+			Releases.Add(r);
+		
+			Directory.CreateDirectory(r.Path);
+		
+			return r;
+		}
 
 		public LocalRelease Add(ReleaseAddress address, DataType type)
 		{
@@ -262,7 +263,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public void GetFile(LocalRelease release, string file, byte[] filehash, SeedCollector peerCollector, Workflow workflow)
+		public void GetFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector peerCollector, Workflow workflow)
 		{
 			var t = Task.CompletedTask;
 
@@ -270,7 +271,7 @@ namespace Uccs.Net
 			{
 				if(!release.IsReady(file))
 				{
-					var d = DownloadFile(release, file, filehash, peerCollector, workflow);
+					var d = DownloadFile(release, file, integrity, peerCollector, workflow);
 			
 					t = d.Task;
 				}
@@ -313,10 +314,10 @@ namespace Uccs.Net
 
 								if(l != null && l.Availability != Availability.None)
 								{
-									foreach(var m in cr.Members.OrderByNearest(l.Address.Hash).Take(MembersPerDeclaration).Where(m =>	{
-																																			var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
-																																			return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																																		}))
+									foreach(var m in cr.Members.OrderByNearest(l.Address.MemberOrderKey).Take(MembersPerDeclaration).Where(m =>	{
+																																					var d = l.DeclaredOn.Find(dm => dm.Member.Account == m.Account);
+																																					return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																																				}))
 									{
 										var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
 										rss[r.Address] = l;
@@ -419,7 +420,7 @@ namespace Uccs.Net
 			}
 		}
 
-		public FileDownload DownloadFile(LocalRelease release, string file, byte[] hash, SeedCollector collector, Workflow workflow)
+		public FileDownload DownloadFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector collector, Workflow workflow)
 		{
 			var f = release.Files.Find(j => j.Path == file);
 			
@@ -431,19 +432,19 @@ namespace Uccs.Net
 					throw new ResourceException(ResourceError.Busy);
 			}
 
-			var d = new FileDownload(Sun, release, file, hash, collector, workflow);
+			var d = new FileDownload(Sun, release, file, integrity, collector, workflow);
 		
 			return d;
 		}
 
-		public DirectoryDownload DownloadDirectory(LocalRelease release, Workflow workflow)
+		public DirectoryDownload DownloadDirectory(LocalRelease release, IIntegrity integrity, Workflow workflow)
 		{
 			if(release.Activity is DirectoryDownload d)
 				return d;
 			else if(release.Activity != null)
 				throw new ResourceException(ResourceError.Busy);
 				
-			d = new DirectoryDownload(Sun, release, workflow);
+			d = new DirectoryDownload(Sun, release, integrity, workflow);
 
 			return d;
 		}

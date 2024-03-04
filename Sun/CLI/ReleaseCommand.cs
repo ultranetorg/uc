@@ -44,35 +44,35 @@ namespace Uccs.Sun.CLI
 					return null;
 				}
 
-				case "d" :
-				case "download" :
-				{
-					var a = ReleaseAddress.Parse(Args.Nodes[1].Name);
-
-					Api(new ReleaseDownloadCall {Address = a, Type = Enum.Parse<DataType>(GetString("type")) });
-
-					try
-					{
-						ReleaseDownloadProgress d = null;
-						
-						while(Workflow.Active)
-						{
-							d = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = a});
-
-							if(d == null)
-								break;
-
-							Workflow.Log?.Report(this, d.ToString());
-
-							Thread.Sleep(500);
-						}
-					}
-					catch(OperationCanceledException)
-					{
-					}
-
-					return null;
-				}
+// 				case "d" :
+// 				case "download" :
+// 				{
+// 					var a = ReleaseAddress.Parse(Args.Nodes[1].Name);
+// 
+// 					Api(new ReleaseDownloadCall {Address = a, Type = Enum.Parse<DataType>(GetString("type")) });
+// 
+// 					try
+// 					{
+// 						ReleaseDownloadProgress d = null;
+// 						
+// 						while(Workflow.Active)
+// 						{
+// 							d = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = a});
+// 
+// 							if(d == null)
+// 								break;
+// 
+// 							Workflow.Log?.Report(this, d.ToString());
+// 
+// 							Thread.Sleep(500);
+// 						}
+// 					}
+// 					catch(OperationCanceledException)
+// 					{
+// 					}
+// 
+// 					return null;
+// 				}
 
 //  				case "e" :
 //  		   		case "entity" :

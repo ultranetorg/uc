@@ -51,7 +51,7 @@ namespace Uccs.Net
 
 		public bool Equals(ResourceAddress o)
 		{
-			return Zone == o.Zone && Author == o.Author && Resource == o.Resource;
+			return o is not null && Zone == o.Zone && Author == o.Author && Resource == o.Resource;
 		}
 
  		public override int GetHashCode()

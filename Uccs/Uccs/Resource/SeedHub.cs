@@ -49,7 +49,7 @@ namespace Uccs.Net
 				{
 					lock(Sun.Lock)
 					{ 
-						if(!Sun.NextVoteMembers.OrderByNearest(rzd.Hash).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
+						if(!Sun.NextVoteMembers.OrderByNearest(rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Sun.Settings.Generators.Contains(i.Account)))
 						{
 							results.Add(new (rzd, DeclarationResult.NotNearest));
 							continue;
@@ -76,7 +76,7 @@ namespace Uccs.Net
 					{
 						lock(Sun.Lock)
 						{
-							if(rzd is DHAddress da)
+							if(rzd is DHAddress dh)
 							{
 								var z = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 	
@@ -84,18 +84,18 @@ namespace Uccs.Net
 								{
 									var e = Sun.Mcv.Authors.FindResource(rsd.Resource, Sun.Mcv.LastConfirmedRound.Id);
 
-									if(e?.Data == null || e.Data.Interpretation is DHAddress ha && ha != da)
+									if(e?.Data == null || e.Data.Interpretation is DHAddress ha && ha != dh)
 									{
 										results.Add(new (rzd, DeclarationResult.Rejected));
 										continue;
 									}
 								}
 							}
-							else if(rzd is SDAddress pa)
+							else if(rzd is SDAddress sdp)
 							{
 								var ea = Sun.Mcv.Authors.Find(rsd.Resource.Author, Sun.Mcv.LastConfirmedRound.Id);
 	
-								if(!pa.Prove(Sun.Zone.Cryptography, ea.Owner))
+								if(!sdp.Prove(Sun.Zone.Cryptography, ea.Owner, rsd.Hash))
 								{
 									results.Add(new (rzd, DeclarationResult.Rejected));
 									continue;

@@ -12,6 +12,45 @@ namespace Uccs.Net
 		None, Estimating, Refreshing, Bad
 	}
 
+	public interface IIntegrity
+	{
+		bool Verify(byte[] hash);
+	}
+
+	public class DHIntegrity : IIntegrity
+	{
+		byte[]		Release;
+
+		public DHIntegrity(byte[] release)
+		{
+			Release = release;
+		}
+
+		public bool Verify(byte[] hash)
+		{
+			return Release.SequenceEqual(hash);
+		}
+	}
+
+	public class SPDIntegrity : IIntegrity
+	{
+		SDAddress		Release;
+		AccountAddress	Account;
+		Cryptography	Cryptography;
+
+		public SPDIntegrity(Cryptography cryptography, SDAddress release, AccountAddress account)
+		{
+			Release		 = release;
+			Account		 = account;
+			Cryptography = cryptography;
+		}
+
+		public bool Verify(byte[] hash)
+		{
+			return Release.Prove(Cryptography, Account, hash);
+		}
+	}
+
 	public class FileDownload
 	{
 		public const int DefaultPieceLength = 512 * 1024;
@@ -72,7 +111,7 @@ namespace Uccs.Net
 		Sun											Sun;
 		Workflow									Workflow;
 
-		public FileDownload(Sun sun, LocalRelease release, string path, byte[] hash, SeedCollector seedcollector, Workflow workflow)
+		public FileDownload(Sun sun, LocalRelease release, string path, IIntegrity integrity, SeedCollector seedcollector, Workflow workflow)
 		{
 			Sun					= sun;
 			Release				= release;
@@ -82,7 +121,7 @@ namespace Uccs.Net
 
 			if(File.Completed)
 			{
-				if(release.Hashify(path).SequenceEqual(hash))
+				if(integrity.Verify(release.Hashify(path)))
 				{
 					Succeeded = true;
 					return;
@@ -165,7 +204,7 @@ namespace Uccs.Net
 																CurrentPieces.Add(new Piece(this, s.Current, Enumerable.Range(0, File.Pieces.Length).First(i => !File.CompletedPieces.Contains(i) && !CurrentPieces.Any(j => j.I == i))));
 															}
 														}
-														else if(Sun.Zone.Cryptography.HashFile(new byte[] {}).SequenceEqual(hash)) /// zero-length file
+														else if(integrity.Verify(Sun.Zone.Cryptography.HashFile([]))) /// zero-length file
 														{
 															release.AddCompleted(File.Path, new byte[0]);
 															Succeeded = true;
@@ -209,7 +248,7 @@ namespace Uccs.Net
 												if(File.CompletedPieces.Count() == File.Pieces.Length)
 												{
 													lock(Sun.ResourceHub.Lock)
-														if(release.Hashify(File.Path).SequenceEqual(hash))
+														if(integrity.Verify(release.Hashify(File.Path)))
 														{	
 															Succeeded = true;
 															goto end;
@@ -313,7 +352,7 @@ namespace Uccs.Net
 		public Task					Task;
 		public SeedCollector		SeedCollector;
 
-		public DirectoryDownload(Sun sun, LocalRelease release, Workflow workflow)
+		public DirectoryDownload(Sun sun, LocalRelease release, IIntegrity integrity, Workflow workflow)
 		{
 			Release = release;
 			Release.Activity = this;
@@ -323,21 +362,8 @@ namespace Uccs.Net
 			{
 				try
 				{
-					sun.ResourceHub.GetFile(release, ".index", release.Address.Hash, SeedCollector, workflow);
+					sun.ResourceHub.GetFile(release, ".index", integrity, SeedCollector, workflow);
 
-					//var h = sun.Zone.Cryptography.HashFile(release.ReadFile(".index"));
-					//
-					//if(release.Address is HashAddress a)
-					//	if(!a.Verify(h))
-					//		return;
-					//if(release.Address is ProvingAddress pa)
-					//{	
-					//	var o = sun.Call(p => p.Request<AuthorResponse>(new AuthorRequest {Name = release.}), workflow).Author;
-					//
-					//	if(!pa.Verify(sun.Zone.Cryptography, h, o.Owner))
-					//		return;
-					//}
-												
 					var index = new XonDocument(release.ReadFile(".index"));
 	
 					void enumearate(Xon xon)
@@ -368,7 +394,7 @@ namespace Uccs.Net
 	
 							lock(sun.ResourceHub.Lock)
 							{
-								var dd = sun.ResourceHub.DownloadFile(release, f.Name, f.Value as byte[], SeedCollector, workflow);
+								var dd = sun.ResourceHub.DownloadFile(release, f.Name, new DHIntegrity(f.Value as byte[]), SeedCollector, workflow);
 	
 								if(dd != null)
 								{

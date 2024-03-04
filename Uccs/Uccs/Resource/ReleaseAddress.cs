@@ -24,8 +24,8 @@ namespace Uccs.Net
  	public abstract class ReleaseAddress : ITypeCode, IBinarySerializable, IEquatable<ReleaseAddress>
  	{
  		public abstract byte			TypeCode { get; }
+ 		public abstract byte[]			MemberOrderKey { get; }
 		public string					Zone { get; set; }
- 		public byte[]					Hash { get; set; }
  		public byte[]					Raw {
 												get
 												{
@@ -84,13 +84,11 @@ namespace Uccs.Net
 
 		public virtual void Write(BinaryWriter writer)
 		{
- 			writer.Write(Hash);
 			WriteMore(writer);
 		}
 
 		public virtual void Read(BinaryReader reader)
 		{
- 			Hash = reader.ReadBytes(Cryptography.HashSize);
 			ReadMore(reader);
 		}
 
@@ -109,7 +107,6 @@ namespace Uccs.Net
 		{
 			var a = FromType(reader.ReadByte());
 			
- 			a.Hash = reader.ReadBytes(Cryptography.HashSize);
 			a.ReadMore(reader);
 			
 			return a;
@@ -132,20 +129,17 @@ namespace Uccs.Net
  		{
  			return !(a == b);
  		}
- 
- 		public override int GetHashCode()
- 		{
- 			return BitConverter.ToInt32(Hash);
- 		}
 	}
  
  	public class DHAddress : ReleaseAddress
  	{
+ 		public byte[]			Hash { get; set; }
  		public override byte	TypeCode => (byte)ReleaseAddressType.DH;
+ 		public override byte[]	MemberOrderKey => Hash;
  		
-		public override int		GetHashCode() => base.GetHashCode();
+		public override int		GetHashCode() => BitConverter.ToInt32(Hash);
  		public override bool	Equals(object obj) => Equals(obj as DHAddress);
-		public override bool	Equals(ReleaseAddress o) => o is DHAddress a && Hash.SequenceEqual(o.Hash);
+		public override bool	Equals(ReleaseAddress o) => o is DHAddress a && Hash.SequenceEqual(a.Hash);
 
 		public override string ToString()
 		{
@@ -161,21 +155,32 @@ namespace Uccs.Net
 		{
 			return Hash.SequenceEqual(hash);
 		}
- 	}
+
+		protected override void WriteMore(BinaryWriter writer)
+		{
+ 			writer.Write(Hash);
+		}
+
+		protected override void ReadMore(BinaryReader reader)
+		{
+ 			Hash = reader.ReadBytes(Cryptography.HashSize);
+		}
+  	}
 
 	public class SDAddress : ReleaseAddress
 	{
 		public ResourceAddress	Resource { get; set; }
 		public byte[]			Signature { get; set; }
 		public override byte	TypeCode => (byte)ReleaseAddressType.SPD;
+		public override byte[]	MemberOrderKey => Signature;
 
- 		public override int		GetHashCode() => base.GetHashCode();
+ 		public override int		GetHashCode() => BitConverter.ToInt32(Signature);
  		public override bool	Equals(object o) => Equals(o as SDAddress);
-		public override bool	Equals(ReleaseAddress o) => o is SDAddress a && Resource == a.Resource && Hash.SequenceEqual(o.Hash) && Signature.SequenceEqual(a.Signature);
+		public override bool	Equals(ReleaseAddress o) => o is SDAddress a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
  
 		public override string ToString()
 		{
-			return $"upsd:{Zone}{(Zone != null ? "." : null)}{Resource.Author}/{Resource.Resource}:{Hash.ToHex()}:{Signature.ToHex()}";
+			return $"upsd:{Zone}{(Zone != null ? "." : null)}{Resource.Author}/{Resource.Resource}:{Signature.ToHex()}";
 		}
 		
 		public override void ParseSpecific(string t)
@@ -183,20 +188,17 @@ namespace Uccs.Net
 			Resource	= ResourceAddress.ParseAR(t);
 
 			var s = Resource.Resource.LastIndexOf(':');
-			var h = Resource.Resource.LastIndexOf(':', s-1);
-
-			Hash		= Resource.Resource.Substring(h+1, s-h-1).FromHex();
-			Signature	= Resource.Resource.Substring(s + 1).FromHex();
-
-			Resource.Resource = Resource.Resource.Substring(0, h);
+			
+			Resource.Resource = Resource.Resource.Substring(0, s);
+			Signature		  = Resource.Resource.Substring(s + 1).FromHex();
 		}
 
-		public bool Prove(Cryptography cryptography, AccountAddress account)
+		public bool Prove(Cryptography cryptography, AccountAddress account, byte[] hash)
 		{
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 			w.Write(Resource);
-			w.Write(Hash);
+			w.Write(hash);
 
 			return cryptography.AccountFrom(Signature, cryptography.Hash(s.ToArray())) == account;
 		}
@@ -208,7 +210,7 @@ namespace Uccs.Net
 			w.Write(resource);
 			w.Write(hash);
 
-			return new SDAddress {Hash = hash, Resource = resource, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
+			return new SDAddress {Resource = resource, Signature = cryptography.Sign(key, cryptography.Hash(s.ToArray()))};
 		}
 
 		protected override void WriteMore(BinaryWriter writer)
@@ -222,6 +224,7 @@ namespace Uccs.Net
 			Resource = reader.Read<ResourceAddress>();
 			Signature = reader.ReadBytes(Cryptography.SignatureSize);
 		}
+
 	}
 
 	public class ReleaseAddressJsonConverter : JsonConverter<ReleaseAddress>
