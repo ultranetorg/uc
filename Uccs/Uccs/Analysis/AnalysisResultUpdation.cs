@@ -39,7 +39,7 @@ namespace Uccs.Net
 			if(Require(round, Resource, out var a, out var r) == false)
 				return;
 
-			var rr = r.Relations.FirstOrDefault(i => i.Data.Interpretation is Analysis an && an.Release == Release && an.Consil == Consil);
+			var rr = r.Metas.FirstOrDefault(i => i.Data.Interpretation is Analysis an && an.Release == Release && an.Consil == Consil);
 
 			if(rr == null)
 			{
@@ -65,7 +65,7 @@ namespace Uccs.Net
 
 			a = Affect(round, Resource.Author);
 			r = a.AffectResource(Resource.Resource);
-			rr = r.AffectRelation(rr.Owner, rr.Data);
+			rr = r.AffectMeta(rr.Owner, rr.Data);
 
 			var an = rr.Data.Interpretation as Analysis;
 			an.Results ??= [];

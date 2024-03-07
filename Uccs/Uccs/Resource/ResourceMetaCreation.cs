@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class ResourceRelationCreation : Operation
+	public class ResourceMetaCreation : Operation
 	{
 		public ResourceAddress	Resource { get; set; }
 		public ResourceData		Data { get; set; }
@@ -12,11 +12,11 @@ namespace Uccs.Net
 		public override string	Description => $"Resource={Resource}, Data={Data}";
 		public override bool	Valid => true;
 
-		public ResourceRelationCreation()
+		public ResourceMetaCreation()
 		{
 		}
 
-		public ResourceRelationCreation(ResourceAddress resource, ResourceData data)
+		public ResourceMetaCreation(ResourceAddress resource, ResourceData data)
 		{
 			Resource = resource;
 			Data = data;
@@ -39,14 +39,6 @@ namespace Uccs.Net
 			if(Require(round, Resource, out var a, out var r) == false)
 				return;
 
-			//var rr = r.Relations.FirstOrDefault(i => mcv.Authors.FindEntry(new EntityId(i.Resource.Ci, i.Resource.Ai)).Resources.First(j => j.Id.Ri == i.Resource.Ri).Address == Related);
-			//
-			//if(rr != null)
-			//{
-			//	Error = AlreadyExists;
-			//	return;
-			//}
-
 			var s = mcv.Accounts.Find(Signer, round.Id);
 					
 			if(s == null)
@@ -58,8 +50,8 @@ namespace Uccs.Net
 			a = Affect(round, Resource.Author);
 			r = a.AffectResource(Resource.Resource);
 
-			r.Relations ??= [];
-			r.Relations = r.Relations.Append(new ResourceRelation {Owner = s.Id, Data = Data}).ToArray();
+			r.Metas ??= [];
+			r.Metas = r.Metas.Append(new ResourceMeta {Owner = s.Id, Data = Data}).ToArray();
 
 			PayForEntity(round, Time.FromYears(10));
 			PayForBytes(round, Data.Value.Length, Time.FromYears(10));

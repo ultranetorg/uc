@@ -19,7 +19,7 @@ namespace Uccs.Net
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
 		AuthorBid, AuthorRegistration, AuthorTransfer,
-		ResourceCreation, ResourceUpdation, ResourceRelationCreation,
+		ResourceCreation, ResourceUpdation, ResourceMetaCreation,
 		AnalysisResultUpdation
 	}
 

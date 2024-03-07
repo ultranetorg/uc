@@ -31,19 +31,18 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												GetEnum<ResourceFlags>("flags", ResourceFlags.None),
 												GetData(),
 												GetString("parent", false));
 				}
 
-				case "cr" : 
-				case "createrelation" : 
+				case "cm" : 
+				case "createmeta" : 
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceRelationCreation(ResourceAddress.Parse(Args.Nodes[1].Name), GetData());
+					return new ResourceMetaCreation(ResourceAddress.Parse(Args.Nodes[1].Name), GetData());
 				}
 
 				case "u" : 
