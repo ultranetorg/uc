@@ -340,6 +340,18 @@ namespace Uccs.Net
 			return e;
 		}
 
+		public E FindEntry(EntityId id)
+		{
+			var c = Clusters.Find(i => i.Id.SequenceEqual(id.Ci));
+
+			if(c == null)
+				return default(E);
+
+			var e = c.Entries.Find(i => i.Id.Ei == id.Ei);
+
+			return e;
+		}
+
 
 		void Recycle()
 		{

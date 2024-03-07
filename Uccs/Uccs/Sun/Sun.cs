@@ -1155,10 +1155,15 @@ namespace Uccs.Net
 								r.Hashify();
 
 								if(!r.Hash.SequenceEqual(h))
+								{
+									#if DEBUG
+										SunGlobals.CompareBase();
+									#endif
+									
 									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
+								}
 
 								r.Confirmed = false;
-								//Mcv.Execute(r, r.ConfirmedTransactions);
 								Mcv.Confirm(r);
 
 								if(r.Members.Count == 0)
@@ -1298,8 +1303,7 @@ namespace Uccs.Net
 									ConsensusTime			= Time.Now(Clock), 
 									ConsensusExeunitFee	= p.ConsensusExeunitFee,
 									Members					= p.Members,
-									Funds					= p.Funds,
-									Analyzers				= p.Analyzers};
+									Funds					= p.Funds};
 	
 			Mcv.Execute(r, new [] {transaction});
 
@@ -1414,8 +1418,6 @@ namespace Uccs.Net
 												Time			= Time.Now(Clock),
 												Violators		= Mcv.ProposeViolators(r).ToArray(),
 												MemberLeavers	= Mcv.ProposeMemberLeavers(r, g).ToArray(),
-												AnalyzerJoiners	= Settings.ProposedAnalyzerJoiners.Where(i => !Mcv.LastConfirmedRound.Analyzers.Any(j => j.Account == i)).ToArray(),
-												AnalyzerLeavers	= Settings.ProposedAnalyzerLeavers.Where(i => Mcv.LastConfirmedRound.Analyzers.Any(j => j.Account == i)).ToArray(),
 												FundJoiners		= Settings.ProposedFundJoiners.Where(i => !Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
 												FundLeavers		= Settings.ProposedFundLeavers.Where(i => Mcv.LastConfirmedRound.Funds.Contains(i)).ToArray(),
 												Emissions		= ApprovedEmissions.ToArray(),

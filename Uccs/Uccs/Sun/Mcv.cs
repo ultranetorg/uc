@@ -22,7 +22,6 @@ namespace Uccs.Net
 		public const int					DeclareToGenerateDelay = P*2;
 		public const int					TransactionPlacingLifetime = P*2;
 		public const int					LastGenesisRound = 1+P + 1+P + P;
-		public static readonly Money		AnalysisPerByteFee		= new Money(0.000_000_001);
 		public static readonly Money		BalanceMin				= new Money(0.000_000_001);
 		public static Money					RentFactor(Time time)	=> new Money(time.Days * time.Days)/(Time.FromYears(1).Days  * Time.FromYears(1).Days);
 		public const int					EntityAllocationYearsMin = 1;
@@ -450,11 +449,6 @@ namespace Uccs.Net
 			return FindRound(round.VotersRound).Members/*.Where(i => i.JoinedAt < r.Id)*/;
 		}
 
-		public List<Analyzer> AnalyzersOf(int rid)
-		{
-			return FindRound(rid - P - 1).Analyzers/*.Where(i => i.JoinedAt < r.Id)*/;
-		}
-
 		public bool ConsensusFailed(Round r)
 		{
 			var m = VotersOf(r);
@@ -603,14 +597,6 @@ namespace Uccs.Net
 													.Where(x => round.DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
 													.Order().ToArray();
 
-				round.ConsensusAnalyzerJoiners	= gu.SelectMany(i => i.AnalyzerJoiners).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) == null && gu.Count(b => b.AnalyzerJoiners.Contains(x)) >= Zone.AnalizerMinimumVotes)
-													.Order().ToArray();
-				
-				round.ConsensusAnalyzerLeavers	= gu.SelectMany(i => i.AnalyzerLeavers).Distinct()
-													.Where(x =>	round.Analyzers.Find(a => a.Account == x) != null && gu.Count(b => b.AnalyzerLeavers.Contains(x)) >= Zone.AnalizerMinimumVotes)
-													.Order().ToArray();
-
 				round.ConsensusFundJoiners		= gu.SelectMany(i => i.FundJoiners).Distinct()
 													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
 													.Order().ToArray();
@@ -638,7 +624,6 @@ namespace Uccs.Net
 					o.Error = null;
 
 			round.Members				= round.Id == 0 ? new()						: round.Previous.Members;
-			round.Analyzers				= round.Id == 0 ? new()						: round.Previous.Analyzers;
 			round.Funds					= round.Id == 0 ? new()						: round.Previous.Funds;
 			round.Emissions				= round.Id == 0 ? new()						: round.Previous.Emissions;
 			round.DomainBids			= round.Id == 0 ? new()						: round.Previous.DomainBids;
@@ -719,11 +704,9 @@ namespace Uccs.Net
 
 			Execute(round, round.ConsensusTransactions);
 
-			round.AnalyzersIdCounter	= round.Id == 0 ? 0 : round.Previous.AnalyzersIdCounter;
 			round.Last365BaseDeltas		= round.Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => (long)0).ToList() : round.Previous.Last365BaseDeltas.ToList();
 			round.PreviousDayBaseSize	= round.Id == 0 ? 0 : round.Previous.PreviousDayBaseSize;
 			round.Members				= round.Members.ToList();
-			round.Analyzers				= round.Analyzers.ToList();;
 			round.Funds					= round.Funds.ToList();
 			round.Emissions				= round.Emissions.ToList();
 			round.DomainBids			= round.DomainBids.ToList();
@@ -806,9 +789,6 @@ namespace Uccs.Net
 
 			round.Funds.RemoveAll(i => round.ConsensusFundLeavers.Contains(i));
 			round.Funds.AddRange(round.ConsensusFundJoiners);
-
-			round.Analyzers.RemoveAll(i => round.ConsensusAnalyzerLeavers.Contains(i.Account));
-			round.Analyzers.AddRange(round.ConsensusAnalyzerJoiners.Select(i => new Analyzer {Id = (byte)round.AnalyzersIdCounter++, Account = i, JoinedAt = round.Id + P + 1}));
 			
 			if(ReadyToCommit(round))
 			{

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection.Metadata;
+using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
@@ -14,7 +14,6 @@ namespace Uccs.Net
 		Sealed			= 0b_______1, 
 		Child			= 0b______10, 
 		Data			= 0b_____100, 
-		Analysis		= 0b____1000, 
 	}
 
 	public enum DataType : short
@@ -27,6 +26,8 @@ namespace Uccs.Net
 		File		= 100, 
 		Directory	= 101, 
 		Package		= 102, 
+		Consil		= 103, 
+		Analysis	= 104, 
 
 		FirstMime	= 1000, 
 	}
@@ -36,13 +37,133 @@ namespace Uccs.Net
 	{
 		None			= 0,
 		Recursive		= 0b______________1,
-		NotNullData			= 0b_____________10,
-		//Flags			= 0b______________1,
-		//Data			= 0b_____________10,
-		//Parent			= 0b___________1000,
-		//Analysis		= 0b__________10000,
-		//AddPublisher	= 0b_________100000,
-		//RemovePublisher	= 0b________1000000,
+		NotNullData		= 0b_____________10,
+	}
+ 
+ 	public class Consil : IBinarySerializable
+ 	{
+ 		public Money			PerByteFee;
+		public AccountAddress[]	Analyzers;
+
+ 		public byte[]			Raw {
+										get
+										{
+											var s = new MemoryStream();
+											var w = new BinaryWriter(s);
+											
+											Write(w);
+											
+											return s.ToArray();
+										}
+									}
+
+		public void Read(BinaryReader reader)
+		{
+			PerByteFee	= reader.Read<Money>();
+			Analyzers	= reader.ReadArray<AccountAddress>();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(PerByteFee);
+			writer.Write(Analyzers);
+		}
+
+		public Consil Clone()
+		{
+			return new Consil {	PerByteFee	= PerByteFee, 
+								Analyzers	= Analyzers.Clone() as AccountAddress[]};
+		}
+	}
+
+	public enum AnalysisResult : byte
+	{
+		None,
+		Negative,
+		Positive,
+		Vulnerable,
+	}
+
+	public struct AnalyzerResult
+	{
+		public byte				Analyzer { get; set; }
+		public AnalysisResult	Result { get; set; }
+
+		public override string ToString()
+		{
+			return $"Analyzer={Analyzer}, Result={Result}";
+		}
+	}
+
+
+	public class Analysis : IBinarySerializable
+	{
+		public ReleaseAddress		Release { get; set; }
+		public Money				Payment { get; set; }
+		public ResourceAddress		Consil	{ get; set; }
+		public AnalyzerResult[]		Results { get; set; }
+
+ 		public byte[]				Raw {
+											get
+											{
+												var s = new MemoryStream();
+												var w = new BinaryWriter(s);
+												
+												Write(w);
+												
+												return s.ToArray();
+											}
+										}
+
+
+		public void Read(BinaryReader reader)
+		{
+			Release = reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
+			Consil	= reader.Read<ResourceAddress>();
+			Payment	= reader.Read<Money>();
+			Results	= reader.ReadArray(() => new AnalyzerResult { Analyzer = reader.ReadByte(), 
+																  Result = (AnalysisResult)reader.ReadByte() });
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(Release);
+			writer.Write(Consil);
+			writer.Write(Payment);
+			writer.Write(Results, i => { writer.Write(i.Analyzer);
+										 writer.Write((byte)i.Result); });
+		}
+
+		public Analysis Clone()
+		{
+			return new Analysis {Release	= Release, 
+								 Payment	= Payment, 
+								 Consil		= Consil,	
+								 Results	= Results.Clone() as AnalyzerResult[]};
+		}
+	}
+
+	public class ResourceRelation : IBinarySerializable
+	{
+		public EntityId			Owner;
+		public ResourceData		Data;
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(Owner);
+			writer.Write(Data);
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			Owner	= reader.Read<EntityId>();
+			Data	= reader.Read<ResourceData>();
+		}
+
+		public ResourceRelation Clone()
+		{
+			return new ResourceRelation {Owner = Owner, Data = Data.Clone()};
+		}
 	}
 
 	public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
@@ -163,8 +284,17 @@ namespace Uccs.Net
 				case DataType.File:
 				case DataType.Directory:
 				case DataType.Package: 
-					_Interpretation = ReleaseAddress.FromRaw(reader);
+					_Interpretation = reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
 					break;
+
+				case DataType.Consil:
+					_Interpretation = reader.Read<Consil>();
+					break;
+
+				case DataType.Analysis:
+					_Interpretation = reader.Read<Analysis>();
+					break;
+
 
 				default:
 					throw new ResourceException(ResourceError.UnknownDataType);
@@ -205,8 +335,9 @@ namespace Uccs.Net
 				case DataType.File:
 				case DataType.Directory:
 				case DataType.Package: 
- 					writer.Write((byte)(Interpretation as ReleaseAddress).TypeCode);
-					(Interpretation as ReleaseAddress).Write(writer);
+				case DataType.Consil:
+				case DataType.Analysis:
+					writer.Write(Interpretation as IBinarySerializable);
 					break;
 
 				default:
@@ -239,6 +370,50 @@ namespace Uccs.Net
 		{
 			return !(left == right);
 		}
+		
+		public ResourceData Clone()
+		{
+			object i = null;
+
+			if(_Interpretation == null)
+			{
+				return new ResourceData {Type = Type, _Value = _Value};
+			} 
+			else
+			{
+				switch(_Interpretation)
+				{
+					case byte[] v:
+						i = v.Clone();
+						break;
+
+					case string v:
+						i = v.Clone();
+						break;
+
+					case IPAddress v:
+						i = new IPAddress(v.GetAddressBytes());
+						break;
+
+					case ReleaseAddress v: 
+						i = ReleaseAddress.FromRaw(v.Raw);
+						break;
+
+					case Consil v:
+						i = v.Clone();
+						break;
+
+					case Analysis v:
+						i = v.Clone();
+						break;
+
+					default:
+						throw new ResourceException(ResourceError.UnknownDataType);
+				}
+				
+				return new ResourceData {Type = Type, _Interpretation = i, _Value = _Value};
+			}
+		}
 	}
 
 	public class Resource : IBinarySerializable
@@ -247,14 +422,13 @@ namespace Uccs.Net
 		public ResourceAddress		Address { get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
-		public int[]				Resources { get; set; } = {};
 		public Time					Updated { get; set; }
+		public int[]				Resources { get; set; } = {};
+		public ResourceRelation[]	Relations { get; set; }
 
-		public Money				AnalysisPayment { get; set; }
-		public byte					AnalysisConsil { get; set; }
-		public AnalyzerResult[]		AnalysisResults { get; set; }
-
+		[JsonIgnore]
 		public bool					New;
+		List<ResourceRelation>		AffectedRelations = new();
 
 		public override string ToString()
 		{
@@ -267,11 +441,9 @@ namespace Uccs.Net
 							Address	= Address, 
 							Flags = Flags,
 							Data = Data,
-							Resources = Resources,
 							Updated = Updated,
-							AnalysisPayment = AnalysisPayment,
-							AnalysisConsil = AnalysisConsil,
-							AnalysisResults = AnalysisResults
+							Resources = Resources,
+							Relations = Relations?.ToArray(),
 							};
 		}
 
@@ -282,16 +454,9 @@ namespace Uccs.Net
 			
 			if(Flags.HasFlag(ResourceFlags.Data))
 				writer.Write(Data);
-
-			if(Flags.HasFlag(ResourceFlags.Analysis))
-			{
-				writer.Write(AnalysisPayment);
-				writer.Write(AnalysisConsil);
-				writer.Write(AnalysisResults, i => { writer.Write(i.AnalyzerId);
-													 writer.Write((byte)i.Result); });
-			}
 		
 			writer.Write(Resources, i => writer.Write7BitEncodedInt(i));
+			writer.Write(Relations);
 		}
 
 		public void Read(BinaryReader reader)
@@ -301,16 +466,36 @@ namespace Uccs.Net
 
 			if(Flags.HasFlag(ResourceFlags.Data))
 				Data = reader.Read<ResourceData>();
-			
-			if(Flags.HasFlag(ResourceFlags.Analysis))
-			{
-				AnalysisPayment	= reader.Read<Money>();
-				AnalysisConsil	= reader.ReadByte();
-				AnalysisResults	= reader.ReadArray(() => new AnalyzerResult{AnalyzerId = reader.ReadByte(), 
-																			Result = (AnalysisResult)reader.ReadByte()});
-			}
 
 			Resources = reader.ReadArray(() => reader.Read7BitEncodedInt());
+			Relations = reader.ReadArray<ResourceRelation>();
+		}
+
+		public ResourceRelation AffectRelation(EntityId owner, ResourceData data)
+		{
+			var r = AffectedRelations.Find(i => i.Owner == owner && i.Data == data);
+			
+			if(r != null)
+				return r;
+
+			var i = Array.FindIndex(Relations, i => i.Owner == owner && i.Data == data);
+
+			if(i != -1)
+			{
+				Relations = Relations.ToArray();
+
+				r = Relations[i].Clone();
+				Relations[i] = r;
+			} 
+			else
+			{
+				r = new ResourceRelation {Owner = owner, Data = data};
+				Relations = Relations.Append(r).ToArray();
+			}
+
+			AffectedRelations.Add(r);
+
+			return r;
 		}
 	}
 }

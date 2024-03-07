@@ -11,7 +11,6 @@ namespace Uccs.Net
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public string				Parent { get; set; }
-		public Money				AnalysisPayment { get; set; }
 
 		public override bool		Valid =>	(!Flags.HasFlag(ResourceFlags.Data) || (Data == null || Data.Value.Length <= ResourceData.LengthMax));
 		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : $", Data={{{Data}}}")}";
@@ -45,12 +44,6 @@ namespace Uccs.Net
 			Flags |= ResourceFlags.Child;
 		}
 
-		public void Change(Money analysispayment)
-		{
-			AnalysisPayment = analysispayment;
-			Flags |= ResourceFlags.Analysis;
-		}
-
 		public void ChangeRecursive()
 		{
 			Changes |= ResourceChanges.Recursive;
@@ -65,8 +58,6 @@ namespace Uccs.Net
 			if(	Flags.HasFlag(ResourceFlags.Data) && 
 				Changes.HasFlag(ResourceChanges.NotNullData))	Data = reader.Read<ResourceData>();
 			if(Flags.HasFlag(ResourceFlags.Child))				Parent = reader.ReadUtf8();
-			if(Flags.HasFlag(ResourceFlags.Analysis))			AnalysisPayment = reader.Read<Money>();
-
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -78,32 +69,12 @@ namespace Uccs.Net
 			if(	Flags.HasFlag(ResourceFlags.Data) && 
 				Changes.HasFlag(ResourceChanges.NotNullData))	writer.Write(Data);
 			if(Flags.HasFlag(ResourceFlags.Child))				writer.WriteUtf8(Parent);
-			if(Flags.HasFlag(ResourceFlags.Analysis))			writer.Write(AnalysisPayment);
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
- 			var ae = mcv.Authors.Find(Resource.Author, round.Id); /// TODO: Allow to prolongate for non-owner
- 
- 			if(ae.Owner != Signer)
- 			{
- 				Error = NotOwner;
- 				return;
- 			}
-
-			if(Author.IsExpired(ae, round.ConsensusTime))
-			{
-				Error = Expired;
+			if(Require(round, Resource, out var ae, out var e) == false)
 				return;
-			}
-
-			var e = ae.Resources.FirstOrDefault(i => i.Address == Resource);
-			
-			if(e == null) 
-			{
-				Error = NotFound;
-				return;
-			}
 
 			var a = Affect(round, Resource.Author);
 			
@@ -163,26 +134,6 @@ namespace Uccs.Net
 					}
 					else
 						r.Flags	&= ~ResourceFlags.Data;
-				}
-
-				if(Flags.HasFlag(ResourceFlags.Analysis))
-				{
-					if(Data.Interpretation is ReleaseAddress)
-					{
-						r.Flags	|= ResourceFlags.Analysis;
-	
-						r.AnalysisPayment	= AnalysisPayment;
-						r.AnalysisConsil	= (byte)round.Analyzers.Count;
-						r.AnalysisResults	= null;
-	
-						var s = Affect(round, Signer);
-						s.Balance -= AnalysisPayment;
-					} 
-					else
-					{
-						Error = NotRelease;
-						return;
-					}
 				}
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))

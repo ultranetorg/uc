@@ -40,8 +40,6 @@ namespace Uccs.Net
 		public Time											ConsensusTime;
 		public Transaction[]								ConsensusTransactions = {};
 		public AccountAddress[]								ConsensusMemberLeavers = {};
-		public AccountAddress[]								ConsensusAnalyzerJoiners = {};
-		public AccountAddress[]								ConsensusAnalyzerLeavers = {};
 		public AccountAddress[]								ConsensusFundJoiners = {};
 		public AccountAddress[]								ConsensusFundLeavers = {};
 		public AccountAddress[]								ConsensusViolators = {};
@@ -58,11 +56,9 @@ namespace Uccs.Net
 		public Money										RentPerByte;
 		public Money										RentPerEntity => RentPerByte * 100;
 		public List<Member>									Members = new();
-		public List<Analyzer>								Analyzers;
 		public List<AccountAddress>							Funds;
 		public List<Emission>								Emissions;
 		public List<AuthorBid>								DomainBids;
-		public int											AnalyzersIdCounter;
 		public Dictionary<byte[], int>						NextAccountIds;
 		public Dictionary<byte[], int>						NextAuthorIds;
 		public List<long>									Last365BaseDeltas;
@@ -249,8 +245,6 @@ namespace Uccs.Net
 			
 			writer.Write(Emission);
 			writer.Write(Members, i => i.WriteBaseState(writer));
-			writer.Write(Analyzers, i => i.WriteBaseState(writer));
-			writer.Write7BitEncodedInt(AnalyzersIdCounter);
 			writer.Write(Funds);
 			writer.Write(Emissions, i => i.WriteBaseState(writer));
 			writer.Write(DomainBids, i => i.WriteBaseState(writer));
@@ -258,20 +252,18 @@ namespace Uccs.Net
 
 		public void ReadBaseState(BinaryReader reader)
 		{
-			Id						= reader.Read7BitEncodedInt();
-			Hash					= reader.ReadHash();
-			ConsensusTime			= reader.Read<Time>();
-			ConsensusExeunitFee	= reader.Read<Money>();
+			Id									= reader.Read7BitEncodedInt();
+			Hash								= reader.ReadHash();
+			ConsensusTime						= reader.Read<Time>();
+			ConsensusExeunitFee					= reader.Read<Money>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
-			RentPerByte			= reader.Read<Money>();
+			RentPerByte				= reader.Read<Money>();
 			PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
-			Last365BaseDeltas			= reader.ReadList(() => reader.Read7BitEncodedInt64());
+			Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
 			
 			Emission				= reader.Read<Money>();
 			Members					= reader.Read<Member>(m => m.ReadBaseState(reader)).ToList();
-			Analyzers				= reader.Read<Analyzer>(m => m.ReadBaseState(reader)).ToList();
-			AnalyzersIdCounter		= reader.Read7BitEncodedInt();
 			Funds					= reader.ReadList<AccountAddress>();
 			Emissions				= reader.Read<Emission>(m => m.ReadBaseState(reader)).ToList();
 			DomainBids				= reader.Read<AuthorBid>(m => m.ReadBaseState(reader)).ToList();
@@ -283,8 +275,6 @@ namespace Uccs.Net
 			writer.Write(ConsensusExeunitFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			writer.Write(ConsensusMemberLeavers);
-			writer.Write(ConsensusAnalyzerJoiners);
-			writer.Write(ConsensusAnalyzerLeavers);
 			writer.Write(ConsensusFundJoiners);
 			writer.Write(ConsensusFundLeavers);
 			writer.Write(ConsensusViolators);
@@ -299,8 +289,6 @@ namespace Uccs.Net
 			ConsensusExeunitFee		= reader.Read<Money>();
 			ConsensusTransactionsOverflowRound		= reader.Read7BitEncodedInt();
 			ConsensusMemberLeavers		= reader.ReadArray<AccountAddress>();
-			ConsensusAnalyzerJoiners	= reader.ReadArray<AccountAddress>();
-			ConsensusAnalyzerLeavers	= reader.ReadArray<AccountAddress>();
 			ConsensusFundJoiners		= reader.ReadArray<AccountAddress>();
 			ConsensusFundLeavers		= reader.ReadArray<AccountAddress>();
 			ConsensusViolators			= reader.ReadArray<AccountAddress>();

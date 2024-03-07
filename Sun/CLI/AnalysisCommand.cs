@@ -24,22 +24,15 @@ namespace Uccs.Sun.CLI
 
 			switch(Args.Nodes.First().Name)
 			{
-// 				case "c" :
-// 				case "create" :
-// 				{
-// 					Workflow.CancelAfter(RdcTransactingTimeout);
-// 
-// 					return new AnalysisRegistration {Release = ReleaseAddress.Parse(Args.Nodes[1].Name), Payment = GetMoney("payment")};
-// 				}
-
 				case "u" :
 				case "update" :
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AnalysisResultRegistration {	Resource = GetResourceAddress("resource"), 
-															Release = GetReleaseAddress("release"), 
-															Result = Enum.Parse<AnalysisResult>(GetString("result")) };;
+					return new AnalysisResultUpdation {	Resource = GetResourceAddress("resource"), 
+														Release = GetReleaseAddress("release"), 
+														Consil = GetResourceAddress("consil"), 
+														Result = Enum.Parse<AnalysisResult>(GetString("result"))};;
 				}
 // 
 // 				case "e" : 

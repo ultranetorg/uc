@@ -225,7 +225,6 @@ namespace Uccs.Net
 																				{
 																					Id = i.Id, 
 																					Members = i.Members == null ? 0 : i.Members.Count,
-																					Analyzers = i.Analyzers == null ? 0 : i.Analyzers.Count,
 																					Confirmed = i.Confirmed,
 																					Time = i.ConsensusTime,
 																					Hash = i.Hash,
@@ -251,7 +250,6 @@ namespace Uccs.Net
 		{
 			public int							Id {get; set;}
 			public int							Members {get; set;}
-			public int							Analyzers {get; set;}
 			public bool							Confirmed {get; set;}
 			public Time							Time {get; set;}
 			public byte[]						Hash {get; set;}

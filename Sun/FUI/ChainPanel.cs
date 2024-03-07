@@ -119,9 +119,6 @@ namespace Uccs.Sun.FUI
 				MemberLeavers.Items.AddRange(r.ConsensusMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 				Violators.Items.AddRange(r.ConsensusViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
 
-				AnalyzerJoiners.Items.AddRange(r.ConsensusAnalyzerJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
-				AnalyzerLeavers.Items.AddRange(r.ConsensusAnalyzerLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
-
 				FundJoiners.Items.AddRange(r.ConsensusFundJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
 				FundLeavers.Items.AddRange(r.ConsensusFundLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 

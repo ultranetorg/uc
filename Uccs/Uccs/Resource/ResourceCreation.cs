@@ -10,7 +10,6 @@ namespace Uccs.Net
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public string				Parent { get; set; }
-		public Money				AnalysisPayment { get; set; }
 
 		public override bool		Valid => !Flags.HasFlag(ResourceFlags.Data) || (Data.Value.Length <= ResourceData.LengthMax);
 		public override string		Description => $"{Resource}, [{Flags}]{(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : ", Data=" + Data)}";
@@ -19,17 +18,15 @@ namespace Uccs.Net
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data, Money analysispayment, string parent)
+		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data, string parent)
 		{
 			Resource = resource;
 			Flags = flags;
 			Data = data;
 			Parent = parent;
-			AnalysisPayment = analysispayment;
 
 			if(Data != null)					Flags |= ResourceFlags.Data;
 			if(Parent != null)					Flags |= ResourceFlags.Child;
-			if(AnalysisPayment > Money.Zero)	Flags |= ResourceFlags.Analysis;
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
@@ -39,7 +36,6 @@ namespace Uccs.Net
 
 			if(Flags.HasFlag(ResourceFlags.Data))		Data = reader.Read<ResourceData>();
 			if(Flags.HasFlag(ResourceFlags.Child))		Parent = reader.ReadUtf8();
-			if(Flags.HasFlag(ResourceFlags.Analysis))	AnalysisPayment = reader.Read<Money>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -49,7 +45,6 @@ namespace Uccs.Net
 
 			if(Flags.HasFlag(ResourceFlags.Data))		writer.Write(Data);
 			if(Flags.HasFlag(ResourceFlags.Child))		writer.WriteUtf8(Parent);
-			if(Flags.HasFlag(ResourceFlags.Analysis))	writer.Write(AnalysisPayment);
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -115,24 +110,6 @@ namespace Uccs.Net
 						Expand(round, a, r.Data.Value.Length);
 					}
 				} 
-			}
-
-			if(Flags.HasFlag(ResourceFlags.Analysis))
-			{
-				if(Data.Interpretation is ReleaseAddress)
-				{
-					r.AnalysisPayment	= AnalysisPayment;
-					r.AnalysisConsil	= (byte)round.Analyzers.Count;
-					r.AnalysisResults	= null;
-	
-					var s = Affect(round, Signer);
-					s.Balance -= AnalysisPayment;
-				} 
-				else
-				{
-					Error = NotRelease;
-					return;
-				}
 			}
 		}
 	}

@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uccs.Net
 {
@@ -24,8 +19,8 @@ namespace Uccs.Net
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
 		AuthorBid, AuthorRegistration, AuthorTransfer,
-		ResourceCreation, ResourceUpdation,
-		AnalysisRegistration, AnalysisResultRegistration
+		ResourceCreation, ResourceUpdation, ResourceRelationCreation,
+		AnalysisResultUpdation
 	}
 
 	public abstract class Operation : ITypeCode, IBinarySerializable
@@ -40,6 +35,7 @@ namespace Uccs.Net
 
 		public const string		Rejected = "Rejected";
 		public const string		NotFound = "Not found";
+		public const string		ExistingAccountRequired = "ExistingAccountRequired";
 		public const string		Expired = "Expired";
 		public const string		Sealed = "Sealed";
 		public const string		AlreadyExists = "Already exists";
@@ -147,6 +143,46 @@ namespace Uccs.Net
 		{
 			return round.AffectAuthor(author);
 		}
+
+		public bool RequireAuthor(Round round, string name, out AuthorEntry author)
+		{
+			author = round.Mcv.Authors.Find(name, round.Id);
+
+			if(author == null)
+			{
+				Error = NotFound;
+				return false;
+			}
+
+			if(Author.IsExpired(author, round.ConsensusTime))
+			{
+				Error = Expired;
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool Require(Round round, ResourceAddress address, out AuthorEntry author, out Resource resource)
+		{
+			resource = null;
+
+			if(RequireAuthor(round, address.Author, out author) == false)
+			{
+				Error = NotFound;
+				return false; 
+			}
+
+			resource = author.Resources.FirstOrDefault(i => i.Address.Resource == address.Resource);
+			
+			if(resource == null)
+			{
+				Error = NotFound;
+				return false; 
+			}
+
+			return true; 
+		}
 	}
 
 	public class OperationJsonConverter : JsonConverter<Operation>
@@ -156,7 +192,7 @@ namespace Uccs.Net
 			var s = reader.GetString().Split(':');
 			var o = Operation.FromType(Enum.Parse<OperationClass>(s[0]));
  			
-			o.Read(new BinaryReader(new MemoryStream(s[1].HexToByteArray()))); 
+			o.Read(new BinaryReader(new MemoryStream(s[1].FromHex())));
 
 			return o;
 		}

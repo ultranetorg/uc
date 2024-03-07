@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json.Serialization;
 using Nethereum.Model;
 
 namespace Uccs.Net
@@ -16,6 +17,8 @@ namespace Uccs.Net
 	{
 		public EntityId					Id { get; set; }
 		public AccountAddress			Key => Address;
+		
+		[JsonIgnore]
 		public bool						New { get; set; }
 		
 		public HashSet<int>				Transactions = new();

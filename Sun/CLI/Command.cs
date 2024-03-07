@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using Uccs.Net;
@@ -140,7 +141,7 @@ namespace Uccs.Sun.CLI
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
-		protected byte[] GetHexBytes(string paramenter, bool mandatory = true)
+		protected byte[] GetBytes(string paramenter, bool mandatory = true)
 		{
 			if(Args.Has(paramenter))
 				return Args.Get<string>(paramenter).FromHex();
@@ -184,6 +185,26 @@ namespace Uccs.Sun.CLI
 				return Money.ParseDecimal(Args.Get<string>(paramenter));
 			else
 				return def;
+		}
+
+		protected bool HasData()
+		{
+			return Has("raw") || Has("consil") || Has("analysis");
+		}
+
+		protected ResourceData GetData()
+		{
+			if(Has("raw"))
+				return GetBytes("raw").Length > 0  ? new ResourceData(new BinaryReader(new MemoryStream(GetBytes("raw")))) : null;
+
+			if(Has("consil"))
+				return new ResourceData(DataType.Consil, new Consil {Analyzers = GetString("consil/analyzers").Split(',').Select(i => AccountAddress.Parse(i)).ToArray(),  
+																	 PerByteFee = GetMoney("consil/fee") });
+			if(Has("analysis"))
+				return new ResourceData(DataType.Analysis, new Analysis {Release = GetReleaseAddress("analysis/release"), 
+																		 Payment = GetMoney("analysis/payment"),
+																		 Consil  = GetResourceAddress($"analysis/consil")});
+			return null;
 		}
 
 		protected E GetEnum<E>(string paramenter, E def) where E : struct

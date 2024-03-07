@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 
 namespace Uccs.Net
 {
@@ -136,6 +138,58 @@ namespace Uccs.Net
 			}
 		}
 
+		public static void CompareBase()
+		{
+			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
+
+			var jo = new JsonSerializerOptions(JsonApiClient.Options);
+			jo.WriteIndented = true;
+
+			void compare<E, K>(Func<Sun, Table<E, K>> get) where E : class, ITableEntry<K>
+			{
+				var cs = Suns.Where(i => i.Mcv != null).Select(i => new {s = i, c = get(i).Clusters.OrderBy(i => i.Id, Bytes.Comparer).ToArray().AsEnumerable().GetEnumerator() }).ToArray();
+	
+				while(true)
+				{
+					var x = new bool[cs.Length];
+					for(int i=0; i<cs.Length; i++)
+						x[i] = cs[i].c.MoveNext();
+
+					if(x.All(i => !i))
+						break;
+					else if(!x.All(i => i))
+						Debugger.Break();
+	
+					var es = cs.Select(i => new {s = i.s, e = i.c.Current.Entries.OrderBy(i => i.Id.Ei).ToArray().AsEnumerable().GetEnumerator()}).ToArray();
+	
+					while(true)
+					{
+						var y = new bool[es.Length];
+						for(int i=0; i<es.Length; i++)
+							y[i] = es[i].e.MoveNext();
+	
+						if(y.All(i => !i))
+							break;
+						else if(!y.All(i => i))
+							Debugger.Break();
+	
+						var jes = es.Select(i => new {s = i.s, j = JsonSerializer.Serialize(i.e.Current, jo) }).GroupBy(i => i.j);
+						if(jes.Count() > 1)
+						{
+							foreach(var i in jes)
+							{
+								File.WriteAllText(Path.Join("A:\\", string.Join(',', i.Select(i => i.s.Settings.IP.ToString()))), i.Key);
+							}
+							
+							Debugger.Break();
+						}
+					}
+				}
+			}
+
+			compare(i => i.Mcv.Accounts);
+			compare(i => i.Mcv.Authors);
+		}
 	}
 
 	public class Settings

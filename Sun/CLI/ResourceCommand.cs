@@ -31,11 +31,19 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
+
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												GetEnum<ResourceFlags>("flags", ResourceFlags.None),
-												Has("data") ? new ResourceData(new BinaryReader(new MemoryStream(GetHexBytes("data")))) : null,
-												GetMoney("analysispayment", 0),
+												GetData(),
 												GetString("parent", false));
+				}
+
+				case "cr" : 
+				case "createrelation" : 
+				{	
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+					return new ResourceRelationCreation(ResourceAddress.Parse(Args.Nodes[1].Name), GetData());
 				}
 
 				case "u" : 
@@ -46,7 +54,7 @@ namespace Uccs.Sun.CLI
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
 					if(Has("flags"))		r.Change(GetEnum<ResourceFlags>("flags"));
-					if(Has("data"))			r.Change(GetHexBytes("data") is byte[] b && b.Length > 0 ? new ResourceData(new BinaryReader(new MemoryStream(b))) : null);
+					if(HasData())			r.Change(GetData());
 					if(Has("parent"))		r.Change(GetString("parent"));
 					if(Has("recursive"))	r.ChangeRecursive();
 

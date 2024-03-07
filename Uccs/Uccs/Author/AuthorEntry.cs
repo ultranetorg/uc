@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
 	public class AuthorEntry : Author, ITableEntry<string>
 	{
 		public string		Key => Name;
+		
+		[JsonIgnore]
 		public bool			New { get; set; }
 		
 		Mcv					Chain;

@@ -11,14 +11,6 @@ namespace Uccs.Net
 		Analysis = 0b_______1
 	}
 
-	public enum AnalysisResult : byte
-	{
-		None,
-		Negative,
-		Positive,
-		Vulnerable,
-		//NotEnoughPrepayment,
-	}
 
 	//public enum AnalysisStage : byte
 	//{
@@ -27,17 +19,6 @@ namespace Uccs.Net
 	//	HalfVotingReached,
 	//	Finished,
 	//}
-
-	public struct AnalyzerResult
-	{
-		public byte				AnalyzerId { get; set; }
-		public AnalysisResult	Result { get; set; }
-
-		public override string ToString()
-		{
-			return $"AnalyzerId={AnalyzerId}, Result={Result}";
-		}
-	}
 
 // 	public class Release : IBinarySerializable
 // 	{
