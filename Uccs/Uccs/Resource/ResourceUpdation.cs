@@ -84,8 +84,6 @@ namespace Uccs.Net
 
 				var r = a.AffectResource(resource.Resource);
 	
-				r.Flags	|= Flags&ResourceFlags.Sealed;
-
 				if(Flags.HasFlag(ResourceFlags.Child))
 				{
 					if(e.Flags.HasFlag(ResourceFlags.Child)) /// remove from existing parent
@@ -135,6 +133,8 @@ namespace Uccs.Net
 					else
 						r.Flags	&= ~ResourceFlags.Data;
 				}
+
+				r.Flags	|= Flags&ResourceFlags.Sealed;
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))
 				{

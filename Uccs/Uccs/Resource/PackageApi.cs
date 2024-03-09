@@ -27,20 +27,17 @@ namespace Uccs.Net
 				{
 					p.Resource.AddData(DataType.Package, a);
 					
-					var r = sun.ResourceHub.Find(a);
-	
-					if(r == null)
-					{
-						r.AddCompleted(LocalPackage.ManifestFile, Manifest);
+					var r = sun.ResourceHub.Find(a) ?? sun.ResourceHub.Add(a, DataType.Package);
+
+					r.AddCompleted(LocalPackage.ManifestFile, Manifest);
 			
-						if(Complete != null)
-							r.AddCompleted(LocalPackage.CompleteFile, Complete);
+					if(Complete != null)
+						r.AddCompleted(LocalPackage.CompleteFile, Complete);
 		
-						if(Incremental != null)
-							r.AddCompleted(LocalPackage.IncrementalFile, Incremental);
+					if(Incremental != null)
+						r.AddCompleted(LocalPackage.IncrementalFile, Incremental);
 										
-						r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
-					}
+					r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
 				}
 			}
 

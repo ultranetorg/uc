@@ -378,7 +378,7 @@ namespace Uccs.Net
 				m.Read(new BinaryReader(new MemoryStream(c.ReadFile("m"))));
 			}
 		
-			 return AddRelease(resource, sources, dependenciespath, m.History, m.History.LastOrDefault(), addresscreator, workflow);
+			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, workflow);
 		}
 
 		public Deployment Deploy(ResourceAddress package, Workflow workflow)
