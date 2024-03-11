@@ -7,16 +7,16 @@ namespace Uccs.Net
 {
 	public class AuthorBid : Operation//, IEquatable<AuthorBid>
 	{
-		public string			Name;
+		public string			Author;
 		public Money			Bid;
 		public string			Tld;
-		public override string	Description => $"{Bid} UNT for {Name}, {Tld}";
+		public override string	Description => $"{Bid} UNT for {Author}{(Tld != null ? $", {Tld}" : null)}";
 		
 		public override bool Valid
 		{
 			get
 			{
-				if(!Author.IsExclusive(Name))
+				if(!Net.Author.IsExclusive(Author))
 					return false;
 
 				if(Bid <= Money.Zero)
@@ -35,21 +35,21 @@ namespace Uccs.Net
 
 		public AuthorBid(string name, string tld, Money bid)
 		{
-			Name = name;
+			Author = name;
 			Tld = tld ?? "";
 			Bid = bid;
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Name	= reader.ReadUtf8();
+			Author	= reader.ReadUtf8();
 			Tld		= reader.ReadUtf8();
 			Bid		= reader.Read<Money>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.WriteUtf8(Name);
+			writer.WriteUtf8(Author);
 			writer.WriteUtf8(Tld);
 			writer.Write(Bid);
 		}
@@ -58,7 +58,7 @@ namespace Uccs.Net
 		{
 			writer.Write(Id);
 			writer.Write(Signer);
-			writer.WriteUtf8(Name);
+			writer.WriteUtf8(Author);
 			writer.WriteUtf8(Tld);
 			writer.Write(Bid);
 		}
@@ -70,7 +70,7 @@ namespace Uccs.Net
 			Transaction = new Transaction();
 			
 			Transaction.Signer	= reader.ReadAccount();
-			Name				= reader.ReadUtf8();
+			Author				= reader.ReadUtf8();
 			Tld					= reader.ReadUtf8();
 			Bid					= reader.Read<Money>();
 		}
@@ -88,9 +88,9 @@ namespace Uccs.Net
 
 		public void Check(Mcv mcv, Round round)
 		{
-			var a =  mcv.Authors.Find(Name, round.Id);
+			var a =  mcv.Authors.Find(Author, round.Id);
 
- 			if(a != null && !Author.IsExpired(a, round.ConsensusTime))
+ 			if(a != null && !Net.Author.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{
@@ -114,9 +114,9 @@ namespace Uccs.Net
 
 		public void ConsensusExecute(Round round)
 		{
-			var a = Affect(round, Name);
+			var a = Affect(round, Author);
 
- 			if(!Author.IsExpired(a, round.ConsensusTime))
+ 			if(!Net.Author.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{

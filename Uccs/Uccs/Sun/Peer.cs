@@ -411,6 +411,10 @@ namespace Uccs.Net
 				{
 					i = WaitHandle.WaitAny(new WaitHandle[] {rq.Event, Sun.Workflow.Cancellation.WaitHandle}, SunGlobals.DisableTimeouts ? Timeout.Infinite : 60*1000);
 				}
+				catch(ObjectDisposedException)
+				{
+					throw new OperationCanceledException();
+				}
 				finally
 				{
 					rq.Event.Close();
@@ -442,7 +446,7 @@ namespace Uccs.Net
 						throw rq.Response.Error;
 					}
 	 			}
-		 		if(i == 1)
+		 		else if(i == 1)
 					throw new OperationCanceledException();
 				else
 		 			throw new NodeException(NodeError.Timeout);

@@ -315,9 +315,9 @@ namespace Uccs.Net
 														Task.Run(() =>	{
 	 																		try
 	 																		{
-	 																			var result = Dns.QueryAsync(ab.Name + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
+	 																			var result = Dns.QueryAsync(ab.Author + '.' + ab.Tld, QueryType.TXT, QueryClass.IN, Workflow.Cancellation);
 	 															
-	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Name + '.' + ab.Tld + '.');
+	 																			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == ab.Author + '.' + ab.Tld + '.');
 	 		
 	 																			if(txt != null && txt.Text.Any(i => AccountAddress.Parse(i) == o.Transaction.Signer))
 	 																			{
