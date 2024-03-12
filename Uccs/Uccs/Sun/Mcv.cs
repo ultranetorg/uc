@@ -623,10 +623,10 @@ namespace Uccs.Net
 				foreach(var o in t.Operations)
 					o.Error = null;
 
-			round.Members				= round.Id == 0 ? new()						: round.Previous.Members;
-			round.Funds					= round.Id == 0 ? new()						: round.Previous.Funds;
-			round.Emissions				= round.Id == 0 ? new()						: round.Previous.Emissions;
-			round.DomainBids			= round.Id == 0 ? new()						: round.Previous.DomainBids;
+			round.Members				= round.Id == 0 ? new()							: round.Previous.Members;
+			round.Funds					= round.Id == 0 ? new()							: round.Previous.Funds;
+			round.Emissions				= round.Id == 0 ? new()							: round.Previous.Emissions;
+			round.DomainBids			= round.Id == 0 ? new()							: round.Previous.DomainBids;
 			round.RentPerByte			= round.Id == 0 ? Zone.RentPerBytePerDayMinimum	: round.Previous.RentPerByte;
 
 		start: 
@@ -817,9 +817,9 @@ namespace Uccs.Net
 				round.Last365BaseDeltas.RemoveAt(0);
 				round.Last365BaseDeltas.Add(s - round.PreviousDayBaseSize);
 
-				if(round.Last365BaseDeltas.Sum() > 100L*1024*1024*1024)
+				if(round.Last365BaseDeltas.Sum() > Zone.TargetBaseGrowth)
 				{
-					round.RentPerByte = Zone.RentPerBytePerDayMinimum * round.Last365BaseDeltas.Sum() / (100L*1024*1024*1024);
+					round.RentPerByte = Zone.RentPerBytePerDayMinimum * round.Last365BaseDeltas.Sum() / Zone.TargetBaseGrowth;
 				}
 
 				round.PreviousDayBaseSize = s;

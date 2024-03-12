@@ -22,6 +22,7 @@ namespace Uccs.Net
 		public Money			BailMin											= 1000;
 		public int				MembersLimit									= 1000;
 		public virtual int		AnalizerMinimumVotes							=> MembersLimit * 2/3;
+		public long				TargetBaseGrowth									= 100L*1024*1024*1024;
 		public Money			RentPerBytePerDayMinimum						= new Money(0.000_001);
 		public int				TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
 		public int				TransactionsPerVoteAllowableOverflowMuliplier	= 10;
