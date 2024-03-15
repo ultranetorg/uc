@@ -33,8 +33,7 @@ namespace Uccs.Net
 
 		public AuthorEntry Clone()
 		{
-			return new AuthorEntry(Chain){
-											Id = Id,
+			return new AuthorEntry(Chain) {	Id = Id,
 											Name = Name,
 											Owner = Owner,
 											Expiration = Expiration,
@@ -46,8 +45,7 @@ namespace Uccs.Net
 											Resources = Resources,
 											NextResourceId = NextResourceId,
 											SpaceReserved = SpaceReserved,
-											SpaceUsed = SpaceUsed
-										};
+											SpaceUsed = SpaceUsed };
 		}
 
 		public void WriteMain(BinaryWriter w)
@@ -101,7 +99,9 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				r = new Resource{Address = new ResourceAddress(Name, resource), Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++), New = true};
+				r = new Resource {Address = new ResourceAddress(Name, resource),
+								  Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++),
+								  New = true};
 				Resources = Resources.Append(r).ToArray();
 			}
 

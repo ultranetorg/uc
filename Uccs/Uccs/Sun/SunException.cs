@@ -19,6 +19,7 @@ namespace Uccs.Net
 		Connectivity,
 		Integrity,
 		Internal,
+		AlreadyRunning,
 		Timeout,
 		NoIP,
 		NotBase,

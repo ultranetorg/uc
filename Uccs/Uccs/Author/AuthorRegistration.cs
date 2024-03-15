@@ -5,12 +5,12 @@ namespace Uccs.Net
 {
 	public class AuthorRegistration : Operation
 	{
-		public string				Name {get; set;}
+		public string				Author {get; set;}
 		public byte					Years {get; set;}
 
-		public bool					Exclusive => AuthorEntry.IsExclusive(Name); 
-		public override string		Description => $"{Name} for {Years} years";
-		public override bool		Valid => Author.Valid(Name) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
+		public bool					Exclusive => AuthorEntry.IsExclusive(Author); 
+		public override string		Description => $"{Author} for {Years} years";
+		public override bool		Valid => Net.Author.Valid(Author) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
 		
 		//public static Coin			GetCost(Coin factor, int years) => Chainbase.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
 
@@ -20,30 +20,30 @@ namespace Uccs.Net
 
 		public AuthorRegistration(string author, byte years)
 		{
-			if(!Author.Valid(author))
+			if(!Net.Author.Valid(author))
 				throw new ArgumentException("Invalid Author name/title");
 
-			Name = author;
+			Author = author;
 			Years = years;
 		}
 
 		public override void ReadConfirmed(BinaryReader r)
 		{
-			Name	= r.ReadUtf8();
+			Author	= r.ReadUtf8();
 			Years	= r.ReadByte();
 		}
 
 		public override void WriteConfirmed(BinaryWriter w)
 		{
-			w.WriteUtf8(Name);
+			w.WriteUtf8(Author);
 			w.Write(Years);
 		}
 
 		public override void Execute(Mcv chain, Round round)
 		{
-			var e = chain.Authors.Find(Name, round.Id);
+			var e = chain.Authors.Find(Author, round.Id);
 						
-			if(Author.CanRegister(Name, e, round.ConsensusTime, Transaction.Signer))
+			if(Net.Author.CanRegister(Author, e, round.ConsensusTime, Transaction.Signer))
 			{
 				if(e?.Owner == null)
 				{
@@ -52,7 +52,7 @@ namespace Uccs.Net
 				}
 
 
-				var a = Affect(round, Name);
+				var a = Affect(round, Author);
 				
 				a.LastWinner	= null;
 				a.Owner			= Signer;

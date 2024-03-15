@@ -41,17 +41,20 @@ namespace Uccs.Net
 
 	public class ResourceMeta : IBinarySerializable
 	{
+		public int				Id;
 		public EntityId			Owner;
 		public ResourceData		Data;
 
 		public void Write(BinaryWriter writer)
 		{
+			writer.Write7BitEncodedInt(Id);
 			writer.Write(Owner);
 			writer.Write(Data);
 		}
 
 		public void Read(BinaryReader reader)
 		{
+			Id		= reader.Read7BitEncodedInt();
 			Owner	= reader.Read<EntityId>();
 			Data	= reader.Read<ResourceData>();
 		}
@@ -71,6 +74,7 @@ namespace Uccs.Net
 		public Time					Updated { get; set; }
 		public int[]				Resources { get; set; } = {};
 		public ResourceMeta[]		Metas { get; set; }
+		public int					NextMetaId { get; set; }
 
 		[JsonIgnore]
 		public bool					New;
@@ -90,7 +94,7 @@ namespace Uccs.Net
 							Updated = Updated,
 							Resources = Resources,
 							Metas = Metas?.ToArray(),
-							};
+							NextMetaId = NextMetaId};
 		}
 
 		public void Write(BinaryWriter writer)
@@ -103,6 +107,7 @@ namespace Uccs.Net
 		
 			writer.Write(Resources, i => writer.Write7BitEncodedInt(i));
 			writer.Write(Metas);
+			writer.Write7BitEncodedInt(NextMetaId);
 		}
 
 		public void Read(BinaryReader reader)
@@ -115,6 +120,7 @@ namespace Uccs.Net
 
 			Resources = reader.ReadArray(() => reader.Read7BitEncodedInt());
 			Metas = reader.ReadArray<ResourceMeta>();
+			NextMetaId = reader.Read7BitEncodedInt();
 		}
 
 		public ResourceMeta AffectMeta(EntityId owner, ResourceData data)
@@ -135,7 +141,7 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				m = new ResourceMeta {Owner = owner, Data = data};
+				m = new ResourceMeta {Owner = owner, Data = data, Id = NextMetaId++};
 				Metas = Metas.Append(m).ToArray();
 			}
 

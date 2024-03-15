@@ -7,11 +7,10 @@ namespace Uccs.Net
 	public class AnalysisResultUpdation : Operation
 	{
 		public ResourceAddress	Resource { get; set; }
-		public ReleaseAddress	Release { get; set; }
-		public ResourceAddress	Consil { get; set; }
+		public int				Meta { get; set; }
 		public AnalysisResult	Result { get; set; }
 		
-		public override string	Description => $"Resource={Resource}, Release={Release}, Consil={Consil}, Result={Result}";
+		public override string	Description => $"Resource={Resource}, Meta={Meta}, Result={Result}";
 		public override bool	Valid => true;
 
 		public AnalysisResultUpdation()
@@ -21,16 +20,14 @@ namespace Uccs.Net
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Resource);
-			writer.Write(Release);
-			writer.Write(Consil);
+			writer.Write7BitEncodedInt(Meta);
 			writer.Write((byte)Result);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource = reader.Read<ResourceAddress>();
-			Release	 = reader.Read<ReleaseAddress>(ReleaseAddress.FromType);
-			Consil	 = reader.Read<ResourceAddress>();
+			Meta	 = reader.Read7BitEncodedInt();
 			Result	 = (AnalysisResult)reader.ReadByte();
 		}
 
@@ -39,7 +36,7 @@ namespace Uccs.Net
 			if(Require(round, Resource, out var a, out var r) == false)
 				return;
 
-			var rr = r.Metas.FirstOrDefault(i => i.Data.Interpretation is Analysis an && an.Release == Release && an.Consil == Consil);
+			var rr = r.Metas.FirstOrDefault(i => i.Data.Interpretation is Analysis an && i.Id == Meta);
 
 			if(rr == null)
 			{

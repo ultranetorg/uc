@@ -87,7 +87,7 @@ namespace Uccs.Net
 		readonly DbOptions				DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																			.SetCreateMissingColumnFamilies(true);
 
-		public Guid						Nuid;
+		public Guid						Netid;
 		public IPAddress				IP = IPAddress.None;
 		public bool						IsNodeOrUserRun => MainThread != null;
 		public bool						IsClient => ListeningThread == null;
@@ -220,6 +220,20 @@ namespace Uccs.Net
 										}
 									});
 		}
+
+		public void Run(Xon xon)
+		{
+			if(xon.Has("api"))
+				RunApi();
+			
+			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
+
+			if(xon.Has("peer"))
+				RunNode((xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
+
+			if(xon.Has("seed"))
+				RunSeed();
+		}
 		
 		public void RunApi()
 		{
@@ -228,6 +242,9 @@ namespace Uccs.Net
 				Environment.ExitCode = -1;
 				throw new RequirementException("Windows XP SP2, Windows Server 2003 or higher is required to use the application.");
 			}
+
+			if(ApiServer != null)
+				throw new NodeException(NodeError.AlreadyRunning);
 
 			lock(Lock)
 			{
@@ -243,22 +260,11 @@ namespace Uccs.Net
 			ApiStarted?.Invoke(this);
 		}
 
-		public void Run(Xon xon)
-		{
-			if(xon.Has("api"))
-				RunApi();
-			
-			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
-
-			if(xon.Has("peer"))
-				RunNode((xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
-
-			if(xon.Has("seed"))
-				RunSeed();
-		}
-
 		public void RunNode(Role roles)
 		{
+			if(Netid != Guid.Empty)
+				throw new NodeException(NodeError.AlreadyRunning);
+
 			Workflow.Log?.Report(this, $"Ultranet Node {Version}");
 			Workflow.Log?.Report(this, $"Runtime: {Environment.Version}");	
 			Workflow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
@@ -268,7 +274,7 @@ namespace Uccs.Net
 			if(SunGlobals.Any)
 				Workflow.Log?.ReportWarning(this, $"Dev: {SunGlobals.AsString}");
 
-			Nuid = Guid.NewGuid();
+			Netid = Guid.NewGuid();
 
 			if(Settings.Generators.Any())
 			{
@@ -420,6 +426,9 @@ namespace Uccs.Net
 
 		public void RunSeed()
 		{
+			if(ResourceHub != null || PackageHub != null)
+				throw new NodeException(NodeError.AlreadyRunning);
+
 			ResourceHub = new ResourceHub(this, Zone, System.IO.Path.Join(Settings.Profile, "Releases"));
 			PackageHub = new PackageHub(this, Settings.Packages);
 		}
@@ -681,7 +690,7 @@ namespace Uccs.Net
 			h.Versions		= Versions;
 			h.Zone			= Zone.Name;
 			h.IP			= ip;
-			h.Nuid			= Nuid;
+			h.Nuid			= Netid;
 			h.Peers			= peers;
 			h.Permanent		= permanent;
 			//h.Generators	= Members;
@@ -749,7 +758,7 @@ namespace Uccs.Net
 						goto failed;
 					}
 
-					if(h.Nuid == Nuid)
+					if(h.Nuid == Netid)
 					{
 						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"To {peer.IP}. It's me" );
 						IgnoredIPs.Add(peer.IP);
@@ -885,7 +894,7 @@ namespace Uccs.Net
 						goto failed;
 					}
 
-					if(h.Nuid == Nuid)
+					if(h.Nuid == Netid)
 					{
 						Workflow.Log?.Report(this, $"{Tag.P} {Tag.E} {Tag.ERR}", $"From {ip}. It's me");
 						if(peer != null)

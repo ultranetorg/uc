@@ -41,9 +41,10 @@ namespace Uccs.Net
 
 		public override abstract bool	Equals(object other);
   		public abstract bool			Equals(ReleaseAddress other);
+		public override abstract int	GetHashCode();
 
-	//	public const char				S = ':';
-	
+		//	public const char				S = ':';
+
 		public override string ToString()
 		{
 			return null;
