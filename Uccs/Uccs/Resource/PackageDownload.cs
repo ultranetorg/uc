@@ -20,9 +20,12 @@ namespace Uccs.Net
 			DependenciesRecursiveCount		= download.DependenciesRecursiveCount;
 			DependenciesRecursiveSuccesses	= download.DependenciesRecursiveSuccesses;
 	
-			CurrentFiles = download.Package.Release?.Files	.Where(i => i.Activity is FileDownload)
-															.Select(i => new FileDownloadProgress(i.Activity as FileDownload))
-															.ToArray();
+			lock(download.Package.Hub.Sun.ResourceHub.Lock)
+			{
+				CurrentFiles = download.Package.Release?.Files	.Where(i => i.Activity is FileDownload)
+																.Select(i => new FileDownloadProgress(i.Activity as FileDownload))
+																.ToArray();
+			}
 				
 			Dependencies = download.Dependencies.Where(i => i.Package.Activity is PackageDownload)
 												.Select(i => new PackageDownloadProgress(i.Package.Activity as PackageDownload))

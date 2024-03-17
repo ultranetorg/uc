@@ -76,6 +76,10 @@ namespace Uccs.Net
 											}
 										}
 
+		public override string ToString()
+		{
+			return $"{Release}, Payment={Payment}, Consil={Consil}, Results={Results.Length}";
+		}
 
 		public void Read(BinaryReader reader)
 		{

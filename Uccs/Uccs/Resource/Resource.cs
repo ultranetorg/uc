@@ -41,9 +41,9 @@ namespace Uccs.Net
 
 	public class ResourceMeta : IBinarySerializable
 	{
-		public int				Id;
-		public EntityId			Owner;
-		public ResourceData		Data;
+		public int				Id { get; set; }
+		public EntityId			Owner { get; set; }
+		public ResourceData		Data { get; set; }
 
 		public void Write(BinaryWriter writer)
 		{
@@ -61,7 +61,7 @@ namespace Uccs.Net
 
 		public ResourceMeta Clone()
 		{
-			return new ResourceMeta {Owner = Owner, Data = Data.Clone()};
+			return new ResourceMeta {Id = Id, Owner = Owner, Data = Data.Clone()};
 		}
 	}
 

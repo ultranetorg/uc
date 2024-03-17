@@ -14,7 +14,7 @@ namespace Uccs.Net
 
 		public LocalResource	Resource;
 		public LocalRelease		Release => Resource.Last?.Interpretation is ReleaseAddress a ? Hub.Sun.ResourceHub.Find(a) : null;
-		PackageHub				Hub;
+		public PackageHub		Hub;
 		Manifest				_Manifest;
 		public object			Activity;
 

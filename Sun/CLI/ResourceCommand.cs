@@ -72,6 +72,22 @@ namespace Uccs.Sun.CLI
 					return r;
 				}
 
+				case "me" :
+		   		case "metaentity" :
+				{
+					Workflow.CancelAfter(RdcQueryTimeout);
+
+					var r = Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					
+					Dump(	r.Resource.Metas, 
+							new string[] {"#", "Owner", "Data"}, 
+							new Func<ResourceMeta, string>[]{	i => i.Id.ToString(),
+																i => i.Owner.ToString(),
+																i => i.Data.Interpretation.ToString() });
+
+					return r;
+				}
+
 				case "ls" : 
 				case "list" : 
 				{	

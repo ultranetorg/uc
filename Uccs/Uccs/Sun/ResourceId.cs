@@ -6,9 +6,9 @@ namespace Uccs.Net
 {
 	public struct ResourceId : IBinarySerializable, IEquatable<ResourceId>, IComparable<ResourceId>
 	{
-		public byte[]	Ci { get; private set; }
-		public int		Ai { get; private set; }
-		public int		Ri { get; private set; }
+		public byte[]	Ci { get; set; }
+		public int		Ai { get; set; }
+		public int		Ri { get; set; }
 		byte[]			_Serial;
 
 		public ResourceId(byte[] ci, int ai, int ri)

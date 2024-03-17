@@ -115,6 +115,7 @@ namespace Uccs.Net
 			Options.Converters.Add(new XonDocumentJsonConverter());
 			Options.Converters.Add(new BigIntegerJsonConverter());
 			Options.Converters.Add(new OperationJsonConverter());
+			Options.Converters.Add(new ResourceDataJsonConverter());
 
 			Options.TypeInfoResolver = new PolymorphicTypeResolver();
 		}

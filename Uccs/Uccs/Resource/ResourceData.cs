@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Uccs.Net
 {
@@ -254,4 +256,18 @@ namespace Uccs.Net
 			}
 		}
 	}
+
+	public class ResourceDataJsonConverter : JsonConverter<ResourceData>
+	{
+		public override ResourceData Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		{
+			return new ResourceData(new BinaryReader(new MemoryStream(reader.GetString().FromHex())));
+		}
+
+		public override void Write(Utf8JsonWriter writer, ResourceData value, JsonSerializerOptions options)
+		{
+			writer.WriteStringValue(value.Hex);
+		}
+	}
+
 }
