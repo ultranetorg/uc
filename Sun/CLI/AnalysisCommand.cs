@@ -30,7 +30,7 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					return new AnalysisResultUpdation {Resource = GetResourceAddress("resource"), 
-													   Meta = (int)GetLong("meta"), 
+													   Analysis = GetResourceAddress("analysis"), 
 													   Result = Enum.Parse<AnalysisResult>(GetString("result"))};;
 				}
 // 

@@ -14,7 +14,7 @@ namespace Uccs.Net
 		public bool			New { get; set; }
 		
 		Mcv					Chain;
-		List<Resource>		AffectedResources = new();
+		public List<Resource>		AffectedResources = new();
 		public Resource[]	Resources { get; set; } = {};
 
 		public AuthorEntry()

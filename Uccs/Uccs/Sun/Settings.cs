@@ -178,7 +178,7 @@ namespace Uccs.Net
 						{
 							foreach(var i in jes)
 							{
-								File.WriteAllText(Path.Join("A:\\", string.Join(',', i.Select(i => i.s.Settings.IP.ToString()))), i.Key);
+								File.WriteAllText(Path.Join("A:\\", string.Join(',', i.Select(i => i.s.Settings.IP.GetAddressBytes()[3].ToString()))), i.Key);
 							}
 							
 							Debugger.Break();

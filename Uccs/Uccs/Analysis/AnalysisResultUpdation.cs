@@ -7,10 +7,10 @@ namespace Uccs.Net
 	public class AnalysisResultUpdation : Operation
 	{
 		public ResourceAddress	Resource { get; set; }
-		public int				Meta { get; set; }
+		public ResourceAddress	Analysis { get; set; }
 		public AnalysisResult	Result { get; set; }
 		
-		public override string	Description => $"Resource={Resource}, Meta={Meta}, Result={Result}";
+		public override string	Description => $"Resource={Resource}, Analysis={Analysis}, Result={Result}";
 		public override bool	Valid => true;
 
 		public AnalysisResultUpdation()
@@ -20,31 +20,26 @@ namespace Uccs.Net
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Resource);
-			writer.Write7BitEncodedInt(Meta);
+			writer.Write(Analysis);
 			writer.Write((byte)Result);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource = reader.Read<ResourceAddress>();
-			Meta	 = reader.Read7BitEncodedInt();
+			Analysis = reader.Read<ResourceAddress>();
 			Result	 = (AnalysisResult)reader.ReadByte();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Require(round, Resource, out var a, out var r) == false)
+			if(Require(round, null, Resource, out var a, out var r) == false)
 				return;
 
-			var rr = r.Metas.FirstOrDefault(i => i.Data.Interpretation is Analysis an && i.Id == Meta);
-
-			if(rr == null)
-			{
-				Error = NotFound;
+			if(Require(round, null, Analysis, out var aa, out var ar) == false)
 				return;
-			}
 
-			var c = mcv.Authors.FindResource((rr.Data.Interpretation as Analysis).Consil, round.Id)?.Data.Interpretation as Consil;
+			var c = mcv.Authors.FindResource((ar.Data.Interpretation as Analysis).Consil, round.Id)?.Data.Interpretation as Consil;
 
 			if(c == null)
 			{
@@ -62,12 +57,14 @@ namespace Uccs.Net
 
 			a = Affect(round, Resource.Author);
 			r = a.AffectResource(Resource.Resource);
-			rr = r.AffectMeta(rr.Owner, rr.Data);
 
-			var an = rr.Data.Interpretation as Analysis;
-			an.Results ??= [];
+			aa = Affect(round, Analysis.Author);
+			ar = a.AffectResource(Analysis.Resource);
+
+			var an = ar.Data.Interpretation as Analysis;
 			 
 			var j = Array.FindIndex(an.Results, i => i.Analyzer == aix);
+			an.Results ??= [];
 			
  			if(j == -1)
 			{

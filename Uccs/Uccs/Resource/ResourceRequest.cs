@@ -1,8 +1,8 @@
 ﻿namespace Uccs.Net
 {
-	public class ResourceRequest : RdcRequest
+	public class ResourceByNameRequest : RdcRequest
 	{
-		public ResourceAddress		Resource { get; set; }
+		public ResourceAddress	Name { get; set; }
 
 		public override RdcResponse Execute(Sun sun)
 		{
@@ -10,17 +10,42 @@
 			{	
 				RequireBase(sun);
  			
-				var r = sun.Mcv.Authors.FindResource(Resource, sun.Mcv.LastConfirmedRound.Id);
+				var r = sun.Mcv.Authors.FindResource(Name, sun.Mcv.LastConfirmedRound.Id);
 			
 				if(r == null)
 					throw new EntityException(EntityError.NotFound);
 				
-				return new ResourceResponse {Resource = r};
+				return new ResourceByNameResponse {Resource = r};
+			}
+		}
+	}
+
+	public class ResourceByIdRequest : RdcRequest
+	{
+		public ResourceId	ResourceId { get; set; }
+
+		public override RdcResponse Execute(Sun sun)
+		{
+ 			lock(sun.Lock)
+			{	
+				RequireBase(sun);
+ 			
+				var r = sun.Mcv.Authors.FindResource(ResourceId, sun.Mcv.LastConfirmedRound.Id);
+			
+				if(r == null)
+					throw new EntityException(EntityError.NotFound);
+				
+				return new ResourceByIdResponse {Resource = r};
 			}
 		}
 	}
 		
-	public class ResourceResponse : RdcResponse
+	public class ResourceByNameResponse : RdcResponse
+	{
+		public Resource Resource { get; set; }
+	}
+		
+	public class ResourceByIdResponse : RdcResponse
 	{
 		public Resource Resource { get; set; }
 	}

@@ -11,6 +11,10 @@ namespace Uccs.Net
 		public int		Ri { get; set; }
 		byte[]			_Serial;
 
+		public ResourceId()
+		{
+		}
+
 		public ResourceId(byte[] ci, int ai, int ri)
 		{
 			Ci = ci;

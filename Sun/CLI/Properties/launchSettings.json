@@ -33,9 +33,9 @@
       "commandName": "Project",
       "commandLineArgs": "node attach http://127.0.0.101:3900 zone=Localzone profile=a:\\UOTMP\\CLI-101"
     },
-    "node run peer chain": {
+    "test": {
       "commandName": "Project",
-      "commandLineArgs": "node run peer chain"
+      "commandLineArgs": "node send http://127.0.0.100:3900 accesskey=\"\" net peers"
     }
   }
 }

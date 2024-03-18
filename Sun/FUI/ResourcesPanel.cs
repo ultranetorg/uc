@@ -56,7 +56,7 @@ namespace Uccs.Sun.FUI
 					i.SubItems.Add(r.Address.ToString());
 					i.SubItems.Add(string.Join(",", Enum.GetValues<ResourceFlags>().Where(i => i != ResourceFlags.None && ((i & r.Flags) != 0))));
 					i.SubItems.Add(r.Data.ToString());
-					i.SubItems.Add(r.Resources.Length.ToString());
+					i.SubItems.Add(r.Links?.Length.ToString());
 
 					NetworkReleases.Items.Add(i);
 				}

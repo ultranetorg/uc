@@ -48,14 +48,32 @@ namespace Uccs.Net
  			return FindEntry(resource.Author)?.Resources.FirstOrDefault(i => i.Address.Resource == resource.Resource);
  		}
 
+		
+ 		public Resource FindResource(ResourceId id, int ridmax)
+ 		{
+			//if(0 < ridmax && ridmax < Database.Tail.Last().Id - 1)
+			//	throw new IntegrityException("maxrid works inside pool only");
+
+ 			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
+			{
+				var x = r.AffectedAuthors.SelectMany(i => i.Value.AffectedResources).FirstOrDefault(i => i.Id == id);
+
+				if(x != null)
+					return x;
+			}
+ 		
+ 			return FindEntry(new EntityId(id.Ci, id.Ai))?.Resources.FirstOrDefault(i => i.Id.Ri == id.Ri);
+ 		}
+
+
  		public IEnumerable<Resource> EnumerateSubresources(ResourceAddress resource, int ridmax)
  		{
 			var a = Find(resource.Author, ridmax);
 			var r = FindResource(resource, ridmax);
 
-			foreach(var i in r.Resources)
+			foreach(var i in r.Links)
 			{
-				yield return a.Resources.First(j => j.Id.Ri == i);
+				yield return a.Resources.First(j => j.Id == i);
 			}
  		}
 	}

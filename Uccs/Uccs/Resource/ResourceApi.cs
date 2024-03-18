@@ -40,7 +40,7 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, Workflow workflow)
 		{
-			var r = sun.Call(i => i.Request<ResourceResponse>(new ResourceRequest {Resource = Address}), workflow).Resource;
+			var r = sun.Call(i => i.Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = Address}), workflow).Resource;
 
 			IIntegrity itg;
 

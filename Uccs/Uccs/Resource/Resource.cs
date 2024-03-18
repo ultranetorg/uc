@@ -11,7 +11,7 @@ namespace Uccs.Net
 	{
 		None			= 0, 
 		Sealed			= 0b_______1, 
-		Child			= 0b______10, 
+		//Child			= 0b______10, 
 		Data			= 0b_____100, 
 	}
 
@@ -39,31 +39,31 @@ namespace Uccs.Net
 		NotNullData		= 0b_____________10,
 	}
 
-	public class ResourceMeta : IBinarySerializable
-	{
-		public int				Id { get; set; }
-		public EntityId			Owner { get; set; }
-		public ResourceData		Data { get; set; }
-
-		public void Write(BinaryWriter writer)
-		{
-			writer.Write7BitEncodedInt(Id);
-			writer.Write(Owner);
-			writer.Write(Data);
-		}
-
-		public void Read(BinaryReader reader)
-		{
-			Id		= reader.Read7BitEncodedInt();
-			Owner	= reader.Read<EntityId>();
-			Data	= reader.Read<ResourceData>();
-		}
-
-		public ResourceMeta Clone()
-		{
-			return new ResourceMeta {Id = Id, Owner = Owner, Data = Data.Clone()};
-		}
-	}
+// 	public class ResourceMeta : IBinarySerializable
+// 	{
+// 		public int				Id { get; set; }
+// 		public EntityId			Owner { get; set; }
+// 		public ResourceData		Data { get; set; }
+// 
+// 		public void Write(BinaryWriter writer)
+// 		{
+// 			writer.Write7BitEncodedInt(Id);
+// 			writer.Write(Owner);
+// 			writer.Write(Data);
+// 		}
+// 
+// 		public void Read(BinaryReader reader)
+// 		{
+// 			Id		= reader.Read7BitEncodedInt();
+// 			Owner	= reader.Read<EntityId>();
+// 			Data	= reader.Read<ResourceData>();
+// 		}
+// 
+// 		public ResourceMeta Clone()
+// 		{
+// 			return new ResourceMeta {Id = Id, Owner = Owner, Data = Data.Clone()};
+// 		}
+// 	}
 
 	public class Resource : IBinarySerializable
 	{
@@ -72,17 +72,17 @@ namespace Uccs.Net
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }
-		public int[]				Resources { get; set; } = {};
-		public ResourceMeta[]		Metas { get; set; }
-		public int					NextMetaId { get; set; }
+		public ResourceId[]			Links { get; set; }
+		//public ResourceMeta[]		Metas { get; set; }
+		//public int				NextMetaId { get; set; }
 
 		[JsonIgnore]
 		public bool					New;
-		List<ResourceMeta>			AffectedMetas = new();
+		List<ResourceId>			AffectedLinks = new();
 
 		public override string ToString()
 		{
-			return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Resources={{{Resources.Length}}}";
+			return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Links={{{Links.Length}}}";
 		}
 
 		public Resource Clone()
@@ -90,11 +90,10 @@ namespace Uccs.Net
 			return new() {	Id = Id,
 							Address	= Address, 
 							Flags = Flags,
-							Data = Data,
+							Data = Data?.Clone(),
 							Updated = Updated,
-							Resources = Resources,
-							Metas = Metas?.ToArray(),
-							NextMetaId = NextMetaId};
+							Links = Links,
+							};
 		}
 
 		public void Write(BinaryWriter writer)
@@ -105,9 +104,9 @@ namespace Uccs.Net
 			if(Flags.HasFlag(ResourceFlags.Data))
 				writer.Write(Data);
 		
-			writer.Write(Resources, i => writer.Write7BitEncodedInt(i));
-			writer.Write(Metas);
-			writer.Write7BitEncodedInt(NextMetaId);
+			writer.Write(Links);
+			//writer.Write(Metas);
+			//writer.Write7BitEncodedInt(NextMetaId);
 		}
 
 		public void Read(BinaryReader reader)
@@ -118,36 +117,30 @@ namespace Uccs.Net
 			if(Flags.HasFlag(ResourceFlags.Data))
 				Data = reader.Read<ResourceData>();
 
-			Resources = reader.ReadArray(() => reader.Read7BitEncodedInt());
-			Metas = reader.ReadArray<ResourceMeta>();
-			NextMetaId = reader.Read7BitEncodedInt();
+			Links = reader.ReadArray<ResourceId>();
+			//Metas = reader.ReadArray<ResourceMeta>();
+			//NextMetaId = reader.Read7BitEncodedInt();
 		}
 
-		public ResourceMeta AffectMeta(EntityId owner, ResourceData data)
+		public void AffectLink(ResourceId id)
 		{
-			var m = AffectedMetas.Find(i => i.Owner == owner && i.Data == data);
+			var i = AffectedLinks.IndexOf(id);
 			
-			if(m != null)
-				return m;
+			if(i != -1)
+				return;
 
-			var i = Array.FindIndex(Metas, i => i.Owner == owner && i.Data == data);
+			Links ??= [];
 
 			if(i != -1)
 			{
-				Metas = Metas.ToArray();
-
-				m = Metas[i].Clone();
-				Metas[i] = m;
+				Links = Links.ToArray();
 			} 
 			else
 			{
-				m = new ResourceMeta {Owner = owner, Data = data, Id = NextMetaId++};
-				Metas = Metas.Append(m).ToArray();
+				Links = Links.Append(Id).ToArray();
 			}
 
-			AffectedMetas.Add(m);
-
-			return m;
+			AffectedLinks.Add(id);
 		}
 	}
 }

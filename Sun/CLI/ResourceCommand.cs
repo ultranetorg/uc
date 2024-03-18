@@ -33,16 +33,15 @@ namespace Uccs.Sun.CLI
 
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
 												GetEnum<ResourceFlags>("flags", ResourceFlags.None),
-												GetData(),
-												GetString("parent", false));
+												GetData());
 				}
 
-				case "cm" : 
-				case "createmeta" : 
+				case "cl" : 
+				case "createlink" : 
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceMetaCreation(ResourceAddress.Parse(Args.Nodes[1].Name), GetData());
+					return new ResourceLinkCreation(ResourceAddress.Parse(Args.Nodes[1].Name), GetResourceAddress("to"));
 				}
 
 				case "u" : 
@@ -54,7 +53,6 @@ namespace Uccs.Sun.CLI
 
 					if(Has("flags"))		r.Change(GetEnum<ResourceFlags>("flags"));
 					if(HasData())			r.Change(GetData());
-					if(Has("parent"))		r.Change(GetString("parent"));
 					if(Has("recursive"))	r.ChangeRecursive();
 
 					return r;
@@ -65,31 +63,37 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					Dump(r.Resource);
 
 					return r;
 				}
 
-				case "me" :
-		   		case "metaentity" :
+				case "lle" :
+		   		case "listlinkentities" :
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
-					Dump(	r.Resource.Metas, 
-							new string[] {"#", "Owner", "Data"}, 
-							new Func<ResourceMeta, string>[]{	i => i.Id.ToString(),
-																i => i.Owner.ToString(),
-																i => i.Data.Interpretation.ToString() });
+					//var l = r.Resource.Links.Select(i => Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}))
+
+					//Dump(	r.Resource.Links, 
+					//		new string[] {"Resource"}, 
+					//		new Func<ResourceId, string>[] {i => i.ToString()});
+
+					Dump(	r.Resource.Links.Select(i => Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i}).Resource), 
+							new string[] {"#", "Address", "Data"}, 
+							new Func<Resource, string>[]{	i => i.Id.ToString(),
+															i => i.Address.ToString(),
+															i => i.Data.Interpretation.ToString() });
 
 					return r;
 				}
 
-				case "ls" : 
-				case "list" : 
+				case "sl" : 
+				case "searchlocal" : 
 				{	
 					Workflow.CancelAfter(RdcQueryTimeout);
 

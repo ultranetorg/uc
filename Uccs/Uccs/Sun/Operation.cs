@@ -19,7 +19,7 @@ namespace Uccs.Net
 		CandidacyDeclaration, 
 		Emission, UntTransfer, 
 		AuthorBid, AuthorRegistration, AuthorTransfer,
-		ResourceCreation, ResourceUpdation, ResourceMetaCreation,
+		ResourceCreation, ResourceUpdation, ResourceLinkCreation,
 		AnalysisResultUpdation
 	}
 
@@ -144,7 +144,7 @@ namespace Uccs.Net
 			return round.AffectAuthor(author);
 		}
 
-		public bool RequireAuthor(Round round, string name, out AuthorEntry author)
+		public bool RequireAuthor(Round round, AccountAddress signer, string name, out AuthorEntry author)
 		{
 			author = round.Mcv.Authors.Find(name, round.Id);
 
@@ -160,14 +160,20 @@ namespace Uccs.Net
 				return false;
 			}
 
+			if(signer != null && author.Owner != signer)
+			{
+				Error = NotOwner;
+				return false;
+			}
+
 			return true;
 		}
 
-		public bool Require(Round round, ResourceAddress address, out AuthorEntry author, out Resource resource)
+		public bool Require(Round round, AccountAddress signer, ResourceAddress address, out AuthorEntry author, out Resource resource)
 		{
 			resource = null;
 
-			if(RequireAuthor(round, address.Author, out author) == false)
+			if(RequireAuthor(round, signer, address.Author, out author) == false)
 			{
 				Error = NotFound;
 				return false; 

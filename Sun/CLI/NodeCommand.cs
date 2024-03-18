@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using Uccs.Net;
@@ -94,6 +95,35 @@ namespace Uccs.Sun.CLI
 						{
 							Workflow.Log.ReportError(this, "Error", ex);
 						}
+					}
+
+					v.StopListening(Workflow.Log);
+
+					break;
+				}
+
+				case "send" :
+				{
+					var a = new Uri(Args.Nodes[1].Name);
+
+					var h = new HttpClientHandler();
+					h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+					var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
+
+					Program.ApiClient = new JsonApiClient(http, Args.Nodes[1].Name, GetString("accesskey", null));
+
+					var v = new ConsoleLogView(false, true);
+					v.StartListening(Workflow.Log);
+
+					try
+					{
+						var x = new XonDocument(string.Join(' ', Args.Nodes.Where(i => i.Name != "accesskey").Skip(2)));
+	
+						Program.Execute(x);
+					}
+					catch(Exception ex)
+					{
+						Workflow.Log.ReportError(this, "Error", ex);
 					}
 
 					v.StopListening(Workflow.Log);

@@ -10,10 +10,9 @@ namespace Uccs.Net
 		public ResourceChanges		Changes	{ get; set; }
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
-		public string				Parent { get; set; }
 
 		public override bool		Valid =>	(!Flags.HasFlag(ResourceFlags.Data) || (Data == null || Data.Value.Length <= ResourceData.LengthMax));
-		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], {(Parent == null ? null : ", Parent=" + Parent)}{(Data == null ? null : $", Data={{{Data}}}")}";
+		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ResourceUpdation()
 		{
@@ -38,12 +37,6 @@ namespace Uccs.Net
 				Changes = ResourceChanges.NotNullData;
 		}
 
-		public void Change(string parent)
-		{
-			Parent = parent;
-			Flags |= ResourceFlags.Child;
-		}
-
 		public void ChangeRecursive()
 		{
 			Changes |= ResourceChanges.Recursive;
@@ -55,9 +48,7 @@ namespace Uccs.Net
 			Flags		= (ResourceFlags)reader.ReadByte();
 			Changes		= (ResourceChanges)reader.ReadByte();
 			
-			if(	Flags.HasFlag(ResourceFlags.Data) && 
-				Changes.HasFlag(ResourceChanges.NotNullData))	Data = reader.Read<ResourceData>();
-			if(Flags.HasFlag(ResourceFlags.Child))				Parent = reader.ReadUtf8();
+			if(Flags.HasFlag(ResourceFlags.Data) && Changes.HasFlag(ResourceChanges.NotNullData))	Data = reader.Read<ResourceData>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
@@ -66,14 +57,12 @@ namespace Uccs.Net
 			writer.Write((byte)Flags);
 			writer.Write((byte)Changes);
 
-			if(	Flags.HasFlag(ResourceFlags.Data) && 
-				Changes.HasFlag(ResourceChanges.NotNullData))	writer.Write(Data);
-			if(Flags.HasFlag(ResourceFlags.Child))				writer.WriteUtf8(Parent);
+			if(Flags.HasFlag(ResourceFlags.Data) && Changes.HasFlag(ResourceChanges.NotNullData))	writer.Write(Data);
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			if(Require(round, Resource, out var ae, out var e) == false)
+			if(Require(round, Signer, Resource, out var ae, out var e) == false)
 				return;
 
 			var a = Affect(round, Resource.Author);
@@ -83,33 +72,6 @@ namespace Uccs.Net
 				Fee += round.ConsensusExeunitFee;
 
 				var r = a.AffectResource(resource.Resource);
-	
-				if(Flags.HasFlag(ResourceFlags.Child))
-				{
-					if(e.Flags.HasFlag(ResourceFlags.Child)) /// remove from existing parent
-					{
-						var p = a.Resources.First(i => i.Resources.Contains(e.Id.Ri));
-						p = a.AffectResource(p.Address.Resource);
-						p.Resources = p.Resources.Where(i => i != e.Id.Ri).ToArray();
-					} 
-
-					if(Parent != null)
-					{
-						r.Flags	|= ResourceFlags.Child;
-						var i = a.Resources.FirstOrDefault(i => i.Address.Resource == Parent);
-
-						if(i == null)
-						{
-							Error = NotFound;
-							return;
-						}
-
-						var p = a.AffectResource(Parent);
-						p.Resources = p.Resources.Append(r.Id.Ri).ToArray();
-					}
-					else
-						r.Flags	&= ~ResourceFlags.Child;
-				}
 	
 				if(Flags.HasFlag(ResourceFlags.Data))
 				{
@@ -138,9 +100,17 @@ namespace Uccs.Net
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))
 				{
-					foreach(var i in r.Resources)
+					if(r.Links != null)
 					{
-						execute(a.Resources[i].Address);
+						foreach(var i in r.Links)
+						{
+							var l = mcv.Authors.FindResource(i, round.Id);
+	
+							if(l.Address.Author == Resource.Author)
+							{
+								execute(l.Address);
+							}
+						}
 					}
 				} 
 			}
