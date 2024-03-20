@@ -195,7 +195,7 @@ namespace Uccs.Sun.CLI
 		protected ResourceData GetData()
 		{
 			if(Has("raw"))
-				return GetBytes("raw").Length > 0  ? new ResourceData(new BinaryReader(new MemoryStream(GetBytes("raw")))) : null;
+				return Args.One("raw").Value != null && GetBytes("raw").Length > 0  ? new ResourceData(new BinaryReader(new MemoryStream(GetBytes("raw")))) : null;
 
 			if(Has("consil"))
 				return new ResourceData(DataType.Consil, new Consil {Analyzers = GetString("consil/analyzers").Split(',').Select(i => AccountAddress.Parse(i)).ToArray(),  

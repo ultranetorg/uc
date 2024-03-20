@@ -15,6 +15,9 @@ namespace Uccs.Net
 
 				var a = sun.Mcv.Accounts.Find(Transaction.Signer, sun.Mcv.LastConfirmedRound.Id);
 				
+				if(a == null)
+					throw new EntityException(EntityError.NotFound);
+
 				Transaction.Nid = a.LastTransactionNid + 1;
 				Transaction.Fee = Emission.End;
 

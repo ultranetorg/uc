@@ -7,7 +7,7 @@ using Uccs.Net;
 using Uccs.Net.Tests;
 using Uocs;
 
-namespace Tests
+namespace Uccs.Tests
 {
 	public class A
 	{
@@ -18,9 +18,11 @@ namespace Tests
 	{
 		public static void Main(string[] args)
 		{
-			AddressTests.Resource();
-			AddressTests.Release();
-			AddressTests.Package();
+			//AddressTests.Resource();
+			//AddressTests.Release();
+			//AddressTests.Package();
+
+			Xon.Basic();
 
 			//var ja = JsonSerializer.Serialize(new RdcCall {Request = new AuthorRequest()}, JsonApiClient.Options);
 

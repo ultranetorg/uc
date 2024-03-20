@@ -177,12 +177,12 @@ namespace Uccs
 				}
 				else
 				{
-					if(C == '\"') // closing " or escaping
+					if(C == '"') // closing " or escaping
 					{
 						c++;
 						if(c == Text.Length)
 							break;
-						else if(C == '\"')
+						else if(C == '"')
 						{
 							value += C;
 							//c++;
