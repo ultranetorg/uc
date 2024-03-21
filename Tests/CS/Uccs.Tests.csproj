@@ -31,8 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Uocs\Uocs\Uocs.csproj" />
-    <ProjectReference Include="..\..\Uccs\Uccs\Uccs.csproj" />
+    <ProjectReference Include="..\..\CS\Uccs.csproj" />
+    <ProjectReference Include="..\..\Net.cs\Uccs.Net.csproj" />
   </ItemGroup>
 
 </Project>

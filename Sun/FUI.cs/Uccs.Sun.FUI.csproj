@@ -30,8 +30,7 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Uccs\Net\Uccs.Net.csproj" />
-    <ProjectReference Include="..\..\Uccs\Uccs\Uccs.csproj" />
+    <ProjectReference Include="..\..\Net.cs\Uccs.Net.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="MembershipPanel.cs" />

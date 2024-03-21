@@ -30,4 +30,7 @@
     <PackageReference Include="RocksDB" Version="8.11.3.46984" />
     <PackageReference Include="System.Json" Version="4.7.1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CS\Uccs.csproj" />
+  </ItemGroup>
 </Project>

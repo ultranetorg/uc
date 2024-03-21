@@ -8,8 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>0.0.2152.0</AssemblyVersion>
-    <FileVersion>0.0.2152.0</FileVersion>
+    <AssemblyVersion>0.0.2154.0</AssemblyVersion>
+    <FileVersion>0.0.2154.0</FileVersion>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
@@ -30,16 +30,8 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Uccs\Net\Uccs.Net.csproj" />
-    <ProjectReference Include="..\..\Uccs\Uccs\Uccs.csproj">
-      <Private>True</Private>
-      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Uos\Uccs.Uos\Uccs.Uos.csproj" />
-    <ProjectReference Include="..\LibraryA\Uccs.Demo.LibraryA.csproj">
-      <Private>False</Private>
-      <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
+    <ProjectReference Include="..\..\Uos\CS\Uccs.Uos.csproj" />
+    <ProjectReference Include="..\LibraryA.cs\Uccs.Demo.LibraryA.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

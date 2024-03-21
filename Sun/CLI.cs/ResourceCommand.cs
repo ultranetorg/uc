@@ -77,12 +77,6 @@ namespace Uccs.Sun.CLI
 
 					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
-					//var l = r.Resource.Links.Select(i => Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}))
-
-					//Dump(	r.Resource.Links, 
-					//		new string[] {"Resource"}, 
-					//		new Func<ResourceId, string>[] {i => i.ToString()});
-
 					Dump(	r.Resource.Links.Select(i => Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i}).Resource), 
 							new string[] {"#", "Address", "Data"}, 
 							new Func<Resource, string>[]{	i => i.Id.ToString(),

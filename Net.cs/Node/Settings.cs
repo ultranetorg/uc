@@ -247,7 +247,7 @@ namespace Uccs.Net
 
 			Profile = boot.Profile;
 
-			var doc = new XonDocument(File.ReadAllText(Path));
+			var doc = new XonDocument(File.ReadAllText(Path), SunXonTextValueSerializator.Default);
 
 			FuiRoles					= doc.Get<string>("FuiRoles");
 			//Anonymous					= doc.Has("Anonymous");
@@ -294,7 +294,7 @@ namespace Uccs.Net
 
 		public XonDocument Save()
 		{
-			var doc = new XonDocument(XonTextValueSerializator.Default);
+			var doc = new XonDocument(SunXonTextValueSerializator.Default);
 
 			void save(Xon parent, string name, Type type, object value)
 			{
@@ -309,7 +309,7 @@ namespace Uccs.Net
 					}
 				}
 				else
-					if(type == typeof(Boolean))	
+					if(type == typeof(bool))	
 					{ 
 						if((bool)value)
 						{

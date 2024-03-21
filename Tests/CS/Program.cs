@@ -1,11 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text.Json;
-using Uccs.Net;
-using Uccs.Net.Tests;
-using Uocs;
+﻿using Uccs.Net;
 
 namespace Uccs.Tests
 {
