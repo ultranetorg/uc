@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Uccs
 {
-	internal class FakeStream : Stream
+	public class FakeStream : Stream
 	{
 		public override bool CanRead { get; }
 		public override bool CanSeek { get; }

@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Uccs.Sun.FUI
 {

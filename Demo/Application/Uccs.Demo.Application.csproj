@@ -30,10 +30,12 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Uccs\Net\Uccs.Net.csproj" />
     <ProjectReference Include="..\..\Uccs\Uccs\Uccs.csproj">
       <Private>True</Private>
       <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
     </ProjectReference>
+    <ProjectReference Include="..\..\Uos\Uccs.Uos\Uccs.Uos.csproj" />
     <ProjectReference Include="..\LibraryA\Uccs.Demo.LibraryA.csproj">
       <Private>False</Private>
       <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>

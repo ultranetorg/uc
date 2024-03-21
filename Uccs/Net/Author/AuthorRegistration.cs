@@ -10,7 +10,7 @@ namespace Uccs.Net
 
 		public bool					Exclusive => AuthorEntry.IsExclusive(Author); 
 		public override string		Description => $"{Author} for {Years} years";
-		public override bool		Valid => Net.Author.Valid(Author) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
+		public override bool		Valid => Uccs.Net.Author.Valid(Author) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
 		
 		//public static Coin			GetCost(Coin factor, int years) => Chainbase.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
 
@@ -20,7 +20,7 @@ namespace Uccs.Net
 
 		public AuthorRegistration(string author, byte years)
 		{
-			if(!Net.Author.Valid(author))
+			if(!Uccs.Net.Author.Valid(author))
 				throw new ArgumentException("Invalid Author name/title");
 
 			Author = author;
@@ -43,7 +43,7 @@ namespace Uccs.Net
 		{
 			var e = chain.Authors.Find(Author, round.Id);
 						
-			if(Net.Author.CanRegister(Author, e, round.ConsensusTime, Transaction.Signer))
+			if(Uccs.Net.Author.CanRegister(Author, e, round.ConsensusTime, Transaction.Signer))
 			{
 				if(e?.Owner == null)
 				{

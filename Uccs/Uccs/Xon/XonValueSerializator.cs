@@ -5,8 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using Org.BouncyCastle.Utilities.Encoders;
-using Uccs.Net;
 
 namespace Uccs
 {
@@ -27,7 +25,7 @@ namespace Uccs
 	{
 		public static readonly XonTextValueSerializator Default = new XonTextValueSerializator();
 
-		public object Set(Xon node, object val)
+		public virtual object Set(Xon node, object val)
 		{
 			if(val == null)
 			{
@@ -43,21 +41,16 @@ namespace Uccs
 				val is uint				||
 				val is long				||
 				val is ulong			||
-				val is AccountAddress	||
-				val is ResourceAddress	||
-				//val is PackageAddress	||
 				val is Version			||
 				val is IPAddress		||
-				val is Time				||
 				val.GetType().IsEnum)
 				return val.ToString();
-			if(val is Money c)		return c.ToHumanString();
-			if(val is byte[] ba)	return Hex.ToHexString(ba);
+			if(val is byte[] ba)	return ba.ToHex();
 
 			throw new NotSupportedException();
 		}
 
-		public O Get<O>(Xon node, object value)
+		public virtual O Get<O>(Xon node, object value)
 		{
 			var v = value as string;
 
@@ -70,13 +63,9 @@ namespace Uccs
 			if(typeof(O) == typeof(uint))				return (O)(object)uint.Parse(v);
 			if(typeof(O) == typeof(long))				return (O)(object)long.Parse(v);
 			if(typeof(O) == typeof(ulong))				return (O)(object)ulong.Parse(v);
-			if(typeof(O) == typeof(byte[]))				return (O)(object)Hex.Decode(v);
-			if(typeof(O) == typeof(ResourceAddress))	return (O)(object)ResourceAddress.Parse(v);
-			//if(typeof(O) == typeof(PackageAddress))		return (O)(object)PackageAddress.Parse(v);
+			if(typeof(O) == typeof(byte[]))				return (O)(object)v.FromHex();
 			if(typeof(O) == typeof(Version))			return (O)(object)Version.Parse(v);
 			if(typeof(O) == typeof(IPAddress))			return (O)(object)IPAddress.Parse(v);
-			if(typeof(O) == typeof(Time))				return (O)(object)Time.Parse(v);
-			if(typeof(O) == typeof(Money))				return (O)(object)Money.ParseDecimal(v);
 			if(typeof(O).IsEnum)						Enum.Parse(v.GetType(), v); 
 
 			throw new NotSupportedException();
@@ -164,7 +153,7 @@ namespace Uccs
 	
 				var v = value as byte[];
 	
-				if(t == typeof(byte[]).FullName)	return (O)(object)Hex.ToHexString(v);
+				if(t == typeof(byte[]).FullName)	return (O)(object)v.ToHex();
 				if(t == typeof(byte).FullName)		return (O)(object)v[0].ToString();
 				if(t == typeof(short).FullName)		return (O)(object)BitConverter.ToInt16(v).ToString();
 				if(t == typeof(int).FullName)		return (O)(object)BitConverter.ToInt32(v).ToString();
@@ -180,7 +169,7 @@ namespace Uccs
 					return (O)(object)o.ToString();
 				}
 	
-				return (O)(object)Hex.ToHexString(v);
+				return (O)(object)v.ToHex();
 			} 
 			else
 				return base.Get<O>(node, value);

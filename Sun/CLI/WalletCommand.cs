@@ -56,7 +56,7 @@ namespace Uccs.Sun.CLI
 
 			if(p == null)
 			{
-				Program.PasswordAsker.Create();
+				Program.PasswordAsker.Create(Vault.PasswordWarning);
 				p = Program.PasswordAsker.Password;
 			}
 
@@ -97,7 +97,7 @@ namespace Uccs.Sun.CLI
 
 			if(p == null)
 			{
-				Program.PasswordAsker.Create();
+				Program.PasswordAsker.Create(Vault.PasswordWarning);
 				p = Program.PasswordAsker.Password;
 			}
 

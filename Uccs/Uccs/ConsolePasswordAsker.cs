@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Uccs.Net;
 
 namespace Uccs
@@ -64,7 +60,7 @@ namespace Uccs
 			while(true);
 		}
 
-		public void Create()
+		public void Create(string[] warning)
 		{
 			var c = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -75,7 +71,7 @@ namespace Uccs
 			Console.WriteLine("    Suggestions:");
 			Console.WriteLine();
 
-			foreach(var i in Vault.PasswordWarning)
+			foreach(var i in warning)
 			{
 				Console.WriteLine("    " + i + Environment.NewLine);
 			}

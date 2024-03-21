@@ -6,7 +6,7 @@ using System.Net;
 using System.Numerics;
 using System.Text;
 
-namespace Uccs.Net
+namespace Uccs
 {
 	public static class Extentions
 	{
@@ -40,36 +40,9 @@ namespace Uccs.Net
 			return e.Any() ? e.OrderByRandom().First() : default;
 		}
 
-		public static Money SumMoney<T>(this IEnumerable<T> e, Func<T, Money> by)
-		{
-			var s = Money.Zero;
-
-			foreach(var i in e)
-			{
-				s = s + by(i);
-			}
-
-			return s;
-		}
-
 		public static IEnumerable<T> OrderByRandom<T>(this IEnumerable<T> e)
 		{
 			return e.OrderBy(i => Guid.NewGuid());
-		}
-
-		public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AccountAddress> by, AccountAddress account)
-		{
-			return e.MinBy(m => Bytes.Xor(by(m).Bytes, account.Bytes), Bytes.Comparer);
-		}
-
-		public static IEnumerable<MembersResponse.Member> OrderByNearest(this IEnumerable<MembersResponse.Member> e, byte[] hash)
-		{
-			return e.OrderBy(i => Bytes.Xor(i.Account.Bytes, new Span<byte>(hash, 0, AccountAddress.Length)), Bytes.Comparer);
-		}
-
-		public static IEnumerable<Member> OrderByNearest(this IEnumerable<Member> e, byte[] hash)
-		{
-			return e.OrderBy(i => Bytes.Xor(i.Account.Bytes, new Span<byte>(hash, 0, AccountAddress.Length)), Bytes.Comparer);
 		}
 
 		public static bool Contains(this Exception e, Func<Exception, bool> p)
@@ -109,39 +82,12 @@ namespace Uccs.Net
 				return null;
 		}
 
-		public static byte[] ReadHash(this BinaryReader r)
-		{
-			return r.ReadBytes(Cryptography.HashSize);
-		}
-
-		public static byte[] ReadSignature(this BinaryReader r)
-		{
-			return r.ReadBytes(Cryptography.SignatureSize);
-		}
-
-		public static AccountAddress ReadAccount(this BinaryReader r)
-		{
-			var a = new AccountAddress();
-			a.Read(r);
-			return a;
-		}
-
-		public static void Write(this BinaryWriter w, AccountAddress a)
-		{
-			a.Write(w);
-		}
-
-		public static void Write(this BinaryWriter w, Money a)
-		{
-			a.Write(w);
-		}
-
 		public static void Write(this BinaryWriter w, BigInteger a)
 		{
 			var n = a.GetByteCount();
 
 			if(n > byte.MaxValue)
-				throw new IntegrityException("BigInteger is longer 256 bytes");
+				throw new ArgumentException("BigInteger is longer 256 bytes");
 
 			w.Write((byte)n);
 			w.Write(a.ToByteArray());

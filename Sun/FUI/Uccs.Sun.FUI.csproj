@@ -30,6 +30,7 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Uccs\Net\Uccs.Net.csproj" />
     <ProjectReference Include="..\..\Uccs\Uccs\Uccs.csproj" />
   </ItemGroup>
   <ItemGroup>

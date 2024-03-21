@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections;
 using System.Windows.Forms;
 
 namespace Uccs.Sun.FUI
 {
-// 	public class ProductModel
-// 	{
-// 		public ProductEntry Product;
-// 		public AuthorEntry Author;
-// 
-// 		public ProductModel()
-// 		{
-// 		}
-// 	}
+	// 	public class ProductModel
+	// 	{
+	// 		public ProductEntry Product;
+	// 		public AuthorEntry Author;
+	// 
+	// 		public ProductModel()
+	// 		{
+	// 		}
+	// 	}
 
 	public class BaseControl : UserControl
 	{

@@ -25,9 +25,9 @@ namespace Uccs.Sun.CLI
 					var s = new Settings(Program.ExeDirectory, b);
 	
 					Program.Sun = new Net.Sun(b.Zone, s, Workflow){	Clock = new RealClock(),
-																	Nas = new Nas(s),
-																	GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
-																	FeeAsker = new SilentFeeAsker() };
+																Nas = new Nas(s),
+																GasAsker = ConsoleAvailable ? new ConsoleGasAsker() : new SilentGasAsker(),
+																FeeAsker = new SilentFeeAsker() };
 					Program.Sun.Run(Args);
 	
 					if(ConsoleAvailable)

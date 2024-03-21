@@ -16,7 +16,7 @@ namespace Uccs.Net
 		{
 			get
 			{
-				if(!Net.Author.IsExclusive(Author))
+				if(!Uccs.Net.Author.IsExclusive(Author))
 					return false;
 
 				if(Bid <= Money.Zero)
@@ -90,7 +90,7 @@ namespace Uccs.Net
 		{
 			var a =  mcv.Authors.Find(Author, round.Id);
 
- 			if(a != null && !Net.Author.IsExpired(a, round.ConsensusTime))
+ 			if(a != null && !Uccs.Net.Author.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{
@@ -116,7 +116,7 @@ namespace Uccs.Net
 		{
 			var a = Affect(round, Author);
 
- 			if(!Net.Author.IsExpired(a, round.ConsensusTime))
+ 			if(!Uccs.Net.Author.IsExpired(a, round.ConsensusTime))
  			{
 				if(a.LastWinner == null) /// first bid
 				{

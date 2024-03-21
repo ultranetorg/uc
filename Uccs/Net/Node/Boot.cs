@@ -32,7 +32,7 @@ namespace Uccs.Net
 
 				
 			if(File.Exists(Profile))
-				foreach(var i in Directory.EnumerateFiles(Profile, "*." + Net.Sun.FailureExt))
+				foreach(var i in Directory.EnumerateFiles(Profile, "*." + Uccs.Net.Sun.FailureExt))
 					File.Delete(i);
 		}
 	}

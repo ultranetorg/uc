@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Uccs.Net;
 
 namespace Uccs
 {
-    public class XonBinaryReader : IXonReader
+	public class XonBinaryReader : IXonReader
     {
 		//IXonValueSerializator		Serializator;
 		public XonToken				Current { get; set; }

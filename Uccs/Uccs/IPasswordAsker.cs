@@ -10,7 +10,7 @@ namespace Uccs.Net
 	{
 		string			Password { get; }
 		bool			Ask(string info);
-		void			Create();
+		void			Create(string[] warning);
 		void			ShowError(string message);						
 	}
 
@@ -28,7 +28,7 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public void Create()
+		public void Create(string[] warning)
 		{
 		}
 
