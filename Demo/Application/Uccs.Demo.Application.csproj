@@ -31,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Uos\CS\Uccs.Uos.csproj" />
-    <ProjectReference Include="..\LibraryA.cs\Uccs.Demo.LibraryA.csproj" />
+    <ProjectReference Include="..\LibraryA\Uccs.Demo.LibraryA.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

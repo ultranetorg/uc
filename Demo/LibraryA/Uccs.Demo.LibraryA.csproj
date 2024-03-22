@@ -21,6 +21,6 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LibraryAA.cs\Uccs.Demo.LibraryAA.csproj" />
+    <ProjectReference Include="..\LibraryAA\Uccs.Demo.LibraryAA.csproj" />
   </ItemGroup>
 </Project>

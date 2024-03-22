@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\CS\Uccs.csproj" />
-    <ProjectReference Include="..\..\Net.cs\Uccs.Net.csproj" />
+    <ProjectReference Include="..\..\Net\Uccs.Net.csproj" />
   </ItemGroup>
 
 </Project>
