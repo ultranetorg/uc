@@ -252,6 +252,7 @@ namespace Uccs.Net
 												Settings.IP, 
 												Settings.JsonServerPort, 
 												Settings.Api.AccessKey, 
+												SunJsonApiClient.DefaultOptions,
 												n => Type.GetType(GetType().Namespace + '.' + n), 
 												(o, w) => (o as SunApiCall).Execute(this, w), 
 												Workflow);

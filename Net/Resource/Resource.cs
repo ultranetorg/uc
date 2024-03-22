@@ -11,8 +11,7 @@ namespace Uccs.Net
 	{
 		None			= 0, 
 		Sealed			= 0b_______1, 
-		//Child			= 0b______10, 
-		Data			= 0b_____100, 
+		Data			= 0b______10,
 	}
 
 	public enum DataType : short
@@ -39,32 +38,6 @@ namespace Uccs.Net
 		NotNullData		= 0b_____________10,
 	}
 
-// 	public class ResourceMeta : IBinarySerializable
-// 	{
-// 		public int				Id { get; set; }
-// 		public EntityId			Owner { get; set; }
-// 		public ResourceData		Data { get; set; }
-// 
-// 		public void Write(BinaryWriter writer)
-// 		{
-// 			writer.Write7BitEncodedInt(Id);
-// 			writer.Write(Owner);
-// 			writer.Write(Data);
-// 		}
-// 
-// 		public void Read(BinaryReader reader)
-// 		{
-// 			Id		= reader.Read7BitEncodedInt();
-// 			Owner	= reader.Read<EntityId>();
-// 			Data	= reader.Read<ResourceData>();
-// 		}
-// 
-// 		public ResourceMeta Clone()
-// 		{
-// 			return new ResourceMeta {Id = Id, Owner = Owner, Data = Data.Clone()};
-// 		}
-// 	}
-
 	public class Resource : IBinarySerializable
 	{
 		public ResourceId			Id { get; set; }
@@ -73,8 +46,6 @@ namespace Uccs.Net
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }
 		public ResourceId[]			Links { get; set; }
-		//public ResourceMeta[]		Metas { get; set; }
-		//public int				NextMetaId { get; set; }
 
 		[JsonIgnore]
 		public bool					New;
@@ -105,8 +76,6 @@ namespace Uccs.Net
 				writer.Write(Data);
 		
 			writer.Write(Links);
-			//writer.Write(Metas);
-			//writer.Write7BitEncodedInt(NextMetaId);
 		}
 
 		public void Read(BinaryReader reader)
@@ -118,8 +87,6 @@ namespace Uccs.Net
 				Data = reader.Read<ResourceData>();
 
 			Links = reader.ReadArray<ResourceId>();
-			//Metas = reader.ReadArray<ResourceMeta>();
-			//NextMetaId = reader.Read7BitEncodedInt();
 		}
 
 		public void AffectLink(ResourceId id)

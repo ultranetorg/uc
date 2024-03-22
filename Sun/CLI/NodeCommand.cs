@@ -69,7 +69,7 @@ namespace Uccs.Sun.CLI
 					h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 					var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-					Program.ApiClient = new JsonApiClient(http, Args.Nodes[1].Name, GetString("accesskey", null));
+					Program.ApiClient = new SunJsonApiClient(http, Args.Nodes[1].Name, GetString("accesskey", null));
 
 					var v = new ConsoleLogView(false, true);
 					v.StartListening(Workflow.Log);
@@ -110,7 +110,7 @@ namespace Uccs.Sun.CLI
 					h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 					var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-					Program.ApiClient = new JsonApiClient(http, Args.Nodes[1].Name, GetString("accesskey", null));
+					Program.ApiClient = new SunJsonApiClient(http, Args.Nodes[1].Name, GetString("accesskey", null));
 
 					var v = new ConsoleLogView(false, true);
 					v.StartListening(Workflow.Log);

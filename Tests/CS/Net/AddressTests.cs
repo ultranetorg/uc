@@ -71,8 +71,8 @@ namespace Uccs.Net.Tests
 
 			Assert.True(a == ReleaseAddress.Parse(a.ToString()));
 
-			Assert.True(a == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)a, JsonApiClient.Options), JsonApiClient.Options));
-			Assert.True(x == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)x, JsonApiClient.Options), JsonApiClient.Options));
+			Assert.True(a == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)a, SunJsonApiClient.DefaultOptions), SunJsonApiClient.DefaultOptions));
+			Assert.True(x == JsonSerializer.Deserialize<ReleaseAddress>(JsonSerializer.Serialize((ReleaseAddress)x, SunJsonApiClient.DefaultOptions), SunJsonApiClient.DefaultOptions));
 		}
 
 		//[Theory]

@@ -142,7 +142,7 @@ namespace Uccs.Net
 		{
 			//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 
-			var jo = new JsonSerializerOptions(JsonApiClient.Options);
+			var jo = new JsonSerializerOptions(SunJsonApiClient.DefaultOptions);
 			jo.WriteIndented = true;
 
 			void compare<E, K>(Func<Sun, Table<E, K>> get) where E : class, ITableEntry<K>

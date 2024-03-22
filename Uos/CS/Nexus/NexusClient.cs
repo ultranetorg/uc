@@ -21,7 +21,7 @@ namespace Uccs.Uos
 			SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
 			Zone			=	null;//Environment.GetEnvironmentVariable(Nexus.BootZone);
 
-			Sun = new JsonApiClient(Http, SunAddress, SunApiKey);
+			Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
 
 			var s = Sun.Request<SettingsResponse>(new SettingsCall(), new Workflow("GetSettings"));
 

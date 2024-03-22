@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Uccs.Net
+namespace Uccs
 {
 	public class Workflow : IDisposable
 	{

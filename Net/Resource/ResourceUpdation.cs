@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -62,6 +63,8 @@ namespace Uccs.Net
 
 		public override void Execute(Mcv mcv, Round round)
 		{
+			var rs = new HashSet<int>();
+
 			if(Require(round, Signer, Resource, out var ae, out var e) == false)
 				return;
 
@@ -73,6 +76,11 @@ namespace Uccs.Net
 
 				var r = a.AffectResource(resource.Resource);
 	
+				if(rs.Contains(r.Id.Ri))
+					return;
+				else
+					rs.Add(r.Id.Ri);
+
 				if(Flags.HasFlag(ResourceFlags.Data))
 				{
 					if(e.Flags.HasFlag(ResourceFlags.Sealed))
@@ -104,10 +112,10 @@ namespace Uccs.Net
 					{
 						foreach(var i in r.Links)
 						{
-							var l = mcv.Authors.FindResource(i, round.Id);
-	
-							if(l.Address.Author == Resource.Author)
+							if(i.Ci == a.Id.Ci && i.Ai == a.Id.Ei)
 							{
+								var l = mcv.Authors.FindResource(i, round.Id);
+
 								execute(l.Address);
 							}
 						}

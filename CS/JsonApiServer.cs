@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 
-namespace Uccs.Net
+namespace Uccs
 {
 	public abstract class ApiCall
 	{
@@ -36,7 +36,7 @@ namespace Uccs.Net
 
 		public IEnumerable<Item> Calls { get; set; }
 
-		public void Add(SunApiCall call)
+		public void Add(ApiCall call)
 		{
 			if(Calls == null)
 				Calls = new List<Item>();
@@ -47,20 +47,20 @@ namespace Uccs.Net
 
 	public class JsonApiServer
 	{
-		public const ushort				DefaultPort = 3900;
-
 		HttpListener					Listener;
 		Thread							Thread;
 		string							AccessKey;
 		Func<object, Workflow, object>	Execute;
 		Func<string, Type>				Create;
 		Workflow						Workflow;
+		JsonSerializerOptions			Options;
 
-		public JsonApiServer(string profile, IPAddress ip, ushort port, string accesskey, Func<string, Type> create, Func<object, Workflow, object> execute, Workflow workflow)
+		public JsonApiServer(string profile, IPAddress ip, ushort port, string accesskey, JsonSerializerOptions options, Func<string, Type> create, Func<object, Workflow, object> execute, Workflow workflow)
 		{
 			Create		= create;
 			AccessKey	= accesskey;
 			Execute		= execute;
+			Options		= options;
 			Workflow	= workflow.CreateNested("JsonApiServer", new Log());
 
 			if(profile != null)
@@ -73,15 +73,6 @@ namespace Uccs.Net
 											{
 												Listener = new HttpListener();
 	
-		// 										if(!Sun.Settings.IP.Equals(IPAddress.Any))
-		// 										{
-		// 											Listener.Prefixes.Add($"http://{Sun.Settings.IP}:{Sun.Settings.JsonServerPort}/");
-		// 										}
-		// 										else
-		// 										{
-		// 											Listener.Prefixes.Add($"http://+:{Sun.Settings.JsonServerPort}/");
-		// 										}
-
  												if(ip != null)
  												{
  													Listener.Prefixes.Add($"http://{ip}:{port}/");
@@ -162,7 +153,7 @@ namespace Uccs.Net
 	
 			void respondjson(object t)	{
 											var output = rp.OutputStream;
-											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, JsonApiClient.Options));
+											var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, Options));
 							
 											rp.ContentType = "text/json" ;
 											rp.ContentLength64 = buffer.Length;
@@ -198,7 +189,7 @@ namespace Uccs.Net
 					return;
 				}
 				
-				var t = Create(rq.Url.LocalPath.Substring(1) + "Call");
+				var t = Type.GetType(GetType().Namespace + '.' + rq.Url.LocalPath.Substring(1) + "Call") ?? Create(rq.Url.LocalPath.Substring(1) + "Call");
 
 				if(t == null)
 				{
@@ -209,7 +200,7 @@ namespace Uccs.Net
 
 				var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
 				var json = reader.ReadToEnd();
-				var call = JsonSerializer.Deserialize(json, t, JsonApiClient.Options) as ApiCall;
+				var call = JsonSerializer.Deserialize(json, t, Options) as ApiCall;
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
@@ -226,7 +217,7 @@ namespace Uccs.Net
 					foreach(var i in c.Calls)
 					{
 						t = Create(i.Name + "Call");
-						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, JsonApiClient.Options) as ApiCall));
+						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as ApiCall));
 					}
 
 					///lock(Sun.Lock)
