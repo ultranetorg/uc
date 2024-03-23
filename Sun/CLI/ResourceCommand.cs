@@ -32,7 +32,7 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
-												GetEnum<ResourceFlags>("flags", ResourceFlags.None),
+												GetEnum("flags", ResourceFlags.None),
 												GetData());
 				}
 
@@ -51,7 +51,7 @@ namespace Uccs.Sun.CLI
 
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
-					if(Has("flags"))		r.Change(GetEnum<ResourceFlags>("flags"));
+					if(Has("flags"))		r.Change(GetEnum("flags", ResourceFlags.None));
 					if(HasData())			r.Change(GetData());
 					if(Has("recursive"))	r.ChangeRecursive();
 
@@ -70,36 +70,19 @@ namespace Uccs.Sun.CLI
 					return r;
 				}
 
-				case "lle" :
-		   		case "listlinkentities" :
+				case "lo" :
+		   		case "listoutbounds" :
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
 					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					Dump(	r.Resource.Links.Select(i => Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i}).Resource), 
-							new string[] {"#", "Address", "Data"}, 
+							["#", "Address", "Data"], 
 							new Func<Resource, string>[]{	i => i.Id.ToString(),
 															i => i.Address.ToString(),
 															i => i.Data.Interpretation.ToString() });
 
-					return r;
-				}
-
-				case "sl" : 
-				case "searchlocal" : 
-				{	
-					Workflow.CancelAfter(RdcQueryTimeout);
-
-					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesCall {Query = Args.Nodes[1].Name});
-					
-					Dump(	r, 
-							new string[] {"Address", "Releases", "Latest Type", "Latest Data", "Latest Length"}, 
-							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
-																i => i.Datas.Count.ToString(),
-																i => i.Last.Type.ToString(),
-																i => i.Last.Value.ToHex(32),
-																i => i.Last.Value.Length.ToString() });
 					return r;
 				}
 
@@ -111,7 +94,7 @@ namespace Uccs.Sun.CLI
 					if(r != null)
 					{
 						Dump(	r.Datas, 
-								new string[] {"Type", "Data", "Length"}, 
+								["Type", "Data", "Length"], 
 								new Func<ResourceData, string>[] {	i => i.Type.ToString(), 
 																	i => i.Value.ToHex(32), 
 																	i => i.Value.Length.ToString() });
@@ -121,6 +104,22 @@ namespace Uccs.Sun.CLI
 						throw new Exception("Resource not found");
 				}
 
+				case "sl" : 
+				case "searchlocal" : 
+				{	
+					Workflow.CancelAfter(RdcQueryTimeout);
+
+					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesCall {Query = Args.Nodes[1].Name});
+					
+					Dump(	r, 
+							["Address", "Releases", "Latest Type", "Latest Data", "Latest Length"], 
+							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
+																i => i.Datas.Count.ToString(),
+																i => i.Last.Type.ToString(),
+																i => i.Last.Value.ToHex(32),
+																i => i.Last.Value.Length.ToString() });
+					return r;
+				}
 
 				case "d" :
 				case "download" :
@@ -129,24 +128,18 @@ namespace Uccs.Sun.CLI
 
 					var r = Api<Resource>(new ResourceDownloadCall {Address = a});
 
-					try
-					{
-						ReleaseDownloadProgress p = null;
+					ReleaseDownloadProgress p = null;
 						
-						while(Workflow.Active)
-						{
-							p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = r.Data.Interpretation as ReleaseAddress});
-
-							if(p == null)
-								break;
-
-							Workflow.Log?.Report(this, p.ToString());
-
-							Thread.Sleep(500);
-						}
-					}
-					catch(OperationCanceledException)
+					while(Workflow.Active)
 					{
+						p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = r.Data.Interpretation as ReleaseAddress});
+
+						if(p == null)
+							break;
+
+						Workflow.Log?.Report(this, p.ToString());
+
+						Thread.Sleep(500);
 					}
 
 					return null;

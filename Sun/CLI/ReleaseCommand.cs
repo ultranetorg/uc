@@ -34,7 +34,7 @@ namespace Uccs.Sun.CLI
 																	 FilePath = GetString("source", null),
 																	 Sources = GetString("sources", null)?.Split(','),
 																	 AddressCreator = new()	{	
-																								Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.DH),
+																								Type = GetEnum("addresstype", ReleaseAddressType.DH),
 																								Owner = GetAccountAddress("owner", false),
 																								Resource = ResourceAddress.Parse(Args.Nodes[1].Name)
 																							} });
