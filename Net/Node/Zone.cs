@@ -21,20 +21,19 @@ namespace Uccs.Net
 		public int				ExternalVerificationDurationLimit				= 100;
 		public Money			BailMin											= 1000;
 		public int				MembersLimit									= 1000;
-		public virtual int		AnalizerMinimumVotes							=> MembersLimit * 2/3;
-		public long				TargetBaseGrowth									= 100L*1024*1024*1024;
-		public Money			RentPerBytePerDayMinimum						= new Money(0.000_001);
+		public long				TargetBaseGrowth								= 100L*1024*1024*1024;
+		public Money			RentPerBytePerDayMinimum						= 0.000_001;
 		public int				TransactionsPerRoundLimit						= 5_000; /// for 5000 tx/sec signature recovering
 		public int				TransactionsPerVoteAllowableOverflowMuliplier	= 10;
 		public int				TransactionsFeeOverflowFactor					= 10;
 		public int				OperationsPerTransactionLimit					= 100;
 		public int				OperationsPerRoundLimit							=> TransactionsPerRoundLimit * OperationsPerTransactionLimit;
-		public Money			ExeunitMinFee									= new Money(0.000_001);	/// 50 *1000 / (1e7/100*0.2*3600*24*30) = 0.000 000 192
-																										/// 50  - server per month avarage cost in usd
-																										/// 1000 - members max limit
-																										///	1e7 - 100 MB/s bandwidth
-																										///	100 - avarage length of operation
-																										///	0.2 - effective bandwidth utilization 
+		public Money			ExeunitMinFee									= 0.000_001;	/// 50 *1000 / (1e7/100*0.2*3600*24*30) = 0.000 000 192
+																								/// 50  - server per month avarage cost in usd
+																								/// 1000 - members max limit
+																								///	1e7 - 100 MB/s bandwidth
+																								///	100 - avarage length of operation
+																								///	0.2 - effective bandwidth utilization 
 
 		public AccountAddress	God = AccountAddress.Parse("0xffff50e1605b6f302850694291eb0e688ef15677");
 		public AccountAddress	Father0 = AccountAddress.Parse("0x000038a7a3cb80ec769c632b7b3e43525547ecd1");
@@ -120,8 +119,6 @@ namespace Uccs.Net
 
 	public class Localzone : Zone
 	{	
-		public override int AnalizerMinimumVotes => 1;
-
 		public Localzone()
 		{
 			Name				= "Localzone";

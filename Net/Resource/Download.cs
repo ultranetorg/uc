@@ -206,7 +206,7 @@ namespace Uccs.Net
 														}
 														else if(integrity.Verify(Sun.Zone.Cryptography.HashFile([]))) /// zero-length file
 														{
-															release.AddCompleted(File.Path, new byte[0]);
+															//release.Complete(File.Path, new byte[0]);
 															Succeeded = true;
 															goto end;
 														}
@@ -352,6 +352,8 @@ namespace Uccs.Net
 		public Task					Task;
 		public SeedCollector		SeedCollector;
 
+		public const string			Index = ".index";
+
 		public DirectoryDownload(Sun sun, LocalRelease release, IIntegrity integrity, Workflow workflow)
 		{
 			Release = release;
@@ -362,9 +364,9 @@ namespace Uccs.Net
 			{
 				try
 				{
-					sun.ResourceHub.GetFile(release, ".index", integrity, SeedCollector, workflow);
+					sun.ResourceHub.GetFile(release, Index, integrity, SeedCollector, workflow);
 
-					var index = new XonDocument(release.ReadFile(".index"));
+					var index = new XonDocument(release.ReadFile(Index));
 	
 					void enumearate(Xon xon)
 					{
