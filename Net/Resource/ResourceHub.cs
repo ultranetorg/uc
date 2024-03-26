@@ -263,7 +263,7 @@ namespace Uccs.Net
 			return r;
 		}
 
-		public void GetFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector peerCollector, Workflow workflow)
+		public LocalFile GetFile(LocalRelease release, string file, IIntegrity integrity, SeedCollector peerCollector, Workflow workflow)
 		{
 			var t = Task.CompletedTask;
 
@@ -278,6 +278,8 @@ namespace Uccs.Net
 			}
 
 			t.Wait(workflow.Cancellation);
+
+			return release.Find(file);
 		}
 
 		void Declaring()

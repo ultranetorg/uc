@@ -51,6 +51,8 @@ namespace Uccs.Net
 		}
 	}
 
+	public delegate void PieceDelegate(FileDownload.Piece piece);
+
 	public class FileDownload
 	{
 		public const int DefaultPieceLength = 512 * 1024;
@@ -110,6 +112,7 @@ namespace Uccs.Net
 		public Dictionary<SeedCollector.Seed, int>	Seeds = new();
 		Sun											Sun;
 		Workflow									Workflow;
+		public PieceDelegate						PieceSucceeded;
 
 		public FileDownload(Sun sun, LocalRelease release, string path, IIntegrity integrity, SeedCollector seedcollector, Workflow workflow)
 		{
@@ -147,7 +150,7 @@ namespace Uccs.Net
 										{
 											int left() => File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count;
 
-											if(!File.Initialized || (left() > 0 && CurrentPieces.Count < MaxThreadsCount))
+											if(!File.Initialized || (File.Length > 0 && left() > 0 && CurrentPieces.Count < MaxThreadsCount))
 											{
 												SeedCollector.Seed[] seeds;
 	
@@ -206,7 +209,7 @@ namespace Uccs.Net
 														}
 														else if(integrity.Verify(Sun.Zone.Cryptography.HashFile([]))) /// zero-length file
 														{
-															//release.Complete(File.Path, new byte[0]);
+															File.Write(0, []);
 															Succeeded = true;
 															goto end;
 														}
@@ -235,14 +238,14 @@ namespace Uccs.Net
 	
 											if(p.Succeeded)
 											{
-												//j.Seed.Failures++;
-												//p.Seed.Failed = DateTime.MinValue;
 												Seeds[p.Seed]++;
 	
 												lock(Sun.ResourceHub.Lock)
 												{	
-													release.WriteFile(File.Path, p.Offset, p.Data.ToArray());
+													File.Write(p.Offset, p.Data.ToArray());
 													File.CompletePiece(p.I);
+
+													PieceSucceeded?.Invoke(p);
 												}
 	
 												if(File.CompletedPieces.Count() == File.Pieces.Length)
@@ -258,20 +261,12 @@ namespace Uccs.Net
 															File.Reset();
 															Seeds.Clear();
 															CurrentPieces.Clear();
-															//CompletedPieces.Clear();
-															//Hubs.Clear();
-															//Seeds.Clear();
 														}
 												}
-	
-												///if(!d.HubsSeeders[h].Contains(s)) /// this hub gave a good seeder
-												///	d.HubsSeeders[h].Add(s);
 											}
 											else
 											{	
 												Seeds[p.Seed]--;
-												//j.Seed.Succeses++;
-												//j.Seed.Failed = DateTime.UtcNow;
 											}
 										}
 									}
@@ -325,20 +320,6 @@ namespace Uccs.Net
 							},
 							workflow.Cancellation);
 		}
-
-		public override string ToString()
-		{
-			return $"{Release}/{File.Path}";
-		}
-
-		//public Job AddCompleted(int i)
-		//{
-		//	var j = new Job(this, null);
-		//	j.Piece = i;
-		//	j.CurrentLength = j.PieceLength;
-		//	Jobs.Add(j);
-		//	return j;
-		//}
 	}
 	
 	public class DirectoryDownload

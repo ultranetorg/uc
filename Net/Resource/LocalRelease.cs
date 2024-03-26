@@ -23,6 +23,7 @@ namespace Uccs.Net
 	public class LocalFile : IBinarySerializable
 	{
 		public string			Path { get; set; }
+		public string			LocalPath => Release.MapPath(Path);
 		public int				PieceLength { get; protected set; } = -1;
 		public long				Length { get; protected set; } = -1;
 		public bool[]			Pieces;
@@ -105,6 +106,36 @@ namespace Uccs.Net
 			{
 				writer.Write(PieceLength);
 				writer.Write(Pieces, i => writer.Write(i));
+			}
+		}
+		
+		public void Write(long offset, byte[] data)
+		{
+			var d = System.IO.Path.GetDirectoryName(LocalPath);
+		
+			if(!Directory.Exists(d))
+			{
+				Directory.CreateDirectory(d);
+			}
+		
+			using(var s = new FileStream(LocalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+			{
+				s.Seek(offset, SeekOrigin.Begin);
+				s.Write(data);
+			}
+		}
+
+		public byte[] Read(long offset = 0, long length = -1)
+		{
+			using(var s = new FileStream(LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+			{
+				s.Seek(offset, SeekOrigin.Begin);
+				
+				var b = new byte[length == -1 ? Length : length];
+	
+				s.Read(b);
+	
+				return b;
 			}
 		}
 	}
@@ -194,7 +225,7 @@ namespace Uccs.Net
 			var f = new LocalFile(this, path);
 			Files.Add(f);
 
-			WriteFile(path, 0, data);
+			f.Write(0, data);
 
 			f.Complete(); /// implicit Save called
 
@@ -256,35 +287,35 @@ namespace Uccs.Net
 			return System.IO.Path.Join(Path, file);
 		}
 
-		public byte[] ReadFile(string file, long offset, long length)
-		{
-			using(var s = new FileStream(MapPath(file), FileMode.Open, FileAccess.Read, FileShare.Read))
-			{
-				s.Seek(offset, SeekOrigin.Begin);
-				
-				var b = new byte[Math.Min(length, ResourceHub.PieceMaxLength)];
-	
-				s.Read(b);
-	
-				return b;
-			}
-		}
-
-		public void WriteFile(string file, long offset, byte[] data)
-		{
-			var d = System.IO.Path.GetDirectoryName(MapPath(file));
-
-			if(!Directory.Exists(d))
-			{
-				Directory.CreateDirectory(d);
-			}
-
-			using(var s = new FileStream(MapPath(file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
-			{
-				s.Seek(offset, SeekOrigin.Begin);
-				s.Write(data);
-			}
-		}
+		//public byte[] ReadFile(string file, long offset, long length)
+		//{
+		//	using(var s = new FileStream(MapPath(file), FileMode.Open, FileAccess.Read, FileShare.Read))
+		//	{
+		//		s.Seek(offset, SeekOrigin.Begin);
+		//		
+		//		var b = new byte[Math.Min(length, ResourceHub.PieceMaxLength)];
+		//
+		//		s.Read(b);
+		//
+		//		return b;
+		//	}
+		//}
+		//
+		//public void WriteFile(string file, long offset, byte[] data)
+		//{
+		//	var d = System.IO.Path.GetDirectoryName(MapPath(file));
+		//
+		//	if(!Directory.Exists(d))
+		//	{
+		//		Directory.CreateDirectory(d);
+		//	}
+		//
+		//	using(var s = new FileStream(MapPath(file), FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+		//	{
+		//		s.Seek(offset, SeekOrigin.Begin);
+		//		s.Write(data);
+		//	}
+		//}
 
 		public LocalFile Find(string filepath)
 		{

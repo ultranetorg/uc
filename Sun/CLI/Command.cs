@@ -43,7 +43,7 @@ namespace Uccs.Sun.CLI
 		public void Api(SunApiCall call)
 		{
 			if(Program.ApiClient == null)
-				call.Execute(Program.Sun, Workflow);
+				call.Execute(Program.Sun, null, null, Workflow);
 			else
 				Program.ApiClient.Send(call, Workflow);
 		}
@@ -51,7 +51,7 @@ namespace Uccs.Sun.CLI
 		public Rp Api<Rp>(SunApiCall call)
 		{
 			if(Program.ApiClient == null) 
-				return (Rp)call.Execute(Program.Sun, Workflow);
+				return (Rp)call.Execute(Program.Sun, null, null, Workflow);
 			else
 				return Program.ApiClient.Request<Rp>(call, Workflow);
 		}

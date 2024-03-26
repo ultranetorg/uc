@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net
+﻿using Org.BouncyCastle.Asn1.Ocsp;
+
+namespace Uccs.Net
 {
 	public class DownloadReleaseRequest : RdcRequest
 	{
@@ -9,6 +11,9 @@
 
 		public override RdcResponse Execute(Sun sun)
 		{
+			if(Length > ResourceHub.PieceMaxLength)
+				throw new RequestException(RequestError.IncorrectRequest);
+
 			lock(sun.ResourceHub.Lock)
 			{
 				if(sun.ResourceHub == null) 
@@ -19,7 +24,7 @@
 				if(r == null || !r.IsReady(File)) 
 					throw new EntityException(EntityError.NotFound);
 	
-				return new DownloadReleaseResponse {Data = r.ReadFile(File, Offset, Length)};
+				return new DownloadReleaseResponse {Data = r.Find(File).Read(Offset, Length)};
 			}
 		}
 	}

@@ -30,8 +30,8 @@ namespace Uccs
 	{
 		public class Item
 		{
-			public string Name { get; set; }
-			public dynamic Call { get; set; }
+			public string	Name { get; set; }
+			public dynamic	Call { get; set; }
 		}
 
 		public IEnumerable<Item> Calls { get; set; }
@@ -45,21 +45,20 @@ namespace Uccs
 		}
 	}
 
-	public class JsonApiServer
+	public abstract class JsonApiServer
 	{
 		HttpListener					Listener;
 		Thread							Thread;
 		string							AccessKey;
-		Func<object, Workflow, object>	Execute;
-		Func<string, Type>				Create;
 		Workflow						Workflow;
 		JsonSerializerOptions			Options;
 
-		public JsonApiServer(string profile, IPAddress ip, ushort port, string accesskey, JsonSerializerOptions options, Func<string, Type> create, Func<object, Workflow, object> execute, Workflow workflow)
+		protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow);
+		protected abstract Type			Create(string call);
+
+		public JsonApiServer(string profile, IPAddress ip, ushort port, string accesskey, JsonSerializerOptions options, Workflow workflow)
 		{
-			Create		= create;
 			AccessKey	= accesskey;
-			Execute		= execute;
 			Options		= options;
 			Workflow	= workflow.CreateNested("JsonApiServer", new Log());
 
@@ -199,38 +198,35 @@ namespace Uccs
 				}
 
 				var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
-				var json = reader.ReadToEnd();
-				var call = JsonSerializer.Deserialize(json, t, Options) as ApiCall;
+				var j = reader.ReadToEnd();
+				var c = (j.Any() ? JsonSerializer.Deserialize(j, t, Options) : t.GetConstructor(new System.Type[]{}).Invoke(null)) as ApiCall;
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
 				object execute(ApiCall call)
 				{
-					//Workflow.Log?.Report(this, "Executing", json);
-					return Execute(call, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
+					return Execute(call, rq, rp, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
 				}
 
-				if(call is BatchCall c)
+				if(c is BatchCall b)
 				{ 
 					var rs = new List<dynamic>();
 
-					foreach(var i in c.Calls)
+					foreach(var i in b.Calls)
 					{
 						t = Create(i.Name + "Call");
 						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as ApiCall));
 					}
 
-					///lock(Sun.Lock)
-						respondjson(rs);
+					respondjson(rs);
 				}
 				else
 				{
-					var r = execute(call);
+					var r = execute(c);
 	
-					//if(r != null)
+					if(r != null)
 					{
-						///lock(Sun.Lock)
-							respondjson(r);
+						respondjson(r);
 					}
 				}
 			}

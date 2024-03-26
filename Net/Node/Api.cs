@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -9,14 +8,106 @@ namespace Uccs.Net
 {
 	public abstract class SunApiCall : ApiCall
 	{
-		public abstract object	Execute(Sun sun, Workflow workflow);
+		public abstract object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow);
+	}
+
+	public class GetCall : SunApiCall
+	{
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		{
+			var a = ResourceAddress.Parse(request.QueryString["address"]);
+			var path = request.QueryString["path"] ?? "f";
+
+			var r = sun.Call(p => p.Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = a}), workflow).Resource;
+			var ra = r.Data.Interpretation as ReleaseAddress;
+
+			LocalResource s;
+			LocalRelease z;
+
+			lock(sun.ResourceHub.Lock)
+			{
+				s = sun.ResourceHub.Find(a) ?? sun.ResourceHub.Add(a);
+				z = sun.ResourceHub.Find(ra) ?? sun.ResourceHub.Add(ra, r.Data.Type);
+			}
+
+			IIntegrity itg = null;
+
+			switch(ra)
+			{ 
+				case DHAddress x :
+					if(r.Data.Type == DataType.File)
+					{
+						itg = new DHIntegrity(x.Hash); 
+					}
+					else if(r.Data.Type == DataType.Directory)
+					{
+						var	f = sun.ResourceHub.GetFile(z, DirectoryDownload.Index, new DHIntegrity(x.Hash), null, workflow);
+
+						var index = new XonDocument(f.Read());
+
+						itg = new DHIntegrity(index.Get<byte[]>(path)); 
+					}
+					break;
+
+				case SDAddress x :
+					var au = sun.Call(c => c.GetAuthorInfo(a.Author), workflow).Author;
+					itg = new SPDIntegrity(sun.Zone.Cryptography, x, au.Owner);
+					break;
+
+				default:
+					throw new ResourceException(ResourceError.NotSupportedDataType);
+			}
+
+			if(!z.IsReady(path))
+			{
+				FileDownload d;
+
+				lock(sun.ResourceHub.Lock)
+					d = sun.ResourceHub.DownloadFile(z, path, itg, null, workflow);
+	
+				var ps = new List<FileDownload.Piece>();
+				int last = -1;
+	
+				d.PieceSucceeded += p => {
+											if(!ps.Any())
+												response.ContentLength64 = d.Length;
+													
+											ps.Add(p);
+	
+											while(workflow.Active)
+											{
+												var i = ps.FirstOrDefault(i => i.I - 1 == last);
+	
+												if(i != null)
+												{	
+													response.OutputStream.Write(i.Data.ToArray(), 0, (int)i.Data.Length);
+													last = i.I;
+												}
+												else
+													break;;
+											}
+										};
+
+				d.Task.Wait(workflow.Cancellation);
+			}
+			else
+			{
+				lock(sun.ResourceHub.Lock)
+				{
+					response.ContentLength64 = z.GetLength(path);
+					response.OutputStream.Write(z.ReadFile(path));
+				}
+			}
+
+			return null;
+		}
 	}
 
 	public class PropertyCall : SunApiCall
 	{
 		public string Path { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			object o = sun;
 
@@ -40,7 +131,7 @@ namespace Uccs.Net
 	{
 		public string Reason { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			throw new Exception("TEST");
 		}
@@ -50,7 +141,7 @@ namespace Uccs.Net
 	{
 		public string Reason { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			sun.Stop("Json API Call");
 			return null;
@@ -59,7 +150,7 @@ namespace Uccs.Net
 
 	public class SettingsCall : SunApiCall
 	{
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				return new SettingsResponse{ProfilePath	= sun.Settings.Profile, 
@@ -77,7 +168,7 @@ namespace Uccs.Net
 	{
 		public int		Limit  { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				return new LogResponse{Log = sun.Workflow.Log.Messages.TakeLast(Limit).Select(i => i.ToString()).ToArray() }; 
@@ -93,7 +184,7 @@ namespace Uccs.Net
 	{
 		public int		Limit { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				return new PeersReport{Peers = sun.Peers.Where(i => i.Status == ConnectionStatus.OK).TakeLast(Limit).Select(i =>	new PeersReport.Peer
@@ -133,7 +224,7 @@ namespace Uccs.Net
 	{
 		public int		Limit  { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 			{ 
@@ -216,7 +307,7 @@ namespace Uccs.Net
 	{
 		public int		Limit  { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				return new ChainReportResponse{Rounds = sun.Mcv.Tail.Take(Limit)
@@ -268,7 +359,7 @@ namespace Uccs.Net
 		public int		RoundId  { get; set; }
 		public int		Limit  { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				return new VotesReportResponse{Votes = sun.Mcv.FindRound(RoundId)?.Votes
@@ -302,7 +393,7 @@ namespace Uccs.Net
 	{
 		public Role	Roles	{ get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			sun.RunNode(Roles);
 							
@@ -318,7 +409,7 @@ namespace Uccs.Net
 		public byte[]	PrivateKey { get; set; }
 		public string	Password { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				sun.Vault.AddWallet(PrivateKey, Password);
@@ -331,7 +422,7 @@ namespace Uccs.Net
 	{
 		public AccountAddress	Account { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				sun.Vault.SaveWallet(Account);
@@ -345,7 +436,7 @@ namespace Uccs.Net
 		public AccountAddress	Account { get; set; }
 		public string			Password { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 			{
@@ -364,7 +455,7 @@ namespace Uccs.Net
 	{
 		public IEnumerable<AccountAddress>	 Generators {get; set;}
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.Lock)
 				sun.Settings.Generators = Generators.ToList();
@@ -385,7 +476,7 @@ namespace Uccs.Net
 		public AccountAddress	To { get; set; } 
 		public PlacingStage		Await { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			var o = sun.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)sun.Zone.EthereumNetwork)), Wei, sun.Vault.GetKey(To), Await, workflow);
 
@@ -399,7 +490,7 @@ namespace Uccs.Net
 		public AccountAddress			By  { get; set; }
 		public PlacingStage				Await  { get; set; } = PlacingStage.Confirmed;
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			return sun.Enqueue(Operations, sun.Vault.GetKey(By), Await, workflow);
 		}
@@ -409,7 +500,7 @@ namespace Uccs.Net
 	{
 		public RdcRequest	Request { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			try
 			{

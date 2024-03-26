@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
@@ -20,7 +20,7 @@ namespace Uccs.Net
 		public string					FilePath { get; set; }
 		public ReleaseAddressCreator	AddressCreator { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
@@ -38,7 +38,7 @@ namespace Uccs.Net
 	{
 		public ResourceAddress	Address { get; set; }
 
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			var r = sun.Call(i => i.Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = Address}), workflow).Resource;
 
@@ -88,7 +88,7 @@ namespace Uccs.Net
 	{
 		public ReleaseAddress Release { get; set; }
 		
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{
@@ -123,7 +123,7 @@ namespace Uccs.Net
 // 		public ResourceAddress	Resource { get; set; }
 // 		//public byte[]			Hash { get; set; }
 // 		
-// 		public override object Execute(Sun sun, Workflow workflow)
+// 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 // 		{
 // 			lock(sun.ResourceHub.Lock)
 // 			{	
@@ -142,7 +142,7 @@ namespace Uccs.Net
 		public int		Skip { get; set; } = 0;
 		public int		Take { get; set; } = int.MaxValue;
 		
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
@@ -155,7 +155,7 @@ namespace Uccs.Net
 	{
 		public ResourceAddress		Resource { get; set; }
 		
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	
@@ -222,7 +222,7 @@ namespace Uccs.Net
 			}
 		}
 		
-		public override object Execute(Sun sun, Workflow workflow)
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
 			lock(sun.ResourceHub.Lock)
 			{	

@@ -248,14 +248,7 @@ namespace Uccs.Net
 
 			lock(Lock)
 			{
-				ApiServer = new JsonApiServer(	Settings.Profile,
-												Settings.IP, 
-												Settings.JsonServerPort, 
-												Settings.Api.AccessKey, 
-												SunJsonApiClient.DefaultOptions,
-												n => Type.GetType(GetType().Namespace + '.' + n), 
-												(o, w) => (o as SunApiCall).Execute(this, w), 
-												Workflow);
+				ApiServer = new SunJsonApiServer(this, Workflow);
 			}
 		
 			ApiStarted?.Invoke(this);
