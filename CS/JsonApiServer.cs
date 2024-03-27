@@ -56,7 +56,7 @@ namespace Uccs
 		protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow);
 		protected abstract Type			Create(string call);
 
-		public JsonApiServer(string profile, IPAddress ip, ushort port, string accesskey, JsonSerializerOptions options, Workflow workflow)
+		public JsonApiServer(string profile, string address, string accesskey, JsonSerializerOptions options, Workflow workflow)
 		{
 			AccessKey	= accesskey;
 			Options		= options;
@@ -71,15 +71,17 @@ namespace Uccs
 											try
 											{
 												Listener = new HttpListener();
-	
- 												if(ip != null)
- 												{
- 													Listener.Prefixes.Add($"http://{ip}:{port}/");
- 												}
- 												else
- 												{
- 													Listener.Prefixes.Add($"http://+:{port}/");
- 												}
+												
+												Listener.Prefixes.Add(address+"/");
+
+ 												//if(ip != null)
+ 												//{
+ 												//	Listener.Prefixes.Add($"http://{ip}:{port}/");
+ 												//}
+ 												//else
+ 												//{
+ 												//	Listener.Prefixes.Add($"http://+:{port}/");
+ 												//}
 
 										
 												Workflow.Log?.Report(this, "Listening started", Listener.Prefixes.Last());
@@ -108,7 +110,7 @@ namespace Uccs
 											}
 										});
 
-			Thread.Name = $"{ip?.GetAddressBytes()[3]} Aping";
+			Thread.Name = $"{new Uri(address).Port} Aping";
 			Thread.Start();
 		}
 
@@ -188,7 +190,7 @@ namespace Uccs
 					return;
 				}
 				
-				var t = Type.GetType(GetType().Namespace + '.' + rq.Url.LocalPath.Substring(1) + "Call") ?? Create(rq.Url.LocalPath.Substring(1) + "Call");
+				var t = Type.GetType(typeof(JsonApiServer).Namespace + '.' + rq.Url.LocalPath.Substring(1) + "Call") ?? Create(rq.Url.LocalPath.Substring(1) + "Call");
 
 				if(t == null)
 				{

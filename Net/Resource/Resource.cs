@@ -89,9 +89,9 @@ namespace Uccs.Net
 			Links = reader.ReadArray<ResourceId>();
 		}
 
-		public void AffectLink(ResourceId id)
+		public void AffectLink(ResourceId to)
 		{
-			var i = AffectedLinks.IndexOf(id);
+			var i = AffectedLinks.IndexOf(to);
 			
 			if(i != -1)
 				return;
@@ -104,10 +104,10 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				Links = Links.Append(id).ToArray();
+				Links = Links.Append(to).ToArray();
 			}
 
-			AffectedLinks.Add(id);
+			AffectedLinks.Add(to);
 		}
 	}
 }

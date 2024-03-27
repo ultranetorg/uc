@@ -9,8 +9,7 @@ namespace Uccs.Net
 		Sun Sun;
 
 		public SunJsonApiServer(Sun sun, Workflow workflow): base(	sun.Settings.Profile,
-																	sun.Settings.IP, 
-																	sun.Settings.JsonServerPort, 
+																	sun.Settings.JsonServerListenAddress, 
 																	sun.Settings.Api.AccessKey, 
 																	SunJsonApiClient.DefaultOptions,
 																	workflow)
@@ -20,7 +19,7 @@ namespace Uccs.Net
 
 		protected override Type Create(string call)
 		{
-			return Type.GetType(GetType().Namespace + '.' + call);
+			return Type.GetType(typeof(SunJsonApiServer).Namespace + '.' + call);
 		}
 
 		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)

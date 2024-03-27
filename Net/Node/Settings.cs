@@ -208,7 +208,7 @@ namespace Uccs.Net
 		public IPAddress				IP;
 		public Money					Bail;
 		//public IPAddress				ExternalIP;
-		public ushort					JsonServerPort;
+		public string					JsonServerListenAddress;
 		//public bool					Anonymous = false;
 		public List<AccountAddress>		Generators = new();
 		public AccountKey				Analyzer;
@@ -256,7 +256,7 @@ namespace Uccs.Net
 			PeersInitialRandomization	= doc.Has("PeersInitialRandomization");
 			IP							= doc.Has("IP") ? IPAddress.Parse(doc.Get<string>("IP")) : null;
 			//ExternalIP				= IPAddress.Parse(doc.Get<string>("ExternalIP"));
-			JsonServerPort				= (ushort)doc.Get<int>("JsonServerPort");
+			JsonServerListenAddress		= doc.Get<string>("JsonServerListenAddress");
 			Bail						= doc.Get<Money>("Bail", Money.Zero);
 			Generators					= doc.Many("Generator").Select(i => AccountAddress.Parse(i.Value as string)).ToList();
 			Log							= doc.Has("Log");
