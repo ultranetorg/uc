@@ -104,7 +104,7 @@ namespace Uccs.Net
 			} 
 			else
 			{
-				Links = Links.Append(Id).ToArray();
+				Links = Links.Append(id).ToArray();
 			}
 
 			AffectedLinks.Add(id);

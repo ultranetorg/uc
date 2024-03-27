@@ -10,11 +10,8 @@
 			{	
 				RequireBase(sun);
  			
-				var r = sun.Mcv.Authors.FindResource(Name, sun.Mcv.LastConfirmedRound.Id);
-			
-				if(r == null)
-					throw new EntityException(EntityError.NotFound);
-				
+				var r = sun.Mcv.Authors.FindResource(Name, sun.Mcv.LastConfirmedRound.Id) ?? throw new EntityException(EntityError.NotFound);
+
 				return new ResourceByNameResponse {Resource = r};
 			}
 		}

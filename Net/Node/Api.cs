@@ -15,90 +15,99 @@ namespace Uccs.Net
 	{
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
-			var a = ResourceAddress.Parse(request.QueryString["address"]);
-			var path = request.QueryString["path"] ?? "f";
-
-			var r = sun.Call(p => p.Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = a}), workflow).Resource;
-			var ra = r.Data.Interpretation as ReleaseAddress;
-
-			LocalResource s;
-			LocalRelease z;
-
-			lock(sun.ResourceHub.Lock)
+			try
 			{
-				s = sun.ResourceHub.Find(a) ?? sun.ResourceHub.Add(a);
-				z = sun.ResourceHub.Find(ra) ?? sun.ResourceHub.Add(ra, r.Data.Type);
-			}
-
-			IIntegrity itg = null;
-
-			switch(ra)
-			{ 
-				case DHAddress x :
-					if(r.Data.Type == DataType.File)
-					{
-						itg = new DHIntegrity(x.Hash); 
-					}
-					else if(r.Data.Type == DataType.Directory)
-					{
-						var	f = sun.ResourceHub.GetFile(z, DirectoryDownload.Index, new DHIntegrity(x.Hash), null, workflow);
-
-						var index = new XonDocument(f.Read());
-
-						itg = new DHIntegrity(index.Get<byte[]>(path)); 
-					}
-					break;
-
-				case SDAddress x :
-					var au = sun.Call(c => c.GetAuthorInfo(a.Author), workflow).Author;
-					itg = new SPDIntegrity(sun.Zone.Cryptography, x, au.Owner);
-					break;
-
-				default:
-					throw new ResourceException(ResourceError.NotSupportedDataType);
-			}
-
-			if(!z.IsReady(path))
-			{
-				FileDownload d;
-
-				lock(sun.ResourceHub.Lock)
-					d = sun.ResourceHub.DownloadFile(z, path, itg, null, workflow);
+				var a = ResourceAddress.Parse(request.QueryString["address"]);
+				var path = request.QueryString["path"] ?? "f";
 	
-				var ps = new List<FileDownload.Piece>();
-				int last = -1;
+				var r = sun.Call(p => p.Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = a}), workflow).Resource;
+				var ra = r.Data?.Interpretation as ReleaseAddress
+						 ??	
+						 throw new ResourceException(ResourceError.NotFound);
 	
-				d.PieceSucceeded += p => {
-											if(!ps.Any())
-												response.ContentLength64 = d.Length;
-													
-											ps.Add(p);
+				LocalResource s;
+				LocalRelease z;
 	
-											while(workflow.Active)
-											{
-												var i = ps.FirstOrDefault(i => i.I - 1 == last);
-	
-												if(i != null)
-												{	
-													response.OutputStream.Write(i.Data.ToArray(), 0, (int)i.Data.Length);
-													last = i.I;
-												}
-												else
-													break;;
-											}
-										};
-
-				d.Task.Wait(workflow.Cancellation);
-			}
-			else
-			{
 				lock(sun.ResourceHub.Lock)
 				{
-					response.ContentLength64 = z.GetLength(path);
-					response.OutputStream.Write(z.ReadFile(path));
+					s = sun.ResourceHub.Find(a) ?? sun.ResourceHub.Add(a);
+					z = sun.ResourceHub.Find(ra) ?? sun.ResourceHub.Add(ra, r.Data.Type);
+				}
+	
+				IIntegrity itg = null;
+	
+				switch(ra)
+				{ 
+					case DHAddress x :
+						if(r.Data.Type == DataType.File)
+						{
+							itg = new DHIntegrity(x.Hash); 
+						}
+						else if(r.Data.Type == DataType.Directory)
+						{
+							var	f = sun.ResourceHub.GetFile(z, DirectoryDownload.Index, new DHIntegrity(x.Hash), null, workflow);
+	
+							var index = new XonDocument(f.Read());
+	
+							itg = new DHIntegrity(index.Get<byte[]>(path)); 
+						}
+						break;
+	
+					case SDAddress x :
+						var au = sun.Call(c => c.GetAuthorInfo(a.Author), workflow).Author;
+						itg = new SPDIntegrity(sun.Zone.Cryptography, x, au.Owner);
+						break;
+	
+					default:
+						throw new ResourceException(ResourceError.NotSupportedDataType);
+				}
+	
+				if(!z.IsReady(path))
+				{
+					FileDownload d;
+	
+					lock(sun.ResourceHub.Lock)
+						d = sun.ResourceHub.DownloadFile(z, path, itg, null, workflow);
+		
+					var ps = new List<FileDownload.Piece>();
+					int last = -1;
+		
+					d.PieceSucceeded += p => {
+												if(!ps.Any())
+													response.ContentLength64 = d.Length;
+														
+												ps.Add(p);
+		
+												while(workflow.Active)
+												{
+													var i = ps.FirstOrDefault(i => i.I - 1 == last);
+		
+													if(i != null)
+													{	
+														response.OutputStream.Write(i.Data.ToArray(), 0, (int)i.Data.Length);
+														last = i.I;
+													}
+													else
+														break;;
+												}
+											};
+	
+					d.Task.Wait(workflow.Cancellation);
+				}
+				else
+				{
+					lock(sun.ResourceHub.Lock)
+					{
+						response.ContentLength64 = z.GetLength(path);
+						response.OutputStream.Write(z.ReadFile(path));
+					}
 				}
 			}
-
+			catch(EntityException ex) when(ex.Error == EntityError.NotFound)
+			{
+				response.StatusCode = (int)HttpStatusCode.NotFound;
+			}
+	
 			return null;
 		}
 	}
