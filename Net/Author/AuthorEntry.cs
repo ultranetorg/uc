@@ -8,14 +8,14 @@ namespace Uccs.Net
 {
 	public class AuthorEntry : Author, ITableEntry<string>
 	{
-		public string		Key => Name;
+		public string			Key => Name;
 		
 		[JsonIgnore]
-		public bool			New { get; set; }
+		public bool				New { get; set; }
 		
-		Mcv					Chain;
-		public List<Resource>		AffectedResources = new();
-		public Resource[]	Resources { get; set; } = {};
+		Mcv						Mcv;
+		public List<Resource>	AffectedResources = new();
+		public Resource[]		Resources { get; set; } = {};
 
 		public AuthorEntry()
 		{
@@ -23,7 +23,7 @@ namespace Uccs.Net
 
 		public AuthorEntry(Mcv chain)
 		{
-			Chain = chain;
+			Mcv = chain;
 		}
 
 		public override string ToString()
@@ -33,7 +33,7 @@ namespace Uccs.Net
 
 		public AuthorEntry Clone()
 		{
-			return new AuthorEntry(Chain) {	Id = Id,
+			return new AuthorEntry(Mcv) {	Id = Id,
 											Name = Name,
 											Owner = Owner,
 											Expiration = Expiration,

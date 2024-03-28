@@ -56,7 +56,7 @@ namespace Uccs.Net
 
  			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 			{
-				var x = r.AffectedAuthors.SelectMany(i => i.Value.AffectedResources).FirstOrDefault(i => i.Id == id);
+				var x = r.AffectedAuthors.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Ai).Value?.Resources.FirstOrDefault(i => i.Id.Ri == id.Ri);
 
 				if(x != null)
 					return x;

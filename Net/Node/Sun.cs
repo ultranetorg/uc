@@ -1056,8 +1056,8 @@ namespace Uccs.Net
 							t.CalculateSuperClusters();
 						}
 		
-						download<AccountEntry, AccountAddress>(Mcv.Accounts);
-						download<AuthorEntry, string>(Mcv.Authors);
+						download(Mcv.Accounts);
+						download(Mcv.Authors);
 		
 						var r = new Round(Mcv) {Confirmed = true};
 						r.ReadBaseState(new BinaryReader(new MemoryStream(stamp.BaseState)));
@@ -1386,30 +1386,6 @@ namespace Uccs.Net
 					if(r.VotesOfTry.Any(i => i.Generator == g))
 						continue;
 
-					var txs = new List<Transaction>();
-
-					foreach(var i in IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).OrderByDescending(i => i.Fee).ToArray())
-					{
-						var nearest = Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account;
-
-						if(!Settings.Generators.Contains(nearest))
-						{
-							i.Placing = PlacingStage.FailedOrNotFound;
-							IncomingTransactions.Remove(i);
-							continue;
-						}
-
-						if(r.Id > i.Expiration)
-						{
-							i.Placing = PlacingStage.FailedOrNotFound;
-							IncomingTransactions.Remove(i);
-							continue;
-						}
-
-						if(nearest == g)
-							txs.Add(i);
-					}
-
 					Vote createvote(Round r)
 					{
 						var prev = r.Previous?.VotesOfTry.FirstOrDefault(i => i.Generator == g);
@@ -1426,36 +1402,79 @@ namespace Uccs.Net
 												Emissions		= ApprovedEmissions.ToArray(),
 												DomainBids		= ApprovedDomainBids.ToArray() };
 					}
+
+					var txs = IncomingTransactions.Where(i => i.Placing == PlacingStage.Accepted).ToArray();
 	
 					if(txs.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any())) /// any pending foreign transactions or any our pending operations OR some unconfirmed payload 
 					{
 						var v = createvote(r);
-	
-						if(txs.Any())
-						{
-							foreach(var i in txs.OrderBy(i => i.Nid))
-							{
-								if(v.Transactions.Sum(i => i.Operations.Length) + i.Operations.Length > r.Parent.OperationsPerVoteLimit)
-									break;
-
-								if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAllowableOverflow)
-									break;
-
-								//if(Mcv.VotersOf(r).NearestBy(m => m.Account, i.Signer).Account != i.Member)
-								//{
-								//	IncomingTransactions.Remove(i);
-								//	continue;
-								//}
-
-								v.AddTransaction(i);
-
-								i.Placing = PlacingStage.Placed;
-								Workflow.Log?.Report(this, "Transaction Placed", i.ToString());
-							}
-						}
+						var deferred = new List<Transaction>();
 						
-						v.Sign(Vault.GetKey(g));
-						votes.Add(v);
+						bool add(Transaction t, bool isdeferred)
+						{ 	
+							if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > r.Parent.OperationsPerVoteLimit)
+								return false;
+	
+							if(v.Transactions.Length + 1 > r.Parent.TransactionsPerVoteAllowableOverflow)
+								return false;
+	
+							if(r.Id > t.Expiration)
+							{
+								t.Placing = PlacingStage.FailedOrNotFound;
+								IncomingTransactions.Remove(t);
+								return true;
+							}
+
+							var nearest = Mcv.VotersOf(r).NearestBy(m => m.Account, t.Signer).Account;
+
+							if(nearest != g)
+								return true;
+	
+							if(!Settings.Generators.Contains(nearest))
+							{
+								t.Placing = PlacingStage.FailedOrNotFound;
+								IncomingTransactions.Remove(t);
+								return true;
+							}
+	
+							if(!isdeferred)
+							{
+								if(txs.Any(i => i.Signer == t.Signer && i.Placing == PlacingStage.Accepted && i.Nid < t.Nid)) /// any older tx left?
+								{
+									deferred.Add(t);
+									return true;
+								}
+							}
+							else
+								deferred.Remove(t);
+
+							t.Placing = PlacingStage.Placed;
+							v.AddTransaction(t);
+	
+							var next = deferred.Find(i => i.Signer == t.Signer && i.Nid + 1 == t.Nid);
+
+							if(next != null)
+							{
+								if(add(next, true) == false)
+									return false;
+							}
+	
+							Workflow.Log?.Report(this, "Transaction Placed", t.ToString());
+
+							return true;
+						}
+
+						foreach(var t in txs.OrderByDescending(i => i.Fee).ToArray())
+						{
+							if(add(t, false) == false)
+								break;
+						}
+
+						if(v.Transactions.Any() || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
+						{
+							v.Sign(Vault.GetKey(g));
+							votes.Add(v);
+						}
 					}
 
  					while(r.Previous != null && !r.Previous.Confirmed && Mcv.VotersOf(r.Previous).Any(i => i.Account == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
