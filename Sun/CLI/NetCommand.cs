@@ -24,13 +24,8 @@ namespace Uccs.Sun.CLI
 					var r = Api<PeersReport>(new PeersReportCall {Limit = int.MaxValue});
 			
 					Dump(	r.Peers, 
-							new string[] {"IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"}, 
-							new Func<PeersReport.Peer, string>[]{	i => i.IP.ToString(),
-																	i => i.Status.ToString(),
-																	i => i.PeerRank.ToString(),
-																	i => i.BaseRank.ToString(),
-																	i => i.ChainRank.ToString(),
-																	i => i.SeedRank.ToString() });
+							["IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"], 
+							[i => i.IP, i => i.Status, i => i.PeerRank, i => i.BaseRank, i => i.ChainRank, i => i.SeedRank]);
 					return r;
 				} 
 			

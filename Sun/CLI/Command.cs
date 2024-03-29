@@ -290,7 +290,7 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, string>> gets)
+		public void Dump<T>(IEnumerable<T> items, string[] columns, IEnumerable<Func<T, object>> gets)
 		{
 			if(!items.Any())
 			{	
@@ -299,7 +299,7 @@ namespace Uccs.Sun.CLI
 			}
 
 
-			string[,] t = new string[items.Count(), columns.Length];
+			object[,] t = new object[items.Count(), columns.Length];
 			int[] w = columns.Select(i => i.Length).ToArray();
 
 			var ii = 0;
@@ -311,7 +311,7 @@ namespace Uccs.Sun.CLI
 				foreach(var g in gets)
 				{
 					t[ii, gi] = g(i);
-					w[gi] = Math.Max(w[gi], t[ii, gi].Length);
+					w[gi] = Math.Max(w[gi], t[ii, gi].ToString().Length);
 
 					gi++;
 				}

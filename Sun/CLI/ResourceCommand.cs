@@ -79,9 +79,7 @@ namespace Uccs.Sun.CLI
 					
 					Dump(	r.Resource.Links.Select(i => Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i}).Resource), 
 							["#", "Address", "Data"], 
-							new Func<Resource, string>[]{	i => i.Id.ToString(),
-															i => i.Address.ToString(),
-															i => i.Data.Interpretation.ToString() });
+							[i => i.Id, i => i.Address, i => i.Data.Interpretation]);
 
 					return r;
 				}
@@ -95,9 +93,8 @@ namespace Uccs.Sun.CLI
 					{
 						Dump(	r.Datas, 
 								["Type", "Data", "Length"], 
-								new Func<ResourceData, string>[] {	i => i.Type.ToString(), 
-																	i => i.Value.ToHex(32), 
-																	i => i.Value.Length.ToString() });
+								[i => i.Type, i => i.Value.ToHex(32), i => i.Value.Length]);
+
 						return r;
 					}
 					else
@@ -113,11 +110,11 @@ namespace Uccs.Sun.CLI
 					
 					Dump(	r, 
 							["Address", "Releases", "Latest Type", "Latest Data", "Latest Length"], 
-							new Func<LocalResource, string>[]{	i => i.Address.ToString(),
-																i => i.Datas.Count.ToString(),
-																i => i.Last.Type.ToString(),
-																i => i.Last.Value.ToHex(32),
-																i => i.Last.Value.Length.ToString() });
+							[i => i.Address,
+							 i => i.Datas.Count,
+							 i => i.Last.Type,
+							 i => i.Last.Value.ToHex(32),
+							 i => i.Last.Value.Length]);
 					return r;
 				}
 

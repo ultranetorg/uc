@@ -10,9 +10,9 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.5.0</AssemblyVersion>
-    <FileVersion>1.0.5.0</FileVersion>
-    <Version>1.0.5.0</Version>
+    <AssemblyVersion>1.0.9.0</AssemblyVersion>
+    <FileVersion>1.0.9.0</FileVersion>
+    <Version>1.0.9.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\_Debug\dotnet\</OutputPath>
@@ -26,7 +26,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.7.0" />
-    <PackageReference Include="Nethereum.Web3" Version="4.19.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.20.0" />
     <PackageReference Include="RocksDB" Version="8.11.3.46984" />
     <PackageReference Include="System.Json" Version="4.7.1" />
   </ItemGroup>
