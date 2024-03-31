@@ -107,30 +107,24 @@ namespace Uccs
 
 		public static bool operator < (Version a, Version b)
 		{
-			if(a.Era < b.Era)
-				return true;
+			if(a.Era != b.Era)
+				return a.Era < b.Era;
 
-			if(a.Upgrade < b.Upgrade)
-				return true;
+			if(a.Upgrade != b.Upgrade)
+				return a.Upgrade < b.Upgrade;
 
-			if(a.Bugfix < b.Bugfix)
-				return true;
-
-			return false;
+			return a.Bugfix < b.Bugfix;
 		}
 
 		public static bool operator > (Version a, Version b)
 		{
-			if(a.Era > b.Era)
-				return true;
+			if(a.Era != b.Era)
+				return a.Era > b.Era;
 
-			if(a.Upgrade > b.Upgrade)
-				return true;
+			if(a.Upgrade != b.Upgrade)
+				return a.Upgrade > b.Upgrade;
 
-			if(a.Bugfix > b.Bugfix)
-				return true;
-
-			return false;
+			return a.Bugfix > b.Bugfix;
 		}
 
 		public static bool operator == (Version left, Version right)

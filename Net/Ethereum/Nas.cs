@@ -1,18 +1,10 @@
-﻿using Nethereum.Contracts.ContractHandlers;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Numerics;
+using Nethereum.Contracts.ContractHandlers;
 using Nethereum.Signer;
 using Nethereum.Web3;
-using Nethereum.Web3.Accounts;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Json;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
-using Uccs;
 
 namespace Uccs.Net
 {

@@ -28,7 +28,6 @@
 		<PackageReference Include="DnsClient" Version="1.7.0" />
 		<PackageReference Include="Nethereum.Web3" Version="4.20.0" />
 		<PackageReference Include="RocksDB" Version="8.11.3.46984" />
-		<PackageReference Include="System.Json" Version="4.7.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\CS\Uccs.csproj" />

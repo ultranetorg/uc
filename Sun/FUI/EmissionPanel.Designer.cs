@@ -374,7 +374,7 @@ namespace Uccs.Sun.FUI
 		private System.Windows.Forms.TextBox privatekey;
 		private System.Windows.Forms.GroupBox finishgroup;
 		private System.Windows.Forms.Button finish;
-		private FUI.CoinEdit eth;
+		private Uccs.Sun.FUI.CoinEdit eth;
 		private System.Windows.Forms.Label label11;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ListView Unfinished;

@@ -1,20 +1,9 @@
-﻿using Nethereum.Signer;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Json;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
+using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Web3;
-using Org.BouncyCastle.Math;
-using System.Threading;
-using System.Reflection;
+using Nethereum.Signer;
 
 namespace Uccs.Sun.FUI
 {
@@ -74,7 +63,7 @@ namespace Uccs.Sun.FUI
 			{
 				try
 				{
-					var json = JsonValue.Parse(File.ReadAllText(browse.Text));
+					var json = JsonSerializer.Deserialize<dynamic>(File.ReadAllText(browse.Text));
 					source.Text = json["address"];
 				}
 				catch(Exception)
@@ -99,7 +88,6 @@ namespace Uccs.Sun.FUI
 		private void UpdateReadiness()
 		{
 			var v = Nethereum.Util.AddressUtil.Current.IsValidAddressLength(source.Text) && 
-					source.Text.IsHex() && 
 					eth.Wei > 0 && 
 					destination.SelectedItem != null && Vault.Wallets.Keys.Any(i => i == destination.SelectedItem as AccountAddress);
 

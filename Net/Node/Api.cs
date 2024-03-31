@@ -237,20 +237,21 @@ namespace Uccs.Net
 		{
 			lock(sun.Lock)
 			{ 
-				List<KeyValuePair<string, string>> f = new();
-															
-				f.Add(new ("Version",					sun.Version.ToString()));
-				f.Add(new ("Zone",						sun.Zone.Name));
-				f.Add(new ("Profile",					sun.Settings.Profile));
-				f.Add(new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Zone.Port}"));
-				f.Add(new ("Incoming Transactions",		$"{sun.IncomingTransactions.Count}"));
-				f.Add(new ("Outgoing Transactions",		$"{sun.OutgoingTransactions.Count}"));
-				f.Add(new ("    Pending Delegation",	$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Pending)}"));
-				f.Add(new ("    Accepted",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"));
-				//f.Add(new ("    Pending Placement",		$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
-				f.Add(new ("    Placed",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"));
-				f.Add(new ("    Confirmed",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"));
-				f.Add(new ("Votes Acceped/Rejected",	$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"));
+				List<KeyValuePair<string, string>> f =
+				[
+					new ("Version",						sun.Version.ToString()),
+					new ("Zone",						sun.Zone.Name),
+					new ("Profile",						sun.Settings.Profile),
+					new ("IP(Reported):Port",			$"{sun.Settings.IP} ({sun.IP}) : {sun.Zone.Port}"),
+					new ("Incoming Transactions",		$"{sun.IncomingTransactions.Count}"),
+					new ("Outgoing Transactions",		$"{sun.OutgoingTransactions.Count}"),
+					new ("    Pending Delegation",		$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Pending)}"),
+					new ("    Accepted",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Accepted)}"),
+				//	new ("    Pending Placement",	$"{OutgoingTransactions.Count(i => i.Placing == PlacingStage.Verified)}"));
+					new ("    Placed",					$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Placed)}"),
+					new ("    Confirmed",				$"{sun.OutgoingTransactions.Count(i => i.Placing == PlacingStage.Confirmed)}"),
+					new ("Votes Acceped/Rejected",		$"{sun.Statistics.AccpetedVotes}/{sun.Statistics.RejectedVotes}"),
+				];
 				//f.Add(new ("Peers in/out/min/known",	$"{Connections.Count(i => i.InStatus == EstablishingStatus.Succeeded)}/{Connections.Count(i => i.OutStatus == EstablishingStatus.Succeeded)}/{Settings.PeersMin}/{Peers.Count}"));
 				
 				if(sun.Mcv != null)
