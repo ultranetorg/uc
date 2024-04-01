@@ -698,7 +698,7 @@ namespace Uccs.Net
 			if(round.Id > 0 && LastConfirmedRound != null && LastConfirmedRound.Id + 1 != round.Id)
 				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
 
-			if(round.Id % 100 == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
+			if(round.Id % Zone.CommitLength == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
 				throw new IntegrityException("round.Id % 100 == 0 && LastCommittedRound != round.Previous");
 
 			Execute(round, round.ConsensusTransactions);
