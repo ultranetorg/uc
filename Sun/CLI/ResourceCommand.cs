@@ -32,8 +32,8 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
-												GetEnum("flags", ResourceFlags.None),
-												GetData());
+												GetData(),
+												Has("seal"));
 				}
 
 				case "cl" : 
@@ -51,9 +51,9 @@ namespace Uccs.Sun.CLI
 
 					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
 
-					if(Has("flags"))		r.Change(GetEnum("flags", ResourceFlags.None));
 					if(HasData())			r.Change(GetData());
-					if(Has("recursive"))	r.ChangeRecursive();
+					if(Has("seal"))			r.Seal();
+					if(Has("recursive"))	r.MakeRecursive();
 
 					return r;
 				}

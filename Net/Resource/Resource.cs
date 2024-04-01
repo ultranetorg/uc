@@ -34,8 +34,10 @@ namespace Uccs.Net
 	public enum ResourceChanges : byte
 	{
 		None			= 0,
-		Recursive		= 0b______________1,
-		NotNullData		= 0b_____________10,
+		SetData			= 0b________1,
+		NullData		= 0b_______10,
+		Seal			= 0b______100,
+		Recursive		= 0b1000_0000,
 	}
 
 	public class Resource : IBinarySerializable

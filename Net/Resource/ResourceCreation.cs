@@ -7,39 +7,39 @@ namespace Uccs.Net
 	public class ResourceCreation : Operation
 	{
 		public ResourceAddress		Resource { get; set; }
-		public ResourceFlags		Flags { get; set; }
+		public ResourceChanges		Changes { get; set; }
 		public ResourceData			Data { get; set; }
 
-		public override bool		Valid => !Flags.HasFlag(ResourceFlags.Data) || (Data.Value.Length <= ResourceData.LengthMax);
-		public override string		Description => $"{Resource}, [{Flags}]{(Data == null ? null : ", Data=" + Data)}";
+		public override bool		Valid => !Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax);
+		public override string		Description => $"{Resource}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
 
 		public ResourceCreation()
 		{
 		}
 
-		public ResourceCreation(ResourceAddress resource, ResourceFlags flags, ResourceData data)
+		public ResourceCreation(ResourceAddress resource, ResourceData data, bool seal)
 		{
 			Resource = resource;
-			Flags = flags;
 			Data = data;
 
-			if(Data != null)	Flags |= ResourceFlags.Data;
+			if(Data != null)	Changes |= ResourceChanges.SetData;
+			if(seal)			Changes |= ResourceChanges.Seal;
 		}
 
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource	= reader.Read<ResourceAddress>();
-			Flags		= (ResourceFlags)reader.ReadByte();
+			Changes		= (ResourceChanges)reader.ReadByte();
 
-			if(Flags.HasFlag(ResourceFlags.Data))	Data = reader.Read<ResourceData>();
+			if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Resource);
-			writer.Write((byte)Flags);
+			writer.Write((byte)Changes);
 
-			if(Flags.HasFlag(ResourceFlags.Data))	writer.Write(Data);
+			if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -58,36 +58,35 @@ namespace Uccs.Net
 			a = Affect(round, Resource.Author);
 			var r = a.AffectResource(Resource.Resource);
 
-			r.Flags	= Flags;
-
 			PayForEntity(round, a.Expiration - round.ConsensusTime);
 			
-			//if(Flags.HasFlag(ResourceFlags.Child))
-			//{
-			//	var i = Array.FindIndex(a.Resources, i => i.Address.Resource == Parent);
-			//
-			//	if(i == -1)
-			//	{
-			//		Error = NotFound;
-			//		return;
-			//	}
-			//
-			//	var p = a.AffectResource(Parent);
-			//	p.Resources = p.Resources.Append(r.Id.Ri).ToArray();
-			//}
-						
-			if(Flags.HasFlag(ResourceFlags.Data))
+			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
 				r.Updated	= round.ConsensusTime;
 				r.Data		= Data;
 
 				if(Data != null)
 				{
+					r.Flags |= ResourceFlags.Data;
+
 					if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
 					{
 						Expand(round, a, r.Data.Value.Length);
 					}
 				} 
+			}
+
+			if(Changes.HasFlag(ResourceChanges.Seal))
+			{
+				if(e.Flags.HasFlag(ResourceFlags.Sealed))
+				{
+					Error = Sealed;
+					return;
+				}
+
+				r.Flags	|= ResourceFlags.Sealed;
+
+				PayForEntity(round, Time.FromYears(10));
 			}
 		}
 	}

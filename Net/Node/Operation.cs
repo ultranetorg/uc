@@ -98,22 +98,22 @@ namespace Uccs.Net
 			return rentperentity * Mcv.RentFactor(time);
 		}
 
-		public static Money CalculateResourceDataFee(Money rentperbyte, int length, Time time)
+		public static Money CalculateResourceDataFee(Money rentperbyteperday, int length, Time time)
 		{
-			return rentperbyte * length * Mcv.RentFactor(time);
+			return rentperbyteperday * length * Mcv.RentFactor(time);
 		}
 
 		public void PayForBytes(Round round, int length, Time time)
 		{
-			var fee = CalculateResourceDataFee(round.RentPerByte, length, time);
+			var fee = CalculateResourceDataFee(round.RentPerBytePerDay, length, time);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;
 		}
 
-		public void PayForEntity(Round round, Time time)
+		public void PayForEntity(Round round, Time time, int count = 1)
 		{
-			var fee = CalculateEntityFee(round.RentPerEntity, time);
+			var fee = CalculateEntityFee(round.RentPerEntityPerDay, time) * count;
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;

@@ -53,8 +53,8 @@ namespace Uccs.Net
 
 		public Money										Fees;
 		public Money										Emission;
-		public Money										RentPerByte;
-		public Money										RentPerEntity => RentPerByte * 100;
+		public Money										RentPerBytePerDay;
+		public Money										RentPerEntityPerDay => RentPerBytePerDay * 100;
 		public List<Member>									Members = new();
 		public List<AccountAddress>							Funds;
 		public List<Emission>								Emissions;
@@ -239,9 +239,9 @@ namespace Uccs.Net
 			writer.Write(ConsensusExeunitFee);
 			writer.Write7BitEncodedInt(ConsensusTransactionsOverflowRound);
 			
-			writer.Write(RentPerByte);
+			writer.Write(RentPerBytePerDay);
 			writer.Write7BitEncodedInt64(PreviousDayBaseSize);
-			writer.Write(Last365BaseDeltas, i => writer.Write7BitEncodedInt64(i));
+			writer.Write(Last365BaseDeltas, writer.Write7BitEncodedInt64);
 			
 			writer.Write(Emission);
 			writer.Write(Members, i => i.WriteBaseState(writer));
@@ -258,7 +258,7 @@ namespace Uccs.Net
 			ConsensusExeunitFee					= reader.Read<Money>();
 			ConsensusTransactionsOverflowRound	= reader.Read7BitEncodedInt();
 			
-			RentPerByte				= reader.Read<Money>();
+			RentPerBytePerDay		= reader.Read<Money>();
 			PreviousDayBaseSize		= reader.Read7BitEncodedInt64();
 			Last365BaseDeltas		= reader.ReadList(() => reader.Read7BitEncodedInt64());
 			

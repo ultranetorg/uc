@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Nethereum.Util;
 using Nethereum.Web3;
 using RocksDbSharp;
@@ -23,7 +22,7 @@ namespace Uccs.Net
 		public const int					TransactionPlacingLifetime = P*2;
 		public const int					LastGenesisRound = 1+P + 1+P + P;
 		public static readonly Money		BalanceMin				= new Money(0.000_000_001);
-		public static Money					RentFactor(Time time)	=> new Money(time.Days * time.Days)/(Time.FromYears(1).Days  * Time.FromYears(1).Days);
+		public static Money					RentFactor(Time time)	=> new Money(time.Days * time.Days)/(Time.FromYears(1).Days);
 		public const int					EntityAllocationYearsMin = 1;
 		public const int					EntityAllocationYearsMax = 32;
 
@@ -38,10 +37,10 @@ namespace Uccs.Net
 		public RocksDb						Database;
 		public byte[]						BaseState;
 		public byte[]						BaseHash;
-		static readonly byte[]				BaseStateKey = new byte[] {0x01};
-		static readonly byte[]				__BaseHashKey = new byte[] {0x02};
-		static readonly byte[]				ChainStateKey = new byte[] {0x03};
-		static readonly byte[]				GenesisKey = new byte[] {0x04};
+		static readonly byte[]				BaseStateKey = [0x01];
+		static readonly byte[]				__BaseHashKey = [0x02];
+		static readonly byte[]				ChainStateKey = [0x03];
+		static readonly byte[]				GenesisKey = [0x04];
 		public AccountTable					Accounts;
 		public AuthorTable					Authors;
 		public int							Size => Accounts.Clusters.Sum(i => i.MainLength) +
@@ -79,7 +78,7 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (Mcv.ChainFamilyName,			new ())})
+																new (ChainFamilyName,				new ())})
 				cfs.Add(i);
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
@@ -125,7 +124,7 @@ namespace Uccs.Net
 																new (AuthorTable.MetaColumnName,	new ()),
 																new (AuthorTable.MainColumnName,	new ()),
 																new (AuthorTable.MoreColumnName,	new ()),
-																new (Mcv.ChainFamilyName,			new ())})
+																new (ChainFamilyName,				new ())})
 				cfs.Add(i);
 
 			Database = RocksDb.Open(dbo, databasepath, cfs);
@@ -627,7 +626,7 @@ namespace Uccs.Net
 			round.Funds					= round.Id == 0 ? new()							: round.Previous.Funds;
 			round.Emissions				= round.Id == 0 ? new()							: round.Previous.Emissions;
 			round.DomainBids			= round.Id == 0 ? new()							: round.Previous.DomainBids;
-			round.RentPerByte			= round.Id == 0 ? Zone.RentPerBytePerDayMinimum	: round.Previous.RentPerByte;
+			round.RentPerBytePerDay		= round.Id == 0 ? Zone.RentPerBytePerDayMinimum	: round.Previous.RentPerBytePerDay;
 
 		start: 
 			round.Fees				= 0;
@@ -819,7 +818,7 @@ namespace Uccs.Net
 
 				if(round.Last365BaseDeltas.Sum() > Zone.TargetBaseGrowth)
 				{
-					round.RentPerByte = Zone.RentPerBytePerDayMinimum * round.Last365BaseDeltas.Sum() / Zone.TargetBaseGrowth;
+					round.RentPerBytePerDay = Zone.RentPerBytePerDayMinimum * round.Last365BaseDeltas.Sum() / Zone.TargetBaseGrowth;
 				}
 
 				round.PreviousDayBaseSize = s;

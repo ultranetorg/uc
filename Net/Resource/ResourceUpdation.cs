@@ -9,11 +9,10 @@ namespace Uccs.Net
 	{
 		public ResourceAddress		Resource { get; set; }
 		public ResourceChanges		Changes	{ get; set; }
-		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 
-		public override bool		Valid =>	(!Flags.HasFlag(ResourceFlags.Data) || (Data == null || Data.Value.Length <= ResourceData.LengthMax));
-		public override string		Description => $"{Resource}, [{Changes}], [{Flags}], {(Data == null ? null : $", Data={{{Data}}}")}";
+		public override bool		Valid => !Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax;
+		public override string		Description => $"{Resource}, [{Changes}], [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ResourceUpdation()
 		{
@@ -23,22 +22,23 @@ namespace Uccs.Net
 		{
 			Resource = resource;
 		}
-		
-		public void Change(ResourceFlags flags)
-		{
-			Flags = flags;
-		}
 
 		public void Change(ResourceData data)
 		{
 			Data = data;
-			Flags |= ResourceFlags.Data;
 			
 			if(data != null)
-				Changes = ResourceChanges.NotNullData;
+				Changes = ResourceChanges.SetData;
+			else
+				Changes = ResourceChanges.NullData;
 		}
 
-		public void ChangeRecursive()
+		public void Seal()
+		{
+			Changes |= ResourceChanges.Seal;
+		}
+
+		public void MakeRecursive()
 		{
 			Changes |= ResourceChanges.Recursive;
 		}
@@ -46,19 +46,17 @@ namespace Uccs.Net
 		public override void ReadConfirmed(BinaryReader reader)
 		{
 			Resource	= reader.Read<ResourceAddress>();
-			Flags		= (ResourceFlags)reader.ReadByte();
 			Changes		= (ResourceChanges)reader.ReadByte();
 			
-			if(Flags.HasFlag(ResourceFlags.Data) && Changes.HasFlag(ResourceChanges.NotNullData))	Data = reader.Read<ResourceData>();
+			if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
 			writer.Write(Resource);
-			writer.Write((byte)Flags);
 			writer.Write((byte)Changes);
 
-			if(Flags.HasFlag(ResourceFlags.Data) && Changes.HasFlag(ResourceChanges.NotNullData))	writer.Write(Data);
+			if(Changes.HasFlag(ResourceChanges.SetData))	writer.Write(Data);
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -81,7 +79,7 @@ namespace Uccs.Net
 				else
 					rs.Add(r.Id.Ri);
 
-				if(Flags.HasFlag(ResourceFlags.Data))
+				if(Changes.HasFlag(ResourceChanges.SetData))
 				{
 					if(e.Flags.HasFlag(ResourceFlags.Sealed))
 					{
@@ -89,22 +87,39 @@ namespace Uccs.Net
 						return;
 					}
 
-					if(Data != null)
-					{
-						r.Data		= Data;
-						r.Updated	= round.ConsensusTime;
-						r.Flags		|= ResourceFlags.Data;
+					r.Flags		|= ResourceFlags.Data;
+					r.Data		= Data;
+					r.Updated	= round.ConsensusTime;
 	
-						if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
-						{
-							Expand(round, a, r.Data.Value.Length);
-						}
+					if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
+					{
+						Expand(round, a, r.Data.Value.Length);
 					}
-					else
-						r.Flags	&= ~ResourceFlags.Data;
 				}
 
-				r.Flags	|= Flags&ResourceFlags.Sealed;
+				if(Changes.HasFlag(ResourceChanges.NullData))
+				{
+					if(e.Flags.HasFlag(ResourceFlags.Sealed))
+					{
+						Error = Sealed;
+						return;
+					}
+
+					r.Flags	&= ~ResourceFlags.Data;
+				}
+
+				if(Changes.HasFlag(ResourceChanges.Seal))
+				{
+					if(e.Flags.HasFlag(ResourceFlags.Sealed))
+					{
+						Error = Sealed;
+						return;
+					}
+
+					r.Flags	|= ResourceFlags.Sealed;
+
+					PayForEntity(round, Time.FromYears(10));
+				}
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))
 				{

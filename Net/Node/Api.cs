@@ -494,6 +494,63 @@ namespace Uccs.Net
 		}
 	}
 
+	public class CostCall : SunApiCall
+	{
+		public class RentPerYear
+		{
+			public Money PerBytePerDay { get; set; }
+			public Money RentPerEntity { get; set; }
+			public Money Exeunit { get; set; }
+
+			public Money Account { get; set; }
+
+			public Money AuthorFor1Year { get; set; }
+			public Money AuthorFor5Year { get; set; }
+			public Money AuthorFor10Year { get; set; }
+			
+			public Money ResourceFor1Year { get; set; }
+			public Money ResourceFor5Year { get; set; }
+			public Money ResourceFor10Year { get; set; }
+			public Money ResourceSeal { get; set; }
+
+			public Money ResourceDataFor1Year { get; set; }
+			public Money ResourceDataFor5Year { get; set; }
+			public Money ResourceDataFor10Year { get; set; }
+		}
+
+		public Money Rate { get; set; } = 1;
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		{
+			lock(sun.Lock)
+			{
+				if(Rate == 0)
+				{
+					Rate = 1;
+				}
+
+				return new RentPerYear{	PerBytePerDay		= sun.Mcv.LastConfirmedRound.RentPerBytePerDay * Rate,
+										//RentPerEntity		= sun.Mcv.LastConfirmedRound.RentPerEntityPerDay * m,
+										Exeunit				= sun.Mcv.LastConfirmedRound.ConsensusExeunitFee * Rate,
+				
+										Account				= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(10)) * Rate,
+					
+										AuthorFor1Year		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(1)) * Rate,
+										AuthorFor5Year		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(5)) * Rate,
+										AuthorFor10Year		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(10)) * Rate,
+					
+										ResourceFor1Year	= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(1)) * Rate,
+										ResourceFor5Year	= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(5)) * Rate,
+										ResourceFor10Year	= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(10)) * Rate,
+										ResourceSeal		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(10)) * Rate,
+				
+										ResourceDataFor1Year	= Operation.CalculateResourceDataFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(1)) * Rate,
+										ResourceDataFor5Year	= Operation.CalculateResourceDataFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(5)) * Rate,
+										ResourceDataFor10Year	= Operation.CalculateResourceDataFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(10)) * Rate };
+			}
+		}
+	}
+
 	public class EnqeueOperationCall : SunApiCall
 	{
 		public IEnumerable<Operation>	Operations { get; set; }

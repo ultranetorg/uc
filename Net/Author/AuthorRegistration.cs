@@ -10,7 +10,7 @@ namespace Uccs.Net
 
 		public bool					Exclusive => AuthorEntry.IsExclusive(Author); 
 		public override string		Description => $"{Author} for {Years} years";
-		public override bool		Valid => Uccs.Net.Author.Valid(Author) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
+		public override bool		Valid => Net.Author.Valid(Author) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
 		
 		//public static Coin			GetCost(Coin factor, int years) => Chainbase.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
 
@@ -43,7 +43,7 @@ namespace Uccs.Net
 		{
 			var e = chain.Authors.Find(Author, round.Id);
 						
-			if(Uccs.Net.Author.CanRegister(Author, e, round.ConsensusTime, Transaction.Signer))
+			if(Net.Author.CanRegister(Author, e, round.ConsensusTime, Transaction.Signer))
 			{
 				if(e?.Owner == null)
 				{
@@ -59,10 +59,8 @@ namespace Uccs.Net
 				a.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 
 				PayForEntity(round, Time.FromYears(Years));
+				PayForEntity(round, Time.FromYears(Years), a.Resources.Length);
 				PayForBytes(round, a.SpaceUsed, Time.FromYears(Years));
-
-				foreach(var i in a.Resources)
-					PayForEntity(round, Time.FromYears(Years));
 			}
 			else
 				Error = "Failed";

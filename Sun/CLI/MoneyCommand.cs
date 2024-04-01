@@ -77,7 +77,7 @@ namespace Uccs.Sun.CLI
 					Api<Transaction>(new EmitCall{	FromPrivateKey = from.PrivateKey.HexToByteArray(),
 													Wei = Web3.Convert.ToWei(GetString("amount")),
 													To = GetAccountAddress("by"), 
-													Await = Command.GetAwaitStage(Args) });
+													Await = GetAwaitStage(Args) });
 					return null;
 				}
 
@@ -87,6 +87,18 @@ namespace Uccs.Sun.CLI
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
 					return new UntTransfer(AccountAddress.Parse(GetString("to")), Money.ParseDecimal(GetString("amount")));
+				}
+
+		   		case "c" : 
+		   		case "cost" : 
+				{
+					Workflow.CancelAfter(RdcTransactingTimeout);
+
+					var r = Api<CostCall.RentPerYear>(new CostCall {Rate = GetMoney("rate", Money.Zero)});
+					
+					Dump(r);
+
+					return r;
 				}
 
 				default:
