@@ -47,16 +47,16 @@ namespace Uccs.Net
 			if(RequireAuthor(round, Signer, Resource.Author, out var a) == false)
 				return;
 
-			var e = a.Resources.FirstOrDefault(i => i.Address == Resource);
+			var r = a.Resources.FirstOrDefault(i => i.Address == Resource);
 					
-			if(e != null)
+			if(r != null)
 			{
 				Error = AlreadyExists;
 				return;
 			}
 
 			a = Affect(round, Resource.Author);
-			var r = a.AffectResource(Resource.Resource);
+			r = a.AffectResource(Resource.Resource);
 
 			PayForEntity(round, a.Expiration - round.ConsensusTime);
 			
@@ -78,7 +78,7 @@ namespace Uccs.Net
 
 			if(Changes.HasFlag(ResourceChanges.Seal))
 			{
-				if(e.Flags.HasFlag(ResourceFlags.Sealed))
+				if(r.Flags.HasFlag(ResourceFlags.Sealed))
 				{
 					Error = Sealed;
 					return;
