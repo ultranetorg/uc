@@ -66,15 +66,15 @@ namespace Uccs.Net
  		}
 
 
- 		public IEnumerable<Resource> EnumerateSubresources(ResourceAddress resource, int ridmax)
- 		{
-			var a = Find(resource.Author, ridmax);
-			var r = FindResource(resource, ridmax);
-
-			foreach(var i in r.Links)
-			{
-				yield return a.Resources.First(j => j.Id == i);
-			}
- 		}
+ 		//public IEnumerable<Resource> EnumerateSubresources(ResourceAddress resource, int ridmax)
+ 		//{
+		//	var a = Find(resource.Author, ridmax);
+		//	var r = FindResource(resource, ridmax);
+		//
+		//	foreach(var i in r.Inbounds)
+		//	{
+		//		yield return a.Resources.First(j => j.Id == i.Child);
+		//	}
+ 		//}
 	}
 }

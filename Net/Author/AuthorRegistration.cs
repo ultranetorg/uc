@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace Uccs.Net
 {
@@ -39,9 +40,9 @@ namespace Uccs.Net
 			w.Write(Years);
 		}
 
-		public override void Execute(Mcv chain, Round round)
+		public override void Execute(Mcv mcv, Round round)
 		{
-			var e = chain.Authors.Find(Author, round.Id);
+			var e = mcv.Authors.Find(Author, round.Id);
 						
 			if(Net.Author.CanRegister(Author, e, round.ConsensusTime, Transaction.Signer))
 			{
@@ -59,7 +60,8 @@ namespace Uccs.Net
 				a.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 
 				PayForEntity(round, Time.FromYears(Years));
-				PayForEntity(round, Time.FromYears(Years), a.Resources.Length);
+				PayForEntity(round, Time.FromYears(Years), a.Resources.Count(i => !i.Flags.HasFlag(ResourceFlags.Sealed)) + 
+														   a.Resources.Sum(r => r.Outbounds.Count(i => !i.Flags.HasFlag(ResourceLinkFlag.Sealed))));
 				PayForBytes(round, a.SpaceUsed, Time.FromYears(Years));
 			}
 			else

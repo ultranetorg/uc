@@ -1,38 +1,35 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 
 namespace Uccs.Net
 {
 	public class ResourceLinkCreation : Operation
 	{
-		public ResourceAddress	Resource { get; set; }
-		public ResourceAddress	To { get; set; }
-		//public ResourceData		Data { get; set; }
+		public ResourceAddress	Source { get; set; }
+		public ResourceAddress	Destination { get; set; }
 		
-		public override string	Description => $"Resource={Resource}, To={To}";
+		public override string	Description => $"Source={Source}, Destination={Destination}";
 		public override bool	Valid => true;
 
 		public ResourceLinkCreation()
 		{
 		}
 
-		public ResourceLinkCreation(ResourceAddress resource, ResourceAddress to)
+		public ResourceLinkCreation(ResourceAddress source, ResourceAddress destination)
 		{
-			Resource = resource;
-			To = to;
+			Source = source;
+			Destination = destination;
 		}
 
 		public override void WriteConfirmed(BinaryWriter writer)
 		{
-			writer.Write(Resource);
-			writer.Write(To);
+			writer.Write(Source);
+			writer.Write(Destination);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Resource = reader.Read<ResourceAddress>();
-			To		 = reader.Read<ResourceAddress>();
+			Source	= reader.Read<ResourceAddress>();
+			Destination	= reader.Read<ResourceAddress>();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
@@ -45,21 +42,21 @@ namespace Uccs.Net
 				return;
 			}
 
-			if(Require(round, null, Resource, out var a, out var r) == false)
+			if(Require(round, Signer, Source, out var sa, out var sr) == false)
 				return;
 
-			if(Require(round, Signer, To, out var la, out var lr) == false)
+			if(Require(round, null, Destination, out var da, out var dr) == false)
 				return;
 
-			a = Affect(round, Resource.Author);
-			r = a.AffectResource(Resource.Resource);
-			r.AffectLink(lr.Id);
+			sa = Affect(round, Source.Author);
+			sr = sa.AffectResource(Source.Resource);
+			sr.AffectOutbound(dr.Id);
 
-			//r.Links ??= [];
-			//r.Links = r.Links.Append(to.Id).ToArray();
+			da = Affect(round, Destination.Author);
+			dr = da.AffectResource(Destination.Resource);
+			dr.AffectInbound(sr.Id);
 
-			//PayForEntity(round, Time.FromYears(10));
-			//PayForBytes(round, Data.Value.Length, Time.FromYears(10));
+			PayForEntity(round, round.ConsensusTime - sa.Expiration);
 		}
 	}
 }

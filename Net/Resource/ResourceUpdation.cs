@@ -123,13 +123,13 @@ namespace Uccs.Net
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))
 				{
-					if(r.Links != null)
+					if(r.Outbounds != null)
 					{
-						foreach(var i in r.Links)
+						foreach(var i in r.Outbounds)
 						{
-							if(i.Ci == a.Id.Ci && i.Ai == a.Id.Ei)
+							if(i.Destination.Ci.SequenceEqual(a.Id.Ci) && i.Destination.Ai == a.Id.Ei)
 							{
-								var l = mcv.Authors.FindResource(i, round.Id);
+								var l = mcv.Authors.FindResource(i.Destination, round.Id);
 
 								execute(l.Address);
 							}

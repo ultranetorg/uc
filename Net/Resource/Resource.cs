@@ -40,6 +40,34 @@ namespace Uccs.Net
 		Recursive		= 0b1000_0000,
 	}
 
+	public enum ResourceLinkFlag : byte
+	{
+		Sealed			= 0b________1,
+	}
+
+	public class ResourceLink : IBinarySerializable
+	{
+		public ResourceId		Destination { get; set; }
+		public ResourceLinkFlag	Flags { get; set; }
+
+		public ResourceLink Clone()
+		{
+			return new ResourceLink {Destination = Destination, Flags = Flags};
+		}
+
+		public void Read(BinaryReader reader)
+		{
+			Destination	= reader.Read<ResourceId>();
+			Flags		= (ResourceLinkFlag)reader.ReadByte();
+		}
+
+		public void Write(BinaryWriter writer)
+		{
+			writer.Write(Destination);
+			writer.Write((byte)Flags);
+		}
+	}
+
 	public class Resource : IBinarySerializable
 	{
 		public ResourceId			Id { get; set; }
@@ -47,15 +75,17 @@ namespace Uccs.Net
 		public ResourceFlags		Flags { get; set; }
 		public ResourceData			Data { get; set; }
 		public Time					Updated { get; set; }
-		public ResourceId[]			Links { get; set; }
+		public ResourceLink[]		Outbounds { get; set; }
+		public ResourceId[]			Inbounds { get; set; }
 
 		[JsonIgnore]
 		public bool					New;
-		List<ResourceId>			AffectedLinks = new();
+		List<ResourceLink>			AffectedOutbounds = new();
+		List<ResourceId>			AffectedInbounds = new();
 
 		public override string ToString()
 		{
-			return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Links={{{Links.Length}}}";
+			return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
 		}
 
 		public Resource Clone()
@@ -65,8 +95,8 @@ namespace Uccs.Net
 							Flags = Flags,
 							Data = Data?.Clone(),
 							Updated = Updated,
-							Links = Links,
-							};
+							Outbounds = Outbounds,
+							Inbounds = Inbounds };
 		}
 
 		public void Write(BinaryWriter writer)
@@ -77,7 +107,8 @@ namespace Uccs.Net
 			if(Flags.HasFlag(ResourceFlags.Data))
 				writer.Write(Data);
 		
-			writer.Write(Links);
+			writer.Write(Outbounds);
+			writer.Write(Inbounds);
 		}
 
 		public void Read(BinaryReader reader)
@@ -88,28 +119,56 @@ namespace Uccs.Net
 			if(Flags.HasFlag(ResourceFlags.Data))
 				Data = reader.Read<ResourceData>();
 
-			Links = reader.ReadArray<ResourceId>();
+			Outbounds = reader.ReadArray<ResourceLink>();
+			Inbounds = reader.ReadArray<ResourceId>();
 		}
 
-		public void AffectLink(ResourceId to)
+		public ResourceLink AffectOutbound(ResourceId destination)
 		{
-			var i = AffectedLinks.IndexOf(to);
+			var l = AffectedOutbounds.Find(i => i.Destination == destination);
+			
+			if(l != null)
+				return l;
+
+			Outbounds ??= [];
+
+			var i = Array.FindIndex(Outbounds, i => i.Destination == destination);
+
+			if(l != null)
+			{
+				Outbounds = Outbounds.ToArray();
+				Outbounds[i] = l = Outbounds[i].Clone();
+			} 
+			else
+			{
+				l = new ResourceLink {Destination = destination};
+				Outbounds = Outbounds.Append(l).ToArray();
+			}
+
+			AffectedOutbounds.Add(l);
+
+			return l;
+		}
+
+		public void AffectInbound(ResourceId parent)
+		{
+			var i = AffectedInbounds.IndexOf(parent);
 			
 			if(i != -1)
 				return;
 
-			Links ??= [];
+			Inbounds ??= [];
 
 			if(i != -1)
 			{
-				Links = Links.ToArray();
+				Inbounds = Inbounds.ToArray();
 			} 
 			else
 			{
-				Links = Links.Append(to).ToArray();
+				Inbounds = Inbounds.Append(parent).ToArray();
 			}
 
-			AffectedLinks.Add(to);
+			AffectedInbounds.Add(parent);
 		}
 	}
 }
