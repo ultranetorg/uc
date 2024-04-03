@@ -45,7 +45,7 @@ namespace Uccs.Net
  						return x;
 				}
  		
- 			return FindEntry(resource.Author)?.Resources.FirstOrDefault(i => i.Address.Resource == resource.Resource);
+ 			return FindEntry(resource.Author)?.Resources?.FirstOrDefault(i => i.Address.Resource == resource.Resource);
  		}
 
 		
@@ -56,13 +56,13 @@ namespace Uccs.Net
 
  			foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
 			{
-				var x = r.AffectedAuthors.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Ai).Value?.Resources.FirstOrDefault(i => i.Id.Ri == id.Ri);
+				var x = r.AffectedAuthors.FirstOrDefault(i => i.Value.Id.Ci.SequenceEqual(id.Ci) && i.Value.Id.Ei == id.Ai).Value?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
 
 				if(x != null)
 					return x;
 			}
  		
- 			return FindEntry(new EntityId(id.Ci, id.Ai))?.Resources.FirstOrDefault(i => i.Id.Ri == id.Ri);
+ 			return FindEntry(new EntityId(id.Ci, id.Ai))?.Resources?.FirstOrDefault(i => i.Id.Ri == id.Ri);
  		}
 
 

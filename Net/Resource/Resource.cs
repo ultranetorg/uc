@@ -50,6 +50,8 @@ namespace Uccs.Net
 		public ResourceId		Destination { get; set; }
 		public ResourceLinkFlag	Flags { get; set; }
 
+		public bool				Affected;
+
 		public ResourceLink Clone()
 		{
 			return new ResourceLink {Destination = Destination, Flags = Flags};
@@ -80,8 +82,9 @@ namespace Uccs.Net
 
 		[JsonIgnore]
 		public bool					New;
-		List<ResourceLink>			AffectedOutbounds = new();
-		List<ResourceId>			AffectedInbounds = new();
+		public bool					Affected;
+		bool						OutboundsCloned;
+		bool						InboundsCloned;
 
 		public override string ToString()
 		{
@@ -125,50 +128,62 @@ namespace Uccs.Net
 
 		public ResourceLink AffectOutbound(ResourceId destination)
 		{
-			var l = AffectedOutbounds.Find(i => i.Destination == destination);
-			
-			if(l != null)
-				return l;
+			var i = Outbounds == null ? -1 : Array.FindIndex(Outbounds, i => i.Destination == destination);
 
-			Outbounds ??= [];
-
-			var i = Array.FindIndex(Outbounds, i => i.Destination == destination);
-
-			if(l != null)
+			if(i == -1)
 			{
-				Outbounds = Outbounds.ToArray();
-				Outbounds[i] = l = Outbounds[i].Clone();
+				var l = new ResourceLink {Affected = true, Destination = destination};
+				
+				Outbounds = Outbounds == null ? [l] : Outbounds.Append(l).ToArray();
+				OutboundsCloned = true;
+				
+				return l;
 			} 
 			else
 			{
-				l = new ResourceLink {Destination = destination};
-				Outbounds = Outbounds.Append(l).ToArray();
+				if(!OutboundsCloned)
+				{
+					Outbounds = Outbounds.ToArray();
+					OutboundsCloned = true;
+				}
+
+				if(!Outbounds[i].Affected)
+				{	
+					Outbounds[i] = Outbounds[i].Clone();
+					Outbounds[i].Affected = true;
+				}
+
+				return Outbounds[i];
 			}
-
-			AffectedOutbounds.Add(l);
-
-			return l;
 		}
 
-		public void AffectInbound(ResourceId parent)
+		public void AffectInbound(ResourceId source)
 		{
-			var i = AffectedInbounds.IndexOf(parent);
+			var i = Inbounds == null ? -1 : Array.IndexOf(Inbounds, source);
 			
 			if(i != -1)
-				return;
-
-			Inbounds ??= [];
-
-			if(i != -1)
 			{
-				Inbounds = Inbounds.ToArray();
+				if(!InboundsCloned)
+					Inbounds = Inbounds.ToArray();
 			} 
 			else
 			{
-				Inbounds = Inbounds.Append(parent).ToArray();
+				Inbounds = Inbounds == null ? [source] : Inbounds.Append(source).ToArray();
 			}
 
-			AffectedInbounds.Add(parent);
+			InboundsCloned = true;
+		}
+
+		public void RemoveOutbound(ResourceId destination)
+		{
+			Outbounds = Outbounds.Where(i => i.Destination != destination).ToArray();
+			OutboundsCloned = true;
+		}
+
+		public void RemoveInbound(ResourceId destination)
+		{
+			Inbounds = Inbounds.Where(i => i != destination).ToArray();
+			InboundsCloned = true;
 		}
 	}
 }

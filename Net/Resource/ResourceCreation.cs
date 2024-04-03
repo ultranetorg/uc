@@ -47,7 +47,7 @@ namespace Uccs.Net
 			if(RequireAuthor(round, Signer, Resource.Author, out var a) == false)
 				return;
 
-			var r = a.Resources.FirstOrDefault(i => i.Address == Resource);
+			var r = a.Resources?.FirstOrDefault(i => i.Address == Resource);
 					
 			if(r != null)
 			{

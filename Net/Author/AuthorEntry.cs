@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -12,10 +12,11 @@ namespace Uccs.Net
 		
 		[JsonIgnore]
 		public bool				New { get; set; }
-		
+		public bool				Affected;
 		Mcv						Mcv;
-		public List<Resource>	AffectedResources = new();
-		public Resource[]		Resources { get; set; } = {};
+		bool					ResourcesCloned;
+		
+		public Resource[]		Resources { get; set; }
 
 		public AuthorEntry()
 		{
@@ -83,31 +84,48 @@ namespace Uccs.Net
 
 		public Resource AffectResource(string resource)
 		{
-			var r = AffectedResources.Find(i => i.Address.Resource == resource);
-			
-			if(r != null)
-				return r;
+			if(!Affected)
+				Debugger.Break();
 
-			var i = Array.FindIndex(Resources, i => i.Address.Resource == resource);
+			var i = Resources == null ? -1 : Array.FindIndex(Resources, i => i.Address.Resource == resource);
 
 			if(i != -1)
 			{
-				Resources = Resources.ToArray();
+				if(!ResourcesCloned && Resources[i].Affected)
+					Debugger.Break();
 
-				r = Resources[i].Clone();
-				Resources[i] = r;
+				if(!ResourcesCloned)
+				{
+					Resources = Resources.ToArray();
+					ResourcesCloned = true;
+				}
+
+				if(!Resources[i].Affected)
+				{
+					Resources[i] = Resources[i].Clone();
+					Resources[i].Affected = true;
+				}
+				
+				return Resources[i];
 			} 
 			else
 			{
-				r = new Resource {Address = new ResourceAddress(Name, resource),
-								  Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++),
-								  New = true};
-				Resources = Resources.Append(r).ToArray();
+				var r = new Resource {	Affected = true,
+										New = true,
+										Address = new ResourceAddress(Name, resource),
+										Id = new ResourceId(Id.Ci, Id.Ei, NextResourceId++) };
+
+				Resources = Resources == null ? [r] : Resources.Append(r).ToArray();
+				ResourcesCloned = true;
+
+				return r;
 			}
+		}
 
-			AffectedResources.Add(r);
-
-			return r;
+		public void DeleteResource(Resource resource)
+		{
+			Resources = Resources.Where(i => i != resource).ToArray();
+			ResourcesCloned = true;
 		}
 	}
 }

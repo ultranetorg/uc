@@ -60,8 +60,8 @@ namespace Uccs.Net
 				a.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 
 				PayForEntity(round, Time.FromYears(Years));
-				PayForEntity(round, Time.FromYears(Years), a.Resources.Count(i => !i.Flags.HasFlag(ResourceFlags.Sealed)) + 
-														   a.Resources.Sum(r => r.Outbounds.Count(i => !i.Flags.HasFlag(ResourceLinkFlag.Sealed))));
+				PayForEntity(round, Time.FromYears(Years),	a.Resources == null ? 0 :  (a.Resources.Count(i => !i.Flags.HasFlag(ResourceFlags.Sealed)) + 
+																						a.Resources.Sum(r => r.Outbounds.Count(i => !i.Flags.HasFlag(ResourceLinkFlag.Sealed)))));
 				PayForBytes(round, a.SpaceUsed, Time.FromYears(Years));
 			}
 			else

@@ -66,7 +66,6 @@ namespace Uccs.Net
 		public const string				FailureExt = "failure";
 		public const int				Timeout = 5000;
 		public const int				OperationsQueueLimit = 1000;
-		const int						BalanceWidth = 24;
 
 		public Zone						Zone;
 		public Settings					Settings;
@@ -179,13 +178,14 @@ namespace Uccs.Net
 		{
 			var gens = Mcv?.LastConfirmedRound != null ? Settings.Generators.Where(i => Mcv.LastConfirmedRound.Members.Any(j => j.Account == i)) : new AccountKey[0];
 	
-			return string.Join(" - ", new string[]{	(Settings.IP != null ? $"{IP}" : null),
-													$"{(Roles.HasFlag(Role.Base) ? "B" : null)}" +
-													$"{(Roles.HasFlag(Role.Chain) ? "C" : null)}" +
-													$"{(Roles.HasFlag(Role.Seed) ? "S" : null)}",
+			return string.Join(" - ", new string[]{	(Settings.IP != null ? IP.ToString() : null),
+													(ApiServer != null ? "A" : null) +
+													(Roles.HasFlag(Role.Base) ? "B" : null) +
+													(Roles.HasFlag(Role.Chain) ? "C" : null) +
+													(Roles.HasFlag(Role.Seed) ? "S" : null),
 													Connections.Count() < Settings.PeersPermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Synchronization} - {Mcv.LastConfirmedRound?.Id} - {Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
-													$"{OutgoingTransactions.Count}ot/{IncomingTransactions.Count}it"}
+													$"T(i/o)={IncomingTransactions.Count}/{OutgoingTransactions.Count}"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 		}
 

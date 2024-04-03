@@ -198,7 +198,11 @@ namespace Uccs.Net
 			var e = Mcv.Authors.Find(author, Id - 1);
 
 			if(e != null)
-				return AffectedAuthors[author] = e.Clone();
+			{
+				AffectedAuthors[author] = e.Clone();
+				AffectedAuthors[author].Affected  = true;;
+				return AffectedAuthors[author];
+			}
 			else
 			{
 				var ci = Mcv.Authors.KeyToCluster(author).ToArray();
@@ -213,9 +217,10 @@ namespace Uccs.Net
 				
 				ai = NextAuthorIds[ci]++;
 
-				return AffectedAuthors[author] = new AuthorEntry(Mcv){	Id = new EntityId(ci, ai), 
-																		Name = author,
-																		New = true};
+				return AffectedAuthors[author] = new AuthorEntry(Mcv){	Affected = true,
+																		New = true,
+																		Id = new EntityId(ci, ai), 
+																		Name = author};
 			}
 		}
 

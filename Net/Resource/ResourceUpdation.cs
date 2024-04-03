@@ -63,10 +63,10 @@ namespace Uccs.Net
 		{
 			var rs = new HashSet<int>();
 
-			if(Require(round, Signer, Resource, out var ae, out var e) == false)
+			if(Require(round, Signer, Resource, out var a, out var x) == false)
 				return;
 
-			var a = Affect(round, Resource.Author);
+			a = Affect(round, Resource.Author);
 			
 			void execute(ResourceAddress resource)
 			{
@@ -81,7 +81,7 @@ namespace Uccs.Net
 
 				if(Changes.HasFlag(ResourceChanges.SetData))
 				{
-					if(e.Flags.HasFlag(ResourceFlags.Sealed))
+					if(r.Flags.HasFlag(ResourceFlags.Sealed))
 					{
 						Error = Sealed;
 						return;
@@ -99,7 +99,7 @@ namespace Uccs.Net
 
 				if(Changes.HasFlag(ResourceChanges.NullData))
 				{
-					if(e.Flags.HasFlag(ResourceFlags.Sealed))
+					if(r.Flags.HasFlag(ResourceFlags.Sealed))
 					{
 						Error = Sealed;
 						return;
@@ -110,7 +110,7 @@ namespace Uccs.Net
 
 				if(Changes.HasFlag(ResourceChanges.Seal))
 				{
-					if(e.Flags.HasFlag(ResourceFlags.Sealed))
+					if(r.Flags.HasFlag(ResourceFlags.Sealed))
 					{
 						Error = Sealed;
 						return;

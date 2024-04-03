@@ -143,6 +143,7 @@ namespace Uccs.Sun.CLI
 				case ReleaseCommand.Keyword:	c = new ReleaseCommand(this, args); break;
 				case NetCommand.Keyword:		c = new NetCommand(this, args); break;
 				case LogCommand.Keyword:		c = new LogCommand(this, args); break;
+				case LinkCommand.Keyword:		c = new LinkCommand(this, args); break;
 				default:
 					throw new SyntaxException("Unknown command");
 			}

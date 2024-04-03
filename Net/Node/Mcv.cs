@@ -688,6 +688,21 @@ namespace Uccs.Net
 					round.AffectAccount(t.Signer).Transactions.Add(round.Id);
 				}
 			}
+
+			foreach(var a in round.AffectedAuthors)
+			{
+				a.Value.Affected = false;
+
+				if(a.Value.Resources != null)
+					foreach(var r in a.Value.Resources.Where(i => i.Affected))
+					{
+						r.Affected = false;
+
+						if(r.Outbounds != null)
+							foreach(var l in r.Outbounds.Where(i => i.Affected))
+								l.Affected = false;
+					}
+			}
 		}
 
 		public void Confirm(Round round)

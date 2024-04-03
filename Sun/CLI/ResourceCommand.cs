@@ -36,12 +36,12 @@ namespace Uccs.Sun.CLI
 												Has("seal"));
 				}
 
-				case "cl" : 
-				case "createlink" : 
+				case "r" : 
+				case "remove" : 
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceLinkCreation(ResourceAddress.Parse(Args.Nodes[1].Name), GetResourceAddress("destination"));
+					return new ResourceDeletion(ResourceAddress.Parse(Args.Nodes[1].Name));
 				}
 
 				case "u" : 
@@ -66,34 +66,6 @@ namespace Uccs.Sun.CLI
 					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					Dump(r.Resource);
-
-					return r;
-				}
-
-				case "lo" :
-		   		case "listoutbounds" :
-				{
-					Workflow.CancelAfter(RdcQueryTimeout);
-
-					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
-					
-					Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i.Destination}).Resource}),
-						 ["#", "Flags", "Destination", "Destination Data"],
-						 [i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data.Interpretation]);
-
-					return r;
-				}
-
-				case "li" :
-		   		case "listinbounds" :
-				{
-					Workflow.CancelAfter(RdcQueryTimeout);
-
-					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
-					
-					Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i}).Resource}),
-						 ["#", "Source", "Source Data"],
-						 [i => i.L, i => i.R.Address, i => i.R.Data.Interpretation]);
 
 					return r;
 				}
