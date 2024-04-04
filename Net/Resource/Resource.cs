@@ -33,16 +33,23 @@ namespace Uccs.Net
 	[Flags]
 	public enum ResourceChanges : byte
 	{
-		None			= 0,
-		SetData			= 0b________1,
-		NullData		= 0b_______10,
-		Seal			= 0b______100,
-		Recursive		= 0b1000_0000,
+		None		= 0,
+		SetData		= 0b________1,
+		NullData	= 0b_______10,
+		Seal		= 0b______100,
+		Recursive	= 0b1000_0000,
 	}
 
 	public enum ResourceLinkFlag : byte
 	{
-		Sealed			= 0b________1,
+		None		= 0,
+		Sealed		= 0b________1,
+	}
+
+	public enum ResourceLinkChanges : byte
+	{
+		None,
+		Seal
 	}
 
 	public class ResourceLink : IBinarySerializable

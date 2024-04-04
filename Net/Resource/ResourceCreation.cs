@@ -58,7 +58,6 @@ namespace Uccs.Net
 			a = Affect(round, Resource.Author);
 			r = a.AffectResource(Resource.Resource);
 
-			PayForEntity(round, a.Expiration - round.ConsensusTime);
 			
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
@@ -86,8 +85,10 @@ namespace Uccs.Net
 
 				r.Flags	|= ResourceFlags.Sealed;
 
-				PayForEntity(round, Time.FromYears(10));
+				PayForEntity(round, Mcv.Forever);
 			}
+			else
+				PayForEntity(round, a.Expiration - round.ConsensusTime);
 		}
 	}
 }

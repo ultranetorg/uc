@@ -38,6 +38,7 @@ namespace Uccs.Net
 		public const string		ExistingAccountRequired = "ExistingAccountRequired";
 		public const string		Expired = "Expired";
 		public const string		Sealed = "Sealed";
+		public const string		NotSealed = "NotSealed";
 		public const string		AlreadyExists = "Already exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
@@ -133,7 +134,7 @@ namespace Uccs.Net
 
 			if(e == null) /// new Account
 			{
-				PayForEntity(round, Time.FromYears(10));
+				PayForEntity(round, Mcv.Forever);
 			}
 
 			return round.AffectAccount(account);

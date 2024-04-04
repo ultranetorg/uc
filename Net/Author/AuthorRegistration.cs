@@ -9,9 +9,9 @@ namespace Uccs.Net
 		public string				Author {get; set;}
 		public byte					Years {get; set;}
 
-		public bool					Exclusive => AuthorEntry.IsExclusive(Author); 
+		public bool					Exclusive => Net.Author.IsExclusive(Author); 
 		public override string		Description => $"{Author} for {Years} years";
-		public override bool		Valid => Net.Author.Valid(Author) && Mcv.EntityAllocationYearsMin <= Years && Years <= Mcv.EntityAllocationYearsMax;
+		public override bool		Valid => Net.Author.Valid(Author) && Mcv.EntityRentYearsMin <= Years && Years <= Mcv.EntityRentYearsMax;
 		
 		//public static Coin			GetCost(Coin factor, int years) => Chainbase.AuthorFeePerYear * years * (Emission.FactorEnd - factor) / Emission.FactorEnd;
 
@@ -56,8 +56,8 @@ namespace Uccs.Net
 				var a = Affect(round, Author);
 				
 				a.LastWinner	= null;
+				a.Expiration	= (a.Owner != Signer ? round.ConsensusTime : a.Expiration) + Time.FromYears(Years);
 				a.Owner			= Signer;
-				a.Expiration	= round.ConsensusTime + Time.FromYears(Years);
 
 				PayForEntity(round, Time.FromYears(Years));
 				PayForEntity(round, Time.FromYears(Years),	a.Resources == null ? 0 :  (a.Resources.Count(i => !i.Flags.HasFlag(ResourceFlags.Sealed)) + 

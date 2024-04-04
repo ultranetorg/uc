@@ -118,7 +118,7 @@ namespace Uccs.Net
 
 					r.Flags	|= ResourceFlags.Sealed;
 
-					PayForEntity(round, Time.FromYears(10));
+					PayForEntity(round, Mcv.Forever);
 				}
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))

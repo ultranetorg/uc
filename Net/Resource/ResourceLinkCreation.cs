@@ -4,14 +4,21 @@ namespace Uccs.Net
 {
 	public class ResourceLinkCreation : Operation
 	{
-		public ResourceAddress	Source { get; set; }
-		public ResourceAddress	Destination { get; set; }
+		public ResourceAddress		Source { get; set; }
+		public ResourceAddress		Destination { get; set; }
+		public ResourceLinkChanges	Changes  { get; set; }
 		
 		public override string	Description => $"Source={Source}, Destination={Destination}";
 		public override bool	Valid => true;
 
 		public ResourceLinkCreation()
 		{
+		}
+
+		public ResourceLinkCreation(bool seal)
+		{
+			if(seal)
+				Changes |= ResourceLinkChanges.Seal;
 		}
 
 		public ResourceLinkCreation(ResourceAddress source, ResourceAddress destination)
@@ -24,24 +31,18 @@ namespace Uccs.Net
 		{
 			writer.Write(Source);
 			writer.Write(Destination);
+			writer.Write((byte)Changes);
 		}
 		
 		public override void ReadConfirmed(BinaryReader reader)
 		{
-			Source	= reader.Read<ResourceAddress>();
+			Source		= reader.Read<ResourceAddress>();
 			Destination	= reader.Read<ResourceAddress>();
+			Changes		= (ResourceLinkChanges)reader.ReadByte();
 		}
 
 		public override void Execute(Mcv mcv, Round round)
 		{
-			var s = mcv.Accounts.Find(Signer, round.Id);
-					
-			if(s == null)
-			{
-				Error = NotFound;
-				return;
-			}
-
 			if(Require(round, Signer, Source, out var sa, out var sr) == false)
 				return;
 
@@ -56,7 +57,18 @@ namespace Uccs.Net
 			dr = da.AffectResource(Destination.Resource);
 			dr.AffectInbound(sr.Id);
 
-			PayForEntity(round, round.ConsensusTime - sa.Expiration);
+			if(Changes.HasFlag(ResourceLinkChanges.Seal))
+			{
+				if(!sr.Flags.HasFlag(ResourceFlags.Sealed) || !dr.Flags.HasFlag(ResourceFlags.Sealed))
+				{
+					Error = NotSealed;
+					return;
+				}
+
+				PayForEntity(round, Mcv.Forever);
+			}
+			else
+				PayForEntity(round, round.ConsensusTime - sa.Expiration);
 		}
 	}
 }
