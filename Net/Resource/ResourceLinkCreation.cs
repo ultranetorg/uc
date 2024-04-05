@@ -65,10 +65,10 @@ namespace Uccs.Net
 					return;
 				}
 
-				PayForEntity(round, Mcv.Forever);
+				Pay(round, Mcv.EntityLength, Mcv.Forever);
 			}
 			else
-				PayForEntity(round, round.ConsensusTime - sa.Expiration);
+				Allocate(round, sa, Mcv.EntityLength);
 		}
 	}
 }

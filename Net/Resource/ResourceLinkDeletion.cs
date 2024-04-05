@@ -58,6 +58,7 @@ namespace Uccs.Net
 			sa = Affect(round, Source.Author);
 			sr = sa.AffectResource(Source.Resource);
 			sr.RemoveOutbound(dr.Id);
+			Free(sa, Mcv.EntityLength);
 
 			da = Affect(round, Destination.Author);
 			dr = da.AffectResource(Destination.Resource);

@@ -10,7 +10,8 @@ namespace Uccs.Net
 		public ResourceChanges		Changes { get; set; }
 		public ResourceData			Data { get; set; }
 
-		public override bool		Valid => !Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax);
+		public override bool		Valid => (!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
+											 (!Changes.HasFlag(ResourceChanges.NullData));
 		public override string		Description => $"{Resource}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
 
 		public ResourceCreation()
@@ -58,37 +59,21 @@ namespace Uccs.Net
 			a = Affect(round, Resource.Author);
 			r = a.AffectResource(Resource.Resource);
 
-			
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
-				r.Updated	= round.ConsensusTime;
 				r.Data		= Data;
-
-				if(Data != null)
-				{
-					r.Flags |= ResourceFlags.Data;
-
-					if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
-					{
-						Expand(round, a, r.Data.Value.Length);
-					}
-				} 
+				r.Flags		|= ResourceFlags.Data;
+				r.Updated	= round.ConsensusTime;
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Seal))
 			{
-				if(r.Flags.HasFlag(ResourceFlags.Sealed))
-				{
-					Error = Sealed;
-					return;
-				}
-
 				r.Flags	|= ResourceFlags.Sealed;
 
-				PayForEntity(round, Mcv.Forever);
+				Pay(round, r.Length, Mcv.Forever);
 			}
 			else
-				PayForEntity(round, a.Expiration - round.ConsensusTime);
+				Allocate(round, a, r.Length);
 		}
 	}
 }

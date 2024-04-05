@@ -93,6 +93,8 @@ namespace Uccs.Net
 		bool						OutboundsCloned;
 		bool						InboundsCloned;
 
+		public short				Length => (short)(Mcv.EntityLength + (Flags.HasFlag(ResourceFlags.Data) ? Data.Value.Length : 0));
+
 		public override string ToString()
 		{
 			return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";

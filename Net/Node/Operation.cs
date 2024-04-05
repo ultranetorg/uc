@@ -39,6 +39,7 @@ namespace Uccs.Net
 		public const string		Expired = "Expired";
 		public const string		Sealed = "Sealed";
 		public const string		NotSealed = "NotSealed";
+		public const string		NoData = "NoData";
 		public const string		AlreadyExists = "Already exists";
 		public const string		NotSequential = "Not sequential";
 		public const string		NotEnoughUNT = "Not enough UNT";
@@ -94,38 +95,48 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-		public static Money CalculateEntityFee(Money rentperentity, Time time)
-		{
-			return rentperentity * Mcv.RentFactor(time);
-		}
+// 		public static Money CalculateEntityFee(Money rentperentity, Time time)
+// 		{
+// 			return rentperentity * Mcv.RentFactor(time);
+// 		}
 
-		public static Money CalculateResourceDataFee(Money rentperbyteperday, int length, Time time)
+		public static Money CalculateFee(Money rentperbyteperday, int length, Time time)
 		{
 			return rentperbyteperday * length * Mcv.RentFactor(time);
 		}
 
-		public void PayForBytes(Round round, int length, Time time)
+		public void Pay(Round round, int length, Time time)
 		{
-			var fee = CalculateResourceDataFee(round.RentPerBytePerDay, length, time);
+			var fee = CalculateFee(round.RentPerBytePerDay, length, time);
 			
 			Affect(round, Signer).Balance -= fee;
 			Fee += fee;
 		}
 
-		public void PayForEntity(Round round, Time time, int count = 1)
+// 		public void PayForEntity(Round round, Time time, int count = 1)
+// 		{
+// 			var fee = CalculateEntityFee(round.RentPerEntityPerDay, time) * count;
+// 			
+// 			Affect(round, Signer).Balance -= fee;
+// 			Fee += fee;
+// 		}
+
+		public void Allocate(Round round, Author author, int toallocate)
 		{
-			var fee = CalculateEntityFee(round.RentPerEntityPerDay, time) * count;
-			
-			Affect(round, Signer).Balance -= fee;
-			Fee += fee;
+			if(author.SpaceReserved < author.SpaceUsed + toallocate)
+			{
+				Pay(round, author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration - round.ConsensusTime);
+	
+				author.SpaceReserved = 
+				author.SpaceUsed = (short)(author.SpaceUsed + toallocate);
+			}
+			else
+				author.SpaceUsed += (short)toallocate;
 		}
 
-		public void Expand(Round round, Author author, int toallocate)
+		public void Free(Author author, int toallocate)
 		{
-			PayForBytes(round, author.SpaceUsed + toallocate - author.SpaceReserved, author.Expiration - round.ConsensusTime);
-
-			author.SpaceUsed		= (short)(author.SpaceUsed + toallocate);
-			author.SpaceReserved	= author.SpaceUsed;
+			author.SpaceUsed -= (short)toallocate;
 		}
 
 		public AccountEntry Affect(Round round, AccountAddress account)
@@ -134,7 +145,7 @@ namespace Uccs.Net
 
 			if(e == null) /// new Account
 			{
-				PayForEntity(round, Mcv.Forever);
+				Pay(round, Mcv.EntityLength, Mcv.Forever);
 			}
 
 			return round.AffectAccount(account);

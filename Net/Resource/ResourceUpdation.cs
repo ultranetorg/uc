@@ -11,7 +11,8 @@ namespace Uccs.Net
 		public ResourceChanges		Changes	{ get; set; }
 		public ResourceData			Data { get; set; }
 
-		public override bool		Valid => !Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax;
+		public override bool		Valid => (!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
+											 (!Changes.HasFlag(ResourceChanges.SetData) || !Changes.HasFlag(ResourceChanges.NullData));
 		public override string		Description => $"{Resource}, [{Changes}], [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
 		public ResourceUpdation()
@@ -91,13 +92,9 @@ namespace Uccs.Net
 					r.Data		= Data;
 					r.Updated	= round.ConsensusTime;
 	
-					if(a.SpaceReserved < a.SpaceUsed + r.Data.Value.Length)
-					{
-						Expand(round, a, r.Data.Value.Length);
-					}
+					Allocate(round, a, r.Data.Value.Length);
 				}
-
-				if(Changes.HasFlag(ResourceChanges.NullData))
+				else if(Changes.HasFlag(ResourceChanges.NullData))
 				{
 					if(r.Flags.HasFlag(ResourceFlags.Sealed))
 					{
@@ -105,7 +102,14 @@ namespace Uccs.Net
 						return;
 					}
 
+					if(!r.Flags.HasFlag(ResourceFlags.Data))
+					{
+						Error = NoData;
+						return;
+					}
+
 					r.Flags	&= ~ResourceFlags.Data;
+					Free(a, r.Data.Value.Length);
 				}
 
 				if(Changes.HasFlag(ResourceChanges.Seal))
@@ -118,7 +122,8 @@ namespace Uccs.Net
 
 					r.Flags	|= ResourceFlags.Sealed;
 
-					PayForEntity(round, Mcv.Forever);
+					Pay(round, r.Length, Mcv.Forever);
+					Free(a, r.Length);
 				}
 
 				if(Changes.HasFlag(ResourceChanges.Recursive))

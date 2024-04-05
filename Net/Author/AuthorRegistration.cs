@@ -58,11 +58,13 @@ namespace Uccs.Net
 				a.LastWinner	= null;
 				a.Expiration	= (a.Owner != Signer ? round.ConsensusTime : a.Expiration) + Time.FromYears(Years);
 				a.Owner			= Signer;
+				a.SpaceReserved	= a.SpaceUsed;
 
-				PayForEntity(round, Time.FromYears(Years));
-				PayForEntity(round, Time.FromYears(Years),	a.Resources == null ? 0 :  (a.Resources.Count(i => !i.Flags.HasFlag(ResourceFlags.Sealed)) + 
-																						a.Resources.Sum(r => r.Outbounds.Count(i => !i.Flags.HasFlag(ResourceLinkFlag.Sealed)))));
-				PayForBytes(round, a.SpaceUsed, Time.FromYears(Years));
+				Pay(round, a.SpaceUsed, Time.FromYears(Years));
+				//PayForEntity(round, Time.FromYears(Years));
+				//PayForEntity(round, Time.FromYears(Years),	a.Resources == null ? 0 :  (a.Resources.Count(i => !i.Flags.HasFlag(ResourceFlags.Sealed)) + 
+				//																		a.Resources.Sum(r => r.Outbounds.Count(i => !i.Flags.HasFlag(ResourceLinkFlag.Sealed)))));
+				//PayForBytes(round, a.SpaceUsed, Time.FromYears(Years));
 			}
 			else
 				Error = "Failed";

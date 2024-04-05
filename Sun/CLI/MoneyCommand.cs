@@ -94,7 +94,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					var r = Api<CostCall.RentPerYear>(new CostCall {Rate = GetMoney("rate", Money.Zero)});
+					var r = Api<CostCall.Report>(new CostCall {Rate = GetMoney("rate", Money.Zero)});
 					
 					Dump(r);
 

@@ -496,26 +496,25 @@ namespace Uccs.Net
 
 	public class CostCall : SunApiCall
 	{
-		public class RentPerYear
+		public class Report
 		{
-			public Money PerBytePerDay { get; set; }
-			public Money RentPerEntity { get; set; }
+			public Money RentBytePerDay { get; set; }
 			public Money Exeunit { get; set; }
 
-			public Money Account { get; set; }
+			public Money RentAccount { get; set; }
 
-			public Money AuthorFor1Year { get; set; }
-			public Money AuthorFor5Year { get; set; }
-			public Money AuthorFor10Year { get; set; }
+			public Money RentAuthorFor1Year { get; set; }
+			public Money RentAuthorFor5Year { get; set; }
+			public Money RentAuthorForever { get; set; }
 			
-			public Money ResourceFor1Year { get; set; }
-			public Money ResourceFor5Year { get; set; }
-			public Money ResourceFor10Year { get; set; }
-			public Money ResourceSeal { get; set; }
+			public Money RentResourceFor1Year { get; set; }
+			public Money RentResourceFor5Year { get; set; }
+			public Money RentResourceFor10Year { get; set; }
+			public Money RentResourceForever { get; set; }
 
-			public Money ResourceDataFor1Year { get; set; }
-			public Money ResourceDataFor5Year { get; set; }
-			public Money ResourceDataFor10Year { get; set; }
+			public Money RentResourceDataFor1Year { get; set; }
+			public Money RentResourceDataFor5Year { get; set; }
+			public Money RentResourceDataForever { get; set; }
 		}
 
 		public Money Rate { get; set; } = 1;
@@ -529,24 +528,23 @@ namespace Uccs.Net
 					Rate = 1;
 				}
 
-				return new RentPerYear{	PerBytePerDay		= sun.Mcv.LastConfirmedRound.RentPerBytePerDay * Rate,
-										//RentPerEntity		= sun.Mcv.LastConfirmedRound.RentPerEntityPerDay * m,
-										Exeunit				= sun.Mcv.LastConfirmedRound.ConsensusExeunitFee * Rate,
+				return new Report {	RentBytePerDay				= sun.Mcv.LastConfirmedRound.RentPerBytePerDay * Rate,
+									//RentPerEntity				= sun.Mcv.LastConfirmedRound.RentPerEntityPerDay * m,
+									Exeunit						= sun.Mcv.LastConfirmedRound.ConsensusExeunitFee * Rate,
 				
-										Account				= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.Forever) * Rate,
+									RentAccount					= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
 					
-										AuthorFor1Year		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(1)) * Rate,
-										AuthorFor5Year		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(5)) * Rate,
-										AuthorFor10Year		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(10)) * Rate,
+									RentAuthorFor1Year			= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.EntityLength, Time.FromYears(1)) * Rate,
+									RentAuthorFor5Year			= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.EntityLength, Time.FromYears(5)) * Rate,
+									RentAuthorForever			= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
 					
-										ResourceFor1Year	= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(1)) * Rate,
-										ResourceFor5Year	= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(5)) * Rate,
-										ResourceFor10Year	= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Time.FromYears(10)) * Rate,
-										ResourceSeal		= Operation.CalculateEntityFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.Forever) * Rate,
+									RentResourceFor1Year		= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.EntityLength, Time.FromYears(1)) * Rate,
+									RentResourceFor5Year		= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.EntityLength, Time.FromYears(5)) * Rate,
+									RentResourceForever			= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerEntityPerDay, Mcv.EntityLength, Mcv.Forever) * Rate,
 				
-										ResourceDataFor1Year	= Operation.CalculateResourceDataFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(1)) * Rate,
-										ResourceDataFor5Year	= Operation.CalculateResourceDataFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(5)) * Rate,
-										ResourceDataFor10Year	= Operation.CalculateResourceDataFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(10)) * Rate };
+									RentResourceDataFor1Year	= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(1)) * Rate,
+									RentResourceDataFor5Year	= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(5)) * Rate,
+									RentResourceDataForever		= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Mcv.Forever) * Rate };
 			}
 		}
 	}

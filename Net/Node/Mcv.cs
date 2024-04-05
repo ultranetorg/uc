@@ -22,6 +22,7 @@ namespace Uccs.Net
 		public const int					TransactionPlacingLifetime = P*2;
 		public const int					LastGenesisRound = 1+P + 1+P + P;
 		public static readonly Money		BalanceMin = new Money(0.000_000_001);
+		public const int					EntityLength = 100;
 		public const int					EntityRentYearsMin = 1;
 		public const int					EntityRentYearsMax = 9;
 		public static readonly Time			Forever = Time.FromYears(10);
