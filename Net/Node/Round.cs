@@ -68,6 +68,7 @@ namespace Uccs.Net
 		public Dictionary<string, AuthorEntry>				AffectedAuthors = new();
 
 		public Mcv											Mcv;
+		public Zone											Zone => Mcv.Zone;
 
 		public int RequiredVotes
 		{
@@ -222,6 +223,334 @@ namespace Uccs.Net
 																		Id = new EntityId(ci, ai), 
 																		Name = author};
 			}
+		}
+
+		public byte[] Summarize()
+		{
+			var m = Id >= Mcv.DeclareToGenerateDelay ? Mcv.VotersOf(this) : new();
+			var gq = m.Count * 2/3;
+			var gv = VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
+			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
+			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
+						
+			ConsensusExeunitFee				 = Id == 0 ? Zone.ExeunitMinFee	: Previous.ConsensusExeunitFee;
+			ConsensusTransactionsOverflowRound = Id == 0 ? 0					: Previous.ConsensusTransactionsOverflowRound;
+
+			var tn = gu.Sum(i => i.Transactions.Length);
+
+			if(tn > Mcv.Zone.TransactionsPerRoundLimit)
+			{
+				ConsensusExeunitFee *= Mcv.Zone.TransactionsFeeOverflowFactor;
+				ConsensusTransactionsOverflowRound = Id;
+
+				var e = tn - Mcv.Zone.TransactionsPerRoundLimit;
+
+				var gi = gu.AsEnumerable().GetEnumerator();
+
+				do
+				{
+					if(!gi.MoveNext())
+						gi.Reset();
+					
+					if(gi.Current.Transactions.Length > TransactionsPerVoteExecutionLimit)
+					{
+						e--;
+						gi.Current.TransactionCountExcess++;
+					}
+				}
+				while(e > 0);
+
+				foreach(var i in gu.Where(i => i.TransactionCountExcess > 0))
+				{
+					var ts = new Transaction[i.Transactions.Length - i.TransactionCountExcess];
+					Array.Copy(i.Transactions, i.TransactionCountExcess, ts, 0, ts.Length);
+					i.Transactions = ts;
+				}
+			}
+			else 
+			{
+				if(ConsensusExeunitFee > Zone.ExeunitMinFee && Id - ConsensusTransactionsOverflowRound > Mcv.P)
+					ConsensusExeunitFee /= Zone.TransactionsFeeOverflowFactor;
+			}
+			
+			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
+
+			var t = gu.GroupBy(x => x.Time).MaxBy(i => i.Count());
+
+			if(t != null)
+			{
+				if(t.Count() >= gq && t.Key > Previous.ConsensusTime)
+					ConsensusTime	= t.Key;
+				else
+					ConsensusTime = Previous.ConsensusTime;
+			}
+
+			Execute(txs);
+
+			ConsensusTransactions = txs.Where(i => i.Successful).ToArray();
+
+			if(Id >= Mcv.P)
+			{
+				ConsensusMemberLeavers	= gu.SelectMany(i => i.MemberLeavers).Distinct()
+											.Where(x => Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
+											.Order().ToArray();
+
+				ConsensusViolators		= gu.SelectMany(i => i.Violators).Distinct()
+											.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
+											.Order().ToArray();
+
+				ConsensusEmissions		= gu.SelectMany(i => i.Emissions).Distinct()
+											.Where(x => Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
+											.Order().ToArray();
+
+				ConsensusDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
+											.Where(x => DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
+											.Order().ToArray();
+
+				ConsensusFundJoiners	= gu.SelectMany(i => i.FundJoiners).Distinct()
+											.Where(x => !Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
+											.Order().ToArray();
+				
+				ConsensusFundLeavers	= gu.SelectMany(i => i.FundLeavers).Distinct()
+											.Where(x => Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
+											.Order().ToArray();
+			}
+
+			Hashify(); /// depends on BaseHash 
+
+			return Hash;
+		}
+
+		public void Execute(IEnumerable<Transaction> transactions)
+		{
+			if(Confirmed)
+				throw new IntegrityException();
+	
+			if(Id != 0 && Previous == null)
+				return;
+
+			foreach(var t in transactions)
+				foreach(var o in t.Operations)
+					o.Error = null;
+
+			Members				= Id == 0 ? new()								: Previous.Members;
+			Funds				= Id == 0 ? new()								: Previous.Funds;
+			Emissions			= Id == 0 ? new()								: Previous.Emissions;
+			DomainBids			= Id == 0 ? new()								: Previous.DomainBids;
+			RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
+
+		start: 
+			Fees			= 0;
+			Emission		= Id == 0 ? 0 : Previous.Emission;
+
+			NextAccountIds	= new (Bytes.EqualityComparer);
+			NextAuthorIds	= new (Bytes.EqualityComparer);
+
+			AffectedAccounts.Clear();
+			AffectedAuthors.Clear();
+
+			foreach(var t in transactions)
+				foreach(var o in t.Operations)
+					o.Fee = ConsensusExeunitFee;
+
+			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
+			{
+				var a = AffectAccount(t.Signer);
+
+				if(t.Nid != a.LastTransactionNid + 1)
+				{
+					foreach(var o in t.Operations)
+						o.Error = Operation.NotSequential;
+					
+					goto start;
+				}
+
+				Money f = 0;
+
+				foreach(var o in t.Operations.AsEnumerable().Reverse())
+				{
+					o.Execute(Mcv, this);
+
+					if(o.Error != null)
+						goto start;
+
+					f += o.Fee;
+				
+					if(t.Fee < f)
+					{
+						o.Error = Operation.NotEnoughUNT;
+						goto start;
+					}
+
+					if(a.Balance - f < 0)
+					{
+						o.Error = Operation.NotEnoughUNT;
+						goto start;
+					}
+				}
+
+				Fees += t.Fee;
+				a.Balance -= t.Fee;
+				a.LastTransactionNid++;
+						
+				if(Mcv.Roles.HasFlag(Role.Chain))
+				{
+					AffectAccount(t.Signer).Transactions.Add(Id);
+				}
+			}
+
+			foreach(var a in AffectedAuthors)
+			{
+				a.Value.Affected = false;
+
+				if(a.Value.Resources != null)
+					foreach(var r in a.Value.Resources.Where(i => i.Affected))
+					{
+						r.Affected = false;
+
+						if(r.Outbounds != null)
+							foreach(var l in r.Outbounds.Where(i => i.Affected))
+								l.Affected = false;
+					}
+			}
+		}
+
+		public void Confirm()
+		{
+			if(Confirmed)
+				throw new IntegrityException();
+
+			if(Id > 0 && Mcv.LastConfirmedRound != null && Mcv.LastConfirmedRound.Id + 1 != Id)
+				throw new IntegrityException("LastConfirmedRound.Id + 1 == Id");
+
+			if(Id % Mcv.Zone.CommitLength == 0 && Mcv.LastCommittedRound != null && Mcv.LastCommittedRound != Previous)
+				throw new IntegrityException("Id % 100 == 0 && LastCommittedRound != Previous");
+
+			Execute(ConsensusTransactions);
+
+			Last365BaseDeltas	= Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => (long)0).ToList() : Previous.Last365BaseDeltas.ToList();
+			PreviousDayBaseSize	= Id == 0 ? 0 : Previous.PreviousDayBaseSize;
+			Members				= Members.ToList();
+			Funds				= Funds.ToList();
+			Emissions			= Emissions.ToList();
+			DomainBids			= DomainBids.ToList();
+
+			foreach(var f in ConsensusViolators)
+			{
+				var fe = AffectAccount(f);
+				Fees += fe.Bail;
+				fe.Bail = 0;
+			}
+			
+			for(int ti = 0; ti < ConsensusTransactions.Length; ti++)
+			{
+				for(int oi = 0; oi < ConsensusTransactions[ti].Operations.Length; oi++)
+				{
+					var o = ConsensusTransactions[ti].Operations[oi];
+
+					if(o is Emission e)
+						Emissions.Add(e);
+
+					if(o is AuthorBid b && b.Tld.Any())
+						DomainBids.Add(b);
+				}
+			}
+
+			foreach(var i in ConsensusEmissions)
+			{
+				var e = Emissions.Find(j => j.Id == i);
+				e.ConsensusExecute(this);
+				Emissions.Remove(e);
+			}
+
+			Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+
+			foreach(var i in ConsensusDomainBids)
+			{
+				var b = DomainBids.Find(j => j.Id == i);
+				b.ConsensusExecute(this);
+				DomainBids.Remove(b);
+			}
+
+			DomainBids.RemoveAll(i => Id > i.Id.Ri + Mcv.Zone.ExternalVerificationDurationLimit);
+
+	
+			foreach(var t in OrderedTransactions)
+			{
+				t.Placing = ConsensusTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
+
+				#if DEBUG
+				//if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
+				//{
+				//	Debugger.Break();
+				//}
+				#endif
+			}
+
+			//foreach(var i in Members.Where(i => ConsensusViolators.Contains(i.Account)))
+			//	Log?.Report(this, $"Member violator removed {Id} - {i.Account}");
+
+			Members.RemoveAll(i => ConsensusViolators.Contains(i.Account));
+
+			//foreach(var i in Members.Where(i => ConsensusMemberLeavers.Contains(i.Account)))
+			//	Log?.Report(this, $"Member leaver removed {Id} - {i.Account}");
+
+			Members.RemoveAll(i => ConsensusMemberLeavers.Contains(i.Account));
+
+			var js = ConsensusTransactions.SelectMany(i => i.Operations)
+												.OfType<CandidacyDeclaration>()
+												.DistinctBy(i => i.Transaction.Signer)
+												.Where(i => !ConsensusViolators.Contains(i.Transaction.Signer) && !ConsensusMemberLeavers.Contains(i.Transaction.Signer))
+												.OrderByDescending(i => i.Bail)
+												.ThenBy(i => i.Signer)
+												.Take(Mcv.Zone.MembersLimit - Members.Count);
+ 
+			Members.AddRange(js.Select(i => new Member{CastingSince = Id + Mcv.DeclareToGenerateDelay,
+															 Account = i.Signer, 
+															 BaseRdcIPs = i.BaseRdcIPs, 
+															 SeedHubRdcIPs = i.SeedHubRdcIPs}));
+
+
+			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
+			Funds.AddRange(ConsensusFundJoiners);
+			
+			if(Mcv.ReadyToCommit(this))
+			{
+				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
+				Distribute(tail.SumMoney(i => i.Fees), Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, Funds, 1);
+			}
+
+			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)
+			{
+				var accounts = new Dictionary<AccountAddress, AccountEntry>();
+				var authors	 = new Dictionary<string, AuthorEntry>();
+
+				foreach(var r in Mcv.Tail.SkipWhile(i => i != this))
+				{
+					foreach(var i in r.AffectedAccounts)
+						if(!accounts.ContainsKey(i.Key))
+							accounts.Add(i.Key, i.Value);
+
+					foreach(var i in r.AffectedAuthors)
+						if(!authors.ContainsKey(i.Key))
+							authors.Add(i.Key, i.Value);
+				}
+
+				var s = Mcv.Size + Mcv.Accounts.MeasureChanges(accounts.Values) + Mcv.Authors.MeasureChanges(authors.Values);
+								
+				Last365BaseDeltas.RemoveAt(0);
+				Last365BaseDeltas.Add(s - PreviousDayBaseSize);
+
+				if(Last365BaseDeltas.Sum() > Mcv.Zone.TargetBaseGrowth)
+				{
+					RentPerBytePerDay = Mcv.Zone.RentPerBytePerDayMinimum * Last365BaseDeltas.Sum() / Mcv.Zone.TargetBaseGrowth;
+				}
+
+				PreviousDayBaseSize = s;
+			}
+			
+			Confirmed = true;
+			Mcv.LastConfirmedRound = this;
 		}
 
 		public void Hashify()

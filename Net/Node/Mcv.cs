@@ -59,7 +59,7 @@ namespace Uccs.Net
 		public const string					ChainFamilyName = "Chain";
 		public ColumnFamilyHandle			ChainFamily	=> Database.GetColumnFamily(ChainFamilyName);
 
-		bool								ReadyToCommit(Round round) => Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
+		public bool							ReadyToCommit(Round round) => Tail.Count(i => i.Id <= round.Id) >= Zone.CommitLength; 
 		public static int					GetValidityPeriod(int rid) => rid + P;
 
 		public Mcv(Zone zone, Role roles, McvSettings settings, string databasepath)
@@ -168,7 +168,7 @@ namespace Uccs.Net
 						r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 
 						r.Hashify();
-						Confirm(r);
+						r.Confirm();
 						Commit(r);
 					}
 				}
@@ -217,7 +217,7 @@ namespace Uccs.Net
 		
 					r.Confirmed = false;
 					//Execute(r, r.ConfirmedTransactions);
-					Confirm(r);
+					r.Confirm();
 				}
 			}
 		}
@@ -298,7 +298,7 @@ namespace Uccs.Net
 			{
 				var v = new Vote(m){	 RoundId	= i,
 										 Time		= Time.Zero,  //new AdmsTime(AdmsTime.FromYears(datebase + i).Ticks + 1),
-										 ParentHash	= i < P ? zone.Cryptography.ZeroHash : m.Summarize(m.GetRound(i - P)) };
+										 ParentHash	= i < P ? zone.Cryptography.ZeroHash : m.GetRound(i - P).Summarize() };
 		 
 				if(i == 1+P + 1)
 				{
@@ -356,7 +356,7 @@ namespace Uccs.Net
 	 		
 					if(p.Hash == null || !mh.SequenceEqual(p.Hash))
 					{
-						Summarize(p);
+						p.Summarize();
 						
 						if(!mh.SequenceEqual((p.Hash)))
 						{
@@ -369,7 +369,7 @@ namespace Uccs.Net
 						}
 					}
 
-					Confirm(p);
+					p.Confirm();
 					Commit(p);
 
 					return true;
@@ -513,335 +513,6 @@ namespace Uccs.Net
 	
 			foreach(var i in Accounts.SuperClusters.OrderBy(i => i.Key))	BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
 			foreach(var i in Authors.SuperClusters.OrderBy(i => i.Key))		BaseHash = Zone.Cryptography.Hash(Bytes.Xor(BaseHash, i.Value));
-		}
-
-		public byte[] Summarize(Round round)
-		{
-			var m = round.Id >= DeclareToGenerateDelay ? VotersOf(round) : new();
-			var gq = m.Count * 2/3;
-			var gv = round.VotesOfTry.Where(i => m.Any(j => i.Generator == j.Account)).ToArray();
-			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
-			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
-						
-			round.ConsensusExeunitFee = round.Id == 0 ? Zone.ExeunitMinFee	: round.Previous.ConsensusExeunitFee;
-			round.ConsensusTransactionsOverflowRound = round.Id == 0 ? 0					: round.Previous.ConsensusTransactionsOverflowRound;
-
-			var tn = gu.Sum(i => i.Transactions.Length);
-
-			if(tn > Zone.TransactionsPerRoundLimit)
-			{
-				round.ConsensusExeunitFee *= Zone.TransactionsFeeOverflowFactor;
-				round.ConsensusTransactionsOverflowRound = round.Id;
-
-				var e = tn - Zone.TransactionsPerRoundLimit;
-
-				var gi = gu.AsEnumerable().GetEnumerator();
-
-				do
-				{
-					if(!gi.MoveNext())
-						gi.Reset();
-					
-					if(gi.Current.Transactions.Length > round.TransactionsPerVoteExecutionLimit)
-					{
-						e--;
-						gi.Current.TransactionCountExcess++;
-					}
-				}
-				while(e > 0);
-
-				foreach(var i in gu.Where(i => i.TransactionCountExcess > 0))
-				{
-					var ts = new Transaction[i.Transactions.Length - i.TransactionCountExcess];
-					Array.Copy(i.Transactions, i.TransactionCountExcess, ts, 0, ts.Length);
-					i.Transactions = ts;
-				}
-			}
-			else 
-			{
-				if(round.ConsensusExeunitFee > Zone.ExeunitMinFee && round.Id - round.ConsensusTransactionsOverflowRound > P)
-					round.ConsensusExeunitFee /= Zone.TransactionsFeeOverflowFactor;
-			}
-			
-			var txs = gu.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
-
-			var t = gu.GroupBy(x => x.Time).MaxBy(i => i.Count());
-
-			if(t != null)
-			{
-				if(t.Count() >= gq && t.Key > round.Previous.ConsensusTime)
-					round.ConsensusTime	= t.Key;
-				else
-					round.ConsensusTime = round.Previous.ConsensusTime;
-			}
-
-			Execute(round, txs);
-
-			round.ConsensusTransactions = txs.Where(i => i.Successful).ToArray();
-
-			if(round.Id >= P)
-			{
-				round.ConsensusMemberLeavers	= gu.SelectMany(i => i.MemberLeavers).Distinct()
-													.Where(x => round.Members.Any(j => j.Account == x) && gu.Count(b => b.MemberLeavers.Contains(x)) >= gq)
-													.Order().ToArray();
-
-				round.ConsensusViolators		= gu.SelectMany(i => i.Violators).Distinct()
-													.Where(x => gu.Count(b => b.Violators.Contains(x)) >= gq)
-													.Order().ToArray();
-
-				round.ConsensusEmissions		= gu.SelectMany(i => i.Emissions).Distinct()
-													.Where(x => round.Emissions.Any(e => e.Id == x) && gu.Count(b => b.Emissions.Contains(x)) >= gq)
-													.Order().ToArray();
-
-				round.ConsensusDomainBids		= gu.SelectMany(i => i.DomainBids).Distinct()
-													.Where(x => round.DomainBids.Any(b => b.Id == x) && gu.Count(b => b.DomainBids.Contains(x)) >= gq)
-													.Order().ToArray();
-
-				round.ConsensusFundJoiners		= gu.SelectMany(i => i.FundJoiners).Distinct()
-													.Where(x => !round.Funds.Contains(x) && gu.Count(b => b.FundJoiners.Contains(x)) >= Zone.MembersLimit * 2/3)
-													.Order().ToArray();
-				
-				round.ConsensusFundLeavers		= gu.SelectMany(i => i.FundLeavers).Distinct()
-													.Where(x => round.Funds.Contains(x) && gu.Count(b => b.FundLeavers.Contains(x)) >= Zone.MembersLimit * 2/3)
-													.Order().ToArray();
-			}
-
-			round.Hashify(); /// depends on BaseHash 
-
-			return round.Hash;
-		}
-
-		public void Execute(Round round, IEnumerable<Transaction> transactions)
-		{
-			if(round.Confirmed)
-				throw new IntegrityException();
-	
-			if(round.Id != 0 && round.Previous == null)
-				return;
-
-			foreach(var t in transactions)
-				foreach(var o in t.Operations)
-					o.Error = null;
-
-			round.Members				= round.Id == 0 ? new()							: round.Previous.Members;
-			round.Funds					= round.Id == 0 ? new()							: round.Previous.Funds;
-			round.Emissions				= round.Id == 0 ? new()							: round.Previous.Emissions;
-			round.DomainBids			= round.Id == 0 ? new()							: round.Previous.DomainBids;
-			round.RentPerBytePerDay		= round.Id == 0 ? Zone.RentPerBytePerDayMinimum	: round.Previous.RentPerBytePerDay;
-
-		start: 
-			round.Fees				= 0;
-			//round.DataRented			= 0;
-			round.Emission			= round.Id == 0 ? 0 : round.Previous.Emission;
-
-			round.NextAccountIds	= new (Bytes.EqualityComparer);
-			round.NextAuthorIds		= new (Bytes.EqualityComparer);
-
-			round.AffectedAccounts.Clear();
-			round.AffectedAuthors.Clear();
-
-			foreach(var t in transactions)
-				foreach(var o in t.Operations)
-					o.Fee = round.ConsensusExeunitFee;
-
-			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
-			{
-				var a = round.AffectAccount(t.Signer);
-
-				if(t.Nid != a.LastTransactionNid + 1)
-				{
-					foreach(var o in t.Operations)
-						o.Error = Operation.NotSequential;
-					
-					goto start;
-				}
-
-				Money f = 0;
-
-				foreach(var o in t.Operations.AsEnumerable().Reverse())
-				{
-					o.Execute(this, round);
-
-					if(o.Error != null)
-						goto start;
-
-					f += o.Fee;
-				
-					if(t.Fee < f)
-					{
-						o.Error = Operation.NotEnoughUNT;
-						goto start;
-					}
-
-					if(a.Balance - f < 0)
-					{
-						o.Error = Operation.NotEnoughUNT;
-						goto start;
-					}
-				}
-
-				round.Fees += t.Fee;
-				a.Balance -= t.Fee;
-				a.LastTransactionNid++;
-						
-				if(Roles.HasFlag(Role.Chain))
-				{
-					round.AffectAccount(t.Signer).Transactions.Add(round.Id);
-				}
-			}
-
-			foreach(var a in round.AffectedAuthors)
-			{
-				a.Value.Affected = false;
-
-				if(a.Value.Resources != null)
-					foreach(var r in a.Value.Resources.Where(i => i.Affected))
-					{
-						r.Affected = false;
-
-						if(r.Outbounds != null)
-							foreach(var l in r.Outbounds.Where(i => i.Affected))
-								l.Affected = false;
-					}
-			}
-		}
-
-		public void Confirm(Round round)
-		{
-			if(round.Confirmed)
-				throw new IntegrityException();
-
-			if(round.Id > 0 && LastConfirmedRound != null && LastConfirmedRound.Id + 1 != round.Id)
-				throw new IntegrityException("LastConfirmedRound.Id + 1 == round.Id");
-
-			if(round.Id % Zone.CommitLength == 0 && LastCommittedRound != null && LastCommittedRound != round.Previous)
-				throw new IntegrityException("round.Id % 100 == 0 && LastCommittedRound != round.Previous");
-
-			Execute(round, round.ConsensusTransactions);
-
-			round.Last365BaseDeltas		= round.Id == 0 ? Enumerable.Range(0, Time.FromYears(1).Days).Select(i => (long)0).ToList() : round.Previous.Last365BaseDeltas.ToList();
-			round.PreviousDayBaseSize	= round.Id == 0 ? 0 : round.Previous.PreviousDayBaseSize;
-			round.Members				= round.Members.ToList();
-			round.Funds					= round.Funds.ToList();
-			round.Emissions				= round.Emissions.ToList();
-			round.DomainBids			= round.DomainBids.ToList();
-
-			foreach(var f in round.ConsensusViolators)
-			{
-				var fe = round.AffectAccount(f);
-				round.Fees += fe.Bail;
-				fe.Bail = 0;
-			}
-			
-			for(int ti = 0; ti < round.ConsensusTransactions.Length; ti++)
-			{
-				for(int oi = 0; oi < round.ConsensusTransactions[ti].Operations.Length; oi++)
-				{
-					var o = round.ConsensusTransactions[ti].Operations[oi];
-
-					if(o is Emission e)
-						round.Emissions.Add(e);
-
-					if(o is AuthorBid b && b.Tld.Any())
-						round.DomainBids.Add(b);
-				}
-			}
-
-			foreach(var i in round.ConsensusEmissions)
-			{
-				var e = round.Emissions.Find(j => j.Id == i);
-				e.ConsensusExecute(round);
-				round.Emissions.Remove(e);
-			}
-
-			round.Emissions.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDurationLimit);
-
-			foreach(var i in round.ConsensusDomainBids)
-			{
-				var b = round.DomainBids.Find(j => j.Id == i);
-				b.ConsensusExecute(round);
-				round.DomainBids.Remove(b);
-			}
-
-			round.DomainBids.RemoveAll(i => round.Id > i.Id.Ri + Zone.ExternalVerificationDurationLimit);
-
-	
-			foreach(var t in round.OrderedTransactions)
-			{
-				t.Placing = round.ConsensusTransactions.Contains(t) ? PlacingStage.Confirmed : PlacingStage.FailedOrNotFound;
-
-				#if DEBUG
-				//if(t.__ExpectedPlacing > PlacingStage.Placed && t.Placing != t.__ExpectedPlacing)
-				//{
-				//	Debugger.Break();
-				//}
-				#endif
-			}
-
-			foreach(var i in round.Members.Where(i => round.ConsensusViolators.Contains(i.Account)))
-				Log?.Report(this, $"Member violator removed {round.Id} - {i.Account}");
-
-			round.Members.RemoveAll(i => round.ConsensusViolators.Contains(i.Account));
-
-			foreach(var i in round.Members.Where(i => round.ConsensusMemberLeavers.Contains(i.Account)))
-				Log?.Report(this, $"Member leaver removed {round.Id} - {i.Account}");
-
-			round.Members.RemoveAll(i => round.ConsensusMemberLeavers.Contains(i.Account));
-
-			var js = round.ConsensusTransactions.SelectMany(i => i.Operations)
-												.OfType<CandidacyDeclaration>()
-												.DistinctBy(i => i.Transaction.Signer)
-												.Where(i => !round.ConsensusViolators.Contains(i.Transaction.Signer) && !round.ConsensusMemberLeavers.Contains(i.Transaction.Signer))
-												.OrderByDescending(i => i.Bail)
-												.ThenBy(i => i.Signer)
-												.Take(Zone.MembersLimit - round.Members.Count);
- 
-			round.Members.AddRange(js.Select(i => new Member{CastingSince = round.Id + DeclareToGenerateDelay,
-															 Account = i.Signer, 
-															 BaseRdcIPs = i.BaseRdcIPs, 
-															 SeedHubRdcIPs = i.SeedHubRdcIPs}));
-
-
-			round.Funds.RemoveAll(i => round.ConsensusFundLeavers.Contains(i));
-			round.Funds.AddRange(round.ConsensusFundJoiners);
-			
-			if(ReadyToCommit(round))
-			{
-				var tail = Tail.AsEnumerable().Reverse().Take(Zone.CommitLength);
-				round.Distribute(tail.SumMoney(i => i.Fees), round.Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, round.Funds, 1);
-			}
-
-			if(round.Id > 0 && round.ConsensusTime != round.Previous.ConsensusTime)
-			{
-				var accounts = new Dictionary<AccountAddress, AccountEntry>();
-				var authors	 = new Dictionary<string, AuthorEntry>();
-
-				foreach(var r in Tail.SkipWhile(i => i != round))
-				{
-					foreach(var i in r.AffectedAccounts)
-						if(!accounts.ContainsKey(i.Key))
-							accounts.Add(i.Key, i.Value);
-
-					foreach(var i in r.AffectedAuthors)
-						if(!authors.ContainsKey(i.Key))
-							authors.Add(i.Key, i.Value);
-				}
-
-				var s = Size + Accounts.MeasureChanges(accounts.Values) + Authors.MeasureChanges(authors.Values);
-								
-				round.Last365BaseDeltas.RemoveAt(0);
-				round.Last365BaseDeltas.Add(s - round.PreviousDayBaseSize);
-
-				if(round.Last365BaseDeltas.Sum() > Zone.TargetBaseGrowth)
-				{
-					round.RentPerBytePerDay = Zone.RentPerBytePerDayMinimum * round.Last365BaseDeltas.Sum() / Zone.TargetBaseGrowth;
-				}
-
-				round.PreviousDayBaseSize = s;
-			}
-			
-			round.Confirmed = true;
-			LastConfirmedRound = round;
 		}
 	
 		public void Commit(Round round)

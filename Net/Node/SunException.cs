@@ -37,7 +37,6 @@ namespace Uccs.Net
 	{
 		None,
 		NotFound,
-		RoundNotAvailable,
 		ExcutionFailed,
 	}
 

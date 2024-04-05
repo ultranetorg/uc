@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Uccs.Net
+﻿namespace Uccs.Net
 {
 	public class AllocateTransactionRequest : RdcCall<AllocateTransactionResponse>
 	{
@@ -26,7 +24,7 @@ namespace Uccs.Net
 				{
 					return new AllocateTransactionResponse {LastConfirmedRid	= sun.Mcv.LastConfirmedRound.Id,
 															PowHash				= sun.Mcv.LastConfirmedRound.Hash,
-															NextTransactionId	= a == null ? 0 : a.LastTransactionNid + 1,
+															NextTransactionId	= a == null ? 0 : (a.LastTransactionNid + 1),
 															MinFee				= Transaction.Operations.SumMoney(i => i.Fee)};
 				}				
 				else

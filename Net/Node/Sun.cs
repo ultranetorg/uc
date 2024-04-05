@@ -1166,7 +1166,7 @@ namespace Uccs.Net
 								}
 
 								r.Confirmed = false;
-								Mcv.Confirm(r);
+								r.Confirm();
 
 								if(r.Members.Count == 0)
 									throw new SynchronizationException("Incorrect round (Members.Count == 0)");
@@ -1307,7 +1307,7 @@ namespace Uccs.Net
 									Members				= p.Members,
 									Funds				= p.Funds};
 	
-			Mcv.Execute(r, [transaction]);
+			r.Execute([transaction]);
 
 			return r;
 		}
@@ -1356,8 +1356,8 @@ namespace Uccs.Net
 																						(!LastCandidacyDeclaration.TryGetValue(g, out var d) || d.Placing > PlacingStage.Placed))
 					{
 						var o = new CandidacyDeclaration{	Bail = Settings.Bail,
-															BaseRdcIPs		= new IPAddress[] {Settings.IP},
-															SeedHubRdcIPs	= new IPAddress[] {Settings.IP}};
+															BaseRdcIPs		= [Settings.IP],
+															SeedHubRdcIPs	= [Settings.IP]};
 
 						var t = new Transaction();
 						t.Zone = Zone;
@@ -1393,7 +1393,7 @@ namespace Uccs.Net
 						
 						return new Vote(Mcv) {	RoundId			= r.Id,
 												Try				= r.Try,
-												ParentHash		= r.Parent.Hash ?? Mcv.Summarize(r.Parent),
+												ParentHash		= r.Parent.Hash ?? r.Parent.Summarize(),
 												Created			= Clock.Now,
 												Time			= Time.Now(Clock),
 												Violators		= Mcv.ProposeViolators(r).ToArray(),
@@ -1519,9 +1519,7 @@ namespace Uccs.Net
 
 						if(!r.Confirmed)
 						{
-							var txs = r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Vote.Generator));
-							
-							Mcv.Execute(r, txs);
+							r.Execute(r.OrderedTransactions.Where(i => Settings.Generators.Contains(i.Vote.Generator)));
 						}
 					}
 				}
