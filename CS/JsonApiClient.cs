@@ -75,11 +75,11 @@ namespace Uccs
 			Options = options;
 		}
 
-		public HttpResponseMessage Send(ApiCall request, Workflow workflow)
+		public HttpResponseMessage Send(Apc request, Workflow workflow)
 		{
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{ApiCall.NameOf(request.GetType())}?accesskey={Key}"))
+			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?accesskey={Key}"))
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	
@@ -99,11 +99,11 @@ namespace Uccs
 			}
 		}
 
-		public async Task<HttpResponseMessage> SendAsync(ApiCall request, Workflow workflow)
+		public async Task<HttpResponseMessage> SendAsync(Apc request, Workflow workflow)
 		{
 			var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{ApiCall.NameOf(request.GetType())}?accesskey={Key}"))
+			using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?accesskey={Key}"))
 			{
 				m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 	
@@ -116,7 +116,7 @@ namespace Uccs
 			}
 		}
 
-		public Rp Request<Rp>(ApiCall request, Workflow workflow)
+		public Rp Request<Rp>(Apc request, Workflow workflow)
 		{
 			using(var cr = Send(request, workflow))
 			{
@@ -134,7 +134,7 @@ namespace Uccs
 			}
 		}
 
-		public async Task<Rp> RequestAsync<Rp>(ApiCall request, Workflow workflow)
+		public async Task<Rp> RequestAsync<Rp>(Apc request, Workflow workflow)
 		{
 			using(var cr = await SendAsync(request, workflow))
 			{

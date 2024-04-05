@@ -994,29 +994,28 @@ namespace Uccs.Net
 			{
 				try
 				{
-					WaitHandle.WaitAny(new[] {Workflow.Cancellation.WaitHandle}, 500);
+					WaitHandle.WaitAny([Workflow.Cancellation.WaitHandle], 500);
 
 					peer = Connect(Mcv.Roles.HasFlag(Role.Chain) ? Role.Chain : Role.Base, used, Workflow);
 
 					if(Mcv.Roles.HasFlag(Role.Base) && !Mcv.Roles.HasFlag(Role.Chain))
 					{
-						stamp = peer.GetStamp();
+						stamp = peer.Request(new StampRequest());
 		
 						void download<E, K>(Table<E, K> t) where E : class, ITableEntry<K>
 						{
-							var ts = peer.GetTableStamp(t.Type, (t.Type switch
-																		{ 
-																			Tables.Accounts	=> stamp.Accounts.Where(i => {
-																															var c = Mcv.Accounts.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Mcv.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																														 }),
-																			Tables.Authors	=> stamp.Authors.Where(i =>	{
-																															var c = Mcv.Authors.SuperClusters.ContainsKey(i.Id);
-																															return !c || !Mcv.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
-																														}),
-																			_ => throw new SynchronizationException("Unknown table recieved after GetTableStamp")
-																		}
-																).Select(i => i.Id).ToArray());
+							var ts = peer.Request(new TableStampRequest{ Table =t.Type, 
+																		 SuperClusters = (t.Type switch	{ 
+																											Tables.Accounts	=> stamp.Accounts.Where(i => {
+																																							var c = Mcv.Accounts.SuperClusters.ContainsKey(i.Id);
+																																							return !c || !Mcv.Accounts.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																																							}),
+																											Tables.Authors	=> stamp.Authors.Where(i =>	{
+																																							var c = Mcv.Authors.SuperClusters.ContainsKey(i.Id);
+																																							return !c || !Mcv.Authors.SuperClusters[i.Id].SequenceEqual(i.Hash);
+																																						}),
+																											_ => throw new SynchronizationException("Unknown table recieved after GetTableStamp")
+																										}).Select(i => i.Id).ToArray() });
 		
 							foreach(var i in ts.Clusters)
 							{
@@ -1030,7 +1029,7 @@ namespace Uccs.Net
 										t.Clusters.Add(c);
 									}
 		
-									var d = peer.DownloadTable(t.Type, i.Id, 0, i.Length);
+									var d = peer.Request(new DownloadTableRequest {Table = t.Type, ClusterId = i.Id, Offset = 0, Length = i.Length});
 											
 									c.Read(new BinaryReader(new MemoryStream(d.Data)));
 										
@@ -1070,7 +1069,7 @@ namespace Uccs.Net
 			
 							Mcv.Hashify();
 			
-							if(peer.GetStamp().BaseHash.SequenceEqual(Mcv.BaseHash))
+							if(peer.Request(new StampRequest()).BaseHash.SequenceEqual(Mcv.BaseHash))
 	 							Mcv.LoadedRounds[r.Id] = r;
 							else
 								throw new SynchronizationException("BaseHash mismatch");
@@ -1293,24 +1292,24 @@ namespace Uccs.Net
 			return true;
 		}
 
-		public bool TryExecute(Transaction transaction)
+		public Round TryExecute(Transaction transaction)
 		{
 			var m = NextVoteMembers.NearestBy(m => m.Account, transaction.Signer).Account;
 
 			if(!Settings.Generators.Contains(m))
-				return false;
+				return null;
 
 			var p = Mcv.Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => v.Generator == m)) ?? Mcv.LastConfirmedRound;
 
-			var r = new Round(Mcv) {Id						= p.Id + 1,
-									ConsensusTime			= Time.Now(Clock), 
+			var r = new Round(Mcv) {Id					= p.Id + 1,
+									ConsensusTime		= Time.Now(Clock), 
 									ConsensusExeunitFee	= p.ConsensusExeunitFee,
-									Members					= p.Members,
-									Funds					= p.Funds};
+									Members				= p.Members,
+									Funds				= p.Funds};
 	
-			Mcv.Execute(r, new [] {transaction});
+			Mcv.Execute(r, [transaction]);
 
-			return transaction.Successful;
+			return r;
 		}
 
 		public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
@@ -1320,7 +1319,9 @@ namespace Uccs.Net
 											i.Expiration > Mcv.LastConfirmedRound.Id &&
 											i.Valid(Mcv)).OrderByDescending(i => i.Nid))
 			{
-				if(TryExecute(i))
+				TryExecute(i);
+				
+				if(i.Successful)
 				{
 					i.Placing = PlacingStage.Accepted;
 					IncomingTransactions.Add(i);
@@ -1564,7 +1565,7 @@ namespace Uccs.Net
 				if(!OutgoingTransactions.Any())
 					WaitHandle.WaitAny(new[] {TransactingWakeup, Workflow.Cancellation.WaitHandle});
 
-				var cr = Call(i => i.GetMembers(), Workflow);
+				var cr = Call(i => i.Request(new MembersRequest()), Workflow);
 
 				if(!cr.Members.Any() || cr.Members.Any(i => !i.BaseRdcIPs.Any() || !i.SeedHubRdcIPs.Any()))
 					continue;
@@ -1629,7 +1630,7 @@ namespace Uccs.Net
 
 									t.Sign(Vault.GetKey(t.Signer), Zone.Cryptography.ZeroHash);
 
-									var at = rdi.Request<AllocateTransactionResponse>(new AllocateTransactionRequest {Transaction = t});
+									var at = rdi.Request(new AllocateTransactionRequest {Transaction = t});
 								
 									if(nid == -1)
 										nid = at.NextTransactionId;
@@ -1671,7 +1672,7 @@ namespace Uccs.Net
 							try
 							{
 								Monitor.Exit(Lock);
-								atxs = rdi.SendTransactions(txs).Accepted;
+								atxs = rdi.Request(new PlaceTransactionsRequest{Transactions = txs.ToArray()}).Accepted;
 							}
 							catch(NodeException)
 							{
@@ -1718,7 +1719,7 @@ namespace Uccs.Net
 							try
 							{
 								Monitor.Exit(Lock);
-								ts = g.Key.GetTransactionStatus(g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}));
+								ts = g.Key.Request(new TransactionStatusRequest {Transactions = g.Select(i => new TransactionsAddress {Account = i.Signer, Nid = i.Nid}).ToArray()});
 							}
 							catch(NodeException)
 							{
@@ -2081,7 +2082,7 @@ namespace Uccs.Net
 			var	l = Call(p =>{
 								try
 								{
-									return p.GetAccountInfo(signer);
+									return p.Request(new AccountRequest {Account = signer});
 								}
 								catch(EntityException ex) when (ex.Error == EntityError.NotFound)
 								{
@@ -2114,7 +2115,7 @@ namespace Uccs.Net
 				var	l = Call(p =>{
 									try
 									{
-										return p.GetAccountInfo(signer);
+										return p.Request(new AccountRequest {Account = signer});
 									}
 									catch(EntityException ex) when (ex.Error == EntityError.NotFound)
 									{

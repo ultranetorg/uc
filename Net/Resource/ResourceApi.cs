@@ -13,7 +13,7 @@ namespace Uccs.Net
 
 	}
 
-	public class ReleaseBuildCall : SunApiCall
+	public class ReleaseBuildApc : SunApc
 	{
 		public ResourceAddress			Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
@@ -34,7 +34,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ResourceDownloadCall : SunApiCall
+	public class ResourceDownloadApc : SunApc
 	{
 		public ResourceAddress	Address { get; set; }
 
@@ -53,7 +53,7 @@ namespace Uccs.Net
 					break;
 
 				case SDAddress a :
-					var au = sun.Call(c => c.GetAuthorInfo(Address.Author), workflow).Author;
+					var au = sun.Call(c => c.Request(new AuthorRequest {Name = Address.Author}), workflow).Author;
 					itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
 					break;
 
@@ -84,7 +84,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class ReleaseActivityProgressCall : SunApiCall
+	public class ReleaseActivityProgressApc : SunApc
 	{
 		public ReleaseAddress Release { get; set; }
 		
@@ -136,7 +136,7 @@ namespace Uccs.Net
 // 		}
 // 	}
 		
-	public class QueryLocalResourcesCall : SunApiCall
+	public class QueryLocalResourcesApc : SunApc
 	{
 		public string	Query { get; set; }
 		public int		Skip { get; set; } = 0;
@@ -151,7 +151,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class LocalResourceCall : SunApiCall
+	public class LocalResourceApc : SunApc
 	{
 		public ResourceAddress		Resource { get; set; }
 		
@@ -164,7 +164,7 @@ namespace Uccs.Net
 		}
 	}
 	
-	public class LocalReleaseCall : SunApiCall
+	public class LocalReleaseApc : SunApc
 	{
 		public ReleaseAddress		Address { get; set; }
 

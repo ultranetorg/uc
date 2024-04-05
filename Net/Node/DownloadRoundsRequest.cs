@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class DownloadRoundsRequest : RdcRequest
+	public class DownloadRoundsRequest : RdcCall<DownloadRoundsResponse>
 	{
 		public int From { get; set; }
 		public int To { get; set; }

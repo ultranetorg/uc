@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class AuthorRequest : RdcRequest
+	public class AuthorRequest : RdcCall<AuthorResponse>
 	{
 		public string Name {get; set;}
 

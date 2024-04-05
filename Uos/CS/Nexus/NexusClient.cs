@@ -23,7 +23,7 @@ namespace Uccs.Uos
 
 			Sun = new SunJsonApiClient(Http, SunAddress, SunApiKey);
 
-			var s = Sun.Request<SettingsResponse>(new SettingsCall(), new Workflow("GetSettings"));
+			var s = Sun.Request<SettingsResponse>(new SettingsApc(), new Workflow("GetSettings"));
 
 			ResourceHub = new ResourceHub(null, Zone, Path.Join(s.ProfilePath, nameof(ResourceHub)));
 			PackageHub = new PackageHub(null, ProductsPath);

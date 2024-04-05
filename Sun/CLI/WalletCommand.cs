@@ -26,7 +26,7 @@ namespace Uccs.Sun.CLI
 				case "u" :
 				case "unlock" :
 				{
-					Api(new UnlockWalletCall {	Account = AccountAddress.Parse(Args.Nodes[1].Name), 
+					Api(new UnlockWalletApc {	Account = AccountAddress.Parse(Args.Nodes[1].Name), 
 												Password = GetString("password")});
 					return null;
 				}
@@ -66,8 +66,8 @@ namespace Uccs.Sun.CLI
 															"Public Address - " + acc.ToString(), 
 															"Private Key    - " + acc.Key.GetPrivateKey() });
 
-			Api(new AddWalletCall {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
-			Api(new SaveWalletCall {Account = acc});
+			Api(new AddWalletApc {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
+			Api(new SaveWalletApc {Account = acc});
 
 			return acc;
 		}
@@ -101,8 +101,8 @@ namespace Uccs.Sun.CLI
 				p = Program.PasswordAsker.Password;
 			}
 
-			Api(new AddWalletCall {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
-			Api(new SaveWalletCall {Account = acc});
+			Api(new AddWalletApc {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
+			Api(new SaveWalletApc {Account = acc});
 
 			Workflow.Log?.Report(this, null, new string[] {	"Account imported", 
 															"Public Address - " + acc.ToString(), 

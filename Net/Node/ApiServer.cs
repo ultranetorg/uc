@@ -24,7 +24,7 @@ namespace Uccs.Net
 
 		protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
-			return (call as SunApiCall).Execute(Sun, request, response, workflow);
+			return (call as SunApc).Execute(Sun, request, response, workflow);
 		}
 	}
 }

@@ -54,7 +54,7 @@ namespace Uccs.Sun.FUI
 
 		public override void PeriodicalRefresh()
 		{
-			var	s = (new SummaryReportCall() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Sun, null, null, null) as SummaryResponse).Summary;
+			var	s = (new SummaryReportApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Sun, null, null, null) as SummaryResponse).Summary;
 
 			fields.Text = string.Join('\n', s.Select(j => j[0]));
 			values.Text = string.Join('\n', s.Select(j => j[1]));

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class StampRequest : RdcRequest
+	public class StampRequest : RdcCall<StampResponse>
 	{
 		public override RdcResponse Execute(Sun sun)
 		{

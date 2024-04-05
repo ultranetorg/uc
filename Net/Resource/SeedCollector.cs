@@ -45,7 +45,7 @@ namespace Uccs.Net
 									{
 										try
 										{
-											var lr = Collector.Sun.Call(IPs.Random(), p => p.LocateRelease(Address, 16), Collector.Workflow);
+											var lr = Collector.Sun.Call(IPs.Random(), p => p.Request(new LocateReleaseRequest {Address = Address, Count = 16}), Collector.Workflow);
 	
 											lock(Collector.Lock)
 											{
@@ -92,7 +92,7 @@ namespace Uccs.Net
 													if(DateTime.UtcNow - MembersRefreshed > TimeSpan.FromSeconds(60))
 													{
 														var r = Sun.Call(i =>	{
-																					var cr = i.GetMembers();
+																					var cr = i.Request(new MembersRequest());
 				
 																					if(cr.Members.Any())
 																						return cr;

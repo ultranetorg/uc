@@ -46,7 +46,7 @@ namespace Uccs.Sun.FUI
 
 				try
 				{
-					rp = Sun.Call(p => p.GetMembers(), Workflow);
+					rp = Sun.Call(p => p.Request(new MembersRequest()), Workflow);
 				}
 				catch(OperationCanceledException)
 				{

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class FileInfoRequest : RdcRequest
+	public class FileInfoRequest : RdcCall<FileInfoResponse>
 	{
 		public ReleaseAddress	Release { get; set; }
 		public string			File { get; set; }

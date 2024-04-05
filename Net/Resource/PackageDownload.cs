@@ -76,7 +76,7 @@ namespace Uccs.Net
 											{
 												try
 												{
-													last = sun.Call(c => c.FindResource(package.Resource.Address), workflow).Resource;
+													last = sun.Call(c => c.Request(new ResourceByNameRequest {Name = package.Resource.Address}), workflow).Resource;
 														
 													if(last.Data.Type != DataType.Package)
 													{
@@ -109,7 +109,7 @@ namespace Uccs.Net
 													break;
 
 												case SDAddress a :
-													var au = sun.Call(c => c.GetAuthorInfo(package.Resource.Address.Author), workflow).Author;
+													var au = sun.Call(c => c.Request(new AuthorRequest {Name = package.Resource.Address.Author}), workflow).Author;
 													itg = new SPDIntegrity(sun.Zone.Cryptography, a, au.Owner);
 													break;
 											};

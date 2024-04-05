@@ -2,9 +2,8 @@
 
 namespace Uccs.Net
 {
-	public class AllocateTransactionRequest : RdcRequest
+	public class AllocateTransactionRequest : RdcCall<AllocateTransactionResponse>
 	{
-		//public AccountAddress		Account {get; set;}
 		public Transaction			Transaction {get; set;}
 
 		public override RdcResponse Execute(Sun sun)
@@ -21,7 +20,9 @@ namespace Uccs.Net
 				Transaction.Nid = a.LastTransactionNid + 1;
 				Transaction.Fee = Emission.End;
 
-				if(sun.TryExecute(Transaction))
+				sun.TryExecute(Transaction);
+				
+				if(Transaction.Successful)
 				{
 					return new AllocateTransactionResponse {LastConfirmedRid	= sun.Mcv.LastConfirmedRound.Id,
 															PowHash				= sun.Mcv.LastConfirmedRound.Hash,

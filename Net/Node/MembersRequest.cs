@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class MembersRequest : RdcRequest
+	public class MembersRequest : RdcCall<MembersResponse>
 	{
 		public override RdcResponse Execute(Sun sun)
 		{

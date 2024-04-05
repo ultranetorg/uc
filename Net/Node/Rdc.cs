@@ -36,39 +36,47 @@ namespace Uccs.Net
 		}
 	}
 
-	public abstract class RdcInterface
-	{
- 		public abstract RdcResponse				Request(RdcRequest rq);
- 		public Rp								Request<Rp>(RdcRequest rq) where Rp : RdcResponse => Request(rq) as Rp;
- 		public abstract	void					Send(RdcRequest rq);
-
-		public TimeResponse						GetTime() => Request<TimeResponse>(new TimeRequest());
-		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
-		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
-		public DownloadTableResponse			DownloadTable(Tables table, byte[] cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
-		//public AllocateTransactionResponse		AllocateTransaction() => Request<AllocateTransactionResponse>(new AllocateTransactionRequest());
-		public PlaceTransactionsResponse		SendTransactions(IEnumerable<Transaction> transactions) => Request<PlaceTransactionsResponse>(new PlaceTransactionsRequest{Transactions = transactions.ToArray()});
-		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> transactions) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = transactions.ToArray()});
-		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
-		public FundsResponse					GetFunds() => Request<FundsResponse>(new FundsRequest());
-		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
-		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
-		public ResourceByNameResponse			FindResource(ResourceAddress resource) => Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = resource});
-		//public SubresourcesResponse				EnumerateSubresources(ResourceAddress resource) => Request<SubresourcesResponse>(new SubresourcesRequest {Resource = resource});
-		public QueryResourceResponse			QueryResource(string query) => Request<QueryResourceResponse>(new QueryResourceRequest {Query = query });
-		public LocateReleaseResponse			LocateRelease(ReleaseAddress address, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Address = address, Count = count});
-		//public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases.ToArray()});
-		//public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
-		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress address, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Address = address, File = file, Offset = offset, Length = length});
-		//public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
-	}
-
 	public abstract class RdcPacket : ITypeCode
 	{
 		public int			Id {get; set;}
 		public Peer			Peer;
 
 		public abstract byte TypeCode { get; }
+	}
+
+	public abstract class RdcInterface
+	{
+ 		//public abstract RdcResponse				Request(RdcRequest rq);
+ 		//public Rp								Request<Rp>(RdcRequest rq) where Rp : RdcResponse => Request(rq) as Rp;
+ 		public abstract	void					Send(RdcRequest rq);
+
+		public Rp								Request<Rp>(RdcCall<Rp> rq) where Rp : RdcResponse => Request((RdcRequest)rq) as Rp;
+		public abstract RdcResponse				Request(RdcRequest rq);
+// 
+// 		public TimeResponse						GetTime() => Request<TimeResponse>(new TimeRequest());
+// 		public StampResponse					GetStamp() => Request<StampResponse>(new StampRequest());
+// 		public TableStampResponse				GetTableStamp(Tables table, byte[] superclusters) => Request<TableStampResponse>(new TableStampRequest() {Table = table, SuperClusters = superclusters});
+// 		public DownloadTableResponse			DownloadTable(Tables table, byte[] cluster, long offset, long length) => Request<DownloadTableResponse>(new DownloadTableRequest{Table = table, ClusterId = cluster, Offset = offset, Length = length});
+// 		//public AllocateTransactionResponse		AllocateTransaction() => Request<AllocateTransactionResponse>(new AllocateTransactionRequest());
+// 		public PlaceTransactionsResponse		SendTransactions(IEnumerable<Transaction> transactions) => Request<PlaceTransactionsResponse>(new PlaceTransactionsRequest{Transactions = transactions.ToArray()});
+// 		public TransactionStatusResponse		GetTransactionStatus(IEnumerable<TransactionsAddress> transactions) => Request<TransactionStatusResponse>(new TransactionStatusRequest{Transactions = transactions.ToArray()});
+// 		public MembersResponse					GetMembers() => Request<MembersResponse>(new MembersRequest());
+// 		public FundsResponse					GetFunds() => Request<FundsResponse>(new FundsRequest());
+// 		public AuthorResponse					GetAuthorInfo(string author) => Request<AuthorResponse>(new AuthorRequest{Name = author});
+// 		public AccountResponse					GetAccountInfo(AccountAddress account) => Request<AccountResponse>(new AccountRequest{Account = account});
+// 		public ResourceByNameResponse			FindResource(ResourceAddress resource) => Request<ResourceByNameResponse>(new ResourceByNameRequest {Name = resource});
+// 		//public SubresourcesResponse				EnumerateSubresources(ResourceAddress resource) => Request<SubresourcesResponse>(new SubresourcesRequest {Resource = resource});
+// 		public QueryResourceResponse			QueryResource(string query) => Request<QueryResourceResponse>(new QueryResourceRequest {Query = query });
+// 		public LocateReleaseResponse			LocateRelease(ReleaseAddress address, int count) => Request<LocateReleaseResponse>(new LocateReleaseRequest{Address = address, Count = count});
+// 		//public void								DeclareRelease(IEnumerable<DeclareReleaseItem> releases) => Send(new DeclareReleaseRequest{Releases = releases.ToArray()});
+// 		//public ManifestResponse					GetManifest(ReleaseAddress release) => Request<ManifestResponse>(new ManifestRequest{Release = release});
+// 		public DownloadReleaseResponse			DownloadRelease(ReleaseAddress address, string file, long offset, long length) => Request<DownloadReleaseResponse>(new DownloadReleaseRequest{Address = address, File = file, Offset = offset, Length = length});
+// 		//public ReleaseHistoryResponse			GetReleaseHistory(RealizationAddress realization) => Request<ReleaseHistoryResponse>(new ReleaseHistoryRequest{Realization = realization});
+	}
+
+	public abstract class RdcCall<RP> : RdcRequest where RP : RdcResponse
+	{
+		public override abstract RdcResponse Execute(Sun sun);
 	}
 
 	public abstract class RdcRequest : RdcPacket
@@ -172,7 +180,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ProxyRequest : RdcRequest
+	public class ProxyRequest : RdcCall<ProxyResponse>
 	{
 		public byte[]			Guid { get; set; }
 		public AccountAddress	Destination { get; set; }

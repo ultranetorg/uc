@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Uccs.Net
 {
-	public class QueryResourceRequest : RdcRequest
+	public class QueryResourceRequest : RdcCall<QueryResourceResponse>
 	{
 		public string		Query { get; set; }
 

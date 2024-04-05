@@ -21,7 +21,7 @@ namespace Uccs.Sun.CLI
 			{
 		   		case "peers" :
 				{
-					var r = Api<PeersReport>(new PeersReportCall {Limit = int.MaxValue});
+					var r = Api<PeersReport>(new PeersReportApc {Limit = int.MaxValue});
 			
 					Dump(	r.Peers, 
 							["IP", "Status", "PeerRank", "BaseRank", "ChainRank", "SeedRank"], 

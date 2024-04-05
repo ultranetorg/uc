@@ -40,14 +40,14 @@ namespace Uccs.Sun.CLI
 						
 						if(p != null)
 						{
-							m = Api<PackageInfo>(new PackageInfoCall {Package = p}).Manifest;
+							m = Api<PackageInfo>(new PackageInfoApc {Package = p}).Manifest;
 						}
 					}
 					catch(EntityException ex) when(ex.Error == EntityError.NotFound)
 					{
 					}
 
-					Api(new PackageBuildCall {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
+					Api(new PackageBuildApc {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
 												Sources			 = GetString("sources").Split(','), 
 												DependenciesPath = GetString("dependencies", false),
 												Previous		 = p,
@@ -63,7 +63,7 @@ namespace Uccs.Sun.CLI
 				case "l" :
 				case "local" :
 				{
-					var r = Api<PackageInfo>(new PackageInfoCall {Package = Package});
+					var r = Api<PackageInfo>(new PackageInfoApc {Package = Package});
 					
 					Dump(r);
 
@@ -73,7 +73,7 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var h = Api<byte[]>(new PackageDownloadCall {Package = Package});
+					var h = Api<byte[]>(new PackageDownloadApc {Package = Package});
 
 					try
 					{
@@ -81,11 +81,11 @@ namespace Uccs.Sun.CLI
 						
 						do
 						{
-							d = Api<PackageDownloadProgress>(new PackageActivityProgressCall {Package = Package});
+							d = Api<PackageDownloadProgress>(new PackageActivityProgressApc {Package = Package});
 							
 							if(d == null)
 							{	
-								if(!Api<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
+								if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
 								{
 									Workflow.Log?.ReportError(this, "Failed");
 								}
@@ -109,7 +109,7 @@ namespace Uccs.Sun.CLI
 				case "i" :
 				case "install" :
 				{
-					Api(new PackageInstallCall {Package = Package});
+					Api(new PackageInstallApc {Package = Package});
 
 					try
 					{
@@ -117,11 +117,11 @@ namespace Uccs.Sun.CLI
 						
 						do
 						{
-							d = Api<ResourceActivityProgress>(new PackageActivityProgressCall {Package = Package});
+							d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
 							
 							if(d == null)
 							{	
-								if(!Api<PackageInfo>(new PackageInfoCall {Package = Package}).Ready)
+								if(!Api<PackageInfo>(new PackageInfoApc {Package = Package}).Ready)
 									Workflow.Log?.ReportError(this, "Failed");
 								
 								break;

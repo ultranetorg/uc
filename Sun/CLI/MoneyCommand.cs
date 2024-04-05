@@ -74,7 +74,7 @@ namespace Uccs.Sun.CLI
 																				new BigInteger((int)Program.Zone.EthereumNetwork));
 					}
 
-					Api<Transaction>(new EmitCall{	FromPrivateKey = from.PrivateKey.HexToByteArray(),
+					Api<Transaction>(new EmitApc{	FromPrivateKey = from.PrivateKey.HexToByteArray(),
 													Wei = Web3.Convert.ToWei(GetString("amount")),
 													To = GetAccountAddress("by"), 
 													Await = GetAwaitStage(Args) });
@@ -94,7 +94,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					var r = Api<CostCall.Report>(new CostCall {Rate = GetMoney("rate", Money.Zero)});
+					var r = Api<CostApc.Report>(new CostApc {Rate = GetMoney("rate", Money.Zero)});
 					
 					Dump(r);
 

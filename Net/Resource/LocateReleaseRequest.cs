@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class LocateReleaseRequest : RdcRequest
+	public class LocateReleaseRequest : RdcCall<LocateReleaseResponse>
 	{
 		public ReleaseAddress	Address { get; set; }
 		public int				Count { get; set; }

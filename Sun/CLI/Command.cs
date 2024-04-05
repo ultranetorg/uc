@@ -40,7 +40,7 @@ namespace Uccs.Sun.CLI
 			Args = args;
 		}
 
-		public void Api(SunApiCall call)
+		public void Api(SunApc call)
 		{
 			if(Program.ApiClient == null)
 				call.Execute(Program.Sun, null, null, Workflow);
@@ -48,7 +48,7 @@ namespace Uccs.Sun.CLI
 				Program.ApiClient.Send(call, Workflow);
 		}
 
-		public Rp Api<Rp>(SunApiCall call)
+		public Rp Api<Rp>(SunApc call)
 		{
 			if(Program.ApiClient == null) 
 				return (Rp)call.Execute(Program.Sun, null, null, Workflow);
@@ -56,7 +56,7 @@ namespace Uccs.Sun.CLI
 				return Program.ApiClient.Request<Rp>(call, Workflow);
 		}
 
-		public Rp Rdc<Rp>(RdcRequest request) where Rp : RdcResponse
+		public Rp Rdc<Rp>(RdcCall<Rp> request) where Rp : RdcResponse
 		{
 			if(Program.ApiClient == null) 
 			{
@@ -64,7 +64,7 @@ namespace Uccs.Sun.CLI
 			}
 			else
 			{
-				var rp = Api<Rp>(new RdcCall {Request = request});
+				var rp = Api<Rp>(new RdcApc {Request = request});
  
  				if(rp.Error != null)
  					throw rp.Error;
@@ -78,7 +78,7 @@ namespace Uccs.Sun.CLI
 			if(Program.ApiClient == null)
 				Program.Sun.Enqueue(operations, by, await, Workflow);
 			else
-				Program.ApiClient.Send(new EnqeueOperationCall {Operations = operations,
+				Program.ApiClient.Send(new EnqeueOperationApc {Operations = operations,
 																By = by,
 																Await = await},
 										Workflow);

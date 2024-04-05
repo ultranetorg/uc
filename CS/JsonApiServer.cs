@@ -12,12 +12,13 @@ using System.Threading;
 
 namespace Uccs
 {
-	public abstract class ApiCall
+	public abstract class Apc
 	{
-		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf("Call"));
+		public const string		Postfix = "Apc";
+		public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf(Postfix));
 	}
 
-	public class PingCall : ApiCall
+	public class PingApc : Apc
 	{
 	}
 
@@ -26,7 +27,7 @@ namespace Uccs
 		public string Status { get; set; }
 	}
 
-	public class BatchCall : ApiCall
+	public class BatchApc : Apc
 	{
 		public class Item
 		{
@@ -36,12 +37,12 @@ namespace Uccs
 
 		public IEnumerable<Item> Calls { get; set; }
 
-		public void Add(ApiCall call)
+		public void Add(Apc call)
 		{
 			if(Calls == null)
 				Calls = new List<Item>();
 
-			(Calls as List<Item>).Add(new Item {Name = call.GetType().Name.Remove(call.GetType().Name.IndexOf("Call")), Call = call});
+			(Calls as List<Item>).Add(new Item {Name = Apc.NameOf(call.GetType()), Call = call});
 		}
 	}
 
@@ -190,7 +191,7 @@ namespace Uccs
 					return;
 				}
 				
-				var t = Type.GetType(typeof(JsonApiServer).Namespace + '.' + rq.Url.LocalPath.Substring(1) + "Call") ?? Create(rq.Url.LocalPath.Substring(1) + "Call");
+				var t = Type.GetType(typeof(JsonApiServer).Namespace + '.' + rq.Url.LocalPath.Substring(1) + Apc.Postfix) ?? Create(rq.Url.LocalPath.Substring(1) + Apc.Postfix);
 
 				if(t == null)
 				{
@@ -201,23 +202,23 @@ namespace Uccs
 
 				var reader = new StreamReader(rq.InputStream, rq.ContentEncoding);
 				var j = reader.ReadToEnd();
-				var c = (j.Any() ? JsonSerializer.Deserialize(j, t, Options) : t.GetConstructor(new System.Type[]{}).Invoke(null)) as ApiCall;
+				var c = (j.Any() ? JsonSerializer.Deserialize(j, t, Options) : t.GetConstructor(new System.Type[]{}).Invoke(null)) as Apc;
 
 				rp.StatusCode = (int)HttpStatusCode.OK;
 
-				object execute(ApiCall call)
+				object execute(Apc call)
 				{
 					return Execute(call, rq, rp, Workflow.CreateNested(MethodBase.GetCurrentMethod().Name));
 				}
 
-				if(c is BatchCall b)
+				if(c is BatchApc b)
 				{ 
 					var rs = new List<dynamic>();
 
 					foreach(var i in b.Calls)
 					{
-						t = Create(i.Name + "Call");
-						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as ApiCall));
+						t = Create(i.Name + Apc.Postfix);
+						rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as Apc));
 					}
 
 					respondjson(rs);

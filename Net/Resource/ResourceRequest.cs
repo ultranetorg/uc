@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class ResourceByNameRequest : RdcRequest
+	public class ResourceByNameRequest : RdcCall<ResourceByNameResponse>
 	{
 		public ResourceAddress	Name { get; set; }
 
@@ -17,7 +17,7 @@
 		}
 	}
 
-	public class ResourceByIdRequest : RdcRequest
+	public class ResourceByIdRequest : RdcCall<ResourceByIdResponse>
 	{
 		public ResourceId	ResourceId { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class DeclareReleaseRequest : RdcRequest//, IBinarySerializable
+	public class DeclareReleaseRequest : RdcCall<DeclareReleaseResponse>//, IBinarySerializable
 	{
 		public ResourceDeclaration[]	Resources { get; set; }
 		public override bool			WaitResponse => true;

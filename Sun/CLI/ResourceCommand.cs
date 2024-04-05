@@ -63,7 +63,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Rdc(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					Dump(r.Resource);
 
@@ -73,7 +73,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Api<LocalResource>(new LocalResourceCall {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Api<LocalResource>(new LocalResourceApc {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
 					
 					if(r != null)
 					{
@@ -92,7 +92,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesCall {Query = Args.Nodes[1].Name});
+					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args.Nodes[1].Name});
 					
 					Dump(	r, 
 							["Address", "Releases", "Latest Type", "Latest Data", "Latest Length"], 
@@ -109,13 +109,13 @@ namespace Uccs.Sun.CLI
 				{
 					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
 
-					var r = Api<Resource>(new ResourceDownloadCall {Address = a});
+					var r = Api<Resource>(new ResourceDownloadApc {Address = a});
 
 					ReleaseDownloadProgress p = null;
 						
 					while(Workflow.Active)
 					{
-						p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressCall {Release = r.Data.Interpretation as ReleaseAddress});
+						p = Api<ReleaseDownloadProgress>(new ReleaseActivityProgressApc {Release = r.Data.Interpretation as ReleaseAddress});
 
 						if(p == null)
 							break;

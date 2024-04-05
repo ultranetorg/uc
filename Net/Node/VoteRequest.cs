@@ -1,10 +1,9 @@
 ﻿using System.IO;
 using System.Linq;
-using Org.BouncyCastle.Pkix;
 
 namespace Uccs.Net
 {
-	public class VoteRequest : RdcRequest
+	public class VoteRequest : RdcCall<RdcResponse>
 	{
 		public byte[]					Raw { get; set; }
 

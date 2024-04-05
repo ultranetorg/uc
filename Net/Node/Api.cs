@@ -6,12 +6,12 @@ using System.Numerics;
 
 namespace Uccs.Net
 {
-	public abstract class SunApiCall : ApiCall
+	public abstract class SunApc : Apc
 	{
 		public abstract object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow);
 	}
 
-	public class GetCall : SunApiCall
+	public class GetApc : SunApc
 	{
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -54,7 +54,7 @@ namespace Uccs.Net
 						break;
 	
 					case SDAddress x :
-						var au = sun.Call(c => c.GetAuthorInfo(a.Author), workflow).Author;
+						var au = sun.Call(c => c.Request(new AuthorRequest {Name = a.Author}), workflow).Author;
 						itg = new SPDIntegrity(sun.Zone.Cryptography, x, au.Owner);
 						break;
 	
@@ -112,7 +112,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PropertyCall : SunApiCall
+	public class PropertyApc : SunApc
 	{
 		public string Path { get; set; }
 
@@ -136,7 +136,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ExceptionCall : SunApiCall
+	public class ExceptionApc : SunApc
 	{
 		public string Reason { get; set; }
 
@@ -146,7 +146,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class ExitCall : SunApiCall
+	public class ExitApc : SunApc
 	{
 		public string Reason { get; set; }
 
@@ -157,7 +157,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SettingsCall : SunApiCall
+	public class SettingsApc : SunApc
 	{
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
@@ -173,7 +173,7 @@ namespace Uccs.Net
 		public Settings		Settings {get; set;}
 	}
 
-	public class LogReportCall : SunApiCall
+	public class LogReportApc : SunApc
 	{
 		public int		Limit  { get; set; }
 
@@ -189,7 +189,7 @@ namespace Uccs.Net
 		public IEnumerable<string> Log { get; set; }
 	}
 
-	public class PeersReportCall : SunApiCall
+	public class PeersReportApc : SunApc
 	{
 		public int		Limit { get; set; }
 
@@ -229,7 +229,7 @@ namespace Uccs.Net
 		public IEnumerable<Peer> Peers {get; set;}
 	}
 
-	public class SummaryReportCall : SunApiCall
+	public class SummaryReportApc : SunApc
 	{
 		public int		Limit  { get; set; }
 
@@ -313,7 +313,7 @@ namespace Uccs.Net
 		public IEnumerable<string[]> Summary {get; set;}
 	}
 
-	public class ChainReportCall : SunApiCall
+	public class ChainReportApc : SunApc
 	{
 		public int		Limit  { get; set; }
 
@@ -364,7 +364,7 @@ namespace Uccs.Net
 		public IEnumerable<Round> Rounds {get; set;}
 	}
 
-	public class VotesReportCall : SunApiCall
+	public class VotesReportApc : SunApc
 	{
 		public int		RoundId  { get; set; }
 		public int		Limit  { get; set; }
@@ -399,7 +399,7 @@ namespace Uccs.Net
 		public IEnumerable<Vote> Votes {get; set;}
 	}
 
-	public class RunNodeCall : SunApiCall
+	public class RunNodeApc : SunApc
 	{
 		public Role	Roles	{ get; set; }
 
@@ -414,7 +414,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class AddWalletCall : SunApiCall
+	public class AddWalletApc : SunApc
 	{
 		public byte[]	PrivateKey { get; set; }
 		public string	Password { get; set; }
@@ -428,7 +428,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SaveWalletCall : SunApiCall
+	public class SaveWalletApc : SunApc
 	{
 		public AccountAddress	Account { get; set; }
 
@@ -441,7 +441,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class UnlockWalletCall : SunApiCall
+	public class UnlockWalletApc : SunApc
 	{
 		public AccountAddress	Account { get; set; }
 		public string			Password { get; set; }
@@ -461,7 +461,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class SetGeneratorCall : SunApiCall
+	public class SetGeneratorApc : SunApc
 	{
 		public IEnumerable<AccountAddress>	 Generators {get; set;}
 
@@ -479,7 +479,7 @@ namespace Uccs.Net
 		public Operation Operation {get; set;} 
 	}
 
-	public class EmitCall : SunApiCall
+	public class EmitApc : SunApc
 	{
 		public byte[]			FromPrivateKey { get; set; } 
 		public BigInteger		Wei { get; set; } 
@@ -494,7 +494,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class CostCall : SunApiCall
+	public class CostApc : SunApc
 	{
 		public class Report
 		{
@@ -549,7 +549,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class EnqeueOperationCall : SunApiCall
+	public class EnqeueOperationApc : SunApc
 	{
 		public IEnumerable<Operation>	Operations { get; set; }
 		public AccountAddress			By  { get; set; }
@@ -561,9 +561,9 @@ namespace Uccs.Net
 		}
 	}
 
-	public class RdcCall : SunApiCall
+	public class RdcApc : SunApc
 	{
-		public RdcRequest	Request { get; set; }
+		public RdcRequest Request { get; set; }
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{

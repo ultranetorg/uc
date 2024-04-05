@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class TimeRequest : RdcRequest
+	public class TimeRequest : RdcCall<TimeResponse>
 	{
 		public override RdcResponse Execute(Sun sun)
 		{

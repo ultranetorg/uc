@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class DownloadTableRequest : RdcRequest
+	public class DownloadTableRequest : RdcCall<DownloadTableResponse>
 	{
 		public Tables	Table { get; set; }
 		public byte[]	ClusterId { get; set; }

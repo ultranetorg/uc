@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class FundsRequest : RdcRequest
+	public class FundsRequest : RdcCall<FundsResponse>
 	{
 		public override RdcResponse Execute(Sun sun)
 		{

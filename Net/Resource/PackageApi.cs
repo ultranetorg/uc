@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Uccs.Net
 {
-	public class PackageAddCall : SunApiCall
+	public class PackageAddApc : SunApc
 	{
 		public ResourceAddress			Resource { get; set; }
 		public byte[]					Complete { get; set; }
@@ -42,7 +42,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageBuildCall : SunApiCall
+	public class PackageBuildApc : SunApc
 	{
 		public ResourceAddress			Resource { get; set; }
 		public IEnumerable<string>		Sources { get; set; }
@@ -60,7 +60,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageDownloadCall : SunApiCall
+	public class PackageDownloadApc : SunApc
 	{
 		public ResourceAddress		Package { get; set; }
 
@@ -74,7 +74,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageInstallCall : SunApiCall
+	public class PackageInstallApc : SunApc
 	{
 		public ResourceAddress	Package { get; set; }
 
@@ -85,7 +85,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageActivityProgressCall : SunApiCall
+	public class PackageActivityProgressApc : SunApc
 	{
 		public ResourceAddress	Package { get; set; }
 		
@@ -103,7 +103,7 @@ namespace Uccs.Net
 		}
 	}
 
-	public class PackageInfoCall : SunApiCall
+	public class PackageInfoApc : SunApc
 	{
 		public ResourceAddress	Package { get; set; }
 		

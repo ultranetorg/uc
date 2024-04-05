@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class PlaceTransactionsRequest : RdcRequest
+	public class PlaceTransactionsRequest : RdcCall<PlaceTransactionsResponse>
 	{
 		public Transaction[]	Transactions {get; set;}
 

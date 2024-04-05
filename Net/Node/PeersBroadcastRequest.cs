@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class PeersBroadcastRequest : RdcRequest
+	public class PeersBroadcastRequest : RdcCall<RdcResponse>
 	{
 		public Peer[]				Peers { get; set; }
 		public override bool		WaitResponse => false;

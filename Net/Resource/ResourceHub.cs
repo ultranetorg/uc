@@ -292,7 +292,7 @@ namespace Uccs.Net
 			{
 				Sun.Statistics.Declaring.Begin();
 
-				var cr = Sun.Call(i => i.GetMembers(), Sun.Workflow);
+				var cr = Sun.Call(i => i.Request(new MembersRequest()), Sun.Workflow);
 	
 				if(!cr.Members.Any())
 					continue;

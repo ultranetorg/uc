@@ -2,7 +2,7 @@
 
 namespace Uccs.Net
 {
-	public class DownloadReleaseRequest : RdcRequest
+	public class DownloadReleaseRequest : RdcCall<DownloadReleaseResponse>
 	{
 		public ReleaseAddress	Address { get; set; }
 		public string			File { get; set; }

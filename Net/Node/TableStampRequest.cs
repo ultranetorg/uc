@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Uccs.Net
 {
-	public class TableStampRequest : RdcRequest
+	public class TableStampRequest : RdcCall<TableStampResponse>
 	{
 		public Tables	Table { get; set; }
 		public byte[]	SuperClusters { get; set; }

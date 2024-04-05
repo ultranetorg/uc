@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net
 {
-	public class AccountRequest : RdcRequest
+	public class AccountRequest : RdcCall<AccountResponse>
 	{
 		public AccountAddress		Account {get; set;}
 

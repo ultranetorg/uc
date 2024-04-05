@@ -85,7 +85,10 @@ namespace Uccs.Net
 											{
 												while(Data.Position < Length)
 												{
-													var d = Seed.Peer.DownloadRelease(Download.Release.Address, Download.File.Path, Offset + Data.Position, Length - Data.Position).Data;
+													var d = Seed.Peer.Request(new DownloadReleaseRequest {Address = Download.Release.Address, 
+																										  File = Download.File.Path, 
+																										  Offset = Offset + Data.Position,
+																										  Length = Length - Data.Position}).Data;
 													Data.Write(d, 0, d.Length);
 												}
 											}
