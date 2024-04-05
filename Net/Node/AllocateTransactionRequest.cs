@@ -24,7 +24,7 @@
 				{
 					return new AllocateTransactionResponse {LastConfirmedRid	= sun.Mcv.LastConfirmedRound.Id,
 															PowHash				= sun.Mcv.LastConfirmedRound.Hash,
-															NextTransactionId	= a == null ? 0 : (a.LastTransactionNid + 1),
+															NextNid				= a.LastTransactionNid + 1,
 															MinFee				= Transaction.Operations.SumMoney(i => i.Fee)};
 				}				
 				else
@@ -36,7 +36,7 @@
 	public class AllocateTransactionResponse : RdcResponse
 	{
 		public int		LastConfirmedRid { get; set; }
-		public int		NextTransactionId { get; set; }
+		public int		NextNid { get; set; }
 		public byte[]	PowHash { get; set; }
 		public Money	MinFee { get; set; }
 	}

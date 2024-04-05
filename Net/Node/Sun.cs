@@ -1631,7 +1631,7 @@ namespace Uccs.Net
 									var at = rdi.Request(new AllocateTransactionRequest {Transaction = t});
 								
 									if(nid == -1)
-										nid = at.NextTransactionId;
+										nid = at.NextNid;
 									else
 										nid++;
 
@@ -1785,10 +1785,10 @@ namespace Uccs.Net
 		
 		public Transaction Enqueue(Operation operation, AccountAddress signer, PlacingStage await, Workflow workflow)
 		{
-			return Enqueue(new Operation[] {operation}, signer, await, workflow)[0];
+			return Transact([operation], signer, await, workflow)[0];
 		}
 
- 		public Transaction[] Enqueue(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage await, Workflow workflow)
+ 		public Transaction[] Transact(IEnumerable<Operation> operations, AccountAddress signer, PlacingStage await, Workflow workflow)
  		{
 			var p = new List<Transaction>();
 

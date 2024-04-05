@@ -73,12 +73,12 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		public void Enqueue(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
+		public void Transact(IEnumerable<Operation> operations, AccountAddress by, PlacingStage await)
 		{
 			if(Program.ApiClient == null)
-				Program.Sun.Enqueue(operations, by, await, Workflow);
+				Program.Sun.Transact(operations, by, await, Workflow);
 			else
-				Program.ApiClient.Send(new EnqeueOperationApc {Operations = operations,
+				Program.ApiClient.Send(new EnqeueOperationApc {	Operations = operations,
 																By = by,
 																Await = await},
 										Workflow);
@@ -234,13 +234,13 @@ namespace Uccs.Sun.CLI
 		//	return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
 		//}
 
-		public void Dump(object o)
+		public void Dump(object o, Type type = null)
 		{
 			void dump(string name, object value, int tab)
 			{
 				if(value is null)
 				{
-					Workflow.Log?.Report(new string(' ', tab * 3) + name);
+					Workflow.Log?.Report(new string(' ', tab * 3) + name + " :");
 				}
 				else if(value is ICollection e)
 				{
@@ -284,7 +284,7 @@ namespace Uccs.Sun.CLI
 					Workflow.Log?.Report(new string(' ', tab * 3) + $"{(name == null ? null : (name + " : " ))}{value}");
 			}
 
-			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
+			foreach(var i in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic && (type == null || i.DeclaringType == type)))
 			{
 				dump(i.Name, i.GetValue(o), 1);
 			}
@@ -334,7 +334,7 @@ namespace Uccs.Sun.CLI
 
 		protected void Dump(XonDocument document)
 		{
-			document.Dump((n, l) => Workflow.Log?.Report(this, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<String>(n, n.Value)))));
+			document.Dump((n, l) => Workflow.Log?.Report(this, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
 		}
 
 		public static PlacingStage GetAwaitStage(Xon args)

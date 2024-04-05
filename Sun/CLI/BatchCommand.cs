@@ -19,7 +19,7 @@ namespace Uccs.Sun.CLI
 																									return c;
 																								 }).Select(i => i.Execute());
 
-			Enqueue(results.OfType<Operation>(), GetAccountAddress("by"), Command.GetAwaitStage(Args));
+			Transact(results.OfType<Operation>(), GetAccountAddress("by"), Command.GetAwaitStage(Args));
 
 			return results;
 		}

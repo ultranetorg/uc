@@ -474,11 +474,6 @@ namespace Uccs.Net
 		}
 	}
 
-	public class OperationResponse
-	{
-		public Operation Operation {get; set;} 
-	}
-
 	public class EmitApc : SunApc
 	{
 		public byte[]			FromPrivateKey { get; set; } 
@@ -557,7 +552,21 @@ namespace Uccs.Net
 
 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 		{
-			return sun.Enqueue(Operations, sun.Vault.GetKey(By), Await, workflow);
+			return sun.Transact(Operations, sun.Vault.GetKey(By), Await, workflow);
+		}
+	}
+
+	public class EstimateOperationApc : SunApc
+	{
+		public IEnumerable<Operation>	Operations { get; set; }
+		public AccountAddress			By  { get; set; }
+
+		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+		{
+			var t = new Transaction {Zone = sun.Zone, Operations = Operations.ToArray()};
+			t.Sign(sun.Vault.GetKey(By), []);
+
+			return sun.Call(p => p.Request(new AllocateTransactionRequest {Transaction = t}), workflow);
 		}
 	}
 
