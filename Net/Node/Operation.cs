@@ -102,7 +102,7 @@ namespace Uccs.Net
 
 		public static Money CalculateFee(Money rentperbyteperday, int length, Time time)
 		{
-			return rentperbyteperday * length * Mcv.RentFactor(time);
+			return rentperbyteperday * length * Mcv.TimeFactor(time);
 		}
 
 		public void Pay(Round round, int length, Time time)

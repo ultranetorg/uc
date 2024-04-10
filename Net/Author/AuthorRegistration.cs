@@ -40,6 +40,13 @@ namespace Uccs.Net
 			w.Write(Years);
 		}
 
+		public static Money CalculateFee(Time time, Money rentPerBytePerDay, int length)
+		{
+			var l = Math.Max(length, 10);
+
+			return Mcv.TimeFactor(time) * rentPerBytePerDay * 1_000_000_000/(l * l * l * l);
+		}
+
 		public override void Execute(Mcv mcv, Round round)
 		{
 			var e = mcv.Authors.Find(Author, round.Id);
@@ -59,6 +66,10 @@ namespace Uccs.Net
 				a.Expiration	= (a.Owner != Signer ? round.ConsensusTime : a.Expiration) + Time.FromYears(Years);
 				a.Owner			= Signer;
 				a.SpaceReserved	= a.SpaceUsed;
+
+				var f = CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Author.Length);
+				Affect(round, Signer).Balance -= f;
+				Fee += f;
 
 				Pay(round, a.SpaceUsed, Time.FromYears(Years));
 				//PayForEntity(round, Time.FromYears(Years));

@@ -54,7 +54,7 @@ namespace Uccs.Net
 		public Money										Fees;
 		public Money										Emission;
 		public Money										RentPerBytePerDay;
-		public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
+		//public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
 		public List<Member>									Members = new();
 		public List<AccountAddress>							Funds;
 		public List<Emission>								Emissions;

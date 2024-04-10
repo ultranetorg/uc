@@ -26,7 +26,7 @@ namespace Uccs.Net
 		public const int					EntityRentYearsMin = 1;
 		public const int					EntityRentYearsMax = 9;
 		public static readonly Time			Forever = Time.FromYears(30);
-		public static Money					RentFactor(Time time) => new Money(time.Days * time.Days)/(Time.FromYears(1).Days);
+		public static Money					TimeFactor(Time time) => new Money(time.Days * time.Days)/(Time.FromYears(1).Days);
 
 		public Zone							Zone;
 		public McvSettings					Settings;

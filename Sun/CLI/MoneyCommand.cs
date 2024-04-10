@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -95,9 +96,33 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					var r = Api<CostApc.Report>(new CostApc {Rate = GetMoney("rate", Money.Zero)});
-					
-					Dump(r);
+					var c = new CostApc{Years = [1, 5, 10], 
+										AuthorLengths = [1, 5, 10, 15], 
+										Rate = GetMoney("rate", Money.Zero)};
+
+					var r = Api<CostApc.Report>(c);
+
+					Workflow.Log?.Report($"   Byte Per Day Rent    : {r.RentBytePerDay.ToHumanString()}");
+					Workflow.Log?.Report($"   Account One-time Fee : {r.RentAccount.ToHumanString()}");
+					Workflow.Log?.Report($"   Execution Unit       : {r.Exeunit.ToHumanString()}");
+
+					Workflow.Log?.Report($"");
+
+					Dump(	r.RentAuthor,
+							["Authors Rent |", .. c.AuthorLengths.Select(i => $"{i} chars")],
+							[(o, i) => $"{c.Years[i]} year(s) |", .. c.AuthorLengths.Select((x, li) => new Func<Money[], int, object>((j, i) => j[li].ToHumanString()))]);
+
+					Workflow.Log?.Report($"");
+
+					Dump(	r.RentResource.Append(r.RentResourceForever),
+							["Resource Rent", "Cost"],
+							[(o, i) => i < r.RentResource.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToHumanString()]);
+
+					Workflow.Log?.Report($"");
+
+					Dump(	r.RentResourceData.Append(r.RentResourceDataForever),
+							["Resource Data Per Byte Rent", "Cost"],
+							[(o, i) => i < r.RentResourceData.Length ? $"{c.Years[i]} year(s)" : "Forever", (o, i) => o.ToHumanString()]);
 
 					return r;
 				}
