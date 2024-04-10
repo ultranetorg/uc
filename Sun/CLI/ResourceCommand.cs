@@ -15,23 +15,23 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "resource";
 
-		public ResourceCommand(Program program, Xon args) : base(program, args)
+		public ResourceCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 				case "c" : 
 				case "create" : 
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceCreation(ResourceAddress.Parse(Args.Nodes[1].Name),
+					return new ResourceCreation(ResourceAddress.Parse(Args[1].Name),
 												GetData(),
 												Has("seal"));
 				}
@@ -41,7 +41,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new ResourceDeletion(ResourceAddress.Parse(Args.Nodes[1].Name));
+					return new ResourceDeletion(ResourceAddress.Parse(Args[1].Name));
 				}
 
 				case "u" : 
@@ -49,7 +49,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					var r =	new ResourceUpdation(ResourceAddress.Parse(Args.Nodes[1].Name));
+					var r =	new ResourceUpdation(ResourceAddress.Parse(Args[1].Name));
 
 					if(HasData())			r.Change(GetData());
 					if(Has("seal"))			r.Seal();
@@ -63,7 +63,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Rdc(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args[1].Name)});
 					
 					Dump(r.Resource);
 
@@ -73,7 +73,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Api<LocalResource>(new LocalResourceApc {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Api<LocalResource>(new LocalResourceApc {Resource = ResourceAddress.Parse(Args[1].Name)});
 					
 					if(r != null)
 					{
@@ -92,7 +92,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args.Nodes[1].Name});
+					var r = Api<IEnumerable<LocalResource>>(new QueryLocalResourcesApc {Query = Args[1].Name});
 					
 					Dump(	r, 
 							["Address", "Releases", "Latest Type", "Latest Data", "Latest Length"], 
@@ -107,7 +107,7 @@ namespace Uccs.Sun.CLI
 				case "d" :
 				case "download" :
 				{
-					var a = ResourceAddress.Parse(Args.Nodes[1].Name);
+					var a = ResourceAddress.Parse(Args[1].Name);
 
 					var r = Api<Resource>(new ResourceDownloadApc {Address = a});
 

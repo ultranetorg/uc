@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Uccs.Net;
@@ -13,16 +14,16 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "analysis";
 
-		public AnalysisCommand(Program program, Xon args) : base(program, args)
+		public AnalysisCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 				case "u" :
 				case "update" :
@@ -39,7 +40,7 @@ namespace Uccs.Sun.CLI
 // 				{	
 // 					Workflow.CancelAfter(RdcQueryTimeout);
 // 
-// 					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
+// 					var rp = Rdc<AnalysisResponse>(new AnalysisRequest {Release = ReleaseAddress.Parse(Args[1].Name)});
 // 	
 // 					Dump(rp.Analysis);
 // 						

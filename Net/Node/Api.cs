@@ -509,6 +509,7 @@ namespace Uccs.Net
 
 			public Money RentResourceDataFor1Year { get; set; }
 			public Money RentResourceDataFor5Year { get; set; }
+			public Money RentResourceDataFor10Year { get; set; }
 			public Money RentResourceDataForever { get; set; }
 		}
 
@@ -539,6 +540,7 @@ namespace Uccs.Net
 				
 									RentResourceDataFor1Year	= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(1)) * Rate,
 									RentResourceDataFor5Year	= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(5)) * Rate,
+									RentResourceDataFor10Year	= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Time.FromYears(10)) * Rate,
 									RentResourceDataForever		= Operation.CalculateFee(sun.Mcv.LastConfirmedRound.RentPerBytePerDay, 1, Mcv.Forever) * Rate };
 			}
 		}

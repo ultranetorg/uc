@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Uccs.Net;
 
@@ -31,23 +32,23 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "author";
 
-		public AuthorCommand(Program program, Xon args) : base(program, args)
+		public AuthorCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 		   		case "b" : 
 		   		case "bid" : 
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AuthorBid(	Args.Nodes[1].Name,
+					return new AuthorBid(	Args[1].Name,
 											GetString("tld", ""),
 											Money.ParseDecimal(GetString("amount")));
 				}
@@ -57,7 +58,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AuthorRegistration(	Args.Nodes[1].Name,
+					return new AuthorRegistration(	Args[1].Name,
 													byte.Parse(GetString("years")));
 				}
 
@@ -66,7 +67,7 @@ namespace Uccs.Sun.CLI
 				{	
 					Workflow.CancelAfter(RdcTransactingTimeout);
 
-					return new AuthorTransfer(	Args.Nodes[1].Name,
+					return new AuthorTransfer(	Args[1].Name,
 												AccountAddress.Parse(GetString("to")));
 				}
 
@@ -75,7 +76,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 					
-					var rp = Rdc<AuthorResponse>(new AuthorRequest {Name = Args.Nodes[1].Name});
+					var rp = Rdc(new AuthorRequest {Name = Args[1].Name});
 	
 					//Workflow.Log?.Report(this, "Author", $"'{GetString("name")}' :");
 	

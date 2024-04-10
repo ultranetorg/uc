@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -33,16 +34,16 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "money";
 
-		public MoneyCommand(Program program, Xon args) : base(program, args)
+		public MoneyCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 		   		case "e" :
 		   		case "emit" :
@@ -51,7 +52,7 @@ namespace Uccs.Sun.CLI
 
 					Nethereum.Web3.Accounts.Account from;
 
-					if(Args.Has("from/key"))
+					if(Has("from/key"))
 					{
 						from = new Nethereum.Web3.Accounts.Account(GetString("from/key"), Program.Zone.EthereumNetwork);
 					}
@@ -59,7 +60,7 @@ namespace Uccs.Sun.CLI
 					{
 						string p;
 
-						if(Args.Has("from/password"))
+						if(Has("from/password"))
 						{
 							p = GetString("from/password");
 						}

@@ -10,14 +10,14 @@ namespace Uccs.Sun.CLI
 {
 	public abstract class Command
 	{
-		protected Program		Program;
-		protected Xon			Args;
-		public static bool		ConsoleAvailable { get; protected set; }
-		public const string		AwaitArg = "await";
+		protected Program			Program;
+		protected List<Xon>			Args;
+		public static bool			ConsoleAvailable { get; protected set; }
+		public const string			AwaitArg = "await";
 
-		public Workflow			Workflow;
-		protected int			RdcQueryTimeout = 5000;
-		protected int			RdcTransactingTimeout = 60*1000;
+		public Workflow				Workflow;
+		protected int				RdcQueryTimeout = 5000;
+		protected int				RdcTransactingTimeout = 60*1000;
 
 		public abstract object Execute();
 
@@ -34,7 +34,7 @@ namespace Uccs.Sun.CLI
 			}
 		}
 
-		protected Command(Program program, Xon args)
+		protected Command(Program program, List<Xon> args)
 		{
 			Program = program;
 			Args = args;
@@ -84,14 +84,39 @@ namespace Uccs.Sun.CLI
 										Workflow);
 		}
 
+		public Xon One(string path)
+		{
+			var names = path.Split('/');
+
+			var i = names.GetEnumerator();
+			
+			i.MoveNext();
+
+			var p = Args.FirstOrDefault(j => j.Name.Equals(i.Current));
+
+			if(p != null)
+			{
+				while(i.MoveNext())
+				{
+					p = p.Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
+
+					if(p == null)
+					{
+						return null;
+					}
+				}
+			}
+			return p;	 
+		}
+
 		public bool Has(string paramenter)
 		{
-			return Args.Has(paramenter);
+			return One(paramenter) != null;
 		}
 
 		public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
 		{
-			if(Args.Has(paramenter))
+			if(Has(paramenter))
 				return AccountAddress.Parse(GetString(paramenter));
 			else
 				if(mandatory)
@@ -102,7 +127,7 @@ namespace Uccs.Sun.CLI
 
 		protected ResourceAddress GetResourceAddress(string paramenter, bool mandatory = true)
 		{
-			if(Args.Has(paramenter))
+			if(Has(paramenter))
 				return ResourceAddress.Parse(GetString(paramenter));
 			else
 				if(mandatory)
@@ -113,7 +138,7 @@ namespace Uccs.Sun.CLI
 
 		protected ReleaseAddress GetReleaseAddress(string paramenter, bool mandatory = true)
 		{
-			if(Args.Has(paramenter))
+			if(Has(paramenter))
 				return ReleaseAddress.Parse(GetString(paramenter));
 			else
 				if(mandatory)
@@ -124,8 +149,10 @@ namespace Uccs.Sun.CLI
 
 		protected string GetString(string paramenter, bool mandatory = true)
 		{
-			if(Args.Has(paramenter))
-				return Args.Get<string>(paramenter);
+			var p = One(paramenter);
+
+			if(p != null)
+				return p.Get<string>();
 			else
 				if(mandatory)
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");
@@ -135,16 +162,20 @@ namespace Uccs.Sun.CLI
 
 		protected long GetLong(string paramenter)
 		{
-			if(Args.Has(paramenter))
-				return long.Parse(Args.Get<string>(paramenter));
+			var p = One(paramenter);
+
+			if(p != null)
+				return long.Parse(p.Get<string>());
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
 		protected byte[] GetBytes(string paramenter, bool mandatory = true)
 		{
-			if(Args.Has(paramenter))
-				return Args.Get<string>(paramenter).FromHex();
+			var p = One(paramenter);
+
+			if(p != null)
+				return p.Get<string>().FromHex();
 			else
 				if(mandatory)
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");
@@ -154,8 +185,10 @@ namespace Uccs.Sun.CLI
 
 		protected Version GetVersion(string paramenter, bool mandatory = true)
 		{
-			if(Args.Has(paramenter))
-				return Version.Parse(Args.Get<string>(paramenter));
+			var p = One(paramenter);
+
+			if(p != null)
+				return Version.Parse(p.Get<string>());
 			else
 				if(mandatory)
 					throw new SyntaxException($"Parameter '{paramenter}' not provided");
@@ -165,24 +198,30 @@ namespace Uccs.Sun.CLI
 
 		protected string GetString(string paramenter, string def)
 		{
-			if(Args.Has(paramenter))
-				return Args.Get<string>(paramenter);
+			var p = One(paramenter);
+
+			if(p != null)
+				return p.Get<string>();
 			else
 				return def;
 		}
 
 		protected Money GetMoney(string paramenter)
 		{
-			if(Args.Has(paramenter))
-				return Money.ParseDecimal(Args.Get<string>(paramenter));
+			var p = One(paramenter);
+
+			if(p != null)
+				return Money.ParseDecimal(p.Get<string>());
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
 
 		protected Money GetMoney(string paramenter, Money def)
 		{
-			if(Args.Has(paramenter))
-				return Money.ParseDecimal(Args.Get<string>(paramenter));
+			var p = One(paramenter);
+
+			if(p != null)
+				return Money.ParseDecimal(p.Get<string>());
 			else
 				return def;
 		}
@@ -195,7 +234,7 @@ namespace Uccs.Sun.CLI
 		protected ResourceData GetData()
 		{
 			if(Has("raw"))
-				return Args.One("raw").Value != null && GetBytes("raw").Length > 0  ? new ResourceData(new BinaryReader(new MemoryStream(GetBytes("raw")))) : null;
+				return Args.Find(i => i.Name == "raw").Value != null && GetBytes("raw").Length > 0  ? new ResourceData(new BinaryReader(new MemoryStream(GetBytes("raw")))) : null;
 
 			if(Has("consil"))
 				return new ResourceData(DataType.Consil, new Consil {Analyzers = GetString("consil/analyzers").Split(',').Select(i => AccountAddress.Parse(i)).ToArray(),  
@@ -209,16 +248,20 @@ namespace Uccs.Sun.CLI
 
 		protected E GetEnum<E>(string paramenter, E def) where E : struct
 		{
-			if(Args.Has(paramenter))
-				return Enum.Parse<E>(Args.Get<string>(paramenter));
+			var p = One(paramenter);
+
+			if(p != null)
+				return Enum.Parse<E>(p.Get<string>());
 			else
 				return def;
 		}
 
 		protected E GetEnum<E>(string paramenter) where E : struct
 		{
-			if(Args.Has(paramenter))
-				return Enum.Parse<E>(Args.Get<string>(paramenter));
+			var p = One(paramenter);
+
+			if(p != null)
+				return Enum.Parse<E>(p.Get<string>());
 			else
 				throw new SyntaxException($"Parameter '{paramenter}' not provided");
 		}
@@ -337,11 +380,13 @@ namespace Uccs.Sun.CLI
 			document.Dump((n, l) => Workflow.Log?.Report(this, new string(' ', (l+1) * 3) + n.Name + (n.Value == null ? null : (" = "  + n.Serializator.Get<string>(n, n.Value)))));
 		}
 
-		public static PlacingStage GetAwaitStage(Xon args)
+		public static PlacingStage GetAwaitStage(IEnumerable<Xon> args)
 		{
-			if(args.Has(AwaitArg))
+			var a = args.FirstOrDefault(i => i.Name == AwaitArg);
+
+			if(a != null)
 			{
-				return Enum.GetValues<PlacingStage>().First(i => i.ToString().ToLower() == args.Get<string>(AwaitArg));
+				return Enum.GetValues<PlacingStage>().First(i => i.ToString().ToLower() == a.Get<string>());
 			}
 			else
 				return PlacingStage.Placed;

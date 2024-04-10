@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Uccs.Net;
 
@@ -8,16 +9,16 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "wallet";
 
-		public WalletCommand(Program program, Xon args) : base(program, args)
+		public WalletCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 		   		case "c" : 
 		   		case "create" : 
@@ -26,7 +27,7 @@ namespace Uccs.Sun.CLI
 				case "u" :
 				case "unlock" :
 				{
-					Api(new UnlockWalletApc {	Account = AccountAddress.Parse(Args.Nodes[1].Name), 
+					Api(new UnlockWalletApc {	Account = AccountAddress.Parse(Args[1].Name), 
 												Password = GetString("password")});
 					return null;
 				}
@@ -38,7 +39,7 @@ namespace Uccs.Sun.CLI
 				case "e" :
 				case "entity" :
 				{
-					var i = Rdc<AccountResponse>(new AccountRequest {Account = AccountAddress.Parse(Args.Nodes[1].Name)});
+					var i = Rdc(new AccountRequest {Account = AccountAddress.Parse(Args[1].Name)});
 	
 					Dump(i.Account);
 
@@ -62,7 +63,7 @@ namespace Uccs.Sun.CLI
 
 			var acc = AccountKey.Create();
 
-			Workflow.Log?.Report(this, null, new string[]{	"Account created", 
+			Workflow.Log?.Report(this, null, new string[]{	"Wallet created", 
 															"Public Address - " + acc.ToString(), 
 															"Private Key    - " + acc.Key.GetPrivateKey() });
 
@@ -76,9 +77,9 @@ namespace Uccs.Sun.CLI
 		{
 			AccountKey acc;
 			
-			if(Args.Has("privatekey"))
+			if(Has("privatekey"))
 				acc = AccountKey.Parse(GetString("privatekey"));
-			else if(Args.Has("wallet"))
+			else if(Has("wallet"))
 			{
 				var wp = GetString("wallet/password", null);
 
@@ -104,7 +105,7 @@ namespace Uccs.Sun.CLI
 			Api(new AddWalletApc {PrivateKey = acc.Key.GetPrivateKeyAsBytes(), Password = p});
 			Api(new SaveWalletApc {Account = acc});
 
-			Workflow.Log?.Report(this, null, new string[] {	"Account imported", 
+			Workflow.Log?.Report(this, null, new string[] {	"Wallet imported", 
 															"Public Address - " + acc.ToString(), 
 															"Private Key    - " + acc.Key.GetPrivateKey() });
 			

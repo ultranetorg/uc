@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,13 +12,13 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "node";
 
-		public NodeCommand(Program program, Xon args) : base(program, args)
+		public NodeCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			switch(Args.Nodes[0].Name)
+			switch(Args[0].Name)
 			{
 				case "run" :
 				{
@@ -46,7 +47,7 @@ namespace Uccs.Sun.CLI
 								if(x.Nodes[0].Name == Keyword)
 									throw new Exception("Not available");
 	
-								Program.Execute(x, l);
+								Program.Execute(x.Nodes, l);
 							}
 							catch(Exception ex)
 							{
@@ -56,20 +57,20 @@ namespace Uccs.Sun.CLI
 							v.StopListening(l);
 						}
 					else
-						WaitHandle.WaitAny(new WaitHandle[] {Workflow.Cancellation.WaitHandle});
+						WaitHandle.WaitAny([Workflow.Cancellation.WaitHandle]);
 				
 					break;;
 				}
 
 				case "attach" :
 				{
-					var a = new Uri(Args.Nodes[1].Name);
+					var a = new Uri(Args[1].Name);
 
 					var h = new HttpClientHandler();
 					h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 					var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-					Program.ApiClient = new SunJsonApiClient(http, Args.Nodes[1].Name, GetString("accesskey", null));
+					Program.ApiClient = new SunJsonApiClient(http, Args[1].Name, GetString("accesskey", null));
 
 					var v = new ConsoleLogView(false, true);
 					v.StartListening(Workflow.Log);
@@ -89,7 +90,7 @@ namespace Uccs.Sun.CLI
 							if(x.Nodes[0].Name == Keyword || x.Nodes[0].Name == LogCommand.Keyword)
 								throw new Exception("Not available");
 	
-							Program.Execute(x);
+							Program.Execute(x.Nodes);
 						}
 						catch(Exception ex)
 						{
@@ -104,22 +105,20 @@ namespace Uccs.Sun.CLI
 
 				case "send" :
 				{
-					var a = new Uri(Args.Nodes[1].Name);
+					var a = new Uri(Args[1].Name);
 
 					var h = new HttpClientHandler();
 					h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 					var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
 
-					Program.ApiClient = new SunJsonApiClient(http, Args.Nodes[1].Name, GetString("accesskey", null));
+					Program.ApiClient = new SunJsonApiClient(http, Args[1].Name, GetString("accesskey", null));
 
 					var v = new ConsoleLogView(false, true);
 					v.StartListening(Workflow.Log);
 
 					try
 					{
-						var x = new XonDocument(string.Join(' ', Args.Nodes.Where(i => i.Name != "accesskey").Skip(2)));
-	
-						Program.Execute(x);
+						Program.Execute(Args.Where(i => i.Name != "accesskey").Skip(2));
 					}
 					catch(Exception ex)
 					{

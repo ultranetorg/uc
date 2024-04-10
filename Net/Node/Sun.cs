@@ -221,17 +221,17 @@ namespace Uccs.Net
 									});
 		}
 
-		public void Run(Xon xon)
+		public void Run(IEnumerable<Xon> xon)
 		{
-			if(xon.Has("api"))
+			if(xon.Any(i => i.Name == "api"))
 				RunApi();
 			
 			/// workflow.Log.Stream = new FileStream(Path.Combine(Settings.Profile, "Node.log"), FileMode.Create)
 
-			if(xon.Has("peer"))
-				RunNode((xon.Has("base") ? Role.Base : Role.None) | (xon.Has("chain") ? Role.Chain : Role.None));
+			if(xon.Any(i => i.Name == "peer"))
+				RunNode((xon.Any(i => i.Name == "base") ? Role.Base : Role.None) | (xon.Any(i => i.Name == "chain") ? Role.Chain : Role.None));
 
-			if(xon.Has("seed"))
+			if(xon.Any(i => i.Name == "seed"))
 				RunSeed();
 		}
 		

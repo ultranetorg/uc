@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -10,20 +11,20 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "dev";
 
-		public DevCommand(Program program, Xon args) : base(program, args)
+		public DevCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 				case "ping": 
 				{
-					string host = GetString(Args.Nodes[1].Name);
+					string host = GetString(Args[1].Name);
 					var s = host.Split(':');
 		
 					for(int i=0; i<4; i++)
@@ -51,7 +52,7 @@ namespace Uccs.Sun.CLI
 				}
 				case "listen" :
 				{
-					var host = Args.Nodes[1].Name;
+					var host = Args[1].Name;
 					var s = host.Split(':');
 
 					var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Zone.Port);

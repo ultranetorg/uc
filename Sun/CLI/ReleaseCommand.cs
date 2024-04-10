@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Uccs.Net;
@@ -13,30 +14,30 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "release";
 
-		public ReleaseCommand(Program program, Xon args) : base(program, args)
+		public ReleaseCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 				case "c" :
 				case "create" :
 				{
-					if(!Args.Has("source") && !Args.Has("sources"))
+					if(!Has("source") && !Has("sources"))
 						throw new SyntaxException("Unknown arguments");
 
-					var a = Api<ReleaseAddress>(new ReleaseBuildApc {Resource = ResourceAddress.Parse(Args.Nodes[1].Name),
+					var a = Api<ReleaseAddress>(new ReleaseBuildApc {Resource = ResourceAddress.Parse(Args[1].Name),
 																	 FilePath = GetString("source", null),
 																	 Sources = GetString("sources", null)?.Split(','),
 																	 AddressCreator = new()	{	
 																								Type = GetEnum("addresstype", ReleaseAddressType.DH),
 																								Owner = GetAccountAddress("owner", false),
-																								Resource = ResourceAddress.Parse(Args.Nodes[1].Name)
+																								Resource = ResourceAddress.Parse(Args[1].Name)
 																							} });
 
 					Workflow.Log?.Report(this, $"Address : {a}");
@@ -47,7 +48,7 @@ namespace Uccs.Sun.CLI
 // 				case "d" :
 // 				case "download" :
 // 				{
-// 					var a = ReleaseAddress.Parse(Args.Nodes[1].Name);
+// 					var a = ReleaseAddress.Parse(Args[1].Name);
 // 
 // 					Api(new ReleaseDownloadCall {Address = a, Type = Enum.Parse<DataType>(GetString("type")) });
 // 
@@ -79,7 +80,7 @@ namespace Uccs.Sun.CLI
 //  				{
 //  					Workflow.CancelAfter(RdcQueryTimeout);
 //  
-//  					var r = Rdc<ReleaseResponse>(new ReleaseRequest {Release = ReleaseAddress.Parse(Args.Nodes[1].Name)});
+//  					var r = Rdc<ReleaseResponse>(new ReleaseRequest {Release = ReleaseAddress.Parse(Args[1].Name)});
 //  					
 //  					Dump(r.Release);
 //  
@@ -89,7 +90,7 @@ namespace Uccs.Sun.CLI
 				case "l" : 
 				case "local" : 
 				{	
-					var r = Api<LocalReleaseApc.Release>(new LocalReleaseApc {Address = ReleaseAddress.Parse(Args.Nodes[1].Name)});
+					var r = Api<LocalReleaseApc.Release>(new LocalReleaseApc {Address = ReleaseAddress.Parse(Args[1].Name)});
 					
 					if(r != null)
 					{

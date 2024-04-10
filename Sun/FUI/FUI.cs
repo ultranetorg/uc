@@ -30,7 +30,7 @@ namespace Uccs.Sun.FUI
 																					GasAsker = new EthereumFeeForm(), 
 																					FeeAsker = new FeeForm(b.Zone)}; 
 
-				sun.Run(new XonDocument(s.FuiRoles));
+				sun.Run(new XonDocument(s.FuiRoles).Nodes);
 
 				var f = new MainForm(sun);
 				f.StartPosition = FormStartPosition.CenterScreen;

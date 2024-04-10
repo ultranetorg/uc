@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Uccs.Net;
 
@@ -8,16 +9,16 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "net";
 
-		public NetCommand(Program program, Xon args) : base(program, args)
+		public NetCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 		   		case "peers" :
 				{

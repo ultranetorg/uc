@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -27,9 +28,11 @@ namespace Uccs.Sun.CLI
 			if(!b.Commnand.Nodes.Any())
 				return;
 
+			Zone = b.Zone;
+
 			try
 			{
-				Execute(b.Commnand);
+				Execute(b.Commnand.Nodes);
 			}
 			catch(OperationCanceledException)
 			{
@@ -64,12 +67,12 @@ namespace Uccs.Sun.CLI
 			new Program();
 		}
 
-		public Command Create(Xon commnad)
+		public Command Create(IEnumerable<Xon> commnad)
 		{
 			Command c;
-			var t = commnad.Nodes.First().Name;
+			var t = commnad.First().Name;
 
-			var args = new Xon {Nodes = commnad.Nodes.Skip(1).ToList()};
+			var args = commnad.Skip(1).ToList();
 
 			switch(t)
 			{
@@ -95,7 +98,7 @@ namespace Uccs.Sun.CLI
 			return c;
 		}
 
-		public object Execute(Xon command, Log log = null)
+		public object Execute(IEnumerable<Xon> command, Log log = null)
 		{
 			if(Workflow.Aborted)
 				throw new OperationCanceledException();

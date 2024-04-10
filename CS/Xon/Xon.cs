@@ -91,13 +91,7 @@ namespace Uccs
 			
 			i.MoveNext();
 
-			//auto p = One(*i);
 			var p = Nodes.FirstOrDefault(j => j.Name.Equals(i.Current));
-
-//Console.WriteLine("Nodes : " + string.Join(", " , Nodes));
-//Console.WriteLine("i.Current : " + Hex.ToHexString(Encoding.UTF8.GetBytes(i.Current as string)));
-//Console.WriteLine("Nodes.First().Name: " + Hex.ToHexString(Encoding.UTF8.GetBytes(Nodes.First().Name)));
-//Console.WriteLine("Nodes.First().Name == i.Current : " + (Nodes.First().Name == i.Current.ToString()));
 
 			if(p != null)
 			{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Uccs.Net;
@@ -9,7 +10,7 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "log";
 
-		public LogCommand(Program program, Xon args) : base(program, args)
+		public LogCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 

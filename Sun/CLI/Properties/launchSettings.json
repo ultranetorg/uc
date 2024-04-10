@@ -35,7 +35,7 @@
     },
     "test": {
       "commandName": "Project",
-      "commandLineArgs": "node send http://127.0.0.100:3900 accesskey=\"\" net peers"
+      "commandLineArgs": "node send http://127.0.0.100:3900 wallet import wallet{path=m:\\UO\\Testdata\\Testzone1\\Fathers\\0x01ff1cbd03faec97e7c564b4fcd942a32b4f4a0e.sunwpk password=aximion-Tesnet1-Fathers-Secret} password=123"
     }
   }
 }

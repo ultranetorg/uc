@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,18 +15,18 @@ namespace Uccs.Sun.CLI
 	public class PackageCommand : Command
 	{
 		public const string Keyword = "package";
-		ResourceAddress		Package => ResourceAddress.Parse(Args.Nodes[1].Name);
+		ResourceAddress		Package => ResourceAddress.Parse(Args[1].Name);
 
-		public PackageCommand(Program program, Xon args) : base(program, args)
+		public PackageCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 				case "c" :
 				case "create" :
@@ -36,7 +37,7 @@ namespace Uccs.Sun.CLI
 					try
 					{
 						p = GetResourceAddress("previous", false);
-							//: Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args.Nodes[1].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
+							//: Rdc<ResourceResponse>(new ResourceRequest {Resource = ResourceAddress.Parse(Args[1].Name)}).Resource.Data?.Interpretation as ReleaseAddress;
 						
 						if(p != null)
 						{
@@ -47,15 +48,15 @@ namespace Uccs.Sun.CLI
 					{
 					}
 
-					Api(new PackageBuildApc {	Resource		 = ResourceAddress.Parse(Args.Nodes[1].Name), 
+					Api(new PackageBuildApc {	Resource		 = ResourceAddress.Parse(Args[1].Name), 
 												Sources			 = GetString("sources").Split(','), 
 												DependenciesPath = GetString("dependencies", false),
 												Previous		 = p,
 												History			 = m?.History,
 												AddressCreator	 = new(){	
-																			Type = GetEnum<ReleaseAddressType>("addresstype", ReleaseAddressType.DH),
+																			Type = GetEnum("addresstype", ReleaseAddressType.DH),
 																			Owner = GetAccountAddress("owner", false),
-																			Resource = ResourceAddress.Parse(Args.Nodes[1].Name)
+																			Resource = ResourceAddress.Parse(Args[1].Name)
 																		} });
 					return null;
 				}

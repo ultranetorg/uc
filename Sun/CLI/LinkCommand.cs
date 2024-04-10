@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Uccs.Net;
 
 namespace Uccs.Sun.CLI
@@ -11,16 +12,16 @@ namespace Uccs.Sun.CLI
 	{
 		public const string Keyword = "link";
 
-		public LinkCommand(Program program, Xon args) : base(program, args)
+		public LinkCommand(Program program, List<Xon> args) : base(program, args)
 		{
 		}
 
 		public override object Execute()
 		{
-			if(!Args.Nodes.Any())
+			if(!Args.Any())
 				throw new SyntaxException("Operation is not specified");
 
-			switch(Args.Nodes.First().Name)
+			switch(Args.First().Name)
 			{
 				case "c" : 
 				case "create" : 
@@ -43,7 +44,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args[1].Name)});
 					
 					Dump(r.Resource.Outbounds.Select(i => new {L = i, R = Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i.Destination}).Resource}),
 						 ["#", "Flags", "Destination", "Destination Data"],
@@ -57,7 +58,7 @@ namespace Uccs.Sun.CLI
 				{
 					Workflow.CancelAfter(RdcQueryTimeout);
 
-					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args.Nodes[1].Name)});
+					var r = Rdc<ResourceByNameResponse>(new ResourceByNameRequest {Name = ResourceAddress.Parse(Args[1].Name)});
 					
 					Dump(r.Resource.Inbounds.Select(i => new {L = i, R = Rdc<ResourceByIdResponse>(new ResourceByIdRequest {ResourceId = i}).Resource}),
 						 ["#", "Source", "Source Data"],
