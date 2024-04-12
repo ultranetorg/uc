@@ -42,7 +42,7 @@ namespace Uccs.Net
 
 		public static Money CalculateFee(Time time, Money rentPerBytePerDay, int length)
 		{
-			var l = Math.Max(length, 10);
+			var l = Math.Min(length, 10);
 
 			return Mcv.TimeFactor(time) * rentPerBytePerDay * 1_000_000_000/(l * l * l * l);
 		}
@@ -67,7 +67,7 @@ namespace Uccs.Net
 				a.Owner			= Signer;
 				a.SpaceReserved	= a.SpaceUsed;
 
-				var f = CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Author.Length);
+				var f = CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Net.Author.IsExclusive(Author) ? Author.Length : (Author.Length - 1));
 				Affect(round, Signer).Balance -= f;
 				Fee += f;
 
