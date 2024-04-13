@@ -25,7 +25,7 @@
 					return new AllocateTransactionResponse {LastConfirmedRid	= sun.Mcv.LastConfirmedRound.Id,
 															PowHash				= sun.Mcv.LastConfirmedRound.Hash,
 															NextNid				= a.LastTransactionNid + 1,
-															MinFee				= Transaction.Operations.SumMoney(i => i.Fee)};
+															MinFee				= Transaction.Operations.SumMoney(i => i.ExeUnits * sun.Mcv.LastConfirmedRound.ConsensusExeunitFee)};
 				}				
 				else
 					throw new EntityException(EntityError.ExcutionFailed);

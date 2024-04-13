@@ -120,7 +120,7 @@ namespace Uccs.Net
 			a.LastEmissionId = Eid;
 				
 			round.Emission += Portion;
-			Fee += Portion / 10;
+			Reward += Portion / 10;
 		}
 
 		public static byte[] Serialize(AccountAddress beneficiary, int eid)

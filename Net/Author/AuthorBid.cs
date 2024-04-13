@@ -151,13 +151,8 @@ namespace Uccs.Net
  			}
  			else
  			{
-				if(a.Owner != null)
-				{
-					a.Owner = null;
-				}
-
-				/// dont refund previous winner
-				Fee += a.LastBid;
+				/// dont refund previous winner if any
+				Reward += a.LastBid;
 
 				Affect(round, Signer).Balance -= Bid;
 				

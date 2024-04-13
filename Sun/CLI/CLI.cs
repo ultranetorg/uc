@@ -41,7 +41,14 @@ namespace Uccs.Sun.CLI
 			catch(Exception ex) when(!Debugger.IsAttached)
 			{
 				if(Command.ConsoleAvailable)
+				{
 					Console.WriteLine(ex.ToString());
+
+					if(ex is ApiCallException ace)
+					{
+						Console.WriteLine(ace.Response.Content.ReadAsStringAsync().Result);
+					}
+				}
 
 				Directory.CreateDirectory(b.Profile);
 				File.WriteAllText(Path.Join(b.Profile, "CLI." + Net.Sun.FailureExt), ex.ToString());

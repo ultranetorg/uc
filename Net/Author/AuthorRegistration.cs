@@ -21,7 +21,7 @@ namespace Uccs.Net
 
 		public AuthorRegistration(string author, byte years)
 		{
-			if(!Uccs.Net.Author.Valid(author))
+			if(!Net.Author.Valid(author))
 				throw new ArgumentException("Invalid Author name/title");
 
 			Author = author;
@@ -53,32 +53,25 @@ namespace Uccs.Net
 						
 			if(Net.Author.CanRegister(Author, e, round.ConsensusTime, Transaction.Signer))
 			{
-				if(e?.Owner == null)
+				var a = Affect(round, Author);
+
+				if(a.Owner == null)
 				{
 					if(Exclusive) /// distribite winner bid, one time
-						Fee += e.LastBid;
+						Reward += e.LastBid;
 				}
-
-
-				var a = Affect(round, Author);
-				
+								
 				a.LastWinner	= null;
+				a.LastBid		= 0;
 				a.Expiration	= (a.Owner != Signer ? round.ConsensusTime : a.Expiration) + Time.FromYears(Years);
 				a.Owner			= Signer;
 				a.SpaceReserved	= a.SpaceUsed;
 
-				var f = CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Net.Author.IsExclusive(Author) ? Author.Length : (Author.Length - 1));
-				Affect(round, Signer).Balance -= f;
-				Fee += f;
-
+				Affect(round, Signer).Balance -= CalculateFee(Time.FromYears(Years), round.RentPerBytePerDay, Net.Author.IsExclusive(Author) ? Author.Length : (Author.Length - 1));
 				Pay(round, a.SpaceUsed, Time.FromYears(Years));
-				//PayForEntity(round, Time.FromYears(Years));
-				//PayForEntity(round, Time.FromYears(Years),	a.Resources == null ? 0 :  (a.Resources.Count(i => !i.Flags.HasFlag(ResourceFlags.Sealed)) + 
-				//																		a.Resources.Sum(r => r.Outbounds.Count(i => !i.Flags.HasFlag(ResourceLinkFlag.Sealed)))));
-				//PayForBytes(round, a.SpaceUsed, Time.FromYears(Years));
 			}
 			else
-				Error = "Failed";
+				Error = "Cant register";
 		}
 	}
 }

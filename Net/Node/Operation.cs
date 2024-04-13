@@ -26,8 +26,8 @@ namespace Uccs.Net
 	public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 		public string			Error;
-		public Money			Fee;
-		//public AccountAddress	Signer { get; set; }
+		public int				ExeUnits;
+		public Money			Reward;
 		public Transaction		Transaction;
 		public AccountAddress	Signer => Transaction.Signer;
 		public abstract string	Description { get; }
@@ -95,11 +95,6 @@ namespace Uccs.Net
 			WriteConfirmed(writer);
 		}
 
-// 		public static Money CalculateEntityFee(Money rentperentity, Time time)
-// 		{
-// 			return rentperentity * Mcv.RentFactor(time);
-// 		}
-
 		public static Money CalculateFee(Money rentperbyteperday, int length, Time time)
 		{
 			return rentperbyteperday * length * Mcv.TimeFactor(time);
@@ -110,16 +105,7 @@ namespace Uccs.Net
 			var fee = CalculateFee(round.RentPerBytePerDay, length, time);
 			
 			Affect(round, Signer).Balance -= fee;
-			Fee += fee;
 		}
-
-// 		public void PayForEntity(Round round, Time time, int count = 1)
-// 		{
-// 			var fee = CalculateEntityFee(round.RentPerEntityPerDay, time) * count;
-// 			
-// 			Affect(round, Signer).Balance -= fee;
-// 			Fee += fee;
-// 		}
 
 		public void Allocate(Round round, Author author, int toallocate)
 		{

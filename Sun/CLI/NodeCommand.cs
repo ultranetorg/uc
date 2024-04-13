@@ -120,12 +120,10 @@ namespace Uccs.Sun.CLI
 					{
 						Program.Execute(Args.Where(i => i.Name != "accesskey").Skip(2));
 					}
-					catch(Exception ex)
+					finally
 					{
-						Workflow.Log.ReportError(this, "Error", ex);
+						v.StopListening(Workflow.Log);
 					}
-
-					v.StopListening(Workflow.Log);
 
 					break;
 				}

@@ -51,7 +51,7 @@ namespace Uccs.Net
 		public bool											Confirmed = false;
 		public byte[]										Hash;
 
-		public Money										Fees;
+		public Money										Rewards;
 		public Money										Emission;
 		public Money										RentPerBytePerDay;
 		//public Money										RentPerEntityPerDay => RentPerBytePerDay * Mcv.EntityLength;
@@ -233,8 +233,8 @@ namespace Uccs.Net
 			var gu = gv.GroupBy(i => i.Generator).Where(i => i.Count() == 1).Select(i => i.First()).ToArray();
 			var gf = gv.GroupBy(i => i.Generator).Where(i => i.Count() > 1).Select(i => i.Key).ToArray();
 						
-			ConsensusExeunitFee				 = Id == 0 ? Zone.ExeunitMinFee	: Previous.ConsensusExeunitFee;
-			ConsensusTransactionsOverflowRound = Id == 0 ? 0					: Previous.ConsensusTransactionsOverflowRound;
+			ConsensusExeunitFee					= Id == 0 ? Zone.ExeunitMinFee	: Previous.ConsensusExeunitFee;
+			ConsensusTransactionsOverflowRound	= Id == 0 ? 0					: Previous.ConsensusTransactionsOverflowRound;
 
 			var tn = gu.Sum(i => i.Transactions.Length);
 
@@ -340,7 +340,7 @@ namespace Uccs.Net
 			RentPerBytePerDay	= Id == 0 ? Mcv.Zone.RentPerBytePerDayMinimum	: Previous.RentPerBytePerDay;
 
 		start: 
-			Fees			= 0;
+			Rewards			= 0;
 			Emission		= Id == 0 ? 0 : Previous.Emission;
 
 			NextAccountIds	= new (Bytes.EqualityComparer);
@@ -349,9 +349,9 @@ namespace Uccs.Net
 			AffectedAccounts.Clear();
 			AffectedAuthors.Clear();
 
-			foreach(var t in transactions)
-				foreach(var o in t.Operations)
-					o.Fee = ConsensusExeunitFee;
+			//foreach(var t in transactions)
+			//	foreach(var o in t.Operations)
+			//		o.Fee = ConsensusExeunitFee;
 
 			foreach(var t in transactions.Where(t => t.Operations.All(i => i.Error == null)).Reverse())
 			{
@@ -366,30 +366,28 @@ namespace Uccs.Net
 				}
 
 				Money f = 0;
+				Money r = 0;
 
 				foreach(var o in t.Operations.AsEnumerable().Reverse())
 				{
+					o.ExeUnits = 1;
+
 					o.Execute(Mcv, this);
 
 					if(o.Error != null)
 						goto start;
 
-					f += o.Fee;
+					f += o.ExeUnits * ConsensusExeunitFee;
+					r += o.Reward; 
 				
-					if(t.Fee < f)
-					{
-						o.Error = Operation.NotEnoughUNT;
-						goto start;
-					}
-
-					if(a.Balance - f < 0)
+					if(t.Fee < f || a.Balance - f < 0)
 					{
 						o.Error = Operation.NotEnoughUNT;
 						goto start;
 					}
 				}
 
-				Fees += t.Fee;
+				Rewards += r + t.Fee;
 				a.Balance -= t.Fee;
 				a.LastTransactionNid++;
 						
@@ -438,7 +436,7 @@ namespace Uccs.Net
 			foreach(var f in ConsensusViolators)
 			{
 				var fe = AffectAccount(f);
-				Fees += fe.Bail;
+				Rewards += fe.Bail;
 				fe.Bail = 0;
 			}
 			
@@ -497,18 +495,18 @@ namespace Uccs.Net
 
 			Members.RemoveAll(i => ConsensusMemberLeavers.Contains(i.Account));
 
-			var js = ConsensusTransactions.SelectMany(i => i.Operations)
-												.OfType<CandidacyDeclaration>()
-												.DistinctBy(i => i.Transaction.Signer)
-												.Where(i => !ConsensusViolators.Contains(i.Transaction.Signer) && !ConsensusMemberLeavers.Contains(i.Transaction.Signer))
-												.OrderByDescending(i => i.Bail)
-												.ThenBy(i => i.Signer)
-												.Take(Mcv.Zone.MembersLimit - Members.Count);
+			var js = ConsensusTransactions	.SelectMany(i => i.Operations)
+											.OfType<CandidacyDeclaration>()
+											.DistinctBy(i => i.Transaction.Signer)
+											.Where(i => !ConsensusViolators.Contains(i.Transaction.Signer) && !ConsensusMemberLeavers.Contains(i.Transaction.Signer))
+											.OrderByDescending(i => i.Bail)
+											.ThenBy(i => i.Signer)
+											.Take(Mcv.Zone.MembersLimit - Members.Count);
  
-			Members.AddRange(js.Select(i => new Member{CastingSince = Id + Mcv.DeclareToGenerateDelay,
-															 Account = i.Signer, 
-															 BaseRdcIPs = i.BaseRdcIPs, 
-															 SeedHubRdcIPs = i.SeedHubRdcIPs}));
+			Members.AddRange(js.Select(i => new Member{	CastingSince = Id + Mcv.DeclareToGenerateDelay,
+														Account = i.Signer, 
+														BaseRdcIPs = i.BaseRdcIPs, 
+														SeedHubRdcIPs = i.SeedHubRdcIPs}));
 
 
 			Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
@@ -517,7 +515,7 @@ namespace Uccs.Net
 			if(Mcv.ReadyToCommit(this))
 			{
 				var tail = Mcv.Tail.AsEnumerable().Reverse().Take(Mcv.Zone.CommitLength);
-				Distribute(tail.SumMoney(i => i.Fees), Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, Funds, 1);
+				Distribute(tail.SumMoney(i => i.Rewards), Members.Where(i => i.CastingSince <= tail.First().Id).Select(i => i.Account), 9, Funds, 1);
 			}
 
 			if(Id > 0 && ConsensusTime != Previous.ConsensusTime)

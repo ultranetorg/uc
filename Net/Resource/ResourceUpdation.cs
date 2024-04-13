@@ -69,9 +69,11 @@ namespace Uccs.Net
 
 			a = Affect(round, Resource.Author);
 			
+			ExeUnits = 0; /// the first is alredy paid
+
 			void execute(ResourceAddress resource)
 			{
-				Fee += round.ConsensusExeunitFee;
+				ExeUnits++;
 
 				var r = a.AffectResource(resource.Resource);
 	
