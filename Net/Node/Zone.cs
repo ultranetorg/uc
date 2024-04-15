@@ -21,6 +21,7 @@ namespace Uccs.Net
 		public int				CommitLength									= 1000;
 		public int				ExternalVerificationDurationLimit				= 100;
 		public Money			BailMin											= 1000;
+		public Money			DomainRankCheckFee								= 5;
 		public int				MembersLimit									= 1000;
 		public Money			ExeunitMinFee									= 0.001;
 		public long				TargetBaseGrowth								= 100L*1024*1024*1024;
@@ -77,7 +78,7 @@ namespace Uccs.Net
 			z.Initials = 		Initials;
 			z.BailMin = 		BailMin;
 			z.PoW = 			PoW;		
-			z.CommitLength = 		CommitLength;
+			z.CommitLength = 	CommitLength;
 			
 			z.God = 			God;
 			z.Father0 = 		Father0;

@@ -30,20 +30,7 @@ namespace Uccs.Net
 		public byte[]					Signature;
 
 		private AccountAddress			_Signer;
-		public AccountAddress			Signer
-										{
-											get
-											{
-												if(_Signer == null)
-												{
-													_Signer = Zone.Cryptography.AccountFrom(Signature, Hashify());
-												}
-
-												return _Signer; 
-											}
-											set => _Signer = value; 
-										}
-		
+		public AccountAddress			Signer { get => _Signer ??= Zone.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 		public Zone						Zone;
 		public TransactionStatus		Status;
 		public RdcInterface				Rdi;

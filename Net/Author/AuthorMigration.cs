@@ -85,12 +85,10 @@ namespace Uccs.Net
 				return;
 			}
 
-			///if(	(a?.ComOwner == null && Tld == "com") || 
-			///	(a?.OrgOwner == null && Tld == "org") ||
-			///	(a?.NetOwner == null && Tld == "net"))
-			///{
-			///	return;
-			///}
+			if(RankCheck)
+			{
+				Affect(round, Signer).Balance -= mcv.Zone.DomainRankCheckFee;
+			}
 		}
 
 		public void ConsensusExecute(Round round)
